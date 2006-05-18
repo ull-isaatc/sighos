@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:include schemaLocation="file:C:\Documents and Settings\Roberto Muñoz\Mis documentos\workspace\XMLSim\scenario.xsd"/>
+	<xs:element name="Experiment">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="simulation" type="xs:string" minOccurs="0"/>
+				<xs:element name="debugMode" type="xs:string"/>
+				<xs:element name="experiments" type="xs:int"/>
+				<xs:element name="endTs" type="xs:double"/>
+				<xs:element name="prevStart" type="xs:double"/>
+				<xs:element name="prevEnd" type="xs:double"/>
+				<xs:element name="resultClass" type="ResultClass"/>				
+				<xs:element name="generator" type="Generator" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="ResultClass">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="param" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="name" type="xs:string" use="required"/>
+					<xs:attribute name="type" type="xs:string" use="required"/>
+					<xs:attribute name="value" type="xs:string" use="required"/>
+				</xs:complexType>				
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Generator">
+		<xs:sequence>
+			<xs:element name="cycle" type="Cycle"/>
+			<xs:element name="toGenerate" type="Generation"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Generation">
+		<xs:sequence>
+			<xs:element name="nElem" type="RandomNumber"/>
+			<xs:element name="probTree" type="ProbTree"/>
+		</xs:sequence>
+	</xs:complexType>	
+	<xs:complexType name="ProbTree">
+		<xs:sequence>
+			<xs:element name="prob" type="xs:double" default="1.0"/>
+			<xs:choice>
+				<xs:element name="metaFlow" type="xs:int"/>
+				<xs:element name="subTree" type="ProbTree" maxOccurs="unbounded"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>
