@@ -40,12 +40,12 @@ package es.ull.cyc.util;
         if (levelIndex >= table.levels.size())
             return null;
         // Se obtiene el siguiente elemento del nivel
-        Prioritizable obj = (Prioritizable)level.get(order[current++]);
+        Prioritizable obj = level.get(order[current++]);
         // Se comprueba si hemos dado la vuelta completa al nivel
         if (current == order.length) {
             levelIndex++;
             if (levelIndex < table.levels.size()) {
-                level = (PrioritizedLevel) table.levels.get(levelIndex);
+                level = table.levels.get(levelIndex);
                 order = RandomPermutation.nextPermutation(level.size());
                 current = 0;
             }

@@ -5,7 +5,7 @@ package es.ull.cyc.sync;
  * Implementa la interfaz serializable para permitir su uso con javaparty
  * @author Carlos Martin Galan
  */
-public class Semaphore implements java.io.Serializable {
+public class Semaphore {
     /** Contador para controlar los bloqueos */
 	protected int count;
 

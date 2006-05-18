@@ -12,7 +12,12 @@ package es.ull.cyc.sync;
  */
 public class ThreadPoolLimitException extends Exception {
    
-    /** Creates a new instance of ThreadPoolLimitException */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6376140003034929924L;
+
+	/** Creates a new instance of ThreadPoolLimitException */
     public ThreadPoolLimitException() {
         super("No se pueden añadir más threads al pool. Límite alcanzado");
     }

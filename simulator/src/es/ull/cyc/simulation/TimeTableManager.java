@@ -96,7 +96,7 @@ public class TimeTableManager extends BasicElement {
          * Pone disponible el elemento y espera el tiempo indicado.
          */        
         public void event() {
-            print(Output.DEBUGMSG, "Resource available\t" + role);
+            print(Output.MessageType.DEBUG, "Resource available\t" + role);
             role.getManager().addAvailable(role);
             RoleOffEvent rEvent = new RoleOffEvent(ts + tte.getDuration(), role, iter);
             addEvent(rEvent);
@@ -130,7 +130,7 @@ public class TimeTableManager extends BasicElement {
          */
         public void event() {
             role.getManager().removeAvailable(role);
-            print(Output.DEBUGMSG, "Resource unavailable\t" + role);
+            print(Output.MessageType.DEBUG, "Resource unavailable\t" + role);
             double nextTs = iter.next();
             if (Double.isNaN(nextTs))
                 notifyEnd();
@@ -166,7 +166,7 @@ public class TimeTableManager extends BasicElement {
          * Pone disponible el elemento y espera el tiempo indicado.
          */        
         public void event() {
-            print(Output.DEBUGMSG, "Resource available\t" + mr.getResourceType(index));
+            print(Output.MessageType.DEBUG, "Resource available\t" + mr.getResourceType(index));
             mr.getResourceType(index).getManager().addAvailable(mr, index);
             MRoleOffEvent rEvent = new MRoleOffEvent(ts + tte.getDuration(), mr, index, iter);
             addEvent(rEvent);
@@ -201,7 +201,7 @@ public class TimeTableManager extends BasicElement {
          */
         public void event() {
             mr.getResourceType(index).getManager().removeAvailable(mr, index);
-            print(Output.DEBUGMSG, "Resource unavailable\t" + mr.getResourceType(index));
+            print(Output.MessageType.DEBUG, "Resource unavailable\t" + mr.getResourceType(index));
             double nextTs = iter.next();
             if (Double.isNaN(nextTs))
                 notifyEnd();

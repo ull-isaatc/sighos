@@ -45,10 +45,8 @@ public class SimultaneousFlow extends GroupFlow {
      * Solicita todos los flujos de la lista.
      */    
     protected void request() {
-        for (int i = 0; i < list.size(); i++) {
-            Flow f = (Flow) list.get(i);
-            f.request();
-        }
+        for (int i = 0; i < list.size(); i++) 
+            list.get(i).request();
     }       
 
     public void saveState() {
@@ -56,7 +54,7 @@ public class SimultaneousFlow extends GroupFlow {
     		elem.getSimul().addStatistic(new PendingFlowStatistics(elem.getIdentifier(), 
     			PendingFlowStatistics.SIMFLOW, list.size() - finishedFlows));
 	        for (int i = 0; i < list.size(); i++)
-	            getFlow(i).saveState();
+	            list.get(i).saveState();
     	}
     }
 

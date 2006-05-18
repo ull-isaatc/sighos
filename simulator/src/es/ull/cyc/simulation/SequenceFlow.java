@@ -47,8 +47,7 @@ public class SequenceFlow extends GroupFlow {
      * Solicita el siguiente flujo de la secuencia.
      */    
     protected void request() {
-        Flow f = (Flow)list.get(finishedFlows);
-        f.request();
+        list.get(finishedFlows).request();
     }        
     
     public void saveState() {
@@ -56,7 +55,7 @@ public class SequenceFlow extends GroupFlow {
     		elem.getSimul().addStatistic(new PendingFlowStatistics(elem.getIdentifier(), 
     			PendingFlowStatistics.SECFLOW, list.size() - finishedFlows));
 	        for (int i = finishedFlows; i < list.size(); i++)
-	            getFlow(i).saveState();
+	            list.get(i).saveState();
     	}
     }
 }

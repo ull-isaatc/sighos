@@ -12,11 +12,11 @@ import java.util.Collections;
  */
 public class OrderedList {
     /** A list that contains the elements ordered by their key. */    
-    ArrayList list = null;
+    ArrayList<Orderable> list = null;
     
     /** Creates a new instance of IdObjectList */
     public OrderedList() {
-        list = new ArrayList();
+        list = new ArrayList<Orderable>();
     }
     
     /**

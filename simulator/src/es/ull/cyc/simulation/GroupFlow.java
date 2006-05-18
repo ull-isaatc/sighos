@@ -16,7 +16,7 @@ public abstract class GroupFlow extends Flow {
     /**
      * Lista de flujos que contiene este flujo.
      */    
-    protected ArrayList list;
+    protected ArrayList<Flow> list;
     /**
      * Número de flujos de este flujo cuya ejecución ha finalizado.
      */    
@@ -28,7 +28,7 @@ public abstract class GroupFlow extends Flow {
      */
     public GroupFlow(Element elem) {
         super(elem);
-        list = new ArrayList();
+        list = new ArrayList<Flow>();
     }
     
     /**
@@ -40,7 +40,7 @@ public abstract class GroupFlow extends Flow {
         super(parent, elem);
         if (parent != null)
         	parent.add(this);
-        list = new ArrayList();
+        list = new ArrayList<Flow>();
     }
     
     /**
@@ -61,15 +61,6 @@ public abstract class GroupFlow extends Flow {
     }
     
     /**
-     * Devuelve el flujo que ocupa la posición indicada de la lista.
-     * @param ind Posición en la lista de flujos del flujo solicitado.
-     * @return Flujo que ocupa la posición indicada.
-     */    
-    public Flow getFlow(int ind) {
-        return (Flow) list.get(ind);
-    }
-    
-    /**
      * Devuelve el número de actividades que contiene la lista de flujos.
      * @return El número de actividades del flujo actual.
      */    
@@ -77,7 +68,7 @@ public abstract class GroupFlow extends Flow {
         int []cont = new int[2];
         cont[0] = cont[1] = 0;
         for (int i = 0; i < list.size(); i++) {
-            int []contAux = getFlow(i).countActivities();
+            int []contAux = list.get(i).countActivities();
             cont[0] += contAux[0];
             cont[1] += contAux[1];
         }

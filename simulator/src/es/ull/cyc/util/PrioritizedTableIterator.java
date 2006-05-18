@@ -29,7 +29,7 @@ public class PrioritizedTableIterator {
      */
     public PrioritizedTableIterator(PrioritizedTable table) {
         this.table = table;
-        level = (PrioritizedLevel) table.levels.get(0);
+        level = table.levels.get(0);
         baseLevel = level.chosen;
     }
 
@@ -49,7 +49,7 @@ public class PrioritizedTableIterator {
         	level.get();
             levelIndex++;
             if (levelIndex < table.levels.size()) {
-                level = (PrioritizedLevel) table.levels.get(levelIndex);
+                level = table.levels.get(levelIndex);
                 baseLevel = level.chosen;
             }
         }

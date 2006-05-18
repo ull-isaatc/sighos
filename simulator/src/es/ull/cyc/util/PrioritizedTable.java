@@ -9,8 +9,9 @@ import java.util.ArrayList;
  * varía cada vez mediante la rotación de un índice.
  * @author Iván Castilla Rodríguez
  */
-class PrioritizedLevel extends ArrayList {
-    /** Indice del siguiente objeto que puede elegirse */
+class PrioritizedLevel extends ArrayList<Prioritizable> {
+	private static final long serialVersionUID = 1L;
+	/** Indice del siguiente objeto que puede elegirse */
     protected int chosen;
     /** Prioridad de este nivel */
     protected int priority;
@@ -31,7 +32,7 @@ class PrioritizedLevel extends ArrayList {
      * @return El siguiente objeto del pool
      */
     public Prioritizable get() {
-        Prioritizable obj = (Prioritizable) get(chosen);
+        Prioritizable obj = get(chosen);
         chosen = (chosen + 1) % size();
         return obj;
     }    
@@ -45,11 +46,11 @@ class PrioritizedLevel extends ArrayList {
  */
 public class PrioritizedTable {
     /** Lista de todos los niveles del pool. */    
-    protected ArrayList levels;
+    protected ArrayList<PrioritizedLevel> levels;
     
     /** Creates a new instance of PoolObjetos */
     public PrioritizedTable() {
-        levels = new ArrayList();
+        levels = new ArrayList<PrioritizedLevel>();
     }
     
 	/**
@@ -67,7 +68,7 @@ public class PrioritizedTable {
 
         while (i != j) {
             ind = (i + j) / 2;
-            aux = (PrioritizedLevel) levels.get(ind);
+            aux = levels.get(ind);
             if (aux.priority < pri)
                 i = ind + 1;
             else if (aux.priority > pri)

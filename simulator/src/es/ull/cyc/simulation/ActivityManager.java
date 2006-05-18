@@ -21,7 +21,7 @@ public class ActivityManager extends SimulationObject {
      según su prioridad */
 	protected PrioritizedTable activityTable;
     /** Lista de Clases de Recursos */
-    protected ArrayList resourceTypeList;
+    protected ArrayList<ResourceType> resourceTypeList;
     /** Semáforo para controlar el acceso a la tabla */
 	protected Semaphore sem;
     /** Logical process */
@@ -33,7 +33,7 @@ public class ActivityManager extends SimulationObject {
     public ActivityManager(Simulation simul) {
         super(nextid++, simul);
         sem = new Semaphore(1);
-        resourceTypeList = new ArrayList();
+        resourceTypeList = new ArrayList<ResourceType>();
         activityTable = new PrioritizedTable();
     }
 
@@ -87,13 +87,13 @@ public class ActivityManager extends SimulationObject {
         Activity act;
         RandomPrioritizedTableIterator iter = new RandomPrioritizedTableIterator(activityTable);
         while ((act = (Activity)iter.next()) != null) {
-            act.print(Output.DEBUGMSG, "Testing pool activity (availableResource)");
+            act.print(Output.MessageType.DEBUG, "Testing pool activity (availableResource)");
             if (act.hasPendingElements()) {
                 if (act.isFeasible(act.getElement(0))) {
                 	SingleFlow flow = act.removeElement(); 
                     Element e = flow.getElement();
 
-                    e.print(Output.DEBUGMSG, "Can carry out (available resource)\t" + act, 
+                    e.print(Output.MessageType.DEBUG, "Can carry out (available resource)\t" + act, 
                     		"Can carry out (available resource)\t" + act + "\t" + act.getDescription());
                     
                     // Fin Sincronización hasta que el elemento deje de ser accedido
@@ -122,14 +122,14 @@ public class ActivityManager extends SimulationObject {
         // MOD 22/11/05 Quitado
         // MOD 9/01/06 Puesto otra vez
         e.waitSemaphore();
-        e.print(Output.DEBUGMSG, "Calling availableElement()\t" + act, 
+        e.print(Output.MessageType.DEBUG, "Calling availableElement()\t" + act, 
         		"Calling availableElement()\t" + act + "\t" + act.getDescription());
         // MOD 9/01/06 Y esto añadido
         if (e.getCurrentWG() == null) {
             if (act.isFeasible(e)) {
-            	e.print(Output.DEBUGMSG, "Can carry out\t" + act, "Can carry out\t" + act + "\t" + e.getCurrentWG());
+            	e.print(Output.MessageType.DEBUG, "Can carry out\t" + act, "Can carry out\t" + act + "\t" + e.getCurrentWG());
                 if (!act.removeElement(flow)) { // saco el elemento de la cola
-                	e.print(Output.ERRORMSG, "Unexpected error. Element MUST BE in the activity queue",
+                	e.print(Output.MessageType.ERROR, "Unexpected error. Element MUST BE in the activity queue",
                 			"Unexpected error. Element MUST BE in the activity queue\t" + act);
                 }
             // MOD 22/11/05 Quitado
@@ -277,7 +277,7 @@ public class ActivityManager extends SimulationObject {
         }
         str.append("\r\nResource Types: ");
         for (int i = 0; i < resourceTypeList.size(); i++) {
-            ResourceType cr = (ResourceType)resourceTypeList.get(i);
+            ResourceType cr = resourceTypeList.get(i);
             str.append("\t\"" + cr + "\"");
         }
         return str.toString();

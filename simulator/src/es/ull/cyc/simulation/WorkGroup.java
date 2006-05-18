@@ -21,7 +21,7 @@ import es.ull.cyc.util.*;
  */
 public class WorkGroup extends SimulationObject implements Prioritizable {
     /** Equipo de trabajo que realiza esta opción de la actividad */
-    protected ArrayList resourceTypeTable;
+    protected ArrayList<ResourceTypeTableEntry> resourceTypeTable;
     /** La actividad a la que está asociado */
     protected Activity act;
     /** Duración de la opción de la actividad */
@@ -42,7 +42,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     protected WorkGroup(int id, Activity act, RandomNumber duration, int priority, double cost) {
         super(id, act.getSimul());
         this.act = act;
-        this.resourceTypeTable = new ArrayList();
+        this.resourceTypeTable = new ArrayList<ResourceTypeTableEntry>();
         this.duration = duration;
         this.priority = priority;
         this.cost = cost;
@@ -59,7 +59,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * Devuelve la tabla de clases de recursos que compone este equipo de trabajo.
      * @return La tabla de clases de recursos de este equipo de trabajo.
      */    
-    public ArrayList getResourceTypeTable() {
+    public ArrayList<ResourceTypeTableEntry> getResourceTypeTable() {
         return resourceTypeTable;
     }
 
@@ -115,8 +115,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     public ResourceType getResourceType(int ind) {
         if (ind < 0 || ind >= resourceTypeTable.size())
             return null;
-        ResourceTypeTableEntry rtte = (ResourceTypeTableEntry) resourceTypeTable.get(ind);
-        return rtte.getRType();
+        return resourceTypeTable.get(ind).getRType();
     }
 
     /**
@@ -128,8 +127,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     public int getNeeded(int ind) {
         if (ind < 0 || ind >= resourceTypeTable.size())
             return -1;
-        ResourceTypeTableEntry rtte = (ResourceTypeTableEntry) resourceTypeTable.get(ind);
-        return rtte.getNeeded();
+        return resourceTypeTable.get(ind).getNeeded();
     }
 
 	/**
@@ -141,11 +139,9 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
        int size = resourceTypeTable.size();
        int index = 0;
        boolean found = false;
-       ResourceTypeTableEntry current;
 
        while ( (index < size) && ! found ) {
-           current = (ResourceTypeTableEntry) resourceTypeTable.get(index);
-           if ( current.getRType() == rt )
+           if ( resourceTypeTable.get(index).getRType() == rt )
                 return(index);
            else
                 index++;
@@ -179,7 +175,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      */
     protected boolean hasSolution(int []pos, int []nec, BasicElement e) {
         for (int i = pos[0]; i < resourceTypeTable.size(); i++) {
-            ResourceTypeTableEntry actual = (ResourceTypeTableEntry) resourceTypeTable.get(i);
+            ResourceTypeTableEntry actual = resourceTypeTable.get(i);
             int j = pos[1];
             MultipleRole erm;
             int disp = 0;
@@ -217,7 +213,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
             }
         }
         // Cojo la entrada correspondiente al primer índice
-        ResourceTypeTableEntry actual = (ResourceTypeTableEntry)resourceTypeTable.get(aux[0]);
+        ResourceTypeTableEntry actual = resourceTypeTable.get(aux[0]);
         // Busco el SIGUIENTE recurso disponible a partir del índice
         aux[1] = actual.getRType().getBookedResource(aux[1] + 1, e);
 
@@ -232,7 +228,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @param pos Posición del elemento
      */
     private void mark(int []pos) {
-        ResourceTypeTableEntry actual = (ResourceTypeTableEntry)resourceTypeTable.get(pos[0]);
+        ResourceTypeTableEntry actual = resourceTypeTable.get(pos[0]);
         MultipleRole erm = actual.getRType().getAvailableResource(pos[1]);
         erm.setBookedResourceType(actual.getRType());
     }
@@ -242,7 +238,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @param pos Posición del elemento
      */
     private void unmark(int []pos) {
-        ResourceTypeTableEntry actual = (ResourceTypeTableEntry)resourceTypeTable.get(pos[0]);
+        ResourceTypeTableEntry actual = resourceTypeTable.get(pos[0]);
         MultipleRole erm = actual.getRType().getAvailableResource(pos[1]);
         erm.setBookedResourceType(null);
     }
@@ -293,7 +289,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
         
         // Simplificación de la búsqueda
         for (int i = 0; i < resourceTypeTable.size(); i++) {
-            ResourceTypeTableEntry actual = (ResourceTypeTableEntry)resourceTypeTable.get(i);
+            ResourceTypeTableEntry actual = resourceTypeTable.get(i);
             nec[i] = actual.getNeeded();
             int disp = actual.getRType().getAvailable();
             if (disp >= nec[i])
@@ -305,7 +301,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
         // Se busca la solución mediante "fuerza bruta"
         if (findSolution(pos, nec, e)) {
             for (int i = 0; i < resourceTypeTable.size(); i++) {
-                ResourceTypeTableEntry actual = (ResourceTypeTableEntry)resourceTypeTable.get(i);
+                ResourceTypeTableEntry actual = resourceTypeTable.get(i);
                 for (int j = 0; (erm = actual.getRType().getAvailableResource(j)) != null; j++)
                     if ((erm.getBookedElement() == e) && (erm.getBookedResourceType() == null)) // Este elemento no nos interesa
                         erm.releaseBooking();
@@ -314,7 +310,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
         }
         // Si no encontró solución hay que volver a dejar los recursos como estaban
         for (int i = 0; i < resourceTypeTable.size(); i++) {
-            ResourceTypeTableEntry actual = (ResourceTypeTableEntry)resourceTypeTable.get(i);
+            ResourceTypeTableEntry actual = resourceTypeTable.get(i);
             actual.getRType().resetAvailable(e);
         }
         return false;
@@ -337,7 +333,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
         ResourceTypeTableEntry actual;
         
         for (int i = 0; i < resourceTypeTable.size(); i++) {
-            actual = (ResourceTypeTableEntry)resourceTypeTable.get(i);
+            actual = resourceTypeTable.get(i);
             int []disp = actual.getRType().getAvailable(e);
             if (disp[0] + disp[1] < actual.getNeeded()) {
                 // Deshago las posibles reservas realizadas 
@@ -345,7 +341,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
                 actual.getRType().resetAvailable(e);
                 i--;
                 for (; i >= 0; i--) {
-                    actual = (ResourceTypeTableEntry)resourceTypeTable.get(i);
+                    actual = resourceTypeTable.get(i);
                     actual.getRType().resetAvailable(e);
                 }
                 return false;
@@ -354,7 +350,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
                 solapado = true;
         }
         if (solapado) {// Llamar a la función de distribución de recursos
-        	print(Output.DEBUGMSG, "Overlapped resources", "Overlapped resources with " + e);
+        	print(Output.MessageType.DEBUG, "Overlapped resources", "Overlapped resources with " + e);
             return distributeResources(e);
         }
         return(true); // devuelve cierto si llego al final y hay al menos tantas disponibles como necesarias
@@ -368,7 +364,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      */
     protected void catchResources(BasicElement e) {
        for (int i = 0; i < resourceTypeTable.size(); i++) {
-           ResourceTypeTableEntry actual = (ResourceTypeTableEntry)resourceTypeTable.get(i);
+           ResourceTypeTableEntry actual = resourceTypeTable.get(i);
            actual.getRType().decAvailable(actual.getNeeded(), e);
        }        
     }
@@ -384,7 +380,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     protected ArrayList releaseResources(BasicElement e) {
         ArrayList listaGA = new ArrayList();
         for (int i = 0; i < resourceTypeTable.size(); i++) {
-            ResourceTypeTableEntry actual = (ResourceTypeTableEntry)resourceTypeTable.get(i);
+            ResourceTypeTableEntry actual = resourceTypeTable.get(i);
             ArrayList listaAux = actual.getRType().incAvailable(actual.getNeeded(), e);
             // MOD 2/11/04 
             for (int j = 0; j < listaAux.size(); j++) {
@@ -412,7 +408,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
 	public String getDescription() {
        StringBuffer str = new StringBuffer(this.toString() + "\tResource Table:\n"); 
        for (int i = 0; i < resourceTypeTable.size(); i++) {
-           ResourceTypeTableEntry actual = (ResourceTypeTableEntry) resourceTypeTable.get(i);
+           ResourceTypeTableEntry actual = resourceTypeTable.get(i);
            str.append(" | "+ actual.getRType().getDescription()+" | "+actual.getNeeded()+"\n");
         }
        return str.toString();

@@ -14,9 +14,9 @@ import es.ull.cyc.util.OrderedList;
  * @author Iván Castilla Rodríguez
  */
 public class SimulationResults {
-	protected ArrayList elementStatistics;
-	protected ArrayList activityStatistics;
-	protected ArrayList pendingFlowStatistics;
+	protected ArrayList<ElementStatistics> elementStatistics;
+	protected ArrayList<ActivityStatistics> activityStatistics;
+	protected ArrayList<PendingFlowStatistics> pendingFlowStatistics;
 	protected long iniT;
 	protected long endT;
 	protected double simStart;
@@ -30,25 +30,25 @@ public class SimulationResults {
 	protected int lastElementId;
 	
 	public SimulationResults() {
-		elementStatistics = new ArrayList();
-		activityStatistics = new ArrayList();
-		pendingFlowStatistics = new ArrayList();
+		elementStatistics = new ArrayList<ElementStatistics>();
+		activityStatistics = new ArrayList<ActivityStatistics>();
+		pendingFlowStatistics = new ArrayList<PendingFlowStatistics>();
 	}
 	
 	public synchronized void add(StatisticData data) {
 		if (data instanceof ElementStatistics)
-			elementStatistics.add(data);
+			elementStatistics.add((ElementStatistics)data);
 		else if (data instanceof ActivityStatistics)
-			activityStatistics.add(data);
+			activityStatistics.add((ActivityStatistics)data);
 		else if (data instanceof PendingFlowStatistics)
-			pendingFlowStatistics.add(data);
+			pendingFlowStatistics.add((PendingFlowStatistics)data);
 	}
 
 
 	public int createdElements() {
 		int count = 0;
 		for (int i = 0; i < elementStatistics.size(); i++) {
-			ElementStatistics es = (ElementStatistics) elementStatistics.get(i);
+			ElementStatistics es = elementStatistics.get(i);
 			if (es.getType() == ElementStatistics.START)
 				count++;
 		}		
@@ -56,13 +56,13 @@ public class SimulationResults {
 	}
 	
 	public int[] computeQueueSizes() {
-		HashMap hash = new HashMap();
+		HashMap<Integer, Integer> hash = new HashMap<Integer, Integer>();
 		int queues[] = new int[actIds.length];
 		for (int i = 0; i < actIds.length; i++)			
 			hash.put(new Integer(actIds[i][0]), new Integer(i));
 		for (int i = 0; i < activityStatistics.size(); i++) {
-			ActivityStatistics as = (ActivityStatistics) activityStatistics.get(i);
-			Integer pos = (Integer)hash.get(new Integer(as.getActId()));
+			ActivityStatistics as = activityStatistics.get(i);
+			Integer pos = hash.get(new Integer(as.getActId()));
 			queues[pos.intValue()]++;
 		}		
 		return queues;
@@ -71,7 +71,7 @@ public class SimulationResults {
 	public int[][] computeQueueSizes(double period) {
 		int nPeriods;
 		int count = 0;
-		HashMap hash = new HashMap();
+		HashMap<Integer, Integer> hash = new HashMap<Integer, Integer>();
 		for (int i = 0; i < actIds.length; i++)			
 			hash.put(new Integer(actIds[i][0]), new Integer(i));
 		double auxPeriods = ((simEnd - simStart) / period);
@@ -81,7 +81,7 @@ public class SimulationResults {
 			nPeriods = (int)auxPeriods;
 		int [][]queues = new int[actIds.length][nPeriods];
 		for (int i = 0; i < elementStatistics.size(); i++) {
-			ElementStatistics es = (ElementStatistics) elementStatistics.get(i);
+			ElementStatistics es = elementStatistics.get(i);
 			// New period
 			if (es.getTs() >= ((count + 1) * period) + simStart) {				
 				count++;
@@ -89,7 +89,7 @@ public class SimulationResults {
 					queues[j][count] = queues[j][count - 1];
 				}				
 			}
-			Integer pos = (Integer)hash.get(new Integer(es.getValue()));
+			Integer pos = hash.get(new Integer(es.getValue()));
 			if (es.getType() == ElementStatistics.REQACT)
 				queues[pos.intValue()][count]++;
 			else if (es.getType() == ElementStatistics.STAACT)
@@ -112,7 +112,7 @@ public class SimulationResults {
 			nPeriods = (int)auxPeriods;
 		double[]result = new double[nPeriods];
 		for (int i = 0; i < elementStatistics.size(); i++) {
-			ElementStatistics es = (ElementStatistics) elementStatistics.get(i);
+			ElementStatistics es = elementStatistics.get(i);
 			// New period
 			if (es.getTs() >= ((count + 1) * period) + simStart) {				
 				count++;
@@ -227,7 +227,7 @@ public class SimulationResults {
 	/**
 	 * @return Returns the elementStatistics.
 	 */
-	public ArrayList getElementStatistics() {
+	public ArrayList<ElementStatistics> getElementStatistics() {
 		return elementStatistics;
 	}
 

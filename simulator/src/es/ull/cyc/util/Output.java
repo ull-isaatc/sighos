@@ -10,57 +10,48 @@ import java.io.*;
  *
  */
 public class Output {
-	// Debug level
-	public final static int NODEBUG = -1;
-	public final static int DEBUGLEVEL = 0;
-	public final static int XDEBUGLEVEL = 1;
+	public enum DebugLevel {NODEBUG, DEBUG, XDEBUG};
 	// Message types
-	public final static int ERRORMSG = -1;
-	public final static int WARNINGMSG = 0;
-	public final static int DEBUGMSG = 1;
+	public enum MessageType {ERROR, WARNING, DEBUG};
 	protected OutputStreamWriter out;
 	protected OutputStreamWriter err;
-	protected int level;
+	protected DebugLevel level;
 	
 	public Output() {
-		this(0, new OutputStreamWriter(System.out), new OutputStreamWriter(System.err));
+		this(DebugLevel.DEBUG, new OutputStreamWriter(System.out), new OutputStreamWriter(System.err));
 	}
 	
-	public Output(int level) {
+	public Output(DebugLevel level) {
 		this(level, new OutputStreamWriter(System.out), new OutputStreamWriter(System.err));
 	}
 	
-	public Output(int level, OutputStreamWriter out) {
+	public Output(DebugLevel level, OutputStreamWriter out) {
 		this(level, out, new OutputStreamWriter(System.err));
 	}
 	
-	public Output(int level, OutputStreamWriter out, OutputStreamWriter err) {
+	public Output(DebugLevel level, OutputStreamWriter out, OutputStreamWriter err) {
 		this.out = out;
 		this.err = err;
-		if (level < NODEBUG)
-			level = NODEBUG;
-		else if (level > XDEBUGLEVEL)
-			level = XDEBUGLEVEL;
 		this.level = level;
 	}
 	
-	public void print(int type, String shortDescription, String longDescription) {
-		if ((type == ERRORMSG) || (type == WARNINGMSG)) {
-			if (level == XDEBUGLEVEL)
+	public void print(MessageType type, String shortDescription, String longDescription) {
+		if ((type == MessageType.ERROR) || (type == MessageType.WARNING)) {
+			if (level == DebugLevel.XDEBUG)
 				println(err, longDescription);
 			else // Errors and warnings are always showed
 				println(err, shortDescription);
 		}
 		else {
-			if (level == XDEBUGLEVEL)
+			if (level == DebugLevel.XDEBUG)
 				println(out, longDescription);
-			else if (level == DEBUGLEVEL)
+			else if (level == DebugLevel.DEBUG)
 				println(out, shortDescription);
 			// If (level == NODEBUGLEVEL) no message is showed 
 		}		
 	}
 	
-	public void print(int type, String description) {
+	public void print(MessageType type, String description) {
 		print(type, description, description);
 	}
 	

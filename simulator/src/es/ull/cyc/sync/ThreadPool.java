@@ -18,9 +18,9 @@ import java.util.Vector;
  */
 public class ThreadPool {
     /** List of threads in the pool */    
-    protected ArrayList pool;
+    protected ArrayList<PoolElement> pool;
     /** List of free threads */    
-    protected LinkedList freeThreads;
+    protected LinkedList<PoolElement> freeThreads;
     /** Min amount of threads. This threads are created at the class constructor */
     protected int initThreads; 
     /** Max amount of threads */    
@@ -28,14 +28,14 @@ public class ThreadPool {
     /** Finished flag */
     protected boolean finished = false;
     /** Events that cannot be executed because there are no free threads */
-    protected Vector pending;
+    protected Vector<Event> pending;
     
     /** Crea una nueva instancia de un ThreadPool */
     public ThreadPool() {
     	super();
-        pool = new ArrayList();
-        freeThreads = new LinkedList();
-        pending = new Vector();
+        pool = new ArrayList<PoolElement>();
+        freeThreads = new LinkedList<PoolElement>();
+        pending = new Vector<Event>();
     }
 
     /** 
@@ -60,13 +60,13 @@ public class ThreadPool {
             throw new IllegalArgumentException("maxThreads debe ser > 0");
         if (initThreads > maxThreads)
             throw new IllegalArgumentException("initThreads debe ser <= maxThreads");
-        pool = new ArrayList();
-        freeThreads = new LinkedList();
+        pool = new ArrayList<PoolElement>();
+        freeThreads = new LinkedList<PoolElement>();
         this.maxThreads = maxThreads;
         this.initThreads = initThreads;
         for (int i = 0; i < initThreads; i++)
             addThreadSafe();
-        pending = new Vector();
+        pending = new Vector<Event>();
     }
 
     /**
@@ -100,7 +100,7 @@ public class ThreadPool {
      * @return El thread indicado con el índice
      */    
     public PoolElement getPoolElement(int ind) {
-        return (PoolElement) pool.get(ind);
+        return pool.get(ind);
     }
     
     /**
@@ -114,7 +114,7 @@ public class ThreadPool {
             PoolElement elem = null;
             if (freeThreads.isEmpty())
                 elem = addThread();
-            elem = (PoolElement)freeThreads.removeFirst();
+            elem = freeThreads.removeFirst();
             elem.setEvent(ev);
 		} catch (ThreadPoolLimitException e) {
 	    	pending.add(ev);
@@ -132,7 +132,7 @@ public class ThreadPool {
         		finishAll();
         }
         else {
-        	Event ev = (Event) pending.remove(0);
+        	Event ev = pending.remove(0);
             elem.setEvent(ev);        	
         }
     }
@@ -176,7 +176,7 @@ public class ThreadPool {
     // FIXME Sólo está como protected para el ejemplo. Debería ser private 
     protected void finishAll() {
         for(int i = 0; i < pool.size(); i++) {
-            PoolElement elem = (PoolElement) pool.get(i);
+            PoolElement elem = pool.get(i);
             elem.finish();
         }         
     }

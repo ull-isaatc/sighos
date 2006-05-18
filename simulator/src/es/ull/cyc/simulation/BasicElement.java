@@ -16,7 +16,7 @@ public abstract class BasicElement extends SimulationObject {
     /** Current element's timestamp */
 	protected double ts;
     /** List that contains all the events carried out by the element */
-    protected ArrayList eventList;
+    protected ArrayList<Event> eventList;
     /** Access control */
     protected Semaphore sem;
     /** Flag that indicates if the simulation end has been reached */
@@ -43,7 +43,7 @@ public abstract class BasicElement extends SimulationObject {
      */
 	public BasicElement(int id, Simulation simul, LogicalProcess defLP) {
 		super(id, simul);
-        eventList = new ArrayList();
+        eventList = new ArrayList<Event>();
 		ts = defLP.getTs();
         sem = new Semaphore(1);
         this.defLP = defLP;
@@ -53,7 +53,7 @@ public abstract class BasicElement extends SimulationObject {
      * Starts the element execution.
      */    
     public void start() {
-    	print(Output.DEBUGMSG, "Starts Execution");
+    	print(Output.MessageType.DEBUG, "Starts Execution");
         simul.incElements();
         addEvent(new StartEvent());
     }
@@ -74,14 +74,14 @@ public abstract class BasicElement extends SimulationObject {
         else if (e.getTs() > e.getLp().getTs())
             e.getLp().addWait(e);
         else
-        	print(Output.ERRORMSG, "Causal restriction broken\t" + e.getLp().getTs(),
+        	print(Output.MessageType.ERROR, "Causal restriction broken\t" + e.getLp().getTs(),
         			"Causal restriction broken\t" + e.getLp().getTs() + "\t" + e);
     }
     
     protected synchronized void notifyEnd() {
     	if (!endFlag) {
     		endFlag = true;
-        	print(Output.DEBUGMSG, "Finished in notifyEnd()");
+        	print(Output.MessageType.DEBUG, "Finished in notifyEnd()");
             addEvent(new FinalizeEvent());
         }
     }
@@ -101,7 +101,7 @@ public abstract class BasicElement extends SimulationObject {
      * Finishes the element execution.
      */    
     protected void end() {
-    	print(Output.DEBUGMSG, "Ends execution");
+    	print(Output.MessageType.DEBUG, "Ends execution");
         simul.decElements();
     }
 
@@ -128,7 +128,7 @@ public abstract class BasicElement extends SimulationObject {
         if (ts >= this.ts)
             this.ts = ts;
         else
-        	print(Output.WARNINGMSG, "Trying to go back in time\t" + ts);
+        	print(Output.MessageType.WARNING, "Trying to go back in time\t" + ts);
     }
 
     public es.ull.cyc.simulation.LogicalProcess getDefLP() {
@@ -182,7 +182,7 @@ public abstract class BasicElement extends SimulationObject {
             BasicElement.this.setTs(ts);
             super.run();
             if (!lp.removeExecutionSync(this))
-            	print(Output.ERRORMSG, "Can not be removed from execution queue",
+            	print(Output.MessageType.ERROR, "Can not be removed from execution queue",
             			"Can not be removed from execution queue\t" + this.toString());
         }
         

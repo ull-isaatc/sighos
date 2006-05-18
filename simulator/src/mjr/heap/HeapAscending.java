@@ -49,10 +49,18 @@ import java.util.NoSuchElementException;
  * Leiserson and Rivest.  Sorts in ascending order.
  *
  * @version 1.0 2/23/96
- * @author <A HREF="http://www.radwin.org/michael/">Michael J. Radwin</A> */
+ * @author <A HREF="http://www.radwin.org/michael/">Michael J. Radwin</A> 
+ * HISTORY: Adapted to java 1.5 using Heapable (Iván Castilla Rodríguez)
+ * */
 public
-class HeapAscending extends Vector implements HeapImpl {
+class HeapAscending extends Vector<Heapable> implements HeapImpl {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -933282438704960949L;
+
+
+	/**
      * Constructs the heap in O(N) time, using a technique similar to
      * bottom-up construction.
      */
@@ -108,7 +116,7 @@ class HeapAscending extends Vector implements HeapImpl {
      */
     protected synchronized void exchange(int i, int j)
     {
-	Object temp = elementAt(j);
+	Heapable temp = elementAt(j);
 	setElementAt(elementAt(i), j);
 	setElementAt(temp, i);
     }
@@ -124,13 +132,13 @@ class HeapAscending extends Vector implements HeapImpl {
 	int smallest;
 
 	if (l < size() &&
-	    ((Heapable)elementAt(l)).lessThan(elementAt(i)))
+	    elementAt(l).lessThan(elementAt(i)))
 	    smallest = l;
 	else
 	    smallest = i;
 
 	if (r < size() &&
-	    ((Heapable)elementAt(r)).lessThan(elementAt(smallest)))
+	    elementAt(r).lessThan(elementAt(smallest)))
 	    smallest = r;
 
 	if (smallest != i) {
@@ -148,14 +156,14 @@ class HeapAscending extends Vector implements HeapImpl {
 	if (size() == 0)
 	    throw new NoSuchElementException();
 
-	Object min = elementAt(0);
+	Heapable min = elementAt(0);
 
 	// move the last key to the top, decrease size, and downheap
 	setElementAt(lastElement(), 0);
 	removeElementAt(size() - 1);
 	heapify(0);
 
-	return (Heapable)min;
+	return min;
     }
 
     /**
@@ -177,7 +185,7 @@ class HeapAscending extends Vector implements HeapImpl {
 	setSize(size() + 1);
 
 	// upheap if necessary
-	while (i > 0 && ((Heapable)elementAt(parent(i))).greaterThan(key)) {
+	while (i > 0 && elementAt(parent(i)).greaterThan(key)) {
 	    setElementAt(elementAt(parent(i)), i);
 	    i = parent(i);
 	}

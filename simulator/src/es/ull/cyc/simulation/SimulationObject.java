@@ -5,6 +5,7 @@
  */
 package es.ull.cyc.simulation;
 
+import es.ull.cyc.util.Output;
 import es.ull.cyc.util.Printable;
 
 /**
@@ -50,12 +51,12 @@ public abstract class SimulationObject implements Printable, TimeStamp {
         return simul;
     }
     
-    public void print(int type, String shortMessage, String longMessage) {
+    public void print(Output.MessageType type, String shortMessage, String longMessage) {
 		simul.print(type, this.toString() + "\t" + getTs() + "\t" + shortMessage, 
 				this.toString() + "\t" + getTs() + "\t" + longMessage);
 	}
 	
-	public void print(int type, String message) {
+	public void print(Output.MessageType type, String message) {
 		print(type, message, message);
 	}
     

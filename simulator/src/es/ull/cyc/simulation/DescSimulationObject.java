@@ -26,7 +26,7 @@ public abstract class DescSimulationObject extends SimulationObject implements O
         return description;
     }
 
-    public void print(int type, String shortMessage, String longMessage) {
+    public void print(Output.MessageType type, String shortMessage, String longMessage) {
 		simul.print(type, this.toString() + "\t" + getTs() + "\t" + shortMessage, 
 				this.toString() + "\t" + getTs() + "\t" + description + "\t" + longMessage);
 	}

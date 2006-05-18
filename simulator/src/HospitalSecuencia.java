@@ -2,7 +2,6 @@ import es.ull.cyc.simulation.*;
 import es.ull.cyc.simulation.results.*;
 import es.ull.cyc.util.*;
 import es.ull.cyc.random.*;
-import java.util.ArrayList;
 
 /** 
  * Se corresponde con la unidad que se va a simular.
@@ -158,11 +157,11 @@ class ExpHospitalSecuencia extends Experiment {
 	
 	public ExpHospitalSecuencia() {
 //		super("Hospital", NEXP, new StdResultProcessor(1440.0), new Output(Output.DEBUGLEVEL));
-		super("Hospital", NEXP, new NullResultProcessor(), new Output(Output.XDEBUGLEVEL));
+		super("Hospital", NEXP, new NullResultProcessor(), new Output(Output.DebugLevel.XDEBUG));
 	}
 
 	public ExpHospitalSecuencia(double prevStart, double prevEnd) {
-		super("Hospital", NEXP, new RecoverableResultProcessor("c:\\"), new Output(Output.DEBUGLEVEL));
+		super("Hospital", NEXP, new RecoverableResultProcessor("c:\\"), new Output(Output.DebugLevel.XDEBUG));
 		this.prevStart = prevStart;
 		this.prevEnd = prevEnd;		
 	}

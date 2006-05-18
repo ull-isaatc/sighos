@@ -8,5 +8,5 @@ package es.ull.cyc.util;
  *
  */
 public interface Printable {
-	void print(int type, String shortMessage, String longMessage);
+	void print(Output.MessageType type, String shortMessage, String longMessage);
 }

@@ -115,7 +115,7 @@ public class TestOverlapped {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new ExpOverlapped("Solapados", NPRUEBAS, new Output(Output.DEBUGLEVEL)).start();		
+		new ExpOverlapped("Solapados", NPRUEBAS, new Output(Output.DebugLevel.DEBUG)).start();		
 	}
 
 }

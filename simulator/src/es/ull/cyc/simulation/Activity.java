@@ -21,7 +21,7 @@ public class Activity extends DescSimulationObject implements Prioritizable {
      * the same time) */
     protected boolean presential = true;
     /** This queue contains the single flows that are waiting for this activity */
-    protected Vector elementQueue;
+    protected Vector<SingleFlow> elementQueue;
     /** Activity manager which this activity is associated to */
     protected ActivityManager manager = null;
     /** Work Group Pool */
@@ -61,7 +61,7 @@ public class Activity extends DescSimulationObject implements Prioritizable {
         super(id, simul, description);
         this.priority = priority;
         this.presential = presential;
-        elementQueue = new Vector();
+        elementQueue = new Vector<SingleFlow>();
         workGroupTable = new PrioritizedTable();
     }
 
@@ -157,7 +157,7 @@ public class Activity extends DescSimulationObject implements Prioritizable {
             return false;
         
         // Si el primer elemento de la lista me vale no hago nada más
-        SingleFlow flow = (SingleFlow) elementQueue.get(0);
+        SingleFlow flow = elementQueue.get(0);
         Element e = flow.getElement();
         // Sincronización hasta que el elemento deje de ser accedido
         e.waitSemaphore();
@@ -172,14 +172,14 @@ public class Activity extends DescSimulationObject implements Prioritizable {
         
         // Sigo revisando hasta encontrar el primer elemento válido
         for (int i = 1; i < elementQueue.size(); i++) {
-        	flow = (SingleFlow) elementQueue.get(i);
+        	flow = elementQueue.get(i);
             e = flow.getElement();
             // Sincronización hasta que el elemento deje de ser accedido
             e.waitSemaphore();
 
 			if (e.getCurrentWG() == null) {
 			    // Muevo el elemento al primero de la lista
-				flow = (SingleFlow) elementQueue.remove(i);
+				flow = elementQueue.remove(i);
 			    elementQueue.add(0, flow);
 			    return true;
 			}
@@ -202,7 +202,7 @@ public class Activity extends DescSimulationObject implements Prioritizable {
      * @return The first singler flow of the element queue
      */
     protected SingleFlow removeElement() {
-        return (SingleFlow) elementQueue.remove(0);
+        return elementQueue.remove(0);
     }
 
     /**
@@ -223,7 +223,7 @@ public class Activity extends DescSimulationObject implements Prioritizable {
     protected Element getElement(int ind) {
         if (ind < 0 || ind >= elementQueue.size())
             return null;
-        return ((SingleFlow) elementQueue.get(ind)).getElement();
+        return elementQueue.get(ind).getElement();
     }
 
 	/**
@@ -235,7 +235,7 @@ public class Activity extends DescSimulationObject implements Prioritizable {
     protected void clearQueue() {
         int neltos = elementQueue.size();
         for (int j = 0; j < neltos ; j++) {
-        	SingleFlow sf = (SingleFlow) elementQueue.get(j);
+        	SingleFlow sf = elementQueue.get(j);
             simul.addStatistic(new ActivityStatistics(this.id, sf.getId(), sf.getElement().getIdentifier()));
             sf.getElement().notifyEndSimulation();
         }

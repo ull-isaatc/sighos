@@ -13,7 +13,7 @@ import es.ull.cyc.random.RandomNumber;
  *
  */
 public abstract class GroupMetaFlow extends MetaFlow {
-	protected ArrayList descendants;
+	protected ArrayList<MetaFlow> descendants;
 
 	/**
 	 * 
@@ -22,7 +22,7 @@ public abstract class GroupMetaFlow extends MetaFlow {
 	 */
 	public GroupMetaFlow(int id, MetaFlow parent, RandomNumber iterations) {
 		super(id, parent, iterations);
-		descendants = new ArrayList();
+		descendants = new ArrayList<MetaFlow>();
 	}
 
 	/**
@@ -38,9 +38,9 @@ public abstract class GroupMetaFlow extends MetaFlow {
 	 * @param e
 	 */
 	protected void getDescendantsFlows(Flow parentFlow, Element e) {
-		Iterator descIt = descendants.iterator();
+		Iterator<MetaFlow> descIt = descendants.iterator();
 		while (descIt.hasNext()) {
-			((MetaFlow)descIt.next()).getFlow(parentFlow, e);
+			descIt.next().getFlow(parentFlow, e);
 		}		
 	}
 }

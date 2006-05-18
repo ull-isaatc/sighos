@@ -244,11 +244,11 @@ class ExpSimAct extends Experiment {
 	
 	ExpSimAct() {
 //		super("Testing activity pool", NEXP, new SimActProcessor(), new Output(Output.NODEBUG));
-		super("Testing simultaneously requested activities", NEXP, new SimActProcessor(), new Output(Output.NODEBUG));
+		super("Testing simultaneously requested activities", NEXP, new SimActProcessor(), new Output(Output.DebugLevel.NODEBUG));
 	}
 	
 	ExpSimAct(double prevStart, double prevEnd) {
-		super("Testing continuation of simulations", NEXP, new StdResultProcessor(1440.0)/*new RecoverableResultProcessor("c:\\")*/, new Output(Output.NODEBUG));
+		super("Testing continuation of simulations", NEXP, new StdResultProcessor(1440.0)/*new RecoverableResultProcessor("c:\\")*/, new Output(Output.DebugLevel.NODEBUG));
 		this.prevStart = prevStart;
 		this.prevEnd = prevEnd;
 	}

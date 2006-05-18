@@ -22,7 +22,7 @@ public class Element extends BasicElement {
     protected Flow flow = null;
     /** Stores the requested presential activities (requested[0]) and non-presential 
      ones (requested[1]) */
-    protected ArrayList []requested = new ArrayList[2];
+    protected ArrayList<SingleFlow> []requested = new ArrayList[2];
     /** Amount of pending presential activities (pending[0]) and non-presential 
      ones (pending[1]) */
     protected int []pending;
@@ -44,8 +44,8 @@ public class Element extends BasicElement {
      */
 	public Element(int id, Simulation simul, LogicalProcess defLP) {
         super(id, simul, defLP);
-        requested[0] = new ArrayList();
-        requested[1] = new ArrayList();
+        requested[0] = new ArrayList<SingleFlow>();
+        requested[1] = new ArrayList<SingleFlow>();
 	}
 
     /**
@@ -122,7 +122,7 @@ public class Element extends BasicElement {
      * presenciales.
      * @return Lista de actividades solicitadas.
      */
-    protected ArrayList []getRequested() {
+    protected ArrayList<SingleFlow> []getRequested() {
         return requested;
     }
     
@@ -209,7 +209,7 @@ public class Element extends BasicElement {
         setTs(lp.getTs());
         currentWG.catchResources(this);
     	simul.addStatistic(new ElementStatistics(id, ElementStatistics.STAACT, ts, f.getActivity().getIdentifier()));
-        print(Output.DEBUGMSG, "Starts\t" + f.getActivity(), 
+        print(Output.MessageType.DEBUG, "Starts\t" + f.getActivity(), 
         		"Starts\t" + f.getActivity() + "\t" + f.getActivity().getDescription());
         // MOD 25/01/06 Puesto aquí      
         currentSF = f;
@@ -239,7 +239,7 @@ public class Element extends BasicElement {
          */
         public void event() {
         	simul.addStatistic(new ElementStatistics(id, ElementStatistics.REQACT, ts, flow.getActivity().getIdentifier()));
-            print(Output.DEBUGMSG, "Requests\t" + flow.getActivity(), 
+            print(Output.MessageType.DEBUG, "Requests\t" + flow.getActivity(), 
             		"Requests\t" + flow.getActivity() + "\t" + flow.getActivity().getDescription());
             flow.getActivity().getManager().requestActivity(flow);
         }
@@ -277,15 +277,14 @@ public class Element extends BasicElement {
          */
         public void event() {
         	simul.addStatistic(new ElementStatistics(id, ElementStatistics.ENDACT, ts, flow.getActivity().getIdentifier()));
-            print(Output.DEBUGMSG, "Finishes\t" + flow.getActivity(), 
+            print(Output.MessageType.DEBUG, "Finishes\t" + flow.getActivity(), 
             		"Finishes\t" + flow.getActivity() + "\t" + flow.getActivity().getDescription());
             flow.getActivity().getManager().finalizeActivity(Element.this);
             flow.finish();
             // Checks if there are pending activities that haven't noticed the element availability
             // MOD 9/01/06 REVISAR
             for (int i = 0; (currentWG == null) && (i < requested[0].size()); i++) {
-                SingleFlow f = (SingleFlow)requested[0].get(i);
-                AvailableElementEvent e = new AvailableElementEvent(ts, f);
+                AvailableElementEvent e = new AvailableElementEvent(ts, requested[0].get(i));
                 addEvent(e);
             }
         }

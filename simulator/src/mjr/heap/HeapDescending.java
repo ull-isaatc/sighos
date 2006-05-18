@@ -49,10 +49,17 @@ import java.util.NoSuchElementException;
  * Leiserson and Rivest.  Sorts in descending order.
  *
  * @version 1.0 2/23/96
- * @author <A HREF="http://www.radwin.org/michael/">Michael J. Radwin</A> */
+ * @author <A HREF="http://www.radwin.org/michael/">Michael J. Radwin</A> 
+ * HISTORY: Adapted to java 1.5 using Heapable (Iván Castilla Rodríguez)
+ * */
 public
-class HeapDescending extends Vector implements HeapImpl {
+class HeapDescending extends Vector<Heapable> implements HeapImpl {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5395503138192156479L;
+
+	/**
      * Constructs the heap in O(N) time, using a technique similar to
      * bottom-up construction.
      */
@@ -108,7 +115,7 @@ class HeapDescending extends Vector implements HeapImpl {
      */
     protected synchronized void exchange(int i, int j)
     {
-	Object temp = elementAt(j);
+	Heapable temp = elementAt(j);
 	setElementAt(elementAt(i), j);
 	setElementAt(temp, i);
     }
@@ -124,13 +131,13 @@ class HeapDescending extends Vector implements HeapImpl {
 	int largest;
 
 	if (l < size() &&
-	    ((Heapable)elementAt(l)).greaterThan(elementAt(i)))
+	    elementAt(l).greaterThan(elementAt(i)))
 	    largest = l;
 	else
 	    largest = i;
 
 	if (r < size() &&
-	    ((Heapable)elementAt(r)).greaterThan(elementAt(largest)))
+	    elementAt(r).greaterThan(elementAt(largest)))
 	    largest = r;
 
 	if (largest != i) {
@@ -148,14 +155,14 @@ class HeapDescending extends Vector implements HeapImpl {
 	if (size() == 0)
 	    throw new NoSuchElementException();
 
-	Object max = elementAt(0);
+	Heapable max = elementAt(0);
 
 	// move the last key to the top, decrease size, and downheap
 	setElementAt(lastElement(), 0);
 	removeElementAt(size() - 1);
 	heapify(0);
 
-	return (Heapable)max;
+	return max;
     }
 
     /**
@@ -176,7 +183,7 @@ class HeapDescending extends Vector implements HeapImpl {
 	setSize(size() + 1);
 
 	// upheap if necessary
-	while (i > 0 && ((Heapable)elementAt(parent(i))).lessThan(key)) {
+	while (i > 0 && elementAt(parent(i)).lessThan(key)) {
 	    setElementAt(elementAt(parent(i)), i);
 	    i = parent(i);
 	}

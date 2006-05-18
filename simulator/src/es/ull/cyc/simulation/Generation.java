@@ -19,7 +19,7 @@ public class Generation {
 	/** Total amount of elements which will be generated */
 	protected RandomNumber nElem;
 	/** Each metaflow that will be generated */
-	protected ArrayList genPairs;
+	protected ArrayList<GenerationPair> genPairs;
 
 	/**
 	 * Creates a generation object.
@@ -27,7 +27,7 @@ public class Generation {
 	 */
 	public Generation(RandomNumber nElem) {
 		this.nElem = nElem;
-		this.genPairs = new ArrayList();
+		this.genPairs = new ArrayList<GenerationPair>();
 	}
 	
 	/**
@@ -36,7 +36,7 @@ public class Generation {
 	 * @param nElem Number of elements which will be generated.
 	 * @param genPairs Initial list of [metaflows, proportions] pairs.
 	 */
-	public Generation(RandomNumber nElem, ArrayList genPairs) {
+	public Generation(RandomNumber nElem, ArrayList<GenerationPair> genPairs) {
 		this.nElem = nElem;
 		this.genPairs = genPairs;
 	}
@@ -61,8 +61,7 @@ public class Generation {
 		int n = (int)nElem.samplePositiveDouble();
 		for (int i = 0; i < genPairs.size(); i++) {
 			CycleIterator it = new CycleIterator(cycle, lp.getTs(), simul.getEndTs());
-			GenerationPair gen = (GenerationPair) genPairs.get(i);
-			new ElementGenerator(simul, lp, new Fixed(Math.round(n * gen.getProp())), it, gen.getMeta()).start();
+			new ElementGenerator(simul, lp, new Fixed(Math.round(n * genPairs.get(i).getProp())), it, genPairs.get(i).getMeta()).start();
 		}
 	}
 

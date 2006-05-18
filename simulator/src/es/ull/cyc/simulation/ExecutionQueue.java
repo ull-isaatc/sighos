@@ -23,7 +23,7 @@ public class ExecutionQueue {
     /** Pool de elementos en ejecución */
     protected ThreadPool tp;
 	/** Cola de elementos de sim. que en este momento estan en ejecucion */
-	protected Vector executionQueue;
+	protected Vector<BasicElement.Event> executionQueue;
     
     /** 
      * Crea un nuevo ControladorElementos.
@@ -32,7 +32,7 @@ public class ExecutionQueue {
     public ExecutionQueue(LogicalProcess pl) {
         this.lp = pl;
         tp = new ThreadPool(2, 2);
-        executionQueue = new Vector();
+        executionQueue = new Vector<BasicElement.Event>();
     }
     
     /**
@@ -51,7 +51,7 @@ public class ExecutionQueue {
 			// del mismo elemento dispare esta condición.
             if (executionQueue.isEmpty()) {
             	if(lp.getSimul().getElements() == 0) {
-	            	lp.print(Output.DEBUGMSG, "Execution queue freed",
+	            	lp.print(Output.MessageType.DEBUG, "Execution queue freed",
 	            			"TP. MAX:" + tp.getMaxThreads() + "\tINI:" + tp.getInitThreads() 
 	            			+ "\tCREATED:" + tp.getNThreads());
 	            	tp.finish();
@@ -96,6 +96,6 @@ public class ExecutionQueue {
      * @return El elemento indicado mediante el índice ind
      */
     protected synchronized BasicElement.Event getEvent(int ind) {
-        return (BasicElement.Event)executionQueue.get(ind);
+        return executionQueue.get(ind);
     }
 }

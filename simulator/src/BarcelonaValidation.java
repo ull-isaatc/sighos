@@ -174,7 +174,7 @@ class ExpBarcelona extends Experiment {
 	ExpBarcelona() {
 //		super("Validation HOFT", NEXP, new BarcelonaResultProcessor(360 * 1440.0), new Output(Output.NODEBUG));
 		// PASADO A HORAS
-		super("Validation HOFT", NEXP, new BarcelonaResultProcessor(365 * 24.0), new Output(Output.NODEBUG));
+		super("Validation HOFT", NEXP, new BarcelonaResultProcessor(365 * 24.0), new Output(Output.DebugLevel.NODEBUG));
 	}
 	
 	public Simulation getSimulation(int ind) {

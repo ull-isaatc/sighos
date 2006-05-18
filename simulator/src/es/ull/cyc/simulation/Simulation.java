@@ -35,7 +35,7 @@ public abstract class Simulation implements Printable, Runnable {
     /** List of resource types present in the simulation. */
     protected OrderedList resourceTypeList;
     /** List of activity managers that partition the simulation. */
-    protected ArrayList activityManagerList;    
+    protected ArrayList<ActivityManager> activityManagerList;    
     /** Logical Process list */
     protected LogicalProcess[] logicalProcessList;
     /** Timestamp of simulation's start */
@@ -58,7 +58,7 @@ public abstract class Simulation implements Printable, Runnable {
         resourceList = new OrderedList();
         activityList = new OrderedList();
         resourceTypeList = new OrderedList();
-        activityManagerList = new ArrayList();
+        activityManagerList = new ArrayList<ActivityManager>();
     	this.description = description;
         this.startTs = startTs;
         this.endTs = endTs;
@@ -137,7 +137,7 @@ public abstract class Simulation implements Printable, Runnable {
 				int flowId = pFlow.getValue();
 				pFlow = (PendingFlowStatistics)itFlow.next();
 				if (pFlow.getType() != PendingFlowStatistics.ACTFLOW)
-					print(Output.ERRORMSG, "Expected activity description in pending flow statistics.");
+					print(Output.MessageType.ERROR, "Expected activity description in pending flow statistics.");
 				Activity act = (Activity)activityList.get(new Integer(pFlow.getValue()));
 				// FIXME: Qué pasa con las No presenciales?
 				// Respuesta: NO deberían aparecer, puesto que se deberían
@@ -147,7 +147,7 @@ public abstract class Simulation implements Printable, Runnable {
 				sflowMap.put(new Integer(flowId), f);
 				break;
 			default:
-				print(Output.ERRORMSG, "Unexpected type in pending flow statistics.");					
+				print(Output.MessageType.ERROR, "Unexpected type in pending flow statistics.");					
 				break;
 		}
     }
@@ -182,14 +182,14 @@ public abstract class Simulation implements Printable, Runnable {
 					int flowId = pFlow.getValue();
 					pFlow = (PendingFlowStatistics)itFlow.next();
 					if (pFlow.getType() != PendingFlowStatistics.ACTFLOW)
-						print(Output.ERRORMSG, "Expected activity description in pending flow statistics.");
+						print(Output.MessageType.ERROR, "Expected activity description in pending flow statistics.");
 					Activity act = (Activity)activityList.get(new Integer(pFlow.getValue()));
 					root = new SingleFlow(elem, act);
 					((SingleFlow)root).setId(flowId);
 					sflowMap.put(new Integer(flowId), root);
 					break;
 				default:
-					print(Output.ERRORMSG, "Unexpected type in pending flow statistics.");					
+					print(Output.MessageType.ERROR, "Unexpected type in pending flow statistics.");					
 					break;
 			}
 			elem.setFlow(root);
@@ -240,10 +240,10 @@ public abstract class Simulation implements Printable, Runnable {
      * @param current Current node being searching.
      * @param marks Mark array that's used for determining the partition of each node.
      */
-    private void dfs(HashSet []graph, int current, int []marks) {
-        Iterator it = graph[current].iterator();
+    private void dfs(HashSet<Integer> []graph, int current, int []marks) {
+        Iterator<Integer> it = graph[current].iterator();
         while (it.hasNext()) {
-            Integer i = (Integer)it.next();
+            Integer i = it.next();
             if (marks[i.intValue()] == -1) {
                 marks[i.intValue()] = marks[current];
                 // Para acelerar un poco el algoritmo se elimina la arista simétrica
@@ -261,12 +261,12 @@ public abstract class Simulation implements Printable, Runnable {
      * represented by the connected vertex.
      * @return The constructed graph.
      */    
-    private HashSet []createGraph() {
+    private HashSet<Integer> []createGraph() {
         int ind1 = -1, ind2 = -1;
-        HashSet []graph = new HashSet[resourceTypeList.size()];
+        HashSet<Integer> []graph = new HashSet[resourceTypeList.size()];
         
         for (int i = 0; i < resourceTypeList.size(); i++)
-            graph[i] = new HashSet();
+            graph[i] = new HashSet<Integer>();
         for (int i = 0; i < activityList.size(); i++) {
             Activity a = (Activity) activityList.get(i);
             Prioritizable []wgList = a.getWorkGroupTable();
@@ -311,7 +311,7 @@ public abstract class Simulation implements Printable, Runnable {
      */
     private void createActivityManagers() {        
         // The graph is an array consisting on sets of resource types
-        HashSet []graph = createGraph();
+        HashSet<Integer> []graph = createGraph();
         int []marks = new int[resourceTypeList.size()];
         for (int i = 0; i < resourceTypeList.size(); i++)
             marks[i] = -1; // Not-visited mark
@@ -340,7 +340,7 @@ public abstract class Simulation implements Printable, Runnable {
                     break;
             if (j < wgList.length) {
                 int ind = resourceTypeList.indexOf(((WorkGroup)wgList[j]).getResourceType(0));
-                ActivityManager ga = (ActivityManager)activityManagerList.get(marks[ind]);
+                ActivityManager ga = activityManagerList.get(marks[ind]);
                 a.setManager(ga);
             }
             else {
@@ -352,7 +352,7 @@ public abstract class Simulation implements Printable, Runnable {
         }
         for (int i = 0; i < resourceTypeList.size(); i++) {
             ResourceType rt = (ResourceType) resourceTypeList.get(i);
-            ActivityManager ga = (ActivityManager)activityManagerList.get(marks[i]);
+            ActivityManager ga = activityManagerList.get(marks[i]);
             rt.setManager(ga);
         }
 
@@ -374,7 +374,7 @@ public abstract class Simulation implements Printable, Runnable {
         logicalProcessList = new LogicalProcess[1];
         logicalProcessList[0] = new LogicalProcess(this, startTs, endTs);
         for (int i = 0; i < activityManagerList.size(); i++) {
-            ActivityManager am = (ActivityManager)activityManagerList.get(i);
+            ActivityManager am = activityManagerList.get(i);
             // FIXME
             am.setLp(logicalProcessList[0]);
         }
@@ -424,7 +424,7 @@ public abstract class Simulation implements Printable, Runnable {
         else if (obj instanceof Activity)
             resul = activityList.add(obj);
         else
-        	print(Output.ERRORMSG, "Trying to add an unidentified object to the Model");
+        	print(Output.MessageType.ERROR, "Trying to add an unidentified object to the Model");
         return resul;
     }
    
@@ -524,7 +524,7 @@ public abstract class Simulation implements Printable, Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		print(Output.DEBUGMSG, "SIMULATION COMPLETELY FINISHED");
+		print(Output.MessageType.DEBUG, "SIMULATION COMPLETELY FINISHED");
 	}
 	
 	/** 
@@ -538,11 +538,11 @@ public abstract class Simulation implements Printable, Runnable {
 		return description;
 	}
 	
-	public void print(int type, String shortDescription, String longDescription) {
+	public void print(Output.MessageType type, String shortDescription, String longDescription) {
 		out.print(type, shortDescription, longDescription);
 	}
 
-	public void print(int type, String description) {
+	public void print(Output.MessageType type, String description) {
 		out.print(type, description);
 	}
 
@@ -571,16 +571,16 @@ public abstract class Simulation implements Printable, Runnable {
             }
             str.append("\r\n");
         }
-        print(Output.DEBUGMSG, "Graph created", str.toString());
+        print(Output.MessageType.DEBUG, "Graph created", str.toString());
 	}
 	
 	protected void debugPrintActManager() {
 		StringBuffer str = new StringBuffer("Activity Managers:");
         for (int i = 0; i < activityManagerList.size(); i++)
-            str.append("\t" + (ActivityManager) activityManagerList.get(i));            
+            str.append("\t" + activityManagerList.get(i));            
 		StringBuffer str1 = new StringBuffer("Activity Managers:\r\n");
         for (int i = 0; i < activityManagerList.size(); i++)
-            str1.append(((ActivityManager) activityManagerList.get(i)).getDescription() + "\r\n");            
-		print(Output.DEBUGMSG, str.toString(), str1.toString());
+            str1.append((activityManagerList.get(i)).getDescription() + "\r\n");            
+		print(Output.MessageType.DEBUG, str.toString(), str1.toString());
 	}
 }

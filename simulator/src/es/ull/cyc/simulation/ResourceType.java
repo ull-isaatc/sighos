@@ -165,7 +165,7 @@ public class ResourceType extends DescSimulationObject {
     protected ArrayList incAvailable(int cantidad, BasicElement e) {
         ArrayList listaGA = new ArrayList();
 
-        print(Output.DEBUGMSG, "Increase amount\t" + cantidad,
+        print(Output.MessageType.DEBUG, "Increase amount\t" + cantidad,
         		"Increase amount\t" + cantidad + "\t" + e);
         
         // Primero se recorre la cola de recursos para comprobar si alguno lo
@@ -184,11 +184,11 @@ public class ResourceType extends DescSimulationObject {
                         // MOD 5/10/04: El recurso no se elimina aquí sino que se devuelve de forma normal
                         // La próxima vez que se pregunte por este recurso desde la función getAvailable
                         // será eliminado
-                    	print(Output.DEBUGMSG, "Resource returned out of time\t" + erm.getResource(),
+                    	print(Output.MessageType.DEBUG, "Resource returned out of time\t" + erm.getResource(),
                     			"Resource returned out of time\t" + erm.getResource() + "\t" + e + "\t" + available);
                     }
                     else {
-                    	print(Output.DEBUGMSG, "Resource returned normally\t" + erm.getResource(),
+                    	print(Output.MessageType.DEBUG, "Resource returned normally\t" + erm.getResource(),
                     			"Resource returned normally\t" + erm.getResource() + "\t" + e + "\t" + available);
                         // MOD 2/11/04 
                         for (int j = 0; j < erm.getManagerList().size(); j++) {
@@ -204,7 +204,7 @@ public class ResourceType extends DescSimulationObject {
         }
         // Esta comprobación no debería tener que hacerse
         if (cantidad < 0) {
-        	print(Output.ERRORMSG, "UNEXPECTED ERROR: More resources than expected", 
+        	print(Output.MessageType.ERROR, "UNEXPECTED ERROR: More resources than expected", 
         			"UNEXPECTED ERROR: More resources than expected\t"+ cantidad + "\t" + available + "\t" + e);
         }
         available += cantidad;
@@ -218,7 +218,7 @@ public class ResourceType extends DescSimulationObject {
      * @param e Elemento que está cogiendo los recursos
 	 */
     protected void decAvailable(int cantidad, BasicElement e) {
-        print(Output.DEBUGMSG, "Decrease amount\t" + cantidad,
+        print(Output.MessageType.DEBUG, "Decrease amount\t" + cantidad,
         		"Decrease amount\t" + cantidad + "\t" + e);
         
         if (available > cantidad) {
@@ -239,7 +239,7 @@ public class ResourceType extends DescSimulationObject {
                             erm.setBooked(false);
                             cantidad--;
                             
-                            print(Output.DEBUGMSG, "Resource taken\t" + erm.getResource(),
+                            print(Output.MessageType.DEBUG, "Resource taken\t" + erm.getResource(),
                             		"Resource taken\t" + erm.getResource() + "\t " + cantidad + "\t" + e);
                         }
                         else
@@ -252,12 +252,12 @@ public class ResourceType extends DescSimulationObject {
                         erm.setBookedResourceType(null);
                         cantidad--;                        
                         
-                        print(Output.DEBUGMSG, "Overlapped Resource taken\t" + erm.getResource(),
+                        print(Output.MessageType.DEBUG, "Overlapped Resource taken\t" + erm.getResource(),
                         		"Overlapped Resource taken\t" + erm.getResource() + "\t " + cantidad + "\t" + e);
                         
                         // Comprobación chunga
                         if (cantidad < 0) {
-                        	print(Output.ERRORMSG, "UNEXPECTED ERROR: More resources than expected", 
+                        	print(Output.MessageType.ERROR, "UNEXPECTED ERROR: More resources than expected", 
                         			"UNEXPECTED ERROR: More resources than expected\t"+ cantidad + "\t" + available + "\t" + e);
                         }
                     }
@@ -265,7 +265,7 @@ public class ResourceType extends DescSimulationObject {
             }
             // Comprobación chunga
             if (cantidad > 0) {
-            	print(Output.ERRORMSG, "UNEXPECTED ERROR: Less resources than expected", 
+            	print(Output.MessageType.ERROR, "UNEXPECTED ERROR: Less resources than expected", 
             			"UNEXPECTED ERROR: Less resources than expected\t"+ cantidad + "\t" + available + "\t" + e);
             }
         }
@@ -298,19 +298,19 @@ public class ResourceType extends DescSimulationObject {
             ;
         // El recurso estaba libre y puede eliminarse
         if (respuesta == MultipleRole.FREE) {
-        	print(Output.DEBUGMSG, "Overlapped Resource can be freed\t" + erm.getResource());
+        	print(Output.MessageType.DEBUG, "Overlapped Resource can be freed\t" + erm.getResource());
             availableResourceQueue.remove(erm);
             erm.releaseBooking();
         }
         // El recurso está siendo usado por otro elemento
         else if (respuesta == MultipleRole.USED) {
             erm.setTimeOut(true);
-        	print(Output.DEBUGMSG, "Overlapped Resource used out of time. Can't be freed\t" + erm.getResource(),
+        	print(Output.MessageType.DEBUG, "Overlapped Resource used out of time. Can't be freed\t" + erm.getResource(),
         			"Overlapped Resource used out of time. Can't be freed\t" + erm.getResource() + "\t" + available);
         }
         // El recurso está reservado para otra CR de la misma actividad
         else if (respuesta == MultipleRole.OVERLAPPED) {
-        	print(Output.ERRORMSG, "UNEXPECTED ERROR: Overlapped and booked role?\t" + erm.getResource(), 
+        	print(Output.MessageType.ERROR, "UNEXPECTED ERROR: Overlapped and booked role?\t" + erm.getResource(), 
         			"UNEXPECTED ERROR: Overlapped and booked role?\t" + available + "\t" + erm.getResource());
         }
     }
