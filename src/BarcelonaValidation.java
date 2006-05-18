@@ -5,7 +5,6 @@ import es.ull.cyc.random.*;
 import es.ull.cyc.simulation.*;
 import es.ull.cyc.simulation.results.ResultProcessor;
 import es.ull.cyc.simulation.results.SimulationResults;
-import es.ull.cyc.simulation.results.StdResultProcessor;
 import es.ull.cyc.util.Cycle;
 import es.ull.cyc.util.Output;
 
