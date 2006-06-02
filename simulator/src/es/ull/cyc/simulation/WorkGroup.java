@@ -115,7 +115,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     public ResourceType getResourceType(int ind) {
         if (ind < 0 || ind >= resourceTypeTable.size())
             return null;
-        return resourceTypeTable.get(ind).getRType();
+        return resourceTypeTable.get(ind).getResourceType();
     }
 
     /**
@@ -141,7 +141,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
        boolean found = false;
 
        while ( (index < size) && ! found ) {
-           if ( resourceTypeTable.get(index).getRType() == rt )
+           if ( resourceTypeTable.get(index).getResourceType() == rt )
                 return(index);
            else
                 index++;
@@ -173,14 +173,15 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @param e Elemento con el que se busca.
      * @return Verdadero (true) si hay solución. Falso (false) en otro caso.
      */
-    protected boolean hasSolution(int []pos, int []nec, BasicElement e) {
+    protected boolean hasSolution(int []pos, int []nec, Element e) {
         for (int i = pos[0]; i < resourceTypeTable.size(); i++) {
             ResourceTypeTableEntry actual = resourceTypeTable.get(i);
             int j = pos[1];
-            MultipleRole erm;
-            int disp = 0;
-            while (((erm = actual.getRType().getAvailableResource(j)) != null) && (disp < nec[i])) {
-                if ((erm.getBookedElement() == e) && (erm.getBookedResourceType() == null))
+            Resource res;
+            int disp = 0;            
+            while (((res = actual.getResourceType().getResource(j)) != null) && (disp < nec[i])) {
+                // FIXME Debería bastar con preguntar por el RT
+                if ((res.getCurrentElement() == null) && (res.getCurrentResourceType() == null))
                     disp++;
                 j++;
             }
@@ -198,7 +199,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @param e Elemento con el que se busca.
      * @return Posición de la siguiente solución válida.
      */
-    private int []searchNext(int[] pos, int []nec, BasicElement e) {
+    private int []searchNext(int[] pos, int []nec, Element e) {
         int []aux = new int[2];
         aux[0] = pos[0];
         aux[1] = pos[1];
@@ -213,9 +214,9 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
             }
         }
         // Cojo la entrada correspondiente al primer índice
-        ResourceTypeTableEntry actual = resourceTypeTable.get(aux[0]);
+        ResourceType rt = resourceTypeTable.get(aux[0]).getResourceType();
         // Busco el SIGUIENTE recurso disponible a partir del índice
-        aux[1] = actual.getRType().getBookedResource(aux[1] + 1, e);
+        aux[1] = rt.getNextAvailableResource(aux[1] + 1, e);
 
         // No encontré ningún recurso disponible en esta clase de recurso
         if (aux[1] == -1)
@@ -228,9 +229,8 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @param pos Posición del elemento
      */
     private void mark(int []pos) {
-        ResourceTypeTableEntry actual = resourceTypeTable.get(pos[0]);
-        MultipleRole erm = actual.getRType().getAvailableResource(pos[1]);
-        erm.setBookedResourceType(actual.getRType());
+        ResourceType rt = resourceTypeTable.get(pos[0]).getResourceType();
+        rt.getResource(pos[1]).setCurrentResourceType(rt);
     }
     
     /**
@@ -238,123 +238,125 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @param pos Posición del elemento
      */
     private void unmark(int []pos) {
-        ResourceTypeTableEntry actual = resourceTypeTable.get(pos[0]);
-        MultipleRole erm = actual.getRType().getAvailableResource(pos[1]);
-        erm.setBookedResourceType(null);
+        ResourceType rt = resourceTypeTable.get(pos[0]).getResourceType();
+        rt.getResource(pos[1]).setCurrentResourceType(null);
     }
 
     /**
-     * Realiza una búsqueda en profundidad de una posible solución
-     * @param pos Posición de partida en la solución
-     * @param nec Array de recursos necesarios para la solución
-     * @param e Elemento que necesita la solución
-     * @return Verdadero (true) si encontró una solución válida; falso (false)
-     * en otro caso.
+     * Makes a depth first search looking for a solution.
+     * @param pos Position to look for a solution [ResourceType, Resource] 
+     * @param ned Resources needed
+     * @param e Element looking for the solution
+     * @return True if a valid solution exists. False in other case.
      */
-    private boolean findSolution(int []pos, int []nec, BasicElement e) {
-        pos = searchNext(pos, nec, e);
-        // No se encontró solución por este camino
+    private boolean findSolution(int []pos, int []ned, Element e) {
+        pos = searchNext(pos, ned, e);
+        // No solution
         if (pos == null)
             return false;
-        // No hacían falta más elementos => SOLUCION ENCONTRADA
+        // No more elements needed => SOLUTION
         if (pos[0] == resourceTypeTable.size())
             return true;
-        // Marco el recurso como miembro de la solución ...
+        // This resource belongs to the solution...
         mark(pos);
-        nec[pos[0]]--;
-        // Mejora para cortar
-        if (hasSolution(pos, nec, e))
-        // ... y continúo buscando
-            if (findSolution(pos, nec, e))
+        ned[pos[0]]--;
+        // Bound
+        if (hasSolution(pos, ned, e))
+        // ... the search continues
+            if (findSolution(pos, ned, e))
                 return true;
-        // Marcando el recurso no encontré solución, así que pruebo sin marcarlo
+        // There's no solution with this resource. Try without it
         unmark(pos);
-        nec[pos[0]]++;
-        // Busco una nueva solución a partir de la actual
-        return findSolution(pos, nec, e);        
+        ned[pos[0]]++;
+        // ... and the search continues
+        return findSolution(pos, ned, e);        
     }
     
     /**
-     * Función que reparte los recursos cuando están solapados. Todos los 
-     * recursos de la lista de recursos con múltiples roles de cada clase de 
+     * Distribute the resources when there is a conflict inside the activity.
+     *   
+     * Los recursos de la lista de recursos con múltiples roles de cada clase de 
      * recurso estarán marcados.
-     * @param e Elemento que está intentando solicitar la actividad
-     * @return Verdadero (true) si encontró una solución válida; falso (false)
-     * en otro caso.
+     * @param e Element trying to carry out the activity with this workgroup 
+     * @return True if a valid solution exists. False in other case.
      */
-    protected boolean distributeResources(BasicElement e) {
-        int nec[] = new int[resourceTypeTable.size()];
-        int []pos = {0, -1}; // Posición de partida
-        MultipleRole erm;
+    protected boolean distributeResources(Element e) {
+        int ned[] = new int[resourceTypeTable.size()];
+        int []pos = {0, -1}; // "Start" position
         
-        // Simplificación de la búsqueda
-        for (int i = 0; i < resourceTypeTable.size(); i++) {
-            ResourceTypeTableEntry actual = resourceTypeTable.get(i);
-            nec[i] = actual.getNeeded();
-            int disp = actual.getRType().getAvailable();
-            if (disp >= nec[i])
-                nec[i] = 0;
-            else // No puedo solucionarlo con los recursos "simples"
-                nec[i] -= disp;
-            // Sustituyo a "e" por "e1" en todos los recursos reservados
-        }
-        // Se busca la solución mediante "fuerza bruta"
-        if (findSolution(pos, nec, e)) {
-            for (int i = 0; i < resourceTypeTable.size(); i++) {
-                ResourceTypeTableEntry actual = resourceTypeTable.get(i);
-                for (int j = 0; (erm = actual.getRType().getAvailableResource(j)) != null; j++)
-                    if ((erm.getBookedElement() == e) && (erm.getBookedResourceType() == null)) // Este elemento no nos interesa
-                        erm.releaseBooking();
-            }
+        for (int i = 0; i < resourceTypeTable.size(); i++)
+            ned[i] = resourceTypeTable.get(i).getNeeded();
+        // B&B algorithm for finding a solution
+        if (findSolution(pos, ned, e))
             return true;
-        }
-        // Si no encontró solución hay que volver a dejar los recursos como estaban
-        for (int i = 0; i < resourceTypeTable.size(); i++) {
-            ResourceTypeTableEntry actual = resourceTypeTable.get(i);
-            actual.getRType().resetAvailable(e);
-        }
+        // If there is no solution, the "books" of this element are removed
+        for (int i = 0; i < resourceTypeTable.size(); i++)
+            resourceTypeTable.get(i).getResourceType().resetAvailable(e);
         return false;
     }
     
     /**
-     * MOD 28/10/04 
-     * Método para comprobar si para toda la tabla el número de elementos disponibles es mayor o igual
-     * que el de necesarios. Si es así devuelve cierto, y si no devuelve falso
-     * La función marca todos aquellos recursos con roles solapados en horario
-     * necesarios para realizar la actividad. Son estos recursos marcados y no 
-     * otros los que se cogen al realizar la actividad.
-     * En caso de no ser realizable la actividad se desmarca cualquier recurso
-     * reservado durante este proceso.
-     * @param e Elemento que está intentando solicitar la actividad
-     * @return Verdadero si hay tantas unidades disponibles de cada Clase de Recurso como son necesarias
+     * Checks if there are enough resources to carry out an activity by using this workgroup.   
+     * The "potential" available resources are booked by the element requesting the activity. 
+     * If there are less available resources than needed resources for any resource type, the 
+     * activity can not be carried out, and all the "books" are removed.
+     * Possible conflicts between resources inside the activity are solved by invoking a
+     * branch-and-bound resource distribution algorithm. 
+     * @param e Element trying to carry out the activity with this workgroup 
+     * @return True if there are more "potential" available resources than needed resources for
+     * thiw workgroup. False in other case.
      */
-    protected boolean isFeasible(BasicElement e) {
-        boolean solapado = false;
-        ResourceTypeTableEntry actual;
-        
-        for (int i = 0; i < resourceTypeTable.size(); i++) {
-            actual = resourceTypeTable.get(i);
-            int []disp = actual.getRType().getAvailable(e);
-            if (disp[0] + disp[1] < actual.getNeeded()) {
-                // Deshago las posibles reservas realizadas 
-                // FIXME Esto es un poco ineficiente
-                actual.getRType().resetAvailable(e);
-                i--;
-                for (; i >= 0; i--) {
-                    actual = resourceTypeTable.get(i);
-                    actual.getRType().resetAvailable(e);
-                }
-                return false;
-            }
-            else if (disp[0] < actual.getNeeded())
-                solapado = true;
-        }
-        if (solapado) {// Llamar a la función de distribución de recursos
-        	print(Output.MessageType.DEBUG, "Overlapped resources", "Overlapped resources with " + e);
-            return distributeResources(e);
-        }
-        return(true); // devuelve cierto si llego al final y hay al menos tantas disponibles como necesarias
+    protected boolean isFeasible(Element e) {
+    	boolean conflict = false;
 
+    	e.resetConflictList();
+        for (int i = 0; i < resourceTypeTable.size(); i++) {
+            ResourceTypeTableEntry rttEntry = resourceTypeTable.get(i);       	
+        	ResourceType rt = rttEntry.getResourceType();
+        	int []avail = rt.getAvailable(e);
+        	// If there are less "potential" available resources than needed
+            if (avail[0] + avail[1] < rttEntry.getNeeded()) {
+            	// The element frees the previously booked resources 
+                // FIXME Esto es un poco ineficiente
+                rt.resetAvailable(e);
+                i--;
+                for (; i >= 0; i--)
+                    resourceTypeTable.get(i).getResourceType().resetAvailable(e);
+                e.removeConflictList();
+                return false;            	
+            }
+            // If the available resources WITH conflicts are needed
+            else if (avail[0] < rttEntry.getNeeded())
+                conflict = true;
+        }
+        // When this point is reached, that means that the activity is POTENTIALLY feasible
+        e.waitConflictSemaphore();
+        // Now, this element has exclusive access to its resources. It's time to "recheck"
+        // if the activity is feasible        
+        if (conflict) { // The resource distribution algorithm is invoked
+        	print(Output.MessageType.DEBUG, "Overlapped resources", "Overlapped resources with " + e);
+            if (!distributeResources(e)) {
+                e.removeConflictList();
+            	e.signalConflictSemaphore();
+            	return false;
+            }
+        }
+        else if (e.getConflictList().size() > 1) {
+        	print(Output.MessageType.DEBUG, "Possible conflict", "Possible conflict. Recheck is needed " + e);
+            int ned[] = new int[resourceTypeTable.size()];
+            int []pos = {0, -1}; // "Start" position
+            for (int i = 0; i < resourceTypeTable.size(); i++)
+                ned[i] = resourceTypeTable.get(i).getNeeded();
+        	if (!hasSolution(pos, ned, e)) {
+                e.removeConflictList();
+            	e.signalConflictSemaphore();
+            	// The element frees the previously booked resources 
+            	for (ResourceTypeTableEntry rttEntry : resourceTypeTable)
+            		rttEntry.getResourceType().resetAvailable(e);
+        		return false;
+        	}
+        }
+        return true;
     }
 
     /**
@@ -362,34 +364,35 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * unidades disponibles en las Clases de Recursos.
      * @param e Elemento que está cogiendo los recursos
      */
-    protected void catchResources(BasicElement e) {
+    protected void catchResources(Element e) {
        for (int i = 0; i < resourceTypeTable.size(); i++) {
-           ResourceTypeTableEntry actual = resourceTypeTable.get(i);
-           actual.getRType().decAvailable(actual.getNeeded(), e);
-       }        
+           ResourceTypeTableEntry rtte = resourceTypeTable.get(i);
+           rtte.getResourceType().decAvailable(rtte.getNeeded(), e);
+       }
+       // When this point is reached, that means that the resources have been completely taken
+       e.signalConflictSemaphore();
     }
     
     /**
-     * Método que devuelve las unidades necesarias para una actividad a las
-     * unidades disponibles en las Clases de Recursos.
-     * @param e Elemento que está devolviendo los recursos
-     * @return Una lista con todos los gestores de actividades afectados por la
-     * devolución de alguno de los recursos (recursos con horarios solapados en
-     * distintos GAs)
+     * Releases the resources caught by an element.
+     * @param e The element returning the resources.
+     * @return A list of activity managers affected by the released resources
      */
-    protected ArrayList releaseResources(BasicElement e) {
-        ArrayList listaGA = new ArrayList();
-        for (int i = 0; i < resourceTypeTable.size(); i++) {
-            ResourceTypeTableEntry actual = resourceTypeTable.get(i);
-            ArrayList listaAux = actual.getRType().incAvailable(actual.getNeeded(), e);
-            // MOD 2/11/04 
-            for (int j = 0; j < listaAux.size(); j++) {
-                ActivityManager ga = (ActivityManager) listaAux.get(j);
-                if (!listaGA.contains(ga))
-                    listaGA.add(ga);
-            }
+    protected ArrayList<ActivityManager> releaseResources(Element e) {
+        ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
+        ArrayList <Resource>resourceList = e.getCaughtResources();
+        for (int i = 0; i < resourceList.size(); i++) {
+        	print(Output.MessageType.DEBUG, "Returned " + resourceList.get(i));
+        	// The resource is freed
+        	if (resourceList.get(i).releaseResource()) {
+        		// The activity managers involved are included in the list
+        		ArrayList<ActivityManager> auxList = resourceList.get(i).getCurrentManagers();
+        		for (int j = 0; j < auxList.size(); j++)
+        			if (!amList.contains(auxList.get(j)))
+        				amList.add(auxList.get(j));
+        	}
         }
-        return listaGA;
+        return amList;
     }
 
     public String toString() {
@@ -409,7 +412,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
        StringBuffer str = new StringBuffer(this.toString() + "\tResource Table:\n"); 
        for (int i = 0; i < resourceTypeTable.size(); i++) {
            ResourceTypeTableEntry actual = resourceTypeTable.get(i);
-           str.append(" | "+ actual.getRType().getDescription()+" | "+actual.getNeeded()+"\n");
+           str.append(" | "+ actual.getResourceType().getDescription()+" | "+actual.getNeeded()+"\n");
         }
        return str.toString();
 	}

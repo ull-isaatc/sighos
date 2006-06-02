@@ -97,9 +97,10 @@ public class ActivityManager extends SimulationObject {
                     		"Can carry out (available resource)\t" + act + "\t" + act.getDescription());
                     
                     // Fin Sincronización hasta que el elemento deje de ser accedido
-                    // MOD 26/06/01 Movida esta línea antes del e.sig... 
-                    e.carryOutActivity(flow);
+                    // MOD 26/01/06 Movida esta línea antes del e.sig...
+                    // MOD 23/05/06 Vuelta a poner aquí: ¿POR QUÉ LA MOVI?
                     e.signalSemaphore();
+                    e.carryOutActivity(flow);
                 }
                 else
                     act.getElement(0).signalSemaphore();
@@ -187,16 +188,11 @@ public class ActivityManager extends SimulationObject {
 	 */
     protected void finalizeActivity(Element e) {
         waitSemaphore();
-        ArrayList listaGA = e.getCurrentWG().releaseResources(e); // suma unidades necesarias a unidades disponibles para todos los recursos
+        ArrayList<ActivityManager> amList = e.getCurrentWG().releaseResources(e); 
         e.setCurrentWG(null);
         signalSemaphore();
-        if (listaGA.size() > 0)
-            for (int i = 0; i < listaGA.size(); i++) {
-                ActivityManager ga = (ActivityManager)listaGA.get(i);
-                ga.availableResource();
-            }
-        else
-            availableResource(); // Se informa al gestor de actividades de que los recursos han quedado libres
+        for (ActivityManager am : amList) 
+        	am.availableResource();
     }
  
     /**
@@ -204,36 +200,11 @@ public class ActivityManager extends SimulationObject {
      * desempeña un rol en un momento determinado
      * Además avisa al gestor de actividades de este cambio para que compruebe
      * si algún elemento puede comenzar su ejecución
-     * @param cr Clase de Recurso en la que se pone disponible el recurso
-     */
-    protected void addAvailable(ResourceType rt) {
-        waitSemaphore();
-        rt.modAvailable(1);
-        signalSemaphore();
-        availableResource(); // Se informa al gestor de actividades de que los recursos han quedado libres
-    }
-    
-    /**
-     * Método mediante el cual deja de estar disponible un Recurso Activo que 
-     * desempeñaba como rol una Clase de Recurso concreta.
-     * @param cr Clase de Recurso en la que daja de estar disponible el recurso
-     */
-    protected void removeAvailable(ResourceType rt) {
-        waitSemaphore();
-        rt.modAvailable(-1);
-        signalSemaphore();        
-    }
-    
-    /**
-     * Método mediante el cual se pone disponible un Recurso Activo que 
-     * desempeña un rol en un momento determinado
-     * Además avisa al gestor de actividades de este cambio para que compruebe
-     * si algún elemento puede comenzar su ejecución
      * @param mr Entrada que contiene el recurso y los roles quedesempeña simultáneamente
      */
-    protected void addAvailable(MultipleRole mr, int ind) {
+    protected void addAvailable(Resource res, ResourceType role) {
         waitSemaphore();
-        mr.getResourceType(ind).incAvailable(mr);
+        role.incAvailable(res);
         signalSemaphore();
         availableResource(); // Se informa al gestor de actividades de que los recursos han quedado libres
     }
@@ -243,9 +214,9 @@ public class ActivityManager extends SimulationObject {
      * desempeñaba como rol una Clase de Recurso concreta.
      * @param mr Entrada que contiene el recurso y los roles quedesempeña simultáneamente
      */
-    protected void removeAvailable(MultipleRole mr, int ind) {
+    protected void removeAvailable(Resource res, ResourceType role) {
         waitSemaphore();
-        mr.getResourceType(ind).decAvailable(mr);
+        role.decAvailable(res);
         signalSemaphore();        
     }
     

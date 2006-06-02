@@ -95,7 +95,7 @@ public class SingleFlow extends Flow {
         }
         else {
             NPElement eNP = new NPElement(elem, this);
-            eNP.start();
+            eNP.start(act.getManager().getLp());
         }
         // MOD 24/01/06 Movido al evento
         //elem.incRequested(this);

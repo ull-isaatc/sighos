@@ -26,26 +26,22 @@ public class Element extends BasicElement {
     /** Amount of pending presential activities (pending[0]) and non-presential 
      ones (pending[1]) */
     protected int []pending;
-
-    /**
-     * Constructor del elemento que no indica el tiempo de simulación 
-     * @param simul Simulation object
-     * @param id Identificador del elemento
-     */
-	public Element(int id, Simulation simul) {
-		this(id, simul, simul.getDefaultLogicalProcess());
-	}
+    /** List of caught resources */
+    protected ArrayList<Resource> caughtResources;
+    // Avoiding deadlocks (overlapped resources)
+    /** List of conflictive elements */
+    protected ConflictList conflicts;
 
     /**
      * Constructor del elemento
      * @param simul Simulation object
      * @param id Identificador del elemento
-     * @param startTs Tiempo de simulación
      */
-	public Element(int id, Simulation simul, LogicalProcess defLP) {
-        super(id, simul, defLP);
+	public Element(int id, Simulation simul) {
+        super(id, simul);
         requested[0] = new ArrayList<SingleFlow>();
         requested[1] = new ArrayList<SingleFlow>();
+        caughtResources = new ArrayList<Resource>();
 	}
 
     /**
@@ -68,6 +64,60 @@ public class Element extends BasicElement {
     }
 
     /**
+	 * @return Returns the caughtResources.
+	 */
+	protected ArrayList<Resource> getCaughtResources() {
+		return caughtResources;
+	}
+
+	/**
+	 * @param res
+	 */
+	protected void addCaughtResource(Resource res) {
+		caughtResources.add(res);
+	}
+	
+	protected void resetConflictList() {
+        conflicts = new ConflictList(this);
+	}
+	
+	/**
+	 * @param list
+	 */
+	protected void setConflictList(ConflictList list) {
+		conflicts = list;
+	}
+	
+	protected boolean removeConflictList() {
+		return conflicts.remove(this);
+	}
+	/**
+	 * @return
+	 */
+	protected ConflictList getConflictList() {
+		return conflicts;
+	}
+	
+	protected void mergeConflictList(Element e) {
+		// If it's the same list there's no need of merge
+		if (conflicts != e.getConflictList()) {
+			int result = this.compareTo(e); 
+			if (result < 0)
+				conflicts.merge(e.getConflictList());
+			else if (result > 0)
+				e.getConflictList().merge(conflicts);
+		}
+	}
+	
+	protected void waitConflictSemaphore() {
+		conflicts.waitSemaphore(true);
+	}
+	
+	protected void signalConflictSemaphore() {
+		conflicts.signalSemaphore(true);
+	}
+	
+	/**
      * Returns the single flow which is being currently executed. 
      * @return Single flow attached to the current activity, or null if there is
      * no current activity.

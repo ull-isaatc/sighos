@@ -66,10 +66,9 @@ public class RandomNumber {
 	if (! rand_initialized ) {
         // MOD 24/05/05: Para hacer una inicialización aleatoria de verdad
 		// MOD 24/02/06: Aquí no uso random_mixer sino otra variable para que tarde menos
-		// FIXME ¿Sigue siendo igual de aleatorio?
-        int random_mixer_aux = (int)(System.currentTimeMillis() % 256) + 5;
+        int random_mixer_aux = (int)(System.currentTimeMillis() % 256) + 50;
 	    Random();
-	    for (i = 0; i < 10*random_mixer_aux; i++) 
+	    for (i = 0; i < random_mixer_aux; i++) 
             blender();
 	    rand_initialized = true;
 	}

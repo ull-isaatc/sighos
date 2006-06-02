@@ -39,7 +39,7 @@ public class RecoverableResultProcessor implements ResultProcessor {
 	public void processActivityStatistics(SimulationResults res, FileWriter fout) {
 		try {
 			for (int i = 0; i < res.getActivityStatistics().size(); i++) {
-				ActivityStatistics as = (ActivityStatistics) res.getActivityStatistics().get(i);
+				ActivityStatistics as = res.getActivityStatistics().get(i);
 				fout.write(as.getActId() + "\t" + as.getElemId() + "\t" + as.getFlowId() + "\r\n");
 				fout.flush();
 			}
@@ -52,7 +52,7 @@ public class RecoverableResultProcessor implements ResultProcessor {
 		try {
 			fout.write(res.getFirstElementId() + "\t" + res.getLastElementId() + "\r\n");
 			for (int i = 0; i < res.getPendingFlowStatistics().size(); i++) {
-				PendingFlowStatistics pfs = (PendingFlowStatistics) res.getPendingFlowStatistics().get(i);
+				PendingFlowStatistics pfs = res.getPendingFlowStatistics().get(i);
 				fout.write(pfs.getElemId() + "\t" + pfs.getType() + "\t" + pfs.getValue() + "\r\n");
 				fout.flush();
 			}

@@ -38,7 +38,7 @@ class ResourceTypeTableEntry {
      * Getter for property rType.
      * @return Value of property rType.
      */
-    public es.ull.cyc.simulation.ResourceType getRType() {
+    public es.ull.cyc.simulation.ResourceType getResourceType() {
         return rType;
     }   
 }

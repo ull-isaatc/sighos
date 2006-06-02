@@ -13,7 +13,6 @@ import es.ull.cyc.util.CycleIterator;
  * elements is distributed among several meta-descriptions (metaflows) of
  * the element flows.
  * @author Iván Castilla Rodríguez
- *
  */
 public class Generation {
 	/** Total amount of elements which will be generated */
@@ -56,13 +55,15 @@ public class Generation {
 	 * @param simul Simulation which the generator will be attached to.
 	 * @param cycle 
 	 */
-	public void createGenerators(Simulation simul, Cycle cycle) {
+	public ArrayList<Generator> createGenerators(Simulation simul, Cycle cycle) {
 		LogicalProcess lp = simul.getDefaultLogicalProcess();
 		int n = (int)nElem.samplePositiveDouble();
+		ArrayList<Generator> genList = new ArrayList<Generator>();
 		for (int i = 0; i < genPairs.size(); i++) {
 			CycleIterator it = new CycleIterator(cycle, lp.getTs(), simul.getEndTs());
-			new ElementGenerator(simul, lp, new Fixed(Math.round(n * genPairs.get(i).getProp())), it, genPairs.get(i).getMeta()).start();
+			genList.add(new ElementGenerator(simul, new Fixed(Math.round(n * genPairs.get(i).getProp())), it, genPairs.get(i).getMeta()));
 		}
+		return genList;
 	}
 
 	public class GenerationPair {

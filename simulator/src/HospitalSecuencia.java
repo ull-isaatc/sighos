@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 import es.ull.cyc.simulation.*;
 import es.ull.cyc.simulation.results.*;
 import es.ull.cyc.util.*;
@@ -26,10 +28,6 @@ class Analisis extends Simulation {
 		this.ndays = lastday;
     }
     
-	protected void createGenerators() {
-		createMetaFlow3();
-	}
-	
     protected void createModel() {
         // PASO 1: Inicializo las Activityes de las que se compone
         Activity actPrueba1 = new Activity(0, this, "Extracción de sangre, muestra de orina");
@@ -62,30 +60,40 @@ class Analisis extends Simulation {
         wg6.add(crOrina, 1);
         wg6.add(crEnfermero, 1);
        
+    }
+    
+	@Override
+	protected ArrayList<Resource> createResources() {
+		ArrayList<Resource> list = new ArrayList<Resource>();
+		
 //		Resource sangre1 = new Resource(this, "Máquina Análisis Sangre 1");
-//		sangre1.addTimeTableEntry(480, 1440, 480, crSangre, 0);
+//		sangre1.addTimeTableEntry(480, 1440, 480, getResourceType(0), 0);
 //		Resource orina1 = new Resource(this, "Máquina Análisis Orina 1");
-//		orina1.addTimeTableEntry(480, 1440, 480, crOrina, 0);
+//		orina1.addTimeTableEntry(480, 1440, 480, getResourceType(1), 0);
 
 //        Cycle c = new Cycle(480, new Fixed(1440.0), 3);
 //        Cycle c1 = new Cycle(0, new Fixed(1440.0 * 7), 0, c);
 //        Resource poli = new Resource(0, this, "Máquina polivalente");
 //        ArrayList list = new ArrayList();
-//        list.add(crOrina);
-//        list.add(crSangre);
+//        list.add(getResourceType(1));
+//        list.add(getResourceType(0));
 //        poli.addTimeTableEntry(c1, 480, list);
         // Y añado los Enfermeros necesarios para que vaya "sobrado" el asunto
         
         Cycle c = new Cycle(480, new Fixed(1440.0), 0);
 		Resource tec1 = new Resource(1, this, "Enfermero 1");
-		tec1.addTimeTableEntry(c, 480, crEnfermero);
+		tec1.addTimeTableEntry(c, 480, getResourceType(2));
+		list.add(tec1);
 //		Resource tec2 = new Resource(this, "Enfermero 2");
-//		tec2.addTimeTableEntry(c, 480, crEnfermero);
-		
-		
-    }
-    
-    protected void createMetaFlow0() {
+//		tec2.addTimeTableEntry(c, 480, getResourceType(2));
+		return list;
+	}
+
+	protected ArrayList<Generator> createGenerators() {
+		return createMetaFlow3();
+	}
+	
+    protected ArrayList<Generator> createMetaFlow0() {
         SequenceMetaFlow sec = new SequenceMetaFlow(1, new Fixed(1));
         new SingleMetaFlow(2, sec, new Fixed(1), getActivity(0));
         SimultaneousMetaFlow simPruebas = new SimultaneousMetaFlow(3, sec, new Fixed(1));
@@ -100,10 +108,10 @@ class Analisis extends Simulation {
         Cycle c = new Cycle(0.0, new Fixed(1440.0), ndays);
         Generation gen = new Generation(new Fixed(NPACIENTES));
         gen.add(sec, 1.0);
-        gen.createGenerators(this, c);
+        return gen.createGenerators(this, c);
     }
     
-    protected void createMetaFlow1() {
+    protected ArrayList<Generator> createMetaFlow1() {
     	SimultaneousMetaFlow simPruebas = new SimultaneousMetaFlow(12, new Uniform(1, 4));
     	new SingleMetaFlow(13, simPruebas, new Fixed(1), getActivity(0));
     	DecisionMetaFlow dec = new DecisionMetaFlow(14, simPruebas, new Fixed(1));        
@@ -116,9 +124,9 @@ class Analisis extends Simulation {
         Cycle c = new Cycle(0.0, new Fixed(1440.0), ndays);
         Generation gen = new Generation(new Fixed(NPACIENTES));
         gen.add(simPruebas, 1.0);
-        gen.createGenerators(this, c);
+        return gen.createGenerators(this, c);
     }
-    protected void createMetaFlow2() {
+    protected ArrayList<Generator> createMetaFlow2() {
         SimultaneousMetaFlow metaFlow = new SimultaneousMetaFlow(21, new Fixed(1));
         new SingleMetaFlow(22, metaFlow, new Fixed(1), getActivity(2));
         new SingleMetaFlow(23, metaFlow, new Fixed(1), getActivity(1));
@@ -130,23 +138,17 @@ class Analisis extends Simulation {
         Cycle c = new Cycle(0.0, new Fixed(1440.0), ndays);
         Generation gen = new Generation(new Fixed(NPACIENTES));
         gen.add(metaFlow, 1.0);
-        gen.createGenerators(this, c);
+        return gen.createGenerators(this, c);
     }
     
-    protected void createMetaFlow3() {
+    protected ArrayList<Generator> createMetaFlow3() {
         Cycle c = new Cycle(0.0, new Fixed(1440.0), 0);
         Generation gen = new Generation(new Fixed(NPACIENTES));
         gen.add(new SingleMetaFlow(23, new Fixed(1), getActivity(0)), 1.0);
-        gen.createGenerators(this, c);
+        return gen.createGenerators(this, c);
     	
     }
 
-}
-
-class NullResultProcessor implements ResultProcessor {
-
-	public void processStatistics(SimulationResults[] results) {
-	}		
 }
 
 class ExpHospitalSecuencia extends Experiment {

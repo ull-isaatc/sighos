@@ -24,11 +24,10 @@ public abstract class Generator extends BasicElement {
     /**
      * Creates an element generator. 
      * @param simul Simulation object.
-     * @param lp Logical Process which this generator is attached to.
      * @param cycleIter Control of the generation cycle.
      */
-    public Generator(Simulation simul, LogicalProcess lp, CycleIterator cycleIter) {
-        super(counter++, simul, lp);
+    public Generator(Simulation simul, CycleIterator cycleIter) {
+        super(counter++, simul);
         this.cycleIter = cycleIter;
     }
     

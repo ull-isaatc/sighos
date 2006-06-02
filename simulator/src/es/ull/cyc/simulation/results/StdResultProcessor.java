@@ -63,7 +63,7 @@ public class StdResultProcessor implements ResultProcessor {
 	public static void processActivityStatistics(SimulationResults res, double period) {
 		System.out.println("Activity Statistics");
 		for (int i = 0; i < res.getActivityStatistics().size(); i++) {
-			ActivityStatistics as = (ActivityStatistics) res.getActivityStatistics().get(i);
+			ActivityStatistics as = res.getActivityStatistics().get(i);
 			System.out.println(as.getActId() + "\t[" + as.getElemId() + "]\t" + as.getFlowId());
 		}
 		System.out.println("Activity Queues(PERIOD: " + period + ")");
@@ -80,7 +80,7 @@ public class StdResultProcessor implements ResultProcessor {
 	public static void processPendingFlowStatistics(SimulationResults res) {
 		System.out.println("Pending Flow Statistics");
 		for (int i = 0; i < res.getPendingFlowStatistics().size(); i++) {
-			PendingFlowStatistics pfs = (PendingFlowStatistics) res.getPendingFlowStatistics().get(i);
+			PendingFlowStatistics pfs = res.getPendingFlowStatistics().get(i);
 			String msg = "";
 			if (pfs.getType() == PendingFlowStatistics.SINFLOW) msg = "Single Flow";
 			else if (pfs.getType() == PendingFlowStatistics.SIMFLOW) msg = "Simultaneous Flow";

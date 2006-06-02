@@ -1,5 +1,6 @@
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import es.ull.cyc.random.*;
 import es.ull.cyc.simulation.*;
@@ -70,13 +71,20 @@ class SimBarcelona extends Simulation {
 			acts[i] = new Activity(i, this, "Act" + coddiag[i]);
 			acts[i].getNewWorkGroup(0, new MultRandomNumber(durac[i], new Fixed(1 / 3600.0))).add(rt, 1);
 		}
-		Cycle c1 = new Cycle(8, new Fixed(24.0), 5);
-		Cycle c2 = new Cycle(0, new Fixed(24.0 * 7), 0, c1);
-		Resource sur = new Resource(0, this, "Surgery");
-		sur.addTimeTableEntry(c2, 7, rt);
 	}
 
-	protected void createGenerators() {
+	@Override
+	protected ArrayList<Resource> createResources() {
+		Cycle c1 = new Cycle(8, new Fixed(24.0), 5);
+		Cycle c2 = new Cycle(0, new Fixed(24.0 * 7), 0, c1);
+		ArrayList<Resource> sur = new ArrayList<Resource>();
+		sur.add(new Resource(0, this, "Surgery"));
+		sur.get(0).addTimeTableEntry(c2, 7, getResourceType(0));
+		return sur;
+	}
+
+	protected ArrayList<Generator> createGenerators() {
+		ArrayList<Generator> genList = new ArrayList<Generator>();
 //		Esto es con errores en los periodos => NO VALIDO
 //		double periods[] = {84.03361345, 84.03361345, 182.8153565, 9.20, 54.94505495,
 //				31.34796238, 3.30, 25.5102041, 33.22259136, 7.194244604, 0.77, 45.66210046,
@@ -110,8 +118,9 @@ class SimBarcelona extends Simulation {
 			Cycle c = new Cycle(expo.samplePositiveDouble(), expo, 0);
 			Generation gen = new Generation(new Fixed(1));
 			gen.add(new SingleMetaFlow(i, new Fixed(1), getActivity(i)), 1.0);
-			gen.createGenerators(this, c);
+			genList.addAll(gen.createGenerators(this, c));
 		}
+		return genList;
 	}
 }
 

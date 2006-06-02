@@ -94,7 +94,7 @@ public class PrioritizedTable {
             levels.add(pLevel);
         }
         else {
-            pLevel = (PrioritizedLevel) levels.get(ind);
+            pLevel = levels.get(ind);
             if (pLevel.priority != obj.getPriority()) {
                 pLevel = new PrioritizedLevel(obj.getPriority());
                 levels.add(ind, pLevel);
@@ -110,7 +110,7 @@ public class PrioritizedTable {
 	public int size() {
         int suma = 0;
         for (int i = 0; i < levels.size(); i++) {
-            PrioritizedLevel pLevel = (PrioritizedLevel) levels.get(i);
+            PrioritizedLevel pLevel = levels.get(i);
             suma += pLevel.size();
         }
 		return suma;
@@ -125,7 +125,7 @@ public class PrioritizedTable {
         int cont = 0;
         Prioritizable []array = new Prioritizable[size()];
         for (int i = 0; i < levels.size(); i++) {
-            PrioritizedLevel level = (PrioritizedLevel) levels.get(i);
+            PrioritizedLevel level = levels.get(i);
             for (int j = 0; j < level.size(); j++)
                 array[cont++] = (Prioritizable)level.get(j);            
         }

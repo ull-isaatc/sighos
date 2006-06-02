@@ -5,6 +5,7 @@
  */
 package es.ull.cyc.simulation;
 
+import es.ull.cyc.util.Orderable;
 import es.ull.cyc.util.Output;
 import es.ull.cyc.util.Printable;
 
@@ -12,7 +13,7 @@ import es.ull.cyc.util.Printable;
  * Representa un objeto que tiene un identificador único.
  * @author Carlos Martín Galán
  */
-public abstract class SimulationObject implements Printable, TimeStamp {
+public abstract class SimulationObject implements Printable, TimeStamp, Orderable {
     /** Unique object identifier  */
 	protected int id;
     /** Simulation where this object is used in */
@@ -63,4 +64,19 @@ public abstract class SimulationObject implements Printable, TimeStamp {
     public String toString() {
     	return new String("[" + getObjectTypeIdentifier() + id + "]");
     }
+
+	/* (non-Javadoc)
+	 * @see es.ull.cyc.util.Orderable#getKey()
+	 */
+	public Comparable getKey() {
+		return new Integer(id);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	public int compareTo(Object o) {
+		return getKey().compareTo(o);		
+	}
+	
 }

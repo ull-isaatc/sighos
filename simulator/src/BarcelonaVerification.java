@@ -3,9 +3,12 @@
  */
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+
 import es.ull.cyc.simulation.*;
 import es.ull.cyc.simulation.results.*;
 import es.ull.cyc.util.Cycle;
+import es.ull.cyc.util.CycleIterator;
 import es.ull.cyc.util.Output;
 import es.ull.cyc.random.*;
 
@@ -55,14 +58,9 @@ class SimSimAct extends Simulation {
 		wg1.add(rt3, 1);
 		WorkGroup wg2 = act2.getNewWorkGroup(0, new Fixed(100.0));
 		wg2.add(rt3, 1);
-		Cycle c = new Cycle(START_REC, new Fixed(1440), 0);
-		for (int i = 0; i < NRES; i++) {
-			Resource room2 = new Resource(i, this, "Room" + i);
-			room2.addTimeTableEntry(c, DURAC_REC, rt3);			
-		}
 	}
 
-	protected void createGenerators() {
+	protected ArrayList<Generator> createGenerators() {
         SimultaneousMetaFlow sim = new SimultaneousMetaFlow(0, new Fixed(1));
         new SingleMetaFlow(2, sim, new Fixed(1), getActivity(1));
         new SingleMetaFlow(1, sim, new Fixed(1), getActivity(0));
@@ -70,7 +68,19 @@ class SimSimAct extends Simulation {
         Cycle c = new Cycle(0.0, new Fixed(1440.0), 0);
         Generation gen = new Generation(new Fixed(NPACDAY));
         gen.add(sim, 1.0);
-        gen.createGenerators(this, c);        
+        return gen.createGenerators(this, c);        
+	}
+
+	@Override
+	protected ArrayList<Resource> createResources() {
+		ArrayList<Resource> list = new ArrayList<Resource>();
+		Cycle c = new Cycle(START_REC, new Fixed(1440), 0);
+		for (int i = 0; i < NRES; i++) {
+			Resource room = new Resource(i, this, "Room" + i);
+			room.addTimeTableEntry(c, DURAC_REC, getResourceType(3));
+			list.add(room);
+		}
+		return list;
 	}
 	
 }
@@ -156,22 +166,25 @@ class SimPoolAct extends Simulation {
 		act0.getNewWorkGroup(0, new Fixed(100.0)).add(rt0, 1);
 		act1.getNewWorkGroup(0, new Fixed(100.0)).add(rt0, 1);
 		act2.getNewWorkGroup(0, new Fixed(100.0)).add(rt0, 1);
-		Cycle c = new Cycle(100, new Fixed(1440), 0);
-		Resource nurse1 = new Resource(0, this, "Nurse 1");
-		nurse1.addTimeTableEntry(c, DURAC_REC, rt0);
 	}
 
-	protected void createGenerators() {        
+	protected ArrayList<Generator> createGenerators() {        
         Cycle c = new Cycle(0.0, new Fixed(1440.0), 0);
-        Generation gen1 = new Generation(new Fixed(NPACDAY));
-        gen1.add(new SingleMetaFlow(3, new Fixed(1), getActivity(2)), 1.0);
-        gen1.createGenerators(this, c);        
-        Generation gen2 = new Generation(new Fixed(NPACDAY));        
-        gen2.add(new SingleMetaFlow(1, new Fixed(1), getActivity(0)), 1.0);
-        gen2.createGenerators(this, c);        
-        Generation gen3 = new Generation(new Fixed(NPACDAY));        
-        gen3.add(new SingleMetaFlow(2, new Fixed(1), getActivity(1)), 1.0);
-        gen3.createGenerators(this, c);        
+		ArrayList<Generator> genList = new ArrayList<Generator>();
+		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), new CycleIterator(c, startTs, endTs), new SingleMetaFlow(3, new Fixed(1), getActivity(2))));
+		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), new CycleIterator(c, startTs, endTs), new SingleMetaFlow(1, new Fixed(1), getActivity(0))));
+		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), new CycleIterator(c, startTs, endTs), new SingleMetaFlow(2, new Fixed(1), getActivity(1))));
+		return genList;
+	}
+
+	@Override
+	protected ArrayList<Resource> createResources() {
+		Cycle c = new Cycle(100, new Fixed(1440), 0);
+		Resource nurse1 = new Resource(0, this, "Nurse 1");
+		nurse1.addTimeTableEntry(c, DURAC_REC, getResourceType(0));
+		ArrayList<Resource> list = new ArrayList<Resource>();
+		list.add(nurse1);
+		return list;
 	}
 }
 
@@ -210,18 +223,10 @@ class SimContinue extends Simulation {
         wg3.add(crNurse, 1);
         WorkGroup wg4 = actXR.getNewWorkGroup(0, new Normal(18.0, 5.0));
         wg4.add(crXRay, 1);
-        wg4.add(crNurse, 1);
-       
-        Cycle c = new Cycle(480, new Fixed(1440.0), 0);
-		new Resource(0, this, "Nurse #1").addTimeTableEntry(c, DURAC_REC, crNurse);
-		new Resource(1, this, "Nurse #2").addTimeTableEntry(c, DURAC_REC, crNurse);
-		new Resource(2, this, "Doctor #1").addTimeTableEntry(c, DURAC_REC, crDoctor);
-		new Resource(3, this, "Doctor #2").addTimeTableEntry(c, DURAC_REC, crDoctor);
-		new Resource(4, this, "Blood machine #1").addTimeTableEntry(c, DURAC_REC, crBlood);
-		new Resource(5, this, "X-Ray machine #1").addTimeTableEntry(c, DURAC_REC, crXRay);
+        wg4.add(crNurse, 1);       
 	}
 
-	protected void createGenerators() {
+	protected ArrayList<Generator> createGenerators() {
 		int cont = 0;
         Cycle c = new Cycle(0.0, new Fixed(1440.0), 0);
         SequenceMetaFlow sec = new SequenceMetaFlow(cont++, new Fixed(1));
@@ -230,9 +235,35 @@ class SimContinue extends Simulation {
         new SingleMetaFlow(cont++, sim, new Fixed(1), getActivity(1));
         new SingleMetaFlow(cont++, sim, new Fixed(1), getActivity(2));
         new SingleMetaFlow(cont++, sec, new Uniform(0, 3), getActivity(3));        
-        Generation gen = new Generation(new Fixed(NPACDAY));
-        gen.add(sec, 1.0);
-        gen.createGenerators(this, c);        
+		ArrayList<Generator> genList = new ArrayList<Generator>();
+		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), new CycleIterator(c, startTs, endTs), sec));
+		return genList;
+	}
+
+	@Override
+	protected ArrayList<Resource> createResources() {
+        Cycle c = new Cycle(480, new Fixed(1440.0), 0);
+        ArrayList<Resource> list = new ArrayList<Resource>();
+		Resource r;
+		r = new Resource(0, this, "Nurse #1");
+		r.addTimeTableEntry(c, DURAC_REC, getResourceType(2));
+		list.add(r);
+		r = new Resource(1, this, "Nurse #2");
+		r.addTimeTableEntry(c, DURAC_REC, getResourceType(2));
+		list.add(r);
+		r = new Resource(2, this, "Doctor #1");
+		r.addTimeTableEntry(c, DURAC_REC, getResourceType(3));
+		list.add(r);		
+		r = new Resource(3, this, "Doctor #2");
+		r.addTimeTableEntry(c, DURAC_REC, getResourceType(3));
+		list.add(r);
+		r = new Resource(4, this, "Blood machine #1");
+		r.addTimeTableEntry(c, DURAC_REC, getResourceType(0));
+		list.add(r);
+		r = new Resource(5, this, "X-Ray machine #1");
+		r.addTimeTableEntry(c, DURAC_REC, getResourceType(1));
+		list.add(r);
+		return list;
 	}
 	
 }

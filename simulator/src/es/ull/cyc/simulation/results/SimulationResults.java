@@ -166,19 +166,17 @@ public class SimulationResults {
 			amIds[i][0] = am.getIdentifier(); 
 			amIds[i][1] = am.getLp().getIdentifier();
 		}
-		OrderedList actList = simul.getActivityList();
+		OrderedList<Activity> actList = simul.getActivityList();
 		actIds = new int[actList.size()][2];
 		for (int i = 0; i < actIds.length; i++) {
-			Activity act = (Activity) actList.get(i);
-			actIds[i][0] = act.getIdentifier(); 
-			actIds[i][1] = act.getManager().getIdentifier();
+			actIds[i][0] = actList.get(i).getIdentifier(); 
+			actIds[i][1] = actList.get(i).getManager().getIdentifier();
 		}
-		OrderedList rtList = simul.getResourceTypeList();
+		OrderedList<ResourceType> rtList = simul.getResourceTypeList();
 		rtIds = new int[rtList.size()][2];
 		for (int i = 0; i < rtIds.length; i++) {
-			ResourceType rt = (ResourceType) rtList.get(i);
-			rtIds[i][0] = rt.getIdentifier(); 
-			rtIds[i][1] = rt.getManager().getIdentifier();
+			rtIds[i][0] = rtList.get(i).getIdentifier(); 
+			rtIds[i][1] = rtList.get(i).getManager().getIdentifier();
 		}		
 	}
 	
@@ -213,7 +211,7 @@ public class SimulationResults {
 	/**
 	 * @return Returns the activityStatistics.
 	 */
-	public ArrayList getActivityStatistics() {
+	public ArrayList<ActivityStatistics> getActivityStatistics() {
 		return activityStatistics;
 	}
 
@@ -262,7 +260,7 @@ public class SimulationResults {
 	/**
 	 * @return Returns the pendingFlowStatistics.
 	 */
-	public ArrayList getPendingFlowStatistics() {
+	public ArrayList<PendingFlowStatistics> getPendingFlowStatistics() {
 		return pendingFlowStatistics;
 	}
 

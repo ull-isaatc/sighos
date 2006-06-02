@@ -12,7 +12,7 @@ import es.ull.cyc.util.*;
  * An object of the simulation that has a description
  * @author Iván Castilla Rodríguez
  */
-public abstract class DescSimulationObject extends SimulationObject implements Orderable {
+public abstract class DescSimulationObject extends SimulationObject {
     protected String description;
     
     /** Creates a new instance of DescSimulationObject */
@@ -31,18 +31,4 @@ public abstract class DescSimulationObject extends SimulationObject implements O
 				this.toString() + "\t" + getTs() + "\t" + description + "\t" + longMessage);
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.cyc.util.Orderable#getKey()
-	 */
-	public Comparable getKey() {
-		return new Integer(id);
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	public int compareTo(Object o) {
-		return getKey().compareTo(o);		
-	}
-	
 }

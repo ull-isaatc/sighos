@@ -14,7 +14,7 @@ import es.ull.cyc.random.*;
  */
 public class DecisionMetaFlow extends MetaFlow {
 	/**	 Options list */
-	protected ArrayList options;
+	protected ArrayList<MetaFlow> options;
 	
 	/**
 	 * 
@@ -22,7 +22,7 @@ public class DecisionMetaFlow extends MetaFlow {
 	 */
 	public DecisionMetaFlow(int id, RandomNumber iterations) {
 		super(id, null, iterations);
-		options = new ArrayList();
+		options = new ArrayList<MetaFlow>();
 	}
 	
 	/**
@@ -32,7 +32,7 @@ public class DecisionMetaFlow extends MetaFlow {
 	 */
 	public DecisionMetaFlow(int id, GroupMetaFlow parent, RandomNumber iterations) {
 		super(id, parent, iterations);
-		options = new ArrayList();
+		options = new ArrayList<MetaFlow>();
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class DecisionMetaFlow extends MetaFlow {
 	 */
 	public DecisionMetaFlow(int id, OptionMetaFlow parent, RandomNumber iterations) {
 		super(id, parent, iterations);
-		options = new ArrayList();
+		options = new ArrayList<MetaFlow>();
 	}
 
 	/* (non-Javadoc)
@@ -77,7 +77,7 @@ public class DecisionMetaFlow extends MetaFlow {
 	protected Flow getDescendantFlow(Flow parentFlow, Element e) {
 		double selProb = Math.random();
 		double delta = 0.0;
-		Iterator optIt = options.iterator();
+		Iterator<MetaFlow> optIt = options.iterator();
 		OptionMetaFlow opt = null;
 		
 		while (optIt.hasNext()) {

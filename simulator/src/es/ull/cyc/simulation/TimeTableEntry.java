@@ -6,14 +6,14 @@
 
 package es.ull.cyc.simulation;
 
-import java.util.ArrayList;
-
 import es.ull.cyc.util.CycleIterator;
 import es.ull.cyc.util.Cycle;
 
 /**
  * Represents the role that a resource plays at a specific time cycle. It starts 
  * and finishes the availability of a resource.
+ * HISTORY:
+ *  22/05/06 Changed from using a list of roles to a single role 
  * @author Iván Castilla Rodríguez
  */
 class TimeTableEntry {
@@ -21,18 +21,18 @@ class TimeTableEntry {
 	protected Cycle cycle;
     /** The long this resource plays this role every cycle */
 	protected double duration;
-    /** Roles that the resource plays during this cycle */
-    protected ArrayList roleList;
+    /** Role that the resource plays during this cycle */
+    protected ResourceType role;
     
     /** Creates a new instance of TimeTableEntry
     * @param cycle 
     * @param dur The long this resource plays this role every cycle
-    * @param r Roles that the resource plays during this cycle
+    * @param role Role that the resource plays during this cycle
     */
-	public TimeTableEntry(Cycle cycle, double dur, ArrayList r) {
+	public TimeTableEntry(Cycle cycle, double dur, ResourceType role) {
 		this.cycle = cycle;
-		duration = dur;
-		roleList = r;
+		this.duration = dur;
+		this.role = role;
 	}
     
     /**
@@ -48,11 +48,11 @@ class TimeTableEntry {
     }
     
     /**
-     * Getter for property roleList.
-     * @return Value of property roleList.
+     * Getter for property role.
+     * @return Value of property role.
      */
-    public java.util.ArrayList getRoleList() {
-        return roleList;
+    public ResourceType getRole() {
+        return role;
     }
     
     
@@ -62,11 +62,8 @@ class TimeTableEntry {
      */
     public String toString() {
         StringBuffer str = new StringBuffer();
-        for (int i = 0; i < roleList.size(); i++) {
-            ResourceType rt = (ResourceType) roleList.get(i);
-            str.append(" | " + cycle.getStartTs() + " | " + cycle.getPeriod() + " | " + duration
-                + " | " + rt.getDescription() + " | " + cycle.getIterations() + "\r\n");
-        }        
+        str.append(" | " + cycle.getStartTs() + " | " + cycle.getPeriod() + " | " + duration
+            + " | " + role.getDescription() + " | " + cycle.getIterations() + "\r\n");
         return str.toString();
     }
     

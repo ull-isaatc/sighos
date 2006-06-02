@@ -4,19 +4,19 @@
 package es.ull.cyc.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 
 /**
  * An ordered object list. The order is based on the object's key.  
  * @author Iván Castilla Rodríguez
  */
-public class OrderedList {
-    /** A list that contains the elements ordered by their key. */    
-    ArrayList<Orderable> list = null;
-    
-    /** Creates a new instance of IdObjectList */
+public class OrderedList<T extends Orderable> extends ArrayList<T> {
+	private static final long serialVersionUID = 8437034514869779814L;
+
+	/** Creates a new instance of IdObjectList */
     public OrderedList() {
-        list = new ArrayList<Orderable>();
+    	super();
     }
     
     /**
@@ -25,12 +25,27 @@ public class OrderedList {
      * @return True is the insertion was succesful. False if there is  
      * an object with the same identifier in the list.
      */
-    public boolean add(Orderable newObj) {
-    	int index = Collections.binarySearch(list, newObj.getKey());
+    public boolean add(T newObj) {
+    	int index = Collections.binarySearch(this, newObj.getKey());
     	if (index >= 0)
     		return false;
-    	list.add(-index - 1, newObj);
+    	super.add(-index - 1, newObj);
         return true;
+    }
+    
+    /**
+     * Inserts orderly all the components of the specified collection.
+     * @param other Other collection of objects
+     * @return True if anyone of the components is at the current list yet.
+     * False in other case. 
+     */
+    public boolean addAll(Collection<? extends T> other) {
+    	boolean result = true;
+    	for (T obj : other) {
+    		if (!add(obj))
+    			result = false;
+    	}
+    	return result;
     }
     
     /**
@@ -39,40 +54,10 @@ public class OrderedList {
      * @return The object with the specified key. null if the object is not
      * in the list.
      */
-    public Orderable get(Comparable key) {
-    	int index = Collections.binarySearch(list, key);
+    public T get(Comparable key) {
+    	int index = Collections.binarySearch(this, key);
     	if (index < 0)
     		return null;
-    	return (Orderable)list.get(index);
-    }
-    
-    /**
-     * Searches an object in the list at the specified position.
-     * @param index Position of the object.
-     * @return The object at the specified position. null if the index is not
-     * valid.
-     */    
-    public Orderable get(int index) {
-        if ((index >= list.size()) || (index < 0))
-            return null;
-        return (Orderable) list.get(index);
-    }
-    
-    /**
-     * Searches for the first ocurrence of the given argument.
-     * @param obj Searched object.
-     * @return The index of the first argument ocurrence in this list. -1 if the 
-     * object is not found.
-     */
-    public int indexOf(Orderable obj) {
-        return list.indexOf(obj);
-    }
-    
-    /**
-     * Returns the size of the list.
-     * @return Size of the list.
-     */
-    public int size() {
-        return list.size();
-    }
+    	return super.get(index);
+    }    
 }

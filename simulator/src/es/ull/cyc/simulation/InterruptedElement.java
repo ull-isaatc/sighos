@@ -14,15 +14,6 @@ public class InterruptedElement extends Element {
 	/**
 	 * @param id
 	 * @param simul
-	 * @param defLP
-	 */
-	public InterruptedElement(int id, Simulation simul, LogicalProcess defLP) {
-		super(id, simul, defLP);
-	}
-
-	/**
-	 * @param id
-	 * @param simul
 	 */
 	public InterruptedElement(int id, Simulation simul) {
 		super(id, simul);

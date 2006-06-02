@@ -3,8 +3,7 @@ package es.ull.cyc.simulation;
 import mjr.heap.Heapable;
 import es.ull.cyc.sync.*;
 import es.ull.cyc.util.*;
-
-import java.util.*;
+import java.util.ArrayList;
 
 /**
  * Represents the simulation component that carries out events. 
@@ -32,28 +31,18 @@ public abstract class BasicElement extends SimulationObject {
      * @param simul Attached simulation object
      */
 	public BasicElement(int id, Simulation simul) {
-		this(id, simul, simul.getDefaultLogicalProcess());
+		super(id, simul);
+        eventList = new ArrayList<Event>();
+        sem = new Semaphore(1);
 	}
 
     /**
-     * Creates a basic element. 
-     * @param id Element's identifier
-     * @param simul Attached simulation object
-     * @param defLP Default Logical Process which this element is attached to.
-     */
-	public BasicElement(int id, Simulation simul, LogicalProcess defLP) {
-		super(id, simul);
-        eventList = new ArrayList<Event>();
-		ts = defLP.getTs();
-        sem = new Semaphore(1);
-        this.defLP = defLP;
-	}
-    
-    /**
      * Starts the element execution.
      */    
-    public void start() {
+    public void start(LogicalProcess defLP) {
     	print(Output.MessageType.DEBUG, "Starts Execution");
+    	this.defLP = defLP;
+		ts = defLP.getTs();
         simul.incElements();
         addEvent(new StartEvent());
     }

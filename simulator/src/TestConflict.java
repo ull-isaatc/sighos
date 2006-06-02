@@ -1,0 +1,86 @@
+import java.util.ArrayList;
+
+import es.ull.cyc.random.Fixed;
+import es.ull.cyc.simulation.*;
+import es.ull.cyc.simulation.results.*;
+import es.ull.cyc.util.Cycle;
+import es.ull.cyc.util.CycleIterator;
+import es.ull.cyc.util.Output;
+
+/**
+ * 
+ */
+class SimConflict extends Simulation {
+	final static int NRT = 4;
+	final static int NELEM = 2;
+	
+	SimConflict(double startTs, double endTs, Output out) {
+		super("Testing conflicts", startTs, endTs, out);
+	}
+
+	@Override
+	protected void createModel() {
+		for (int i = 0; i < NRT; i++)
+			new ResourceType(i, this, "RT" + i);
+		Activity a0 = new Activity(0, this, "ACT" + 0);
+		WorkGroup wg0 = a0.getNewWorkGroup(0, new Fixed(40));
+		wg0.add(getResourceType(0), 1);
+		wg0.add(getResourceType(1), 1);
+		Activity a1 = new Activity(1, this, "ACT" + 1);
+		WorkGroup wg1 = a1.getNewWorkGroup(0, new Fixed(40));
+		wg1.add(getResourceType(3), 1);
+		wg1.add(getResourceType(2), 1);
+		
+	}
+
+	@Override
+	protected ArrayList<Generator> createGenerators() {
+		ArrayList<Generator> list = new ArrayList<Generator>();
+		Cycle c = new Cycle(1.0, new Fixed(1440.0), 480.0);
+		list.add(new ElementGenerator(this, new Fixed(NELEM), new CycleIterator(c, startTs, endTs), new SingleMetaFlow(0, new Fixed(1), getActivity(0))));
+		list.add(new ElementGenerator(this, new Fixed(NELEM), new CycleIterator(c, startTs, endTs), new SingleMetaFlow(1, new Fixed(1), getActivity(1))));
+		return list;
+	}
+
+	@Override
+	protected ArrayList<Resource> createResources() {
+		ArrayList<Resource> list = new ArrayList<Resource>();
+		Cycle c = new Cycle(0.0, new Fixed(1440.0), endTs);
+		Resource r0 = new Resource(0, this, "Res" + 0);
+		list.add(r0);
+		r0.addTimeTableEntry(c, 480.0, getResourceType(0));
+		r0.addTimeTableEntry(c, 480.0, getResourceType(2));
+		Resource r1 = new Resource(1, this, "Res" + 1);
+		list.add(r1);
+		r1.addTimeTableEntry(c, 480.0, getResourceType(3));
+		r1.addTimeTableEntry(c, 480.0, getResourceType(1));
+		return list;
+	}
+}
+
+class ExpConflict extends Experiment {
+    static final int NDAYS = 1;
+    static final int NTESTS = 1;
+    
+    ExpConflict() {
+    	super("CHECKING CONFLICTS", NTESTS, new NullResultProcessor(), new Output(Output.DebugLevel.DEBUG));
+    }
+    
+	@Override
+	public Simulation getSimulation(int ind) {
+		return new SimConflict(0.0, 24 * 60.0 * NDAYS, out);
+	}	
+}
+/**
+ * @author Iván Castilla Rodríguez
+ *
+ */
+public class TestConflict {
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		new ExpConflict().start();
+	}
+
+}

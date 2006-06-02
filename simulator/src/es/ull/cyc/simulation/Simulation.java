@@ -29,11 +29,13 @@ public abstract class Simulation implements Printable, Runnable {
     /** A brief description of the model. */
     String description;
 	/** List of resources present in the simulation. */
-	protected OrderedList resourceList;
+	protected ArrayList<Resource> resourceList;
+	/** List of element generators of the simulation. */
+	protected ArrayList<Generator> generatorList;
 	/** List of activities present in the simulation. */
-	protected OrderedList activityList;
+	protected OrderedList<Activity> activityList;
     /** List of resource types present in the simulation. */
-    protected OrderedList resourceTypeList;
+    protected OrderedList<ResourceType> resourceTypeList;
     /** List of activity managers that partition the simulation. */
     protected ArrayList<ActivityManager> activityManagerList;    
     /** Logical Process list */
@@ -55,9 +57,8 @@ public abstract class Simulation implements Printable, Runnable {
     
     /** Creates a new instance of Simulation */
     public Simulation(String description, double startTs, double endTs, Output out) {
-        resourceList = new OrderedList();
-        activityList = new OrderedList();
-        resourceTypeList = new OrderedList();
+        activityList = new OrderedList<Activity>();
+        resourceTypeList = new OrderedList<ResourceType>();
         activityManagerList = new ArrayList<ActivityManager>();
     	this.description = description;
         this.startTs = startTs;
@@ -103,7 +104,15 @@ public abstract class Simulation implements Printable, Runnable {
         else
             this.results = new SimulationResults();
         results.saveSimulationStructure(this);
-        createGenerators();
+        // FIXME: Debería hacer un reparto más inteligente tanto de generadores como de recursos
+        generatorList = createGenerators();
+        // Starts all the generators
+        for (Generator gen : generatorList)
+        	gen.start(getDefaultLogicalProcess());
+        resourceList = createResources();
+        // Starts all the resources
+        for (Resource res : resourceList)
+            res.start(getDefaultLogicalProcess());
     }
     
     class FlowStatComparator implements Comparator {
@@ -119,7 +128,7 @@ public abstract class Simulation implements Printable, Runnable {
 		}
     }
     
-    private void buildElementFlow(Element elem, Flow parent, Iterator itFlow, HashMap sflowMap) {
+    private void buildElementFlow(Element elem, Flow parent, Iterator itFlow, HashMap<Integer, Flow> sflowMap) {
 		PendingFlowStatistics pFlow = (PendingFlowStatistics)itFlow.next();
 		Flow f = null;
 		switch(pFlow.getType()) {
@@ -138,7 +147,7 @@ public abstract class Simulation implements Printable, Runnable {
 				pFlow = (PendingFlowStatistics)itFlow.next();
 				if (pFlow.getType() != PendingFlowStatistics.ACTFLOW)
 					print(Output.MessageType.ERROR, "Expected activity description in pending flow statistics.");
-				Activity act = (Activity)activityList.get(new Integer(pFlow.getValue()));
+				Activity act = activityList.get(new Integer(pFlow.getValue()));
 				// FIXME: Qué pasa con las No presenciales?
 				// Respuesta: NO deberían aparecer, puesto que se deberían
 				// haber considerado terminadas => ¿Ocurre esto?
@@ -159,8 +168,8 @@ public abstract class Simulation implements Printable, Runnable {
     	ArrayList actStat = previous.getActivityStatistics();
     	Collections.sort(previous.getPendingFlowStatistics(), new FlowStatComparator());
     	Iterator itFlow = previous.getPendingFlowStatistics().iterator();
-    	HashMap elemMap = new HashMap();
-    	HashMap sflowMap = new HashMap();
+    	HashMap<Integer, InterruptedElement> elemMap = new HashMap<Integer, InterruptedElement>();
+    	HashMap<Integer, Flow> sflowMap = new HashMap<Integer, Flow>();
     	// The pending elements are recovered
     	while (itFlow.hasNext()) {
     		PendingFlowStatistics pFlow = (PendingFlowStatistics)itFlow.next();
@@ -183,7 +192,7 @@ public abstract class Simulation implements Printable, Runnable {
 					pFlow = (PendingFlowStatistics)itFlow.next();
 					if (pFlow.getType() != PendingFlowStatistics.ACTFLOW)
 						print(Output.MessageType.ERROR, "Expected activity description in pending flow statistics.");
-					Activity act = (Activity)activityList.get(new Integer(pFlow.getValue()));
+					Activity act = activityList.get(new Integer(pFlow.getValue()));
 					root = new SingleFlow(elem, act);
 					((SingleFlow)root).setId(flowId);
 					sflowMap.put(new Integer(flowId), root);
@@ -197,20 +206,20 @@ public abstract class Simulation implements Printable, Runnable {
     	// The activity queues are filled
     	for (int i = 0; i < actStat.size(); i++) {
     		ActivityStatistics aStat = (ActivityStatistics)actStat.get(i);
-			Activity act = (Activity)activityList.get(new Integer(aStat.getActId()));
-			Element elem = (Element)elemMap.get(new Integer(aStat.getElemId()));
+			Activity act = activityList.get(new Integer(aStat.getActId()));
+			Element elem = elemMap.get(new Integer(aStat.getElemId()));
 			SingleFlow sf = (SingleFlow)sflowMap.get(new Integer(aStat.getFlowId()));
 			act.addElement(sf);
 			elem.incRequested(sf);
 			results.add(new ElementStatistics(elem.getIdentifier(), ElementStatistics.REQACT, startTs, act.getIdentifier()));
     	}
     	// The elements are started
-    	Iterator it = elemMap.values().iterator();
+    	Iterator<InterruptedElement> it = elemMap.values().iterator();
     	while (it.hasNext()) {
-    		InterruptedElement elem = (InterruptedElement)it.next();
-    		elem.start();
+    		InterruptedElement elem = it.next();
+    		elem.start(getDefaultLogicalProcess());
     	}
-    	Integer maxFlowId = (Integer)Collections.max(sflowMap.keySet());
+    	Integer maxFlowId = Collections.max(sflowMap.keySet());
     	SingleFlow.setCounter(maxFlowId.intValue() + 1);
     	// The ids of the new generated elements can't be in the previous simulation  
     	Generator.setElemCounter(previous.getLastElementId());
@@ -232,7 +241,17 @@ public abstract class Simulation implements Printable, Runnable {
      */    
     protected abstract void createModel();
 
-    protected abstract void createGenerators();
+    /**
+     * Creates the list of element generators of the simulation.
+     * @return A list of element generators
+     */
+    protected abstract ArrayList<Generator> createGenerators();
+    
+    /**
+     * Creates the list of resources of the simulation. 
+     * @return A list of resources
+     */
+    protected abstract ArrayList<Resource> createResources();
     
     /**
      * Makes a depth first search on a graph.
@@ -241,9 +260,11 @@ public abstract class Simulation implements Printable, Runnable {
      * @param marks Mark array that's used for determining the partition of each node.
      */
     private void dfs(HashSet<Integer> []graph, int current, int []marks) {
-        Iterator<Integer> it = graph[current].iterator();
-        while (it.hasNext()) {
-            Integer i = it.next();
+    	// This line subtitutes the other three ones
+    	for (Integer i : graph[current]) {
+//        Iterator<Integer> it = graph[current].iterator();
+//        while (it.hasNext()) {
+//            Integer i = it.next();
             if (marks[i.intValue()] == -1) {
                 marks[i.intValue()] = marks[current];
                 // Para acelerar un poco el algoritmo se elimina la arista simétrica
@@ -268,7 +289,7 @@ public abstract class Simulation implements Printable, Runnable {
         for (int i = 0; i < resourceTypeList.size(); i++)
             graph[i] = new HashSet<Integer>();
         for (int i = 0; i < activityList.size(); i++) {
-            Activity a = (Activity) activityList.get(i);
+            Activity a = activityList.get(i);
             Prioritizable []wgList = a.getWorkGroupTable();
             // Looks for the first RTT that contains at least one resource type
             int j;
@@ -330,7 +351,7 @@ public abstract class Simulation implements Printable, Runnable {
             activityManagerList.add(ga);
         }
         for (int i = 0; i < activityList.size(); i++) {
-            Activity a = (Activity) activityList.get(i);
+            Activity a = activityList.get(i);
             // This step is for non-resource-types activities
             Prioritizable []wgList = a.getWorkGroupTable();
             // Looks for the first RTT that contains at least one resource type
@@ -351,9 +372,8 @@ public abstract class Simulation implements Printable, Runnable {
             }
         }
         for (int i = 0; i < resourceTypeList.size(); i++) {
-            ResourceType rt = (ResourceType) resourceTypeList.get(i);
             ActivityManager ga = activityManagerList.get(marks[i]);
-            rt.setManager(ga);
+            resourceTypeList.get(i).setManager(ga);
         }
 
         debugPrintActManager();
@@ -373,14 +393,9 @@ public abstract class Simulation implements Printable, Runnable {
         // FIXME De momento sólo voy a utilizar un PL
         logicalProcessList = new LogicalProcess[1];
         logicalProcessList[0] = new LogicalProcess(this, startTs, endTs);
-        for (int i = 0; i < activityManagerList.size(); i++) {
-            ActivityManager am = activityManagerList.get(i);
+        for (ActivityManager am : activityManagerList) {
             // FIXME
             am.setLp(logicalProcessList[0]);
-        }
-        for (int i = 0; i < resourceList.size(); i++) {
-        	Resource res = (Resource)resourceList.get(i);
-        	res.setLp(logicalProcessList[0]);
         }
     }
     
@@ -409,7 +424,7 @@ public abstract class Simulation implements Printable, Runnable {
 
     /**
      * Adds an identified object to the model. The allowed id. objects are:
-     * {@link Activity}, {@link Resource}, {@link ResourceType} and
+     * {@link Activity}, {@link ResourceType} and
      * {@link WorkGroup}. Any other object is ignored.
      * @param obj Identified object that's added to the model.
      * @return True is the insertion was succesful. False if there already was  
@@ -417,12 +432,10 @@ public abstract class Simulation implements Printable, Runnable {
      */
     protected boolean add(DescSimulationObject obj) {
         boolean resul = false;
-        if (obj instanceof Resource)
-    		resul = resourceList.add(obj);
-        else if (obj instanceof ResourceType)
-            resul = resourceTypeList.add(obj);
+        if (obj instanceof ResourceType)
+            resul = resourceTypeList.add((ResourceType)obj);
         else if (obj instanceof Activity)
-            resul = activityList.add(obj);
+            resul = activityList.add((Activity)obj);
         else
         	print(Output.MessageType.ERROR, "Trying to add an unidentified object to the Model");
         return resul;
@@ -432,7 +445,7 @@ public abstract class Simulation implements Printable, Runnable {
      * Returns a list of the resources of the model.
      * @return Resources of the model.
      */ 
-	public OrderedList getResourceList() {
+	public ArrayList<Resource> getResourceList() {
 		return resourceList;
 	}
 
@@ -440,7 +453,7 @@ public abstract class Simulation implements Printable, Runnable {
      * Returns a list of the activities of the model.
      * @return Activities of the model.
      */ 
-	public OrderedList getActivityList() {
+	public OrderedList<Activity> getActivityList() {
 		return activityList;
 	}
     
@@ -450,22 +463,31 @@ public abstract class Simulation implements Printable, Runnable {
      * @return An activity with the indicated identifier.
      */
     public Activity getActivity(int id) {
-        return (Activity)activityList.get(new Integer(id));
+        return activityList.get(new Integer(id));
     }
     
 	/**
      * Returns a list of the resource types of the model.
      * @return Resource types of the model.
      */ 
-	public OrderedList getResourceTypeList() {
+	public OrderedList<ResourceType> getResourceTypeList() {
 		return resourceTypeList;
 	}
+    
+    /**
+     * Returns the resource type with the corresponding identifier.
+     * @param id Resource type identifier.
+     * @return A resource type with the indicated identifier.
+     */
+    public ResourceType getResourceType(int id) {
+        return resourceTypeList.get(new Integer(id));
+    }
     
 	/**
      * Returns a list of the activity managers of the model.
      * @return Work activity managers of the model.
      */ 
-    public ArrayList getActivityManagerList() {
+    public ArrayList<ActivityManager> getActivityManagerList() {
         return activityManagerList;
     }
     
@@ -561,7 +583,7 @@ public abstract class Simulation implements Printable, Runnable {
 		StringBuffer str = new StringBuffer(); 
         // Pinto el graph para chequeo
         for (int i = 0; i < resourceTypeList.size(); i++) {
-            ResourceType rt = (ResourceType) resourceTypeList.get(i);
+            ResourceType rt = resourceTypeList.get(i);
             str.append("Resource Type (" + i + "): " + rt.getDescription() + "\r\n");
             str.append("\tNeighbours: ");
             Iterator it = graph[i].iterator();

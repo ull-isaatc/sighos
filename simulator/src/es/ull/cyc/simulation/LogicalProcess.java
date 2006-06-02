@@ -26,8 +26,6 @@ public class LogicalProcess extends SimulationObject implements Runnable {
     protected ExecutionQueue execQueue;
 	/** Heap para implementar la cola en espera */
 	protected HeapAscending waitQueue;
-	/** Lista de recursos Activos que Gestiona */
-	protected ArrayList<Resource> resourceList;
     /** Lista de Gestores de Actividades del proceso lógico */
     protected ArrayList<ActivityManager> managerList;
     /** Thread where the logical process function is implemented */
@@ -62,7 +60,6 @@ public class LogicalProcess extends SimulationObject implements Runnable {
         lpLock = new Lock();
         maxgvt = endT;
         lvt = startT;
-        resourceList = new ArrayList<Resource>();
         managerList = new ArrayList<ActivityManager>();
 	}
     
@@ -194,28 +191,12 @@ public class LogicalProcess extends SimulationObject implements Runnable {
     }
 
     /**
-     * Adds a resource to the resource list
-     * @param res New resource.
-     */
-    protected void add(Resource res) {
-        resourceList.add(res);
-    }
-    
-    /**
      * Adds an activity manager to the manager list
      * @param am New Activity manager.
      */
     protected void add(ActivityManager am) {
         managerList.add(am);
     }
-    
-	/**
-     * Devuelve una lista con los recursos activos que contiene el PL.
-     * @return Lista de recursos activos del PL.
-     */ 
-	public ArrayList<Resource> getResourceList() {
-		return resourceList;
-	}
     
     /**
      * Saca todos los elementos de la cola de espera que deben ejecutarse en un 
@@ -305,17 +286,16 @@ public class LogicalProcess extends SimulationObject implements Runnable {
             e.notifyEndSimulation();
             //insertaEjecucion(e);
         }
-//        System.out.println("HOLAAAA");
         // Paro aquellos elementos que estaban en la cola de todas las actividades
-        for (int i = 0; i < managerList.size(); i++ ) {
-            managerList.get(i).clearActivityQueues();
+        for (ActivityManager am : managerList) {
+            am.clearActivityQueues();
         }
     }
 
     class DummyElement extends BasicElement {
 
 		public DummyElement(int id, Simulation simul) {
-			super(id, simul, LogicalProcess.this);
+			super(id, simul);
 		}
 
 		protected void startEvents() {
@@ -340,14 +320,8 @@ public class LogicalProcess extends SimulationObject implements Runnable {
      * Arranca todos los recursos activos y comienza la ejecución de los elementos
      */
 	public void run() {
-        // arranca la ejecucion de todos los recursos activos del sistema
-        int tam = resourceList.size(); // numero de recursos activos que hay
-        for (int i = 0 ; i < tam ; i++) {
-            Resource ra = resourceList.get(i);
-            ra.start(); //pongo el recurso activo a ejecutar
-        }
         // MOD 14/04/06 Parche para que funcione de momento
-        new DummyElement(0, simul).start();
+        new DummyElement(0, simul).start(this);
         
         lpExecution(); // ejecuto el PL
 	}
@@ -376,12 +350,8 @@ public class LogicalProcess extends SimulationObject implements Runnable {
             strLong.append(execQueue.getEvent(i));
         }
         strLong.append("\r\n");
-        if (managerList.size() > 0) {
-            for (int i = 0; i < managerList.size(); i++) {
-                ActivityManager am = managerList.get(i);
-                strLong.append("Activity Manager " + am.getIdentifier() + "\r\n");
-            }            
-        }
+        for (ActivityManager am : managerList)
+        	strLong.append("Activity Manager " + am.getIdentifier() + "\r\n");
         strLong.append("\r\n------ LP STATE FINISHED ------\r\n");
 		print(Output.MessageType.DEBUG, "Waiting\t" + waitQueue.size() + "\tExecuting\t" + execQueue.size(), strLong.toString());
 	}

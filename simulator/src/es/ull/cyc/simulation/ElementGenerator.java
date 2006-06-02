@@ -18,13 +18,12 @@ public class ElementGenerator extends Generator {
 
 	/**
 	 * @param simul
-	 * @param lp
 	 * @param nElem
 	 * @param cycle
 	 * @param meta
 	 */
-	public ElementGenerator(Simulation simul, LogicalProcess lp, RandomNumber nElem, CycleIterator cycleIter, MetaFlow meta) {
-		super(simul, lp, cycleIter);
+	public ElementGenerator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter, MetaFlow meta) {
+		super(simul, cycleIter);
 		this.meta = meta;
 		this.nElem = nElem;
 	}
@@ -35,9 +34,9 @@ public class ElementGenerator extends Generator {
 	public void createElements() {
         int n = (int)nElem.samplePositiveDouble();
         for (int i = 0 ; i < n; i++) {
-    		Element elem = new Element(elemCounter++, simul, defLP);
+    		Element elem = new Element(elemCounter++, simul);
     		elem.setFlow(meta.getFlow(null, elem));
-            elem.start();
+            elem.start(defLP);
         }            
 	}
 

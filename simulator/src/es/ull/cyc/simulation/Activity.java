@@ -233,14 +233,12 @@ public class Activity extends DescSimulationObject implements Prioritizable {
 	 * caso que haya concluido el tiempo de simulacion.
 	 */
     protected void clearQueue() {
-        int neltos = elementQueue.size();
-        for (int j = 0; j < neltos ; j++) {
-        	SingleFlow sf = elementQueue.get(j);
+    	for (SingleFlow sf : elementQueue) {
             simul.addStatistic(new ActivityStatistics(this.id, sf.getId(), sf.getElement().getIdentifier()));
             sf.getElement().notifyEndSimulation();
         }
         elementQueue.clear();
-    } // fin vaciaCola
+    } 
 
 	public String getObjectTypeIdentifier() {
 		return "ACT";
