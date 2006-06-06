@@ -40,5 +40,9 @@ class ResourceTypeTableEntry {
      */
     public es.ull.cyc.simulation.ResourceType getResourceType() {
         return rType;
-    }   
+    }
+    
+    public Resource getResource(int index) {
+    	return rType.getResource(index);
+    }
 }

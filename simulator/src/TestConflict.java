@@ -8,13 +8,18 @@ import es.ull.cyc.util.CycleIterator;
 import es.ull.cyc.util.Output;
 
 /**
- * 
+ * Define un modelo:
+ * - A0 {RT0:1, RT1:1}; A1 {RT3:1, RT2:1}
+ * - R0 {RT0, RT2}; R1 {RT3, RT1}
+ * - E0 {A0}; E1 {A1} 
  */
-class SimConflict extends Simulation {
+class SimConflict1 extends Simulation {
 	final static int NRT = 4;
-	final static int NELEM = 2;
+	final static int NACTS = 2;
+	final static int NRES = 2;
+	final static int NELEM = 1;
 	
-	SimConflict(double startTs, double endTs, Output out) {
+	SimConflict1(double startTs, double endTs, Output out) {
 		super("Testing conflicts", startTs, endTs, out);
 	}
 
@@ -22,14 +27,13 @@ class SimConflict extends Simulation {
 	protected void createModel() {
 		for (int i = 0; i < NRT; i++)
 			new ResourceType(i, this, "RT" + i);
-		Activity a0 = new Activity(0, this, "ACT" + 0);
-		WorkGroup wg0 = a0.getNewWorkGroup(0, new Fixed(40));
-		wg0.add(getResourceType(0), 1);
-		wg0.add(getResourceType(1), 1);
-		Activity a1 = new Activity(1, this, "ACT" + 1);
-		WorkGroup wg1 = a1.getNewWorkGroup(0, new Fixed(40));
-		wg1.add(getResourceType(3), 1);
-		wg1.add(getResourceType(2), 1);
+		WorkGroup wgs[] = new WorkGroup[NACTS];
+		for (int i = 0; i < NACTS; i++)
+			wgs[i] = new Activity(i, this, "ACT" + i).getNewWorkGroup(0, new Fixed(40));
+		wgs[0].add(getResourceType(0), 1);
+		wgs[0].add(getResourceType(1), 1);
+		wgs[1].add(getResourceType(3), 1);
+		wgs[1].add(getResourceType(2), 1);
 		
 	}
 
@@ -46,14 +50,69 @@ class SimConflict extends Simulation {
 	protected ArrayList<Resource> createResources() {
 		ArrayList<Resource> list = new ArrayList<Resource>();
 		Cycle c = new Cycle(0.0, new Fixed(1440.0), endTs);
-		Resource r0 = new Resource(0, this, "Res" + 0);
-		list.add(r0);
-		r0.addTimeTableEntry(c, 480.0, getResourceType(0));
-		r0.addTimeTableEntry(c, 480.0, getResourceType(2));
-		Resource r1 = new Resource(1, this, "Res" + 1);
-		list.add(r1);
-		r1.addTimeTableEntry(c, 480.0, getResourceType(3));
-		r1.addTimeTableEntry(c, 480.0, getResourceType(1));
+		for (int i = 0; i < NRES; i++)
+			list.add(new Resource(i, this, "Res" + i));
+		list.get(0).addTimeTableEntry(c, 480.0, getResourceType(0));
+		list.get(0).addTimeTableEntry(c, 480.0, getResourceType(2));
+		list.get(1).addTimeTableEntry(c, 480.0, getResourceType(3));
+		list.get(1).addTimeTableEntry(c, 480.0, getResourceType(1));
+		return list;
+	}
+}
+
+/**
+ * Define un modelo:
+ * - A0 {RT0:1, RT1:1, RT4:1}; A1 {RT3:1, RT2:1}; A2 {RT5:1}
+ * - R0 {RT0, RT2}; R1 {RT3, RT1}; R2 {RT5, RT4}
+ * - E0 {A0}; E1 {A1}; E2 {A2} 
+ */
+class SimConflict2 extends Simulation {
+	final static int NRT = 6;
+	final static int NACTS = 3;
+	final static int NRES = 3;
+	final static int NELEM = 1;
+	
+	SimConflict2(double startTs, double endTs, Output out) {
+		super("Testing conflicts", startTs, endTs, out);
+	}
+
+	@Override
+	protected void createModel() {
+		for (int i = 0; i < NRT; i++)
+			new ResourceType(i, this, "RT" + i);
+		WorkGroup wgs[] = new WorkGroup[NACTS];
+		for (int i = 0; i < NACTS; i++)
+			wgs[i] = new Activity(i, this, "ACT" + i).getNewWorkGroup(0, new Fixed(40));
+		wgs[0].add(getResourceType(0), 1);
+		wgs[0].add(getResourceType(1), 1);
+		wgs[0].add(getResourceType(4), 1);
+		wgs[1].add(getResourceType(3), 1);
+		wgs[1].add(getResourceType(2), 1);
+		wgs[2].add(getResourceType(5), 1);
+	}
+
+	@Override
+	protected ArrayList<Generator> createGenerators() {
+		ArrayList<Generator> list = new ArrayList<Generator>();
+		Cycle c = new Cycle(1.0, new Fixed(1440.0), 480.0);
+		list.add(new ElementGenerator(this, new Fixed(NELEM), new CycleIterator(c, startTs, endTs), new SingleMetaFlow(0, new Fixed(1), getActivity(0))));
+		list.add(new ElementGenerator(this, new Fixed(NELEM), new CycleIterator(c, startTs, endTs), new SingleMetaFlow(1, new Fixed(1), getActivity(1))));
+		list.add(new ElementGenerator(this, new Fixed(NELEM), new CycleIterator(c, startTs, endTs), new SingleMetaFlow(2, new Fixed(1), getActivity(2))));
+		return list;
+	}
+
+	@Override
+	protected ArrayList<Resource> createResources() {
+		ArrayList<Resource> list = new ArrayList<Resource>();
+		Cycle c = new Cycle(0.0, new Fixed(1440.0), endTs);
+		for (int i = 0; i < NRES; i++)
+			list.add(new Resource(i, this, "Res" + i));
+		list.get(0).addTimeTableEntry(c, 480.0, getResourceType(0));
+		list.get(0).addTimeTableEntry(c, 480.0, getResourceType(2));
+		list.get(1).addTimeTableEntry(c, 480.0, getResourceType(3));
+		list.get(1).addTimeTableEntry(c, 480.0, getResourceType(1));
+		list.get(2).addTimeTableEntry(c, 480.0, getResourceType(4));
+		list.get(2).addTimeTableEntry(c, 480.0, getResourceType(5));
 		return list;
 	}
 }
@@ -68,7 +127,7 @@ class ExpConflict extends Experiment {
     
 	@Override
 	public Simulation getSimulation(int ind) {
-		return new SimConflict(0.0, 24 * 60.0 * NDAYS, out);
+		return new SimConflict2(0.0, 24 * 60.0 * NDAYS, out);
 	}	
 }
 /**

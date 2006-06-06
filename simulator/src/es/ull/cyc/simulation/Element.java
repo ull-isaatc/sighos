@@ -3,6 +3,7 @@ package es.ull.cyc.simulation;
 import java.util.*;
 
 import es.ull.cyc.simulation.results.ElementStatistics;
+import es.ull.cyc.sync.Semaphore;
 import es.ull.cyc.util.*;
 
 /**
@@ -28,9 +29,11 @@ public class Element extends BasicElement {
     protected int []pending;
     /** List of caught resources */
     protected ArrayList<Resource> caughtResources;
-    // Avoiding deadlocks (overlapped resources)
+    // Avoiding deadlocks (time-overlapped resources)
     /** List of conflictive elements */
-    protected ConflictList conflicts;
+    protected ConflictZone conflicts;
+    /** Stack of nested semaphores */
+	protected ArrayList<Semaphore> semStack;
 
     /**
      * Constructor del elemento
@@ -78,13 +81,13 @@ public class Element extends BasicElement {
 	}
 	
 	protected void resetConflictList() {
-        conflicts = new ConflictList(this);
+        conflicts = new ConflictZone(this);
 	}
 	
 	/**
 	 * @param list
 	 */
-	protected void setConflictList(ConflictList list) {
+	protected void setConflictList(ConflictZone list) {
 		conflicts = list;
 	}
 	
@@ -94,7 +97,7 @@ public class Element extends BasicElement {
 	/**
 	 * @return
 	 */
-	protected ConflictList getConflictList() {
+	protected ConflictZone getConflictList() {
 		return conflicts;
 	}
 	
@@ -110,11 +113,14 @@ public class Element extends BasicElement {
 	}
 	
 	protected void waitConflictSemaphore() {
-		conflicts.waitSemaphore(true);
+		semStack = conflicts.getSemaphores();
+		for (Semaphore sem : semStack)
+			sem.waitSemaphore();
 	}
 	
 	protected void signalConflictSemaphore() {
-		conflicts.signalSemaphore(true);
+		for (Semaphore sem : semStack)
+			sem.signalSemaphore();
 	}
 	
 	/**

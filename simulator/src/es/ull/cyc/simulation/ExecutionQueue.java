@@ -31,7 +31,7 @@ public class ExecutionQueue {
      */
     public ExecutionQueue(LogicalProcess pl) {
         this.lp = pl;
-        tp = new ThreadPool(2, 2);
+        tp = new ThreadPool(3, 3);
         executionQueue = new Vector<BasicElement.Event>();
     }
     

@@ -179,7 +179,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
             int j = pos[1];
             Resource res;
             int disp = 0;            
-            while (((res = actual.getResourceType().getResource(j)) != null) && (disp < nec[i])) {
+            while (((res = actual.getResource(j)) != null) && (disp < nec[i])) {
                 // FIXME Debería bastar con preguntar por el RT
                 if ((res.getCurrentElement() == null) && (res.getCurrentResourceType() == null))
                     disp++;
@@ -229,8 +229,8 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @param pos Posición del elemento
      */
     private void mark(int []pos) {
-        ResourceType rt = resourceTypeTable.get(pos[0]).getResourceType();
-        rt.getResource(pos[1]).setCurrentResourceType(rt);
+        Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
+        res.setCurrentResourceType(resourceTypeTable.get(pos[0]).getResourceType());
     }
     
     /**
@@ -238,8 +238,8 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @param pos Posición del elemento
      */
     private void unmark(int []pos) {
-        ResourceType rt = resourceTypeTable.get(pos[0]).getResourceType();
-        rt.getResource(pos[1]).setCurrentResourceType(null);
+        Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
+        res.setCurrentResourceType(null);
     }
 
     /**
@@ -344,7 +344,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
         else if (e.getConflictList().size() > 1) {
         	print(Output.MessageType.DEBUG, "Possible conflict", "Possible conflict. Recheck is needed " + e);
             int ned[] = new int[resourceTypeTable.size()];
-            int []pos = {0, -1}; // "Start" position
+            int []pos = {0, 0}; // "Start" position
             for (int i = 0; i < resourceTypeTable.size(); i++)
                 ned[i] = resourceTypeTable.get(i).getNeeded();
         	if (!hasSolution(pos, ned, e)) {
@@ -365,8 +365,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @param e Elemento que está cogiendo los recursos
      */
     protected void catchResources(Element e) {
-       for (int i = 0; i < resourceTypeTable.size(); i++) {
-           ResourceTypeTableEntry rtte = resourceTypeTable.get(i);
+       for (ResourceTypeTableEntry rtte : resourceTypeTable) {
            rtte.getResourceType().decAvailable(rtte.getNeeded(), e);
        }
        // When this point is reached, that means that the resources have been completely taken
@@ -381,12 +380,12 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     protected ArrayList<ActivityManager> releaseResources(Element e) {
         ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
         ArrayList <Resource>resourceList = e.getCaughtResources();
-        for (int i = 0; i < resourceList.size(); i++) {
-        	print(Output.MessageType.DEBUG, "Returned " + resourceList.get(i));
+        for (Resource res : resourceList) {
+        	print(Output.MessageType.DEBUG, "Returned " + res);
         	// The resource is freed
-        	if (resourceList.get(i).releaseResource()) {
+        	if (res.releaseResource()) {
         		// The activity managers involved are included in the list
-        		ArrayList<ActivityManager> auxList = resourceList.get(i).getCurrentManagers();
+        		ArrayList<ActivityManager> auxList = res.getCurrentManagers();
         		for (int j = 0; j < auxList.size(); j++)
         			if (!amList.contains(auxList.get(j)))
         				amList.add(auxList.get(j));

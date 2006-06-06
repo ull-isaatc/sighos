@@ -75,8 +75,15 @@ public abstract class SimulationObject implements Printable, TimeStamp, Orderabl
 	/* (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(Object o) {
-		return getKey().compareTo(o);		
+	public int compareTo(Orderable obj) {
+		return compareTo(obj.getKey());		
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	public int compareTo(Object obj) {
+		return getKey().compareTo(obj);		
 	}
 	
 }
