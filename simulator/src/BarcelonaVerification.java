@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import es.ull.cyc.simulation.*;
 import es.ull.cyc.simulation.results.*;
 import es.ull.cyc.util.Cycle;
-import es.ull.cyc.util.CycleIterator;
 import es.ull.cyc.util.Output;
 import es.ull.cyc.random.*;
 
@@ -66,9 +65,9 @@ class SimSimAct extends Simulation {
         new SingleMetaFlow(1, sim, new Fixed(1), getActivity(0));
         new SingleMetaFlow(3, sim, new Fixed(1), getActivity(2));
         Cycle c = new Cycle(0.0, new Fixed(1440.0), 0);
-        Generation gen = new Generation(new Fixed(NPACDAY));
-        gen.add(sim, 1.0);
-        return gen.createGenerators(this, c);        
+        ArrayList<Generator> genList = new ArrayList<Generator>();
+        genList.add(new ElementGenerator(this, new Fixed(NPACDAY), c.iterator(startTs, endTs), sim));
+        return genList;
 	}
 
 	@Override
@@ -171,9 +170,9 @@ class SimPoolAct extends Simulation {
 	protected ArrayList<Generator> createGenerators() {        
         Cycle c = new Cycle(0.0, new Fixed(1440.0), 0);
 		ArrayList<Generator> genList = new ArrayList<Generator>();
-		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), new CycleIterator(c, startTs, endTs), new SingleMetaFlow(3, new Fixed(1), getActivity(2))));
-		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), new CycleIterator(c, startTs, endTs), new SingleMetaFlow(1, new Fixed(1), getActivity(0))));
-		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), new CycleIterator(c, startTs, endTs), new SingleMetaFlow(2, new Fixed(1), getActivity(1))));
+		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), c.iterator(startTs, endTs), new SingleMetaFlow(3, new Fixed(1), getActivity(2))));
+		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), c.iterator(startTs, endTs), new SingleMetaFlow(1, new Fixed(1), getActivity(0))));
+		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), c.iterator(startTs, endTs), new SingleMetaFlow(2, new Fixed(1), getActivity(1))));
 		return genList;
 	}
 
@@ -236,7 +235,7 @@ class SimContinue extends Simulation {
         new SingleMetaFlow(cont++, sim, new Fixed(1), getActivity(2));
         new SingleMetaFlow(cont++, sec, new Uniform(0, 3), getActivity(3));        
 		ArrayList<Generator> genList = new ArrayList<Generator>();
-		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), new CycleIterator(c, startTs, endTs), sec));
+		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), c.iterator(startTs, endTs), sec));
 		return genList;
 	}
 

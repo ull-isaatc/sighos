@@ -7,6 +7,7 @@
 package es.ull.cyc.simulation;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import es.ull.cyc.sync.Semaphore;
 import es.ull.cyc.util.*;
 
@@ -17,12 +18,11 @@ import es.ull.cyc.util.*;
 public class ActivityManager extends SimulationObject {
     /** Static counter for assigning each new id */
 	private static int nextid = 0;
-	/** Pool de Actividades desarrolladas en este gestor de actividades ordenadas
-     según su prioridad */
-	protected PrioritizedTable activityTable;
-    /** Lista de Clases de Recursos */
+	/** A prioritized table of activities */
+	protected PrioritizedTable<Activity> activityTable;
+    /** A list of resorce types */
     protected ArrayList<ResourceType> resourceTypeList;
-    /** Semáforo para controlar el acceso a la tabla */
+    /** Semaphore for mutual exclusion control */
 	protected Semaphore sem;
     /** Logical process */
     protected LogicalProcess lp;
@@ -34,10 +34,11 @@ public class ActivityManager extends SimulationObject {
         super(nextid++, simul);
         sem = new Semaphore(1);
         resourceTypeList = new ArrayList<ResourceType>();
-        activityTable = new PrioritizedTable();
+        activityTable = new PrioritizedTable<Activity>();
     }
 
     /**
+     * Returns the logical process where this Act. manager is included.
 	 * @return Returns the lp.
 	 */
 	public LogicalProcess getLp() {
@@ -45,6 +46,7 @@ public class ActivityManager extends SimulationObject {
 	}
 
 	/**
+	 * Assigns a logical process to this Act. manager. 
 	 * @param lp The lp to set.
 	 */
 	public void setLp(LogicalProcess lp) {
@@ -84,9 +86,9 @@ public class ActivityManager extends SimulationObject {
     protected void availableResource() {
 
         waitSemaphore();
-        Activity act;
-        RandomPrioritizedTableIterator iter = new RandomPrioritizedTableIterator(activityTable);
-        while ((act = (Activity)iter.next()) != null) {
+        Iterator<Activity> iter = activityTable.iterator(true);
+        while (iter.hasNext()) {
+        	Activity act = iter.next();
             act.print(Output.MessageType.DEBUG, "Testing pool activity (availableResource)");
             if (act.hasPendingElements()) {
                 if (act.isFeasible(act.getElement(0))) {
@@ -224,10 +226,9 @@ public class ActivityManager extends SimulationObject {
      * Frees all the activity queues
      */
     public void clearActivityQueues() {
-        Activity act;
-        PrioritizedTableIterator iter = new PrioritizedTableIterator(activityTable);
-        while ((act = (Activity)iter.next()) != null)
-            act.clearQueue();
+        Iterator<Activity> iter = activityTable.iterator(false);
+        while (iter.hasNext())
+        	iter.next().clearQueue();
     }
     
 	public String getObjectTypeIdentifier() {
@@ -247,10 +248,8 @@ public class ActivityManager extends SimulationObject {
             str.append("\t\"" + a + "\"[" + a.getPriority() + "]");
         }
         str.append("\r\nResource Types: ");
-        for (int i = 0; i < resourceTypeList.size(); i++) {
-            ResourceType cr = resourceTypeList.get(i);
-            str.append("\t\"" + cr + "\"");
-        }
+        for (ResourceType rt : resourceTypeList)
+            str.append("\t\"" + rt + "\"");
         return str.toString();
 	}
 }

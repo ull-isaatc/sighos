@@ -71,7 +71,7 @@ class OverlappedSimulation extends Simulation {
 //      new SingleMetaFlow(3, metaFlow, new Fixed(1), getActivity(1));
 		SingleMetaFlow metaFlow = new SingleMetaFlow(3, new Fixed(1), getActivity(1));     
 		Cycle c = new Cycle(0.0, new Fixed(1440.0), days);
-		CycleIterator it = new CycleIterator(c, startTs, endTs);
+		CycleIterator it = c.iterator(startTs, endTs);
 		ArrayList<Generator> genList = new ArrayList<Generator>();
 		genList.add(new ElementGenerator(this, new Fixed(NELEM), it, metaFlow));
 		return genList;

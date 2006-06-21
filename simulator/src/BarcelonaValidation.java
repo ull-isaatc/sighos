@@ -116,9 +116,7 @@ class SimBarcelona extends Simulation {
 			// PASADO A HORAS
 			Exponential expo = new Exponential(periods[i] * 24.0);
 			Cycle c = new Cycle(expo.samplePositiveDouble(), expo, 0);
-			Generation gen = new Generation(new Fixed(1));
-			gen.add(new SingleMetaFlow(i, new Fixed(1), getActivity(i)), 1.0);
-			genList.addAll(gen.createGenerators(this, c));
+	        genList.add(new ElementGenerator(this, new Fixed(1), c.iterator(startTs, endTs), new SingleMetaFlow(i, new Fixed(1), getActivity(i))));
 		}
 		return genList;
 	}

@@ -11,45 +11,44 @@ import es.ull.cyc.sync.*;
 import es.ull.cyc.util.*;
 
 /**
- * Controla la cola de ejecución del proceso lógico. Todos los elementos que 
- * tienen que realizar alguna acción se van a añadiendo a una cola de ejecución. 
- * Desde esta cola se les busca un thread libre en el pool donde poder ejecutar 
- * esta acción.
+ * Manages the execution queue of a logical process. This class uses a thread pool. 
+ * Thus, each event is added to an execution queue and a thread is requested from the
+ * pool to execute the event. 
  * @author Iván Castilla Rodríguez
  */
 public class ExecutionQueue {
-    /** Proceso lógico al que está asociado este controlador */
+    /** Logical process whose execution queue is managed */
     protected LogicalProcess lp;
-    /** Pool de elementos en ejecución */
+    /** Thread pool to execute events */
     protected ThreadPool tp;
-	/** Cola de elementos de sim. que en este momento estan en ejecucion */
+	/** A queue containing the events currently executing */
 	protected Vector<BasicElement.Event> executionQueue;
     
     /** 
-     * Crea un nuevo ControladorElementos.
-     * @param pl Proceso lógico al que está asociado.
+     * Creates a new execution queue.
+     * @param lp Logical process.
      */
-    public ExecutionQueue(LogicalProcess pl) {
-        this.lp = pl;
+    public ExecutionQueue(LogicalProcess lp) {
+        this.lp = lp;
         tp = new ThreadPool(3, 3);
         executionQueue = new Vector<BasicElement.Event>();
     }
     
     /**
-     * Quita un elemento de la cola.
-     * @param e Elemento a quitar
-     * @return Verdadero (true) si estaba y pudo quitarlo de la cola
+     * Removes an event from the queue. When the last event is removed, the logical
+     * process is informed.
+     * @param e Event to be removed
+     * @return True if the event was removed correctly. Fasle in other case.
      */
 	protected synchronized boolean removeEvent(BasicElement.Event e) {
 		if (executionQueue.remove(e)) { // pudo quitarse
-			// si era el último tiene que notificarlo, se comprueba que ademas no hay operaciones pendientes
-			if (executionQueue.isEmpty() && !lp.isSimulationEnd()) {
-				lp.unlock();
-			}
             // Si era el último elemento del sistema
 			// MOD 7/3/06 Añadida la 1ª condición para evitar que más de un evento
 			// del mismo elemento dispare esta condición.
             if (executionQueue.isEmpty()) {
+    			// si era el último tiene que notificarlo
+    			if (!lp.isSimulationEnd()) 
+    				lp.unlock();
             	if(lp.getSimul().getElements() == 0) {
 	            	lp.print(Output.MessageType.DEBUG, "Execution queue freed",
 	            			"TP. MAX:" + tp.getMaxThreads() + "\tINI:" + tp.getInitThreads() 
@@ -64,9 +63,9 @@ public class ExecutionQueue {
 	}
 
     /**
-     * Inserta un elemento en la cola.
-     * @param e Elemento a insertar
-     * @return Verdadero (true) si pudo insertarlo
+     * Inserts a new event in the queue and looks for a thread to execute it.
+     * @param e Event to be added
+     * @return True if the event was added correctly. False in other case. 
      */
 	protected boolean addEvent(BasicElement.Event e) {
 		tp.getThread(e);
@@ -74,26 +73,17 @@ public class ExecutionQueue {
 	}
 
     /**
-     * Permite saber si un elemento está o no en la cola de ejecución
-     * @param e Elemento por el que se pregunta
-     * @return Verdadero si el elemento pertenece ya a la cola; falso e.o.c.
-     */
-    protected boolean inQueue(BasicElement.Event e) {
-        return executionQueue.contains(e);
-    }
-    
-    /**
-     * Devuelve el número de elementos contenidos en la cola de ejecución
-     * @return Tamaño de la cola de ejecución
+     * Returns the total amount of events in the queue.
+     * @return Total events in the queue.
      */
     protected int size() {
         return executionQueue.size();
     }
     
     /**
-     * Devuelve el elemento que ocupa la posición ind en la cola de ejecución.
-     * @param ind Indice del elemento que se busca
-     * @return El elemento indicado mediante el índice ind
+     * Returns the event at position ind.
+     * @param ind Position of the event.
+     * @return A specific event.
      */
     protected synchronized BasicElement.Event getEvent(int ind) {
         return executionQueue.get(ind);

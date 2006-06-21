@@ -106,9 +106,9 @@ class Analisis extends Simulation {
         new SingleMetaFlow(10, simSangre, new Fixed(1), getActivity(3));
         new SingleMetaFlow(11, simSangre, new Fixed(1), getActivity(5));
         Cycle c = new Cycle(0.0, new Fixed(1440.0), ndays);
-        Generation gen = new Generation(new Fixed(NPACIENTES));
-        gen.add(sec, 1.0);
-        return gen.createGenerators(this, c);
+        ArrayList<Generator> genList = new ArrayList<Generator>();
+        genList.add(new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), sec));
+        return genList;
     }
     
     protected ArrayList<Generator> createMetaFlow1() {
@@ -122,9 +122,9 @@ class Analisis extends Simulation {
         new SingleMetaFlow(19, simSangre, new Fixed(1), getActivity(3));
         new SingleMetaFlow(20, simSangre, new Fixed(1), getActivity(5));
         Cycle c = new Cycle(0.0, new Fixed(1440.0), ndays);
-        Generation gen = new Generation(new Fixed(NPACIENTES));
-        gen.add(simPruebas, 1.0);
-        return gen.createGenerators(this, c);
+        ArrayList<Generator> genList = new ArrayList<Generator>();
+        genList.add(new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), simPruebas));
+        return genList;
     }
     protected ArrayList<Generator> createMetaFlow2() {
         SimultaneousMetaFlow metaFlow = new SimultaneousMetaFlow(21, new Fixed(1));
@@ -136,17 +136,16 @@ class Analisis extends Simulation {
 ////        Cycle c2 = new Cycle(480.0, new Fixed(120.0), 0);
 //        Cycle c = new Cycle(0.0, new Fixed(1440.0 * 7), 0, c2);
         Cycle c = new Cycle(0.0, new Fixed(1440.0), ndays);
-        Generation gen = new Generation(new Fixed(NPACIENTES));
-        gen.add(metaFlow, 1.0);
-        return gen.createGenerators(this, c);
+        ArrayList<Generator> genList = new ArrayList<Generator>();
+        genList.add(new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), metaFlow));
+        return genList;
     }
     
     protected ArrayList<Generator> createMetaFlow3() {
         Cycle c = new Cycle(0.0, new Fixed(1440.0), 0);
-        Generation gen = new Generation(new Fixed(NPACIENTES));
-        gen.add(new SingleMetaFlow(23, new Fixed(1), getActivity(0)), 1.0);
-        return gen.createGenerators(this, c);
-    	
+        ArrayList<Generator> genList = new ArrayList<Generator>();
+        genList.add(new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), new SingleMetaFlow(23, new Fixed(1), getActivity(0))));
+        return genList;
     }
 
 }

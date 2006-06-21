@@ -339,7 +339,7 @@ public abstract class Simulation implements Printable, Runnable {
 
         // Now the DFS
         int nManagers = 0;  // This counter lets us mark each partition
-        for (int i = 0; i < resourceTypeList.size();i++)
+        for (int i = 0; i < resourceTypeList.size(); i++)
             if (marks[i] == -1) {
                 marks[i] = nManagers;                
                 dfs(graph, i, marks);
@@ -395,7 +395,7 @@ public abstract class Simulation implements Printable, Runnable {
         logicalProcessList[0] = new LogicalProcess(this, startTs, endTs);
         for (ActivityManager am : activityManagerList) {
             // FIXME
-            am.setLp(logicalProcessList[0]);
+    		am.setLp(logicalProcessList[0]);
         }
     }
     

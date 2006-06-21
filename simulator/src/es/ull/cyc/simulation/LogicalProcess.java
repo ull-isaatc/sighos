@@ -132,15 +132,6 @@ public class LogicalProcess extends SimulationObject implements Runnable {
     }
     
     /**
-     * Comprueba si un elemento pertenece a la cola de ejecución
-     * @param e Elemento a comprobar
-     * @return true si el elemento pertenece a la cola
-     */
-    protected synchronized boolean inExecution(BasicElement.Event e) {
-        return execQueue.inQueue(e);
-    }
-    
-    /**
      * Envía un elemento a la cola de espera
      * @param e Elemento a insertar
      */

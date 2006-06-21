@@ -2,41 +2,7 @@
 package es.ull.cyc.util;
 
 import java.util.ArrayList;
-
-/**
- * Estructura para almacenar todos los objetos de la misma prioridad.
- * Funciona como un "pool", es decir, el objeto que se escoge en primer lugar
- * varía cada vez mediante la rotación de un índice.
- * @author Iván Castilla Rodríguez
- */
-class PrioritizedLevel extends ArrayList<Prioritizable> {
-	private static final long serialVersionUID = 1L;
-	/** Indice del siguiente objeto que puede elegirse */
-    protected int chosen;
-    /** Prioridad de este nivel */
-    protected int priority;
-    
-    /**
-     * Constructor que indica la prioridad de las actividades
-     * @param pri Prioridad de este nivel.
-     */
-    PrioritizedLevel(int pri) {
-        super();
-        chosen = 0;
-        priority = pri;
-    }
-
-    /**
-     * Permite obtener el siguiente objeto del pool. Cada vez que se llama a 
-     * esta función el pool devuelve un objeto distinto.
-     * @return El siguiente objeto del pool
-     */
-    public Prioritizable get() {
-        Prioritizable obj = get(chosen);
-        chosen = (chosen + 1) % size();
-        return obj;
-    }    
-}
+import java.util.Iterator;
 
 /**
  * Estructura que contiene objetos organizados por niveles de prioridad. Los 
@@ -44,8 +10,8 @@ class PrioritizedLevel extends ArrayList<Prioritizable> {
  * todos los objetos tienen la misma probabilidad de ser escogidos.
  * @author Iván Castilla Rodríguez
  */
-public class PrioritizedTable {
-    /** Lista de todos los niveles del pool. */    
+public class PrioritizedTable<T extends Prioritizable> {
+    /** Lista de todos los niveles del pool. */
     protected ArrayList<PrioritizedLevel> levels;
     
     /** Creates a new instance of PoolObjetos */
@@ -86,7 +52,7 @@ public class PrioritizedTable {
      * @param obj Objeto a añadir
      * @param prioridad Prioridad con la que se añade el objeto.
      */
-    public void add(Prioritizable obj) {
+    public void add(T obj) {
         int ind = searchLevel(obj.getPriority());
         PrioritizedLevel pLevel = null;
         if (ind == levels.size()) {
@@ -115,7 +81,23 @@ public class PrioritizedTable {
         }
 		return suma;
 	}
+	
+	protected int getChosen(int levelIndex) {
+		return levels.get(levelIndex).chosen;
+	}
+	
+	protected T get(int levelIndex) {
+		return levels.get(levelIndex).get();		
+	}
     
+	protected T get(int levelIndex, int objIndex) {
+		return levels.get(levelIndex).get(objIndex);		
+	}
+    
+	protected int size(int levelIndex) {
+		return levels.get(levelIndex).size();
+	}
+	
     /**
      * Construye un array conteniendo todos los objetos del pool ordenados por
      * prioridad.
@@ -127,8 +109,51 @@ public class PrioritizedTable {
         for (int i = 0; i < levels.size(); i++) {
             PrioritizedLevel level = levels.get(i);
             for (int j = 0; j < level.size(); j++)
-                array[cont++] = (Prioritizable)level.get(j);            
+                array[cont++] = level.get(j);            
         }
         return array;
     }
+    
+    public Iterator<T> iterator(boolean random) {
+    	if (random)
+    		return new RandomPrioritizedTableIterator<T>(this);
+		return new PrioritizedTableIterator<T>(this);    	
+    }
+
+    /**
+     * Estructura para almacenar todos los objetos de la misma prioridad.
+     * Funciona como un "pool", es decir, el objeto que se escoge en primer lugar
+     * varía cada vez mediante la rotación de un índice.
+     * @author Iván Castilla Rodríguez
+     */
+    class PrioritizedLevel extends ArrayList<T> {
+    	private static final long serialVersionUID = 1L;
+    	/** Indice del siguiente objeto que puede elegirse */
+        protected int chosen;
+        /** Prioridad de este nivel */
+        protected int priority;
+        
+        /**
+         * Constructor que indica la prioridad de las actividades
+         * @param pri Prioridad de este nivel.
+         */
+        PrioritizedLevel(int pri) {
+            super();
+            chosen = 0;
+            priority = pri;
+        }
+
+        /**
+         * Permite obtener el siguiente objeto del pool. Cada vez que se llama a 
+         * esta función el pool devuelve un objeto distinto.
+         * @return El siguiente objeto del pool
+         */
+        public T get() {
+            T obj = get(chosen);
+            chosen = (chosen + 1) % size();
+            return obj;
+        }
+        
+    }
+
 }

@@ -109,4 +109,8 @@ public class Cycle {
 		return subCycle;
 	}
 
+	public CycleIterator iterator(double absStart, double absEnd) {
+		return new CycleIterator(this, absStart, absEnd);
+	}
+
 }

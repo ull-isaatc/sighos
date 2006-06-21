@@ -1,7 +1,7 @@
 package es.ull.cyc.simulation;
 
+import java.util.Iterator;
 import java.util.Vector;
-
 import es.ull.cyc.random.RandomNumber;
 import es.ull.cyc.simulation.results.ActivityStatistics;
 import es.ull.cyc.util.*;
@@ -25,14 +25,14 @@ public class Activity extends DescSimulationObject implements Prioritizable {
     /** Activity manager which this activity is associated to */
     protected ActivityManager manager = null;
     /** Work Group Pool */
-    protected PrioritizedTable workGroupTable;
+    protected PrioritizedTable<WorkGroup> workGroupTable;
 
     // constructores
     /**
-     * Crea una nueva actividad con una descripción, su prioridad e indicando
-     * si es presencial
-     * @param modelAct Actividad modelo
+     * Creates a new activity.
+     * @param id Activity's identifier
      * @param simul Associated simulation
+     * @param description Activity's description
      */
     public Activity(int id, Simulation simul, String description) {
         this(id, simul, description, 0, true);
@@ -40,10 +40,10 @@ public class Activity extends DescSimulationObject implements Prioritizable {
 
     /**
      * Creates a new activity.
-     * @param id Activity identifier.
+     * @param id Activity's identifier.
      * @param simul Simulation which this activity is attached to.
-     * @param description Description of the activity.
-     * @param priority Activity priority.
+     * @param description Activity's description
+     * @param priority Activity's priority.
      */
     public Activity(int id, Simulation simul, String description, int priority) {
         this(id, simul, description, priority, true);
@@ -51,25 +51,23 @@ public class Activity extends DescSimulationObject implements Prioritizable {
     
     /**
      * Creates a new activity.
-     * @param id Activity identifier.
+     * @param id Activity's identifier.
      * @param simul Simulation which this activity is attached to.
-     * @param description Description of the activity.
-     * @param priority Activity priority.
-     * @param presential
+     * @param description Activity's description
+     * @param priority Activity's priority.
+     * @param presential Indicates if the activity requires the presence of an element to be carried out. 
      */
     public Activity(int id, Simulation simul, String description, int priority, boolean presential) {
         super(id, simul, description);
         this.priority = priority;
         this.presential = presential;
         elementQueue = new Vector<SingleFlow>();
-        workGroupTable = new PrioritizedTable();
+        workGroupTable = new PrioritizedTable<WorkGroup>();
     }
 
     /**
-     * Permite saber si la actividad requiere de la dedicación exclusiva del
-     * elemento que la solicita, o si este puede estar realizando otras 
-     * actividades mientras tanto.
-     * @return Devuelve si es o no presencial.
+     * Indicates if the activity requires the presence of the element in order to be carried out. 
+     * @return The "presenciality" of the activity.
      */
     public boolean isPresential() {
         return presential;
@@ -84,16 +82,16 @@ public class Activity extends DescSimulationObject implements Prioritizable {
     }
     
     /**
-     * Devuelve el gestor de actividades al que está asociada la actividad.
-     * @return Gestor de actividades al que está asociada la actividad
+     * Returns the activity manager which this activity belongs to.
+     * @return The activity manager which this activity belongs to.
      */
     public ActivityManager getManager() {
         return manager;
     }
 
     /**
-     * Setter for property manager.
-     * @param manager New value of property manager.
+     * Associates this activity to an activity manager.
+     * @param manager The activity manager.
      */
     public void setManager(ActivityManager manager) {
         this.manager = manager;
@@ -101,42 +99,48 @@ public class Activity extends DescSimulationObject implements Prioritizable {
     }
     
     /**
-     * Añade una nueva opción de realización a la actividad
+     * Creates a new workgroup for this activity. The workgroup is added and returned in order
+     * to be used.
+     * @param wgId The workgroup's identifier
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @param priority Priority of the workgroup
+     * @return A new workgroup.
      */
-    public WorkGroup getNewWorkGroup(int wgId, RandomNumber duration, int priority, double cost) {
-    	WorkGroup wg = new WorkGroup(wgId, this, duration, priority, cost);
+    public WorkGroup getNewWorkGroup(int wgId, RandomNumber duration, int priority) {
+    	WorkGroup wg = new WorkGroup(wgId, this, duration, priority);
         workGroupTable.add(wg);
         return wg;
     }
     
     /**
-     * Añade una nueva opción de realización a la actividad
-     */
-    public WorkGroup getNewWorkGroup(int wgId, RandomNumber duration, int priority) {    	
-        return getNewWorkGroup(wgId, duration, priority, 0.0);
-    }
-    
-    /**
-     * Añade una nueva opción de realización a la actividad
+     * Creates a new workgroup for this activity with the highest level of priority. The workgroup 
+     * is added and returned in order to be used.
+     * @param wgId The workgroup's identifier
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @return A new workgroup.
      */
     public WorkGroup getNewWorkGroup(int wgId, RandomNumber duration) {    	
-        return getNewWorkGroup(wgId, duration, 0, 0.0);
+        return getNewWorkGroup(wgId, duration, 0);
     }
-    
+
+    /**
+     * Returns an array containing the whole set of workgroups of this activity.
+     * @return The workgroups that can perform this activity.
+     */
     public Prioritizable[] getWorkGroupTable() {
         return (Prioritizable[])workGroupTable.toArray();    	
     }
 
 	/**
-     * Indica si una actividad tiene disponibles los recursos necesarios
-     * @param e Elemento con el que se quiere saber si la actividad puede realizarse.
-     * @return Verdadero (true) si tiene los recursos; Falso (false) en otro caso
+     * Checks if this activity can be performed with any of its workgroups.
+     * @param e Element trying to carry out the activity 
+     * @return "True" if the activity is feasible, "false" in other case.
      */
     protected boolean isFeasible(Element e) {
     	// FIXME Debería ser aleatorio
-        PrioritizedTableIterator iter = new PrioritizedTableIterator(workGroupTable);
-        WorkGroup opc;
-        while ((opc = (WorkGroup)iter.next()) != null) {
+        Iterator<WorkGroup> iter = workGroupTable.iterator(false);
+        while (iter.hasNext()) {
+        	WorkGroup opc = iter.next();
             if (opc.isFeasible(e)) {
                 e.setCurrentWG(opc);
                 return true;
@@ -146,20 +150,20 @@ public class Activity extends DescSimulationObject implements Prioritizable {
     }
 
 	/**
-	 * Indica si una actividad tiene elementos pendientes de ejecución en su 
-     * cola. Si el primer elemento de la cola es válido no se hace nada más; si 
-     * no, se lleva al primer elemento válido a la cabeza de la cola.
-	 * @return Verdadero (true) si tiene elementos; Falso (false) en otro caso
+	 * Checks if there are "valid" elements waiting for this activity in the activity queue. 
+	 * If the first element is valid, there is nothing else to do, in other case, the first valid
+	 * element is put at the head of the queue. An element is valid when it's not busy carrying out 
+	 * another activity.
+	 * @return "True" if there are pending elements; "false" in other case
 	 */
     protected boolean hasPendingElements() {
-        // Si la lista está vacía no hay elementos pendientes (obvio)
+        // Pending list empty
         if (elementQueue.isEmpty())
             return false;
         
-        // Si el primer elemento de la lista me vale no hago nada más
+        // Checking the first element
         SingleFlow flow = elementQueue.get(0);
         Element e = flow.getElement();
-        // Sincronización hasta que el elemento deje de ser accedido
         e.waitSemaphore();
         
         // MOD 26/01/06 Añadido
@@ -170,15 +174,13 @@ public class Activity extends DescSimulationObject implements Prioritizable {
         else 
             e.signalSemaphore();
         
-        // Sigo revisando hasta encontrar el primer elemento válido
+        // Continue with the rest of elements
         for (int i = 1; i < elementQueue.size(); i++) {
         	flow = elementQueue.get(i);
             e = flow.getElement();
-            // Sincronización hasta que el elemento deje de ser accedido
             e.waitSemaphore();
-
 			if (e.getCurrentWG() == null) {
-			    // Muevo el elemento al primero de la lista
+			    // The element is put at the head of the queue
 				flow = elementQueue.remove(i);
 			    elementQueue.add(0, flow);
 			    return true;
@@ -215,10 +217,9 @@ public class Activity extends DescSimulationObject implements Prioritizable {
     }
     
     /**
-     * Permite acceder a un elemento en concreto de la cola de elementos pendientes
-     * @param ind Indice del elemento
-     * @return El elemento de la cola con el índice indicado o null si el índice
-     * es inválido
+     * Returns a specific element of the element queue.
+     * @param ind Element's index
+     * @return The element corresponding to the ind position.
      */
     protected Element getElement(int ind) {
         if (ind < 0 || ind >= elementQueue.size())
@@ -227,10 +228,8 @@ public class Activity extends DescSimulationObject implements Prioritizable {
     }
 
 	/**
-	 * El siguiente método sirve para ir vaciando la cola de elementos que 
-	 * esperan para realizar la actividad e ir desbloqueándolos. Este método lo 
-	 * usa el PL para que los distintos elementos finalicen su ejecución en el 
-	 * caso que haya concluido el tiempo de simulacion.
+	 * Clears the element queue. This method is invoked from the logical process when the
+	 * simulation finishes.
 	 */
     protected void clearQueue() {
     	for (SingleFlow sf : elementQueue) {

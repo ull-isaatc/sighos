@@ -26,8 +26,6 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     protected Activity act;
     /** Duración de la opción de la actividad */
     protected RandomNumber duration;
-    /** Un posible cost */
-    protected double cost;
     /** Priority of the workGroup */
     protected int priority = 0;
     
@@ -37,15 +35,13 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @param act Actividad a la que se asocia este equipo de trabajo.
      * @param tcr Tabla de clases de recursos que componen el equipo de trabajo.
      * @param duracion Tiempo que tarda el equipo de trabajo en realizar la actividad.
-     * @param coste Coste asociado a este equipo de trabajo.
      */    
-    protected WorkGroup(int id, Activity act, RandomNumber duration, int priority, double cost) {
+    protected WorkGroup(int id, Activity act, RandomNumber duration, int priority) {
         super(id, act.getSimul());
         this.act = act;
         this.resourceTypeTable = new ArrayList<ResourceTypeTableEntry>();
         this.duration = duration;
         this.priority = priority;
-        this.cost = cost;
     }
 
     /**
@@ -80,14 +76,6 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      */
     public RandomNumber getDistribution() {
         return duration;
-    }
-    
-    /**
-     * Devuelve el cost de la opción
-     * @return cost de la opción
-     */
-    public double getCost() {
-        return cost;
     }
     
     /**
@@ -309,7 +297,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     protected boolean isFeasible(Element e) {
     	boolean conflict = false;
 
-    	e.resetConflictList();
+    	e.resetConflictZone();
         for (int i = 0; i < resourceTypeTable.size(); i++) {
             ResourceTypeTableEntry rttEntry = resourceTypeTable.get(i);       	
         	ResourceType rt = rttEntry.getResourceType();
@@ -322,7 +310,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
                 i--;
                 for (; i >= 0; i--)
                     resourceTypeTable.get(i).getResourceType().resetAvailable(e);
-                e.removeConflictList();
+                e.removeFromConflictZone();
                 return false;            	
             }
             // If the available resources WITH conflicts are needed
@@ -336,19 +324,19 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
         if (conflict) { // The resource distribution algorithm is invoked
         	print(Output.MessageType.DEBUG, "Overlapped resources", "Overlapped resources with " + e);
             if (!distributeResources(e)) {
-                e.removeConflictList();
+                e.removeFromConflictZone();
             	e.signalConflictSemaphore();
             	return false;
             }
         }
-        else if (e.getConflictList().size() > 1) {
+        else if (e.getConflictZone().size() > 1) {
         	print(Output.MessageType.DEBUG, "Possible conflict", "Possible conflict. Recheck is needed " + e);
             int ned[] = new int[resourceTypeTable.size()];
             int []pos = {0, 0}; // "Start" position
             for (int i = 0; i < resourceTypeTable.size(); i++)
                 ned[i] = resourceTypeTable.get(i).getNeeded();
         	if (!hasSolution(pos, ned, e)) {
-                e.removeConflictList();
+                e.removeFromConflictZone();
             	e.signalConflictSemaphore();
             	// The element frees the previously booked resources 
             	for (ResourceTypeTableEntry rttEntry : resourceTypeTable)

@@ -45,17 +45,13 @@ public class ConflictZone {
 		semStack.addAll(other.semStack);
 		// Updates the conflict lists of any implied element
 		for (int i = 0; i < other.size(); i++)
-			other.get(i).setConflictList(this);
+			other.list.get(i).setConflictZone(this);
 		otherSem.signalSemaphore();
 		semBook.signalSemaphore();
 	}
 	
 	public int size() {
 		return list.size();
-	}
-	
-	public Element get(int index) {
-		return list.get(index);
 	}
 	
 	public boolean remove(Element e) {

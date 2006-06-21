@@ -66,7 +66,11 @@ public abstract class BasicElement extends SimulationObject {
         	print(Output.MessageType.ERROR, "Causal restriction broken\t" + e.getLp().getTs(),
         			"Causal restriction broken\t" + e.getLp().getTs() + "\t" + e);
     }
-    
+
+    /**
+     * Informs the element that it must finish its execution. This, a FinalizeEvent is
+     * created.
+     */
     protected synchronized void notifyEnd() {
     	if (!endFlag) {
     		endFlag = true;
@@ -120,6 +124,10 @@ public abstract class BasicElement extends SimulationObject {
         	print(Output.MessageType.WARNING, "Trying to go back in time\t" + ts);
     }
 
+    /**
+     * Returns the logical process used by default.
+     * @return The logical process associated to this element.
+     */
     public es.ull.cyc.simulation.LogicalProcess getDefLP() {
         return defLP;
     }
@@ -245,8 +253,8 @@ public abstract class BasicElement extends SimulationObject {
     }
 
     /**
-     * Finaliza la ejecución del elemento, decrementando el contador de elementos 
-     * del lp.
+     * The last event this element executes. It decrements the total amount of elements of the
+     * simulation.
      * @author Iván Castilla Rodríguez
      */
     public class FinalizeEvent extends Event {
@@ -255,16 +263,18 @@ public abstract class BasicElement extends SimulationObject {
             super(defLP.getTs(), defLP);
         }
         
-        /**
-         * Termina la ejecución del elemento.
-         */        
         public void event() {
             if (endSimulationFlag)
                 saveState();
             end();
         }
     }
-    
+
+    /**
+     * The first event this element executes.
+     * @author Iván Castilla Rodríguez
+     *
+     */
     public class StartEvent extends Event {
         public StartEvent() {
             super(defLP.getTs(), defLP);

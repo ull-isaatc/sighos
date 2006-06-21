@@ -44,7 +44,7 @@ class TimeTableEntry {
     }
     
     public CycleIterator getIterator(double startTs, double endTs) {
-    	return new CycleIterator(cycle, startTs, endTs);
+    	return cycle.iterator(startTs, endTs);
     }
     
     /**

@@ -1,7 +1,6 @@
 package es.ull.cyc.simulation;
 
-import java.util.*;
-
+import java.util.ArrayList;
 import es.ull.cyc.simulation.results.ElementStatistics;
 import es.ull.cyc.sync.Semaphore;
 import es.ull.cyc.util.*;
@@ -15,10 +14,6 @@ public class Element extends BasicElement {
     /** Workgroup that is currently being used. A null value indicates that this 
      element is not currently performing any activity. */
     protected WorkGroup currentWG = null;
-    /** SingleFlow that is currently being used. A null value indicates that this 
-     element is not currently performing any activity.
-     NOTA: Me hace falta este atributo para algo? */
-    protected SingleFlow currentSF = null;  
     /** Activity flow of the element */
     protected Flow flow = null;
     /** Stores the requested presential activities (requested[0]) and non-presential 
@@ -36,9 +31,9 @@ public class Element extends BasicElement {
 	protected ArrayList<Semaphore> semStack;
 
     /**
-     * Constructor del elemento
-     * @param simul Simulation object
+     * Creates a new element.
      * @param id Identificador del elemento
+     * @param simul Simulation object
      */
 	public Element(int id, Simulation simul) {
         super(id, simul);
@@ -48,107 +43,49 @@ public class Element extends BasicElement {
 	}
 
     /**
-     * Devuelve el equipo de trabajo que está siendo usado por el elemento para
-     * realizar una actividad o null si no es ninguna actividad.
-     * @return Valor de equipoActual.
+     * If the element is currently performing an activity, returns the workgroup that the 
+     * element is using. If the element is not performing any activity, returns null.
+     * @return The current workgroup used by this element.
      */
     protected WorkGroup getCurrentWG() {
         return currentWG;
     }
     
     /**
-     * Establece el valor del equipo de trabajo de la actividad actual que está
-     * utilizando el elemento.
-     * @param currentWG Equipo de trabajo actual del elemento. Si se pone a null quiere decir
-     * que el elemento no está realizando ninguna actividad.
+     * Sets the current workgroup used by this element to carry out an activity.
+     * @param currentWG The workgroup that the element is going to use. A null value indicates
+     * that the element has finished performing an activity.
      */
     protected void setCurrentWG(WorkGroup currentWG) {
         this.currentWG = currentWG;
     }
 
     /**
-	 * @return Returns the caughtResources.
+     * Returns the list of the elements currently used by the element. 
+	 * @return Returns the list of resources caught by this element.
 	 */
 	protected ArrayList<Resource> getCaughtResources() {
 		return caughtResources;
 	}
 
 	/**
-	 * @param res
+	 * Adds a resource to the list of resources caught by this element.
+	 * @param res A new resource.
 	 */
 	protected void addCaughtResource(Resource res) {
 		caughtResources.add(res);
 	}
 	
-	protected void resetConflictList() {
-        conflicts = new ConflictZone(this);
-	}
-	
 	/**
-	 * @param list
-	 */
-	protected void setConflictList(ConflictZone list) {
-		conflicts = list;
-	}
-	
-	protected boolean removeConflictList() {
-		return conflicts.remove(this);
-	}
-	/**
-	 * @return
-	 */
-	protected ConflictZone getConflictList() {
-		return conflicts;
-	}
-	
-	protected void mergeConflictList(Element e) {
-		// If it's the same list there's no need of merge
-		if (conflicts != e.getConflictList()) {
-			int result = this.compareTo(e); 
-			if (result < 0)
-				conflicts.merge(e.getConflictList());
-			else if (result > 0)
-				e.getConflictList().merge(conflicts);
-		}
-	}
-	
-	protected void waitConflictSemaphore() {
-		semStack = conflicts.getSemaphores();
-		for (Semaphore sem : semStack)
-			sem.waitSemaphore();
-	}
-	
-	protected void signalConflictSemaphore() {
-		for (Semaphore sem : semStack)
-			sem.signalSemaphore();
-	}
-	
-	/**
-     * Returns the single flow which is being currently executed. 
-     * @return Single flow attached to the current activity, or null if there is
-     * no current activity.
-	 */
-	public SingleFlow getCurrentSF() {
-		return currentSF;
-	}
-
-	/**
-	 * @param currentSF The currentSF to set.
-	 */
-	public void setCurrentSF(SingleFlow currentSF) {
-		this.currentSF = currentSF;
-	}
-
-	/**
-     * Devuelve el flujo de ejecución asociado a este elemento.
-     * @return Flujo de ejecución del elemento.
+     * Returns the activity flow of this element.
+     * @return The activity flow of the element.
      */
     public es.ull.cyc.simulation.Flow getFlow() {
         return flow;
     }
     
     /**
-     * Sets an activity flow.
+     * Sets the activity flow of this element.
      * @param flow New value of property flow.
      */
     public void setFlow(es.ull.cyc.simulation.Flow flow) {
@@ -158,7 +95,7 @@ public class Element extends BasicElement {
     }
     
     /**
-     * The element starts requesting its activities.
+     * The element requests its first activities.
      */
     protected void startEvents() {
     	simul.addStatistic(new ElementStatistics(id, ElementStatistics.START, ts, 0));
@@ -170,50 +107,6 @@ public class Element extends BasicElement {
     
     public void saveState() {
     	flow.saveState();
-    }
-    
-    /**
-     * Devuelve las actividades solicitadas por el elemento. El primer valor del 
-     * array representa las actividades presenciales, y el segundo las no
-     * presenciales.
-     * @return Lista de actividades solicitadas.
-     */
-    protected ArrayList<SingleFlow> []getRequested() {
-        return requested;
-    }
-    
-    /**
-     * Devuelve el número de actividades presenciales solicitadas por el 
-     * elemento. 
-     * @return Número de actividades presenciales solicitadas.
-     */
-    protected int getRequestedP() {
-        return requested[0].size();
-    }
-    
-    /**
-     * Devuelve el número de actividades presenciales pendientes
-     * @return Número de actividades presenciales pendientes.
-     */
-    protected synchronized int getPendingP() {
-        return pending[0];
-    }
-    
-    /**
-     * Devuelve el número de actividades no presenciales solicitadas por el 
-     * elemento. 
-     * @return Número de actividades no presenciales solicitadas.
-     */
-    protected int getRequestedNP() {
-        return requested[1].size();
-    }
-    
-    /**
-     * Devuelve el número de actividades no presenciales pendientes
-     * @return Número de actividades no presenciales pendientes.
-     */
-    protected synchronized int getPendingNP() {
-        return pending[1];
     }
     
     /**
@@ -247,7 +140,7 @@ public class Element extends BasicElement {
     }
 
     /**
-     * Produces a "RequestActivityEvent".
+     * Requests an activity by means of a "RequestActivityEvent".
      * @param f Single flow requested.
      */
     protected void requestActivity(SingleFlow f) {
@@ -257,8 +150,8 @@ public class Element extends BasicElement {
 
     /**
      * Updates the element timestamp, catch the corresponding resources and produces 
-     * a finalize activity event.
-     * @param lp Logical Process where the activity will be carried out.
+     * a "FinalizeActivityEvent".
+     * @param f Single flow requested.
      */
     protected void carryOutActivity(SingleFlow f) {
     	LogicalProcess lp = f.getActivity().getManager().getLp();
@@ -267,32 +160,96 @@ public class Element extends BasicElement {
     	simul.addStatistic(new ElementStatistics(id, ElementStatistics.STAACT, ts, f.getActivity().getIdentifier()));
         print(Output.MessageType.DEBUG, "Starts\t" + f.getActivity(), 
         		"Starts\t" + f.getActivity() + "\t" + f.getActivity().getDescription());
-        // MOD 25/01/06 Puesto aquí      
-        currentSF = f;
         FinalizeActivityEvent e = new FinalizeActivityEvent(ts + currentWG.getDuration(), f);
         addEvent(e);
     }
+	
+    /**
+     * Creates a new conflict zone. This method should be invoked previously to
+     * any activity request.
+     */
+	protected void resetConflictZone() {
+        conflicts = new ConflictZone(this);
+	}
+	
+	/**
+	 * Establish a different conflict zone for this element.
+	 * @param zone The new conflict zone for this element.
+	 */
+	protected void setConflictZone(ConflictZone zone) {
+		conflicts = zone;
+	}
+	
+	/**
+	 * Removes this element from its conflict list. This method is invoked in case
+	 * the element detects that it can not carry out an activity.
+	 */
+	protected void removeFromConflictZone() {
+		conflicts.remove(this);
+	}
+	
+	/**
+	 * Returns the conflict zone of this element.
+	 * @return The conflict zone of the element.
+	 */
+	protected ConflictZone getConflictZone() {
+		return conflicts;
+	}
+	
+	/**
+	 * Merges the conflict list of this element and other one. Since one zonflict zone must
+	 * be merged into the other, the election of the element which "recibes" the merging operation
+	 * depends on the id of the element: the element with lower id "recibes" the merging, and the
+	 * other one "produces" the operation.
+	 * @param e The element whose conflict zone must be merged. 
+	 */
+	protected void mergeConflictList(Element e) {
+		// If it's the same list there's no need of merge
+		if (conflicts != e.getConflictZone()) {
+			int result = this.compareTo(e); 
+			if (result < 0)
+				conflicts.merge(e.getConflictZone());
+			else if (result > 0)
+				e.getConflictZone().merge(conflicts);
+		}
+	}
+	
+	
+	/**
+	 * Obtains the stack of semaphores from the conflict zone and goes through
+	 * this stack performing a wait operation on each semaphore.
+	 */
+	protected void waitConflictSemaphore() {
+		semStack = conflicts.getSemaphores();
+		for (Semaphore sem : semStack)
+			sem.waitSemaphore();
+	}
+	
+	/** 
+	 * Goes through the stack of semaphores performing a signal operation on each semaphore.
+	 */
+	protected void signalConflictSemaphore() {
+		for (Semaphore sem : semStack)
+			sem.signalSemaphore();
+	}
     
 	public String getObjectTypeIdentifier() {
 		return "E";
 	}
 	
     /**
-     * Acción que solicita una actividad.
+     * Requests an activity.
+     * @author Iván Castilla Rodríguez
      */
     public class RequestActivityEvent extends BasicElement.Event {
+    	/** The flow requested */
         SingleFlow flow;
-        /**
-         * Constructor de la acción.
-         */
+        
         public RequestActivityEvent(double ts, SingleFlow flow) {
             super(ts, flow.getActivity().getManager().getLp());
             this.flow = flow;
         }
         
-        /**
-         * Solicita una actividad y comprueba la siguiente acción a realizar.
-         */
         public void event() {
         	simul.addStatistic(new ElementStatistics(id, ElementStatistics.REQACT, ts, flow.getActivity().getIdentifier()));
             print(Output.MessageType.DEBUG, "Requests\t" + flow.getActivity(), 
@@ -300,8 +257,13 @@ public class Element extends BasicElement {
             flow.getActivity().getManager().requestActivity(flow);
         }
     }
-    
+
+    /**
+     * Informs of the availability of the element.
+     * @author Iván Castilla Rodríguez
+     */
     public class AvailableElementEvent extends BasicElement.Event {
+    	/** Flow informed of the availability of the element */
         SingleFlow flow;
         
         public AvailableElementEvent(double ts, SingleFlow flow) {
@@ -315,22 +277,18 @@ public class Element extends BasicElement {
     }
     
     /**
-     * Acción que se finaliza una actividad.
+     * Finish an activity.
+     * @author Iván Castilla Rodríguez
      */
     public class FinalizeActivityEvent extends BasicElement.Event {
+    	/** The flow finished */
         SingleFlow flow;
         
-        /**
-         * Constructor de la acción.
-         */        
         public FinalizeActivityEvent(double ts, SingleFlow flow) {
             super(ts, flow.getActivity().getManager().getLp());
             this.flow = flow;
         }
         
-        /**
-         * Termina una actividad y comprueba la siguiente acción a realizar.
-         */
         public void event() {
         	simul.addStatistic(new ElementStatistics(id, ElementStatistics.ENDACT, ts, flow.getActivity().getIdentifier()));
             print(Output.MessageType.DEBUG, "Finishes\t" + flow.getActivity(), 

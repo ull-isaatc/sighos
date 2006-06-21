@@ -41,8 +41,8 @@ class SimConflict1 extends Simulation {
 	protected ArrayList<Generator> createGenerators() {
 		ArrayList<Generator> list = new ArrayList<Generator>();
 		Cycle c = new Cycle(1.0, new Fixed(1440.0), 480.0);
-		list.add(new ElementGenerator(this, new Fixed(NELEM), new CycleIterator(c, startTs, endTs), new SingleMetaFlow(0, new Fixed(1), getActivity(0))));
-		list.add(new ElementGenerator(this, new Fixed(NELEM), new CycleIterator(c, startTs, endTs), new SingleMetaFlow(1, new Fixed(1), getActivity(1))));
+		list.add(new ElementGenerator(this, new Fixed(NELEM), c.iterator(startTs, endTs), new SingleMetaFlow(0, new Fixed(1), getActivity(0))));
+		list.add(new ElementGenerator(this, new Fixed(NELEM), c.iterator(startTs, endTs), new SingleMetaFlow(1, new Fixed(1), getActivity(1))));
 		return list;
 	}
 

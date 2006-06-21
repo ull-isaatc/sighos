@@ -6,6 +6,7 @@
 
 package es.ull.cyc.simulation;
 
+import es.ull.cyc.random.RandomNumber;
 import es.ull.cyc.util.CycleIterator;
 
 /**
@@ -20,15 +21,19 @@ public abstract class Generator extends BasicElement {
     private static int counter = 0;
     /** Cycle that controls the generation of elements. */
     protected CycleIterator cycleIter;
+	/** Number of objects created per cycle iteration */
+	protected RandomNumber nElem;
     
     /**
      * Creates an element generator. 
      * @param simul Simulation object.
+     * @param nElem Number of objects created per cycle iteration.
      * @param cycleIter Control of the generation cycle.
      */
-    public Generator(Simulation simul, CycleIterator cycleIter) {
+    public Generator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter) {
         super(counter++, simul);
         this.cycleIter = cycleIter;
+        this.nElem = nElem;
     }
     
     /**

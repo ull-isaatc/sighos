@@ -10,19 +10,19 @@ import es.ull.cyc.util.Output;
 import es.ull.cyc.util.Printable;
 
 /**
- * Representa un objeto que tiene un identificador único.
- * @author Carlos Martín Galán
+ * An object belonging to a simulation.
+ * @author Iván Castilla Rodríguez
  */
-public abstract class SimulationObject implements Printable, TimeStamp, Orderable {
+public abstract class SimulationObject implements Printable, Orderable {
     /** Unique object identifier  */
 	protected int id;
     /** Simulation where this object is used in */
     protected Simulation simul = null;
     
 	/**
-     * Constructor que permite asignarle una descripción al objeto
-     * @param descripcion Descripción del objeto
-     * @param pl Proceso lógico al que se vincula el objeto
+     * Creates a new simulation object.
+     * @param id Unique identifier of the object
+     * @param simul Simulation which includes this object
      */
 	public SimulationObject(int id, Simulation simul) {
 		this.id = id;
@@ -43,6 +43,12 @@ public abstract class SimulationObject implements Printable, TimeStamp, Orderabl
 	 * @return A short string describing the type of the simulation object.
 	 */
 	public abstract String getObjectTypeIdentifier();
+	
+	/**
+	 * Returns the simulation timestamp of this object.
+	 * @return Simulation timestamp of the object.
+	 */
+	public abstract double getTs();
 	
     /**
      * Getter for property simul.

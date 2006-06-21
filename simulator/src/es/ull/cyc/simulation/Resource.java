@@ -9,10 +9,9 @@ import es.ull.cyc.util.Output;
 
 
 /**
- * Un recurso activo puede desempeñar diferentes roles, o lo que es lo mismo,
- * tener varias ClaseRecurso.
- * Por este motivo ya no hay un atributo. Si se desea saber que roles desempeña
- * es necesario recorrer su tabla horaria.
+ * A resource is an element that becomes available at a specific simulation time and 
+ * becomes unavailable at other simulation time. The availability of a resource is controlled
+ * by means of timetable entries, which define a resource type and an availability cycle.
  * HISTORY
  * 22/05/06 No more Multiple Roles
  * 23/05/06 Resource is now a BasicElement. No TimeTableManagers required. ¿Para qué quiero un TTM por
@@ -48,10 +47,6 @@ public class Resource extends BasicElement {
         bookList = new OrderedList<Element>();
 	}
 
-    /**
-     * Arranca todos los timeManageres de actividad del recurso
-     * Supone ya que se han introducido ya todas las entradas de su horario
-     */
     protected void startEvents() {
 		for (int i = 0 ; i < timeTable.size(); i++) {
 			TimeTableEntry tte = timeTable.get(i);
@@ -107,15 +102,19 @@ public class Resource extends BasicElement {
 		return "RES";
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.ArrayList#add(E)
+	/**
+	 * Adds a new resource type to the list of current roles.
+	 * @param role New resource type added
+	 * @return False if the resource type already belongs to the current list. True in other case.
 	 */
 	protected boolean addRole(ResourceType role) {
 		return currentRoles.add(role);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.ArrayList#remove(java.lang.Object)
+	/**
+	 * Removes a resource type from the list of current roles.
+	 * @param role Resource type removed
+	 * @return True if the resource type exists in the list. False in other case.
 	 */
 	protected boolean removeRole(ResourceType role) {
 		return currentRoles.remove(role);
