@@ -51,13 +51,6 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     protected Activity getActivity() {
         return act;
     }
-    /**
-     * Devuelve la tabla de clases de recursos que compone este equipo de trabajo.
-     * @return La tabla de clases de recursos de este equipo de trabajo.
-     */    
-    public ArrayList<ResourceTypeTableEntry> getResourceTypeTable() {
-        return resourceTypeTable;
-    }
 
     /**
      * Returns the duration of the activity when this workgroup is used. 
@@ -404,4 +397,45 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
        return str.toString();
 	}
 
+	/**
+	 * This class represents the t-uplas of a table of resource types.
+	 * @author Carlos Martín Galán
+	 */
+	class ResourceTypeTableEntry {
+		/** Needed units */
+		protected int needed;
+		/** Resource type */
+		protected ResourceType rType;
+
+	    /**
+	     * Creates a new entry in a resource type table
+	     * @param rt Resource type
+	     * @param uN Needed units
+	     */
+		ResourceTypeTableEntry(es.ull.cyc.simulation.ResourceType rt, int uN) {
+			rType = rt;
+			needed = uN;
+		}
+	    
+	    /**
+	     * Getter for property needed.
+	     * @return Value of property needed.
+	     */
+	    public int getNeeded() {
+	        return needed;
+	    }
+	    
+	    /**
+	     * Getter for property rType.
+	     * @return Value of property rType.
+	     */
+	    public es.ull.cyc.simulation.ResourceType getResourceType() {
+	        return rType;
+	    }
+	    
+	    public Resource getResource(int index) {
+	    	return rType.getResource(index);
+	    }
+	}
+	
 }

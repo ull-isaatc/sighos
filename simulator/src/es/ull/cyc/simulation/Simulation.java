@@ -121,14 +121,12 @@ public abstract class Simulation implements Printable, Runnable {
             res.start(getDefaultLogicalProcess());
     }
     
-    class FlowStatComparator implements Comparator {
+    class FlowStatComparator implements Comparator<PendingFlowStatistics> {
 
-		public int compare(Object o1, Object o2) {
-			PendingFlowStatistics p1 = (PendingFlowStatistics)o1;
-			PendingFlowStatistics p2 = (PendingFlowStatistics)o2;
-			if (p1.getElemId() < p2.getElemId())
+		public int compare(PendingFlowStatistics o1, PendingFlowStatistics o2) {
+			if (o1.getElemId() < o2.getElemId())
 				return -1;
-			if (p1.getElemId() > p2.getElemId())
+			if (o1.getElemId() > o2.getElemId())
 				return 1;
 			return 0;
 		}
