@@ -22,7 +22,7 @@ public class NPElement extends Element {
      */
     public NPElement(Element parent, SingleFlow f) {
     	// FIXME: Quizás debería usar un identificador específico
-        super(parent.getIdentifier(), parent.getSimul());
+        super(parent.getIdentifier(), parent.getSimul(), parent.getSimul().getNPElementType());
         this.parent = parent;
         setFlow(new SingleFlow(f, this, f.getActivity()));
     }

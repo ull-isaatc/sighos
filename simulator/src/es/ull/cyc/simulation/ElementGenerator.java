@@ -14,43 +14,44 @@ import es.ull.cyc.util.CycleIterator;
  */
 public class ElementGenerator extends Generator {
 	/** Each metaflow that will be generated */
-	protected ArrayList<GenerationPair> genPairs;
+	protected ArrayList<GenerationTrio> genTrio;
 
 	/**
 	 * @param simul
 	 * @param nElem
 	 * @param cycleIter
-	 * @param meta
+	 * @param et
+	 * @param metaFlow
 	 */
-	public ElementGenerator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter, MetaFlow meta) {
+	public ElementGenerator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter, ElementType et, MetaFlow metaFlow) {
 		super(simul, nElem, cycleIter);
-		this.genPairs = new ArrayList<GenerationPair>();
-		genPairs.add(new GenerationPair(meta, 1.0));
+		this.genTrio = new ArrayList<GenerationTrio>();
+		genTrio.add(new GenerationTrio(et, metaFlow, 1.0));
 	}
 
 	/**
 	 * @param nElem Number of elements which will be generated.
 	 */
 	public ElementGenerator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter) {
-		this(simul, nElem, cycleIter, new ArrayList<GenerationPair>());
+		this(simul, nElem, cycleIter, new ArrayList<GenerationTrio>());
 	}
 	
 	/**
 	 * @param nElem Number of elements which will be generated.
-	 * @param genPairs Initial list of [metaflows, proportions] pairs.
+	 * @param genTrio Initial list of [element type, proportions] pairs.
 	 */
-	public ElementGenerator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter, ArrayList<GenerationPair> genPairs) {
+	public ElementGenerator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter, ArrayList<GenerationTrio> genPairs) {
 		super(simul, nElem, cycleIter);
-		this.genPairs = genPairs;
+		this.genTrio = genPairs;
 	}
 
 	/**
-	 * Adds a [metaflow, proportion] pair.
-	 * @param meta Metaflow
+	 * Adds a [element type, proportion] pair.
+	 * @param et Element type
 	 * @param prop Proportion of elements corresponding to this metaflow
 	 */
-	public void add(MetaFlow meta, double prop) {
-		genPairs.add(new GenerationPair(meta, prop));
+	public void add(ElementType et, MetaFlow metaFlow, double prop) {
+		genTrio.add(new GenerationTrio(et, metaFlow, prop));
 	}
 	
 	/* (non-Javadoc)
@@ -58,35 +59,45 @@ public class ElementGenerator extends Generator {
 	 */
 	public void createElements() {
         int n = (int)nElem.samplePositiveDouble();
-		for (GenerationPair gp : genPairs) {			
-	        for (int i = 0 ; i < (Math.round(n * gp.getProp())); i++) {
-	    		Element elem = new Element(elemCounter++, simul);
-	    		elem.setFlow(gp.getMeta().getFlow(null, elem));
+		for (GenerationTrio gt : genTrio) {			
+	        for (int i = 0 ; i < (Math.round(n * gt.getProp())); i++) {
+	    		Element elem = new Element(elemCounter++, simul, gt.getElementType());
+	    		elem.setFlow(gt.getMetaFlow().getFlow(null, elem));
 	            elem.start(defLP);
 	        }
 		}
 	}
 
-	public class GenerationPair {
-		protected MetaFlow meta;
+	public class GenerationTrio {
+		protected ElementType et;
+		protected MetaFlow metaFlow;
 		protected double prop;
 		
 		/**
 		 * @param meta
 		 * @param prop
 		 */
-		public GenerationPair(MetaFlow meta, double prop) {
+		public GenerationTrio(ElementType et, MetaFlow metaFlow, double prop) {
 			super();
-			this.meta = meta;
+			this.et = et;
+			this.metaFlow = metaFlow;
 			this.prop = prop;
 		}
 		
 		/**
-		 * @return Returns the meta.
+		 * @return Returns the element type.
 		 */
-		public MetaFlow getMeta() {
-			return meta;
+		public ElementType getElementType() {
+			return et;
 		}
+		
+		/**
+		 * @return the metaFlow
+		 */
+		public MetaFlow getMetaFlow() {
+			return metaFlow;
+		}
+
 		/**
 		 * @return Returns the prop.
 		 */

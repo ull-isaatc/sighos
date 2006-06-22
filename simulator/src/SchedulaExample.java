@@ -16,6 +16,7 @@ class SimSchedula extends Simulation {
 		"Operators", "Accountants", "Computers", "Calculators" 
 	};
 	final static int NELEM[] = {200, 600, 120};
+//	final static int NELEM[] = {1, 0, 0};
 
 	SimSchedula(double startTs, double endTs, Output out) {
 		super("Schedula example", startTs, endTs, out);
@@ -83,22 +84,36 @@ class SimSchedula extends Simulation {
 		wgs[13].add(getResourceType(7), 1);
 		wgs[13].add(getResourceType(8), 1);
 		wgs[13].add(getResourceType(9), 1);
+		
+		// Element types creation
+		for (int i = 0; i < NELEM.length; i++) {
+			new ElementType(i, this, "NELEM : " + NELEM[i]);
+		}
+
 	}
 
 	@Override
 	protected ArrayList<Generator> createGenerators() {
 		int countMeta = 0;
 		ArrayList<Generator> genList = new ArrayList<Generator>();
-		SequenceMetaFlow sec[] = new SequenceMetaFlow[3];
-		for (; countMeta < sec.length; countMeta++)		
-			sec[countMeta] = new SequenceMetaFlow(countMeta, new Fixed(1));
+
+		TypeMetaFlow type = new TypeMetaFlow(countMeta++, new Fixed(1));
+		SequenceMetaFlow sec[] = new SequenceMetaFlow[NELEM.length];
+		for (int i = 0; i < NELEM.length; i++) {
+			// hay dos constructores para el typebranch
+			TypeBranchMetaFlow tb = new TypeBranchMetaFlow(countMeta++, type, getElementType(i));
+			sec[i] = new SequenceMetaFlow(countMeta++, tb,  new Fixed(1));
+		}
+		// Type A
 		new SingleMetaFlow(countMeta++, sec[0], new Fixed(1), getActivity(0));
 		new SingleMetaFlow(countMeta++, sec[0], new Fixed(1), getActivity(1));
 		new SingleMetaFlow(countMeta++, sec[0], new Fixed(1), getActivity(2));
 		new SingleMetaFlow(countMeta++, sec[0], new Fixed(1), getActivity(3));
 		new SingleMetaFlow(countMeta++, sec[0], new Fixed(1), getActivity(4));
+		// Type B
 		new SingleMetaFlow(countMeta++, sec[1], new Fixed(1), getActivity(2));
 		new SingleMetaFlow(countMeta++, sec[1], new Fixed(1), getActivity(3));
+		// Type C
 		new SingleMetaFlow(countMeta++, sec[2], new Fixed(1), getActivity(5));
 		new SingleMetaFlow(countMeta++, sec[2], new Fixed(1), getActivity(2));
 		new SingleMetaFlow(countMeta++, sec[2], new Fixed(1), getActivity(3));
@@ -108,8 +123,9 @@ class SimSchedula extends Simulation {
 		c[0] = new Cycle(750.0, new Fixed(1440.0), 0);
 		c[1] = new Cycle(510.0, new Fixed(1440.0), 0);
 		c[2] = new Cycle(510.0, new Fixed(1440.0), 0);
+		//FIXME: crear un método en simulation para obtener un element type a partir de su id 
 		for (int i = 0; i < NELEM.length; i++)
-			genList.add(new ElementGenerator(this, new Fixed(NELEM[i]), c[i].iterator(startTs, endTs), sec[i]));
+			genList.add(new ElementGenerator(this, new Fixed(NELEM[i]), c[i].iterator(startTs, endTs), getElementType(i), sec[i]));
 		return genList;
 	}
 

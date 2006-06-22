@@ -36,6 +36,8 @@ public abstract class Simulation implements Printable, Runnable {
 	protected OrderedList<Activity> activityList;
     /** List of resource types present in the simulation. */
     protected OrderedList<ResourceType> resourceTypeList;
+    /** List of resource types present in the simulation. */
+    protected OrderedList<ElementType> elementTypeList;
     /** List of activity managers that partition the simulation. */
     protected ArrayList<ActivityManager> activityManagerList;    
     /** Logical Process list */
@@ -54,17 +56,21 @@ public abstract class Simulation implements Printable, Runnable {
     private Lock simLock;
     /** Thread for threaded-execution of the simulation */
     private Thread simThread = null;
+	/** Default element type for non presential elements */
+	private ElementType npElementType;
     
     /** Creates a new instance of Simulation */
     public Simulation(String description, double startTs, double endTs, Output out) {
         activityList = new OrderedList<Activity>();
         resourceTypeList = new OrderedList<ResourceType>();
+        elementTypeList = new OrderedList<ElementType>();
         activityManagerList = new ArrayList<ActivityManager>();
     	this.description = description;
         this.startTs = startTs;
         this.endTs = endTs;
         this.elemMeter = 0;
         this.out = out;
+        npElementType = new ElementType(-1, this, "Non presential element type");
         simLock = new Lock();
         // MOD 28/03/05 Para poder recuperar una simulación lo hago en el init
 //        this.results = new SimulationResults();
@@ -173,7 +179,7 @@ public abstract class Simulation implements Printable, Runnable {
     	// The pending elements are recovered
     	while (itFlow.hasNext()) {
     		PendingFlowStatistics pFlow = (PendingFlowStatistics)itFlow.next();
-    		InterruptedElement elem = new InterruptedElement(pFlow.getElemId(), this);
+    		InterruptedElement elem = new InterruptedElement(pFlow.getElemId(), this, pFlow.getElemType());
 			elemMap.put(new Integer(pFlow.getElemId()), elem);
 			Flow root = null;
 			switch(pFlow.getType()) {
@@ -424,7 +430,7 @@ public abstract class Simulation implements Printable, Runnable {
 
     /**
      * Adds an identified object to the model. The allowed id. objects are:
-     * {@link Activity}, {@link ResourceType} and
+     * {@link Activity}, {@link ResourceType}, {@link ElementType} and
      * {@link WorkGroup}. Any other object is ignored.
      * @param obj Identified object that's added to the model.
      * @return True is the insertion was succesful. False if there already was  
@@ -436,6 +442,8 @@ public abstract class Simulation implements Printable, Runnable {
             resul = resourceTypeList.add((ResourceType)obj);
         else if (obj instanceof Activity)
             resul = activityList.add((Activity)obj);
+        else if (obj instanceof ElementType)
+            resul = elementTypeList.add((ElementType)obj);
         else
         	print(Output.MessageType.ERROR, "Trying to add an unidentified object to the Model");
         return resul;
@@ -482,7 +490,23 @@ public abstract class Simulation implements Printable, Runnable {
     public ResourceType getResourceType(int id) {
         return resourceTypeList.get(new Integer(id));
     }
+
+    /**
+     * Returns the element type with the corresponding identifier.
+     * @param id element type identifier.
+     * @return An element type with the indicated identifier.
+     */
+    public ElementType getElementType(int id) {
+        return elementTypeList.get(new Integer(id));
+    }
     
+	/**
+	 * @return the npElementType
+	 */
+	public ElementType getNPElementType() {
+		return npElementType;
+	}
+
 	/**
      * Returns a list of the activity managers of the model.
      * @return Work activity managers of the model.

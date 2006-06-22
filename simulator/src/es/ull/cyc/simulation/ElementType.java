@@ -7,41 +7,24 @@ package es.ull.cyc.simulation;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ElementType {
-	private int id;
-	private String description;
-	private MetaFlow flow;
+public class ElementType extends DescSimulationObject {
 	
 	/**
 	 * @param id
+	 * @param simul
 	 * @param description
-	 * @param flow
 	 */
-	public ElementType(int id, String description, MetaFlow flow) {
-		this.id = id;
-		this.description = description;
-		this.flow = flow;
+	public ElementType(int id, Simulation simul, String description) {
+		super(id, simul, description);
 	}
 
-	/**
-	 * @return Returns the description.
-	 */
-	public String getDescription() {
-		return description;
+	@Override
+	public String getObjectTypeIdentifier() {
+		return "ET";
 	}
 
-	/**
-	 * @return Returns the flow.
-	 */
-	public Flow getFlow(Element e) {
-		return flow.getFlow(null, e, id);
+	@Override
+	public double getTs() {
+		return 0;
 	}
-
-	/**
-	 * @return Returns the id.
-	 */
-	public int getId() {
-		return id;
-	}
-	
 }

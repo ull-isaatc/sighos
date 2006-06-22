@@ -22,6 +22,14 @@ public class SequenceMetaFlow extends GroupMetaFlow {
 	 * @param parent
 	 * @param iterations
 	 */
+	public SequenceMetaFlow(int id, TypeBranchMetaFlow parent, RandomNumber iterations) {
+		super(id, parent, iterations);
+	}
+
+	/**
+	 * @param parent
+	 * @param iterations
+	 */
 	public SequenceMetaFlow(int id, OptionMetaFlow parent, RandomNumber iterations) {
 		super(id, parent, iterations);
 	}

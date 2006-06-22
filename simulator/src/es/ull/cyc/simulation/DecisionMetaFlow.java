@@ -49,23 +49,8 @@ public class DecisionMetaFlow extends MetaFlow {
 	 * @see es.ull.cyc.simulation.MetaFlow#getFlow(es.ull.cyc.simulation.Flow, es.ull.cyc.simulation.Element)
 	 */
 	public Flow getFlow(Flow parentFlow, Element e) {
-		int iter = iterations.sampleInt();
-		SequenceFlow sec;
 		
-		if (iter == 0)
-			return null;
-		else if (iter == 1) {
 			return getDescendantFlow(parentFlow, e);
-		}
-		else  {			
-			if (parentFlow instanceof SequenceFlow)
-				sec = (SequenceFlow)parentFlow;
-			else
-				sec = new SequenceFlow((SimultaneousFlow)parentFlow, e);
-			for (int i = 0; i < iter; i++)
-				getDescendantFlow(sec, e);
-			return sec;
-		}
 	}
 
 	/**
@@ -95,5 +80,4 @@ public class DecisionMetaFlow extends MetaFlow {
 	protected void add(MetaFlow descendant) {
 		options.add(descendant);		
 	}
-
 }

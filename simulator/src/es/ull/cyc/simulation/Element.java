@@ -29,14 +29,18 @@ public class Element extends BasicElement {
     protected ConflictZone conflicts;
     /** Stack of nested semaphores */
 	protected ArrayList<Semaphore> semStack;
+	/** Element type */
+	protected ElementType elementType;
+	
 
     /**
      * Creates a new element.
      * @param id Identificador del elemento
      * @param simul Simulation object
      */
-	public Element(int id, Simulation simul) {
+	public Element(int id, Simulation simul, ElementType et) {
         super(id, simul);
+        this.elementType = et;
         requested[0] = new ArrayList<SingleFlow>();
         requested[1] = new ArrayList<SingleFlow>();
         caughtResources = new ArrayList<Resource>();
@@ -303,5 +307,12 @@ public class Element extends BasicElement {
             }
         }
     }
+
+	/**
+	 * @return the elementType
+	 */
+	public ElementType getElementType() {
+		return elementType;
+	}
     
 }
