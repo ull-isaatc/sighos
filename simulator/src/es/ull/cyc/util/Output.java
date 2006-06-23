@@ -12,7 +12,7 @@ import java.io.*;
 public class Output {
 	public enum DebugLevel {NODEBUG, DEBUG, XDEBUG};
 	// Message types
-	public enum MessageType {ERROR, WARNING, DEBUG};
+	public enum MessageType {ERROR, DEBUG};
 	protected OutputStreamWriter out;
 	protected OutputStreamWriter err;
 	protected DebugLevel level;
@@ -36,7 +36,7 @@ public class Output {
 	}
 	
 	public void print(MessageType type, String shortDescription, String longDescription) {
-		if ((type == MessageType.ERROR) || (type == MessageType.WARNING)) {
+		if (type == MessageType.ERROR) {
 			if (level == DebugLevel.XDEBUG)
 				println(err, longDescription);
 			else // Errors and warnings are always showed

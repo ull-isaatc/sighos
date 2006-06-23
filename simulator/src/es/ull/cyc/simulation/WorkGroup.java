@@ -347,7 +347,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      */
     protected void catchResources(Element e) {
        for (ResourceTypeTableEntry rtte : resourceTypeTable) {
-           rtte.getResourceType().decAvailable(rtte.getNeeded(), e);
+           rtte.getResourceType().catchResources(rtte.getNeeded(), e);
        }
        // When this point is reached, that means that the resources have been completely taken
        e.signalConflictSemaphore();

@@ -121,7 +121,7 @@ public abstract class BasicElement extends SimulationObject {
         if (ts >= this.ts)
             this.ts = ts;
         else
-        	print(Output.MessageType.WARNING, "Trying to go back in time\t" + ts);
+        	print(Output.MessageType.ERROR, "Trying to go back in time\t" + ts);
     }
 
     /**

@@ -4,54 +4,6 @@ import java.util.ArrayList;
 
 import es.ull.cyc.util.*;
 
-class ResourceList {
-    protected ArrayList<Resource> resources;
-    protected ArrayList<Integer> counter;
-    
-    ResourceList() {
-    	resources = new ArrayList<Resource>();
-    	counter = new ArrayList<Integer>();
-    }
-    
-    void add(Resource res) {
-    	int pos = resources.indexOf(res);
-    	if (pos == -1) {
-    		resources.add(res);
-    		counter.add(new Integer(1));
-    	}
-    	else
-    		counter.set(pos, new Integer(counter.get(pos).intValue() + 1)); 
-    }
-    
-    /**
-     * Removes a resource. The resource can have more than one appearance in the list. In 
-     * this case, it's no t really removed.
-     * @param res
-     * @return True if the resource is completely removed from the list. False in other case.
-     */
-    boolean remove(Resource res) {
-    	int pos = resources.indexOf(res);
-    	// FIXME Debería crearme un tipo personalizado de excepción
-    	if (pos == -1)
-    		throw new RuntimeException("Unexpected error: Resource not found in resource type");
-    	if (counter.get(pos).intValue() > 1) {
-    		counter.set(pos, new Integer(counter.get(pos).intValue() - 1));
-    		return false;
-    	}
-		resources.remove(pos);
-		counter.remove(pos);
-    	return true;
-    }
-    
-    Resource get(int index) {
-    	return resources.get(index);
-    }
-    
-    int size() {
-    	return resources.size();
-    }
-}
-
 /**
  * Las instancias de esta clase representa los diferentes tipos de recursos que
  * hay en el sistema, o lo que es lo mismo, los diferentes roles que tienen los
@@ -164,7 +116,7 @@ public class ResourceType extends DescSimulationObject {
 	 * @param n Resources needed
      * @param e element catching the resources
 	 */
-    protected void decAvailable(int n, Element e) {
+    protected void catchResources(int n, Element e) {
         print(Output.MessageType.DEBUG, "Decrease amount\t" + n,
         		"Decrease amount\t" + n + "\t" + e);
         
@@ -237,4 +189,53 @@ public class ResourceType extends DescSimulationObject {
 	public double getTs() {
 		return manager.getTs();
 	}
-} // fin ResourceType
+
+	class ResourceList {
+	    protected ArrayList<Resource> resources;
+	    protected ArrayList<Integer> counter;
+	    
+	    ResourceList() {
+	    	resources = new ArrayList<Resource>();
+	    	counter = new ArrayList<Integer>();
+	    }
+	    
+	    void add(Resource res) {
+	    	int pos = resources.indexOf(res);
+	    	if (pos == -1) {
+	    		resources.add(res);
+	    		counter.add(new Integer(1));
+	    	}
+	    	else
+	    		counter.set(pos, new Integer(counter.get(pos).intValue() + 1)); 
+	    }
+	    
+	    /**
+	     * Removes a resource. The resource can have more than one appearance in the list. In 
+	     * this case, it's no t really removed.
+	     * @param res
+	     * @return True if the resource is completely removed from the list. False in other case.
+	     */
+	    boolean remove(Resource res) {
+	    	int pos = resources.indexOf(res);
+	    	// FIXME Debería crearme un tipo personalizado de excepción
+	    	if (pos == -1)
+	    		throw new RuntimeException("Unexpected error: Resource not found in resource type");
+	    	if (counter.get(pos).intValue() > 1) {
+	    		counter.set(pos, new Integer(counter.get(pos).intValue() - 1));
+	    		return false;
+	    	}
+			resources.remove(pos);
+			counter.remove(pos);
+	    	return true;
+	    }
+	    
+	    Resource get(int index) {
+	    	return resources.get(index);
+	    }
+	    
+	    int size() {
+	    	return resources.size();
+	    }
+	}
+
+} 

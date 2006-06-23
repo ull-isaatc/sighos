@@ -78,13 +78,9 @@ public class ActivityManager extends SimulationObject {
     }
         
     /**
-     * Método que informa a las actividades de que varias unidades de recursos
-	 * han quedado disponibles.
-	 * No realiza ningun control. Ni si el recurso pertenece a la tabla, ni si
-	 * pone mas unidades o quita de las que realmente tiene.
+     * Informs the activities of new available resources. 
      */
     protected void availableResource() {
-
         waitSemaphore();
         Iterator<Activity> iter = activityTable.iterator(true);
         while (iter.hasNext()) {
@@ -109,7 +105,7 @@ public class ActivityManager extends SimulationObject {
             }
         }
         signalSemaphore();
-    } // fin de RecursoDisponible
+    } 
 
     /**
      * Método que informa de que un elemento que estaba realizando otra
@@ -149,7 +145,7 @@ public class ActivityManager extends SimulationObject {
         else 
             e.signalSemaphore();
         signalSemaphore();
-    } // fin de elementoDisponible
+    } 
 
     /**
      * Función para solicitar una actividad. Se comprueba que el elemento que 
