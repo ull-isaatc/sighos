@@ -169,7 +169,7 @@ public abstract class Simulation implements Printable, Runnable {
      * @param previous Previous simulation data
      */
     protected void setState(SimulationResults previous) {
-    	ArrayList actStat = previous.getActivityStatistics();
+    	ArrayList<ActivityStatistics> actStat = previous.getActivityStatistics();
     	Collections.sort(previous.getPendingFlowStatistics(), new FlowStatComparator());
     	Iterator itFlow = previous.getPendingFlowStatistics().iterator();
     	HashMap<Integer, InterruptedElement> elemMap = new HashMap<Integer, InterruptedElement>();

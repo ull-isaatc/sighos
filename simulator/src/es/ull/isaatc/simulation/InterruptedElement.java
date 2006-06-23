@@ -15,8 +15,8 @@ public class InterruptedElement extends Element {
 	 * @param id
 	 * @param simul
 	 */
-	public InterruptedElement(int id, Simulation simul) {
-		super(id, simul);
+	public InterruptedElement(int id, Simulation simul, ElementType et) {
+		super(id, simul, et);
 	}
 
     /**

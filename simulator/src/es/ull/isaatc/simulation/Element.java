@@ -102,7 +102,7 @@ public class Element extends BasicElement {
      * The element requests its first activities.
      */
     protected void startEvents() {
-    	simul.addStatistic(new ElementStatistics(id, ElementStatistics.START, ts, 0));
+    	simul.addStatistic(new ElementStatistics(id, ElementStatistics.START, ts, elementType.getIdentifier()));
         if (flow != null)
         	flow.request();
         else
