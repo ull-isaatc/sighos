@@ -45,6 +45,16 @@ public class DecisionMetaFlow extends MetaFlow {
 		options = new ArrayList<MetaFlow>();
 	}
 
+	/**
+	 * 
+	 * @param parent
+	 * @param iterations
+	 */
+	public DecisionMetaFlow(int id, TypeBranchMetaFlow parent, RandomNumber iterations) {
+		super(id, parent, iterations);
+		options = new ArrayList<MetaFlow>();
+	}
+
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.MetaFlow#getFlow(es.ull.isaatc.simulation.Flow, es.ull.isaatc.simulation.Element)
 	 */

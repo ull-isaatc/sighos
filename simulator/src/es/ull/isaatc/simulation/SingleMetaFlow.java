@@ -37,6 +37,14 @@ public class SingleMetaFlow extends MetaFlow {
 		this.act = act;
 	}
 
+	/**
+	 * @param parent
+	 */
+	public SingleMetaFlow(int id, TypeBranchMetaFlow parent, RandomNumber iterations, Activity act) {
+		super(id, parent, iterations);
+		this.act = act;
+	}
+
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.MetaFlow#getFlow(es.ull.isaatc.simulation.Flow, es.ull.isaatc.simulation.Element)
 	 */

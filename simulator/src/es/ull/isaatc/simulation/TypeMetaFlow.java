@@ -14,7 +14,7 @@ import es.ull.isaatc.random.*;
  */
 public class TypeMetaFlow extends MetaFlow {
 	/**	 Options list */
-	protected ArrayList<MetaFlow> options;
+	protected ArrayList<MetaFlow> branches;
 	
 	/**
 	 * 
@@ -22,7 +22,7 @@ public class TypeMetaFlow extends MetaFlow {
 	 */
 	public TypeMetaFlow(int id, RandomNumber iterations) {
 		super(id, null, iterations);
-		options = new ArrayList<MetaFlow>();
+		branches = new ArrayList<MetaFlow>();
 	}
 	
 	/**
@@ -32,7 +32,7 @@ public class TypeMetaFlow extends MetaFlow {
 	 */
 	public TypeMetaFlow(int id, GroupMetaFlow parent, RandomNumber iterations) {
 		super(id, parent, iterations);
-		options = new ArrayList<MetaFlow>();
+		branches = new ArrayList<MetaFlow>();
 	}
 
 	/**
@@ -42,7 +42,17 @@ public class TypeMetaFlow extends MetaFlow {
 	 */
 	public TypeMetaFlow(int id, OptionMetaFlow parent, RandomNumber iterations) {
 		super(id, parent, iterations);
-		options = new ArrayList<MetaFlow>();
+		branches = new ArrayList<MetaFlow>();
+	}
+
+	/**
+	 * 
+	 * @param parent
+	 * @param iterations
+	 */
+	public TypeMetaFlow(int id, TypeBranchMetaFlow parent, RandomNumber iterations) {
+		super(id, parent, iterations);
+		branches = new ArrayList<MetaFlow>();
 	}
 
 	/* (non-Javadoc)
@@ -60,7 +70,7 @@ public class TypeMetaFlow extends MetaFlow {
 	 * @return
 	 */
 	protected Flow getTypeBranchFlow(Flow parentFlow, Element e) {
-		Iterator<MetaFlow> optIt = options.iterator();
+		Iterator<MetaFlow> optIt = branches.iterator();
 		TypeBranchMetaFlow branch = null;
 		
 		while (optIt.hasNext()) {
@@ -75,7 +85,7 @@ public class TypeMetaFlow extends MetaFlow {
 	 * Adds a MetaFlow as an option. 
 	 */
 	protected void add(MetaFlow descendant) {
-		options.add(descendant);		
+		branches.add(descendant);		
 	}
 
 }

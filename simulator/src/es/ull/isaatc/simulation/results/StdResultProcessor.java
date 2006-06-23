@@ -50,7 +50,7 @@ public class StdResultProcessor implements ResultProcessor {
 		for (int i = 0; i < res.getElementStatistics().size(); i++) {
 			ElementStatistics es = (ElementStatistics) res.getElementStatistics().get(i);
 			String msg = "";
-			if (es.getType() == ElementStatistics.START) msg = "STARTED";
+			if (es.getType() == ElementStatistics.START) msg = "STARTED\tTYPE:" + es.getValue();
 			else if (es.getType() == ElementStatistics.FINISH) msg = "FINISHED";
 			else if (es.getType() == ElementStatistics.STAACT) msg = "STARTS ACTIVITY";
 			else if (es.getType() == ElementStatistics.REQACT) msg = "REQUESTS ACTIVITY";
