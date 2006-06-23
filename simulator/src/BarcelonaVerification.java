@@ -5,11 +5,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import es.ull.cyc.simulation.*;
-import es.ull.cyc.simulation.results.*;
-import es.ull.cyc.util.Cycle;
-import es.ull.cyc.util.Output;
-import es.ull.cyc.random.*;
+import es.ull.isaatc.random.*;
+import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.results.*;
+import es.ull.isaatc.util.Cycle;
+import es.ull.isaatc.util.Output;
 
 class SimActProcessor implements ResultProcessor {
 
@@ -95,7 +95,7 @@ class SimPoolActResultProcessor implements ResultProcessor {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.cyc.simulation.results.ResultProcessor#processStatistics()
+	 * @see es.ull.isaatc.simulation.results.ResultProcessor#processStatistics()
 	 */
 	public void processStatistics(SimulationResults []results) {
 		for (int i = 0; i < results.length; i++) {

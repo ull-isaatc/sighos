@@ -2,7 +2,8 @@
  * 
  */
 
-import es.ull.cyc.sync.*;
+import es.ull.isaatc.sync.*;
+
 import java.io.*;
 
 class newThreadPool extends ThreadPool {

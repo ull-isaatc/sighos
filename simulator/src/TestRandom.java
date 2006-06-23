@@ -1,4 +1,5 @@
-import es.ull.cyc.random.*;
+import es.ull.isaatc.random.*;
+
 import java.io.*;
 
 /*

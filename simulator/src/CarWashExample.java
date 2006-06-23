@@ -3,12 +3,12 @@
  */
 import java.util.ArrayList;
 
-import es.ull.cyc.simulation.*;
-import es.ull.cyc.simulation.results.*;
-import es.ull.cyc.util.Cycle;
-import es.ull.cyc.util.Output;
-import es.ull.cyc.random.Exponential;
-import es.ull.cyc.random.Fixed;
+import es.ull.isaatc.random.Exponential;
+import es.ull.isaatc.random.Fixed;
+import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.results.*;
+import es.ull.isaatc.util.Cycle;
+import es.ull.isaatc.util.Output;
 
 class CarWashSimulation extends Simulation {
 	final static int NRES = 2;

@@ -2,12 +2,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import es.ull.cyc.random.*;
-import es.ull.cyc.simulation.*;
-import es.ull.cyc.simulation.results.ResultProcessor;
-import es.ull.cyc.simulation.results.SimulationResults;
-import es.ull.cyc.util.Cycle;
-import es.ull.cyc.util.Output;
+import es.ull.isaatc.random.*;
+import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.results.ResultProcessor;
+import es.ull.isaatc.simulation.results.SimulationResults;
+import es.ull.isaatc.util.Cycle;
+import es.ull.isaatc.util.Output;
 
 class SimBarcelona extends Simulation {
 	static final int NDAYS = 365 * 3;
