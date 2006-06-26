@@ -62,7 +62,7 @@ public class ElementGenerator extends Generator {
 		for (GenerationTrio gt : genTrio) {			
 	        for (int i = 0 ; i < (Math.round(n * gt.getProp())); i++) {
 	    		Element elem = new Element(elemCounter++, simul, gt.getElementType());
-	    		elem.setFlow(gt.getMetaFlow().getFlow(null, elem));
+	    		gt.getMetaFlow().getFlow(null, elem);
 	            elem.start(defLP);
 	        }
 		}

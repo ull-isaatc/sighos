@@ -15,7 +15,7 @@ public class OptionMetaFlow extends MetaFlow {
 		this.prob = prob;
 	}
 
-	public Flow getFlow(Flow parentFlow, Element e) {
+	public boolean getFlow(Flow parentFlow, Element e) {
 		return descendant.getFlow(parentFlow, e);
 	}
 

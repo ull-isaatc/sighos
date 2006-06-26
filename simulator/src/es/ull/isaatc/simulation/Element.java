@@ -94,8 +94,6 @@ public class Element extends BasicElement {
      */
     public void setFlow(es.ull.isaatc.simulation.Flow flow) {
         this.flow = flow;
-        if (flow != null)
-        	pending = flow.countActivities();
     }
     
     /**
@@ -103,8 +101,11 @@ public class Element extends BasicElement {
      */
     protected void startEvents() {
     	simul.addStatistic(new ElementStatistics(id, ElementStatistics.START, ts, elementType.getIdentifier()));
-        if (flow != null)
+        if (flow != null) {
+        	// MOD 26/06/06 Movido desde setFlow
+        	pending = flow.countActivities();
         	flow.request();
+        }
         else
         	notifyEnd();
     }

@@ -57,7 +57,13 @@ public abstract class MetaFlow {
 		return iterations;
 	}
 
-	public abstract Flow getFlow(Flow parentFlow, Element e);
+	/**
+	 * If parentFlow is null, it must set the element flow.
+	 * @param parentFlow
+	 * @param e
+	 * @return
+	 */
+	public abstract boolean getFlow(Flow parentFlow, Element e);
 
 	protected abstract void add(MetaFlow descendant);
 }

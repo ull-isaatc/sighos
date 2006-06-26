@@ -48,7 +48,7 @@ public class SingleMetaFlow extends MetaFlow {
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.MetaFlow#getFlow(es.ull.isaatc.simulation.Flow, es.ull.isaatc.simulation.Element)
 	 */
-	public Flow getFlow(Flow parentFlow, Element e) {
+	public boolean getFlow(Flow parentFlow, Element e) {
 		int iter = iterations.sampleInt();
 		SequenceFlow sec;
 		

@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation.results;
 
+import java.util.HashMap;
+
 /**
  * @author Iván Castilla Rodríguez
  *
@@ -45,12 +47,19 @@ public class StdResultProcessor implements ResultProcessor {
 	}
 
 	public static void processElementStatistics(SimulationResults res) {
+		HashMap<Integer, Integer> nElemType = new HashMap<Integer, Integer>();
 		System.out.println("Element Statistics");
 		System.out.println("Created: " + res.createdElements());
 		for (int i = 0; i < res.getElementStatistics().size(); i++) {
 			ElementStatistics es = (ElementStatistics) res.getElementStatistics().get(i);
 			String msg = "";
-			if (es.getType() == ElementStatistics.START) msg = "STARTED\tTYPE:" + es.getValue();
+			if (es.getType() == ElementStatistics.START) {
+				msg = "STARTED";
+				if (!nElemType.containsKey(es.getValue()))
+					nElemType.put(es.getValue(), 1);
+				else
+					nElemType.put(es.getValue(), nElemType.get(es.getValue()) + 1);
+			}
 			else if (es.getType() == ElementStatistics.FINISH) msg = "FINISHED";
 			else if (es.getType() == ElementStatistics.STAACT) msg = "STARTS ACTIVITY";
 			else if (es.getType() == ElementStatistics.REQACT) msg = "REQUESTS ACTIVITY";
@@ -58,6 +67,9 @@ public class StdResultProcessor implements ResultProcessor {
 			System.out.println("[" + es.getElemId() + "]\t" + es.getTs() + "\t" 
 					+ msg + "\t" + es.getValue());
 		}
+		System.out.println("Created (per type)");
+		for (Integer et : nElemType.keySet())
+			System.out.println("[T" + et + "]\t" + nElemType.get(et));
 	}
 
 	public static void processActivityStatistics(SimulationResults res, double period) {

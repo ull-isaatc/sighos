@@ -58,7 +58,7 @@ public class DecisionMetaFlow extends MetaFlow {
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.MetaFlow#getFlow(es.ull.isaatc.simulation.Flow, es.ull.isaatc.simulation.Element)
 	 */
-	public Flow getFlow(Flow parentFlow, Element e) {
+	public boolean getFlow(Flow parentFlow, Element e) {
 		
 			return getDescendantFlow(parentFlow, e);
 	}
@@ -69,7 +69,7 @@ public class DecisionMetaFlow extends MetaFlow {
 	 * @param e
 	 * @return
 	 */
-	protected Flow getDescendantFlow(Flow parentFlow, Element e) {
+	protected boolean getDescendantFlow(Flow parentFlow, Element e) {
 		double selProb = Math.random();
 		double delta = 0.0;
 		Iterator<MetaFlow> optIt = options.iterator();

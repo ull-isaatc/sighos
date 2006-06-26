@@ -23,7 +23,7 @@ public class TypeBranchMetaFlow extends MetaFlow {
 		this.elementsType = elementsType;
 	}
 
-	public Flow getFlow(Flow parentFlow, Element e) {
+	public boolean getFlow(Flow parentFlow, Element e) {
 		return descendant.getFlow(parentFlow, e);
 	}
 
