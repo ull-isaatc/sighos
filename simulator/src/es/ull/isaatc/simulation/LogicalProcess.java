@@ -106,7 +106,7 @@ public class LogicalProcess extends SimulationObject implements Runnable {
      * @param e Elemento a insertar
      * @return true si todo fue correcto
      */
-	public synchronized boolean addExecution(BasicElement.Event e) {
+	public synchronized boolean addExecution(BasicElement.DiscreteEvent e) {
 		return execQueue.addEvent(e);
 	}
 
@@ -115,7 +115,7 @@ public class LogicalProcess extends SimulationObject implements Runnable {
      * @param e Elemento a quitar
      * @return true si todo fue correcto
      */
-    protected synchronized boolean removeExecution(BasicElement.Event e) {
+    protected synchronized boolean removeExecution(BasicElement.DiscreteEvent e) {
         return execQueue.removeEvent(e);
     }
     
@@ -126,7 +126,7 @@ public class LogicalProcess extends SimulationObject implements Runnable {
      * @param e Elemento a quitar
      * @return true si todo fue correcto
      */
-    protected boolean removeExecutionSync(BasicElement.Event e) {
+    protected boolean removeExecutionSync(BasicElement.DiscreteEvent e) {
         while(!isSimulationEnd() && !locked());
         return removeExecution(e);
     }
@@ -135,7 +135,7 @@ public class LogicalProcess extends SimulationObject implements Runnable {
      * Envía un elemento a la cola de espera
      * @param e Elemento a insertar
      */
-	public synchronized void addWait(BasicElement.Event e) {
+	public synchronized void addWait(BasicElement.DiscreteEvent e) {
 		waitQueue.insert(e);
 	}
 
@@ -143,8 +143,8 @@ public class LogicalProcess extends SimulationObject implements Runnable {
      * Quita un elemento a la cola de espera
      * @return El primer elemento del Heap
      */
-    protected synchronized BasicElement.Event removeWait() {
-        return (BasicElement.Event) waitQueue.extractMin();
+    protected synchronized BasicElement.DiscreteEvent removeWait() {
+        return (BasicElement.DiscreteEvent) waitQueue.extractMin();
     }
 
     /**
@@ -152,7 +152,7 @@ public class LogicalProcess extends SimulationObject implements Runnable {
      * @param e Elemento a comprobar
      * @return true si el elemento pertenece a la cola
      */
-    protected synchronized boolean inWait(BasicElement.Event e) {
+    protected synchronized boolean inWait(BasicElement.DiscreteEvent e) {
         return waitQueue.contains(e);
     }
     
@@ -196,7 +196,7 @@ public class LogicalProcess extends SimulationObject implements Runnable {
     private void execWaitingElements() {
         // saca el primer elemento de la lista
         if (! waitQueue.isEmpty()) {
-            BasicElement.Event e = removeWait();
+            BasicElement.DiscreteEvent e = removeWait();
             setLVT(e.getTs());
             double tiempo = e.getTs();
             // MOD 4/07/05 No se deben ejecutar de forma normal los elementos de ts >= maxGVT
@@ -295,7 +295,7 @@ public class LogicalProcess extends SimulationObject implements Runnable {
 
 		protected void saveState() {
 		}
-    	class DummyEvent extends BasicElement.Event {
+    	class DummyEvent extends BasicElement.DiscreteEvent {
 
     		DummyEvent(double ts) {
     			super(ts, LogicalProcess.this);
@@ -333,7 +333,7 @@ public class LogicalProcess extends SimulationObject implements Runnable {
 		strLong.append("GVT: " + lvt + "\r\n");
         strLong.append(waitQueue.size() + " waiting elements: ");
         for (int i = 0; i < waitQueue.size(); i++) {
-            BasicElement.Event e = (BasicElement.Event) waitQueue.get(i);            
+            BasicElement.DiscreteEvent e = (BasicElement.DiscreteEvent) waitQueue.get(i);            
             strLong.append(e.getElement() + " ");
         }
         strLong.append("\r\n" + execQueue.size() + " executing elements:");

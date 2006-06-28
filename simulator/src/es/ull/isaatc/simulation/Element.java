@@ -246,7 +246,7 @@ public class Element extends BasicElement {
      * Requests an activity.
      * @author Iván Castilla Rodríguez
      */
-    public class RequestActivityEvent extends BasicElement.Event {
+    public class RequestActivityEvent extends BasicElement.DiscreteEvent {
     	/** The flow requested */
         SingleFlow flow;
         
@@ -267,7 +267,7 @@ public class Element extends BasicElement {
      * Informs of the availability of the element.
      * @author Iván Castilla Rodríguez
      */
-    public class AvailableElementEvent extends BasicElement.Event {
+    public class AvailableElementEvent extends BasicElement.DiscreteEvent {
     	/** Flow informed of the availability of the element */
         SingleFlow flow;
         
@@ -285,7 +285,7 @@ public class Element extends BasicElement {
      * Finish an activity.
      * @author Iván Castilla Rodríguez
      */
-    public class FinalizeActivityEvent extends BasicElement.Event {
+    public class FinalizeActivityEvent extends BasicElement.DiscreteEvent {
     	/** The flow finished */
         SingleFlow flow;
         

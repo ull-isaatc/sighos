@@ -23,7 +23,7 @@ public class ExecutionQueue {
     /** Thread pool to execute events */
     protected ThreadPool tp;
 	/** A queue containing the events currently executing */
-	protected Vector<BasicElement.Event> executionQueue;
+	protected Vector<BasicElement.DiscreteEvent> executionQueue;
     
     /** 
      * Creates a new execution queue.
@@ -32,16 +32,16 @@ public class ExecutionQueue {
     public ExecutionQueue(LogicalProcess lp) {
         this.lp = lp;
         tp = new ThreadPool(3, 3);
-        executionQueue = new Vector<BasicElement.Event>();
+        executionQueue = new Vector<BasicElement.DiscreteEvent>();
     }
     
     /**
      * Removes an event from the queue. When the last event is removed, the logical
      * process is informed.
-     * @param e Event to be removed
+     * @param e DiscreteEvent to be removed
      * @return True if the event was removed correctly. Fasle in other case.
      */
-	protected synchronized boolean removeEvent(BasicElement.Event e) {
+	protected synchronized boolean removeEvent(BasicElement.DiscreteEvent e) {
 		if (executionQueue.remove(e)) { // pudo quitarse
             // Si era el último elemento del sistema
 			// MOD 7/3/06 Añadida la 1ª condición para evitar que más de un evento
@@ -65,10 +65,10 @@ public class ExecutionQueue {
 
     /**
      * Inserts a new event in the queue and looks for a thread to execute it.
-     * @param e Event to be added
+     * @param e DiscreteEvent to be added
      * @return True if the event was added correctly. False in other case. 
      */
-	protected boolean addEvent(BasicElement.Event e) {
+	protected boolean addEvent(BasicElement.DiscreteEvent e) {
 		tp.getThread(e);
         return executionQueue.add(e);
 	}
@@ -86,7 +86,7 @@ public class ExecutionQueue {
      * @param ind Position of the event.
      * @return A specific event.
      */
-    protected synchronized BasicElement.Event getEvent(int ind) {
+    protected synchronized BasicElement.DiscreteEvent getEvent(int ind) {
         return executionQueue.get(ind);
     }
 }

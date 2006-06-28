@@ -237,7 +237,7 @@ public class Resource extends BasicElement {
     /**
      * Makes available a single-role resource 
      */
-    public class RoleOnEvent extends BasicElement.Event {
+    public class RoleOnEvent extends BasicElement.DiscreteEvent {
         /** Available role */
         ResourceType role;
         /** Cycle iterator */
@@ -273,7 +273,7 @@ public class Resource extends BasicElement {
     /**
      * Makes unavailable a single-role resource 
      */
-    public class RoleOffEvent extends BasicElement.Event {
+    public class RoleOffEvent extends BasicElement.DiscreteEvent {
         /** Unavailable role */
         ResourceType role;
         /** Cycle iterator */

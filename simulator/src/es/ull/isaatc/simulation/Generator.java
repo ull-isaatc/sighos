@@ -80,7 +80,7 @@ public abstract class Generator extends BasicElement {
      * elements and launch a new generation event (if needed) or a finalize 
      * event (if there is no more generation cycles remain).
      */
-    class GenerateEvent extends Event {
+    class GenerateEvent extends DiscreteEvent {
         /**
          * Creates a new element-generation event.
          * @param ts Timestamp when this event must be executed.

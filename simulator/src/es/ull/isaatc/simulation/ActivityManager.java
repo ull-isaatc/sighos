@@ -109,10 +109,8 @@ public class ActivityManager extends SimulationObject {
     } 
 
     /**
-     * Método que informa de que un elemento que estaba realizando otra
-     * actividad ha quedado disponible para realizar una actividad concreta.
-     * @param act Actividad que puede realizar el elemento
-     * @param e Elemento que ha quedado disponible.
+     * Informs an activity about an available element in its queue.
+     * @param flow Single flow that contains the activity and the available element
      */
     protected void availableElement(SingleFlow flow) {
         waitSemaphore();
@@ -149,10 +147,8 @@ public class ActivityManager extends SimulationObject {
     } 
 
     /**
-     * Función para solicitar una actividad. Se comprueba que el elemento que 
-     * la solicita no esté realizando otra actividad y que se disponga de los 
-     * recursos necesarios para realizarla. Si no es así, el elemento se pone a
-     * la cola de esa actividad.
+     * An element requests an activity. Checks if the activity is feasible and the
+     * element is not performing another activity. 
      * @param flow Requested single flow
      */
     protected void requestActivity(SingleFlow flow) {

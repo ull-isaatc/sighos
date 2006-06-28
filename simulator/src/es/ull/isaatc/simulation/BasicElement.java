@@ -16,7 +16,7 @@ public abstract class BasicElement extends SimulationObject {
     /** Current element's timestamp */
 	protected double ts;
     /** List that contains all the events carried out by the element */
-    protected ArrayList<Event> eventList;
+    protected ArrayList<DiscreteEvent> eventList;
     /** Access control */
     protected Semaphore sem;
     /** Flag that indicates if the simulation end has been reached */
@@ -33,7 +33,7 @@ public abstract class BasicElement extends SimulationObject {
      */
 	public BasicElement(int id, Simulation simul) {
 		super(id, simul);
-        eventList = new ArrayList<Event>();
+        eventList = new ArrayList<DiscreteEvent>();
         sem = new Semaphore(1);
 	}
 
@@ -57,7 +57,7 @@ public abstract class BasicElement extends SimulationObject {
      * Adds a new event to the element's event list
      * @param e New event.
      */    
-    protected void addEvent(Event e) {
+    protected void addEvent(DiscreteEvent e) {
         eventList.add(e);
         if (e.getTs() == e.getLp().getTs())
             e.getLp().addExecution(e);
@@ -114,7 +114,7 @@ public abstract class BasicElement extends SimulationObject {
     }
     
     /**
-     * Establish a new element's timestamp. The new timestamp must be greater or 
+     * Establishes a new element's timestamp. The new timestamp must be greater or 
      * equal than the previous one.
      * @param ts New value of property ts.
      */
@@ -156,7 +156,7 @@ public abstract class BasicElement extends SimulationObject {
      * execution queue.
      * @author Iván Castilla Rodríguez
      */
-    public abstract class Event extends es.ull.isaatc.sync.Event implements Heapable {
+    public abstract class DiscreteEvent extends es.ull.isaatc.sync.Event implements Heapable {
         /** Timestamp when this event will be executed */
         protected double ts;        
         /** Logical process */
@@ -167,7 +167,7 @@ public abstract class BasicElement extends SimulationObject {
          * @param ts Timestamp when the event will be executed.
          * @param lp Logical process where the event will be executed.
          */
-        public Event(double ts, LogicalProcess lp) {
+        public DiscreteEvent(double ts, LogicalProcess lp) {
             this.ts = ts;
             this.lp = lp;
         }
@@ -228,7 +228,7 @@ public abstract class BasicElement extends SimulationObject {
          * the event passed by parameters. False in other case.
          */    
         public boolean greaterThan(Object other) {
-            return (ts > ((Event)other).getTs());
+            return (ts > ((DiscreteEvent)other).getTs());
         }
 
         /**
@@ -238,7 +238,7 @@ public abstract class BasicElement extends SimulationObject {
          * the event passed by parameters. False in other case.
          */    
         public boolean lessThan(Object other) {
-            return (ts < ((Event)other).getTs());
+            return (ts < ((DiscreteEvent)other).getTs());
         }
 
         /**
@@ -248,7 +248,7 @@ public abstract class BasicElement extends SimulationObject {
          * the event passed by parameters. False in other case.
          */    
         public boolean equalTo(Object other) {
-            return(ts == ((Event)other).getTs());
+            return(ts == ((DiscreteEvent)other).getTs());
         }
         
     }
@@ -258,7 +258,7 @@ public abstract class BasicElement extends SimulationObject {
      * simulation.
      * @author Iván Castilla Rodríguez
      */
-    public class FinalizeEvent extends Event {
+    public class FinalizeEvent extends DiscreteEvent {
         
         public FinalizeEvent() {
             super(defLP.getTs(), defLP);
@@ -276,7 +276,7 @@ public abstract class BasicElement extends SimulationObject {
      * @author Iván Castilla Rodríguez
      *
      */
-    public class StartEvent extends Event {
+    public class StartEvent extends DiscreteEvent {
         public StartEvent() {
             super(defLP.getTs(), defLP);
         }
