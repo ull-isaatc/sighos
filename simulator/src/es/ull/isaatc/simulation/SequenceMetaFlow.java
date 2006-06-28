@@ -47,19 +47,19 @@ public class SequenceMetaFlow extends GroupMetaFlow {
 	 */
 	public boolean getFlow(Flow parentFlow, Element e) {
 		int iter = iterations.sampleInt();
-		SequenceFlow flow = null;
+		SequenceFlow flow;
 		
 		if (iter == 0)
-			return null;
+			return true;
 		if (parentFlow instanceof SequenceFlow)
 			flow = (SequenceFlow)parentFlow;
 		else
-			flow = new SequenceFlow((SimultaneousFlow)parentFlow, e);		
-		for (int i = 0; i < iter; i++)
-			getDescendantsFlows(flow, e);
-		if (flow.list.isEmpty())
-			return null;
-		else
-			return flow;
+			flow = new SequenceFlow((SimultaneousFlow)parentFlow, e);
+		if (parentFlow == null)
+			e.setFlow(flow);
+		boolean exit = false;
+		for (int i = 0; (i < iter) && !exit; i++)
+			exit = !getDescendantsFlows(flow, e);
+		return !exit;
 	}
 }

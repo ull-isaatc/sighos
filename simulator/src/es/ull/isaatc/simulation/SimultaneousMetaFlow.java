@@ -56,28 +56,25 @@ public class SimultaneousMetaFlow extends GroupMetaFlow {
 				flow = (SimultaneousFlow)parentFlow;
 			else
 				flow = new SimultaneousFlow((SequenceFlow)parentFlow, e);
-			getDescendantsFlows(flow, e);
-			if (flow.list.isEmpty())
-				return null;
-			else
-				return flow;
+			if (parentFlow == null)
+				e.setFlow(flow);
+			return getDescendantsFlows(flow, e);
 		}
 		else if (iter > 1) {
 			if ((parentFlow == null) || (parentFlow instanceof SimultaneousFlow))
 				sec = new SequenceFlow((SimultaneousFlow)parentFlow, e);
 			else
 				sec = (SequenceFlow)parentFlow;
-			for (int i = 0; i < iter; i++) {
+			if (parentFlow == null)
+				e.setFlow(sec);
+			boolean exit = false;
+			for (int i = 0; (i < iter) && !exit; i++) {
 				flow = new SimultaneousFlow(sec, e);
-				getDescendantsFlows(flow, e);	
+				exit = getDescendantsFlows(flow, e);	
 			}
-			
-			if (sec.list.isEmpty())
-				return null;
-			else
-				return sec;
+			return !exit;
 		}
-		return null; 
+		return true;
 	}
 
 }

@@ -49,22 +49,24 @@ public class SingleMetaFlow extends MetaFlow {
 	 * @see es.ull.isaatc.simulation.MetaFlow#getFlow(es.ull.isaatc.simulation.Flow, es.ull.isaatc.simulation.Element)
 	 */
 	public boolean getFlow(Flow parentFlow, Element e) {
+		Flow flow;
 		int iter = iterations.sampleInt();
-		SequenceFlow sec;
-		
+
 		if (iter == 0)
-			return null;
+			return true;
 		else if (iter == 1)
-			return new SingleFlow((GroupFlow)parentFlow, e, act);
-		else  {			
+			flow = new SingleFlow((GroupFlow)parentFlow, e, act);
+		else  {
 			if (parentFlow instanceof SequenceFlow)
-				sec = (SequenceFlow)parentFlow;
+				flow = (SequenceFlow)parentFlow;
 			else
-				sec = new SequenceFlow((SimultaneousFlow)parentFlow, e);
+				flow = new SequenceFlow((SimultaneousFlow)parentFlow, e);
 			for (int i = 0; i < iter; i++)
-				new SingleFlow(sec, e, act);
-			return sec;
+				new SingleFlow((GroupFlow)flow, e, act);
 		}
+		if (parentFlow == null)
+			e.setFlow(flow);
+		return true;
 	}
 
 	protected void add(MetaFlow descendant) {

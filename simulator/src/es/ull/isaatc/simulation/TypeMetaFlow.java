@@ -69,7 +69,7 @@ public class TypeMetaFlow extends MetaFlow {
 	 * @param e
 	 * @return
 	 */
-	protected Flow getTypeBranchFlow(Flow parentFlow, Element e) {
+	protected boolean getTypeBranchFlow(Flow parentFlow, Element e) {
 		Iterator<MetaFlow> optIt = branches.iterator();
 		TypeBranchMetaFlow branch = null;
 		
@@ -78,7 +78,7 @@ public class TypeMetaFlow extends MetaFlow {
 			if (branch.hasElementType(e.getElementType()))
 				return branch.getFlow(parentFlow, e);
 		}
-		return null;		
+		return true;		
 	}
 	
 	/**

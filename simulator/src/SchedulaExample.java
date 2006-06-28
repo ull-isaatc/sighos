@@ -15,7 +15,8 @@ class SimSchedula extends Simulation {
 		"Update database", "Update dossier", "Compute balance", "Produce report",
 		"Operators", "Accountants", "Computers", "Calculators" 
 	};
-	final static int NELEM[] = {200, 600, 120};
+//	final static int NELEM[] = {200, 600, 120};
+	final static int NELEM[] = {10, 10, 10};
 //	final static int NELEM[] = {1, 0, 0};
 
 	SimSchedula(double startTs, double endTs, Output out) {
@@ -149,7 +150,7 @@ class ExpSchedula extends Experiment {
     static final int NTESTS = 1;
 
 	ExpSchedula() {
-		super("Schedula Example", NTESTS, new StdResultProcessor(1440.0), new Output(Output.DebugLevel.NODEBUG));
+		super("Schedula Example", NTESTS, new StdResultProcessor(1440.0), new Output(Output.DebugLevel.DEBUG));
 	}
 	
 	@Override

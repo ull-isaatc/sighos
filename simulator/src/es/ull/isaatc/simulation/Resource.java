@@ -48,6 +48,7 @@ public class Resource extends BasicElement {
 	}
 
     protected void startEvents() {
+    	boolean eventFlag = false;
 		for (int i = 0 ; i < timeTable.size(); i++) {
 			TimeTableEntry tte = timeTable.get(i);
 	        CycleIterator iter = tte.getIterator(tte.getRole().getTs(), simul.getEndTs());
@@ -55,8 +56,11 @@ public class Resource extends BasicElement {
 	        if (!Double.isNaN(nextTs)) {
 	            RoleOnEvent rEvent = new RoleOnEvent(nextTs, tte.getRole(), iter, tte.getDuration());
 	            addEvent(rEvent);
+	            eventFlag = true; // at least one tte is valid
 	        }
 		}
+		if (!eventFlag)
+			notifyEnd();
 	}
 
     /**

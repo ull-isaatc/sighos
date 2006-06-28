@@ -37,10 +37,12 @@ public abstract class GroupMetaFlow extends MetaFlow {
 	 * @param parentFlow
 	 * @param e
 	 */
-	protected void getDescendantsFlows(Flow parentFlow, Element e) {
+	protected boolean getDescendantsFlows(Flow parentFlow, Element e) {
 		Iterator<MetaFlow> descIt = descendants.iterator();
-		while (descIt.hasNext()) {
-			descIt.next().getFlow(parentFlow, e);
-		}		
+		boolean exit = false;
+		while (descIt.hasNext() && !exit) {
+			exit = !descIt.next().getFlow(parentFlow, e);
+		}
+		return !exit;
 	}
 }
