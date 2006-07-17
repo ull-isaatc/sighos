@@ -11,6 +11,7 @@ import java.util.ArrayList;
  */
 public class ActivityState implements State {
 	protected int actId;
+	/** Waiting element queue */
 	protected ArrayList<ActivityQueueEntry> queue;
 	
 	/**

@@ -11,11 +11,13 @@ import java.util.ArrayList;
  */
 public class ResourceState implements State {
 	protected int resId;
+    /** A counter of the valid timetable entries which this resource is following. */
+	protected int validTTEs;
+	protected ArrayList<Integer> currentRoles;
+	// If the resource is currently being used by an element
 	protected int currentElemId = -1;
 	protected int currentRTId = -1;
 	protected boolean timeOut = false;
-	protected int validTTEs;
-	protected ArrayList<Integer> currentRoles;
 	
 	/**
 	 * @param resId

@@ -13,6 +13,7 @@ public class LogicalProcessState implements State {
 	public enum EventType {FINALIZEACT, ROLOFF};
 	protected int lpId;
 	protected ArrayList<ActivityManagerState> amStates;
+	/** Events in the waiting queue */
 	protected ArrayList<EventEntry> waitQueue;
 	
 	public LogicalProcessState(int lpId) {

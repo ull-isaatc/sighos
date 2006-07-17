@@ -13,11 +13,16 @@ public class ElementState implements State {
 	protected int elemId;
 	protected int elemTypeId;
 	protected FlowState flowState;
+    /** Amount of pending presential activities (pending[0]) and non-presential 
+    ones (pending[1]) */
+	protected int []pending;
+    /** Requested presential single flows (requested[0]) and non-presential 
+    ones (requested[1]) */
+	protected int[][]requested;
+	// If the element is currently performing an activity
 	protected int currentActId = -1;
 	protected int currentWGId = -1;
 	protected ArrayList<Integer> caughtResources = null;
-	protected int []pending;
-	protected int[][]requested;
 	
 	/**
 	 * @param elemId
