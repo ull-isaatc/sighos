@@ -6,7 +6,7 @@
 
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.simulation.results.PendingFlowStatistics;
+import es.ull.isaatc.simulation.state.*;
 
 /**
  * Flujo compuesto de un conjunto de flujos que se ejecutan de manera secuencial.
@@ -50,12 +50,24 @@ public class SequenceFlow extends GroupFlow {
         list.get(finishedFlows).request();
     }        
     
-    public void saveState() {
-    	if (finishedFlows < list.size()) {
-    		elem.getSimul().addStatistic(new PendingFlowStatistics(elem.getIdentifier(), 
-    			PendingFlowStatistics.SECFLOW, list.size() - finishedFlows));
-	        for (int i = finishedFlows; i < list.size(); i++)
-	            list.get(i).saveState();
-    	}
-    }
+	public FlowState getState() {
+		SequenceFlowState state = new SequenceFlowState(finishedFlows);
+		for(Flow f : list)
+			state.add((FlowState)f.getState());
+		return state;
+	}
+
+	public void setState(FlowState state) {
+		SequenceFlowState secState = (SequenceFlowState) state;
+		finishedFlows = secState.getFinished();
+		
+		for (FlowState fState : secState.getDescendants()) {
+			Flow f = null;
+			if (fState instanceof SingleFlowState)
+				f = new SingleFlow(this, elem, elem.getSimul().getActivity(((SingleFlowState)fState).getActId()));
+			else if (fState instanceof SimultaneousFlowState)
+				f = new SimultaneousFlow(this, elem);
+			f.setState(fState);
+		}
+	}
 }

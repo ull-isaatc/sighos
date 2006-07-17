@@ -34,6 +34,7 @@ public abstract class Generator extends BasicElement {
         super(counter++, simul);
         this.cycleIter = cycleIter;
         this.nElem = nElem;
+        simul.add(this);
     }
     
     /**
@@ -60,7 +61,8 @@ public abstract class Generator extends BasicElement {
         return "GEN";        
     }
     
-    protected void startEvents() {
+	@Override
+    protected void init() {
     	double newTs = cycleIter.next();
     	if (Double.isNaN(newTs))
             notifyEnd();
@@ -71,6 +73,10 @@ public abstract class Generator extends BasicElement {
         }
     }
     
+	@Override
+	protected void end() {
+	}
+	
     public void saveState() {
     
     }

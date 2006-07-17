@@ -6,10 +6,11 @@
 
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.simulation.results.PendingFlowStatistics;
+import es.ull.isaatc.simulation.state.FlowState;
+import es.ull.isaatc.simulation.state.SingleFlowState;
 
 /**
- * Flujo compuesto de una única actividad. Es un nodo hoja en el árbol de flujos. 
+ * A single-activity flow. This flow represents a leaf node in the flow tree. 
  * @author Iván Castilla Rodríguez
  */
 public class SingleFlow extends Flow {
@@ -17,15 +18,15 @@ public class SingleFlow extends Flow {
 	private static int counter = 0;
 	/** Single flow's identifier */
 	protected int id;
-    /** Actividad que conforma el flujo */
+    /** Activity wrapped with this flow */
     protected Activity act;
-    /** Indicador de si la actividad ha sido realizada o no */
-    protected boolean terminada = false;
+    /** Indicates if the activity has been already executed */
+    protected boolean finished = false;
     
     /** 
-     * Crea un nuevo FlujoSimple 
-     * @param elem Elemento al que se asocia este flujo.
-     * @param act Actividad que conforma el flujo simple.
+     * Creates a new parent single flow which wraps an activity. 
+     * @param elem Element that executes this flow.
+     * @param act Activity wrapped with this flow.
      */
     public SingleFlow(Element elem, Activity act) {
         super(elem);
@@ -34,10 +35,10 @@ public class SingleFlow extends Flow {
     }
     
     /** 
-     * Crea un nuevo FlujoSimple 
-     * @param parent Padre de este flujo.
-     * @param elem Elemento al que se asocia este flujo.
-     * @param act Actividad que conforma el flujo simple.
+     * Creates a new single flow which wraps an activity. 
+     * @param parent This flow's parent.
+     * @param elem Element that executes this flow.
+     * @param act Activity wrapped with this flow.
      */
     public SingleFlow(GroupFlow parent, Element elem, Activity act) {
         super(parent, elem);
@@ -46,7 +47,7 @@ public class SingleFlow extends Flow {
         this.act = act;
         id = counter++;
     }
-    
+
     /** 
      * Creates a new single flow for a non presential activity. This flow's parent 
      * is the single flow of the original element. 
@@ -76,25 +77,26 @@ public class SingleFlow extends Flow {
     }
 
     /**
-     * Termina la ejecución de la actividad asociada a este flujo y después 
-     * llama a finalizar el padre.
+     * This flow is marked as "finished" and removed from the element's requested list. 
+     * The parent flow is finished too.
      */
     protected void finish() {
-        terminada = true;
+        finished = true;
         if (parent != null)
             parent.finish();
         elem.decRequested(this);
     }
     
     /**
-     * Solicita la actividad actual, teniendo en cuenta si es o no presencial.
+     * Requests this activity, taking into account the presenciality.
      */
     protected void request() {
         if (isPresential()) {
             elem.requestActivity(this);
         }
         else {
-            NPElement eNP = new NPElement(elem, this);
+            NPElement eNP = new NPElement(elem);
+            eNP.setFlow(new SingleFlow(this, eNP, act));
             eNP.start(act.getManager().getLp());
         }
         // MOD 24/01/06 Movido al evento
@@ -111,18 +113,6 @@ public class SingleFlow extends Flow {
             if (elem != parent.getElement())
                 return true;
         return act.isPresential();
-    }
-    
-    /**
-     * Salva la estructura del flujo actual.
-     */
-    public void saveState() {
-        if (!terminada) {
-        	elem.getSimul().addStatistic(new PendingFlowStatistics(elem.getIdentifier(), 
-        			PendingFlowStatistics.SINFLOW, id));
-        	elem.getSimul().addStatistic(new PendingFlowStatistics(elem.getIdentifier(), 
-        			PendingFlowStatistics.ACTFLOW, act.getIdentifier()));
-        }
     }
     
     /**
@@ -143,22 +133,44 @@ public class SingleFlow extends Flow {
 	/**
 	 * @return Returns the id.
 	 */
-	public int getId() {
+	public int getIdentifier() {
 		return id;
 	}
 
-	/**
-	 * @param id The id to set.
-	 */
-	public void setId(int id) {
-		this.id = id;
-	}
-    
 	/**
 	 * @param counter The counter to set.
 	 */
 	public static void setCounter(int counter) {
 		SingleFlow.counter = counter;
 	}
+	
+	/**
+	 * 
+	 * @return The single flows' counter
+	 */
+	public static int getCounter() {
+		return counter;
+	}
 
+	public FlowState getState() {
+		return new SingleFlowState(id, act.getIdentifier(), finished);
+	}
+
+	public void setState(FlowState state) {
+		SingleFlowState sfState = (SingleFlowState)state;
+		finished = sfState.isFinished();
+		id = sfState.getFlowId();
+	}
+
+	@Override
+	protected SingleFlow search(int id) {
+		if (this.id == id)
+			return this;
+		return null;
+	}
+
+	@Override
+	protected boolean isFinished() {
+		return finished;
+	}
 }

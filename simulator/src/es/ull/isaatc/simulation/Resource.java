@@ -2,6 +2,10 @@ package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
 
+import es.ull.isaatc.simulation.info.ResourceInfo;
+import es.ull.isaatc.simulation.info.ResourceUsageInfo;
+import es.ull.isaatc.simulation.state.RecoverableState;
+import es.ull.isaatc.simulation.state.ResourceState;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.CycleIterator;
 import es.ull.isaatc.util.OrderedList;
@@ -12,13 +16,14 @@ import es.ull.isaatc.util.Output;
  * A resource is an element that becomes available at a specific simulation time and 
  * becomes unavailable at other simulation time. The availability of a resource is controlled
  * by means of timetable entries, which define a resource type and an availability cycle.
+ * A resource finishes its execution when it has no longer valid timetable entries.
  * HISTORY
  * 22/05/06 No more Multiple Roles
  * 23/05/06 Resource is now a BasicElement. No TimeTableManagers required. ¿Para qué quiero un TTM por
  * entrada horaria, si un elemento puede lanzar más de un evento por instante de tiempo de simulación?
  * @author Carlos Martín Galán
  */
-public class Resource extends BasicElement {
+public class Resource extends BasicElement implements RecoverableState<ResourceState> {
 	/** Timetable that contains all the pairs role - time-cycle */
     protected ArrayList<TimeTableEntry> timeTable;
     /** A brief description of the resource */
@@ -33,6 +38,8 @@ public class Resource extends BasicElement {
     protected ArrayList<ResourceType> currentRoles;
     /** List of elements trying to book this resource */
     protected OrderedList<Element> bookList;
+    /** A counter of the valid timetable entries which this resource is following. */
+    private int validTTEs = 0;
 
     /**
      * Creates a new instance of Resource
@@ -45,10 +52,12 @@ public class Resource extends BasicElement {
         timeTable = new ArrayList<TimeTableEntry>();
         currentRoles = new ArrayList<ResourceType>();
         bookList = new OrderedList<Element>();
+        simul.add(this);
 	}
 
-    protected void startEvents() {
-    	boolean eventFlag = false;
+	@Override
+    protected void init() {
+    	simul.notifyListeners(new ResourceInfo(this, ResourceInfo.Type.START, ts, 0));
 		for (int i = 0 ; i < timeTable.size(); i++) {
 			TimeTableEntry tte = timeTable.get(i);
 	        CycleIterator iter = tte.getIterator(tte.getRole().getTs(), simul.getEndTs());
@@ -56,13 +65,17 @@ public class Resource extends BasicElement {
 	        if (!Double.isNaN(nextTs)) {
 	            RoleOnEvent rEvent = new RoleOnEvent(nextTs, tte.getRole(), iter, tte.getDuration());
 	            addEvent(rEvent);
-	            eventFlag = true; // at least one tte is valid
+	            validTTEs++;
 	        }
 		}
-		if (!eventFlag)
+		if (validTTEs == 0)// at least one tte should be valid
 			notifyEnd();
 	}
 
+	@Override
+	protected void end() {		
+	}
+	
     /**
      * Add a new entry with a single role.
      * @param cycle Cycle that characterizes this entry
@@ -125,10 +138,6 @@ public class Resource extends BasicElement {
 		return currentManagers;
 	}
 
-	@Override
-	protected void saveState() {
-	}
-    
 	/**
 	 * An element books this resource. The element is simply included in the book list
 	 * of this resource.
@@ -160,6 +169,9 @@ public class Resource extends BasicElement {
 	
 	protected void catchResource(Element e, ResourceType rt) {
 		waitSemaphore();
+		// FIXME: Es esto o debería cogerlo del LP?
+		setTs(e.getTs());
+        simul.notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.CAUGHT, ts, e.getIdentifier(), rt.getIdentifier()));
 		currentElement = e;
 		e.addCaughtResource(this);
 		currentResourceType = rt;
@@ -169,12 +181,15 @@ public class Resource extends BasicElement {
 	
     /**
      * Releases this resource. If the resource has already expired its availability time, 
-     * the flag is set off.
+     * the timeOut flag is set off.
      * @return True if the resource could be correctly released. False if the availability
      * time of the resource had already expired.
      */
     protected boolean releaseResource() {
 		waitSemaphore();
+		// FIXME: Es esto o debería cogerlo del LP?
+		setTs(currentElement.getTs());
+        simul.notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.RELEASED, ts, currentElement.getIdentifier(), currentResourceType.getIdentifier()));
         currentElement = null;
         currentResourceType = null;        
         if (timeOut) {
@@ -261,6 +276,7 @@ public class Resource extends BasicElement {
          * Pone disponible el elemento y espera el tiempo indicado.
          */        
         public void event() {
+            simul.notifyListeners(new ResourceInfo(Resource.this, ResourceInfo.Type.ROLON, ts, role.getIdentifier()));
             print(Output.MessageType.DEBUG, "Resource available\t" + role);
             role.getManager().addAvailable(Resource.this, role);
             // MOD 22/05/06
@@ -268,6 +284,13 @@ public class Resource extends BasicElement {
             RoleOffEvent rEvent = new RoleOffEvent(ts + duration, role, iter, duration);
             addEvent(rEvent);
         }
+
+		/**
+		 * @return Returns the role.
+		 */
+		public ResourceType getRole() {
+			return role;
+		}
     }
     
     /**
@@ -299,18 +322,26 @@ public class Resource extends BasicElement {
          * tras la espera en tiempo.
          */
         public void event() {
+            simul.notifyListeners(new ResourceInfo(Resource.this, ResourceInfo.Type.ROLOFF, ts, role.getIdentifier()));
             role.getManager().removeAvailable(Resource.this, role);
             // MOD 22/05/06
             removeRole(role);
             print(Output.MessageType.DEBUG, "Resource unavailable\t" + role);
             double nextTs = iter.next();
-            if (Double.isNaN(nextTs))
-                notifyEnd();
-            else {
+            if (!Double.isNaN(nextTs)) {
                 RoleOnEvent rEvent = new RoleOnEvent(nextTs, role, iter, duration);
-                addEvent(rEvent);
+                addEvent(rEvent);            	
             }
-        }        
+            else if (--validTTEs == 0)
+        		notifyEnd();
+        }
+
+		/**
+		 * @return Returns the role.
+		 */
+		public ResourceType getRole() {
+			return role;
+		}        
     }
 
     /**
@@ -372,4 +403,27 @@ public class Resource extends BasicElement {
         }
         
     }
+
+	public ResourceState getState() {
+		ResourceState state = null;
+		if (currentElement == null)
+			state = new ResourceState(id, validTTEs);
+		else {
+			state = new ResourceState(id, validTTEs, currentElement.getIdentifier(), currentResourceType.getIdentifier(), timeOut);
+			for (ResourceType rt : currentRoles) {
+				state.add(rt.getIdentifier());
+			}
+		}
+		return state;
+	}
+
+	public void setState(ResourceState state) {
+		validTTEs = state.getValidTTEs();
+		if (state.getCurrentElemId() != -1) {
+			currentElement = simul.getActiveElement(state.getCurrentElemId());
+			currentResourceType = simul.getResourceType(state.getCurrentRTId());
+			for (Integer rtId : state.getCurrentRoles())
+				currentRoles.add(simul.getResourceType(rtId));
+		}
+	}
 }

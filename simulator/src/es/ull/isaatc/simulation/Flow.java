@@ -6,6 +6,9 @@
 
 package es.ull.isaatc.simulation;
 
+import es.ull.isaatc.simulation.state.RecoverableState;
+import es.ull.isaatc.simulation.state.FlowState;
+
 /**
  * Representación abstracta del flujo de ejecución de un elemento. Un flujo 
  * tiene una estructura de árbol. Cada nodo del árbol puede ser un grupo de 
@@ -13,7 +16,7 @@ package es.ull.isaatc.simulation;
  * caso se trata de un nodo hoja.
  * @author Iván Castilla Rodríguez
  */
-public abstract class Flow {
+public abstract class Flow implements RecoverableState<FlowState> {
     /**
      * Padre del flujo actual.
      */    
@@ -82,10 +85,17 @@ public abstract class Flow {
      * @return El número de componentes del flujo actual.
      */    
     protected abstract int[]countActivities();
+ 
+    /**
+     * Searches a single flow in the flow structure
+     * @param id single flow's identifier
+     * @return The single flow with identifier id.
+     */
+    protected abstract SingleFlow search(int id);
     
     /**
-     * Salva la estructura del flujo.
-     */    
-    public abstract void saveState();
- 
+     * Returns true if the element has finished with this flow.
+     * @return True if the flow is finished; false in other case.
+     */
+    protected abstract boolean isFinished();
 }

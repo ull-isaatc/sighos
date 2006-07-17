@@ -19,8 +19,6 @@ public abstract class BasicElement extends SimulationObject {
     protected ArrayList<DiscreteEvent> eventList;
     /** Access control */
     protected Semaphore sem;
-    /** Flag that indicates if the simulation end has been reached */
-    protected boolean endSimulationFlag = false;
     /** Flag that indicates if the element has finished its execution */
     protected boolean endFlag = false;
     /** Default logical process */
@@ -41,17 +39,20 @@ public abstract class BasicElement extends SimulationObject {
      * Starts the element execution.
      */    
     public void start(LogicalProcess defLP) {
-    	print(Output.MessageType.DEBUG, "Starts Execution");
     	this.defLP = defLP;
 		ts = defLP.getTs();
-        simul.incElements();
         addEvent(new StartEvent());
     }
     
     /**
      * Contains the declaration of the first event/s that the element executes.
      */
-    protected abstract void startEvents();
+    protected abstract void init();
+    
+    /**
+     * Contains the actions the element carried out when it finishes its execution. 
+     */
+    protected abstract void end();
     
     /**
      * Adds a new event to the element's event list
@@ -75,35 +76,10 @@ public abstract class BasicElement extends SimulationObject {
     protected synchronized void notifyEnd() {
     	if (!endFlag) {
     		endFlag = true;
-        	print(Output.MessageType.DEBUG, "Finished in notifyEnd()");
+        	print(Output.MessageType.DEBUG, "Finished");
             addEvent(new FinalizeEvent());
         }
     }
-    
-    /**
-     * Informs the element an "end of simulation" has happened. The element carries 
-     * out an "end" event.
-     */    
-    protected synchronized void notifyEndSimulation() {
-        if (!endSimulationFlag) {
-            endSimulationFlag = true;
-            notifyEnd();
-        }
-    }
-    
-    /**
-     * Finishes the element execution.
-     */    
-    protected void end() {
-    	print(Output.MessageType.DEBUG, "Ends execution");
-        simul.decElements();
-    }
-
-    /**
-     * Saves the state of the element when the end of the simulation is reached
-     * and the element hasn't finished its execution.
-     */
-    protected abstract void saveState();
     
     /**
      * Returns the element's current timestamp.
@@ -129,8 +105,16 @@ public abstract class BasicElement extends SimulationObject {
      * Returns the logical process used by default.
      * @return The logical process associated to this element.
      */
-    public es.ull.isaatc.simulation.LogicalProcess getDefLP() {
+    public LogicalProcess getDefLP() {
         return defLP;
+    }
+    
+    /**
+     * Associates this element to a default logical process.
+     * @param lp Logical process
+     */
+    public void setDefLP(LogicalProcess lp) {
+    	this.defLP = lp;
     }
     
     /**
@@ -265,9 +249,8 @@ public abstract class BasicElement extends SimulationObject {
         }
         
         public void event() {
-            if (endSimulationFlag)
-                saveState();
-            end();
+        	print(Output.MessageType.DEBUG, "Ends execution");
+        	end();
         }
     }
 
@@ -282,7 +265,8 @@ public abstract class BasicElement extends SimulationObject {
         }
 
         public void event() {
-            startEvents();
+        	print(Output.MessageType.DEBUG, "Starts Execution");
+            init();
         }
     }
     

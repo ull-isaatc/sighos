@@ -122,7 +122,7 @@ class ExpConflict extends Experiment {
     static final int NTESTS = 1;
     
     ExpConflict() {
-    	super("CHECKING CONFLICTS", NTESTS, new NullResultProcessor(), new Output(Output.DebugLevel.DEBUG));
+    	super("CHECKING CONFLICTS", NTESTS, new Output(Output.DebugLevel.DEBUG));
     }
     
 	@Override

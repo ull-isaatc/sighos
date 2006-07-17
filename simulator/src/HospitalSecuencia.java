@@ -2,6 +2,8 @@ import java.util.ArrayList;
 
 import es.ull.isaatc.random.*;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.info.StatisticListener;
+import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.simulation.results.*;
 import es.ull.isaatc.util.*;
 
@@ -21,11 +23,6 @@ class Analisis extends Simulation {
 	Analisis(double startTs, int ndays, Output out) {
 		super("Sistema de análisis", startTs, ndays * 24 * 60.0, out);
 		this.ndays = ndays;
-    }
-    
-	Analisis(int lastday, Output out, SimulationResults res) {
-		super("Sistema de análisis", lastday * 24 * 60.0, out, res);
-		this.ndays = lastday;
     }
     
     protected void createModel() {
@@ -59,12 +56,13 @@ class Analisis extends Simulation {
         WorkGroup wg6 = actPrueba1d.getNewWorkGroup(0, new Normal(10.0, 5.0));
         wg6.add(crOrina, 1);
         wg6.add(crEnfermero, 1);
+        
+        new ElementType(0, this, "Paciente");
        
     }
     
 	@Override
-	protected ArrayList<Resource> createResources() {
-		ArrayList<Resource> list = new ArrayList<Resource>();
+	protected void createResources() {
 		
 //		Resource sangre1 = new Resource(this, "Máquina Análisis Sangre 1");
 //		sangre1.addTimeTableEntry(480, 1440, 480, getResourceType(0), 0);
@@ -81,19 +79,15 @@ class Analisis extends Simulation {
         // Y añado los Enfermeros necesarios para que vaya "sobrado" el asunto
         
         Cycle c = new Cycle(480, new Fixed(1440.0), 0);
-		Resource tec1 = new Resource(1, this, "Enfermero 1");
-		tec1.addTimeTableEntry(c, 480, getResourceType(2));
-		list.add(tec1);
-//		Resource tec2 = new Resource(this, "Enfermero 2");
-//		tec2.addTimeTableEntry(c, 480, getResourceType(2));
-		return list;
+		new Resource(1, this, "Enfermero 1").addTimeTableEntry(c, 480, getResourceType(2));
+//		new Resource(2, this, "Enfermero 2").addTimeTableEntry(c, 480, getResourceType(2));
 	}
 
-	protected ArrayList<Generator> createGenerators() {
-		return createMetaFlow3();
+	protected void createGenerators() {
+		createMetaFlow3();
 	}
 	
-    protected ArrayList<Generator> createMetaFlow0() {
+    protected void createMetaFlow0() {
         SequenceMetaFlow sec = new SequenceMetaFlow(1, new Fixed(1));
         new SingleMetaFlow(2, sec, new Fixed(1), getActivity(0));
         SimultaneousMetaFlow simPruebas = new SimultaneousMetaFlow(3, sec, new Fixed(1));
@@ -106,12 +100,10 @@ class Analisis extends Simulation {
         new SingleMetaFlow(10, simSangre, new Fixed(1), getActivity(3));
         new SingleMetaFlow(11, simSangre, new Fixed(1), getActivity(5));
         Cycle c = new Cycle(0.0, new Fixed(1440.0), ndays);
-        ArrayList<Generator> genList = new ArrayList<Generator>();
-        genList.add(new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), sec));
-        return genList;
+        new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), getElementType(0), sec);
     }
     
-    protected ArrayList<Generator> createMetaFlow1() {
+    protected void createMetaFlow1() {
     	SimultaneousMetaFlow simPruebas = new SimultaneousMetaFlow(12, new Uniform(1, 4));
     	new SingleMetaFlow(13, simPruebas, new Fixed(1), getActivity(0));
     	DecisionMetaFlow dec = new DecisionMetaFlow(14, simPruebas, new Fixed(1));        
@@ -122,11 +114,9 @@ class Analisis extends Simulation {
         new SingleMetaFlow(19, simSangre, new Fixed(1), getActivity(3));
         new SingleMetaFlow(20, simSangre, new Fixed(1), getActivity(5));
         Cycle c = new Cycle(0.0, new Fixed(1440.0), ndays);
-        ArrayList<Generator> genList = new ArrayList<Generator>();
-        genList.add(new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), simPruebas));
-        return genList;
+        new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), getElementType(0), simPruebas);
     }
-    protected ArrayList<Generator> createMetaFlow2() {
+    protected void createMetaFlow2() {
         SimultaneousMetaFlow metaFlow = new SimultaneousMetaFlow(21, new Fixed(1));
         new SingleMetaFlow(22, metaFlow, new Fixed(1), getActivity(2));
         new SingleMetaFlow(23, metaFlow, new Fixed(1), getActivity(1));
@@ -136,16 +126,12 @@ class Analisis extends Simulation {
 ////        Cycle c2 = new Cycle(480.0, new Fixed(120.0), 0);
 //        Cycle c = new Cycle(0.0, new Fixed(1440.0 * 7), 0, c2);
         Cycle c = new Cycle(0.0, new Fixed(1440.0), ndays);
-        ArrayList<Generator> genList = new ArrayList<Generator>();
-        genList.add(new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), metaFlow));
-        return genList;
+        new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), getElementType(0), metaFlow);
     }
     
-    protected ArrayList<Generator> createMetaFlow3() {
+    protected void createMetaFlow3() {
         Cycle c = new Cycle(0.0, new Fixed(1440.0), 0);
-        ArrayList<Generator> genList = new ArrayList<Generator>();
-        genList.add(new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), new SingleMetaFlow(23, new Fixed(1), getActivity(0))));
-        return genList;
+        new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), getElementType(0), new SingleMetaFlow(23, new Fixed(1), getActivity(0)));
     }
 
 }
@@ -158,7 +144,7 @@ class ExpHospitalSecuencia extends Experiment {
 	
 	public ExpHospitalSecuencia() {
 //		super("Hospital", NEXP, new StdResultProcessor(1440.0), new Output(Output.DEBUGLEVEL));
-		super("Hospital", NEXP, new NullResultProcessor(), new Output(Output.DebugLevel.XDEBUG));
+		super("Hospital", NEXP, new Output(Output.DebugLevel.XDEBUG));
 	}
 
 	public ExpHospitalSecuencia(double prevStart, double prevEnd) {
@@ -168,9 +154,14 @@ class ExpHospitalSecuencia extends Experiment {
 	}
 
 	public Simulation getSimulation(int ind) {
+		Analisis sim = null;
 		if (Double.compare(prevEnd, 0.0) != 0)
-			return new Analisis(NDIAS + (int)(prevEnd / (60 * 24)), out, new PreviousSimulationResults(prevStart, prevEnd, ind, "c:\\"));
-		return new Analisis(0.0, NDIAS, out);		
+			sim = new Analisis(NDIAS + (int)(prevEnd / (60 * 24)), out, new PreviousSimulationResults(prevStart, prevEnd, ind, "c:\\"));
+		else
+			sim = new Analisis(0.0, NDIAS, out);
+		sim.addListener(new StdInfoListener());
+		sim.addListener(new StatisticListener(1440.0));		
+		return sim;
 	}
 }
 

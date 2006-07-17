@@ -1,11 +1,11 @@
 /**
  * 
  */
-import java.util.ArrayList;
 
 import es.ull.isaatc.random.Fixed;
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.results.*;
+import es.ull.isaatc.simulation.info.StatisticListener;
+import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
 
@@ -91,13 +91,14 @@ class SimSchedula extends Simulation {
 			new ElementType(i, this, "NELEM : " + NELEM[i]);
 		}
 
-	}
+		// Resources
+		Cycle c1 = new Cycle(510.0, new Fixed(1440.0), 0);
+		for (int i = 0; i < NRES_ACT.length; i++)
+			for (int j = 0; j < NRES_ACT[i]; j++) 
+				new Resource(j, this, RESNAME[i] + j).addTimeTableEntry(c1, 630.0, getResourceType(i));
 
-	@Override
-	protected ArrayList<Generator> createGenerators() {
+		// Meta flows
 		int countMeta = 0;
-		ArrayList<Generator> genList = new ArrayList<Generator>();
-
 		TypeMetaFlow type = new TypeMetaFlow(countMeta++, new Fixed(1));
 		SequenceMetaFlow sec[] = new SequenceMetaFlow[NELEM.length];
 		for (int i = 0; i < NELEM.length; i++) {
@@ -126,21 +127,7 @@ class SimSchedula extends Simulation {
 		c[2] = new Cycle(510.0, new Fixed(1440.0), 0);
 		//FIXME: crear un método en simulation para obtener un element type a partir de su id 
 		for (int i = 0; i < NELEM.length; i++)
-			genList.add(new ElementGenerator(this, new Fixed(NELEM[i]), c[i].iterator(startTs, endTs), getElementType(i), sec[i]));
-		return genList;
-	}
-
-	@Override
-	protected ArrayList<Resource> createResources() {
-		ArrayList<Resource> resList = new ArrayList<Resource>();
-		Cycle c = new Cycle(510.0, new Fixed(1440.0), 0);
-		for (int i = 0; i < NRES_ACT.length; i++)
-			for (int j = 0; j < NRES_ACT[i]; j++) {
-				Resource res = new Resource(j, this, RESNAME[i] + j); 
-				resList.add(res);
-				res.addTimeTableEntry(c, 630.0, getResourceType(i));
-			}
-		return resList;
+			new ElementGenerator(this, new Fixed(NELEM[i]), c[i].iterator(startTs, endTs), getElementType(i), sec[i]);
 	}
 	
 }
@@ -150,12 +137,15 @@ class ExpSchedula extends Experiment {
     static final int NTESTS = 1;
 
 	ExpSchedula() {
-		super("Schedula Example", NTESTS, new StdResultProcessor(1440.0), new Output(Output.DebugLevel.DEBUG));
+		super("Schedula Example", NTESTS);
 	}
 	
 	@Override
 	public Simulation getSimulation(int ind) {
-		return new SimSchedula(0.0, 24 * 60.0 * NDAYS, out);
+		SimSchedula sim = new SimSchedula(0.0, 24 * 60.0 * NDAYS, new Output(Output.DebugLevel.NODEBUG));
+		sim.addListener(new StdInfoListener());
+		sim.addListener(new StatisticListener(1440.0));
+		return sim;
 	}
 	
 }

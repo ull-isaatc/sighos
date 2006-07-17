@@ -47,25 +47,22 @@ class OverlappedSimulation extends Simulation {
     }
     
 	@Override
-	protected ArrayList<Resource> createResources() {
-		ArrayList<Resource> list = new ArrayList<Resource>();
+	protected void createResources() {
 		ArrayList<ResourceType> al1 = new ArrayList<ResourceType>();
 		al1.add(getResourceType(0));
 //		al1.add(getResourceType(2));
         for (int i = 0; i < NRESOURCES; i++) {
         	Resource res = new Resource(i, this, "Máquina Análisis Sangre " + i);
         	res.addTimeTableEntry(new Cycle(480, new Fixed(1440.0), 0), 480, al1);
-			list.add(res);
         }
 //		ArrayList<ResourceType> al2 = new ArrayList<ResourceType>();
 //		al2.add(crOrina);
 //		al2.add(crDumb);
 //		Resource orina1 = new Resource(1, this, "Máquina Análisis Orina 1");
 //		orina1.addTimeTableEntry(new Cycle(480, new Fixed(1440.0), 0), 480, al2);
-		return list;
 	}
 
-	protected ArrayList<Generator> createGenerators() {
+	protected void createGenerators() {
 //      SimultaneousMetaFlow metaFlow = new SimultaneousMetaFlow(1, new Fixed(1));
 //      new SingleMetaFlow(2, metaFlow, new Fixed(1), getActivity(2));
 //      new SingleMetaFlow(3, metaFlow, new Fixed(1), getActivity(1));
@@ -73,8 +70,7 @@ class OverlappedSimulation extends Simulation {
 		Cycle c = new Cycle(0.0, new Fixed(1440.0), days);
 		CycleIterator it = c.iterator(startTs, endTs);
 		ArrayList<Generator> genList = new ArrayList<Generator>();
-		genList.add(new ElementGenerator(this, new Fixed(NELEM), it, metaFlow));
-		return genList;
+		new ElementGenerator(this, new Fixed(NELEM), it, metaFlow);
 	}	
 }
 
@@ -107,7 +103,7 @@ class ExpOverlapped extends Experiment {
     static final int NPRUEBAS = 100;
 
 	public ExpOverlapped(String description, Output out) {
-		super(description, NPRUEBAS, new OverlappedResultProcessor(), out);
+		super(description, NPRUEBAS, out);
 //		super(description, NPRUEBAS, new StdResultProcessor(1440.0), out);
 	}
 

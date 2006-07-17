@@ -3,8 +3,7 @@
  */
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.simulation.results.*;
-import es.ull.isaatc.util.Output;
+import es.ull.isaatc.simulation.state.*;
 
 /**
  * Controls a set of experiments. 
@@ -13,9 +12,7 @@ import es.ull.isaatc.util.Output;
 public abstract class Experiment {
 	protected String description;
 	protected int nExperiments;
-	protected SimulationResults[] results;
-	protected ResultProcessor proc;
-	protected Output out;
+	protected StateProcessor processor;
 
 
 	/**
@@ -23,47 +20,25 @@ public abstract class Experiment {
 	 *
 	 */
 	public Experiment() {		
-
 	}
 	
 	/**
-	 * 
-	 * @param proc
-	 * @param out
+	 * @param description
+	 * @param experiments
 	 */
-	public Experiment(ResultProcessor proc, Output out) {
-		this.proc = proc;
-		this.out = out;
+	public Experiment(String description, int experiments) {
+		this(description, experiments, new NullStateProcessor());
 	}
-
+	
 	/**
 	 * @param description
 	 * @param experiments
-	 * @param proc
-	 * @param out
+	 * @param processor
 	 */
-	public Experiment(String description, int experiments, ResultProcessor proc, Output out) {
+	public Experiment(String description, int experiments, StateProcessor processor) {
 		this.description = description;
 		nExperiments = experiments;
-		this.proc = proc;
-		results = new SimulationResults[nExperiments];
-		this.out = out;
-	}
-	
-	/**
-	 * @param proc
-	 */
-	public Experiment(ResultProcessor proc) {		
-		this(proc, new Output());
-	}
-
-	/**
-	 * @param description
-	 * @param experiments
-	 * @param proc
-	 */
-	public Experiment(String description, int experiments, ResultProcessor proc) {
-		this(description, experiments, proc, new Output());
+		this.processor = processor;
 	}
 	
 	/**
@@ -76,10 +51,9 @@ public abstract class Experiment {
 	public void start() {
 		for (int i = 0; i < nExperiments; i++) {
 			Simulation sim = getSimulation(i);
-			sim.run();
-			results[i] = sim.getResults();
+			sim.start();
+			processor.process((SimulationState)sim.getState());
 		}
-		proc.processStatistics(results);
 	}
 
 	/**
@@ -108,21 +82,13 @@ public abstract class Experiment {
 	 */
 	public void setNExperiments(int experiments) {
 		nExperiments = experiments;
-		results = new SimulationResults[nExperiments];
 	}
 
 	/**
-	 * @param out the out to set
+	 * @param processor The processor to set.
 	 */
-	public void setOut(Output out) {
-		this.out = out;
+	public void setProcessor(StateProcessor processor) {
+		this.processor = processor;
 	}
 
-	/**
-	 * @param proc the proc to set
-	 */
-	public void setProc(ResultProcessor proc) {
-		this.proc = proc;
-	}
-	
 }

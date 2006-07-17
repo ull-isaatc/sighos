@@ -1,7 +1,9 @@
 package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
-import es.ull.isaatc.simulation.results.ElementStatistics;
+
+import es.ull.isaatc.simulation.info.ElementInfo;
+import es.ull.isaatc.simulation.state.*;
 import es.ull.isaatc.sync.Semaphore;
 import es.ull.isaatc.util.*;
 
@@ -10,7 +12,7 @@ import es.ull.isaatc.util.*;
  * their events.
  * @author Iván Castilla Rodríguez
  */
-public class Element extends BasicElement {
+public class Element extends BasicElement implements RecoverableState<ElementState> {
     /** Workgroup that is currently being used. A null value indicates that this 
      element is not currently performing any activity. */
     protected WorkGroup currentWG = null;
@@ -31,7 +33,6 @@ public class Element extends BasicElement {
 	protected ArrayList<Semaphore> semStack;
 	/** Element type */
 	protected ElementType elementType;
-	
 
     /**
      * Creates a new element.
@@ -95,24 +96,35 @@ public class Element extends BasicElement {
     public void setFlow(es.ull.isaatc.simulation.Flow flow) {
         this.flow = flow;
     }
+
+    /**
+     * Searches a single flow in the flow of this element.
+     * @param id The single flow's identifier 
+     * @return A single flow with the corresponding identifier; null if there isn't a single
+     * flow with this identifier.
+     */
+    public SingleFlow searchSingleFlow(int id) {
+    	return flow.search(id);
+    }
     
     /**
-     * The element requests its first activities.
+     * Requests the first activities. The simulation's active-element-list is updated. 
      */
-    protected void startEvents() {
-    	simul.addStatistic(new ElementStatistics(id, ElementStatistics.START, ts, elementType.getIdentifier()));
+    protected void init() {
+    	simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.START, ts, elementType.getIdentifier()));
+        simul.addActiveElement(this);
         if (flow != null) {
-        	// MOD 26/06/06 Movido desde setFlow
         	pending = flow.countActivities();
         	flow.request();
         }
         else
         	notifyEnd();
     }
-    
-    public void saveState() {
-    	flow.saveState();
-    }
+
+	@Override
+	protected void end() {
+        simul.removeActiveElement(this);
+	}
     
     /**
      * Adds a new activity (single flow) to the requested list.
@@ -162,7 +174,8 @@ public class Element extends BasicElement {
     	LogicalProcess lp = f.getActivity().getManager().getLp();
         setTs(lp.getTs());
         currentWG.catchResources(this);
-    	simul.addStatistic(new ElementStatistics(id, ElementStatistics.STAACT, ts, f.getActivity().getIdentifier()));
+        simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.STAACT, ts, f.getActivity().getIdentifier()));
+//    	simul.addStatistic(new ElementStatistics(id, ElementStatistics.STAACT, ts, f.getActivity().getIdentifier()));
         print(Output.MessageType.DEBUG, "Starts\t" + f.getActivity(), 
         		"Starts\t" + f.getActivity() + "\t" + f.getActivity().getDescription());
         FinalizeActivityEvent e = new FinalizeActivityEvent(ts + currentWG.getDuration(), f);
@@ -241,6 +254,51 @@ public class Element extends BasicElement {
 	public String getObjectTypeIdentifier() {
 		return "E";
 	}
+
+	/**
+	 * @return the elementType
+	 */
+	public ElementType getElementType() {
+		return elementType;
+	}
+
+	public ElementState getState() {
+		ElementState state = null;
+		int requestedFlows[][] = new int[2][];
+		for (int i = 0; i < requested.length; i++) {
+			requestedFlows[i] = new int[requested[i].size()];
+			for (int j = 0; j < requested[i].size(); j++)
+				requestedFlows[i][j] = requested[i].get(j).getIdentifier();
+		}
+		if (currentWG == null)
+			state = new ElementState(id, elementType.getIdentifier(), flow.getState(), pending, requestedFlows);
+		else {
+			state = new ElementState(id, elementType.getIdentifier(), flow.getState(), currentWG.getActivity().getIdentifier(), currentWG.getIdentifier(), pending, requestedFlows);
+			for(Resource r : caughtResources)
+				state.add(r.getIdentifier());
+		}
+		return state;
+	}
+
+	public void setState(ElementState state) {
+		if (state.getCurrentActId() != -1) {
+			Activity act = simul.getActivity(new Integer(state.getCurrentActId()));
+			currentWG = act.getWorkGroup(state.getCurrentWGId());
+			for (Integer rId : state.getCaughtResources())
+				caughtResources.add(simul.getResourceList().get(rId));
+		}		
+		if (state.getFlowState() instanceof SequenceFlowState)
+			flow = new SequenceFlow(this);
+		else if (state.getFlowState() instanceof SimultaneousFlowState)
+			flow = new SimultaneousFlow(this);
+		else if (state.getFlowState() instanceof SingleFlowState)
+			flow = new SingleFlow(this, simul.getActivity(((SingleFlowState)state.getFlowState()).getActId()));
+		flow.setState(state.getFlowState());
+		pending = state.getPending();
+		for (int i = 0; i < state.getRequested().length; i++)
+			for (int j = 0; j < state.getRequested()[i].length; j++)
+				requested[i].add(flow.search(state.getRequested()[i][j]));		
+	}
 	
     /**
      * Requests an activity.
@@ -255,8 +313,8 @@ public class Element extends BasicElement {
             this.flow = flow;
         }
         
-        public void event() {
-        	simul.addStatistic(new ElementStatistics(id, ElementStatistics.REQACT, ts, flow.getActivity().getIdentifier()));
+        public void event() {        	
+        	simul.notifyListeners(new ElementInfo(Element.this, ElementInfo.Type.REQACT, ts, flow.getActivity().getIdentifier()));
             print(Output.MessageType.DEBUG, "Requests\t" + flow.getActivity(), 
             		"Requests\t" + flow.getActivity() + "\t" + flow.getActivity().getDescription());
             flow.getActivity().getManager().requestActivity(flow);
@@ -295,7 +353,7 @@ public class Element extends BasicElement {
         }
         
         public void event() {
-        	simul.addStatistic(new ElementStatistics(id, ElementStatistics.ENDACT, ts, flow.getActivity().getIdentifier()));
+        	simul.notifyListeners(new ElementInfo(Element.this, ElementInfo.Type.ENDACT, ts, flow.getActivity().getIdentifier()));
             print(Output.MessageType.DEBUG, "Finishes\t" + flow.getActivity(), 
             		"Finishes\t" + flow.getActivity() + "\t" + flow.getActivity().getDescription());
             flow.getActivity().getManager().finalizeActivity(Element.this);
@@ -307,13 +365,13 @@ public class Element extends BasicElement {
                 addEvent(e);
             }
         }
+
+		/**
+		 * @return Returns the flow.
+		 */
+		public SingleFlow getFlow() {
+			return flow;
+		}
     }
 
-	/**
-	 * @return the elementType
-	 */
-	public ElementType getElementType() {
-		return elementType;
-	}
-    
 }

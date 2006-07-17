@@ -2,6 +2,8 @@ package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
 
+import es.ull.isaatc.simulation.state.RecoverableState;
+import es.ull.isaatc.simulation.state.ResourceTypeState;
 import es.ull.isaatc.util.*;
 
 /**
@@ -11,7 +13,7 @@ import es.ull.isaatc.util.*;
  * de sus entradas de horario.
  * @author Carlos Martin Galan
  */
-public class ResourceType extends DescSimulationObject {
+public class ResourceType extends DescSimulationObject implements RecoverableState<ResourceTypeState> {
     /** Gestor de actividades relacionado con esta clase de recurso */
     protected ActivityManager manager;
     /** Cola de recursos activos con horarios solapados en distintas Clases de 
@@ -178,7 +180,7 @@ public class ResourceType extends DescSimulationObject {
     protected void decAvailable(Resource res) {
     	print(Output.MessageType.DEBUG, "Resource removed\t" + res);
         // If the resource is being used for this resource type, it's marked as "timeOut"
-        if (!availableResourceQueue.remove(res) && (res.getCurrentResourceType() == this))
+        if (availableResourceQueue.remove(res) && (res.getCurrentResourceType() == this))
         	res.setTimeOut(true);
     }
     
@@ -188,6 +190,20 @@ public class ResourceType extends DescSimulationObject {
 
 	public double getTs() {
 		return manager.getTs();
+	}
+
+	public ResourceTypeState getState() {
+		ResourceTypeState state = new ResourceTypeState(id);
+		for (int i = 0; i < availableResourceQueue.size(); i++)
+			state.add(availableResourceQueue.get(i).getIdentifier(), availableResourceQueue.getCounter(i));
+		return state;
+	}
+
+	public void setState(ResourceTypeState state) {
+		for (ResourceTypeState.ResourceListEntry entry : state.getAvailableResourceQueue()) {
+			Resource res = simul.getResourceList().get(new Integer(entry.getResId()));
+			availableResourceQueue.add(res, entry.getCount());
+		}
 	}
 
 	class ResourceList {
@@ -203,10 +219,15 @@ public class ResourceType extends DescSimulationObject {
 	    	int pos = resources.indexOf(res);
 	    	if (pos == -1) {
 	    		resources.add(res);
-	    		counter.add(new Integer(1));
+	    		counter.add(1);
 	    	}
 	    	else
-	    		counter.set(pos, new Integer(counter.get(pos).intValue() + 1)); 
+	    		counter.set(pos, counter.get(pos).intValue() + 1); 
+	    }
+	    
+	    void add(Resource res, int count) {
+	    	resources.add(res);
+	    	counter.add(count);
 	    }
 	    
 	    /**
@@ -233,9 +254,12 @@ public class ResourceType extends DescSimulationObject {
 	    	return resources.get(index);
 	    }
 	    
+	    int getCounter(int index) {
+	    	return counter.get(index);
+	    }
+	    
 	    int size() {
 	    	return resources.size();
 	    }
 	}
-
 } 

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 import es.ull.isaatc.random.*;
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.results.*;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
 

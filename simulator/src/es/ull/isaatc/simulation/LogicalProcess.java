@@ -3,6 +3,11 @@ package es.ull.isaatc.simulation;
 import java.util.*;
 
 import mjr.heap.HeapAscending;
+import mjr.heap.Heapable;
+import es.ull.isaatc.random.Fixed;
+import es.ull.isaatc.simulation.state.ActivityManagerState;
+import es.ull.isaatc.simulation.state.LogicalProcessState;
+import es.ull.isaatc.simulation.state.RecoverableState;
 import es.ull.isaatc.sync.*;
 import es.ull.isaatc.util.*;
 
@@ -13,7 +18,7 @@ import es.ull.isaatc.util.*;
  * actividades.
  * @author Carlos Martín Galán
  */
-public class LogicalProcess extends SimulationObject implements Runnable {
+public class LogicalProcess extends SimulationObject implements Runnable, RecoverableState<LogicalProcessState> {
 	/** Logical Process' counter */
 	private static int nextId = 0;
     /** Mecanismo de sincronismo con los elementos */
@@ -198,7 +203,8 @@ public class LogicalProcess extends SimulationObject implements Runnable {
         if (! waitQueue.isEmpty()) {
             BasicElement.DiscreteEvent e = removeWait();
             setLVT(e.getTs());
-            double tiempo = e.getTs();
+            double tiempo = e.getTs();            
+            print(Output.MessageType.DEBUG, "SIMULATION TIME ADVANCING " + tiempo);
             // MOD 4/07/05 No se deben ejecutar de forma normal los elementos de ts >= maxGVT
             if (tiempo >= maxgvt)
                 addWait(e);
@@ -234,7 +240,7 @@ public class LogicalProcess extends SimulationObject implements Runnable {
      */
 	private void lpExecution() {
 
-		while (!isSimulationEnd() && (simul.getElements() > 0)) {
+		while (!isSimulationEnd()) {
 			// Espera hasta que no haya nadie ejecutandose
 			try {				
                 lock();
@@ -246,42 +252,16 @@ public class LogicalProcess extends SimulationObject implements Runnable {
             execWaitingElements();
 
 		} // fin del while principal
-        
-        if (isSimulationEnd()) { // se acabo el tiempo de simulacion
-        	print(Output.MessageType.DEBUG, "SIMULATION TIME FINISHES",
-        			"SIMULATION TIME FINISHES\r\nSimulation time = " +
-                	lvt + "\r\nPreviewed simulation time = " + maxgvt);
-        	printState();
-        }
-        else {
-        	print(Output.MessageType.DEBUG, "ALL ELEMENTS FINISHED",
-        			"ALL ELEMENTS FINISHED\r\nSimulation time = " +
-                	lvt + "\r\nPreviewed simulation time = " + maxgvt);
-        	printState();
-            // Actualizamos el tiempo de simulación para que termine la simulación
-            lvt = maxgvt;
-        }
-        finish();
-	} // fin EjecucionPL
 
-    /**
-     * Libera todos los elementos que aún están en alguna cola 
-     */
-    protected void finish() {
-        // Paro el resto de elementos que estaban en espera para ejecutarse
-        // con un tiempo de simulacion futura
-        while (! waitQueue.isEmpty()) {
-            // FIXME: ECHAR UN OJO!!!! Esto no debería tirar
-            BasicElement e = removeWait().getElement();
-            // MOD 4/07/05 Se notifica del fin de la simulación
-            e.notifyEndSimulation();
-            //insertaEjecucion(e);
-        }
-        // Paro aquellos elementos que estaban en la cola de todas las actividades
-        for (ActivityManager am : managerList) {
-            am.clearActivityQueues();
-        }
-    }
+		// Frees the execution queue
+		execQueue.free();
+    	print(Output.MessageType.DEBUG, "SIMULATION TIME FINISHES",
+    			"SIMULATION TIME FINISHES\r\nSimulation time = " +
+            	lvt + "\r\nPreviewed simulation time = " + maxgvt);
+    	printState();
+    	// Notifies the simulation about the end of this logical process
+        simul.notifyEnd();
+	} // fin EjecucionPL
 
     class DummyElement extends BasicElement {
 
@@ -289,8 +269,13 @@ public class LogicalProcess extends SimulationObject implements Runnable {
 			super(id, simul);
 		}
 
-		protected void startEvents() {
+		@Override
+		protected void init() {
 			addEvent(new DummyEvent(maxgvt));
+		}
+		
+		@Override
+		protected void end() {
 		}
 
 		protected void saveState() {
@@ -345,5 +330,54 @@ public class LogicalProcess extends SimulationObject implements Runnable {
         	strLong.append("Activity Manager " + am.getIdentifier() + "\r\n");
         strLong.append("\r\n------ LP STATE FINISHED ------\r\n");
 		print(Output.MessageType.DEBUG, "Waiting\t" + waitQueue.size() + "\tExecuting\t" + execQueue.size(), strLong.toString());
+	}
+
+	public LogicalProcessState getState() {
+		LogicalProcessState lpState = new LogicalProcessState(id);
+		for (ActivityManager am : managerList)
+			lpState.add((ActivityManagerState)am.getState());
+		Iterator<Heapable> it = waitQueue.iterator();
+		while(it.hasNext()) {
+			BasicElement.DiscreteEvent ev = (BasicElement.DiscreteEvent)it.next();
+			if (ev instanceof Element.FinalizeActivityEvent) {
+				Element.FinalizeActivityEvent fev = (Element.FinalizeActivityEvent)ev;
+				lpState.add(LogicalProcessState.EventType.FINALIZEACT, fev.getElement().getIdentifier(), fev.getTs(), fev.getFlow().getIdentifier());
+			}
+			else if (ev instanceof Resource.RoleOffEvent) {
+				Resource.RoleOffEvent rev = (Resource.RoleOffEvent)ev;
+				lpState.add(LogicalProcessState.EventType.ROLOFF, rev.getElement().getIdentifier(), rev.getTs(), rev.getRole().getIdentifier());
+			}				
+		}			
+		return lpState;
+	}
+
+	public void setState(LogicalProcessState state) {
+		for (ActivityManagerState amState : state.getAmStates()) {
+			ActivityManager am = new ActivityManager(simul);
+			am.setLp(this);
+			am.setState(amState);
+		}
+		// Creates a null cycle to non-iterative cycles
+		Cycle c = new Cycle(0.0, new Fixed(1), -1.0);
+		for (LogicalProcessState.EventEntry entry : state.getWaitQueue()) {
+			if (entry.getType() == LogicalProcessState.EventType.FINALIZEACT) {
+				Element elem = simul.getActiveElement(entry.getId());
+				// The element has not been started yet, so it hasn't got a default logical process...
+				elem.setDefLP(this);
+				// If the element is not presential, its parent needs a default logical process too.
+				if (elem instanceof NPElement)
+					if (((NPElement)elem).getParent().getDefLP() == null)
+						((NPElement)elem).getParent().setDefLP(this);
+				// ... however, the event starts immediately
+				elem.addEvent(elem.new FinalizeActivityEvent(entry.getTs(), elem.searchSingleFlow(entry.getValue())));
+			}
+			else if (entry.getType() == LogicalProcessState.EventType.ROLOFF) {
+				Resource res = simul.getResourceList().get(new Integer(entry.getId()));				
+				// The resource has not been started yet, so it hasn't got a default logical process
+				res.setDefLP(this);
+				// ... however, the event starts immediately
+				res.addEvent(res.new RoleOffEvent(entry.getTs(), simul.getResourceType(entry.getValue()), c.iterator(0.0, 0.0), 0.0));
+			}
+		}
 	}
 }

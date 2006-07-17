@@ -9,6 +9,10 @@ package es.ull.isaatc.simulation;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import es.ull.isaatc.simulation.state.ActivityManagerState;
+import es.ull.isaatc.simulation.state.ActivityState;
+import es.ull.isaatc.simulation.state.ResourceTypeState;
+import es.ull.isaatc.simulation.state.RecoverableState;
 import es.ull.isaatc.sync.Semaphore;
 import es.ull.isaatc.util.*;
 
@@ -16,7 +20,7 @@ import es.ull.isaatc.util.*;
  * Partition of activities. Manages the access to a set of activities.
  * @author Iván Castilla Rodríguez
  */
-public class ActivityManager extends SimulationObject {
+public class ActivityManager extends SimulationObject implements RecoverableState<ActivityManagerState> {
     /** Static counter for assigning each new id */
 	private static int nextid = 0;
 	/** A prioritized table of activities */
@@ -36,6 +40,7 @@ public class ActivityManager extends SimulationObject {
         sem = new Semaphore(1);
         resourceTypeList = new ArrayList<ResourceType>();
         activityTable = new PrioritizedTable<Activity>();
+        simul.add(this);
     }
 
     /**
@@ -215,15 +220,6 @@ public class ActivityManager extends SimulationObject {
         signalSemaphore();        
     }
     
-    /**
-     * Frees all the activity queues
-     */
-    public void clearActivityQueues() {
-        Iterator<Activity> iter = activityTable.iterator(false);
-        while (iter.hasNext())
-        	iter.next().clearQueue();
-    }
-    
 	public String getObjectTypeIdentifier() {
 		return "AM";
 	}
@@ -245,4 +241,28 @@ public class ActivityManager extends SimulationObject {
             str.append("\t\"" + rt + "\"");
         return str.toString();
 	}
+
+	public ActivityManagerState getState() {
+		ActivityManagerState amState = new ActivityManagerState(id);
+        Iterator<Activity> iter = activityTable.iterator(false);
+        while (iter.hasNext())
+        	amState.add(iter.next().getState());
+        for (ResourceType rt : resourceTypeList)
+        	amState.add(rt.getState());
+		return amState;
+	}
+
+	public void setState(ActivityManagerState state) {
+		for (ActivityState aState : state.getAStates()) {
+			Activity act = simul.getActivity(aState.getActId());
+			act.setManager(this);
+			act.setState(aState);			
+		}
+		for (ResourceTypeState rtState : state.getRtStates()) {
+			ResourceType rt = simul.getResourceType(rtState.getRtId());
+			rt.setManager(this);
+			rt.setState(rtState);
+		}
+	}
+
 }

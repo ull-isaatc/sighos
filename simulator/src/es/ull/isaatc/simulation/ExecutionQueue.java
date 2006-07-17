@@ -48,15 +48,9 @@ public class ExecutionQueue {
 			// del mismo elemento dispare esta condición.
             if (executionQueue.isEmpty()) {
     			// si era el último tiene que notificarlo
+            	// FIXME: Esta comprobación sobra
     			if (!lp.isSimulationEnd()) 
     				lp.unlock();
-            	if(lp.getSimul().getElements() == 0) {
-	            	lp.print(Output.MessageType.DEBUG, "Execution queue freed",
-	            			"TP. MAX:" + tp.getMaxThreads() + "\tINI:" + tp.getInitThreads() 
-	            			+ "\tCREATED:" + tp.getNThreads());
-	            	tp.finish();
-	                lp.getSimul().notifyEnd();
-            	}
             }
 			return(true);
 		}
@@ -88,5 +82,12 @@ public class ExecutionQueue {
      */
     protected synchronized BasicElement.DiscreteEvent getEvent(int ind) {
         return executionQueue.get(ind);
+    }
+    
+    protected void free() {
+    	lp.print(Output.MessageType.DEBUG, "Execution queue freed",
+    			"TP. MAX:" + tp.getMaxThreads() + "\tINI:" + tp.getInitThreads() 
+    			+ "\tCREATED:" + tp.getNThreads());
+    	tp.finish();    	
     }
 }

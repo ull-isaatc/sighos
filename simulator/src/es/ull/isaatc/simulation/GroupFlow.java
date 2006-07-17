@@ -67,12 +67,26 @@ public abstract class GroupFlow extends Flow {
     protected int[] countActivities() {
         int []cont = new int[2];
         cont[0] = cont[1] = 0;
-        for (int i = 0; i < list.size(); i++) {
-            int []contAux = list.get(i).countActivities();
+        for(Flow f : list) {
+            int []contAux = f.countActivities();
             cont[0] += contAux[0];
             cont[1] += contAux[1];
         }
         return cont;
     }
        
+	@Override
+	protected SingleFlow search(int id) {
+		for (Flow f : list) {
+			SingleFlow sf = f.search(id);
+			if (sf != null)
+				return sf;
+		}
+		return null;
+	}
+	
+	@Override
+	protected boolean isFinished() {
+		return (finishedFlows == list.size());
+	}
 }

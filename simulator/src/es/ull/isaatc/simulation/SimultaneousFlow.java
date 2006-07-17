@@ -6,7 +6,10 @@
 
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.simulation.results.PendingFlowStatistics;
+import es.ull.isaatc.simulation.state.FlowState;
+import es.ull.isaatc.simulation.state.SequenceFlowState;
+import es.ull.isaatc.simulation.state.SimultaneousFlowState;
+import es.ull.isaatc.simulation.state.SingleFlowState;
 
 /**
  * Flujo compuesto de un conjunto de flujos que se solicitan simultáneamente.
@@ -49,13 +52,24 @@ public class SimultaneousFlow extends GroupFlow {
             list.get(i).request();
     }       
 
-    public void saveState() {
-    	if (finishedFlows < list.size()) {
-    		elem.getSimul().addStatistic(new PendingFlowStatistics(elem.getIdentifier(), 
-    			PendingFlowStatistics.SIMFLOW, list.size() - finishedFlows));
-	        for (int i = 0; i < list.size(); i++)
-	            list.get(i).saveState();
-    	}
-    }
+	public FlowState getState() {
+		SimultaneousFlowState state = new SimultaneousFlowState(finishedFlows);
+		for(Flow f : list)
+			state.add((FlowState)f.getState());
+		return state;
+	}
 
+	public void setState(FlowState state) {
+		SimultaneousFlowState simState = (SimultaneousFlowState) state;
+		finishedFlows = simState.getFinished();
+		
+		for (FlowState fState : simState.getDescendants()) {
+			Flow f = null;
+			if (fState instanceof SingleFlowState)
+				f = new SingleFlow(this, elem, elem.getSimul().getActivity(((SingleFlowState)fState).getActId()));
+			else if (fState instanceof SequenceFlowState)
+				f = new SequenceFlow(this, elem);
+			f.setState(fState);
+		}
+	}
 }

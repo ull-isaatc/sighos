@@ -4,7 +4,8 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import es.ull.isaatc.random.RandomNumber;
-import es.ull.isaatc.simulation.results.ActivityStatistics;
+import es.ull.isaatc.simulation.state.ActivityState;
+import es.ull.isaatc.simulation.state.RecoverableState;
 import es.ull.isaatc.util.*;
 
 /**
@@ -14,7 +15,7 @@ import es.ull.isaatc.util.*;
  * with this workgroup. 
  * @author Carlos Martín Galán
  */
-public class Activity extends DescSimulationObject implements Prioritizable {
+public class Activity extends DescSimulationObject implements Prioritizable, RecoverableState<ActivityState> {
     /** Priority of the activity */
     protected int priority = 0;
     /** Indicates if the activity is presential (an element carrying out this activity could
@@ -22,7 +23,7 @@ public class Activity extends DescSimulationObject implements Prioritizable {
      * the same time) */
     protected boolean presential = true;
     /** This queue contains the single flows that are waiting for this activity */
-    protected Vector<SingleFlow> elementQueue;
+    protected Vector<SingleFlow> queue;
     /** Activity manager which this activity is associated to */
     protected ActivityManager manager = null;
     /** Work Group Pool */
@@ -62,7 +63,7 @@ public class Activity extends DescSimulationObject implements Prioritizable {
         super(id, simul, description);
         this.priority = priority;
         this.presential = presential;
-        elementQueue = new Vector<SingleFlow>();
+        queue = new Vector<SingleFlow>();
         workGroupTable = new PrioritizedTable<WorkGroup>();
     }
 
@@ -129,9 +130,19 @@ public class Activity extends DescSimulationObject implements Prioritizable {
      * @return The workgroups that can perform this activity.
      */
     public Prioritizable[] getWorkGroupTable() {
-        return (Prioritizable[])workGroupTable.toArray();    	
+        return workGroupTable.toArray();    	
     }
 
+    public WorkGroup getWorkGroup(Integer wgId) {
+        Iterator<WorkGroup> iter = workGroupTable.iterator(false);
+        while (iter.hasNext()) {
+        	WorkGroup opc = iter.next();
+        	if (opc.compareTo(wgId) == 0)
+        		return opc;        	
+        }
+        return null;
+    }
+    
 	/**
      * Checks if this activity can be performed with any of its workgroups.
      * @param e Element trying to carry out the activity 
@@ -159,11 +170,11 @@ public class Activity extends DescSimulationObject implements Prioritizable {
 	 */
     protected boolean hasPendingElements() {
         // Pending list empty
-        if (elementQueue.isEmpty())
+        if (queue.isEmpty())
             return false;
         
         // Checking the first element
-        SingleFlow flow = elementQueue.get(0);
+        SingleFlow flow = queue.get(0);
         Element e = flow.getElement();
         e.waitSemaphore();
         
@@ -176,14 +187,14 @@ public class Activity extends DescSimulationObject implements Prioritizable {
             e.signalSemaphore();
         
         // Continue with the rest of elements
-        for (int i = 1; i < elementQueue.size(); i++) {
-        	flow = elementQueue.get(i);
+        for (int i = 1; i < queue.size(); i++) {
+        	flow = queue.get(i);
             e = flow.getElement();
             e.waitSemaphore();
 			if (e.getCurrentWG() == null) {
 			    // The element is put at the head of the queue
-				flow = elementQueue.remove(i);
-			    elementQueue.add(0, flow);
+				flow = queue.remove(i);
+			    queue.add(0, flow);
 			    return true;
 			}
 			else 
@@ -197,7 +208,7 @@ public class Activity extends DescSimulationObject implements Prioritizable {
      * @param flow Single Flow added
      */
     protected void addElement(SingleFlow flow) {
-        elementQueue.add(flow);
+        queue.add(flow);
     }
     
     /**
@@ -205,7 +216,7 @@ public class Activity extends DescSimulationObject implements Prioritizable {
      * @return The first singler flow of the element queue
      */
     protected SingleFlow removeElement() {
-        return elementQueue.remove(0);
+        return queue.remove(0);
     }
 
     /**
@@ -214,7 +225,7 @@ public class Activity extends DescSimulationObject implements Prioritizable {
      * @return True if the flow belongs to the queue; false in other case.
      */
     protected boolean removeElement(SingleFlow flow) {
-        return elementQueue.remove(flow);
+        return queue.remove(flow);
     }
     
     /**
@@ -223,29 +234,38 @@ public class Activity extends DescSimulationObject implements Prioritizable {
      * @return The element corresponding to the ind position.
      */
     protected Element getElement(int ind) {
-        if (ind < 0 || ind >= elementQueue.size())
+        if (ind < 0 || ind >= queue.size())
             return null;
-        return elementQueue.get(ind).getElement();
+        return queue.get(ind).getElement();
     }
 
-	/**
-	 * Clears the element queue. This method is invoked from the logical process when the
-	 * simulation finishes.
-	 */
-    protected void clearQueue() {
-    	for (SingleFlow sf : elementQueue) {
-            simul.addStatistic(new ActivityStatistics(this.id, sf.getId(), sf.getElement().getIdentifier()));
-            sf.getElement().notifyEndSimulation();
-        }
-        elementQueue.clear();
-    } 
-
+	@Override
 	public String getObjectTypeIdentifier() {
 		return "ACT";
 	}
 
+	@Override
 	public double getTs() {
 		return manager.getTs();
+	}
+
+	/**
+	 * Gets the state of an activity. The state of an activity consists on the queue of single flows.
+	 * If the activity is non presential, the elements and single flows stored are the parent element
+	 * ones.
+	 */
+	public ActivityState getState() {
+		ActivityState state = new ActivityState(id);
+		for (SingleFlow sf : queue)
+			state.add(sf.getIdentifier(), sf.getElement().getIdentifier());
+		return state;
+	}
+
+	public void setState(ActivityState state) {
+		for (ActivityState.ActivityQueueEntry aqe : state.getQueue()) {
+			Element elem = simul.getActiveElement(aqe.getElemId());
+			queue.add(elem.searchSingleFlow(aqe.getFlowId()));
+		}		
 	}
 
 } // fin Actividad

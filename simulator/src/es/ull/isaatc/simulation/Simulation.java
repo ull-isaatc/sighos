@@ -8,11 +8,11 @@ package es.ull.isaatc.simulation;
 
 import java.util.*;
 
-import es.ull.isaatc.simulation.results.ActivityStatistics;
-import es.ull.isaatc.simulation.results.ElementStatistics;
-import es.ull.isaatc.simulation.results.PendingFlowStatistics;
-import es.ull.isaatc.simulation.results.SimulationResults;
-import es.ull.isaatc.simulation.results.StatisticData;
+import es.ull.isaatc.simulation.info.InfoListener;
+import es.ull.isaatc.simulation.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.info.SimulationInfo;
+import es.ull.isaatc.simulation.info.SimulationStartInfo;
+import es.ull.isaatc.simulation.state.*;
 import es.ull.isaatc.sync.Lock;
 import es.ull.isaatc.util.*;
 
@@ -25,11 +25,11 @@ import es.ull.isaatc.util.*;
  * <code>getResults</code> method.  
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation implements Printable, Runnable {
+public abstract class Simulation implements Printable, RecoverableState<SimulationState> {
     /** A brief description of the model. */
     String description;
 	/** List of resources present in the simulation. */
-	protected ArrayList<Resource> resourceList;
+	protected OrderedList<Resource> resourceList;
 	/** List of element generators of the simulation. */
 	protected ArrayList<Generator> generatorList;
 	/** List of activities present in the simulation. */
@@ -46,18 +46,16 @@ public abstract class Simulation implements Printable, Runnable {
     protected double startTs;
     /** Timestamp of Simulation's end */
     protected double endTs;
-    /** Total amount of Elements */
-    protected int elemMeter;
     /** Output for printing messages */
     protected Output out;
-    /** Simulation Results */
-    protected SimulationResults results = null;
     /** End-of-simulation control */
     private Lock simLock;
-    /** Thread for threaded-execution of the simulation */
-    private Thread simThread = null;
 	/** Default element type for non presential elements */
 	private ElementType npElementType;
+	/** List of info listeners */
+	private ArrayList<InfoListener> listeners;
+	/** List of active elements */
+	private OrderedList<Element> activeElementList;
     
     /** Creates a new instance of Simulation */
     public Simulation(String description, double startTs, double endTs, Output out) {
@@ -65,15 +63,18 @@ public abstract class Simulation implements Printable, Runnable {
         resourceTypeList = new OrderedList<ResourceType>();
         elementTypeList = new OrderedList<ElementType>();
         activityManagerList = new ArrayList<ActivityManager>();
+        resourceList = new OrderedList<Resource>();
+        generatorList = new ArrayList<Generator>();
+        
     	this.description = description;
         this.startTs = startTs;
         this.endTs = endTs;
-        this.elemMeter = 0;
         this.out = out;
         npElementType = new ElementType(-1, this, "Non presential element type");
         simLock = new Lock();
-        // MOD 28/03/05 Para poder recuperar una simulación lo hago en el init
-//        this.results = new SimulationResults();
+        // MOD 29/06/06
+        listeners = new ArrayList<InfoListener>();
+        activeElementList = new OrderedList<Element>();
     }
     
     /** Creates a new instance of Simulation */
@@ -81,155 +82,43 @@ public abstract class Simulation implements Printable, Runnable {
     	this(description, startTs, endTs, new Output());
     }
     
-    // MOD 28/03/05 Para poder recuperar una simulación
-    /** Creates a new instance of Simulation which continues a previous simulation. */
-    public Simulation(String description, double endTs, Output out, SimulationResults previous) {
-    	this(description, previous.getSimEnd(), endTs, out);
-        this.results = previous;
-    }
-    
-    // MOD 28/03/05 Para poder recuperar una simulación
-    /** Creates a new instance of Simulation which continues a previous simulation. */
-    public Simulation(String description, double endTs, SimulationResults previous) {
-    	this(description, endTs, new Output(), previous);
-    }
-    
     /**
-     * Simulation initialization. It creates all the neccesary structures.
+     * Simulation initialization. It creates and starts all the necessary structures.
      */
-    protected void init() {
+    protected void init(SimulationState state) {
         createModel();
-        createActivityManagers();
-        createSimulation();
-        // MOD 28/03/05 Para poder recuperar una simulación
-        if (results != null) {
-        	SimulationResults previous = results;
-            this.results = new SimulationResults();
-        	setState(previous);
+        print(Output.MessageType.DEBUG, "SIMULATION MODEL CREATED");
+        if (state == null) {
+	        createActivityManagers();
+	        createSimulation();
         }
-        else
-            this.results = new SimulationResults();
-        results.saveSimulationStructure(this);
+        else {
+        	setState(state);
+            // Elements from a previous simulation don't need to be started, but they need a default LP
+        	for (Element elem : activeElementList)
+        		if (elem.getDefLP() == null)
+        			elem.setDefLP(getDefaultLogicalProcess());
+        }
+        notifyListeners(new SimulationStartInfo(this, System.currentTimeMillis(), Generator.getElemCounter()));
         // FIXME: Debería hacer un reparto más inteligente tanto de generadores como de recursos
-        generatorList = createGenerators();
+//        createGenerators();
         // Starts all the generators
         for (Generator gen : generatorList)
         	gen.start(getDefaultLogicalProcess());
-        resourceList = createResources();
+//        createResources();
         // Starts all the resources
         for (Resource res : resourceList)
             res.start(getDefaultLogicalProcess());
     }
     
-    class FlowStatComparator implements Comparator<PendingFlowStatistics> {
-
-		public int compare(PendingFlowStatistics o1, PendingFlowStatistics o2) {
-			if (o1.getElemId() < o2.getElemId())
-				return -1;
-			if (o1.getElemId() > o2.getElemId())
-				return 1;
-			return 0;
-		}
+    // Listener adapter
+    public void addListener(InfoListener listener) {
+    	listeners.add(listener);
     }
     
-    private void buildElementFlow(Element elem, Flow parent, Iterator itFlow, HashMap<Integer, Flow> sflowMap) {
-		PendingFlowStatistics pFlow = (PendingFlowStatistics)itFlow.next();
-		Flow f = null;
-		switch(pFlow.getType()) {
-			case PendingFlowStatistics.SECFLOW: 
-				f = new SequenceFlow((SimultaneousFlow)parent, elem);
-				for (int i = 0; i < pFlow.getValue(); i++)
-					buildElementFlow(elem, f, itFlow, sflowMap);
-				break;
-			case PendingFlowStatistics.SIMFLOW:
-				f = new SimultaneousFlow((SequenceFlow)parent, elem);
-				for (int i = 0; i < pFlow.getValue(); i++)
-					buildElementFlow(elem, f, itFlow, sflowMap);
-				break;
-			case PendingFlowStatistics.SINFLOW:
-				int flowId = pFlow.getValue();
-				pFlow = (PendingFlowStatistics)itFlow.next();
-				if (pFlow.getType() != PendingFlowStatistics.ACTFLOW)
-					print(Output.MessageType.ERROR, "Expected activity description in pending flow statistics.");
-				Activity act = activityList.get(new Integer(pFlow.getValue()));
-				// FIXME: Qué pasa con las No presenciales?
-				// Respuesta: NO deberían aparecer, puesto que se deberían
-				// haber considerado terminadas => ¿Ocurre esto?
-				f = new SingleFlow((GroupFlow)parent, elem, act);
-				((SingleFlow)f).setId(flowId);
-				sflowMap.put(new Integer(flowId), f);
-				break;
-			default:
-				print(Output.MessageType.ERROR, "Unexpected type in pending flow statistics.");					
-				break;
-		}
-    }
-    /**
-     * Fills up the simulation with data from a previous simulation.
-     * @param previous Previous simulation data
-     */
-    protected void setState(SimulationResults previous) {
-    	ArrayList<ActivityStatistics> actStat = previous.getActivityStatistics();
-    	Collections.sort(previous.getPendingFlowStatistics(), new FlowStatComparator());
-    	Iterator itFlow = previous.getPendingFlowStatistics().iterator();
-    	HashMap<Integer, InterruptedElement> elemMap = new HashMap<Integer, InterruptedElement>();
-    	HashMap<Integer, Flow> sflowMap = new HashMap<Integer, Flow>();
-    	// The pending elements are recovered
-    	while (itFlow.hasNext()) {
-    		PendingFlowStatistics pFlow = (PendingFlowStatistics)itFlow.next();
-    		InterruptedElement elem = new InterruptedElement(pFlow.getElemId(), this, pFlow.getElemType());
-			elemMap.put(new Integer(pFlow.getElemId()), elem);
-			Flow root = null;
-			switch(pFlow.getType()) {
-				case PendingFlowStatistics.SECFLOW: 
-					root = new SequenceFlow(elem);
-					for (int i = 0; i < pFlow.getValue(); i++)
-						buildElementFlow(elem, root, itFlow, sflowMap);
-					break;
-				case PendingFlowStatistics.SIMFLOW:
-					root = new SimultaneousFlow(elem);
-					for (int i = 0; i < pFlow.getValue(); i++)
-						buildElementFlow(elem, root, itFlow, sflowMap);
-					break;
-				case PendingFlowStatistics.SINFLOW:
-					int flowId = pFlow.getValue();
-					pFlow = (PendingFlowStatistics)itFlow.next();
-					if (pFlow.getType() != PendingFlowStatistics.ACTFLOW)
-						print(Output.MessageType.ERROR, "Expected activity description in pending flow statistics.");
-					Activity act = activityList.get(new Integer(pFlow.getValue()));
-					root = new SingleFlow(elem, act);
-					((SingleFlow)root).setId(flowId);
-					sflowMap.put(new Integer(flowId), root);
-					break;
-				default:
-					print(Output.MessageType.ERROR, "Unexpected type in pending flow statistics.");					
-					break;
-			}
-			elem.setFlow(root);
-    	}
-    	// The activity queues are filled
-    	for (int i = 0; i < actStat.size(); i++) {
-    		ActivityStatistics aStat = (ActivityStatistics)actStat.get(i);
-			Activity act = activityList.get(new Integer(aStat.getActId()));
-			Element elem = elemMap.get(new Integer(aStat.getElemId()));
-			SingleFlow sf = (SingleFlow)sflowMap.get(new Integer(aStat.getFlowId()));
-			act.addElement(sf);
-			elem.incRequested(sf);
-			results.add(new ElementStatistics(elem.getIdentifier(), ElementStatistics.REQACT, startTs, act.getIdentifier()));
-    	}
-    	// The elements are started
-    	Iterator<InterruptedElement> it = elemMap.values().iterator();
-    	while (it.hasNext()) {
-    		InterruptedElement elem = it.next();
-    		elem.start(getDefaultLogicalProcess());
-    	}
-    	Integer maxFlowId = Collections.max(sflowMap.keySet());
-    	SingleFlow.setCounter(maxFlowId.intValue() + 1);
-    	// The ids of the new generated elements can't be in the previous simulation  
-    	Generator.setElemCounter(previous.getLastElementId());
-    	// Por si acaso, para el recolector de basura
-    	sflowMap = null;
-    	elemMap = null;
+    public synchronized void notifyListeners(SimulationInfo info) {
+    	for (InfoListener il : listeners)
+    		il.infoEmited(info);
     }
     
     /**
@@ -245,18 +134,6 @@ public abstract class Simulation implements Printable, Runnable {
      */    
     protected abstract void createModel();
 
-    /**
-     * Creates the list of element generators of the simulation.
-     * @return A list of element generators
-     */
-    protected abstract ArrayList<Generator> createGenerators();
-    
-    /**
-     * Creates the list of resources of the simulation. 
-     * @return A list of resources
-     */
-    protected abstract ArrayList<Resource> createResources();
-    
     /**
      * Makes a depth first search on a graph.
      * @param graph Graph to be searched.
@@ -350,12 +227,9 @@ public abstract class Simulation implements Printable, Runnable {
                 nManagers++;
             }
         // The activity managers are created
-        for (int i = 0; i < nManagers; i++) {
-            ActivityManager ga = new ActivityManager(this);
-            activityManagerList.add(ga);
-        }
-        for (int i = 0; i < activityList.size(); i++) {
-            Activity a = activityList.get(i);
+        for (int i = 0; i < nManagers; i++)
+            new ActivityManager(this);
+        for (Activity a : activityList) {
             // This step is for non-resource-types activities
             Prioritizable []wgList = a.getWorkGroupTable();
             // Looks for the first RTT that contains at least one resource type
@@ -370,15 +244,12 @@ public abstract class Simulation implements Printable, Runnable {
             }
             else {
                 ActivityManager ga = new ActivityManager(this);
-                activityManagerList.add(ga);
                 nManagers++;
                 a.setManager(ga);
             }
         }
-        for (int i = 0; i < resourceTypeList.size(); i++) {
-            ActivityManager ga = activityManagerList.get(marks[i]);
-            resourceTypeList.get(i).setManager(ga);
-        }
+        for (int i = 0; i < resourceTypeList.size(); i++)
+            resourceTypeList.get(i).setManager(activityManagerList.get(marks[i]));
 
         debugPrintActManager();
     }
@@ -406,26 +277,18 @@ public abstract class Simulation implements Printable, Runnable {
     /**
      * Starts the simulation execution.
      */    
-	public void run() {
-		init();
-        this.results.setIniT(System.currentTimeMillis());
+	public void start(SimulationState state) {
+		init(state);
         for (int i = 0; i < logicalProcessList.length; i++)
             logicalProcessList[i].start();
         waitEnd();
-        this.results.setEndT(System.currentTimeMillis());
-        this.results.setLastElementId(Generator.getElemCounter());
+        notifyListeners(new SimulationEndInfo(this, System.currentTimeMillis(), Generator.getElemCounter()));
     }
 	
-    /**
-     * Starts the simulation execution by creating a new thread.
-     */    
 	public void start() {
-		if (simThread == null)  {
-			simThread = new Thread(this);
-			simThread.run();
-		}
+		start(null);
 	}
-
+	
     /**
      * Adds an identified object to the model. The allowed id. objects are:
      * {@link Activity}, {@link ResourceType}, {@link ElementType} and
@@ -446,12 +309,24 @@ public abstract class Simulation implements Printable, Runnable {
         	print(Output.MessageType.ERROR, "Trying to add an unidentified object to the Model");
         return resul;
     }
-   
+
+    protected void add(ActivityManager am) {
+    	activityManagerList.add(am);
+    }
+    
+    protected void add(Generator gen) {
+    	generatorList.add(gen);
+    }
+    
+    protected void add(Resource res) {
+    	resourceList.add(res);
+    }
+    
 	/**
      * Returns a list of the resources of the model.
      * @return Resources of the model.
      */ 
-	public ArrayList<Resource> getResourceList() {
+	public OrderedList<Resource> getResourceList() {
 		return resourceList;
 	}
 
@@ -526,21 +401,16 @@ public abstract class Simulation implements Printable, Runnable {
         return logicalProcessList[logicalProcessList.length - 1];
     }
     
-    public synchronized void incElements() {
-        elemMeter++;
+    public synchronized void addActiveElement(Element elem) {
+    	activeElementList.add(elem);
     }
     
-    public synchronized void decElements() {
-        elemMeter--;
-        // There are no more elements
-        if (elemMeter == 0) {
-            for (int i = 0; i < logicalProcessList.length; i++)
-                logicalProcessList[i].unlock();            
-        }
+    public synchronized void removeActiveElement(Element elem) {
+    	activeElementList.remove(elem);
     }
     
-    public synchronized int getElements() {
-        return elemMeter;
+    public Element getActiveElement(int id) {
+    	return activeElementList.get(new Integer(id));
     }
     
     /**
@@ -590,17 +460,60 @@ public abstract class Simulation implements Printable, Runnable {
 		out.print(type, description);
 	}
 
-	public void addStatistic(StatisticData data) {
-		results.add(data);
+	public SimulationState getState() {
+		SimulationState simState = new SimulationState(Generator.getElemCounter(), NPElement.getCounter(), SingleFlow.getCounter(), endTs);
+		for(LogicalProcess lp : logicalProcessList)
+			simState.add(lp.getState());
+		for(Element elem : activeElementList)
+			simState.add(elem.getState());
+		for (Resource res : resourceList)
+			simState.add(res.getState());
+		return simState;
 	}
-
-	/**
-	 * @return Returns the results.
-	 */
-	public SimulationResults getResults() {
-		return results;
+    
+    /**
+     * Fills up the simulation with data from a previous simulation. The model is supposed to be
+     * previously created.
+     * @param state Previous simulation data
+     */
+	public void setState(SimulationState state) {
+		// FIXME: ¿Debería hacer startTs = state.getEndTs()?
+		// Elements. Inverted order to ensure that presential elements are created before the
+		// non-presential ones.
+		for (int i = state.getElemStates().size() - 1; i >= 0; i--) {
+			ElementState eState = state.getElemStates().get(i);
+			Element elem = null;
+			if (eState instanceof NPElementState)
+				elem = new NPElement(eState.getElemId(), activeElementList.get(new Integer(((NPElementState)eState).getParentElemId())));
+			else
+				elem = new Element(eState.getElemId(), this, elementTypeList.get(new Integer(eState.getElemTypeId())));
+    		elem.setState(eState);
+			activeElementList.add(elem);
+		}
+//		for (ElementState eState : state.getElemStates()) {
+//    		Element elem = new Element(eState.getElemId(), this, elementTypeList.get(new Integer(eState.getElemTypeId())));
+//    		elem.setState(eState);
+//			activeElementList.add(elem);
+//		}
+		//NPElements' counter 
+		NPElement.setCounter(state.getLastNPElemId());
+		// Single flow's counter. This value is established here because the set of the state 
+		// of the elements modifies its value. 
+		SingleFlow.setCounter(state.getLastSFId());
+		// Resources
+		for (ResourceState rState : state.getResStates())
+			resourceList.get(new Integer(rState.getResId())).setState(rState);
+		// Rest of components
+		ArrayList<LogicalProcessState> lpStates = state.getLpStates();
+        logicalProcessList = new LogicalProcess[lpStates.size()];
+		for (int i = 0; i < lpStates.size(); i++) {
+	        logicalProcessList[i] = new LogicalProcess(this, startTs, endTs);
+	        logicalProcessList[i].setState(lpStates.get(i));
+		}
+		// Element's counter of the generators
+		Generator.setElemCounter(state.getLastElemId());
 	}
-
+	
 	protected void debugPrintGraph(HashSet []graph) {
 		StringBuffer str = new StringBuffer(); 
         // Pinto el graph para chequeo

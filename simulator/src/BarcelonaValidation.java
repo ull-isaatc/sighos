@@ -1,11 +1,10 @@
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Map;
 
 import es.ull.isaatc.random.*;
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.results.ResultProcessor;
-import es.ull.isaatc.simulation.results.SimulationResults;
+import es.ull.isaatc.simulation.info.StatisticListener;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
 
@@ -70,21 +69,15 @@ class SimBarcelona extends Simulation {
 		for (int i = 0; i < coddiag.length; i++) {
 			acts[i] = new Activity(i, this, "Act" + coddiag[i]);
 			acts[i].getNewWorkGroup(0, new MultRandomNumber(durac[i], new Fixed(1 / 3600.0))).add(rt, 1);
+			new ElementType(i, this, "ET" + coddiag[i]);
 		}
-	}
 
-	@Override
-	protected ArrayList<Resource> createResources() {
+		// Resources
 		Cycle c1 = new Cycle(8, new Fixed(24.0), 5);
 		Cycle c2 = new Cycle(0, new Fixed(24.0 * 7), 0, c1);
-		ArrayList<Resource> sur = new ArrayList<Resource>();
-		sur.add(new Resource(0, this, "Surgery"));
-		sur.get(0).addTimeTableEntry(c2, 7, getResourceType(0));
-		return sur;
-	}
-
-	protected ArrayList<Generator> createGenerators() {
-		ArrayList<Generator> genList = new ArrayList<Generator>();
+		new Resource(0, this, "Surgery").addTimeTableEntry(c2, 7, getResourceType(0));
+		
+		// Generators
 //		Esto es con errores en los periodos => NO VALIDO
 //		double periods[] = {84.03361345, 84.03361345, 182.8153565, 9.20, 54.94505495,
 //				31.34796238, 3.30, 25.5102041, 33.22259136, 7.194244604, 0.77, 45.66210046,
@@ -116,62 +109,57 @@ class SimBarcelona extends Simulation {
 			// PASADO A HORAS
 			Exponential expo = new Exponential(periods[i] * 24.0);
 			Cycle c = new Cycle(expo.samplePositiveDouble(), expo, 0);
-	        genList.add(new ElementGenerator(this, new Fixed(1), c.iterator(startTs, endTs), new SingleMetaFlow(i, new Fixed(1), getActivity(i))));
+	        new ElementGenerator(this, new Fixed(1), c.iterator(startTs, endTs), getElementType(i), new SingleMetaFlow(i, new Fixed(1), getActivity(i)));
 		}
-		return genList;
 	}
 }
 
-class BarcelonaResultProcessor implements ResultProcessor {
-	double period;
+class BarcelonaListener extends StatisticListener {
+	FileWriter fileRes = null;
 
-	BarcelonaResultProcessor(double period) {
-		this.period = period;
-	}
-	
-	public void processStatistics(SimulationResults[] results) {
+	public BarcelonaListener(double period) {
+		super(period);
 		try {
-			FileWriter file = new FileWriter("C:\\res.txt");
-			for (int i = 0; i < results.length; i++) {
-				file.write((results[i].getEndT() - results[i].getIniT()) + "\t" + results[i].createdElements() + "\r\n");
-				file.flush();
-				int[][]queues= results[i].computeQueueSizes(period);
-				for (int j = 0; j < queues[0].length; j++) {
-					for (int k = 0; k < queues.length; k++) {
-						file.write(queues[k][j] + " ");
-						file.flush();
-					}
-					file.write("\r\n");
-					file.flush();
-				}
-				
-//				int []queues = results[i].computeQueueSizes();
-//				for (int j = 0; j < queues.length; j++) {
-//					file.write(queues[j] + "\t");
-//					file.flush();
-//				}
-//				file.write("\r\n");
-			}
-			file.close();
-			file = new FileWriter("C:\\diaryUse.txt");
-			double perUse[][] = new double[results.length][];
-			for (int i = 0; i < results.length; i++)
-				perUse[i] = results[i].periodicUse(24.0);
-			for (int i = 0; i < perUse[0].length; i++) {			
-				for (int j = 0; j < results.length; j++) {
-					file.write(perUse[j][i] + "\t");
-					file.flush();
-				}
-				file.write("\r\n");
-			}			
-			file.close();
+			fileRes = new FileWriter("C:\\res.txt");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-}
 
+	public void showResults() {
+		try {
+			fileRes.write((getEndT() - getIniT()) + "\t" + getNStartedElem() + "\r\n");
+			for (Map.Entry<Integer,int[]> values : getActQueues().entrySet()) {
+				for (int j = 0; j < values.getValue().length; j++) {
+					fileRes.write(values.getValue()[j] + " ");
+					fileRes.flush();
+				}
+				fileRes.write("\r\n");
+				fileRes.flush();
+			}
+			fileRes.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+//		try {
+//			FileWriter file = new FileWriter("C:\\diaryUse.txt");
+//			double perUse[][] = new double[results.length][];
+//			for (int i = 0; i < results.length; i++)
+//				perUse[i] = results[i].periodicUse(24.0);
+//			for (int i = 0; i < perUse[0].length; i++) {			
+//				for (int j = 0; j < results.length; j++) {
+//					file.write(perUse[j][i] + "\t");
+//					file.flush();
+//				}
+//				file.write("\r\n");
+//			}			
+//			file.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+		
+	}
+}
 /**
  * 
  */
@@ -181,11 +169,13 @@ class ExpBarcelona extends Experiment {
 	ExpBarcelona() {
 //		super("Validation HOFT", NEXP, new BarcelonaResultProcessor(360 * 1440.0), new Output(Output.NODEBUG));
 		// PASADO A HORAS
-		super("Validation HOFT", NEXP, new BarcelonaResultProcessor(365 * 24.0), new Output(Output.DebugLevel.NODEBUG));
+		super("Validation HOFT", NEXP);
 	}
 	
 	public Simulation getSimulation(int ind) {
-		return new SimBarcelona(description + ind + "", out);
+		SimBarcelona sim = new SimBarcelona(description + ind + "", new Output(Output.DebugLevel.NODEBUG));
+		sim.addListener(new BarcelonaListener(24 * 365.0));
+		return sim;
 	}
 	
 }
@@ -202,9 +192,6 @@ public class BarcelonaValidation {
 	public static void main(String[] args) {
 		ExpBarcelona exp = new ExpBarcelona();
 		exp.start();
-//		RandomNumber rn = new AddRandomNumber(new Fixed(300), new LogNormal(1220, 1070));
-//		for (int i = 0; i < 100; i++)
-//			System.out.println(rn.sampleDouble());
-	}
+	}
 
 }
