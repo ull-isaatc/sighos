@@ -353,28 +353,6 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
        e.signalConflictSemaphore();
     }
     
-    /**
-     * Releases the resources caught by an element.
-     * @param e The element returning the resources.
-     * @return A list of activity managers affected by the released resources
-     */
-    protected ArrayList<ActivityManager> releaseResources(Element e) {
-        ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
-        ArrayList <Resource>resourceList = e.getCaughtResources();
-        for (Resource res : resourceList) {
-        	print(Output.MessageType.DEBUG, "Returned " + res);
-        	// The resource is freed
-        	if (res.releaseResource()) {
-        		// The activity managers involved are included in the list
-        		ArrayList<ActivityManager> auxList = res.getCurrentManagers();
-        		for (int j = 0; j < auxList.size(); j++)
-        			if (!amList.contains(auxList.get(j)))
-        				amList.add(auxList.get(j));
-        	}
-        }
-        return amList;
-    }
-
     public String toString() {
     	return new String("(" + act + ")" + super.toString());
     }

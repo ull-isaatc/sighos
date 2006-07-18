@@ -80,6 +80,27 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	protected void addCaughtResource(Resource res) {
 		caughtResources.add(res);
 	}
+
+    /**
+     * Releases the resources caught by an element.
+     * @return A list of activity managers affected by the released resources
+     */
+    protected ArrayList<ActivityManager> releaseResources() {
+        ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
+        for (Resource res : caughtResources) {
+        	print(Output.MessageType.DEBUG, "Returned " + res);
+        	// The resource is freed
+        	if (res.releaseResource()) {
+        		// The activity managers involved are included in the list
+        		ArrayList<ActivityManager> auxList = res.getCurrentManagers();
+        		for (int j = 0; j < auxList.size(); j++)
+        			if (!amList.contains(auxList.get(j)))
+        				amList.add(auxList.get(j));
+        	}
+        }
+        caughtResources.clear();
+        return amList;
+    }
 	
 	/**
      * Returns the activity flow of this element.

@@ -188,7 +188,7 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
 	 */
     protected void finalizeActivity(Element e) {
         waitSemaphore();
-        ArrayList<ActivityManager> amList = e.getCurrentWG().releaseResources(e); 
+        ArrayList<ActivityManager> amList = e.releaseResources(); 
         e.setCurrentWG(null);
         signalSemaphore();
         for (ActivityManager am : amList) 
