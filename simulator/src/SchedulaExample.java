@@ -23,6 +23,10 @@ class SimSchedula extends Simulation {
 		super("Schedula example", startTs, endTs, out);
 	}
 	
+	SimSchedula(double startTs, double endTs) {
+		super("Schedula example", startTs, endTs);
+	}
+	
 	@Override
 	protected void createModel() {
 		// Workstations and shared resources
@@ -93,9 +97,10 @@ class SimSchedula extends Simulation {
 
 		// Resources
 		Cycle c1 = new Cycle(510.0, new Fixed(1440.0), 0);
+		int count = 0;
 		for (int i = 0; i < NRES_ACT.length; i++)
 			for (int j = 0; j < NRES_ACT[i]; j++) 
-				new Resource(j, this, RESNAME[i] + j).addTimeTableEntry(c1, 630.0, getResourceType(i));
+				new Resource(count++, this, RESNAME[i] + j).addTimeTableEntry(c1, 630.0, getResourceType(i));
 
 		// Meta flows
 		int countMeta = 0;
@@ -125,7 +130,6 @@ class SimSchedula extends Simulation {
 		c[0] = new Cycle(750.0, new Fixed(1440.0), 0);
 		c[1] = new Cycle(510.0, new Fixed(1440.0), 0);
 		c[2] = new Cycle(510.0, new Fixed(1440.0), 0);
-		//FIXME: crear un método en simulation para obtener un element type a partir de su id 
 		for (int i = 0; i < NELEM.length; i++)
 			new ElementGenerator(this, new Fixed(NELEM[i]), c[i].iterator(startTs, endTs), getElementType(i), sec[i]);
 	}
@@ -142,7 +146,7 @@ class ExpSchedula extends Experiment {
 	
 	@Override
 	public Simulation getSimulation(int ind) {
-		SimSchedula sim = new SimSchedula(0.0, 24 * 60.0 * NDAYS, new Output(Output.DebugLevel.NODEBUG));
+		SimSchedula sim = new SimSchedula(0.0, 24 * 60.0 * NDAYS);
 		sim.addListener(new StdInfoListener());
 		sim.addListener(new StatisticListener(1440.0));
 		return sim;

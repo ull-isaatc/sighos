@@ -6,9 +6,6 @@
 
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.random.RandomNumber;
-import es.ull.isaatc.util.CycleIterator;
-
 /**
  * Creates elements cyclically. The element generator is controlled by a 
  * CycleIterator. Each cycle iteration the generator creates elements.
@@ -19,21 +16,14 @@ public abstract class Generator extends BasicElement {
 	protected static int elemCounter = 0;
     /** Generator's counter */
     private static int counter = 0;
-    /** Cycle that controls the generation of elements. */
-    protected CycleIterator cycleIter;
-	/** Number of objects created per cycle iteration */
-	protected RandomNumber nElem;
     
     /**
      * Creates an element generator. 
      * @param simul Simulation object.
      * @param nElem Number of objects created per cycle iteration.
-     * @param cycleIter Control of the generation cycle.
      */
-    public Generator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter) {
+    public Generator(Simulation simul) {
         super(counter++, simul);
-        this.cycleIter = cycleIter;
-        this.nElem = nElem;
         simul.add(this);
     }
     
@@ -41,6 +31,13 @@ public abstract class Generator extends BasicElement {
      * Create the elements. This method is invoked each generation cycle  
      */
     public abstract void createElements();
+
+    /**
+     * Returns the next timestamp when elements have to be generated. 
+     * @return The next timestamp to generate elements. NaN if this generator
+     * don't have to create more elements.
+     */
+    public abstract double nextTs();
     
     /**
      * Returns the current element counter.
@@ -63,7 +60,7 @@ public abstract class Generator extends BasicElement {
     
 	@Override
     protected void init() {
-    	double newTs = cycleIter.next();
+    	double newTs = nextTs();
     	if (Double.isNaN(newTs))
             notifyEnd();
         else {
@@ -100,8 +97,8 @@ public abstract class Generator extends BasicElement {
          * it checks the following event.
          */
         public void event() {
-            double newTs = cycleIter.next();
         	createElements();
+            double newTs = nextTs();
             if (Double.isNaN(newTs))
                 notifyEnd();
             else {

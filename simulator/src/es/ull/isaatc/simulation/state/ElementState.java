@@ -3,8 +3,6 @@
  */
 package es.ull.isaatc.simulation.state;
 
-import java.util.ArrayList;
-
 /**
  * @author Iván Castilla Rodríguez
  *
@@ -20,31 +18,34 @@ public class ElementState implements State {
     ones (requested[1]) */
 	protected int[][]requested;
 	// If the element is currently performing an activity
-	protected int currentActId = -1;
-	protected int currentWGId = -1;
-	protected ArrayList<Integer> caughtResources = null;
+	protected int currentSFId = -1;
 	
 	/**
+	 * 
 	 * @param elemId
 	 * @param elemTypeId
-	 * @param currentActId
-	 * @param currentWGId
+	 * @param fState
+	 * @param pending
+	 * @param requested
+	 * @param currentSFId
 	 */
-	public ElementState(int elemId, int elemTypeId, FlowState fState, int currentActId, int currentWGId, int []pending, int[][]requested) {
+	public ElementState(int elemId, int elemTypeId, FlowState fState, int []pending, int[][]requested, int currentSFId) {
 		this.elemId = elemId;
 		this.elemTypeId = elemTypeId;
 		this.flowState = fState;
-		this.currentActId = currentActId;
-		this.currentWGId = currentWGId;
+		this.currentSFId = currentSFId;
 		this.pending = pending;
 		this.requested = requested;
-		caughtResources = new ArrayList<Integer>();
 	}
 	
 	
 	/**
+	 * 
 	 * @param elemId
 	 * @param elemTypeId
+	 * @param fState
+	 * @param pending
+	 * @param requested
 	 */
 	public ElementState(int elemId, int elemTypeId, FlowState fState, int []pending, int[][]requested) {
 		this.elemId = elemId;
@@ -54,34 +55,12 @@ public class ElementState implements State {
 		this.requested = requested;
 	}
 	
-	public void add(int resId) {
-		caughtResources.add(resId);
-	}
-
-
 	/**
-	 * @return Returns the caughtResources.
+	 * @return Returns the currentSFId.
 	 */
-	public ArrayList<Integer> getCaughtResources() {
-		return caughtResources;
+	public int getCurrentSFId() {
+		return currentSFId;
 	}
-
-
-	/**
-	 * @return Returns the currentActId.
-	 */
-	public int getCurrentActId() {
-		return currentActId;
-	}
-
-
-	/**
-	 * @return Returns the currentWGId.
-	 */
-	public int getCurrentWGId() {
-		return currentWGId;
-	}
-
 
 	/**
 	 * @return Returns the elemId.
@@ -125,11 +104,8 @@ public class ElementState implements State {
 	public String toString() {
 		StringBuffer str = new StringBuffer("E" + elemId + "(" + elemTypeId + ")\r\n");
 		str.append("\tFLOW: " + flowState.toString() + "\r\n");
-		if (currentWGId != -1) {
-			str.append("Current A" + currentActId + " (WG" + currentWGId + "):");
-			for (Integer rtId : caughtResources)
-				str.append(" " + rtId);
-		}
+		if (currentSFId != -1)
+			str.append("Current SF" + currentSFId);
 		str.append("\r\n" + pending);
 		str.append("\r\n" + requested);
 		return str.toString();

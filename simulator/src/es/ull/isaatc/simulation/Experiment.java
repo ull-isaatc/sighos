@@ -10,34 +10,38 @@ import es.ull.isaatc.simulation.state.*;
  * @author Iván Castilla Rodríguez
  */
 public abstract class Experiment {
+	/** Experiment's description */
 	protected String description;
+	/** Number of experiments to carry out */
 	protected int nExperiments;
+	/** The class which process the states of each simulation */
 	protected StateProcessor processor;
+	/** A state previously stored */
+	protected SimulationState previousState = null;
 
 
 	/**
 	 * Default constructor
-	 *
 	 */
 	public Experiment() {		
 	}
 	
 	/**
 	 * @param description
-	 * @param experiments
+	 * @param nExperiments
 	 */
-	public Experiment(String description, int experiments) {
-		this(description, experiments, new NullStateProcessor());
+	public Experiment(String description, int nExperiments) {
+		this(description, nExperiments, new NullStateProcessor());
 	}
 	
 	/**
 	 * @param description
-	 * @param experiments
+	 * @param nExperiments
 	 * @param processor
 	 */
-	public Experiment(String description, int experiments, StateProcessor processor) {
+	public Experiment(String description, int nExperiments, StateProcessor processor) {
 		this.description = description;
-		nExperiments = experiments;
+		this.nExperiments = nExperiments;
 		this.processor = processor;
 	}
 	
@@ -51,7 +55,8 @@ public abstract class Experiment {
 	public void start() {
 		for (int i = 0; i < nExperiments; i++) {
 			Simulation sim = getSimulation(i);
-			sim.start();
+			if (previousState != null)
+				sim.start(previousState);
 			processor.process((SimulationState)sim.getState());
 		}
 	}
@@ -89,6 +94,13 @@ public abstract class Experiment {
 	 */
 	public void setProcessor(StateProcessor processor) {
 		this.processor = processor;
+	}
+
+	/**
+	 * @param previousState The previousState to set.
+	 */
+	public void setPreviousState(SimulationState previousState) {
+		this.previousState = previousState;
 	}
 
 }

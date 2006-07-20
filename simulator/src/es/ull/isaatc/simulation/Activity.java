@@ -24,7 +24,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
     protected boolean presential = true;
     /** This queue contains the single flows that are waiting for this activity */
     protected Vector<SingleFlow> queue;
-    /** Activity manager which this activity is associated to */
+    /** Activity manager which this activity belongs to */
     protected ActivityManager manager = null;
     /** Work Group Pool */
     protected PrioritizedTable<WorkGroup> workGroupTable;
@@ -49,6 +49,17 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      */
     public Activity(int id, Simulation simul, String description, int priority) {
         this(id, simul, description, priority, true);
+    }
+    
+    /**
+     * Creates a new activity.
+     * @param id Activity's identifier.
+     * @param simul Simulation which this activity is attached to.
+     * @param description Activity's description
+     * @param presential Indicates if the activity requires the presence of an element to be carried out. 
+     */
+    public Activity(int id, Simulation simul, String description, boolean presential) {
+        this(id, simul, description, 0, presential);
     }
     
     /**
@@ -133,6 +144,11 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
         return workGroupTable.toArray();    	
     }
 
+    /**
+     * Searches and returns a workgroup with the specified id.
+     * @param wgId The id of the workgroup searched
+     * @return A workgroup contained in this activity with the specified id
+     */
     public WorkGroup getWorkGroup(Integer wgId) {
         Iterator<WorkGroup> iter = workGroupTable.iterator(false);
         while (iter.hasNext()) {
@@ -145,16 +161,18 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
     
 	/**
      * Checks if this activity can be performed with any of its workgroups.
-     * @param e Element trying to carry out the activity 
+     * @param sf Single flow which contains the activity 
      * @return "True" if the activity is feasible, "false" in other case.
      */
-    protected boolean isFeasible(Element e) {
+    protected boolean isFeasible(SingleFlow sf) {
     	// FIXME Debería ser aleatorio
         Iterator<WorkGroup> iter = workGroupTable.iterator(false);
         while (iter.hasNext()) {
         	WorkGroup opc = iter.next();
-            if (opc.isFeasible(e)) {
-                e.setCurrentWG(opc);
+            if (opc.isFeasible(sf)) {
+                sf.setCurrentWG(opc);
+                if (isPresential())
+                	sf.getElement().setCurrentSF(sf);
                 return true;
             }            
         }
@@ -181,7 +199,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
         // MOD 26/01/06 Añadido
         e.setTs(getTs());
 
-        if (e.getCurrentWG() == null)
+        if ((e.getCurrentSF() == null) || !presential)
             return true;
         else 
             e.signalSemaphore();
@@ -191,7 +209,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
         	flow = queue.get(i);
             e = flow.getElement();
             e.waitSemaphore();
-			if (e.getCurrentWG() == null) {
+			if (e.getCurrentSF() == null) {
 			    // The element is put at the head of the queue
 				flow = queue.remove(i);
 			    queue.add(0, flow);
@@ -207,7 +225,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * Add a single flow to the element queue.
      * @param flow Single Flow added
      */
-    protected void addElement(SingleFlow flow) {
+    protected void queueAdd(SingleFlow flow) {
         queue.add(flow);
     }
     
@@ -215,7 +233,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * Remove the first single flow from the element queue.
      * @return The first singler flow of the element queue
      */
-    protected SingleFlow removeElement() {
+    protected SingleFlow queueRemove() {
         return queue.remove(0);
     }
 
@@ -224,7 +242,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * @param flow Single flow that must be removed from the element queue.
      * @return True if the flow belongs to the queue; false in other case.
      */
-    protected boolean removeElement(SingleFlow flow) {
+    protected boolean queueRemove(SingleFlow flow) {
         return queue.remove(flow);
     }
     
@@ -233,10 +251,8 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * @param ind Element's index
      * @return The element corresponding to the ind position.
      */
-    protected Element getElement(int ind) {
-        if (ind < 0 || ind >= queue.size())
-            return null;
-        return queue.get(ind).getElement();
+    protected SingleFlow queueGet(int ind) {
+        return queue.get(ind);
     }
 
 	@Override

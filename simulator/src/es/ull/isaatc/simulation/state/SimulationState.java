@@ -14,7 +14,6 @@ public class SimulationState implements State {
 	protected ArrayList<ElementState> elemStates;
 	protected ArrayList<ResourceState> resStates;
 	protected int lastElemId;
-	protected int lastNPElemId;
 	protected int lastSFId;
 	protected double endTs;
 	
@@ -24,12 +23,11 @@ public class SimulationState implements State {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public SimulationState(int lastElemId, int lastNPElemId, int lastSFId, double endTs) {
+	public SimulationState(int lastElemId, int lastSFId, double endTs) {
 		lpStates = new ArrayList<LogicalProcessState>();
 		elemStates = new ArrayList<ElementState>();
 		resStates = new ArrayList<ResourceState>();
 		this.lastElemId = lastElemId;
-		this.lastNPElemId = lastNPElemId;
 		this.lastSFId = lastSFId;
 		this.endTs = endTs;
 	}
@@ -72,13 +70,6 @@ public class SimulationState implements State {
 	 */
 	public int getLastElemId() {
 		return lastElemId;
-	}
-
-	/**
-	 * @return Returns the lastNPElemId.
-	 */
-	public int getLastNPElemId() {
-		return lastNPElemId;
 	}
 
 	/**

@@ -23,6 +23,7 @@ public class StatisticListener implements InfoListener {
 	private int nStartedElem;
 	private HashMap<Integer, Integer> nElemXType = new HashMap<Integer, Integer>();
 	private HashMap<Integer, int[]> actQueues = new HashMap<Integer, int[]>();
+	private HashMap<Integer, double[]> actUsage = new HashMap<Integer, double[]>();
 	private double period = 1.0;
 	private int currentPeriod = 0;
 	private int nPeriods;
@@ -53,6 +54,13 @@ public class StatisticListener implements InfoListener {
 	 */
 	public HashMap<Integer, int[]> getActQueues() {
 		return actQueues;
+	}
+
+	/**
+	 * @return Returns the actUsage.
+	 */
+	public HashMap<Integer, double[]> getActUsage() {
+		return actUsage;
 	}
 
 	/**
@@ -172,10 +180,16 @@ public class StatisticListener implements InfoListener {
 				break;
 			case STAACT:
 				actQueues.get(info.getValue())[currentPeriod]--;
+				// There's no control over unbalanced starts and ends 
+				actUsage.get(info.getValue())[currentPeriod] -= info.getTs();
+				break;
+			case ENDACT:
+				// There's no control over unbalanced starts and ends 
+				actUsage.get(info.getValue())[currentPeriod] += info.getTs();
 				break;
 		}
 	}
-	
+
 	private void saveSimulationStructure(Simulation simul) {
 		simStart = simul.getStartTs();
 		simEnd = simul.getEndTs();
@@ -202,8 +216,10 @@ public class StatisticListener implements InfoListener {
 			nPeriods = (int)auxPeriods + 1;
 		else
 			nPeriods = (int)auxPeriods;
-		for (int i = 0; i < actIds.length; i++)			
+		for (int i = 0; i < actIds.length; i++) {			
 			actQueues.put(new Integer(actIds[i][0]), new int[nPeriods]);
+			actUsage.put(new Integer(actIds[i][0]), new double[nPeriods]);
+		}
 		// Fills the resource type list
 		OrderedList<ResourceType> rtList = simul.getResourceTypeList();
 		rtIds = new int[rtList.size()][2];
@@ -222,6 +238,13 @@ public class StatisticListener implements InfoListener {
 			System.out.println("[T" + et + "]\t" + nElemXType.get(et));		
 		System.out.println("Activity Queues(PERIOD: " + period + ")");
 		for (Map.Entry<Integer,int[]> values : actQueues.entrySet()) {
+			System.out.print("A" + values.getKey() + ":");
+			for (int j = 0; j < values.getValue().length; j++)
+				System.out.print("\t" + values.getValue()[j]);
+			System.out.println("");
+		}
+		System.out.println("Activity Usage(PERIOD: " + period + ")");
+		for (Map.Entry<Integer,double[]> values : actUsage.entrySet()) {
 			System.out.print("A" + values.getKey() + ":");
 			for (int j = 0; j < values.getValue().length; j++)
 				System.out.print("\t" + values.getValue()[j]);

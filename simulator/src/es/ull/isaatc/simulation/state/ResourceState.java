@@ -15,6 +15,7 @@ public class ResourceState implements State {
 	protected int validTTEs;
 	protected ArrayList<Integer> currentRoles;
 	// If the resource is currently being used by an element
+	protected int currentSFId = -1;
 	protected int currentElemId = -1;
 	protected int currentRTId = -1;
 	protected boolean timeOut = false;
@@ -25,8 +26,9 @@ public class ResourceState implements State {
 	 * @param currentRTId
 	 * @param timeOut
 	 */
-	public ResourceState(int resId, int validTTEs, int currentElemId, int currentRTId, boolean timeOut) {
+	public ResourceState(int resId, int validTTEs, int currentSFId, int currentElemId, int currentRTId, boolean timeOut) {
 		this.resId = resId;
+		this.currentSFId = currentSFId;
 		this.currentElemId = currentElemId;
 		this.currentRTId = currentRTId;
 		this.timeOut = timeOut;
@@ -45,6 +47,13 @@ public class ResourceState implements State {
 	public void add(int rtId) {
 		currentRoles.add(rtId);
 	}
+	/**
+	 * @return Returns the currentSFId.
+	 */
+	public int getCurrentSFId() {
+		return currentSFId;
+	}
+
 	/**
 	 * @return Returns the currentElemId.
 	 */

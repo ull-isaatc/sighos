@@ -6,6 +6,8 @@
 
 package es.ull.isaatc.simulation;
 
+import java.util.ArrayList;
+
 import es.ull.isaatc.simulation.state.RecoverableState;
 import es.ull.isaatc.simulation.state.FlowState;
 
@@ -69,14 +71,15 @@ public abstract class Flow implements RecoverableState<FlowState> {
     }
     
     /**
-     * Permite solicitar el flujo actual para su ejecución.
+     * Returns the single flows that can be requested.
      */    
-    protected abstract void request();
+    protected abstract ArrayList<SingleFlow> request();
     
     /**
-     * Permite concluir la ejecución del flujo actual
+     * Finishes the flow execution and returns a list of single flows that have
+     * to be executed after this flow is finished.
      */    
-    protected abstract void finish();
+    protected abstract ArrayList<SingleFlow> finish();
 
     /**
      * Devuelve el número de actividades que contiene el flujo actual. El valor 

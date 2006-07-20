@@ -17,17 +17,17 @@ import es.ull.isaatc.util.OrderedList;
  */
 public class ConflictZone {
 	/** List of  elements which have a conflict. */
-	protected OrderedList<Element> list;
+	protected OrderedList<SingleFlow> list;
 	/** Stack of semaphores which control a MUTEX region. */
 	protected ArrayList<Semaphore> semStack;
 	/** A semaphore for accesing this zone. */
 	private Semaphore semBook;
 	
-	public ConflictZone(Element e) {
+	public ConflictZone(SingleFlow sf) {
 		semBook = new Semaphore(1);
-		list = new OrderedList<Element>();
+		list = new OrderedList<SingleFlow>();
 		semStack = new ArrayList<Semaphore>();
-		list.add(e);
+		list.add(sf);
 	}
 	
 	/**
@@ -45,8 +45,8 @@ public class ConflictZone {
 		list.addAll(other.list);
 		semStack.addAll(other.semStack);
 		// Updates the conflict lists of any implied element
-		for (int i = 0; i < other.size(); i++)
-			other.list.get(i).setConflictZone(this);
+		for (SingleFlow sf : other.list)
+			sf.setConflictZone(this);
 		otherSem.signalSemaphore();
 		semBook.signalSemaphore();
 	}
@@ -55,9 +55,9 @@ public class ConflictZone {
 		return list.size();
 	}
 	
-	public boolean remove(Element e) {
+	public boolean remove(SingleFlow sf) {
 		semBook.waitSemaphore();		
-		boolean result = list.remove(e);
+		boolean result = list.remove(sf);
 		semBook.signalSemaphore();
 		return result;
 	}

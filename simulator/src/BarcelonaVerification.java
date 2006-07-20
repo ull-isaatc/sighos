@@ -3,35 +3,48 @@
  */
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Map;
 
 import es.ull.isaatc.random.*;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.info.StatisticListener;
+import es.ull.isaatc.simulation.info.StdInfoListener;
+import es.ull.isaatc.simulation.state.SimulationState;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
 
-class SimActProcessor implements ResultProcessor {
-
-	public void processStatistics(SimulationResults[] results) {
+class SimActListener extends StatisticListener {
+	int nTests = 0;
+	int maxTests;
+	FileWriter file;
+	
+	SimActListener(double period, int maxTests) {
+		super(period);
 		try {
-			FileWriter file = new FileWriter("C:\\ValSimact.txt");
-			for (int i = 0; i < results.length; i++) {
-				int queues[] = results[i].computeQueueSizes();
-				for (int j = 0; j < queues.length; j++) {
-					file.write(queues[j] + " ");
-					file.flush();
-				}
-				file.write("\r\n");
-				file.flush();
-			}
-			file.close();
+			file = new FileWriter("C:\\VerSimact.txt");
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		
+		}						
+		this.maxTests = maxTests;
 	}
 	
+	public void showResults() {
+		try {
+			for (Map.Entry<Integer,int[]> values : getActQueues().entrySet())
+				for (int j = 0; j < values.getValue().length; j++) {
+					file.write(values.getValue()[j] + " ");
+					file.flush();
+				}
+			file.write("\r\n");
+			file.flush();
+			if (++nTests == maxTests)
+				file.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}						
+	}
 }
+
 class SimSimAct extends Simulation {
 	static final int NPACDAY = 5;
 	static final double START = 0.0;
@@ -40,8 +53,8 @@ class SimSimAct extends Simulation {
 	static final int NRES = 1;
 	int ndays;
 
-	SimSimAct(String description, int ndays, Output out) {
-		super(description, START, 24 * 60.0 * ndays, out);
+	SimSimAct(String description, int ndays) {
+		super(description, START, 24 * 60.0 * ndays);
 		this.ndays = ndays;
 	}
 	
@@ -56,87 +69,21 @@ class SimSimAct extends Simulation {
 		wg1.add(rt3, 1);
 		WorkGroup wg2 = act2.getNewWorkGroup(0, new Fixed(100.0));
 		wg2.add(rt3, 1);
-	}
 
-	protected ArrayList<Generator> createGenerators() {
-        SimultaneousMetaFlow sim = new SimultaneousMetaFlow(0, new Fixed(1));
-        new SingleMetaFlow(2, sim, new Fixed(1), getActivity(1));
-        new SingleMetaFlow(1, sim, new Fixed(1), getActivity(0));
-        new SingleMetaFlow(3, sim, new Fixed(1), getActivity(2));
-        Cycle c = new Cycle(0.0, new Fixed(1440.0), 0);
-        ArrayList<Generator> genList = new ArrayList<Generator>();
-        genList.add(new ElementGenerator(this, new Fixed(NPACDAY), c.iterator(startTs, endTs), sim));
-        return genList;
-	}
-
-	@Override
-	protected ArrayList<Resource> createResources() {
-		ArrayList<Resource> list = new ArrayList<Resource>();
 		Cycle c = new Cycle(START_REC, new Fixed(1440), 0);
 		for (int i = 0; i < NRES; i++) {
 			Resource room = new Resource(i, this, "Room" + i);
 			room.addTimeTableEntry(c, DURAC_REC, getResourceType(3));
-			list.add(room);
 		}
-		return list;
-	}
-	
-}
-
-class SimPoolActResultProcessor implements ResultProcessor {
-	protected double period;
-
-	/**
-	 * @param period
-	 */
-	public SimPoolActResultProcessor(double period) {
-		this.period = period;
-	}
-
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.results.ResultProcessor#processStatistics()
-	 */
-	public void processStatistics(SimulationResults []results) {
-		for (int i = 0; i < results.length; i++) {
-			processSimulationTimeStatistics(results[i]);
-			processElementStatistics(results[i]);
-			processActivityStatistics(results[i], period);
-		}
-	}
-
-	public static void processSimulationTimeStatistics(SimulationResults res) {
-		System.out.println("INICIO SIMULACIÓN:\t" + res.getSimStart());
-		System.out.println("FIN SIMULACIÓN:\t" + res.getSimEnd());
-		System.out.println("FIN REAL SIMULACIÓN:\t" + res.getSimRealEnd());
-		System.out.println("TIEMPO EJECUCIÓN SIMULACIÓN:\t" + (res.getEndT() - res.getIniT()));		
-	}
-
-	public static void processElementStatistics(SimulationResults res) {
-		System.out.println("Element Statistics");
-		System.out.println("Created: " + res.createdElements());
-		for (int i = 0; i < res.getElementStatistics().size(); i++) {
-			ElementStatistics es = (ElementStatistics) res.getElementStatistics().get(i);
-			if (es.getType() == ElementStatistics.STAACT) {
-				System.out.println("[" + es.getElemId() + "]\t" + es.getTs() + "\tSTARTS ACTIVITY\t" + es.getValue());
-			}
-			else if (es.getType() == ElementStatistics.ENDACT) {
-				System.out.println("[" + es.getElemId() + "]\t" + es.getTs() + "\tENDS ACTIVITY\t" + es.getValue());
-			}
-		}
-	}
-
-	public static void processActivityStatistics(SimulationResults res, double period) {
-		System.out.println("Activity Queues(PERIOD: " + period + ")");
-		int[][]queues= res.computeQueueSizes(period);
-		for (int i = 0; i < queues.length; i++) {
-			System.out.print("A" + res.getActIds()[i][0] + ":");
-			for (int j = 0; j < queues[i].length; j++) {
-				System.out.print("\t" + queues[i][j]);
-			}
-			System.out.println("");
-		}
-	}
-
+		
+		new ElementType(0, this, "PATIENT");
+        SimultaneousMetaFlow sim = new SimultaneousMetaFlow(0, new Fixed(1));
+        new SingleMetaFlow(2, sim, new Fixed(1), getActivity(1));
+        new SingleMetaFlow(1, sim, new Fixed(1), getActivity(0));
+        new SingleMetaFlow(3, sim, new Fixed(1), getActivity(2));
+        Cycle c1 = new Cycle(0.0, new Fixed(1440.0), 0);
+        new ElementGenerator(this, new Fixed(NPACDAY), c1.iterator(startTs, endTs), getElementType(0), sim);
+	}	
 }
 
 /**
@@ -151,8 +98,8 @@ class SimPoolAct extends Simulation {
 	static final int DURAC_REC = 799;
 	int ndays;
 
-	SimPoolAct(String description, int ndays, Output out) {
-		super(description, START, 24 * 60.0 * ndays, out);
+	SimPoolAct(String description, int ndays) {
+		super(description, START, 24 * 60.0 * ndays);
 		this.ndays = ndays;
 	}
 	
@@ -164,25 +111,14 @@ class SimPoolAct extends Simulation {
 		act0.getNewWorkGroup(0, new Fixed(100.0)).add(rt0, 1);
 		act1.getNewWorkGroup(0, new Fixed(100.0)).add(rt0, 1);
 		act2.getNewWorkGroup(0, new Fixed(100.0)).add(rt0, 1);
-	}
 
-	protected ArrayList<Generator> createGenerators() {        
-        Cycle c = new Cycle(0.0, new Fixed(1440.0), 0);
-		ArrayList<Generator> genList = new ArrayList<Generator>();
-		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), c.iterator(startTs, endTs), new SingleMetaFlow(3, new Fixed(1), getActivity(2))));
-		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), c.iterator(startTs, endTs), new SingleMetaFlow(1, new Fixed(1), getActivity(0))));
-		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), c.iterator(startTs, endTs), new SingleMetaFlow(2, new Fixed(1), getActivity(1))));
-		return genList;
-	}
-
-	@Override
-	protected ArrayList<Resource> createResources() {
 		Cycle c = new Cycle(100, new Fixed(1440), 0);
-		Resource nurse1 = new Resource(0, this, "Nurse 1");
-		nurse1.addTimeTableEntry(c, DURAC_REC, getResourceType(0));
-		ArrayList<Resource> list = new ArrayList<Resource>();
-		list.add(nurse1);
-		return list;
+		new Resource(0, this, "Nurse 1").addTimeTableEntry(c, DURAC_REC, getResourceType(0));
+
+		Cycle c1 = new Cycle(0.0, new Fixed(1440.0), 0);
+		new ElementGenerator(this, new Fixed(NPACDAY), c1.iterator(startTs, endTs), new ElementType(2, this, "PAT2"), new SingleMetaFlow(3, new Fixed(1), getActivity(2)));
+		new ElementGenerator(this, new Fixed(NPACDAY), c1.iterator(startTs, endTs), new ElementType(0, this, "PAT0"), new SingleMetaFlow(1, new Fixed(1), getActivity(0)));
+		new ElementGenerator(this, new Fixed(NPACDAY), c1.iterator(startTs, endTs), new ElementType(1, this, "PAT1"), new SingleMetaFlow(2, new Fixed(1), getActivity(1)));
 	}
 }
 
@@ -192,13 +128,8 @@ class SimContinue extends Simulation {
     int ndays;
     
     SimContinue(String description, double startTs, int ndays, Output out) {
-		super(description, startTs, ndays * 24 * 60.0, out);
+		super(description, startTs, startTs + ndays * 24 * 60.0, out);
 		this.ndays = ndays;
-    }
-    
-    SimContinue(String description, int lastday, Output out, SimulationResults res) {
-		super(description, lastday * 24 * 60.0, out, res);
-		this.ndays = lastday;
     }
     
 	protected void createModel() {
@@ -222,72 +153,68 @@ class SimContinue extends Simulation {
         WorkGroup wg4 = actXR.getNewWorkGroup(0, new Normal(18.0, 5.0));
         wg4.add(crXRay, 1);
         wg4.add(crNurse, 1);       
-	}
 
-	protected ArrayList<Generator> createGenerators() {
+        Cycle c = new Cycle(480, new Fixed(1440.0), 0);
+        new Resource(0, this, "Nurse #1").addTimeTableEntry(c, DURAC_REC, getResourceType(2));
+		new Resource(1, this, "Nurse #2").addTimeTableEntry(c, DURAC_REC, getResourceType(2));
+		new Resource(2, this, "Doctor #1").addTimeTableEntry(c, DURAC_REC, getResourceType(3));
+		new Resource(3, this, "Doctor #2").addTimeTableEntry(c, DURAC_REC, getResourceType(3));
+		new Resource(4, this, "Blood machine #1").addTimeTableEntry(c, DURAC_REC, getResourceType(0));
+		new Resource(5, this, "X-Ray machine #1").addTimeTableEntry(c, DURAC_REC, getResourceType(1));
+
 		int cont = 0;
-        Cycle c = new Cycle(0.0, new Fixed(1440.0), 0);
+        Cycle c1 = new Cycle(0.0, new Fixed(1440.0), 0);
         SequenceMetaFlow sec = new SequenceMetaFlow(cont++, new Fixed(1));
         new SingleMetaFlow(cont++, sec, new Fixed(1), getActivity(0));
         SimultaneousMetaFlow sim = new SimultaneousMetaFlow(cont++, sec, new Fixed(1));
         new SingleMetaFlow(cont++, sim, new Fixed(1), getActivity(1));
         new SingleMetaFlow(cont++, sim, new Fixed(1), getActivity(2));
         new SingleMetaFlow(cont++, sec, new Uniform(0, 3), getActivity(3));        
-		ArrayList<Generator> genList = new ArrayList<Generator>();
-		genList.add(new ElementGenerator(this, new Fixed(NPACDAY), c.iterator(startTs, endTs), sec));
-		return genList;
+		new ElementGenerator(this, new Fixed(NPACDAY), c1.iterator(startTs, endTs), new ElementType(0, this, "PATIENTS"), sec);
 	}
-
-	@Override
-	protected ArrayList<Resource> createResources() {
-        Cycle c = new Cycle(480, new Fixed(1440.0), 0);
-        ArrayList<Resource> list = new ArrayList<Resource>();
-		Resource r;
-		r = new Resource(0, this, "Nurse #1");
-		r.addTimeTableEntry(c, DURAC_REC, getResourceType(2));
-		list.add(r);
-		r = new Resource(1, this, "Nurse #2");
-		r.addTimeTableEntry(c, DURAC_REC, getResourceType(2));
-		list.add(r);
-		r = new Resource(2, this, "Doctor #1");
-		r.addTimeTableEntry(c, DURAC_REC, getResourceType(3));
-		list.add(r);		
-		r = new Resource(3, this, "Doctor #2");
-		r.addTimeTableEntry(c, DURAC_REC, getResourceType(3));
-		list.add(r);
-		r = new Resource(4, this, "Blood machine #1");
-		r.addTimeTableEntry(c, DURAC_REC, getResourceType(0));
-		list.add(r);
-		r = new Resource(5, this, "X-Ray machine #1");
-		r.addTimeTableEntry(c, DURAC_REC, getResourceType(1));
-		list.add(r);
-		return list;
-	}
-	
 }
 
 class ExpSimAct extends Experiment {
-	final static int NEXP = 1;
-	final static int NDAYS = 10;
-	double prevStart = 0.0, prevEnd = 0.0;
+	final static int NEXP = 10;
+	final static int NDAYS = 20;
+	int expType = 0;
+	SimActListener simListener;
 	
-	ExpSimAct() {
-//		super("Testing activity pool", NEXP, new SimActProcessor(), new Output(Output.NODEBUG));
-		super("Testing simultaneously requested activities", NEXP, new SimActProcessor(), new Output(Output.DebugLevel.NODEBUG));
+	ExpSimAct(int expType) {
+		super("Verifying", NEXP);
+		this.expType = expType;
+		if (expType == 0)
+			simListener = new SimActListener(1440.0 * NDAYS, NEXP);
 	}
 	
-	ExpSimAct(double prevStart, double prevEnd) {
-		super("Testing continuation of simulations", NEXP, new StdResultProcessor(1440.0)/*new RecoverableResultProcessor("c:\\")*/, new Output(Output.DebugLevel.NODEBUG));
-		this.prevStart = prevStart;
-		this.prevEnd = prevEnd;
+	ExpSimAct(SimulationState previousState) {
+		super("Testing continuation of simulations", NEXP);
+		this.previousState = previousState;
+		expType = 3;
 	}
 	
 	public Simulation getSimulation(int ind) {
-		if (Double.compare(prevEnd, 0.0) != 0)
-			return new SimContinue(description + ind + "", NDAYS + (int)(prevEnd / (60 * 24)), out, new PreviousSimulationResults(prevStart, prevEnd, ind, "c:\\"));
-		return new SimContinue(description + ind + "", 0.0, NDAYS, out);
-//		return new SimPoolAct(description + ind + "", NDAYS, out);
-//		return new SimSimAct(description + ind + "", NDAYS, out);
+//		if (Double.compare(prevEnd, 0.0) != 0)
+//			return new SimContinue(description + ind + "", NDAYS + (int)(prevEnd / (60 * 24)), new Output(Output.DebugLevel.NODEBUG));
+		Simulation sim = null;
+		if (expType == 0) {
+			sim = new SimSimAct(description + ind + "", NDAYS);
+			sim.addListener(simListener);
+		}
+		else if (expType == 1) {
+			sim = new SimPoolAct(description + ind + "", NDAYS);			
+			sim.addListener(new StatisticListener(1440.0));
+			sim.addListener(new StdInfoListener());
+		}
+		else if (expType == 2) {
+			sim = new SimContinue(description + ind + "", 0.0, NDAYS, new Output(Output.DebugLevel.NODEBUG));
+			sim.addListener(new StdInfoListener());
+		}
+		else if (expType == 3) {
+			sim = new SimContinue(description + ind + "", previousState.getEndTs(), NDAYS, new Output(Output.DebugLevel.NODEBUG));
+			sim.addListener(new StdInfoListener());
+		}
+		return sim;
 	}
 	
 }
@@ -301,7 +228,7 @@ public class BarcelonaVerification {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new ExpSimAct(0.0, 0.0).start();
+		new ExpSimAct(1).start();
 
 	}
 

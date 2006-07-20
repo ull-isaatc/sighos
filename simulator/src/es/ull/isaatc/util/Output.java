@@ -18,7 +18,7 @@ public class Output {
 	protected DebugLevel level;
 	
 	public Output() {
-		this(DebugLevel.DEBUG, new OutputStreamWriter(System.out), new OutputStreamWriter(System.err));
+		this(DebugLevel.NODEBUG, new OutputStreamWriter(System.out), new OutputStreamWriter(System.err));
 	}
 	
 	public Output(DebugLevel level) {

@@ -7,23 +7,21 @@ import es.ull.isaatc.simulation.state.ResourceTypeState;
 import es.ull.isaatc.util.*;
 
 /**
- * Las instancias de esta clase representa los diferentes tipos de recursos que
- * hay en el sistema, o lo que es lo mismo, los diferentes roles que tienen los
- * recursos. Los recursos activos podrán adquirir diferentes roles en cada una
- * de sus entradas de horario.
+ * Represents the different roles that can be found in the system. The resources can serve for
+ * different purposes, and each purpose is a role.
  * @author Carlos Martin Galan
  */
 public class ResourceType extends DescSimulationObject implements RecoverableState<ResourceTypeState> {
-    /** Gestor de actividades relacionado con esta clase de recurso */
+    /** Activity manager this resource type belongs to. */
     protected ActivityManager manager;
-    /** Cola de recursos activos con horarios solapados en distintas Clases de 
-     recurso */
+    /** A list of the currently available resources. */
     protected ResourceList availableResourceQueue;
 
     /**
-     * Crea una nueva clase de recurso con una descripción
-     * @param modelRT Clase de recurso del modelo
+     * Creates a new resource type.
+     * @param id Resource type's identifier
      * @param simul Associated simulation
+     * @param description A brief description of the resource type.
      */
 	public ResourceType(int id, Simulation simul, String description) {
 		super(id, simul, description);
@@ -49,18 +47,18 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
     
 	/**
 	 * Books all the available resources and gets the total amount.
-     * @param e Element looking for available elements.
+     * @param sf Single flow looking for available resources.
 	 * @return An array that contains the total amount of available resources without 
 	 * any conflicts (0) and the total amount of resources which are booked for, at least, 
 	 * other resource type in the same activity (1). 
 	 */
-    protected int[] getAvailable(Element e) {
+    protected int[] getAvailable(SingleFlow sf) {
         int total[] = new int[2];
         for (int i = 0; i < availableResourceQueue.size(); i++) {
             Resource res = availableResourceQueue.get(i);
             // First, I check if the resource is being used
-            if (res.getCurrentElement() == null) {
-	            if (res.addBook(e))
+            if (res.getCurrentSF() == null) {
+	            if (res.addBook(sf))
 	            	total[0]++;
 	            else
 	            	total[1]++;
@@ -70,21 +68,18 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
     }
 
     /**
-     * Esta función permite "liberar" aquellos recursos que se reservaron en una
-     * llamada a getDisponibles desde una actividad NO realizable
-     * @param e El elemento que preguntó por los recursos
+     * Frees the resources previously booked by a single flow.
+     * @param sf Single flow the resources were booked for.
      */
-    protected void resetAvailable(Element e) {
+    protected void resetAvailable(SingleFlow sf) {
         for (int i = 0; i < availableResourceQueue.size(); i++)
-        	availableResourceQueue.get(i).removeBook(e);
+        	availableResourceQueue.get(i).removeBook(sf);
     }
 
     /**
-     * Permite acceder a la entrada de rol múltiple de la cola de recursos
-     * disponibles con índice ind
-     * @param ind Indice del recurso
-     * @return Entrada de rol múltiple correspondiente al índice o null si no 
-     * existe una entrada correspondiente a ese índice.
+     * Returns the resource corresponding to the "ind" position.
+     * @param ind Resource position in the availability list. 
+     * @return Resource corresponding to the "ind" position".
      */
     protected Resource getResource(int ind) {
         if (ind >= availableResourceQueue.size())
@@ -101,12 +96,12 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
      * @param e Elemento que tiene reservado (o en uso) al recurso buscado.
      * @return El índice del recurso o -1 si no encontró ninguno.
      */
-    protected int getNextAvailableResource(int ind, BasicElement e) {
+    protected int getNextAvailableResource(int ind) {
         for (; ind < availableResourceQueue.size(); ind++) {
             Resource res = availableResourceQueue.get(ind);
             // Checks if the resource is busy (taken by other element or conflict in the same activity)
             // FIXME Debería bastar con preguntar por el RT
-            if ((res.getCurrentElement() == null) && (res.getCurrentResourceType() == null))
+            if ((res.getCurrentSF() == null) && (res.getCurrentResourceType() == null))
             	return ind;
         }
         return -1;
@@ -116,40 +111,40 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
 	 * Decrementa el número de recursos disponibles de esta clase de recurso en
 	 * una cantidad dada.
 	 * @param n Resources needed
-     * @param e element catching the resources
+     * @param sf single flow catching the resources
 	 */
-    protected void catchResources(int n, Element e) {
+    protected void catchResources(int n, SingleFlow sf) {
         print(Output.MessageType.DEBUG, "Decrease amount\t" + n,
-        		"Decrease amount\t" + n + "\t" + e);
+        		"Decrease amount\t" + n + "\t" + sf.getElement());
         
         // When this point is reached, it is suppose that there are enough resources
         for (int i = 0; i < availableResourceQueue.size(); i++) {
             Resource res = availableResourceQueue.get(i);
             // Checks the availability of the resource
-            if (res.getCurrentElement() == null) {
+            if (res.getCurrentSF() == null) {
             	// The resource has no conflict
             	if (res.getCurrentResourceType() == null) {
 	            	if (n > 0) {
-	            		res.catchResource(e, this);
+	            		res.catchResource(sf, this);
 	            		n--;
 	                    print(Output.MessageType.DEBUG, "Resource taken\t" + res,
-	                    		"Resource taken\t" + res + "\t " + n + "\t" + e);
+	                    		"Resource taken\t" + res + "\t " + n + "\t" + sf.getElement());
 	            	}
 	            	else {
-	            		res.removeBook(e);
+	            		res.removeBook(sf);
 	            	}
             	}
             	// Conflict (in the same activity)
             	// Theoretically, I have no need of check "n"
             	else if (res.getCurrentResourceType() == this) {
-            		res.catchResource(e, this);
+            		res.catchResource(sf, this);
             		n--;
                     print(Output.MessageType.DEBUG, "Resource taken\t" + res,
-                    		"Resource taken\t" + res + "\t " + n + "\t" + e);
+                    		"Resource taken\t" + res + "\t " + n + "\t" + sf.getElement());
                     // This check should be unneeded
                     if (n < 0) {
                     	print(Output.MessageType.ERROR, "UNEXPECTED ERROR: More resources than expected", 
-                    			"UNEXPECTED ERROR: More resources than expected\t"+ n + "\t" + e);
+                    			"UNEXPECTED ERROR: More resources than expected\t"+ n + "\t" + sf.getElement());
                     }
             	}
             }
@@ -157,7 +152,7 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
         // This check should be unneeded
         if (n > 0)
         	print(Output.MessageType.ERROR, "UNEXPECTED ERROR: Less resources than expected", 
-        			"UNEXPECTED ERROR: Less resources than expected\t"+ n + "\t" + e);
+        			"UNEXPECTED ERROR: Less resources than expected\t"+ n + "\t" + sf.getElement());
     }
 
     /**

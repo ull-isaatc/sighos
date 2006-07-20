@@ -2,7 +2,10 @@ import java.io.*;
 import java.util.ArrayList;
 import es.ull.isaatc.random.*;
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.results.*;
+import es.ull.isaatc.simulation.info.InfoListener;
+import es.ull.isaatc.simulation.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.info.SimulationInfo;
+import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.util.*;
 
 /**
@@ -44,10 +47,6 @@ class OverlappedSimulation extends Simulation {
         WorkGroup wg3 = actDummy.getNewWorkGroup(0, new Normal(10.0, 2.0));
         wg3.add(crDummy, 1);
 
-    }
-    
-	@Override
-	protected void createResources() {
 		ArrayList<ResourceType> al1 = new ArrayList<ResourceType>();
 		al1.add(getResourceType(0));
 //		al1.add(getResourceType(2));
@@ -60,55 +59,59 @@ class OverlappedSimulation extends Simulation {
 //		al2.add(crDumb);
 //		Resource orina1 = new Resource(1, this, "Máquina Análisis Orina 1");
 //		orina1.addTimeTableEntry(new Cycle(480, new Fixed(1440.0), 0), 480, al2);
-	}
 
-	protected void createGenerators() {
 //      SimultaneousMetaFlow metaFlow = new SimultaneousMetaFlow(1, new Fixed(1));
 //      new SingleMetaFlow(2, metaFlow, new Fixed(1), getActivity(2));
 //      new SingleMetaFlow(3, metaFlow, new Fixed(1), getActivity(1));
 		SingleMetaFlow metaFlow = new SingleMetaFlow(3, new Fixed(1), getActivity(1));     
 		Cycle c = new Cycle(0.0, new Fixed(1440.0), days);
 		CycleIterator it = c.iterator(startTs, endTs);
-		ArrayList<Generator> genList = new ArrayList<Generator>();
-		new ElementGenerator(this, new Fixed(NELEM), it, metaFlow);
+		new ElementGenerator(this, new Fixed(NELEM), it, new ElementType(0, this, "ET0"), metaFlow);
 	}	
 }
 
-class OverlappedResultProcessor implements ResultProcessor {
-	private FileWriter file;
+class OverlappedListener implements InfoListener {
+	long execTime[];
+	int nTest = 0;
 	
-	public OverlappedResultProcessor() {
-		try {
-			this.file = new FileWriter("c:\\out20_15(7R)_1.txt"/*"c:\\mNS" + NDIAS + ".txt"*/);
-			this.file.flush();
-		} catch(Exception ee) {
-			ee.printStackTrace();
-		}
+	OverlappedListener(int nTests) {
+		execTime = new long[nTests];
 	}
-	
-	public void processStatistics(SimulationResults[] results) {
-		try {
-			for (int i = 0; i < results.length; i++)
-				file.write("" + (results[i].getEndT() - results[i].getIniT()) + "\r\n");
-				file.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
+
+	public void infoEmited(SimulationInfo info) {
+		if (info instanceof SimulationStartInfo)
+			execTime[nTest] = -((SimulationStartInfo)info).getIniT();
+		else if (info instanceof SimulationEndInfo) {
+			execTime[nTest++] += ((SimulationEndInfo)info).getEndT();
+			if (nTest == execTime.length) {
+				try {
+					FileWriter file = new FileWriter("c:\\out20_15(7R)_1.txt"/*"c:\\mNS" + NDIAS + ".txt"*/);
+					for (long val : execTime) {
+						file.write("" + val + "\r\n");
+						file.flush();
+					}
+					file.close();
+				} catch(Exception ee) {
+					ee.printStackTrace();
+				}				
+			}
+		}		
+	}	
 }
 
 class ExpOverlapped extends Experiment {
     static final int NDIAS = 20;
     static final int NPRUEBAS = 100;
+    OverlappedListener oListener = new OverlappedListener(NPRUEBAS);
 
-	public ExpOverlapped(String description, Output out) {
-		super(description, NPRUEBAS, out);
-//		super(description, NPRUEBAS, new StdResultProcessor(1440.0), out);
+	public ExpOverlapped(String description) {
+		super(description, NPRUEBAS);
 	}
 
 	public Simulation getSimulation(int ind) {
-		return new OverlappedSimulation(0.0, NDIAS * 24 * 60.0, NDIAS, out);
+		OverlappedSimulation sim = new OverlappedSimulation(0.0, NDIAS * 24 * 60.0, NDIAS, new Output(Output.DebugLevel.NODEBUG));
+		sim.addListener(oListener);
+		return sim;
 	}
 }
 
@@ -117,7 +120,7 @@ public class TestOverlapped {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new ExpOverlapped("Solapados", new Output(Output.DebugLevel.NODEBUG)).start();
+		new ExpOverlapped("Solapados").start();
 	}
 
 }

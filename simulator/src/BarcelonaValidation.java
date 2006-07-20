@@ -9,7 +9,7 @@ import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
 
 class SimBarcelona extends Simulation {
-	static final int NDAYS = 365 * 3;
+	static final int NDAYS = 365;
 	static final double START = 0.0;
 //	static final double END = 24 * 60.0 * NDAYS;
 	// PASADO A HORAS
@@ -116,11 +116,13 @@ class SimBarcelona extends Simulation {
 
 class BarcelonaListener extends StatisticListener {
 	FileWriter fileRes = null;
+	FileWriter fileRes1 = null;
 
 	public BarcelonaListener(double period) {
 		super(period);
 		try {
 			fileRes = new FileWriter("C:\\res.txt");
+			fileRes1 = new FileWriter("C:\\diaryUse.txt");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -138,33 +140,26 @@ class BarcelonaListener extends StatisticListener {
 				fileRes.flush();
 			}
 			fileRes.close();
+			
+			for (Map.Entry<Integer,double[]> values : getActUsage().entrySet()) {
+				for (int j = 0; j < values.getValue().length; j++) {
+					fileRes1.write(values.getValue()[j] + " ");
+					fileRes1.flush();
+				}
+				fileRes1.write("\r\n");
+				fileRes1.flush();
+			}
+			fileRes1.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-//		try {
-//			FileWriter file = new FileWriter("C:\\diaryUse.txt");
-//			double perUse[][] = new double[results.length][];
-//			for (int i = 0; i < results.length; i++)
-//				perUse[i] = results[i].periodicUse(24.0);
-//			for (int i = 0; i < perUse[0].length; i++) {			
-//				for (int j = 0; j < results.length; j++) {
-//					file.write(perUse[j][i] + "\t");
-//					file.flush();
-//				}
-//				file.write("\r\n");
-//			}			
-//			file.close();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		
 	}
 }
 /**
  * 
  */
 class ExpBarcelona extends Experiment {
-	final static int NEXP = 20;
+	final static int NEXP = 1;
 	
 	ExpBarcelona() {
 //		super("Validation HOFT", NEXP, new BarcelonaResultProcessor(360 * 1440.0), new Output(Output.NODEBUG));

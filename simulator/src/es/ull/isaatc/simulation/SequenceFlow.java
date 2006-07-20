@@ -6,6 +6,8 @@
 
 package es.ull.isaatc.simulation;
 
+import java.util.ArrayList;
+
 import es.ull.isaatc.simulation.state.*;
 
 /**
@@ -35,19 +37,23 @@ public class SequenceFlow extends GroupFlow {
      * Termina la ejecución de este flujo. Si aún quedan componentes por ejecutar
      * solicita el siguiente de la secuencia; en otro caso llama a finalizar el padre.
      */    
-    protected synchronized void finish() {
+    protected synchronized ArrayList<SingleFlow> finish() {
+    	ArrayList<SingleFlow> sfList = new ArrayList<SingleFlow>();
         finishedFlows++;
         if (finishedFlows < list.size())
-            request();
+            sfList.addAll(request());
         else if (parent != null)
-            parent.finish();
+            sfList.addAll(parent.finish());
+        return sfList;
     }
     
     /**
      * Solicita el siguiente flujo de la secuencia.
      */    
-    protected void request() {
-        list.get(finishedFlows).request();
+    protected ArrayList<SingleFlow> request() {
+    	ArrayList<SingleFlow> sfList = new ArrayList<SingleFlow>();
+        sfList.addAll(list.get(finishedFlows).request());
+        return sfList;
     }        
     
 	public FlowState getState() {

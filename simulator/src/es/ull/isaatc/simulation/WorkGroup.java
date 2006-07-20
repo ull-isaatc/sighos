@@ -147,14 +147,13 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     }  
 
     /**
-     * Comprueba si la solución es alcanzable a partir de una solución parcial.
-     * De esta manera puede cortarse el árbol de búsqueda para la solución.
-     * @param pos Posición de la que se parte.
-     * @param nec Recursos necesarios.
-     * @param e Elemento con el que se busca.
-     * @return Verdadero (true) si hay solución. Falso (false) en otro caso.
+     * Checks if a valid solution can be reached from the current situation. This method 
+     * is used to bound the search tree.
+     * @param pos Initial position.
+     * @param nec Resources needed.
+     * @return True if there is a reachable solution. False in other case.
      */
-    protected boolean hasSolution(int []pos, int []nec, Element e) {
+    protected boolean hasSolution(int []pos, int []nec) {
         for (int i = pos[0]; i < resourceTypeTable.size(); i++) {
             ResourceTypeTableEntry actual = resourceTypeTable.get(i);
             int j = pos[1];
@@ -162,7 +161,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
             int disp = 0;            
             while (((res = actual.getResource(j)) != null) && (disp < nec[i])) {
                 // FIXME Debería bastar con preguntar por el RT
-                if ((res.getCurrentElement() == null) && (res.getCurrentResourceType() == null))
+                if ((res.getCurrentSF() == null) && (res.getCurrentResourceType() == null))
                     disp++;
                 j++;
             }
@@ -177,10 +176,9 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * que el valor de la posición inicial pasada por parámetro es un valor válido.
      * @param pos Posición inicial.
      * @param nec Recursos necesarios.
-     * @param e Elemento con el que se busca.
      * @return Posición de la siguiente solución válida.
      */
-    private int []searchNext(int[] pos, int []nec, Element e) {
+    private int []searchNext(int[] pos, int []nec) {
         int []aux = new int[2];
         aux[0] = pos[0];
         aux[1] = pos[1];
@@ -197,7 +195,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
         // Cojo la entrada correspondiente al primer índice
         ResourceType rt = resourceTypeTable.get(aux[0]).getResourceType();
         // Busco el SIGUIENTE recurso disponible a partir del índice
-        aux[1] = rt.getNextAvailableResource(aux[1] + 1, e);
+        aux[1] = rt.getNextAvailableResource(aux[1] + 1);
 
         // No encontré ningún recurso disponible en esta clase de recurso
         if (aux[1] == -1)
@@ -227,11 +225,11 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * Makes a depth first search looking for a solution.
      * @param pos Position to look for a solution [ResourceType, Resource] 
      * @param ned Resources needed
-     * @param e Element looking for the solution
+     * @param sf Single flow looking for the solution
      * @return True if a valid solution exists. False in other case.
      */
-    private boolean findSolution(int []pos, int []ned, Element e) {
-        pos = searchNext(pos, ned, e);
+    private boolean findSolution(int []pos, int []ned) {
+        pos = searchNext(pos, ned);
         // No solution
         if (pos == null)
             return false;
@@ -242,15 +240,15 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
         mark(pos);
         ned[pos[0]]--;
         // Bound
-        if (hasSolution(pos, ned, e))
+        if (hasSolution(pos, ned))
         // ... the search continues
-            if (findSolution(pos, ned, e))
+            if (findSolution(pos, ned))
                 return true;
         // There's no solution with this resource. Try without it
         unmark(pos);
         ned[pos[0]]++;
         // ... and the search continues
-        return findSolution(pos, ned, e);        
+        return findSolution(pos, ned);        
     }
     
     /**
@@ -261,18 +259,18 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @param e Element trying to carry out the activity with this workgroup 
      * @return True if a valid solution exists. False in other case.
      */
-    protected boolean distributeResources(Element e) {
+    protected boolean distributeResources(SingleFlow sf) {
         int ned[] = new int[resourceTypeTable.size()];
         int []pos = {0, -1}; // "Start" position
         
         for (int i = 0; i < resourceTypeTable.size(); i++)
             ned[i] = resourceTypeTable.get(i).getNeeded();
         // B&B algorithm for finding a solution
-        if (findSolution(pos, ned, e))
+        if (findSolution(pos, ned))
             return true;
         // If there is no solution, the "books" of this element are removed
         for (int i = 0; i < resourceTypeTable.size(); i++)
-            resourceTypeTable.get(i).getResourceType().resetAvailable(e);
+            resourceTypeTable.get(i).getResourceType().resetAvailable(sf);
         return false;
     }
     
@@ -287,23 +285,22 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @return True if there are more "potential" available resources than needed resources for
      * thiw workgroup. False in other case.
      */
-    protected boolean isFeasible(Element e) {
+    protected boolean isFeasible(SingleFlow sf) {
     	boolean conflict = false;
 
-    	e.resetConflictZone();
+    	sf.resetConflictZone();
         for (int i = 0; i < resourceTypeTable.size(); i++) {
             ResourceTypeTableEntry rttEntry = resourceTypeTable.get(i);       	
         	ResourceType rt = rttEntry.getResourceType();
-        	int []avail = rt.getAvailable(e);
+        	int []avail = rt.getAvailable(sf);
         	// If there are less "potential" available resources than needed
             if (avail[0] + avail[1] < rttEntry.getNeeded()) {
             	// The element frees the previously booked resources 
-                // FIXME Esto es un poco ineficiente
-                rt.resetAvailable(e);
+                rt.resetAvailable(sf);
                 i--;
                 for (; i >= 0; i--)
-                    resourceTypeTable.get(i).getResourceType().resetAvailable(e);
-                e.removeFromConflictZone();
+                    resourceTypeTable.get(i).getResourceType().resetAvailable(sf);
+                sf.removeFromConflictZone();
                 return false;            	
             }
             // If the available resources WITH conflicts are needed
@@ -311,29 +308,29 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
                 conflict = true;
         }
         // When this point is reached, that means that the activity is POTENTIALLY feasible
-        e.waitConflictSemaphore();
+        sf.waitConflictSemaphore();
         // Now, this element has exclusive access to its resources. It's time to "recheck"
         // if the activity is feasible        
         if (conflict) { // The resource distribution algorithm is invoked
-        	print(Output.MessageType.DEBUG, "Overlapped resources", "Overlapped resources with " + e);
-            if (!distributeResources(e)) {
-                e.removeFromConflictZone();
-            	e.signalConflictSemaphore();
+        	print(Output.MessageType.DEBUG, "Overlapped resources", "Overlapped resources with " + sf.getElement());
+            if (!distributeResources(sf)) {
+                sf.removeFromConflictZone();
+            	sf.signalConflictSemaphore();
             	return false;
             }
         }
-        else if (e.getConflictZone().size() > 1) {
-        	print(Output.MessageType.DEBUG, "Possible conflict", "Possible conflict. Recheck is needed " + e);
+        else if (sf.getConflictZone().size() > 1) {
+        	print(Output.MessageType.DEBUG, "Possible conflict", "Possible conflict. Recheck is needed " + sf.getElement());
             int ned[] = new int[resourceTypeTable.size()];
             int []pos = {0, 0}; // "Start" position
             for (int i = 0; i < resourceTypeTable.size(); i++)
                 ned[i] = resourceTypeTable.get(i).getNeeded();
-        	if (!hasSolution(pos, ned, e)) {
-                e.removeFromConflictZone();
-            	e.signalConflictSemaphore();
+        	if (!hasSolution(pos, ned)) {
+                sf.removeFromConflictZone();
+            	sf.signalConflictSemaphore();
             	// The element frees the previously booked resources 
             	for (ResourceTypeTableEntry rttEntry : resourceTypeTable)
-            		rttEntry.getResourceType().resetAvailable(e);
+            		rttEntry.getResourceType().resetAvailable(sf);
         		return false;
         	}
         }
@@ -343,14 +340,13 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     /**
      * Método que quita las unidades necesarias para una actividad a las
      * unidades disponibles en las Clases de Recursos.
-     * @param e Elemento que está cogiendo los recursos
+     * @param sf Single flow which requires the resources
      */
-    protected void catchResources(Element e) {
-       for (ResourceTypeTableEntry rtte : resourceTypeTable) {
-           rtte.getResourceType().catchResources(rtte.getNeeded(), e);
-       }
+    protected void catchResources(SingleFlow sf) {
+       for (ResourceTypeTableEntry rtte : resourceTypeTable)
+           rtte.getResourceType().catchResources(rtte.getNeeded(), sf);
        // When this point is reached, that means that the resources have been completely taken
-       e.signalConflictSemaphore();
+       sf.signalConflictSemaphore();
     }
     
     public String toString() {

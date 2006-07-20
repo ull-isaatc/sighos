@@ -155,6 +155,7 @@ public abstract class BasicElement extends SimulationObject {
             this.ts = ts;
             this.lp = lp;
         }
+        
         /**
          * Performs a task and then it removes this event from the execution 
          * queue. It also updates the element's timestamp.

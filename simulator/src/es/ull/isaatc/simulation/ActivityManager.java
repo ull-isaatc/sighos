@@ -17,7 +17,11 @@ import es.ull.isaatc.sync.Semaphore;
 import es.ull.isaatc.util.*;
 
 /**
- * Partition of activities. Manages the access to a set of activities.
+ * Partition of activities. It serves as a mutual exclusion mechanism to access a set of activities
+ * and a set of resource types. This mutual exclusion mechanism is never used implicitly by this object, 
+ * so it must be controlled by the user by means of a semaphore. When the user wants to modify an object 
+ * belonging to this AM, it's required to invoke the <code>waitSemaphore</code> method. When the modification 
+ * finishes, the <code>signalSemaphore()</code> method must be invoked.  
  * @author Iván Castilla Rodríguez
  */
 public class ActivityManager extends SimulationObject implements RecoverableState<ActivityManagerState> {
@@ -28,7 +32,7 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
     /** A list of resorce types */
     protected ArrayList<ResourceType> resourceTypeList;
     /** Semaphore for mutual exclusion control */
-	protected Semaphore sem;
+	private Semaphore sem;
     /** Logical process */
     protected LogicalProcess lp;
     
@@ -44,7 +48,7 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
     }
 
     /**
-     * Returns the logical process where this Act. manager is included.
+     * Returns the logical process where this activity manager is included.
 	 * @return Returns the lp.
 	 */
 	public LogicalProcess getLp() {
@@ -52,7 +56,7 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
 	}
 
 	/**
-	 * Assigns a logical process to this Act. manager. 
+	 * Assigns a logical process to this ctivity manager. 
 	 * @param lp The lp to set.
 	 */
 	public void setLp(LogicalProcess lp) {
@@ -61,23 +65,31 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
 
 	}
 
+    /**
+     * Adds an activity to this activity manager.
+     * @param a Activity added
+     */
     public void add(Activity a) {
         activityTable.add(a);
     }
     
+    /**
+     * Adds a resource type to this activity manager.
+     * @param rt Resource type added
+     */
     public void add(ResourceType rt) {
         resourceTypeList.add(rt);
     }
     
 	/**
-     * Sends a "wait" signal to the semaphore.
+     * Starts a mutual exclusion access to this activity manager.
      */    
     protected void waitSemaphore() {
         sem.waitSemaphore();
     }
     
     /**
-     * Sends a "continue" signal to the semaphore.
+     * Finishes a mutual exclusion access to this activity manager.
      */    
     protected void signalSemaphore() {
         sem.signalSemaphore();
@@ -87,14 +99,13 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
      * Informs the activities of new available resources. 
      */
     protected void availableResource() {
-        waitSemaphore();
         Iterator<Activity> iter = activityTable.iterator(true);
         while (iter.hasNext()) {
         	Activity act = iter.next();
             act.print(Output.MessageType.DEBUG, "Testing pool activity (availableResource)");
             if (act.hasPendingElements()) {
-                if (act.isFeasible(act.getElement(0))) {
-                	SingleFlow flow = act.removeElement(); 
+                if (act.isFeasible(act.queueGet(0))) {
+                	SingleFlow flow = act.queueRemove(); 
                     Element e = flow.getElement();
 
                     e.print(Output.MessageType.DEBUG, "Can carry out (available resource)\t" + act, 
@@ -107,119 +118,11 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
                     e.carryOutActivity(flow);
                 }
                 else
-                    act.getElement(0).signalSemaphore();
+                    act.queueGet(0).getElement().signalSemaphore();
             }
         }
-        signalSemaphore();
     } 
-
-    /**
-     * Informs an activity about an available element in its queue.
-     * @param flow Single flow that contains the activity and the available element
-     */
-    protected void availableElement(SingleFlow flow) {
-        waitSemaphore();
-
-		Element e = flow.getElement();
-		Activity act = flow.getActivity();
-        // MOD 22/11/05 Quitado
-        // MOD 9/01/06 Puesto otra vez
-        e.waitSemaphore();
-        e.print(Output.MessageType.DEBUG, "Calling availableElement()\t" + act, 
-        		"Calling availableElement()\t" + act + "\t" + act.getDescription());
-        // MOD 9/01/06 Y esto añadido
-        if (e.getCurrentWG() == null) {
-            if (act.isFeasible(e)) {
-            	e.print(Output.MessageType.DEBUG, "Can carry out\t" + act, "Can carry out\t" + act + "\t" + e.getCurrentWG());
-                if (!act.removeElement(flow)) { // saco el elemento de la cola
-                	e.print(Output.MessageType.ERROR, "Unexpected error. Element MUST BE in the activity queue",
-                			"Unexpected error. Element MUST BE in the activity queue\t" + act);
-                }
-            // MOD 22/11/05 Quitado
-            // MOD 9/01/06 Puesto otra vez
-                e.signalSemaphore();
-                
-                e.carryOutActivity(flow);
-            }
-            // MOD 22/11/05 Quitado
-            // MOD 9/01/06 Puesto otra vez
-            else
-                e.signalSemaphore();
-        }
-        else 
-            e.signalSemaphore();
-        signalSemaphore();
-    } 
-
-    /**
-     * An element requests an activity. Checks if the activity is feasible and the
-     * element is not performing another activity. 
-     * @param flow Requested single flow
-     */
-    protected void requestActivity(SingleFlow flow) {
-		waitSemaphore();
-
-		Element e = flow.getElement();
-		Activity act = flow.getActivity();
-        e.waitSemaphore();
-        if (e.getCurrentWG() == null) {
-            if (act.isFeasible(e)) { // hay recursos para hacer la actividad
-                e.signalSemaphore();
-                e.carryOutActivity(flow);
-            }
-            else {// en estos momentos no hay recursos necesarios
-                act.addElement(flow); // meto el elemento en la cola de pendientes
-                e.signalSemaphore();
-            }
-        }
-        else {
-            act.addElement(flow); // meto el elemento en la cola de pendientes
-            e.signalSemaphore();
-        }
-    	e.incRequested(flow);
-        signalSemaphore();
-    }
-
-	/**
-	 * El elemento, tras finalizar la actividad, devuelve los recursos que empleó.
-	 * No se comprueba si ellos los tenían o no. Se deja a cargo del usuario de 
-	 * la libreria
-	 * @param e Elemento que quiere finalizar la actividad
-	 */
-    protected void finalizeActivity(Element e) {
-        waitSemaphore();
-        ArrayList<ActivityManager> amList = e.releaseResources(); 
-        e.setCurrentWG(null);
-        signalSemaphore();
-        for (ActivityManager am : amList) 
-        	am.availableResource();
-    }
  
-    /**
-     * Método mediante el cual se pone disponible un Recurso Activo que 
-     * desempeña un rol en un momento determinado
-     * Además avisa al gestor de actividades de este cambio para que compruebe
-     * si algún elemento puede comenzar su ejecución
-     * @param mr Entrada que contiene el recurso y los roles quedesempeña simultáneamente
-     */
-    protected void addAvailable(Resource res, ResourceType role) {
-        waitSemaphore();
-        role.incAvailable(res);
-        signalSemaphore();
-        availableResource(); // Se informa al gestor de actividades de que los recursos han quedado libres
-    }
-    
-    /**
-     * Método mediante el cual deja de estar disponible un Recurso Activo que 
-     * desempeñaba como rol una Clase de Recurso concreta.
-     * @param mr Entrada que contiene el recurso y los roles quedesempeña simultáneamente
-     */
-    protected void removeAvailable(Resource res, ResourceType role) {
-        waitSemaphore();
-        role.decAvailable(res);
-        signalSemaphore();        
-    }
-    
 	public String getObjectTypeIdentifier() {
 		return "AM";
 	}
@@ -228,6 +131,11 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
 		return lp.getTs();
 	}
 
+	/**
+	 * Builds a detailed description of this activity manager, including activities and 
+	 * resource types.
+	 * @return A large description of this activity manager.
+	 */
 	public String getDescription() {
         StringBuffer str = new StringBuffer();
         str.append("Activity Manager " + id + "\r\n(Activity[priority]):");

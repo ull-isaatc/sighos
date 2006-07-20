@@ -101,21 +101,26 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
         }
         notifyListeners(new SimulationStartInfo(this, System.currentTimeMillis(), Generator.getElemCounter()));
         // FIXME: Debería hacer un reparto más inteligente tanto de generadores como de recursos
-//        createGenerators();
         // Starts all the generators
         for (Generator gen : generatorList)
         	gen.start(getDefaultLogicalProcess());
-//        createResources();
         // Starts all the resources
         for (Resource res : resourceList)
             res.start(getDefaultLogicalProcess());
     }
     
-    // Listener adapter
+    /**
+     * Listener adapter. Adds a new listener to the listener list.
+     * @param listener A simulation's listener
+     */
     public void addListener(InfoListener listener) {
     	listeners.add(listener);
     }
     
+    /**
+     * Informs the simulation's listeners of a new event. 
+     * @param info
+     */
     public synchronized void notifyListeners(SimulationInfo info) {
     	for (InfoListener il : listeners)
     		il.infoEmited(info);
@@ -128,8 +133,8 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
      * The components are added simply by invoking their constructors. For
      * example:
      * <code>
-     * Activity a1 = new Activity(this, "Act1");
-     * ResourceType rt1 = new ResourceType(this, "RT1");
+     * Activity a1 = new Activity(0, this, "Act1");
+     * ResourceType rt1 = new ResourceType(0, this, "RT1");
      * </code>
      */    
     protected abstract void createModel();
@@ -141,11 +146,7 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
      * @param marks Mark array that's used for determining the partition of each node.
      */
     private void dfs(HashSet<Integer> []graph, int current, int []marks) {
-    	// This line subtitutes the other three ones
     	for (Integer i : graph[current]) {
-//        Iterator<Integer> it = graph[current].iterator();
-//        while (it.hasNext()) {
-//            Integer i = it.next();
             if (marks[i.intValue()] == -1) {
                 marks[i.intValue()] = marks[current];
                 // Para acelerar un poco el algoritmo se elimina la arista simétrica
@@ -262,7 +263,12 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
         // Creo el último proceso lógico, que servirá de "cajón de sastre"
         logicalProcessList[activityManagerList.size()] = new LogicalProcess(this, startTs, endTs);
     }
-    
+
+    /**
+     * Creates the estructures needed to carry out a simulation. These estructures are
+     * the logical processes. The activity managers are also linked to the logical processes.
+     *
+     */
     private void createSimulation() {
         //createLogicalProcesses();
         // FIXME De momento sólo voy a utilizar un PL
@@ -276,6 +282,7 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
     
     /**
      * Starts the simulation execution.
+     * @param state A previously stored state of the simulation. 
      */    
 	public void start(SimulationState state) {
 		init(state);
@@ -285,6 +292,9 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
         notifyListeners(new SimulationEndInfo(this, System.currentTimeMillis(), Generator.getElemCounter()));
     }
 	
+    /**
+     * Starts the simulation execution.
+     */    
 	public void start() {
 		start(null);
 	}
@@ -397,6 +407,10 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
     	return logicalProcessList.length;
     }
     
+    /**
+     * Returns the logical process that can be used as a default LP.
+     * @return This simulation's default logical process.
+     */
     public LogicalProcess getDefaultLogicalProcess() {
         return logicalProcessList[logicalProcessList.length - 1];
     }
@@ -461,7 +475,7 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
 	}
 
 	public SimulationState getState() {
-		SimulationState simState = new SimulationState(Generator.getElemCounter(), NPElement.getCounter(), SingleFlow.getCounter(), endTs);
+		SimulationState simState = new SimulationState(Generator.getElemCounter(), SingleFlow.getCounter(), endTs);
 		for(LogicalProcess lp : logicalProcessList)
 			simState.add(lp.getState());
 		for(Element elem : activeElementList)
@@ -478,27 +492,14 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
      */
 	public void setState(SimulationState state) {
 		// FIXME: ¿Debería hacer startTs = state.getEndTs()?
-		// Elements. Inverted order to ensure that presential elements are created before the
-		// non-presential ones.
-		for (int i = state.getElemStates().size() - 1; i >= 0; i--) {
-			ElementState eState = state.getElemStates().get(i);
-			Element elem = null;
-			if (eState instanceof NPElementState)
-				elem = new NPElement(eState.getElemId(), activeElementList.get(new Integer(((NPElementState)eState).getParentElemId())));
-			else
-				elem = new Element(eState.getElemId(), this, elementTypeList.get(new Integer(eState.getElemTypeId())));
+		// Elements. 
+		for (ElementState eState : state.getElemStates()) {
+			Element elem = new Element(eState.getElemId(), this, elementTypeList.get(new Integer(eState.getElemTypeId())));
     		elem.setState(eState);
 			activeElementList.add(elem);
 		}
-//		for (ElementState eState : state.getElemStates()) {
-//    		Element elem = new Element(eState.getElemId(), this, elementTypeList.get(new Integer(eState.getElemTypeId())));
-//    		elem.setState(eState);
-//			activeElementList.add(elem);
-//		}
-		//NPElements' counter 
-		NPElement.setCounter(state.getLastNPElemId());
-		// Single flow's counter. This value is established here because the set of the state 
-		// of the elements modifies its value. 
+		// Single flow's counter. This value is established here because the element's state set 
+		// modifies its value. 
 		SingleFlow.setCounter(state.getLastSFId());
 		// Resources
 		for (ResourceState rState : state.getResStates())

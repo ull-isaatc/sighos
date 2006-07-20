@@ -173,8 +173,7 @@ public class ThreadPool {
     /**
      * Sends a finish event to all the threads of the pool.
      */
-    // FIXME Sólo está como protected para el ejemplo. Debería ser private 
-    protected void finishAll() {
+    private void finishAll() {
         for(int i = 0; i < pool.size(); i++) {
             PoolElement elem = pool.get(i);
             elem.finish();

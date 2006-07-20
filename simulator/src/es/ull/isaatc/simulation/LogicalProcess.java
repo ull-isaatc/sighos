@@ -364,10 +364,6 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
 				Element elem = simul.getActiveElement(entry.getId());
 				// The element has not been started yet, so it hasn't got a default logical process...
 				elem.setDefLP(this);
-				// If the element is not presential, its parent needs a default logical process too.
-				if (elem instanceof NPElement)
-					if (((NPElement)elem).getParent().getDefLP() == null)
-						((NPElement)elem).getParent().setDefLP(this);
 				// ... however, the event starts immediately
 				elem.addEvent(elem.new FinalizeActivityEvent(entry.getTs(), elem.searchSingleFlow(entry.getValue())));
 			}

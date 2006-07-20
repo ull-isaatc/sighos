@@ -15,16 +15,22 @@ import es.ull.isaatc.util.CycleIterator;
 public class ElementGenerator extends Generator {
 	/** Each metaflow that will be generated */
 	protected ArrayList<GenerationTrio> genTrio;
+    /** Cycle that controls the generation of elements. */
+    protected CycleIterator cycleIter;
+	/** Number of objects created per cycle iteration */
+	protected RandomNumber nElem;
 
 	/**
 	 * @param simul
 	 * @param nElem
-	 * @param cycleIter
+     * @param cycleIter Control of the generation cycle.
 	 * @param et
 	 * @param metaFlow
 	 */
 	public ElementGenerator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter, ElementType et, MetaFlow metaFlow) {
-		super(simul, nElem, cycleIter);
+		super(simul);
+        this.nElem = nElem;
+        this.cycleIter = cycleIter;
 		this.genTrio = new ArrayList<GenerationTrio>();
 		genTrio.add(new GenerationTrio(et, metaFlow, 1.0));
 	}
@@ -37,12 +43,16 @@ public class ElementGenerator extends Generator {
 	}
 	
 	/**
+	 * @param simul
 	 * @param nElem Number of elements which will be generated.
-	 * @param genTrio Initial list of [element type, proportions] pairs.
+     * @param cycleIter Control of the generation cycle.
+	 * @param genTrio Initial list of [element type, metaflow, proportions] trios.
 	 */
-	public ElementGenerator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter, ArrayList<GenerationTrio> genPairs) {
-		super(simul, nElem, cycleIter);
-		this.genTrio = genPairs;
+	public ElementGenerator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter, ArrayList<GenerationTrio> genTrio) {
+		super(simul);
+        this.nElem = nElem;
+        this.cycleIter = cycleIter;
+		this.genTrio = genTrio;
 	}
 
 	/**
@@ -53,10 +63,8 @@ public class ElementGenerator extends Generator {
 	public void add(ElementType et, MetaFlow metaFlow, double prop) {
 		genTrio.add(new GenerationTrio(et, metaFlow, prop));
 	}
-	
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Generator#createElement()
-	 */
+
+	@Override
 	public void createElements() {
         int n = (int)nElem.samplePositiveDouble();
 		for (GenerationTrio gt : genTrio) {			
@@ -66,6 +74,11 @@ public class ElementGenerator extends Generator {
 	            elem.start(defLP);
 	        }
 		}
+	}
+
+	@Override
+	public double nextTs() {
+		return cycleIter.next();
 	}
 
 	public class GenerationTrio {

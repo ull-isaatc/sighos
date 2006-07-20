@@ -1,10 +1,8 @@
-import java.util.ArrayList;
 
 import es.ull.isaatc.random.*;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.StatisticListener;
 import es.ull.isaatc.simulation.info.StdInfoListener;
-import es.ull.isaatc.simulation.results.*;
 import es.ull.isaatc.util.*;
 
 /** 
@@ -22,6 +20,11 @@ class Analisis extends Simulation {
     
 	Analisis(double startTs, int ndays, Output out) {
 		super("Sistema de análisis", startTs, ndays * 24 * 60.0, out);
+		this.ndays = ndays;
+    }
+    
+	Analisis(double startTs, int ndays) {
+		super("Sistema de análisis", startTs, ndays * 24 * 60.0);
 		this.ndays = ndays;
     }
     
@@ -58,11 +61,6 @@ class Analisis extends Simulation {
         wg6.add(crEnfermero, 1);
         
         new ElementType(0, this, "Paciente");
-       
-    }
-    
-	@Override
-	protected void createResources() {
 		
 //		Resource sangre1 = new Resource(this, "Máquina Análisis Sangre 1");
 //		sangre1.addTimeTableEntry(480, 1440, 480, getResourceType(0), 0);
@@ -81,9 +79,6 @@ class Analisis extends Simulation {
         Cycle c = new Cycle(480, new Fixed(1440.0), 0);
 		new Resource(1, this, "Enfermero 1").addTimeTableEntry(c, 480, getResourceType(2));
 //		new Resource(2, this, "Enfermero 2").addTimeTableEntry(c, 480, getResourceType(2));
-	}
-
-	protected void createGenerators() {
 		createMetaFlow3();
 	}
 	
@@ -144,21 +139,21 @@ class ExpHospitalSecuencia extends Experiment {
 	
 	public ExpHospitalSecuencia() {
 //		super("Hospital", NEXP, new StdResultProcessor(1440.0), new Output(Output.DEBUGLEVEL));
-		super("Hospital", NEXP, new Output(Output.DebugLevel.XDEBUG));
+		super("Hospital", NEXP);
 	}
 
 	public ExpHospitalSecuencia(double prevStart, double prevEnd) {
-		super("Hospital", NEXP, new RecoverableResultProcessor("c:\\"), new Output(Output.DebugLevel.XDEBUG));
+		super("Hospital", NEXP);
 		this.prevStart = prevStart;
 		this.prevEnd = prevEnd;		
 	}
 
 	public Simulation getSimulation(int ind) {
 		Analisis sim = null;
-		if (Double.compare(prevEnd, 0.0) != 0)
-			sim = new Analisis(NDIAS + (int)(prevEnd / (60 * 24)), out, new PreviousSimulationResults(prevStart, prevEnd, ind, "c:\\"));
-		else
-			sim = new Analisis(0.0, NDIAS, out);
+//		if (Double.compare(prevEnd, 0.0) != 0)
+//			sim = new Analisis(NDIAS + (int)(prevEnd / (60 * 24)), new Output(Output.DebugLevel.XDEBUG), new PreviousSimulationResults(prevStart, prevEnd, ind, "c:\\"));
+//		else
+			sim = new Analisis(0.0, NDIAS);
 		sim.addListener(new StdInfoListener());
 		sim.addListener(new StatisticListener(1440.0));		
 		return sim;

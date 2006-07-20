@@ -17,29 +17,25 @@ import es.ull.isaatc.util.Output;
  * becomes unavailable at other simulation time. The availability of a resource is controlled
  * by means of timetable entries, which define a resource type and an availability cycle.
  * A resource finishes its execution when it has no longer valid timetable entries.
- * HISTORY
- * 22/05/06 No more Multiple Roles
- * 23/05/06 Resource is now a BasicElement. No TimeTableManagers required. ¿Para qué quiero un TTM por
- * entrada horaria, si un elemento puede lanzar más de un evento por instante de tiempo de simulación?
  * @author Carlos Martín Galán
  */
 public class Resource extends BasicElement implements RecoverableState<ResourceState> {
-	/** Timetable that contains all the pairs role - time-cycle */
+	/** Timetable which defines the availability estructure of the resource */
     protected ArrayList<TimeTableEntry> timeTable;
     /** A brief description of the resource */
     protected String description;
-    /** Element which has got this resource */
-    protected Element currentElement = null;
-    /** The resource type which this resource is being booked for */
-    protected ResourceType currentResourceType = null;
     /** If true, indicates that this resource is being used after its availability time has expired */
-    protected boolean timeOut = false;
+    private boolean timeOut = false;
     /** List of currently active roles */
     protected ArrayList<ResourceType> currentRoles;
-    /** List of elements trying to book this resource */
-    protected OrderedList<Element> bookList;
     /** A counter of the valid timetable entries which this resource is following. */
     private int validTTEs = 0;
+    /** The resource type which this resource is being booked for */
+    protected ResourceType currentResourceType = null;
+    /** Single Flow which currently has got this resource */
+    protected SingleFlow currentSF = null;
+    /** List of elements trying to book this resource */
+    protected OrderedList<SingleFlow> bookList;
 
     /**
      * Creates a new instance of Resource
@@ -51,7 +47,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		this.description = description;
         timeTable = new ArrayList<TimeTableEntry>();
         currentRoles = new ArrayList<ResourceType>();
-        bookList = new OrderedList<Element>();
+        bookList = new OrderedList<SingleFlow>();
         simul.add(this);
 	}
 
@@ -60,7 +56,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     	simul.notifyListeners(new ResourceInfo(this, ResourceInfo.Type.START, ts, 0));
 		for (int i = 0 ; i < timeTable.size(); i++) {
 			TimeTableEntry tte = timeTable.get(i);
-	        CycleIterator iter = tte.getIterator(tte.getRole().getTs(), simul.getEndTs());
+	        CycleIterator iter = tte.iterator(tte.getRole().getTs(), simul.getEndTs());
 	        double nextTs = iter.next();
 	        if (!Double.isNaN(nextTs)) {
 	            RoleOnEvent rEvent = new RoleOnEvent(nextTs, tte.getRole(), iter, tte.getDuration());
@@ -132,9 +128,9 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 */
 	public ArrayList<ActivityManager> getCurrentManagers() {
 		ArrayList <ActivityManager> currentManagers = new ArrayList<ActivityManager>();
-		// FIXME: ¿No incluir repetidos?
-		for (int i = 0; i < currentRoles.size(); i++)
-			currentManagers.add(currentRoles.get(i).getManager());
+		for (ResourceType role : currentRoles)
+			if (!currentManagers.contains(role.getManager()))
+				currentManagers.add(role.getManager());
 		return currentManagers;
 	}
 
@@ -145,35 +141,35 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 * @return False if the element has already booked this resource (in the same activity).
 	 * True in other case. 
 	 */
-	protected boolean addBook(Element e) {
+	protected boolean addBook(SingleFlow sf) {
 		waitSemaphore();
 		// First I complete the conflicts list
 		if (bookList.size() > 0)
-			e.mergeConflictList(bookList.get(0));
-		boolean result = bookList.add(e);
+			sf.mergeConflictList(bookList.get(0));
+		boolean result = bookList.add(sf);
 		signalSemaphore();
 		return result;
 	}
 	
-	protected boolean removeBook(Element e) {
+	protected boolean removeBook(SingleFlow sf) {
 		waitSemaphore();
-		boolean result = bookList.remove(e); 
+		boolean result = bookList.remove(sf); 
 		signalSemaphore();
 		return result;
 	}
-	
-	// El sincronismo habrá que hacerlo por fuera
-	protected OrderedList<Element> getBookList() {
-		return bookList;
-	}
-	
-	protected void catchResource(Element e, ResourceType rt) {
+
+	/**
+	 * Marks this resource as taken by an element.
+	 * @param sf The single flow which an element is executing
+	 * @param rt The role this resource has been taken for.
+	 */
+	protected void catchResource(SingleFlow sf, ResourceType rt) {
 		waitSemaphore();
 		// FIXME: Es esto o debería cogerlo del LP?
-		setTs(e.getTs());
-        simul.notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.CAUGHT, ts, e.getIdentifier(), rt.getIdentifier()));
-		currentElement = e;
-		e.addCaughtResource(this);
+		setTs(sf.getElement().getTs());
+        simul.notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.CAUGHT, ts, sf.getElement().getIdentifier(), rt.getIdentifier()));
+		currentSF = sf;
+		sf.addCaughtResource(this);
 		currentResourceType = rt;
 		bookList.clear();
 		signalSemaphore();
@@ -188,9 +184,9 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     protected boolean releaseResource() {
 		waitSemaphore();
 		// FIXME: Es esto o debería cogerlo del LP?
-		setTs(currentElement.getTs());
-        simul.notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.RELEASED, ts, currentElement.getIdentifier(), currentResourceType.getIdentifier()));
-        currentElement = null;
+		setTs(currentSF.getElement().getTs());
+        simul.notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.RELEASED, ts, currentSF.getElement().getIdentifier(), currentResourceType.getIdentifier()));
+        currentSF = null;
         currentResourceType = null;        
         if (timeOut) {
         	timeOut = false;
@@ -202,19 +198,11 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     }
     
     /**
-     * Getter for property currentElement.
-     * @return Value of property currentElement.
+     * Returns the single flow of the element which currently owns this resource.
+     * @return The current single flow.
      */
-    protected BasicElement getCurrentElement() {
-        return currentElement;
-    }
-    
-    /**
-     * Setter for property currentElement.
-     * @param e New value of property currentElement.
-     */
-    protected void setCurrentElement(Element e) {
-        this.currentElement = e;
+    protected SingleFlow getCurrentSF() {
+        return currentSF;
     }
     
     /**
@@ -272,14 +260,16 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
             this.duration = duration;
         }
         
-        /**
-         * Pone disponible el elemento y espera el tiempo indicado.
-         */        
         public void event() {
             simul.notifyListeners(new ResourceInfo(Resource.this, ResourceInfo.Type.ROLON, ts, role.getIdentifier()));
             print(Output.MessageType.DEBUG, "Resource available\t" + role);
-            role.getManager().addAvailable(Resource.this, role);
-            // MOD 22/05/06
+            // Beginning MUTEX access to activity manager
+            role.getManager().waitSemaphore();
+            role.incAvailable(Resource.this);
+            // The activity manger is informed of new available resources
+            role.getManager().availableResource(); 
+            // Ending MUTEX access to activity manager
+            role.getManager().signalSemaphore();
             addRole(role);
             RoleOffEvent rEvent = new RoleOffEvent(ts + duration, role, iter, duration);
             addEvent(rEvent);
@@ -316,14 +306,13 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
             this.duration = duration;
         }
         
-        /**
-         * Hace que el rol deje de estar disponible. Si había que repetir pone 
-         * las acciones correspondientes en la lista de acciones para continuar 
-         * tras la espera en tiempo.
-         */
         public void event() {
             simul.notifyListeners(new ResourceInfo(Resource.this, ResourceInfo.Type.ROLOFF, ts, role.getIdentifier()));
-            role.getManager().removeAvailable(Resource.this, role);
+            // Beginning MUTEX access to activity manager
+            role.getManager().waitSemaphore();
+            role.decAvailable(Resource.this);
+            // Ending MUTEX access to activity manager
+            role.getManager().signalSemaphore();        
             // MOD 22/05/06
             removeRole(role);
             print(Output.MessageType.DEBUG, "Resource unavailable\t" + role);
@@ -347,8 +336,6 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     /**
      * Represents the role that a resource plays at a specific time cycle. It starts 
      * and finishes the availability of a resource.
-     * HISTORY:
-     *  22/05/06 Changed from using a list of roles to a single role 
      * @author Iván Castilla Rodríguez
      */
     class TimeTableEntry {
@@ -377,8 +364,14 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
         public double getDuration() {
             return duration;
         }
-        
-        public CycleIterator getIterator(double startTs, double endTs) {
+
+        /**
+         * Returns an iterator over the cycle defined for this timetable entry. 
+         * @param startTs Absolute start timestamp
+         * @param endTs Absolute end timestamp
+         * @return An iterator over the cycle defined for this timetable entry.
+         */
+        public CycleIterator iterator(double startTs, double endTs) {
         	return cycle.iterator(startTs, endTs);
         }
         
@@ -390,11 +383,6 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
             return role;
         }
         
-        
-        /**
-         * Representación en String de una entrada horaria 
-         * @return Un string con la representación de la entrada horaria
-         */
         public String toString() {
             StringBuffer str = new StringBuffer();
             str.append(" | " + cycle.getStartTs() + " | " + cycle.getPeriod() + " | " + duration
@@ -406,10 +394,10 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 
 	public ResourceState getState() {
 		ResourceState state = null;
-		if (currentElement == null)
+		if (currentSF == null)
 			state = new ResourceState(id, validTTEs);
 		else {
-			state = new ResourceState(id, validTTEs, currentElement.getIdentifier(), currentResourceType.getIdentifier(), timeOut);
+			state = new ResourceState(id, validTTEs, currentSF.getIdentifier(), currentSF.getElement().getIdentifier(), currentResourceType.getIdentifier(), timeOut);
 			for (ResourceType rt : currentRoles) {
 				state.add(rt.getIdentifier());
 			}
@@ -420,7 +408,8 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	public void setState(ResourceState state) {
 		validTTEs = state.getValidTTEs();
 		if (state.getCurrentElemId() != -1) {
-			currentElement = simul.getActiveElement(state.getCurrentElemId());
+			Element elem = simul.getActiveElement(state.getCurrentElemId());
+			currentSF = elem.searchSingleFlow(state.getCurrentSFId());
 			currentResourceType = simul.getResourceType(state.getCurrentRTId());
 			for (Integer rtId : state.getCurrentRoles())
 				currentRoles.add(simul.getResourceType(rtId));
