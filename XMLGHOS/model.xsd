@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
-	<xs:include schemaLocation="file:C:\Documents and Settings\Roberto Muñoz\Mis documentos\workspace\XMLSimNew\data_types.xsd"/>
+	<xs:include schemaLocation="file:C:\Documents and Settings\Roberto Muñoz\Mis documentos\workspace\XMLGHOS\data_types.xsd"/>
 	<xs:element name="Model">
 		<xs:complexType>
 			<xs:sequence>
