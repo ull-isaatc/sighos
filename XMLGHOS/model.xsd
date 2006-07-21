@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+	<xs:include schemaLocation="file:C:\Documents and Settings\Roberto Muñoz\Mis documentos\workspace\XMLSimNew\data_types.xsd"/>
+	<xs:element name="Model">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="description" type="xs:string"/>
+				<xs:element name="baseTimeUnit" type="CommonFreq"/>
+				<xs:element maxOccurs="unbounded" name="resourceType" type="ResourceType"/>
+				<xs:element maxOccurs="unbounded" name="resource" type="Resource"/>
+				<xs:element maxOccurs="unbounded" name="activity" type="Activity"/>
+				<xs:element maxOccurs="unbounded" name="elementType" type="ElementType"/>
+				<xs:element maxOccurs="unbounded" name="rootFlow" type="RootFlow"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
