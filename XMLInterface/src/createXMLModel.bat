@@ -1,1 +1,0 @@
-C:\sun\jwsdp-2.0\jaxb\bin\xjc -p es.ull.cyc.simulation.bind ..\experiment.xsd
