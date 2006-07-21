@@ -57,6 +57,8 @@ public abstract class Experiment {
 			Simulation sim = getSimulation(i);
 			if (previousState != null)
 				sim.start(previousState);
+			else
+				sim.start();
 			processor.process((SimulationState)sim.getState());
 		}
 	}
