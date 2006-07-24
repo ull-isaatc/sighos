@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: ModelTest
+Class-Path: activation.jar hyperjaxb.jar jaxb-api.jar jaxb-impl.jar jaxb-verification.jar jsr173_api.jar xpp3_min-1.1.3.4.O.jar xstream-1.1.3.jar

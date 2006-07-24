@@ -65,6 +65,7 @@ public class XMLModel {
 			System.out.println("ERROR : Error found in one of the XML files");
 			System.exit(-1);
 		} catch (IOException ioe) {
+			ioe.printStackTrace();
 			System.exit(-1);
 		} catch (SAXException e) {
 			e.printStackTrace();
