@@ -1,0 +1,1 @@
+C:\sun\jwsdp-2.0\jaxb\bin\xjc -p es.ull.cyc.simulation.editor.project.xml es\ull\cyc\simulation\editor\project\xml\project.xsd

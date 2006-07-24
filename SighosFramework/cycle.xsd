@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:include schemaLocation="file:C:\Documents and Settings\Roberto Muñoz\Mis documentos\workspace\XMLSimNew\data_types.xsd"/>
+-	<xs:element name="component">
+		<xs:complexType>
+			<xs:choice>
+				<xs:element name="cycle" type="Cycle"/>
+				<xs:element name="duration" type="RandomNumber"/>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

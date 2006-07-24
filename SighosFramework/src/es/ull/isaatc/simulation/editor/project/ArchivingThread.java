@@ -1,0 +1,124 @@
+package es.ull.isaatc.simulation.editor.project;
+
+public class ArchivingThread extends Thread {
+
+	private static final int NOTHING = 0;
+
+	private static final int SAVE = 1;
+
+	private static final int SAVEAS = 2;
+
+	private static final int OPEN = 3;
+
+	private static final int OPEN_FILE = 4;
+
+	private static final int CLOSE = 5;
+
+	private static final int VALIDATE = 8;
+
+	private static final int ANALYSE = 9;
+
+	private static final int EXIT = 10;
+
+	private static final int SLEEP_PERIOD = 100;
+
+	private int request = NOTHING;
+
+	private String openFileName;
+
+	private static final ArchivingThread INSTANCE = new ArchivingThread();
+
+	public static ArchivingThread getInstance() {
+		return INSTANCE;
+	}
+
+	private ArchivingThread() {
+	}
+
+	public synchronized void save() {
+		request = SAVE;
+	}
+
+	public synchronized void saveAs() {
+		request = SAVEAS;
+	}
+
+	public synchronized void open() {
+		request = OPEN;
+	}
+
+	public synchronized void open(String fileName) {
+		request = OPEN_FILE;
+		openFileName = fileName;
+	}
+
+	public synchronized void close() {
+		request = CLOSE;
+	}
+
+	public synchronized void validate() {
+		request = VALIDATE;
+	}
+
+	public synchronized void analyse() {
+		request = ANALYSE;
+	}
+
+	public synchronized void exit() {
+		request = EXIT;
+	}
+
+	public void run() {
+		while (true) {
+			try {
+				sleep(SLEEP_PERIOD);
+			} catch (Exception e) {
+			}
+			processRequestState();
+		}
+	}
+
+	private synchronized void processRequestState() {
+		if (request == NOTHING) {
+			return;
+		}
+		ProjectFileModel.getInstance().busy();
+		switch (request) {
+		case CLOSE: {
+			ProjectArchiveHandler.getInstance().close();
+			break;
+		}
+		case SAVE: {
+			ProjectArchiveHandler.getInstance().save();
+			break;
+		}
+		case SAVEAS: {
+			ProjectArchiveHandler.getInstance().saveAs();
+			break;
+		}
+		case OPEN: {
+			ProjectArchiveHandler.getInstance().open();
+			break;
+		}
+		case OPEN_FILE: {
+			ProjectArchiveHandler.getInstance().open(openFileName);
+			break;
+		}
+		case VALIDATE: {
+//			YAWLEngineProxy.getInstance().validate();
+			break;
+		}
+		case ANALYSE: {
+//			YAWLEngineProxy.getInstance().analyse();
+			break;
+		}
+		case EXIT: {
+			ProjectArchiveHandler.getInstance().exit();
+			break;
+		}
+		}
+		request = NOTHING;
+		ProjectFileModel.getInstance().notBusy();
+	}
+
+}
