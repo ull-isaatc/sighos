@@ -17,16 +17,17 @@ import es.ull.isaatc.sync.Lock;
 import es.ull.isaatc.util.*;
 
 /**
- * Main simulation class. It creates all the structures needed to carry out a
- * simulation: activity managers, logical processes...<p>
- * It implements the Runnable interface in order to allow both a sequencial 
- * (by invoking the <code>run</code> method) and a threaded execution (<code>start</code>).
- * It generates a set of simulation results that can be obtained by using the 
- * <code>getResults</code> method.  
+ * Main simulation class. A simulation needs a model (introduced by means of the
+ * <code>createModel()</code> method) to create several structures: activity managers, 
+ * logical processes...<p>
+ * A simulation use <b>InfoListeners</b> to show results. The "listeners" can be added
+ * by invoking the <code>addListener()</code> method.
+ * When the <code>endTs</code> is reached, it stores its state. This state can be 
+ * obtained by using the <code>getState</code> method.  
  * @author Iván Castilla Rodríguez
  */
 public abstract class Simulation implements Printable, RecoverableState<SimulationState> {
-    /** A brief description of the model. */
+    /** A short text describing this simulation. */
     String description;
 	/** List of resources present in the simulation. */
 	protected OrderedList<Resource> resourceList;
@@ -50,14 +51,18 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
     protected Output out;
     /** End-of-simulation control */
     private Lock simLock;
-	/** Default element type for non presential elements */
-	private ElementType npElementType;
 	/** List of info listeners */
 	private ArrayList<InfoListener> listeners;
 	/** List of active elements */
 	private OrderedList<Element> activeElementList;
     
-    /** Creates a new instance of Simulation */
+    /** 
+     * Creates a new instance of Simulation 
+     * @param description A short text describing this simulation.
+     * @param startTs Timestamp of simulation's start.
+     * @param endTs Timestamp of Simulation's end.
+     * @param out Output for printing debug messages.
+     */
     public Simulation(String description, double startTs, double endTs, Output out) {
         activityList = new OrderedList<Activity>();
         resourceTypeList = new OrderedList<ResourceType>();
@@ -70,20 +75,27 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
         this.startTs = startTs;
         this.endTs = endTs;
         this.out = out;
-        npElementType = new ElementType(-1, this, "Non presential element type");
         simLock = new Lock();
         // MOD 29/06/06
         listeners = new ArrayList<InfoListener>();
         activeElementList = new OrderedList<Element>();
     }
     
-    /** Creates a new instance of Simulation */
+    /** 
+     * Creates a new instance of Simulation 
+     * @param description A short text describing this simulation.
+     * @param startTs Timestamp of simulation's start.
+     * @param endTs Timestamp of Simulation's end.
+     */
     public Simulation(String description, double startTs, double endTs) {
     	this(description, startTs, endTs, new Output());
     }
     
     /**
-     * Simulation initialization. It creates and starts all the necessary structures.
+     * Simulation initialization. It creates and starts all the necessary structures.<p>
+     * If a state is indicated, sets the state of this simulation.
+     * @param state A previous stored state. <code>null</code> if no previous state is
+     * going to be used. 
      */
     protected void init(SimulationState state) {
         createModel();
@@ -119,7 +131,7 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
     
     /**
      * Informs the simulation's listeners of a new event. 
-     * @param info
+     * @param info An event that contains simulation information.
      */
     public synchronized void notifyListeners(SimulationInfo info) {
     	for (InfoListener il : listeners)
@@ -256,6 +268,9 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
     }
         
 
+    /**
+     * Creates the logical process needed for carrying out a simulation.
+     */
     private void createLogicalProcesses() {
         logicalProcessList = new LogicalProcess[activityManagerList.size() + 1];
         for (int i = 0; i < activityManagerList.size(); i++)
@@ -267,7 +282,6 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
     /**
      * Creates the estructures needed to carry out a simulation. These estructures are
      * the logical processes. The activity managers are also linked to the logical processes.
-     *
      */
     private void createSimulation() {
         //createLogicalProcesses();
@@ -281,7 +295,9 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
     }
     
     /**
-     * Starts the simulation execution.
+     * Starts the simulation execution. Initializes all the structures, and
+     * starts the logical processes. This method blocks until all the logical
+     * processes have finished their execution.
      * @param state A previously stored state of the simulation. 
      */    
 	public void start(SimulationState state) {
@@ -293,7 +309,10 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
     }
 	
     /**
-     * Starts the simulation execution.
+     * Starts the simulation execution. Initializes all the structures, and
+     * starts the logical processes. This method blocks until all the logical
+     * processes have finished their execution.<p>
+     * This method is invoked when there isn't a previous state to restore.
      */    
 	public void start() {
 		start(null);
@@ -301,8 +320,8 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
 	
     /**
      * Adds an identified object to the model. The allowed id. objects are:
-     * {@link Activity}, {@link ResourceType}, {@link ElementType} and
-     * {@link WorkGroup}. Any other object is ignored.
+     * {@link Activity}, {@link ResourceType}, {@link ElementType}. Any other object 
+     * is ignored. These objects are automatically added from their constructor.
      * @param obj Identified object that's added to the model.
      * @return True is the insertion was succesful. False if there already was  
      * an object with the same description in the list.
@@ -320,14 +339,29 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
         return resul;
     }
 
+    /**
+     * Adds an activity manager to the simulation. The activity managers are automatically
+     * added from their constructor. 
+     * @param am Activity manager.
+     */
     protected void add(ActivityManager am) {
     	activityManagerList.add(am);
     }
     
+    /**
+     * Adds a generator to the simulation. The generators are automatically added from 
+     * their constructor. 
+     * @param gen Generator.
+     */
     protected void add(Generator gen) {
     	generatorList.add(gen);
     }
     
+    /**
+     * Adds a resoruce to the simulation. The resources are automatically added from 
+     * their constructor. 
+     * @param res Resource.
+     */
     protected void add(Resource res) {
     	resourceList.add(res);
     }
@@ -382,13 +416,6 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
     public ElementType getElementType(int id) {
         return elementTypeList.get(new Integer(id));
     }
-    
-	/**
-	 * @return the npElementType
-	 */
-	public ElementType getNPElementType() {
-		return npElementType;
-	}
 
 	/**
      * Returns a list of the activity managers of the model.
@@ -397,38 +424,61 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
     public ArrayList<ActivityManager> getActivityManagerList() {
         return activityManagerList;
     }
-    
-    // TEMPORAL
+
+    /**
+     * Returns the logical process at the specified position.
+     * @param ind The position of the logical process
+     * @return The logical process at the specified position.
+     */
     public LogicalProcess getLogicalProcess(int ind) {
         return logicalProcessList[ind];
     }
     
+    /**
+     * Number of Logical processes that this simulation contains.
+     * @return The size of the LPs list.
+     */
     public int getLPSize() {
     	return logicalProcessList.length;
     }
     
     /**
-     * Returns the logical process that can be used as a default LP.
+     * Returns the logical process that can be used as a default LP.<p> 
+     * The default LP is useful for any simulation object which don't have a 
+     * direct relation to an activity or resource type.
      * @return This simulation's default logical process.
      */
     public LogicalProcess getDefaultLogicalProcess() {
         return logicalProcessList[logicalProcessList.length - 1];
     }
-    
+
+    /**
+     * Adds an element when it starts its execution.
+     * @param elem An element that starts its execution.
+     */
     public synchronized void addActiveElement(Element elem) {
     	activeElementList.add(elem);
     }
     
+    /**
+     * Removes an element when it finishes its execution.
+     * @param elem An element that finishes its execution.
+     */
     public synchronized void removeActiveElement(Element elem) {
     	activeElementList.remove(elem);
     }
-    
+
+    /**
+     * Returns the element with the specified identifier.
+     * @param id The element's identifier.
+     * @return The element with the specified identifier.
+     */
     public Element getActiveElement(int id) {
     	return activeElementList.get(new Integer(id));
     }
     
     /**
-     * Getter for property endTs.
+     * Returns the simulation end timestamp.
      * @return Value of property endTs.
      */
     public double getEndTs() {
@@ -436,6 +486,7 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
     }
 
 	/**
+     * Returns the simulation start timestamp.
 	 * @return Returns the startTs.
 	 */
 	public double getStartTs() {
@@ -456,24 +507,41 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
 	}
 	
 	/** 
-	 * Notifies the end of a process 
+	 * Notifies the end of a logical process. 
 	 */
 	protected void notifyEnd() {
         simLock.unlock();
 	}
-	
+
+	@Override
 	public String toString() {
 		return description;
 	}
-	
+
+	/**
+	 * Prints a debug/error message.
+	 * @param type Message type: Debug/Error
+	 * @param shortDescription A short message
+	 * @param longDescription An extended message
+	 */
 	public void print(Output.MessageType type, String shortDescription, String longDescription) {
 		out.print(type, shortDescription, longDescription);
 	}
 
+	/**
+	 * Prints a debug/error message. Uses the same text for short and long description.
+	 * @param type Message type: Debug/Error
+	 * @param Description The content of the message
+	 */
 	public void print(Output.MessageType type, String description) {
 		out.print(type, description);
 	}
 
+	/**
+	 * Returns the state of this simulation. The state of a simulation consists on the state
+	 * of its logical processes, elements and resources.
+	 * @return The state of this simulation.
+	 */
 	public SimulationState getState() {
 		SimulationState simState = new SimulationState(Generator.getElemCounter(), SingleFlow.getCounter(), endTs);
 		for(LogicalProcess lp : logicalProcessList)
@@ -514,7 +582,12 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
 		// Element's counter of the generators
 		Generator.setElemCounter(state.getLastElemId());
 	}
-	
+
+	/**
+	 * Prints a graph, where the resource types are nodes and the activities are
+	 * the links.
+	 * @param graph The graph to print.
+	 */
 	protected void debugPrintGraph(HashSet []graph) {
 		StringBuffer str = new StringBuffer(); 
         // Pinto el graph para chequeo
@@ -531,7 +604,10 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
         }
         print(Output.MessageType.DEBUG, "Graph created", str.toString());
 	}
-	
+
+	/**
+	 * Prints the contents of the activity managers created.
+	 */
 	protected void debugPrintActManager() {
 		StringBuffer str = new StringBuffer("Activity Managers:");
         for (int i = 0; i < activityManagerList.size(); i++)

@@ -1,14 +1,10 @@
-/*
- * GeneradorElementos.java
- *
- * Created on 18 de agosto de 2005, 12:30
- */
-
 package es.ull.isaatc.simulation;
 
 /**
- * Creates elements cyclically. The element generator is controlled by a 
- * CycleIterator. Each cycle iteration the generator creates elements.
+ * An element which creates elements. This is the base class to create a set of similar
+ * elements. The creation of elements is time-dependant, that is, the user defines WHEN and
+ * HOW the elements are created by filling the <code>nextTs()</code> and <code>createElements()</code>
+ * abstract methods.
  * @author Iván Castilla Rodríguez
  */
 public abstract class Generator extends BasicElement {
@@ -20,7 +16,6 @@ public abstract class Generator extends BasicElement {
     /**
      * Creates an element generator. 
      * @param simul Simulation object.
-     * @param nElem Number of objects created per cycle iteration.
      */
     public Generator(Simulation simul) {
         super(counter++, simul);
@@ -28,7 +23,8 @@ public abstract class Generator extends BasicElement {
     }
     
     /**
-     * Create the elements. This method is invoked each generation cycle  
+     * Create the elements. This method is invoked each timestamp when elements have to be
+     * generated.  
      */
     public abstract void createElements();
 
@@ -40,20 +36,22 @@ public abstract class Generator extends BasicElement {
     public abstract double nextTs();
     
     /**
-     * Returns the current element counter.
-     * @return Value of property counter.
+     * Returns the current element's counter.
+     * @return The current element's counter.
      */
     public static int getElemCounter() {
         return elemCounter;
     }
     
     /**
-	 * @param elemCounter The elemCounter to set.
+     * Establish a new initial value for the element's counter. 
+	 * @param elemCounter A new element's counter value.
 	 */
 	public static void setElemCounter(int elemCounter) {
 		Generator.elemCounter = elemCounter;
 	}
 
+	@Override
 	public String getObjectTypeIdentifier() {    	
         return "GEN";        
     }
@@ -74,10 +72,6 @@ public abstract class Generator extends BasicElement {
 	protected void end() {
 	}
 	
-    public void saveState() {
-    
-    }
-    
     /**
      * This event is invoked each generation cycle. Creates the corresponding 
      * elements and launch a new generation event (if needed) or a finalize 

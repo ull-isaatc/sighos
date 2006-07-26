@@ -38,9 +38,10 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     protected OrderedList<SingleFlow> bookList;
 
     /**
-     * Creates a new instance of Resource
-     * @param resModel Correspondign model resource
-     * @param simul Associated simulation
+     * Creates a new instance of Resource.
+     * @param id This resource's identifier.
+     * @param simul Simulation this resource is attached to.
+     * @param description A short text describing this resource.
      */
 	public Resource(int id, Simulation simul, String description) {
 		super(id, simul);
@@ -73,7 +74,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	}
 	
     /**
-     * Add a new entry with a single role.
+     * Adds a new entry with a single role.
      * @param cycle Cycle that characterizes this entry
      * @param dur The long this resource plays this role every cycle
      * @param role Role that the resource plays during this cycle
@@ -83,7 +84,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     }  
 
     /**
-     * Add a new entry with a several roles.
+     * Adds a new entry with a several roles.
      * @param cycle Cycle that characterizes this entry
      * @param dur The long this resource plays this role every cycle
      * @param roleList Roles that the resource play during this cycle
@@ -93,14 +94,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
             addTimeTableEntry(cycle, dur, roleList.get(i));
     }  
     
-    /**
-     * Returns the amount of time table entries.
-     * @return Size of the time table.
-     */
-    public int getTimeTableSize() {
-        return timeTable.size();
-    }
-    
+    @Override
 	public String getObjectTypeIdentifier() {
 		return "RES";
 	}
@@ -124,6 +118,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	}
 
 	/**
+	 * Builds a list of activity managers referenced by the roles of the resource. 
 	 * @return Returns the currentManagers.
 	 */
 	public ArrayList<ActivityManager> getCurrentManagers() {
@@ -137,7 +132,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	/**
 	 * An element books this resource. The element is simply included in the book list
 	 * of this resource.
-	 * @param e The element booking this resource
+	 * @param sf The single flow booking this resource
 	 * @return False if the element has already booked this resource (in the same activity).
 	 * True in other case. 
 	 */
@@ -151,15 +146,21 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		return result;
 	}
 	
-	protected boolean removeBook(SingleFlow sf) {
+	/**
+	 * An element releases the book over this resource. This, the element is removed from the 
+	 * book list of this resource.
+	 * @param sf The single flow releasing the book over this resource.
+	 */
+	protected void removeBook(SingleFlow sf) {
 		waitSemaphore();
-		boolean result = bookList.remove(sf); 
+		bookList.remove(sf); 
 		signalSemaphore();
-		return result;
 	}
 
 	/**
-	 * Marks this resource as taken by an element.
+	 * Marks this resource as taken by an element. Sets the current Single flow, and the
+	 * current resource type; clears the book list; and adds this resource to the caugt-resources
+	 * list of the single flow. 
 	 * @param sf The single flow which an element is executing
 	 * @param rt The role this resource has been taken for.
 	 */
@@ -177,7 +178,8 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	
     /**
      * Releases this resource. If the resource has already expired its availability time, 
-     * the timeOut flag is set off.
+     * the timeOut flag is set off. Sets the current single flow and the current resource type 
+     * to <code>null</code>.
      * @return True if the resource could be correctly released. False if the availability
      * time of the resource had already expired.
      */
@@ -238,20 +240,22 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     }
     
     /**
-     * Makes available a single-role resource 
+     * Makes available a resource with a specific role. 
      */
     public class RoleOnEvent extends BasicElement.DiscreteEvent {
         /** Available role */
         ResourceType role;
         /** Cycle iterator */
         CycleIterator iter;
-        /** Duration */
+        /** Availability duration */
         double duration;
         
         /**
          * Creates a new event
          * @param ts Timestamp when the resource will  be available.
          * @param role Role played by the resource.
+         * @param iter The cycle iterator that handles the availability of this resource
+         * @param duration The duration of the availability.
          */        
         RoleOnEvent(double ts, ResourceType role, CycleIterator iter, double duration) {
             super(ts, role.getManager().getLp());
@@ -260,6 +264,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
             this.duration = duration;
         }
         
+        @Override
         public void event() {
             simul.notifyListeners(new ResourceInfo(Resource.this, ResourceInfo.Type.ROLON, ts, role.getIdentifier()));
             print(Output.MessageType.DEBUG, "Resource available\t" + role);
@@ -284,20 +289,22 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     }
     
     /**
-     * Makes unavailable a single-role resource 
+     * Makes unavailable a resource with a specific role. 
      */
     public class RoleOffEvent extends BasicElement.DiscreteEvent {
         /** Unavailable role */
         ResourceType role;
         /** Cycle iterator */
         CycleIterator iter;
-        /** Duration */
+        /** Availability duration */
         double duration;
         
         /**
          * Creates a new event
          * @param ts Timestamp when the resource will be unavailable.
          * @param role Role played by the resource.
+         * @param iter The cycle iterator that handles the availability of this resource
+         * @param duration The duration of the availability.
          */        
         RoleOffEvent(double ts, ResourceType role, CycleIterator iter, double duration) {
             super(ts, role.getManager().getLp());
@@ -306,6 +313,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
             this.duration = duration;
         }
         
+        @Override
         public void event() {
             simul.notifyListeners(new ResourceInfo(Resource.this, ResourceInfo.Type.ROLOFF, ts, role.getIdentifier()));
             // Beginning MUTEX access to activity manager
@@ -334,8 +342,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     }
 
     /**
-     * Represents the role that a resource plays at a specific time cycle. It starts 
-     * and finishes the availability of a resource.
+     * Represents the role that a resource plays at a specific time cycle.
      * @author Iván Castilla Rodríguez
      */
     class TimeTableEntry {
@@ -347,10 +354,10 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
         protected ResourceType role;
         
         /** Creates a new instance of TimeTableEntry
-        * @param cycle 
-        * @param dur The long this resource plays this role every cycle
-        * @param role Role that the resource plays during this cycle
-        */
+         * @param cycle 
+         * @param dur The long this resource plays this role every cycle
+         * @param role Role that the resource plays during this cycle
+         */
     	public TimeTableEntry(Cycle cycle, double dur, ResourceType role) {
     		this.cycle = cycle;
     		this.duration = dur;
@@ -383,6 +390,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
             return role;
         }
         
+        @Override
         public String toString() {
             StringBuffer str = new StringBuffer();
             str.append(" | " + cycle.getStartTs() + " | " + cycle.getPeriod() + " | " + duration
@@ -392,19 +400,27 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
         
     }
 
+    /**
+     * Returns the state of this resource. The state of a resource consists on the amount of
+     * valid timetable entries, the current single flow (if it exists), and the current roles.
+     * @return The state of this resource.
+     */
 	public ResourceState getState() {
 		ResourceState state = null;
 		if (currentSF == null)
 			state = new ResourceState(id, validTTEs);
-		else {
+		else
 			state = new ResourceState(id, validTTEs, currentSF.getIdentifier(), currentSF.getElement().getIdentifier(), currentResourceType.getIdentifier(), timeOut);
-			for (ResourceType rt : currentRoles) {
-				state.add(rt.getIdentifier());
-			}
-		}
+		for (ResourceType rt : currentRoles)
+			state.add(rt.getIdentifier());
 		return state;
 	}
 
+    /**
+     * Sets the state of this resource. The state of a resource consists on the amount of
+     * valid timetable entries, the current single flow (if it exists), and the current roles.
+     * @param state The state of this resource.
+     */
 	public void setState(ResourceState state) {
 		validTTEs = state.getValidTTEs();
 		if (state.getCurrentElemId() != -1) {

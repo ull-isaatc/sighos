@@ -29,12 +29,11 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
     /** Work Group Pool */
     protected PrioritizedTable<WorkGroup> workGroupTable;
 
-    // constructores
     /**
      * Creates a new activity.
      * @param id Activity's identifier
-     * @param simul Associated simulation
-     * @param description Activity's description
+     * @param simul Simulation which this activity is attached to.
+     * @param description A short text describing this Activity.
      */
     public Activity(int id, Simulation simul, String description) {
         this(id, simul, description, 0, true);
@@ -44,7 +43,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * Creates a new activity.
      * @param id Activity's identifier.
      * @param simul Simulation which this activity is attached to.
-     * @param description Activity's description
+     * @param description A short text describing this Activity.
      * @param priority Activity's priority.
      */
     public Activity(int id, Simulation simul, String description, int priority) {
@@ -55,7 +54,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * Creates a new activity.
      * @param id Activity's identifier.
      * @param simul Simulation which this activity is attached to.
-     * @param description Activity's description
+     * @param description A short text describing this Activity.
      * @param presential Indicates if the activity requires the presence of an element to be carried out. 
      */
     public Activity(int id, Simulation simul, String description, boolean presential) {
@@ -66,7 +65,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * Creates a new activity.
      * @param id Activity's identifier.
      * @param simul Simulation which this activity is attached to.
-     * @param description Activity's description
+     * @param description A short text describing this Activity.
      * @param priority Activity's priority.
      * @param presential Indicates if the activity requires the presence of an element to be carried out. 
      */
@@ -87,8 +86,8 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
     }
     
     /**
-     * Getter for property prioridad.
-     * @return Value of property prioridad.
+     * Returns the activity's priority.
+     * @return Value of the activity's priority.
      */
     public int getPriority() {
         return priority;
@@ -103,7 +102,8 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
     }
 
     /**
-     * Associates this activity to an activity manager.
+     * Sets the activity manager this activity type belongs to. It also
+     * adds this activity to the manager.
      * @param manager The activity manager.
      */
     public void setManager(ActivityManager manager) {
@@ -266,9 +266,8 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
 	}
 
 	/**
-	 * Gets the state of an activity. The state of an activity consists on the queue of single flows.
-	 * If the activity is non presential, the elements and single flows stored are the parent element
-	 * ones.
+	 * Gets the state of this activity. The state of an activity consists on the queue of single flows.
+	 * @return This activity's state
 	 */
 	public ActivityState getState() {
 		ActivityState state = new ActivityState(id);
@@ -277,6 +276,10 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
 		return state;
 	}
 
+	/**
+	 * Sets the state of this activity. The state of an activity consists on the queue of single flows.
+	 * @param state The activity's state.
+	 */
 	public void setState(ActivityState state) {
 		for (ActivityState.ActivityQueueEntry aqe : state.getQueue()) {
 			Element elem = simul.getActiveElement(aqe.getElemId());
@@ -284,4 +287,4 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
 		}		
 	}
 
-} // fin Actividad
+}

@@ -12,29 +12,27 @@ import es.ull.isaatc.random.RandomNumber;
 import es.ull.isaatc.util.*;
 
 /**
- * Conjunto de recursos requeridos para realizar una actividad en un tiempo
- * determinado. Un equipo de trabajo se compone de una tabla de clases de recursos
- * y una función que determina cuánto tarda ese conjunto de clases de recursos en
- * realizar la actividad. También puede llevar asociado un coste.
- *
+ * A set of resources needed for carrying out an activity. A workgroup (WG) consists on a 
+ * set of (resource type, #needed resources) pairs, the duration of the activity when using 
+ * this workgroup, and the priority of the workgroup inside the activity.
  * @author Iván Castilla Rodríguez
  */
 public class WorkGroup extends SimulationObject implements Prioritizable {
-    /** Equipo de trabajo que realiza esta opción de la actividad */
+    /** Set of (resource type, #needed) pairs. */
     protected ArrayList<ResourceTypeTableEntry> resourceTypeTable;
-    /** La actividad a la que está asociado */
+    /** Activity this WG belongs to. */
     protected Activity act;
-    /** Duración de la opción de la actividad */
+    /** Duration of the activity when using this WG */
     protected RandomNumber duration;
-    /** Priority of the workGroup */
+    /** Priority of the workgroup */
     protected int priority = 0;
     
     /**
      * Creates a new instance of WorkGroup
      * @param id Identifier of this workgroup.
-     * @param act Actividad a la que se asocia este equipo de trabajo.
-     * @param tcr Tabla de clases de recursos que componen el equipo de trabajo.
-     * @param duracion Tiempo que tarda el equipo de trabajo en realizar la actividad.
+     * @param act Activity this WG belongs to.
+     * @param duracion Duration of the activity when using this WG.
+     * @param priority Priority of the workgroup.
      */    
     protected WorkGroup(int id, Activity act, RandomNumber duration, int priority) {
         super(id, act.getSimul());
@@ -45,8 +43,8 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     }
 
     /**
-     * Devuelve la actividad a la que está asociado este equipo de trabajo.
-     * @return Actividad a la que se asocia este equipo de trabajo.
+     * Returns the activity this WG belongs to.
+     * @return Activity this WG belongs to.
      */    
     protected Activity getActivity() {
         return act;
@@ -60,15 +58,6 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      */
     public double getDuration() {
         return duration.samplePositiveDouble();
-    }
-    
-    /**
-     * Devuelve la distribución de probabilidad que caracteriza la duración de la
-     * actividad
-     * @return Distribución de probabilidad de la actividad
-     */
-    public RandomNumber getDistribution() {
-        return duration;
     }
     
     /**
@@ -172,40 +161,40 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     }
     
     /**
-     * Devuelve la posición de la siguiente solución válida. La función sobreentiende
-     * que el valor de la posición inicial pasada por parámetro es un valor válido.
-     * @param pos Posición inicial.
-     * @param nec Recursos necesarios.
-     * @return Posición de la siguiente solución válida.
+     * Returns the position [ResourceType, Resource] of the next valid solution. The initial position
+     * <code>pos</code> is supposed as correct.
+     * @param pos Initial position [ResourceType, Resource].
+     * @param nec Resource needed.
+     * @return [ResourceType, Resource] where the next valid solution can be found.
      */
     private int []searchNext(int[] pos, int []nec) {
         int []aux = new int[2];
         aux[0] = pos[0];
         aux[1] = pos[1];
-        // Busco la primera entrada que requiera recursos
+        // Searches a resource type that requires resources
         while (nec[aux[0]] == 0) {
             aux[0]++;
-            // El valor del segundo índice ya no es válido
+            // The second index is reset
             aux[1] = -1;
-            // No hacen falta más recursos ==> SOLUCION
+            // No more resources needed ==> SOLUTION
             if (aux[0] == resourceTypeTable.size()) {
                 return aux;
             }
         }
-        // Cojo la entrada correspondiente al primer índice
+        // Takes the first resource type
         ResourceType rt = resourceTypeTable.get(aux[0]).getResourceType();
-        // Busco el SIGUIENTE recurso disponible a partir del índice
+        // Searches the NEXT available resource
         aux[1] = rt.getNextAvailableResource(aux[1] + 1);
 
-        // No encontré ningún recurso disponible en esta clase de recurso
+        // This resource type don't have enough available resources
         if (aux[1] == -1)
             return null;
         return aux;
     }
 
     /**
-     * Marca un elemento como perteneciente a la solución
-     * @param pos Posición del elemento
+     * Marks a resource as belonging to the solution
+     * @param pos Position [ResourceType, Resource] of the resource
      */
     private void mark(int []pos) {
         Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
@@ -213,8 +202,8 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     }
     
     /**
-     * Quita la marca de pertenencia a la solución de un elemento
-     * @param pos Posición del elemento
+     * Removes the mark of a resource as belonging to the solution
+     * @param pos Position [ResourceType, Resource] of the resource
      */
     private void unmark(int []pos) {
         Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
@@ -225,7 +214,6 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * Makes a depth first search looking for a solution.
      * @param pos Position to look for a solution [ResourceType, Resource] 
      * @param ned Resources needed
-     * @param sf Single flow looking for the solution
      * @return True if a valid solution exists. False in other case.
      */
     private boolean findSolution(int []pos, int []ned) {
@@ -253,10 +241,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     
     /**
      * Distribute the resources when there is a conflict inside the activity.
-     *   
-     * Los recursos de la lista de recursos con múltiples roles de cada clase de 
-     * recurso estarán marcados.
-     * @param e Element trying to carry out the activity with this workgroup 
+     * @param sf Single flow trying to carry out the activity with this workgroup 
      * @return True if a valid solution exists. False in other case.
      */
     protected boolean distributeResources(SingleFlow sf) {
@@ -281,7 +266,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * activity can not be carried out, and all the "books" are removed.
      * Possible conflicts between resources inside the activity are solved by invoking a
      * branch-and-bound resource distribution algorithm. 
-     * @param e Element trying to carry out the activity with this workgroup 
+     * @param sf Single flow trying to carry out the activity with this workgroup 
      * @return True if there are more "potential" available resources than needed resources for
      * thiw workgroup. False in other case.
      */
@@ -338,8 +323,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     }
 
     /**
-     * Método que quita las unidades necesarias para una actividad a las
-     * unidades disponibles en las Clases de Recursos.
+     * Catch the resources needed for each resource type to carry out an activity.
      * @param sf Single flow which requires the resources
      */
     protected void catchResources(SingleFlow sf) {
@@ -348,38 +332,31 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
        // When this point is reached, that means that the resources have been completely taken
        sf.signalConflictSemaphore();
     }
-    
+
+    @Override
     public String toString() {
     	return new String("(" + act + ")" + super.toString());
     }
 
+    @Override
 	public String getObjectTypeIdentifier() {
 		return "WGR";
 	}
 
+    @Override
 	public double getTs() {
 		return act.getTs();
 	}
 
-	// FIXME
-	public String getDescription() {
-       StringBuffer str = new StringBuffer(this.toString() + "\tResource Table:\n"); 
-       for (int i = 0; i < resourceTypeTable.size(); i++) {
-           ResourceTypeTableEntry actual = resourceTypeTable.get(i);
-           str.append(" | "+ actual.getResourceType().getDescription()+" | "+actual.getNeeded()+"\n");
-        }
-       return str.toString();
-	}
-
 	/**
-	 * This class represents the t-uplas of a table of resource types.
+	 * This class represents the t-uplas (resource type, #needed) of a resource type table.
 	 * @author Carlos Martín Galán
 	 */
 	class ResourceTypeTableEntry {
-		/** Needed units */
-		protected int needed;
 		/** Resource type */
 		protected ResourceType rType;
+		/** Needed units */
+		protected int needed;
 
 	    /**
 	     * Creates a new entry in a resource type table
@@ -407,6 +384,12 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
 	        return rType;
 	    }
 	    
+	    /**
+	     * Returns the resource in the specified position of the available resource list of
+	     * the resource type. 
+	     * @param index Position of the resource.
+	     * @return The resource in the specified position.
+	     */
 	    public Resource getResource(int index) {
 	    	return rType.getResource(index);
 	    }

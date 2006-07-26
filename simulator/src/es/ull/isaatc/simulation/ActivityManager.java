@@ -1,9 +1,3 @@
-/*
- * GestorActividades.java
- *
- * Created on 22 de junio de 2004, 9:34
- */
-
 package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
@@ -150,6 +144,11 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
         return str.toString();
 	}
 
+	/**
+	 * Returns the state of this activity manager. The state of an activity manager consists on
+	 * the state of its activities and resource types.
+	 * @return This activity manager's state
+	 */
 	public ActivityManagerState getState() {
 		ActivityManagerState amState = new ActivityManagerState(id);
         Iterator<Activity> iter = activityTable.iterator(false);
@@ -160,6 +159,11 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
 		return amState;
 	}
 
+	/**
+	 * Sets the state of this activity manager. The state of an activity manager consists on
+	 * the state of its activities and resource types.
+	 * @param state Activity manager's state. 
+	 */
 	public void setState(ActivityManagerState state) {
 		for (ActivityState aState : state.getAStates()) {
 			Activity act = simul.getActivity(aState.getActId());

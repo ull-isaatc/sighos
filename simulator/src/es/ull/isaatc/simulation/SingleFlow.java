@@ -15,7 +15,8 @@ import es.ull.isaatc.util.Orderable;
 import es.ull.isaatc.util.Output;
 
 /**
- * A single-activity flow. This flow represents a leaf node in the flow tree. 
+ * A single-activity flow. This flow represents a leaf node in the flow tree.<p>
+ * A single flow handles the execution of its activity.
  * @author Iván Castilla Rodríguez
  */
 public class SingleFlow extends Flow implements Orderable {
@@ -66,24 +67,17 @@ public class SingleFlow extends Flow implements Orderable {
     }
 
     /**
-     * Getter for property act.
-     * @return Value of property act.
+     * Returns the activity wrapped with this flow.
+     * @return Activity wrapped with this flow.
      */
     public Activity getActivity() {
         return act;
     }
     
     /**
-     * Setter for property act.
-     * @param act New value of property act.
-     */
-    public void setActivity(Activity act) {
-        this.act = act;
-    }
-
-    /**
      * This flow is marked as "finished". 
      * The parent flow is finished too.
+     * @return An empty list of single flows.
      */
     protected ArrayList<SingleFlow> finish() {
     	ArrayList<SingleFlow> sfList = new ArrayList<SingleFlow>();
@@ -94,7 +88,8 @@ public class SingleFlow extends Flow implements Orderable {
     }
     
     /**
-     * Requests this activity, taking into account the presenciality.
+     * Returns a list that contains this single flow.
+     * @return A list with this single flow. 
      */
     protected ArrayList<SingleFlow> request() {
     	ArrayList<SingleFlow> sfList = new ArrayList<SingleFlow>();
@@ -103,23 +98,18 @@ public class SingleFlow extends Flow implements Orderable {
     }
     
     /**
-     * Devuelve si la actividad es presencial (requiere de la dedicación 
-     * exclusiva del elemento que la solicitó).
-     * @return Verdadero (true) si es presencial; Falso (false) si no.
+     * A single flow is presential if the activity it wraps is presential. 
+     * @return True if the wrapped activity is presential; False in other case.
      */
     protected boolean isPresential() {
-        if (parent != null)
-            if (elem != parent.getElement())
-                return true;
         return act.isPresential();
     }
     
     /**
-     * Devuelve un array con dos componentes: una de ellas vale 1 y la otra 0. 
-     * Si la actividad es presencial, la componente 0 es la que vale 1. Si es 
-     * no presencial será la componente 1.
-     * @return El número de actividades de este flujo.
-     */
+     * Returns an array [1, 0] if the activity wrapped is presential; and an
+     * array [0, 1] if the activity is not presential.
+     * @return The amount of activities this flow contains.
+     */    
     protected int[] countActivities() {
         int [] cont = new int[2];
         if (act.isPresential())
@@ -130,6 +120,7 @@ public class SingleFlow extends Flow implements Orderable {
     }
 
 	/**
+	 * Returns the unique identifier of this single flow.
 	 * @return Returns the id.
 	 */
 	public int getIdentifier() {
@@ -137,14 +128,15 @@ public class SingleFlow extends Flow implements Orderable {
 	}
 
 	/**
-	 * @param counter The counter to set.
+	 * Sets the counter used to generate single flows' identifiers. 
+	 * @param counter The new counter.
 	 */
 	public static void setCounter(int counter) {
 		SingleFlow.counter = counter;
 	}
 	
 	/**
-	 * 
+	 * Returns the current counter used to generate single flows' identifiers.
 	 * @return The single flows' counter
 	 */
 	public static int getCounter() {
@@ -198,7 +190,7 @@ public class SingleFlow extends Flow implements Orderable {
 	}
 	
     /**
-     * Releases the resources caught by an element.
+     * Releases the resources caught by hissingle flow to perform the activity.
      * @return A list of activity managers affected by the released resources
      */
     protected ArrayList<ActivityManager> releaseCaughtResources() {
@@ -226,35 +218,35 @@ public class SingleFlow extends Flow implements Orderable {
 	}
 	
 	/**
-	 * Establish a different conflict zone for this element.
-	 * @param zone The new conflict zone for this element.
+	 * Establish a different conflict zone for this single flow.
+	 * @param zone The new conflict zone for this single flow.
 	 */
 	protected void setConflictZone(ConflictZone zone) {
 		conflicts = zone;
 	}
 	
 	/**
-	 * Removes this element from its conflict list. This method is invoked in case
-	 * the element detects that it can not carry out an activity.
+	 * Removes this single flow from its conflict list. This method is invoked in case
+	 * the single flow detects that it can not carry out an activity.
 	 */
 	protected void removeFromConflictZone() {
 		conflicts.remove(this);
 	}
 	
 	/**
-	 * Returns the conflict zone of this element.
-	 * @return The conflict zone of the element.
+	 * Returns the conflict zone of this single flow.
+	 * @return The conflict zone of the single flow.
 	 */
 	protected ConflictZone getConflictZone() {
 		return conflicts;
 	}
 	
 	/**
-	 * Merges the conflict list of this element and other one. Since one zonflict zone must
-	 * be merged into the other, the election of the element which "recibes" the merging operation
-	 * depends on the id of the element: the element with lower id "recibes" the merging, and the
-	 * other one "produces" the operation.
-	 * @param e The element whose conflict zone must be merged. 
+	 * Merges the conflict list of this single flow and other one. Since one zonflict zone must
+	 * be merged into the other, the election of the single flow which "recibes" the merging 
+	 * operation depends on the id of the single flow: the single flow with lower id "recibes" 
+	 * the merging, and the other one "produces" the operation.
+	 * @param sf The single flow whose conflict zone must be merged. 
 	 */
 	protected void mergeConflictList(SingleFlow sf) {
 		// If it's the same list there's no need of merge
@@ -285,6 +277,13 @@ public class SingleFlow extends Flow implements Orderable {
 			sem.signalSemaphore();
 	}
 
+	/**
+	 * Returns the state of this single flow. The state of a single flow consists on the 
+	 * activity wrapped, its identifier and the <code>finished</code> atribute. If this 
+	 * single flow is currently performing its activity, the workgroup used and the set of
+	 * caught resources are stored too.
+	 * @return The state of this single flow.
+	 */
 	public FlowState getState() {
 		SingleFlowState state = null;
 		if (currentWG == null)
@@ -297,6 +296,13 @@ public class SingleFlow extends Flow implements Orderable {
 		return state;
 	}
 
+	/**
+	 * Returns the state of this single flow. The state of a single flow consists on the 
+	 * activity wrapped, its identifier and the <code>finished</code> atribute. If this 
+	 * state shows that this single flow was currently performing its activity, the workgroup 
+	 * used and the set of caught resources are restored too.
+	 * @param state The new state of this single flow.
+	 */
 	public void setState(FlowState state) {
 		SingleFlowState sfState = (SingleFlowState)state;
 		finished = sfState.isFinished();

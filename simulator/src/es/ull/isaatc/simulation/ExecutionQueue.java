@@ -1,9 +1,3 @@
-/*
- * ControladorEjecucion.java
- *
- * Created on 13 de junio de 2005, 19:39
- */
-
 package es.ull.isaatc.simulation;
 
 import java.util.Vector;
@@ -60,7 +54,7 @@ public class ExecutionQueue {
     /**
      * Inserts a new event in the queue and looks for a thread to execute it.
      * @param e DiscreteEvent to be added
-     * @return True if the event was added correctly. False in other case. 
+     * @return True if the event was succesfully added. False in other case. 
      */
 	protected boolean addEvent(BasicElement.DiscreteEvent e) {
 		tp.getThread(e);
@@ -84,6 +78,9 @@ public class ExecutionQueue {
         return executionQueue.get(ind);
     }
     
+    /**
+     * Stops the execution queue by freeing the threads associated.
+     */
     protected void free() {
     	lp.print(Output.MessageType.DEBUG, "Execution queue freed",
     			"TP. MAX:" + tp.getMaxThreads() + "\tINI:" + tp.getInitThreads() 

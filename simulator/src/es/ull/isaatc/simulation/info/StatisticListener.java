@@ -38,6 +38,13 @@ public class StatisticListener implements InfoListener {
 		this.period = period;
 	}
 	
+	/**
+	 * @return Returns the nPeriods.
+	 */
+	public int getNPeriods() {
+		return nPeriods;
+	}
+
 	public int getNStartedElem() {
 		return nStartedElem;
 	}

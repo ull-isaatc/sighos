@@ -1,6 +1,5 @@
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Map;
 
 import es.ull.isaatc.random.*;
 import es.ull.isaatc.simulation.*;
@@ -618,40 +617,51 @@ class SimBarcelona extends Simulation {
 
 class BarcelonaListener extends StatisticListener {
 	FileWriter fileRes = null;
-	FileWriter fileRes1 = null;
 
-	public BarcelonaListener(double period) {
+	public BarcelonaListener(double period, FileWriter fileRes) {
 		super(period);
-		try {
-			fileRes = new FileWriter("C:\\res.txt");
-			fileRes1 = new FileWriter("C:\\diaryUse.txt");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		this.fileRes = fileRes;
 	}
 
 	public void showResults() {
 		try {
 			fileRes.write((getEndT() - getIniT()) + "\t" + getNStartedElem() + "\r\n");
-			for (Map.Entry<Integer,int[]> values : getActQueues().entrySet()) {
-				for (int j = 0; j < values.getValue().length; j++) {
-					fileRes.write(values.getValue()[j] + " ");
+			for (int[] values : getActQueues().values()) {
+				for (int val : values) {
+					fileRes.write(val + " ");
 					fileRes.flush();
 				}
 				fileRes.write("\r\n");
 				fileRes.flush();
-			}
-			fileRes.close();
-			
-			for (Map.Entry<Integer,double[]> values : getActUsage().entrySet()) {
-				for (int j = 0; j < values.getValue().length; j++) {
-					fileRes1.write(values.getValue()[j] + " ");
-					fileRes1.flush();
-				}
-				fileRes1.write("\r\n");
+			}			
+			fileRes.write("\r\n");
+			fileRes.flush();			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+class BarcelonaListener2 extends StatisticListener {
+	FileWriter fileRes1 = null;
+
+	public BarcelonaListener2(double period, FileWriter fileRes1) {
+		super(period);
+		this.fileRes1 = fileRes1;
+	}
+
+	public void showResults() {
+		double result[] = new double[getNPeriods()];
+		try {
+			for (double[] values : getActUsage().values())
+				for (int j = 0; j < values.length; j++)
+					result[j] += values[j];
+			for (double val : result) {
+				fileRes1.write(val + " ");
 				fileRes1.flush();
 			}
-			fileRes1.close();
+			fileRes1.write("\r\n");
+			fileRes1.flush();			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -661,15 +671,20 @@ class BarcelonaListener extends StatisticListener {
  * 
  */
 class ExpBarcelona extends Experiment {
-	final static int NEXP = 1;
+	final static int NEXP = 20;
+	FileWriter fileRes = null;
+	FileWriter fileRes1 = null;
 	
-	ExpBarcelona() {
+	ExpBarcelona(FileWriter fileRes, FileWriter fileRes1) {
 		super("Validation HOFT", NEXP);
+		this.fileRes = fileRes;
+		this.fileRes1 = fileRes1;
 	}
 	
 	public Simulation getSimulation(int ind) {
 		SimBarcelona sim = new SimBarcelona(description + ind + "", new Output(Output.DebugLevel.NODEBUG));
-		sim.addListener(new BarcelonaListener(24 * 365.0));
+		sim.addListener(new BarcelonaListener(24 * 365.0, fileRes));
+		sim.addListener(new BarcelonaListener2(24.0, fileRes1));
 		return sim;
 	}
 	
@@ -680,12 +695,22 @@ class ExpBarcelona extends Experiment {
  *
  */
 public class BarcelonaValidation {
+	static FileWriter fileRes = null;
+	static FileWriter fileRes1 = null;
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new ExpBarcelona().start();
+		try {
+			fileRes = new FileWriter("C:\\res.txt");
+			fileRes1 = new FileWriter("C:\\diaryUse.txt");
+			new ExpBarcelona(fileRes, fileRes1).start();
+			fileRes.close();
+			fileRes1.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

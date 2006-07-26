@@ -1,9 +1,3 @@
-/*
- * Flow.java
- *
- * Created on 17 de junio de 2005, 12:46
- */
-
 package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
@@ -12,26 +6,20 @@ import es.ull.isaatc.simulation.state.RecoverableState;
 import es.ull.isaatc.simulation.state.FlowState;
 
 /**
- * Representación abstracta del flujo de ejecución de un elemento. Un flujo 
- * tiene una estructura de árbol. Cada nodo del árbol puede ser un grupo de 
- * flujos o un flujo simple, que contiene una única actividad. En este último 
- * caso se trata de un nodo hoja.
+ * Activity flow of an element. A flow has a tree-like structure, and each node can be a single flow
+ * or a group flow. A single flow is a leaf node which contains an activity.
  * @author Iván Castilla Rodríguez
  */
 public abstract class Flow implements RecoverableState<FlowState> {
-    /**
-     * Padre del flujo actual.
-     */    
+    /** The parent node of this flow. */    
     protected Flow parent = null;
-    /**
-     * Elemento al que se asocia este flujo.
-     */    
+    /** Element which carries out this flow. */    
     protected Element elem;
     
     /**
-     * Crea una nueva instancia de un flujo
-     * @param parent Padre del flujo actual.
-     * @param elem Elemento al que se asocia el flujo.
+     * Creates a new node of a flow.
+     * @param parent The parent node of this flow.
+     * @param elem Element which carries out this flow.
      */
     public Flow(Flow parent, Element elem) {
         this.parent = parent;
@@ -39,53 +27,49 @@ public abstract class Flow implements RecoverableState<FlowState> {
     }
     
     /**
-     * Crea una nueva instancia de un flujo que es raíz del árbol (no tiene padre).
-     * @param elem Elemento al que se asocia el flujo.
+     * Creates a new root node of a flow. A root node is a node without parent.
+     * @param elem Element which carries out this flow.
      */
     public Flow(Element elem) {
         this.elem = elem;
     }
     
     /**
-     * Getter for property parent.
-     * @return Value of property parent.
+     * Returns the parent of this flow.
+     * @return Parent of this flow.
      */
     public es.ull.isaatc.simulation.Flow getParent() {
         return parent;
     }
     
     /**
-     * Setter for property parent.
-     * @param parent New value of property parent.
-     */
-    public void setParent(es.ull.isaatc.simulation.Flow parent) {
-        this.parent = parent;
-    }
-    
-    /**
-     * Getter para la propiedad elem.
-     * @return Valor de la propiedad elem.
+     * Returns the element which carries out this flow.
+     * @return The associated element.
      */
     public Element getElement() {
         return elem;
     }
     
     /**
-     * Returns the single flows that can be requested.
+     * Returns the next set of single flows that should be requested.<p> 
+     * The implementation iterates over the descendant flows searching for single flows
+     * which have not been requested yet.
+     * @return A list of single flows to request.
      */    
     protected abstract ArrayList<SingleFlow> request();
     
     /**
-     * Finishes the flow execution and returns a list of single flows that have
-     * to be executed after this flow is finished.
+     * Finishes the flow execution and returns a list of single flows that must
+     * be executed after this flow is finished.
+     * @return A list of single flows to request.
      */    
     protected abstract ArrayList<SingleFlow> finish();
 
     /**
-     * Devuelve el número de actividades que contiene el flujo actual. El valor 
-     * se devuelve como un array de dos componentes: el 0 para las actividades
-     * presenciales y el 1 para las no presenciales.
-     * @return El número de componentes del flujo actual.
+     * Returns the amount of activities this flow contains. This value is returned as
+     * a two components array: the first component is for the presential activities,
+     * and the second component, for the non-presential ones. 
+     * @return The amount of activities this flow contains.
      */    
     protected abstract int[]countActivities();
  

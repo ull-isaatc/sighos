@@ -1,73 +1,51 @@
-/*
- * FlujoGrupo.java
- *
- * Created on 17 de junio de 2005, 12:48
- */
-
 package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
 
 /**
- * Representa un nodo de un flujo que contiene más de un flujo.
+ * Represents a node containing several subflows.
  * @author Iván Castilla Rodríguez
  */
 public abstract class GroupFlow extends Flow {
-    /**
-     * Lista de flujos que contiene este flujo.
-     */    
-    protected ArrayList<Flow> list;
-    /**
-     * Número de flujos de este flujo cuya ejecución ha finalizado.
-     */    
+    /** List of descendants */    
+    protected ArrayList<Flow> descendants;
+    /** Amount of already finished subflows */    
     protected int finishedFlows;
     
     /**
-     * Crea un nuevo grupo de flujos.
-     * @param elem Elemento al que está asociado este flujo.
+     * Creates a new groupflow, which is a root node.
+     * @param elem Element which carries out this flow.
      */
     public GroupFlow(Element elem) {
         super(elem);
-        list = new ArrayList<Flow>();
+        descendants = new ArrayList<Flow>();
     }
     
     /**
-     * Crea un nuevo grupo de flujos.
-     * @param parent Flujo padre del actual.
-     * @param elem Elemento al que está asociado este flujo.
+     * Creates a new groupflow. This flow is added to the descendant list of its parent.
+     * @param parent The parent node of this flow.
+     * @param elem Element which carries out this flow.
      */
     public GroupFlow(GroupFlow parent, Element elem) {
         super(parent, elem);
         if (parent != null)
         	parent.add(this);
-        list = new ArrayList<Flow>();
+        descendants = new ArrayList<Flow>();
     }
     
     /**
-     * Añade un nuevo flujo al final de la lista de flujos.
-     * @param newFlow Nuevo flujo a añadir.
+     * Adds a flow to the descendant list.
+     * @param newFlow Flow to be added.
      */    
-    public void add(Flow newFlow) {
-        list.add(newFlow);
+    protected void add(Flow newFlow) {
+        descendants.add(newFlow);
     }
     
-    /**
-     * Inserta un nuevo flujo en la posición indicada de la lista de flujos.
-     * @param pos Posición de la lista de flujos donde se inserta el nuevo flujo.
-     * @param newFlow Nuevo flujo a añadir.
-     */    
-    public void add(int pos, Flow newFlow) {
-        list.add(pos, newFlow);
-    }
-    
-    /**
-     * Devuelve el número de actividades que contiene la lista de flujos.
-     * @return El número de actividades del flujo actual.
-     */    
+	@Override
     protected int[] countActivities() {
         int []cont = new int[2];
         cont[0] = cont[1] = 0;
-        for(Flow f : list) {
+        for(Flow f : descendants) {
             int []contAux = f.countActivities();
             cont[0] += contAux[0];
             cont[1] += contAux[1];
@@ -77,7 +55,7 @@ public abstract class GroupFlow extends Flow {
        
 	@Override
 	protected SingleFlow search(int id) {
-		for (Flow f : list) {
+		for (Flow f : descendants) {
 			SingleFlow sf = f.search(id);
 			if (sf != null)
 				return sf;
@@ -85,8 +63,12 @@ public abstract class GroupFlow extends Flow {
 		return null;
 	}
 	
+	/**
+	 * A group flow has finished when all its descendant flows have finished.
+	 * @return True if all the descendant flows have finished. False in other case. 
+	 */
 	@Override
 	protected boolean isFinished() {
-		return (finishedFlows == list.size());
+		return (finishedFlows == descendants.size());
 	}
 }

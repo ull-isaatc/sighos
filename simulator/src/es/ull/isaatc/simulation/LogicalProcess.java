@@ -12,51 +12,45 @@ import es.ull.isaatc.sync.*;
 import es.ull.isaatc.util.*;
 
 /** 
- * Clase para representar los procesos lógicos de eventos discretos. Un proceso 
- * lógico puede contener actividades, clases de recursos y recursos activos. 
- * Cuando contiene actividades se subdivide internamente en gestores de 
- * actividades.
+ * A logical process (LP) is a subregion of the simulation. It includes a set of resource types,
+ * activities, resources, and elements. The LP handles a set of events which interact with any
+ * of the components associated to this LP. An LP is subdivided into activity managers.   
  * @author Carlos Martín Galán
  */
 public class LogicalProcess extends SimulationObject implements Runnable, RecoverableState<LogicalProcessState> {
-	/** Logical Process' counter */
+	/** LP's counter. */
 	private static int nextId = 0;
-    /** Mecanismo de sincronismo con los elementos */
+    /** Controls the advance ot the simulation time. */
 	protected Lock lpLock;
-    /** Tiempo global del sistema */
+    /** Local virtual time. Represents the current simulation time for this LP. */
 	protected double lvt;
-    /** Tiempo máximo que durará la simulación para este PL */
+    /** The maximum timestamp for this logical process. When this timestamp is reached, this LP 
+     * finishes its execution. */
     protected double maxgvt; 
-    /** Mecanismo de control de los elementos en ejecución */
+    /** A queue that contains the events that executes at the current simulation time. */
     protected ExecutionQueue execQueue;
-	/** Heap para implementar la cola en espera */
+	/** A timestamp-ordered list of events whose timestamp is in the future. */
 	protected HeapAscending waitQueue;
-    /** Lista de Gestores de Actividades del proceso lógico */
+    /** The set of activity managers contained by this LP. */
     protected ArrayList<ActivityManager> managerList;
     /** Thread where the logical process function is implemented */
     private Thread lpThread = null;
 
 	/**
-     * Constructor del ProcesoLogico
+     * Creates a logical process with initial timestamp 0.0
+     * @param simul Simulation which this LP is attached to.
+     * @param endT Finishing timestamp.
      */
-	public LogicalProcess(Simulation simul) {
-        this(simul, 0.0, 0.0);
+	public LogicalProcess(Simulation simul, double endT) {
+        this(simul, 0.0, endT);
 	}
 
 	/**
-     * Constructor del ProcesoLogico en el que se anade el tiempo de simulacion 
-     * final
-     * @param t Tiempo de simulación final
-     */
-	public LogicalProcess(Simulation simul, double t) {
-        this(simul, 0.0, t);
-	}
-
-	/**
-     * Constructor del ProcesoLogico en el que se anade el tiempo de simulacion 
-     * en el que parte y el tiempo de simulación final
-     * @param startT Tiempo de simulación de partida
-     * @param endT Tiempo de simulación final
+     * Creates a logical processwith initial timestamp <code>startT</code> and
+     * finishing timestamp <code>endT</code>. 
+     * @param simul Simulation which this LP is attached to.
+     * @param startT Initial timestamp.
+     * @param endT Finishing timestamp.
      */
 	public LogicalProcess(Simulation simul, double startT, double endT) {
 		super(nextId++, simul);
@@ -69,67 +63,43 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
 	}
     
     /**
-     * Método para establecer el maximo tiempo de simulacion a ejecutar
-     * por el proceso logico
-     * @param t Máximo tiempo de simulación
-     */
-    public void setSimulationEnd(double t) {
-        maxgvt = t;
-    }
-
-    /**
-     * Indica si es el final del tiempo de simulación
-     * @return Verdadero si ya se acabo el tiempo de simulación
+     * Indicates if the simulation end has been reached.
+     * @return True if the maximum simulation time has been reached. False in other case.
      */
     public boolean isSimulationEnd() {
         return(lvt >= maxgvt);
     }
 
-    /** 
-     * Gets the associated simulation object
-     * @return Associated simulation object
-     */
-    public Simulation getSimul() {
-        return simul;
-    }
-    
+    @Override
 	public double getTs() {
 		return lvt;
 	}
 
     /**
-     * Sets the local time of this Logical Process
-     * @param newt New local time.
-     */
-	protected void setLVT(double newt) {
-		lvt = newt;
-	}
-
-	// procedimientos que controlan la ejecucion del pl
-    /**
-     * Envía un elemento a la cola de ejecución
-     * @param e Elemento a insertar
-     * @return true si todo fue correcto
+     * Sends an event to the execution queue. An event is added to the execution queue
+     * when the LP has reached the event timestamp.
+     * @param e Event to be executed
+     * @return True if the event was succesfully added. False in other case.
      */
 	public synchronized boolean addExecution(BasicElement.DiscreteEvent e) {
 		return execQueue.addEvent(e);
 	}
 
     /**
-     * Quita un elemento de la cola de ejecución
-     * @param e Elemento a quitar
-     * @return true si todo fue correcto
+     * Removes an event from the execution queue. An event is removed from the execution
+     * queue when it has finished the action it had to carry out.
+     * @param e Event to be removed
+     * @return True if the event was succesfully removed. False in other case.
      */
     protected synchronized boolean removeExecution(BasicElement.DiscreteEvent e) {
         return execQueue.removeEvent(e);
     }
     
     /**
-     * Quita un elemento de la cola de ejecución realizando una sincronización
-     * previa. La sincronización consiste en esperar a que el PL se bloquee o
-     * que haya expirado el tiempo de simulación
-     * @param e Elemento a quitar
-     * @return true si todo fue correcto
+     * Removes an event from the execution queue, but performing a previous synchronization.
+     * The synchronization consists on waiting for the LP to lock, or for the simulation end.
+     * @param e Event to be removed
+     * @return True if the event was succesfully removed. False in other case.
      */
     protected boolean removeExecutionSync(BasicElement.DiscreteEvent e) {
         while(!isSimulationEnd() && !locked());
@@ -137,50 +107,46 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
     }
     
     /**
-     * Envía un elemento a la cola de espera
-     * @param e Elemento a insertar
+     * Sends an event to the waiting queue. An event is added to the waiting queue if 
+     * its timestamp is greater than the LP timestamp.
+     * @param e Event to be added
      */
 	public synchronized void addWait(BasicElement.DiscreteEvent e) {
 		waitQueue.insert(e);
 	}
 
     /**
-     * Quita un elemento a la cola de espera
-     * @return El primer elemento del Heap
+     * Removes an event from the waiting queue. An event is removed from the waiting 
+     * queue when the LP reaches the timestamp of that event.
+     * @return The first event of the waiting queue.
      */
     protected synchronized BasicElement.DiscreteEvent removeWait() {
         return (BasicElement.DiscreteEvent) waitQueue.extractMin();
     }
 
     /**
-     * Comprueba si un elemento pertenece a la cola de espera
-     * @param e Elemento a comprobar
-     * @return true si el elemento pertenece a la cola
+     * Locks this LP. This LP is locked when there are no more elements waiting to be executed
+     * at the current timestamp.
      */
-    protected synchronized boolean inWait(BasicElement.DiscreteEvent e) {
-        return waitQueue.contains(e);
-    }
-    
-    // Funciones para el control del bloqueo del Proceso Lógico
-    /**
-     * Bloquea el proceso lógico
-     * @throws InterruptedException Cuando ocurió algún error al bloquear.
-     */
-    protected void lock() throws InterruptedException {
-        lpLock.lock();
+    protected void lock() {
+    	try {
+    		lpLock.lock();
+    	} catch (InterruptedException ex) {
+        	ex.printStackTrace();
+        }
     }
     
     /**
-     * Desbloquea el proceso lógico
+     * Unlocks this LP. This LP is unlocked when the last event in the execution queue finishes 
+     * its execution.  
      */
     protected void unlock() {
         lpLock.unlock();
     }
     
     /**
-     * Comprueba si el proceso lógico está bloqueado
-     * @return Verdadero (true) si el proceso lógico está bloqueado, falso 
-     * (false) en otro caso.
+     * Checks if the LP is locked.
+     * @return True if the LP is locked. False in other case.
      */
     protected boolean locked() {
         return lpLock.locked();
@@ -195,78 +161,55 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
     }
     
     /**
-     * Saca todos los elementos de la cola de espera que deben ejecutarse en un 
-     * instante de simulación.
+     * Executes a simulation clock cycle. Extracts all the events from the waiting queue with 
+     * timestamp equal to the LP timestamp. 
      */
     private void execWaitingElements() {
-        // saca el primer elemento de la lista
+        // Extracts the first event
         if (! waitQueue.isEmpty()) {
             BasicElement.DiscreteEvent e = removeWait();
-            setLVT(e.getTs());
+            // Advances the simulation clock
+            lvt = e.getTs();
             double tiempo = e.getTs();            
             print(Output.MessageType.DEBUG, "SIMULATION TIME ADVANCING " + tiempo);
-            // MOD 4/07/05 No se deben ejecutar de forma normal los elementos de ts >= maxGVT
+            // Events with timestamp greater or equal to the maximum simulation time aren't
+            // executed
             if (tiempo >= maxgvt)
                 addWait(e);
             else {
-                // MOD 11/01/06 Se actualiza el reloj del elemento => Quitado
-                //e.getElement().setTs(tiempo);
                 addExecution(e);
-                // saca de la cola todos los que estan en este tiempo de simulacion
+                // Extracts all the events with the same timestamp
                 boolean flag = false;
                 do {
                     if (! waitQueue.isEmpty()) {
                         e = removeWait();
                         if ( e.getTs() == tiempo ) {
-                            // ponlo a ejecutar
                             addExecution(e);
                             flag = true;
                         }
-                        else {  // sacó uno, pero ya tiene un tiempo posterior
+                        else {  
                             flag = false;
                             addWait(e);
                         }
                     }
-                    else {  // se vació la cola, y por tanto hay que salir del while
+                    else {  // The waiting queue is empty
                         flag = false;
                     }
                 } while ( flag );
             }
-        } // del if ! en_espera        
+        }        
     }
-    
-    /**
-     * Controla la ejecución del proceso lógico
-     */
-	private void lpExecution() {
 
-		while (!isSimulationEnd()) {
-			// Espera hasta que no haya nadie ejecutandose
-			try {				
-                lock();
-            } catch (InterruptedException ex) {
-            	ex.printStackTrace();
-           }
-            // en este momento se supone que no hay nadie en ejecucion, lo que implica
-			// que no habrá nadie poniendolo en espera
-            execWaitingElements();
+	/**
+	 * A basic element which facilitates the end-of-simulation control. It simply
+	 * has an event at <code>maxgvt</code>, so there's always at least one event in 
+	 * the LP. 
+	 * @author Iván Castilla Rodríguez
+	 */
+    class SafeLPElement extends BasicElement {
 
-		} // fin del while principal
-
-		// Frees the execution queue
-		execQueue.free();
-    	print(Output.MessageType.DEBUG, "SIMULATION TIME FINISHES",
-    			"SIMULATION TIME FINISHES\r\nSimulation time = " +
-            	lvt + "\r\nPreviewed simulation time = " + maxgvt);
-    	printState();
-    	// Notifies the simulation about the end of this logical process
-        simul.notifyEnd();
-	} // fin EjecucionPL
-
-    class DummyElement extends BasicElement {
-
-		public DummyElement(int id, Simulation simul) {
-			super(id, simul);
+		public SafeLPElement() {
+			super(0, LogicalProcess.this.simul);
 		}
 
 		@Override
@@ -278,30 +221,39 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
 		protected void end() {
 		}
 
-		protected void saveState() {
-		}
     	class DummyEvent extends BasicElement.DiscreteEvent {
-
     		DummyEvent(double ts) {
     			super(ts, LogicalProcess.this);
     		}
-			public void event() {
-				
-			}
-    		
+			public void event() {				
+			}    		
     	}
     }
+    
     /**
-     * Método que se llama cuando comienza la ejecución del thread proceso lógico. 
-     * Arranca todos los recursos activos y comienza la ejecución de los elementos
+     * Controls the LP execution. First, a <code>SafeLPElement</code> is added. The execution loop 
+     * consists on waiting for the elements which are in execution, then the simulation clock is 
+     * advanced and a new set of events is executed. 
      */
 	public void run() {
-        // MOD 14/04/06 Parche para que funcione de momento
-        new DummyElement(0, simul).start(this);
-        
-        lpExecution(); // ejecuto el PL
+        new SafeLPElement().start(this);
+		while (!isSimulationEnd()) {
+            lock();
+            execWaitingElements();
+		}
+		// Frees the execution queue
+		execQueue.free();
+    	print(Output.MessageType.DEBUG, "SIMULATION TIME FINISHES",
+    			"SIMULATION TIME FINISHES\r\nSimulation time = " +
+            	lvt + "\r\nPreviewed simulation time = " + maxgvt);
+    	printState();
+    	// Notifies the simulation about the end of this logical process
+        simul.notifyEnd();
 	}
 
+	/**
+	 * Starts the thread that handles the LP execution.
+	 */
 	public void start() {
 		if (lpThread == null) {
 	        lpThread = new Thread(this);
@@ -309,13 +261,18 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
 		}
 	}
 
+	@Override
 	public String getObjectTypeIdentifier() {
 		return "LP";
 	}
 
+	/**
+	 * Does a debug print of this LP. Prints the current local time, the contents of
+	 * the waiting and execution queues, and the contents of the activity managers. 
+	 */
 	protected void printState() {
 		StringBuffer strLong = new StringBuffer("------    LP STATE    ------");
-		strLong.append("GVT: " + lvt + "\r\n");
+		strLong.append("LVT: " + lvt + "\r\n");
         strLong.append(waitQueue.size() + " waiting elements: ");
         for (int i = 0; i < waitQueue.size(); i++) {
             BasicElement.DiscreteEvent e = (BasicElement.DiscreteEvent) waitQueue.get(i);            
@@ -332,6 +289,11 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
 		print(Output.MessageType.DEBUG, "Waiting\t" + waitQueue.size() + "\tExecuting\t" + execQueue.size(), strLong.toString());
 	}
 
+	/**
+	 * Returns the state of this LP. The state of a LP consists on the state of its activity
+	 * managers, and the events contained in the waiting queue.
+	 * @return The state of this LP
+	 */
 	public LogicalProcessState getState() {
 		LogicalProcessState lpState = new LogicalProcessState(id);
 		for (ActivityManager am : managerList)
@@ -351,6 +313,11 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
 		return lpState;
 	}
 
+	/**
+	 * Sets the state of this LP. The state of a LP consists on the state of its activity
+	 * managers, and the events contained in the waiting queue.
+	 * param state The state of this LP
+	 */
 	public void setState(LogicalProcessState state) {
 		for (ActivityManagerState amState : state.getAmStates()) {
 			ActivityManager am = new ActivityManager(simul);

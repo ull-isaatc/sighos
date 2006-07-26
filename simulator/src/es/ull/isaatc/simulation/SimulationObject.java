@@ -1,8 +1,3 @@
-/*
- * ObjetoIdentificado.java
- *
- * Created on 23 de agosto de 2004, 11:56
- */
 package es.ull.isaatc.simulation;
 
 import es.ull.isaatc.util.Orderable;
@@ -51,7 +46,7 @@ public abstract class SimulationObject implements Printable, Orderable {
 	public abstract double getTs();
 	
     /**
-     * Getter for property simul.
+     * Returns the simulation which this object is attached to.
      * @return Value of property simul.
      */
     public es.ull.isaatc.simulation.Simulation getSimul() {

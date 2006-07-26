@@ -15,21 +15,21 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
     /** Activity manager this resource type belongs to. */
     protected ActivityManager manager;
     /** A list of the currently available resources. */
-    protected ResourceList availableResourceQueue;
+    protected ResourceList availableResourceList;
 
     /**
      * Creates a new resource type.
      * @param id Resource type's identifier
      * @param simul Associated simulation
-     * @param description A brief description of the resource type.
+     * @param description A short text describing this resource type.
      */
 	public ResourceType(int id, Simulation simul, String description) {
 		super(id, simul, description);
-        availableResourceQueue = new ResourceList();
+        availableResourceList = new ResourceList();
 	}
 
     /**
-     * Getter for property manager.
+     * Returns the activity manager this resource type belongs to.
      * @return Value of property manager.
      */
     public ActivityManager getManager() {
@@ -37,7 +37,8 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
     }
     
     /**
-     * Setter for property manager.
+     * Sets the activity manager this resource type belongs to. It also
+     * adds this resource type to the manager.
      * @param manager New value of property manager.
      */
     public void setManager(ActivityManager manager) {
@@ -54,8 +55,8 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
 	 */
     protected int[] getAvailable(SingleFlow sf) {
         int total[] = new int[2];
-        for (int i = 0; i < availableResourceQueue.size(); i++) {
-            Resource res = availableResourceQueue.get(i);
+        for (int i = 0; i < availableResourceList.size(); i++) {
+            Resource res = availableResourceList.get(i);
             // First, I check if the resource is being used
             if (res.getCurrentSF() == null) {
 	            if (res.addBook(sf))
@@ -72,8 +73,8 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
      * @param sf Single flow the resources were booked for.
      */
     protected void resetAvailable(SingleFlow sf) {
-        for (int i = 0; i < availableResourceQueue.size(); i++)
-        	availableResourceQueue.get(i).removeBook(sf);
+        for (int i = 0; i < availableResourceList.size(); i++)
+        	availableResourceList.get(i).removeBook(sf);
     }
 
     /**
@@ -82,23 +83,20 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
      * @return Resource corresponding to the "ind" position".
      */
     protected Resource getResource(int ind) {
-        if (ind >= availableResourceQueue.size())
+        if (ind >= availableResourceList.size())
             return null;
-        return availableResourceQueue.get(ind);
+        return availableResourceList.get(ind);
     }
     
     /**
-     * Busca el primer recurso con roles solapados de la cola de recursos
-     * disponibles que esté reservado (o en uso) por el elemento e y no ha sido
-     * ya reservado para otra clase de recurso (solapado). Comienza la
-     * búsqueda a partir del recurso con índice ind.
-     * @param ind Indice a partir del cual comienza la búsqueda.
-     * @param e Elemento que tiene reservado (o en uso) al recurso buscado.
-     * @return El índice del recurso o -1 si no encontró ninguno.
+     * Searches the first available resource (a resource which is not being used yet) with 
+     * this role. The search starts at position <code>ind</code>.   
+     * @param ind Position to start the search.
+     * @return The resource's index or -1 if there are not available resources.
      */
     protected int getNextAvailableResource(int ind) {
-        for (; ind < availableResourceQueue.size(); ind++) {
-            Resource res = availableResourceQueue.get(ind);
+        for (; ind < availableResourceList.size(); ind++) {
+            Resource res = availableResourceList.get(ind);
             // Checks if the resource is busy (taken by other element or conflict in the same activity)
             // FIXME Debería bastar con preguntar por el RT
             if ((res.getCurrentSF() == null) && (res.getCurrentResourceType() == null))
@@ -108,8 +106,11 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
     }
     
 	/**
-	 * Decrementa el número de recursos disponibles de esta clase de recurso en
-	 * una cantidad dada.
+	 * Takes <code>n</code> resources from the available resource list. These resources
+	 * are marked as caught by the specified single flow. <p>
+	 * The resources of this resource type are supposed to be already caught by another single
+	 * flow or booked by this single flow. When <code>n</code> resources are taken, the rest
+	 * are freed by releasing their book.
 	 * @param n Resources needed
      * @param sf single flow catching the resources
 	 */
@@ -118,8 +119,8 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
         		"Decrease amount\t" + n + "\t" + sf.getElement());
         
         // When this point is reached, it is suppose that there are enough resources
-        for (int i = 0; i < availableResourceQueue.size(); i++) {
-            Resource res = availableResourceQueue.get(i);
+        for (int i = 0; i < availableResourceList.size(); i++) {
+            Resource res = availableResourceList.get(i);
             // Checks the availability of the resource
             if (res.getCurrentSF() == null) {
             	// The resource has no conflict
@@ -161,7 +162,7 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
      */
     protected void incAvailable(Resource res) {
     	print(Output.MessageType.DEBUG, "Resource added\t" + res);
-        availableResourceQueue.add(res);
+        availableResourceList.add(res);
         // If the resource was being used in a previous "availability period", it was marked as
         // "timeOut". This mark can be removed.
         if ((res.getCurrentResourceType() == this) && res.isTimeOut())
@@ -169,47 +170,76 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
     }
     
     /**
-     * Removes a resource 
+     * Removes a resource from the available list. 
      * @param res New unavailable resource.
      */
     protected void decAvailable(Resource res) {
     	print(Output.MessageType.DEBUG, "Resource removed\t" + res);
         // If the resource is being used for this resource type, it's marked as "timeOut"
-        if (availableResourceQueue.remove(res) && (res.getCurrentResourceType() == this))
+        if (availableResourceList.remove(res) && (res.getCurrentResourceType() == this))
         	res.setTimeOut(true);
     }
     
+    @Override
 	public String getObjectTypeIdentifier() {
 		return "RT";
 	}
 
+    @Override
 	public double getTs() {
 		return manager.getTs();
 	}
 
+    /**
+     * Returns the state of this resource type. The state of a resource type consists on the list
+     * of available resources.
+     * @return The state of this resource type.
+     */
 	public ResourceTypeState getState() {
 		ResourceTypeState state = new ResourceTypeState(id);
-		for (int i = 0; i < availableResourceQueue.size(); i++)
-			state.add(availableResourceQueue.get(i).getIdentifier(), availableResourceQueue.getCounter(i));
+		for (int i = 0; i < availableResourceList.size(); i++)
+			state.add(availableResourceList.get(i).getIdentifier(), availableResourceList.getCounter(i));
 		return state;
 	}
 
+    /**
+     * Sets the state of this resource type. The state of a resource type consists on the list
+     * of available resources.
+     * @param state The state of this resource type.
+     */
 	public void setState(ResourceTypeState state) {
 		for (ResourceTypeState.ResourceListEntry entry : state.getAvailableResourceQueue()) {
 			Resource res = simul.getResourceList().get(new Integer(entry.getResId()));
-			availableResourceQueue.add(res, entry.getCount());
+			availableResourceList.add(res, entry.getCount());
 		}
 	}
 
+	/**
+	 * Handles the overlap of timetable entries for the same resource, i.e., a resource that has 
+	 * several timetable entries at the same time interval with the same resource type. This list 
+	 * counts how many times it occurs to avoid incorrect behaviours of the amount of available
+	 * resources.
+	 * @author Iván Castilla Rodríguez
+	 */
 	class ResourceList {
+		/** List of resources */
 	    protected ArrayList<Resource> resources;
+		/** A count of how many times each resource has been put as available */
 	    protected ArrayList<Integer> counter;
 	    
+	    /**
+	     * Creates a new resource list.
+	     */
 	    ResourceList() {
 	    	resources = new ArrayList<Resource>();
 	    	counter = new ArrayList<Integer>();
 	    }
-	    
+
+	    /**
+	     * Adds a resource. If the resource isn't present in the list, it's included with a "1" count.
+	     * If the resource exists already, the count is increased.
+	     * @param res The resource added
+	     */
 	    void add(Resource res) {
 	    	int pos = resources.indexOf(res);
 	    	if (pos == -1) {
@@ -220,6 +250,11 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
 	    		counter.set(pos, counter.get(pos).intValue() + 1); 
 	    }
 	    
+	    /**
+	     * Adds a resource. The count of the resource is explicitly declared.
+	     * @param res The resource added
+	     * @param countHow many times the resource has been put as available for this resource type.
+	     */
 	    void add(Resource res, int count) {
 	    	resources.add(res);
 	    	counter.add(count);
@@ -228,7 +263,7 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
 	    /**
 	     * Removes a resource. The resource can have more than one appearance in the list. In 
 	     * this case, it's no t really removed.
-	     * @param res
+	     * @param res The resource removed.
 	     * @return True if the resource is completely removed from the list. False in other case.
 	     */
 	    boolean remove(Resource res) {
@@ -245,14 +280,28 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
 	    	return true;
 	    }
 	    
+	    /**
+	     * Returns the resource at the specified position 
+	     * @param index The position of the resource
+	     * @return The resource at the specified position.
+	     */
 	    Resource get(int index) {
 	    	return resources.get(index);
 	    }
 	    
+	    /**
+	     * Returns the count at the specified position
+	     * @param index The position of the count.
+	     * @return
+	     */
 	    int getCounter(int index) {
 	    	return counter.get(index);
 	    }
 	    
+	    /**
+	     * Returns the number of resources in this list. 
+	     * @return The number of resources in this list.
+	     */
 	    int size() {
 	    	return resources.size();
 	    }

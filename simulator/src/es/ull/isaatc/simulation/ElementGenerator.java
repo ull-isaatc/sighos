@@ -9,8 +9,9 @@ import es.ull.isaatc.random.RandomNumber;
 import es.ull.isaatc.util.CycleIterator;
 
 /**
+ * Creates a certain number of elements cyclically. A <code>CycleIterator</code> indicates the
+ * cycle that the generator has to follow. 
  * @author Iván Castilla Rodríguez
- *
  */
 public class ElementGenerator extends Generator {
 	/** Each metaflow that will be generated */
@@ -21,11 +22,23 @@ public class ElementGenerator extends Generator {
 	protected RandomNumber nElem;
 
 	/**
-	 * @param simul
-	 * @param nElem
+	 * Creates an element generator which generates certain number of elements following a cycle. 
+	 * @param simul Simulation where this generator is being used
+     * @param nElem Number of objects created per cycle iteration.
      * @param cycleIter Control of the generation cycle.
-	 * @param et
-	 * @param metaFlow
+	 */
+	public ElementGenerator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter) {
+		this(simul, nElem, cycleIter, new ArrayList<GenerationTrio>());
+	}
+	
+	/**
+	 * Creates an element generator which generates certain number of elements of a specified type 
+	 * following a cycle. The activity flow of each element is build by using the specified metaflow.
+	 * @param simul Simulation where this generator is being used.
+     * @param nElem Number of objects created per cycle iteration.
+     * @param cycleIter Control of the generation cycle.
+	 * @param et Type of the created elements.
+	 * @param metaFlow Description of the activity flow that the elements carry out.
 	 */
 	public ElementGenerator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter, ElementType et, MetaFlow metaFlow) {
 		super(simul);
@@ -36,15 +49,12 @@ public class ElementGenerator extends Generator {
 	}
 
 	/**
-	 * @param nElem Number of elements which will be generated.
-	 */
-	public ElementGenerator(Simulation simul, RandomNumber nElem, CycleIterator cycleIter) {
-		this(simul, nElem, cycleIter, new ArrayList<GenerationTrio>());
-	}
-	
-	/**
-	 * @param simul
-	 * @param nElem Number of elements which will be generated.
+	 * Creates an element generator which generates certain number of elements of a specified type 
+	 * following a cycle. This generator is capable of create elements of different types and which
+	 * use different metaflows. The amount of elements of each type is computed by using the proportion
+	 * as indicated in the generation "trios".
+	 * @param simul Simulation where this generator is being used
+     * @param nElem Number of objects created per cycle iteration.
      * @param cycleIter Control of the generation cycle.
 	 * @param genTrio Initial list of [element type, metaflow, proportions] trios.
 	 */
@@ -56,14 +66,20 @@ public class ElementGenerator extends Generator {
 	}
 
 	/**
-	 * Adds a [element type, proportion] pair.
+	 * Adds a [element type, metaflow, proportion] trio.
 	 * @param et Element type
-	 * @param prop Proportion of elements corresponding to this metaflow
+	 * @param metaFlow Description of the activity flow that the elements carry out.
+	 * @param prop Proportion of elements corresponding to this metaflow.
 	 */
 	public void add(ElementType et, MetaFlow metaFlow, double prop) {
 		genTrio.add(new GenerationTrio(et, metaFlow, prop));
 	}
 
+	/**
+	 * Creates the elements. This method takes a sample of the distribution which characterizes
+	 * the amount of elements to generate, and creates as many elements as this sample shows. The total
+	 * of patients is divided into the different generation "trios" that have been defined.
+	 */
 	@Override
 	public void createElements() {
         int n = (int)nElem.samplePositiveDouble();
@@ -76,19 +92,33 @@ public class ElementGenerator extends Generator {
 		}
 	}
 
+	/**
+	 * Invokes the cycle iterator.
+	 * @return The new timestamp to create elements. <code>Double.NaN</code> if the limit time 
+	 * has been reached. 
+	 */
 	@Override
 	public double nextTs() {
 		return cycleIter.next();
 	}
 
+	/**
+	 * Description of a set of elements this generator can create.
+	 * @author Iván Castilla Rodríguez
+	 */
 	public class GenerationTrio {
+		/** Type of the created elements. */
 		protected ElementType et;
+		/** Description of the activity flow that the elements carry out. */
 		protected MetaFlow metaFlow;
+		/** Proportion of elements corresponding to this metaflow. */
 		protected double prop;
 		
 		/**
-		 * @param meta
-		 * @param prop
+		 * Creates a new kind of elements to generate.
+		 * @param et Element type
+		 * @param metaFlow Description of the activity flow that the elements carry out.
+		 * @param prop Proportion of elements corresponding to this metaflow.
 		 */
 		public GenerationTrio(ElementType et, MetaFlow metaFlow, double prop) {
 			super();
@@ -98,6 +128,7 @@ public class ElementGenerator extends Generator {
 		}
 		
 		/**
+		 * Returns the element type.
 		 * @return Returns the element type.
 		 */
 		public ElementType getElementType() {
@@ -105,6 +136,7 @@ public class ElementGenerator extends Generator {
 		}
 		
 		/**
+		 * Returns the metaflow.
 		 * @return the metaFlow
 		 */
 		public MetaFlow getMetaFlow() {
@@ -112,7 +144,8 @@ public class ElementGenerator extends Generator {
 		}
 
 		/**
-		 * @return Returns the prop.
+		 * Returns the proportion of elements to be created of this kind of elements.
+		 * @return Returns the proportion.
 		 */
 		public double getProp() {
 			return prop;
