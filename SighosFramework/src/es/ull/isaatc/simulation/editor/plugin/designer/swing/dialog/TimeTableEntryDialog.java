@@ -42,8 +42,8 @@ public class TimeTableEntryDialog extends SighosDialog {
 	
 	private ResourceTypeListPanel resourceTypeList;
 
-	public TimeTableEntryDialog(TimeTable ttEntry) {
-		super();
+	public TimeTableEntryDialog(Component parent, TimeTable ttEntry) {
+		super(parent);
 		ttEditionEntry = (TimeTable)ttEntry.clone();
 		initValues();
 		
@@ -138,18 +138,13 @@ public class TimeTableEntryDialog extends SighosDialog {
 		return dur;
 	}
 
-	protected void okButtonAction() {
+	protected boolean apply() {
 		ttEditionEntry.setRTList(resourceTypeList.getRTList());
 		ttEditionEntry.setCycle(xmlEditorPanel.getEditorText());
 		ttEditionEntry.setDuration(getDuration());
-		setVisible(false);
+		return true;
 	}
 
-	protected void cancelButtonAction() {
-		ttEditionEntry = null;
-		setVisible(false);
-	}
-	
 	public TimeTable getTimeTable() {
 		return ttEditionEntry;
 	}

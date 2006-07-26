@@ -4,14 +4,15 @@ import java.io.File;
 
 import javax.swing.event.TreeSelectionEvent;
 
-import org.xnap.commons.gui.DirectoryChooser;
+import es.ull.isaatc.simulation.editor.framework.SighosFramework;
+import es.ull.isaatc.simulation.editor.framework.swing.dialog.SighosDirectoryChooser;
 
 public class DirectoryChooserFactory {
 
-	public static DirectoryChooser OPEN_PROJECT_CHOOSER = getOpenProjectDirectoryChooser();
+	public static SighosDirectoryChooser OPEN_PROJECT_CHOOSER = getOpenProjectDirectoryChooser();
 	
-	private static DirectoryChooser getOpenProjectDirectoryChooser() {
-		DirectoryChooser dirChooser = new DirectoryChooser() {
+	private static SighosDirectoryChooser getOpenProjectDirectoryChooser() {
+		SighosDirectoryChooser dirChooser = new SighosDirectoryChooser(SighosFramework.getInstance()) {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChanged(TreeSelectionEvent e) {

@@ -37,7 +37,7 @@ public class PackageFlowPropertiesAction extends SighosExistingGraphAction
 			PackageFlowPropertiesDialog dialog = PackageFlowPropertiesDialog.getInstance(); 
 			dialog.initValues(f.getIterations(), f.getRootFlow());
 			dialog.setVisible(true);
-			if (dialog.getIterations() != null) {
+			if (dialog.isOkay()) {
 				f.setIterations(dialog.getIterations());
 				f.setRootFlow(dialog.getRootFlow(), false);
 				SighosCell cell = (SighosCell)graph.getSelectionCell();

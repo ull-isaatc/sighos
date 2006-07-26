@@ -10,6 +10,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
+import es.ull.isaatc.simulation.editor.framework.SighosFramework;
 import es.ull.isaatc.simulation.editor.framework.actions.swing.SighosDialogComponentAction;
 import es.ull.isaatc.simulation.editor.framework.swing.dialog.SighosDialog;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.util.ElementTypeListPanel;
@@ -27,18 +28,18 @@ public class TypeBranchPropertiesDialog extends SighosDialog {
 
 	private TypeBranchFlow tbEditionFlow;
 	
-	private static TypeBranchPropertiesDialog INSTANCE = new TypeBranchPropertiesDialog();
+	private static TypeBranchPropertiesDialog INSTANCE = new TypeBranchPropertiesDialog(SighosFramework.getInstance());
 	
 	public static TypeBranchPropertiesDialog getInstance() {
 		return INSTANCE;
 	}
 
-	public TypeBranchPropertiesDialog() {
-		super();
+	public TypeBranchPropertiesDialog(Component parent) {
+		super(parent);
 	}
 
 	protected void initialize() {
-		this.setSize(new Dimension(300, 200));
+		this.setSize(new Dimension(450, 300));
 		setModal(true);
 		super.initialize();
 		setTitle(ResourceLoader.getMessage("resource_timetable_entry_dialog"));
@@ -79,17 +80,12 @@ public class TypeBranchPropertiesDialog extends SighosDialog {
 		return elementTypeList;		
 	}
 	
-	protected void okButtonAction() {
+	protected boolean apply() {
 		tbEditionFlow = new TypeBranchFlow();
 		tbEditionFlow.setElemTypes(new ArrayList<ElementType>(elementTypeList.getETList()));
-		setVisible(false);
+		return true;
 	}
 
-	protected void cancelButtonAction() {
-		tbEditionFlow = null;
-		setVisible(false);
-	}
-	
 	/**
 	 * @return the tbEditionFlow
 	 */

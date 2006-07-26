@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.xml.bind.JAXBException;
 
+import es.ull.isaatc.simulation.editor.framework.SighosFramework;
 import es.ull.isaatc.simulation.editor.framework.actions.swing.SighosDialogComponentAction;
 import es.ull.isaatc.simulation.editor.framework.swing.dialog.SighosDialog;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.util.XMLEditorPanel;
@@ -25,14 +26,14 @@ public class SplitFlowPropertiesDialog extends SighosDialog {
 	
 	private String iterations;
 	
-	private static SplitFlowPropertiesDialog INSTANCE = new SplitFlowPropertiesDialog();
+	private static SplitFlowPropertiesDialog INSTANCE = new SplitFlowPropertiesDialog(SighosFramework.getInstance());
 	
 	public static SplitFlowPropertiesDialog getInstance() {
 		return INSTANCE;
 	}
 
-	private SplitFlowPropertiesDialog() {
-		super();
+	private SplitFlowPropertiesDialog(Component parent) {
+		super(parent);
 	}
 	
 	protected void initialize() {
@@ -84,14 +85,9 @@ public class SplitFlowPropertiesDialog extends SighosDialog {
 		return iterations;
 	}
 
-	protected void okButtonAction() {
+	protected boolean apply() {
 		iterations = xmlEditorPanel.getEditorText();
-		setVisible(false);
-	}
-
-	protected void cancelButtonAction() {
-		iterations = null;
-		setVisible(false);
+		return true;
 	}
 
 	class IterationsAction extends SighosDialogComponentAction {

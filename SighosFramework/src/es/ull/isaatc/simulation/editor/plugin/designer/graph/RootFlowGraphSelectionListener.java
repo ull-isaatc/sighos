@@ -2,20 +2,29 @@ package es.ull.isaatc.simulation.editor.plugin.designer.graph;
 
 import org.jgraph.event.GraphSelectionEvent;
 import org.jgraph.event.GraphSelectionListener;
+import org.jgraph.graph.AbstractCellView;
+import org.jgraph.graph.DefaultGraphModel;
+import org.jgraph.graph.GraphLayoutCache;
 import org.jgraph.graph.GraphSelectionModel;
 
 import es.ull.isaatc.simulation.editor.plugin.designer.actions.graph.*;
+import es.ull.isaatc.simulation.editor.plugin.designer.graph.cell.BranchCell;
 import es.ull.isaatc.simulation.editor.plugin.designer.graph.cell.SighosCell;
 
 public class RootFlowGraphSelectionListener implements GraphSelectionListener {
+	
+	private RootFlowGraph graph;
+	
 	private GraphSelectionModel model;
 
-	public RootFlowGraphSelectionListener(GraphSelectionModel model) {
-		this.model = model;
+	public RootFlowGraphSelectionListener(RootFlowGraph graph) {
+		this.graph = graph;
+		this.model = graph.getSelectionModel();
 	}
 
 	public void valueChanged(GraphSelectionEvent event) {
 		updateActions();
+//		checkSelectedCells(event.getCells());
 	}
 
 	public void forceActionUpdate() {
@@ -27,6 +36,17 @@ public class RootFlowGraphSelectionListener implements GraphSelectionListener {
 			disableActions();
 		} else {
 			enableActionsIfAppropriate();
+		}
+	}
+	
+	private void checkSelectedCells(Object cells[]) {
+		
+		for (Object cell : cells) {
+			if (cell instanceof BranchCell) {
+				BranchCell pair = ((BranchCell)cell).getPairCell();
+				AbstractCellView cv = (AbstractCellView)graph.getViewFor(pair);
+				cv.getRendererComponent(graph, true, false, false);
+			}
 		}
 	}
 

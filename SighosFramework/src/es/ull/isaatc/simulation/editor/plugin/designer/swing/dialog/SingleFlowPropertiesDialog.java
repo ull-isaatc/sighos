@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.xml.bind.JAXBException;
 
+import es.ull.isaatc.simulation.editor.framework.SighosFramework;
 import es.ull.isaatc.simulation.editor.framework.actions.swing.SighosDialogComponentAction;
 import es.ull.isaatc.simulation.editor.framework.swing.dialog.SighosDialog;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.util.ActivityComboBox;
@@ -34,14 +35,14 @@ public class SingleFlowPropertiesDialog extends SighosDialog {
 	
 	private String iterations;
 	
-	private static SingleFlowPropertiesDialog INSTANCE = new SingleFlowPropertiesDialog();
+	private static SingleFlowPropertiesDialog INSTANCE = new SingleFlowPropertiesDialog(SighosFramework.getInstance());
 	
 	public static SingleFlowPropertiesDialog getInstance() {
 		return INSTANCE;
 	}
 
-	private SingleFlowPropertiesDialog() {
-		super();
+	private SingleFlowPropertiesDialog(Component parent) {
+		super(parent);
 	}
 	
 	protected void initialize() {
@@ -129,15 +130,10 @@ public class SingleFlowPropertiesDialog extends SighosDialog {
 		return iterations;
 	}
 
-	protected void okButtonAction() {
+	protected boolean apply() {
 		iterations = xmlEditorPanel.getEditorText();
 		activity = (Activity) actComboBox.getSelectedItem();
-		setVisible(false);
-	}
-
-	protected void cancelButtonAction() {
-		iterations = null;
-		setVisible(false);
+		return true;
 	}
 
 	class IterationsAction extends SighosDialogComponentAction {

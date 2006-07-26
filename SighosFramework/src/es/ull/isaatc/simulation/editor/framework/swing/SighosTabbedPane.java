@@ -13,4 +13,8 @@ public class SighosTabbedPane extends JTabbedPane {
 		}
 		return INSTANCE;
 	}
+	
+	public void reset() {
+		removeAll();
+	}
 }

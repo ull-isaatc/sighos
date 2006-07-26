@@ -130,6 +130,15 @@ public class SighosDesignerPlugin implements Plugin {
 		return getMenu();
 	}
 
+	public void reset() {
+		resourceTypeTable = null;
+		resourceTable = null;
+		activityTable = null;
+		elementTypeTable = null;
+		rootFlowTable = null;
+		DesignerDesktop.getInstance().reset();
+	}
+	
 	public RootFlowTable getRootFlowTable() {
 		return rootFlowTable;
 	}

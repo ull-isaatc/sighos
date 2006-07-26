@@ -1,7 +1,16 @@
 package es.ull.isaatc.simulation.editor.framework.swing.dialog;
 
+import java.awt.Component;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+
 import info.clearthought.layout.TableLayout;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -14,6 +23,8 @@ public abstract class SighosDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
+	protected Component parent;
+
 	private JPanel buttonPanel;
 
 	private JPanel topPanel;
@@ -22,17 +33,34 @@ public abstract class SighosDialog extends JDialog {
 
 	private JLabel componentLabel;
 
+	private Action okayAction = new OkayAction();
+
+	private Action cancelAction = new CancelAction();
+
 	private JButton okButton = null;
 
 	private JButton cancelButton = null;
 
-	public SighosDialog() {
+	protected boolean isOkay = false;
+
+	public SighosDialog(Component parent) {
 		super();
+		this.parent = parent;
 		initialize();
+		// Locate the dialog in the center of the its parent container
+		if (parent != null) {
+			Rectangle parentBounds = parent.getBounds();
+			Rectangle bounds = getBounds();
+			Point p = new Point();
+			p.setLocation(parentBounds.getCenterX() - bounds.getWidth() / 2,
+					parentBounds.getCenterY() - bounds.getHeight() / 2);
+			this.setLocation(p);
+		}
 	}
 
 	protected void initialize() {
 		this.setContentPane(createContentPane());
+		addWindowListener(new CloseListener());
 	}
 
 	private JPanel createContentPane() {
@@ -107,12 +135,7 @@ public abstract class SighosDialog extends JDialog {
 	 */
 	private JButton getOkButton() {
 		if (okButton == null) {
-			okButton = new JButton(ResourceLoader.getMessage("ok"));
-			okButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					okButtonAction();
-				}
-			});
+			okButton = new JButton(okayAction);
 		}
 		return okButton;
 	}
@@ -124,14 +147,30 @@ public abstract class SighosDialog extends JDialog {
 	 */
 	private JButton getCancelButton() {
 		if (cancelButton == null) {
-			cancelButton = new JButton(ResourceLoader.getMessage("cancel"));
-			cancelButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					cancelButtonAction();
-				}
-			});
+			cancelButton = new JButton(cancelAction);
 		}
 		return cancelButton;
+	}
+
+	/**
+	 * @return the cancelAction
+	 */
+	public Action getCancelAction() {
+		return cancelAction;
+	}
+
+	/**
+	 * @return the okayAction
+	 */
+	public Action getOkayAction() {
+		return okayAction;
+	}
+
+	/**
+	 * @return the isOkay
+	 */
+	public boolean isOkay() {
+		return isOkay;
 	}
 
 	public void setTitle(String title) {
@@ -142,16 +181,75 @@ public abstract class SighosDialog extends JDialog {
 	public JLabel getComponentLabe() {
 		return componentLabel;
 	}
-	
+
 	public void setComponentLabel(String text) {
 		componentLabel.setText(text);
 	}
 
-	protected abstract void okButtonAction();
+	protected void close() {
+		setVisible(false);
+	}
+
+	protected abstract boolean apply();
 
 	protected abstract JPanel getMainPanel();
 
-	protected void cancelButtonAction() {
-		setVisible(false);
+	protected void cancelled() { }
+
+	/**
+	 * Handle the Okay button. Invokes <code>apply()</code> and
+	 * <code>close()</code> when pressed.
+	 * 
+	 * @see #apply()
+	 * @see #close()
+	 */
+	private class OkayAction extends AbstractAction {
+
+		private static final long serialVersionUID = 1L;
+
+		public OkayAction() {
+			putValue(Action.NAME, ResourceLoader.getMessage("ok"));
+			putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_O));
+		}
+
+		public void actionPerformed(ActionEvent event) {
+			if (!apply()) {
+				return;
+			}
+			isOkay = true;
+			close();
+		}
+
+	}
+
+	/**
+	 * Handles the Cancel button. Invokes <code>close()</code> when pressed.
+	 * 
+	 * @see #close()
+	 */
+	private class CancelAction extends AbstractAction {
+
+		private static final long serialVersionUID = 1L;
+
+		public CancelAction() {
+			putValue(Action.NAME, ResourceLoader.getMessage("cancel"));
+			putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_C));
+		}
+
+		public void actionPerformed(ActionEvent event) {
+			isOkay = false;
+			cancelled();
+			close();
+		}
+
+	}
+
+	private class CloseListener extends WindowAdapter {
+
+		public void windowClosing(java.awt.event.WindowEvent evt) {
+			isOkay = false;
+			cancelled();
+			close();
+		}
 	}
 }

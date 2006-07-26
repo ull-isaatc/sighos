@@ -22,5 +22,10 @@ public interface Plugin {
 	public LoadPluginAction getPluginAction();
 
 	public SighosPluginMenu getPluginMenu();
+	
+	/**
+	 * Reset the plugin.
+	 */
+	public void reset();
 		
 }

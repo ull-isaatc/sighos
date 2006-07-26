@@ -9,6 +9,7 @@ import java.util.Iterator;
 import javax.swing.JMenu;
 
 import es.ull.isaatc.simulation.editor.framework.SighosFramework;
+import es.ull.isaatc.simulation.editor.framework.plugin.Plugin;
 import es.ull.isaatc.simulation.editor.framework.plugin.PluginFactory;
 import es.ull.isaatc.simulation.editor.framework.plugin.xml.PluginXML;
 import es.ull.isaatc.simulation.editor.util.ResourceLoader;
@@ -28,13 +29,12 @@ class PluginsMenu extends JMenu {
 	}
 
 	protected void buildInterface() {
-		// TODO: Hacer que en este menu se carguen todos los plugins existentes
-		// hay que hacerlo a partir de la configuración del framework
 		Iterator<PluginXML> plIt = SighosFramework.getInstance()
 				.getAvaiablePlugins().iterator();
 		while (plIt.hasNext()) {
-			add(new SighosMenuItem(PluginFactory.getInstance(
-					plIt.next().getPluginClass()).getPluginAction()));
+			Plugin pl = PluginFactory.getInstance(plIt.next().getPluginClass());
+			SighosFramework.getInstance().addPlugin(pl);
+			add(new SighosMenuItem(pl.getPluginAction()));
 		}
 	}
 }

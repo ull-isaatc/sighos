@@ -37,7 +37,7 @@ public class SplitFlowPropertiesAction extends SighosExistingGraphAction
 			SplitFlowPropertiesDialog dialog = SplitFlowPropertiesDialog.getInstance(); 
 			dialog.initValues(f.getIterations());
 			dialog.setVisible(true);
-			if (dialog.getIterations() != null) {
+			if (dialog.isOkay()) {
 				f.setIterations(dialog.getIterations());
 			}
 		}

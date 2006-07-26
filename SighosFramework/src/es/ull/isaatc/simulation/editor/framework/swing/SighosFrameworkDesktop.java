@@ -5,14 +5,10 @@ package es.ull.isaatc.simulation.editor.framework.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.io.File;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-
-import es.ull.isaatc.simulation.editor.framework.swing.dialog.NewProjectDialog;
-import es.ull.isaatc.simulation.editor.project.ProjectModel;
 
 /**
  * This class manages the model
@@ -48,32 +44,29 @@ public class SighosFrameworkDesktop extends JPanel {
 	private JSplitPane getSplitPane() {
 		if (splitPane == null) {
 			splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-			splitPane.setTopComponent(currentDesktop);
-			splitPane.setBottomComponent(SighosTabbedPane.getInstance());
-		    splitPane.setDividerSize(10);
+			splitPane.setDividerSize(10);
 		    splitPane.setResizeWeight(0.7);
-		    splitPane.setOneTouchExpandable(true);
-		    splitPane.setVisible(false);
+			splitPane.setOneTouchExpandable(true);
 		}
+		splitPane.setTopComponent(currentDesktop);
+		splitPane.setBottomComponent(SighosTabbedPane.getInstance());
+	    splitPane.setVisible(false);
 		return splitPane;
-	}
-	
-	public void newProject() {
-		ProjectModel.getInstance().reset();
-		NewProjectDialog npDialog = new NewProjectDialog();
-		npDialog.setVisible(true);
-		if (!ProjectModel.getInstance().getName().equals("")) {
-			boolean success = (new File(ProjectModel.getInstance().getDirectory() + "\\" + ProjectModel.getInstance().getName())).mkdirs();
-		    if (!success) {
-		        System.err.println("Error : directory creation failed");
-		    }
-		}
 	}
 	
 	public void setDesktop(JComponent desktop) {
 		currentDesktop = desktop;
-		splitPane.setTopComponent(currentDesktop);
+		getSplitPane();
+		splitPane.resetToPreferredSizes();
 		splitPane.setVisible(true);
+		validate();
+	}
+	
+	public void reset() {
+		splitPane.setVisible(false);
+		splitPane.removeAll();
+		currentDesktop = null;
+		SighosTabbedPane.getInstance().reset();
 		validate();
 	}
 }

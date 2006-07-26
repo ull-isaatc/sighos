@@ -12,6 +12,7 @@ import es.ull.isaatc.simulation.editor.framework.actions.swing.SighosDialogCompo
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
 import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.io.File;
 
@@ -38,8 +39,8 @@ public class NewProjectDialog extends SighosDialog {
 
 	protected JTextPane description;
 
-	public NewProjectDialog() {
-		super();
+	public NewProjectDialog(Component parent) {
+		super(parent);
 	}
 
 	@Override
@@ -87,6 +88,7 @@ public class NewProjectDialog extends SighosDialog {
 			// correctos
 			name = new JTextField(ProjectModel.getInstance().getName());
 			name.addFocusListener(new SighosDialogComponentAction(this, name) {
+				private static final long serialVersionUID = 1L;
 				{
 					putValue(Action.LONG_DESCRIPTION, ResourceLoader
 							.getMessage("project_name_long"));
@@ -99,6 +101,7 @@ public class NewProjectDialog extends SighosDialog {
 			location = new JTextField(ProjectModel.getInstance().getDirectory());
 			location.addFocusListener(new SighosDialogComponentAction(this,
 					location) {
+				private static final long serialVersionUID = 1L;
 				{
 					putValue(Action.LONG_DESCRIPTION, ResourceLoader
 							.getMessage("project_location_long"));
@@ -109,6 +112,7 @@ public class NewProjectDialog extends SighosDialog {
 					.getMessage("project_browse"));
 			browseButton.addFocusListener(new SighosDialogComponentAction(this,
 					location) {
+				private static final long serialVersionUID = 1L;
 				{
 					putValue(Action.LONG_DESCRIPTION, ResourceLoader
 							.getMessage("project_location_long"));
@@ -138,6 +142,7 @@ public class NewProjectDialog extends SighosDialog {
 			description = new JTextPane();
 			description.addFocusListener(new SighosDialogComponentAction(this,
 					description) {
+				private static final long serialVersionUID = 1L;
 				{
 					putValue(Action.LONG_DESCRIPTION, ResourceLoader
 							.getMessage("project_description_long"));
@@ -151,7 +156,9 @@ public class NewProjectDialog extends SighosDialog {
 	}
 
 	@Override
-	protected void okButtonAction() {
+	protected boolean apply() {
+		if (name.getText().equals(""))
+			return false;
 		ProjectModel.getInstance().setName(name.getText());
 		ProjectModel.getInstance().setAuthor(author.getText());
 		ProjectModel.getInstance().setDescription(description.getText());
@@ -159,6 +166,6 @@ public class NewProjectDialog extends SighosDialog {
 				location.getText() + "/" + name.getText());
 		ProjectModel.getInstance().getModel().setFileName(
 				location.getText() + "/" + name.getText() + "/model.xml");
-		setVisible(false);
+		return true;
 	}
 }

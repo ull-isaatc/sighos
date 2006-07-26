@@ -48,6 +48,7 @@ public class PluginHandler {
 	private void removeCurrentPlugin() {
 		if (currentPlugin != null)
 			removePluginMenu(currentPlugin.getPluginMenu());
+		currentPlugin = null;
 	}
 
 	public void loadPluginMenu(SighosPluginMenu pluginMenu) {
@@ -63,6 +64,10 @@ public class PluginHandler {
 		while (pluginMenu.hasNext()) {
 			menuBar.remove(pluginMenu.next());
 		}
+		menuBar.validate();
 	}
-
+	
+	public void reset() {
+		removeCurrentPlugin();
+	}
 }

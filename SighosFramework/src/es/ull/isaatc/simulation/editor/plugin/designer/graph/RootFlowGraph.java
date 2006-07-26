@@ -21,13 +21,10 @@ import javax.swing.ToolTipManager;
 import org.jgraph.JGraph;
 import org.jgraph.graph.CellView;
 import org.jgraph.graph.DefaultEdge;
-import org.jgraph.graph.DefaultPort;
 import org.jgraph.graph.GraphCell;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.Port;
 import org.jgraph.graph.VertexView;
-
-import sun.security.jca.GetInstance;
 
 import es.ull.isaatc.simulation.editor.plugin.designer.actions.graph.MoveElementsDownAction;
 import es.ull.isaatc.simulation.editor.plugin.designer.actions.graph.MoveElementsLeftAction;
@@ -81,8 +78,7 @@ public class RootFlowGraph extends JGraph {
 
 		setModel(new RootFlowGraphModel(this));
 		ToolTipManager.sharedInstance().registerComponent(this);
-		selectionListener = new RootFlowGraphSelectionListener(this
-				.getSelectionModel());
+		selectionListener = new RootFlowGraphSelectionListener(this);
 		addGraphSelectionListener(selectionListener);
 		addFocusListener(new RootFlowGraphFocusListener(this));
 		setMarqueeHandler(new RootFlowGraphMarqueeHandler(this));
@@ -125,6 +121,9 @@ public class RootFlowGraph extends JGraph {
 					edgeInfo);
 			flowCell = cells[0];
 			lastFlowCell = cells[1];
+			// if the sequence nodes aren't inserted don't connect the first node again
+			if (!(flowCell instanceof GroupSplitCell))
+				parent = null;
 		} else if (flow instanceof SimultaneousFlow) {
 			SighosCell[] cells = loadSimultaneousFlow((SimultaneousFlow) flow);
 			flowCell = cells[0];
@@ -140,8 +139,7 @@ public class RootFlowGraph extends JGraph {
 		} else if (flow instanceof TypeBranchFlow) {
 			return loadFlow(parent, ((TypeBranchFlow) flow).getOption(), flow);
 		} else if (flow instanceof DecisionBranchFlow) {
-			return loadFlow(parent, ((DecisionBranchFlow) flow).getOption(),
-					flow.toString());
+			return loadFlow(parent, ((DecisionBranchFlow) flow).getOption(), flow.toString());
 		}
 		if ((parent != null) && (parent != flowCell)) {
 			connect(parent, flowCell, edgeInfo);
@@ -206,19 +204,16 @@ public class RootFlowGraph extends JGraph {
 		}
 
 		// Insert the sequence
-		ArrayList<SighosCell> lastCell = new ArrayList<SighosCell>();
 		Iterator<Flow> flowIt = seq.getFlowList().iterator();
 		parent = cells[0];
 		while (flowIt.hasNext()) {
 			parent = loadFlow(parent, flowIt.next());
-			lastCell.add(parent);
 		}
 
-		// connect the last cell if necessary
-		if (cells[1] == null) {
-			cells[1] = parent;
+		if (cells[1] == null) {  // the sequence nodes won't be inserted
+			cells[1] = parent;   // the new last cell of the sequence
 			seq.getFlowList().add(0, (Flow) cells[0].getUserObject());
-		} else
+		} else  // connect the last cell to the join node
 			connect(parent, cells[1]);
 		return cells;
 	}
@@ -244,18 +239,13 @@ public class RootFlowGraph extends JGraph {
 
 	/**
 	 * Creates the graph for a decision flow
-	 * 
-	 * @param split
-	 * @param join
-	 * @param options
 	 */
 	private SighosCell[] loadDecisionFlow(DecisionFlow dec) {
 		SighosCell cells[] = new SighosCell[2];
 		cells[0] = addDecisionFlow(point);
 		cells[1] = ((BranchCell)cells[0]).getPairCell();
 		ArrayList<SighosCell> lastCell = new ArrayList<SighosCell>();
-		Iterator<DecisionBranchFlow> flowIt = dec.getOptions().keySet()
-				.iterator();
+		Iterator<DecisionBranchFlow> flowIt = dec.getOptions().keySet().iterator();
 		while (flowIt.hasNext()) {
 			lastCell.add(loadFlow(cells[0], flowIt.next()));
 		}
@@ -265,10 +255,6 @@ public class RootFlowGraph extends JGraph {
 
 	/**
 	 * Creates the graph for a type flow
-	 * 
-	 * @param split
-	 * @param join
-	 * @param options
 	 */
 	private SighosCell[] loadTypeFlow(TypeFlow type) {
 		SighosCell cells[] = new SighosCell[2];
@@ -353,24 +339,6 @@ public class RootFlowGraph extends JGraph {
 
 	public void addCell(SighosCell cell) {
 		getModel().insert(new Object[] { cell }, null, null, null, null);
-	}
-
-	/**
-	 * Removes a cell from the graph. If the cell is connected to another cell
-	 * then create an edge between the predecessor and succesor of the cell
-	 */
-	public void removeCell() {
-		if (!isSelectionEmpty()) {
-			Object[] cells = getSelectionCells();
-			cells = getDescendants(cells);
-			if (cells.length == 1)
-				if (cells[0] instanceof SingleCell) {
-					DefaultPort port = (DefaultPort) ((SingleCell) cells[0])
-							.getChildren().get(0);
-
-				}
-			getModel().remove(cells);
-		}
 	}
 
 	public void rotateCell() {

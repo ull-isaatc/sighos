@@ -5,9 +5,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import es.ull.isaatc.simulation.editor.framework.swing.SighosFrameworkDesktop;
 import es.ull.isaatc.simulation.editor.framework.swing.TooltipTogglingWidget;
-import es.ull.isaatc.simulation.editor.project.ProjectFileModel;
+import es.ull.isaatc.simulation.editor.project.ArchivingThread;
 import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
 public class CreateProjectAction extends SighosNoOpenProjectAction implements
@@ -24,8 +23,7 @@ public class CreateProjectAction extends SighosNoOpenProjectAction implements
 	}
 
 	public void actionPerformed(ActionEvent event) {
-		ProjectFileModel.getInstance().incrementFileCount();
-		SighosFrameworkDesktop.getInstance().newProject();
+		ArchivingThread.getInstance().newProject();
 	}
 
 	public String getEnabledTooltipText() {

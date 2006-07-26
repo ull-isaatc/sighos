@@ -41,7 +41,7 @@ public class SingleFlowPropertiesAction extends SighosExistingGraphAction
 			SingleFlowPropertiesDialog dialog = SingleFlowPropertiesDialog.getInstance(); 
 			dialog.initValues(f.getIterations(), f.getActivity());
 			dialog.setVisible(true);
-			if (dialog.getIterations() != null) {
+			if (dialog.isOkay()) {
 				f.setIterations(dialog.getIterations());
 				f.setActivity(dialog.getActivity());
 				SighosCell cell = (SighosCell)graph.getSelectionCell();

@@ -62,6 +62,7 @@ public class Model {
 		resourceTypeTableModel = new ResourceTypeTableModel();
 		resourceTableModel = new ResourceTableModel();
 		activityTableModel = new ActivityTableModel();
+		elementTypeTableModel = new ElementTypeTableModel();
 		rootFlowTableModel = new RootFlowTableModel();
 	}
 

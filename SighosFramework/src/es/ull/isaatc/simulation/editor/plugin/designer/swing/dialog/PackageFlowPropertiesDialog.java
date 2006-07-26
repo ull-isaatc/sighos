@@ -12,12 +12,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.xml.bind.JAXBException;
 
+import es.ull.isaatc.simulation.editor.framework.SighosFramework;
 import es.ull.isaatc.simulation.editor.framework.actions.swing.SighosDialogComponentAction;
 import es.ull.isaatc.simulation.editor.framework.swing.dialog.SighosDialog;
-import es.ull.isaatc.simulation.editor.plugin.designer.swing.util.ActivityComboBox;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.util.RootFlowComboBox;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.util.XMLEditorPanel;
-import es.ull.isaatc.simulation.editor.project.model.Activity;
 import es.ull.isaatc.simulation.editor.project.model.RootFlow;
 import es.ull.isaatc.simulation.editor.project.model.XMLModelUtilities;
 import es.ull.isaatc.simulation.editor.util.ResourceLoader;
@@ -36,14 +35,14 @@ public class PackageFlowPropertiesDialog extends SighosDialog {
 	
 	private String iterations;
 	
-	private static PackageFlowPropertiesDialog INSTANCE = new PackageFlowPropertiesDialog();
+	private static PackageFlowPropertiesDialog INSTANCE = new PackageFlowPropertiesDialog(SighosFramework.getInstance());
 	
 	public static PackageFlowPropertiesDialog getInstance() {
 		return INSTANCE;
 	}
 
-	private PackageFlowPropertiesDialog() {
-		super();
+	private PackageFlowPropertiesDialog(Component parent) {
+		super(parent);
 	}
 	
 	protected void initialize() {
@@ -131,15 +130,10 @@ public class PackageFlowPropertiesDialog extends SighosDialog {
 		return iterations;
 	}
 
-	protected void okButtonAction() {
+	protected boolean apply() {
 		iterations = xmlEditorPanel.getEditorText();
 		rootFlow = (RootFlow) rfComboBox.getSelectedItem();
-		setVisible(false);
-	}
-
-	protected void cancelButtonAction() {
-		iterations = null;
-		setVisible(false);
+		return true;
 	}
 
 	class IterationsAction extends SighosDialogComponentAction {

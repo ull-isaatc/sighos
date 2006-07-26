@@ -6,8 +6,8 @@ package es.ull.isaatc.simulation.editor.plugin.designer;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
+import es.ull.isaatc.simulation.editor.framework.SighosFramework;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.DesignerDesktop;
-import es.ull.isaatc.simulation.editor.plugin.designer.swing.DesignerTabbedPane;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.dialog.TimeTableEntryDialog;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.dialog.WorkGroupDialog;
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
@@ -220,10 +220,10 @@ public class DesignerManager {
 	
 	private void showTimeTableEntryDialog(TimeTableTableModel ttModel,
 			int index, TimeTable tt) {
-		TimeTableEntryDialog ttDialog = new TimeTableEntryDialog(tt);
+		TimeTableEntryDialog ttDialog = new TimeTableEntryDialog(SighosFramework.getInstance(), tt);
 		ttDialog.setVisible(true);
-		TimeTable editionTT = ttDialog.getTimeTable();
-		if (editionTT != null) {
+		if (ttDialog.isOkay()) {
+			TimeTable editionTT = ttDialog.getTimeTable();
 			ttModel.setValueAt(editionTT.getRTList(), index, 0);
 			ttModel.setValueAt(editionTT.getCycle(), index, 1);
 			ttModel.setValueAt(editionTT.getDuration(), index, 2);
@@ -233,10 +233,10 @@ public class DesignerManager {
 
 	private void showWorkGroupDialog(WorkGroupTableModel wgModel, int index,
 			WorkGroup wg) {
-		WorkGroupDialog wgDialog = new WorkGroupDialog(wg);
+		WorkGroupDialog wgDialog = new WorkGroupDialog(SighosFramework.getInstance(), wg);
 		wgDialog.setVisible(true);
-		WorkGroup editionWG = wgDialog.getWorkGroup();
-		if (editionWG != null) {
+		if (wgDialog.isOkay()) {
+			WorkGroup editionWG = wgDialog.getWorkGroup();
 			wgModel.setValueAt(editionWG.getId(), index, 0);
 			wgModel.setValueAt(editionWG.getDescription(), index, 1);
 			wgModel.setValueAt(editionWG.getResourceType(), index, 2);

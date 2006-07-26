@@ -15,7 +15,6 @@ import javax.swing.event.TableModelListener;
 
 import es.ull.isaatc.simulation.editor.plugin.designer.SighosDesignerPlugin;
 import es.ull.isaatc.simulation.editor.plugin.designer.graph.RootFlowGraph;
-import es.ull.isaatc.simulation.editor.plugin.designer.graph.RootFlowGraphModel;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.menu.Palette;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.menu.ToolBarMenu;
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
@@ -57,7 +56,8 @@ public class DesignerDesktop extends JPanel implements TableModelListener,
 	public void updateState() {
 		rootFlowTable = ((SighosDesignerPlugin) SighosDesignerPlugin
 				.getInstance()).getRootFlowTable().getTable();
-		rootFlowTable.getSelectionModel().addListSelectionListener(this);
+		if (rootFlowTable != null)
+			rootFlowTable.getSelectionModel().addListSelectionListener(this);
 	}
 
 	private void initialize() {
@@ -75,7 +75,7 @@ public class DesignerDesktop extends JPanel implements TableModelListener,
 		if (splitPane == null) {
 			splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, palette,
 					tabbedPane);
-			splitPane.setDividerLocation(40);
+			splitPane.setDividerLocation(50);
 		}
 		return splitPane;
 	}
@@ -90,6 +90,31 @@ public class DesignerDesktop extends JPanel implements TableModelListener,
 		tabbedPane.remove(graphs.get(rf));
 	}
 
+
+	public RootFlowGraph getSelectedRootFlowGraph() {
+		return tabbedPane.getSelectedRootFlowGraph();
+	}
+
+	public void setSelectedRootFlow(RootFlow rf) {
+		if (rf != null)
+			tabbedPane.setSelectedComponent(graphs.get(rf));
+	}
+	
+	public boolean validateModel() {
+		Iterator<RootFlow> rfIt = graphs.keySet().iterator();
+		while (rfIt.hasNext()) {
+			RootFlow rf = rfIt.next();
+			rf.setFlow(graphs.get(rf).getGraph().getRootFlowGraphModel().getFlow());
+		}
+		return true;
+	}
+	
+	public void reset() {
+		tabbedPane.removeAll();
+		graphs.clear();
+		rootFlowTable = null;
+	}
+	
 	public void tableChanged(TableModelEvent ev) {
 		int col = ev.getColumn();
 		if (col == 1) { // root flow name changed
@@ -111,23 +136,5 @@ public class DesignerDesktop extends JPanel implements TableModelListener,
 					.getRootFlowTableModel().get(rootFlowTable.getSelectedRow());
 			tabbedPane.setSelectedComponent(graphs.get(rf));
 		}
-	}
-
-	public RootFlowGraph getSelectedRootFlowGraph() {
-		return tabbedPane.getSelectedRootFlowGraph();
-	}
-
-	public void setSelectedRootFlow(RootFlow rf) {
-		if (rf != null)
-			tabbedPane.setSelectedComponent(graphs.get(rf));
-	}
-	
-	public boolean validateModel() {
-		Iterator<RootFlow> rfIt = graphs.keySet().iterator();
-		while (rfIt.hasNext()) {
-			RootFlow rf = rfIt.next();
-			rf.setFlow(graphs.get(rf).getGraph().getRootFlowGraphModel().getFlow());
-		}
-		return true;
 	}
 }

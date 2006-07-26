@@ -53,8 +53,8 @@ public class WorkGroupDialog extends SighosDialog {
 
 	private RolesNeededTableModel rnTableModel;
 
-	public WorkGroupDialog(WorkGroup wgEntry) {
-		super();
+	public WorkGroupDialog(Component parent, WorkGroup wgEntry) {
+		super(parent);
 		wgEditionEntry = (WorkGroup) wgEntry.clone();
 		initValues();
 
@@ -169,17 +169,12 @@ public class WorkGroupDialog extends SighosDialog {
 		return propertyPanel;
 	}
 
-	protected void okButtonAction() {
+	protected boolean apply() {
 		wgEditionEntry.setDescription(description.getText());
 		wgEditionEntry.setDuration(xmlEditorPanel.getEditorText());
 		wgEditionEntry.setResourceType(rnTableModel.getHashMap());
 		wgEditionEntry.setPriority(priority.getValue());
-		setVisible(false);
-	}
-
-	protected void cancelButtonAction() {
-		wgEditionEntry = null;
-		setVisible(false);
+		return true;
 	}
 
 	public WorkGroup getWorkGroup() {
@@ -192,7 +187,7 @@ public class WorkGroupDialog extends SighosDialog {
 	* is not needed in any other situation.
 	 */
 	public static Object getGUIBuilderInstance() {
-		return new WorkGroupDialog(Boolean.FALSE);
+		return new WorkGroupDialog(null, Boolean.FALSE);
 	}
 	
 	/**
@@ -200,8 +195,8 @@ public class WorkGroupDialog extends SighosDialog {
 	 * provide an instance of this class which has not had it's GUI elements
 	 * initialized (ie, initGUI is not called in this constructor).
 	 */
-	public WorkGroupDialog(Boolean initGUI) {
-		super();
+	public WorkGroupDialog(Component parent, Boolean initGUI) {
+		super(parent);
 	}
 
 	class DurationAction extends SighosDialogComponentAction {

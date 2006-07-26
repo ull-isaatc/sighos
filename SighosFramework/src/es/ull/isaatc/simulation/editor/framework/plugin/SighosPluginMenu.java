@@ -35,7 +35,12 @@ public abstract class SighosPluginMenu {
 		if (menuIt == null) {
 			menuIt = menuList.iterator();
 		}
-		return menuIt.hasNext();
+		if (menuIt.hasNext())
+			return true;
+		else {
+			menuIt = menuList.iterator();
+			return false;
+		}
 	}
 	
 	protected void add(JMenu menu) {

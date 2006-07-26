@@ -2,23 +2,26 @@ package es.ull.isaatc.simulation.editor.project;
 
 public class ArchivingThread extends Thread {
 
+	// TODO : transform theese constants to Enum
 	private static final int NOTHING = 0;
+	
+	private static final int NEW = 1;
 
-	private static final int SAVE = 1;
+	private static final int SAVE = 2;
 
-	private static final int SAVEAS = 2;
+	private static final int SAVEAS = 3;
 
-	private static final int OPEN = 3;
+	private static final int OPEN = 4;
 
-	private static final int OPEN_FILE = 4;
+	private static final int OPEN_FILE = 5;
 
-	private static final int CLOSE = 5;
+	private static final int CLOSE = 6;
 
-	private static final int VALIDATE = 8;
+	private static final int VALIDATE = 7;
 
-	private static final int ANALYSE = 9;
+	private static final int ANALYSE = 8;
 
-	private static final int EXIT = 10;
+	private static final int EXIT = 9;
 
 	private static final int SLEEP_PERIOD = 100;
 
@@ -35,12 +38,8 @@ public class ArchivingThread extends Thread {
 	private ArchivingThread() {
 	}
 
-	public synchronized void save() {
-		request = SAVE;
-	}
-
-	public synchronized void saveAs() {
-		request = SAVEAS;
+	public synchronized void newProject() {
+		request = NEW;
 	}
 
 	public synchronized void open() {
@@ -50,6 +49,14 @@ public class ArchivingThread extends Thread {
 	public synchronized void open(String fileName) {
 		request = OPEN_FILE;
 		openFileName = fileName;
+	}
+
+	public synchronized void save() {
+		request = SAVE;
+	}
+
+	public synchronized void saveAs() {
+		request = SAVEAS;
 	}
 
 	public synchronized void close() {
@@ -84,8 +91,16 @@ public class ArchivingThread extends Thread {
 		}
 		ProjectFileModel.getInstance().busy();
 		switch (request) {
-		case CLOSE: {
-			ProjectArchiveHandler.getInstance().close();
+		case NEW: {
+			ProjectArchiveHandler.getInstance().newProject();
+			break;
+		}
+		case OPEN: {
+			ProjectArchiveHandler.getInstance().open();
+			break;
+		}
+		case OPEN_FILE: {
+			ProjectArchiveHandler.getInstance().open(openFileName);
 			break;
 		}
 		case SAVE: {
@@ -96,12 +111,8 @@ public class ArchivingThread extends Thread {
 			ProjectArchiveHandler.getInstance().saveAs();
 			break;
 		}
-		case OPEN: {
-			ProjectArchiveHandler.getInstance().open();
-			break;
-		}
-		case OPEN_FILE: {
-			ProjectArchiveHandler.getInstance().open(openFileName);
+		case CLOSE: {
+			ProjectArchiveHandler.getInstance().close();
 			break;
 		}
 		case VALIDATE: {

@@ -5,6 +5,7 @@ import java.awt.event.WindowEvent;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -14,6 +15,8 @@ import javax.swing.WindowConstants;
 import com.l2fprod.gui.plaf.skin.SkinLookAndFeel;
 import com.thoughtworks.xstream.XStream;
 
+import es.ull.isaatc.simulation.editor.framework.plugin.Plugin;
+import es.ull.isaatc.simulation.editor.framework.plugin.PluginHandler;
 import es.ull.isaatc.simulation.editor.framework.plugin.xml.PluginListXML;
 import es.ull.isaatc.simulation.editor.framework.plugin.xml.PluginXML;
 import es.ull.isaatc.simulation.editor.framework.swing.SighosFrameworkDesktop;
@@ -23,8 +26,14 @@ import es.ull.isaatc.simulation.editor.project.ArchivingThread;
 public class SighosFramework extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final String APPLICATION_NAME = "Sighos Simulation Framework";
 
+	/** List of plugins */
 	private static List<PluginXML> avaiablePlugins = null;
+	
+	/** List of instantiated plugins */
+	private static List<Plugin>	pluginList = new ArrayList<Plugin>();
 
 	private static SighosFramework INSTANCE = null;
 
@@ -57,7 +66,15 @@ public class SighosFramework extends JFrame {
 	}
 
 	/**
-	 * Load the application preferences
+	 * Sets the sub title of the application
+	 * @param subTitle
+	 */
+	public void setSubTitle(String subTitle) {
+		setTitle(APPLICATION_NAME + " - " + subTitle);
+	}
+	
+	/**
+	 * Loads the application preferences
 	 */
 	private void loadPreferences() {
 		loadAvaiablePlugins();
@@ -91,7 +108,31 @@ public class SighosFramework extends JFrame {
 			avaiablePlugins = new ArrayList<PluginXML>();
 		return avaiablePlugins;
 	}
+	
+	/**
+	 * Adds a plugin to the plugin list
+	 * @param plugin the plugin to add
+	 */
+	public void addPlugin(Plugin plugin) {
+		pluginList.add(plugin);
+	}
 
+	/**
+	 * Resets the framework
+	 */
+	public void reset() {
+		setTitle(APPLICATION_NAME);
+		SighosFrameworkDesktop.getInstance().reset();
+		PluginHandler.getInstance().reset();
+		// resets each avaiable plugin
+		Iterator<Plugin> plIt = pluginList.iterator();
+		while (plIt.hasNext())
+			plIt.next().reset();
+	}
+
+	/**
+	 * Install the event listeners of the framework
+	 */
 	private void installEventListeners() {
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -107,7 +148,7 @@ public class SighosFramework extends JFrame {
 			}
 		});
 	}
-
+	
 	public static void main(String[] args) {
 		try {
 			SkinLookAndFeel.setSkin(SkinLookAndFeel
