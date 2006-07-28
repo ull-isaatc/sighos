@@ -4,7 +4,7 @@
  * Created on 9 de noviembre de 2005, 13:29
  */
 
-package es.ull.isaatc.simulation.editor.util;
+package es.ull.isaatc.simulation.editor.project.model;
 
 import java.util.ArrayList;
 

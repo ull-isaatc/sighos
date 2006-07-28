@@ -3,9 +3,15 @@ package es.ull.isaatc.simulation.editor.project.model;
 import java.util.Iterator;
 
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
+import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
 public class SimultaneousFlow extends GroupFlow {
-
+	
+	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("simultaneousflow");
+	}
+	
 	@Override
 	public Object getXML() {
 		es.ull.isaatc.simulation.xml.SimultaneousFlow flowXML = ProjectModel

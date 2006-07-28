@@ -31,7 +31,6 @@ import es.ull.isaatc.simulation.editor.project.model.tablemodel.ElementTypeTable
 import es.ull.isaatc.simulation.editor.project.model.tablemodel.ResourceTableModel;
 import es.ull.isaatc.simulation.editor.project.model.tablemodel.ResourceTypeTableModel;
 import es.ull.isaatc.simulation.editor.project.model.tablemodel.RootFlowTableModel;
-import es.ull.isaatc.simulation.editor.util.ModelComponentList;
 import es.ull.isaatc.simulation.xml.FlowChoiceUtility;
 
 /**
@@ -134,7 +133,7 @@ public class XMLModelUtilities {
 			Activity act = new Activity();
 			act.setId(actXML.getId());
 			act.setDescription(actXML.getDescription());
-			act.setPresencial(actXML.isPresencial());
+			act.setPresential(actXML.isPresencial());
 			act.setPriority(actXML.getPriority());
 			Iterator<es.ull.isaatc.simulation.xml.Activity.WorkGroup> wgIt = actXML
 					.getWorkGroup().iterator();
@@ -210,7 +209,7 @@ public class XMLModelUtilities {
 				rf = new RootFlow();
 			rf.setId(rfXML.getId());
 			rf.setDescription(rfXML.getDescription());
-			rf.setFlow(getFlowFromJaxb(rfXML.getFlow()));
+			rf.setFlow(getFlowFromJaxb(rfXML.getFlow(), null));
 			elements.add(rf);
 		}
 
@@ -225,11 +224,10 @@ public class XMLModelUtilities {
 	 *            flow XML description
 	 * @return the model flow
 	 */
-	private static Flow getFlowFromJaxb(
-			es.ull.isaatc.simulation.xml.FlowChoice flowChoiceXML) {
+	private static Flow getFlowFromJaxb(es.ull.isaatc.simulation.xml.FlowChoice flowChoiceXML, Flow parent) {
 		if (flowChoiceXML == null)
 			return null;
-		return getFlowFromJaxb(FlowChoiceUtility.getSelectedFlow(flowChoiceXML));
+		return getFlowFromJaxb(FlowChoiceUtility.getSelectedFlow(flowChoiceXML), parent);
 	}
 
 	/**
@@ -237,8 +235,7 @@ public class XMLModelUtilities {
 	 *            flow XML description
 	 * @return the model flow from the flow description in XML
 	 */
-	private static Flow getFlowFromJaxb(
-			es.ull.isaatc.simulation.xml.Flow flowXML) {
+	private static Flow getFlowFromJaxb(es.ull.isaatc.simulation.xml.Flow flowXML, Flow parent) {
 
 		Flow flow = null;
 		if (flowXML instanceof es.ull.isaatc.simulation.xml.SingleFlow) {
@@ -261,7 +258,7 @@ public class XMLModelUtilities {
 			Iterator<es.ull.isaatc.simulation.xml.Flow> flowListIt = seqXML
 					.getSingleOrPackageOrSequence().iterator();
 			while (flowListIt.hasNext()) {
-				((GroupFlow) flow).addFlow(getFlowFromJaxb(flowListIt.next()));
+				((GroupFlow) flow).addFlow(getFlowFromJaxb(flowListIt.next(), flow));
 			}
 		} else if (flowXML instanceof es.ull.isaatc.simulation.xml.SimultaneousFlow) {
 			es.ull.isaatc.simulation.xml.SimultaneousFlow simXML = (es.ull.isaatc.simulation.xml.SimultaneousFlow) flowXML;
@@ -269,7 +266,7 @@ public class XMLModelUtilities {
 			Iterator<es.ull.isaatc.simulation.xml.Flow> flowListIt = simXML
 					.getSingleOrPackageOrSequence().iterator();
 			while (flowListIt.hasNext()) {
-				((GroupFlow) flow).addFlow(getFlowFromJaxb(flowListIt.next()));
+				((GroupFlow) flow).addFlow(getFlowFromJaxb(flowListIt.next(), flow));
 			}
 		} else if (flowXML instanceof es.ull.isaatc.simulation.xml.DecisionFlow) {
 			es.ull.isaatc.simulation.xml.DecisionFlow decXML = (es.ull.isaatc.simulation.xml.DecisionFlow) flowXML;
@@ -279,7 +276,7 @@ public class XMLModelUtilities {
 			while (flowListIt.hasNext()) {
 				es.ull.isaatc.simulation.xml.DecisionOption optXML = flowListIt
 						.next();
-				DecisionBranchFlow dbFlow = (DecisionBranchFlow)getFlowFromJaxb(optXML);
+				DecisionBranchFlow dbFlow = (DecisionBranchFlow)getFlowFromJaxb(optXML, flow);
 				((DecisionFlow) flow).setProb(dbFlow, dbFlow.getProb());
 			}
 		} else if (flowXML instanceof es.ull.isaatc.simulation.xml.TypeFlow) {
@@ -298,7 +295,7 @@ public class XMLModelUtilities {
 							.getModel().getElementTypeTableModel().search(
 									Integer.parseInt(strId.trim())));
 				}
-				TypeBranchFlow tbFlow = (TypeBranchFlow) getFlowFromJaxb(branchXML);
+				TypeBranchFlow tbFlow = (TypeBranchFlow) getFlowFromJaxb(branchXML, flow);
 				tbFlow.setElemTypes(elementTypes);
 				((TypeFlow) flow).setElementTypes(tbFlow, elementTypes);
 			}
@@ -306,13 +303,13 @@ public class XMLModelUtilities {
 			es.ull.isaatc.simulation.xml.TypeBranch tbXML = (es.ull.isaatc.simulation.xml.TypeBranch) flowXML;
 			flow = new TypeBranchFlow();
 			((TypeBranchFlow) flow).setOption(getFlowFromJaxb(FlowChoiceUtility
-					.getSelectedFlow(tbXML)));
+					.getSelectedFlow(tbXML), flow));
 		} else if (flowXML instanceof es.ull.isaatc.simulation.xml.DecisionOption) {
 			es.ull.isaatc.simulation.xml.DecisionOption doXML = (es.ull.isaatc.simulation.xml.DecisionOption) flowXML;
 			flow = new DecisionBranchFlow();
 			((DecisionBranchFlow) flow)
 					.setOption(getFlowFromJaxb(FlowChoiceUtility
-							.getSelectedFlow(doXML)));
+							.getSelectedFlow(doXML), flow));
 			((DecisionBranchFlow) flow).setProb(doXML.getProb());
 		}
 
@@ -320,7 +317,7 @@ public class XMLModelUtilities {
 		flow.setIterations(getXMLFromJaxb("iterations",
 				es.ull.isaatc.simulation.xml.RandomNumber.class, flowXML
 						.getIterations()));
-
+		flow.setParent(parent);
 		return flow;
 	}
 

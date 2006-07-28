@@ -47,7 +47,7 @@ public class Palette extends SighosToolBar implements PropertyChangeListener {
 	private static SighosPaletteButton[] buttons = {
 			new SighosPaletteButton(new SingleFlowAction(), KeyEvent.VK_1),
 			new SighosPaletteButton(new PackageFlowAction(), KeyEvent.VK_2),
-			new SighosPaletteButton(new FinalFlowAction(), KeyEvent.VK_3),
+			new SighosPaletteButton(new ExitFlowAction(), KeyEvent.VK_3),
 			new SighosPaletteButton(new GroupSplitFlowAction(), KeyEvent.VK_4),
 //			new SighosPaletteButton(new JoinFlowAction(), KeyEvent.VK_5),
 			new SighosPaletteButton(new DecisionFlowAction(), KeyEvent.VK_5),

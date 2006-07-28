@@ -1,5 +1,7 @@
 package es.ull.isaatc.simulation.editor.project;
 
+import es.ull.isaatc.simulation.editor.framework.swing.SighosTabbedPane;
+
 public class ArchivingThread extends Thread {
 
 	// TODO : transform theese constants to Enum
@@ -18,8 +20,6 @@ public class ArchivingThread extends Thread {
 	private static final int CLOSE = 6;
 
 	private static final int VALIDATE = 7;
-
-	private static final int ANALYSE = 8;
 
 	private static final int EXIT = 9;
 
@@ -67,10 +67,6 @@ public class ArchivingThread extends Thread {
 		request = VALIDATE;
 	}
 
-	public synchronized void analyse() {
-		request = ANALYSE;
-	}
-
 	public synchronized void exit() {
 		request = EXIT;
 	}
@@ -97,10 +93,12 @@ public class ArchivingThread extends Thread {
 		}
 		case OPEN: {
 			ProjectArchiveHandler.getInstance().open();
+			validate();
 			break;
 		}
 		case OPEN_FILE: {
 			ProjectArchiveHandler.getInstance().open(openFileName);
+			validate();
 			break;
 		}
 		case SAVE: {
@@ -116,11 +114,9 @@ public class ArchivingThread extends Thread {
 			break;
 		}
 		case VALIDATE: {
-//			YAWLEngineProxy.getInstance().validate();
-			break;
-		}
-		case ANALYSE: {
-//			YAWLEngineProxy.getInstance().analyse();
+			SighosTabbedPane.getInstance().getProblemTable().setProblemList(
+					ProjectModel.getInstance().validate());
+			SighosTabbedPane.getInstance().setSelectedIndex(0);
 			break;
 		}
 		case EXIT: {

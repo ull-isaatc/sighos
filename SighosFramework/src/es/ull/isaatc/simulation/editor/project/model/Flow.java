@@ -1,6 +1,10 @@
 package es.ull.isaatc.simulation.editor.project.model;
 
-import es.ull.isaatc.simulation.editor.util.ModelComponent;
+import java.util.List;
+
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem;
+import es.ull.isaatc.simulation.editor.util.ResourceLoader;
+
 
 public abstract class Flow extends ModelComponent {
 
@@ -8,6 +12,9 @@ public abstract class Flow extends ModelComponent {
 	
 	/** iterations this flow is done */
 	protected String iterations;
+	
+	/** parent of this flow */
+	protected Flow parent;
 
 	/**
 	 * Creates a new Flow
@@ -16,6 +23,7 @@ public abstract class Flow extends ModelComponent {
 	public Flow(ComponentType componentType) {
 		super(ComponentType.FLOW);
 		setId(nextId++);
+		setDescription("Flow");
 	}
 
 	/**
@@ -32,6 +40,32 @@ public abstract class Flow extends ModelComponent {
 		if (iterations.length() == 0)
 			iterations = null;
 		this.iterations = iterations;
+	}
+	
+	/**
+	 * @return the parent
+	 */
+	public Flow getParent() {
+		return parent;
+	}
+
+	/**
+	 * @param parent the parent to set
+	 */
+	public void setParent(Flow parent) {
+		this.parent = parent;
+	}
+	
+	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("flow");
+	}
+
+	@Override
+	public List<ProblemTableItem> validate() {
+		super.validate();
+		
+		return problems;
 	}
 	
 	public String toString() {

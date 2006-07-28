@@ -74,4 +74,9 @@ public class ResourceTableModel extends ModelComponentTableModel {
 		}
 		fireTableCellUpdated(row, col);
 	}
+	
+	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("resource");
+	}
 }

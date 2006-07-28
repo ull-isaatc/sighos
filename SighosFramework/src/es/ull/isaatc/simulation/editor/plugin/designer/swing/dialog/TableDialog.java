@@ -7,7 +7,7 @@ import java.awt.Dimension;
 
 import javax.swing.JDialog;
 
-import es.ull.isaatc.swing.table.TablePanel;
+import es.ull.isaatc.simulation.editor.framework.swing.table.TablePanel;
 
 
 /**

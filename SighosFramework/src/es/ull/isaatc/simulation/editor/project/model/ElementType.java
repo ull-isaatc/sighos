@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
-import es.ull.isaatc.simulation.editor.util.ModelComponent;
+import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
 public class ElementType extends ModelComponent {
 
 	/** List of type flows where this element type appears in any of its branches */
 	private HashMap<TypeFlow, TypeBranchFlow> typeFlowList;
-	
+
 	public ElementType() {
 		super(ComponentType.ELEMENT_TYPE);
 		typeFlowList = new HashMap<TypeFlow, TypeBranchFlow>();
@@ -22,14 +22,16 @@ public class ElementType extends ModelComponent {
 
 	/**
 	 * Removes a type flow from the reference list
-	 * @param tf the type flow to remove
+	 * 
+	 * @param tf
+	 *            the type flow to remove
 	 */
 	public void removeBranch(TypeFlow tf) {
 		typeFlowList.remove(tf);
 	}
 
 	public boolean hasReferences() {
-		return (typeFlowList.size() > 0);	
+		return (typeFlowList.size() > 0);
 	}
 
 	/**
@@ -38,16 +40,23 @@ public class ElementType extends ModelComponent {
 	public void removeReferences() {
 		Iterator<TypeFlow> flowIt = typeFlowList.keySet().iterator();
 		while (flowIt.hasNext())
-			flowIt.next().getElementTypes(typeFlowList.get(flowIt)).remove(this);
+			flowIt.next().getElementTypes(typeFlowList.get(flowIt))
+					.remove(this);
 	}
-	
+
 	public String toString() {
 		return description;
 	}
 
 	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("elementtype");
+	}
+
+	@Override
 	public Object getXML() {
-		es.ull.isaatc.simulation.xml.ElementType etXML = ProjectModel.getXmlModelFactory().createElementType();
+		es.ull.isaatc.simulation.xml.ElementType etXML = ProjectModel
+				.getXmlModelFactory().createElementType();
 		etXML.setId(getId());
 		etXML.setDescription(getDescription());
 		return etXML;

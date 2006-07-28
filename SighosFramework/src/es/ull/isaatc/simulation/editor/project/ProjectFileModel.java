@@ -1,27 +1,3 @@
-/*
- * Created on 05/10/2003
- * YAWLEditor v1.0 
- *
- * @author Lindsay Bradford
- * 
- * 
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- */
-
 package es.ull.isaatc.simulation.editor.project;
 
 import java.util.LinkedList;
@@ -38,164 +14,167 @@ import java.util.LinkedList;
  */
 
 public class ProjectFileModel {
-  static private int fileCount = 0;
-  
-  private String fileName = "";
-  
-  /** State indicating that no project file is currently open */
-  public static final int NOT_LOADED    = 0;
+	static private int fileCount = 0;
 
-  /** State indicating that a project file is currently open */
-  public static final int LOADED        = 1;
+	private String fileName = "";
 
-  /** State indicating that the current project is not validated */
-  public static final int NOT_VALIDATED = 2;
-  
-  /** State indicating that the current project is validated */
-  public static final int VALIDATED     = 4;
+	/** State indicating that no project file is currently open */
+	public static final int NOT_LOADED = 0;
 
-  /** State indicating that some project file operation is currently in progress */
-  public static final int BUSY          = 128;
-  
-  static private int state = NOT_LOADED;
-  static private int oldState = NOT_LOADED;
-  
-  static private LinkedList subscribers = new LinkedList();
-  
-  private static final ProjectFileModel INSTANCE = new ProjectFileModel();
-  
-  private ProjectFileModel() {}
-  
-  /**
-   * Returns the one and only allowable instance of <code>projectFileModel</code>
-   * allowed to exist.
-   */
+	/** State indicating that a project file is currently open */
+	public static final int LOADED = 1;
 
-  public static ProjectFileModel getInstance() {
-    return INSTANCE; 
-  }
-  
-  /**
-   * Adds a new subscriber to list of subscribers wanting to be informed of 
-   * <code>projectFileModel</code> state change.  Note that the act of subscription 
-   * will have the side-effect of the <code>projectFileModel</code> publishing its current 
-   * state to the new subscriber only.
-   * 
-   * @param subscriber The object needing notification of state change..
-   * @see ProjectFileModelListener
-   */
-  
-  public void subscribe(final ProjectFileModelListener subscriber) {
-    subscribers.add(subscriber);
-    subscriber.projectFileModelStateChanged(state);
-  }
+	/** State indicating that the current project is not validated */
+	public static final int NOT_VALIDATED = 2;
 
-  private  void publishState(final int inputState) {
-    if (state == BUSY) {
-      oldState = inputState;
-      return;      
-    }
-    
-    state = inputState;
-    publishState();    
-  }
-  
-  private void publishState() {
-    for(int i = 0; i < subscribers.size();  i++) {
-      ProjectFileModelListener listener = (ProjectFileModelListener) subscribers.get(i);
-      listener.projectFileModelStateChanged(state);
-    }
-  }
+	/** State indicating that the current project is validated */
+	public static final int VALIDATED = 4;
 
-  /**
-   * A method allowing other objects to inform the model of the opening of a new project file.
-   * This may trigger the publishing of an {@link #LOADED} state to all subscribing 
-   * {@link ProjectFileModelListener} objects.
-   * 
-   * @see ProjectFileModelListener
-   */
-  
-  public void incrementFileCount() {
-    final int oldFileCount = fileCount;
-    fileCount++;
-    if (oldFileCount == 0) {
-      publishState(LOADED);    
-    }
-  }
+	/** State indicating that some project file operation is currently in progress */
+	public static final int BUSY = 128;
 
-  /**
-   * A method allowing other objects to inform the model of the closing of an open project file.
-   * This may trigger the publishing of an {@link #NOT_LOADED} state to all subscribing 
-   * {@link ProjectFileModelListener} objects.
-   * 
-   * @see ProjectFileModelListener
-   */
-  
-  public void decrementFileCount() {
-    final int oldFileCount = fileCount;
-    fileCount--;
-    if (oldFileCount == 1)  {
-        publishState(NOT_LOADED);    
-    }
-  }
+	static private int state = NOT_LOADED;
 
-  /**
-   * A method allowing other objects to retrieve the number of open project files. This has
-   * no state change side-effects. Note that at the moment, this method should return only 0 or 1.
-   * @return The number of project files currently open
-   */
-  
-  public int getFileCount() {
-    return fileCount;
-  }
-  
-  /**
-   * A method allowing other objects to alert the <CODE>projectFileModel</CODE> that some
-   * project file operation is in progress. This causes a publication of the {@link #BUSY} state
-   * to all subscribed {@link ProjectFileModelListener} objects. Note that the calling object, 
-   * by invoking this method, is accepting responsibility for invoking the {@link #notBusy()} method 
-   * once the file operation is complete.
-   * 
-   * @see ProjectFileModelListener
-   * @see #notBusy()
-   */
-  public void busy() {
-    oldState = state;
-    publishState(BUSY);  
-  }
+	static private int oldState = NOT_LOADED;
 
-  /**
-   * A method allowing other objects to alert the <CODE>projectFileModel</CODE> that some
-   * project file operation has completed. This causes a publication of the stete what was 
-   * in place before the last call to the {@link #busy()} method was made to all currently subscribed
-   * {@link ProjectFileModelListener} objects.
-   * 
-   * @see ProjectFileModelListener
-   * @see #busy()
-   */
-  public void notBusy() {
-    state = oldState;
-    publishState(); 
-  }
+	static private LinkedList<ProjectFileModelListener> subscribers = new LinkedList<ProjectFileModelListener>();
 
-  /**
-   * A method allowing other objects to get the file name that will be used for saving and loading 
-   * project files.
-   * @return The name (as a full path) of the project file.
-   */
-  public String getFileName() {
-    return this.fileName;
-  }
+	private static final ProjectFileModel INSTANCE = new ProjectFileModel();
 
-  /**
-   * A method allowing other objects to set the file name that will be used for saving and loading 
-   * project files.
-   * @param fileName The name (as a full path) of the project file.
-   */
-  public void setFileName(String fileName) {
-    this.fileName = fileName; 
-    if (fileName != null) {
-      publishState();
-    }
-  }
+	private ProjectFileModel() {
+	}
+
+	/**
+	 * Returns the one and only allowable instance of <code>projectFileModel</code>
+	 * allowed to exist.
+	 */
+
+	public static ProjectFileModel getInstance() {
+		return INSTANCE;
+	}
+
+	/**
+	 * Adds a new subscriber to list of subscribers wanting to be informed of 
+	 * <code>projectFileModel</code> state change.  Note that the act of subscription 
+	 * will have the side-effect of the <code>projectFileModel</code> publishing its current 
+	 * state to the new subscriber only.
+	 * 
+	 * @param subscriber The object needing notification of state change..
+	 * @see ProjectFileModelListener
+	 */
+
+	public void subscribe(final ProjectFileModelListener subscriber) {
+		subscribers.add(subscriber);
+		subscriber.projectFileModelStateChanged(state);
+	}
+
+	private void publishState(final int inputState) {
+		if (state == BUSY) {
+			oldState = inputState;
+			return;
+		}
+
+		state = inputState;
+		publishState();
+	}
+
+	private void publishState() {
+		for (int i = 0; i < subscribers.size(); i++) {
+			ProjectFileModelListener listener = (ProjectFileModelListener) subscribers
+					.get(i);
+			listener.projectFileModelStateChanged(state);
+		}
+	}
+
+	/**
+	 * A method allowing other objects to inform the model of the opening of a new project file.
+	 * This may trigger the publishing of an {@link #LOADED} state to all subscribing 
+	 * {@link ProjectFileModelListener} objects.
+	 * 
+	 * @see ProjectFileModelListener
+	 */
+
+	public void incrementFileCount() {
+		final int oldFileCount = fileCount;
+		fileCount++;
+		if (oldFileCount == 0) {
+			publishState(LOADED);
+		}
+	}
+
+	/**
+	 * A method allowing other objects to inform the model of the closing of an open project file.
+	 * This may trigger the publishing of an {@link #NOT_LOADED} state to all subscribing 
+	 * {@link ProjectFileModelListener} objects.
+	 * 
+	 * @see ProjectFileModelListener
+	 */
+
+	public void decrementFileCount() {
+		final int oldFileCount = fileCount;
+		fileCount--;
+		if (oldFileCount == 1) {
+			publishState(NOT_LOADED);
+		}
+	}
+
+	/**
+	 * A method allowing other objects to retrieve the number of open project files. This has
+	 * no state change side-effects. Note that at the moment, this method should return only 0 or 1.
+	 * @return The number of project files currently open
+	 */
+
+	public int getFileCount() {
+		return fileCount;
+	}
+
+	/**
+	 * A method allowing other objects to alert the <CODE>projectFileModel</CODE> that some
+	 * project file operation is in progress. This causes a publication of the {@link #BUSY} state
+	 * to all subscribed {@link ProjectFileModelListener} objects. Note that the calling object, 
+	 * by invoking this method, is accepting responsibility for invoking the {@link #notBusy()} method 
+	 * once the file operation is complete.
+	 * 
+	 * @see ProjectFileModelListener
+	 * @see #notBusy()
+	 */
+	public void busy() {
+		oldState = state;
+		publishState(BUSY);
+	}
+
+	/**
+	 * A method allowing other objects to alert the <CODE>projectFileModel</CODE> that some
+	 * project file operation has completed. This causes a publication of the stete what was 
+	 * in place before the last call to the {@link #busy()} method was made to all currently subscribed
+	 * {@link ProjectFileModelListener} objects.
+	 * 
+	 * @see ProjectFileModelListener
+	 * @see #busy()
+	 */
+	public void notBusy() {
+		state = oldState;
+		publishState();
+	}
+
+	/**
+	 * A method allowing other objects to get the file name that will be used for saving and loading 
+	 * project files.
+	 * @return The name (as a full path) of the project file.
+	 */
+	public String getFileName() {
+		return this.fileName;
+	}
+
+	/**
+	 * A method allowing other objects to set the file name that will be used for saving and loading 
+	 * project files.
+	 * @param fileName The name (as a full path) of the project file.
+	 */
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+		if (fileName != null) {
+			publishState();
+		}
+	}
 }

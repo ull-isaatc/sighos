@@ -22,7 +22,7 @@ public class SighosFrameworkDesktop extends JPanel {
 	private static JComponent currentDesktop = null;
 	
 	private static JSplitPane splitPane = null;
-
+	
 	private static final SighosFrameworkDesktop INSTANCE = new SighosFrameworkDesktop();
 
 	public static SighosFrameworkDesktop getInstance() {

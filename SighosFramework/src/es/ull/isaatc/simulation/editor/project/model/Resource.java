@@ -6,10 +6,12 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem;
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem.ProblemType;
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
 import es.ull.isaatc.simulation.editor.project.model.Resource.TimeTable.Duration;
-import es.ull.isaatc.simulation.editor.util.ModelComponent;
 import es.ull.isaatc.simulation.editor.util.ResourceLoader;
+import es.ull.isaatc.simulation.editor.util.Validatory;
 import es.ull.isaatc.simulation.xml.CommonFreq;
 
 public class Resource extends ModelComponent {
@@ -58,6 +60,11 @@ public class Resource extends ModelComponent {
 	}
 
 	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("resource");
+	}
+
+		@Override
 	public Object getXML() {
 		es.ull.isaatc.simulation.xml.Resource resXML = ProjectModel
 				.getXmlModelFactory().createResource();
@@ -68,13 +75,27 @@ public class Resource extends ModelComponent {
 		return resXML;
 	}
 
-	public static class TimeTable implements Cloneable {
+	public List<ProblemTableItem> validate() {
+		super.validate();
+		if (nelem < 0)
+			problems.add(new ProblemTableItem(ProblemType.ERROR, 
+					ResourceLoader.getMessage("resource_nelem_validation"),
+					getComponentString(),
+					getId()));
+		problems.addAll(timeTableTableModel.validate());
+		return problems;
+	}
+		
+	public static class TimeTable implements Cloneable, Validatory {
 
 		protected List<ResourceType> rtList;
 
 		protected String cycle;
 
 		protected Duration duration;
+		
+		/** List of problems for this timetable */
+		protected List<ProblemTableItem> problems = new ArrayList<ProblemTableItem>();
 
 		public List<ResourceType> getRTList() {
 			if (rtList == null) {
@@ -125,6 +146,10 @@ public class Resource extends ModelComponent {
 			this.cycle = cycle;
 		}
 
+		public String getComponentString() {
+			return ResourceLoader.getMessage("resource_timetable");
+		}
+		
 		public es.ull.isaatc.simulation.xml.Resource.TimeTable getXML() {
 			es.ull.isaatc.simulation.xml.Resource.TimeTable ttXML = ProjectModel
 					.getXmlModelFactory().createResourceTimeTable();
@@ -138,6 +163,19 @@ public class Resource extends ModelComponent {
 			while (rtIt.hasNext())
 				ttXML.getRtId().add(rtIt.next().getId());
 			return ttXML;
+		}
+
+		public List<ProblemTableItem> validate() {
+			problems.clear();
+			if (rtList.size() == 0)
+				problems.add(new ProblemTableItem(ProblemType.ERROR, 
+						ResourceLoader.getMessage("resource_timetable_roles_validation"),
+						getComponentString(), 0));
+			if (duration == null)
+				problems.add(new ProblemTableItem(ProblemType.ERROR, 
+						ResourceLoader.getMessage("resource_timetable_duration_validation"),
+						getComponentString(), 0));
+			return problems;
 		}
 
 		public Object clone() {
@@ -215,7 +253,7 @@ public class Resource extends ModelComponent {
 		}
 	}
 
-	public class TimeTableTableModel extends AbstractTableModel {
+	public class TimeTableTableModel extends AbstractTableModel implements Validatory {
 		private static final long serialVersionUID = 1L;
 
 		/** Column names */
@@ -223,6 +261,9 @@ public class Resource extends ModelComponent {
 
 		/** Elements in the table */
 		protected List<TimeTable> elements = new ArrayList<TimeTable>();
+		
+		/** List of problems for this tablemodel */
+		protected List<ProblemTableItem> problems = new ArrayList<ProblemTableItem>();
 
 		public TimeTableTableModel() {
 			super();
@@ -314,6 +355,15 @@ public class Resource extends ModelComponent {
 			Iterator<TimeTable> elemIt = elements.iterator();
 			while (elemIt.hasNext())
 				ttXMLList.add(elemIt.next().getXML());
+		}
+		
+		public List<ProblemTableItem> validate() {
+			problems.clear();
+			for (int i = 0; i < elements.size(); i++) {
+				TimeTable tt = elements.get(i);
+				problems.addAll(tt.validate());
+			}
+			return problems;
 		}
 	}
 }

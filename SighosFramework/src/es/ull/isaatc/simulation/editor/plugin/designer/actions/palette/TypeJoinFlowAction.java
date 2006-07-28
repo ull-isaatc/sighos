@@ -3,7 +3,6 @@ package es.ull.isaatc.simulation.editor.plugin.designer.actions.palette;
 import javax.swing.Action;
 
 import es.ull.isaatc.simulation.editor.framework.swing.TooltipTogglingWidget;
-import es.ull.isaatc.simulation.editor.plugin.designer.swing.menu.Palette;
 import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
 public class TypeJoinFlowAction extends SighosPaletteAction implements

@@ -5,6 +5,8 @@ package es.ull.isaatc.simulation.editor.project.model;
 
 import java.util.Stack;
 
+import es.ull.isaatc.simulation.editor.plugin.designer.graph.cell.SighosCell;
+
 /**
  * @author Roberto Muñoz
  *
@@ -23,8 +25,8 @@ public class FlowStack {
 		return ce;
 	}
 
-	public ContainerElement push(int openedBranches, Flow flow) {
-		push(new ContainerElement(openedBranches, flow));
+	public ContainerElement push(int openedBranches, Flow flow, SighosCell cell) {
+		push(new ContainerElement(openedBranches, flow, cell));
 		return top();
 	}
 	
@@ -42,30 +44,41 @@ public class FlowStack {
 	 * Actualize the stack top with a closed branch
 	 * @return true if container is completed. false elsewhere
 	 */
-	public boolean branchFinished() {
+	public ContainerElement branchFinished() {
 		// if all branches are closed remove the top container
 		if (top().decOpenenBranches() == 0) {
-			Flow flow = pop().getFlow();
+			ContainerElement ce = pop();
+			Flow flow = ce.getFlow();
 			if ((flow instanceof DecisionBranchFlow) || (flow instanceof TypeBranchFlow))
 				return branchFinished();
-			return true;
+			return ce;
 		}
-		return false;
+		return top();
+	}
+	
+	/**
+	 * Clears the stack
+	 */
+	public void reset() {
+		stack.clear();
 	}
 	
 	public class ContainerElement {
 		private int openedBranches;
 		
 		private Flow flow;
+		
+		private SighosCell cell;
 
 		/**
 		 * @param openedBranches
 		 * @param flow
 		 */
-		public ContainerElement(int branches, Flow flow) {
+		public ContainerElement(int branches, Flow flow, SighosCell cell) {
 			super();
 			this.openedBranches = branches;
 			this.flow = flow;
+			this.cell = cell;
 		}
 
 		/**
@@ -102,6 +115,20 @@ public class FlowStack {
 		 */
 		public void setFlow(Flow flow) {
 			this.flow = flow;
+		}
+
+		/**
+		 * @return the cell
+		 */
+		public SighosCell getCell() {
+			return cell;
+		}
+
+		/**
+		 * @param cell the cell to set
+		 */
+		public void setCell(SighosCell cell) {
+			this.cell = cell;
 		}
 	}
 }

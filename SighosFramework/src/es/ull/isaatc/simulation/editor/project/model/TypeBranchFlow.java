@@ -4,8 +4,12 @@
 package es.ull.isaatc.simulation.editor.project.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem;
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem.ProblemType;
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
+import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
 /**
  * @author Roberto Muñoz
@@ -64,6 +68,11 @@ public class TypeBranchFlow extends Flow implements ContainerFlow {
 	}
 
 	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("typebranchflow");
+	}
+	
+	@Override
 	public Object getXML() {
 		es.ull.isaatc.simulation.xml.TypeBranch flowXML = ProjectModel
 		.getXmlModelFactory().createTypeBranch();
@@ -93,6 +102,32 @@ public class TypeBranchFlow extends Flow implements ContainerFlow {
 		for (int i = 1; i < elemTypes.size(); i++)
 			str += ", " + elemTypes.get(i).getId();
 		return str;
+	}
+
+	@Override
+	public List<ProblemTableItem> validate() {
+		super.validate();
+
+		// check if each elemen type selected has been previously selected
+		Flow prevFlow;
+		for (ElementType et : getElemTypes()) {
+			prevFlow = getParent();
+			while (prevFlow != null) {
+				if (prevFlow instanceof TypeBranchFlow) {
+					if (!((TypeBranchFlow)prevFlow).getElemTypes().contains(et))
+						problems.add(new ProblemTableItem(ProblemType.ERROR, 
+								ResourceLoader.getMessage("typebranchflow_elementtype_validation"),
+								getComponentString(), getId()));
+					prevFlow = null;
+				}
+				else
+					prevFlow = ((Flow)prevFlow).getParent();
+			}
+		}
+		
+		problems.addAll(getOption().validate());
+
+		return problems;
 	}
 	
 	public String toString() {

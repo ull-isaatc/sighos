@@ -3,10 +3,12 @@ package es.ull.isaatc.simulation.editor.project.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem;
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem.ProblemType;
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
 import es.ull.isaatc.simulation.editor.project.model.tablemodel.ModelComponentTableModel;
-import es.ull.isaatc.simulation.editor.util.ModelComponent;
 import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
 public class Activity extends ModelComponent {
@@ -15,7 +17,7 @@ public class Activity extends ModelComponent {
 	protected int priority;
 
 	/** Activity presentiality */
-	protected boolean presencial;
+	protected boolean presential;
 
 	/** Activity workgroups */
 	protected WorkGroupTableModel workGroupTableModel;
@@ -38,7 +40,7 @@ public class Activity extends ModelComponent {
 		super(ComponentType.ACTIVITY);
 
 		setDescription(act.getDescription());
-		setPresencial(act.isPresencial());
+		setPresential(act.isPresential());
 		setPriority(act.getPriority());
 		setId(act.getId());
 		workGroupTableModel = new WorkGroupTableModel();
@@ -59,17 +61,17 @@ public class Activity extends ModelComponent {
 	}
 
 	/**
-	 * Gets the value of the presencial property.
+	 * Gets the value of the presential property.
 	 */
-	public boolean isPresencial() {
-		return presencial;
+	public boolean isPresential() {
+		return presential;
 	}
 
 	/**
-	 * Sets the value of the presencial property.
+	 * Sets the value of the presential property.
 	 */
-	public void setPresencial(boolean value) {
-		this.presencial = value;
+	public void setPresential(boolean value) {
+		this.presential = value;
 	}
 
 	/**
@@ -118,17 +120,33 @@ public class Activity extends ModelComponent {
 	}
 
 	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("activity");
+	}
+
+	@Override
 	public Object getXML() {
 		es.ull.isaatc.simulation.xml.Activity actXML = ProjectModel
 				.getXmlModelFactory().createActivity();
 		actXML.setId(getId());
 		actXML.setDescription(getDescription());
-		actXML.setPresencial(isPresencial());
+		actXML.setPresencial(isPresential());
 		actXML.setPriority(getPriority());
 		actXML.getWorkGroup().addAll(getWorkGroupTableModel().getXML());
 		return actXML;
 	}
 
+	public List<ProblemTableItem> validate() {
+		super.validate();
+		if (priority < 0)
+			problems.add(new ProblemTableItem(ProblemType.ERROR, 
+					ResourceLoader.getMessage("activity_priority_validation"),
+					getComponentString(),
+					getId()));
+		problems.addAll(workGroupTableModel.validate());
+		return problems;
+	}
+	
 	public static class WorkGroup extends ModelComponent implements Cloneable {
 
 		protected HashMap<ResourceType, Integer> resourceType;
@@ -190,6 +208,11 @@ public class Activity extends ModelComponent {
 		}
 
 		@Override
+		public String getComponentString() {
+			return ResourceLoader.getMessage("activity_workgroup");
+		}
+
+		@Override
 		public Object getXML() {
 			es.ull.isaatc.simulation.xml.Activity.WorkGroup wgXML = ProjectModel
 					.getXmlModelFactory().createActivityWorkGroup();
@@ -213,7 +236,27 @@ public class Activity extends ModelComponent {
 			}
 			return wgXML;
 		}
-
+		
+		public List<ProblemTableItem> validate() {
+			super.validate();
+			if (priority < 0)
+				problems.add(new ProblemTableItem(ProblemType.ERROR, 
+						ResourceLoader.getMessage("activity_workgroup_priority_validation"),
+						getComponentString(),
+						getId()));
+			if (duration.length() == 0)
+				problems.add(new ProblemTableItem(ProblemType.ERROR, 
+						ResourceLoader.getMessage("activity_workgroup_duration_validation"),
+						getComponentString(),
+						getId()));
+			if (resourceType.size() == 0)
+				problems.add(new ProblemTableItem(ProblemType.WARNING, 
+						ResourceLoader.getMessage("activity_workgroup_resourcetype_validation"),
+						getComponentString(),
+						getId()));
+			return problems;
+		}
+		
 		public Object clone() {
 			Object obj = null;
 			try {
@@ -284,6 +327,11 @@ public class Activity extends ModelComponent {
 			return (WorkGroup) (elements.get(index));
 		}
 
+		@Override
+		public String getComponentString() {
+			return ResourceLoader.getMessage("activity_workgroup");
+		}
+		
 		public String toString() {
 			return Integer.toString(elements.size());
 		}

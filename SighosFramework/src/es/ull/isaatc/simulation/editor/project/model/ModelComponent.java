@@ -1,19 +1,20 @@
-/*
- * ModelComponent.java
- *
- * Created on 17 de noviembre de 2005, 11:06
- */
+package es.ull.isaatc.simulation.editor.project.model;
 
-package es.ull.isaatc.simulation.editor.util;
+import java.util.ArrayList;
+import java.util.List;
 
-import es.ull.isaatc.simulation.editor.project.model.ComponentType;
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem;
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem.ProblemType;
+import es.ull.isaatc.simulation.editor.util.ResourceLoader;
+import es.ull.isaatc.simulation.editor.util.Validatory;
+
 
 /**
  * Defines an object that has an associated description and id.
  * 
  * @author Roberto Muñoz
  */
-public abstract class ModelComponent implements Comparable {
+public abstract class ModelComponent implements Comparable, Validatory {
 	
 	/** Component id */
 	protected int id;
@@ -23,8 +24,10 @@ public abstract class ModelComponent implements Comparable {
 
 	/** Type of the component */
 	protected ComponentType componentType;
-
 	
+	/** List of problems for this component */
+	protected List<ProblemTableItem> problems = new ArrayList<ProblemTableItem>();
+
 	public ModelComponent(ComponentType componentType) {
 		super();
 		this.componentType = componentType;
@@ -81,11 +84,25 @@ public abstract class ModelComponent implements Comparable {
 		this.id = id;
 	}
 
+	/**
+	 * @return a component description
+	 */
+	public abstract String getComponentString();
 	
 	/** 
 	 * @return Object XML data structure representation
 	 */
 	public abstract Object getXML();
+	
+	public List<ProblemTableItem> validate() {
+		problems.clear();
+		if (getDescription().length() == 0)
+			problems.add(new ProblemTableItem(ProblemType.WARNING, 
+					ResourceLoader.getMessage("component_description_validation"),
+					getComponentString(),
+					getId()));
+		return problems;
+	}
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)

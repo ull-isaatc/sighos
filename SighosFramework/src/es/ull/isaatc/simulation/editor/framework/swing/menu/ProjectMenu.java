@@ -33,7 +33,6 @@ class ProjectMenu extends JMenu {
 		add(new SighosMenuItem(new SaveProjectAsAction()));
 		addSeparator();
 		add(new SighosMenuItem(new ValidateModelAction()));
-		add(new SighosMenuItem(new AnalyseModelAction()));
 		addSeparator();
 		add(new SighosMenuItem(new CloseProjectAction()));
 		add(new SighosMenuItem(new ExitAction(this)));

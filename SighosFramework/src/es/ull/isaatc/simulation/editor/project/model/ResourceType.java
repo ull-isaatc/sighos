@@ -6,7 +6,7 @@ import java.util.Iterator;
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
 import es.ull.isaatc.simulation.editor.project.model.Activity.WorkGroup;
 import es.ull.isaatc.simulation.editor.project.model.Resource.TimeTable;
-import es.ull.isaatc.simulation.editor.util.ModelComponent;
+import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
 public class ResourceType extends ModelComponent {
 	
@@ -89,6 +89,11 @@ public class ResourceType extends ModelComponent {
 	}
 
 	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("resourcetype");
+	}
+
+		@Override
 	public Object getXML() {
 		es.ull.isaatc.simulation.xml.ResourceType rtXML = ProjectModel.getXmlModelFactory().createResourceType();
 		rtXML.setId(getId());

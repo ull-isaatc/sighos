@@ -1,4 +1,4 @@
-package es.ull.isaatc.swing.table;
+package es.ull.isaatc.simulation.editor.framework.swing.table;
 
 import info.clearthought.layout.TableLayout;
 

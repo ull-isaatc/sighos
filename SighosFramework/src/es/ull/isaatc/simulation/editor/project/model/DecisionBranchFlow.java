@@ -3,7 +3,12 @@
  */
 package es.ull.isaatc.simulation.editor.project.model;
 
+import java.util.List;
+
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem;
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem.ProblemType;
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
+import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
 /**
  * @author Roberto Muñoz
@@ -59,6 +64,11 @@ public class DecisionBranchFlow extends Flow implements ContainerFlow {
 	}
 	
 	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("decisionbranchflow");
+	}
+	
+	@Override
 	public Object getXML() {
 		es.ull.isaatc.simulation.xml.DecisionOption flowXML = ProjectModel
 		.getXmlModelFactory().createDecisionOption();
@@ -81,6 +91,21 @@ public class DecisionBranchFlow extends Flow implements ContainerFlow {
 		return flowXML;
 	}
 	
+
+	@Override
+	public List<ProblemTableItem> validate() {
+		super.validate();
+		prob = getProb();
+		if ((prob < 0) || (prob > 1))
+			problems.add(new ProblemTableItem(ProblemType.ERROR, 
+					ResourceLoader.getMessage("decisionbrachflow_prob_validation"),
+					getComponentString(), getId()));
+		
+		problems.addAll(getOption().validate());
+		
+		return problems;
+	}
+
 	public String toString() {
 		return String.valueOf(prob);
 	}

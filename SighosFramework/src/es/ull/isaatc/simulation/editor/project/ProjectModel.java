@@ -1,8 +1,12 @@
 package es.ull.isaatc.simulation.editor.project;
 
-import es.ull.isaatc.simulation.editor.project.model.Model;
+import java.util.List;
 
-public class ProjectModel {
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem;
+import es.ull.isaatc.simulation.editor.project.model.Model;
+import es.ull.isaatc.simulation.editor.util.Validatory;
+
+public class ProjectModel implements Validatory {
 
 	private Model model;
 
@@ -11,7 +15,7 @@ public class ProjectModel {
 	private String description = "No description has been given.";
 
 	private String author = "";
-	
+
 	private static final es.ull.isaatc.simulation.xml.ObjectFactory xmlModelFactory = new es.ull.isaatc.simulation.xml.ObjectFactory();
 
 	private transient static final ProjectModel INSTANCE = new ProjectModel();
@@ -44,7 +48,8 @@ public class ProjectModel {
 	}
 
 	/**
-	 * @param author the author to set
+	 * @param author
+	 *            the author to set
 	 */
 	public void setAuthor(String author) {
 		this.author = author;
@@ -58,7 +63,8 @@ public class ProjectModel {
 	}
 
 	/**
-	 * @param description the description to set
+	 * @param description
+	 *            the description to set
 	 */
 	public void setDescription(String description) {
 		this.description = description;
@@ -72,7 +78,8 @@ public class ProjectModel {
 	}
 
 	/**
-	 * @param name the name to set
+	 * @param name
+	 *            the name to set
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -99,13 +106,19 @@ public class ProjectModel {
 	public static es.ull.isaatc.simulation.xml.ObjectFactory getXmlModelFactory() {
 		return xmlModelFactory;
 	}
-	
+
 	public es.ull.isaatc.simulation.editor.project.xml.Project getXML() {
-		es.ull.isaatc.simulation.editor.project.xml.Project projectXML = new es.ull.isaatc.simulation.editor.project.xml.ObjectFactory().createProject();
+		es.ull.isaatc.simulation.editor.project.xml.Project projectXML = new es.ull.isaatc.simulation.editor.project.xml.ObjectFactory()
+				.createProject();
 		projectXML.setAuthor(getAuthor());
 		projectXML.setName(getName());
 		projectXML.setDescription(getDescription());
 		projectXML.setModel("model.xml");
 		return projectXML;
 	}
+
+	public List<ProblemTableItem> validate() {
+		return model.validate();
+	}
+
 }

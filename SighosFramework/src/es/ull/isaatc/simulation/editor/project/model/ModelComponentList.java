@@ -1,4 +1,4 @@
-package es.ull.isaatc.simulation.editor.util;
+package es.ull.isaatc.simulation.editor.project.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,6 +73,25 @@ public class ModelComponentList {
 		return list.get(index);
 	}
 
+	/**
+	 * Searches for the objects with the expressed description
+	 * @param description
+	 * @return the objects found. null in other case
+	 */
+	public List<ModelComponent> search(String description) {
+		List<ModelComponent> result = new ArrayList<ModelComponent>();
+		if (description == null)
+			return result;
+		if (description.length() == 0)
+			return result;
+		
+		for (int i = 0;  i < size(); i++) {
+			if (list.get(i).description.equals(description))
+				result.add(list.get(i));
+		}
+		return result;
+	}
+	
 	/**
 	 * Returns the size of the list.
 	 * @return Size of the list.

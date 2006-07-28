@@ -3,8 +3,12 @@ package es.ull.isaatc.simulation.editor.project.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem;
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem.ProblemType;
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
+import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
 public class TypeFlow extends Flow {
 
@@ -61,6 +65,11 @@ public class TypeFlow extends Flow {
 	}
 	
 	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("typeflow");
+	}
+	
+	@Override
 	public Object getXML() {
 		es.ull.isaatc.simulation.xml.TypeFlow flowXML = ProjectModel
 		.getXmlModelFactory().createTypeFlow();
@@ -70,5 +79,35 @@ public class TypeFlow extends Flow {
 			flowXML.getBranch().add((es.ull.isaatc.simulation.xml.TypeBranch) opIt.next().getXML());
 		}
 		return flowXML;
+	}
+
+	/**
+	 * Checks the element types of the branches
+	 * @param checkedList
+	 * @param newList
+	 */
+	private void checkTypeBranch(List<ElementType> checkedList, TypeBranchFlow tbFlow) {
+		// check the hierarchy of the element types 
+		problems.addAll(tbFlow.validate());
+		
+		for (ElementType et : tbFlow.getElemTypes()) {
+			if (checkedList.contains(et))
+				problems.add(new ProblemTableItem(ProblemType.ERROR, 
+						ResourceLoader.getMessage("typeflow_elementtype_validation"),
+						getComponentString(), getId()));
+			checkedList.add(et);
+		}
+	}
+	
+	@Override
+	public List<ProblemTableItem> validate() {
+		super.validate();
+		// check the elemtypes selected for each branch
+		List<ElementType> elemTypeList = new ArrayList<ElementType>();  // list of element types checked
+		Iterator<TypeBranchFlow> dbfIt = getOptions().keySet().iterator();
+		while (dbfIt.hasNext()) {
+			checkTypeBranch(elemTypeList, dbfIt.next());
+		}		
+		return problems;
 	}
 }

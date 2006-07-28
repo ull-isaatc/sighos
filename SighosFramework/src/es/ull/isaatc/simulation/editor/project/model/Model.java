@@ -3,8 +3,13 @@
  */
 package es.ull.isaatc.simulation.editor.project.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem;
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
 import es.ull.isaatc.simulation.editor.project.model.tablemodel.*;
+import es.ull.isaatc.simulation.editor.util.Validatory;
 import es.ull.isaatc.simulation.xml.CommonFreq;
 
 /**
@@ -12,7 +17,7 @@ import es.ull.isaatc.simulation.xml.CommonFreq;
  * 
  * @author Roberto Muñoz
  */
-public class Model {
+public class Model implements Validatory {
 
 	/** Model file name */
 	private String fileName;
@@ -182,5 +187,15 @@ public class Model {
 		modelXML.getElementType().addAll(getElementTypeTableModel().getXML());
 		modelXML.getRootFlow().addAll(getRootFlowTableModel().getXML());
 		return modelXML;
+	}
+
+	public List<ProblemTableItem> validate() {
+		List<ProblemTableItem> problems = new ArrayList<ProblemTableItem>();
+		problems.addAll(getResourceTypeTableModel().validate());
+		problems.addAll(getResourceTableModel().validate());
+		problems.addAll(getElementTypeTableModel().validate());
+		problems.addAll(getActivityTableModel().validate());
+		problems.addAll(getRootFlowTableModel().validate());
+		return problems;
 	}
 }

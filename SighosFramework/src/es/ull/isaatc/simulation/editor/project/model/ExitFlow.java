@@ -1,6 +1,7 @@
 package es.ull.isaatc.simulation.editor.project.model;
 
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
+import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
 public class ExitFlow extends Flow {
 
@@ -12,7 +13,12 @@ public class ExitFlow extends Flow {
 	public ExitFlow() {
 		super(ComponentType.FLOW);
 	}
-
+	
+	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("exitflow");
+	}
+	
 	@Override
 	public Object getXML() {
 		es.ull.isaatc.simulation.xml.ExitFlow flowXML = ProjectModel

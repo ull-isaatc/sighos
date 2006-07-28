@@ -3,9 +3,15 @@ package es.ull.isaatc.simulation.editor.project.model;
 import java.util.Iterator;
 
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
+import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
 public class SequenceFlow extends GroupFlow {
 
+	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("sequenceflow");
+	}
+	
 	@Override
 	public Object getXML() {
 		es.ull.isaatc.simulation.xml.SequenceFlow flowXML = ProjectModel

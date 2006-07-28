@@ -1,8 +1,10 @@
 package es.ull.isaatc.simulation.editor.plugin.designer.swing;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -13,11 +15,14 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import es.ull.isaatc.simulation.editor.framework.swing.SighosTabbedPane;
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem;
 import es.ull.isaatc.simulation.editor.plugin.designer.SighosDesignerPlugin;
 import es.ull.isaatc.simulation.editor.plugin.designer.graph.RootFlowGraph;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.menu.Palette;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.menu.ToolBarMenu;
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
+import es.ull.isaatc.simulation.editor.project.model.Flow;
 import es.ull.isaatc.simulation.editor.project.model.RootFlow;
 
 public class DesignerDesktop extends JPanel implements TableModelListener,
@@ -101,11 +106,16 @@ public class DesignerDesktop extends JPanel implements TableModelListener,
 	}
 	
 	public boolean validateModel() {
+		List<ProblemTableItem> problems = new ArrayList<ProblemTableItem>();
 		Iterator<RootFlow> rfIt = graphs.keySet().iterator();
 		while (rfIt.hasNext()) {
 			RootFlow rf = rfIt.next();
-			rf.setFlow(graphs.get(rf).getGraph().getRootFlowGraphModel().getFlow());
+			Flow flow = graphs.get(rf).getGraph().getRootFlowGraphModel().getFlow();
+			problems.addAll(graphs.get(rf).getGraph().getRootFlowGraphModel().validate());
+			if (problems.size() == 0)  // no errors => continue
+				rf.setFlow(flow);			
 		}
+		SighosTabbedPane.getInstance().getProblemTable().setProblemList(problems);
 		return true;
 	}
 	

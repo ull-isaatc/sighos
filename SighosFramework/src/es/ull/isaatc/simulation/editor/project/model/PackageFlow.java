@@ -1,6 +1,11 @@
 package es.ull.isaatc.simulation.editor.project.model;
 
+import java.util.List;
+
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem;
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem.ProblemType;
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
+import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
 public class PackageFlow extends Flow {
 
@@ -30,13 +35,27 @@ public class PackageFlow extends Flow {
 	public void setRootFlow(RootFlow rootFlow, boolean secureSet) {
 		// remove this flow from the flow list of the root flow
 		if ((getRootFlow() != null) && !secureSet) {
-			getRootFlow().getFlowList().remove(this);
+			getRootFlow().getPackageFlowList().remove(this);
 		}
 		this.rootFlow = rootFlow;
 		if (rootFlow != null)
-			this.rootFlow.getFlowList().add(this);
+			this.rootFlow.getPackageFlowList().add(this);
 	}
 
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		if (rootFlow != null)
+			return rootFlow.getDescription();
+		return super.getDescription();
+	}
+	
+	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("packageflow");
+	}
+	
 	@Override
 	public Object getXML() {
 		es.ull.isaatc.simulation.xml.PackageFlow flowXML = ProjectModel
@@ -57,7 +76,17 @@ public class PackageFlow extends Flow {
 		flowXML.setRootFlowId(getRootFlow().getId());
 		return flowXML;
 	}
-
+	
+	@Override
+	public List<ProblemTableItem> validate() {
+		super.validate();
+		if (rootFlow == null)
+			problems.add(new ProblemTableItem(ProblemType.ERROR, 
+					ResourceLoader.getMessage("packageflow_rootflow_validation"),
+					getComponentString(), getId()));
+		return problems;
+	}
+	
 	public String toString() {
 		String str = "Not defined";
 		if (rootFlow != null)

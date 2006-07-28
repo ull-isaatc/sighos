@@ -25,6 +25,8 @@ import javax.xml.bind.JAXBException;
 
 import es.ull.isaatc.simulation.editor.framework.actions.swing.SighosDialogComponentAction;
 import es.ull.isaatc.simulation.editor.framework.swing.dialog.SighosDialog;
+import es.ull.isaatc.simulation.editor.framework.swing.table.SighosTable;
+import es.ull.isaatc.simulation.editor.framework.swing.table.TablePopupListener;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.util.ResourceTypeComboBox;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.util.XMLEditorPanel;
 import es.ull.isaatc.simulation.editor.project.model.ResourceType;
@@ -32,8 +34,6 @@ import es.ull.isaatc.simulation.editor.project.model.XMLModelUtilities;
 import es.ull.isaatc.simulation.editor.project.model.Activity.WorkGroup;
 import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 import es.ull.isaatc.swing.IntegerTextField;
-import es.ull.isaatc.swing.table.SighosTable;
-import es.ull.isaatc.swing.table.TablePopupListener;
 
 public class WorkGroupDialog extends SighosDialog {
 
@@ -118,6 +118,7 @@ public class WorkGroupDialog extends SighosDialog {
 			table.getColumnModel().getColumn(0).setCellEditor(
 					new DefaultCellEditor(new ResourceTypeComboBox()));
 			AbstractAction deleteAction = new AbstractAction() {
+				private static final long serialVersionUID = 1L;
 				{
 					putValue(Action.SHORT_DESCRIPTION, ResourceLoader
 							.getMessage("table_delete"));

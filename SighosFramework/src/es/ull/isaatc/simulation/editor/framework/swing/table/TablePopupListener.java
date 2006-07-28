@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.swing.table;
+package es.ull.isaatc.simulation.editor.framework.swing.table;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+
 
 /**
  * @author Roberto Muñoz

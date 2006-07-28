@@ -1,6 +1,11 @@
 package es.ull.isaatc.simulation.editor.project.model;
 
+import java.util.List;
+
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem;
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem.ProblemType;
 import es.ull.isaatc.simulation.editor.project.ProjectModel;
+import es.ull.isaatc.simulation.editor.util.ResourceLoader;
 
 public class SingleFlow extends Flow {
 
@@ -36,7 +41,21 @@ public class SingleFlow extends Flow {
 		if (activity != null)
 			this.activity.getFlowList().add(this);
 	}
+	
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		if (activity != null)
+			return activity.getDescription();
+		return super.getDescription();
+	}
 
+	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("singleflow");
+	}
+	
 	@Override
 	public Object getXML() {
 		es.ull.isaatc.simulation.xml.SingleFlow flowXML = ProjectModel
@@ -56,6 +75,16 @@ public class SingleFlow extends Flow {
 			}
 		flowXML.setActId(getActivity().getId());
 		return flowXML;
+	}
+
+	@Override
+	public List<ProblemTableItem> validate() {
+		super.validate();
+		if (activity == null)
+			problems.add(new ProblemTableItem(ProblemType.ERROR, 
+					ResourceLoader.getMessage("singleflow_activity_validation"),
+					getComponentString(), getId()));
+		return problems;
 	}
 
 	public String toString() {

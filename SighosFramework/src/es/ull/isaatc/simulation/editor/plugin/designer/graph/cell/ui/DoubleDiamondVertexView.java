@@ -1,10 +1,7 @@
 package es.ull.isaatc.simulation.editor.plugin.designer.graph.cell.ui;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Polygon;
 
 import org.jgraph.graph.CellViewRenderer;

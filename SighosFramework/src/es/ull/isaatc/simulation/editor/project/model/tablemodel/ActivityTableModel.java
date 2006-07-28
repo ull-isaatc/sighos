@@ -27,7 +27,7 @@ public class ActivityTableModel extends ModelComponentTableModel {
 		case 2:
 			return ((Activity) (elements.get(row))).getPriority();
 		case 3:
-			return ((Activity) (elements.get(row))).isPresencial();
+			return ((Activity) (elements.get(row))).isPresential();
 		case 4:
 			return ((Activity) (elements.get(row))).getWorkGroupTableModel();
 		}
@@ -67,7 +67,7 @@ public class ActivityTableModel extends ModelComponentTableModel {
 			((Activity) elements.get(row)).setPriority((Integer) value);
 			break;
 		case 3: // presential
-			((Activity) elements.get(row)).setPresencial((Boolean) value);
+			((Activity) elements.get(row)).setPresential((Boolean) value);
 			break;
 		}
 		fireTableCellUpdated(row, col);
@@ -76,5 +76,10 @@ public class ActivityTableModel extends ModelComponentTableModel {
 	public void remove(int index) {
 		get(index).removeReferences();
 		super.remove(index);
-	}	
+	}
+	
+	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("activity");
+	}
 }

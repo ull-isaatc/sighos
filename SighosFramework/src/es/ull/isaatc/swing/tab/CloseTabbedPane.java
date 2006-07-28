@@ -18,7 +18,6 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.EventListenerList;
 import javax.swing.plaf.TabbedPaneUI;

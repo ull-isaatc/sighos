@@ -40,6 +40,8 @@ import javax.swing.SwingConstants;
  */
 public class TreeLayoutSettings extends JPanel implements JGraphLayoutSettings {
 
+	private static final long serialVersionUID = 1L;
+
 	protected TreeLayoutAlgorithm layout;
 	
     private JComboBox alignmentCombo = new JComboBox(new Object[]{"Top", "Center", "Bottom"});

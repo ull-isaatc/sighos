@@ -56,4 +56,9 @@ public class ResourceTypeTableModel extends ModelComponentTableModel {
 		get(index).removeReferences();
 		super.remove(index);
 	}
+	
+	@Override
+	public String getComponentString() {
+		return ResourceLoader.getMessage("resourcetype");
+	}
 }

@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.List;
 
 import javax.swing.SwingUtilities;
 
@@ -15,15 +16,16 @@ import org.jgraph.graph.BasicMarqueeHandler;
 import org.jgraph.graph.Port;
 import org.jgraph.graph.PortView;
 
-import es.ull.isaatc.simulation.editor.plugin.designer.graph.cell.DecisionCell;
+import es.ull.isaatc.simulation.editor.framework.swing.table.ProblemTableItem;
+import es.ull.isaatc.simulation.editor.plugin.designer.graph.cell.ExitCell;
 import es.ull.isaatc.simulation.editor.plugin.designer.graph.cell.PackageCell;
 import es.ull.isaatc.simulation.editor.plugin.designer.graph.cell.SingleCell;
 import es.ull.isaatc.simulation.editor.plugin.designer.graph.cell.GroupSplitCell;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.CursorFactory;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.menu.Palette;
+import es.ull.isaatc.simulation.editor.project.model.ExitFlow;
 import es.ull.isaatc.simulation.editor.project.model.GroupFlow;
 import es.ull.isaatc.simulation.editor.project.model.PackageFlow;
-import es.ull.isaatc.simulation.editor.project.model.SimultaneousFlow;
 import es.ull.isaatc.simulation.editor.project.model.SingleFlow;
 
 public class RootFlowGraphMarqueeHandler extends BasicMarqueeHandler {
@@ -129,7 +131,8 @@ public class RootFlowGraphMarqueeHandler extends BasicMarqueeHandler {
 			break;
 		}
 		case Palette.FINAL_FLOW: {
-			graph.addExitFlow(getNearestSnapPoint(event.getPoint()));
+			ExitCell cell = graph.addExitFlow(getNearestSnapPoint(event.getPoint()));
+			cell.setFlow(new ExitFlow());
 			break;
 		}
 		case Palette.SPLIT_FLOW: {
@@ -137,6 +140,10 @@ public class RootFlowGraphMarqueeHandler extends BasicMarqueeHandler {
 					.getPoint()));
 			cell.setFlow(new GroupFlow() {
 				public Object getXML() {
+					return null;
+				}
+
+				public List<ProblemTableItem> validate() {
 					return null;
 				}
 			});

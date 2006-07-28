@@ -3,8 +3,6 @@ package es.ull.isaatc.simulation.editor.plugin.designer.graph;
 import org.jgraph.event.GraphSelectionEvent;
 import org.jgraph.event.GraphSelectionListener;
 import org.jgraph.graph.AbstractCellView;
-import org.jgraph.graph.DefaultGraphModel;
-import org.jgraph.graph.GraphLayoutCache;
 import org.jgraph.graph.GraphSelectionModel;
 
 import es.ull.isaatc.simulation.editor.plugin.designer.actions.graph.*;

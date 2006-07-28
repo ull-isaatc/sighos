@@ -18,6 +18,9 @@ import java.awt.SystemColor;
  * @version $Id: Separator.java,v 1.1.1.1 2001/02/07 15:23:50 rtfm Exp $
  */
 public class Separator extends Component {
+
+	private static final long serialVersionUID = 1L;
+
 	int _thickness = 2;
 
 	/**

@@ -6,10 +6,10 @@ package es.ull.isaatc.simulation.editor.plugin.designer.swing.table;
 
 import javax.swing.JTable;
 
+import es.ull.isaatc.simulation.editor.framework.swing.table.TablePanel;
 import es.ull.isaatc.simulation.editor.plugin.designer.swing.dialog.TableDialog;
 import es.ull.isaatc.simulation.editor.project.model.Resource.TimeTableTableModel;
 import es.ull.isaatc.simulation.editor.util.ResourceLoader;
-import es.ull.isaatc.swing.table.TablePanel;
 
 /**
  * @author Roberto Muñoz
