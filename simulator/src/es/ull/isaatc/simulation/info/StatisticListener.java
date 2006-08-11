@@ -154,27 +154,29 @@ public class StatisticListener implements SimulationListener {
 			for (int[]queue : actQueues.values())
 				queue[currentPeriod] = queue[currentPeriod - 1];
 		}
-		ElementInfo eInfo = (ElementInfo)info;
-		switch (eInfo.getType()) {
-			case START:
-				nStartedElem++;
-				if (!nElemXType.containsKey(eInfo.getValue()))
-					nElemXType.put(eInfo.getValue(), 1);
-				else
-					nElemXType.put(eInfo.getValue(), nElemXType.get(eInfo.getValue()) + 1);
-				break;
-			case REQACT:
-				actQueues.get(eInfo.getValue())[currentPeriod]++;
-				break;
-			case STAACT:
-				actQueues.get(eInfo.getValue())[currentPeriod]--;
-				// There's no control over unbalanced starts and ends 
-				actUsage.get(eInfo.getValue())[currentPeriod] -= info.getTs();
-				break;
-			case ENDACT:
-				// There's no control over unbalanced starts and ends 
-				actUsage.get(eInfo.getValue())[currentPeriod] += info.getTs();
-				break;
+		if (info instanceof ElementInfo) {
+			ElementInfo eInfo = (ElementInfo)info;
+			switch (eInfo.getType()) {
+				case START:
+					nStartedElem++;
+					if (!nElemXType.containsKey(eInfo.getValue()))
+						nElemXType.put(eInfo.getValue(), 1);
+					else
+						nElemXType.put(eInfo.getValue(), nElemXType.get(eInfo.getValue()) + 1);
+					break;
+				case REQACT:
+					actQueues.get(eInfo.getValue())[currentPeriod]++;
+					break;
+				case STAACT:
+					actQueues.get(eInfo.getValue())[currentPeriod]--;
+					// There's no control over unbalanced starts and ends 
+					actUsage.get(eInfo.getValue())[currentPeriod] -= info.getTs();
+					break;
+				case ENDACT:
+					// There's no control over unbalanced starts and ends 
+					actUsage.get(eInfo.getValue())[currentPeriod] += info.getTs();
+					break;
+			}
 		}
 	}
 
