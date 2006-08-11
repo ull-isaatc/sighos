@@ -10,13 +10,13 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An iterator for pools that allows the programmer to traverse the pool. A 
+ * An prioritized-table iterator that allows the programmer to traverse the table. A 
  * <code>PrioritizedTableIterator</code> starts at level 0 (the higher priority) and returns
  * a new object of this level each time <code>next</code> is called. When the 
  * iterator reaches the end of the level, it starts the next level.
  * @author Iván Castilla Rodríguez
  */
-public class PrioritizedTableIterator<T extends Prioritizable> implements Iterator<T> {
+public class BalancedPrioritizedTableIterator<T extends Prioritizable> implements Iterator<T> {
     /** Index of the level which is being examinated. */   
     protected int levelIndex = 0;
     /** Index of the first object of the level. This value is used for determining when the iterator has reached the end of the level. */    
@@ -28,7 +28,7 @@ public class PrioritizedTableIterator<T extends Prioritizable> implements Iterat
      * Creates an iterator for the pool.
      * @param table Traversed pool.
      */
-    public PrioritizedTableIterator(PrioritizedTable<T> table) {
+    public BalancedPrioritizedTableIterator(PrioritizedTable<T> table) {
         this.table = table;
         if (table.size() > 0)
         	baseLevel = table.getChosen(0);

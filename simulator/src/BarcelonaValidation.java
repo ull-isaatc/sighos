@@ -1,9 +1,18 @@
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import es.ull.isaatc.random.*;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.info.ElementInfo;
+import es.ull.isaatc.simulation.info.SimulationListener;
+import es.ull.isaatc.simulation.info.PeriodicActivityUsageListener;
+import es.ull.isaatc.simulation.info.SimulationObjectInfo;
+import es.ull.isaatc.simulation.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.info.StatisticListener;
+import es.ull.isaatc.simulation.info.TimeChangeInfo;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
 
@@ -60,9 +69,14 @@ class SimBarcelona extends Simulation {
 		}
 
 		// Resources
+		Cycle c0 = new Cycle(8, new Fixed(24.0), 3);
+//		Cycle c1 = new Cycle(8, new Fixed(24.0), 5);
+//		Cycle c2 = new Cycle(0, new Fixed(24.0 * 7), 0, c1);
 		Cycle c1 = new Cycle(8, new Fixed(24.0), 5);
-		Cycle c2 = new Cycle(0, new Fixed(24.0 * 7), 0, c1);
-		new Resource(0, this, "Surgery").addTimeTableEntry(c2, 7, getResourceType(0));
+		Cycle c2 = new Cycle(5 * 24.0, new Fixed(24.0 * 7), 0, c1);
+		Resource r1 = new Resource(0, this, "Surgery");
+		r1.addTimeTableEntry(c2, 7, getResourceType(0));
+		r1.addTimeTableEntry(c0, 7, getResourceType(0));
 
 		createGenerator1();
 	}
@@ -623,7 +637,8 @@ class BarcelonaListener extends StatisticListener {
 		this.fileRes = fileRes;
 	}
 
-	public void showResults() {
+	public void infoEmited(SimulationEndInfo info) {
+		super.infoEmited(info);
 		try {
 			fileRes.write((getEndT() - getIniT()) + "\t" + getNStartedElem() + "\r\n");
 			for (int[] values : getActQueues().values()) {
@@ -642,7 +657,7 @@ class BarcelonaListener extends StatisticListener {
 	}
 }
 
-class BarcelonaListener2 extends StatisticListener {
+class BarcelonaListener2 extends PeriodicActivityUsageListener {
 	FileWriter fileRes1 = null;
 
 	public BarcelonaListener2(double period, FileWriter fileRes1) {
@@ -650,7 +665,8 @@ class BarcelonaListener2 extends StatisticListener {
 		this.fileRes1 = fileRes1;
 	}
 
-	public void showResults() {
+	public void infoEmited(SimulationEndInfo info) {
+		super.infoEmited(info);
 		double result[] = new double[getNPeriods()];
 		try {
 			for (double[] values : getActUsage().values())
@@ -667,24 +683,99 @@ class BarcelonaListener2 extends StatisticListener {
 		}
 	}
 }
+
+class BarcelonaListener3 implements SimulationListener {
+	FileWriter fileRes = null;
+	HashMap<Integer, ElementEntry> list;
+	
+	public BarcelonaListener3 (FileWriter fileRes) {
+		list = new HashMap<Integer, ElementEntry>();		
+		this.fileRes = fileRes;
+	}
+
+	class ElementEntry {
+		int etId;
+		double reqActTs = Double.NaN;
+		double staActTs = Double.NaN;
+		double endActTs = Double.NaN;
+		
+		/**
+		 * @param etId
+		 */
+		public ElementEntry(int etId) {
+			this.etId = etId;
+		}
+		
+	}
+
+	public void infoEmited(SimulationObjectInfo info) {
+		if (info instanceof ElementInfo) {
+			ElementInfo eInfo = (ElementInfo)info;
+			switch(eInfo.getType()) {
+				case START:
+					list.put(new Integer(eInfo.getIdentifier()), new ElementEntry(eInfo.getValue()));
+					break;
+				case REQACT:
+					list.get(eInfo.getIdentifier()).reqActTs = eInfo.getTs();
+					break;
+				case STAACT:
+					list.get(eInfo.getIdentifier()).staActTs = eInfo.getTs();
+					break;
+				case ENDACT:
+					list.get(eInfo.getIdentifier()).endActTs = eInfo.getTs();
+					break;
+			}
+		}
+	}
+
+	public void infoEmited(SimulationStartInfo info) {
+		// Nothing special to do
+	}
+
+	public void infoEmited(SimulationEndInfo info) {
+		try {
+			fileRes.write("E\tET\tREQ\tSTA\tEND\r\n");
+			fileRes.flush();
+			for (Map.Entry<Integer, ElementEntry> entry : list.entrySet()) {
+				fileRes.write(entry.getKey() + "\t" + entry.getValue().etId + "\t" + entry.getValue().reqActTs
+						 + "\t" + entry.getValue().staActTs + "\t" + entry.getValue().endActTs + "\r\n");
+				fileRes.flush();
+			}
+			fileRes.write("\r\n");
+			fileRes.flush();			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void infoEmited(TimeChangeInfo info) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}
+
 /**
  * 
  */
 class ExpBarcelona extends Experiment {
-	final static int NEXP = 20;
+	final static int NEXP = 1;
 	FileWriter fileRes = null;
 	FileWriter fileRes1 = null;
+	FileWriter fileRes2 = null;
 	
-	ExpBarcelona(FileWriter fileRes, FileWriter fileRes1) {
+	ExpBarcelona(FileWriter fileRes, FileWriter fileRes1, FileWriter fileRes2) {
 		super("Validation HOFT", NEXP);
 		this.fileRes = fileRes;
 		this.fileRes1 = fileRes1;
+		this.fileRes2 = fileRes2;
 	}
 	
 	public Simulation getSimulation(int ind) {
 		SimBarcelona sim = new SimBarcelona(description + ind + "", new Output(Output.DebugLevel.NODEBUG));
 		sim.addListener(new BarcelonaListener(24 * 365.0, fileRes));
-		sim.addListener(new BarcelonaListener2(24.0, fileRes1));
+		//sim.addListener(new BarcelonaListener2(24.0, fileRes1));
+		sim.addListener(new BarcelonaListener3(fileRes2));
 		return sim;
 	}
 	
@@ -697,6 +788,7 @@ class ExpBarcelona extends Experiment {
 public class BarcelonaValidation {
 	static FileWriter fileRes = null;
 	static FileWriter fileRes1 = null;
+	static FileWriter fileRes2 = null;
 
 	/**
 	 * @param args
@@ -705,9 +797,11 @@ public class BarcelonaValidation {
 		try {
 			fileRes = new FileWriter("C:\\res.txt");
 			fileRes1 = new FileWriter("C:\\diaryUse.txt");
-			new ExpBarcelona(fileRes, fileRes1).start();
+			fileRes2 = new FileWriter("C:\\Elements.txt");
+			new ExpBarcelona(fileRes, fileRes1, fileRes2).start();
 			fileRes.close();
 			fileRes1.close();
+			fileRes2.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

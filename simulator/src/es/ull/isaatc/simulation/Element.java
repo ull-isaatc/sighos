@@ -99,6 +99,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 
 	@Override
 	protected void end() {
+    	simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.FINISH, ts, pending[0] + pending[1]));
         simul.removeActiveElement(this);
 	}
     
@@ -148,17 +149,24 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
         addEvent(e);
     }
 	
+    @Override
 	public String getObjectTypeIdentifier() {
 		return "E";
 	}
 
 	/**
+	 * Returns the element type this element belongs to.
 	 * @return the elementType
 	 */
 	public ElementType getElementType() {
 		return elementType;
 	}
 
+	/**
+	 * Returns the state of this element. The state of an element consists on the state of its flow,
+	 * the requested and pending flows, and the current single flow (if being used).
+	 * @return The state of this element.
+	 */
 	public ElementState getState() {
 		ElementState state = null;
 		int requestedFlows[][] = new int[2][];
@@ -174,6 +182,11 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 		return state;
 	}
 
+	/**
+	 * Sets the state of this element. The state of an element consists on the state of its flow,
+	 * the requested and pending flows, and the current single flow (if being used).
+	 * @param state The new state of this element.
+	 */
 	public void setState(ElementState state) {
 		if (state.getFlowState() instanceof SequenceFlowState)
 			flow = new SequenceFlow(this);

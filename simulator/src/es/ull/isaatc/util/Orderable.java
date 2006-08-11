@@ -17,5 +17,5 @@ public interface Orderable extends Comparable {
 	 * @return The key of this object.
 	 */
 	Comparable getKey();
-	int compareTo(Orderable obj);
+	int compareTo(Orderable o);
 }

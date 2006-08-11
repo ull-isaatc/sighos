@@ -15,7 +15,7 @@ import es.ull.isaatc.util.OrderedList;
  * Stores the information related to a simulation. 
  * @author Iván Castilla Rodríguez
  */
-public class StatisticListener implements InfoListener {
+public class StatisticListener implements SimulationListener {
 	protected long iniT;
 	protected long endT;
 	protected double simStart;
@@ -146,58 +146,42 @@ public class StatisticListener implements InfoListener {
 	public int getLastElementId() {
 		return lastElementId;
 	}
-
-	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationStartInfo) {
-			iniT = ((SimulationStartInfo) info).getIniT();
-			firstElementId = ((SimulationStartInfo) info).getFirstElementId();
-			saveSimulationStructure(((SimulationStartInfo) info).getSimulation());
-		}
-		else if (info instanceof SimulationEndInfo) {
-			endT = ((SimulationEndInfo) info).getEndT();
-			lastElementId = ((SimulationEndInfo) info).getLastElementId();
-			for (int[]queue : actQueues.values()) {
-				for (int cont = currentPeriod + 1; cont < queue.length; cont++)
-					queue[cont] = queue[cont - 1];
-			}
-			showResults();
-		}
-		else if (info instanceof ElementInfo) {
-			queueVariation((ElementInfo) info);
-		}		
-	}
-
-	private void queueVariation(ElementInfo info) {
+	
+	public void infoEmited(SimulationObjectInfo info) {
 		// New period
 		if (info.getTs() >= ((currentPeriod + 1) * period) + simStart) {				
 			currentPeriod++;
 			for (int[]queue : actQueues.values())
 				queue[currentPeriod] = queue[currentPeriod - 1];
 		}
-		switch (info.getType()) {
+		ElementInfo eInfo = (ElementInfo)info;
+		switch (eInfo.getType()) {
 			case START:
 				nStartedElem++;
-				if (!nElemXType.containsKey(info.getValue()))
-					nElemXType.put(info.getValue(), 1);
+				if (!nElemXType.containsKey(eInfo.getValue()))
+					nElemXType.put(eInfo.getValue(), 1);
 				else
-					nElemXType.put(info.getValue(), nElemXType.get(info.getValue()) + 1);
+					nElemXType.put(eInfo.getValue(), nElemXType.get(eInfo.getValue()) + 1);
 				break;
 			case REQACT:
-				actQueues.get(info.getValue())[currentPeriod]++;
+				actQueues.get(eInfo.getValue())[currentPeriod]++;
 				break;
 			case STAACT:
-				actQueues.get(info.getValue())[currentPeriod]--;
+				actQueues.get(eInfo.getValue())[currentPeriod]--;
 				// There's no control over unbalanced starts and ends 
-				actUsage.get(info.getValue())[currentPeriod] -= info.getTs();
+				actUsage.get(eInfo.getValue())[currentPeriod] -= info.getTs();
 				break;
 			case ENDACT:
 				// There's no control over unbalanced starts and ends 
-				actUsage.get(info.getValue())[currentPeriod] += info.getTs();
+				actUsage.get(eInfo.getValue())[currentPeriod] += info.getTs();
 				break;
 		}
 	}
 
-	private void saveSimulationStructure(Simulation simul) {
+	public void infoEmited(SimulationStartInfo info) {
+		iniT = info.getIniT();
+		firstElementId = info.getFirstElementId();
+		Simulation simul = info.getSimulation();
 		simStart = simul.getStartTs();
 		simEnd = simul.getEndTs();
 		lpIds = new int[simul.getLPSize()];
@@ -235,27 +219,42 @@ public class StatisticListener implements InfoListener {
 			rtIds[i][1] = rtList.get(i).getManager().getIdentifier();
 		}		
 	}
-	
-	// NOTA: TEMPORAL
-	public void showResults() {
-		System.out.println("<<<STATISTICAL REVIEW>>>");
-		System.out.println("Elements created: " + nStartedElem);
-		System.out.println("Created (per type)");
+
+	public void infoEmited(SimulationEndInfo info) {
+		endT = info.getEndT();
+		lastElementId = info.getLastElementId();
+		for (int[]queue : actQueues.values()) {
+			for (int cont = currentPeriod + 1; cont < queue.length; cont++)
+				queue[cont] = queue[cont - 1];
+		}
+	}
+
+	public void infoEmited(TimeChangeInfo info) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer str = new StringBuffer("<<<STATISTICAL REVIEW>>>\r\n");
+		str.append("Elements created: " + nStartedElem + "\r\n");
+		str.append("Created (per type)\r\n");
 		for (Integer et : nElemXType.keySet())
-			System.out.println("[T" + et + "]\t" + nElemXType.get(et));		
-		System.out.println("Activity Queues(PERIOD: " + period + ")");
+			str.append("[T" + et + "]\t" + nElemXType.get(et) + "\r\n");		
+		str.append("Activity Queues(PERIOD: " + period + ")\r\n");
 		for (Map.Entry<Integer,int[]> values : actQueues.entrySet()) {
-			System.out.print("A" + values.getKey() + ":");
+			str.append("A" + values.getKey() + ":");
 			for (int j = 0; j < values.getValue().length; j++)
-				System.out.print("\t" + values.getValue()[j]);
-			System.out.println("");
+				str.append("\t" + values.getValue()[j]);
+			str.append("\r\n");
 		}
-		System.out.println("Activity Usage(PERIOD: " + period + ")");
+		str.append("Activity Usage(PERIOD: " + period + ")\r\n");
 		for (Map.Entry<Integer,double[]> values : actUsage.entrySet()) {
-			System.out.print("A" + values.getKey() + ":");
+			str.append("A" + values.getKey() + ":");
 			for (int j = 0; j < values.getValue().length; j++)
-				System.out.print("\t" + values.getValue()[j]);
-			System.out.println("");
+				str.append("\t" + values.getValue()[j]);
+			str.append("\r\n");
 		}
+		return str.toString();
 	}
 }

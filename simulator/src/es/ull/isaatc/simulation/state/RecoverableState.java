@@ -4,7 +4,8 @@
 package es.ull.isaatc.simulation.state;
 
 /**
- * Indicates that the state of an object can be stored and restored.
+ * Indicates that the state of an object can be stored and restored. Thus, the object
+ * must have a corresponding State object, containing its state. 
  * @author Iván Castilla Rodríguez
  *
  */

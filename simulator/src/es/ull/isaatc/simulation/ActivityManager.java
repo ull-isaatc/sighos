@@ -93,7 +93,7 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
      * Informs the activities of new available resources. 
      */
     protected void availableResource() {
-        Iterator<Activity> iter = activityTable.iterator(true);
+        Iterator<Activity> iter = activityTable.iterator(PrioritizedTable.IteratorType.RANDOM);
         while (iter.hasNext()) {
         	Activity act = iter.next();
             act.print(Output.MessageType.DEBUG, "Testing pool activity (availableResource)");
@@ -151,7 +151,7 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
 	 */
 	public ActivityManagerState getState() {
 		ActivityManagerState amState = new ActivityManagerState(id);
-        Iterator<Activity> iter = activityTable.iterator(false);
+        Iterator<Activity> iter = activityTable.iterator(PrioritizedTable.IteratorType.NORMAL);
         while (iter.hasNext())
         	amState.add(iter.next().getState());
         for (ResourceType rt : resourceTypeList)

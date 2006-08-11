@@ -5,6 +5,7 @@ import java.util.*;
 import mjr.heap.HeapAscending;
 import mjr.heap.Heapable;
 import es.ull.isaatc.random.Fixed;
+import es.ull.isaatc.simulation.info.TimeChangeInfo;
 import es.ull.isaatc.simulation.state.ActivityManagerState;
 import es.ull.isaatc.simulation.state.LogicalProcessState;
 import es.ull.isaatc.simulation.state.RecoverableState;
@@ -27,8 +28,10 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
     /** The maximum timestamp for this logical process. When this timestamp is reached, this LP 
      * finishes its execution. */
     protected double maxgvt; 
-    /** A queue that contains the events that executes at the current simulation time. */
-    protected ExecutionQueue execQueue;
+    /** Thread pool to execute events */
+    protected ThreadPool tp;
+	/** A queue containing the events currently executing */
+	protected Vector<BasicElement.DiscreteEvent> execQueue;
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
 	protected HeapAscending waitQueue;
     /** The set of activity managers contained by this LP. */
@@ -54,7 +57,8 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
      */
 	public LogicalProcess(Simulation simul, double startT, double endT) {
 		super(nextId++, simul);
-        execQueue = new ExecutionQueue(this);
+        tp = new ThreadPool(3, 3);
+        execQueue = new Vector<BasicElement.DiscreteEvent>();
         waitQueue = new HeapAscending();
         lpLock = new Lock();
         maxgvt = endT;
@@ -76,13 +80,14 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
 	}
 
     /**
-     * Sends an event to the execution queue. An event is added to the execution queue
-     * when the LP has reached the event timestamp.
+     * Sends an event to the execution queue by looking for a thread to execute it. An event is 
+     * added to the execution queue when the LP has reached the event timestamp. 
      * @param e Event to be executed
      * @return True if the event was succesfully added. False in other case.
      */
 	public synchronized boolean addExecution(BasicElement.DiscreteEvent e) {
-		return execQueue.addEvent(e);
+		tp.getThread(e);
+        return execQueue.add(e);
 	}
 
     /**
@@ -92,7 +97,19 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
      * @return True if the event was succesfully removed. False in other case.
      */
     protected synchronized boolean removeExecution(BasicElement.DiscreteEvent e) {
-        return execQueue.removeEvent(e);
+		if (execQueue.remove(e)) { // pudo quitarse
+            // Si era el último elemento del sistema
+			// MOD 7/3/06 Añadida la 1ª condición para evitar que más de un evento
+			// del mismo elemento dispare esta condición.
+            if (execQueue.isEmpty()) {
+    			// si era el último tiene que notificarlo
+            	// FIXME: Esta comprobación sobra
+    			if (!isSimulationEnd()) 
+    				unlock();
+            }
+			return(true);
+		}
+		return(false);
     }
     
     /**
@@ -170,11 +187,11 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
             BasicElement.DiscreteEvent e = removeWait();
             // Advances the simulation clock
             lvt = e.getTs();
-            double tiempo = e.getTs();            
-            print(Output.MessageType.DEBUG, "SIMULATION TIME ADVANCING " + tiempo);
+            simul.notifyListeners(new TimeChangeInfo(this));
+            print(Output.MessageType.DEBUG, "SIMULATION TIME ADVANCING " + lvt);
             // Events with timestamp greater or equal to the maximum simulation time aren't
             // executed
-            if (tiempo >= maxgvt)
+            if (lvt >= maxgvt)
                 addWait(e);
             else {
                 addExecution(e);
@@ -183,7 +200,7 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
                 do {
                     if (! waitQueue.isEmpty()) {
                         e = removeWait();
-                        if ( e.getTs() == tiempo ) {
+                        if (e.getTs() == lvt) {
                             addExecution(e);
                             flag = true;
                         }
@@ -242,7 +259,10 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
             execWaitingElements();
 		}
 		// Frees the execution queue
-		execQueue.free();
+    	print(Output.MessageType.DEBUG, "Execution queue freed",
+    			"TP. MAX:" + tp.getMaxThreads() + "\tINI:" + tp.getInitThreads() 
+    			+ "\tCREATED:" + tp.getNThreads());
+    	tp.finish();    	
     	print(Output.MessageType.DEBUG, "SIMULATION TIME FINISHES",
     			"SIMULATION TIME FINISHES\r\nSimulation time = " +
             	lvt + "\r\nPreviewed simulation time = " + maxgvt);
@@ -280,7 +300,7 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
         }
         strLong.append("\r\n" + execQueue.size() + " executing elements:");
         for (int i = 0; i < execQueue.size(); i++) {
-            strLong.append(execQueue.getEvent(i));
+            strLong.append(execQueue.get(i));
         }
         strLong.append("\r\n");
         for (ActivityManager am : managerList)

@@ -26,8 +26,7 @@ public class ElementType extends DescSimulationObject {
 	}
 
 	@Override
-	// FIXME: tal vez los elementType no deberían ser DescSimulationObject
 	public double getTs() {
-		return 0.0;
+		return Double.NaN;
 	}
 }

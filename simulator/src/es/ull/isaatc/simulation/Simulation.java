@@ -8,10 +8,11 @@ package es.ull.isaatc.simulation;
 
 import java.util.*;
 
-import es.ull.isaatc.simulation.info.InfoListener;
+import es.ull.isaatc.simulation.info.SimulationListener;
+import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.info.SimulationInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
+import es.ull.isaatc.simulation.info.TimeChangeInfo;
 import es.ull.isaatc.simulation.state.*;
 import es.ull.isaatc.sync.Lock;
 import es.ull.isaatc.util.*;
@@ -52,7 +53,7 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
     /** End-of-simulation control */
     private Lock simLock;
 	/** List of info listeners */
-	private ArrayList<InfoListener> listeners;
+	private ArrayList<SimulationListener> listeners;
 	/** List of active elements */
 	private OrderedList<Element> activeElementList;
     
@@ -77,7 +78,7 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
         this.out = out;
         simLock = new Lock();
         // MOD 29/06/06
-        listeners = new ArrayList<InfoListener>();
+        listeners = new ArrayList<SimulationListener>();
         activeElementList = new OrderedList<Element>();
     }
     
@@ -125,7 +126,7 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
      * Listener adapter. Adds a new listener to the listener list.
      * @param listener A simulation's listener
      */
-    public void addListener(InfoListener listener) {
+    public void addListener(SimulationListener listener) {
     	listeners.add(listener);
     }
     
@@ -133,8 +134,35 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
      * Informs the simulation's listeners of a new event. 
      * @param info An event that contains simulation information.
      */
-    public synchronized void notifyListeners(SimulationInfo info) {
-    	for (InfoListener il : listeners)
+    public synchronized void notifyListeners(SimulationObjectInfo info) {
+    	for (SimulationListener il : listeners)
+    		il.infoEmited(info);
+    }
+    
+    /**
+     * Informs the simulation's listeners of a new event. 
+     * @param info An event that contains simulation information.
+     */
+    public synchronized void notifyListeners(SimulationStartInfo info) {
+    	for (SimulationListener il : listeners)
+    		il.infoEmited(info);
+    }
+    
+    /**
+     * Informs the simulation's listeners of a new event. 
+     * @param info An event that contains simulation information.
+     */
+    public synchronized void notifyListeners(SimulationEndInfo info) {
+    	for (SimulationListener il : listeners)
+    		il.infoEmited(info);
+    }
+    
+    /**
+     * Informs the simulation's listeners of a new event. 
+     * @param info An event that contains simulation information.
+     */
+    public synchronized void notifyListeners(TimeChangeInfo info) {
+    	for (SimulationListener il : listeners)
     		il.infoEmited(info);
     }
     

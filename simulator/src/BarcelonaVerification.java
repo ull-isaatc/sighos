@@ -7,6 +7,7 @@ import java.util.Map;
 
 import es.ull.isaatc.random.*;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.StatisticListener;
 import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.simulation.state.SimulationState;
@@ -28,7 +29,8 @@ class SimActListener extends StatisticListener {
 		this.maxTests = maxTests;
 	}
 	
-	public void showResults() {
+	public void infoEmited(SimulationEndInfo info) {
+		super.infoEmited(info);
 		try {
 			for (Map.Entry<Integer,int[]> values : getActQueues().entrySet())
 				for (int j = 0; j < values.getValue().length; j++) {

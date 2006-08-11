@@ -2,10 +2,11 @@ import java.io.*;
 import java.util.ArrayList;
 import es.ull.isaatc.random.*;
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.info.InfoListener;
+import es.ull.isaatc.simulation.info.SimulationListener;
+import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.info.SimulationInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
+import es.ull.isaatc.simulation.info.TimeChangeInfo;
 import es.ull.isaatc.util.*;
 
 /**
@@ -70,7 +71,7 @@ class OverlappedSimulation extends Simulation {
 	}	
 }
 
-class OverlappedListener implements InfoListener {
+class OverlappedListener implements SimulationListener {
 	long execTime[];
 	int nTest = 0;
 	
@@ -78,25 +79,34 @@ class OverlappedListener implements InfoListener {
 		execTime = new long[nTests];
 	}
 
-	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationStartInfo)
-			execTime[nTest] = -((SimulationStartInfo)info).getIniT();
-		else if (info instanceof SimulationEndInfo) {
-			execTime[nTest++] += ((SimulationEndInfo)info).getEndT();
-			if (nTest == execTime.length) {
-				try {
-					FileWriter file = new FileWriter("c:\\out20_15(7R)_1.txt"/*"c:\\mNS" + NDIAS + ".txt"*/);
-					for (long val : execTime) {
-						file.write("" + val + "\r\n");
-						file.flush();
-					}
-					file.close();
-				} catch(Exception ee) {
-					ee.printStackTrace();
-				}				
-			}
-		}		
-	}	
+	public void infoEmited(SimulationObjectInfo info) {
+	}
+
+	public void infoEmited(SimulationStartInfo info) {
+		execTime[nTest] = -info.getIniT();
+	}
+
+	public void infoEmited(SimulationEndInfo info) {
+		execTime[nTest++] += info.getEndT();
+		if (nTest == execTime.length) {
+			try {
+				FileWriter file = new FileWriter("c:\\out20_15(7R)_1.txt"/*"c:\\mNS" + NDIAS + ".txt"*/);
+				for (long val : execTime) {
+					file.write("" + val + "\r\n");
+					file.flush();
+				}
+				file.close();
+			} catch(Exception ee) {
+				ee.printStackTrace();
+			}				
+		}
+	}
+
+	public void infoEmited(TimeChangeInfo info) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
 
 class ExpOverlapped extends Experiment {

@@ -150,7 +150,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * @return A workgroup contained in this activity with the specified id
      */
     public WorkGroup getWorkGroup(Integer wgId) {
-        Iterator<WorkGroup> iter = workGroupTable.iterator(false);
+        Iterator<WorkGroup> iter = workGroupTable.iterator(PrioritizedTable.IteratorType.NORMAL);
         while (iter.hasNext()) {
         	WorkGroup opc = iter.next();
         	if (opc.compareTo(wgId) == 0)
@@ -165,8 +165,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * @return "True" if the activity is feasible, "false" in other case.
      */
     protected boolean isFeasible(SingleFlow sf) {
-    	// FIXME Debería ser aleatorio
-        Iterator<WorkGroup> iter = workGroupTable.iterator(false);
+        Iterator<WorkGroup> iter = workGroupTable.iterator(PrioritizedTable.IteratorType.RANDOM);
         while (iter.hasNext()) {
         	WorkGroup opc = iter.next();
             if (opc.isFeasible(sf)) {

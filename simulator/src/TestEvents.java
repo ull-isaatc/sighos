@@ -43,7 +43,7 @@ public class TestEvents {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		LanzaEventos lista = new LanzaEventos(0);
+		new LanzaEventos(0);
 		
 	}
 

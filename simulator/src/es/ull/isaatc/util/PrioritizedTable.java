@@ -11,8 +11,10 @@ import java.util.Iterator;
  * @author Iván Castilla Rodríguez
  */
 public class PrioritizedTable<T extends Prioritizable> {
-    /** Lista de todos los niveles del pool. */
+    /** Array of priority levels. */
     protected ArrayList<PrioritizedLevel> levels;
+    /** Ways of iterate through the structure */
+    public enum IteratorType {NORMAL, BALANCED, RANDOM}
     
     /** Creates a new instance of PoolObjetos */
     public PrioritizedTable() {
@@ -114,10 +116,17 @@ public class PrioritizedTable<T extends Prioritizable> {
         return array;
     }
     
-    public Iterator<T> iterator(boolean random) {
-    	if (random)
-    		return new RandomPrioritizedTableIterator<T>(this);
-		return new PrioritizedTableIterator<T>(this);    	
+    public Iterator<T> iterator(IteratorType type) {
+    	Iterator<T> iter = null;
+    	switch(type) {
+    		case NORMAL:
+    			iter = new PrioritizedTableIterator<T>(this); break;
+    		case BALANCED:
+    			iter = new BalancedPrioritizedTableIterator<T>(this); break;
+    		case RANDOM:
+    			iter = new RandomPrioritizedTableIterator<T>(this); break;
+    	}
+    	return iter;
     }
 
     /**

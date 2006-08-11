@@ -54,7 +54,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 
 	@Override
     protected void init() {
-    	simul.notifyListeners(new ResourceInfo(this, ResourceInfo.Type.START, ts, 0));
+    	simul.notifyListeners(new ResourceInfo(this, ResourceInfo.Type.START, ts, timeTable.size()));
 		for (int i = 0 ; i < timeTable.size(); i++) {
 			TimeTableEntry tte = timeTable.get(i);
 	        CycleIterator iter = tte.iterator(tte.getRole().getTs(), simul.getEndTs());

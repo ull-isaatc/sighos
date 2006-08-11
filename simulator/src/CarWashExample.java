@@ -5,6 +5,7 @@
 import es.ull.isaatc.random.Exponential;
 import es.ull.isaatc.random.Fixed;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.info.ResourceUsageListener;
 import es.ull.isaatc.simulation.info.StatisticListener;
 import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.util.Cycle;
@@ -33,7 +34,7 @@ class CarWashSimulation extends Simulation {
 }
 
 class CarWashExperiment extends Experiment {
-    static final int NDAYS = 1;
+    static final int NDAYS = 2;
     static final int NTESTS = 1;
 
     CarWashExperiment() {
@@ -44,7 +45,8 @@ class CarWashExperiment extends Experiment {
 	public Simulation getSimulation(int ind) {
 		CarWashSimulation sim = new CarWashSimulation(0.0, 24 * 60.0 * NDAYS, new Output(Output.DebugLevel.NODEBUG));
 		sim.addListener(new StdInfoListener());
-		sim.addListener(new StatisticListener(1440.0));
+//		sim.addListener(new StatisticListener(1440.0));
+		sim.addListener(new ResourceUsageListener());
 		return sim;
 	}
 	
