@@ -7,13 +7,14 @@ import es.ull.isaatc.simulation.xml.ResourceType;
 
 /**
  * @author Roberto Muñoz
- *
  */
 public class ResourceTypeValidate extends Validate {
-
+	
+	
 	@Override
 	public boolean validate(Object valObj) throws ModelException {
-		ResourceType r = (ResourceType)valObj;
+
+		ResourceType r = (ResourceType) valObj;
 		boolean hasError = false;
 		
 		hasError |= checkId(r.getId());
@@ -26,6 +27,5 @@ public class ResourceTypeValidate extends Validate {
 		add(r.getId(), r.getDescription());
 		return !hasError;
 	}
-
-
+	
 }

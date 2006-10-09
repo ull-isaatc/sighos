@@ -5,11 +5,12 @@ package es.ull.isaatc.simulation.xml;
 
 /**
  * @author Roberto Muñoz
- *
  */
 public class FlowChoiceUtility {
-
+	
+	
 	public static Flow getSelectedFlow(DecisionOption df) {
+
 		if (df.getSingle() != null)
 			return df.getSingle();
 		if (df.getPackage() != null)
@@ -26,8 +27,10 @@ public class FlowChoiceUtility {
 			return df.getType();
 		return null;
 	}
-
+	
+	
 	public static Flow getSelectedFlow(TypeBranch bf) {
+
 		if (bf.getSingle() != null)
 			return bf.getSingle();
 		if (bf.getPackage() != null)
@@ -45,7 +48,9 @@ public class FlowChoiceUtility {
 		return null;
 	}
 	
+	
 	public static Flow getSelectedFlow(FlowChoice fc) {
+
 		if (fc.getSingle() != null)
 			return fc.getSingle();
 		if (fc.getPackage() != null)

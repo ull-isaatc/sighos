@@ -9,29 +9,36 @@ import java.util.List;
 import es.ull.isaatc.simulation.xml.Resource;
 import es.ull.isaatc.simulation.xml.Resource.TimeTable;
 
-
 /**
  * @author Roberto Muñoz
- *
  */
 public class ResourceValidate extends Validate {
-	/**Resource type validator */
+	
+	/** Resource type validator */
 	ResourceTypeValidate resTypeVal;
 	
+	
+	
 	/** Error messages */
-	protected static final String NELEM_DEFINITION = "elements number is incorrect";
+	protected static final String NELEM_DEFINITION = "Elements number is incorrect";
+	
 	protected static final String TIMETABLE_DEFINITION = "Time table entry definition";
+	
 	protected static final String RESTYPE_REFERENCE = "Time table resource type reference";
+	
+	
 	/**
-	 * 
 	 * @param resTypeVal
 	 */
 	public ResourceValidate(ResourceTypeValidate resTypeVal) {
+
 		super();
-		this.resTypeVal = resTypeVal;	
+		this.resTypeVal = resTypeVal;
 	}
 	
+	
 	protected boolean checkNElem(int id, int nelem) {
+
 		boolean hasError = false;
 		
 		if (nelem <= 0) {
@@ -40,19 +47,20 @@ public class ResourceValidate extends Validate {
 		}
 		return hasError;
 	}
+	
 	/**
-	 * 
 	 * @param id
 	 * @param timeTable
 	 * @return
 	 */
 	protected boolean checkTimeTable(int id, List<TimeTable> timeTable) {
+
 		Iterator<TimeTable> timeTableIt = timeTable.iterator();
 		boolean hasError = false;
 		
-		while (timeTableIt.hasNext()){
+		while (timeTableIt.hasNext()) {
 			TimeTable entry = timeTableIt.next();
-			//FIXME: hacer lo del chequeo del período con ciclos
+			// FIXME: hacer lo del chequeo del período con ciclos
 			if (entry.getDur().getValue() < 0) {
 				error(id, TIMETABLE_DEFINITION);
 				hasError = true;
@@ -68,9 +76,11 @@ public class ResourceValidate extends Validate {
 		return hasError;
 	}
 	
+	
 	@Override
 	public boolean validate(Object valObj) throws ModelException {
-		Resource r = (Resource)valObj;
+
+		Resource r = (Resource) valObj;
 		boolean hasError = false;
 		
 		hasError |= checkId(r.getId());

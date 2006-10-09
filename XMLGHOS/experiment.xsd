@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 	
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
-	<xs:include schemaLocation="file:model.xsd"/>
+	<xs:include schemaLocation="file:C:\Documents and Settings\Roberto Muñoz\Mis documentos\workspace\XMLGHOS\model.xsd"/>
 	<xs:element name="Experiment">
 		<xs:complexType>
 			<xs:sequence>
@@ -10,10 +10,8 @@
 				<xs:element name="experiments" type="xs:int"/>
 				<xs:element name="startTs" type="xs:double"/>
 				<xs:element name="endTs" type="xs:double"/>
-				<xs:element name="stateProcessor" type="ClassReference" minOccurs="0"/>				
 				<xs:element name="simulationListener" type="ClassReference" minOccurs="0" maxOccurs="unbounded"/>				
 				<xs:element name="generator" type="Generator" maxOccurs="unbounded"/>
-				<xs:element name="savedState" type="xs:string" minOccurs="0"/>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>

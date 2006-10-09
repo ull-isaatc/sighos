@@ -29,12 +29,18 @@ import java.util.Iterator;
  * @author Roberto Muñoz
  */
 public class XMLModel {
+	
 	/** Model loaded from a XML file */
 	Model model;
-
+	
+	
+	
 	/** Experiement data */
 	Experiment experiment;
-
+	
+	
+	
+	
 	/**
 	 * Load a model and a scenario stored in a XML file and merge the content to
 	 * create a model stored in memory.
@@ -45,15 +51,13 @@ public class XMLModel {
 	public XMLModel(String xmlModelFileName, String xmlExperimentFileName) {
 
 		try {
-			JAXBContext jc = JAXBContext
-					.newInstance("es.ull.isaatc.simulation.xml");
+			JAXBContext jc = JAXBContext.newInstance("es.ull.isaatc.simulation.xml");
 			Unmarshaller u = jc.createUnmarshaller();
 			u.setEventHandler(new SighosValidationEventHandler());
 			SchemaFactory schemaFactory = SchemaFactory
 					.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			u.setSchema(schemaFactory.newSchema(new File("model.xsd")));
-			this.model = (Model) u.unmarshal(new FileInputStream(
-					xmlModelFileName));
+			this.model = (Model) u.unmarshal(new FileInputStream(xmlModelFileName));
 			if (xmlExperimentFileName != null) {
 				u.setSchema(schemaFactory.newSchema(new File("experiment.xsd")));
 				experiment = (Experiment) u.unmarshal(new FileInputStream(
@@ -72,13 +76,16 @@ public class XMLModel {
 			System.exit(-1);
 		}
 	}
-
+	
+	
+	
 	/**
 	 * Returns the Output debug mode
 	 * 
 	 * @return
 	 */
 	public DebugLevel getDebugMode() {
+
 		String debugMode = experiment.getDebugMode();
 		if (debugMode.equals("NO"))
 			return Output.DebugLevel.NODEBUG;
@@ -88,15 +95,18 @@ public class XMLModel {
 			return Output.DebugLevel.XDEBUG;
 		return Output.DebugLevel.NODEBUG;
 	}
-
+	
+	
+	
 	/**
 	 * Find a resource by its description
 	 * 
 	 * @param description
-	 *            Resource description
+	 *          Resource description
 	 * @return resource or null if the resource isn't found
 	 */
 	protected Resource findResource(String description) {
+
 		Iterator<Resource> resIt = model.getResource().iterator();
 		while (resIt.hasNext()) {
 			Resource res = resIt.next();
@@ -105,18 +115,24 @@ public class XMLModel {
 		}
 		return null;
 	}
-
+	
+	
+	
 	/**
 	 * @return XML model stored in memory
 	 */
 	public Model getModel() {
+
 		return model;
 	}
-
+	
+	
+	
 	/**
 	 * @return XML experiement stored in memory
 	 */
 	public Experiment getExperiment() {
+
 		return experiment;
 	}
 }

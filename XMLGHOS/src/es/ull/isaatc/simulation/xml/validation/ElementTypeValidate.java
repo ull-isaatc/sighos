@@ -7,13 +7,14 @@ import es.ull.isaatc.simulation.xml.ElementType;
 
 /**
  * @author Roberto Muñoz
- *
  */
 public class ElementTypeValidate extends Validate {
-
+	
+	
 	@Override
 	public boolean validate(Object valObj) throws ModelException {
-		ElementType et = (ElementType)valObj;
+
+		ElementType et = (ElementType) valObj;
 		boolean hasError = false;
 		
 		hasError |= checkId(et.getId());
@@ -26,6 +27,5 @@ public class ElementTypeValidate extends Validate {
 		add(et.getId(), et.getDescription());
 		return !hasError;
 	}
-
-
+	
 }
