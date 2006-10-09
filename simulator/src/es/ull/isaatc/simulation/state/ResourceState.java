@@ -53,6 +53,7 @@ public class ResourceState implements State {
 	public ResourceState(int resId, int validTTEs) {
 		this.resId = resId;
 		this.validTTEs = validTTEs;
+		currentRoles = new ArrayList<Integer>();
 	}
 
 	/**

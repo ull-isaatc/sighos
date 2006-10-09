@@ -210,37 +210,24 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
         
         for (int i = 0; i < resourceTypeList.size(); i++)
             graph[i] = new HashSet<Integer>();
-        for (int i = 0; i < activityList.size(); i++) {
-            Activity a = activityList.get(i);
-            Prioritizable []wgList = a.getWorkGroupTable();
-            // Looks for the first RTT that contains at least one resource type
-            int j;
-            for (j = 0; j < wgList.length; j++)
-                if (((WorkGroup)wgList[j]).size() > 0)
-                    break;
-            // Only if I get one valid object
-            if (j < wgList.length) {
-                WorkGroup wg = (WorkGroup)wgList[j];
-                ind1 = resourceTypeList.indexOf(wg.getResourceType(0));
-                for (int k = 1; k < wg.size(); k++) {
-                    ind2 = resourceTypeList.indexOf(wg.getResourceType(k));
-                    graph[ind1].add(new Integer(ind2));
-                    graph[ind2].add(new Integer(ind1));
-                    ind1 = ind2;                    
-                }
-                // The rest of the objects
-                for (; j < wgList.length; j++) {
-                    wg = (WorkGroup)wgList[j];
-                    if (wg.size() > 0) {
-                        for (int k = 0; k < wg.size(); k++) {
-                            ind2 = resourceTypeList.indexOf(wg.getResourceType(k));
-                            graph[ind1].add(new Integer(ind2));
-                            graph[ind2].add(new Integer(ind1));
-                            ind1 = ind2;
-                        }
-                    }                
-                }
-            }
+        for (Activity a : activityList) {
+        	Iterator<WorkGroup> iter = a.iterator();      	
+            // Looks for the first RTT that contains at least one resource type        	
+        	int firstWG = 1;
+        	while (iter.hasNext()) {
+        		WorkGroup wg = iter.next();
+        		if (wg.size() > 0) {
+        			if (firstWG == 1)
+	                    ind1 = resourceTypeList.indexOf(wg.getResourceType(0));	                    
+                    for (; firstWG < wg.size(); firstWG++) {
+                        ind2 = resourceTypeList.indexOf(wg.getResourceType(firstWG));
+                        graph[ind1].add(new Integer(ind2));
+                        graph[ind2].add(new Integer(ind1));
+                        ind1 = ind2;                    
+                    }
+                    firstWG = 0;
+        		}
+        	}
         }
         debugPrintGraph(graph);
         return graph;
@@ -270,23 +257,22 @@ public abstract class Simulation implements Printable, RecoverableState<Simulati
         // The activity managers are created
         for (int i = 0; i < nManagers; i++)
             new ActivityManager(this);
+        // The activities are associated to the activity managers
         for (Activity a : activityList) {
+            Iterator<WorkGroup> iter = a.iterator();
             // This step is for non-resource-types activities
-            Prioritizable []wgList = a.getWorkGroupTable();
-            // Looks for the first RTT that contains at least one resource type
-            int j;
-            for (j = 0; j < wgList.length; j++)
-                if (((WorkGroup)wgList[j]).size() > 0)
-                    break;
-            if (j < wgList.length) {
-                int ind = resourceTypeList.indexOf(((WorkGroup)wgList[j]).getResourceType(0));
-                ActivityManager ga = activityManagerList.get(marks[ind]);
-                a.setManager(ga);
+            boolean found = false;
+            while (iter.hasNext() && !found) {
+            	WorkGroup wg = iter.next();
+            	if (wg.size() > 0) {
+                    int ind = resourceTypeList.indexOf(wg.getResourceType(0));
+                    a.setManager(activityManagerList.get(marks[ind]));
+                    found = true;
+            	}
             }
-            else {
-                ActivityManager ga = new ActivityManager(this);
+            if (!found) {
                 nManagers++;
-                a.setManager(ga);
+                a.setManager(new ActivityManager(this));            	
             }
         }
         for (int i = 0; i < resourceTypeList.size(); i++)

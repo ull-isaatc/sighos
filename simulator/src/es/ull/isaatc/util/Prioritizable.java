@@ -11,5 +11,6 @@ package es.ull.isaatc.util;
  * @author Iván Castilla Rodríguez
  */
 public interface Prioritizable {
+	/** Returns the priority of the object */
     public int getPriority();
 }

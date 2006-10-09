@@ -17,5 +17,14 @@ public interface Orderable extends Comparable {
 	 * @return The key of this object.
 	 */
 	Comparable getKey();
+	
+	/**
+	 * Compares this object with the specified Orderable object for order. Returns a 
+	 * negative integer, zero, or a positive integer as this object is less than, equal to, 
+	 * or greater than the specified object. 
+	 * @param o The Orderable object to be compared
+	 * @return a negative integer, zero, or a positive integer as this object is less than, 
+	 * equal to, or greater than the specified object.
+	 */
 	int compareTo(Orderable o);
 }

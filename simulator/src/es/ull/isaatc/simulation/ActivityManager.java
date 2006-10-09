@@ -133,9 +133,9 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
 	public String getDescription() {
         StringBuffer str = new StringBuffer();
         str.append("Activity Manager " + id + "\r\n(Activity[priority]):");
-        Prioritizable actividades[] = activityTable.toArray();
-        for (int i = 0; i < actividades.length; i++) {
-            Activity a = (Activity)actividades[i];
+        Iterator<Activity> iter = activityTable.iterator(PrioritizedTable.IteratorType.NORMAL);
+        while (iter.hasNext()) {
+        	Activity a = iter.next();
             str.append("\t\"" + a + "\"[" + a.getPriority() + "]");
         }
         str.append("\r\nResource Types: ");

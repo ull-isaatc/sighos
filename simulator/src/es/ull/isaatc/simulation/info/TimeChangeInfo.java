@@ -6,8 +6,8 @@ package es.ull.isaatc.simulation.info;
 import es.ull.isaatc.simulation.LogicalProcess;
 
 /**
+ * Information related to a cahnge in the simulation clock.
  * @author Iván Castilla Rodríguez
- *
  */
 public class TimeChangeInfo extends SimulationInfo {
 	private static final long serialVersionUID = -3997751536094041841L;
@@ -16,7 +16,7 @@ public class TimeChangeInfo extends SimulationInfo {
 
 	/**
 	 * 
-	 * @param lp Logical process which advances the simulation time
+	 * @param lp Logical process which advances the simulation clock.
 	 */
 	public TimeChangeInfo(LogicalProcess lp) {
 		super(lp);

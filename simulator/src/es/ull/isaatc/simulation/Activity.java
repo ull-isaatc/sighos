@@ -137,11 +137,11 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
     }
 
     /**
-     * Returns an array containing the whole set of workgroups of this activity.
-     * @return The workgroups that can perform this activity.
+     * Returns an iterator over the workgroups of this activity.
+     * @return An iterator over the workgroups that can perform this activity.
      */
-    public Prioritizable[] getWorkGroupTable() {
-        return workGroupTable.toArray();    	
+    public Iterator<WorkGroup> iterator() {
+    	return workGroupTable.iterator(PrioritizedTable.IteratorType.NORMAL);
     }
 
     /**

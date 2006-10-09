@@ -7,16 +7,17 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An iterator for pools that allows the programmer to randomly traverse the pool. A 
+ * An iterator for pools that allows the programmer to randomly traverse the prioritized table. A 
  * <code>RandomPrioritizedTableIterator</code> starts at level 0 (the higher priority) and returns
- * a new object of this level each time <code>next</code> is called in a random way. 
+ * a new object of this level each time <code>next</code> is called in a random way. The order the 
+ * objects of a level are returned is determined by a random permutation. 
  * When the iterator reaches the end of the level, it starts the next level. 
  * @author Iván Castilla Rodríguez
  */
 public class RandomPrioritizedTableIterator<T extends Prioritizable>  implements Iterator<T> {
     /** Index of the level which is being examinated */    
     protected int levelIndex = 0;
-    /** Traversed pool */    
+    /** Traversed prioritized table */    
     protected PrioritizedTable<T> table;
     /** Visit order for this level. */
     int []order;
@@ -24,8 +25,8 @@ public class RandomPrioritizedTableIterator<T extends Prioritizable>  implements
     int current = 0;
 
     /**
-     * Creates a random iterator for the pool.
-     * @param table Traversed table.
+     * Creates a random iterator for the prioritized table.
+     * @param table Traversed prioritized table.
      */
 	public RandomPrioritizedTableIterator(PrioritizedTable<T> table) {
         this.table = table;
@@ -34,19 +35,21 @@ public class RandomPrioritizedTableIterator<T extends Prioritizable>  implements
 	}
 
     /**
-     * Returns the next object of the pool. This method may be called repeatedly to iterate through the pool.
-     * @return The next object of the pool. Null if there is no next object.
+     * Returns the next object of the prioritized table. This method may be called repeatedly to iterate 
+     * through the prioritized table.
+     * @return The next object of the prioritized table. 
      */
     public T next() {
-        // Se comprueba si no quedan más elementos que recorrer
+        // The end has been reached
         if (levelIndex >= table.levels.size())
         	throw new NoSuchElementException();
-        // Se obtiene el siguiente elemento del nivel
+        // Next object of the current level
         T obj = table.get(levelIndex, order[current++]);
-        // Se comprueba si hemos dado la vuelta completa al nivel
+        // The level has been finished
         if (current == order.length) {
             levelIndex++;
             if (levelIndex < table.levels.size()) {
+            	// Computes the next permutation
                 order = RandomPermutation.nextPermutation(table.size(levelIndex));
                 current = 0;
             }

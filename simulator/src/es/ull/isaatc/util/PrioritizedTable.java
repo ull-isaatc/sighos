@@ -5,117 +5,95 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * Estructura que contiene objetos organizados por niveles de prioridad. Los 
- * niveles del pool están ordenados según su prioridad, y dentro de cada nivel 
- * todos los objetos tienen la misma probabilidad de ser escogidos.
+ * An structure which contains a priority-ordered list. Objects with the same priority are
+ * located in the same level of the structure. <p>Several iterators can be used to traverse this
+ * structure. Each iterator gives a different level of equality of opportunity when accessing
+ * objects with the same priority. 
  * @author Iván Castilla Rodríguez
  */
 public class PrioritizedTable<T extends Prioritizable> {
     /** Array of priority levels. */
-    protected ArrayList<PrioritizedLevel> levels;
-    /** Ways of iterate through the structure */
+    protected OrderedList<PrioritizedLevel> levels;
+    /** Ways of iterate through the structure. <p><strong>NORMAL</strong> indicates a sequential order.
+     * <p><strong>BALANCED</strong> indicates every time the level is started at a different object.
+     * <p><strong>RANDOM</strong> indicates a random permutation determines the order.
+     **/
     public enum IteratorType {NORMAL, BALANCED, RANDOM}
     
-    /** Creates a new instance of PoolObjetos */
+    /**
+     * Initializes the levels of the structure.  
+     */
     public PrioritizedTable() {
-        levels = new ArrayList<PrioritizedLevel>();
+        levels = new OrderedList<PrioritizedLevel>();
     }
     
 	/**
-     * Devuelve el índice del primer nivel de la cola con prioridad pri. 
-     * Si no hay ningún nivel con esa prioridad, devuelve el índice del primer  
-     * nivel con un valor de prioridad mayor (o el tamaño de este pool de
-     * objetos si no hay ningún nivel con prioridad mayor).
-     * @param pri Prioridad 
-     * @return El índice del primer nivel con esa prioridad o el tamaño del pool 
-     * si la prioridad es mayor que cualquier nivel
-     */
-    public int searchLevel(int pri) {
-        PrioritizedLevel aux;
-        int ind, i = 0, j = levels.size();
-
-        while (i != j) {
-            ind = (i + j) / 2;
-            aux = levels.get(ind);
-            if (aux.priority < pri)
-                i = ind + 1;
-            else if (aux.priority > pri)
-                j = ind;
-            else {
-                i = ind;
-                j = ind;
-            }
-        }
-        return i;
-    } // Fin de BuscaNivel
-
-	/**
-     * Añade un objeto al pool, insertándola en orden según su prioridad.
-     * @param obj Objeto a añadir
-     * @param prioridad Prioridad con la que se añade el objeto.
+     * Inserts a new object in the table. The priority of the object determines its order.
+     * @param obj New object with a priority value.
      */
     public void add(T obj) {
-        int ind = searchLevel(obj.getPriority());
-        PrioritizedLevel pLevel = null;
-        if (ind == levels.size()) {
+    	PrioritizedLevel pLevel = levels.get(new Integer(obj.getPriority()));
+    	if (pLevel == null) {
             pLevel = new PrioritizedLevel(obj.getPriority());
             levels.add(pLevel);
-        }
-        else {
-            pLevel = levels.get(ind);
-            if (pLevel.priority != obj.getPriority()) {
-                pLevel = new PrioritizedLevel(obj.getPriority());
-                levels.add(ind, pLevel);
-            }
-        }
+    	}    	
         pLevel.add(obj);
 	}
 
 	/**
-     * Devuelve el número total de elementos que contiene el pool
-     * @return El tamaño total del pool
+     * Total amount of objects that this table contains.
+     * @return Total amount of objects contained by this table.
      */
 	public int size() {
         int suma = 0;
-        for (int i = 0; i < levels.size(); i++) {
-            PrioritizedLevel pLevel = levels.get(i);
+        for (PrioritizedLevel pLevel : levels)
             suma += pLevel.size();
-        }
 		return suma;
 	}
 	
+	/**
+	 * Returns the index of the last object chosen in the specified level.
+	 * @param levelIndex The index of the level
+	 * @return The index of the last object chosen in the specified level.
+	 */
 	protected int getChosen(int levelIndex) {
 		return levels.get(levelIndex).chosen;
 	}
 	
+	/**
+	 * Returns the next object chosen in the specified level. 
+	 * @param levelIndex The index of the level where the object is located.
+	 * @return The next object chosen in the specified level.
+	 */
 	protected T get(int levelIndex) {
 		return levels.get(levelIndex).get();		
 	}
     
+	/**
+	 * Returns the specified object in the specified level. 
+	 * @param levelIndex The index of the level where the object is located.
+	 * @param objIndex The index of the object
+	 * @return The specified object in the specified level.
+	 */
 	protected T get(int levelIndex, int objIndex) {
 		return levels.get(levelIndex).get(objIndex);		
 	}
     
+	/**
+	 * Returns the amount of objects contained in a specified level.
+	 * @param levelIndex The index of the level 
+	 * @return The amount of objects contained in a specified level.
+	 */
 	protected int size(int levelIndex) {
 		return levels.get(levelIndex).size();
 	}
-	
-    /**
-     * Construye un array conteniendo todos los objetos del pool ordenados por
-     * prioridad.
-     * @return Un array que contiene todos los objetos del pool.
-     */
-    public Prioritizable []toArray() {
-        int cont = 0;
-        Prioritizable []array = new Prioritizable[size()];
-        for (int i = 0; i < levels.size(); i++) {
-            PrioritizedLevel level = levels.get(i);
-            for (int j = 0; j < level.size(); j++)
-                array[cont++] = level.get(j);            
-        }
-        return array;
-    }
-    
+
+	/**
+	 * Returns an iterator over this table. The iterator's behaviour is determined by the
+	 * <code>type</code> parameter. 
+	 * @param type Determines the way this table is traversed.
+	 * @return An iterator over this table.
+	 */
     public Iterator<T> iterator(IteratorType type) {
     	Iterator<T> iter = null;
     	switch(type) {
@@ -130,21 +108,20 @@ public class PrioritizedTable<T extends Prioritizable> {
     }
 
     /**
-     * Estructura para almacenar todos los objetos de la misma prioridad.
-     * Funciona como un "pool", es decir, el objeto que se escoge en primer lugar
-     * varía cada vez mediante la rotación de un índice.
+     * A level of the prioritized table. All the objects belonging to a level have
+     * the same priority. A level stores a value with the last chosen object.
      * @author Iván Castilla Rodríguez
      */
-    class PrioritizedLevel extends ArrayList<T> {
+    class PrioritizedLevel extends ArrayList<T> implements Orderable {
     	private static final long serialVersionUID = 1L;
-    	/** Indice del siguiente objeto que puede elegirse */
+    	/** Next object that can be chosen. */
         protected int chosen;
-        /** Prioridad de este nivel */
+        /** Priority of this level. */
         protected int priority;
         
         /**
-         * Constructor que indica la prioridad de las actividades
-         * @param pri Prioridad de este nivel.
+         * Creates a new level with priority <code>pri</code>
+         * @param pri Priority of this level.
          */
         PrioritizedLevel(int pri) {
             super();
@@ -153,16 +130,31 @@ public class PrioritizedTable<T extends Prioritizable> {
         }
 
         /**
-         * Permite obtener el siguiente objeto del pool. Cada vez que se llama a 
-         * esta función el pool devuelve un objeto distinto.
-         * @return El siguiente objeto del pool
+		 * Returns the next object chosen in the this level. This method also increases
+		 * the value of the <code>chosen</code> object. 
+		 * @return The next object chosen in the this level.
          */
         public T get() {
             T obj = get(chosen);
             chosen = (chosen + 1) % size();
             return obj;
         }
-        
+
+        /**
+         * Returns the priority of the level.
+         * @return The priority of the level.
+         */
+		public Comparable getKey() {
+			return priority;
+		}
+
+		public int compareTo(Orderable o) {
+			return compareTo(o.getKey());
+		}
+
+		public int compareTo(Object o) {
+			return getKey().compareTo(o);
+		}        
     }
 
 }

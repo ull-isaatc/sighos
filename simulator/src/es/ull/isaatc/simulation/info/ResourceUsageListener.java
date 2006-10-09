@@ -11,10 +11,12 @@ import es.ull.isaatc.util.Orderable;
 import es.ull.isaatc.util.OrderedList;
 
 /**
+ * Listens the usage and availability of the resources.
  * @author Iván Castilla Rodríguez
  *
  */
 public class ResourceUsageListener implements SimulationListener {
+	/** Resource usage and availability. */
 	private HashMap<Integer, OrderedList<ResourceUsage>> resources;
 
 	public ResourceUsageListener() {
@@ -75,9 +77,8 @@ public class ResourceUsageListener implements SimulationListener {
 		System.out.println(this);
 	}
 
+	// Nothing to do
 	public void infoEmited(TimeChangeInfo info) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -90,17 +91,27 @@ public class ResourceUsageListener implements SimulationListener {
 		}
 		return str.toString();
 	}
-	
+
+	/**
+	 * Stores the usage and availability of a single resource as a resorce type.  
+	 * @author Iván Castilla Rodríguez
+	 *
+	 */
 	class ResourceUsage implements Orderable {
+		/** Resource type which this resource has been used for */
 		int rtId;
+		/** This value is increased every time a resource becomes available and decreased 
+		 * every time the resource becomes unavailable. */
 		int count = 0;
+		/** Indicates the current availability entry. */
 		private int current = -1;
+		/** Availability entries. */
 		ArrayList<double[]> availability;
+		/** Usage entries. */
 		ArrayList<double[]> usage;
 		
 		/**
-		 * @param rtId
-		 * @param count
+		 * @param rtId Resource type identifier.
 		 */
 		public ResourceUsage(int rtId) {
 			this.rtId = rtId;
@@ -108,6 +119,12 @@ public class ResourceUsageListener implements SimulationListener {
 			usage = new ArrayList<double[]>();
 		}
 
+		/**
+		 * The resource has become available at the specified timestamp. If the resource is
+		 * currently being used for this resource type, the <code>count</code> value is incremented.
+		 * In other case, a new availability entry is created.
+		 * @param ts Timestamp whem the resource has become available.
+		 */
 		public void addRolOn(double ts) {
 			if (count == 0) {
 				current++;
@@ -117,16 +134,29 @@ public class ResourceUsageListener implements SimulationListener {
 			count++;
 		}
 		
+		/**
+		 * The resource has become unavailable at the specified timestamp. The <code>count</code> value 
+		 * is decremented.
+		 * @param ts Timestamp whem the resource has become unavailable.
+		 */
 		public void addRolOff(double ts) {
 			availability.get(current)[1] = ts;
 			count--;
 		}
 		
+		/**
+		 * The resource has been taken to carry out an activity at the specified timestamp.
+		 * @param ts Timestamp whem the resource has been caught.
+		 */
 		public void addCaught(double ts) {
 			double []aux = {ts, Double.NaN};
 			usage.add(aux);
 		}
 		
+		/**
+		 * The resource has been freed to carry out an activity at the specified timestamp.
+		 * @param ts Timestamp whem the resource has been released.
+		 */
 		public void addReleased(double ts) {
 			usage.get(usage.size() - 1)[1] = ts;
 		}

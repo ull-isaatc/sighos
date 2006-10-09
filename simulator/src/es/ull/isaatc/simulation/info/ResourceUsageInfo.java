@@ -37,21 +37,24 @@ public class ResourceUsageInfo extends SimulationObjectInfo {
 	}
 
 	/**
-	 * @return Returns the type.
+	 * Returns the type.
+	 * @return The type.
 	 */
 	public Type getType() {
 		return type;
 	}
 
 	/**
-	 * @return Returns the element catching/releasing the resource.
+	 * Returns the element catching/releasing the resource.
+	 * @return The element catching/releasing the resource.
 	 */
 	public int getElemId() {
 		return elemId;
 	}
 
 	/**
-	 * @return Returns the resource type this resource is used for.
+	 * Returns the resource type this resource is used for.
+	 * @return The resource type this resource is used for.
 	 */
 	public int getRtId() {
 		return rtId;

@@ -6,42 +6,61 @@ package es.ull.isaatc.simulation.info;
 import java.util.HashMap;
 
 /**
+ * A listener to compute the amount of started and finished elements.
  * @author Iván Castilla Rodríguez
- *
  */
 public class ElementStartFinishListener implements SimulationListener {
+	/** The amount of started and finished elements. */
 	private int nElem[] = new int[2];
+	/** The amount of started and finished elements by element type. */
 	private HashMap<Integer, int[]> nElemXType = new HashMap<Integer, int[]>();
+	/** The identifier of the first element created. */
 	protected int firstElementId;
+	/** The identifier of the last element created. */
 	protected int lastElementId;
 
+	/**
+	 * Default constructor. 
+	 *
+	 */
 	public ElementStartFinishListener() {		
 	}
 	
+	/**
+	 * Returns the amount of started elements.
+	 * @return The amount of started elements.
+	 */
 	public int getNStartedElem() {
 		return nElem[0];
 	}
 	
+	/**
+	 * Returns the amount of finished elements.
+	 * @return The amount of finished elements.
+	 */
 	public int getNFinishedElem() {
 		return nElem[1];
 	}
 	
 	/**
-	 * @return Returns the nElemXType.
+	 * Returns the amount of started and finished elements by element type.
+	 * @return The amount of started and finished elements by element type.
 	 */
 	public HashMap<Integer, int[]> getNElemXType() {
 		return nElemXType;
 	}
 
 	/**
-	 * @return Returns the firstElementId.
+	 * Returns the identifier of the first element created.
+	 * @return The identifier of the first element created.
 	 */
 	public int getFirstElementId() {
 		return firstElementId;
 	}
 
 	/**
-	 * @return Returns the lastElementId.
+	 * Returns the identifier of the last element created.
+	 * @return The identifier of the last element created.
 	 */
 	public int getLastElementId() {
 		return lastElementId;
@@ -89,9 +108,8 @@ public class ElementStartFinishListener implements SimulationListener {
 		lastElementId = info.getLastElementId();
 	}
 
+	// Nothing to do
 	public void infoEmited(TimeChangeInfo info) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

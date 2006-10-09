@@ -13,11 +13,13 @@ package es.ull.isaatc.util;
  * @author Iván Castilla Rodríguez
  */
 public class CycleIterator {
+	/** Subcycles traversed by this iterator */ 
 	protected CycleEntry []cycleTable;
+	/** The current timestamp */
 	protected double ts;
 
 	/**
-	 * @param cycle
+	 * @param cycle Cycle followed by this iterator. 
 	 * @param absStartTs Absolute start timestamp.
 	 * @param absEndTs Absolute end timestamp.
 	 */
@@ -30,7 +32,6 @@ public class CycleIterator {
 
 		// First entry of the table is created
 		cycleTable[0] = new CycleEntry(cycle, absStartTs, absEndTs);
-//		ts = absStartTs + cycle.getStartTs();
 		// The rest of entries are created		
 		c = cycle.getSubCycle();
 		for (int i = 1; i < levels; i++, c = c.getSubCycle())
@@ -65,23 +66,36 @@ public class CycleIterator {
 	public Cycle getCycle() {
 		return cycleTable[0].cycle;
 	}
-	
+
+	/**
+	 * Represents a level in the cycle structure. Each level is a subcycle.
+	 * @author Iván Castilla Rodríguez
+	 */
 	class CycleEntry {
+		/** The next timestamp. */
 		double nextTs;
+		/** The iterations left. */
 		int iter;
+		/** The end timestamp. */
 		double end;
+		/** Associated cycle. */
 		Cycle cycle;
 		
 		/**
-		 * @param cycle
-		 * @param start
-		 * @param end
+		 * @param cycle Associated cycle.
+		 * @param start The start timestamp.
+		 * @param end The end timestamp.
 		 */
 		public CycleEntry(Cycle cycle, double start, double end) {
 			this.cycle = cycle;
 			reset(start, end);
 		}
 		
+		/**
+		 * Resets this level. The iterations are reset and the end timestamp is recomputed.
+		 * @param start The start timestamp.
+		 * @param newEnd The end timestamp.
+		 */
 		public void reset(double start, double newEnd) {
 			this.iter = cycle.getIterations();
 			// NOTA: Si quisiera controlar subciclos mal definidos lo haría aquí
@@ -123,6 +137,10 @@ public class CycleIterator {
 			return true;
 		}
 
+		/**
+		 * Computes the next valid timestamp and sets the value of the <code>ts</code>
+		 * attribute.
+		 */
 		public void next() {
 			ts = nextTs;
 			if (!Double.isNaN(nextTs)) {

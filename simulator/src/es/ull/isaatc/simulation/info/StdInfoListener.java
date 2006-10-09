@@ -88,9 +88,11 @@ public class StdInfoListener implements SimulationListener {
 		System.out.println("SIMULATION CPU TIME (ms):\t" + (info.getEndT() - iniT));					
 	}
 
+	/* (non-Javadoc)
+	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.TimeChangeInfo)
+	 */
 	public void infoEmited(TimeChangeInfo info) {
-		// TODO Auto-generated method stub
-		
+		System.out.println("<<< LP clock advanced <<<" + info.getTs());		
 	}
 
 }

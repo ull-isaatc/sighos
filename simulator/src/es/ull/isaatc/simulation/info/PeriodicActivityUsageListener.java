@@ -11,51 +11,67 @@ import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.util.OrderedList;
 
 /**
+ * Periodically stores the usage of an activity, that is, the total amount of time
+ * that this activity has been used.
  * @author Iván Castilla Rodríguez
- *
  */
 public class PeriodicActivityUsageListener implements SimulationListener {
+	/**	The interval of time between two consecutive storages. */
 	private double period;
+	/** The number of periods contained in the simulation time. */
 	private int nPeriods = 1;
+	/** The current period to store information. */
 	private int currentPeriod = 0;
+	/** The simulation start timestamp. */
 	private double simStart;
+	/** The simulation end timestamp. */
 	private double simEnd;
+	/** The activity usage by period. */
 	private HashMap<Integer, double[]> actUsage = new HashMap<Integer, double[]>();
 
+	/**
+	 * Creates a listener with period <code>period</code>.
+	 * @param period The interval of time between two consecutive storages.
+	 */
 	public PeriodicActivityUsageListener (double period) {
 		this.period = period;
 	}
 
 	/**
-	 * @return Returns the period.
+	 * Returns the interval of time between two consecutive storages.
+	 * @return The interval of time between two consecutive storages.
 	 */
 	public double getPeriod() {
 		return period;
 	}
 
 	/**
-	 * @return Returns the nPeriods.
+	 * Returns the number of periods contained in the simulation time.
+	 * @return The number of periods contained in the simulation time.
 	 */
 	public int getNPeriods() {
 		return nPeriods;
 	}
 
 	/**
-	 * @return Returns the simStart.
+	 * Returns the simulation start timestamp.
+	 * @return The simulation start timestamp.
 	 */
 	public double getSimStart() {
 		return simStart;
 	}
 
 	/**
-	 * @return Returns the simEnd.
+	 * Returns the simulation end timestamp.
+	 * @return The simulation end timestamp.
 	 */
 	public double getSimEnd() {
 		return simEnd;
 	}
 
 	/**
-	 * @return Returns the actUsage.
+	 * Returns the activity usage by period.
+	 * @return The activity usage by period.
 	 */
 	public HashMap<Integer, double[]> getActUsage() {
 		return actUsage;
@@ -97,15 +113,12 @@ public class PeriodicActivityUsageListener implements SimulationListener {
 			actUsage.put(new Integer(actList.get(i).getIdentifier()), new double[nPeriods]);			
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationEndInfo)
-	 */
+	// Nothing to do
 	public void infoEmited(SimulationEndInfo info) {
 	}
 	
+	// Nothing to do
 	public void infoEmited(TimeChangeInfo info) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

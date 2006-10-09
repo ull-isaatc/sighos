@@ -10,10 +10,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An prioritized-table iterator that allows the programmer to traverse the table. A 
- * <code>PrioritizedTableIterator</code> starts at level 0 (the higher priority) and returns
- * a new object of this level each time <code>next</code> is called. When the 
- * iterator reaches the end of the level, it starts the next level.
+ * An iterator that allows the programmer to traverse a prioritized table. The balance is
+ * provided by starting at a different component each time a level is reached. Thus, the first time
+ * the level #1 is reached, the 0th component is treated as the first component of the level; the
+ * second time, it is the 1st component, and so on.
  * @author Iván Castilla Rodríguez
  */
 public class BalancedPrioritizedTableIterator<T extends Prioritizable> implements Iterator<T> {
@@ -21,12 +21,12 @@ public class BalancedPrioritizedTableIterator<T extends Prioritizable> implement
     protected int levelIndex = 0;
     /** Index of the first object of the level. This value is used for determining when the iterator has reached the end of the level. */    
     protected int baseLevel;
-    /** Traversed pool. */    
+    /** Traversed prioritized table. */    
     protected PrioritizedTable<T> table;
     
     /**
-     * Creates an iterator for the pool.
-     * @param table Traversed pool.
+     * Creates an iterator for the prioritized table.
+     * @param table Traversed prioritized table.
      */
     public BalancedPrioritizedTableIterator(PrioritizedTable<T> table) {
         this.table = table;
@@ -35,18 +35,19 @@ public class BalancedPrioritizedTableIterator<T extends Prioritizable> implement
     }
 
     /**
-     * Returns the next object of the pool. This method may be called repeatedly to iterate through the pool.
-     * @return The next object of the pool. 
+     * Returns the next object of the prioitized table. This method makes use of the previously chosen
+     * object of a level. Thus, every time this method starts a level, it's started at a different point.
+     * @return The next object of the prioritized table. 
      */
     public T next() {
-        // Se comprueba si no quedan más elementos que recorrer
+        // The end has been reached
         if (levelIndex >= table.levels.size())
             throw new NoSuchElementException();
-        // Se obtiene el siguiente elemento del nivel        
+        // Next object of the current level        
         T obj = table.get(levelIndex);
-        // Se comprueba si hemos dado la vuelta completa al nivel
+        // The level has been finished
         if (table.getChosen(levelIndex) == baseLevel) {
-        	// MOD 23/03/06 Añadido para dar mayor balanceo de carga
+        	// The next time this method will start this level at the next object 
         	table.get(levelIndex);
             levelIndex++;
             if (levelIndex < table.levels.size())

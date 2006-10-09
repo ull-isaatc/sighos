@@ -16,47 +16,62 @@ import es.ull.isaatc.util.OrderedList;
  *
  */
 public class PeriodicActivityQueueListener implements SimulationListener {
+	/**	The interval of time between two consecutive storages. */
 	private double period;
+	/** The number of periods contained in the simulation time. */
 	private int nPeriods = 1;
+	/** The current period to store information. */
 	private int currentPeriod = 0;
+	/** The simulation start timestamp. */
 	private double simStart;
+	/** The simulation end timestamp. */
 	private double simEnd;
+	/** The size of the activity queues by period. */
 	private HashMap<Integer, int[]> actQueues = new HashMap<Integer, int[]>();
 	
+	/**
+	 * Creates a listener with period <code>period</code>.
+	 * @param period The interval of time between two consecutive storages.
+	 */
 	public PeriodicActivityQueueListener (double period) {
 		this.period = period;
 	}
 
 	/**
-	 * @return Returns the period.
+	 * Returns the interval of time between two consecutive storages.
+	 * @return The interval of time between two consecutive storages.
 	 */
 	public double getPeriod() {
 		return period;
 	}
 
 	/**
-	 * @return Returns the nPeriods.
+	 * Returns the number of periods contained in the simulation time.
+	 * @return The number of periods contained in the simulation time.
 	 */
 	public int getNPeriods() {
 		return nPeriods;
 	}
 
 	/**
-	 * @return Returns the simStart.
+	 * Returns the simulation start timestamp.
+	 * @return The simulation start timestamp.
 	 */
 	public double getSimStart() {
 		return simStart;
 	}
 
 	/**
-	 * @return Returns the simEnd.
+	 * Returns the simulation end timestamp.
+	 * @return The simulation end timestamp.
 	 */
 	public double getSimEnd() {
 		return simEnd;
 	}
 
 	/**
-	 * @return Returns the actQueues.
+	 * Returns the size of the activity queues by period.
+	 * @return The size of the activity queues by period.
 	 */
 	public HashMap<Integer, int[]> getActQueues() {
 		return actQueues;
@@ -69,7 +84,7 @@ public class PeriodicActivityQueueListener implements SimulationListener {
 		if (info instanceof ElementInfo) {
 			ElementInfo eInfo = (ElementInfo)info;
 			// New period
-			if (eInfo.getTs() >= ((currentPeriod + 1) * period) + simStart) {				
+			while (eInfo.getTs() >= ((currentPeriod + 1) * period) + simStart) {
 				currentPeriod++;
 				for (int[]queue : actQueues.values())
 					queue[currentPeriod] = queue[currentPeriod - 1];
@@ -109,8 +124,8 @@ public class PeriodicActivityQueueListener implements SimulationListener {
 		}
 	}
 
+	// Nothing to do 
 	public void infoEmited(TimeChangeInfo info) {
-		// TODO Auto-generated method stub
 		
 	}
 
