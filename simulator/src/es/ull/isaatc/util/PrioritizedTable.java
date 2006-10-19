@@ -2,7 +2,6 @@
 package es.ull.isaatc.util;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * An structure which contains a priority-ordered list. Objects with the same priority are
@@ -11,14 +10,12 @@ import java.util.Iterator;
  * objects with the same priority. 
  * @author Iván Castilla Rodríguez
  */
-public class PrioritizedTable<T extends Prioritizable> {
+public abstract class PrioritizedTable<T extends Prioritizable> {
     /** Array of priority levels. */
     protected OrderedList<PrioritizedLevel> levels;
-    /** Ways of iterate through the structure. <p><strong>NORMAL</strong> indicates a sequential order.
-     * <p><strong>BALANCED</strong> indicates every time the level is started at a different object.
-     * <p><strong>RANDOM</strong> indicates a random permutation determines the order.
-     **/
-    public enum IteratorType {NORMAL, BALANCED, RANDOM}
+    /** Number of objects which this table contains. This value is updated when an object
+     * is added or removed. */
+    protected int nObj;
     
     /**
      * Initializes the levels of the structure.  
@@ -45,10 +42,7 @@ public class PrioritizedTable<T extends Prioritizable> {
      * @return Total amount of objects contained by this table.
      */
 	public int size() {
-        int suma = 0;
-        for (PrioritizedLevel pLevel : levels)
-            suma += pLevel.size();
-		return suma;
+		return nObj;
 	}
 	
 	/**
@@ -56,12 +50,12 @@ public class PrioritizedTable<T extends Prioritizable> {
 	 * @param levelIndex The index of the level
 	 * @return The index of the last object chosen in the specified level.
 	 */
-	protected int getChosen(int levelIndex) {
-		return levels.get(levelIndex).chosen;
+	protected int getCandidate(int levelIndex) {
+		return levels.get(levelIndex).getCandidate();
 	}
 	
 	/**
-	 * Returns the next object chosen in the specified level. 
+	 * Returns the next candidate object in the specified level. 
 	 * @param levelIndex The index of the level where the object is located.
 	 * @return The next object chosen in the specified level.
 	 */
@@ -88,34 +82,16 @@ public class PrioritizedTable<T extends Prioritizable> {
 		return levels.get(levelIndex).size();
 	}
 
-	/**
-	 * Returns an iterator over this table. The iterator's behaviour is determined by the
-	 * <code>type</code> parameter. 
-	 * @param type Determines the way this table is traversed.
-	 * @return An iterator over this table.
-	 */
-    public Iterator<T> iterator(IteratorType type) {
-    	Iterator<T> iter = null;
-    	switch(type) {
-    		case NORMAL:
-    			iter = new PrioritizedTableIterator<T>(this); break;
-    		case BALANCED:
-    			iter = new BalancedPrioritizedTableIterator<T>(this); break;
-    		case RANDOM:
-    			iter = new RandomPrioritizedTableIterator<T>(this); break;
-    	}
-    	return iter;
-    }
-
     /**
      * A level of the prioritized table. All the objects belonging to a level have
-     * the same priority. A level stores a value with the last chosen object.
+     * the same priority. A level stores a value with the index of the next candidate 
+     * object.
      * @author Iván Castilla Rodríguez
      */
     class PrioritizedLevel extends ArrayList<T> implements Orderable {
     	private static final long serialVersionUID = 1L;
     	/** Next object that can be chosen. */
-        protected int chosen;
+        protected int candidate;
         /** Priority of this level. */
         protected int priority;
         
@@ -125,22 +101,60 @@ public class PrioritizedTable<T extends Prioritizable> {
          */
         PrioritizedLevel(int pri) {
             super();
-            chosen = 0;
+            candidate = 0;
             priority = pri;
         }
 
-        /**
-		 * Returns the next object chosen in the this level. This method also increases
-		 * the value of the <code>chosen</code> object. 
-		 * @return The next object chosen in the this level.
-         */
-        public T get() {
-            T obj = get(chosen);
-            chosen = (chosen + 1) % size();
-            return obj;
+        public boolean add(T obj) {
+        	super.add(obj);
+        	nObj++;
+        	return true;
         }
 
         /**
+		 * Returns the next candidate object in the this level. This method also increases
+		 * the value of the <code>candidate</code> object. 
+		 * @return The next object chosen in the this level.
+         */
+        public T get() {
+            return get(candidate);
+        }
+
+        /**
+		 * Returns the object with the specified index in the this level. This method also increases
+		 * the value of the <code>candidate</code> object.
+		 * @param index Index of the objecdt to return   
+		 * @return The object in position <code>index</code> in the this level.
+         */
+        public T get(int index) {
+            T obj = super.get(index);
+            candidate = (index + 1) % size();
+            return obj;
+        }
+
+        public T remove(int index) {
+            T obj = super.remove(index);
+            candidate = (size() == 0)? 0: index % size();
+            nObj--;
+        	return obj;
+        }
+        
+        public boolean remove(T obj) {
+        	int ind = super.indexOf(obj);
+        	if (ind == -1)
+        		return false;
+        	remove(ind);
+        	return true;
+        }
+        
+        /**
+		 * @return Returns the index of next object that can be chosen.
+		 */
+		public int getCandidate() {
+			return candidate;
+		}
+
+		/**
          * Returns the priority of the level.
          * @return The priority of the level.
          */

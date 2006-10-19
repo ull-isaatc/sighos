@@ -13,13 +13,14 @@ import es.ull.isaatc.simulation.state.SingleFlowState;
 import es.ull.isaatc.sync.Semaphore;
 import es.ull.isaatc.util.Orderable;
 import es.ull.isaatc.util.Output;
+import es.ull.isaatc.util.Prioritizable;
 
 /**
  * A single-activity flow. This flow represents a leaf node in the flow tree.<p>
  * A single flow handles the execution of its activity.
  * @author Iván Castilla Rodríguez
  */
-public class SingleFlow extends Flow implements Orderable {
+public class SingleFlow extends Flow implements Orderable, Prioritizable {
 	/** Single flows' Counter. Useful for identying each single flow */
 	private static int counter = 0;
 	/** Single flow's identifier */
@@ -325,6 +326,13 @@ public class SingleFlow extends Flow implements Orderable {
 	public int compareTo(Object o) {
 		return getKey().compareTo(o);		
 	}
-    
+
+    /**
+     * Returns the priority of the element owner of this flow
+     * @return The priority of the associated element.
+     */
+    public int getPriority() {
+    	return elem.getPriority();
+    }    
 	
 }

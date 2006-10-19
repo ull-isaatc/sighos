@@ -1,7 +1,6 @@
 package es.ull.isaatc.simulation;
 
 import java.util.Iterator;
-import java.util.Vector;
 
 import es.ull.isaatc.random.RandomNumber;
 import es.ull.isaatc.simulation.state.ActivityState;
@@ -23,11 +22,11 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * the same time) */
     protected boolean presential = true;
     /** This queue contains the single flows that are waiting for this activity */
-    protected Vector<SingleFlow> queue;
+    protected RemovablePrioritizedTable<SingleFlow> queue;
     /** Activity manager which this activity belongs to */
     protected ActivityManager manager = null;
     /** Work Group Pool */
-    protected PrioritizedTable<WorkGroup> workGroupTable;
+    protected NonRemovablePrioritizedTable<WorkGroup> workGroupTable;
 
     /**
      * Creates a new activity.
@@ -73,8 +72,8 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
         super(id, simul, description);
         this.priority = priority;
         this.presential = presential;
-        queue = new Vector<SingleFlow>();
-        workGroupTable = new PrioritizedTable<WorkGroup>();
+        queue = new RemovablePrioritizedTable<SingleFlow>();
+        workGroupTable = new NonRemovablePrioritizedTable<WorkGroup>();
     }
 
     /**
@@ -141,7 +140,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * @return An iterator over the workgroups that can perform this activity.
      */
     public Iterator<WorkGroup> iterator() {
-    	return workGroupTable.iterator(PrioritizedTable.IteratorType.NORMAL);
+    	return workGroupTable.iterator(NonRemovablePrioritizedTable.IteratorType.FIFO);
     }
 
     /**
@@ -150,7 +149,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * @return A workgroup contained in this activity with the specified id
      */
     public WorkGroup getWorkGroup(Integer wgId) {
-        Iterator<WorkGroup> iter = workGroupTable.iterator(PrioritizedTable.IteratorType.NORMAL);
+        Iterator<WorkGroup> iter = workGroupTable.iterator(NonRemovablePrioritizedTable.IteratorType.FIFO);
         while (iter.hasNext()) {
         	WorkGroup opc = iter.next();
         	if (opc.compareTo(wgId) == 0)
@@ -165,7 +164,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * @return "True" if the activity is feasible, "false" in other case.
      */
     protected boolean isFeasible(SingleFlow sf) {
-        Iterator<WorkGroup> iter = workGroupTable.iterator(PrioritizedTable.IteratorType.RANDOM);
+        Iterator<WorkGroup> iter = workGroupTable.iterator(NonRemovablePrioritizedTable.IteratorType.RANDOM);
         while (iter.hasNext()) {
         	WorkGroup opc = iter.next();
             if (opc.isFeasible(sf)) {
@@ -179,45 +178,26 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
     }
 
 	/**
-	 * Checks if there are "valid" elements waiting for this activity in the activity queue. 
-	 * If the first element is valid, there is nothing else to do, in other case, the first valid
-	 * element is put at the head of the queue. An element is valid when it's not busy carrying out 
+	 * Checks if there are "valid" elements waiting for this activity in the activity queue, and 
+	 * returns the first valid element. An element is valid when it's not busy carrying out 
 	 * another activity.
-	 * @return "True" if there are pending elements; "false" in other case
+	 * @return null if there are no pending elements; the first valid element in other case. 
 	 */
-    protected boolean hasPendingElements() {
-        // Pending list empty
-        if (queue.isEmpty())
-            return false;
-        
-        // Checking the first element
-        SingleFlow flow = queue.get(0);
-        Element e = flow.getElement();
-        e.waitSemaphore();
-        
-        // MOD 26/01/06 Añadido
-        e.setTs(getTs());
-
-        if ((e.getCurrentSF() == null) || !presential)
-            return true;
-        else 
-            e.signalSemaphore();
-        
-        // Continue with the rest of elements
-        for (int i = 1; i < queue.size(); i++) {
-        	flow = queue.get(i);
-            e = flow.getElement();
+    protected SingleFlow hasPendingElements() {
+    	Iterator<SingleFlow> iter = queue.iterator(RemovablePrioritizedTable.IteratorType.FIFO);
+    	while (iter.hasNext()) {
+    		SingleFlow sf = iter.next();
+            Element e = sf.getElement();
             e.waitSemaphore();
-			if (e.getCurrentSF() == null) {
-			    // The element is put at the head of the queue
-				flow = queue.remove(i);
-			    queue.add(0, flow);
-			    return true;
-			}
-			else 
-			    e.signalSemaphore();
-        }
-        return false;
+            
+            // MOD 26/01/06 Añadido
+            e.setTs(getTs());
+            if ((e.getCurrentSF() == null) || !presential)
+                return sf;
+            else
+            	e.signalSemaphore();
+    	}
+    	return null;
     }
 
     /**
@@ -229,14 +209,6 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
     }
     
     /**
-     * Remove the first single flow from the element queue.
-     * @return The first singler flow of the element queue
-     */
-    protected SingleFlow queueRemove() {
-        return queue.remove(0);
-    }
-
-    /**
      * Remove a specific single flow from the element queue.
      * @param flow Single flow that must be removed from the element queue.
      * @return True if the flow belongs to the queue; false in other case.
@@ -245,15 +217,6 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
         return queue.remove(flow);
     }
     
-    /**
-     * Returns a specific element of the element queue.
-     * @param ind Element's index
-     * @return The element corresponding to the ind position.
-     */
-    protected SingleFlow queueGet(int ind) {
-        return queue.get(ind);
-    }
-
 	@Override
 	public String getObjectTypeIdentifier() {
 		return "ACT";
@@ -270,8 +233,11 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
 	 */
 	public ActivityState getState() {
 		ActivityState state = new ActivityState(id);
-		for (SingleFlow sf : queue)
-			state.add(sf.getIdentifier(), sf.getElement().getIdentifier());
+    	Iterator<SingleFlow> iter = queue.iterator(RemovablePrioritizedTable.IteratorType.FIFO);
+    	while (iter.hasNext()) {
+    		SingleFlow sf = iter.next();
+			state.add(sf.getIdentifier(), sf.getElement().getIdentifier());    		
+    	}
 		return state;
 	}
 

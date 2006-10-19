@@ -72,6 +72,14 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
     }
 
     /**
+     * Returns the element's priority.
+	 * @return Returns the priority.
+	 */
+	public int getPriority() {
+		return elementType.getPriority();
+	}
+
+	/**
      * Searches a single flow in the flow of this element.
      * @param id The single flow's identifier 
      * @return A single flow with the corresponding identifier; null if there isn't a single

@@ -22,7 +22,7 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
     /** Static counter for assigning each new id */
 	private static int nextid = 0;
 	/** A prioritized table of activities */
-	protected PrioritizedTable<Activity> activityTable;
+	protected NonRemovablePrioritizedTable<Activity> activityTable;
     /** A list of resorce types */
     protected ArrayList<ResourceType> resourceTypeList;
     /** Semaphore for mutual exclusion control */
@@ -37,7 +37,7 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
         super(nextid++, simul);
         sem = new Semaphore(1);
         resourceTypeList = new ArrayList<ResourceType>();
-        activityTable = new PrioritizedTable<Activity>();
+        activityTable = new NonRemovablePrioritizedTable<Activity>();
         simul.add(this);
     }
 
@@ -93,14 +93,15 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
      * Informs the activities of new available resources. 
      */
     protected void availableResource() {
-        Iterator<Activity> iter = activityTable.iterator(PrioritizedTable.IteratorType.RANDOM);
+        Iterator<Activity> iter = activityTable.iterator(NonRemovablePrioritizedTable.IteratorType.RANDOM);
         while (iter.hasNext()) {
         	Activity act = iter.next();
             act.print(Output.MessageType.DEBUG, "Testing pool activity (availableResource)");
-            if (act.hasPendingElements()) {
-                if (act.isFeasible(act.queueGet(0))) {
-                	SingleFlow flow = act.queueRemove(); 
-                    Element e = flow.getElement();
+            SingleFlow sf = act.hasPendingElements();
+            if (sf != null) {
+                if (act.isFeasible(sf)) {
+                	act.queueRemove(sf); 
+                    Element e = sf.getElement();
 
                     e.print(Output.MessageType.DEBUG, "Can carry out (available resource)\t" + act, 
                     		"Can carry out (available resource)\t" + act + "\t" + act.getDescription());
@@ -109,10 +110,10 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
                     // MOD 26/01/06 Movida esta línea antes del e.sig...
                     // MOD 23/05/06 Vuelta a poner aquí: ¿POR QUÉ LA MOVI?
                     e.signalSemaphore();
-                    e.carryOutActivity(flow);
+                    e.carryOutActivity(sf);
                 }
                 else
-                    act.queueGet(0).getElement().signalSemaphore();
+                    sf.getElement().signalSemaphore();
             }
         }
     } 
@@ -133,7 +134,7 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
 	public String getDescription() {
         StringBuffer str = new StringBuffer();
         str.append("Activity Manager " + id + "\r\n(Activity[priority]):");
-        Iterator<Activity> iter = activityTable.iterator(PrioritizedTable.IteratorType.NORMAL);
+        Iterator<Activity> iter = activityTable.iterator(NonRemovablePrioritizedTable.IteratorType.FIFO);
         while (iter.hasNext()) {
         	Activity a = iter.next();
             str.append("\t\"" + a + "\"[" + a.getPriority() + "]");
@@ -151,7 +152,7 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
 	 */
 	public ActivityManagerState getState() {
 		ActivityManagerState amState = new ActivityManagerState(id);
-        Iterator<Activity> iter = activityTable.iterator(PrioritizedTable.IteratorType.NORMAL);
+        Iterator<Activity> iter = activityTable.iterator(NonRemovablePrioritizedTable.IteratorType.FIFO);
         while (iter.hasNext())
         	amState.add(iter.next().getState());
         for (ResourceType rt : resourceTypeList)
