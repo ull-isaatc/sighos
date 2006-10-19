@@ -4,7 +4,7 @@
 // See <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a>
 // Any modifications to this file will be lost upon recompilation of the source
 // schema.
-// Generated on: 2006.10.09 at 04:59:55 PM BST
+// Generated on: 2006.10.18 at 06:31:27 PM BST
 //
 
 package es.ull.isaatc.simulation.xml;
@@ -15,43 +15,41 @@ import es.ull.isaatc.simulation.xml.Distribution;
 /**
  * <p>
  * Java class for Distribution.
+ * 
  * <p>
  * The following schema fragment specifies the expected content contained within
  * this class.
  * <p>
  * 
  * <pre>
- *  &lt;simpleType name=&quot;Distribution&quot;&gt;
- *    &lt;restriction base=&quot;{http://www.w3.org/2001/XMLSchema}string&quot;&gt;
- *      &lt;enumeration value=&quot;BETA&quot;/&gt;
- *      &lt;enumeration value=&quot;CHISQUARE&quot;/&gt;
- *      &lt;enumeration value=&quot;ERLANG&quot;/&gt;
- *      &lt;enumeration value=&quot;EXPONENTIAL&quot;/&gt;
- *      &lt;enumeration value=&quot;FIXED&quot;/&gt;
- *      &lt;enumeration value=&quot;GEOMETRIC&quot;/&gt;
- *      &lt;enumeration value=&quot;NORMAL&quot;/&gt;
- *      &lt;enumeration value=&quot;POISSON&quot;/&gt;
- *      &lt;enumeration value=&quot;TRIANGULAR&quot;/&gt;
- *      &lt;enumeration value=&quot;UNIFORM&quot;/&gt;
- *    &lt;/restriction&gt;
- *  &lt;/simpleType&gt;
+ *   &lt;simpleType name=&quot;Distribution&quot;&gt;
+ *     &lt;restriction base=&quot;{http://www.w3.org/2001/XMLSchema}string&quot;&gt;
+ *       &lt;enumeration value=&quot;BETA&quot;/&gt;
+ *       &lt;enumeration value=&quot;CHISQUARE&quot;/&gt;
+ *       &lt;enumeration value=&quot;ERLANG&quot;/&gt;
+ *       &lt;enumeration value=&quot;EXPONENTIAL&quot;/&gt;
+ *       &lt;enumeration value=&quot;FIXED&quot;/&gt;
+ *       &lt;enumeration value=&quot;GEOMETRIC&quot;/&gt;
+ *       &lt;enumeration value=&quot;NORMAL&quot;/&gt;
+ *       &lt;enumeration value=&quot;POISSON&quot;/&gt;
+ *       &lt;enumeration value=&quot;TRIANGULAR&quot;/&gt;
+ *       &lt;enumeration value=&quot;UNIFORM&quot;/&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/simpleType&gt;
  * </pre>
+ * 
  */
 @XmlEnum
 public enum Distribution {
-	
-	BETA, CHISQUARE, ERLANG, EXPONENTIAL, FIXED, GEOMETRIC, NORMAL, POISSON, TRIANGULAR, UNIFORM;
-	
-	
-	public String value() {
 
-		return name();
-	}
-	
-	
-	public Distribution fromValue(String v) {
+    BETA, CHISQUARE, ERLANG, EXPONENTIAL, FIXED, GEOMETRIC, NORMAL, POISSON, TRIANGULAR, UNIFORM;
 
-		return valueOf(v);
-	}
-	
+    public String value() {
+	return name();
+    }
+
+    public Distribution fromValue(String v) {
+	return valueOf(v);
+    }
+
 }

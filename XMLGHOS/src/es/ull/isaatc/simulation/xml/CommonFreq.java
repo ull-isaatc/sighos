@@ -4,7 +4,7 @@
 // See <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a>
 // Any modifications to this file will be lost upon recompilation of the source
 // schema.
-// Generated on: 2006.10.09 at 04:59:55 PM BST
+// Generated on: 2006.10.18 at 06:31:27 PM BST
 //
 
 package es.ull.isaatc.simulation.xml;
@@ -15,39 +15,37 @@ import es.ull.isaatc.simulation.xml.CommonFreq;
 /**
  * <p>
  * Java class for CommonFreq.
+ * 
  * <p>
  * The following schema fragment specifies the expected content contained within
  * this class.
  * <p>
  * 
  * <pre>
- *  &lt;simpleType name=&quot;CommonFreq&quot;&gt;
- *    &lt;restriction base=&quot;{http://www.w3.org/2001/XMLSchema}string&quot;&gt;
- *      &lt;enumeration value=&quot;YEAR&quot;/&gt;
- *      &lt;enumeration value=&quot;MONTH&quot;/&gt;
- *      &lt;enumeration value=&quot;DAY&quot;/&gt;
- *      &lt;enumeration value=&quot;HOUR&quot;/&gt;
- *      &lt;enumeration value=&quot;MINUTE&quot;/&gt;
- *      &lt;enumeration value=&quot;SECOND&quot;/&gt;
- *    &lt;/restriction&gt;
- *  &lt;/simpleType&gt;
+ *   &lt;simpleType name=&quot;CommonFreq&quot;&gt;
+ *     &lt;restriction base=&quot;{http://www.w3.org/2001/XMLSchema}string&quot;&gt;
+ *       &lt;enumeration value=&quot;YEAR&quot;/&gt;
+ *       &lt;enumeration value=&quot;MONTH&quot;/&gt;
+ *       &lt;enumeration value=&quot;DAY&quot;/&gt;
+ *       &lt;enumeration value=&quot;HOUR&quot;/&gt;
+ *       &lt;enumeration value=&quot;MINUTE&quot;/&gt;
+ *       &lt;enumeration value=&quot;SECOND&quot;/&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/simpleType&gt;
  * </pre>
+ * 
  */
 @XmlEnum
 public enum CommonFreq {
-	
-	DAY, HOUR, MINUTE, MONTH, SECOND, YEAR;
-	
-	
-	public String value() {
 
-		return name();
-	}
-	
-	
-	public CommonFreq fromValue(String v) {
+    DAY, HOUR, MINUTE, MONTH, SECOND, YEAR;
 
-		return valueOf(v);
-	}
-	
+    public String value() {
+	return name();
+    }
+
+    public CommonFreq fromValue(String v) {
+	return valueOf(v);
+    }
+
 }

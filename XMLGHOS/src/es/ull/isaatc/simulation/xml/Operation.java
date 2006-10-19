@@ -4,7 +4,7 @@
 // See <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a>
 // Any modifications to this file will be lost upon recompilation of the source
 // schema.
-// Generated on: 2006.10.09 at 04:59:55 PM BST
+// Generated on: 2006.10.18 at 06:31:27 PM BST
 //
 
 package es.ull.isaatc.simulation.xml;
@@ -15,35 +15,33 @@ import es.ull.isaatc.simulation.xml.Operation;
 /**
  * <p>
  * Java class for Operation.
+ * 
  * <p>
  * The following schema fragment specifies the expected content contained within
  * this class.
  * <p>
  * 
  * <pre>
- *  &lt;simpleType name=&quot;Operation&quot;&gt;
- *    &lt;restriction base=&quot;{http://www.w3.org/2001/XMLSchema}string&quot;&gt;
- *      &lt;enumeration value=&quot;ADDITION&quot;/&gt;
- *      &lt;enumeration value=&quot;MULTIPLICATION&quot;/&gt;
- *    &lt;/restriction&gt;
- *  &lt;/simpleType&gt;
+ *   &lt;simpleType name=&quot;Operation&quot;&gt;
+ *     &lt;restriction base=&quot;{http://www.w3.org/2001/XMLSchema}string&quot;&gt;
+ *       &lt;enumeration value=&quot;ADDITION&quot;/&gt;
+ *       &lt;enumeration value=&quot;MULTIPLICATION&quot;/&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/simpleType&gt;
  * </pre>
+ * 
  */
 @XmlEnum
 public enum Operation {
-	
-	ADDITION, MULTIPLICATION;
-	
-	
-	public String value() {
 
-		return name();
-	}
-	
-	
-	public Operation fromValue(String v) {
+    ADDITION, MULTIPLICATION;
 
-		return valueOf(v);
-	}
-	
+    public String value() {
+	return name();
+    }
+
+    public Operation fromValue(String v) {
+	return valueOf(v);
+    }
+
 }

@@ -38,7 +38,7 @@
 		<xs:sequence>
 			<xs:element name="description" type="xs:string"/>
 			<xs:element name="priority" type="xs:int" default="0"/>
-			<xs:element name="presencial" type="xs:boolean"/>
+			<xs:element name="presential" type="xs:boolean"/>
 			<xs:element maxOccurs="unbounded" name="workGroup">
 				<xs:complexType>
 					<xs:sequence>
