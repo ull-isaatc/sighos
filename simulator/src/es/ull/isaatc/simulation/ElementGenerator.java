@@ -83,13 +83,18 @@ public class ElementGenerator extends Generator {
 	@Override
 	public void createElements() {
         int n = (int)nElem.samplePositiveDouble();
-		for (GenerationTrio gt : genTrio) {			
-	        for (int i = 0 ; i < (Math.round(n * gt.getProp())); i++) {
-	    		Element elem = new Element(elemCounter++, simul, gt.getElementType());
-	    		gt.getMetaFlow().getFlow(null, elem);
-	            elem.start(defLP);
-	        }
-		}
+        for (int i = 0; i < n; i++) {
+            double p = Math.random();
+            for (GenerationTrio gt : genTrio) {
+            	p -= gt.getProp();
+            	if (p <= 0.0) {
+    	    		Element elem = new Element(elemCounter++, simul, gt.getElementType());
+    	    		gt.getMetaFlow().getFlow(null, elem);
+    	            elem.start(defLP);
+    	            break;
+            	}
+            }
+        }
 	}
 
 	/**
