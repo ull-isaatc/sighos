@@ -37,9 +37,9 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     HashMap<Integer, es.ull.isaatc.simulation.MetaFlow> flowList;
 
     /**
-         * Relation between time periods (second, minute, hour, day, month,
-         * year)
-         */
+     * Relation between time periods (second, minute, hour, day, month,
+     * year)
+     */
     double timeRelations[] = { 1, 60, 60, 24, 30, 12, 1 };
 
     /** Base time index in timeRelations */
@@ -49,10 +49,10 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     ModelValidator modelValidator;
 
     /**
-         * Creates the simulation from the data stored in <code>xmlModel<code>.
+     * Creates the simulation from the data stored in <code>xmlModel<code>.
      * @param xmlModel XML representation of the model
      * @param out
-         */
+     */
     public ModelCreator(es.ull.isaatc.simulation.xml.XMLModel xmlModel,
 	    Output out) {
 
@@ -64,8 +64,8 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Creates the simulation model.
-         */
+     * Creates the simulation model.
+     */
     protected void createModel() {
 
 	baseTimeIndex = getTimeUnit(xmlModel.getBaseTimeUnit());
@@ -77,8 +77,8 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Creates the model ResourceTypes.
-         */
+     * Creates the model ResourceTypes.
+     */
     void createResourceTypes() {
 
 	boolean hasError = false;
@@ -103,8 +103,8 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Creates the model Resources
-         */
+     * Creates the model Resources
+     */
     protected void createResources() {
 
 	boolean hasError = false;
@@ -158,8 +158,8 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Creates the model Activities
-         */
+     * Creates the model Activities
+     */
     protected void createActivities() {
 
 	boolean hasError = false;
@@ -187,13 +187,13 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Creates all the WorkGroups of an Activity.
-         * 
-         * @param actXML
-         *                xml Activity
-         * @param actModel
-         *                simulation Activity
-         */
+     * Creates all the WorkGroups of an Activity.
+     * 
+     * @param actXML
+     *                xml Activity
+     * @param actModel
+     *                simulation Activity
+     */
     void createWorkGroups(es.ull.isaatc.simulation.xml.Activity actXML,
 	    es.ull.isaatc.simulation.Activity actModel) {
 
@@ -220,8 +220,8 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Creates the model ElementTypes.
-         */
+     * Creates the model ElementTypes.
+     */
     void createElementTypes() {
 
 	boolean hasError = false;
@@ -233,7 +233,7 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
 	    try {
 		if (modelValidator.validate(et))
 		    new es.ull.isaatc.simulation.ElementType(et.getId(), this,
-			    et.getDescription());
+			    et.getDescription(), et.getPriority());
 	    } catch (ModelException me) {
 		hasError = true;
 		System.err.println(me);
@@ -246,8 +246,8 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Creates the generators for the simulation
-         */
+     * Creates the generators for the simulation
+     */
     protected void createGenerators() {
 
 	createMetaFlows();
@@ -259,8 +259,8 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Creates the simulation meta flows
-         */
+     * Creates the simulation meta flows
+     */
     protected void createMetaFlows() {
 
 	boolean hasError = false;
@@ -287,13 +287,13 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Returns a simulation metaflow
-         * 
-         * @param XMLFlow
-         *                flow xml description
-         * @param parent
-         *                Metaflows parent
-         */
+     * Returns a simulation metaflow
+     * 
+     * @param XMLFlow
+     *                flow xml description
+     * @param parent
+     *                Metaflows parent
+     */
     es.ull.isaatc.simulation.MetaFlow createMetaFlow(
 	    es.ull.isaatc.simulation.xml.Flow XMLFlow,
 	    es.ull.isaatc.simulation.MetaFlow parent) {
@@ -455,11 +455,11 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Returns an option metaflow from its definition in XML
-         * 
-         * @param XMLFlow
-         * @param parent
-         */
+     * Returns an option metaflow from its definition in XML
+     * 
+     * @param XMLFlow
+     * @param parent
+     */
     es.ull.isaatc.simulation.OptionMetaFlow createOption(
 	    es.ull.isaatc.simulation.xml.DecisionOption XMLOption,
 	    es.ull.isaatc.simulation.DecisionMetaFlow parent) {
@@ -471,11 +471,11 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Returns a type branch metaflow from its definition in XML
-         * 
-         * @param XMLFlow
-         * @param parent
-         */
+     * Returns a type branch metaflow from its definition in XML
+     * 
+     * @param XMLFlow
+     * @param parent
+     */
     es.ull.isaatc.simulation.TypeBranchMetaFlow createTypeBranch(
 	    es.ull.isaatc.simulation.xml.TypeBranch XMLBranch,
 	    es.ull.isaatc.simulation.TypeMetaFlow parent) {
@@ -491,10 +491,10 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Creates a generation class object
-         * 
-         * @param xmlGeneration
-         */
+     * Creates a generation class object
+     * 
+     * @param xmlGeneration
+     */
     protected es.ull.isaatc.simulation.ElementGenerator createGenerator(
 	    es.ull.isaatc.simulation.xml.Generator xmlGenerator) {
 
@@ -515,10 +515,10 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Returns a CompoundCycle or a Cycle from a definition in XML
-         * 
-         * @param xmlCycle
-         */
+     * Returns a CompoundCycle or a Cycle from a definition in XML
+     * 
+     * @param xmlCycle
+     */
     es.ull.isaatc.util.Cycle createCycle(
 	    es.ull.isaatc.simulation.xml.Cycle xmlCycle) {
 
@@ -548,11 +548,11 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Compact the probability tree and returns an <code>ArrayList</code>
-         * with the final probability for each root meta flow
-         * 
-         * @param probTree
-         */
+     * Compact the probability tree and returns an <code>ArrayList</code>
+     * with the final probability for each root meta flow
+     * 
+     * @param probTree
+     */
     ArrayList<GenerationTrio> compactProbTree(
 	    es.ull.isaatc.simulation.xml.ProbTree probTree) {
 
@@ -581,12 +581,12 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Creates an object that represents a probability distribution
-         * 
-         * @param crnXML
-         *                probabiblity distribution expressed in XML
-         * @return RandomNumber subclass
-         */
+     * Creates an object that represents a probability distribution
+     * 
+     * @param crnXML
+     *                probabiblity distribution expressed in XML
+     * @return RandomNumber subclass
+     */
     es.ull.isaatc.random.RandomNumber createCompoundRandomNumber(
 	    es.ull.isaatc.simulation.xml.RandomNumber crnXML, double k) {
 
@@ -646,11 +646,11 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * @param rn
-         * @param freqIndex
-         * @param baseIndex
-         * @return
-         */
+     * @param rn
+     * @param freqIndex
+     * @param baseIndex
+     * @return
+     */
     es.ull.isaatc.random.RandomNumber createPeriod(
 	    es.ull.isaatc.simulation.xml.RandomNumber rn, int periodIndex,
 	    int baseIndex) {
@@ -661,12 +661,12 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Finds and returns a ResourceType.
-         * 
-         * @param id
-         *                ResourceType identifier
-         * @return simulation ResourceType
-         */
+     * Finds and returns a ResourceType.
+     * 
+     * @param id
+     *                ResourceType identifier
+     * @return simulation ResourceType
+     */
     es.ull.isaatc.simulation.ResourceType findResourceType(int id) {
 
 	Iterator<ResourceType> resTypeIt = resType.iterator();
@@ -682,8 +682,8 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Returns the flow of a root flow
-         */
+     * Returns the flow of a root flow
+     */
     protected es.ull.isaatc.simulation.xml.Flow rootFlowSearch(
 	    List<es.ull.isaatc.simulation.xml.RootFlow> flowList, int id) {
 
@@ -700,8 +700,8 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Returns the index in the timeRelations vector for the value
-         */
+     * Returns the index in the timeRelations vector for the value
+     */
     int getTimeUnit(es.ull.isaatc.simulation.xml.CommonFreq value) {
 
 	// if the value is null then uses the baseTime
@@ -723,11 +723,11 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Returns the relation value between the two parameters
-         * 
-         * @param valueIndex
-         * @param baseIndex
-         */
+     * Returns the relation value between the two parameters
+     * 
+     * @param valueIndex
+     * @param baseIndex
+     */
     double getTimeRelation(int valueIndex, int baseIndex) {
 
 	double value = 1;
@@ -742,11 +742,11 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * Matches an identifier with a simulation ResourceType. This class is
-         * used by some methods in ModelCreator to find a ResourceType.
-         * 
-         * @author Roberto Muñoz
-         */
+     * Matches an identifier with a simulation ResourceType. This class is
+     * used by some methods in ModelCreator to find a ResourceType.
+     * 
+     * @author Roberto Muñoz
+     */
     private class ResourceType {
 
 	/** ResourceType identifier */
@@ -756,14 +756,14 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
 	es.ull.isaatc.simulation.ResourceType resourceType;
 
 	/**
-         * Creates a simulation ResourceType from the description in XML. Assign
-         * an identifier to it.
-         * 
-         * @param rt
-         *                XML ResourceType description
-         * @param mod
-         *                simulation model
-         */
+	 * Creates a simulation ResourceType from the description in XML. Assign
+	 * an identifier to it.
+	 * 
+	 * @param rt
+	 *                XML ResourceType description
+	 * @param mod
+	 *                simulation model
+	 */
 	public ResourceType(es.ull.isaatc.simulation.xml.ResourceType rt,
 		es.ull.isaatc.simulation.Simulation mod) {
 
@@ -774,20 +774,20 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
 	}
 
 	/**
-         * Getter for id field.
-         * 
-         * @return ResourceType identifier
-         */
+	 * Getter for id field.
+	 * 
+	 * @return ResourceType identifier
+	 */
 	public int getId() {
 
 	    return id;
 	}
 
 	/**
-         * Getter for resourceType field.
-         * 
-         * @return Simulation ResourceType
-         */
+	 * Getter for resourceType field.
+	 * 
+	 * @return Simulation ResourceType
+	 */
 	public es.ull.isaatc.simulation.ResourceType getResourceType() {
 
 	    return resourceType;
@@ -795,8 +795,8 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
     }
 
     /**
-         * This class pair a metaflow with a probability
-         */
+     * This class pair a metaflow with a probability
+     */
     private class GenerationTrio {
 
 	double prob;
@@ -806,9 +806,9 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
 	es.ull.isaatc.simulation.MetaFlow metaFlow;
 
 	/**
-         * @param prob
-         * @param metaFlowId
-         */
+	 * @param prob
+	 * @param metaFlowId
+	 */
 	public GenerationTrio(es.ull.isaatc.simulation.ElementType elementType,
 		es.ull.isaatc.simulation.MetaFlow metaFlow, double prob) {
 
@@ -819,17 +819,17 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
 	}
 
 	/**
-         * @return the elementType
-         */
+	 * @return the elementType
+	 */
 	public es.ull.isaatc.simulation.ElementType getElementType() {
 
 	    return elementType;
 	}
 
 	/**
-         * @param elementType
-         *                the elementType to set
-         */
+	 * @param elementType
+	 *                the elementType to set
+	 */
 	public void setElementType(
 		es.ull.isaatc.simulation.ElementType elementType) {
 
@@ -837,34 +837,34 @@ public class ModelCreator extends es.ull.isaatc.simulation.Simulation {
 	}
 
 	/**
-         * @return the metaFlowId
-         */
+	 * @return the metaFlowId
+	 */
 	public es.ull.isaatc.simulation.MetaFlow getMetaFlow() {
 
 	    return metaFlow;
 	}
 
 	/**
-         * @return the prob
-         */
+	 * @return the prob
+	 */
 	public double getProb() {
 
 	    return prob;
 	}
 
 	/**
-         * @param metaFlowId
-         *                the metaFlowId to set
-         */
+	 * @param metaFlowId
+	 *                the metaFlowId to set
+	 */
 	public void setMetaFlow(es.ull.isaatc.simulation.MetaFlow metaFlow) {
 
 	    this.metaFlow = metaFlow;
 	}
 
 	/**
-         * @param prob
-         *                the prob to set
-         */
+	 * @param prob
+	 *                the prob to set
+	 */
 	public void setProb(double prob) {
 
 	    this.prob = prob;
