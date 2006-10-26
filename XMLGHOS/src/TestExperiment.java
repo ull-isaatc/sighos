@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import es.ull.isaatc.simulation.Experiment;
 import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.info.SimulationListener;
 import es.ull.isaatc.simulation.state.NullStateProcessor;
+import es.ull.isaatc.util.ClassPathHacker;
 import es.ull.isaatc.util.Output;
 
 /**
@@ -58,6 +60,13 @@ public class TestExperiment extends Experiment {
 	    es.ull.isaatc.simulation.xml.ClassReference sp, Class c) {
 
 	try {
+	    if (sp.getClasspath() != null) {
+		try {
+		    ClassPathHacker.addFile(sp.getClasspath());
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
+	    }
 	    Object instance = c.cast(Class.forName(sp.getName()).newInstance());
 	    Iterator<es.ull.isaatc.simulation.xml.ClassReference.Param> paramIt = sp
 		    .getParam().iterator();

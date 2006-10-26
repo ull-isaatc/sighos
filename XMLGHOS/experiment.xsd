@@ -25,6 +25,7 @@
 					<xs:attribute name="value" type="xs:string" use="required"/>
 				</xs:complexType>				
 			</xs:element>
+			<xs:element name="classpath" type="xs:string" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="Generator">

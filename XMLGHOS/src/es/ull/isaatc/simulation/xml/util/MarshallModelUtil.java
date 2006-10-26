@@ -3,10 +3,10 @@
  */
 package es.ull.isaatc.simulation.xml.util;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URLClassLoader;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -36,6 +36,7 @@ public class MarshallModelUtil {
      */
     public static Model unMarshallModel(String fileName) {
 	Model model = null;
+
 	try {
 	    JAXBContext jc = JAXBContext
 		    .newInstance("es.ull.isaatc.simulation.xml");
@@ -43,7 +44,8 @@ public class MarshallModelUtil {
 	    u.setEventHandler(new SighosValidationEventHandler());
 	    SchemaFactory schemaFactory = SchemaFactory
 		    .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-	    u.setSchema(schemaFactory.newSchema(new File("model.xsd")));
+//	    u.setSchema(schemaFactory.newSchema(new File("model.xsd")));
+	    u.setSchema(schemaFactory.newSchema(URLClassLoader.getSystemResource("model.xsd")));	    
 	    model = (Model) u.unmarshal(new FileInputStream(fileName));
 	} catch (JAXBException je) {
 	    System.out.println("ERROR : Error found in one of the XML files");
@@ -75,7 +77,8 @@ public class MarshallModelUtil {
 	    u.setEventHandler(new SighosValidationEventHandler());
 	    SchemaFactory schemaFactory = SchemaFactory
 		    .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-	    u.setSchema(schemaFactory.newSchema(new File("experiment.xsd")));
+//	    u.setSchema(schemaFactory.newSchema(new File("experiment.xsd")));
+	    u.setSchema(schemaFactory.newSchema(URLClassLoader.getSystemResource("experiment.xsd")));
 	    experiment = (Experiment) u
 		    .unmarshal(new FileInputStream(fileName));
 	} catch (JAXBException je) {
