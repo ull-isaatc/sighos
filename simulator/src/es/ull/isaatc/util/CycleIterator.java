@@ -103,15 +103,14 @@ public class CycleIterator {
 				end = start + cycle.getEndTs();
 			else
 				end = newEnd;
-			// FIXME: DEBERIA PODER QUITAR LA PRIMERA CONDICION
+			// If the "supercycle" starts after the simulation end.
 			if (Double.isNaN(newEnd)) {
-				System.out.println("Aquí no debería llegar nunca");
 				nextTs = Double.NaN;
 				ts = nextTs;
 			}
 			else {
 				nextTs = start + cycle.getStartTs();
-				// MOD 17/04/06 Para evitar comenzar un ciclo después de su final
+				// If the cycle starts after the simulation end
 				if (nextTs > end)
 					nextTs = Double.NaN;
 				// It becomes initialized at next iteration
