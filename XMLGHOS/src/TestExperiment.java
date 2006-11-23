@@ -38,13 +38,13 @@ public class TestExperiment extends Experiment {
 	setNExperiments(xmlExperiment.getExperiments());
 	setProcessor(new NullStateProcessor());
 	createOutput();
-	createListeners();
     }
 
     protected void createListeners() {
 
 	Iterator<es.ull.isaatc.simulation.xml.ClassReference> listenerIt = xmlExperiment
 		.getSimulationListener().iterator();
+	listenerList.clear();
 	while (listenerIt.hasNext()) {
 	    listenerList.add((SimulationListener) processClassReference(
 		    listenerIt.next(), SimulationListener.class));
@@ -119,11 +119,14 @@ public class TestExperiment extends Experiment {
 
     @Override
     public Simulation getSimulation(int ind) {
-
+	long ini = System.currentTimeMillis();
 	Simulation sim = new es.ull.isaatc.simulation.xml.ModelCreator(
 		xmlModel, out);
+	createListeners();
 	for (SimulationListener listener : listenerList)
 	    sim.addListener(listener);
+	long end = System.currentTimeMillis();
+	System.out.println("XML load time :\t" + (end - ini));
 	return sim;
     }
 }
