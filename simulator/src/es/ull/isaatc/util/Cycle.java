@@ -1,5 +1,6 @@
 package es.ull.isaatc.util;
 
+import es.ull.isaatc.random.Fixed;
 import es.ull.isaatc.random.RandomNumber;
 
 /**
@@ -7,7 +8,7 @@ import es.ull.isaatc.random.RandomNumber;
  * two different ways: onthe one hand, you can define a cycle that stops when 
  * a particular timestamp (endTs) is reached; on the other hand, you can 
  * define a cycle which stops after an specific number of iterations. You can 
- * even define an infinuite cycle (0 iterations).<p>
+ * even define an infinite cycle (0 iterations).<p>
  * A cycle can be defined as containing a subcycle. The subcycle total duration 
  * should be restricted to the main cycle period. 
  * @author Iván Castilla Rodríguez
@@ -127,5 +128,20 @@ public class Cycle {
 	 */
 	public CycleIterator iterator(double absStart, double absEnd) {
 		return new CycleIterator(this, absStart, absEnd);
+	}
+	
+	public String toString() {
+		StringBuffer str = new StringBuffer("Cycle. Start: " + startTs);
+		if (!Double.isNaN(endTs))
+			str.append("\tEnd: " + endTs);
+		else
+			str.append("\tIterations: " + iterations);
+		if (period instanceof Fixed)
+			str.append("\tFixed period: " + ((Fixed)period).sampleDouble());
+		else
+			str.append("\tRandom period");
+		if (subCycle != null)
+			str.append("\r\n" + subCycle.toString());
+		return str.toString();
 	}
 }

@@ -10,13 +10,16 @@ package es.ull.isaatc.util;
  * the user can specify a limit timestamp (absEndTs).
  * Every time you use next() a new timestamp is returned. A NaN value 
  * indicates that the end of the cycle has been reached. 
+ * <p><b>IMPORTANT NOTE: 12/12/2006</b>
+ * <br>This class has to change: The startTs and endTs of the parent cycle are
+ * now considered as absolute. 
  * @author Iván Castilla Rodríguez
  */
 public class CycleIterator {
 	/** Subcycles traversed by this iterator */ 
 	protected CycleEntry []cycleTable;
 	/** The current timestamp */
-	protected double ts;
+	protected double ts = Double.NaN;
 
 	/**
 	 * @param cycle Cycle followed by this iterator. 
@@ -31,11 +34,21 @@ public class CycleIterator {
 		cycleTable = new CycleEntry[levels];
 
 		// First entry of the table is created
-		cycleTable[0] = new CycleEntry(cycle, absStartTs, absEndTs);
+		// CHANGE 13/12/06: Instead of using absStartTs, using 0 for initial timestamp.
+		cycleTable[0] = new CycleEntry(cycle, 0, absEndTs);
 		// The rest of entries are created		
 		c = cycle.getSubCycle();
 		for (int i = 1; i < levels; i++, c = c.getSubCycle())
-			cycleTable[i] = new CycleEntry(c, ts, cycleTable[i - 1].nextTs);
+			cycleTable[i] = new CycleEntry(c, ts, Math.min(cycleTable[i - 1].nextTs, cycleTable[i - 1].endTs));
+		// CHANGE 13/12/06 If the start timestamp is not zero, the real start timestamp
+		// has to be recomputed.
+		boolean found = false;
+		while (!Double.isNaN(ts) && !found) {
+			if (ts >= absStartTs)
+				found = true;
+			else
+				next();
+		}
 	}
 
 	/**
@@ -49,12 +62,16 @@ public class CycleIterator {
 		if (!Double.isNaN(ts)) {
 			int i = cycleTable.length;
 			do {
-				cycleTable[--i].next();
+				if (cycleTable[--i].hasNext())
+					cycleTable[i].next();
+				else
+					ts = Double.NaN;
 			} while ((i > 0) && (Double.isNaN(ts)));
 			// This condition is skipped when the whole cycle is finished 
 			if (!Double.isNaN(ts)) {
-				for (; i < cycleTable.length - 1; i++)
-					cycleTable[i + 1].reset(ts, cycleTable[i].nextTs);
+				for (; i < cycleTable.length - 1; i++) {
+					cycleTable[i + 1].reset(ts, Math.min(cycleTable[i].nextTs, cycleTable[i].endTs));
+				}
 			}
 		}
 		return auxTs;
@@ -77,7 +94,7 @@ public class CycleIterator {
 		/** The iterations left. */
 		int iter;
 		/** The end timestamp. */
-		double end;
+		double endTs;
 		/** Associated cycle. */
 		Cycle cycle;
 		
@@ -100,9 +117,9 @@ public class CycleIterator {
 			this.iter = cycle.getIterations();
 			// NOTA: Si quisiera controlar subciclos mal definidos lo haría aquí
 			if (!Double.isNaN(cycle.getEndTs()))
-				end = start + cycle.getEndTs();
+				endTs = start + cycle.getEndTs();
 			else
-				end = newEnd;
+				endTs = newEnd;
 			// If the "supercycle" starts after the simulation end.
 			if (Double.isNaN(newEnd)) {
 				nextTs = Double.NaN;
@@ -111,10 +128,10 @@ public class CycleIterator {
 			else {
 				nextTs = start + cycle.getStartTs();
 				// If the cycle starts after the simulation end
-				if (nextTs > end)
+				if (hasNext())
+					next();
+				else
 					nextTs = Double.NaN;
-				// It becomes initialized at next iteration
-				next();
 			}
 		}
 
@@ -123,8 +140,10 @@ public class CycleIterator {
 		 * @return True if there are a valid next timestamp. False in other case. 
 		 */
 		private boolean hasNext() {
+			if (Double.isNaN(nextTs))
+				return false;
 			// If the next timestamp to be generated is not valid
-			if (nextTs >= end)
+			if (nextTs >= endTs)
 				return false;
 			// If there are infinite iterations
 			if (cycle.getIterations() == 0)
@@ -142,18 +161,10 @@ public class CycleIterator {
 		 */
 		public void next() {
 			ts = nextTs;
-			if (!Double.isNaN(nextTs)) {
-				if (!hasNext()) {
-					nextTs = Double.NaN;
-					ts = Double.NaN;
-				}
-				else {
-					if (iter > 0)
-						iter--;
-					// Computes the next valid timestamp...
-					nextTs += cycle.getPeriod().samplePositiveDouble();
-				}
-			}
+			if (iter > 0)
+				iter--;
+			// Computes the next valid timestamp...
+			nextTs += cycle.getPeriod().samplePositiveDouble();
 		}
 	}
 }
