@@ -102,19 +102,17 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	/**
 	 * Adds a new resource type to the list of current roles.
 	 * @param role New resource type added
-	 * @return False if the resource type already belongs to the current list. True in other case.
 	 */
-	protected boolean addRole(ResourceType role) {
-		return currentRoles.add(role);
+	protected void addRole(ResourceType role) {
+		currentRoles.add(role);
 	}
 
 	/**
 	 * Removes a resource type from the list of current roles.
 	 * @param role Resource type removed
-	 * @return True if the resource type exists in the list. False in other case.
 	 */
-	protected boolean removeRole(ResourceType role) {
-		return currentRoles.remove(role);
+	protected void removeRole(ResourceType role) {
+		currentRoles.remove(role);
 	}
 
 	/**

@@ -11,18 +11,24 @@ import java.util.ArrayList;
  * @author Iván Castilla Rodríguez
  */
 public class SimulationState implements State {
-	/** The state of the logical processes belonging to this simulation */
-	protected ArrayList<LogicalProcessState> lpStates;
 	/** The state of the elements belonging to this simulation */
 	protected ArrayList<ElementState> elemStates;
 	/** The state of the resources belonging to this simulation */
 	protected ArrayList<ResourceState> resStates;
+	/** State of the activities belonging to this simulation */
+	protected ArrayList<ActivityState> aStates;
+	/** State of the resource types belonging to this simulation */
+	protected ArrayList<ResourceTypeState> rtStates;
 	/** Last element created in this simulation */
 	protected int lastElemId;
 	/** Last single flow created in this simulation */
 	protected int lastSFId;
 	/** Final timestamp of this simulation */
 	protected double endTs;
+	/** Possible types for the events stored in this LP */
+	public enum EventType {FINALIZEACT, ROLOFF};
+	/** Events in the waiting queue */
+	protected ArrayList<EventEntry> waitQueue;
 	
 	/**
 	 * @param lastElemId Last element created in this simulation
@@ -30,20 +36,14 @@ public class SimulationState implements State {
 	 * @param endTs Final timestamp of this simulation
 	 */
 	public SimulationState(int lastElemId, int lastSFId, double endTs) {
-		lpStates = new ArrayList<LogicalProcessState>();
 		elemStates = new ArrayList<ElementState>();
 		resStates = new ArrayList<ResourceState>();
+		aStates = new ArrayList<ActivityState>();
+		rtStates = new ArrayList<ResourceTypeState>();
+		waitQueue = new ArrayList<EventEntry>();
 		this.lastElemId = lastElemId;
 		this.lastSFId = lastSFId;
 		this.endTs = endTs;
-	}
-	
-	/**
-	 * Includes the state of a logical process.
-	 * @param lpState The state of a LP belonging to this simulation
-	 */
-	public void add(LogicalProcessState lpState) {
-		lpStates.add(lpState);
 	}
 	
 	/**
@@ -61,6 +61,33 @@ public class SimulationState implements State {
 	public void add(ResourceState rState) {
 		resStates.add(rState);
 	}
+
+	/**
+	 * Adds the state of an activity.
+	 * @param aState State of an activity
+	 */
+	public void add(ActivityState aState) {
+		aStates.add(aState);
+	}
+
+	/**
+	 * Adds the state of an resource type.
+	 * @param aState State of an resource type
+	 */
+	public void add(ResourceTypeState rtState) {
+		rtStates.add(rtState);
+	}
+
+	/**
+	 * Adds an event from the waiting list.
+	 * @param type Type of the event
+	 * @param id Identifier of the element that owns the event
+	 * @param ts Timestamp of the event
+	 * @param value Value associated to the event
+	 */
+	public void add(EventType type, int id, double ts, int value) {
+		waitQueue.add(new EventEntry(type, id, ts, value));
+	}
 	
 	/**
 	 * @return The state of the elements belonging to this simulation.
@@ -76,6 +103,20 @@ public class SimulationState implements State {
 		return resStates;
 	}
 
+	/**
+	 * @return An array list containing the state of the activities belonging to this simulation.
+	 */
+	public ArrayList<ActivityState> getAStates() {
+		return aStates;
+	}
+
+	/**
+	 * @return An array list containing the state of the resource types belonging to this simulation.
+	 */
+	public ArrayList<ResourceTypeState> getRtStates() {
+		return rtStates;
+	}
+	
 	/**
 	 * @return Final timestamp of this simulation.
 	 */
@@ -98,10 +139,10 @@ public class SimulationState implements State {
 	}
 
 	/**
-	 * @return The state of the LPs belonging to this simulation.
+	 * @return A list containing the events in the waiting queue of this LP.
 	 */
-	public ArrayList<LogicalProcessState> getLpStates() {
-		return lpStates;
+	public ArrayList<EventEntry> getWaitQueue() {
+		return waitQueue;
 	}
 
 	@Override
@@ -111,9 +152,75 @@ public class SimulationState implements State {
 			str.append(es + "\r\n");
 		for (ResourceState rs : resStates)
 			str.append(rs + "\r\n");
-		for (LogicalProcessState lps : lpStates)
-			str.append(lps + "\r\n");
+		for (ResourceTypeState rt : rtStates)
+			str.append(rt + "\r\n");
+		for (ActivityState a : aStates)
+			str.append(a + "\r\n");
+		if (waitQueue.size() > 0)
+			str.append("\r\nWAIT QUEUE:");
+		for (EventEntry ee : waitQueue)
+			str.append("/t[" + ee + "]");
 		return str.toString();
 	}
 	
+	/**
+	 * An event from the waiting list.
+	 * @author Iván Castilla Rodríguez
+	 */
+	public class EventEntry {
+		/** Type of the event */
+		EventType type;
+		/** Identifier of the element that owns the event */
+		int id;
+		/** Timestamp of the event */
+		double ts;
+		/** Value associated to the event */ 
+		int value;
+		
+		/**
+		 * @param type Type of the event
+		 * @param id Identifier of the element that owns the event
+		 * @param ts Timestamp of the event
+		 * @param value Value associated to the event
+		 */
+		public EventEntry(EventType type, int id, double ts, int value) {
+			this.type = type;
+			this.id = id;
+			this.ts = ts;
+			this.value = value;
+		}
+
+		/**
+		 * @return Type of the event.
+		 */
+		public EventType getType() {
+			return type;
+		}
+
+		/**
+		 * @return Identifier of the element that owns the event.
+		 */
+		public int getId() {
+			return id;
+		}
+
+		/**
+		 * @return Timestamp of the event.
+		 */
+		public double getTs() {
+			return ts;
+		}
+
+		/**
+		 * @return Value associated to the event.
+		 */
+		public int getValue() {
+			return value;
+		}
+		
+		@Override
+		public String toString() {
+			return "EV-" + type + "(" + id + ")\t" + ts + "\t" + value;
+		}
+	}
 }

@@ -60,10 +60,16 @@ public class DeterministicElementGenerator extends Generator {
 	}
 
 	@Override
+	// MOD 18/12/06 Now it takes into account the initial simulation ts
 	public double nextTs() {
-		if (count == genSet.size())
-			return Double.NaN;
-		return genSet.get(count).getTs();
+		while (count != genSet.size()) {
+			double newTs = genSet.get(count).getTs();
+			if (newTs < defLP.getTs())
+				count++;
+			else
+				return newTs;
+		}
+		return Double.NaN;
 	}
 
 	/**

@@ -41,8 +41,7 @@ public abstract class GroupFlow extends Flow {
         descendants.add(newFlow);
     }
     
-	@Override
-    protected int[] countActivities() {
+	public @Override int[] countActivities() {
         int []cont = new int[2];
         cont[0] = cont[1] = 0;
         for(Flow f : descendants) {
@@ -53,6 +52,14 @@ public abstract class GroupFlow extends Flow {
         return cont;
     }
        
+	/**
+	 * Returns the flow descendants of the current flow.
+	 * @return Returns the descendants.
+	 */
+	public ArrayList<Flow> getDescendants() {
+		return descendants;
+	}
+
 	@Override
 	protected SingleFlow search(int id) {
 		for (Flow f : descendants) {

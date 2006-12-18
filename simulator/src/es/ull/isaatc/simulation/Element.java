@@ -146,14 +146,14 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
      * a "FinalizeActivityEvent".
      * @param f Single flow requested.
      */
-    protected void carryOutActivity(SingleFlow f) {
+    protected void carryOutActivity(SingleFlow f, WorkGroup wg) {
     	LogicalProcess lp = f.getActivity().getManager().getLp();
         setTs(lp.getTs());
-        f.getCurrentWG().catchResources(f);
+        wg.catchResources(f);
         simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.STAACT, ts, f.getActivity().getIdentifier()));
         print(Output.MessageType.DEBUG, "Starts\t" + f.getActivity(), 
         		"Starts\t" + f.getActivity() + "\t" + f.getActivity().getDescription());
-        FinalizeActivityEvent e = new FinalizeActivityEvent(ts + f.getCurrentWG().getDuration(), f);
+        FinalizeActivityEvent e = new FinalizeActivityEvent(ts + wg.getDuration(), f);
         addEvent(e);
     }
 	
@@ -236,9 +236,10 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
             // If the element is not performing a presential activity yet or the activity to be
             // requested is non presential 
             if ((currentSF == null) || (!act.isPresential())) {
-                if (act.isFeasible(flow)) { // There are enough resources to perform the activity
+            	WorkGroup wg = act.isFeasible(flow);
+                if (wg != null) { // There are enough resources to perform the activity
                     signalSemaphore();
-                    carryOutActivity(flow);
+                    carryOutActivity(flow, wg);
                 }
                 else {
                     act.queueAdd(flow); // The element is introduced in the activity waiting queue
@@ -278,14 +279,15 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
             		"Calling availableElement()\t" + act + "\t" + act.getDescription());
             // If the element is not performing a presential activity yet
             if (currentSF == null) {
-                if (act.isFeasible(flow)) {
-                	print(Output.MessageType.DEBUG, "Can carry out\t" + act, "Can carry out\t" + act + "\t" + currentSF.getCurrentWG());
+            	WorkGroup wg = act.isFeasible(flow);
+                if (wg != null) {
+                	print(Output.MessageType.DEBUG, "Can carry out\t" + act, "Can carry out\t" + act + "\t" + wg);
                     if (!act.queueRemove(flow)) { // saco el elemento de la cola
                     	print(Output.MessageType.ERROR, "Unexpected error. Element MUST BE in the activity queue",
                     			"Unexpected error. Element MUST BE in the activity queue\t" + act);
                     }
                     signalSemaphore();                
-                    carryOutActivity(flow);
+                    carryOutActivity(flow, wg);
                 }
                 else
                     signalSemaphore();

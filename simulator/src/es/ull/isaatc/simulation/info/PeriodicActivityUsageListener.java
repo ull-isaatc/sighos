@@ -38,11 +38,25 @@ public class PeriodicActivityUsageListener implements SimulationListener {
 	}
 
 	/**
+	 * Creates a default listener.
+	 */
+	public PeriodicActivityUsageListener () {
+	}
+
+	/**
 	 * Returns the interval of time between two consecutive storages.
 	 * @return The interval of time between two consecutive storages.
 	 */
 	public double getPeriod() {
 		return period;
+	}
+
+	/**
+	 * Sets the period of the listener
+	 * @param period The period to set.
+	 */
+	public void setPeriod(double period) {
+		this.period = period;
 	}
 
 	/**

@@ -3,12 +3,7 @@ package es.ull.isaatc.simulation;
 import java.util.*;
 
 import mjr.heap.HeapAscending;
-import mjr.heap.Heapable;
-import es.ull.isaatc.random.Fixed;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
-import es.ull.isaatc.simulation.state.ActivityManagerState;
-import es.ull.isaatc.simulation.state.LogicalProcessState;
-import es.ull.isaatc.simulation.state.RecoverableState;
 import es.ull.isaatc.sync.*;
 import es.ull.isaatc.util.*;
 
@@ -18,7 +13,7 @@ import es.ull.isaatc.util.*;
  * of the components associated to this LP. An LP is subdivided into activity managers.   
  * @author Carlos Martín Galán
  */
-public class LogicalProcess extends SimulationObject implements Runnable, RecoverableState<LogicalProcessState> {
+public class LogicalProcess extends SimulationObject implements Runnable {
 	/** LP's counter. */
 	private static int nextId = 0;
     /** Controls the advance ot the simulation time. */
@@ -307,60 +302,5 @@ public class LogicalProcess extends SimulationObject implements Runnable, Recove
         	strLong.append("Activity Manager " + am.getIdentifier() + "\r\n");
         strLong.append("\r\n------ LP STATE FINISHED ------\r\n");
 		print(Output.MessageType.DEBUG, "Waiting\t" + waitQueue.size() + "\tExecuting\t" + execQueue.size(), strLong.toString());
-	}
-
-	/**
-	 * Returns the state of this LP. The state of a LP consists on the state of its activity
-	 * managers, and the events contained in the waiting queue.
-	 * @return The state of this LP
-	 */
-	public LogicalProcessState getState() {
-		LogicalProcessState lpState = new LogicalProcessState(id);
-		for (ActivityManager am : managerList)
-			lpState.add((ActivityManagerState)am.getState());
-		Iterator<Heapable> it = waitQueue.iterator();
-		while(it.hasNext()) {
-			BasicElement.DiscreteEvent ev = (BasicElement.DiscreteEvent)it.next();
-			if (ev instanceof Element.FinalizeActivityEvent) {
-				Element.FinalizeActivityEvent fev = (Element.FinalizeActivityEvent)ev;
-				lpState.add(LogicalProcessState.EventType.FINALIZEACT, fev.getElement().getIdentifier(), fev.getTs(), fev.getFlow().getIdentifier());
-			}
-			else if (ev instanceof Resource.RoleOffEvent) {
-				Resource.RoleOffEvent rev = (Resource.RoleOffEvent)ev;
-				lpState.add(LogicalProcessState.EventType.ROLOFF, rev.getElement().getIdentifier(), rev.getTs(), rev.getRole().getIdentifier());
-			}				
-		}			
-		return lpState;
-	}
-
-	/**
-	 * Sets the state of this LP. The state of a LP consists on the state of its activity
-	 * managers, and the events contained in the waiting queue.
-	 * param state The state of this LP
-	 */
-	public void setState(LogicalProcessState state) {
-		for (ActivityManagerState amState : state.getAmStates()) {
-			ActivityManager am = new ActivityManager(simul);
-			am.setLp(this);
-			am.setState(amState);
-		}
-		// Creates a null cycle to non-iterative cycles
-		Cycle c = new Cycle(0.0, new Fixed(1), -1.0);
-		for (LogicalProcessState.EventEntry entry : state.getWaitQueue()) {
-			if (entry.getType() == LogicalProcessState.EventType.FINALIZEACT) {
-				Element elem = simul.getActiveElement(entry.getId());
-				// The element has not been started yet, so it hasn't got a default logical process...
-				elem.setDefLP(this);
-				// ... however, the event starts immediately
-				elem.addEvent(elem.new FinalizeActivityEvent(entry.getTs(), elem.searchSingleFlow(entry.getValue())));
-			}
-			else if (entry.getType() == LogicalProcessState.EventType.ROLOFF) {
-				Resource res = simul.getResourceList().get(new Integer(entry.getId()));				
-				// The resource has not been started yet, so it hasn't got a default logical process
-				res.setDefLP(this);
-				// ... however, the event starts immediately
-				res.addEvent(res.new RoleOffEvent(entry.getTs(), simul.getResourceType(entry.getValue()), c.iterator(0.0, 0.0), 0.0));
-			}
-		}
 	}
 }

@@ -71,7 +71,7 @@ public abstract class Flow implements RecoverableState<FlowState> {
      * and the second component, for the non-presential ones. 
      * @return The amount of activities this flow contains.
      */    
-    protected abstract int[]countActivities();
+    public abstract int[]countActivities();
  
     /**
      * Searches a single flow in the flow structure

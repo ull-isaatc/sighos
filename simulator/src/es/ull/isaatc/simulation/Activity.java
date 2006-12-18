@@ -161,20 +161,20 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
 	/**
      * Checks if this activity can be performed with any of its workgroups.
      * @param sf Single flow which contains the activity 
-     * @return "True" if the activity is feasible, "false" in other case.
+     * @return The workgroup the activity can be performed with. null if the activity isn't feasible.
      */
-    protected boolean isFeasible(SingleFlow sf) {
+    protected WorkGroup isFeasible(SingleFlow sf) {
         Iterator<WorkGroup> iter = workGroupTable.iterator(NonRemovablePrioritizedTable.IteratorType.RANDOM);
         while (iter.hasNext()) {
         	WorkGroup opc = iter.next();
             if (opc.isFeasible(sf)) {
-                sf.setCurrentWG(opc);
+                sf.setExecuting(true);
                 if (isPresential())
                 	sf.getElement().setCurrentSF(sf);
-                return true;
+                return opc;
             }            
         }
-        return false;
+        return null;
     }
 
 	/**

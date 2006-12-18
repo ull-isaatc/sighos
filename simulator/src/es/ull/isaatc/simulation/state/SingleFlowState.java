@@ -20,8 +20,8 @@ public class SingleFlowState extends FlowState {
 	protected int actId;
 	/** If true this activity has been already performed */
 	protected boolean finished;
-	/** If the activity is currently being performed, the workgroup currently employed to perform it */
-	protected int currentWGId = -1;
+	/** If true, the activity is currently being performed */
+	protected boolean executing;
 	/** If the activity is currently being performed, the resources caught to perform it */
 	protected ArrayList<Integer> caughtResources = null;
 	
@@ -31,23 +31,11 @@ public class SingleFlowState extends FlowState {
 	 * @param actId The activity which this flow wraps
 	 * @param finished If true this activity has been already performed
 	 */
-	public SingleFlowState(int flowId, int actId, boolean finished) {
+	public SingleFlowState(int flowId, int actId, boolean finished, boolean executing) {
 		this.flowId = flowId;
 		this.actId = actId;
 		this.finished = finished;
-	}
-
-	/**
-	 * @param flowId This flow's identifier
-	 * @param actId The activity which this flow wraps
-	 * @param finished If true this activity has been already performed
-	 * @param currentWGId The workgroup currently employed to perform the activity
-	 */
-	public SingleFlowState(int flowId, int actId, boolean finished, int currentWGId) {
-		this.flowId = flowId;
-		this.actId = actId;
-		this.finished = finished;
-		this.currentWGId = currentWGId;
+		this.executing = executing;
 		caughtResources = new ArrayList<Integer>();
 	}
 
@@ -73,6 +61,13 @@ public class SingleFlowState extends FlowState {
 	}
 
 	/**
+	 * @return Returns true if this single flow is being currently executing.
+	 */
+	public boolean isExecuting() {
+		return executing;
+	}
+
+	/**
 	 * Adds a resource to the list of caught resources
 	 * @param resId The identifier of a new resource
 	 */
@@ -88,14 +83,6 @@ public class SingleFlowState extends FlowState {
 		return caughtResources;
 	}
 
-	/**
-	 * @return If the activity is currently being performed, the workgroup currently employed to 
-	 * perform it. -1 in other case.
-	 */
-	public int getCurrentWGId() {
-		return currentWGId;
-	}
-
 	@Override
 	public String toString() {
 		StringBuffer str = new StringBuffer("SF" + flowId + "(A" + actId + ")");
@@ -103,11 +90,9 @@ public class SingleFlowState extends FlowState {
 			str.append("\tFINISHED\r\n");
 		else
 			str.append("\r\n");
-		if (currentWGId != -1) {
-			str.append("Current WG" + currentWGId + ":");
+		if (executing)
 			for (Integer rtId : caughtResources)
 				str.append(" " + rtId);
-		}
 		return str.toString();
 	}
 }

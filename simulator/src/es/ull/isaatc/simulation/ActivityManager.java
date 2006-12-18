@@ -3,10 +3,6 @@ package es.ull.isaatc.simulation;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import es.ull.isaatc.simulation.state.ActivityManagerState;
-import es.ull.isaatc.simulation.state.ActivityState;
-import es.ull.isaatc.simulation.state.ResourceTypeState;
-import es.ull.isaatc.simulation.state.RecoverableState;
 import es.ull.isaatc.sync.Semaphore;
 import es.ull.isaatc.util.*;
 
@@ -18,7 +14,7 @@ import es.ull.isaatc.util.*;
  * finishes, the <code>signalSemaphore()</code> method must be invoked.  
  * @author Iván Castilla Rodríguez
  */
-public class ActivityManager extends SimulationObject implements RecoverableState<ActivityManagerState> {
+public class ActivityManager extends SimulationObject {
     /** Static counter for assigning each new id */
 	private static int nextid = 0;
 	/** A prioritized table of activities */
@@ -99,7 +95,8 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
             act.print(Output.MessageType.DEBUG, "Testing pool activity (availableResource)");
             SingleFlow sf = act.hasPendingElements();
             if (sf != null) {
-                if (act.isFeasible(sf)) {
+            	WorkGroup wg = act.isFeasible(sf); 
+                if (wg != null) {
                 	act.queueRemove(sf); 
                     Element e = sf.getElement();
 
@@ -110,7 +107,7 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
                     // MOD 26/01/06 Movida esta línea antes del e.sig...
                     // MOD 23/05/06 Vuelta a poner aquí: ¿POR QUÉ LA MOVI?
                     e.signalSemaphore();
-                    e.carryOutActivity(sf);
+                    e.carryOutActivity(sf, wg);
                 }
                 else
                     sf.getElement().signalSemaphore();
@@ -143,39 +140,6 @@ public class ActivityManager extends SimulationObject implements RecoverableStat
         for (ResourceType rt : resourceTypeList)
             str.append("\t\"" + rt + "\"");
         return str.toString();
-	}
-
-	/**
-	 * Returns the state of this activity manager. The state of an activity manager consists on
-	 * the state of its activities and resource types.
-	 * @return This activity manager's state
-	 */
-	public ActivityManagerState getState() {
-		ActivityManagerState amState = new ActivityManagerState(id);
-        Iterator<Activity> iter = activityTable.iterator(NonRemovablePrioritizedTable.IteratorType.FIFO);
-        while (iter.hasNext())
-        	amState.add(iter.next().getState());
-        for (ResourceType rt : resourceTypeList)
-        	amState.add(rt.getState());
-		return amState;
-	}
-
-	/**
-	 * Sets the state of this activity manager. The state of an activity manager consists on
-	 * the state of its activities and resource types.
-	 * @param state Activity manager's state. 
-	 */
-	public void setState(ActivityManagerState state) {
-		for (ActivityState aState : state.getAStates()) {
-			Activity act = simul.getActivity(aState.getActId());
-			act.setManager(this);
-			act.setState(aState);			
-		}
-		for (ResourceTypeState rtState : state.getRtStates()) {
-			ResourceType rt = simul.getResourceType(rtState.getRtId());
-			rt.setManager(this);
-			rt.setState(rtState);
-		}
 	}
 
 }

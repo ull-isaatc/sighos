@@ -8,6 +8,9 @@ package es.ull.isaatc.simulation;
 
 import java.util.*;
 
+import mjr.heap.Heapable;
+
+import es.ull.isaatc.random.Fixed;
 import es.ull.isaatc.simulation.info.SimulationListener;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
@@ -31,46 +34,33 @@ public abstract class Simulation implements Printable,
 	RecoverableState<SimulationState> {
     /** A short text describing this simulation. */
     String description;
-
     /** List of resources present in the simulation. */
     protected OrderedList<Resource> resourceList;
-
     /** List of element generators of the simulation. */
     protected ArrayList<Generator> generatorList;
-
     /** List of activities present in the simulation. */
     protected OrderedList<Activity> activityList;
-
     /** List of resource types present in the simulation. */
     protected OrderedList<ResourceType> resourceTypeList;
-
     /** List of resource types present in the simulation. */
     protected OrderedList<ElementType> elementTypeList;
-
     /** List of activity managers that partition the simulation. */
     protected ArrayList<ActivityManager> activityManagerList;
-
     /** Logical Process list */
     protected LogicalProcess[] logicalProcessList;
-
     /** Timestamp of simulation's start */
     protected double startTs;
-
     /** Timestamp of Simulation's end */
     protected double endTs;
-
     /** Output for printing messages */
     protected Output out;
-
     /** End-of-simulation control */
     private Lock simLock;
-
     /** List of info listeners */
     private ArrayList<SimulationListener> listeners;
-
     /** List of active elements */
     private OrderedList<Element> activeElementList;
-
+    
     /** 
      * Creates a new instance of Simulation 
      * @param description A short text describing this simulation.
@@ -78,23 +68,22 @@ public abstract class Simulation implements Printable,
      * @param endTs Timestamp of Simulation's end.
      * @param out Output for printing debug messages.
      */
-    public Simulation(String description, double startTs, double endTs,
-	    Output out) {
-	activityList = new OrderedList<Activity>();
-	resourceTypeList = new OrderedList<ResourceType>();
-	elementTypeList = new OrderedList<ElementType>();
-	activityManagerList = new ArrayList<ActivityManager>();
-	resourceList = new OrderedList<Resource>();
-	generatorList = new ArrayList<Generator>();
-
-	this.description = description;
-	this.startTs = startTs;
-	this.endTs = endTs;
-	this.out = out;
-	simLock = new Lock();
-	// MOD 29/06/06
-	listeners = new ArrayList<SimulationListener>();
-	activeElementList = new OrderedList<Element>();
+    public Simulation(String description, double startTs, double endTs, Output out) {
+		activityList = new OrderedList<Activity>();
+		resourceTypeList = new OrderedList<ResourceType>();
+		elementTypeList = new OrderedList<ElementType>();
+		activityManagerList = new ArrayList<ActivityManager>();
+		resourceList = new OrderedList<Resource>();
+		generatorList = new ArrayList<Generator>();
+	
+		this.description = description;
+		this.startTs = startTs;
+		this.endTs = endTs;
+		this.out = out;
+		simLock = new Lock();
+		// MOD 29/06/06
+		listeners = new ArrayList<SimulationListener>();
+		activeElementList = new OrderedList<Element>();
     }
 
     /** 
@@ -104,7 +93,7 @@ public abstract class Simulation implements Printable,
      * @param endTs Timestamp of Simulation's end.
      */
     public Simulation(String description, double startTs, double endTs) {
-	this(description, startTs, endTs, new Output());
+    	this(description, startTs, endTs, new Output());
     }
 
     /**
@@ -114,27 +103,25 @@ public abstract class Simulation implements Printable,
      * going to be used. 
      */
     protected void init(SimulationState state) {
-	createModel();
-	print(Output.MessageType.DEBUG, "SIMULATION MODEL CREATED");
-	if (state == null) {
+		createModel();
+		print(Output.MessageType.DEBUG, "SIMULATION MODEL CREATED");
 	    createActivityManagers();
 	    createSimulation();
-	} else {
-	    setState(state);
-	    // Elements from a previous simulation don't need to be started, but they need a default LP
-	    for (Element elem : activeElementList)
-		if (elem.getDefLP() == null)
-		    elem.setDefLP(getDefaultLogicalProcess());
-	}
-	notifyListeners(new SimulationStartInfo(this, System
-		.currentTimeMillis(), Generator.getElemCounter()));
-	// FIXME: Debería hacer un reparto más inteligente tanto de generadores como de recursos
-	// Starts all the generators
-	for (Generator gen : generatorList)
-	    gen.start(getDefaultLogicalProcess());
-	// Starts all the resources
-	for (Resource res : resourceList)
-	    res.start(getDefaultLogicalProcess());
+		if (state != null) {
+		    setState(state);
+		    // Elements from a previous simulation don't need to be started, but they need a default LP
+		    for (Element elem : activeElementList)
+		    	if (elem.getDefLP() == null)
+		    		elem.setDefLP(getDefaultLogicalProcess());
+		}
+		notifyListeners(new SimulationStartInfo(this, System.currentTimeMillis(), Generator.getElemCounter()));
+		// FIXME: Debería hacer un reparto más inteligente tanto de generadores como de recursos
+		// Starts all the generators
+		for (Generator gen : generatorList)
+		    gen.start(getDefaultLogicalProcess());
+		// Starts all the resources
+		for (Resource res : resourceList)
+		    res.start(getDefaultLogicalProcess());
     }
 
     /**
@@ -142,7 +129,7 @@ public abstract class Simulation implements Printable,
      * @param listener A simulation's listener
      */
     public void addListener(SimulationListener listener) {
-	listeners.add(listener);
+    	listeners.add(listener);
     }
 
     /**
@@ -150,8 +137,8 @@ public abstract class Simulation implements Printable,
      * @param info An event that contains simulation information.
      */
     public synchronized void notifyListeners(SimulationObjectInfo info) {
-	for (SimulationListener il : listeners)
-	    il.infoEmited(info);
+    	for (SimulationListener il : listeners)
+    		il.infoEmited(info);
     }
 
     /**
@@ -159,8 +146,8 @@ public abstract class Simulation implements Printable,
      * @param info An event that contains simulation information.
      */
     public synchronized void notifyListeners(SimulationStartInfo info) {
-	for (SimulationListener il : listeners)
-	    il.infoEmited(info);
+    	for (SimulationListener il : listeners)
+    		il.infoEmited(info);
     }
 
     /**
@@ -168,8 +155,8 @@ public abstract class Simulation implements Printable,
      * @param info An event that contains simulation information.
      */
     public synchronized void notifyListeners(SimulationEndInfo info) {
-	for (SimulationListener il : listeners)
-	    il.infoEmited(info);
+    	for (SimulationListener il : listeners)
+    		il.infoEmited(info);
     }
 
     /**
@@ -177,8 +164,8 @@ public abstract class Simulation implements Printable,
      * @param info An event that contains simulation information.
      */
     public synchronized void notifyListeners(TimeChangeInfo info) {
-	for (SimulationListener il : listeners)
-	    il.infoEmited(info);
+    	for (SimulationListener il : listeners)
+    		il.infoEmited(info);
     }
 
     /**
@@ -201,15 +188,15 @@ public abstract class Simulation implements Printable,
      * @param marks Mark array that's used for determining the partition of each node.
      */
     private void dfs(HashSet<Integer>[] graph, int current, int[] marks) {
-	for (Integer i : graph[current]) {
-	    if (marks[i.intValue()] == -1) {
-		marks[i.intValue()] = marks[current];
-		// Para acelerar un poco el algoritmo se elimina la arista simétrica
-		// FIXME ¿Se podría eliminar tb la propia arista?
-		graph[i.intValue()].remove(new Integer(current));
-		dfs(graph, i.intValue(), marks);
-	    }
-	}
+    	for (Integer i : graph[current]) {
+    		if (marks[i.intValue()] == -1) {
+    			marks[i.intValue()] = marks[current];
+				// Para acelerar un poco el algoritmo se elimina la arista simétrica
+				// FIXME ¿Se podría eliminar tb la propia arista?
+				graph[i.intValue()].remove(new Integer(current));
+				dfs(graph, i.intValue(), marks);
+		    }
+		}
     }
 
     /**
@@ -220,33 +207,32 @@ public abstract class Simulation implements Printable,
      * @return The constructed graph.
      */
     private HashSet<Integer>[] createGraph() {
-	int ind1 = -1, ind2 = -1;
-	HashSet<Integer>[] graph = new HashSet[resourceTypeList.size()];
-
-	for (int i = 0; i < resourceTypeList.size(); i++)
-	    graph[i] = new HashSet<Integer>();
-	for (Activity a : activityList) {
-	    Iterator<WorkGroup> iter = a.iterator();
-	    // Looks for the first RTT that contains at least one resource type        	
-	    int firstWG = 1;
-	    while (iter.hasNext()) {
-		WorkGroup wg = iter.next();
-		if (wg.size() > 0) {
-		    if (firstWG == 1)
-			ind1 = resourceTypeList.indexOf(wg.getResourceType(0));
-		    for (; firstWG < wg.size(); firstWG++) {
-			ind2 = resourceTypeList.indexOf(wg
-				.getResourceType(firstWG));
-			graph[ind1].add(new Integer(ind2));
-			graph[ind2].add(new Integer(ind1));
-			ind1 = ind2;
+		int ind1 = -1, ind2 = -1;
+		HashSet<Integer>[] graph = new HashSet[resourceTypeList.size()];
+	
+		for (int i = 0; i < resourceTypeList.size(); i++)
+		    graph[i] = new HashSet<Integer>();
+		for (Activity a : activityList) {
+		    Iterator<WorkGroup> iter = a.iterator();
+		    // Looks for the first RTT that contains at least one resource type        	
+		    int firstWG = 1;
+		    while (iter.hasNext()) {
+				WorkGroup wg = iter.next();
+				if (wg.size() > 0) {
+				    if (firstWG == 1)
+				    	ind1 = resourceTypeList.indexOf(wg.getResourceType(0));
+				    for (; firstWG < wg.size(); firstWG++) {
+				    	ind2 = resourceTypeList.indexOf(wg.getResourceType(firstWG));
+				    	graph[ind1].add(new Integer(ind2));
+				    	graph[ind2].add(new Integer(ind1));
+				    	ind1 = ind2;
+				    }
+				    firstWG = 0;
+				}
 		    }
-		    firstWG = 0;
 		}
-	    }
-	}
-	debugPrintGraph(graph);
-	return graph;
+		debugPrintGraph(graph);
+		return graph;
     }
 
     /**
@@ -256,58 +242,56 @@ public abstract class Simulation implements Printable,
      * resource types represented by the connected vertex.
      */
     private void createActivityManagers() {
-	// The graph is an array consisting on sets of resource types
-	HashSet<Integer>[] graph = createGraph();
-	int[] marks = new int[resourceTypeList.size()];
-	for (int i = 0; i < resourceTypeList.size(); i++)
-	    marks[i] = -1; // Not-visited mark
-
-	// Now the DFS
-	int nManagers = 0; // This counter lets us mark each partition
-	for (int i = 0; i < resourceTypeList.size(); i++)
-	    if (marks[i] == -1) {
-		marks[i] = nManagers;
-		dfs(graph, i, marks);
-		nManagers++;
-	    }
-	// The activity managers are created
-	for (int i = 0; i < nManagers; i++)
-	    new ActivityManager(this);
-	// The activities are associated to the activity managers
-	for (Activity a : activityList) {
-	    Iterator<WorkGroup> iter = a.iterator();
-	    // This step is for non-resource-types activities
-	    boolean found = false;
-	    while (iter.hasNext() && !found) {
-		WorkGroup wg = iter.next();
-		if (wg.size() > 0) {
-		    int ind = resourceTypeList.indexOf(wg.getResourceType(0));
-		    a.setManager(activityManagerList.get(marks[ind]));
-		    found = true;
+		// The graph is an array consisting on sets of resource types
+		HashSet<Integer>[] graph = createGraph();
+		int[] marks = new int[resourceTypeList.size()];
+		for (int i = 0; i < resourceTypeList.size(); i++)
+		    marks[i] = -1; // Not-visited mark
+	
+		// Now the DFS
+		int nManagers = 0; // This counter lets us mark each partition
+		for (int i = 0; i < resourceTypeList.size(); i++)
+		    if (marks[i] == -1) {
+				marks[i] = nManagers;
+				dfs(graph, i, marks);
+				nManagers++;
+		    }
+		// The activity managers are created
+		for (int i = 0; i < nManagers; i++)
+		    new ActivityManager(this);
+		// The activities are associated to the activity managers
+		for (Activity a : activityList) {
+		    Iterator<WorkGroup> iter = a.iterator();
+		    // This step is for non-resource-types activities
+		    boolean found = false;
+		    while (iter.hasNext() && !found) {
+				WorkGroup wg = iter.next();
+				if (wg.size() > 0) {
+				    int ind = resourceTypeList.indexOf(wg.getResourceType(0));
+				    a.setManager(activityManagerList.get(marks[ind]));
+				    found = true;
+				}
+		    }
+		    if (!found) {
+				nManagers++;
+				a.setManager(new ActivityManager(this));
+		    }
 		}
-	    }
-	    if (!found) {
-		nManagers++;
-		a.setManager(new ActivityManager(this));
-	    }
-	}
-	for (int i = 0; i < resourceTypeList.size(); i++)
-	    resourceTypeList.get(i).setManager(
-		    activityManagerList.get(marks[i]));
-
-	debugPrintActManager();
+		for (int i = 0; i < resourceTypeList.size(); i++)
+		    resourceTypeList.get(i).setManager(activityManagerList.get(marks[i]));
+	
+		debugPrintActManager();
     }
 
     /**
      * Creates the logical process needed for carrying out a simulation.
      */
     private void createLogicalProcesses() {
-	logicalProcessList = new LogicalProcess[activityManagerList.size() + 1];
-	for (int i = 0; i < activityManagerList.size(); i++)
-	    logicalProcessList[i] = new LogicalProcess(this, startTs, endTs);
-	// Creo el último proceso lógico, que servirá de "cajón de sastre"
-	logicalProcessList[activityManagerList.size()] = new LogicalProcess(
-		this, startTs, endTs);
+		logicalProcessList = new LogicalProcess[activityManagerList.size() + 1];
+		for (int i = 0; i < activityManagerList.size(); i++)
+		    logicalProcessList[i] = new LogicalProcess(this, startTs, endTs);
+		// Creo el último proceso lógico, que servirá de "cajón de sastre"
+		logicalProcessList[activityManagerList.size()] = new LogicalProcess(this, startTs, endTs);
     }
 
     /**
@@ -315,14 +299,14 @@ public abstract class Simulation implements Printable,
      * the logical processes. The activity managers are also linked to the logical processes.
      */
     private void createSimulation() {
-	//createLogicalProcesses();
-	// FIXME De momento sólo voy a utilizar un PL
-	logicalProcessList = new LogicalProcess[1];
-	logicalProcessList[0] = new LogicalProcess(this, startTs, endTs);
-	for (ActivityManager am : activityManagerList) {
-	    // FIXME
-	    am.setLp(logicalProcessList[0]);
-	}
+		//createLogicalProcesses();
+		// FIXME De momento sólo voy a utilizar un PL
+		logicalProcessList = new LogicalProcess[1];
+		logicalProcessList[0] = new LogicalProcess(this, startTs, endTs);
+		for (ActivityManager am : activityManagerList) {
+		    // FIXME
+		    am.setLp(logicalProcessList[0]);
+		}
     }
 
     /**
@@ -332,12 +316,11 @@ public abstract class Simulation implements Printable,
      * @param state A previously stored state of the simulation. 
      */
     public void start(SimulationState state) {
-	init(state);
-	for (int i = 0; i < logicalProcessList.length; i++)
-	    logicalProcessList[i].start();
-	waitEnd();
-	notifyListeners(new SimulationEndInfo(this, System.currentTimeMillis(),
-		Generator.getElemCounter()));
+		init(state);
+		for (int i = 0; i < logicalProcessList.length; i++)
+		    logicalProcessList[i].start();
+		waitEnd();
+		notifyListeners(new SimulationEndInfo(this, System.currentTimeMillis(),	Generator.getElemCounter()));
     }
 
     /**
@@ -347,7 +330,7 @@ public abstract class Simulation implements Printable,
      * This method is invoked when there isn't a previous state to restore.
      */
     public void start() {
-	start(null);
+    	start(null);
     }
 
     /**
@@ -359,17 +342,16 @@ public abstract class Simulation implements Printable,
      * an object with the same description in the list.
      */
     protected boolean add(DescSimulationObject obj) {
-	boolean resul = false;
-	if (obj instanceof ResourceType)
-	    resul = resourceTypeList.add((ResourceType) obj);
-	else if (obj instanceof Activity)
-	    resul = activityList.add((Activity) obj);
-	else if (obj instanceof ElementType)
-	    resul = elementTypeList.add((ElementType) obj);
-	else
-	    print(Output.MessageType.ERROR,
-		    "Trying to add an unidentified object to the Model");
-	return resul;
+		boolean resul = false;
+		if (obj instanceof ResourceType)
+		    resul = resourceTypeList.add((ResourceType) obj);
+		else if (obj instanceof Activity)
+		    resul = activityList.add((Activity) obj);
+		else if (obj instanceof ElementType)
+		    resul = elementTypeList.add((ElementType) obj);
+		else
+		    print(Output.MessageType.ERROR, "Trying to add an unidentified object to the Model");
+		return resul;
     }
 
     /**
@@ -378,7 +360,7 @@ public abstract class Simulation implements Printable,
      * @param am Activity manager.
      */
     protected void add(ActivityManager am) {
-	activityManagerList.add(am);
+    	activityManagerList.add(am);
     }
 
     /**
@@ -387,7 +369,7 @@ public abstract class Simulation implements Printable,
      * @param gen Generator.
      */
     protected void add(Generator gen) {
-	generatorList.add(gen);
+    	generatorList.add(gen);
     }
 
     /**
@@ -396,7 +378,7 @@ public abstract class Simulation implements Printable,
      * @param res Resource.
      */
     protected void add(Resource res) {
-	resourceList.add(res);
+    	resourceList.add(res);
     }
 
     /**
@@ -404,7 +386,7 @@ public abstract class Simulation implements Printable,
      * @return Resources of the model.
      */
     public OrderedList<Resource> getResourceList() {
-	return resourceList;
+    	return resourceList;
     }
 
     /**
@@ -412,7 +394,7 @@ public abstract class Simulation implements Printable,
      * @return Activities of the model.
      */
     public OrderedList<Activity> getActivityList() {
-	return activityList;
+    	return activityList;
     }
 
     /**
@@ -421,7 +403,7 @@ public abstract class Simulation implements Printable,
      * @return An activity with the indicated identifier.
      */
     public Activity getActivity(int id) {
-	return activityList.get(new Integer(id));
+    	return activityList.get(new Integer(id));
     }
 
     /**
@@ -429,7 +411,7 @@ public abstract class Simulation implements Printable,
      * @return Resource types of the model.
      */
     public OrderedList<ResourceType> getResourceTypeList() {
-	return resourceTypeList;
+    	return resourceTypeList;
     }
 
     /**
@@ -438,7 +420,7 @@ public abstract class Simulation implements Printable,
      * @return A resource type with the indicated identifier.
      */
     public ResourceType getResourceType(int id) {
-	return resourceTypeList.get(new Integer(id));
+    	return resourceTypeList.get(new Integer(id));
     }
 
     /**
@@ -447,7 +429,7 @@ public abstract class Simulation implements Printable,
      * @return An element type with the indicated identifier.
      */
     public ElementType getElementType(int id) {
-	return elementTypeList.get(new Integer(id));
+    	return elementTypeList.get(new Integer(id));
     }
 
     /**
@@ -455,7 +437,7 @@ public abstract class Simulation implements Printable,
      * @return element types of the model.
      */
     public OrderedList<ElementType> getElementTypeList() {
-	return elementTypeList;
+    	return elementTypeList;
     }
 
     /**
@@ -463,7 +445,7 @@ public abstract class Simulation implements Printable,
      * @return Work activity managers of the model.
      */
     public ArrayList<ActivityManager> getActivityManagerList() {
-	return activityManagerList;
+    	return activityManagerList;
     }
 
     /**
@@ -472,7 +454,7 @@ public abstract class Simulation implements Printable,
      * @return The logical process at the specified position.
      */
     public LogicalProcess getLogicalProcess(int ind) {
-	return logicalProcessList[ind];
+    	return logicalProcessList[ind];
     }
 
     /**
@@ -480,7 +462,7 @@ public abstract class Simulation implements Printable,
      * @return The size of the LPs list.
      */
     public int getLPSize() {
-	return logicalProcessList.length;
+    	return logicalProcessList.length;
     }
 
     /**
@@ -490,7 +472,7 @@ public abstract class Simulation implements Printable,
      * @return This simulation's default logical process.
      */
     public LogicalProcess getDefaultLogicalProcess() {
-	return logicalProcessList[logicalProcessList.length - 1];
+    	return logicalProcessList[logicalProcessList.length - 1];
     }
 
     /**
@@ -498,7 +480,7 @@ public abstract class Simulation implements Printable,
      * @param elem An element that starts its execution.
      */
     public synchronized void addActiveElement(Element elem) {
-	activeElementList.add(elem);
+    	activeElementList.add(elem);
     }
 
     /**
@@ -506,7 +488,7 @@ public abstract class Simulation implements Printable,
      * @param elem An element that finishes its execution.
      */
     public synchronized void removeActiveElement(Element elem) {
-	activeElementList.remove(elem);
+    	activeElementList.remove(elem);
     }
 
     /**
@@ -515,7 +497,7 @@ public abstract class Simulation implements Printable,
      * @return The element with the specified identifier.
      */
     public Element getActiveElement(int id) {
-	return activeElementList.get(new Integer(id));
+    	return activeElementList.get(new Integer(id));
     }
 
     /**
@@ -523,7 +505,7 @@ public abstract class Simulation implements Printable,
      * @return Value of property endTs.
      */
     public double getEndTs() {
-	return endTs;
+    	return endTs;
     }
 
     /**
@@ -531,32 +513,32 @@ public abstract class Simulation implements Printable,
      * @return Returns the startTs.
      */
     public double getStartTs() {
-	return startTs;
+    	return startTs;
     }
 
     /** 
      * Waits for the end of the simulation process.
      */
     protected void waitEnd() {
-	try {
-	    for (int i = 0; i < logicalProcessList.length; i++)
-		simLock.lock();
-	} catch (InterruptedException e) {
-	    e.printStackTrace();
-	}
-	print(Output.MessageType.DEBUG, "SIMULATION COMPLETELY FINISHED");
+		try {
+		    for (int i = 0; i < logicalProcessList.length; i++)
+			simLock.lock();
+		} catch (InterruptedException e) {
+		    e.printStackTrace();
+		}
+		print(Output.MessageType.DEBUG, "SIMULATION COMPLETELY FINISHED");
     }
 
     /** 
      * Notifies the end of a logical process. 
      */
     protected void notifyEnd() {
-	simLock.unlock();
+    	simLock.unlock();
     }
 
     @Override
     public String toString() {
-	return description;
+    	return description;
     }
 
     /**
@@ -565,9 +547,8 @@ public abstract class Simulation implements Printable,
      * @param shortDescription A short message
      * @param longDescription An extended message
      */
-    public void print(Output.MessageType type, String shortDescription,
-	    String longDescription) {
-	out.print(type, shortDescription, longDescription);
+    public void print(Output.MessageType type, String shortDescription, String longDescription) {
+    	out.print(type, shortDescription, longDescription);
     }
 
     /**
@@ -576,7 +557,7 @@ public abstract class Simulation implements Printable,
      * @param Description The content of the message
      */
     public void print(Output.MessageType type, String description) {
-	out.print(type, description);
+    	out.print(type, description);
     }
 
     /**
@@ -585,15 +566,30 @@ public abstract class Simulation implements Printable,
      * @return The state of this simulation.
      */
     public SimulationState getState() {
-	SimulationState simState = new SimulationState(Generator
-		.getElemCounter(), SingleFlow.getCounter(), endTs);
-	for (LogicalProcess lp : logicalProcessList)
-	    simState.add(lp.getState());
-	for (Element elem : activeElementList)
-	    simState.add(elem.getState());
-	for (Resource res : resourceList)
-	    simState.add(res.getState());
-	return simState;
+    	SimulationState simState = new SimulationState(Generator.getElemCounter(), SingleFlow.getCounter(), endTs);
+    	for (LogicalProcess lp : logicalProcessList) {
+    		Iterator<Heapable> it = lp.waitQueue.iterator();
+    		while(it.hasNext()) {
+    			BasicElement.DiscreteEvent ev = (BasicElement.DiscreteEvent)it.next();
+    			if (ev instanceof Element.FinalizeActivityEvent) {
+    				Element.FinalizeActivityEvent fev = (Element.FinalizeActivityEvent)ev;
+    				simState.add(SimulationState.EventType.FINALIZEACT, fev.getElement().getIdentifier(), fev.getTs(), fev.getFlow().getIdentifier());
+    			}
+    			else if (ev instanceof Resource.RoleOffEvent) {
+    				Resource.RoleOffEvent rev = (Resource.RoleOffEvent)ev;
+    				simState.add(SimulationState.EventType.ROLOFF, rev.getElement().getIdentifier(), rev.getTs(), rev.getRole().getIdentifier());
+    			}				
+    		}			
+    	}
+        for (Activity act : activityList)
+        	simState.add(act.getState());
+        for (ResourceType rt : resourceTypeList)
+        	simState.add(rt.getState());	
+		for (Element elem : activeElementList)
+		    simState.add(elem.getState());
+		for (Resource res : resourceList)
+		    simState.add(res.getState());
+		return simState;
     }
 
     /**
@@ -602,29 +598,55 @@ public abstract class Simulation implements Printable,
      * @param state Previous simulation data
      */
     public void setState(SimulationState state) {
-	// FIXME: ¿Debería hacer startTs = state.getEndTs()?
-	// Elements. 
-	for (ElementState eState : state.getElemStates()) {
-	    Element elem = new Element(eState.getElemId(), this,
-		    elementTypeList.get(new Integer(eState.getElemTypeId())));
-	    elem.setState(eState);
-	    activeElementList.add(elem);
-	}
-	// Single flow's counter. This value is established here because the element's state set 
-	// modifies its value. 
-	SingleFlow.setCounter(state.getLastSFId());
-	// Resources
-	for (ResourceState rState : state.getResStates())
-	    resourceList.get(new Integer(rState.getResId())).setState(rState);
-	// Rest of components
-	ArrayList<LogicalProcessState> lpStates = state.getLpStates();
-	logicalProcessList = new LogicalProcess[lpStates.size()];
-	for (int i = 0; i < lpStates.size(); i++) {
-	    logicalProcessList[i] = new LogicalProcess(this, startTs, endTs);
-	    logicalProcessList[i].setState(lpStates.get(i));
-	}
-	// Element's counter of the generators
-	Generator.setElemCounter(state.getLastElemId());
+		// FIXME: ¿Debería hacer startTs = state.getEndTs()?
+		// Elements. 
+		for (ElementState eState : state.getElemStates()) {
+		    Element elem = new Element(eState.getElemId(), this,
+			    elementTypeList.get(new Integer(eState.getElemTypeId())));
+		    elem.setState(eState);
+		    activeElementList.add(elem);
+		}
+		// Single flow's counter. This value is established here because the element's state set 
+		// modifies its value. 
+		SingleFlow.setCounter(state.getLastSFId());
+		// Resources
+		for (ResourceState rState : state.getResStates())
+		    resourceList.get(new Integer(rState.getResId())).setState(rState);
+
+		// Activities	
+		for (ActivityState aState : state.getAStates()) {
+			Activity act = getActivity(aState.getActId());
+			act.setState(aState);			
+		}
+		
+		// Resource Types
+		for (ResourceTypeState rtState : state.getRtStates()) {
+			ResourceType rt = getResourceType(rtState.getRtId());
+			rt.setState(rtState);
+		}
+		
+		// Creates a null cycle to non-iterative cycles
+		Cycle c = new Cycle(0.0, new Fixed(1), -1.0);
+		// Events
+		for (SimulationState.EventEntry entry : state.getWaitQueue()) {
+			if (entry.getType() == SimulationState.EventType.FINALIZEACT) {
+				Element elem = getActiveElement(entry.getId());
+				// The element has not been started yet, so it hasn't got a default logical process...
+				elem.setDefLP(getDefaultLogicalProcess());
+				// ... however, the event starts immediately
+				elem.addEvent(elem.new FinalizeActivityEvent(entry.getTs(), elem.searchSingleFlow(entry.getValue())));
+			}
+			else if (entry.getType() == SimulationState.EventType.ROLOFF) {
+				Resource res = resourceList.get(new Integer(entry.getId()));				
+				// The resource has not been started yet, so it hasn't got a default logical process
+				res.setDefLP(getDefaultLogicalProcess());
+				// ... however, the event starts immediately
+				res.addEvent(res.new RoleOffEvent(entry.getTs(), getResourceType(entry.getValue()), c.iterator(0.0, 0.0), 0.0));
+			}
+		}
+	
+		// Element's counter of the generators
+		Generator.setElemCounter(state.getLastElemId());
     }
 
     /**

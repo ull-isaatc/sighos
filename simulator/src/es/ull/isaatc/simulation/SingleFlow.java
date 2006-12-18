@@ -29,9 +29,8 @@ public class SingleFlow extends Flow implements Orderable, Prioritizable {
     protected Activity act;
     /** Indicates if the activity has been already executed */
     protected boolean finished = false;
-    /** Workgroup that is currently being used. A null value indicates that this 
-    element is not currently performing any activity. */
-   protected WorkGroup currentWG = null;
+    /** Indicates if the activity is being currently executed */
+    protected boolean executing = false;
     /** List of caught resources */
     protected ArrayList<Resource> caughtResources;
     // Avoiding deadlocks (time-overlapped resources)
@@ -111,7 +110,7 @@ public class SingleFlow extends Flow implements Orderable, Prioritizable {
      * array [0, 1] if the activity is not presential.
      * @return The amount of activities this flow contains.
      */    
-    protected int[] countActivities() {
+    public int[] countActivities() {
         int [] cont = new int[2];
         if (act.isPresential())
             cont[0]++;
@@ -157,23 +156,23 @@ public class SingleFlow extends Flow implements Orderable, Prioritizable {
 	}
 	
     /**
-     * If the element is currently performing this activity, returns the workgroup that the 
-     * element is using. If the element is not performing this activity, returns null.
-     * @return The current workgroup used by this element.
-     */
-    protected WorkGroup getCurrentWG() {
-        return currentWG;
-    }
-    
-    /**
-     * Sets the current workgroup used by this single flow to carry out an activity.
-     * @param currentWG The workgroup that the single flow is going to use. A null value indicates
-     * that the element is not performing this activity.
-     */
-    protected void setCurrentWG(WorkGroup currentWG) {
-        this.currentWG = currentWG;
-    }
-    
+     * If the element is currently performing an activity returns true. Returns false in 
+     * other case.
+	 * @return Returns true if this single flow is being currently executing.
+	 */
+	public boolean isExecuting() {
+		return executing;
+	}
+
+	/**
+	 * Establish if an element is currently performing the activity of this single flow.
+	 * @param executing True if an element is currently performing the activity of this single flow.
+	 * False if not.
+	 */
+	public void setExecuting(boolean executing) {
+		this.executing = executing;
+	}
+
     /**
      * Returns the list of the elements currently used by the element. 
 	 * @return Returns the list of resources caught by this element.
@@ -287,13 +286,9 @@ public class SingleFlow extends Flow implements Orderable, Prioritizable {
 	 */
 	public FlowState getState() {
 		SingleFlowState state = null;
-		if (currentWG == null)
-			state = new SingleFlowState(id, act.getIdentifier(), finished);
-		else {
-			state = new SingleFlowState(id, act.getIdentifier(), finished, currentWG.getIdentifier());
-			for(Resource r : caughtResources)
-				state.add(r.getIdentifier());
-		}		 
+		state = new SingleFlowState(id, act.getIdentifier(), finished, executing);
+		for(Resource r : caughtResources)
+			state.add(r.getIdentifier());
 		return state;
 	}
 
@@ -308,8 +303,7 @@ public class SingleFlow extends Flow implements Orderable, Prioritizable {
 		SingleFlowState sfState = (SingleFlowState)state;
 		finished = sfState.isFinished();
 		id = sfState.getFlowId();
-		if (sfState.getCurrentWGId() != -1) {
-			currentWG = act.getWorkGroup(sfState.getCurrentWGId());
+		if (sfState.isExecuting()) {
 			for (Integer rId : sfState.getCaughtResources())
 				caughtResources.add(act.getSimul().getResourceList().get(rId));
 		}		

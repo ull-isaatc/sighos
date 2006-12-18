@@ -34,8 +34,15 @@ public class StatisticListener implements SimulationListener {
 	protected int firstElementId;
 	protected int lastElementId;
 	
+	/**
+	 * Creates a listener which generates several statistics.
+	 * @param period 
+	 */
 	public StatisticListener(double period) {
 		this.period = period;
+	}
+	
+	public StatisticListener() {
 	}
 	
 	/**
