@@ -139,6 +139,11 @@ public abstract class PrioritizedTable<T extends Prioritizable> {
         	return obj;
         }
         
+        /**
+         * Removes the object obj from the level
+         * @param obj Object to be removed
+         * @return True if the object exists in the level; false in other case.
+         */
         public boolean remove(T obj) {
         	int ind = super.indexOf(obj);
         	if (ind == -1)

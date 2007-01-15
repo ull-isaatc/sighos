@@ -76,7 +76,7 @@ class Analisis extends Simulation {
 //        poli.addTimeTableEntry(c1, 480, list);
         // Y añado los Enfermeros necesarios para que vaya "sobrado" el asunto
         
-        Cycle c = new Cycle(480, new Fixed(1440.0), 0);
+        Cycle c = new PeriodicCycle(480, new Fixed(1440.0), 0);
 		new Resource(1, this, "Enfermero 1").addTimeTableEntry(c, 480, getResourceType(2));
 //		new Resource(2, this, "Enfermero 2").addTimeTableEntry(c, 480, getResourceType(2));
 		createMetaFlow3();
@@ -94,8 +94,8 @@ class Analisis extends Simulation {
         SimultaneousMetaFlow simSangre = new SimultaneousMetaFlow(9, secSangre, new Fixed(1));
         new SingleMetaFlow(10, simSangre, new Fixed(1), getActivity(3));
         new SingleMetaFlow(11, simSangre, new Fixed(1), getActivity(5));
-        Cycle c = new Cycle(0.0, new Fixed(1440.0), ndays);
-        new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), getElementType(0), sec);
+        Cycle c = new PeriodicCycle(0.0, new Fixed(1440.0), ndays);
+        new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NPACIENTES), getElementType(0), sec), c.iterator(startTs, endTs));
     }
     
     protected void createMetaFlow1() {
@@ -108,8 +108,8 @@ class Analisis extends Simulation {
         SimultaneousMetaFlow simSangre = new SimultaneousMetaFlow(18, op2, new Fixed(1));
         new SingleMetaFlow(19, simSangre, new Fixed(1), getActivity(3));
         new SingleMetaFlow(20, simSangre, new Fixed(1), getActivity(5));
-        Cycle c = new Cycle(0.0, new Fixed(1440.0), ndays);
-        new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), getElementType(0), simPruebas);
+        Cycle c = new PeriodicCycle(0.0, new Fixed(1440.0), ndays);
+        new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NPACIENTES), getElementType(0), simPruebas), c.iterator(startTs, endTs));
     }
     protected void createMetaFlow2() {
         SimultaneousMetaFlow metaFlow = new SimultaneousMetaFlow(21, new Fixed(1));
@@ -120,13 +120,13 @@ class Analisis extends Simulation {
 //        Cycle c2 = new Cycle(0.0, new Fixed(1440.0), 5, c3);
 ////        Cycle c2 = new Cycle(480.0, new Fixed(120.0), 0);
 //        Cycle c = new Cycle(0.0, new Fixed(1440.0 * 7), 0, c2);
-        Cycle c = new Cycle(0.0, new Fixed(1440.0), ndays);
-        new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), getElementType(0), metaFlow);
+        Cycle c = new PeriodicCycle(0.0, new Fixed(1440.0), ndays);
+        new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NPACIENTES), getElementType(0), metaFlow), c.iterator(startTs, endTs));
     }
     
     protected void createMetaFlow3() {
-        Cycle c = new Cycle(0.0, new Fixed(1440.0), 0);
-        new ElementGenerator(this, new Fixed(NPACIENTES), c.iterator(startTs, endTs), getElementType(0), new SingleMetaFlow(23, new Fixed(1), getActivity(0)));
+        Cycle c = new PeriodicCycle(0.0, new Fixed(1440.0), 0);
+        new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NPACIENTES), getElementType(0), new SingleMetaFlow(23, new Fixed(1), getActivity(0))), c.iterator(startTs, endTs));
     }
 
 }

@@ -9,6 +9,7 @@ import es.ull.isaatc.simulation.info.ResourceUsageListener;
 import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
+import es.ull.isaatc.util.PeriodicCycle;
 
 class CarWashSimulation extends Simulation {
 	final static int NRES = 2;
@@ -23,12 +24,12 @@ class CarWashSimulation extends Simulation {
 		WorkGroup wg = new Activity(0, this, "Wash a car").getNewWorkGroup(0, new Fixed(10));
 		wg.add(getResourceType(0), 1);
 		new ElementType(0, this, "Car");
-		Cycle c = new Cycle(0.0, new Fixed(1440.0), 0);
+		Cycle c = new PeriodicCycle(0.0, new Fixed(1440.0), 0);
 		for (int i = 0; i < NRES; i++)
 			new Resource(i, this, "Car washing machine " + i).addTimeTableEntry(c, 200.0, getResourceType(0));
-		Cycle subC = new Cycle(0.0, new Exponential(11.0), 200.0);
-		Cycle c1 = new Cycle(0.0, new Fixed(1440.0), 0, subC);
-		new ElementGenerator(this, new Fixed(1), c1.iterator(startTs, endTs), getElementType(0), new SingleMetaFlow(0, new Fixed(1), getActivity(0)));
+		Cycle subC = new PeriodicCycle(0.0, new Exponential(11.0), 200.0);
+		Cycle c1 = new PeriodicCycle(0.0, new Fixed(1440.0), 0, subC);
+		new TimeDrivenGenerator(this, new ElementCreator(new Fixed(1), getElementType(0), new SingleMetaFlow(0, new Fixed(1), getActivity(0))), c1.iterator(startTs, endTs));
 	}
 }
 

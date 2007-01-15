@@ -53,7 +53,7 @@ class OverlappedSimulation extends Simulation {
 //		al1.add(getResourceType(2));
         for (int i = 0; i < NRESOURCES; i++) {
         	Resource res = new Resource(i, this, "Máquina Análisis Sangre " + i);
-        	res.addTimeTableEntry(new Cycle(480, new Fixed(1440.0), 0), 480, al1);
+        	res.addTimeTableEntry(new PeriodicCycle(480, new Fixed(1440.0), 0), 480, al1);
         }
 //		ArrayList<ResourceType> al2 = new ArrayList<ResourceType>();
 //		al2.add(crOrina);
@@ -65,9 +65,9 @@ class OverlappedSimulation extends Simulation {
 //      new SingleMetaFlow(2, metaFlow, new Fixed(1), getActivity(2));
 //      new SingleMetaFlow(3, metaFlow, new Fixed(1), getActivity(1));
 		SingleMetaFlow metaFlow = new SingleMetaFlow(3, new Fixed(1), getActivity(1));     
-		Cycle c = new Cycle(0.0, new Fixed(1440.0), days);
+		Cycle c = new PeriodicCycle(0.0, new Fixed(1440.0), days);
 		CycleIterator it = c.iterator(startTs, endTs);
-		new ElementGenerator(this, new Fixed(NELEM), it, new ElementType(0, this, "ET0"), metaFlow);
+		new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NELEM), new ElementType(0, this, "ET0"), metaFlow), it);
 	}	
 }
 

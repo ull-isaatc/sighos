@@ -8,6 +8,7 @@ import es.ull.isaatc.simulation.info.StatisticListener;
 import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
+import es.ull.isaatc.util.PeriodicCycle;
 
 class SimSchedula extends Simulation {
 	final static int NRES_ACT[] = {10, 12, 10, 5, 1, 5, 2, 5, 12, 5, 10};
@@ -96,7 +97,7 @@ class SimSchedula extends Simulation {
 		}
 
 		// Resources
-		Cycle c1 = new Cycle(510.0, new Fixed(1440.0), 0);
+		Cycle c1 = new PeriodicCycle(510.0, new Fixed(1440.0), 0);
 		int count = 0;
 		for (int i = 0; i < NRES_ACT.length; i++)
 			for (int j = 0; j < NRES_ACT[i]; j++) 
@@ -127,11 +128,11 @@ class SimSchedula extends Simulation {
 		new SingleMetaFlow(countMeta++, sec[2], new Fixed(1), getActivity(6));
 		
 		Cycle c[] = new Cycle[3];
-		c[0] = new Cycle(750.0, new Fixed(1440.0), 0);
-		c[1] = new Cycle(510.0, new Fixed(1440.0), 0);
-		c[2] = new Cycle(510.0, new Fixed(1440.0), 0);
+		c[0] = new PeriodicCycle(750.0, new Fixed(1440.0), 0);
+		c[1] = new PeriodicCycle(510.0, new Fixed(1440.0), 0);
+		c[2] = new PeriodicCycle(510.0, new Fixed(1440.0), 0);
 		for (int i = 0; i < NELEM.length; i++)
-			new ElementGenerator(this, new Fixed(NELEM[i]), c[i].iterator(startTs, endTs), getElementType(i), sec[i]);
+			new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NELEM[i]), getElementType(i), sec[i]), c[i].iterator(startTs, endTs));
 	}
 	
 }

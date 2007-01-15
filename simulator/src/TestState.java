@@ -5,6 +5,7 @@ import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
+import es.ull.isaatc.util.PeriodicCycle;
 
 /**
  * 
@@ -18,7 +19,7 @@ class StateSimulation extends Simulation {
 	static final int NRES = 2;
 	static final double PERIOD = 100.0;
 	static final double DURRES = 90.0;
-	static final int NELEM = 5;
+	static final int NELEM = 15;
 	int complexityDegree;
 	
 	StateSimulation(String desc, double startTs, double endTs, int complexityDegree) {
@@ -29,7 +30,7 @@ class StateSimulation extends Simulation {
 
 	@Override
 	protected void createModel() {
-		Cycle cPeriod = new Cycle(0.0, new Fixed(PERIOD), 0);
+		Cycle cPeriod = new PeriodicCycle(0.0, new Fixed(PERIOD), 0);
 		switch (complexityDegree) {
 			case 0:				
 				for (int i = 0; i < NSIMPLE; i++)
@@ -40,8 +41,10 @@ class StateSimulation extends Simulation {
 					new ElementType(i, this, "ELEMT" + i);
 				for (int i = 0; i < NSIMPLE; i++)
 					new Resource(i, this, "RES" + i).addTimeTableEntry(cPeriod, DURRES, getResourceType(i));
-				for (int i = 0; i < NSIMPLE; i++)
-					new ElementGenerator(this, new Fixed(NELEM), cPeriod.iterator(startTs, endTs), getElementType(i), new SingleMetaFlow(i, new Fixed(1), getActivity(i)));
+				for (int i = 0; i < NSIMPLE; i++) {
+					ElementCreator ec = new ElementCreator(new Fixed(NELEM), getElementType(i), new SingleMetaFlow(i, new Fixed(1), getActivity(i)));
+					new TimeDrivenGenerator(this, ec, cPeriod.iterator(startTs, endTs));
+				}
 				break;
 			case 1:
 				for (int i = 0; i < NSIMPLE; i++)
@@ -52,9 +55,11 @@ class StateSimulation extends Simulation {
 					new ElementType(i, this, "ELEMT" + i);
 				for (int i = 0; i < NSIMPLE; i++)
 					new Resource(i, this, "RES" + i).addTimeTableEntry(cPeriod, DURRES + 20, getResourceType(i));
-				Cycle c4 = new Cycle(0.0, new Fixed(PERIOD), 0);
-				for (int i = 0; i < NSIMPLE; i++)
-					new ElementGenerator(this, new Fixed(NELEM), c4.iterator(startTs, endTs), getElementType(i), new SingleMetaFlow(i, new Fixed(1), getActivity(i)));
+				Cycle c4 = new PeriodicCycle(0.0, new Fixed(PERIOD), 0);
+				for (int i = 0; i < NSIMPLE; i++) {
+					ElementCreator ec = new ElementCreator(new Fixed(NELEM), getElementType(i), new SingleMetaFlow(i, new Fixed(1), getActivity(i)));
+					new TimeDrivenGenerator(this, ec, c4.iterator(startTs, endTs));
+				}
 				break;
 			case 2:
 				ResourceType rt = new ResourceType(0, this, "RT0");
@@ -62,7 +67,8 @@ class StateSimulation extends Simulation {
 				a.getNewWorkGroup(0, new Fixed(DURACT)).add(rt, 1); 
 				ElementType et = new ElementType(0, this, "ELEMT0");
 				new Resource(0, this, "RES0").addTimeTableEntry(cPeriod, DURRES, rt);
-				new ElementGenerator(this, new Fixed(NELEM), cPeriod.iterator(startTs, endTs), et, new SingleMetaFlow(0, new Fixed(1), a));
+				ElementCreator ec = new ElementCreator(new Fixed(NELEM), et, new SingleMetaFlow(0, new Fixed(1), a));
+				new TimeDrivenGenerator(this, ec, cPeriod.iterator(startTs, endTs));
 				break;
 			case 3:
 				ResourceType rt1 = new ResourceType(1, this, "RT1");
@@ -74,9 +80,10 @@ class StateSimulation extends Simulation {
 				SimultaneousMetaFlow sim = new SimultaneousMetaFlow(0, new Fixed(1));
 				new SingleMetaFlow(1, sim, new Fixed(1), getActivity(0));
 				new SingleMetaFlow(2, sim, new Fixed(1), getActivity(1));
-				new ElementGenerator(this, new Fixed(NELEM), cPeriod.iterator(startTs, endTs), et1, sim);
+				ElementCreator ec1 = new ElementCreator(new Fixed(NELEM), et1, sim);
+				new TimeDrivenGenerator(this, ec1, cPeriod.iterator(startTs, endTs));
 				break;
-			case 4:
+/*			case 4:
 				for (int i = 0; i < NSIMPLE; i++)
 					new ResourceType(i, this, "RT" + i);
 				for (int i = 0; i < NSIMPLE; i++)
@@ -91,7 +98,7 @@ class StateSimulation extends Simulation {
 				for (int i = 0; i < NELEM; i++, t+= 10.0)
 					gen.addElement(getElementType(0), meta, t);
 				break;				
-			default:
+*/			default:
 				break;
 		}		
 	}
@@ -102,8 +109,8 @@ class StateSimulation extends Simulation {
  * 
  */
 class StateExperiment extends Experiment {
-	static final int NEXP = 1;
-	static final int COMPLEXITY = 4;
+	static final int NEXP = 6;
+	static final int COMPLEXITY = 1;
 	static final double simTime = 100.0; 
 	
 	StateExperiment() {

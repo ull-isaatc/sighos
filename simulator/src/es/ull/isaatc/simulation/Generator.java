@@ -12,34 +12,32 @@ public abstract class Generator extends BasicElement {
 	protected static int elemCounter = 0;
     /** Generator's counter */
     private static int counter = 0;
+    /** Specifies the way the elements are created. */
+    protected BasicElementCreator creator;
     
     /**
      * Creates an element generator. 
      * @param simul Simulation object.
+     * @param creator The way the elements are created.
      */
-    public Generator(Simulation simul) {
+    public Generator(Simulation simul, BasicElementCreator creator) {
         super(counter++, simul);
         simul.add(this);
+        this.creator = creator;
     }
     
     /**
      * Create the elements. This method is invoked each timestamp when elements have to be
      * generated.  
      */
-    public abstract void createElements();
+    public abstract void preprocess();
+    public abstract void postprocess();
 
-    /**
-     * Returns the next timestamp when elements have to be generated. 
-     * @return The next timestamp to generate elements. NaN if this generator
-     * don't have to create more elements.
-     */
-    public abstract double nextTs();
-    
     /**
      * Returns the current element's counter.
      * @return The current element's counter.
      */
-    public static int getElemCounter() {
+    public synchronized static int getElemCounter() {
         return elemCounter;
     }
     
@@ -47,25 +45,21 @@ public abstract class Generator extends BasicElement {
      * Establish a new initial value for the element's counter. 
 	 * @param elemCounter A new element's counter value.
 	 */
-	public static void setElemCounter(int elemCounter) {
+	public synchronized static void setElemCounter(int elemCounter) {
 		Generator.elemCounter = elemCounter;
+	}
+
+	/**
+	 * Returns and increases the element's counter in one step.
+	 * @return The current element's counter.
+	 */
+	public synchronized static int incElemCounter() {
+		return elemCounter++;
 	}
 
 	@Override
 	public String getObjectTypeIdentifier() {    	
         return "GEN";        
-    }
-    
-	@Override
-    protected void init() {
-    	double newTs = nextTs();
-    	if (Double.isNaN(newTs))
-            notifyEnd();
-        else {
-        	ts = newTs;
-            GenerateEvent e = new GenerateEvent(ts);
-            addEvent(e);
-        }
     }
     
 	@Override
@@ -91,14 +85,9 @@ public abstract class Generator extends BasicElement {
          * it checks the following event.
          */
         public void event() {
-        	createElements();
-            double newTs = nextTs();
-            if (Double.isNaN(newTs))
-                notifyEnd();
-            else {
-                GenerateEvent e = new GenerateEvent(newTs);
-                addEvent(e);
-            }
+        	preprocess();
+        	creator.create(Generator.this);
+        	postprocess();
         }
     }
 }

@@ -3,6 +3,7 @@ import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.CycleIterator;
 import es.ull.isaatc.util.Output;
+import es.ull.isaatc.util.PeriodicCycle;
 
 /**
  * Define un modelo:
@@ -31,7 +32,7 @@ class SimConflict1 extends Simulation {
 		wgs[1].add(getResourceType(3), 1);
 		wgs[1].add(getResourceType(2), 1);
 		
-		Cycle c = new Cycle(0.0, new Fixed(1440.0), endTs);
+		Cycle c = new PeriodicCycle(0.0, new Fixed(1440.0), endTs);
 		Resource r0 = new Resource(0, this, "Res0");
 		Resource r1 = new Resource(1, this, "Res1");
 		r0.addTimeTableEntry(c, 480.0, getResourceType(0));
@@ -39,9 +40,9 @@ class SimConflict1 extends Simulation {
 		r1.addTimeTableEntry(c, 480.0, getResourceType(3));
 		r1.addTimeTableEntry(c, 480.0, getResourceType(1));
 
-		Cycle c1 = new Cycle(1.0, new Fixed(1440.0), 480.0);
-		new ElementGenerator(this, new Fixed(NELEM), c1.iterator(startTs, endTs), new ElementType(0, this, "ET0"), new SingleMetaFlow(0, new Fixed(1), getActivity(0)));
-		new ElementGenerator(this, new Fixed(NELEM), c1.iterator(startTs, endTs), new ElementType(1, this, "ET1"), new SingleMetaFlow(1, new Fixed(1), getActivity(1)));
+		Cycle c1 = new PeriodicCycle(1.0, new Fixed(1440.0), 480.0);
+		new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NELEM), new ElementType(0, this, "ET0"), new SingleMetaFlow(0, new Fixed(1), getActivity(0))), c1.iterator(startTs, endTs));
+		new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NELEM), new ElementType(1, this, "ET1"), new SingleMetaFlow(1, new Fixed(1), getActivity(1))), c1.iterator(startTs, endTs));
 	}
 }
 
@@ -74,7 +75,7 @@ class SimConflict2 extends Simulation {
 		wgs[1].add(getResourceType(2), 1);
 		wgs[2].add(getResourceType(5), 1);
 
-		Cycle c = new Cycle(0.0, new Fixed(1440.0), endTs);
+		Cycle c = new PeriodicCycle(0.0, new Fixed(1440.0), endTs);
 		Resource r0 = new Resource(0, this, "Res0");
 		Resource r1 = new Resource(1, this, "Res1");
 		Resource r2 = new Resource(2, this, "Res2");
@@ -85,10 +86,10 @@ class SimConflict2 extends Simulation {
 		r2.addTimeTableEntry(c, 480.0, getResourceType(4));
 		r2.addTimeTableEntry(c, 480.0, getResourceType(5));
 
-		Cycle c1 = new Cycle(1.0, new Fixed(1440.0), 480.0);
-		new ElementGenerator(this, new Fixed(NELEM), new CycleIterator(c1, startTs, endTs), new ElementType(0, this, "ET0"), new SingleMetaFlow(0, new Fixed(1), getActivity(0)));
-		new ElementGenerator(this, new Fixed(NELEM), new CycleIterator(c1, startTs, endTs), new ElementType(1, this, "ET1"), new SingleMetaFlow(1, new Fixed(1), getActivity(1)));
-		new ElementGenerator(this, new Fixed(NELEM), new CycleIterator(c1, startTs, endTs), new ElementType(2, this, "ET2"), new SingleMetaFlow(2, new Fixed(1), getActivity(2)));
+		Cycle c1 = new PeriodicCycle(1.0, new Fixed(1440.0), 480.0);
+		new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NELEM), new ElementType(0, this, "ET0"), new SingleMetaFlow(0, new Fixed(1), getActivity(0))), new CycleIterator(c1, startTs, endTs));
+		new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NELEM), new ElementType(1, this, "ET1"), new SingleMetaFlow(1, new Fixed(1), getActivity(1))), new CycleIterator(c1, startTs, endTs));
+		new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NELEM), new ElementType(2, this, "ET2"), new SingleMetaFlow(2, new Fixed(1), getActivity(2))), new CycleIterator(c1, startTs, endTs));
 	}
 }
 

@@ -35,11 +35,18 @@ public class CycleIterator {
 
 		// First entry of the table is created
 		// CHANGE 13/12/06: Instead of using absStartTs, using 0 for initial timestamp.
-		cycleTable[0] = new CycleEntry(cycle, 0, absEndTs);
+		if (cycle instanceof TableCycle)
+			cycleTable[0] = new TableCycleEntry((TableCycle)cycle, 0, absEndTs);
+		else
+			cycleTable[0] = new PeriodicCycleEntry((PeriodicCycle)cycle, 0, absEndTs);
 		// The rest of entries are created		
 		c = cycle.getSubCycle();
-		for (int i = 1; i < levels; i++, c = c.getSubCycle())
-			cycleTable[i] = new CycleEntry(c, ts, Math.min(cycleTable[i - 1].nextTs, cycleTable[i - 1].endTs));
+		for (int i = 1; i < levels; i++, c = c.getSubCycle()) {
+			if (cycle instanceof TableCycle)
+				cycleTable[i] = new TableCycleEntry((TableCycle)c, ts, Math.min(cycleTable[i - 1].getNextTs(), cycleTable[i - 1].getEndTs()));
+			else
+				cycleTable[i] = new PeriodicCycleEntry((PeriodicCycle)c, ts, Math.min(cycleTable[i - 1].getNextTs(), cycleTable[i - 1].getEndTs()));
+		}
 		// CHANGE 13/12/06 If the start timestamp is not zero, the real start timestamp
 		// has to be recomputed.
 		boolean found = false;
@@ -70,7 +77,7 @@ public class CycleIterator {
 			// This condition is skipped when the whole cycle is finished 
 			if (!Double.isNaN(ts)) {
 				for (; i < cycleTable.length - 1; i++) {
-					cycleTable[i + 1].reset(ts, Math.min(cycleTable[i].nextTs, cycleTable[i].endTs));
+					cycleTable[i + 1].reset(ts, Math.min(cycleTable[i].getNextTs(), cycleTable[i].getEndTs()));
 				}
 			}
 		}
@@ -81,31 +88,89 @@ public class CycleIterator {
 	 * @return Returns the cycle.
 	 */
 	public Cycle getCycle() {
-		return cycleTable[0].cycle;
+		return cycleTable[0].getCycle();
 	}
 
 	/**
 	 * Represents a level in the cycle structure. Each level is a subcycle.
 	 * @author Iván Castilla Rodríguez
 	 */
-	class CycleEntry {
+	abstract class CycleEntry<T extends Cycle> {
+		/** The end timestamp. */
+		double endTs;
+		/** Associated cycle. */
+		T cycle;
+
+		public CycleEntry(T cycle, double start, double end) {
+			this.cycle = cycle;
+			reset(start, end);
+		}
+		
+		/**
+		 * Resets this level. The iterations are reset and the end timestamp is recomputed.
+		 * @param start The start timestamp.
+		 * @param newEnd The end timestamp.
+		 */
+		public abstract void reset(double start, double newEnd);
+
+		/**
+		 * Returns the availability of a valid timestamp.
+		 * @return True if there are a valid next timestamp. False in other case. 
+		 */
+		protected abstract boolean hasNext();
+		
+		/**
+		 * Computes the next valid timestamp and sets the value of the <code>ts</code>
+		 * attribute.
+		 */
+		public abstract void next();
+		
+		/**
+		 * Returns the next valid timestamp but it doesn't change anything.
+		 * @return The next valid timestamp.
+		 */
+		public abstract double getNextTs();
+
+		/**
+		 * Returns the cycle referenced by this entry.
+		 * @return The cycle referenced by this entry.
+		 */
+		public T getCycle() {
+			return cycle;
+		}
+		
+		/**
+		 * Returns the end timestamp.
+		 * @return The end timestamp.
+		 */
+		public double getEndTs() {
+			return endTs;
+		}
+
+	}
+
+	/**
+	 * Represents a level in the cycle structure. Each level is a subcycle.
+	 * @author Iván Castilla Rodríguez
+	 */
+	class PeriodicCycleEntry extends CycleEntry<PeriodicCycle> {
 		/** The next timestamp. */
 		double nextTs;
 		/** The iterations left. */
 		int iter;
-		/** The end timestamp. */
-		double endTs;
-		/** Associated cycle. */
-		Cycle cycle;
 		
 		/**
 		 * @param cycle Associated cycle.
 		 * @param start The start timestamp.
 		 * @param end The end timestamp.
 		 */
-		public CycleEntry(Cycle cycle, double start, double end) {
-			this.cycle = cycle;
-			reset(start, end);
+		public PeriodicCycleEntry(PeriodicCycle cycle, double start, double end) {
+			super(cycle, start, end);
+		}		
+
+		@Override
+		public double getNextTs() {
+			return nextTs;
 		}
 		
 		/**
@@ -139,7 +204,7 @@ public class CycleIterator {
 		 * Returns the availability of a valid timestamp.
 		 * @return True if there are a valid next timestamp. False in other case. 
 		 */
-		private boolean hasNext() {
+		public boolean hasNext() {
 			if (Double.isNaN(nextTs))
 				return false;
 			// If the next timestamp to be generated is not valid
@@ -164,7 +229,70 @@ public class CycleIterator {
 			if (iter > 0)
 				iter--;
 			// Computes the next valid timestamp...
-			nextTs += cycle.getPeriod().samplePositiveDouble();
+			nextTs += cycle.getPeriod().getPositiveNumber(ts);
+		}
+	}
+
+	/**
+	 * Represents a level in the cycle structure. Each level is a subcycle.
+	 * @author Iván Castilla Rodríguez
+	 */
+	class TableCycleEntry extends CycleEntry<TableCycle> {
+		/** The current timestamp */
+		int count;
+		/** The reference start timestamp */
+		double startTs;
+		
+		/**
+		 * @param cycle Associated cycle.
+		 * @param start The start timestamp.
+		 * @param end The end timestamp.
+		 */
+		public TableCycleEntry(TableCycle cycle, double start, double end) {
+			super(cycle, start, end);
+		}
+		
+		@Override
+		public double getNextTs() {
+			if (hasNext())
+				return cycle.getTimeStamps()[count];
+			return Double.NaN;
+		}
+		
+		/**
+		 * Resets this level. The iterations are reset and the end timestamp is recomputed.
+		 * @param start The start timestamp.
+		 * @param newEnd The end timestamp.
+		 */
+		public void reset(double start, double newEnd) {
+			this.startTs = start;
+			this.endTs = newEnd;
+			// If the "supercycle" starts after the simulation end.
+			if (Double.isNaN(newEnd))
+				ts = Double.NaN;
+			// If the cycle starts after the simulation end
+			else if (hasNext())
+				next();
+		}
+
+		/**
+		 * Returns the availability of a valid timestamp.
+		 * @return True if there are a valid next timestamp. False in other case. 
+		 */
+		public boolean hasNext() {
+			if (count >= cycle.getTimeStamps().length)
+				return false;
+			if (startTs + cycle.getTimeStamps()[count] >= endTs)
+				return false;
+			return true;
+		}
+
+		/**
+		 * Computes the next valid timestamp and sets the value of the <code>ts</code>
+		 * attribute.
+		 */
+		public void next() {
+			ts = startTs + cycle.getTimeStamps()[count++];
 		}
 	}
 }

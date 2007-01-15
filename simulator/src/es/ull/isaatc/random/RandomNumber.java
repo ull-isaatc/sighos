@@ -131,18 +131,6 @@ public class RandomNumber {
     // instances of RandomNumbers.
 
     /************************************************************
-     * Draw a random positive sample. If the value returned by 
-     * sampleDouble is negative, this function returns 0.0.   
-     * @author Iván Castilla Rodríguez
-     ************************************************************/
-    public double samplePositiveDouble () {
-    	double res = sampleDouble();
-    	if (res < 0.0)
-    		res = 0.0;
-    	return res;
-    }
-        
-    /************************************************************
      * Draw a random sample.  This function should be overridden
      * by all derived classes.  
      * The RandomNumber class returns a uniform double in the

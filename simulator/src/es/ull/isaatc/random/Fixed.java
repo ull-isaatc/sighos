@@ -7,32 +7,35 @@
 package es.ull.isaatc.random;
 
 /**
- * Fixed se usa para generar el mismo valor siempre
+ * A generator that always returns the same value.
  * @author Iván Castilla Rodríguez
  */
 public class Fixed extends RandomNumber {
+	/** The value that this generator always returns. */
     double value;
     
-    /** Crea una nueva instancia de Fixed */
+    /**
+     * Creates a new fixed random number generator initialized with a double value.
+     * @param val The value that this generator always returns. 
+     */
     public Fixed(double val) {
         value = val;
     }
     
-    /** Crea una nueva instancia de Fixed */
+    /**
+     * Creates a new fixed random number generator initialized with an int value.
+     * @param val The value that this generator always returns. 
+     */
     public Fixed(int val) {
         value = (double) val;
     }
-    
-    /************************************************************
-     * Devuelve el valor fijo como double
-     ************************************************************/
+
+    @Override
     public double sampleDouble() {
         return value;
     }
     
-    /************************************************************
-     * Devuelve el valor truncado a un entero
-     ************************************************************/
+    @Override
     public int sampleInt() {
         return (int) value;
     }     

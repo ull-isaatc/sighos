@@ -13,6 +13,7 @@ import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.simulation.state.SimulationState;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
+import es.ull.isaatc.util.PeriodicCycle;
 
 class SimActListener extends StatisticListener {
 	int nTests = 0;
@@ -72,7 +73,7 @@ class SimSimAct extends Simulation {
 		WorkGroup wg2 = act2.getNewWorkGroup(0, new Fixed(100.0));
 		wg2.add(rt3, 1);
 
-		Cycle c = new Cycle(START_REC, new Fixed(1440), 0);
+		Cycle c = new PeriodicCycle(START_REC, new Fixed(1440), 0);
 		for (int i = 0; i < NRES; i++) {
 			Resource room = new Resource(i, this, "Room" + i);
 			room.addTimeTableEntry(c, DURAC_REC, getResourceType(3));
@@ -83,8 +84,9 @@ class SimSimAct extends Simulation {
         new SingleMetaFlow(2, sim, new Fixed(1), getActivity(1));
         new SingleMetaFlow(1, sim, new Fixed(1), getActivity(0));
         new SingleMetaFlow(3, sim, new Fixed(1), getActivity(2));
-        Cycle c1 = new Cycle(0.0, new Fixed(1440.0), 0);
-        new ElementGenerator(this, new Fixed(NPACDAY), c1.iterator(startTs, endTs), getElementType(0), sim);
+        Cycle c1 = new PeriodicCycle(0.0, new Fixed(1440.0), 0);
+        ElementCreator ec = new ElementCreator(new Fixed(NPACDAY), getElementType(0), sim);
+        new TimeDrivenGenerator(this, ec, c1.iterator(startTs, endTs));
 	}	
 }
 
@@ -114,13 +116,13 @@ class SimPoolAct extends Simulation {
 		act1.getNewWorkGroup(0, new Fixed(100.0)).add(rt0, 1);
 		act2.getNewWorkGroup(0, new Fixed(100.0)).add(rt0, 1);
 
-		Cycle c = new Cycle(100, new Fixed(1440), 0);
+		Cycle c = new PeriodicCycle(100, new Fixed(1440), 0);
 		new Resource(0, this, "Nurse 1").addTimeTableEntry(c, DURAC_REC, getResourceType(0));
 
-		Cycle c1 = new Cycle(0.0, new Fixed(1440.0), 0);
-		new ElementGenerator(this, new Fixed(NPACDAY), c1.iterator(startTs, endTs), new ElementType(2, this, "PAT2"), new SingleMetaFlow(3, new Fixed(1), getActivity(2)));
-		new ElementGenerator(this, new Fixed(NPACDAY), c1.iterator(startTs, endTs), new ElementType(0, this, "PAT0"), new SingleMetaFlow(1, new Fixed(1), getActivity(0)));
-		new ElementGenerator(this, new Fixed(NPACDAY), c1.iterator(startTs, endTs), new ElementType(1, this, "PAT1"), new SingleMetaFlow(2, new Fixed(1), getActivity(1)));
+		Cycle c1 = new PeriodicCycle(0.0, new Fixed(1440.0), 0);
+		new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NPACDAY), new ElementType(2, this, "PAT2"), new SingleMetaFlow(3, new Fixed(1), getActivity(2))), c1.iterator(startTs, endTs));
+		new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NPACDAY), new ElementType(0, this, "PAT0"), new SingleMetaFlow(1, new Fixed(1), getActivity(0))), c1.iterator(startTs, endTs));
+		new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NPACDAY), new ElementType(1, this, "PAT1"), new SingleMetaFlow(2, new Fixed(1), getActivity(1))), c1.iterator(startTs, endTs));
 	}
 }
 
@@ -156,7 +158,7 @@ class SimContinue extends Simulation {
         wg4.add(crXRay, 1);
         wg4.add(crNurse, 1);       
 
-        Cycle c = new Cycle(480, new Fixed(1440.0), 0);
+        Cycle c = new PeriodicCycle(480, new Fixed(1440.0), 0);
         new Resource(0, this, "Nurse #1").addTimeTableEntry(c, DURAC_REC, getResourceType(2));
 		new Resource(1, this, "Nurse #2").addTimeTableEntry(c, DURAC_REC, getResourceType(2));
 		new Resource(2, this, "Doctor #1").addTimeTableEntry(c, DURAC_REC, getResourceType(3));
@@ -165,14 +167,14 @@ class SimContinue extends Simulation {
 		new Resource(5, this, "X-Ray machine #1").addTimeTableEntry(c, DURAC_REC, getResourceType(1));
 
 		int cont = 0;
-        Cycle c1 = new Cycle(0.0, new Fixed(1440.0), 0);
+        Cycle c1 = new PeriodicCycle(0.0, new Fixed(1440.0), 0);
         SequenceMetaFlow sec = new SequenceMetaFlow(cont++, new Fixed(1));
         new SingleMetaFlow(cont++, sec, new Fixed(1), getActivity(0));
         SimultaneousMetaFlow sim = new SimultaneousMetaFlow(cont++, sec, new Fixed(1));
         new SingleMetaFlow(cont++, sim, new Fixed(1), getActivity(1));
         new SingleMetaFlow(cont++, sim, new Fixed(1), getActivity(2));
         new SingleMetaFlow(cont++, sec, new Uniform(0, 3), getActivity(3));        
-		new ElementGenerator(this, new Fixed(NPACDAY), c1.iterator(startTs, endTs), new ElementType(0, this, "PATIENTS"), sec);
+		new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NPACDAY), new ElementType(0, this, "PATIENTS"), sec), c1.iterator(startTs, endTs));
 	}
 }
 

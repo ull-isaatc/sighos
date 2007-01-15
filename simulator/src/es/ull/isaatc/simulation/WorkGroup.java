@@ -8,7 +8,6 @@ package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
 
-import es.ull.isaatc.random.RandomNumber;
 import es.ull.isaatc.util.*;
 
 /**
@@ -23,7 +22,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     /** Activity this WG belongs to. */
     protected Activity act;
     /** Duration of the activity when using this WG */
-    protected RandomNumber duration;
+    protected NumberGenerator duration;
     /** Priority of the workgroup */
     protected int priority = 0;
     
@@ -34,7 +33,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @param duracion Duration of the activity when using this WG.
      * @param priority Priority of the workgroup.
      */    
-    protected WorkGroup(int id, Activity act, RandomNumber duration, int priority) {
+    protected WorkGroup(int id, Activity act, NumberGenerator duration, int priority) {
         super(id, act.getSimul());
         this.act = act;
         this.resourceTypeTable = new ArrayList<ResourceTypeTableEntry>();
@@ -57,7 +56,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @return The activity duration.
      */
     public double getDuration() {
-        return duration.samplePositiveDouble();
+        return duration.getPositiveNumber(getTs());
     }
     
     /**

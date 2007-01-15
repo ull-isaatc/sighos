@@ -391,8 +391,8 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
         @Override
         public String toString() {
             StringBuffer str = new StringBuffer();
-            str.append(" | " + cycle.getStartTs() + " | " + cycle.getPeriod() + " | " + duration
-                + " | " + role.getDescription() + " | " + cycle.getIterations() + "\r\n");
+            str.append(" | " + role.getDescription() + " | " + duration
+                + " | " + cycle + "\r\n");
             return str.toString();
         }
         
