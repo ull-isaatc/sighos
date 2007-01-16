@@ -229,7 +229,7 @@ public class CycleIterator {
 			if (iter > 0)
 				iter--;
 			// Computes the next valid timestamp...
-			nextTs += cycle.getPeriod().getPositiveNumber(ts);
+			nextTs += cycle.getPeriod().getPositiveValue(ts);
 		}
 	}
 

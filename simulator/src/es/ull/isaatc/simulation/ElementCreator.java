@@ -5,7 +5,9 @@ package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
 
-import es.ull.isaatc.util.NumberGenerator;
+import es.ull.isaatc.function.RandomFunction;
+import es.ull.isaatc.function.TimeFunction;
+import es.ull.isaatc.random.RandomNumber;
 
 /**
  * Defines the way a generator creates elements when it's time to create them.
@@ -13,7 +15,7 @@ import es.ull.isaatc.util.NumberGenerator;
  */
 public class ElementCreator implements BasicElementCreator {
 	/** Number of objects created each time this creator is invoked. */
-	protected NumberGenerator nElem;
+	protected TimeFunction nElem;
 	/** Each metaflow that will be generated */
 	protected ArrayList<GenerationTrio> genTrio;
 
@@ -21,7 +23,7 @@ public class ElementCreator implements BasicElementCreator {
 	 * Creates a creator of elements.
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 */
-	public ElementCreator(NumberGenerator nElem) {
+	public ElementCreator(TimeFunction nElem) {
 		genTrio = new ArrayList<GenerationTrio>();
 		this.nElem = nElem;
 	}
@@ -32,7 +34,27 @@ public class ElementCreator implements BasicElementCreator {
 	 * @param et The type of the elements to be created
 	 * @param metaFlow The description of the flow of the elements to be created.
 	 */
-	public ElementCreator(NumberGenerator nElem, ElementType et, MetaFlow metaFlow) {
+	public ElementCreator(TimeFunction nElem, ElementType et, MetaFlow metaFlow) {
+		this(nElem);
+		genTrio.add(new GenerationTrio(et, metaFlow, 1.0));
+	}
+	
+	/**
+	 * Creates a creator of elements.
+	 * @param nElem Number of objects created each time this creator is invoked.
+	 */
+	public ElementCreator(RandomNumber nElem) {
+		genTrio = new ArrayList<GenerationTrio>();
+		this.nElem = new RandomFunction(nElem);
+	}
+	
+	/**
+	 * Creates a creator of a single type of elements.
+	 * @param nElem Number of objects created each time this creator is invoked.
+	 * @param et The type of the elements to be created
+	 * @param metaFlow The description of the flow of the elements to be created.
+	 */
+	public ElementCreator(RandomNumber nElem, ElementType et, MetaFlow metaFlow) {
 		this(nElem);
 		genTrio.add(new GenerationTrio(et, metaFlow, 1.0));
 	}
@@ -51,7 +73,7 @@ public class ElementCreator implements BasicElementCreator {
 	 * @see es.ull.isaatc.simulation.BasicElementCreator#create(es.ull.isaatc.simulation.Generator)
 	 */
 	public void create(Generator gen) {
-		int n = (int)nElem.getPositiveNumber(gen.getTs());
+		int n = (int)nElem.getPositiveValue(gen.getTs());
         for (int i = 0; i < n; i++) {
             double p = Math.random();
             for (GenerationTrio gt : genTrio) {

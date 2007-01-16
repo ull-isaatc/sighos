@@ -2,6 +2,9 @@ package es.ull.isaatc.simulation;
 
 import java.util.Iterator;
 
+import es.ull.isaatc.function.RandomFunction;
+import es.ull.isaatc.function.TimeFunction;
+import es.ull.isaatc.random.RandomNumber;
 import es.ull.isaatc.simulation.state.ActivityState;
 import es.ull.isaatc.simulation.state.RecoverableState;
 import es.ull.isaatc.util.*;
@@ -117,7 +120,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * @param priority Priority of the workgroup
      * @return A new workgroup.
      */
-    public WorkGroup getNewWorkGroup(int wgId, NumberGenerator duration, int priority) {
+    public WorkGroup getNewWorkGroup(int wgId, TimeFunction duration, int priority) {
     	WorkGroup wg = new WorkGroup(wgId, this, duration, priority);
         workGroupTable.add(wg);
         return wg;
@@ -130,7 +133,32 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * @param duration Duration of the activity when performed with the new workgroup
      * @return A new workgroup.
      */
-    public WorkGroup getNewWorkGroup(int wgId, NumberGenerator duration) {    	
+    public WorkGroup getNewWorkGroup(int wgId, TimeFunction duration) {    	
+        return getNewWorkGroup(wgId, duration, 0);
+    }
+
+    /**
+     * Creates a new workgroup for this activity. The workgroup is added and returned in order
+     * to be used.
+     * @param wgId The workgroup's identifier
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @param priority Priority of the workgroup
+     * @return A new workgroup.
+     */
+    public WorkGroup getNewWorkGroup(int wgId, RandomNumber duration, int priority) {
+    	WorkGroup wg = new WorkGroup(wgId, this, new RandomFunction(duration), priority);
+        workGroupTable.add(wg);
+        return wg;
+    }
+    
+    /**
+     * Creates a new workgroup for this activity with the highest level of priority. The workgroup 
+     * is added and returned in order to be used.
+     * @param wgId The workgroup's identifier
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @return A new workgroup.
+     */
+    public WorkGroup getNewWorkGroup(int wgId, RandomNumber duration) {    	
         return getNewWorkGroup(wgId, duration, 0);
     }
 

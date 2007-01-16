@@ -1,5 +1,9 @@
 package es.ull.isaatc.util;
 
+import es.ull.isaatc.function.RandomFunction;
+import es.ull.isaatc.function.TimeFunction;
+import es.ull.isaatc.random.RandomNumber;
+
 /**
  * Defines a periodically repeated sequence of events. It can be defined in 
  * two different ways: onthe one hand, you can define a cycle that stops when 
@@ -16,7 +20,7 @@ public class PeriodicCycle extends Cycle {
 	/** Relative time when this cycle is expected to finish. */
     protected double endTs = Double.NaN;
     /** Time interval between two successive ocurrences of an event. */
-    protected NumberGenerator period;
+    protected TimeFunction period;
     /** How many times this cycle is executed. A value of 0 indicates 
      * infinite iterations. */
     protected int iterations = 0;
@@ -27,7 +31,7 @@ public class PeriodicCycle extends Cycle {
 	 * @param period Time interval between two successive ocurrences of an event.
 	 * @param endTs Relative time when this cycle is expected to finish.
 	 */
-	public PeriodicCycle(double startTs, NumberGenerator period, double endTs) {
+	public PeriodicCycle(double startTs, TimeFunction period, double endTs) {
 		super();
         this.startTs = startTs;
         this.period = period;
@@ -41,7 +45,7 @@ public class PeriodicCycle extends Cycle {
 	 * @param iterations How many times this cycle is executed. A value of 0 indicates 
      * infinite iterations.
 	 */
-    public PeriodicCycle(double startTs, NumberGenerator period, int iterations) {
+    public PeriodicCycle(double startTs, TimeFunction period, int iterations) {
     	super();
         this.startTs = startTs;
         this.period = period;
@@ -55,7 +59,7 @@ public class PeriodicCycle extends Cycle {
 	 * @param endTs Relative time when this cycle is expected to finish.
 	 * @param subCycle Subcycle contained in this cycle.
 	 */
-	public PeriodicCycle(double startTs, NumberGenerator period, double endTs, Cycle subCycle) {
+	public PeriodicCycle(double startTs, TimeFunction period, double endTs, Cycle subCycle) {
 		super(subCycle);
 		this.startTs = startTs;
 		this.period = period;
@@ -71,10 +75,68 @@ public class PeriodicCycle extends Cycle {
      * infinite iterations.
 	 * @param subCycle Subcycle contained in this cycle.
 	 */
-	public PeriodicCycle(double startTs, NumberGenerator period, int iterations, Cycle subCycle) {
+	public PeriodicCycle(double startTs, TimeFunction period, int iterations, Cycle subCycle) {
 		super(subCycle);
 		this.startTs = startTs;
 		this.period = period;
+		this.iterations = iterations;
+		this.subCycle = subCycle;
+	}
+
+	/**
+	 * Creates a cycle which ends at the specified timestamp.
+	 * @param startTs Relative time when this cycle is expected to start.
+	 * @param period Time interval between two successive ocurrences of an event.
+	 * @param endTs Relative time when this cycle is expected to finish.
+	 */
+	public PeriodicCycle(double startTs, RandomNumber period, double endTs) {
+		super();
+        this.startTs = startTs;
+        this.period = new RandomFunction(period);
+        this.endTs = endTs;
+	}
+
+	/**
+	 * Creates a cycle which is executed the specified iterations.
+	 * @param startTs Relative time when this cycle is expected to start.
+	 * @param period Time interval between two successive ocurrences of an event.
+	 * @param iterations How many times this cycle is executed. A value of 0 indicates 
+     * infinite iterations.
+	 */
+    public PeriodicCycle(double startTs, RandomNumber period, int iterations) {
+    	super();
+        this.startTs = startTs;
+        this.period = new RandomFunction(period);
+        this.iterations = iterations;
+    }
+    
+    /**
+	 * Creates a cycle which ends at the specified timestamp and contains a subcycle.
+	 * @param startTs Relative time when this cycle is expected to start.
+	 * @param period Time interval between two successive ocurrences of an event.
+	 * @param endTs Relative time when this cycle is expected to finish.
+	 * @param subCycle Subcycle contained in this cycle.
+	 */
+	public PeriodicCycle(double startTs, RandomNumber period, double endTs, Cycle subCycle) {
+		super(subCycle);
+		this.startTs = startTs;
+		this.period = new RandomFunction(period);
+		this.endTs = endTs;
+		this.subCycle = subCycle;
+	}
+
+	/**
+	 * Creates a cycle which is executed the specified iterations and contains a subcycle.
+	 * @param startTs Relative time when this cycle is expected to start.
+	 * @param period Time interval between two successive ocurrences of an event.
+	 * @param iterations How many times this cycle is executed. A value of 0 indicates 
+     * infinite iterations.
+	 * @param subCycle Subcycle contained in this cycle.
+	 */
+	public PeriodicCycle(double startTs, RandomNumber period, int iterations, Cycle subCycle) {
+		super(subCycle);
+		this.startTs = startTs;
+		this.period = new RandomFunction(period);
 		this.iterations = iterations;
 		this.subCycle = subCycle;
 	}
@@ -99,7 +161,7 @@ public class PeriodicCycle extends Cycle {
 	 * Returns the time interval between two successive ocurrences of an event.
 	 * @return The time interval between two successive ocurrences of an event.
 	 */
-	public NumberGenerator getPeriod() {
+	public TimeFunction getPeriod() {
 		return period;
 	}
 

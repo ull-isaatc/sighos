@@ -8,6 +8,7 @@ package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
 
+import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.util.*;
 
 /**
@@ -22,7 +23,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
     /** Activity this WG belongs to. */
     protected Activity act;
     /** Duration of the activity when using this WG */
-    protected NumberGenerator duration;
+    protected TimeFunction duration;
     /** Priority of the workgroup */
     protected int priority = 0;
     
@@ -33,7 +34,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @param duracion Duration of the activity when using this WG.
      * @param priority Priority of the workgroup.
      */    
-    protected WorkGroup(int id, Activity act, NumberGenerator duration, int priority) {
+    protected WorkGroup(int id, Activity act, TimeFunction duration, int priority) {
         super(id, act.getSimul());
         this.act = act;
         this.resourceTypeTable = new ArrayList<ResourceTypeTableEntry>();
@@ -56,7 +57,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
      * @return The activity duration.
      */
     public double getDuration() {
-        return duration.getPositiveNumber(getTs());
+        return duration.getPositiveValue(getTs());
     }
     
     /**

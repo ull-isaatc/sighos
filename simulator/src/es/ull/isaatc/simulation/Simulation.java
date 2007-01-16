@@ -626,7 +626,7 @@ public abstract class Simulation implements Printable,
 		}
 		
 		// Creates a null cycle to non-iterative cycles
-		PeriodicCycle c = new PeriodicCycle(0.0, new RandomNumberGenerator(new Fixed(1)), -1.0);
+		PeriodicCycle c = new PeriodicCycle(0.0, new Fixed(1), -1.0);
 		// Events
 		for (SimulationState.EventEntry entry : state.getWaitQueue()) {
 			if (entry.getType() == SimulationState.EventType.FINALIZEACT) {

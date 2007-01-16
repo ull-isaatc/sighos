@@ -5,20 +5,9 @@ import java.util.Map;
 
 import es.ull.isaatc.random.*;
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.info.ElementInfo;
-import es.ull.isaatc.simulation.info.PeriodicActivityQueueListener;
-import es.ull.isaatc.simulation.info.SimulationListener;
-import es.ull.isaatc.simulation.info.PeriodicActivityUsageListener;
-import es.ull.isaatc.simulation.info.SimulationObjectInfo;
-import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.info.SimulationStartInfo;
-import es.ull.isaatc.simulation.info.StatisticListener;
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
+import es.ull.isaatc.simulation.info.*;
 import es.ull.isaatc.simulation.state.SimulationState;
-import es.ull.isaatc.util.Cycle;
-import es.ull.isaatc.util.Output;
-import es.ull.isaatc.util.PeriodicCycle;
-import es.ull.isaatc.util.TableCycle;
+import es.ull.isaatc.util.*;
 
 class SimBarcelona extends Simulation {
 	static final int NDAYS = 365 * 3;
@@ -98,7 +87,8 @@ class SimBarcelona extends Simulation {
 			};
 			for (int i = 0; i < periods.length; i++) {
 				Exponential expo = new Exponential(periods[i] * 24.0);
-				Cycle c = new PeriodicCycle(expo.samplePositiveDouble(), expo, 0);
+				// OJO: debería devolver siempre un valor positivo
+				Cycle c = new PeriodicCycle(expo.sampleDouble(), expo, 0);
 				ElementCreator ec = new ElementCreator(new Fixed(1), getElementType(i), new SingleMetaFlow(i, new Fixed(1), getActivity(i)));
 		        new TimeDrivenGenerator(this, ec, c.iterator(startTs, endTs));
 			}
@@ -113,7 +103,8 @@ class SimBarcelona extends Simulation {
 			
 			for (int i = 0; i < periods.length; i++) {
 				Exponential expo = new Exponential(periods[i] * 24.0);
-				Cycle c = new PeriodicCycle(expo.samplePositiveDouble(), expo, 0);
+				// OJO: debería devolver siempre un valor positivo
+				Cycle c = new PeriodicCycle(expo.sampleDouble(), expo, 0);
 				ElementCreator ec = new ElementCreator(new Fixed(1), getElementType(i), new SingleMetaFlow(i, new Fixed(1), getActivity(i)));
 		        new TimeDrivenGenerator(this, ec, c.iterator(startTs, endTs));
 			}
