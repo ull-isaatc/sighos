@@ -37,6 +37,7 @@ public class PoolElement extends Thread {
      * @param tp Pool de threads al que está asociada.
      */
     public PoolElement(ThreadPool tp) {
+    	super("Pool Element " + tp.getNThreads());
         pLock = new Lock();
         this.tp = tp;
     }

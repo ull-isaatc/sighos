@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import es.ull.isaatc.simulation.state.RecoverableState;
 import es.ull.isaatc.simulation.state.ResourceTypeState;
-import es.ull.isaatc.util.*;
 
 /**
  * Represents the different roles that can be found in the system. The resources can serve for
@@ -115,8 +114,7 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
      * @param sf single flow catching the resources
 	 */
     protected void catchResources(int n, SingleFlow sf) {
-        print(Output.MessageType.DEBUG, "Decrease amount\t" + n,
-        		"Decrease amount\t" + n + "\t" + sf.getElement());
+        print("Decrease amount\t" + n + "\t" + sf.getElement());
         
         // When this point is reached, it is suppose that there are enough resources
         for (int i = 0; i < availableResourceList.size(); i++) {
@@ -128,8 +126,7 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
 	            	if (n > 0) {
 	            		res.catchResource(sf, this);
 	            		n--;
-	                    print(Output.MessageType.DEBUG, "Resource taken\t" + res,
-	                    		"Resource taken\t" + res + "\t " + n + "\t" + sf.getElement());
+	                    print("Resource taken\t" + res + "\t " + n + "\t" + sf.getElement());
 	            	}
 	            	else {
 	            		res.removeBook(sf);
@@ -140,20 +137,17 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
             	else if (res.getCurrentResourceType() == this) {
             		res.catchResource(sf, this);
             		n--;
-                    print(Output.MessageType.DEBUG, "Resource taken\t" + res,
-                    		"Resource taken\t" + res + "\t " + n + "\t" + sf.getElement());
+                    print("Resource taken\t" + res + "\t " + n + "\t" + sf.getElement());
                     // This check should be unneeded
                     if (n < 0) {
-                    	print(Output.MessageType.ERROR, "UNEXPECTED ERROR: More resources than expected", 
-                    			"UNEXPECTED ERROR: More resources than expected\t"+ n + "\t" + sf.getElement());
+                    	printError("More resources than expected\t"+ n + "\t" + sf.getElement());
                     }
             	}
             }
         }
         // This check should be unneeded
         if (n > 0)
-        	print(Output.MessageType.ERROR, "UNEXPECTED ERROR: Less resources than expected", 
-        			"UNEXPECTED ERROR: Less resources than expected\t"+ n + "\t" + sf.getElement());
+        	printError("UNEXPECTED ERROR: Less resources than expected\t"+ n + "\t" + sf.getElement());
     }
 
     /**
@@ -161,7 +155,7 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
      * @param res New available resource.
      */
     protected void incAvailable(Resource res) {
-    	print(Output.MessageType.DEBUG, "Resource added\t" + res);
+    	print("Resource added\t" + res);
         availableResourceList.add(res);
         // If the resource was being used in a previous "availability period", it was marked as
         // "timeOut". This mark can be removed.
@@ -174,7 +168,7 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
      * @param res New unavailable resource.
      */
     protected void decAvailable(Resource res) {
-    	print(Output.MessageType.DEBUG, "Resource removed\t" + res);
+    	print("Resource removed\t" + res);
         // If the resource is being used for this resource type, it's marked as "timeOut"
         if (availableResourceList.remove(res) && (res.getCurrentResourceType() == this))
         	res.setTimeOut(true);

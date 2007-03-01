@@ -297,7 +297,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
         // Now, this element has exclusive access to its resources. It's time to "recheck"
         // if the activity is feasible        
         if (conflict) { // The resource distribution algorithm is invoked
-        	print(Output.MessageType.DEBUG, "Overlapped resources", "Overlapped resources with " + sf.getElement());
+        	print("Overlapped resources with " + sf.getElement());
             if (!distributeResources(sf)) {
                 sf.removeFromConflictZone();
             	sf.signalConflictSemaphore();
@@ -305,7 +305,7 @@ public class WorkGroup extends SimulationObject implements Prioritizable {
             }
         }
         else if (sf.getConflictZone().size() > 1) {
-        	print(Output.MessageType.DEBUG, "Possible conflict", "Possible conflict. Recheck is needed " + sf.getElement());
+        	print("Possible conflict. Recheck is needed " + sf.getElement());
             int ned[] = new int[resourceTypeTable.size()];
             int []pos = {0, 0}; // "Start" position
             for (int i = 0; i < resourceTypeTable.size(); i++)

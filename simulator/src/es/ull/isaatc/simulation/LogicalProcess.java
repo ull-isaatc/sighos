@@ -5,7 +5,6 @@ import java.util.*;
 import mjr.heap.HeapAscending;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
 import es.ull.isaatc.sync.*;
-import es.ull.isaatc.util.*;
 
 /** 
  * A logical process (LP) is a subregion of the simulation. It includes a set of resource types,
@@ -183,7 +182,7 @@ public class LogicalProcess extends SimulationObject implements Runnable {
             // Advances the simulation clock
             lvt = e.getTs();
             simul.notifyListeners(new TimeChangeInfo(this));
-            print(Output.MessageType.DEBUG, "SIMULATION TIME ADVANCING " + lvt);
+            print("SIMULATION TIME ADVANCING " + lvt);
             // Events with timestamp greater or equal to the maximum simulation time aren't
             // executed
             if (lvt >= maxgvt)
@@ -254,12 +253,10 @@ public class LogicalProcess extends SimulationObject implements Runnable {
             execWaitingElements();
 		}
 		// Frees the execution queue
-    	print(Output.MessageType.DEBUG, "Execution queue freed",
-    			"TP. MAX:" + tp.getMaxThreads() + "\tINI:" + tp.getInitThreads() 
+    	print("Execution queue freed\tTP. MAX:" + tp.getMaxThreads() + "\tINI:" + tp.getInitThreads() 
     			+ "\tCREATED:" + tp.getNThreads());
     	tp.finish();    	
-    	print(Output.MessageType.DEBUG, "SIMULATION TIME FINISHES",
-    			"SIMULATION TIME FINISHES\r\nSimulation time = " +
+    	print("SIMULATION TIME FINISHES\r\nSimulation time = " +
             	lvt + "\r\nPreviewed simulation time = " + maxgvt);
     	printState();
     	// Notifies the simulation about the end of this logical process
@@ -271,7 +268,7 @@ public class LogicalProcess extends SimulationObject implements Runnable {
 	 */
 	public void start() {
 		if (lpThread == null) {
-	        lpThread = new Thread(this);
+	        lpThread = new Thread(this, "LP " + id);
 	        lpThread.start();
 		}
 	}
@@ -301,6 +298,6 @@ public class LogicalProcess extends SimulationObject implements Runnable {
         for (ActivityManager am : managerList)
         	strLong.append("Activity Manager " + am.getIdentifier() + "\r\n");
         strLong.append("\r\n------ LP STATE FINISHED ------\r\n");
-		print(Output.MessageType.DEBUG, "Waiting\t" + waitQueue.size() + "\tExecuting\t" + execQueue.size(), strLong.toString());
+		print(strLong.toString());
 	}
 }

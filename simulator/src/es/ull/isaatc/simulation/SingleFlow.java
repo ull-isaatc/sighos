@@ -12,7 +12,6 @@ import es.ull.isaatc.simulation.state.FlowState;
 import es.ull.isaatc.simulation.state.SingleFlowState;
 import es.ull.isaatc.sync.Semaphore;
 import es.ull.isaatc.util.Orderable;
-import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.Prioritizable;
 
 /**
@@ -196,7 +195,7 @@ public class SingleFlow extends Flow implements Orderable, Prioritizable {
     protected ArrayList<ActivityManager> releaseCaughtResources() {
         ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
         for (Resource res : caughtResources) {
-        	elem.print(Output.MessageType.DEBUG, "Returned " + res);
+        	elem.print("Returned " + res);
         	// The resource is freed
         	if (res.releaseResource()) {
         		// The activity managers involved are included in the list
@@ -250,6 +249,7 @@ public class SingleFlow extends Flow implements Orderable, Prioritizable {
 	 */
 	protected void mergeConflictList(SingleFlow sf) {
 		// If it's the same list there's no need of merge
+		elem.print("MUTEX\tmerging\t" + sf.getElement());
 		if (conflicts != sf.getConflictZone()) {
 			int result = this.compareTo(sf); 
 			if (result < 0)
@@ -265,16 +265,20 @@ public class SingleFlow extends Flow implements Orderable, Prioritizable {
 	 */
 	protected void waitConflictSemaphore() {
 		semStack = conflicts.getSemaphores();
+		elem.print("MUTEX\trequesting\tConflicts");
 		for (Semaphore sem : semStack)
 			sem.waitSemaphore();
+		elem.print("MUTEX\tadquired\tConflicts");
 	}
 	
 	/** 
 	 * Goes through the stack of semaphores performing a signal operation on each semaphore.
 	 */
 	protected void signalConflictSemaphore() {
+		elem.print("MUTEX\treleasing\tConflicts");
 		for (Semaphore sem : semStack)
 			sem.signalSemaphore();
+		elem.print("MUTEX\tfreed\tConflicts");		
 	}
 
 	/**

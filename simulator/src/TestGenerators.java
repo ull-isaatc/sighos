@@ -48,7 +48,7 @@ class ExpGenerators extends Experiment {
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		SimGenerators sim = new SimGenerators(0.0, NDIAS * 24.0 * 60.0, new Output(Output.DebugLevel.DEBUG));
+		SimGenerators sim = new SimGenerators(0.0, NDIAS * 24.0 * 60.0, new Output(true));
 		return sim;
 	}
 	

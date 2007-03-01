@@ -215,14 +215,19 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
     	while (iter.hasNext()) {
     		SingleFlow sf = iter.next();
             Element e = sf.getElement();
+    		e.print("MUTEX\trequesting\t" + this + " (has el.)");    	
             e.waitSemaphore();
+    		e.print("MUTEX\tadquired\t" + this + " (has el.)");    	
             
             // MOD 26/01/06 Añadido
             e.setTs(getTs());
             if ((e.getCurrentSF() == null) || !presential)
                 return sf;
-            else
+            else {
+        		e.print("MUTEX\treleasing\t" + this + " (has el.)");    	
             	e.signalSemaphore();
+        		e.print("MUTEX\tfreed\t" + this + " (has el.)");    	
+            }
     	}
     	return null;
     }

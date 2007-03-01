@@ -1,7 +1,6 @@
 package es.ull.isaatc.simulation;
 
 import es.ull.isaatc.util.Orderable;
-import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.Printable;
 
 /**
@@ -53,13 +52,12 @@ public abstract class SimulationObject implements Printable, Orderable {
         return simul;
     }
     
-    public void print(Output.MessageType type, String shortMessage, String longMessage) {
-		simul.print(type, this.toString() + "\t" + getTs() + "\t" + shortMessage, 
-				this.toString() + "\t" + getTs() + "\t" + longMessage);
+    public void print(String message) {
+		simul.print(this.toString() + "\t" + getTs() + "\t" + message);
 	}
 	
-	public void print(Output.MessageType type, String message) {
-		print(type, message, message);
+	public void printError(String description) {
+		simul.printError(description);
 	}
     
     public String toString() {

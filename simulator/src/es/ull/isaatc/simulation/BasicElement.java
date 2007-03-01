@@ -2,7 +2,6 @@ package es.ull.isaatc.simulation;
 
 import mjr.heap.Heapable;
 import es.ull.isaatc.sync.*;
-import es.ull.isaatc.util.*;
 
 import java.util.ArrayList;
 
@@ -65,8 +64,7 @@ public abstract class BasicElement extends SimulationObject {
         else if (e.getTs() > e.getLp().getTs())
             e.getLp().addWait(e);
         else
-        	print(Output.MessageType.ERROR, "Causal restriction broken\t" + e.getLp().getTs(),
-        			"Causal restriction broken\t" + e.getLp().getTs() + "\t" + e);
+        	printError("Causal restriction broken\t" + e.getLp().getTs() + "\t" + e);
     }
 
     /**
@@ -76,7 +74,7 @@ public abstract class BasicElement extends SimulationObject {
     protected synchronized void notifyEnd() {
     	if (!endFlag) {
     		endFlag = true;
-        	print(Output.MessageType.DEBUG, "Finished");
+        	print("Finished");
             addEvent(new FinalizeEvent());
         }
     }
@@ -98,7 +96,7 @@ public abstract class BasicElement extends SimulationObject {
         if (ts >= this.ts)
             this.ts = ts;
         else
-        	print(Output.MessageType.ERROR, "Trying to go back in time\t" + ts);
+        	printError("Trying to go back in time\t" + ts);
     }
 
     /**
@@ -121,14 +119,18 @@ public abstract class BasicElement extends SimulationObject {
      * Sends a "wait" signal to the semaphore.
      */    
     protected void waitSemaphore() {
+//		print(Output.MessageType.DEBUG, "", "MUTEX\trequesting");    	
         sem.waitSemaphore();
+//		print(Output.MessageType.DEBUG, "", "MUTEX\tadquired");    	
     }
     
     /**
      * Sends a "continue" signal to the semaphore.
      */    
     protected void signalSemaphore() {
+//		print(Output.MessageType.DEBUG, "", "MUTEX\treleasing");    	
         sem.signalSemaphore();
+//		print(Output.MessageType.DEBUG, "", "MUTEX\tfreed");    	
     }
     
 	public String getObjectTypeIdentifier() {
@@ -165,8 +167,7 @@ public abstract class BasicElement extends SimulationObject {
             BasicElement.this.setTs(ts);
             super.run();
             if (!lp.removeExecutionSync(this))
-            	print(Output.MessageType.ERROR, "Can not be removed from execution queue",
-            			"Can not be removed from execution queue\t" + this.toString());
+            	printError("Can not be removed from execution queue\t" + this.toString());
         }
         
         /**
@@ -250,7 +251,7 @@ public abstract class BasicElement extends SimulationObject {
         }
         
         public void event() {
-        	print(Output.MessageType.DEBUG, "Ends execution");
+        	print("Ends execution");
         	end();
         }
     }
@@ -266,7 +267,7 @@ public abstract class BasicElement extends SimulationObject {
         }
 
         public void event() {
-        	print(Output.MessageType.DEBUG, "Starts Execution");
+        	print("Starts Execution");
             init();
         }
     }

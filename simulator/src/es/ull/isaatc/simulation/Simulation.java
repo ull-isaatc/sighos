@@ -104,7 +104,7 @@ public abstract class Simulation implements Printable,
      */
     protected void init(SimulationState state) {
 		createModel();
-		print(Output.MessageType.DEBUG, "SIMULATION MODEL CREATED");
+		print("SIMULATION MODEL CREATED");
 	    createActivityManagers();
 	    createSimulation();
 		if (state != null) {
@@ -350,7 +350,7 @@ public abstract class Simulation implements Printable,
 		else if (obj instanceof ElementType)
 		    resul = elementTypeList.add((ElementType) obj);
 		else
-		    print(Output.MessageType.ERROR, "Trying to add an unidentified object to the Model");
+		    printError("Trying to add an unidentified object to the Model");
 		return resul;
     }
 
@@ -526,7 +526,7 @@ public abstract class Simulation implements Printable,
 		} catch (InterruptedException e) {
 		    e.printStackTrace();
 		}
-		print(Output.MessageType.DEBUG, "SIMULATION COMPLETELY FINISHED");
+		print("SIMULATION COMPLETELY FINISHED");
     }
 
     /** 
@@ -542,22 +542,19 @@ public abstract class Simulation implements Printable,
     }
 
     /**
-     * Prints a debug/error message.
-     * @param type Message type: Debug/Error
-     * @param shortDescription A short message
-     * @param longDescription An extended message
+     * Prints a debug message. Uses the same text for short and long description.
+     * @param Description The content of the message
      */
-    public void print(Output.MessageType type, String shortDescription, String longDescription) {
-    	out.print(type, shortDescription, longDescription);
+    public void print(String description) {
+    	out.print(description);
     }
 
     /**
-     * Prints a debug/error message. Uses the same text for short and long description.
-     * @param type Message type: Debug/Error
+     * Prints an error message.
      * @param Description The content of the message
      */
-    public void print(Output.MessageType type, String description) {
-    	out.print(type, description);
+    public void printError(String description) {
+    	out.printError(description);
     }
 
     /**
@@ -669,7 +666,7 @@ public abstract class Simulation implements Printable,
 	    }
 	    str.append("\r\n");
 	}
-	print(Output.MessageType.DEBUG, "Graph created", str.toString());
+	print("Graph created\r\n" + str.toString());
     }
 
     /**
@@ -682,6 +679,6 @@ public abstract class Simulation implements Printable,
 	StringBuffer str1 = new StringBuffer("Activity Managers:\r\n");
 	for (int i = 0; i < activityManagerList.size(); i++)
 	    str1.append((activityManagerList.get(i)).getDescription() + "\r\n");
-	print(Output.MessageType.DEBUG, str.toString(), str1.toString());
+	print(str1.toString());
     }
 }

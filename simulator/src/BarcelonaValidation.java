@@ -1201,7 +1201,7 @@ class ExpBarcelona extends Experiment {
 	}
 	
 	public Simulation getSimulation(int ind) {		
-		return new SimBarcelona(description + ind + "", new Output(Output.DebugLevel.NODEBUG), ind);
+		return new SimBarcelona(description + ind + "", new Output(), ind);
 	}
 	
 	public void start() {

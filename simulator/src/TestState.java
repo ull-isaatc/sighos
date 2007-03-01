@@ -23,8 +23,8 @@ class StateSimulation extends Simulation {
 	int complexityDegree;
 	
 	StateSimulation(String desc, double startTs, double endTs, int complexityDegree) {
-		super(desc, startTs, endTs, new Output(Output.DebugLevel.DEBUG));
-//		super(desc, startTs, endTs, new Output(Output.DebugLevel.DEBUG, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)));
+		super(desc, startTs, endTs, new Output(true));
+//		super(desc, startTs, endTs, new Output(true, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)));
 		this.complexityDegree = complexityDegree;
 	}
 

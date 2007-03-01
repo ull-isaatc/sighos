@@ -103,7 +103,7 @@ class ExpConflict extends Experiment {
     
 	@Override
 	public Simulation getSimulation(int ind) {
-		return new SimConflict2(0.0, 24 * 60.0 * NDAYS, new Output(Output.DebugLevel.DEBUG));
+		return new SimConflict2(0.0, 24 * 60.0 * NDAYS, new Output(true));
 	}	
 }
 /**

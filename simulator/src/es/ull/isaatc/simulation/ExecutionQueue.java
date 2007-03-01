@@ -3,7 +3,6 @@ package es.ull.isaatc.simulation;
 import java.util.Vector;
 
 import es.ull.isaatc.sync.*;
-import es.ull.isaatc.util.*;
 
 /**
  * Manages the execution queue of a logical process. This class uses a thread pool. 
@@ -82,8 +81,7 @@ public class ExecutionQueue {
      * Stops the execution queue by freeing the threads associated.
      */
     protected void free() {
-    	lp.print(Output.MessageType.DEBUG, "Execution queue freed",
-    			"TP. MAX:" + tp.getMaxThreads() + "\tINI:" + tp.getInitThreads() 
+    	lp.print("Execution queue freed\tTP. MAX:" + tp.getMaxThreads() + "\tINI:" + tp.getInitThreads() 
     			+ "\tCREATED:" + tp.getNThreads());
     	tp.finish();    	
     }

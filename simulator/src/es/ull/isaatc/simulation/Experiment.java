@@ -61,8 +61,16 @@ public abstract class Experiment {
 				sim.start();
 			processor.process((SimulationState)sim.getState());
 		}
+		end();
 	}
 
+	/**
+	 * Makes the postprocess of the experiments. The user should place here the actions that must be
+	 * performed when all the experiments have finished: close files, DB access...
+	 */
+	protected void end() {		
+	}
+	
 	/**
 	 * @return Returns the description.
 	 */

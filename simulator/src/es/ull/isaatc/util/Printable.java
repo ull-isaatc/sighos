@@ -10,9 +10,12 @@ package es.ull.isaatc.util;
 public interface Printable {
 	/**
 	 * Prints the specified message.
-	 * @param type Message type.
-	 * @param shortMessage Short description of the message.
-	 * @param longMessage Long description of the message.
+	 * @param msg Description of the message.
 	 */
-	void print(Output.MessageType type, String shortMessage, String longMessage);
+	void print(String msg);
+	/**
+	 * Prints the specified error message.
+	 * @param description Text describing the error.
+	 */
+	void printError(String description);
 }

@@ -75,14 +75,18 @@ public class ActivityManager extends SimulationObject {
      * Starts a mutual exclusion access to this activity manager.
      */    
     protected void waitSemaphore() {
+		print("MUTEX\trequesting");    	
         sem.waitSemaphore();
+		print("MUTEX\tadquired");    	
     }
     
     /**
      * Finishes a mutual exclusion access to this activity manager.
      */    
     protected void signalSemaphore() {
+		print("MUTEX\treleasing");    	
         sem.signalSemaphore();
+		print("MUTEX\tfreed");    	
     }
         
     /**
@@ -92,7 +96,7 @@ public class ActivityManager extends SimulationObject {
         Iterator<Activity> iter = activityTable.iterator(NonRemovablePrioritizedTable.IteratorType.RANDOM);
         while (iter.hasNext()) {
         	Activity act = iter.next();
-            act.print(Output.MessageType.DEBUG, "Testing pool activity (availableResource)");
+            act.print("Testing pool activity (availableResource)");
             SingleFlow sf = act.hasPendingElements();
             if (sf != null) {
             	WorkGroup wg = act.isFeasible(sf); 
@@ -100,17 +104,21 @@ public class ActivityManager extends SimulationObject {
                 	act.queueRemove(sf); 
                     Element e = sf.getElement();
 
-                    e.print(Output.MessageType.DEBUG, "Can carry out (available resource)\t" + act, 
-                    		"Can carry out (available resource)\t" + act + "\t" + act.getDescription());
+                    e.print("Can carry out (available resource)\t" + act + "\t" + act.getDescription());
                     
                     // Fin Sincronización hasta que el elemento deje de ser accedido
                     // MOD 26/01/06 Movida esta línea antes del e.sig...
                     // MOD 23/05/06 Vuelta a poner aquí: ¿POR QUÉ LA MOVI?
-                    e.signalSemaphore();
+            		e.print("MUTEX\treleasing\t" + act + " (av. res.)");    	
+                	e.signalSemaphore();
+            		e.print("MUTEX\tfreed\t" + act + " (av. res.)");    	
                     e.carryOutActivity(sf, wg);
                 }
-                else
-                    sf.getElement().signalSemaphore();
+                else {
+                	sf.getElement().print("MUTEX\treleasing\t" + act + " (av. res.)");    	
+                	sf.getElement().signalSemaphore();
+                	sf.getElement().print("MUTEX\tfreed\t" + act + " (av. res.)");    	
+                }
             }
         }
     } 

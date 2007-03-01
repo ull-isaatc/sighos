@@ -9,7 +9,6 @@ import es.ull.isaatc.simulation.state.ResourceState;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.CycleIterator;
 import es.ull.isaatc.util.OrderedList;
-import es.ull.isaatc.util.Output;
 
 
 /**
@@ -135,12 +134,17 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 * True in other case. 
 	 */
 	protected boolean addBook(SingleFlow sf) {
+		print("MUTEX\trequesting\t" + sf.getElement() + "(add book)");    	
 		waitSemaphore();
+		print("MUTEX\tadquired\t" + sf.getElement() + "(add book)");    	
 		// First I complete the conflicts list
 		if (bookList.size() > 0)
 			sf.mergeConflictList(bookList.get(0));
 		boolean result = bookList.add(sf);
+		print("booked\t" + sf.getElement());
+		print("MUTEX\treleasing\t" + sf.getElement() + " (add book)");    	
 		signalSemaphore();
+		print("MUTEX\tfreed\t" + sf.getElement() + " (add book)");    	
 		return result;
 	}
 	
@@ -150,50 +154,69 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 * @param sf The single flow releasing the book over this resource.
 	 */
 	protected void removeBook(SingleFlow sf) {
+		print("MUTEX\trequesting\t" + sf.getElement() + "(remove book)");    	
 		waitSemaphore();
+		print("MUTEX\tadquired\t" + sf.getElement() + "(remove book)");    	
 		bookList.remove(sf); 
+		print("unbooked\t" + sf.getElement());
+		print("MUTEX\treleasing\t" + sf.getElement() + " (remove book)");    	
 		signalSemaphore();
+		print("MUTEX\tfreed\t" + sf.getElement() + " (remove book)");    	
 	}
 
 	/**
 	 * Marks this resource as taken by an element. Sets the current Single flow, and the
-	 * current resource type; clears the book list; and adds this resource to the caugt-resources
-	 * list of the single flow. 
+	 * current resource type; and adds this resource to the caugt-resources list of the single flow.
+	 * A "taken" element continues being booked. The book is released when the resource itself is
+	 * released. 
 	 * @param sf The single flow which an element is executing
 	 * @param rt The role this resource has been taken for.
 	 */
 	protected void catchResource(SingleFlow sf, ResourceType rt) {
+		print("MUTEX\trequesting\t" + sf.getElement() + "(catch res.)");    	
 		waitSemaphore();
+		print("MUTEX\tadquired\t" + sf.getElement() + "(catch res.)");    	
 		// FIXME: Es esto o debería cogerlo del LP?
 		setTs(sf.getElement().getTs());
         simul.notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.CAUGHT, ts, sf.getElement().getIdentifier(), rt.getIdentifier()));
 		currentSF = sf;
 		sf.addCaughtResource(this);
 		currentResourceType = rt;
-		bookList.clear();
+//		bookList.clear();
+		print("MUTEX\treleasing\t" + sf.getElement() + " (catch res.)");    	
 		signalSemaphore();
+		print("MUTEX\tfreed\t" + sf.getElement() + " (catch res.)");    	
 	}
 	
     /**
      * Releases this resource. If the resource has already expired its availability time, 
      * the timeOut flag is set off. Sets the current single flow and the current resource type 
-     * to <code>null</code>.
+     * to <code>null</code>. The book of the resource is released too.
      * @return True if the resource could be correctly released. False if the availability
      * time of the resource had already expired.
      */
     protected boolean releaseResource() {
+		print("MUTEX\trequesting\t" + currentSF.getElement() + "(rel. res.)");    	
 		waitSemaphore();
+		print("MUTEX\tadquired\t" + currentSF.getElement() + "(rel. res.)");    	
 		// FIXME: Es esto o debería cogerlo del LP?
 		setTs(currentSF.getElement().getTs());
         simul.notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.RELEASED, ts, currentSF.getElement().getIdentifier(), currentResourceType.getIdentifier()));
+        // The book is removed
+		bookList.remove(currentSF); 
+		print("unbooked\t" + currentSF.getElement());
         currentSF = null;
         currentResourceType = null;        
         if (timeOut) {
         	timeOut = false;
+    		print("MUTEX\treleasing\t" + "(rel. res.)");    	
     		signalSemaphore();
+    		print("MUTEX\tfreed\t" + "(rel. res.)");    	
         	return false;
         }
+		print("MUTEX\treleasing\t" + "(rel. res.)");    	
 		signalSemaphore();
+		print("MUTEX\tfreed\t" + "(rel. res.)");    	
         return true;
     }
     
@@ -265,7 +288,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
         @Override
         public void event() {
             simul.notifyListeners(new ResourceInfo(Resource.this, ResourceInfo.Type.ROLON, ts, role.getIdentifier()));
-            print(Output.MessageType.DEBUG, "Resource available\t" + role);
+            print("Resource available\t" + role);
             // Beginning MUTEX access to activity manager
             role.getManager().waitSemaphore();
             role.incAvailable(Resource.this);
@@ -321,7 +344,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
             role.getManager().signalSemaphore();        
             // MOD 22/05/06
             removeRole(role);
-            print(Output.MessageType.DEBUG, "Resource unavailable\t" + role);
+            print("Resource unavailable\t" + role);
             double nextTs = iter.next();
             if (!Double.isNaN(nextTs)) {
                 RoleOnEvent rEvent = new RoleOnEvent(nextTs, role, iter, duration);

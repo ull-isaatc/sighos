@@ -6,8 +6,6 @@
 
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.util.*;
-
 /**
  * An object of the simulation that has a description
  * @author Iván Castilla Rodríguez
@@ -26,9 +24,8 @@ public abstract class DescSimulationObject extends SimulationObject {
         return description;
     }
 
-    public void print(Output.MessageType type, String shortMessage, String longMessage) {
-		simul.print(type, this.toString() + "\t" + getTs() + "\t" + shortMessage, 
-				this.toString() + "\t" + getTs() + "\t" + description + "\t" + longMessage);
+    public void print(String message) {
+		simul.print(this.toString() + "\t" + getTs() + "\t" + description + "\t" + message);
 	}
 
 }

@@ -211,11 +211,11 @@ class ExpSimAct extends Experiment {
 			sim.addListener(new StdInfoListener());
 		}
 		else if (expType == 2) {
-			sim = new SimContinue(description + ind + "", 0.0, NDAYS, new Output(Output.DebugLevel.NODEBUG));
+			sim = new SimContinue(description + ind + "", 0.0, NDAYS, new Output());
 			sim.addListener(new StdInfoListener());
 		}
 		else if (expType == 3) {
-			sim = new SimContinue(description + ind + "", previousState.getEndTs(), NDAYS, new Output(Output.DebugLevel.NODEBUG));
+			sim = new SimContinue(description + ind + "", previousState.getEndTs(), NDAYS, new Output());
 			sim.addListener(new StdInfoListener());
 		}
 		return sim;
