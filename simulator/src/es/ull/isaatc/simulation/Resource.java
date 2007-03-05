@@ -103,7 +103,13 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 * @param role New resource type added
 	 */
 	protected void addRole(ResourceType role) {
+		print("MUTEX\trequesting\t(add role)");    	
+		waitSemaphore();
+		print("MUTEX\tadquired\t(add role)");    	
 		currentRoles.add(role);
+		print("MUTEX\treleasing\t(add role)");    	
+		signalSemaphore();
+		print("MUTEX\tfreed\t(add role)");    	
 	}
 
 	/**
@@ -111,7 +117,13 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 * @param role Resource type removed
 	 */
 	protected void removeRole(ResourceType role) {
+		print("MUTEX\trequesting\t(remove role)");    	
+		waitSemaphore();
+		print("MUTEX\tadquired\t(remove role)");    	
 		currentRoles.remove(role);
+		print("MUTEX\treleasing\t(remove role)");    	
+		signalSemaphore();
+		print("MUTEX\tfreed\t(remove role)");    	
 	}
 
 	/**
@@ -119,10 +131,16 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 * @return Returns the currentManagers.
 	 */
 	public ArrayList<ActivityManager> getCurrentManagers() {
+		print("MUTEX\trequesting\t(get man)");    	
+		waitSemaphore();
+		print("MUTEX\tadquired\t(get man)");    	
 		ArrayList <ActivityManager> currentManagers = new ArrayList<ActivityManager>();
 		for (ResourceType role : currentRoles)
 			if (!currentManagers.contains(role.getManager()))
 				currentManagers.add(role.getManager());
+		print("MUTEX\treleasing\t(get man)");    	
+		signalSemaphore();
+		print("MUTEX\tfreed\t(get man)");    	
 		return currentManagers;
 	}
 
