@@ -1,9 +1,13 @@
 
 
+import es.ull.isaatc.simulation.Generator;
 import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.info.CompassListener;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.info.SimulationObjectInfo;
+import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
+import es.ull.isaatc.util.CycleIterator;
 
 /**
  * 
@@ -11,27 +15,37 @@ import es.ull.isaatc.simulation.info.TimeChangeInfo;
  */
 public class TestCompassListener extends CompassListener {
 
-	/**
-	 * 
-	 */
-	public TestCompassListener(double period) {
-		super(period);
+	public TestCompassListener(CycleIterator cycleIterator) {
+		super(cycleIterator);
 	}
 
 	@Override
-	protected void takeSample(Simulation simul, double ts) {
-		System.out.println("TS :\t" + ts);
+	public void takeSample(Generator gen) {
+		System.out.println("TS :\t" + gen.getTs());
 		
 	}
 
+	@Override
+	public void infoEmited(SimulationObjectInfo info) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void infoEmited(SimulationStartInfo info) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
 	public void infoEmited(SimulationEndInfo info) {
 		// TODO Auto-generated method stub
 		
 	}
 
+	@Override
 	public void infoEmited(TimeChangeInfo info) {
 		// TODO Auto-generated method stub
 		
 	}
-
 }
