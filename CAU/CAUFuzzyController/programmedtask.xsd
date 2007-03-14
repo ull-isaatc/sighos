@@ -13,6 +13,8 @@
 		<xs:sequence>
 			<xs:element name="cycle" type="Cycle"/>
 			<xs:element name="filename" type="xs:string"/>
+			<xs:element name="actQueue" type="ComponentRef"/>
+			<xs:element name="period" type="xs:double"/>
 			<xs:element name="task" minOccurs="0" maxOccurs="unbounded">
 				<xs:complexType>
 					<xs:sequence>

@@ -31,7 +31,7 @@ class FuzzyController {
 		// define the QoS
 		qos.put("task1", 1.0);
 		qos.put("task2", 0.8);
-		qos.put("task3", 0.7);
+		qos.put("task3", 0.6);
 
 		taskPerfomed = new HashMap<String, Integer>();
 		taskPerfomed.put("task1", 0);
@@ -100,6 +100,7 @@ class FuzzyController {
 		for (String varStr : taskPerfomed.keySet()) {
 			System.out.println(varStr + " :\t" + (double)taskPerfomed.get(varStr) / nSamples);
 		}
+		System.out.println("NSAMPLES : " + nSamples);
 	}
 }
 
@@ -111,11 +112,11 @@ class FuzzyController {
  */
 public class TestController {
 
-	static int NSAMPLES = 100;
+	static int NSAMPLES = 1000;
 	
 	static int NEXP = 1;
 	
-	static int QSIZE = 0;
+	static int QSIZE = 15;
 
 	/**
 	 * @param args

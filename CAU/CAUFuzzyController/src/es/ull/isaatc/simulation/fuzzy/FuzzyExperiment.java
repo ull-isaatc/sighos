@@ -15,14 +15,17 @@ import es.ull.isaatc.simulation.xml.XMLModel;
 import es.ull.isaatc.util.Cycle;
 
 /**
+ * Creates a simulation model and uses fuzzy controllers for simulating
+ * the behaviour of the management staff.
  * @author Roberto Muñoz
- *
  */
 public class FuzzyExperiment extends XMLExperiment {
 
 	protected ProgrammedTasks xmlProgTask;
+	
 	/**
-	 * @param xmlModel
+	 * Initialize the experiment 
+	 * @param xmlModel XML model description
 	 */
 	public FuzzyExperiment(XMLFuzzyModel xmlModel) {
 		super(xmlModel);
@@ -60,6 +63,8 @@ public class FuzzyExperiment extends XMLExperiment {
 		FuzzyControllerListener listener = new FuzzyControllerListener(
 				simul,
 				cycle.iterator(simul.getStartTs(), simul.getEndTs()),
+				xmlSampler.getPeriod(),
+				xmlSampler.getActQueue().getId(),
 				xmlSampler.getFilename());
 		for (Task task : xmlSampler.getTask()) {
 			listener.addTask(task.getDescription(),

@@ -26,26 +26,25 @@ import net.sourceforge.jFuzzyLogic.rule.FuzzyRuleSet;
 import net.sourceforge.jFuzzyLogic.rule.Variable;
 
 public class FuzzyControllerListener extends CompassListener {
-
 	/** Programed tasks list */
 	private ProgrammedTaskList programmedTaskList = new ProgrammedTaskList();
-
 	/** Fuzzy engine */
 	private FIS fis;
-	
 	/** Queue listener */
 	private ActivityQueueListener actListener;
+	/** Activity identifier */
+	private int actQueueId;
 	
 	/**
 	 * 
 	 * @param period sample rate
 	 * @param fileName fuzzy file path
 	 */
-	public FuzzyControllerListener(Simulation simul, CycleIterator cycleIterator, String fileName) {
+	public FuzzyControllerListener(Simulation simul, CycleIterator cycleIterator, double period, int actQueueId, String fileName) {
 		super(cycleIterator);
 
-		actListener = new ActivityQueueListener();
-		actListener.setPeriod(1440);
+		this.actQueueId = actQueueId;
+		actListener = new ActivityQueueListener(period);
 		simul.addListener(actListener);
 		// load the FCL file
 		fis = FIS.load(fileName, false);
@@ -68,7 +67,7 @@ public class FuzzyControllerListener extends CompassListener {
 	public void takeSample(Generator gen) {
 		FuzzyRuleSet fuzzyRuleSet = fis.getFuzzyRuleSet();
 //		int queue = actListener.getActivityQueue(6) + actListener.getActivityQueue(7) + actListener.getActivityQueue(8); 
-		int queue = actListener.getActivityQueue(1);
+		int queue = actListener.getActivityQueue(actQueueId);
 		fuzzyRuleSet.setVariable("queue", queue);
 		double prob;
 		Uniform uniform = new Uniform(0, 1);
@@ -89,7 +88,6 @@ public class FuzzyControllerListener extends CompassListener {
 			int i = 0;
 			for (double value : taskCycle) {
 				taskCycleArray[i++] = value;
-//				System.out.println(gen.getTs() + "\tCREATE ELEMENT [" + entry.getEt() + "]\t" + value);
 			}
 			Cycle cycle = new TableCycle(taskCycleArray);
 			new TimeDrivenGenerator(gen.getSimul(), entry.getElementCreator((ModelCreator) gen.getSimul()), cycle.iterator(gen.getTs(), gen.getSimul().getEndTs())).start(gen.getDefLP());

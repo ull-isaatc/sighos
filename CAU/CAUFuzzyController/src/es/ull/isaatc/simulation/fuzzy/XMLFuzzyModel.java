@@ -20,8 +20,7 @@ import es.ull.isaatc.simulation.fuzzy.xml.ProgrammedTasks;
 import es.ull.isaatc.simulation.xml.XMLModel;
 
 /**
- * @author rmglez
- *
+ * @author Roberto Muñoz
  */
 public class XMLFuzzyModel extends XMLModel {
 
@@ -36,7 +35,6 @@ public class XMLFuzzyModel extends XMLModel {
 			String xmlExperimentFileName, String xmlProgramedTaskFileName) {
 		super(xmlModelFileName, xmlScenarioFileName, xmlExperimentFileName);
 		xmlProgTasks = unMarshallProgTask(xmlProgramedTaskFileName);
-
 	}
 
 	/**
@@ -46,6 +44,11 @@ public class XMLFuzzyModel extends XMLModel {
 		return xmlProgTasks;
 	}
 
+	/**
+	 * Unmarshall the XML file with the programmed tasks description.
+	 * @param fileName programmed task XML file name
+	 * @return the programmed tasks loaded
+	 */
 	public static ProgrammedTasks unMarshallProgTask(String fileName) {
 		ProgrammedTasks progTask = null;
 		try {

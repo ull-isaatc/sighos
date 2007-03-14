@@ -10,7 +10,7 @@ import es.ull.isaatc.util.CycleIterator;
 
 /**
  * This class offers the mechanism necessary for taking samples at a constant rate in a simulation.
- * @author Roberto MuÃ±oz
+ * @author Roberto Muñoz
  */
 public abstract class CompassListener implements BasicElementCreator, SimulationListener {
 
@@ -31,6 +31,9 @@ public abstract class CompassListener implements BasicElementCreator, Simulation
 	 */
 	public void create(Generator gen) {
 		nextTs = cycleIterator.next();
+		if (Double.isNaN(nextTs))
+			nextTs = gen.getSimul().getEndTs();
+//		System.err.println(nextTs);
 		takeSample(gen);
 	}
 	
