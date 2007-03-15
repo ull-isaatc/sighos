@@ -8,7 +8,9 @@ import es.ull.isaatc.simulation.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.fuzzy.xml.ProgrammedTasks;
 import es.ull.isaatc.simulation.fuzzy.xml.Sampler;
 import es.ull.isaatc.simulation.fuzzy.xml.Sampler.Task;
+import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationListener;
+import es.ull.isaatc.simulation.info.SimulationTimeListener;
 import es.ull.isaatc.simulation.xml.ModelCreator;
 import es.ull.isaatc.simulation.xml.XMLExperiment;
 import es.ull.isaatc.simulation.xml.XMLModel;
@@ -39,6 +41,14 @@ public class FuzzyExperiment extends XMLExperiment {
 	public Simulation getSimulation(int ind) {
 		ModelCreator simul = (ModelCreator) super.getSimulation(ind);
 		createSamplers(simul, xmlModel);
+		simul.addListener(new SimulationTimeListener() {
+			@Override
+			public void infoEmited(SimulationEndInfo info) {
+				// TODO Auto-generated method stub
+				super.infoEmited(info);
+				System.out.println(this);
+			}
+		});
 		return simul;
 	}
 	
