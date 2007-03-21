@@ -48,7 +48,7 @@ class SimActListener extends StatisticListener {
 	}
 }
 
-class SimSimAct extends Simulation {
+class SimSimAct extends StandAloneLPSimulation {
 	static final int NPACDAY = 5;
 	static final double START = 0.0;
 	static final double DURAC_REC = 899.0;
@@ -96,7 +96,7 @@ class SimSimAct extends Simulation {
  * @author Iván Castilla Rodríguez
  *
  */
-class SimPoolAct extends Simulation {
+class SimPoolAct extends StandAloneLPSimulation {
 	static final int NPACDAY = 5;
 	static final double START = 0.0;
 	static final int DURAC_REC = 799;
@@ -126,7 +126,7 @@ class SimPoolAct extends Simulation {
 	}
 }
 
-class SimContinue extends Simulation {
+class SimContinue extends StandAloneLPSimulation {
 	static final int NPACDAY = 25;
 	static final int DURAC_REC = 480;
     int ndays;

@@ -111,7 +111,7 @@ public class ElemIndispTimeListener implements SimulationListener {
 	    nPeriods = (int) auxPeriods + 1;
 	else
 	    nPeriods = (int) auxPeriods;
-	for (ElementType et : simul.getElementTypeList()) {
+	for (ElementType et : simul.getElementTypeList().values()) {
 	    elementTypeTimes.put(et.getIdentifier(), new ElementTypeTime(et.getIdentifier(), nPeriods));
 	}
 	nextPeriodTs = simStart + period;

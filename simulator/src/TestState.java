@@ -10,7 +10,7 @@ import es.ull.isaatc.util.PeriodicCycle;
 /**
  * 
  */
-class StateSimulation extends Simulation {
+class StateSimulation extends StandAloneLPSimulation {
 	static final int NSIMPLE = 1;
 	static final int NRT = 2;
 	static final int NACT = 2;

@@ -1,6 +1,7 @@
 package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 import es.ull.isaatc.simulation.info.ResourceInfo;
 import es.ull.isaatc.simulation.info.ResourceUsageInfo;
@@ -8,8 +9,6 @@ import es.ull.isaatc.simulation.state.RecoverableState;
 import es.ull.isaatc.simulation.state.ResourceState;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.CycleIterator;
-import es.ull.isaatc.util.OrderedList;
-
 
 /**
  * A resource is an element that becomes available at a specific simulation time and 
@@ -34,7 +33,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     /** Single Flow which currently has got this resource */
     protected SingleFlow currentSF = null;
     /** List of elements trying to book this resource */
-    protected OrderedList<SingleFlow> bookList;
+    protected TreeSet<SingleFlow> bookList;
 
     /**
      * Creates a new instance of Resource.
@@ -47,7 +46,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		this.description = description;
         timeTable = new ArrayList<TimeTableEntry>();
         currentRoles = new ArrayList<ResourceType>();
-        bookList = new OrderedList<SingleFlow>();
+        bookList = new TreeSet<SingleFlow>();
         simul.add(this);
 	}
 
@@ -157,7 +156,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		debug("MUTEX\tadquired\t" + sf.getElement() + "(add book)");    	
 		// First I complete the conflicts list
 		if (bookList.size() > 0)
-			sf.mergeConflictList(bookList.get(0));
+			sf.mergeConflictList(bookList.first());
 		boolean result = bookList.add(sf);
 		debug("booked\t" + sf.getElement());
 		debug("MUTEX\treleasing\t" + sf.getElement() + " (add book)");    	

@@ -8,7 +8,6 @@ import java.util.Map;
 
 import es.ull.isaatc.simulation.Activity;
 import es.ull.isaatc.simulation.Simulation;
-import es.ull.isaatc.util.OrderedList;
 
 /**
  * Periodically stores the usage of an activity, that is, the total amount of time
@@ -122,9 +121,8 @@ public class PeriodicActivityUsageListener implements SimulationListener {
 			nPeriods = (int)auxPeriods + 1;
 		else
 			nPeriods = (int)auxPeriods;
-		OrderedList<Activity> actList = simul.getActivityList();
-		for (int i = 0; i < actList.size(); i++)			
-			actUsage.put(new Integer(actList.get(i).getIdentifier()), new double[nPeriods]);			
+		for (Activity act : simul.getActivityList().values())			
+			actUsage.put(act.getIdentifier(), new double[nPeriods]);
 	}
 
 	// Nothing to do

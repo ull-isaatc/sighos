@@ -1,12 +1,10 @@
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.util.Orderable;
-
 /**
  * An object belonging to a simulation.
  * @author Iván Castilla Rodríguez
  */
-public abstract class SimulationObject implements Orderable {
+public abstract class SimulationObject implements Comparable<SimulationObject> {
     /** Unique object identifier  */
 	protected int id;
     /** Simulation where this object is used in */
@@ -72,24 +70,14 @@ public abstract class SimulationObject implements Orderable {
     }
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.util.Orderable#getKey()
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public Comparable getKey() {
-		return new Integer(id);
+	public int compareTo(SimulationObject o) {
+		if (id < o.id)
+			return -1;
+		if (id > o.id)
+			return 1;
+		return 0;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	public int compareTo(Orderable obj) {
-		return compareTo(obj.getKey());		
-	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	public int compareTo(Object obj) {
-		return getKey().compareTo(obj);		
-	}
-	
 }

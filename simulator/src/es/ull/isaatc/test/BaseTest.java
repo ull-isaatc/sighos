@@ -5,9 +5,10 @@ package es.ull.isaatc.test;
 
 import es.ull.isaatc.simulation.Experiment;
 import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.StandAloneLPSimulation;
 import es.ull.isaatc.util.Output;
 
-class BaseSim extends Simulation {
+class BaseSim extends StandAloneLPSimulation {
 
 	public BaseSim(double startTs, double endTs, Output out) {
 		super("TEST", startTs, endTs, out);

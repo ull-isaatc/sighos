@@ -8,7 +8,6 @@ import java.util.Map;
 
 import es.ull.isaatc.simulation.Activity;
 import es.ull.isaatc.simulation.Simulation;
-import es.ull.isaatc.util.OrderedList;
 
 /**
  * Periodically stores the size of the activity queues. 
@@ -123,9 +122,8 @@ public class PeriodicActivityQueueListener implements SimulationListener {
 			nPeriods = (int)auxPeriods + 1;
 		else
 			nPeriods = (int)auxPeriods;
-		OrderedList<Activity> actList = simul.getActivityList();
-		for (int i = 0; i < actList.size(); i++)			
-			actQueues.put(new Integer(actList.get(i).getIdentifier()), new int[nPeriods]);
+		for (Activity act : simul.getActivityList().values())			
+			actQueues.put(act.getIdentifier(), new int[nPeriods]);
 	}
 
 	/* (non-Javadoc)

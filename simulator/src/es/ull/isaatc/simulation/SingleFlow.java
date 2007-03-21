@@ -11,7 +11,6 @@ import java.util.concurrent.Semaphore;
 
 import es.ull.isaatc.simulation.state.FlowState;
 import es.ull.isaatc.simulation.state.SingleFlowState;
-import es.ull.isaatc.util.Orderable;
 import es.ull.isaatc.util.Prioritizable;
 
 /**
@@ -19,7 +18,7 @@ import es.ull.isaatc.util.Prioritizable;
  * A single flow handles the execution of its activity.
  * @author Iván Castilla Rodríguez
  */
-public class SingleFlow extends Flow implements Orderable, Prioritizable {
+public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioritizable {
 	/** Single flows' Counter. Useful for identying each single flow */
 	private static int counter = 0;
 	/** Single flow's identifier */
@@ -317,24 +316,20 @@ public class SingleFlow extends Flow implements Orderable, Prioritizable {
 		}		
 	}
 
-	public Comparable getKey() {
-		return new Integer(id);
-	}
-
-	public int compareTo(Orderable obj) {
-		return compareTo(obj.getKey());		
-	}
-
-	public int compareTo(Object o) {
-		return getKey().compareTo(o);		
-	}
-
     /**
      * Returns the priority of the element owner of this flow
      * @return The priority of the associated element.
      */
     public int getPriority() {
     	return elem.getPriority();
-    }    
+    }
+
+	public int compareTo(SingleFlow o) {
+		if (id < o.id)
+			return -1;
+		if (id > o.id)
+			return 1;
+		return 0;
+	}    
 	
 }

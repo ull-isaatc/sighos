@@ -11,7 +11,7 @@ import es.ull.isaatc.util.PeriodicCycle;
  * - R0 {RT0, RT2}; R1 {RT3, RT1}
  * - E0 {A0}; E1 {A1} 
  */
-class SimConflict1 extends Simulation {
+class SimConflict1 extends StandAloneLPSimulation {
 	final static int NRT = 4;
 	final static int NACTS = 2;
 	final static int NELEM = 1;
@@ -52,7 +52,7 @@ class SimConflict1 extends Simulation {
  * - R0 {RT0, RT2}; R1 {RT3, RT1}; R2 {RT5, RT4}
  * - E0 {A0}; E1 {A1}; E2 {A2} 
  */
-class SimConflict2 extends Simulation {
+class SimConflict2 extends StandAloneLPSimulation {
 	final static int NRT = 6;
 	final static int NACTS = 3;
 	final static int NELEM = 1;

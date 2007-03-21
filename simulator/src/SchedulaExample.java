@@ -10,7 +10,7 @@ import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
 
-class SimSchedula extends Simulation {
+class SimSchedula extends StandAloneLPSimulation {
 	final static int NRES_ACT[] = {10, 12, 10, 5, 1, 5, 2, 5, 12, 5, 10};
 	final static String RESNAME[] = {"Acceptance", "Credit check", "Recomputation",
 		"Update database", "Update dossier", "Compute balance", "Produce report",

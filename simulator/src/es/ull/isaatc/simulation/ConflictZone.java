@@ -4,9 +4,8 @@
 package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
-
-import es.ull.isaatc.util.OrderedList;
 
 /**
  * A conflict zone serves as a MUTEX region for elements which have booked the same
@@ -17,7 +16,7 @@ import es.ull.isaatc.util.OrderedList;
  */
 public class ConflictZone {
 	/** List of  elements which have a conflict. */
-	protected OrderedList<SingleFlow> list;
+	protected TreeSet<SingleFlow> list;
 	/** Stack of semaphores which control a MUTEX region. */
 	protected ArrayList<Semaphore> semStack;
 	/** A semaphore for accesing this zone. */
@@ -25,7 +24,7 @@ public class ConflictZone {
 	
 	public ConflictZone(SingleFlow sf) {
 		semBook = new Semaphore(1);
-		list = new OrderedList<SingleFlow>();
+		list = new TreeSet<SingleFlow>();
 		semStack = new ArrayList<Semaphore>();
 		list.add(sf);
 	}

@@ -6,9 +6,7 @@ package es.ull.isaatc.simulation.info;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import es.ull.isaatc.util.Orderable;
-import es.ull.isaatc.util.OrderedList;
+import java.util.TreeMap;
 
 /**
  * Listens the usage and availability of the resources.
@@ -17,10 +15,10 @@ import es.ull.isaatc.util.OrderedList;
  */
 public class ResourceUsageListener implements SimulationListener {
 	/** Resource usage and availability. */
-	private HashMap<Integer, OrderedList<ResourceUsage>> resources;
+	private HashMap<Integer, TreeMap<Integer, ResourceUsage>> resources;
 
 	public ResourceUsageListener() {
-		resources = new HashMap<Integer, OrderedList<ResourceUsage>>();
+		resources = new HashMap<Integer, TreeMap<Integer, ResourceUsage>>();
 	}
 	
 	/* (non-Javadoc)
@@ -29,11 +27,11 @@ public class ResourceUsageListener implements SimulationListener {
 	public void infoEmited(SimulationObjectInfo info) {
 		if (info instanceof ResourceInfo) {
 			ResourceInfo rInfo = (ResourceInfo) info;
-			OrderedList<ResourceUsage> list = resources.get(rInfo.getIdentifier());
+			TreeMap<Integer, ResourceUsage> list = resources.get(rInfo.getIdentifier());
 			if (rInfo.getType() == ResourceInfo.Type.ROLON) {
 				if (list == null) {
-					list = new OrderedList<ResourceUsage>();
-					list.add(new ResourceUsage(rInfo.getValue()));
+					list = new TreeMap<Integer, ResourceUsage>();
+					list.put(rInfo.getValue(), new ResourceUsage(rInfo.getValue()));
 				}
 				ResourceUsage aux = list.get(rInfo.getValue());
 				aux.addRolOn(rInfo.getTs());
@@ -47,7 +45,7 @@ public class ResourceUsageListener implements SimulationListener {
 		}
 		else if (info instanceof ResourceUsageInfo) {
 			ResourceUsageInfo rInfo = (ResourceUsageInfo) info;
-			OrderedList<ResourceUsage> list = resources.get(rInfo.getIdentifier());
+			TreeMap<Integer, ResourceUsage> list = resources.get(rInfo.getIdentifier());
 			if (rInfo.getType() == ResourceUsageInfo.Type.CAUGHT) {
 				ResourceUsage aux = list.get(rInfo.getRtId());
 				aux.addCaught(rInfo.getTs());
@@ -84,9 +82,9 @@ public class ResourceUsageListener implements SimulationListener {
 	@Override
 	public String toString() {
 		StringBuffer str = new StringBuffer("Resource usage and availability\r\n");
-		for (Map.Entry<Integer, OrderedList<ResourceUsage>> entry : resources.entrySet()) {
+		for (Map.Entry<Integer, TreeMap<Integer, ResourceUsage>> entry : resources.entrySet()) {
 			str.append("R" + entry.getKey() + "\r\n");
-			for (ResourceUsage ru : entry.getValue())
+			for (ResourceUsage ru : entry.getValue().values())
 				str.append(ru);
 		}
 		return str.toString();
@@ -97,7 +95,7 @@ public class ResourceUsageListener implements SimulationListener {
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	class ResourceUsage implements Orderable {
+	class ResourceUsage implements Comparable<ResourceUsage> {
 		/** Resource type which this resource has been used for */
 		int rtId;
 		/** This value is increased every time a resource becomes available and decreased 
@@ -160,17 +158,13 @@ public class ResourceUsageListener implements SimulationListener {
 		public void addReleased(double ts) {
 			usage.get(usage.size() - 1)[1] = ts;
 		}
-		
-		public Comparable getKey() {
-			return rtId;
-		}
 
-		public int compareTo(Orderable o) {
-			return compareTo(o.getKey());
-		}
-
-		public int compareTo(Object o) {
-			return getKey().compareTo(o);
+		public int compareTo(ResourceUsage o) {
+			if (rtId < o.rtId)
+				return -1;
+			if (rtId > o.rtId)
+				return 1;
+			return 0;
 		}
 		
 		@Override

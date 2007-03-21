@@ -7,7 +7,7 @@ import es.ull.isaatc.random.Fixed;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.util.*;
 
-class CycleSim extends Simulation {
+class CycleSim extends StandAloneLPSimulation {
 
 	public CycleSim(double startTs, double endTs, Output out) {
 		super("TEST", startTs, endTs, out);

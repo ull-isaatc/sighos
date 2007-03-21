@@ -3,7 +3,7 @@ import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.util.*;
 
 
-class SimGenerators extends Simulation {
+class SimGenerators extends StandAloneLPSimulation {
 
 	public SimGenerators(double startTs, double endTs, Output out) {
 		super("Test de generadores", startTs, endTs, out);

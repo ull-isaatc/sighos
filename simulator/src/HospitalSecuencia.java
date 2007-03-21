@@ -14,7 +14,7 @@ import es.ull.isaatc.util.*;
  * El resultado de todo esto sería que se dispone de 4 gestores de actividades, 
  * uno por cada patología.
  */
-class Analisis extends Simulation {
+class Analisis extends StandAloneLPSimulation {
     static final int NPACIENTES = 10;
     int ndays;
     

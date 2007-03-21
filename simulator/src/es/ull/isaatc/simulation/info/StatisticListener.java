@@ -6,10 +6,9 @@ package es.ull.isaatc.simulation.info;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.util.OrderedList;
-
 
 /**
  * Stores the information related to a simulation. 
@@ -204,11 +203,12 @@ public class StatisticListener implements SimulationListener {
 			amIds[i][1] = am.getLp().getIdentifier();
 		}
 		// Fills the activity list
-		OrderedList<Activity> actList = simul.getActivityList();
+		TreeMap<Integer, Activity> actList = simul.getActivityList();
 		actIds = new int[actList.size()][2];
-		for (int i = 0; i < actIds.length; i++) {
-			actIds[i][0] = actList.get(i).getIdentifier(); 
-			actIds[i][1] = actList.get(i).getManager().getIdentifier();
+		int cont = 0;
+		for (Activity act : actList.values()) {
+			actIds[cont][0] = act.getIdentifier(); 
+			actIds[cont++][1] = act.getManager().getIdentifier();
 		}
 		// Creates the activity queues map
 		double auxPeriods = ((simEnd - simStart) / period);
@@ -216,12 +216,13 @@ public class StatisticListener implements SimulationListener {
 			nPeriods = (int)auxPeriods + 1;
 		else
 			nPeriods = (int)auxPeriods;
-		for (int i = 0; i < actIds.length; i++) {			
-			actQueues.put(new Integer(actIds[i][0]), new int[nPeriods]);
-			actUsage.put(new Integer(actIds[i][0]), new double[nPeriods]);
+		for (int []ids : actIds) {
+			actQueues.put(ids[0], new int[nPeriods]);
+			actUsage.put(ids[0], new double[nPeriods]);
+			
 		}
 		// Fills the resource type list
-		OrderedList<ResourceType> rtList = simul.getResourceTypeList();
+		TreeMap<Integer, ResourceType> rtList = simul.getResourceTypeList();
 		rtIds = new int[rtList.size()][2];
 		for (int i = 0; i < rtIds.length; i++) {
 			rtIds[i][0] = rtList.get(i).getIdentifier(); 

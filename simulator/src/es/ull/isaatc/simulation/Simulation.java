@@ -35,19 +35,19 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	String description;
 
 	/** List of resources present in the simulation. */
-	protected OrderedList<Resource> resourceList;
+	protected TreeMap<Integer, Resource> resourceList;
 
 	/** List of element generators of the simulation. */
 	protected ArrayList<Generator> generatorList;
 
 	/** List of activities present in the simulation. */
-	protected OrderedList<Activity> activityList;
+	protected TreeMap<Integer, Activity> activityList;
 
 	/** List of resource types present in the simulation. */
-	protected OrderedList<ResourceType> resourceTypeList;
+	protected TreeMap<Integer, ResourceType> resourceTypeList;
 
 	/** List of resource types present in the simulation. */
-	protected OrderedList<ElementType> elementTypeList;
+	protected TreeMap<Integer, ElementType> elementTypeList;
 
 	/** List of activity managers that partition the simulation. */
 	protected ArrayList<ActivityManager> activityManagerList;
@@ -71,7 +71,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	private ArrayList<SimulationListener> listeners;
 
 	/** List of active elements */
-	private OrderedList<Element> activeElementList;
+	private TreeMap<Integer, Element> activeElementList;
 
 	/**
 	 * Creates a new instance of Simulation
@@ -87,11 +87,11 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 */
 	public Simulation(String description, double startTs, double endTs,
 			Output out) {
-		activityList = new OrderedList<Activity>();
-		resourceTypeList = new OrderedList<ResourceType>();
-		elementTypeList = new OrderedList<ElementType>();
+		activityList = new TreeMap<Integer, Activity>();
+		resourceTypeList = new TreeMap<Integer, ResourceType>();
+		elementTypeList = new TreeMap<Integer, ElementType>();
 		activityManagerList = new ArrayList<ActivityManager>();
-		resourceList = new OrderedList<Resource>();
+		resourceList = new TreeMap<Integer, Resource>();
 		generatorList = new ArrayList<Generator>();
 
 		this.description = description;
@@ -100,7 +100,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 		this.out = out;
 		// MOD 29/06/06
 		listeners = new ArrayList<SimulationListener>();
-		activeElementList = new OrderedList<Element>();
+		activeElementList = new TreeMap<Integer, Element>();
 	}
 
 	/**
@@ -131,12 +131,13 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 		createModel();
 		debug("SIMULATION MODEL CREATED");
 		createActivityManagers();
-		createSimulation();
+		debugPrintActManager();
+		createLogicalProcesses();
 		if (state != null) {
 			setState(state);
 			// Elements from a previous simulation don't need to be started, but
 			// they need a default LP
-			for (Element elem : activeElementList)
+			for (Element elem : activeElementList.values())
 				if (elem.getDefLP() == null)
 					elem.setDefLP(getDefaultLogicalProcess());
 		}
@@ -148,7 +149,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 		for (Generator gen : generatorList)
 			gen.start(getDefaultLogicalProcess());
 		// Starts all the resources
-		for (Resource res : resourceList)
+		for (Resource res : resourceList.values())
 			res.start(getDefaultLogicalProcess());
 	}
 
@@ -219,144 +220,18 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	protected abstract void createModel();
 
 	/**
-	 * Makes a depth first search on a graph.
-	 * 
-	 * @param graph
-	 *            Graph to be searched.
-	 * @param current
-	 *            Current node being searching.
-	 * @param marks
-	 *            Mark array that's used for determining the partition of each
-	 *            node.
+	 * Specifies the way the structure of the activity managers is built. 
+	 * @see StandardAMSimulation
 	 */
-	private void dfs(HashSet<Integer>[] graph, int current, int[] marks) {
-		for (Integer i : graph[current]) {
-			if (marks[i.intValue()] == -1) {
-				marks[i.intValue()] = marks[current];
-				// Para acelerar un poco el algoritmo se elimina la arista
-				// simétrica
-				// FIXME ¿Se podría eliminar tb la propia arista?
-				graph[i.intValue()].remove(new Integer(current));
-				dfs(graph, i.intValue(), marks);
-			}
-		}
-	}
-
+	protected abstract void createActivityManagers();
+	
 	/**
-	 * Creates a graph by using the activities and resource types of the model.
-	 * The created graph G=(V, E) is created as follows: each vertex is a
-	 * resource type and each edge is an activity that is associated with the
-	 * resource types represented by the connected vertex.
-	 * 
-	 * @return The constructed graph.
+	 * Specifies the way the structure of the logical processes is built. 
+	 * @see StandAloneLPSimulation
+	 * @see SimpleLPSimulation
 	 */
-	private HashSet<Integer>[] createGraph() {
-		int ind1 = -1, ind2 = -1;
-		HashSet<Integer>[] graph = new HashSet[resourceTypeList.size()];
-
-		for (int i = 0; i < resourceTypeList.size(); i++)
-			graph[i] = new HashSet<Integer>();
-		for (Activity a : activityList) {
-			Iterator<WorkGroup> iter = a.iterator();
-			// Looks for the first RTT that contains at least one resource type
-			int firstWG = 1;
-			while (iter.hasNext()) {
-				WorkGroup wg = iter.next();
-				if (wg.size() > 0) {
-					if (firstWG == 1)
-						ind1 = resourceTypeList.indexOf(wg.getResourceType(0));
-					for (; firstWG < wg.size(); firstWG++) {
-						ind2 = resourceTypeList.indexOf(wg
-								.getResourceType(firstWG));
-						graph[ind1].add(new Integer(ind2));
-						graph[ind2].add(new Integer(ind1));
-						ind1 = ind2;
-					}
-					firstWG = 0;
-				}
-			}
-		}
-		debugPrintGraph(graph);
-		return graph;
-	}
-
-	/**
-	 * Creates the activity managers that partition the model. This is
-	 * equivalent to finding the connected components of a graph G=(V, E) where
-	 * each vertex is a resource type and each edge is an activity that is
-	 * associated with the resource types represented by the connected vertex.
-	 */
-	private void createActivityManagers() {
-		// The graph is an array consisting on sets of resource types
-		HashSet<Integer>[] graph = createGraph();
-		int[] marks = new int[resourceTypeList.size()];
-		for (int i = 0; i < resourceTypeList.size(); i++)
-			marks[i] = -1; // Not-visited mark
-
-		// Now the DFS
-		int nManagers = 0; // This counter lets us mark each partition
-		for (int i = 0; i < resourceTypeList.size(); i++)
-			if (marks[i] == -1) {
-				marks[i] = nManagers;
-				dfs(graph, i, marks);
-				nManagers++;
-			}
-		// The activity managers are created
-		for (int i = 0; i < nManagers; i++)
-			new ActivityManager(this);
-		// The activities are associated to the activity managers
-		for (Activity a : activityList) {
-			Iterator<WorkGroup> iter = a.iterator();
-			// This step is for non-resource-types activities
-			boolean found = false;
-			while (iter.hasNext() && !found) {
-				WorkGroup wg = iter.next();
-				if (wg.size() > 0) {
-					int ind = resourceTypeList.indexOf(wg.getResourceType(0));
-					a.setManager(activityManagerList.get(marks[ind]));
-					found = true;
-				}
-			}
-			if (!found) {
-				nManagers++;
-				a.setManager(new ActivityManager(this));
-			}
-		}
-		for (int i = 0; i < resourceTypeList.size(); i++)
-			resourceTypeList.get(i).setManager(
-					activityManagerList.get(marks[i]));
-
-		debugPrintActManager();
-	}
-
-	/**
-	 * Creates the logical process needed for carrying out a simulation.
-	 */
-	private void createLogicalProcesses() {
-		logicalProcessList = new LogicalProcess[activityManagerList.size() + 1];
-		for (int i = 0; i < activityManagerList.size(); i++)
-			logicalProcessList[i] = new LogicalProcess(this, startTs, endTs);
-		// Creo el último proceso lógico, que servirá de "cajón de sastre"
-		logicalProcessList[activityManagerList.size()] = new LogicalProcess(
-				this, startTs, endTs);
-	}
-
-	/**
-	 * Creates the estructures needed to carry out a simulation. These
-	 * estructures are the logical processes. The activity managers are also
-	 * linked to the logical processes.
-	 */
-	private void createSimulation() {
-		// createLogicalProcesses();
-		// FIXME De momento sólo voy a utilizar un PL
-		logicalProcessList = new LogicalProcess[1];
-		logicalProcessList[0] = new LogicalProcess(this, startTs, endTs);
-		for (ActivityManager am : activityManagerList) {
-			// FIXME
-			am.setLp(logicalProcessList[0]);
-		}
-	}
-
+	protected abstract void createLogicalProcesses();
+	
 	/**
 	 * Starts the simulation execution. Initializes all the structures, and
 	 * starts the logical processes. This method blocks until all the logical
@@ -401,17 +276,17 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 * 
 	 * @param obj
 	 *            Identified object that's added to the model.
-	 * @return True is the insertion was succesful. False if there already was
-	 *         an object with the same description in the list.
+	 * @return previous value associated with the key of specified object, or <code>null</code>
+	 *  if there was no previous mapping for key.
 	 */
-	protected boolean add(DescSimulationObject obj) {
-		boolean resul = false;
+	protected DescSimulationObject add(DescSimulationObject obj) {
+		DescSimulationObject resul = null;
 		if (obj instanceof ResourceType)
-			resul = resourceTypeList.add((ResourceType) obj);
+			resul = resourceTypeList.put(obj.getIdentifier(), (ResourceType) obj);
 		else if (obj instanceof Activity)
-			resul = activityList.add((Activity) obj);
+			resul = activityList.put(obj.getIdentifier(), (Activity) obj);
 		else if (obj instanceof ElementType)
-			resul = elementTypeList.add((ElementType) obj);
+			resul = elementTypeList.put(obj.getIdentifier(), (ElementType) obj);
 		else
 			error("Trying to add an unidentified object to the Model");
 		return resul;
@@ -447,7 +322,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 *            Resource.
 	 */
 	protected void add(Resource res) {
-		resourceList.add(res);
+		resourceList.put(res.getIdentifier(), res);
 	}
 
 	/**
@@ -455,7 +330,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 * 
 	 * @return Resources of the model.
 	 */
-	public OrderedList<Resource> getResourceList() {
+	public TreeMap<Integer, Resource> getResourceList() {
 		return resourceList;
 	}
 
@@ -464,7 +339,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 * 
 	 * @return Activities of the model.
 	 */
-	public OrderedList<Activity> getActivityList() {
+	public TreeMap<Integer, Activity> getActivityList() {
 		return activityList;
 	}
 
@@ -484,7 +359,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 * 
 	 * @return Resource types of the model.
 	 */
-	public OrderedList<ResourceType> getResourceTypeList() {
+	public TreeMap<Integer, ResourceType> getResourceTypeList() {
 		return resourceTypeList;
 	}
 
@@ -515,7 +390,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 * 
 	 * @return element types of the model.
 	 */
-	public OrderedList<ElementType> getElementTypeList() {
+	public TreeMap<Integer, ElementType> getElementTypeList() {
 		return elementTypeList;
 	}
 
@@ -567,7 +442,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 *            An element that starts its execution.
 	 */
 	public synchronized void addActiveElement(Element elem) {
-		activeElementList.add(elem);
+		activeElementList.put(elem.getIdentifier(), elem);
 	}
 
 	/**
@@ -577,7 +452,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 *            An element that finishes its execution.
 	 */
 	public synchronized void removeActiveElement(Element elem) {
-		activeElementList.remove(elem);
+		activeElementList.remove(elem.getIdentifier());
 	}
 
 	/**
@@ -673,13 +548,13 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 				}
 			}
 		}
-		for (Activity act : activityList)
+		for (Activity act : activityList.values())
 			simState.add(act.getState());
-		for (ResourceType rt : resourceTypeList)
+		for (ResourceType rt : resourceTypeList.values())
 			simState.add(rt.getState());
-		for (Element elem : activeElementList)
+		for (Element elem : activeElementList.values())
 			simState.add(elem.getState());
-		for (Resource res : resourceList)
+		for (Resource res : resourceList.values())
 			simState.add(res.getState());
 		return simState;
 	}
@@ -698,7 +573,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 			Element elem = new Element(eState.getElemId(), this,
 					elementTypeList.get(new Integer(eState.getElemTypeId())));
 			elem.setState(eState);
-			activeElementList.add(elem);
+			activeElementList.put(elem.getIdentifier(), elem);
 		}
 		// Single flow's counter. This value is established here because the
 		// element's state set

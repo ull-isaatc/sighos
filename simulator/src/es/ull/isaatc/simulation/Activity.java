@@ -179,7 +179,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
         Iterator<WorkGroup> iter = workGroupTable.iterator(NonRemovablePrioritizedTable.IteratorType.FIFO);
         while (iter.hasNext()) {
         	WorkGroup opc = iter.next();
-        	if (opc.compareTo(wgId) == 0)
+        	if (opc.getIdentifier() == wgId)
         		return opc;        	
         }
         return null;

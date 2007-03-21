@@ -5,13 +5,14 @@ package es.ull.isaatc.test;
 
 import es.ull.isaatc.simulation.Experiment;
 import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.StandAloneLPSimulation;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationListener;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
-class MinimumSim extends Simulation {
+class MinimumSim extends StandAloneLPSimulation {
 
 	public MinimumSim(String description, double startTs, double endTs) {
 		super(description, startTs, endTs);

@@ -2,6 +2,7 @@
 package es.ull.isaatc.util;
 
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 /**
  * An structure which contains a priority-ordered list. Objects with the same priority are
@@ -12,7 +13,7 @@ import java.util.ArrayList;
  */
 public abstract class PrioritizedTable<T extends Prioritizable> {
     /** Array of priority levels. */
-    protected OrderedList<PrioritizedLevel> levels;
+    protected TreeMap<Integer, PrioritizedLevel> levels;
     /** Number of objects which this table contains. This value is updated when an object
      * is added or removed. */
     protected int nObj;
@@ -21,7 +22,7 @@ public abstract class PrioritizedTable<T extends Prioritizable> {
      * Initializes the levels of the structure.  
      */
     public PrioritizedTable() {
-        levels = new OrderedList<PrioritizedLevel>();
+        levels = new TreeMap<Integer, PrioritizedLevel>();
     }
     
 	/**
@@ -32,7 +33,7 @@ public abstract class PrioritizedTable<T extends Prioritizable> {
     	PrioritizedLevel pLevel = levels.get(new Integer(obj.getPriority()));
     	if (pLevel == null) {
             pLevel = new PrioritizedLevel(obj.getPriority());
-            levels.add(pLevel);
+            levels.put(obj.getPriority(), pLevel);
     	}    	
         pLevel.add(obj);
 	}
@@ -88,7 +89,7 @@ public abstract class PrioritizedTable<T extends Prioritizable> {
      * object.
      * @author Iván Castilla Rodríguez
      */
-    class PrioritizedLevel extends ArrayList<T> implements Orderable {
+    class PrioritizedLevel extends ArrayList<T> implements Comparable<PrioritizedLevel> {
     	private static final long serialVersionUID = 1L;
     	/** Next object that can be chosen. */
         protected int candidate;
@@ -159,20 +160,12 @@ public abstract class PrioritizedTable<T extends Prioritizable> {
 			return candidate;
 		}
 
-		/**
-         * Returns the priority of the level.
-         * @return The priority of the level.
-         */
-		public Comparable getKey() {
-			return priority;
-		}
-
-		public int compareTo(Orderable o) {
-			return compareTo(o.getKey());
-		}
-
-		public int compareTo(Object o) {
-			return getKey().compareTo(o);
+		public int compareTo(PrioritizedLevel o) {
+			if (priority < o.priority)
+				return -1;
+			if (priority > o.priority)
+				return 1;
+			return 0;
 		}        
     }
 

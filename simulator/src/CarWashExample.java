@@ -11,7 +11,7 @@ import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
 
-class CarWashSimulation extends Simulation {
+class CarWashSimulation extends StandAloneLPSimulation {
 	final static int NRES = 2;
 
 	CarWashSimulation(double startTs, double endTs, Output out) {

@@ -9,7 +9,7 @@ import es.ull.isaatc.simulation.info.*;
 import es.ull.isaatc.simulation.state.SimulationState;
 import es.ull.isaatc.util.*;
 
-class SimBarcelona extends Simulation {
+class SimBarcelona extends StandAloneLPSimulation {
 	static final int NDAYS = 365 * 3;
 	static final double START = 0.0;
 	static final double END = 24 * NDAYS;

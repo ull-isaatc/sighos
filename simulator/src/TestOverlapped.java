@@ -18,7 +18,7 @@ import es.ull.isaatc.util.*;
  * @author Iván Castilla Rodríguez
  *
  */
-class OverlappedSimulation extends Simulation {
+class OverlappedSimulation extends StandAloneLPSimulation {
 	final static int NELEM = 3;
 	final static int NRESOURCES = 2;
 	final static int NEEDED = 1;

@@ -7,7 +7,7 @@
 package es.ull.isaatc.util;
 
 /**
- * A prioritizable object can be used in a Prioritized Table.
+ * A prioritizable object has a priority and can be used in a Prioritized Table.
  * @author Iván Castilla Rodríguez
  */
 public interface Prioritizable {

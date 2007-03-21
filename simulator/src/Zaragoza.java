@@ -18,7 +18,7 @@ import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
 
-class SimZaragoza extends Simulation {
+class SimZaragoza extends StandAloneLPSimulation {
 	int npatients;
 	int nres;
 	

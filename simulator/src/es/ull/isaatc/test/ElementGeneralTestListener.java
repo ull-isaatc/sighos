@@ -5,10 +5,10 @@ package es.ull.isaatc.test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.*;
-import es.ull.isaatc.util.OrderedList;
 
 class FlowSkeletonFactory {
 	private int finished = 0;
@@ -67,7 +67,7 @@ class GroupFlowSkeleton implements FlowSkeleton {
 public class ElementGeneralTestListener implements SimulationListener {
 	HashMap<Integer, TestInfo> table;
 	ArrayList<Integer> errorStart = new ArrayList<Integer>();
-	OrderedList<Resource> resUsage;
+	TreeSet<Resource> resUsage;
 	ArrayList<Integer> errorResUsage = new ArrayList<Integer>();
 
 	class TestInfo {
