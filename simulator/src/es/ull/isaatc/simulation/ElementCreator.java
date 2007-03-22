@@ -7,7 +7,8 @@ import java.util.ArrayList;
 
 import es.ull.isaatc.function.RandomFunction;
 import es.ull.isaatc.function.TimeFunction;
-import es.ull.isaatc.random.RandomNumber;
+
+import simkit.random.RandomVariate;
 
 /**
  * Defines the way a generator creates elements when it's time to create them.
@@ -43,7 +44,7 @@ public class ElementCreator implements BasicElementCreator {
 	 * Creates a creator of elements.
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 */
-	public ElementCreator(RandomNumber nElem) {
+	public ElementCreator(RandomVariate nElem) {
 		genTrio = new ArrayList<GenerationTrio>();
 		this.nElem = new RandomFunction(nElem);
 	}
@@ -54,7 +55,7 @@ public class ElementCreator implements BasicElementCreator {
 	 * @param et The type of the elements to be created
 	 * @param metaFlow The description of the flow of the elements to be created.
 	 */
-	public ElementCreator(RandomNumber nElem, ElementType et, MetaFlow metaFlow) {
+	public ElementCreator(RandomVariate nElem, ElementType et, MetaFlow metaFlow) {
 		this(nElem);
 		genTrio.add(new GenerationTrio(et, metaFlow, 1.0));
 	}

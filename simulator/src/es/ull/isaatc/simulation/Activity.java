@@ -4,10 +4,11 @@ import java.util.Iterator;
 
 import es.ull.isaatc.function.RandomFunction;
 import es.ull.isaatc.function.TimeFunction;
-import es.ull.isaatc.random.RandomNumber;
 import es.ull.isaatc.simulation.state.ActivityState;
 import es.ull.isaatc.simulation.state.RecoverableState;
 import es.ull.isaatc.util.*;
+
+import simkit.random.RandomVariate;
 
 /**
  * A task which could be carry out by an element. An activity is characterized by its priority,
@@ -145,7 +146,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * @param priority Priority of the workgroup
      * @return A new workgroup.
      */
-    public WorkGroup getNewWorkGroup(int wgId, RandomNumber duration, int priority) {
+    public WorkGroup getNewWorkGroup(int wgId, RandomVariate duration, int priority) {
     	WorkGroup wg = new WorkGroup(wgId, this, new RandomFunction(duration), priority);
         workGroupTable.add(wg);
         return wg;
@@ -158,7 +159,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * @param duration Duration of the activity when performed with the new workgroup
      * @return A new workgroup.
      */
-    public WorkGroup getNewWorkGroup(int wgId, RandomNumber duration) {    	
+    public WorkGroup getNewWorkGroup(int wgId, RandomVariate duration) {    	
         return getNewWorkGroup(wgId, duration, 0);
     }
 

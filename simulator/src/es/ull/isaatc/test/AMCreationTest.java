@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.test;
 
-import es.ull.isaatc.random.Fixed;
+import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.state.SimulationState;
 import es.ull.isaatc.util.Output;
@@ -19,7 +19,7 @@ class MySimulation extends StandAloneLPSimulation {
 		for (int i = 0; i < NRT; i++)
 			new ResourceType(i, this, "RT" + i);
 		for (int i = 0; i < NACT; i++) {
-			WorkGroup wg = new Activity(i, this, "ACT" + i).getNewWorkGroup(0, new Fixed(10.0));
+			WorkGroup wg = new Activity(i, this, "ACT" + i).getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 10.0));
 			wg.add(resourceTypeList.get(i), 1);
 			wg.add(resourceTypeList.get(i + 1), 1);
 		}
@@ -31,7 +31,7 @@ class MySimulation extends StandAloneLPSimulation {
 		for (int i = 0; i < NRT; i++)
 			new ResourceType(i, this, "RT" + i);
 		for (int i = 0; i < NACT; i++) {
-			WorkGroup wg = new Activity(i, this, "ACT" + i).getNewWorkGroup(0, new Fixed(10.0));
+			WorkGroup wg = new Activity(i, this, "ACT" + i).getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 10.0));
 			wg.add(resourceTypeList.get(i), 1);
 		}
 	}

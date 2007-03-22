@@ -3,8 +3,7 @@
  */
 package es.ull.isaatc.function;
 
-import es.ull.isaatc.random.Fixed;
-import es.ull.isaatc.random.RandomNumber;
+import simkit.random.RandomVariateFactory;
 
 
 /**
@@ -26,7 +25,7 @@ public class PolynomicFunction extends TimeFunction {
 	    int i = 0;
 	    this.coefficients = new RandomFunction[length];
 	    for (double j : coefficients)
-		this.coefficients[i++] = new RandomFunction(new Fixed(j));
+	    	this.coefficients[i++] = new RandomFunction(RandomVariateFactory.getInstance("ConstantVariate", j));
 	    
 	}
 

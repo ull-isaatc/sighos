@@ -1,5 +1,5 @@
 
-import es.ull.isaatc.random.*;
+import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.StatisticListener;
 import es.ull.isaatc.simulation.info.StdInfoListener;
@@ -44,19 +44,19 @@ class Analisis extends StandAloneLPSimulation {
 
         // PASO 3: Creo las tablas de clases de recursos
 //        WorkGroup wg1 = actPrueba1.getNewWorkGroup(0, new Normal(20.0, 5.0));
-        WorkGroup wg1 = actPrueba1.getNewWorkGroup(0, new Fixed(60));
+        WorkGroup wg1 = actPrueba1.getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 60));
         wg1.add(crEnfermero, 1);
-        WorkGroup wg2 = actPrueba1a.getNewWorkGroup(0, new Normal(10.0, 2.0));
+        WorkGroup wg2 = actPrueba1a.getNewWorkGroup(0, RandomVariateFactory.getInstance("NormalVariate", 10.0, 2.0));
         wg2.add(crSangre, 1);
-        WorkGroup wg3 = actPrueba1c.getNewWorkGroup(0, new Normal(10.0, 2.0));
+        WorkGroup wg3 = actPrueba1c.getNewWorkGroup(0, RandomVariateFactory.getInstance("NormalVariate", 10.0, 2.0));
         wg3.add(crSangre, 1);
         wg3.add(crEnfermero, 1);
-        WorkGroup wg4 = actPrueba1e.getNewWorkGroup(0, new Normal(10.0, 2.0));
+        WorkGroup wg4 = actPrueba1e.getNewWorkGroup(0, RandomVariateFactory.getInstance("NormalVariate", 10.0, 2.0));
         wg4.add(crSangre, 1);
         wg4.add(crEnfermero, 1);
-        WorkGroup wg5 = actPrueba1b.getNewWorkGroup(0, new Normal(10.0, 5.0));
+        WorkGroup wg5 = actPrueba1b.getNewWorkGroup(0, RandomVariateFactory.getInstance("NormalVariate", 10.0, 5.0));
         wg5.add(crOrina, 1);
-        WorkGroup wg6 = actPrueba1d.getNewWorkGroup(0, new Normal(10.0, 5.0));
+        WorkGroup wg6 = actPrueba1d.getNewWorkGroup(0, RandomVariateFactory.getInstance("NormalVariate", 10.0, 5.0));
         wg6.add(crOrina, 1);
         wg6.add(crEnfermero, 1);
         
@@ -67,8 +67,8 @@ class Analisis extends StandAloneLPSimulation {
 //		Resource orina1 = new Resource(this, "Máquina Análisis Orina 1");
 //		orina1.addTimeTableEntry(480, 1440, 480, getResourceType(1), 0);
 
-//        Cycle c = new Cycle(480, new Fixed(1440.0), 3);
-//        Cycle c1 = new Cycle(0, new Fixed(1440.0 * 7), 0, c);
+//        Cycle c = new Cycle(480, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 3);
+//        Cycle c1 = new Cycle(0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0 * 7), 0, c);
 //        Resource poli = new Resource(0, this, "Máquina polivalente");
 //        ArrayList list = new ArrayList();
 //        list.add(getResourceType(1));
@@ -76,57 +76,57 @@ class Analisis extends StandAloneLPSimulation {
 //        poli.addTimeTableEntry(c1, 480, list);
         // Y añado los Enfermeros necesarios para que vaya "sobrado" el asunto
         
-        Cycle c = new PeriodicCycle(480, new Fixed(1440.0), 0);
+        Cycle c = new PeriodicCycle(480, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
 		new Resource(1, this, "Enfermero 1").addTimeTableEntry(c, 480, getResourceType(2));
 //		new Resource(2, this, "Enfermero 2").addTimeTableEntry(c, 480, getResourceType(2));
 		createMetaFlow3();
 	}
 	
     protected void createMetaFlow0() {
-        SequenceMetaFlow sec = new SequenceMetaFlow(1, new Fixed(1));
-        new SingleMetaFlow(2, sec, new Fixed(1), getActivity(0));
-        SimultaneousMetaFlow simPruebas = new SimultaneousMetaFlow(3, sec, new Fixed(1));
-        SequenceMetaFlow secOrina = new SequenceMetaFlow(4, simPruebas, new Fixed(1));
-        new SingleMetaFlow(5, secOrina, new Fixed(1), getActivity(2));
-        new SingleMetaFlow(6, secOrina, new Fixed(1), getActivity(4));
-        SequenceMetaFlow secSangre = new SequenceMetaFlow(7, simPruebas, new Fixed(1));
-        new SingleMetaFlow(8, secSangre, new Fixed(1), getActivity(1));
-        SimultaneousMetaFlow simSangre = new SimultaneousMetaFlow(9, secSangre, new Fixed(1));
-        new SingleMetaFlow(10, simSangre, new Fixed(1), getActivity(3));
-        new SingleMetaFlow(11, simSangre, new Fixed(1), getActivity(5));
-        Cycle c = new PeriodicCycle(0.0, new Fixed(1440.0), ndays);
-        new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NPACIENTES), getElementType(0), sec), c.iterator(startTs, endTs));
+        SequenceMetaFlow sec = new SequenceMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1));
+        new SingleMetaFlow(2, sec, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
+        SimultaneousMetaFlow simPruebas = new SimultaneousMetaFlow(3, sec, RandomVariateFactory.getInstance("ConstantVariate", 1));
+        SequenceMetaFlow secOrina = new SequenceMetaFlow(4, simPruebas, RandomVariateFactory.getInstance("ConstantVariate", 1));
+        new SingleMetaFlow(5, secOrina, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2));
+        new SingleMetaFlow(6, secOrina, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(4));
+        SequenceMetaFlow secSangre = new SequenceMetaFlow(7, simPruebas, RandomVariateFactory.getInstance("ConstantVariate", 1));
+        new SingleMetaFlow(8, secSangre, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1));
+        SimultaneousMetaFlow simSangre = new SimultaneousMetaFlow(9, secSangre, RandomVariateFactory.getInstance("ConstantVariate", 1));
+        new SingleMetaFlow(10, simSangre, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(3));
+        new SingleMetaFlow(11, simSangre, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(5));
+        Cycle c = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), ndays);
+        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), sec), c.iterator(startTs, endTs));
     }
     
     protected void createMetaFlow1() {
-    	SimultaneousMetaFlow simPruebas = new SimultaneousMetaFlow(12, new Uniform(1, 4));
-    	new SingleMetaFlow(13, simPruebas, new Fixed(1), getActivity(0));
-    	DecisionMetaFlow dec = new DecisionMetaFlow(14, simPruebas, new Fixed(1));        
+    	SimultaneousMetaFlow simPruebas = new SimultaneousMetaFlow(12, RandomVariateFactory.getInstance("UniformVariate", 1, 4));
+    	new SingleMetaFlow(13, simPruebas, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
+    	DecisionMetaFlow dec = new DecisionMetaFlow(14, simPruebas, RandomVariateFactory.getInstance("ConstantVariate", 1));        
         OptionMetaFlow op1 = new OptionMetaFlow(15, dec, 0.5);
         OptionMetaFlow op2 = new OptionMetaFlow(16, dec, 0.5);
-        new SingleMetaFlow(17, op1, new Fixed(1), getActivity(2));
-        SimultaneousMetaFlow simSangre = new SimultaneousMetaFlow(18, op2, new Fixed(1));
-        new SingleMetaFlow(19, simSangre, new Fixed(1), getActivity(3));
-        new SingleMetaFlow(20, simSangre, new Fixed(1), getActivity(5));
-        Cycle c = new PeriodicCycle(0.0, new Fixed(1440.0), ndays);
-        new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NPACIENTES), getElementType(0), simPruebas), c.iterator(startTs, endTs));
+        new SingleMetaFlow(17, op1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2));
+        SimultaneousMetaFlow simSangre = new SimultaneousMetaFlow(18, op2, RandomVariateFactory.getInstance("ConstantVariate", 1));
+        new SingleMetaFlow(19, simSangre, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(3));
+        new SingleMetaFlow(20, simSangre, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(5));
+        Cycle c = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), ndays);
+        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), simPruebas), c.iterator(startTs, endTs));
     }
     protected void createMetaFlow2() {
-        SimultaneousMetaFlow metaFlow = new SimultaneousMetaFlow(21, new Fixed(1));
-        new SingleMetaFlow(22, metaFlow, new Fixed(1), getActivity(2));
-        new SingleMetaFlow(23, metaFlow, new Fixed(1), getActivity(1));
+        SimultaneousMetaFlow metaFlow = new SimultaneousMetaFlow(21, RandomVariateFactory.getInstance("ConstantVariate", 1));
+        new SingleMetaFlow(22, metaFlow, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2));
+        new SingleMetaFlow(23, metaFlow, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1));
         // FIXME: Con end = 180.0 falla!!! 
-//        Cycle c3 = new Cycle(480.0, new Fixed(50.0), 960.0);
-//        Cycle c2 = new Cycle(0.0, new Fixed(1440.0), 5, c3);
-////        Cycle c2 = new Cycle(480.0, new Fixed(120.0), 0);
-//        Cycle c = new Cycle(0.0, new Fixed(1440.0 * 7), 0, c2);
-        Cycle c = new PeriodicCycle(0.0, new Fixed(1440.0), ndays);
-        new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NPACIENTES), getElementType(0), metaFlow), c.iterator(startTs, endTs));
+//        Cycle c3 = new Cycle(480.0, RandomVariateFactory.getInstance("ConstantVariate", 50.0), 960.0);
+//        Cycle c2 = new Cycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 5, c3);
+////        Cycle c2 = new Cycle(480.0, RandomVariateFactory.getInstance("ConstantVariate", 120.0), 0);
+//        Cycle c = new Cycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0 * 7), 0, c2);
+        Cycle c = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), ndays);
+        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), metaFlow), c.iterator(startTs, endTs));
     }
     
     protected void createMetaFlow3() {
-        Cycle c = new PeriodicCycle(0.0, new Fixed(1440.0), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NPACIENTES), getElementType(0), new SingleMetaFlow(23, new Fixed(1), getActivity(0))), c.iterator(startTs, endTs));
+        Cycle c = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
+        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), new SingleMetaFlow(23, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c.iterator(startTs, endTs));
     }
 
 }

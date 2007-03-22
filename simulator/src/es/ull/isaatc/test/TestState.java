@@ -1,6 +1,7 @@
+package es.ull.isaatc.test;
 //import java.io.OutputStreamWriter;
 
-import es.ull.isaatc.random.Fixed;
+import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.util.Cycle;
@@ -30,19 +31,19 @@ class StateSimulation extends StandAloneLPSimulation {
 
 	@Override
 	protected void createModel() {
-		Cycle cPeriod = new PeriodicCycle(0.0, new Fixed(PERIOD), 0);
+		Cycle cPeriod = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", PERIOD), 0);
 		switch (complexityDegree) {
 			case 0:				
 				for (int i = 0; i < NSIMPLE; i++)
 					new ResourceType(i, this, "RT" + i);
 				for (int i = 0; i < NSIMPLE; i++)
-					new Activity(i, this, "ACT" + i).getNewWorkGroup(0, new Fixed(DURACT)).add(getResourceType(i), 1);
+					new Activity(i, this, "ACT" + i).getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", DURACT)).add(getResourceType(i), 1);
 				for (int i = 0; i < NSIMPLE; i++)
 					new ElementType(i, this, "ELEMT" + i);
 				for (int i = 0; i < NSIMPLE; i++)
 					new Resource(i, this, "RES" + i).addTimeTableEntry(cPeriod, DURRES, getResourceType(i));
 				for (int i = 0; i < NSIMPLE; i++) {
-					ElementCreator ec = new ElementCreator(new Fixed(NELEM), getElementType(i), new SingleMetaFlow(i, new Fixed(1), getActivity(i)));
+					ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
 					new TimeDrivenGenerator(this, ec, cPeriod.iterator(startTs, endTs));
 				}
 				break;
@@ -50,50 +51,50 @@ class StateSimulation extends StandAloneLPSimulation {
 				for (int i = 0; i < NSIMPLE; i++)
 					new ResourceType(i, this, "RT" + i);
 				for (int i = 0; i < NSIMPLE; i++)
-					new Activity(i, this, "ACT" + i).getNewWorkGroup(0, new Fixed(DURACT)).add(getResourceType(i), 1);
+					new Activity(i, this, "ACT" + i).getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", DURACT)).add(getResourceType(i), 1);
 				for (int i = 0; i < NSIMPLE; i++)
 					new ElementType(i, this, "ELEMT" + i);
 				for (int i = 0; i < NSIMPLE; i++)
 					new Resource(i, this, "RES" + i).addTimeTableEntry(cPeriod, DURRES + 20, getResourceType(i));
-				Cycle c4 = new PeriodicCycle(0.0, new Fixed(PERIOD), 0);
+				Cycle c4 = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", PERIOD), 0);
 				for (int i = 0; i < NSIMPLE; i++) {
-					ElementCreator ec = new ElementCreator(new Fixed(NELEM), getElementType(i), new SingleMetaFlow(i, new Fixed(1), getActivity(i)));
+					ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
 					new TimeDrivenGenerator(this, ec, c4.iterator(startTs, endTs));
 				}
 				break;
 			case 2:
 				ResourceType rt = new ResourceType(0, this, "RT0");
 				Activity a = new Activity(0, this, "Non presential 0", false);
-				a.getNewWorkGroup(0, new Fixed(DURACT)).add(rt, 1); 
+				a.getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", DURACT)).add(rt, 1); 
 				ElementType et = new ElementType(0, this, "ELEMT0");
 				new Resource(0, this, "RES0").addTimeTableEntry(cPeriod, DURRES, rt);
-				ElementCreator ec = new ElementCreator(new Fixed(NELEM), et, new SingleMetaFlow(0, new Fixed(1), a));
+				ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), et, new SingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), a));
 				new TimeDrivenGenerator(this, ec, cPeriod.iterator(startTs, endTs));
 				break;
 			case 3:
 				ResourceType rt1 = new ResourceType(1, this, "RT1");
-				new Activity(0, this, "Non presential 0", false).getNewWorkGroup(0, new Fixed(DURACT)).add(rt1, 1); 
-				new Activity(1, this, "Non presential 1", false).getNewWorkGroup(0, new Fixed(DURACT)).add(rt1, 1); 
+				new Activity(0, this, "Non presential 0", false).getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", DURACT)).add(rt1, 1); 
+				new Activity(1, this, "Non presential 1", false).getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", DURACT)).add(rt1, 1); 
 				ElementType et1 = new ElementType(1, this, "ELEMT1");
 				for (int i = 0; i < NRES; i++)
 					new Resource(i, this, "RES" + i).addTimeTableEntry(cPeriod, DURRES, rt1);
-				SimultaneousMetaFlow sim = new SimultaneousMetaFlow(0, new Fixed(1));
-				new SingleMetaFlow(1, sim, new Fixed(1), getActivity(0));
-				new SingleMetaFlow(2, sim, new Fixed(1), getActivity(1));
-				ElementCreator ec1 = new ElementCreator(new Fixed(NELEM), et1, sim);
+				SimultaneousMetaFlow sim = new SimultaneousMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
+				new SingleMetaFlow(1, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
+				new SingleMetaFlow(2, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1));
+				ElementCreator ec1 = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), et1, sim);
 				new TimeDrivenGenerator(this, ec1, cPeriod.iterator(startTs, endTs));
 				break;
 /*			case 4:
 				for (int i = 0; i < NSIMPLE; i++)
 					new ResourceType(i, this, "RT" + i);
 				for (int i = 0; i < NSIMPLE; i++)
-					new Activity(i, this, "ACT" + i).getNewWorkGroup(0, new Fixed(DURACT)).add(getResourceType(i), 1);
+					new Activity(i, this, "ACT" + i).getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", DURACT)).add(getResourceType(i), 1);
 				for (int i = 0; i < NSIMPLE; i++)
 					new ElementType(i, this, "ELEMT" + i);
 				for (int i = 0; i < NSIMPLE; i++)
 					new Resource(i, this, "RES" + i).addTimeTableEntry(cPeriod, DURRES + 20, getResourceType(i));
 				DeterministicElementGenerator gen = new DeterministicElementGenerator(this);
-				SingleMetaFlow meta = new SingleMetaFlow(0, new Fixed(1), getActivity(0));
+				SingleMetaFlow meta = new SingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
 				double t = 10.0;
 				for (int i = 0; i < NELEM; i++, t+= 10.0)
 					gen.addElement(getElementType(0), meta, t);

@@ -2,7 +2,7 @@ package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
 
-import es.ull.isaatc.random.Fixed;
+import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -13,13 +13,13 @@ public class TypeBranchMetaFlow extends MetaFlow {
 	protected ArrayList<ElementType> elementsType;
 
 	public TypeBranchMetaFlow(int id, TypeMetaFlow parent, ElementType elementType) {
-		super(id, parent, new Fixed(1));
+		super(id, parent, RandomVariateFactory.getInstance("ConstantVariate", 1));
 		this.elementsType = new ArrayList<ElementType>();
 		this.elementsType.add(elementType);
 	}
 
 	public TypeBranchMetaFlow(int id, TypeMetaFlow parent, ArrayList<ElementType> elementsType) {
-		super(id, parent, new Fixed(1));
+		super(id, parent, RandomVariateFactory.getInstance("ConstantVariate", 1));
 		this.elementsType = elementsType;
 	}
 

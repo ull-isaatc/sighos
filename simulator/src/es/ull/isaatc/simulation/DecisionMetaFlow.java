@@ -6,7 +6,7 @@ package es.ull.isaatc.simulation;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import es.ull.isaatc.random.*;
+import simkit.random.RandomVariate;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -20,7 +20,7 @@ public class DecisionMetaFlow extends MetaFlow {
 	 * 
 	 * @param iterations
 	 */
-	public DecisionMetaFlow(int id, RandomNumber iterations) {
+	public DecisionMetaFlow(int id, RandomVariate iterations) {
 		super(id, null, iterations);
 		options = new ArrayList<MetaFlow>();
 	}
@@ -30,7 +30,7 @@ public class DecisionMetaFlow extends MetaFlow {
 	 * @param parent
 	 * @param iterations
 	 */
-	public DecisionMetaFlow(int id, GroupMetaFlow parent, RandomNumber iterations) {
+	public DecisionMetaFlow(int id, GroupMetaFlow parent, RandomVariate iterations) {
 		super(id, parent, iterations);
 		options = new ArrayList<MetaFlow>();
 	}
@@ -40,7 +40,7 @@ public class DecisionMetaFlow extends MetaFlow {
 	 * @param parent
 	 * @param iterations
 	 */
-	public DecisionMetaFlow(int id, OptionMetaFlow parent, RandomNumber iterations) {
+	public DecisionMetaFlow(int id, OptionMetaFlow parent, RandomVariate iterations) {
 		super(id, parent, iterations);
 		options = new ArrayList<MetaFlow>();
 	}
@@ -50,7 +50,7 @@ public class DecisionMetaFlow extends MetaFlow {
 	 * @param parent
 	 * @param iterations
 	 */
-	public DecisionMetaFlow(int id, TypeBranchMetaFlow parent, RandomNumber iterations) {
+	public DecisionMetaFlow(int id, TypeBranchMetaFlow parent, RandomVariate iterations) {
 		super(id, parent, iterations);
 		options = new ArrayList<MetaFlow>();
 	}

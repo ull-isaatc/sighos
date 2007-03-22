@@ -6,7 +6,7 @@ package es.ull.isaatc.simulation;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import es.ull.isaatc.random.RandomNumber;
+import simkit.random.RandomVariate;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -20,7 +20,7 @@ public abstract class GroupMetaFlow extends MetaFlow {
 	 * @param parent
 	 * @param iterations
 	 */
-	public GroupMetaFlow(int id, MetaFlow parent, RandomNumber iterations) {
+	public GroupMetaFlow(int id, MetaFlow parent, RandomVariate iterations) {
 		super(id, parent, iterations);
 		descendants = new ArrayList<MetaFlow>();
 	}

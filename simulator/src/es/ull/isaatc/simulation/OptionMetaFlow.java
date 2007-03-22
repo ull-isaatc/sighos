@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.random.Fixed;
+import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -11,7 +11,7 @@ public class OptionMetaFlow extends MetaFlow {
 	protected double prob;
 
 	public OptionMetaFlow(int id, DecisionMetaFlow parent, double prob) {
-		super(id, parent, new Fixed(1));
+		super(id, parent, RandomVariateFactory.getInstance("ConstantVariate", 1));
 		this.prob = prob;
 	}
 

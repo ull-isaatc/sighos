@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.random.RandomNumber;
+import simkit.random.RandomVariate;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -16,7 +16,7 @@ public class SingleMetaFlow extends MetaFlow {
 	/**
 	 * @param parent
 	 */
-	public SingleMetaFlow(int id, RandomNumber iterations, Activity act) {
+	public SingleMetaFlow(int id, RandomVariate iterations, Activity act) {
 		super(id, null, iterations);
 		this.act = act;
 	}
@@ -24,7 +24,7 @@ public class SingleMetaFlow extends MetaFlow {
 	/**
 	 * @param parent
 	 */
-	public SingleMetaFlow(int id, GroupMetaFlow parent, RandomNumber iterations, Activity act) {
+	public SingleMetaFlow(int id, GroupMetaFlow parent, RandomVariate iterations, Activity act) {
 		super(id, parent, iterations);
 		this.act = act;
 	}
@@ -32,7 +32,7 @@ public class SingleMetaFlow extends MetaFlow {
 	/**
 	 * @param parent
 	 */
-	public SingleMetaFlow(int id, OptionMetaFlow parent, RandomNumber iterations, Activity act) {
+	public SingleMetaFlow(int id, OptionMetaFlow parent, RandomVariate iterations, Activity act) {
 		super(id, parent, iterations);
 		this.act = act;
 	}
@@ -40,7 +40,7 @@ public class SingleMetaFlow extends MetaFlow {
 	/**
 	 * @param parent
 	 */
-	public SingleMetaFlow(int id, TypeBranchMetaFlow parent, RandomNumber iterations, Activity act) {
+	public SingleMetaFlow(int id, TypeBranchMetaFlow parent, RandomVariate iterations, Activity act) {
 		super(id, parent, iterations);
 		this.act = act;
 	}
@@ -50,7 +50,7 @@ public class SingleMetaFlow extends MetaFlow {
 	 */
 	public boolean getFlow(Flow parentFlow, Element e) {
 		Flow flow;
-		int iter = iterations.sampleInt();
+		int iter = (int)iterations.generate();
 
 		if (iter == 0)
 			return true;

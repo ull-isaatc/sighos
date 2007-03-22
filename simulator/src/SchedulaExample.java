@@ -2,7 +2,7 @@
  * 
  */
 
-import es.ull.isaatc.random.Fixed;
+import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.StatisticListener;
 import es.ull.isaatc.simulation.info.StdInfoListener;
@@ -35,20 +35,20 @@ class SimSchedula extends StandAloneLPSimulation {
 			new ResourceType(i, this, RESNAME[i]);
 		
 		WorkGroup wgs[] = new WorkGroup[14];
-		wgs[0] = new Activity(0, this, "AcceptanceN").getNewWorkGroup(0, new Fixed(8.33));
-		wgs[7] = new Activity(7, this, "AcceptanceRE").getNewWorkGroup(0, new Fixed(1));
-		wgs[1] = new Activity(1, this, "Credit checkN").getNewWorkGroup(0, new Fixed(8.13));
-		wgs[8] = new Activity(8, this, "Credit checkRE").getNewWorkGroup(0, new Fixed(1));
-		wgs[2] = new Activity(2, this, "Recomputation").getNewWorkGroup(0, new Fixed(2));
-		wgs[3] = new Activity(3, this, "Update databaseN").getNewWorkGroup(0, new Fixed(5.56));
-		wgs[9] = new Activity(9, this, "Update databaseR").getNewWorkGroup(0, new Fixed(4));
-		wgs[10] = new Activity(10, this, "Update databaseE").getNewWorkGroup(0, new Fixed(10.53));
-		wgs[4] = new Activity(4, this, "Update dossierN").getNewWorkGroup(0, new Fixed(6.67));
-		wgs[11] = new Activity(11, this, "Update dossierRE").getNewWorkGroup(0, new Fixed(1));
-		wgs[5] = new Activity(5, this, "Compute balanceN").getNewWorkGroup(0, new Fixed(2.63));
-		wgs[12] = new Activity(12, this, "Compute balanceRE").getNewWorkGroup(0, new Fixed(1));
-		wgs[6] = new Activity(6, this, "Produce reportNR").getNewWorkGroup(0, new Fixed(1));
-		wgs[13] = new Activity(13, this, "Produce reportE").getNewWorkGroup(0, new Fixed(2.63));
+		wgs[0] = new Activity(0, this, "AcceptanceN").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 8.33));
+		wgs[7] = new Activity(7, this, "AcceptanceRE").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
+		wgs[1] = new Activity(1, this, "Credit checkN").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 8.13));
+		wgs[8] = new Activity(8, this, "Credit checkRE").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
+		wgs[2] = new Activity(2, this, "Recomputation").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 2));
+		wgs[3] = new Activity(3, this, "Update databaseN").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 5.56));
+		wgs[9] = new Activity(9, this, "Update databaseR").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 4));
+		wgs[10] = new Activity(10, this, "Update databaseE").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 10.53));
+		wgs[4] = new Activity(4, this, "Update dossierN").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 6.67));
+		wgs[11] = new Activity(11, this, "Update dossierRE").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
+		wgs[5] = new Activity(5, this, "Compute balanceN").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 2.63));
+		wgs[12] = new Activity(12, this, "Compute balanceRE").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
+		wgs[6] = new Activity(6, this, "Produce reportNR").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
+		wgs[13] = new Activity(13, this, "Produce reportE").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 2.63));
 		
 		wgs[0].add(getResourceType(0), 1);
 		wgs[0].add(getResourceType(8), 1);
@@ -97,7 +97,7 @@ class SimSchedula extends StandAloneLPSimulation {
 		}
 
 		// Resources
-		Cycle c1 = new PeriodicCycle(510.0, new Fixed(1440.0), 0);
+		Cycle c1 = new PeriodicCycle(510.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
 		int count = 0;
 		for (int i = 0; i < NRES_ACT.length; i++)
 			for (int j = 0; j < NRES_ACT[i]; j++) 
@@ -105,34 +105,34 @@ class SimSchedula extends StandAloneLPSimulation {
 
 		// Meta flows
 		int countMeta = 0;
-		TypeMetaFlow type = new TypeMetaFlow(countMeta++, new Fixed(1));
+		TypeMetaFlow type = new TypeMetaFlow(countMeta++, RandomVariateFactory.getInstance("ConstantVariate", 1));
 		SequenceMetaFlow sec[] = new SequenceMetaFlow[NELEM.length];
 		for (int i = 0; i < NELEM.length; i++) {
 			// hay dos constructores para el typebranch
 			TypeBranchMetaFlow tb = new TypeBranchMetaFlow(countMeta++, type, getElementType(i));
-			sec[i] = new SequenceMetaFlow(countMeta++, tb,  new Fixed(1));
+			sec[i] = new SequenceMetaFlow(countMeta++, tb,  RandomVariateFactory.getInstance("ConstantVariate", 1));
 		}
 		// Type A
-		new SingleMetaFlow(countMeta++, sec[0], new Fixed(1), getActivity(0));
-		new SingleMetaFlow(countMeta++, sec[0], new Fixed(1), getActivity(1));
-		new SingleMetaFlow(countMeta++, sec[0], new Fixed(1), getActivity(2));
-		new SingleMetaFlow(countMeta++, sec[0], new Fixed(1), getActivity(3));
-		new SingleMetaFlow(countMeta++, sec[0], new Fixed(1), getActivity(4));
+		new SingleMetaFlow(countMeta++, sec[0], RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
+		new SingleMetaFlow(countMeta++, sec[0], RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1));
+		new SingleMetaFlow(countMeta++, sec[0], RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2));
+		new SingleMetaFlow(countMeta++, sec[0], RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(3));
+		new SingleMetaFlow(countMeta++, sec[0], RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(4));
 		// Type B
-		new SingleMetaFlow(countMeta++, sec[1], new Fixed(1), getActivity(2));
-		new SingleMetaFlow(countMeta++, sec[1], new Fixed(1), getActivity(3));
+		new SingleMetaFlow(countMeta++, sec[1], RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2));
+		new SingleMetaFlow(countMeta++, sec[1], RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(3));
 		// Type C
-		new SingleMetaFlow(countMeta++, sec[2], new Fixed(1), getActivity(5));
-		new SingleMetaFlow(countMeta++, sec[2], new Fixed(1), getActivity(2));
-		new SingleMetaFlow(countMeta++, sec[2], new Fixed(1), getActivity(3));
-		new SingleMetaFlow(countMeta++, sec[2], new Fixed(1), getActivity(6));
+		new SingleMetaFlow(countMeta++, sec[2], RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(5));
+		new SingleMetaFlow(countMeta++, sec[2], RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2));
+		new SingleMetaFlow(countMeta++, sec[2], RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(3));
+		new SingleMetaFlow(countMeta++, sec[2], RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(6));
 		
 		Cycle c[] = new Cycle[3];
-		c[0] = new PeriodicCycle(750.0, new Fixed(1440.0), 0);
-		c[1] = new PeriodicCycle(510.0, new Fixed(1440.0), 0);
-		c[2] = new PeriodicCycle(510.0, new Fixed(1440.0), 0);
+		c[0] = new PeriodicCycle(750.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
+		c[1] = new PeriodicCycle(510.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
+		c[2] = new PeriodicCycle(510.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
 		for (int i = 0; i < NELEM.length; i++)
-			new TimeDrivenGenerator(this, new ElementCreator(new Fixed(NELEM[i]), getElementType(i), sec[i]), c[i].iterator(startTs, endTs));
+			new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM[i]), getElementType(i), sec[i]), c[i].iterator(startTs, endTs));
 	}
 	
 }

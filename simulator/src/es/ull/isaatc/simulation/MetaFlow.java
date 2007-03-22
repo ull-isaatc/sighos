@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.random.RandomNumber;
+import simkit.random.RandomVariate;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -15,14 +15,14 @@ public abstract class MetaFlow {
 	/** metaflow's parent */
 	protected MetaFlow parent;
 	/** iterations this flow should be done */ 
-	protected RandomNumber iterations;
+	protected RandomVariate iterations;
 
 	/**
 	 * 
 	 * @param parent
 	 * @param iterations
 	 */
-	public MetaFlow(int id, MetaFlow parent, RandomNumber iterations) {
+	public MetaFlow(int id, MetaFlow parent, RandomVariate iterations) {
 		this.id = id;
 		this.parent = parent;
 		if (parent != null)
@@ -53,7 +53,7 @@ public abstract class MetaFlow {
 	/**
 	 * @return Returns the iterations.
 	 */
-	public RandomNumber getIterations() {
+	public RandomVariate getIterations() {
 		return iterations;
 	}
 

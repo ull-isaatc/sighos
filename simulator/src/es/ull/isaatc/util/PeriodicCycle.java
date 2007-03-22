@@ -2,7 +2,7 @@ package es.ull.isaatc.util;
 
 import es.ull.isaatc.function.RandomFunction;
 import es.ull.isaatc.function.TimeFunction;
-import es.ull.isaatc.random.RandomNumber;
+import simkit.random.RandomVariate;
 
 /**
  * Defines a periodically repeated sequence of events. It can be defined in 
@@ -89,7 +89,7 @@ public class PeriodicCycle extends Cycle {
 	 * @param period Time interval between two successive ocurrences of an event.
 	 * @param endTs Relative time when this cycle is expected to finish.
 	 */
-	public PeriodicCycle(double startTs, RandomNumber period, double endTs) {
+	public PeriodicCycle(double startTs, RandomVariate period, double endTs) {
 		super();
         this.startTs = startTs;
         this.period = new RandomFunction(period);
@@ -103,7 +103,7 @@ public class PeriodicCycle extends Cycle {
 	 * @param iterations How many times this cycle is executed. A value of 0 indicates 
      * infinite iterations.
 	 */
-    public PeriodicCycle(double startTs, RandomNumber period, int iterations) {
+    public PeriodicCycle(double startTs, RandomVariate period, int iterations) {
     	super();
         this.startTs = startTs;
         this.period = new RandomFunction(period);
@@ -117,7 +117,7 @@ public class PeriodicCycle extends Cycle {
 	 * @param endTs Relative time when this cycle is expected to finish.
 	 * @param subCycle Subcycle contained in this cycle.
 	 */
-	public PeriodicCycle(double startTs, RandomNumber period, double endTs, Cycle subCycle) {
+	public PeriodicCycle(double startTs, RandomVariate period, double endTs, Cycle subCycle) {
 		super(subCycle);
 		this.startTs = startTs;
 		this.period = new RandomFunction(period);
@@ -133,7 +133,7 @@ public class PeriodicCycle extends Cycle {
      * infinite iterations.
 	 * @param subCycle Subcycle contained in this cycle.
 	 */
-	public PeriodicCycle(double startTs, RandomNumber period, int iterations, Cycle subCycle) {
+	public PeriodicCycle(double startTs, RandomVariate period, int iterations, Cycle subCycle) {
 		super(subCycle);
 		this.startTs = startTs;
 		this.period = new RandomFunction(period);

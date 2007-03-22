@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.test;
 
-import es.ull.isaatc.random.Fixed;
+import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.util.*;
 
@@ -16,9 +16,9 @@ class CycleSim extends StandAloneLPSimulation {
 	@Override
 	protected void createModel() {
 		Activity act = new Activity(0, this, "FOO");
-		Cycle c1 = new PeriodicCycle(8, new Fixed(24), 0, new PeriodicCycle(1, new Fixed(1), 0));
-		ElementCreator ec = new ElementCreator(new Fixed(1));
-		ec.add(new ElementType(0, this, "ELEM"), new SingleMetaFlow(0, new Fixed(1), act), 1.0); 
+		Cycle c1 = new PeriodicCycle(8, RandomVariateFactory.getInstance("ConstantVariate", 24), 0, new PeriodicCycle(1, RandomVariateFactory.getInstance("ConstantVariate", 1), 0));
+		ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", 1));
+		ec.add(new ElementType(0, this, "ELEM"), new SingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), act), 1.0); 
 		new TimeDrivenGenerator(this, ec, c1.iterator(startTs, endTs)); 
 	}	
 }
@@ -48,8 +48,8 @@ public class CycleTest {
 	 */
 	public static void main(String[] args) {
 		new CycleExp("Base Experiment").start();
-//		Cycle c2 = new PeriodicCycle(24 * 3 + 8, new Fixed(24), 3);
-//		Cycle cSemanal = new PeriodicCycle(0, new Fixed(24 * 7), 7 * 24 + 129.0, c2);
+//		Cycle c2 = new PeriodicCycle(24 * 3 + 8, RandomVariateFactory.getInstance("ConstantVariate", 24), 3);
+//		Cycle cSemanal = new PeriodicCycle(0, RandomVariateFactory.getInstance("ConstantVariate", 24 * 7), 7 * 24 + 129.0, c2);
 //		CycleIterator iter = cSemanal.iterator(24 * 7, 24 * 14);
 //		System.out.println(cSemanal); 
 //		double ts = iter.next();

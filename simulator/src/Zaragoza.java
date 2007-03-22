@@ -4,9 +4,8 @@
 import java.io.FileWriter;
 import java.io.IOException;
 
-import es.ull.isaatc.random.Fixed;
-import es.ull.isaatc.random.Normal;
-import es.ull.isaatc.random.Uniform;
+import simkit.random.RandomVariateFactory;
+
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.ElemIndispTimeListener;
 import es.ull.isaatc.simulation.info.ElementStartFinishListener;
@@ -30,40 +29,58 @@ class SimZaragoza extends StandAloneLPSimulation {
 
 	@Override
 	protected void createModel() {
-		createEjemplo2();
+		createEjemplo0();
 	}
-	protected void createEjemplo0() {
+	protected void createEjemploRompeSimulador() {
 		new ResourceType(0, this, "Doctor"); 
-		WorkGroup wg1 = new Activity(0, this, "First Outpatient Appointment").getNewWorkGroup(0, new Fixed(20));
-		wg1.add(getResourceType(0), 1);
-		WorkGroup wg2 = new Activity(1, this, "Subsequent Outpatient Appointment").getNewWorkGroup(1, new Fixed(15));
+		WorkGroup wg1 = new Activity(0, this, "First Outpatient Appointment").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 20));
+		wg1.add(getResourceType(0), nres);
+		WorkGroup wg2 = new Activity(1, this, "Subsequent Outpatient Appointment").getNewWorkGroup(1, RandomVariateFactory.getInstance("ConstantVariate", 15));
 		wg2.add(getResourceType(0), 1);
 		
 		new ElementType(0, this, "Patient");
 		
-		PeriodicCycle c1 = new PeriodicCycle(480.0, new Fixed(1440.0), 0);
+		PeriodicCycle c1 = new PeriodicCycle(480.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
 		for (int i = 0; i < nres; i++)
 			new Resource(i, this, "Doctor " + (i + 1)).addTimeTableEntry(c1, 399.0, getResourceType(0));
 		
-		SequenceMetaFlow sec = new SequenceMetaFlow(1, new Fixed(1));
-		new SingleMetaFlow(1, sec, new Fixed(1), getActivity(0));
-		new SingleMetaFlow(2, sec, new Fixed(2), getActivity(1));
-        PeriodicCycle c2 = new PeriodicCycle(0.0, new Fixed(1440.0), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(new Fixed(npatients), getElementType(0), sec), c2.iterator(startTs, endTs));
+        PeriodicCycle c2 = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
+        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", 1), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c2.iterator(startTs, endTs));
+        PeriodicCycle c3 = new PeriodicCycle(481.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
+        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1))), c3.iterator(startTs, endTs));
+	}
+	protected void createEjemplo0() {
+		new ResourceType(0, this, "Doctor"); 
+		WorkGroup wg1 = new Activity(0, this, "First Outpatient Appointment").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 20));
+		wg1.add(getResourceType(0), 1);
+		WorkGroup wg2 = new Activity(1, this, "Subsequent Outpatient Appointment").getNewWorkGroup(1, RandomVariateFactory.getInstance("ConstantVariate", 15));
+		wg2.add(getResourceType(0), 1);
+		
+		new ElementType(0, this, "Patient");
+		
+		PeriodicCycle c1 = new PeriodicCycle(480.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
+		for (int i = 0; i < nres; i++)
+			new Resource(i, this, "Doctor " + (i + 1)).addTimeTableEntry(c1, 399.0, getResourceType(0));
+		
+		SequenceMetaFlow sec = new SequenceMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1));
+		new SingleMetaFlow(1, sec, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
+		new SingleMetaFlow(2, sec, RandomVariateFactory.getInstance("ConstantVariate", 2), getActivity(1));
+        PeriodicCycle c2 = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
+        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", npatients), getElementType(0), sec), c2.iterator(startTs, endTs));
 	}
 	
 	protected void createEjemplo1() {
-		new Activity(0, this, "First Outpatient Appointment").getNewWorkGroup(0, new Fixed(10));
+		new Activity(0, this, "First Outpatient Appointment").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 10));
 		new ElementType(0, this, "Patient");
-        PeriodicCycle c2 = new PeriodicCycle(0.0, new Fixed(1440.0), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(new Fixed(npatients), getElementType(0), new SingleMetaFlow(1, new Fixed(1), getActivity(0))), c2.iterator(startTs, endTs));
+        PeriodicCycle c2 = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
+        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c2.iterator(startTs, endTs));
 	
 	}
 	protected void createEjemplo2() {
-		new Activity(0, this, "First Outpatient Appointment").getNewWorkGroup(0, new Normal(20, 25));
+		new Activity(0, this, "First Outpatient Appointment").getNewWorkGroup(0, RandomVariateFactory.getInstance("NormalVariate", 20, 5));
 		new ElementType(0, this, "Patient");
-        PeriodicCycle c2 = new PeriodicCycle(0.0, new Fixed(1440.0), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(new Fixed(npatients), getElementType(0), new SingleMetaFlow(1, new Fixed(1), getActivity(0))), c2.iterator(startTs, endTs));
+        PeriodicCycle c2 = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
+        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c2.iterator(startTs, endTs));
 	
 	}
 }
@@ -89,11 +106,11 @@ class ZaragozaTimeListener extends SimulationTimeListener {
 
 class ExpZaragoza extends Experiment {
 	final static int NEXP = 1;
-	final static int NDAYS = 10;
+	final static int NDAYS = 100;
 	final static double STARTTS = 0.0;
 	final static double ENDTS = NDAYS * 1440.0;
-	final static int NPATIENTS = 100;
-	final static int NRES = 3;
+	final static int NPATIENTS = 1000;
+	final static int NRES = 4;
 	FileWriter file;
 	ZaragozaTimeListener ztList;
 //	ThreadedOutputStreamWriter out = null;

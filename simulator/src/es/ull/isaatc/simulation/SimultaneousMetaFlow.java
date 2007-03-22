@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.random.RandomNumber;
+import simkit.random.RandomVariate;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -15,7 +15,7 @@ public class SimultaneousMetaFlow extends GroupMetaFlow {
 	 * @param parent
 	 * @param iterations
 	 */
-	public SimultaneousMetaFlow(int id, RandomNumber iterations) {
+	public SimultaneousMetaFlow(int id, RandomVariate iterations) {
 		super(id, null, iterations);
 	}
 
@@ -23,7 +23,7 @@ public class SimultaneousMetaFlow extends GroupMetaFlow {
 	 * @param parent
 	 * @param iterations
 	 */
-	public SimultaneousMetaFlow(int id, TypeBranchMetaFlow parent, RandomNumber iterations) {
+	public SimultaneousMetaFlow(int id, TypeBranchMetaFlow parent, RandomVariate iterations) {
 		super(id, parent, iterations);
 	}
 
@@ -31,7 +31,7 @@ public class SimultaneousMetaFlow extends GroupMetaFlow {
 	 * @param parent
 	 * @param iterations
 	 */
-	public SimultaneousMetaFlow(int id, OptionMetaFlow parent, RandomNumber iterations) {
+	public SimultaneousMetaFlow(int id, OptionMetaFlow parent, RandomVariate iterations) {
 		super(id, parent, iterations);
 	}
 
@@ -39,7 +39,7 @@ public class SimultaneousMetaFlow extends GroupMetaFlow {
 	 * @param parent
 	 * @param iterations
 	 */
-	public SimultaneousMetaFlow(int id, GroupMetaFlow parent, RandomNumber iterations) {
+	public SimultaneousMetaFlow(int id, GroupMetaFlow parent, RandomVariate iterations) {
 		super(id, parent, iterations);
 	}
 
@@ -47,7 +47,7 @@ public class SimultaneousMetaFlow extends GroupMetaFlow {
 	 * @see es.ull.isaatc.simulation.MetaFlow#getFlow(es.ull.isaatc.simulation.Flow, es.ull.isaatc.simulation.Element)
 	 */
 	public boolean getFlow(Flow parentFlow, Element e) {
-		int iter = iterations.sampleInt();
+		int iter = (int)iterations.generate();
 		SimultaneousFlow flow = null;
 		SequenceFlow sec = null;
 		
