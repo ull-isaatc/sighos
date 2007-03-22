@@ -101,28 +101,34 @@ public class ActivityManager extends SimulationObject {
         while (iter.hasNext()) {
         	Activity act = iter.next();
             act.debug("Testing pool activity (availableResource)");
-            SingleFlow sf = act.hasPendingElements();
-            if (sf != null) {
-            	WorkGroup wg = act.isFeasible(sf); 
-                if (wg != null) {
-                	act.queueRemove(sf); 
-                    Element e = sf.getElement();
-
-                    e.debug("Can carry out (available resource)\t" + act + "\t" + act.getDescription());
-                    
-                    // Fin Sincronización hasta que el elemento deje de ser accedido
-                    // MOD 26/01/06 Movida esta línea antes del e.sig...
-                    // MOD 23/05/06 Vuelta a poner aquí: ¿POR QUÉ LA MOVI?
-            		e.debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
-                	e.signalSemaphore();
-            		e.debug("MUTEX\tfreed\t" + act + " (av. res.)");    	
-                    e.carryOutActivity(sf, wg);
-                }
-                else {
-                	sf.getElement().debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
-                	sf.getElement().signalSemaphore();
-                	sf.getElement().debug("MUTEX\tfreed\t" + act + " (av. res.)");    	
-                }
+        	boolean activityOK = true;
+            while (activityOK) {
+	            SingleFlow sf = act.hasPendingElements();
+	            if (sf != null) {
+	            	WorkGroup wg = act.isFeasible(sf); 
+	                if (wg != null) {
+	                	act.queueRemove(sf); 
+	                    Element e = sf.getElement();
+	
+	                    e.debug("Can carry out (available resource)\t" + act + "\t" + act.getDescription());
+	                    
+	                    // Fin Sincronización hasta que el elemento deje de ser accedido
+	                    // MOD 26/01/06 Movida esta línea antes del e.sig...
+	                    // MOD 23/05/06 Vuelta a poner aquí: ¿POR QUÉ LA MOVI?
+	            		e.debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
+	                	e.signalSemaphore();
+	            		e.debug("MUTEX\tfreed\t" + act + " (av. res.)");    	
+	                    e.carryOutActivity(sf, wg);
+	                }
+	                else {
+	                	sf.getElement().debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
+	                	sf.getElement().signalSemaphore();
+	                	sf.getElement().debug("MUTEX\tfreed\t" + act + " (av. res.)");
+	                	activityOK = false;
+	                }
+	            }
+	            else
+	            	activityOK = false;
             }
         }
     } 

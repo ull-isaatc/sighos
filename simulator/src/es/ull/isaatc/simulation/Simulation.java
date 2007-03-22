@@ -93,14 +93,14 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 		activityManagerList = new ArrayList<ActivityManager>();
 		resourceList = new TreeMap<Integer, Resource>();
 		generatorList = new ArrayList<Generator>();
+		activeElementList = new TreeMap<Integer, Element>();
+
+		listeners = new ArrayList<SimulationListener>();
 
 		this.description = description;
 		this.startTs = startTs;
 		this.endTs = endTs;
 		this.out = out;
-		// MOD 29/06/06
-		listeners = new ArrayList<SimulationListener>();
-		activeElementList = new TreeMap<Integer, Element>();
 	}
 
 	/**
@@ -344,6 +344,33 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	}
 
 	/**
+	 * Returns a list of the resource types of the model.
+	 * 
+	 * @return Resource types of the model.
+	 */
+	public TreeMap<Integer, ResourceType> getResourceTypeList() {
+		return resourceTypeList;
+	}
+
+	/**
+	 * Returns a list of the element types of the model.
+	 * 
+	 * @return element types of the model.
+	 */
+	public TreeMap<Integer, ElementType> getElementTypeList() {
+		return elementTypeList;
+	}
+
+	/**
+	 * Returns a list of the activity managers of the model.
+	 * 
+	 * @return Work activity managers of the model.
+	 */
+	public ArrayList<ActivityManager> getActivityManagerList() {
+		return activityManagerList;
+	}
+
+	/**
 	 * Returns the activity with the corresponding identifier.
 	 * 
 	 * @param id
@@ -352,15 +379,6 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 */
 	public Activity getActivity(int id) {
 		return activityList.get(new Integer(id));
-	}
-
-	/**
-	 * Returns a list of the resource types of the model.
-	 * 
-	 * @return Resource types of the model.
-	 */
-	public TreeMap<Integer, ResourceType> getResourceTypeList() {
-		return resourceTypeList;
 	}
 
 	/**
@@ -383,24 +401,6 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 */
 	public ElementType getElementType(int id) {
 		return elementTypeList.get(new Integer(id));
-	}
-
-	/**
-	 * Returns a list of the element types of the model.
-	 * 
-	 * @return element types of the model.
-	 */
-	public TreeMap<Integer, ElementType> getElementTypeList() {
-		return elementTypeList;
-	}
-
-	/**
-	 * Returns a list of the activity managers of the model.
-	 * 
-	 * @return Work activity managers of the model.
-	 */
-	public ArrayList<ActivityManager> getActivityManagerList() {
-		return activityManagerList;
 	}
 
 	/**
@@ -576,8 +576,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 			activeElementList.put(elem.getIdentifier(), elem);
 		}
 		// Single flow's counter. This value is established here because the
-		// element's state set
-		// modifies its value.
+		// element's state set modifies its value.
 		SingleFlow.setCounter(state.getLastSFId());
 		// Resources
 		for (ResourceState rState : state.getResStates())
@@ -621,33 +620,6 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 
 		// Element's counter of the generators
 		Generator.setElemCounter(state.getLastElemId());
-	}
-
-	/**
-	 * Prints a graph, where the resource types are nodes and the activities are
-	 * the links.
-	 * 
-	 * @param graph
-	 *            The graph to print.
-	 */
-	protected void debugPrintGraph(HashSet[] graph) {
-		if (isDebugEnabled()) {
-			StringBuffer str = new StringBuffer();
-			// Pinto el graph para chequeo
-			for (int i = 0; i < resourceTypeList.size(); i++) {
-				ResourceType rt = resourceTypeList.get(i);
-				str.append("Resource Type (" + i + "): " + rt.getDescription()
-						+ "\r\n");
-				str.append("\tNeighbours: ");
-				Iterator it = graph[i].iterator();
-				while (it.hasNext()) {
-					Integer nodo = (Integer) it.next();
-					str.append(nodo + "\t");
-				}
-				str.append("\r\n");
-			}
-			debug("Graph created\r\n" + str.toString());
-		}
 	}
 
 	/**
