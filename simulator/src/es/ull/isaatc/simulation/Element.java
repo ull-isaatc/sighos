@@ -173,18 +173,18 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	 * Updates the element timestamp, catch the corresponding resources and
 	 * produces a "FinalizeActivityEvent".
 	 * 
-	 * @param f
+	 * @param sf
 	 *            Single flow requested.
 	 */
-	protected void carryOutActivity(SingleFlow f, WorkGroup wg) {
-		LogicalProcess lp = f.getActivity().getManager().getLp();
+	protected void carryOutActivity(SingleFlow sf) {
+		LogicalProcess lp = sf.getActivity().getManager().getLp();
 		setTs(lp.getTs());
-		wg.catchResources(f);
+		sf.getExecutionWG().catchResources(sf);
 		simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.STAACT,
-				ts, f.getActivity().getIdentifier()));
-		debug("Starts\t" + f.getActivity() + "\t" + f.getActivity().getDescription());
+				ts, sf.getActivity().getIdentifier()));
+		debug("Starts\t" + sf.getActivity() + "\t" + sf.getActivity().getDescription());
 		FinalizeActivityEvent e = new FinalizeActivityEvent(ts
-				+ wg.getDuration(), f);
+				+ sf.getExecutionWG().getDuration(), sf);
 		addEvent(e);
 	}
 
@@ -283,13 +283,12 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 			// If the element is not performing a presential activity yet or the
 			// activity to be requested is non presential
 			if ((currentSF == null) || (!act.isPresential())) {
-				WorkGroup wg = act.isFeasible(flow);
-				if (wg != null) { // There are enough resources to perform the
+				if (act.isFeasible(flow)) { // There are enough resources to perform the
 									// activity
             		debug("MUTEX\treleasing\t" + act + " (req. act.)");    	
                 	signalSemaphore();
             		debug("MUTEX\tfreed\t" + act + " (req. act.)");    	
-					carryOutActivity(flow, wg);
+					carryOutActivity(flow);
 				} else {
 					act.queueAdd(flow); // The element is introduced in the
 										// activity waiting queue
@@ -335,15 +334,14 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 			debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
 			// If the element is not performing a presential activity yet
 			if (currentSF == null) {
-				WorkGroup wg = act.isFeasible(flow);
-				if (wg != null) {
-					debug("Can carry out\t" + act + "\t" + wg);
+				if (act.isFeasible(flow)) {
+					debug("Can carry out\t" + act + "\t" + flow.getExecutionWG().getIdentifier());
 					if (!act.queueRemove(flow))
 						error("Unexpected error. Element MUST BE in the activity queue\t" + act);
             		debug("MUTEX\treleasing\t" + act + " (av. el.)");    	
                 	signalSemaphore();
             		debug("MUTEX\tfreed\t" + act + " (av. el.)");    	
-					carryOutActivity(flow, wg);
+					carryOutActivity(flow);
 				} else {
             		debug("MUTEX\treleasing\t" + act + " (av. el.)");    	
                 	signalSemaphore();

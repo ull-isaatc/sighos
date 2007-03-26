@@ -44,11 +44,13 @@ class OverlappedSimulation extends StandAloneLPSimulation {
 //        ResourceType crDummy = new ResourceType(2, this, "Dummy");
 
         // PASO 3: Creo las tablas de clases de recursos
-        WorkGroup wg1 = actSangre.getNewWorkGroup(0, RandomVariateFactory.getInstance("NormalVariate", 20.0, 5.0));
+        WorkGroup wg1 = new WorkGroup(1, this, ""); 
         wg1.add(crSangre, NEEDED);
+        actSangre.addWorkGroup(RandomVariateFactory.getInstance("NormalVariate", 20.0, 5.0), wg1);
 //        wg1.add(crOrina, 1);
-        WorkGroup wg2 = actOrina.getNewWorkGroup(0, RandomVariateFactory.getInstance("NormalVariate", 20.0, 5.0));
+        WorkGroup wg2 = new WorkGroup(2, this, "");
         wg2.add(crOrina, 1);
+        actOrina.addWorkGroup(RandomVariateFactory.getInstance("NormalVariate", 20.0, 5.0), wg2);
 //        WorkGroup wg3 = actDummy.getNewWorkGroup(0, new Normal(10.0, 2.0));
 //        wg3.add(crDummy, 1);
 
@@ -78,8 +80,7 @@ class OverlappedSimulation extends StandAloneLPSimulation {
       new SingleMetaFlow(3, metaFlow, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
 //		SingleMetaFlow metaFlow = new SingleMetaFlow(3, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1));     
 		Cycle c = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), days);
-		CycleIterator it = c.iterator(startTs, endTs);
-		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), new ElementType(0, this, "ET0"), metaFlow), it);
+		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), new ElementType(0, this, "ET0"), metaFlow), c);
 	}	
 }
 

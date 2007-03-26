@@ -7,7 +7,7 @@ import java.util.concurrent.Semaphore;
  * Represents the simulation component that carries out events. 
  * @author Carlos Martin Galan
  */
-public abstract class BasicElement extends SimulationObject {
+public abstract class BasicElement extends TimeStampedSimulationObject {
     /** Current element's timestamp */
 	protected double ts;
     /** List that contains all the events carried out by the element */

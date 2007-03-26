@@ -20,8 +20,9 @@ public class SingleFlowState extends FlowState {
 	protected int actId;
 	/** If true this activity has been already performed */
 	protected boolean finished;
-	/** If true, the activity is currently being performed */
-	protected boolean executing;
+	/** The identifier of the workgroup currently performing the activity. -1 if the
+	 * activity has not been performed. */
+	protected int executionWG;
 	/** If the activity is currently being performed, the resources caught to perform it */
 	protected ArrayList<Integer> caughtResources = null;
 	
@@ -31,11 +32,11 @@ public class SingleFlowState extends FlowState {
 	 * @param actId The activity which this flow wraps
 	 * @param finished If true this activity has been already performed
 	 */
-	public SingleFlowState(int flowId, int actId, boolean finished, boolean executing) {
+	public SingleFlowState(int flowId, int actId, boolean finished, int executionWG) {
 		this.flowId = flowId;
 		this.actId = actId;
 		this.finished = finished;
-		this.executing = executing;
+		this.executionWG = executionWG;
 		caughtResources = new ArrayList<Integer>();
 	}
 
@@ -61,10 +62,11 @@ public class SingleFlowState extends FlowState {
 	}
 
 	/**
-	 * @return Returns true if this single flow is being currently executing.
+	 * @return the identifier of the workgroup currently performing the activity or 
+	 * -1 if the activity has not been performed.
 	 */
-	public boolean isExecuting() {
-		return executing;
+	public int getExecutionWG() {
+		return executionWG;
 	}
 
 	/**
@@ -90,9 +92,11 @@ public class SingleFlowState extends FlowState {
 			str.append("\tFINISHED\r\n");
 		else
 			str.append("\r\n");
-		if (executing)
+		if (executionWG != -1) {
+			str.append("WG: " + executionWG + "\r\n");
 			for (Integer rtId : caughtResources)
 				str.append(" " + rtId);
+		}
 		return str.toString();
 	}
 }

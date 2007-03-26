@@ -17,7 +17,7 @@ import es.ull.isaatc.util.CycleIterator;
  * A resource finishes its execution when it has no longer valid timetable entries.
  * @author Carlos Martín Galán
  */
-public class Resource extends BasicElement implements RecoverableState<ResourceState> {
+public class Resource extends BasicElement implements RecoverableState<ResourceState>, Describable {
 	/** Timetable which defines the availability estructure of the resource */
     protected ArrayList<TimeTableEntry> timeTable;
     /** A brief description of the resource */
@@ -95,6 +95,13 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     @Override
 	public String getObjectTypeIdentifier() {
 		return "RES";
+	}
+
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
 	}
 
 	/**

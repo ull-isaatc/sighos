@@ -10,11 +10,13 @@ import es.ull.isaatc.simulation.state.ResourceTypeState;
  * different purposes, and each purpose is a role.
  * @author Carlos Martin Galan
  */
-public class ResourceType extends DescSimulationObject implements RecoverableState<ResourceTypeState> {
+public class ResourceType extends TimeStampedSimulationObject implements RecoverableState<ResourceTypeState>, Describable {
     /** Activity manager this resource type belongs to. */
     protected ActivityManager manager;
     /** A list of the currently available resources. */
     protected ResourceList availableResourceList;
+    /** A brief description of the resource type */
+    protected String description;
 
     /**
      * Creates a new resource type.
@@ -23,8 +25,17 @@ public class ResourceType extends DescSimulationObject implements RecoverableSta
      * @param description A short text describing this resource type.
      */
 	public ResourceType(int id, Simulation simul, String description) {
-		super(id, simul, description);
+		super(id, simul);
+        this.description = description;
         availableResourceList = new ResourceList();
+        simul.add(this);
+	}
+
+    /**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
 	}
 
     /**

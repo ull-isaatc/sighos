@@ -53,6 +53,9 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	/** List of activity managers that partition the simulation. */
 	protected ArrayList<ActivityManager> activityManagerList;
 
+	/** List of workgroup defined in the simulation */
+	protected TreeMap<Integer, WorkGroup> workGroupList;
+	
 	/** Logical Process list */
 	protected LogicalProcess[] logicalProcessList;
 
@@ -91,6 +94,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 		activityList = new TreeMap<Integer, Activity>();
 		resourceTypeList = new TreeMap<Integer, ResourceType>();
 		elementTypeList = new TreeMap<Integer, ElementType>();
+		workGroupList = new TreeMap<Integer, WorkGroup>();
 		activityManagerList = new ArrayList<ActivityManager>();
 		resourceList = new TreeMap<Integer, Resource>();
 		generatorList = new ArrayList<Generator>();
@@ -280,19 +284,24 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
-	protected DescSimulationObject add(DescSimulationObject obj) {
-		DescSimulationObject resul = null;
-		if (obj instanceof ResourceType)
-			resul = resourceTypeList.put(obj.getIdentifier(), (ResourceType) obj);
-		else if (obj instanceof Activity)
-			resul = activityList.put(obj.getIdentifier(), (Activity) obj);
-		else if (obj instanceof ElementType)
-			resul = elementTypeList.put(obj.getIdentifier(), (ElementType) obj);
-		else
-			error("Trying to add an unidentified object to the Model");
-		return resul;
-	}
 
+	protected Activity add(Activity act) {
+		return activityList.put(act.getIdentifier(), act);
+	}
+	
+	protected ElementType add(ElementType et) {
+		return elementTypeList.put(et.getIdentifier(), et);
+	}
+	
+	protected ResourceType add(ResourceType rt) {
+		return resourceTypeList.put(rt.getIdentifier(), rt);
+	}
+	
+	protected WorkGroup add(WorkGroup wg) {
+		return workGroupList.put(wg.getIdentifier(), wg);
+		
+	}
+	
 	/**
 	 * Adds an activity manager to the simulation. The activity managers are
 	 * automatically added from their constructor.
@@ -363,6 +372,15 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	}
 
 	/**
+	 * Returns a list of the workgroups of the model.
+	 * 
+	 * @return workgroups of the model.
+	 */
+	public TreeMap<Integer, WorkGroup> getWorkGroupList() {
+		return workGroupList;
+	}
+
+	/**
 	 * Returns a list of the activity managers of the model.
 	 * 
 	 * @return Work activity managers of the model.
@@ -379,7 +397,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 * @return An activity with the indicated identifier.
 	 */
 	public Activity getActivity(int id) {
-		return activityList.get(new Integer(id));
+		return activityList.get(id);
 	}
 
 	/**
@@ -390,7 +408,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 * @return A resource type with the indicated identifier.
 	 */
 	public ResourceType getResourceType(int id) {
-		return resourceTypeList.get(new Integer(id));
+		return resourceTypeList.get(id);
 	}
 
 	/**
@@ -401,7 +419,18 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 * @return An element type with the indicated identifier.
 	 */
 	public ElementType getElementType(int id) {
-		return elementTypeList.get(new Integer(id));
+		return elementTypeList.get(id);
+	}
+
+	/**
+	 * Returns the workgroup with the corresponding identifier.
+	 * 
+	 * @param id
+	 *            workgroup identifier.
+	 * @return A workgroup with the indicated identifier.
+	 */
+	public WorkGroup getWorkGroup(int id) {
+		return workGroupList.get(id);
 	}
 
 	/**
@@ -464,7 +493,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 * @return The element with the specified identifier.
 	 */
 	public Element getActiveElement(int id) {
-		return activeElementList.get(new Integer(id));
+		return activeElementList.get(id);
 	}
 
 	/**

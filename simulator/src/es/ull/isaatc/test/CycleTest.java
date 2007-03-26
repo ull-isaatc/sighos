@@ -19,7 +19,7 @@ class CycleSim extends StandAloneLPSimulation {
 		Cycle c1 = new PeriodicCycle(8, RandomVariateFactory.getInstance("ConstantVariate", 24), 0, new PeriodicCycle(1, RandomVariateFactory.getInstance("ConstantVariate", 1), 0));
 		ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", 1));
 		ec.add(new ElementType(0, this, "ELEM"), new SingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), act), 1.0); 
-		new TimeDrivenGenerator(this, ec, c1.iterator(startTs, endTs)); 
+		new TimeDrivenGenerator(this, ec, c1); 
 	}	
 }
 

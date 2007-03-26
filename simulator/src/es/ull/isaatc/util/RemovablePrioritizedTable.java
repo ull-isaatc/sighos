@@ -45,7 +45,7 @@ public class RemovablePrioritizedTable<T extends Prioritizable> extends Prioriti
 	 * @return true if the object was correctly removed; false in other case.
 	 */
 	public boolean remove(T obj) {		
-    	PrioritizedLevel pLevel = levels.get(new Integer(obj.getPriority()));
+    	PrioritizedLevel pLevel = levels.get(obj.getPriority());
     	if (pLevel != null)
         	return pLevel.remove(obj);
         return false;

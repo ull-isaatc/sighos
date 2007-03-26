@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation;
 
 /**
- * An object belonging to a simulation.
+ * An object belonging to a simulation with an identifier which can be compared.
  * @author Iván Castilla Rodríguez
  */
 public abstract class SimulationObject implements Comparable<SimulationObject> {
@@ -20,26 +20,12 @@ public abstract class SimulationObject implements Comparable<SimulationObject> {
         this.simul = simul;
 	}
 
-    /**
-     * Returns the object's identifier
-     * @return The identifier of the object
-     */
-	public int getIdentifier() {
-		return(id);
-	}
-	
 	/**
 	 * Returns a String that identifies the type of simulation object.
 	 * This should be a 3-or-less character description.
 	 * @return A short string describing the type of the simulation object.
 	 */
 	public abstract String getObjectTypeIdentifier();
-	
-	/**
-	 * Returns the simulation timestamp of this object.
-	 * @return Simulation timestamp of the object.
-	 */
-	public abstract double getTs();
 	
     /**
      * Returns the simulation which this object is attached to.
@@ -49,26 +35,14 @@ public abstract class SimulationObject implements Comparable<SimulationObject> {
         return simul;
     }
     
-    public void debug(String message) {
-    	if (simul.isDebugEnabled())
-    		simul.debug(this.toString() + "\t" + getTs() + "\t" + message);
+    /**
+     * Returns the object's identifier
+     * @return The identifier of the object
+     */
+	public int getIdentifier() {
+		return(id);
 	}
 	
-	public void error(String description) {
-		simul.error(this.toString() + "\t" + getTs() + "\t" + description);
-	}
-    
-	/**
-	 * @return True if the debug mode is activated
-	 */
-	public boolean isDebugEnabled() {
-		return simul.isDebugEnabled();
-	}
-
-	public String toString() {
-    	return new String("[" + getObjectTypeIdentifier() + id + "]");
-    }
-
 	/* (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
@@ -80,4 +54,7 @@ public abstract class SimulationObject implements Comparable<SimulationObject> {
 		return 0;
 	}
 
+	public String toString() {
+    	return new String("[" + getObjectTypeIdentifier() + id + "]");
+    }
 }

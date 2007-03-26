@@ -46,7 +46,7 @@ public abstract class StandardAMSimulation extends Simulation {
 			new ActivityManager(this);
 		// The activities are associated to the activity managers
 		for (Activity a : activityList.values()) {
-			Iterator<WorkGroup> iter = a.iterator();
+			Iterator<Activity.WorkGroup> iter = a.iterator();
 			// This step is for non-resource-types activities
 			boolean found = false;
 			while (iter.hasNext() && !found) {
@@ -86,7 +86,7 @@ public abstract class StandardAMSimulation extends Simulation {
 				put(key, new TreeSet<Integer>());
 			// Goes through the activity list to built the adyacent list 
 			for (Activity a : activityList.values()) {
-				Iterator<WorkGroup> iter = a.iterator();
+				Iterator<Activity.WorkGroup> iter = a.iterator();
 				// Looks for the first WorkGroup that contains at least one resource type
 				int firstWG = 1;
 				while (iter.hasNext()) {
@@ -96,8 +96,8 @@ public abstract class StandardAMSimulation extends Simulation {
 							ind1 = wg.getResourceType(0).getIdentifier();
 						for (; firstWG < wg.size(); firstWG++) {
 							ind2 = wg.getResourceType(firstWG).getIdentifier();
-							get(ind1).add(new Integer(ind2));
-							get(ind2).add(new Integer(ind1));
+							get(ind1).add(ind2);
+							get(ind2).add(ind1);
 							ind1 = ind2;
 						}
 						firstWG = 0;

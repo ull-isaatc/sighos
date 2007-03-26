@@ -30,7 +30,7 @@ public abstract class PrioritizedTable<T extends Prioritizable> {
      * @param obj New object with a priority value.
      */
     public void add(T obj) {
-    	PrioritizedLevel pLevel = levels.get(new Integer(obj.getPriority()));
+    	PrioritizedLevel pLevel = levels.get(obj.getPriority());
     	if (pLevel == null) {
             pLevel = new PrioritizedLevel(obj.getPriority());
             levels.put(obj.getPriority(), pLevel);

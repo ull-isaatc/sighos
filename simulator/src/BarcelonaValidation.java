@@ -61,7 +61,8 @@ class SimBarcelona extends StandAloneLPSimulation {
 		
 		for (int i = 0; i < coddiag.length; i++) {
 			acts[i] = new Activity(i, this, "Act" + coddiag[i]);
-			acts[i].getNewWorkGroup(0, RandomVariateFactory.getInstance("ScaledVariate", durac[i], 1 / 3600.0)).add(rt, 1);
+			int wgId = acts[i].addWorkGroup(RandomVariateFactory.getInstance("ScaledVariate", durac[i], 1 / 3600.0));
+			acts[i].addWorkGroupEntry(wgId, rt, 1);
 			new ElementType(i, this, "ET" + coddiag[i]);
 		}
 
@@ -92,7 +93,7 @@ class SimBarcelona extends StandAloneLPSimulation {
 				// OJO: debería devolver siempre un valor positivo
 				Cycle c = new PeriodicCycle(expo.generate(), expo, 0);
 				ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", 1), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
-		        new TimeDrivenGenerator(this, ec, c.iterator(startTs, endTs));
+		        new TimeDrivenGenerator(this, ec, c);
 			}
 		}
 		else {
@@ -108,7 +109,7 @@ class SimBarcelona extends StandAloneLPSimulation {
 				// OJO: debería devolver siempre un valor positivo
 				Cycle c = new PeriodicCycle(expo.generate(), expo, 0);
 				ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", 1), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
-		        new TimeDrivenGenerator(this, ec, c.iterator(startTs, endTs));
+		        new TimeDrivenGenerator(this, ec, c);
 			}
 		}
 		
@@ -1019,7 +1020,7 @@ class SimBarcelona extends StandAloneLPSimulation {
 		for (int i = 0; i < arrivalHours.length; i++) {
 			Cycle c = new TableCycle(arrivalHours[i]);
 			ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", 1), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
-			new TimeDrivenGenerator(this, ec, c.iterator(startTs, endTs));
+			new TimeDrivenGenerator(this, ec, c);
 		}
 	}
 }

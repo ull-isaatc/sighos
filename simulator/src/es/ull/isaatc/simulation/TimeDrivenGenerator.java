@@ -3,6 +3,7 @@
  */
 package es.ull.isaatc.simulation;
 
+import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.CycleIterator;
 
 /**
@@ -11,11 +12,19 @@ import es.ull.isaatc.util.CycleIterator;
  */
 public class TimeDrivenGenerator extends Generator {
     /** Cycle that controls the generation of elements. */
-    protected CycleIterator cycleIter;
+    protected Cycle cycle;
+    /** The iterator which moves through the defined cycle */
+    private CycleIterator cycleIter = null;
 
-	public TimeDrivenGenerator(Simulation simul, BasicElementCreator creator, CycleIterator cycleIter) {
+    /**
+     * 
+     * @param simul Simulation which uses this generator
+     * @param creator The way the elements are created every "tic" of the cycle 
+     * @param cycle Control of the time between generations 
+     */
+	public TimeDrivenGenerator(Simulation simul, BasicElementCreator creator, Cycle cycle) {
 		super(simul, creator);
-		this.cycleIter = cycleIter;
+		this.cycle = cycle;
 	}
 
 	@Override
@@ -35,6 +44,7 @@ public class TimeDrivenGenerator extends Generator {
 
 	@Override
 	protected void init() {
+		cycleIter = cycle.iterator(simul.getStartTs(), simul.getEndTs());
     	double newTs = nextTs();
     	if (Double.isNaN(newTs))
             notifyEnd();
@@ -50,7 +60,7 @@ public class TimeDrivenGenerator extends Generator {
      * @return The next timestamp to generate elements. NaN if this generator
      * don't have to create more elements.
      */
-    public double nextTs() {
+    private double nextTs() {
 		return cycleIter.next();
     }
 

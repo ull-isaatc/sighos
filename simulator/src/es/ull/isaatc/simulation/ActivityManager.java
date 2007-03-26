@@ -14,7 +14,7 @@ import es.ull.isaatc.util.*;
  * finishes, the <code>signalSemaphore()</code> method must be invoked.  
  * @author Iván Castilla Rodríguez
  */
-public class ActivityManager extends SimulationObject {
+public class ActivityManager extends TimeStampedSimulationObject {
     /** Static counter for assigning each new id */
 	private static int nextid = 0;
 	/** A prioritized table of activities */
@@ -105,8 +105,7 @@ public class ActivityManager extends SimulationObject {
             while (activityOK) {
 	            SingleFlow sf = act.hasPendingElements();
 	            if (sf != null) {
-	            	WorkGroup wg = act.isFeasible(sf); 
-	                if (wg != null) {
+	                if (act.isFeasible(sf)) {
 	                	act.queueRemove(sf); 
 	                    Element e = sf.getElement();
 	
@@ -118,7 +117,7 @@ public class ActivityManager extends SimulationObject {
 	            		e.debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
 	                	e.signalSemaphore();
 	            		e.debug("MUTEX\tfreed\t" + act + " (av. res.)");    	
-	                    e.carryOutActivity(sf, wg);
+	                    e.carryOutActivity(sf);
 	                }
 	                else {
 	                	sf.getElement().debug("MUTEX\treleasing\t" + act + " (av. res.)");    	

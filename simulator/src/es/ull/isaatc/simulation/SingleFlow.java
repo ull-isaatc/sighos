@@ -27,8 +27,9 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
     protected Activity act;
     /** Indicates if the activity has been already executed */
     protected boolean finished = false;
-    /** Indicates if the activity is being currently executed */
-    protected boolean executing = false;
+    /** The workgroup which is used to carry out this flow. If <code>null</code>, 
+     * the flow has not been carried out. */
+    protected Activity.WorkGroup executionWG = null;
     /** List of caught resources */
     protected ArrayList<Resource> caughtResources;
     // Avoiding deadlocks (time-overlapped resources)
@@ -152,26 +153,27 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 	protected boolean isFinished() {
 		return finished;
 	}
-	
+
     /**
-     * If the element is currently performing an activity returns true. Returns false in 
-     * other case.
-	 * @return Returns true if this single flow is being currently executing.
+     * Returns the workgroup which is used to perform this flow, or <code>null</code>  
+     * if the flow has not been carried out.
+	 * @return the workgroup which is used to perform this flow, or <code>null</code>  
+     * if the flow has not been carried out.
 	 */
-	public boolean isExecuting() {
-		return executing;
+	public Activity.WorkGroup getExecutionWG() {
+		return executionWG;
 	}
 
 	/**
-	 * Establish if an element is currently performing the activity of this single flow.
-	 * @param executing True if an element is currently performing the activity of this single flow.
-	 * False if not.
+	 * When the single flow can be carried out, sets the workgroup used to
+	 * carry out the activity.
+	 * @param executionWG the workgroup which is used to carry out this flow.
 	 */
-	public void setExecuting(boolean executing) {
-		this.executing = executing;
+	public void setExecutionWG(Activity.WorkGroup executionWG) {
+		this.executionWG = executionWG;
 	}
 
-    /**
+	/**
      * Returns the list of the elements currently used by the element. 
 	 * @return Returns the list of resources caught by this element.
 	 */
@@ -293,7 +295,10 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 	 */
 	public FlowState getState() {
 		SingleFlowState state = null;
-		state = new SingleFlowState(id, act.getIdentifier(), finished, executing);
+		if (executionWG != null)
+			state = new SingleFlowState(id, act.getIdentifier(), finished, executionWG.getIdentifier());
+		else
+			state = new SingleFlowState(id, act.getIdentifier(), finished, -1);
 		for(Resource r : caughtResources)
 			state.add(r.getIdentifier());
 		return state;
@@ -310,7 +315,8 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 		SingleFlowState sfState = (SingleFlowState)state;
 		finished = sfState.isFinished();
 		id = sfState.getFlowId();
-		if (sfState.isExecuting()) {
+		if (sfState.getExecutionWG() != -1) {
+			executionWG = act.getWorkGroup(sfState.getExecutionWG());
 			for (Integer rId : sfState.getCaughtResources())
 				caughtResources.add(act.getSimul().getResourceList().get(rId));
 		}		

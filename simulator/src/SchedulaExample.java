@@ -34,62 +34,54 @@ class SimSchedula extends StandAloneLPSimulation {
 		for (int i = 0; i < RESNAME.length; i++)
 			new ResourceType(i, this, RESNAME[i]);
 		
-		WorkGroup wgs[] = new WorkGroup[14];
-		wgs[0] = new Activity(0, this, "AcceptanceN").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 8.33));
-		wgs[7] = new Activity(7, this, "AcceptanceRE").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
-		wgs[1] = new Activity(1, this, "Credit checkN").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 8.13));
-		wgs[8] = new Activity(8, this, "Credit checkRE").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
-		wgs[2] = new Activity(2, this, "Recomputation").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 2));
-		wgs[3] = new Activity(3, this, "Update databaseN").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 5.56));
-		wgs[9] = new Activity(9, this, "Update databaseR").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 4));
-		wgs[10] = new Activity(10, this, "Update databaseE").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 10.53));
-		wgs[4] = new Activity(4, this, "Update dossierN").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 6.67));
-		wgs[11] = new Activity(11, this, "Update dossierRE").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
-		wgs[5] = new Activity(5, this, "Compute balanceN").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 2.63));
-		wgs[12] = new Activity(12, this, "Compute balanceRE").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
-		wgs[6] = new Activity(6, this, "Produce reportNR").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
-		wgs[13] = new Activity(13, this, "Produce reportE").getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 2.63));
-		
+		WorkGroup wgs[] = new WorkGroup[7];
+		wgs[0] = new WorkGroup(0, this, "");
 		wgs[0].add(getResourceType(0), 1);
 		wgs[0].add(getResourceType(8), 1);
 		wgs[0].add(getResourceType(10), 1);
-		wgs[7].add(getResourceType(0), 1);
-		wgs[7].add(getResourceType(8), 1);
-		wgs[7].add(getResourceType(10), 1);
+		new Activity(0, this, "AcceptanceN").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 8.33), wgs[0]);
+		new Activity(7, this, "AcceptanceRE").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 1), wgs[0]);
+
+		wgs[1] = new WorkGroup(1, this, "");
 		wgs[1].add(getResourceType(1), 1);
 		wgs[1].add(getResourceType(8), 1);
-		wgs[8].add(getResourceType(1), 1);
-		wgs[8].add(getResourceType(8), 1);
+		new Activity(1, this, "Credit checkN").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 8.13), wgs[1]);
+		new Activity(8, this, "Credit checkRE").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 1), wgs[1]);
+
+		wgs[2] = new WorkGroup(2, this, "");
 		wgs[2].add(getResourceType(2), 1);
 		wgs[2].add(getResourceType(8), 1);
 		wgs[2].add(getResourceType(10), 1);
+		new Activity(2, this, "Recomputation").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 2), wgs[2]);
+
+		wgs[3] = new WorkGroup(3, this, "");
 		wgs[3].add(getResourceType(3), 1);
 		wgs[3].add(getResourceType(7), 1);
 		wgs[3].add(getResourceType(9), 1);
-		wgs[9].add(getResourceType(3), 1);
-		wgs[9].add(getResourceType(7), 1);
-		wgs[9].add(getResourceType(9), 1);
-		wgs[10].add(getResourceType(3), 1);
-		wgs[10].add(getResourceType(7), 1);
-		wgs[10].add(getResourceType(9), 1);
+		new Activity(3, this, "Update databaseN").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 5.56), wgs[3]);
+		new Activity(9, this, "Update databaseR").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 4), wgs[3]);
+		new Activity(10, this, "Update databaseE").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 10.53), wgs[3]);
+
+		wgs[4] = new WorkGroup(4, this, "");
 		wgs[4].add(getResourceType(4), 1);
 		wgs[4].add(getResourceType(8), 2);
-		wgs[11].add(getResourceType(4), 1);
-		wgs[11].add(getResourceType(8), 2);
+		new Activity(4, this, "Update dossierN").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 6.67), wgs[4]);
+		new Activity(11, this, "Update dossierRE").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 1), wgs[4]);
+		
+		wgs[5] = new WorkGroup(5, this, "");
 		wgs[5].add(getResourceType(5), 1);
 		wgs[5].add(getResourceType(8), 1);
 		wgs[5].add(getResourceType(9), 1);
-		wgs[12].add(getResourceType(5), 1);
-		wgs[12].add(getResourceType(8), 1);
-		wgs[12].add(getResourceType(9), 1);
+		new Activity(5, this, "Compute balanceN").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 2.63), wgs[5]);
+		new Activity(12, this, "Compute balanceRE").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 1), wgs[5]);
+
+		wgs[6] = new WorkGroup(6, this, "");
 		wgs[6].add(getResourceType(6), 1);
 		wgs[6].add(getResourceType(7), 1);
 		wgs[6].add(getResourceType(8), 1);
 		wgs[6].add(getResourceType(9), 1);
-		wgs[13].add(getResourceType(6), 1);
-		wgs[13].add(getResourceType(7), 1);
-		wgs[13].add(getResourceType(8), 1);
-		wgs[13].add(getResourceType(9), 1);
+		new Activity(6, this, "Produce reportNR").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 1), wgs[6]);
+		new Activity(13, this, "Produce reportE").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 2.63), wgs[6]);
 		
 		// Element types creation
 		for (int i = 0; i < NELEM.length; i++) {
@@ -132,7 +124,7 @@ class SimSchedula extends StandAloneLPSimulation {
 		c[1] = new PeriodicCycle(510.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
 		c[2] = new PeriodicCycle(510.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
 		for (int i = 0; i < NELEM.length; i++)
-			new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM[i]), getElementType(i), sec[i]), c[i].iterator(startTs, endTs));
+			new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM[i]), getElementType(i), sec[i]), c[i]);
 	}
 	
 }

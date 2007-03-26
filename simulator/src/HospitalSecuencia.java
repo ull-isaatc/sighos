@@ -44,21 +44,24 @@ class Analisis extends StandAloneLPSimulation {
 
         // PASO 3: Creo las tablas de clases de recursos
 //        WorkGroup wg1 = actPrueba1.getNewWorkGroup(0, new Normal(20.0, 5.0));
-        WorkGroup wg1 = actPrueba1.getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 60));
-        wg1.add(crEnfermero, 1);
-        WorkGroup wg2 = actPrueba1a.getNewWorkGroup(0, RandomVariateFactory.getInstance("NormalVariate", 10.0, 2.0));
+        WorkGroup wg0 = new WorkGroup(0, this, "Enfermeros");
+        wg0.add(crEnfermero, 1);
+        actPrueba1.addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 60), wg0);
+        WorkGroup wg1 = new WorkGroup(1, this, "Máquinas Análisis Sangre");
+        wg1.add(crSangre, 1);
+        actPrueba1a.addWorkGroup(RandomVariateFactory.getInstance("NormalVariate", 10.0, 2.0), wg1);
+        WorkGroup wg2 = new WorkGroup(2, this, "Máquinas Análisis Sangre + enfermeros");
         wg2.add(crSangre, 1);
-        WorkGroup wg3 = actPrueba1c.getNewWorkGroup(0, RandomVariateFactory.getInstance("NormalVariate", 10.0, 2.0));
-        wg3.add(crSangre, 1);
-        wg3.add(crEnfermero, 1);
-        WorkGroup wg4 = actPrueba1e.getNewWorkGroup(0, RandomVariateFactory.getInstance("NormalVariate", 10.0, 2.0));
-        wg4.add(crSangre, 1);
+        wg2.add(crEnfermero, 1);
+        actPrueba1c.addWorkGroup(RandomVariateFactory.getInstance("NormalVariate", 10.0, 2.0), wg2);
+        actPrueba1e.addWorkGroup(RandomVariateFactory.getInstance("NormalVariate", 10.0, 2.0), wg2);
+        WorkGroup wg3 = new WorkGroup(3, this, "Máquinas Análisis Orina");
+        wg3.add(crOrina, 1);
+        actPrueba1b.addWorkGroup(RandomVariateFactory.getInstance("NormalVariate", 10.0, 5.0), wg3);
+        WorkGroup wg4 = new WorkGroup(4, this, "Máquinas Análisis Orina + enfermeros");
+        wg4.add(crOrina, 1);
         wg4.add(crEnfermero, 1);
-        WorkGroup wg5 = actPrueba1b.getNewWorkGroup(0, RandomVariateFactory.getInstance("NormalVariate", 10.0, 5.0));
-        wg5.add(crOrina, 1);
-        WorkGroup wg6 = actPrueba1d.getNewWorkGroup(0, RandomVariateFactory.getInstance("NormalVariate", 10.0, 5.0));
-        wg6.add(crOrina, 1);
-        wg6.add(crEnfermero, 1);
+        actPrueba1d.addWorkGroup(RandomVariateFactory.getInstance("NormalVariate", 10.0, 5.0), wg4);
         
         new ElementType(0, this, "Paciente");
 		
@@ -95,7 +98,7 @@ class Analisis extends StandAloneLPSimulation {
         new SingleMetaFlow(10, simSangre, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(3));
         new SingleMetaFlow(11, simSangre, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(5));
         Cycle c = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), ndays);
-        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), sec), c.iterator(startTs, endTs));
+        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), sec), c);
     }
     
     protected void createMetaFlow1() {
@@ -109,7 +112,7 @@ class Analisis extends StandAloneLPSimulation {
         new SingleMetaFlow(19, simSangre, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(3));
         new SingleMetaFlow(20, simSangre, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(5));
         Cycle c = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), ndays);
-        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), simPruebas), c.iterator(startTs, endTs));
+        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), simPruebas), c);
     }
     protected void createMetaFlow2() {
         SimultaneousMetaFlow metaFlow = new SimultaneousMetaFlow(21, RandomVariateFactory.getInstance("ConstantVariate", 1));
@@ -121,12 +124,12 @@ class Analisis extends StandAloneLPSimulation {
 ////        Cycle c2 = new Cycle(480.0, RandomVariateFactory.getInstance("ConstantVariate", 120.0), 0);
 //        Cycle c = new Cycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0 * 7), 0, c2);
         Cycle c = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), ndays);
-        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), metaFlow), c.iterator(startTs, endTs));
+        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), metaFlow), c);
     }
     
     protected void createMetaFlow3() {
         Cycle c = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), new SingleMetaFlow(23, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c.iterator(startTs, endTs));
+        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), new SingleMetaFlow(23, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c);
     }
 
 }

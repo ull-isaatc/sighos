@@ -17,9 +17,11 @@ import simkit.random.RandomVariate;
  * with this workgroup. 
  * @author Carlos Martín Galán
  */
-public class Activity extends DescSimulationObject implements Prioritizable, RecoverableState<ActivityState> {
+public class Activity extends TimeStampedSimulationObject implements Prioritizable, RecoverableState<ActivityState>, Describable {
     /** Priority of the activity */
     protected int priority = 0;
+    /** A brief description of the activity */
+    protected String description;
     /** Indicates if the activity is presential (an element carrying out this activity could
      * not make anything else) or not presential (the element could perform other activities at
      * the same time) */
@@ -72,11 +74,13 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * @param presential Indicates if the activity requires the presence of an element to be carried out. 
      */
     public Activity(int id, Simulation simul, String description, int priority, boolean presential) {
-        super(id, simul, description);
+        super(id, simul);
+        this.description = description;
         this.priority = priority;
         this.presential = presential;
         queue = new RemovablePrioritizedTable<SingleFlow>();
         workGroupTable = new NonRemovablePrioritizedTable<WorkGroup>();
+        simul.add(this);
     }
 
     /**
@@ -88,6 +92,13 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
     }
     
     /**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
      * Returns the activity's priority.
      * @return Value of the activity's priority.
      */
@@ -116,51 +127,93 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
     /**
      * Creates a new workgroup for this activity. The workgroup is added and returned in order
      * to be used.
-     * @param wgId The workgroup's identifier
      * @param duration Duration of the activity when performed with the new workgroup
      * @param priority Priority of the workgroup
-     * @return A new workgroup.
+     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
+     * @return The new workgroup's identifier.
      */
-    public WorkGroup getNewWorkGroup(int wgId, TimeFunction duration, int priority) {
-    	WorkGroup wg = new WorkGroup(wgId, this, duration, priority);
-        workGroupTable.add(wg);
-        return wg;
+    public int addWorkGroup(TimeFunction duration, int priority, es.ull.isaatc.simulation.WorkGroup wg) {
+    	int wgId = workGroupTable.size();
+        workGroupTable.add(new WorkGroup(wgId, duration, priority, wg));
+        return wgId;
     }
     
     /**
      * Creates a new workgroup for this activity with the highest level of priority. The workgroup 
      * is added and returned in order to be used.
-     * @param wgId The workgroup's identifier
      * @param duration Duration of the activity when performed with the new workgroup
-     * @return A new workgroup.
+     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
+     * @return The new workgroup's identifier.
      */
-    public WorkGroup getNewWorkGroup(int wgId, TimeFunction duration) {    	
-        return getNewWorkGroup(wgId, duration, 0);
+    public int addWorkGroup(TimeFunction duration, es.ull.isaatc.simulation.WorkGroup wg) {    	
+        return addWorkGroup(duration, 0, wg);
     }
 
     /**
      * Creates a new workgroup for this activity. The workgroup is added and returned in order
      * to be used.
-     * @param wgId The workgroup's identifier
      * @param duration Duration of the activity when performed with the new workgroup
      * @param priority Priority of the workgroup
-     * @return A new workgroup.
+     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
+     * @return The new workgroup's identifier.
      */
-    public WorkGroup getNewWorkGroup(int wgId, RandomVariate duration, int priority) {
-    	WorkGroup wg = new WorkGroup(wgId, this, new RandomFunction(duration), priority);
-        workGroupTable.add(wg);
-        return wg;
+    public int addWorkGroup(RandomVariate duration, int priority, es.ull.isaatc.simulation.WorkGroup wg) {
+        return addWorkGroup(new RandomFunction(duration), priority, wg);
     }
     
     /**
      * Creates a new workgroup for this activity with the highest level of priority. The workgroup 
      * is added and returned in order to be used.
-     * @param wgId The workgroup's identifier
      * @param duration Duration of the activity when performed with the new workgroup
-     * @return A new workgroup.
+     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
+     * @return The new workgroup's identifier.
      */
-    public WorkGroup getNewWorkGroup(int wgId, RandomVariate duration) {    	
-        return getNewWorkGroup(wgId, duration, 0);
+    public int addWorkGroup(RandomVariate duration, es.ull.isaatc.simulation.WorkGroup wg) {    	
+        return addWorkGroup(new RandomFunction(duration), 0, wg);
+    }
+
+    /**
+     * Creates a new workgroup for this activity. The workgroup is added and returned in order
+     * to be used.
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @param priority Priority of the workgroup
+     * @return The new workgroup's identifier.
+     */
+    public int addWorkGroup(TimeFunction duration, int priority) {
+    	int wgId = workGroupTable.size();
+        workGroupTable.add(new WorkGroup(wgId, duration, priority));
+        return wgId;
+    }
+    
+    /**
+     * Creates a new workgroup for this activity with the highest level of priority. The workgroup 
+     * is added and returned in order to be used.
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @return The new workgroup's identifier.
+     */
+    public int addWorkGroup(TimeFunction duration) {    	
+        return addWorkGroup(duration, 0);
+    }
+
+    /**
+     * Creates a new workgroup for this activity. The workgroup is added and returned in order
+     * to be used.
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @param priority Priority of the workgroup
+     * @return The new workgroup's identifier.
+     */
+    public int addWorkGroup(RandomVariate duration, int priority) {
+        return addWorkGroup(new RandomFunction(duration), priority);
+    }
+    
+    /**
+     * Creates a new workgroup for this activity with the highest level of priority. The workgroup 
+     * is added and returned in order to be used.
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @return The new workgroup's identifier.
+     */
+    public int addWorkGroup(RandomVariate duration) {    	
+        return addWorkGroup(new RandomFunction(duration), 0);
     }
 
     /**
@@ -176,7 +229,7 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
      * @param wgId The id of the workgroup searched
      * @return A workgroup contained in this activity with the specified id
      */
-    public WorkGroup getWorkGroup(Integer wgId) {
+    protected WorkGroup getWorkGroup(int wgId) {
         Iterator<WorkGroup> iter = workGroupTable.iterator(NonRemovablePrioritizedTable.IteratorType.FIFO);
         while (iter.hasNext()) {
         	WorkGroup opc = iter.next();
@@ -186,23 +239,39 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
         return null;
     }
     
+    /**
+     * Searches and returns a workgroup with the specified id.
+     * @param wgId The id of the workgroup searched
+     * @param rt Resource Type
+     * @param needed Needed units
+     * @return True if the specified id corresponds to an existent WG; false in other case.
+     */
+    public boolean addWorkGroupEntry(int wgId, ResourceType rt, int needed ) {
+    	WorkGroup wg = getWorkGroup(wgId);
+    	if (wg != null) {
+    		wg.add(rt, needed);
+    		return true;
+    	}
+        return false;
+    }
+    
 	/**
      * Checks if this activity can be performed with any of its workgroups.
      * @param sf Single flow which contains the activity 
-     * @return The workgroup the activity can be performed with. null if the activity isn't feasible.
+     * @return True if the activity can be performed. False if the activity isn't feasible.
      */
-    protected WorkGroup isFeasible(SingleFlow sf) {
+    protected boolean isFeasible(SingleFlow sf) {
         Iterator<WorkGroup> iter = workGroupTable.iterator(NonRemovablePrioritizedTable.IteratorType.RANDOM);
         while (iter.hasNext()) {
-        	WorkGroup opc = iter.next();
-            if (opc.isFeasible(sf)) {
-                sf.setExecuting(true);
+        	WorkGroup wg = iter.next();
+            if (wg.isFeasible(sf)) {
+                sf.setExecutionWG(wg);
                 if (isPresential())
                 	sf.getElement().setCurrentSF(sf);
-                return opc;
+                return true;
             }            
         }
-        return null;
+        return false;
     }
 
 	/**
@@ -285,4 +354,271 @@ public class Activity extends DescSimulationObject implements Prioritizable, Rec
 		}		
 	}
 
+	/**
+* A set of resources needed for carrying out an activity. A workgroup (WG) consists on a 
+	 * set of (resource type, #needed resources) pairs, the duration of the activity when using 
+	 * this workgroup, and the priority of the workgroup inside the activity.
+	 * @author Iván Castilla Rodríguez
+	 */
+	class WorkGroup extends es.ull.isaatc.simulation.WorkGroup implements Prioritizable {
+	    /** Duration of the activity when using this WG */
+	    protected TimeFunction duration;
+	    /** Priority of the workgroup */
+	    protected int priority = 0;
+		
+	    /**
+	     * Creates a new instance of WorkGroup
+	     * @param id Identifier of this workgroup.
+	     * @param duracion Duration of the activity when using this WG.
+	     * @param priority Priority of the workgroup.
+	     */    
+	    protected WorkGroup(int id, TimeFunction duration, int priority) {
+	        super(id, Activity.this.simul, "WG" + id + "-ACT" + Activity.this.id);
+	        this.duration = duration;
+	        this.priority = priority;
+	    }
+
+	    /**
+	     * Creates a new instance of WorkGroup
+	     * @param id Identifier of this workgroup.
+	     * @param duracion Duration of the activity when using this WG.
+	     * @param priority Priority of the workgroup.
+	     */    
+	    protected WorkGroup(int id, TimeFunction duration, int priority, es.ull.isaatc.simulation.WorkGroup wg) {
+	        super(id, wg.simul, wg.description);
+	        this.duration = duration;
+	        this.priority = priority;
+	        this.resourceTypeTable.addAll(wg.resourceTypeTable);
+	    }
+
+	    /**
+	     * Returns the activity this WG belongs to.
+	     * @return Activity this WG belongs to.
+	     */    
+	    protected Activity getActivity() {
+	        return Activity.this;
+	    }
+
+	    /**
+	     * Returns the duration of the activity when this workgroup is used. 
+	     * The value returned by the random number function could be negative. 
+	     * In this case, it returns 0.0.
+	     * @return The activity duration.
+	     */
+	    public double getDuration() {
+	        return duration.getPositiveValue(getTs());
+	    }
+	    
+	    /**
+	     * Getter for property priority.
+	     * @return Value of property priority.
+	     */
+	    public int getPriority() {
+	        return priority;
+	    }
+	    
+	    /**
+	     * Checks if there are enough resources to carry out an activity by using this workgroup.   
+	     * The "potential" available resources are booked by the element requesting the activity. 
+	     * If there are less available resources than needed resources for any resource type, the 
+	     * activity can not be carried out, and all the "books" are removed.
+	     * Possible conflicts between resources inside the activity are solved by invoking a
+	     * branch-and-bound resource distribution algorithm. 
+	     * @param sf Single flow trying to carry out the activity with this workgroup 
+	     * @return True if there are more "potential" available resources than needed resources for
+	     * thiw workgroup. False in other case.
+	     */
+	    protected boolean isFeasible(SingleFlow sf) {
+	    	boolean conflict = false;
+
+	    	sf.resetConflictZone();
+	        for (int i = 0; i < resourceTypeTable.size(); i++) {
+	            ResourceTypeTableEntry rttEntry = resourceTypeTable.get(i);       	
+	        	ResourceType rt = rttEntry.getResourceType();
+	        	int []avail = rt.getAvailable(sf);
+	        	// If there are less "potential" available resources than needed
+	            if (avail[0] + avail[1] < rttEntry.getNeeded()) {
+	            	// The element frees the previously booked resources 
+	                rt.resetAvailable(sf);
+	                i--;
+	                for (; i >= 0; i--)
+	                    resourceTypeTable.get(i).getResourceType().resetAvailable(sf);
+	                sf.removeFromConflictZone();
+	                return false;            	
+	            }
+	            // If the available resources WITH conflicts are needed
+	            else if (avail[0] < rttEntry.getNeeded())
+	                conflict = true;
+	        }
+	        // When this point is reached, that means that the activity is POTENTIALLY feasible
+	        sf.waitConflictSemaphore();
+	        // Now, this element has exclusive access to its resources. It's time to "recheck"
+	        // if the activity is feasible        
+	        if (conflict) { // The resource distribution algorithm is invoked
+	        	debug("Overlapped resources with " + sf.getElement());
+	            if (!distributeResources(sf)) {
+	                sf.removeFromConflictZone();
+	            	sf.signalConflictSemaphore();
+	            	return false;
+	            }
+	        }
+	        else if (sf.getConflictZone().size() > 1) {
+	        	debug("Possible conflict. Recheck is needed " + sf.getElement());
+	            int ned[] = new int[resourceTypeTable.size()];
+	            int []pos = {0, 0}; // "Start" position
+	            for (int i = 0; i < resourceTypeTable.size(); i++)
+	                ned[i] = resourceTypeTable.get(i).getNeeded();
+	        	if (!hasSolution(pos, ned)) {
+	                sf.removeFromConflictZone();
+	            	sf.signalConflictSemaphore();
+	            	// The element frees the previously booked resources 
+	            	for (ResourceTypeTableEntry rttEntry : resourceTypeTable)
+	            		rttEntry.getResourceType().resetAvailable(sf);
+	        		return false;
+	        	}
+	        }
+	        return true;
+	    }
+	    
+	    /**
+	     * Checks if a valid solution can be reached from the current situation. This method 
+	     * is used to bound the search tree.
+	     * @param pos Initial position.
+	     * @param nec Resources needed.
+	     * @return True if there is a reachable solution. False in other case.
+	     */
+	    protected boolean hasSolution(int []pos, int []nec) {
+	        for (int i = pos[0]; i < resourceTypeTable.size(); i++) {
+	            ResourceTypeTableEntry actual = resourceTypeTable.get(i);
+	            int j = pos[1];
+	            Resource res;
+	            int disp = 0;            
+	            while (((res = actual.getResource(j)) != null) && (disp < nec[i])) {
+	                // FIXME Debería bastar con preguntar por el RT
+	                if ((res.getCurrentSF() == null) && (res.getCurrentResourceType() == null))
+	                    disp++;
+	                j++;
+	            }
+	            if (disp < nec[i])
+	                return false;
+	        }
+	        return true;
+	    }
+	    
+	    /**
+	     * Returns the position [ResourceType, Resource] of the next valid solution. The initial position
+	     * <code>pos</code> is supposed as correct.
+	     * @param pos Initial position [ResourceType, Resource].
+	     * @param nec Resource needed.
+	     * @return [ResourceType, Resource] where the next valid solution can be found.
+	     */
+	    private int []searchNext(int[] pos, int []nec) {
+	        int []aux = new int[2];
+	        aux[0] = pos[0];
+	        aux[1] = pos[1];
+	        // Searches a resource type that requires resources
+	        while (nec[aux[0]] == 0) {
+	            aux[0]++;
+	            // The second index is reset
+	            aux[1] = -1;
+	            // No more resources needed ==> SOLUTION
+	            if (aux[0] == resourceTypeTable.size()) {
+	                return aux;
+	            }
+	        }
+	        // Takes the first resource type
+	        ResourceType rt = resourceTypeTable.get(aux[0]).getResourceType();
+	        // Searches the NEXT available resource
+	        aux[1] = rt.getNextAvailableResource(aux[1] + 1);
+
+	        // This resource type don't have enough available resources
+	        if (aux[1] == -1)
+	            return null;
+	        return aux;
+	    }
+
+	    /**
+	     * Marks a resource as belonging to the solution
+	     * @param pos Position [ResourceType, Resource] of the resource
+	     */
+	    private void mark(int []pos) {
+	        Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
+	        res.setCurrentResourceType(resourceTypeTable.get(pos[0]).getResourceType());
+	    }
+	    
+	    /**
+	     * Removes the mark of a resource as belonging to the solution
+	     * @param pos Position [ResourceType, Resource] of the resource
+	     */
+	    private void unmark(int []pos) {
+	        Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
+	        res.setCurrentResourceType(null);
+	    }
+
+	    /**
+	     * Makes a depth first search looking for a solution.
+	     * @param pos Position to look for a solution [ResourceType, Resource] 
+	     * @param ned Resources needed
+	     * @return True if a valid solution exists. False in other case.
+	     */
+	    protected boolean findSolution(int []pos, int []ned) {
+	        pos = searchNext(pos, ned);
+	        // No solution
+	        if (pos == null)
+	            return false;
+	        // No more elements needed => SOLUTION
+	        if (pos[0] == resourceTypeTable.size())
+	            return true;
+	        // This resource belongs to the solution...
+	        mark(pos);
+	        ned[pos[0]]--;
+	        // Bound
+	        if (hasSolution(pos, ned))
+	        // ... the search continues
+	            if (findSolution(pos, ned))
+	                return true;
+	        // There's no solution with this resource. Try without it
+	        unmark(pos);
+	        ned[pos[0]]++;
+	        // ... and the search continues
+	        return findSolution(pos, ned);        
+	    }
+	    
+	    /**
+	     * Distribute the resources when there is a conflict inside the activity.
+	     * @param sf Single flow trying to carry out the activity with this workgroup 
+	     * @return True if a valid solution exists. False in other case.
+	     */
+	    protected boolean distributeResources(SingleFlow sf) {
+	        int ned[] = new int[resourceTypeTable.size()];
+	        int []pos = {0, -1}; // "Start" position
+	        
+	        for (int i = 0; i < resourceTypeTable.size(); i++)
+	            ned[i] = resourceTypeTable.get(i).getNeeded();
+	        // B&B algorithm for finding a solution
+	        if (findSolution(pos, ned))
+	            return true;
+	        // If there is no solution, the "books" of this element are removed
+	        for (int i = 0; i < resourceTypeTable.size(); i++)
+	            resourceTypeTable.get(i).getResourceType().resetAvailable(sf);
+	        return false;
+	    }
+	    
+	    /**
+	     * Catch the resources needed for each resource type to carry out an activity.
+	     * @param sf Single flow which requires the resources
+	     */
+	    protected void catchResources(SingleFlow sf) {
+	       for (ResourceTypeTableEntry rtte : resourceTypeTable)
+	           rtte.getResourceType().catchResources(rtte.getNeeded(), sf);
+	       // When this point is reached, that means that the resources have been completely taken
+	       sf.signalConflictSemaphore();
+	    }
+
+	    @Override
+	    public String toString() {
+	    	return new String("(" + Activity.this + ")" + super.toString());
+	    }
+
+	}
 }

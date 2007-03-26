@@ -14,7 +14,7 @@ import es.ull.isaatc.simulation.info.TimeChangeInfo;
  * of the components associated to this LP. An LP is subdivided into activity managers.   
  * @author Carlos Martín Galán
  */
-public class LogicalProcess extends SimulationObject implements Runnable {
+public class LogicalProcess extends TimeStampedSimulationObject implements Runnable {
 	/** LP's counter. */
 	private static int nextId = 0;
     /** A lock for the execution queue. */

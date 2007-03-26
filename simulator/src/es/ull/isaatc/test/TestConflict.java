@@ -3,7 +3,6 @@ package es.ull.isaatc.test;
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.util.Cycle;
-import es.ull.isaatc.util.CycleIterator;
 import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
 
@@ -27,12 +26,14 @@ class SimConflict1 extends StandAloneLPSimulation {
 		for (int i = 0; i < NRT; i++)
 			new ResourceType(i, this, "RT" + i);
 		WorkGroup wgs[] = new WorkGroup[NACTS];
-		for (int i = 0; i < NACTS; i++)
-			wgs[i] = new Activity(i, this, "ACT" + i).getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 40));
+		wgs[0] = new WorkGroup(0, this, "");
+		wgs[1] = new WorkGroup(1, this, "");
 		wgs[0].add(getResourceType(0), 1);
 		wgs[0].add(getResourceType(1), 1);
 		wgs[1].add(getResourceType(3), 1);
 		wgs[1].add(getResourceType(2), 1);
+		for (int i = 0; i < NACTS; i++)
+			new Activity(i, this, "ACT" + i).addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 40), wgs[i]);
 		
 		Cycle c = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), endTs);
 		Resource r0 = new Resource(0, this, "Res0");
@@ -43,8 +44,8 @@ class SimConflict1 extends StandAloneLPSimulation {
 		r1.addTimeTableEntry(c, 480.0, getResourceType(1));
 
 		Cycle c1 = new PeriodicCycle(1.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 480.0);
-		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), new ElementType(0, this, "ET0"), new SingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c1.iterator(startTs, endTs));
-		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), new ElementType(1, this, "ET1"), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1))), c1.iterator(startTs, endTs));
+		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), new ElementType(0, this, "ET0"), new SingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c1);
+		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), new ElementType(1, this, "ET1"), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1))), c1);
 	}
 }
 
@@ -68,14 +69,17 @@ class SimConflict2 extends StandAloneLPSimulation {
 		for (int i = 0; i < NRT; i++)
 			new ResourceType(i, this, "RT" + i);
 		WorkGroup wgs[] = new WorkGroup[NACTS];
-		for (int i = 0; i < NACTS; i++)
-			wgs[i] = new Activity(i, this, "ACT" + i).getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 40));
+		wgs[0] = new WorkGroup(0, this, "");
+		wgs[1] = new WorkGroup(1, this, "");
+		wgs[2] = new WorkGroup(2, this, "");
 		wgs[0].add(getResourceType(0), 1);
 		wgs[0].add(getResourceType(1), 1);
 		wgs[0].add(getResourceType(4), 1);
 		wgs[1].add(getResourceType(3), 1);
 		wgs[1].add(getResourceType(2), 1);
 		wgs[2].add(getResourceType(5), 1);
+		for (int i = 0; i < NACTS; i++)
+			new Activity(i, this, "ACT" + i).addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 40), wgs[i]);
 
 		Cycle c = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), endTs);
 		Resource r0 = new Resource(0, this, "Res0");
@@ -89,9 +93,9 @@ class SimConflict2 extends StandAloneLPSimulation {
 		r2.addTimeTableEntry(c, 480.0, getResourceType(5));
 
 		Cycle c1 = new PeriodicCycle(1.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 480.0);
-		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), new ElementType(0, this, "ET0"), new SingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), new CycleIterator(c1, startTs, endTs));
-		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), new ElementType(1, this, "ET1"), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1))), new CycleIterator(c1, startTs, endTs));
-		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), new ElementType(2, this, "ET2"), new SingleMetaFlow(2, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2))), new CycleIterator(c1, startTs, endTs));
+		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), new ElementType(0, this, "ET0"), new SingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c1);
+		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), new ElementType(1, this, "ET1"), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1))), c1);
+		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), new ElementType(2, this, "ET2"), new SingleMetaFlow(2, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2))), c1);
 	}
 }
 

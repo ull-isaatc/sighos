@@ -19,9 +19,10 @@ class MySimulation extends StandAloneLPSimulation {
 		for (int i = 0; i < NRT; i++)
 			new ResourceType(i, this, "RT" + i);
 		for (int i = 0; i < NACT; i++) {
-			WorkGroup wg = new Activity(i, this, "ACT" + i).getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 10.0));
+			WorkGroup wg = new WorkGroup(i, this, "");
 			wg.add(resourceTypeList.get(i), 1);
 			wg.add(resourceTypeList.get(i + 1), 1);
+			new Activity(i, this, "ACT" + i).addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 10.0), wg);
 		}
 	}
 
@@ -31,8 +32,9 @@ class MySimulation extends StandAloneLPSimulation {
 		for (int i = 0; i < NRT; i++)
 			new ResourceType(i, this, "RT" + i);
 		for (int i = 0; i < NACT; i++) {
-			WorkGroup wg = new Activity(i, this, "ACT" + i).getNewWorkGroup(0, RandomVariateFactory.getInstance("ConstantVariate", 10.0));
+			WorkGroup wg = new WorkGroup(i, this, "");
 			wg.add(resourceTypeList.get(i), 1);
+			new Activity(i, this, "ACT" + i).addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 10.0), wg);
 		}
 	}
 	
