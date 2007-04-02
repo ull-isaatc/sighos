@@ -2,8 +2,8 @@ package es.ull.isaatc.test;
 //import java.io.OutputStreamWriter;
 
 import simkit.random.RandomVariateFactory;
+import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
@@ -31,13 +31,13 @@ class StateSimulation extends StandAloneLPSimulation {
 
 	@Override
 	protected void createModel() {
-		Cycle cPeriod = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", PERIOD), 0);
+		Cycle cPeriod = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", PERIOD), 0);
 		switch (complexityDegree) {
 			case 0:				
 				for (int i = 0; i < NSIMPLE; i++)
 					new ResourceType(i, this, "RT" + i);
 				for (int i = 0; i < NSIMPLE; i++) {
-					int wgId = new Activity(i, this, "ACT" + i).addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", DURACT));
+					int wgId = new Activity(i, this, "ACT" + i).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", DURACT));
 					getActivity(i).addWorkGroupEntry(wgId, getResourceType(i), 1);					
 				}
 				for (int i = 0; i < NSIMPLE; i++)
@@ -45,7 +45,7 @@ class StateSimulation extends StandAloneLPSimulation {
 				for (int i = 0; i < NSIMPLE; i++)
 					new Resource(i, this, "RES" + i).addTimeTableEntry(cPeriod, DURRES, getResourceType(i));
 				for (int i = 0; i < NSIMPLE; i++) {
-					ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
+					ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
 					new TimeDrivenGenerator(this, ec, cPeriod);
 				}
 				break;
@@ -53,42 +53,42 @@ class StateSimulation extends StandAloneLPSimulation {
 				for (int i = 0; i < NSIMPLE; i++)
 					new ResourceType(i, this, "RT" + i);
 				for (int i = 0; i < NSIMPLE; i++) {
-					int wgId = new Activity(i, this, "ACT" + i).addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", DURACT));
+					int wgId = new Activity(i, this, "ACT" + i).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", DURACT));
 					getActivity(i).addWorkGroupEntry(wgId, getResourceType(i), 1);
 				}
 				for (int i = 0; i < NSIMPLE; i++)
 					new ElementType(i, this, "ELEMT" + i);
 				for (int i = 0; i < NSIMPLE; i++)
 					new Resource(i, this, "RES" + i).addTimeTableEntry(cPeriod, DURRES + 20, getResourceType(i));
-				Cycle c4 = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", PERIOD), 0);
+				Cycle c4 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", PERIOD), 0);
 				for (int i = 0; i < NSIMPLE; i++) {
-					ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
+					ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
 					new TimeDrivenGenerator(this, ec, c4);
 				}
 				break;
 			case 2:
 				ResourceType rt = new ResourceType(0, this, "RT0");
 				Activity a = new Activity(0, this, "Non presential 0", false);
-				int wgId = a.addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", DURACT));
+				int wgId = a.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", DURACT));
 				a.addWorkGroupEntry(wgId, rt, 1); 
 				ElementType et = new ElementType(0, this, "ELEMT0");
 				new Resource(0, this, "RES0").addTimeTableEntry(cPeriod, DURRES, rt);
-				ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), et, new SingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), a));
+				ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), et, new SingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), a));
 				new TimeDrivenGenerator(this, ec, cPeriod);
 				break;
 			case 3:
 				ResourceType rt1 = new ResourceType(1, this, "RT1");
 				WorkGroup wg = new WorkGroup(0, this, "");
 				wg.add(rt1, 1);
-				new Activity(0, this, "Non presential 0", false).addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", DURACT), wg); 
-				new Activity(1, this, "Non presential 1", false).addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", DURACT), wg); 
+				new Activity(0, this, "Non presential 0", false).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", DURACT), wg); 
+				new Activity(1, this, "Non presential 1", false).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", DURACT), wg); 
 				ElementType et1 = new ElementType(1, this, "ELEMT1");
 				for (int i = 0; i < NRES; i++)
 					new Resource(i, this, "RES" + i).addTimeTableEntry(cPeriod, DURRES, rt1);
 				SimultaneousMetaFlow sim = new SimultaneousMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
 				new SingleMetaFlow(1, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
 				new SingleMetaFlow(2, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1));
-				ElementCreator ec1 = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NELEM), et1, sim);
+				ElementCreator ec1 = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), et1, sim);
 				new TimeDrivenGenerator(this, ec1, cPeriod);
 				break;
 /*			case 4:

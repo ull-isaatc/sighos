@@ -4,6 +4,7 @@
 package es.ull.isaatc.test;
 
 import simkit.random.RandomVariateFactory;
+import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.util.*;
 
@@ -16,8 +17,8 @@ class CycleSim extends StandAloneLPSimulation {
 	@Override
 	protected void createModel() {
 		Activity act = new Activity(0, this, "FOO");
-		Cycle c1 = new PeriodicCycle(8, RandomVariateFactory.getInstance("ConstantVariate", 24), 0, new PeriodicCycle(1, RandomVariateFactory.getInstance("ConstantVariate", 1), 0));
-		ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", 1));
+		Cycle c1 = new PeriodicCycle(8, TimeFunctionFactory.getInstance("ConstantVariate", 24), 0, new PeriodicCycle(1, TimeFunctionFactory.getInstance("ConstantVariate", 1), 0));
+		ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1));
 		ec.add(new ElementType(0, this, "ELEM"), new SingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), act), 1.0); 
 		new TimeDrivenGenerator(this, ec, c1); 
 	}	

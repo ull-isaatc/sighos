@@ -7,6 +7,7 @@ import java.util.Map;
 
 import simkit.random.RandomVariateFactory;
 
+import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.StatisticListener;
@@ -70,11 +71,11 @@ class SimSimAct extends StandAloneLPSimulation {
 		WorkGroup wg0 = new WorkGroup(0, this, "");
 		wg0.add(rt3, 1);
 		
-		act0.addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 100.0, wg0));
-		act1.addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 100.0, wg0));
-		act2.addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 100.0, wg0));
+		act0.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 100.0, wg0));
+		act1.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 100.0, wg0));
+		act2.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 100.0, wg0));
 
-		Cycle c = new PeriodicCycle(START_REC, RandomVariateFactory.getInstance("ConstantVariate", 1440), 0);
+		Cycle c = new PeriodicCycle(START_REC, TimeFunctionFactory.getInstance("ConstantVariate", 1440), 0);
 		for (int i = 0; i < NRES; i++) {
 			Resource room = new Resource(i, this, "Room" + i);
 			room.addTimeTableEntry(c, DURAC_REC, getResourceType(3));
@@ -85,8 +86,8 @@ class SimSimAct extends StandAloneLPSimulation {
         new SingleMetaFlow(2, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1));
         new SingleMetaFlow(1, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
         new SingleMetaFlow(3, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2));
-        Cycle c1 = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
-        ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACDAY), getElementType(0), sim);
+        Cycle c1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
+        ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACDAY), getElementType(0), sim);
         new TimeDrivenGenerator(this, ec, c1);
 	}	
 }
@@ -115,17 +116,17 @@ class SimPoolAct extends StandAloneLPSimulation {
 		ResourceType rt0 = new ResourceType(0, this, "NurseT0");
 		WorkGroup wg0 = new WorkGroup(0, this, "");
 		wg0.add(rt0, 1);
-		act0.addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 100.0), wg0);
-		act1.addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 100.0), wg0);
-		act2.addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 100.0), wg0);
+		act0.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 100.0), wg0);
+		act1.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 100.0), wg0);
+		act2.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 100.0), wg0);
 
-		Cycle c = new PeriodicCycle(100, RandomVariateFactory.getInstance("ConstantVariate", 1440), 0);
+		Cycle c = new PeriodicCycle(100, TimeFunctionFactory.getInstance("ConstantVariate", 1440), 0);
 		new Resource(0, this, "Nurse 1").addTimeTableEntry(c, DURAC_REC, getResourceType(0));
 
-		Cycle c1 = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
-		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(2, this, "PAT2"), new SingleMetaFlow(3, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2))), c1);
-		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(0, this, "PAT0"), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c1);
-		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(1, this, "PAT1"), new SingleMetaFlow(2, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1))), c1);
+		Cycle c1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
+		new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(2, this, "PAT2"), new SingleMetaFlow(3, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2))), c1);
+		new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(0, this, "PAT0"), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c1);
+		new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(1, this, "PAT1"), new SingleMetaFlow(2, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1))), c1);
 	}
 }
 
@@ -152,18 +153,18 @@ class SimContinue extends StandAloneLPSimulation {
 
         WorkGroup wg0 = new WorkGroup(0, this, ""); 
         wg0.add(crDoctor, 1);
-        actFOA.addWorkGroup(RandomVariateFactory.getInstance("NormalVariate", 15.0, 2.0), wg0);
-        actSOA.addWorkGroup(RandomVariateFactory.getInstance("NormalVariate", 18.0, 2.0), wg0);
+        actFOA.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 15.0, 2.0), wg0);
+        actSOA.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 18.0, 2.0), wg0);
         WorkGroup wg1 = new WorkGroup(1, this, "");
         wg1.add(crBlood, 1);
         wg1.add(crNurse, 1);
-        actBS.addWorkGroup(RandomVariateFactory.getInstance("NormalVariate", 10.0, 2.0), wg1);
+        actBS.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 10.0, 2.0), wg1);
         WorkGroup wg2 = new WorkGroup(2, this, "");
         wg2.add(crXRay, 1);
         wg2.add(crNurse, 1);       
-        actXR.addWorkGroup(RandomVariateFactory.getInstance("NormalVariate", 18.0, 5.0), wg2);
+        actXR.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 18.0, 5.0), wg2);
 
-        Cycle c = new PeriodicCycle(480, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
+        Cycle c = new PeriodicCycle(480, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
         new Resource(0, this, "Nurse #1").addTimeTableEntry(c, DURAC_REC, getResourceType(2));
 		new Resource(1, this, "Nurse #2").addTimeTableEntry(c, DURAC_REC, getResourceType(2));
 		new Resource(2, this, "Doctor #1").addTimeTableEntry(c, DURAC_REC, getResourceType(3));
@@ -172,14 +173,14 @@ class SimContinue extends StandAloneLPSimulation {
 		new Resource(5, this, "X-Ray machine #1").addTimeTableEntry(c, DURAC_REC, getResourceType(1));
 
 		int cont = 0;
-        Cycle c1 = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
+        Cycle c1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
         SequenceMetaFlow sec = new SequenceMetaFlow(cont++, RandomVariateFactory.getInstance("ConstantVariate", 1));
         new SingleMetaFlow(cont++, sec, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
         SimultaneousMetaFlow sim = new SimultaneousMetaFlow(cont++, sec, RandomVariateFactory.getInstance("ConstantVariate", 1));
         new SingleMetaFlow(cont++, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1));
         new SingleMetaFlow(cont++, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2));
         new SingleMetaFlow(cont++, sec, RandomVariateFactory.getInstance("UniformVariate", 0, 3), getActivity(3));        
-		new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(0, this, "PATIENTS"), sec), c1);
+		new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(0, this, "PATIENTS"), sec), c1);
 	}
 }
 

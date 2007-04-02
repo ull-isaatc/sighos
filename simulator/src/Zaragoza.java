@@ -6,14 +6,10 @@ import java.io.IOException;
 
 import simkit.random.RandomVariateFactory;
 
+import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.info.ElemIndispTimeListener;
-import es.ull.isaatc.simulation.info.ElementStartFinishListener;
-import es.ull.isaatc.simulation.info.PeriodicActivityQueueListener;
-import es.ull.isaatc.simulation.info.PeriodicActivityUsageListener;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationTimeListener;
-import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
 
@@ -35,54 +31,57 @@ class SimZaragoza extends StandAloneLPSimulation {
 		new ResourceType(0, this, "Doctor"); 
 		WorkGroup wg1 = new WorkGroup(1, this, "");
 		wg1.add(getResourceType(0), nres);
-		new Activity(0, this, "First Outpatient Appointment").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 20), wg1);
+		new Activity(0, this, "First Outpatient Appointment").addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 20), wg1);
 		WorkGroup wg2 = new WorkGroup(2, this, ""); 
 		wg2.add(getResourceType(0), 1);
-		new Activity(1, this, "Subsequent Outpatient Appointment").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 15), wg2);
+		new Activity(1, this, "Subsequent Outpatient Appointment").addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 15), wg2);
 		
 		new ElementType(0, this, "Patient");
 		
-		PeriodicCycle c1 = new PeriodicCycle(480.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
+		PeriodicCycle c1 = new PeriodicCycle(480.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
 		for (int i = 0; i < nres; i++)
 			new Resource(i, this, "Doctor " + (i + 1)).addTimeTableEntry(c1, 399.0, getResourceType(0));
 		
-        PeriodicCycle c2 = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", 1), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c2);
-        PeriodicCycle c3 = new PeriodicCycle(481.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1))), c3);
+//        PeriodicCycle c2 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
+        PeriodicCycle c2 = new PeriodicCycle(0.0, 
+        		TimeFunctionFactory.getInstance("RandomFunction", RandomVariateFactory.getInstance("ConstantVariate", 1440.0))
+        		, 0);
+        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c2);
+        PeriodicCycle c3 = new PeriodicCycle(481.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
+        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1))), c3);
 	}
 	protected void createEjemplo0() {
 		new ResourceType(0, this, "Doctor"); 
 		WorkGroup wg1 = new WorkGroup(1, this, "");
 		wg1.add(getResourceType(0), 1);
-		new Activity(0, this, "First Outpatient Appointment").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 20), wg1);
-		new Activity(1, this, "Subsequent Outpatient Appointment").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 15), wg1);
+		new Activity(0, this, "First Outpatient Appointment").addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 20), wg1);
+		new Activity(1, this, "Subsequent Outpatient Appointment").addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 15), wg1);
 		
 		new ElementType(0, this, "Patient");
 		
-		PeriodicCycle c1 = new PeriodicCycle(480.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
+		PeriodicCycle c1 = new PeriodicCycle(480.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
 		for (int i = 0; i < nres; i++)
 			new Resource(i, this, "Doctor " + (i + 1)).addTimeTableEntry(c1, 399.0, getResourceType(0));
 		
 		SequenceMetaFlow sec = new SequenceMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1));
 		new SingleMetaFlow(1, sec, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
 		new SingleMetaFlow(2, sec, RandomVariateFactory.getInstance("ConstantVariate", 2), getActivity(1));
-        PeriodicCycle c2 = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", npatients), getElementType(0), sec), c2);
+        PeriodicCycle c2 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
+        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", npatients), getElementType(0), sec), c2);
 	}
 	
 	protected void createEjemplo1() {
-		new Activity(0, this, "First Outpatient Appointment").addWorkGroup(RandomVariateFactory.getInstance("ConstantVariate", 10));
+		new Activity(0, this, "First Outpatient Appointment").addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 10));
 		new ElementType(0, this, "Patient");
-        PeriodicCycle c2 = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c2);
+        PeriodicCycle c2 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
+        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c2);
 	
 	}
 	protected void createEjemplo2() {
-		new Activity(0, this, "First Outpatient Appointment").addWorkGroup(RandomVariateFactory.getInstance("NormalVariate", 20, 5));
+		new Activity(0, this, "First Outpatient Appointment").addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 20, 5));
 		new ElementType(0, this, "Patient");
-        PeriodicCycle c2 = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c2);
+        PeriodicCycle c2 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
+        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c2);
 	
 	}
 }
