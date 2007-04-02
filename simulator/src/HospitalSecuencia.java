@@ -19,13 +19,8 @@ class Analisis extends StandAloneLPSimulation {
     static final int NPACIENTES = 10;
     int ndays;
     
-	Analisis(double startTs, int ndays, Output out) {
-		super("Sistema de análisis", startTs, ndays * 24 * 60.0, out);
-		this.ndays = ndays;
-    }
-    
-	Analisis(double startTs, int ndays) {
-		super("Sistema de análisis", startTs, ndays * 24 * 60.0);
+	Analisis(int ndays) {
+		super("Sistema de análisis");
 		this.ndays = ndays;
     }
     
@@ -143,21 +138,21 @@ class ExpHospitalSecuencia extends Experiment {
 	
 	public ExpHospitalSecuencia() {
 //		super("Hospital", NEXP, new StdResultProcessor(1440.0), new Output(Output.DEBUGLEVEL));
-		super("Hospital", NEXP);
+		super("Hospital", NEXP, 0.0, NDIAS * 24 * 60.0);
 	}
 
-	public ExpHospitalSecuencia(double prevStart, double prevEnd) {
-		super("Hospital", NEXP);
-		this.prevStart = prevStart;
-		this.prevEnd = prevEnd;		
-	}
+//	public ExpHospitalSecuencia(double prevStart, double prevEnd) {
+//		super("Hospital", NEXP, prevEnd);
+//		this.prevStart = prevStart;
+//		this.prevEnd = prevEnd;		
+//	}
 
 	public Simulation getSimulation(int ind) {
 		Analisis sim = null;
 //		if (Double.compare(prevEnd, 0.0) != 0)
 //			sim = new Analisis(NDIAS + (int)(prevEnd / (60 * 24)), new Output(Output.DebugLevel.XDEBUG), new PreviousSimulationResults(prevStart, prevEnd, ind, "c:\\"));
 //		else
-			sim = new Analisis(0.0, NDIAS);
+			sim = new Analisis(NDIAS);
 		sim.addListener(new StdInfoListener());
 		sim.addListener(new StatisticListener(1440.0));		
 		return sim;

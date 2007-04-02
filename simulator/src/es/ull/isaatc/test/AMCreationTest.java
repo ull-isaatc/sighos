@@ -5,12 +5,11 @@ package es.ull.isaatc.test;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.state.SimulationState;
-import es.ull.isaatc.util.Output;
 
 class MySimulation extends StandAloneLPSimulation {
-	public MySimulation(String description, double startTs, double endTs) {
-		super(description, startTs, endTs, new Output());
+	private long t;
+	public MySimulation(String description) {
+		super(description);
 	}
 
 	protected void model1() {
@@ -40,12 +39,12 @@ class MySimulation extends StandAloneLPSimulation {
 	
 	@Override
 	protected void createModel() {
+		t = System.currentTimeMillis();
 		model2();
 	}
 	
-	protected void init(SimulationState state) {
-		long t = System.currentTimeMillis();
-		super.init(state);
+	protected void createLogicalProcesses() {
+		super.createLogicalProcesses();
 		System.out.println("TTree: " + (System.currentTimeMillis() - t));
 	}
 }
@@ -60,10 +59,10 @@ public class AMCreationTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Experiment e = new Experiment("Test AM", 10) {
+		Experiment e = new Experiment("Test AM", 10, START, END) {
 			@Override
 			public Simulation getSimulation(int ind) {
-				MySimulation sim = new MySimulation("Sim AM", START, END);
+				MySimulation sim = new MySimulation("Sim AM");
 				return sim;
 			}			
 		};

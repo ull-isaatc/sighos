@@ -7,8 +7,8 @@ import es.ull.isaatc.util.*;
 
 class SimGenerators extends StandAloneLPSimulation {
 
-	public SimGenerators(double startTs, double endTs, Output out) {
-		super("Test de generadores", startTs, endTs, out);
+	public SimGenerators() {
+		super("Test de generadores");
 	}
 
 	@Override
@@ -45,12 +45,13 @@ class ExpGenerators extends Experiment {
     static final int NPRUEBAS = 1;
 
 	public ExpGenerators(String description) {
-		super(description, NPRUEBAS);
+		super(description, NPRUEBAS, 0.0, NDIAS * 24.0 * 60.0);
 	}
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		SimGenerators sim = new SimGenerators(0.0, NDIAS * 24.0 * 60.0, new Output(true));
+		SimGenerators sim = new SimGenerators();
+		sim.setOutput(new Output(true));
 		return sim;
 	}
 	

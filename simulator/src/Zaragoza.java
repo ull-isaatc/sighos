@@ -17,8 +17,8 @@ class SimZaragoza extends StandAloneLPSimulation {
 	int npatients;
 	int nres;
 	
-	public SimZaragoza(double startTs, double endTs, int npatients, int nres, Output out) {
-		super("Zaragoza Simulation", startTs, endTs, out);
+	public SimZaragoza(int npatients, int nres) {
+		super("Zaragoza Simulation");
 		this.npatients = npatients;
 		this.nres = nres;
 	}
@@ -117,7 +117,7 @@ class ExpZaragoza extends Experiment {
 //	ThreadedOutputStreamWriter out = null;
 	
 	public ExpZaragoza() {
-		super("Zaragoza", NEXP);
+		super("Zaragoza", NEXP, STARTTS, ENDTS);
 		try {
 			file = new FileWriter("C:\\ZaragozaTimes.txt");
 		} catch (IOException e) {
@@ -129,7 +129,7 @@ class ExpZaragoza extends Experiment {
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		Simulation sim = new SimZaragoza(STARTTS, ENDTS, NPATIENTS, NRES, new Output());
+		Simulation sim = new SimZaragoza(NPATIENTS, NRES);
 //		sim.addListener(new StdInfoListener());
 		sim.addListener(new SimulationTimeListener() {
 			@Override

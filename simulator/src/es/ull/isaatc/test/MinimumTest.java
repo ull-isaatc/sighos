@@ -14,8 +14,8 @@ import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 class MinimumSim extends StandAloneLPSimulation {
 
-	public MinimumSim(String description, double startTs, double endTs) {
-		super(description, startTs, endTs);
+	public MinimumSim(String description) {
+		super(description);
 	}
 
 	@Override
@@ -32,12 +32,12 @@ class MinimumExp extends Experiment {
 	 * @param nExperiments
 	 */
 	public MinimumExp(String description, int nExperiments) {
-		super(description, nExperiments);
+		super(description, nExperiments, STARTTS, ENDTS);
 	}
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		MinimumSim sim = new MinimumSim("Minimum", STARTTS, ENDTS);
+		MinimumSim sim = new MinimumSim("Minimum");
 		sim.addListener(new MinimumListener(STARTTS, ENDTS));
 		return sim;
 	}	

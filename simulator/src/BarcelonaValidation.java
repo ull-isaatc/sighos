@@ -13,16 +13,13 @@ import es.ull.isaatc.simulation.state.SimulationState;
 import es.ull.isaatc.util.*;
 
 class SimBarcelona extends StandAloneLPSimulation {
-	static final int NDAYS = 365 * 3;
-	static final double START = 0.0;
-	static final double END = 24 * NDAYS;
 	static final String coddiag[] = {"078", "173", "190", "216", "238", "360", "361", "362", "364",
 		"365", "366", "370", "371", "372", "373", "374", "375", "376", "378", "379",
 		"743", "870", "871", "921", "996", "998", "v58"};
 	int nExp;
 
-	SimBarcelona(String description, Output out, int nExp) {
-		super(description, START, END, out);
+	SimBarcelona(String description, int nExp) {
+		super(description);
 		this.nExp = nExp;
 	}
 	
@@ -1196,16 +1193,20 @@ class BarcelonaListener4 extends PeriodicActivityQueueListener {
  */
 class ExpBarcelona extends Experiment {
 	final static int NEXP = 1;
+	static final int NDAYS = 365 * 3;
+	static final double START = 0.0;
+	static final double END = 24 * NDAYS;
 	FileWriter fileRes = null;
 	FileWriter fileRes1 = null;
 	FileWriter fileRes2 = null;
 	
 	ExpBarcelona() {
-		super("Validation HOFT", NEXP);
+		super("Validation HOFT", NEXP, START, END);
 	}
 	
 	public Simulation getSimulation(int ind) {		
-		return new SimBarcelona(description + ind + "", new Output(), ind);
+		Simulation sim = new SimBarcelona(description + ind + "", ind);
+		return sim;
 	}
 	
 	public void start() {
@@ -1222,9 +1223,9 @@ class ExpBarcelona extends Experiment {
 				e.printStackTrace();
 			}
 			if (previousState != null)
-				sim.start(previousState);
+				sim.start(previousState, endTs);
 			else
-				sim.start();			
+				sim.start(startTs, endTs);			
 			processor.process((SimulationState)sim.getState());
 			try {
 				fileRes.close();

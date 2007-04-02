@@ -21,6 +21,13 @@ public class RandomFunction extends TimeFunction {
 	}
 
 	/**
+	 * 
+	 */
+	public RandomFunction() {
+		super();
+	}
+
+	/**
 	 * @return Returns the rnd.
 	 */
 	public RandomVariate getRandom() {

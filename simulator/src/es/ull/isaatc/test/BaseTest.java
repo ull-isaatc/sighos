@@ -10,8 +10,8 @@ import es.ull.isaatc.util.Output;
 
 class BaseSim extends StandAloneLPSimulation {
 
-	public BaseSim(double startTs, double endTs, Output out) {
-		super("TEST", startTs, endTs, out);
+	public BaseSim() {
+		super("TEST");
 	}
 
 	@Override
@@ -24,12 +24,14 @@ class BaseExp extends Experiment {
 	 * @param description
 	 */
 	public BaseExp(String description) {
-		super(description, 1);
+		super(description, 1, 0.0, 100.0);
 	}
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		return new BaseSim(0.0, 100.0, new Output(true));
+		Simulation sim = new BaseSim();
+		sim.setOutput(new Output(true));
+		return sim;
 	}	
 }
 

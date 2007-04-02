@@ -10,8 +10,8 @@ import es.ull.isaatc.util.*;
 
 class CycleSim extends StandAloneLPSimulation {
 
-	public CycleSim(double startTs, double endTs, Output out) {
-		super("TEST", startTs, endTs, out);
+	public CycleSim() {
+		super("TEST");
 	}
 
 	@Override
@@ -29,12 +29,14 @@ class CycleExp extends Experiment {
 	 * @param description
 	 */
 	public CycleExp(String description) {
-		super(description, 1);
+		super(description, 1, 0.0, 48);
 	}
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		return new CycleSim(0.0, 48, new Output(true));
+		Simulation sim = new CycleSim();
+		sim.setOutput(new Output(true));
+		return sim;
 	}	
 }
 

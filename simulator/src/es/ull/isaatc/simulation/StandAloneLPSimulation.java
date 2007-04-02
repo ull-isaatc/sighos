@@ -3,8 +3,6 @@
  */
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.util.Output;
-
 /**
  * A simulation with standard AM configuration which creates a single LP for the
  * whole simulation.
@@ -13,12 +11,8 @@ import es.ull.isaatc.util.Output;
  */
 public abstract class StandAloneLPSimulation extends StandardAMSimulation {
 
-	public StandAloneLPSimulation(String description, double startTs, double endTs, Output out) {
-		super(description, startTs, endTs, out);
-	}
-
-	public StandAloneLPSimulation(String description, double startTs, double endTs) {
-		super(description, startTs, endTs);
+	public StandAloneLPSimulation(String description) {
+		super(description);
 	}
 
 	@Override

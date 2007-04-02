@@ -4,6 +4,8 @@ package es.ull.isaatc.test;
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.state.SimulationState;
+import es.ull.isaatc.simulation.state.StateProcessor;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
@@ -23,8 +25,9 @@ class StateSimulation extends StandAloneLPSimulation {
 	static final int NELEM = 15;
 	int complexityDegree;
 	
-	StateSimulation(String desc, double startTs, double endTs, int complexityDegree) {
-		super(desc, startTs, endTs, new Output(true));
+	StateSimulation(String desc, int complexityDegree) {
+		super(desc);
+		out = new Output(true);
 //		super(desc, startTs, endTs, new Output(true, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)));
 		this.complexityDegree = complexityDegree;
 	}
@@ -118,32 +121,29 @@ class StateSimulation extends StandAloneLPSimulation {
  */
 class StateExperiment extends Experiment {
 	static final int NEXP = 6;
-	static final int COMPLEXITY = 1;
-	static final double simTime = 100.0; 
+	static final int COMPLEXITY = 2;
+	static final double SIMTIME = 100.0; 
+	SimulationState prevState = null;
 	
 	StateExperiment() {
-		super("Tests stopping and continuing simulations", NEXP);
+		super("Tests stopping and continuing simulations", NEXP, 0.0, SIMTIME);
+		setProcessor(new StateProcessor() {
+			public void process(SimulationState state) {
+				prevState = state;
+			}
+		});
 	}
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		StateSimulation sim = new StateSimulation("Simulation PART: " + ind, simTime * ind, simTime * (ind + 1), COMPLEXITY);
+		StateSimulation sim = new StateSimulation("Simulation PART: " + ind, COMPLEXITY);
+		if (ind > 0)
+			sim.setState(prevState);
 //		sim.addListener(new StdInfoListener());
+		startTs = SIMTIME * ind;
+		endTs = SIMTIME * (ind + 1);
 		return sim;
 	}	
-
-	public void start() {
-		Simulation prevSim = new StateSimulation("Simulation INITIAL", 0.0, simTime, COMPLEXITY);
-//		sim.addListener(new StdInfoListener());
-		prevSim.start();
-		System.out.println("---------------------------------------------------------------");
-		for (int i = 1; i < nExperiments; i++) {
-			Simulation sim = getSimulation(i);
-			sim.start(prevSim.getState());
-			prevSim = sim;
-			System.out.println("---------------------------------------------------------------");
-		}
-	}
 }
 
 /**

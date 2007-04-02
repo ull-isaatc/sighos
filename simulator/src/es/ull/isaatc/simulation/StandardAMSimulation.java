@@ -8,8 +8,6 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.isaatc.util.Output;
-
 /**
  * A simulation which builds the activity managers but not the logical processes within the
  * <code>createStructure</code> method. The activity managers are a partition of the
@@ -20,12 +18,8 @@ import es.ull.isaatc.util.Output;
  */
 public abstract class StandardAMSimulation extends Simulation {
 	
-	public StandardAMSimulation(String description, double startTs, double endTs, Output out) {
-		super(description, startTs, endTs, out);
-	}
-
-	public StandardAMSimulation(String description, double startTs, double endTs) {
-		super(description, startTs, endTs);
+	public StandardAMSimulation(String description) {
+		super(description);
 	}
 
 	/**

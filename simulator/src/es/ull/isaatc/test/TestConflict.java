@@ -18,8 +18,8 @@ class SimConflict1 extends StandAloneLPSimulation {
 	final static int NACTS = 2;
 	final static int NELEM = 1;
 	
-	SimConflict1(double startTs, double endTs, Output out) {
-		super("Testing conflicts", startTs, endTs, out);
+	SimConflict1() {
+		super("Testing conflicts");
 	}
 
 	@Override
@@ -61,8 +61,8 @@ class SimConflict2 extends StandAloneLPSimulation {
 	final static int NACTS = 3;
 	final static int NELEM = 1;
 	
-	SimConflict2(double startTs, double endTs, Output out) {
-		super("Testing conflicts", startTs, endTs, out);
+	SimConflict2() {
+		super("Testing conflicts");
 	}
 
 	@Override
@@ -105,12 +105,14 @@ class ExpConflict extends Experiment {
     static final int NTESTS = 1;
     
     ExpConflict() {
-    	super("CHECKING CONFLICTS", NTESTS);
+    	super("CHECKING CONFLICTS", NTESTS, 0.0, 24 * 60.0 * NDAYS);
     }
     
 	@Override
 	public Simulation getSimulation(int ind) {
-		return new SimConflict2(0.0, 24 * 60.0 * NDAYS, new Output(true));
+		Simulation sim = new SimConflict2();
+		sim.setOutput(new Output(true));
+		return sim;
 	}	
 }
 /**

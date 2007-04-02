@@ -30,7 +30,7 @@ import es.ull.isaatc.util.*;
  * 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation implements RecoverableState<SimulationState> {
+public abstract class Simulation implements RecoverableState<SimulationState>, Describable {
 	/** A short text describing this simulation. */
 	String description;
 
@@ -65,7 +65,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	protected double endTs;
 
 	/** Output for printing messages */
-	protected Output out;
+	protected Output out = null;
 
 	/** End-of-simulation control */
 	private CountDownLatch endSignal;
@@ -81,15 +81,8 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 * 
 	 * @param description
 	 *            A short text describing this simulation.
-	 * @param startTs
-	 *            Timestamp of simulation's start.
-	 * @param endTs
-	 *            Timestamp of Simulation's end.
-	 * @param out
-	 *            Output for printing debug messages.
 	 */
-	public Simulation(String description, double startTs, double endTs,
-			Output out) {
+	public Simulation(String description) {
 		activityList = new TreeMap<Integer, Activity>();
 		resourceTypeList = new TreeMap<Integer, ResourceType>();
 		elementTypeList = new TreeMap<Integer, ElementType>();
@@ -102,59 +95,6 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 		listeners = new ArrayList<SimulationListener>();
 
 		this.description = description;
-		this.startTs = startTs;
-		this.endTs = endTs;
-		this.out = out;
-	}
-
-	/**
-	 * Creates a new instance of Simulation
-	 * 
-	 * @param description
-	 *            A short text describing this simulation.
-	 * @param startTs
-	 *            Timestamp of simulation's start.
-	 * @param endTs
-	 *            Timestamp of Simulation's end.
-	 */
-	public Simulation(String description, double startTs, double endTs) {
-		this(description, startTs, endTs, new Output());
-	}
-
-	/**
-	 * Simulation initialization. It creates and starts all the necessary
-	 * structures.
-	 * <p>
-	 * If a state is indicated, sets the state of this simulation.
-	 * 
-	 * @param state
-	 *            A previous stored state. <code>null</code> if no previous
-	 *            state is going to be used.
-	 */
-	protected void init(SimulationState state) {
-		createModel();
-		debug("SIMULATION MODEL CREATED");
-		createActivityManagers();
-		debugPrintActManager();
-		createLogicalProcesses();
-		if (state != null) {
-			setState(state);
-			// Elements from a previous simulation don't need to be started, but
-			// they need a default LP
-			for (Element elem : activeElementList.values())
-				if (elem.getDefLP() == null)
-					elem.setDefLP(getDefaultLogicalProcess());
-		}
-		notifyListeners(new SimulationStartInfo(this, System
-				.currentTimeMillis(), Generator.getElemCounter()));
-		// FIXME: Debería hacer un reparto más inteligente tanto de generadores
-		// como de recursos
-		// Starts all the generators
-		for (Generator gen : generatorList)
-			gen.start(getDefaultLogicalProcess());
-		// Starts all the resources
-		for (Resource res : resourceList.values())
-			res.start(getDefaultLogicalProcess());
 	}
 
 	/**
@@ -237,19 +177,58 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	protected abstract void createLogicalProcesses();
 	
 	/**
-	 * Starts the simulation execution. Initializes all the structures, and
-	 * starts the logical processes. This method blocks until all the logical
-	 * processes have finished their execution.
+	 * Starts the simulation execution. It creates and starts all the necessary 
+	 * structures. This method blocks until all the logical processes have finished 
+	 * their execution.<p>
+	 * If a state is indicated, sets the state of this simulation.<p>
+	 * Checks if a valid output for debug messages has been declared. Note that no 
+	 * debug messages can be printed before this method is declared unless <code>setOutput</code>
+	 * had been invoked. 
 	 * 
+	 * @param startTs
+	 *            Timestamp of simulation's start.
+	 * @param endTs
+	 *            Timestamp of Simulation's end.
 	 * @param state
-	 *            A previously stored state of the simulation.
+	 *            A previous stored state. <code>null</code> if no previous
+	 *            state is going to be used.
 	 */
-	public void start(SimulationState state) {
-		init(state);
+	private void start(double startTs, double endTs, SimulationState state) {
+		if (out == null)
+			out = new Output();
+		
+		this.startTs = startTs;
+		this.endTs = endTs;
+		createModel();
+		debug("SIMULATION MODEL CREATED");
+		createActivityManagers();
+		debugPrintActManager();
+		createLogicalProcesses();
+		
+		if (state != null) {
+			setState(state);
+			// Elements from a previous simulation don't need to be started, but
+			// they need a default LP
+			for (Element elem : activeElementList.values())
+				if (elem.getDefLP() == null)
+					elem.setDefLP(getDefaultLogicalProcess());
+		}
+		notifyListeners(new SimulationStartInfo(this, System
+				.currentTimeMillis(), Generator.getElemCounter()));
+		
+		// FIXME: Debería hacer un reparto más inteligente tanto de generadores
+		// como de recursos
+		// Starts all the generators
+		for (Generator gen : generatorList)
+			gen.start(getDefaultLogicalProcess());
+		// Starts all the resources
+		for (Resource res : resourceList.values())
+			res.start(getDefaultLogicalProcess());		
 		// The barrier is set to the amount of LPs
 		endSignal = new CountDownLatch(logicalProcessList.length);
 		for (int i = 0; i < logicalProcessList.length; i++)
 			logicalProcessList[i].start();
+		
 		try {
 			// ... and now the simulation is wating for all the LPs to finish
 			endSignal.await();
@@ -267,9 +246,30 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	 * processes have finished their execution.
 	 * <p>
 	 * This method is invoked when there isn't a previous state to restore.
+	 * 
+	 * @param startTs
+	 *            Timestamp of simulation's start.
+	 * @param endTs
+	 *            Timestamp of Simulation's end.
 	 */
-	public void start() {
-		start(null);
+	public void start(double startTs, double endTs) {
+		start(startTs, endTs, null);
+	}
+
+	/**
+	 * Starts the simulation execution. Initializes all the structures, and
+	 * starts the logical processes. This method blocks until all the logical
+	 * processes have finished their execution.
+	 * <p>
+	 * This method is invoked when there is a previous state to be restored.
+	 * 
+	 * @param state
+	 *            A previous stored state.
+	 * @param endTs
+	 *            Timestamp of Simulation's end.
+	 */
+	public void start(SimulationState state, double endTs) {
+		start(state.getEndTs(), endTs, state);
 	}
 
 	/**
@@ -505,12 +505,47 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 	}
 
 	/**
+	 * @param endTs the endTs to set
+	 */
+	public void setEndTs(double endTs) {
+		this.endTs = endTs;
+	}
+
+	/**
 	 * Returns the simulation start timestamp.
 	 * 
 	 * @return Returns the startTs.
 	 */
 	public double getStartTs() {
 		return startTs;
+	}
+
+	/**
+	 * @param startTs the startTs to set
+	 */
+	public void setStartTs(double startTs) {
+		this.startTs = startTs;
+	}
+
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * @param description the description to set
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	/**
+	 * @param out the out to set
+	 */
+	public void setOutput(Output out) {
+		this.out = out;
 	}
 
 	/**

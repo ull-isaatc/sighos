@@ -27,8 +27,8 @@ class OverlappedSimulation extends StandAloneLPSimulation {
 	final static int NEEDED = 1;
 	int days;
     
-	OverlappedSimulation(double startTs, double endTs, int days, Output out) {
-		super("Sistema de análisis", startTs, endTs, out);
+	OverlappedSimulation(int days) {
+		super("Sistema de análisis");
 		this.days = days;
     }
     
@@ -128,11 +128,12 @@ class ExpOverlapped extends Experiment {
     OverlappedListener oListener = new OverlappedListener(NPRUEBAS);
 
 	public ExpOverlapped(String description) {
-		super(description, NPRUEBAS);
+		super(description, NPRUEBAS, 0.0, NDIAS * 24 * 60.0);
 	}
 
 	public Simulation getSimulation(int ind) {
-		OverlappedSimulation sim = new OverlappedSimulation(0.0, NDIAS * 24 * 60.0, NDIAS, new Output(true/*, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)*/));
+		OverlappedSimulation sim = new OverlappedSimulation(NDIAS);
+		sim.setOutput(new Output(true/*, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)*/));
 //		sim.addListener(oListener);
 //		sim.addListener(new StdInfoListener());
 		return sim;

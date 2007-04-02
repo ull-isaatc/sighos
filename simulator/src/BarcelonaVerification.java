@@ -14,7 +14,6 @@ import es.ull.isaatc.simulation.info.StatisticListener;
 import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.simulation.state.SimulationState;
 import es.ull.isaatc.util.Cycle;
-import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
 
 class SimActListener extends StatisticListener {
@@ -52,14 +51,13 @@ class SimActListener extends StatisticListener {
 
 class SimSimAct extends StandAloneLPSimulation {
 	static final int NPACDAY = 5;
-	static final double START = 0.0;
 	static final double DURAC_REC = 899.0;
 	static final int START_REC = 0;
 	static final int NRES = 1;
 	int ndays;
 
 	SimSimAct(String description, int ndays) {
-		super(description, START, 24 * 60.0 * ndays);
+		super(description);
 		this.ndays = ndays;
 	}
 	
@@ -100,12 +98,11 @@ class SimSimAct extends StandAloneLPSimulation {
  */
 class SimPoolAct extends StandAloneLPSimulation {
 	static final int NPACDAY = 5;
-	static final double START = 0.0;
 	static final int DURAC_REC = 799;
 	int ndays;
 
 	SimPoolAct(String description, int ndays) {
-		super(description, START, 24 * 60.0 * ndays);
+		super(description);
 		this.ndays = ndays;
 	}
 	
@@ -135,8 +132,8 @@ class SimContinue extends StandAloneLPSimulation {
 	static final int DURAC_REC = 480;
     int ndays;
     
-    SimContinue(String description, double startTs, int ndays, Output out) {
-		super(description, startTs, startTs + ndays * 24 * 60.0, out);
+    SimContinue(String description, int ndays) {
+		super(description);
 		this.ndays = ndays;
     }
     
@@ -187,11 +184,12 @@ class SimContinue extends StandAloneLPSimulation {
 class ExpSimAct extends Experiment {
 	final static int NEXP = 10;
 	final static int NDAYS = 20;
+	static final double START = 0.0;
 	int expType = 0;
 	SimActListener simListener;
 	
 	ExpSimAct(int expType) {
-		super("Verifying", NEXP);
+		super("Verifying", NEXP, START, 24 * 60.0 * NDAYS);
 		this.expType = expType;
 		if (expType == 0)
 			simListener = new SimActListener(1440.0 * NDAYS, NEXP);
@@ -200,6 +198,8 @@ class ExpSimAct extends Experiment {
 	ExpSimAct(SimulationState previousState) {
 		super("Testing continuation of simulations", NEXP);
 		this.previousState = previousState;
+		startTs = previousState.getEndTs();
+		endTs = startTs + NDAYS * 24 * 60.0;
 		expType = 3;
 	}
 	
@@ -217,11 +217,11 @@ class ExpSimAct extends Experiment {
 			sim.addListener(new StdInfoListener());
 		}
 		else if (expType == 2) {
-			sim = new SimContinue(description + ind + "", 0.0, NDAYS, new Output());
+			sim = new SimContinue(description + ind + "", NDAYS);
 			sim.addListener(new StdInfoListener());
 		}
 		else if (expType == 3) {
-			sim = new SimContinue(description + ind + "", previousState.getEndTs(), NDAYS, new Output());
+			sim = new SimContinue(description + ind + "", NDAYS);
 			sim.addListener(new StdInfoListener());
 		}
 		return sim;

@@ -8,7 +8,6 @@ import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.StatisticListener;
 import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.util.Cycle;
-import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
 
 class SimSchedula extends StandAloneLPSimulation {
@@ -21,12 +20,8 @@ class SimSchedula extends StandAloneLPSimulation {
 	final static int NELEM[] = {10, 10, 10};
 //	final static int NELEM[] = {1, 0, 0};
 
-	SimSchedula(double startTs, double endTs, Output out) {
-		super("Schedula example", startTs, endTs, out);
-	}
-	
-	SimSchedula(double startTs, double endTs) {
-		super("Schedula example", startTs, endTs);
+	SimSchedula() {
+		super("Schedula example");
 	}
 	
 	@Override
@@ -135,12 +130,12 @@ class ExpSchedula extends Experiment {
     static final int NTESTS = 1;
 
 	ExpSchedula() {
-		super("Schedula Example", NTESTS);
+		super("Schedula Example", NTESTS, 0.0, 24 * 60.0 * NDAYS);
 	}
 	
 	@Override
 	public Simulation getSimulation(int ind) {
-		SimSchedula sim = new SimSchedula(0.0, 24 * 60.0 * NDAYS);
+		SimSchedula sim = new SimSchedula();
 		sim.addListener(new StdInfoListener());
 		sim.addListener(new StatisticListener(1440.0));
 		return sim;
