@@ -41,4 +41,14 @@ public class RandomFunction extends TimeFunction {
 		return rnd.generate();
 	}
 
+	@Override
+	public void setParameters(Object... params) {
+		if (params.length < 1) 
+			throw new IllegalArgumentException("Need (RandomVariate), received " +
+		            params.length + " parameters");
+		else {
+			setRandom((RandomVariate)params[0]);
+		}
+	}
+
 }

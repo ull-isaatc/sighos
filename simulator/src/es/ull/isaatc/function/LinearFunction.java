@@ -60,4 +60,16 @@ public class LinearFunction extends TimeFunction {
 	public double getValue(double ts) {
 		return a.getValue(ts) * ts + b.getValue(ts);
 	}
+
+	@Override
+	public void setParameters(Object... params) {
+		if (params.length < 2) 
+			throw new IllegalArgumentException("Need (A, B), received " +
+		            params.length + " parameters");
+		else {
+			setA((TimeFunction)params[0]);
+			setB((TimeFunction)params[1]);
+		}
+		
+	}
 }

@@ -5,10 +5,7 @@ package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
 
-import es.ull.isaatc.function.RandomFunction;
 import es.ull.isaatc.function.TimeFunction;
-
-import simkit.random.RandomVariate;
 
 /**
  * Defines the way a generator creates elements when it's time to create them.
@@ -36,26 +33,6 @@ public class ElementCreator implements BasicElementCreator {
 	 * @param metaFlow The description of the flow of the elements to be created.
 	 */
 	public ElementCreator(TimeFunction nElem, ElementType et, MetaFlow metaFlow) {
-		this(nElem);
-		genTrio.add(new GenerationTrio(et, metaFlow, 1.0));
-	}
-	
-	/**
-	 * Creates a creator of elements.
-	 * @param nElem Number of objects created each time this creator is invoked.
-	 */
-	public ElementCreator(RandomVariate nElem) {
-		genTrio = new ArrayList<GenerationTrio>();
-		this.nElem = new RandomFunction(nElem);
-	}
-	
-	/**
-	 * Creates a creator of a single type of elements.
-	 * @param nElem Number of objects created each time this creator is invoked.
-	 * @param et The type of the elements to be created
-	 * @param metaFlow The description of the flow of the elements to be created.
-	 */
-	public ElementCreator(RandomVariate nElem, ElementType et, MetaFlow metaFlow) {
 		this(nElem);
 		genTrio.add(new GenerationTrio(et, metaFlow, 1.0));
 	}

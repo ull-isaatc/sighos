@@ -41,4 +41,8 @@ public class OldRandomFunction extends TimeFunction {
 		return rnd.sampleDouble();
 	}
 
+	@Override
+	public void setParameters(Object... params) {
+	}
+
 }

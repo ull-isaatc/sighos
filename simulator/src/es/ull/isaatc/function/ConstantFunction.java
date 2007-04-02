@@ -27,5 +27,16 @@ public class ConstantFunction extends TimeFunction {
 	public double getValue(double ts) {
 		return val;
 	}
+
+	@Override
+	public void setParameters(Object... params) {
+		if (params.length < 1) 
+			throw new IllegalArgumentException("Need (value), received " +
+		            params.length + " parameters");
+		else {
+			setValue(((Number)params[0]).doubleValue());
+		}
+		
+	}
 	
 }

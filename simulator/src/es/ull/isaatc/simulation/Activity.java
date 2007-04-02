@@ -2,13 +2,10 @@ package es.ull.isaatc.simulation;
 
 import java.util.Iterator;
 
-import es.ull.isaatc.function.RandomFunction;
 import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.simulation.state.ActivityState;
 import es.ull.isaatc.simulation.state.RecoverableState;
 import es.ull.isaatc.util.*;
-
-import simkit.random.RandomVariate;
 
 /**
  * A task which could be carry out by an element. An activity is characterized by its priority,
@@ -154,29 +151,6 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * to be used.
      * @param duration Duration of the activity when performed with the new workgroup
      * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(RandomVariate duration, int priority, es.ull.isaatc.simulation.WorkGroup wg) {
-        return addWorkGroup(new RandomFunction(duration), priority, wg);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity with the highest level of priority. The workgroup 
-     * is added and returned in order to be used.
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(RandomVariate duration, es.ull.isaatc.simulation.WorkGroup wg) {    	
-        return addWorkGroup(new RandomFunction(duration), 0, wg);
-    }
-
-    /**
-     * Creates a new workgroup for this activity. The workgroup is added and returned in order
-     * to be used.
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
      * @return The new workgroup's identifier.
      */
     public int addWorkGroup(TimeFunction duration, int priority) {
@@ -193,27 +167,6 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      */
     public int addWorkGroup(TimeFunction duration) {    	
         return addWorkGroup(duration, 0);
-    }
-
-    /**
-     * Creates a new workgroup for this activity. The workgroup is added and returned in order
-     * to be used.
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(RandomVariate duration, int priority) {
-        return addWorkGroup(new RandomFunction(duration), priority);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity with the highest level of priority. The workgroup 
-     * is added and returned in order to be used.
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(RandomVariate duration) {    	
-        return addWorkGroup(new RandomFunction(duration), 0);
     }
 
     /**

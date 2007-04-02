@@ -3,9 +3,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
+import es.ull.isaatc.function.TimeFunction;
+import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.*;
 import es.ull.isaatc.simulation.state.SimulationState;
@@ -27,51 +28,51 @@ class SimBarcelona extends StandAloneLPSimulation {
 	
 	protected void createModel() {		
 		// Todos los que usan una Beta están cambiados porque no admite double
-		RandomVariate durac[] = {
-				RandomVariateFactory.getInstance("NormalVariate", 1430, 236), 
-				RandomVariateFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("ExponentialVariate", 1730), 1, 1200),
-				RandomVariateFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("WeibullVariate", 1190, 0.347), 1, 1800),
-				RandomVariateFactory.getInstance("NormalVariate", 1410, 700),
-				RandomVariateFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("ExponentialVariate", 1200), 1, 900),
-				RandomVariateFactory.getInstance("NormalVariate", 4510, 2000),				
-				RandomVariateFactory.getInstance("NormalVariate", 6270, 2710),
-				RandomVariateFactory.getInstance("UniformVariate", 600, 8700),
-				RandomVariateFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("ExponentialVariate", 1710), 1, 900),
-				RandomVariateFactory.getInstance("NormalVariate", 4590, 2040),
-				RandomVariateFactory.getInstance("NormalVariate", 3690, 1430),
-				RandomVariateFactory.getInstance("TriangleVariate", 2100, 2870, 12900),
-				RandomVariateFactory.getInstance("NormalVariate", 6170, 2270),
-				RandomVariateFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("LogNormalVariate", 1220, 1070), 1, 300),
-				RandomVariateFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("WeibullVariate", 1590, 1.04), 1, 600),
-				RandomVariateFactory.getInstance("NormalVariate", 3560, 2010),
-				RandomVariateFactory.getInstance("UniformVariate", 1200, 11700),
-				RandomVariateFactory.getInstance("UniformVariate", 1500, 5400),
-				RandomVariateFactory.getInstance("NormalVariate", 4610, 1940),
-				RandomVariateFactory.getInstance("NormalVariate", 4880, 2230),
-				RandomVariateFactory.getInstance("UniformVariate", 1200, 4800),
-				RandomVariateFactory.getInstance("UniformVariate", 1800, 7500),
-				RandomVariateFactory.getInstance("NormalVariate", 4520, 2480),
-				RandomVariateFactory.getInstance("UniformVariate", 1200, 5700),
-				RandomVariateFactory.getInstance("TriangleVariate", 900, 3410, 12600),
-				RandomVariateFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("ExponentialVariate", 1950), 1, 600),
-				RandomVariateFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("ExponentialVariate", 859), 1, 900),
+		TimeFunction durac[] = {
+				TimeFunctionFactory.getInstance("NormalVariate", 1430, 236), 
+				TimeFunctionFactory.getInstance("ScaledVariate", TimeFunctionFactory.getInstance("ExponentialVariate", 1730), 1, 1200),
+				TimeFunctionFactory.getInstance("ScaledVariate", TimeFunctionFactory.getInstance("WeibullVariate", 1190, 0.347), 1, 1800),
+				TimeFunctionFactory.getInstance("NormalVariate", 1410, 700),
+				TimeFunctionFactory.getInstance("ScaledVariate", TimeFunctionFactory.getInstance("ExponentialVariate", 1200), 1, 900),
+				TimeFunctionFactory.getInstance("NormalVariate", 4510, 2000),				
+				TimeFunctionFactory.getInstance("NormalVariate", 6270, 2710),
+				TimeFunctionFactory.getInstance("UniformVariate", 600, 8700),
+				TimeFunctionFactory.getInstance("ScaledVariate", TimeFunctionFactory.getInstance("ExponentialVariate", 1710), 1, 900),
+				TimeFunctionFactory.getInstance("NormalVariate", 4590, 2040),
+				TimeFunctionFactory.getInstance("NormalVariate", 3690, 1430),
+				TimeFunctionFactory.getInstance("TriangleVariate", 2100, 2870, 12900),
+				TimeFunctionFactory.getInstance("NormalVariate", 6170, 2270),
+				TimeFunctionFactory.getInstance("ScaledVariate", TimeFunctionFactory.getInstance("LogNormalVariate", 1220, 1070), 1, 300),
+				TimeFunctionFactory.getInstance("ScaledVariate", TimeFunctionFactory.getInstance("WeibullVariate", 1590, 1.04), 1, 600),
+				TimeFunctionFactory.getInstance("NormalVariate", 3560, 2010),
+				TimeFunctionFactory.getInstance("UniformVariate", 1200, 11700),
+				TimeFunctionFactory.getInstance("UniformVariate", 1500, 5400),
+				TimeFunctionFactory.getInstance("NormalVariate", 4610, 1940),
+				TimeFunctionFactory.getInstance("NormalVariate", 4880, 2230),
+				TimeFunctionFactory.getInstance("UniformVariate", 1200, 4800),
+				TimeFunctionFactory.getInstance("UniformVariate", 1800, 7500),
+				TimeFunctionFactory.getInstance("NormalVariate", 4520, 2480),
+				TimeFunctionFactory.getInstance("UniformVariate", 1200, 5700),
+				TimeFunctionFactory.getInstance("TriangleVariate", 900, 3410, 12600),
+				TimeFunctionFactory.getInstance("ScaledVariate", TimeFunctionFactory.getInstance("ExponentialVariate", 1950), 1, 600),
+				TimeFunctionFactory.getInstance("ScaledVariate", TimeFunctionFactory.getInstance("ExponentialVariate", 859), 1, 900),
 		};
 		Activity []acts = new Activity[coddiag.length];
 		ResourceType rt = new ResourceType(0, this, "HOFTSurgery");
 		
 		for (int i = 0; i < coddiag.length; i++) {
 			acts[i] = new Activity(i, this, "Act" + coddiag[i]);
-			int wgId = acts[i].addWorkGroup(RandomVariateFactory.getInstance("ScaledVariate", durac[i], 1 / 3600.0));
+			int wgId = acts[i].addWorkGroup(TimeFunctionFactory.getInstance("ScaledVariate", durac[i], 1 / 3600.0));
 			acts[i].addWorkGroupEntry(wgId, rt, 1);
 			new ElementType(i, this, "ET" + coddiag[i]);
 		}
 
 		// Resources
-		Cycle c0 = new PeriodicCycle(8, RandomVariateFactory.getInstance("ConstantVariate", 24.0), 3);
-//		Cycle c1 = new PeriodicCycle(8, RandomVariateFactory.getInstance("ConstantVariate", 24.0), 5);
-//		Cycle c2 = new PeriodicCycle(0, RandomVariateFactory.getInstance("ConstantVariate", 24.0 * 7), 0, c1);
-		Cycle c1 = new PeriodicCycle(8, RandomVariateFactory.getInstance("ConstantVariate", 24.0), 5);
-		Cycle c2 = new PeriodicCycle(5 * 24.0, RandomVariateFactory.getInstance("ConstantVariate", 24.0 * 7), 0, c1);
+		Cycle c0 = new PeriodicCycle(8, TimeFunctionFactory.getInstance("ConstantVariate", 24.0), 3);
+//		Cycle c1 = new PeriodicCycle(8, TimeFunctionFactory.getInstance("ConstantVariate", 24.0), 5);
+//		Cycle c2 = new PeriodicCycle(0, TimeFunctionFactory.getInstance("ConstantVariate", 24.0 * 7), 0, c1);
+		Cycle c1 = new PeriodicCycle(8, TimeFunctionFactory.getInstance("ConstantVariate", 24.0), 5);
+		Cycle c2 = new PeriodicCycle(5 * 24.0, TimeFunctionFactory.getInstance("ConstantVariate", 24.0 * 7), 0, c1);
 		Resource r1 = new Resource(0, this, "Surgery");
 		r1.addTimeTableEntry(c2, 7, getResourceType(0));
 		r1.addTimeTableEntry(c0, 7, getResourceType(0));
@@ -89,10 +90,10 @@ class SimBarcelona extends StandAloneLPSimulation {
 					18.87931034, 156.4285714, 21.9, 32.20588235, 24.88636364
 			};
 			for (int i = 0; i < periods.length; i++) {
-				RandomVariate expo = RandomVariateFactory.getInstance("ExponentialVariate", periods[i] * 24.0);
+				TimeFunction expo = TimeFunctionFactory.getInstance("ExponentialVariate", periods[i] * 24.0);
 				// OJO: debería devolver siempre un valor positivo
-				Cycle c = new PeriodicCycle(expo.generate(), expo, 0);
-				ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", 1), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
+				Cycle c = new PeriodicCycle(expo.getValue(0.0), expo, 0);
+				ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
 		        new TimeDrivenGenerator(this, ec, c);
 			}
 		}
@@ -105,10 +106,10 @@ class SimBarcelona extends StandAloneLPSimulation {
 			};
 			
 			for (int i = 0; i < periods.length; i++) {
-				RandomVariate expo = RandomVariateFactory.getInstance("ExponentialVariate", periods[i] * 24.0);
+				TimeFunction expo = TimeFunctionFactory.getInstance("ExponentialVariate", periods[i] * 24.0);
 				// OJO: debería devolver siempre un valor positivo
-				Cycle c = new PeriodicCycle(expo.generate(), expo, 0);
-				ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", 1), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
+				Cycle c = new PeriodicCycle(expo.getValue(0.0), expo, 0);
+				ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
 		        new TimeDrivenGenerator(this, ec, c);
 			}
 		}
@@ -1019,7 +1020,7 @@ class SimBarcelona extends StandAloneLPSimulation {
 		
 		for (int i = 0; i < arrivalHours.length; i++) {
 			Cycle c = new TableCycle(arrivalHours[i]);
-			ElementCreator ec = new ElementCreator(RandomVariateFactory.getInstance("ConstantVariate", 1), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
+			ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1), getElementType(i), new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i)));
 			new TimeDrivenGenerator(this, ec, c);
 		}
 	}

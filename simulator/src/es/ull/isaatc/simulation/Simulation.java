@@ -9,6 +9,7 @@ package es.ull.isaatc.simulation;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
+import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.info.SimulationListener;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
@@ -16,8 +17,6 @@ import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
 import es.ull.isaatc.simulation.state.*;
 import es.ull.isaatc.util.*;
-
-import simkit.random.RandomVariateFactory;
 
 /**
  * Main simulation class. A simulation needs a model (introduced by means of the
@@ -625,7 +624,7 @@ public abstract class Simulation implements RecoverableState<SimulationState> {
 		}
 
 		// Creates a null cycle to non-iterative cycles
-		PeriodicCycle c = new PeriodicCycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1), -1.0);
+		PeriodicCycle c = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1), -1.0);
 		// Events
 		for (SimulationState.EventEntry entry : state.getWaitQueue()) {
 			if (entry.getType() == SimulationState.EventType.FINALIZEACT) {

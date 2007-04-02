@@ -16,4 +16,6 @@ public abstract class TimeFunction {
     		res = 0.0;
     	return res;
 	}
+	
+	public abstract void setParameters(Object... params);
 }

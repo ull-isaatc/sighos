@@ -53,4 +53,9 @@ public class PolynomicFunction extends TimeFunction {
 	public void setCoefficients(TimeFunction[] coefficients) {
 	    this.coefficients = coefficients;
 	}
+
+	@Override
+	public void setParameters(Object... params) {
+		this.coefficients = (TimeFunction[]) params;
+	}
 }
