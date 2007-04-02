@@ -193,12 +193,10 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	 *            A previous stored state. <code>null</code> if no previous
 	 *            state is going to be used.
 	 */
-	private void start(double startTs, double endTs, SimulationState state) {
+	private void start(SimulationState state) {
 		if (out == null)
 			out = new Output();
 		
-		this.startTs = startTs;
-		this.endTs = endTs;
 		createModel();
 		debug("SIMULATION MODEL CREATED");
 		createActivityManagers();
@@ -253,7 +251,9 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	 *            Timestamp of Simulation's end.
 	 */
 	public void start(double startTs, double endTs) {
-		start(startTs, endTs, null);
+		this.startTs = startTs;
+		this.endTs = endTs;
+		start(null);
 	}
 
 	/**
@@ -269,7 +269,9 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	 *            Timestamp of Simulation's end.
 	 */
 	public void start(SimulationState state, double endTs) {
-		start(state.getEndTs(), endTs, state);
+		this.startTs = state.getEndTs();
+		this.endTs = endTs;
+		start(state);
 	}
 
 	/**
@@ -631,7 +633,6 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	 *            Previous simulation data
 	 */
 	public void setState(SimulationState state) {
-		// FIXME: ¿Debería hacer startTs = state.getEndTs()?
 		// Elements.
 		for (ElementState eState : state.getElemStates()) {
 			Element elem = new Element(eState.getElemId(), this,

@@ -147,7 +147,7 @@ public class SimulationState implements State {
 
 	@Override
 	public String toString() {
-		StringBuffer str = new StringBuffer("SIMULATION(" + endTs + ")\tLast E: " + lastElemId + "\tLast SF: " + lastSFId);
+		StringBuffer str = new StringBuffer("SIMULATION(" + endTs + ")\tLast E: " + lastElemId + "\tLast SF: " + lastSFId + "\r\n");
 		for (ElementState es : elemStates)
 			str.append(es + "\r\n");
 		for (ResourceState rs : resStates)

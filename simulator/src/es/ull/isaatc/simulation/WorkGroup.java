@@ -26,10 +26,7 @@ public class WorkGroup extends SimulationObject implements Describable {
      * @param description A brief description of the workgroup
      */    
     public WorkGroup(int id, Simulation simul, String description) {
-        super(id, simul);
-        this.description = description;
-        this.resourceTypeTable = new ArrayList<ResourceTypeTableEntry>();
-        simul.add(this);
+        this(id, simul, description, new ResourceType[0], new int[0]);
     }
 
     /**

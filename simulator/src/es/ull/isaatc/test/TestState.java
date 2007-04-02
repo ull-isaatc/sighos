@@ -4,6 +4,7 @@ package es.ull.isaatc.test;
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.simulation.state.SimulationState;
 import es.ull.isaatc.simulation.state.StateProcessor;
 import es.ull.isaatc.util.Cycle;
@@ -27,7 +28,7 @@ class StateSimulation extends StandAloneLPSimulation {
 	
 	StateSimulation(String desc, int complexityDegree) {
 		super(desc);
-		out = new Output(true);
+		out = new Output(false);
 //		super(desc, startTs, endTs, new Output(true, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)));
 		this.complexityDegree = complexityDegree;
 	}
@@ -120,8 +121,8 @@ class StateSimulation extends StandAloneLPSimulation {
  * 
  */
 class StateExperiment extends Experiment {
-	static final int NEXP = 6;
-	static final int COMPLEXITY = 2;
+	static final int NEXP = 2;
+	static final int COMPLEXITY = 3;
 	static final double SIMTIME = 100.0; 
 	SimulationState prevState = null;
 	
@@ -130,6 +131,7 @@ class StateExperiment extends Experiment {
 		setProcessor(new StateProcessor() {
 			public void process(SimulationState state) {
 				prevState = state;
+//				System.out.println(state);
 			}
 		});
 	}
@@ -137,9 +139,8 @@ class StateExperiment extends Experiment {
 	@Override
 	public Simulation getSimulation(int ind) {
 		StateSimulation sim = new StateSimulation("Simulation PART: " + ind, COMPLEXITY);
-		if (ind > 0)
-			sim.setState(prevState);
-//		sim.addListener(new StdInfoListener());
+		setPreviousState(prevState);
+		sim.addListener(new StdInfoListener());
 		startTs = SIMTIME * ind;
 		endTs = SIMTIME * (ind + 1);
 		return sim;
