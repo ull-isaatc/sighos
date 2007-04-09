@@ -4,6 +4,7 @@
 package es.ull.isaatc.simulation.state;
 
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 /**
  * Stores the state of a simulation. The state of a simulation consists on the state
@@ -29,6 +30,10 @@ public class SimulationState implements State {
 	public enum EventType {FINALIZEACT, ROLOFF};
 	/** Events in the waiting queue */
 	protected ArrayList<EventEntry> waitQueue;
+	/** Single flows which are waiting to be executed in an activity queue, ordered by their 
+	 * arrival timestamp.
+	 */
+	protected PriorityQueue<SFEntry> sfQueue;
 	
 	/**
 	 * @param lastElemId Last element created in this simulation
@@ -41,6 +46,7 @@ public class SimulationState implements State {
 		aStates = new ArrayList<ActivityState>();
 		rtStates = new ArrayList<ResourceTypeState>();
 		waitQueue = new ArrayList<EventEntry>();
+		sfQueue = new PriorityQueue<SFEntry>();
 		this.lastElemId = lastElemId;
 		this.lastSFId = lastSFId;
 		this.endTs = endTs;
@@ -87,6 +93,17 @@ public class SimulationState implements State {
 	 */
 	public void add(EventType type, int id, double ts, int value) {
 		waitQueue.add(new EventEntry(type, id, ts, value));
+	}
+
+	/**
+	 * Adds a single flow waiting in an activity queue.
+	 * @param flowId The single flow's identifier
+	 * @param elemId The element's identifier
+	 * @param arrivalTs The single flow's arrival timestamp
+	 * @param order The relative order between single flow's arrivals
+	 */
+	public void add(int flowId, int elemId, double arrivalTs, int order) {
+		sfQueue.add(new SFEntry(flowId, elemId, arrivalTs, order));
 	}
 	
 	/**
@@ -145,6 +162,15 @@ public class SimulationState implements State {
 		return waitQueue;
 	}
 
+	/**
+	 * Returns an ordered list of single flows waiting to be executed in an activity queue, 
+	 * ordered by their arrival timestamp.
+	 * @return an ordered list of single flows waiting to be executed in an activity queue.
+	 */
+	public PriorityQueue<SFEntry> getSfQueue() {
+		return sfQueue;
+	}
+
 	@Override
 	public String toString() {
 		StringBuffer str = new StringBuffer("SIMULATION(" + endTs + ")\tLast E: " + lastElemId + "\tLast SF: " + lastSFId + "\r\n");
@@ -160,6 +186,10 @@ public class SimulationState implements State {
 			str.append("\r\nWAIT QUEUE:");
 		for (EventEntry ee : waitQueue)
 			str.append("/t[" + ee + "]");
+		if (sfQueue.size() > 0)
+			str.append("\r\nSF QUEUE:");
+		for (SFEntry sf : sfQueue)
+			str.append("/t[" + sf + "]");
 		return str.toString();
 	}
 	
@@ -222,5 +252,74 @@ public class SimulationState implements State {
 		public String toString() {
 			return "EV-" + type + "(" + id + ")\t" + ts + "\t" + value;
 		}
+	}
+	
+	public class SFEntry implements Comparable<SFEntry> {
+		/** The single flow's identifier */
+		int flowId;
+		/** The element's identifier */
+		int elemId;
+		/** The single flow's arrival timestamp */
+		double arrivalTs;
+		/** The relative order between single flow's arrivals */
+		int order;
+		
+		/**
+		 * @param flowId The single flow's identifier
+		 * @param elemId The element's identifier
+		 * @param arrivalTs The single flow's arrival timestamp
+		 * @param order The relative order between single flow's arrivals
+		 */
+		public SFEntry(int flowId, int elemId, double arrivalTs, int order) {
+			this.flowId = flowId;
+			this.elemId = elemId;
+			this.arrivalTs = arrivalTs;
+			this.order = order;
+		}
+		
+		/**
+		 * @return The element's identifier.
+		 */
+		public int getElemId() {
+			return elemId;
+		}
+		
+		/**
+		 * @return The single flow's identifier.
+		 */
+		public int getFlowId() {
+			return flowId;
+		}
+
+		/**
+		 * @return the arrivalTs
+		 */
+		public double getArrivalTs() {
+			return arrivalTs;
+		}
+
+		/**
+		 * @return the order
+		 */
+		public int getOrder() {
+			return order;
+		}
+
+		@Override
+		public String toString() {
+			return "E" + elemId + "(" + flowId + ") " + arrivalTs + "(" + order + ")"; 
+		}
+
+		public int compareTo(SFEntry o) {
+			if (arrivalTs > o.arrivalTs)
+				return 1;
+			if (arrivalTs < o.arrivalTs)
+				return -1;
+			if (order > o.order)
+				return 1;
+			if (order < o.order)
+				return -1;
+			return 0;
+		}		
 	}
 }

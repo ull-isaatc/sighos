@@ -7,6 +7,7 @@ import java.util.Map;
 
 import simkit.random.RandomVariateFactory;
 
+import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
@@ -113,9 +114,10 @@ class SimPoolAct extends StandAloneLPSimulation {
 		ResourceType rt0 = new ResourceType(0, this, "NurseT0");
 		WorkGroup wg0 = new WorkGroup(0, this, "");
 		wg0.add(rt0, 1);
-		act0.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 100.0), wg0);
-		act1.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 100.0), wg0);
-		act2.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 100.0), wg0);
+		TimeFunction tf = TimeFunctionFactory.getInstance("ConstantVariate", 100.0);
+		act0.addWorkGroup(tf, wg0);
+		act1.addWorkGroup(tf, wg0);
+		act2.addWorkGroup(tf, wg0);
 
 		Cycle c = new PeriodicCycle(100, TimeFunctionFactory.getInstance("ConstantVariate", 1440), 0);
 		new Resource(0, this, "Nurse 1").addTimeTableEntry(c, DURAC_REC, getResourceType(0));
@@ -182,8 +184,8 @@ class SimContinue extends StandAloneLPSimulation {
 }
 
 class ExpSimAct extends Experiment {
-	final static int NEXP = 10;
-	final static int NDAYS = 20;
+	final static int NEXP = 1;
+	final static int NDAYS = 5;
 	static final double START = 0.0;
 	int expType = 0;
 	SimActListener simListener;
@@ -213,7 +215,13 @@ class ExpSimAct extends Experiment {
 		}
 		else if (expType == 1) {
 			sim = new SimPoolAct(description + ind + "", NDAYS);			
-			sim.addListener(new StatisticListener(1440.0));
+			sim.addListener(new StatisticListener(1440.0) {
+				@Override
+				public void infoEmited(SimulationEndInfo info) {
+					super.infoEmited(info);
+					System.out.println(this);
+				}
+			});
 			sim.addListener(new StdInfoListener());
 		}
 		else if (expType == 2) {

@@ -23,12 +23,14 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * not make anything else) or not presential (the element could perform other activities at
      * the same time) */
     protected boolean presential = true;
-    /** This queue contains the single flows that are waiting for this activity */
-    protected RemovablePrioritizedTable<SingleFlow> queue;
+    /** Total of single flows that are waiting for this activity */
+    protected int queueSize = 0;
     /** Activity manager which this activity belongs to */
     protected ActivityManager manager = null;
     /** Work Group Pool */
     protected NonRemovablePrioritizedTable<WorkGroup> workGroupTable;
+    /** Indicates that the activity is potentially feasible. */
+    protected boolean stillFeasible = true;
 
     /**
      * Creates a new activity.
@@ -75,7 +77,6 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
         this.description = description;
         this.priority = priority;
         this.presential = presential;
-        queue = new RemovablePrioritizedTable<SingleFlow>();
         workGroupTable = new NonRemovablePrioritizedTable<WorkGroup>();
         simul.add(this);
     }
@@ -89,7 +90,8 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
     }
     
     /**
-	 * @return the description
+     * Returns a string describing the activity 
+	 * @return a brief description of the activity
 	 */
 	public String getDescription() {
 		return description;
@@ -209,11 +211,16 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
     }
     
 	/**
-     * Checks if this activity can be performed with any of its workgroups.
+     * Checks if this activity can be performed with any of its workgroups. Firstly 
+     * checks if the activity is not potentially feasible, then goes through the 
+     * workgroups looking for an appropriate one. If the activity can't be performed with 
+     * any of the workgroups it's marked as not potentially feasible. 
      * @param sf Single flow which contains the activity 
      * @return True if the activity can be performed. False if the activity isn't feasible.
      */
     protected boolean isFeasible(SingleFlow sf) {
+    	if (!stillFeasible)
+    		return false;
         Iterator<WorkGroup> iter = workGroupTable.iterator(NonRemovablePrioritizedTable.IteratorType.RANDOM);
         while (iter.hasNext()) {
         	WorkGroup wg = iter.next();
@@ -224,52 +231,42 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
                 return true;
             }            
         }
+        stillFeasible = false;
         return false;
     }
 
-	/**
-	 * Checks if there are "valid" elements waiting for this activity in the activity queue, and 
-	 * returns the first valid element. An element is valid when it's not busy carrying out 
-	 * another activity.
-	 * @return null if there are no pending elements; the first valid element in other case. 
-	 */
-    protected SingleFlow hasPendingElements() {
-    	Iterator<SingleFlow> iter = queue.iterator(RemovablePrioritizedTable.IteratorType.FIFO);
-    	while (iter.hasNext()) {
-    		SingleFlow sf = iter.next();
-            Element e = sf.getElement();
-    		e.debug("MUTEX\trequesting\t" + this + " (has el.)");    	
-            e.waitSemaphore();
-    		e.debug("MUTEX\tadquired\t" + this + " (has el.)");    	
-            
-            // MOD 26/01/06 Añadido
-            e.setTs(getTs());
-            if ((e.getCurrentSF() == null) || !presential)
-                return sf;
-            else {
-        		e.debug("MUTEX\treleasing\t" + this + " (has el.)");    	
-            	e.signalSemaphore();
-        		e.debug("MUTEX\tfreed\t" + this + " (has el.)");    	
-            }
-    	}
-    	return null;
+    /**
+     * Sets the activity as potentially feasible.
+     */
+    protected void resetFeasible() {
+    	stillFeasible = true;
     }
-
+    
     /**
      * Add a single flow to the element queue.
-     * @param flow Single Flow added
+     * @param sf Single Flow added
      */
-    protected void queueAdd(SingleFlow flow) {
-        queue.add(flow);
+    protected void queueAdd(SingleFlow sf) {
+        manager.queueAdd(sf);
+    	queueSize++;
     }
     
     /**
      * Remove a specific single flow from the element queue.
-     * @param flow Single flow that must be removed from the element queue.
+     * @param sf Single flow that must be removed from the element queue.
      * @return True if the flow belongs to the queue; false in other case.
      */
-    protected boolean queueRemove(SingleFlow flow) {
-        return queue.remove(flow);
+    protected void queueRemove(SingleFlow sf) {
+    	manager.queueRemove(sf);
+    	queueSize--;
+    }
+
+    /**
+     * Returns the size of this activity's queue 
+     * @return the size of this activity's queue
+     */
+    public int getQueueSize() {
+    	return queueSize;    	
     }
     
 	@Override
@@ -288,11 +285,6 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	 */
 	public ActivityState getState() {
 		ActivityState state = new ActivityState(id);
-    	Iterator<SingleFlow> iter = queue.iterator(RemovablePrioritizedTable.IteratorType.FIFO);
-    	while (iter.hasNext()) {
-    		SingleFlow sf = iter.next();
-			state.add(sf.getIdentifier(), sf.getElement().getIdentifier());    		
-    	}
 		return state;
 	}
 
@@ -301,14 +293,10 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	 * @param state The activity's state.
 	 */
 	public void setState(ActivityState state) {
-		for (ActivityState.ActivityQueueEntry aqe : state.getQueue()) {
-			Element elem = simul.getActiveElement(aqe.getElemId());
-			queue.add(elem.searchSingleFlow(aqe.getFlowId()));
-		}		
 	}
 
 	/**
-* A set of resources needed for carrying out an activity. A workgroup (WG) consists on a 
+	 * A set of resources needed for carrying out an activity. A workgroup (WG) consists on a 
 	 * set of (resource type, #needed resources) pairs, the duration of the activity when using 
 	 * this workgroup, and the priority of the workgroup inside the activity.
 	 * @author Iván Castilla Rodríguez

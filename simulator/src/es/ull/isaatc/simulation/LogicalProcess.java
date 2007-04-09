@@ -56,7 +56,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      */
 	public LogicalProcess(Simulation simul, double startT, double endT) {
 		super(nextId++, simul);
-        tp = Executors.newFixedThreadPool(3);
+        tp = Executors.newFixedThreadPool(1);
         execQueue = new Vector<BasicElement.DiscreteEvent>();
         waitQueue = new PriorityQueue<BasicElement.DiscreteEvent>();
         lpLock = new ReentrantLock();

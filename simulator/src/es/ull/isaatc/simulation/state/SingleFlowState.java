@@ -23,6 +23,8 @@ public class SingleFlowState extends FlowState {
 	/** The identifier of the workgroup currently performing the activity. -1 if the
 	 * activity has not been performed. */
 	protected int executionWG;
+	/** The simulation timestamp when this single flow was requested. */
+	protected double arrivalTs;
 	/** If the activity is currently being performed, the resources caught to perform it */
 	protected ArrayList<Integer> caughtResources = null;
 	
@@ -32,11 +34,12 @@ public class SingleFlowState extends FlowState {
 	 * @param actId The activity which this flow wraps
 	 * @param finished If true this activity has been already performed
 	 */
-	public SingleFlowState(int flowId, int actId, boolean finished, int executionWG) {
+	public SingleFlowState(int flowId, int actId, boolean finished, int executionWG, double arrivalTs) {
 		this.flowId = flowId;
 		this.actId = actId;
 		this.finished = finished;
 		this.executionWG = executionWG;
+		this.arrivalTs = arrivalTs;
 		caughtResources = new ArrayList<Integer>();
 	}
 
@@ -70,6 +73,14 @@ public class SingleFlowState extends FlowState {
 	}
 
 	/**
+	 * Returns the simulation timestamp when this single flow was requested.
+	 * @return The simulation timestamp when this single flow was requested.
+	 */
+	public double getArrivalTs() {
+		return arrivalTs;
+	}
+
+	/**
 	 * Adds a resource to the list of caught resources
 	 * @param resId The identifier of a new resource
 	 */
@@ -92,6 +103,8 @@ public class SingleFlowState extends FlowState {
 			str.append("\tFINISHED\r\n");
 		else
 			str.append("\r\n");
+		if (!Double.isNaN(arrivalTs))
+			str.append("\tREQUESTED: " + arrivalTs + "\r\n");
 		if (executionWG != -1) {
 			str.append("WG: " + executionWG + "\r\n");
 			for (Integer rtId : caughtResources)

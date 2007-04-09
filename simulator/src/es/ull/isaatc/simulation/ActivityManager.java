@@ -2,6 +2,9 @@ package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.Comparator;
 import java.util.concurrent.Semaphore;
 
 import es.ull.isaatc.util.*;
@@ -24,7 +27,9 @@ public class ActivityManager extends TimeStampedSimulationObject {
     /** Semaphore for mutual exclusion control */
 	private Semaphore sem;
     /** Logical process */
-    protected LogicalProcess lp;
+    private LogicalProcess lp;
+    /** This queue contains the single flows that are waiting for activities of this AM */
+    private SingleFlowQueue sfQueue;
     
    /**
 	* Creates a new instance of ActivityManager.
@@ -34,6 +39,7 @@ public class ActivityManager extends TimeStampedSimulationObject {
         sem = new Semaphore(1);
         resourceTypeList = new ArrayList<ResourceType>();
         activityTable = new NonRemovablePrioritizedTable<Activity>();
+        sfQueue = new SingleFlowQueue();
         simul.add(this);
     }
 
@@ -49,7 +55,7 @@ public class ActivityManager extends TimeStampedSimulationObject {
 	 * Assigns a logical process to this ctivity manager. 
 	 * @param lp The lp to set.
 	 */
-	public void setLp(LogicalProcess lp) {
+	protected void setLp(LogicalProcess lp) {
 		this.lp = lp;
 		lp.add(this);
 
@@ -59,7 +65,7 @@ public class ActivityManager extends TimeStampedSimulationObject {
      * Adds an activity to this activity manager.
      * @param a Activity added
      */
-    public void add(Activity a) {
+    protected void add(Activity a) {
         activityTable.add(a);
     }
     
@@ -67,8 +73,24 @@ public class ActivityManager extends TimeStampedSimulationObject {
      * Adds a resource type to this activity manager.
      * @param rt Resource type added
      */
-    public void add(ResourceType rt) {
+    protected void add(ResourceType rt) {
         resourceTypeList.add(rt);
+    }
+
+    /**
+     * Adds a single flow to the waiting queue.
+     * @param sf Single flow which is added to the waiting queue.
+     */
+    protected void queueAdd(SingleFlow sf) {
+    	sfQueue.add(sf);
+    }
+    
+    /**
+     * Removes a single flow from the waiting queue.
+     * @param sf single flow which is removed from the waiting queue.
+     */
+    protected void queueRemove(SingleFlow sf) {
+    	sfQueue.remove(sf);
     }
     
 	/**
@@ -94,44 +116,71 @@ public class ActivityManager extends TimeStampedSimulationObject {
     }
         
     /**
-     * Informs the activities of new available resources. 
+     * Informs the activities of new available resources. Reviews the queue of waiting single 
+     * flows looking for those which can be executed with the new available resources. The 
+     * single flows used are removed from the waiting queue.<p>
+     * In order not to traverse the whole list of single flows, this method determines the
+     * amount of "useless" ones, that is, the amount of single flows belonging to an activity 
+     * which can't be performed with the current resources. If this amount is equal to the size
+     * of waiting single flows, this method stops. 
      */
     protected void availableResource() {
-        Iterator<Activity> iter = activityTable.iterator(NonRemovablePrioritizedTable.IteratorType.RANDOM);
-        while (iter.hasNext()) {
-        	Activity act = iter.next();
-            act.debug("Testing pool activity (availableResource)");
-        	boolean activityOK = true;
-            while (activityOK) {
-	            SingleFlow sf = act.hasPendingElements();
-	            if (sf != null) {
-	                if (act.isFeasible(sf)) {
-	                	act.queueRemove(sf); 
-	                    Element e = sf.getElement();
-	
-	                    e.debug("Can carry out (available resource)\t" + act + "\t" + act.getDescription());
-	                    
-	                    // Fin Sincronización hasta que el elemento deje de ser accedido
-	                    // MOD 26/01/06 Movida esta línea antes del e.sig...
-	                    // MOD 23/05/06 Vuelta a poner aquí: ¿POR QUÉ LA MOVI?
-	            		e.debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
-	                	e.signalSemaphore();
-	            		e.debug("MUTEX\tfreed\t" + act + " (av. res.)");    	
-	                    e.carryOutActivity(sf);
-	                }
-	                else {
-	                	sf.getElement().debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
-	                	sf.getElement().signalSemaphore();
-	                	sf.getElement().debug("MUTEX\tfreed\t" + act + " (av. res.)");
-	                	activityOK = false;
-	                }
-	            }
-	            else
-	            	activityOK = false;
+    	// First marks all the activities as "potentially feasible"
+        Iterator<Activity> actIter = activityTable.iterator(NonRemovablePrioritizedTable.IteratorType.FIFO);
+        while (actIter.hasNext())
+        	actIter.next().resetFeasible();
+        // A count of the useless single flows 
+    	int uselessSF = 0;
+    	Iterator<SingleFlow> iter = sfQueue.iterator();
+    	while (iter.hasNext() && (uselessSF < sfQueue.size())) {
+    		SingleFlow sf = iter.next();
+            Element e = sf.getElement();
+            Activity act = sf.getActivity();
+    		e.debug("MUTEX\trequesting\t" + act + " (av. res.)");    	
+            e.waitSemaphore();
+    		e.debug("MUTEX\tadquired\t" + act + " (av. res.)");    	
+            
+    		// The element's timestamp is updated. That's only useful to print messages
+            e.setTs(getTs());
+            if ((e.getCurrentSF() == null) || !act.isPresential()) {
+            	if (act.isFeasible(sf)) {	// The activity can be performed
+            		iter.remove();
+            		e.debug("Can carry out (available resource)\t" + act + "\t" + act.getDescription());
+            		e.debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
+                	e.signalSemaphore();
+            		e.debug("MUTEX\tfreed\t" + act + " (av. res.)");    	
+                    e.carryOutActivity(sf);
+            	}
+            	else {	// The activity can't be performed with the current resources
+                	e.debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
+                	e.signalSemaphore();
+                	e.debug("MUTEX\tfreed\t" + act + " (av. res.)");
+                	uselessSF += act.getQueueSize();
+            	}
             }
-        }
+            else { // The element is performing another activity
+            	e.debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
+            	e.signalSemaphore();
+            	e.debug("MUTEX\tfreed\t" + act + " (av. res.)");
+            }    			
+		}
     } 
- 
+
+    /**
+     * Returns an iterator over the array containing the single flows which have requested
+     * activities belonging to this activity manager.<p>
+     * The order followed is: <ol>
+     * <li>the single flow's priority (its element type's priority)</li>
+     * <li>the activity's priority</li>
+     * <li>the arrival order</li>
+     * </ol>
+     * @return an iterator over the array containing the single flows which have requested
+     * activities belonging to this activity manager.
+     */
+    public Iterator<SingleFlow> getQueueIterator() {
+    	return sfQueue.iterator();
+    }
+    
 	public String getObjectTypeIdentifier() {
 		return "AM";
 	}
@@ -159,4 +208,132 @@ public class ActivityManager extends TimeStampedSimulationObject {
         return str.toString();
 	}
 
+	/**
+	 * A queue which stores the activity requests of the elements. The single flows are
+	 * stored by following this order: <ol>
+     * <li>the single flow's priority (its element type's priority)</li>
+     * <li>the activity's priority</li>
+     * <li>the arrival order</li>
+     * </ol> 
+	 * @author Iván Castilla Rodríguez
+	 *
+	 */
+	protected class SingleFlowQueue {		
+		private static final long serialVersionUID = 1L;
+		/** The inner structure of the queue */ 
+		private TreeMap<Integer, TreeSet<SingleFlow>> table;
+		/** Queue size */
+		private int nObj = 0;
+		/** A counter for the arrival order of the single flows */
+		private int arrivalOrder = 0;
+		/** A comparator to properly order the single flows. */
+		private Comparator<SingleFlow> comp = new Comparator<SingleFlow>() {
+			public int compare(SingleFlow o1, SingleFlow o2) {
+				if (o1.equals(o2))
+					return 0;
+				if (o1.getActivity().getPriority() > o2.getActivity().getPriority())
+					return 1;
+				if (o1.getActivity().getPriority() < o2.getActivity().getPriority())
+					return -1;
+				if (o1.getArrivalOrder() > o2.getArrivalOrder())
+					return 1;
+				return -1;
+			}			
+		};
+		
+		/**
+		 * Creates a new queue.
+		 */
+		public SingleFlowQueue() {
+			table = new TreeMap<Integer, TreeSet<SingleFlow>>();
+		}
+
+		/**
+		 * Adds a single flow to the queue. The arrival order and timestamp of the 
+		 * single flow are set here. 
+		 * @param sf The single flow to be added.
+		 */
+		public void add(SingleFlow sf) {
+			TreeSet<SingleFlow> level = table.get(sf.getPriority());
+			if (level == null) {
+				level = new TreeSet<SingleFlow>(comp);
+				table.put(sf.getPriority(), level);
+			}
+			sf.setArrivalOrder(arrivalOrder++);
+			sf.setArrivalTs(getTs());
+			level.add(sf);
+			nObj++;
+		}
+		
+		/**
+		 * Removes a single flow from the queue.
+		 * @param sf the single flow to be removed.
+		 */
+		public void remove(SingleFlow sf) {
+			TreeSet<SingleFlow> level = table.get(sf.getPriority());
+			level.remove(sf);
+			if (level.isEmpty())
+				table.remove(sf.getPriority());
+			nObj--;
+		}
+
+		/**
+		 * Returns an iterator over the 
+		 * @return
+		 */
+		public Iterator<SingleFlow> iterator() {
+			return new SingleFlowQueueIterator();
+		}
+		
+		public int size() {
+			return nObj;
+		}
+		
+		public String toString() {
+			return table.toString();
+		}
+		
+		@SuppressWarnings("unchecked")
+		public class SingleFlowQueueIterator implements Iterator<SingleFlow> {
+			SingleFlow[] inIter = new SingleFlow[0];
+			TreeSet<SingleFlow>[] outIter = new TreeSet[0];
+			int outIndex = 0;
+			int inIndex = 0;
+			SingleFlow lastSF = null;
+			
+			public SingleFlowQueueIterator() {
+				super();
+				outIter = table.values().toArray(outIter);
+				if (outIter.length > 0) {
+					inIter = outIter[outIndex].toArray(inIter);
+				}
+			}
+
+			public boolean hasNext() {
+				if (inIter != null)
+					if (inIndex < inIter.length)
+						return true;
+				return false;
+			}
+
+			public SingleFlow next() {
+				lastSF = inIter[inIndex++];
+				if (inIndex == inIter.length) {
+					outIndex++;
+					if (outIndex < outIter.length) {
+						inIter = outIter[outIndex].toArray(inIter);
+						inIndex = 0;
+					}
+					else
+						inIter = null;
+				}
+				return lastSF;
+			}
+
+			public void remove() {
+				SingleFlowQueue.this.remove(lastSF);
+			}
+			
+		}
+	}
 }

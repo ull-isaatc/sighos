@@ -37,6 +37,11 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
     protected ConflictZone conflicts;
     /** Stack of nested semaphores */
 	protected ArrayList<Semaphore> semStack;
+	/** The arrival order of this single flow relatively to the rest of single flows 
+	 * in the same activity manager. */
+	protected int arrivalOrder;
+	/** The simulation timestamp when this single flow was requested. */
+	protected double arrivalTs = Double.NaN;
     
     /** 
      * Creates a new parent single flow which wraps an activity. 
@@ -140,6 +145,34 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 	 */
 	public static int getCounter() {
 		return counter;
+	}
+
+	/**
+	 * @return the arrivalOrder
+	 */
+	public int getArrivalOrder() {
+		return arrivalOrder;
+	}
+
+	/**
+	 * @param arrivalOrder the arrivalOrder to set
+	 */
+	public void setArrivalOrder(int arrivalOrder) {
+		this.arrivalOrder = arrivalOrder;
+	}
+
+	/**
+	 * @return the arrivalTs
+	 */
+	public double getArrivalTs() {
+		return arrivalTs;
+	}
+
+	/**
+	 * @param arrivalTs the arrivalTs to set
+	 */
+	public void setArrivalTs(double arrivalTs) {
+		this.arrivalTs = arrivalTs;
 	}
 
 	@Override
@@ -296,9 +329,9 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 	public FlowState getState() {
 		SingleFlowState state = null;
 		if (executionWG != null)
-			state = new SingleFlowState(id, act.getIdentifier(), finished, executionWG.getIdentifier());
+			state = new SingleFlowState(id, act.getIdentifier(), finished, executionWG.getIdentifier(), arrivalTs);
 		else
-			state = new SingleFlowState(id, act.getIdentifier(), finished, -1);
+			state = new SingleFlowState(id, act.getIdentifier(), finished, -1, arrivalTs);
 		for(Resource r : caughtResources)
 			state.add(r.getIdentifier());
 		return state;
@@ -315,6 +348,7 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 		SingleFlowState sfState = (SingleFlowState)state;
 		finished = sfState.isFinished();
 		id = sfState.getFlowId();
+		arrivalTs = sfState.getArrivalTs();
 		if (sfState.getExecutionWG() != -1) {
 			executionWG = act.getWorkGroup(sfState.getExecutionWG());
 			for (Integer rId : sfState.getCaughtResources())
@@ -338,4 +372,13 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 		return 0;
 	}    
 	
+	public boolean equals(Object o) {
+		if (((SingleFlow)o).id == id)
+			return true;
+		return false;
+	}
+	
+	public String toString() {
+		return "SF" + id + "(" + elem + ")";
+	}
 }

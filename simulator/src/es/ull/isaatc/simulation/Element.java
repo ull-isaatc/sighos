@@ -12,6 +12,7 @@ import es.ull.isaatc.util.*;
  * 
  * @author Iván Castilla Rodríguez
  */
+@SuppressWarnings("unchecked")
 public class Element extends BasicElement implements RecoverableState<ElementState> {
 	/** Element type */
 	protected ElementType elementType;
@@ -336,8 +337,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 			if (currentSF == null) {
 				if (act.isFeasible(flow)) {
 					debug("Can carry out\t" + act + "\t" + flow.getExecutionWG().getIdentifier());
-					if (!act.queueRemove(flow))
-						error("Unexpected error. Element MUST BE in the activity queue\t" + act);
+					act.queueRemove(flow);
             		debug("MUTEX\treleasing\t" + act + " (av. el.)");    	
                 	signalSemaphore();
             		debug("MUTEX\tfreed\t" + act + " (av. el.)");    	

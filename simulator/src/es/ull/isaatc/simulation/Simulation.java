@@ -613,6 +613,16 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 							.getRole().getIdentifier());
 				}
 			}
+			for (ActivityManager am : lp.managerList) {
+				Iterator<SingleFlow> iter = am.getQueueIterator();
+				while (iter.hasNext()) {
+					SingleFlow sf = iter.next();
+					simState.add(sf.getIdentifier(), sf.getElement().getIdentifier(), sf.getArrivalTs(), sf.getArrivalOrder());
+				}
+				
+			}
+//				for (SingleFlow sf : am.getQueue())
+//					simState.add(sf.getIdentifier(), sf.getElement().getIdentifier(), sf.getArrivalTs(), sf.getArrivalOrder());
 		}
 		for (Activity act : activityList.values())
 			simState.add(act.getState());
@@ -647,6 +657,14 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 		for (ResourceState rState : state.getResStates())
 			resourceList.get(new Integer(rState.getResId())).setState(rState);
 
+		// Waiting single flows. The queue was stored in order, so when building
+		// the new queues the order is preserved.
+		for (SimulationState.SFEntry sfe : state.getSfQueue()) {
+			Element elem = getActiveElement(sfe.getElemId());
+			SingleFlow sf = elem.searchSingleFlow(sfe.getFlowId());
+			sf.getActivity().queueAdd(sf);
+		}
+		
 		// Activities
 		for (ActivityState aState : state.getAStates()) {
 			Activity act = getActivity(aState.getActId());

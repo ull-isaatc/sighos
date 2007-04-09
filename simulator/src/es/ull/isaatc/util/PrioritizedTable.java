@@ -79,10 +79,14 @@ public abstract class PrioritizedTable<T extends Prioritizable> {
 	 * @param levelIndex The index of the level 
 	 * @return The amount of objects contained in a specified level.
 	 */
-	protected int size(int levelIndex) {
+	public int size(int levelIndex) {
 		return levels.get(levelIndex).size();
 	}
-
+	
+	public String toString() {
+		return levels.toString();
+	}
+	
     /**
      * A level of the prioritized table. All the objects belonging to a level have
      * the same priority. A level stores a value with the index of the next candidate 
