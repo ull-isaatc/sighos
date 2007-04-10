@@ -145,6 +145,7 @@ public class ActivityManager extends TimeStampedSimulationObject {
             if ((e.getCurrentSF() == null) || !act.isPresential()) {
             	if (act.isFeasible(sf)) {	// The activity can be performed
             		iter.remove();
+            		uselessSF--;
             		e.debug("Can carry out (available resource)\t" + act + "\t" + act.getDescription());
             		e.debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
                 	e.signalSemaphore();
