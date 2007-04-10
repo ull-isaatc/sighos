@@ -170,7 +170,7 @@ public class ActivityManager extends TimeStampedSimulationObject {
 		}
     	// Postponed removal
     	for (SingleFlow sf : toRemove)
-    		sfQueue.remove(sf);
+    		sf.act.queueRemove(sf);
     } 
 
     /**
