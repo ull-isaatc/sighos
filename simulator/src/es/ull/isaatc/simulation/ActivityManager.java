@@ -131,6 +131,8 @@ public class ActivityManager extends TimeStampedSimulationObject {
         	actIter.next().resetFeasible();
         // A count of the useless single flows 
     	int uselessSF = 0;
+    	// A postponed removal list
+    	ArrayList<SingleFlow> toRemove = new ArrayList<SingleFlow>();
     	Iterator<SingleFlow> iter = sfQueue.iterator();
     	while (iter.hasNext() && (uselessSF < sfQueue.size())) {
     		SingleFlow sf = iter.next();
@@ -144,7 +146,8 @@ public class ActivityManager extends TimeStampedSimulationObject {
             e.setTs(getTs());
             if ((e.getCurrentSF() == null) || !act.isPresential()) {
             	if (act.isFeasible(sf)) {	// The activity can be performed
-            		iter.remove();
+//            		iter.remove();
+            		toRemove.add(sf);
             		uselessSF--;
             		e.debug("Can carry out (available resource)\t" + act + "\t" + act.getDescription());
             		e.debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
@@ -165,6 +168,9 @@ public class ActivityManager extends TimeStampedSimulationObject {
             	e.debug("MUTEX\tfreed\t" + act + " (av. res.)");
             }    			
 		}
+    	// Postponed removal
+    	for (SingleFlow sf : toRemove)
+    		sfQueue.remove(sf);
     } 
 
     /**
@@ -294,37 +300,72 @@ public class ActivityManager extends TimeStampedSimulationObject {
 			return table.toString();
 		}
 		
-		@SuppressWarnings("unchecked")
+//		@SuppressWarnings("unchecked")
+//		public class SingleFlowQueueIterator implements Iterator<SingleFlow> {
+//			SingleFlow[] inIter = new SingleFlow[0];
+//			TreeSet<SingleFlow>[] outIter = new TreeSet[0];
+//			int outIndex = 0;
+//			int inIndex = 0;
+//			SingleFlow lastSF = null;
+//			
+//			public SingleFlowQueueIterator() {
+//				super();
+//				outIter = table.values().toArray(outIter);
+//				if (outIter.length > 0) {
+//					inIter = outIter[outIndex].toArray(inIter);
+//				}
+//			}
+//
+//			public boolean hasNext() {
+//				if (inIter != null)
+//					if (inIndex < inIter.length)
+//						return true;
+//				return false;
+//			}
+//
+//			public SingleFlow next() {
+//				lastSF = inIter[inIndex++];
+//				if (inIndex == inIter.length) {
+//					outIndex++;
+//					if (outIndex < outIter.length) {
+//						inIter = outIter[outIndex].toArray(inIter);
+//						inIndex = 0;
+//					}
+//					else
+//						inIter = null;
+//				}
+//				return lastSF;
+//			}
+//
+//			public void remove() {
+//				SingleFlowQueue.this.remove(lastSF);
+//			}
+//			
+//		}
 		public class SingleFlowQueueIterator implements Iterator<SingleFlow> {
-			SingleFlow[] inIter = new SingleFlow[0];
-			TreeSet<SingleFlow>[] outIter = new TreeSet[0];
-			int outIndex = 0;
-			int inIndex = 0;
-			SingleFlow lastSF = null;
+			Iterator<SingleFlow> inIter = null;
+			Iterator<TreeSet<SingleFlow>> outIter;
 			
 			public SingleFlowQueueIterator() {
 				super();
-				outIter = table.values().toArray(outIter);
-				if (outIter.length > 0) {
-					inIter = outIter[outIndex].toArray(inIter);
+				outIter = table.values().iterator();
+				if (outIter.hasNext()) {
+					inIter = outIter.next().iterator();
 				}
 			}
 
 			public boolean hasNext() {
 				if (inIter != null)
-					if (inIndex < inIter.length)
+					if (inIter.hasNext())
 						return true;
 				return false;
 			}
 
 			public SingleFlow next() {
-				lastSF = inIter[inIndex++];
-				if (inIndex == inIter.length) {
-					outIndex++;
-					if (outIndex < outIter.length) {
-						inIter = outIter[outIndex].toArray(inIter);
-						inIndex = 0;
-					}
+				SingleFlow lastSF = inIter.next();
+				if (!inIter.hasNext()) {
+					if (outIter.hasNext())
+						inIter = outIter.next().iterator();
 					else
 						inIter = null;
 				}
@@ -332,7 +373,7 @@ public class ActivityManager extends TimeStampedSimulationObject {
 			}
 
 			public void remove() {
-				SingleFlowQueue.this.remove(lastSF);
+				throw new UnsupportedOperationException("Can't remove a single flow from the queue");
 			}
 			
 		}
