@@ -180,13 +180,20 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	protected void carryOutActivity(SingleFlow sf) {
 		LogicalProcess lp = sf.getActivity().getManager().getLp();
 		setTs(lp.getTs());
-		sf.getExecutionWG().catchResources(sf);
+		double finishTs = sf.getExecutionWG().catchResources(sf);
 		simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.STAACT,
 				ts, sf.getActivity().getIdentifier()));
 		debug("Starts\t" + sf.getActivity() + "\t" + sf.getActivity().getDescription());
-		FinalizeActivityEvent e = new FinalizeActivityEvent(ts
-				+ sf.getExecutionWG().getDuration(), sf);
-		addEvent(e);
+		// The first time the activity is carried out (useful only for interruptible activities)
+		if (Double.isNaN(sf.getTimeLeft()))
+			sf.setTimeLeft(sf.getExecutionWG().getDuration());
+		if (sf.getActivity().isInterruptible())
+			finishTs = Math.min(finishTs, ts + sf.getTimeLeft());
+		else
+			finishTs = ts + sf.getTimeLeft();
+		// The required time for finishing the activity is reduced (useful only for interruptible activities)
+		sf.setTimeLeft(sf.getTimeLeft() - (finishTs - ts));
+		addEvent(new FinalizeActivityEvent(finishTs , sf));
 	}
 
 	@Override
@@ -286,24 +293,21 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 			if ((currentSF == null) || (!act.isPresential())) {
 				if (act.isFeasible(flow)) { // There are enough resources to perform the
 									// activity
-            		debug("MUTEX\treleasing\t" + act + " (req. act.)");    	
-                	signalSemaphore();
-            		debug("MUTEX\tfreed\t" + act + " (req. act.)");    	
+					debug("Can carry out\t" + act + "\t" + flow.getExecutionWG().getIdentifier());
 					carryOutActivity(flow);
+					if (flow.getTimeLeft() > 0.0)
+						act.queueAdd(flow); // The element is introduced in the queue
 				} else {
 					act.queueAdd(flow); // The element is introduced in the
 										// activity waiting queue
-            		debug("MUTEX\treleasing\t" + act + " (req. act.)");    	
-                	signalSemaphore();
-            		debug("MUTEX\tfreed\t" + act + " (req. act.)");    	
 				}
 			} else {
 				act.queueAdd(flow); // The element is introduced in the activity
 									// waiting queue
-        		debug("MUTEX\treleasing\t" + act + " (req. act.)");    	
-            	signalSemaphore();
-        		debug("MUTEX\tfreed\t" + act + " (req. act.)");    	
 			}
+    		debug("MUTEX\treleasing\t" + act + " (req. act.)");    	
+        	signalSemaphore();
+    		debug("MUTEX\tfreed\t" + act + " (req. act.)");    	
 			// Ending MUTEX access to activity manager
 			flow.getActivity().getManager().signalSemaphore();
 			incRequested(flow);
@@ -337,21 +341,14 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 			if (currentSF == null) {
 				if (act.isFeasible(flow)) {
 					debug("Can carry out\t" + act + "\t" + flow.getExecutionWG().getIdentifier());
-					act.queueRemove(flow);
-            		debug("MUTEX\treleasing\t" + act + " (av. el.)");    	
-                	signalSemaphore();
-            		debug("MUTEX\tfreed\t" + act + " (av. el.)");    	
 					carryOutActivity(flow);
-				} else {
-            		debug("MUTEX\treleasing\t" + act + " (av. el.)");    	
-                	signalSemaphore();
-            		debug("MUTEX\tfreed\t" + act + " (av. el.)");    	
+					if (flow.getTimeLeft() == 0.0)
+						act.queueRemove(flow);
 				}
-			} else {
-        		debug("MUTEX\treleasing\t" + act + " (av. el.)");    	
-            	signalSemaphore();
-        		debug("MUTEX\tfreed\t" + act + " (av. el.)");    	
 			}
+    		debug("MUTEX\treleasing\t" + act + " (av. el.)");    	
+        	signalSemaphore();
+    		debug("MUTEX\tfreed\t" + act + " (av. el.)");    	
 			// Ending MUTEX access to activity manager
 			flow.getActivity().getManager().signalSemaphore();
 		}
@@ -372,11 +369,17 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 		}
 
 		public void event() {
-			simul.notifyListeners(new ElementInfo(Element.this,
-					ElementInfo.Type.ENDACT, ts, flow.getActivity()
-							.getIdentifier()));
-			if (isDebugEnabled())
-				debug("Finishes\t" + flow.getActivity() + "\t" + flow.getActivity().getDescription());
+			if (flow.getTimeLeft() == 0.0) {
+				simul.notifyListeners(new ElementInfo(Element.this,
+						ElementInfo.Type.ENDACT, ts, flow.getActivity()
+								.getIdentifier()));
+				if (isDebugEnabled())
+					debug("Finishes\t" + flow.getActivity() + "\t" + flow.getActivity().getDescription());
+			}
+			else {
+				if (isDebugEnabled())
+					debug("Finishes part of \t" + flow.getActivity() + "\t" + flow.getActivity().getDescription() + "\t" + flow.getTimeLeft());				
+			}
 
 			// Beginning MUTEX access to activity manager
 			flow.getActivity().getManager().waitSemaphore();
@@ -396,10 +399,13 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 				am.signalSemaphore();
 			}
 
-			ArrayList<SingleFlow> sfList = flow.finish();
-			for (SingleFlow sf : sfList)
-				addEvent(new RequestActivityEvent(ts, sf));
-			decRequested(flow);
+			// FIXME: CUIDADO CON ESTO!!! Comparando con 0.0
+			if (flow.getTimeLeft() == 0.0) {
+				ArrayList<SingleFlow> sfList = flow.finish();
+				for (SingleFlow sf : sfList)
+					addEvent(new RequestActivityEvent(ts, sf));
+				decRequested(flow);
+			}
 			// Checks if there are pending activities that haven't noticed the
 			// element availability
 			for (int i = 0; (currentSF == null) && (i < requested[0].size()); i++)

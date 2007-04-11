@@ -3,7 +3,8 @@
  */
 package es.ull.isaatc.simulation.state;
 
-import java.util.ArrayList;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 /**
  * Stores the state of a resource. The state of a resource consists on the amount of
@@ -16,8 +17,8 @@ public class ResourceState implements State {
 	protected int resId;
     /** A counter of the valid timetable entries which this resource is following */
 	protected int validTTEs;
-	/** The resource types this resource is currently available for */
-	protected ArrayList<Integer> currentRoles;
+	/** The resource types this resource is currently available for, and the end of the availability. */
+	protected TreeMap<Integer, Double> currentRoles;
 	// If the resource is currently being used by an element
 	/** Single flow that is currently using this resource */
 	protected int currentSFId = -1;
@@ -43,7 +44,7 @@ public class ResourceState implements State {
 		this.currentRTId = currentRTId;
 		this.timeOut = timeOut;
 		this.validTTEs = validTTEs;
-		currentRoles = new ArrayList<Integer>();
+		currentRoles = new TreeMap<Integer, Double>();
 	}
 	
 	/**
@@ -53,15 +54,16 @@ public class ResourceState implements State {
 	public ResourceState(int resId, int validTTEs) {
 		this.resId = resId;
 		this.validTTEs = validTTEs;
-		currentRoles = new ArrayList<Integer>();
+		currentRoles = new TreeMap<Integer, Double>();
 	}
 
 	/**
 	 * Adds a resource type to the current role list.
 	 * @param rtId A resource type this resource is currently available for
+	 * @param ts Timestamp when the availability of this resource finishes for this resource type. 
 	 */
-	public void add(int rtId) {
-		currentRoles.add(rtId);
+	public void add(int rtId, double ts) {
+		currentRoles.put(rtId, ts);
 	}
 	/**
 	 * @return The identifier of the single flow that is currently using this resource.
@@ -98,7 +100,7 @@ public class ResourceState implements State {
 	/**
 	 * @return The list of resource types this resource is currently available for.
 	 */
-	public ArrayList<Integer> getCurrentRoles() {
+	public TreeMap<Integer, Double> getCurrentRoles() {
 		return currentRoles;
 	}
 	/**
@@ -111,8 +113,8 @@ public class ResourceState implements State {
 	@Override
 	public String toString() {
 		StringBuffer str = new StringBuffer("R" + resId + " ( ");
-		for (Integer i : currentRoles)
-			str.append(i + " ");
+		for (Entry<Integer, Double> entry : currentRoles.entrySet())
+			str.append(entry.getKey() + "(" + entry.getValue() + ") ");
 		if (timeOut)
 			str.append(")\tTIMEOUT\r\n");
 		else

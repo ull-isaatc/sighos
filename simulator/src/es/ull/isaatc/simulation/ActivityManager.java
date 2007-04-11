@@ -146,26 +146,21 @@ public class ActivityManager extends TimeStampedSimulationObject {
             e.setTs(getTs());
             if ((e.getCurrentSF() == null) || !act.isPresential()) {
             	if (act.isFeasible(sf)) {	// The activity can be performed
-            		toRemove.add(sf);
-            		uselessSF--;
-            		e.debug("Can carry out (available resource)\t" + act + "\t" + act.getDescription());
-            		e.debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
-                	e.signalSemaphore();
-            		e.debug("MUTEX\tfreed\t" + act + " (av. res.)");    	
                     e.carryOutActivity(sf);
+                    // If after carrying out the activity it'll be completely finished 
+                    // (only for interruptible activities)
+                    if (sf.getTimeLeft() == 0) {
+	            		toRemove.add(sf);
+	            		uselessSF--;
+                    }
+            		e.debug("Can carry out (available resource)\t" + act + "\t" + act.getDescription());
             	}
-            	else {	// The activity can't be performed with the current resources
-                	e.debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
-                	e.signalSemaphore();
-                	e.debug("MUTEX\tfreed\t" + act + " (av. res.)");
+            	else	// The activity can't be performed with the current resources
                 	uselessSF += act.getQueueSize();
-            	}
             }
-            else { // The element is performing another activity
-            	e.debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
-            	e.signalSemaphore();
-            	e.debug("MUTEX\tfreed\t" + act + " (av. res.)");
-            }    			
+        	e.debug("MUTEX\treleasing\t" + act + " (av. res.)");    	
+        	e.signalSemaphore();
+        	e.debug("MUTEX\tfreed\t" + act + " (av. res.)");
 		}
     	// Postponed removal
     	for (SingleFlow sf : toRemove)

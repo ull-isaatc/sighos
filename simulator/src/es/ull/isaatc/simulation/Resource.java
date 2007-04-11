@@ -1,7 +1,9 @@
 package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
+import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 
 import es.ull.isaatc.simulation.info.ResourceInfo;
 import es.ull.isaatc.simulation.info.ResourceUsageInfo;
@@ -24,8 +26,8 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     protected String description;
     /** If true, indicates that this resource is being used after its availability time has expired */
     private boolean timeOut = false;
-    /** List of currently active roles */
-    protected ArrayList<ResourceType> currentRoles;
+    /** List of currently active roles and the timestamp which marks the end of their availibity time. */
+    protected TreeMap<ResourceType, Double> currentRoles;
     /** A counter of the valid timetable entries which this resource is following. */
     private int validTTEs = 0;
     /** The resource type which this resource is being booked for */
@@ -45,7 +47,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		super(id, simul);
 		this.description = description;
         timeTable = new ArrayList<TimeTableEntry>();
-        currentRoles = new ArrayList<ResourceType>();
+        currentRoles = new TreeMap<ResourceType, Double>();
         bookList = new TreeSet<SingleFlow>();
         simul.add(this);
 	}
@@ -105,21 +107,28 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	}
 
 	/**
-	 * Adds a new resource type to the list of current roles.
+	 * Adds a new resource type to the list of current roles. If the list already contains an
+	 * entry for the resource type, the greater timestamp is added.
 	 * @param role New resource type added
+	 * @param ts Timestamp when the availability of this resource finishes for this resource type. 
 	 */
-	protected void addRole(ResourceType role) {
+	protected void addRole(ResourceType role, double ts) {
 		debug("MUTEX\trequesting\t(add role)");    	
 		waitSemaphore();
-		debug("MUTEX\tadquired\t(add role)");    	
-		currentRoles.add(role);
+		debug("MUTEX\tadquired\t(add role)");
+		Double avEnd = currentRoles.get(role);
+		if ((avEnd == null) || (ts > avEnd))
+			currentRoles.put(role, ts);
 		debug("MUTEX\treleasing\t(add role)");    	
 		signalSemaphore();
 		debug("MUTEX\tfreed\t(add role)");    	
 	}
 
 	/**
-	 * Removes a resource type from the list of current roles.
+	 * Removes a resource type from the list of current roles. If the role doesn't exist
+	 * the removal is silently skipped (that's because a resource can have several timetable 
+	 * entries for the same role, but the <code>currentRoles</code> list only contains 
+	 * one entry per role).
 	 * @param role Resource type removed
 	 */
 	protected void removeRole(ResourceType role) {
@@ -141,7 +150,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		waitSemaphore();
 		debug("MUTEX\tadquired\t(get man)");    	
 		ArrayList <ActivityManager> currentManagers = new ArrayList<ActivityManager>();
-		for (ResourceType role : currentRoles)
+		for (ResourceType role : currentRoles.keySet())
 			if (!currentManagers.contains(role.getManager()))
 				currentManagers.add(role.getManager());
 		debug("MUTEX\treleasing\t(get man)");    	
@@ -195,8 +204,9 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 * released. 
 	 * @param sf The single flow which an element is executing
 	 * @param rt The role this resource has been taken for.
+	 * @return The availability timestamp of this resource for this resource type 
 	 */
-	protected void catchResource(SingleFlow sf, ResourceType rt) {
+	protected double catchResource(SingleFlow sf, ResourceType rt) {
 		debug("MUTEX\trequesting\t" + sf.getElement() + "(catch res.)");    	
 		waitSemaphore();
 		debug("MUTEX\tadquired\t" + sf.getElement() + "(catch res.)");    	
@@ -206,10 +216,10 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		currentSF = sf;
 		sf.addCaughtResource(this);
 		currentResourceType = rt;
-//		bookList.clear();
 		debug("MUTEX\treleasing\t" + sf.getElement() + " (catch res.)");    	
 		signalSemaphore();
-		debug("MUTEX\tfreed\t" + sf.getElement() + " (catch res.)");    	
+		debug("MUTEX\tfreed\t" + sf.getElement() + " (catch res.)");
+		return currentRoles.get(rt);
 	}
 	
     /**
@@ -285,6 +295,16 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     }
     
     /**
+     * Returns the availability of this resource for the specified resource type.
+     * @param rt Resource type
+     * @return the availability of this resource for the specified resource type; 
+     * <code>null</code> if the resource is not available for this resource type.
+     */
+    protected Double getAvailability(ResourceType rt) {
+    	return currentRoles.get(rt); 
+    }
+    
+    /**
      * Makes available a resource with a specific role. 
      */
     public class RoleOnEvent extends BasicElement.DiscreteEvent {
@@ -316,11 +336,11 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
             // Beginning MUTEX access to activity manager
             role.getManager().waitSemaphore();
             role.incAvailable(Resource.this);
+            addRole(role, ts + duration);
             // The activity manger is informed of new available resources
             role.getManager().availableResource(); 
             // Ending MUTEX access to activity manager
             role.getManager().signalSemaphore();
-            addRole(role);
             RoleOffEvent rEvent = new RoleOffEvent(ts + duration, role, iter, duration);
             addEvent(rEvent);
         }
@@ -456,8 +476,8 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 			state = new ResourceState(id, validTTEs);
 		else
 			state = new ResourceState(id, validTTEs, currentSF.getIdentifier(), currentSF.getElement().getIdentifier(), currentResourceType.getIdentifier(), timeOut);
-		for (ResourceType rt : currentRoles)
-			state.add(rt.getIdentifier());
+		for (Entry<ResourceType, Double> entry : currentRoles.entrySet())
+			state.add(entry.getKey().getIdentifier(), entry.getValue());
 		return state;
 	}
 
@@ -472,8 +492,8 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 			Element elem = simul.getActiveElement(state.getCurrentElemId());
 			currentSF = elem.searchSingleFlow(state.getCurrentSFId());
 			currentResourceType = simul.getResourceType(state.getCurrentRTId());
-			for (Integer rtId : state.getCurrentRoles())
-				currentRoles.add(simul.getResourceType(rtId));
+			for (Entry<Integer, Double> entry : state.getCurrentRoles().entrySet())
+				currentRoles.put(simul.getResourceType(entry.getKey()), entry.getValue());
 		}
 	}
 }

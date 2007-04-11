@@ -42,6 +42,8 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 	protected int arrivalOrder;
 	/** The simulation timestamp when this single flow was requested. */
 	protected double arrivalTs = Double.NaN;
+	/** The time left to finish the activity */
+	protected double timeLeft = Double.NaN;
     
     /** 
      * Creates a new parent single flow which wraps an activity. 
@@ -173,6 +175,20 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 	 */
 	public void setArrivalTs(double arrivalTs) {
 		this.arrivalTs = arrivalTs;
+	}
+
+	/**
+	 * @return the timeLeft
+	 */
+	public double getTimeLeft() {
+		return timeLeft;
+	}
+
+	/**
+	 * @param timeLeft the timeLeft to set
+	 */
+	public void setTimeLeft(double timeLeft) {
+		this.timeLeft = timeLeft;
 	}
 
 	@Override

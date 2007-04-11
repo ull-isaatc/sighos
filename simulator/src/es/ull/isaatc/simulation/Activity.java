@@ -1,5 +1,6 @@
 package es.ull.isaatc.simulation;
 
+import java.util.EnumSet;
 import java.util.Iterator;
 
 import es.ull.isaatc.function.TimeFunction;
@@ -23,6 +24,9 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * not make anything else) or not presential (the element could perform other activities at
      * the same time) */
     protected boolean presential = true;
+    /** Indicates if the activity can be interrupted in case the required resources end their
+     * availability time. In case it's false, it keeps the resources even if they become not available. */
+    protected boolean interruptible = false;
     /** Total of single flows that are waiting for this activity */
     protected int queueSize = 0;
     /** Activity manager which this activity belongs to */
@@ -82,6 +86,24 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
     }
 
     /**
+     * Creates a new activity.
+     * @param id Activity's identifier.
+     * @param simul Simulation which this activity is attached to.
+     * @param description A short text describing this Activity.
+     * @param priority Activity's priority.
+     * @param presential Indicates if the activity requires the presence of an element to be carried out. 
+     */
+    public Activity(int id, Simulation simul, String description, int priority, boolean presential, boolean interruptible) {
+        super(id, simul);
+        this.description = description;
+        this.priority = priority;
+        this.presential = presential;
+        this.interruptible = interruptible;
+        workGroupTable = new NonRemovablePrioritizedTable<WorkGroup>();
+        simul.add(this);
+    }
+
+    /**
      * Indicates if the activity requires the presence of the element in order to be carried out. 
      * @return The "presenciality" of the activity.
      */
@@ -90,6 +112,16 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
     }
     
     /**
+     * Indicates if the activity can be interrupted in case the required resources end their
+     * availability time.
+	 * @return True if the activity can be interrupted. False if it keeps the resources even 
+	 * if they become not available.
+	 */
+	public boolean isInterruptible() {
+		return interruptible;
+	}
+
+	/**
      * Returns a string describing the activity 
 	 * @return a brief description of the activity
 	 */
@@ -548,12 +580,16 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	    /**
 	     * Catch the resources needed for each resource type to carry out an activity.
 	     * @param sf Single flow which requires the resources
+	     * @return The minimum availability timestamp of the taken resources 
 	     */
-	    protected void catchResources(SingleFlow sf) {
-	       for (ResourceTypeTableEntry rtte : resourceTypeTable)
-	           rtte.getResourceType().catchResources(rtte.getNeeded(), sf);
-	       // When this point is reached, that means that the resources have been completely taken
-	       sf.signalConflictSemaphore();
+	    protected double catchResources(SingleFlow sf) {
+	    	double minAvailability = Double.MAX_VALUE;
+	    	for (ResourceTypeTableEntry rtte : resourceTypeTable) {
+	    		minAvailability = Math.min(minAvailability, rtte.getResourceType().catchResources(rtte.getNeeded(), sf));
+	    	}
+	    	// When this point is reached, that means that the resources have been completely taken
+	    	sf.signalConflictSemaphore();
+	    	return minAvailability;
 	    }
 
 	    @Override

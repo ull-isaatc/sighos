@@ -69,10 +69,12 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
             Resource res = availableResourceList.get(i);
             // First, I check if the resource is being used
             if (res.getCurrentSF() == null) {
-	            if (res.addBook(sf))
-	            	total[0]++;
-	            else
-	            	total[1]++;
+            	if (!sf.getActivity().isInterruptible() || res.getAvailability(this) > getTs()) {
+		            if (res.addBook(sf))
+		            	total[0]++;
+		            else
+		            	total[1]++;
+            	}
             }
         }
         return total;
@@ -123,8 +125,10 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
 	 * are freed by releasing their book.
 	 * @param n Resources needed
      * @param sf single flow catching the resources
+	 * @return The minimum availability timestamp of the taken resources 
 	 */
-    protected void catchResources(int n, SingleFlow sf) {
+    protected double catchResources(int n, SingleFlow sf) {
+    	double minAvailability = Double.MAX_VALUE;
         debug("Decrease amount\t" + n + "\t" + sf.getElement());
         
         // When this point is reached, it is suppose that there are enough resources
@@ -135,7 +139,7 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
             	// The resource has no conflict
             	if (res.getCurrentResourceType() == null) {
 	            	if (n > 0) {
-	            		res.catchResource(sf, this);
+	            		minAvailability = Math.min(minAvailability, res.catchResource(sf, this));
 	            		n--;
 	                    debug("Resource taken\t" + res + "\t " + n + "\t" + sf.getElement());
 	            	}
@@ -146,7 +150,7 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
             	// Conflict (in the same activity)
             	// Theoretically, I have no need of check "n"
             	else if (res.getCurrentResourceType() == this) {
-            		res.catchResource(sf, this);
+            		minAvailability = Math.min(minAvailability, res.catchResource(sf, this));
             		n--;
                     debug("Resource taken\t" + res + "\t " + n + "\t" + sf.getElement());
                     // This check should be unneeded
@@ -159,6 +163,7 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
         // This check should be unneeded
         if (n > 0)
         	error("UNEXPECTED ERROR: Less resources than expected\t"+ n + "\t" + sf.getElement());
+        return minAvailability;
     }
 
     /**
