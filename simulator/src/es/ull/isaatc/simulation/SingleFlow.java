@@ -119,15 +119,6 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
         return sfList;
     }
     	
-    protected ArrayList<SingleFlow> finish2() {
-    	
-    	ArrayList<SingleFlow> sfList = new ArrayList<SingleFlow>();
-        finished = true;
-        if (parent != null)
-            sfList.addAll(parent.finish());
-        return sfList;
-    }
-    
     /**
      * Returns a list that contains this single flow.
      * @return A list with this single flow. 

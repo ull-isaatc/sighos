@@ -49,6 +49,20 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 		requested[1] = new ArrayList<SingleFlow>();
 	}
 
+	@Override
+	public String getObjectTypeIdentifier() {
+		return "E";
+	}
+
+	/**
+	 * Returns the element type this element belongs to.
+	 * 
+	 * @return the elementType
+	 */
+	public ElementType getElementType() {
+		return elementType;
+	}
+
 	/**
 	 * If the element is currently performing an activity, returns the single
 	 * flow that the element is using. If the element is not performing any
@@ -199,18 +213,137 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 		addEvent(new FinalizeActivityEvent(finishTs , sf));
 	}
 
-	@Override
-	public String getObjectTypeIdentifier() {
-		return "E";
+	/**
+	 * Requests an activity. Checks if the activity is feasible and the element
+	 * is not performing another activity.
+	 * 
+	 * @author Iván Castilla Rodríguez
+	 */
+	public class RequestActivityEvent extends BasicElement.DiscreteEvent {
+		/** The flow requested */
+		SingleFlow sf;
+
+		public RequestActivityEvent(double ts, SingleFlow sf) {
+			super(ts, sf.getActivity().getManager().getLp());
+			this.sf = sf;
+		}
+
+		public void event() {
+			Activity act = sf.getActivity();
+			simul.notifyListeners(new ElementInfo(Element.this,
+					ElementInfo.Type.REQACT, ts, act.getIdentifier()));
+			if (isDebugEnabled())
+				debug("Requests\t" + act + "\t" + act.getDescription());
+			// Beginning MUTEX access to activity manager
+			act.getManager().waitSemaphore();
+    		debug("MUTEX\trequesting\t" + act + " (req. act.)");    	
+            waitSemaphore();
+    		debug("MUTEX\tadquired\t" + act + " (req. act.)");    	
+			// If the element is not performing a presential activity yet or the
+			// activity to be requested is non presential
+			if ((currentSF == null) || act.isNonPresential()) {
+				// There are enough resources to perform the activity
+				if (act.isFeasible(sf)) 
+					carryOutActivity(sf);
+				else
+					act.queueAdd(sf); // The element is introduced in the queue
+			} else
+				act.queueAdd(sf); // The element is introduced in the queue
+    		debug("MUTEX\treleasing\t" + act + " (req. act.)");    	
+        	signalSemaphore();
+    		debug("MUTEX\tfreed\t" + act + " (req. act.)");    	
+			// Ending MUTEX access to activity manager
+			act.getManager().signalSemaphore();
+			incRequested(sf);
+		}
 	}
 
 	/**
-	 * Returns the element type this element belongs to.
+	 * Informs an activity about an available element in its queue.
 	 * 
-	 * @return the elementType
+	 * @author Iván Castilla Rodríguez
 	 */
-	public ElementType getElementType() {
-		return elementType;
+	public class AvailableElementEvent extends BasicElement.DiscreteEvent {
+		/** Flow informed of the availability of the element */
+		SingleFlow sf;
+
+		public AvailableElementEvent(double ts, SingleFlow sf) {
+			super(ts, sf.getActivity().getManager().getLp());
+			this.sf = sf;
+		}
+
+		public void event() {
+			Activity act = sf.getActivity();
+			// Beginning MUTEX access to activity manager
+			act.getManager().waitSemaphore();
+
+    		debug("MUTEX\trequesting\t" + act + " (av. el.)");    	
+            waitSemaphore();
+    		debug("MUTEX\tadquired\t" + act + " (av. el.)");    	
+			if (isDebugEnabled())
+				debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
+			// If the element is not performing a presential activity yet
+			if (currentSF == null)
+				if (act.isFeasible(sf)) {
+					carryOutActivity(sf);
+					act.queueRemove(sf);
+				}
+    		debug("MUTEX\treleasing\t" + act + " (av. el.)");    	
+        	signalSemaphore();
+    		debug("MUTEX\tfreed\t" + act + " (av. el.)");
+    		
+			// Ending MUTEX access to activity manager
+			act.getManager().signalSemaphore();
+		}
+	}
+
+	/**
+	 * Finish an activity.
+	 * 
+	 * @author Iván Castilla Rodríguez
+	 */
+	public class FinalizeActivityEvent extends BasicElement.DiscreteEvent {
+		/** The flow finished */
+		SingleFlow sf;
+
+		public FinalizeActivityEvent(double ts, SingleFlow sf) {
+			super(ts, sf.getActivity().getManager().getLp());
+			this.sf = sf;
+		}
+
+		public void event() {
+			Activity act = sf.getActivity();
+			ArrayList<SingleFlow> sfList = sf.finish();
+			if (sf.isFinished()) {
+				simul.notifyListeners(new ElementInfo(Element.this,
+						ElementInfo.Type.ENDACT, ts, act.getIdentifier()));
+				if (isDebugEnabled())
+					debug("Finishes\t" + act + "\t" + act.getDescription());
+				// Requests the following activities of the element's flow
+				for (SingleFlow sf : sfList)
+					addEvent(new RequestActivityEvent(ts, sf));
+				decRequested(sf);
+			}
+			else {
+				simul.notifyListeners(new ElementInfo(Element.this,
+						ElementInfo.Type.INTACT, ts, act.getIdentifier()));
+				if (isDebugEnabled())
+					debug("Finishes part of \t" + act + "\t" + act.getDescription() + "\t" + sf.getTimeLeft());				
+				// The element is introduced in the queue
+				act.queueAdd(sf); 
+			}
+			// Checks if there are pending activities that haven't noticed the
+			// element availability
+			for (int i = 0; (currentSF == null) && (i < requested[0].size()); i++)
+				addEvent(new AvailableElementEvent(ts, requested[0].get(i)));
+		}
+
+		/**
+		 * @return Returns the flow.
+		 */
+		public SingleFlow getFlow() {
+			return sf;
+		}
 	}
 
 	/**
@@ -262,143 +395,6 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 		for (int i = 0; i < state.getRequested().length; i++)
 			for (int j = 0; j < state.getRequested()[i].length; j++)
 				requested[i].add(flow.search(state.getRequested()[i][j]));
-	}
-
-	/**
-	 * Requests an activity. Checks if the activity is feasible and the element
-	 * is not performing another activity.
-	 * 
-	 * @author Iván Castilla Rodríguez
-	 */
-	public class RequestActivityEvent extends BasicElement.DiscreteEvent {
-		/** The flow requested */
-		SingleFlow flow;
-
-		public RequestActivityEvent(double ts, SingleFlow flow) {
-			super(ts, flow.getActivity().getManager().getLp());
-			this.flow = flow;
-		}
-
-		public void event() {
-			simul.notifyListeners(new ElementInfo(Element.this,
-					ElementInfo.Type.REQACT, ts, flow.getActivity()
-							.getIdentifier()));
-			if (isDebugEnabled())
-				debug("Requests\t" + flow.getActivity() + "\t" + flow.getActivity().getDescription());
-			// Beginning MUTEX access to activity manager
-			flow.getActivity().getManager().waitSemaphore();
-			Activity act = flow.getActivity();
-    		debug("MUTEX\trequesting\t" + act + " (req. act.)");    	
-            waitSemaphore();
-    		debug("MUTEX\tadquired\t" + act + " (req. act.)");    	
-			// If the element is not performing a presential activity yet or the
-			// activity to be requested is non presential
-			if ((currentSF == null) || act.isNonPresential()) {
-				if (act.isFeasible(flow)) { // There are enough resources to perform the
-									// activity
-					carryOutActivity(flow);
-					if (flow.getTimeLeft() > 0.0)
-						act.queueAdd(flow); // The element is introduced in the queue
-				} else {
-					act.queueAdd(flow); // The element is introduced in the
-										// activity waiting queue
-				}
-			} else {
-				act.queueAdd(flow); // The element is introduced in the activity
-									// waiting queue
-			}
-    		debug("MUTEX\treleasing\t" + act + " (req. act.)");    	
-        	signalSemaphore();
-    		debug("MUTEX\tfreed\t" + act + " (req. act.)");    	
-			// Ending MUTEX access to activity manager
-			flow.getActivity().getManager().signalSemaphore();
-			incRequested(flow);
-		}
-	}
-
-	/**
-	 * Informs an activity about an available element in its queue.
-	 * 
-	 * @author Iván Castilla Rodríguez
-	 */
-	public class AvailableElementEvent extends BasicElement.DiscreteEvent {
-		/** Flow informed of the availability of the element */
-		SingleFlow flow;
-
-		public AvailableElementEvent(double ts, SingleFlow flow) {
-			super(ts, flow.getActivity().getManager().getLp());
-			this.flow = flow;
-		}
-
-		public void event() {
-			// Beginning MUTEX access to activity manager
-			flow.getActivity().getManager().waitSemaphore();
-
-			Activity act = flow.getActivity();
-    		debug("MUTEX\trequesting\t" + act + " (av. el.)");    	
-            waitSemaphore();
-    		debug("MUTEX\tadquired\t" + act + " (av. el.)");    	
-			debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
-			// If the element is not performing a presential activity yet
-			if (currentSF == null) {
-				if (act.isFeasible(flow)) {
-					carryOutActivity(flow);
-					if (flow.getTimeLeft() == 0.0)
-						act.queueRemove(flow);
-				}
-			}
-    		debug("MUTEX\treleasing\t" + act + " (av. el.)");    	
-        	signalSemaphore();
-    		debug("MUTEX\tfreed\t" + act + " (av. el.)");    	
-			// Ending MUTEX access to activity manager
-			flow.getActivity().getManager().signalSemaphore();
-		}
-	}
-
-	/**
-	 * Finish an activity.
-	 * 
-	 * @author Iván Castilla Rodríguez
-	 */
-	public class FinalizeActivityEvent extends BasicElement.DiscreteEvent {
-		/** The flow finished */
-		SingleFlow flow;
-
-		public FinalizeActivityEvent(double ts, SingleFlow flow) {
-			super(ts, flow.getActivity().getManager().getLp());
-			this.flow = flow;
-		}
-
-		public void event() {
-			ArrayList<SingleFlow> sfList = flow.finish();
-			if (flow.isFinished()) {
-				simul.notifyListeners(new ElementInfo(Element.this,
-						ElementInfo.Type.ENDACT, ts, flow.getActivity().getIdentifier()));
-				if (isDebugEnabled())
-					debug("Finishes\t" + flow.getActivity() + "\t" + flow.getActivity().getDescription());
-				// Requests the following activities of the element's flow
-				for (SingleFlow sf : sfList)
-					addEvent(new RequestActivityEvent(ts, sf));
-				decRequested(flow);
-			}
-			else {
-				simul.notifyListeners(new ElementInfo(Element.this,
-						ElementInfo.Type.INTACT, ts, flow.getActivity().getIdentifier()));
-				if (isDebugEnabled())
-					debug("Finishes part of \t" + flow.getActivity() + "\t" + flow.getActivity().getDescription() + "\t" + flow.getTimeLeft());				
-			}
-			// Checks if there are pending activities that haven't noticed the
-			// element availability
-			for (int i = 0; (currentSF == null) && (i < requested[0].size()); i++)
-				addEvent(new AvailableElementEvent(ts, requested[0].get(i)));
-		}
-
-		/**
-		 * @return Returns the flow.
-		 */
-		public SingleFlow getFlow() {
-			return flow;
-		}
 	}
 
 }

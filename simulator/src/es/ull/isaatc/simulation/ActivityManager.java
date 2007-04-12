@@ -147,12 +147,8 @@ public class ActivityManager extends TimeStampedSimulationObject {
             if ((e.getCurrentSF() == null) || act.isNonPresential()) {
             	if (act.isFeasible(sf)) {	// The activity can be performed
                     e.carryOutActivity(sf);
-                    // If after carrying out the activity it'll be completely finished 
-                    // (only for interruptible activities)
-                    if (sf.getTimeLeft() == 0) {
-	            		toRemove.add(sf);
-	            		uselessSF--;
-                    }
+            		toRemove.add(sf);
+            		uselessSF--;
             	}
             	else	// The activity can't be performed with the current resources
                 	uselessSF += act.getQueueSize();
@@ -163,7 +159,7 @@ public class ActivityManager extends TimeStampedSimulationObject {
 		}
     	// Postponed removal
     	for (SingleFlow sf : toRemove)
-    		sf.act.queueRemove(sf);
+    		sf.getActivity().queueRemove(sf);
     } 
 
     /**
@@ -259,8 +255,12 @@ public class ActivityManager extends TimeStampedSimulationObject {
 				level = new TreeSet<SingleFlow>(comp);
 				table.put(sf.getPriority(), level);
 			}
-			sf.setArrivalOrder(arrivalOrder++);
-			sf.setArrivalTs(getTs());
+			// The arrival order and timestamp are only assigned if the single flow 
+			// has never been added to the queue (interruptible activities)
+			if (Double.isNaN(sf.getArrivalTs())) {
+				sf.setArrivalOrder(arrivalOrder++);
+				sf.setArrivalTs(getTs());
+			}
 			level.add(sf);
 			nObj++;
 		}
