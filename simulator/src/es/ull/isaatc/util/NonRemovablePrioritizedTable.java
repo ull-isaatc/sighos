@@ -4,7 +4,6 @@
 package es.ull.isaatc.util;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 /**
  * A prioritized table intended for be used as a static container, that is, the contents of the
@@ -53,15 +52,19 @@ public class NonRemovablePrioritizedTable<T extends Prioritizable> extends Prior
      * @author Iván Castilla Rodríguez
      */
     private class FIFOIterator implements Iterator<T> {
-        /** Index of the level which is being examinated. */   
-        protected int levelIndex = 0;
-        /** Index of the current object of the level. */    
-        protected int objectIndex = 0;
+        /** Main iterator level by level of the external estructure. */   
+        private Iterator<PrioritizedLevel> outIter;
+        /** Minor iterator object by object of each level. */
+        private Iterator<T> inIter = null;
         
         /**
          * Creates an iterator for the prioritized table.
          */
         public FIFOIterator() {
+        	outIter = levels.values().iterator();
+			if (outIter.hasNext()) {
+				inIter = outIter.next().iterator();
+			}
         }
 
         /**
@@ -70,23 +73,21 @@ public class NonRemovablePrioritizedTable<T extends Prioritizable> extends Prior
          * @return The next object of the prioritized table. 
          */
         public T next() {
-            // Checks if there aren't more objects left
-            if (levelIndex >= levels.size())
-                throw new NoSuchElementException();
-            // Next object        
-            T obj = get(levelIndex, objectIndex++);
-            // Checks if the level has been completed
-            if (objectIndex == levels.get(levelIndex).size()) {
-                levelIndex++;
-                objectIndex = 0;
-            }
-            return obj;
+        	T obj = inIter.next();
+			if (!inIter.hasNext()) {
+				if (outIter.hasNext())
+					inIter = outIter.next().iterator();
+				else
+					inIter = null;
+			}
+			return obj;
         }
 
     	public boolean hasNext() {
-            if (levelIndex >= levels.size())
-                return false;
-    		return true;
+			if (inIter != null)
+				if (inIter.hasNext())
+					return true;
+			return false;
     	}
 
     	public void remove() {
@@ -102,17 +103,22 @@ public class NonRemovablePrioritizedTable<T extends Prioritizable> extends Prior
      * @author Iván Castilla Rodríguez
      */
     private class BalancedIterator implements Iterator<T> {
-        /** Index of the level which is being examinated. */   
-        protected int levelIndex = 0;
-        /** Index of the first object of the level. This value is used for determining when the iterator has reached the end of the level. */    
-        protected int baseLevel;
+        /** Main iterator level by level of the external estructure. */   
+        private Iterator<PrioritizedLevel> outIter;
+        /** The current level being visited */
+        private PrioritizedLevel currentLevel = null;
+        /** Number of objects of the level. This value is used for determining when the iterator has reached the end of the level. */    
+        private int nObjects;
         
         /**
          * Creates an iterator for the prioritized table.
          */
         public BalancedIterator() {
-            if (size() > 0)
-            	baseLevel = getCandidate(0);
+        	outIter = levels.values().iterator();
+        	if (outIter.hasNext()) {
+        		currentLevel = outIter.next();
+            	nObjects = currentLevel.size();
+        	}
         }
 
         /**
@@ -121,26 +127,26 @@ public class NonRemovablePrioritizedTable<T extends Prioritizable> extends Prior
          * @return The next object of the prioritized table. 
          */
         public T next() {
-            // The end has been reached
-            if (levelIndex >= levels.size())
-                throw new NoSuchElementException();
             // Next object of the current level        
-            T obj = get(levelIndex);
+            T obj = currentLevel.get();
+            nObjects--;
             // The level has been finished
-            if (getCandidate(levelIndex) == baseLevel) {
+            if (nObjects == 0) {
             	// Next time this method will start this level at the next object 
-            	get(levelIndex);
-                levelIndex++;
-                if (levelIndex < levels.size())
-                	baseLevel = getCandidate(levelIndex);
+            	currentLevel.get();
+            	if (outIter.hasNext()) {
+            		currentLevel = outIter.next();
+                	nObjects = currentLevel.size();
+            	}
             }
             return obj;
         }
 
     	public boolean hasNext() {
-            if (levelIndex >= levels.size())
-                return false;
-    		return true;
+            if (currentLevel != null)
+            	if (nObjects == 0)
+            		return true;
+    		return false;
     	}
 
     	public void remove() {
@@ -157,19 +163,24 @@ public class NonRemovablePrioritizedTable<T extends Prioritizable> extends Prior
      * @author Iván Castilla Rodríguez
      */
     private class RandomIterator implements Iterator<T> {
-        /** Index of the level which is being examinated */    
-        protected int levelIndex = 0;
+        /** Main iterator level by level of the external estructure. */   
+        private Iterator<PrioritizedLevel> outIter;
+        /** The current level being visited */
+        private PrioritizedLevel currentLevel = null;
         /** Visit order for this level. */
-        int []order;
+        private int []order;
         /** Current object. */
-        int current = 0;
+        private int current = 0;
 
         /**
          * Creates a random iterator for the prioritized table.
          */
     	public RandomIterator() {
-            if (size() > 0)
-            	order = RandomPermutation.nextPermutation(size(0));
+        	outIter = levels.values().iterator();
+        	if (outIter.hasNext()) {
+        		currentLevel = outIter.next();
+            	order = RandomPermutation.nextPermutation(currentLevel.size());
+        	}
     	}
 
         /**
@@ -178,27 +189,26 @@ public class NonRemovablePrioritizedTable<T extends Prioritizable> extends Prior
          * @return The next object of the prioritized table. 
          */
         public T next() {
-            // The end has been reached
-            if (levelIndex >= levels.size())
-            	throw new NoSuchElementException();
             // Next object of the current level
-            T obj = get(levelIndex, order[current++]);
+            T obj = currentLevel.get(order[current++]);
             // The level has been finished
             if (current == order.length) {
-                levelIndex++;
-                if (levelIndex < levels.size()) {
-                	// Computes the next permutation
-                    order = RandomPermutation.nextPermutation(size(levelIndex));
-                    current = 0;
-                }
+				if (outIter.hasNext()) {
+					currentLevel = outIter.next();
+	            	order = RandomPermutation.nextPermutation(currentLevel.size());
+	            	current = 0;
+				}
+				else
+					currentLevel = null;
             }
             return obj;
         }
 
     	public boolean hasNext() {
-            if (levelIndex >= levels.size())
-                return false;
-    		return true;
+            if (currentLevel != null)
+            	if (current < order.length)
+            		return true;
+    		return false;
     	}
 
     	public void remove() {

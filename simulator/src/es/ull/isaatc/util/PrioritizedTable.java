@@ -47,24 +47,6 @@ public abstract class PrioritizedTable<T extends Prioritizable> {
 	}
 	
 	/**
-	 * Returns the index of the last object chosen in the specified level.
-	 * @param levelIndex The index of the level
-	 * @return The index of the last object chosen in the specified level.
-	 */
-	protected int getCandidate(int levelIndex) {
-		return levels.get(levelIndex).getCandidate();
-	}
-	
-	/**
-	 * Returns the next candidate object in the specified level. 
-	 * @param levelIndex The index of the level where the object is located.
-	 * @return The next object chosen in the specified level.
-	 */
-	protected T get(int levelIndex) {
-		return levels.get(levelIndex).get();		
-	}
-    
-	/**
 	 * Returns the specified object in the specified level. 
 	 * @param levelIndex The index of the level where the object is located.
 	 * @param objIndex The index of the object
