@@ -1,6 +1,8 @@
 package es.ull.isaatc.test;
 //import java.io.OutputStreamWriter;
 
+import java.util.EnumSet;
+
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
@@ -72,7 +74,7 @@ class StateSimulation extends StandAloneLPSimulation {
 				break;
 			case 2:
 				ResourceType rt = new ResourceType(0, this, "RT0");
-				Activity a = new Activity(0, this, "Non presential 0", false);
+				Activity a = new Activity(0, this, "Non presential 0", EnumSet.of(Activity.Modifier.NONPRESENTIAL));
 				int wgId = a.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", DURACT));
 				a.addWorkGroupEntry(wgId, rt, 1); 
 				ElementType et = new ElementType(0, this, "ELEMT0");
@@ -84,8 +86,8 @@ class StateSimulation extends StandAloneLPSimulation {
 				ResourceType rt1 = new ResourceType(1, this, "RT1");
 				WorkGroup wg = new WorkGroup(0, this, "");
 				wg.add(rt1, 1);
-				new Activity(0, this, "Non presential 0", false).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", DURACT), wg); 
-				new Activity(1, this, "Non presential 1", false).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", DURACT), wg); 
+				new Activity(0, this, "Non presential 0", EnumSet.of(Activity.Modifier.NONPRESENTIAL)).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", DURACT), wg); 
+				new Activity(1, this, "Non presential 1", EnumSet.of(Activity.Modifier.NONPRESENTIAL)).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", DURACT), wg); 
 				ElementType et1 = new ElementType(1, this, "ELEMT1");
 				for (int i = 0; i < NRES; i++)
 					new Resource(i, this, "RES" + i).addTimeTableEntry(cPeriod, DURRES, rt1);

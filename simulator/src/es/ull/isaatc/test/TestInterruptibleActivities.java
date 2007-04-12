@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.test;
 
+import java.util.EnumSet;
+
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
@@ -17,8 +19,8 @@ class InterruptibleActivitiesSimulation extends StandAloneLPSimulation {
 	static final int NRES = 1;
 	public InterruptibleActivitiesSimulation() {
 		super("Testing interruptible activities");
-//		addListener(new StdInfoListener());
-		setOutput(new Output(true));
+		addListener(new StdInfoListener());
+//		setOutput(new Output(true));
 	}
 
 	@Override
@@ -27,7 +29,7 @@ class InterruptibleActivitiesSimulation extends StandAloneLPSimulation {
 		WorkGroup wg = new WorkGroup(0, this, "WG");
 		wg.add(rt, 1);
 		for (int i = 0; i < NACT; i++)
-			new Activity(i, this, "ACT" + i, i / 2, true, true).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 101), 0, wg);
+			new Activity(i, this, "ACT" + i, i / 2, EnumSet.of(Activity.Modifier.INTERRUPTIBLE)).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 101), 0, wg);
 		PeriodicCycle c1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 200.0), 0);
 		PeriodicCycle c2 = new PeriodicCycle(20.0, TimeFunctionFactory.getInstance("ConstantVariate", 100.0), 0);
 		for (int i = 0; i < NRES; i++)

@@ -25,6 +25,8 @@ public class SingleFlowState extends FlowState {
 	protected int executionWG;
 	/** The simulation timestamp when this single flow was requested. */
 	protected double arrivalTs;
+	/** The time required for finishing this single flow (interruptible activities) */ 
+	protected double timeLeft;
 	/** If the activity is currently being performed, the resources caught to perform it */
 	protected ArrayList<Integer> caughtResources = null;
 	
@@ -34,12 +36,13 @@ public class SingleFlowState extends FlowState {
 	 * @param actId The activity which this flow wraps
 	 * @param finished If true this activity has been already performed
 	 */
-	public SingleFlowState(int flowId, int actId, boolean finished, int executionWG, double arrivalTs) {
+	public SingleFlowState(int flowId, int actId, boolean finished, int executionWG, double arrivalTs, double timeLeft) {
 		this.flowId = flowId;
 		this.actId = actId;
 		this.finished = finished;
 		this.executionWG = executionWG;
 		this.arrivalTs = arrivalTs;
+		this.timeLeft = timeLeft;		
 		caughtResources = new ArrayList<Integer>();
 	}
 
@@ -81,6 +84,13 @@ public class SingleFlowState extends FlowState {
 	}
 
 	/**
+	 * @return the timeLeft
+	 */
+	public double getTimeLeft() {
+		return timeLeft;
+	}
+
+	/**
 	 * Adds a resource to the list of caught resources
 	 * @param resId The identifier of a new resource
 	 */
@@ -105,6 +115,8 @@ public class SingleFlowState extends FlowState {
 			str.append("\r\n");
 		if (!Double.isNaN(arrivalTs))
 			str.append("\tREQUESTED: " + arrivalTs + "\r\n");
+		if (!Double.isNaN(timeLeft))
+			str.append("\tTIME LEFT: " + timeLeft + "\r\n");
 		if (executionWG != -1) {
 			str.append("WG: " + executionWG + "\r\n");
 			for (Integer rtId : caughtResources)

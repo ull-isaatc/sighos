@@ -39,6 +39,10 @@ public class StdInfoListener implements SimulationListener {
 					msg = "REQUESTS ACTIVITY"; break;
 				case ENDACT:
 					msg = "ENDS ACTIVITY"; break;
+				case RESACT:
+					msg = "RESUMES ACTIVITY"; break;
+				case INTACT:
+					msg = "INTERRUPTS ACTIVITY"; break;
 			};
 			System.out.println("[" + eInfo.getIdentifier() + "]\t" + eInfo.getTs() + "\t" 
 					+ msg + "\t" + eInfo.getValue());			

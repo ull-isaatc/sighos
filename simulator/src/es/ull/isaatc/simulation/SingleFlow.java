@@ -12,6 +12,7 @@ import java.util.concurrent.Semaphore;
 import es.ull.isaatc.simulation.state.FlowState;
 import es.ull.isaatc.simulation.state.SingleFlowState;
 import es.ull.isaatc.util.Prioritizable;
+import es.ull.isaatc.util.RandomPermutation;
 
 /**
  * A single-activity flow. This flow represents a leaf node in the flow tree.<p>
@@ -81,11 +82,45 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
     }
     
     /**
-     * This flow is marked as "finished". 
+     * Finishes this flow by releasing the resources used in the activity, resetting
+     * the <code>currentSF</code> of the element (if the activity is presential), and
+     * marking the flow as <code>finished</code>. 
      * The parent flow is finished too.
      * @return An empty list of single flows.
      */
     protected ArrayList<SingleFlow> finish() {
+		// Beginning MUTEX access to activity manager
+		act.getManager().waitSemaphore();
+
+		ArrayList<ActivityManager> amList = releaseCaughtResources();
+		if (!act.isNonPresential())
+			elem.setCurrentSF(null);
+
+		// Ending MUTEX access to activity manager
+		act.getManager().signalSemaphore();
+
+		// FIXME: ¿Debería sacarse esto de aquí?
+		int[] order = RandomPermutation.nextPermutation(amList.size());
+		for (int ind : order) {
+			ActivityManager am = amList.get(ind);
+			am.waitSemaphore();
+			am.availableResource();
+			am.signalSemaphore();
+		}
+
+		ArrayList<SingleFlow> sfList = null;
+		// FIXME: CUIDADO CON ESTO!!! Comparando con 0.0
+		if (timeLeft == 0.0) {
+	    	sfList = new ArrayList<SingleFlow>();
+	        finished = true;
+	        if (parent != null)
+	            sfList.addAll(parent.finish());
+		}
+        return sfList;
+    }
+    	
+    protected ArrayList<SingleFlow> finish2() {
+    	
     	ArrayList<SingleFlow> sfList = new ArrayList<SingleFlow>();
         finished = true;
         if (parent != null)
@@ -105,10 +140,10 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
     
     /**
      * A single flow is presential if the activity it wraps is presential. 
-     * @return True if the wrapped activity is presential; False in other case.
+     * @return False if the wrapped activity is presential; True in other case.
      */
-    protected boolean isPresential() {
-        return act.isPresential();
+    protected boolean isNonPresential() {
+        return act.isNonPresential();
     }
     
     /**
@@ -118,10 +153,10 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
      */    
     public int[] countActivities() {
         int [] cont = new int[2];
-        if (act.isPresential())
-            cont[0]++;
-        else
+        if (act.isNonPresential())
             cont[1]++;
+        else
+            cont[0]++;
         return cont;
     }
 
@@ -345,9 +380,9 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 	public FlowState getState() {
 		SingleFlowState state = null;
 		if (executionWG != null)
-			state = new SingleFlowState(id, act.getIdentifier(), finished, executionWG.getIdentifier(), arrivalTs);
+			state = new SingleFlowState(id, act.getIdentifier(), finished, executionWG.getIdentifier(), arrivalTs, timeLeft);
 		else
-			state = new SingleFlowState(id, act.getIdentifier(), finished, -1, arrivalTs);
+			state = new SingleFlowState(id, act.getIdentifier(), finished, -1, arrivalTs, timeLeft);
 		for(Resource r : caughtResources)
 			state.add(r.getIdentifier());
 		return state;
@@ -365,6 +400,7 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 		finished = sfState.isFinished();
 		id = sfState.getFlowId();
 		arrivalTs = sfState.getArrivalTs();
+		timeLeft = sfState.getTimeLeft();
 		if (sfState.getExecutionWG() != -1) {
 			executionWG = act.getWorkGroup(sfState.getExecutionWG());
 			for (Integer rId : sfState.getCaughtResources())

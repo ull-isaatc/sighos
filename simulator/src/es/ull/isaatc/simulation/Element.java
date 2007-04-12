@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import es.ull.isaatc.simulation.info.ElementInfo;
 import es.ull.isaatc.simulation.state.*;
-import es.ull.isaatc.util.*;
 
 /**
  * Represents elements that make use of activitiy flows in order to carry out
@@ -30,7 +29,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	 * Amount of pending presential activities (pending[0]) and non-presential
 	 * ones (pending[1])
 	 */
-	protected int[] pending;
+	protected int[] pending = new int[2];
 
 	/** Presential single flow which the element is currently carrying out */
 	protected SingleFlow currentSF = null;
@@ -144,10 +143,10 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	 *            Single flow added to the requested list.
 	 */
 	protected synchronized void incRequested(SingleFlow f) {
-		if (f.isPresential())
-			requested[0].add(f);
-		else
+		if (f.isNonPresential())
 			requested[1].add(f);
+		else
+			requested[0].add(f);
 	}
 
 	/**
@@ -159,12 +158,12 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	 *            Single flow removed from the requested list.
 	 */
 	protected synchronized void decRequested(SingleFlow f) {
-		if (f.isPresential()) {
-			requested[0].remove(f);
-			pending[0]--;
-		} else {
+		if (f.isNonPresential()) {
 			requested[1].remove(f);
 			pending[1]--;
+		} else {
+			requested[0].remove(f);
+			pending[0]--;
 		}
 		if ((pending[1] + pending[0]) == 0)
 			notifyEnd();
@@ -178,15 +177,19 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	 *            Single flow requested.
 	 */
 	protected void carryOutActivity(SingleFlow sf) {
-		LogicalProcess lp = sf.getActivity().getManager().getLp();
-		setTs(lp.getTs());
 		double finishTs = sf.getExecutionWG().catchResources(sf);
-		simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.STAACT,
-				ts, sf.getActivity().getIdentifier()));
-		debug("Starts\t" + sf.getActivity() + "\t" + sf.getActivity().getDescription());
 		// The first time the activity is carried out (useful only for interruptible activities)
-		if (Double.isNaN(sf.getTimeLeft()))
+		if (Double.isNaN(sf.getTimeLeft())) {
 			sf.setTimeLeft(sf.getExecutionWG().getDuration());
+			simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.STAACT,
+					ts, sf.getActivity().getIdentifier()));
+			debug("Starts\t" + sf.getActivity() + "\t" + sf.getActivity().getDescription());			
+		}
+		else {
+			simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.RESACT,
+					ts, sf.getActivity().getIdentifier()));
+			debug("Continues\t" + sf.getActivity() + "\t" + sf.getActivity().getDescription());						
+		}
 		if (sf.getActivity().isInterruptible())
 			finishTs = Math.min(finishTs, ts + sf.getTimeLeft());
 		else
@@ -290,10 +293,9 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
     		debug("MUTEX\tadquired\t" + act + " (req. act.)");    	
 			// If the element is not performing a presential activity yet or the
 			// activity to be requested is non presential
-			if ((currentSF == null) || (!act.isPresential())) {
+			if ((currentSF == null) || act.isNonPresential()) {
 				if (act.isFeasible(flow)) { // There are enough resources to perform the
 									// activity
-					debug("Can carry out\t" + act + "\t" + flow.getExecutionWG().getIdentifier());
 					carryOutActivity(flow);
 					if (flow.getTimeLeft() > 0.0)
 						act.queueAdd(flow); // The element is introduced in the queue
@@ -340,7 +342,6 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 			// If the element is not performing a presential activity yet
 			if (currentSF == null) {
 				if (act.isFeasible(flow)) {
-					debug("Can carry out\t" + act + "\t" + flow.getExecutionWG().getIdentifier());
 					carryOutActivity(flow);
 					if (flow.getTimeLeft() == 0.0)
 						act.queueRemove(flow);
@@ -369,42 +370,22 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 		}
 
 		public void event() {
-			if (flow.getTimeLeft() == 0.0) {
+			ArrayList<SingleFlow> sfList = flow.finish();
+			if (flow.isFinished()) {
 				simul.notifyListeners(new ElementInfo(Element.this,
-						ElementInfo.Type.ENDACT, ts, flow.getActivity()
-								.getIdentifier()));
+						ElementInfo.Type.ENDACT, ts, flow.getActivity().getIdentifier()));
 				if (isDebugEnabled())
 					debug("Finishes\t" + flow.getActivity() + "\t" + flow.getActivity().getDescription());
-			}
-			else {
-				if (isDebugEnabled())
-					debug("Finishes part of \t" + flow.getActivity() + "\t" + flow.getActivity().getDescription() + "\t" + flow.getTimeLeft());				
-			}
-
-			// Beginning MUTEX access to activity manager
-			flow.getActivity().getManager().waitSemaphore();
-
-			ArrayList<ActivityManager> amList = flow.releaseCaughtResources();
-			if (flow.isPresential())
-				currentSF = null;
-
-			// Ending MUTEX access to activity manager
-			flow.getActivity().getManager().signalSemaphore();
-
-			int[] order = RandomPermutation.nextPermutation(amList.size());
-			for (int ind : order) {
-				ActivityManager am = amList.get(ind);
-				am.waitSemaphore();
-				am.availableResource();
-				am.signalSemaphore();
-			}
-
-			// FIXME: CUIDADO CON ESTO!!! Comparando con 0.0
-			if (flow.getTimeLeft() == 0.0) {
-				ArrayList<SingleFlow> sfList = flow.finish();
+				// Requests the following activities of the element's flow
 				for (SingleFlow sf : sfList)
 					addEvent(new RequestActivityEvent(ts, sf));
 				decRequested(flow);
+			}
+			else {
+				simul.notifyListeners(new ElementInfo(Element.this,
+						ElementInfo.Type.INTACT, ts, flow.getActivity().getIdentifier()));
+				if (isDebugEnabled())
+					debug("Finishes part of \t" + flow.getActivity() + "\t" + flow.getActivity().getDescription() + "\t" + flow.getTimeLeft());				
 			}
 			// Checks if there are pending activities that haven't noticed the
 			// element availability

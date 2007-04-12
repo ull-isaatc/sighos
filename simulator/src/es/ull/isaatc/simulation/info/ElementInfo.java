@@ -18,6 +18,8 @@ import es.ull.isaatc.simulation.Element;
  * <tr><td>REQACT</td><td>The element requests an activity</td><td>Activity's identifier</td></tr>
  * <tr><td>STAACT</td><td>The element starts an activity</td><td>Activity's identifier</td></tr>
  * <tr><td>ENDACT</td><td>The element finishes an activity</td><td>Activity's identifier</td></tr>
+ * <tr><td>RESACT</td><td>The element resumes an interrupted activity</td><td>Activity's identifier</td></tr>
+ * <tr><td>INTACT</td><td>The element interrupts an activity</td><td>Activity's identifier</td></tr>
  * </tbody>
  * </table>
  * @author Iván Castilla Rodríguez
@@ -26,7 +28,7 @@ import es.ull.isaatc.simulation.Element;
 public class ElementInfo extends SimulationObjectInfo {
 	private static final long serialVersionUID = -7978808739456928849L;
 	/** Possible types of element information */
-	public enum Type {START, FINISH, REQACT, STAACT, ENDACT};
+	public enum Type {START, FINISH, REQACT, STAACT, ENDACT, RESACT, INTACT};
 	/** Type of this element information */
 	private Type type;
 	/** Value related to this piece of information */ 

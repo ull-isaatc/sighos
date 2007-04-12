@@ -12,21 +12,32 @@ import es.ull.isaatc.util.*;
  * A task which could be carry out by an element. An activity is characterized by its priority,
  * presentiality, and a set of workgropus. Each workgroup represents a combination of resource 
  * types required for carrying out the activity, and the duration of the activity when performed
- * with this workgroup. 
+ * with this workgroup.<p>
+ * A normal activity is presential, that is, an element carrying out this activity can't make 
+ * anything else; and ininterruptible, i.e., once started, the activity keeps its resources until
+ * it's finished, even if the resources become unavailable while the activity is being performed.
+ * This two characteristics are customizable by means of the <code>Modifier</code> enum type. An 
+ * activity can be <code>NONPRESENTIAL</code>, when the element can perform other activities while
+ * it's performing this one; and <code>INTERRUPTIBLE</code>, when the activity can be interrupted, 
+ * and later continued, if the resources become unavailable while the activity is being performed.
  * @author Carlos Martín Galán
  */
 public class Activity extends TimeStampedSimulationObject implements Prioritizable, RecoverableState<ActivityState>, Describable {
+	/** Indicates special characteristics of this activity */
+	public enum Modifier {
+	    /** Indicates that this activity is non presential, i.e., an element can perform other activities at
+	     * the same time */
+		NONPRESENTIAL,
+		/** Indicates that the activity can be interrupted in case the required resources end their
+		 * availability time */
+		INTERRUPTIBLE
+	}
+	/** The set of modifiers of this activity. */
+    protected EnumSet<Modifier> modifiers;
     /** Priority of the activity */
     protected int priority = 0;
     /** A brief description of the activity */
     protected String description;
-    /** Indicates if the activity is presential (an element carrying out this activity could
-     * not make anything else) or not presential (the element could perform other activities at
-     * the same time) */
-    protected boolean presential = true;
-    /** Indicates if the activity can be interrupted in case the required resources end their
-     * availability time. In case it's false, it keeps the resources even if they become not available. */
-    protected boolean interruptible = false;
     /** Total of single flows that are waiting for this activity */
     protected int queueSize = 0;
     /** Activity manager which this activity belongs to */
@@ -43,7 +54,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * @param description A short text describing this Activity.
      */
     public Activity(int id, Simulation simul, String description) {
-        this(id, simul, description, 0, true);
+        this(id, simul, description, 0, EnumSet.noneOf(Modifier.class));
     }
 
     /**
@@ -54,7 +65,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * @param priority Activity's priority.
      */
     public Activity(int id, Simulation simul, String description, int priority) {
-        this(id, simul, description, priority, true);
+        this(id, simul, description, priority, EnumSet.noneOf(Modifier.class));
     }
     
     /**
@@ -62,27 +73,10 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * @param id Activity's identifier.
      * @param simul Simulation which this activity is attached to.
      * @param description A short text describing this Activity.
-     * @param presential Indicates if the activity requires the presence of an element to be carried out. 
+     * @param modifiers Indicates if the activity has special characteristics. 
      */
-    public Activity(int id, Simulation simul, String description, boolean presential) {
-        this(id, simul, description, 0, presential);
-    }
-    
-    /**
-     * Creates a new activity.
-     * @param id Activity's identifier.
-     * @param simul Simulation which this activity is attached to.
-     * @param description A short text describing this Activity.
-     * @param priority Activity's priority.
-     * @param presential Indicates if the activity requires the presence of an element to be carried out. 
-     */
-    public Activity(int id, Simulation simul, String description, int priority, boolean presential) {
-        super(id, simul);
-        this.description = description;
-        this.priority = priority;
-        this.presential = presential;
-        workGroupTable = new NonRemovablePrioritizedTable<WorkGroup>();
-        simul.add(this);
+    public Activity(int id, Simulation simul, String description, EnumSet<Modifier> modifiers) {
+        this(id, simul, description, 0, modifiers);
     }
 
     /**
@@ -91,14 +85,13 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * @param simul Simulation which this activity is attached to.
      * @param description A short text describing this Activity.
      * @param priority Activity's priority.
-     * @param presential Indicates if the activity requires the presence of an element to be carried out. 
+     * @param modifiers Indicates if the activity has special characteristics. 
      */
-    public Activity(int id, Simulation simul, String description, int priority, boolean presential, boolean interruptible) {
+    public Activity(int id, Simulation simul, String description, int priority, EnumSet<Modifier> modifiers) {
         super(id, simul);
+        this.modifiers = modifiers;
         this.description = description;
         this.priority = priority;
-        this.presential = presential;
-        this.interruptible = interruptible;
         workGroupTable = new NonRemovablePrioritizedTable<WorkGroup>();
         simul.add(this);
     }
@@ -107,8 +100,8 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * Indicates if the activity requires the presence of the element in order to be carried out. 
      * @return The "presenciality" of the activity.
      */
-    public boolean isPresential() {
-        return presential;
+    public boolean isNonPresential() {
+        return modifiers.contains(Modifier.NONPRESENTIAL);
     }
     
     /**
@@ -118,7 +111,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	 * if they become not available.
 	 */
 	public boolean isInterruptible() {
-		return interruptible;
+		return modifiers.contains(Modifier.INTERRUPTIBLE);
 	}
 
 	/**
@@ -258,8 +251,9 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
         	WorkGroup wg = iter.next();
             if (wg.isFeasible(sf)) {
                 sf.setExecutionWG(wg);
-                if (isPresential())
+                if (!isNonPresential())
                 	sf.getElement().setCurrentSF(sf);
+				debug("Can be carried out by\t" + sf.getElement().getIdentifier() + "\t" + wg);
                 return true;
             }            
         }

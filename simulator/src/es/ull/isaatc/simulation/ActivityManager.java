@@ -144,7 +144,7 @@ public class ActivityManager extends TimeStampedSimulationObject {
             
     		// The element's timestamp is updated. That's only useful to print messages
             e.setTs(getTs());
-            if ((e.getCurrentSF() == null) || !act.isPresential()) {
+            if ((e.getCurrentSF() == null) || act.isNonPresential()) {
             	if (act.isFeasible(sf)) {	// The activity can be performed
                     e.carryOutActivity(sf);
                     // If after carrying out the activity it'll be completely finished 
@@ -153,7 +153,6 @@ public class ActivityManager extends TimeStampedSimulationObject {
 	            		toRemove.add(sf);
 	            		uselessSF--;
                     }
-            		e.debug("Can carry out (available resource)\t" + act + "\t" + act.getDescription());
             	}
             	else	// The activity can't be performed with the current resources
                 	uselessSF += act.getQueueSize();
