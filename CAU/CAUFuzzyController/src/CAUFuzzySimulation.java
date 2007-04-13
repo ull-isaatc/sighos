@@ -1,7 +1,7 @@
 
+import es.ull.isaatc.simulation.XMLExperiment;
 import es.ull.isaatc.simulation.fuzzy.FuzzyExperiment;
 import es.ull.isaatc.simulation.fuzzy.XMLFuzzyModel;
-import es.ull.isaatc.simulation.xml.XMLExperiment;
 
 public class CAUFuzzySimulation {
 

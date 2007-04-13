@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import es.ull.isaatc.function.ConstantFunction;
 import es.ull.isaatc.simulation.ElementCreator;
-import es.ull.isaatc.simulation.xml.ModelCreator;
+import es.ull.isaatc.simulation.XMLSimulation;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.CycleIterator;
 
@@ -106,7 +106,7 @@ public class ProgrammedTaskList  {
 			return et;
 		}
 
-		public ElementCreator getElementCreator(ModelCreator simul) {
+		public ElementCreator getElementCreator(XMLSimulation simul) {
 			return new ElementCreator(new ConstantFunction(1), simul.getElementType(et), simul.getFlowList().get(mf));
 		}
 	}

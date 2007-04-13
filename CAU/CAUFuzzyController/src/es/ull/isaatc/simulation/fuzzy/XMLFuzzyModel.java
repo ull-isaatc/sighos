@@ -17,12 +17,12 @@ import javax.xml.validation.SchemaFactory;
 import org.xml.sax.SAXException;
 
 import es.ull.isaatc.simulation.fuzzy.xml.ProgrammedTasks;
-import es.ull.isaatc.simulation.xml.XMLModel;
+import es.ull.isaatc.simulation.xml.XMLWrapper;
 
 /**
  * @author Roberto Muñoz
  */
-public class XMLFuzzyModel extends XMLModel {
+public class XMLFuzzyModel extends XMLWrapper {
 
 	private ProgrammedTasks xmlProgTasks;
 

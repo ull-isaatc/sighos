@@ -9,6 +9,7 @@ import es.ull.isaatc.random.Uniform;
 import es.ull.isaatc.simulation.Generator;
 import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.XMLSimulation;
 import es.ull.isaatc.simulation.fuzzy.ProgrammedTaskList.ProgrammedTaskListEntry;
 import es.ull.isaatc.simulation.info.ActivityQueueListener;
 import es.ull.isaatc.simulation.info.CompassListener;
@@ -16,7 +17,6 @@ import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
-import es.ull.isaatc.simulation.xml.ModelCreator;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.CycleIterator;
 import es.ull.isaatc.util.TableCycle;
@@ -90,7 +90,7 @@ public class FuzzyControllerListener extends CompassListener {
 				taskCycleArray[i++] = value;
 			}
 			Cycle cycle = new TableCycle(taskCycleArray);
-			new TimeDrivenGenerator(gen.getSimul(), entry.getElementCreator((ModelCreator) gen.getSimul()), cycle.iterator(gen.getTs(), gen.getSimul().getEndTs())).start(gen.getDefLP());
+			new TimeDrivenGenerator(gen.getSimul(), entry.getElementCreator((XMLSimulation) gen.getSimul()), cycle);
 		}
 	}
 
