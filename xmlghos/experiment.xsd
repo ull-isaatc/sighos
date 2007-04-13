@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified">
+	<!--<xs:include schemaLocation="file:C:\Documents and Settings\Roberto Muñoz\Mis documentos\workspace\XMLGHOS_Scenario\model.xsd"/>-->
+	<xs:include schemaLocation="model.xsd" />
+	<xs:element name="Experiment">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element minOccurs="0" name="simulation"
+					type="xs:string" />
+				<xs:element name="debugMode" type="xs:boolean" />
+				<xs:element name="experiments" type="xs:int" />
+				<xs:element name="startTs">
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:double">
+								<xs:attribute name="timeUnit" type="CommonFreq"	use="optional" />
+							</xs:extension>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="endTs">
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:double">
+								<xs:attribute name="timeUnit" type="CommonFreq"	use="optional" />
+							</xs:extension>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element maxOccurs="unbounded" minOccurs="0"	name="simulationListener" type="ClassReference" />
+				<xs:element maxOccurs="unbounded" name="generator" type="Generator" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="Generator">
+		<xs:sequence>
+			<xs:element name="cycle" type="Cycle" />
+			<xs:element name="toGenerate" type="Generation" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Generation">
+		<xs:sequence>
+			<xs:element name="nElem" type="FunctionChoice" />
+			<xs:element name="probTree" type="ProbTree" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ProbTree">
+		<xs:sequence>
+			<xs:element default="1.0" name="prob" type="xs:double" />
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="subTree" type="ProbTree" />
+			<xs:element minOccurs="0" name="elementType" type="ComponentRef" />
+			<xs:element minOccurs="0" name="metaFlow" type="ComponentRef" />
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>
