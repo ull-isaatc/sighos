@@ -7,8 +7,6 @@ import java.util.TreeSet;
 import java.util.Comparator;
 import java.util.concurrent.Semaphore;
 
-import es.ull.isaatc.util.*;
-
 /**
  * Partition of activities. It serves as a mutual exclusion mechanism to access a set of activities
  * and a set of resource types. This mutual exclusion mechanism is never used implicitly by this object, 
@@ -21,7 +19,7 @@ public class ActivityManager extends TimeStampedSimulationObject {
     /** Static counter for assigning each new id */
 	private static int nextid = 0;
 	/** A prioritized table of activities */
-	protected NonRemovablePrioritizedTable<Activity> activityTable;
+	protected ArrayList<Activity> activityList;
     /** A list of resorce types */
     protected ArrayList<ResourceType> resourceTypeList;
     /** Semaphore for mutual exclusion control */
@@ -38,7 +36,7 @@ public class ActivityManager extends TimeStampedSimulationObject {
         super(nextid++, simul);
         sem = new Semaphore(1);
         resourceTypeList = new ArrayList<ResourceType>();
-        activityTable = new NonRemovablePrioritizedTable<Activity>();
+        activityList = new ArrayList<Activity>();
         sfQueue = new SingleFlowQueue();
         simul.add(this);
     }
@@ -66,7 +64,7 @@ public class ActivityManager extends TimeStampedSimulationObject {
      * @param a Activity added
      */
     protected void add(Activity a) {
-        activityTable.add(a);
+        activityList.add(a);
     }
     
     /**
@@ -126,9 +124,8 @@ public class ActivityManager extends TimeStampedSimulationObject {
      */
     protected void availableResource() {
     	// First marks all the activities as "potentially feasible"
-        Iterator<Activity> actIter = activityTable.iterator(NonRemovablePrioritizedTable.IteratorType.FIFO);
-        while (actIter.hasNext())
-        	actIter.next().resetFeasible();
+    	for (Activity act : activityList)
+        	act.resetFeasible();
         // A count of the useless single flows 
     	int uselessSF = 0;
     	// A postponed removal list
@@ -193,11 +190,8 @@ public class ActivityManager extends TimeStampedSimulationObject {
 	public String getDescription() {
         StringBuffer str = new StringBuffer();
         str.append("Activity Manager " + id + "\r\n(Activity[priority]):");
-        Iterator<Activity> iter = activityTable.iterator(NonRemovablePrioritizedTable.IteratorType.FIFO);
-        while (iter.hasNext()) {
-        	Activity a = iter.next();
+        for (Activity a : activityList)
             str.append("\t\"" + a + "\"[" + a.getPriority() + "]");
-        }
         str.append("\r\nResource Types: ");
         for (ResourceType rt : resourceTypeList)
             str.append("\t\"" + rt + "\"");
