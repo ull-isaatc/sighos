@@ -2,7 +2,61 @@
 package es.ull.isaatc.util;
 
 import java.util.ArrayList;
-import java.util.TreeMap;
+import java.util.Iterator;
+
+/**
+ * A level of the prioritized map. All the objects belonging to a level have
+ * the same priority. A level stores a value with the index of the next candidate 
+ * object.
+ * @author Iván Castilla Rodríguez
+ */
+class PrioritizedLevel<E> extends ArrayList<E> {
+	private static final long serialVersionUID = 1L;
+	/** Next object that can be chosen. */
+    protected int candidate;
+    
+    /**
+     * Creates a new level
+     */
+    PrioritizedLevel() {
+        super();
+        candidate = 0;
+    }
+
+    /**
+	 * Returns the next candidate object in the this level. This method also increases
+	 * the value of the <code>candidate</code> object. 
+	 * @return The next object chosen in the this level.
+     */
+    public E get() {
+        return get(candidate);
+    }
+
+    /**
+	 * Returns the object with the specified index in the this level. This method also increases
+	 * the value of the <code>candidate</code> object.
+	 * @param index Index of the objecdt to return   
+	 * @return The object in position <code>index</code> in the this level.
+     */
+    public E get(int index) {
+        E obj = super.get(index);
+        candidate = (index + 1) % size();
+        return obj;
+    }
+
+    public E remove(int index) {
+        E obj = super.remove(index);
+        candidate = (size() == 0)? 0: index % size();
+    	return obj;
+    }
+    
+    /**
+	 * @return Returns the index of next object that can be chosen.
+	 */
+	public int getCandidate() {
+		return candidate;
+	}
+}
 
 /**
  * An structure which contains a priority-ordered list. Objects with the same priority are
@@ -11,148 +65,155 @@ import java.util.TreeMap;
  * objects with the same priority. 
  * @author Iván Castilla Rodríguez
  */
-public abstract class PrioritizedTable<T extends Prioritizable> {
-    /** Array of priority levels. */
-    protected TreeMap<Integer, PrioritizedLevel> levels;
-    /** Number of objects which this table contains. This value is updated when an object
-     * is added or removed. */
-    protected int nObj;
+public class PrioritizedTable<E extends Prioritizable> extends PrioritizedMap<PrioritizedLevel<E>, E> {
     
     /**
      * Initializes the levels of the structure.  
      */
     public PrioritizedTable() {
-        levels = new TreeMap<Integer, PrioritizedLevel>();
+    	super();
     }
     
-	/**
-     * Inserts a new object in the table. The priority of the object determines its order.
-     * @param obj New object with a priority value.
-     */
-    public void add(T obj) {
-    	PrioritizedLevel pLevel = levels.get(obj.getPriority());
-    	if (pLevel == null) {
-            pLevel = new PrioritizedLevel(obj.getPriority());
-            levels.put(obj.getPriority(), pLevel);
-    	}    	
-        pLevel.add(obj);
+	@Override
+	public PrioritizedLevel<E> createLevel(Integer priority) {
+		return new PrioritizedLevel<E>();
 	}
+	
+	/**
+	 * Returns an iterator over this table which starts at a different component each time a level 
+	 * is reached.  
+	 * @return A balanced iterator over this table.
+	 */
+    public Iterator<E> balancedIterator() {
+    	return new BalancedIterator();
+    }
 
 	/**
-     * Total amount of objects that this table contains.
-     * @return Total amount of objects contained by this table.
-     */
-	public int size() {
-		return nObj;
-	}
-	
-	/**
-	 * Returns the specified object in the specified level. 
-	 * @param levelIndex The index of the level where the object is located.
-	 * @param objIndex The index of the object
-	 * @return The specified object in the specified level.
+	 * Returns an iterator over this table which goes through each level randomly.  
+	 * @return A random iterator over this table.
 	 */
-	protected T get(int levelIndex, int objIndex) {
-		return levels.get(levelIndex).get(objIndex);		
-	}
-    
-	/**
-	 * Returns the amount of objects contained in a specified level.
-	 * @param levelIndex The index of the level 
-	 * @return The amount of objects contained in a specified level.
-	 */
-	public int size(int levelIndex) {
-		return levels.get(levelIndex).size();
-	}
-	
-	public String toString() {
-		return levels.toString();
-	}
-	
+    public Iterator<E> randomIterator() {
+    	return new RandomIterator();
+    }
+
     /**
-     * A level of the prioritized table. All the objects belonging to a level have
-     * the same priority. A level stores a value with the index of the next candidate 
-     * object.
+     * An iterator that allows the programmer to traverse a prioritized table. The balance is
+     * provided by starting at a different component each time a level is reached. Thus, the first time
+     * the level #1 is reached, the 0th component is treated as the first component of the level; the
+     * second time, it is the 1st component, and so on.
      * @author Iván Castilla Rodríguez
      */
-    class PrioritizedLevel extends ArrayList<T> implements Comparable<PrioritizedLevel> {
-    	private static final long serialVersionUID = 1L;
-    	/** Next object that can be chosen. */
-        protected int candidate;
-        /** Priority of this level. */
-        protected int priority;
+    private class BalancedIterator implements Iterator<E> {
+        /** Main iterator level by level of the external estructure. */   
+        private Iterator<PrioritizedLevel<E>> outIter;
+        /** The current level being visited */
+        private PrioritizedLevel<E> currentLevel = null;
+        /** Number of objects of the level. This value is used for determining when the iterator has reached the end of the level. */    
+        private int nObjects;
         
         /**
-         * Creates a new level with priority <code>pri</code>
-         * @param pri Priority of this level.
+         * Creates an iterator for the prioritized table.
          */
-        PrioritizedLevel(int pri) {
-            super();
-            candidate = 0;
-            priority = pri;
-        }
-
-        public boolean add(T obj) {
-        	super.add(obj);
-        	nObj++;
-        	return true;
+        public BalancedIterator() {
+        	outIter = levels.values().iterator();
+        	if (outIter.hasNext()) {
+        		currentLevel = outIter.next();
+            	nObjects = currentLevel.size();
+        	}
         }
 
         /**
-		 * Returns the next candidate object in the this level. This method also increases
-		 * the value of the <code>candidate</code> object. 
-		 * @return The next object chosen in the this level.
+         * Returns the next object of the prioritized map. This method makes use of the previously chosen
+         * object of a level. Thus, every time this method starts a level, it's started at a different point.
+         * @return The next object of the prioritized table. 
          */
-        public T get() {
-            return get(candidate);
-        }
-
-        /**
-		 * Returns the object with the specified index in the this level. This method also increases
-		 * the value of the <code>candidate</code> object.
-		 * @param index Index of the objecdt to return   
-		 * @return The object in position <code>index</code> in the this level.
-         */
-        public T get(int index) {
-            T obj = super.get(index);
-            candidate = (index + 1) % size();
+        public E next() {
+            // Next object of the current level        
+            E obj = currentLevel.get();
+            nObjects--;
+            // The level has been finished
+            if (nObjects == 0) {
+            	// Next time this method will start this level at the next object 
+            	currentLevel.get();
+            	if (outIter.hasNext()) {
+            		currentLevel = outIter.next();
+                	nObjects = currentLevel.size();
+            	}
+            }
             return obj;
         }
 
-        public T remove(int index) {
-            T obj = super.remove(index);
-            candidate = (size() == 0)? 0: index % size();
-            nObj--;
-        	return obj;
-        }
-        
-        /**
-         * Removes the object obj from the level
-         * @param obj Object to be removed
-         * @return True if the object exists in the level; false in other case.
-         */
-        public boolean remove(T obj) {
-        	int ind = super.indexOf(obj);
-        	if (ind == -1)
-        		return false;
-        	remove(ind);
-        	return true;
-        }
-        
-        /**
-		 * @return Returns the index of next object that can be chosen.
-		 */
-		public int getCandidate() {
-			return candidate;
-		}
+    	public boolean hasNext() {
+            if (currentLevel != null)
+            	if (nObjects == 0)
+            		return true;
+    		return false;
+    	}
 
-		public int compareTo(PrioritizedLevel o) {
-			if (priority < o.priority)
-				return -1;
-			if (priority > o.priority)
-				return 1;
-			return 0;
-		}        
+    	public void remove() {
+    		throw new UnsupportedOperationException("Not implemented");
+    	}
     }
+    
+    /**
+     * An iterator for pools that allows the programmer to randomly traverse the prioritized map.  
+     * A <code>RandomIterator</code> starts at level 0 (the highest priority) and returns a new 
+     * object of this level each time <code>next</code> is called in a random way. The order the 
+     * objects of a level are returned is determined by a random permutation. 
+     * When the iterator reaches the end of the level, it starts the next level. 
+     * @author Iván Castilla Rodríguez
+     */
+    private class RandomIterator implements Iterator<E> {
+        /** Main iterator level by level of the external estructure. */   
+        private Iterator<PrioritizedLevel<E>> outIter;
+        /** The current level being visited */
+        private PrioritizedLevel<E> currentLevel = null;
+        /** Visit order for this level. */
+        private int []order;
+        /** Current object. */
+        private int current = 0;
 
+        /**
+         * Creates a random iterator for the prioritized table.
+         */
+    	public RandomIterator() {
+        	outIter = levels.values().iterator();
+        	if (outIter.hasNext()) {
+        		currentLevel = outIter.next();
+            	order = RandomPermutation.nextPermutation(currentLevel.size());
+        	}
+    	}
+
+        /**
+         * Returns the next object of the prioritized map. This method may be called repeatedly to iterate 
+         * through the prioritized map.
+         * @return The next object of the prioritized map. 
+         */
+        public E next() {
+            // Next object of the current level
+            E obj = currentLevel.get(order[current++]);
+            // The level has been finished
+            if (current == order.length) {
+				if (outIter.hasNext()) {
+					currentLevel = outIter.next();
+	            	order = RandomPermutation.nextPermutation(currentLevel.size());
+	            	current = 0;
+				}
+				else
+					currentLevel = null;
+            }
+            return obj;
+        }
+
+    	public boolean hasNext() {
+            if (currentLevel != null)
+            	if (current < order.length)
+            		return true;
+    		return false;
+    	}
+
+    	public void remove() {
+    		throw new UnsupportedOperationException("Not implemented");
+    	}
+    }
 }

@@ -43,7 +43,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
     /** Activity manager which this activity belongs to */
     protected ActivityManager manager = null;
     /** Work Group Pool */
-    protected NonRemovablePrioritizedTable<WorkGroup> workGroupTable;
+    protected PrioritizedTable<WorkGroup> workGroupTable;
     /** Indicates that the activity is potentially feasible. */
     protected boolean stillFeasible = true;
 
@@ -92,7 +92,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
         this.modifiers = modifiers;
         this.description = description;
         this.priority = priority;
-        workGroupTable = new NonRemovablePrioritizedTable<WorkGroup>();
+        workGroupTable = new PrioritizedTable<WorkGroup>();
         simul.add(this);
     }
 
@@ -201,7 +201,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * @return An iterator over the workgroups that can perform this activity.
      */
     public Iterator<WorkGroup> iterator() {
-    	return workGroupTable.iterator(NonRemovablePrioritizedTable.IteratorType.FIFO);
+    	return workGroupTable.iterator();
     }
 
     /**
@@ -210,7 +210,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * @return A workgroup contained in this activity with the specified id
      */
     protected WorkGroup getWorkGroup(int wgId) {
-        Iterator<WorkGroup> iter = workGroupTable.iterator(NonRemovablePrioritizedTable.IteratorType.FIFO);
+        Iterator<WorkGroup> iter = workGroupTable.iterator();
         while (iter.hasNext()) {
         	WorkGroup opc = iter.next();
         	if (opc.getIdentifier() == wgId)
@@ -246,7 +246,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
     protected boolean isFeasible(SingleFlow sf) {
     	if (!stillFeasible)
     		return false;
-        Iterator<WorkGroup> iter = workGroupTable.iterator(NonRemovablePrioritizedTable.IteratorType.RANDOM);
+        Iterator<WorkGroup> iter = workGroupTable.randomIterator();
         while (iter.hasNext()) {
         	WorkGroup wg = iter.next();
             if (wg.isFeasible(sf)) {

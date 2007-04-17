@@ -2,10 +2,11 @@ package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Comparator;
 import java.util.concurrent.Semaphore;
+
+import es.ull.isaatc.util.PrioritizedMap;
 
 /**
  * Partition of activities. It serves as a mutual exclusion mechanism to access a set of activities
@@ -208,12 +209,7 @@ public class ActivityManager extends TimeStampedSimulationObject {
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	protected class SingleFlowQueue {		
-		private static final long serialVersionUID = 1L;
-		/** The inner structure of the queue */ 
-		private TreeMap<Integer, TreeSet<SingleFlow>> table;
-		/** Queue size */
-		private int nObj = 0;
+	protected class SingleFlowQueue extends PrioritizedMap<TreeSet<SingleFlow>, SingleFlow>{		
 		/** A counter for the arrival order of the single flows */
 		private int arrivalOrder = 0;
 		/** A comparator to properly order the single flows. */
@@ -235,7 +231,7 @@ public class ActivityManager extends TimeStampedSimulationObject {
 		 * Creates a new queue.
 		 */
 		public SingleFlowQueue() {
-			table = new TreeMap<Integer, TreeSet<SingleFlow>>();
+			super();
 		}
 
 		/**
@@ -244,83 +240,19 @@ public class ActivityManager extends TimeStampedSimulationObject {
 		 * @param sf The single flow to be added.
 		 */
 		public void add(SingleFlow sf) {
-			TreeSet<SingleFlow> level = table.get(sf.getPriority());
-			if (level == null) {
-				level = new TreeSet<SingleFlow>(comp);
-				table.put(sf.getPriority(), level);
-			}
 			// The arrival order and timestamp are only assigned if the single flow 
 			// has never been added to the queue (interruptible activities)
 			if (Double.isNaN(sf.getArrivalTs())) {
 				sf.setArrivalOrder(arrivalOrder++);
 				sf.setArrivalTs(getTs());
 			}
-			level.add(sf);
-			nObj++;
-		}
-		
-		/**
-		 * Removes a single flow from the queue.
-		 * @param sf the single flow to be removed.
-		 */
-		public void remove(SingleFlow sf) {
-			TreeSet<SingleFlow> level = table.get(sf.getPriority());
-			level.remove(sf);
-			if (level.isEmpty())
-				table.remove(sf.getPriority());
-			nObj--;
+			super.add(sf);
 		}
 
-		/**
-		 * Returns an iterator over the 
-		 * @return
-		 */
-		public Iterator<SingleFlow> iterator() {
-			return new SingleFlowQueueIterator();
+		@Override
+		public TreeSet<SingleFlow> createLevel(Integer priority) {
+			return new TreeSet<SingleFlow>(comp);
 		}
 		
-		public int size() {
-			return nObj;
-		}
-		
-		public String toString() {
-			return table.toString();
-		}
-		
-		public class SingleFlowQueueIterator implements Iterator<SingleFlow> {
-			Iterator<SingleFlow> inIter = null;
-			Iterator<TreeSet<SingleFlow>> outIter;
-			
-			public SingleFlowQueueIterator() {
-				super();
-				outIter = table.values().iterator();
-				if (outIter.hasNext()) {
-					inIter = outIter.next().iterator();
-				}
-			}
-
-			public boolean hasNext() {
-				if (inIter != null)
-					if (inIter.hasNext())
-						return true;
-				return false;
-			}
-
-			public SingleFlow next() {
-				SingleFlow lastSF = inIter.next();
-				if (!inIter.hasNext()) {
-					if (outIter.hasNext())
-						inIter = outIter.next().iterator();
-					else
-						inIter = null;
-				}
-				return lastSF;
-			}
-
-			public void remove() {
-				throw new UnsupportedOperationException("Can't remove a single flow from the queue");
-			}
-			
-		}
 	}
 }
