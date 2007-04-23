@@ -180,7 +180,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
          * @return A character string "E[#]".
          */
         public String toString() {
-            return "Ev(" + getClass().getName() + ")" + BasicElement.this.toString();
+            return "Ev(" + getClass().getName() + ")[" + ts + "]" + BasicElement.this.toString();
         }
         
         /**

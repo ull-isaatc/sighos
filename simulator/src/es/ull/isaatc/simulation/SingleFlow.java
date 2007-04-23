@@ -110,7 +110,9 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 
 		ArrayList<SingleFlow> sfList = null;
 		// FIXME: CUIDADO CON ESTO!!! Comparando con 0.0
-		if (timeLeft == 0.0) {
+		if (timeLeft <= 0.0) {
+			if (timeLeft < 0.0)
+				elem.error("UNEXPECTED: The activity's duration is greater than expected. TimeLeft = " + timeLeft);
 	    	sfList = new ArrayList<SingleFlow>();
 	        finished = true;
 	        if (parent != null)

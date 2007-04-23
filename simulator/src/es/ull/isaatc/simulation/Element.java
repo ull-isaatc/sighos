@@ -191,7 +191,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	 *            Single flow requested.
 	 */
 	protected void carryOutActivity(SingleFlow sf) {
-		double finishTs = sf.getExecutionWG().catchResources(sf);
+		double auxTs = sf.getExecutionWG().catchResources(sf);
 		// The first time the activity is carried out (useful only for interruptible activities)
 		if (Double.isNaN(sf.getTimeLeft())) {
 			sf.setTimeLeft(sf.getExecutionWG().getDuration());
@@ -204,13 +204,15 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 					ts, sf.getActivity().getIdentifier()));
 			debug("Continues\t" + sf.getActivity() + "\t" + sf.getActivity().getDescription());						
 		}
-		if (sf.getActivity().isInterruptible())
-			finishTs = Math.min(finishTs, ts + sf.getTimeLeft());
-		else
-			finishTs = ts + sf.getTimeLeft();
+		double finishTs = ts + sf.getTimeLeft();
+		if (sf.getActivity().isInterruptible() && (finishTs - auxTs > 0.0))
+			sf.setTimeLeft(finishTs - auxTs);				
+		else {
+			auxTs = finishTs;
+			sf.setTimeLeft(0.0);
+		}
 		// The required time for finishing the activity is reduced (useful only for interruptible activities)
-		sf.setTimeLeft(sf.getTimeLeft() - (finishTs - ts));
-		addEvent(new FinalizeActivityEvent(finishTs , sf));
+		addEvent(new FinalizeActivityEvent(auxTs , sf));
 	}
 
 	/**
@@ -344,7 +346,12 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 		public SingleFlow getFlow() {
 			return sf;
 		}
-	}
+		
+        public String toString() {
+            return super.toString() + sf.getActivity();
+        }
+        
+}
 
 	/**
 	 * Returns the state of this element. The state of an element consists on
