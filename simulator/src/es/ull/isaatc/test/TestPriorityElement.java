@@ -11,10 +11,10 @@ import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
 
 class PriorityElementSimulation extends StandAloneLPSimulation {
-	static final int NACT = 2;
-	static final int NELEMT = 3;
-	static final int NELEM = 3;
-	static final int NRES = 18;
+	static final int NACT = 40;
+	static final int NELEMT = 4;
+	static final int NELEM = 100;
+	static final int NRES = 20;
 	public PriorityElementSimulation() {
 		super("Testing Elements with priority");
 		addListener(new StdInfoListener());

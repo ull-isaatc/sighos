@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import es.ull.isaatc.simulation.info.ResourceInfo;
 import es.ull.isaatc.simulation.info.ResourceUsageInfo;
@@ -17,7 +18,7 @@ import es.ull.isaatc.util.CycleIterator;
  * becomes unavailable at other simulation time. The availability of a resource is controlled
  * by means of timetable entries, which define a resource type and an availability cycle.
  * A resource finishes its execution when it has no longer valid timetable entries.
- * @author Carlos Martín Galán
+ * @author Carlos Martn Galn
  */
 public class Resource extends BasicElement implements RecoverableState<ResourceState>, Describable {
 	/** Timetable which defines the availability estructure of the resource */
@@ -29,7 +30,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     /** List of currently active roles and the timestamp which marks the end of their availibity time. */
     protected TreeMap<ResourceType, Double> currentRoles;
     /** A counter of the valid timetable entries which this resource is following. */
-    private int validTTEs = 0;
+    private AtomicInteger validTTEs = new AtomicInteger();
     /** The resource type which this resource is being booked for */
     protected ResourceType currentResourceType = null;
     /** Single Flow which currently has got this resource */
@@ -62,10 +63,10 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	        if (!Double.isNaN(nextTs)) {
 	            RoleOnEvent rEvent = new RoleOnEvent(nextTs, tte.getRole(), iter, tte.getDuration());
 	            addEvent(rEvent);
-	            validTTEs++;
+	            validTTEs.incrementAndGet();
 	        }
 		}
-		if (validTTEs == 0)// at least one tte should be valid
+		if (validTTEs.get() == 0)// at least one tte should be valid
 			notifyEnd();
 	}
 
@@ -210,7 +211,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		debug("MUTEX\trequesting\t" + sf.getElement() + "(catch res.)");    	
 		waitSemaphore();
 		debug("MUTEX\tadquired\t" + sf.getElement() + "(catch res.)");    	
-		// FIXME: Es esto o debería cogerlo del LP?
+		// FIXME: Es esto o debera cogerlo del LP?
 		setTs(sf.getElement().getTs());
         simul.notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.CAUGHT, ts, sf.getElement().getIdentifier(), rt.getIdentifier()));
 		currentSF = sf;
@@ -233,7 +234,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		debug("MUTEX\trequesting\t" + currentSF.getElement() + "(rel. res.)");    	
 		waitSemaphore();
 		debug("MUTEX\tadquired\t" + currentSF.getElement() + "(rel. res.)");    	
-		// FIXME: Es esto o debería cogerlo del LP?
+		// FIXME: Es esto o debera cogerlo del LP?
 		setTs(currentSF.getElement().getTs());
         simul.notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.RELEASED, ts, currentSF.getElement().getIdentifier(), currentResourceType.getIdentifier()));
         // The book is removed
@@ -384,17 +385,17 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
             // Beginning MUTEX access to activity manager
             role.getManager().waitSemaphore();
             role.decAvailable(Resource.this);
+            // MOD 24/05/07
+            removeRole(role);
             // Ending MUTEX access to activity manager
             role.getManager().signalSemaphore();        
-            // MOD 22/05/06
-            removeRole(role);
             debug("Resource unavailable\t" + role);
             double nextTs = iter.next();
             if (!Double.isNaN(nextTs)) {
                 RoleOnEvent rEvent = new RoleOnEvent(nextTs, role, iter, duration);
                 addEvent(rEvent);            	
             }
-            else if (--validTTEs == 0)
+            else if (validTTEs.decrementAndGet() == 0)
         		notifyEnd();
         }
 
@@ -408,7 +409,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 
     /**
      * Represents the role that a resource plays at a specific time cycle.
-     * @author Iván Castilla Rodríguez
+     * @author Ivn Castilla Rodrguez
      */
     class TimeTableEntry {
     	/** Cycle that characterizes this entry */
@@ -473,9 +474,9 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	public ResourceState getState() {
 		ResourceState state = null;
 		if (currentSF == null)
-			state = new ResourceState(id, validTTEs);
+			state = new ResourceState(id, validTTEs.get());
 		else
-			state = new ResourceState(id, validTTEs, currentSF.getIdentifier(), currentSF.getElement().getIdentifier(), currentResourceType.getIdentifier(), timeOut);
+			state = new ResourceState(id, validTTEs.get(), currentSF.getIdentifier(), currentSF.getElement().getIdentifier(), currentResourceType.getIdentifier(), timeOut);
 		for (Entry<ResourceType, Double> entry : currentRoles.entrySet())
 			state.add(entry.getKey().getIdentifier(), entry.getValue());
 		return state;
@@ -487,7 +488,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
      * @param state The state of this resource.
      */
 	public void setState(ResourceState state) {
-		validTTEs = state.getValidTTEs();
+		validTTEs.set(state.getValidTTEs());
 		if (state.getCurrentElemId() != -1) {
 			Element elem = simul.getActiveElement(state.getCurrentElemId());
 			currentSF = elem.searchSingleFlow(state.getCurrentSFId());

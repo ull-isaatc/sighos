@@ -6,7 +6,7 @@ package es.ull.isaatc.simulation.state;
 /**
  * Stores the state of an element. The state of an element consists on the state of its flow,
  * the requested and pending flows, and the current single flow (if being used).
- * @author Iván Castilla Rodríguez
+ * @author Ivn Castilla Rodrguez
  */
 public class ElementState implements State {
 	/** This element's identifier */ 
@@ -15,9 +15,8 @@ public class ElementState implements State {
 	protected int elemTypeId;
 	/** The state of the flow of the element */ 
 	protected FlowState flowState;
-    /** Amount of pending presential activities (pending[0]) and non-presential 
-    ones (pending[1]) */
-	protected int []pending;
+    /** Amount of pending activities */
+	protected int pending;
     /** Requested presential single flows (requested[0]) and non-presential 
     ones (requested[1]) */
 	protected int[][]requested;
@@ -28,11 +27,11 @@ public class ElementState implements State {
 	 * @param elemId This element's identifier
 	 * @param elemTypeId The element type this element belongs to
 	 * @param fState The state of the flow of the element
-	 * @param pending Amount of pending presential activities (pending[0]) and non-presential ones (pending[1])
+	 * @param pending Amount of pending activities
 	 * @param requested Requested presential single flows (requested[0]) and non-presential ones (requested[1])
 	 * @param currentSFId The current single flow, if the element is currently performing an activity
 	 */
-	public ElementState(int elemId, int elemTypeId, FlowState fState, int []pending, int[][]requested, int currentSFId) {
+	public ElementState(int elemId, int elemTypeId, FlowState fState, int pending, int[][]requested, int currentSFId) {
 		this.elemId = elemId;
 		this.elemTypeId = elemTypeId;
 		this.flowState = fState;
@@ -46,10 +45,10 @@ public class ElementState implements State {
 	 * @param elemId This element's identifier
 	 * @param elemTypeId The element type this element belongs to
 	 * @param fState The state of the flow of the element
-	 * @param pending Amount of pending presential activities (pending[0]) and non-presential ones (pending[1])
+	 * @param pending Amount of pending activities
 	 * @param requested Requested presential single flows (requested[0]) and non-presential ones (requested[1])
 	 */
-	public ElementState(int elemId, int elemTypeId, FlowState fState, int []pending, int[][]requested) {
+	public ElementState(int elemId, int elemTypeId, FlowState fState, int pending, int[][]requested) {
 		this.elemId = elemId;
 		this.elemTypeId = elemTypeId;
 		this.flowState = fState;
@@ -92,7 +91,7 @@ public class ElementState implements State {
 	/**
 	 * @return The total amount of pending activities.
 	 */
-	public int[] getPending() {
+	public int getPending() {
 		return pending;
 	}
 

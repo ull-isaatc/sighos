@@ -7,7 +7,7 @@ import es.ull.isaatc.simulation.state.*;
 /**
  * A sequential group of flows. Each subflow can be considered a step. Thus, the 
  * (n+1)'th step is executed only when the n'th step has finished its execution.
- * @author Iván Castilla Rodríguez
+ * @author Ivn Castilla Rodrguez
  */
 public class SequenceFlow extends GroupFlow {
     
@@ -34,7 +34,7 @@ public class SequenceFlow extends GroupFlow {
      * case, finishes the parent flow.
      * @return A list of single flows to request.
      */    
-    protected synchronized ArrayList<SingleFlow> finish() {
+    protected ArrayList<SingleFlow> finish() {
     	ArrayList<SingleFlow> sfList = new ArrayList<SingleFlow>();
         finishedFlows++;
         if (finishedFlows < descendants.size())

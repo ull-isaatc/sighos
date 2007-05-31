@@ -3,6 +3,7 @@ package es.ull.isaatc.simulation;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -32,7 +33,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 	/** A queue containing the events currently executing */
 	protected Vector<BasicElement.DiscreteEvent> execQueue;
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
-	protected PriorityQueue<BasicElement.DiscreteEvent> waitQueue;
+	protected PriorityBlockingQueue<BasicElement.DiscreteEvent> waitQueue;
     /** The set of activity managers contained by this LP. */
     protected ArrayList<ActivityManager> managerList;
     /** Thread where the logical process function is implemented */
@@ -58,7 +59,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 		super(nextId++, simul);
         tp = Executors.newFixedThreadPool(1);
         execQueue = new Vector<BasicElement.DiscreteEvent>();
-        waitQueue = new PriorityQueue<BasicElement.DiscreteEvent>();
+        waitQueue = new PriorityBlockingQueue<BasicElement.DiscreteEvent>();
         lpLock = new ReentrantLock();
         execEmpty = lpLock.newCondition();
         maxgvt = endT;
@@ -111,8 +112,8 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 			if (execQueue.remove(e)) { // pudo quitarse
 				// The LP is informed of the finalization of an event. There's no need of 
 				// checking if the exec. queue is empty because the main loop is already doing that.
-				// FIXME: Check if the execution queue is empty is an improvement?
-				execEmpty.signal();
+				if (execQueue.isEmpty())// FIXME: Check if the execution queue is empty is an improvement?
+					execEmpty.signal();
 				res = true;
 			}
         }
@@ -127,7 +128,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * its timestamp is greater than the LP timestamp.
      * @param e Event to be added
      */
-	public synchronized void addWait(BasicElement.DiscreteEvent e) {
+	public void addWait(BasicElement.DiscreteEvent e) {
 		waitQueue.add(e);
 	}
 
@@ -136,7 +137,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * queue when the LP reaches the timestamp of that event.
      * @return The first event of the waiting queue.
      */
-    protected synchronized BasicElement.DiscreteEvent removeWait() {
+    protected BasicElement.DiscreteEvent removeWait() {
         return waitQueue.poll();
     }
 

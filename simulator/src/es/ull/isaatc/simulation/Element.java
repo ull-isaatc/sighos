@@ -9,7 +9,7 @@ import es.ull.isaatc.simulation.state.*;
  * Represents elements that make use of activitiy flows in order to carry out
  * their events.
  * 
- * @author Iván Castilla Rodríguez
+ * @author Ivn Castilla Rodrguez
  */
 @SuppressWarnings("unchecked")
 public class Element extends BasicElement implements RecoverableState<ElementState> {
@@ -26,10 +26,9 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	protected ArrayList<SingleFlow>[] requested = new ArrayList[2];
 
 	/**
-	 * Amount of pending presential activities (pending[0]) and non-presential
-	 * ones (pending[1])
+	 * Amount of pending activities 
 	 */
-	protected int[] pending = new int[2];
+	protected int pending;
 
 	/** Presential single flow which the element is currently carrying out */
 	protected SingleFlow currentSF = null;
@@ -135,7 +134,8 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 				elementType.getIdentifier()));
 		simul.addActiveElement(this);
 		if (flow != null) {
-			pending = flow.countActivities();
+			int []count = flow.countActivities();
+			pending = count[0] + count[1];
 			ArrayList<SingleFlow> sfList = flow.request();
 			for (SingleFlow sf : sfList)
 				addEvent(new RequestActivityEvent(ts, sf));
@@ -146,7 +146,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	@Override
 	protected void end() {
 		simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.FINISH,
-				ts, pending[0] + pending[1]));
+				ts, pending));
 		simul.removeActiveElement(this);
 	}
 
@@ -156,11 +156,13 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	 * @param f
 	 *            Single flow added to the requested list.
 	 */
-	protected synchronized void incRequested(SingleFlow f) {
-		if (f.isNonPresential())
-			requested[1].add(f);
-		else
-			requested[0].add(f);
+	protected void incRequested(SingleFlow f) {
+		synchronized(requested) {
+			if (f.isNonPresential())
+				requested[1].add(f);
+			else
+				requested[0].add(f);
+		}
 	}
 
 	/**
@@ -171,16 +173,15 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	 * @param f
 	 *            Single flow removed from the requested list.
 	 */
-	protected synchronized void decRequested(SingleFlow f) {
-		if (f.isNonPresential()) {
-			requested[1].remove(f);
-			pending[1]--;
-		} else {
-			requested[0].remove(f);
-			pending[0]--;
+	protected void decRequested(SingleFlow f) {
+		synchronized(requested) {
+			if (f.isNonPresential())
+				requested[1].remove(f);
+			else
+				requested[0].remove(f);
+			if (--pending == 0)
+				notifyEnd();
 		}
-		if ((pending[1] + pending[0]) == 0)
-			notifyEnd();
 	}
 
 	/**
@@ -219,7 +220,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	 * Requests an activity. Checks if the activity is feasible and the element
 	 * is not performing another activity.
 	 * 
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivn Castilla Rodrguez
 	 */
 	public class RequestActivityEvent extends BasicElement.DiscreteEvent {
 		/** The flow requested */
@@ -263,7 +264,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	/**
 	 * Informs an activity about an available element in its queue.
 	 * 
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivn Castilla Rodrguez
 	 */
 	public class AvailableElementEvent extends BasicElement.DiscreteEvent {
 		/** Flow informed of the availability of the element */
@@ -302,7 +303,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	/**
 	 * Finish an activity.
 	 * 
-	 * @author Iván Castilla Rodríguez
+	 * @author Ivn Castilla Rodrguez
 	 */
 	public class FinalizeActivityEvent extends BasicElement.DiscreteEvent {
 		/** The flow finished */
@@ -336,8 +337,10 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 			}
 			// Checks if there are pending activities that haven't noticed the
 			// element availability
-			for (int i = 0; (currentSF == null) && (i < requested[0].size()); i++)
-				addEvent(new AvailableElementEvent(ts, requested[0].get(i)));
+			synchronized(requested) {
+				for (int i = 0; (currentSF == null) && (i < requested[0].size()); i++)
+					addEvent(new AvailableElementEvent(ts, requested[0].get(i)));
+			}
 		}
 
 		/**

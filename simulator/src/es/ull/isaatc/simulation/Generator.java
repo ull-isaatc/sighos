@@ -1,15 +1,17 @@
 package es.ull.isaatc.simulation;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * An element which creates elements. This is the base class to create a set of similar
  * elements. The creation of elements is time-dependant, that is, the user defines WHEN and
  * HOW the elements are created by filling the <code>nextTs()</code> and <code>createElements()</code>
  * abstract methods.
- * @author Iván Castilla Rodríguez
+ * @author Ivn Castilla Rodrguez
  */
 public abstract class Generator extends BasicElement {
     /** Created-element counter. This way each element has a different identifier. */
-	protected static int elemCounter = 0;
+	protected static AtomicInteger elemCounter = new AtomicInteger(0);
     /** Generator's counter */
     private static int counter = 0;
     /** Specifies the way the elements are created. */
@@ -37,24 +39,24 @@ public abstract class Generator extends BasicElement {
      * Returns the current element's counter.
      * @return The current element's counter.
      */
-    public synchronized static int getElemCounter() {
-        return elemCounter;
+    public static int getElemCounter() {
+        return elemCounter.get();
     }
     
     /**
      * Establish a new initial value for the element's counter. 
 	 * @param elemCounter A new element's counter value.
 	 */
-	public synchronized static void setElemCounter(int elemCounter) {
-		Generator.elemCounter = elemCounter;
+	public static void setElemCounter(int elemCounter) {
+		Generator.elemCounter.set(elemCounter);
 	}
 
 	/**
 	 * Returns and increases the element's counter in one step.
 	 * @return The current element's counter.
 	 */
-	public synchronized static int incElemCounter() {
-		return elemCounter++;
+	public static int incElemCounter() {
+		return elemCounter.getAndIncrement();
 	}
 
 	@Override

@@ -74,7 +74,7 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	private ArrayList<SimulationListener> listeners;
 
 	/** List of active elements */
-	private TreeMap<Integer, Element> activeElementList;
+	private Map<Integer, Element> activeElementList;
 
 	/**
 	 * Creates a new instance of Simulation
@@ -90,7 +90,7 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 		activityManagerList = new ArrayList<ActivityManager>();
 		resourceList = new TreeMap<Integer, Resource>();
 		generatorList = new ArrayList<Generator>();
-		activeElementList = new TreeMap<Integer, Element>();
+		activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
 
 		listeners = new ArrayList<SimulationListener>();
 
@@ -207,9 +207,11 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 			setState(state);
 			// Elements from a previous simulation don't need to be started, but
 			// they need a default LP
-			for (Element elem : activeElementList.values())
-				if (elem.getDefLP() == null)
-					elem.setDefLP(getDefaultLogicalProcess());
+			synchronized(activeElementList) {
+				for (Element elem : activeElementList.values())
+					if (elem.getDefLP() == null)
+						elem.setDefLP(getDefaultLogicalProcess());
+			}
 		}
 		notifyListeners(new SimulationStartInfo(this, System
 				.currentTimeMillis(), Generator.getElemCounter()));
@@ -472,7 +474,7 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	 * @param elem
 	 *            An element that starts its execution.
 	 */
-	public synchronized void addActiveElement(Element elem) {
+	public void addActiveElement(Element elem) {
 		activeElementList.put(elem.getIdentifier(), elem);
 	}
 
@@ -482,7 +484,7 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	 * @param elem
 	 *            An element that finishes its execution.
 	 */
-	public synchronized void removeActiveElement(Element elem) {
+	public void removeActiveElement(Element elem) {
 		activeElementList.remove(elem.getIdentifier());
 	}
 

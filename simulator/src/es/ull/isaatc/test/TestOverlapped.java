@@ -10,6 +10,7 @@ import es.ull.isaatc.simulation.info.SimulationListener;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
+import es.ull.isaatc.simulation.info.StdInfoListener;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
 import es.ull.isaatc.util.*;
 
@@ -133,9 +134,9 @@ class ExpOverlapped extends Experiment {
 
 	public Simulation getSimulation(int ind) {
 		OverlappedSimulation sim = new OverlappedSimulation(NDIAS);
-		sim.setOutput(new Output(true/*, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)*/));
+//		sim.setOutput(new Output(true/*, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)*/));
 //		sim.addListener(oListener);
-//		sim.addListener(new StdInfoListener());
+		sim.addListener(new StdInfoListener());
 		return sim;
 	}
 }

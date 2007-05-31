@@ -2,6 +2,7 @@ package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Represents the simulation component that carries out events. 
@@ -15,7 +16,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
     /** Access control */
     protected Semaphore sem;
     /** Flag that indicates if the element has finished its execution */
-    protected boolean endFlag = false;
+    protected AtomicBoolean endFlag = new AtomicBoolean(false);
     /** Default logical process */
     protected LogicalProcess defLP = null;
 
@@ -68,8 +69,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * created.
      */
     protected synchronized void notifyEnd() {
-    	if (!endFlag) {
-    		endFlag = true;
+    	if (!endFlag.getAndSet(true)) {
         	debug("Finished");
             addEvent(new FinalizeEvent());
         }
