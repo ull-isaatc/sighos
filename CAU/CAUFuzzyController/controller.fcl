@@ -5,19 +5,20 @@ VAR_INPUT
 END_VAR
 
 VAR_OUTPUT
-  task1 : REAL;
-  task2 : REAL;
-  task3 : REAL;
+  Task1 : REAL;
+  Task2 : REAL;
+  Task3 : REAL;
 END_VAR
 
 FUZZIFY queue
-  TERM low     := (0, 1) (8, 1) (12, 0);
-  TERM medium  := (10, 0) (15, 1) (20, 0);
-  TERM high    := (17, 0) (20, 1) (23, 0);
-  TERM veryhigh := (20, 0) (25, 1);
+  TERM low     := (0, 1) (15, 1) (30, 0);
+  TERM medium  := (15, 0) (30, 1) (45, 0);
+  TERM high    := (30, 0) (45, 1) (60, 0);
+  TERM veryhigh := (45, 0) (60, 1);
 END_FUZZIFY
 
-DEFUZZIFY task1
+
+DEFUZZIFY Task1
   TERM verylow := (0, 1) (0.1, 0);
   TERM low     := (0, 0) (0.2, 1) (0.4, 0);
   TERM medium  := (0.3, 0) (0.5, 1) (0.7, 0);
@@ -28,7 +29,7 @@ DEFUZZIFY task1
   DEFAULT := 0;
 END_DEFUZZIFY
 
-DEFUZZIFY task2
+DEFUZZIFY Task2
   TERM verylow := (0, 1) (0.1, 0);
   TERM low     := (0, 0) (0.2, 1) (0.4, 0);
   TERM medium  := (0.3, 0) (0.5, 1) (0.7, 0);
@@ -39,7 +40,7 @@ DEFUZZIFY task2
   DEFAULT := 0;
 END_DEFUZZIFY
 
-DEFUZZIFY task3
+DEFUZZIFY Task3
   TERM verylow := (0, 1) (0.1, 0);
   TERM low     := (0, 0) (0.2, 1) (0.4, 0);
   TERM medium  := (0.3, 0) (0.5, 1) (0.7, 0);
@@ -53,18 +54,18 @@ END_DEFUZZIFY
 RULEBLOCK No1
   AND : MIN;
   ACT : MIN;
-  RULE 1 : IF queue IS low THEN task1 IS verylow;
-  RULE 2 : IF queue IS medium THEN task1 IS medium;
-  RULE 3 : IF queue IS high OR queue IS veryhigh THEN task1 IS high;
+  RULE 1 : IF queue IS low THEN Task1 IS verylow;
+  RULE 2 : IF queue IS medium THEN Task1 IS medium;
+  RULE 3 : IF queue IS high OR queue IS veryhigh THEN Task1 IS high;
   
-  RULE 4 : IF queue IS low THEN task2 IS verylow;
-  RULE 5 : IF queue IS medium THEN task2 IS medium;
-  RULE 6 : IF queue IS high THEN task2 IS high;
-  RULE 10: IF queue IS veryhigh THEN task2 IS veryhigh;
+  RULE 4 : IF queue IS low THEN Task2 IS verylow;
+  RULE 5 : IF queue IS medium THEN Task2 IS medium;
+  RULE 6 : IF queue IS high THEN Task2 IS high;
+  RULE 10: IF queue IS veryhigh THEN Task2 IS veryhigh;
   
-  RULE 7 : IF queue IS low THEN task3 IS low;
-  RULE 8 : IF queue IS medium THEN task3 IS medium;
-  RULE 9 : IF queue IS veryhigh OR queue IS high THEN task3 IS high;
+  RULE 7 : IF queue IS low THEN Task3 IS low;
+  RULE 8 : IF queue IS medium THEN Task3 IS medium;
+  RULE 9 : IF queue IS veryhigh OR queue IS high THEN Task3 IS high;
   
 END_RULEBLOCK
 

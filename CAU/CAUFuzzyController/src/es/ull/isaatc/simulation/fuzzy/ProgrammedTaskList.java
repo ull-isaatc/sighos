@@ -2,7 +2,7 @@ package es.ull.isaatc.simulation.fuzzy;
 
 import java.util.ArrayList;
 
-import es.ull.isaatc.function.ConstantFunction;
+import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.ElementCreator;
 import es.ull.isaatc.simulation.XMLSimulation;
 import es.ull.isaatc.util.Cycle;
@@ -107,7 +107,13 @@ public class ProgrammedTaskList  {
 		}
 
 		public ElementCreator getElementCreator(XMLSimulation simul) {
-			return new ElementCreator(new ConstantFunction(1), simul.getElementType(et), simul.getFlowList().get(mf));
+			ElementCreator elementCreator = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1));
+			elementCreator.add(simul.getElementType(et), simul.getFlowList().get(mf), 1.0);
+			return elementCreator;
+		}
+		
+		public String toString() {
+			return "TLE["+ description + "] ET[" + et + "] MF[" + mf + "]";
 		}
 	}
 }

@@ -5,6 +5,7 @@ package es.ull.isaatc.simulation.fuzzy;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLClassLoader;
 
@@ -30,9 +31,10 @@ public class XMLFuzzyModel extends XMLWrapper {
 	 * @param xmlModelFileName
 	 * @param xmlScenarioFileName
 	 * @param xmlExperimentFileName
+	 * @throws FileNotFoundException 
 	 */
 	public XMLFuzzyModel(String xmlModelFileName, String xmlScenarioFileName,
-			String xmlExperimentFileName, String xmlProgramedTaskFileName) {
+			String xmlExperimentFileName, String xmlProgramedTaskFileName) throws FileNotFoundException {
 		super(xmlModelFileName, xmlScenarioFileName, xmlExperimentFileName);
 		xmlProgTasks = unMarshallProgTask(xmlProgramedTaskFileName);
 	}
@@ -62,7 +64,7 @@ public class XMLFuzzyModel extends XMLWrapper {
 			progTask = (ProgrammedTasks) u.unmarshal(new FileInputStream(
 					fileName));
 		} catch (JAXBException je) {
-			System.out.println("ERROR : Error found in one of the XML files");
+			System.out.println("ERROR : Error found in the programmed task XML file");
 			je.printStackTrace();
 			System.exit(-1);
 		} catch (IOException ioe) {

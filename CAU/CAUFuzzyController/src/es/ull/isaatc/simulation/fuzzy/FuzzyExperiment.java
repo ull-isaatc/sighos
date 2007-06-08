@@ -42,14 +42,6 @@ public class FuzzyExperiment extends XMLExperiment {
 	public Simulation getSimulation(int ind) {
 		XMLSimulation simul = (XMLSimulation) super.getSimulation(ind);
 		createSamplers(simul, xmlWrapper);
-		simul.addListener(new SimulationTimeListener() {
-			@Override
-			public void infoEmited(SimulationEndInfo info) {
-				// TODO Auto-generated method stub
-				super.infoEmited(info);
-				System.out.println(this);
-			}
-		});
 		return simul;
 	}
 	
@@ -70,13 +62,18 @@ public class FuzzyExperiment extends XMLExperiment {
 	 * @return the FuzzyControllerListener
 	 */
 	public SimulationListener createSampler(XMLSimulation simul, Sampler xmlSampler) {
-		Cycle cycle = XMLSimulationFactory.createCycle(xmlSampler.getCycle(), simul.getBaseTimeIndex()); 
+		Cycle cycle = XMLSimulationFactory.createCycle(xmlSampler.getCycle(), simul.getBaseTimeIndex());
+		int[] actId = new int[xmlSampler.getActQueue().size()];
+		
+		for (int i = 0; i < xmlSampler.getActQueue().size(); i++)
+			actId[i] = xmlSampler.getActQueue().get(i).getId();
+		
 		FuzzyControllerListener listener = new FuzzyControllerListener(
 				simul,
-				cycle.iterator(simul.getStartTs(), simul.getEndTs()),
+				xmlSampler.getFilename(),
+				cycle.iterator(startTs, endTs),
 				xmlSampler.getPeriod(),
-				xmlSampler.getActQueue().getId(),
-				xmlSampler.getFilename());
+				actId);
 		for (Task task : xmlSampler.getTask()) {
 			listener.addTask(task.getDescription(),
 					task.getElementType().getId(),

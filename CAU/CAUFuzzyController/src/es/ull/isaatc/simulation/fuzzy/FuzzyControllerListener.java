@@ -5,7 +5,9 @@ package es.ull.isaatc.simulation.fuzzy;
 
 import java.util.ArrayList;
 
-import es.ull.isaatc.random.Uniform;
+import simkit.random.RandomVariate;
+import simkit.random.RandomVariateFactory;
+
 import es.ull.isaatc.simulation.Generator;
 import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.TimeDrivenGenerator;
@@ -33,18 +35,18 @@ public class FuzzyControllerListener extends CompassListener {
 	/** Queue listener */
 	private ActivityQueueListener actListener;
 	/** Activity identifier */
-	private int actQueueId;
+	private int[] actQueueId;
 	
 	/**
 	 * 
 	 * @param period sample rate
 	 * @param fileName fuzzy file path
 	 */
-	public FuzzyControllerListener(Simulation simul, CycleIterator cycleIterator, double period, int actQueueId, String fileName) {
+	public FuzzyControllerListener(Simulation simul, String fileName, CycleIterator cycleIterator, double period, int[] actQueueId) {
 		super(cycleIterator);
 
 		this.actQueueId = actQueueId;
-		actListener = new ActivityQueueListener(period);
+		actListener = new ActivityQueueListener(period, period);
 		simul.addListener(actListener);
 		// load the FCL file
 		fis = FIS.load(fileName, false);
@@ -52,8 +54,22 @@ public class FuzzyControllerListener extends CompassListener {
 			System.err.println("Can't load file: '" + fileName + "'");
 			return;
 		}
+//		FuzzyRuleSet fuzzyRuleSet = fis.getFuzzyRuleSet();
+//		fuzzyRuleSet.chart();
 	}
 
+	/**
+	 * @return the queue in tha activities stored in actQueueId
+	 */
+	protected int getActivityQueue() {
+		int val = 0;
+		
+		for (int actId : actQueueId)
+			val += actListener.getActivityQueue(actId);
+		
+		return val;
+	}
+	
 	public void addTask(String description, int et, int mf, Cycle c, double qos) {
 		programmedTaskList.add(description, et,	mf, c, qos);
 		
@@ -66,11 +82,10 @@ public class FuzzyControllerListener extends CompassListener {
 	
 	public void takeSample(Generator gen) {
 		FuzzyRuleSet fuzzyRuleSet = fis.getFuzzyRuleSet();
-//		int queue = actListener.getActivityQueue(6) + actListener.getActivityQueue(7) + actListener.getActivityQueue(8); 
-		int queue = actListener.getActivityQueue(actQueueId);
+		int queue = getActivityQueue();
 		fuzzyRuleSet.setVariable("queue", queue);
 		double prob;
-		Uniform uniform = new Uniform(0, 1);
+		RandomVariate uniform = RandomVariateFactory.getInstance("Uniform", 0, 1);
 
 		for (ProgrammedTaskListEntry entry : programmedTaskList.getTaskList()) {
 			// repeat the test while the task period is in this sample
@@ -79,7 +94,7 @@ public class FuzzyControllerListener extends CompassListener {
 				fuzzyRuleSet.evaluate();
 				Variable var = fuzzyRuleSet.getVariable(entry.getDescription());
 				prob = 1 - ((1 - entry.getQos()) * var.defuzzify());
-				double pValue = uniform.sampleDouble();
+				double pValue = uniform.generate();
 				if (pValue <= prob) {
 					taskCycle.add(entry.getNextTs());
 				}
@@ -90,7 +105,8 @@ public class FuzzyControllerListener extends CompassListener {
 				taskCycleArray[i++] = value;
 			}
 			Cycle cycle = new TableCycle(taskCycleArray);
-			new TimeDrivenGenerator(gen.getSimul(), entry.getElementCreator((XMLSimulation) gen.getSimul()), cycle);
+			Generator taskGen = new TimeDrivenGenerator(gen.getSimul(), entry.getElementCreator((XMLSimulation) gen.getSimul()), cycle);
+			taskGen.start(gen.getDefLP());
 		}
 	}
 
