@@ -1,0 +1,781 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<Model id="1">
+	<description>Modelo de la implantacion de Medusa</description>
+	<baseTimeUnit>HOUR</baseTimeUnit> <!-- Unidad basica de tiempo -->
+
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	+++                          Tipos de recursos
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+	<resourceType id="1">
+		<description>OFICINA</description>
+	</resourceType>
+	<resourceType id="2">
+		<description>SOPORTE</description>
+	</resourceType>
+	<resourceType id="3">
+		<description>IMPLANTACION</description>
+	</resourceType>
+	<resourceType id="4">
+		<description>NIVEL 2</description>
+	</resourceType>
+
+	<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	+++                          Grupos de trabajo
+	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+	<workGroup id="1">
+		<description>WG Oficina</description>
+		<role>
+			<rt_ref model_id="1" id="1" />
+			<units>1</units>
+		</role>
+	</workGroup>
+	<workGroup id="2">
+		<description>WG Soporte</description>
+		<!--		<role>
+			<rt_ref model_id="1" id="2"/>
+			<units>1</units>
+			</role>	-->
+	</workGroup>
+	<workGroup id="3">
+		<description>WG Implantacion</description>
+		<!--		<role>
+			<rt_ref model_id="1" id="3"/>
+			<units>1</units>
+			</role>	-->
+	</workGroup>
+	<workGroup id="4">
+		<description>WG Nivel 2</description>
+		<!--		<role>
+			<rt_ref model_id="1" id="4"/>
+			<units>1</units>
+			</role>	-->
+	</workGroup>
+
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	+++                      Descripcion de los recursos
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+	<!-- OFICINA
+		Jornada de L-V de 8 horas (0:00-8:00) hay 4 empleados -->
+	<resource id="1">
+		<description>Oficina de apoyo y entrega</description>
+		<units>10</units>
+		<timeTable>
+			<rt_ref model_id="1" id="1" />
+			<cycle type="PERIODIC">
+				<timeUnit>DAY</timeUnit>
+				<!-- Cada semana -->
+				<startTs>0.0</startTs>
+				<iterations>0</iterations>
+				<period>
+					<random>
+					<!-- Repite cada semana -->
+						<function>ConstantVariate</function>
+						<param>7</param>
+					</random>
+				</period>
+				<subCycle type="PERIODIC">
+					<timeUnit>DAY</timeUnit>
+					<!-- De lunes a viernes -->
+					<startTs>0.0</startTs>
+					<iterations>5</iterations>
+					<period>
+						<random>
+						<!-- Repite cada dia -->
+							<function>ConstantVariate</function>
+							<param>1</param>
+						</random>
+					</period>
+				</subCycle>
+
+			</cycle>
+			<!-- Turnos de 8 horas -->
+			<dur timeUnit="HOUR">8</dur>
+		</timeTable>
+	</resource>
+
+	<!-- SOPORTE
+		Jornada de 8 horas de lunes a viernes -->
+	<resource id="2">
+		<description>Soporte de recursos</description>
+		<units>40</units>
+		<timeTable>
+			<rt_ref model_id="1" id="2" />
+			<cycle type="PERIODIC">
+				<timeUnit>DAY</timeUnit>
+				<!-- Cada semana -->
+				<startTs>0.0</startTs>
+				<iterations>0</iterations>
+				<period>
+					<random>
+					<!-- Repite cada semana -->
+						<function>ConstantVariate</function>
+						<param>7</param>
+					</random>
+				</period>
+				<subCycle type="PERIODIC">
+					<timeUnit>DAY</timeUnit>
+					<!-- De lunes a viernes -->
+					<startTs>0.0</startTs>
+					<iterations>5</iterations>
+					<period>
+						<random>
+						<!-- Repite cada dia -->
+							<function>ConstantVariate</function>
+							<param>1</param>
+						</random>
+					</period>
+				</subCycle>
+
+			</cycle>
+			<!-- Turnos de 8 horas -->
+			<dur timeUnit="HOUR">8</dur>
+		</timeTable>
+	</resource>
+
+	<!-- IMPLANTACION
+		Suponemos que trabajan todo el dia, suelen tardar 1 dia como
+		minimo en hacer algo.
+		Son cuadrillas de 4 personas, el recurso es la cuadrilla -->
+	<resource id="3">
+		<description>Implantacion suministro e instalacion</description>
+		<units>40</units>
+		<timeTable>
+			<rt_ref model_id="1" id="3" />
+			<cycle type="PERIODIC">
+				<timeUnit>DAY</timeUnit>
+				<!-- Hora de comienzo del turno -->
+				<startTs>0.0</startTs>
+				<iterations>0</iterations>
+				<period>
+					<random>
+						<!-- Repite cada dia -->
+						<function>ConstantVariate</function>
+						<param>1</param>
+					</random>
+				</period>
+			</cycle>
+			<dur timeUnit="HOUR">24</dur>
+		</timeTable>
+	</resource>
+
+	<!-- NIVEL 2
+		Esta gente contiene su flujo y tal en otro modelo (el del CAU).-->
+	<resource id="4">
+		<description>Nivel 2</description>
+		<units>40</units>
+		<timeTable>
+			<rt_ref model_id="1" id="4" />
+			<cycle type="PERIODIC">
+				<timeUnit>DAY</timeUnit>
+				<startTs>0.0</startTs>
+				<iterations>0</iterations>
+				<period>
+					<random>
+						<!-- Repite cada dia -->
+						<function>ConstantVariate</function>
+						<param>1</param>
+					</random>
+				</period>
+			</cycle>
+			<dur timeUnit="HOUR">24</dur>
+		</timeTable>
+	</resource>
+
+
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	+++                          ACTIVIDADES
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+	<!-- Definicion -> 
+		Actores: 1 oficina
+		Duracion: 1 hora -->
+	<activity id="1" presential="false" interrumpible="false">
+		<description>Definicion</description>
+		<priority>0</priority>
+		<workGroup>
+			<workGroup model_id="1" id="1" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>1</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Visita al centro
+		Actores: 1 oficina, 1/2 soporte [1 implantacion]
+		Duracion: 8 horas -->
+	<activity id="2" presential="false" interrumpible="false">
+		<description>Visita al centro</description>
+		<priority>0</priority>
+		<workGroup id="10">
+			<definition>
+				<description />
+				<role>
+					<rt_ref model_id="1" id="1" />
+					<units>1</units>
+				</role>
+				<!--	<role>
+					<rt_ref model_id="1" id="2"/>
+					<units>1</units>
+					</role>
+					<role>
+					Recurso de implantacion que es opcional
+					<rt_ref model_id="1" id="3"/>
+					<units>1</units>;
+					</role>-->
+			</definition>
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<!-- 8 horas -->
+					<param>8</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Primer proyecto
+		Actores: 1 soporte
+		Duracion: 3/4 dias -->
+	<activity id="3" presential="false" interrumpible="true">
+		<description>Primer proyecto</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="2" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>UniformVariate</function>
+					<!-- 3-4 dias (jornada 8 horas) -->
+					<param>24</param>
+					<param>32</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Primera verificacion del proyecto
+		Actores: 1 oficina
+		Duracion: 8/16 horas -->
+	<activity id="4" presential="false" interrumpible="true">
+		<description>Primera verificacion del proyecto</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="1" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>UniformVariate</function>
+					<param>5</param>
+					<param>7</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Proyecto
+		Actores: 1 soporte
+		Duracion: 8/16 horas dias -->
+	<activity id="5" presential="false" interrumpible="true">
+		<description>Proyecto</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="2" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>UniformVariate</function>
+					<param>3</param>
+					<param>4</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Verificacion proyecto
+		Actores: 1 oficina
+		Duracion: 8 horas -->
+	<activity id="6" presential="false" interrumpible="true">
+		<description>Verificacion proyecto</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="1" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>1</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Ejecucion
+		Actores: 1 cuadrilla de implantacion
+		Duracion: 7/10 dias -->
+	<activity id="7" presential="false" interrumpible="false">
+		<description>Ejecucion</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="3" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<!-- Un mes en horas 24*30 -->
+					<param>720</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Direccion de obra
+		Actores: 1 soporte
+		Duracion: 4 horas -->
+	<activity id="8" presential="false" interrumpible="true">
+		<description>Direccion de obra</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="2" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>4</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Visita obra
+		Actores: 1 oficina
+		Duracion: 4 horas -->
+	<activity id="9" presential="false" interrumpible="true">
+		<description>Visita obra</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="1" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>4</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Inventario
+		Actores: 1 soporte
+		Duracion: 8 horas -->
+	<activity id="10" presential="false" interrumpible="true">
+		<description>Inventario</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="2" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>8</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Verificacion inventario
+		Actores: 1 oficina
+		Duracion: 2 horas -->
+	<activity id="11" presential="false" interrumpible="true">
+		<description>Verificacion inventario</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="1" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>2</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Primera memoria
+		Actores: 1 soporte
+		Duracion: 3/5 dias -->
+	<activity id="12" presential="false" interrumpible="true">
+		<description>Primera memoria</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="2" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>UniformVariate</function>
+					<param>24</param>
+					<param>40</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Primera verificacion memoria
+		Actores: 1 oficina
+		Duracion: 2 dias -->
+	<activity id="13" presential="false" interrumpible="true">
+		<description>Primera verificacion memoria</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="1" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>3</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Memoria
+		Actores: 1 soporte
+		Duracion: 4/16 horas -->
+	<activity id="14" presential="false" interrumpible="true">
+		<description>Memoria</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="2" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>UniformVariate</function>
+					<param>4</param>
+					<param>12</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Verificacion memoria
+		Actores: 1 oficina
+		Duracion: 4 horas -->
+	<activity id="15" presential="false" interrumpible="true">
+		<description>Verificacion memoria</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="1" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>1</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Primera verificacion obra
+		Actores: 1 oficina
+		Duracion: 2 dias -->
+	<activity id="16" presential="false" interrumpible="true">
+		<description>Primera verificacion obra</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="1" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>16</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Verificacion obra
+		Actores: 1 oficina
+		Duracion: 2h/8h -->
+	<activity id="17" presential="false" interrumpible="true">
+		<description>Verificacion obra</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="1" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>UniformVariate</function>
+					<param>2</param>
+					<param>8</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Arreglos implantacion
+		Actores: 1 implantacion
+		Duracion: 1 dias -->
+	<activity id="18" presential="false" interrumpible="true">
+		<description>Arreglos implantacion</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="3" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>8</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Finalizacion
+		Actores: 1 oficina
+		Duracion: 3 horas -->
+	<activity id="19" presential="false" interrumpible="true">
+		<description>Finalizacion</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="1" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>3</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Bateria de pruebas
+		Actores: 1 nivel 2
+		Duracion: 4 horas -->
+	<activity id="20" presential="false" interrumpible="true">
+		<description>Bateria de pruebas</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="4" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>4</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- Arreglos soporte
+		Actores: 1 soporte
+		Duracion: 1 hora -->
+	<activity id="21" presential="false" interrumpible="true">
+		<description>Arreglos soporte</description>
+		<priority>1</priority>
+		<workGroup>
+			<workGroup model_id="1" id="2" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>1</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	+++                Actividad para simular el CAU
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+	<activity id="100" presential="false" interrumpible="true">
+		<description>Ocupar Nivel 2</description>
+		<priority>0</priority>
+		<workGroup>
+			<workGroup model_id="1" id="4" />
+			<priority>0</priority>
+			<duration>
+				<random>
+					<function>ConstantVariate</function>
+					<param>1</param>
+				</random>
+			</duration>
+		</workGroup>
+	</activity>
+
+	<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	+++                      Tipo de elemento que fluye
+	*** Es la instalacion de la propia aula
+	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+	<elementType id="1">
+		<description>Obra aula</description>
+		<priority>0</priority>
+	</elementType>
+	<elementType id="2">
+		<description>Nivel 2</description>
+		<priority>0</priority>
+	</elementType>
+
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	+++                        Diagrama de flujo
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+	<rootFlow id="1">
+		<description>Implantacion</description>
+		<flow>
+			<sequence>
+				<!-- Definicion -->
+				<single>
+					<act_ref model_id="1" id="1" />
+				</single>
+				<!-- Visita al centro -->
+				<single>
+					<act_ref model_id="1" id="2" />
+				</single>
+				<!-- Primer proyecto -->
+				<single>
+					<act_ref model_id="1" id="3" />
+				</single>
+				<!-- Primera verificacion proyecto -->
+				<single>
+					<act_ref model_id="1" id="4" />
+				</single>
+				<!-- Proyecto OK -->
+				<sequence>
+					<iterations>
+						<!-- Se repite de 2 a 3 veces -->
+						<function>UniformVariate</function>
+						<param>1</param>
+						<param>2</param>
+					</iterations>
+					<!-- Proyecto -->
+					<single>
+						<act_ref model_id="1" id="5" />
+					</single>
+					<!-- Verificacion proyecto -->
+					<single>
+						<act_ref model_id="1" id="6" />
+					</single>
+				</sequence>
+				<simultaneous>
+					<sequence>
+						<!-- Ejecucion -->
+						<single>
+							<act_ref model_id="1" id="7" />
+						</single>
+						<!-- Por un lado la memoria y por otro el inventario -->
+						<simultaneous>
+							<!-- Inventario y bateria de pruebas -->
+							<sequence>
+								<sequence>
+									<!-- Inventario -->
+									<single>
+										<act_ref model_id="1" id="10" />
+									</single>
+									<!-- Verificacion inventario -->
+									<single>
+										<act_ref model_id="1" id="11" />
+									</single>
+								</sequence>
+								<!-- Bateria de pruebas -->
+								<single>
+									<act_ref model_id="1" id="20" />
+								</single>
+								<sequence>
+									<iterations>
+										<!-- Se repite 1 o 2 veces -->
+										<function>UniformVariate</function>
+										<param>0</param>
+										<param>2</param>
+									</iterations>
+									<!-- Arreglos soporte -->
+									<single>
+										<act_ref model_id="1" id="21" />
+									</single>
+									<!-- Bateria de pruebas -->
+									<single>
+										<act_ref model_id="1" id="20" />
+									</single>
+								</sequence>
+							</sequence>
+							<!-- Memoria -->
+							<sequence>
+								<!-- Primera memoria -->
+								<single>
+									<act_ref model_id="1" id="12" />
+								</single>
+								<!-- Primera verificacion memoria -->
+								<single>
+									<act_ref model_id="1" id="13" />
+								</single>
+								<sequence>
+									<iterations>
+										<!-- Se repite 1 o 2 veces -->
+										<function>UniformVariate</function>
+										<param>0</param>
+										<param>2</param>
+									</iterations>
+									<!-- Memoria -->
+									<single>
+										<act_ref model_id="1" id="14" />
+									</single>
+									<!-- Verificacion memoria -->
+									<single>
+										<act_ref model_id="1" id="15" />
+									</single>
+								</sequence>
+							</sequence>
+						</simultaneous>
+						<!-- Primera verificacion obra -->
+						<single>
+							<act_ref model_id="1" id="16" />
+						</single>
+						<sequence>
+							<iterations>
+								<!-- Se repite de 1 oa 3 veces -->
+								<function>UniformVariate</function>
+								<param>1</param>
+								<param>4</param>
+							</iterations>
+							<!-- Arreglos de implantacion -->
+							<single>
+								<act_ref model_id="1" id="18" />
+							</single>
+							<!-- Verificacion obra -->
+							<single>
+								<act_ref model_id="1" id="17" />
+							</single>
+						</sequence>
+						<!-- Finalizacion -->
+						<single>
+							<act_ref model_id="1" id="19" />
+						</single>
+					</sequence>
+					<!-- Direccion obra -->
+					<single>
+						<act_ref model_id="1" id="8" />
+					</single>
+					<!-- Visita obra -->
+					<single>
+						<act_ref model_id="1" id="9" />
+					</single>
+				</simultaneous>
+			</sequence>
+		</flow>
+	</rootFlow>
+	<rootFlow id="2">
+		<description>Simular Nivel 2</description>
+		<flow>
+			<single>
+				<act_ref model_id="1" id="100" />
+			</single>
+		</flow>
+	</rootFlow>
+</Model>

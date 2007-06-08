@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Proyecto de IMPLANTACION de MEDUSA -->
+<!-- Experimento que simula durante un anio, generando la entrada de
+	2 ordenes de implantacion cada dia durante los 100 primeros dias. -->
+
+<Experiment>
+	<debugMode>false</debugMode>
+	<experiments>1</experiments>
+	<startTs>0</startTs>
+	<endTs timeUnit="DAY">10</endTs>  <!-- 1 anio -->
+	<!-- <simulationListener>
+		<name>es.ull.isaatc.simulation.info.ElementIndispTimeListener</name>
+		<param name="Period" type="double" value="120"/>
+		<param name="ReferenceTs" type="double" value="120"/>
+	</simulationListener> -->
+	<simulationListener>
+		<name>es.ull.isaatc.simulation.info.ActivityQueueListener</name>
+		<param name="Period" type="double" value="240"/>
+		<param name="ReferenceTs" type="double" value="240"/>
+	</simulationListener>
+	<generator>
+		<cycle type="PERIODIC">
+			<timeUnit>DAY</timeUnit>
+			<startTs>0</startTs>
+			<iterations>100</iterations>
+			<period>
+				<random>
+					<function>ConstantVariate</function>
+					<param>1</param>
+				</random>
+			</period>
+		</cycle>
+		<toGenerate>
+			<nElem>
+				<random>
+					<function>ConstantVariate</function>
+					<param>2</param>
+				</random>
+			</nElem>
+			<probTree>
+				<prob>1</prob>
+				<elementType model_id="1" id="1"/>
+				<metaFlow model_id="1" id="1"/>
+			</probTree>
+		</toGenerate>
+	</generator>
+</Experiment>

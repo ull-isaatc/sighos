@@ -41,11 +41,13 @@ public class ResourceStdUsageListener extends PeriodicListener {
 		super.infoEmited(info);
 		if (info instanceof ResourceUsageInfo) {
 			ResourceUsageInfo rInfo = (ResourceUsageInfo) info;
-			if (rInfo.getType() == ResourceUsageInfo.Type.CAUGHT) {
-				resUsage.get(rInfo.getIdentifier()).caught(rInfo);
-			}
-			else if (rInfo.getType() == ResourceUsageInfo.Type.RELEASED) {
-				resUsage.get(rInfo.getIdentifier()).released(rInfo);
+			switch (rInfo.getType()) {
+				case CAUGHT:
+					resUsage.get(rInfo.getIdentifier()).caught(rInfo);
+					break;
+				case RELEASED:
+					resUsage.get(rInfo.getIdentifier()).released(rInfo);
+					break;
 			}
 		}
 		else if (info instanceof ResourceInfo) {
@@ -72,9 +74,10 @@ public class ResourceStdUsageListener extends PeriodicListener {
 					for (int j = 0; j < nPeriods; j++)
 						time[j] += resTime[j];
 			}
+			rolTime.put(rt.getIdentifier(), time);
 		}
 		
-		System.out.println(toString());
+		System.out.println(this);
 	}
 
 	/*
@@ -95,7 +98,8 @@ public class ResourceStdUsageListener extends PeriodicListener {
 		}
 		str.append("Resources grouped in rols\n");
 		for (int rtId : rolTime.keySet()) {
-			for (int j = 0; j < nPeriods + 1; j++)
+			str.append(rtId + "\t");
+			for (int j = 0; j < nPeriods; j++)
 				str.append(rolTime.get(rtId)[j] + "\t");
 			str.append("\n");
 		}
@@ -123,6 +127,7 @@ public class ResourceStdUsageListener extends PeriodicListener {
 		public ResourceUsageTime(int resId) {
 			this.resId = resId;
 			usageTime = new HashMap<Integer, double[]>();
+			caughtRT = ResourceStdUsageListener.NOTUSED;
 		}
 		
 		/**

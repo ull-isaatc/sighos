@@ -15,7 +15,7 @@ import es.ull.isaatc.simulation.info.TimeChangeInfo;
  * 
  * @author Roberto Muñoz
  */
-public class ElementIndispTimeListener extends PeriodicListener {
+public class ElementTypeTimeListener extends PeriodicListener {
 	/** The next period timestamp */
 	private double nextPeriodTs;
 
@@ -108,6 +108,24 @@ public class ElementIndispTimeListener extends PeriodicListener {
 						elementTypeTimes.get(eInfoValue.getTypeId()).finishElement(eInfoValue);
 					}
 					break;
+				case STAACT:
+					eInfoValue = elemHashMap.get(eInfo.getIdentifier());
+					eInfoValue.startActivity(eInfo.getTs());
+					break;
+				case ENDACT:
+					eInfoValue = elemHashMap.get(eInfo.getIdentifier());
+					eInfoValue.endActivity(eInfo.getTs());
+					elementTypeTimes.get(eInfoValue.getTypeId()).finishActivity(eInfoValue);
+					break;
+				case RESACT:
+					eInfoValue = elemHashMap.get(eInfo.getIdentifier());
+					eInfoValue.startActivity(eInfo.getTs());
+					break;
+				case INTACT:
+					eInfoValue = elemHashMap.get(eInfo.getIdentifier());
+					eInfoValue.endActivity(eInfo.getTs());
+					elementTypeTimes.get(eInfoValue.getTypeId()).finishActivity(eInfoValue);
+					break;
 			}
 		}
 	}
@@ -126,9 +144,9 @@ public class ElementIndispTimeListener extends PeriodicListener {
 		str.append("Element finished (PERIOD: " + period + ")\n");
 		for (ElementTypeTime etTime : elementTypeTimes.values())
 			str.append(etTime.getFinishedString());
-		str.append("Element indisposed time (PERIOD: " + period + ")\n");
+		str.append("Element work time (PERIOD: " + period + ")\n");
 		for (ElementTypeTime etTime : elementTypeTimes.values())
-			str.append(etTime.getIndisposedString());
+			str.append(etTime.getWorkingString());
 		return str.toString();
 	}
 
@@ -142,6 +160,10 @@ public class ElementIndispTimeListener extends PeriodicListener {
 		double startTs;
 
 		double endTs;
+		
+		double currActStartTs;
+
+		double workTime = 0;
 
 		int typeId;
 
@@ -149,12 +171,12 @@ public class ElementIndispTimeListener extends PeriodicListener {
 		 * @param id
 		 * @param startTs
 		 */
-		public ElementInfoValue(int id, int startPeriod, int typeId, double starTs) {
+		public ElementInfoValue(int id, int startPeriod, int typeId, double startTs) {
 			super();
 			this.id = id;
 			this.startPeriod = startPeriod;
 			this.typeId = typeId;
-			this.startTs = starTs;
+			this.startTs = startTs;
 			this.endTs = Double.NaN;
 		}
 
@@ -210,6 +232,21 @@ public class ElementIndispTimeListener extends PeriodicListener {
 				return true;
 			return false;
 		}
+		
+		public void startActivity(double ts) {
+			currActStartTs = ts;
+		}
+		
+		public void endActivity(double ts) {
+			workTime = ts - currActStartTs;
+		}
+
+		/**
+		 * @return the workTime
+		 */
+		public double getWorkTime() {
+			return workTime;
+		}
 
 		public String toString() {
 			return "E[" + id + "/" + typeId + "]\tS: " + startTs + "\tE: " + endTs;
@@ -224,8 +261,8 @@ public class ElementIndispTimeListener extends PeriodicListener {
 		/** the number of periods */
 		int nPeriods;
 
-		/** array that contains the indisposed time for the elements of this type */
-		private double indispTime[];
+		/** array that contains the working time for the elements of this type */
+		private double workTime[];
 
 		/** number of elements created by period */
 		int createdElement[];
@@ -242,7 +279,7 @@ public class ElementIndispTimeListener extends PeriodicListener {
 			createdElement = new int[nPeriods];
 			finishedElement = new int[nPeriods];
 			activedElement = new int[nPeriods];
-			indispTime = new double[nPeriods];
+			workTime = new double[nPeriods];
 		}
 
 		public void startElement(ElementInfoValue eInfoValue) {
@@ -253,13 +290,16 @@ public class ElementIndispTimeListener extends PeriodicListener {
 			finishedElement[eInfoValue.getFinishPeriod()]++;
 		}
 
+		public void finishActivity(ElementInfoValue eInfoValue) {
+			workTime[eInfoValue.getStartPeriod()] += eInfoValue.getWorkTime();
+		}
+
 		/**
 		 * Adds an element to the list of a period
 		 * 
 		 * @param time
 		 */
 		public void addElement(int period, double time) {
-			indispTime[period] += time;
 			activedElement[period]++;
 		}
 
@@ -267,8 +307,8 @@ public class ElementIndispTimeListener extends PeriodicListener {
 		 * Calculate the average indisposed time by period
 		 */
 		public void finishSimulation() {
-			for (int i = 0; i < nPeriods; i++)
-				indispTime[i] = indispTime[i] / (double) activedElement[i];
+//			for (int i = 0; i < nPeriods; i++)
+//				workTime[i] = workTime[i] / (double) createdElement[i];
 		}
 
 
@@ -290,10 +330,10 @@ public class ElementIndispTimeListener extends PeriodicListener {
 			return str.toString();
 		}
 		
-		public String getIndisposedString() {
+		public String getWorkingString() {
 			StringBuffer str = new StringBuffer();
 			str.append("ET : " + typeId);
-			for (double value : indispTime)
+			for (double value : workTime)
 				str.append("\t" + value);
 			str.append("\n");
 			return str.toString();

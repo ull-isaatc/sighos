@@ -33,8 +33,8 @@ public class ActivityQueueListener extends PeriodicListener {
 		super();
 	}
 
-	public ActivityQueueListener(double period) {
-		super(period);
+	public ActivityQueueListener(double period, double referenceTs) {
+		super(period, referenceTs);
 	}
 
 	/**
@@ -69,22 +69,33 @@ public class ActivityQueueListener extends PeriodicListener {
 	 */
 	public void infoEmited(SimulationObjectInfo info) {
 		super.infoEmited(info);
+		if (info.getTs() - (currentPeriod * period) >= referenceTs)
+			return;
 		if (info instanceof ElementInfo) {
 			ElementInfo eInfo = (ElementInfo) info;
-			if (eInfo.getType() == ElementInfo.Type.START)
-				elemStarted[currentPeriod]++;
-			else if (eInfo.getType() == ElementInfo.Type.REQACT)
-				actQueues.get(eInfo.getValue())[currentPeriod]++;
-			else if (eInfo.getType() == ElementInfo.Type.STAACT)
-				actQueues.get(eInfo.getValue())[currentPeriod]--;
-			else if (eInfo.getType() == ElementInfo.Type.INTACT)
-				actQueues.get(eInfo.getValue())[currentPeriod]++;
-			else if (eInfo.getType() == ElementInfo.Type.RESACT)
-				actQueues.get(eInfo.getValue())[currentPeriod]--;
-			else if (eInfo.getType() == ElementInfo.Type.ENDACT)
-				actPerformed.get(eInfo.getValue())[currentPeriod]++;
-			else if (eInfo.getType() == ElementInfo.Type.FINISH)
-				elemFinish[currentPeriod]++;
+			switch (eInfo.getType()) {
+				case START:
+					elemStarted[currentPeriod]++;
+					break;
+				case REQACT:
+					actQueues.get(eInfo.getValue())[currentPeriod]++;
+					break;
+				case STAACT:
+					actQueues.get(eInfo.getValue())[currentPeriod]--;
+					break;
+				case INTACT:
+					actQueues.get(eInfo.getValue())[currentPeriod]++;
+					break;
+				case RESACT:
+					actQueues.get(eInfo.getValue())[currentPeriod]--;
+					break;
+				case ENDACT:
+					actPerformed.get(eInfo.getValue())[currentPeriod]++;
+					break;
+				case FINISH:
+					elemFinish[currentPeriod]++;
+					break;
+			}				
 		}
 	}
 
@@ -99,7 +110,7 @@ public class ActivityQueueListener extends PeriodicListener {
 				queue[cont] = queue[cont - 1];
 		}
 		
-		System.out.println(toString());
+		System.out.println(this);
 	}
 
 	// Nothing to do

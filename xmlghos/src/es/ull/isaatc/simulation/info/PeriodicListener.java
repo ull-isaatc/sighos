@@ -12,6 +12,8 @@ import es.ull.isaatc.simulation.Simulation;
 public abstract class PeriodicListener implements SimulationListener {
 	/**	The interval of time between two consecutive storages. */
 	protected double period;
+	/** ... */
+	protected double referenceTs;
 	/** The number of periods contained in the simulation time. */
 	protected int nPeriods = 1;
 	/** The current period to store information. */
@@ -32,8 +34,9 @@ public abstract class PeriodicListener implements SimulationListener {
 	 * Creates a listener with period <code>period</code>.
 	 * @param period The interval of time between two consecutive storages.
 	 */
-	public PeriodicListener(double period) {
+	public PeriodicListener(double period, double referenceTs) {
 		this.period = period;
+		this.referenceTs = referenceTs;
 	}
 	
 	/**
@@ -52,6 +55,20 @@ public abstract class PeriodicListener implements SimulationListener {
 		this.period = period;
 	}
 	
+	/**
+	 * @return the referenceTs
+	 */
+	public double getReferenceTs() {
+		return referenceTs;
+	}
+
+	/**
+	 * @param referenceTs the referenceTs to set
+	 */
+	public void setReferenceTs(double referenceTs) {
+		this.referenceTs = referenceTs;
+	}
+
 	/**
 	 * Returns the number of periods contained in the simulation time.
 	 * @return The number of periods contained in the simulation time.

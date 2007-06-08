@@ -1,9 +1,13 @@
 package es.ull.isaatc.simulation.xml;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -53,41 +57,72 @@ public class XMLWrapper {
      * @param xmlModelFileName
      * @param xmlScenarioFileName
      * @param xmlExperimentFileName
+     * @throws FileNotFoundException 
      */
-    public XMLWrapper(String xmlModelFileName, String xmlScenarioFileName, String xmlExperimentFileName) {
+    public XMLWrapper(String xmlModelFileName, String xmlScenarioFileName, String xmlExperimentFileName) throws FileNotFoundException {
+   		this(new FileInputStream(xmlModelFileName),
+   				(xmlScenarioFileName == null) ? null : new FileInputStream(xmlScenarioFileName),
+   				new FileInputStream(xmlExperimentFileName));
+    }
+    
+    /**
+     * Load a model and a scenario and merge the  content to create a model stored in memory.
+     * 
+     * @param streamModel
+     * @param streamScenario
+     * @param streamExperiment
+     */
+    public XMLWrapper(InputStream streamModel, InputStream streamScenario, InputStream streamExperiment) {
+    	this(new InputStreamReader(streamModel),
+    			(streamScenario == null) ? null : new InputStreamReader(streamScenario),
+    			new InputStreamReader(streamExperiment));
+    }
+    
+    /**
+     * Load a model and a scenario and merge the content to create a model stored in memory.
+     * 
+     * @param modelReader
+     * @param scenarioReader
+     * @param experimentReader
+     */
+    public XMLWrapper(Reader modelReader, Reader scenarioReader, Reader experimentReader) {
 		modelValidator = new ModelValidator(modelList.getModelList());
-	
-		experiment = MarshallModelUtil.unMarshallExperiment(xmlExperimentFileName);
-		Model model = MarshallModelUtil.unMarshallModel(xmlModelFileName); 
+		
+		experiment = MarshallModelUtil.unMarshallExperiment(experimentReader);
+		Model model = MarshallModelUtil.unMarshallModel(modelReader); 
 		modelList.add(new ModelMappingTable(model));
-		if (xmlScenarioFileName == null)
+		if (scenarioReader == null)
 		    scenario = null;
 		else
-		    scenario = new ModelMappingTable(MarshallModelUtil.unMarshallModel(xmlScenarioFileName));
-	
+		    scenario = new ModelMappingTable(MarshallModelUtil.unMarshallModel(scenarioReader));
 		updateIncludes(model);
 		updateComponentDefinitions();
 		updateScenario();
 		updateComponentsReferences();
 		mergeModels();
 		// create a log with the mappings
-		createMappingLogFile("mappings.log");
+		createMappingLogFile("mappings.log");    	
     }
-
+    
     /**
      * Adds the referenced models
      * @param model the top model
      */
     private void updateIncludes(Model model) {
 
-	for (String modelFileName : model.getInclude()) {
-	    Model includeModel = MarshallModelUtil.unMarshallModel(modelFileName);
-	    // prevent cycle include
-	    if (includeModel.getId() != model.getId()) {
-			modelList.add(new ModelMappingTable(includeModel));
-			updateIncludes(includeModel);
-	    }
-	}
+    	try {
+			for (String modelFileName : model.getInclude()) {
+			    Model includeModel = MarshallModelUtil.unMarshallModel(new InputStreamReader(new FileInputStream(modelFileName)));
+			    // prevent cycle include
+			    if (includeModel.getId() != model.getId()) {
+					modelList.add(new ModelMappingTable(includeModel));
+					updateIncludes(includeModel);
+			    }
+			}
+    	} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+    	
     }
 
     private void updateComponentDefinitions() {
