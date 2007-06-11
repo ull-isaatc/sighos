@@ -76,8 +76,6 @@ public class ResourceStdUsageListener extends PeriodicListener {
 			}
 			rolTime.put(rt.getIdentifier(), time);
 		}
-		
-		System.out.println(this);
 	}
 
 	/*

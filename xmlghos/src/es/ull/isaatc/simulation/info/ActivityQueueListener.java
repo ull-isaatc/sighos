@@ -33,8 +33,8 @@ public class ActivityQueueListener extends PeriodicListener {
 		super();
 	}
 
-	public ActivityQueueListener(double period, double referenceTs) {
-		super(period, referenceTs);
+	public ActivityQueueListener(double period) {
+		super(period);
 	}
 
 	/**
@@ -69,8 +69,7 @@ public class ActivityQueueListener extends PeriodicListener {
 	 */
 	public void infoEmited(SimulationObjectInfo info) {
 		super.infoEmited(info);
-		if (info.getTs() - (currentPeriod * period) >= referenceTs)
-			return;
+
 		if (info instanceof ElementInfo) {
 			ElementInfo eInfo = (ElementInfo) info;
 			switch (eInfo.getType()) {
@@ -109,8 +108,6 @@ public class ActivityQueueListener extends PeriodicListener {
 			for (int cont = currentPeriod + 1; cont < queue.length; cont++)
 				queue[cont] = queue[cont - 1];
 		}
-		
-		System.out.println(this);
 	}
 
 	// Nothing to do

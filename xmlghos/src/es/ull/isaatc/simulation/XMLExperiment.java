@@ -8,9 +8,9 @@ import java.util.Iterator;
 
 import es.ull.isaatc.simulation.Experiment;
 import es.ull.isaatc.simulation.Simulation;
-import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationListener;
 import es.ull.isaatc.simulation.info.SimulationTimeListener;
+import es.ull.isaatc.simulation.info.xml.XMLListenerController;
 import es.ull.isaatc.simulation.state.NullStateProcessor;
 import es.ull.isaatc.util.ClassPathHacker;
 import es.ull.isaatc.util.Output;
@@ -27,6 +27,8 @@ public class XMLExperiment extends Experiment {
 
 	private ArrayList<SimulationListener> listenerList = new ArrayList<SimulationListener>();
 
+	private XMLListenerController listenerController = new XMLListenerController();
+	
 	private Output out;
 
 	public XMLExperiment(es.ull.isaatc.simulation.xml.XMLWrapper xmlWrapper) {
@@ -42,7 +44,7 @@ public class XMLExperiment extends Experiment {
 		setDescription(xmlExperiment.getSimulation());
 		setNExperiments(xmlExperiment.getExperiments());
 		setProcessor(new NullStateProcessor());
-		createOutput();
+		out = new Output(xmlWrapper.getDebugMode());
 	}
 
 	protected void createListeners() {
@@ -54,11 +56,6 @@ public class XMLExperiment extends Experiment {
 			listenerList.add((SimulationListener) processClassReference(
 					listenerIt.next(), SimulationListener.class));
 		}
-	}
-
-	protected void createOutput() {
-
-		out = new Output(xmlWrapper.getDebugMode());
 	}
 
 	protected Object processClassReference(
@@ -131,15 +128,30 @@ public class XMLExperiment extends Experiment {
 		sim.setOutput(out);
 		
 		createListeners();
-		sim.addListener(new SimulationTimeListener() {
+		SimulationListener timeListener = new SimulationTimeListener() {
 			@Override
-			public void infoEmited(SimulationEndInfo info) {
-				super.infoEmited(info);
-				System.out.println("CPU time :\t" + this);
+			public String toString() {
+				return "Simulation time : " + super.toString() + "\n";
 			}
-		});
+			
+		};
+		listenerList.add(timeListener);
+		
+		listenerController.addAll(ind, listenerList);
+
 		for (SimulationListener listener : listenerList)
 			sim.addListener(listener);
+		sim.addListener(timeListener);
+		
 		return sim;
+	}
+
+	/* (non-Javadoc)
+	 * @see es.ull.isaatc.simulation.Experiment#end()
+	 */
+	@Override
+	protected void end() {
+		super.end();
+		System.out.println(listenerController);
 	}
 }

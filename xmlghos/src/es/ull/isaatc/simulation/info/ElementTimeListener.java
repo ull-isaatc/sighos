@@ -83,8 +83,6 @@ public class ElementTimeListener extends PeriodicListener {
 	public void infoEmited(SimulationEndInfo info) {
 		for (ElementTypeTime etTime : elementTypeTimes.values())
 			etTime.finishSimulation();
-
-		System.out.println(toString());
 	}
 
 	// Nothing to do

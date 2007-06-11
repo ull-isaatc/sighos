@@ -15,7 +15,7 @@ import es.ull.isaatc.simulation.xml.Activity;
 import es.ull.isaatc.simulation.xml.Resource.TimeTable;
 import es.ull.isaatc.simulation.xml.WorkGroup;
 import es.ull.isaatc.simulation.xml.WorkGroup.Role;
-import es.ull.isaatc.simulation.xml.util.MarshallModelUtil;
+import es.ull.isaatc.simulation.xml.util.XMLMarshallUtils;
 import es.ull.isaatc.simulation.xml.validation.ModelException;
 import es.ull.isaatc.simulation.xml.validation.ModelValidator;
 
@@ -88,13 +88,13 @@ public class XMLWrapper {
     public XMLWrapper(Reader modelReader, Reader scenarioReader, Reader experimentReader) {
 		modelValidator = new ModelValidator(modelList.getModelList());
 		
-		experiment = MarshallModelUtil.unMarshallExperiment(experimentReader);
-		Model model = MarshallModelUtil.unMarshallModel(modelReader); 
+		experiment = XMLMarshallUtils.unMarshallExperiment(experimentReader);
+		Model model = XMLMarshallUtils.unMarshallModel(modelReader); 
 		modelList.add(new ModelMappingTable(model));
 		if (scenarioReader == null)
 		    scenario = null;
 		else
-		    scenario = new ModelMappingTable(MarshallModelUtil.unMarshallModel(scenarioReader));
+		    scenario = new ModelMappingTable(XMLMarshallUtils.unMarshallModel(scenarioReader));
 		updateIncludes(model);
 		updateComponentDefinitions();
 		updateScenario();
@@ -112,7 +112,7 @@ public class XMLWrapper {
 
     	try {
 			for (String modelFileName : model.getInclude()) {
-			    Model includeModel = MarshallModelUtil.unMarshallModel(new InputStreamReader(new FileInputStream(modelFileName)));
+			    Model includeModel = XMLMarshallUtils.unMarshallModel(new InputStreamReader(new FileInputStream(modelFileName)));
 			    // prevent cycle include
 			    if (includeModel.getId() != model.getId()) {
 					modelList.add(new ModelMappingTable(includeModel));

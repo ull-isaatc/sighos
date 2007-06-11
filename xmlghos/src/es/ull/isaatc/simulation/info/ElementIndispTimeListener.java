@@ -76,8 +76,6 @@ public class ElementIndispTimeListener extends PeriodicListener {
 		changeCurrentPeriod(getSimEnd());
 		for (ElementTypeTime etTime : elementTypeTimes.values())
 			etTime.finishSimulation();
-
-		System.out.println(this);
 	}
 
 	/*
@@ -87,9 +85,6 @@ public class ElementIndispTimeListener extends PeriodicListener {
 	 */
 	public void infoEmited(SimulationObjectInfo info) {
 		super.infoEmited(info);
-		if (info.getTs() - (currentPeriod * period) >= referenceTs) {
-			return;
-		}
 			
 		if (info instanceof ElementInfo) {
 			ElementInfo eInfo = (ElementInfo) info;
