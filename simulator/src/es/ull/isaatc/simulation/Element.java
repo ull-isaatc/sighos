@@ -9,7 +9,7 @@ import es.ull.isaatc.simulation.state.*;
  * Represents elements that make use of activitiy flows in order to carry out
  * their events.
  * 
- * @author Ivn Castilla Rodrguez
+ * @author Iván Castilla Rodríguez
  */
 @SuppressWarnings("unchecked")
 public class Element extends BasicElement implements RecoverableState<ElementState> {

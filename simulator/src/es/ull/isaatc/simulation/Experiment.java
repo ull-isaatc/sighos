@@ -93,7 +93,7 @@ public abstract class Experiment {
 				sim.start(previousState, endTs);
 			else
 				sim.start(startTs, endTs);
-			processor.process((SimulationState)sim.getState());
+			processor.process(sim.getState());
 		}
 		end();
 	}
