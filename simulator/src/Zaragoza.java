@@ -10,7 +10,6 @@ import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.listener.SimulationTimeListener;
-import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
 
 class SimZaragoza extends StandAloneLPSimulation {

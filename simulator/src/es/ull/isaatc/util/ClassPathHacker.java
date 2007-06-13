@@ -6,7 +6,6 @@ package es.ull.isaatc.util;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 

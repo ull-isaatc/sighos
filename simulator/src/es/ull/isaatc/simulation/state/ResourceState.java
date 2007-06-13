@@ -13,6 +13,7 @@ import java.util.Map.Entry;
  *
  */
 public class ResourceState implements State {
+	private static final long serialVersionUID = 23937769917877503L;
 	/** This resource's identifier */
 	protected int resId;
     /** A counter of the valid timetable entries which this resource is following */

@@ -9,6 +9,7 @@ package es.ull.isaatc.simulation.state;
  *
  */
 public class SequenceFlowState extends GroupFlowState {
+	private static final long serialVersionUID = -7642597538954929407L;
 
 	public SequenceFlowState(int finished) {
 		super(finished);

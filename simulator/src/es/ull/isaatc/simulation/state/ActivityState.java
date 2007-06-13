@@ -10,6 +10,7 @@ package es.ull.isaatc.simulation.state;
  * @author Iván Castilla Rodríguez
  */
 public class ActivityState implements State {
+	private static final long serialVersionUID = 873645092139635770L;
 	/** This activity's identifier */ 
 	protected int actId;
 	

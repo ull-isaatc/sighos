@@ -12,6 +12,7 @@ import java.util.PriorityQueue;
  * @author Iván Castilla Rodríguez
  */
 public class SimulationState implements State {
+	private static final long serialVersionUID = 6461585178077450859L;
 	/** The state of the elements belonging to this simulation */
 	protected ArrayList<ElementState> elemStates;
 	/** The state of the resources belonging to this simulation */

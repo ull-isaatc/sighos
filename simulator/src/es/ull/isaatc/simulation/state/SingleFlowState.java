@@ -14,6 +14,7 @@ import java.util.ArrayList;
  *
  */
 public class SingleFlowState extends FlowState {
+	private static final long serialVersionUID = 1734228301742689991L;
 	/** This flow's identifier */
 	protected int flowId;
 	/** The activity which this flow wraps */

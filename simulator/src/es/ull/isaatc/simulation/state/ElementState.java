@@ -9,6 +9,7 @@ package es.ull.isaatc.simulation.state;
  * @author Ivn Castilla Rodrguez
  */
 public class ElementState implements State {
+	private static final long serialVersionUID = 1459264133917912743L;
 	/** This element's identifier */ 
 	protected int elemId;
 	/** The element type this element belongs to */

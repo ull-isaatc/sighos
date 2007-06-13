@@ -8,6 +8,7 @@ package es.ull.isaatc.simulation.state;
  * @author Iván Castilla Rodríguez
  */
 public class SimultaneousFlowState extends GroupFlowState {
+	private static final long serialVersionUID = 8758311863142631234L;
 
 	public SimultaneousFlowState(int finished) {
 		super(finished);

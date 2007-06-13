@@ -11,6 +11,7 @@ import java.util.ArrayList;
  * @author Iván Castilla Rodríguez
  */
 public class ResourceTypeState implements State {
+	private static final long serialVersionUID = -4096228024023672393L;
 	/** This RT's identifier */
 	protected int rtId;
 	/** The list of available resources */
