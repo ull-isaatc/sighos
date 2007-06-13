@@ -6,7 +6,7 @@ package es.ull.isaatc.simulation.info.xml;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import es.ull.isaatc.simulation.info.SimulationListener;
+import es.ull.isaatc.simulation.listener.SimulationListener;
 import es.ull.isaatc.simulation.xml.util.XMLMarshallUtils;
 
 /**
