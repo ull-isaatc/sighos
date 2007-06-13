@@ -1,3 +1,4 @@
+package es.ull.isaatc.test;
 import simkit.random.*;
 
 import java.io.*;

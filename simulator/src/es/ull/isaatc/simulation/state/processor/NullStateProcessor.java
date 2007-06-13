@@ -1,7 +1,9 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.state;
+package es.ull.isaatc.simulation.state.processor;
+
+import es.ull.isaatc.simulation.state.SimulationState;
 
 /**
  * A state processor which does nothing. 

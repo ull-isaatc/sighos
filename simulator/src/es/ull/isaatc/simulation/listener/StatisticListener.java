@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.info;
+package es.ull.isaatc.simulation.listener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +9,11 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.info.ElementInfo;
+import es.ull.isaatc.simulation.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.info.SimulationObjectInfo;
+import es.ull.isaatc.simulation.info.SimulationStartInfo;
+import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
  * Stores the information related to a simulation. 

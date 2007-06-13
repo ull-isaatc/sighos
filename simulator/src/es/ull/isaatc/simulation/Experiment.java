@@ -4,6 +4,8 @@
 package es.ull.isaatc.simulation;
 
 import es.ull.isaatc.simulation.state.*;
+import es.ull.isaatc.simulation.state.processor.NullStateProcessor;
+import es.ull.isaatc.simulation.state.processor.StateProcessor;
 
 /**
  * Controls a set of experiments. 

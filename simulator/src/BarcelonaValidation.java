@@ -9,6 +9,10 @@ import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.*;
+import es.ull.isaatc.simulation.listener.ActivityListener;
+import es.ull.isaatc.simulation.listener.ActivityTimeListener;
+import es.ull.isaatc.simulation.listener.SimulationListener;
+import es.ull.isaatc.simulation.listener.StatisticListener;
 import es.ull.isaatc.simulation.state.SimulationState;
 import es.ull.isaatc.util.*;
 
@@ -1059,7 +1063,7 @@ class BarcelonaListener extends StatisticListener {
 	}
 }
 
-class BarcelonaListener2 extends PeriodicActivityUsageListener {
+class BarcelonaListener2 extends ActivityTimeListener {
 	FileWriter fileRes1 = null;
 
 	public BarcelonaListener2(double period, FileWriter fileRes1) {
@@ -1069,7 +1073,7 @@ class BarcelonaListener2 extends PeriodicActivityUsageListener {
 
 	public void infoEmited(SimulationEndInfo info) {
 		super.infoEmited(info);
-		double result[] = new double[getNPeriods()];
+		double result[] = new double[getNumberOfPeriods()];
 		try {
 			for (double[] values : getActUsage().values())
 				for (int j = 0; j < values.length; j++)
@@ -1159,7 +1163,7 @@ class BarcelonaListener3 implements SimulationListener {
 
 // Escucha cada 3 horas, pero solo muestra el resultado a las 15 y a las 24
 // Además muestra directamente la suma de las actividades
-class BarcelonaListener4 extends PeriodicActivityQueueListener {
+class BarcelonaListener4 extends ActivityListener {
 	FileWriter fileRes = null;
 
 	public BarcelonaListener4(double period, FileWriter fileRes) {
@@ -1170,7 +1174,7 @@ class BarcelonaListener4 extends PeriodicActivityQueueListener {
 	public void infoEmited(SimulationEndInfo info) {
 		super.infoEmited(info);
 		try {
-			for (int i = 7; i < getNPeriods(); i = i + 24) {
+			for (int i = 7; i < getNumberOfPeriods(); i = i + 24) {
 				int res15 = 0; 
 				int res8 = 0; 
 				for (int[] values: getActQueues().values()) {

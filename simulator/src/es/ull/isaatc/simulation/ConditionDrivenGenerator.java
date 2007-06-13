@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.simulation.info.SimulationListener;
+import es.ull.isaatc.simulation.listener.SimulationListener;
 
 /**
  * @author Iván Castilla Rodríguez

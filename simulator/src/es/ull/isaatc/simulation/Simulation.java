@@ -10,11 +10,11 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.info.SimulationListener;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
+import es.ull.isaatc.simulation.listener.SimulationListener;
 import es.ull.isaatc.simulation.state.*;
 import es.ull.isaatc.util.*;
 
@@ -105,6 +105,14 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	 */
 	public void addListener(SimulationListener listener) {
 		listeners.add(listener);
+	}
+
+	/**
+	 * Returns the list of listeners of the simulation
+	 * @return the list of listeners of the simulation
+	 */
+	public ArrayList<SimulationListener> getListeners() {
+		return listeners;
 	}
 
 	/**

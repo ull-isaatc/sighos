@@ -1,7 +1,9 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.state;
+package es.ull.isaatc.simulation.state.processor;
+
+import es.ull.isaatc.simulation.state.SimulationState;
 
 /**
  * Represents an object capable of processing the state of a simulation.

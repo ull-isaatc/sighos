@@ -1,9 +1,14 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.info;
+package es.ull.isaatc.simulation.listener;
 
 import java.util.EventListener;
+
+import es.ull.isaatc.simulation.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.info.SimulationObjectInfo;
+import es.ull.isaatc.simulation.info.SimulationStartInfo;
+import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
  * "Listens" and processes the information of a simulation.

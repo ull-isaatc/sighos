@@ -1,9 +1,16 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.info;
+package es.ull.isaatc.simulation.listener;
 
 import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.info.ElementInfo;
+import es.ull.isaatc.simulation.info.ResourceInfo;
+import es.ull.isaatc.simulation.info.ResourceUsageInfo;
+import es.ull.isaatc.simulation.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.info.SimulationObjectInfo;
+import es.ull.isaatc.simulation.info.SimulationStartInfo;
+import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
  * A standard listener. It only shows the events on the standard output.

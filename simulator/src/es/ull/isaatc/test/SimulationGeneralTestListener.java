@@ -4,10 +4,10 @@
 package es.ull.isaatc.test;
 
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.info.SimulationListener;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
+import es.ull.isaatc.simulation.listener.SimulationListener;
 
 /**
  * A verification listener which tests:<ul>

@@ -2,8 +2,8 @@
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.info.StatisticListener;
-import es.ull.isaatc.simulation.info.StdInfoListener;
+import es.ull.isaatc.simulation.listener.StatisticListener;
+import es.ull.isaatc.simulation.listener.StdInfoListener;
 import es.ull.isaatc.util.*;
 
 /** 

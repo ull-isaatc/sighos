@@ -8,7 +8,7 @@ import java.util.EnumSet;
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.info.StdInfoListener;
+import es.ull.isaatc.simulation.listener.StdInfoListener;
 import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
 

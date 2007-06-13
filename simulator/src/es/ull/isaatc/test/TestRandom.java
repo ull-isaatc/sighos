@@ -1,3 +1,4 @@
+package es.ull.isaatc.test;
 import es.ull.isaatc.random.*;
 
 import java.io.*;

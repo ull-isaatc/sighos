@@ -5,8 +5,8 @@
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.info.ResourceUsageListener;
-import es.ull.isaatc.simulation.info.StdInfoListener;
+import es.ull.isaatc.simulation.listener.ResourceUsageListener;
+import es.ull.isaatc.simulation.listener.StdInfoListener;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.PeriodicCycle;
 
