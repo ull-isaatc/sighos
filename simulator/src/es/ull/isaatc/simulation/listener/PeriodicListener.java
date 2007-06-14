@@ -8,8 +8,9 @@ import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
 
 /**
+ * This class serves as a base for developing listeners that stores information
+ * periodically.
  * @author Roberto Muñoz
- *
  */
 public abstract class PeriodicListener implements SimulationListener {
 	/**	The interval of time between two consecutive storages. */
@@ -78,19 +79,17 @@ public abstract class PeriodicListener implements SimulationListener {
 		return simEnd;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.info.SimulationListener#infoEmited(es.ull.isaatc.simulation.info.SimulationObjectInfo)
-	 */
+	@Override
 	public void infoEmited(SimulationObjectInfo info) {
+		// increase the current period until the timestamp of the info is reached
 		while (info.getTs() >= ((currentPeriod + 1) * period) + simStart) {
 			currentPeriod++;
+			// performs the required operations when the period changes
 			changeCurrentPeriod(info.getTs());
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.info.SimulationListener#infoEmited(es.ull.isaatc.simulation.info.SimulationStartInfo)
-	 */
+	@Override
 	public void infoEmited(SimulationStartInfo info) {
 		simul = info.getSimulation();
 		simStart = simul.getStartTs();

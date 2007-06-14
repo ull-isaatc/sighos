@@ -136,7 +136,7 @@ class ExpOverlapped extends Experiment {
 		OverlappedSimulation sim = new OverlappedSimulation(NDIAS);
 //		sim.setOutput(new Output(true/*, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)*/));
 //		sim.addListener(oListener);
-		sim.addListener(new StdInfoListener());
+		sim.addListener(new StdInfoListener(System.out));
 		return sim;
 	}
 }

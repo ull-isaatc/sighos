@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.listener;
 
-import java.util.HashMap;
+import java.util.TreeMap;
 
 import es.ull.isaatc.simulation.ResourceType;
 import es.ull.isaatc.simulation.info.ResourceInfo;
@@ -10,7 +10,7 @@ import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
- * Stores the resource usage time.
+ * Stores the resource usage and availability time.
  * 
  * @author Roberto Muñoz
  */
@@ -18,27 +18,32 @@ public class ResourceStdUsageListener extends PeriodicListener {
 	/** Resource not used. */
 	private static int NOTUSED = -1;	
 	/** Stores the time each resource has been used for each rol. */
-	private HashMap<Integer, ResourceUsageTime> resUsage;
+	private TreeMap<Integer, ResourceUsage> resUsage;
 	/** Stores how much time has been dedicated in each rol. */
-	HashMap<Integer, double[]> rolTime;
+	TreeMap<Integer, double[]> rolTime;
+	/** Stores the availavility time each rol has had. */
+	TreeMap<Integer, double[]> avalTime;
 
+	public ResourceStdUsageListener() {
+		super();
+	}
+
+	public ResourceStdUsageListener(double period) {
+		super(period);
+	}
 
 	@Override
 	protected void changeCurrentPeriod(double ts) {
-		for (ResourceUsageTime rUsageTime : resUsage.values())
-			rUsageTime.changePeriod(ts);
+		for (ResourceUsage rUsageTime : resUsage.values())
+			rUsageTime.changePeriod(ts);		
 	}
 
 	@Override
 	protected void initializeStorages() {
-		resUsage = new HashMap<Integer, ResourceUsageTime>();
+		resUsage = new TreeMap<Integer, ResourceUsage>();
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationComponentInfo)
-	 */
+	@Override
 	public void infoEmited(SimulationObjectInfo info) {
 		super.infoEmited(info);
 		if (info instanceof ResourceUsageInfo) {
@@ -54,23 +59,27 @@ public class ResourceStdUsageListener extends PeriodicListener {
 		}
 		else if (info instanceof ResourceInfo) {
 			ResourceInfo rInfo = (ResourceInfo) info;
-			if (rInfo.getType() == ResourceInfo.Type.START) {
-				resUsage.put(rInfo.getIdentifier(), new ResourceUsageTime(rInfo.getIdentifier()));
+			switch (rInfo.getType()) {
+			case START:
+				resUsage.put(rInfo.getIdentifier(), new ResourceUsage(rInfo.getIdentifier()));
+				break;
+			case ROLON:
+				resUsage.get(rInfo.getIdentifier()).rolOn(rInfo);
+				break;
+			case ROLOFF:
+				resUsage.get(rInfo.getIdentifier()).rolOff(rInfo);
+				break;
 			}
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationEndInfo)
-	 */
+	@Override
 	public void infoEmited(SimulationEndInfo info) {
 		// Analize how much time has been dedicated in each rol
-		rolTime = new HashMap<Integer, double[]>();
+		rolTime = new TreeMap<Integer, double[]>();
 		for (ResourceType rt : simul.getResourceTypeList().values()) {
 			double[] time = new double[nPeriods];
-			for (ResourceUsageTime resUsageTime : resUsage.values()) {
+			for (ResourceUsage resUsageTime : resUsage.values()) {
 				double[] resTime = resUsageTime.getUsageTime(rt.getIdentifier());
 				if (resTime != null)  // the resource has been used as rol rt
 					for (int j = 0; j < nPeriods; j++)
@@ -78,13 +87,22 @@ public class ResourceStdUsageListener extends PeriodicListener {
 			}
 			rolTime.put(rt.getIdentifier(), time);
 		}
+		// Analize how much time has been available in each rol
+		avalTime = new TreeMap<Integer, double[]>();
+		for (ResourceType rt : simul.getResourceTypeList().values()) {
+			double[] time = new double[nPeriods];
+			for (ResourceUsage resUsageTime : resUsage.values()) {
+				double[] resTime = resUsageTime.getAvalTime(rt.getIdentifier());
+				if (resTime != null)  // the resource has been used as rol rt
+					for (int j = 0; j < nPeriods; j++)
+						time[j] += resTime[j];
+			}
+			avalTime.put(rt.getIdentifier(), time);
+		}
+
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.TimeChangeInfo)
-	 */
+	@Override
 	public void infoEmited(TimeChangeInfo info) {
 
 	}
@@ -93,14 +111,21 @@ public class ResourceStdUsageListener extends PeriodicListener {
 	public String toString() {
 		StringBuffer str = new StringBuffer();
 		str.append("\nResources usage time (PERIOD: " + period + ")\n");
-		for (ResourceUsageTime rUsage : resUsage.values()) {
-			str.append(rUsage.toString());
+		for (ResourceUsage rUsage : resUsage.values()) {
+			str.append(rUsage.getAvalString());
 		}
-		str.append("Resources grouped in rols\n");
+		str.append("Resources usage time grouped in rols\n");
 		for (int rtId : rolTime.keySet()) {
 			str.append(rtId + "\t");
 			for (int j = 0; j < nPeriods; j++)
 				str.append(rolTime.get(rtId)[j] + "\t");
+			str.append("\n");
+		}
+		str.append("Resources availability time grouped in rols\n");
+		for (int rtId : rolTime.keySet()) {
+			str.append(rtId + "\t");
+			for (int j = 0; j < nPeriods; j++)
+				str.append(avalTime.get(rtId)[j] + "\t");
 			str.append("\n");
 		}
 		return str.toString();
@@ -110,9 +135,13 @@ public class ResourceStdUsageListener extends PeriodicListener {
 	 * Stores how much time a resource has been used for each rol.
 	 * @author Roberto Muñoz
 	 */
-	private class ResourceUsageTime {
+	private class ResourceUsage {
 		/** Stores the time this resource is used for each rol. */
-		private HashMap<Integer, double[]> usageTime;
+		private TreeMap<Integer, double[]> usageTime;
+		/** Stores the time this resource is available for each rol. */
+		private TreeMap<Integer, double[]> avalTime;
+		/** Stores if the resource has benn switched off for a rol. */
+		private TreeMap<Integer, Integer> rtRolOff;
 		/** Current rol this resource is used for. */
 		private int caughtRT;
 		/** Simulation time this resource has been caught. */
@@ -124,10 +153,34 @@ public class ResourceStdUsageListener extends PeriodicListener {
 		 * Creates the object for storing the information.
 		 * @param resId Resource identifier
 		 */
-		public ResourceUsageTime(int resId) {
+		public ResourceUsage(int resId) {
 			this.resId = resId;
-			usageTime = new HashMap<Integer, double[]>();
+			usageTime = new TreeMap<Integer, double[]>();
+			avalTime = new TreeMap<Integer, double[]>();
+			rtRolOff = new TreeMap<Integer, Integer>();
+			for (int id : simul.getResourceTypeList().keySet()) {
+				avalTime.put(id, new double[nPeriods]);
+				rtRolOff.put(id, 0);
+			}
 			caughtRT = ResourceStdUsageListener.NOTUSED;
+		}
+		
+		/**
+		 * The resource is available for a rol.
+		 * @param rInfo Resource info event
+		 */
+		public void rolOn(ResourceInfo rInfo) {
+			avalTime.get(rInfo.getValue())[currentPeriod] -= rInfo.getTs();
+			rtRolOff.put(rInfo.getValue(), 1);
+		}
+
+		/**
+		 * The resource is not available for a rol.
+		 * @param rInfo Resource info event
+		 */
+		public void rolOff(ResourceInfo rInfo) {
+			avalTime.get(rInfo.getValue())[currentPeriod] += rInfo.getTs();
+			rtRolOff.put(rInfo.getValue(), 0);
 		}
 		
 		/**
@@ -163,6 +216,15 @@ public class ResourceStdUsageListener extends PeriodicListener {
 				rolTime[currentPeriod - 1] += ts - caughtTs;
 				caughtTs = ts;
 			}
+			for (int id : avalTime.keySet()) {
+				// when the period changes the resources availavility time must be actualized for the
+				// last period and for the new period
+				if (rtRolOff.get(id) == 1) {
+					avalTime.get(id)[currentPeriod - 1] += currentPeriod * period;
+					if (currentPeriod < nPeriods)
+						avalTime.get(id)[currentPeriod] -= currentPeriod * period;
+				}
+			}
 		}
 		
 		/**
@@ -172,8 +234,14 @@ public class ResourceStdUsageListener extends PeriodicListener {
 			return usageTime.get(rtId);
 		}
 
-		@Override
-		public String toString() {
+		/**
+		 * @return the avalTime this resource has been working for a rol.
+		 */
+		public double[] getAvalTime(int rtId) {
+			return avalTime.get(rtId);
+		}
+		
+		public String getUsageString() {
 			StringBuffer str = new StringBuffer();
 			str.append("RES : " + resId + "\n");
 			for (Integer rtId : usageTime.keySet()) {
@@ -185,5 +253,19 @@ public class ResourceStdUsageListener extends PeriodicListener {
 			}			
 			return str.toString();
 		}
+		
+		public String getAvalString() {
+			StringBuffer str = new StringBuffer();
+			str.append("RES : " + resId + "\n");
+			for (Integer rtId : avalTime.keySet()) {
+				str.append(rtId + "\t");
+				for (double time : avalTime.get(rtId)) {
+					str.append(time + "\t");
+				}
+				str.append("\n");
+			}			
+			return str.toString();
+		}
+
 	}
 }

@@ -153,7 +153,7 @@ class ExpHospitalSecuencia extends Experiment {
 //			sim = new Analisis(NDIAS + (int)(prevEnd / (60 * 24)), new Output(Output.DebugLevel.XDEBUG), new PreviousSimulationResults(prevStart, prevEnd, ind, "c:\\"));
 //		else
 			sim = new Analisis(NDIAS);
-		sim.addListener(new StdInfoListener());
+		sim.addListener(new StdInfoListener(System.out));
 		sim.addListener(new StatisticListener(1440.0));		
 		return sim;
 	}

@@ -11,8 +11,8 @@ import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
- * Periodically stores the average waiting time of elements per activity
- * 
+ * Periodically stores the information elements grouped per type. The ifnormation stored is the number
+ * of elements created, the amount of elements finished and average waiting time of the elements.
  * @author Roberto Muñoz
  */
 public class ElementTypeTimeListener extends PeriodicListener {
@@ -24,6 +24,13 @@ public class ElementTypeTimeListener extends PeriodicListener {
 
 	private HashMap<Integer, ElementTypeTime> elementTypeTimes = new HashMap<Integer, ElementTypeTime>();
 
+	public ElementTypeTimeListener() {
+		super();
+	}
+
+	public ElementTypeTimeListener(double period) {
+		super(period);
+	}
 	
 	/**
 	 * Returns the element hashmap.

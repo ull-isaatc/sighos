@@ -222,15 +222,15 @@ class ExpSimAct extends Experiment {
 					System.out.println(this);
 				}
 			});
-			sim.addListener(new StdInfoListener());
+			sim.addListener(new StdInfoListener(System.out));
 		}
 		else if (expType == 2) {
 			sim = new SimContinue(description + ind + "", NDAYS);
-			sim.addListener(new StdInfoListener());
+			sim.addListener(new StdInfoListener(System.out));
 		}
 		else if (expType == 3) {
 			sim = new SimContinue(description + ind + "", NDAYS);
-			sim.addListener(new StdInfoListener());
+			sim.addListener(new StdInfoListener(System.out));
 		}
 		return sim;
 	}

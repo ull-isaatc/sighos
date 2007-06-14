@@ -9,7 +9,7 @@ import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
- * Periodically stores the size of the activity queues.
+ * Periodically stores info about activity queues and activities performed.
  * 
  * @author Ivan Castilla
  * @author Roberto Muñoz
@@ -32,9 +32,16 @@ public class ActivityListener extends PeriodicListener {
 	}
 
 	/**
-	 * Returns the size of the activity queues by periodFwd.
-	 * 
-	 * @return The size of the activity queues by periodFwd.
+	 * Returns the activities performed by period.
+	 * @return the actPerformed
+	 */
+	public TreeMap<Integer, int[]> getActPerformed() {
+		return actPerformed;
+	}
+
+	/**
+	 * Returns the activity queues by period.
+	 * @return the actQueues
 	 */
 	public TreeMap<Integer, int[]> getActQueues() {
 		return actQueues;
@@ -53,12 +60,8 @@ public class ActivityListener extends PeriodicListener {
 			actPerformed.put(i, new int[nPeriods]);
 		}
 	}	
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationComponentInfo)
-	 */
+
+	@Override
 	public void infoEmited(SimulationObjectInfo info) {
 		super.infoEmited(info);
 
@@ -84,11 +87,7 @@ public class ActivityListener extends PeriodicListener {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationEndInfo)
-	 */
+	@Override
 	public void infoEmited(SimulationEndInfo info) {
 		for (int[] queue : actQueues.values()) {
 			for (int cont = currentPeriod + 1; cont < queue.length; cont++)
@@ -96,7 +95,7 @@ public class ActivityListener extends PeriodicListener {
 		}
 	}
 
-	// Nothing to do
+	@Override
 	public void infoEmited(TimeChangeInfo info) {
 
 	}
@@ -123,9 +122,5 @@ public class ActivityListener extends PeriodicListener {
 			str.append("\n");
 		}
 		return str.toString();
-	}
-	
-	public int getActivityQueue(int id) {
-		return actQueues.get(id)[currentPeriod];
 	}
 }

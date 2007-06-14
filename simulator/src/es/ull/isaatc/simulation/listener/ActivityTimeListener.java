@@ -56,6 +56,7 @@ public class ActivityTimeListener extends PeriodicListener {
 		}
 	}	
 	
+	@Override
 	public void infoEmited(SimulationObjectInfo info) {
 		super.infoEmited(info);
 
@@ -86,12 +87,12 @@ public class ActivityTimeListener extends PeriodicListener {
 		}
 	}
 
+	@Override
 	public void infoEmited(SimulationEndInfo info) {
 	}
 
-	// Nothing to do
+	@Override
 	public void infoEmited(TimeChangeInfo info) {
-
 	}
 
 	@Override

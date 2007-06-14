@@ -11,7 +11,6 @@ import es.ull.isaatc.simulation.info.TimeChangeInfo;
 /**
  * Listens the duration of a simulation.
  * @author Iván Castilla Rodríguez
- *
  */
 public class SimulationTimeListener implements SimulationListener {
 	/** Initial CPU time (miliseconds). */
@@ -39,27 +38,21 @@ public class SimulationTimeListener implements SimulationListener {
 		return endT;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationComponentInfo)
-	 */
+	@Override
 	public void infoEmited(SimulationObjectInfo info) {
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationStartInfo)
-	 */
+	@Override
 	public void infoEmited(SimulationStartInfo info) {
 		iniT = info.getIniT();
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationEndInfo)
-	 */
+	@Override
 	public void infoEmited(SimulationEndInfo info) {
 		endT = info.getEndT();
 	}
 
-	// Nothing to do
+	@Override
 	public void infoEmited(TimeChangeInfo info) {
 	}
 

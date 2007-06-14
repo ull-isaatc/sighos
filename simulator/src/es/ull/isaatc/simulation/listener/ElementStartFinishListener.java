@@ -11,6 +11,7 @@ import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
  * A listener to compute the amount of started and finished elements.
+ * 
  * @author Iván Castilla Rodríguez
  * @author Roberto Muñoz
  */

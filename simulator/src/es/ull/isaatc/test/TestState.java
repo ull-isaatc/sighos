@@ -142,7 +142,7 @@ class StateExperiment extends Experiment {
 	public Simulation getSimulation(int ind) {
 		StateSimulation sim = new StateSimulation("Simulation PART: " + ind, COMPLEXITY);
 		setPreviousState(prevState);
-		sim.addListener(new StdInfoListener());
+		sim.addListener(new StdInfoListener(System.out));
 		startTs = SIMTIME * ind;
 		endTs = SIMTIME * (ind + 1);
 		return sim;

@@ -136,7 +136,7 @@ class ExpSchedula extends Experiment {
 	@Override
 	public Simulation getSimulation(int ind) {
 		SimSchedula sim = new SimSchedula();
-		sim.addListener(new StdInfoListener());
+		sim.addListener(new StdInfoListener(System.out));
 		sim.addListener(new StatisticListener(1440.0));
 		return sim;
 	}

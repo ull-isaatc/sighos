@@ -19,7 +19,7 @@ class InterruptibleActivitiesSimulation extends StandAloneLPSimulation {
 	static final int NRES = 1;
 	public InterruptibleActivitiesSimulation() {
 		super("Testing interruptible activities");
-		addListener(new StdInfoListener());
+		addListener(new StdInfoListener(System.out));
 //		setOutput(new Output(true));
 	}
 

@@ -17,7 +17,7 @@ class PriorityElementSimulation extends StandAloneLPSimulation {
 	static final int NRES = 20;
 	public PriorityElementSimulation() {
 		super("Testing Elements with priority");
-		addListener(new StdInfoListener());
+		addListener(new StdInfoListener(System.out));
 //		setOutput(new Output(true));
 	}
 

@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation.listener;
 
+import java.io.PrintStream;
+
 import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.info.ElementInfo;
 import es.ull.isaatc.simulation.info.ResourceInfo;
@@ -15,21 +17,22 @@ import es.ull.isaatc.simulation.info.TimeChangeInfo;
 /**
  * A standard listener. It only shows the events on the standard output.
  * @author Iván Castilla Rodríguez
- *
  */
 public class StdInfoListener implements SimulationListener {
 	/** The initial CPU time, used for showing the total time at the end of the simulation */
 	private long iniT;
 	
+	/** Stream where the information will be sent */
+	private PrintStream out;
+	
 	/**
 	 * Creates a simple listener that shows the information on the standard output. 
 	 */
-	public StdInfoListener() {
+	public StdInfoListener(PrintStream out) {
+		this.out = out;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationComponentInfo)
-	 */
+	@Override
 	public void infoEmited(SimulationObjectInfo info) {
 		if (info instanceof ElementInfo) {
 			ElementInfo eInfo = (ElementInfo) info;
@@ -40,8 +43,7 @@ public class StdInfoListener implements SimulationListener {
 				case FINISH:
 					msg = "FINISHED"; break;
 				case STAACT:
-					msg = "STARTS ACTIVITY"; break;
-					
+					msg = "STARTS ACTIVITY"; break;				
 				case REQACT:
 					msg = "REQUESTS ACTIVITY"; break;
 				case ENDACT:
@@ -51,20 +53,20 @@ public class StdInfoListener implements SimulationListener {
 				case INTACT:
 					msg = "INTERRUPTS ACTIVITY"; break;
 			};
-			System.out.println("[" + eInfo.getIdentifier() + "]\t" + eInfo.getTs() + "\t" 
+			out.println("[" + eInfo.getIdentifier() + "]\t" + eInfo.getTs() + "\t" 
 					+ msg + "\t" + eInfo.getValue());			
 		}
 		else if (info instanceof ResourceInfo) {
 			ResourceInfo rInfo = (ResourceInfo) info;
 			switch (rInfo.getType()) {
 				case START:
-					System.out.println("[R" + rInfo.getIdentifier() + "]\t" + rInfo.getTs() + "\tSTARTED");			
+					out.println("[R" + rInfo.getIdentifier() + "]\t" + rInfo.getTs() + "\tSTARTED");			
 					break;
 				case ROLON:
-					System.out.println("[R" + rInfo.getIdentifier() + "]\t" + rInfo.getTs() + "\tROL ON\tRT" + rInfo.getValue());			
+					out.println("[R" + rInfo.getIdentifier() + "]\t" + rInfo.getTs() + "\tROL ON\tRT" + rInfo.getValue());			
 					break;
 				case ROLOFF:
-					System.out.println("[R" + rInfo.getIdentifier() + "]\t" + rInfo.getTs() + "\tROL OFF\tRT" + rInfo.getValue());			
+					out.println("[R" + rInfo.getIdentifier() + "]\t" + rInfo.getTs() + "\tROL OFF\tRT" + rInfo.getValue());			
 					break;
 			};
 		}
@@ -77,33 +79,26 @@ public class StdInfoListener implements SimulationListener {
 				case RELEASED:
 					msg = "RELEASED"; break;
 			};
-			System.out.println("[R" + rInfo.getIdentifier() + "]\t" + rInfo.getTs() + "\t" 
+			out.println("[R" + rInfo.getIdentifier() + "]\t" + rInfo.getTs() + "\t" 
 					+ msg + "\t[" + rInfo.getElemId() + "]\tRT" + rInfo.getRtId());			
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationStartInfo)
-	 */
+	@Override
 	public void infoEmited(SimulationStartInfo info) {
 		iniT = info.getIniT();
 		Simulation simul = info.getSimulation();
-		System.out.println("SIMULATION START TS:\t" + simul.getStartTs());
-		System.out.println("EXPECTED SIMULATION END TS:\t" + simul.getEndTs());			
+		out.println("SIMULATION START TS:\t" + simul.getStartTs());
+		out.println("EXPECTED SIMULATION END TS:\t" + simul.getEndTs());			
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationEndInfo)
-	 */
+	@Override
 	public void infoEmited(SimulationEndInfo info) {
-		System.out.println("SIMULATION CPU TIME (ms):\t" + (info.getEndT() - iniT));					
+		out.println("SIMULATION CPU TIME (ms):\t" + (info.getEndT() - iniT));					
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.TimeChangeInfo)
-	 */
+	@Override
 	public void infoEmited(TimeChangeInfo info) {
-		System.out.println("<<< LP clock advanced <<<" + info.getTs());		
+		out.println("<<< LP clock advanced <<<" + info.getTs());		
 	}
-
 }

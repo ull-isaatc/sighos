@@ -44,7 +44,7 @@ class CarWashExperiment extends Experiment {
 	@Override
 	public Simulation getSimulation(int ind) {
 		CarWashSimulation sim = new CarWashSimulation();
-		sim.addListener(new StdInfoListener());
+		sim.addListener(new StdInfoListener(System.out));
 //		sim.addListener(new StatisticListener(1440.0));
 		sim.addListener(new ResourceUsageListener());
 		return sim;
