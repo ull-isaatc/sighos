@@ -8,9 +8,9 @@ import java.util.Iterator;
 
 import es.ull.isaatc.simulation.Experiment;
 import es.ull.isaatc.simulation.Simulation;
-import es.ull.isaatc.simulation.info.xml.XMLListenerController;
 import es.ull.isaatc.simulation.listener.SimulationListener;
 import es.ull.isaatc.simulation.listener.SimulationTimeListener;
+import es.ull.isaatc.simulation.listener.xml.XMLListenerController;
 import es.ull.isaatc.simulation.state.processor.NullStateProcessor;
 import es.ull.isaatc.util.ClassPathHacker;
 import es.ull.isaatc.util.Output;

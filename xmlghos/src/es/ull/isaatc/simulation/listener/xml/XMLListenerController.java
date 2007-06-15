@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.info.xml;
+package es.ull.isaatc.simulation.listener.xml;
 
 import java.util.ArrayList;
 import java.util.HashMap;

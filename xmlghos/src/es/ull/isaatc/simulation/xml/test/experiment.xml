@@ -15,9 +15,8 @@
 		<param name="ReferenceTs" type="double" value="120"/>
 	</simulationListener> -->
 	<simulationListener>
-		<name>es.ull.isaatc.simulation.info.ActivityQueueListener</name>
-		<param name="Period" type="double" value="240"/>
-		<param name="ReferenceTs" type="double" value="240"/>
+		<name>es.ull.isaatc.simulation.listener.ActivityListener</name>
+		<param name="Period" type="double" value="24"/>
 	</simulationListener>
 	<generator>
 		<cycle type="PERIODIC">

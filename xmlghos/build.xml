@@ -1,0 +1,70 @@
+<project name="XMLGHOS" default="compile" basedir=".">
+	<description>
+    	Build file for XMLGHOS project
+    </description>
+	<!-- set global properties for this build -->
+	<property name="src" location="src" />
+	<property name="build" location="bin" />
+	<property name="dist" location="dist" />
+	<!--<property name="dist" location="Z:\\simulacion\\SIGHOS\\lib" />-->
+	<property name="lib" location="lib" />
+	<property name="manifest" value="META-INF" />
+	<property name="sighos.src" location="../Simulator/src" />
+	<property name="sighos.build" location="../Simulator/bin" />
+	<property name="sighos.lib" location="../Simulator/lib" />
+	<path id="classpath">
+		<fileset dir="${lib}">
+			<include name="**/*.jar" />
+		</fileset>
+		<pathelement path="${sighos.build}/" />
+		<fileset dir="${sighos.lib}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}" />
+	</target>
+
+	<target name="compile" depends="init" description="compile the source ">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<!--<javac srcdir="${sighos.src}" destdir="${sighos.build}" />-->
+		<javac srcdir="${src}" destdir="${build}">
+			<classpath refid="classpath" />
+		</javac>
+		<copy todir="${build}" preservelastmodified="true">
+			<fileset dir="${basedir}">
+				<include name="**/*.xsd" />
+			</fileset>
+		</copy>
+
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution">
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}" />
+		<!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+		<jar jarfile="${dist}/XMLGHOS.jar" basedir="${build}" includes="**/*.*" manifest="${basedir}/META-INF/MANIFEST.MF" />
+		<jar jarfile="${dist}/sighos.jar" basedir="${sighos.build}" />
+		<!-- copy resources from src to bin -->
+		<copy todir="${dist}" preservelastmodified="true">
+			<fileset dir="${lib}">
+			</fileset>
+			<fileset dir="${sighos.lib}">
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete includeemptydirs="true">
+			<fileset dir="${build}" includes="**/*" />
+		</delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${dist}" includes="**/*" />
+		</delete>
+	</target>
+</project>
