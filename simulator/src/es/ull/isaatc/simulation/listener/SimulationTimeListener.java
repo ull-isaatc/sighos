@@ -58,6 +58,6 @@ public class SimulationTimeListener implements SimulationListener {
 
 	@Override
 	public String toString() {
-		return new String("" + (endT - iniT));
+		return new String("Simulation time:\t" + (endT - iniT) + "\n");
 	}	
 }

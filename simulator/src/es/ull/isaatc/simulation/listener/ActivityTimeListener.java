@@ -9,7 +9,7 @@ import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
- * Periodically stores the size of the activity queues.
+ * Periodically stores the time each activity has been performed.
  * 
  * @author Ivan Castilla
  * @author Roberto Muñoz
