@@ -11,6 +11,16 @@ package es.ull.isaatc.simulation;
  */
 public abstract class StandAloneLPSimulation extends StandardAMSimulation {
 
+	/**
+	 * Empty constructor for compatibility purposes
+	 */
+	public StandAloneLPSimulation() {		
+	}
+
+	/**
+	 * Creates a simulation with standard AM configuration which instances a single LP
+	 * @param description The simulation's description
+	 */
 	public StandAloneLPSimulation(String description) {
 		super(description);
 	}

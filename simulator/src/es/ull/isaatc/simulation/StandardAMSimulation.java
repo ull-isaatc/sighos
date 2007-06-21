@@ -18,6 +18,17 @@ import java.util.TreeSet;
  */
 public abstract class StandardAMSimulation extends Simulation {
 	
+	/**
+	 * Empty constructor for compatibility purposes
+	 */
+	public StandardAMSimulation() {
+		
+	}
+
+	/**
+	 * Creates a simulation which builds the AMs but not the LPs.
+	 * @param description This simulation's description.
+	 */
 	public StandardAMSimulation(String description) {
 		super(description);
 	}

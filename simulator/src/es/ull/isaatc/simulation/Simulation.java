@@ -76,6 +76,13 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	/** List of active elements */
 	private Map<Integer, Element> activeElementList;
 
+
+	/**
+	 * Empty constructor for compatibility purposes
+	 */
+	public Simulation() {		
+	}
+	
 	/**
 	 * Creates a new instance of Simulation
 	 * 
