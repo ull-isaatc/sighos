@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.SimulationListener;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
@@ -29,8 +30,8 @@ class OverlappedSimulation extends StandAloneLPSimulation {
 	final static int NEEDED = 1;
 	int days;
     
-	OverlappedSimulation(int days) {
-		super("Sistema de análisis");
+	public OverlappedSimulation(int id, int days) {
+		super(id, "Sistema de análisis", 0.0, days * 24 * 60.0);
 		this.days = days;
     }
     
@@ -132,22 +133,22 @@ class ExpOverlapped extends ExperimentJPPF {
     OverlappedListener oListener = new OverlappedListener(NPRUEBAS);
 
 	public ExpOverlapped(String description) {
-		super(description, NPRUEBAS, 0.0, NDIAS * 24 * 60.0);
+		super(description, NPRUEBAS);
 	}
 
 	public Simulation getSimulation(int ind) {
-		OverlappedSimulation sim = new OverlappedSimulation(NDIAS);
+		OverlappedSimulation sim = new OverlappedSimulation(ind, NDIAS);
+		ListenerController cont = new ListenerController();
+		sim.setListenerController(cont);
 //		sim.setOutput(new Output(true/*, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)*/));
-//		sim.addListener(oListener);
-		sim.addListener(new StdInfoListener());
+//		cont.addListener(oListener);
+		cont.addListener(new StdInfoListener());
 		return sim;
 	}
 	
 }
 
 public class TestOverlappedJPPF {
-	static final int NDIAS = 1;
-    static final int NPRUEBAS = 1;
 	/**
 	 * @param args
 	 */
