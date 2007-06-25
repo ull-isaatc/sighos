@@ -29,9 +29,8 @@ public class TestOverlappedProActive {
 //		exp.start();
 		String [] nodeList = {"//localhost/node1", "//10.213.2.125/node1"};
 		ExperimentProActive exp = new ExperimentProActive(OverlappedSimulationProActive.class.getName(), 
-				new Object[]{new IntWrapper(1)}, "Solapados", NEXP, 0.0, NDAYS * 24 * 60.0, nodeList);
+				new Object[]{new IntWrapper(0), new IntWrapper(NDAYS)}, "Solapados", NEXP, nodeList);
 		exp.start();
-		
 		
 //		Simulation sim = null;
 //		try {

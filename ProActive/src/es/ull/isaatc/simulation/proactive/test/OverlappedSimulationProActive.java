@@ -10,8 +10,8 @@ import org.objectweb.proactive.core.util.wrapper.IntWrapper;
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.StdInfoListener;
-import es.ull.isaatc.simulation.proactive.SimulationProActive;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.PeriodicCycle;
 
@@ -19,7 +19,7 @@ import es.ull.isaatc.util.PeriodicCycle;
  * @author Iván Castilla Rodríguez
  *
  */
-public class OverlappedSimulationProActive extends SimulationProActive {
+public class OverlappedSimulationProActive extends StandAloneLPSimulation {
 	final static int NELEM = 3;
 	final static int NRESOURCES = 2;
 	final static int NEEDED = 1;
@@ -28,10 +28,12 @@ public class OverlappedSimulationProActive extends SimulationProActive {
 	public OverlappedSimulationProActive() {		
 	}
 	
-	public OverlappedSimulationProActive(IntWrapper days) {
-		super("Sistema de análisis");
+	public OverlappedSimulationProActive(IntWrapper id, IntWrapper days) {
+		super(id.intValue(), "Sistema de análisis", 0.0, days.intValue() * 24 * 60.0);
 		this.days = days.intValue();
-		addListener(new StdInfoListener());
+		ListenerController cont = new ListenerController();
+		setListenerController(cont);
+		cont.addListener(new StdInfoListener());
     }
     
     protected void createModel() {
