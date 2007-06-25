@@ -130,7 +130,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	 * updated.
 	 */
 	protected void init() {
-		simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.START, ts,
+		simul.getListenerController().notifyListeners(new ElementInfo(this, ElementInfo.Type.START, ts,
 				elementType.getIdentifier()));
 		simul.addActiveElement(this);
 		if (flow != null) {
@@ -145,7 +145,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 
 	@Override
 	protected void end() {
-		simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.FINISH,
+		simul.getListenerController().notifyListeners(new ElementInfo(this, ElementInfo.Type.FINISH,
 				ts, pending));
 		simul.removeActiveElement(this);
 	}
@@ -196,12 +196,12 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 		// The first time the activity is carried out (useful only for interruptible activities)
 		if (Double.isNaN(sf.getTimeLeft())) {
 			sf.setTimeLeft(sf.getExecutionWG().getDuration());
-			simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.STAACT,
+			simul.getListenerController().notifyListeners(new ElementInfo(this, ElementInfo.Type.STAACT,
 					ts, sf.getActivity().getIdentifier()));
 			debug("Starts\t" + sf.getActivity() + "\t" + sf.getActivity().getDescription());			
 		}
 		else {
-			simul.notifyListeners(new ElementInfo(this, ElementInfo.Type.RESACT,
+			simul.getListenerController().notifyListeners(new ElementInfo(this, ElementInfo.Type.RESACT,
 					ts, sf.getActivity().getIdentifier()));
 			debug("Continues\t" + sf.getActivity() + "\t" + sf.getActivity().getDescription());						
 		}
@@ -233,7 +233,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 
 		public void event() {
 			Activity act = sf.getActivity();
-			simul.notifyListeners(new ElementInfo(Element.this,
+			simul.getListenerController().notifyListeners(new ElementInfo(Element.this,
 					ElementInfo.Type.REQACT, ts, act.getIdentifier()));
 			if (isDebugEnabled())
 				debug("Requests\t" + act + "\t" + act.getDescription());
@@ -318,7 +318,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 			Activity act = sf.getActivity();
 			ArrayList<SingleFlow> sfList = sf.finish();
 			if (sf.isFinished()) {
-				simul.notifyListeners(new ElementInfo(Element.this,
+				simul.getListenerController().notifyListeners(new ElementInfo(Element.this,
 						ElementInfo.Type.ENDACT, ts, act.getIdentifier()));
 				if (isDebugEnabled())
 					debug("Finishes\t" + act + "\t" + act.getDescription());
@@ -328,7 +328,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 				decRequested(sf);
 			}
 			else {
-				simul.notifyListeners(new ElementInfo(Element.this,
+				simul.getListenerController().notifyListeners(new ElementInfo(Element.this,
 						ElementInfo.Type.INTACT, ts, act.getIdentifier()));
 				if (isDebugEnabled())
 					debug("Finishes part of \t" + act + "\t" + act.getDescription() + "\t" + sf.getTimeLeft());				

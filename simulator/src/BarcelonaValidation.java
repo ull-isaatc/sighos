@@ -11,9 +11,9 @@ import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.*;
 import es.ull.isaatc.simulation.listener.ActivityListener;
 import es.ull.isaatc.simulation.listener.ActivityTimeListener;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.SimulationListener;
 import es.ull.isaatc.simulation.listener.StatisticListener;
-import es.ull.isaatc.simulation.state.SimulationState;
 import es.ull.isaatc.util.*;
 
 class SimBarcelona extends StandAloneLPSimulation {
@@ -22,8 +22,8 @@ class SimBarcelona extends StandAloneLPSimulation {
 		"743", "870", "871", "921", "996", "998", "v58"};
 	int nExp;
 
-	SimBarcelona(String description, int nExp) {
-		super(description);
+	SimBarcelona(int id, String description, int nExp, double startTs, double endTs) {
+		super(id, description, startTs, endTs);
 		this.nExp = nExp;
 	}
 	
@@ -1205,32 +1205,30 @@ class ExpBarcelona extends Experiment {
 	FileWriter fileRes2 = null;
 	
 	ExpBarcelona() {
-		super("Validation HOFT", NEXP, START, END);
+		super("Validation HOFT", NEXP);
 	}
 	
 	public Simulation getSimulation(int ind) {		
-		Simulation sim = new SimBarcelona(description + ind + "", ind);
+		Simulation sim = new SimBarcelona(ind, description + ind + "", ind, START, END);
 		return sim;
 	}
 	
 	public void start() {
 		for (int i = 0; i < nExperiments; i++) {
 			Simulation sim = getSimulation(i);
+			ListenerController cont = new ListenerController();
+			sim.setListenerController(cont);
 			try {
 				fileRes = new FileWriter("C:\\res" + i + ".txt");
-				sim.addListener(new BarcelonaListener4(1, fileRes));
+				cont.addListener(new BarcelonaListener4(1, fileRes));
 //				fileRes1 = new FileWriter("C:\\diaryUse" + i + ".txt");
 //				sim.addListener(new BarcelonaListener2(24.0, fileRes1));
 				fileRes2 = new FileWriter("C:\\Elements" + i + ".txt");
-				sim.addListener(new BarcelonaListener3(fileRes2));
+				cont.addListener(new BarcelonaListener3(fileRes2));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			if (previousState != null)
-				sim.start(previousState, endTs);
-			else
-				sim.start(startTs, endTs);			
-			processor.process((SimulationState)sim.getState());
+			sim.call();
 			try {
 				fileRes.close();
 //				fileRes1.close();

@@ -7,7 +7,6 @@ import es.ull.isaatc.simulation.info.ElementInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
  * A listener to compute the amount of started and finished elements.
@@ -59,6 +58,7 @@ public class ElementStartFinishListener extends PeriodicListener {
 		elemFinish = new int[nPeriods];
 	}	
 	
+	@Override
 	public void infoEmited(SimulationObjectInfo info) {
 		super.infoEmited(info);
 
@@ -75,6 +75,7 @@ public class ElementStartFinishListener extends PeriodicListener {
 		}
 	}
 
+	@Override
 	public void infoEmited(SimulationStartInfo info) {
 		super.infoEmited(info);
 		firstElementId = info.getFirstElementId();
@@ -82,10 +83,6 @@ public class ElementStartFinishListener extends PeriodicListener {
 	
 	public void infoEmited(SimulationEndInfo info) {
 		lastElementId = info.getLastElementId();
-	}
-
-	// Nothing to do
-	public void infoEmited(TimeChangeInfo info) {
 	}
 
 	@Override

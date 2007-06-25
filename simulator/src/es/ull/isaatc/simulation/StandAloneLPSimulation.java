@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation;
 
+import es.ull.isaatc.simulation.state.SimulationState;
+
 /**
  * A simulation with standard AM configuration which creates a single LP for the
  * whole simulation.
@@ -19,10 +21,32 @@ public abstract class StandAloneLPSimulation extends StandardAMSimulation {
 
 	/**
 	 * Creates a simulation with standard AM configuration which instances a single LP
-	 * @param description The simulation's description
+	 * @param id
+	 *            This simulation's identifier
+	 * @param description 
+	 *            This simulation's description.
+	 * @param startTs
+	 *            Timestamp of simulation's start
+	 * @param endTs
+	 *            Timestamp of simulation's end
 	 */
-	public StandAloneLPSimulation(String description) {
-		super(description);
+	public StandAloneLPSimulation(int id, String description, double startTs, double endTs) {
+		super(id, description, startTs, endTs);
+	}
+
+	/**
+	 * Creates a simulation with standard AM configuration which instances a single LP
+	 * @param id
+	 *            This simulation's identifier
+	 * @param description 
+	 *            This simulation's description.
+	 * @param previousState
+	 *            A previous stored state
+	 * @param endTs
+	 *            Timestamp of simulation's end
+	 */
+	public StandAloneLPSimulation(int id, String description, SimulationState previousState, double endTs) {
+		super(id, description, previousState, endTs);
 	}
 
 	@Override

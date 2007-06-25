@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation;
 
+import es.ull.isaatc.simulation.state.SimulationState;
+
 /**
  * A simulation with standard AM configuration which creates a LP per AM.
  * This class is not finished and should not be used.
@@ -11,10 +13,14 @@ package es.ull.isaatc.simulation;
  */
 public abstract class SimpleLPSimulation extends StandardAMSimulation {
 
-	public SimpleLPSimulation(String description) {
-		super(description);
+	public SimpleLPSimulation(int id, String description, double startTs, double endTs) {
+		super(id, description, startTs, endTs);
 	}
 
+	public SimpleLPSimulation(int id, String description, SimulationState previousState, double endTs) {
+		super(id, description, previousState, endTs);
+	}
+	
 	@Override
 	protected void createLogicalProcesses() {
 		logicalProcessList = new LogicalProcess[activityManagerList.size() + 1];

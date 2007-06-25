@@ -10,17 +10,14 @@ import java.util.TreeMap;
 
 import es.ull.isaatc.simulation.info.ResourceInfo;
 import es.ull.isaatc.simulation.info.ResourceUsageInfo;
-import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
-import es.ull.isaatc.simulation.info.SimulationStartInfo;
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
  * Listens the usage and availability of the resources.
  * @author Iván Castilla Rodríguez
  *
  */
-public class ResourceUsageListener implements SimulationListener {
+public class ResourceUsageListener implements SimulationObjectListener {
 	/** Resource usage and availability. */
 	private HashMap<Integer, TreeMap<Integer, ResourceUsage>> resources;
 
@@ -64,26 +61,6 @@ public class ResourceUsageListener implements SimulationListener {
 				resources.put(rInfo.getIdentifier(), list);
 			}
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationStartInfo)
-	 */
-	public void infoEmited(SimulationStartInfo info) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationEndInfo)
-	 */
-	public void infoEmited(SimulationEndInfo info) {
-		// FIXME: temporal
-		System.out.println(this);
-	}
-
-	// Nothing to do
-	public void infoEmited(TimeChangeInfo info) {
 	}
 
 	@Override

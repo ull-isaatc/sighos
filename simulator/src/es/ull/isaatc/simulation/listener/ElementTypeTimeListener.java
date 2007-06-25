@@ -8,7 +8,6 @@ import es.ull.isaatc.simulation.ElementType;
 import es.ull.isaatc.simulation.info.ElementInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
  * Periodically stores the information elements grouped per type. The ifnormation stored is the number
@@ -85,11 +84,7 @@ public class ElementTypeTimeListener extends PeriodicListener {
 			etTime.finishSimulation();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see es.ull.isaatc.simulation.info.InfoListener#infoEmited(es.ull.isaatc.simulation.info.SimulationComponentInfo)
-	 */
+	@Override
 	public void infoEmited(SimulationObjectInfo info) {
 		super.infoEmited(info);
 			
@@ -130,11 +125,6 @@ public class ElementTypeTimeListener extends PeriodicListener {
 					break;
 			}
 		}
-	}
-
-	// Nothing to do
-	public void infoEmited(TimeChangeInfo info) {
-
 	}
 
 	@Override

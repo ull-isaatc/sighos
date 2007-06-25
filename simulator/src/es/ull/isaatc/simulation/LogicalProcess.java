@@ -159,7 +159,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
             BasicElement.DiscreteEvent e = removeWait();
             // Advances the simulation clock
             lvt = e.getTs();
-            simul.notifyListeners(new TimeChangeInfo(this));
+            simul.getListenerController().notifyListeners(new TimeChangeInfo(this));
             debug("SIMULATION TIME ADVANCING " + lvt);
             // Events with timestamp greater or equal to the maximum simulation time aren't
             // executed

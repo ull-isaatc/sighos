@@ -4,9 +4,7 @@
 package es.ull.isaatc.simulation.listener;
 
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
  * Listens the duration of a simulation.
@@ -38,22 +36,12 @@ public class SimulationTimeListener implements SimulationListener {
 		return endT;
 	}
 
-	@Override
-	public void infoEmited(SimulationObjectInfo info) {
-	}
-
-	@Override
 	public void infoEmited(SimulationStartInfo info) {
 		iniT = info.getIniT();
 	}
 
-	@Override
 	public void infoEmited(SimulationEndInfo info) {
 		endT = info.getEndT();
-	}
-
-	@Override
-	public void infoEmited(TimeChangeInfo info) {
 	}
 
 	@Override

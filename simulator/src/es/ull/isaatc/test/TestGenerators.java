@@ -6,9 +6,10 @@ import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.util.*;
 
 class SimGenerators extends StandAloneLPSimulation {
+    static final int NDIAS = 4;
 
-	public SimGenerators() {
-		super("Test de generadores");
+	public SimGenerators(int id) {
+		super(id, "Test de generadores", 0.0, NDIAS * 24.0 * 60.0);
 	}
 
 	@Override
@@ -40,17 +41,16 @@ class SimGenerators extends StandAloneLPSimulation {
 /**
  * 
  */
-class ExpGenerators extends Experiment {
-    static final int NDIAS = 4;
+class ExpGenerators extends PooledExperiment {
     static final int NPRUEBAS = 1;
 
 	public ExpGenerators(String description) {
-		super(description, NPRUEBAS, 0.0, NDIAS * 24.0 * 60.0);
+		super(description, NPRUEBAS);
 	}
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		SimGenerators sim = new SimGenerators();
+		SimGenerators sim = new SimGenerators(ind);
 		sim.setOutput(new Output(true));
 		return sim;
 	}

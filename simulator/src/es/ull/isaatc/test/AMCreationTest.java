@@ -7,9 +7,11 @@ import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
 
 class MySimulation extends StandAloneLPSimulation {
+	public static final double START = 0.0;
+	public static final double END = 0.0;
 	private long t;
-	public MySimulation(String description) {
-		super(description);
+	public MySimulation(int id, String description) {
+		super(id, description, START, END);
 	}
 
 	protected void model1() {
@@ -53,16 +55,14 @@ class MySimulation extends StandAloneLPSimulation {
  *
  */
 public class AMCreationTest {
-	public static final double START = 0.0;
-	public static final double END = 0.0;
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Experiment e = new Experiment("Test AM", 10, START, END) {
+		Experiment e = new PooledExperiment("Test AM", 10) {
 			@Override
 			public Simulation getSimulation(int ind) {
-				MySimulation sim = new MySimulation("Sim AM");
+				MySimulation sim = new MySimulation(ind, "Sim AM");
 				return sim;
 			}			
 		};

@@ -2,6 +2,7 @@
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.StatisticListener;
 import es.ull.isaatc.simulation.listener.StdInfoListener;
 import es.ull.isaatc.util.*;
@@ -19,8 +20,8 @@ class Analisis extends StandAloneLPSimulation {
     static final int NPACIENTES = 10;
     int ndays;
     
-	Analisis(int ndays) {
-		super("Sistema de análisis");
+	public Analisis(int id, int ndays) {
+		super(id, "Sistema de análisis", 0.0, ndays * 24 * 60.0);
 		this.ndays = ndays;
     }
     
@@ -130,7 +131,7 @@ class Analisis extends StandAloneLPSimulation {
 
 }
 
-class ExpHospitalSecuencia extends Experiment {
+class ExpHospitalSecuencia extends PooledExperiment {
 	static final int NEXP = 1;
     static final int NDIAS = 1;
 	static final double PERIOD = 1440.0;
@@ -138,7 +139,7 @@ class ExpHospitalSecuencia extends Experiment {
 	
 	public ExpHospitalSecuencia() {
 //		super("Hospital", NEXP, new StdResultProcessor(1440.0), new Output(Output.DEBUGLEVEL));
-		super("Hospital", NEXP, 0.0, NDIAS * 24 * 60.0);
+		super("Hospital", NEXP);
 	}
 
 //	public ExpHospitalSecuencia(double prevStart, double prevEnd) {
@@ -152,9 +153,11 @@ class ExpHospitalSecuencia extends Experiment {
 //		if (Double.compare(prevEnd, 0.0) != 0)
 //			sim = new Analisis(NDIAS + (int)(prevEnd / (60 * 24)), new Output(Output.DebugLevel.XDEBUG), new PreviousSimulationResults(prevStart, prevEnd, ind, "c:\\"));
 //		else
-			sim = new Analisis(NDIAS);
-		sim.addListener(new StdInfoListener(System.out));
-		sim.addListener(new StatisticListener(1440.0));		
+			sim = new Analisis(ind, NDIAS);
+			ListenerController cont = new ListenerController();
+			sim.setListenerController(cont);
+		cont.addListener(new StdInfoListener());
+		cont.addListener(new StatisticListener(1440.0));		
 		return sim;
 	}
 }

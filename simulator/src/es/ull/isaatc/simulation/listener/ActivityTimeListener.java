@@ -6,7 +6,6 @@ import java.util.TreeMap;
 import es.ull.isaatc.simulation.info.ElementInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
  * Periodically stores the time each activity has been performed.
@@ -87,12 +86,7 @@ public class ActivityTimeListener extends PeriodicListener {
 		}
 	}
 
-	@Override
 	public void infoEmited(SimulationEndInfo info) {
-	}
-
-	@Override
-	public void infoEmited(TimeChangeInfo info) {
 	}
 
 	@Override

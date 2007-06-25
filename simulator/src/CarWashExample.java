@@ -5,6 +5,7 @@
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.ResourceUsageListener;
 import es.ull.isaatc.simulation.listener.StdInfoListener;
 import es.ull.isaatc.util.Cycle;
@@ -13,8 +14,8 @@ import es.ull.isaatc.util.PeriodicCycle;
 class CarWashSimulation extends StandAloneLPSimulation {
 	final static int NRES = 2;
 
-	CarWashSimulation() {
-		super("Car Wash simulation");
+	public CarWashSimulation(int id, double startTs, double endTs) {
+		super(id, "Car Wash simulation", startTs, endTs);
 	}
 	
 	@Override
@@ -33,20 +34,22 @@ class CarWashSimulation extends StandAloneLPSimulation {
 	}
 }
 
-class CarWashExperiment extends Experiment {
+class CarWashExperiment extends PooledExperiment {
     static final int NDAYS = 2;
     static final int NTESTS = 1;
 
     CarWashExperiment() {
-		super("Car Wash Experiment", NTESTS, 0.0, 24 * 60.0 * NDAYS);
+		super("Car Wash Experiment", NTESTS);
 	}
 	
 	@Override
 	public Simulation getSimulation(int ind) {
-		CarWashSimulation sim = new CarWashSimulation();
-		sim.addListener(new StdInfoListener(System.out));
-//		sim.addListener(new StatisticListener(1440.0));
-		sim.addListener(new ResourceUsageListener());
+		CarWashSimulation sim = new CarWashSimulation(ind, 0.0, 24 * 60.0 * NDAYS);
+		ListenerController cont = new ListenerController();
+		sim.setListenerController(cont);
+		cont.addListener(new StdInfoListener());
+//		cont.addListener(new StatisticListener(1440.0));
+		cont.addListener(new ResourceUsageListener());
 		return sim;
 	}
 	

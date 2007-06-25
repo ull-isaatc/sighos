@@ -6,6 +6,7 @@ import java.util.EnumSet;
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.StdInfoListener;
 import es.ull.isaatc.simulation.state.SimulationState;
 import es.ull.isaatc.simulation.state.processor.StateProcessor;
@@ -28,13 +29,20 @@ class StateSimulation extends StandAloneLPSimulation {
 	static final int NELEM = 15;
 	int complexityDegree;
 	
-	StateSimulation(String desc, int complexityDegree) {
-		super(desc);
+	StateSimulation(int id, String desc, int complexityDegree, double startTs, double endTs) {
+		super(id, desc, startTs, endTs);
 		out = new Output(false);
 //		super(desc, startTs, endTs, new Output(true, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)));
 		this.complexityDegree = complexityDegree;
 	}
 
+	StateSimulation(int id, String desc, int complexityDegree, SimulationState previousState, double endTs) {
+		super(id, desc, previousState, endTs);
+		out = new Output(false);
+//		super(desc, startTs, endTs, new Output(true, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)));
+		this.complexityDegree = complexityDegree;
+	}
+	
 	@Override
 	protected void createModel() {
 		Cycle cPeriod = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", PERIOD), 0);
@@ -129,24 +137,46 @@ class StateExperiment extends Experiment {
 	SimulationState prevState = null;
 	
 	StateExperiment() {
-		super("Tests stopping and continuing simulations", NEXP, 0.0, SIMTIME);
-		setProcessor(new StateProcessor() {
-			public void process(SimulationState state) {
-				prevState = state;
-//				System.out.println(state);
-			}
-		});
+		super("Tests stopping and continuing simulations", NEXP);
 	}
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		StateSimulation sim = new StateSimulation("Simulation PART: " + ind, COMPLEXITY);
-		setPreviousState(prevState);
-		sim.addListener(new StdInfoListener(System.out));
-		startTs = SIMTIME * ind;
-		endTs = SIMTIME * (ind + 1);
+		StateSimulation sim = new StateSimulation(ind, "Simulation PART: " + ind, COMPLEXITY, prevState, SIMTIME * (ind + 1));
+		ListenerController cont = new ListenerController();
+		sim.setListenerController(cont);
+		cont.addListener(new StdInfoListener());
 		return sim;
-	}	
+	}
+	
+	public void start() {
+		prevState = null;
+		Simulation sim = new StateSimulation(0, "INITIAL Simulation", COMPLEXITY, 0.0, SIMTIME);
+		ListenerController cont = new ListenerController();
+		sim.setListenerController(cont);
+		cont.addListener(new StdInfoListener());
+		setProcessor(new PreviousStateProcessor());
+
+		sim.run();
+		for (int i = 1; i < nExperiments; i++) {
+			sim = getSimulation(i);
+			cont = new ListenerController();
+			sim.setListenerController(cont);
+			cont.addListener(new StdInfoListener());
+			sim.run();
+		}
+		end();
+	}
+
+	class PreviousStateProcessor implements StateProcessor {
+
+		public void process(SimulationState state) {
+			prevState = state;
+//			System.out.println(state);
+		}
+		
+	}
+	
 }
 
 /**

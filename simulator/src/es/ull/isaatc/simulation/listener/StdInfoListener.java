@@ -18,7 +18,7 @@ import es.ull.isaatc.simulation.info.TimeChangeInfo;
  * A standard listener. It only shows the events on the standard output.
  * @author Iván Castilla Rodríguez
  */
-public class StdInfoListener implements SimulationListener {
+public class StdInfoListener implements SimulationListener, SimulationObjectListener, TimeChangeListener {
 	/** The initial CPU time, used for showing the total time at the end of the simulation */
 	private long iniT;
 	
@@ -28,11 +28,17 @@ public class StdInfoListener implements SimulationListener {
 	/**
 	 * Creates a simple listener that shows the information on the standard output. 
 	 */
+	public StdInfoListener() {
+		this.out = System.out;
+	}
+
+	/**
+	 * Creates a simple listener that shows the information on the standard output. 
+	 */
 	public StdInfoListener(PrintStream out) {
 		this.out = out;
 	}
 
-	@Override
 	public void infoEmited(SimulationObjectInfo info) {
 		if (info instanceof ElementInfo) {
 			ElementInfo eInfo = (ElementInfo) info;
@@ -84,7 +90,6 @@ public class StdInfoListener implements SimulationListener {
 		}
 	}
 
-	@Override
 	public void infoEmited(SimulationStartInfo info) {
 		iniT = info.getIniT();
 		Simulation simul = info.getSimulation();
@@ -92,12 +97,10 @@ public class StdInfoListener implements SimulationListener {
 		out.println("EXPECTED SIMULATION END TS:\t" + simul.getEndTs());			
 	}
 
-	@Override
 	public void infoEmited(SimulationEndInfo info) {
 		out.println("SIMULATION CPU TIME (ms):\t" + (info.getEndT() - iniT));					
 	}
 
-	@Override
 	public void infoEmited(TimeChangeInfo info) {
 		out.println("<<< LP clock advanced <<<" + info.getTs());		
 	}

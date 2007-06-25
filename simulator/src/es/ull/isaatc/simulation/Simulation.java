@@ -7,14 +7,13 @@
 package es.ull.isaatc.simulation;
 
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
-import es.ull.isaatc.simulation.listener.SimulationListener;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.state.*;
 import es.ull.isaatc.util.*;
 
@@ -30,9 +29,12 @@ import es.ull.isaatc.util.*;
  * 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation implements RecoverableState<SimulationState>, Describable {
+public abstract class Simulation implements RecoverableState<SimulationState>, Describable, Callable<SimulationState>, Runnable {
+	/** Simulation's identifier */
+	protected int id;
+	
 	/** A short text describing this simulation. */
-	String description;
+	protected String description;
 
 	/** List of resources present in the simulation. */
 	protected TreeMap<Integer, Resource> resourceList;
@@ -64,19 +66,21 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	/** Timestamp of Simulation's end */
 	protected double endTs;
 
+	/** A previous stored state. */
+	protected SimulationState previousState = null;
+	
 	/** Output for printing messages */
 	protected Output out = null;
 
 	/** End-of-simulation control */
 	private CountDownLatch endSignal;
 
-	/** List of info listeners */
-	private ArrayList<SimulationListener> listeners;
-
 	/** List of active elements */
 	private Map<Integer, Element> activeElementList;
 
-
+	/** List of info listeners */
+	private ListenerController listenerController = null;
+	
 	/**
 	 * Empty constructor for compatibility purposes
 	 */
@@ -85,11 +89,17 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	
 	/**
 	 * Creates a new instance of Simulation
-	 * 
+	 *
+	 * @param id
+	 *            This simulation's identifier
 	 * @param description
 	 *            A short text describing this simulation.
+	 * @param startTs
+	 *            Timestamp of simulation's start
+	 * @param endTs
+	 *            Timestamp of simulation's end
 	 */
-	public Simulation(String description) {
+	public Simulation(int id, String description, double startTs, double endTs) {
 		activityList = new TreeMap<Integer, Activity>();
 		resourceTypeList = new TreeMap<Integer, ResourceType>();
 		elementTypeList = new TreeMap<Integer, ElementType>();
@@ -99,73 +109,29 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 		generatorList = new ArrayList<Generator>();
 		activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
 
-		listeners = new ArrayList<SimulationListener>();
-
+		this.id = id;
 		this.description = description;
+		this.startTs = startTs;
+		this.endTs = endTs;
 	}
 
 	/**
-	 * Listener adapter. Adds a new listener to the listener list.
+	 * Creates a new instance of Simulation which continues a previous state
 	 * 
-	 * @param listener
-	 *            A simulation's listener
+	 * @param id
+	 *            This simulation's identifier
+	 * @param description
+	 *            A short text describing this simulation.
+	 * @param previousState
+	 *            A previous stored state
+	 * @param endTs
+	 *            Timestamp of simulation's end
 	 */
-	public void addListener(SimulationListener listener) {
-		listeners.add(listener);
+	public Simulation(int id, String description, SimulationState previousState, double endTs) {
+		this(id, description, previousState.getEndTs(), endTs);
+		this.previousState = previousState;
 	}
-
-	/**
-	 * Returns the list of listeners of the simulation
-	 * @return the list of listeners of the simulation
-	 */
-	public ArrayList<SimulationListener> getListeners() {
-		return listeners;
-	}
-
-	/**
-	 * Informs the simulation's listeners of a new event.
-	 * 
-	 * @param info
-	 *            An event that contains simulation information.
-	 */
-	public synchronized void notifyListeners(SimulationObjectInfo info) {
-		for (SimulationListener il : listeners)
-			il.infoEmited(info);
-	}
-
-	/**
-	 * Informs the simulation's listeners of a new event.
-	 * 
-	 * @param info
-	 *            An event that contains simulation information.
-	 */
-	public synchronized void notifyListeners(SimulationStartInfo info) {
-		for (SimulationListener il : listeners)
-			il.infoEmited(info);
-	}
-
-	/**
-	 * Informs the simulation's listeners of a new event.
-	 * 
-	 * @param info
-	 *            An event that contains simulation information.
-	 */
-	public synchronized void notifyListeners(SimulationEndInfo info) {
-		for (SimulationListener il : listeners)
-			il.infoEmited(info);
-	}
-
-	/**
-	 * Informs the simulation's listeners of a new event.
-	 * 
-	 * @param info
-	 *            An event that contains simulation information.
-	 */
-	public synchronized void notifyListeners(TimeChangeInfo info) {
-		for (SimulationListener il : listeners)
-			il.infoEmited(info);
-	}
-
+	
 	/**
 	 * Contains the specifications of the model. All the components of the model
 	 * must be declared here.
@@ -199,16 +165,8 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	 * Checks if a valid output for debug messages has been declared. Note that no 
 	 * debug messages can be printed before this method is declared unless <code>setOutput</code>
 	 * had been invoked. 
-	 * 
-	 * @param startTs
-	 *            Timestamp of simulation's start.
-	 * @param endTs
-	 *            Timestamp of Simulation's end.
-	 * @param state
-	 *            A previous stored state. <code>null</code> if no previous
-	 *            state is going to be used.
 	 */
-	private void start(SimulationState state) {
+	public void run() {
 		if (out == null)
 			out = new Output();
 		
@@ -218,8 +176,8 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 		debugPrintActManager();
 		createLogicalProcesses();
 		
-		if (state != null) {
-			setState(state);
+		if (previousState != null) {
+			setState(previousState);
 			// Elements from a previous simulation don't need to be started, but
 			// they need a default LP
 			synchronized(activeElementList) {
@@ -228,7 +186,7 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 						elem.setDefLP(getDefaultLogicalProcess());
 			}
 		}
-		notifyListeners(new SimulationStartInfo(this, System
+		getListenerController().notifyListeners(new SimulationStartInfo(this, System
 				.currentTimeMillis(), Generator.getElemCounter()));
 		
 		// FIXME: Debería hacer un reparto más inteligente tanto de generadores
@@ -251,44 +209,20 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 			e.printStackTrace();
 		}
 		debug("SIMULATION COMPLETELY FINISHED");
-		notifyListeners(new SimulationEndInfo(this, System.currentTimeMillis(),
+		getListenerController().notifyListeners(new SimulationEndInfo(this, System.currentTimeMillis(),
 				Generator.getElemCounter()));
 	}
 
+	public SimulationState call() {
+		run();
+		return getState();
+}
 	/**
-	 * Starts the simulation execution. Initializes all the structures, and
-	 * starts the logical processes. This method blocks until all the logical
-	 * processes have finished their execution.
-	 * <p>
-	 * This method is invoked when there isn't a previous state to restore.
-	 * 
-	 * @param startTs
-	 *            Timestamp of simulation's start.
-	 * @param endTs
-	 *            Timestamp of Simulation's end.
+	 * Starts the simulation execution in a threaded way. Initializes all the structures, and
+	 * starts the logical processes. 
 	 */
-	public void start(double startTs, double endTs) {
-		this.startTs = startTs;
-		this.endTs = endTs;
-		start(null);
-	}
-
-	/**
-	 * Starts the simulation execution. Initializes all the structures, and
-	 * starts the logical processes. This method blocks until all the logical
-	 * processes have finished their execution.
-	 * <p>
-	 * This method is invoked when there is a previous state to be restored.
-	 * 
-	 * @param state
-	 *            A previous stored state.
-	 * @param endTs
-	 *            Timestamp of Simulation's end.
-	 */
-	public void start(SimulationState state, double endTs) {
-		this.startTs = state.getEndTs();
-		this.endTs = endTs;
-		start(state);
+	public void start() {
+		new Thread(this).start();		
 	}
 
 	/**
@@ -565,6 +499,20 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	 */
 	public void setOutput(Output out) {
 		this.out = out;
+	}
+
+	/**
+	 * @return the listenerController
+	 */
+	public ListenerController getListenerController() {
+		return listenerController;
+	}
+
+	/**
+	 * @param listenerController the listenerController to set
+	 */
+	public void setListenerController(ListenerController listenerController) {
+		this.listenerController = listenerController;
 	}
 
 	/**

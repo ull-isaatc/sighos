@@ -16,8 +16,8 @@ import es.ull.isaatc.util.PeriodicCycle;
 class TestListenersSimulation extends StandAloneLPSimulation {
 	final static int NRES = 9;
 
-	TestListenersSimulation() {
-		super("TestListeners simulation");
+	TestListenersSimulation(int id, double startTs, double endTs) {
+		super(id, "TestListeners simulation", startTs, endTs);
 	}
 	
 	@Override
@@ -66,47 +66,49 @@ class TestListenersSimulation extends StandAloneLPSimulation {
 	}
 }
 
-class TestListenersExperiment extends Experiment {
+class TestListenersExperiment extends PooledExperiment {
     static final int NDAYS = 5;
     static final int NTESTS = 1;
 
     TestListenersExperiment() {
-		super("TestListener Experiment", NTESTS, 0.0, 24 * 60.0 * NDAYS);
+		super("TestListener Experiment", NTESTS);
 	}
 	
 	@Override
 	public Simulation getSimulation(int ind) {
-		TestListenersSimulation sim = new TestListenersSimulation();
+		TestListenersSimulation sim = new TestListenersSimulation(ind, 0.0, 24 * 60.0 * NDAYS);
+		ListenerController cont = new ListenerController();
+		sim.setListenerController(cont);
 //		sim.addListener(new StdInfoListener(System.out));
-		sim.addListener(new ActivityListener(1440) {
+		cont.addListener(new ActivityListener(1440) {
 			@Override
 			public void infoEmited(SimulationEndInfo info) {
 				super.infoEmited(info);
 				System.out.print(this);
 			}
 		});
-		sim.addListener(new ActivityTimeListener(1440) {
+		cont.addListener(new ActivityTimeListener(1440) {
 			@Override
 			public void infoEmited(SimulationEndInfo info) {
 				super.infoEmited(info);
 				System.out.print(this);
 			}
 		});
-		sim.addListener(new ElementStartFinishListener(1440) {
+		cont.addListener(new ElementStartFinishListener(1440) {
 			@Override
 			public void infoEmited(SimulationEndInfo info) {
 				super.infoEmited(info);
 				System.out.print(this);
 			}
 		});
-		sim.addListener(new ElementTypeTimeListener(1440) {
+		cont.addListener(new ElementTypeTimeListener(1440) {
 			@Override
 			public void infoEmited(SimulationEndInfo info) {
 				super.infoEmited(info);
 				System.out.print(this);
 			}
 		});		
-		sim.addListener(new ResourceStdUsageListener(1440) {
+		cont.addListener(new ResourceStdUsageListener(1440) {
 			@Override
 			public void infoEmited(SimulationEndInfo info) {
 				super.infoEmited(info);

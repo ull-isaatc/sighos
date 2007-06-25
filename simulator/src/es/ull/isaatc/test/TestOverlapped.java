@@ -10,6 +10,7 @@ import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.SimulationListener;
 import es.ull.isaatc.simulation.listener.StdInfoListener;
 import es.ull.isaatc.util.*;
@@ -28,8 +29,8 @@ class OverlappedSimulation extends StandAloneLPSimulation {
 	final static int NEEDED = 1;
 	int days;
     
-	OverlappedSimulation(int days) {
-		super("Sistema de análisis");
+	OverlappedSimulation(int id, int days) {
+		super(id, "Sistema de análisis", 0.0, days * 24 * 60.0);
 		this.days = days;
     }
     
@@ -123,20 +124,22 @@ class OverlappedListener implements SimulationListener {
 
 }
 
-class ExpOverlapped extends Experiment {
+class ExpOverlapped extends PooledExperiment {
     static final int NDIAS = 1;
-    static final int NPRUEBAS = 1;
+    static final int NPRUEBAS = 2;
     OverlappedListener oListener = new OverlappedListener(NPRUEBAS);
 
 	public ExpOverlapped(String description) {
-		super(description, NPRUEBAS, 0.0, NDIAS * 24 * 60.0);
+		super(description, NPRUEBAS);
 	}
 
 	public Simulation getSimulation(int ind) {
-		OverlappedSimulation sim = new OverlappedSimulation(NDIAS);
-//		sim.setOutput(new Output(true/*, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)*/));
-//		sim.addListener(oListener);
-		sim.addListener(new StdInfoListener(System.out));
+		OverlappedSimulation sim = new OverlappedSimulation(ind, NDIAS);
+		ListenerController cont = new ListenerController();
+		sim.setListenerController(cont);
+//		cont.setOutput(new Output(true/*, new OutputStreamWriter(System.out), new OutputStreamWriter(System.out)*/));
+//		cont.addListener(oListener);
+		cont.addListener(new StdInfoListener());
 		return sim;
 	}
 }

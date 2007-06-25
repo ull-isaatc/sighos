@@ -5,6 +5,7 @@
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.StatisticListener;
 import es.ull.isaatc.simulation.listener.StdInfoListener;
 import es.ull.isaatc.util.Cycle;
@@ -20,8 +21,8 @@ class SimSchedula extends StandAloneLPSimulation {
 	final static int NELEM[] = {10, 10, 10};
 //	final static int NELEM[] = {1, 0, 0};
 
-	SimSchedula() {
-		super("Schedula example");
+	public SimSchedula(int id, double startTs, double endTs) {
+		super(id, "Schedula example", startTs, endTs);
 	}
 	
 	@Override
@@ -125,19 +126,21 @@ class SimSchedula extends StandAloneLPSimulation {
 	
 }
 
-class ExpSchedula extends Experiment {
+class ExpSchedula extends PooledExperiment {
     static final int NDAYS = 1;
     static final int NTESTS = 1;
 
 	ExpSchedula() {
-		super("Schedula Example", NTESTS, 0.0, 24 * 60.0 * NDAYS);
+		super("Schedula Example", NTESTS);
 	}
 	
 	@Override
 	public Simulation getSimulation(int ind) {
-		SimSchedula sim = new SimSchedula();
-		sim.addListener(new StdInfoListener(System.out));
-		sim.addListener(new StatisticListener(1440.0));
+		SimSchedula sim = new SimSchedula(ind, 0.0, 24 * 60.0 * NDAYS);
+		ListenerController cont = new ListenerController();
+		sim.setListenerController(cont);
+		cont.addListener(new StdInfoListener());
+		cont.addListener(new StatisticListener(1440.0));
 		return sim;
 	}
 	

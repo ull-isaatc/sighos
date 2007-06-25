@@ -8,6 +8,8 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import es.ull.isaatc.simulation.state.SimulationState;
+
 /**
  * A simulation which builds the activity managers but not the logical processes within the
  * <code>createStructure</code> method. The activity managers are a partition of the
@@ -27,10 +29,32 @@ public abstract class StandardAMSimulation extends Simulation {
 
 	/**
 	 * Creates a simulation which builds the AMs but not the LPs.
-	 * @param description This simulation's description.
+	 * @param id
+	 *            This simulation's identifier
+	 * @param description 
+	 *            This simulation's description.
+	 * @param startTs
+	 *            Timestamp of simulation's start
+	 * @param endTs
+	 *            Timestamp of simulation's end
 	 */
-	public StandardAMSimulation(String description) {
-		super(description);
+	public StandardAMSimulation(int id, String description, double startTs, double endTs) {
+		super(id, description, startTs, endTs);
+	}
+
+	/**
+	 * Creates a simulation which builds the AMs but not the LPs.
+	 * @param id
+	 *            This simulation's identifier
+	 * @param description 
+	 *            This simulation's description.
+	 * @param previousState
+	 *            A previous stored state
+	 * @param endTs
+	 *            Timestamp of simulation's end
+	 */
+	public StandardAMSimulation(int id, String description, SimulationState previousState, double endTs) {
+		super(id, description, previousState, endTs);
 	}
 
 	/**

@@ -3,15 +3,15 @@
  */
 package es.ull.isaatc.test;
 
-import es.ull.isaatc.simulation.Experiment;
+import es.ull.isaatc.simulation.PooledExperiment;
 import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.StandAloneLPSimulation;
 import es.ull.isaatc.util.Output;
 
 class BaseSim extends StandAloneLPSimulation {
 
-	public BaseSim() {
-		super("TEST");
+	public BaseSim(int id) {
+		super(id, "TEST", 0.0, 100.0);
 	}
 
 	@Override
@@ -19,17 +19,17 @@ class BaseSim extends StandAloneLPSimulation {
 	}	
 }
 
-class BaseExp extends Experiment {
+class BaseExp extends PooledExperiment {
 	/**
 	 * @param description
 	 */
 	public BaseExp(String description) {
-		super(description, 1, 0.0, 100.0);
+		super(description, 1);
 	}
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		Simulation sim = new BaseSim();
+		Simulation sim = new BaseSim(ind);
 		sim.setOutput(new Output(true));
 		return sim;
 	}	

@@ -8,8 +8,8 @@ import java.util.EnumSet;
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.StdInfoListener;
-import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
 
 class InterruptibleActivitiesSimulation extends StandAloneLPSimulation {
@@ -17,10 +17,11 @@ class InterruptibleActivitiesSimulation extends StandAloneLPSimulation {
 	static final int NELEMT = 1;
 	static final int NELEM = 2;
 	static final int NRES = 1;
-	public InterruptibleActivitiesSimulation() {
-		super("Testing interruptible activities");
-		addListener(new StdInfoListener(System.out));
-//		setOutput(new Output(true));
+	public InterruptibleActivitiesSimulation(int id) {
+		super(id, "Testing interruptible activities", 0.0, 400.0);
+		ListenerController cont = new ListenerController();
+		setListenerController(cont);
+		cont.addListener(new StdInfoListener());
 	}
 
 	@Override
@@ -55,11 +56,11 @@ public class TestInterruptibleActivities {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new Experiment("Testing interruptible activities", 1, 0.0, 400.0) {
+		new PooledExperiment("Testing interruptible activities", 1) {
 
 			@Override
 			public Simulation getSimulation(int ind) {
-				return new InterruptibleActivitiesSimulation();
+				return new InterruptibleActivitiesSimulation(ind);
 			}
 			
 		}.start();

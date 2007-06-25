@@ -11,6 +11,7 @@ import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.StatisticListener;
 import es.ull.isaatc.simulation.listener.StdInfoListener;
 import es.ull.isaatc.simulation.state.SimulationState;
@@ -57,8 +58,8 @@ class SimSimAct extends StandAloneLPSimulation {
 	static final int NRES = 1;
 	int ndays;
 
-	SimSimAct(String description, int ndays) {
-		super(description);
+	public SimSimAct(int id, String description, int ndays) {
+		super(id, description, 0.0, ndays * 24 * 60.0);
 		this.ndays = ndays;
 	}
 	
@@ -102,8 +103,8 @@ class SimPoolAct extends StandAloneLPSimulation {
 	static final int DURAC_REC = 799;
 	int ndays;
 
-	SimPoolAct(String description, int ndays) {
-		super(description);
+	public SimPoolAct(int id, String description, int ndays) {
+		super(id, description, 0.0, ndays * 24 * 60.0);
 		this.ndays = ndays;
 	}
 	
@@ -134,8 +135,13 @@ class SimContinue extends StandAloneLPSimulation {
 	static final int DURAC_REC = 480;
     int ndays;
     
-    SimContinue(String description, int ndays) {
-		super(description);
+    public SimContinue(int id, String description, int ndays) {
+		super(id, description, 0.0, ndays * 24 * 60.0);
+		this.ndays = ndays;
+    }
+    
+    public SimContinue(int id, String description, SimulationState previousState, int ndays) {
+		super(id, description, previousState, previousState.getEndTs() + ndays * 24 * 60.0);
 		this.ndays = ndays;
     }
     
@@ -183,54 +189,50 @@ class SimContinue extends StandAloneLPSimulation {
 	}
 }
 
-class ExpSimAct extends Experiment {
+class ExpSimAct extends PooledExperiment {
 	final static int NEXP = 1;
 	final static int NDAYS = 5;
-	static final double START = 0.0;
 	int expType = 0;
 	SimActListener simListener;
 	
 	ExpSimAct(int expType) {
-		super("Verifying", NEXP, START, 24 * 60.0 * NDAYS);
+		super("Verifying", NEXP);
 		this.expType = expType;
 		if (expType == 0)
 			simListener = new SimActListener(1440.0 * NDAYS, NEXP);
-	}
-	
-	ExpSimAct(SimulationState previousState) {
-		super("Testing continuation of simulations", NEXP);
-		this.previousState = previousState;
-		startTs = previousState.getEndTs();
-		endTs = startTs + NDAYS * 24 * 60.0;
-		expType = 3;
 	}
 	
 	public Simulation getSimulation(int ind) {
 //		if (Double.compare(prevEnd, 0.0) != 0)
 //			return new SimContinue(description + ind + "", NDAYS + (int)(prevEnd / (60 * 24)), new Output(Output.DebugLevel.NODEBUG));
 		Simulation sim = null;
+		ListenerController cont = new ListenerController();
 		if (expType == 0) {
-			sim = new SimSimAct(description + ind + "", NDAYS);
-			sim.addListener(simListener);
+			sim = new SimSimAct(ind, description + ind + "", NDAYS);
+			sim.setListenerController(cont);
+			cont.addListener(simListener);
 		}
 		else if (expType == 1) {
-			sim = new SimPoolAct(description + ind + "", NDAYS);			
-			sim.addListener(new StatisticListener(1440.0) {
+			sim = new SimPoolAct(ind, description + ind + "", NDAYS);			
+			sim.setListenerController(cont);
+			cont.addListener(new StatisticListener(1440.0) {
 				@Override
 				public void infoEmited(SimulationEndInfo info) {
 					super.infoEmited(info);
 					System.out.println(this);
 				}
 			});
-			sim.addListener(new StdInfoListener(System.out));
+			cont.addListener(new StdInfoListener());
 		}
 		else if (expType == 2) {
-			sim = new SimContinue(description + ind + "", NDAYS);
-			sim.addListener(new StdInfoListener(System.out));
+			sim = new SimContinue(ind, description + ind + "", NDAYS);
+			sim.setListenerController(cont);
+			cont.addListener(new StdInfoListener());
 		}
 		else if (expType == 3) {
-			sim = new SimContinue(description + ind + "", NDAYS);
-			sim.addListener(new StdInfoListener(System.out));
+			sim = new SimContinue(ind, description + ind + "", NDAYS);
+			sim.setListenerController(cont);
+			cont.addListener(new StdInfoListener());
 		}
 		return sim;
 	}

@@ -6,8 +6,8 @@ package es.ull.isaatc.test;
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.StdInfoListener;
-import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
 
 class PriorityElementSimulation extends StandAloneLPSimulation {
@@ -15,10 +15,11 @@ class PriorityElementSimulation extends StandAloneLPSimulation {
 	static final int NELEMT = 4;
 	static final int NELEM = 100;
 	static final int NRES = 20;
-	public PriorityElementSimulation() {
-		super("Testing Elements with priority");
-		addListener(new StdInfoListener(System.out));
-//		setOutput(new Output(true));
+	public PriorityElementSimulation(int id) {
+		super(id, "Testing Elements with priority", 0.0, 200.0);
+		ListenerController cont = new ListenerController();
+		setListenerController(cont);
+		cont.addListener(new StdInfoListener());
 	}
 
 	@Override
@@ -53,11 +54,11 @@ public class TestPriorityElement {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new Experiment("Testing priority", 1, 0.0, 200.0) {
+		new PooledExperiment("Testing priority", 1) {
 
 			@Override
 			public Simulation getSimulation(int ind) {
-				return new PriorityElementSimulation();
+				return new PriorityElementSimulation(ind);
 			}
 			
 		}.start();

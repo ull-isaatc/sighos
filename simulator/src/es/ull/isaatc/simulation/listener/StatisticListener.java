@@ -13,13 +13,12 @@ import es.ull.isaatc.simulation.info.ElementInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
  * Stores the information related to a simulation. 
  * @author Iván Castilla Rodríguez
  */
-public class StatisticListener implements SimulationListener {
+public class StatisticListener implements SimulationListener, SimulationObjectListener {
 	protected long iniT;
 	protected long endT;
 	protected double simStart;
@@ -242,11 +241,6 @@ public class StatisticListener implements SimulationListener {
 			for (int cont = currentPeriod + 1; cont < queue.length; cont++)
 				queue[cont] = queue[cont - 1];
 		}
-	}
-
-	public void infoEmited(TimeChangeInfo info) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

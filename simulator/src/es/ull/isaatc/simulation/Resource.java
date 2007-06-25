@@ -55,7 +55,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 
 	@Override
     protected void init() {
-    	simul.notifyListeners(new ResourceInfo(this, ResourceInfo.Type.START, ts, timeTable.size()));
+    	simul.getListenerController().notifyListeners(new ResourceInfo(this, ResourceInfo.Type.START, ts, timeTable.size()));
 		for (int i = 0 ; i < timeTable.size(); i++) {
 			TimeTableEntry tte = timeTable.get(i);
 	        CycleIterator iter = tte.iterator(tte.getRole().getTs(), simul.getEndTs());
@@ -213,7 +213,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		debug("MUTEX\tadquired\t" + sf.getElement() + "(catch res.)");    	
 		// FIXME: Es esto o debera cogerlo del LP?
 		setTs(sf.getElement().getTs());
-        simul.notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.CAUGHT, ts, sf.getElement().getIdentifier(), rt.getIdentifier()));
+        simul.getListenerController().notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.CAUGHT, ts, sf.getElement().getIdentifier(), rt.getIdentifier()));
 		currentSF = sf;
 		sf.addCaughtResource(this);
 		currentResourceType = rt;
@@ -236,7 +236,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		debug("MUTEX\tadquired\t" + currentSF.getElement() + "(rel. res.)");    	
 		// FIXME: Es esto o debera cogerlo del LP?
 		setTs(currentSF.getElement().getTs());
-        simul.notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.RELEASED, ts, currentSF.getElement().getIdentifier(), currentResourceType.getIdentifier()));
+        simul.getListenerController().notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.RELEASED, ts, currentSF.getElement().getIdentifier(), currentResourceType.getIdentifier()));
         // The book is removed
 		bookList.remove(currentSF); 
 		debug("unbooked\t" + currentSF.getElement());
@@ -332,7 +332,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
         
         @Override
         public void event() {
-            simul.notifyListeners(new ResourceInfo(Resource.this, ResourceInfo.Type.ROLON, ts, role.getIdentifier()));
+            simul.getListenerController().notifyListeners(new ResourceInfo(Resource.this, ResourceInfo.Type.ROLON, ts, role.getIdentifier()));
             debug("Resource available\t" + role);
             // Beginning MUTEX access to activity manager
             role.getManager().waitSemaphore();
@@ -381,7 +381,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
         
         @Override
         public void event() {
-            simul.notifyListeners(new ResourceInfo(Resource.this, ResourceInfo.Type.ROLOFF, ts, role.getIdentifier()));
+            simul.getListenerController().notifyListeners(new ResourceInfo(Resource.this, ResourceInfo.Type.ROLOFF, ts, role.getIdentifier()));
             // Beginning MUTEX access to activity manager
             role.getManager().waitSemaphore();
             role.decAvailable(Resource.this);

@@ -3,7 +3,6 @@
  */
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.simulation.state.*;
 import es.ull.isaatc.simulation.state.processor.NullStateProcessor;
 import es.ull.isaatc.simulation.state.processor.StateProcessor;
 
@@ -19,18 +18,8 @@ public abstract class Experiment {
 	/** Number of experiments to carry out */
 	protected int nExperiments;
 	
-	/** The class which process the states of each simulation */
-	protected StateProcessor processor;
-
-	/** A state previously stored */
-	protected SimulationState previousState = null;
-
-	/** Timestamp of simulations' start */
-	protected double startTs;
-
-	/** Timestamp of Simulations' end */
-	protected double endTs;
-
+	/** The class which process the state. */
+	protected StateProcessor processor = null;
 
 	/**
 	 * Default constructor
@@ -41,44 +30,20 @@ public abstract class Experiment {
 	/**
 	 * @param description
 	 * @param nExperiments
-	 * @param startTs
-	 *            Timestamp of simulations' start.
-	 * @param endTs
-	 *            Timestamp of Simulations' end.
 	 */
 	public Experiment(String description, int nExperiments) {
-		this.description = description;
-		this.nExperiments = nExperiments;
-		this.processor = new NullStateProcessor();
+		this(description, nExperiments, new NullStateProcessor());
 	}
 	
 	/**
 	 * @param description
 	 * @param nExperiments
-	 * @param startTs
-	 *            Timestamp of simulations' start.
-	 * @param endTs
-	 *            Timestamp of Simulations' end.
-	 */
-	public Experiment(String description, int nExperiments, double startTs, double endTs) {
-		this(description, nExperiments, startTs, endTs, new NullStateProcessor());
-	}
-	
-	/**
-	 * @param description
-	 * @param nExperiments
-	 * @param startTs
-	 *            Timestamp of simulations' start.
-	 * @param endTs
-	 *            Timestamp of Simulations' end.
 	 * @param processor
 	 */
-	public Experiment(String description, int nExperiments, double startTs, double endTs, StateProcessor processor) {
+	public Experiment(String description, int nExperiments, StateProcessor processor) {
 		this.description = description;
 		this.nExperiments = nExperiments;
 		this.processor = processor;
-		this.startTs = startTs;
-		this.endTs = endTs;
 	}
 	
 	/**
@@ -87,18 +52,11 @@ public abstract class Experiment {
 	 * @return A new simulation object.
 	 */
 	public abstract Simulation getSimulation(int ind);
-	
-	public void start() {
-		for (int i = 0; i < nExperiments; i++) {
-			Simulation sim = getSimulation(i);
-			if (previousState != null)
-				sim.start(previousState, endTs);
-			else
-				sim.start(startTs, endTs);
-			processor.process(sim.getState());
-		}
-		end();
-	}
+
+	/**
+	 * Executes the simulations got by <code>getSimulation</code>.
+	 */
+	public abstract void start();
 
 	/**
 	 * Makes the postprocess of the experiments. The user should place here the actions that must be
@@ -122,20 +80,6 @@ public abstract class Experiment {
 	}
 
 	/**
-	 * @return the endTs
-	 */
-	public double getEndTs() {
-		return endTs;
-	}
-
-	/**
-	 * @return the startTs
-	 */
-	public double getStartTs() {
-		return startTs;
-	}
-
-	/**
 	 * @param description The description to set.
 	 */
 	public void setDescription(String description) {
@@ -150,31 +94,10 @@ public abstract class Experiment {
 	}
 
 	/**
-	 * @param endTs the endTs to set
-	 */
-	public void setEndTs(double endTs) {
-		this.endTs = endTs;
-	}
-
-	/**
-	 * @param startTs the startTs to set
-	 */
-	public void setStartTs(double startTs) {
-		this.startTs = startTs;
-	}
-
-	/**
 	 * @param processor The processor to set.
 	 */
 	public void setProcessor(StateProcessor processor) {
 		this.processor = processor;
 	}
-
-	/**
-	 * @param previousState The previousState to set.
-	 */
-	public void setPreviousState(SimulationState previousState) {
-		this.previousState = previousState;
-	}
-
+	
 }

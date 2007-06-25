@@ -3,19 +3,20 @@
  */
 package es.ull.isaatc.test;
 
-import es.ull.isaatc.simulation.Experiment;
+import es.ull.isaatc.simulation.PooledExperiment;
 import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.StandAloneLPSimulation;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.SimulationListener;
 
 class MinimumSim extends StandAloneLPSimulation {
 
-	public MinimumSim(String description) {
-		super(description);
+	public MinimumSim(int id, String description, double startTs, double endTs) {
+		super(id, description, startTs, endTs);
 	}
 
 	@Override
@@ -23,7 +24,7 @@ class MinimumSim extends StandAloneLPSimulation {
 	}	
 }
 
-class MinimumExp extends Experiment {
+class MinimumExp extends PooledExperiment {
 	static final double STARTTS = 0.0;
 	static final double ENDTS = 100.0;
 	
@@ -32,13 +33,15 @@ class MinimumExp extends Experiment {
 	 * @param nExperiments
 	 */
 	public MinimumExp(String description, int nExperiments) {
-		super(description, nExperiments, STARTTS, ENDTS);
+		super(description, nExperiments);
 	}
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		MinimumSim sim = new MinimumSim("Minimum");
-		sim.addListener(new MinimumListener(STARTTS, ENDTS));
+		MinimumSim sim = new MinimumSim(ind, "Minimum", STARTTS, ENDTS);
+		ListenerController cont = new ListenerController();
+		sim.setListenerController(cont);
+		cont.addListener(new MinimumListener(STARTTS, ENDTS));
 		return sim;
 	}	
 }

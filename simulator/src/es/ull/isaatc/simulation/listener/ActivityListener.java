@@ -6,7 +6,6 @@ import es.ull.isaatc.simulation.Activity;
 import es.ull.isaatc.simulation.info.ElementInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
  * Periodically stores info about activity queues and activities performed.
@@ -87,17 +86,11 @@ public class ActivityListener extends PeriodicListener {
 		}
 	}
 
-	@Override
 	public void infoEmited(SimulationEndInfo info) {
 		for (int[] queue : actQueues.values()) {
 			for (int cont = currentPeriod + 1; cont < queue.length; cont++)
 				queue[cont] = queue[cont - 1];
 		}
-	}
-
-	@Override
-	public void infoEmited(TimeChangeInfo info) {
-
 	}
 
 	@Override

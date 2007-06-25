@@ -9,15 +9,17 @@ import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.SimulationTimeListener;
+import es.ull.isaatc.simulation.listener.StdInfoListener;
 import es.ull.isaatc.util.PeriodicCycle;
 
 class SimZaragoza extends StandAloneLPSimulation {
 	int npatients;
 	int nres;
 	
-	public SimZaragoza(int npatients, int nres) {
-		super("Zaragoza Simulation");
+	public SimZaragoza(int id, int npatients, int nres, double startTs, double endTs) {
+		super(id, "Zaragoza Simulation", startTs, endTs);
 		this.npatients = npatients;
 		this.nres = nres;
 	}
@@ -104,7 +106,7 @@ class ZaragozaTimeListener extends SimulationTimeListener {
 	}
 }
 
-class ExpZaragoza extends Experiment {
+class ExpZaragoza extends PooledExperiment {
 	final static int NEXP = 1;
 	final static int NDAYS = 10;
 	final static double STARTTS = 0.0;
@@ -116,7 +118,7 @@ class ExpZaragoza extends Experiment {
 //	ThreadedOutputStreamWriter out = null;
 	
 	public ExpZaragoza() {
-		super("Zaragoza", NEXP, STARTTS, ENDTS);
+		super("Zaragoza", NEXP);
 		try {
 			file = new FileWriter("C:\\ZaragozaTimes.txt");
 		} catch (IOException e) {
@@ -128,9 +130,11 @@ class ExpZaragoza extends Experiment {
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		Simulation sim = new SimZaragoza(NPATIENTS, NRES);
-//		sim.addListener(new StdInfoListener());
-		sim.addListener(new SimulationTimeListener() {
+		Simulation sim = new SimZaragoza(ind, NPATIENTS, NRES, STARTTS, ENDTS);
+		ListenerController cont = new ListenerController();
+		sim.setListenerController(cont);
+		cont.addListener(new StdInfoListener());
+		cont.addListener(new SimulationTimeListener() {
 			@Override
 			public void infoEmited(SimulationEndInfo info) {
 				super.infoEmited(info);

@@ -7,7 +7,6 @@ import es.ull.isaatc.simulation.info.ResourceInfo;
 import es.ull.isaatc.simulation.info.ResourceUsageInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
  * Stores the resource usage and availability time.
@@ -73,7 +72,6 @@ public class ResourceStdUsageListener extends PeriodicListener {
 		}
 	}
 
-	@Override
 	public void infoEmited(SimulationEndInfo info) {
 		// Analize how much time has been dedicated in each rol
 		rolTime = new TreeMap<Integer, double[]>();
@@ -99,11 +97,6 @@ public class ResourceStdUsageListener extends PeriodicListener {
 			}
 			avalTime.put(rt.getIdentifier(), time);
 		}
-
-	}
-
-	@Override
-	public void infoEmited(TimeChangeInfo info) {
 
 	}
 

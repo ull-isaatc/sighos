@@ -12,7 +12,7 @@ import es.ull.isaatc.simulation.info.SimulationStartInfo;
  * periodically.
  * @author Roberto Muñoz
  */
-public abstract class PeriodicListener implements SimulationListener {
+public abstract class PeriodicListener implements SimulationListener, SimulationObjectListener {
 	/**	The interval of time between two consecutive storages. */
 	protected double period;
 	/** The number of periods contained in the simulation time. */
@@ -79,7 +79,6 @@ public abstract class PeriodicListener implements SimulationListener {
 		return simEnd;
 	}
 
-	@Override
 	public void infoEmited(SimulationObjectInfo info) {
 		// increase the current period until the timestamp of the info is reached
 		while (info.getTs() >= ((currentPeriod + 1) * period) + simStart) {
@@ -89,7 +88,6 @@ public abstract class PeriodicListener implements SimulationListener {
 		}
 	}
 
-	@Override
 	public void infoEmited(SimulationStartInfo info) {
 		simul = info.getSimulation();
 		simStart = simul.getStartTs();
