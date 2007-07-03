@@ -70,7 +70,7 @@ public class SimultaneousMetaFlow extends GroupMetaFlow {
 			boolean exit = false;
 			for (int i = 0; (i < iter) && !exit; i++) {
 				flow = new SimultaneousFlow(sec, e);
-				exit = getDescendantsFlows(flow, e);	
+				exit = !getDescendantsFlows(flow, e);	
 			}
 			return !exit;
 		}
