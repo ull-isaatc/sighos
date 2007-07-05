@@ -495,6 +495,20 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	}
 
 	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	/**
 	 * @param out the out to set
 	 */
 	public void setOutput(Output out) {
