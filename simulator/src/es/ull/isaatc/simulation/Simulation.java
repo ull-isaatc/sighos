@@ -89,6 +89,27 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	
 	/**
 	 * Creates a new instance of Simulation
+	 * 
+	 * @param id This simulation's identifier
+	 * @param description A short text describing this simulation.
+	 */
+	public Simulation(int id, String description) {
+		activityList = new TreeMap<Integer, Activity>();
+		resourceTypeList = new TreeMap<Integer, ResourceType>();
+		elementTypeList = new TreeMap<Integer, ElementType>();
+		workGroupList = new TreeMap<Integer, WorkGroup>();
+		activityManagerList = new ArrayList<ActivityManager>();
+		resourceList = new TreeMap<Integer, Resource>();
+		generatorList = new ArrayList<Generator>();
+		activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
+		
+		this.id = id;
+		this.description = description;
+	}
+
+
+	/**
+	 * Creates a new instance of Simulation
 	 *
 	 * @param id
 	 *            This simulation's identifier
@@ -100,17 +121,8 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	 *            Timestamp of simulation's end
 	 */
 	public Simulation(int id, String description, double startTs, double endTs) {
-		activityList = new TreeMap<Integer, Activity>();
-		resourceTypeList = new TreeMap<Integer, ResourceType>();
-		elementTypeList = new TreeMap<Integer, ElementType>();
-		workGroupList = new TreeMap<Integer, WorkGroup>();
-		activityManagerList = new ArrayList<ActivityManager>();
-		resourceList = new TreeMap<Integer, Resource>();
-		generatorList = new ArrayList<Generator>();
-		activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
+		this(id, description);
 
-		this.id = id;
-		this.description = description;
 		this.startTs = startTs;
 		this.endTs = endTs;
 	}

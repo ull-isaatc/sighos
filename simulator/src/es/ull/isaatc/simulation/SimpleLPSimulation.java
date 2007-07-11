@@ -13,6 +13,16 @@ import es.ull.isaatc.simulation.state.SimulationState;
  */
 public abstract class SimpleLPSimulation extends StandardAMSimulation {
 
+	/**
+	 * Creates a new instance of Simulation
+	 * 
+	 * @param id This simulation's identifier
+	 * @param description A short text describing this simulation.
+	 */
+	public SimpleLPSimulation(int id, String description) {
+		super(id, description);
+	}
+	
 	public SimpleLPSimulation(int id, String description, double startTs, double endTs) {
 		super(id, description, startTs, endTs);
 	}

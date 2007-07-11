@@ -20,6 +20,16 @@ public abstract class StandAloneLPSimulation extends StandardAMSimulation {
 	}
 
 	/**
+	 * Creates a new instance of Simulation
+	 * 
+	 * @param id This simulation's identifier
+	 * @param description A short text describing this simulation.
+	 */
+	public StandAloneLPSimulation(int id, String description) {
+		super(id, description);
+	}
+	
+	/**
 	 * Creates a simulation with standard AM configuration which instances a single LP
 	 * @param id
 	 *            This simulation's identifier

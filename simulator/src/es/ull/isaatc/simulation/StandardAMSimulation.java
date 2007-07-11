@@ -28,6 +28,16 @@ public abstract class StandardAMSimulation extends Simulation {
 	}
 
 	/**
+	 * Creates a new instance of Simulation
+	 * 
+	 * @param id This simulation's identifier
+	 * @param description A short text describing this simulation.
+	 */
+	public StandardAMSimulation(int id, String description) {
+		super(id, description);
+	}
+
+	/**
 	 * Creates a simulation which builds the AMs but not the LPs.
 	 * @param id
 	 *            This simulation's identifier
