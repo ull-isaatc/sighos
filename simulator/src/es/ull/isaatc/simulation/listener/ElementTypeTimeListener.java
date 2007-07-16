@@ -32,6 +32,13 @@ public class ElementTypeTimeListener extends PeriodicListener {
 	}
 	
 	/**
+	 * @return the elementTypeTimes
+	 */
+	public HashMap<Integer, ElementTypeTime> getElementTypeTimes() {
+		return elementTypeTimes;
+	}
+
+	/**
 	 * Returns the element hashmap.
 	 * 
 	 * @return the element hashmap.
@@ -245,7 +252,7 @@ public class ElementTypeTimeListener extends PeriodicListener {
 		}
 	}
 
-	public class ElementTypeTime {
+	public class ElementTypeTime { // Change to public
 
 		/** the element type identifier */
 		int typeId;
@@ -272,6 +279,41 @@ public class ElementTypeTimeListener extends PeriodicListener {
 			finishedElement = new int[nPeriods];
 			activedElement = new int[nPeriods];
 			workTime = new double[nPeriods];
+		}
+
+		/**
+		 * @return the typeId
+		 */
+		public int getTypeId() {
+			return typeId;
+		}
+
+		/**
+		 * @return the nPeriods
+		 */
+		public int getNPeriods() {
+			return nPeriods;
+		}
+
+		/**
+		 * @return the createdElement
+		 */
+		public int[] getCreatedElement() {
+			return createdElement;
+		}
+
+		/**
+		 * @return the finishedElement
+		 */
+		public int[] getFinishedElement() {
+			return finishedElement;
+		}
+
+		/**
+		 * @return the workTime
+		 */
+		public double[] getWorkTime() {
+			return workTime;
 		}
 
 		public void startElement(ElementInfoValue eInfoValue) {
