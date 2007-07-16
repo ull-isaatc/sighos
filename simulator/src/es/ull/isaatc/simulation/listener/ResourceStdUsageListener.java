@@ -31,6 +31,27 @@ public class ResourceStdUsageListener extends PeriodicListener {
 		super(period);
 	}
 
+	/**
+	 * @return the avalTime
+	 */
+	public TreeMap<Integer, double[]> getAvalTime() {
+		return avalTime;
+	}
+
+	/**
+	 * @return the resUsage
+	 */
+	public TreeMap<Integer, ResourceUsage> getResUsage() {
+		return resUsage;
+	}
+
+	/**
+	 * @return the rolTime
+	 */
+	public TreeMap<Integer, double[]> getRolTime() {
+		return rolTime;
+	}
+
 	@Override
 	protected void changeCurrentPeriod(double ts) {
 		for (ResourceUsage rUsageTime : resUsage.values())
@@ -105,6 +126,10 @@ public class ResourceStdUsageListener extends PeriodicListener {
 		StringBuffer str = new StringBuffer();
 		str.append("\nResources usage time (PERIOD: " + period + ")\n");
 		for (ResourceUsage rUsage : resUsage.values()) {
+			str.append(rUsage.getUsageString());
+		}
+		str.append("\nResources availability time (PERIOD: " + period + ")\n");
+		for (ResourceUsage rUsage : resUsage.values()) {
 			str.append(rUsage.getAvalString());
 		}
 		str.append("Resources usage time grouped in rols\n");
@@ -128,7 +153,7 @@ public class ResourceStdUsageListener extends PeriodicListener {
 	 * Stores how much time a resource has been used for each rol.
 	 * @author Roberto Muñoz
 	 */
-	private class ResourceUsage {
+	public class ResourceUsage {
 		/** Stores the time this resource is used for each rol. */
 		private TreeMap<Integer, double[]> usageTime;
 		/** Stores the time this resource is available for each rol. */
@@ -220,6 +245,20 @@ public class ResourceStdUsageListener extends PeriodicListener {
 			}
 		}
 		
+		/**
+		 * @return the avalTime
+		 */
+		public TreeMap<Integer, double[]> getAvalTime() {
+			return avalTime;
+		}
+
+		/**
+		 * @return the usageTime
+		 */
+		public TreeMap<Integer, double[]> getUsageTime() {
+			return usageTime;
+		}
+
 		/**
 		 * @return the usageTime this resource has been working for a rol.
 		 */

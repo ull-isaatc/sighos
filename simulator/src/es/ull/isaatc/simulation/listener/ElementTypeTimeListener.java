@@ -245,7 +245,7 @@ public class ElementTypeTimeListener extends PeriodicListener {
 		}
 	}
 
-	private class ElementTypeTime {
+	public class ElementTypeTime {
 
 		/** the element type identifier */
 		int typeId;
