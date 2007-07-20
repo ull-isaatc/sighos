@@ -16,8 +16,6 @@ public class RandomPermutation {
 	 * 
 	 * @param n
 	 *            the maximum number in the permutation
-	 * @param r
-	 *            the array containing the permutations
 	 */
 	public static int[] nextPermutation(int n) {
 		if (generator == null)

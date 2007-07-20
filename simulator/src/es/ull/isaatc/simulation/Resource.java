@@ -273,7 +273,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     
     /**
      * Setter for property currentResourceType.
-     * @param cr New value of property currentResourceType.
+     * @param rt New value of property currentResourceType.
      */
     protected void setCurrentResourceType(ResourceType rt) {
         this.currentResourceType = rt;
@@ -289,7 +289,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
     
     /**
      * Setter for property timeOut.
-     * @param fueraTiempo New value of property timeOut.
+     * @param timeOut New value of property timeOut.
      */
     protected void setTimeOut(boolean timeOut) {
         this.timeOut = timeOut;

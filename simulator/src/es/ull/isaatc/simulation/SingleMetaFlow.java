@@ -14,7 +14,7 @@ public class SingleMetaFlow extends MetaFlow {
     protected Activity act;
     
 	/**
-	 * @param parent
+	 * @param id
 	 */
 	public SingleMetaFlow(int id, RandomVariate iterations, Activity act) {
 		super(id, null, iterations);
@@ -22,6 +22,7 @@ public class SingleMetaFlow extends MetaFlow {
 	}
 	
 	/**
+	 * @param id
 	 * @param parent
 	 */
 	public SingleMetaFlow(int id, GroupMetaFlow parent, RandomVariate iterations, Activity act) {
@@ -30,6 +31,7 @@ public class SingleMetaFlow extends MetaFlow {
 	}
 
 	/**
+	 * @param id
 	 * @param parent
 	 */
 	public SingleMetaFlow(int id, OptionMetaFlow parent, RandomVariate iterations, Activity act) {
@@ -38,6 +40,7 @@ public class SingleMetaFlow extends MetaFlow {
 	}
 
 	/**
+	 * @param id
 	 * @param parent
 	 */
 	public SingleMetaFlow(int id, TypeBranchMetaFlow parent, RandomVariate iterations, Activity act) {

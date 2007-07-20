@@ -263,7 +263,7 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
 	    /**
 	     * Adds a resource. The count of the resource is explicitly declared.
 	     * @param res The resource added
-	     * @param countHow many times the resource has been put as available for this resource type.
+	     * @param count How many times the resource has been put as available for this resource type.
 	     */
 	    void add(Resource res, int count) {
 	    	resources.add(res);
@@ -302,7 +302,7 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
 	    /**
 	     * Returns the count at the specified position
 	     * @param index The position of the count.
-	     * @return
+	     * @return the count at the specified position
 	     */
 	    int getCounter(int index) {
 	    	return counter.get(index);

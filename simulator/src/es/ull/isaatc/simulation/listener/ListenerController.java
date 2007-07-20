@@ -11,6 +11,8 @@ import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
+ * Manages the listeners during the simulation time. Then, it processes 
+ * the information provided by the listeners.
  * @author Iván Castilla Rodríguez
  *
  */

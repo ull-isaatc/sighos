@@ -12,7 +12,7 @@ import simkit.random.RandomVariate;
 public class SimultaneousMetaFlow extends GroupMetaFlow {
 
 	/**
-	 * @param parent
+	 * @param id
 	 * @param iterations
 	 */
 	public SimultaneousMetaFlow(int id, RandomVariate iterations) {
@@ -20,6 +20,7 @@ public class SimultaneousMetaFlow extends GroupMetaFlow {
 	}
 
 	/**
+	 * @param id
 	 * @param parent
 	 * @param iterations
 	 */
@@ -28,6 +29,7 @@ public class SimultaneousMetaFlow extends GroupMetaFlow {
 	}
 
 	/**
+	 * @param id
 	 * @param parent
 	 * @param iterations
 	 */
@@ -36,6 +38,7 @@ public class SimultaneousMetaFlow extends GroupMetaFlow {
 	}
 
 	/**
+	 * @param id
 	 * @param parent
 	 * @param iterations
 	 */

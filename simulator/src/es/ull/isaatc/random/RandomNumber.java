@@ -36,6 +36,7 @@ package es.ull.isaatc.random;
  *
  * @version 1.96
  * @author Juraj Pivovarov
+ * @deprecated SIGHOS now uses the simkit.random package
  ************************************************************/
 
 public class RandomNumber {
@@ -301,7 +302,6 @@ public class RandomNumber {
     /************************************************************
      * Let the user specify how many parameters had to be 
      * estimated.
-     * @see #goodnessOfFitTest(int,double,double).
      ************************************************************/
 
     public boolean goodnessOfFitTest(int sampleSize, double seperators[],

@@ -50,7 +50,7 @@ public class OrderedList<T extends Orderable> extends ArrayList<T> {
     
     /**
      * Searches an object in the list with the specified key.
-     * @param id The key that identifies the object
+     * @param key The key that identifies the object
      * @return The object with the specified key. null if the object is not
      * in the list.
      */

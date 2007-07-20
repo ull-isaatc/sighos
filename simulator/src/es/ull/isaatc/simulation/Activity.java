@@ -280,7 +280,6 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
     /**
      * Remove a specific single flow from the element queue.
      * @param sf Single flow that must be removed from the element queue.
-     * @return True if the flow belongs to the queue; false in other case.
      */
     protected void queueRemove(SingleFlow sf) {
     	manager.queueRemove(sf);
@@ -336,7 +335,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	    /**
 	     * Creates a new instance of WorkGroup
 	     * @param id Identifier of this workgroup.
-	     * @param duracion Duration of the activity when using this WG.
+	     * @param duration Duration of the activity when using this WG.
 	     * @param priority Priority of the workgroup.
 	     */    
 	    protected WorkGroup(int id, TimeFunction duration, int priority) {
@@ -348,7 +347,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	    /**
 	     * Creates a new instance of WorkGroup
 	     * @param id Identifier of this workgroup.
-	     * @param duracion Duration of the activity when using this WG.
+	     * @param duration Duration of the activity when using this WG.
 	     * @param priority Priority of the workgroup.
 	     */    
 	    protected WorkGroup(int id, TimeFunction duration, int priority, es.ull.isaatc.simulation.WorkGroup wg) {

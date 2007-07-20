@@ -238,29 +238,53 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	}
 
 	/**
-	 * Adds an identified object to the model. The allowed id. objects are:
-	 * {@link Activity}, {@link ResourceType}, {@link ElementType}. Any other
-	 * object is ignored. These objects are automatically added from their
-	 * constructor.
+	 * Adds an {@link es.ull.isaatc.simulation.Activity} to the model. These method
+	 * is invoked from the object's constructor.
 	 * 
-	 * @param obj
-	 *            Identified object that's added to the model.
+	 * @param act
+	 *            Activity that's added to the model.
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
-
 	protected Activity add(Activity act) {
 		return activityList.put(act.getIdentifier(), act);
 	}
 	
+	/**
+	 * Adds an {@link es.ull.isaatc.simulation.ElementType} to the model. These method
+	 * is invoked from the object's constructor.
+	 * 
+	 * @param et
+	 *            Element Type that's added to the model.
+	 * @return previous value associated with the key of specified object, or <code>null</code>
+	 *  if there was no previous mapping for key.
+	 */
 	protected ElementType add(ElementType et) {
 		return elementTypeList.put(et.getIdentifier(), et);
 	}
 	
+	/**
+	 * Adds an {@link es.ull.isaatc.simulation.ResourceType} to the model. These method
+	 * is invoked from the object's constructor.
+	 * 
+	 * @param rt
+	 *            Resource Type that's added to the model.
+	 * @return previous value associated with the key of specified object, or <code>null</code>
+	 *  if there was no previous mapping for key.
+	 */
 	protected ResourceType add(ResourceType rt) {
 		return resourceTypeList.put(rt.getIdentifier(), rt);
 	}
 	
+	/**
+	 * Adds an {@link es.ull.isaatc.simulation.WorkGroup} to the model. These method
+	 * is invoked from the object's constructor.
+	 * 
+	 * @param wg
+	 *            WorkGroup that's added to the model.
+	 * @return previous value associated with the key of specified object, or <code>null</code>
+	 *  if there was no previous mapping for key.
+	 */
 	protected WorkGroup add(WorkGroup wg) {
 		return workGroupList.put(wg.getIdentifier(), wg);
 		

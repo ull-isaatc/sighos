@@ -6,8 +6,9 @@ package es.ull.isaatc.function;
 import es.ull.isaatc.random.RandomNumber;
 
 /**
+ * Random number generator function.
  * @author Iván Castilla Rodríguez
- *
+ * @deprecated SIGHOS now uses the simkit.random package
  */
 public class OldRandomFunction extends TimeFunction {
 	private RandomNumber rnd;

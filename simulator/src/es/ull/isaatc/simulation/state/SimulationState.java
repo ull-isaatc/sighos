@@ -79,7 +79,7 @@ public class SimulationState implements State {
 
 	/**
 	 * Adds the state of an resource type.
-	 * @param aState State of an resource type
+	 * @param rtState State of an resource type
 	 */
 	public void add(ResourceTypeState rtState) {
 		rtStates.add(rtState);

@@ -61,7 +61,7 @@ public abstract class PrioritizedMap<T extends Collection<E>, E extends Prioriti
 
 	/**
 	 * Returns an iterator over the table 
-	 * @return
+	 * @return an iterator over the table
 	 */
 	public Iterator<E> iterator() {
 		return new FIFOIterator();
