@@ -34,8 +34,8 @@ public final class XMLSimulationFactory {
 	 * @param out
 	 * @return the Simulation
 	 */
-	public static Simulation getSimulation(es.ull.isaatc.simulation.xml.XMLWrapper xmlWrapper) {
-		return new XMLSimulation(xmlWrapper);
+	public static Simulation getSimulation(int id, es.ull.isaatc.simulation.xml.XMLWrapper xmlWrapper) {
+		return new XMLSimulation(id, xmlWrapper);
 	}
 	
 	/**

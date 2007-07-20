@@ -22,9 +22,9 @@ public class XMLSimulation extends StandAloneLPSimulation {
 	 * @param xmlWrapper This object stores the XML description of the model and the experiment.
 	 * @param out
 	 */
-	public XMLSimulation(es.ull.isaatc.simulation.xml.XMLWrapper xmlWrapper) {
+	public XMLSimulation(int id, es.ull.isaatc.simulation.xml.XMLWrapper xmlWrapper) {
 
-		super(xmlWrapper.getModel().getDescription());
+		super(id, xmlWrapper.getModel().getDescription());
 		xmlModel = xmlWrapper.getModel();
 		xmlExperiment = xmlWrapper.getExperiment();
 		baseTimeIndex = XMLSimulationFactory.getTimeUnit(xmlModel.getBaseTimeUnit(), baseTimeIndex);

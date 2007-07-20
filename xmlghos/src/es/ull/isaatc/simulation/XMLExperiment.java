@@ -5,9 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.Executors;
 
 import es.ull.isaatc.simulation.Experiment;
 import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.SimulationListener;
 import es.ull.isaatc.simulation.listener.SimulationTimeListener;
 import es.ull.isaatc.simulation.listener.xml.XMLListenerController;
@@ -19,7 +21,7 @@ import es.ull.isaatc.util.Output;
  * Creates an experiment from a description in XML.
  * @author Roberto Muñoz
  */
-public class XMLExperiment extends Experiment {
+public class XMLExperiment extends PooledExperiment {
 
 	protected es.ull.isaatc.simulation.xml.XMLWrapper xmlWrapper;
 
@@ -32,7 +34,6 @@ public class XMLExperiment extends Experiment {
 	private Output out;
 
 	public XMLExperiment(es.ull.isaatc.simulation.xml.XMLWrapper xmlWrapper) {
-
 		super();
 		this.xmlWrapper = xmlWrapper;
 		this.xmlExperiment = xmlWrapper.getExperiment();
@@ -40,7 +41,7 @@ public class XMLExperiment extends Experiment {
 	}
 
 	protected void initialize() {
-
+		tp = Executors.newSingleThreadExecutor();
 		setDescription(xmlExperiment.getSimulation());
 		setNExperiments(xmlExperiment.getExperiments());
 		setProcessor(new NullStateProcessor());
@@ -122,26 +123,22 @@ public class XMLExperiment extends Experiment {
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		Simulation sim = XMLSimulationFactory.getSimulation(xmlWrapper);
-		setStartTs(XMLSimulationFactory.getNormalizedTime(xmlExperiment.getStartTs().getValue(), xmlExperiment.getStartTs().getTimeUnit(), ((XMLSimulation)sim).getBaseTimeIndex()));
-		setEndTs(XMLSimulationFactory.getNormalizedTime(xmlExperiment.getEndTs().getValue(), xmlExperiment.getEndTs().getTimeUnit(), ((XMLSimulation)sim).getBaseTimeIndex()));
+		Simulation sim = XMLSimulationFactory.getSimulation(ind, xmlWrapper);
+		sim.setStartTs(XMLSimulationFactory.getNormalizedTime(xmlExperiment.getStartTs().getValue(), xmlExperiment.getStartTs().getTimeUnit(), ((XMLSimulation)sim).getBaseTimeIndex()));
+		sim.setEndTs(XMLSimulationFactory.getNormalizedTime(xmlExperiment.getEndTs().getValue(), xmlExperiment.getEndTs().getTimeUnit(), ((XMLSimulation)sim).getBaseTimeIndex()));
 		sim.setOutput(out);
 		
 		createListeners();
-		SimulationListener timeListener = new SimulationTimeListener() {
-			@Override
-			public String toString() {
-				return "Simulation time : " + super.toString() + "\n";
-			}
-			
-		};
+		ListenerController cont = new ListenerController();
+		SimulationListener timeListener = new SimulationTimeListener();
 		listenerList.add(timeListener);
 		
 		listenerController.addAll(ind, listenerList);
 
 		for (SimulationListener listener : listenerList)
-			sim.addListener(listener);
-		sim.addListener(timeListener);
+			cont.addListener(listener);
+		cont.addListener(timeListener);
+		sim.setListenerController(cont);
 		
 		return sim;
 	}
