@@ -198,6 +198,9 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 						elem.setDefLP(getDefaultLogicalProcess());
 			}
 		}
+		// Starts the listener controller so it can receive info events. 
+		listenerController.start();
+		
 		getListenerController().notifyListeners(new SimulationStartInfo(this, System
 				.currentTimeMillis(), Generator.getElemCounter()));
 		
@@ -559,6 +562,7 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	}
 
 	/**
+	 * Sets a listener controller for this simulation
 	 * @param listenerController the listenerController to set
 	 */
 	public void setListenerController(ListenerController listenerController) {

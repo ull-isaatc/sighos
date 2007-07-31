@@ -5,12 +5,9 @@
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.listener.ElementStartFinishListener;
 import es.ull.isaatc.simulation.listener.ListenerController;
-import es.ull.isaatc.simulation.listener.ResourceUsageListener;
 import es.ull.isaatc.simulation.listener.SimulationTimeListener;
-import es.ull.isaatc.simulation.listener.StdInfoListener;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.PeriodicCycle;
 
@@ -54,8 +51,7 @@ class CarWashExperiment extends PooledExperiment {
 		CarWashSimulation sim = new CarWashSimulation(ind, 0.0, 200.0 * NDAYS);
 		ListenerController cont = new ListenerController() {
 			@Override
-			public synchronized void notifyListeners(SimulationEndInfo info) {
-				super.notifyListeners(info);
+			public void end() {
 				for (String str : getListenerResults()) 
 					System.out.println(str);
 			}

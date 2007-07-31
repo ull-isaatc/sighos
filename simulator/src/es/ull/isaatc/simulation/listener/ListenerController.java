@@ -4,8 +4,11 @@
 package es.ull.isaatc.simulation.listener;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
 
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.info.SimulationInfo;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
@@ -16,7 +19,7 @@ import es.ull.isaatc.simulation.info.TimeChangeInfo;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ListenerController {
+public class ListenerController extends Thread {
 	/** List of info listeners */
 	private ArrayList<EventListener> listeners;
 	/** List of simulation listeners */
@@ -25,6 +28,10 @@ public class ListenerController {
 	private ArrayList<SimulationObjectListener> simObjListeners;
 	/** List of time change listeners */
 	private ArrayList<TimeChangeListener> timeListeners;
+	/** The queue of pending info */
+	private ConcurrentLinkedQueue<SimulationInfo> infoQueue;
+	/** Lock to control whether is a new info event or not */
+	private Semaphore sem;
 
 	/**
 	 * 
@@ -34,8 +41,41 @@ public class ListenerController {
 		simObjListeners = new ArrayList<SimulationObjectListener>();
 		timeListeners = new ArrayList<TimeChangeListener>();
 		listeners = new ArrayList<EventListener>();
+		infoQueue = new ConcurrentLinkedQueue<SimulationInfo>();
+		sem = new Semaphore(1);
 	}
 
+	public void run() {
+		boolean noEnd = true;
+		while(noEnd) {
+			try {
+				sem.acquire();
+				SimulationInfo info = infoQueue.poll();
+				if (info instanceof SimulationObjectInfo)
+					for (SimulationObjectListener il : simObjListeners)
+						il.infoEmited((SimulationObjectInfo)info);
+				else if (info instanceof SimulationStartInfo)  
+					for (SimulationListener il : simListeners)
+						il.infoEmited((SimulationStartInfo)info);
+				else if (info instanceof SimulationEndInfo) {  
+					for (SimulationListener il : simListeners)
+						il.infoEmited((SimulationEndInfo)info);
+					noEnd = false;
+				}
+				else if (info instanceof TimeChangeInfo)
+					for (TimeChangeListener il : timeListeners)
+						il.infoEmited((TimeChangeInfo)info);			
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		end();
+	}
+	
+	public void end() {
+		
+	}
+	
 	/**
 	 * Listener adapter. Adds a new listener to the listener list.
 	 * 
@@ -53,49 +93,16 @@ public class ListenerController {
 	}
 
 	/**
-	 * Informs the simulation's listeners of a new event.
+	 * Informs the simulation's listener controller of a new event.
 	 * 
 	 * @param info
 	 *            An event that contains simulation information.
 	 */
-	public synchronized void notifyListeners(SimulationObjectInfo info) {
-		for (SimulationObjectListener il : simObjListeners)
-			il.infoEmited(info);
+	public void notifyListeners(SimulationInfo info) {
+		infoQueue.add(info);
+		sem.release();
 	}
-
-	/**
-	 * Informs the simulation's listeners of a new event.
-	 * 
-	 * @param info
-	 *            An event that contains simulation information.
-	 */
-	public synchronized void notifyListeners(SimulationStartInfo info) {
-		for (SimulationListener il : simListeners)
-			il.infoEmited(info);
-	}
-
-	/**
-	 * Informs the simulation's listeners of a new event.
-	 * 
-	 * @param info
-	 *            An event that contains simulation information.
-	 */
-	public synchronized void notifyListeners(SimulationEndInfo info) {
-		for (SimulationListener il : simListeners)
-			il.infoEmited(info);
-	}
-
-	/**
-	 * Informs the simulation's listeners of a new event.
-	 * 
-	 * @param info
-	 *            An event that contains simulation information.
-	 */
-	public synchronized void notifyListeners(TimeChangeInfo info) {
-		for (TimeChangeListener il : timeListeners)
-			il.infoEmited(info);
-	}
-
+	
 	/**
 	 * Returns the list of listeners of the simulation
 	 * @return the list of listeners of the simulation
