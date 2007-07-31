@@ -48,6 +48,20 @@ public class ElementStartFinishListener extends PeriodicListener {
 		return lastElementId;
 	}
 
+	/**
+	 * @return the elemFinish
+	 */
+	public int[] getElemFinish() {
+		return elemFinish;
+	}
+
+	/**
+	 * @return the elemStarted
+	 */
+	public int[] getElemStarted() {
+		return elemStarted;
+	}
+
 	@Override
 	protected void changeCurrentPeriod(double ts) {
 	}
