@@ -17,7 +17,7 @@ public class TimeDrivenGenerator extends Generator {
     private CycleIterator cycleIter = null;
 
     /**
-     * 
+     * Creates a generator driven by a time cycle.
      * @param simul Simulation which uses this generator
      * @param creator The way the elements are created every "tic" of the cycle 
      * @param cycle Control of the time between generations 

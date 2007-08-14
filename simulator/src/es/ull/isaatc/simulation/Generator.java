@@ -29,10 +29,12 @@ public abstract class Generator extends BasicElement {
     }
     
     /**
-     * Create the elements. This method is invoked each timestamp when elements have to be
-     * generated.  
+     * Things to do before the elements are created. 
      */
     public abstract void preprocess();
+    /**
+     * Things to do after the elements are created. 
+     */
     public abstract void postprocess();
 
     /**
