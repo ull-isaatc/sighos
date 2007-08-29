@@ -129,14 +129,17 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 * Removes a resource type from the list of current roles. If the role doesn't exist
 	 * the removal is silently skipped (that's because a resource can have several timetable 
 	 * entries for the same role, but the <code>currentRoles</code> list only contains 
-	 * one entry per role).
+	 * one entry per role). However, checks if it's time for removing the role before doing it.
 	 * @param role Resource type removed
 	 */
 	protected void removeRole(ResourceType role) {
 		debug("MUTEX\trequesting\t(remove role)");    	
 		waitSemaphore();
 		debug("MUTEX\tadquired\t(remove role)");    	
-		currentRoles.remove(role);
+		Double avEnd = currentRoles.get(role);
+		if (avEnd != null)
+			if (avEnd <= ts)
+				currentRoles.remove(role);
 		debug("MUTEX\treleasing\t(remove role)");    	
 		signalSemaphore();
 		debug("MUTEX\tfreed\t(remove role)");    	
