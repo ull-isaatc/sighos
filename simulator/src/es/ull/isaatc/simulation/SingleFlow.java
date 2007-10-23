@@ -259,7 +259,7 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 	}
 	
     /**
-     * Releases the resources caught by hissingle flow to perform the activity.
+     * Releases the resources caught by his single flow to perform the activity.
      * @return A list of activity managers affected by the released resources
      */
     protected ArrayList<ActivityManager> releaseCaughtResources() {

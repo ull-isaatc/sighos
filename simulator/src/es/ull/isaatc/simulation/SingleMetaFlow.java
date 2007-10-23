@@ -10,11 +10,13 @@ import simkit.random.RandomVariate;
  *
  */
 public class SingleMetaFlow extends MetaFlow {
-    /** Actividad que conforma el flujo */
+    /** The activity to perform */
     protected Activity act;
     
 	/**
-	 * @param id
+	 * @param id Unique identifier
+	 * @param iterations Number of iterations this metaflow should be done
+	 * @param act Activity to perform
 	 */
 	public SingleMetaFlow(int id, RandomVariate iterations, Activity act) {
 		super(id, null, iterations);
@@ -22,8 +24,10 @@ public class SingleMetaFlow extends MetaFlow {
 	}
 	
 	/**
-	 * @param id
-	 * @param parent
+	 * @param id Unique identifier
+	 * @param parent Parent metaflow
+	 * @param iterations Number of iterations this flow should be done
+	 * @param act Activity to perform
 	 */
 	public SingleMetaFlow(int id, GroupMetaFlow parent, RandomVariate iterations, Activity act) {
 		super(id, parent, iterations);
@@ -31,8 +35,10 @@ public class SingleMetaFlow extends MetaFlow {
 	}
 
 	/**
-	 * @param id
-	 * @param parent
+	 * @param id Unique identifier
+	 * @param parent Parent metaflow
+	 * @param iterations Number of iterations this flow should be done
+	 * @param act Activity to perform
 	 */
 	public SingleMetaFlow(int id, OptionMetaFlow parent, RandomVariate iterations, Activity act) {
 		super(id, parent, iterations);
@@ -40,8 +46,10 @@ public class SingleMetaFlow extends MetaFlow {
 	}
 
 	/**
-	 * @param id
-	 * @param parent
+	 * @param id Unique identifier
+	 * @param parent Parent metaflow
+	 * @param iterations Number of iterations this flow should be done
+	 * @param act Activity to perform
 	 */
 	public SingleMetaFlow(int id, TypeBranchMetaFlow parent, RandomVariate iterations, Activity act) {
 		super(id, parent, iterations);

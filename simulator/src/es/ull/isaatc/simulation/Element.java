@@ -37,7 +37,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	 * Creates a new element.
 	 * 
 	 * @param id
-	 *            Identificador del elemento
+	 *            Element's identifier
 	 * @param simul
 	 *            Simulation object
 	 */
@@ -206,13 +206,13 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 			debug("Continues\t" + sf.getActivity() + "\t" + sf.getActivity().getDescription());						
 		}
 		double finishTs = ts + sf.getTimeLeft();
+		// The required time for finishing the activity is reduced (useful only for interruptible activities)
 		if (sf.getActivity().isInterruptible() && (finishTs - auxTs > 0.0))
 			sf.setTimeLeft(finishTs - auxTs);				
 		else {
 			auxTs = finishTs;
 			sf.setTimeLeft(0.0);
 		}
-		// The required time for finishing the activity is reduced (useful only for interruptible activities)
 		addEvent(new FinalizeActivityEvent(auxTs , sf));
 	}
 
@@ -220,7 +220,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	 * Requests an activity. Checks if the activity is feasible and the element
 	 * is not performing another activity.
 	 * 
-	 * @author Ivn Castilla Rodrguez
+	 * @author Iván Castilla Rodríguez
 	 */
 	public class RequestActivityEvent extends BasicElement.DiscreteEvent {
 		/** The flow requested */
@@ -264,7 +264,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	/**
 	 * Informs an activity about an available element in its queue.
 	 * 
-	 * @author Ivn Castilla Rodrguez
+	 * @author Iván Castilla Rodríguez
 	 */
 	public class AvailableElementEvent extends BasicElement.DiscreteEvent {
 		/** Flow informed of the availability of the element */
@@ -301,9 +301,9 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 	}
 
 	/**
-	 * Finish an activity.
+	 * Finishes an activity.
 	 * 
-	 * @author Ivn Castilla Rodrguez
+	 * @author Iván Castilla Rodríguez
 	 */
 	public class FinalizeActivityEvent extends BasicElement.DiscreteEvent {
 		/** The flow finished */
@@ -327,7 +327,8 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
 					addEvent(new RequestActivityEvent(ts, sf));
 				decRequested(sf);
 			}
-			else {
+			// Added the condition(Lancaster compatibility), even when it should be unnecessary.
+			else if (sf.getTimeLeft() > 0.0){
 				simul.getListenerController().notifyListeners(new ElementInfo(Element.this,
 						ElementInfo.Type.INTACT, ts, act.getIdentifier()));
 				if (isDebugEnabled())
@@ -354,7 +355,7 @@ public class Element extends BasicElement implements RecoverableState<ElementSta
             return super.toString() + sf.getActivity();
         }
         
-}
+	}
 
 	/**
 	 * Returns the state of this element. The state of an element consists on

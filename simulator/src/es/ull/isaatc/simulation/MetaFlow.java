@@ -10,11 +10,11 @@ import simkit.random.RandomVariate;
  *
  */
 public abstract class MetaFlow {
-	/** metaflow id */
+	/** Metaflow unique identifier */
 	protected int id;
-	/** metaflow's parent */
+	/** Metaflow's parent */
 	protected MetaFlow parent;
-	/** iterations this flow should be done */ 
+	/** Iterations this flow should be done */ 
 	protected RandomVariate iterations;
 
 	/**
@@ -65,5 +65,9 @@ public abstract class MetaFlow {
 	 */
 	public abstract boolean getFlow(Flow parentFlow, Element e);
 
+	/**
+	 * Adds a descendant metaflow
+	 * @param descendant The descendant metaflow
+	 */
 	protected abstract void add(MetaFlow descendant);
 }

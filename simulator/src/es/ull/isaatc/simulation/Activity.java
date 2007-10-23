@@ -209,7 +209,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * @param wgId The id of the workgroup searched
      * @return A workgroup contained in this activity with the specified id
      */
-    protected WorkGroup getWorkGroup(int wgId) {
+    public WorkGroup getWorkGroup(int wgId) {
         Iterator<WorkGroup> iter = workGroupTable.iterator();
         while (iter.hasNext()) {
         	WorkGroup opc = iter.next();
@@ -326,7 +326,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	 * this workgroup, and the priority of the workgroup inside the activity.
 	 * @author Iván Castilla Rodríguez
 	 */
-	class WorkGroup extends es.ull.isaatc.simulation.WorkGroup implements Prioritizable {
+	public class WorkGroup extends es.ull.isaatc.simulation.WorkGroup implements Prioritizable {
 	    /** Duration of the activity when using this WG */
 	    protected TimeFunction duration;
 	    /** Priority of the workgroup */
@@ -366,7 +366,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	    }
 
 	    /**
-	     * Returns the duration of the activity when this workgroup is used. 
+	     * Returns the duration of the activity where this workgroup is used. 
 	     * The value returned by the random number function could be negative. 
 	     * In this case, it returns 0.0.
 	     * @return The activity duration.
