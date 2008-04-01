@@ -47,9 +47,9 @@ class SimZaragoza extends StandAloneLPSimulation {
         PeriodicCycle c2 = new PeriodicCycle(0.0, 
         		TimeFunctionFactory.getInstance("RandomFunction", RandomVariateFactory.getInstance("ConstantVariate", 1440.0))
         		, 0);
-        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(0))), c2);
+        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c2);
         PeriodicCycle c3 = new PeriodicCycle(481.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(1))), c3);
+        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1))), c3);
 	}
 	protected void createEjemplo0() {
 		new ResourceType(0, this, "Doctor"); 
@@ -65,8 +65,8 @@ class SimZaragoza extends StandAloneLPSimulation {
 			new Resource(i, this, "Doctor " + (i + 1)).addTimeTableEntry(c1, 399.0, getResourceType(0));
 		
 		SequenceMetaFlow sec = new SequenceMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1));
-		new SingleMetaFlow(1, sec, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(0));
-		new SingleMetaFlow(2, sec, RandomVariateFactory.getInstance("ConstantVariate", 2), getProcess(1));
+		new SingleMetaFlow(1, sec, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
+		new SingleMetaFlow(2, sec, RandomVariateFactory.getInstance("ConstantVariate", 2), getActivity(1));
         PeriodicCycle c2 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
         new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", npatients), getElementType(0), sec), c2);
 	}
@@ -75,14 +75,14 @@ class SimZaragoza extends StandAloneLPSimulation {
 		new Activity(0, this, "First Outpatient Appointment").addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 10));
 		new ElementType(0, this, "Patient");
         PeriodicCycle c2 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(0))), c2);
+        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c2);
 	
 	}
 	protected void createEjemplo2() {
 		new Activity(0, this, "First Outpatient Appointment").addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 20, 5));
 		new ElementType(0, this, "Patient");
         PeriodicCycle c2 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(0))), c2);
+        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", npatients), getElementType(0), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c2);
 	
 	}
 }

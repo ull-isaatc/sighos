@@ -83,9 +83,9 @@ class SimSimAct extends StandAloneLPSimulation {
 		
 		new ElementType(0, this, "PATIENT");
         SimultaneousMetaFlow sim = new SimultaneousMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
-        new SingleMetaFlow(2, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(1));
-        new SingleMetaFlow(1, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(0));
-        new SingleMetaFlow(3, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(2));
+        new SingleMetaFlow(2, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1));
+        new SingleMetaFlow(1, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
+        new SingleMetaFlow(3, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2));
         Cycle c1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
         ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACDAY), getElementType(0), sim);
         new TimeDrivenGenerator(this, ec, c1);
@@ -124,9 +124,9 @@ class SimPoolAct extends StandAloneLPSimulation {
 		new Resource(0, this, "Nurse 1").addTimeTableEntry(c, DURAC_REC, getResourceType(0));
 
 		Cycle c1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
-		new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(2, this, "PAT2"), new SingleMetaFlow(3, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(2))), c1);
-		new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(0, this, "PAT0"), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(0))), c1);
-		new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(1, this, "PAT1"), new SingleMetaFlow(2, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(1))), c1);
+		new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(2, this, "PAT2"), new SingleMetaFlow(3, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2))), c1);
+		new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(0, this, "PAT0"), new SingleMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c1);
+		new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(1, this, "PAT1"), new SingleMetaFlow(2, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1))), c1);
 	}
 }
 
@@ -180,11 +180,11 @@ class SimContinue extends StandAloneLPSimulation {
 		int cont = 0;
         Cycle c1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
         SequenceMetaFlow sec = new SequenceMetaFlow(cont++, RandomVariateFactory.getInstance("ConstantVariate", 1));
-        new SingleMetaFlow(cont++, sec, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(0));
+        new SingleMetaFlow(cont++, sec, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
         SimultaneousMetaFlow sim = new SimultaneousMetaFlow(cont++, sec, RandomVariateFactory.getInstance("ConstantVariate", 1));
-        new SingleMetaFlow(cont++, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(1));
-        new SingleMetaFlow(cont++, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(2));
-        new SingleMetaFlow(cont++, sec, RandomVariateFactory.getInstance("UniformVariate", 0, 3), getProcess(3));        
+        new SingleMetaFlow(cont++, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1));
+        new SingleMetaFlow(cont++, sim, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(2));
+        new SingleMetaFlow(cont++, sec, RandomVariateFactory.getInstance("UniformVariate", 0, 3), getActivity(3));        
 		new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACDAY), new ElementType(0, this, "PATIENTS"), sec), c1);
 	}
 }

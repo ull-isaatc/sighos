@@ -38,7 +38,7 @@ class CarWashSimulation extends StandAloneLPSimulation {
 }
 
 class CarWashExperiment extends PooledExperiment {
-    static final int NDAYS = 100;
+    static final int NDAYS = 1;
     static final int NTESTS = 1;
 
     CarWashExperiment() {

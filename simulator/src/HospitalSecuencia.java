@@ -150,11 +150,11 @@ class ExpHospitalSecuencia extends PooledExperiment {
 
 	public Simulation getSimulation(int ind) {
 		Analisis sim = null;
+		ListenerController cont = new ListenerController();
 //		if (Double.compare(prevEnd, 0.0) != 0)
 //			sim = new Analisis(NDIAS + (int)(prevEnd / (60 * 24)), new Output(Output.DebugLevel.XDEBUG), new PreviousSimulationResults(prevStart, prevEnd, ind, "c:\\"));
 //		else
 			sim = new Analisis(ind, NDIAS);
-			ListenerController cont = new ListenerController();
 			sim.setListenerController(cont);
 		cont.addListener(new StdInfoListener());
 		cont.addListener(new StatisticListener(1440.0));		

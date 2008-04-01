@@ -34,25 +34,25 @@ class Simulation1 extends StandAloneLPSimulation {
         
         WorkGroup wg = new WorkGroup(0, this, "Doctores");
         wg.add(getResourceType(0), 1);
-        getProcess(3).addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 15.0, 2.0), wg);
-        getProcess(4).addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 12.0, 2.0), wg);
+        getActivity(3).addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 15.0, 2.0), wg);
+        getActivity(4).addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 12.0, 2.0), wg);
         
         wg = new WorkGroup(1, this, "Auxiliar");
         wg.add(getResourceType(1), 1);
-        getProcess(0).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 5.0), wg);
+        getActivity(0).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 5.0), wg);
         
         wg = new WorkGroup(2, this, "Sangre");
         wg.add(getResourceType(2), 1);
-        getProcess(1).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 60.0), wg);
+        getActivity(1).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 60.0), wg);
 
         wg = new WorkGroup(3, this, "Orina");
         wg.add(getResourceType(3), 1);
-        getProcess(2).addWorkGroup(TimeFunctionFactory.getInstance("UniformVariate", 40.0, 50.0), wg);
+        getActivity(2).addWorkGroup(TimeFunctionFactory.getInstance("UniformVariate", 40.0, 50.0), wg);
     
         wg = new WorkGroup(4, this, "RX");
         wg.add(getResourceType(4), 1);
         wg.add(getResourceType(1), 1);
-        getProcess(5).addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 25.0, 5.0), wg);
+        getActivity(5).addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 25.0, 5.0), wg);
         
         PeriodicCycle subc1 = new PeriodicCycle(600, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 5);
         PeriodicCycle c1 = new PeriodicCycle(0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0 * 7), 0, subc1);
@@ -73,15 +73,15 @@ class Simulation1 extends StandAloneLPSimulation {
         new Resource(4, this, "Maq 1").addTimeTableEntry(c, endTs, roleList);
         
         SequenceMetaFlow sec = new SequenceMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
-        new SingleMetaFlow(1, sec, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(3));
+        new SingleMetaFlow(1, sec, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(3));
         SequenceMetaFlow sec2 = new SequenceMetaFlow(2, sec, RandomVariateFactory.getInstance("DiscreteUniformVariate", 1, 3));
         SimultaneousMetaFlow sim = new SimultaneousMetaFlow(3, sec2, RandomVariateFactory.getInstance("ConstantVariate", 1));
         SequenceMetaFlow sec3 = new  SequenceMetaFlow(4, sim, RandomVariateFactory.getInstance("ConstantVariate", 1));
-        new SingleMetaFlow(5, sec3, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(0));
-        new SingleMetaFlow(6, sec3, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(1));
-        new SingleMetaFlow(7, sim, RandomVariateFactory.getInstance("UniformVariate", 0.75, 2), getProcess(2));
-        new SingleMetaFlow(8, sim, RandomVariateFactory.getInstance("UniformVariate", 0, 1.25), getProcess(5));
-        new SingleMetaFlow(9, sec2, RandomVariateFactory.getInstance("ConstantVariate", 1), getProcess(4));
+        new SingleMetaFlow(5, sec3, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
+        new SingleMetaFlow(6, sec3, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1));
+        new SingleMetaFlow(7, sim, RandomVariateFactory.getInstance("UniformVariate", 0.75, 2), getActivity(2));
+        new SingleMetaFlow(8, sim, RandomVariateFactory.getInstance("UniformVariate", 0, 1.25), getActivity(5));
+        new SingleMetaFlow(9, sec2, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(4));
         
         new ElementType(0, this, "Paciente");
         PeriodicCycle cGen = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), ndays);
