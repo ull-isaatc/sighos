@@ -112,7 +112,7 @@ public class PeriodicCycle extends Cycle {
 	public int getIterations() {
 		return iterations;
 	}
-
+	
 	public String toString() {
 		StringBuffer str = new StringBuffer("Periodic Cycle. Start: " + startTs);
 		if (!Double.isNaN(endTs))
@@ -123,4 +123,89 @@ public class PeriodicCycle extends Cycle {
 			str.append("\r\n" + subCycle.toString());
 		return str.toString();
 	}
+
+	/* (non-Javadoc)
+	 * @see es.ull.isaatc.util.Cycle#getIteratorLevel(es.ull.isaatc.util.Cycle.CycleIterator, double, double)
+	 */
+	@Override
+	protected IteratorLevel getIteratorLevel(double start, double end) {
+		return new PeriodicIteratorLevel(start, end);
+	}
+
+	/**
+	 * Represents a level in the cycle structure. Each level is a subcycle.
+	 * @author Iván Castilla Rodríguez
+	 */
+	protected class PeriodicIteratorLevel extends Cycle.IteratorLevel {
+		/** The next timestamp. */
+		double nextTs;
+		/** The iterations left. */
+		int iter;
+		
+		/**
+		 * @param start The start timestamp.
+		 * @param end The end timestamp.
+		 */
+		public PeriodicIteratorLevel(double start, double end) {
+			super(start, end);
+		}		
+
+		@Override
+		public double getNextTs() {
+			return nextTs;
+		}
+		
+		@Override
+		public double reset(double start, double newEnd) {
+			currentTs = start;
+			this.iter = getIterations();
+			// Bad defined subcycles are controled here
+			if (!Double.isNaN(PeriodicCycle.this.getEndTs()))
+				endTs = Math.min(start + PeriodicCycle.this.getEndTs(), newEnd);
+			else
+				endTs = newEnd;
+			// If the "supercycle" starts after the simulation end.
+			if (Double.isNaN(newEnd)) {
+				nextTs = Double.NaN;
+				currentTs = nextTs;
+			}
+			else {
+				nextTs = start + getStartTs();
+				// If the cycle starts after the simulation end
+				if (hasNext())
+					currentTs = next();
+				else
+					nextTs = Double.NaN;
+			}
+			return currentTs;
+		}
+
+		@Override
+		public boolean hasNext() {
+			if (Double.isNaN(nextTs))
+				return false;
+			// If the next timestamp to be generated is not valid
+			if (nextTs >= endTs)
+				return false;
+			// If there are infinite iterations
+			if (getIterations() == 0)
+				return true;
+			// If there are n iterations and we have reached the last iteration
+			if (iter == 0)
+				return false;
+			// In other case
+			return true;
+		}
+
+		@Override
+		public double next() {
+			currentTs = nextTs;
+			if (iter > 0)
+				iter--;
+			// Computes the next valid timestamp...
+			nextTs += getPeriod().getPositiveValue(currentTs);
+			return currentTs;
+		}
+	}
+
 }

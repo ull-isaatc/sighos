@@ -40,4 +40,70 @@ public abstract class Cycle {
 	public CycleIterator iterator(double absStart, double absEnd) {
 		return new CycleIterator(this, absStart, absEnd);
 	}
+	
+	protected abstract Cycle.IteratorLevel getIteratorLevel(double start, double end); 
+
+	/**
+	 * Represents a level in a cycle iterator. Each level is a subcycle.
+	 * @author Iván Castilla Rodríguez
+	 */
+	abstract protected class IteratorLevel {
+		double currentTs;
+		/** The end timestamp. */
+		double endTs;
+
+		public IteratorLevel(double start, double end) {
+			reset(start, end);
+		}
+		
+		/**
+		 * Resets this level. The iterations are reset and the end timestamp is recomputed.
+		 * @param start The start timestamp.
+		 * @param newEnd The end timestamp.
+		 */
+		public abstract double reset(double start, double newEnd);
+
+		/**
+		 * Returns the availability of a valid timestamp.
+		 * @return True if there are a valid next timestamp. False in other case. 
+		 */
+		protected abstract boolean hasNext();
+		
+		/**
+		 * Computes the next valid timestamp and returns the value of the current
+		 * timestamp.
+		 */
+		public abstract double next();
+		
+		/**
+		 * Returns the next valid timestamp but it doesn't change anything.
+		 * @return The next valid timestamp.
+		 */
+		public abstract double getNextTs();
+
+		/**
+		 * Returns the cycle referenced by this entry.
+		 * @return The cycle referenced by this entry.
+		 */
+		public Cycle getCycle() {
+			return Cycle.this;
+		}
+		
+		/**
+		 * Returns the end timestamp.
+		 * @return The end timestamp.
+		 */
+		public double getEndTs() {
+			return endTs;
+		}
+
+		/**
+		 * @return the currentTs
+		 */
+		public double getCurrentTs() {
+			return currentTs;
+		}
+
+	}
+
 }
