@@ -78,6 +78,7 @@ public class TableCycle extends Cycle {
 
 		@Override
 		public double reset(double start, double newEnd) {
+			count = 0;
 			this.startTs = start;
 			currentTs = start;
 			this.endTs = newEnd;

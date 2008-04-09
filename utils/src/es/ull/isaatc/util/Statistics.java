@@ -57,4 +57,11 @@ public class Statistics {
 		return stdDev(values, average(values));
 	}
 	
+	public static double relError(double th, double exp) {
+		return (Math.abs(th - exp) / th);
+	}
+
+	public static double relError100(double th, double exp) {
+		return (Math.abs(th - exp) / th) * 100;
+	}
 }

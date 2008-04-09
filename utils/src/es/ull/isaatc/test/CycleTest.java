@@ -5,6 +5,7 @@ package es.ull.isaatc.test;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.util.*;
+import es.ull.isaatc.util.WeeklyPeriodicCycle.WeekDays;
 
 /**
  * Base model for testing
@@ -22,59 +23,137 @@ public class CycleTest {
 		}
 		System.out.println();
 	}
+
+	public static void tableCycleTest() {
+		// 0.0	1.0	2.0	3.0	4.0	5.0
+		testCycle(new TableCycle(new double[] {0.0, 1.0, 2.0, 3.0, 4.0, 5.0}), 0.0, 200.0);
+		// 1.0	2.0	3.0	4.0	5.0
+		testCycle(new TableCycle(new double[] {0.0, 1.0, 2.0, 3.0, 4.0, 5.0}), 1.0, 200.0);
+		// 0.0	1.0	2.0	3.0
+		testCycle(new TableCycle(new double[] {0.0, 1.0, 2.0, 3.0, 4.0, 5.0}), 0.0, 4.0);
+	}
+	
+	public static void periodicCycleTest() {
+		// 0.0	1.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10), 0.0, 200.0);
+		// 0.0	1.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10.0), 0.0, 200.0);
+		// 1.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10), 1.0, 200.0);
+		// 1.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10.0), 1.0, 200.0);
+		// 0.0	1.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10), 0.0, 8.9);
+		// 0.0	1.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10.0), 0.0, 8.9);
+	}
+	
+	public static void periodicSubCycleTest() {
+		// 0.0	1.0	10.0	11.0	20.0	21.0	30.0	31.0
+		Cycle subC1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 2);
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 10.0), 40.0, subC1), 0.0, 200.0);
+		// 1.0	10.0	11.0	20.0	21.0	30.0	31.0
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 10.0), 40.0, subC1), 1.0, 200.0);
+		// 0.0	1.0	10.0	11.0	20.0	21.0
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 10.0), 40.0, subC1), 0.0, 22.0);
+		// 0.0	1.0	10.0	11.0	20.0
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 10.0), 40.0, subC1), 0.0, 20.5);
+
+		// 0.0	1.0	1.1	2.1	2.2	3.2	3.3000000000000003	4.300000000000001	4.4	5.4	5.5	6.5	6.6	7.6	7.699999999999999	8.7	8.799999999999999	9.799999999999999	9.899999999999999
+		subC1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 3.0);
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 200.0);
+		// 1.0	1.1	2.1	2.2	3.2	3.3000000000000003	4.300000000000001	4.4	5.4	5.5	6.5	6.6	7.6	7.699999999999999	8.7	8.799999999999999	9.799999999999999	9.899999999999999
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 1.0, 200.0);
+		// 0.0	1.0	1.1	2.1	2.2	3.2	3.3000000000000003	4.300000000000001	4.4	5.4	5.5	6.5	6.6	7.6	7.699999999999999	8.7	8.799999999999999	9.799999999999999
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 9.8);
+		// 0.0	1.0	1.1	2.1	2.2	3.2	3.3000000000000003	4.300000000000001	4.4	5.4	5.5	6.5	6.6	7.6	7.699999999999999	8.7	8.799999999999999	9.799999999999999
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 8.9);
+
+		// 0.0	1.1	2.2	3.3000000000000003	4.4	5.5	6.6	7.699999999999999	8.799999999999999	9.899999999999999
+		subC1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 3.0), 3);
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 200.0);
+		// 1.1	2.2	3.3000000000000003	4.4	5.5	6.6	7.699999999999999	8.799999999999999	9.899999999999999
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 1.0, 200.0);
+		// 0.0	1.1	2.2	3.3000000000000003	4.4	5.5	6.6	7.699999999999999	8.799999999999999
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 9.8);
+		// 0.0	1.1	2.2	3.3000000000000003	4.4	5.5	6.6	7.699999999999999	8.799999999999999
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 8.9);		
+	}
+	
+	public static void roundedPeriodicCycleTest(RoundedPeriodicCycle.Type type, double factor) {
+		// 0.0	1.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+		testCycle(new RoundedPeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10, type, factor), 0.0, 200.0);
+		// 0.0	1.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+		testCycle(new RoundedPeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10.0, type, factor), 0.0, 200.0);
+		// 1.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+		testCycle(new RoundedPeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10, type, factor), 1.0, 200.0);
+		// 1.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0	9.0
+		testCycle(new RoundedPeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10.0, type, factor), 1.0, 200.0);
+		// 0.0	1.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0
+		testCycle(new RoundedPeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10, type, factor), 0.0, 8.9);
+		// 0.0	1.0	2.0	3.0	4.0	5.0	6.0	7.0	8.0
+		testCycle(new RoundedPeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10.0, type, factor), 0.0, 8.9);
+	}
+	
+	public static void roundedPeriodicSubCycleTest(RoundedPeriodicCycle.Type type, double factor) {
+		// 0.0	1.0	10.0	11.0	20.0	21.0	30.0	31.0
+		Cycle subC1 = new RoundedPeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 2, type, factor);
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 10.0), 40.0, subC1), 0.0, 200.0);
+		// 1.0	10.0	11.0	20.0	21.0	30.0	31.0
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 10.0), 40.0, subC1), 1.0, 200.0);
+		// 0.0	1.0	10.0	11.0	20.0	21.0
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 10.0), 40.0, subC1), 0.0, 22.0);
+		// 0.0	1.0	10.0	11.0	20.0
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 10.0), 40.0, subC1), 0.0, 20.5);
+
+		// 0.0	1.0	1.1	2.1	2.2	3.2	3.3000000000000003	4.300000000000001	4.4	5.4	5.5	6.5	6.6	7.6	7.699999999999999	8.7	8.799999999999999	9.799999999999999	9.899999999999999
+		subC1 = new RoundedPeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 3.0, type, factor);
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 200.0);
+		// 1.0	1.1	2.1	2.2	3.2	3.3000000000000003	4.300000000000001	4.4	5.4	5.5	6.5	6.6	7.6	7.699999999999999	8.7	8.799999999999999	9.799999999999999	9.899999999999999
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 1.0, 200.0);
+		// 0.0	1.0	1.1	2.1	2.2	3.2	3.3000000000000003	4.300000000000001	4.4	5.4	5.5	6.5	6.6	7.6	7.699999999999999	8.7	8.799999999999999	9.799999999999999
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 9.8);
+		// 0.0	1.0	1.1	2.1	2.2	3.2	3.3000000000000003	4.300000000000001	4.4	5.4	5.5	6.5	6.6	7.6	7.699999999999999	8.7	8.799999999999999	9.799999999999999
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 8.9);
+
+		// 0.0	1.1	2.2	3.3000000000000003	4.4	5.5	6.6	7.699999999999999	8.799999999999999	9.899999999999999
+		subC1 = new RoundedPeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 3.0), 3, type, factor);
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 200.0);
+		// 1.1	2.2	3.3000000000000003	4.4	5.5	6.6	7.699999999999999	8.799999999999999	9.899999999999999
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 1.0, 200.0);
+		// 0.0	1.1	2.2	3.3000000000000003	4.4	5.5	6.6	7.699999999999999	8.799999999999999
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 9.8);
+		// 0.0	1.1	2.2	3.3000000000000003	4.4	5.5	6.6	7.699999999999999	8.799999999999999
+		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 8.9);		
+	}
+	
+	public static void weeklyPeriodicCycleTest() {
+		testCycle(new WeeklyPeriodicCycle(WeeklyPeriodicCycle.WEEKDAYS, 1.0, 0.0, 0), 0.0, 21.0);
+		
+	}
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		testCycle(new TableCycle(new double[] {0.0, 1.0, 2.0, 3.0, 4.0, 5.0}), 0.0, 200.0);
-		testCycle(new TableCycle(new double[] {0.0, 1.0, 2.0, 3.0, 4.0, 5.0}), 1.0, 200.0);
-		testCycle(new TableCycle(new double[] {0.0, 1.0, 2.0, 3.0, 4.0, 5.0}), 0.0, 4.0);
-		// 10-iterations cycle: 0, 1, 2... 9
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10), 0.0, 200.0);
-		// to-10.0 cycle: 0, 1, 2... 9
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10.0), 0.0, 200.0);
-		// 10-iterations cycle: 1, 2... 9. Starting later than 0
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10), 1.0, 200.0);
-		// to-10.0 cycle: 0, 1, 2... 9. Starting later than 0
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10.0), 1.0, 200.0);
-		// 10-iterations cycle: 0, 2... 9. Ending before 9
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10), 0.0, 8.9);
-		// to-10.0 cycle: 0, 1, 2... 9. Ending before 9
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 10.0), 0.0, 8.9);
+		System.out.println("Testing constant cycles");
+//		tableCycleTest();
+//
+//		periodicCycleTest();
+//		periodicSubCycleTest();
 		
-		// 2 iterations each 10: 0.0, 1.0, 10.0, 11.0, 20.0, 21.0, 30.0, 31.0
-		Cycle subC1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 2);
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 10.0), 40.0, subC1), 0.0, 200.0);
-		// 2 iterations each 10: 1.0, 10.0, 11.0, 20.0, 21.0, 30.0, 31.0. Starting at 1
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 10.0), 40.0, subC1), 1.0, 200.0);
-		// 2 iterations each 10: 0.0, 1.0, 10.0, 11.0, 20.0, 21.0, 30.0, 31.0. ending at 22.0
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 10.0), 40.0, subC1), 0.0, 22.0);
-		// 2 iterations each 10: 0.0, 1.0, 10.0, 11.0, 20.0, 21.0, 30.0, 31.0. ending at 20.5
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 10.0), 40.0, subC1), 0.0, 20.5);
-
-		// 3 iterations each 2.1: 0.0, 1.0, 10.0, 11.0, 20.0, 21.0, 30.0, 31.0
-		subC1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 3);
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 200.0);
-		// 2 iterations each 10: 1.0, 10.0, 11.0, 20.0, 21.0, 30.0, 31.0. Starting at 1
+//		roundedPeriodicCycleTest(RoundedPeriodicCycle.Type.ROUND, 5);
+//		roundedPeriodicSubCycleTest(RoundedPeriodicCycle.Type.ROUND, 5);
+//		roundedPeriodicCycleTest(RoundedPeriodicCycle.Type.FLOOR, 5);
+//		roundedPeriodicCycleTest(RoundedPeriodicCycle.Type.CEIL, 5);
+//		Cycle subC1 = new RoundedPeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 3.5), 3, RoundedPeriodicCycle.Type.ROUND, 5);
+//		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 10.0), 40.0, subC1), 0.0, 200.0);
+		// FIXME: Este ciclo peta
+		Cycle subC1 = new RoundedPeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 3.0, RoundedPeriodicCycle.Type.ROUND, 5);
+//		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 200.0);
+		// 1.0	1.1	2.1	2.2	3.2	3.3000000000000003	4.300000000000001	4.4	5.4	5.5	6.5	6.6	7.6	7.699999999999999	8.7	8.799999999999999	9.799999999999999	9.899999999999999
 		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 1.0, 200.0);
-		// 2 iterations each 10: 0.0, 1.0, 10.0, 11.0, 20.0, 21.0, 30.0, 31.0. ending at 22.0
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 9.8);
-		// 2 iterations each 10: 0.0, 1.0, 10.0, 11.0, 20.0, 21.0, 30.0, 31.0. ending at 20.5
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 8.9);
-
-		// 3 iterations each 1.1 with longer period: 0.0, 1.0, 10.0, 11.0, 20.0, 21.0, 30.0, 31.0
-		subC1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 3.0), 3);
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 200.0);
-		// 2 iterations each 10: 1.0, 10.0, 11.0, 20.0, 21.0, 30.0, 31.0. Starting at 1
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 1.0, 200.0);
-		// 2 iterations each 10: 0.0, 1.0, 10.0, 11.0, 20.0, 21.0, 30.0, 31.0. ending at 22.0
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 9.8);
-		// 2 iterations each 10: 0.0, 1.0, 10.0, 11.0, 20.0, 21.0, 30.0, 31.0. ending at 20.5
-		testCycle(new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1.1), 10.0, subC1), 0.0, 8.9);
-
-//		Cycle c2 = new PeriodicCycle(24 * 3 + 8, TimeFunctionFactory.getInstance("ConstantVariate", 24), 3);
-//		Cycle cSemanal = new PeriodicCycle(0, TimeFunctionFactory.getInstance("ConstantVariate", 24 * 7), 7 * 24 + 129.0, c2);
-//		CycleIterator iter = cSemanal.iterator(24 * 7, 24 * 14);
+//		weeklyPeriodicCycleTest();
 	}
 
 }

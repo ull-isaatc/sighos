@@ -185,7 +185,7 @@ public class PeriodicCycle extends Cycle {
 			if (Double.isNaN(nextTs))
 				return false;
 			// If the next timestamp to be generated is not valid
-			if (nextTs >= endTs)
+			if (getNextTs() >= endTs)
 				return false;
 			// If there are infinite iterations
 			if (getIterations() == 0)
