@@ -87,6 +87,9 @@ public class ActivityTimeListener extends PeriodicListener {
 	}
 
 	public void infoEmited(SimulationEndInfo info) {
+		for (int id : actUsage.keySet())
+			// The activities are treated as if they were finishing at the end of the previous period
+			actUsage.get(id)[currentPeriod] += info.getSimulation().getEndTs() * actCounter.get(id);
 	}
 
 	@Override

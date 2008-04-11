@@ -94,6 +94,9 @@ public class ResourceStdUsageListener extends PeriodicListener {
 	}
 
 	public void infoEmited(SimulationEndInfo info) {
+		for (ResourceUsage rUsageTime : resUsage.values())
+			rUsageTime.simulationEnd(info.getSimulation().getEndTs());		
+
 		// Analize how much time has been dedicated in each rol
 		rolTime = new TreeMap<Integer, double[]>();
 		for (ResourceType rt : simul.getResourceTypeList().values()) {
@@ -241,6 +244,20 @@ public class ResourceStdUsageListener extends PeriodicListener {
 					avalTime.get(id)[currentPeriod - 1] += currentPeriod * period;
 					if (currentPeriod < nPeriods)
 						avalTime.get(id)[currentPeriod] -= currentPeriod * period;
+				}
+			}
+		}
+		
+		public void simulationEnd(double ts) {
+			if (caughtRT != ResourceStdUsageListener.NOTUSED) {
+				double[] rolTime =  usageTime.get(caughtRT);
+				rolTime[currentPeriod] += ts - caughtTs;
+			}
+			for (int id : avalTime.keySet()) {
+				// when the period changes the resources availavility time must be actualized for the
+				// last period and for the new period
+				if (rtRolOff.get(id) == 1) {
+					avalTime.get(id)[currentPeriod] += ts;
 				}
 			}
 		}
