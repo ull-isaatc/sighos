@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.example.org/SimulationListener"
+	xmlns:tns="http://www.example.org/SimulationListener"
+	elementFormDefault="qualified">
+	<include schemaLocation="PeriodicListener.xsd" />
+	<complexType name="ResourceStdUsageListener">
+		<complexContent>
+			<extension base="tns:PeriodicListener">
+				<sequence>
+					<element minOccurs="0" maxOccurs="unbounded" name="resource">
+						<complexType>
+							<sequence>
+								<element name="usage">
+									<complexType>
+										<sequence>
+											<element name="rt"
+												maxOccurs="unbounded">
+												<complexType>
+													<sequence>
+														<element
+															name="value" type="double" maxOccurs="unbounded" />
+													</sequence>
+													<attribute name="id"
+														type="int" />
+												</complexType>
+											</element>
+										</sequence>
+									</complexType>
+								</element>
+								<element name="available">
+									<complexType>
+										<sequence>
+											<element name="rt"
+												maxOccurs="unbounded">
+												<complexType>
+													<sequence>
+														<element
+															name="value" type="double" maxOccurs="unbounded" />
+													</sequence>
+													<attribute name="id"
+														type="int" />
+												</complexType>
+											</element>
+										</sequence>
+									</complexType>
+								</element>
+							</sequence>
+							<attribute name="id" type="int" />
+						</complexType>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>

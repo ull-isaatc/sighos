@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.example.org/SimulationListener"
+	xmlns:tns="http://www.example.org/SimulationListener"
+	elementFormDefault="qualified">
+	<include schemaLocation="PeriodicListener.xsd" />
+	<complexType name="SimulationTimeListener">
+		<complexContent>
+			<extension base="tns:SimulationListener">
+				<sequence>
+					<element name="simulationTime" type="double" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>

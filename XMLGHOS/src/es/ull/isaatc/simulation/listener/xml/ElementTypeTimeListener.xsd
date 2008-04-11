@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.example.org/SimulationListener"
+	xmlns:tns="http://www.example.org/SimulationListener"
+	elementFormDefault="qualified">
+	<include schemaLocation="PeriodicListener.xsd" />
+	<complexType name="ElementStartFinishListener">
+		<complexContent>
+			<extension base="tns:PeriodicListener">
+				<sequence>
+					<element name="firstElement" type="int"/>
+					<element name="lastElement" type="int"/>
+					<element name="created">
+						<complexType>
+							<sequence>
+								<element name="value" minOccurs="1"
+									type="double" maxOccurs="unbounded" />
+							</sequence>
+						</complexType>
+					</element>
+					<element name="finished">
+						<complexType>
+							<sequence>
+								<element name="value" minOccurs="1"
+									type="double" maxOccurs="unbounded" />
+							</sequence>
+						</complexType>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>

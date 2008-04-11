@@ -1,0 +1,39 @@
+<Experiment>
+	<debugMode>false</debugMode>
+	<experiments>5</experiments>
+	<startTs>0</startTs>
+	<endTs timeUnit="DAY">10</endTs><!-- 1 anio -->
+	<listeners>
+		<selectableActivityListener period="24">
+			<actId>1</actId>
+			<actId>4</actId>
+			<actId>5</actId>
+		</selectableActivityListener>
+	</listeners>
+	<generator>
+		<cycle type="PERIODIC">
+			<timeUnit>DAY</timeUnit>
+			<startTs>0</startTs>
+			<iterations>5</iterations>
+			<period>
+				<random>
+					<function>ConstantVariate</function>
+					<param>1</param>
+				</random>
+			</period>
+		</cycle>
+		<toGenerate>
+			<nElem>
+				<random>
+					<function>ConstantVariate</function>
+					<param>100</param>
+				</random>
+			</nElem>
+			<probTree>
+				<prob>1</prob>
+				<elementType model_id="1" id="1" />
+				<metaFlow model_id="1" id="1" />
+			</probTree>
+		</toGenerate>
+	</generator>
+</Experiment>

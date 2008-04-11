@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.example.org/SimulationListener"
+	xmlns:tns="http://www.example.org/SimulationListener"
+	elementFormDefault="qualified">
+	<include schemaLocation="SimulationTimeListener.xsd" />
+	<include schemaLocation="ActivityListener.xsd" />
+	<include schemaLocation="SelectableActivityListener.xsd" />
+	<include schemaLocation="ActivityTimeListener.xsd" />
+	<include schemaLocation="SelectableActivityTimeListener.xsd" />
+	<include schemaLocation="ResourceStdUsageListener.xsd" />
+	<include schemaLocation="ElementTypeTimeListener.xsd" />
+	<include schemaLocation="ElementStartFinishListener.xsd" />
+	<element name="ListenerInfo">
+		<complexType>
+			<sequence>
+				<element name="SimulationResults"
+					maxOccurs="unbounded">
+					<complexType>
+						<sequence>
+							<element name="listener"
+								type="tns:SimulationListener" maxOccurs="unbounded" />
+						</sequence>
+					</complexType>
+				</element>
+				<element name="AverageResults">
+					<complexType>
+						<sequence>
+							<element name="listener"
+								type="tns:SimulationListener" maxOccurs="unbounded" />
+						</sequence>
+					</complexType>
+				</element>
+			</sequence>
+			<attribute name="nExperiments" type="int" />
+		</complexType>
+	</element>
+</schema>

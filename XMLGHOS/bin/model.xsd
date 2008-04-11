@@ -1,0 +1,24 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+	<!--<xs:include schemaLocation="file:D:\isaatc\workspace\XMLGHOS\data_types.xsd"/>-->
+	<xs:include schemaLocation="data_types.xsd"/>
+	
+	<xs:element name="Model">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="BaseComponent">
+					<xs:sequence>
+						<xs:element minOccurs="0" name="description" type="xs:string"/>
+						<xs:element minOccurs="0" name="baseTimeUnit" type="CommonFreq"/>
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="include" type="xs:string"/>
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="resourceType" type="ResourceType"/>
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="workGroup" type="WorkGroup"/>
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="resource" type="Resource"/>
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="activity" type="Activity"/>
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="elementType" type="ElementType"/>
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="rootFlow" type="RootFlow"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

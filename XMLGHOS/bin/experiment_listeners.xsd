@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified">
+
+	<!-- Generic listener -->
+	<xs:complexType name="Listeners">
+		<xs:sequence>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="activityListener"
+					type="ActivityListener" />
+				<xs:element name="activityTimeListener"
+					type="ActivityTimeListener" />
+				<xs:element name="elementStartFinishListener"
+					type="ElementStartFinishListener" />
+				<xs:element name="elementTypeTimeListener"
+					type="ElementTypeTimeListener" />
+				<xs:element name="resourceStdUsageListener"
+					type="ResourceStdUsageListener" />
+				<xs:element name="selectableActivityListener"
+					type="SelectableActivityListener" />
+				<xs:element name="selectableActivityTimeListener"
+					type="SelectableActivityTimeListener" />
+				<xs:element name="simulationTimeListener"
+					type="SimulationTimeListener" />
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="ListenerDescription"></xs:complexType>
+
+	<xs:complexType name="PeriodicListener">
+		<xs:complexContent>
+			<xs:extension base="ListenerDescription">
+				<xs:attribute name="period" type="xs:double" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="ActivityListener">
+		<xs:complexContent>
+			<xs:extension base="PeriodicListener" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="ActivityTimeListener">
+		<xs:complexContent>
+			<xs:extension base="PeriodicListener" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="ElementStartFinishListener">
+		<xs:complexContent>
+			<xs:extension base="PeriodicListener" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="ElementTypeTimeListener">
+		<xs:complexContent>
+			<xs:extension base="PeriodicListener" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="ResourceStdUsageListener">
+		<xs:complexContent>
+			<xs:extension base="PeriodicListener" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="SelectableActivityListener">
+		<xs:complexContent>
+			<xs:extension base="PeriodicListener">
+				<xs:sequence>
+					<xs:element name="actId" type="xs:int" minOccurs="0"
+						maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="SelectableActivityTimeListener">
+		<xs:complexContent>
+			<xs:extension base="PeriodicListener">
+				<xs:sequence>
+					<xs:element name="actId" type="xs:int" minOccurs="0"
+						maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="SimulationTimeListener">
+		<xs:complexContent>
+			<xs:extension base="ListenerDescription"></xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+</xs:schema>
