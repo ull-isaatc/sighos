@@ -1,0 +1,36 @@
+<html xmlns:wicket>
+<head>
+	<title>XML simulation results</title>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+	<style>
+		legend { border: 1px solid #e9601a; background-color: #bbb; color: #fff; padding: 4px;}
+		fieldset { border: 1px solid #e9601a; padding: 10px; margin-top: 10px;}
+	</style>
+</head>
+
+<body style="font-family: Verdana, Arial, Sans-Serif; font-size: 14px">
+	<span wicket:id="mainNavigation"/>
+	<fieldset>
+		<legend></legend>
+		<label style="color: #e9601a; font-variant: small-caps; font-size: 16px;
+				font-family: Verdana, Arial, Sans-Serif">
+			XML Results from the simulation.
+		</label>
+		<div>
+			<h4>XML Results</h4>
+			<a href="#" wicket:id="xmlResults">click here</a>
+			<h4>Returned chart from simulation:</h4>
+			<table>
+				<tr wicket:id="chartList">
+					<td><img wicket:id="chart" border="0"/></td>
+				</tr>
+			</table>
+		</div>
+<!--		<div id="resultsblock" style="font-size:larger;height:1.5em;vertical-align:center;">-->
+<!--			<div style="float:left;"><span wicket:id="resultsLabel" style="font-style: normal; font-size: 12px; font-family: Verdana, Arial, Sans-Serif">Results goes here</span></div>-->
+<!--    	<div style="float:right;padding-right:10px"><a href="#" wicket:id="sources">Source code</a></div>-->
+<!--		</div>-->
+		<br/>
+	</fieldset>
+</body>
+</html>

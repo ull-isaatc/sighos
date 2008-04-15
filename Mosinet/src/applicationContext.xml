@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<!--
+		setup contact dao
+	-->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+			<list>
+				<value>classpath:hibernate.properties</value>
+			</list>
+        </property>
+    </bean>
+	
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName"><value>${hibernate.jdbc.driverClassName}</value></property>
+        <property name="url"><value>${hibernate.jdbc.url}</value></property>
+        <property name="username"><value>${hibernate.jdbc.username}</value></property>
+        <property name="password"><value>${hibernate.jdbc.password}</value></property>
+    </bean>	
+	
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+        <property name="dataSource"> <ref bean="dataSource"/></property>
+	 	<property name="annotatedClasses">
+     		<list>
+ 			   <value>es.ull.isaatc.mosinet.prototipo.model.SighosModel</value>
+ 			   <value>es.ull.isaatc.mosinet.prototipo.model.SighosExperiment</value>
+			</list>
+	    </property>
+	 	<property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.query.substitutions">${hibernate.query.substitutions}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>	
+				<prop key="hibernate.connection.autocommit">${hibernate.connection.autocommit}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.cglib.use_reflection_optimizer">${hibernate.cglib.use_reflection_optimizer}</prop>				
+            </props>
+        </property>
+    </bean>
+	
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory"><ref local="sessionFactory"/></property>
+    </bean>   
+    
+    <bean id="servicio" class="es.ull.isaatc.mosinet.prototipo.service.impl.ServicePrototype">
+    	<property name="sighosExperimentDao" ref="sighosExperimentDAO"/>
+    	<property name="sighosModelDao" ref="sighosModelDAO"/>
+    </bean>
+    
+    <bean id="sighosModelDAO" class="es.ull.isaatc.mosinet.prototipo.dao.SighosModelDao">
+        <property name="sessionFactory"><ref local="sessionFactory"/></property>
+    </bean>
+    
+    <bean id="sighosExperimentDAO" class="es.ull.isaatc.mosinet.prototipo.dao.SighosExperimentDao">
+        <property name="sessionFactory"><ref local="sessionFactory"/></property>
+    </bean>
+    
+	<!-- setup wicket application -->
+	<bean id="wicketApplication" class="es.ull.isaatc.mosinet.prototipo.web.webpages.upload.UploadApplication"/>
+	
+</beans>
