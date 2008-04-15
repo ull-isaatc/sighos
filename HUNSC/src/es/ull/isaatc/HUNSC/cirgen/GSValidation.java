@@ -136,13 +136,13 @@ class CGElementTypeTimeListener extends ElementTypeTimeListener {
 		str.append("\nPatients created (PERIOD: " + period + ")\n");
 		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
 			str.append(pt.getName() + "\t");
-			if (pt.getNoamb() > 0.0)
+			if (pt.getPercOR() > 0.0)
 				for (int value : getElementTypeTimes().get(pt.ordinal()).getCreatedElement())
 					str.append(value + "\t");
 			else
 				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getNPeriods(); i++)
 					str.append("0\t");
-			if (pt.getNoamb() < 1.0)
+			if (pt.getPercOR() < 1.0)
 				for (int value : getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getCreatedElement())
 				str.append(value + "\t");
 			else
@@ -153,13 +153,13 @@ class CGElementTypeTimeListener extends ElementTypeTimeListener {
 		str.append("\nPatients finished (PERIOD: " + period + ")\n");
 		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
 			str.append(pt.getName() + "\t");
-			if (pt.getNoamb() > 0.0)
+			if (pt.getPercOR() > 0.0)
 				for (int value : getElementTypeTimes().get(pt.ordinal()).getFinishedElement())
 					str.append(value + "\t");
 			else
 				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getNPeriods(); i++)
 					str.append("0\t");
-			if (pt.getNoamb() < 1.0)
+			if (pt.getPercOR() < 1.0)
 				for (int value : getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getFinishedElement())
 				str.append(value + "\t");
 			else
@@ -170,13 +170,13 @@ class CGElementTypeTimeListener extends ElementTypeTimeListener {
 		str.append("\nPatients time (PERIOD: " + period + ")\n");
 		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
 			str.append(pt.getName() + "\t");
-			if (pt.getNoamb() > 0.0)
+			if (pt.getPercOR() > 0.0)
 				for (double value : getElementTypeTimes().get(pt.ordinal()).getWorkTime())
 					str.append(value + "\t");
 			else
 				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getNPeriods(); i++)
 					str.append("0\t");
-			if (pt.getNoamb() < 1.0)
+			if (pt.getPercOR() < 1.0)
 				for (double value : getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getWorkTime())
 				str.append(value + "\t");
 			else
@@ -207,9 +207,10 @@ class ExcelListenerController extends ListenerController {
 		this.filename = filename;
 		this.simul = simul;
 //		cont.addListener(new StdInfoListener());
-		addListener(new GSElementTypeTimeListener(SimGS.ENDTIME, simul));//"C:\\Users\\Iván\\Documents\\HC\\Modelo quirófano CG\\tests.xls", sim));
-		addListener(new GSResourceStdUsageListener(SimGS.ENDTIME, simul));
-		addListener(new ResourceStdUsageListener(SimGS.ENDTIME));		
+		addListener(new GSElementTypeTimeListener(SimGS.ENDTIME));
+		addListener(new GSResourceStdUsageListener(SimGS.ENDTIME));
+		addListener(new ResourceStdUsageListener(SimGS.ENDTIME));
+		addListener(new GSElementTypeWaitListener());
 		addListener(new ActivityListener(SimGS.ENDTIME));
 	}
 
@@ -249,7 +250,8 @@ class ExpGS extends Experiment {
 	
 	public Simulation getSimulation(int ind) {		
 		SimGS sim = new SimGS(ind);
-		ExcelListenerController cont = new ExcelListenerController("C:\\test.xls", sim);
+		ExcelListenerController cont = new ExcelListenerController("C:\\output.xls", sim);
+		//"C:\\Users\\Iván\\Documents\\HC\\Modelo quirófano CG\\output.xls"
 		sim.setListenerController(cont);
 //		sim.setOutput(new Output(true));
 		return sim;
