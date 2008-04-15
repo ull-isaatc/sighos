@@ -18,21 +18,42 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
  */
 public class TestHSSF {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+	public static HSSFWorkbook testValues() {
 		HSSFWorkbook wb = new HSSFWorkbook();
 		HSSFSheet sh = wb.createSheet("prueba");
 		HSSFRow row = sh.createRow(0);
 		row.createCell((short)1).setCellValue(1.2);
 	    row.createCell((short)2).setCellValue(new HSSFRichTextString("This is a string"));
 	    row.createCell((short)3).setCellValue(true);
+		return wb;
+	}
+	
+	public static HSSFWorkbook testFreeze() {
+		   HSSFWorkbook wb = new HSSFWorkbook();
+		    HSSFSheet sheet1 = wb.createSheet("new sheet");
+		    HSSFSheet sheet2 = wb.createSheet("second sheet");
+		    HSSFSheet sheet3 = wb.createSheet("third sheet");
+		    HSSFSheet sheet4 = wb.createSheet("fourth sheet");
+
+		    // Freeze just one row
+		    sheet1.createFreezePane( 0, 1, 0, 1 );
+		    // Freeze just one column
+		    sheet2.createFreezePane( 1, 0, 1, 0 );
+		    // Freeze the columns and rows (forget about scrolling position of the lower right quadrant).
+		    sheet3.createFreezePane( 2, 2 );
+		    // Create a split with the lower left side being the active quadrant
+		    sheet4.createSplitPane( 2000, 2000, 0, 0, HSSFSheet.PANE_LOWER_LEFT );
+		    
+		    return wb;
+	}
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
 	    FileOutputStream f;
 		try {
-			f = new FileOutputStream("C:\\Users\\Iván\\Documents\\HC\\test.xls");
-		    wb.write(f);
+			f = new FileOutputStream("C:\\test.xls");
+		    testFreeze().write(f);
 		    f.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

@@ -37,30 +37,29 @@ public class GSResourceStdUsageListener extends ResourceStdUsageListener impleme
 	
 	private enum RoleColumns {
 		ROLE("Tipo de quirófano"),
+		RUSA_TIME("T uso (real)"),
 		USA_TIME("T uso"),
-		AVA_TIME("T disp.");
+		AVA_TIME("T disp."),
+		ERROR_USA("Error T uso");
 		
 		String name; 
 		private RoleColumns(String name) {
 			this.name = name;
 		}		
 	}
-	SimGS simul;
 
 	/**
 	 * @param simul
 	 */
-	public GSResourceStdUsageListener(SimGS simul) {
-		this.simul = simul;
+	public GSResourceStdUsageListener() {
 	}
 
 	/**
 	 * @param period
 	 * @param simul
 	 */
-	public GSResourceStdUsageListener(double period, SimGS simul) {
+	public GSResourceStdUsageListener(double period) {
 		super(period);
-		this.simul = simul;
 	}
 
 	public void setResult(HSSFWorkbook wb) {
@@ -106,18 +105,33 @@ public class GSResourceStdUsageListener extends ResourceStdUsageListener impleme
 			c.setCellStyle(style);
 	    }
 
-		for (int rtId : getAvalTime().keySet()) {
+	    for (SimGS.OpTheatreType rt : SimGS.OpTheatreType.values()) {
 			r = s.createRow(rownum++);
-			r.createCell((short)RoleColumns.ROLE.ordinal()).setCellValue(new HSSFRichTextString(simul.getResourceType(rtId).getDescription()));
+			r.createCell((short)RoleColumns.ROLE.ordinal()).setCellValue(new HSSFRichTextString(rt.getName()));
+			r.createCell((short)RoleColumns.RUSA_TIME.ordinal()).setCellValue(rt.getRealUsage());
 			double total = 0.0;
-			for (double val : getRolTime().get(rtId))
+			for (double val : getRolTime().get(rt.ordinal()))
 				total += val;
 			r.createCell((short)RoleColumns.USA_TIME.ordinal()).setCellValue(total);
+			r.createCell((short)RoleColumns.ERROR_USA.ordinal()).setCellValue(Statistics.relError100(rt.getRealUsage(), total));
 			total = 0.0;
-			for (double val : getAvalTime().get(rtId))
+			for (double val : getAvalTime().get(rt.ordinal()))
 				total += val;
 			r.createCell((short)RoleColumns.AVA_TIME.ordinal()).setCellValue(total);
-		}
+	    	
+	    }
+//		for (int rtId : getAvalTime().keySet()) {
+//			r = s.createRow(rownum++);
+//			r.createCell((short)RoleColumns.ROLE.ordinal()).setCellValue(new HSSFRichTextString(simul.getResourceType(rtId).getDescription()));
+//			double total = 0.0;
+//			for (double val : getRolTime().get(rtId))
+//				total += val;
+//			r.createCell((short)RoleColumns.USA_TIME.ordinal()).setCellValue(total);
+//			total = 0.0;
+//			for (double val : getAvalTime().get(rtId))
+//				total += val;
+//			r.createCell((short)RoleColumns.AVA_TIME.ordinal()).setCellValue(total);
+//		}
 	    
 	}
 }

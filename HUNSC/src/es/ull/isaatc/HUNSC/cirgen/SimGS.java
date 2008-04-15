@@ -28,20 +28,44 @@ public class SimGS extends StandAloneLPSimulation {
 	public static final double AVAILABILITY = 7 * 60.0;
 	// Hora de apertura de los quirófanos (mañana: 8 am)
 	public static final double STARTTIME = 8 * 60.0;
+	
+	public enum OpTheatreType {
+		OR ("No ambulante", 487578.0),
+		DC ("Ambulante", 25518.0);
+		
+		private final String name;
+		private final double realUsage;
+		private OpTheatreType(String name, double realUsage) {
+			this.name = name;
+			this.realUsage = realUsage;
+		}
+		/**
+		 * @return the name
+		 */
+		public String getName() {
+			return name;
+		}
+		/**
+		 * @return the realUs
+		 */
+		public double getRealUsage() {
+			return realUsage;
+		}
+	}
 	public enum OpTheatre {
-		Q31 ("3-1", false, EnumSet.of(WeekDays.FRIDAY), 26850.0, 36110.0),
-		AMB ("AMB", true, EnumSet.of(WeekDays.MONDAY), 25842.0, 51755.0),
-		Q45 ("4-5", false, WeeklyPeriodicCycle.WEEKDAYS, 243235.0, 298125.0),
-		Q46 ("4-6", false, WeeklyPeriodicCycle.WEEKDAYS, 211208.0, 249900.0);
+		Q31 ("3-1", OpTheatreType.OR, EnumSet.of(WeekDays.FRIDAY), 26850.0, 36110.0),
+		AMB ("AMB", OpTheatreType.DC, EnumSet.of(WeekDays.MONDAY), 25842.0, 51755.0),
+		Q45 ("4-5", OpTheatreType.OR, WeeklyPeriodicCycle.WEEKDAYS, 243235.0, 298125.0),
+		Q46 ("4-6", OpTheatreType.OR, WeeklyPeriodicCycle.WEEKDAYS, 211208.0, 249900.0);
 		
 		private final String name;
 		private final WeeklyPeriodicCycle cycle;
-		private final boolean daycase;
+		private final OpTheatreType type;
 		private final double realUsage;
 		private final double realAva;
-		private OpTheatre(String name, boolean daycase, EnumSet<WeekDays> days, double realUsage, double realAva) {
+		private OpTheatre(String name, OpTheatreType type, EnumSet<WeekDays> days, double realUsage, double realAva) {
 			this.name = name;
-			this.daycase = daycase;
+			this.type = type;
 			cycle = new WeeklyPeriodicCycle(days, 1440.0, STARTTIME, 0);
 			this.realUsage = realUsage;
 			this.realAva = realAva;
@@ -53,11 +77,12 @@ public class SimGS extends StandAloneLPSimulation {
 		public String getName() {
 			return name;
 		}
+
 		/**
-		 * @return the daycase
+		 * @return the type
 		 */
-		public boolean isDaycase() {
-			return daycase;
+		public OpTheatreType getType() {
+			return type;
 		}
 
 		/**
@@ -238,19 +263,19 @@ public class SimGS extends StandAloneLPSimulation {
 
 		private final String name;
 		private final int total;
-		private final double noamb;
-		private final double avgN;
-		private final double stdN;
-		private final double avgA;
-		private final double stdA;
-		private PatientType(String name, int total, double noamb, double avgN, double stdN, double avgA, double stdA) {
+		private final double percOR;
+		private final double avgOR;
+		private final double stdOR;
+		private final double avgDC;
+		private final double stdDC;
+		private PatientType(String name, int total, double percOR, double avgOR, double stdOR, double avgDC, double stdDC) {
 			this.name = name;
 			this.total = total;
-			this.noamb = noamb;
-			this.avgN = avgN; 
-			this.stdN = stdN; 
-			this.avgA = avgA; 
-			this.stdA = stdA; 
+			this.percOR = percOR;
+			this.avgOR = avgOR; 
+			this.stdOR = stdOR; 
+			this.avgDC = avgDC; 
+			this.stdDC = stdDC; 
 		}
 		/**
 		 * @return the name
@@ -267,32 +292,32 @@ public class SimGS extends StandAloneLPSimulation {
 		/**
 		 * @return the noamb
 		 */
-		public double getNoamb() {
-			return noamb;
+		public double getPercOR() {
+			return percOR;
 		}
 		/**
-		 * @return the avgN
+		 * @return the avgOR
 		 */
-		public double getAvgN() {
-			return avgN;
+		public double getAvgOR() {
+			return avgOR;
 		}
 		/**
-		 * @return the stdN
+		 * @return the stdOR
 		 */
-		public double getStdN() {
-			return stdN;
+		public double getStdOR() {
+			return stdOR;
 		}
 		/**
-		 * @return the avgA
+		 * @return the avgDC
 		 */
-		public double getAvgA() {
-			return avgA;
+		public double getAvgDC() {
+			return avgDC;
 		}
 		/**
-		 * @return the stdA
+		 * @return the stdDC
 		 */
-		public double getStdA() {
-			return stdA;
+		public double getStdDC() {
+			return stdDC;
 		}
 
 	}
@@ -310,20 +335,24 @@ public class SimGS extends StandAloneLPSimulation {
 		RandomVariateFactory.setDefaultRandomNumber(RandomNumberFactory.getInstance(System.currentTimeMillis()));
 		
 		// Tipos de Quirófanos (ambulantes y no ambulantes)
-		ResourceType rtNoAmb = new ResourceType(0, this, "OROT");
-		WorkGroup wgNoAmb = new WorkGroup(0, this, "ORWG");
-		wgNoAmb.add(rtNoAmb, 1);
-		ResourceType rtAmb = new ResourceType(1, this, "DCOT");
-		WorkGroup wgAmb = new WorkGroup(1, this, "DCWG");
-		wgAmb.add(rtAmb, 1);
+		for (OpTheatreType type : OpTheatreType.values()) {
+			ResourceType rt = new ResourceType(type.ordinal(), this, type.getName());
+			new WorkGroup(type.ordinal(), this, type.getName()).add(rt, 1);
+		}
+		WorkGroup wgNoAmb = getWorkGroup(OpTheatreType.OR.ordinal());
+		WorkGroup wgAmb = getWorkGroup(OpTheatreType.DC.ordinal());
+			
+//		ResourceType rtNoAmb = new ResourceType(0, this, "OROT");
+//		WorkGroup wgNoAmb = new WorkGroup(0, this, "ORWG");
+//		wgNoAmb.add(rtNoAmb, 1);
+//		ResourceType rtAmb = new ResourceType(1, this, "DCOT");
+//		WorkGroup wgAmb = new WorkGroup(1, this, "DCWG");
+//		wgAmb.add(rtAmb, 1);
 		
 		// Quirófanos
 		for (OpTheatre op : OpTheatre.values()) {
 			Resource r = new Resource(op.ordinal(), this, op.getName());
-			if (op.isDaycase())
-				r.addTimeTableEntry(op.getCycle(), AVAILABILITY, rtAmb);
-			else
-				r.addTimeTableEntry(op.getCycle(), AVAILABILITY, rtNoAmb);
+			r.addTimeTableEntry(op.getCycle(), AVAILABILITY, getResourceType(op.getType().ordinal()));
 		}
 		
 		// Activities, Element types, Generators
@@ -334,17 +363,19 @@ public class SimGS extends StandAloneLPSimulation {
 			Cycle c = new RoundedPeriodicCycle(expo.getValue(0.0), expo, 0, RoundedPeriodicCycle.Type.ROUND, 1440.0);
 			ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1));
 
-			if (pt.getNoamb() > 0.0) {
+			if (pt.getPercOR() > 0.0) {
 				ElementType etNoAmb = new ElementType(pt.ordinal(), this, pt.getName() + " OR");
 				Activity actNoAmb = new Activity(pt.ordinal(), this, pt.getName());
-				actNoAmb.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", new Object[] {pt.getAvgN(), pt.getStdN()}), wgNoAmb);
-				ec.add(etNoAmb, new SingleMetaFlow(pt.ordinal(), RandomVariateFactory.getInstance("ConstantVariate", 1), actNoAmb), pt.getNoamb());			
+				actNoAmb.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", new Object[] {pt.getAvgOR(), pt.getStdOR()}), wgNoAmb);
+//				actNoAmb.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", new Object[] {pt.getAvgOR(), pt.getStdOR()}), getWorkGroup(OpTheatreType.OR.ordinal()));
+				ec.add(etNoAmb, new SingleMetaFlow(pt.ordinal(), RandomVariateFactory.getInstance("ConstantVariate", 1), actNoAmb), pt.getPercOR());			
 			}
-			if (pt.getNoamb() < 1.0) {
+			if (pt.getPercOR() < 1.0) {
 				ElementType etAmb = new ElementType(pt.ordinal() + PatientType.values().length, this, "Patient " + pt.getName() + " DC");
 				Activity actAmb = new Activity(pt.ordinal() + PatientType.values().length, this, "A" + pt.getName());				
-				actAmb.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", new Object[] {pt.getAvgA(), pt.getStdA()}), wgAmb);
-				ec.add(etAmb, new SingleMetaFlow(pt.ordinal() + PatientType.values().length, RandomVariateFactory.getInstance("ConstantVariate", 1), actAmb), 1 - pt.getNoamb());
+				actAmb.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", new Object[] {pt.getAvgDC(), pt.getStdDC()}), wgAmb);
+//				actAmb.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", new Object[] {pt.getAvgDC(), pt.getStdDC()}), getWorkGroup(OpTheatreType.DC.ordinal()));
+				ec.add(etAmb, new SingleMetaFlow(pt.ordinal() + PatientType.values().length, RandomVariateFactory.getInstance("ConstantVariate", 1), actAmb), 1 - pt.getPercOR());
 			}				
 	        new TimeDrivenGenerator(this, ec, c);
 		}
