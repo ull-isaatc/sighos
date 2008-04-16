@@ -60,13 +60,13 @@ public class GSElementTypeWaitListener implements ToExcel, SimulationObjectListe
 			case STAACT:
 				Double val = firstWaitTimeOR.get(eInfo.getIdentifier());
 				if (val != null) {
-					if (val < 0.0)
+					if (val < 0.0 || val == -0.0)
 						firstWaitTimeOR.put(eInfo.getIdentifier(), eInfo.getTs() + val);
 				}
 				else { 
 					val = firstWaitTimeDC.get(eInfo.getIdentifier());
 					if (val != null)
-						if (val < 0.0)
+						if (val < 0.0 || val == -0.0)
 							firstWaitTimeDC.put(eInfo.getIdentifier(), eInfo.getTs() + val);
 				}
 				break;
@@ -84,7 +84,7 @@ public class GSElementTypeWaitListener implements ToExcel, SimulationObjectListe
 	 * @see es.ull.isaatc.HUNSC.cirgen.listener.ToExcel#setResult(org.apache.poi.hssf.usermodel.HSSFWorkbook)
 	 */
 	public void setResult(HSSFWorkbook wb) {
-		HSSFSheet s = wb.createSheet("Patient wait");
+		HSSFSheet s = wb.createSheet("Espera de los pacientes");
 
 		// Detect highest number of elements
 		int maxrow = Math.max(firstWaitTimeOR.values().size(), firstWaitTimeDC.values().size());

@@ -13,6 +13,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 
 import es.ull.isaatc.HUNSC.cirgen.SimGS;
+import es.ull.isaatc.HUNSC.cirgen.util.ExcelTools;
 import es.ull.isaatc.simulation.listener.ElementTypeTimeListener;
 import es.ull.isaatc.util.Statistics;
 
@@ -24,21 +25,21 @@ public class GSElementTypeTimeListener extends ElementTypeTimeListener implement
 	private enum Columns {
 		DIAG ("Diagnostico"),
 		N_NOAMB ("Total NOAMB"),
-		T_NOAMB ("Tiempo NOAMB"),
-		N_AMB ("Total AMB"),
-		T_AMB ("Tiempo AMB"),
 		N_CREATED_NOAMB ("Creados NOAMB"),
 		ERROR_CREATED_NOAMB ("Error creados NOAMB"),
-		N_CREATED_AMB ("Creados AMB"),
-		ERROR_CREATED_AMB ("Error creados AMB"),		
 		N_FINISHED_NOAMB ("Terminados NOAMB"),
 		ERROR_FINISHED_NOAMB ("Error terminados NOAMB"),
-		N_FINISHED_AMB ("Terminados AMB"),
-		ERROR_FINISHED_AMB ("Error terminados AMB"),	
+		T_NOAMB ("Tiempo NOAMB"),
 		T_WORKING_NOAMB ("Total tiempo NOAMB"),
 		ERROR_WORKING_NOAMB ("Error tiempo NOAMB"),
+		N_AMB ("Total AMB"),
+		N_CREATED_AMB ("Creados AMB"),
+		ERROR_CREATED_AMB ("Error creados AMB"),		
+		N_FINISHED_AMB ("Terminados AMB"),
+		ERROR_FINISHED_AMB ("Error terminados AMB"),	
+		T_AMB ("Tiempo AMB"),
 		T_WORKING_AMB ("Total tiempo AMB"),
-		ERROR_WORKING_AMB ("Error tiempo NOAMB");
+		ERROR_WORKING_AMB ("Error tiempo AMB");
 		
 		String name;
 		private Columns(String name) {
@@ -116,20 +117,13 @@ public class GSElementTypeTimeListener extends ElementTypeTimeListener implement
 
 	public void setResult(HSSFWorkbook wb) {
 		// Define fonts
-	    HSSFFont boldFont = wb.createFont();
-	    boldFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-
-	    HSSFFont redFont = wb.createFont();
-	    redFont.setColor(HSSFColor.RED.index);
-	    redFont.setItalic(true);
-
+	    HSSFFont boldFont = ExcelTools.getBoldFont(wb);
+	    
 		// Define styles
-	    HSSFCellStyle headStyle = wb.createCellStyle();
-	    headStyle.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
-	    headStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
-	    headStyle.setWrapText(true);
-	    headStyle.setFont(boldFont);
+	    HSSFCellStyle headStyle = ExcelTools.getHeadStyle(wb); 
 
+	    HSSFCellStyle errorStyle = ExcelTools.getErrorStyle(wb);
+	    
 	    HSSFCellStyle diagStyle = wb.createCellStyle();
 	    diagStyle.setFillForegroundColor(HSSFColor.GOLD.index);
 	    diagStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
@@ -139,10 +133,6 @@ public class GSElementTypeTimeListener extends ElementTypeTimeListener implement
 	    theorStyle.setFillForegroundColor(HSSFColor.LIGHT_GREEN.index);
 	    theorStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
 
-	    HSSFCellStyle errorStyle = wb.createCellStyle();
-	    errorStyle.setWrapText(true);
-	    errorStyle.setFont(redFont);
-	    
 		// create a new sheet
 		HSSFSheet s = wb.createSheet("Pacientes");
 		s.createFreezePane(1, 2);
@@ -206,8 +196,6 @@ public class GSElementTypeTimeListener extends ElementTypeTimeListener implement
 				r.createCell((short)Columns.ERROR_WORKING_NOAMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal() * pt.getPercOR() * pt.getAvgOR(), totalD));
 				r.getCell((short)Columns.ERROR_WORKING_NOAMB.ordinal()).setCellStyle(errorStyle);
 			}
-			else
-				r.createCell((short)Columns.N_CREATED_NOAMB.ordinal()).setCellValue(0);
 			if (pt.getPercOR() < 1.0) {
 				int total = 0;
 				for (int value : getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getCreatedElement())
@@ -233,8 +221,6 @@ public class GSElementTypeTimeListener extends ElementTypeTimeListener implement
 				r.createCell((short)Columns.ERROR_WORKING_AMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal() * (1 - pt.getPercOR()) * pt.getAvgDC(), totalD));
 				r.getCell((short)Columns.ERROR_WORKING_AMB.ordinal()).setCellStyle(errorStyle);
 			}
-			else
-				r.createCell((short)Columns.N_CREATED_AMB.ordinal()).setCellValue(0);
 		}
 		r = s.createRow(rownum++);
 		r.createCell((short)Columns.DIAG.ordinal()).setCellValue(new HSSFRichTextString("TOTAL"));

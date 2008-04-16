@@ -22,8 +22,6 @@ import es.ull.isaatc.util.WeeklyPeriodicCycle.WeekDays;
 public class SimGS extends StandAloneLPSimulation {
 	// Tiempo total del estudio: 3 años en minutos (un año bisiesto)
 	public static final double TOTALTIME = 1096 * 1440.0;
-	// Tiempo de simulación
-	public static final double ENDTIME = 1096 * 1440.0;
 	// Tiempo de uso diario de los quirófanos (7 horas)
 	public static final double AVAILABILITY = 7 * 60.0;
 	// Hora de apertura de los quirófanos (mañana: 8 am)
@@ -322,8 +320,8 @@ public class SimGS extends StandAloneLPSimulation {
 
 	}
 	
-	public SimGS(int id) {
-		super(id, "General Surgery (" + id +")", 0.0, ENDTIME);
+	public SimGS(int id, double startTs, double endTs) {
+		super(id, "General Surgery (" + id +")", startTs, endTs);
 	}
 
 	/* (non-Javadoc)

@@ -1,15 +1,12 @@
 package es.ull.isaatc.HUNSC.cirgen;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.EnumSet;
-
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 import simkit.random.RandomNumberFactory;
 import simkit.random.RandomVariateFactory;
-import es.ull.isaatc.HUNSC.cirgen.listener.*;
+import es.ull.isaatc.HUNSC.cirgen.listener.GSListenerArray;
+import es.ull.isaatc.HUNSC.cirgen.listener.GSListenerController;
+import es.ull.isaatc.HUNSC.cirgen.util.ExcelTools;
 import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.Activity;
@@ -23,7 +20,8 @@ import es.ull.isaatc.simulation.SingleMetaFlow;
 import es.ull.isaatc.simulation.StandAloneLPSimulation;
 import es.ull.isaatc.simulation.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.WorkGroup;
-import es.ull.isaatc.simulation.listener.*;
+import es.ull.isaatc.simulation.listener.ActivityListener;
+import es.ull.isaatc.simulation.listener.ResourceStdUsageListener;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.RoundedPeriodicCycle;
 import es.ull.isaatc.util.WeeklyPeriodicCycle;
@@ -120,138 +118,38 @@ class SimVerify extends StandAloneLPSimulation {
 	}
 }
 
-class CGElementTypeTimeListener extends ElementTypeTimeListener {
-	SimGS simul;
-	/**
-	 * 
-	 */
-	public CGElementTypeTimeListener(double period, SimGS simul) {
-		super(period);
-		this.simul = simul;
-	}
-
-	@Override
-	public String toString() {
-		StringBuffer str = new StringBuffer();
-		str.append("\nPatients created (PERIOD: " + period + ")\n");
-		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
-			str.append(pt.getName() + "\t");
-			if (pt.getPercOR() > 0.0)
-				for (int value : getElementTypeTimes().get(pt.ordinal()).getCreatedElement())
-					str.append(value + "\t");
-			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getNPeriods(); i++)
-					str.append("0\t");
-			if (pt.getPercOR() < 1.0)
-				for (int value : getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getCreatedElement())
-				str.append(value + "\t");
-			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal()).getNPeriods(); i++)
-					str.append("0\t");
-			str.append("\n");
-		}
-		str.append("\nPatients finished (PERIOD: " + period + ")\n");
-		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
-			str.append(pt.getName() + "\t");
-			if (pt.getPercOR() > 0.0)
-				for (int value : getElementTypeTimes().get(pt.ordinal()).getFinishedElement())
-					str.append(value + "\t");
-			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getNPeriods(); i++)
-					str.append("0\t");
-			if (pt.getPercOR() < 1.0)
-				for (int value : getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getFinishedElement())
-				str.append(value + "\t");
-			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal()).getNPeriods(); i++)
-					str.append("0\t");
-			str.append("\n");
-		}
-		str.append("\nPatients time (PERIOD: " + period + ")\n");
-		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
-			str.append(pt.getName() + "\t");
-			if (pt.getPercOR() > 0.0)
-				for (double value : getElementTypeTimes().get(pt.ordinal()).getWorkTime())
-					str.append(value + "\t");
-			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getNPeriods(); i++)
-					str.append("0\t");
-			if (pt.getPercOR() < 1.0)
-				for (double value : getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getWorkTime())
-				str.append(value + "\t");
-			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal()).getNPeriods(); i++)
-					str.append("0\t");
-			str.append("\n");
-		}
-		return str.toString();
-	}
-}
-
-class CGResourceUsageListener extends ResourceStdUsageListener {
-	SimGS simul;
-	
-	public CGResourceUsageListener(double period, SimGS simul) {
-		super(period);
-		this.simul = simul;
-	}
-
-}
-
-class ExcelListenerController extends ListenerController {
-	String filename;
-	SimGS simul;
-	
-	public ExcelListenerController(String filename, SimGS simul) {
-		super();
-		this.filename = filename;
-		this.simul = simul;
-//		cont.addListener(new StdInfoListener());
-		addListener(new GSElementTypeTimeListener(SimGS.ENDTIME));
-		addListener(new GSResourceStdUsageListener(SimGS.ENDTIME));
-		addListener(new ResourceStdUsageListener(SimGS.ENDTIME));
-		addListener(new GSElementTypeWaitListener());
-		addListener(new ActivityListener(SimGS.ENDTIME));
-	}
-
-	@Override
-	public void end() {
-		super.end();
-		// create a new workbook
-		HSSFWorkbook wb = new HSSFWorkbook();
-		
-		for (EventListener l : getListeners()) {
-			if (l instanceof ToExcel)
-				((ToExcel)l).setResult(wb);
-			else
-				System.out.println(l.toString());
-		}
-		try {
-			FileOutputStream out = new FileOutputStream(filename);
-			wb.write(out);
-			out.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}				
-	}
-}
-
 /**
  * Experimentos de validación. La unidad de tiempo es el minuto.
  */
 class ExpGS extends Experiment {
-	final static int NEXP = 1;
+	final static String PATH = "C:\\Users\\Iván\\Documents\\HC\\Modelo quirófano CG\\resultados\\";
+	final static String FILENAME = "outputx";
+	final static int DONE = 10;
+	final static int NEXP = 2;
+	// Tiempo de simulación
+	public static final double ENDTIME = 1096 * 1440.0;
+	private GSListenerArray listeners;
 	
-	ExpGS() {
+	public ExpGS() {
 		super("Validation HOFT", NEXP);
 	}
 	
 	public Simulation getSimulation(int ind) {		
-		SimGS sim = new SimGS(ind);
-		ExcelListenerController cont = new ExcelListenerController("C:\\output.xls", sim);
-		//"C:\\Users\\Iván\\Documents\\HC\\Modelo quirófano CG\\output.xls"
+		SimGS sim = new SimGS(ind, 0.0, ENDTIME);
+		GSListenerController cont = new GSListenerController(PATH + FILENAME + (ind + DONE) + ExcelTools.EXT, listeners.getListeners(ind));
+		cont.addListener(new ResourceStdUsageListener(ENDTIME));
+		cont.addListener(new ActivityListener(ENDTIME));
+
+//		ListenerController cont = new ListenerController() {
+//			@Override
+//			public void end() {
+//				super.end();
+//				for (String str : getListenerResults()) {
+//					System.out.println(str);
+//				}
+//			}
+//		};
+//		cont.addListener(new StdInfoListener());
 		sim.setListenerController(cont);
 //		sim.setOutput(new Output(true));
 		return sim;
@@ -262,11 +160,12 @@ class ExpGS extends Experiment {
 	 */
 	@Override
 	public void start() {
+		listeners = new GSListenerArray(NEXP, ENDTIME);
 		for (int i = 0; i < NEXP; i++) {
 			Simulation sim = getSimulation(i);
 			sim.call();
 		}
-			
+		listeners.writeResults(PATH + "_" + FILENAME + ExcelTools.EXT);	
 	}
 	
 }
