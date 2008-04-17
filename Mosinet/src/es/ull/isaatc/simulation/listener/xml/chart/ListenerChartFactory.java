@@ -86,7 +86,7 @@ public class ListenerChartFactory {
 	 * @param chartList
 	 */
 	public static void showChart(ArrayList<JFreeChart> chartList) {
-		JFrame frame = new JFrame("Resultado de la simulación");
+		JFrame frame = new JFrame("Resultado de la simulaciï¿½n");
 		JPanel panel = new JPanel(new GridLayout(0, 2));
 		for (JFreeChart chart : chartList) {
 			panel.add(new ChartPanel(chart));
@@ -497,7 +497,7 @@ public class ListenerChartFactory {
 //			u.setEventHandler(new SighosValidationEventHandler());
 			SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			u.setSchema(schemaFactory.newSchema(new File(
-									"C:/Documents and Settings/yuyu/Escritorio/Proyecto/sighosws/XMLGHOS/src/es/ull/isaatc/simulation/listener/xml/"
+									"/home/yuyu/servicio web/XMLGHOS/src/es/ull/isaatc/simulation/listener/xml/"
 									+ systemResource)));
 			// u.setSchema(schemaFactory.newSchema(URLClassLoader.getSystemResource(systemResource)));
 			experiment = u.unmarshal(reader);
