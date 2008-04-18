@@ -28,6 +28,18 @@ public class TestHSSF {
 		return wb;
 	}
 	
+	public static HSSFWorkbook testFormula() {
+		HSSFWorkbook wb = new HSSFWorkbook();
+		HSSFSheet sh = wb.createSheet("prueba");
+		HSSFRow row = sh.createRow(0);
+		row.createCell((short)0).setCellFormula("COUNTIF(A2:A100;\">50\")");
+		for (int i = 1; i < 100; i++) {
+			row = sh.createRow(i);
+			row.createCell((short)0).setCellValue(i);
+		}
+		return wb;
+	}
+	
 	public static HSSFWorkbook testFreeze() {
 		   HSSFWorkbook wb = new HSSFWorkbook();
 		    HSSFSheet sheet1 = wb.createSheet("new sheet");
@@ -52,8 +64,8 @@ public class TestHSSF {
 	public static void main(String[] args) {
 	    FileOutputStream f;
 		try {
-			f = new FileOutputStream("C:\\test.xls");
-		    testFreeze().write(f);
+			f = new FileOutputStream("C:\\testHSSF.xls");
+		    testFormula().write(f);
 		    f.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

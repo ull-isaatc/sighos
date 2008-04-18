@@ -4,14 +4,13 @@
 package es.ull.isaatc.HUNSC.cirgen.listener;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 
 import es.ull.isaatc.HUNSC.cirgen.SimGS;
+import es.ull.isaatc.HUNSC.cirgen.util.ExcelTools;
 import es.ull.isaatc.simulation.listener.ResourceStdUsageListener;
 import es.ull.isaatc.util.Statistics;
 
@@ -48,6 +47,11 @@ public class GSResourceStdUsageListener extends ResourceStdUsageListener impleme
 		}		
 	}
 
+	private double []resUsageSummary;
+	private double []resAvailabilitySummary;
+	private double []roleUsageSummary;
+	private double []roleAvailabilitySummary;
+	
 	/**
 	 * @param simul
 	 */
@@ -61,21 +65,47 @@ public class GSResourceStdUsageListener extends ResourceStdUsageListener impleme
 	public GSResourceStdUsageListener(double period) {
 		super(period);
 	}
+	
+	/**
+	 * @return the resUsage
+	 */
+	public double[] getResUsageSummary() {
+		return resUsageSummary;
+	}
+
+	/**
+	 * @return the resAvailability
+	 */
+	public double[] getResAvailabilitySummary() {
+		return resAvailabilitySummary;
+	}
+
+	/**
+	 * @return the roleUsageSummary
+	 */
+	public double[] getRoleUsageSummary() {
+		return roleUsageSummary;
+	}
+
+	/**
+	 * @return the roleAvailabilitySummary
+	 */
+	public double[] getRoleAvailabilitySummary() {
+		return roleAvailabilitySummary;
+	}
 
 	public void setResult(HSSFWorkbook wb) {
 		HSSFSheet s = wb.createSheet("Recursos");
 
 		int rownum = 1;
 		HSSFRow r = s.createRow(rownum++);
-	    HSSFCellStyle style = wb.createCellStyle();
-	    style.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
-	    style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
-	    style.setWrapText(true);
 	    for (ResColumns col : ResColumns.values()) { 
 			HSSFCell c = r.createCell((short)col.ordinal());
 			c.setCellValue(new HSSFRichTextString(col.name));
-			c.setCellStyle(style);
+			c.setCellStyle(ExcelTools.getHeadStyle(wb));
 	    }
+	    resUsageSummary = new double[SimGS.OpTheatre.values().length];
+	    resAvailabilitySummary = new double[SimGS.OpTheatre.values().length];
 	    for (SimGS.OpTheatre res : SimGS.OpTheatre.values()) {
 			r = s.createRow(rownum++);
 			r.createCell((short)ResColumns.RES.ordinal()).setCellValue(new HSSFRichTextString(res.getName()));
@@ -86,6 +116,7 @@ public class GSResourceStdUsageListener extends ResourceStdUsageListener impleme
 				for (double val : rt)
 					total += val; 
 			}
+			resUsageSummary[res.ordinal()] = total;
 			r.createCell((short)ResColumns.EUSA_TIME.ordinal()).setCellValue(total);
 			r.createCell((short)ResColumns.ERROR_USA.ordinal()).setCellValue(Statistics.relError100(res.getRealUsage(), total));
 			total = 0.0;
@@ -93,6 +124,7 @@ public class GSResourceStdUsageListener extends ResourceStdUsageListener impleme
 				for (double val : rt)
 					total += val; 
 			}
+			resAvailabilitySummary[res.ordinal()] = total;
 			r.createCell((short)ResColumns.EAVA_TIME.ordinal()).setCellValue(total);
 			r.createCell((short)ResColumns.ERROR_AVA.ordinal()).setCellValue(Statistics.relError100(res.getRealAva(), total));
 		}
@@ -102,9 +134,11 @@ public class GSResourceStdUsageListener extends ResourceStdUsageListener impleme
 	    for (RoleColumns col : RoleColumns.values()) { 
 			HSSFCell c = r.createCell((short)col.ordinal());
 			c.setCellValue(new HSSFRichTextString(col.name));
-			c.setCellStyle(style);
+			c.setCellStyle(ExcelTools.getHeadStyle(wb));
 	    }
 
+		roleUsageSummary = new double[SimGS.OpTheatreType.values().length];
+		roleAvailabilitySummary = new double[SimGS.OpTheatreType.values().length];
 	    for (SimGS.OpTheatreType rt : SimGS.OpTheatreType.values()) {
 			r = s.createRow(rownum++);
 			r.createCell((short)RoleColumns.ROLE.ordinal()).setCellValue(new HSSFRichTextString(rt.getName()));
@@ -112,26 +146,16 @@ public class GSResourceStdUsageListener extends ResourceStdUsageListener impleme
 			double total = 0.0;
 			for (double val : getRolTime().get(rt.ordinal()))
 				total += val;
+			roleUsageSummary[rt.ordinal()] = total;
 			r.createCell((short)RoleColumns.USA_TIME.ordinal()).setCellValue(total);
 			r.createCell((short)RoleColumns.ERROR_USA.ordinal()).setCellValue(Statistics.relError100(rt.getRealUsage(), total));
 			total = 0.0;
 			for (double val : getAvalTime().get(rt.ordinal()))
 				total += val;
+			roleAvailabilitySummary[rt.ordinal()] = total;
 			r.createCell((short)RoleColumns.AVA_TIME.ordinal()).setCellValue(total);
 	    	
 	    }
-//		for (int rtId : getAvalTime().keySet()) {
-//			r = s.createRow(rownum++);
-//			r.createCell((short)RoleColumns.ROLE.ordinal()).setCellValue(new HSSFRichTextString(simul.getResourceType(rtId).getDescription()));
-//			double total = 0.0;
-//			for (double val : getRolTime().get(rtId))
-//				total += val;
-//			r.createCell((short)RoleColumns.USA_TIME.ordinal()).setCellValue(total);
-//			total = 0.0;
-//			for (double val : getAvalTime().get(rtId))
-//				total += val;
-//			r.createCell((short)RoleColumns.AVA_TIME.ordinal()).setCellValue(total);
-//		}
 	    
 	}
 }

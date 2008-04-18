@@ -17,19 +17,27 @@ import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.listener.SimulationListener;
 import es.ull.isaatc.simulation.listener.SimulationObjectListener;
+import es.ull.isaatc.util.Statistics;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
 public class GSElementTypeWaitListener implements ToExcel, SimulationObjectListener, SimulationListener {
-
+	public static final String []REFDAYS = {"Espera < 1 día", "Espera < 2 días",
+		"Espera < 3 días", "Espera > 3 días"};
 	private HashMap<Integer, Double> firstWaitTimeOR;
 	private HashMap<Integer, Double> firstWaitTimeDC;
+	private double[] averages;
+	private double[] stddevs;
+	private int[][] waitingDays;
 	
 	public GSElementTypeWaitListener() {
 		firstWaitTimeDC = new HashMap<Integer, Double>();
 		firstWaitTimeOR = new HashMap<Integer, Double>();
+		averages = new double[SimGS.OpTheatreType.values().length];
+		stddevs = new double[SimGS.OpTheatreType.values().length];
+		waitingDays = new int[SimGS.OpTheatreType.values().length][REFDAYS.length];
 	}
 
 	public void infoEmited(SimulationEndInfo info) {
@@ -79,6 +87,28 @@ public class GSElementTypeWaitListener implements ToExcel, SimulationObjectListe
 		
 		return str.toString();
 	}
+
+	private void setColumnResults(HSSFSheet s, int rownum, SimGS.OpTheatreType type) {
+
+		HashMap<Integer, Double> firstWaitTime = getFirstWaitTime(type);
+		short column = (short)(type.ordinal() + 1);
+		s.getRow(1).createCell(column).setCellValue(new HSSFRichTextString(type.getName()));
+
+		for (double val : firstWaitTime.values()) {
+			HSSFRow r = s.getRow(rownum++);
+			r.createCell(column).setCellValue(val);
+			int range = 0;
+			for (; (range < REFDAYS.length - 1) && (val >= SimGS.STARTTIME + SimGS.AVAILABILITY + SimGS.MINUTESXDAY * range); range++);
+			waitingDays[type.ordinal()][range]++;
+		}
+		Double []values = firstWaitTime.values().toArray(new Double[1]);
+		averages[type.ordinal()] = Statistics.average(values); 
+		s.getRow(2).createCell(column).setCellValue(averages[type.ordinal()]);
+		stddevs[type.ordinal()] = Statistics.stdDev(values, averages[type.ordinal()]);
+		s.getRow(3).createCell(column).setCellValue(stddevs[type.ordinal()]);
+		for (int i = 0; i < REFDAYS.length; i++)
+			s.getRow(i + 5).createCell(column).setCellValue(waitingDays[type.ordinal()][i]);			
+	}
 	
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.HUNSC.cirgen.listener.ToExcel#setResult(org.apache.poi.hssf.usermodel.HSSFWorkbook)
@@ -86,35 +116,54 @@ public class GSElementTypeWaitListener implements ToExcel, SimulationObjectListe
 	public void setResult(HSSFWorkbook wb) {
 		HSSFSheet s = wb.createSheet("Espera de los pacientes");
 
+		short column = 0;
+		int rownum = 1;
+		s.createRow(rownum++).createCell(column).setCellValue(new HSSFRichTextString("Paciente"));
+		s.createRow(rownum++).createCell(column).setCellValue(new HSSFRichTextString("Media"));
+		s.createRow(rownum++).createCell(column).setCellValue(new HSSFRichTextString("Desv."));
+		rownum++;
+		for (String day : REFDAYS)
+			s.createRow(rownum++).createCell(column).setCellValue(new HSSFRichTextString(day));
+		
+		rownum++;
+
 		// Detect highest number of elements
 		int maxrow = Math.max(firstWaitTimeOR.values().size(), firstWaitTimeDC.values().size());
 		
 		// Create rows
-		for (int i = 0; i < maxrow + 5; i++)
+		for (int i = rownum; i < maxrow + rownum; i++)
 			s.createRow(i);
 		
-		short column = 0;
-		s.getRow(1).createCell(column).setCellValue(new HSSFRichTextString("Paciente"));
-		s.getRow(2).createCell(column).setCellValue(new HSSFRichTextString("Media"));
-		s.getRow(3).createCell(column).setCellValue(new HSSFRichTextString("Desv."));
-		
-		s.getRow(1).createCell(++column).setCellValue(new HSSFRichTextString(SimGS.OpTheatreType.OR.getName()));
-		int rownum = 5;
-		for (double val : firstWaitTimeOR.values()) {
-			HSSFRow r = s.getRow(rownum++);
-			r.createCell(column).setCellValue(val);				
-		}
-		s.getRow(2).createCell(column).setCellFormula("AVERAGE(B6:B"+ rownum + ")");
-		s.getRow(3).createCell(column).setCellFormula("STDEV(B6:B"+ rownum + ")");
-		
-		s.getRow(1).createCell(++column).setCellValue(new HSSFRichTextString(SimGS.OpTheatreType.DC.getName()));
-		rownum = 5;		
-		for (double val : firstWaitTimeDC.values()) {
-			HSSFRow r = s.getRow(rownum++);
-			r.createCell(column).setCellValue(val);				
-		}
-		s.getRow(2).createCell(column).setCellFormula("AVERAGE(C6:C"+ rownum + ")");
-		s.getRow(3).createCell(column).setCellFormula("STDEV(C6:C"+ rownum + ")");
+		for (SimGS.OpTheatreType type : SimGS.OpTheatreType.values())
+			setColumnResults(s, rownum, type);
+
+	}
+
+	public HashMap<Integer, Double> getFirstWaitTime(SimGS.OpTheatreType type) {
+		if (type == SimGS.OpTheatreType.OR)
+			return firstWaitTimeOR;
+		return firstWaitTimeDC;
+	}
+	
+	/**
+	 * @return the waitingDays
+	 */
+	public int[][] getWaitingDays() {
+		return waitingDays;
+	}
+
+	/**
+	 * @return the averages
+	 */
+	public double[] getAverages() {
+		return averages;
+	}
+
+	/**
+	 * @return the stddevs
+	 */
+	public double[] getStddevs() {
+		return stddevs;
 	}
 
 }

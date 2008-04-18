@@ -18,13 +18,15 @@ import es.ull.isaatc.simulation.listener.ListenerController;
  */
 public class GSListenerController extends ListenerController {
 	private String filename;
+	private GSListenerControllerArray parent;
 
 	/**
 	 * @param filename
 	 */
-	public GSListenerController(String filename, EventListener[] listeners) {
+	public GSListenerController(GSListenerControllerArray parent, String filename, EventListener[] listeners) {
 		super();
 		this.filename = filename;
+		this.parent = parent;
 		for (EventListener l : listeners)
 			addListener(l);
 	}
@@ -49,7 +51,8 @@ public class GSListenerController extends ListenerController {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}				
+		}
+		parent.notifyEnd();
 	}
 	
 }

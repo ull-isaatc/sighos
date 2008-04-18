@@ -4,7 +4,7 @@ import java.util.EnumSet;
 
 import simkit.random.RandomNumberFactory;
 import simkit.random.RandomVariateFactory;
-import es.ull.isaatc.HUNSC.cirgen.listener.GSListenerArray;
+import es.ull.isaatc.HUNSC.cirgen.listener.GSListenerControllerArray;
 import es.ull.isaatc.HUNSC.cirgen.listener.GSListenerController;
 import es.ull.isaatc.HUNSC.cirgen.util.ExcelTools;
 import es.ull.isaatc.function.TimeFunction;
@@ -122,13 +122,12 @@ class SimVerify extends StandAloneLPSimulation {
  * Experimentos de validación. La unidad de tiempo es el minuto.
  */
 class ExpGS extends Experiment {
-	final static String PATH = "C:\\Users\\Iván\\Documents\\HC\\Modelo quirófano CG\\resultados\\";
-	final static String FILENAME = "outputx";
-	final static int DONE = 10;
+	final static String PATH = "S:\\simulacion\\HC\\Modelo quirófano CG\\resultados\\";
+	final static String FILENAME = "output";
 	final static int NEXP = 2;
 	// Tiempo de simulación
 	public static final double ENDTIME = 1096 * 1440.0;
-	private GSListenerArray listeners;
+	private GSListenerControllerArray listeners;
 	
 	public ExpGS() {
 		super("Validation HOFT", NEXP);
@@ -136,7 +135,7 @@ class ExpGS extends Experiment {
 	
 	public Simulation getSimulation(int ind) {		
 		SimGS sim = new SimGS(ind, 0.0, ENDTIME);
-		GSListenerController cont = new GSListenerController(PATH + FILENAME + (ind + DONE) + ExcelTools.EXT, listeners.getListeners(ind));
+		GSListenerController cont = listeners.getController(ind);
 		cont.addListener(new ResourceStdUsageListener(ENDTIME));
 		cont.addListener(new ActivityListener(ENDTIME));
 
@@ -160,7 +159,7 @@ class ExpGS extends Experiment {
 	 */
 	@Override
 	public void start() {
-		listeners = new GSListenerArray(NEXP, ENDTIME);
+		listeners = new GSListenerControllerArray(PATH + FILENAME, NEXP, ENDTIME);
 		for (int i = 0; i < NEXP; i++) {
 			Simulation sim = getSimulation(i);
 			sim.call();

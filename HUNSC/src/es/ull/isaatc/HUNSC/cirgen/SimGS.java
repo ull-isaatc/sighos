@@ -20,8 +20,10 @@ import es.ull.isaatc.util.WeeklyPeriodicCycle.WeekDays;
  *
  */
 public class SimGS extends StandAloneLPSimulation {
+	// Duración del día en minutos
+	public static final double MINUTESXDAY = 1440.0;
 	// Tiempo total del estudio: 3 años en minutos (un año bisiesto)
-	public static final double TOTALTIME = 1096 * 1440.0;
+	public static final double TOTALTIME = 1096 * MINUTESXDAY;
 	// Tiempo de uso diario de los quirófanos (7 horas)
 	public static final double AVAILABILITY = 7 * 60.0;
 	// Hora de apertura de los quirófanos (mañana: 8 am)
@@ -64,7 +66,7 @@ public class SimGS extends StandAloneLPSimulation {
 		private OpTheatre(String name, OpTheatreType type, EnumSet<WeekDays> days, double realUsage, double realAva) {
 			this.name = name;
 			this.type = type;
-			cycle = new WeeklyPeriodicCycle(days, 1440.0, STARTTIME, 0);
+			cycle = new WeeklyPeriodicCycle(days, MINUTESXDAY, STARTTIME, 0);
 			this.realUsage = realUsage;
 			this.realAva = realAva;
 		}
@@ -358,7 +360,7 @@ public class SimGS extends StandAloneLPSimulation {
 			// Obtengo una exponencial que genere los pacientes usando como dato de partida
 			// el total de pacientes llegados en el periodo de estudio
 			TimeFunction expo = TimeFunctionFactory.getInstance("ExponentialVariate", TOTALTIME / pt.getTotal());
-			Cycle c = new RoundedPeriodicCycle(expo.getValue(0.0), expo, 0, RoundedPeriodicCycle.Type.ROUND, 1440.0);
+			Cycle c = new RoundedPeriodicCycle(expo.getValue(0.0), expo, 0, RoundedPeriodicCycle.Type.ROUND, MINUTESXDAY);
 			ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1));
 
 			if (pt.getPercOR() > 0.0) {
