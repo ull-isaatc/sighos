@@ -87,160 +87,127 @@ public class GSListenerControllerArray {
 		
 	}
 	
+	private void writeSummary(HSSFRow r, double thValue, double []values) {
+		short column = 0;
+		r.createCell(column++).setCellValue(new HSSFRichTextString("Total"));
+		r.createCell(column++).setCellValue(thValue);
+		writeStatistics(values, r, column);
+		column += 2;
+		for (double val : values)
+			r.createCell(column++).setCellValue(val);
+			
+	}
+	
 	private void writeTimeListenerCreatedResults() {
 		HSSFSheet s = wb.createSheet("Creados");
 		int rownum = 0;
-		HSSFRow r = s.createRow(rownum++);
-		r.createCell((short)0).setCellValue(new HSSFRichTextString("No ambulantes"));
-		writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
-		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
-			short column = 0;
-			double [] values = new double[timeList.length];
-			r = s.createRow(rownum++);
-			r.createCell(column++).setCellValue(new HSSFRichTextString(pt.getName()));
-			r.createCell(column++).setCellValue(pt.getTotal() * pt.getPercOR());
-			column += 2;
-			for (GSElementTypeTimeListener list : timeList) {
-				int total = 0;
-				if (pt.getPercOR() > 0.0) {
-					for (int value : list.getElementTypeTimes().get(pt.ordinal()).getCreatedElement()) {
-						values[column - ELEM_TIME_HEADERS.length] = value;
-						total += value;
+
+		for (SimGS.OpTheatreType type : SimGS.OpTheatreType.values()) {
+			double totalExp[] = new double[timeList.length];
+			int totalTh = 0;
+			HSSFRow r = s.createRow(rownum++);
+			r.createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
+			writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
+			for (SimGS.PatientType pt : SimGS.PatientType.values()) {
+				short column = 0;
+				double [] values = new double[timeList.length];
+				r = s.createRow(rownum++);
+				r.createCell(column++).setCellValue(new HSSFRichTextString(pt.getName()));
+				r.createCell(column++).setCellValue(pt.getTotal(type));
+				totalTh += pt.getTotal(type);
+				column += 2;
+				for (GSElementTypeTimeListener list : timeList) {
+					int total = 0;
+					if (pt.getTotal(type) > 0) {
+						for (int value : list.getElementTypeTimes().get(pt.ordinal(type)).getCreatedElement()) {
+							values[column - ELEM_TIME_HEADERS.length] = value;
+							totalExp[column - ELEM_TIME_HEADERS.length] += value;
+							total += value;
+						}
 					}
+					r.createCell(column++).setCellValue(total);
 				}
-				r.createCell(column++).setCellValue(total);
+				writeStatistics(values, r, (short)2);
 			}
-			writeStatistics(values, r, (short)2);
+			writeSummary(s.createRow(rownum++), totalTh, totalExp);
+			
+			rownum ++;
 		}
-		
-		rownum ++;
-		
-		r = s.createRow(rownum++);
-		r.createCell((short)0).setCellValue(new HSSFRichTextString("Ambulantes"));
-		writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
-		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
-			short column = 0;
-			double [] values = new double[timeList.length];
-			r = s.createRow(rownum++);
-			r.createCell(column++).setCellValue(new HSSFRichTextString(pt.getName()));
-			r.createCell(column++).setCellValue(pt.getTotal() * (1 - pt.getPercOR()));
-			column += 2;
-			for (GSElementTypeTimeListener list : timeList) {
-				int total = 0;
-				if (pt.getPercOR() < 1.0) {
-					for (int value : list.getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getCreatedElement()) {
-						values[column - ELEM_TIME_HEADERS.length] = value;
-						total += value;
-					}
-				}
-				r.createCell(column++).setCellValue(total);
-			}
-			writeStatistics(values, r, (short)2);
-		}		
 	}
 	
 	private void writeTimeListenerFinishedResults() {
 		HSSFSheet s = wb.createSheet("Terminados");
 		int rownum = 0;
-		HSSFRow r = s.createRow(rownum++);
-		r.createCell((short)0).setCellValue(new HSSFRichTextString("No ambulantes"));
-		writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
-		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
-			short column = 0;
-			double [] values = new double[timeList.length];
-			r = s.createRow(rownum++);
-			r.createCell(column++).setCellValue(new HSSFRichTextString(pt.getName()));
-			r.createCell(column++).setCellValue(pt.getTotal() * pt.getPercOR());
-			column += 2;
-			for (GSElementTypeTimeListener list : timeList) {
-				int total = 0;
-				if (pt.getPercOR() > 0.0) {
-					for (int value : list.getElementTypeTimes().get(pt.ordinal()).getFinishedElement()) {
-						values[column - ELEM_TIME_HEADERS.length] = value;
-						total += value;
+
+		for (SimGS.OpTheatreType type : SimGS.OpTheatreType.values()) {
+			double totalExp[] = new double[timeList.length];
+			int totalTh = 0;
+			HSSFRow r = s.createRow(rownum++);
+			r.createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
+			writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
+			for (SimGS.PatientType pt : SimGS.PatientType.values()) {
+				short column = 0;
+				double [] values = new double[timeList.length];
+				r = s.createRow(rownum++);
+				r.createCell(column++).setCellValue(new HSSFRichTextString(pt.getName()));
+				r.createCell(column++).setCellValue(pt.getTotal(type));
+				totalTh += pt.getTotal(type);
+				column += 2;
+				for (GSElementTypeTimeListener list : timeList) {
+					int total = 0;
+					if (pt.getTotal(type) > 0) {
+						for (int value : list.getElementTypeTimes().get(pt.ordinal(type)).getFinishedElement()) {
+							values[column - ELEM_TIME_HEADERS.length] = value;
+							totalExp[column - ELEM_TIME_HEADERS.length] += value;
+							total += value;
+						}
 					}
+					r.createCell(column++).setCellValue(total);
 				}
-				r.createCell(column++).setCellValue(total);
+				writeStatistics(values, r, (short)2);
 			}
-			writeStatistics(values, r, (short)2);
+			writeSummary(s.createRow(rownum++), totalTh, totalExp);
+			
+			rownum ++;
 		}
-		
-		rownum ++;
-		
-		r = s.createRow(rownum++);
-		r.createCell((short)0).setCellValue(new HSSFRichTextString("Ambulantes"));
-		writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
-		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
-			short column = 0;
-			double [] values = new double[timeList.length];
-			r = s.createRow(rownum++);
-			r.createCell(column++).setCellValue(new HSSFRichTextString(pt.getName()));
-			r.createCell(column++).setCellValue(pt.getTotal() * (1 - pt.getPercOR()));
-			column += 2;
-			for (GSElementTypeTimeListener list : timeList) {
-				int total = 0;
-				if (pt.getPercOR() < 1.0) {
-					for (int value : list.getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getFinishedElement()) {
-						values[column - ELEM_TIME_HEADERS.length] = value;
-						total += value;
-					}
-				}
-				r.createCell(column++).setCellValue(total);
-			}
-			writeStatistics(values, r, (short)2);
-		}		
 	}
 	
 	private void writeTimeListenerWorkingResults() {
 		HSSFSheet s = wb.createSheet("Tiempo paciente");
 		int rownum = 0;
-		HSSFRow r = s.createRow(rownum++);
-		r.createCell((short)0).setCellValue(new HSSFRichTextString("No ambulantes"));
-		writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
-		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
-			short column = 0;
-			double [] values = new double[timeList.length];
-			r = s.createRow(rownum++);
-			r.createCell(column++).setCellValue(new HSSFRichTextString(pt.getName()));
-			r.createCell(column++).setCellValue((pt.getTotal() * pt.getPercOR()) * pt.getAvgOR());
-			column += 2;
-			for (GSElementTypeTimeListener list : timeList) {
-				double total = 0;
-				if (pt.getPercOR() > 0.0) {
-					for (double value : list.getElementTypeTimes().get(pt.ordinal()).getWorkTime()) {
-						values[column - ELEM_TIME_HEADERS.length] = value;
-						total += value;
+
+
+		for (SimGS.OpTheatreType type : SimGS.OpTheatreType.values()) {
+			double totalExp[] = new double[timeList.length];
+			double totalTh = 0;
+			HSSFRow r = s.createRow(rownum++);
+			r.createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
+			writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
+			for (SimGS.PatientType pt : SimGS.PatientType.values()) {
+				short column = 0;
+				double [] values = new double[timeList.length];
+				r = s.createRow(rownum++);
+				r.createCell(column++).setCellValue(new HSSFRichTextString(pt.getName()));
+				r.createCell(column++).setCellValue(pt.getTotalTime(type));
+				totalTh += pt.getTotalTime(type);
+				column += 2;
+				for (GSElementTypeTimeListener list : timeList) {
+					double total = 0;
+					if (pt.getTotal(type) > 0) {
+						for (double value : list.getElementTypeTimes().get(pt.ordinal(type)).getWorkTime()) {
+							values[column - ELEM_TIME_HEADERS.length] = value;
+							totalExp[column - ELEM_TIME_HEADERS.length] += value;
+							total += value;
+						}
 					}
+					r.createCell(column++).setCellValue(total);
 				}
-				r.createCell(column++).setCellValue(total);
+				writeStatistics(values, r, (short)2);
 			}
-			writeStatistics(values, r, (short)2);
+			writeSummary(s.createRow(rownum++), totalTh, totalExp);
+			
+			rownum ++;
 		}
-		
-		rownum ++;
-		
-		r = s.createRow(rownum++);
-		r.createCell((short)0).setCellValue(new HSSFRichTextString("Ambulantes"));
-		writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
-		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
-			short column = 0;
-			double [] values = new double[timeList.length];
-			r = s.createRow(rownum++);
-			r.createCell(column++).setCellValue(new HSSFRichTextString(pt.getName()));
-			r.createCell(column++).setCellValue((pt.getTotal() * (1 - pt.getPercOR())) * pt.getAvgDC());
-			column += 2;
-			for (GSElementTypeTimeListener list : timeList) {
-				double total = 0;
-				if (pt.getPercOR() < 1.0) {
-					for (double value : list.getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getWorkTime()) {
-						values[column - ELEM_TIME_HEADERS.length] = value;
-						total += value;
-					}
-				}
-				r.createCell(column++).setCellValue(total);
-			}
-			writeStatistics(values, r, (short)2);
-		}		
 	}
 	
 	private void writeWaitListenerResults() {

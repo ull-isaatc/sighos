@@ -124,7 +124,7 @@ class SimVerify extends StandAloneLPSimulation {
 class ExpGS extends Experiment {
 	final static String PATH = "S:\\simulacion\\HC\\Modelo quirófano CG\\resultados\\";
 	final static String FILENAME = "output";
-	final static int NEXP = 2;
+	final static int NEXP = 10;
 	// Tiempo de simulación
 	public static final double ENDTIME = 1096 * 1440.0;
 	private GSListenerControllerArray listeners;
