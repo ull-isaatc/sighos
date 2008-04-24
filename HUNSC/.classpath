@@ -9,7 +9,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/poi-3.0.2-FINAL-20080204.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Simulator"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/utils"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Simulator"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

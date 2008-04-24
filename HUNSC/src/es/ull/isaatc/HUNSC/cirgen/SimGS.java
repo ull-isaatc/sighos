@@ -30,14 +30,12 @@ public class SimGS extends StandAloneLPSimulation {
 	public static final double STARTTIME = 8 * 60.0;
 	
 	public enum OpTheatreType {
-		OR ("No ambulante", 487578.0),
-		DC ("Ambulante", 25518.0);
+		OR ("No ambulante"),
+		DC ("Ambulante");
 		
 		private final String name;
-		private final double realUsage;
-		private OpTheatreType(String name, double realUsage) {
+		private OpTheatreType(String name) {
 			this.name = name;
-			this.realUsage = realUsage;
 		}
 		/**
 		 * @return the name
@@ -45,13 +43,8 @@ public class SimGS extends StandAloneLPSimulation {
 		public String getName() {
 			return name;
 		}
-		/**
-		 * @return the realUs
-		 */
-		public double getRealUsage() {
-			return realUsage;
-		}
 	}
+	
 	public enum OpTheatre {
 		Q31 ("3-1", OpTheatreType.OR, EnumSet.of(WeekDays.FRIDAY), 26850.0, 36110.0),
 		AMB ("AMB", OpTheatreType.DC, EnumSet.of(WeekDays.MONDAY), 25842.0, 51755.0),

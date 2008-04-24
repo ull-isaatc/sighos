@@ -5,6 +5,8 @@ package es.ull.isaatc.HUNSC.cirgen.util;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 
@@ -52,5 +54,13 @@ public class ExcelTools {
 	    headStyle.setWrapText(true);
 	    headStyle.setFont(getBoldFont(wb));
 	    return headStyle;
+	}
+	
+	public static String getString(HSSFSheet s, int row, short column) {
+		return s.getRow(row).getCell(column).getRichStringCellValue().getString();
+	}
+
+	public static String getString(HSSFRow r, short column) {
+		return r.getCell(column).getRichStringCellValue().getString();
 	}
 }

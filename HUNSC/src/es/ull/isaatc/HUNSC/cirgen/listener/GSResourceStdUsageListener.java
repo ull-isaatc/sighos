@@ -34,23 +34,8 @@ public class GSResourceStdUsageListener extends ResourceStdUsageListener impleme
 		}
 	}
 	
-	private enum RoleColumns {
-		ROLE("Tipo de quirófano"),
-		RUSA_TIME("T uso (real)"),
-		USA_TIME("T uso"),
-		AVA_TIME("T disp."),
-		ERROR_USA("Error T uso");
-		
-		String name; 
-		private RoleColumns(String name) {
-			this.name = name;
-		}		
-	}
-
 	private double []resUsageSummary;
 	private double []resAvailabilitySummary;
-	private double []roleUsageSummary;
-	private double []roleAvailabilitySummary;
 	
 	/**
 	 * @param simul
@@ -78,20 +63,6 @@ public class GSResourceStdUsageListener extends ResourceStdUsageListener impleme
 	 */
 	public double[] getResAvailabilitySummary() {
 		return resAvailabilitySummary;
-	}
-
-	/**
-	 * @return the roleUsageSummary
-	 */
-	public double[] getRoleUsageSummary() {
-		return roleUsageSummary;
-	}
-
-	/**
-	 * @return the roleAvailabilitySummary
-	 */
-	public double[] getRoleAvailabilitySummary() {
-		return roleAvailabilitySummary;
 	}
 
 	public void setResult(HSSFWorkbook wb) {
@@ -128,34 +99,5 @@ public class GSResourceStdUsageListener extends ResourceStdUsageListener impleme
 			r.createCell((short)ResColumns.EAVA_TIME.ordinal()).setCellValue(total);
 			r.createCell((short)ResColumns.ERROR_AVA.ordinal()).setCellValue(Statistics.relError100(res.getRealAva(), total));
 		}
-
-		rownum++;
-		r = s.createRow(rownum++);
-	    for (RoleColumns col : RoleColumns.values()) { 
-			HSSFCell c = r.createCell((short)col.ordinal());
-			c.setCellValue(new HSSFRichTextString(col.name));
-			c.setCellStyle(ExcelTools.getHeadStyle(wb));
-	    }
-
-		roleUsageSummary = new double[SimGS.OpTheatreType.values().length];
-		roleAvailabilitySummary = new double[SimGS.OpTheatreType.values().length];
-	    for (SimGS.OpTheatreType rt : SimGS.OpTheatreType.values()) {
-			r = s.createRow(rownum++);
-			r.createCell((short)RoleColumns.ROLE.ordinal()).setCellValue(new HSSFRichTextString(rt.getName()));
-			r.createCell((short)RoleColumns.RUSA_TIME.ordinal()).setCellValue(rt.getRealUsage());
-			double total = 0.0;
-			for (double val : getRolTime().get(rt.ordinal()))
-				total += val;
-			roleUsageSummary[rt.ordinal()] = total;
-			r.createCell((short)RoleColumns.USA_TIME.ordinal()).setCellValue(total);
-			r.createCell((short)RoleColumns.ERROR_USA.ordinal()).setCellValue(Statistics.relError100(rt.getRealUsage(), total));
-			total = 0.0;
-			for (double val : getAvalTime().get(rt.ordinal()))
-				total += val;
-			roleAvailabilitySummary[rt.ordinal()] = total;
-			r.createCell((short)RoleColumns.AVA_TIME.ordinal()).setCellValue(total);
-	    	
-	    }
-	    
 	}
 }
