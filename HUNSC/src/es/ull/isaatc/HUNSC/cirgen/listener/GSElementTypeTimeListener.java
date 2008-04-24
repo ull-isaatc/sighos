@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.HUNSC.cirgen.listener;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -12,8 +14,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 
-import es.ull.isaatc.HUNSC.cirgen.SimGS;
-import es.ull.isaatc.HUNSC.cirgen.SimGS.OpTheatreType;
+import es.ull.isaatc.HUNSC.cirgen.*;
 import es.ull.isaatc.HUNSC.cirgen.util.ExcelTools;
 import es.ull.isaatc.simulation.listener.ElementTypeTimeListener;
 import es.ull.isaatc.util.Statistics;
@@ -47,6 +48,8 @@ public class GSElementTypeTimeListener extends ElementTypeTimeListener implement
 			this.name= name;			
 		}
 	}
+
+	private GSExcelInputWrapper input;
 	
 	/**
 	 * 
@@ -55,61 +58,62 @@ public class GSElementTypeTimeListener extends ElementTypeTimeListener implement
 		super();
 	}
 	
-	public GSElementTypeTimeListener(double period) {
-		super(period);
+	public GSElementTypeTimeListener(GSExcelInputWrapper input) {
+		super(TimeUnit.MINUTES.convert(input.getSimulationDays(), TimeUnit.DAYS));
+		this.input = input;
 	}
 	
 	@Override
 	public String toString() {
 		StringBuffer str = new StringBuffer();
 		str.append("\nPatients created (PERIOD: " + period + ")\n");
-		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
+		for (PatientType pt : input.getPatientTypes()) {
 			str.append(pt.getName() + "\t");
-			if (pt.getProbability(OpTheatreType.OR) > 0.0)
-				for (int value : getElementTypeTimes().get(pt.ordinal(OpTheatreType.OR)).getCreatedElement())
+			if (pt.getProbability(OperationTheatreType.OR) > 0.0)
+				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getCreatedElement())
 					str.append(value + "\t");
 			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal(OpTheatreType.DC)).getNPeriods(); i++)
+				for (int i = 0; i < getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getNPeriods(); i++)
 					str.append("0\t");
-			if (pt.getProbability(OpTheatreType.DC) > 0.0)
-				for (int value : getElementTypeTimes().get(pt.ordinal(OpTheatreType.DC)).getCreatedElement())
+			if (pt.getProbability(OperationTheatreType.DC) > 0.0)
+				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getCreatedElement())
 				str.append(value + "\t");
 			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal(OpTheatreType.OR)).getNPeriods(); i++)
+				for (int i = 0; i < getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getNPeriods(); i++)
 					str.append("0\t");
 			str.append("\n");
 		}
 		str.append("\nPatients finished (PERIOD: " + period + ")\n");
-		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
+		for (PatientType pt : input.getPatientTypes()) {
 			str.append(pt.getName() + "\t");
-			if (pt.getProbability(OpTheatreType.OR) > 0.0)
-				for (int value : getElementTypeTimes().get(pt.ordinal(OpTheatreType.OR)).getFinishedElement())
+			if (pt.getProbability(OperationTheatreType.OR) > 0.0)
+				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getFinishedElement())
 					str.append(value + "\t");
 			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal(OpTheatreType.DC)).getNPeriods(); i++)
+				for (int i = 0; i < getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getNPeriods(); i++)
 					str.append("0\t");
-			if (pt.getProbability(OpTheatreType.DC) > 0.0)
-				for (int value : getElementTypeTimes().get(pt.ordinal(OpTheatreType.DC)).getFinishedElement())
+			if (pt.getProbability(OperationTheatreType.DC) > 0.0)
+				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getFinishedElement())
 				str.append(value + "\t");
 			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal(OpTheatreType.OR)).getNPeriods(); i++)
+				for (int i = 0; i < getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getNPeriods(); i++)
 					str.append("0\t");
 			str.append("\n");
 		}
 		str.append("\nPatients time (PERIOD: " + period + ")\n");
-		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
+		for (PatientType pt : input.getPatientTypes()) {
 			str.append(pt.getName() + "\t");
-			if (pt.getProbability(OpTheatreType.OR) > 0.0)
-				for (double value : getElementTypeTimes().get(pt.ordinal(OpTheatreType.OR)).getWorkTime())
+			if (pt.getProbability(OperationTheatreType.OR) > 0.0)
+				for (double value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getWorkTime())
 					str.append(value + "\t");
 			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal(OpTheatreType.DC)).getNPeriods(); i++)
+				for (int i = 0; i < getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getNPeriods(); i++)
 					str.append("0\t");
-			if (pt.getProbability(OpTheatreType.DC) > 0.0)
-				for (double value : getElementTypeTimes().get(pt.ordinal(OpTheatreType.DC)).getWorkTime())
+			if (pt.getProbability(OperationTheatreType.DC) > 0.0)
+				for (double value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getWorkTime())
 				str.append(value + "\t");
 			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.ordinal(OpTheatreType.OR)).getNPeriods(); i++)
+				for (int i = 0; i < getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getNPeriods(); i++)
 					str.append("0\t");
 			str.append("\n");
 		}
@@ -154,72 +158,72 @@ public class GSElementTypeTimeListener extends ElementTypeTimeListener implement
 		double totalFAMB = 0.0;
 		double totalWNOAMB = 0.0;
 		double totalWAMB = 0.0;
-		for (SimGS.PatientType pt : SimGS.PatientType.values()) {
+		for (PatientType pt : input.getPatientTypes()) {
 			r = s.createRow(rownum++);
 			HSSFCell c = r.createCell((short)Columns.DIAG.ordinal());
 			c.setCellValue(new HSSFRichTextString(pt.getName()));
 			c.setCellStyle(diagStyle);
 			
-			r.createCell((short)Columns.N_NOAMB.ordinal()).setCellValue(pt.getTotal(SimGS.OpTheatreType.OR));
+			r.createCell((short)Columns.N_NOAMB.ordinal()).setCellValue(pt.getTotal(OperationTheatreType.OR));
 			r.getCell((short)Columns.N_NOAMB.ordinal()).setCellStyle(theorStyle);
-			totalNNOAMB += pt.getTotal(SimGS.OpTheatreType.OR);
-			r.createCell((short)Columns.T_NOAMB.ordinal()).setCellValue(pt.getTotalTime(SimGS.OpTheatreType.OR));
+			totalNNOAMB += pt.getTotal(OperationTheatreType.OR);
+			r.createCell((short)Columns.T_NOAMB.ordinal()).setCellValue(pt.getTotalTime(OperationTheatreType.OR));
 			r.getCell((short)Columns.T_NOAMB.ordinal()).setCellStyle(theorStyle);
-			totalTNOAMB += pt.getTotalTime(SimGS.OpTheatreType.OR);
-			r.createCell((short)Columns.N_AMB.ordinal()).setCellValue(pt.getTotal(SimGS.OpTheatreType.DC));
+			totalTNOAMB += pt.getTotalTime(OperationTheatreType.OR);
+			r.createCell((short)Columns.N_AMB.ordinal()).setCellValue(pt.getTotal(OperationTheatreType.DC));
 			r.getCell((short)Columns.N_AMB.ordinal()).setCellStyle(theorStyle);
-			totalNAMB += pt.getTotal(SimGS.OpTheatreType.DC);
-			r.createCell((short)Columns.T_AMB.ordinal()).setCellValue(pt.getTotalTime(SimGS.OpTheatreType.DC));
+			totalNAMB += pt.getTotal(OperationTheatreType.DC);
+			r.createCell((short)Columns.T_AMB.ordinal()).setCellValue(pt.getTotalTime(OperationTheatreType.DC));
 			r.getCell((short)Columns.T_AMB.ordinal()).setCellStyle(theorStyle);
-			totalTAMB += pt.getTotalTime(SimGS.OpTheatreType.DC);
-			if (pt.getTotal(SimGS.OpTheatreType.OR) > 0) {
+			totalTAMB += pt.getTotalTime(OperationTheatreType.DC);
+			if (pt.getTotal(OperationTheatreType.OR) > 0) {
 				int total = 0;
-				for (int value : getElementTypeTimes().get(pt.ordinal()).getCreatedElement())
+				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getCreatedElement())
 					total += value;
 				totalCNOAMB += total;
 				r.createCell((short)Columns.N_CREATED_NOAMB.ordinal()).setCellValue(total);
-				r.createCell((short)Columns.ERROR_CREATED_NOAMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(SimGS.OpTheatreType.OR), total));
+				r.createCell((short)Columns.ERROR_CREATED_NOAMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(OperationTheatreType.OR), total));
 				r.getCell((short)Columns.ERROR_CREATED_NOAMB.ordinal()).setCellStyle(errorStyle);
 				
 				total = 0;
-				for (int value : getElementTypeTimes().get(pt.ordinal()).getFinishedElement())
+				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getFinishedElement())
 					total += value;
 				totalFNOAMB += total;
 				r.createCell((short)Columns.N_FINISHED_NOAMB.ordinal()).setCellValue(total);
-				r.createCell((short)Columns.ERROR_FINISHED_NOAMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(SimGS.OpTheatreType.OR), total));
+				r.createCell((short)Columns.ERROR_FINISHED_NOAMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(OperationTheatreType.OR), total));
 				r.getCell((short)Columns.ERROR_FINISHED_NOAMB.ordinal()).setCellStyle(errorStyle);
 
 				double totalD = 0.0;
-				for (double value : getElementTypeTimes().get(pt.ordinal()).getWorkTime())
+				for (double value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getWorkTime())
 					totalD += value;
 				totalWNOAMB += totalD;
 				r.createCell((short)Columns.T_WORKING_NOAMB.ordinal()).setCellValue(totalD);
-				r.createCell((short)Columns.ERROR_WORKING_NOAMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotalTime(SimGS.OpTheatreType.OR), totalD));
+				r.createCell((short)Columns.ERROR_WORKING_NOAMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotalTime(OperationTheatreType.OR), totalD));
 				r.getCell((short)Columns.ERROR_WORKING_NOAMB.ordinal()).setCellStyle(errorStyle);
 			}
-			if (pt.getTotal(SimGS.OpTheatreType.DC) > 0) {
+			if (pt.getTotal(OperationTheatreType.DC) > 0) {
 				int total = 0;
-				for (int value : getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getCreatedElement())
+				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getCreatedElement())
 					total += value;
 				totalCAMB += total;
 				r.createCell((short)Columns.N_CREATED_AMB.ordinal()).setCellValue(total);
-				r.createCell((short)Columns.ERROR_CREATED_AMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(SimGS.OpTheatreType.DC), total));
+				r.createCell((short)Columns.ERROR_CREATED_AMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(OperationTheatreType.DC), total));
 				r.getCell((short)Columns.ERROR_CREATED_AMB.ordinal()).setCellStyle(errorStyle);
 				
 				total = 0;
-				for (int value : getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getFinishedElement())
+				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getFinishedElement())
 					total += value;
 				totalFAMB += total;
 				r.createCell((short)Columns.N_FINISHED_AMB.ordinal()).setCellValue(total);
-				r.createCell((short)Columns.ERROR_FINISHED_AMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(SimGS.OpTheatreType.DC), total));
+				r.createCell((short)Columns.ERROR_FINISHED_AMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(OperationTheatreType.DC), total));
 				r.getCell((short)Columns.ERROR_FINISHED_AMB.ordinal()).setCellStyle(errorStyle);
 
 				double totalD = 0.0;
-				for (double value : getElementTypeTimes().get(pt.ordinal() + SimGS.PatientType.values().length).getWorkTime())
+				for (double value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getWorkTime())
 					totalD += value;
 				totalWAMB += totalD;
 				r.createCell((short)Columns.T_WORKING_AMB.ordinal()).setCellValue(totalD);
-				r.createCell((short)Columns.ERROR_WORKING_AMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotalTime(SimGS.OpTheatreType.DC), totalD));
+				r.createCell((short)Columns.ERROR_WORKING_AMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotalTime(OperationTheatreType.DC), totalD));
 				r.getCell((short)Columns.ERROR_WORKING_AMB.ordinal()).setCellStyle(errorStyle);
 			}
 		}

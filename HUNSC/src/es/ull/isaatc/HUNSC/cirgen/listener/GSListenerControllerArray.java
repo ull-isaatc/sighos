@@ -15,7 +15,10 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
-import es.ull.isaatc.HUNSC.cirgen.SimGS;
+import es.ull.isaatc.HUNSC.cirgen.GSExcelInputWrapper;
+import es.ull.isaatc.HUNSC.cirgen.OperationTheatreType;
+import es.ull.isaatc.HUNSC.cirgen.OperationTheatre;
+import es.ull.isaatc.HUNSC.cirgen.PatientType;
 import es.ull.isaatc.HUNSC.cirgen.util.ExcelTools;
 import es.ull.isaatc.simulation.listener.EventListener;
 import es.ull.isaatc.util.Statistics;
@@ -42,19 +45,21 @@ public class GSListenerControllerArray {
 	private int nExp;
 	private HSSFWorkbook wb;
 	private HSSFCellStyle headStyle;
+	private GSExcelInputWrapper input;
 	
-	public GSListenerControllerArray(String filename, int nExp, double period) {
-		this.nExp = nExp;
+	public GSListenerControllerArray(GSExcelInputWrapper input) {
+		this.input = input;
+		this.nExp = input.getNExperiments();
 		allCompleted = new CountDownLatch(nExp);
 		timeList = new GSElementTypeTimeListener[nExp];
 		waitList = new GSElementTypeWaitListener[nExp];
 		resList = new GSResourceStdUsageListener[nExp];
 		controllers = new GSListenerController[nExp];
 		for (int i = 0; i < nExp; i++) {
-			timeList[i] = new GSElementTypeTimeListener(period);
-			waitList[i] = new GSElementTypeWaitListener();
-			resList[i] = new GSResourceStdUsageListener(period);
-			controllers[i] = new GSListenerController(this, filename + (i + DONE) + ExcelTools.EXT, 
+			timeList[i] = new GSElementTypeTimeListener(input);
+			waitList[i] = new GSElementTypeWaitListener(input);
+			resList[i] = new GSResourceStdUsageListener(input);
+			controllers[i] = new GSListenerController(this, input.getOutputPath() + input.getOutputFileName() + (i + DONE) + ExcelTools.EXT, 
 					new EventListener[] {timeList[i], waitList[i], resList[i]});
 		}
 		// create a new workbook
@@ -102,13 +107,13 @@ public class GSListenerControllerArray {
 		HSSFSheet s = wb.createSheet("Creados");
 		int rownum = 0;
 
-		for (SimGS.OpTheatreType type : SimGS.OpTheatreType.values()) {
+		for (OperationTheatreType type : OperationTheatreType.values()) {
 			double totalExp[] = new double[timeList.length];
 			int totalTh = 0;
 			HSSFRow r = s.createRow(rownum++);
 			r.createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
 			writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
-			for (SimGS.PatientType pt : SimGS.PatientType.values()) {
+			for (PatientType pt : input.getPatientTypes()) {
 				short column = 0;
 				double [] values = new double[timeList.length];
 				r = s.createRow(rownum++);
@@ -119,7 +124,7 @@ public class GSListenerControllerArray {
 				for (GSElementTypeTimeListener list : timeList) {
 					int total = 0;
 					if (pt.getTotal(type) > 0) {
-						for (int value : list.getElementTypeTimes().get(pt.ordinal(type)).getCreatedElement()) {
+						for (int value : list.getElementTypeTimes().get(pt.getIndex(type)).getCreatedElement()) {
 							values[column - ELEM_TIME_HEADERS.length] = value;
 							totalExp[column - ELEM_TIME_HEADERS.length] += value;
 							total += value;
@@ -139,13 +144,13 @@ public class GSListenerControllerArray {
 		HSSFSheet s = wb.createSheet("Terminados");
 		int rownum = 0;
 
-		for (SimGS.OpTheatreType type : SimGS.OpTheatreType.values()) {
+		for (OperationTheatreType type : OperationTheatreType.values()) {
 			double totalExp[] = new double[timeList.length];
 			int totalTh = 0;
 			HSSFRow r = s.createRow(rownum++);
 			r.createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
 			writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
-			for (SimGS.PatientType pt : SimGS.PatientType.values()) {
+			for (PatientType pt : input.getPatientTypes()) {
 				short column = 0;
 				double [] values = new double[timeList.length];
 				r = s.createRow(rownum++);
@@ -156,7 +161,7 @@ public class GSListenerControllerArray {
 				for (GSElementTypeTimeListener list : timeList) {
 					int total = 0;
 					if (pt.getTotal(type) > 0) {
-						for (int value : list.getElementTypeTimes().get(pt.ordinal(type)).getFinishedElement()) {
+						for (int value : list.getElementTypeTimes().get(pt.getIndex(type)).getFinishedElement()) {
 							values[column - ELEM_TIME_HEADERS.length] = value;
 							totalExp[column - ELEM_TIME_HEADERS.length] += value;
 							total += value;
@@ -177,13 +182,13 @@ public class GSListenerControllerArray {
 		int rownum = 0;
 
 
-		for (SimGS.OpTheatreType type : SimGS.OpTheatreType.values()) {
+		for (OperationTheatreType type : OperationTheatreType.values()) {
 			double totalExp[] = new double[timeList.length];
 			double totalTh = 0;
 			HSSFRow r = s.createRow(rownum++);
 			r.createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
 			writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
-			for (SimGS.PatientType pt : SimGS.PatientType.values()) {
+			for (PatientType pt : input.getPatientTypes()) {
 				short column = 0;
 				double [] values = new double[timeList.length];
 				r = s.createRow(rownum++);
@@ -194,7 +199,7 @@ public class GSListenerControllerArray {
 				for (GSElementTypeTimeListener list : timeList) {
 					double total = 0;
 					if (pt.getTotal(type) > 0) {
-						for (double value : list.getElementTypeTimes().get(pt.ordinal(type)).getWorkTime()) {
+						for (double value : list.getElementTypeTimes().get(pt.getIndex(type)).getWorkTime()) {
 							values[column - ELEM_TIME_HEADERS.length] = value;
 							totalExp[column - ELEM_TIME_HEADERS.length] += value;
 							total += value;
@@ -214,7 +219,7 @@ public class GSListenerControllerArray {
 		HSSFSheet s = wb.createSheet("Espera pacientes");
 		
 		int numrow = 0;
-		for (SimGS.OpTheatreType type : SimGS.OpTheatreType.values()) {
+		for (OperationTheatreType type : OperationTheatreType.values()) {
 			s.createRow(numrow++).createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
 			writeHeader(ELEM_WAIT_HEADERS, s.createRow(numrow++));			
 			int rowaux = numrow;
@@ -252,42 +257,42 @@ public class GSListenerControllerArray {
 		HSSFRow r;
 		int rownum = 1;
 		writeHeader(RES_USAGE_HEADERS, s.createRow(rownum++));
-	    for (SimGS.OpTheatre res : SimGS.OpTheatre.values()) {
-			r = s.createRow(res.ordinal() + rownum);
+	    for (OperationTheatre res : input.getOpTheatres()) {
+			r = s.createRow(res.getIndex() + rownum);
 			r.createCell((short)0).setCellValue(new HSSFRichTextString(res.getName()));
 			r.createCell((short)1).setCellValue(res.getRealUsage());
 	    }
     	short column = (short)RES_USAGE_HEADERS.length;
-    	double [][] values = new double [SimGS.OpTheatre.values().length][resList.length];
+    	double [][] values = new double [input.getOpTheatres().length][resList.length];
 	    for (GSResourceStdUsageListener l : resList) {
-	    	for (SimGS.OpTheatre res : SimGS.OpTheatre.values()) {
-	    		r = s.getRow(res.ordinal() + rownum);
-	    		values[res.ordinal()][column - RES_USAGE_HEADERS.length] = l.getResUsageSummary()[res.ordinal()];
-	    		r.createCell(column).setCellValue(values[res.ordinal()][column - RES_USAGE_HEADERS.length]);
+	    	for (OperationTheatre res : input.getOpTheatres()) {
+	    		r = s.getRow(res.getIndex() + rownum);
+	    		values[res.getIndex()][column - RES_USAGE_HEADERS.length] = l.getResUsageSummary()[res.getIndex()];
+	    		r.createCell(column).setCellValue(values[res.getIndex()][column - RES_USAGE_HEADERS.length]);
 	    	}
 	    	column++;
 	    }
-	    for (SimGS.OpTheatre res : SimGS.OpTheatre.values())
-			writeStatistics(values[res.ordinal()], s.getRow(res.ordinal() + rownum), (short)2);
-	    rownum += SimGS.OpTheatre.values().length + 1;
+	    for (OperationTheatre res : input.getOpTheatres())
+			writeStatistics(values[res.getIndex()], s.getRow(res.getIndex() + rownum), (short)2);
+	    rownum += input.getOpTheatres().length + 1;
 	    
 		writeHeader(RES_AVAIL_HEADERS, s.createRow(rownum++));
-	    for (SimGS.OpTheatre res : SimGS.OpTheatre.values()) {
-			r = s.createRow(res.ordinal() + rownum);
+	    for (OperationTheatre res : input.getOpTheatres()) {
+			r = s.createRow(res.getIndex() + rownum);
 			r.createCell((short)0).setCellValue(new HSSFRichTextString(res.getName()));
 			r.createCell((short)1).setCellValue(res.getRealAva());
 	    }
     	column = (short)RES_AVAIL_HEADERS.length;
 	    for (GSResourceStdUsageListener l : resList) {
-	    	for (SimGS.OpTheatre res : SimGS.OpTheatre.values()) {
-	    		r = s.getRow(res.ordinal() + rownum);
-	    		values[res.ordinal()][column - RES_AVAIL_HEADERS.length] = l.getResAvailabilitySummary()[res.ordinal()];
-	    		r.createCell(column).setCellValue(values[res.ordinal()][column - RES_AVAIL_HEADERS.length]);
+	    	for (OperationTheatre res : input.getOpTheatres()) {
+	    		r = s.getRow(res.getIndex() + rownum);
+	    		values[res.getIndex()][column - RES_AVAIL_HEADERS.length] = l.getResAvailabilitySummary()[res.getIndex()];
+	    		r.createCell(column).setCellValue(values[res.getIndex()][column - RES_AVAIL_HEADERS.length]);
 	    	}
 	    	column++;
 	    }	    
-	    for (SimGS.OpTheatre res : SimGS.OpTheatre.values())
-			writeStatistics(values[res.ordinal()], s.getRow(res.ordinal() + rownum), (short)2);
+	    for (OperationTheatre res : input.getOpTheatres())
+			writeStatistics(values[res.getIndex()], s.getRow(res.getIndex() + rownum), (short)2);
 		
 	}
 	

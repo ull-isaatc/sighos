@@ -4,13 +4,15 @@
 package es.ull.isaatc.HUNSC.cirgen.listener;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
-import es.ull.isaatc.HUNSC.cirgen.SimGS;
+import es.ull.isaatc.HUNSC.cirgen.GSExcelInputWrapper;
+import es.ull.isaatc.HUNSC.cirgen.OperationTheatreType;
 import es.ull.isaatc.simulation.info.ElementInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationObjectInfo;
@@ -31,13 +33,15 @@ public class GSElementTypeWaitListener implements ToExcel, SimulationObjectListe
 	private double[] averages;
 	private double[] stddevs;
 	private int[][] waitingDays;
+	private GSExcelInputWrapper input;
 	
-	public GSElementTypeWaitListener() {
+	public GSElementTypeWaitListener(GSExcelInputWrapper input) {
+		this.input = input;
 		firstWaitTimeDC = new HashMap<Integer, Double>();
 		firstWaitTimeOR = new HashMap<Integer, Double>();
-		averages = new double[SimGS.OpTheatreType.values().length];
-		stddevs = new double[SimGS.OpTheatreType.values().length];
-		waitingDays = new int[SimGS.OpTheatreType.values().length][REFDAYS.length];
+		averages = new double[OperationTheatreType.values().length];
+		stddevs = new double[OperationTheatreType.values().length];
+		waitingDays = new int[OperationTheatreType.values().length][REFDAYS.length];
 	}
 
 	public void infoEmited(SimulationEndInfo info) {
@@ -60,7 +64,7 @@ public class GSElementTypeWaitListener implements ToExcel, SimulationObjectListe
 			ElementInfo eInfo = (ElementInfo) info;
 			switch (eInfo.getType()) {
 			case START:
-				if (eInfo.getValue() >= SimGS.PatientType.values().length)
+				if (eInfo.getValue() % OperationTheatreType.values().length == OperationTheatreType.DC.ordinal())
 					firstWaitTimeDC.put(eInfo.getIdentifier(), -eInfo.getTs());
 				else
 					firstWaitTimeOR.put(eInfo.getIdentifier(), -eInfo.getTs());
@@ -88,7 +92,7 @@ public class GSElementTypeWaitListener implements ToExcel, SimulationObjectListe
 		return str.toString();
 	}
 
-	private void setColumnResults(HSSFSheet s, int rownum, SimGS.OpTheatreType type) {
+	private void setColumnResults(HSSFSheet s, int rownum, OperationTheatreType type) {
 
 		HashMap<Integer, Double> firstWaitTime = getFirstWaitTime(type);
 		short column = (short)(type.ordinal() + 1);
@@ -98,7 +102,10 @@ public class GSElementTypeWaitListener implements ToExcel, SimulationObjectListe
 			HSSFRow r = s.getRow(rownum++);
 			r.createCell(column).setCellValue(val);
 			int range = 0;
-			for (; (range < REFDAYS.length - 1) && (val >= SimGS.STARTTIME + SimGS.AVAILABILITY + SimGS.MINUTESXDAY * range); range++);
+			for (; (range < REFDAYS.length - 1) && 
+				(val >= TimeUnit.MINUTES.convert(input.getOpTheatreStartHour(), TimeUnit.HOURS) + 
+					TimeUnit.MINUTES.convert(input.getOpTheatreAvailabilityHours(), TimeUnit.HOURS) + 
+					TimeUnit.MINUTES.convert(1, TimeUnit.DAYS) * range); range++);
 			waitingDays[type.ordinal()][range]++;
 		}
 		Double []values = firstWaitTime.values().toArray(new Double[1]);
@@ -134,13 +141,13 @@ public class GSElementTypeWaitListener implements ToExcel, SimulationObjectListe
 		for (int i = rownum; i < maxrow + rownum; i++)
 			s.createRow(i);
 		
-		for (SimGS.OpTheatreType type : SimGS.OpTheatreType.values())
+		for (OperationTheatreType type : OperationTheatreType.values())
 			setColumnResults(s, rownum, type);
 
 	}
 
-	public HashMap<Integer, Double> getFirstWaitTime(SimGS.OpTheatreType type) {
-		if (type == SimGS.OpTheatreType.OR)
+	public HashMap<Integer, Double> getFirstWaitTime(OperationTheatreType type) {
+		if (type == OperationTheatreType.OR)
 			return firstWaitTimeOR;
 		return firstWaitTimeDC;
 	}
