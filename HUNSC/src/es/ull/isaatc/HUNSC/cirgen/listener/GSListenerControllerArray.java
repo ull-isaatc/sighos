@@ -14,6 +14,7 @@ import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 
 import es.ull.isaatc.HUNSC.cirgen.GSExcelInputWrapper;
 import es.ull.isaatc.HUNSC.cirgen.OperationTheatreType;
@@ -32,9 +33,9 @@ import es.ull.isaatc.util.Statistics;
  */
 public class GSListenerControllerArray {
 	private final static int DONE = 0;
-	private final static String []ELEM_TIME_HEADERS = {"Diagnóstico", "Real", "Media", "Desv."};
-	private final static String []RES_USAGE_HEADERS = {"Quirófano", "Uso (real)", "Media", "Desv."};
-	private final static String []RES_AVAIL_HEADERS = {"Quirófano", "Disp. (real)", "Media", "Desv."};
+	private final static String []ELEM_TIME_HEADERS = {"Diagnóstico", "Real", "Media", "Desv.", "Error rel."};
+	private final static String []RES_USAGE_HEADERS = {"Quirófano", "Uso (real)", "Media", "Desv.", "Error rel."};
+	private final static String []RES_AVAIL_HEADERS = {"Quirófano", "Disp. (real)", "Media", "Desv.", "Error rel."};
 	private final static String []ELEM_WAIT_HEADERS = {"Resultado", "Media", "Desv."};
 
 	private GSElementTypeTimeListener []timeList;
@@ -45,6 +46,8 @@ public class GSListenerControllerArray {
 	private int nExp;
 	private HSSFWorkbook wb;
 	private HSSFCellStyle headStyle;
+	private HSSFCellStyle errorStyle;
+	private HSSFCellStyle realStyle;
 	private GSExcelInputWrapper input;
 	
 	public GSListenerControllerArray(GSExcelInputWrapper input) {
@@ -65,6 +68,11 @@ public class GSListenerControllerArray {
 		// create a new workbook
 		wb = new HSSFWorkbook();
 		headStyle = ExcelTools.getHeadStyle(wb);
+		errorStyle = ExcelTools.getErrorStyle(wb);
+		realStyle = wb.createCellStyle();
+		realStyle.setFont(ExcelTools.getBoldFont(wb));
+	    realStyle.setFillForegroundColor(HSSFColor.LIGHT_GREEN.index);
+	    realStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
 	}
 	
 	public GSListenerController getController(int index) {
@@ -92,12 +100,24 @@ public class GSListenerControllerArray {
 		
 	}
 	
-	private void writeSummary(HSSFRow r, double thValue, double []values) {
+	private short writeStatistics(String title, double thValue, double []values, HSSFRow r) {
+		double mean = Statistics.average(values);
 		short column = 0;
-		r.createCell(column++).setCellValue(new HSSFRichTextString("Total"));
-		r.createCell(column++).setCellValue(thValue);
-		writeStatistics(values, r, column);
-		column += 2;
+		r.createCell(column++).setCellValue(new HSSFRichTextString(title));
+		r.createCell(column).setCellValue(thValue);
+		r.getCell(column++).setCellStyle(realStyle);
+		r.createCell(column++).setCellValue(mean);
+		r.createCell(column++).setCellValue(Statistics.stdDev(values, mean));
+		if (thValue > 0.0)
+			r.createCell(column).setCellValue(Statistics.relError100(thValue, mean));
+		else
+			r.createCell(column).setCellValue(0);
+		r.getCell(column++).setCellStyle(errorStyle);
+		return column;
+	}
+	
+	private void writeSummary(HSSFRow r, double thValue, double []values) {
+		short column = writeStatistics("Total", thValue, values, r);
 		for (double val : values)
 			r.createCell(column++).setCellValue(val);
 			
@@ -114,13 +134,10 @@ public class GSListenerControllerArray {
 			r.createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
 			writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
 			for (PatientType pt : input.getPatientTypes()) {
-				short column = 0;
+				short column = (short)ELEM_TIME_HEADERS.length;
 				double [] values = new double[timeList.length];
 				r = s.createRow(rownum++);
-				r.createCell(column++).setCellValue(new HSSFRichTextString(pt.getName()));
-				r.createCell(column++).setCellValue(pt.getTotal(type));
 				totalTh += pt.getTotal(type);
-				column += 2;
 				for (GSElementTypeTimeListener list : timeList) {
 					int total = 0;
 					if (pt.getTotal(type) > 0) {
@@ -132,7 +149,7 @@ public class GSListenerControllerArray {
 					}
 					r.createCell(column++).setCellValue(total);
 				}
-				writeStatistics(values, r, (short)2);
+				writeStatistics(pt.getName(), pt.getTotal(type), values, r);
 			}
 			writeSummary(s.createRow(rownum++), totalTh, totalExp);
 			
@@ -151,13 +168,10 @@ public class GSListenerControllerArray {
 			r.createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
 			writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
 			for (PatientType pt : input.getPatientTypes()) {
-				short column = 0;
+				short column = (short)ELEM_TIME_HEADERS.length;
 				double [] values = new double[timeList.length];
 				r = s.createRow(rownum++);
-				r.createCell(column++).setCellValue(new HSSFRichTextString(pt.getName()));
-				r.createCell(column++).setCellValue(pt.getTotal(type));
 				totalTh += pt.getTotal(type);
-				column += 2;
 				for (GSElementTypeTimeListener list : timeList) {
 					int total = 0;
 					if (pt.getTotal(type) > 0) {
@@ -169,7 +183,7 @@ public class GSListenerControllerArray {
 					}
 					r.createCell(column++).setCellValue(total);
 				}
-				writeStatistics(values, r, (short)2);
+				writeStatistics(pt.getName(), pt.getTotal(type), values, r);
 			}
 			writeSummary(s.createRow(rownum++), totalTh, totalExp);
 			
@@ -181,7 +195,6 @@ public class GSListenerControllerArray {
 		HSSFSheet s = wb.createSheet("Tiempo paciente");
 		int rownum = 0;
 
-
 		for (OperationTheatreType type : OperationTheatreType.values()) {
 			double totalExp[] = new double[timeList.length];
 			double totalTh = 0;
@@ -189,13 +202,10 @@ public class GSListenerControllerArray {
 			r.createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
 			writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
 			for (PatientType pt : input.getPatientTypes()) {
-				short column = 0;
+				short column = (short)ELEM_TIME_HEADERS.length;
 				double [] values = new double[timeList.length];
 				r = s.createRow(rownum++);
-				r.createCell(column++).setCellValue(new HSSFRichTextString(pt.getName()));
-				r.createCell(column++).setCellValue(pt.getTotalTime(type));
 				totalTh += pt.getTotalTime(type);
-				column += 2;
 				for (GSElementTypeTimeListener list : timeList) {
 					double total = 0;
 					if (pt.getTotal(type) > 0) {
@@ -207,7 +217,7 @@ public class GSListenerControllerArray {
 					}
 					r.createCell(column++).setCellValue(total);
 				}
-				writeStatistics(values, r, (short)2);
+				writeStatistics(pt.getName(), pt.getTotalTime(type), values, r);
 			}
 			writeSummary(s.createRow(rownum++), totalTh, totalExp);
 			
@@ -257,43 +267,29 @@ public class GSListenerControllerArray {
 		HSSFRow r;
 		int rownum = 1;
 		writeHeader(RES_USAGE_HEADERS, s.createRow(rownum++));
-	    for (OperationTheatre res : input.getOpTheatres()) {
-			r = s.createRow(res.getIndex() + rownum);
-			r.createCell((short)0).setCellValue(new HSSFRichTextString(res.getName()));
-			r.createCell((short)1).setCellValue(res.getRealUsage());
-	    }
-    	short column = (short)RES_USAGE_HEADERS.length;
+
     	double [][] values = new double [input.getOpTheatres().length][resList.length];
-	    for (GSResourceStdUsageListener l : resList) {
-	    	for (OperationTheatre res : input.getOpTheatres()) {
-	    		r = s.getRow(res.getIndex() + rownum);
-	    		values[res.getIndex()][column - RES_USAGE_HEADERS.length] = l.getResUsageSummary()[res.getIndex()];
-	    		r.createCell(column).setCellValue(values[res.getIndex()][column - RES_USAGE_HEADERS.length]);
-	    	}
-	    	column++;
+	    for (OperationTheatre res : input.getOpTheatres()) {
+			r = s.createRow(rownum++);
+	    	for (int i = 0; i < resList.length; i++) {
+	    		values[res.getIndex()][i] = resList[i].getResUsageSummary()[res.getIndex()];
+	    		r.createCell((short)(RES_USAGE_HEADERS.length + i)).setCellValue(values[res.getIndex()][i]);	    		
+	    	}	    		
+			writeStatistics(res.getName(), res.getRealUsage(), values[res.getIndex()], r);
 	    }
-	    for (OperationTheatre res : input.getOpTheatres())
-			writeStatistics(values[res.getIndex()], s.getRow(res.getIndex() + rownum), (short)2);
-	    rownum += input.getOpTheatres().length + 1;
+	    
+	    rownum++;
 	    
 		writeHeader(RES_AVAIL_HEADERS, s.createRow(rownum++));
+
 	    for (OperationTheatre res : input.getOpTheatres()) {
-			r = s.createRow(res.getIndex() + rownum);
-			r.createCell((short)0).setCellValue(new HSSFRichTextString(res.getName()));
-			r.createCell((short)1).setCellValue(res.getRealAva());
+			r = s.createRow(rownum++);
+	    	for (int i = 0; i < resList.length; i++) {
+	    		values[res.getIndex()][i] = resList[i].getResAvailabilitySummary()[res.getIndex()];
+	    		r.createCell((short)(RES_AVAIL_HEADERS.length + i)).setCellValue(values[res.getIndex()][i]);	    		
+	    	}	    		
+			writeStatistics(res.getName(), res.getRealAva(), values[res.getIndex()], r);
 	    }
-    	column = (short)RES_AVAIL_HEADERS.length;
-	    for (GSResourceStdUsageListener l : resList) {
-	    	for (OperationTheatre res : input.getOpTheatres()) {
-	    		r = s.getRow(res.getIndex() + rownum);
-	    		values[res.getIndex()][column - RES_AVAIL_HEADERS.length] = l.getResAvailabilitySummary()[res.getIndex()];
-	    		r.createCell(column).setCellValue(values[res.getIndex()][column - RES_AVAIL_HEADERS.length]);
-	    	}
-	    	column++;
-	    }	    
-	    for (OperationTheatre res : input.getOpTheatres())
-			writeStatistics(values[res.getIndex()], s.getRow(res.getIndex() + rownum), (short)2);
-		
 	}
 	
 	private void writeResourceUsageListenerResults() {
