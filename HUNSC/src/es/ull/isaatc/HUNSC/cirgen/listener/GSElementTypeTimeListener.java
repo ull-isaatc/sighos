@@ -16,6 +16,7 @@ import org.apache.poi.hssf.util.HSSFColor;
 
 import es.ull.isaatc.HUNSC.cirgen.*;
 import es.ull.isaatc.HUNSC.cirgen.util.ExcelTools;
+import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.listener.ElementTypeTimeListener;
 import es.ull.isaatc.util.Statistics;
 
@@ -23,25 +24,19 @@ import es.ull.isaatc.util.Statistics;
  * @author Iván
  *
  */
-public class GSElementTypeTimeListener extends ElementTypeTimeListener implements ToExcel {
+public class GSElementTypeTimeListener extends ElementTypeTimeListener implements GSListener {
 	private enum Columns {
-		DIAG ("Diagnostico"),
-		N_NOAMB ("Total NOAMB"),
-		N_CREATED_NOAMB ("Creados NOAMB"),
-		ERROR_CREATED_NOAMB ("Error creados NOAMB"),
-		N_FINISHED_NOAMB ("Terminados NOAMB"),
-		ERROR_FINISHED_NOAMB ("Error terminados NOAMB"),
-		T_NOAMB ("Tiempo NOAMB"),
-		T_WORKING_NOAMB ("Total tiempo NOAMB"),
-		ERROR_WORKING_NOAMB ("Error tiempo NOAMB"),
-		N_AMB ("Total AMB"),
-		N_CREATED_AMB ("Creados AMB"),
-		ERROR_CREATED_AMB ("Error creados AMB"),		
-		N_FINISHED_AMB ("Terminados AMB"),
-		ERROR_FINISHED_AMB ("Error terminados AMB"),	
-		T_AMB ("Tiempo AMB"),
-		T_WORKING_AMB ("Total tiempo AMB"),
-		ERROR_WORKING_AMB ("Error tiempo AMB");
+		CATEGORY ("Categoría"),
+		DAYCASE ("Ambulante"),
+		TYPE ("Tipo"),
+		TOTAL ("Total"),
+		N_CREATED ("Creados"),
+		ERROR_CREATED ("Error creados"),
+		N_FINISHED ("Terminados"),
+		ERROR_FINISHED ("Error terminados"),
+		TIME ("Tiempo"),
+		EXP_TIME ("Total tiempo"),
+		ERROR_EXP_TIME ("Error tiempo");
 		
 		String name;
 		private Columns(String name) {
@@ -50,6 +45,7 @@ public class GSElementTypeTimeListener extends ElementTypeTimeListener implement
 	}
 
 	private GSExcelInputWrapper input;
+	private GSElementTypeTimeResults results = null;
 	
 	/**
 	 * 
@@ -63,64 +59,27 @@ public class GSElementTypeTimeListener extends ElementTypeTimeListener implement
 		this.input = input;
 	}
 	
+	/* (non-Javadoc)
+	 * @see es.ull.isaatc.simulation.listener.ElementTypeTimeListener#infoEmited(es.ull.isaatc.simulation.info.SimulationEndInfo)
+	 */
 	@Override
-	public String toString() {
-		StringBuffer str = new StringBuffer();
-		str.append("\nPatients created (PERIOD: " + period + ")\n");
-		for (PatientType pt : input.getPatientTypes()) {
-			str.append(pt.getName() + "\t");
-			if (pt.getProbability(OperationTheatreType.OR) > 0.0)
-				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getCreatedElement())
-					str.append(value + "\t");
-			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getNPeriods(); i++)
-					str.append("0\t");
-			if (pt.getProbability(OperationTheatreType.DC) > 0.0)
-				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getCreatedElement())
-				str.append(value + "\t");
-			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getNPeriods(); i++)
-					str.append("0\t");
-			str.append("\n");
+	public void infoEmited(SimulationEndInfo info) {
+		super.infoEmited(info);
+		int []cElem = new int[input.getPatientCategories().length];
+		int []fElem = new int[input.getPatientCategories().length];
+		double []wElem = new double[input.getPatientCategories().length];
+		for (PatientCategory pt : input.getPatientCategories()) {
+			for (int value : getElementTypeTimes().get(pt.getIndex()).getCreatedElement())
+				cElem[pt.getIndex()] += value;
+			for (int value : getElementTypeTimes().get(pt.getIndex()).getFinishedElement())
+				fElem[pt.getIndex()] += value;
+			for (double value : getElementTypeTimes().get(pt.getIndex()).getWorkTime())
+				wElem[pt.getIndex()] += value;			
 		}
-		str.append("\nPatients finished (PERIOD: " + period + ")\n");
-		for (PatientType pt : input.getPatientTypes()) {
-			str.append(pt.getName() + "\t");
-			if (pt.getProbability(OperationTheatreType.OR) > 0.0)
-				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getFinishedElement())
-					str.append(value + "\t");
-			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getNPeriods(); i++)
-					str.append("0\t");
-			if (pt.getProbability(OperationTheatreType.DC) > 0.0)
-				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getFinishedElement())
-				str.append(value + "\t");
-			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getNPeriods(); i++)
-					str.append("0\t");
-			str.append("\n");
-		}
-		str.append("\nPatients time (PERIOD: " + period + ")\n");
-		for (PatientType pt : input.getPatientTypes()) {
-			str.append(pt.getName() + "\t");
-			if (pt.getProbability(OperationTheatreType.OR) > 0.0)
-				for (double value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getWorkTime())
-					str.append(value + "\t");
-			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getNPeriods(); i++)
-					str.append("0\t");
-			if (pt.getProbability(OperationTheatreType.DC) > 0.0)
-				for (double value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getWorkTime())
-				str.append(value + "\t");
-			else
-				for (int i = 0; i < getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getNPeriods(); i++)
-					str.append("0\t");
-			str.append("\n");
-		}
-		return str.toString();
+		results = new GSElementTypeTimeResults(cElem, fElem, wElem);
 	}
-
-	public void setResult(HSSFWorkbook wb) {
+	
+	public void setResults(HSSFWorkbook wb) {
 		// Define fonts
 	    HSSFFont boldFont = ExcelTools.getBoldFont(wb);
 	    
@@ -148,110 +107,67 @@ public class GSElementTypeTimeListener extends ElementTypeTimeListener implement
 			c.setCellValue(new HSSFRichTextString(col.name));
 			c.setCellStyle(headStyle);
 	    }
-		double totalTNOAMB = 0.0;
-		double totalNNOAMB = 0.0;
-		double totalTAMB = 0.0;
-		double totalNAMB = 0.0;
-		double totalCNOAMB = 0.0;
-		double totalCAMB = 0.0;
-		double totalFNOAMB = 0.0;
-		double totalFAMB = 0.0;
-		double totalWNOAMB = 0.0;
-		double totalWAMB = 0.0;
-		for (PatientType pt : input.getPatientTypes()) {
+		double totalT = 0.0;
+		double totalN = 0.0;
+		double totalC = 0.0;
+		double totalF = 0.0;
+		double totalW = 0.0;
+		for (PatientCategory pt : input.getPatientCategories()) {
 			r = s.createRow(rownum++);
-			HSSFCell c = r.createCell((short)Columns.DIAG.ordinal());
+			HSSFCell c = r.createCell((short)Columns.CATEGORY.ordinal());
 			c.setCellValue(new HSSFRichTextString(pt.getName()));
 			c.setCellStyle(diagStyle);
 			
-			r.createCell((short)Columns.N_NOAMB.ordinal()).setCellValue(pt.getTotal(OperationTheatreType.OR));
-			r.getCell((short)Columns.N_NOAMB.ordinal()).setCellStyle(theorStyle);
-			totalNNOAMB += pt.getTotal(OperationTheatreType.OR);
-			r.createCell((short)Columns.T_NOAMB.ordinal()).setCellValue(pt.getTotalTime(OperationTheatreType.OR));
-			r.getCell((short)Columns.T_NOAMB.ordinal()).setCellStyle(theorStyle);
-			totalTNOAMB += pt.getTotalTime(OperationTheatreType.OR);
-			r.createCell((short)Columns.N_AMB.ordinal()).setCellValue(pt.getTotal(OperationTheatreType.DC));
-			r.getCell((short)Columns.N_AMB.ordinal()).setCellStyle(theorStyle);
-			totalNAMB += pt.getTotal(OperationTheatreType.DC);
-			r.createCell((short)Columns.T_AMB.ordinal()).setCellValue(pt.getTotalTime(OperationTheatreType.DC));
-			r.getCell((short)Columns.T_AMB.ordinal()).setCellStyle(theorStyle);
-			totalTAMB += pt.getTotalTime(OperationTheatreType.DC);
-			if (pt.getTotal(OperationTheatreType.OR) > 0) {
-				int total = 0;
-				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getCreatedElement())
-					total += value;
-				totalCNOAMB += total;
-				r.createCell((short)Columns.N_CREATED_NOAMB.ordinal()).setCellValue(total);
-				r.createCell((short)Columns.ERROR_CREATED_NOAMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(OperationTheatreType.OR), total));
-				r.getCell((short)Columns.ERROR_CREATED_NOAMB.ordinal()).setCellStyle(errorStyle);
-				
-				total = 0;
-				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getFinishedElement())
-					total += value;
-				totalFNOAMB += total;
-				r.createCell((short)Columns.N_FINISHED_NOAMB.ordinal()).setCellValue(total);
-				r.createCell((short)Columns.ERROR_FINISHED_NOAMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(OperationTheatreType.OR), total));
-				r.getCell((short)Columns.ERROR_FINISHED_NOAMB.ordinal()).setCellStyle(errorStyle);
+			String type = (pt.getPatientType() == PatientType.DC) ? "S":"N"; 
+			r.createCell((short)Columns.DAYCASE.ordinal()).setCellValue(new HSSFRichTextString(type));
+			r.getCell((short)Columns.DAYCASE.ordinal()).setCellStyle(diagStyle);
+			type = (pt.getAdmissionType() == AdmissionType.PROGRAMMED) ? "P":"U"; 
+			r.createCell((short)Columns.TYPE.ordinal()).setCellValue(new HSSFRichTextString(type));
+			r.getCell((short)Columns.TYPE.ordinal()).setCellStyle(diagStyle);
+			
+			r.createCell((short)Columns.TOTAL.ordinal()).setCellValue(pt.getTotal());
+			r.getCell((short)Columns.TOTAL.ordinal()).setCellStyle(theorStyle);
+			totalN += pt.getTotal();
+			r.createCell((short)Columns.TIME.ordinal()).setCellValue(pt.getTotalTime());
+			r.getCell((short)Columns.TIME.ordinal()).setCellStyle(theorStyle);
+			totalT += pt.getTotalTime();
+			
+			totalC += results.getCreatedElements()[pt.getIndex()];
+			r.createCell((short)Columns.N_CREATED.ordinal()).setCellValue(results.getCreatedElements()[pt.getIndex()]);
+			r.createCell((short)Columns.ERROR_CREATED.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(), results.getCreatedElements()[pt.getIndex()]));
+			r.getCell((short)Columns.ERROR_CREATED.ordinal()).setCellStyle(errorStyle);
+			
+			totalF += results.getFinishedElements()[pt.getIndex()];
+			r.createCell((short)Columns.N_FINISHED.ordinal()).setCellValue(results.getFinishedElements()[pt.getIndex()]);
+			r.createCell((short)Columns.ERROR_FINISHED.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(), results.getFinishedElements()[pt.getIndex()]));
+			r.getCell((short)Columns.ERROR_FINISHED.ordinal()).setCellStyle(errorStyle);
 
-				double totalD = 0.0;
-				for (double value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.OR)).getWorkTime())
-					totalD += value;
-				totalWNOAMB += totalD;
-				r.createCell((short)Columns.T_WORKING_NOAMB.ordinal()).setCellValue(totalD);
-				r.createCell((short)Columns.ERROR_WORKING_NOAMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotalTime(OperationTheatreType.OR), totalD));
-				r.getCell((short)Columns.ERROR_WORKING_NOAMB.ordinal()).setCellStyle(errorStyle);
-			}
-			if (pt.getTotal(OperationTheatreType.DC) > 0) {
-				int total = 0;
-				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getCreatedElement())
-					total += value;
-				totalCAMB += total;
-				r.createCell((short)Columns.N_CREATED_AMB.ordinal()).setCellValue(total);
-				r.createCell((short)Columns.ERROR_CREATED_AMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(OperationTheatreType.DC), total));
-				r.getCell((short)Columns.ERROR_CREATED_AMB.ordinal()).setCellStyle(errorStyle);
-				
-				total = 0;
-				for (int value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getFinishedElement())
-					total += value;
-				totalFAMB += total;
-				r.createCell((short)Columns.N_FINISHED_AMB.ordinal()).setCellValue(total);
-				r.createCell((short)Columns.ERROR_FINISHED_AMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotal(OperationTheatreType.DC), total));
-				r.getCell((short)Columns.ERROR_FINISHED_AMB.ordinal()).setCellStyle(errorStyle);
-
-				double totalD = 0.0;
-				for (double value : getElementTypeTimes().get(pt.getIndex(OperationTheatreType.DC)).getWorkTime())
-					totalD += value;
-				totalWAMB += totalD;
-				r.createCell((short)Columns.T_WORKING_AMB.ordinal()).setCellValue(totalD);
-				r.createCell((short)Columns.ERROR_WORKING_AMB.ordinal()).setCellValue(Statistics.relError100(pt.getTotalTime(OperationTheatreType.DC), totalD));
-				r.getCell((short)Columns.ERROR_WORKING_AMB.ordinal()).setCellStyle(errorStyle);
-			}
+			totalW += results.getWorkTime()[pt.getIndex()];
+			r.createCell((short)Columns.EXP_TIME.ordinal()).setCellValue(results.getWorkTime()[pt.getIndex()]);
+			r.createCell((short)Columns.ERROR_EXP_TIME.ordinal()).setCellValue(Statistics.relError100(pt.getTotalTime(), results.getWorkTime()[pt.getIndex()]));
+			r.getCell((short)Columns.ERROR_EXP_TIME.ordinal()).setCellStyle(errorStyle);
 		}
 		r = s.createRow(rownum++);
-		r.createCell((short)Columns.DIAG.ordinal()).setCellValue(new HSSFRichTextString("TOTAL"));
-		r.getCell((short)Columns.DIAG.ordinal()).setCellStyle(headStyle);
-		r.createCell((short)Columns.N_NOAMB.ordinal()).setCellValue(totalNNOAMB);
-		r.createCell((short)Columns.T_NOAMB.ordinal()).setCellValue(totalTNOAMB);
-		r.createCell((short)Columns.N_AMB.ordinal()).setCellValue(totalNAMB);
-		r.createCell((short)Columns.T_AMB.ordinal()).setCellValue(totalTAMB);
-		r.createCell((short)Columns.N_CREATED_NOAMB.ordinal()).setCellValue(totalCNOAMB);
-		r.createCell((short)Columns.N_CREATED_AMB.ordinal()).setCellValue(totalCAMB);
-		r.createCell((short)Columns.ERROR_CREATED_NOAMB.ordinal()).setCellValue(Statistics.relError100(totalNNOAMB, totalCNOAMB));
-		r.getCell((short)Columns.ERROR_CREATED_NOAMB.ordinal()).setCellStyle(errorStyle);
-		r.createCell((short)Columns.ERROR_CREATED_AMB.ordinal()).setCellValue(Statistics.relError100(totalNAMB, totalCAMB));
-		r.getCell((short)Columns.ERROR_CREATED_AMB.ordinal()).setCellStyle(errorStyle);
-		r.createCell((short)Columns.N_FINISHED_NOAMB.ordinal()).setCellValue(totalFNOAMB);
-		r.createCell((short)Columns.N_FINISHED_AMB.ordinal()).setCellValue(totalFAMB);
-		r.createCell((short)Columns.ERROR_FINISHED_NOAMB.ordinal()).setCellValue(Statistics.relError100(totalNNOAMB, totalFNOAMB));
-		r.getCell((short)Columns.ERROR_FINISHED_NOAMB.ordinal()).setCellStyle(errorStyle);
-		r.createCell((short)Columns.ERROR_FINISHED_AMB.ordinal()).setCellValue(Statistics.relError100(totalNAMB, totalFAMB));
-		r.getCell((short)Columns.ERROR_FINISHED_AMB.ordinal()).setCellStyle(errorStyle);
-		r.createCell((short)Columns.T_WORKING_NOAMB.ordinal()).setCellValue(totalWNOAMB);
-		r.createCell((short)Columns.T_WORKING_AMB.ordinal()).setCellValue(totalWAMB);
-		r.createCell((short)Columns.ERROR_WORKING_NOAMB.ordinal()).setCellValue(Statistics.relError100(totalTNOAMB, totalWNOAMB));
-		r.getCell((short)Columns.ERROR_WORKING_NOAMB.ordinal()).setCellStyle(errorStyle);
-		r.createCell((short)Columns.ERROR_WORKING_AMB.ordinal()).setCellValue(Statistics.relError100(totalTAMB, totalWAMB));
-		r.getCell((short)Columns.ERROR_WORKING_AMB.ordinal()).setCellStyle(errorStyle);
+		r.createCell((short)Columns.CATEGORY.ordinal()).setCellValue(new HSSFRichTextString("TOTAL"));
+		r.getCell((short)Columns.CATEGORY.ordinal()).setCellStyle(headStyle);
+		r.createCell((short)Columns.TOTAL.ordinal()).setCellValue(totalN);
+		r.createCell((short)Columns.TIME.ordinal()).setCellValue(totalT);
+		r.createCell((short)Columns.N_CREATED.ordinal()).setCellValue(totalC);
+		r.createCell((short)Columns.ERROR_CREATED.ordinal()).setCellValue(Statistics.relError100(totalN, totalC));
+		r.getCell((short)Columns.ERROR_CREATED.ordinal()).setCellStyle(errorStyle);
+		r.createCell((short)Columns.N_FINISHED.ordinal()).setCellValue(totalF);
+		r.createCell((short)Columns.ERROR_FINISHED.ordinal()).setCellValue(Statistics.relError100(totalN, totalF));
+		r.getCell((short)Columns.ERROR_FINISHED.ordinal()).setCellStyle(errorStyle);
+		r.createCell((short)Columns.EXP_TIME.ordinal()).setCellValue(totalW);
+		r.createCell((short)Columns.ERROR_EXP_TIME.ordinal()).setCellValue(Statistics.relError100(totalT, totalW));
+		r.getCell((short)Columns.ERROR_EXP_TIME.ordinal()).setCellStyle(errorStyle);
+	}
+
+	/* (non-Javadoc)
+	 * @see es.ull.isaatc.HUNSC.cirgen.listener.GSListener#getResults()
+	 */
+	public GSResult getResults() {
+		return results;
 	}
 	
 }

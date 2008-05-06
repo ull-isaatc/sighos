@@ -4,15 +4,15 @@
 package es.ull.isaatc.HUNSC.cirgen;
 
 /**
- * @author Iván Castilla Rodríguez
+ * @author Iván
  *
  */
-public enum OperationTheatreType {
-	OR ("No ambulante"),
-	DC ("Ambulante");
+public enum AdmissionType {
+	PROGRAMMED ("Programado"),
+	EMERGENCY ("Urgencia");
 	
 	private final String name;
-	private OperationTheatreType(String name) {
+	private AdmissionType(String name) {
 		this.name = name;
 	}
 	/**

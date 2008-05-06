@@ -6,14 +6,17 @@ package es.ull.isaatc.HUNSC.cirgen.listener;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 
 import es.ull.isaatc.HUNSC.cirgen.GSExcelInputWrapper;
 import es.ull.isaatc.HUNSC.cirgen.OperationTheatre;
 import es.ull.isaatc.HUNSC.cirgen.util.ExcelTools;
+import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.listener.ResourceStdUsageListener;
 import es.ull.isaatc.util.Statistics;
 
@@ -21,13 +24,13 @@ import es.ull.isaatc.util.Statistics;
  * @author Iván Castilla Rodríguez
  *
  */
-public class GSResourceStdUsageListener extends ResourceStdUsageListener implements ToExcel {
+public class GSResourceStdUsageListener extends ResourceStdUsageListener implements GSListener {
 	private enum ResColumns {
 		RES("Quirófano"),
 		RUSA_TIME("T uso (real)"),
-		RAVA_TIME("T disp. (real)"),
 		EUSA_TIME("T uso"),
 		ERROR_USA("Error T uso"),
+		RAVA_TIME("T disp. (real)"),
 		EAVA_TIME("T disp."),
 		ERROR_AVA("Error T disp.");
 		
@@ -37,8 +40,7 @@ public class GSResourceStdUsageListener extends ResourceStdUsageListener impleme
 		}
 	}
 	
-	private double []resUsageSummary;
-	private double []resAvailabilitySummary;
+	private GSResourceStdUsageResults results = null;
 	private GSExcelInputWrapper input;
 	
 	/**
@@ -49,54 +51,78 @@ public class GSResourceStdUsageListener extends ResourceStdUsageListener impleme
 		this.input = input;
 	}
 	
-	/**
-	 * @return the resUsage
+	/* (non-Javadoc)
+	 * @see es.ull.isaatc.simulation.listener.ResourceStdUsageListener#infoEmited(es.ull.isaatc.simulation.info.SimulationEndInfo)
 	 */
-	public double[] getResUsageSummary() {
-		return resUsageSummary;
-	}
-
-	/**
-	 * @return the resAvailability
-	 */
-	public double[] getResAvailabilitySummary() {
-		return resAvailabilitySummary;
-	}
-
-	public void setResult(HSSFWorkbook wb) {
-		HSSFSheet s = wb.createSheet("Recursos");
-
-		int rownum = 1;
-		HSSFRow r = s.createRow(rownum++);
-	    for (ResColumns col : ResColumns.values()) { 
-			HSSFCell c = r.createCell((short)col.ordinal());
-			c.setCellValue(new HSSFRichTextString(col.name));
-			c.setCellStyle(ExcelTools.getHeadStyle(wb));
-	    }
+	@Override
+	public void infoEmited(SimulationEndInfo info) {
+		super.infoEmited(info);
 	    OperationTheatre []opTheatres = input.getOpTheatres();
-	    resUsageSummary = new double[opTheatres.length];
-	    resAvailabilitySummary = new double[opTheatres.length];
+	    double []resUsageSummary = new double[opTheatres.length];
+	    double []resAvailabilitySummary = new double[opTheatres.length];
 	    for (OperationTheatre res : opTheatres) {
-			r = s.createRow(rownum++);
-			r.createCell((short)ResColumns.RES.ordinal()).setCellValue(new HSSFRichTextString(res.getName()));
-			r.createCell((short)ResColumns.RUSA_TIME.ordinal()).setCellValue(res.getRealUsage());
-			r.createCell((short)ResColumns.RAVA_TIME.ordinal()).setCellValue(res.getRealAva());
 			double total = 0.0;
 			for (double[] rt : getResUsage().get(res.getIndex()).getUsageTime().values()) {
 				for (double val : rt)
 					total += val; 
 			}
 			resUsageSummary[res.getIndex()] = total;
-			r.createCell((short)ResColumns.EUSA_TIME.ordinal()).setCellValue(total);
-			r.createCell((short)ResColumns.ERROR_USA.ordinal()).setCellValue(Statistics.relError100(res.getRealUsage(), total));
 			total = 0.0;
 			for (double[] rt : getResUsage().get(res.getIndex()).getAvalTime().values()) {
 				for (double val : rt)
 					total += val; 
 			}
-			resAvailabilitySummary[res.getIndex()] = total;
-			r.createCell((short)ResColumns.EAVA_TIME.ordinal()).setCellValue(total);
-			r.createCell((short)ResColumns.ERROR_AVA.ordinal()).setCellValue(Statistics.relError100(res.getRealAva(), total));
+			resAvailabilitySummary[res.getIndex()] = total;	    	
+	    }
+	    results = new GSResourceStdUsageResults(resUsageSummary, resAvailabilitySummary);
+	}
+	
+	public void setResults(HSSFWorkbook wb) {
+		HSSFSheet s = wb.createSheet("Recursos");
+
+		HSSFCellStyle headStyle = ExcelTools.getHeadStyle(wb);
+		
+	    HSSFCellStyle diagStyle = wb.createCellStyle();
+	    diagStyle.setFillForegroundColor(HSSFColor.GOLD.index);
+	    diagStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+	    diagStyle.setFont(ExcelTools.getBoldFont(wb));
+	    
+	    HSSFCellStyle errorStyle = ExcelTools.getErrorStyle(wb);
+
+	    HSSFCellStyle theorStyle = wb.createCellStyle();
+	    theorStyle.setFillForegroundColor(HSSFColor.LIGHT_GREEN.index);
+	    theorStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+
+		
+		int rownum = 1;
+		HSSFRow r = s.createRow(rownum++);
+	    for (ResColumns col : ResColumns.values()) { 
+			HSSFCell c = r.createCell((short)col.ordinal());
+			c.setCellValue(new HSSFRichTextString(col.name));
+			c.setCellStyle(headStyle);
+	    }
+	    OperationTheatre []opTheatres = input.getOpTheatres();
+	    for (OperationTheatre res : opTheatres) {
+			r = s.createRow(rownum++);
+			r.createCell((short)ResColumns.RES.ordinal()).setCellValue(new HSSFRichTextString(res.getName()));
+			r.getCell((short)ResColumns.RES.ordinal()).setCellStyle(diagStyle);
+			r.createCell((short)ResColumns.RUSA_TIME.ordinal()).setCellValue(res.getRealUsage());
+			r.getCell((short)ResColumns.RUSA_TIME.ordinal()).setCellStyle(theorStyle);
+			r.createCell((short)ResColumns.RAVA_TIME.ordinal()).setCellValue(res.getRealAva());
+			r.getCell((short)ResColumns.RAVA_TIME.ordinal()).setCellStyle(theorStyle);
+			r.createCell((short)ResColumns.EUSA_TIME.ordinal()).setCellValue(results.getResUsageSummary()[res.getIndex()]);
+			r.createCell((short)ResColumns.ERROR_USA.ordinal()).setCellValue(Statistics.relError100(res.getRealUsage(), results.getResUsageSummary()[res.getIndex()]));
+			r.getCell((short)ResColumns.ERROR_USA.ordinal()).setCellStyle(errorStyle);
+			r.createCell((short)ResColumns.EAVA_TIME.ordinal()).setCellValue(results.getResAvailabilitySummary()[res.getIndex()]);
+			r.createCell((short)ResColumns.ERROR_AVA.ordinal()).setCellValue(Statistics.relError100(res.getRealAva(), results.getResAvailabilitySummary()[res.getIndex()]));
+			r.getCell((short)ResColumns.ERROR_AVA.ordinal()).setCellStyle(errorStyle);
 		}
+	}
+
+	/**
+	 * @return the results
+	 */
+	public GSResult getResults() {
+		return results;
 	}
 }

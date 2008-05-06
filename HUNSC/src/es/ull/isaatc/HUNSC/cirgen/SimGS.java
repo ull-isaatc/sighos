@@ -33,40 +33,30 @@ public class SimGS extends StandAloneLPSimulation {
 		// Añado una semilla aleatoria
 		RandomVariateFactory.setDefaultRandomNumber(RandomNumberFactory.getInstance(System.currentTimeMillis()));
 		
-		// Tipos de Quirófanos (ambulantes y no ambulantes)
-		for (OperationTheatreType type : OperationTheatreType.values()) {
-			ResourceType rt = new ResourceType(type.ordinal(), this, type.getName());
-			new WorkGroup(type.ordinal(), this, type.getName()).add(rt, 1);
-		}
-		WorkGroup wgNoAmb = getWorkGroup(OperationTheatreType.OR.ordinal());
-		WorkGroup wgAmb = getWorkGroup(OperationTheatreType.DC.ordinal());
+		// Tipos de Quirófanos (ambulantes y no ambulantes; de urgencias o programados)
+		for (AdmissionType adm : AdmissionType.values())
+			for (PatientType type : PatientType.values()) {
+				ResourceType rt = new ResourceType(adm.ordinal()* 2 + type.ordinal(), this, adm.getName() + "_" + type.getName());
+				new WorkGroup(adm.ordinal()* 2 + type.ordinal(), this, adm.getName() + "_" + type.getName()).add(rt, 1);
+			}
 			
 		// Quirófanos
 		for (OperationTheatre op : input.getOpTheatres()) {
 			Resource r = new Resource(op.getIndex(), this, op.getName());
-			r.addTimeTableEntry(op.getCycle(), TimeUnit.MINUTES.convert(input.getOpTheatreAvailabilityHours(), TimeUnit.HOURS), getResourceType(op.getType().ordinal()));
+			for (OperationTheatre.TimetableEntry tte : op.getTimetableEntryList())
+				r.addTimeTableEntry(tte.getCycle(), tte.getOpenTime(), getResourceType(tte.getAdmissionType().ordinal() * 2 + tte.getPatientType().ordinal()));				
 		}
 		
 		// Activities, Element types, Generators
-		for (PatientType pt : input.getPatientTypes()) {
+		for (PatientCategory pt : input.getPatientCategories()) {
 			// Obtengo una exponencial que genere los pacientes usando como dato de partida
 			// el total de pacientes llegados en el periodo de estudio
-			TimeFunction expo = TimeFunctionFactory.getInstance("ExponentialVariate", (TimeUnit.MINUTES.convert(input.getObservedDays(), TimeUnit.DAYS)) / pt.getTotal());
+			TimeFunction expo = TimeFunctionFactory.getInstance("ExponentialVariate", (TimeUnit.MINUTES.convert(input.getObservedDays(), TimeUnit.DAYS)) / (double)pt.getTotal());
 			Cycle c = new RoundedPeriodicCycle(expo.getValue(0.0), expo, 0, RoundedPeriodicCycle.Type.ROUND, TimeUnit.MINUTES.convert(1, TimeUnit.DAYS));
-			ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1));
-
-			if (pt.getTotal(OperationTheatreType.OR) > 0) {
-				ElementType etOR = new ElementType(pt.getIndex(OperationTheatreType.OR), this, pt.getName() + " OR");
-				Activity actOR = new Activity(pt.getIndex(OperationTheatreType.OR), this, pt.getName() + " OR");
-				actOR.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", new Object[] {pt.getAverage(OperationTheatreType.OR), pt.getStdDev(OperationTheatreType.OR)}), wgNoAmb);
-				ec.add(etOR, new SingleMetaFlow(pt.getIndex(OperationTheatreType.OR), RandomVariateFactory.getInstance("ConstantVariate", 1), actOR), pt.getProbability(OperationTheatreType.OR));
-			}
-			if (pt.getTotal(OperationTheatreType.DC) > 0) {
-				ElementType etDC = new ElementType(pt.getIndex(OperationTheatreType.DC), this, "Patient " + pt.getName() + " DC");
-				Activity actDC = new Activity(pt.getIndex(OperationTheatreType.DC), this, "A" + pt.getName() + " DC");
-				actDC.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", new Object[] {pt.getAverage(OperationTheatreType.DC), pt.getStdDev(OperationTheatreType.DC)}), wgAmb);
-				ec.add(etDC, new SingleMetaFlow(pt.getIndex(OperationTheatreType.DC), RandomVariateFactory.getInstance("ConstantVariate", 1), actDC), pt.getProbability(OperationTheatreType.DC));
-			}				
+			ElementType et = new ElementType(pt.getIndex(), this, pt.getName() + "_" + pt.getAdmissionType().getName() + "_" + pt.getPatientType().getName());
+			Activity act = new Activity(pt.getIndex(), this, pt.getName() + "_" + pt.getAdmissionType().getName() + "_" + pt.getPatientType().getName());
+			act.addWorkGroup(TimeFunctionFactory.getInstance(pt.getDist() + "Variate", new Object[] {pt.getParam1(), pt.getParam2()}), getWorkGroup(pt.getAdmissionType().ordinal() * 2 + pt.getPatientType().ordinal()));
+			ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1), et, new SingleMetaFlow(pt.getIndex(), RandomVariateFactory.getInstance("ConstantVariate", 1), act));
 	        new TimeDrivenGenerator(this, ec, c);
 		}
 		

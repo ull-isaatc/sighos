@@ -16,12 +16,12 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 
+import es.ull.isaatc.HUNSC.cirgen.AdmissionType;
 import es.ull.isaatc.HUNSC.cirgen.GSExcelInputWrapper;
-import es.ull.isaatc.HUNSC.cirgen.OperationTheatreType;
 import es.ull.isaatc.HUNSC.cirgen.OperationTheatre;
+import es.ull.isaatc.HUNSC.cirgen.PatientCategory;
 import es.ull.isaatc.HUNSC.cirgen.PatientType;
 import es.ull.isaatc.HUNSC.cirgen.util.ExcelTools;
-import es.ull.isaatc.simulation.listener.EventListener;
 import es.ull.isaatc.util.Statistics;
 
 
@@ -33,38 +33,30 @@ import es.ull.isaatc.util.Statistics;
  */
 public class GSListenerControllerArray {
 	private final static int DONE = 0;
-	private final static String []ELEM_TIME_HEADERS = {"Diagnóstico", "Real", "Media", "Desv.", "Error rel."};
+	private final static String []ELEM_TIME_HEADERS = {"Categoría", "Ambulante", "Tipo", "Real", "Media", "Desv.", "Error rel."};
 	private final static String []RES_USAGE_HEADERS = {"Quirófano", "Uso (real)", "Media", "Desv.", "Error rel."};
 	private final static String []RES_AVAIL_HEADERS = {"Quirófano", "Disp. (real)", "Media", "Desv.", "Error rel."};
 	private final static String []ELEM_WAIT_HEADERS = {"Resultado", "Media", "Desv."};
 
-	private GSElementTypeTimeListener []timeList;
-	private GSElementTypeWaitListener []waitList;
-	private GSResourceStdUsageListener []resList;
-	private GSListenerController []controllers;
+	private GSElementTypeTimeResults []timeList;
+	private GSElementTypeWaitResults []waitList;
+	private GSResourceStdUsageResults []resList;
 	private CountDownLatch allCompleted;
 	private int nExp;
 	private HSSFWorkbook wb;
 	private HSSFCellStyle headStyle;
 	private HSSFCellStyle errorStyle;
 	private HSSFCellStyle realStyle;
+	private HSSFCellStyle diagStyle;
 	private GSExcelInputWrapper input;
 	
 	public GSListenerControllerArray(GSExcelInputWrapper input) {
 		this.input = input;
 		this.nExp = input.getNExperiments();
 		allCompleted = new CountDownLatch(nExp);
-		timeList = new GSElementTypeTimeListener[nExp];
-		waitList = new GSElementTypeWaitListener[nExp];
-		resList = new GSResourceStdUsageListener[nExp];
-		controllers = new GSListenerController[nExp];
-		for (int i = 0; i < nExp; i++) {
-			timeList[i] = new GSElementTypeTimeListener(input);
-			waitList[i] = new GSElementTypeWaitListener(input);
-			resList[i] = new GSResourceStdUsageListener(input);
-			controllers[i] = new GSListenerController(this, input.getOutputPath() + input.getOutputFileName() + (i + DONE) + ExcelTools.EXT, 
-					new EventListener[] {timeList[i], waitList[i], resList[i]});
-		}
+		timeList = new GSElementTypeTimeResults[nExp];
+		waitList = new GSElementTypeWaitResults[nExp];
+		resList = new GSResourceStdUsageResults[nExp];
 		// create a new workbook
 		wb = new HSSFWorkbook();
 		headStyle = ExcelTools.getHeadStyle(wb);
@@ -73,10 +65,15 @@ public class GSListenerControllerArray {
 		realStyle.setFont(ExcelTools.getBoldFont(wb));
 	    realStyle.setFillForegroundColor(HSSFColor.LIGHT_GREEN.index);
 	    realStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+	    diagStyle = wb.createCellStyle();
+	    diagStyle.setFillForegroundColor(HSSFColor.GOLD.index);
+	    diagStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+	    diagStyle.setFont(ExcelTools.getBoldFont(wb));
 	}
 	
 	public GSListenerController getController(int index) {
-		return controllers[index];
+		return new GSListenerController(this, input.getOutputPath() + input.getOutputFileName() + (index + DONE) + ExcelTools.EXT, 
+				new GSListenerArray(index, new GSElementTypeTimeListener(input), new GSElementTypeWaitListener(input), new GSResourceStdUsageListener(input)));
 	}
 
 	private void writeHeader(String []headers, HSSFRow r) {
@@ -100,10 +97,13 @@ public class GSListenerControllerArray {
 		
 	}
 	
-	private short writeStatistics(String title, double thValue, double []values, HSSFRow r) {
+	private short writeStatistics(String []titles, double thValue, double []values, HSSFRow r) {
 		double mean = Statistics.average(values);
 		short column = 0;
-		r.createCell(column++).setCellValue(new HSSFRichTextString(title));
+		for (String title : titles) {
+			r.createCell(column).setCellValue(new HSSFRichTextString(title));
+			r.getCell(column++).setCellStyle(diagStyle);
+		}
 		r.createCell(column).setCellValue(thValue);
 		r.getCell(column++).setCellStyle(realStyle);
 		r.createCell(column++).setCellValue(mean);
@@ -116,8 +116,14 @@ public class GSListenerControllerArray {
 		return column;
 	}
 	
+	private short writeStatistics(PatientCategory pc, double thValue, double []values, HSSFRow r) {
+		String pType = (pc.getPatientType() == PatientType.DC) ? "S":"N"; 
+		String aType = (pc.getAdmissionType() == AdmissionType.PROGRAMMED) ? "P":"U"; 
+		return writeStatistics(new String[] {pc.getName(), pType, aType}, thValue, values, r);
+	}
+	
 	private void writeSummary(HSSFRow r, double thValue, double []values) {
-		short column = writeStatistics("Total", thValue, values, r);
+		short column = writeStatistics(new String[] {"Total", "", ""}, thValue, values, r);
 		for (double val : values)
 			r.createCell(column++).setCellValue(val);
 			
@@ -127,33 +133,30 @@ public class GSListenerControllerArray {
 		HSSFSheet s = wb.createSheet("Creados");
 		int rownum = 0;
 
-		for (OperationTheatreType type : OperationTheatreType.values()) {
-			double totalExp[] = new double[timeList.length];
-			int totalTh = 0;
-			HSSFRow r = s.createRow(rownum++);
-			r.createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
-			writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
-			for (PatientType pt : input.getPatientTypes()) {
-				short column = (short)ELEM_TIME_HEADERS.length;
-				double [] values = new double[timeList.length];
-				r = s.createRow(rownum++);
-				totalTh += pt.getTotal(type);
-				for (GSElementTypeTimeListener list : timeList) {
-					int total = 0;
-					if (pt.getTotal(type) > 0) {
-						for (int value : list.getElementTypeTimes().get(pt.getIndex(type)).getCreatedElement()) {
-							values[column - ELEM_TIME_HEADERS.length] = value;
-							totalExp[column - ELEM_TIME_HEADERS.length] += value;
-							total += value;
-						}
-					}
-					r.createCell(column++).setCellValue(total);
+		try {
+		double totalExp[] = new double[timeList.length];
+		int totalTh = 0;
+		HSSFRow r = s.createRow(rownum++);
+		writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
+		for (PatientCategory pt : input.getPatientCategories()) {
+			short column = (short)ELEM_TIME_HEADERS.length;
+			double [] values = new double[timeList.length];
+			r = s.createRow(rownum++);
+			totalTh += pt.getTotal();
+			for (GSElementTypeTimeResults list : timeList) {
+				int total = 0;
+				if (pt.getTotal() > 0) {
+					values[column - ELEM_TIME_HEADERS.length] = list.getCreatedElements()[pt.getIndex()];
+					totalExp[column - ELEM_TIME_HEADERS.length] += list.getCreatedElements()[pt.getIndex()];
+					total = list.getCreatedElements()[pt.getIndex()];
 				}
-				writeStatistics(pt.getName(), pt.getTotal(type), values, r);
+				r.createCell(column++).setCellValue(total);
 			}
-			writeSummary(s.createRow(rownum++), totalTh, totalExp);
-			
-			rownum ++;
+			writeStatistics(pt, pt.getTotal(), values, r);
+		}
+		writeSummary(s.createRow(rownum++), totalTh, totalExp);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -161,105 +164,105 @@ public class GSListenerControllerArray {
 		HSSFSheet s = wb.createSheet("Terminados");
 		int rownum = 0;
 
-		for (OperationTheatreType type : OperationTheatreType.values()) {
-			double totalExp[] = new double[timeList.length];
-			int totalTh = 0;
-			HSSFRow r = s.createRow(rownum++);
-			r.createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
-			writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
-			for (PatientType pt : input.getPatientTypes()) {
-				short column = (short)ELEM_TIME_HEADERS.length;
-				double [] values = new double[timeList.length];
-				r = s.createRow(rownum++);
-				totalTh += pt.getTotal(type);
-				for (GSElementTypeTimeListener list : timeList) {
-					int total = 0;
-					if (pt.getTotal(type) > 0) {
-						for (int value : list.getElementTypeTimes().get(pt.getIndex(type)).getFinishedElement()) {
-							values[column - ELEM_TIME_HEADERS.length] = value;
-							totalExp[column - ELEM_TIME_HEADERS.length] += value;
-							total += value;
-						}
-					}
-					r.createCell(column++).setCellValue(total);
+		double totalExp[] = new double[timeList.length];
+		int totalTh = 0;
+		HSSFRow r = s.createRow(rownum++);
+		writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
+		for (PatientCategory pt : input.getPatientCategories()) {
+			short column = (short)ELEM_TIME_HEADERS.length;
+			double [] values = new double[timeList.length];
+			r = s.createRow(rownum++);
+			totalTh += pt.getTotal();
+			for (GSElementTypeTimeResults list : timeList) {
+				int total = 0;
+				if (pt.getTotal() > 0) {
+					values[column - ELEM_TIME_HEADERS.length] = list.getFinishedElements()[pt.getIndex()];
+					totalExp[column - ELEM_TIME_HEADERS.length] += list.getFinishedElements()[pt.getIndex()];
+					total = list.getFinishedElements()[pt.getIndex()];
 				}
-				writeStatistics(pt.getName(), pt.getTotal(type), values, r);
+				r.createCell(column++).setCellValue(total);
 			}
-			writeSummary(s.createRow(rownum++), totalTh, totalExp);
-			
-			rownum ++;
+			writeStatistics(pt, pt.getTotal(), values, r);
 		}
+		writeSummary(s.createRow(rownum++), totalTh, totalExp);
 	}
 	
 	private void writeTimeListenerWorkingResults() {
 		HSSFSheet s = wb.createSheet("Tiempo paciente");
 		int rownum = 0;
 
-		for (OperationTheatreType type : OperationTheatreType.values()) {
-			double totalExp[] = new double[timeList.length];
-			double totalTh = 0;
-			HSSFRow r = s.createRow(rownum++);
-			r.createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
-			writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
-			for (PatientType pt : input.getPatientTypes()) {
-				short column = (short)ELEM_TIME_HEADERS.length;
-				double [] values = new double[timeList.length];
-				r = s.createRow(rownum++);
-				totalTh += pt.getTotalTime(type);
-				for (GSElementTypeTimeListener list : timeList) {
-					double total = 0;
-					if (pt.getTotal(type) > 0) {
-						for (double value : list.getElementTypeTimes().get(pt.getIndex(type)).getWorkTime()) {
-							values[column - ELEM_TIME_HEADERS.length] = value;
-							totalExp[column - ELEM_TIME_HEADERS.length] += value;
-							total += value;
-						}
-					}
-					r.createCell(column++).setCellValue(total);
+		double totalExp[] = new double[timeList.length];
+		double totalTh = 0;
+		HSSFRow r = s.createRow(rownum++);
+		writeHeader(ELEM_TIME_HEADERS, s.createRow(rownum++));
+		for (PatientCategory pt : input.getPatientCategories()) {
+			short column = (short)ELEM_TIME_HEADERS.length;
+			double [] values = new double[timeList.length];
+			r = s.createRow(rownum++);
+			totalTh += pt.getTotalTime();
+			for (GSElementTypeTimeResults list : timeList) {
+				double total = 0;
+				if (pt.getTotal() > 0) {
+					values[column - ELEM_TIME_HEADERS.length] = list.getWorkTime()[pt.getIndex()];
+					totalExp[column - ELEM_TIME_HEADERS.length] += list.getWorkTime()[pt.getIndex()];
+					total = list.getWorkTime()[pt.getIndex()];
 				}
-				writeStatistics(pt.getName(), pt.getTotalTime(type), values, r);
+				r.createCell(column++).setCellValue(total);
 			}
-			writeSummary(s.createRow(rownum++), totalTh, totalExp);
-			
-			rownum ++;
+			writeStatistics(pt, pt.getTotalTime(), values, r);
 		}
+		writeSummary(s.createRow(rownum++), totalTh, totalExp);
 	}
 	
 	private void writeWaitListenerResults() {
 		HSSFSheet s = wb.createSheet("Espera pacientes");
 		
 		int numrow = 0;
-		for (OperationTheatreType type : OperationTheatreType.values()) {
-			s.createRow(numrow++).createCell((short)0).setCellValue(new HSSFRichTextString(type.getName()));
-			writeHeader(ELEM_WAIT_HEADERS, s.createRow(numrow++));			
-			int rowaux = numrow;
-			s.createRow(numrow++).createCell((short)0).setCellValue(new HSSFRichTextString("Media"));
-			s.createRow(numrow++).createCell((short)0).setCellValue(new HSSFRichTextString("Desv."));
-			numrow++;
-			for (String day : GSElementTypeWaitListener.REFDAYS)
-				s.createRow(numrow++).createCell((short)0).setCellValue(new HSSFRichTextString(day));
-			double []meanValues = new double[waitList.length];
-			double []devValues = new double[waitList.length];
-			double [][]refDays = new double[GSElementTypeWaitListener.REFDAYS.length][waitList.length];
-			for (short column = (short)ELEM_WAIT_HEADERS.length; column < waitList.length + ELEM_WAIT_HEADERS.length; column++) {
-				numrow = rowaux;
-				meanValues[column - ELEM_WAIT_HEADERS.length] = waitList[column - ELEM_WAIT_HEADERS.length].getAverages()[type.ordinal()];
-				s.getRow(numrow++).createCell(column).setCellValue(meanValues[column - ELEM_WAIT_HEADERS.length]);
-				devValues[column - ELEM_WAIT_HEADERS.length] = waitList[column - ELEM_WAIT_HEADERS.length].getStddevs()[type.ordinal()];
-				s.getRow(numrow++).createCell(column).setCellValue(devValues[column - ELEM_WAIT_HEADERS.length]);
+		for (AdmissionType adm : AdmissionType.values())
+			for (PatientType type : PatientType.values()) {
+				HSSFRow r = s.createRow(numrow++);
+				r.createCell((short)0).setCellValue(new HSSFRichTextString(adm.getName()));
+				r.getCell((short)0).setCellStyle(realStyle);
+				r.createCell((short)1).setCellValue(new HSSFRichTextString(type.getName()));
+				r.getCell((short)1).setCellStyle(realStyle);
+				
+				writeHeader(ELEM_WAIT_HEADERS, s.createRow(numrow++));			
+				int rowaux = numrow;
+				r = s.createRow(numrow++);
+				r.createCell((short)0).setCellValue(new HSSFRichTextString("Media"));
+				r.getCell((short)0).setCellStyle(diagStyle);
+				r = s.createRow(numrow++);
+				r.createCell((short)0).setCellValue(new HSSFRichTextString("Desv."));
+				r.getCell((short)0).setCellStyle(diagStyle);
 				numrow++;
-				for (int i = 0; i < GSElementTypeWaitListener.REFDAYS.length; i++) {
-					refDays[i][column - ELEM_WAIT_HEADERS.length] = waitList[column - ELEM_WAIT_HEADERS.length].getWaitingDays()[type.ordinal()][i];
-					s.getRow(numrow++).createCell(column).setCellValue(refDays[i][column - ELEM_WAIT_HEADERS.length]);
+				for (String day : GSElementTypeWaitListener.REFDAYS) {
+					r = s.createRow(numrow++);
+					r.createCell((short)0).setCellValue(new HSSFRichTextString(day));
+					r.getCell((short)0).setCellStyle(diagStyle);					
 				}
+				
+				double []meanValues = new double[waitList.length];
+				double []devValues = new double[waitList.length];
+				double [][]refDays = new double[GSElementTypeWaitListener.REFDAYS.length][waitList.length];
+				for (short column = (short)ELEM_WAIT_HEADERS.length; column < waitList.length + ELEM_WAIT_HEADERS.length; column++) {
+					numrow = rowaux;
+					meanValues[column - ELEM_WAIT_HEADERS.length] = waitList[column - ELEM_WAIT_HEADERS.length].getAverages()[adm.ordinal()][type.ordinal()];
+					s.getRow(numrow++).createCell(column).setCellValue(meanValues[column - ELEM_WAIT_HEADERS.length]);
+					devValues[column - ELEM_WAIT_HEADERS.length] = waitList[column - ELEM_WAIT_HEADERS.length].getStddevs()[adm.ordinal()][type.ordinal()];
+					s.getRow(numrow++).createCell(column).setCellValue(devValues[column - ELEM_WAIT_HEADERS.length]);
+					numrow++;
+					for (int i = 0; i < GSElementTypeWaitListener.REFDAYS.length; i++) {
+						refDays[i][column - ELEM_WAIT_HEADERS.length] = waitList[column - ELEM_WAIT_HEADERS.length].getWaitingDays()[adm.ordinal()][type.ordinal()][i];
+						s.getRow(numrow++).createCell(column).setCellValue(refDays[i][column - ELEM_WAIT_HEADERS.length]);
+					}
+				}
+				writeStatistics(meanValues, s.getRow(rowaux++), (short)1);
+				writeStatistics(devValues, s.getRow(rowaux++), (short)1);
+				rowaux++;
+				for (int i = 0; i < GSElementTypeWaitListener.REFDAYS.length; i++)
+					writeStatistics(refDays[i], s.getRow(rowaux++), (short)1);
+				numrow++;
 			}
-			writeStatistics(meanValues, s.getRow(rowaux++), (short)1);
-			writeStatistics(devValues, s.getRow(rowaux++), (short)1);
-			rowaux++;
-			for (int i = 0; i < GSElementTypeWaitListener.REFDAYS.length; i++)
-				writeStatistics(refDays[i], s.getRow(rowaux++), (short)1);
-			numrow++;
-		}
 	}
 
 	private void writeResorceResults() {
@@ -275,7 +278,7 @@ public class GSListenerControllerArray {
 	    		values[res.getIndex()][i] = resList[i].getResUsageSummary()[res.getIndex()];
 	    		r.createCell((short)(RES_USAGE_HEADERS.length + i)).setCellValue(values[res.getIndex()][i]);	    		
 	    	}	    		
-			writeStatistics(res.getName(), res.getRealUsage(), values[res.getIndex()], r);
+			writeStatistics(new String [] {res.getName()}, res.getRealUsage(), values[res.getIndex()], r);
 	    }
 	    
 	    rownum++;
@@ -288,7 +291,7 @@ public class GSListenerControllerArray {
 	    		values[res.getIndex()][i] = resList[i].getResAvailabilitySummary()[res.getIndex()];
 	    		r.createCell((short)(RES_AVAIL_HEADERS.length + i)).setCellValue(values[res.getIndex()][i]);	    		
 	    	}	    		
-			writeStatistics(res.getName(), res.getRealAva(), values[res.getIndex()], r);
+			writeStatistics(new String[] {res.getName()}, res.getRealAva(), values[res.getIndex()], r);
 	    }
 	}
 	
@@ -304,7 +307,11 @@ public class GSListenerControllerArray {
 		writeResourceUsageListenerResults();
 	}
 	
-	public void notifyEnd() {
+	public void notifyEnd(GSListenerArray res) {
+		timeList[res.getIndex()] = (GSElementTypeTimeResults) res.getTimeListener().getResults();
+		waitList[res.getIndex()] = (GSElementTypeWaitResults) res.getWaitListener().getResults();
+		resList[res.getIndex()] = (GSResourceStdUsageResults) res.getResListener().getResults();
+		
 		allCompleted.countDown();
 	}
 	

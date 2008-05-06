@@ -3,6 +3,7 @@
  */
 package es.ull.isaatc.HUNSC.cirgen.util;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -61,6 +62,19 @@ public class ExcelTools {
 	}
 
 	public static String getString(HSSFRow r, short column) {
-		return r.getCell(column).getRichStringCellValue().getString();
+		String res = "";
+		if (r.getCell(column).getCellType() == HSSFCell.CELL_TYPE_NUMERIC)
+			res = String.valueOf((int)r.getCell(column).getNumericCellValue());
+		else
+			res = r.getCell(column).getRichStringCellValue().getString(); 
+		return res;
+	}
+	
+	public static boolean validCell(HSSFRow r, short column) {
+		if (r.getCell(column) == null)
+			return false;
+		if (r.getCell(column).getCellType() == HSSFCell.CELL_TYPE_BLANK)
+			return false;
+		return true;
 	}
 }

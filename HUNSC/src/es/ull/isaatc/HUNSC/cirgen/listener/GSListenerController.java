@@ -6,6 +6,7 @@ package es.ull.isaatc.HUNSC.cirgen.listener;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
@@ -19,15 +20,17 @@ import es.ull.isaatc.simulation.listener.ListenerController;
 public class GSListenerController extends ListenerController {
 	private String filename;
 	private GSListenerControllerArray parent;
+	private GSListenerArray gsListeners;
 
 	/**
 	 * @param filename
 	 */
-	public GSListenerController(GSListenerControllerArray parent, String filename, EventListener[] listeners) {
+	public GSListenerController(GSListenerControllerArray parent, String filename, GSListenerArray listeners) {
 		super();
 		this.filename = filename;
 		this.parent = parent;
-		for (EventListener l : listeners)
+		this.gsListeners = listeners;
+		for (EventListener l : listeners.getListeners())
 			addListener(l);
 	}
 
@@ -37,9 +40,12 @@ public class GSListenerController extends ListenerController {
 		// create a new workbook
 		HSSFWorkbook wb = new HSSFWorkbook();
 		
+		ArrayList <GSResult> res = new ArrayList<GSResult>();
 		for (EventListener l : getListeners()) {
-			if (l instanceof ToExcel)
-				((ToExcel)l).setResult(wb);
+			if (l instanceof GSListener) {
+				((GSListener)l).setResults(wb);
+				res.add(((GSListener)l).getResults());
+			}
 			else
 				System.out.println(l.toString());
 		}
@@ -52,7 +58,7 @@ public class GSListenerController extends ListenerController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		parent.notifyEnd();
+		parent.notifyEnd(gsListeners);
 	}
 	
 }
