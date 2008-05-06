@@ -324,6 +324,15 @@
 		</xs:restriction>
 	</xs:simpleType>
 	
+	<!-- Rounded Cycle type -->
+	<xs:simpleType name="RoundedCycleType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ROUND"/>
+			<xs:enumeration value="CEIL"/>
+			<xs:enumeration value="FLOOR"/>
+		</xs:restriction>
+	</xs:simpleType>
+		
 	<!-- Cycle description -->
 	<xs:complexType name="Cycle">
 		<xs:sequence> <!-- periodic cycle -->
@@ -336,8 +345,12 @@
 						<xs:element name="endTs" type="xs:double"/>
 					</xs:choice>
 					<xs:element name="period" type="FunctionChoice"/>
+					<xs:sequence minOccurs="0">
+						<xs:element name="roundType" type="RoundedCycleType"/>
+						<xs:element name="factor" type="xs:double"/>
+					</xs:sequence>
 				</xs:sequence>
-				<xs:sequence>
+				<xs:sequence> <!-- table cycle -->
 					<xs:element maxOccurs="unbounded" name="ts" type="xs:double"/>
 				</xs:sequence>
 			</xs:choice> 
@@ -351,6 +364,7 @@
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="PERIODIC"/>
 			<xs:enumeration value="TABLE"/>
+			<xs:enumeration value="ROUNDED"/>
 		</xs:restriction>
 	</xs:simpleType>
 	

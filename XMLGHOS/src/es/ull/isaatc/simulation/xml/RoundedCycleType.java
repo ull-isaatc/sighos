@@ -12,39 +12,33 @@ import javax.xml.bind.annotation.XmlEnum;
 
 
 /**
- * <p>Java class for CommonFreq.
+ * <p>Java class for RoundedCycleType.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
- * &lt;simpleType name="CommonFreq">
+ * &lt;simpleType name="RoundedCycleType">
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *     &lt;enumeration value="YEAR"/>
- *     &lt;enumeration value="MONTH"/>
- *     &lt;enumeration value="DAY"/>
- *     &lt;enumeration value="HOUR"/>
- *     &lt;enumeration value="MINUTE"/>
- *     &lt;enumeration value="SECOND"/>
+ *     &lt;enumeration value="ROUND"/>
+ *     &lt;enumeration value="CEIL"/>
+ *     &lt;enumeration value="FLOOR"/>
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
  * 
  */
 @XmlEnum
-public enum CommonFreq {
+public enum RoundedCycleType {
 
-    YEAR,
-    MONTH,
-    DAY,
-    HOUR,
-    MINUTE,
-    SECOND;
+    ROUND,
+    CEIL,
+    FLOOR;
 
     public String value() {
         return name();
     }
 
-    public static CommonFreq fromValue(String v) {
+    public static RoundedCycleType fromValue(String v) {
         return valueOf(v);
     }
 

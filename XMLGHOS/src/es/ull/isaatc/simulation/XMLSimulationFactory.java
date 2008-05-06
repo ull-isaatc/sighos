@@ -139,7 +139,8 @@ public final class XMLSimulationFactory {
 	}
 	
 	/**
-	 * Creates a cycle froma definition in XML
+	 * Creates a cycle from a definition in XML. The cycle can be one of PeriodicCycle, TableCycle and 
+	 * RoundedPeriodicCycle.
 	 * @param xmlCycle the XML definition of the cycle
 	 * @param baseTimeIndex base time unit used in the model
 	 * @return the cycle
@@ -177,6 +178,30 @@ public final class XMLSimulationFactory {
 			} else {
 				return new TableCycle(ts,
 						createCycle(xmlCycle.getSubCycle(), baseTimeIndex));
+			}
+		}
+		else if (xmlCycle.getType() == es.ull.isaatc.simulation.xml.CycleType.ROUNDED) {
+			int cycleTimeUnitIndex = getTimeUnit(xmlCycle.getTimeUnit(), baseTimeIndex);
+			es.ull.isaatc.function.TimeFunction rn = createPeriod(
+					FunctionChoiceUtility.getSelectedFunction(xmlCycle.getPeriod()), cycleTimeUnitIndex, baseTimeIndex);
+			double relationTime = getTimeRelation(cycleTimeUnitIndex, baseTimeIndex);
+			double startTs = xmlCycle.getStartTs() * relationTime;
+			
+			RoundedPeriodicCycle.Type type = RoundedPeriodicCycle.Type.valueOf(xmlCycle.getRoundType().name());
+			double factor = xmlCycle.getFactor() * relationTime; 
+			if (xmlCycle.getEndTs() != null) {
+				double endTs = xmlCycle.getEndTs() * relationTime;
+				if (xmlCycle.getSubCycle() == null) {
+					return new RoundedPeriodicCycle(startTs, rn, endTs, type, factor);
+				} else {
+					return new RoundedPeriodicCycle(startTs, rn, endTs, createCycle(xmlCycle.getSubCycle(), baseTimeIndex), type, factor);
+				}
+			} else {
+				if (xmlCycle.getSubCycle() == null) {
+					return new RoundedPeriodicCycle(startTs, rn, xmlCycle.getIterations(), type, factor);
+				} else {
+					return new RoundedPeriodicCycle(startTs, rn, xmlCycle.getIterations(), createCycle(xmlCycle.getSubCycle(), baseTimeIndex), type, factor);
+				}
 			}
 		}
 		return null;
@@ -364,6 +389,10 @@ public final class XMLSimulationFactory {
 				if (type.equals("String")) {
 					pType[0] = String.class;
 					pValue[0] = param.getValue();
+				}
+				if (type.equals("boolean")) {
+					pType[0] = boolean.class;
+					pValue[0] = new Boolean(param.getValue());
 				}
 				Method setter = instance.getClass().getMethod(
 						"set" + param.getName(), pType);
