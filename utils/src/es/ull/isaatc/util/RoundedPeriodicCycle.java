@@ -6,10 +6,26 @@ package es.ull.isaatc.util;
 import es.ull.isaatc.function.TimeFunction;
 
 /**
+ * An special periodic cycle which rounds (or trunks) the incidence of events.
+ * It uses two attributes: the type can be ROUND, CEIL or FLOOR depending on if you 
+ * need to round, get the ceil or the floor of the value; the factor indicates
+ * the value to adjust the result: what you're going to get are multiples of the
+ * factor.<p>  
+ * The key point of this cycle is that it preserves the behavior of the 
+ * underlying period, but it rounds the events. For example, suppose that you 
+ * have a periodic cycle which generates events in 1, 4, 10, 11, 14... The result
+ * of a rounded periodic cycle with factor 5.0 and type ROUND is 0, 5, 10, 10, 15. 
  * @author Iván Castilla Rodríguez
- *
  */
 public class RoundedPeriodicCycle extends PeriodicCycle {
+	/**
+	 * Different ways the incidence of events can be treated:
+	 * <ul>
+	 * <li>ROUND: Events are going to be rounded. 1.1 is 1 and 1.6 is 2</li>
+	 * <li>CEIL: Events are going to be ceiled. 1.1 is 2 and 1.6 is 2</li>
+	 * <li>FLOOR: Events are going to be floored. 1.1 is 1 and 1.6 is 1</li>
+	 * @author Iván Castilla Rodríguez
+	 */
 	public enum Type {
 		ROUND,
 		CEIL,
@@ -24,13 +40,24 @@ public class RoundedPeriodicCycle extends PeriodicCycle {
 			throw new AssertionError("Unknown op: " + this);			
 		}
 	}
+	/**
+	 * The way the incidence of events is going to be treated.
+	 */
 	private Type type = Type.ROUND;
+	/**
+	 * The factor to which the results are fitted. The results are always 
+	 * multiples of this value.
+	 */
 	private double factor = 1.0;
 
 	/**
-	 * @param startTs
-	 * @param period
-	 * @param endTs
+	 * Creates a new cycle which "rounds" the values that it returns and 
+	 * finishes at the specified timestamp.
+	 * @param startTs Relative time when this cycle is expected to start.
+	 * @param period Time interval between two successive events.
+	 * @param endTs Relative time when this cycle is expected to finish.
+	 * @param type The way the events are going to be treated.
+	 * @param factor The factor to which the results are fitted. 
 	 */
 	public RoundedPeriodicCycle(double startTs, TimeFunction period, double endTs, Type type, double factor) {
 		super(startTs, period, endTs);
@@ -39,9 +66,14 @@ public class RoundedPeriodicCycle extends PeriodicCycle {
 	}
 
 	/**
-	 * @param startTs
-	 * @param period
-	 * @param iterations
+	 * Creates a cycle which "rounds" the values that it returns and is 
+	 * executed the specified iterations.
+	 * @param startTs Relative time when this cycle is expected to start.
+	 * @param period Time interval between two successive events.
+	 * @param iterations How many times this cycle is executed. A value of 0 indicates 
+     * infinite iterations.
+	 * @param type The way the events are going to be treated.
+	 * @param factor The factor to which the results are fitted. 
 	 */
 	public RoundedPeriodicCycle(double startTs, TimeFunction period, int iterations, Type type, double factor) {
 		super(startTs, period, iterations);
@@ -50,10 +82,14 @@ public class RoundedPeriodicCycle extends PeriodicCycle {
 	}
 
 	/**
-	 * @param startTs
-	 * @param period
-	 * @param endTs
-	 * @param subCycle
+	 * Creates a new cycle which "rounds" the values that it returns and 
+	 * finishes at the specified timestamp.
+	 * @param startTs Relative time when this cycle is expected to start.
+	 * @param period Time interval between two successive events.
+	 * @param endTs Relative time when this cycle is expected to finish.
+	 * @param subCycle Subcycle contained in this cycle.
+	 * @param type The way the events are going to be treated.
+	 * @param factor The factor to which the results are fitted. 
 	 */
 	public RoundedPeriodicCycle(double startTs, TimeFunction period, double endTs, Cycle subCycle, Type type, double factor) {
 		super(startTs, period, endTs, subCycle);
@@ -62,10 +98,15 @@ public class RoundedPeriodicCycle extends PeriodicCycle {
 	}
 
 	/**
-	 * @param startTs
-	 * @param period
-	 * @param iterations
-	 * @param subCycle
+	 * Creates a cycle which "rounds" the values that it returns and is 
+	 * executed the specified iterations.
+	 * @param startTs Relative time when this cycle is expected to start.
+	 * @param period Time interval between two successive events.
+	 * @param iterations How many times this cycle is executed. A value of 0 indicates 
+     * infinite iterations.
+	 * @param subCycle Subcycle contained in this cycle.
+	 * @param type The way the events are going to be treated.
+	 * @param factor The factor to which the results are fitted. 
 	 */
 	public RoundedPeriodicCycle(double startTs, TimeFunction period, int iterations, Cycle subCycle, Type type, double factor) {
 		super(startTs, period, iterations, subCycle);
@@ -74,14 +115,16 @@ public class RoundedPeriodicCycle extends PeriodicCycle {
 	}
 
 	/**
-	 * @return the factor
+	 * Returns the factor to which the results are fitted.
+	 * @return The factor to which the results are fitted.
 	 */
 	public double getFactor() {
 		return factor;
 	}
 
 	/**
-	 * @return the type
+	 * Returns the way the cycle treats the incidence of events.
+	 * @return The way the cycle treats the incidence of events.
 	 */
 	public Type getType() {
 		return type;

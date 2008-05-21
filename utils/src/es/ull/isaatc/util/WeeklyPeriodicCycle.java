@@ -8,10 +8,14 @@ import java.util.EnumSet;
 import es.ull.isaatc.function.TimeFunctionFactory;
 
 /**
- * @author Iván
- *
+ * A week-based periodic cycle which allows a user to define events happening 
+ * some days a week.
+ * @author Iván Castilla Rodríguez
  */
 public class WeeklyPeriodicCycle extends PeriodicCycle {
+	/**
+	 * 
+	 */
 	public enum WeekDays {
 		MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 	}

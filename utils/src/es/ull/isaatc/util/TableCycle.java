@@ -12,7 +12,8 @@ public class TableCycle extends Cycle {
 	protected double [] timestamps;
 
 	/**
-	 * 
+	 * Creates a new cycle which follows a predefined set of timestamps.
+	 * @param timestamps A set of timestamps when something happens. 
 	 */
 	public TableCycle(double [] timestamps) {
 		super();
@@ -20,7 +21,9 @@ public class TableCycle extends Cycle {
 	}
 
 	/**
-	 * @param subCycle
+	 * Creates a new cycle which follows a predefined set of timestamps.
+	 * @param timestamps A set of timestamps when something happens. 
+	 * @param subCycle Subcycle contained in this cycle.
 	 */
 	public TableCycle(double [] timestamps, Cycle subCycle) {
 		super(subCycle);
@@ -61,7 +64,6 @@ public class TableCycle extends Cycle {
 		double startTs;
 		
 		/**
-		 * @param cycle Associated cycle.
 		 * @param start The start timestamp.
 		 * @param end The end timestamp.
 		 */

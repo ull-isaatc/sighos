@@ -39,7 +39,7 @@ public class PeriodicCycle extends Cycle {
 	/**
 	 * Creates a cycle which is executed the specified iterations.
 	 * @param startTs Relative time when this cycle is expected to start.
-	 * @param period Time interval between two successive ocurrences of an event.
+	 * @param period Time interval between two successive events.
 	 * @param iterations How many times this cycle is executed. A value of 0 indicates 
      * infinite iterations.
 	 */
@@ -53,7 +53,7 @@ public class PeriodicCycle extends Cycle {
     /**
 	 * Creates a cycle which ends at the specified timestamp and contains a subcycle.
 	 * @param startTs Relative time when this cycle is expected to start.
-	 * @param period Time interval between two successive ocurrences of an event.
+	 * @param period Time interval between two successive events.
 	 * @param endTs Relative time when this cycle is expected to finish.
 	 * @param subCycle Subcycle contained in this cycle.
 	 */
