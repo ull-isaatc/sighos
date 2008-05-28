@@ -171,7 +171,8 @@ public class XMLWrapper {
 			}
 		} catch (ModelException e) {
 			modelValidator.showErrors();
-			System.exit(-1);
+			//System.exit(-1);
+			return;
 		}
 	}
 
@@ -185,8 +186,7 @@ public class XMLWrapper {
 
 			// resource type references in workgroups
 			for (Activity act : includeModel.getModel().getActivity())
-				for (es.ull.isaatc.simulation.xml.Activity.WorkGroup wg : act
-						.getWorkGroup())
+				for (es.ull.isaatc.simulation.xml.Activity.WorkGroup wg : act.getWorkGroup())
 					if (wg.getWorkGroup() != null)
 						updateWorkGroupReferences(wg.getWorkGroup());
 					else
@@ -224,7 +224,7 @@ public class XMLWrapper {
 	private void updateWorkGroupReferences(ComponentRef wgRef) {
 
 		wgRef.setId(modelList.get(Integer.valueOf(wgRef.getModelId()))
-				.getResourceType(wgRef.getId()).getId());
+				.getWorkGroup(wgRef.getId()).getId());
 	}
 
 	private void updateResourceTypeReferences(WorkGroup wg) {
@@ -337,7 +337,8 @@ public class XMLWrapper {
 			}
 		} catch (ModelException e) {
 			modelValidator.showErrors();
-			System.exit(-1);
+			//System.exit(-1);
+			return;
 		}
 	}
 
@@ -468,10 +469,8 @@ public class XMLWrapper {
 			modelValidator.validate(component);
 			return false;
 		} else {
-			ModelMappingTable referencedModel = modelList.get(Integer
-					.valueOf(component.getModelId()));
-			Activity modelComponent = referencedModel.getActivity(component
-					.getId());
+			ModelMappingTable referencedModel = modelList.get(Integer.valueOf(component.getModelId()));
+			Activity modelComponent = referencedModel.getActivity(component.getId());
 			if (modelComponent != null) { // update the component definition
 				modelComponent.setDescription(component.getDescription());
 				modelComponent.setPresential(component.isPresential());

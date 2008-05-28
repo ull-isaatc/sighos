@@ -118,8 +118,8 @@ public class ModelMappingTable {
     	return (ResourceType)rtMapping.get(id);
     }
 
-    public ResourceType getWorkGroupType(int id) {
-    	return (ResourceType)rtMapping.get(id);
+    public WorkGroup getWorkGroup(int id) {
+    	return (WorkGroup)wgMapping.get(id);
     }
     
     public Resource getResource(int id) {

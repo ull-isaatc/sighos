@@ -66,7 +66,7 @@ public class WorkGroupValidate extends DescComponentValidate {
 		ModelMappingTable map = modelList.get(Integer.valueOf(ref.getModelId()));
 		if (map == null)
 			return false;
-		if (map.getResourceType(ref.getId()) == null)
+		if (map.getWorkGroup(ref.getId()) == null)
 			return false;
 		return true;
 	}

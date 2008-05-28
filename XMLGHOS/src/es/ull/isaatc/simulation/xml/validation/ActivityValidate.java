@@ -25,10 +25,10 @@ public class ActivityValidate extends DescComponentValidate {
 	protected static final String RESTYPE_REFERENCE = "Work group resource type reference";
 	protected static final String WG_REFERENCE = "Work group reference";
 
-	public ActivityValidate(WorkGroupValidate resTypeVal,
+	public ActivityValidate(WorkGroupValidate wgVal,
 			TreeMap<Integer, ModelMappingTable> modelList) {
 		super(modelList);
-		this.wgVal = resTypeVal;
+		this.wgVal = wgVal;
 	}
 
 	protected boolean checkWorkGroup(Activity act) throws ModelException {
@@ -44,13 +44,15 @@ public class ActivityValidate extends DescComponentValidate {
 			}
 			else {
 				wgVal.validate(wg.getDefinition());
-				for (Role role : wg.getDefinition().getRole()) {
-					ComponentRef ref = role.getRtRef();
-					if (!wgVal.checkReference(ref)) {
-						error(act, RESTYPE_REFERENCE);
-						hasError = true;
-					}
-				}
+				// FIXME: La idea de esto era indicar la actividad en el que falló un workgroup por tener
+				// un tipo de recurso mal definido. Pero wgVal.checkReference(ref) está mal usado
+//				for (Role role : wg.getDefinition().getRole()) {
+//					ComponentRef ref = role.getRtRef();
+//					if (!wgVal.checkReference(ref)) {
+//						error(act, RESTYPE_REFERENCE);
+//						hasError = true;
+//					}
+//				}
 			}
 		}
 		return hasError;

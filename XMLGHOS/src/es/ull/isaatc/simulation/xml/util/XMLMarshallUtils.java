@@ -66,10 +66,12 @@ public class XMLMarshallUtils {
 		} catch (JAXBException je) {
 			System.out.println("ERROR : Error found in one of the XML files");
 			je.printStackTrace();
-			System.exit(-1);
+			//System.exit(-1);
+			return null;
 		} catch (SAXException e) {
 			e.printStackTrace();
-			System.exit(-1);
+			//System.exit(-1);
+			return null;
 		}
 		return experiment;
 	}
@@ -89,7 +91,8 @@ public class XMLMarshallUtils {
 			m.marshal(object, output);
 		} catch (JAXBException je) {
 			je.printStackTrace();
-			System.exit(-1);
+			//System.exit(-1);
+			return null;
 		}
 		return output.toString();
 	}

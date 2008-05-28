@@ -42,8 +42,10 @@ class Prueba {
 
 //	private static String modelFileName = "C:/Documents and Settings/yuyu/sighosws/XMLGHOS/src/es/ull/isaatc/simulation/xml/test/model.xml";
 //	private static String experimentFileName = "C:/Documents and Settings/yuyu/sighosws/XMLGHOS/src/es/ull/isaatc/simulation/xml/test/experiment.xml";
-	private static String modelFileName = "C:\\Documents and Settings\\Ordenador2\\workspace\\XMLGHOS\\src\\es\\ull\\isaatc\\simulation\\xml\\test\\model.xml";
-	private static String experimentFileName = "C:\\Documents and Settings\\Ordenador2\\workspace\\XMLGHOS\\src\\es\\ull\\isaatc\\simulation\\xml\\test\\experiment.xml";
+//	private static String modelFileName = "C:\\Documents and Settings\\Ordenador2\\workspace\\XMLGHOS\\src\\es\\ull\\isaatc\\simulation\\xml\\test\\model.xml";
+//	private static String experimentFileName = "C:\\Documents and Settings\\Ordenador2\\workspace\\XMLGHOS\\src\\es\\ull\\isaatc\\simulation\\xml\\test\\experiment.xml";
+	private static String modelFileName = "C:\\Documents and Settings\\Ordenador2\\Escritorio\\Presidencia\\Proc1 model.xml";
+	private static String experimentFileName = "C:\\Documents and Settings\\Ordenador2\\Escritorio\\Presidencia\\Proc1 experiment.xml";
 
 	public Prueba(TestMode mode) {
 		XMLWrapper xmlModel = null;
