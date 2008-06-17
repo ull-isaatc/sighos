@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.function;
 
+import java.util.Collection;
+
 /**
  * A tricky function used to return the percentage of a value depending on the time unit.
  * Requires a set of integer values, a set of proportions (whose addition must be 1) and a 
@@ -30,6 +32,24 @@ public class PeriodicProportionFunction extends TimeFunction {
 		super();
 		nElem = elem;
 		this.prop = prop;
+		this.timeUnit = timeUnit;
+	}
+
+	/**
+	 * @param elem
+	 * @param prop
+	 * @param timeUnit
+	 */
+	public PeriodicProportionFunction(Collection<Integer> elem, Collection<Double> prop, double timeUnit) {
+		super();
+		this.nElem = new int[elem.size()];
+		int i = 0;
+		for (int e : elem)
+			this.nElem[i++] = e;
+		this.prop = new double[prop.size()];
+		i = 0;
+		for (double p : prop)
+			this.prop[i++] = p;
 		this.timeUnit = timeUnit;
 	}
 
