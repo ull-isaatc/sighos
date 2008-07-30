@@ -199,7 +199,7 @@ public class StatisticListener implements SimulationListener, SimulationObjectLi
 		lpIds = new int[simul.getLPSize()];
 		for (int i = 0; i < lpIds.length; i++)
 			lpIds[i] = simul.getLogicalProcess(i).getIdentifier();
-		ArrayList amList = simul.getActivityManagerList();
+		ArrayList<ActivityManager> amList = simul.getActivityManagerList();
 		amIds = new int[amList.size()][2];
 		for (int i = 0; i < amIds.length; i++) {
 			ActivityManager am = (ActivityManager) amList.get(i);

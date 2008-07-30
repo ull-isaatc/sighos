@@ -34,48 +34,46 @@ class TestModelCapabilitiesSimulation extends StandAloneLPSimulation {
 		new ResourceType(7, this, "Ultrasonograph");
 		new ResourceType(8, this, "Automated Analizer");
 		
-		// WorkGroups
+		// WorkGroups and Activities
 		WorkGroup wg = new WorkGroup(0, this, "Appointment");
 		wg.add(getResourceType(0), 1);
 		wg.add(getResourceType(6), 1);
+		Activity act = new Activity(0, this, "First Outpatient Appointment", 0);
+		act.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 10), wg);
+		act = new Activity(1, this, "Subsequent Outpatient Appointment", 1);
+		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 12.0, 3.0), wg);
 		wg = new WorkGroup(1, this, "Specialized Appointment");
 		wg.add(getResourceType(1), 1);
 		wg.add(getResourceType(6), 1);
-		wg = new WorkGroup(2, this, "Surgery 1");
-		wg.add(getResourceType(2), 2);
-		wg.add(getResourceType(5), 1);
-		wg = new WorkGroup(3, this, "Surgery 2");
-		wg.add(getResourceType(2), 1);
-		wg.add(getResourceType(5), 1);
+		act = new Activity(2, this, "Specialized Outpatient Appointment");
+		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 15.0, 5.0), wg);
+		act = new Activity(3, this, "Blood Sample", 0);
 		wg = new WorkGroup(4, this, "Lab Sample");
 		wg.add(getResourceType(3), 1);
+		act.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 5.0), wg);
+		act = new Activity(4, this, "Blood Test", 1, EnumSet.of(Activity.Modifier.INTERRUPTIBLE, Activity.Modifier.NONPRESENTIAL));
 		wg = new WorkGroup(5, this, "Lab 1");
 		wg.add(getResourceType(3), 2);
 		wg.add(getResourceType(8), 1);
+		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 50.0, 10.0), 0, wg);
 		wg = new WorkGroup(6, this, "Lab 2");
 		wg.add(getResourceType(3), 1);
 		wg.add(getResourceType(8), 1);
+		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 120.0, 10.0), 1, wg);
+		act = new Activity(5, this, "USS");
 		wg = new WorkGroup(7, this, "USS");
 		wg.add(getResourceType(4), 1);
 		wg.add(getResourceType(7), 1);
-		
-		// Activities
-		Activity act = new Activity(0, this, "First Outpatient Appointment", 0);
-		act.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 10), getWorkGroup(0));
-		act = new Activity(1, this, "Subsequent Outpatient Appointment", 1);
-		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 12.0, 3.0), getWorkGroup(0));
-		act = new Activity(2, this, "Specialized Outpatient Appointment");
-		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 15.0, 5.0), getWorkGroup(1));
-		act = new Activity(3, this, "Blood Sample", 0);
-		act.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 5.0), getWorkGroup(4));
-		act = new Activity(4, this, "Blood Test", 1, EnumSet.of(Activity.Modifier.INTERRUPTIBLE, Activity.Modifier.NONPRESENTIAL));
-		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 50.0, 10.0), 0, getWorkGroup(5));
-		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 120.0, 10.0), 1, getWorkGroup(6));
-		act = new Activity(5, this, "USS");
-		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 30.0, 5.0), getWorkGroup(7));
+		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 30.0, 5.0), wg);
 		act = new Activity(6, this, "Surgery");
-		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 45.0, 5.0), getWorkGroup(2));
-		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 115.0, 5.0), getWorkGroup(3));
+		wg = new WorkGroup(2, this, "Surgery 1");
+		wg.add(getResourceType(2), 2);
+		wg.add(getResourceType(5), 1);
+		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 45.0, 5.0), wg);
+		wg = new WorkGroup(3, this, "Surgery 2");
+		wg.add(getResourceType(2), 1);
+		wg.add(getResourceType(5), 1);
+		act.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 115.0, 5.0), wg);
 		
 		// Resources
 		Resource res = new Resource(0, this, "Doctor 1");

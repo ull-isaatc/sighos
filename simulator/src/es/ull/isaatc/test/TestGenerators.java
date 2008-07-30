@@ -1,6 +1,7 @@
 package es.ull.isaatc.test;
 
 import simkit.random.RandomVariateFactory;
+import es.ull.isaatc.function.PeriodicProportionFunction;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.util.*;
@@ -68,14 +69,22 @@ public class TestGenerators {
 	 */
 	public static void main(String[] args) {
 //		new ExpGenerators("Experiment with generators").start();
-		double []val = {50.0, 70.0, 100.0, 150.0};
-		TableCycle c = new TableCycle(val);
-		CycleIterator it = c.iterator(0, 200);
-		double v;
-		do {
-			v = it.next();
-			System.out.println(v);
-		} while (!Double.isNaN(v));
+//		double []val = {50.0, 70.0, 100.0, 150.0};
+//		TableCycle c = new TableCycle(val);
+//		CycleIterator it = c.iterator(0, 200);
+//		double v;
+//		do {
+//			v = it.next();
+//			System.out.println(v);
+//		} while (!Double.isNaN(v));
+		PeriodicProportionFunction ppf = new PeriodicProportionFunction(
+				new int[] {5, 0, 1, 0, 1, 2,0, 4, 3},
+				new double[] {0.18,0.20,0.20,0.18,0.24,0,0}, 24.0);
+		double ts = 0.0;
+		while (ts < 60 * 24.0) {
+			System.out.println(ppf.getPositiveValue(ts));
+			ts += 24.0;
+		}
 	}
 
 }

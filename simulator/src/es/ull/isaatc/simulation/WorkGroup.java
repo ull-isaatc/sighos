@@ -44,7 +44,6 @@ public class WorkGroup extends SimulationObject implements Describable {
         this.resourceTypeTable = new ArrayList<ResourceTypeTableEntry>();
         for (int i = 0; i < (rts.length < needs.length ? rts.length : needs.length); i++)
         	add(rts[i], needs[i]);
-        simul.add(this);
     }
 
     /**

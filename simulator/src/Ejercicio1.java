@@ -103,15 +103,7 @@ class Experiment1 extends PooledExperiment {
 
 	public Simulation getSimulation(int ind) {
 		Simulation1 sim = null;
-		ListenerController cont = new ListenerController() {
-			@Override
-			public void end() {
-				super.end();
-				for (String res : getListenerResults()) {
-					System.out.println(res);
-				}
-			}
-		};
+		ListenerController cont = new ListenerController();
 		sim = new Simulation1(ind, NDIAS);
 		sim.setListenerController(cont);
 //		cont.addListener(new StdInfoListener());
