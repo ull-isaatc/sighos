@@ -8,12 +8,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.util.List;
 import java.util.ListIterator;
 
-import es.ull.isaatc.simulation.xml.Activity;
 import es.ull.isaatc.simulation.xml.Resource.TimeTable;
-import es.ull.isaatc.simulation.xml.WorkGroup;
 import es.ull.isaatc.simulation.xml.WorkGroup.Role;
 import es.ull.isaatc.simulation.xml.util.XMLMarshallUtils;
 import es.ull.isaatc.simulation.xml.validation.ModelException;
@@ -304,7 +301,7 @@ public class XMLWrapper {
 		modelList.add(scenario);
 		try {
 			// update resource types
-			ListIterator it;
+			ListIterator<?> it;
 			it = scenario.getModel().getResourceType().listIterator();
 			while (it.hasNext()) {
 				if (processScenarioComponent((ResourceType) it.next()))
@@ -545,49 +542,49 @@ public class XMLWrapper {
 		}
 	}
 
-	/**
-	 * Find a component in a list with a specified identifier
-	 * 
-	 * @param componentList
-	 *            the list to search into
-	 * @param component
-	 *            the component to look for
-	 * @return the component if found or null if there isn't a component with
-	 *         the correct id
-	 */
-	private BaseComponent findComponent(List componentList,
-			BaseComponent component) {
-		List<BaseComponent> bcList = componentList;
-		for (BaseComponent bc : bcList) {
-			if (bc.getId() == component.getId())
-				return bc;
-		}
-		return null;
-	}
-
-	private ResourceType findComponent(Model model, ResourceType component) {
-		return (ResourceType) findComponent(model.getResourceType(), component);
-	}
-
-	private WorkGroup findComponent(Model model, WorkGroup component) {
-		return (WorkGroup) findComponent(model.getWorkGroup(), component);
-	}
-
-	private Resource findComponent(Model model, Resource component) {
-		return (Resource) findComponent(model.getResource(), component);
-	}
-
-	private Activity findComponent(Model model, Activity component) {
-		return (Activity) findComponent(model.getActivity(), component);
-	}
-
-	private ElementType findComponent(Model model, ElementType component) {
-		return (ElementType) findComponent(model.getElementType(), component);
-	}
-
-	private RootFlow findComponent(Model model, RootFlow component) {
-		return (RootFlow) findComponent(model.getRootFlow(), component);
-	}
+//	/**
+//	 * Find a component in a list with a specified identifier
+//	 * 
+//	 * @param componentList
+//	 *            the list to search into
+//	 * @param component
+//	 *            the component to look for
+//	 * @return the component if found or null if there isn't a component with
+//	 *         the correct id
+//	 */
+//	private BaseComponent findComponent(List componentList,
+//			BaseComponent component) {
+//		List<BaseComponent> bcList = componentList;
+//		for (BaseComponent bc : bcList) {
+//			if (bc.getId() == component.getId())
+//				return bc;
+//		}
+//		return null;
+//	}
+//
+//	private ResourceType findComponent(Model model, ResourceType component) {
+//		return (ResourceType) findComponent(model.getResourceType(), component);
+//	}
+//
+//	private WorkGroup findComponent(Model model, WorkGroup component) {
+//		return (WorkGroup) findComponent(model.getWorkGroup(), component);
+//	}
+//
+//	private Resource findComponent(Model model, Resource component) {
+//		return (Resource) findComponent(model.getResource(), component);
+//	}
+//
+//	private Activity findComponent(Model model, Activity component) {
+//		return (Activity) findComponent(model.getActivity(), component);
+//	}
+//
+//	private ElementType findComponent(Model model, ElementType component) {
+//		return (ElementType) findComponent(model.getElementType(), component);
+//	}
+//
+//	private RootFlow findComponent(Model model, RootFlow component) {
+//		return (RootFlow) findComponent(model.getRootFlow(), component);
+//	}
 
 	private void mergeModels() {
 		ModelMappingTable first = modelList.pop();

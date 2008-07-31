@@ -36,9 +36,9 @@ public final class XMLSimulationFactory {
 	 * Creates a simulation from a definition in XML
 	 * @param xmlWrapper
 	 * @param out
-	 * @return the Simulation
+	 * @return the XMLSimulation
 	 */
-	public static Simulation getSimulation(int id, es.ull.isaatc.simulation.xml.XMLWrapper xmlWrapper) {
+	public static XMLSimulation getSimulation(int id, es.ull.isaatc.simulation.xml.XMLWrapper xmlWrapper) {
 		return new XMLSimulation(id, xmlWrapper);
 	}
 	
@@ -48,7 +48,7 @@ public final class XMLSimulationFactory {
 	 * @param rtXML the XML definition of the resource type
 	 * @return the simulation resource type
 	 */
-	public static ResourceType getResourceType(Simulation simul, es.ull.isaatc.simulation.xml.ResourceType rtXML) {
+	public static ResourceType getResourceType(XMLSimulation simul, es.ull.isaatc.simulation.xml.ResourceType rtXML) {
 		return new ResourceType(rtXML.getId(), simul, rtXML.getDescription());
 	}
 	
@@ -58,7 +58,7 @@ public final class XMLSimulationFactory {
 	 * @param resXML the XML definition of the resource
 	 * @return the simulation resources
 	 */
-	public static Collection<Resource> getResource(Simulation simul, es.ull.isaatc.simulation.xml.Resource resXML, int baseTimeIndex) {
+	public static Collection<Resource> getResource(XMLSimulation simul, es.ull.isaatc.simulation.xml.Resource resXML, int baseTimeIndex) {
 		Collection<Resource> resCollection = new TreeSet<Resource>();
 		TreeMap<Integer, ResourceType> rtList = simul.getResourceTypeList();
 		
@@ -91,7 +91,7 @@ public final class XMLSimulationFactory {
 	 * @param baseTimeIndex the base time unit used in the model
 	 * @return the simulation activity
 	 */
-	public static Activity getActivity(Simulation simul, es.ull.isaatc.simulation.xml.Activity actXML, int baseTimeIndex) {
+	public static Activity getActivity(XMLSimulation simul, es.ull.isaatc.simulation.xml.Activity actXML, int baseTimeIndex) {
 		// check the activity modifiers
 		EnumSet<Activity.Modifier> modifiers = EnumSet.noneOf(Activity.Modifier.class);
 		if (!actXML.isPresential())
@@ -119,7 +119,7 @@ public final class XMLSimulationFactory {
 		return act;
 	}
 
-	public static WorkGroup getWorkGroup(Simulation simul, es.ull.isaatc.simulation.xml.WorkGroup wgXML) {
+	public static WorkGroup getWorkGroup(XMLSimulation simul, es.ull.isaatc.simulation.xml.WorkGroup wgXML) {
 	
 		WorkGroup wg = new WorkGroup(wgXML.getId(), simul, wgXML.getDescription());
 		for (es.ull.isaatc.simulation.xml.WorkGroup.Role role : wgXML.getRole())
@@ -134,7 +134,7 @@ public final class XMLSimulationFactory {
 	 * @param etXML the XML definition of the element type
 	 * @return the simulation element type
 	 */
-	public static ElementType getElementType(Simulation simul, es.ull.isaatc.simulation.xml.ElementType etXML) {
+	public static ElementType getElementType(XMLSimulation simul, es.ull.isaatc.simulation.xml.ElementType etXML) {
 		return new ElementType(etXML.getId(), simul, etXML.getDescription(), etXML.getPriority());
 	}
 	
@@ -354,7 +354,7 @@ public final class XMLSimulationFactory {
 	 * @param c
 	 * @return An instance of the class c
 	 */
-	public static Object processClassReference(es.ull.isaatc.simulation.xml.ClassReference sp, Class c) {
+	public static Object processClassReference(es.ull.isaatc.simulation.xml.ClassReference sp, Class<?> c) {
 
 		try {
 			if (sp.getClasspath() != null) {
@@ -371,7 +371,7 @@ public final class XMLSimulationFactory {
 			while (paramIt.hasNext()) {
 				es.ull.isaatc.simulation.xml.ClassReference.Param param = paramIt
 						.next();
-				Class pType[] = new Class[1];
+				Class<?> pType[] = new Class[1];
 				Object pValue[] = new Object[1];
 				String type = param.getType();
 				if (type.equals("int")) {

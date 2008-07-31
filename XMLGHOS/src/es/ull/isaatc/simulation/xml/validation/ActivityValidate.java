@@ -10,7 +10,6 @@ import es.ull.isaatc.simulation.xml.BaseComponent;
 import es.ull.isaatc.simulation.xml.ComponentRef;
 import es.ull.isaatc.simulation.xml.ModelMappingTable;
 import es.ull.isaatc.simulation.xml.Activity.WorkGroup;
-import es.ull.isaatc.simulation.xml.WorkGroup.Role;
 
 /**
  * @author Roberto Muñoz

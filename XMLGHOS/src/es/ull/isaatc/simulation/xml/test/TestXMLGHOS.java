@@ -93,6 +93,6 @@ public class TestXMLGHOS {
 
 	public static void main(String arg[]) {
 
-		Prueba test = new Prueba(Prueba.TestMode.valueOf(arg[0]));
+		new Prueba(Prueba.TestMode.valueOf(arg[0]));
 	}
 }

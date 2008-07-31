@@ -4,7 +4,6 @@
 package es.ull.isaatc.simulation.xml.util;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.Reader;
 import java.net.URLClassLoader;
 

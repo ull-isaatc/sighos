@@ -1,6 +1,7 @@
 package es.ull.isaatc.simulation;
 
 import java.util.HashMap;
+import java.util.TreeMap;
 
 /**
  * @author Roberto Muñoz
@@ -17,6 +18,8 @@ public class XMLSimulation extends StandAloneLPSimulation {
 	/** Generator generator */
 	private GeneratorTransformer genTransformer;
 	
+	private TreeMap<Integer, WorkGroup> wgList;
+	
 	/**
 	 * Creates the simulation from the data stored in <code>xmlWrapper<code>.
 	 * @param xmlWrapper This object stores the XML description of the model and the experiment.
@@ -29,6 +32,7 @@ public class XMLSimulation extends StandAloneLPSimulation {
 		xmlExperiment = xmlWrapper.getExperiment();
 		baseTimeIndex = XMLSimulationFactory.getTimeUnit(xmlModel.getBaseTimeUnit(), baseTimeIndex);
 		genTransformer = new GeneratorTransformer(this);
+		wgList = new TreeMap<Integer, WorkGroup>();
 	}
 
 	/* (non-Javadoc)
@@ -56,8 +60,10 @@ public class XMLSimulation extends StandAloneLPSimulation {
 	 * Creates the work groups of the model
 	 */
 	protected void createWorkGroups() {
-		for (es.ull.isaatc.simulation.xml.WorkGroup wgXML : xmlModel.getWorkGroup())
-			XMLSimulationFactory.getWorkGroup(this, wgXML);
+		for (es.ull.isaatc.simulation.xml.WorkGroup wgXML : xmlModel.getWorkGroup()) {
+			WorkGroup wg = XMLSimulationFactory.getWorkGroup(this, wgXML);
+			wgList.put(wg.getIdentifier(), wg);
+		}
 	}
 	
 	/**
@@ -107,6 +113,10 @@ public class XMLSimulation extends StandAloneLPSimulation {
 		return xmlExperiment;
 	}
 
+	public WorkGroup getWorkGroup(int id) {
+		return wgList.get(id);
+	}
+	
 	/**
 	 * @return the baseTimeIndex
 	 */

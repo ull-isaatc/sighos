@@ -9,6 +9,11 @@ package es.ull.isaatc.simulation.xml.validation;
 public class ModelException extends Exception {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 805149176160599505L;
+
+	/**
      * 
      */
     public ModelException() {
