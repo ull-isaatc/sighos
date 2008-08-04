@@ -4,8 +4,12 @@
 package es.ull.isaatc.test;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.util.*;
-import es.ull.isaatc.util.WeeklyPeriodicCycle.WeekDays;
+import es.ull.isaatc.util.Cycle;
+import es.ull.isaatc.util.CycleIterator;
+import es.ull.isaatc.util.PeriodicCycle;
+import es.ull.isaatc.util.RoundedPeriodicCycle;
+import es.ull.isaatc.util.TableCycle;
+import es.ull.isaatc.util.WeeklyPeriodicCycle;
 
 /**
  * Base model for testing

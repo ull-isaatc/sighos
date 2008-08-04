@@ -21,7 +21,7 @@ public class TimeFunctionFactory {
      * Holds a cache of the RandomVariate Classes that have already been
      * found indexed by their name.
      **/
-    protected static Map<String, Class> cache;
+    protected static Map<String, Class<?>> cache;
     
     /**
      * A list of packages to search for RandomVariates if the
@@ -50,12 +50,12 @@ public class TimeFunctionFactory {
      * If true, print out information while searching for RandomVariate
      * Classes.
      **/
-    public static Map<String, Class> getCache() { return new WeakHashMap<String, Class>(cache); }
+    public static Map<String, Class<?>> getCache() { return new WeakHashMap<String, Class<?>>(cache); }
     
 	static {
         searchPackages = new LinkedHashSet<String>();
         searchPackages.add("es.ull.isaatc.function");
-        cache = new WeakHashMap<String, Class>();
+        cache = new WeakHashMap<String, Class<?>>();
 	}
 	
     /**
@@ -78,7 +78,7 @@ public class TimeFunctionFactory {
             throw new IllegalArgumentException("null class name");
         }
         // First check cache
-        Class timeFunctionClass = cache.get(className);
+        Class<?> timeFunctionClass = cache.get(className);
         if (timeFunctionClass == null) {
             timeFunctionClass = findFullyQualifiedNameFor(className);
             if (timeFunctionClass == null) {
@@ -136,8 +136,8 @@ public class TimeFunctionFactory {
      * @see #addSearchPackage(String)
      * @see #setSearchPackages(Set)
      **/
-    public static Class findFullyQualifiedNameFor(String className) {
-        Class theClass = null;
+    public static Class<?> findFullyQualifiedNameFor(String className) {
+        Class<?> theClass = null;
         //        First see if name passed is "fully qualified"
         try {
             theClass = Thread.currentThread().getContextClassLoader().loadClass(className);

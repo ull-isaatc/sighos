@@ -32,7 +32,7 @@ public class TestSimKitRandom {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-    	int test = 1;
+//    	int test = 1;
     	RandomVariate rnd = RandomVariateFactory.getInstance("ScaledVariate", RandomVariateFactory.getInstance("ConstantVariate", 1), 1, 2.1);
     	for (int i = 0; i < NTEST; i++)
     		System.out.println(rnd.generate());
