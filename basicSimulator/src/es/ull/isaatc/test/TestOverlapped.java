@@ -1,19 +1,34 @@
 package es.ull.isaatc.test;
 
-import java.io.*;
+import java.io.FileWriter;
 import java.util.ArrayList;
 
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.info.SimulationObjectInfo;
+import es.ull.isaatc.simulation.Activity;
+import es.ull.isaatc.simulation.ElementCreator;
+import es.ull.isaatc.simulation.ElementType;
+import es.ull.isaatc.simulation.PooledExperiment;
+import es.ull.isaatc.simulation.Resource;
+import es.ull.isaatc.simulation.ResourceType;
+import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.SimulationCycle;
+import es.ull.isaatc.simulation.SimulationPeriodicCycle;
+import es.ull.isaatc.simulation.SimulationTime;
+import es.ull.isaatc.simulation.SimulationTimeFunction;
+import es.ull.isaatc.simulation.SimulationTimeUnit;
+import es.ull.isaatc.simulation.SimultaneousMetaFlow;
+import es.ull.isaatc.simulation.SingleMetaFlow;
+import es.ull.isaatc.simulation.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.WorkGroup;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.info.SimulationObjectInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
 import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.SimulationListener;
 import es.ull.isaatc.simulation.listener.StdInfoListener;
-import es.ull.isaatc.util.*;
 
 /**
  * 
@@ -30,7 +45,7 @@ class OverlappedSimulation extends StandAloneLPSimulation {
 	int days;
     
 	OverlappedSimulation(int id, int days) {
-		super(id, "Sistema de análisis", 0.0, days * 24 * 60.0);
+		super(id, "Sistema de análisis", SimulationTimeUnit.MINUTE, new SimulationTime(SimulationTimeUnit.MINUTE, 0.0), new SimulationTime(SimulationTimeUnit.DAY, days));
 		this.days = days;
     }
     
@@ -48,11 +63,11 @@ class OverlappedSimulation extends StandAloneLPSimulation {
         // PASO 3: Creo las tablas de clases de recursos
         WorkGroup wg1 = new WorkGroup(1, this, ""); 
         wg1.add(crSangre, NEEDED);
-        actSangre.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 20.0, 5.0), wg1);
+        actSangre.addWorkGroup(new SimulationTimeFunction(this, "NormalVariate", 20.0, 5.0), wg1);
 //        wg1.add(crOrina, 1);
         WorkGroup wg2 = new WorkGroup(2, this, "");
         wg2.add(crOrina, 1);
-        actOrina.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 20.0, 5.0), wg2);
+        actOrina.addWorkGroup(new SimulationTimeFunction(this, "NormalVariate", 20.0, 5.0), wg2);
 //        WorkGroup wg3 = actDummy.getNewWorkGroup(0, new Normal(10.0, 2.0));
 //        wg3.add(crDummy, 1);
 
@@ -74,14 +89,14 @@ class OverlappedSimulation extends StandAloneLPSimulation {
 		al2.add(crSangre);
         for (int i = 0; i < NRESOURCES; i++) {
 			Resource poli1 = new Resource(i, this, "Máquina Polivalente 1");
-			poli1.addTimeTableEntry(new PeriodicCycle(480, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0), 480, al2);
+			poli1.addTimeTableEntry(new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 480), new SimulationTimeFunction(this, "ConstantVariate", 1440.0), 0), new SimulationTime(SimulationTimeUnit.MINUTE, 480), al2);
         }
         
       SimultaneousMetaFlow metaFlow = new SimultaneousMetaFlow(1, RandomVariateFactory.getInstance("ConstantVariate", 1));
       new SingleMetaFlow(2, metaFlow, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1));
       new SingleMetaFlow(3, metaFlow, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));
 //		SingleMetaFlow metaFlow = new SingleMetaFlow(3, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(1));     
-		Cycle c = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), days);
+		SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0.0), new SimulationTimeFunction(this, "ConstantVariate", 1440.0), days);
 		new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), new ElementType(0, this, "ET0"), metaFlow), c);
 	}	
 }

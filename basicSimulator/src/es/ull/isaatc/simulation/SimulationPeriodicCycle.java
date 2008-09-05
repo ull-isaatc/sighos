@@ -3,7 +3,6 @@
  */
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.PeriodicCycle;
 
@@ -11,16 +10,16 @@ import es.ull.isaatc.util.PeriodicCycle;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SimulationPeriodicCycle extends PeriodicCycle implements
-		SimulationCycle {
-
+public class SimulationPeriodicCycle implements	SimulationCycle {
+	private final PeriodicCycle cycle;
+	
 	/**
 	 * @param startTs
 	 * @param period
 	 * @param endTs
 	 */
-	public SimulationPeriodicCycle(Simulation simul, SimulationTime startTs, TimeFunction period, SimulationTime endTs) {
-		super(simul.simulationTime2Double(startTs), period, simul.simulationTime2Double(endTs));
+	public SimulationPeriodicCycle(Simulation simul, SimulationTime startTs, SimulationTimeFunction period, SimulationTime endTs) {
+		cycle = new PeriodicCycle(simul.simulationTime2Double(startTs), period.getFunction(), simul.simulationTime2Double(endTs));
 	}
 
 	/**
@@ -28,9 +27,9 @@ public class SimulationPeriodicCycle extends PeriodicCycle implements
 	 * @param period
 	 * @param iterations
 	 */
-	public SimulationPeriodicCycle(Simulation simul, SimulationTime startTs, TimeFunction period,
+	public SimulationPeriodicCycle(Simulation simul, SimulationTime startTs, SimulationTimeFunction period,
 			int iterations) {
-		super(simul.simulationTime2Double(startTs), period, iterations);
+		cycle = new PeriodicCycle(simul.simulationTime2Double(startTs), period.getFunction(), iterations);
 	}
 
 	/**
@@ -39,9 +38,9 @@ public class SimulationPeriodicCycle extends PeriodicCycle implements
 	 * @param endTs
 	 * @param subCycle
 	 */
-	public SimulationPeriodicCycle(Simulation simul, SimulationTime startTs, TimeFunction period,
+	public SimulationPeriodicCycle(Simulation simul, SimulationTime startTs, SimulationTimeFunction period,
 			SimulationTime endTs, SimulationCycle subCycle) {
-		super(simul.simulationTime2Double(startTs), period, simul.simulationTime2Double(endTs), (Cycle)subCycle);
+		cycle = new PeriodicCycle(simul.simulationTime2Double(startTs), period.getFunction(), simul.simulationTime2Double(endTs), (Cycle)subCycle);
 	}
 
 	/**
@@ -50,9 +49,16 @@ public class SimulationPeriodicCycle extends PeriodicCycle implements
 	 * @param iterations
 	 * @param subCycle
 	 */
-	public SimulationPeriodicCycle(Simulation simul, SimulationTime startTs, TimeFunction period,
+	public SimulationPeriodicCycle(Simulation simul, SimulationTime startTs, SimulationTimeFunction period,
 			int iterations, SimulationCycle subCycle) {
-		super(simul.simulationTime2Double(startTs), period, iterations, (Cycle)subCycle);
+		cycle = new PeriodicCycle(simul.simulationTime2Double(startTs), period.getFunction(), iterations, (Cycle)subCycle);
+	}
+
+	/**
+	 * @return the cycle
+	 */
+	public Cycle getCycle() {
+		return cycle;
 	}
 
 }

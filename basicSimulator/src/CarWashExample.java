@@ -14,6 +14,7 @@ import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.SimulationCycle;
 import es.ull.isaatc.simulation.SimulationPeriodicCycle;
 import es.ull.isaatc.simulation.SimulationTime;
+import es.ull.isaatc.simulation.SimulationTimeFunction;
 import es.ull.isaatc.simulation.SimulationTimeUnit;
 import es.ull.isaatc.simulation.SingleMetaFlow;
 import es.ull.isaatc.simulation.StandAloneLPSimulation;
@@ -35,16 +36,16 @@ class CarWashSimulation extends StandAloneLPSimulation {
 		new ResourceType(0, this, "Washing Machine");
 		WorkGroup wg = new WorkGroup(0, this, ""); 
 		wg.add(getResourceType(0), 1);
-		new Activity(0, this, "Wash a car").addWorkGroup(getTimeFunctionInstance("ConstantVariate", 10), wg);
+		new Activity(0, this, "Wash a car").addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 10), wg);
 		new ElementType(0, this, "Car");
-//		Cycle c = new PeriodicCycle(0.0, getTimeFunctionInstance("ConstantVariate", 1440.0), 0);
-		SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0.0), getTimeFunctionInstance("ConstantVariate", internalEndTs), 0);
+//		Cycle c = new PeriodicCycle(0.0, new SimulationTimeFunction(this, "ConstantVariate", 1440.0), 0);
+		SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0.0), new SimulationTimeFunction(this, "ConstantVariate", internalEndTs), 0);
 		for (int i = 0; i < NRES; i++)
 			new Resource(i, this, "Car washing machine " + i).addTimeTableEntry(c, endTs, getResourceType(0));
 //			new Resource(i, this, "Car washing machine " + i).addTimeTableEntry(c, 200.0, getResourceType(0));
-//		Cycle subC = new PeriodicCycle(0.0, getTimeFunctionInstance("ExponentialVariate", 11.0), 200.0);
-//		Cycle c1 = new PeriodicCycle(0.0, getTimeFunctionInstance("ConstantVariate", 1440.0), 0, subC);
-		SimulationCycle c1 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0.0), getTimeFunctionInstance("ExponentialVariate", 11.0), 0);
+//		Cycle subC = new PeriodicCycle(0.0, new SimulationTimeFunction(this, "ExponentialVariate", 11.0), 200.0);
+//		Cycle c1 = new PeriodicCycle(0.0, new SimulationTimeFunction(this, "ConstantVariate", 1440.0), 0, subC);
+		SimulationCycle c1 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0.0), new SimulationTimeFunction(this, "ExponentialVariate", 11.0), 0);
 		new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1), getElementType(0), new SingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c1);
 	}
 }

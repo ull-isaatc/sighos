@@ -6,6 +6,8 @@ package es.ull.isaatc.simulation.state;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
+import es.ull.isaatc.simulation.SimulationTime;
+
 /**
  * Stores the state of a simulation. The state of a simulation consists on the state
  * of its logical processes, elements and resources.
@@ -26,7 +28,7 @@ public class SimulationState implements State {
 	/** Last single flow created in this simulation */
 	protected int lastSFId;
 	/** Final timestamp of this simulation */
-	protected double endTs;
+	protected SimulationTime endTs;
 	/** Possible types for the events stored in this LP */
 	public enum EventType {FINALIZEACT, ROLOFF};
 	/** Events in the waiting queue */
@@ -41,7 +43,7 @@ public class SimulationState implements State {
 	 * @param lastSFId Last single flow created in this simulation
 	 * @param endTs Final timestamp of this simulation
 	 */
-	public SimulationState(int lastElemId, int lastSFId, double endTs) {
+	public SimulationState(int lastElemId, int lastSFId, SimulationTime endTs) {
 		elemStates = new ArrayList<ElementState>();
 		resStates = new ArrayList<ResourceState>();
 		aStates = new ArrayList<ActivityState>();
@@ -138,7 +140,7 @@ public class SimulationState implements State {
 	/**
 	 * @return Final timestamp of this simulation.
 	 */
-	public double getEndTs() {
+	public SimulationTime getEndTs() {
 		return endTs;
 	}
 

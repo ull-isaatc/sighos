@@ -5,10 +5,25 @@ package es.ull.isaatc.test;
 
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.Activity;
+import es.ull.isaatc.simulation.ElementCreator;
+import es.ull.isaatc.simulation.ElementType;
+import es.ull.isaatc.simulation.PooledExperiment;
+import es.ull.isaatc.simulation.Resource;
+import es.ull.isaatc.simulation.ResourceType;
+import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.SimulationCycle;
+import es.ull.isaatc.simulation.SimulationPeriodicCycle;
+import es.ull.isaatc.simulation.SimulationTime;
+import es.ull.isaatc.simulation.SimulationTimeFunction;
+import es.ull.isaatc.simulation.SimulationTimeUnit;
+import es.ull.isaatc.simulation.SimultaneousMetaFlow;
+import es.ull.isaatc.simulation.SingleMetaFlow;
+import es.ull.isaatc.simulation.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.WorkGroup;
 import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.StdInfoListener;
-import es.ull.isaatc.util.PeriodicCycle;
 
 class PriorityElementSimulation extends StandAloneLPSimulation {
 	static final int NACT = 40;
@@ -16,7 +31,7 @@ class PriorityElementSimulation extends StandAloneLPSimulation {
 	static final int NELEM = 100;
 	static final int NRES = 20;
 	public PriorityElementSimulation(int id) {
-		super(id, "Testing Elements with priority", 0.0, 200.0);
+		super(id, "Testing Elements with priority", SimulationTimeUnit.MINUTE, SimulationTime.getZero(), new SimulationTime(SimulationTimeUnit.MINUTE, 200.0));
 		ListenerController cont = new ListenerController();
 		setListenerController(cont);
 		cont.addListener(new StdInfoListener());
@@ -28,11 +43,11 @@ class PriorityElementSimulation extends StandAloneLPSimulation {
 		WorkGroup wg = new WorkGroup(0, this, "WG");
 		wg.add(rt, 2);
 		for (int i = 0; i < NACT; i++)
-			new Activity(i, this, "ACT" + i, i / 2).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 10), 0, wg);
-		PeriodicCycle c1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 200.0), 0);
-		PeriodicCycle c2 = new PeriodicCycle(20.0, TimeFunctionFactory.getInstance("ConstantVariate", 100.0), 0);
+			new Activity(i, this, "ACT" + i, i / 2).addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 10), 0, wg);
+		SimulationCycle c1 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0.0), new SimulationTimeFunction(this, "ConstantVariate", 200.0), 0);
+		SimulationCycle c2 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 20.0), new SimulationTimeFunction(this, "ConstantVariate", 100.0), 0);
 		for (int i = 0; i < NRES; i++)
-			new Resource(i, this, "RES" + i).addTimeTableEntry(c2, 40, rt);
+			new Resource(i, this, "RES" + i).addTimeTableEntry(c2, new SimulationTime(SimulationTimeUnit.MINUTE, 40.0), rt);
 		SimultaneousMetaFlow meta = new SimultaneousMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
 		for (int i = 0; i < NACT; i++)
 			new SingleMetaFlow(i, meta, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i));

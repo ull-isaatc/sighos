@@ -7,17 +7,35 @@ import java.util.EnumSet;
 
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.Activity;
+import es.ull.isaatc.simulation.ElementCreator;
+import es.ull.isaatc.simulation.ElementType;
+import es.ull.isaatc.simulation.PooledExperiment;
+import es.ull.isaatc.simulation.Resource;
+import es.ull.isaatc.simulation.ResourceType;
+import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.SimulationCycle;
+import es.ull.isaatc.simulation.SimulationPeriodicCycle;
+import es.ull.isaatc.simulation.SimulationTime;
+import es.ull.isaatc.simulation.SimulationTimeFunction;
+import es.ull.isaatc.simulation.SimulationTimeUnit;
+import es.ull.isaatc.simulation.SingleMetaFlow;
+import es.ull.isaatc.simulation.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.WorkGroup;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.listener.*;
-import es.ull.isaatc.util.Cycle;
-import es.ull.isaatc.util.PeriodicCycle;
+import es.ull.isaatc.simulation.listener.ActivityListener;
+import es.ull.isaatc.simulation.listener.ActivityTimeListener;
+import es.ull.isaatc.simulation.listener.ElementStartFinishListener;
+import es.ull.isaatc.simulation.listener.ElementTypeTimeListener;
+import es.ull.isaatc.simulation.listener.ListenerController;
+import es.ull.isaatc.simulation.listener.ResourceStdUsageListener;
 
 class TestListenersSimulation extends StandAloneLPSimulation {
 	final static int NRES = 9;
 
-	TestListenersSimulation(int id, double startTs, double endTs) {
-		super(id, "TestListeners simulation", startTs, endTs);
+	TestListenersSimulation(int id, SimulationTime startTs, SimulationTime endTs) {
+		super(id, "TestListeners simulation", SimulationTimeUnit.MINUTE, startTs, endTs);
 	}
 	
 	@Override
@@ -35,23 +53,23 @@ class TestListenersSimulation extends StandAloneLPSimulation {
 		EnumSet<Activity.Modifier> modifiers = EnumSet.noneOf(Activity.Modifier.class);
 		modifiers.add(Activity.Modifier.INTERRUPTIBLE);
 		
-		new Activity(1, this, "ACT 1", modifiers).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 15), wg1);
-		new Activity(2, this, "ACT 2", modifiers).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 10), wg2);
+		new Activity(1, this, "ACT 1", modifiers).addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 15), wg1);
+		new Activity(2, this, "ACT 2", modifiers).addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 10), wg2);
 
 		new ElementType(1, this, "ET 1");
 		new ElementType(2, this, "ET 2");
 		
-		Cycle c = new PeriodicCycle(480.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
+		SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 480.0), new SimulationTimeFunction(this, "ConstantVariate", 1440.0), 0);
 		for (int i = 0; i < NRES; i++) {
-			new Resource(i, this, "REST1 " + i).addTimeTableEntry(c, 480.0, getResourceType(1));
-			new Resource(NRES + i, this, "REST2 " + i).addTimeTableEntry(c, 480.0, getResourceType(2));
+			new Resource(i, this, "REST1 " + i).addTimeTableEntry(c, new SimulationTime(SimulationTimeUnit.MINUTE, 480.0), getResourceType(1));
+			new Resource(NRES + i, this, "REST2 " + i).addTimeTableEntry(c, new SimulationTime(SimulationTimeUnit.MINUTE, 480.0), getResourceType(2));
 		}
 		Resource r = new Resource(2 * NRES, this, "RES " + 2 * NRES);
-		r.addTimeTableEntry(c, 480.0, getResourceType(1));
-		r.addTimeTableEntry(c, 480.0, getResourceType(2));
+		r.addTimeTableEntry(c, new SimulationTime(SimulationTimeUnit.MINUTE, 480.0), getResourceType(1));
+		r.addTimeTableEntry(c, new SimulationTime(SimulationTimeUnit.MINUTE, 480.0), getResourceType(2));
 		
-		Cycle subC = new PeriodicCycle(480.0, TimeFunctionFactory.getInstance("ExponentialVariate", 10.0), 960.0);
-		Cycle c1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0, subC);
+		SimulationCycle subC = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 480.0), new SimulationTimeFunction(this, "ExponentialVariate", 10.0), new SimulationTime(SimulationTimeUnit.MINUTE, 960.0));
+		SimulationCycle c1 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0.0), new SimulationTimeFunction(this, "ConstantVariate", 1440.0), 0, subC);
 		
 		new TimeDrivenGenerator(this,
 				new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 4),
@@ -76,7 +94,7 @@ class TestListenersExperiment extends PooledExperiment {
 	
 	@Override
 	public Simulation getSimulation(int ind) {
-		TestListenersSimulation sim = new TestListenersSimulation(ind, 0.0, 24 * 60.0 * NDAYS);
+		TestListenersSimulation sim = new TestListenersSimulation(ind, SimulationTime.getZero(), new SimulationTime(SimulationTimeUnit.DAY, NDAYS));
 		ListenerController cont = new ListenerController();
 		sim.setListenerController(cont);
 //		sim.addListener(new StdInfoListener(System.out));

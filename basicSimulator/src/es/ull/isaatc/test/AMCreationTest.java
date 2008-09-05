@@ -3,15 +3,23 @@
  */
 package es.ull.isaatc.test;
 
-import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.Activity;
+import es.ull.isaatc.simulation.Experiment;
+import es.ull.isaatc.simulation.PooledExperiment;
+import es.ull.isaatc.simulation.ResourceType;
+import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.SimulationTime;
+import es.ull.isaatc.simulation.SimulationTimeFunction;
+import es.ull.isaatc.simulation.SimulationTimeUnit;
+import es.ull.isaatc.simulation.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.WorkGroup;
 
 class MySimulation extends StandAloneLPSimulation {
-	public static final double START = 0.0;
-	public static final double END = 0.0;
+	public static final SimulationTime START = SimulationTime.getZero();
+	public static final SimulationTime END = SimulationTime.getZero();
 	private long t;
 	public MySimulation(int id, String description) {
-		super(id, description, START, END);
+		super(id, description, SimulationTimeUnit.MINUTE, START, END);
 	}
 
 	protected void model1() {
@@ -23,7 +31,7 @@ class MySimulation extends StandAloneLPSimulation {
 			WorkGroup wg = new WorkGroup(i, this, "");
 			wg.add(resourceTypeList.get(i), 1);
 			wg.add(resourceTypeList.get(i + 1), 1);
-			new Activity(i, this, "ACT" + i).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 10.0), wg);
+			new Activity(i, this, "ACT" + i).addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 10.0), wg);
 		}
 	}
 
@@ -35,7 +43,7 @@ class MySimulation extends StandAloneLPSimulation {
 		for (int i = 0; i < NACT; i++) {
 			WorkGroup wg = new WorkGroup(i, this, "");
 			wg.add(resourceTypeList.get(i), 1);
-			new Activity(i, this, "ACT" + i).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 10.0), wg);
+			new Activity(i, this, "ACT" + i).addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 10.0), wg);
 		}
 	}
 	

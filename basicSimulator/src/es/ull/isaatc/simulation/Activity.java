@@ -156,7 +156,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(TimeFunction duration, int priority, es.ull.isaatc.simulation.WorkGroup wg) {
+    public int addWorkGroup(SimulationTimeFunction duration, int priority, es.ull.isaatc.simulation.WorkGroup wg) {
     	int wgId = workGroupTable.size();
         workGroupTable.add(new WorkGroup(wgId, duration, priority, wg));
         return wgId;
@@ -169,7 +169,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(TimeFunction duration, es.ull.isaatc.simulation.WorkGroup wg) {    	
+    public int addWorkGroup(SimulationTimeFunction duration, es.ull.isaatc.simulation.WorkGroup wg) {    	
         return addWorkGroup(duration, 0, wg);
     }
 
@@ -180,7 +180,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * @param priority Priority of the workgroup
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(TimeFunction duration, int priority) {
+    public int addWorkGroup(SimulationTimeFunction duration, int priority) {
     	int wgId = workGroupTable.size();
         workGroupTable.add(new WorkGroup(wgId, duration, priority));
         return wgId;
@@ -192,7 +192,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
      * @param duration Duration of the activity when performed with the new workgroup
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(TimeFunction duration) {    	
+    public int addWorkGroup(SimulationTimeFunction duration) {    	
         return addWorkGroup(duration, 0);
     }
 
@@ -338,9 +338,9 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	     * @param duration Duration of the activity when using this WG.
 	     * @param priority Priority of the workgroup.
 	     */    
-	    protected WorkGroup(int id, TimeFunction duration, int priority) {
+	    protected WorkGroup(int id, SimulationTimeFunction duration, int priority) {
 	        super(id, Activity.this.simul, "WG" + id + "-ACT" + Activity.this.id);
-	        this.duration = duration;
+	        this.duration = duration.getFunction();
 	        this.priority = priority;
 	    }
 
@@ -350,9 +350,9 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	     * @param duration Duration of the activity when using this WG.
 	     * @param priority Priority of the workgroup.
 	     */    
-	    protected WorkGroup(int id, TimeFunction duration, int priority, es.ull.isaatc.simulation.WorkGroup wg) {
+	    protected WorkGroup(int id, SimulationTimeFunction duration, int priority, es.ull.isaatc.simulation.WorkGroup wg) {
 	        super(id, wg.simul, wg.description);
-	        this.duration = duration;
+	        this.duration = duration.getFunction();
 	        this.priority = priority;
 	        this.resourceTypeTable.addAll(wg.resourceTypeTable);
 	    }

@@ -10,7 +10,7 @@ class SimGenerators extends StandAloneLPSimulation {
     static final int NDIAS = 4;
 
 	public SimGenerators(int id) {
-		super(id, "Test de generadores", 0.0, NDIAS * 24.0 * 60.0);
+		super(id, "Test de generadores", SimulationTimeUnit.MINUTE, new SimulationTime(SimulationTimeUnit.MINUTE, 0.0), new SimulationTime(SimulationTimeUnit.DAY, NDIAS));
 	}
 
 	@Override
@@ -19,11 +19,11 @@ class SimGenerators extends StandAloneLPSimulation {
         ResourceType crDummy = new ResourceType(0, this, "Dummy");
         WorkGroup wg3 = new WorkGroup(3, this, "");
         wg3.add(crDummy, 1);
-        actDummy.addWorkGroup(TimeFunctionFactory.getInstance("NormalVariate", 10.0, 2.0), wg3);
+        actDummy.addWorkGroup(new SimulationTimeFunction(this, "NormalVariate", 10.0, 2.0), wg3);
 //    	Resource res = new Resource(0, this, "Dummy");
 //    	res.addTimeTableEntry(new Cycle(480, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 0), 480, crDummy);
 		SingleMetaFlow metaFlow = new SingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0));     
-		PeriodicCycle c = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
+		SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0.0), new SimulationTimeFunction(this, "ConstantVariate", 1440.0), 0);
 //		double []val = {0.0, 100.0, 100.0, 50.0, 70.0};
 //		Cycle c = new TableCycle(val);
 		ElementType etDummy = new ElementType(0, this, "Dummy");

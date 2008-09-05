@@ -14,6 +14,7 @@ import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.SimulationCycle;
 import es.ull.isaatc.simulation.SimulationPeriodicCycle;
 import es.ull.isaatc.simulation.SimulationTime;
+import es.ull.isaatc.simulation.SimulationTimeFunction;
 import es.ull.isaatc.simulation.SimulationTimeUnit;
 import es.ull.isaatc.simulation.SimultaneousMetaFlow;
 import es.ull.isaatc.simulation.SingleMetaFlow;
@@ -60,22 +61,22 @@ class Analisis extends StandAloneLPSimulation {
 //        WorkGroup wg1 = actPrueba1.getNewWorkGroup(0, new Normal(20.0, 5.0));
         WorkGroup wg0 = new WorkGroup(0, this, "Enfermeros");
         wg0.add(crEnfermero, 1);
-        actPrueba1.addWorkGroup(getTimeFunctionInstance("ConstantVariate", 60), wg0);
+        actPrueba1.addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 60), wg0);
         WorkGroup wg1 = new WorkGroup(1, this, "Máquinas Análisis Sangre");
         wg1.add(crSangre, 1);
-        actPrueba1a.addWorkGroup(getTimeFunctionInstance("NormalVariate", 10.0, 2.0), wg1);
+        actPrueba1a.addWorkGroup(new SimulationTimeFunction(this, "NormalVariate", 10.0, 2.0), wg1);
         WorkGroup wg2 = new WorkGroup(2, this, "Máquinas Análisis Sangre + enfermeros");
         wg2.add(crSangre, 1);
         wg2.add(crEnfermero, 1);
-        actPrueba1c.addWorkGroup(getTimeFunctionInstance("NormalVariate", 10.0, 2.0), wg2);
-        actPrueba1e.addWorkGroup(getTimeFunctionInstance("NormalVariate", 10.0, 2.0), wg2);
+        actPrueba1c.addWorkGroup(new SimulationTimeFunction(this, "NormalVariate", 10.0, 2.0), wg2);
+        actPrueba1e.addWorkGroup(new SimulationTimeFunction(this, "NormalVariate", 10.0, 2.0), wg2);
         WorkGroup wg3 = new WorkGroup(3, this, "Máquinas Análisis Orina");
         wg3.add(crOrina, 1);
-        actPrueba1b.addWorkGroup(getTimeFunctionInstance("NormalVariate", 10.0, 5.0), wg3);
+        actPrueba1b.addWorkGroup(new SimulationTimeFunction(this, "NormalVariate", 10.0, 5.0), wg3);
         WorkGroup wg4 = new WorkGroup(4, this, "Máquinas Análisis Orina + enfermeros");
         wg4.add(crOrina, 1);
         wg4.add(crEnfermero, 1);
-        actPrueba1d.addWorkGroup(getTimeFunctionInstance("NormalVariate", 10.0, 5.0), wg4);
+        actPrueba1d.addWorkGroup(new SimulationTimeFunction(this, "NormalVariate", 10.0, 5.0), wg4);
         
         new ElementType(0, this, "Paciente");
 		
@@ -93,7 +94,7 @@ class Analisis extends StandAloneLPSimulation {
 //        poli.addTimeTableEntry(c1, 480, list);
         // Y añado los Enfermeros necesarios para que vaya "sobrado" el asunto
         
-        SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(unit, 480), getTimeFunctionInstance("ConstantVariate", 1440.0), 0);
+        SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(unit, 480), new SimulationTimeFunction(this, "ConstantVariate", 1440.0), 0);
 		new Resource(1, this, "Enfermero 1").addTimeTableEntry(c, new SimulationTime(unit, 480), getResourceType(2));
 //		new Resource(2, this, "Enfermero 2").addTimeTableEntry(c, new SimulationTime(unit, 480), getResourceType(2));
 		createMetaFlow3();
@@ -111,7 +112,7 @@ class Analisis extends StandAloneLPSimulation {
         SimultaneousMetaFlow simSangre = new SimultaneousMetaFlow(9, secSangre, RandomVariateFactory.getInstance("ConstantVariate", 1));
         new SingleMetaFlow(10, simSangre, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(3));
         new SingleMetaFlow(11, simSangre, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(5));
-        SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(unit, 0.0), getTimeFunctionInstance("ConstantVariate", 1440.0), ndays);
+        SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(unit, 0.0), new SimulationTimeFunction(this, "ConstantVariate", 1440.0), ndays);
         new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), sec), c);
     }
     
@@ -125,7 +126,7 @@ class Analisis extends StandAloneLPSimulation {
         SimultaneousMetaFlow simSangre = new SimultaneousMetaFlow(18, op2, RandomVariateFactory.getInstance("ConstantVariate", 1));
         new SingleMetaFlow(19, simSangre, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(3));
         new SingleMetaFlow(20, simSangre, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(5));
-        SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(unit, 0.0), getTimeFunctionInstance("ConstantVariate", 1440.0), ndays);
+        SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(unit, 0.0), new SimulationTimeFunction(this, "ConstantVariate", 1440.0), ndays);
         new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), simPruebas), c);
     }
     protected void createMetaFlow2() {
@@ -137,12 +138,12 @@ class Analisis extends StandAloneLPSimulation {
 //        Cycle c2 = new Cycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0), 5, c3);
 ////        Cycle c2 = new Cycle(480.0, RandomVariateFactory.getInstance("ConstantVariate", 120.0), 0);
 //        Cycle c = new Cycle(0.0, RandomVariateFactory.getInstance("ConstantVariate", 1440.0 * 7), 0, c2);
-        SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(unit, 0.0), getTimeFunctionInstance("ConstantVariate", 1440.0), ndays);
+        SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(unit, 0.0), new SimulationTimeFunction(this, "ConstantVariate", 1440.0), ndays);
         new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), metaFlow), c);
     }
     
     protected void createMetaFlow3() {
-        SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(unit, 0.0), getTimeFunctionInstance("ConstantVariate", 1440.0), ndays);
+        SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(unit, 0.0), new SimulationTimeFunction(this, "ConstantVariate", 1440.0), ndays);
         new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPACIENTES), getElementType(0), new SingleMetaFlow(23, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(0))), c);
     }
 

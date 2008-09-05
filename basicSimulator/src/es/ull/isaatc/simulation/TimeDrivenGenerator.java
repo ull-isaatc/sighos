@@ -24,7 +24,7 @@ public class TimeDrivenGenerator extends Generator {
      */
 	public TimeDrivenGenerator(Simulation simul, BasicElementCreator creator, SimulationCycle cycle) {
 		super(simul, creator);
-		this.cycle = (Cycle)cycle;
+		this.cycle = cycle.getCycle();
 	}
 
 	@Override

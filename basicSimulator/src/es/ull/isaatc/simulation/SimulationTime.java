@@ -42,4 +42,8 @@ public class SimulationTime {
 	public String toString() {
 		return "" + value + " " + unit.getName();
 	}
+	
+	public static SimulationTime getZero() {
+		return new SimulationTime(SimulationTimeUnit.MINUTE, 0.0);
+	}
 }

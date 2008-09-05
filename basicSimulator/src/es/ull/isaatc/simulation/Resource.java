@@ -81,7 +81,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
      * @param role Role that the resource plays during this cycle
      */
     public void addTimeTableEntry(SimulationCycle cycle, SimulationTime dur, ResourceType role) {
-        timeTable.add(new TimeTableEntry((Cycle)cycle, simul.simulationTime2Double(dur), role));
+        timeTable.add(new TimeTableEntry(cycle.getCycle(), simul.simulationTime2Double(dur), role));
     }  
 
     /**

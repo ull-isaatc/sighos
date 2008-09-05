@@ -6,17 +6,26 @@
 
 package es.ull.isaatc.simulation;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
-import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.listener.ListenerController;
-import es.ull.isaatc.simulation.state.*;
-import es.ull.isaatc.util.*;
+import es.ull.isaatc.simulation.state.ActivityState;
+import es.ull.isaatc.simulation.state.ElementState;
+import es.ull.isaatc.simulation.state.RecoverableState;
+import es.ull.isaatc.simulation.state.ResourceState;
+import es.ull.isaatc.simulation.state.ResourceTypeState;
+import es.ull.isaatc.simulation.state.SimulationState;
+import es.ull.isaatc.util.Output;
+import es.ull.isaatc.util.PeriodicCycle;
 
 /**
  * Main simulation class. A simulation needs a model (introduced by means of the
@@ -256,22 +265,20 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 		return new SimulationTime(unit, sourceValue / Double.MIN_VALUE);
 	}
 	
-	public TimeFunction getTimeFunctionInstance(SimulationTimeUnit functionUnit, String className, Object... parameters) {
-		for (int i = 0; i < parameters.length; i++) {
-			if (parameters[i] instanceof Number)
-				parameters[i] = simulationTime2Double(new SimulationTime(functionUnit, ((Number)parameters[i]).doubleValue())); 
-		}
-		return TimeFunctionFactory.getInstance(className, parameters);
+	/**
+	 * @return the unit
+	 */
+	public SimulationTimeUnit getUnit() {
+		return unit;
 	}
-	
-	public TimeFunction getTimeFunctionInstance(String className, Object... parameters) {
-		for (int i = 0; i < parameters.length; i++) {
-			if (parameters[i] instanceof Number)
-				parameters[i] = simulationTime2Double(new SimulationTime(unit, ((Number)parameters[i]).doubleValue())); 
-		}
-		return TimeFunctionFactory.getInstance(className, parameters);
+
+	/**
+	 * @param unit the unit to set
+	 */
+	public void setUnit(SimulationTimeUnit unit) {
+		this.unit = unit;
 	}
-	
+
 	/**
 	 * Adds an {@link es.ull.isaatc.simulation.Activity} to the model. These method
 	 * is invoked from the object's constructor.
@@ -635,7 +642,7 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	 */
 	public SimulationState getState() {
 		SimulationState simState = new SimulationState(Generator
-				.getElemCounter(), SingleFlow.getCounter(), internalEndTs);
+				.getElemCounter(), SingleFlow.getCounter(), endTs);
 		for (LogicalProcess lp : logicalProcessList) {
 			for (BasicElement.DiscreteEvent ev : lp.waitQueue) {
 				if (ev instanceof Element.FinalizeActivityEvent) {

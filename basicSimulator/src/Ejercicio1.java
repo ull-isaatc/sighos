@@ -13,6 +13,7 @@ import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.SimulationCycle;
 import es.ull.isaatc.simulation.SimulationPeriodicCycle;
 import es.ull.isaatc.simulation.SimulationTime;
+import es.ull.isaatc.simulation.SimulationTimeFunction;
 import es.ull.isaatc.simulation.SimulationTimeUnit;
 import es.ull.isaatc.simulation.SimultaneousMetaFlow;
 import es.ull.isaatc.simulation.SingleMetaFlow;
@@ -48,38 +49,38 @@ class Simulation1 extends StandAloneLPSimulation {
         
         WorkGroup wg = new WorkGroup(0, this, "Doctores");
         wg.add(getResourceType(0), 1);
-        getActivity(3).addWorkGroup(getTimeFunctionInstance("NormalVariate", 15.0, 2.0), wg);
-        getActivity(4).addWorkGroup(getTimeFunctionInstance("NormalVariate", 12.0, 2.0), wg);
+        getActivity(3).addWorkGroup(new SimulationTimeFunction(this, "NormalVariate", 15.0, 2.0), wg);
+        getActivity(4).addWorkGroup(new SimulationTimeFunction(this, "NormalVariate", 12.0, 2.0), wg);
         
         wg = new WorkGroup(1, this, "Auxiliar");
         wg.add(getResourceType(1), 1);
-        getActivity(0).addWorkGroup(getTimeFunctionInstance("ConstantVariate", 5.0), wg);
+        getActivity(0).addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 5.0), wg);
         
         wg = new WorkGroup(2, this, "Sangre");
         wg.add(getResourceType(2), 1);
-        getActivity(1).addWorkGroup(getTimeFunctionInstance("ConstantVariate", 60.0), wg);
+        getActivity(1).addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 60.0), wg);
 
         wg = new WorkGroup(3, this, "Orina");
         wg.add(getResourceType(3), 1);
-        getActivity(2).addWorkGroup(getTimeFunctionInstance("UniformVariate", 40.0, 50.0), wg);
+        getActivity(2).addWorkGroup(new SimulationTimeFunction(this, "UniformVariate", 40.0, 50.0), wg);
     
         wg = new WorkGroup(4, this, "RX");
         wg.add(getResourceType(4), 1);
         wg.add(getResourceType(1), 1);
-        getActivity(5).addWorkGroup(getTimeFunctionInstance("NormalVariate", 25.0, 5.0), wg);
+        getActivity(5).addWorkGroup(new SimulationTimeFunction(this, "NormalVariate", 25.0, 5.0), wg);
         
-        SimulationCycle subc1 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 600), getTimeFunctionInstance("ConstantVariate", 1440.0), 5);
-        SimulationCycle c1 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0), getTimeFunctionInstance("ConstantVariate", 1440.0 * 7), 0, subc1);
+        SimulationCycle subc1 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 600), new SimulationTimeFunction(this, "ConstantVariate", 1440.0), 5);
+        SimulationCycle c1 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0), new SimulationTimeFunction(this, "ConstantVariate", 1440.0 * 7), 0, subc1);
         
         new Resource(0, this, "Auxiliar 1").addTimeTableEntry(c1, new SimulationTime(SimulationTimeUnit.MINUTE, 240), getResourceType(1));
         
-        SimulationCycle subc2 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 480), getTimeFunctionInstance("ConstantVariate", 1440.0), 5);
-        SimulationCycle c2 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0), getTimeFunctionInstance("ConstantVariate", 1440.0 * 7), 0, subc2);
+        SimulationCycle subc2 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 480), new SimulationTimeFunction(this, "ConstantVariate", 1440.0), 5);
+        SimulationCycle c2 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0), new SimulationTimeFunction(this, "ConstantVariate", 1440.0 * 7), 0, subc2);
 
         new Resource(1, this, "Doctor 1").addTimeTableEntry(c2, new SimulationTime(SimulationTimeUnit.MINUTE, 420), getResourceType(0));
         new Resource(2, this, "Doctor 2").addTimeTableEntry(c2, new SimulationTime(SimulationTimeUnit.MINUTE, 420), getResourceType(0));
         
-        SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0), getTimeFunctionInstance("ConstantVariate", internalEndTs), 0);
+        SimulationCycle c = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0), new SimulationTimeFunction(this, "ConstantVariate", internalEndTs), 0);
         new Resource(3, this, "RX 1").addTimeTableEntry(c, endTs, getResourceType(4));
         ArrayList<ResourceType> roleList = new ArrayList<ResourceType>();
         roleList.add(getResourceType(2));
@@ -98,7 +99,7 @@ class Simulation1 extends StandAloneLPSimulation {
         new SingleMetaFlow(9, sec2, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(4));
         
         new ElementType(0, this, "Paciente");
-        SimulationCycle cGen = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0.0), getTimeFunctionInstance("ConstantVariate", 1440.0), ndays);
+        SimulationCycle cGen = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0.0), new SimulationTimeFunction(this, "ConstantVariate", 1440.0), ndays);
         new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("NormalVariate", 21, 2), getElementType(0), sec), cGen);        
     }
 	
