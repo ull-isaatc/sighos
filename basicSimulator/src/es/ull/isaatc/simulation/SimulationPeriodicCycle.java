@@ -40,7 +40,7 @@ public class SimulationPeriodicCycle implements	SimulationCycle {
 	 */
 	public SimulationPeriodicCycle(Simulation simul, SimulationTime startTs, SimulationTimeFunction period,
 			SimulationTime endTs, SimulationCycle subCycle) {
-		cycle = new PeriodicCycle(simul.simulationTime2Double(startTs), period.getFunction(), simul.simulationTime2Double(endTs), (Cycle)subCycle);
+		cycle = new PeriodicCycle(simul.simulationTime2Double(startTs), period.getFunction(), simul.simulationTime2Double(endTs), subCycle.getCycle());
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class SimulationPeriodicCycle implements	SimulationCycle {
 	 */
 	public SimulationPeriodicCycle(Simulation simul, SimulationTime startTs, SimulationTimeFunction period,
 			int iterations, SimulationCycle subCycle) {
-		cycle = new PeriodicCycle(simul.simulationTime2Double(startTs), period.getFunction(), iterations, (Cycle)subCycle);
+		cycle = new PeriodicCycle(simul.simulationTime2Double(startTs), period.getFunction(), iterations, subCycle.getCycle());
 	}
 
 	/**
