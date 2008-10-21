@@ -96,6 +96,8 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	
 	protected SimulationTimeUnit unit = null;
 	
+	protected int nThreads = 1;
+	
 	/**
 	 * Empty constructor for compatibility purposes
 	 */
@@ -219,7 +221,7 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 		listenerController.start();
 		
 		getListenerController().notifyListeners(new SimulationStartInfo(this, System
-				.currentTimeMillis(), Generator.getElemCounter()));
+				.nanoTime(), Generator.getElemCounter()));
 		
 		// FIXME: Debería hacer un reparto más inteligente tanto de generadores
 		// como de recursos
@@ -241,7 +243,7 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 			e.printStackTrace();
 		}
 		debug("SIMULATION COMPLETELY FINISHED");
-		getListenerController().notifyListeners(new SimulationEndInfo(this, System.currentTimeMillis(),
+		getListenerController().notifyListeners(new SimulationEndInfo(this, System.nanoTime(),
 				Generator.getElemCounter()));
 	}
 
@@ -277,6 +279,20 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 	 */
 	public void setUnit(SimulationTimeUnit unit) {
 		this.unit = unit;
+	}
+
+	/**
+	 * @return the nThreads
+	 */
+	public int getNThreads() {
+		return nThreads;
+	}
+
+	/**
+	 * @param threads the nThreads to set
+	 */
+	public void setNThreads(int threads) {
+		nThreads = threads;
 	}
 
 	/**

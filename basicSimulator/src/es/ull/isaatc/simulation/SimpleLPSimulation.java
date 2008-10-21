@@ -37,7 +37,7 @@ public abstract class SimpleLPSimulation extends StandardAMSimulation {
 		for (int i = 0; i < activityManagerList.size(); i++)
 			logicalProcessList[i] = new LogicalProcess(this, internalStartTs, internalEndTs);
 		// Creo el último proceso lógico, que servirá de "cajón de sastre"
-		logicalProcessList[activityManagerList.size()] = new LogicalProcess(this, internalStartTs, internalEndTs);
+		logicalProcessList[activityManagerList.size()] = new LogicalProcess(this, internalStartTs, internalEndTs, nThreads);
 	}
 
 }

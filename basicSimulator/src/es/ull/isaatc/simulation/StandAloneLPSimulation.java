@@ -62,7 +62,7 @@ public abstract class StandAloneLPSimulation extends StandardAMSimulation {
 	@Override
 	protected void createLogicalProcesses() {
 		logicalProcessList = new LogicalProcess[1];
-		logicalProcessList[0] = new LogicalProcess(this, internalStartTs, internalEndTs);
+		logicalProcessList[0] = new LogicalProcess(this, internalStartTs, internalEndTs, nThreads);
 		for (ActivityManager am : activityManagerList)
 			am.setLp(logicalProcessList[0]);
 	}

@@ -45,7 +45,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * @param endT Finishing timestamp.
      */
 	public LogicalProcess(Simulation simul, double endT) {
-        this(simul, 0.0, endT);
+        this(simul, 0.0, endT, 1);
 	}
 
 	/**
@@ -56,8 +56,28 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * @param endT Finishing timestamp.
      */
 	public LogicalProcess(Simulation simul, double startT, double endT) {
+        this(simul, startT, endT, 1);
+	}
+
+	/**
+     * Creates a logical process with initial timestamp 0.0
+     * @param simul Simulation which this LP is attached to.
+     * @param endT Finishing timestamp.
+     */
+	public LogicalProcess(Simulation simul, double endT, int nThreads) {
+        this(simul, 0.0, endT, nThreads);
+	}
+
+	/**
+     * Creates a logical processwith initial timestamp <code>startT</code> and
+     * finishing timestamp <code>endT</code>. 
+     * @param simul Simulation which this LP is attached to.
+     * @param startT Initial timestamp.
+     * @param endT Finishing timestamp.
+     */
+	public LogicalProcess(Simulation simul, double startT, double endT, int nThreads) {
 		super(nextId++, simul);
-        tp = Executors.newFixedThreadPool(1);
+        tp = Executors.newFixedThreadPool(nThreads);
         execQueue = new Vector<BasicElement.DiscreteEvent>();
         waitQueue = new PriorityBlockingQueue<BasicElement.DiscreteEvent>();
         lpLock = new ReentrantLock();
