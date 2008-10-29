@@ -4,6 +4,8 @@
 package es.ull.isaatc.test;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
@@ -11,6 +13,8 @@ import es.ull.isaatc.simulation.Activity;
 import es.ull.isaatc.simulation.ElementCreator;
 import es.ull.isaatc.simulation.ElementType;
 import es.ull.isaatc.simulation.Experiment;
+import es.ull.isaatc.simulation.Resource;
+import es.ull.isaatc.simulation.ResourceType;
 import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.SimulationPeriodicCycle;
 import es.ull.isaatc.simulation.SimulationTime;
@@ -19,6 +23,7 @@ import es.ull.isaatc.simulation.SimulationTimeUnit;
 import es.ull.isaatc.simulation.SingleMetaFlow;
 import es.ull.isaatc.simulation.StandAloneLPSimulation;
 import es.ull.isaatc.simulation.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.WorkGroup;
 import es.ull.isaatc.simulation.info.ElementInfo;
 import es.ull.isaatc.simulation.info.ResourceInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
@@ -86,6 +91,76 @@ class TestOcurrenceSimN extends StandAloneLPSimulation {
 	}	
 }
 
+class TestOcurrenceSimNRes extends StandAloneLPSimulation {
+	final static double MIX_FACTOR = 10.0;
+	Type type;
+	int nIter;
+	double actTime;
+	int nElem;
+	Activity[] acts;
+	SingleMetaFlow[] smfs;
+	ResourceType[] rts;
+	WorkGroup[] wgs;
+	Resource[] res;
+
+	public TestOcurrenceSimNRes(Type type, int id, int nAct, int nElem, double actTime, int nIter, SimulationTime endTs) {
+		super(id, "TEST",  SimulationTimeUnit.MINUTE, SimulationTime.getZero(), endTs);
+		this.nIter = nIter;
+		this.nElem = nElem;
+		this.acts = new Activity[nAct];
+		this.smfs = new SingleMetaFlow[nAct];
+		this.rts = new ResourceType[nAct];
+		this.wgs = new WorkGroup[nAct];
+		this.res = new Resource[nElem];
+		this.actTime = actTime;
+		this.type = type;
+	}
+	
+	@Override
+	protected void createModel() {
+		SimulationTimeFunction oneFunction = new SimulationTimeFunction(this, "ConstantVariate", 1);
+		SimulationPeriodicCycle allCycle = new SimulationPeriodicCycle(this, SimulationTime.getZero(), new SimulationTimeFunction(this, "ConstantVariate", endTs.getValue()), 0);
+		for (int i = 0; i < nElem; i++)
+			res[i] = new Resource(i, this, "RES_TEST" + i);
+		for (int i = 0; i < acts.length; i++) {
+			acts[i] = new Activity(i, this, "A_TEST" + i);
+			smfs[i] = new SingleMetaFlow(i, RandomVariateFactory.getInstance("ConstantVariate", nIter), acts[i]);
+			rts[i] = new ResourceType(i, this, "RT_TEST" + i);
+			wgs[i] = new WorkGroup(i, this, "WG_TEST" + i);
+			wgs[i].add(rts[i], 1);
+		}
+		for (int j = 0; j < nElem; j++)
+			res[j].addTimeTableEntry(allCycle, endTs, new ArrayList<ResourceType>(Arrays.asList(rts)));
+		ElementType et = new ElementType(0, this, "E_TEST");
+		switch(type) {
+			case SAMETIME:
+				for (int i = 0; i < acts.length; i++)
+					acts[i].addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", actTime), wgs[i]);
+				for (SingleMetaFlow smf : smfs)
+					new TimeDrivenGenerator(this, 
+							new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", nElem / smfs.length), et, smf), 
+							allCycle);
+				break;
+			case CONSECUTIVE:
+				for (int i = 0; i < acts.length; i++)
+					acts[i].addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", actTime), wgs[i]);
+				for (SingleMetaFlow smf : smfs)
+					new TimeDrivenGenerator(this, 
+							new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf), 
+							new SimulationPeriodicCycle(this, SimulationTime.getZero(), oneFunction, nElem));
+				break;
+			case MIXED:
+				for (int i = 0; i < acts.length; i++)
+					acts[i].addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", actTime / MIX_FACTOR), wgs[i]);
+				for (SingleMetaFlow smf : smfs)
+					new TimeDrivenGenerator(this, 
+							new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf), 
+							new SimulationPeriodicCycle(this, SimulationTime.getZero(), oneFunction, nElem));
+				break;
+		}
+	}	
+}
+
 class BenchmarkListener extends SimulationTimeListener implements SimulationObjectListener {
 	int elemEvents = 0;
 	int resEvents = 0;
@@ -139,11 +214,11 @@ class BenchmarkListener extends SimulationTimeListener implements SimulationObje
  */
 public class BenchmarkTest {
 	static int nThreads = 2;
-	static int nElem = 2000;
+	static int nElem = 1000;
 	static int nAct = 2;
 	static double actTime = nElem;
 	static int nIter = 10;
-	static int nExp = 46;
+	static int nExp = 1;
 	static Type type = Type.SAMETIME;
 //	static Type type = Type.CONSECUTIVE;
 //	static Type type = Type.MIXED;
@@ -174,7 +249,7 @@ public class BenchmarkTest {
 //				return new TestOcurrenceSim2(Type.CONSECUTIVE, ind, NELEM, ACTTIME, NITER, ENDTS);
 //				return new TestOcurrenceSim2(Type.SAMETIME, ind, NELEM, ACTTIME, NITER, ENDTS);
 //				return new TestOcurrenceSim2(Type.MIXED, ind, NELEM, ACTTIME, NITER, ENDTS);
-				return new TestOcurrenceSimN(type, ind, nAct, nElem, actTime, nIter, endTs);
+				return new TestOcurrenceSimNRes(type, ind, nAct, nElem, actTime, nIter, endTs);
 			}
 
 			@Override
