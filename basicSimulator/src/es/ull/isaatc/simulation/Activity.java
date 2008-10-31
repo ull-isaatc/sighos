@@ -478,7 +478,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	     * @param nec Resource needed.
 	     * @return [ResourceType, Resource] where the next valid solution can be found.
 	     */
-	    private int []searchNext(int[] pos, int []nec) {
+	    private int []searchNext(int[] pos, int []nec, SingleFlow sf) {
 	        int []aux = new int[2];
 	        aux[0] = pos[0];
 	        aux[1] = pos[1];
@@ -495,7 +495,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	        // Takes the first resource type
 	        ResourceType rt = resourceTypeTable.get(aux[0]).getResourceType();
 	        // Searches the NEXT available resource
-	        aux[1] = rt.getNextAvailableResource(aux[1] + 1);
+	        aux[1] = rt.getNextAvailableResource(aux[1] + 1, sf);
 
 	        // This resource type don't have enough available resources
 	        if (aux[1] == -1)
@@ -527,8 +527,8 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	     * @param ned Resources needed
 	     * @return True if a valid solution exists. False in other case.
 	     */
-	    protected boolean findSolution(int []pos, int []ned) {
-	        pos = searchNext(pos, ned);
+	    protected boolean findSolution(int []pos, int []ned, SingleFlow sf) {
+	        pos = searchNext(pos, ned, sf);
 	        // No solution
 	        if (pos == null)
 	            return false;
@@ -541,13 +541,13 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	        // Bound
 	        if (hasSolution(pos, ned))
 	        // ... the search continues
-	            if (findSolution(pos, ned))
+	            if (findSolution(pos, ned, sf))
 	                return true;
 	        // There's no solution with this resource. Try without it
 	        unmark(pos);
 	        ned[pos[0]]++;
 	        // ... and the search continues
-	        return findSolution(pos, ned);        
+	        return findSolution(pos, ned, sf);        
 	    }
 	    
 	    /**
@@ -562,7 +562,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	        for (int i = 0; i < resourceTypeTable.size(); i++)
 	            ned[i] = resourceTypeTable.get(i).getNeeded();
 	        // B&B algorithm for finding a solution
-	        if (findSolution(pos, ned))
+	        if (findSolution(pos, ned, sf))
 	            return true;
 	        // If there is no solution, the "books" of this element are removed
 	        for (int i = 0; i < resourceTypeTable.size(); i++)

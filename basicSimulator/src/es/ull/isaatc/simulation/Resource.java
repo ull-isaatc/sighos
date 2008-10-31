@@ -171,17 +171,11 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 * True in other case. 
 	 */
 	protected boolean addBook(SingleFlow sf) {
-		debug("MUTEX\trequesting\t" + sf.getElement() + "(add book)");    	
-		waitSemaphore();
-		debug("MUTEX\tadquired\t" + sf.getElement() + "(add book)");    	
 		// First I complete the conflicts list
 		if (bookList.size() > 0)
 			sf.mergeConflictList(bookList.first());
 		boolean result = bookList.add(sf);
 		debug("booked\t" + sf.getElement());
-		debug("MUTEX\treleasing\t" + sf.getElement() + " (add book)");    	
-		signalSemaphore();
-		debug("MUTEX\tfreed\t" + sf.getElement() + " (add book)");    	
 		return result;
 	}
 	
@@ -211,9 +205,6 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
 	protected double catchResource(SingleFlow sf, ResourceType rt) {
-		debug("MUTEX\trequesting\t" + sf.getElement() + "(catch res.)");    	
-		waitSemaphore();
-		debug("MUTEX\tadquired\t" + sf.getElement() + "(catch res.)");    	
 		// FIXME: Es esto o debera cogerlo del LP?
 		setTs(sf.getElement().getTs());
         simul.getListenerController().notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.CAUGHT, ts, sf.getElement().getIdentifier(), rt.getIdentifier()));
@@ -223,9 +214,6 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		// The resource is no more booked but already taken
 		bookList.remove(sf); 
 		debug("unbooked\t" + sf.getElement());
-		debug("MUTEX\treleasing\t" + sf.getElement() + " (catch res.)");    	
-		signalSemaphore();
-		debug("MUTEX\tfreed\t" + sf.getElement() + " (catch res.)");
 		return currentRoles.get(rt);
 	}
 	

@@ -67,6 +67,9 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
         int total[] = new int[2];
         for (int i = 0; i < availableResourceList.size(); i++) {
             Resource res = availableResourceList.get(i);
+    		res.debug("MUTEX\trequesting\t" + sf.getElement() + "(get avail.)");    	
+    		res.waitSemaphore();
+    		res.debug("MUTEX\tadquired\t" + sf.getElement() + "(get avail.)");    	
             // First, I check if the resource is being used
             if (res.getCurrentSF() == null) {
             	if (!sf.getActivity().isInterruptible() || res.getAvailability(this) > getTs()) {
@@ -76,6 +79,9 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
 		            	total[1]++;
             	}
             }
+    		res.debug("MUTEX\treleasing\t" + sf.getElement() + " (get avail.)");    	
+    		res.signalSemaphore();
+    		res.debug("MUTEX\tfreed\t" + sf.getElement() + " (get avail.)");    	
         }
         return total;
     }
@@ -106,13 +112,19 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
      * @param ind Position to start the search.
      * @return The resource's index or -1 if there are not available resources.
      */
-    protected int getNextAvailableResource(int ind) {
+    protected int getNextAvailableResource(int ind, SingleFlow sf) {
         for (; ind < availableResourceList.size(); ind++) {
             Resource res = availableResourceList.get(ind);
             // Checks if the resource is busy (taken by other element or conflict in the same activity)
             // FIXME Debería bastar con preguntar por el RT
+    		res.debug("MUTEX\trequesting\t" + sf.getElement() + "(next avail.)");    	
+    		res.waitSemaphore();
+    		res.debug("MUTEX\tadquired\t" + sf.getElement() + "(next avail.)");    	
             if ((res.getCurrentSF() == null) && (res.getCurrentResourceType() == null))
             	return ind;
+    		res.debug("MUTEX\treleasing\t" + sf.getElement() + " (next avail.)");    	
+    		res.signalSemaphore();
+    		res.debug("MUTEX\tfreed\t" + sf.getElement() + " (next avail.)");    	
         }
         return -1;
     }
@@ -134,6 +146,9 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
         // When this point is reached, it is suppose that there are enough resources
         for (int i = 0; i < availableResourceList.size(); i++) {
             Resource res = availableResourceList.get(i);
+    		res.debug("MUTEX\trequesting\t" + sf.getElement() + "(catch res.)");    	
+    		res.waitSemaphore();
+    		res.debug("MUTEX\tadquired\t" + sf.getElement() + "(catch res.)");    	
             // Checks the availability of the resource
             if (res.getCurrentSF() == null) {
             	// The resource has no conflict
@@ -159,6 +174,9 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
                     }
             	}
             }
+    		res.debug("MUTEX\treleasing\t" + sf.getElement() + " (catch res.)");    	
+    		res.signalSemaphore();
+    		res.debug("MUTEX\tfreed\t" + sf.getElement() + " (catch res.)");    	
         }
         // This check should be unneeded
         if (n > 0)
