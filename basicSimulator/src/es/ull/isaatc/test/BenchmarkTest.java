@@ -112,7 +112,7 @@ class TestOcurrenceSimNRes extends StandAloneLPSimulation {
 		this.smfs = new SingleMetaFlow[nAct];
 		this.rts = new ResourceType[nAct];
 		this.wgs = new WorkGroup[nAct];
-		this.res = new Resource[1];
+		this.res = new Resource[nElem];
 		this.actTime = actTime;
 		this.type = type;
 	}
@@ -121,7 +121,7 @@ class TestOcurrenceSimNRes extends StandAloneLPSimulation {
 	protected void createModel() {
 		SimulationTimeFunction oneFunction = new SimulationTimeFunction(this, "ConstantVariate", 1);
 		SimulationPeriodicCycle allCycle = new SimulationPeriodicCycle(this, SimulationTime.getZero(), new SimulationTimeFunction(this, "ConstantVariate", endTs.getValue()), 0);
-		for (int i = 0; i < 1; i++)
+		for (int i = 0; i < nElem; i++)
 			res[i] = new Resource(i, this, "RES_TEST" + i);
 		for (int i = 0; i < acts.length; i++) {
 			acts[i] = new Activity(i, this, "A_TEST" + i);
@@ -130,7 +130,7 @@ class TestOcurrenceSimNRes extends StandAloneLPSimulation {
 			wgs[i] = new WorkGroup(i, this, "WG_TEST" + i);
 			wgs[i].add(rts[i], 1);
 		}
-		for (int j = 0; j < 1; j++)
+		for (int j = 0; j < nElem; j++)
 			res[j].addTimeTableEntry(allCycle, endTs, new ArrayList<ResourceType>(Arrays.asList(rts)));
 		ElementType et = new ElementType(0, this, "E_TEST");
 		switch(type) {
@@ -215,7 +215,7 @@ class BenchmarkListener extends SimulationTimeListener implements SimulationObje
  */
 public class BenchmarkTest {
 	static int nThreads = 2;
-	static int nElem = 3;
+	static int nElem = 4;
 	static int nAct = 2;
 	static double actTime = nElem;
 	static int nIter = 10;

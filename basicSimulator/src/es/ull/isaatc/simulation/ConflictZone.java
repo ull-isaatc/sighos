@@ -82,11 +82,13 @@ public class ConflictZone {
 	public ArrayList<Semaphore> getSemaphores() {
 		ArrayList<Semaphore> stack = null;
 		try {
-		semBook.acquire();
+			semBook.acquire();
 			if (semStack.isEmpty())
 				semStack.add(new Semaphore(1));
 			stack = new ArrayList<Semaphore>();
 			stack.addAll(semStack);
+			for (Semaphore sem : stack)
+				sem.acquire();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {

@@ -185,14 +185,8 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 * @param sf The single flow releasing the book over this resource.
 	 */
 	protected void removeBook(SingleFlow sf) {
-		debug("MUTEX\trequesting\t" + sf.getElement() + "(remove book)");    	
-		waitSemaphore();
-		debug("MUTEX\tadquired\t" + sf.getElement() + "(remove book)");    	
 		bookList.remove(sf); 
 		debug("unbooked\t" + sf.getElement());
-		debug("MUTEX\treleasing\t" + sf.getElement() + " (remove book)");    	
-		signalSemaphore();
-		debug("MUTEX\tfreed\t" + sf.getElement() + " (remove book)");    	
 	}
 
 	/**

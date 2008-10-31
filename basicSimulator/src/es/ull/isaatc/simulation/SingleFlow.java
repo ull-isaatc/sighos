@@ -334,25 +334,19 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 	 * this stack performing a wait operation on each semaphore.
 	 */
 	protected void waitConflictSemaphore() {
+		elem.debug("MUTEX\trequesting\tConflicts\t" + conflicts);
 		semStack = conflicts.getSemaphores();
-		elem.debug("MUTEX\trequesting\tConflicts" + conflicts + "\t" + conflicts.list);
-		try {
-			for (Semaphore sem : semStack)
-				sem.acquire();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		elem.debug("MUTEX\tadquired\tConflicts" + conflicts + "\t" + conflicts.list);
+		elem.debug("MUTEX\tadquired\tConflicts\t" + conflicts);
 	}
 	
 	/** 
 	 * Goes through the stack of semaphores performing a signal operation on each semaphore.
 	 */
 	protected void signalConflictSemaphore() {
-		elem.debug("MUTEX\treleasing\tConflicts" + conflicts + "\t" + conflicts.list);
+		elem.debug("MUTEX\treleasing\tConflicts\t" + conflicts);
 		for (Semaphore sem : semStack)
 			sem.release();
-		elem.debug("MUTEX\tfreed\tConflicts" + conflicts + "\t" + conflicts.list);		
+		elem.debug("MUTEX\tfreed\tConflicts\t" + conflicts);		
 	}
 
 	/**

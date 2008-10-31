@@ -91,8 +91,16 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
      * @param sf Single flow the resources were booked for.
      */
     protected void resetAvailable(SingleFlow sf) {
-        for (int i = 0; i < availableResourceList.size(); i++)
-        	availableResourceList.get(i).removeBook(sf);
+        for (int i = 0; i < availableResourceList.size(); i++) {
+        	Resource res = availableResourceList.get(i);
+    		res.debug("MUTEX\trequesting\t" + sf.getElement() + "(reset avail.)");    	
+    		res.waitSemaphore();
+    		res.debug("MUTEX\tadquired\t" + sf.getElement() + "(reset avail.)");    	
+        	res.removeBook(sf);
+    		res.debug("MUTEX\treleasing\t" + sf.getElement() + " (reset avail.)");    	
+    		res.signalSemaphore();
+    		res.debug("MUTEX\tfreed\t" + sf.getElement() + " (reset avail.)");    	
+        }
     }
 
     /**
@@ -120,8 +128,12 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
     		res.debug("MUTEX\trequesting\t" + sf.getElement() + "(next avail.)");    	
     		res.waitSemaphore();
     		res.debug("MUTEX\tadquired\t" + sf.getElement() + "(next avail.)");    	
-            if ((res.getCurrentSF() == null) && (res.getCurrentResourceType() == null))
+            if ((res.getCurrentSF() == null) && (res.getCurrentResourceType() == null)) {
+        		res.debug("MUTEX\treleasing\t" + sf.getElement() + " (next avail.)");    	
+        		res.signalSemaphore();
+        		res.debug("MUTEX\tfreed\t" + sf.getElement() + " (next avail.)");    	
             	return ind;
+            }
     		res.debug("MUTEX\treleasing\t" + sf.getElement() + " (next avail.)");    	
     		res.signalSemaphore();
     		res.debug("MUTEX\tfreed\t" + sf.getElement() + " (next avail.)");    	
