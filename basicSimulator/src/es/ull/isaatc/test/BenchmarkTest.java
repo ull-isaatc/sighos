@@ -32,6 +32,7 @@ import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.SimulationObjectListener;
 import es.ull.isaatc.simulation.listener.SimulationTimeListener;
 import es.ull.isaatc.simulation.listener.StdInfoListener;
+import es.ull.isaatc.util.Output;
 
 enum Type {SAMETIME, CONSECUTIVE, MIXED};
 
@@ -111,7 +112,7 @@ class TestOcurrenceSimNRes extends StandAloneLPSimulation {
 		this.smfs = new SingleMetaFlow[nAct];
 		this.rts = new ResourceType[nAct];
 		this.wgs = new WorkGroup[nAct];
-		this.res = new Resource[nElem];
+		this.res = new Resource[1];
 		this.actTime = actTime;
 		this.type = type;
 	}
@@ -120,7 +121,7 @@ class TestOcurrenceSimNRes extends StandAloneLPSimulation {
 	protected void createModel() {
 		SimulationTimeFunction oneFunction = new SimulationTimeFunction(this, "ConstantVariate", 1);
 		SimulationPeriodicCycle allCycle = new SimulationPeriodicCycle(this, SimulationTime.getZero(), new SimulationTimeFunction(this, "ConstantVariate", endTs.getValue()), 0);
-		for (int i = 0; i < nElem; i++)
+		for (int i = 0; i < 1; i++)
 			res[i] = new Resource(i, this, "RES_TEST" + i);
 		for (int i = 0; i < acts.length; i++) {
 			acts[i] = new Activity(i, this, "A_TEST" + i);
@@ -129,7 +130,7 @@ class TestOcurrenceSimNRes extends StandAloneLPSimulation {
 			wgs[i] = new WorkGroup(i, this, "WG_TEST" + i);
 			wgs[i].add(rts[i], 1);
 		}
-		for (int j = 0; j < nElem; j++)
+		for (int j = 0; j < 1; j++)
 			res[j].addTimeTableEntry(allCycle, endTs, new ArrayList<ResourceType>(Arrays.asList(rts)));
 		ElementType et = new ElementType(0, this, "E_TEST");
 		switch(type) {
@@ -214,7 +215,7 @@ class BenchmarkListener extends SimulationTimeListener implements SimulationObje
  */
 public class BenchmarkTest {
 	static int nThreads = 2;
-	static int nElem = 1000;
+	static int nElem = 3;
 	static int nAct = 2;
 	static double actTime = nElem;
 	static int nIter = 10;
@@ -243,12 +244,6 @@ public class BenchmarkTest {
 		new Experiment("Same Time", nExp) {
 			@Override
 			public Simulation getSimulation(int ind) {
-//				return new TestOcurrenceSim(Type.CONSECUTIVE, ind, NELEM, ACTTIME, NITER, ENDTS);
-//				return new TestOcurrenceSim(Type.SAMETIME, ind, NELEM, ACTTIME, NITER, ENDTS);
-//				return new TestOcurrenceSim(Type.MIXED, ind, NELEM, ACTTIME, NITER, ENDTS);
-//				return new TestOcurrenceSim2(Type.CONSECUTIVE, ind, NELEM, ACTTIME, NITER, ENDTS);
-//				return new TestOcurrenceSim2(Type.SAMETIME, ind, NELEM, ACTTIME, NITER, ENDTS);
-//				return new TestOcurrenceSim2(Type.MIXED, ind, NELEM, ACTTIME, NITER, ENDTS);
 				return new TestOcurrenceSimNRes(type, ind, nAct, nElem, actTime, nIter, endTs);
 			}
 
@@ -257,6 +252,7 @@ public class BenchmarkTest {
 				for (int i = 0; i < nExperiments; i++) {
 					Simulation sim = getSimulation(i);
 					sim.setNThreads(nThreads);
+					sim.setOutput(new Output(true));
 					ListenerController cont = new ListenerController();
 					sim.setListenerController(cont);
 //					cont.addListener(new StdInfoListener());

@@ -220,6 +220,9 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		currentSF = sf;
 		sf.addCaughtResource(this);
 		currentResourceType = rt;
+		// The resource is no more booked but already taken
+		bookList.remove(sf); 
+		debug("unbooked\t" + sf.getElement());
 		debug("MUTEX\treleasing\t" + sf.getElement() + " (catch res.)");    	
 		signalSemaphore();
 		debug("MUTEX\tfreed\t" + sf.getElement() + " (catch res.)");
