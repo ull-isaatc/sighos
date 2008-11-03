@@ -29,6 +29,18 @@ public class ConflictZone {
 		list.add(sf);
 	}
 	
+	public void acquire() {
+		try {
+			semBook.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}		
+	}
+	
+	public void release() {
+		semBook.release();
+	}
+	
 	/**
 	 * Merges this conflict list with another one. Adds the elements of the other list
 	 * to this conflict list, and then assigns this conflict list to the elements in the
@@ -36,23 +48,11 @@ public class ConflictZone {
 	 * @param other
 	 */
 	public void merge(ConflictZone other) {
-		Semaphore otherSem = other.semBook;
-		try {
-			// Exclusive access to this conflict list...
-			semBook.acquire();
-			// ... and to the other one.
-			otherSem.acquire();
-			list.addAll(other.list);
-			semStack.addAll(other.semStack);
-			// Updates the conflict lists of any implied element
-			for (SingleFlow sf : other.list)
-				sf.setConflictZone(this);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} finally {
-			otherSem.release();
-			semBook.release();
-		}
+		list.addAll(other.list);
+		semStack.addAll(other.semStack);
+		// Updates the conflict lists of any implied element
+		for (SingleFlow sf : other.list)
+			sf.setConflictZone(this);
 	}
 	
 	public int size() {

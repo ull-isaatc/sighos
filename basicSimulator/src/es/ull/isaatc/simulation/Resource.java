@@ -190,6 +190,15 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	}
 
 	/**
+	 * Checks if the resource is currently booked by the specified single flow
+	 * @param sf Single flow which can have booked the resource
+	 * @return True if this resource is currently booked by the specified single flow 
+	 */
+	protected boolean isBooked(SingleFlow sf) {
+		return bookList.contains(sf);
+	}
+	
+	/**
 	 * Marks this resource as taken by an element. Sets the current Single flow, and the
 	 * current resource type; and adds this resource to the caugt-resources list of the single flow.
 	 * A "taken" element continues being booked. The book is released when the resource itself is
@@ -200,14 +209,11 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 */
 	protected double catchResource(SingleFlow sf, ResourceType rt) {
 		// FIXME: Es esto o debera cogerlo del LP?
-		setTs(sf.getElement().getTs());
+		setTs(defLP.getTs());
         simul.getListenerController().notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.CAUGHT, ts, sf.getElement().getIdentifier(), rt.getIdentifier()));
 		currentSF = sf;
 		sf.addCaughtResource(this);
 		currentResourceType = rt;
-		// The resource is no more booked but already taken
-		bookList.remove(sf); 
-		debug("unbooked\t" + sf.getElement());
 		return currentRoles.get(rt);
 	}
 	
@@ -226,8 +232,8 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		setTs(currentSF.getElement().getTs());
         simul.getListenerController().notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.RELEASED, ts, currentSF.getElement().getIdentifier(), currentResourceType.getIdentifier()));
         // The book is removed
-		bookList.remove(currentSF); 
-		debug("unbooked\t" + currentSF.getElement());
+//		bookList.remove(currentSF); 
+//		debug("unbooked\t" + currentSF.getElement());
         currentSF = null;
         currentResourceType = null;        
         if (timeOut) {

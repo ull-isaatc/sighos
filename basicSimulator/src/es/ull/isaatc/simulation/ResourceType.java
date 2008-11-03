@@ -170,9 +170,6 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
 	            		n--;
 	                    debug("Resource taken\t" + res + "\t " + n + "\t" + sf.getElement());
 	            	}
-	            	else {
-	            		res.removeBook(sf);
-	            	}
             	}
             	// Conflict (in the same activity)
             	// Theoretically, I have no need of check "n"
@@ -186,6 +183,9 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
                     }
             	}
             }
+            // In case the resource is still booked, I HAVE to remove the book.
+            if (res.isBooked(sf))
+            	res.removeBook(sf);
     		res.debug("MUTEX\treleasing\t" + sf.getElement() + " (catch res.)");    	
     		res.signalSemaphore();
     		res.debug("MUTEX\tfreed\t" + sf.getElement() + " (catch res.)");    	

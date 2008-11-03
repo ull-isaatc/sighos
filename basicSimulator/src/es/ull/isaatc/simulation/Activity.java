@@ -434,7 +434,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	            int []pos = {0, 0}; // "Start" position
 	            for (int i = 0; i < resourceTypeTable.size(); i++)
 	                ned[i] = resourceTypeTable.get(i).getNeeded();
-	        	if (!hasSolution(pos, ned)) {
+	        	if (!hasSolution(pos, ned, sf)) {
 	                sf.removeFromConflictZone();
 	            	sf.signalConflictSemaphore();
 	            	// The element frees the previously booked resources 
@@ -453,7 +453,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	     * @param nec Resources needed.
 	     * @return True if there is a reachable solution. False in other case.
 	     */
-	    protected boolean hasSolution(int []pos, int []nec) {
+	    protected boolean hasSolution(int []pos, int []nec, SingleFlow sf) {
 	        for (int i = pos[0]; i < resourceTypeTable.size(); i++) {
 	            ResourceTypeTableEntry actual = resourceTypeTable.get(i);
 	            int j = pos[1];
@@ -461,9 +461,15 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	            int disp = 0;            
 	            while (((res = actual.getResource(j)) != null) && (disp < nec[i])) {
 	                // FIXME Debería bastar con preguntar por el RT
+	        		res.debug("MUTEX\trequesting\t" + sf.getElement() + "(solution)");    	
+	        		res.waitSemaphore();
+	        		res.debug("MUTEX\tadquired\t" + sf.getElement() + "(solution)");    	
 	                if ((res.getCurrentSF() == null) && (res.getCurrentResourceType() == null))
 	                    disp++;
 	                j++;
+	        		res.debug("MUTEX\treleasing\t" + sf.getElement() + " (solution)");    	
+	        		res.signalSemaphore();
+	        		res.debug("MUTEX\tfreed\t" + sf.getElement() + " (solution)");	                
 	            }
 	            if (disp < nec[i])
 	                return false;
@@ -509,6 +515,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	     */
 	    private void mark(int []pos) {
 	        Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
+	        // FIXME: ¿Debería proteger esto?
 	        res.setCurrentResourceType(resourceTypeTable.get(pos[0]).getResourceType());
 	    }
 	    
@@ -518,6 +525,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	     */
 	    private void unmark(int []pos) {
 	        Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
+	        // FIXME: ¿Debería proteger esto?
 	        res.setCurrentResourceType(null);
 	    }
 
@@ -539,7 +547,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	        mark(pos);
 	        ned[pos[0]]--;
 	        // Bound
-	        if (hasSolution(pos, ned))
+	        if (hasSolution(pos, ned, sf))
 	        // ... the search continues
 	            if (findSolution(pos, ned, sf))
 	                return true;
