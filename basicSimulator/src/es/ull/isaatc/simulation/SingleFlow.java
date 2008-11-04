@@ -318,42 +318,35 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 	 * @param sf The single flow whose conflict zone must be merged. 
 	 */
 	protected void mergeConflictList(SingleFlow sf) {
-		// FIXME: ¿Podrían ser diferentes las zonas de conflicto y hacerse iguales después 
-		// de pasar de la pregunta? Se supone que no porque el recurso está en mutex. Además,
-		// los recursos se cogen en orden dentro de cada RT.
 		int result = this.compareTo(sf);
 		ConflictZone srcConflictZone = null;
 		ConflictZone desConflictZone = null; 
 		elem.debug("MUTEX\tmerging\t" + sf.getElement());
-		// If both elements are the same, there's no need to merge
-		// FIXME: CHECK!!
-		if (result != 0) {
-			if (result < 0) {
-				srcConflictZone = conflicts;
-				desConflictZone = sf.getConflictZone();
-			}
-			else if (result > 0) {
-				desConflictZone = conflicts;
-				srcConflictZone = sf.getConflictZone();			
-			}
-			
-			elem.debug("MUTEX\trequesting\t" + "Merge " + sf.getElement() + " (source)"); 
-			srcConflictZone.acquire();
-			elem.debug("MUTEX\tacquired\t" + "Merge " + sf.getElement() + " (source)");    	
-			// If it's the same list there's no need of merge
-			if (srcConflictZone != desConflictZone) {
-				elem.debug("MUTEX\trequesting\t" + "Merge " + sf.getElement() + " (destiny)");    	
-				desConflictZone.acquire();
-				elem.debug("MUTEX\tacquired\t" + "Merge " + sf.getElement() + " (destiny)");    	
-				srcConflictZone.merge(desConflictZone);
-				elem.debug("MUTEX\treleasing\t" + "Merge " + sf.getElement() + " (destiny)");    	
-				desConflictZone.release();
-				elem.debug("MUTEX\tfreed\t" + "Merge " + sf.getElement() + " (destiny)");    	
-			}
-			elem.debug("MUTEX\treleasing\t" + "Merge " + sf.getElement() + " (source)");    	
-			srcConflictZone.release();
-			elem.debug("MUTEX\tfreed\t" + "Merge " + sf.getElement() + " (source)");
+		if (result < 0) {
+			srcConflictZone = conflicts;
+			desConflictZone = sf.getConflictZone();
 		}
+		else if (result > 0) {
+			desConflictZone = conflicts;
+			srcConflictZone = sf.getConflictZone();			
+		}
+		
+		elem.debug("MUTEX\trequesting\t" + "Merge " + sf.getElement() + " (source)"); 
+		srcConflictZone.acquire();
+		elem.debug("MUTEX\tacquired\t" + "Merge " + sf.getElement() + " (source)");    	
+		// If it's the same list there's no need of merge
+		if (srcConflictZone != desConflictZone) {
+			elem.debug("MUTEX\trequesting\t" + "Merge " + sf.getElement() + " (destiny)");    	
+			desConflictZone.acquire();
+			elem.debug("MUTEX\tacquired\t" + "Merge " + sf.getElement() + " (destiny)");    	
+			srcConflictZone.merge(desConflictZone);
+			elem.debug("MUTEX\treleasing\t" + "Merge " + sf.getElement() + " (destiny)");    	
+			desConflictZone.release();
+			elem.debug("MUTEX\tfreed\t" + "Merge " + sf.getElement() + " (destiny)");    	
+		}
+		elem.debug("MUTEX\treleasing\t" + "Merge " + sf.getElement() + " (source)");    	
+		srcConflictZone.release();
+		elem.debug("MUTEX\tfreed\t" + "Merge " + sf.getElement() + " (source)");
 	}
 	
 	/**

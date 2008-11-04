@@ -124,7 +124,6 @@ public class ElementGeneralTestListener implements SimulationListener {
 	 * @see es.ull.isaatc.simulation.info.SimulationListener#infoEmited(es.ull.isaatc.simulation.info.SimulationStartInfo)
 	 */
 	public void infoEmited(SimulationStartInfo info) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -132,7 +131,6 @@ public class ElementGeneralTestListener implements SimulationListener {
 	 * @see es.ull.isaatc.simulation.info.SimulationListener#infoEmited(es.ull.isaatc.simulation.info.SimulationEndInfo)
 	 */
 	public void infoEmited(SimulationEndInfo info) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -140,7 +138,6 @@ public class ElementGeneralTestListener implements SimulationListener {
 	 * @see es.ull.isaatc.simulation.info.SimulationListener#infoEmited(es.ull.isaatc.simulation.info.TimeChangeInfo)
 	 */
 	public void infoEmited(TimeChangeInfo info) {
-		// TODO Auto-generated method stub
 
 	}
 

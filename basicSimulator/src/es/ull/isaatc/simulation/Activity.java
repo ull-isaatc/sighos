@@ -431,10 +431,9 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	        else if (sf.getConflictZone().size() > 1) {
 	        	debug("Possible conflict. Recheck is needed " + sf.getElement());
 	            int ned[] = new int[resourceTypeTable.size()];
-	            int []pos = {0, 0}; // "Start" position
 	            for (int i = 0; i < resourceTypeTable.size(); i++)
 	                ned[i] = resourceTypeTable.get(i).getNeeded();
-	        	if (!hasSolution(pos, ned, sf)) {
+	        	if (!hasSolution(new int[] {0, 0}, ned, sf)) {
 	                sf.removeFromConflictZone();
 	            	sf.signalConflictSemaphore();
 	            	// The element frees the previously booked resources 
@@ -460,11 +459,12 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	            Resource res;
 	            int disp = 0;            
 	            while (((res = actual.getResource(j)) != null) && (disp < nec[i])) {
-	                // FIXME Debería bastar con preguntar por el RT
 	        		res.debug("MUTEX\trequesting\t" + sf.getElement() + "(solution)");    	
 	        		res.waitSemaphore();
 	        		res.debug("MUTEX\tadquired\t" + sf.getElement() + "(solution)");    	
-	                if ((res.getCurrentSF() == null) && (res.getCurrentResourceType() == null))
+	        		// Only resources booked for this SF can be taken into account.
+	        		// The resource could have been released after the book phase, so it's needed to recheck this.
+	                if (res.isBooked(sf) && (res.getCurrentSF() == null) && (res.getCurrentResourceType() == null))
 	                    disp++;
 	                j++;
 	        		res.debug("MUTEX\treleasing\t" + sf.getElement() + " (solution)");    	
@@ -515,7 +515,9 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	     */
 	    private void mark(int []pos) {
 	        Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
-	        // FIXME: ¿Debería proteger esto?
+	        // There's no need to access in mutex this area, because only resources booked by this SF
+	        // are taken into account, and only one SF can be at this stage for this resource at the same 
+	        // time (due to the conflict zone mutex)
 	        res.setCurrentResourceType(resourceTypeTable.get(pos[0]).getResourceType());
 	    }
 	    
@@ -525,7 +527,9 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	     */
 	    private void unmark(int []pos) {
 	        Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
-	        // FIXME: ¿Debería proteger esto?
+	        // There's no need to access in mutex this area, because only resources booked by this SF
+	        // are taken into account, and only one SF can be at this stage for this resource at the same 
+	        // time (due to the conflict zone mutex)
 	        res.setCurrentResourceType(null);
 	    }
 

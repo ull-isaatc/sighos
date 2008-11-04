@@ -208,7 +208,6 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
 	protected double catchResource(SingleFlow sf, ResourceType rt) {
-		// FIXME: Es esto o debera cogerlo del LP?
 		setTs(defLP.getTs());
         simul.getListenerController().notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.CAUGHT, ts, sf.getElement().getIdentifier(), rt.getIdentifier()));
 		currentSF = sf;
@@ -228,8 +227,7 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
 		debug("MUTEX\trequesting\t" + currentSF.getElement() + "(rel. res.)");    	
 		waitSemaphore();
 		debug("MUTEX\tadquired\t" + currentSF.getElement() + "(rel. res.)");    	
-		// FIXME: Es esto o debera cogerlo del LP?
-		setTs(currentSF.getElement().getTs());
+		setTs(defLP.getTs());
         simul.getListenerController().notifyListeners(new ResourceUsageInfo(Resource.this, ResourceUsageInfo.Type.RELEASED, ts, currentSF.getElement().getIdentifier(), currentResourceType.getIdentifier()));
         // The book is removed
 //		bookList.remove(currentSF); 

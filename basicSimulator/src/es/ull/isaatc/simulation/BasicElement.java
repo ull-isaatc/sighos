@@ -115,22 +115,18 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * Sends a "wait" signal to the semaphore.
      */    
     protected void waitSemaphore() {
-//		print(Output.MessageType.DEBUG, "", "MUTEX\trequesting");    	
         try {
 			sem.acquire();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-//		print(Output.MessageType.DEBUG, "", "MUTEX\tadquired");    	
     }
     
     /**
      * Sends a "continue" signal to the semaphore.
      */    
     protected void signalSemaphore() {
-//		print(Output.MessageType.DEBUG, "", "MUTEX\treleasing");    	
         sem.release();
-//		print(Output.MessageType.DEBUG, "", "MUTEX\tfreed");    	
     }
     
 	public String getObjectTypeIdentifier() {

@@ -130,8 +130,11 @@ class TestOcurrenceSimNRes extends StandAloneLPSimulation {
 			wgs[i] = new WorkGroup(i, this, "WG_TEST" + i);
 			wgs[i].add(rts[i], 1);
 		}
+		ArrayList<ResourceType> list = new ArrayList<ResourceType>(Arrays.asList(rts));
 		for (int j = 0; j < nElem; j++)
-			res[j].addTimeTableEntry(allCycle, endTs, new ArrayList<ResourceType>(Arrays.asList(rts)));
+			res[j].addTimeTableEntry(allCycle, endTs, list);
+//		for (int j = 0; j < nElem; j++)
+//			res[j].addTimeTableEntry(allCycle, endTs, rts[j % acts.length]);
 		ElementType et = new ElementType(0, this, "E_TEST");
 		switch(type) {
 			case SAMETIME:
@@ -214,7 +217,7 @@ class BenchmarkListener extends SimulationTimeListener implements SimulationObje
  *
  */
 public class BenchmarkTest {
-	static int nThreads = 4;
+	static int nThreads = 2;
 	static int nElem = 1000;
 	static int nAct = 2;
 	static double actTime = nElem;

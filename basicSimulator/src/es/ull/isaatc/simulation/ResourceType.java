@@ -124,11 +124,12 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
         for (; ind < availableResourceList.size(); ind++) {
             Resource res = availableResourceList.get(ind);
             // Checks if the resource is busy (taken by other element or conflict in the same activity)
-            // FIXME Debería bastar con preguntar por el RT
     		res.debug("MUTEX\trequesting\t" + sf.getElement() + "(next avail.)");    	
     		res.waitSemaphore();
-    		res.debug("MUTEX\tadquired\t" + sf.getElement() + "(next avail.)");    	
-            if ((res.getCurrentSF() == null) && (res.getCurrentResourceType() == null)) {
+    		res.debug("MUTEX\tadquired\t" + sf.getElement() + "(next avail.)");
+    		// Only resources booked for this SF can be taken into account.
+    		// The resource could have been released after the book phase, so it's needed to recheck this.
+            if (res.isBooked(sf) && (res.getCurrentSF() == null) && (res.getCurrentResourceType() == null)) {
         		res.debug("MUTEX\treleasing\t" + sf.getElement() + " (next avail.)");    	
         		res.signalSemaphore();
         		res.debug("MUTEX\tfreed\t" + sf.getElement() + " (next avail.)");    	
