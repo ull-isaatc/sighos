@@ -2,6 +2,7 @@ package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import es.ull.isaatc.simulation.state.FlowState;
 import es.ull.isaatc.simulation.state.SingleFlowState;
@@ -15,7 +16,7 @@ import es.ull.isaatc.util.RandomPermutation;
  */
 public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioritizable {
 	/** Single flows' Counter. Useful for identying each single flow */
-	private static int counter = 0;
+	private static AtomicInteger counter = new AtomicInteger(0);
 	/** Single flow's identifier */
 	protected int id;
     /** Activity wrapped with this flow */
@@ -48,7 +49,7 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
     public SingleFlow(Element elem, Activity act) {
         super(elem);
         this.act = act;
-        id = counter++;
+        id = counter.getAndIncrement();
         caughtResources = new ArrayList<Resource>();
     }
     
@@ -63,7 +64,7 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
         if (parent != null)
         	parent.add(this);
         this.act = act;
-        id = counter++;
+        id = counter.getAndIncrement();
         caughtResources = new ArrayList<Resource>();
     }
 
@@ -158,7 +159,7 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 	 * @param counter The new counter.
 	 */
 	public static void setCounter(int counter) {
-		SingleFlow.counter = counter;
+		SingleFlow.counter.set(counter);
 	}
 	
 	/**
@@ -166,7 +167,7 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 	 * @return The single flows' counter
 	 */
 	public static int getCounter() {
-		return counter;
+		return counter.get();
 	}
 
 	/**
@@ -311,51 +312,35 @@ public class SingleFlow extends Flow implements Comparable<SingleFlow>, Prioriti
 	}
 	
 	/**
-	 * Merges the conflict list of this single flow and other one. Since one zonflict zone must
-	 * be merged into the other, the election of the single flow which "recibes" the merging 
-	 * operation depends on the id of the single flow: the single flow with lower id "recibes" 
-	 * the merging, and the other one "produces" the operation.
+	 * Merges the conflict list of this single flow and other one. Since one conflict zone must
+	 * be merged into the other, the id of the single flow is used as index: the single flow with higher 
+	 * id is merged into the single flow with lower id.
 	 * @param sf The single flow whose conflict zone must be merged. 
 	 */
 	protected void mergeConflictList(SingleFlow sf) {
-		int result = this.compareTo(sf);
-		ConflictZone srcConflictZone = null;
-		ConflictZone desConflictZone = null; 
-		elem.debug("MUTEX\tmerging\t" + sf.getElement());
-		if (result < 0) {
-			srcConflictZone = conflicts;
-			desConflictZone = sf.getConflictZone();
+		int result = conflicts.compareTo(sf.getConflictZone());
+		if (result != 0) {
+			elem.debug("MUTEX\tmerging\t" + sf.getElement());
+			if (result < 0)
+				conflicts.safeMerge(elem, sf.getConflictZone());
+			else if (result > 0) 
+				sf.getConflictZone().safeMerge(elem, conflicts);
 		}
-		else if (result > 0) {
-			desConflictZone = conflicts;
-			srcConflictZone = sf.getConflictZone();			
-		}
-		
-		elem.debug("MUTEX\trequesting\t" + "Merge " + sf.getElement() + " (source)"); 
-		srcConflictZone.acquire();
-		elem.debug("MUTEX\tacquired\t" + "Merge " + sf.getElement() + " (source)");    	
-		// If it's the same list there's no need of merge
-		if (srcConflictZone != desConflictZone) {
-			elem.debug("MUTEX\trequesting\t" + "Merge " + sf.getElement() + " (destiny)");    	
-			desConflictZone.acquire();
-			elem.debug("MUTEX\tacquired\t" + "Merge " + sf.getElement() + " (destiny)");    	
-			srcConflictZone.merge(desConflictZone);
-			elem.debug("MUTEX\treleasing\t" + "Merge " + sf.getElement() + " (destiny)");    	
-			desConflictZone.release();
-			elem.debug("MUTEX\tfreed\t" + "Merge " + sf.getElement() + " (destiny)");    	
-		}
-		elem.debug("MUTEX\treleasing\t" + "Merge " + sf.getElement() + " (source)");    	
-		srcConflictZone.release();
-		elem.debug("MUTEX\tfreed\t" + "Merge " + sf.getElement() + " (source)");
 	}
-	
+
 	/**
 	 * Obtains the stack of semaphores from the conflict zone and goes through
 	 * this stack performing a wait operation on each semaphore.
 	 */
 	protected void waitConflictSemaphore() {
 		elem.debug("MUTEX\trequesting\tConflicts\t" + conflicts);
-		semStack = conflicts.getSemaphores();
+		semStack = conflicts.getSemaphores(this);
+		try {
+			for (Semaphore sem : semStack)
+				sem.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		elem.debug("MUTEX\tadquired\tConflicts\t" + conflicts);
 	}
 	

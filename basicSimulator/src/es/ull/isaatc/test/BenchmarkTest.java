@@ -217,9 +217,9 @@ class BenchmarkListener extends SimulationTimeListener implements SimulationObje
  *
  */
 public class BenchmarkTest {
-	static int nThreads = 2;
-	static int nElem = 1000;
-	static int nAct = 2;
+	static int nThreads = 16;
+	static int nElem = 1024;
+	static int nAct = 16;
 	static double actTime = nElem;
 	static int nIter = 10;
 	static int nExp = 1;
