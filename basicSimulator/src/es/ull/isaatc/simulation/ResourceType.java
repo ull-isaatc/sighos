@@ -162,31 +162,33 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
     		res.debug("MUTEX\trequesting\t" + sf.getElement() + "(catch res.)");    	
     		res.waitSemaphore();
     		res.debug("MUTEX\tadquired\t" + sf.getElement() + "(catch res.)");    	
-            // Checks the availability of the resource
-            if (res.getCurrentSF() == null) {
-            	// The resource has no conflict
-            	if (res.getCurrentResourceType() == null) {
-	            	if (n > 0) {
-	            		minAvailability = Math.min(minAvailability, res.catchResource(sf, this));
-	            		n--;
-	                    debug("Resource taken\t" + res + "\t " + n + "\t" + sf.getElement());
-	            	}
-            	}
-            	// Conflict (in the same activity)
-            	// Theoretically, I have no need of check "n"
-            	else if (res.getCurrentResourceType() == this) {
-            		minAvailability = Math.min(minAvailability, res.catchResource(sf, this));
-            		n--;
-                    debug("Resource taken\t" + res + "\t " + n + "\t" + sf.getElement());
-                    // This check should be unneeded
-                    if (n < 0) {
-                    	error("More resources than expected\t"+ n + "\t" + sf.getElement());
-                    }
-            	}
-            }
-            // In case the resource is still booked, I HAVE to remove the book.
-            if (res.isBooked(sf))
+    		// MOD 11/11/08
+    		// Only resources booked by this SF are taken into account
+    		if (res.isBooked(sf)) {
+                // Checks the availability of the resource
+                if (res.getCurrentSF() == null) {
+                	// The resource has no conflict
+                	if (res.getCurrentResourceType() == null) {
+    	            	if (n > 0) {
+    	            		minAvailability = Math.min(minAvailability, res.catchResource(sf, this));
+    	            		n--;
+    	                    debug("Resource taken\t" + res + "\t " + n + "\t" + sf.getElement());
+    	            	}
+                	}
+                	// Conflict (in the same activity)
+                	// Theoretically, I have no need to check "n"
+                	else if (res.getCurrentResourceType() == this) {
+                		minAvailability = Math.min(minAvailability, res.catchResource(sf, this));
+                		n--;
+                        debug("Resource taken\t" + res + "\t " + n + "\t" + sf.getElement());
+                        // This check should be unneeded
+                        if (n < 0) {
+                        	error("More resources than expected\t"+ n + "\t" + sf.getElement());
+                        }
+                	}
+                }
             	res.removeBook(sf);
+            }
     		res.debug("MUTEX\treleasing\t" + sf.getElement() + " (catch res.)");    	
     		res.signalSemaphore();
     		res.debug("MUTEX\tfreed\t" + sf.getElement() + " (catch res.)");    	

@@ -51,10 +51,11 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
     protected abstract void end();
     
     /**
-     * Adds a new event to the element's event list
+     * Adds a new event to the element's event list.
+     * 10/11/2008 It's been put synchronized because the access to eventList is not protected
      * @param e New event.
      */    
-    protected void addEvent(DiscreteEvent e) {
+    protected synchronized void addEvent(DiscreteEvent e) {
         eventList.add(e);
         if (e.getTs() == e.getLp().getTs())
             e.getLp().addExecution(e);
