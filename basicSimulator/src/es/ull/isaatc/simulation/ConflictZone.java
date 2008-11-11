@@ -147,11 +147,15 @@ public class ConflictZone implements Comparable<ConflictZone> {
 	 * @return The stack of semaphores.
 	 */
 	public ArrayList<Semaphore> getSemaphores(SingleFlow sf) {
-		ArrayList<Semaphore> stack = null;
 		acquire(sf.getElement());
+		// Once acquired we need to check the validity of this CZ
+		if (substitute != null) {
+			release(sf.getElement());
+			return substitute.getSemaphores(sf);
+		}			
 		if (semStack.isEmpty())
 			semStack.add(new Semaphore(1));
-		stack = new ArrayList<Semaphore>();
+		ArrayList<Semaphore> stack = new ArrayList<Semaphore>();
 		stack.addAll(semStack);
 		release(sf.getElement());
 		return stack;
