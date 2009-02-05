@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/actions.jar"/>
 	<classpathentry kind="lib" path="lib/simkit.jar"/>
+	<classpathentry kind="lib" path="lib/poi-3.0.2-FINAL-20080204.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
