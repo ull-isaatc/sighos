@@ -15,6 +15,8 @@ public class SimulationTimeFunction {
 
 	public SimulationTimeFunction(Simulation simul, String className, Object... parameters) {
 		for (int i = 0; i < parameters.length; i++) {
+			if (parameters[i] instanceof SimulationTime)
+				parameters[i] = simul.simulationTime2Double((SimulationTime)parameters[i]);
 			if (parameters[i] instanceof Number)
 				parameters[i] = simul.simulationTime2Double(new SimulationTime(simul.getUnit(), ((Number)parameters[i]).doubleValue())); 
 		}
