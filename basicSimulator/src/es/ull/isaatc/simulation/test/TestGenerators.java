@@ -1,4 +1,4 @@
-package es.ull.isaatc.test;
+package es.ull.isaatc.simulation.test;
 
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.PeriodicProportionFunction;

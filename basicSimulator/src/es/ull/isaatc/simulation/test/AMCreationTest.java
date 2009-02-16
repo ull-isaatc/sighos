@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.test;
+package es.ull.isaatc.simulation.test;
 
 import es.ull.isaatc.simulation.Activity;
 import es.ull.isaatc.simulation.Experiment;

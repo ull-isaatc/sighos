@@ -1,9 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.test;
-
-import java.util.EnumSet;
+package es.ull.isaatc.simulation.test;
 
 import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
@@ -27,13 +25,13 @@ import es.ull.isaatc.simulation.WorkGroup;
 import es.ull.isaatc.simulation.listener.ListenerController;
 import es.ull.isaatc.simulation.listener.StdInfoListener;
 
-class InterruptibleActivitiesSimulation extends StandAloneLPSimulation {
-	static final int NACT = 1;
-	static final int NELEMT = 1;
-	static final int NELEM = 2;
-	static final int NRES = 1;
-	public InterruptibleActivitiesSimulation(int id) {
-		super(id, "Testing interruptible activities", SimulationTimeUnit.MINUTE, new SimulationTime(SimulationTimeUnit.MINUTE,0.0), new SimulationTime(SimulationTimeUnit.MINUTE,400.0));
+class PriorityElementSimulation extends StandAloneLPSimulation {
+	static final int NACT = 40;
+	static final int NELEMT = 4;
+	static final int NELEM = 100;
+	static final int NRES = 20;
+	public PriorityElementSimulation(int id) {
+		super(id, "Testing Elements with priority", SimulationTimeUnit.MINUTE, SimulationTime.getZero(), new SimulationTime(SimulationTimeUnit.MINUTE, 200.0));
 		ListenerController cont = new ListenerController();
 		setListenerController(cont);
 		cont.addListener(new StdInfoListener());
@@ -43,13 +41,13 @@ class InterruptibleActivitiesSimulation extends StandAloneLPSimulation {
 	protected void createModel() {
 		ResourceType rt = new ResourceType(0, this, "RT0");
 		WorkGroup wg = new WorkGroup(0, this, "WG");
-		wg.add(rt, 1);
+		wg.add(rt, 2);
 		for (int i = 0; i < NACT; i++)
-			new Activity(i, this, "ACT" + i, i / 2, EnumSet.of(Activity.Modifier.INTERRUPTIBLE)).addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 101), 0, wg);
-		SimulationCycle c1 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE,0.0), new SimulationTimeFunction(this, "ConstantVariate", 200.0), 0);
-		SimulationCycle c2 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE,20.0), new SimulationTimeFunction(this, "ConstantVariate", 100.0), 0);
+			new Activity(i, this, "ACT" + i, i / 2).addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 10), 0, wg);
+		SimulationCycle c1 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 0.0), new SimulationTimeFunction(this, "ConstantVariate", 200.0), 0);
+		SimulationCycle c2 = new SimulationPeriodicCycle(this, new SimulationTime(SimulationTimeUnit.MINUTE, 20.0), new SimulationTimeFunction(this, "ConstantVariate", 100.0), 0);
 		for (int i = 0; i < NRES; i++)
-			new Resource(i, this, "RES" + i).addTimeTableEntry(c2, new SimulationTime(SimulationTimeUnit.MINUTE, 40), rt);
+			new Resource(i, this, "RES" + i).addTimeTableEntry(c2, new SimulationTime(SimulationTimeUnit.MINUTE, 40.0), rt);
 		SimultaneousMetaFlow meta = new SimultaneousMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1));
 		for (int i = 0; i < NACT; i++)
 			new SingleMetaFlow(i, meta, RandomVariateFactory.getInstance("ConstantVariate", 1), getActivity(i));
@@ -57,25 +55,25 @@ class InterruptibleActivitiesSimulation extends StandAloneLPSimulation {
 			new TimeDrivenGenerator(this, 
 					new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), new ElementType(i, this, "ET" + i, i), meta), 
 					c1);
+
 	}
 	
 }
-
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class TestInterruptibleActivities {
+public class TestPriorityElement {
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new PooledExperiment("Testing interruptible activities", 1) {
+		new PooledExperiment("Testing priority", 1) {
 
 			@Override
 			public Simulation getSimulation(int ind) {
-				return new InterruptibleActivitiesSimulation(ind);
+				return new PriorityElementSimulation(ind);
 			}
 			
 		}.start();

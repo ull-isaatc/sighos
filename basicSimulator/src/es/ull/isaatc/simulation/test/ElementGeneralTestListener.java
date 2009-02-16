@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.test;
+package es.ull.isaatc.simulation.test;
 
 import java.util.ArrayList;
 import java.util.HashMap;

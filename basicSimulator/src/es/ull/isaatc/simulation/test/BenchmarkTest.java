@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.test;
+package es.ull.isaatc.simulation.test;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -288,37 +288,39 @@ class BenchmarkListener extends SimulationTimeListener implements SimulationObje
  *
  */
 public class BenchmarkTest {
-	static int nThreads = 8;
+	static int nThreads = 1;
 	static int nElem = 256;
-	static int nAct = 16;
+	static int nAct = 1;
 	static double actTime = nElem;
 	static int nIter = 10;
 	static int nExp = 1;
 	static Type type = Type.SAMETIME;
 //	static Type type = Type.CONSECUTIVE;
 //	static Type type = Type.MIXED;
-	static SimulationTime endTs = new SimulationTime(SimulationTimeUnit.MINUTE, actTime * (nIter + 1) + 1); 
+	static SimulationTime endTs; 
 	static PrintStream out = System.out;
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		if (args.length == 6) {
+		if (args.length == 7) {
 			type = Type.valueOf(args[0]);
 			nAct = Integer.parseInt(args[1]);
 			nElem = Integer.parseInt(args[2]);
 			actTime = Integer.parseInt(args[3]);
 			nIter = Integer.parseInt(args[4]);
 			nThreads = Integer.parseInt(args[5]);
+			nExp = Integer.parseInt(args[6]);
 		} else if (args.length > 0) { 
 			System.err.println("Wrong number of arguments.\n Arguments expected: 6");
 			System.exit(0);
 		} 
+		endTs = new SimulationTime(SimulationTimeUnit.MINUTE, actTime * (nIter + 1) + 1);
 		new Experiment("Same Time", nExp) {
 			@Override
 			public Simulation getSimulation(int ind) {
-				return new TestOcurrenceSimNResMix(type, ind, nAct, nElem, actTime, nIter, endTs);
+				return new TestOcurrenceSimN(type, ind, nAct, nElem, actTime, nIter, endTs);
 			}
 
 			@Override
@@ -330,7 +332,7 @@ public class BenchmarkTest {
 					ListenerController cont = new ListenerController();
 					sim.setListenerController(cont);
 //					cont.addListener(new StdInfoListener());
-//					cont.addListener(new BenchmarkListener(out));
+					cont.addListener(new BenchmarkListener(out));
 					cont.addListener(new SimulationTimeListener() {
 						@Override
 						public void infoEmited(SimulationEndInfo info) {
