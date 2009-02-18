@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Ejemplo de multipliación de matrices usando hilos.
+ * Ejemplo de multipliacin de matrices usando hilos.
  * @author chuidiang
  */
 class MultiplicaMatricesConHilos 
@@ -25,7 +25,7 @@ class MultiplicaMatricesConHilos
 	}
 	
 	/**
-	 * Realiza la multiplicación de las dos matrices y devuelve el resultado
+	 * Realiza la multiplicacin de las dos matrices y devuelve el resultado
 	 * @param m1 primer operando
 	 * @param m2 segundo operando
 	 * @return resultado de multiplicar m1xm2
@@ -33,7 +33,7 @@ class MultiplicaMatricesConHilos
 	public double[][] multiplica ()
 	{
 		// condiciones que deben cumplirse y que se suponen ciertas
-		// con los parámetros de entrada
+		// con los parmetros de entrada
 		assert m1!=null;
 		assert m2!=null;
 		assert m1.length > 0;
@@ -85,7 +85,7 @@ class HiloMultiplicador implements Runnable
 	private CountDownLatch doneSignal;
 	
 	/**
-	 * Guarda los parámetros que se le pasan 
+	 * Guarda los parmetros que se le pasan 
 	 * @param m1 primer operando
 	 * @param m2 segundo operando
 	 * @param resultado matriz donde dejar el resultado
@@ -116,11 +116,11 @@ class HiloMultiplicador implements Runnable
 
 /**
  * An standard benchmark using a matrix.
- * @author Iván Castilla Rodríguez
+ * @author Ivn Castilla Rodrguez
  *
  */
 public class MatrixBenchmark {
-	private static int NEXP = 10;
+	private static int NEXP = 1;
 	
 	static double [][] crearMatrizCuadrada(int filas, int maxValue) {
 		double [][]matriz = new double[filas][filas];
@@ -137,20 +137,27 @@ public class MatrixBenchmark {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		int size = 1024;
+		int nThreads = 1;
+		if (args.length > 0) {
+			size = Integer.parseInt(args[0]);
+			nThreads = Integer.parseInt(args[1]);
+			
+		}
 		// Dos matrices para multiplicar 
 //		double [][] m1 = new double[][] {{1,2,3},{1,2,3},{1,2,3}};
 //		double [][] m2 = new double[][] {{1,2,3},{1,2,3},{1,2,3}};
 		
-		double [][] m1 = crearMatrizCuadrada(300, 25);
-		double [][] m2 = crearMatrizCuadrada(300, 25);
+		double [][] m1 = crearMatrizCuadrada(size, 100);
+		double [][] m2 = crearMatrizCuadrada(size, 100);
 	
 		for (int i = 0; i < NEXP; i++) {
 			long t1 = System.currentTimeMillis();
 			// Se multiplican
-			double [][] resultado = new MultiplicaMatricesConHilos(1, m1, m2).multiplica();
+			double [][] resultado = new MultiplicaMatricesConHilos(nThreads, m1, m2).multiplica();
 			
 			long t2 = System.currentTimeMillis();
-			System.out.println(t2 - t1);
+			System.out.println(nThreads + "\t" + (t2 - t1));
 		}
 		
 		// Se saca por pantalla el resultado.
