@@ -145,11 +145,11 @@ public class MatrixBenchmark {
 		double [][] m2 = crearMatrizCuadrada(300, 25);
 	
 		for (int i = 0; i < NEXP; i++) {
-			long t1 = System.nanoTime();
+			long t1 = System.currentTimeMillis();
 			// Se multiplican
 			double [][] resultado = new MultiplicaMatricesConHilos(1, m1, m2).multiplica();
 			
-			long t2 = System.nanoTime();
+			long t2 = System.currentTimeMillis();
 			System.out.println(t2 - t1);
 		}
 		
