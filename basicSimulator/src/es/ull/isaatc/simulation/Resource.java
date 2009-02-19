@@ -1,6 +1,7 @@
 package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Map.Entry;
@@ -90,9 +91,9 @@ public class Resource extends BasicElement implements RecoverableState<ResourceS
      * @param dur The long this resource plays this role every cycle
      * @param roleList Roles that the resource play during this cycle
      */
-    public void addTimeTableEntry(SimulationCycle cycle, SimulationTime dur, ArrayList<ResourceType> roleList) {
-    	for (int i = 0; i < roleList.size(); i++)
-            addTimeTableEntry(cycle, dur, roleList.get(i));
+    public void addTimeTableEntry(SimulationCycle cycle, SimulationTime dur, Collection<ResourceType> roleList) {
+    	for (ResourceType rt : roleList)
+            addTimeTableEntry(cycle, dur, rt);
     }  
     
     @Override

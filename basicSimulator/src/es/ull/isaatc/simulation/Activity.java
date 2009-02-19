@@ -428,7 +428,7 @@ public class Activity extends TimeStampedSimulationObject implements Prioritizab
 	            	return false;
 	            }
 	        }
-	        else if (sf.getConflictZone().size() > 1) {
+	        else if (sf.getConflictZone().isConflict()) {
 	        	debug("Possible conflict. Recheck is needed " + sf.getElement());
 	            int ned[] = new int[resourceTypeTable.size()];
 	            for (int i = 0; i < resourceTypeTable.size(); i++)

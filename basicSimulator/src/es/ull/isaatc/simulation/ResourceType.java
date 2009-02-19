@@ -194,7 +194,6 @@ public class ResourceType extends TimeStampedSimulationObject implements Recover
     		res.debug("MUTEX\tfreed\t" + sf.getElement() + " (catch res.)");    	
         }
         // This check should be unneeded
-        // FIXME: Esto está saltando
         if (n > 0)
         	error("UNEXPECTED ERROR: Less resources than expected\t"+ n + "\t" + sf.getElement());
         return minAvailability;

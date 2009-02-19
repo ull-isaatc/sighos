@@ -9,9 +9,10 @@ import java.util.concurrent.Semaphore;
 
 /**
  * A conflict zone serves as a MUTEX region for elements which have booked the same
- * resource. This zone stores a list of elements and builds a stack of semaphores.
- * Another semaphore controls the access to this zone. The MUTEX region is controled
- * by means of the stack of semaphores.
+ * resource when asking for different activities. This zone stores a list of elements 
+ * and builds a semaphore stack.
+ * Another semaphore controls the access to this zone. The MUTEX region is controlled
+ * by means of the semaphore stack.
  * Conflict zones can be merged. One of the conflict zones absorbs the other. Once this happens,
  * the "absorbed" CZ is nullified and "substituted" by the "absorbing" CZ. 
  * @author Iván Castilla Rodríguez
@@ -28,6 +29,10 @@ public class ConflictZone implements Comparable<ConflictZone> {
 	/** The single flow which created this CZ */
 	private final SingleFlow owner;
 	
+	/**
+	 * Creates a new conflict zone whose owner is sf
+	 * @param sf This conflict zone's owner
+	 */
 	public ConflictZone(SingleFlow sf) {
 		semBook = new Semaphore(1);
 		list = new TreeSet<SingleFlow>();
@@ -36,6 +41,10 @@ public class ConflictZone implements Comparable<ConflictZone> {
 		this.owner = sf;
 	}
 	
+	/**
+	 * Acquires access to this CZ
+	 * @param elem Element requesting access to this CZ
+	 */
 	private void acquire(Element elem) {
 		elem.debug("MUTEX\trequesting\tCZ " + owner + " (" + this + ")");
 		try {
@@ -46,12 +55,27 @@ public class ConflictZone implements Comparable<ConflictZone> {
 		elem.debug("MUTEX\tacquired\tCZ " + owner + " (" + this + ")");
 	}
 	
+	/**
+	 * Releases this CZ
+	 * @param elem Element finishing access to this CZ
+	 */
 	private void release(Element elem) {
 		elem.debug("MUTEX\treleasing\tCZ " + owner + " (" + this + ")");    	
 		semBook.release();
 		elem.debug("MUTEX\tfreed\tCZ " + owner + " (" + this + ")");
 	}
 
+	/**
+	 * A complicated double recursive method to merge safely two conflict zones.
+	 * To do this, both CZ have to be exclusively accessed. The problem is that
+	 * this double acquisition is not an atomic operation, so several tests must 
+	 * be performed.
+	 * The major problem is caused by "crossing" mergings, when one of the CZ is
+	 * merged with a third one during this merging. This problem is solved by
+	 * checking repeatedly both CZ after each step.  
+	 * @param elem Element requesting the merging
+	 * @param mergingCZ The other CZ to be merged
+	 */
 	protected void safeMerge(Element elem, ConflictZone mergingCZ) {
 		// I acquire this CZ
 		acquire(elem);
@@ -76,12 +100,20 @@ public class ConflictZone implements Comparable<ConflictZone> {
 		}
 	}
 
+	/**
+	 * The second part of the safeMerge method. It's been defined apart for simplification
+	 * purposes. Performs the second part of the merging.
+	 * @param elem Element requesting the merging
+	 * @param mergingCZ The other CZ to be merged
+	 * @see safeMerge
+	 */
 	protected void safeMerge2(Element elem, ConflictZone mergingCZ) {
 		// I continue the merge acquiring the merging CZ
 		mergingCZ.acquire(elem);
 		// If the merging CZ is valid, I can carry out the merge
 		if (mergingCZ.substitute == null) {
 			merge(mergingCZ);
+			// And I release both CZs
 			mergingCZ.release(elem);
 			release(elem);
 		}
@@ -126,10 +158,19 @@ public class ConflictZone implements Comparable<ConflictZone> {
 		other.substitute = this;
 	}
 	
-	public int size() {
-		return list.size();
+	/**
+	 * Returns true if this CZ contains more than one element. False in other case
+	 * @return true if this CZ contains more than one element. False in other case
+	 */
+	public boolean isConflict() {
+		return (list.size() > 1);
 	}
-	
+
+	/**
+	 * Removes an element from this CZ, thus avoiding unnecessary checks
+	 * @param sf Single flow to be removed
+	 * @return True if the single flow could be removed
+	 */
 	public boolean remove(SingleFlow sf) {
 		boolean result = false;
 		sf.getElement().debug("Removing\t" + sf + "(" + this + ")");
