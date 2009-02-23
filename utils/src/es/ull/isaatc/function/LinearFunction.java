@@ -5,70 +5,92 @@ package es.ull.isaatc.function;
 
 
 /**
- * Represents the linear function: A·x + B.
+ * Represents the linear function: A·x + B. Thus, two parameters are required: A (scale) and B (shift).
  * @author Iván Castilla Rodríguez
- *
  */
 public class LinearFunction extends TimeFunction {
-	private TimeFunction a;
-	private TimeFunction b;
+	/** Scale */
+	private TimeFunction scale;
+	/** Shift */
+	private TimeFunction shift;
 	
 	/**
-	 * 
+	 * Creates a new linear function with two parameters A (scale) and B (factor), which can be also
+	 * defined as other time functions.
+	 * @param a Scale
+	 * @param b Factor
 	 */
 	public LinearFunction(TimeFunction a, TimeFunction b) {
-		this.a = a;
-		this.b = b;
+		this.scale = a;
+		this.shift = b;
+	}
+
+	/**
+	 * Creates a new linear function with two parameters A (scale) and B (factor), which are defined
+	 * as constants.
+	 * @param a Scale
+	 * @param b Factor
+	 */
+	public LinearFunction(double a, double b) {
+		this.scale = new ConstantFunction(a);
+		this.shift = new ConstantFunction(b);
+	}
+
+	/**
+	 * Creates a non-set linear function. This constructor must be used together with the 
+	 * <code>setParameters</code> method.
+	 */
+	public LinearFunction() {	
 	}
 	
 	/**
-	 * 
+	 * Returns the scale.
+	 * @return Returns the scale.
 	 */
-	public LinearFunction(double a, double b) {
-		this.a = new ConstantFunction(a);
-		this.b = new ConstantFunction(b);
+	public TimeFunction getScale() {
+		return scale;
 	}
 
 	/**
-	 * @return Returns the a.
+	 * Returns the shift
+	 * @return Returns the shift.
 	 */
-	public TimeFunction getA() {
-		return a;
+	public TimeFunction getShift() {
+		return shift;
 	}
 
 	/**
-	 * @return Returns the b.
+	 * Sets a new value for the scale.
+	 * @param a The scale to set.
 	 */
-	public TimeFunction getB() {
-		return b;
+	public void setScale(TimeFunction a) {
+		this.scale = a;
 	}
 
 	/**
-	 * @param a The a to set.
+	 * Sets a new value for the shift
+	 * @param b The shift to set.
 	 */
-	public void setA(TimeFunction a) {
-		this.a = a;
-	}
-
-	/**
-	 * @param b The b to set.
-	 */
-	public void setB(TimeFunction b) {
-		this.b = b;
+	public void setShift(TimeFunction b) {
+		this.shift = b;
 	}
 
 	public double getValue(double ts) {
-		return a.getValue(ts) * ts + b.getValue(ts);
+		return scale.getValue(ts) * ts + shift.getValue(ts);
 	}
 
+	/**
+	 * Requires two parameters: scale and shift.
+	 * @param params Parameters required by this method.
+	 */
 	@Override
 	public void setParameters(Object... params) {
 		if (params.length < 2) 
-			throw new IllegalArgumentException("Need (A, B), received " +
+			throw new IllegalArgumentException("Need (Scale, Shift), received " +
 		            params.length + " parameters");
 		else {
-			setA((TimeFunction)params[0]);
-			setB((TimeFunction)params[1]);
+			setScale((TimeFunction)params[0]);
+			setShift((TimeFunction)params[1]);
 		}
 		
 	}

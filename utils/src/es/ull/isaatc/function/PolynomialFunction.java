@@ -11,16 +11,26 @@ import simkit.random.RandomVariateFactory;
  * @author Roberto Muñoz
  *
  */
-public class PolynomicFunction extends TimeFunction {
+public class PolynomialFunction extends TimeFunction {
+	/** Function coefficients */
 	private TimeFunction coefficients[];
+	/** Highest coefficient index */
 	private int length;
 	
-	public PolynomicFunction(TimeFunction coefficients[]) {
+	/**
+	 * Creates a polynomial function.
+	 * @param coefficients Coefficients of this function, expressed as other time functions.
+	 */
+	public PolynomialFunction(TimeFunction coefficients[]) {
 	    this.length = coefficients.length;
 	    this.coefficients = coefficients;
 	}
 
-	public PolynomicFunction(double coefficients[]) {
+	/**
+	 * Creates a polynomial function.
+	 * @param coefficients Coefficients of this function, expressed as constants.
+	 */
+	public PolynomialFunction(double coefficients[]) {
 	    this.length = coefficients.length;
 	    int i = 0;
 	    this.coefficients = new RandomFunction[length];
@@ -29,9 +39,13 @@ public class PolynomicFunction extends TimeFunction {
 	    
 	}
 
-	public PolynomicFunction() {}
+	/**
+	 * Creates a polynomial function whose parameters must be set using <code>setParameters</code>
+	 */	
+	public PolynomialFunction() {}
 
 
+	@Override
 	public double getValue(double ts) {
 	    double value = 0;
 	    for (int i = 0; i < length ; i++) {
@@ -41,6 +55,7 @@ public class PolynomicFunction extends TimeFunction {
 	}
 
 	/**
+	 * Returns this function coefficients.
 	 * @return the coefficients
 	 */
 	public TimeFunction[] getCoefficients() {
@@ -48,6 +63,7 @@ public class PolynomicFunction extends TimeFunction {
 	}
 
 	/**
+	 * Sets this function coefficients.
 	 * @param coefficients the coefficients to set
 	 */
 	public void setCoefficients(TimeFunction[] coefficients) {

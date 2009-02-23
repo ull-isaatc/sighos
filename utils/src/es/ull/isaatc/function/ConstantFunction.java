@@ -4,19 +4,26 @@
 package es.ull.isaatc.function;
 
 /**
+ * A constant value wrapped by a time function.
  * @author Iván Castilla Rodríguez
  *
  */
 public class ConstantFunction extends TimeFunction {
+	/** The internal value */
 	private double val;
+	
 	/**
-	 * 
+	 * Creates a constant value which can be used as a time function 
 	 */
 	public ConstantFunction(double val) {
 		super();
 		this.val = val;
 	}
 
+	/**
+	 * Sets the value
+	 * @param val New value
+	 */
 	public void setValue(double val) {
 		this.val = val;
 	}
