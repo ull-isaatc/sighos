@@ -221,7 +221,7 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 		listenerController.start();
 		
 		getListenerController().notifyListeners(new SimulationStartInfo(this, System
-				.nanoTime(), Generator.getElemCounter()));
+				.currentTimeMillis(), Generator.getElemCounter()));
 		
 		// FIXME: Debería hacer un reparto más inteligente tanto de generadores
 		// como de recursos
@@ -243,7 +243,7 @@ public abstract class Simulation implements RecoverableState<SimulationState>, D
 			e.printStackTrace();
 		}
 		debug("SIMULATION COMPLETELY FINISHED");
-		getListenerController().notifyListeners(new SimulationEndInfo(this, System.nanoTime(),
+		getListenerController().notifyListeners(new SimulationEndInfo(this, System.currentTimeMillis(),
 				Generator.getElemCounter()));
 	}
 

@@ -289,10 +289,10 @@ class BenchmarkListener extends SimulationTimeListener implements SimulationObje
  */
 public class BenchmarkTest {
 	static int nThreads = 1;
-	static int nElem = 256;
+	static int nElem = 2048;
 	static int nAct = 1;
 	static double actTime = nElem;
-	static int nIter = 10;
+	static int nIter = 50;
 	static int nExp = 1;
 	static Type type = Type.SAMETIME;
 //	static Type type = Type.CONSECUTIVE;
@@ -332,7 +332,7 @@ public class BenchmarkTest {
 					ListenerController cont = new ListenerController();
 					sim.setListenerController(cont);
 //					cont.addListener(new StdInfoListener());
-					cont.addListener(new BenchmarkListener(out));
+//					cont.addListener(new BenchmarkListener(out));
 					cont.addListener(new SimulationTimeListener() {
 						@Override
 						public void infoEmited(SimulationEndInfo info) {
