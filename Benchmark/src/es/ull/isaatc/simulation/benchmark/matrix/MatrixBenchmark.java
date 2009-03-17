@@ -12,6 +12,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import es.ull.isaatc.util.ThreadPool;
+
 /**
  * Ejemplo de multiplicación de matrices usando hilos.
  * @author chuidiang
@@ -226,6 +228,113 @@ class MultiplicaMatricesConHilos
 
 	public MultiplicaMatricesConHilos(int nThreads, double [][] m1, double [][] m2) {
 		tp = Executors.newFixedThreadPool(nThreads);
+		this.m1 = m1;
+		this.m2 = m2;
+	}
+	
+	/**
+	 * Realiza la multiplicacin de las dos matrices y devuelve el resultado
+	 * @param m1 primer operando
+	 * @param m2 segundo operando
+	 * @return resultado de multiplicar m1xm2
+	 */
+	public double[][] multiplica ()
+	{
+		// condiciones que deben cumplirse y que se suponen ciertas
+		// con los parmetros de entrada
+		assert m1!=null;
+		assert m2!=null;
+		assert m1.length > 0;
+		assert m1[0].length > 0;
+		assert m2.length > 0;
+		assert m2[0].length > 0;
+		assert m1.length==m2[0].length;
+		
+		// Calculo de las dimensiones de la matriz resultado y
+		// reserva de espacio para ella
+		int filas = m1.length;
+		int columnas = m2[0].length;
+		double [][] resultado = new double[filas][columnas];
+		
+		doneSignal  = new CountDownLatch(filas * columnas);
+		
+		// Para cada elemento de la matriz resultado, se lanza el hilo
+		// correspondiente.
+		for (int fila=0; fila<filas; fila++)
+			for (int columna=0; columna<columnas; columna++)
+				tp.execute(new HiloMultiplicador(doneSignal, m1, m2, resultado, fila, columna));
+
+		try {
+			doneSignal.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		finally {
+			tp.shutdown();
+		}
+		
+		// se devuelve el resultado obtenido	
+		return resultado;
+	}
+
+	/**
+	 * Calcula uno de los elementos de la matriz resultado
+	 * @author chuidiang
+	 */
+	class HiloMultiplicador implements Runnable
+	{
+		private double[][] m1;
+		private double[][] m2;
+		private double[][] resultado;
+		private int fila;
+		private int columna;
+		private CountDownLatch doneSignal;
+		
+		/**
+		 * Guarda los parmetros que se le pasan 
+		 * @param m1 primer operando
+		 * @param m2 segundo operando
+		 * @param resultado matriz donde dejar el resultado
+		 * @param fila fila que debe calcular
+		 * @param columna columna que debe calcular
+		 */
+		public HiloMultiplicador (CountDownLatch doneSignal, double[][] m1, double[][]m2, double[][]resultado, int fila, int columna)
+		{
+			this.m1 = m1;
+			this.m2 = m2;
+			this.resultado = resultado;
+			this.fila = fila;
+			this.columna = columna;
+			this.doneSignal = doneSignal;
+		}
+
+		/**
+		 * Calcula el elemento fila,columna de la matriz resultado
+		 */
+		public void run()
+		{
+			resultado[fila][columna]=0.0;
+			for (int i=0;i<m2.length;i++)
+				resultado[fila][columna]+=m1[fila][i]*m2[i][columna];
+			doneSignal.countDown();
+		}
+	}
+
+}
+
+/**
+ * Ejemplo de multipliacin de matrices usando hilos.
+ * @author chuidiang
+ */
+class MultiplicaMatricesConHilosPool 
+{
+	ThreadPool<HiloMultiplicador> tp;
+	CountDownLatch doneSignal;
+	double [][]m1;
+	double [][]m2;
+
+	public MultiplicaMatricesConHilosPool(int nThreads, double [][] m1, double [][] m2) {
+		tp = new ThreadPool<HiloMultiplicador>(nThreads);
 		this.m1 = m1;
 		this.m2 = m2;
 	}
@@ -581,12 +690,12 @@ public class MatrixBenchmark {
 		double [][] m1 = crearMatrizCuadrada(size, 100);
 		double [][] m2 = crearMatrizCuadrada(size, 100);
 	
-		System.out.println("Multiplying with type " + type + " size " + size);
 		long t1 = System.currentTimeMillis();
 		// Se multiplican
 		
 		switch(type) {
 		case 'n':		new MultiplicaMatricesConHilos(nThreads, m1, m2).multiplica(); break;
+		case 'p':		new MultiplicaMatricesConHilosPool(nThreads, m1, m2).multiplica(); break;
 		case 's':		new MultiplicaMatricesConHilosSimple(nThreads, m1, m2).multiplica(); break;
 		case 't':		new MultiplicaMatricesConHilos2(m1, m2).multiplica(); break;
 		case 'x':		new MultiplicaMatricesConHilosX(nThreads, m1, m2).multiplica(); break;
