@@ -2,6 +2,7 @@ package es.ull.isaatc.util;
 
 import java.util.ArrayDeque;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Clase genérica que construye un pool de Threads. 
@@ -18,6 +19,8 @@ public class ThreadPool<T extends Runnable> {
     protected boolean finished = false;
     /** Events that cannot be executed because there are no free threads */
     protected ArrayDeque<T> pending;
+    protected static ThreadPool<?> tp = null;
+    protected static AtomicInteger assigned = new AtomicInteger(0);
     
     /** 
      * Crea una nueva instancia de un ThreadPool limitando el máximo número de
@@ -93,6 +96,22 @@ public class ThreadPool<T extends Runnable> {
         return nThreads;
     }
 
+    public static <T1 extends Runnable> ThreadPool<T1> getPool(int nThreads) {
+    	if (tp == null) {
+    		tp = new ThreadPool<T1>(nThreads) {
+	    		@Override
+	    		public synchronized void shutdown() {
+	    	    	if (assigned.decrementAndGet() == 0) {
+	    	    		super.shutdown();
+	    	    		tp = null;
+	    	    	}
+	    		}
+	    	};
+    	}
+    	assigned.incrementAndGet();
+    	return (ThreadPool<T1>) tp;
+    }
+    
     /**
      * Elemento del pool de threads. Este elemento funciona como un thread que 
      * ejecuta la acción que se le asocie en cada momento.
