@@ -4,6 +4,7 @@
 package es.ull.isaatc.HUNSC.cirgen;
 
 /**
+ * Tipos de paciente
  * @author Iván Castilla Rodríguez
  *
  */

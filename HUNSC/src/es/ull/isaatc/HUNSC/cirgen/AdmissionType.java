@@ -4,6 +4,7 @@
 package es.ull.isaatc.HUNSC.cirgen;
 
 /**
+ * Tipos de admisión del hospital
  * @author Iván
  *
  */

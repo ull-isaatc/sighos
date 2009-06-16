@@ -4,6 +4,7 @@
 package es.ull.isaatc.HUNSC.cirgen;
 
 /**
+ * Categorías de paciente del hospital
  * @author Iván Castilla Rodríguez
  *
  */

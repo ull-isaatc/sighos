@@ -1,25 +1,25 @@
 package es.ull.isaatc.HUNSC.cirgen;
 
-import java.util.concurrent.TimeUnit;
-
-import es.ull.isaatc.HUNSC.cirgen.listener.GSListenerController;
-import es.ull.isaatc.HUNSC.cirgen.listener.GSListenerControllerArray;
-import es.ull.isaatc.HUNSC.cirgen.util.ExcelTools;
+import es.ull.isaatc.HUNSC.cirgen.view.GSViewControllerArray;
 import es.ull.isaatc.simulation.Experiment;
 import es.ull.isaatc.simulation.Simulation;
-import es.ull.isaatc.simulation.listener.ActivityListener;
-import es.ull.isaatc.simulation.listener.ListenerController;
-import es.ull.isaatc.simulation.listener.ResourceStdUsageListener;
-import es.ull.isaatc.simulation.listener.StdInfoListener;
+import es.ull.isaatc.util.ExcelTools;
 
 /**
- * Experimentos de validación. La unidad de tiempo es el minuto.
+ * Se sobreescribe la clase de experimentación para añadir un control extra al final con el que 
+ * poder escribir un fichero resumen en Excel.
  */
 class ExpGS extends Experiment {
-	// Tiempo de simulación
-	private GSListenerControllerArray listeners;
+	/** Control de la salida por Excel */
+	private GSViewControllerArray listeners;
+	/** "Envoltorio" de la entrada */
 	private GSExcelInputWrapper input;
 	
+	/**
+	 * Crea un experimento usando como entrada un fichero de Excel y estableciendo como salida otra serie
+	 * de ficheros Excel.
+	 * @param filename Fichero Excel con configuración de entrada
+	 */
 	public ExpGS(String filename) {
 		super();
 		setDescription("Validation HCG");
@@ -27,29 +27,17 @@ class ExpGS extends Experiment {
 		setNExperiments(input.getNExperiments());
 	}
 	
+	@Override
 	public Simulation getSimulation(int ind) {		
-		SimGS sim = new SimGS(ind, 0.0, TimeUnit.MINUTES.convert(input.getSimulationDays(), TimeUnit.DAYS), input);
-		GSListenerController cont = listeners.getController(ind);
-		cont.addListener(new ResourceStdUsageListener(TimeUnit.MINUTES.convert(input.getSimulationDays(), TimeUnit.DAYS)));
-		cont.addListener(new ActivityListener(TimeUnit.MINUTES.convert(input.getSimulationDays(), TimeUnit.DAYS)));
-
-//		ListenerController cont = new ListenerController();
-//		cont.addListener(new StdInfoListener());
-		sim.setListenerController(cont);
-		return sim;
+		return new SimGS(ind, listeners, input);
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Experiment#start()
-	 */
 	@Override
 	public void start() {
 		System.out.println("--------------------- Experiment started ---------------------");
-		listeners = new GSListenerControllerArray(input);
-		for (int i = 0; i < getNExperiments(); i++) {
-			Simulation sim = getSimulation(i);
-			sim.call();
-		}
+		listeners = new GSViewControllerArray(input);
+		for (int i = 0; i < getNExperiments(); i++)
+			getSimulation(i).run();
 		listeners.writeResults(input.getOutputPath() + "_" + input.getOutputFileName() + ExcelTools.EXT);	
 		System.out.println("--------------------- Experiment finished ---------------------");
 	}
@@ -57,6 +45,7 @@ class ExpGS extends Experiment {
 }
 
 /**
+ * Programa principal. Lo único que hace es invocar el experimento escogido.
  * @author Iván Castilla Rodríguez
  *
  */
@@ -70,8 +59,7 @@ public class HUNSCSim {
 			System.out.println("Modo de uso: java -cp sighos.jar;utils.jar;simkit.jar;actions.jar HUNSCSim <nombre_fichero_entrada.xls>");
 		}
 		else
-			new ExpGS(args[0]).start();
-		//	new ExpGS("C:\\Users\\Iván\\Documents\\HC\\Modelo quirófano CG\\input2.xls").start();
-		//		new ExpGS("S:\\Simulacion\\HC\\Modelo quirófano CG\\input2.xls").start();
+//			new ExpGS(args[0]).start();
+			new ExpGS("S:\\Simulacion\\HC\\Modelo quirófano CG\\HUNSCSim\\inputTest.xls").start();
 	}
 }

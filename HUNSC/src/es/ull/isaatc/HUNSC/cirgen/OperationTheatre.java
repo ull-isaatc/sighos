@@ -5,12 +5,13 @@ package es.ull.isaatc.HUNSC.cirgen;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.concurrent.TimeUnit;
 
-import es.ull.isaatc.util.WeeklyPeriodicCycle;
-import es.ull.isaatc.util.WeeklyPeriodicCycle.WeekDays;
+import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.SimulationWeeklyPeriodicCycle;
+import es.ull.isaatc.simulation.SimulationWeeklyPeriodicCycle.WeekDays;;
 
 /**
+ * Tipos de quirófano del hotspital
  * @author Iván
  *
  */
@@ -31,7 +32,7 @@ public class OperationTheatre {
 	}
 
 	public void addTimeTableEntry(PatientType pt, AdmissionType at, double startTime, double openTime, EnumSet<WeekDays> days) {
-		tteList.add(new TimetableEntry(pt, at, new WeeklyPeriodicCycle(days, TimeUnit.MINUTES.convert(1, TimeUnit.DAYS), startTime, 0), openTime));
+		tteList.add(new TimetableEntry(pt, at, startTime, openTime, days));
 	}
 	
 	/**
@@ -72,8 +73,9 @@ public class OperationTheatre {
 	public class TimetableEntry {
 		private final PatientType pt;
 		private final AdmissionType at;
-		private final WeeklyPeriodicCycle cycle;
+		private final EnumSet<WeekDays> days;
 		private final double openTime;
+		private final double startTime;
 		
 		/**
 		 * @param pt
@@ -81,11 +83,12 @@ public class OperationTheatre {
 		 * @param cycle
 		 * @param openTime
 		 */
-		public TimetableEntry(PatientType pt, AdmissionType at, WeeklyPeriodicCycle cycle, double openTime) {
+		public TimetableEntry(PatientType pt, AdmissionType at, double startTime, double openTime, EnumSet<WeekDays> days) {
 			this.pt = pt;
 			this.at = at;
-			this.cycle = cycle;
+			this.startTime = startTime;
 			this.openTime = openTime;
+			this.days = days;
 		}
 
 		/**
@@ -105,8 +108,8 @@ public class OperationTheatre {
 		/**
 		 * @return the cycle
 		 */
-		public WeeklyPeriodicCycle getCycle() {
-			return cycle;
+		public SimulationWeeklyPeriodicCycle getCycle(Simulation simul) {
+			return new SimulationWeeklyPeriodicCycle(simul, days, startTime, 0);
 		}
 
 		/**
