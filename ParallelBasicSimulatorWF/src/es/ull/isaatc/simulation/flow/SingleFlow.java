@@ -71,7 +71,7 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread.getElement()))
-					act.request(wThread.getNewWorkItem(this));
+					wThread.getElement().addRequestActivityEvent(wThread.getNewWorkItem(this));
 				else {
 					wThread.setExecutable(false, this);
 					next(wThread);

@@ -12,7 +12,7 @@ import es.ull.isaatc.simulation.SimulationPeriodicCycle;
 import es.ull.isaatc.simulation.SimulationTime;
 import es.ull.isaatc.simulation.SimulationTimeFunction;
 import es.ull.isaatc.simulation.SimulationTimeUnit;
-import es.ull.isaatc.simulation.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.TimeDrivenActivity;
 import es.ull.isaatc.simulation.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.WorkGroup;
@@ -21,7 +21,7 @@ import es.ull.isaatc.simulation.flow.SingleFlow;
 import es.ull.isaatc.simulation.inforeceiver.StdInfoView;
 import es.ull.isaatc.simulation.inforeceiver.statistics.CreatedElementsView;
 
-class SimulationWFP21E2For extends StandAloneLPSimulation {
+class SimulationWFP21E2For extends Simulation {
 	int ndays;
 	
 	public SimulationWFP21E2For(int id, int ndays) {

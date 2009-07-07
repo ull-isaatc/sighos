@@ -1,12 +1,12 @@
 package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
-import java.util.Comparator;
-import java.util.concurrent.Semaphore;
 
 import es.ull.isaatc.util.PrioritizedMap;
+import es.ull.isaatc.util.ThreadPool;
 
 /**
  * Partition of activities. It serves as a mutual exclusion mechanism to access a set of activities
@@ -23,12 +23,11 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	protected final ArrayList<Activity> activityList;
     /** A list of resorce types */
     protected final ArrayList<ResourceType> resourceTypeList;
-    /** Semaphore for mutual exclusion control */
-	private final Semaphore sem;
     /** Logical process */
     private LogicalProcess lp;
     /** This queue contains the work items that are waiting for activities of this AM */
     private final WorkItemQueue wiQueue;
+    private ThreadPool<BasicElement.DiscreteEvent> executor;
     
    /**
 	* Creates a new instance of ActivityManager.
@@ -36,7 +35,6 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     */
     public ActivityManager(Simulation simul) {
         super(nextid++, simul);
-        sem = new Semaphore(1);
         resourceTypeList = new ArrayList<ResourceType>();
         activityList = new ArrayList<Activity>();
         wiQueue = new WorkItemQueue();
@@ -60,6 +58,20 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	}
 
     /**
+	 * @return the executor
+	 */
+	public ThreadPool<BasicElement.DiscreteEvent> getExecutor() {
+		return executor;
+	}
+
+	/**
+	 * @param executor the executor to set
+	 */
+	public void setExecutor(ThreadPool<BasicElement.DiscreteEvent> executor) {
+		this.executor = executor;
+	}
+
+	/**
      * Adds an activity to this activity manager.
      * @param a Activity added
      */
@@ -89,28 +101,6 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      */
     protected void queueRemove(WorkItem wi) {
     	wiQueue.remove(wi);
-    }
-    
-	/**
-     * Starts a mutual exclusion access to this activity manager.
-     */    
-    protected void waitSemaphore() {
-		debug("MUTEX\trequesting");    	
-        try {
-			sem.acquire();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		debug("MUTEX\tadquired");    	
-    }
-    
-    /**
-     * Finishes a mutual exclusion access to this activity manager.
-     */    
-    protected void signalSemaphore() {
-		debug("MUTEX\treleasing");    	
-        sem.release();
-		debug("MUTEX\tfreed");    	
     }
         
     /**

@@ -8,11 +8,11 @@ import es.ull.isaatc.simulation.ResourceType;
 import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.SimulationTime;
 import es.ull.isaatc.simulation.SimulationTimeUnit;
-import es.ull.isaatc.simulation.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.TimeDrivenActivity;
 
 
-class TestMaxResourceTypesSimulation extends StandAloneLPSimulation {
+class TestMaxResourceTypesSimulation extends Simulation {
 	private final static SimulationTime STARTTS = SimulationTime.getZero();
 	private final static SimulationTime ENDTS = SimulationTime.getZero();
 	private final static int MAX = 200000;
@@ -36,7 +36,7 @@ class TestMaxResourceTypesSimulation extends StandAloneLPSimulation {
 	
 }
 
-class TestMaxActivitiesSimulation extends StandAloneLPSimulation {
+class TestMaxActivitiesSimulation extends Simulation {
 	private final static SimulationTime STARTTS = SimulationTime.getZero();
 	private final static SimulationTime ENDTS = SimulationTime.getZero();
 	private final static int MAX = 200000;

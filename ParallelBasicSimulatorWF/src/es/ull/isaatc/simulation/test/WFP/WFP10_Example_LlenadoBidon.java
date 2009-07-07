@@ -16,7 +16,7 @@ import es.ull.isaatc.simulation.SimulationPeriodicCycle;
 import es.ull.isaatc.simulation.SimulationTime;
 import es.ull.isaatc.simulation.SimulationTimeFunction;
 import es.ull.isaatc.simulation.SimulationTimeUnit;
-import es.ull.isaatc.simulation.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.TimeDrivenActivity;
 import es.ull.isaatc.simulation.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.WorkGroup;
@@ -28,7 +28,7 @@ import es.ull.isaatc.simulation.flow.SingleFlow;
 import es.ull.isaatc.simulation.inforeceiver.StdInfoView;
 import es.ull.isaatc.util.Output;
 
-class SimulationWFP10E extends StandAloneLPSimulation {
+class SimulationWFP10E extends Simulation {
 	int ndays;
 	
 	public SimulationWFP10E(int id, int ndays) {

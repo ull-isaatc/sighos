@@ -6,21 +6,21 @@ package es.ull.isaatc.simulation.test;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.Executors;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
+import es.ull.isaatc.simulation.ActivityManager;
+import es.ull.isaatc.simulation.BasicElement;
 import es.ull.isaatc.simulation.ElementCreator;
 import es.ull.isaatc.simulation.ElementType;
-import es.ull.isaatc.simulation.Experiment;
 import es.ull.isaatc.simulation.PooledExperiment;
 import es.ull.isaatc.simulation.Resource;
 import es.ull.isaatc.simulation.ResourceType;
 import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.SimulationExecutorSetter;
 import es.ull.isaatc.simulation.SimulationPeriodicCycle;
 import es.ull.isaatc.simulation.SimulationTime;
 import es.ull.isaatc.simulation.SimulationTimeFunction;
 import es.ull.isaatc.simulation.SimulationTimeUnit;
-import es.ull.isaatc.simulation.StandAloneLPSimulation;
 import es.ull.isaatc.simulation.TimeDrivenActivity;
 import es.ull.isaatc.simulation.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.WorkGroup;
@@ -34,10 +34,13 @@ import es.ull.isaatc.simulation.info.SimulationInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.inforeceiver.CpuTimeView;
 import es.ull.isaatc.simulation.inforeceiver.View;
+import es.ull.isaatc.util.SingleThreadPool;
+import es.ull.isaatc.util.StandardThreadPool;
+import es.ull.isaatc.util.ThreadPool;
 
 enum Type {SAMETIME, CONSECUTIVE, MIXED};
 
-class TestOcurrenceSimN extends StandAloneLPSimulation {
+class TestOcurrenceSimN extends Simulation {
 	final static double MIX_FACTOR = 10.0;
 	Type type;
 	int nIter;
@@ -93,7 +96,7 @@ class TestOcurrenceSimN extends StandAloneLPSimulation {
 	}	
 }
 
-class TestOcurrenceSimNRes extends StandAloneLPSimulation {
+class TestOcurrenceSimNRes extends Simulation {
 	final static double MIX_FACTOR = 10.0;
 	Type type;
 	int nIter;
@@ -165,7 +168,7 @@ class TestOcurrenceSimNRes extends StandAloneLPSimulation {
 	}	
 }
 
-class TestOcurrenceSimNResMix extends StandAloneLPSimulation {
+class TestOcurrenceSimNResMix extends Simulation {
 	final static double MIX_FACTOR = 10.0;
 	Type type;
 	int nIter;
@@ -319,17 +322,67 @@ class BenchmarkListener extends View {
 	}
 }
 
+class SimulationFixedExecutionSetter extends SimulationExecutorSetter {
+	int nThreads;
+	/**
+	 * @param simul
+	 */
+	public SimulationFixedExecutionSetter(Simulation simul, int nThreads) {
+		super(simul);
+		this.nThreads = nThreads;
+	}
+
+	/* (non-Javadoc)
+	 * @see es.ull.isaatc.simulation.SimulationExecutorSetter#setExecutors()
+	 */
+	@Override
+	protected void setExecutors() {
+		int nThreadsLP = nThreads - simul.getActivityManagerList().size();
+		int nThreadsAM;
+		ThreadPool<BasicElement.DiscreteEvent> lpTp = null;
+		if (nThreadsLP <= 0) {
+			lpTp = new SingleThreadPool<BasicElement.DiscreteEvent>();
+			nThreadsAM = nThreads - 1;
+		}
+		else {
+			lpTp = new StandardThreadPool<BasicElement.DiscreteEvent>(nThreadsLP);
+			nThreadsAM = nThreads - nThreadsLP;
+		}
+		executorList.add(lpTp);
+		simul.getDefaultLogicalProcess().setExecutor(lpTp);
+
+		if (nThreadsAM == 0) {
+			executorList.add(lpTp);
+			for (ActivityManager am : simul.getActivityManagerList())
+				am.setExecutor(lpTp);
+		}
+		else {
+			ArrayList<SingleThreadPool<BasicElement.DiscreteEvent>> amTps = new ArrayList<SingleThreadPool<BasicElement.DiscreteEvent>>(nThreadsAM);
+			for (int i = 0; i < nThreadsAM; i++) {
+				SingleThreadPool<BasicElement.DiscreteEvent> auxTp = new SingleThreadPool<BasicElement.DiscreteEvent>(); 
+				amTps.add(auxTp);
+				executorList.add(auxTp);
+			}
+			int cont = 0;
+			for (ActivityManager am : simul.getActivityManagerList()) {
+				am.setExecutor(amTps.get(cont));
+				cont = (cont + 1) %  amTps.size();
+			}
+		}
+	}
+
+}
 /**
  * @author Iván Castilla Rodríguez
  *
  */
 public class BenchmarkTest {
 	static int nThreads = 1;
-	static int nElem = 4096;
-	static int nAct = 1;
+	static int nElem = 4;
+	static int nAct = 4;
 	static double actTime = nElem;
-	static int nIter = 10;
-	static int nExp = 4;
+	static int nIter = 50000;
+	static int nExp = 1;
 	static Type type = Type.SAMETIME;
 //	static Type type = Type.CONSECUTIVE;
 //	static Type type = Type.MIXED;
@@ -375,7 +428,7 @@ public class BenchmarkTest {
 			@Override
 			public Simulation getSimulation(int ind) {
 				Simulation sim = new TestOcurrenceSimN(type, ind, nAct, nElem, actTime, nIter, endTs);
-				sim.setNThreads(nThreads);
+				sim.setExecSetter(new SimulationFixedExecutionSetter(sim, nThreads));
 				
 				if (debug)
 					sim.addInfoReciever(new BenchmarkListener(sim, System.out));

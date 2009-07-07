@@ -239,8 +239,6 @@ public class TimeDrivenActivity extends Activity {
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.REQACT, elem.getTs()));
 		if (elem.isDebugEnabled())
 			elem.debug("Requests\t" + this + "\t" + description);
-		// Beginning MUTEX access to activity manager
-		manager.waitSemaphore();
 		elem.debug("MUTEX\trequesting\t" + this + " (req. act.)");    	
         elem.waitSemaphore();
 		elem.debug("MUTEX\tadquired\t" + this + " (req. act.)");    	
@@ -266,8 +264,6 @@ public class TimeDrivenActivity extends Activity {
 			elem.debug("MUTEX\tfreed\t" + this + " (req. act.)");    				
 			queueAdd(wItem); // The element is introduced in the queue
 		}
-		// Ending MUTEX access to activity manager
-		manager.signalSemaphore();		
 	}
 	
 	/**
@@ -308,22 +304,14 @@ public class TimeDrivenActivity extends Activity {
 	@Override
 	public boolean finish(WorkItem wItem) {
 		Element elem = wItem.getElement();
-		// Beginning MUTEX access to activity manager
-		manager.waitSemaphore();
 
 		ArrayList<ActivityManager> amList = wItem.releaseCaughtResources();
 		if (!isNonPresential())
 			elem.setCurrent(null);
 
-		// Ending MUTEX access to activity manager
-		manager.signalSemaphore();
-
 		int[] order = RandomPermutation.nextPermutation(amList.size());
 		for (int ind : order) {
-			ActivityManager am = amList.get(ind);
-			am.waitSemaphore();
-			am.availableResource();
-			am.signalSemaphore();
+			elem.addAvailableResourceEvent(amList.get(ind));
 		}
 
 		// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor

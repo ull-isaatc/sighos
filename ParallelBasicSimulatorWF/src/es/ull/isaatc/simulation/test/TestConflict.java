@@ -12,7 +12,7 @@ import es.ull.isaatc.simulation.SimulationPeriodicCycle;
 import es.ull.isaatc.simulation.SimulationTime;
 import es.ull.isaatc.simulation.SimulationTimeFunction;
 import es.ull.isaatc.simulation.SimulationTimeUnit;
-import es.ull.isaatc.simulation.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.TimeDrivenActivity;
 import es.ull.isaatc.simulation.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.WorkGroup;
@@ -25,7 +25,7 @@ import es.ull.isaatc.util.Output;
  * - R0 {RT0, RT2}; R1 {RT3, RT1}
  * - E0 {A0}; E1 {A1} 
  */
-class SimConflict1 extends StandAloneLPSimulation {
+class SimConflict1 extends Simulation {
 	final static int NRT = 4;
 	final static int NACTS = 2;
 	final static int NELEM = 1;
@@ -69,7 +69,7 @@ class SimConflict1 extends StandAloneLPSimulation {
  * - R0 {RT0, RT2}; R1 {RT3, RT1}; R2 {RT5, RT4}
  * - E0 {A0}; E1 {A1}; E2 {A2} 
  */
-class SimConflict2 extends StandAloneLPSimulation {
+class SimConflict2 extends Simulation {
 	final static int NRT = 6;
 	final static int NACTS = 3;
 	final static int NELEM = 1;

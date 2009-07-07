@@ -5,7 +5,7 @@ import es.ull.isaatc.simulation.*;
 import es.ull.isaatc.simulation.flow.SingleFlow;
 import es.ull.isaatc.util.*;
 
-class SimGenerators extends StandAloneLPSimulation {
+class SimGenerators extends Simulation {
     static final int NDIAS = 4;
 
 	public SimGenerators(int id) {

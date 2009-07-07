@@ -3,6 +3,8 @@ package es.ull.isaatc.simulation;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import es.ull.isaatc.util.ThreadPool;
+
 /**
  * Represents the simulation component that carries out events. 
  * @author Carlos Martin Galan
@@ -48,11 +50,10 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
     protected abstract void end();
     
     /**
-     * Adds a new event to the element's event list. The access is synchronized 
-     * because eventList is not protected
+     * Communicates a new event to the logical process. 
      * @param e New event.
      */    
-    protected synchronized void addEvent(DiscreteEvent e) {
+    protected void addEvent(DiscreteEvent e) {
         if (e.getTs() == e.getLp().getTs())
             e.getLp().addExecution(e);
         else if (e.getTs() > e.getLp().getTs())
@@ -61,11 +62,15 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
         	error("Causal restriction broken\t" + e.getLp().getTs() + "\t" + e);
     }
 
+    protected void addAvailableResourceEvent(ActivityManager am) {
+    	addEvent(new AvailableResourceEvent(defLP, am));
+    }
+    
     /**
      * Informs the element that it must finish its execution. Thus, a FinalizeEvent is
      * created.
      */
-    protected synchronized void notifyEnd() {
+    protected void notifyEnd() {
     	if (!endFlag.getAndSet(true)) {
         	debug("Finished");
             addEvent(new FinalizeEvent());
@@ -140,7 +145,20 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
         final protected double ts;        
         /** Logical process */
         final protected LogicalProcess lp;
+        /** Event Executor */
+        final protected ThreadPool<DiscreteEvent> executor;
 
+        /**
+         * Creates a new basic event.
+         * @param ts Timestamp when the event will be executed.
+         * @param lp Logical process where the event will be executed.
+         */
+        public DiscreteEvent(double ts, LogicalProcess lp, ThreadPool<DiscreteEvent> executor) {
+            this.ts = ts;
+            this.lp = lp;
+            this.executor = executor;
+        }
+        
         /**
          * Creates a new basic event.
          * @param ts Timestamp when the event will be executed.
@@ -149,6 +167,28 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
         public DiscreteEvent(double ts, LogicalProcess lp) {
             this.ts = ts;
             this.lp = lp;
+            this.executor = lp.getExecutor();
+        }
+        
+        /**
+         * Creates a new basic event which starts immediately.
+         * @param ts Timestamp when the event will be executed.
+         * @param lp Logical process where the event will be executed.
+         */
+        public DiscreteEvent(LogicalProcess lp, ThreadPool<DiscreteEvent> executor) {
+            this.ts = lp.getTs();
+            this.lp = lp;
+            this.executor = executor;
+        }
+        
+        /**
+         * Creates a new basic event which starts immediately.
+         * @param lp Logical process where the event will be executed.
+         */
+        public DiscreteEvent(LogicalProcess lp) {
+            this.ts = lp.getTs();
+            this.lp = lp;
+            this.executor = lp.getExecutor();
         }
         
         /**
@@ -168,6 +208,10 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
          * The action/task that this event carries out.
          */
         public abstract void event();
+        
+        public void execute() {
+        	executor.execute(this);
+        }
         
         /**
          * String representation of the event
@@ -216,6 +260,31 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
     	}
     }
 
+    public abstract class AMEvent extends DiscreteEvent {
+    	ActivityManager am;
+    	public AMEvent(double ts, LogicalProcess lp, ActivityManager am) {
+    		super(ts, lp, am.getExecutor());
+    		this.am = am;
+    	}
+
+    	public AMEvent(LogicalProcess lp, ActivityManager am) {
+    		super(lp, am.getExecutor());
+    		this.am = am;
+    	}
+    }
+    
+    public class AvailableResourceEvent extends AMEvent {
+    	public AvailableResourceEvent(LogicalProcess lp, ActivityManager am) {
+    		super(lp, am);
+    	}
+
+		@Override
+		public void event() {
+			am.availableResource();
+		}
+    	
+    }
+    
     /**
      * The last event this element executes. It decrements the total amount of elements of the
      * simulation.
@@ -224,7 +293,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
     public class FinalizeEvent extends DiscreteEvent {
         
         public FinalizeEvent() {
-            super(BasicElement.this.defLP.getTs(), BasicElement.this.defLP);
+            super(BasicElement.this.defLP);
         }
         
         public void event() {
@@ -240,7 +309,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      */
     public class StartEvent extends DiscreteEvent {
         public StartEvent() {
-            super(BasicElement.this.defLP.getTs(), BasicElement.this.defLP);
+            super(BasicElement.this.defLP);
         }
 
         public void event() {

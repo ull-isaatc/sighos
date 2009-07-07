@@ -21,18 +21,6 @@ public class TestSimulationTime {
 		Simulation sim = new Simulation(0, "", SimulationTimeUnit.MINUTE) {
 
 			@Override
-			protected void createActivityManagers() {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			protected void createLogicalProcesses() {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
 			protected void createModel() {
 				// TODO Auto-generated method stub
 				

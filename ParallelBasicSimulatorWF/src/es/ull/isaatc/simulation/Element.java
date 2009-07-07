@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import es.ull.isaatc.simulation.flow.Flow;
 import es.ull.isaatc.simulation.flow.InitializerFlow;
+import es.ull.isaatc.simulation.flow.SingleFlow;
 import es.ull.isaatc.simulation.flow.TaskFlow;
 import es.ull.isaatc.simulation.info.ElementInfo;
 import es.ull.isaatc.simulation.variable.EnumVariable;
@@ -144,7 +145,7 @@ public class Element extends BasicElement {
 	protected void addAvailableElementEvents() {
 		synchronized(inQueue) {
 			for (int i = 0; (current == null) && (i < inQueue.size()); i++)
-				addEvent(new AvailableElementEvent(ts, inQueue.get(i)));
+				addEvent(new AvailableElementEvent(inQueue.get(i)));
 		}		
 	}
 	
@@ -154,7 +155,11 @@ public class Element extends BasicElement {
 	 * @param wThread The work thread used to request the flow
 	 */
 	public void addRequestEvent(Flow f, WorkThread wThread) {
-		addEvent(new RequestFlowEvent(ts, f, wThread));
+		addEvent(new RequestFlowEvent(f, wThread));
+	}
+	
+	public void addRequestActivityEvent(WorkItem wItem) {
+		addEvent(new RequestActivityEvent(wItem));
 	}
 	
 	public void initializeElementVars(HashMap<String, Object> varList) {
@@ -188,8 +193,8 @@ public class Element extends BasicElement {
 		/** The flow to be requested */
 		private final Flow f;
 
-		public RequestFlowEvent(double ts, Flow f, WorkThread eThread) {
-			super(ts, Element.this.defLP);
+		public RequestFlowEvent(Flow f, WorkThread eThread) {
+			super(Element.this.defLP);
 			this.eThread = eThread;
 			this.f = f;
 		}		
@@ -199,18 +204,33 @@ public class Element extends BasicElement {
 		}
 	}
 	
+	public class RequestActivityEvent extends BasicElement.AMEvent {
+		private final WorkItem wItem;
+
+		public RequestActivityEvent(WorkItem wItem) {
+			super(Element.this.defLP, wItem.getActivity().getManager());
+			this.wItem = wItem;
+		}
+		
+		@Override
+		public void event() {
+			wItem.getActivity().request(wItem);
+		}
+		
+	}
+	
 	/**
 	 * Finishes a flow. 
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class FinishFlowEvent extends BasicElement.DiscreteEvent {
+	public class FinishFlowEvent extends BasicElement.AMEvent {
 		/** The work thread that executes the finish */
 		private final WorkThread eThread;
 		/** The flow previously requested */
 		private final TaskFlow f;
 
-		public FinishFlowEvent(double ts, TaskFlow f, WorkThread eThread) {
-			super(ts, Element.this.defLP);
+		public FinishFlowEvent(double ts, SingleFlow f, WorkThread eThread) {
+			super(ts, Element.this.defLP, f.getActivity().getManager());
 			this.f = f;
 			this.eThread = eThread;
 		}		
@@ -224,19 +244,17 @@ public class Element extends BasicElement {
 	 * Informs an activity about an available element in its queue.
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class AvailableElementEvent extends BasicElement.DiscreteEvent {
+	public class AvailableElementEvent extends BasicElement.AMEvent {
 		/** Flow informed of the availability of the element */
 		private final WorkItem eThread;
 
-		public AvailableElementEvent(double ts, WorkItem eThread) {
-			super(ts, eThread.getActivity().getManager().getLp());
+		public AvailableElementEvent(WorkItem eThread) {
+			super(eThread.getActivity().getManager().getLp(), eThread.getActivity().getManager());
 			this.eThread = eThread;
 		}
 
 		public void event() {
 			Activity act = eThread.getActivity();
-			// Beginning MUTEX access to activity manager
-			act.getManager().waitSemaphore();
 
     		debug("MUTEX\trequesting\t" + act + " (av. el.)");    	
             waitSemaphore();
@@ -263,8 +281,6 @@ public class Element extends BasicElement {
 	    		debug("MUTEX\tfreed\t" + act + " (av. el.)");
 			}
     		
-			// Ending MUTEX access to activity manager
-			act.getManager().signalSemaphore();
 		}
 	}
 }

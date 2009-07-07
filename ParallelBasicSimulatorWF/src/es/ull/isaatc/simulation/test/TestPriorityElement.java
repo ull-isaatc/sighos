@@ -13,7 +13,7 @@ import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.SimulationPeriodicCycle;
 import es.ull.isaatc.simulation.SimulationTimeFunction;
 import es.ull.isaatc.simulation.SimulationTimeUnit;
-import es.ull.isaatc.simulation.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.TimeDrivenActivity;
 import es.ull.isaatc.simulation.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.WorkGroup;
@@ -21,7 +21,7 @@ import es.ull.isaatc.simulation.flow.ParallelFlow;
 import es.ull.isaatc.simulation.flow.SingleFlow;
 import es.ull.isaatc.simulation.inforeceiver.StdInfoView;
 
-class PriorityElementSimulation extends StandAloneLPSimulation {
+class PriorityElementSimulation extends Simulation {
 	static final int NACT = 40;
 	static final int NELEMT = 4;
 	static final int NELEM = 100;

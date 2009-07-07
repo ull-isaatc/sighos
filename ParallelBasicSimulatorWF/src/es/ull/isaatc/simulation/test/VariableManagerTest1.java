@@ -4,14 +4,14 @@ import java.util.EnumSet;
 
 import es.ull.isaatc.simulation.PooledExperiment;
 import es.ull.isaatc.simulation.SimulationTimeUnit;
-import es.ull.isaatc.simulation.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.TimeDrivenActivity;
 import es.ull.isaatc.simulation.inforeceiver.StdInfoView;
 import es.ull.isaatc.simulation.variable.EnumType;
 import es.ull.isaatc.simulation.variable.EnumVariable;
 import es.ull.isaatc.simulation.variable.IntVariable;
 
-class SimulationTest1 extends StandAloneLPSimulation {
+class SimulationTest1 extends Simulation {
 	int ndays;
 	
 	public SimulationTest1(int id, int ndays) {

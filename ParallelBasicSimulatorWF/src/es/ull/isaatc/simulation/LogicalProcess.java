@@ -1,7 +1,5 @@
 package es.ull.isaatc.simulation;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -29,16 +27,13 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * finishes its execution. */
     protected double maxgvt; 
     /** Thread pool to execute events */
-//    protected final ThreadPool<BasicElement.DiscreteEvent> tp;
-//    protected final ExecutorService tp;
+    protected ThreadPool<BasicElement.DiscreteEvent> executor;
     /** A counter to know how many events are in execution */
     protected int executingEvents = 0;
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
 	protected final PriorityBlockingQueue<BasicElement.DiscreteEvent> waitQueue;
     /** Thread where the logical process function is implemented */
     private Thread lpThread = null;
-    protected static ExecutorService tp = null;
-    protected static int assigned = 0;
 
 	/**
      * Creates a logical process with initial timestamp 0.0
@@ -46,7 +41,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * @param endT Finishing timestamp.
      */
 	public LogicalProcess(Simulation simul, double endT) {
-        this(simul, 0.0, endT, 1);
+        this(simul, 0.0, endT);
 	}
 
 	/**
@@ -57,48 +52,12 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * @param endT Finishing timestamp.
      */
 	public LogicalProcess(Simulation simul, double startT, double endT) {
-        this(simul, startT, endT, 1);
-	}
-
-	/**
-     * Creates a logical process with initial timestamp 0.0
-     * @param simul Simulation which this LP is attached to.
-     * @param endT Finishing timestamp.
-     */
-	public LogicalProcess(Simulation simul, double endT, int nThreads) {
-        this(simul, 0.0, endT, nThreads);
-	}
-
-	/**
-     * Creates a logical processwith initial timestamp <code>startT</code> and
-     * finishing timestamp <code>endT</code>. 
-     * @param simul Simulation which this LP is attached to.
-     * @param startT Initial timestamp.
-     * @param endT Finishing timestamp.
-     */
-	public LogicalProcess(Simulation simul, double startT, double endT, int nThreads) {
 		super(nextId++, simul);
-//        tp = Executors.newFixedThreadPool(nThreads);
-//		tp = new ThreadPool<BasicElement.DiscreteEvent>(nThreads);
-//		tp = ThreadPool.<BasicElement.DiscreteEvent>getPool(nThreads);
-		tp = getPool(nThreads);
         waitQueue = new PriorityBlockingQueue<BasicElement.DiscreteEvent>();
         lpLock = new ReentrantLock();
         execEmpty = lpLock.newCondition();
         maxgvt = endT;
         lvt = startT;
-	}
-    
-	protected static synchronized ExecutorService getPool(int nThreads) {
-		if (tp == null)
-			tp = Executors.newFixedThreadPool(nThreads);
-		assigned++;
-		return tp;
-	}
-
-	protected static synchronized void shutdownPool() {
-		if (--assigned == 0)
-			tp.shutdown();
 	}
 	
     /**
@@ -113,17 +72,32 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 	public double getTs() {
 		return lvt;
 	}
+    
+    /**
+	 * @return the executor
+	 */
+	public ThreadPool<BasicElement.DiscreteEvent> getExecutor() {
+		return executor;
+	}
 
+	/**
+	 * @param executor the executor to set
+	 */
+	public void setExecutor(ThreadPool<BasicElement.DiscreteEvent> executor) {
+		this.executor = executor;
+	}
+
+    
     /**
      * Sends an event to the execution queue by looking for a thread to execute it. An event is 
      * added to the execution queue when the LP has reached the event timestamp. 
      * @param e Event to be executed
      */
-	public void addExecution(BasicElement.DiscreteEvent e) {
+	public void addExecution(BasicElement.DiscreteEvent ev) {
 		lpLock.lock();
 		try {
 			executingEvents++;
-			tp.execute(e);
+			ev.execute();
 		}
 		finally {
 			lpLock.unlock();
@@ -133,9 +107,9 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
     /**
      * Removes an event from the execution queue, but performing a previous synchronization.
      * The synchronization consists on waiting for the LP to lock, or for the simulation end.
-     * @param e Event to be removed
+     * @param ev Event to be removed
      */
-    protected void removeExecution(BasicElement.DiscreteEvent e) {
+    protected void removeExecution(BasicElement.DiscreteEvent ev) {
         lpLock.lock();
         try {
 			// The LP is informed of the finalization of an event. There's no need of 
@@ -225,7 +199,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 
 		@Override
 		protected void init() {
-			addEvent(new DummyEvent(maxgvt));
+			addEvent(new DummyEvent());
 		}
 		
 		@Override
@@ -233,8 +207,8 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 		}
 
     	class DummyEvent extends BasicElement.DiscreteEvent {
-    		DummyEvent(double ts) {
-    			super(ts, LogicalProcess.this);
+    		DummyEvent() {
+    			super(maxgvt, LogicalProcess.this);
     		}
 			public void event() {				
 			}    		
@@ -277,9 +251,6 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 		finally {
 			lpLock.unlock();
 		}
-		// Frees the execution queue
-//    	tp.shutdown();
-		shutdownPool();
     	debug("SIMULATION TIME FINISHES\r\nSimulation time = " +
             	lvt + "\r\nPreviewed simulation time = " + maxgvt);
     	printState();

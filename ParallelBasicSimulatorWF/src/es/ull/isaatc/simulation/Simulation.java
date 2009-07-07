@@ -100,13 +100,14 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	protected final TreeMap<String, Variable> varCollection = new TreeMap<String, Variable>();
 	
 	protected SimulationTimeUnit unit = null;
-
-	/** Number of threads which handle events in the logical processes */
-	protected int nThreads = 1;
 	
 	protected AtomicLong lpTime = new AtomicLong(0);
 	protected AtomicLong evTime = new AtomicLong(0);
 	protected AtomicLong evRawTime = new AtomicLong(0);
+
+	protected ActivityManagerCreator amCreator = null;
+	protected LogicalProcessCreator lpCreator = null;
+	protected SimulationExecutorSetter execSetter = null;
 	
 	/**
 	 * Empty constructor for compatibility purposes
@@ -183,19 +184,6 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	protected abstract void createModel();
 
 	/**
-	 * Specifies the way the structure of the activity managers is built. 
-	 * @see StandardAMSimulation
-	 */
-	protected abstract void createActivityManagers();
-	
-	/**
-	 * Specifies the way the structure of the logical processes is built. 
-	 * @see StandAloneLPSimulation
-	 * @see SimpleLPSimulation
-	 */
-	protected abstract void createLogicalProcesses();
-	
-	/**
 	 * Starts the simulation execution. It creates and starts all the necessary 
 	 * structures. This method blocks until all the logical processes have finished 
 	 * their execution.<p>
@@ -210,9 +198,18 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 		
 		createModel();
 		debug("SIMULATION MODEL CREATED");
-		createActivityManagers();
+		// Sets default AM creator
+		if (amCreator == null)
+			amCreator = new StandardActivityManagerCreator(this);
+		amCreator.createActivityManagers();
 		debugPrintActManager();
-		createLogicalProcesses();
+		// Sets default LP creator
+		if (lpCreator == null)
+			lpCreator = new SingleLogicalProcessCreator(this);
+		lpCreator.createLogicalProcesses();
+		if (execSetter == null)
+			execSetter = new SimulationSingleExecutionSetter(this);
+		execSetter.setExecutors();
 		init();
 
 		infoHandler.notifyInfo(new es.ull.isaatc.simulation.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
@@ -231,6 +228,7 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 		try {
 			// ... and now the simulation is wating for all the LPs to finish
 			endSignal.await();
+			execSetter.shutdownAll();
 			finalize();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -271,6 +269,48 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	 */
 	public void setUnit(SimulationTimeUnit unit) {
 		this.unit = unit;
+	}
+
+	/**
+	 * @return the amCreator
+	 */
+	public ActivityManagerCreator getAmCreator() {
+		return amCreator;
+	}
+
+	/**
+	 * @return the lpCreator
+	 */
+	public LogicalProcessCreator getLpCreator() {
+		return lpCreator;
+	}
+
+	/**
+	 * @return the execSetter
+	 */
+	public SimulationExecutorSetter getExecSetter() {
+		return execSetter;
+	}
+
+	/**
+	 * @param amCreator the amCreator to set
+	 */
+	public void setAmCreator(ActivityManagerCreator amCreator) {
+		this.amCreator = amCreator;
+	}
+
+	/**
+	 * @param lpCreator the lpCreator to set
+	 */
+	public void setLpCreator(LogicalProcessCreator lpCreator) {
+		this.lpCreator = lpCreator;
+	}
+
+	/**
+	 * @param execSetter the execSetter to set
+	 */
+	public void setExecSetter(SimulationExecutorSetter execSetter) {
+		this.execSetter = execSetter;
 	}
 
 	/**
@@ -360,20 +400,6 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	}
 
 	/**
-	 * @return the nThreads
-	 */
-	public int getNThreads() {
-		return nThreads;
-	}
-
-	/**
-	 * @param threads the nThreads to set
-	 */
-	public void setNThreads(int threads) {
-		nThreads = threads;
-	}
-	
-	/**
 	 * Returns a list of the resources of the model.
 	 * 
 	 * @return Resources of the model.
@@ -425,6 +451,13 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	 */
 	public ArrayList<ActivityManager> getActivityManagerList() {
 		return activityManagerList;
+	}
+
+	/**
+	 * @return the logicalProcessList
+	 */
+	public LogicalProcess[] getLogicalProcessList() {
+		return logicalProcessList;
 	}
 
 	/**

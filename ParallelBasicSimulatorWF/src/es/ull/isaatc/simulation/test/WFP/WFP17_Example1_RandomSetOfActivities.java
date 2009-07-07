@@ -17,7 +17,7 @@ import es.ull.isaatc.simulation.SimulationPeriodicCycle;
 import es.ull.isaatc.simulation.SimulationTime;
 import es.ull.isaatc.simulation.SimulationTimeFunction;
 import es.ull.isaatc.simulation.SimulationTimeUnit;
-import es.ull.isaatc.simulation.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.TimeDrivenActivity;
 import es.ull.isaatc.simulation.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.WorkGroup;
@@ -31,7 +31,7 @@ import es.ull.isaatc.simulation.inforeceiver.StdInfoView;
  * @author Iván Castilla Rodríguez
  *
  */
-class SimulationWFP17 extends StandAloneLPSimulation {
+class SimulationWFP17 extends Simulation {
 	final static int RES = 6;
 	int ndays;
 	

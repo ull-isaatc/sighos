@@ -341,7 +341,7 @@ public class Resource extends BasicElement implements Describable {
     /**
      * Makes available a resource with a specific role. 
      */
-    public class RoleOnEvent extends BasicElement.DiscreteEvent {
+    public class RoleOnEvent extends BasicElement.AMEvent {
         /** Available role */
         private final ResourceType role;
         /** Cycle iterator */
@@ -357,7 +357,7 @@ public class Resource extends BasicElement implements Describable {
          * @param duration The duration of the availability.
          */        
         public RoleOnEvent(double ts, ResourceType role, CycleIterator iter, double duration) {
-            super(ts, role.getManager().getLp());
+            super(ts, role.getManager().getLp(), role.getManager());
             this.iter = iter;
             this.role = role;
             this.duration = duration;
@@ -369,14 +369,10 @@ public class Resource extends BasicElement implements Describable {
         	if (waitTime == 0.0) {
         		simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLON, ts));
         		debug("Resource available\t" + role);
-        		// Beginning MUTEX access to activity manager
-        		role.getManager().waitSemaphore();
         		role.incAvailable(Resource.this);
         		addRole(role, ts + duration);
         		// The activity manger is informed of new available resources
-        		role.getManager().availableResource(); 
-        		// Ending MUTEX access to activity manager
-        		role.getManager().signalSemaphore();
+        		addAvailableResourceEvent(role.getManager()); 
         		role.afterRollOn();
         		RoleOffEvent rEvent = new RoleOffEvent(ts + duration, role, iter, duration);
         		addEvent(rEvent);
@@ -398,7 +394,7 @@ public class Resource extends BasicElement implements Describable {
     /**
      * Makes unavailable a resource with a specific role. 
      */
-    public class RoleOffEvent extends BasicElement.DiscreteEvent {
+    public class RoleOffEvent extends BasicElement.AMEvent {
         /** Unavailable role */
         private final ResourceType role;
         /** Cycle iterator */
@@ -414,7 +410,7 @@ public class Resource extends BasicElement implements Describable {
          * @param duration The duration of the availability.
          */        
         public RoleOffEvent(double ts, ResourceType role, CycleIterator iter, double duration) {
-            super(ts, role.getManager().getLp());
+            super(ts, role.getManager().getLp(), role.getManager());
             this.role = role;
             this.iter = iter;
             this.duration = duration;
@@ -425,13 +421,9 @@ public class Resource extends BasicElement implements Describable {
         	double waitTime = role.beforeRollOff();
         	if (waitTime == 0.0) {
         		simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLOFF, ts));
-        		// Beginning MUTEX access to activity manager
-        		role.getManager().waitSemaphore();
         		role.decAvailable(Resource.this);
         		// MOD 24/05/07
         		removeRole(role);
-        		// Ending MUTEX access to activity manager
-        		role.getManager().signalSemaphore();        
         		debug("Resource unavailable\t" + role);
         		double nextTs = iter.next();
         		if (!Double.isNaN(nextTs)) {
@@ -519,12 +511,8 @@ public class Resource extends BasicElement implements Describable {
 			// FIXME: Habría que controlar el acceso concurrente a esta variable. Puede dar problemas.
 			setNotCanceled(true);
 			for (ActivityManager am : getCurrentManagers()) {
-				// Beginning MUTEX access to activity manager
-				am.waitSemaphore();
-				// The activity manger is informed of new available resources
-				am.availableResource(); 
-				// Ending MUTEX access to activity manager
-				am.signalSemaphore();
+				// The activity manager is informed of new available resources
+				addAvailableResourceEvent(am);
 			}
 			double nextTs = Double.NaN;
 			if (iter != null)

@@ -5,10 +5,9 @@ package es.ull.isaatc.simulation.test;
 
 import es.ull.isaatc.simulation.*;
 
-class MySimulation extends StandAloneLPSimulation {
+class MySimulation extends Simulation {
 	public static final SimulationTime START = SimulationTime.getZero();
 	public static final SimulationTime END = SimulationTime.getZero();
-	private long t;
 	
 	public MySimulation(int id, String description) {
 		super(id, description, SimulationTimeUnit.MINUTE, START, END);
@@ -40,14 +39,9 @@ class MySimulation extends StandAloneLPSimulation {
 	
 	@Override
 	protected void createModel() {
-		t = System.currentTimeMillis();
 		model2();
 	}
-	
-	protected void createLogicalProcesses() {
-		super.createLogicalProcesses();
-		System.out.println("TTree: " + (System.currentTimeMillis() - t));
-	}
+
 }
 /**
  * @author Iván Castilla Rodríguez
