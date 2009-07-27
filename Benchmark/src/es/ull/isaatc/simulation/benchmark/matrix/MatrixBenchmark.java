@@ -12,10 +12,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import es.ull.isaatc.util.StandardThreadPool;
 import es.ull.isaatc.util.ThreadPool;
 
 /**
- * Ejemplo de multiplicación de matrices usando hilos.
+ * Ejemplo de multiplicacin de matrices usando hilos.
  * @author chuidiang
  */
 class MultiplicaMatricesConHilosX2 
@@ -119,7 +120,7 @@ class MultiplicaMatricesConHilosX2
 }
 
 /**
- * Ejemplo de multiplicación de matrices usando hilos.
+ * Ejemplo de multiplicacin de matrices usando hilos.
  * @author chuidiang
  */
 class MultiplicaMatricesConHilosX 
@@ -334,7 +335,7 @@ class MultiplicaMatricesConHilosPool
 	double [][]m2;
 
 	public MultiplicaMatricesConHilosPool(int nThreads, double [][] m1, double [][] m2) {
-		tp = new ThreadPool<HiloMultiplicador>(nThreads);
+		tp = new StandardThreadPool<HiloMultiplicador>(nThreads);
 		this.m1 = m1;
 		this.m2 = m2;
 	}
