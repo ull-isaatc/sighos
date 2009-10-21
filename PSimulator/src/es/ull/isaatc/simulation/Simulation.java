@@ -7,26 +7,25 @@
 package es.ull.isaatc.simulation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
-import es.ull.isaatc.simulation.flow.Flow;
-import es.ull.isaatc.simulation.inforeceiver.InfoHandler;
-import es.ull.isaatc.simulation.inforeceiver.InfoReceiver;
-import es.ull.isaatc.simulation.inforeceiver.SimulationInfoHandler;
-import es.ull.isaatc.simulation.variable.BooleanVariable;
-import es.ull.isaatc.simulation.variable.ByteVariable;
-import es.ull.isaatc.simulation.variable.CharacterVariable;
-import es.ull.isaatc.simulation.variable.DoubleVariable;
-import es.ull.isaatc.simulation.variable.FloatVariable;
-import es.ull.isaatc.simulation.variable.IntVariable;
-import es.ull.isaatc.simulation.variable.LongVariable;
-import es.ull.isaatc.simulation.variable.ShortVariable;
-import es.ull.isaatc.simulation.variable.UserVariable;
-import es.ull.isaatc.simulation.variable.Variable;
+import es.ull.isaatc.simulation.sequential.flow.Flow;
+import es.ull.isaatc.simulation.sequential.inforeceiver.InfoHandler;
+import es.ull.isaatc.simulation.sequential.inforeceiver.InfoReceiver;
+import es.ull.isaatc.simulation.sequential.inforeceiver.SimulationInfoHandler;
+import es.ull.isaatc.simulation.sequential.variable.BooleanVariable;
+import es.ull.isaatc.simulation.sequential.variable.ByteVariable;
+import es.ull.isaatc.simulation.sequential.variable.CharacterVariable;
+import es.ull.isaatc.simulation.sequential.variable.DoubleVariable;
+import es.ull.isaatc.simulation.sequential.variable.FloatVariable;
+import es.ull.isaatc.simulation.sequential.variable.IntVariable;
+import es.ull.isaatc.simulation.sequential.variable.LongVariable;
+import es.ull.isaatc.simulation.sequential.variable.ShortVariable;
+import es.ull.isaatc.simulation.sequential.variable.UserVariable;
+import es.ull.isaatc.simulation.sequential.variable.Variable;
 import es.ull.isaatc.util.Output;
 
 /**
@@ -91,7 +90,7 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	private CountDownLatch endSignal;
 
 	/** List of active elements */
-	private final Map<Integer, Element> activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
+	private final Map<Integer, Element> activeElementList = new TreeMap<Integer, Element>();
 	
 	private final SimulationInfoHandler infoHandler = new SimulationInfoHandler();
 	
@@ -100,9 +99,6 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	
 	protected SimulationTimeUnit unit = null;
 
-	/** Number of threads which handle events in the logical processes */
-	protected int nThreads = 1;
-	
 	/**
 	 * Empty constructor for compatibility purposes
 	 */
@@ -210,7 +206,7 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 		createLogicalProcesses();
 		init();
 
-		infoHandler.notifyInfo(new es.ull.isaatc.simulation.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
+		infoHandler.notifyInfo(new es.ull.isaatc.simulation.sequential.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
 		
 		// Starts all the generators
 		for (Generator gen : generatorList)
@@ -230,7 +226,7 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		infoHandler.notifyInfo(new es.ull.isaatc.simulation.info.SimulationEndInfo(this, System.currentTimeMillis(), this.internalEndTs));
+		infoHandler.notifyInfo(new es.ull.isaatc.simulation.sequential.info.SimulationEndInfo(this, System.currentTimeMillis(), this.internalEndTs));
 		debug("SIMULATION COMPLETELY FINISHED");
 	}
 
@@ -269,7 +265,7 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	}
 
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.Activity} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.sequential.Activity} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param act
@@ -282,7 +278,7 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.ElementType} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.sequential.ElementType} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param et
@@ -295,7 +291,7 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.ResourceType} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.sequential.ResourceType} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param rt
@@ -308,7 +304,7 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.flow.Flow} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.sequential.flow.Flow} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param f
@@ -354,20 +350,6 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 		resourceList.put(res.getIdentifier(), res);
 	}
 
-	/**
-	 * @return the nThreads
-	 */
-	public int getNThreads() {
-		return nThreads;
-	}
-
-	/**
-	 * @param threads the nThreads to set
-	 */
-	public void setNThreads(int threads) {
-		nThreads = threads;
-	}
-	
 	/**
 	 * Returns a list of the resources of the model.
 	 * 
@@ -689,8 +671,8 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 		return activeElementList;
 	};
 	
-	public void addInfoReciever(InfoReceiver reciever) {
-		infoHandler.registerRecievers(reciever);
+	public void addInfoReceiver(InfoReceiver receiver) {
+		infoHandler.registerReceivers(receiver);
 	}
 
 	public InfoHandler getInfoHandler() {
