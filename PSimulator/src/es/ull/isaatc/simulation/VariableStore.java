@@ -72,6 +72,4 @@ public interface VariableStore {
 	 * @param value The new value.
 	 */
 	public void putVar(String varName, short value);
-	
-	public double getVarViewValue(Object...params);
 }

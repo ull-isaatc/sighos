@@ -6,19 +6,11 @@
 
 package es.ull.isaatc.simulation;
 
-import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
-import es.ull.isaatc.simulation.variable.BooleanVariable;
-import es.ull.isaatc.simulation.variable.ByteVariable;
-import es.ull.isaatc.simulation.variable.CharacterVariable;
-import es.ull.isaatc.simulation.variable.DoubleVariable;
-import es.ull.isaatc.simulation.variable.FloatVariable;
-import es.ull.isaatc.simulation.variable.IntVariable;
-import es.ull.isaatc.simulation.variable.LongVariable;
-import es.ull.isaatc.simulation.variable.ShortVariable;
-import es.ull.isaatc.simulation.variable.UserVariable;
-import es.ull.isaatc.simulation.variable.Variable;
+import es.ull.isaatc.simulation.model.Model;
+import es.ull.isaatc.simulation.model.Time;
+import es.ull.isaatc.simulation.model.TimeUnit;
 import es.ull.isaatc.util.Output;
 
 /**
@@ -33,33 +25,22 @@ import es.ull.isaatc.util.Output;
  * 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation implements VariableStore, Identifiable, Describable, Callable<Integer>, Runnable, Debuggable {
+public abstract class Simulation implements Identifiable, Describable, Callable<Integer>, Runnable, Debuggable {
 	/** Simulation's identifier */
 	protected int id;
 	
-	/** A short text describing this simulation. */
-	protected String description;
-
+	/** The model to be simulated */
+	protected Model model;
+	
 	/** Timestamp of simulation's start */
 	protected double internalStartTs;
 
 	/** Timestamp of Simulation's end */
 	protected double internalEndTs;
-
-	/** Timestamp of simulation's start */
-	protected SimulationTime startTs;
-
-	/** Timestamp of Simulation's end */
-	protected SimulationTime endTs;
 	
 	/** Output for printing messages */
 	protected Output out = null;
 	
-    /** Variable warehouse */
-	protected final TreeMap<String, Variable> varCollection = new TreeMap<String, Variable>();
-	
-	protected SimulationTimeUnit unit = null;
-
 	/**
 	 * Empty constructor for compatibility purposes
 	 */
@@ -70,69 +51,29 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	 * Creates a new instance of Simulation
 	 * 
 	 * @param id This simulation's identifier
-	 * @param description A short text describing this simulation.
+	 * @param model the model to be simulated
 	 */
-	public Simulation(int id, String description, SimulationTimeUnit unit) {
+	public Simulation(int id, Model model) {
 		super();
 		this.id = id;
-		this.description = description;
-		this.unit = unit;
-	}
-
-
-	/**
-	 * Creates a new instance of Simulation
-	 *
-	 * @param id
-	 *            This simulation's identifier
-	 * @param description
-	 *            A short text describing this simulation.
-	 * @param startTs
-	 *            Timestamp of simulation's start
-	 * @param endTs
-	 *            Timestamp of simulation's end
-	 */
-	public Simulation(int id, String description, SimulationTimeUnit unit, SimulationTime startTs, SimulationTime endTs) {
-		this(id, description, unit);
-
-		this.startTs = startTs;
-		this.internalStartTs = simulationTime2Double(startTs);
-		this.endTs = endTs;
-		this.internalEndTs = simulationTime2Double(endTs);
+		this.model = model;
+		this.internalStartTs = simulationTime2Double(model.startTs);
+		this.internalEndTs = simulationTime2Double(model.endTs);
 	}
 	
 	/**
-	 * Creates a new instance of Simulation
-	 *
-	 * @param id
-	 *            This simulation's identifier
-	 * @param description
-	 *            A short text describing this simulation.
-	 * @param startTs
-	 *            Simulation's start timestamp expresed in Simulation Time Units
-	 * @param endTs
-	 *            Simulation's end timestamp expresed in Simulation Time Units
+	 * @return the model
 	 */
-	public Simulation(int id, String description, SimulationTimeUnit unit, double startTs, double endTs) {
-		this(id, description, unit);
-
-		this.startTs = new SimulationTime(unit, startTs);
-		this.internalStartTs = simulationTime2Double(this.startTs);
-		this.endTs = new SimulationTime(unit, endTs);
-		this.internalEndTs = simulationTime2Double(this.endTs);
+	public Model getModel() {
+		return model;
 	}
-	
+
 	/**
-	 * Contains the specifications of the model. All the components of the model
-	 * must be declared here.
-	 * <p>
-	 * The components are added simply by invoking their constructors. For
-	 * example: <code>
-	 * Activity a1 = new Activity(0, this, "Act1");
-	 * ResourceType rt1 = new ResourceType(0, this, "RT1");
-	 * </code>
+	 * @param model the model to set
 	 */
-	protected abstract void createModel();
+	public void setModel(Model model) {
+		this.model = model;
+	}
 
 	/**
 	 * Specifies the way the structure of the activity managers is built. 
@@ -159,26 +100,19 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 		new Thread(this).start();		
 	}
 
-	public double simulationTime2Double(SimulationTime source) {
-		return unit.convert(source) * Double.MIN_VALUE;
+	public double simulationTime2Double(Time source) {
+		return model.getUnit().convert(source) * Double.MIN_VALUE;
 	}
 	
-	public SimulationTime double2SimulationTime(double sourceValue) {
-		return new SimulationTime(unit, sourceValue / Double.MIN_VALUE);
+	public Time double2SimulationTime(double sourceValue) {
+		return new Time(model.getUnit(), sourceValue / Double.MIN_VALUE);
 	}
 	
 	/**
 	 * @return the unit
 	 */
-	public SimulationTimeUnit getUnit() {
-		return unit;
-	}
-
-	/**
-	 * @param unit the unit to set
-	 */
-	public void setUnit(SimulationTimeUnit unit) {
-		this.unit = unit;
+	public TimeUnit getUnit() {
+		return model.unit;
 	}
 
 	/**
@@ -195,16 +129,8 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	 * 
 	 * @return Value of property endTs.
 	 */
-	public SimulationTime getEndTs() {
-		return endTs;
-	}
-
-	/**
-	 * @param endTs the endTs to set
-	 */
-	public void setEndTs(SimulationTime endTs) {
-		this.endTs = endTs;
-		this.internalEndTs = simulationTime2Double(endTs);
+	public Time getEndTs() {
+		return model.endTs;
 	}
 
 	/**
@@ -221,30 +147,15 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	 * 
 	 * @return Returns the startTs.
 	 */
-	public SimulationTime getStartTs() {
-		return startTs;
-	}
-
-	/**
-	 * @param startTs the startTs to set
-	 */
-	public void setStartTs(SimulationTime startTs) {
-		this.startTs = startTs;
-		this.internalStartTs = simulationTime2Double(startTs);
+	public Time getStartTs() {
+		return model.startTs;
 	}
 
 	/**
 	 * @return the description
 	 */
 	public String getDescription() {
-		return description;
-	}
-
-	/**
-	 * @param description the description to set
-	 */
-	public void setDescription(String description) {
-		this.description = description;
+		return model.description;
 	}
 
 	/*
@@ -271,7 +182,7 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 
 	@Override
 	public String toString() {
-		return description;
+		return model.description + "(" + model.startTs + ", " + model.endTs + ")";
 	}
 
 	/*
@@ -300,111 +211,33 @@ public abstract class Simulation implements VariableStore, Identifiable, Describ
 	
 	/**
 	 * Event which is activated before the simulation start.
+	 * FIXME: Poner directamente la llamada donde corresponda
 	 */
-	public void init(){};
+	public void init() {
+		model.init();
+	};
 	
 	/**
 	 * Event which is activated after the simulation finish.
+	 * FIXME: Poner directamente la llamada donde corresponda
 	 */
-	public void end(){};
+	public void end() {
+		model.end();
+	};
 	
 	/**
 	 * Event which is activated before a clock change.
+	 * FIXME: Poner directamente la llamada donde corresponda
 	 */
-	public void beforeClockTick(){};
+	public void beforeClockTick() {
+		model.beforeClockTick();
+	};
 	
 	/**
 	 * Event which is activated after a clock change.
+	 * FIXME: Poner directamente la llamada donde corresponda
 	 */
-	public void afterClockTick(){}
-	
-	public Variable getVar(String varName) {
-		return varCollection.get(varName);
-	}
-	
-	public void putVar(String varName, Variable value) {
-		varCollection.put(varName, value);
-	}
-	
-	public void putVar(String varName, double value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new DoubleVariable(value));
-	}
-	
-	public void putVar(String varName, int value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new IntVariable(value));
-	}
-
-	public void putVar(String varName, boolean value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new BooleanVariable(value));
-	}
-
-	public void putVar(String varName, char value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new CharacterVariable(value));
-	}
-	
-	public void putVar(String varName, byte value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new ByteVariable(value));
-	}
-
-	public void putVar(String varName, float value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new FloatVariable(value));
-	}
-	
-	public void putVar(String varName, long value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new LongVariable(value));
-	}
-	
-	public void putVar(String varName, short value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new ShortVariable(value));
-	}
-	
-	public double getVarViewValue(Object...params) {
-		String varName = (String) params[0];
-		params[0] = this;
-		Number value = getVar(varName).getValue(params);
-		if (value != null)
-			return value.doubleValue();
-		else
-			return -1;
+	public void afterClockTick() {
+		model.afterClockTick();
 	}
 }
