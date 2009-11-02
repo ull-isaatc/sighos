@@ -4,11 +4,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import es.ull.isaatc.simulation.Describable;
-import es.ull.isaatc.simulation.Identifiable;
-import es.ull.isaatc.simulation.sequential.condition.Condition;
-import es.ull.isaatc.simulation.sequential.condition.TrueCondition;
-import es.ull.isaatc.util.Prioritizable;
+import es.ull.isaatc.simulation.common.condition.Condition;
+import es.ull.isaatc.simulation.common.condition.TrueCondition;
 import es.ull.isaatc.util.PrioritizedTable;
 
 /**
@@ -29,7 +26,7 @@ import es.ull.isaatc.util.PrioritizedTable;
  * resource can't be used during a period of time after the activity finishes.
  * @author Carlos Martín Galán
  */
-public abstract class Activity extends TimeStampedSimulationObject implements Prioritizable, Describable {
+public abstract class Activity extends TimeStampedSimulationObject implements es.ull.isaatc.simulation.common.Activity {
     /** Priority. The lowest the value, the highest the priority */
     protected int priority = 0;
     /** A brief description of the activity */
@@ -119,7 +116,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(int priority, es.ull.isaatc.simulation.model.WorkGroup wg) {
+    public int addWorkGroup(int priority, WorkGroup wg) {
     	int wgId = workGroupTable.size();
         workGroupTable.add(new ActivityWorkGroup(wgId, priority, wg));
         return wgId;
@@ -133,7 +130,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
      * @param cond Availability condition
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(int priority, es.ull.isaatc.simulation.model.WorkGroup wg, Condition cond) {
+    public int addWorkGroup(int priority, WorkGroup wg, Condition cond) {
     	int wgId = workGroupTable.size();
         workGroupTable.add(new ActivityWorkGroup(wgId, priority, wg, cond));
         return wgId;
@@ -145,7 +142,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(es.ull.isaatc.simulation.model.WorkGroup wg) {    	
+    public int addWorkGroup(WorkGroup wg) {    	
         return addWorkGroup(0, wg);
     }
     
@@ -156,50 +153,8 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
      * @param cond Availability condition
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(es.ull.isaatc.simulation.model.WorkGroup wg, Condition cond) {    	
+    public int addWorkGroup(WorkGroup wg, Condition cond) {    	
         return addWorkGroup(0, wg, cond);
-    }
-
-    /**
-     * Creates a new empty workgroup for this activity. 
-     * @param priority Priority of the workgroup
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(int priority) {
-    	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(wgId, priority));
-        return wgId;
-    }
-    
-    /**
-     * Creates a new empty workgroup for this activity. This workgroup is only available 
-     * if cond is true.
-     * @param priority Priority of the workgroup
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(int priority, Condition cond) {
-    	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(wgId, priority, cond));
-        return wgId;
-    }
-    
-    /**
-     * Creates a new empty workgroup for this activity with the highest level of priority. 
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup() {    	
-        return addWorkGroup(0);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity with the highest level of priority. This 
-     * workgroup is only available if cond is true.
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(Condition cond) {    	
-        return addWorkGroup(0, cond);
     }
 
     /**
@@ -224,23 +179,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
         }
         return null;
     }
-    
-    /**
-     * Adds the corresponding resource type and number to the workgroup with the specified id
-     * @param wgId The id of the workgroup searched
-     * @param rt Resource Type
-     * @param needed Needed units
-     * @return True if the specified id corresponds to an existent WG; false in other case.
-     */
-    public boolean addWorkGroupEntry(int wgId, ResourceType rt, int needed ) {
-    	ActivityWorkGroup wg = getWorkGroup(wgId);
-    	if (wg != null) {
-    		wg.add(rt, needed);
-    		return true;
-    	}
-        return false;
-    }
-    
+
 	/**
      * Checks if this activity can be performed with any of its workgroups. Firstly 
      * checks if the activity is not potentially feasible, then goes through the 
@@ -372,7 +311,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	 * workgroup can be used or not, and the priority of the workgroup inside the activity.
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class ActivityWorkGroup extends es.ull.isaatc.simulation.model.WorkGroup implements Identifiable, Prioritizable, Describable, Comparable<ActivityWorkGroup> {
+	public class ActivityWorkGroup extends WorkGroup implements es.ull.isaatc.simulation.common.ActivityWorkGroup, Comparable<ActivityWorkGroup> {
 	    /** Workgroup's identifier */
 		protected int id;
 		/** Priority of the workgroup */
@@ -382,36 +321,13 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	    private final String idString; 
 		
 	    /**
-	     * Creates a new instance of WorkGroup
-	     * @param id Identifier of this workgroup.
-	     * @param priority Priority of the workgroup.
-	     */    
-	    protected ActivityWorkGroup(int id, int priority) {
-	        this(id, priority, new TrueCondition());
-	    }
-	    
-	    /**
-	     * Creates a new instance of WorkGroup
-	     * @param id Identifier of this workgroup.
-	     * @param priority Priority of the workgroup.
-	     * @param cond  Availability condition
-	     */    
-	    protected ActivityWorkGroup(int id, int priority, Condition cond) {
-	        super();
-	        this.id = id;
-	        this.priority = priority;
-	        this.cond = cond;
-	        this.idString = new String("(" + Activity.this + ")" + getDescription());
-	    }
-
-	    /**
 	     * Creates a new instance of WorkGroup which contains the same resource types
 	     * than an already existing one.
 	     * @param id Identifier of this workgroup.
 	     * @param priority Priority of the workgroup.
 	     * @param wg The original workgroup
 	     */    
-	    protected ActivityWorkGroup(int id, int priority, es.ull.isaatc.simulation.model.WorkGroup wg) {
+	    protected ActivityWorkGroup(int id, int priority, WorkGroup wg) {
 	        this(id, priority, wg, new TrueCondition());
 	    }
 	    
@@ -423,9 +339,12 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	     * @param wg The original workgroup
 	     * @param cond  Availability condition
 	     */    
-	    protected ActivityWorkGroup(int id, int priority, es.ull.isaatc.simulation.model.WorkGroup wg, Condition cond) {
-	        this(id, priority, cond);
-	        this.resourceTypeTable.addAll(wg.resourceTypeTable);
+	    protected ActivityWorkGroup(int id, int priority, WorkGroup wg, Condition cond) {
+	        super(wg.resourceTypes, wg.needed);
+	        this.id = id;
+	        this.priority = priority;
+	        this.cond = cond;
+	        this.idString = new String("(" + Activity.this + ")" + getDescription());
 	    }
 
 
@@ -461,16 +380,14 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	    	if (!cond.check(wi.getElement()))
 	    		return null;
 
-	    	int ned[] = new int[resourceTypeTable.size()];
+	    	int ned[] = needed.clone();
 	    	if (ned.length == 0) // Infinite resources
 	    		return new ArrayDeque<Resource>(); 
 	        int []pos = {0, -1}; // "Start" position
 	        
 	        int totalRes = 0;
-	        for (int i = 0; i < resourceTypeTable.size(); i++) {
-	            ned[i] = resourceTypeTable.get(i).getNeeded();
-	            totalRes += ned[i];
-	        }
+	        for (int n : ned)
+	            totalRes += n;
 	        ArrayDeque<Resource> solution = new ArrayDeque<Resource>(totalRes);
 	        // B&B algorithm for finding a solution
 	        if (findSolution(solution, pos, ned, wi))
@@ -495,12 +412,12 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	            // The second index is reset
 	            aux[1] = -1;
 	            // No more resources needed ==> SOLUTION
-	            if (aux[0] == resourceTypeTable.size()) {
+	            if (aux[0] == resourceTypes.length) {
 	                return aux;
 	            }
 	        }
 	        // Takes the first resource type
-	        ResourceType rt = resourceTypeTable.get(aux[0]).getResourceType();
+	        ResourceType rt = resourceTypes[aux[0]];
 	        // Searches the NEXT available resource
 	        aux[1] = rt.getNextAvailableResource(aux[1] + 1, wi);
 
@@ -515,8 +432,8 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	     * @param pos Position [ResourceType, Resource] of the resource
 	     */
 	    private void mark(int []pos, ArrayDeque<Resource> solution) {
-	        Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
-	        res.setCurrentResourceType(resourceTypeTable.get(pos[0]).getResourceType());
+	        Resource res = resourceTypes[pos[0]].getResource(pos[1]);
+	        res.setCurrentResourceType(resourceTypes[pos[0]]);
 	        solution.push(res);
 	    }
 	    
@@ -525,7 +442,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	     * @param pos Position [ResourceType, Resource] of the resource
 	     */
 	    private void unmark(int []pos, ArrayDeque<Resource> solution) {
-	        Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
+	        Resource res = resourceTypes[pos[0]].getResource(pos[1]);
 	        res.setCurrentResourceType(null);
 	        solution.pop();
 	    }
@@ -542,7 +459,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	        if (pos == null)
 	            return false;
 	        // No more elements needed => SOLUTION
-	        if (pos[0] == resourceTypeTable.size())
+	        if (pos[0] == resourceTypes.length)
 	            return true;
 	        // This resource belongs to the solution...
 	        mark(pos, solution);
@@ -563,8 +480,8 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 
 		public String getDescription() {
 			StringBuilder str = new StringBuilder("WG" + id);
-			for (ResourceTypeTableEntry rtte : resourceTypeTable)
-				str.append(" [" + rtte.getResourceType() + "," + rtte.getNeeded() + "]");
+			for (int i = 0; i < resourceTypes.length; i++)
+				str.append(" [" + resourceTypes[i] + "," + needed[i] + "]");
 			return str.toString();
 		}
 
@@ -579,6 +496,11 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 			if (id > arg0.id)
 				return 1;
 			return 0;
+		}
+
+		@Override
+		public Condition getCondition() {
+			return cond;
 		}
 
 	}

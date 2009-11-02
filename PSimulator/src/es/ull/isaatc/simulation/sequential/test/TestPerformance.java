@@ -4,8 +4,8 @@
 package es.ull.isaatc.simulation.sequential.test;
 
 import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.sequential.ResourceType;
 import es.ull.isaatc.simulation.sequential.Simulation;
 import es.ull.isaatc.simulation.sequential.StandAloneLPSimulation;

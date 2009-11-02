@@ -2,14 +2,13 @@ package es.ull.isaatc.simulation.sequential;
 
 import java.util.ArrayList;
 
-import es.ull.isaatc.simulation.Describable;
 
 /**
  * Represents the different roles that can be found in the system. The resources can serve for
  * different purposes, and each purpose is a role.
  * @author Carlos Martin Galan
  */
-public class ResourceType extends TimeStampedSimulationObject implements Describable {
+public class ResourceType extends TimeStampedSimulationObject implements es.ull.isaatc.simulation.common.ResourceType {
     /** Activity manager this resource type belongs to. */
     protected ActivityManager manager;
     /** A list of the currently available resources. */

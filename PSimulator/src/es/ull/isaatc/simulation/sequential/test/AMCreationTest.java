@@ -5,9 +5,9 @@ package es.ull.isaatc.simulation.sequential.test;
 
 import es.ull.isaatc.simulation.Experiment;
 import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.model.ModelTimeFunction;
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
+import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.model.WorkGroup;
 import es.ull.isaatc.simulation.sequential.*;
 

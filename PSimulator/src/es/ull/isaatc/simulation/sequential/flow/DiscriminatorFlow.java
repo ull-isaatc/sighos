@@ -9,7 +9,7 @@ import es.ull.isaatc.simulation.sequential.Simulation;
  * Meets the Blocking Discriminator pattern (WFP28). 
  * @author ycallero
  */
-public class DiscriminatorFlow extends ANDJoinFlow {
+public class DiscriminatorFlow extends ANDJoinFlow implements es.ull.isaatc.simulation.common.flow.DiscriminatorFlow {
 	
 	/**
 	 * Create a new DiscriminatorFlow.

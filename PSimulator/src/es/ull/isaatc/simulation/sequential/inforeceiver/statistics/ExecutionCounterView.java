@@ -35,7 +35,7 @@ public class ExecutionCounterView extends VarView {
 			case ENDACT: {
 				Activity act = elemInfo.getActivity();
 				Element elem = elemInfo.getElem();
-				ElementType et = elem.getElementType();
+				ElementType et = elem.getType();
 				updateActExCounters(act, elemInfo.getWg());
 				updateElemExCounter(elem);
 				updateEtExCounter(et);

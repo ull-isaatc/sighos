@@ -9,7 +9,7 @@ import es.ull.isaatc.simulation.sequential.Simulation;
  * Meets the Blocking Partial Join pattern (WFP31). 
  * @author ycallero
  */
-public class PartialJoinFlow extends ANDJoinFlow {
+public class PartialJoinFlow extends ANDJoinFlow implements es.ull.isaatc.simulation.common.flow.PartialJoinFlow {
 	
 	/**
 	 * Creates a new PartialJoinFlow.

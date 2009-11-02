@@ -31,7 +31,7 @@ public class RequestCounterView extends VarView {
 			case REQACT: {
 				WorkItem sf = elemInfo.getSf();
 				Element elem = sf.getElement();
-				ElementType et = elem.getElementType();
+				ElementType et = elem.getType();
 				String upElem = updateElemReqCounter(elem);
 				String upEt = updateEtReqCounter(et);
 				if (isDebugMode()) {

@@ -3,6 +3,7 @@
  */
 package es.ull.isaatc.simulation.sequential.flow;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
 
@@ -19,8 +20,9 @@ import es.ull.isaatc.simulation.sequential.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public class InterleavedParallelRoutingFlow extends StructuredFlow {
-
+public class InterleavedParallelRoutingFlow extends StructuredFlow implements es.ull.isaatc.simulation.common.flow.InterleavedParallelRoutingFlow {
+	protected Collection<Activity> acts;
+	protected Collection<Activity[]> dependencies;
 	/**
 	 * Creates a flow which contains a set of activities that must be performed according to a
 	 * predefined set of partial orderings.
@@ -36,6 +38,8 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow {
 		finalFlow = new SynchronizationFlow(simul);
 		finalFlow.setParent(this);
 		
+		this.acts = acts;
+		this.dependencies = dependencies;
 		// Sets the corresponding single flows
 		TreeMap<Activity, SingleFlow> fMap = new TreeMap<Activity, SingleFlow>();
 		for (Activity a : acts)
@@ -118,6 +122,22 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow {
 			}
 		} else
 			wThread.notifyEnd();
+	}
+
+	@Override
+	public Collection<es.ull.isaatc.simulation.common.Activity> getActivities() {
+		ArrayList<es.ull.isaatc.simulation.common.Activity> temp = new ArrayList<es.ull.isaatc.simulation.common.Activity>();
+		for (Activity a : acts)
+			temp.add(a);
+		return temp;
+	}
+
+	@Override
+	public Collection<es.ull.isaatc.simulation.common.Activity[]> getDependencies() {
+		ArrayList<es.ull.isaatc.simulation.common.Activity[]> temp = new ArrayList<es.ull.isaatc.simulation.common.Activity[]>();
+		for (Activity[] dep : dependencies)
+			temp.add(dep);
+		return temp;
 	}
 
 }

@@ -2,7 +2,7 @@ package es.ull.isaatc.simulation.sequential;
 
 import java.util.PriorityQueue;
 
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
+import es.ull.isaatc.simulation.sequential.info.TimeChangeInfo;
 
 /** 
  * A logical process (LP) is a subregion of the simulation. It includes a set of resource types,

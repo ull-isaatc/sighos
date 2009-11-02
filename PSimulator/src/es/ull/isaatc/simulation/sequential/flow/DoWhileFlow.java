@@ -2,7 +2,7 @@ package es.ull.isaatc.simulation.sequential.flow;
 
 import es.ull.isaatc.simulation.sequential.Simulation;
 import es.ull.isaatc.simulation.sequential.WorkThread;
-import es.ull.isaatc.simulation.sequential.condition.Condition;
+import es.ull.isaatc.simulation.common.condition.Condition;
 
 /**
  * A structured loop flow which resembles a do-while loop. The internal flow
@@ -11,7 +11,7 @@ import es.ull.isaatc.simulation.sequential.condition.Condition;
  * flow finishes. 
  * @author ycallero
  */
-public class DoWhileFlow extends StructuredLoopFlow {
+public class DoWhileFlow extends StructuredLoopFlow implements es.ull.isaatc.simulation.common.flow.DoWhileFlow {
 	/** Condition which controls the loop operation. */
 	protected final Condition cond;
 	
@@ -73,5 +73,10 @@ public class DoWhileFlow extends StructuredLoopFlow {
 			next(wThread);
 		}
 	}
-	
+
+	@Override
+	public Condition getCondition() {
+		return cond;
+	}
+
 }

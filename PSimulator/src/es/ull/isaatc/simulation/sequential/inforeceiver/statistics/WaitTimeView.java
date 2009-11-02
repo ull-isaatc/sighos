@@ -43,7 +43,7 @@ public class WaitTimeView extends VarView {
 			WorkItem item = elemInfo.getSf();
 			Activity act = elemInfo.getActivity();
 			Element elem = elemInfo.getElem();
-			ElementType et = elem.getElementType();
+			ElementType et = elem.getType();
 			SimulObjectStore id = new SimulObjectStore(item, act, elem, et);
 			switch(elemInfo.getType()) {
 			case INTACT:
@@ -92,7 +92,7 @@ public class WaitTimeView extends VarView {
 					SimulObjectStore id = entry.getKey();
 					Activity act = id.act;
 					Element elem = id.elem;
-					ElementType et = elem.getElementType();
+					ElementType et = elem.getType();
 					Double time = entry.getValue();
 					double waitTime = getSimul().getInternalEndTs() - time.doubleValue();
 					calculateActWaitTime(act, waitTime);

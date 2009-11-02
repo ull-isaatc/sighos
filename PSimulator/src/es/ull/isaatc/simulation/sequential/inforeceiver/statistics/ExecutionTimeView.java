@@ -51,7 +51,7 @@ public class ExecutionTimeView extends VarView {
 			Activity act = elemActInfo.getActivity();
 			Activity.ActivityWorkGroup wg = elemActInfo.getWg();
 			Element elem = elemActInfo.getElem();
-			ElementType et = elem.getElementType();
+			ElementType et = elem.getType();
 			SimulObjectStore id = new SimulObjectStore(item, act, elem, et, wg);
 			switch(elemActInfo.getType()) {
 			case STAACT: {
@@ -136,7 +136,7 @@ public class ExecutionTimeView extends VarView {
 				SfResources sfRes = entry.getValue();
 				Activity act = key.act;
 				Element elem = key.elem;
-				ElementType et = elem.getElementType();
+				ElementType et = elem.getType();
 				Activity.ActivityWorkGroup wg = key.wg;
 				HashMap<Resource, ResourceType> resList = sfRes.resList;
 				double execTime = finalTs - sfRes.startTime;
@@ -160,7 +160,7 @@ public class ExecutionTimeView extends VarView {
 					Resource res = ruInfo.getRes();
 					ResourceType rt = ruInfo.getRt();
 					Activity act = ruInfo.getActivity();
-					SimulObjectStore id = new SimulObjectStore(item, act, item.getElement(), item.getElement().getElementType(), item.getExecutionWG());
+					SimulObjectStore id = new SimulObjectStore(item, act, item.getElement(), item.getElement().getType(), item.getExecutionWG());
 					SfResources sfRes = startActivityTimes.get(id);
 					if (sfRes != null)
 						sfRes.resList.put(res, rt);

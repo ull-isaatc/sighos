@@ -27,7 +27,7 @@ public class CreatedElementsView extends VarView {
 			switch(elemInfo.getType()) {
 			case START: {
 				createdElements++;
-				ElementType et = elemInfo.getElem().getElementType();
+				ElementType et = elemInfo.getElem().getType();
 				Integer counter = etCreatedElements.get(et);
 				if (counter != null)
 					etCreatedElements.put(et, new Integer(counter.intValue() + 1));

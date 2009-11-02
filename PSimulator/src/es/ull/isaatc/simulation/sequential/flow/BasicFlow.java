@@ -3,7 +3,6 @@
  */
 package es.ull.isaatc.simulation.sequential.flow;
 
-import es.ull.isaatc.simulation.sequential.Element;
 import es.ull.isaatc.simulation.sequential.Simulation;
 import es.ull.isaatc.simulation.sequential.SimulationObject;
 import es.ull.isaatc.simulation.sequential.WorkThread;
@@ -29,6 +28,8 @@ public abstract class BasicFlow extends SimulationObject implements Flow {
 	}
 	
 	/**
+	 * Requests this flow successor(s) to continue the execution. This method is invoked 
+	 * after all the tasks associated to this flow has been successfully carried out.
 	 * Assigns this flow as the last flow visited by the work thread.
 	 * @param wThread Work thread which requested this flow.
 	 */
@@ -48,20 +49,22 @@ public abstract class BasicFlow extends SimulationObject implements Flow {
 	 * (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#setParent(es.ull.isaatc.simulation.StructuredFlow)
 	 */
-	public void setParent(StructuredFlow parent) {
-		this.parent = parent;
+	public void setParent(es.ull.isaatc.simulation.common.flow.StructuredFlow parent) {
+		this.parent = (StructuredFlow)parent;
 	}
 
 	/**
 	 * By default, returns true.
 	 * @return True by default.
 	 */
-	public boolean beforeRequest(Element e) {
+	public boolean beforeRequest(es.ull.isaatc.simulation.common.Element e) {
 		return true;
 	}
-	
+
 	@Override
 	public String getObjectTypeIdentifier() {
 		return "F";
 	}
+	
+	
 }

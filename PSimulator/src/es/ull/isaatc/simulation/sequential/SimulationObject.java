@@ -1,6 +1,5 @@
 package es.ull.isaatc.simulation.sequential;
 
-import es.ull.isaatc.simulation.Identifiable;
 
 /**
  * An identifiable object belonging to a simulation which can be compared. The identifier is
@@ -8,7 +7,7 @@ import es.ull.isaatc.simulation.Identifiable;
  * the same identifiers.
  * @author Iván Castilla Rodríguez
  */
-public abstract class SimulationObject implements Identifiable, Comparable<SimulationObject> {
+public abstract class SimulationObject implements es.ull.isaatc.simulation.common.SimulationObject, Comparable<SimulationObject> {
     /** Unique object identifier  */
 	protected final int id;
     /** Simulation this object belongs to */
@@ -39,7 +38,7 @@ public abstract class SimulationObject implements Identifiable, Comparable<Simul
      * Returns the simulation which this object is attached to.
      * @return Simulation this object belongs to
      */
-    public es.ull.isaatc.simulation.sequential.Simulation getSimul() {
+    public Simulation getSimulation() {
         return simul;
     }
     

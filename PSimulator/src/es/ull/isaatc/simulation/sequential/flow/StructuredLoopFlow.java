@@ -9,7 +9,7 @@ import es.ull.isaatc.simulation.sequential.Simulation;
  * Meets the Structured Loop pattern (WFP21). 
  * @author ycallero
  */
-public abstract class StructuredLoopFlow extends StructuredFlow {
+public abstract class StructuredLoopFlow extends StructuredFlow implements es.ull.isaatc.simulation.common.flow.StructuredLoopFlow {
 	
 	/**
 	 * Create a new StructuredLoopFlow starting in <code>initialSubFlow</code> and 

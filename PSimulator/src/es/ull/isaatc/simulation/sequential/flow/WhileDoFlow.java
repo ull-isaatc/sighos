@@ -2,7 +2,7 @@ package es.ull.isaatc.simulation.sequential.flow;
 
 import es.ull.isaatc.simulation.sequential.Simulation;
 import es.ull.isaatc.simulation.sequential.WorkThread;
-import es.ull.isaatc.simulation.sequential.condition.Condition;
+import es.ull.isaatc.simulation.common.condition.Condition;
 
 /**
  * A structured loop flow which resembles a while-do loop. A precondition is
@@ -10,7 +10,7 @@ import es.ull.isaatc.simulation.sequential.condition.Condition;
  * this flow finishes. 
  * @author ycallero
  */
-public class WhileDoFlow extends StructuredLoopFlow {
+public class WhileDoFlow extends StructuredLoopFlow implements es.ull.isaatc.simulation.common.flow.WhileDoFlow {
 	/** Condition which controls the loop operation. */
 	protected final Condition cond;
 	
@@ -71,6 +71,11 @@ public class WhileDoFlow extends StructuredLoopFlow {
 			afterFinalize(wThread.getElement());
 			next(wThread);
 		}
+	}
+
+	@Override
+	public Condition getCondition() {
+		return cond;
 	}
 }
 

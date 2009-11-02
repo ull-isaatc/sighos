@@ -39,11 +39,11 @@ public class CheckElementsView extends WFPTestView {
 			int et;
 			switch(eInfo.getType()) {
 			case START:
-				et = eInfo.getElem().getElementType().getIdentifier();
+				et = eInfo.getElem().getType().getIdentifier();
 				elemCreated[et]++;
 				break;
 			case FINISH:
-				et = eInfo.getElem().getElementType().getIdentifier();
+				et = eInfo.getElem().getType().getIdentifier();
 				elemFinished[et]++;
 				break;
 			}

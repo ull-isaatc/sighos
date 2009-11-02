@@ -1,14 +1,14 @@
 package es.ull.isaatc.simulation.sequential.test;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.model.ElementType;
-import es.ull.isaatc.simulation.model.ModelCycle;
-import es.ull.isaatc.simulation.model.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.model.ModelTimeFunction;
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
-import es.ull.isaatc.simulation.model.WorkGroup;
+import es.ull.isaatc.simulation.sequential.PooledExperiment;
+import es.ull.isaatc.simulation.common.ModelCycle;
+import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
+import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
+import es.ull.isaatc.simulation.sequential.ElementType;
+import es.ull.isaatc.simulation.sequential.WorkGroup;
 import es.ull.isaatc.simulation.sequential.ElementCreator;
 import es.ull.isaatc.simulation.sequential.Resource;
 import es.ull.isaatc.simulation.sequential.ResourceType;
@@ -46,9 +46,9 @@ class SimConflict1 extends StandAloneLPSimulation {
 		wgs[1].add(getResourceType(3), 1);
 		wgs[1].add(getResourceType(2), 1);
 		for (int i = 0; i < NACTS; i++)
-			new TimeDrivenActivity(i, this, "ACT" + i).addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 40), wgs[i]);
+			new TimeDrivenActivity(i, this, "ACT" + i).addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 40), wgs[i]);
 		
-		ModelCycle c = new ModelPeriodicCycle(this, new Time(TimeUnit.MINUTE, 0.0), new ModelTimeFunction(this, "ConstantVariate", 1440.0), endTs);
+		ModelCycle c = new ModelPeriodicCycle(unit, new Time(TimeUnit.MINUTE, 0.0), new ModelTimeFunction(unit, "ConstantVariate", 1440.0), endTs);
 		Resource r0 = new Resource(0, this, "Res0");
 		Resource r1 = new Resource(1, this, "Res1");
 		r0.addTimeTableEntry(c, new Time(TimeUnit.MINUTE, 480.0), getResourceType(0));

@@ -2,8 +2,8 @@ package es.ull.isaatc.simulation.inforeceiver;
 
 import java.util.ArrayList;
 
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.info.SimulationInfo;
-import es.ull.isaatc.simulation.Simulation;
 
 public abstract class InfoReceiver {
 

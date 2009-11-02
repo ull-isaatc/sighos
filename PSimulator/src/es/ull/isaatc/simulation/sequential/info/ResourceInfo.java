@@ -2,7 +2,7 @@ package es.ull.isaatc.simulation.sequential.info;
 
 import java.util.EnumSet;
 
-import es.ull.isaatc.simulation.info.AsynchronousInfo;
+import es.ull.isaatc.simulation.sequential.info.AsynchronousInfo;
 import es.ull.isaatc.simulation.sequential.Resource;
 import es.ull.isaatc.simulation.sequential.ResourceType;
 import es.ull.isaatc.simulation.sequential.Simulation;

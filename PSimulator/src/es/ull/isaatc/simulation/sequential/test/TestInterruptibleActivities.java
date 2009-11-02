@@ -6,13 +6,13 @@ package es.ull.isaatc.simulation.sequential.test;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.model.ElementType;
-import es.ull.isaatc.simulation.model.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.model.ModelTimeFunction;
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
-import es.ull.isaatc.simulation.model.WorkGroup;
+import es.ull.isaatc.simulation.sequential.PooledExperiment;
+import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
+import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
+import es.ull.isaatc.simulation.sequential.ElementType;
+import es.ull.isaatc.simulation.sequential.WorkGroup;
 import es.ull.isaatc.simulation.sequential.ElementCreator;
 import es.ull.isaatc.simulation.sequential.Resource;
 import es.ull.isaatc.simulation.sequential.ResourceType;
@@ -39,9 +39,9 @@ class InterruptibleActivitiesSimulation extends StandAloneLPSimulation {
 		ResourceType rt = new ResourceType(0, this, "RT0");
 		WorkGroup wg = new WorkGroup(rt, 1);
 		for (int i = 0; i < NACT; i++)
-			new TimeDrivenActivity(i, this, "ACT" + i, i / 2, EnumSet.of(TimeDrivenActivity.Modifier.INTERRUPTIBLE)).addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 101), 0, wg);
-		ModelPeriodicCycle c1 = new ModelPeriodicCycle(this, 0.0, new ModelTimeFunction(this, "ConstantVariate", 200.0), 0);
-		ModelPeriodicCycle c2 = new ModelPeriodicCycle(this, 20.0, new ModelTimeFunction(this, "ConstantVariate", 100.0), 0);
+			new TimeDrivenActivity(i, this, "ACT" + i, i / 2, EnumSet.of(TimeDrivenActivity.Modifier.INTERRUPTIBLE)).addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 101), 0, wg);
+		ModelPeriodicCycle c1 = new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", 200.0), 0);
+		ModelPeriodicCycle c2 = new ModelPeriodicCycle(unit, 20.0, new ModelTimeFunction(unit, "ConstantVariate", 100.0), 0);
 		for (int i = 0; i < NRES; i++)
 			new Resource(i, this, "RES" + i).addTimeTableEntry(c2, 40, rt);
 		ParallelFlow meta = new ParallelFlow(this);

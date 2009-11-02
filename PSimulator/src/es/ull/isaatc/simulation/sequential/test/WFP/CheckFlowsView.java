@@ -7,10 +7,10 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
+import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
-import es.ull.isaatc.simulation.model.Time;
 import es.ull.isaatc.simulation.sequential.flow.Flow;
 import es.ull.isaatc.simulation.sequential.flow.ParallelFlow;
 import es.ull.isaatc.simulation.sequential.flow.SingleFlow;

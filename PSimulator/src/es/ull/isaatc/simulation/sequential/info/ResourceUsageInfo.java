@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.sequential.info;
 
-import es.ull.isaatc.simulation.info.AsynchronousInfo;
+import es.ull.isaatc.simulation.sequential.info.AsynchronousInfo;
 import es.ull.isaatc.simulation.sequential.Activity;
 import es.ull.isaatc.simulation.sequential.Resource;
 import es.ull.isaatc.simulation.sequential.ResourceType;

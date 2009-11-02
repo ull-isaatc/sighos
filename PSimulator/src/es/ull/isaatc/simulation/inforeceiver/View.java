@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.inforeceiver;
 
-import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.common.Simulation;
 
 public abstract class View extends InfoReceiver {
 	

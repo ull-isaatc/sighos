@@ -12,7 +12,7 @@ import es.ull.isaatc.simulation.sequential.Simulation;
  * @author ycallero
  *
  */
-public abstract class StructuredFlow extends SingleSuccessorFlow implements TaskFlow {
+public abstract class StructuredFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.isaatc.simulation.common.flow.StructuredFlow {
 	/**	The entry point of the internal structure */
 	protected InitializerFlow initialFlow = null;
 	/**	The exit point of the internal structure */
@@ -30,7 +30,7 @@ public abstract class StructuredFlow extends SingleSuccessorFlow implements Task
 	 * (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#addPredecessor(es.ull.isaatc.simulation.Flow)
 	 */
-	public void addPredecessor(Flow newFlow) {
+	public void addPredecessor(es.ull.isaatc.simulation.common.flow.Flow newFlow) {
 	}
 
 	/*
@@ -39,5 +39,16 @@ public abstract class StructuredFlow extends SingleSuccessorFlow implements Task
 	 */
 	public void afterFinalize(Element e) {
 	}
+
+	@Override
+	public FinalizerFlow getFinalFlow() {
+		return finalFlow;
+	}
+
+	@Override
+	public InitializerFlow getInitialFlow() {
+		return initialFlow;
+	}
+	
 	
 }

@@ -1,15 +1,15 @@
 package es.ull.isaatc.simulation.sequential.flow;
 
 import es.ull.isaatc.simulation.sequential.Simulation;
-import es.ull.isaatc.simulation.sequential.condition.Condition;
-import es.ull.isaatc.simulation.sequential.condition.TrueCondition;
+import es.ull.isaatc.simulation.common.condition.Condition;
+import es.ull.isaatc.simulation.common.condition.TrueCondition;
 
 /**
  * A structured flow whose initial step is a multi-choice flow and whose final step
  * is a synchronization. Meets the Structured Synchronization pattern (WFP7). 
  * @author ycallero
  */
-public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow{
+public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow implements es.ull.isaatc.simulation.common.flow.StructuredSynchroMergeFlow {
 	
 	/**
 	 * Create a new StructuredSynchroMergeMetaFlow.
@@ -29,7 +29,7 @@ public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow{
 	 * @param cond This branch's condition.
 	 */
 	
-	public void addBranch(TaskFlow branch, Condition cond) {
+	public void addBranch(es.ull.isaatc.simulation.common.flow.TaskFlow branch, Condition cond) {
 		addBranch(branch, branch, cond);
 	}
 	
@@ -39,19 +39,19 @@ public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow{
 	 * @param finalBranch Last step of the internal branch
 	 * @param cond This branch's condition.
 	 */
-	public void addBranch(InitializerFlow initialBranch, FinalizerFlow finalBranch, Condition cond) {
+	public void addBranch(es.ull.isaatc.simulation.common.flow.InitializerFlow initialBranch, es.ull.isaatc.simulation.common.flow.FinalizerFlow finalBranch, Condition cond) {
 		initialBranch.setRecursiveStructureLink(this);
 		((MultiChoiceFlow)initialFlow).link(initialBranch, cond);
 		finalBranch.link(finalFlow);
 	}
 	
 	@Override
-	public void addBranch(InitializerFlow initialBranch, FinalizerFlow finalBranch) {
+	public void addBranch(es.ull.isaatc.simulation.common.flow.InitializerFlow initialBranch, es.ull.isaatc.simulation.common.flow.FinalizerFlow finalBranch) {
 		addBranch(initialBranch, finalBranch, new TrueCondition());		
 	}
 	
 	@Override
-	public void addBranch(TaskFlow initialBranch) {
+	public void addBranch(es.ull.isaatc.simulation.common.flow.TaskFlow initialBranch) {
 		addBranch(initialBranch, new TrueCondition());
 	}
 }

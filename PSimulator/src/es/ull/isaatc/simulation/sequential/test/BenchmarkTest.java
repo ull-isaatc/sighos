@@ -8,19 +8,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.info.SimulationInfo;
-import es.ull.isaatc.simulation.info.SimulationStartInfo;
-import es.ull.isaatc.simulation.inforeceiver.CpuTimeView;
-import es.ull.isaatc.simulation.inforeceiver.View;
-import es.ull.isaatc.simulation.model.ElementType;
-import es.ull.isaatc.simulation.model.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.model.ModelTimeFunction;
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
-import es.ull.isaatc.simulation.model.WorkGroup;
-import es.ull.isaatc.simulation.sequential.Element;
+import es.ull.isaatc.simulation.sequential.PooledExperiment;
+import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
+import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
+import es.ull.isaatc.simulation.sequential.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.sequential.info.SimulationInfo;
+import es.ull.isaatc.simulation.sequential.info.SimulationStartInfo;
+import es.ull.isaatc.simulation.sequential.inforeceiver.CpuTimeView;
+import es.ull.isaatc.simulation.sequential.inforeceiver.View;
+import es.ull.isaatc.simulation.sequential.ElementType;
+import es.ull.isaatc.simulation.sequential.WorkGroup;
+import es.ull.isaatc.simulation.common.Element;
 import es.ull.isaatc.simulation.sequential.ElementCreator;
 import es.ull.isaatc.simulation.sequential.Resource;
 import es.ull.isaatc.simulation.sequential.ResourceType;
@@ -83,31 +83,32 @@ class TestOcurrenceSimN extends StandAloneLPSimulation {
 			smfs[i] = new ForLoopFlow(this, sf, TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 		}
 		ElementType et = new ElementType(0, this, "E_TEST");
-		ModelTimeFunction oneFunction = new ModelTimeFunction(this, "ConstantVariate", 1);
+		ModelTimeFunction oneFunction = new ModelTimeFunction(unit, "ConstantVariate", 1);
+		WorkGroup wg = new WorkGroup();
 		switch(type) {
 			case SAMETIME:
 				for (TimeDrivenActivity act : acts) 
-					act.addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", actTime));
+					act.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", actTime), wg);
 				for (ForLoopFlow smf : smfs)
 					new TimeDrivenGenerator(this, 
 							new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", nElem / smfs.length), et, smf), 
-							new ModelPeriodicCycle(this, Time.getZero(), new ModelTimeFunction(this, "ConstantVariate", endTs.getValue()), 0));
+							new ModelPeriodicCycle(unit, Time.getZero(), new ModelTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0));
 				break;
 			case CONSECUTIVE:
 				for (TimeDrivenActivity act : acts)
-					act.addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", actTime));
+					act.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", actTime), wg);
 				for (ForLoopFlow smf : smfs)
 					new TimeDrivenGenerator(this, 
 							new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf), 
-							new ModelPeriodicCycle(this, Time.getZero(), oneFunction, nElem));
+							new ModelPeriodicCycle(unit, Time.getZero(), oneFunction, nElem));
 				break;
 			case MIXED:
 				for (TimeDrivenActivity act : acts)
-					act.addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", actTime / mixFactor));
+					act.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", actTime / mixFactor), wg);
 				for (ForLoopFlow smf : smfs)
 					new TimeDrivenGenerator(this, 
 							new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf), 
-							new ModelPeriodicCycle(this, Time.getZero(), oneFunction, nElem));
+							new ModelPeriodicCycle(unit, Time.getZero(), oneFunction, nElem));
 				break;
 		}
 	}	
@@ -140,8 +141,8 @@ class TestOcurrenceSimNRes extends StandAloneLPSimulation {
 	
 	@Override
 	protected void createModel() {
-		ModelTimeFunction oneFunction = new ModelTimeFunction(this, "ConstantVariate", 1);
-		ModelPeriodicCycle allCycle = new ModelPeriodicCycle(this, Time.getZero(), new ModelTimeFunction(this, "ConstantVariate", endTs.getValue()), 0);
+		ModelTimeFunction oneFunction = new ModelTimeFunction(unit, "ConstantVariate", 1);
+		ModelPeriodicCycle allCycle = new ModelPeriodicCycle(unit, Time.getZero(), new ModelTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0);
 		for (int i = 0; i < nElem; i++)
 			res[i] = new Resource(i, this, "RES_TEST" + i);
 		for (int i = 0; i < acts.length; i++) {
@@ -159,7 +160,7 @@ class TestOcurrenceSimNRes extends StandAloneLPSimulation {
 		switch(type) {
 			case SAMETIME:
 				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", actTime), wgs[i]);
+					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
 				for (ForLoopFlow smf : smfs)
 					new TimeDrivenGenerator(this, 
 							new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", nElem / smfs.length), et, smf), 
@@ -167,19 +168,19 @@ class TestOcurrenceSimNRes extends StandAloneLPSimulation {
 				break;
 			case CONSECUTIVE:
 				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", actTime), wgs[i]);
+					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
 				for (ForLoopFlow smf : smfs)
 					new TimeDrivenGenerator(this, 
 							new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf), 
-							new ModelPeriodicCycle(this, Time.getZero(), oneFunction, nElem));
+							new ModelPeriodicCycle(unit, Time.getZero(), oneFunction, nElem));
 				break;
 			case MIXED:
 				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", actTime / MIX_FACTOR), wgs[i]);
+					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", actTime / MIX_FACTOR), wgs[i]);
 				for (ForLoopFlow smf : smfs)
 					new TimeDrivenGenerator(this, 
 							new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf), 
-							new ModelPeriodicCycle(this, Time.getZero(), oneFunction, nElem));
+							new ModelPeriodicCycle(unit, Time.getZero(), oneFunction, nElem));
 				break;
 		}
 	}	
@@ -212,8 +213,8 @@ class TestOcurrenceSimNResMix extends StandAloneLPSimulation {
 	
 	@Override
 	protected void createModel() {
-		ModelTimeFunction oneFunction = new ModelTimeFunction(this, "ConstantVariate", 1);
-		ModelPeriodicCycle allCycle = new ModelPeriodicCycle(this, Time.getZero(), new ModelTimeFunction(this, "ConstantVariate", endTs.getValue()), 0);
+		ModelTimeFunction oneFunction = new ModelTimeFunction(unit, "ConstantVariate", 1);
+		ModelPeriodicCycle allCycle = new ModelPeriodicCycle(unit, Time.getZero(), new ModelTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0);
 		for (int i = 0; i < nElem / 2; i++)
 			res[i] = new Resource(i, this, "RES_TEST" + i);
 		for (int i = 0; i < acts.length; i++) {
@@ -229,7 +230,7 @@ class TestOcurrenceSimNResMix extends StandAloneLPSimulation {
 		switch(type) {
 			case SAMETIME:
 				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", actTime), wgs[i]);
+					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
 				for (ForLoopFlow smf : smfs)
 					new TimeDrivenGenerator(this, 
 							new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", nElem / smfs.length), et, smf), 
@@ -237,19 +238,19 @@ class TestOcurrenceSimNResMix extends StandAloneLPSimulation {
 				break;
 			case CONSECUTIVE:
 				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", actTime), wgs[i]);
+					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
 				for (ForLoopFlow smf : smfs)
 					new TimeDrivenGenerator(this, 
 							new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf), 
-							new ModelPeriodicCycle(this, Time.getZero(), oneFunction, nElem));
+							new ModelPeriodicCycle(unit, Time.getZero(), oneFunction, nElem));
 				break;
 			case MIXED:
 				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", actTime / MIX_FACTOR), wgs[i]);
+					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", actTime / MIX_FACTOR), wgs[i]);
 				for (ForLoopFlow smf : smfs)
 					new TimeDrivenGenerator(this, 
 							new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf), 
-							new ModelPeriodicCycle(this, Time.getZero(), oneFunction, nElem));
+							new ModelPeriodicCycle(unit, Time.getZero(), oneFunction, nElem));
 				break;
 		}
 	}	

@@ -8,5 +8,5 @@ package es.ull.isaatc.simulation.sequential.flow;
  * step in a flow structure. 
  * @author Iván Castilla Rodríguez
  */
-public interface InitializerFlow extends Flow {
+public interface InitializerFlow extends Flow, es.ull.isaatc.simulation.common.flow.InitializerFlow {
 }

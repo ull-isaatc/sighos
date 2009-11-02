@@ -2,11 +2,10 @@ package es.ull.isaatc.simulation.sequential.inforeceiver;
 
 import java.io.PrintStream;
 
-import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.info.SimulationInfo;
-import es.ull.isaatc.simulation.info.SimulationStartInfo;
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
-import es.ull.isaatc.simulation.inforeceiver.View;
+import es.ull.isaatc.simulation.sequential.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.sequential.info.SimulationInfo;
+import es.ull.isaatc.simulation.sequential.info.SimulationStartInfo;
+import es.ull.isaatc.simulation.sequential.info.TimeChangeInfo;
 import es.ull.isaatc.simulation.sequential.Simulation;
 import es.ull.isaatc.simulation.sequential.info.ElementActionInfo;
 import es.ull.isaatc.simulation.sequential.info.ElementInfo;

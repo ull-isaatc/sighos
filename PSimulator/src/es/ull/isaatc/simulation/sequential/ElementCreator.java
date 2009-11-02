@@ -6,14 +6,13 @@ package es.ull.isaatc.simulation.sequential;
 import java.util.ArrayList;
 
 import es.ull.isaatc.function.TimeFunction;
-import es.ull.isaatc.simulation.model.ElementType;
 import es.ull.isaatc.simulation.sequential.flow.InitializerFlow;
 
 /**
  * Defines the way a generator creates elements when it's time to create them.
  * @author Iván Castilla Rodríguez
  */
-public class ElementCreator implements BasicElementCreator {
+public class ElementCreator implements BasicElementCreator, es.ull.isaatc.simulation.common.ElementCreator {
 	/** Number of objects created each time this creator is invoked. */
 	protected final TimeFunction nElem;
 	/** Each flow that will be generated */
@@ -66,7 +65,7 @@ public class ElementCreator implements BasicElementCreator {
             	p -= gt.getProp();
             	if (p <= 0.0){
             		ElementType et = gt.getElementType();
-    	    		Element elem = new Element(Generator.incElemCounter(), gen.getSimul(), et, gt.getFlow());
+    	    		Element elem = new Element(Generator.incElemCounter(), (Simulation) gen.getSimulation(), et, gt.getFlow());
     	    		elem.initializeElementVars(et.getElementValues());
     	            elem.start(gen.getDefLP());
     	            break;
@@ -151,5 +150,9 @@ public class ElementCreator implements BasicElementCreator {
 		}
 	}
 
+	@Override
+	public TimeFunction getNElem() {
+		return nElem;
+	}
 
 }

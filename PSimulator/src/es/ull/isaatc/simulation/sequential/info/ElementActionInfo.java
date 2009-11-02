@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.sequential.info;
 
-import es.ull.isaatc.simulation.info.AsynchronousInfo;
+import es.ull.isaatc.simulation.sequential.info.AsynchronousInfo;
 import es.ull.isaatc.simulation.sequential.Activity;
 import es.ull.isaatc.simulation.sequential.Element;
 import es.ull.isaatc.simulation.sequential.Simulation;
@@ -75,7 +75,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 		if (wg != null) {
 			message += "\tWG: " + wg.getDescription();
 		}
-		message += "\tET: " + elem.getElementType().getDescription();
+		message += "\tET: " + elem.getType().getDescription();
 		return message;
 	}
 

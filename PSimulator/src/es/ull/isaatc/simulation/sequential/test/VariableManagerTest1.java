@@ -3,7 +3,7 @@ package es.ull.isaatc.simulation.sequential.test;
 import java.util.EnumSet;
 
 import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.model.TimeUnit;
+import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.sequential.StandAloneLPSimulation;
 import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
 import es.ull.isaatc.simulation.sequential.inforeceiver.StdInfoView;

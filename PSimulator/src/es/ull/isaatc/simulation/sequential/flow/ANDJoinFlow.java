@@ -11,7 +11,7 @@ import es.ull.isaatc.simulation.sequential.WorkThread;
  * passes depends on the <code>acceptValue</code>.
  * @author Iván Castilla Rodríguez
  */
-public abstract class ANDJoinFlow extends MergeFlow {
+public abstract class ANDJoinFlow extends MergeFlow implements es.ull.isaatc.simulation.common.flow.ANDJoinFlow {
 	/** The number of branches which have to arrive to pass the control thread */
 	protected int acceptValue;
 
@@ -62,4 +62,9 @@ public abstract class ANDJoinFlow extends MergeFlow {
 				&& (control.get(wThread.getElement()).getTrueChecked() == acceptValue));
 	}
 
+	@Override
+	public int getAcceptValue() {
+		return acceptValue;
+	}	
+	
 }

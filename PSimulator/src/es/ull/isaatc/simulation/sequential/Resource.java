@@ -1,14 +1,14 @@
 package es.ull.isaatc.simulation.sequential;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.isaatc.simulation.Describable;
-import es.ull.isaatc.simulation.model.ModelCycle;
-import es.ull.isaatc.simulation.model.Time;
+import es.ull.isaatc.simulation.common.ModelCycle;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeTableEntry;
 import es.ull.isaatc.simulation.sequential.info.ResourceInfo;
 import es.ull.isaatc.simulation.sequential.info.ResourceUsageInfo;
-import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.CycleIterator;
 
 /**
@@ -18,7 +18,7 @@ import es.ull.isaatc.util.CycleIterator;
  * A resource finishes its execution when it has no longer valid timetable entries.
  * @author Carlos Martín Galán
  */
-public class Resource extends BasicElement implements Describable {
+public class Resource extends BasicElement implements es.ull.isaatc.simulation.common.Resource {
 	/** Timetable which defines the availability estructure of the resource. Define RollOn and RollOff events. */
     protected final ArrayList<TimeTableEntry> timeTable;
     /** A brief description of the resource */
@@ -60,10 +60,10 @@ public class Resource extends BasicElement implements Describable {
 		simul.getInfoHandler().notifyInfo(new ResourceInfo(this.simul, this, this.getCurrentResourceType(), ResourceInfo.Type.START, ts));
 		for (int i = 0 ; i < timeTable.size(); i++) {
 			TimeTableEntry tte = timeTable.get(i);
-	        CycleIterator iter = tte.iterator(tte.getRole().getTs(), simul.getInternalEndTs());
+	        CycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getInternalEndTs());
 	        double nextTs = iter.next();
 	        if (!Double.isNaN(nextTs)) {
-	            RoleOnEvent rEvent = new RoleOnEvent(nextTs, tte.getRole(), iter, tte.getDuration());
+	            RoleOnEvent rEvent = new RoleOnEvent(nextTs, (ResourceType) tte.getRole(), iter, simul.simulationTime2Double(tte.getDuration()));
 	            addEvent(rEvent);
 	            validTTEs++;
 	        }
@@ -87,7 +87,7 @@ public class Resource extends BasicElement implements Describable {
      * @param role Role that the resource plays during this cycle
      */
     public void addTimeTableEntry(ModelCycle cycle, Time dur, ResourceType role) {
-        timeTable.add(new TimeTableEntry(cycle.getCycle(), simul.simulationTime2Double(dur), role));
+        timeTable.add(new TimeTableEntry(cycle, dur, role));
     }  
 
     /**
@@ -109,7 +109,7 @@ public class Resource extends BasicElement implements Describable {
      * @param role Role that the resource plays during this cycle
      */
     public void addTimeTableEntry(ModelCycle cycle, double dur, ResourceType role) {
-    	addTimeTableEntry(cycle, new Time(simul.getUnit(), dur), role);
+    	addTimeTableEntry(cycle, new Time(simul.getTimeUnit(), dur), role);
     }  
 
     /**
@@ -120,7 +120,7 @@ public class Resource extends BasicElement implements Describable {
      * @param roleList Roles that the resource play during this cycle
      */
     public void addTimeTableEntry(ModelCycle cycle, double dur, ArrayList<ResourceType> roleList) {
-    	addTimeTableEntry(cycle, new Time(simul.getUnit(), dur), roleList);
+    	addTimeTableEntry(cycle, new Time(simul.getTimeUnit(), dur), roleList);
     }  
     
     @Override
@@ -467,65 +467,6 @@ public class Resource extends BasicElement implements Describable {
 	public void setNotCanceled(boolean available) {
 		notCanceled = available;
 	}
-	
-    /**
-     * Represents the role that a resource plays at a specific time cycle.
-     * @author Iván Castilla Rodríguez
-     */
-    class TimeTableEntry {
-    	/** Cycle that characterizes this entry */
-    	private final Cycle cycle;
-        /** The long this resource plays this role every cycle */
-    	private final double duration;
-        /** Role that the resource plays during this cycle */
-    	private final ResourceType role;
-        
-        /** Creates a new instance of TimeTableEntry
-         * @param cycle 
-         * @param dur The long this resource plays this role every cycle
-         * @param role Role that the resource plays during this cycle
-         */
-    	public TimeTableEntry(Cycle cycle, double dur, ResourceType role) {
-    		this.cycle = cycle;
-    		this.duration = dur;
-    		this.role = role;
-    	}
-        
-        /**
-         * Getter for property duration.
-         * @return Value of property duration.
-         */
-        public double getDuration() {
-            return duration;
-        }
-
-        /**
-         * Returns an iterator over the cycle defined for this timetable entry. 
-         * @param startTs Absolute start timestamp
-         * @param endTs Absolute end timestamp
-         * @return An iterator over the cycle defined for this timetable entry.
-         */
-        public CycleIterator iterator(double startTs, double endTs) {
-        	return cycle.iterator(startTs, endTs);
-        }
-        
-        /**
-         * Getter for property role.
-         * @return Value of property role.
-         */
-        public ResourceType getRole() {
-            return role;
-        }
-        
-        @Override
-        public String toString() {
-            StringBuffer str = new StringBuffer();
-            str.append(" | " + role.getDescription() + " | " + duration
-                + " | " + cycle + "\r\n");
-            return str.toString();
-        }
-        
-    }
 
 	class ClockOnEntry {
 		private double init = 0;
@@ -567,6 +508,11 @@ public class Resource extends BasicElement implements Describable {
 
 	public TreeMap<ResourceType, Double> getCurrentRoles() {
 		return currentRoles;
+	}
+
+	@Override
+	public Collection<es.ull.isaatc.simulation.common.TimeTableEntry> getTimeTableEntries() {
+		return timeTable;
 	}
 	
 }

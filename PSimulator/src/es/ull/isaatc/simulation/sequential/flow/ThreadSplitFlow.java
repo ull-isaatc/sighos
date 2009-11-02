@@ -15,7 +15,7 @@ import es.ull.isaatc.simulation.sequential.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ThreadSplitFlow extends BasicFlow implements SplitFlow {
+public class ThreadSplitFlow extends BasicFlow implements es.ull.isaatc.simulation.common.flow.ThreadSplitFlow, SplitFlow {
 	/** Number of outgoing threads produced by this flow */
 	protected final int nInstances;
 	/** The unique successor of this flow */
@@ -34,7 +34,7 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow {
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#addPredecessor(es.ull.isaatc.simulation.Flow)
 	 */
-	public void addPredecessor(Flow predecessor) {
+	public void addPredecessor(es.ull.isaatc.simulation.common.flow.Flow predecessor) {
 	}
 
 	/* (non-Javadoc)
@@ -64,14 +64,19 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow {
         wThread.notifyEnd();			
 	}
 
-	public void link(Flow successor) {
-		this.successor = successor;
+	public void link(es.ull.isaatc.simulation.common.flow.Flow successor) {
+		this.successor = (Flow)successor;
 		successor.addPredecessor(this);
 	}
 
-	public void setRecursiveStructureLink(StructuredFlow parent) {
+	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent) {
 		setParent(parent);
 		if (successor != null)
 			successor.setRecursiveStructureLink(parent);		
+	}
+
+	@Override
+	public int getNInstances() {
+		return nInstances;
 	}
 }

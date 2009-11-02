@@ -12,7 +12,7 @@ import es.ull.isaatc.simulation.sequential.WorkThread;
  * A flow which executes a single activity. 
  * @author Iván Castilla Rodríguez
  */
-public class SingleFlow extends SingleSuccessorFlow implements TaskFlow {
+public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.isaatc.simulation.common.flow.SingleFlow {
     /** The activity to be performed */
     protected Activity act;
     
@@ -47,14 +47,14 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow {
 	 * waiting for availables Resources. 
 	 * @param e Element requesting this single flow
 	 */
-	public void inqueue(Element e){};
+	public void inqueue(es.ull.isaatc.simulation.common.Element e){};
 	
 	/**
 	 * Allows a user to add actions carried out when the element actually starts the
 	 * execution of the activity.
 	 * @param e Element requesting this single flow
 	 */
-	public void afterStart(Element e){};
+	public void afterStart(es.ull.isaatc.simulation.common.Element e){};
 	
 	/*
 	 * (non-Javadoc)
@@ -100,7 +100,7 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow {
 	 * (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#addPredecessor(es.ull.isaatc.simulation.Flow)
 	 */
-	public void addPredecessor(Flow newFlow) {
+	public void addPredecessor(es.ull.isaatc.simulation.common.flow.Flow newFlow) {
 	}
 	
 }

@@ -8,7 +8,7 @@ import es.ull.isaatc.simulation.sequential.Simulation;
  * is a discriminator flow. Meets the Structured Discriminator pattern (WFP9). 
  * @author ycallero
  */
-public class StructuredDiscriminatorFlow extends PredefinedStructuredFlow{
+public class StructuredDiscriminatorFlow extends PredefinedStructuredFlow implements es.ull.isaatc.simulation.common.flow.StructuredDiscriminatorFlow {
 	/**
 	 * Create a new StructureDiscriminatorMetaFlow.
 	 * @param simul Simulation this flow belongs to

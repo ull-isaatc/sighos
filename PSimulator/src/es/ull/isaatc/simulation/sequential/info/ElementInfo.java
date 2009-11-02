@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.sequential.info;
 
-import es.ull.isaatc.simulation.info.AsynchronousInfo;
+import es.ull.isaatc.simulation.sequential.info.AsynchronousInfo;
 import es.ull.isaatc.simulation.sequential.Element;
 import es.ull.isaatc.simulation.sequential.Simulation;
 
@@ -46,6 +46,6 @@ public class ElementInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		return "" + simul.double2SimulationTime(getTs()) + "\t" + elem.toString() + " \t" + type.getDescription() + "\tET: " + elem.getElementType().getDescription();
+		return "" + simul.double2SimulationTime(getTs()) + "\t" + elem.toString() + " \t" + type.getDescription() + "\tET: " + elem.getType().getDescription();
 	}
 }

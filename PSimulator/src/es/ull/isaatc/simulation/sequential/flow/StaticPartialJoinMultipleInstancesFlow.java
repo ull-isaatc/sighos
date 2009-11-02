@@ -14,7 +14,7 @@ import es.ull.isaatc.simulation.sequential.Simulation;
  * @author Iván Castilla Rodríguez
  *
  */
-public class StaticPartialJoinMultipleInstancesFlow extends PredefinedStructuredFlow {
+public class StaticPartialJoinMultipleInstancesFlow extends PredefinedStructuredFlow implements es.ull.isaatc.simulation.common.flow.StaticPartialJoinMultipleInstancesFlow {
 	/**	The number of thread instances this flow creates */
 	protected int nInstances;
 	/** The number of threads which must finish to pass the control */
@@ -34,6 +34,16 @@ public class StaticPartialJoinMultipleInstancesFlow extends PredefinedStructured
 		finalFlow.setParent(this);
 		this.nInstances = nInstances;
 		this.acceptValue = acceptValue;
+	}
+
+	@Override
+	public int getAcceptValue() {
+		return acceptValue;
+	}
+
+	@Override
+	public int getNInstances() {
+		return nInstances;
 	}
 
 

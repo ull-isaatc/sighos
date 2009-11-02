@@ -3,8 +3,6 @@
  */
 package es.ull.isaatc.simulation.sequential.flow;
 
-import es.ull.isaatc.simulation.Identifiable;
-import es.ull.isaatc.simulation.sequential.Element;
 import es.ull.isaatc.simulation.sequential.WorkThread;
 
 /**
@@ -20,47 +18,7 @@ import es.ull.isaatc.simulation.sequential.WorkThread;
  * the Element can definitely request this flow.  
  * @author Iván Castilla Rodríguez
  */
-public interface Flow extends Identifiable {
-	/**
-	 * Adds a flow's successor. This method must invoke <code>successor.addPredecessor</code>
-	 * to build the graph properly. 
-	 * @param successor This flow's successor.
-	 */
-	void link(Flow successor);	
-	
-	/**
-	 * Notifies this flow that it has been linked (i.e. added as a successor) to
-	 * another flow.
-	 * @param predecessor This flow's predecessor.
-	 */
-	void addPredecessor(Flow predecessor);
-	
-	/**
-	 * Returns the structured flow which contains this flow.
-	 * @return the structured flow which contains this flow.
-	 */
-	StructuredFlow getParent();
-	
-	/**
-	 * Sets the structured flow which contains this flow. 
-	 * @param parent the structured flow which contains this flow.
-	 */
-	void setParent(StructuredFlow parent);
-	
-	/**
-	 * Sets the structured flow which contains this flow and does the same for the
-	 * successors of this flow.
-	 * @param parent the structured flow which contains this flow and its successors.
-	 */
-	void setRecursiveStructureLink(StructuredFlow parent);
-
-	/**
-	 * Allows a user to add conditions which the element requesting this flow must meet
-	 * before request this flow.
-	 * @param e The element trying to request this flow.
-	 * @return True if this flow can be requested; false in other case.
-	 */
-	boolean beforeRequest(Element e);
+public interface Flow extends es.ull.isaatc.simulation.common.flow.Flow {
 	
 	/**
 	 * Requests this flow. An element, by means of a work thread, requests this flow to
