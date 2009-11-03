@@ -8,8 +8,8 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
 
 /**
  * A simulation which builds the activity managers but not the logical processes within the

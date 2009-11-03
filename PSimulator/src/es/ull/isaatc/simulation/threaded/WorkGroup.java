@@ -6,15 +6,16 @@
 
 package es.ull.isaatc.simulation.threaded;
 
-import java.util.ArrayList;
+import es.ull.isaatc.simulation.threaded.ResourceType;
 
 /**
  * A set of {resource type, #needed resources} pairs.
  * @author Iván Castilla Rodríguez
  */
-public class WorkGroup {
+public class WorkGroup implements es.ull.isaatc.simulation.common.WorkGroup {
     /** Set of (resource type, #needed) pairs. */
-    protected final ArrayList<ResourceTypeTableEntry> resourceTypeTable;
+	protected final ResourceType[] resourceTypes;
+	protected final int[] needed;
     
     /**
      * Creates a new instance of WorkGroup with an empty list of pairs
@@ -41,9 +42,8 @@ public class WorkGroup {
      * @param needs The amounts of resource types required by this WG.
      */    
     public WorkGroup(ResourceType[] rts, int []needs) {
-        this.resourceTypeTable = new ArrayList<ResourceTypeTableEntry>();
-        for (int i = 0; i < (rts.length < needs.length ? rts.length : needs.length); i++)
-        	add(rts[i], needs[i]);
+    	this.resourceTypes = rts;
+    	this.needed = needs;
     }
 
 	/**
@@ -51,112 +51,34 @@ public class WorkGroup {
      * @return Amount of entries.
      */
     public int size() {
-        return resourceTypeTable.size();
+        return resourceTypes.length;
     }
     
     /**
      * Returns the resource type from the position ind of the table.
      * @param ind Index of the entry
-     * @return The resource type from the position ind. null if it's a not valid 
-     * index.
+     * @return The resource type from the position ind. 
      */
     public ResourceType getResourceType(int ind) {
-        if (ind < 0 || ind >= resourceTypeTable.size())
-            return null;
-        return resourceTypeTable.get(ind).getResourceType();
+        return resourceTypes[ind];
     }
 
     /**
      * Returns the needed amount of resources from the position ind of the table.
      * @param ind Index of the entry
-     * @return The needed amount of resources from the position ind. -1 if it's 
-     * a not valid index.
+     * @return The needed amount of resources from the position ind. 
      */
     public int getNeeded(int ind) {
-        if (ind < 0 || ind >= resourceTypeTable.size())
-            return -1;
-        return resourceTypeTable.get(ind).getNeeded();
+        return needed[ind];
     }
 
-	/**
-     * Looks for an entry of the table that corresponds with a resource type.
-     * @param rt Resource Type searched
-     * @return The index of the entry. -1 if it's not found.
-     */
-	public int find(ResourceType rt) {
-       int size = resourceTypeTable.size();
-       int index = 0;
-       boolean found = false;
+	@Override
+	public int[] getNeeded() {
+		return needed;
+	}
 
-       while ( (index < size) && ! found ) {
-           if ( resourceTypeTable.get(index).getResourceType() == rt )
-                return(index);
-           else
-                index++;
-        }
-        return(-1); 
-	} 
-
-	/**
-     * Adds a new entry.
-     * If there is already an entry for this resource type, it's overwritten.
-     * @param rt Resource Type
-     * @param needed Needed units
-     */
-    public void add(ResourceType rt, int needed) {
-       ResourceTypeTableEntry newEntry = new ResourceTypeTableEntry(rt, needed);
-       int index = find(rt);
-
-       if (index == -1 ) // is a new entry
-            resourceTypeTable.add(newEntry);
-       else
-            resourceTypeTable.set(index,newEntry); // overwrite the old entry
-    }  
-
-	/**
-	 * This class represents the t-uplas (resource type, #needed) of a resource type table.
-	 * @author Carlos Martín Galán
-	 */
-	class ResourceTypeTableEntry {
-		/** Resource type */
-		protected final ResourceType rType;
-		/** Needed units */
-		protected final int needed;
-
-	    /**
-	     * Creates a new entry in a resource type table
-	     * @param rt Resource type
-	     * @param uN Needed units
-	     */
-		ResourceTypeTableEntry(es.ull.isaatc.simulation.threaded.ResourceType rt, int uN) {
-			rType = rt;
-			needed = uN;
-		}
-	    
-	    /**
-	     * Getter for property needed.
-	     * @return Value of property needed.
-	     */
-	    public int getNeeded() {
-	        return needed;
-	    }
-	    
-	    /**
-	     * Getter for property rType.
-	     * @return Value of property rType.
-	     */
-	    public es.ull.isaatc.simulation.threaded.ResourceType getResourceType() {
-	        return rType;
-	    }
-	    
-	    /**
-	     * Returns the resource in the specified position of the available resource list of
-	     * the resource type. 
-	     * @param index Position of the resource.
-	     * @return The resource in the specified position.
-	     */
-	    public Resource getResource(int index) {
-	    	return rType.getResource(index);
-	    }
+	@Override
+	public es.ull.isaatc.simulation.common.ResourceType[] getResourceTypes() {
+		return resourceTypes;
 	}
 }

@@ -10,8 +10,8 @@ import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;
-import es.ull.isaatc.simulation.model.ElementType;
-import es.ull.isaatc.simulation.model.WorkGroup;
+import es.ull.isaatc.simulation.sequential.ElementType;
+import es.ull.isaatc.simulation.sequential.WorkGroup;
 import es.ull.isaatc.simulation.sequential.ElementCreator;
 import es.ull.isaatc.simulation.sequential.Resource;
 import es.ull.isaatc.simulation.sequential.ResourceType;
@@ -65,11 +65,11 @@ public abstract class WFPTestSimulation extends StandAloneLPSimulation {
 	}
 
 	public ModelTimeFunction getActivityDefDuration(int nAct) {
-		return new ModelTimeFunction(this, "ConstantVariate", DEFACTDURATION[nAct]);		
+		return new ModelTimeFunction(unit, "ConstantVariate", DEFACTDURATION[nAct]);		
 	}
 
 	public ModelPeriodicCycle getResourceCycle() {
-		return new ModelPeriodicCycle(this, RESSTART, new ModelTimeFunction(this, "ConstantVariate", RESPERIOD), 0);
+		return new ModelPeriodicCycle(unit, RESSTART, new ModelTimeFunction(unit, "ConstantVariate", RESPERIOD), 0);
 	}
 	
 	public Resource getDefResource(String description, ResourceType rt) {
@@ -100,7 +100,7 @@ public abstract class WFPTestSimulation extends StandAloneLPSimulation {
 			act = new TimeDrivenActivity(actCounter++, this, description, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		else
 			act = new TimeDrivenActivity(actCounter++, this, description);
-    	act.addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", DEFACTDURATION[dur]), wg);
+    	act.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", DEFACTDURATION[dur]), wg);
 		return act;
 	}
 	
@@ -109,7 +109,7 @@ public abstract class WFPTestSimulation extends StandAloneLPSimulation {
 	}
 	
 	public ModelPeriodicCycle getGeneratorCycle() {
-		return new ModelPeriodicCycle(this, GENSTART, new ModelTimeFunction(this, "ConstantVariate", GENPERIOD), 0);
+		return new ModelPeriodicCycle(unit, GENSTART, new ModelTimeFunction(unit, "ConstantVariate", GENPERIOD), 0);
 	}
 	
 	public TimeDrivenGenerator getDefGenerator(ElementType et, InitializerFlow flow) {

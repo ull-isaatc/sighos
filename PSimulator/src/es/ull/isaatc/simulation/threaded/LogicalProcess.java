@@ -4,7 +4,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
+import es.ull.isaatc.simulation.common.info.TimeChangeInfo;
 import es.ull.isaatc.util.SingleThreadPool;
 import es.ull.isaatc.util.StandardThreadPool;
 import es.ull.isaatc.util.ThreadPool;

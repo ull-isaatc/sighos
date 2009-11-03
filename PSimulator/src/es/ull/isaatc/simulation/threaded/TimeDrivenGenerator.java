@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation.threaded;
 
-import es.ull.isaatc.simulation.model.ModelCycle;
+import es.ull.isaatc.simulation.common.ModelCycle;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.CycleIterator;
 

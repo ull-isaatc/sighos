@@ -1,6 +1,5 @@
 package es.ull.isaatc.simulation.threaded.flow;
 
-import es.ull.isaatc.simulation.threaded.Element;
 import es.ull.isaatc.simulation.threaded.Simulation;
 
 
@@ -12,7 +11,7 @@ import es.ull.isaatc.simulation.threaded.Simulation;
  * @author ycallero
  *
  */
-public abstract class StructuredFlow extends SingleSuccessorFlow implements TaskFlow {
+public abstract class StructuredFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.isaatc.simulation.common.flow.StructuredFlow {
 	/**	The entry point of the internal structure */
 	protected InitializerFlow initialFlow = null;
 	/**	The exit point of the internal structure */
@@ -30,14 +29,22 @@ public abstract class StructuredFlow extends SingleSuccessorFlow implements Task
 	 * (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#addPredecessor(es.ull.isaatc.simulation.Flow)
 	 */
-	public void addPredecessor(Flow newFlow) {
+	public void addPredecessor(es.ull.isaatc.simulation.common.flow.Flow newFlow) {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.TaskFlow#afterFinalize(es.ull.isaatc.simulation.Element)
-	 */
-	public void afterFinalize(Element e) {
+	@Override
+	public void afterFinalize(es.ull.isaatc.simulation.common.Element e) {
+	}
+
+
+	@Override
+	public FinalizerFlow getFinalFlow() {
+		return finalFlow;
+	}
+
+	@Override
+	public InitializerFlow getInitialFlow() {
+		return initialFlow;
 	}
 	
 }

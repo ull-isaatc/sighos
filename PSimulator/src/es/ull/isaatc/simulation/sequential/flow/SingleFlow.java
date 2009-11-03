@@ -4,7 +4,6 @@
 package es.ull.isaatc.simulation.sequential.flow;
 
 import es.ull.isaatc.simulation.sequential.Activity;
-import es.ull.isaatc.simulation.sequential.Element;
 import es.ull.isaatc.simulation.sequential.Simulation;
 import es.ull.isaatc.simulation.sequential.WorkThread;
 
@@ -55,12 +54,9 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 	 * @param e Element requesting this single flow
 	 */
 	public void afterStart(es.ull.isaatc.simulation.common.Element e){};
-	
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.TaskFlow#afterFinalize(es.ull.isaatc.simulation.Element)
-	 */
-	public void afterFinalize(Element e) {
+
+	@Override
+	public void afterFinalize(es.ull.isaatc.simulation.common.Element e) {
 	}
 	
 	/*

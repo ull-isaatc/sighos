@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.model;
 
-import es.ull.isaatc.simulation.Identifiable;
+
 
 /**
  * An identifiable object belonging to a simulation which can be compared. The identifier is
@@ -8,7 +8,7 @@ import es.ull.isaatc.simulation.Identifiable;
  * the same identifiers.
  * @author Iván Castilla Rodríguez
  */
-public abstract class ModelObject implements Identifiable, Comparable<ModelObject> {
+public abstract class ModelObject implements es.ull.isaatc.simulation.common.ModelObject {
     /** Unique object identifier  */
 	protected final int id;
     /** Simulation this object belongs to */
@@ -54,10 +54,10 @@ public abstract class ModelObject implements Identifiable, Comparable<ModelObjec
 	/* (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(ModelObject o) {
-		if (id < o.id)
+	public int compareTo(es.ull.isaatc.simulation.common.ModelObject o) {
+		if (id < o.getIdentifier())
 			return -1;
-		if (id > o.id)
+		if (id > o.getIdentifier())
 			return 1;
 		return 0;
 	}

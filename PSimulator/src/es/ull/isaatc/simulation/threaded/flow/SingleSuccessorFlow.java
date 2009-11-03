@@ -10,7 +10,7 @@ import es.ull.isaatc.simulation.threaded.WorkThread;
  * A flow with a unique successor.
  * @author Iván Castilla Rodríguez
  */
-public abstract class SingleSuccessorFlow extends BasicFlow {
+public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.isaatc.simulation.common.flow.SingleSuccessorFlow {
 	/** The unique successor of this flow */
 	protected Flow successor;
 
@@ -42,14 +42,14 @@ public abstract class SingleSuccessorFlow extends BasicFlow {
 		}
 	}
 	
-	public void setRecursiveStructureLink(StructuredFlow parent) {
+	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent) {
 		setParent(parent);
 		if (successor != null)
 			successor.setRecursiveStructureLink(parent);			
 	}	
 
-	public void link(Flow succ) {
-		successor = succ;
+	public void link(es.ull.isaatc.simulation.common.flow.Flow succ) {
+		successor = (Flow) succ;
 		succ.addPredecessor(this);
 	}
 

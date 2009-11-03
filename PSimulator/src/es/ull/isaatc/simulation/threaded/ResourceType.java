@@ -2,14 +2,12 @@ package es.ull.isaatc.simulation.threaded;
 
 import java.util.ArrayList;
 
-import es.ull.isaatc.simulation.Describable;
-
 /**
  * Represents the different roles that can be found in the system. The resources can serve for
  * different purposes, and each purpose is a role.
  * @author Carlos Martin Galan
  */
-public class ResourceType extends TimeStampedSimulationObject implements Describable {
+public class ResourceType extends TimeStampedSimulationObject implements es.ull.isaatc.simulation.common.ResourceType {
     /** Activity manager this resource type belongs to. */
     protected ActivityManager manager;
     /** A list of the currently available resources. */
@@ -332,12 +330,12 @@ public class ResourceType extends TimeStampedSimulationObject implements Describ
 	 * returns 0.0.
 	 * @return The wait time.
 	 */
-	public double beforeRollOn() { return 0.0; };
+	public double beforeRoleOn() { return 0.0; };
 	
 	/**
 	 * Allows a user to specify actions to be performed after the RollOn event.
 	 */
-	public void afterRollOn() {};
+	public void afterRoleOn() {};
 	
 	/**
 	 * Allows a user to specify an extra waiting time before the RollOff event. Returns a 
@@ -345,12 +343,12 @@ public class ResourceType extends TimeStampedSimulationObject implements Describ
 	 * returns 0.0.
 	 * @return The wait time.
 	 */
-	public double beforeRollOff() { return 0.0; };
+	public double beforeRoleOff() { return 0.0; };
 	
 	/**
 	 * Allows a user to specify actions to be performed after the RollOff event.
 	 */
-	public void afterRollOff() {}
+	public void afterRoleOff() {}
 
 	/**
 	 * Returns the list of available resources.

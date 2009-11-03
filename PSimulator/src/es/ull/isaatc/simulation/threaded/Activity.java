@@ -3,11 +3,8 @@ package es.ull.isaatc.simulation.threaded;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import es.ull.isaatc.simulation.Describable;
-import es.ull.isaatc.simulation.Identifiable;
-import es.ull.isaatc.simulation.threaded.condition.Condition;
-import es.ull.isaatc.simulation.threaded.condition.TrueCondition;
-import es.ull.isaatc.util.Prioritizable;
+import es.ull.isaatc.simulation.common.condition.Condition;
+import es.ull.isaatc.simulation.common.condition.TrueCondition;
 import es.ull.isaatc.util.PrioritizedTable;
 
 /**
@@ -28,7 +25,7 @@ import es.ull.isaatc.util.PrioritizedTable;
  * resource can't be used during a period of time after the activity finishes.
  * @author Carlos Martín Galán
  */
-public abstract class Activity extends TimeStampedSimulationObject implements Prioritizable, Describable {
+public abstract class Activity extends TimeStampedSimulationObject implements es.ull.isaatc.simulation.common.Activity {
     /** Priority. The lowest the value, the highest the priority */
     protected int priority = 0;
     /** A brief description of the activity */
@@ -160,48 +157,6 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
     }
 
     /**
-     * Creates a new empty workgroup for this activity. 
-     * @param priority Priority of the workgroup
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(int priority) {
-    	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(wgId, priority));
-        return wgId;
-    }
-    
-    /**
-     * Creates a new empty workgroup for this activity. This workgroup is only available 
-     * if cond is true.
-     * @param priority Priority of the workgroup
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(int priority, Condition cond) {
-    	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(wgId, priority, cond));
-        return wgId;
-    }
-    
-    /**
-     * Creates a new empty workgroup for this activity with the highest level of priority. 
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup() {    	
-        return addWorkGroup(0);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity with the highest level of priority. This 
-     * workgroup is only available if cond is true.
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(Condition cond) {    	
-        return addWorkGroup(0, cond);
-    }
-
-    /**
      * Returns an iterator over the workgroups of this activity.
      * @return An iterator over the workgroups that can perform this activity.
      */
@@ -222,22 +177,6 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
         		return opc;        	
         }
         return null;
-    }
-    
-    /**
-     * Adds the corresponding resource type and number to the workgroup with the specified id
-     * @param wgId The id of the workgroup searched
-     * @param rt Resource Type
-     * @param needed Needed units
-     * @return True if the specified id corresponds to an existent WG; false in other case.
-     */
-    public boolean addWorkGroupEntry(int wgId, ResourceType rt, int needed ) {
-    	ActivityWorkGroup wg = getWorkGroup(wgId);
-    	if (wg != null) {
-    		wg.add(rt, needed);
-    		return true;
-    	}
-        return false;
     }
     
 	/**
@@ -369,7 +308,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	 * workgroup can be used or not, and the priority of the workgroup inside the activity.
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class ActivityWorkGroup extends es.ull.isaatc.simulation.threaded.WorkGroup implements Identifiable, Prioritizable, Describable, Comparable<ActivityWorkGroup> {
+	public class ActivityWorkGroup extends es.ull.isaatc.simulation.threaded.WorkGroup implements es.ull.isaatc.simulation.common.ActivityWorkGroup, Comparable<ActivityWorkGroup> {
 	    /** Workgroup's identifier */
 		protected int id;
 		/** Priority of the workgroup */
@@ -377,29 +316,6 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	    /** Availability condition */
 	    protected Condition cond;
 	    private final String idString; 
-		
-	    /**
-	     * Creates a new instance of WorkGroup
-	     * @param id Identifier of this workgroup.
-	     * @param priority Priority of the workgroup.
-	     */    
-	    protected ActivityWorkGroup(int id, int priority) {
-	        this(id, priority, new TrueCondition());
-	    }
-	    
-	    /**
-	     * Creates a new instance of WorkGroup
-	     * @param id Identifier of this workgroup.
-	     * @param priority Priority of the workgroup.
-	     * @param cond  Availability condition
-	     */    
-	    protected ActivityWorkGroup(int id, int priority, Condition cond) {
-	        super();
-	        this.id = id;
-	        this.priority = priority;
-	        this.cond = cond;
-	        this.idString = new String("(" + Activity.this + ")" + getDescription());
-	    }
 
 	    /**
 	     * Creates a new instance of WorkGroup which contains the same resource types
@@ -421,8 +337,11 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	     * @param cond  Availability condition
 	     */    
 	    protected ActivityWorkGroup(int id, int priority, es.ull.isaatc.simulation.threaded.WorkGroup wg, Condition cond) {
-	        this(id, priority, cond);
-	        this.resourceTypeTable.addAll(wg.resourceTypeTable);
+	        super(wg.resourceTypes, wg.needed);
+	        this.id = id;
+	        this.priority = priority;
+	        this.cond = cond;
+	        this.idString = new String("(" + Activity.this + ")" + getDescription());
 	    }
 
 
@@ -460,22 +379,21 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	    	wi.resetConflictZone();
 	    	if (!cond.check(elem))
 	    		return false;
-	        for (int i = 0; i < resourceTypeTable.size(); i++) {
-	            ResourceTypeTableEntry rttEntry = resourceTypeTable.get(i);       	
-	        	ResourceType rt = rttEntry.getResourceType();
+	        for (int i = 0; i < resourceTypes.length; i++) {
+	            ResourceType rt = resourceTypes[i];       	
 	        	int []avail = rt.getAvailable(wi);
 	        	// If there are less "potential" available resources than needed
-	            if (avail[0] + avail[1] < rttEntry.getNeeded()) {
+	            if (avail[0] + avail[1] < needed[i]) {
 	            	// The element frees the previously booked resources 
 	                rt.resetAvailable(wi);
 	                i--;
 	                for (; i >= 0; i--)
-	                    resourceTypeTable.get(i).getResourceType().resetAvailable(wi);
+	                    resourceTypes[i].resetAvailable(wi);
 	                wi.removeFromConflictZone();
 	                return false;            	
 	            }
 	            // If the available resources WITH conflicts are needed
-	            else if (avail[0] < rttEntry.getNeeded())
+	            else if (avail[0] < needed[i])
 	                conflict = true;
 	        }
 	        // When this point is reached, that means that the activity is POTENTIALLY feasible
@@ -492,15 +410,13 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	        }
 	        else if (wi.getConflictZone().size() > 1) {
 	        	debug("Possible conflict. Recheck is needed " + elem);
-	            int ned[] = new int[resourceTypeTable.size()];
-	            for (int i = 0; i < resourceTypeTable.size(); i++)
-	                ned[i] = resourceTypeTable.get(i).getNeeded();
+	            int ned[] = needed.clone();
 	        	if (!hasSolution(new int[] {0, 0}, ned, wi)) {
 	                wi.removeFromConflictZone();
 	            	wi.signalConflictSemaphore();
 	            	// The element frees the previously booked resources 
-	            	for (ResourceTypeTableEntry rttEntry : resourceTypeTable)
-	            		rttEntry.getResourceType().resetAvailable(wi);
+	            	for (ResourceType rt : resourceTypes)
+	            		rt.resetAvailable(wi);
 	        		return false;
 	        	}
 	        }
@@ -515,12 +431,12 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	     * @return True if there is a reachable solution. False in other case.
 	     */
 	    protected boolean hasSolution(int []pos, int []nec, WorkItem wi) {
-	        for (int i = pos[0]; i < resourceTypeTable.size(); i++) {
-	            ResourceTypeTableEntry actual = resourceTypeTable.get(i);
+	        for (int i = pos[0]; i < resourceTypes.length; i++) {
+	            ResourceType rt = resourceTypes[i];
 	            int j = pos[1];
 	            Resource res;
 	            int disp = 0;            
-	            while (((res = actual.getResource(j)) != null) && (disp < nec[i])) {
+	            while (((res = rt.getResource(j)) != null) && (disp < nec[i])) {
 	        		res.waitSemaphore();
 	        		// Only resources booked for this SF can be taken into account.
 	        		// The resource could have been released after the book phase, so it's needed to recheck this.
@@ -552,12 +468,12 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	            // The second index is reset
 	            aux[1] = -1;
 	            // No more resources needed ==> SOLUTION
-	            if (aux[0] == resourceTypeTable.size()) {
+	            if (aux[0] == resourceTypes.length) {
 	                return aux;
 	            }
 	        }
 	        // Takes the first resource type
-	        ResourceType rt = resourceTypeTable.get(aux[0]).getResourceType();
+	        ResourceType rt = resourceTypes[aux[0]];
 	        // Searches the NEXT available resource
 	        aux[1] = rt.getNextAvailableResource(aux[1] + 1, wi);
 
@@ -572,11 +488,11 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	     * @param pos Position [ResourceType, Resource] of the resource
 	     */
 	    private void mark(int []pos) {
-	        Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
+	        Resource res = resourceTypes[pos[0]].getResource(pos[1]);
 	        // There's no need to access in mutex this area, because only resources booked by this SF
 	        // are taken into account, and only one SF can be at this stage for this resource at the same 
 	        // time (due to the conflict zone mutex)
-	        res.setCurrentResourceType(resourceTypeTable.get(pos[0]).getResourceType());
+	        res.setCurrentResourceType(resourceTypes[pos[0]]);
 	    }
 	    
 	    /**
@@ -584,7 +500,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	     * @param pos Position [ResourceType, Resource] of the resource
 	     */
 	    private void unmark(int []pos) {
-	        Resource res = resourceTypeTable.get(pos[0]).getResource(pos[1]);
+	        Resource res = resourceTypes[pos[0]].getResource(pos[1]);
 	        // There's no need to access in mutex this area, because only resources booked by this SF
 	        // are taken into account, and only one SF can be at this stage for this resource at the same 
 	        // time (due to the conflict zone mutex)
@@ -603,7 +519,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	        if (pos == null)
 	            return false;
 	        // No more elements needed => SOLUTION
-	        if (pos[0] == resourceTypeTable.size())
+	        if (pos[0] == resourceTypes.length)
 	            return true;
 	        // This resource belongs to the solution...
 	        mark(pos);
@@ -626,17 +542,15 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	     * @return True if a valid solution exists. False in other case.
 	     */
 	    protected boolean distributeResources(WorkItem wi) {
-	        int ned[] = new int[resourceTypeTable.size()];
+	        int ned[] = needed.clone();
 	        int []pos = {0, -1}; // "Start" position
 	        
-	        for (int i = 0; i < resourceTypeTable.size(); i++)
-	            ned[i] = resourceTypeTable.get(i).getNeeded();
 	        // B&B algorithm for finding a solution
 	        if (findSolution(pos, ned, wi))
 	            return true;
 	        // If there is no solution, the "books" of this element are removed
-	        for (int i = 0; i < resourceTypeTable.size(); i++)
-	            resourceTypeTable.get(i).getResourceType().resetAvailable(wi);
+	        for (ResourceType rt : resourceTypes)
+	            rt.resetAvailable(wi);
 	        return false;
 	    }
 	    
@@ -647,9 +561,8 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 	     */
 	    protected double catchResources(WorkItem wi) {
 	    	double minAvailability = Double.MAX_VALUE;
-	    	for (ResourceTypeTableEntry rtte : resourceTypeTable) {
-	    		minAvailability = Math.min(minAvailability, rtte.getResourceType().catchResources(rtte.getNeeded(), wi));
-	    	}
+	    	for (int i = 0; i < resourceTypes.length; i++)
+	    		minAvailability = Math.min(minAvailability, resourceTypes[i].catchResources(needed[i], wi));
 	    	// When this point is reached, that means that the resources have been completely taken
 	    	wi.signalConflictSemaphore();
 	    	return minAvailability;
@@ -661,8 +574,8 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 
 		public String getDescription() {
 			StringBuilder str = new StringBuilder("WG" + id);
-			for (ResourceTypeTableEntry rtte : resourceTypeTable)
-				str.append(" [" + rtte.rType + "," + rtte.needed + "]");
+	    	for (int i = 0; i < resourceTypes.length; i++)
+				str.append(" [" + resourceTypes[i] + "," + needed[i] + "]");
 			return str.toString();
 		}
 
@@ -677,6 +590,11 @@ public abstract class Activity extends TimeStampedSimulationObject implements Pr
 			if (id > arg0.id)
 				return 1;
 			return 0;
+		}
+
+		@Override
+		public Condition getCondition() {
+			return cond;
 		}
 
 	}

@@ -3,7 +3,10 @@ package es.ull.isaatc.simulation.model;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunction;
-import es.ull.isaatc.simulation.condition.Condition;
+import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.TimeDrivenActivityWorkGroup;
+import es.ull.isaatc.simulation.model.condition.Condition;
+import es.ull.isaatc.simulation.model.condition.TrueCondition;
 
 /**
  * A task which could be carried out by an element in a specified time. This kind of activities
@@ -20,19 +23,9 @@ import es.ull.isaatc.simulation.condition.Condition;
  * while the activity is being performed.
  * @author Iván Castilla Rodríguez
  */
-public class TimeDrivenActivity extends Activity {
-	/** Indicates special characteristics of this activity */
-	public enum Modifier {
-	    /** Indicates that this activity is non presential, i.e., an element can perform other activities at
-	     * the same time */
-		NONPRESENTIAL,
-		/** Indicates that the activity can be interrupted in case the required resources end their
-		 * availability time */
-		INTERRUPTIBLE
-	}
+public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simulation.common.TimeDrivenActivity {
 	/** The set of modifiers of this activity. */
     protected final EnumSet<Modifier> modifiers;
-    int wgCounter = 0;
 
 	/**
      * Creates a new activity with the highest priority and default behavior.
@@ -106,8 +99,7 @@ public class TimeDrivenActivity extends Activity {
      * @return The new workgroup's identifier.
      */
     public int addWorkGroup(ModelTimeFunction duration, int priority, es.ull.isaatc.simulation.model.WorkGroup wg) {
-        workGroupTable.put(wgCounter, new ActivityWorkGroup(wgCounter, duration, priority, wg));
-        return wgCounter++;
+    	return addWorkGroup(duration, priority, wg, new TrueCondition());
     }
     
     /**
@@ -130,7 +122,7 @@ public class TimeDrivenActivity extends Activity {
      * @return The new workgroup's identifier.
      */
     public int addWorkGroup(ModelTimeFunction duration, es.ull.isaatc.simulation.model.WorkGroup wg) {    	
-        return addWorkGroup(duration, 0, wg);
+        return addWorkGroup(duration, 0, wg, new TrueCondition());
     }
     
     /**
@@ -151,8 +143,7 @@ public class TimeDrivenActivity extends Activity {
      * @return The new workgroup's identifier.
      */
     public int addWorkGroup(ModelTimeFunction duration, int priority) {
-        workGroupTable.put(wgCounter, new ActivityWorkGroup(wgCounter, duration, priority));
-        return wgCounter++;
+        return addWorkGroup(duration, priority, new TrueCondition());
     }
     
     /**
@@ -173,7 +164,7 @@ public class TimeDrivenActivity extends Activity {
      * @return The new workgroup's identifier.
      */
     public int addWorkGroup(ModelTimeFunction duration) {    	
-        return addWorkGroup(duration, 0);
+        return addWorkGroup(duration, 0, new TrueCondition());
     }
     
     /**
@@ -206,21 +197,10 @@ public class TimeDrivenActivity extends Activity {
 	 * this workgroup, and the priority of the workgroup inside the activity.
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class ActivityWorkGroup extends Activity.ActivityWorkGroup {
+	public class ActivityWorkGroup extends Activity.ActivityWorkGroup implements TimeDrivenActivityWorkGroup {
 	    /** Duration of the activity when using this WG */
 	    final protected TimeFunction duration;
 		
-	    /**
-	     * Creates a new instance of WorkGroup
-	     * @param id Identifier of this workgroup.
-	     * @param duration Duration of the activity when using this WG.
-	     * @param priority Priority of the workgroup.
-	     */    
-	    protected ActivityWorkGroup(int id, ModelTimeFunction duration, int priority) {
-	        super(id, priority);
-	        this.duration = duration.getFunction();
-	    }
-	    
 	    /**
 	     * Creates a new instance of WorkGroup
 	     * @param id Identifier of this workgroup.
@@ -233,18 +213,6 @@ public class TimeDrivenActivity extends Activity {
 	        this.duration = duration.getFunction();
 	    }
 
-	    /**
-	     * Creates a new instance of WorkGroup
-	     * @param id Identifier of this workgroup.
-	     * @param duration Duration of the activity when using this WG.
-	     * @param priority Priority of the workgroup.
-	     * @param wg Original workgroup
-	     */    
-	    protected ActivityWorkGroup(int id, ModelTimeFunction duration, int priority, es.ull.isaatc.simulation.model.WorkGroup wg) {
-	        super(id, priority, wg);
-	        this.duration = duration.getFunction();
-	    }
-	    
 	    /**
 	     * Creates a new instance of WorkGroup
 	     * @param id Identifier of this workgroup.
@@ -280,6 +248,10 @@ public class TimeDrivenActivity extends Activity {
 	    	return new String(super.toString());
 	    }
 
+	}
+	@Override
+	public EnumSet<Modifier> getModifiers() {
+		return modifiers;
 	}
 
 }

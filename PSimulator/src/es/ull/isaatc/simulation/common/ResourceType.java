@@ -9,7 +9,7 @@ import es.ull.isaatc.simulation.Describable;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface ResourceType extends SimulationObject, Describable {
+public interface ResourceType extends VariableStoreModelObject, Describable {
 	
 	/* User methods */
 	public double beforeRoleOn();

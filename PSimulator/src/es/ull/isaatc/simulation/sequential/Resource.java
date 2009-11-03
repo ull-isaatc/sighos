@@ -7,8 +7,8 @@ import java.util.TreeMap;
 import es.ull.isaatc.simulation.common.ModelCycle;
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeTableEntry;
-import es.ull.isaatc.simulation.sequential.info.ResourceInfo;
-import es.ull.isaatc.simulation.sequential.info.ResourceUsageInfo;
+import es.ull.isaatc.simulation.common.info.ResourceInfo;
+import es.ull.isaatc.simulation.common.info.ResourceUsageInfo;
 import es.ull.isaatc.util.CycleIterator;
 
 /**

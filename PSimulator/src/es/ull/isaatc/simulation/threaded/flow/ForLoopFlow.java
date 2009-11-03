@@ -18,7 +18,7 @@ import es.ull.isaatc.simulation.threaded.WorkThread;
  * of iterations, since decimal values are rounded to the closest integer.  
  * @author Iván Castilla Rodríguez
  */
-public class ForLoopFlow extends StructuredLoopFlow {
+public class ForLoopFlow extends StructuredLoopFlow implements es.ull.isaatc.simulation.common.flow.ForLoopFlow {
 	/** Loop iterations */
 	protected final TimeFunction iterations; 
 	/** List used by the control system. */
@@ -85,6 +85,11 @@ public class ForLoopFlow extends StructuredLoopFlow {
 			afterFinalize(wThread.getElement());
 			next(wThread);
 		}
+	}
+
+	@Override
+	public TimeFunction getIterations() {
+		return iterations;
 	}
 
 }

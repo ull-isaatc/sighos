@@ -12,7 +12,7 @@ import es.ull.isaatc.simulation.threaded.flow.InitializerFlow;
  * Defines the way a generator creates elements when it's time to create them.
  * @author Iván Castilla Rodríguez
  */
-public class ElementCreator implements BasicElementCreator {
+public class ElementCreator implements BasicElementCreator, es.ull.isaatc.simulation.common.ElementCreator {
 	/** Number of objects created each time this creator is invoked. */
 	protected final TimeFunction nElem;
 	/** Each flow that will be generated */
@@ -53,6 +53,11 @@ public class ElementCreator implements BasicElementCreator {
 		genTrio.add(new GenerationTrio(et, flow, prop));
 	}
 
+	@Override
+	public TimeFunction getNElem() {
+		return nElem;
+	}
+
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.BasicElementCreator#create(es.ull.isaatc.simulation.Generator)
 	 */
@@ -65,7 +70,7 @@ public class ElementCreator implements BasicElementCreator {
             	p -= gt.getProp();
             	if (p <= 0.0){
             		ElementType et = gt.getElementType();
-    	    		Element elem = new Element(Generator.incElemCounter(), gen.getSimul(), et, gt.getFlow());
+    	    		Element elem = new Element(Generator.incElemCounter(), gen.getModel(), et, gt.getFlow());
     	    		elem.initializeElementVars(et.getElementValues());
     	            elem.start(gen.getDefLP());
     	            break;

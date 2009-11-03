@@ -8,7 +8,7 @@ import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.TimeDrivenActivityWorkGroup;
 import es.ull.isaatc.simulation.common.condition.Condition;
-import es.ull.isaatc.simulation.sequential.info.ElementActionInfo;
+import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 
 /**
  * A task which could be carried out by an element in a specified time. This kind of activities

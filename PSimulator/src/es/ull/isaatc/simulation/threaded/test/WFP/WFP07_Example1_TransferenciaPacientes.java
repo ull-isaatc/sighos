@@ -3,25 +3,25 @@ package es.ull.isaatc.simulation.threaded.test.WFP;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.model.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.model.ModelTimeFunction;
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
+import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
+import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
+import es.ull.isaatc.simulation.common.condition.Condition;
+import es.ull.isaatc.simulation.common.condition.NotCondition;
+import es.ull.isaatc.simulation.common.condition.TrueCondition;
+import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 import es.ull.isaatc.simulation.threaded.ElementCreator;
 import es.ull.isaatc.simulation.threaded.ElementType;
+import es.ull.isaatc.simulation.threaded.PooledExperiment;
 import es.ull.isaatc.simulation.threaded.Resource;
 import es.ull.isaatc.simulation.threaded.ResourceType;
 import es.ull.isaatc.simulation.threaded.StandAloneLPSimulation;
 import es.ull.isaatc.simulation.threaded.TimeDrivenActivity;
 import es.ull.isaatc.simulation.threaded.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.threaded.WorkGroup;
-import es.ull.isaatc.simulation.threaded.condition.Condition;
-import es.ull.isaatc.simulation.threaded.condition.NotCondition;
-import es.ull.isaatc.simulation.threaded.condition.TrueCondition;
 import es.ull.isaatc.simulation.threaded.flow.SingleFlow;
 import es.ull.isaatc.simulation.threaded.flow.StructuredSynchroMergeFlow;
-import es.ull.isaatc.simulation.threaded.inforeceiver.StdInfoView;
 
 class SimulationWFP7E1 extends StandAloneLPSimulation {
 	int ndays;
@@ -42,12 +42,12 @@ class SimulationWFP7E1 extends StandAloneLPSimulation {
         
         WorkGroup wgOp = new WorkGroup(getResourceType(0), 1);
         WorkGroup wgMe = new WorkGroup(getResourceType(1), 1);
-        ((TimeDrivenActivity)getActivity(0)).addWorkGroup(new ModelTimeFunction(this, "NormalVariate", 15.0, 2.0), wgOp);
-        ((TimeDrivenActivity)getActivity(1)).addWorkGroup(new ModelTimeFunction(this, "NormalVariate", 15.0, 2.0), wgOp);
-        ((TimeDrivenActivity)getActivity(2)).addWorkGroup(new ModelTimeFunction(this, "NormalVariate", 15.0, 2.0), wgMe);
+        ((TimeDrivenActivity)getActivity(0)).addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15.0, 2.0), wgOp);
+        ((TimeDrivenActivity)getActivity(1)).addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15.0, 2.0), wgOp);
+        ((TimeDrivenActivity)getActivity(2)).addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15.0, 2.0), wgMe);
         
-        ModelPeriodicCycle subc2 = new ModelPeriodicCycle(this, 480, new ModelTimeFunction(this, "ConstantVariate", 1040.0), 5);
-        ModelPeriodicCycle c2 = new ModelPeriodicCycle(this, 0, new ModelTimeFunction(this, "ConstantVariate", 1040.0 * 7), 0, subc2);
+        ModelPeriodicCycle subc2 = new ModelPeriodicCycle(unit, 480, new ModelTimeFunction(unit, "ConstantVariate", 1040.0), 5);
+        ModelPeriodicCycle c2 = new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", 1040.0 * 7), 0, subc2);
 
         new Resource(0, this, "Operador 1").addTimeTableEntry(c2, 420, getResourceType(0));
         new Resource(1, this, "Medico 1").addTimeTableEntry(c2, 420, getResourceType(1));
@@ -66,7 +66,7 @@ class SimulationWFP7E1 extends StandAloneLPSimulation {
         root.link(sin3);
         
         new ElementType(0, this, "Emergencia");
-        ModelPeriodicCycle cGen = new ModelPeriodicCycle(this, 0.0, new ModelTimeFunction(this, "ConstantVariate", 1040.0), ndays);
+        ModelPeriodicCycle cGen = new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", 1040.0), ndays);
         new TimeDrivenGenerator(this, new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 3.0), getElementType(0), root), cGen);        
     }
 	
@@ -87,7 +87,7 @@ class ExperimentY15 extends PooledExperiment {
 	public SimulationWFP7E1 getSimulation(int ind) {
 		SimulationWFP7E1 sim = new SimulationWFP7E1(ind, NDIAS);
 		StdInfoView debugView = new StdInfoView(sim);
-		sim.addInfoReciever(debugView);
+		sim.addInfoReceiver(debugView);
 //		try {
 //			sim.setOutput(new Output(true, new FileWriter("c:\\test.txt")));
 //		} catch (IOException e) {

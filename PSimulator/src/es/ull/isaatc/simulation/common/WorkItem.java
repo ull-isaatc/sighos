@@ -3,13 +3,15 @@
  */
 package es.ull.isaatc.simulation.common;
 
+import es.ull.isaatc.simulation.Identifiable;
 import es.ull.isaatc.simulation.common.flow.SingleFlow;
+import es.ull.isaatc.util.Prioritizable;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public interface WorkItem {
+public interface WorkItem extends Comparable<WorkItem>, Prioritizable, Identifiable {
 	/**
      * Returns the activity wrapped with the current single flow.
      * @return Activity wrapped with the current single flow.

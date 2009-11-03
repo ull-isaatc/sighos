@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 
 import es.ull.isaatc.simulation.common.Time;
-import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.info.SimulationInfo;
-import es.ull.isaatc.simulation.info.SimulationStartInfo;
-import es.ull.isaatc.simulation.sequential.flow.Flow;
+import es.ull.isaatc.simulation.common.info.ElementActionInfo;
+import es.ull.isaatc.simulation.common.info.ElementInfo;
+import es.ull.isaatc.simulation.common.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.common.info.SimulationInfo;
+import es.ull.isaatc.simulation.common.info.SimulationStartInfo;
+import es.ull.isaatc.simulation.common.info.ElementActionInfo.Type;
+import es.ull.isaatc.simulation.common.flow.Flow;
 import es.ull.isaatc.simulation.sequential.flow.ParallelFlow;
 import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
-import es.ull.isaatc.simulation.sequential.info.ElementActionInfo;
-import es.ull.isaatc.simulation.sequential.info.ElementInfo;
-import es.ull.isaatc.simulation.sequential.info.ElementActionInfo.Type;
 
 /**
  * @author Iván Castilla Rodríguez

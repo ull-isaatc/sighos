@@ -11,6 +11,6 @@ import es.ull.isaatc.simulation.Describable;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface Resource extends SimulationObject, Describable {
+public interface Resource extends VariableStoreModelObject, Describable {
 	Collection<TimeTableEntry> getTimeTableEntries();
 }

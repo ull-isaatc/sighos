@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation.common.flow;
 
-import es.ull.isaatc.simulation.sequential.Element;
+import es.ull.isaatc.simulation.common.Element;
 
 
 /**

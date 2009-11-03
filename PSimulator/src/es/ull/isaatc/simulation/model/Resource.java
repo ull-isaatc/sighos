@@ -1,8 +1,11 @@
 package es.ull.isaatc.simulation.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
-import es.ull.isaatc.simulation.Describable;
+import es.ull.isaatc.simulation.common.ModelCycle;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeTableEntry;
 
 /**
  * A resource is an element that becomes available at a specific simulation time and 
@@ -11,7 +14,7 @@ import es.ull.isaatc.simulation.Describable;
  * A resource finishes its execution when it has no longer valid timetable entries.
  * @author Carlos Martín Galán
  */
-public class Resource extends VariableStoreModelObject implements Describable {
+public class Resource extends VariableStoreModelObject implements es.ull.isaatc.simulation.common.Resource, VariableHandler {
 	/** Timetable which defines the availability structure of the resource. Define RoleOn and RoleOff events. */
     protected final ArrayList<TimeTableEntry> timeTable;
     /** A brief description of the resource */
@@ -59,7 +62,7 @@ public class Resource extends VariableStoreModelObject implements Describable {
      * @param role Role that the resource plays during this cycle
      */
     public void addTimeTableEntry(ModelCycle cycle, double dur, ResourceType role) {
-    	addTimeTableEntry(cycle, new Time(model.getUnit(), dur), role);
+    	addTimeTableEntry(cycle, new Time(model.getTimeUnit(), dur), role);
     }  
 
     /**
@@ -70,7 +73,7 @@ public class Resource extends VariableStoreModelObject implements Describable {
      * @param roleList Roles that the resource play during this cycle
      */
     public void addTimeTableEntry(ModelCycle cycle, double dur, ArrayList<ResourceType> roleList) {
-    	addTimeTableEntry(cycle, new Time(model.getUnit(), dur), roleList);
+    	addTimeTableEntry(cycle, new Time(model.getTimeUnit(), dur), roleList);
     }  
     
     @Override
@@ -78,97 +81,44 @@ public class Resource extends VariableStoreModelObject implements Describable {
 		return "RES";
 	}
 
-    /*
-     * (non-Javadoc)
-     * @see es.ull.isaatc.simulation.Describable#getDescription()
-     */
+	@Override
 	public String getDescription() {
 		return description;
 	}
     /**
-     * Represents the role that a resource plays at a specific time cycle.
-     * @author Iván Castilla Rodríguez
-     */
-    class TimeTableEntry {
-    	/** Cycle that characterizes this entry */
-    	private final ModelCycle cycle;
-        /** The long this resource plays this role every cycle */
-    	private final Time duration;
-        /** Role that the resource plays during this cycle */
-    	private final ResourceType role;
-        
-        /** Creates a new instance of TimeTableEntry
-         * @param cycle 
-         * @param dur The long this resource plays this role every cycle
-         * @param role Role that the resource plays during this cycle
-         */
-    	public TimeTableEntry(ModelCycle cycle, Time dur, ResourceType role) {
-    		this.cycle = cycle;
-    		this.duration = dur;
-    		this.role = role;
-    	}
-        
-        /**
-         * Getter for property duration.
-         * @return Value of property duration.
-         */
-        public Time getDuration() {
-            return duration;
-        }
+	 * @return the timeTable
+	 */
+	@Override
+	public ArrayList<TimeTableEntry> getTimeTableEntries() {
+		return timeTable;
+	}
 
-        /**
-         * Getter for property role.
-         * @return Value of property role.
-         */
-        public ResourceType getRole() {
-            return role;
-        }
-        
-        @Override
-        public String toString() {
-            StringBuffer str = new StringBuffer();
-            str.append(" | " + role.getDescription() + " | " + duration
-                + " | " + cycle + "\r\n");
-            return str.toString();
-        }
-        
-    }
+	@Override
+	public String getBody(String method) {
+		return null;
+	}
 
-	class ClockOnEntry {
-		private double init = 0;
-		private double finish = 0;
-		private double avCounter = 0;
-		
-		
-		public ClockOnEntry(double init) {
-			this.init = init;
-			finish = 0;
-			avCounter = 0;
-		}
+	@Override
+	public String getCompleteMethod(String method) {
+		return null;
+	}
 
-		public double getFinish() {
-			return finish;
-		}
+	@Override
+	public String getImports() {
+		return "";
+	}
 
-		public void setFinish(double finish) {
-			this.finish = finish;
-		}
+	@Override
+	public Collection<String> getMethods() {
+		return new ArrayList<String>();
+	}
 
-		public double getInit() {
-			return init;
-		}
+	@Override
+	public void setImports(String imports) {
+	}
 
-		public void setInit(double init) {
-			this.init = init;
-		}
-
-		public double getAvCounter() {
-			return avCounter;
-		}
-
-		public void setAvCounter(double avCounter) {
-			this.avCounter = avCounter;
-		}
-
+	@Override
+	public boolean setMethod(String method, String body) {
+		return false;
 	}
 }

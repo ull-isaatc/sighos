@@ -14,7 +14,7 @@ import es.ull.isaatc.simulation.threaded.WorkThread;
  * new work threads are created from this flow on, when it's requested.
  * @author Iván Castilla Rodríguez
  */
-public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFlow {
+public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFlow, es.ull.isaatc.simulation.common.flow.MultipleSuccessorFlow {
 	/** Successor list */
 	protected final ArrayList<Flow> successorList;
 
@@ -45,14 +45,14 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#addPredecessor(es.ull.isaatc.simulation.Flow)
 	 */
-	public void addPredecessor(Flow newFlow) {
+	public void addPredecessor(es.ull.isaatc.simulation.common.flow.Flow newFlow) {
 	}
 
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#link(es.ull.isaatc.simulation.Flow)
 	 */
-	public void link(Flow successor) {
-		successorList.add(successor);
+	public void link(es.ull.isaatc.simulation.common.flow.Flow successor) {
+		successorList.add((Flow)successor);
     	successor.addPredecessor(this);
 	}
 
@@ -61,9 +61,9 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	 * <code>successor.addPredecessor</code> to build the graph properly. 
 	 * @param succList This flow's successors.
 	 */
-	public void link(Collection<Flow> succList) {
-        for (Flow succ : succList) {
-        	successorList.add(succ);
+	public void link(Collection<es.ull.isaatc.simulation.common.flow.Flow> succList) {
+        for (es.ull.isaatc.simulation.common.flow.Flow succ : succList) {
+        	successorList.add((Flow)succ);
         	succ.addPredecessor(this);
         }		
 	}
@@ -71,10 +71,21 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#setRecursiveStructureLink(es.ull.isaatc.simulation.StructuredFlow)
 	 */
-	public void setRecursiveStructureLink(StructuredFlow parent) {
+	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent) {
 		 setParent(parent);
 		 for (Flow f : successorList)
 			 f.setRecursiveStructureLink(parent); 	
 	}
 
+	/**
+	 * Returns the list of successor flows which follows this one.
+	 * @return the list of successor flows which follows this one.
+	 */
+	public ArrayList<es.ull.isaatc.simulation.common.flow.Flow> getSuccessorList() {
+		ArrayList<es.ull.isaatc.simulation.common.flow.Flow> newSuccList = new ArrayList<es.ull.isaatc.simulation.common.flow.Flow>();
+		for (Flow f : successorList)
+			newSuccList.add(f);
+		return newSuccList;
+	}
+	
 }

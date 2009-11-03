@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.common.condition;
 
 import es.ull.isaatc.simulation.common.Element;
-import es.ull.isaatc.simulation.common.Simulation;
+import es.ull.isaatc.simulation.common.Model;
 
 /**
  * A logical condition which is used for create restrictions or 
@@ -13,7 +13,7 @@ import es.ull.isaatc.simulation.common.Simulation;
 public class Condition {
 	
 	/** Current simulation. It's used to comunicate whith simulation vars. */
-	public Simulation simul;
+	public Model simul;
 	
 	/** 
 	 * Creates a new Condition.
@@ -27,7 +27,7 @@ public class Condition {
 	 * @param id Identifier.
 	 * @param simul Actual simulation.
 	 */
-	public Condition(Simulation simul){
+	public Condition(Model simul){
 		this.simul = simul;
 	}
 
@@ -44,7 +44,7 @@ public class Condition {
 	 * Returns the current simulation.
 	 * @return The simulation.
 	 */
-	public Simulation getSimul() {
+	public Model getSimul() {
 		return simul;
 	}
 
@@ -52,7 +52,7 @@ public class Condition {
 	 * Set the actual simulation.
 	 * @param sim Simulation.
 	 */
-	public void setSimul(Simulation sim) {
+	public void setSimul(Model sim) {
 		simul = sim;
 	}
 }

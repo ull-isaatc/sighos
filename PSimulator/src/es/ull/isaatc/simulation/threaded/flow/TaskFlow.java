@@ -3,7 +3,6 @@
  */
 package es.ull.isaatc.simulation.threaded.flow;
 
-import es.ull.isaatc.simulation.threaded.Element;
 import es.ull.isaatc.simulation.threaded.WorkThread;
 
 /**
@@ -15,17 +14,11 @@ import es.ull.isaatc.simulation.threaded.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface TaskFlow extends InitializerFlow, FinalizerFlow {
+public interface TaskFlow extends es.ull.isaatc.simulation.common.flow.TaskFlow, InitializerFlow, FinalizerFlow {
 	/**
 	 * Finishes the associated task.
 	 * @param wThread The work thread which requested this flow.
 	 */
 	void finish(WorkThread wThread);
-
-	/**
-	 * Allows a user to add actions carried out after the task has finished. 
-	 * @param e Element requesting this single flow
-	 */
-	void afterFinalize(Element e);
 
 }

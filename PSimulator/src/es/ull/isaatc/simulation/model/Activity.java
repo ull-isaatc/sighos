@@ -3,12 +3,14 @@
  */
 package es.ull.isaatc.simulation.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 import java.util.TreeMap;
 
 import es.ull.isaatc.simulation.Describable;
 import es.ull.isaatc.simulation.Identifiable;
-import es.ull.isaatc.simulation.condition.Condition;
-import es.ull.isaatc.simulation.condition.TrueCondition;
+import es.ull.isaatc.simulation.model.condition.Condition;
 import es.ull.isaatc.util.Prioritizable;
 
 /**
@@ -19,7 +21,7 @@ import es.ull.isaatc.util.Prioritizable;
  * @author Iván Castilla Rodríguez
  *
  */
-public class Activity extends VariableStoreModelObject implements Prioritizable, Describable {
+public abstract class Activity extends VariableStoreModelObject implements es.ull.isaatc.simulation.common.Activity, VariableHandler {
     /** Priority. The lowest the value, the highest the priority */
     protected int priority = 0;
     /** A brief description of the activity */
@@ -80,17 +82,6 @@ public class Activity extends VariableStoreModelObject implements Prioritizable,
     }
     
     /**
-     * Creates a new workgroup for this activity using the specified wg.
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(int priority, es.ull.isaatc.simulation.model.WorkGroup wg) {
-        workGroupTable.put(wgCounter, new ActivityWorkGroup(wgCounter, priority, wg));
-        return wgCounter++;
-    }
-    
-    /**
      * Creates a new workgroup for this activity using the specified wg. This workgroup
      * is only available if cond is true.
      * @param priority Priority of the workgroup
@@ -98,39 +89,8 @@ public class Activity extends VariableStoreModelObject implements Prioritizable,
      * @param cond Availability condition
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(int priority, es.ull.isaatc.simulation.model.WorkGroup wg, Condition cond) {
+    protected int addWorkGroup(int priority, es.ull.isaatc.simulation.model.WorkGroup wg, Condition cond) {
         workGroupTable.put(wgCounter, new ActivityWorkGroup(wgCounter, priority, wg, cond));
-        return wgCounter++;
-    }
-    
-    /**
-     * Creates a new workgroup for this activity with the highest level of priority using 
-     * the specified wg.
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(es.ull.isaatc.simulation.model.WorkGroup wg) {    	
-        return addWorkGroup(0, wg);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity with the highest level of priority using 
-     * the specified wg. This workgroup is only available if cond is true.
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(es.ull.isaatc.simulation.model.WorkGroup wg, Condition cond) {    	
-        return addWorkGroup(0, wg, cond);
-    }
-
-    /**
-     * Creates a new empty workgroup for this activity. 
-     * @param priority Priority of the workgroup
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(int priority) {
-        workGroupTable.put(wgCounter, new ActivityWorkGroup(wgCounter, priority));
         return wgCounter++;
     }
     
@@ -141,30 +101,19 @@ public class Activity extends VariableStoreModelObject implements Prioritizable,
      * @param cond Availability condition
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(int priority, Condition cond) {
+    protected int addWorkGroup(int priority, Condition cond) {
         workGroupTable.put(wgCounter, new ActivityWorkGroup(wgCounter, priority, cond));
         return wgCounter++;
     }
     
     /**
-     * Creates a new empty workgroup for this activity with the highest level of priority. 
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup() {    	
-        return addWorkGroup(0);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity with the highest level of priority. This 
-     * workgroup is only available if cond is true.
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(Condition cond) {    	
-        return addWorkGroup(0, cond);
-    }
+	 * @return the workGroupTable
+	 */
+	public TreeMap<Integer, ActivityWorkGroup> getWorkGroupTable() {
+		return workGroupTable;
+	}
 
-    /**
+	/**
      * Searches and returns a workgroup with the specified id.
      * @param wgId The id of the workgroup searched
      * @return A workgroup contained in this activity with the specified id
@@ -195,7 +144,7 @@ public class Activity extends VariableStoreModelObject implements Prioritizable,
 	 * workgroup can be used or not, and the priority of the workgroup inside the activity.
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class ActivityWorkGroup extends es.ull.isaatc.simulation.model.WorkGroup implements Identifiable, Describable {
+	public class ActivityWorkGroup extends es.ull.isaatc.simulation.model.WorkGroup implements es.ull.isaatc.simulation.common.ActivityWorkGroup {
 	    /** Workgroup's identifier */
 		protected int id;
 		/** Priority of the workgroup */
@@ -204,15 +153,6 @@ public class Activity extends VariableStoreModelObject implements Prioritizable,
 	    protected Condition cond;
 	    private final String idString; 
 		
-	    /**
-	     * Creates a new instance of WorkGroup
-	     * @param id Identifier of this workgroup.
-	     * @param priority Priority of the workgroup.
-	     */    
-	    protected ActivityWorkGroup(int id, int priority) {
-	        this(id, priority, new TrueCondition());
-	    }
-	    
 	    /**
 	     * Creates a new instance of WorkGroup
 	     * @param id Identifier of this workgroup.
@@ -233,22 +173,11 @@ public class Activity extends VariableStoreModelObject implements Prioritizable,
 	     * @param id Identifier of this workgroup.
 	     * @param priority Priority of the workgroup.
 	     * @param wg The original workgroup
-	     */    
-	    protected ActivityWorkGroup(int id, int priority, es.ull.isaatc.simulation.model.WorkGroup wg) {
-	        this(id, priority, wg, new TrueCondition());
-	    }
-	    
-	    /**
-	     * Creates a new instance of WorkGroup which contains the same resource types
-	     * than an already existing one.
-	     * @param id Identifier of this workgroup.
-	     * @param priority Priority of the workgroup.
-	     * @param wg The original workgroup
 	     * @param cond  Availability condition
 	     */    
 	    protected ActivityWorkGroup(int id, int priority, es.ull.isaatc.simulation.model.WorkGroup wg, Condition cond) {
 	        this(id, priority, cond);
-	        this.resourceTypeTable.addAll(wg.resourceTypeTable);
+	        this.resourceTypeTable.putAll(wg.resourceTypeTable);
 	    }
 
 
@@ -272,10 +201,17 @@ public class Activity extends VariableStoreModelObject implements Prioritizable,
 			return id;
 		}
 
+		/**
+		 * @return the cond
+		 */
+		public es.ull.isaatc.simulation.common.condition.Condition getCondition() {
+			return cond;
+		}
+
 		public String getDescription() {
 			StringBuilder str = new StringBuilder("WG" + id);
-			for (ResourceTypeTableEntry rtte : resourceTypeTable)
-				str.append(" [" + rtte.getResourceType() + "," + rtte.getNeeded() + "]");
+			for (Map.Entry<ResourceType, Integer> rtte : resourceTypeTable.entrySet())
+				str.append(" [" + rtte.getKey() + "," + rtte.getValue() + "]");
 			return str.toString();
 		}
 
@@ -285,4 +221,32 @@ public class Activity extends VariableStoreModelObject implements Prioritizable,
 	    }
 	}
     
+	@Override
+	public String getBody(String method) {
+		return null;
+	}
+
+	@Override
+	public String getCompleteMethod(String method) {
+		return null;
+	}
+
+	@Override
+	public String getImports() {
+		return "";
+	}
+
+	@Override
+	public Collection<String> getMethods() {
+		return new ArrayList<String>();
+	}
+
+	@Override
+	public void setImports(String imports) {
+	}
+
+	@Override
+	public boolean setMethod(String method, String body) {
+		return false;
+	}
 }

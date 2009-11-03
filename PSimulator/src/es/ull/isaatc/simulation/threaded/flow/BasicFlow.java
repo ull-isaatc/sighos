@@ -3,7 +3,6 @@
  */
 package es.ull.isaatc.simulation.threaded.flow;
 
-import es.ull.isaatc.simulation.threaded.Element;
 import es.ull.isaatc.simulation.threaded.Simulation;
 import es.ull.isaatc.simulation.threaded.SimulationObject;
 import es.ull.isaatc.simulation.threaded.WorkThread;
@@ -48,15 +47,15 @@ public abstract class BasicFlow extends SimulationObject implements Flow {
 	 * (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#setParent(es.ull.isaatc.simulation.StructuredFlow)
 	 */
-	public void setParent(StructuredFlow parent) {
-		this.parent = parent;
+	public void setParent(es.ull.isaatc.simulation.common.flow.StructuredFlow parent) {
+		this.parent = (StructuredFlow)parent;
 	}
 
 	/**
 	 * By default, returns true.
 	 * @return True by default.
 	 */
-	public boolean beforeRequest(Element e) {
+	public boolean beforeRequest(es.ull.isaatc.simulation.common.Element e) {
 		return true;
 	}
 	

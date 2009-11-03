@@ -7,15 +7,14 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
-import es.ull.isaatc.simulation.sequential.info.ResourceInfo;
-import es.ull.isaatc.util.Prioritizable;
+import es.ull.isaatc.simulation.common.info.ResourceInfo;
 
 /**
  * Represents an element carrying out an activity. Work items are used as part of a work thread
  * every time a new activity has to be performed.
  * @author Iván Castilla Rodríguez
  */
-public class WorkItem implements Comparable<WorkItem>, Prioritizable {
+public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 	/** Work Thread this work item belongs to */
 	final protected WorkThread wThread;
 	final private Element elem;
@@ -144,18 +143,20 @@ public class WorkItem implements Comparable<WorkItem>, Prioritizable {
     	return wThread.getPriority();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
-	public int compareTo(WorkItem o) {
-		if (wThread.getIdentifier() < o.wThread.getIdentifier())
+	@Override
+	public int compareTo(es.ull.isaatc.simulation.common.WorkItem o) {
+		if (wThread.getIdentifier() < o.getIdentifier())
 			return -1;
-		if (wThread.getIdentifier() > o.wThread.getIdentifier())
+		if (wThread.getIdentifier() > o.getIdentifier())
 			return 1;
 		return 0;
-	}    
-	
+	}
+
+	@Override
+	public int getIdentifier() {
+		return wThread.getIdentifier();
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (((WorkItem)o).wThread.getIdentifier() == wThread.getIdentifier())

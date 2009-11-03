@@ -1,16 +1,12 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation;
+package es.ull.isaatc.simulation.threaded;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import es.ull.isaatc.simulation.SimulationFactory.SimulationType;
-import es.ull.isaatc.simulation.common.Simulation;
-import es.ull.isaatc.simulation.model.Model;
 
 /**
  * Executes a set of simulations in a thread pool. This type of experiment should be
@@ -19,7 +15,7 @@ import es.ull.isaatc.simulation.model.Model;
  * thread execution (<code>Executors.newFixedThreadPool(1)</code>), that is, a sequential execution.   
  * @author Iván Castilla Rodríguez
  */
-public class PooledExperiment extends Experiment {
+public abstract class PooledExperiment extends Experiment {
     /** Thread pool to execute events */
     protected ExecutorService tp;
 
@@ -33,8 +29,8 @@ public class PooledExperiment extends Experiment {
 	 * @param description
 	 * @param nExperiments
 	 */
-	public PooledExperiment(SimulationType type, String description, Model model,int nExperiments) {
-		this(type, description, model, nExperiments, Executors.newSingleThreadExecutor());
+	public PooledExperiment(String description, int nExperiments) {
+		this(description, nExperiments, Executors.newSingleThreadExecutor());
 	}
 	
 	/**
@@ -42,18 +38,18 @@ public class PooledExperiment extends Experiment {
 	 * @param nExperiments
 	 * @param tp
 	 */
-	public PooledExperiment(SimulationType type, String description, Model model, int nExperiments, ExecutorService tp) {
-		super(type, description, model, nExperiments);
+	public PooledExperiment(String description, int nExperiments, ExecutorService tp) {
+		super(description, nExperiments);
         this.tp = tp;
 	}
 	
-	@Override
+	/**
+	 * Starts the experiment.
+	 */
 	public void start() {
 		ArrayList<Callable<Integer>> sims = new ArrayList<Callable<Integer>>(nExperiments);
-		for (int i = 0; i < nExperiments; i++) {
-			Simulation sim = SimulationFactory.getInstance(type, i, model);
-			sims.add(sim);
-		}
+		for (int i = 0; i < nExperiments; i++)
+			sims.add(getSimulation(i));
 		try {
 			tp.invokeAll(sims);
 		} catch (InterruptedException e) {

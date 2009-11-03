@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation.sequential.test.WFP;
 
-import es.ull.isaatc.simulation.inforeceiver.View;
+import es.ull.isaatc.simulation.common.inforeceiver.View;
 
 /**
  * A series of classes to automatically check the correct behavior of the different WF patterns.

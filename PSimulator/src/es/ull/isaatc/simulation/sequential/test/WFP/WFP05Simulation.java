@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.sequential.test.WFP;
 
-import es.ull.isaatc.simulation.model.WorkGroup;
+import es.ull.isaatc.simulation.sequential.WorkGroup;
 import es.ull.isaatc.simulation.sequential.ResourceType;
 import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
 import es.ull.isaatc.simulation.sequential.flow.ParallelFlow;
@@ -163,16 +163,10 @@ public class WFP05Simulation extends WFPTestSimulation {
         ResourceType rt3 = getDefResourceType("Comercial");
         ResourceType rt4 = getDefResourceType("Excavadora H8");
         
-        WorkGroup wgEBob = new WorkGroup();
-        wgEBob.add(rt0, 1);
-        wgEBob.add(rt2, 1);
-        WorkGroup wgED9 = new WorkGroup();
-        wgED9.add(rt1, 1);
-        wgED9.add(rt2, 1);
+        WorkGroup wgEBob = new WorkGroup(new ResourceType[] {rt0, rt2}, new int[] {1, 1});
+        WorkGroup wgED9 = new WorkGroup(new ResourceType[] {rt1, rt2}, new int[] {1, 1});
         WorkGroup wgFacturacion = new WorkGroup(rt3, 1);
-        WorkGroup wgEH8 = new WorkGroup();
-        wgEH8.add(rt4, 1);
-        wgEH8.add(rt2, 1);
+        WorkGroup wgEH8 = new WorkGroup(new ResourceType[] {rt4, rt2}, new int[] {1, 1});
         
         TimeDrivenActivity act0 = getDefTimeDrivenActivity("Excavacion bobcat", wgEBob, false);
         TimeDrivenActivity act1 = getDefTimeDrivenActivity("Excavacion D9", wgED9, false);

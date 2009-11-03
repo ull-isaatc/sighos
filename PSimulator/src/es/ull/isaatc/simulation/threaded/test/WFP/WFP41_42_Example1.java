@@ -6,13 +6,14 @@ package es.ull.isaatc.simulation.threaded.test.WFP;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.model.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.model.ModelTimeFunction;
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
+import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
+import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
+import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 import es.ull.isaatc.simulation.threaded.ElementCreator;
 import es.ull.isaatc.simulation.threaded.ElementType;
+import es.ull.isaatc.simulation.threaded.PooledExperiment;
 import es.ull.isaatc.simulation.threaded.Resource;
 import es.ull.isaatc.simulation.threaded.ResourceType;
 import es.ull.isaatc.simulation.threaded.Simulation;
@@ -23,7 +24,6 @@ import es.ull.isaatc.simulation.threaded.WorkGroup;
 import es.ull.isaatc.simulation.threaded.flow.SingleFlow;
 import es.ull.isaatc.simulation.threaded.flow.ThreadMergeFlow;
 import es.ull.isaatc.simulation.threaded.flow.ThreadSplitFlow;
-import es.ull.isaatc.simulation.threaded.inforeceiver.StdInfoView;
 
 class SimulationWFP41_42 extends StandAloneLPSimulation {
 	int ndays;
@@ -37,7 +37,7 @@ class SimulationWFP41_42 extends StandAloneLPSimulation {
 	protected void createModel() {		
 		new ResourceType(0, this, "Program Chair"); 
 		new ResourceType(1, this, "Peer Referee");
-    	ModelPeriodicCycle c = new ModelPeriodicCycle(this, Time.getZero(), new ModelTimeFunction(this, "ConstantVariate", endTs), endTs);
+    	ModelPeriodicCycle c = new ModelPeriodicCycle(unit, Time.getZero(), new ModelTimeFunction(unit, "ConstantVariate", endTs), endTs);
     	new Resource(0, this, "PC1").addTimeTableEntry(c, endTs, getResourceType(0));
     	new Resource(1, this, "Ref0").addTimeTableEntry(c, endTs, getResourceType(1));
     	new Resource(2, this, "Ref1").addTimeTableEntry(c, endTs, getResourceType(1));
@@ -46,11 +46,11 @@ class SimulationWFP41_42 extends StandAloneLPSimulation {
 		WorkGroup wg0 = new WorkGroup(getResourceType(0), 1);
 		WorkGroup wg1 = new WorkGroup(getResourceType(1), 1);
 		new TimeDrivenActivity(0, this, "Confirm paper receival", EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL))
-			.addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 5.0), wg0);		
+			.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 5.0), wg0);		
 		new TimeDrivenActivity(1, this, "Independent Peer review", EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL))
-			.addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 120.0), wg1);;
+			.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 120.0), wg1);;
 		new TimeDrivenActivity(2, this, "Notify authors", EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL))
-			.addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 5.0), wg0);;
+			.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 5.0), wg0);;
 		
 		SingleFlow root = new SingleFlow(this, getActivity(0));
 		ThreadSplitFlow split = new ThreadSplitFlow(this, 3);
@@ -61,7 +61,7 @@ class SimulationWFP41_42 extends StandAloneLPSimulation {
 		peer.link(merge);
 		merge.link(new SingleFlow(this, getActivity(2)));
 
-        ModelPeriodicCycle cGen = new ModelPeriodicCycle(this, 0.0, new ModelTimeFunction(this, "ConstantVariate", 1040.0), ndays);
+        ModelPeriodicCycle cGen = new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", 1040.0), ndays);
         new TimeDrivenGenerator(this, new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 3.0), new ElementType(0, this, "ET0"), root), cGen);       
 		
 	}
@@ -86,7 +86,7 @@ public class WFP41_42_Example1 {
 			public Simulation getSimulation(int ind) {
 				SimulationWFP41_42 sim = new SimulationWFP41_42(ind, NDIAS);
 				StdInfoView debugView = new StdInfoView(sim);
-				sim.addInfoReciever(debugView);
+				sim.addInfoReceiver(debugView);
 				return sim;
 			}
 			

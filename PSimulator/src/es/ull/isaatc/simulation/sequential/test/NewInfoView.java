@@ -2,8 +2,8 @@ package es.ull.isaatc.simulation.sequential.test;
 
 import java.io.PrintStream;
 
-import es.ull.isaatc.simulation.info.SimulationInfo;
-import es.ull.isaatc.simulation.inforeceiver.View;
+import es.ull.isaatc.simulation.common.info.SimulationInfo;
+import es.ull.isaatc.simulation.common.inforeceiver.View;
 import es.ull.isaatc.simulation.sequential.Simulation;
 
 public class NewInfoView extends View {

@@ -11,7 +11,7 @@ import es.ull.isaatc.simulation.threaded.WorkThread;
  * Successors are evaluated in order.
  * @author ycallero
  */
-public class MultiChoiceFlow extends ConditionalFlow {
+public class MultiChoiceFlow extends ConditionalFlow implements es.ull.isaatc.simulation.common.flow.MultiChoiceFlow {
 	
 	/**
 	 * Creates a new MultiChoiceFlow.

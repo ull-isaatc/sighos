@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation.model;
 
+import es.ull.isaatc.simulation.common.ModelCycle;
+
 
 /**
  * A generator which creates elements following a temporal pattern. 
@@ -31,5 +33,19 @@ public class TimeDrivenGenerator extends VariableStoreModelObject {
 	@Override
 	public String getObjectTypeIdentifier() {
         return "GEN";        
+	}
+
+	/**
+	 * @return the cycle
+	 */
+	public ModelCycle getCycle() {
+		return cycle;
+	}
+
+	/**
+	 * @return the creator
+	 */
+	public ElementCreator getCreator() {
+		return creator;
 	}
 }

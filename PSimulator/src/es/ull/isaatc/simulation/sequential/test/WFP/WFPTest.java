@@ -7,7 +7,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.TreeMap;
 
-import es.ull.isaatc.simulation.Experiment;
+import es.ull.isaatc.simulation.sequential.Experiment;
 import es.ull.isaatc.simulation.sequential.Simulation;
 import es.ull.isaatc.simulation.sequential.TimeDrivenGenerator;
 

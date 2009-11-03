@@ -2,10 +2,10 @@ package es.ull.isaatc.simulation.threaded.test;
 
 import java.util.Stack;
 
-import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.info.SimulationInfo;
-import es.ull.isaatc.simulation.info.UserInfo;
-import es.ull.isaatc.simulation.inforeceiver.Listener;
+import es.ull.isaatc.simulation.common.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.common.info.SimulationInfo;
+import es.ull.isaatc.simulation.common.info.UserInfo;
+import es.ull.isaatc.simulation.common.inforeceiver.Listener;
 import es.ull.isaatc.simulation.threaded.Simulation;
 import es.ull.isaatc.simulation.threaded.info.ElementActionInfo;
 

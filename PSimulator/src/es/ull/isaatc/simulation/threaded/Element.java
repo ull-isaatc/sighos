@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import es.ull.isaatc.simulation.threaded.flow.Flow;
 import es.ull.isaatc.simulation.threaded.flow.InitializerFlow;
 import es.ull.isaatc.simulation.threaded.flow.TaskFlow;
-import es.ull.isaatc.simulation.threaded.info.ElementInfo;
+import es.ull.isaatc.simulation.common.info.ElementInfo;
 import es.ull.isaatc.simulation.variable.EnumVariable;
 
 /**
@@ -17,7 +17,7 @@ import es.ull.isaatc.simulation.variable.EnumVariable;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class Element extends BasicElement {
+public class Element extends BasicElement implements es.ull.isaatc.simulation.common.Element {
 	/** Element type */
 	protected ElementType elementType;
 	/** First step of the flow of the element */
@@ -54,7 +54,7 @@ public class Element extends BasicElement {
 	 * Returns the element type this element belongs to.
 	 * @return the elementType
 	 */
-	public ElementType getElementType() {
+	public ElementType getType() {
 		return elementType;
 	}
 

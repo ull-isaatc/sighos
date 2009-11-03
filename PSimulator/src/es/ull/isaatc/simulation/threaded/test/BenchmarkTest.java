@@ -8,17 +8,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.info.SimulationInfo;
-import es.ull.isaatc.simulation.info.SimulationStartInfo;
-import es.ull.isaatc.simulation.inforeceiver.CpuTimeView;
-import es.ull.isaatc.simulation.inforeceiver.View;
-import es.ull.isaatc.simulation.model.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.model.ModelTimeFunction;
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
-import es.ull.isaatc.simulation.threaded.Element;
+import es.ull.isaatc.simulation.threaded.PooledExperiment;
+import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
+import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
+import es.ull.isaatc.simulation.common.info.ElementActionInfo;
+import es.ull.isaatc.simulation.common.info.ElementInfo;
+import es.ull.isaatc.simulation.common.info.ResourceInfo;
+import es.ull.isaatc.simulation.common.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.common.info.SimulationInfo;
+import es.ull.isaatc.simulation.common.info.SimulationStartInfo;
+import es.ull.isaatc.simulation.common.inforeceiver.CpuTimeView;
+import es.ull.isaatc.simulation.common.inforeceiver.View;
+import es.ull.isaatc.simulation.common.Element;
 import es.ull.isaatc.simulation.threaded.ElementCreator;
 import es.ull.isaatc.simulation.threaded.ElementType;
 import es.ull.isaatc.simulation.threaded.Resource;
@@ -30,9 +33,6 @@ import es.ull.isaatc.simulation.threaded.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.threaded.WorkGroup;
 import es.ull.isaatc.simulation.threaded.flow.ForLoopFlow;
 import es.ull.isaatc.simulation.threaded.flow.SingleFlow;
-import es.ull.isaatc.simulation.threaded.info.ElementActionInfo;
-import es.ull.isaatc.simulation.threaded.info.ElementInfo;
-import es.ull.isaatc.simulation.threaded.info.ResourceInfo;
 
 enum Type {SAMETIME, CONSECUTIVE, MIXED};
 
@@ -418,8 +418,8 @@ public class BenchmarkTest {
 				sim.setNThreads(nThreads);
 				
 				if (debug)
-					sim.addInfoReciever(new BenchmarkListener(sim, System.out));
-				sim.addInfoReciever(new CpuTimeView(sim));
+					sim.addInfoReceiver(new BenchmarkListener(sim, System.out));
+				sim.addInfoReceiver(new CpuTimeView(sim));
 				return sim;
 			}
 			

@@ -1,10 +1,11 @@
 package es.ull.isaatc.simulation.sequential.test.WFP;
 
-import es.ull.isaatc.simulation.model.WorkGroup;
+import es.ull.isaatc.simulation.sequential.WorkGroup;
 import es.ull.isaatc.simulation.sequential.ResourceType;
 import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
-import es.ull.isaatc.simulation.sequential.condition.NotCondition;
-import es.ull.isaatc.simulation.sequential.condition.TrueCondition;
+import es.ull.isaatc.simulation.common.condition.Condition;
+import es.ull.isaatc.simulation.common.condition.NotCondition;
+import es.ull.isaatc.simulation.common.condition.TrueCondition;
 import es.ull.isaatc.simulation.sequential.flow.MultiChoiceFlow;
 import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
 

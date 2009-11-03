@@ -6,10 +6,10 @@ package es.ull.isaatc.simulation.sequential.test.WFP;
 import java.util.Set;
 import java.util.TreeMap;
 
-import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.info.SimulationInfo;
-import es.ull.isaatc.simulation.info.SimulationStartInfo;
-import es.ull.isaatc.simulation.sequential.info.ElementActionInfo;
+import es.ull.isaatc.simulation.common.info.ElementActionInfo;
+import es.ull.isaatc.simulation.common.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.common.info.SimulationInfo;
+import es.ull.isaatc.simulation.common.info.SimulationStartInfo;
 
 /**
  * @author Iván Castilla Rodríguez

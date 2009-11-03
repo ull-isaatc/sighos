@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.info.SimulationInfo;
-import es.ull.isaatc.simulation.inforeceiver.View;
-import es.ull.isaatc.simulation.sequential.info.ElementActionInfo;
+import es.ull.isaatc.simulation.common.info.ElementActionInfo;
+import es.ull.isaatc.simulation.common.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.common.info.SimulationInfo;
+import es.ull.isaatc.simulation.common.inforeceiver.View;
 
 /**
  * @author Iván Castilla Rodríguez

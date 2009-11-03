@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation;
 
-import es.ull.isaatc.simulation.common.Simulation;
+import es.ull.isaatc.simulation.common.Model;
 import es.ull.isaatc.simulation.model.Model;
 
 /**
@@ -15,7 +15,7 @@ public class SimulationFactory {
 		SEQUENTIAL,
 		SIMEVENTS
 	}
-	public static Simulation getInstance(SimulationType type, int id, Model model) {
+	public static Model getInstance(SimulationType type, int id, Model model) {
 		switch (type) {
 		case SEQUENTIAL: return es.ull.isaatc.simulation.sequential.factory.SimulationFactory.getSimulationInstance(id, model);
 		}

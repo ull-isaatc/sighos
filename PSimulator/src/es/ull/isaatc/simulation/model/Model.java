@@ -3,11 +3,13 @@
  */
 package es.ull.isaatc.simulation.model;
 
+import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.isaatc.simulation.Describable;
 import es.ull.isaatc.simulation.VariableStore;
-import es.ull.isaatc.simulation.flow.Flow;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
+import es.ull.isaatc.simulation.model.flow.Flow;
 import es.ull.isaatc.simulation.variable.BooleanVariable;
 import es.ull.isaatc.simulation.variable.ByteVariable;
 import es.ull.isaatc.simulation.variable.CharacterVariable;
@@ -23,9 +25,7 @@ import es.ull.isaatc.simulation.variable.Variable;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Model implements VariableStore, Describable, VariableHandler {
-	/** A short text describing this simulation. */
-	protected String description;
+public abstract class Model extends es.ull.isaatc.simulation.common.Model implements VariableStore, VariableHandler {
 
 	/** List of resource types present in the model. */
 	protected final TreeMap<Integer, ResourceType> resourceTypeList = new TreeMap<Integer, ResourceType>();
@@ -42,20 +42,24 @@ public abstract class Model implements VariableStore, Describable, VariableHandl
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
 
-	/** Timestamp of simulation's start */
-	protected Time startTs;
+	/** List of resource types present in the model. */
+	protected final TreeMap<Integer, ElementCreator> elementCreatorList = new TreeMap<Integer, ElementCreator>();
 
-	/** Timestamp of Simulation's end */
-	protected Time endTs;
-	
-	/** Time unit to be used to simulate this model */
-	protected TimeUnit unit = null;
-	
     /** Variable warehouse */
 	protected final TreeMap<String, Variable> varCollection = new TreeMap<String, Variable>();
 
     protected TreeMap<String, String> userMethods = new TreeMap<String, String>();
-	
+    protected String imports = "";
+
+    static private TreeMap<String, String> userCompleteMethods = new TreeMap<String, String>(); 
+
+    static {
+    	userCompleteMethods.put("init", "public void init()");
+    	userCompleteMethods.put("end", "public void end()");
+    	userCompleteMethods.put("beforeClockTick", "public void beforeClockTick()");
+    	userCompleteMethods.put("afterClockTick", "public void afterClockTick()");
+    }
+    
 	/**
 	 * Creates a new instance of Model
 	 */
@@ -70,13 +74,11 @@ public abstract class Model implements VariableStore, Describable, VariableHandl
 	 * @param unit
 	 * 			  Time unit to be used during the simulation of this model.
 	 */
-	public Model(String description, TimeUnit unit) {
-		this.description = description;
-		this.unit = unit;
-		userMethods.put("init", "");
-		userMethods.put("end", "");
-		userMethods.put("beforeClockTick", "");
-		userMethods.put("afterClockTick", "");
+	public Model(int id, String description, TimeUnit unit) {
+		super(id, description, unit);
+		for (String method : userCompleteMethods.keySet())
+			userMethods.put(method, "");
+		createModel();
 	}
 
 	/**
@@ -91,8 +93,8 @@ public abstract class Model implements VariableStore, Describable, VariableHandl
 	 * @param endTs
 	 *            Timestamp of simulation's end
 	 */
-	public Model(String description, TimeUnit unit, Time startTs, Time endTs) {
-		this(description, unit);
+	public Model(int id, String description, TimeUnit unit, Time startTs, Time endTs) {
+		this(id, description, unit);
 		this.startTs = startTs;
 		this.endTs = endTs;
 	}
@@ -109,10 +111,8 @@ public abstract class Model implements VariableStore, Describable, VariableHandl
 	 * @param endTs
 	 *            Timestamp of simulation's end expressed in Simulation Time Units
 	 */
-	public Model(String description, TimeUnit unit, double startTs, double endTs) {
-		this(description, unit);
-		this.startTs = new Time(unit, startTs);;
-		this.endTs = new Time(unit, endTs);;
+	public Model(int id, String description, TimeUnit unit, double startTs, double endTs) {
+		this(id, description, unit, new Time(unit, startTs), new Time(unit, endTs));
 	}
 
 	/**
@@ -128,34 +128,10 @@ public abstract class Model implements VariableStore, Describable, VariableHandl
 	protected abstract void createModel();
 
 	/**
-	 * @return the unit
-	 */
-	public TimeUnit getUnit() {
-		return unit;
-	}
-
-	/**
 	 * @param unit the unit to set
 	 */
 	public void setUnit(TimeUnit unit) {
 		this.unit = unit;
-	}
-
-	public double simulationTime2Double(Time source) {
-		return unit.convert(source) * Double.MIN_VALUE;
-	}
-	
-	public Time double2SimulationTime(double sourceValue) {
-		return new Time(unit, sourceValue / Double.MIN_VALUE);
-	}
-	
-	/**
-	 * Returns the simulation start timestamp.
-	 * 
-	 * @return Returns the startTs.
-	 */
-	public Time getStartTs() {
-		return startTs;
 	}
 
 	/**
@@ -166,26 +142,10 @@ public abstract class Model implements VariableStore, Describable, VariableHandl
 	}
 
 	/**
-	 * Returns the simulation end timestamp.
-	 * 
-	 * @return Value of property endTs.
-	 */
-	public Time getEndTs() {
-		return endTs;
-	}
-
-	/**
 	 * @param endTs the endTs to set
 	 */
 	public void setEndTs(Time endTs) {
 		this.endTs = endTs;
-	}
-
-	/**
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
 	}
 
 	/**
@@ -235,15 +195,15 @@ public abstract class Model implements VariableStore, Describable, VariableHandl
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.flow.Flow} to the model. These method
-	 * is invoked from the object's constructor.
+	 * Adds an {@link es.ull.isaatc.simulation.model.flow.Flow} to the model. 
+	 * Only the root flows of the element creators are included 
 	 * 
 	 * @param f
 	 *            Flow that's added to the model.
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
-	public Flow add(Flow f) {
+	protected Flow add(Flow f) {
 		return flowList.put(f.getIdentifier(), f);
 		
 	}
@@ -257,6 +217,19 @@ public abstract class Model implements VariableStore, Describable, VariableHandl
 	 */
 	protected void add(Resource res) {
 		resourceList.put(res.getIdentifier(), res);
+	}
+
+	/**
+	 * Adds an element creator to the model. These method must be called from the element creator's
+	 * constructor.
+	 * 
+	 * @param ec
+	 *            Element Creator.
+	 */
+	protected void add(ElementCreator ec) {
+		elementCreatorList.put(ec.getIdentifier(), ec);
+		for (ElementCreator.GenerationTrio gen : ec.getGenTrio())
+			add(gen.getFlow());
 	}
 
 	/**
@@ -302,6 +275,15 @@ public abstract class Model implements VariableStore, Describable, VariableHandl
 	 */
 	public TreeMap<Integer, Resource> getResourceList() {
 		return resourceList;
+	}
+
+	/**
+	 * Returns a list of the element creators of the model.
+	 * 
+	 * @return Element creators of the model.
+	 */
+	public TreeMap<Integer, ElementCreator> getElementCreatorList() {
+		return elementCreatorList;
 	}
 
 	/**
@@ -359,9 +341,15 @@ public abstract class Model implements VariableStore, Describable, VariableHandl
 		return resourceList.get(id);
 	}
 
-	@Override
-	public String toString() {
-		return description;
+	/**
+	 * Returns the element creator with the corresponding identifier.
+	 * 
+	 * @param id
+	 *            element creator identifier.
+	 * @return An element creator with the indicated identifier.
+	 */
+	public ElementCreator getElementCreator(int id) {
+		return elementCreatorList.get(id);
 	}
 
 	@Override
@@ -452,6 +440,40 @@ public abstract class Model implements VariableStore, Describable, VariableHandl
 			varCollection.put(varName, v);
 		} else
 			varCollection.put(varName, new ShortVariable(value));
+	}
+
+	@Override
+	public boolean setMethod(String method, String body) {
+		if (userMethods.containsKey(method)) {
+			userMethods.put(method, body);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public String getBody(String method) {
+		return userMethods.get(method);
+	}
+
+	@Override
+	public String getImports() {
+		return imports;
+	}
+
+	@Override
+	public void setImports(String imports) {
+		this.imports = imports;
+	}
+
+	@Override
+	public Collection<String> getMethods() {
+		return userMethods.keySet();
+	}
+
+	@Override
+	public String getCompleteMethod(String method) {
+		return userCompleteMethods.get(method);
 	}
 	
 }

@@ -2,11 +2,11 @@ package es.ull.isaatc.simulation.threaded.test;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.model.ModelCycle;
-import es.ull.isaatc.simulation.model.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.model.ModelTimeFunction;
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
+import es.ull.isaatc.simulation.common.ModelCycle;
+import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
+import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.threaded.ElementCreator;
 import es.ull.isaatc.simulation.threaded.ElementType;
 import es.ull.isaatc.simulation.threaded.Resource;

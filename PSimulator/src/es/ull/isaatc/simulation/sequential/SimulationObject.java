@@ -7,7 +7,7 @@ package es.ull.isaatc.simulation.sequential;
  * the same identifiers.
  * @author Iván Castilla Rodríguez
  */
-public abstract class SimulationObject implements es.ull.isaatc.simulation.common.SimulationObject, Comparable<SimulationObject> {
+public abstract class SimulationObject implements es.ull.isaatc.simulation.common.ModelObject {
     /** Unique object identifier  */
 	protected final int id;
     /** Simulation this object belongs to */
@@ -38,7 +38,7 @@ public abstract class SimulationObject implements es.ull.isaatc.simulation.commo
      * Returns the simulation which this object is attached to.
      * @return Simulation this object belongs to
      */
-    public Simulation getSimulation() {
+    public Simulation getModel() {
         return simul;
     }
     
@@ -53,10 +53,10 @@ public abstract class SimulationObject implements es.ull.isaatc.simulation.commo
 	/* (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(SimulationObject o) {
-		if (id < o.id)
+	public int compareTo(es.ull.isaatc.simulation.common.ModelObject o) {
+		if (id < o.getIdentifier())
 			return -1;
-		if (id > o.id)
+		if (id > o.getIdentifier())
 			return 1;
 		return 0;
 	}

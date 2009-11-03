@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import es.ull.isaatc.simulation.sequential.flow.Flow;
 import es.ull.isaatc.simulation.sequential.flow.InitializerFlow;
 import es.ull.isaatc.simulation.sequential.flow.TaskFlow;
-import es.ull.isaatc.simulation.sequential.info.ElementInfo;
+import es.ull.isaatc.simulation.common.info.ElementInfo;
 import es.ull.isaatc.simulation.variable.EnumVariable;
 
 /**

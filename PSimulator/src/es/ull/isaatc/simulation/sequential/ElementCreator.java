@@ -65,7 +65,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.isaatc.simula
             	p -= gt.getProp();
             	if (p <= 0.0){
             		ElementType et = gt.getElementType();
-    	    		Element elem = new Element(Generator.incElemCounter(), (Simulation) gen.getSimulation(), et, gt.getFlow());
+    	    		Element elem = new Element(Generator.incElemCounter(), (Simulation) gen.getModel(), et, gt.getFlow());
     	    		elem.initializeElementVars(et.getElementValues());
     	            elem.start(gen.getDefLP());
     	            break;

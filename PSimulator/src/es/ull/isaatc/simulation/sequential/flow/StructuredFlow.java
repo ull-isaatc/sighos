@@ -1,6 +1,5 @@
 package es.ull.isaatc.simulation.sequential.flow;
 
-import es.ull.isaatc.simulation.sequential.Element;
 import es.ull.isaatc.simulation.sequential.Simulation;
 
 
@@ -33,11 +32,8 @@ public abstract class StructuredFlow extends SingleSuccessorFlow implements Task
 	public void addPredecessor(es.ull.isaatc.simulation.common.flow.Flow newFlow) {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.TaskFlow#afterFinalize(es.ull.isaatc.simulation.Element)
-	 */
-	public void afterFinalize(Element e) {
+	@Override
+	public void afterFinalize(es.ull.isaatc.simulation.common.Element e) {
 	}
 
 	@Override

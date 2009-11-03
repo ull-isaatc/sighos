@@ -5,15 +5,12 @@ package es.ull.isaatc.simulation.threaded;
 
 import java.util.HashMap;
 
-import es.ull.isaatc.simulation.Describable;
-import es.ull.isaatc.util.Prioritizable;
-
 /**
  * Describes a set of elements which have something in common. This is simply a descriptive attribute
  * and is used for statistic issues.
  * @author Iván Castilla Rodríguez
  */
-public class ElementType extends VariableStoreSimulationObject implements Describable, Prioritizable {
+public class ElementType extends VariableStoreSimulationObject implements es.ull.isaatc.simulation.common.ElementType {
 	/** Element's priority in an activity queue. Minimum value: 0. */
 	protected int priority = 0;
     /** A brief description of the element type */
@@ -50,6 +47,7 @@ public class ElementType extends VariableStoreSimulationObject implements Descri
 		return "ET";
 	}
 
+	@Override
 	public void addElementVar(String name, Object value) {
 		elementValues.put(name, value);
 	}

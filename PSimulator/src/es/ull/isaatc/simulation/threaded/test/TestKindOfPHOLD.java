@@ -6,11 +6,11 @@ package es.ull.isaatc.simulation.threaded.test;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 import es.ull.isaatc.simulation.Experiment;
-import es.ull.isaatc.simulation.inforeceiver.CpuTimeView;
-import es.ull.isaatc.simulation.model.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.model.ModelTimeFunction;
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
+import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
+import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
+import es.ull.isaatc.simulation.common.inforeceiver.CpuTimeView;
 import es.ull.isaatc.simulation.threaded.BasicElement;
 import es.ull.isaatc.simulation.threaded.BasicElementCreator;
 import es.ull.isaatc.simulation.threaded.Generator;

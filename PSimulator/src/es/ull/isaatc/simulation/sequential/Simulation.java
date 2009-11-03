@@ -9,24 +9,12 @@ package es.ull.isaatc.simulation.sequential;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
-import es.ull.isaatc.simulation.VariableStore;
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;
-import es.ull.isaatc.simulation.sequential.inforeceiver.InfoHandler;
-import es.ull.isaatc.simulation.sequential.inforeceiver.InfoReceiver;
-import es.ull.isaatc.simulation.sequential.inforeceiver.SimulationInfoHandler;
-import es.ull.isaatc.simulation.variable.BooleanVariable;
-import es.ull.isaatc.simulation.variable.ByteVariable;
-import es.ull.isaatc.simulation.variable.CharacterVariable;
-import es.ull.isaatc.simulation.variable.DoubleVariable;
-import es.ull.isaatc.simulation.variable.FloatVariable;
-import es.ull.isaatc.simulation.variable.IntVariable;
-import es.ull.isaatc.simulation.variable.LongVariable;
-import es.ull.isaatc.simulation.variable.ShortVariable;
-import es.ull.isaatc.simulation.variable.UserVariable;
-import es.ull.isaatc.simulation.variable.Variable;
+import es.ull.isaatc.simulation.sequential.flow.Flow;
 import es.ull.isaatc.util.Output;
 
 /**
@@ -41,7 +29,7 @@ import es.ull.isaatc.util.Output;
  * 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulation implements VariableStore {
+public abstract class Simulation extends es.ull.isaatc.simulation.common.Model implements Callable<Integer>, Runnable {
 
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
@@ -62,7 +50,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
 	
 	/** List of flows present in the simulation */
-	protected final TreeMap<Integer, es.ull.isaatc.simulation.common.flow.Flow> flowList = new TreeMap<Integer, es.ull.isaatc.simulation.common.flow.Flow>();
+	protected final TreeMap<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
 	
 	/** Logical Process list */
 	protected LogicalProcess[] logicalProcessList;
@@ -72,11 +60,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 
 	/** List of active elements */
 	private final Map<Integer, Element> activeElementList = new TreeMap<Integer, Element>();
-	
-	private final SimulationInfoHandler infoHandler = new SimulationInfoHandler();
-	
-    /** Variable warehouse */
-	protected final TreeMap<String, Variable> varCollection = new TreeMap<String, Variable>();
 
 	/**
 	 * Empty constructor for compatibility purposes
@@ -126,6 +109,19 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	public Simulation(int id, String description, TimeUnit unit, double startTs, double endTs) {
 		super(id, description, unit, startTs, endTs);
 	}
+
+	@Override
+	public Integer call() {
+		run();
+		return 0;
+}
+	/**
+	 * Starts the simulation execution in a threaded way. Initializes all the structures, and
+	 * starts the logical processes. 
+	 */
+	public void start() {
+		new Thread(this).start();		
+	}
 	
 	/**
 	 * Contains the specifications of the model. All the components of the model
@@ -140,6 +136,19 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	protected abstract void createModel();
 
 	/**
+	 * Specifies the way the structure of the activity managers is built. 
+	 * @see StandardAMSimulation
+	 */
+	protected abstract void createActivityManagers();
+	
+	/**
+	 * Specifies the way the structure of the logical processes is built. 
+	 * @see StandAloneLPSimulation
+	 * @see SimpleLPSimulation
+	 */
+	protected abstract void createLogicalProcesses();
+
+	/**
 	 * Starts the simulation execution. It creates and starts all the necessary 
 	 * structures. This method blocks until all the logical processes have finished 
 	 * their execution.<p>
@@ -148,6 +157,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * debug messages can be printed before this method is declared unless <code>setOutput</code>
 	 * had been invoked. 
 	 */
+	@Override
 	public void run() {
 		if (out == null)
 			out = new Output();
@@ -159,7 +169,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		createLogicalProcesses();
 		init();
 
-		infoHandler.notifyInfo(new es.ull.isaatc.simulation.sequential.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
+		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
 		
 		// Starts all the generators
 		for (Generator gen : generatorList)
@@ -179,15 +189,8 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		infoHandler.notifyInfo(new es.ull.isaatc.simulation.sequential.info.SimulationEndInfo(this, System.currentTimeMillis(), this.internalEndTs));
+		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationEndInfo(this, System.currentTimeMillis(), this.internalEndTs));
 		debug("SIMULATION COMPLETELY FINISHED");
-	}
-
-	/**
-	 * @param unit the unit to set
-	 */
-	public void setTimeUnit(TimeUnit unit) {
-		this.unit = unit;
 	}
 
 	/**
@@ -238,7 +241,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
-	public es.ull.isaatc.simulation.common.flow.Flow add(es.ull.isaatc.simulation.common.flow.Flow f) {
+	public Flow add(Flow f) {
 		return flowList.put(f.getIdentifier(), f);
 		
 	}
@@ -317,7 +320,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * 
 	 * @return flows of the model.
 	 */
-	public TreeMap<Integer, es.ull.isaatc.simulation.common.flow.Flow> getFlowList() {
+	public TreeMap<Integer, Flow> getFlowList() {
 		return flowList;
 	}
 
@@ -330,47 +333,28 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		return activityManagerList;
 	}
 
-	/**
-	 * Returns the activity with the corresponding identifier.
-	 * 
-	 * @param id
-	 *            Activity identifier.
-	 * @return An activity with the indicated identifier.
-	 */
+	@Override
 	public Activity getActivity(int id) {
 		return activityList.get(id);
 	}
 
-	/**
-	 * Returns the resource type with the corresponding identifier.
-	 * 
-	 * @param id
-	 *            Resource type identifier.
-	 * @return A resource type with the indicated identifier.
-	 */
+	@Override
+	public Resource getResource(int id) {
+		return resourceList.get(id);
+	}
+
+	@Override
 	public ResourceType getResourceType(int id) {
 		return resourceTypeList.get(id);
 	}
 
-	/**
-	 * Returns the element type with the corresponding identifier.
-	 * 
-	 * @param id
-	 *            element type identifier.
-	 * @return An element type with the indicated identifier.
-	 */
+	@Override
 	public ElementType getElementType(int id) {
 		return elementTypeList.get(id);
 	}
 
-	/**
-	 * Returns the flow with the corresponding identifier.
-	 * 
-	 * @param id
-	 *            flow identifier.
-	 * @return A flow with the indicated identifier.
-	 */
-	public es.ull.isaatc.simulation.common.flow.Flow getFlow(int id) {
+	@Override
+	public Flow getFlow(int id) {
 		return flowList.get(id);
 	}
 
@@ -438,6 +422,13 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	}
 
 	/**
+	 * @param unit the unit to set
+	 */
+	public void setTimeUnit(TimeUnit unit) {
+		this.unit = unit;
+	}
+
+	/**
 	 * @param endTs the endTs to set
 	 */
 	public void setEndTs(Time endTs) {
@@ -481,103 +472,5 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 
 	public Map<Integer, Element> getActiveElementList() {
 		return activeElementList;
-	}
-	
-	public void addInfoReceiver(InfoReceiver receiver) {
-		infoHandler.registerReceivers(receiver);
-	}
-
-	public InfoHandler getInfoHandler() {
-		return infoHandler;
-	}
-
-	public Variable getVar(String varName) {
-		return varCollection.get(varName);
-	}
-	
-	public void putVar(String varName, Variable value) {
-		varCollection.put(varName, value);
-	}
-	
-	public void putVar(String varName, double value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new DoubleVariable(value));
-	}
-	
-	public void putVar(String varName, int value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new IntVariable(value));
-	}
-
-	public void putVar(String varName, boolean value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new BooleanVariable(value));
-	}
-
-	public void putVar(String varName, char value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new CharacterVariable(value));
-	}
-	
-	public void putVar(String varName, byte value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new ByteVariable(value));
-	}
-
-	public void putVar(String varName, float value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new FloatVariable(value));
-	}
-	
-	public void putVar(String varName, long value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new LongVariable(value));
-	}
-	
-	public void putVar(String varName, short value) {
-		UserVariable v = (UserVariable) varCollection.get(varName);
-		if (v != null) {
-			v.setValue(value);
-			varCollection.put(varName, v);
-		} else
-			varCollection.put(varName, new ShortVariable(value));
-	}
-	
-	public double getVarViewValue(Object...params) {
-		String varName = (String) params[0];
-		params[0] = this;
-		Number value = getVar(varName).getValue(params);
-		if (value != null)
-			return value.doubleValue();
-		else
-			return -1;
 	}
 }

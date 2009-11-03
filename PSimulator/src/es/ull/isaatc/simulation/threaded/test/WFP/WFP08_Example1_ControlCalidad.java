@@ -3,13 +3,14 @@ package es.ull.isaatc.simulation.threaded.test.WFP;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.model.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.model.ModelTimeFunction;
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
+import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
+import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
+import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 import es.ull.isaatc.simulation.threaded.ElementCreator;
 import es.ull.isaatc.simulation.threaded.ElementType;
+import es.ull.isaatc.simulation.threaded.PooledExperiment;
 import es.ull.isaatc.simulation.threaded.Resource;
 import es.ull.isaatc.simulation.threaded.ResourceType;
 import es.ull.isaatc.simulation.threaded.StandAloneLPSimulation;
@@ -19,7 +20,6 @@ import es.ull.isaatc.simulation.threaded.WorkGroup;
 import es.ull.isaatc.simulation.threaded.flow.MultiMergeFlow;
 import es.ull.isaatc.simulation.threaded.flow.ParallelFlow;
 import es.ull.isaatc.simulation.threaded.flow.SingleFlow;
-import es.ull.isaatc.simulation.threaded.inforeceiver.StdInfoView;
 
 class SimulationWFP8E1 extends StandAloneLPSimulation {
 	int ndays;
@@ -41,13 +41,13 @@ class SimulationWFP8E1 extends StandAloneLPSimulation {
         
         WorkGroup wgMa = new WorkGroup(getResourceType(0), 1);
         WorkGroup wgEm = new WorkGroup(getResourceType(1), 1);
-        ((TimeDrivenActivity)getActivity(0)).addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 15.0), wgMa);
-        ((TimeDrivenActivity)getActivity(1)).addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 15.0), wgMa);
-        ((TimeDrivenActivity)getActivity(2)).addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 10.0), wgMa);
-        ((TimeDrivenActivity)getActivity(3)).addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 15.0), wgEm);
+        ((TimeDrivenActivity)getActivity(0)).addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 15.0), wgMa);
+        ((TimeDrivenActivity)getActivity(1)).addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 15.0), wgMa);
+        ((TimeDrivenActivity)getActivity(2)).addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10.0), wgMa);
+        ((TimeDrivenActivity)getActivity(3)).addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 15.0), wgEm);
 
-        ModelPeriodicCycle subc2 = new ModelPeriodicCycle(this, 480, new ModelTimeFunction(this, "ConstantVariate", 1040.0), 5);
-        ModelPeriodicCycle c2 = new ModelPeriodicCycle(this, 0, new ModelTimeFunction(this, "ConstantVariate", 1040.0 * 7), 0, subc2);
+        ModelPeriodicCycle subc2 = new ModelPeriodicCycle(unit, 480, new ModelTimeFunction(unit, "ConstantVariate", 1040.0), 5);
+        ModelPeriodicCycle c2 = new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", 1040.0 * 7), 0, subc2);
 
         new Resource(0, this, "Maquina1").addTimeTableEntry(c2, 420, getResourceType(0));
         new Resource(1, this, "Maquina2").addTimeTableEntry(c2, 420, getResourceType(0));
@@ -70,7 +70,7 @@ class SimulationWFP8E1 extends StandAloneLPSimulation {
         mulmer1.link(sin4);
         
         new ElementType(0, this, "Remesa productos");
-        ModelPeriodicCycle cGen = new ModelPeriodicCycle(this, 0.0, new ModelTimeFunction(this, "ConstantVariate", 1040.0), ndays);
+        ModelPeriodicCycle cGen = new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", 1040.0), ndays);
         new TimeDrivenGenerator(this, new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 3.0), getElementType(0), root), cGen);        
     }
 	
@@ -92,7 +92,7 @@ class ExperimentWFP8E1 extends PooledExperiment {
 		SimulationWFP8E1 sim = null;
 		sim = new SimulationWFP8E1(ind, NDIAS);
 		StdInfoView debugView = new StdInfoView(sim);
-		sim.addInfoReciever(debugView);
+		sim.addInfoReceiver(debugView);
 //		try {
 //			sim.setOutput(new Output(true, new FileWriter("c:\\test.txt")));
 //		} catch (IOException e) {

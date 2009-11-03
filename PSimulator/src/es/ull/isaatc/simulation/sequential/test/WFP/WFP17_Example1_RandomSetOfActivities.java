@@ -6,13 +6,13 @@ package es.ull.isaatc.simulation.sequential.test.WFP;
 import java.util.ArrayList;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.PooledExperiment;
+import es.ull.isaatc.simulation.sequential.PooledExperiment;
 import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;
-import es.ull.isaatc.simulation.model.ElementType;
-import es.ull.isaatc.simulation.model.WorkGroup;
+import es.ull.isaatc.simulation.sequential.ElementType;
+import es.ull.isaatc.simulation.sequential.WorkGroup;
 import es.ull.isaatc.simulation.sequential.Activity;
 import es.ull.isaatc.simulation.sequential.ElementCreator;
 import es.ull.isaatc.simulation.sequential.Resource;
@@ -23,7 +23,7 @@ import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
 import es.ull.isaatc.simulation.sequential.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.sequential.flow.InterleavedParallelRoutingFlow;
 import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
-import es.ull.isaatc.simulation.sequential.inforeceiver.StdInfoView;
+import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 
 /**
  * Creates an interleaved paralell routing example with the following activities: A, B, C, D, E, F;
@@ -51,14 +51,14 @@ class SimulationWFP17 extends StandAloneLPSimulation {
     	TimeDrivenActivity finalAct = new TimeDrivenActivity(6, this, "G");
     	
     	ResourceType rt = new ResourceType(0, this, "RT");
-    	ModelPeriodicCycle c = new ModelPeriodicCycle(this, Time.getZero(), new ModelTimeFunction(this, "ConstantVariate", endTs), endTs); 
+    	ModelPeriodicCycle c = new ModelPeriodicCycle(unit, Time.getZero(), new ModelTimeFunction(unit, "ConstantVariate", endTs), endTs); 
     	for (int i = 0; i < RES; i++)
     		new Resource(i, this, "RES" + i).addTimeTableEntry(c, endTs, rt);
     	
     	WorkGroup wg = new WorkGroup(rt, 1);
     	for (Activity a : acts)
-    		((TimeDrivenActivity)a).addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 10.0), wg);
-    	finalAct.addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 10.0), wg);
+    		((TimeDrivenActivity)a).addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10.0), wg);
+    	finalAct.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10.0), wg);
     	
     	// Dependencies
     	ArrayList<Activity[]> dep = new ArrayList<Activity[]>();
@@ -69,7 +69,7 @@ class SimulationWFP17 extends StandAloneLPSimulation {
     	
     	InterleavedParallelRoutingFlow root = new InterleavedParallelRoutingFlow(this, acts, dep);
     	root.link(new SingleFlow(this, finalAct));
-        ModelPeriodicCycle cGen = new ModelPeriodicCycle(this, 0.0, new ModelTimeFunction(this, "ConstantVariate", 1040.0), ndays);
+        ModelPeriodicCycle cGen = new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", 1040.0), ndays);
         new TimeDrivenGenerator(this, new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 3.0), new ElementType(0, this, "ET0"), root), cGen);        
     	
     } 	

@@ -4,10 +4,10 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 import es.ull.isaatc.simulation.common.condition.Condition;
+import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.sequential.flow.BasicFlow;
 import es.ull.isaatc.simulation.sequential.flow.FinalizerFlow;
 import es.ull.isaatc.simulation.sequential.flow.InitializerFlow;
-import es.ull.isaatc.simulation.sequential.info.ElementActionInfo;
 import es.ull.isaatc.util.RandomPermutation;
 
 /**

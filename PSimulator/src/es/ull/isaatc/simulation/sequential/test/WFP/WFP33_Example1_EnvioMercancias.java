@@ -3,13 +3,13 @@ package es.ull.isaatc.simulation.sequential.test.WFP;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.PooledExperiment;
+import es.ull.isaatc.simulation.sequential.PooledExperiment;
 import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;
-import es.ull.isaatc.simulation.model.ElementType;
-import es.ull.isaatc.simulation.model.WorkGroup;
+import es.ull.isaatc.simulation.sequential.ElementType;
+import es.ull.isaatc.simulation.sequential.WorkGroup;
 import es.ull.isaatc.simulation.sequential.ElementCreator;
 import es.ull.isaatc.simulation.sequential.Resource;
 import es.ull.isaatc.simulation.sequential.ResourceType;
@@ -20,7 +20,7 @@ import es.ull.isaatc.simulation.sequential.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.sequential.flow.ParallelFlow;
 import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
 import es.ull.isaatc.simulation.sequential.flow.SynchronizationFlow;
-import es.ull.isaatc.simulation.sequential.inforeceiver.StdInfoView;
+import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 
 class SimulationWFP33 extends StandAloneLPSimulation {
 	int ndays;
@@ -39,12 +39,12 @@ class SimulationWFP33 extends StandAloneLPSimulation {
         new ResourceType(0, this, "Comercial");
         
         WorkGroup wg = new WorkGroup(getResourceType(0), 1);
-        ((TimeDrivenActivity)getActivity(0)).addWorkGroup(new ModelTimeFunction(this, "NormalVariate", 15.0, 2.0), wg);
-        ((TimeDrivenActivity)getActivity(1)).addWorkGroup(new ModelTimeFunction(this, "NormalVariate", 15.0, 2.0), wg);
-        ((TimeDrivenActivity)getActivity(2)).addWorkGroup(new ModelTimeFunction(this, "NormalVariate", 15.0, 2.0), wg);
+        ((TimeDrivenActivity)getActivity(0)).addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15.0, 2.0), wg);
+        ((TimeDrivenActivity)getActivity(1)).addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15.0, 2.0), wg);
+        ((TimeDrivenActivity)getActivity(2)).addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15.0, 2.0), wg);
    
-        ModelPeriodicCycle subc2 = new ModelPeriodicCycle(this, 480, new ModelTimeFunction(this, "ConstantVariate", 1040.0), 5);
-        ModelPeriodicCycle c2 = new ModelPeriodicCycle(this, 0, new ModelTimeFunction(this, "ConstantVariate", 1040.0 * 7), 0, subc2);
+        ModelPeriodicCycle subc2 = new ModelPeriodicCycle(unit, 480, new ModelTimeFunction(unit, "ConstantVariate", 1040.0), 5);
+        ModelPeriodicCycle c2 = new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", 1040.0 * 7), 0, subc2);
 
         new Resource(0, this, "Comercial1").addTimeTableEntry(c2, 420, getResourceType(0));
         new Resource(1, this, "Comercial2").addTimeTableEntry(c2, 420, getResourceType(0));
@@ -63,7 +63,7 @@ class SimulationWFP33 extends StandAloneLPSimulation {
         synchro1.link(sin3);
         
         new ElementType(0, this, "Cliente");
-        ModelPeriodicCycle cGen = new ModelPeriodicCycle(this, 0.0, new ModelTimeFunction(this, "ConstantVariate", 1040.0), ndays);
+        ModelPeriodicCycle cGen = new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", 1040.0), ndays);
         new TimeDrivenGenerator(this, new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 3.0), getElementType(0), root), cGen);        
     }
 	

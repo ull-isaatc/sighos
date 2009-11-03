@@ -6,13 +6,14 @@ package es.ull.isaatc.simulation.threaded.test.WFP;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.model.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.model.ModelTimeFunction;
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
+import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
+import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
+import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 import es.ull.isaatc.simulation.threaded.ElementCreator;
 import es.ull.isaatc.simulation.threaded.ElementType;
+import es.ull.isaatc.simulation.threaded.PooledExperiment;
 import es.ull.isaatc.simulation.threaded.Resource;
 import es.ull.isaatc.simulation.threaded.ResourceType;
 import es.ull.isaatc.simulation.threaded.Simulation;
@@ -23,7 +24,6 @@ import es.ull.isaatc.simulation.threaded.WorkGroup;
 import es.ull.isaatc.simulation.threaded.flow.ParallelFlow;
 import es.ull.isaatc.simulation.threaded.flow.SingleFlow;
 import es.ull.isaatc.simulation.threaded.flow.ThreadSplitFlow;
-import es.ull.isaatc.simulation.threaded.inforeceiver.StdInfoView;
 
 class SimulationWFP12 extends StandAloneLPSimulation {
 	static final int RES = 5;
@@ -38,11 +38,11 @@ class SimulationWFP12 extends StandAloneLPSimulation {
     	ResourceType rt = new ResourceType(0, this, "Policeman");
     	WorkGroup wg = new WorkGroup(rt, 1);
     	
-    	new TimeDrivenActivity(0, this, "Receive Infringment").addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 10.0), wg);
-    	new TimeDrivenActivity(1, this, "Issue-Infringment-Notice", EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL)).addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 30.0), wg);
-    	new TimeDrivenActivity(2, this, "Coffee").addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 10.0), wg);
+    	new TimeDrivenActivity(0, this, "Receive Infringment").addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10.0), wg);
+    	new TimeDrivenActivity(1, this, "Issue-Infringment-Notice", EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL)).addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 30.0), wg);
+    	new TimeDrivenActivity(2, this, "Coffee").addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10.0), wg);
     	
-    	ModelPeriodicCycle c = new ModelPeriodicCycle(this, 0.0, new ModelTimeFunction(this, "ConstantVariate", 1440), 0); 
+    	ModelPeriodicCycle c = new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", 1440), 0); 
     	for (int i = 0; i < RES; i++)
     		new Resource(i, this, "RES" + i).addTimeTableEntry(c, 480, rt);
     	
@@ -56,7 +56,7 @@ class SimulationWFP12 extends StandAloneLPSimulation {
     	pf.link(finalSf);
     	finalSf.link(root);
     	
-        ModelPeriodicCycle cGen = new ModelPeriodicCycle(this, 0.0, new ModelTimeFunction(this, "ConstantVariate", 1040.0), ndays);
+        ModelPeriodicCycle cGen = new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", 1040.0), ndays);
         new TimeDrivenGenerator(this, new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 3.0), new ElementType(0, this, "ET0"), root), cGen);        
     }	
 }
@@ -80,7 +80,7 @@ public class WFP12_Example1 {
 			public Simulation getSimulation(int ind) {
 				SimulationWFP12 sim = new SimulationWFP12(ind, NDIAS);
 				StdInfoView debugView = new StdInfoView(sim);
-				sim.addInfoReciever(debugView);
+				sim.addInfoReceiver(debugView);
 				return sim;
 			}
 			

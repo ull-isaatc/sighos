@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.sequential.test.WFP;
 import es.ull.isaatc.simulation.common.Time;
-import es.ull.isaatc.simulation.model.WorkGroup;
+import es.ull.isaatc.simulation.sequential.WorkGroup;
 import es.ull.isaatc.simulation.sequential.ResourceType;
 import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
 import es.ull.isaatc.simulation.sequential.flow.SingleFlow;

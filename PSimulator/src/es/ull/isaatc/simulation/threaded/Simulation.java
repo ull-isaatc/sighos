@@ -10,14 +10,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
-import es.ull.isaatc.simulation.inforeceiver.InfoHandler;
-import es.ull.isaatc.simulation.inforeceiver.InfoReceiver;
-import es.ull.isaatc.simulation.model.Time;
-import es.ull.isaatc.simulation.model.TimeUnit;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.threaded.flow.Flow;
-import es.ull.isaatc.simulation.threaded.inforeceiver.SimulationInfoHandler;
 import es.ull.isaatc.util.Output;
 
 /**
@@ -32,7 +30,8 @@ import es.ull.isaatc.util.Output;
  * 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation extends es.ull.isaatc.simulation.Simulation {
+public abstract class Simulation extends es.ull.isaatc.simulation.common.Model implements Callable<Integer>, Runnable {
+	
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
 
@@ -62,8 +61,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.Simulation {
 
 	/** List of active elements */
 	private final Map<Integer, Element> activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
-	
-	private final SimulationInfoHandler infoHandler = new SimulationInfoHandler();
 
 	/** Number of threads which handle events in the logical processes */
 	protected int nThreads = 1;
@@ -117,6 +114,44 @@ public abstract class Simulation extends es.ull.isaatc.simulation.Simulation {
 		super(id, description, unit, startTs, endTs);
 	}
 	
+	@Override
+	public Integer call() {
+		run();
+		return 0;
+}
+	/**
+	 * Starts the simulation execution in a threaded way. Initializes all the structures, and
+	 * starts the logical processes. 
+	 */
+	public void start() {
+		new Thread(this).start();		
+	}
+	
+	/**
+	 * Contains the specifications of the model. All the components of the model
+	 * must be declared here.
+	 * <p>
+	 * The components are added simply by invoking their constructors. For
+	 * example: <code>
+	 * Activity a1 = new Activity(0, this, "Act1");
+	 * ResourceType rt1 = new ResourceType(0, this, "RT1");
+	 * </code>
+	 */
+	protected abstract void createModel();
+
+	/**
+	 * Specifies the way the structure of the activity managers is built. 
+	 * @see StandardAMSimulation
+	 */
+	protected abstract void createActivityManagers();
+	
+	/**
+	 * Specifies the way the structure of the logical processes is built. 
+	 * @see StandAloneLPSimulation
+	 * @see SimpleLPSimulation
+	 */
+	protected abstract void createLogicalProcesses();
+
 	/**
 	 * Starts the simulation execution. It creates and starts all the necessary 
 	 * structures. This method blocks until all the logical processes have finished 
@@ -137,7 +172,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.Simulation {
 		createLogicalProcesses();
 		init();
 
-		infoHandler.notifyInfo(new es.ull.isaatc.simulation.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
+		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
 		
 		// Starts all the generators
 		for (Generator gen : generatorList)
@@ -157,7 +192,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.Simulation {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		infoHandler.notifyInfo(new es.ull.isaatc.simulation.info.SimulationEndInfo(this, System.currentTimeMillis(), this.internalEndTs));
+		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationEndInfo(this, System.currentTimeMillis(), this.internalEndTs));
 		debug("SIMULATION COMPLETELY FINISHED");
 	}
 
@@ -315,46 +350,27 @@ public abstract class Simulation extends es.ull.isaatc.simulation.Simulation {
 		return activityManagerList;
 	}
 
-	/**
-	 * Returns the activity with the corresponding identifier.
-	 * 
-	 * @param id
-	 *            Activity identifier.
-	 * @return An activity with the indicated identifier.
-	 */
+	@Override
 	public Activity getActivity(int id) {
 		return activityList.get(id);
 	}
 
-	/**
-	 * Returns the resource type with the corresponding identifier.
-	 * 
-	 * @param id
-	 *            Resource type identifier.
-	 * @return A resource type with the indicated identifier.
-	 */
+	@Override
 	public ResourceType getResourceType(int id) {
 		return resourceTypeList.get(id);
 	}
 
-	/**
-	 * Returns the element type with the corresponding identifier.
-	 * 
-	 * @param id
-	 *            element type identifier.
-	 * @return An element type with the indicated identifier.
-	 */
+	@Override
+	public Resource getResource(int id) {
+		return resourceList.get(id);
+	}
+
+	@Override
 	public ElementType getElementType(int id) {
 		return elementTypeList.get(id);
 	}
 
-	/**
-	 * Returns the flow with the corresponding identifier.
-	 * 
-	 * @param id
-	 *            flow identifier.
-	 * @return A flow with the indicated identifier.
-	 */
+	@Override
 	public Flow getFlow(int id) {
 		return flowList.get(id);
 	}
@@ -423,6 +439,36 @@ public abstract class Simulation extends es.ull.isaatc.simulation.Simulation {
 	}
 
 	/**
+	 * @param unit the unit to set
+	 */
+	public void setTimeUnit(TimeUnit unit) {
+		this.unit = unit;
+	}
+
+	/**
+	 * @param endTs the endTs to set
+	 */
+	public void setEndTs(Time endTs) {
+		this.endTs = endTs;
+		this.internalEndTs = simulationTime2Double(endTs);
+	}
+
+	/**
+	 * @param startTs the startTs to set
+	 */
+	public void setStartTs(Time startTs) {
+		this.startTs = startTs;
+		this.internalStartTs = simulationTime2Double(startTs);
+	}
+
+	/**
+	 * @param description the description to set
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	/**
 	 * Notifies the end of a logical process.
 	 */
 	protected void notifyEnd() {
@@ -445,11 +491,4 @@ public abstract class Simulation extends es.ull.isaatc.simulation.Simulation {
 		return activeElementList;
 	};
 	
-	public void addInfoReciever(InfoReceiver reciever) {
-		infoHandler.registerRecievers(reciever);
-	}
-
-	public InfoHandler getInfoHandler() {
-		return infoHandler;
-	}
 }

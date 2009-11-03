@@ -6,25 +6,27 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.PooledExperiment;
+import es.ull.isaatc.simulation.sequential.PooledExperiment;
 import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;
-import es.ull.isaatc.simulation.model.ElementType;
-import es.ull.isaatc.simulation.model.WorkGroup;
-import es.ull.isaatc.simulation.sequential.Element;
+import es.ull.isaatc.simulation.sequential.ElementType;
+import es.ull.isaatc.simulation.sequential.WorkGroup;
+import es.ull.isaatc.simulation.common.Element;
 import es.ull.isaatc.simulation.sequential.ElementCreator;
 import es.ull.isaatc.simulation.sequential.Resource;
 import es.ull.isaatc.simulation.sequential.ResourceType;
+import es.ull.isaatc.simulation.sequential.Simulation;
 import es.ull.isaatc.simulation.sequential.StandAloneLPSimulation;
 import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
 import es.ull.isaatc.simulation.sequential.TimeDrivenGenerator;
-import es.ull.isaatc.simulation.sequential.condition.NotCondition;
-import es.ull.isaatc.simulation.sequential.flow.Flow;
+import es.ull.isaatc.simulation.common.condition.Condition;
+import es.ull.isaatc.simulation.common.condition.NotCondition;
+import es.ull.isaatc.simulation.common.flow.Flow;
 import es.ull.isaatc.simulation.sequential.flow.MultiChoiceFlow;
 import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
-import es.ull.isaatc.simulation.sequential.inforeceiver.StdInfoView;
+import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 import es.ull.isaatc.util.Output;
 
 class SimulationWFP10E extends StandAloneLPSimulation {
@@ -47,14 +49,13 @@ class SimulationWFP10E extends StandAloneLPSimulation {
     	new ResourceType(0, this, "Operario");
     	new ResourceType(1, this, "Operario especial");
     	
-        WorkGroup wg1 = new WorkGroup();
-        wg1.add(getResourceType(0), 1);
+        WorkGroup wg1 = new WorkGroup(getResourceType(0), 1);
         
-        ((TimeDrivenActivity)getActivity(0)).addWorkGroup(new ModelTimeFunction(this, "NormalVariate", 15.0, 2.0), wg1);
-        ((TimeDrivenActivity)getActivity(1)).addWorkGroup(new ModelTimeFunction(this, "NormalVariate", 15.0, 2.0), wg1);
+        ((TimeDrivenActivity)getActivity(0)).addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15.0, 2.0), wg1);
+        ((TimeDrivenActivity)getActivity(1)).addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15.0, 2.0), wg1);
    
-        ModelPeriodicCycle subc2 = new ModelPeriodicCycle(this, 480, new ModelTimeFunction(this, "ConstantVariate", 1040.0), 5);
-        ModelPeriodicCycle c2 = new ModelPeriodicCycle(this, 0, new ModelTimeFunction(this, "ConstantVariate", 1040.0 * 7), 0, subc2);
+        ModelPeriodicCycle subc2 = new ModelPeriodicCycle(unit, 480, new ModelTimeFunction(unit, "ConstantVariate", 1040.0), 5);
+        ModelPeriodicCycle c2 = new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", 1040.0 * 7), 0, subc2);
 
         new Resource(0, this, "Operario1").addTimeTableEntry(c2, 420, getResourceType(0));
         new Resource(1, this, "Operario1").addTimeTableEntry(c2, 420, getResourceType(0));
@@ -63,7 +64,7 @@ class SimulationWFP10E extends StandAloneLPSimulation {
         Condition cond = new Condition(this) {
         	@Override
         	public boolean check(Element e) {
-        		return model.getVar("litrosIntroducidos").getValue().doubleValue() < model.getActivity(0).getVar("capacidadBidon").getValue().doubleValue();
+        		return simul.getVar("litrosIntroducidos").getValue().doubleValue() < ((Simulation)simul).getActivity(0).getVar("capacidadBidon").getValue().doubleValue();
         	}
         };
         
@@ -109,7 +110,7 @@ class SimulationWFP10E extends StandAloneLPSimulation {
         mul1.link(succList, condList);
         
         new ElementType(0, this, "Cliente");
-        ModelPeriodicCycle cGen = new ModelPeriodicCycle(this, 0.0, new ModelTimeFunction(this, "ConstantVariate", 1040.0), ndays);
+        ModelPeriodicCycle cGen = new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", 1040.0), ndays);
         new TimeDrivenGenerator(this, new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), getElementType(0), root), cGen);       
     }
 

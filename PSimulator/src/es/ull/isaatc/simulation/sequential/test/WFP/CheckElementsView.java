@@ -3,9 +3,9 @@
  */
 package es.ull.isaatc.simulation.sequential.test.WFP;
 
-import es.ull.isaatc.simulation.info.SimulationEndInfo;
-import es.ull.isaatc.simulation.info.SimulationInfo;
-import es.ull.isaatc.simulation.sequential.info.ElementInfo;
+import es.ull.isaatc.simulation.common.info.ElementInfo;
+import es.ull.isaatc.simulation.common.info.SimulationEndInfo;
+import es.ull.isaatc.simulation.common.info.SimulationInfo;
 
 /**
  * Checks the elements created and finished during the simulation
