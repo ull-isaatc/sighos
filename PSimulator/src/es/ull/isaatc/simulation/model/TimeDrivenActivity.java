@@ -5,8 +5,8 @@ import java.util.EnumSet;
 import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.TimeDrivenActivityWorkGroup;
-import es.ull.isaatc.simulation.model.condition.Condition;
-import es.ull.isaatc.simulation.model.condition.TrueCondition;
+import es.ull.isaatc.simulation.common.condition.Condition;
+import es.ull.isaatc.simulation.common.condition.TrueCondition;
 
 /**
  * A task which could be carried out by an element in a specified time. This kind of activities

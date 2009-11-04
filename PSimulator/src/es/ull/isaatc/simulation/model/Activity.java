@@ -8,10 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
-import es.ull.isaatc.simulation.Describable;
-import es.ull.isaatc.simulation.Identifiable;
-import es.ull.isaatc.simulation.model.condition.Condition;
-import es.ull.isaatc.util.Prioritizable;
+import es.ull.isaatc.simulation.common.condition.Condition;
 
 /**
  * A task which could be carried out by an element. An activity is characterized by its priority
@@ -204,7 +201,7 @@ public abstract class Activity extends VariableStoreModelObject implements es.ul
 		/**
 		 * @return the cond
 		 */
-		public es.ull.isaatc.simulation.common.condition.Condition getCondition() {
+		public Condition getCondition() {
 			return cond;
 		}
 

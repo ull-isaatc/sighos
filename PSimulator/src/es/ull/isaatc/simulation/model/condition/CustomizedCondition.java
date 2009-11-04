@@ -13,7 +13,7 @@ import es.ull.isaatc.simulation.model.VariableHandler;
  * @author ycallero
  */
 
-public class Condition implements VariableHandler {
+public class CustomizedCondition extends es.ull.isaatc.simulation.common.condition.Condition implements VariableHandler {
 	/** The condition expressed in the condition's format */
     protected TreeMap<String, String> userMethods = new TreeMap<String, String>();
     protected String imports = "";
@@ -29,7 +29,7 @@ public class Condition implements VariableHandler {
 	 * Creates a new Condition.
 	 * @param id Condition's identifier
 	 */
-	public Condition(){
+	public CustomizedCondition(){
 		for (String method : userCompleteMethods.keySet())
 			userMethods.put(method, "");
 	}
@@ -38,7 +38,7 @@ public class Condition implements VariableHandler {
 	 * Creates a new Condition.
 	 * @param id Condition's identifier
 	 */
-	public Condition(String checkContent){
+	public CustomizedCondition(String checkContent){
 		userMethods.put("check", checkContent);
 	}
 	

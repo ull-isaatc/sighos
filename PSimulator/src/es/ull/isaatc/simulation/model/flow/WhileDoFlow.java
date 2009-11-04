@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.model.flow;
 
 import es.ull.isaatc.simulation.model.Model;
-import es.ull.isaatc.simulation.model.condition.Condition;
+import es.ull.isaatc.simulation.common.condition.Condition;
 
 /**
  * A structured loop flow which resembles a while-do loop. A precondition is

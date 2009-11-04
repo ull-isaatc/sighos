@@ -1,8 +1,8 @@
 package es.ull.isaatc.simulation.model.flow;
 
 import es.ull.isaatc.simulation.model.Model;
-import es.ull.isaatc.simulation.model.condition.Condition;
-import es.ull.isaatc.simulation.model.condition.TrueCondition;
+import es.ull.isaatc.simulation.common.condition.Condition;
+import es.ull.isaatc.simulation.common.condition.TrueCondition;
 
 /**
  * A structured flow whose initial step is a multi-choice flow and whose final step

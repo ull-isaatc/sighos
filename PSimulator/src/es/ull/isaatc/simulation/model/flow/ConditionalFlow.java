@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.Collections;
 
 import es.ull.isaatc.simulation.model.Model;
-import es.ull.isaatc.simulation.model.condition.Condition;
-import es.ull.isaatc.simulation.model.condition.TrueCondition;
+import es.ull.isaatc.simulation.common.condition.Condition;
+import es.ull.isaatc.simulation.common.condition.TrueCondition;
 
 /**
  * A multiple successor flow whose successors are conditioned, that is, the successor
