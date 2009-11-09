@@ -4,7 +4,7 @@ import java.util.EnumSet;
 
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.info.AsynchronousInfo;
 
 public class ResourceInfo extends AsynchronousInfo {
@@ -33,7 +33,7 @@ public class ResourceInfo extends AsynchronousInfo {
 	private ResourceType rt;
 	private Type type;
 	
-	public ResourceInfo(Model simul, Resource res, ResourceType rt, Type type, double ts) {
+	public ResourceInfo(Simulation simul, Resource res, ResourceType rt, Type type, double ts) {
 		super(simul, ts);
 		this.res = res;
 		this.rt = rt;

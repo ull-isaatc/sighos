@@ -7,10 +7,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
-import es.ull.isaatc.simulation.sequential.SimulationObject;
+import es.ull.isaatc.simulation.common.SimulationObject;
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.WorkItem;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.common.info.ResourceInfo;
@@ -28,7 +28,7 @@ public class CancelUseTimeView extends VarView {
 	TreeMap<WorkItem, Double> actStarts;
 	TreeMap<Resource, Set<IntervalInfo>> cancelIntervals;
 	
-	public CancelUseTimeView(Model simul) {
+	public CancelUseTimeView(Simulation simul) {
 		super(simul, "cancelUse");
 		addEntrance(ResourceInfo.class);
 		addEntrance(SimulationEndInfo.class);

@@ -2,7 +2,7 @@ package es.ull.isaatc.simulation.common.inforeceiver;
 
 import java.io.PrintStream;
 
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.common.info.ElementInfo;
 import es.ull.isaatc.simulation.common.info.ResourceInfo;
@@ -19,7 +19,7 @@ public class StdInfoView extends View {
 	
 	private final PrintStream out = System.out;
 
-	public StdInfoView(Model simul) {
+	public StdInfoView(Simulation simul) {
 		super(simul, "STANDARD INFO VIEW");
 		addEntrance(SimulationStartInfo.class);
 		addEntrance(SimulationEndInfo.class);

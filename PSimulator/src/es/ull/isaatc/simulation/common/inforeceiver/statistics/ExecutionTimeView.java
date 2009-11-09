@@ -7,14 +7,14 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
-import es.ull.isaatc.simulation.sequential.SimulationObject;
+import es.ull.isaatc.simulation.common.SimulationObject;
 import es.ull.isaatc.simulation.common.ActivityWorkGroup;
 import es.ull.isaatc.simulation.common.ElementType;
 import es.ull.isaatc.simulation.common.Activity;
 import es.ull.isaatc.simulation.common.Element;
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.WorkItem;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.common.info.ResourceUsageInfo;
@@ -31,7 +31,7 @@ public class ExecutionTimeView extends VarView {
 	HashMap<Element, Double> elemExTime;
 	TreeMap<SimulObjectStore, SfResources> startActivityTimes;
 	
-	public ExecutionTimeView(Model simul) {
+	public ExecutionTimeView(Simulation simul) {
 		super(simul, "executionTime");
 		addEntrance(ElementActionInfo.class);
 		addEntrance(SimulationEndInfo.class);

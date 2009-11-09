@@ -1,16 +1,16 @@
 package es.ull.isaatc.simulation.common.info;
 
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 
 public abstract class SimulationInfo {
 
-	final protected Model simul;
+	final protected Simulation simul;
 	
-	public SimulationInfo(Model simul) {
+	public SimulationInfo(Simulation simul) {
 		this.simul = simul;
 	}
 
-	public Model getSimul() {
+	public Simulation getSimul() {
 		return simul;
 	}
 	

@@ -49,8 +49,8 @@ public class ElementCreator implements BasicElementCreator, es.ull.isaatc.simula
 	 * @param flow Description of the activity flow that the elements carry out.
 	 * @param prop Proportion of elements corresponding to this metaflow.
 	 */
-	public void add(ElementType et, InitializerFlow flow, double prop) {
-		genTrio.add(new GenerationTrio(et, flow, prop));
+	public void add(es.ull.isaatc.simulation.common.ElementType et, es.ull.isaatc.simulation.common.flow.InitializerFlow flow, double prop) {
+		genTrio.add(new GenerationTrio((ElementType)et, (InitializerFlow)flow, prop));
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.isaatc.simula
             	p -= gt.getProp();
             	if (p <= 0.0){
             		ElementType et = gt.getElementType();
-    	    		Element elem = new Element(Generator.incElemCounter(), gen.getModel(), et, gt.getFlow());
+    	    		Element elem = new Element(Generator.incElemCounter(), gen.getSimulation(), et, gt.getFlow());
     	    		elem.initializeElementVars(et.getElementValues());
     	            elem.start(gen.getDefLP());
     	            break;

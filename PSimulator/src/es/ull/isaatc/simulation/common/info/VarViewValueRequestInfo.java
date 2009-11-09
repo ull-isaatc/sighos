@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.common.info;
 
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 
 public class VarViewValueRequestInfo extends SynchronousInfo {
 
@@ -8,7 +8,7 @@ public class VarViewValueRequestInfo extends SynchronousInfo {
 	private final Object requestObject;
 	private Object[] params;
 	
-	public VarViewValueRequestInfo(Model simul, String varName, Object requestObject, Object[] params, double ts) {
+	public VarViewValueRequestInfo(Simulation simul, String varName, Object requestObject, Object[] params, double ts) {
 		super(simul, ts);
 		this.varName = varName;
 		this.requestObject = requestObject;

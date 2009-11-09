@@ -1,191 +1,188 @@
+/**
+ * 
+ */
 package es.ull.isaatc.simulation.sequential.factory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Set;
+import java.util.EnumSet;
 
-import es.ull.isaatc.simulation.model.Model;
-import es.ull.isaatc.simulation.model.VariableHandler;
-import es.ull.isaatc.simulation.sequential.Simulation;
+import es.ull.isaatc.function.TimeFunction;
+import es.ull.isaatc.simulation.common.ElementCreator;
+import es.ull.isaatc.simulation.common.ElementType;
+import es.ull.isaatc.simulation.common.ModelCycle;
+import es.ull.isaatc.simulation.common.Resource;
+import es.ull.isaatc.simulation.common.ResourceType;
+import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeDrivenActivity;
+import es.ull.isaatc.simulation.common.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.common.TimeUnit;
+import es.ull.isaatc.simulation.common.WorkGroup;
+import es.ull.isaatc.simulation.common.TimeDrivenActivity.Modifier;
+import es.ull.isaatc.simulation.common.condition.Condition;
+import es.ull.isaatc.simulation.common.factory.ConditionFactory;
+import es.ull.isaatc.simulation.common.factory.SimulationObjectFactory;
+import es.ull.isaatc.simulation.common.factory.SimulationUserCode;
+import es.ull.isaatc.simulation.common.factory.StandardCompilator;
+import es.ull.isaatc.simulation.common.flow.Flow;
+import es.ull.isaatc.simulation.common.flow.InitializerFlow;
 import es.ull.isaatc.simulation.sequential.StandAloneLPSimulation;
-import es.ull.isaatc.simulation.sequential.condition.Condition;
-import es.ull.isaatc.simulation.sequential.flow.Flow;
 
 /**
- * Factory which generate simulation object's instances. 
- * @author ycallero
+ * @author Iván Castilla Rodríguez
  *
  */
-public class SimulationFactory extends StandardCompilator{
-	
-	/**
-	 * Finds the Flow Class corresponding to the given name. First
-	 * attempts to find the Flow assuming the the name is fully qualified.
-	 * Then searches the "search packages." The search path defaults to "es.ull.isaatc.flow"
-	 * but additional search packages can be added.
-	 * @see #addSearchPackage(String)
-	 * @see #setSearchPackages(Set)
-	 **/
-	@SuppressWarnings("unchecked")
-	public static Class findFullyQualifiedNameFor(String className, String searchPackage) {
-		Class theClass = null;
+public class SimulationFactory implements SimulationObjectFactory {
+	private final static String workingPkg = "es.ull.isaatc.simulation.sequential";
+	private StandAloneLPSimulation simul;
 
-		// If not, see if name passed is "fully qualified"
-		try {
-			theClass = Thread.currentThread().getContextClassLoader().loadClass(className);
-			return theClass;
-		}
-		//        If not, then try the search path
-		catch (ClassNotFoundException e) {}
-		try {
-			theClass = Thread.currentThread().getContextClassLoader().loadClass(
-					searchPackage + "." + className );
-		} catch (ClassNotFoundException e) {}
-		return theClass;
-	}
-	
-	public static Simulation getSimulationInstance(int simId, Model model) {
-		Simulation sim = new StandAloneLPSimulation(simId, model);
-		for (Integer id : model.getResourceTypeList().keySet())
-			getInstance("ResourceType", id, sim, model.getResourceType(id));
-		for (Integer id : model.getResourceList().keySet())
-			getInstance("Resource", id, sim, model.getResource(id));
-		for (Integer id : model.getActivityList().keySet()) {
-			es.ull.isaatc.simulation.model.Activity act = model.getActivity(id);
-			if (act instanceof es.ull.isaatc.simulation.model.TimeDrivenActivity)
-				getInstance("TimeDrivenActivity", id, sim, act);
-		}
-		for (es.ull.isaatc.simulation.model.flow.Flow f : model.getFlowList().values())
-			if (sim.getFlow(f.getIdentifier()) == null) {
-				getInstance(sim, f);
+	/**
+	 * @param id
+	 * @param description
+	 * @param unit
+	 */
+	public SimulationFactory(int id, String description, TimeUnit unit) {
+		simul = new StandAloneLPSimulation(id, description, unit) {
+			@Override
+			protected void createModel() {
 			}
-		return sim;
+		};
 	}
-	
-	public static Condition getInstance(Simulation sim, es.ull.isaatc.simulation.model.condition.Condition cond) {
-		return ConditionFactory.getInstance(sim, cond);
-	}
-	
-	public static Flow getInstance(Simulation sim, es.ull.isaatc.simulation.model.flow.Flow f) {
-		return FlowFactory.getInstance(sim, f);
-	}
-	
+
 	/**
-	 * Obtain a Simulation Object's instance.
-	 * @param objectType Object type.
-	 * @param id Identifier.
-	 * @param sim Actual simulation.
-	 * @param params The object's constructor params. (Not include identifier and simulation).
-	 * @return An Object instance.
+	 * @param id
+	 * @param description
+	 * @param unit
+	 * @param startTs
+	 * @param endTs
 	 */
-	public static Object getInstance(String objectType, int id, Simulation sim, VariableHandler obj) {
-		// Obtain the Class's constructors.
-		Constructor<?> cons[] = getConstructor(objectType, id, obj);
+	public SimulationFactory(int id, String description, TimeUnit unit,	Time startTs, Time endTs) {
+		simul = new StandAloneLPSimulation(id, description, unit, startTs, endTs) {
+			@Override
+			protected void createModel() {
+			}
+		};
+	}
+
+	/**
+	 * @param id
+	 * @param description
+	 * @param unit
+	 * @param startTs
+	 * @param endTs
+	 */
+	public SimulationFactory(int id, String description, TimeUnit unit,	double startTs, double endTs) {
+		simul = new StandAloneLPSimulation(id, description, unit, startTs, endTs) {
+			@Override
+			protected void createModel() {
+			}
+		};
+	}
+
+	@Override
+	public es.ull.isaatc.simulation.common.Simulation getSimulation() {
+		return simul;
+	}
+
+	@Override
+	public ElementCreator getElementCreatorInstance(int id, TimeFunction elem) throws ClassCastException {
+		return new es.ull.isaatc.simulation.sequential.ElementCreator(simul, elem);
+	}
+
+	@Override
+	public ElementCreator getElementCreatorInstance(int id, TimeFunction elem, ElementType et, InitializerFlow flow) throws ClassCastException {
+		return new es.ull.isaatc.simulation.sequential.ElementCreator(simul, elem, 
+				(es.ull.isaatc.simulation.sequential.ElementType)et, 
+				(es.ull.isaatc.simulation.sequential.flow.InitializerFlow)flow);
+	}
+
+	@Override
+	public ElementCreator getElementCreatorInstance(int id, TimeFunction elem, SimulationUserCode userMethods) throws ClassCastException {
+		// Prepare the constructor call
+		String constructorStr = "(Simulation sim, TimeFunction nElem) {super(sim, nElem);}";
 		// Prepare the new params.
-		Object[] newParams = new Object[] {sim, obj};
-		// Try to obtain a new instance.
-		for (int i=0; i < cons.length; i++) {
-			try {		
-				return cons[i].newInstance(newParams);
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				if (i == cons.length-1)
-					e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			} 
-		}
+		Object obj = StandardCompilator.getInstance(workingPkg, "ElementCreator", id, constructorStr, userMethods, simul, elem);
+		if (obj != null)
+			return (ElementCreator)obj;
 		return null;
 	}
-	
-	/**
-	 * Generate a new instance of the specified class with events code. 	 * @param id Identifier.
-	 * @param code Events code.
-	 * @return The Class code including the events.
-	 */
-	static private String generateClass(String objectType, Integer id, VariableHandler obj) {
-						
-		String finalCode = new String();
-		
-		// Package
-		finalCode += "package es.ull.isaatc.simulation.sequential;";
-		
-		// Imports
-		String temp = obj.getImports();
-		if (!temp.isEmpty())
-			finalCode += temp;
-		
-		// Class denifition
-		finalCode += "public class Compiled" + objectType + id + " extends " + objectType + " {";
-		
-		// Constructor
-		finalCode += "public Compiled" + objectType  + id + 
-					"(Simulation simul, es.ull.isaatc.simulation.model.ModelObject modelObj) {" +
-					"super(simul, modelObj);" +
-					"}";
-		
-		for (String m : obj.getMethods()) {
-			temp = obj.getBody(m);
-			if (!temp.isEmpty()) {
-				finalCode += obj.getCompleteMethod(m) + "{";
-				finalCode += getCode(temp, m) + "}";
-			}			
-		}
-		
-		// Class close
-		finalCode += "}";
-		
-		return finalCode;
-	}
-	
-	/**
-	 * Generate a StringJFO from the Object's identifier and the
-	 * code of the compiled class.
-	 * @param id Identifier.
-	 * @param obj Events code.
-	 * @return A StringJFO with the class code and the class name.
-	 */
-	static private StringJFO makeCode(String objectType, Integer id, VariableHandler obj) {		
-		
-		String classCode = generateClass(objectType, id, obj);
-		StringJFO src = null;
-		try {
-			src = new StringJFO("Compiled" + objectType + id, classCode);
-		} catch (Exception e) {
-			System.out.println(e);
-			System.exit(1);
-		}
-		return src;
-	} 
-	
-	/**
-	 * Get the constructors of the class, compiled or not.
-	 * @param id Identifier.
-	 * @param code Events code.
-	 * @return An array of constructors.
-	 */
-	static private Constructor<?>[] getConstructor(String objectType, Integer id, VariableHandler obj){
-		
-		Class<?> cl;
-		try {
-			StringJFO src = makeCode(objectType, id, obj);
-			ByteClassLoader loader = new ByteClassLoader(store);
-			if (loader.isCompiledClass("es.ull.isaatc.simulation.sequential." + src.getClassName()))
-				store.remove("es.ull.isaatc.simulation.sequential." + src.getClassName());
-			compileCode(src);
-			cl = loader.loadClass("es.ull.isaatc.simulation.sequential." + src.getClassName());
-			Constructor<?>[] cons = cl.getConstructors();
-			return cons;
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		}
+
+	@Override
+	public ElementCreator getElementCreatorInstance(int id, TimeFunction elem, ElementType et, InitializerFlow flow, SimulationUserCode userMethods) throws ClassCastException {
+		// Prepare the constructor call
+		String constructorStr = "(Simulation sim, TimeFunction nElem, ElementType et, InitializerFlow flow) {super(sim, nElem, et, flow);}";
+		// Prepare the new params.
+		Object obj = StandardCompilator.getInstance(workingPkg, "ElementCreator", id, constructorStr, userMethods, simul, elem, et, flow);
+		if (obj != null)
+			return (ElementCreator)obj;
 		return null;
-	}		
-	
-	
+	}
+
+	@Override
+	public ElementType getElementTypeInstance(int id, String description) throws ClassCastException {
+		return new es.ull.isaatc.simulation.sequential.ElementType(id, simul, description);
+	}
+
+	@Override
+	public ElementType getElementTypeInstance(int id, String description, int priority) throws ClassCastException {
+		return new es.ull.isaatc.simulation.sequential.ElementType(id, simul, description, priority);
+	}
+
+	@Override
+	public Resource getResourceInstance(int id, String description) throws ClassCastException {
+		return new es.ull.isaatc.simulation.sequential.Resource(id, simul, description);
+	}
+
+	@Override
+	public ResourceType getResourceTypeInstance(int id, String description) throws ClassCastException {
+		return new es.ull.isaatc.simulation.sequential.ResourceType(id, simul, description);
+	}
+
+	@Override
+	public ResourceType getResourceTypeInstance(int id, String description, SimulationUserCode userMethods) throws ClassCastException {
+		// Prepare the constructor call
+		String constructorStr = "(int id, Simulation simul, String description) {super(id, simul, description);}";
+		// Prepare the new params.
+		Object obj = StandardCompilator.getInstance(workingPkg, "ResourceType", id, constructorStr, userMethods, id, simul, description);
+		if (obj != null)
+			return (ResourceType)obj;
+		return null;
+	}
+
+	@Override
+	public TimeDrivenActivity getTimeDrivenActivityInstance(int id,	String description) throws ClassCastException {
+		return new es.ull.isaatc.simulation.sequential.TimeDrivenActivity(id, simul, description);
+	}
+
+	@Override
+	public TimeDrivenActivity getTimeDrivenActivityInstance(int id,	String description, int priority, EnumSet<Modifier> modifiers) throws ClassCastException {
+		return new es.ull.isaatc.simulation.sequential.TimeDrivenActivity(id, simul, description, priority, modifiers);
+	}
+
+	@Override
+	public TimeDrivenGenerator getTimeDrivenGenerator(int id, ElementCreator creator, ModelCycle cycle) throws ClassCastException {
+		return new es.ull.isaatc.simulation.sequential.TimeDrivenGenerator(simul, (es.ull.isaatc.simulation.sequential.ElementCreator)creator, cycle);
+	}
+
+	@Override
+	public WorkGroup getWorkGroupInstance(int id, ResourceType[] rts, int[] needed) throws ClassCastException {
+		es.ull.isaatc.simulation.sequential.ResourceType[] temp = new es.ull.isaatc.simulation.sequential.ResourceType[rts.length];
+		for (int i = 0; i < rts.length; i++)
+			temp[i] = (es.ull.isaatc.simulation.sequential.ResourceType)rts[i];
+		return new es.ull.isaatc.simulation.sequential.WorkGroup(temp, needed);
+	}
+
+	@Override
+	public Flow getFlowInstance(int id, String flowType, Object... params) throws ClassCastException {
+		return FlowFactory.getInstance(id, flowType, simul, params);
+	}
+
+	@Override
+	public Flow getFlowInstance(int id, String flowType, SimulationUserCode userMethods, Object... params)
+			throws ClassCastException {
+		return FlowFactory.getInstance(id, flowType, userMethods, simul, params);
+	}
+
+	public Condition getCustomizedConditionInstance(int id, String imports, String condition) {
+		return ConditionFactory.getInstance(simul, id, imports, condition);
+	}
+
 }

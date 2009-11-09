@@ -9,7 +9,6 @@ package es.ull.isaatc.simulation.sequential;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 import es.ull.isaatc.simulation.common.Time;
@@ -29,7 +28,7 @@ import es.ull.isaatc.util.Output;
  * 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation extends es.ull.isaatc.simulation.common.Model implements Callable<Integer>, Runnable {
+public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
@@ -108,19 +107,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Model i
 	 */
 	public Simulation(int id, String description, TimeUnit unit, double startTs, double endTs) {
 		super(id, description, unit, startTs, endTs);
-	}
-
-	@Override
-	public Integer call() {
-		run();
-		return 0;
-}
-	/**
-	 * Starts the simulation execution in a threaded way. Initializes all the structures, and
-	 * starts the logical processes. 
-	 */
-	public void start() {
-		new Thread(this).start();		
 	}
 	
 	/**

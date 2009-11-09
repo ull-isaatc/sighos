@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import es.ull.isaatc.simulation.common.ElementType;
 import es.ull.isaatc.simulation.common.Element;
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.WorkItem;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.common.info.SimulationInfo;
@@ -15,7 +15,7 @@ public class RequestCounterView extends VarView {
 	HashMap<Element, Integer> elemReqCounter;
 	HashMap<ElementType, Integer> etReqCounter;
 	
-	public RequestCounterView(Model simul) {
+	public RequestCounterView(Simulation simul) {
 		super(simul, "requestCounter");
 		addEntrance(ElementActionInfo.class);
 		elemReqCounter = new HashMap<Element, Integer>();

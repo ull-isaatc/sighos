@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.info.ResourceInfo;
 import es.ull.isaatc.simulation.common.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.common.info.SimulationInfo;
@@ -23,7 +23,7 @@ public class AvailabilityTimeView extends VarView {
 	TreeMap<Resource, StartCounter> resActivation;
 	TreeMap<Resource, StartCounter> cancelStarts;
 	
-	public AvailabilityTimeView(Model simul) {
+	public AvailabilityTimeView(Simulation simul) {
 		super(simul, "availabilityTime");
 		addEntrance(ResourceInfo.class);
 		addEntrance(SimulationEndInfo.class);

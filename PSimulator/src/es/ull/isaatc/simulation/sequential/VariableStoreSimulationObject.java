@@ -2,7 +2,6 @@ package es.ull.isaatc.simulation.sequential;
 
 import java.util.TreeMap;
 
-import es.ull.isaatc.simulation.VariableStore;
 import es.ull.isaatc.simulation.common.info.VarViewValueRequestInfo;
 import es.ull.isaatc.simulation.variable.BooleanVariable;
 import es.ull.isaatc.simulation.variable.ByteVariable;
@@ -22,7 +21,7 @@ import es.ull.isaatc.simulation.variable.Variable;
  * the same identifiers.
  * @author Iván Castilla Rodríguez
  */
-public abstract class VariableStoreSimulationObject extends SimulationObject implements VariableStore {
+public abstract class VariableStoreSimulationObject extends SimulationObject implements es.ull.isaatc.simulation.common.VariableStoreSimulationObject {
     /** Variable warehouse */
 	protected final TreeMap<String, Variable> varCollection = new TreeMap<String, Variable>();
     

@@ -4,7 +4,7 @@
 package es.ull.isaatc.simulation.common.flow;
 
 import es.ull.isaatc.simulation.common.Element;
-import es.ull.isaatc.simulation.common.ModelObject;
+import es.ull.isaatc.simulation.common.SimulationObject;
 
 /**
  * The process an element has to carry out.<p>
@@ -20,7 +20,7 @@ import es.ull.isaatc.simulation.common.ModelObject;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface Flow extends ModelObject {
+public interface Flow extends SimulationObject {
 	/**
 	 * Adds a flow's successor. This method must invoke <code>successor.addPredecessor</code>
 	 * to build the graph properly. 

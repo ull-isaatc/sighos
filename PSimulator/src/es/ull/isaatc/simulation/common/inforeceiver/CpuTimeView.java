@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation.common.inforeceiver;
 
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.common.info.SimulationInfo;
 import es.ull.isaatc.simulation.common.info.SimulationStartInfo;
@@ -16,7 +16,7 @@ public class CpuTimeView extends View {
 	protected long iniT;
 	protected long endT;
 	
-	public CpuTimeView(Model simul) {
+	public CpuTimeView(Simulation simul) {
 		super(simul, "CPU Time viewer");
 		addEntrance(SimulationStartInfo.class);
 		addEntrance(SimulationEndInfo.class);

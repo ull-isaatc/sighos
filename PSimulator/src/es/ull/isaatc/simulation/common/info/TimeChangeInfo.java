@@ -1,10 +1,10 @@
 package es.ull.isaatc.simulation.common.info;
 
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 
 public class TimeChangeInfo extends AsynchronousInfo {
 
-	public TimeChangeInfo(Model simul, double ts) {
+	public TimeChangeInfo(Simulation simul, double ts) {
 		super(simul, ts);
 	}
 	

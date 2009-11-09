@@ -3,7 +3,7 @@ package es.ull.isaatc.simulation.common.inforeceiver.statistics;
 import java.util.HashMap;
 
 import es.ull.isaatc.simulation.common.ElementType;
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.info.ElementInfo;
 import es.ull.isaatc.simulation.common.info.SimulationInfo;
 import es.ull.isaatc.simulation.common.inforeceiver.VarView;
@@ -13,7 +13,7 @@ public class CreatedElementsView extends VarView {
 	private int createdElements;
 	private HashMap<ElementType, Integer> etCreatedElements;
 	
-	public CreatedElementsView(Model simul) {
+	public CreatedElementsView(Simulation simul) {
 		super(simul, "createdElements");
 		createdElements = 0;
 		etCreatedElements = new HashMap<ElementType,Integer>();

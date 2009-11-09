@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.test;
 
-import es.ull.isaatc.simulation.threaded.Element;
+import es.ull.isaatc.simulation.common.Element;
 import es.ull.isaatc.simulation.common.condition.PercentageCondition;
 
 public class PercentageConditionExample {

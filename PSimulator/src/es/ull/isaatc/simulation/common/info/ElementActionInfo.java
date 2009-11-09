@@ -2,7 +2,7 @@ package es.ull.isaatc.simulation.common.info;
 
 import es.ull.isaatc.simulation.common.Activity;
 import es.ull.isaatc.simulation.common.Element;
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.WorkItem;
 import es.ull.isaatc.simulation.common.ActivityWorkGroup;
 import es.ull.isaatc.simulation.common.info.AsynchronousInfo;
@@ -35,7 +35,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 	private Element elem;
 	private Type type;
 	
-	public ElementActionInfo(Model simul, WorkItem sf, Element elem, Type type, double ts) {
+	public ElementActionInfo(Simulation simul, WorkItem sf, Element elem, Type type, double ts) {
 		super(simul, ts);
 		this.sf = sf;
 		this.act = sf.getActivity();

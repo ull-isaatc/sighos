@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation.threaded;
 
-import es.ull.isaatc.simulation.Debuggable;
+import es.ull.isaatc.simulation.common.Debuggable;
 
 /**
  * A simulation object which has knowledge of the simulation time.

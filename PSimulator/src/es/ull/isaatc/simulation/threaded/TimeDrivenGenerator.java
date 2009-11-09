@@ -11,7 +11,7 @@ import es.ull.isaatc.util.CycleIterator;
  * A generator which creates elements following a temporal pattern. 
  * @author Ivan Castilla Rodrguez
  */
-public class TimeDrivenGenerator extends Generator {
+public class TimeDrivenGenerator extends Generator implements es.ull.isaatc.simulation.common.TimeDrivenGenerator {
     /** Cycle that controls the generation of elements. */
     protected final Cycle cycle;
     /** The iterator which moves through the defined cycle */

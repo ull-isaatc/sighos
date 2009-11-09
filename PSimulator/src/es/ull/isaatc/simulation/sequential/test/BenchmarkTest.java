@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.sequential.PooledExperiment;
+import es.ull.isaatc.simulation.common.PooledExperiment;
 import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.Time;
@@ -348,13 +348,13 @@ public class BenchmarkTest {
 	static int nElem = 4;
 	static int nAct = 4;
 	static double actTime = nElem;
-	static int nIter = 50000;
+	static int nIter = 5000;
 	static int nExp = 1;
 	static int mixFactor = 2;
 	static Type type = Type.SAMETIME;
 //	static Type type = Type.CONSECUTIVE;
 //	static Type type = Type.MIXED;
-	static boolean debug = false;
+	static boolean debug = true;
 	static Time endTs;
 	static PrintStream out = System.out;
 

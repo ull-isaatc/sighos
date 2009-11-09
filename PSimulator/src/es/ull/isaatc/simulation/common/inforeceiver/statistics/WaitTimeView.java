@@ -7,11 +7,11 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
-import es.ull.isaatc.simulation.common.ModelObject;
+import es.ull.isaatc.simulation.common.SimulationObject;
 import es.ull.isaatc.simulation.common.ElementType;
 import es.ull.isaatc.simulation.common.Activity;
 import es.ull.isaatc.simulation.common.Element;
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.WorkItem;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.common.info.SimulationEndInfo;
@@ -25,7 +25,7 @@ public class WaitTimeView extends VarView {
 	private HashMap<Element, Double> elemWaitTime;
 	private HashMap<ElementType, Double> etWaitTime;
 	
-	public WaitTimeView(Model simul) {
+	public WaitTimeView(Simulation simul) {
 		super(simul, "waitTime");
 		addEntrance(ElementActionInfo.class);
 		addEntrance(SimulationEndInfo.class);
@@ -144,7 +144,7 @@ public class WaitTimeView extends VarView {
 			etWaitTime.put(et, waitTime);	
 	}
 	
-	private ArrayList<Double> getStoreSet(ModelObject obj) {
+	private ArrayList<Double> getStoreSet(SimulationObject obj) {
 		ArrayList<Double> storeList = new ArrayList<Double>();
 		Iterator<Entry<SimulObjectStore, Double>> iter = waitTimeStarts.entrySet().iterator();
 		while (iter.hasNext()) {
@@ -200,7 +200,7 @@ public class WaitTimeView extends VarView {
 		return 0;
 	}
 
-	public class SimulObjectStore extends TreeSet<ModelObject> implements Comparable<SimulObjectStore>  {
+	public class SimulObjectStore extends TreeSet<SimulationObject> implements Comparable<SimulObjectStore>  {
 
 		/**
 		 * 
@@ -222,7 +222,7 @@ public class WaitTimeView extends VarView {
 			return(item.compareTo(arg0.item));
 		}
 		
-		public boolean contains(ModelObject obj) {
+		public boolean contains(SimulationObject obj) {
 			if (obj instanceof Activity)
 				return(act.compareTo((Activity)obj) == 0);
 			else

@@ -86,7 +86,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
      * @param dur The long this resource plays this role every cycle
      * @param role Role that the resource plays during this cycle
      */
-    public void addTimeTableEntry(ModelCycle cycle, Time dur, ResourceType role) {
+    public void addTimeTableEntry(ModelCycle cycle, Time dur, es.ull.isaatc.simulation.common.ResourceType role) {
         timeTable.add(new TimeTableEntry(cycle, dur, role));
     }  
 
@@ -96,7 +96,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
      * @param dur The long this resource plays this role every cycle
      * @param roleList Roles that the resource play during this cycle
      */
-    public void addTimeTableEntry(ModelCycle cycle, Time dur, ArrayList<ResourceType> roleList) {
+    public void addTimeTableEntry(ModelCycle cycle, Time dur, ArrayList<es.ull.isaatc.simulation.common.ResourceType> roleList) {
     	for (int i = 0; i < roleList.size(); i++)
             addTimeTableEntry(cycle, dur, roleList.get(i));
     }  
@@ -108,7 +108,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
      * simulation time unit
      * @param role Role that the resource plays during this cycle
      */
-    public void addTimeTableEntry(ModelCycle cycle, double dur, ResourceType role) {
+    public void addTimeTableEntry(ModelCycle cycle, double dur, es.ull.isaatc.simulation.common.ResourceType role) {
     	addTimeTableEntry(cycle, new Time(simul.getTimeUnit(), dur), role);
     }  
 
@@ -119,7 +119,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
      * simulation time unit
      * @param roleList Roles that the resource play during this cycle
      */
-    public void addTimeTableEntry(ModelCycle cycle, double dur, ArrayList<ResourceType> roleList) {
+    public void addTimeTableEntry(ModelCycle cycle, double dur, ArrayList<es.ull.isaatc.simulation.common.ResourceType> roleList) {
     	addTimeTableEntry(cycle, new Time(simul.getTimeUnit(), dur), roleList);
     }  
     

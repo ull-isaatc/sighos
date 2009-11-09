@@ -3,7 +3,6 @@
  */
 package es.ull.isaatc.simulation.common;
 
-import es.ull.isaatc.simulation.Identifiable;
 import es.ull.isaatc.simulation.common.flow.SingleFlow;
 import es.ull.isaatc.util.Prioritizable;
 

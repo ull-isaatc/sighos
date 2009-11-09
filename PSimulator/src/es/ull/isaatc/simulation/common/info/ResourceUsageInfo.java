@@ -3,7 +3,7 @@ package es.ull.isaatc.simulation.common.info;
 import es.ull.isaatc.simulation.common.Activity;
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.WorkItem;
 import es.ull.isaatc.simulation.common.info.AsynchronousInfo;
 
@@ -32,7 +32,7 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	private Activity act;
 	private Type type;
 	
-	public ResourceUsageInfo(Model simul, Resource res, ResourceType rt, WorkItem sf, Type type, double ts) {
+	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, WorkItem sf, Type type, double ts) {
 		super(simul, ts);
 		this.res = res;
 		this.rt = rt;

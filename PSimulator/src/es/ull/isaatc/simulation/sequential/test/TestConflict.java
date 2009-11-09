@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.sequential.test;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.sequential.PooledExperiment;
+import es.ull.isaatc.simulation.common.PooledExperiment;
 import es.ull.isaatc.simulation.common.ModelCycle;
 import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;

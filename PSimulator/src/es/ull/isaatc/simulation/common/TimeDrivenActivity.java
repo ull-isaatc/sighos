@@ -5,6 +5,8 @@ package es.ull.isaatc.simulation.common;
 
 import java.util.EnumSet;
 
+import es.ull.isaatc.simulation.common.condition.Condition;
+
 /**
  * @author Iván Castilla Rodríguez
  *
@@ -22,4 +24,9 @@ public interface TimeDrivenActivity extends Activity {
 	boolean isNonPresential();
 	boolean isInterruptible();
 	EnumSet<Modifier> getModifiers();
+
+    int addWorkGroup(ModelTimeFunction duration, int priority, WorkGroup wg);
+    int addWorkGroup(ModelTimeFunction duration, int priority, WorkGroup wg, Condition cond);
+    int addWorkGroup(ModelTimeFunction duration, WorkGroup wg);    	
+    int addWorkGroup(ModelTimeFunction duration, WorkGroup wg, Condition cond);    	
 }

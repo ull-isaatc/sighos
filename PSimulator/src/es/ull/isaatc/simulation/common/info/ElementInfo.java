@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.common.info;
 
 import es.ull.isaatc.simulation.common.Element;
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.info.AsynchronousInfo;
 
 public class ElementInfo extends AsynchronousInfo {
@@ -26,7 +26,7 @@ public class ElementInfo extends AsynchronousInfo {
 	private Element elem;
 	private Type type;
 	
-	public ElementInfo(Model simul, Element elem, Type type, double ts) {
+	public ElementInfo(Simulation simul, Element elem, Type type, double ts) {
 		super(simul, ts);
 		this.elem = elem;
 		this.type = type;

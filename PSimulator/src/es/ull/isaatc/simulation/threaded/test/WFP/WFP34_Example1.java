@@ -11,7 +11,7 @@ import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 import es.ull.isaatc.simulation.threaded.ElementCreator;
 import es.ull.isaatc.simulation.threaded.ElementType;
-import es.ull.isaatc.simulation.threaded.PooledExperiment;
+import es.ull.isaatc.simulation.common.PooledExperiment;
 import es.ull.isaatc.simulation.threaded.Resource;
 import es.ull.isaatc.simulation.threaded.ResourceType;
 import es.ull.isaatc.simulation.threaded.Simulation;

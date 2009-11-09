@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import es.ull.isaatc.simulation.common.ElementType;
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.info.ElementInfo;
 import es.ull.isaatc.simulation.common.info.SimulationInfo;
 import es.ull.isaatc.simulation.common.inforeceiver.VarView;
@@ -14,7 +14,7 @@ public class CurrentElementsView extends VarView {
 	
 	HashMap<ElementType, Integer> etActiveElem;
 
-	public CurrentElementsView(Model simul) {
+	public CurrentElementsView(Simulation simul) {
 		super(simul, "currentElements");
 		addEntrance(ElementInfo.class);
 		etActiveElem = new HashMap<ElementType, Integer>();

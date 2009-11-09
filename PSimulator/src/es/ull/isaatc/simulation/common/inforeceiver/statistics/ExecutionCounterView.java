@@ -9,7 +9,7 @@ import es.ull.isaatc.simulation.common.ActivityWorkGroup;
 import es.ull.isaatc.simulation.common.ElementType;
 import es.ull.isaatc.simulation.common.Activity;
 import es.ull.isaatc.simulation.common.Element;
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.common.info.SimulationInfo;
 import es.ull.isaatc.simulation.common.inforeceiver.VarView;
@@ -20,7 +20,7 @@ public class ExecutionCounterView extends VarView {
 	HashMap<Element, Integer> elemExCounter;
 	HashMap<ElementType, Integer> etExCounter;
 	
-	public ExecutionCounterView(Model simul) {
+	public ExecutionCounterView(Simulation simul) {
 		super(simul, "executionCounter");
 		addEntrance(ElementActionInfo.class);
 		actExCounter = new HashMap<Activity, ActivityCounters>();

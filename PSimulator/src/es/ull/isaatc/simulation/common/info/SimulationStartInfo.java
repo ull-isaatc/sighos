@@ -1,12 +1,12 @@
 package es.ull.isaatc.simulation.common.info;
 
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 
 public class SimulationStartInfo extends AsynchronousInfo {
 
 	private long cpuTime;
 	
-	public SimulationStartInfo(Model simul, long cpuTime, double ts) {
+	public SimulationStartInfo(Simulation simul, long cpuTime, double ts) {
 		super(simul, ts);
 		this.cpuTime = cpuTime;
 	}

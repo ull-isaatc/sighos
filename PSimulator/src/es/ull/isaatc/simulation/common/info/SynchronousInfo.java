@@ -1,10 +1,10 @@
 package es.ull.isaatc.simulation.common.info;
 
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 
 public abstract class SynchronousInfo extends TimeStampedInfo {
 
-	public SynchronousInfo(Model simul, double ts) {
+	public SynchronousInfo(Simulation simul, double ts) {
 		super(simul, ts);
 	}
 

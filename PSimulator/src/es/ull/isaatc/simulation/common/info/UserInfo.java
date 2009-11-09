@@ -1,10 +1,10 @@
 package es.ull.isaatc.simulation.common.info;
 
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 
 public abstract class UserInfo extends AsynchronousInfo {
 
-	public UserInfo(Model simul, double ts) {
+	public UserInfo(Simulation simul, double ts) {
 		super(simul, ts);
 	}
 

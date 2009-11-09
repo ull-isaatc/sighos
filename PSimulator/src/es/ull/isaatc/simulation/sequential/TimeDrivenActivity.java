@@ -106,9 +106,9 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(ModelTimeFunction duration, int priority, WorkGroup wg) {
+    public int addWorkGroup(ModelTimeFunction duration, int priority, es.ull.isaatc.simulation.common.WorkGroup wg) {
     	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(wgId, duration, priority, wg));
+        workGroupTable.add(new ActivityWorkGroup(wgId, duration, priority, (WorkGroup)wg));
         return wgId;
     }
     
@@ -120,9 +120,9 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
      * @param cond Availability condition
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(ModelTimeFunction duration, int priority, WorkGroup wg, Condition cond) {
+    public int addWorkGroup(ModelTimeFunction duration, int priority, es.ull.isaatc.simulation.common.WorkGroup wg, Condition cond) {
     	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(wgId, duration, priority, wg, cond));
+        workGroupTable.add(new ActivityWorkGroup(wgId, duration, priority, (WorkGroup)wg, cond));
         return wgId;
     }
     
@@ -132,7 +132,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(ModelTimeFunction duration, WorkGroup wg) {    	
+    public int addWorkGroup(ModelTimeFunction duration, es.ull.isaatc.simulation.common.WorkGroup wg) {    	
         return addWorkGroup(duration, 0, wg);
     }
     
@@ -143,7 +143,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
      * @param cond Availability condition
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(ModelTimeFunction duration, WorkGroup wg, Condition cond) {    	
+    public int addWorkGroup(ModelTimeFunction duration, es.ull.isaatc.simulation.common.WorkGroup wg, Condition cond) {    	
         return addWorkGroup(duration, 0, wg, cond);
     }
 

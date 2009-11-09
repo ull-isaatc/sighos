@@ -3,8 +3,8 @@
  */
 package es.ull.isaatc.simulation.sequential.test;
 
-import es.ull.isaatc.simulation.Experiment;
-import es.ull.isaatc.simulation.PooledExperiment;
+import es.ull.isaatc.simulation.common.Experiment;
+import es.ull.isaatc.simulation.common.PooledExperiment;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;

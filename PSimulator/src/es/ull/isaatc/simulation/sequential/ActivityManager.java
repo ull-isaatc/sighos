@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import es.ull.isaatc.simulation.Describable;
+import es.ull.isaatc.simulation.common.Describable;
 import es.ull.isaatc.util.PrioritizedMap;
 
 /**

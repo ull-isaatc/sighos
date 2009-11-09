@@ -2,16 +2,16 @@ package es.ull.isaatc.simulation.common.inforeceiver;
 
 import java.util.ArrayList;
 
-import es.ull.isaatc.simulation.common.Model;
+import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.info.SimulationInfo;
 
 public abstract class InfoReceiver {
 
 	private final ArrayList<Class<?>> entrance = new ArrayList<Class<?>>();
-	private Model simul = null;
+	private Simulation simul = null;
 	private String description = null;
 	
-	public InfoReceiver (Model simul, String description) {
+	public InfoReceiver (Simulation simul, String description) {
 		this.simul = simul;
 		this.description = description;
 	}
@@ -34,11 +34,11 @@ public abstract class InfoReceiver {
 		return entrance;
 	}
 
-	public Model getSimul() {
+	public Simulation getSimul() {
 		return simul;
 	}
 
-	public void setSimul(Model simul) {
+	public void setSimul(Simulation simul) {
 		this.simul = simul;
 	}
 
