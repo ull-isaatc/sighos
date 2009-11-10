@@ -67,6 +67,9 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	
 	protected final SimulationInfoHandler infoHandler = new SimulationInfoHandler();
 	
+	/** Number of threads which handle events in the logical processes */
+	protected int nThreads = 1;
+	
 	/**
 	 * Empty constructor for compatibility purposes
 	 */
@@ -135,6 +138,20 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	
 	public Time double2SimulationTime(double sourceValue) {
 		return new Time(unit, sourceValue / Double.MIN_VALUE);
+	}
+
+	/**
+	 * @return the nThreads
+	 */
+	public int getNThreads() {
+		return nThreads;
+	}
+
+	/**
+	 * @param threads the nThreads to set
+	 */
+	public void setNThreads(int threads) {
+		nThreads = threads;
 	}
 
 	@Override

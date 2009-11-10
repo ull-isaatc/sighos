@@ -129,10 +129,11 @@ class BenchmarkListener extends View {
 public class BenchmarkTest {
 	enum Type {SAMETIME, CONSECUTIVE, MIXED};
 	
-	static int nElem = 4;
+	static int nThreads = 1;
+	static int nElem = 8;
 	static int nAct = 4;
 	static double actTime = nElem;
-	static int nIter = 5000;
+	static int nIter = 50000;
 	static int nExp = 1;
 	static int mixFactor = 2;
 	static Type type = Type.SAMETIME;
@@ -142,6 +143,7 @@ public class BenchmarkTest {
 	static Time endTs;
 	static PrintStream out = System.out;
 	static TimeUnit unit = TimeUnit.MINUTE;
+	static SimulationFactory.SimulationType simType = SimulationType.SIMEVENTS2;
 
 	public static Simulation getTestOcurrenceSimN(SimulationFactory.SimulationType simType, int id) {
 		TimeDrivenActivity[] acts = new TimeDrivenActivity[nAct];
@@ -319,6 +321,7 @@ public class BenchmarkTest {
 			nElem = Integer.parseInt(args[2]);
 			actTime = Integer.parseInt(args[3]);
 			nIter = Integer.parseInt(args[4]);
+			nThreads = Integer.parseInt(args[5]);
 			nExp = Integer.parseInt(args[6]);
 			if (args.length > 7) {
 				if (type == Type.MIXED) {
@@ -351,7 +354,8 @@ public class BenchmarkTest {
 			@Override
 			public Simulation getSimulation(int ind) {
 				Simulation sim = null; 
-				sim = getTestOcurrenceSimN(SimulationType.SEQUENTIAL, ind);
+				sim = getTestOcurrenceSimN(simType, ind);
+				sim.setNThreads(nThreads);
 				
 				if (debug)
 					sim.addInfoReceiver(new BenchmarkListener(sim, System.out));

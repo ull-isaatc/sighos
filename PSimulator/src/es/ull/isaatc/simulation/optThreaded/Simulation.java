@@ -4,7 +4,7 @@
  * Created on 8 de noviembre de 2005, 18:47
  */
 
-package es.ull.isaatc.simulation.threaded;
+package es.ull.isaatc.simulation.optThreaded;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +14,7 @@ import java.util.concurrent.CountDownLatch;
 
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;
-import es.ull.isaatc.simulation.threaded.flow.Flow;
+import es.ull.isaatc.simulation.optThreaded.flow.Flow;
 import es.ull.isaatc.util.Output;
 
 /**
@@ -60,6 +60,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 
 	/** List of active elements */
 	private final Map<Integer, Element> activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
+
 	
 	/**
 	 * Empty constructor for compatibility purposes
@@ -180,7 +181,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	}
 
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.threaded.Activity} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.optThreaded.Activity} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param act
@@ -193,7 +194,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.threaded.ElementType} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.optThreaded.ElementType} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param et
@@ -206,7 +207,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.threaded.ResourceType} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.optThreaded.ResourceType} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param rt
@@ -219,7 +220,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.threaded.flow.Flow} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.optThreaded.flow.Flow} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param f
