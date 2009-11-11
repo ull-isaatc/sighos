@@ -244,6 +244,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 				if (avResource) {
 					availableResource();
 					avResource = false;
+					requestingElements.clear();
 				}
 				else {
 					while (!requestingElements.isEmpty()) {
