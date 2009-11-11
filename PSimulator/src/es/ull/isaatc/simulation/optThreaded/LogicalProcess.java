@@ -4,7 +4,6 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import es.ull.isaatc.simulation.common.info.TimeChangeInfo;
-import es.ull.isaatc.simulation.optThreaded.ActivityManager.AMElement.AMEvent;
 //import es.ull.isaatc.util.ActiveThreadPool;
 import es.ull.isaatc.util.SingleThreadPool;
 import es.ull.isaatc.util.StandardThreadPool;
@@ -59,7 +58,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 			tp = new SingleThreadPool<BasicElement.DiscreteEvent>();
 		else
 			tp = new StandardThreadPool<BasicElement.DiscreteEvent>(nThreads);
-//		tp = new ActiveThreadPool<BasicElement.DiscreteEvent>(nThreads);
+//		tp = new ActiveThreadPool2<BasicElement.DiscreteEvent>(nThreads);
         waitQueue = new PriorityBlockingQueue<BasicElement.DiscreteEvent>();
         maxgvt = endT;
         lvt = startT;
@@ -232,8 +231,6 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 	public void start() {
 		if (lpThread == null) {
 	        lpThread = new Thread(this, "LP " + id);
-	        // Esto mejora el tiempo de este hilo, pero no el resultado final
-//	        lpThread.setPriority(Thread.MAX_PRIORITY);
 	        lpThread.start();
 		}
 	}

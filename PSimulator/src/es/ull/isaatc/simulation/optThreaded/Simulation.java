@@ -161,7 +161,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		debugPrintActManager();
 		// Sets default LP creator
 		if (lpCreator == null)
-			lpCreator = new SingleLogicalProcessCreator(this, activityManagerList);
+			lpCreator = new SingleLogicalProcessCreator(this);
 		lpCreator.createLogicalProcesses();
 		init();
 

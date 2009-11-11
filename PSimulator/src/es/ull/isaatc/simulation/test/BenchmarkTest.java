@@ -129,11 +129,11 @@ class BenchmarkListener extends View {
 public class BenchmarkTest {
 	enum Type {SAMETIME, CONSECUTIVE, MIXED};
 	
-	static int nThreads = 4;
+	static int nThreads = 1;
 	static int nElem = 16;
 	static int nAct = 4;
 	static double actTime = nElem;
-	static int nIter = 500000;
+	static int nIter = 50000;
 	static int nExp = 1;
 	static int mixFactor = 2;
 	static Type type = Type.SAMETIME;

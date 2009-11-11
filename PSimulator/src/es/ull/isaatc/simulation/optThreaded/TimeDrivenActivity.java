@@ -281,7 +281,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 //		}
 
 		for (ActivityManager am : amList) {
-			am.waitSemaphore();
+//			am.waitSemaphore();
 			
 			// ADDED. Changing events
 			am.notifyResource();
@@ -289,7 +289,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 			// REMOVED. Changing events
 //			am.availableResource();
 			
-			am.signalSemaphore();
+//			am.signalSemaphore();
 		}
 		
 		// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor

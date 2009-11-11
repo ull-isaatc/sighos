@@ -1,71 +1,24 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.threaded;
+package es.ull.isaatc.simulation.sequential;
 
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.isaatc.simulation.common.Time;
-import es.ull.isaatc.simulation.common.TimeUnit;
-
 /**
- * A simulation which builds the activity managers but not the logical processes within the
- * <code>createStructure</code> method. The activity managers are a partition of the
- * set of activities and resource types of the model.<p> 
- * If you extend this class, remember that you need to create the logical processes after  
- * invoking <code>super.createStructure()</code>.
  * @author Iván Castilla Rodríguez
+ *
  */
-public abstract class StandardAMSimulation extends Simulation {
-	
-	/**
-	 * Empty constructor for compatibility purposes
-	 */
-	public StandardAMSimulation() {
-		
-	}
+public class StandardActivityManagerCreator extends ActivityManagerCreator {
 
 	/**
-	 * Creates a new instance of Simulation
-	 * 
-	 * @param id This simulation's identifier
-	 * @param description A short text describing this simulation.
+	 * @param simul
 	 */
-	public StandardAMSimulation(int id, String description, TimeUnit unit) {
-		super(id, description, unit);
-	}
-
-	/**
-	 * Creates a simulation which builds the AMs but not the LPs.
-	 * @param id
-	 *            This simulation's identifier
-	 * @param description 
-	 *            This simulation's description.
-	 * @param startTs
-	 *            Timestamp of simulation's start
-	 * @param endTs
-	 *            Timestamp of simulation's end
-	 */
-	public StandardAMSimulation(int id, String description, TimeUnit unit, Time startTs, Time endTs) {
-		super(id, description, unit, startTs, endTs);
-	}
-
-	/**
-	 * Creates a simulation which builds the AMs but not the LPs.
-	 * @param id
-	 *            This simulation's identifier
-	 * @param description 
-	 *            This simulation's description.
-	 * @param startTs
-	 *            Simulation's start timestamp expresed in Simulation Time Units
-	 * @param endTs
-	 *            Simulation's end timestamp expresed in Simulation Time Units
-	 */
-	public StandardAMSimulation(int id, String description, TimeUnit unit, double startTs, double endTs) {
-		super(id, description, unit, startTs, endTs);
+	public StandardActivityManagerCreator(Simulation simul) {
+		super(simul);
 	}
 
 	/**
@@ -74,6 +27,7 @@ public abstract class StandardAMSimulation extends Simulation {
 	 * each vertex is a resource type and each edge is an activity that is
 	 * associated with the resource types represented by the connected vertex.
 	 */
+	@Override
 	protected void createActivityManagers() {
 		// The graph is an array consisting on sets of resource types
 		SimulationGraph graph = new SimulationGraph();
@@ -83,26 +37,26 @@ public abstract class StandardAMSimulation extends Simulation {
 		int nManagers = graph.DFS(marks);
 		// The activity managers are created
 		for (int i = 0; i < nManagers; i++)
-			new ActivityManager(this);
+			new ActivityManager(simul);
 		// The activities are associated to the activity managers
-		for (Activity a : activityList.values()) {
+		for (Activity a : simul.getActivityList().values()) {
 			Iterator<Activity.ActivityWorkGroup> iter = a.iterator();
 			// This step is for non-resource-types activities
 			boolean found = false;
 			while (iter.hasNext() && !found) {
 				WorkGroup wg = iter.next();
 				if (wg.size() > 0) {
-					a.setManager(activityManagerList.get(marks.get(wg.getResourceType(0).getIdentifier())));
+					a.setManager(simul.getActivityManagerList().get(marks.get(wg.getResourceType(0).getIdentifier())));
 					found = true;
 				}
 			}
 			if (!found) {
 				nManagers++;
-				a.setManager(new ActivityManager(this));
+				a.setManager(new ActivityManager(simul));
 			}
 		}
-		for (ResourceType rt : resourceTypeList.values())
-			rt.setManager(activityManagerList.get(marks.get(rt.getIdentifier())));
+		for (ResourceType rt : simul.getResourceTypeList().values())
+			rt.setManager(simul.getActivityManagerList().get(marks.get(rt.getIdentifier())));
 	}
 
 	/**
@@ -122,10 +76,10 @@ public abstract class StandardAMSimulation extends Simulation {
 		SimulationGraph() {
 			int ind1 = -1, ind2 = -1;
 			// Starts by creating one node per resource type
-			for (Integer key : resourceTypeList.keySet())
+			for (Integer key : simul.getResourceTypeList().keySet())
 				put(key, new TreeSet<Integer>());
 			// Goes through the activity list to built the adyacent list 
-			for (Activity a : activityList.values()) {
+			for (Activity a : simul.getActivityList().values()) {
 				Iterator<Activity.ActivityWorkGroup> iter = a.iterator();
 				// Looks for the first WorkGroup that contains at least one resource type
 				int firstWG = 1;
@@ -160,7 +114,7 @@ public abstract class StandardAMSimulation extends Simulation {
 		int DFS(TreeMap<Integer, Integer> marks) {
 			int nManagers = 0;
 			Stack<Integer> toVisit = new Stack<Integer>();
-			for (ResourceType rt : resourceTypeList.values())
+			for (ResourceType rt : simul.getResourceTypeList().values())
 				marks.put(rt.getIdentifier(), -1);// Not-visited mark
 			for (Integer key : marks.keySet())
 				if (marks.get(key) == -1) {
@@ -182,11 +136,11 @@ public abstract class StandardAMSimulation extends Simulation {
 		 * the links.
 		 */
 		void debug() {
-			if (isDebugEnabled()) {
+			if (simul.isDebugEnabled()) {
 				StringBuffer str = new StringBuffer();
 				// Pinto el graph para chequeo
 				for (Integer key : keySet()) {
-					ResourceType rt = getResourceType(key);
+					ResourceType rt = simul.getResourceType(key);
 					str.append("Resource Type (" + key + "): " + rt.getDescription()
 							+ "\r\n");
 					str.append("\tNeighbours: ");
@@ -194,9 +148,9 @@ public abstract class StandardAMSimulation extends Simulation {
 						str.append(nodo + "\t");
 					str.append("\r\n");
 				}
-				StandardAMSimulation.this.debug("Graph created\r\n" + str.toString());
+				simul.debug("Graph created\r\n" + str.toString());
 			}
 		}
 	}
-	
+
 }

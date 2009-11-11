@@ -24,7 +24,7 @@ import es.ull.isaatc.simulation.common.factory.SimulationUserCode;
 import es.ull.isaatc.simulation.common.factory.StandardCompilator;
 import es.ull.isaatc.simulation.common.flow.Flow;
 import es.ull.isaatc.simulation.common.flow.InitializerFlow;
-import es.ull.isaatc.simulation.threaded.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.threaded.Simulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -32,7 +32,7 @@ import es.ull.isaatc.simulation.threaded.StandAloneLPSimulation;
  */
 public class SimulationFactory implements SimulationObjectFactory {
 	private final static String workingPkg = "es.ull.isaatc.simulation.threaded";
-	private StandAloneLPSimulation simul;
+	private Simulation simul;
 
 	/**
 	 * @param id
@@ -40,7 +40,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	 * @param unit
 	 */
 	public SimulationFactory(int id, String description, TimeUnit unit) {
-		simul = new StandAloneLPSimulation(id, description, unit) {
+		simul = new Simulation(id, description, unit) {
 			@Override
 			protected void createModel() {
 			}
@@ -55,7 +55,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	 * @param endTs
 	 */
 	public SimulationFactory(int id, String description, TimeUnit unit,	Time startTs, Time endTs) {
-		simul = new StandAloneLPSimulation(id, description, unit, startTs, endTs) {
+		simul = new Simulation(id, description, unit, startTs, endTs) {
 			@Override
 			protected void createModel() {
 			}
@@ -70,7 +70,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	 * @param endTs
 	 */
 	public SimulationFactory(int id, String description, TimeUnit unit,	double startTs, double endTs) {
-		simul = new StandAloneLPSimulation(id, description, unit, startTs, endTs) {
+		simul = new Simulation(id, description, unit, startTs, endTs) {
 			@Override
 			protected void createModel() {
 			}
