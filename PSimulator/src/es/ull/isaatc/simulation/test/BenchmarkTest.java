@@ -129,11 +129,11 @@ class BenchmarkListener extends View {
 public class BenchmarkTest {
 	enum Type {SAMETIME, CONSECUTIVE, MIXED};
 	
-	static int nThreads = 1;
-	static int nElem = 8;
+	static int nThreads = 4;
+	static int nElem = 16;
 	static int nAct = 4;
 	static double actTime = nElem;
-	static int nIter = 50000;
+	static int nIter = 500000;
 	static int nExp = 1;
 	static int mixFactor = 2;
 	static Type type = Type.SAMETIME;
@@ -153,9 +153,9 @@ public class BenchmarkTest {
 		factory.getSimulation().putVar("AA", 0);
 		
 		SimulationUserCode code = new SimulationUserCode();
-		code.add(UserMethod.BEFORE_REQUEST, "for (int i = 1; i < 10000; i++)" +
-				"<%SET(S.AA, <%GET(S.AA)%> + Math.log(i))%>;" + 
-				"return super.beforeRequest(e);");
+//		CODE.ADD(USERMETHOD.BEFORE_REQUEST, "FOR (INT I = 1; I < 10000; I++)" +
+//				"<%SET(S.AA, <%GET(S.AA)%> + MATH.LOG(I))%>;" + 
+//				"RETURN SUPER.BEFOREREQUEST(E);");
 		for (int i = 0; i < acts.length; i++) {
 			acts[i] = factory.getTimeDrivenActivityInstance(i, "A_TEST" + i);
 			SingleFlow sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", code, acts[i]);

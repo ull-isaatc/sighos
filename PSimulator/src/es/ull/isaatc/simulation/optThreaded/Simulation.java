@@ -61,6 +61,8 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	/** List of active elements */
 	private final Map<Integer, Element> activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
 
+	protected ActivityManagerCreator amCreator = null;
+	protected LogicalProcessCreator lpCreator = null;
 	
 	/**
 	 * Empty constructor for compatibility purposes
@@ -124,17 +126,18 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	protected abstract void createModel();
 
 	/**
-	 * Specifies the way the structure of the activity managers is built. 
-	 * @see StandardAMSimulation
+	 * @param amCreator the amCreator to set
 	 */
-	protected abstract void createActivityManagers();
-	
+	public void setAmCreator(ActivityManagerCreator amCreator) {
+		this.amCreator = amCreator;
+	}
+
 	/**
-	 * Specifies the way the structure of the logical processes is built. 
-	 * @see StandAloneLPSimulation
-	 * @see SimpleLPSimulation
+	 * @param lpCreator the lpCreator to set
 	 */
-	protected abstract void createLogicalProcesses();
+	public void setLpCreator(LogicalProcessCreator lpCreator) {
+		this.lpCreator = lpCreator;
+	}
 
 	/**
 	 * Starts the simulation execution. It creates and starts all the necessary 
@@ -151,9 +154,15 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		
 		createModel();
 		debug("SIMULATION MODEL CREATED");
-		createActivityManagers();
+		// Sets default AM creator
+		if (amCreator == null)
+			amCreator = new StandardActivityManagerCreator(this);
+		amCreator.createActivityManagers();
 		debugPrintActManager();
-		createLogicalProcesses();
+		// Sets default LP creator
+		if (lpCreator == null)
+			lpCreator = new SingleLogicalProcessCreator(this, activityManagerList);
+		lpCreator.createLogicalProcesses();
 		init();
 
 		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));

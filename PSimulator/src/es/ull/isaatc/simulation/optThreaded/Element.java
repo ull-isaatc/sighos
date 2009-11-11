@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import es.ull.isaatc.simulation.optThreaded.flow.Flow;
 import es.ull.isaatc.simulation.optThreaded.flow.InitializerFlow;
 import es.ull.isaatc.simulation.optThreaded.flow.TaskFlow;
 import es.ull.isaatc.simulation.common.info.ElementInfo;
@@ -105,7 +104,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 		simul.getInfoHandler().notifyInfo(new ElementInfo(this.simul, this, ElementInfo.Type.START, this.getTs()));
 		simul.addActiveElement(this);
 		if (initialFlow != null) {
-			addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
+			initialFlow.request(wThread.getInstanceDescendantWorkThread(initialFlow));
 		}
 		else
 			notifyEnd();
@@ -144,17 +143,12 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	protected void addAvailableElementEvents() {
 		synchronized(inQueue) {
 			for (int i = 0; (current == null) && (i < inQueue.size()); i++)
-				addEvent(new AvailableElementEvent(ts, inQueue.get(i)));
+				// ADDED. Changing events
+				inQueue.get(i).getActivity().getManager().notifyElement(inQueue.get(i));
+
+				// REMOVED. Changing events
+//				addEvent(new AvailableElementEvent(ts, inQueue.get(i)));
 		}		
-	}
-	
-	/**
-	 * Adds a new request event.
-	 * @param f The flow to be requested
-	 * @param wThread The work thread used to request the flow
-	 */
-	public void addRequestEvent(Flow f, WorkThread wThread) {
-		addEvent(new RequestFlowEvent(ts, f, wThread));
 	}
 	
 	public void initializeElementVars(HashMap<String, Object> varList) {
@@ -179,27 +173,6 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	}
 	
 	/**
-	 * Requests a flow.
-	 * @author Iván Castilla Rodríguez
-	 */
-	public class RequestFlowEvent extends BasicElement.DiscreteEvent {
-		/** The work thread that executes the request */
-		private final WorkThread eThread;
-		/** The flow to be requested */
-		private final Flow f;
-
-		public RequestFlowEvent(double ts, Flow f, WorkThread eThread) {
-			super(ts, Element.this.defLP);
-			this.eThread = eThread;
-			this.f = f;
-		}		
-
-		public void event() {
-			f.request(eThread);
-		}
-	}
-	
-	/**
 	 * Finishes a flow. 
 	 * @author Iván Castilla Rodríguez
 	 */
@@ -217,46 +190,6 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 
 		public void event() {
 			f.finish(eThread);
-		}
-	}
-	
-	/**
-	 * Informs an activity about an available element in its queue.
-	 * @author Iván Castilla Rodríguez
-	 */
-	public class AvailableElementEvent extends BasicElement.DiscreteEvent {
-		/** Flow informed of the availability of the element */
-		private final WorkItem eThread;
-
-		public AvailableElementEvent(double ts, WorkItem eThread) {
-			super(ts, eThread.getActivity().getManager().getLp());
-			this.eThread = eThread;
-		}
-
-		public void event() {
-			Activity act = eThread.getActivity();
-			// Beginning MUTEX access to activity manager
-			act.getManager().waitSemaphore();
-
-            waitSemaphore();
-			if (isDebugEnabled())
-				debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
-			// If the element is not performing a presential activity yet
-			if (current == null)
-				if (act.isFeasible(eThread)) {
-		        	signalSemaphore();
-					act.carryOut(eThread);
-					act.queueRemove(eThread);
-				}
-				else {
-		        	signalSemaphore();
-				}
-			else {
-	        	signalSemaphore();
-			}
-    		
-			// Ending MUTEX access to activity manager
-			act.getManager().signalSemaphore();
 		}
 	}
 }

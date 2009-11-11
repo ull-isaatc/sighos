@@ -30,7 +30,7 @@ public class ParallelFlow extends MultipleSuccessorFlow implements es.ull.isaatc
 		super.next(wThread);
 		if (successorList.size() > 0)
 			for(Flow succ : successorList)
-				wThread.getElement().addRequestEvent(succ, wThread.getInstanceSubsequentWorkThread(wThread.isExecutable(), this, wThread.getToken()));
+				succ.request(wThread.getInstanceSubsequentWorkThread(wThread.isExecutable(), this, wThread.getToken()));
         wThread.notifyEnd();
 	}
 }

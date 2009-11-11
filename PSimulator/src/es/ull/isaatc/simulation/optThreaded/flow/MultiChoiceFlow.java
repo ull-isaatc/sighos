@@ -31,11 +31,11 @@ public class MultiChoiceFlow extends ConditionalFlow implements es.ull.isaatc.si
 		if (wThread.isExecutable())
 			for (int i = 0; i < successorList.size(); i++) {
 				boolean res = conditionList.get(i).check(wThread.getElement());
-				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getInstanceSubsequentWorkThread(res, this, wThread.getToken()));
+				successorList.get(i).request(wThread.getInstanceSubsequentWorkThread(res, this, wThread.getToken()));
 			}
 		else
 			for (int i = 0; i < successorList.size(); i++)
-				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getInstanceSubsequentWorkThread(false, this, wThread.getToken()));
+				successorList.get(i).request(wThread.getInstanceSubsequentWorkThread(false, this, wThread.getToken()));
 		wThread.notifyEnd();
 	}
 }

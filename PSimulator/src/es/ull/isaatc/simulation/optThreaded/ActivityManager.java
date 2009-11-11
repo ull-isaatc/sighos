@@ -1,5 +1,6 @@
 package es.ull.isaatc.simulation.optThreaded;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -30,6 +31,11 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     private LogicalProcess lp;
     /** This queue contains the work items that are waiting for activities of this AM */
     private final WorkItemQueue wiQueue;
+    
+    // ADDED. Changing events
+    private final ArrayDeque<WorkItem> requestingElements = new ArrayDeque<WorkItem>();
+    private boolean avResource = false;
+    private AMElement amElem = new AMElement();
     
    /**
 	* Creates a new instance of ActivityManager.
@@ -76,6 +82,14 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
         resourceTypeList.add(rt);
     }
 
+    protected void notifyElement(WorkItem wi) {
+    	requestingElements.add(wi);
+    }
+    
+    protected void notifyResource() {
+    	avResource = true;
+    }
+    
     /**
      * Adds a work item to the waiting queue.
      * @param wi Work item which is added to the waiting queue.
@@ -196,6 +210,69 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
         return str.toString();
 	}
 
+	public void executeWork() {
+		if (!requestingElements.isEmpty() || avResource) {
+			lp.addExecution(amElem.getEvent());
+		}
+	}
+	
+	protected class AMElement extends BasicElement {
+
+		public AMElement() {
+			super(ActivityManager.this.id, ActivityManager.this.simul);
+		}
+		
+		@Override
+		protected void end() {
+		}
+
+		@Override
+		protected void init() {
+		}
+		
+		public AMEvent getEvent() {
+			return new AMEvent();
+		}
+		
+		public class AMEvent extends BasicElement.DiscreteEvent {
+			public AMEvent() {
+				super(ActivityManager.this.getTs(), ActivityManager.this.lp);
+			}
+
+			@Override
+			public void event() {
+				if (avResource) {
+					availableResource();
+					avResource = false;
+				}
+				else {
+					while (!requestingElements.isEmpty()) {
+						WorkItem wi = requestingElements.poll();
+						Element elem = wi.getElement();
+						Activity act = wi.getActivity();
+			            elem.waitSemaphore();
+						if (isDebugEnabled())
+							debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
+						// If the element is not performing a presential activity yet
+						if (elem.getCurrent() == null)
+							if (act.isFeasible(wi)) {
+					        	elem.signalSemaphore();
+								act.carryOut(wi);
+								act.queueRemove(wi);
+							}
+							else {
+					        	elem.signalSemaphore();
+							}
+						else {
+				        	elem.signalSemaphore();
+						}
+					}
+				}
+			}
+			
+		}
+	}
+	
 	/**
 	 * A queue which stores the activity requests of the elements. The work items are
 	 * stored by following this order: <ol>

@@ -68,8 +68,8 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      */
     protected void notifyEnd() {
     	if (!endFlag.getAndSet(true)) {
-        	debug("Finished");
-            addEvent(new FinalizeEvent());
+        	debug("Ends execution");
+        	end();
         }
     }
     
@@ -213,23 +213,6 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
     			return -1;
     		return 0;
     	}
-    }
-
-    /**
-     * The last event this element executes. It decrements the total amount of elements of the
-     * simulation.
-     * @author Iván Castilla Rodríguez
-     */
-    public class FinalizeEvent extends DiscreteEvent {
-        
-        public FinalizeEvent() {
-            super(BasicElement.this.defLP.getTs(), BasicElement.this.defLP);
-        }
-        
-        public void event() {
-        	debug("Ends execution");
-        	BasicElement.this.end();
-        }
     }
 
     /**

@@ -60,7 +60,7 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow, es.ull.isaa
 	public void next(WorkThread wThread) {
 		super.next(wThread);
 		for (int i = 0; i < nInstances; i++)
-			wThread.getElement().addRequestEvent(successor, wThread.getInstanceSubsequentWorkThread(wThread.isExecutable(), this, wThread.getToken()));
+			successor.request(wThread.getInstanceSubsequentWorkThread(wThread.isExecutable(), this, wThread.getToken()));
         wThread.notifyEnd();			
 	}
 

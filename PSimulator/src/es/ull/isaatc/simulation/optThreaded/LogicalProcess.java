@@ -4,22 +4,12 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import es.ull.isaatc.simulation.common.info.TimeChangeInfo;
+import es.ull.isaatc.simulation.optThreaded.ActivityManager.AMElement.AMEvent;
 //import es.ull.isaatc.util.ActiveThreadPool;
 import es.ull.isaatc.util.SingleThreadPool;
 import es.ull.isaatc.util.StandardThreadPool;
 import es.ull.isaatc.util.ThreadPool;
 
-class LPSemaphore {
-	boolean flag = true;
-	public void acquire() {
-		while (flag);
-		flag = true;
-	}
-	
-	public void release() {
-		flag = false;
-	}
-}
 /** 
  * A logical process (LP) is a subregion of the simulation. It includes a set of resource types,
  * activities, resources, and elements. The LP handles a set of events which interact with any
@@ -42,15 +32,8 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 	protected final PriorityBlockingQueue<BasicElement.DiscreteEvent> waitQueue;
     /** Thread where the logical process function is implemented */
     private Thread lpThread = null;
-
-	/**
-     * Creates a logical process with initial timestamp 0.0
-     * @param simul Simulation which this LP is attached to.
-     * @param endT Finishing timestamp.
-     */
-	public LogicalProcess(Simulation simul, double endT) {
-        this(simul, 0.0, endT, 1);
-	}
+	/** List of activity managers that partition the simulation. */
+	protected final ActivityManager[] activityManagerList;
 
 	/**
      * Creates a logical processwith initial timestamp <code>startT</code> and
@@ -59,27 +42,18 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * @param startT Initial timestamp.
      * @param endT Finishing timestamp.
      */
-	public LogicalProcess(Simulation simul, double startT, double endT) {
-        this(simul, startT, endT, 1);
+	public LogicalProcess(Simulation simul, double startT, double endT, ActivityManager[] activityManagerList) {
+        this(simul, startT, endT, 1, activityManagerList);
 	}
 
 	/**
-     * Creates a logical process with initial timestamp 0.0
-     * @param simul Simulation which this LP is attached to.
-     * @param endT Finishing timestamp.
-     */
-	public LogicalProcess(Simulation simul, double endT, int nThreads) {
-        this(simul, 0.0, endT, nThreads);
-	}
-
-	/**
-     * Creates a logical processwith initial timestamp <code>startT</code> and
+     * Creates a logical process with initial timestamp <code>startT</code> and
      * finishing timestamp <code>endT</code>. 
      * @param simul Simulation which this LP is attached to.
      * @param startT Initial timestamp.
      * @param endT Finishing timestamp.
      */
-	public LogicalProcess(Simulation simul, double startT, double endT, int nThreads) {
+	public LogicalProcess(Simulation simul, double startT, double endT, int nThreads, ActivityManager[] activityManagerList) {
 		super(nextId++, simul);
 		if (nThreads == 1)
 			tp = new SingleThreadPool<BasicElement.DiscreteEvent>();
@@ -89,6 +63,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
         waitQueue = new PriorityBlockingQueue<BasicElement.DiscreteEvent>();
         maxgvt = endT;
         lvt = startT;
+        this.activityManagerList = activityManagerList;
 	}
 	
     /**
@@ -228,9 +203,19 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 			// previous iteration to be finished (the execution queue must be empty)
 			while (executingEvents.get() > 0);
 			// Now the simulation clock can advance
+			for (ActivityManager am : activityManagerList)
+				am.executeWork();
+            // Each execution is divided into two steps
+			while (executingEvents.get() > 0);
+			// Now the AM events are executed
             execWaitingElements();
 		}
 		// We must wait for all the event to be finished
+		while (executingEvents.get() > 0);
+		// Now the simulation clock can advance
+		for (ActivityManager am : activityManagerList)
+			am.executeWork();
+        // Each execution is divided into two steps
 		while (executingEvents.get() > 0);
 		// Frees the execution queue
     	tp.shutdown();

@@ -194,23 +194,31 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 			elem.debug("Requests\t" + this + "\t" + description);
 		// Beginning MUTEX access to activity manager
 		manager.waitSemaphore();
-        elem.waitSemaphore();
-		// If the element is not performing a presential activity yet or the
-		// activity to be requested is non presential
-		if (validElement(wItem)) {
-			// There are enough resources to perform the activity
-			if (isFeasible(wItem)) {
-		    	elem.signalSemaphore();
-				carryOut(wItem);
-			}
-			else {
-		    	elem.signalSemaphore();
-				queueAdd(wItem); // The element is introduced in the queue
-			}
-		} else {
-	    	elem.signalSemaphore();
-			queueAdd(wItem); // The element is introduced in the queue
-		}
+
+		// ADDED. Changing events
+		queueAdd(wItem); // The element is introduced in the queue
+		manager.notifyElement(wItem);
+
+		// REMOVED. Changing events		
+//		elem.waitSemaphore();
+//		// If the element is not performing a presential activity yet or the
+//		// activity to be requested is non presential
+//		if (validElement(wItem)) {
+//			// There are enough resources to perform the activity
+//			if (isFeasible(wItem)) {
+//		    	elem.signalSemaphore();
+//				carryOut(wItem);
+//			}
+//			else {
+//		    	elem.signalSemaphore();
+//				queueAdd(wItem); // The element is introduced in the queue
+//			}
+//		} else {
+//	    	elem.signalSemaphore();
+//			queueAdd(wItem); // The element is introduced in the queue
+//		}
+		
+		
 		// Ending MUTEX access to activity manager
 		manager.signalSemaphore();		
 	}
@@ -274,7 +282,13 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 
 		for (ActivityManager am : amList) {
 			am.waitSemaphore();
-			am.availableResource();
+			
+			// ADDED. Changing events
+			am.notifyResource();
+			
+			// REMOVED. Changing events
+//			am.availableResource();
+			
 			am.signalSemaphore();
 		}
 		

@@ -359,7 +359,13 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         		role.incAvailable(Resource.this);
         		addRole(role, ts + duration);
         		// The activity manger is informed of new available resources
-        		role.getManager().availableResource(); 
+        		
+        		// ADDED. Changing events
+        		role.getManager().notifyResource();
+        		
+        		// REMOVED. Changing events
+//        		role.getManager().availableResource();
+        		
         		// Ending MUTEX access to activity manager
         		role.getManager().signalSemaphore();
         		role.afterRoleOn();
