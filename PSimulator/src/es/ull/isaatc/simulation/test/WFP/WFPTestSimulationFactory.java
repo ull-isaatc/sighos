@@ -47,6 +47,8 @@ public abstract class WFPTestSimulationFactory {
 		new Time(TimeUnit.MINUTE, 10),
 		new Time(TimeUnit.MINUTE, 15),
 		new Time(TimeUnit.MINUTE, 20),
+		new Time(TimeUnit.MINUTE, 25),
+		new Time(TimeUnit.MINUTE, 30),
 		};
 	public final static Time SIMSTART = Time.getZero();
 	public final static Time SIMEND = Time.getDay();

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.isaatc.simulation.sequential.Activity;
+import es.ull.isaatc.simulation.common.Activity;
 import es.ull.isaatc.simulation.sequential.Simulation;
 import es.ull.isaatc.simulation.sequential.WorkThread;
 
@@ -43,7 +43,7 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 		// Sets the corresponding single flows
 		TreeMap<Activity, SingleFlow> fMap = new TreeMap<Activity, SingleFlow>();
 		for (Activity a : acts)
-			fMap.put(a, new SingleFlow(simul, a));
+			fMap.put(a, new SingleFlow(simul, (es.ull.isaatc.simulation.sequential.Activity)a));
 		
 		TreeMap<SingleFlow, Flow> succLink = new TreeMap<SingleFlow, Flow>();
 		TreeMap<SingleFlow, Flow> predLink = new TreeMap<SingleFlow, Flow>();
