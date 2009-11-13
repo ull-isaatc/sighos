@@ -1,20 +1,22 @@
 package es.ull.isaatc.simulation.test.WFP;
 
-import es.ull.isaatc.simulation.sequential.WorkGroup;
-import es.ull.isaatc.simulation.sequential.ResourceType;
-import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
+import es.ull.isaatc.simulation.common.Simulation;
+import es.ull.isaatc.simulation.common.WorkGroup;
+import es.ull.isaatc.simulation.common.ResourceType;
+import es.ull.isaatc.simulation.common.TimeDrivenActivity;
 import es.ull.isaatc.simulation.common.condition.Condition;
 import es.ull.isaatc.simulation.common.condition.NotCondition;
 import es.ull.isaatc.simulation.common.condition.TrueCondition;
-import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
-import es.ull.isaatc.simulation.sequential.flow.StructuredSynchroMergeFlow;
+import es.ull.isaatc.simulation.common.factory.SimulationFactory.SimulationType;
+import es.ull.isaatc.simulation.common.flow.SingleFlow;
+import es.ull.isaatc.simulation.common.flow.StructuredSynchroMergeFlow;
 
 class WFP07CheckView extends CheckElementActionsView {
-	public WFP07CheckView(WFP07Simulation simul) {
+	public WFP07CheckView(Simulation simul) {
 		this(simul, true);
 	}
 
-	public WFP07CheckView(WFP07Simulation simul, boolean detailed) {
+	public WFP07CheckView(Simulation simul, boolean detailed) {
 		super(simul, "Checking WFP07...", detailed);
 
 		ElementReferenceInfos [] ref;
@@ -83,13 +85,14 @@ class WFP07CheckView extends CheckElementActionsView {
 
 /**
  * WFP 7. Example 1: Transferencia Pacientes
- * @author Iván Castilla Rodríguez
+ * @author Yeray Callero
+ * @author Iván Castilla
  *
  */
 public class WFP07Simulation extends WFPTestSimulationFactory {
 	
-	public WFP07Simulation(int id, boolean detailed) {
-		super(id, "WFP7: Structured Synchronizing Merge. EjTransferenciaPacientes", detailed);
+	public WFP07Simulation(SimulationType type, int id, boolean detailed) {
+		super(type, id, "WFP7: Structured Synchronizing Merge. EjTransferenciaPacientes", detailed);
     }
     
     protected void createModel() {
@@ -97,8 +100,8 @@ public class WFP07Simulation extends WFPTestSimulationFactory {
         ResourceType rt0 = getDefResourceType("Operador");
         ResourceType rt1 = getDefResourceType("Medico");
         
-        WorkGroup wgOp = new WorkGroup(rt0, 1);
-        WorkGroup wgMe = new WorkGroup(rt1, 1);
+        WorkGroup wgOp = factory.getWorkGroupInstance(0, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wgMe = factory.getWorkGroupInstance(1, new ResourceType[] {rt1}, new int[] {1});
 
         TimeDrivenActivity act0 = getDefTimeDrivenActivity("Envio policias", wgOp, false);
         TimeDrivenActivity act1 = getDefTimeDrivenActivity("Envio ambulancias", wgOp, false);
@@ -107,10 +110,10 @@ public class WFP07Simulation extends WFPTestSimulationFactory {
         getDefResource("Operador 1", rt0);
         getDefResource("Medico 1", rt1);
         
-        SingleFlow sin1 = new SingleFlow(this, act0);
-        SingleFlow sin2 = new SingleFlow(this, act1);
-        SingleFlow sin3 = new SingleFlow(this, act2);
-        StructuredSynchroMergeFlow root = new StructuredSynchroMergeFlow(this);
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
+        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
+        StructuredSynchroMergeFlow root = (StructuredSynchroMergeFlow)factory.getFlowInstance(10, "StructuredSynchroMergeFlow");
         
         Condition falseCond = new NotCondition(new TrueCondition());
         
@@ -122,7 +125,7 @@ public class WFP07Simulation extends WFPTestSimulationFactory {
 
         getDefGenerator(getDefElementType("Emergencia"), root);
 
-        addInfoReceiver(new WFP07CheckView(this, detailed));
+//        getSimulation().addInfoReceiver(new WFP07CheckView(getSimulation(), detailed));
     }
 	
 }

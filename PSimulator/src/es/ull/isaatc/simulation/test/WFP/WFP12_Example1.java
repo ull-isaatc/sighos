@@ -11,18 +11,18 @@ import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;
-import es.ull.isaatc.simulation.sequential.ElementType;
-import es.ull.isaatc.simulation.sequential.WorkGroup;
-import es.ull.isaatc.simulation.sequential.ElementCreator;
-import es.ull.isaatc.simulation.sequential.Resource;
-import es.ull.isaatc.simulation.sequential.ResourceType;
-import es.ull.isaatc.simulation.sequential.Simulation;
-import es.ull.isaatc.simulation.sequential.StandAloneLPSimulation;
-import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
-import es.ull.isaatc.simulation.sequential.TimeDrivenGenerator;
-import es.ull.isaatc.simulation.sequential.flow.ParallelFlow;
-import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
-import es.ull.isaatc.simulation.sequential.flow.ThreadSplitFlow;
+import es.ull.isaatc.simulation.common.ElementType;
+import es.ull.isaatc.simulation.common.WorkGroup;
+import es.ull.isaatc.simulation.common.ElementCreator;
+import es.ull.isaatc.simulation.common.Resource;
+import es.ull.isaatc.simulation.common.ResourceType;
+import es.ull.isaatc.simulation.common.Simulation;
+import es.ull.isaatc.simulation.common.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.common.TimeDrivenActivity;
+import es.ull.isaatc.simulation.common.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.common.flow.ParallelFlow;
+import es.ull.isaatc.simulation.common.flow.SingleFlow;
+import es.ull.isaatc.simulation.common.flow.ThreadSplitFlow;
 import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 
 class SimulationWFP12 extends StandAloneLPSimulation {
@@ -36,10 +36,10 @@ class SimulationWFP12 extends StandAloneLPSimulation {
     
     protected void createModel() {
     	ResourceType rt = new ResourceType(0, this, "Policeman");
-    	WorkGroup wg = new WorkGroup(rt, 1);
+    	WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt}, new int[] {1});
     	
     	new TimeDrivenActivity(0, this, "Receive Infringment").addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10.0), wg);
-    	new TimeDrivenActivity(1, this, "Issue-Infringment-Notice", EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL)).addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 30.0), wg);
+    	new TimeDrivenActivity(1, this, "Issue-Infringment-Notice", false).addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 30.0), wg);
     	new TimeDrivenActivity(2, this, "Coffee").addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10.0), wg);
     	
     	ModelPeriodicCycle c = new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", 1440), 0); 

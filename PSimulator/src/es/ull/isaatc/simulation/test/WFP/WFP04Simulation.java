@@ -7,6 +7,7 @@ import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.condition.Condition;
 import es.ull.isaatc.simulation.common.condition.NotCondition;
 import es.ull.isaatc.simulation.common.condition.TrueCondition;
+import es.ull.isaatc.simulation.common.factory.SimulationFactory.SimulationType;
 import es.ull.isaatc.simulation.common.flow.ExclusiveChoiceFlow;
 import es.ull.isaatc.simulation.common.flow.SingleFlow;
 
@@ -149,20 +150,21 @@ class WFP04CheckView extends CheckElementActionsView {
 }
 /**
  * WFP 4 Example 1: Sistema Votación
- * @author Iván Castilla Rodríguez
+ * @author Yeray Callero
+ * @author Iván Castilla
  *
  */
 public class WFP04Simulation extends WFPTestSimulationFactory {
 	int ndays;
 	
-	public WFP04Simulation(int id, boolean detailed) {
-		super(id, "WFP4: Exclusive Choice. EjSistemaVotacion", detailed);
+	public WFP04Simulation(SimulationType type, int id, boolean detailed) {
+		super(type, id, "WFP4: Exclusive Choice. EjSistemaVotacion", detailed);
     }
     
     protected void createModel() {
    	
         ResourceType rt = getDefResourceType("Encargado");
-        WorkGroup wg = new WorkGroup(rt, 1);
+        WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt}, new int[] {1});
         
         TimeDrivenActivity act0 = getDefTimeDrivenActivity("Celebrar elecciones", wg, false);
         TimeDrivenActivity act1 = getDefTimeDrivenActivity("Recuentos de votos", wg, false);
@@ -170,10 +172,10 @@ public class WFP04Simulation extends WFPTestSimulationFactory {
         
         getDefResource("Encargado 1", rt); 
       
-        SingleFlow root = new SingleFlow(this, act0);
-        ExclusiveChoiceFlow excho1 = new ExclusiveChoiceFlow(this);
-        SingleFlow sin2 = new SingleFlow(this, act1);
-        SingleFlow sin3 = new SingleFlow(this, act2);
+        SingleFlow root = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
+        ExclusiveChoiceFlow excho1 = (ExclusiveChoiceFlow)factory.getFlowInstance(10, "ExclusiveChoiceFlow");
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
+        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
         
         root.link(excho1);
         Condition falseCond = new NotCondition(new TrueCondition());
@@ -181,7 +183,7 @@ public class WFP04Simulation extends WFPTestSimulationFactory {
         excho1.link(sin3, falseCond);
 
         getDefGenerator(getDefElementType("Votante"), root);
-        addInfoReceiver(new WFP04CheckView(this, detailed));
+//        getSimulation().addInfoReceiver(new WFP04CheckView(getSimulation(), detailed));
     }
 	
 }

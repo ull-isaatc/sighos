@@ -8,18 +8,18 @@ import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;
-import es.ull.isaatc.simulation.sequential.ElementType;
-import es.ull.isaatc.simulation.sequential.WorkGroup;
-import es.ull.isaatc.simulation.sequential.ElementCreator;
-import es.ull.isaatc.simulation.sequential.Resource;
-import es.ull.isaatc.simulation.sequential.ResourceType;
-import es.ull.isaatc.simulation.sequential.Simulation;
-import es.ull.isaatc.simulation.sequential.StandAloneLPSimulation;
-import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
-import es.ull.isaatc.simulation.sequential.TimeDrivenGenerator;
-import es.ull.isaatc.simulation.sequential.flow.ParallelFlow;
-import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
-import es.ull.isaatc.simulation.sequential.flow.SynchronizationFlow;
+import es.ull.isaatc.simulation.common.ElementType;
+import es.ull.isaatc.simulation.common.WorkGroup;
+import es.ull.isaatc.simulation.common.ElementCreator;
+import es.ull.isaatc.simulation.common.Resource;
+import es.ull.isaatc.simulation.common.ResourceType;
+import es.ull.isaatc.simulation.common.Simulation;
+import es.ull.isaatc.simulation.common.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.common.TimeDrivenActivity;
+import es.ull.isaatc.simulation.common.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.common.flow.ParallelFlow;
+import es.ull.isaatc.simulation.common.flow.SingleFlow;
+import es.ull.isaatc.simulation.common.flow.SynchronizationFlow;
 import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 
 class SimulationWFP33 extends StandAloneLPSimulation {
@@ -32,13 +32,13 @@ class SimulationWFP33 extends StandAloneLPSimulation {
     
     protected void createModel() {
    	
-    	new TimeDrivenActivity(0, this, "Generacion de factura", EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-    	new TimeDrivenActivity(1, this, "Comprobacion de factura", EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-    	new TimeDrivenActivity(2, this, "Envio de mercancias", EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+    	new TimeDrivenActivity(0, this, "Generacion de factura", false);
+    	new TimeDrivenActivity(1, this, "Comprobacion de factura", false);
+    	new TimeDrivenActivity(2, this, "Envio de mercancias", false);
         
         new ResourceType(0, this, "Comercial");
         
-        WorkGroup wg = new WorkGroup(getResourceType(0), 1);
+        WorkGroup wg = factory.getWorkGroupInstance(getResourceType(0), 1);
         ((TimeDrivenActivity)getActivity(0)).addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15.0, 2.0), wg);
         ((TimeDrivenActivity)getActivity(1)).addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15.0, 2.0), wg);
         ((TimeDrivenActivity)getActivity(2)).addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15.0, 2.0), wg);

@@ -7,7 +7,7 @@ import es.ull.isaatc.simulation.common.info.ResourceInfo;
 import es.ull.isaatc.simulation.common.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.common.info.SimulationInfo;
 import es.ull.isaatc.simulation.common.inforeceiver.View;
-import es.ull.isaatc.simulation.sequential.Simulation;
+import es.ull.isaatc.simulation.common.Simulation;
 
 /**
  * @author Iván Castilla Rodríguez

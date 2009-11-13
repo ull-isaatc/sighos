@@ -113,7 +113,8 @@ class WFP01CheckView extends CheckElementActionsView {
 
 /**
  * WFP 1, Example 1: Tarjeta de Credito
- * @author Iván Castilla Rodríguez
+ * @author Yeray Callero
+ * @author Iván Castilla
  *
  */
 public class WFP01Simulation extends WFPTestSimulationFactory {

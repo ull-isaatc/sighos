@@ -144,7 +144,8 @@ class WFP02CheckView extends CheckElementActionsView {
 
 /**
  * WFP 2, example 2: Alarma
- * @author Iván Castilla Rodríguez
+ * @author Yeray Callero
+ * @author Iván Castilla
  *
  */
 public class WFP02Simulation extends WFPTestSimulationFactory {

@@ -1,19 +1,21 @@
 package es.ull.isaatc.simulation.test.WFP;
 
-import es.ull.isaatc.simulation.sequential.WorkGroup;
-import es.ull.isaatc.simulation.sequential.ResourceType;
-import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
-import es.ull.isaatc.simulation.sequential.flow.ParallelFlow;
-import es.ull.isaatc.simulation.sequential.flow.SimpleMergeFlow;
-import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
+import es.ull.isaatc.simulation.common.Simulation;
+import es.ull.isaatc.simulation.common.factory.SimulationFactory.SimulationType;
+import es.ull.isaatc.simulation.common.WorkGroup;
+import es.ull.isaatc.simulation.common.ResourceType;
+import es.ull.isaatc.simulation.common.TimeDrivenActivity;
+import es.ull.isaatc.simulation.common.flow.ParallelFlow;
+import es.ull.isaatc.simulation.common.flow.SimpleMergeFlow;
+import es.ull.isaatc.simulation.common.flow.SingleFlow;
 
 
 class WFP05CheckView extends CheckElementActionsView {
-	public WFP05CheckView(WFP05Simulation simul) {
+	public WFP05CheckView(Simulation simul) {
 		this(simul, true);
 	}
 
-	public WFP05CheckView(WFP05Simulation simul, boolean detailed) {
+	public WFP05CheckView(Simulation simul, boolean detailed) {
 		super(simul, "Checking WFP5...", detailed);
 		
 		ElementReferenceInfos [] ref;
@@ -146,13 +148,14 @@ class WFP05CheckView extends CheckElementActionsView {
 
 /**
  * WFP 5. Example 1: Excavaciones
- * @author Iván Castilla Rodríguez
+ * @author Yeray Callero
+ * @author Iván Castilla
  *
  */
 public class WFP05Simulation extends WFPTestSimulationFactory {
 	
-	public WFP05Simulation(int id, boolean detailed) {
-		super(id, "WFP5: Simple Merge. EjExcavaciones", detailed);
+	public WFP05Simulation(SimulationType type, int id, boolean detailed) {
+		super(type, id, "WFP5: Simple Merge. EjExcavaciones", detailed);
     }
     
     protected void createModel() {
@@ -163,10 +166,10 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
         ResourceType rt3 = getDefResourceType("Comercial");
         ResourceType rt4 = getDefResourceType("Excavadora H8");
         
-        WorkGroup wgEBob = new WorkGroup(new ResourceType[] {rt0, rt2}, new int[] {1, 1});
-        WorkGroup wgED9 = new WorkGroup(new ResourceType[] {rt1, rt2}, new int[] {1, 1});
-        WorkGroup wgFacturacion = new WorkGroup(rt3, 1);
-        WorkGroup wgEH8 = new WorkGroup(new ResourceType[] {rt4, rt2}, new int[] {1, 1});
+        WorkGroup wgEBob = factory.getWorkGroupInstance(0, new ResourceType[] {rt0, rt2}, new int[] {1, 1});
+        WorkGroup wgED9 = factory.getWorkGroupInstance(1, new ResourceType[] {rt1, rt2}, new int[] {1, 1});
+        WorkGroup wgFacturacion = factory.getWorkGroupInstance(2, new ResourceType[] {rt3}, new int[] {1});
+        WorkGroup wgEH8 = factory.getWorkGroupInstance(3, new ResourceType[] {rt4, rt2}, new int[] {1, 1});
         
         TimeDrivenActivity act0 = getDefTimeDrivenActivity("Excavacion bobcat", wgEBob, false);
         TimeDrivenActivity act1 = getDefTimeDrivenActivity("Excavacion D9", wgED9, false);
@@ -182,12 +185,12 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
         getDefResource("Comercial1", rt3);
         getDefResource("H81", rt4);
 
-        ParallelFlow root = new ParallelFlow(this);
-        SingleFlow sin1 = new SingleFlow(this, act0);
-        SingleFlow sin2 = new SingleFlow(this, act1);
-        SimpleMergeFlow simme1 = new SimpleMergeFlow(this);        
-        SingleFlow sin3 = new SingleFlow(this, act2);
-        SingleFlow sin4 = new SingleFlow(this, act3);
+        ParallelFlow root = (ParallelFlow)factory.getFlowInstance(10, "ParallelFlow");
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
+        SimpleMergeFlow simme1 = (SimpleMergeFlow)factory.getFlowInstance(11, "SimpleMergeFlow");        
+        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
+        SingleFlow sin4 = (SingleFlow)factory.getFlowInstance(3, "SingleFlow", act3);
         
         root.link(sin1);
         root.link(sin2);     
@@ -198,7 +201,7 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
         simme1.link(sin3);
         
         getDefGenerator(getDefElementType("Excavacion"), root);
-        addInfoReceiver(new WFP05CheckView(this, detailed));
+//        getSimulation().addInfoReceiver(new WFP05CheckView(getSimulation(), detailed));
     }
 	
 }

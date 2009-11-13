@@ -17,17 +17,19 @@ import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 class WFPTestExperiment extends Experiment {
 	int wfp = -1;
 	boolean detailed;
-	SimulationType type = SimulationType.SEQUENTIAL;
+	SimulationType type;
 	
-	public WFPTestExperiment(boolean detailed) {
+	public WFPTestExperiment(SimulationType type, boolean detailed) {
 		super("Testing WFPs...", WFPTest.simulations.size());
 		this.detailed = detailed;
+		this.type = type;
 	}
 	
-	public WFPTestExperiment(int wfp, boolean detailed) {
+	public WFPTestExperiment(SimulationType type, int wfp, boolean detailed) {
 		super("Testing WFPs...", 1);
 		this.wfp = wfp;
 		this.detailed = detailed;
+		this.type = type;
 	}
 
 	private Simulation class2Simulation(Class<?> cl, int ind) {
@@ -97,9 +99,11 @@ public class WFPTest {
 		simulations.put(5, WFP05Simulation.class);
 		simulations.put(6, WFP06Simulation.class);
 		simulations.put(7, WFP07Simulation.class);
+		simulations.put(8, WFP08Simulation.class);
+		simulations.put(9, WFP09Simulation.class);
 		
 
-		new WFPTestExperiment(3, true).start();
+		new WFPTestExperiment(SimulationType.SEQUENTIAL, 9, true).start();
 	}
 
 }

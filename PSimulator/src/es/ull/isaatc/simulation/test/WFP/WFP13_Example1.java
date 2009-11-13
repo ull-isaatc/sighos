@@ -9,17 +9,17 @@ import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;
-import es.ull.isaatc.simulation.sequential.ElementType;
-import es.ull.isaatc.simulation.sequential.WorkGroup;
-import es.ull.isaatc.simulation.sequential.ElementCreator;
-import es.ull.isaatc.simulation.sequential.Resource;
-import es.ull.isaatc.simulation.sequential.ResourceType;
-import es.ull.isaatc.simulation.sequential.Simulation;
-import es.ull.isaatc.simulation.sequential.StandAloneLPSimulation;
-import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
-import es.ull.isaatc.simulation.sequential.TimeDrivenGenerator;
-import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
-import es.ull.isaatc.simulation.sequential.flow.SynchronizedMultipleInstanceFlow;
+import es.ull.isaatc.simulation.common.ElementType;
+import es.ull.isaatc.simulation.common.WorkGroup;
+import es.ull.isaatc.simulation.common.ElementCreator;
+import es.ull.isaatc.simulation.common.Resource;
+import es.ull.isaatc.simulation.common.ResourceType;
+import es.ull.isaatc.simulation.common.Simulation;
+import es.ull.isaatc.simulation.common.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.common.TimeDrivenActivity;
+import es.ull.isaatc.simulation.common.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.common.flow.SingleFlow;
+import es.ull.isaatc.simulation.common.flow.SynchronizedMultipleInstanceFlow;
 import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 
 class SimulationWFP13 extends StandAloneLPSimulation {
@@ -33,7 +33,7 @@ class SimulationWFP13 extends StandAloneLPSimulation {
     
     protected void createModel() {
     	ResourceType rt = new ResourceType(0, this, "Director");
-    	WorkGroup wg = new WorkGroup(rt, 1);
+    	WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt}, new int[] {1});
     	
     	new TimeDrivenActivity(0, this, "Sign Annual Report").addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10.0), wg);
     	new TimeDrivenActivity(1, this, "Check acceptance").addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10.0), wg);

@@ -11,18 +11,18 @@ import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;
-import es.ull.isaatc.simulation.sequential.ElementType;
-import es.ull.isaatc.simulation.sequential.WorkGroup;
-import es.ull.isaatc.simulation.sequential.ElementCreator;
-import es.ull.isaatc.simulation.sequential.Resource;
-import es.ull.isaatc.simulation.sequential.ResourceType;
-import es.ull.isaatc.simulation.sequential.Simulation;
-import es.ull.isaatc.simulation.sequential.StandAloneLPSimulation;
-import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
-import es.ull.isaatc.simulation.sequential.TimeDrivenGenerator;
-import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
-import es.ull.isaatc.simulation.sequential.flow.ThreadMergeFlow;
-import es.ull.isaatc.simulation.sequential.flow.ThreadSplitFlow;
+import es.ull.isaatc.simulation.common.ElementType;
+import es.ull.isaatc.simulation.common.WorkGroup;
+import es.ull.isaatc.simulation.common.ElementCreator;
+import es.ull.isaatc.simulation.common.Resource;
+import es.ull.isaatc.simulation.common.ResourceType;
+import es.ull.isaatc.simulation.common.Simulation;
+import es.ull.isaatc.simulation.common.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.common.TimeDrivenActivity;
+import es.ull.isaatc.simulation.common.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.common.flow.SingleFlow;
+import es.ull.isaatc.simulation.common.flow.ThreadMergeFlow;
+import es.ull.isaatc.simulation.common.flow.ThreadSplitFlow;
 import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 
 class SimulationWFP41_42 extends StandAloneLPSimulation {
@@ -43,13 +43,13 @@ class SimulationWFP41_42 extends StandAloneLPSimulation {
     	new Resource(2, this, "Ref1").addTimeTableEntry(c, endTs, getResourceType(1));
     	new Resource(3, this, "Ref2").addTimeTableEntry(c, endTs, getResourceType(1));
 		
-		WorkGroup wg0 = new WorkGroup(getResourceType(0), 1);
-		WorkGroup wg1 = new WorkGroup(getResourceType(1), 1);
-		new TimeDrivenActivity(0, this, "Confirm paper receival", EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL))
+		WorkGroup wg0 = factory.getWorkGroupInstance(getResourceType(0), 1);
+		WorkGroup wg1 = factory.getWorkGroupInstance(getResourceType(1), 1);
+		new TimeDrivenActivity(0, this, "Confirm paper receival", false)
 			.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 5.0), wg0);		
-		new TimeDrivenActivity(1, this, "Independent Peer review", EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL))
+		new TimeDrivenActivity(1, this, "Independent Peer review", false)
 			.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 120.0), wg1);;
-		new TimeDrivenActivity(2, this, "Notify authors", EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL))
+		new TimeDrivenActivity(2, this, "Notify authors", false)
 			.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 5.0), wg0);;
 		
 		SingleFlow root = new SingleFlow(this, getActivity(0));

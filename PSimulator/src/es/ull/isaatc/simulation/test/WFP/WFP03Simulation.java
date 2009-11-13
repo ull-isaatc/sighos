@@ -1,7 +1,6 @@
 package es.ull.isaatc.simulation.test.WFP;
 
 import es.ull.isaatc.simulation.common.Simulation;
-import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.WorkGroup;
 import es.ull.isaatc.simulation.common.ResourceType;
 import es.ull.isaatc.simulation.common.TimeDrivenActivity;
@@ -154,7 +153,8 @@ class WFP03CheckView extends CheckElementActionsView {
 
 /**
  * WFP 3, example 1: Envío de mercancias
- * @author Iván Castilla Rodríguez
+ * @author Yeray Callero
+ * @author Iván Castilla
  *
  */
 public class WFP03Simulation extends WFPTestSimulationFactory {

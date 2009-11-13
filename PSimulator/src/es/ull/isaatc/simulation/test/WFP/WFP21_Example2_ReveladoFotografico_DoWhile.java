@@ -8,17 +8,17 @@ import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;
-import es.ull.isaatc.simulation.sequential.ElementType;
-import es.ull.isaatc.simulation.sequential.WorkGroup;
+import es.ull.isaatc.simulation.common.ElementType;
+import es.ull.isaatc.simulation.common.WorkGroup;
 import es.ull.isaatc.simulation.common.Element;
-import es.ull.isaatc.simulation.sequential.ElementCreator;
-import es.ull.isaatc.simulation.sequential.Resource;
-import es.ull.isaatc.simulation.sequential.ResourceType;
-import es.ull.isaatc.simulation.sequential.StandAloneLPSimulation;
-import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
-import es.ull.isaatc.simulation.sequential.TimeDrivenGenerator;
-import es.ull.isaatc.simulation.sequential.flow.DoWhileFlow;
-import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
+import es.ull.isaatc.simulation.common.ElementCreator;
+import es.ull.isaatc.simulation.common.Resource;
+import es.ull.isaatc.simulation.common.ResourceType;
+import es.ull.isaatc.simulation.common.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.common.TimeDrivenActivity;
+import es.ull.isaatc.simulation.common.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.common.flow.DoWhileFlow;
+import es.ull.isaatc.simulation.common.flow.SingleFlow;
 import es.ull.isaatc.simulation.common.condition.Condition;
 import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 
@@ -32,11 +32,11 @@ class SimulationWFP21E2_ extends StandAloneLPSimulation {
     
     protected void createModel() {
     	
-    	new TimeDrivenActivity(0, this, "Revelar foto", EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+    	new TimeDrivenActivity(0, this, "Revelar foto", false);
 
         new ResourceType(0, this, "Maquina revelado");
         
-        WorkGroup wg = new WorkGroup(getResourceType(0), 1);
+        WorkGroup wg = factory.getWorkGroupInstance(getResourceType(0), 1);
         ((TimeDrivenActivity)getActivity(0)).addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15.0, 5.0), wg);
 
         ModelPeriodicCycle subc2 = new ModelPeriodicCycle(unit, 480, new ModelTimeFunction(unit, "ConstantVariate", 1040.0), 5);

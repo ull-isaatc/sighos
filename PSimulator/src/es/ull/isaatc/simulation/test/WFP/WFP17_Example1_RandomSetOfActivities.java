@@ -11,18 +11,18 @@ import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;
-import es.ull.isaatc.simulation.sequential.ElementType;
-import es.ull.isaatc.simulation.sequential.WorkGroup;
-import es.ull.isaatc.simulation.sequential.Activity;
-import es.ull.isaatc.simulation.sequential.ElementCreator;
-import es.ull.isaatc.simulation.sequential.Resource;
-import es.ull.isaatc.simulation.sequential.ResourceType;
-import es.ull.isaatc.simulation.sequential.Simulation;
-import es.ull.isaatc.simulation.sequential.StandAloneLPSimulation;
-import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
-import es.ull.isaatc.simulation.sequential.TimeDrivenGenerator;
-import es.ull.isaatc.simulation.sequential.flow.InterleavedParallelRoutingFlow;
-import es.ull.isaatc.simulation.sequential.flow.SingleFlow;
+import es.ull.isaatc.simulation.common.ElementType;
+import es.ull.isaatc.simulation.common.WorkGroup;
+import es.ull.isaatc.simulation.common.Activity;
+import es.ull.isaatc.simulation.common.ElementCreator;
+import es.ull.isaatc.simulation.common.Resource;
+import es.ull.isaatc.simulation.common.ResourceType;
+import es.ull.isaatc.simulation.common.Simulation;
+import es.ull.isaatc.simulation.common.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.common.TimeDrivenActivity;
+import es.ull.isaatc.simulation.common.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.common.flow.InterleavedParallelRoutingFlow;
+import es.ull.isaatc.simulation.common.flow.SingleFlow;
 import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 
 /**
@@ -55,7 +55,7 @@ class SimulationWFP17 extends StandAloneLPSimulation {
     	for (int i = 0; i < RES; i++)
     		new Resource(i, this, "RES" + i).addTimeTableEntry(c, endTs, rt);
     	
-    	WorkGroup wg = new WorkGroup(rt, 1);
+    	WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt}, new int[] {1});
     	for (Activity a : acts)
     		((TimeDrivenActivity)a).addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10.0), wg);
     	finalAct.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10.0), wg);
