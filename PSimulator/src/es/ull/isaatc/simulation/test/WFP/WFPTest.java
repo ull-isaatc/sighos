@@ -106,8 +106,13 @@ public class WFPTest {
 		simulations.put(13, WFP13Simulation.class);
 		simulations.put(17, WFP17Simulation.class);
 		simulations.put(19, WFP19Simulation.class);
+		simulations.put(21, WFP21Simulation_For.class);
+		simulations.put(211, WFP21Simulation_WhileDo.class);
+		simulations.put(212, WFP21Simulation_DoWhile.class);
+		simulations.put(28, WFP28Simulation.class);
+		simulations.put(30, WFP30Simulation.class);
 
-		new WFPTestExperiment(SimulationType.SEQUENTIAL, 19, true).start();
+		new WFPTestExperiment(SimulationType.SEQUENTIAL, 30, true).start();
 	}
 
 }
