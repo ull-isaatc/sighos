@@ -25,10 +25,10 @@ import es.ull.isaatc.simulation.common.inforeceiver.VarView;
 public class ExecutionTimeView extends VarView {
 
 	HashMap<Activity, ActivityTimeCounters> activityExTime;
-	HashMap<ResourceType, Double> rtExTime;
-	HashMap<ElementType, Double> etExTime;
+	HashMap<ResourceType, Long> rtExTime;
+	HashMap<ElementType, Long> etExTime;
 	HashMap<Resource, ResourceTimeCounters> resExTime;
-	HashMap<Element, Double> elemExTime;
+	HashMap<Element, Long> elemExTime;
 	TreeMap<SimulObjectStore, SfResources> startActivityTimes;
 	
 	public ExecutionTimeView(Simulation simul) {
@@ -37,10 +37,10 @@ public class ExecutionTimeView extends VarView {
 		addEntrance(SimulationEndInfo.class);
 		addEntrance(ResourceUsageInfo.class);
 		activityExTime = new HashMap<Activity, ActivityTimeCounters>();
-		rtExTime = new HashMap<ResourceType, Double>();
-		etExTime = new HashMap<ElementType, Double>();
+		rtExTime = new HashMap<ResourceType, Long>();
+		etExTime = new HashMap<ElementType, Long>();
 		resExTime = new HashMap<Resource, ResourceTimeCounters>();
-		elemExTime = new HashMap<Element, Double>();
+		elemExTime = new HashMap<Element, Long>();
 		startActivityTimes = new TreeMap<SimulObjectStore, SfResources>();
 	}
 
@@ -73,7 +73,7 @@ public class ExecutionTimeView extends VarView {
 			}
 			case ENDACT: {
 				SfResources sfRes = startActivityTimes.get(id);
-				double execTime = 0.0;
+				long execTime = 0;
 				if (sfRes != null) {
 					execTime = elemActInfo.getTs() - sfRes.startTime;
 					calculateActivityTime(act, execTime, wg);
@@ -92,7 +92,7 @@ public class ExecutionTimeView extends VarView {
 			}
 			case INTACT: {
 				SfResources sfRes = startActivityTimes.get(id);
-				double execTime = 0.0;
+				long execTime = 0;
 				if (sfRes != null) {
 					execTime = elemActInfo.getTs() - sfRes.startTime;
 					calculateActivityTime(act, execTime, wg);
@@ -129,7 +129,7 @@ public class ExecutionTimeView extends VarView {
 			}
 		} else if (info instanceof SimulationEndInfo) {
 			SimulationEndInfo endInfo = (SimulationEndInfo) info;
-			Double finalTs = endInfo.getSimul().getInternalEndTs();		
+			Long finalTs = endInfo.getSimul().getInternalEndTs();		
 			Iterator<Entry<SimulObjectStore, SfResources>> iter = startActivityTimes.entrySet().iterator();
 			while(iter.hasNext()) {
 				Entry<SimulObjectStore, SfResources> entry = iter.next();
@@ -140,7 +140,7 @@ public class ExecutionTimeView extends VarView {
 				ElementType et = elem.getType();
 				ActivityWorkGroup wg = key.wg;
 				HashMap<Resource, ResourceType> resList = sfRes.resList;
-				double execTime = finalTs - sfRes.startTime;
+				long execTime = finalTs - sfRes.startTime;
 				calculateActivityTime(act, execTime, wg);
 				calculateElementTime(elem, execTime);
 				calculateElementTypeTime(et, execTime);
@@ -186,16 +186,16 @@ public class ExecutionTimeView extends VarView {
 		}
 	}
 
-	private String debugExTimeMessage(double execTime, SfResources sfRes, Activity act, ActivityWorkGroup wg, Element elem, ElementType et) {
+	private String debugExTimeMessage(long execTime, SfResources sfRes, Activity act, ActivityWorkGroup wg, Element elem, ElementType et) {
 		String message = new String();
 		ActivityTimeCounters counters = activityExTime.get(act);
 		message += "Added " + execTime + " to \t" + act.getDescription() + " execution time with wg:\t" + wg.getDescription() + "\n"; 
 		message += act.getDescription() + " \texecution time = " + counters.totalTime + "\n";
-		Iterator<Entry<ActivityWorkGroup, Double>> iter = counters.wgTime.entrySet().iterator();
+		Iterator<Entry<ActivityWorkGroup, Long>> iter = counters.wgTime.entrySet().iterator();
 		while (iter.hasNext()) {
-			Entry<ActivityWorkGroup, Double> subentry = iter.next();
+			Entry<ActivityWorkGroup, Long> subentry = iter.next();
 			ActivityWorkGroup entryWg = subentry.getKey();
-			Double entryTime = subentry.getValue();
+			Long entryTime = subentry.getValue();
 			message += "\t with wg: " + entryWg.getDescription() + " " + entryTime + "\n";
 		}
 		Iterator<Entry<Resource, ResourceType>> iter1 = sfRes.resList.entrySet().iterator();
@@ -206,11 +206,11 @@ public class ExecutionTimeView extends VarView {
 			message += "Added " + execTime + " to \t" + entryRes.getDescription() + " with type \t" + entryRt.getDescription() + "\n";
 			ResourceTimeCounters resCounters = resExTime.get(entryRes);
 			message += entryRes.getDescription() + " \texecution time = " + resCounters.totalTime + "\n";
-			Iterator<Entry<ResourceType, Double>> iter2 = resCounters.roleTime.entrySet().iterator();
+			Iterator<Entry<ResourceType, Long>> iter2 = resCounters.roleTime.entrySet().iterator();
 			while (iter2.hasNext()) {
-				Entry<ResourceType, Double> subEntry2 = iter2.next();
+				Entry<ResourceType, Long> subEntry2 = iter2.next();
 				ResourceType subEntryRt = subEntry2.getKey();
-				Double subEntryTime = subEntry2.getValue();
+				Long subEntryTime = subEntry2.getValue();
 				message += "\twith rt: " + subEntryRt.getDescription() + " " + subEntryTime + "\n";
 			}
 			message += entryRt.getDescription() + " \texecution time = " + rtExTime.get(entryRt) + "\n";
@@ -221,13 +221,13 @@ public class ExecutionTimeView extends VarView {
 		return (message);
 	}
 	
-	private ArrayList<Double> getStoreSet(Object obj) {
+	private ArrayList<Long> getStoreSet(Object obj) {
 		Boolean resource = null;
 		if ((obj instanceof Resource) || (obj instanceof ResourceType))
 			resource = new Boolean(true);
 		else
 			resource = new Boolean(false);
-		ArrayList<Double> storeList = new ArrayList<Double>();
+		ArrayList<Long> storeList = new ArrayList<Long>();
 		Iterator<Entry<SimulObjectStore, SfResources>> iter = startActivityTimes.entrySet().iterator();
 		while (iter.hasNext()) {
 			Entry<SimulObjectStore, SfResources> entry = iter.next();
@@ -243,32 +243,32 @@ public class ExecutionTimeView extends VarView {
 		return storeList;
 	}
 	
-	private Double calculateActualWaitTime(ArrayList<Double> storeList, Double currentTime, Double acumulatedTime) {
-		double acumulatorValue = 0.0;
-		Iterator<Double> iter = storeList.iterator();
+	private Long calculateActualWaitTime(ArrayList<Long> storeList, Long currentTime, Long acumulatedTime) {
+		long acumulatorValue = 0;
+		Iterator<Long> iter = storeList.iterator();
 		while (iter.hasNext()) {
-			Double start = (Double) iter.next();
-			acumulatorValue += currentTime - start.doubleValue(); 
+			Long start = (Long) iter.next();
+			acumulatorValue += currentTime - start.longValue(); 
 		}
 		if (acumulatedTime != null)
-			acumulatorValue += acumulatedTime.doubleValue();
+			acumulatorValue += acumulatedTime.longValue();
 		return acumulatorValue;
 	}
 	
 	public Number getValue(Object... params) {
-		Double currentTs = null;
-		Double time = new Double(0);
+		Long currentTs = null;
+		Long time = new Long(0);
 		String message = new String();
 		if (params[0] instanceof Activity) {
 			Activity act = (Activity) params[0];
 			if ((params.length > 2) && (params[1] instanceof ActivityWorkGroup)) {
 				ActivityWorkGroup wg = (ActivityWorkGroup) params[1];
-				currentTs = (Double) params[2];
+				currentTs = (Long) params[2];
 				time = calculateActualWaitTime(getStoreSet(wg), currentTs, activityExTime.get(act).getWgTime(wg));
 				if (isDebugMode()) 
 					message += "GetValue request\t" + currentTs + "\t" + wg.toString() + "\treturned " + time + "\n";
 			} else {
-				currentTs = (Double) params[1];
+				currentTs = (Long) params[1];
 				time = calculateActualWaitTime(getStoreSet(act), currentTs, activityExTime.get(act).getTotalTime());
 				if (isDebugMode()) 
 					message += "GetValue request\t" + currentTs + "\t" + act.toString() + "\treturned " + time + "\n";
@@ -276,14 +276,14 @@ public class ExecutionTimeView extends VarView {
 		} else {
 			if (params[0] instanceof Element) {
 				Element elem = (Element) params[0];
-				currentTs = (Double) params[1];
+				currentTs = (Long) params[1];
 				time = calculateActualWaitTime(getStoreSet(elem), currentTs, elemExTime.get(elem));
 				if (isDebugMode()) 
 					message += "GetValue request\t" + currentTs + "\t" + elem.toString() + "\treturned " + time + "\n";
 			} else {
 				if (params[0] instanceof ElementType) {
 					ElementType et = (ElementType) params[0];
-					currentTs = (Double) params[1];
+					currentTs = (Long) params[1];
 					time = calculateActualWaitTime(getStoreSet(et), currentTs, etExTime.get(et));
 					if (isDebugMode()) 
 						message += "GetValue request\t" + currentTs + "\t" + et.toString() + "\treturned " + time + "\n";
@@ -292,12 +292,12 @@ public class ExecutionTimeView extends VarView {
 						Resource res = (Resource) params[0];
 						if ((params.length > 2) && (params[1] instanceof ResourceType)) {
 							ResourceType rt = (ResourceType) params[1];
-							currentTs = (Double) params[2];
+							currentTs = (Long) params[2];
 							time = calculateActualWaitTime(getStoreSet(rt), currentTs, resExTime.get(res).roleTime.get(rt));
 							if (isDebugMode()) 
 								message += "GetValue request\t" + currentTs + "\t" + res.toString() + "\t" + rt.toString() + "\treturned " + time + "\n";
 						} else {
-							currentTs = (Double) params[1];
+							currentTs = (Long) params[1];
 							time = calculateActualWaitTime(getStoreSet(res), currentTs, resExTime.get(res).totalTime);
 							if (isDebugMode()) 
 								message += "GetValue request\t" + currentTs + "\t" + res.toString() + "\treturned " + time + "\n";
@@ -305,7 +305,7 @@ public class ExecutionTimeView extends VarView {
 					} else {
 						if (params[0] instanceof ResourceType) {
 							ResourceType rt = (ResourceType) params[0];
-							currentTs = (Double) params[1];
+							currentTs = (Long) params[1];
 							time = calculateActualWaitTime(getStoreSet(rt), currentTs, rtExTime.get(rt));
 							if (isDebugMode()) 
 								message += "GetValue request\t" + currentTs + "\t" + rt.toString() + "\treturned " + time + "\n";
@@ -319,7 +319,7 @@ public class ExecutionTimeView extends VarView {
 		return time;
 	}
 
-	private void calculateActivityTime(Activity act, double execTime, ActivityWorkGroup wg) {
+	private void calculateActivityTime(Activity act, long execTime, ActivityWorkGroup wg) {
 		ActivityTimeCounters actCounter = activityExTime.get(act);
 		if (actCounter != null)
 			actCounter.addWgTime(wg, execTime);
@@ -327,25 +327,25 @@ public class ExecutionTimeView extends VarView {
 			activityExTime.put(act, new ActivityTimeCounters(wg, execTime));
 	}
 
-	private void calculateElementTime(Element elem, double execTime) {
-		Double elemTime = elemExTime.get(elem);
+	private void calculateElementTime(Element elem, long execTime) {
+		Long elemTime = elemExTime.get(elem);
 		if (elemTime != null) 
-			elemExTime.put(elem, new Double(elemTime.doubleValue() + execTime));
+			elemExTime.put(elem, new Long(elemTime.longValue() + execTime));
 		else {
 			elemExTime.put(elem, execTime);
 		}
 	}
 
-	private void calculateElementTypeTime(ElementType et, double execTime) {
-		Double elemTypeTime = etExTime.get(et);
+	private void calculateElementTypeTime(ElementType et, long execTime) {
+		Long elemTypeTime = etExTime.get(et);
 		if (elemTypeTime != null) 
-			etExTime.put(et, new Double(elemTypeTime.doubleValue() + execTime));
+			etExTime.put(et, new Long(elemTypeTime.longValue() + execTime));
 		else {
 			etExTime.put(et, execTime);
 		}
 	}
 
-	private void calculateResourceTime(HashMap<Resource, ResourceType> resList, double execTime) {
+	private void calculateResourceTime(HashMap<Resource, ResourceType> resList, long execTime) {
 		for(Resource res: resList.keySet()) {
 			ResourceTimeCounters resTime = resExTime.get(res);
 			ResourceType rt = resList.get(res);
@@ -354,70 +354,70 @@ public class ExecutionTimeView extends VarView {
 			else {
 				resExTime.put(res, new ResourceTimeCounters(rt, execTime));
 			}
-			Double rtTime = rtExTime.get(rt);
+			Long rtTime = rtExTime.get(rt);
 			if (rtTime != null)
-				rtExTime.put(rt, rtTime.doubleValue() + execTime);
+				rtExTime.put(rt, rtTime.longValue() + execTime);
 			else
 				rtExTime.put(rt, execTime);
 		}
 	}
 
 	class ResourceTimeCounters {
-		Double totalTime;
-		HashMap<ResourceType, Double> roleTime;
+		Long totalTime;
+		HashMap<ResourceType, Long> roleTime;
 
-		public ResourceTimeCounters(ResourceType role, Double time) {
+		public ResourceTimeCounters(ResourceType role, Long time) {
 			totalTime = time;
-			roleTime = new HashMap<ResourceType, Double>();
-			roleTime.put(role, new Double(time));
+			roleTime = new HashMap<ResourceType, Long>();
+			roleTime.put(role, new Long(time));
 		}
 
-		public void addRoleTime(ResourceType role, Double time) {
-			totalTime = new Double(totalTime.doubleValue() + time.doubleValue());
-			Double counter = roleTime.get(role);
+		public void addRoleTime(ResourceType role, Long time) {
+			totalTime = new Long(totalTime.longValue() + time.longValue());
+			Long counter = roleTime.get(role);
 			if (counter != null)
-				roleTime.put(role, new Double(counter.doubleValue() + time.doubleValue()));
+				roleTime.put(role, new Long(counter.longValue() + time.longValue()));
 			else
-				roleTime.put(role, new Double(time));
+				roleTime.put(role, new Long(time));
 		}
 
-		public Double getRoleTime(ResourceType role) {
+		public Long getRoleTime(ResourceType role) {
 			return roleTime.get(role);
 		}
 
-		public Double getTotalTime() {
+		public Long getTotalTime() {
 			return totalTime;
 		}
 	}
 
 	class ActivityTimeCounters {
-		Double totalTime;
-		TreeMap<ActivityWorkGroup, Double> wgTime;
+		Long totalTime;
+		TreeMap<ActivityWorkGroup, Long> wgTime;
 
-		public ActivityTimeCounters(ActivityWorkGroup wg, Double time) {
+		public ActivityTimeCounters(ActivityWorkGroup wg, Long time) {
 			totalTime = time;
-			wgTime = new TreeMap<ActivityWorkGroup, Double>();
-			wgTime.put(wg, new Double(time));
+			wgTime = new TreeMap<ActivityWorkGroup, Long>();
+			wgTime.put(wg, new Long(time));
 		}
 
-		public void addWgTime(ActivityWorkGroup role, Double time) {
-			totalTime = new Double(totalTime.doubleValue() + time.doubleValue());
-			Double counter = wgTime.get(role);
+		public void addWgTime(ActivityWorkGroup role, Long time) {
+			totalTime = new Long(totalTime.longValue() + time.longValue());
+			Long counter = wgTime.get(role);
 			if (counter != null)
-				wgTime.put(role, new Double(counter.doubleValue() + time.doubleValue()));
+				wgTime.put(role, new Long(counter.longValue() + time.longValue()));
 			else
-				wgTime.put(role, new Double(time));
+				wgTime.put(role, new Long(time));
 		}
 
-		public Double getWgTime(ActivityWorkGroup wg) {
-			Double time = wgTime.get(wg);
+		public Long getWgTime(ActivityWorkGroup wg) {
+			Long time = wgTime.get(wg);
 			if (time != null)
 				return time;
 			else
-				return 0.0;
+				return (long)0;
 		}
 
-		public Double getTotalTime() {
+		public Long getTotalTime() {
 			return totalTime;
 		}
 	}
@@ -428,9 +428,9 @@ public class ExecutionTimeView extends VarView {
 		 */
 		private static final long serialVersionUID = -3771098905860206726L;
 		public HashMap<Resource, ResourceType> resList;
-		public double startTime;
+		public long startTime;
 
-		public SfResources(double startTime) {
+		public SfResources(long startTime) {
 			resList = new HashMap<Resource, ResourceType>();
 			this.startTime = startTime;
 		}

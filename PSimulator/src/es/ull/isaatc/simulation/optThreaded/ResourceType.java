@@ -136,8 +136,8 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
      * @param wi work item catching the resources
 	 * @return The minimum availability timestamp of the taken resources 
 	 */
-    protected double catchResources(int n, WorkItem wi) {
-    	double minAvailability = Double.MAX_VALUE;
+    protected long catchResources(int n, WorkItem wi) {
+    	long minAvailability = Long.MAX_VALUE;
     	Element elem = wi.getElement();
         debug("Decrease amount\t" + n + "\t" + elem);
         
@@ -210,7 +210,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	}
 
     @Override
-	public double getTs() {
+	public long getTs() {
 		return manager.getTs();
 	}
 
@@ -326,11 +326,11 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	
 	/**
 	 * Allows a user to specify an extra waiting time before the RollOn event. Returns a 
-	 * double which represents the wait time before the RollOn event can be performed. By default
+	 * long which represents the wait time before the RollOn event can be performed. By default
 	 * returns 0.0.
 	 * @return The wait time.
 	 */
-	public double beforeRoleOn() { return 0.0; };
+	public long beforeRoleOn() { return 0; };
 	
 	/**
 	 * Allows a user to specify actions to be performed after the RollOn event.
@@ -339,11 +339,11 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	
 	/**
 	 * Allows a user to specify an extra waiting time before the RollOff event. Returns a 
-	 * double which represents the wait time before the RollOff event can be performed. By default
+	 * long which represents the wait time before the RollOff event can be performed. By default
 	 * returns 0.0.
 	 * @return The wait time.
 	 */
-	public double beforeRoleOff() { return 0.0; };
+	public long beforeRoleOff() { return 0; };
 	
 	/**
 	 * Allows a user to specify actions to be performed after the RollOff event.

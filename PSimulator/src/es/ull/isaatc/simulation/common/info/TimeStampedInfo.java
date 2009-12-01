@@ -4,14 +4,14 @@ import es.ull.isaatc.simulation.common.Simulation;
 
 public abstract class TimeStampedInfo extends SimulationInfo {
 
-	public final double ts;
+	public final long ts;
 	
-	TimeStampedInfo(Simulation simul, double ts) {
+	TimeStampedInfo(Simulation simul, long ts) {
 		super(simul);
 		this.ts = ts;
 	}
 
-	public double getTs() {
+	public long getTs() {
 		return ts;
 	}
 

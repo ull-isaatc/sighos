@@ -17,9 +17,9 @@ import es.ull.isaatc.simulation.common.info.SimulationStartInfo;
  *
  */
 public abstract class CheckElementActionsView extends WFPTestView {
-	protected TreeMap<Double, ElementReferenceInfos[]> refRequests;
-	protected TreeMap<Double, ElementReferenceInfos[]> refStartActs;
-	protected TreeMap<Double, ElementReferenceInfos[]> refEndActs;
+	protected TreeMap<Long, ElementReferenceInfos[]> refRequests;
+	protected TreeMap<Long, ElementReferenceInfos[]> refStartActs;
+	protected TreeMap<Long, ElementReferenceInfos[]> refEndActs;
 	private boolean ok = true;
 
 	public CheckElementActionsView(Simulation simul, String description) {
@@ -28,9 +28,9 @@ public abstract class CheckElementActionsView extends WFPTestView {
 
 	public CheckElementActionsView(Simulation simul, String description, boolean detailed) {
 		super(simul, description, detailed);
-		refRequests = new TreeMap<Double, ElementReferenceInfos[]>();
-		refStartActs = new TreeMap<Double, ElementReferenceInfos[]>();
-		refEndActs = new TreeMap<Double, ElementReferenceInfos[]>();
+		refRequests = new TreeMap<Long, ElementReferenceInfos[]>();
+		refStartActs = new TreeMap<Long, ElementReferenceInfos[]>();
+		refEndActs = new TreeMap<Long, ElementReferenceInfos[]>();
 		addEntrance(ElementActionInfo.class);
 		addEntrance(SimulationEndInfo.class);
 		addEntrance(SimulationStartInfo.class);
@@ -88,15 +88,15 @@ public abstract class CheckElementActionsView extends WFPTestView {
 		}
 	}
 
-	private void checkMissed(TreeMap<Double, ElementReferenceInfos[]> references, String type) {
-		for (double ts : references.keySet()) {
+	private void checkMissed(TreeMap<Long, ElementReferenceInfos[]> references, String type) {
+		for (long ts : references.keySet()) {
 			ElementReferenceInfos[] ref = references.get(ts);
 			for (int i = 0; i < ref.length; i++) {
 				if (ref[i] != null) {
 					for (int actId : ref[i].getActivities())
 						if (!ref[i].finalCheck(actId)) {
 							if (detailed)
-								System.out.println(getSimul().double2SimulationTime(ts) + "\t" + "[E" + i + "]\t" + type + " " + actId + "\tERROR!!: Event missed");
+								System.out.println(getSimul().long2SimulationTime(ts) + "\t" + "[E" + i + "]\t" + type + " " + actId + "\tERROR!!: Event missed");
 							ok = false;
 						}
 				}

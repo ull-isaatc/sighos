@@ -95,7 +95,7 @@ public abstract class CheckElementActionsView extends WFPTestView {
 					for (int actId : ref[i].getActivities())
 						if (!ref[i].finalCheck(actId)) {
 							if (detailed)
-								System.out.println(getSimul().double2SimulationTime(ts) + "\t" + "[E" + i + "]\t" + type + " " + actId + "\tERROR!!: Event missed");
+								System.out.println(getSimul().long2SimulationTime(ts) + "\t" + "[E" + i + "]\t" + type + " " + actId + "\tERROR!!: Event missed");
 							ok = false;
 						}
 				}

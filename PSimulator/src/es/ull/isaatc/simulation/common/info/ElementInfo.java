@@ -26,7 +26,7 @@ public class ElementInfo extends AsynchronousInfo {
 	private Element elem;
 	private Type type;
 	
-	public ElementInfo(Simulation simul, Element elem, Type type, double ts) {
+	public ElementInfo(Simulation simul, Element elem, Type type, long ts) {
 		super(simul, ts);
 		this.elem = elem;
 		this.type = type;
@@ -46,6 +46,6 @@ public class ElementInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		return "" + simul.double2SimulationTime(getTs()) + "\t" + elem.toString() + " \t" + type.getDescription() + "\tET: " + elem.getType().getDescription();
+		return "" + simul.long2SimulationTime(getTs()) + "\t" + elem.toString() + " \t" + type.getDescription() + "\tET: " + elem.getType().getDescription();
 	}
 }

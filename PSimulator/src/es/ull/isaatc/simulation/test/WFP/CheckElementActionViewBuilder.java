@@ -18,9 +18,9 @@ import es.ull.isaatc.simulation.common.inforeceiver.View;
  *
  */
 public class CheckElementActionViewBuilder extends View {
-	TreeMap<Double, TreeMap<Integer, ArrayList<Integer>>> reqEvents; 
-	TreeMap<Double, TreeMap<Integer, ArrayList<Integer>>> staEvents; 
-	TreeMap<Double, TreeMap<Integer, ArrayList<Integer>>> endEvents; 
+	TreeMap<Long, TreeMap<Integer, ArrayList<Integer>>> reqEvents; 
+	TreeMap<Long, TreeMap<Integer, ArrayList<Integer>>> staEvents; 
+	TreeMap<Long, TreeMap<Integer, ArrayList<Integer>>> endEvents; 
 	TreeSet<Integer> elements;
 	/**
 	 * @param simul
@@ -28,15 +28,15 @@ public class CheckElementActionViewBuilder extends View {
 	 */
 	public CheckElementActionViewBuilder(Simulation simul) {
 		super(simul, "Builds the code to check a WFP");
-		reqEvents = new TreeMap<Double, TreeMap<Integer,ArrayList<Integer>>>();
-		staEvents = new TreeMap<Double, TreeMap<Integer,ArrayList<Integer>>>();
-		endEvents = new TreeMap<Double, TreeMap<Integer,ArrayList<Integer>>>();
+		reqEvents = new TreeMap<Long, TreeMap<Integer,ArrayList<Integer>>>();
+		staEvents = new TreeMap<Long, TreeMap<Integer,ArrayList<Integer>>>();
+		endEvents = new TreeMap<Long, TreeMap<Integer,ArrayList<Integer>>>();
 		elements = new TreeSet<Integer>();
 		addEntrance(ElementActionInfo.class);
 		addEntrance(SimulationEndInfo.class);
 	}
 
-	private void fillEvent(ElementActionInfo eInfo, TreeMap<Double, TreeMap<Integer, ArrayList<Integer>>> events) {
+	private void fillEvent(ElementActionInfo eInfo, TreeMap<Long, TreeMap<Integer, ArrayList<Integer>>> events) {
 		TreeMap<Integer,ArrayList<Integer>> entry;
 		ArrayList<Integer> list;
 		entry = events.get(eInfo.getTs()); 
@@ -54,8 +54,8 @@ public class CheckElementActionViewBuilder extends View {
 		entry.put(eInfo.getElem().getIdentifier(), list);		
 	}
 	
-	private void printEvent(TreeMap<Double, TreeMap<Integer, ArrayList<Integer>>> events, String eventType) {
-		for (Double ts : events.keySet()) {
+	private void printEvent(TreeMap<Long, TreeMap<Integer, ArrayList<Integer>>> events, String eventType) {
+		for (Long ts : events.keySet()) {
 			System.out.println("\t\tref = new ElementReferenceInfos[" + elements.size() + "];");
 			System.out.println("\t\t" + eventType + ".put(" + ts + ", ref);");
 			for (Integer elemId : events.get(ts).keySet()) {

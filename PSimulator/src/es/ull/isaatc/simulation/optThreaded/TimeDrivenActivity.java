@@ -232,9 +232,9 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	public void carryOut(WorkItem wItem) {
 		Element elem = wItem.getElement();
 		wItem.getFlow().afterStart(elem);
-		double auxTs = wItem.getExecutionWG().catchResources(wItem);
+		long auxTs = wItem.getExecutionWG().catchResources(wItem);
 		// The first time the activity is carried out (useful only for interruptible activities)
-		if (Double.isNaN(wItem.getTimeLeft())) {
+		if (wItem.getTimeLeft() == -1) {
 			wItem.setTimeLeft(((TimeDrivenActivity.ActivityWorkGroup)wItem.getExecutionWG()).getDurationSample());
 			simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
 			elem.debug("Starts\t" + this + "\t" + description);			
@@ -243,13 +243,13 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 			simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.RESACT, elem.getTs()));
 			elem.debug("Continues\t" + this + "\t" + description);						
 		}
-		double finishTs = elem.getTs() + wItem.getTimeLeft();
+		long finishTs = elem.getTs() + wItem.getTimeLeft();
 		// The required time for finishing the activity is reduced (useful only for interruptible activities)
 		if (isInterruptible() && (finishTs - auxTs > 0.0))
 			wItem.setTimeLeft(finishTs - auxTs);				
 		else {
 			auxTs = finishTs;
-			wItem.setTimeLeft(0.0);
+			wItem.setTimeLeft(0);
 		}
 		elem.addEvent(elem.new FinishFlowEvent(auxTs, wItem.getFlow(), wItem.getWorkThread()));
 	}
@@ -364,8 +364,8 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	     * In this case, it returns 0.0.
 	     * @return The activity duration.
 	     */
-	    public double getDurationSample() {
-	        return duration.getPositiveValue(getTs());
+	    public long getDurationSample() {
+	        return Math.round(duration.getPositiveValue(getTs()));
 	    }
 	    
 	    /**

@@ -54,10 +54,10 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	protected Time endTs;
 	
 	/** Timestamp of simulation's start */
-	protected double internalStartTs;
+	protected long internalStartTs;
 
 	/** Timestamp of Simulation's end */
-	protected double internalEndTs;
+	protected long internalEndTs;
 	
 	/** Output for printing messages */
 	protected Output out = null;
@@ -106,9 +106,9 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 		this(id, description, unit);
 
 		this.startTs = startTs;
-		this.internalStartTs = simulationTime2Double(startTs);
+		this.internalStartTs = simulationTime2Long(startTs);
 		this.endTs = endTs;
-		this.internalEndTs = simulationTime2Double(endTs);
+		this.internalEndTs = simulationTime2Long(endTs);
 	}
 	
 	/**
@@ -123,21 +123,21 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	 * @param endTs
 	 *            Simulation's end timestamp expresed in Simulation Time Units
 	 */
-	public Simulation(int id, String description, TimeUnit unit, double startTs, double endTs) {
+	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
 		this(id, description, unit);
 
 		this.startTs = new Time(unit, startTs);
-		this.internalStartTs = simulationTime2Double(this.startTs);
+		this.internalStartTs = startTs;
 		this.endTs = new Time(unit, endTs);
-		this.internalEndTs = simulationTime2Double(this.endTs);
+		this.internalEndTs = endTs;
 	}
 
-	public double simulationTime2Double(Time source) {
-		return unit.convert(source) * Double.MIN_VALUE;
+	public long simulationTime2Long(Time source) {
+		return unit.convert(source);
 	}
 	
-	public Time double2SimulationTime(double sourceValue) {
-		return new Time(unit, sourceValue / Double.MIN_VALUE);
+	public Time long2SimulationTime(long sourceValue) {
+		return new Time(unit, sourceValue);
 	}
 
 	/**
@@ -179,7 +179,7 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	 * 
 	 * @return Value of property endTs.
 	 */
-	public double getInternalEndTs() {
+	public long getInternalEndTs() {
 		return internalEndTs;
 	}
 
@@ -197,7 +197,7 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	 * 
 	 * @return Returns the startTs.
 	 */
-	public double getInternalStartTs() {
+	public long getInternalStartTs() {
 		return internalStartTs;
 	}
 

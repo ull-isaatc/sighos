@@ -9,7 +9,7 @@ import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeTableEntry;
 import es.ull.isaatc.simulation.common.info.ResourceInfo;
 import es.ull.isaatc.simulation.common.info.ResourceUsageInfo;
-import es.ull.isaatc.util.CycleIterator;
+import es.ull.isaatc.util.DiscreteCycleIterator;
 
 /**
  * A resource is an element that becomes available at a specific simulation time and 
@@ -26,7 +26,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     /** If true, indicates that this resource is being used after its availability time has expired */
     private boolean timeOut = false;
     /** List of currently active roles and the timestamp which marks the end of their availibity time. */
-    protected final TreeMap<ResourceType, Double> currentRoles;
+    protected final TreeMap<ResourceType, Long> currentRoles;
     /** A counter of the valid timetable entries which this resource is following. */
     private int validTTEs = 0;
     /** The resource type which this resource is being booked for */
@@ -46,7 +46,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 		super(id, simul);
 		this.description = description;
         timeTable = new ArrayList<TimeTableEntry>();
-        currentRoles = new TreeMap<ResourceType, Double>();
+        currentRoles = new TreeMap<ResourceType, Long>();
         notCanceled = true;
         simul.add(this);
 	}
@@ -60,10 +60,10 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 		simul.getInfoHandler().notifyInfo(new ResourceInfo(this.simul, this, this.getCurrentResourceType(), ResourceInfo.Type.START, ts));
 		for (int i = 0 ; i < timeTable.size(); i++) {
 			TimeTableEntry tte = timeTable.get(i);
-	        CycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getInternalEndTs());
-	        double nextTs = iter.next();
-	        if (!Double.isNaN(nextTs)) {
-	            RoleOnEvent rEvent = new RoleOnEvent(nextTs, (ResourceType) tte.getRole(), iter, simul.simulationTime2Double(tte.getDuration()));
+	        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getInternalEndTs());
+	        long nextTs = iter.next();
+	        if (nextTs != -1) {
+	            RoleOnEvent rEvent = new RoleOnEvent(nextTs, (ResourceType) tte.getRole(), iter, simul.simulationTime2Long(tte.getDuration()));
 	            addEvent(rEvent);
 	            validTTEs++;
 	        }
@@ -108,7 +108,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
      * simulation time unit
      * @param role Role that the resource plays during this cycle
      */
-    public void addTimeTableEntry(ModelCycle cycle, double dur, es.ull.isaatc.simulation.common.ResourceType role) {
+    public void addTimeTableEntry(ModelCycle cycle, long dur, es.ull.isaatc.simulation.common.ResourceType role) {
     	addTimeTableEntry(cycle, new Time(simul.getTimeUnit(), dur), role);
     }  
 
@@ -119,7 +119,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
      * simulation time unit
      * @param roleList Roles that the resource play during this cycle
      */
-    public void addTimeTableEntry(ModelCycle cycle, double dur, ArrayList<es.ull.isaatc.simulation.common.ResourceType> roleList) {
+    public void addTimeTableEntry(ModelCycle cycle, long dur, ArrayList<es.ull.isaatc.simulation.common.ResourceType> roleList) {
     	addTimeTableEntry(cycle, new Time(simul.getTimeUnit(), dur), roleList);
     }  
     
@@ -142,8 +142,8 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 * @param role New resource type added
 	 * @param ts Timestamp when the availability of this resource finishes for this resource type. 
 	 */
-	protected void addRole(ResourceType role, double ts) {
-		Double avEnd = currentRoles.get(role);
+	protected void addRole(ResourceType role, long ts) {
+		Long avEnd = currentRoles.get(role);
 		if ((avEnd == null) || (ts > avEnd))
 			currentRoles.put(role, ts);
 	}
@@ -156,7 +156,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 * @param role Resource type removed
 	 */
 	protected void removeRole(ResourceType role) {
-		Double avEnd = currentRoles.get(role);
+		Long avEnd = currentRoles.get(role);
 		if (avEnd != null)
 			if (avEnd <= ts)
 				currentRoles.remove(role);
@@ -182,7 +182,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 * @param wi The work item which an element is executing
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
-	protected double catchResource(WorkItem wi) {
+	protected long catchResource(WorkItem wi) {
 		setTs(wi.getElement().getTs());
 		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, this, currentResourceType, wi, ResourceUsageInfo.Type.CAUGHT, getTs()));
 		currentWI = wi;
@@ -213,7 +213,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
      * @param ts Actual simulation time.
      * @param duration Duration of the unavailability period.
      */
-    public void generateCancelPeriodOffEvent(double ts, double duration) {
+    public void generateCancelPeriodOffEvent(long ts, long duration) {
     	CancelPeriodOffEvent aEvent = new CancelPeriodOffEvent(ts + duration, null, 0);
         addEvent(aEvent);
     }
@@ -264,7 +264,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
      * @return the availability of this resource for the specified resource type; 
      * <code>null</code> if the resource is not available for this resource type.
      */
-    protected Double getAvailability(ResourceType rt) {
+    protected Long getAvailability(ResourceType rt) {
     	return currentRoles.get(rt); 
     }
     
@@ -275,9 +275,9 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         /** Available role */
         private final ResourceType role;
         /** Cycle iterator */
-        private final CycleIterator iter;
+        private final DiscreteCycleIterator iter;
         /** Availability duration */
-        private final double duration;
+        private final long duration;
         
         /**
          * Creates a new event
@@ -286,7 +286,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
          * @param iter The cycle iterator that handles the availability of this resource
          * @param duration The duration of the availability.
          */        
-        public RoleOnEvent(double ts, ResourceType role, CycleIterator iter, double duration) {
+        public RoleOnEvent(long ts, ResourceType role, DiscreteCycleIterator iter, long duration) {
             super(ts, role.getManager().getLp());
             this.iter = iter;
             this.role = role;
@@ -295,7 +295,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         
         @Override
         public void event() {
-        	double waitTime = role.beforeRoleOn();
+        	long waitTime = role.beforeRoleOn();
         	if (waitTime == 0.0) {
         		simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLON, ts));
         		debug("Resource available\t" + role);
@@ -328,9 +328,9 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         /** Unavailable role */
         private final ResourceType role;
         /** Cycle iterator */
-        private final CycleIterator iter;
+        private final DiscreteCycleIterator iter;
         /** Availability duration */
-        private final double duration;
+        private final long duration;
         
         /**
          * Creates a new event
@@ -339,7 +339,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
          * @param iter The cycle iterator that handles the availability of this resource
          * @param duration The duration of the availability.
          */        
-        public RoleOffEvent(double ts, ResourceType role, CycleIterator iter, double duration) {
+        public RoleOffEvent(long ts, ResourceType role, DiscreteCycleIterator iter, long duration) {
             super(ts, role.getManager().getLp());
             this.role = role;
             this.iter = iter;
@@ -348,14 +348,14 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         
         @Override
         public void event() {
-        	double waitTime = role.beforeRoleOff();
+        	long waitTime = role.beforeRoleOff();
         	if (waitTime == 0.0) {
         		simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLOFF, ts));
         		role.decAvailable(Resource.this);
         		removeRole(role);
         		debug("Resource unavailable\t" + role);
-        		double nextTs = iter.next();
-        		if (!Double.isNaN(nextTs)) {
+        		long nextTs = iter.next();
+        		if (nextTs != -1) {
         			RoleOnEvent rEvent = new RoleOnEvent(nextTs, role, iter, duration);
         			addEvent(rEvent);            	
         		}
@@ -384,9 +384,9 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 */
 	public class CancelPeriodOnEvent extends BasicElement.DiscreteEvent {
 		/** Cycle iterator */
-		private final CycleIterator iter;
+		private final DiscreteCycleIterator iter;
 		/** Duration of the availability */
-		private final double duration;
+		private final long duration;
 
 		/**
 		 * Creates a new CancelPeriodOnEvent.
@@ -394,7 +394,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 		 * @param iter Cycle iterator.
 		 * @param duration Event duration.
 		 */
-		public CancelPeriodOnEvent(double ts, CycleIterator iter, double duration) {
+		public CancelPeriodOnEvent(long ts, DiscreteCycleIterator iter, long duration) {
 			super(ts, simul.getDefaultLogicalProcess());
 			this.iter = iter;
 			this.duration = duration;
@@ -417,9 +417,9 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 */
 	public class CancelPeriodOffEvent extends BasicElement.DiscreteEvent {
 		/** Cycle iterator */
-		private final CycleIterator iter;
+		private final DiscreteCycleIterator iter;
 		/** Duration of the availability */
-		private final double duration;
+		private final long duration;
 
 		/**
 		 * Creates a new CancelPeriodOffEvent.
@@ -427,7 +427,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 		 * @param iter Cycle iterator.
 		 * @param duration The event duration.
 		 */   
-		public CancelPeriodOffEvent(double ts, CycleIterator iter, double duration) {
+		public CancelPeriodOffEvent(long ts, DiscreteCycleIterator iter, long duration) {
 			super(ts, simul.getDefaultLogicalProcess());
 			this.iter = iter;
 			this.duration = duration;
@@ -441,10 +441,10 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 				// The activity manger is informed of new available resources
 				am.availableResource(); 
 			}
-			double nextTs = Double.NaN;
+			long nextTs = -1;
 			if (iter != null)
 				nextTs = iter.next();
-			if (!Double.isNaN(nextTs)) {
+			if (nextTs != -1) {
 				CancelPeriodOnEvent aEvent = new CancelPeriodOnEvent(nextTs, iter, duration);
 				addEvent(aEvent);            	
 			}
@@ -469,44 +469,44 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	}
 
 	class ClockOnEntry {
-		private double init = 0;
-		private double finish = 0;
-		private double avCounter = 0;
+		private long init = 0;
+		private long finish = 0;
+		private long avCounter = 0;
 		
 		
-		public ClockOnEntry(double init) {
+		public ClockOnEntry(long init) {
 			this.init = init;
 			finish = 0;
 			avCounter = 0;
 		}
 
-		public double getFinish() {
+		public long getFinish() {
 			return finish;
 		}
 
-		public void setFinish(double finish) {
+		public void setFinish(long finish) {
 			this.finish = finish;
 		}
 
-		public double getInit() {
+		public long getInit() {
 			return init;
 		}
 
-		public void setInit(double init) {
+		public void setInit(long init) {
 			this.init = init;
 		}
 
-		public double getAvCounter() {
+		public long getAvCounter() {
 			return avCounter;
 		}
 
-		public void setAvCounter(double avCounter) {
+		public void setAvCounter(long avCounter) {
 			this.avCounter = avCounter;
 		}
 
 	}
 
-	public TreeMap<ResourceType, Double> getCurrentRoles() {
+	public TreeMap<ResourceType, Long> getCurrentRoles() {
 		return currentRoles;
 	}
 

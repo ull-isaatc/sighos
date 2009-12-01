@@ -17,7 +17,7 @@ import es.ull.isaatc.simulation.sequential.WorkThread;
  *
  */
 public class SimpleMergeFlow extends ORJoinFlow implements es.ull.isaatc.simulation.common.flow.SimpleMergeFlow {
-	protected SortedMap<Element, Double> lastTs;
+	protected SortedMap<Element, Long> lastTs;
 	
 	/**
 	 * Creates a new SimpleMergeFlow.
@@ -25,13 +25,13 @@ public class SimpleMergeFlow extends ORJoinFlow implements es.ull.isaatc.simulat
 	 */
 	public SimpleMergeFlow(Simulation simul) {
 		super(simul);
-		lastTs = new TreeMap<Element, Double>();
+		lastTs = new TreeMap<Element, Long>();
 	}
 
 	@Override
 	protected boolean canPass(WorkThread wThread) {
 		if (!lastTs.containsKey(wThread.getElement())) {
-			lastTs.put(wThread.getElement(), -1.0);
+			lastTs.put(wThread.getElement(), (long)-1);
 		}
 		if (wThread.isExecutable() && (wThread.getElement().getTs() > lastTs.get(wThread.getElement()))) {
 			lastTs.put(wThread.getElement(), wThread.getElement().getTs());

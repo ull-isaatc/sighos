@@ -36,6 +36,7 @@ import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.common.info.ElementInfo;
 import es.ull.isaatc.simulation.common.info.ResourceInfo;
 import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
+import es.ull.isaatc.util.Output;
 
 class BenchmarkListener extends View {
 
@@ -63,7 +64,7 @@ class BenchmarkListener extends View {
 		addEntrance(ResourceInfo.class);
 	}
 
-	public void infoEmited(SimulationInfo info) {
+	public synchronized void infoEmited(SimulationInfo info) {
 		if (info instanceof ElementInfo) {
 			elemEvents++;
 			if (((ElementInfo) info).getTs() == lastEventTs) {
@@ -132,7 +133,7 @@ public class BenchmarkTest {
 	static int nThreads = 1;
 	static int nElem = 16;
 	static int nAct = 4;
-	static double actTime = nElem;
+	static long actTime = nElem;
 	static int nIter = 50000;
 	static int nExp = 1;
 	static int mixFactor = 2;
@@ -143,7 +144,7 @@ public class BenchmarkTest {
 	static Time endTs;
 	static PrintStream out = System.out;
 	static TimeUnit unit = TimeUnit.MINUTE;
-	static SimulationFactory.SimulationType simType = SimulationType.SIMEVENTS2;
+	static SimulationFactory.SimulationType simType = SimulationType.INTERVAL;
 
 	public static Simulation getTestOcurrenceSimN(SimulationFactory.SimulationType simType, int id) {
 		TimeDrivenActivity[] acts = new TimeDrivenActivity[nAct];

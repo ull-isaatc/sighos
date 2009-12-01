@@ -3,8 +3,6 @@
  */
 package es.ull.isaatc.simulation.test;
 
-import java.util.ArrayList;
-
 import es.ull.isaatc.simulation.common.ElementType;
 import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
@@ -19,8 +17,6 @@ import es.ull.isaatc.simulation.common.condition.Condition;
 import es.ull.isaatc.simulation.common.condition.NotCondition;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory;
 import es.ull.isaatc.simulation.common.factory.SimulationObjectFactory;
-import es.ull.isaatc.simulation.common.factory.SimulationUserCode;
-import es.ull.isaatc.simulation.common.factory.UserMethod;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory.SimulationType;
 import es.ull.isaatc.simulation.common.flow.SingleFlow;
 
@@ -35,7 +31,7 @@ class TestDynamicGenerationExperiment extends PooledExperiment {
 	@Override
 	public Simulation getSimulation(int ind) {
 		TimeUnit unit = TimeUnit.MINUTE;
-		SimulationObjectFactory factory = SimulationFactory.getInstance(type, ind, "Test Dynamic", unit, 0.0, 1.0);
+		SimulationObjectFactory factory = SimulationFactory.getInstance(type, ind, "Test Dynamic", unit, 0, 1);
 		
 		ResourceType rt0 = factory.getResourceTypeInstance(0, "RT0");
 		ResourceType rt1 = factory.getResourceTypeInstance(1, "RT1");

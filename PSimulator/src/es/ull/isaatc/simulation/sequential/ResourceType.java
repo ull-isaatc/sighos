@@ -113,7 +113,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	}
 
     @Override
-	public double getTs() {
+	public long getTs() {
 		return manager.getTs();
 	}
 
@@ -229,11 +229,11 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	
 	/**
 	 * Allows a user to specify an extra waiting time before the RollOn event. Returns a 
-	 * double which represents the wait time before the RollOn event can be performed. By default
+	 * long which represents the wait time before the RollOn event can be performed. By default
 	 * returns 0.0.
 	 * @return The wait time.
 	 */
-	public double beforeRoleOn() { return 0.0; };
+	public long beforeRoleOn() { return 0; };
 	
 	/**
 	 * Allows a user to specify actions to be performed after the RollOn event.
@@ -242,11 +242,11 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	
 	/**
 	 * Allows a user to specify an extra waiting time before the RollOff event. Returns a 
-	 * double which represents the wait time before the RollOff event can be performed. By default
+	 * long which represents the wait time before the RollOff event can be performed. By default
 	 * returns 0.0.
 	 * @return The wait time.
 	 */
-	public double beforeRoleOff() { return 0.0; };
+	public long beforeRoleOff() { return 0; };
 	
 	/**
 	 * Allows a user to specify actions to be performed after the RollOff event.

@@ -14,10 +14,10 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 	/** LP's counter. */
 	private static int nextId = 0;
     /** Local virtual time. Represents the current simulation time for this LP. */
-	protected double lvt;
+	protected long lvt;
     /** The maximum timestamp for this logical process. When this timestamp is reached, this LP 
      * finishes its execution. */
-    protected double maxgvt; 
+    protected long maxgvt; 
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
 	protected final PriorityQueue<BasicElement.DiscreteEvent> waitQueue;
     /** Thread where the logical process function is implemented */
@@ -28,8 +28,8 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * @param simul Simulation which this LP is attached to.
      * @param endT Finishing timestamp.
      */
-	public LogicalProcess(Simulation simul, double endT) {
-        this(simul, 0.0, endT);
+	public LogicalProcess(Simulation simul, long endT) {
+        this(simul, 0, endT);
 	}
 
 	/**
@@ -39,7 +39,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * @param startT Initial timestamp.
      * @param endT Finishing timestamp.
      */
-	public LogicalProcess(Simulation simul, double startT, double endT) {
+	public LogicalProcess(Simulation simul, long startT, long endT) {
 		super(nextId++, simul);
         waitQueue = new PriorityQueue<BasicElement.DiscreteEvent>();
         maxgvt = endT;
@@ -55,7 +55,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
     }
 
     @Override
-	public double getTs() {
+	public long getTs() {
 		return lvt;
 	}
 
@@ -146,7 +146,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 		}
 
     	class DummyEvent extends BasicElement.DiscreteEvent {
-    		DummyEvent(double ts) {
+    		DummyEvent(long ts) {
     			super(ts, LogicalProcess.this);
     		}
 			@Override

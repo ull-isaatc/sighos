@@ -21,11 +21,11 @@ import es.ull.isaatc.simulation.common.inforeceiver.VarView;
 
 public class CancelUseTimeView extends VarView {
 
-	TreeMap<Resource, Double> resCanUseTime;
-	TreeMap<ResourceType, Double> rtCanUseTime;
+	TreeMap<Resource, Long> resCanUseTime;
+	TreeMap<ResourceType, Long> rtCanUseTime;
 	TreeMap<Resource, StartCounter> cancelStarts;
 	TreeMap<WorkItem, SfResources> resCaughted;
-	TreeMap<WorkItem, Double> actStarts;
+	TreeMap<WorkItem, Long> actStarts;
 	TreeMap<Resource, Set<IntervalInfo>> cancelIntervals;
 	
 	public CancelUseTimeView(Simulation simul) {
@@ -34,11 +34,11 @@ public class CancelUseTimeView extends VarView {
 		addEntrance(SimulationEndInfo.class);
 		addEntrance(ElementActionInfo.class);
 		addEntrance(ResourceUsageInfo.class);
-		resCanUseTime = new TreeMap<Resource, Double>();
-		rtCanUseTime = new TreeMap<ResourceType, Double>();
+		resCanUseTime = new TreeMap<Resource, Long>();
+		rtCanUseTime = new TreeMap<ResourceType, Long>();
 		cancelStarts = new TreeMap<Resource, StartCounter>();
 		resCaughted = new TreeMap<WorkItem, SfResources>();
-		actStarts = new TreeMap<WorkItem, Double>();
+		actStarts = new TreeMap<WorkItem, Long>();
 		cancelIntervals = new TreeMap<Resource, Set<IntervalInfo>>();
 	}
 
@@ -48,7 +48,7 @@ public class CancelUseTimeView extends VarView {
 		if (info instanceof ResourceInfo) {
 			ResourceInfo resInfo = (ResourceInfo) info;
 			Resource res = resInfo.getRes();
-			Double requestTs = resInfo.getTs();
+			Long requestTs = resInfo.getTs();
 			switch(resInfo.getType()) {
 			case CANCELON: {
 				StartCounter counter = cancelStarts.get(res);
@@ -102,8 +102,8 @@ public class CancelUseTimeView extends VarView {
 				WorkItem item = elemInfo.getSf();
 				switch(elemInfo.getType()) {
 				case ENDACT: {
-					Double actStart = actStarts.get(item);
-					Double requestTime = elemInfo.getTs();
+					Long actStart = actStarts.get(item);
+					Long requestTime = elemInfo.getTs();
 					SfResources sfRes = resCaughted.get(item);
 					if (sfRes != null) {
 						Iterator<Entry<Resource, ResourceType>> iter = sfRes.resList.entrySet().iterator();
@@ -121,7 +121,7 @@ public class CancelUseTimeView extends VarView {
 								intervalList.add(tempInterval);
 							}
 							IntervalInfo exInterval = new IntervalInfo(actStart, requestTime);
-							double newTime = calculateCanUseTime(exInterval, intervalList, resCanUseTime.get(res));
+							long newTime = calculateCanUseTime(exInterval, intervalList, resCanUseTime.get(res));
 							if (isDebugMode()) {
 								if (resCanUseTime.get(res) != null)
 									message += "Added " + (newTime - resCanUseTime.get(res)) + "\t" + res.toString() + "\t" + res.getDescription() + "\n";
@@ -162,12 +162,12 @@ public class CancelUseTimeView extends VarView {
 			} else
 				if (info instanceof SimulationEndInfo) {
 					SimulationEndInfo endInfo = (SimulationEndInfo) info;
-					Double endTime = endInfo.getTs();
-					Iterator<Entry<WorkItem, Double>> iter = actStarts.entrySet().iterator();
+					Long endTime = endInfo.getTs();
+					Iterator<Entry<WorkItem, Long>> iter = actStarts.entrySet().iterator();
 					while(iter.hasNext()) {
-						Entry<WorkItem, Double> entry = iter.next();
+						Entry<WorkItem, Long> entry = iter.next();
 						WorkItem item = entry.getKey();
-						Double startTime = entry.getValue();
+						Long startTime = entry.getValue();
 						SfResources sfRes = resCaughted.get(item);
 						Iterator<Entry<Resource, ResourceType>> iterRes = sfRes.resList.entrySet().iterator();
 						while (iterRes.hasNext()) {
@@ -179,7 +179,7 @@ public class CancelUseTimeView extends VarView {
 							if (cancelStart != null) 
 								intervalList.add(new IntervalInfo(cancelStart.startTime, endTime));
 							IntervalInfo interval = new IntervalInfo(startTime, endTime);
-							double newTime = calculateCanUseTime(interval, intervalList, resCanUseTime.get(res));
+							long newTime = calculateCanUseTime(interval, intervalList, resCanUseTime.get(res));
 							if (isDebugMode()) {
 								message += "Added " + (newTime - resCanUseTime.get(res)) + "\t" + res.toString() + "\t" + res.getDescription() + "\n";
 								message += "\ttotal time \t" + newTime + "\n";
@@ -232,15 +232,15 @@ public class CancelUseTimeView extends VarView {
 
 	public Number getValue(Object... params) {
 		String message = new String();
-		Double requestTime = (Double) params[1];
+		Long requestTime = (Long) params[1];
 		if (isDebugMode())
 			message += requestTime + "\tGetValue request\t";
-		Iterator<Entry<WorkItem, Double>> iter = actStarts.entrySet().iterator();
-		double result = 0.0;
+		Iterator<Entry<WorkItem, Long>> iter = actStarts.entrySet().iterator();
+		long result = 0;
 		while(iter.hasNext()) {
-			Entry<WorkItem, Double> entry = iter.next();
+			Entry<WorkItem, Long> entry = iter.next();
 			WorkItem item = entry.getKey();
-			Double actStart = entry.getValue();
+			Long actStart = entry.getValue();
 			IntervalInfo exInterval = new IntervalInfo(actStart, requestTime);
 			SfResources sfRes = resCaughted.get(item);
 			Iterator<Entry<Resource, ResourceType>> iterRes = sfRes.resList.entrySet().iterator();
@@ -285,7 +285,7 @@ public class CancelUseTimeView extends VarView {
 		return result;
 	}
 	
-	private double calculateCanUseTime(IntervalInfo exInterval, HashSet<IntervalInfo> cancelIntervalList, Double acumulatedTime) {
+	private long calculateCanUseTime(IntervalInfo exInterval, HashSet<IntervalInfo> cancelIntervalList, Long acumulatedTime) {
 		
 		HashSet<IntervalInfo> validIntervals = new HashSet<IntervalInfo>();
 		if (cancelIntervalList != null) {		
@@ -307,13 +307,13 @@ public class CancelUseTimeView extends VarView {
 			}
 		}
 		Iterator<IntervalInfo> iter = validIntervals.iterator();
-		double cancelTime = 0.0;
+		long cancelTime = 0;
 		while (iter.hasNext()) {
 			IntervalInfo cancelInterval = (IntervalInfo) iter.next();
 			cancelTime += cancelInterval.finish - cancelInterval.start;
 		}
 		if (acumulatedTime != null) {
-			return (cancelTime + acumulatedTime.doubleValue());
+			return (cancelTime + acumulatedTime.longValue());
 		} else
 			return (cancelTime);
 	}
@@ -348,10 +348,10 @@ public class CancelUseTimeView extends VarView {
 	}
 	
 	class IntervalInfo {
-		public double start;
-		public double finish;
+		public long start;
+		public long finish;
 		
-		public IntervalInfo(double start, double finish) {
+		public IntervalInfo(long start, long finish) {
 			this.start = start;
 			this.finish = finish;
 		}
@@ -382,10 +382,10 @@ public class CancelUseTimeView extends VarView {
 	}
 
 	class StartCounter {
-		public final double startTime;
+		public final long startTime;
 		public int times;
 		
-		public StartCounter(double start) {
+		public StartCounter(long start) {
 			startTime = start;
 			times = 1;
 		}

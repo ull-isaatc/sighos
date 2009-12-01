@@ -152,7 +152,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	}
 
 	@Override
-	public double getTs() {
+	public long getTs() {
 		return lp.getTs();
 	}
 
@@ -216,7 +216,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 		public void add(WorkItem wi) {
 			// The arrival order and timestamp are only assigned if the single flow 
 			// has never been added to the queue (interruptible activities)
-			if (Double.isNaN(wi.getArrivalTs())) {
+			if (wi.getArrivalTs() == -1) {
 				wi.setArrivalOrder(arrivalOrder++);
 				wi.setArrivalTs(getTs());
 			}

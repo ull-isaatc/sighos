@@ -35,7 +35,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 	private Element elem;
 	private Type type;
 	
-	public ElementActionInfo(Simulation simul, WorkItem sf, Element elem, Type type, double ts) {
+	public ElementActionInfo(Simulation simul, WorkItem sf, Element elem, Type type, long ts) {
 		super(simul, ts);
 		this.sf = sf;
 		this.act = sf.getActivity();
@@ -69,7 +69,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		String message = "" + simul.double2SimulationTime(getTs()) + "\t";
+		String message = "" + simul.long2SimulationTime(getTs()) + "\t";
 		message += elem.toString() + " \t" + type.getDescription();
 		message += "\tACT: " + act.getDescription();
 		if (wg != null) {

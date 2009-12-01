@@ -8,7 +8,7 @@ package es.ull.isaatc.simulation.sequential;
  */
 public abstract class BasicElement extends TimeStampedSimulationObject {
     /** Current element's timestamp */
-	protected double ts;
+	protected long ts;
     /** Default logical process */
     protected LogicalProcess defLP = null;
 
@@ -68,7 +68,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * @return Value of property ts.
      */
     @Override
-	public double getTs() {
+	public long getTs() {
         return ts;
     }
     
@@ -77,7 +77,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * equal than the previous one.
      * @param ts New value of property ts.
      */
-    public void setTs(double ts) {
+    public void setTs(long ts) {
         if (ts >= this.ts)
             this.ts = ts;
         else
@@ -112,7 +112,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      */
     public abstract class DiscreteEvent implements Comparable<DiscreteEvent> {
         /** Timestamp when this event will be executed */
-        final protected double ts;        
+        final protected long ts;        
         /** Logical process */
         final protected LogicalProcess lp;
 
@@ -121,7 +121,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
          * @param ts Timestamp when the event will be executed.
          * @param lp Logical process where the event will be executed.
          */
-        public DiscreteEvent(double ts, LogicalProcess lp) {
+        public DiscreteEvent(long ts, LogicalProcess lp) {
             this.ts = ts;
             this.lp = lp;
         }
@@ -161,7 +161,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
          * Getter for property ts.
          * @return Value of property ts.
          */
-        public double getTs() {
+        public long getTs() {
             return ts;
         }
         

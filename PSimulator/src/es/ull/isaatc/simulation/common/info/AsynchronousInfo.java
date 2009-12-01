@@ -4,7 +4,7 @@ import es.ull.isaatc.simulation.common.Simulation;
 
 public abstract class AsynchronousInfo extends TimeStampedInfo {
 
-	public AsynchronousInfo(Simulation simul, double ts) {
+	public AsynchronousInfo(Simulation simul, long ts) {
 		super(simul, ts);
 	}
 

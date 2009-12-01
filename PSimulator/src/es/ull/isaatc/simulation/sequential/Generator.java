@@ -78,7 +78,7 @@ public abstract class Generator extends BasicElement {
          * Creates a new element-generation event.
          * @param ts Timestamp when this event must be executed.
          */
-        public GenerateEvent(double ts) {
+        public GenerateEvent(long ts) {
             super(ts, Generator.this.defLP);
         }
         

@@ -109,7 +109,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * @param endTs
 	 *            Simulation's end timestamp expresed in Simulation Time Units
 	 */
-	public Simulation(int id, String description, TimeUnit unit, double startTs, double endTs) {
+	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
 		super(id, description, unit, startTs, endTs);
 	}
 	
@@ -415,7 +415,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 */
 	public void setEndTs(Time endTs) {
 		this.endTs = endTs;
-		this.internalEndTs = simulationTime2Double(endTs);
+		this.internalEndTs = simulationTime2Long(endTs);
 	}
 
 	/**
@@ -423,7 +423,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 */
 	public void setStartTs(Time startTs) {
 		this.startTs = startTs;
-		this.internalStartTs = simulationTime2Double(startTs);
+		this.internalStartTs = simulationTime2Long(startTs);
 	}
 
 	/**

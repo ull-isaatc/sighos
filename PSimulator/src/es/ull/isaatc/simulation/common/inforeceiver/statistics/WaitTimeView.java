@@ -20,19 +20,19 @@ import es.ull.isaatc.simulation.common.inforeceiver.VarView;
 
 public class WaitTimeView extends VarView {
 
-	private TreeMap<SimulObjectStore, Double> waitTimeStarts;
-	private HashMap<Activity, Double> actWaitTime;
-	private HashMap<Element, Double> elemWaitTime;
-	private HashMap<ElementType, Double> etWaitTime;
+	private TreeMap<SimulObjectStore, Long> waitTimeStarts;
+	private HashMap<Activity, Long> actWaitTime;
+	private HashMap<Element, Long> elemWaitTime;
+	private HashMap<ElementType, Long> etWaitTime;
 	
 	public WaitTimeView(Simulation simul) {
 		super(simul, "waitTime");
 		addEntrance(ElementActionInfo.class);
 		addEntrance(SimulationEndInfo.class);
-		waitTimeStarts = new TreeMap<SimulObjectStore, Double>();
-		actWaitTime = new HashMap<Activity, Double>();
-		elemWaitTime = new HashMap<Element, Double>();
-		etWaitTime = new HashMap<ElementType, Double>();
+		waitTimeStarts = new TreeMap<SimulObjectStore, Long>();
+		actWaitTime = new HashMap<Activity, Long>();
+		elemWaitTime = new HashMap<Element, Long>();
+		etWaitTime = new HashMap<ElementType, Long>();
 	}
 
 	@Override
@@ -58,9 +58,9 @@ public class WaitTimeView extends VarView {
 			}
 			case RESACT:
 			case STAACT: {
-				Double time = waitTimeStarts.get(id);
+				Long time = waitTimeStarts.get(id);
 				if (time != null) {
-					double waitTime = elemInfo.getTs() - time.doubleValue();
+					long waitTime = elemInfo.getTs() - time.longValue();
 					calculateActWaitTime(act, waitTime);
 					calculateElemWaitTime(elem, waitTime);
 					calculateETWaitTime(et, waitTime);
@@ -80,20 +80,20 @@ public class WaitTimeView extends VarView {
 			}
 		} else
 			if (info instanceof SimulationEndInfo) {
-				Iterator<Entry<SimulObjectStore, Double>> iter = waitTimeStarts.entrySet().iterator();
+				Iterator<Entry<SimulObjectStore, Long>> iter = waitTimeStarts.entrySet().iterator();
 				if (isDebugMode()) {
 					String message = new String();
 					message += info.toString() + "\n";
 					debug(message);
 				}
 				while (iter.hasNext()) {
-					Entry<SimulObjectStore, Double> entry = iter.next();
+					Entry<SimulObjectStore, Long> entry = iter.next();
 					SimulObjectStore id = entry.getKey();
 					Activity act = id.act;
 					Element elem = id.elem;
 					ElementType et = elem.getType();
-					Double time = entry.getValue();
-					double waitTime = getSimul().getInternalEndTs() - time.doubleValue();
+					Long time = entry.getValue();
+					long waitTime = getSimul().getInternalEndTs() - time.longValue();
 					calculateActWaitTime(act, waitTime);
 					calculateElemWaitTime(elem, waitTime);
 					calculateETWaitTime(et, waitTime);
@@ -109,7 +109,7 @@ public class WaitTimeView extends VarView {
 			}
 	}
 
-	private String waitTimeDebugMessage(double waitTime, Activity act, Element elem, ElementType et) {
+	private String waitTimeDebugMessage(long waitTime, Activity act, Element elem, ElementType et) {
 		String message = new String();
 		message += "Added " + waitTime + " to \t" + elem.toString() + " "
 				+ " \t" + act.toString() + " " + act.getDescription() 
@@ -120,57 +120,57 @@ public class WaitTimeView extends VarView {
 		return(message);
 	}
 	
-	private void calculateActWaitTime(Activity act, double waitTime) {
-		Double time = actWaitTime.get(act);
+	private void calculateActWaitTime(Activity act, long waitTime) {
+		Long time = actWaitTime.get(act);
 		if (time != null)
-			actWaitTime.put(act, time.doubleValue() + waitTime);
+			actWaitTime.put(act, time.longValue() + waitTime);
 		else
 			actWaitTime.put(act, waitTime);
 	}
 	
-	private void calculateElemWaitTime(Element elem, double waitTime) {
-		Double time = elemWaitTime.get(elem);
+	private void calculateElemWaitTime(Element elem, long waitTime) {
+		Long time = elemWaitTime.get(elem);
 		if (time != null)
-			elemWaitTime.put(elem, time.doubleValue() + waitTime);
+			elemWaitTime.put(elem, time.longValue() + waitTime);
 		else
 			elemWaitTime.put(elem, waitTime);	
 	}
 	
-	private void calculateETWaitTime(ElementType et, double waitTime) {
-		Double time = etWaitTime.get(et);
+	private void calculateETWaitTime(ElementType et, long waitTime) {
+		Long time = etWaitTime.get(et);
 		if (time != null)
-			etWaitTime.put(et, time.doubleValue() + waitTime);
+			etWaitTime.put(et, time.longValue() + waitTime);
 		else
 			etWaitTime.put(et, waitTime);	
 	}
 	
-	private ArrayList<Double> getStoreSet(SimulationObject obj) {
-		ArrayList<Double> storeList = new ArrayList<Double>();
-		Iterator<Entry<SimulObjectStore, Double>> iter = waitTimeStarts.entrySet().iterator();
+	private ArrayList<Long> getStoreSet(SimulationObject obj) {
+		ArrayList<Long> storeList = new ArrayList<Long>();
+		Iterator<Entry<SimulObjectStore, Long>> iter = waitTimeStarts.entrySet().iterator();
 		while (iter.hasNext()) {
-			Entry<SimulObjectStore, Double> entry = iter.next();
+			Entry<SimulObjectStore, Long> entry = iter.next();
 			if (entry.getKey().contains(obj))
 				storeList.add(entry.getValue());
 		}
 		return storeList;
 	}
 	
-	private Double calculateActualWaitTime(ArrayList<Double> storeList, Double currentTime, Double acumulatedTime) {
-		double acumulatorValue = 0.0;
-		Iterator<Double> iter = storeList.iterator();
+	private Long calculateActualWaitTime(ArrayList<Long> storeList, Long currentTime, Long acumulatedTime) {
+		long acumulatorValue = 0;
+		Iterator<Long> iter = storeList.iterator();
 		while (iter.hasNext()) {
-			Double start = (Double) iter.next();
-			acumulatorValue += currentTime - start.doubleValue(); 
+			Long start = (Long) iter.next();
+			acumulatorValue += currentTime - start.longValue(); 
 		}
 		if (acumulatedTime != null)
-			acumulatorValue += acumulatedTime.doubleValue();
+			acumulatorValue += acumulatedTime.longValue();
 		return acumulatorValue;
 	}
 	
 	public Number getValue(Object... params) {
 		String message = new String();
-		Double currentTs = (Double) params[1];
-		double result = 0.0;
+		Long currentTs = (Long) params[1];
+		long result = 0;
 		if (isDebugMode())
 			message += currentTs + "\tGetValue request\t";
 		if (params[0] instanceof Activity) {

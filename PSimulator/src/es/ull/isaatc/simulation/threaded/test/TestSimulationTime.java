@@ -43,7 +43,7 @@ public class TestSimulationTime {
 		for (int i = 0; i < 1000000; i++) {
 			t = new Time(TimeUnit.MINUTE, i);
 //			System.out.print(t);
-			if (sim.double2SimulationTime(sim.simulationTime2Double(t)).getValue() != t.getValue())
+			if (sim.long2SimulationTime(sim.simulationTime2Long(t)).getValue() != t.getValue())
 				System.out.println("STOP!!! " + t);
 //				System.out.println(" NO!!!!!!");
 //			else

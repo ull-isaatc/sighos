@@ -32,7 +32,7 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	private Activity act;
 	private Type type;
 	
-	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, WorkItem sf, Type type, double ts) {
+	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, WorkItem sf, Type type, long ts) {
 		super(simul, ts);
 		this.res = res;
 		this.rt = rt;
@@ -74,7 +74,7 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		String message = "" + simul.double2SimulationTime(getTs()) + "\t";
+		String message = "" + simul.long2SimulationTime(getTs()) + "\t";
 		message += sf.getElement().toString() + " \t";
 		message += type.getDescription() + "\t" + res.getDescription() + "\t";
 		message += "ROLE: " + rt.getDescription() + "\t";	

@@ -42,9 +42,9 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
     /** Resources cancellation table */
     protected final ArrayList<CancelListEntry> cancellationList;
     /** Last activity start */
-    protected double lastStartTs = 0;
+    protected long lastStartTs = 0;
     /** Last activity finish */
-    protected double lastFinishTs = 0;
+    protected long lastFinishTs = 0;
 
 	/**
      * Creates a new activity with 0 priority.
@@ -248,7 +248,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	}
 
 	@Override
-	public double getTs() {
+	public long getTs() {
 		return manager.getTs();
 	}
 	
@@ -257,7 +257,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 * @param rt Resource type
 	 * @param duration Duration of the cancellation.
 	 */
-	public void addResourceCancelation(ResourceType rt, double duration) {
+	public void addResourceCancelation(ResourceType rt, long duration) {
 		CancelListEntry entry = new CancelListEntry(rt, duration);
 		cancellationList.add(entry);
 	}
@@ -269,9 +269,9 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 */
 	public class CancelListEntry {		
 		public ResourceType rt;
-		public double dur;
+		public long dur;
 		
-		CancelListEntry(ResourceType rt, double dur) {
+		CancelListEntry(ResourceType rt, long dur) {
 			this.rt = rt;
 			this.dur = dur;
 		}
@@ -505,16 +505,16 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 
 	}
 
-	public double getLastStartTs() {
+	public long getLastStartTs() {
 		return lastStartTs;
 	}
 
 
-	public double getLastFinishTs() {
+	public long getLastFinishTs() {
 		return lastFinishTs;
 	}
 
-	public void setLastFinishTs(double lastFinishTs) {
+	public void setLastFinishTs(long lastFinishTs) {
 		this.lastFinishTs = lastFinishTs;
 	}
 

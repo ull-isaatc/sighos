@@ -168,7 +168,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 	public double getVarViewValue(Object...params) {
 		String varName = (String) params[0];
 		params[0] = this;
-		Number value = simul.getInfoHandler().notifyInfo(new VarViewValueRequestInfo(simul, varName, this, params, (Double)params[params.length-1]));
+		Number value = simul.getInfoHandler().notifyInfo(new VarViewValueRequestInfo(simul, varName, this, params, (Long)params[params.length-1]));
 		if (value != null)
 			return value.doubleValue();
 		else

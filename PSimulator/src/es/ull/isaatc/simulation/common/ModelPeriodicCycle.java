@@ -19,7 +19,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 * @param endTs
 	 */
 	public ModelPeriodicCycle(TimeUnit unit, Time startTs, ModelTimeFunction period, Time endTs) {
-		cycle = new PeriodicCycle(unit.time2Double(startTs), period.getFunction(), unit.time2Double(endTs));
+		cycle = new PeriodicCycle(unit.time2Long(startTs), period.getFunction(), unit.time2Long(endTs));
 	}
 
 	/**
@@ -29,7 +29,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 */
 	public ModelPeriodicCycle(TimeUnit unit, Time startTs, ModelTimeFunction period,
 			int iterations) {
-		cycle = new PeriodicCycle(unit.time2Double(startTs), period.getFunction(), iterations);
+		cycle = new PeriodicCycle(unit.time2Long(startTs), period.getFunction(), iterations);
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 */
 	public ModelPeriodicCycle(TimeUnit unit, Time startTs, ModelTimeFunction period,
 			Time endTs, ModelCycle subCycle) {
-		cycle = new PeriodicCycle(unit.time2Double(startTs), period.getFunction(), unit.time2Double(endTs), subCycle.getCycle());
+		cycle = new PeriodicCycle(unit.time2Long(startTs), period.getFunction(), unit.time2Long(endTs), subCycle.getCycle());
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 */
 	public ModelPeriodicCycle(TimeUnit unit, Time startTs, ModelTimeFunction period,
 			int iterations, ModelCycle subCycle) {
-		cycle = new PeriodicCycle(unit.time2Double(startTs), period.getFunction(), iterations, subCycle.getCycle());
+		cycle = new PeriodicCycle(unit.time2Long(startTs), period.getFunction(), iterations, subCycle.getCycle());
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 * @param period
 	 * @param endTs
 	 */
-	public ModelPeriodicCycle(TimeUnit unit, double startTs, ModelTimeFunction period, double endTs) {
+	public ModelPeriodicCycle(TimeUnit unit, long startTs, ModelTimeFunction period, long endTs) {
 		this(unit, new Time(unit, startTs), period, new Time(unit, endTs));
 	}
 
@@ -68,7 +68,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 * @param period
 	 * @param iterations
 	 */
-	public ModelPeriodicCycle(TimeUnit unit, double startTs, ModelTimeFunction period,
+	public ModelPeriodicCycle(TimeUnit unit, long startTs, ModelTimeFunction period,
 			int iterations) {
 		this(unit, new Time(unit, startTs), period, iterations);
 	}
@@ -79,8 +79,8 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 * @param endTs
 	 * @param subCycle
 	 */
-	public ModelPeriodicCycle(TimeUnit unit, double startTs, ModelTimeFunction period,
-			double endTs, ModelCycle subCycle) {
+	public ModelPeriodicCycle(TimeUnit unit, long startTs, ModelTimeFunction period,
+			long endTs, ModelCycle subCycle) {
 		this(unit, new Time(unit, startTs), period, new Time(unit, endTs), subCycle);
 	}
 
@@ -90,7 +90,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 * @param iterations
 	 * @param subCycle
 	 */
-	public ModelPeriodicCycle(TimeUnit unit, double startTs, ModelTimeFunction period,
+	public ModelPeriodicCycle(TimeUnit unit, long startTs, ModelTimeFunction period,
 			int iterations, ModelCycle subCycle) {
 		this(unit, new Time(unit, startTs), period, iterations, subCycle);
 	}
@@ -108,7 +108,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 * @return An hourly cycle
 	 */
 	public static ModelPeriodicCycle newHourlyCycle(TimeUnit unit) {
-		return new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", new Time(TimeUnit.HOUR, 1)), 0);
+		return new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", new Time(TimeUnit.HOUR, 1)), 0);
 	}
 	
 	/**
@@ -117,7 +117,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 * @return A daily cycle
 	 */
 	public static ModelPeriodicCycle newDailyCycle(TimeUnit unit) {
-		return new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", new Time(TimeUnit.DAY, 1)), 0);
+		return new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", new Time(TimeUnit.DAY, 1)), 0);
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 * @return A weekly cycle
 	 */
 	public static ModelPeriodicCycle newWeeklyCycle(TimeUnit unit) {
-		return new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", new Time(TimeUnit.WEEK, 1)), 0);
+		return new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", new Time(TimeUnit.WEEK, 1)), 0);
 	}
 
 	/**
@@ -135,7 +135,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 * @return A monthly cycle
 	 */
 	public static ModelPeriodicCycle newMonthlyCycle(TimeUnit unit) {
-		return new ModelPeriodicCycle(unit, 0.0, new ModelTimeFunction(unit, "ConstantVariate", new Time(TimeUnit.MONTH, 1)), 0);
+		return new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", new Time(TimeUnit.MONTH, 1)), 0);
 	}
 
 	/**
@@ -144,7 +144,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 * @param startTs Timestamp (using simulation time unit) when this cycle starts
 	 * @return An hourly cycle
 	 */
-	public static ModelPeriodicCycle newHourlyCycle(TimeUnit unit, double startTs) {
+	public static ModelPeriodicCycle newHourlyCycle(TimeUnit unit, long startTs) {
 		return new ModelPeriodicCycle(unit, startTs, new ModelTimeFunction(unit, "ConstantVariate", new Time(TimeUnit.HOUR, 1)), 0);
 	}
 	
@@ -154,7 +154,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 * @param startTs Timestamp (using simulation time unit) when this cycle starts
 	 * @return A daily cycle
 	 */
-	public static ModelPeriodicCycle newDailyCycle(TimeUnit unit, double startTs) {
+	public static ModelPeriodicCycle newDailyCycle(TimeUnit unit, long startTs) {
 		return new ModelPeriodicCycle(unit, startTs, new ModelTimeFunction(unit, "ConstantVariate", new Time(TimeUnit.DAY, 1)), 0);
 	}
 
@@ -164,7 +164,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 * @param startTs Timestamp (using simulation time unit) when this cycle starts
 	 * @return A weekly cycle
 	 */
-	public static ModelPeriodicCycle newWeeklyCycle(TimeUnit unit, double startTs) {
+	public static ModelPeriodicCycle newWeeklyCycle(TimeUnit unit, long startTs) {
 		return new ModelPeriodicCycle(unit, startTs, new ModelTimeFunction(unit, "ConstantVariate", new Time(TimeUnit.WEEK, 1)), 0);
 	}
 
@@ -174,7 +174,7 @@ public class ModelPeriodicCycle implements ModelCycle {
 	 * @param startTs Timestamp (using simulation time unit) when this cycle starts
 	 * @return A monthly cycle
 	 */
-	public static ModelPeriodicCycle newMonthlyCycle(TimeUnit unit, double startTs) {
+	public static ModelPeriodicCycle newMonthlyCycle(TimeUnit unit, long startTs) {
 		return new ModelPeriodicCycle(unit, startTs, new ModelTimeFunction(unit, "ConstantVariate", new Time(TimeUnit.MONTH, 1)), 0);
 	}
 	

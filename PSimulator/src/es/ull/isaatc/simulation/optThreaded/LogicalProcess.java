@@ -19,10 +19,10 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 	/** LP's counter. */
 	private static int nextId = 0;
     /** Local virtual time. Represents the current simulation time for this LP. */
-	protected double lvt;
+	protected long lvt;
     /** The maximum timestamp for this logical process. When this timestamp is reached, this LP 
      * finishes its execution. */
-    protected double maxgvt; 
+    protected long maxgvt; 
     /** Thread pool to execute events */
     protected final ThreadPool<BasicElement.DiscreteEvent> tp;
     /** A counter to know how many events are in execution */
@@ -41,7 +41,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * @param startT Initial timestamp.
      * @param endT Finishing timestamp.
      */
-	public LogicalProcess(Simulation simul, double startT, double endT, ActivityManager[] activityManagerList) {
+	public LogicalProcess(Simulation simul, long startT, long endT, ActivityManager[] activityManagerList) {
         this(simul, startT, endT, 1, activityManagerList);
 	}
 
@@ -52,7 +52,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * @param startT Initial timestamp.
      * @param endT Finishing timestamp.
      */
-	public LogicalProcess(Simulation simul, double startT, double endT, int nThreads, ActivityManager[] activityManagerList) {
+	public LogicalProcess(Simulation simul, long startT, long endT, int nThreads, ActivityManager[] activityManagerList) {
 		super(nextId++, simul);
 		if (nThreads == 1)
 			tp = new SingleThreadPool<BasicElement.DiscreteEvent>();
@@ -74,7 +74,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
     }
 
     @Override
-	public double getTs() {
+	public long getTs() {
 		return lvt;
 	}
 
@@ -182,7 +182,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 		}
 
     	class DummyEvent extends BasicElement.DiscreteEvent {
-    		DummyEvent(double ts) {
+    		DummyEvent(long ts) {
     			super(ts, LogicalProcess.this);
     		}
 			public void event() {				

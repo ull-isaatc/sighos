@@ -31,7 +31,7 @@ public class ModelTableCycle implements ModelCycle {
 	private static double[] simulationTime2Double(TimeUnit unit, Time[] timestamps) {
 		double[] times = new double[timestamps.length];
 		for (int i = 0; i < times.length; i++)
-			times[i] = unit.time2Double(timestamps[i]);
+			times[i] = unit.time2Long(timestamps[i]);
 		return times;
 	}
 

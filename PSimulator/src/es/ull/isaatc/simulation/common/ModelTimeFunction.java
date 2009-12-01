@@ -15,9 +15,9 @@ public class ModelTimeFunction {
 	public ModelTimeFunction(TimeUnit unit, String className, Object... parameters) {
 		for (int i = 0; i < parameters.length; i++) {
 			if (parameters[i] instanceof Time)
-				parameters[i] = unit.time2Double((Time)parameters[i]);
+				parameters[i] = unit.time2Long((Time)parameters[i]);
 			else if (parameters[i] instanceof Number)
-				parameters[i] = unit.time2Double(new Time(unit, ((Number)parameters[i]).doubleValue())); 
+				parameters[i] = unit.time2Long(new Time(unit, Math.round(((Number)parameters[i]).doubleValue()))); 
 		}
 		function = TimeFunctionFactory.getInstance(className, parameters);
 	}

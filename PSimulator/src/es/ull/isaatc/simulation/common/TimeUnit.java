@@ -44,8 +44,8 @@ public enum TimeUnit {
 	 * @param sourceUnit Source time unit
 	 * @return The value of the source when expressed as this time unit.
 	 */
-	public double convert(double sourceValue, TimeUnit sourceUnit) {
-		return sourceValue * conversion[sourceUnit.ordinal()][ordinal()];
+	public long convert(long sourceValue, TimeUnit sourceUnit) {
+		return Math.round(sourceValue * conversion[sourceUnit.ordinal()][ordinal()]);
 	}
 	
 	/**
@@ -53,16 +53,12 @@ public enum TimeUnit {
 	 * @param sourceValue Source timestamp
 	 * @return The value of the source when expressed as this time unit.
 	 */
-	public double convert(Time sourceValue) {
-		return sourceValue.getValue() * conversion[sourceValue.getUnit().ordinal()][ordinal()];
+	public long convert(Time sourceValue) {
+		return Math.round(sourceValue.getValue() * conversion[sourceValue.getUnit().ordinal()][ordinal()]);
 	}
 
-	public double time2Double(Time source) {
-		return convert(source) * Double.MIN_VALUE;
-	}
-	
-	public Time double2Time(double sourceValue) {
-		return new Time(this, sourceValue / Double.MIN_VALUE);
+	public double time2Long(Time source) {
+		return Math.round(convert(source));
 	}
 	
 }

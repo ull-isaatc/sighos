@@ -31,9 +31,9 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 	 * in the same activity manager. */
 	protected int arrivalOrder;
 	/** The simulation timestamp when this work item was requested. */
-	protected double arrivalTs = Double.NaN;
+	protected long arrivalTs = -1;
 	/** The time left to finish the activity. Used in interruptible activities. */
-	protected double timeLeft = Double.NaN;
+	protected long timeLeft = -1;
 	
 	/**
 	 * Creates a new work item belonging to work thread wThread.
@@ -51,8 +51,8 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 		this.flow = flow;
 		this.act = flow.getActivity();
 		executionWG = null;
-		arrivalTs = Double.NaN;
-		timeLeft = Double.NaN;
+		arrivalTs = -1;
+		timeLeft = -1;
 	}
 	
     /**
@@ -107,7 +107,7 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 	 * Returns the timestamp when this work item arrives to request the current single flow.
 	 * @return the timestamp when this work item arrives to request the current single flow
 	 */
-	public double getArrivalTs() {
+	public long getArrivalTs() {
 		return arrivalTs;
 	}
 
@@ -115,7 +115,7 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 	 * Sets the timestamp when this work item arrives to request the current single flow.
 	 * @param arrivalTs the timestamp when this work item arrives to request the current single flow
 	 */
-	public void setArrivalTs(double arrivalTs) {
+	public void setArrivalTs(long arrivalTs) {
 		this.arrivalTs = arrivalTs;
 	}
 
@@ -123,7 +123,7 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 	 * Returns the time required to finish the current single flow (only for interruptible activities) 
 	 * @return the time required to finish the current single flow 
 	 */
-	public double getTimeLeft() {
+	public long getTimeLeft() {
 		return timeLeft;
 	}
 
@@ -131,7 +131,7 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 	 * Sets the time required to finish the current single flow .
 	 * @param timeLeft the time required to finish the current single flow 
 	 */
-	public void setTimeLeft(double timeLeft) {
+	public void setTimeLeft(long timeLeft) {
 		this.timeLeft = timeLeft;
 	}
 
@@ -183,9 +183,9 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 		this.executionWG = executionWG;
 	}
 
-	protected double catchResources(ArrayDeque<Resource> caughtResources) {
+	protected long catchResources(ArrayDeque<Resource> caughtResources) {
 		this.caughtResources = caughtResources;
-    	double auxTs = Double.MAX_VALUE;
+    	long auxTs = Long.MAX_VALUE;
     	for (Resource res : caughtResources) {
     		auxTs = Math.min(auxTs, res.catchResource(this));;
             res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
@@ -204,7 +204,7 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 			for (int i = 0; i < act.cancellationList.size(); i++) {
 				es.ull.isaatc.simulation.sequential.Activity.CancelListEntry entry = act.cancellationList.get(i);
 				if (res.currentResourceType == entry.rt) {
-					double actualTs = elem.getTs();
+					long actualTs = elem.getTs();
 					res.setNotCanceled(false);
 					flow.simul.getInfoHandler().notifyInfo(new ResourceInfo(flow.simul, res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
 					res.generateCancelPeriodOffEvent(actualTs, entry.dur);

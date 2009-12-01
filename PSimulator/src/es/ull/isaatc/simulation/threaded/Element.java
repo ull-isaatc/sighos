@@ -188,7 +188,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 		/** The flow to be requested */
 		private final Flow f;
 
-		public RequestFlowEvent(double ts, Flow f, WorkThread eThread) {
+		public RequestFlowEvent(long ts, Flow f, WorkThread eThread) {
 			super(ts, Element.this.defLP);
 			this.eThread = eThread;
 			this.f = f;
@@ -209,7 +209,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 		/** The flow previously requested */
 		private final TaskFlow f;
 
-		public FinishFlowEvent(double ts, TaskFlow f, WorkThread eThread) {
+		public FinishFlowEvent(long ts, TaskFlow f, WorkThread eThread) {
 			super(ts, Element.this.defLP);
 			this.f = f;
 			this.eThread = eThread;
@@ -228,7 +228,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 		/** Flow informed of the availability of the element */
 		private final WorkItem eThread;
 
-		public AvailableElementEvent(double ts, WorkItem eThread) {
+		public AvailableElementEvent(long ts, WorkItem eThread) {
 			super(ts, eThread.getActivity().getManager().getLp());
 			this.eThread = eThread;
 		}

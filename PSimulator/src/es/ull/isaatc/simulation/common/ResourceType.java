@@ -11,9 +11,9 @@ package es.ull.isaatc.simulation.common;
 public interface ResourceType extends VariableStoreSimulationObject, Describable {
 	
 	/* User methods */
-	public double beforeRoleOn();
+	public long beforeRoleOn();
 	public void afterRoleOn();
-	public double beforeRoleOff();
+	public long beforeRoleOff();
 	public void afterRoleOff();
 
 }

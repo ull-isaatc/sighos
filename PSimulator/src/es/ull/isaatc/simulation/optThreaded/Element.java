@@ -182,7 +182,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 		/** The flow previously requested */
 		private final TaskFlow f;
 
-		public FinishFlowEvent(double ts, TaskFlow f, WorkThread eThread) {
+		public FinishFlowEvent(long ts, TaskFlow f, WorkThread eThread) {
 			super(ts, Element.this.defLP);
 			this.f = f;
 			this.eThread = eThread;

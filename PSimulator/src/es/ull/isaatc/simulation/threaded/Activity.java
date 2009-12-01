@@ -41,9 +41,9 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
     /** Resources cancellation table */
     protected final ArrayList<CancelListEntry> cancellationList;
     /** Last activity start */
-    protected double lastStartTs = 0;
+    protected long lastStartTs = 0;
     /** Last activity finish */
-    protected double lastFinishTs = 0;
+    protected long lastFinishTs = 0;
 
 	/**
      * Creates a new activity with 0 priority.
@@ -245,7 +245,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	}
 
 	@Override
-	public double getTs() {
+	public long getTs() {
 		return manager.getTs();
 	}
 	
@@ -254,7 +254,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 * @param rt Resource type
 	 * @param duration Duration of the cancellation.
 	 */
-	public void addResourceCancelation(ResourceType rt, double duration) {
+	public void addResourceCancelation(ResourceType rt, long duration) {
 		CancelListEntry entry = new CancelListEntry(rt, duration);
 		cancellationList.add(entry);
 	}
@@ -266,9 +266,9 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 */
 	public class CancelListEntry {		
 		public ResourceType rt;
-		public double dur;
+		public long dur;
 		
-		CancelListEntry(ResourceType rt, double dur) {
+		CancelListEntry(ResourceType rt, long dur) {
 			this.rt = rt;
 			this.dur = dur;
 		}
@@ -559,8 +559,8 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	     * @param wi Work item which requires the resources
 	     * @return The minimum availability timestamp of the taken resources 
 	     */
-	    protected double catchResources(WorkItem wi) {
-	    	double minAvailability = Double.MAX_VALUE;
+	    protected long catchResources(WorkItem wi) {
+	    	long minAvailability = Long.MAX_VALUE;
 	    	for (int i = 0; i < resourceTypes.length; i++)
 	    		minAvailability = Math.min(minAvailability, resourceTypes[i].catchResources(needed[i], wi));
 	    	// When this point is reached, that means that the resources have been completely taken
@@ -599,16 +599,16 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 
 	}
 
-	public double getLastStartTs() {
+	public long getLastStartTs() {
 		return lastStartTs;
 	}
 
 
-	public double getLastFinishTs() {
+	public long getLastFinishTs() {
 		return lastFinishTs;
 	}
 
-	public void setLastFinishTs(double lastFinishTs) {
+	public void setLastFinishTs(long lastFinishTs) {
 		this.lastFinishTs = lastFinishTs;
 	}
 

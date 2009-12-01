@@ -5,7 +5,7 @@ package es.ull.isaatc.simulation.threaded.test;
 
 import java.util.concurrent.atomic.AtomicLongArray;
 
-import es.ull.isaatc.simulation.Experiment;
+import es.ull.isaatc.simulation.common.Experiment;
 import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
 import es.ull.isaatc.simulation.common.Time;
@@ -16,7 +16,6 @@ import es.ull.isaatc.simulation.threaded.BasicElementCreator;
 import es.ull.isaatc.simulation.threaded.Generator;
 import es.ull.isaatc.simulation.threaded.LogicalProcess;
 import es.ull.isaatc.simulation.threaded.Simulation;
-import es.ull.isaatc.simulation.threaded.StandAloneLPSimulation;
 import es.ull.isaatc.simulation.threaded.TimeDrivenGenerator;
 
 class RequestingElement extends BasicElement {
@@ -53,7 +52,7 @@ class RequestingElement extends BasicElement {
 			((KindOfPHOLDSimulation)simul).setValue(id, res);
 			debug("Weird event " + eventIter);
 			if (--eventIter > 0)
-				addEvent(new ReqEvent(ts + simul.simulationTime2Double(minute), lp));
+				addEvent(new ReqEvent(ts + simul.simulationTime2Long(minute), lp));
 			else
 				notifyEnd();
 		}
@@ -91,7 +90,7 @@ class RequestingElementCreator implements BasicElementCreator {
 
 }
 
-class KindOfPHOLDSimulation extends StandAloneLPSimulation {
+class KindOfPHOLDSimulation extends Simulation {
 	AtomicLongArray values;	
 	int nElem;
 	int eventIter;

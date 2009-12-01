@@ -26,7 +26,7 @@ public abstract class TimeStampedSimulationObject extends VariableStoreSimulatio
 	 * Returns the simulation timestamp of this object.
 	 * @return Simulation timestamp of the object.
 	 */
-	public abstract double getTs();
+	public abstract long getTs();
 
 	/*
 	 * (non-Javadoc)

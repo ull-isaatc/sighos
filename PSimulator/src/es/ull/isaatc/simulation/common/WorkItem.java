@@ -39,13 +39,13 @@ public interface WorkItem extends Comparable<WorkItem>, Prioritizable, Identifia
 	 * Returns the timestamp when this work item arrives to request the current single flow.
 	 * @return the timestamp when this work item arrives to request the current single flow
 	 */
-	public double getArrivalTs();
+	public long getArrivalTs();
 
 	/**
 	 * Returns the time required to finish the current single flow (only for interruptible activities) 
 	 * @return the time required to finish the current single flow 
 	 */
-	public double getTimeLeft();
+	public long getTimeLeft();
 
     /**
      * Returns the workgroup which is used to perform this flow, or <code>null</code>  

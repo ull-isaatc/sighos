@@ -5,7 +5,7 @@ package es.ull.isaatc.simulation.optThreaded;
 
 import es.ull.isaatc.simulation.common.ModelCycle;
 import es.ull.isaatc.util.Cycle;
-import es.ull.isaatc.util.CycleIterator;
+import es.ull.isaatc.util.DiscreteCycleIterator;
 
 /**
  * A generator which creates elements following a temporal pattern. 
@@ -15,7 +15,7 @@ public class TimeDrivenGenerator extends Generator implements es.ull.isaatc.simu
     /** Cycle that controls the generation of elements. */
     protected final Cycle cycle;
     /** The iterator which moves through the defined cycle */
-    private CycleIterator cycleIter = null;
+    private DiscreteCycleIterator cycleIter = null;
 
     /**
      * Creates a generator driven by a time cycle.
@@ -35,8 +35,8 @@ public class TimeDrivenGenerator extends Generator implements es.ull.isaatc.simu
 	@Override
 	protected void init() {
 		cycleIter = cycle.iterator(simul.getInternalStartTs(), simul.getInternalEndTs());
-    	double newTs = nextTs();
-    	if (Double.isNaN(newTs))
+    	long newTs = nextTs();
+    	if (newTs == -1)
             notifyEnd();
         else {
         	ts = newTs;
@@ -50,7 +50,7 @@ public class TimeDrivenGenerator extends Generator implements es.ull.isaatc.simu
      * @return The next timestamp to generate elements. NaN if this generator
      * don't have to create more elements.
      */
-    public double nextTs() {
+    public long nextTs() {
 		return cycleIter.next();
     }
 
@@ -59,8 +59,8 @@ public class TimeDrivenGenerator extends Generator implements es.ull.isaatc.simu
      * event (if there is no more generation cycles remain).
      */
 	public void beforeCreate() {
-		double newTs = nextTs();
-		if (Double.isNaN(newTs))
+		long newTs = nextTs();
+    	if (newTs == -1)
 		 	notifyEnd();
 		else {
 			GenerateEvent e = new GenerateEvent(newTs);

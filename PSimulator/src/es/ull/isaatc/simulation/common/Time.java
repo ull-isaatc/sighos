@@ -9,13 +9,13 @@ package es.ull.isaatc.simulation.common;
  */
 public class Time {
 	private TimeUnit unit;
-	private double value;
+	private long value;
 	
 	/**
 	 * @param unit
 	 * @param value
 	 */
-	public Time(TimeUnit unit, double value) {
+	public Time(TimeUnit unit, long value) {
 		this.unit = unit;
 		this.value = value;
 	}
@@ -30,7 +30,7 @@ public class Time {
 	/**
 	 * @return the value
 	 */
-	public double getValue() {
+	public long getValue() {
 		return value;
 	}
 	
@@ -43,7 +43,7 @@ public class Time {
 	}
 	
 	public Time multiply(double factor) {
-		return new Time(unit, value * factor);		
+		return new Time(unit, Math.round(value * factor));		
 	}
 	
 	@Override
@@ -52,19 +52,19 @@ public class Time {
 	}
 	
 	public static Time getZero() {
-		return new Time(TimeUnit.MINUTE, 0.0);
+		return new Time(TimeUnit.MINUTE, 0);
 	}
 	
 	public static Time getMinute() {
-		return new Time(TimeUnit.MINUTE, 1.0);		
+		return new Time(TimeUnit.MINUTE, 1);		
 	}
 
 	public static Time getHour() {
-		return new Time(TimeUnit.HOUR, 1.0);		
+		return new Time(TimeUnit.HOUR, 1);		
 	}
 
 	public static Time getDay() {
-		return new Time(TimeUnit.DAY, 1.0);		
+		return new Time(TimeUnit.DAY, 1);		
 	}
 
 }

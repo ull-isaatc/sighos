@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class BasicElement extends TimeStampedSimulationObject {
     /** Current element's timestamp */
-	protected double ts;
+	protected long ts;
     /** Access control */
     final protected Semaphore sem;
     /** Flag that indicates if the element has finished its execution */
@@ -52,8 +52,8 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * @param e New event.
      */    
     protected void addEvent(DiscreteEvent e) {
-    	double evTs = e.getTs();
-    	double lpTs = e.getLp().getTs();
+    	long evTs = e.getTs();
+    	long lpTs = e.getLp().getTs();
         if (evTs == lpTs)
             e.getLp().addExecution(e);
         else if (evTs > lpTs)
@@ -77,7 +77,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * Returns the element's current timestamp.
      * @return Value of property ts.
      */
-    public double getTs() {
+    public long getTs() {
         return ts;
     }
     
@@ -86,7 +86,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * equal than the previous one.
      * @param ts New value of property ts.
      */
-    public void setTs(double ts) {
+    public void setTs(long ts) {
         if (ts >= this.ts)
             this.ts = ts;
         else
@@ -138,7 +138,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      */
     public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEvent> {
         /** Timestamp when this event will be executed */
-        final protected double ts;        
+        final protected long ts;        
         /** Logical process */
         final protected LogicalProcess lp;
 
@@ -147,7 +147,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
          * @param ts Timestamp when the event will be executed.
          * @param lp Logical process where the event will be executed.
          */
-        public DiscreteEvent(double ts, LogicalProcess lp) {
+        public DiscreteEvent(long ts, LogicalProcess lp) {
             this.ts = ts;
             this.lp = lp;
         }
@@ -187,7 +187,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
          * Getter for property ts.
          * @return Value of property ts.
          */
-        public double getTs() {
+        public long getTs() {
             return ts;
         }
         
@@ -206,7 +206,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
          * the timestamp of the event passed by parameters.
          */    
     	public int compareTo(DiscreteEvent e) {
-    		double evTs = e.getTs();
+    		long evTs = e.getTs();
     		if (ts > evTs)
     			return 1;
     		else if (ts < evTs)

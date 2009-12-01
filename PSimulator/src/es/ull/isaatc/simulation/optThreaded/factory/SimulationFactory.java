@@ -69,7 +69,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public SimulationFactory(int id, String description, TimeUnit unit,	double startTs, double endTs) {
+	public SimulationFactory(int id, String description, TimeUnit unit,	long startTs, long endTs) {
 		simul = new Simulation(id, description, unit, startTs, endTs) {
 			@Override
 			protected void createModel() {

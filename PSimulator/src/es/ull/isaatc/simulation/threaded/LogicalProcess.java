@@ -24,10 +24,10 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 	 * the advance of simulation time */
 	protected final Condition execEmpty;
     /** Local virtual time. Represents the current simulation time for this LP. */
-	protected double lvt;
+	protected long lvt;
     /** The maximum timestamp for this logical process. When this timestamp is reached, this LP 
      * finishes its execution. */
-    protected double maxgvt; 
+    protected long maxgvt; 
     /** Thread pool to execute events */
     protected final ThreadPool<BasicElement.DiscreteEvent> tp;
     /** A counter to know how many events are in execution */
@@ -42,8 +42,8 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * @param simul Simulation which this LP is attached to.
      * @param endT Finishing timestamp.
      */
-	public LogicalProcess(Simulation simul, double endT) {
-        this(simul, 0.0, endT, 1);
+	public LogicalProcess(Simulation simul, long endT) {
+        this(simul, 0, endT, 1);
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * @param startT Initial timestamp.
      * @param endT Finishing timestamp.
      */
-	public LogicalProcess(Simulation simul, double startT, double endT) {
+	public LogicalProcess(Simulation simul, long startT, long endT) {
         this(simul, startT, endT, 1);
 	}
 
@@ -62,8 +62,8 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * @param simul Simulation which this LP is attached to.
      * @param endT Finishing timestamp.
      */
-	public LogicalProcess(Simulation simul, double endT, int nThreads) {
-        this(simul, 0.0, endT, nThreads);
+	public LogicalProcess(Simulation simul, long endT, int nThreads) {
+        this(simul, 0, endT, nThreads);
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * @param startT Initial timestamp.
      * @param endT Finishing timestamp.
      */
-	public LogicalProcess(Simulation simul, double startT, double endT, int nThreads) {
+	public LogicalProcess(Simulation simul, long startT, long endT, int nThreads) {
 		super(nextId++, simul);
 		if (nThreads == 1)
 			tp = new SingleThreadPool<BasicElement.DiscreteEvent>();
@@ -95,7 +95,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
     }
 
     @Override
-	public double getTs() {
+	public long getTs() {
 		return lvt;
 	}
 
@@ -216,7 +216,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 		}
 
     	class DummyEvent extends BasicElement.DiscreteEvent {
-    		DummyEvent(double ts) {
+    		DummyEvent(long ts) {
     			super(ts, LogicalProcess.this);
     		}
 			public void event() {				

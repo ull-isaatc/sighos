@@ -1,87 +1,14 @@
 package es.ull.isaatc.simulation.test.WFP;
 
-import es.ull.isaatc.simulation.common.Simulation;
-import es.ull.isaatc.simulation.common.WorkGroup;
 import es.ull.isaatc.simulation.common.ResourceType;
 import es.ull.isaatc.simulation.common.TimeDrivenActivity;
+import es.ull.isaatc.simulation.common.WorkGroup;
 import es.ull.isaatc.simulation.common.condition.Condition;
 import es.ull.isaatc.simulation.common.condition.NotCondition;
 import es.ull.isaatc.simulation.common.condition.TrueCondition;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory.SimulationType;
 import es.ull.isaatc.simulation.common.flow.SingleFlow;
 import es.ull.isaatc.simulation.common.flow.StructuredSynchroMergeFlow;
-
-class WFP07CheckView extends CheckElementActionsView {
-	public WFP07CheckView(Simulation simul) {
-		this(simul, true);
-	}
-
-	public WFP07CheckView(Simulation simul, boolean detailed) {
-		super(simul, "Checking WFP07...", detailed);
-
-		ElementReferenceInfos [] ref;
-		ref = new ElementReferenceInfos[3];
-		refRequests.put(0.0, ref);
-		ref[0] = new ElementReferenceInfos();
-		ref[0].add(1);
-		ref[1] = new ElementReferenceInfos();
-		ref[1].add(1);
-		ref[2] = new ElementReferenceInfos();
-		ref[2].add(1);
-		ref = new ElementReferenceInfos[3];
-		refRequests.put(2.396E-321, ref);
-		ref[2] = new ElementReferenceInfos();
-		ref[2].add(2);
-		ref = new ElementReferenceInfos[3];
-		refRequests.put(2.42E-321, ref);
-		ref[1] = new ElementReferenceInfos();
-		ref[1].add(2);
-		ref = new ElementReferenceInfos[3];
-		refRequests.put(2.446E-321, ref);
-		ref[0] = new ElementReferenceInfos();
-		ref[0].add(2);
-		ref = new ElementReferenceInfos[3];
-		refStartActs.put(2.37E-321, ref);
-		ref[2] = new ElementReferenceInfos();
-		ref[2].add(1);
-		ref = new ElementReferenceInfos[3];
-		refStartActs.put(2.396E-321, ref);
-		ref[1] = new ElementReferenceInfos();
-		ref[1].add(1);
-		ref[2] = new ElementReferenceInfos();
-		ref[2].add(2);
-		ref = new ElementReferenceInfos[3];
-		refStartActs.put(2.42E-321, ref);
-		ref[0] = new ElementReferenceInfos();
-		ref[0].add(1);
-		ref[1] = new ElementReferenceInfos();
-		ref[1].add(2);
-		ref = new ElementReferenceInfos[3];
-		refStartActs.put(2.446E-321, ref);
-		ref[0] = new ElementReferenceInfos();
-		ref[0].add(2);
-		ref = new ElementReferenceInfos[3];
-		refEndActs.put(2.396E-321, ref);
-		ref[2] = new ElementReferenceInfos();
-		ref[2].add(1);
-		ref = new ElementReferenceInfos[3];
-		refEndActs.put(2.42E-321, ref);
-		ref[1] = new ElementReferenceInfos();
-		ref[1].add(1);
-		ref[2] = new ElementReferenceInfos();
-		ref[2].add(2);
-		ref = new ElementReferenceInfos[3];
-		refEndActs.put(2.446E-321, ref);
-		ref[0] = new ElementReferenceInfos();
-		ref[0].add(1);
-		ref[1] = new ElementReferenceInfos();
-		ref[1].add(2);
-		ref = new ElementReferenceInfos[3];
-		refEndActs.put(2.47E-321, ref);
-		ref[0] = new ElementReferenceInfos();
-		ref[0].add(2);
-	}
-}
 
 /**
  * WFP 7. Example 1: Transferencia Pacientes

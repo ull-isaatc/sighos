@@ -4,7 +4,7 @@ import es.ull.isaatc.simulation.common.Simulation;
 
 public abstract class UserInfo extends AsynchronousInfo {
 
-	public UserInfo(Simulation simul, double ts) {
+	public UserInfo(Simulation simul, long ts) {
 		super(simul, ts);
 	}
 

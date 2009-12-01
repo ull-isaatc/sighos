@@ -36,7 +36,7 @@ class WFPTestExperiment extends Experiment {
 		Simulation sim = null;
 		try {
 			if (cl == null)
-				sim = SimulationFactory.getInstance(type, ind, "No valid simulation", TimeUnit.MINUTE, 0.0, 0.0).getSimulation();
+				sim = SimulationFactory.getInstance(type, ind, "No valid simulation", TimeUnit.MINUTE, 0, 0).getSimulation();
 			else {
 				Constructor<?> c = cl.getConstructor(SimulationType.class, int.class, boolean.class);
 				sim = ((WFPTestSimulationFactory)c.newInstance(type, ind, detailed)).getSimulation();

@@ -20,10 +20,10 @@ import es.ull.isaatc.simulation.common.inforeceiver.VarView;
 
 public class UnavailabilityUseTimeView extends VarView {
 
-	TreeMap<Resource, Double> resUnUseTime;
-	TreeMap<ResourceType, Double> rtUnUseTime;
-	TreeMap<SimulObjectStore, Double> unUseStarts;
-	TreeMap<WorkItem, Double> actStarts;
+	TreeMap<Resource, Long> resUnUseTime;
+	TreeMap<ResourceType, Long> rtUnUseTime;
+	TreeMap<SimulObjectStore, Long> unUseStarts;
+	TreeMap<WorkItem, Long> actStarts;
 	TreeMap<WorkItem, SfResources> resCaughted;
 	
 	
@@ -33,11 +33,11 @@ public class UnavailabilityUseTimeView extends VarView {
 		addEntrance(SimulationEndInfo.class);
 		addEntrance(ElementActionInfo.class);
 		addEntrance(ResourceUsageInfo.class);
-		resUnUseTime = new TreeMap<Resource, Double>();
-		rtUnUseTime = new TreeMap<ResourceType, Double>();
-		unUseStarts = new TreeMap<SimulObjectStore, Double>();
+		resUnUseTime = new TreeMap<Resource, Long>();
+		rtUnUseTime = new TreeMap<ResourceType, Long>();
+		unUseStarts = new TreeMap<SimulObjectStore, Long>();
 		resCaughted = new TreeMap<WorkItem, SfResources>();
-		actStarts = new TreeMap<WorkItem, Double>();
+		actStarts = new TreeMap<WorkItem, Long>();
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class UnavailabilityUseTimeView extends VarView {
 			ResourceInfo resInfo = (ResourceInfo) info;
 			Resource res = resInfo.getRes();
 			ResourceType rt = resInfo.getRt();
-			Double requestTs = resInfo.getTs();
+			Long requestTs = resInfo.getTs();
 			SimulObjectStore id = new SimulObjectStore(res,rt);
 			switch(resInfo.getType()) {
 			case ROLON: {
@@ -76,7 +76,7 @@ public class UnavailabilityUseTimeView extends VarView {
 			if (info instanceof ElementActionInfo) {
 				ElementActionInfo elemInfo = (ElementActionInfo) info;
 				WorkItem item = elemInfo.getSf();
-				Double requestTime = elemInfo.getTs();
+				Long requestTime = elemInfo.getTs();
 				switch(elemInfo.getType()) {
 				case ENDACT: {
 					SfResources sfRes = resCaughted.get(item);
@@ -85,10 +85,10 @@ public class UnavailabilityUseTimeView extends VarView {
 						while (iter.hasNext()) {
 							Entry<Resource, ResourceType> entry = iter.next();
 							SimulObjectStore id = new SimulObjectStore(entry.getKey(), entry.getValue());
-							Double startTime = unUseStarts.get(id);
+							Long startTime = unUseStarts.get(id);
 							if (startTime != null) {
 								IntervalInfo interval = new IntervalInfo(startTime, requestTime);
-								double newTime = calculateUnUseTime(interval, resUnUseTime.get(id.res));
+								long newTime = calculateUnUseTime(interval, resUnUseTime.get(id.res));
 								if (isDebugMode()) {
 									if (resUnUseTime.get(id.res) != null)
 										message += "Added " + (newTime - resUnUseTime.get(id.res)) + "\t" + id.res.toString() + "\t" + id.res.getDescription() + "\n";
@@ -162,13 +162,13 @@ public class UnavailabilityUseTimeView extends VarView {
 
 	public Number getValue(Object... params) {
 		String message = new String();
-		Double requestTime = (Double) params[1];
-		Double acumulatedTime = null;
-		ArrayList<Double> startsList = obtainUnUseTimeLeft((SimulationObject)params[0]);
-		Iterator<Double> iter = startsList.iterator();
-		double remainingTime = 0;
+		Long requestTime = (Long) params[1];
+		Long acumulatedTime = null;
+		ArrayList<Long> startsList = obtainUnUseTimeLeft((SimulationObject)params[0]);
+		Iterator<Long> iter = startsList.iterator();
+		long remainingTime = 0;
 		while(iter.hasNext()) {
-			Double startTime = (Double) iter.next();
+			Long startTime = (Long) iter.next();
 			IntervalInfo interval = new IntervalInfo(startTime, requestTime);
 			remainingTime += interval.finish - interval.start;
 		}
@@ -185,9 +185,9 @@ public class UnavailabilityUseTimeView extends VarView {
 					message += "\t" + rt.toString() + "\t" + rt.getDescription();
 			}
 		}
-		double result = 0.0;
+		long result = 0;
 		if (acumulatedTime != null) 
-			result = remainingTime + acumulatedTime.doubleValue();
+			result = remainingTime + acumulatedTime.longValue();
 		else
 			result = remainingTime;
 		if (isDebugMode()) {
@@ -197,21 +197,21 @@ public class UnavailabilityUseTimeView extends VarView {
 		return result;
 	}
 	
-	private double calculateUnUseTime(IntervalInfo interval, Double acumulatedTime) {
+	private long calculateUnUseTime(IntervalInfo interval, Long acumulatedTime) {
 		if (acumulatedTime != null) {
-			return (interval.finish - interval.start + acumulatedTime.doubleValue());
+			return (interval.finish - interval.start + acumulatedTime.longValue());
 		} else
 			return (interval.finish - interval.start);
 	}
 
-	private ArrayList<Double> obtainUnUseTimeLeft(SimulationObject obj) {
-		ArrayList<Double> startsList = new ArrayList<Double>();
+	private ArrayList<Long> obtainUnUseTimeLeft(SimulationObject obj) {
+		ArrayList<Long> startsList = new ArrayList<Long>();
 		if ((obj instanceof Resource) || (obj instanceof ResourceType)) {
-			Iterator<Entry<WorkItem, Double>> iter = actStarts.entrySet().iterator();
+			Iterator<Entry<WorkItem, Long>> iter = actStarts.entrySet().iterator();
 			while(iter.hasNext()) {
-				Entry<WorkItem, Double> entry = iter.next();
+				Entry<WorkItem, Long> entry = iter.next();
 				WorkItem item = entry.getKey();
-				Double actStart = entry.getValue();
+				Long actStart = entry.getValue();
 				SfResources sfRes = resCaughted.get(item);
 				Iterator<Entry<Resource, ResourceType>> iter2 = sfRes.resList.entrySet().iterator();
 				while(iter2.hasNext()) {
@@ -219,7 +219,7 @@ public class UnavailabilityUseTimeView extends VarView {
 					Resource res = entry2.getKey();
 					ResourceType rt = entry2.getValue();
 					SimulObjectStore id = new SimulObjectStore(res, rt);
-					Double startTime = unUseStarts.get(id);
+					Long startTime = unUseStarts.get(id);
 					if ((startTime != null) && ((res.compareTo(obj) == 0) || (rt.compareTo(obj) == 0)) && (actStart < startTime)) {
 						startsList.add(startTime);
 					}
@@ -259,10 +259,10 @@ public class UnavailabilityUseTimeView extends VarView {
 	}
 	
 	class IntervalInfo {
-		public double start;
-		public double finish;
+		public long start;
+		public long finish;
 		
-		public IntervalInfo(double start, double finish) {
+		public IntervalInfo(long start, long finish) {
 			this.start = start;
 			this.finish = finish;
 		}
