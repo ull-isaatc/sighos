@@ -91,11 +91,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
         upperTs = lvt;
-        executor = new EventExecutor[nThreads];
-        for (int i = 0; i < nThreads; i++) {
-			executor[i] = new EventExecutor(i);
-			executor[i].start();
-		}
 	}
 	
 	/**
@@ -116,11 +111,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
         upperTs = lvt;
-        executor = new EventExecutor[nThreads];
-        for (int i = 0; i < nThreads; i++) {
-			executor[i] = new EventExecutor(i);
-			executor[i].start();
-		}
 	}
 	
 	public void setInterval(Time interval) {
@@ -166,6 +156,12 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		amCreator.createActivityManagers();
 		debugPrintActManager();
 
+        executor = new EventExecutor[nThreads];
+        for (int i = 0; i < nThreads; i++) {
+			executor[i] = new EventExecutor(i);
+			executor[i].start();
+		}
+		
 		init();
 
 		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
