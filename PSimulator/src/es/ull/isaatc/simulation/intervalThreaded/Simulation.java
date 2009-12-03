@@ -13,7 +13,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import es.ull.isaatc.simulation.common.Time;
 import es.ull.isaatc.simulation.common.TimeUnit;
@@ -263,7 +265,8 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
                 addWait(e);
             else {
                 addExecution(e);
-                executor[nextExecutor].addEvent(e);
+                while (!executor[nextExecutor].setEvent(e))
+                    nextExecutor = (nextExecutor + 1) % executor.length;
                 nextExecutor = (nextExecutor + 1) % executor.length;
                 // Extracts all the events with the same timestamp
                 boolean flag = false;
@@ -272,7 +275,8 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
                         e = removeWait();
                         if (e.getTs() == lvt) {
                             addExecution(e);
-                            executor[nextExecutor].addEvent(e);
+                            while (!executor[nextExecutor].setEvent(e))
+                                nextExecutor = (nextExecutor + 1) % executor.length;
                             nextExecutor = (nextExecutor + 1) % executor.length;
                             flag = true;
                         }
@@ -330,7 +334,8 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	}
 
 	final class EventExecutor extends Thread {
-		private ConcurrentLinkedQueue<BasicElement.DiscreteEvent> extraEvents = new ConcurrentLinkedQueue<BasicElement.DiscreteEvent>();
+		private ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+		AtomicReference<BasicElement.DiscreteEvent> event = new AtomicReference<BasicElement.DiscreteEvent>();
 		
 		public EventExecutor(int i) {
 			super("LPExec-" + i);
@@ -340,16 +345,26 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		 * @param event the event to set
 		 */
 		public void addEvent(BasicElement.DiscreteEvent event) {
-			extraEvents.add(event);
+			extraEvents.push(event);
 		}
 
-		
+		/**
+		 * @param event the event to set
+		 */
+		public boolean setEvent(BasicElement.DiscreteEvent event) {
+			return this.event.compareAndSet(null, event);
+		}
+
 		@Override
 		public void run() {
 			while (lvt < internalEndTs)
-				while (!extraEvents.isEmpty()) {
-					extraEvents.poll().run();
-				}			
+				if (event.get() != null) {
+					event.get().run();
+					while (!extraEvents.isEmpty()) {
+						extraEvents.pop().run();
+					}
+					event.set(null);
+				}
 		}
 	}
 	
