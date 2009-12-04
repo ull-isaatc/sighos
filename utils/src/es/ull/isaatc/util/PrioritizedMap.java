@@ -27,7 +27,7 @@ public abstract class PrioritizedMap<T extends Collection<E>, E extends Prioriti
      * Inserts a new object in the table. The priority of the object determines its order.
      * @param obj New object with a priority value.
      */
-	public boolean add(E obj) {
+	public void add(E obj) {
 		T level = levels.get(obj.getPriority());
 		if (level == null) {
 			level = createLevel(obj.getPriority());
@@ -35,16 +35,14 @@ public abstract class PrioritizedMap<T extends Collection<E>, E extends Prioriti
 		}
 		level.add(obj);
 		nObj++;
-		return (true);
 	}
 	
-	public boolean remove(E obj) {
+	public void remove(E obj) {
 		T level = levels.get(obj.getPriority());
 		level.remove(obj);
 		if (level.isEmpty())
 			levels.remove(obj.getPriority());
 		nObj--;
-		return(true);
 	}
 	
 	public abstract T createLevel(Integer priority);
