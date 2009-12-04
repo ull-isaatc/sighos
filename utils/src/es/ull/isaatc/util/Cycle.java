@@ -41,8 +41,21 @@ public abstract class Cycle {
 		return new CycleIterator(this, absStart, absEnd);
 	}
 	
+	/**
+	 * Returns an iterator over this cycle.
+	 * @param absStart Absolute start timestamp 
+	 * @param absEnd Absolute end timestamp
+	 * @return An iterator over this cycle.
+	 */
+	public DiscreteCycleIterator iterator(long absStart, long absEnd) {
+		return new DiscreteCycleIterator(this, absStart, absEnd);
+	}
+	
 	protected abstract Cycle.IteratorLevel getIteratorLevel(double start, double end); 
 
+	
+	protected abstract Cycle.DiscreteIteratorLevel getDiscreteIteratorLevel(long start, long end);
+	
 	/**
 	 * Represents a level in a cycle iterator. Each level is a subcycle.
 	 * @author Iván Castilla Rodríguez
@@ -106,4 +119,66 @@ public abstract class Cycle {
 
 	}
 
+	/**
+	 * Represents a level in a cycle iterator. Each level is a subcycle.
+	 * @author Iván Castilla Rodríguez
+	 */
+	abstract protected class DiscreteIteratorLevel {
+		long currentTs;
+		/** The end timestamp. */
+		long endTs;
+
+		public DiscreteIteratorLevel(long start, long end) {
+			reset(start, end);
+		}
+		
+		/**
+		 * Resets this level. The iterations are reset and the end timestamp is recomputed.
+		 * @param start The start timestamp.
+		 * @param newEnd The end timestamp.
+		 */
+		public abstract long reset(long start, long newEnd);
+
+		/**
+		 * Returns the availability of a valid timestamp.
+		 * @return True if there are a valid next timestamp. False in other case. 
+		 */
+		protected abstract boolean hasNext();
+		
+		/**
+		 * Computes the next valid timestamp and returns the value of the current
+		 * timestamp.
+		 */
+		public abstract long next();
+		
+		/**
+		 * Returns the next valid timestamp but it doesn't change anything.
+		 * @return The next valid timestamp.
+		 */
+		public abstract long getNextTs();
+
+		/**
+		 * Returns the cycle referenced by this entry.
+		 * @return The cycle referenced by this entry.
+		 */
+		public Cycle getCycle() {
+			return Cycle.this;
+		}
+		
+		/**
+		 * Returns the end timestamp.
+		 * @return The end timestamp.
+		 */
+		public long getEndTs() {
+			return endTs;
+		}
+
+		/**
+		 * @return the currentTs
+		 */
+		public long getCurrentTs() {
+			return currentTs;
+		}
+
+	}
 }

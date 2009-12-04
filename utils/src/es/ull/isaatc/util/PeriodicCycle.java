@@ -132,6 +132,11 @@ public class PeriodicCycle extends Cycle {
 		return new PeriodicIteratorLevel(start, end);
 	}
 
+	@Override
+	protected DiscreteIteratorLevel getDiscreteIteratorLevel(long start, long end) {
+		return new PeriodicDiscreteIteratorLevel(start, end);
+	}
+
 	/**
 	 * Represents a level in the cycle structure. Each level is a subcycle.
 	 * @author Iván Castilla Rodríguez
@@ -208,4 +213,83 @@ public class PeriodicCycle extends Cycle {
 		}
 	}
 
+	/**
+	 * Represents a level in the cycle structure. Each level is a subcycle.
+	 * @author Iván Castilla Rodríguez
+	 */
+	protected class PeriodicDiscreteIteratorLevel extends Cycle.DiscreteIteratorLevel {
+		/** The next timestamp. */
+		long nextTs;
+		/** The iterations left. */
+		int iter;
+		long cycleEndTs;
+		long cycleStartTs;
+		
+		/**
+		 * @param start The start timestamp.
+		 * @param end The end timestamp.
+		 */
+		public PeriodicDiscreteIteratorLevel(long start, long end) {
+			super(start, end);
+			cycleEndTs = Math.round(PeriodicCycle.this.getEndTs());
+			cycleStartTs = Math.round(PeriodicCycle.this.getStartTs()); 
+		}		
+
+		@Override
+		public long getNextTs() {
+			return nextTs;
+		}
+		
+		@Override
+		public long reset(long start, long newEnd) {
+			currentTs = start;
+			this.iter = getIterations();
+			// Bad defined subcycles are controled here
+			if (!Double.isNaN(PeriodicCycle.this.getEndTs()))
+				endTs = Math.min(start + cycleEndTs, newEnd);
+			else
+				endTs = newEnd;
+			// If the "supercycle" starts after the simulation end.
+			if (newEnd == -1) {
+				nextTs = -1;
+				currentTs = nextTs;
+			}
+			else {
+				nextTs = start + cycleStartTs;
+				// If the cycle starts after the simulation end
+				if (hasNext())
+					currentTs = next();
+				else
+					nextTs = -1;
+			}
+			return currentTs;
+		}
+
+		@Override
+		public boolean hasNext() {
+			if (Double.isNaN(nextTs))
+				return false;
+			// If the next timestamp to be generated is not valid
+			if (getNextTs() >= endTs)
+				return false;
+			// If there are infinite iterations
+			if (getIterations() == 0)
+				return true;
+			// If there are n iterations and we have reached the last iteration
+			if (iter == 0)
+				return false;
+			// In other case
+			return true;
+		}
+
+		@Override
+		public long next() {
+			currentTs = nextTs;
+			if (iter > 0)
+				iter--;
+			// Computes the next valid timestamp...
+			nextTs += getPeriod().getPositiveValue(currentTs);
+			return currentTs;
+		}
+	}
 }

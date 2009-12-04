@@ -53,6 +53,11 @@ public class TableCycle extends Cycle {
 		return new TableIteratorLevel(start, end);
 	}
 
+	@Override
+	protected DiscreteIteratorLevel getDiscreteIteratorLevel(long start, long end) {
+		return null;
+	}
+	
 	/**
 	 * Represents a level in the cycle structure. Each level is a subcycle.
 	 * @author Iván Castilla Rodríguez
@@ -108,5 +113,6 @@ public class TableCycle extends Cycle {
 			return currentTs;
 		}
 	}
+
 
 }
