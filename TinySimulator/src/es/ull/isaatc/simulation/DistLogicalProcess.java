@@ -100,7 +100,7 @@ public class DistLogicalProcess extends LogicalProcess {
 
 	@Override
 	public void run() {
-        new SafeLPElement().start(this);
+        new SafeLPElement().getStartEvent(this, maxgvt);
         for (EventExecutor ee : tp)
         	ee.start();
 		try {

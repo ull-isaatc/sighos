@@ -3,6 +3,7 @@
  */
 package es.ull.isaatc.simulation;
 
+import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 import es.ull.isaatc.simulation.BasicElement.DiscreteEvent;
@@ -123,7 +124,11 @@ public class SequentialLogicalProcess extends LogicalProcess {
 	 */
 	@Override
 	public void run() {
-        new SafeLPElement().start(this, maxgvt);
+		// Starts all the generators
+		ArrayList<Generator> genList = simul.getGeneratorList();
+		for (Generator gen : genList)
+			waitQueue.add(gen.getStartEvent(this, simul.getInternalStartTs()));
+        waitQueue.add(new SafeLPElement().getStartEvent(this, maxgvt));
 		while (!isSimulationEnd())
             execWaitingElements();
 		// Frees the execution queue

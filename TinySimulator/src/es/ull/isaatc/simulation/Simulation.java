@@ -175,9 +175,6 @@ public abstract class Simulation implements Identifiable, Describable, Callable<
 
 		infoHandler.notifyInfo(new es.ull.isaatc.simulation.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
 		
-		// Starts all the generators
-		for (Generator gen : generatorList)
-			gen.start(getDefaultLogicalProcess(), internalStartTs);
 		lp.run();
 		
 		end();
@@ -228,6 +225,10 @@ public abstract class Simulation implements Identifiable, Describable, Callable<
 	 */
 	protected void add(Generator gen) {
 		generatorList.add(gen);
+	}
+
+	public ArrayList<Generator> getGeneratorList() {
+		return generatorList;
 	}
 
 	/**

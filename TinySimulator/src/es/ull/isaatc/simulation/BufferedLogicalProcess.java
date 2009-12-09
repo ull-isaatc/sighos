@@ -4,6 +4,7 @@
 package es.ull.isaatc.simulation;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -59,11 +60,7 @@ public class BufferedLogicalProcess extends LogicalProcess {
 	 */
 	@Override
 	public void addWait(BasicElement.DiscreteEvent e) {
-		Thread th = Thread.currentThread();
-		if (th instanceof EventExecutor)
-			((EventExecutor)th).addWaitingEvent(e);
-		else
-			waitQueue.add(e);
+		((EventExecutor)Thread.currentThread()).addWaitingEvent(e);
 	}
 
 	/* (non-Javadoc)
@@ -140,7 +137,7 @@ public class BufferedLogicalProcess extends LogicalProcess {
             // Events with timestamp greater or equal to the maximum simulation time aren't
             // executed
             if (lvt >= maxgvt)
-                addWait(e);
+            	waitQueue.add(e);
             else {
                 addExecution(e);
                 while (!executor[nextExecutor].setEvent(e)) {
@@ -162,7 +159,7 @@ public class BufferedLogicalProcess extends LogicalProcess {
                         }
                         else {  
                             flag = false;
-                            addWait(e);
+                            waitQueue.add(e);
                         }
                     }
                     else {  // The waiting queue is empty
@@ -178,7 +175,11 @@ public class BufferedLogicalProcess extends LogicalProcess {
 	 */
 	@Override
 	public void run() {
-        new SafeLPElement().start(this, maxgvt);
+		// Starts all the generators
+		ArrayList<Generator> genList = simul.getGeneratorList();
+		for (Generator gen : genList)
+			waitQueue.add(gen.getStartEvent(this, simul.getInternalStartTs()));
+        waitQueue.add(new SafeLPElement().getStartEvent(this, maxgvt));
         
         // Simulation main loop
 		while (!isSimulationEnd()) {

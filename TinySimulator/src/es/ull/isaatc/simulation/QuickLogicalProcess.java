@@ -166,7 +166,7 @@ public class QuickLogicalProcess extends LogicalProcess {
 	 */
 	@Override
 	public void run() {
-        new SafeLPElement().start(this, maxgvt);
+        new SafeLPElement().getStartEvent(this, maxgvt);
         
         // Simulation main loop
 		while (!isSimulationEnd()) {

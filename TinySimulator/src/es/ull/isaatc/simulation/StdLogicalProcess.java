@@ -138,7 +138,7 @@ public class StdLogicalProcess extends LogicalProcess {
 
 	@Override
 	public void run() {
-        new SafeLPElement().start(this, maxgvt);
+        new SafeLPElement().getStartEvent(this, maxgvt);
 		while (!isSimulationEnd()) {
 			// Every time the loop is entered we must wait for all the events from the 
 			// previous iteration to be finished (the execution queue must be empty)

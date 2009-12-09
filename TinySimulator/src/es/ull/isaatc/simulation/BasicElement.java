@@ -32,20 +32,10 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * Starts the element execution.
      * @param defLP Logical process this element is attached to
      */    
-    public void start(LogicalProcess defLP) {
-    	this.defLP = defLP;
-		ts = defLP.getTs();
-		defLP.addEvent(new StartEvent(ts));
-    }
-    
-    /**
-     * Starts the element execution.
-     * @param defLP Logical process this element is attached to
-     */    
-    public void start(LogicalProcess defLP, long ts) {
+    public StartEvent getStartEvent(LogicalProcess defLP, long ts) {
     	this.defLP = defLP;
 		this.ts = defLP.getTs();
-		defLP.addEvent(new StartEvent(ts));
+		return new StartEvent(ts);
     }
     
     /**

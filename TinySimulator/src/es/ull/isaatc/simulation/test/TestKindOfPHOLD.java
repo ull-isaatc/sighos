@@ -85,7 +85,7 @@ class RequestingElementCreator implements BasicElementCreator {
 	public void create(Generator gen) {
 		for (int i = 0; i < nElem; i++) {
 			RequestingElement e = new RequestingElement(id++, simul, eventIter, eventProcess);
-			e.start(simul.getDefaultLogicalProcess());
+			simul.getDefaultLogicalProcess().addEvent(e.getStartEvent(simul.getDefaultLogicalProcess(), simul.getDefaultLogicalProcess().getTs()));
 		}
 		
 	}
@@ -156,13 +156,13 @@ class KindOfPHOLDSimulation extends Simulation {
  *
  */
 public class TestKindOfPHOLD {
-	static int nElem = 128;
-	static int nAct = 6;
+	static int nElem = 1024;
+	static int nAct = 1024;
 	static int nExp = 1;
-	static int eventIter = 10000;
+	static int eventIter = 1000;
 	static int eventProcess = 100;
 	static Simulation.LPType type = Simulation.LPType.SEQUENTIAL;
-	static int nThreads = 3;
+	static int nThreads = 1;
 
 	/**
 	 * @param args

@@ -118,7 +118,7 @@ public class CustomLogicalProcess extends LogicalProcess {
      * advanced and a new set of events is executed. 
      */
 	public void run() {
-        new SafeLPElement().start(this);
+        new SafeLPElement().getStartEvent(this, maxgvt);
 		while (!isSimulationEnd()) {
 			// Every time the loop is entered we must wait for all the events from the 
 			// previous iteration to be finished (the execution queue must be empty)
