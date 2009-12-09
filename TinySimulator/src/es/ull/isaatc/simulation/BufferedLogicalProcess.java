@@ -4,7 +4,7 @@
 package es.ull.isaatc.simulation;
 
 import java.util.ArrayDeque;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.PriorityQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -14,11 +14,11 @@ import es.ull.isaatc.simulation.info.TimeChangeInfo;
  * @author Arelis
  *
  */
-public class QuickLogicalProcess extends LogicalProcess {
+public class BufferedLogicalProcess extends LogicalProcess {
     /** A counter to know how many events are in execution */
     protected AtomicInteger executingEvents = new AtomicInteger(0);
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
-	protected final PriorityBlockingQueue<BasicElement.DiscreteEvent> waitQueue;
+	protected final PriorityQueue<BasicElement.DiscreteEvent> waitQueue;
     private EventExecutor [] executor;
     private int nextExecutor = 0; 
 
@@ -27,7 +27,7 @@ public class QuickLogicalProcess extends LogicalProcess {
 	 * @param startT
 	 * @param endT
 	 */
-	public QuickLogicalProcess(Simulation simul, long startT, long endT) {
+	public BufferedLogicalProcess(Simulation simul, long startT, long endT) {
 		this(simul, startT, endT, 1);
 	}
 
@@ -36,9 +36,9 @@ public class QuickLogicalProcess extends LogicalProcess {
 	 * @param startT
 	 * @param endT
 	 */
-	public QuickLogicalProcess(Simulation simul, long startT, long endT, int nThreads) {
+	public BufferedLogicalProcess(Simulation simul, long startT, long endT, int nThreads) {
 		super(simul, startT - 1, endT);
-        waitQueue = new PriorityBlockingQueue<BasicElement.DiscreteEvent>();
+        waitQueue = new PriorityQueue<BasicElement.DiscreteEvent>();
         executor = new EventExecutor[nThreads];
         for (int i = 0; i < nThreads; i++) {
 			executor[i] = new EventExecutor(i);
@@ -59,7 +59,11 @@ public class QuickLogicalProcess extends LogicalProcess {
 	 */
 	@Override
 	public void addWait(BasicElement.DiscreteEvent e) {
-		waitQueue.add(e);
+		Thread th = Thread.currentThread();
+		if (th instanceof EventExecutor)
+			((EventExecutor)th).addWaitingEvent(e);
+		else
+			waitQueue.add(e);
 	}
 
 	/* (non-Javadoc)
@@ -116,6 +120,14 @@ public class QuickLogicalProcess extends LogicalProcess {
      * timestamp equal to the LP timestamp. 
      */
     private void execWaitingElements() {
+    	// Updates the future event list with the evetns produced by the executor threads
+    	for (EventExecutor ee : executor) {
+    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
+    		while (!list.isEmpty()) {
+    			BasicElement.DiscreteEvent e = list.pop();
+    			waitQueue.add(e);
+    		}    		
+    	}
         // Extracts the first event
         if (! waitQueue.isEmpty()) {
             BasicElement.DiscreteEvent e = removeWait();
@@ -186,6 +198,7 @@ public class QuickLogicalProcess extends LogicalProcess {
 	final class EventExecutor extends Thread {
 		private ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
 		AtomicReference<BasicElement.DiscreteEvent> event = new AtomicReference<BasicElement.DiscreteEvent>();
+		private ArrayDeque<BasicElement.DiscreteEvent> extraWaitingEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
 		
 		public EventExecutor(int i) {
 			super("LPExec-" + i);
@@ -198,6 +211,17 @@ public class QuickLogicalProcess extends LogicalProcess {
 			extraEvents.push(event);
 		}
 
+		/**
+		 * @param event the event to set
+		 */
+		public void addWaitingEvent(BasicElement.DiscreteEvent event) {
+			extraWaitingEvents.push(event);
+		}
+
+		public ArrayDeque<BasicElement.DiscreteEvent> getWaitingEvents() {
+			return extraWaitingEvents;
+		}
+		
 		/**
 		 * @param event the event to set
 		 */

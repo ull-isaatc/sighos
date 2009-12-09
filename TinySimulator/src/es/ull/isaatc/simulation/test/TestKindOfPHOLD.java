@@ -156,13 +156,13 @@ class KindOfPHOLDSimulation extends Simulation {
  *
  */
 public class TestKindOfPHOLD {
-	static int nElem = 64;
-	static int nAct = 16;
+	static int nElem = 128;
+	static int nAct = 6;
 	static int nExp = 1;
 	static int eventIter = 10000;
 	static int eventProcess = 100;
 	static Simulation.LPType type = Simulation.LPType.SEQUENTIAL;
-	static int nThreads = 2;
+	static int nThreads = 3;
 
 	/**
 	 * @param args

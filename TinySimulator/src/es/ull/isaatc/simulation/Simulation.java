@@ -26,7 +26,8 @@ public abstract class Simulation implements Identifiable, Describable, Callable<
 		BARRIER,
 		STD,
 		SEQUENTIAL,
-		QUICK
+		QUICK,
+		BUFFERED
 	};
 
 	protected LPType type = LPType.STD;
@@ -168,6 +169,7 @@ public abstract class Simulation implements Identifiable, Describable, Callable<
 		case SEQUENTIAL: lp = new SequentialLogicalProcess(this, internalStartTs, internalEndTs); break;
 		case BARRIER: lp = new BarrierLogicalProcess(this, internalStartTs, internalEndTs, nThreads); break;
 		case QUICK: lp = new QuickLogicalProcess(this, internalStartTs, internalEndTs, nThreads); break;
+		case BUFFERED: lp = new BufferedLogicalProcess(this, internalStartTs, internalEndTs, nThreads); break;
 		}
 		init();
 
