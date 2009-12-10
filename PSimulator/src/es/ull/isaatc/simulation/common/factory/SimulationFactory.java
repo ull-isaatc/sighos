@@ -15,7 +15,8 @@ public class SimulationFactory {
 		SEQUENTIAL,
 		SIMEVENTS,
 		SIMEVENTS2,
-		INTERVAL
+		INTERVAL,
+		BUFFERED
 	}
 	public static SimulationObjectFactory getInstance(SimulationType type, int id, String description, TimeUnit unit, Time startTs, Time endTs) {
 		switch (type) {
@@ -23,6 +24,7 @@ public class SimulationFactory {
 		case SIMEVENTS: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case SIMEVENTS2: return new es.ull.isaatc.simulation.optThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case INTERVAL: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case BUFFERED: return new es.ull.isaatc.simulation.intervalBufferThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		}
 		return null;
 	}
@@ -33,6 +35,7 @@ public class SimulationFactory {
 		case SIMEVENTS: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case SIMEVENTS2: return new es.ull.isaatc.simulation.optThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case INTERVAL: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case BUFFERED: return new es.ull.isaatc.simulation.intervalBufferThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		}
 		return null;
 	}
