@@ -6,16 +6,16 @@ package es.ull.isaatc.simulation;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
 
 /**
- * @author Arelis
+ * @author Iván Castilla Rodríguez
  *
  */
-public class BufferedLogicalProcess extends LogicalProcess {
+public class BunchLogicalProcess extends LogicalProcess {
     /** A counter to know how many events are in execution */
     protected AtomicInteger executingEvents = new AtomicInteger(0);
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
@@ -28,7 +28,7 @@ public class BufferedLogicalProcess extends LogicalProcess {
 	 * @param startT
 	 * @param endT
 	 */
-	public BufferedLogicalProcess(Simulation simul, long startT, long endT) {
+	public BunchLogicalProcess(Simulation simul, long startT, long endT) {
 		this(simul, startT, endT, 1);
 	}
 
@@ -37,7 +37,7 @@ public class BufferedLogicalProcess extends LogicalProcess {
 	 * @param startT
 	 * @param endT
 	 */
-	public BufferedLogicalProcess(Simulation simul, long startT, long endT, int nThreads) {
+	public BunchLogicalProcess(Simulation simul, long startT, long endT, int nThreads) {
 		super(simul, startT - 1, endT);
         waitQueue = new PriorityQueue<BasicElement.DiscreteEvent>();
         executor = new EventExecutor[nThreads];
@@ -117,7 +117,7 @@ public class BufferedLogicalProcess extends LogicalProcess {
      * timestamp equal to the LP timestamp. 
      */
     private void execWaitingElements() {
-    	// Updates the future event list with the evetns produced by the executor threads
+    	// Updates the future event list with the events produced by the executor threads
     	for (EventExecutor ee : executor) {
     		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
     		while (!list.isEmpty()) {
@@ -125,28 +125,23 @@ public class BufferedLogicalProcess extends LogicalProcess {
     			waitQueue.add(e);
     		}    		
     	}
-        // Extracts the first event
-        BasicElement.DiscreteEvent e = removeWait();
         // Advances the simulation clock
         simul.beforeClockTick();
-        lvt = e.getTs();
+        lvt = waitQueue.peek().getTs();
         simul.getInfoHandler().notifyInfo(new TimeChangeInfo(simul, lvt));
         simul.afterClockTick();
         debug("SIMULATION TIME ADVANCING " + lvt);
         // Events with timestamp greater or equal to the maximum simulation time aren't
         // executed
-        if (lvt >= maxgvt)
-        	waitQueue.add(e);
-        else {
+        if (lvt < maxgvt) {
         	do {
-	            addExecution(e);
-	            while (!executor[nextExecutor].setEvent(e)) {
-	                nextExecutor = (nextExecutor + 1) % executor.length;
-	            }
-	            nextExecutor = (nextExecutor + 1) % executor.length;
-                e = removeWait();
-        	} while (e.getTs() == lvt);
-            waitQueue.add(e);
+                BasicElement.DiscreteEvent e = removeWait();
+                addExecution(e);
+                executor[nextExecutor].addEvent(e);
+                nextExecutor = (nextExecutor + 1) % executor.length;
+        	} while (waitQueue.peek().getTs() == lvt);
+        	for (EventExecutor ee: executor)
+        		ee.setReady();
         }
     }
 
@@ -178,8 +173,8 @@ public class BufferedLogicalProcess extends LogicalProcess {
 
 	final class EventExecutor extends Thread {
 		private ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
-		AtomicReference<BasicElement.DiscreteEvent> event = new AtomicReference<BasicElement.DiscreteEvent>();
 		private ArrayDeque<BasicElement.DiscreteEvent> extraWaitingEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+		private AtomicBoolean flag = new AtomicBoolean(false);
 		
 		public EventExecutor(int i) {
 			super("LPExec-" + i);
@@ -203,22 +198,17 @@ public class BufferedLogicalProcess extends LogicalProcess {
 			return extraWaitingEvents;
 		}
 		
-		/**
-		 * @param event the event to set
-		 */
-		public boolean setEvent(BasicElement.DiscreteEvent event) {
-			return this.event.compareAndSet(null, event);
+		public void setReady() {
+			flag.set(true);
 		}
 
 		@Override
 		public void run() {
 			while (lvt < maxgvt) {
-				if (event.get() != null) {
-					event.get().run();
+				if (flag.compareAndSet(true, false)) {
 					while (!extraEvents.isEmpty()) {
 						extraEvents.pop().run();
 					}
-					event.set(null);
 				}
 			}
 		}

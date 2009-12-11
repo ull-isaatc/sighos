@@ -1,6 +1,7 @@
 package es.ull.isaatc.simulation.test;
 
 
+import java.util.EnumSet;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -158,24 +159,42 @@ class KindOfPHOLDSimulation extends Simulation {
 public class TestKindOfPHOLD {
 	static int nElem = 1024;
 	static int nAct = 1024;
-	static int nExp = 1;
 	static int eventIter = 1000;
 	static int eventProcess = 100;
-	static Simulation.LPType type = Simulation.LPType.SEQUENTIAL;
-	static int nThreads = 1;
+	static EnumSet<Simulation.LPType> set = EnumSet.of(Simulation.LPType.BUFFERED,Simulation.LPType.BUNCH);
+	static int []nThreads = new int[] {1, 2, 3};
+	static int nExp = 2;
+	static boolean sequential = true;
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		Simulation sim = null;
 		for (int i = 0; i < nExp; i++) {
-			Simulation sim = new KindOfPHOLDSimulation(i, new Time(TimeUnit.MINUTE, eventIter + 1), nAct, nElem, eventIter, eventProcess, type);
-			sim.setNThreads(nThreads);
-			sim.addInfoReciever(new CpuTimeView(sim));
-//			sim.setOutput(new Output(true));
-			sim.run();
+			if (sequential) {
+				sim = new KindOfPHOLDSimulation(i, new Time(TimeUnit.MINUTE, eventIter + 1), nAct, nElem, eventIter, eventProcess, Simulation.LPType.SEQUENTIAL);
+				sim.addInfoReciever(new CpuTimeView(sim));
+	//			sim.setOutput(new Output(true));
+				System.out.print("Sequential " + i + "\t");
+				sim.run();
+	//			System.out.println("" + RequestingElement.count + " events");
+	//			RequestingElement.count.set(0);
+			}
+			
+			for (Simulation.LPType t : set) {
+				for (int n : nThreads) {
+					sim = new KindOfPHOLDSimulation(i, new Time(TimeUnit.MINUTE, eventIter + 1), nAct, nElem, eventIter, eventProcess, t);
+					sim.setNThreads(n);
+					sim.addInfoReciever(new CpuTimeView(sim));
+		//			sim.setOutput(new Output(true));
+					System.out.print(t.name() + " " + i + "\t");
+					sim.run();
+//					System.out.println("" + RequestingElement.count + " events");
+//					RequestingElement.count.set(0);
+				}
+			}
 		}
-		System.out.println("" + RequestingElement.count + " events");
 	}
 
 
