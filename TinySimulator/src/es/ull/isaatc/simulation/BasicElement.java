@@ -122,7 +122,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * execution queue.
      * @author Iván Castilla Rodríguez
      */
-    public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEvent> {
+    public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEvent>, TimeStampedObject {
         /** Timestamp when this event will be executed */
         final protected long ts;        
         /** Logical process */

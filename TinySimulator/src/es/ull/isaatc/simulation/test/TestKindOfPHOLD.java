@@ -159,11 +159,11 @@ class KindOfPHOLDSimulation extends Simulation {
 public class TestKindOfPHOLD {
 	static int nElem = 1024;
 	static int nAct = 1024;
-	static int eventIter = 1000;
+	static int eventIter = 5000;
 	static int eventProcess = 100;
-	static EnumSet<Simulation.LPType> set = EnumSet.of(Simulation.LPType.BUFFERED,Simulation.LPType.BUNCH);
+	static EnumSet<Simulation.LPType> set = EnumSet.of(Simulation.LPType.BUNCH);
 	static int []nThreads = new int[] {1, 2, 3};
-	static int nExp = 2;
+	static int nExp = 10;
 	static boolean sequential = true;
 
 	/**
@@ -176,7 +176,7 @@ public class TestKindOfPHOLD {
 				sim = new KindOfPHOLDSimulation(i, new Time(TimeUnit.MINUTE, eventIter + 1), nAct, nElem, eventIter, eventProcess, Simulation.LPType.SEQUENTIAL);
 				sim.addInfoReciever(new CpuTimeView(sim));
 	//			sim.setOutput(new Output(true));
-				System.out.print("Sequential " + i + "\t");
+				System.out.print("SEQUENTIAL\t" + i + "\t");
 				sim.run();
 	//			System.out.println("" + RequestingElement.count + " events");
 	//			RequestingElement.count.set(0);
@@ -188,7 +188,7 @@ public class TestKindOfPHOLD {
 					sim.setNThreads(n);
 					sim.addInfoReciever(new CpuTimeView(sim));
 		//			sim.setOutput(new Output(true));
-					System.out.print(t.name() + " " + i + "\t");
+					System.out.print(t.name() + "\t" + i + "\t");
 					sim.run();
 //					System.out.println("" + RequestingElement.count + " events");
 //					RequestingElement.count.set(0);

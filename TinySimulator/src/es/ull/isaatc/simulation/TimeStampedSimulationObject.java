@@ -8,7 +8,7 @@ package es.ull.isaatc.simulation;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class TimeStampedSimulationObject extends SimulationObject implements Debuggable {
+public abstract class TimeStampedSimulationObject extends SimulationObject implements Debuggable, TimeStampedObject {
 
 	/**
 	 * Creates a new simulation object with an identifier and having knowledge of the 
@@ -19,12 +19,6 @@ public abstract class TimeStampedSimulationObject extends SimulationObject imple
 	public TimeStampedSimulationObject(int id, Simulation simul) {
 		super(id, simul);
 	}
-
-	/**
-	 * Returns the simulation timestamp of this object.
-	 * @return Simulation timestamp of the object.
-	 */
-	public abstract long getTs();
 
 	/*
 	 * (non-Javadoc)

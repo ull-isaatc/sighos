@@ -5,7 +5,8 @@ package es.ull.isaatc.simulation;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.PriorityQueue;
+import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,13 +16,13 @@ import es.ull.isaatc.simulation.info.TimeChangeInfo;
  * @author Iván Castilla Rodríguez
  *
  */
+// FIXME: Se bloquea o da un error de NoSuchElement esporádicamente
 public class BunchLogicalProcess extends LogicalProcess {
     /** A counter to know how many events are in execution */
     protected AtomicInteger executingEvents = new AtomicInteger(0);
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
-	protected final PriorityQueue<BasicElement.DiscreteEvent> waitQueue;
+	protected final TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>> waitQueue;
     private EventExecutor [] executor;
-    private int nextExecutor = 0; 
 
 	/**
 	 * @param simul
@@ -39,7 +40,7 @@ public class BunchLogicalProcess extends LogicalProcess {
 	 */
 	public BunchLogicalProcess(Simulation simul, long startT, long endT, int nThreads) {
 		super(simul, startT - 1, endT);
-        waitQueue = new PriorityQueue<BasicElement.DiscreteEvent>();
+        waitQueue = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
         executor = new EventExecutor[nThreads];
         for (int i = 0; i < nThreads; i++) {
 			executor[i] = new EventExecutor(i);
@@ -60,7 +61,14 @@ public class BunchLogicalProcess extends LogicalProcess {
 	 */
 	@Override
 	public void addWait(BasicElement.DiscreteEvent e) {
-		((EventExecutor)Thread.currentThread()).addWaitingEvent(e);
+		ArrayList<BasicElement.DiscreteEvent> list = waitQueue.get(e.getTs());
+		if (list == null) {
+			list = new ArrayList<BasicElement.DiscreteEvent>();
+			list.add(e);
+			waitQueue.put(e.getTs(), list);
+		}
+		else
+			list.add(e);
 	}
 
 	/* (non-Javadoc)
@@ -72,8 +80,9 @@ public class BunchLogicalProcess extends LogicalProcess {
 			StringBuffer strLong = new StringBuffer("------    LP STATE    ------");
 			strLong.append("LVT: " + lvt + "\r\n");
 	        strLong.append(waitQueue.size() + " waiting elements: ");
-	        for (BasicElement.DiscreteEvent e : waitQueue)
-	            strLong.append(e + " ");
+	        for (ArrayList<BasicElement.DiscreteEvent> ad : waitQueue.values())
+	        	for (BasicElement.DiscreteEvent e : ad)
+	        		strLong.append(e + " ");
 	        strLong.append("\r\n" + executingEvents + " executing elements:");
 	        strLong.append("\r\n");
 	        strLong.append("\r\n------ LP STATE FINISHED ------\r\n");
@@ -90,14 +99,6 @@ public class BunchLogicalProcess extends LogicalProcess {
     	executingEvents.decrementAndGet();
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.LogicalProcess#removeWait()
-	 */
-	@Override
-	protected BasicElement.DiscreteEvent removeWait() {
-        return waitQueue.poll();
-	}
-
 	@Override
     public void addEvent(BasicElement.DiscreteEvent e) {
     	long evTs = e.getTs();
@@ -106,7 +107,7 @@ public class BunchLogicalProcess extends LogicalProcess {
     		((EventExecutor)Thread.currentThread()).addEvent(e);
         }
         else if (evTs > lvt)
-            addWait(e);
+    		((EventExecutor)Thread.currentThread()).addWaitingEvent(e);
         else
         	error("Causal restriction broken\t" + lvt + "\t" + e);
     }
@@ -122,26 +123,26 @@ public class BunchLogicalProcess extends LogicalProcess {
     		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
     		while (!list.isEmpty()) {
     			BasicElement.DiscreteEvent e = list.pop();
-    			waitQueue.add(e);
+    			addWait(e);
     		}    		
     	}
         // Advances the simulation clock
         simul.beforeClockTick();
-        lvt = waitQueue.peek().getTs();
+        lvt = waitQueue.firstKey();
         simul.getInfoHandler().notifyInfo(new TimeChangeInfo(simul, lvt));
         simul.afterClockTick();
         debug("SIMULATION TIME ADVANCING " + lvt);
         // Events with timestamp greater or equal to the maximum simulation time aren't
         // executed
         if (lvt < maxgvt) {
-        	do {
-                BasicElement.DiscreteEvent e = removeWait();
-                addExecution(e);
-                executor[nextExecutor].addEvent(e);
-                nextExecutor = (nextExecutor + 1) % executor.length;
-        	} while (waitQueue.peek().getTs() == lvt);
-        	for (EventExecutor ee: executor)
-        		ee.setReady();
+        	ArrayList<BasicElement.DiscreteEvent> list = waitQueue.pollFirstEntry().getValue();
+    		int share = list.size();
+    		executingEvents.addAndGet(share);
+    		share = share / executor.length;
+    		int iter = 0;
+    		for (; iter < executor.length - 1; iter++)
+    			executor[iter].addEvents(list.subList(share * iter, share * (iter + 1)));
+    		executor[iter].addEvents(list.subList(share * iter, list.size()));
         }
     }
 
@@ -153,8 +154,8 @@ public class BunchLogicalProcess extends LogicalProcess {
 		// Starts all the generators
 		ArrayList<Generator> genList = simul.getGeneratorList();
 		for (Generator gen : genList)
-			waitQueue.add(gen.getStartEvent(this, simul.getInternalStartTs()));
-        waitQueue.add(new SafeLPElement().getStartEvent(this, maxgvt));
+			addWait(gen.getStartEvent(this, simul.getInternalStartTs()));
+        addWait(new SafeLPElement().getStartEvent(this, maxgvt));
         
         // Simulation main loop
 		while (!isSimulationEnd()) {
@@ -190,6 +191,14 @@ public class BunchLogicalProcess extends LogicalProcess {
 		/**
 		 * @param event the event to set
 		 */
+		public void addEvents(List<BasicElement.DiscreteEvent> eventList) {
+			extraEvents.addAll(eventList);
+			flag.set(true);
+		}
+
+		/**
+		 * @param event the event to set
+		 */
 		public void addWaitingEvent(BasicElement.DiscreteEvent event) {
 			extraWaitingEvents.push(event);
 		}
@@ -198,10 +207,6 @@ public class BunchLogicalProcess extends LogicalProcess {
 			return extraWaitingEvents;
 		}
 		
-		public void setReady() {
-			flag.set(true);
-		}
-
 		@Override
 		public void run() {
 			while (lvt < maxgvt) {

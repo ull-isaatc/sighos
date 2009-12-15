@@ -94,11 +94,6 @@ public class DistLogicalProcess extends LogicalProcess {
 	}
 
 	@Override
-	protected DiscreteEvent removeWait() {
-        return waitQueue.poll();
-	}
-
-	@Override
 	public void run() {
         new SafeLPElement().getStartEvent(this, maxgvt);
         for (EventExecutor ee : tp)
@@ -159,7 +154,7 @@ public class DistLogicalProcess extends LogicalProcess {
 			        	if (isSimulationEnd())
 			        		finished = true;
 			        	else if (waitQueue.peek().ts == lvt) {
-			        		e = removeWait();
+			        		e = waitQueue.poll();
 			        		executingEvents++;
 			        	}
 			        }

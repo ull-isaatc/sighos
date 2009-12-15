@@ -67,13 +67,6 @@ public abstract class LogicalProcess extends TimeStampedSimulationObject {
 	public abstract void addWait(BasicElement.DiscreteEvent e);
 
     /**
-     * Removes an event from the waiting queue. An event is removed from the waiting 
-     * queue when the LP reaches the timestamp of that event.
-     * @return The first event of the waiting queue.
-     */
-    protected abstract BasicElement.DiscreteEvent removeWait();
-    
-    /**
      * Communicates a new event to the logical process. 
      * @param e New event.
      */    

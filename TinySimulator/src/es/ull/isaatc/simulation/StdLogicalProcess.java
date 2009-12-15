@@ -89,11 +89,6 @@ public class StdLogicalProcess extends LogicalProcess {
 		waitQueue.add(e);
 	}
 
-	@Override
-	protected DiscreteEvent removeWait() {
-        return waitQueue.poll();
-	}
-
     /**
      * Executes a simulation clock cycle. Extracts all the events from the waiting queue with 
      * timestamp equal to the LP timestamp. 
@@ -101,7 +96,7 @@ public class StdLogicalProcess extends LogicalProcess {
     private void execWaitingElements() {
         // Extracts the first event
         if (! waitQueue.isEmpty()) {
-            BasicElement.DiscreteEvent e = removeWait();
+            BasicElement.DiscreteEvent e = waitQueue.poll();
             // Advances the simulation clock
             simul.beforeClockTick();
             lvt = e.getTs();
@@ -118,7 +113,7 @@ public class StdLogicalProcess extends LogicalProcess {
                 boolean flag = false;
                 do {
                     if (! waitQueue.isEmpty()) {
-                        e = removeWait();
+                        e = waitQueue.poll();
                         if (e.getTs() == lvt) {
                             addExecution(e);
                             flag = true;

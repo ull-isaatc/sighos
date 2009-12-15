@@ -90,14 +90,6 @@ public class BufferedLogicalProcess extends LogicalProcess {
     	executingEvents.decrementAndGet();
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.LogicalProcess#removeWait()
-	 */
-	@Override
-	protected BasicElement.DiscreteEvent removeWait() {
-        return waitQueue.poll();
-	}
-
 	@Override
     public void addEvent(BasicElement.DiscreteEvent e) {
     	long evTs = e.getTs();
@@ -126,7 +118,7 @@ public class BufferedLogicalProcess extends LogicalProcess {
     		}    		
     	}
         // Extracts the first event
-        BasicElement.DiscreteEvent e = removeWait();
+        BasicElement.DiscreteEvent e = waitQueue.poll();
         // Advances the simulation clock
         simul.beforeClockTick();
         lvt = e.getTs();
@@ -144,7 +136,7 @@ public class BufferedLogicalProcess extends LogicalProcess {
 	                nextExecutor = (nextExecutor + 1) % executor.length;
 	            }
 	            nextExecutor = (nextExecutor + 1) % executor.length;
-                e = removeWait();
+                e = waitQueue.poll();
         	} while (e.getTs() == lvt);
             waitQueue.add(e);
         }

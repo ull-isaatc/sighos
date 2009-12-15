@@ -89,14 +89,6 @@ public class QuickLogicalProcess extends LogicalProcess {
     	executingEvents.decrementAndGet();
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.LogicalProcess#removeWait()
-	 */
-	@Override
-	protected BasicElement.DiscreteEvent removeWait() {
-        return waitQueue.poll();
-	}
-
 	@Override
     public void addEvent(BasicElement.DiscreteEvent e) {
     	long evTs = e.getTs();
@@ -118,7 +110,7 @@ public class QuickLogicalProcess extends LogicalProcess {
     private void execWaitingElements() {
         // Extracts the first event
         if (! waitQueue.isEmpty()) {
-            BasicElement.DiscreteEvent e = removeWait();
+            BasicElement.DiscreteEvent e = waitQueue.poll();
             // Advances the simulation clock
             simul.beforeClockTick();
             lvt = e.getTs();
@@ -139,7 +131,7 @@ public class QuickLogicalProcess extends LogicalProcess {
                 boolean flag = false;
                 do {
                     if (! waitQueue.isEmpty()) {
-                        e = removeWait();
+                        e = waitQueue.poll();
                         if (e.getTs() == lvt) {
                             addExecution(e);
                             while (!executor[nextExecutor].setEvent(e)) {
