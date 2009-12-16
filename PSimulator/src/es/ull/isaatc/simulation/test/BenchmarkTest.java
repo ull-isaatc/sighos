@@ -30,6 +30,7 @@ import es.ull.isaatc.simulation.common.flow.SingleFlow;
 import es.ull.isaatc.simulation.common.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.common.info.SimulationInfo;
 import es.ull.isaatc.simulation.common.info.SimulationStartInfo;
+import es.ull.isaatc.simulation.common.info.TimeChangeInfo;
 import es.ull.isaatc.simulation.common.inforeceiver.CpuTimeView;
 import es.ull.isaatc.simulation.common.inforeceiver.View;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
@@ -38,6 +39,31 @@ import es.ull.isaatc.simulation.common.info.ResourceInfo;
 import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 import es.ull.isaatc.util.Output;
 
+class ProgressListener extends View {
+	long nextMsg = 0;
+	final long gap;
+	int percentage = 0;
+	public ProgressListener(Simulation simul) {
+		super(simul, "Progress");
+		addEntrance(TimeChangeInfo.class);
+		addEntrance(SimulationStartInfo.class);
+		gap = simul.getInternalEndTs() / 100;
+		nextMsg = gap;
+	}
+
+	@Override
+	public void infoEmited(SimulationInfo info) {
+		if (info instanceof SimulationStartInfo) {
+			System.out.println("Starting!!");
+		}
+		else if (info instanceof TimeChangeInfo) {
+			if (((TimeChangeInfo) info).getTs() >= nextMsg) {
+				System.out.println("" + (++percentage) + "%");
+				nextMsg += gap;
+			}
+		}	
+	}
+}
 class BenchmarkListener extends View {
 
 	long elemEvents = 0;
@@ -130,11 +156,11 @@ class BenchmarkListener extends View {
 public class BenchmarkTest {
 	enum Type {SAMETIME, CONSECUTIVE, MIXED};
 	
-	static int nThreads = 1;
-	static int nElem = 16;
-	static int nAct = 4;
+	static int nThreads = 3;
+	static int nElem = 1024;
+	static int nAct = 1024;
 	static long actTime = nElem;
-	static int nIter = 50000;
+	static int nIter = 1000;
 	static int nExp = 1;
 	static int mixFactor = 2;
 	static Type type = Type.SAMETIME;
@@ -144,7 +170,69 @@ public class BenchmarkTest {
 	static Time endTs;
 	static PrintStream out = System.out;
 	static TimeUnit unit = TimeUnit.MINUTE;
-	static SimulationFactory.SimulationType simType = SimulationType.INTERVAL;
+	static SimulationFactory.SimulationType simType = SimulationType.GROUPED;
+
+	public static Simulation getTestOcurrenceSimN2(SimulationFactory.SimulationType simType, int id) {
+		ResourceType[] rts = new ResourceType[nAct];
+		WorkGroup[] wgs = new WorkGroup[nAct];
+		Resource[] res = new Resource[nElem];
+		
+		TimeDrivenActivity[] acts = new TimeDrivenActivity[nAct];
+		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
+		
+		ModelPeriodicCycle allCycle = new ModelPeriodicCycle(unit, Time.getZero(), new ModelTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0);
+		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, Time.getZero(), endTs);
+		factory.getSimulation().putVar("AA", 0);
+		
+//		SimulationUserCode code = new SimulationUserCode();
+//		code.add(UserMethod.BEFORE_REQUEST, "for (int i = 1; i < 100000; i++)" +
+//				"<%SET(S.AA, <%GET(S.AA)%> + Math.log(i))%>;" + 
+//				"return super.beforeRequest(e);");
+		for (int i = 0; i < acts.length; i++) {
+			rts[i] = factory.getResourceTypeInstance(i, "RT" + i);
+			wgs[i] = factory.getWorkGroupInstance(i, new ResourceType[] {rts[i]}, new int[] {1});
+			acts[i] = factory.getTimeDrivenActivityInstance(i, "A_TEST" + i);
+			SingleFlow sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", /*code,*/ acts[i]);
+			smfs[i] = (ForLoopFlow)factory.getFlowInstance(i + acts.length, "ForLoopFlow", sf, TimeFunctionFactory.getInstance("ConstantVariate", nIter));
+		}
+		ElementType et = factory.getElementTypeInstance(0, "E_TEST");
+		ModelTimeFunction oneFunction = new ModelTimeFunction(unit, "ConstantVariate", 1);
+
+		for (int i = 0; i < nElem; i++) {
+			res[i] = factory.getResourceInstance(i, "RES_TEST" + i);
+			res[i].addTimeTableEntry(allCycle, endTs, rts[i % nAct]);
+		}
+		
+		int elemCounter = 0;
+		switch(type) {
+			case SAMETIME:
+				for (int i = 0; i < acts.length; i++)
+					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
+				for (ForLoopFlow smf : smfs) {
+					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", nElem / smfs.length), et, smf);
+					factory.getTimeDrivenGenerator(elemCounter++, creator, new ModelPeriodicCycle(unit, Time.getZero(), new ModelTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0));
+				}
+				break;
+			case CONSECUTIVE:
+				for (int i = 0; i < acts.length; i++)
+					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
+				for (ForLoopFlow smf : smfs) {
+					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
+					factory.getTimeDrivenGenerator(elemCounter++, creator, new ModelPeriodicCycle(unit, Time.getZero(), oneFunction, nElem));
+				}
+				break;
+			case MIXED:
+				for (int i = 0; i < acts.length; i++)
+					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", actTime / mixFactor), wgs[i]);
+				for (ForLoopFlow smf : smfs) {
+					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
+					factory.getTimeDrivenGenerator(elemCounter++, creator, new ModelPeriodicCycle(unit, Time.getZero(), oneFunction, nElem));
+				}
+				break;
+		}
+		return factory.getSimulation();
+
+	}
 
 	public static Simulation getTestOcurrenceSimN(SimulationFactory.SimulationType simType, int id) {
 		TimeDrivenActivity[] acts = new TimeDrivenActivity[nAct];
@@ -153,13 +241,13 @@ public class BenchmarkTest {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, Time.getZero(), endTs);
 		factory.getSimulation().putVar("AA", 0);
 		
-		SimulationUserCode code = new SimulationUserCode();
-//		CODE.ADD(USERMETHOD.BEFORE_REQUEST, "FOR (INT I = 1; I < 10000; I++)" +
-//				"<%SET(S.AA, <%GET(S.AA)%> + MATH.LOG(I))%>;" + 
-//				"RETURN SUPER.BEFOREREQUEST(E);");
+//		SimulationUserCode code = new SimulationUserCode();
+//		code.add(UserMethod.BEFORE_REQUEST, "for (int i = 1; i < 100000; i++)" +
+//				"<%SET(S.AA, <%GET(S.AA)%> + Math.log(i))%>;" + 
+//				"return super.beforeRequest(e);");
 		for (int i = 0; i < acts.length; i++) {
 			acts[i] = factory.getTimeDrivenActivityInstance(i, "A_TEST" + i);
-			SingleFlow sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", code, acts[i]);
+			SingleFlow sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", /*code,*/ acts[i]);
 			smfs[i] = (ForLoopFlow)factory.getFlowInstance(i + acts.length, "ForLoopFlow", sf, TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 		}
 		ElementType et = factory.getElementTypeInstance(0, "E_TEST");
@@ -361,6 +449,7 @@ public class BenchmarkTest {
 				if (debug)
 					sim.addInfoReceiver(new BenchmarkListener(sim, System.out));
 				sim.addInfoReceiver(new CpuTimeView(sim));
+				sim.addInfoReceiver(new ProgressListener(sim));
 //				sim.addInfoReceiver(new StdInfoView(sim));
 //				sim.setOutput(new Output(true));
 				return sim;

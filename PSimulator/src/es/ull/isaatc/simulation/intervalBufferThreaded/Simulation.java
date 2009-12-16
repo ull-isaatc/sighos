@@ -10,8 +10,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.TreeMap;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -66,7 +66,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
     /** A counter to know how many events are in execution */
     protected AtomicInteger executingEvents = new AtomicInteger(0);
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
-	protected final PriorityBlockingQueue<BasicElement.DiscreteEvent> waitQueue;
+	protected final PriorityQueue<BasicElement.DiscreteEvent> waitQueue;
     /** The time interval that handles the simulation */
     private long interval;
     private long upperTs;
@@ -87,7 +87,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 */
 	public Simulation(int id, String description, TimeUnit unit, Time startTs, Time endTs) {
 		super(id, description, unit, startTs, endTs);
-        waitQueue = new PriorityBlockingQueue<BasicElement.DiscreteEvent>();
+        waitQueue = new PriorityQueue<BasicElement.DiscreteEvent>();
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
         upperTs = lvt;
@@ -107,7 +107,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 */
 	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
 		super(id, description, unit, startTs, endTs);
-        waitQueue = new PriorityBlockingQueue<BasicElement.DiscreteEvent>();
+        waitQueue = new PriorityQueue<BasicElement.DiscreteEvent>();
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
         upperTs = lvt;
@@ -257,56 +257,28 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
     		}    		
     	}
         // Extracts the first event
-        if (! waitQueue.isEmpty()) {
-            BasicElement.DiscreteEvent e = removeWait();
-            // Advances the simulation clock
-            beforeClockTick();
-            lvt = e.getTs();
-            infoHandler.notifyInfo(new TimeChangeInfo(this, lvt));
-            afterClockTick();
-            debug("SIMULATION TIME ADVANCING " + lvt);
-            // Events with timestamp greater or equal to the maximum simulation time aren't
-            // executed
-            if (lvt >= internalEndTs)
-    			addWait(e);
-            else {
-                addExecution(e);
-                while (!executor[nextExecutor].setEvent(e)) {
-                    nextExecutor = (nextExecutor + 1) % executor.length;
-//                    Thread.yield();
-//                    try {
-//                      Thread.sleep(1);
-//                    } catch (Exception exc) {}
-                }
-                nextExecutor = (nextExecutor + 1) % executor.length;
-                // Extracts all the events with the same timestamp
-                boolean flag = false;
-                do {
-                    if (! waitQueue.isEmpty()) {
-                        e = removeWait();
-                        if (e.getTs() == lvt) {
-                            addExecution(e);
-                            while (!executor[nextExecutor].setEvent(e)) {
-                                nextExecutor = (nextExecutor + 1) % executor.length;
-//                                Thread.yield();
-//                                try {
-//                                    Thread.sleep(1);
-//                                  } catch (Exception exc) {}
-                            }
-                            nextExecutor = (nextExecutor + 1) % executor.length;
-                            flag = true;
-                        }
-                        else {  
-                            flag = false;
-                			addWait(e);
-                        }
-                    }
-                    else {  // The waiting queue is empty
-                        flag = false;
-                    }
-                } while ( flag );
-            }
-        }        
+        BasicElement.DiscreteEvent e = removeWait();
+        // Advances the simulation clock
+        beforeClockTick();
+        lvt = e.getTs();
+        infoHandler.notifyInfo(new TimeChangeInfo(this, lvt));
+        afterClockTick();
+        debug("SIMULATION TIME ADVANCING " + lvt);
+        // Events with timestamp greater or equal to the maximum simulation time aren't
+        // executed
+        if (lvt >= internalEndTs)
+			addWait(e);
+        else {
+        	do {
+	            addExecution(e);
+	            while (!executor[nextExecutor].setEvent(e)) {
+	                nextExecutor = (nextExecutor + 1) % executor.length;
+	            }
+	            nextExecutor = (nextExecutor + 1) % executor.length;
+                e = removeWait();
+        	} while (e.getTs() == lvt);
+            addWait(e);
+        }
     }
 
     
