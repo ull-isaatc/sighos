@@ -10,6 +10,7 @@ import java.util.Arrays;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.common.ElementCreator;
 import es.ull.isaatc.simulation.common.ElementType;
+import es.ull.isaatc.simulation.common.Experiment;
 import es.ull.isaatc.simulation.common.PooledExperiment;
 import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
 import es.ull.isaatc.simulation.common.ModelTimeFunction;
@@ -172,6 +173,98 @@ public class BenchmarkTest {
 	static TimeUnit unit = TimeUnit.MINUTE;
 	static SimulationFactory.SimulationType simType = SimulationType.GROUPED;
 
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		if (args.length >= 7) {
+			type = Type.valueOf(args[0]);
+			nAct = Integer.parseInt(args[1]);
+			nElem = Integer.parseInt(args[2]);
+			actTime = Integer.parseInt(args[3]);
+			nIter = Integer.parseInt(args[4]);
+			nThreads = Integer.parseInt(args[5]);
+			nExp = Integer.parseInt(args[6]);
+			if (args.length > 7) {
+				if (type == Type.MIXED) {
+					mixFactor = Integer.parseInt(args[7]);
+				}
+				else
+					debug = "D".equals(args[7]);
+			}
+		} else if (args.length > 0) { 
+			System.err.println("Wrong number of arguments.\n Arguments expected: 6");
+			System.exit(0);
+		} 
+		endTs = new Time(TimeUnit.MINUTE, actTime * (nIter + 1) + 1);	
+		
+		new PooledExperiment("Same Time", nExp/*, Executors.newFixedThreadPool(nExp)*/) {
+			long t1;
+
+			@Override
+			public void start() {
+				t1 = System.currentTimeMillis();
+				super.start();
+			}
+			
+			@Override
+			protected void end() {
+				super.end();
+				System.out.println("" + (System.currentTimeMillis() - t1));
+			}
+			
+			@Override
+			public Simulation getSimulation(int ind) {
+				Simulation sim = null; 
+				sim = getTestOcurrenceSimN2(simType, ind);
+				sim.setNThreads(nThreads);
+				
+				if (debug)
+					sim.addInfoReceiver(new BenchmarkListener(sim, System.out));
+				sim.addInfoReceiver(new CpuTimeView(sim));
+				sim.addInfoReceiver(new ProgressListener(sim));
+//				sim.addInfoReceiver(new StdInfoView(sim));
+//				sim.setOutput(new Output(true));
+				return sim;
+			}
+			
+		}.start();
+		
+//		new Experiment("Same Time", nExp) {
+//			long t1;
+//			@Override
+//			public Simulation getSimulation(int ind) {
+//				return getTestOcurrenceSimN2(simType, ind);
+//			}
+//
+//			@Override
+//			public void start() {
+//				t1 = System.currentTimeMillis();
+//				for (int i = 0; i < nExperiments; i++) {
+//					Simulation sim = getSimulation(i);
+//					sim.setNThreads(nThreads);
+//					
+////					sim.addInfoReciever(new StdInfoView(sim));
+//					if (debug)
+//						sim.addInfoReceiver(new BenchmarkListener(sim, System.out));
+//					sim.addInfoReceiver(new CpuTimeView(sim));
+//					sim.addInfoReceiver(new ProgressListener(sim));
+//					Thread th = new Thread(sim);
+//					th.start();
+//					try {
+//						th.join();
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
+//				}
+//				end();		
+//			}
+//			protected void end() {
+//				System.out.println("" + (System.currentTimeMillis() - t1));
+//			}			
+//		}.start();
+	}
+	
 	public static Simulation getTestOcurrenceSimN2(SimulationFactory.SimulationType simType, int id) {
 		ResourceType[] rts = new ResourceType[nAct];
 		WorkGroup[] wgs = new WorkGroup[nAct];
@@ -400,89 +493,4 @@ public class BenchmarkTest {
 		return factory.getSimulation();		
 	}
 	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		if (args.length >= 7) {
-			type = Type.valueOf(args[0]);
-			nAct = Integer.parseInt(args[1]);
-			nElem = Integer.parseInt(args[2]);
-			actTime = Integer.parseInt(args[3]);
-			nIter = Integer.parseInt(args[4]);
-			nThreads = Integer.parseInt(args[5]);
-			nExp = Integer.parseInt(args[6]);
-			if (args.length > 7) {
-				if (type == Type.MIXED) {
-					mixFactor = Integer.parseInt(args[7]);
-				}
-				else
-					debug = "D".equals(args[7]);
-			}
-		} else if (args.length > 0) { 
-			System.err.println("Wrong number of arguments.\n Arguments expected: 6");
-			System.exit(0);
-		} 
-		endTs = new Time(TimeUnit.MINUTE, actTime * (nIter + 1) + 1);	
-		
-		new PooledExperiment("Same Time", nExp/*, Executors.newFixedThreadPool(nExp)*/) {
-			long t1;
-
-			@Override
-			public void start() {
-				t1 = System.currentTimeMillis();
-				super.start();
-			}
-			
-			@Override
-			protected void end() {
-				super.end();
-				System.out.println("" + (System.currentTimeMillis() - t1));
-			}
-			
-			@Override
-			public Simulation getSimulation(int ind) {
-				Simulation sim = null; 
-				sim = getTestOcurrenceSimN(simType, ind);
-				sim.setNThreads(nThreads);
-				
-				if (debug)
-					sim.addInfoReceiver(new BenchmarkListener(sim, System.out));
-				sim.addInfoReceiver(new CpuTimeView(sim));
-				sim.addInfoReceiver(new ProgressListener(sim));
-//				sim.addInfoReceiver(new StdInfoView(sim));
-//				sim.setOutput(new Output(true));
-				return sim;
-			}
-			
-		}.start();
-		
-//		new Experiment("Same Time", nExp) {
-//			long t1;
-//			@Override
-//			public Simulation getSimulation(int ind) {
-//				return new TestOcurrenceSimN(type, ind, nAct, nElem, actTime, nIter, endTs);
-//			}
-//
-//			@Override
-//			public void start() {
-//				t1 = System.currentTimeMillis();
-//				for (int i = 0; i < nExperiments; i++) {
-//					Simulation sim = getSimulation(i);
-//					sim.setNThreads(nThreads);
-//					
-////					sim.addInfoReciever(new StdInfoView(sim));
-//					if (debug)
-//						sim.addInfoReciever(new BenchmarkListener(sim, System.out));
-//					sim.addInfoReciever(new CpuTimeView(sim));
-//					
-//					sim.run();
-//				}
-//				end();		
-//			}
-//			protected void end() {
-//				System.out.println("" + (System.currentTimeMillis() - t1));
-//			}			
-//		}.start();
-	}
 }
