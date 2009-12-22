@@ -3,6 +3,7 @@
  */
 package es.ull.isaatc.simulation;
 
+import java.util.ArrayList;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -133,7 +134,11 @@ public class StdLogicalProcess extends LogicalProcess {
 
 	@Override
 	public void run() {
-        new SafeLPElement().getStartEvent(this, maxgvt);
+		// Starts all the generators
+		ArrayList<Generator> genList = simul.getGeneratorList();
+		for (Generator gen : genList)
+			waitQueue.add(gen.getStartEvent(this, simul.getInternalStartTs()));
+        waitQueue.add(new SafeLPElement().getStartEvent(this, maxgvt));
 		while (!isSimulationEnd()) {
 			// Every time the loop is entered we must wait for all the events from the 
 			// previous iteration to be finished (the execution queue must be empty)

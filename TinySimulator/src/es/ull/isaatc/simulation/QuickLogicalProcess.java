@@ -4,6 +4,7 @@
 package es.ull.isaatc.simulation;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -158,7 +159,11 @@ public class QuickLogicalProcess extends LogicalProcess {
 	 */
 	@Override
 	public void run() {
-        new SafeLPElement().getStartEvent(this, maxgvt);
+		// Starts all the generators
+		ArrayList<Generator> genList = simul.getGeneratorList();
+		for (Generator gen : genList)
+			waitQueue.add(gen.getStartEvent(this, simul.getInternalStartTs()));
+        waitQueue.add(new SafeLPElement().getStartEvent(this, maxgvt));
         
         // Simulation main loop
 		while (!isSimulationEnd()) {

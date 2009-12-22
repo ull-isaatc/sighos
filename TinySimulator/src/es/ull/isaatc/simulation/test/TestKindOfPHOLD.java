@@ -15,6 +15,10 @@ import es.ull.isaatc.simulation.SimulationTimeFunction;
 import es.ull.isaatc.simulation.Time;
 import es.ull.isaatc.simulation.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.TimeUnit;
+import es.ull.isaatc.simulation.info.SimulationInfo;
+import es.ull.isaatc.simulation.info.SimulationStartInfo;
+import es.ull.isaatc.simulation.info.TimeChangeInfo;
+import es.ull.isaatc.simulation.inforeceiver.View;
 import es.ull.isaatc.simulation.inforeceiver.CpuTimeView;
 
 class RequestingElement extends BasicElement {
@@ -152,6 +156,31 @@ class KindOfPHOLDSimulation extends Simulation {
 	
 }
 
+class ProgressListener extends View {
+	long nextMsg = 0;
+	final long gap;
+	int percentage = 0;
+	public ProgressListener(Simulation simul) {
+		super(simul, "Progress");
+		addEntrance(TimeChangeInfo.class);
+		addEntrance(SimulationStartInfo.class);
+		gap = simul.getInternalEndTs() / 100;
+		nextMsg = gap;
+	}
+
+	@Override
+	public void infoEmited(SimulationInfo info) {
+		if (info instanceof SimulationStartInfo) {
+			System.out.println("Starting!!");
+		}
+		else if (info instanceof TimeChangeInfo) {
+			if (((TimeChangeInfo) info).getTs() >= nextMsg) {
+				System.out.println("" + (++percentage) + "%");
+				nextMsg += gap;
+			}
+		}	
+	}
+}
 /**
  * @author Iván Castilla Rodríguez
  *
@@ -162,9 +191,9 @@ public class TestKindOfPHOLD {
 	static int eventIter = 5000;
 	static int eventProcess = 100;
 	static EnumSet<Simulation.LPType> set = EnumSet.of(Simulation.LPType.BUNCH);
-	static int []nThreads = new int[] {1, 2, 3};
+	static int []nThreads = new int[] {3};
 	static int nExp = 10;
-	static boolean sequential = true;
+	static boolean sequential = false;
 
 	/**
 	 * @param args
@@ -187,6 +216,7 @@ public class TestKindOfPHOLD {
 					sim = new KindOfPHOLDSimulation(i, new Time(TimeUnit.MINUTE, eventIter + 1), nAct, nElem, eventIter, eventProcess, t);
 					sim.setNThreads(n);
 					sim.addInfoReciever(new CpuTimeView(sim));
+//					sim.addInfoReciever(new ProgressListener(sim));
 		//			sim.setOutput(new Output(true));
 					System.out.print(t.name() + "\t" + i + "\t");
 					sim.run();
