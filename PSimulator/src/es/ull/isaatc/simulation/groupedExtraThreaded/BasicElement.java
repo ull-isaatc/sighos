@@ -54,18 +54,10 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
     	long lpTs = simul.getTs();
         if (evTs == lpTs) {
             simul.addExecution(e);
-            Thread th = Thread.currentThread();
-            if (th instanceof SlaveEventExecutor)
-            	((EventExecutor)th).addEvent(e);
-            else
-            	simul.addEvent(e);
+           	((EventExecutor)Thread.currentThread()).addEvent(e);
         }
         else if (evTs > lpTs) {
-            Thread th = Thread.currentThread();
-            if (th instanceof SlaveEventExecutor)
-            	((EventExecutor)th).addWaitingEvent(e);
-            else
-            	simul.addWaitingEvent(e);
+           	((EventExecutor)Thread.currentThread()).addWaitingEvent(e);
         }
         else
         	error("Causal restriction broken\t" + lpTs + "\t" + e);

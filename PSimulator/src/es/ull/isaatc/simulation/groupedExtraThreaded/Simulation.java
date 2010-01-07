@@ -29,10 +29,15 @@ import es.ull.isaatc.util.Output;
  * be added by invoking the <code>addListener()</code> method. When the
  * <code>endTs</code> is reached, it stores its state. This state can be
  * obtained by using the <code>getState</code> method.
- * 
+ * <p>
+ * Includes a fine grain work load distribution policy. If we have <code>nThreads</code> slave 
+ * workers, <code>nBunches</code> sets of work will be created, taking 
+ * <code>nBunches = nThreads * grain + rest;</code>. Lets consider N the total amount of
+ * events to be executed in a specific timestamp, <code>(N / nBunches) * grain</code> events will be
+ * assigned to each slave worker; the remaining events will be assigned to the master worker.
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulation implements EventExecutor {
+public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
@@ -58,16 +63,28 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	/** List of active elements */
 	private final Map<Integer, Element> activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
 
+	/** The way the Activity Managers are created */
 	protected ActivityManagerCreator amCreator = null;
 
-	/** Local virtual time. Represents the current simulation time for this LP. */
+	/** Local virtual time. Represents the current simulation time. */
 	protected volatile long lvt;
     /** A counter to know how many events are in execution */
     protected AtomicInteger executingEvents = new AtomicInteger(0);
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
 	protected final TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>> waitQueue;
+	/** The pool of slave event executors */ 
     private SlaveEventExecutor [] executor;
+    /** Represents the master executor, which runs events and the simulation clock */
+    private MasterExecutor mainExecutor;
+    /** The list of current executing events for the main executor */ 
 	private ArrayDeque<BasicElement.DiscreteEvent> execEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+	// Fine grain adjust of the work load
+	/** Work load factor applied to slave workers */ 
+	private final int grain = 1;
+	/** Work load factor applied to the master worker */
+	private final int rest = 1;
+	/** Amount of sets of events to be distributed among the workers */
+	private int nBunches; 
 	
 	/**
 	 * Creates a new instance of Simulation
@@ -145,30 +162,25 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 			executor[i] = new SlaveEventExecutor(this, i);
 			executor[i].start();
 		}
-		
+		nBunches = nThreads * grain + rest;
 		init();
 
 		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
-		
+		mainExecutor = new MasterExecutor();
 		// Starts all the generators
 		for (Generator gen : generatorList)
-			addWaitingEvent(gen.getStartEvent(internalStartTs));
+			mainExecutor.addWaitingEvent(gen.getStartEvent(internalStartTs));
 		// Starts all the resources
 		for (Resource res : resourceList.values())
-			addWaitingEvent(res.getStartEvent(internalStartTs));		
+			mainExecutor.addWaitingEvent(res.getStartEvent(internalStartTs));		
 
-		addWaitingEvent(new SimulationElement().getStartEvent(internalEndTs));
-        
-        // Simulation main loop
-		while (!isSimulationEnd()) {
-			// Every time the loop is entered we must wait for all the events from the 
-			// previous iteration to be finished (the execution queue must be empty)
-			while (executingEvents.get() > 0);
-			// Now the simulation clock can advance
-            execWaitingElements();
+		mainExecutor.addWaitingEvent(new SimulationElement().getStartEvent(internalEndTs));
+        mainExecutor.start();
+        try {
+			mainExecutor.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		// The simulation waits for all the events to be removed from the execution queue 
-		while (executingEvents.get() > 0);
     	debug("SIMULATION TIME FINISHES\r\nSimulation time = " +
             	lvt + "\r\nPreviewed simulation time = " + internalEndTs);
     	printState();
@@ -179,6 +191,81 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		debug("SIMULATION COMPLETELY FINISHED");
 	}
 
+	final class MasterExecutor extends Thread implements EventExecutor {
+
+		@Override
+		public void addEvent(BasicElement.DiscreteEvent event) {
+			execEvents.push(event);
+		}
+
+		@Override
+		public void addEvents(List<BasicElement.DiscreteEvent> eventList) {
+			execEvents.addAll(eventList);
+		}
+
+		@Override
+		public void addWaitingEvent(BasicElement.DiscreteEvent event) {
+			ArrayList<BasicElement.DiscreteEvent> list = waitQueue.get(event.getTs());
+			if (list == null) {
+				list = new ArrayList<BasicElement.DiscreteEvent>();
+				list.add(event);
+				waitQueue.put(event.getTs(), list);
+			}
+			else
+				list.add(event);
+		}
+
+	    /**
+	     * Executes a simulation clock cycle. Extracts all the events from the waiting queue with 
+	     * timestamp equal to the LP timestamp. 
+	     */
+	    private void execWaitingElements() {
+	    	// Updates the future event list with the events produced by the executor threads
+	    	for (SlaveEventExecutor ee : executor) {
+	    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
+	    		while (!list.isEmpty()) {
+	    			BasicElement.DiscreteEvent e = list.pop();
+	    			addWaitingEvent(e);
+	    		}    		
+	    	}
+	        // Advances the simulation clock
+	        beforeClockTick();
+	        lvt = waitQueue.firstKey();
+	        infoHandler.notifyInfo(new TimeChangeInfo(Simulation.this, lvt));
+	        afterClockTick();
+	        debug("SIMULATION TIME ADVANCING " + lvt);
+	        // Events with timestamp greater or equal to the maximum simulation time aren't
+	        // executed
+	        if (lvt < internalEndTs) {
+	        	ArrayList<BasicElement.DiscreteEvent> list = waitQueue.pollFirstEntry().getValue();
+	    		int share = list.size();
+	    		executingEvents.addAndGet(share);
+	    		if (share < nBunches)
+	    			addEvents(list);    			
+	    		else {
+		    		share = share / nBunches;
+		    		for (int iter = 0; iter < nThreads; iter++)
+		    			executor[iter].addEvents(list.subList(share * iter * grain, share * grain * (iter + 1)));
+		    		addEvents(list.subList(share * executor.length * grain, list.size()));
+	    		}
+	        }
+	    }
+
+		public void run() {
+	        // Simulation main loop
+			while (!isSimulationEnd()) {
+	    		while (!execEvents.isEmpty())
+	    			execEvents.pop().run();
+				// Every time the loop is entered we must wait for all the events from the 
+				// previous iteration to be finished (the execution queue must be empty)
+				while (executingEvents.get() > 0);
+				// Now the simulation clock can advance
+	            execWaitingElements();
+			}
+			// The simulation waits for all the events to be removed from the execution queue 
+			while (executingEvents.get() > 0);
+		}
+	}
     /**
      * Indicates if the simulation end has been reached.
      * @return True if the maximum simulation time has been reached. False in other case.
@@ -208,75 +295,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
     protected void removeExecution(BasicElement.DiscreteEvent e) {
     	executingEvents.decrementAndGet();
     }
-    
-	/**
-	 * @param event the event to set
-	 */
-	public void addEvent(BasicElement.DiscreteEvent event) {
-		execEvents.push(event);
-	}
-
-	/**
-	 * @param event the event to set
-	 */
-	public void addEvents(List<BasicElement.DiscreteEvent> eventList) {
-		execEvents.addAll(eventList);
-	}
-
-    /**
-     * Sends an event to the waiting queue. An event is added to the waiting queue if 
-     * its timestamp is greater than the LP timestamp.
-     * @param e Event to be added
-     */
-	public void addWaitingEvent(BasicElement.DiscreteEvent e) {
-		ArrayList<BasicElement.DiscreteEvent> list = waitQueue.get(e.getTs());
-		if (list == null) {
-			list = new ArrayList<BasicElement.DiscreteEvent>();
-			list.add(e);
-			waitQueue.put(e.getTs(), list);
-		}
-		else
-			list.add(e);
-	}
-
-    /**
-     * Executes a simulation clock cycle. Extracts all the events from the waiting queue with 
-     * timestamp equal to the LP timestamp. 
-     */
-    private void execWaitingElements() {
-    	// Updates the future event list with the events produced by the executor threads
-    	for (SlaveEventExecutor ee : executor) {
-    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
-    		while (!list.isEmpty()) {
-    			BasicElement.DiscreteEvent e = list.pop();
-    			addWaitingEvent(e);
-    		}    		
-    	}
-        // Advances the simulation clock
-        beforeClockTick();
-        lvt = waitQueue.firstKey();
-        infoHandler.notifyInfo(new TimeChangeInfo(this, lvt));
-        afterClockTick();
-        debug("SIMULATION TIME ADVANCING " + lvt);
-        // Events with timestamp greater or equal to the maximum simulation time aren't
-        // executed
-        if (lvt < internalEndTs) {
-        	ArrayList<BasicElement.DiscreteEvent> list = waitQueue.pollFirstEntry().getValue();
-    		int share = list.size();
-    		executingEvents.addAndGet(share);
-    		if (share < executor.length + 1)
-    			addEvents(list);    			
-    		else {
-	    		share = share / (executor.length + 1);
-	    		for (int iter = 0; iter < executor.length; iter++)
-	    			executor[iter].addEvents(list.subList(share * iter, share * (iter + 1)));
-	    		addEvents(list.subList(share * executor.length, list.size()));
-    		}
-    		while (!execEvents.isEmpty())
-    			execEvents.pop().run();
-        }
-    }
-
     
 	/**
 	 * A basic element which facilitates the end-of-simulation control. It simply
