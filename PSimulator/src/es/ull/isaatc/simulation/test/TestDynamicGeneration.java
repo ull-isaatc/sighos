@@ -4,8 +4,8 @@
 package es.ull.isaatc.simulation.test;
 
 import es.ull.isaatc.simulation.common.ElementType;
-import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.SimulationPeriodicCycle;
+import es.ull.isaatc.simulation.common.SimulationTimeFunction;
 import es.ull.isaatc.simulation.common.PooledExperiment;
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
@@ -37,15 +37,15 @@ class TestDynamicGenerationExperiment extends PooledExperiment {
 		ResourceType rt1 = factory.getResourceTypeInstance(1, "RT1");
 		
 		Resource r0 =  factory.getResourceInstance(0, "Res0");
-		r0.addTimeTableEntry(ModelPeriodicCycle.newDailyCycle(unit), 1, rt0);
+		r0.addTimeTableEntry(SimulationPeriodicCycle.newDailyCycle(unit), 1, rt0);
 		Resource r1 = factory.getResourceInstance(1, "Res1");
-		r1.addTimeTableEntry(ModelPeriodicCycle.newDailyCycle(unit), 1, rt1);
+		r1.addTimeTableEntry(SimulationPeriodicCycle.newDailyCycle(unit), 1, rt1);
 		
 		WorkGroup wg0 = factory.getWorkGroupInstance(0, new ResourceType [] {rt0, rt1}, new int[] {1,1});
 		
 		Condition cond = factory.getCustomizedConditionInstance(0, null, "false");
 		TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance(0, "ACT0");
-		act0.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10.0), wg0, new NotCondition(cond));
+		act0.addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 10.0), wg0, new NotCondition(cond));
 		
 		ElementType et0 = factory.getElementTypeInstance(0, "ET0");
 		SingleFlow sf0 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);

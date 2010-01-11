@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 
 import es.ull.isaatc.simulation.common.Simulation;
-import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.common.info.ElementInfo;
 import es.ull.isaatc.simulation.common.info.SimulationEndInfo;
@@ -25,16 +25,16 @@ import es.ull.isaatc.simulation.common.flow.SingleFlow;
  */
 public class CheckFlowsView extends WFPTestView {
 	FlowNode flow;
-	Time[] durations;
+	TimeStamp[] durations;
 	ArrayList<TreeSet<EventToCheck>> futureFlow;
 	private boolean ok = true;
 
 	public CheckFlowsView(Simulation simul, Flow f,
-			Time[] durations) {
+			TimeStamp[] durations) {
 		this(simul, f, durations, true);
 	}
 
-	public CheckFlowsView(Simulation simul, Flow f, Time[] durations, boolean detailed) {
+	public CheckFlowsView(Simulation simul, Flow f, TimeStamp[] durations, boolean detailed) {
 		super(simul, "Checking flows...", detailed);
 		addEntrance(ElementInfo.class);
 		addEntrance(ElementActionInfo.class);

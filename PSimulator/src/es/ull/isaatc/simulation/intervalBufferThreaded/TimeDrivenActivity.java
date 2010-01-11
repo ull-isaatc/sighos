@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunction;
-import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.SimulationTimeFunction;
 import es.ull.isaatc.simulation.common.TimeDrivenActivityWorkGroup;
 import es.ull.isaatc.simulation.common.condition.Condition;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
@@ -78,79 +78,38 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 		return modifiers;
 	}
 	
-    /**
-     * Indicates if the activity requires the presence of the element in order to be carried out. 
-     * @return The "presenciality" of the activity.
-     */
+	@Override
     public boolean isNonPresential() {
         return modifiers.contains(Modifier.NONPRESENTIAL);
     }
     
-    /**
-     * Indicates if the activity can be interrupted in case the required resources end their
-     * availability time.
-	 * @return True if the activity can be interrupted. False if it keeps the resources even 
-	 * if they become not available.
-	 */
+	@Override
 	public boolean isInterruptible() {
 		return modifiers.contains(Modifier.INTERRUPTIBLE);
 	}
-	
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(ModelTimeFunction duration, int priority, es.ull.isaatc.simulation.common.WorkGroup wg) {
-    	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(wgId, duration, priority, (WorkGroup)wg));
-        return wgId;
+
+	@Override
+    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, int priority, es.ull.isaatc.simulation.common.WorkGroup wg) {
+    	ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg);
+        workGroupTable.add(aWg);
+        return aWg;
     }
     
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(ModelTimeFunction duration, int priority, es.ull.isaatc.simulation.common.WorkGroup wg, Condition cond) {
-    	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(wgId, duration, priority, (WorkGroup)wg, cond));
-        return wgId;
+	@Override
+    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, int priority, es.ull.isaatc.simulation.common.WorkGroup wg, Condition cond) {
+    	ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg, cond); 
+        workGroupTable.add(aWg);
+        return aWg;
     }
     
-    /**
-     * Creates a new workgroup for this activity with the highest level of priority. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(ModelTimeFunction duration, es.ull.isaatc.simulation.common.WorkGroup wg) {    	
+	@Override
+    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, es.ull.isaatc.simulation.common.WorkGroup wg) {    	
         return addWorkGroup(duration, 0, wg);
     }
     
-    /**
-     * Creates a new workgroup for this activity with the highest level of priority. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(ModelTimeFunction duration, es.ull.isaatc.simulation.common.WorkGroup wg, Condition cond) {    	
+	@Override
+    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, es.ull.isaatc.simulation.common.WorkGroup wg, Condition cond) {    	
         return addWorkGroup(duration, 0, wg, cond);
-    }
-
-    /**
-     * Searches and returns a workgroup with the specified id.
-     * @param wgId The id of the workgroup searched
-     * @return A workgroup contained in this activity with the specified id
-     */
-    public ActivityWorkGroup getWorkGroup(int wgId) {
-        return (ActivityWorkGroup)super.getWorkGroup(wgId);
     }
     
     /*
@@ -318,7 +277,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	     * @param priority Priority of the workgroup.
 	     * @param wg Original workgroup
 	     */    
-	    protected ActivityWorkGroup(int id, ModelTimeFunction duration, int priority, WorkGroup wg) {
+	    protected ActivityWorkGroup(int id, SimulationTimeFunction duration, int priority, WorkGroup wg) {
 	        super(id, priority, wg);
 	        this.duration = duration.getFunction();
 	    }
@@ -330,7 +289,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	     * @param priority Priority of the workgroup.
 	     * @param cond  Availability condition
 	     */    
-	    protected ActivityWorkGroup(int id, ModelTimeFunction duration, int priority, WorkGroup wg, Condition cond) {
+	    protected ActivityWorkGroup(int id, SimulationTimeFunction duration, int priority, WorkGroup wg, Condition cond) {
 	        super(id, priority, wg, cond);
 	        this.duration = duration.getFunction();
 	    }

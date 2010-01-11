@@ -26,15 +26,39 @@ import es.ull.isaatc.simulation.variable.Variable;
 import es.ull.isaatc.util.Output;
 
 /**
- * Main simulation class. A simulation needs a model (introduced by means of the
- * <code>createModel()</code> method) to create several structures: activity
- * managers, logical processes...
+ * Main simulation class, identified by means of an identifier and a description.
+ * A simulation executes a model defined by means of different structures: 
+ * <ul>
+ * <li>{@link ResourceType}</li>
+ * <li>{@link Resource}</li>
+ * <li>{@link WorkGroup}</li>
+ * <li>{@link Activity}</li>
+ * <li>{@link ElementType}</li>
+ * <li>{@link Flow}</li>
+ * <li>{@link TimeDrivenGenerator}</li>
+ * </ul>
+ * A simulation has an associated clock which starts in <tt>startTs</tt> and advances according 
+ * to the events produced by the {@link Element}s, {@link Resource}s and {@link TimeDrivenGenerator}s. 
+ * A "next-event" technique is used to determine the next timestamp to advance. A minimum 
+ * {@link TimeUnit} determines the accuracy of the simulation's clock. The simulation ends when the 
+ * simulation clock reaches the <tt>endTs</tt> timestamp or no more events are available.<br>
+ * Depending on the specific implementation, a simulation can use one or more "worker" threads to 
+ * execute the event's actions.
  * <p>
- * A simulation use <b>InfoListeners</b> to show results. The "listeners" can
- * be added by invoking the <code>addListener()</code> method. When the
- * <code>endTs</code> is reached, it stores its state. This state can be
- * obtained by using the <code>getState</code> method.
- * 
+ * A user can interact with this Simulation by filling in some user methods that are activated in different
+ * instants:
+ * <ul>
+ * <li>Just before the simulation starts {@link #init()}</li>
+ * <li>Just after the simulation ends {@link #end()}</li>
+ * <li>Just before the simulation clock advances {@link #beforeClockTick()}</li> 
+ * <li>Just After the simulation clock advances {@link #afterClockTick()}</li> 
+ * </ul> 
+ * <p>
+ * A simulation uses {@link InfoReceiver}s to show results. Those "listeners" can
+ * be added by invoking the {@link #addInfoReceiver(InfoReceiver)} method. 
+ * <p>
+ * For debugging purposes, an {@link Output} can be associated to this simulation, thus
+ * defining the destination for error and debug messages.
  * @author Iván Castilla Rodríguez
  */
 public abstract class Simulation implements Callable<Integer>, Runnable, Identifiable, Describable, Debuggable, VariableStore {
@@ -48,26 +72,27 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	protected TimeUnit unit = null;
 
 	/** Timestamp of simulation's start */
-	protected Time startTs;
+	protected TimeStamp startTs;
 
 	/** Timestamp of Simulation's end */
-	protected Time endTs;
+	protected TimeStamp endTs;
 	
-	/** Timestamp of simulation's start */
+	/** A value representing the simulation's start timestamp without unit */
 	protected long internalStartTs;
 
-	/** Timestamp of Simulation's end */
+	/** A value representing the simulation's end timestamp without unit */
 	protected long internalEndTs;
 	
-	/** Output for printing messages */
+	/** Output for printing debug and error messages */
 	protected Output out = null;
 	
-    /** Variable warehouse */
+    /** Variable store */
 	protected final TreeMap<String, Variable> varCollection = new TreeMap<String, Variable>();
 	
+	/** A handler for the information produced by the execution of this simulation */
 	protected final SimulationInfoHandler infoHandler = new SimulationInfoHandler();
 	
-	/** Number of threads which handle events in the logical processes */
+	/** Number of worker threads which run the simulation events (if required by the implementation) */
 	protected int nThreads = 1;
 	
 	/**
@@ -81,6 +106,7 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	 * 
 	 * @param id This simulation's identifier
 	 * @param description A short text describing this simulation.
+	 * @param unit This simulation's time unit
 	 */
 	public Simulation(int id, String description, TimeUnit unit) {
 		super();
@@ -93,16 +119,13 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	/**
 	 * Creates a new instance of Simulation
 	 *
-	 * @param id
-	 *            This simulation's identifier
-	 * @param description
-	 *            A short text describing this simulation.
-	 * @param startTs
-	 *            Timestamp of simulation's start
-	 * @param endTs
-	 *            Timestamp of simulation's end
+	 * @param id This simulation's identifier
+	 * @param description A short text describing this simulation.
+	 * @param unit This simulation's time unit
+	 * @param startTs Timestamp of simulation's start
+	 * @param endTs Timestamp of simulation's end
 	 */
-	public Simulation(int id, String description, TimeUnit unit, Time startTs, Time endTs) {
+	public Simulation(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		this(id, description, unit);
 
 		this.startTs = startTs;
@@ -114,44 +137,39 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	/**
 	 * Creates a new instance of Simulation
 	 *
-	 * @param id
-	 *            This simulation's identifier
-	 * @param description
-	 *            A short text describing this simulation.
-	 * @param startTs
-	 *            Simulation's start timestamp expresed in Simulation Time Units
-	 * @param endTs
-	 *            Simulation's end timestamp expresed in Simulation Time Units
+	 * @param id This simulation's identifier
+	 * @param description A short text describing this simulation.
+	 * @param unit This simulation's time unit
+	 * @param startTs Timestamp of simulation's start expressed in Simulation Time Units
+	 * @param endTs Timestamp of simulation's end expressed in Simulation Time Units
 	 */
 	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
 		this(id, description, unit);
 
-		this.startTs = new Time(unit, startTs);
+		this.startTs = new TimeStamp(unit, startTs);
 		this.internalStartTs = startTs;
-		this.endTs = new Time(unit, endTs);
+		this.endTs = new TimeStamp(unit, endTs);
 		this.internalEndTs = endTs;
 	}
 
-	public long simulationTime2Long(Time source) {
+	/**
+	 * A convenience method for converting a timestamp to a long value expressed in the
+	 * simulation's time unit.
+	 * @param source A timestamp
+	 * @return A long value representing the received timestamp in the simulation's time unit 
+	 */
+	public long simulationTime2Long(TimeStamp source) {
 		return unit.convert(source);
 	}
 	
-	public Time long2SimulationTime(long sourceValue) {
-		return new Time(unit, sourceValue);
-	}
-
 	/**
-	 * @return the nThreads
+	 * A convenience method for converting a long value expressed in the simulation's time unit
+	 * to a timestamp.
+	 * @param source A long value expressed in the simulation's time unit
+	 * @return A timestamp representing the received long value in the simulation's time unit 
 	 */
-	public int getNThreads() {
-		return nThreads;
-	}
-
-	/**
-	 * @param threads the nThreads to set
-	 */
-	public void setNThreads(int threads) {
-		nThreads = threads;
+	public TimeStamp long2SimulationTime(long sourceValue) {
+		return new TimeStamp(unit, sourceValue);
 	}
 
 	@Override
@@ -161,13 +179,30 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 }
 	/**
 	 * Starts the simulation execution in a threaded way. Initializes all the structures, and
-	 * starts the logical processes. 
+	 * starts the workers. 
 	 */
 	public void start() {
 		new Thread(this).start();		
 	}
 	
 	/**
+	 * Returns the number of workers to execute events defined in this simulation.
+	 * @return the number of workers to execute events defined in this simulation
+	 */
+	public int getNThreads() {
+		return nThreads;
+	}
+
+	/**
+	 * Sets the number of workers to execute events defined in this simulation.
+	 * @param threads the number of workers to execute events defined in this simulation
+	 */
+	public void setNThreads(int threads) {
+		nThreads = threads;
+	}
+
+	/**
+	 * Returns this simulation's time unit
 	 * @return the unit
 	 */
 	public TimeUnit getTimeUnit() {
@@ -175,169 +210,191 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	}
 	
 	/**
-	 * Returns the simulation end timestamp.
-	 * 
-	 * @return Value of property endTs.
+	 * Sets this simulation's time unit
+	 * @param unit New time unit of this simulation
+	 */
+	public void setTimeUnit(TimeUnit unit) {
+		this.unit = unit;
+	}
+
+	/**
+	 * Returns a long value representing the simulation's end timestamp without unit.
+	 * @return A long value representing the simulation's end timestamp without unit
 	 */
 	public long getInternalEndTs() {
 		return internalEndTs;
 	}
 
 	/**
-	 * Returns the simulation end timestamp.
-	 * 
-	 * @return Value of property endTs.
+	 * Returns the simulation's end timestamp.
+	 * @return Simulation's end timestamp
 	 */
-	public Time getEndTs() {
+	public TimeStamp getEndTs() {
 		return endTs;
 	}
 
 	/**
-	 * Returns the simulation start timestamp.
-	 * 
-	 * @return Returns the startTs.
+	 * Sets the simulation's end timestamp
+	 * @param endTs New simulation end
+	 */
+	public void setEndTs(TimeStamp endTs) {
+		this.endTs = endTs;
+		this.internalEndTs = simulationTime2Long(endTs);
+	}
+
+	/**
+	 * Returns a long value representing the simulation's start timestamp without unit.
+	 * @return A long value representing the simulation's start timestamp without unit
 	 */
 	public long getInternalStartTs() {
 		return internalStartTs;
 	}
 
 	/**
-	 * Returns the simulation start timestamp.
-	 * 
-	 * @return Returns the startTs.
+	 * Returns the simulation's start timestamp.
+	 * @return Simulation's start timestamp
 	 */
-	public Time getStartTs() {
+	public TimeStamp getStartTs() {
 		return startTs;
 	}
 
 	/**
-	 * @return the description
+	 * Sets the simulation's start timestamp
+	 * @param startTs New simulation start
 	 */
+	public void setStartTs(TimeStamp startTs) {
+		this.startTs = startTs;
+		this.internalStartTs = simulationTime2Long(startTs);
+	}
+
+	@Override
 	public String getDescription() {
 		return description;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Identifiable#getIdentifier()
+	/**
+	 * Sets a new description for this simulation.
+	 * @param description The new description of this simulation 
 	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@Override
 	public int getIdentifier() {
 		return id;
 	}
 
 	/**
+	 * Sets a new identifier for this simulation.
+	 * @param id The new identifier for this simulation
+	 */
+	public void setIdentifier(int id) {
+		this.id = id;
+	}
+	
+	/**
+	 * Sets an output for debugging and error messages.
+	 * @param out The new output for debugging and error messages
+	 */
+	public void setOutput(Output out) {
+		this.out = out;
+	}
+
+	/**
 	 * Returns the activity with the corresponding identifier.
-	 * 
-	 * @param id
-	 *            Activity identifier.
+	 * @param id Activity identifier.
 	 * @return An activity with the indicated identifier.
 	 */
 	public abstract Activity getActivity(int id);
 
 	/**
 	 * Returns the resource type with the corresponding identifier.
-	 * 
-	 * @param id
-	 *            Resource type identifier.
+	 * @param id Resource type identifier.
 	 * @return A resource type with the indicated identifier.
 	 */
 	public abstract ResourceType getResourceType(int id);
 
 	/**
 	 * Returns the resource with the corresponding identifier.
-	 * 
-	 * @param id
-	 *            Resource identifier.
+	 * @param id Resource identifier.
 	 * @return A resource with the indicated identifier.
 	 */
 	public abstract Resource getResource(int id);
 
 	/**
 	 * Returns the element type with the corresponding identifier.
-	 * 
-	 * @param id
-	 *            element type identifier.
+	 * @param id Element type identifier.
 	 * @return An element type with the indicated identifier.
 	 */
 	public abstract ElementType getElementType(int id);
 
 	/**
 	 * Returns the flow with the corresponding identifier.
-	 * 
-	 * @param id
-	 *            flow identifier.
+	 * @param id Flow identifier.
 	 * @return A flow with the indicated identifier.
 	 */
 	public abstract Flow getFlow(int id);
-
-	/**
-	 * @param out the out to set
-	 */
-	public void setOutput(Output out) {
-		this.out = out;
-	}
 
 	@Override
 	public String toString() {
 		return description + "(" + startTs + ", " + endTs + ")";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Debuggable#debug(java.lang.String)
-	 */
+	@Override
 	public void debug(String description) {
 		out.debug(description);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Debuggable#error(java.lang.String)
-	 */
+	@Override
 	public void error(String description) {
 		out.error(description);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Debuggable#isDebugEnabled()
-	 */
+	@Override
 	public boolean isDebugEnabled() {
 		return out.isDebugEnabled();
 	}
 	
+	// User methods
+	
 	/**
-	 * Event which is activated before the simulation start.
+	 * Allows a user for adding customized code before the simulation starts.
 	 */
 	public void init() {
 	};
 	
 	/**
-	 * Event which is activated after the simulation finish.
+	 * Allows a user for adding customized code after the simulation finishes.
 	 */
 	public void end() {
 	};
 	
 	/**
-	 * Event which is activated before a clock change.
+	 * Allows a user for adding customized code before the simulation clock advances.
 	 */
 	public void beforeClockTick() {
 	};
 	
 	/**
-	 * Event which is activated after a clock change.
+	 * Allows a user for adding customized code just after the simulation clock advances.
 	 */
 	public void afterClockTick() {
 	}
 
+	// End of user methods
+	
+	@Override
 	public Variable getVar(String varName) {
 		return varCollection.get(varName);
 	}
 	
+	@Override
 	public void putVar(String varName, Variable value) {
 		varCollection.put(varName, value);
 	}
 	
+	@Override
 	public void putVar(String varName, double value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -347,6 +404,7 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 			varCollection.put(varName, new DoubleVariable(value));
 	}
 	
+	@Override
 	public void putVar(String varName, int value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -356,6 +414,7 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 			varCollection.put(varName, new IntVariable(value));
 	}
 
+	@Override
 	public void putVar(String varName, boolean value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -365,6 +424,7 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 			varCollection.put(varName, new BooleanVariable(value));
 	}
 
+	@Override
 	public void putVar(String varName, char value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -374,6 +434,7 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 			varCollection.put(varName, new CharacterVariable(value));
 	}
 	
+	@Override
 	public void putVar(String varName, byte value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -383,6 +444,7 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 			varCollection.put(varName, new ByteVariable(value));
 	}
 
+	@Override
 	public void putVar(String varName, float value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -392,6 +454,7 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 			varCollection.put(varName, new FloatVariable(value));
 	}
 	
+	@Override
 	public void putVar(String varName, long value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -401,6 +464,7 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 			varCollection.put(varName, new LongVariable(value));
 	}
 	
+	@Override
 	public void putVar(String varName, short value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -420,10 +484,18 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 			return -1;
 	}
 	
+	/**
+	 * Adds an information receiver which processes information produced by this simulation.
+	 * @param receiver A processor for the information produced by this simulation
+	 */
 	public void addInfoReceiver(InfoReceiver receiver) {
 		infoHandler.registerReceivers(receiver);
 	}
 
+	/**
+	 * Returns the handler for the information produced by the execution of this simulation.
+	 * @return The handler for the information produced by the execution of this simulation
+	 */
 	public InfoHandler getInfoHandler() {
 		return infoHandler;
 	}

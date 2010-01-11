@@ -8,10 +8,10 @@ import java.util.EnumSet;
 import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.simulation.common.ElementCreator;
 import es.ull.isaatc.simulation.common.ElementType;
-import es.ull.isaatc.simulation.common.ModelCycle;
+import es.ull.isaatc.simulation.common.SimulationCycle;
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
-import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeDrivenActivity;
 import es.ull.isaatc.simulation.common.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.common.TimeUnit;
@@ -41,7 +41,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public SimulationFactory(int id, String description, TimeUnit unit,	Time startTs, Time endTs) {
+	public SimulationFactory(int id, String description, TimeUnit unit,	TimeStamp startTs, TimeStamp endTs) {
 		simul = new Simulation(id, description, unit, startTs, endTs) {
 			@Override
 			protected void createModel() {
@@ -145,7 +145,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	}
 
 	@Override
-	public TimeDrivenGenerator getTimeDrivenGenerator(int id, ElementCreator creator, ModelCycle cycle) throws ClassCastException {
+	public TimeDrivenGenerator getTimeDrivenGeneratorInstance(int id, ElementCreator creator, SimulationCycle cycle) throws ClassCastException {
 		return new es.ull.isaatc.simulation.intervalThreaded.TimeDrivenGenerator(simul, (es.ull.isaatc.simulation.intervalThreaded.ElementCreator)creator, cycle);
 	}
 

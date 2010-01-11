@@ -4,7 +4,7 @@
 package es.ull.isaatc.simulation.sequential.test;
 
 import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.sequential.ResourceType;
 import es.ull.isaatc.simulation.sequential.Simulation;
@@ -13,8 +13,8 @@ import es.ull.isaatc.simulation.sequential.TimeDrivenActivity;
 
 
 class TestMaxResourceTypesSimulation extends StandAloneLPSimulation {
-	private final static Time STARTTS = Time.getZero();
-	private final static Time ENDTS = Time.getZero();
+	private final static TimeStamp STARTTS = TimeStamp.getZero();
+	private final static TimeStamp ENDTS = TimeStamp.getZero();
 	private final static int MAX = 200000;
 	
 	public TestMaxResourceTypesSimulation(int id) {
@@ -37,8 +37,8 @@ class TestMaxResourceTypesSimulation extends StandAloneLPSimulation {
 }
 
 class TestMaxActivitiesSimulation extends StandAloneLPSimulation {
-	private final static Time STARTTS = Time.getZero();
-	private final static Time ENDTS = Time.getZero();
+	private final static TimeStamp STARTTS = TimeStamp.getZero();
+	private final static TimeStamp ENDTS = TimeStamp.getZero();
 	private final static int MAX = 200000;
 	
 	public TestMaxActivitiesSimulation(int id) {

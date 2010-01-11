@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation.intervalBufferThreaded;
 
-import es.ull.isaatc.simulation.common.ModelCycle;
+import es.ull.isaatc.simulation.common.SimulationCycle;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.DiscreteCycleIterator;
 
@@ -23,7 +23,7 @@ public class TimeDrivenGenerator extends Generator implements es.ull.isaatc.simu
      * @param creator The way the elements are created every "tic" of the cycle 
      * @param cycle Control of the time between generations 
      */
-	public TimeDrivenGenerator(Simulation simul, BasicElementCreator creator, ModelCycle cycle) {
+	public TimeDrivenGenerator(Simulation simul, BasicElementCreator creator, SimulationCycle cycle) {
 		super(simul, creator);
 		this.cycle = cycle.getCycle();
 	}

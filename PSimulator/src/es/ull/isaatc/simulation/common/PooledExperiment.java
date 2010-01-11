@@ -26,17 +26,20 @@ public abstract class PooledExperiment extends Experiment {
 	}
 	
 	/**
-	 * @param description
-	 * @param nExperiments
+	 * Creates a stand-alone thread execution (<code>Executors.newFixedThreadPool(1)</code>). A single
+	 * thread executes sequentially all the simulations.
+	 * @param description A short text describing this experiment
+	 * @param nExperiments Number of experiments to be carried out
 	 */
 	public PooledExperiment(String description, int nExperiments) {
 		this(description, nExperiments, Executors.newSingleThreadExecutor());
 	}
 	
 	/**
-	 * @param description
-	 * @param nExperiments
-	 * @param tp
+	 * Creates a customized simulation executor.
+	 * @param description A short text describing this experiment
+	 * @param nExperiments Number of experiments to be carried out
+	 * @param tp The thread pool used to execute the simulations
 	 */
 	public PooledExperiment(String description, int nExperiments, ExecutorService tp) {
 		super(description, nExperiments);
@@ -44,8 +47,9 @@ public abstract class PooledExperiment extends Experiment {
 	}
 	
 	/**
-	 * Starts the experiment.
+	 * Starts the experiment. Simply creates all the simulations and send them to the thread pool.
 	 */
+	@Override
 	public void start() {
 		ArrayList<Callable<Integer>> sims = new ArrayList<Callable<Integer>>(nExperiments);
 		for (int i = 0; i < nExperiments; i++)

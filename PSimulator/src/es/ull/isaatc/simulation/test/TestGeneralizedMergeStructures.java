@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.sequential.test;
+package es.ull.isaatc.simulation.test;
 
 import java.util.Iterator;
 import java.util.LinkedList;

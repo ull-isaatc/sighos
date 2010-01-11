@@ -10,41 +10,42 @@ package es.ull.isaatc.simulation.common;
  */
 public class TimeTableEntry {
 	/** Cycle that characterizes this entry */
-	private final ModelCycle cycle;
+	private final SimulationCycle cycle;
     /** The long this resource plays this role every cycle */
-	private final Time duration;
+	private final TimeStamp duration;
     /** Role that the resource plays during this cycle */
 	private final ResourceType role;
     
     /** Creates a new instance of TimeTableEntry
-     * @param cycle 
-     * @param dur The long this resource plays this role every cycle
+     * @param cycle Cycle that characterizes this entry
+     * @param dur How long this resource plays this role every cycle
      * @param role Role that the resource plays during this cycle
      */
-	public TimeTableEntry(ModelCycle cycle, Time dur, ResourceType role) {
+	public TimeTableEntry(SimulationCycle cycle, TimeStamp dur, ResourceType role) {
 		this.cycle = cycle;
 		this.duration = dur;
 		this.role = role;
 	}
     
     /**
-     * Getter for property duration.
-     * @return Value of property duration.
+     * Returns how long this resource plays this role every cycle.
+     * @return how long this resource plays this role every cycle
      */
-    public Time getDuration() {
+    public TimeStamp getDuration() {
         return duration;
     }
 
     /**
-	 * @return the cycle
+     * Returns the cycle that characterizes this entry.
+	 * @return the cycle that characterizes this entry
 	 */
-	public ModelCycle getCycle() {
+	public SimulationCycle getCycle() {
 		return cycle;
 	}
 
 	/**
-     * Getter for property role.
-     * @return Value of property role.
+     * Returns the role that the resource plays during this cycle.
+     * @return the role that the resource plays during this cycle
      */
     public ResourceType getRole() {
         return role;

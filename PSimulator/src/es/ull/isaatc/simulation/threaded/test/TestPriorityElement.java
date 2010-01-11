@@ -5,8 +5,8 @@ package es.ull.isaatc.simulation.threaded.test;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.SimulationPeriodicCycle;
+import es.ull.isaatc.simulation.common.SimulationTimeFunction;
 import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.threaded.ElementCreator;
 import es.ull.isaatc.simulation.threaded.ElementType;
@@ -37,9 +37,9 @@ class PriorityElementSimulation extends StandAloneLPSimulation {
 		ResourceType rt = new ResourceType(0, this, "RT0");
 		WorkGroup wg = new WorkGroup(rt, 2);
 		for (int i = 0; i < NACT; i++)
-			new TimeDrivenActivity(i, this, "ACT" + i, i / 2).addWorkGroup(new ModelTimeFunction(this, "ConstantVariate", 10), 0, wg);
-		ModelPeriodicCycle c1 = new ModelPeriodicCycle(this, 0.0, new ModelTimeFunction(this, "ConstantVariate", 200.0), 0);
-		ModelPeriodicCycle c2 = new ModelPeriodicCycle(this, 20.0, new ModelTimeFunction(this, "ConstantVariate", 100.0), 0);
+			new TimeDrivenActivity(i, this, "ACT" + i, i / 2).addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 10), 0, wg);
+		SimulationPeriodicCycle c1 = new SimulationPeriodicCycle(this, 0.0, new SimulationTimeFunction(this, "ConstantVariate", 200.0), 0);
+		SimulationPeriodicCycle c2 = new SimulationPeriodicCycle(this, 20.0, new SimulationTimeFunction(this, "ConstantVariate", 100.0), 0);
 		for (int i = 0; i < NRES; i++)
 			new Resource(i, this, "RES" + i).addTimeTableEntry(c2, 40, rt);
 		ParallelFlow meta = new ParallelFlow(this);

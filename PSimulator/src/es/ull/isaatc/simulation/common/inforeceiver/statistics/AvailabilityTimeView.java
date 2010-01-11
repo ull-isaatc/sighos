@@ -40,7 +40,7 @@ public class AvailabilityTimeView extends VarView {
 			ResourceInfo resInfo = (ResourceInfo) info;
 			Resource res = resInfo.getRes();
 			ResourceType rt = resInfo.getRt();
-			double ts = resInfo.getTs();
+			long ts = resInfo.getTs();
 			String message = new String();
 			if (isDebugMode()) {
 				message += resInfo.toString() + "\n";					
@@ -77,7 +77,7 @@ public class AvailabilityTimeView extends VarView {
 				int onTimes = counter.times;
 				if (onTimes == 1) {
 					IntervalInfo interval = new IntervalInfo(counter.startTime, ts);
-					double availabilityTime = calculateAvailabilityTime(res, interval);
+					long availabilityTime = calculateAvailabilityTime(res, interval);
 					TimeCounter timeCounter = resAvTime.get(res);
 					if (timeCounter == null) {
 						timeCounter = new TimeCounter();
@@ -101,14 +101,14 @@ public class AvailabilityTimeView extends VarView {
 				onTimes = counter.times;
 				if (onTimes == 1) {
 					IntervalInfo interval = new IntervalInfo(counter.startTime, ts);
-					double availabilityTime = calculateAvailabilityTime(entry, interval);
+					long availabilityTime = calculateAvailabilityTime(entry, interval);
 					TimeCounter timeCounter = resAvTime.get(res);
-					HashMap<ResourceType, Double> roleMap = timeCounter.roleAvTime;
-					Double actualTime = roleMap.get(rt);
+					HashMap<ResourceType, Long> roleMap = timeCounter.roleAvTime;
+					Long actualTime = roleMap.get(rt);
 					if (actualTime == null)
 						roleMap.put(rt, availabilityTime);
 					else
-						roleMap.put(rt, actualTime.doubleValue() + availabilityTime);
+						roleMap.put(rt, actualTime.longValue() + availabilityTime);
 					resRoleActivation.remove(entry);
 					if (isDebugMode()) {
 						message += "Added \t" + availabilityTime + "\t " + res.toString() + ": " + res.getDescription() + "\t" + rt.toString() + ": " + rt.getDescription() + "\n";
@@ -174,15 +174,15 @@ public class AvailabilityTimeView extends VarView {
 				if (isDebugMode()) {
 					message += endInfo.toString() + "\n";					
 				}
-				double ts = getSimul().getInternalEndTs();
+				long ts = getSimul().getInternalEndTs();
 				Iterator<Entry<Resource, StartCounter>> iter = resActivation.entrySet().iterator();
 				while (iter.hasNext()) {
 					Entry<Resource, StartCounter> entry = iter.next();
-					double startTime = entry.getValue().startTime;
+					long startTime = entry.getValue().startTime;
 					Resource res = entry.getKey();
 					IntervalInfo newInterval = new IntervalInfo(startTime, ts);
 					TimeCounter timeCounter = resAvTime.get(res);
-					double availabilityTime = calculateAvailabilityTime(res, newInterval);
+					long availabilityTime = calculateAvailabilityTime(res, newInterval);
 					if (timeCounter == null) {
 						TimeCounter tempCounter = new TimeCounter();
 						tempCounter.totalTime = availabilityTime;
@@ -197,17 +197,17 @@ public class AvailabilityTimeView extends VarView {
 				Iterator<Entry<EntryId, StartCounter>> iter2 = resRoleActivation.entrySet().iterator();
 				while (iter2.hasNext()) {
 					Entry<EntryId, StartCounter> entry = iter2.next();
-					double startTime = entry.getValue().startTime;
+					long startTime = entry.getValue().startTime;
 					EntryId id = entry.getKey();
 					IntervalInfo newInterval = new IntervalInfo(startTime, ts);
 					TimeCounter timeCounter = resAvTime.get(id.res);
-					double availabilityTime = calculateAvailabilityTime(id.res, newInterval);
-					HashMap<ResourceType, Double> roleMap = timeCounter.roleAvTime;
-					Double actualTime = roleMap.get(id.rt);
+					long availabilityTime = calculateAvailabilityTime(id.res, newInterval);
+					HashMap<ResourceType, Long> roleMap = timeCounter.roleAvTime;
+					Long actualTime = roleMap.get(id.rt);
 					if (actualTime == null)
 						roleMap.put(id.rt, availabilityTime);
 					else
-						roleMap.put(id.rt, actualTime.doubleValue() + availabilityTime);
+						roleMap.put(id.rt, actualTime.longValue() + availabilityTime);
 					if (isDebugMode()) {
 						message += "New activation interval \tStart: " + newInterval.start + "\tFinish: " + newInterval.finish + "\n";
 						message += "Added \t" + availabilityTime + "\t RES: " + id.res.getDescription() + "\t" + id.rt.toString() + ": " + id.rt.getDescription() + "\n";
@@ -222,11 +222,11 @@ public class AvailabilityTimeView extends VarView {
 						Resource res = entry.getKey();
 						TimeCounter finalCounter = entry.getValue();
 						message += "RES: " + res.getDescription() + "\t TOTAL: " + finalCounter.totalTime + "\n";
-						Iterator<Entry<ResourceType, Double>> finalRoleIter = finalCounter.roleAvTime.entrySet().iterator();
+						Iterator<Entry<ResourceType, Long>> finalRoleIter = finalCounter.roleAvTime.entrySet().iterator();
 						while (finalRoleIter.hasNext()) {
-							Entry<ResourceType, Double> roleTypeEntry = finalRoleIter.next();
+							Entry<ResourceType, Long> roleTypeEntry = finalRoleIter.next();
 							ResourceType finalRt = roleTypeEntry.getKey();
-							Double avTime = roleTypeEntry.getValue();
+							Long avTime = roleTypeEntry.getValue();
 							message += "\twith " + finalRt.toString() + ": " + finalRt.getDescription() + "\t" + avTime + "\n";
 						}
 					}
@@ -241,22 +241,22 @@ public class AvailabilityTimeView extends VarView {
 		}
 	}
 	
-	private double calculateAvailabilityTime(Resource res, IntervalInfo interval) {
+	private long calculateAvailabilityTime(Resource res, IntervalInfo interval) {
 		StartCounter counter = cancelStarts.get(res);
 		HashSet<IntervalInfo> resourceCancelIntervals = (HashSet<IntervalInfo>) cancelIntervals.get(res);
 		return calculateTime(counter, interval, resourceCancelIntervals);
 	}
 	
-	private double calculateAvailabilityTime(EntryId id, IntervalInfo interval) {
+	private long calculateAvailabilityTime(EntryId id, IntervalInfo interval) {
 		StartCounter counter = cancelStarts.get(id.res);
 		HashSet<IntervalInfo> resourceCancelIntervals = (HashSet<IntervalInfo>) cancelIntervals.get(id.res);
 		return calculateTime(counter, interval, resourceCancelIntervals);
 	}
 	
-	private double calculateTime (StartCounter counter, IntervalInfo interval, HashSet<IntervalInfo> resourceCancelIntervals) {
+	private long calculateTime (StartCounter counter, IntervalInfo interval, HashSet<IntervalInfo> resourceCancelIntervals) {
 		if (counter != null) {
 			if (counter.startTime <= interval.start)
-				return 0.0;
+				return 0;
 			else
 				interval.finish = counter.startTime;
 		}
@@ -280,12 +280,12 @@ public class AvailabilityTimeView extends VarView {
 							interval.start = cancelationInterval.finish;
 						else
 							if (cancelationInterval.finish > interval.finish)
-								return 0.0;
+								return 0;
 				}
 				swapSet.addAll(intervalsSet);
 			}
 		Iterator<IntervalInfo> iter = swapSet.iterator();
-		double cancelTime = 0.0;
+		long cancelTime = 0;
 		while (iter.hasNext()) {
 			IntervalInfo cancelInterval = iter.next();
 			cancelTime += cancelInterval.finish - cancelInterval.start;
@@ -295,7 +295,7 @@ public class AvailabilityTimeView extends VarView {
 	
 	public Number getValue(Object... params) {
 		String message = new String();
-		double result = 0.0;
+		long result = 0;
 		if (isDebugMode())
 			message += "GetValue request\t"; 
 		if (params[0] instanceof Resource) {
@@ -303,15 +303,15 @@ public class AvailabilityTimeView extends VarView {
 			TimeCounter counter = resAvTime.get(res);
 			if ((params.length > 2) && (params[1] instanceof ResourceType)) {
 				ResourceType rt = (ResourceType) params[1];
-				Double ts = (Double) params[2];
+				Long ts = (Long) params[2];
 				if (isDebugMode())
 					message += ts + "\t" + message; 
 				EntryId id = new EntryId(res, rt);
 				StartCounter startCounter = resRoleActivation.get(id);
 				if (counter != null) {
-					Double acumulatedAvTime = counter.roleAvTime.get(rt);
+					Long acumulatedAvTime = counter.roleAvTime.get(rt);
 					if (acumulatedAvTime == null)
-						acumulatedAvTime = 0.0;
+						acumulatedAvTime = new Long(0);
 					if (startCounter == null)
 						result = acumulatedAvTime;
 					else
@@ -322,11 +322,11 @@ public class AvailabilityTimeView extends VarView {
 				if (isDebugMode())
 					message += res.toString() + "\t" + res.getDescription() + "\t" + rt.toString() + "\t" + rt.getDescription() + "\n";
 			} else {
-				Double ts = (Double) params[1];
+				Long ts = (Long) params[1];
 				if (isDebugMode())
 					message += ts + "\t" + message;
 				if (counter != null) {
-					Double acumulatedAvTime = counter.totalTime;
+					long acumulatedAvTime = counter.totalTime;
 					StartCounter startCounter = resActivation.get(res);
 					if (startCounter == null)
 						result = acumulatedAvTime;
@@ -350,12 +350,12 @@ public class AvailabilityTimeView extends VarView {
 	}
 
 	class TimeCounter {
-		public double totalTime;
-		public final HashMap<ResourceType, Double> roleAvTime;
+		public long totalTime;
+		public final HashMap<ResourceType, Long> roleAvTime;
 		
 		public TimeCounter() {
-			totalTime = 0.0;
-			roleAvTime = new HashMap<ResourceType, Double>();
+			totalTime = 0;
+			roleAvTime = new HashMap<ResourceType, Long>();
 		}
 	}
 	
@@ -379,20 +379,20 @@ public class AvailabilityTimeView extends VarView {
 	}
 	
 	class IntervalInfo {
-		public double start;
-		public double finish;
+		public long start;
+		public long finish;
 		
-		public IntervalInfo(double start, double finish) {
+		public IntervalInfo(long start, long finish) {
 			this.start = start;
 			this.finish = finish;
 		}
 	}
 	
 	class StartCounter {
-		public final double startTime;
+		public final long startTime;
 		public int times;
 		
-		public StartCounter(double start) {
+		public StartCounter(long start) {
 			startTime = start;
 			times = 1;
 		}

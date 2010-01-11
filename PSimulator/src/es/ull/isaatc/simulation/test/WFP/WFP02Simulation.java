@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.test.WFP;
 
 import es.ull.isaatc.simulation.common.ResourceType;
-import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeDrivenActivity;
 import es.ull.isaatc.simulation.common.WorkGroup;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory.SimulationType;
@@ -45,7 +45,7 @@ public class WFP02Simulation extends WFPTestSimulationFactory {
          
         getDefGenerator(getDefElementType("Activaciones de alarma"), root);
 //        addInfoReceiver(new WFP02CheckView(this, detailed));
-        getSimulation().addInfoReceiver(new CheckFlowsView(getSimulation(), root, new Time[] {DEFACTDURATION[0], DEFACTDURATION[0], DEFACTDURATION[0]}, detailed));
+        getSimulation().addInfoReceiver(new CheckFlowsView(getSimulation(), root, new TimeStamp[] {DEFACTDURATION[0], DEFACTDURATION[0], DEFACTDURATION[0]}, detailed));
     }
 	
 }

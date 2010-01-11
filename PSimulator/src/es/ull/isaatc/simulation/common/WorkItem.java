@@ -7,50 +7,51 @@ import es.ull.isaatc.simulation.common.flow.SingleFlow;
 import es.ull.isaatc.util.Prioritizable;
 
 /**
+ * A work item is an instance of an {@link Element} performing a {@link SingleFlow}.
  * @author Iván Castilla Rodríguez
  *
  */
 public interface WorkItem extends Comparable<WorkItem>, Prioritizable, Identifiable {
 	/**
-     * Returns the activity wrapped with the current single flow.
-     * @return Activity wrapped with the current single flow.
+     * Returns the activity being performed.
+     * @return The activity being performed
      */
     public Activity getActivity();
 	
     /**
-     * Gets the current single flow
-	 * @return the current single flow
+     * Returns the single flow being performed.
+	 * @return The single flow being performed
 	 */
 	public SingleFlow getFlow();
 
 	/**
-     * Returns the element which carries out this flow.
-     * @return The associated element.
+     * Returns the element performing this single flow.
+     * @return The element performing this single flow
      */
     public Element getElement();
     
 	/**
 	 * Returns the order this item occupies among the rest of work items.
-	 * @return the order of arrival of this work item to request the activity
+	 * @return The order of arrival of this work item to request the activity
 	 */
 	public int getArrivalOrder();
 
 	/**
-	 * Returns the timestamp when this work item arrives to request the current single flow.
-	 * @return the timestamp when this work item arrives to request the current single flow
+	 * Returns the timestamp when this work item arrived to request the current single flow.
+	 * @return The timestamp when this work item arrived to request the current single flow
 	 */
 	public long getArrivalTs();
 
 	/**
 	 * Returns the time required to finish the current single flow (only for interruptible activities) 
-	 * @return the time required to finish the current single flow 
+	 * @return The time required to finish the current single flow 
 	 */
 	public long getTimeLeft();
 
     /**
-     * Returns the workgroup which is used to perform this flow, or <code>null</code>  
+     * Returns the workgroup which is used to perform this flow, or <tt>null</tt>  
      * if the flow has not been carried out.
-	 * @return the workgroup which is used to perform this flow, or <code>null</code>  
+	 * @return the workgroup which is used to perform this flow, or <tt>null</tt>  
      * if the flow has not been carried out.
 	 */
 	public ActivityWorkGroup getExecutionWG();

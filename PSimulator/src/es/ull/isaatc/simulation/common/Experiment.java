@@ -6,7 +6,7 @@ package es.ull.isaatc.simulation.common;
 
 
 /**
- * Controls a set of experiments. 
+ * Controls a set of simulation experiments. 
  * @author Iván Castilla Rodríguez
  */
 public abstract class Experiment implements Describable {
@@ -32,14 +32,15 @@ public abstract class Experiment implements Describable {
 	}
 	
 	/**
-	 * Creates a simulation corresponding to the the #ind experiment.
+	 * Creates a simulation corresponding to the #ind experiment.
 	 * @param ind Number of the experiment
 	 * @return A new simulation object.
 	 */
 	public abstract Simulation getSimulation(int ind);
 
 	/**
-	 * Executes the simulations obtained when <code>getSimulation</code> is invoked.
+	 * Implementations of this method must call {@link #getSimulation(int)} to carry out all the 
+	 * simulations planned in this experiment.
 	 */
 	public abstract void start();
 
@@ -52,22 +53,23 @@ public abstract class Experiment implements Describable {
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Describable#getDescription()
+	 * @see es.ull.isaatc.simulation.common.Describable#getDescription()
 	 */
+	@Override
 	public String getDescription() {
 		return description;
 	}
 
 	/**
 	 * Returns the number of experiments to be carried out.
-	 * @return The number of experiments to be carried out.
+	 * @return The number of experiments to be carried out
 	 */
 	public int getNExperiments() {
 		return nExperiments;
 	}
 
 	/**
-	 * Sets a short text describing this experiment
+	 * Sets a short text describing this experiment.
 	 * @param description A short text describing this experiment
 	 */
 	public void setDescription(String description) {
@@ -76,7 +78,7 @@ public abstract class Experiment implements Describable {
 
 	/**
 	 * Sets the number of experiments to be carried out.
-	 * @param experiments The number of experiments to be carried out.
+	 * @param experiments The number of experiments to be carried out
 	 */
 	public void setNExperiments(int experiments) {
 		nExperiments = experiments;

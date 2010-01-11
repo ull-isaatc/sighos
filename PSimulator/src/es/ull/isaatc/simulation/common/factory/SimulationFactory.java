@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation.common.factory;
 
-import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeUnit;
 
 /**
@@ -39,7 +39,7 @@ public class SimulationFactory {
 		GROUPED2,
 		GROUPEDX
 	}
-	public static SimulationObjectFactory getInstance(SimulationType type, int id, String description, TimeUnit unit, Time startTs, Time endTs) {
+	public static SimulationObjectFactory getInstance(SimulationType type, int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		switch (type) {
 		case SEQUENTIAL: return new es.ull.isaatc.simulation.sequential.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case SEQUENTIAL2: return new es.ull.isaatc.simulation.lessSequential.factory.SimulationFactory(id, description, unit, startTs, endTs);

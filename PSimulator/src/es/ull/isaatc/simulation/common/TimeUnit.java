@@ -29,6 +29,7 @@ public enum TimeUnit {
 		{31536000000.0, 31536000, 525600, 8760, 365, 52, 12, 1}
 	};
 	
+	/** The name of the unit */
 	private String name;
 	private TimeUnit(String name) {
 		this.name = name;
@@ -53,12 +54,8 @@ public enum TimeUnit {
 	 * @param sourceValue Source timestamp
 	 * @return The value of the source when expressed as this time unit.
 	 */
-	public long convert(Time sourceValue) {
+	public long convert(TimeStamp sourceValue) {
 		return Math.round(sourceValue.getValue() * conversion[sourceValue.getUnit().ordinal()][ordinal()]);
 	}
 
-	public double time2Long(Time source) {
-		return Math.round(convert(source));
-	}
-	
 }

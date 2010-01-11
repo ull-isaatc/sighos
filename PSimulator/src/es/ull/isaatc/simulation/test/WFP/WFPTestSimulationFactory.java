@@ -7,12 +7,12 @@ import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.common.ElementType;
-import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.common.ModelTimeFunction;
+import es.ull.isaatc.simulation.common.SimulationPeriodicCycle;
+import es.ull.isaatc.simulation.common.SimulationTimeFunction;
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
 import es.ull.isaatc.simulation.common.Simulation;
-import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeDrivenActivity;
 import es.ull.isaatc.simulation.common.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.common.TimeUnit;
@@ -37,22 +37,22 @@ import es.ull.isaatc.simulation.common.flow.InitializerFlow;
  */
 public abstract class WFPTestSimulationFactory {
 	public final static int DEFNELEMENTS = 3;
-	public final static Time RESSTART = new Time(TimeUnit.HOUR, 8);
-	public final static Time RESPERIOD = Time.getDay();
-	public final static Time RESAVAILABLE = new Time(TimeUnit.HOUR, 7);
-	public final static Time GENSTART = Time.getZero();
-	public final static Time GENPERIOD = Time.getDay();
-	public final static Time []DEFACTDURATION = new Time [] {
-		new Time(TimeUnit.MINUTE, 5),
-		new Time(TimeUnit.MINUTE, 10),
-		new Time(TimeUnit.MINUTE, 15),
-		new Time(TimeUnit.MINUTE, 20),
-		new Time(TimeUnit.MINUTE, 25),
-		new Time(TimeUnit.MINUTE, 30),
-		new Time(TimeUnit.MINUTE, 120),
+	public final static TimeStamp RESSTART = new TimeStamp(TimeUnit.HOUR, 8);
+	public final static TimeStamp RESPERIOD = TimeStamp.getDay();
+	public final static TimeStamp RESAVAILABLE = new TimeStamp(TimeUnit.HOUR, 7);
+	public final static TimeStamp GENSTART = TimeStamp.getZero();
+	public final static TimeStamp GENPERIOD = TimeStamp.getDay();
+	public final static TimeStamp []DEFACTDURATION = new TimeStamp [] {
+		new TimeStamp(TimeUnit.MINUTE, 5),
+		new TimeStamp(TimeUnit.MINUTE, 10),
+		new TimeStamp(TimeUnit.MINUTE, 15),
+		new TimeStamp(TimeUnit.MINUTE, 20),
+		new TimeStamp(TimeUnit.MINUTE, 25),
+		new TimeStamp(TimeUnit.MINUTE, 30),
+		new TimeStamp(TimeUnit.MINUTE, 120),
 		};
-	public final static Time SIMSTART = Time.getZero();
-	public final static Time SIMEND = Time.getDay();
+	public final static TimeStamp SIMSTART = TimeStamp.getZero();
+	public final static TimeStamp SIMEND = TimeStamp.getDay();
 	public final static TimeUnit SIMUNIT = TimeUnit.MINUTE; 
 	private int resCounter = 0;	
 	private int rtCounter = 0;
@@ -75,16 +75,16 @@ public abstract class WFPTestSimulationFactory {
 		return factory.getSimulation();
 	}
 	
-	public ModelTimeFunction getActivityDefDuration() {
+	public SimulationTimeFunction getActivityDefDuration() {
 		return getActivityDefDuration(0);
 	}
 
-	public ModelTimeFunction getActivityDefDuration(int nAct) {
-		return new ModelTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[nAct]);		
+	public SimulationTimeFunction getActivityDefDuration(int nAct) {
+		return new SimulationTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[nAct]);		
 	}
 
-	public ModelPeriodicCycle getResourceCycle() {
-		return new ModelPeriodicCycle(SIMUNIT, RESSTART, new ModelTimeFunction(SIMUNIT, "ConstantVariate", RESPERIOD), 0);
+	public SimulationPeriodicCycle getResourceCycle() {
+		return new SimulationPeriodicCycle(SIMUNIT, RESSTART, new SimulationTimeFunction(SIMUNIT, "ConstantVariate", RESPERIOD), 0);
 	}
 	
 	public Resource getDefResource(String description, ResourceType rt) {
@@ -115,7 +115,7 @@ public abstract class WFPTestSimulationFactory {
 			act = factory.getTimeDrivenActivityInstance(actCounter++, description, 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		else
 			act = factory.getTimeDrivenActivityInstance(actCounter++, description);
-    	act.addWorkGroup(new ModelTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[dur]), wg);
+    	act.addWorkGroup(new SimulationTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[dur]), wg);
 		return act;
 	}
 	
@@ -123,8 +123,8 @@ public abstract class WFPTestSimulationFactory {
 		return factory.getElementTypeInstance(etCounter++, description);
 	}
 	
-	public ModelPeriodicCycle getGeneratorCycle() {
-		return new ModelPeriodicCycle(SIMUNIT, GENSTART, new ModelTimeFunction(SIMUNIT, "ConstantVariate", GENPERIOD), 0);
+	public SimulationPeriodicCycle getGeneratorCycle() {
+		return new SimulationPeriodicCycle(SIMUNIT, GENSTART, new SimulationTimeFunction(SIMUNIT, "ConstantVariate", GENPERIOD), 0);
 	}
 	
 	public TimeDrivenGenerator getDefGenerator(ElementType et, InitializerFlow flow) {
@@ -132,7 +132,7 @@ public abstract class WFPTestSimulationFactory {
 	}
 	
 	public TimeDrivenGenerator getDefGenerator(int elems, ElementType et, InitializerFlow flow) {
-        return factory.getTimeDrivenGenerator(egCounter++, 
+        return factory.getTimeDrivenGeneratorInstance(egCounter++, 
         		factory.getElementCreatorInstance(ecCounter++, TimeFunctionFactory.getInstance("ConstantVariate", elems), factory.getSimulation().getElementType(0), flow), getGeneratorCycle());
 	}
 }

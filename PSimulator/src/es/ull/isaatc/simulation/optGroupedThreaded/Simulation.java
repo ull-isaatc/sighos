@@ -15,7 +15,7 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.common.info.TimeChangeInfo;
 import es.ull.isaatc.simulation.optGroupedThreaded.flow.Flow;
@@ -82,7 +82,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * @param endTs
 	 *            Timestamp of simulation's end
 	 */
-	public Simulation(int id, String description, TimeUnit unit, Time startTs, Time endTs) {
+	public Simulation(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		super(id, description, unit, startTs, endTs);
         waitQueue = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
         // The Local virtual time is set to the immediately previous instant to the simulation start time
@@ -543,36 +543,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 */
 	public Element getActiveElement(int id) {
 		return activeElementList.get(id);
-	}
-
-	/**
-	 * @param unit the unit to set
-	 */
-	public void setTimeUnit(TimeUnit unit) {
-		this.unit = unit;
-	}
-
-	/**
-	 * @param endTs the endTs to set
-	 */
-	public void setEndTs(Time endTs) {
-		this.endTs = endTs;
-		this.internalEndTs = simulationTime2Long(endTs);
-	}
-
-	/**
-	 * @param startTs the startTs to set
-	 */
-	public void setStartTs(Time startTs) {
-		this.startTs = startTs;
-		this.internalStartTs = simulationTime2Long(startTs);
-	}
-
-	/**
-	 * @param description the description to set
-	 */
-	public void setDescription(String description) {
-		this.description = description;
 	}
 
 	/**

@@ -6,9 +6,9 @@ package es.ull.isaatc.simulation.threaded.test;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 import es.ull.isaatc.simulation.common.Experiment;
-import es.ull.isaatc.simulation.common.ModelPeriodicCycle;
-import es.ull.isaatc.simulation.common.ModelTimeFunction;
-import es.ull.isaatc.simulation.common.Time;
+import es.ull.isaatc.simulation.common.SimulationPeriodicCycle;
+import es.ull.isaatc.simulation.common.SimulationTimeFunction;
+import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.common.inforeceiver.CpuTimeView;
 import es.ull.isaatc.simulation.threaded.BasicElement;
@@ -21,7 +21,7 @@ import es.ull.isaatc.simulation.threaded.TimeDrivenGenerator;
 class RequestingElement extends BasicElement {
 	int eventIter;
 	int eventProcess;
-	static Time minute = new Time(TimeUnit.MINUTE, 1);
+	static TimeStamp minute = new TimeStamp(TimeUnit.MINUTE, 1);
 	
 	public RequestingElement(int id, KindOfPHOLDSimulation simul, int eventIter, int eventProcess) {
 		super(id, simul);
@@ -40,7 +40,7 @@ class RequestingElement extends BasicElement {
 	
 	class ReqEvent extends BasicElement.DiscreteEvent {
 
-		public ReqEvent(double ts, LogicalProcess lp) {
+		public ReqEvent(long ts, LogicalProcess lp) {
 			super(ts, lp);
 		}
 		
@@ -96,8 +96,8 @@ class KindOfPHOLDSimulation extends Simulation {
 	int eventIter;
 	int eventProcess;
 	
-	public KindOfPHOLDSimulation(int id, Time endTs, int n, int nElem, int eventIter, int eventProcess) {
-		super(id, "PHOLD", TimeUnit.MINUTE, Time.getZero(), endTs);
+	public KindOfPHOLDSimulation(int id, TimeStamp endTs, int n, int nElem, int eventIter, int eventProcess) {
+		super(id, "PHOLD", TimeUnit.MINUTE, TimeStamp.getZero(), endTs);
 		values = new AtomicLongArray(n);
 		this.nElem = nElem;
 		this.eventIter = eventIter;
@@ -111,7 +111,7 @@ class KindOfPHOLDSimulation extends Simulation {
 	@Override
 	protected void createModel() {
 		BasicElementCreator elemCreator = new RequestingElementCreator(this, nElem, eventIter, eventProcess);
-		new TimeDrivenGenerator(this, elemCreator, new ModelPeriodicCycle(this, Time.getZero(), new ModelTimeFunction(this, "ConstantVariate", endTs.getValue()), 0));
+		new TimeDrivenGenerator(this, elemCreator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), new SimulationTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0));
 	}
 	
 }
@@ -153,8 +153,8 @@ public class TestKindOfPHOLD {
 
 			@Override
 			public Simulation getSimulation(int ind) {
-				Simulation sim = new KindOfPHOLDSimulation(ind, new Time(TimeUnit.MINUTE, nIter + 1), nAct, nElem, eventIter, eventProcess);
-				sim.addInfoReciever(new CpuTimeView(sim));
+				Simulation sim = new KindOfPHOLDSimulation(ind, new TimeStamp(TimeUnit.MINUTE, nIter + 1), nAct, nElem, eventIter, eventProcess);
+				sim.addInfoReceiver(new CpuTimeView(sim));
 //				sim.setOutput(new Output(true));
 				return sim;
 			}
