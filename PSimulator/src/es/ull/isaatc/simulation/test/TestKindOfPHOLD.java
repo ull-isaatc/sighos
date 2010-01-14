@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.threaded.test;
+package es.ull.isaatc.simulation.test;
 
 import java.util.concurrent.atomic.AtomicLongArray;
 
