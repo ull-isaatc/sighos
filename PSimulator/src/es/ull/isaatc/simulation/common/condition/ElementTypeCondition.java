@@ -4,28 +4,27 @@ import es.ull.isaatc.simulation.common.ElementType;
 import es.ull.isaatc.simulation.common.Element;
 
 /**
- * Condition used to compare element types.
- * @author ycallero
+ * Condition used to check if an {@link Element} belongs to a specified {@link ElementType}.
+ * @author Yeray Callero
  *
  */
-public class ElementTypeCondition extends Condition{
+public final class ElementTypeCondition extends Condition{
 
-	/** Type which is used to compare */
-	ElementType type;
+	/** Type for the comparison */
+	private final ElementType type;
 	
 	/**
-	 * Creates a new ElementType Contition.
-	 * @param id Identifier
-	 * @param type Type which will use to compare.
+	 * Creates a new condition which compares {@link ElementType}s.
+	 * @param type Type for the comparison
 	 */
 	public ElementTypeCondition(ElementType type) {
 		this.type = type;
 	}
 
 	/**
-	 * Check the condition. If the element (e) has a diferent type than
-	 * the type attibute.
-	 * @param e Element which want to check the condition.
+	 * Checks the condition, returning <tt>true</tt> if the {@link ElementType} of the specified 
+	 * {@link Element} is the one set in this condition, and <tt>false</tt> otherwise. 
+	 * @param e {@link Element} to be checked with the condition.
 	 * @return The result of the logical condition.
 	 */
 	public boolean check(Element e) {
@@ -35,19 +34,11 @@ public class ElementTypeCondition extends Condition{
 	}
 
 	/**
-	 * Returns the type which the condition use to compare.
-	 * @return A ElementType.
+	 * Returns the type used for the comparison.
+	 * @return The {@link ElementType} used for the comparison
 	 */
 	public ElementType getType() {
 		return type;
-	}
-
-	/**
-	 * Set a new type to compare.
-	 * @param type Type which will use to compare.
-	 */
-	public void setType(ElementType type) {
-		this.type = type;
 	}
 
 }

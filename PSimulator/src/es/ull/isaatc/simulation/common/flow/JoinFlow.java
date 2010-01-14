@@ -4,7 +4,7 @@
 package es.ull.isaatc.simulation.common.flow;
 
 /**
- * A finalizer flow which merges several incoming branches into one.
+ * A {@link FinalizerFlow} which merges several incoming branches into a single one.
  * @author Iván Castilla Rodríguez
  */
 public interface JoinFlow extends FinalizerFlow {

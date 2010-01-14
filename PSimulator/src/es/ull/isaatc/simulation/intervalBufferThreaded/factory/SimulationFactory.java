@@ -8,12 +8,13 @@ import java.util.EnumSet;
 import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.simulation.common.ElementCreator;
 import es.ull.isaatc.simulation.common.ElementType;
-import es.ull.isaatc.simulation.common.SimulationCycle;
+import es.ull.isaatc.simulation.common.FlowDrivenActivity;
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
-import es.ull.isaatc.simulation.common.TimeStamp;
+import es.ull.isaatc.simulation.common.SimulationCycle;
 import es.ull.isaatc.simulation.common.TimeDrivenActivity;
 import es.ull.isaatc.simulation.common.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.common.WorkGroup;
 import es.ull.isaatc.simulation.common.TimeDrivenActivity.Modifier;
@@ -142,6 +143,16 @@ public class SimulationFactory implements SimulationObjectFactory {
 	@Override
 	public TimeDrivenActivity getTimeDrivenActivityInstance(int id,	String description, int priority, EnumSet<Modifier> modifiers) throws ClassCastException {
 		return new es.ull.isaatc.simulation.intervalBufferThreaded.TimeDrivenActivity(id, simul, description, priority, modifiers);
+	}
+
+	@Override
+	public FlowDrivenActivity getFlowDrivenActivityInstance(int id, String description) throws ClassCastException {
+		return new es.ull.isaatc.simulation.intervalBufferThreaded.FlowDrivenActivity(id, simul, description);
+	}
+
+	@Override
+	public FlowDrivenActivity getFlowDrivenActivityInstance(int id, String description, int priority) throws ClassCastException {
+		return new es.ull.isaatc.simulation.intervalBufferThreaded.FlowDrivenActivity(id, simul, description, priority);
 	}
 
 	@Override

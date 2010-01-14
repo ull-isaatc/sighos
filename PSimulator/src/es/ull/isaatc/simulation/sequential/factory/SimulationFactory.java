@@ -8,6 +8,7 @@ import java.util.EnumSet;
 import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.simulation.common.ElementCreator;
 import es.ull.isaatc.simulation.common.ElementType;
+import es.ull.isaatc.simulation.common.FlowDrivenActivity;
 import es.ull.isaatc.simulation.common.SimulationCycle;
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
@@ -155,6 +156,16 @@ public class SimulationFactory implements SimulationObjectFactory {
 	@Override
 	public TimeDrivenActivity getTimeDrivenActivityInstance(int id,	String description, int priority, EnumSet<Modifier> modifiers) throws ClassCastException {
 		return new es.ull.isaatc.simulation.sequential.TimeDrivenActivity(id, simul, description, priority, modifiers);
+	}
+
+	@Override
+	public FlowDrivenActivity getFlowDrivenActivityInstance(int id, String description) throws ClassCastException {
+		return new es.ull.isaatc.simulation.sequential.FlowDrivenActivity(id, simul, description);
+	}
+
+	@Override
+	public FlowDrivenActivity getFlowDrivenActivityInstance(int id, String description, int priority) throws ClassCastException {
+		return new es.ull.isaatc.simulation.sequential.FlowDrivenActivity(id, simul, description, priority);
 	}
 
 	@Override

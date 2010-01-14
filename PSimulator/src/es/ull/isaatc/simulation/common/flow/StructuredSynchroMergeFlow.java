@@ -3,9 +3,9 @@ package es.ull.isaatc.simulation.common.flow;
 import es.ull.isaatc.simulation.common.condition.Condition;
 
 /**
- * A structured flow whose initial step is a multi-choice flow and whose final step
- * is a synchronization. Meets the Structured Synchronization pattern (WFP7). 
- * @author ycallero
+ * A {@link StructuredFlow} whose initial step is a {@link MultiChoiceFlow} and whose final step
+ * is a {@link SynchronizationFlow}. Meets the Structured Synchronization pattern (WFP7). 
+ * @author Yeray Callero
  */
 public interface StructuredSynchroMergeFlow extends PredefinedStructuredFlow{
 	/**

@@ -3,12 +3,12 @@ package es.ull.isaatc.simulation.lessSequential;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
+import es.ull.isaatc.simulation.common.FlowDrivenActivityWorkGroup;
 import es.ull.isaatc.simulation.common.condition.Condition;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.lessSequential.flow.BasicFlow;
 import es.ull.isaatc.simulation.lessSequential.flow.FinalizerFlow;
 import es.ull.isaatc.simulation.lessSequential.flow.InitializerFlow;
-import es.ull.isaatc.util.RandomPermutation;
 
 /**
  * A task which could be carried out by an element and whose duration depends on the finalization
@@ -24,7 +24,7 @@ import es.ull.isaatc.util.RandomPermutation;
  * and later continued, if the resources become unavailable while the activity is being performed.
  * @author Iván Castilla Rodríguez 
  */
-public class FlowDrivenActivity extends Activity {
+public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simulation.common.FlowDrivenActivity {
 	/** 
 	 * An artificially created final node. This flow informs the flow-driven
 	 * activity that it has being finalized.
@@ -76,10 +76,11 @@ public class FlowDrivenActivity extends Activity {
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(InitializerFlow initialFlow, FinalizerFlow finalFlow, int priority, WorkGroup wg) {
-    	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(wgId, initialFlow, finalFlow, priority, wg));
-        return wgId;
+    public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.common.flow.InitializerFlow initFlow, 
+    		es.ull.isaatc.simulation.common.flow.FinalizerFlow finalFlow, int priority, es.ull.isaatc.simulation.common.WorkGroup wg) {
+		ActivityWorkGroup aWg = new ActivityWorkGroup(id, initFlow, finalFlow, priority, (WorkGroup)wg);
+		workGroupTable.add(aWg);
+		return aWg;
     }
     
     /**
@@ -91,10 +92,11 @@ public class FlowDrivenActivity extends Activity {
      * @param cond Availability condition
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(InitializerFlow initialFlow, FinalizerFlow finalFlow, int priority, WorkGroup wg, Condition cond) {
-    	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(wgId, initialFlow, finalFlow, priority, wg, cond));
-        return wgId;
+    public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.common.flow.InitializerFlow initFlow, 
+    		es.ull.isaatc.simulation.common.flow.FinalizerFlow finalFlow, int priority, es.ull.isaatc.simulation.common.WorkGroup wg, Condition cond) {
+		ActivityWorkGroup aWg = new ActivityWorkGroup(id, initFlow, finalFlow, priority, (WorkGroup)wg, cond);
+		workGroupTable.add(aWg);
+		return aWg;
     }
     
     /**
@@ -104,7 +106,8 @@ public class FlowDrivenActivity extends Activity {
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(InitializerFlow initialFlow, FinalizerFlow finalFlow, WorkGroup wg) {    	
+    public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.common.flow.InitializerFlow initialFlow, 
+    		es.ull.isaatc.simulation.common.flow.FinalizerFlow finalFlow, es.ull.isaatc.simulation.common.WorkGroup wg) {    	
         return addWorkGroup(initialFlow, finalFlow, 0, wg);
     }
     
@@ -116,7 +119,8 @@ public class FlowDrivenActivity extends Activity {
      * @param cond Availability condition
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(InitializerFlow initialFlow, FinalizerFlow finalFlow, WorkGroup wg, Condition cond) {    	
+    public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.common.flow.InitializerFlow initialFlow, 
+    		es.ull.isaatc.simulation.common.flow.FinalizerFlow finalFlow, es.ull.isaatc.simulation.common.WorkGroup wg, Condition cond) {    	
         return addWorkGroup(initialFlow, finalFlow, 0, wg, cond);
     }
     
@@ -153,12 +157,14 @@ public class FlowDrivenActivity extends Activity {
 
 		ArrayList<ActivityManager> amList = wItem.releaseCaughtResources();
 
+//		int[] order = RandomPermutation.nextPermutation(amList.size());
+//		for (int ind : order) {
+//			ActivityManager am = amList.get(ind);
+//			am.availableResource();
+//		}
 
-		int[] order = RandomPermutation.nextPermutation(amList.size());
-		for (int ind : order) {
-			ActivityManager am = amList.get(ind);
+		for (ActivityManager am : amList)
 			am.availableResource();
-		}
 
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 		if (elem.isDebugEnabled())
@@ -207,7 +213,7 @@ public class FlowDrivenActivity extends Activity {
 	 * workgroup inside the activity.
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class ActivityWorkGroup extends Activity.ActivityWorkGroup {
+	public class ActivityWorkGroup extends Activity.ActivityWorkGroup implements FlowDrivenActivityWorkGroup {
 		/** The first step of the subflow */
 	    final protected InitializerFlow initialFlow;
 	    /** The last step of the subflow */
@@ -221,10 +227,11 @@ public class FlowDrivenActivity extends Activity {
 	     * @param priority Priority of the workgroup.
 	     * @param wg Original workgroup
 	     */    
-	    protected ActivityWorkGroup(int id, InitializerFlow initialFlow, FinalizerFlow finalFlow, int priority, WorkGroup wg) {
+	    protected ActivityWorkGroup(int id, es.ull.isaatc.simulation.common.flow.InitializerFlow initialFlow, 
+	    		es.ull.isaatc.simulation.common.flow.FinalizerFlow finalFlow, int priority, WorkGroup wg) {
 	        super(id, priority, wg);
-	        this.initialFlow = initialFlow;
-	        this.finalFlow = finalFlow;
+	        this.initialFlow = (InitializerFlow)initialFlow;
+	        this.finalFlow = (FinalizerFlow)finalFlow;
 	        finalFlow.link(virtualFinalFlow);
 	    }
 	    
@@ -235,10 +242,11 @@ public class FlowDrivenActivity extends Activity {
 	     * @param priority Priority of the workgroup.
 	     * @param cond  Availability condition
 	     */    
-	    protected ActivityWorkGroup(int id, InitializerFlow initialFlow, FinalizerFlow finalFlow, int priority, WorkGroup wg, Condition cond) {
+	    protected ActivityWorkGroup(int id, es.ull.isaatc.simulation.common.flow.InitializerFlow initialFlow, 
+	    		es.ull.isaatc.simulation.common.flow.FinalizerFlow finalFlow, int priority, WorkGroup wg, Condition cond) {
 	        super(id, priority, wg, cond);
-	        this.initialFlow = initialFlow;
-	        this.finalFlow = finalFlow;
+	        this.initialFlow = (InitializerFlow)initialFlow;
+	        this.finalFlow = (FinalizerFlow)finalFlow;
 	        finalFlow.link(virtualFinalFlow);
 	    }
 

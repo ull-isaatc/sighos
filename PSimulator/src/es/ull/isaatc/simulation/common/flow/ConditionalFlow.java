@@ -5,10 +5,10 @@ import java.util.Collection;
 import es.ull.isaatc.simulation.common.condition.Condition;
 
 /**
- * A multiple successor flow whose successors are conditioned, that is, the successor
- * can only be activated if the condition is met. When adding successors, if no condition 
- * is indicated, it is supposed to be true.
- * @author ycallero
+ * A {@link MultipleSuccessorFlow} whose successors are conditioned, that is, the successor
+ * can only be activated if certain condition is met. When adding successors, if no condition 
+ * is indicated, it is supposed to be <tt>true</tt>.
+ * @author Yeray Callero
  *
  */
 public interface ConditionalFlow extends MultipleSuccessorFlow {
@@ -21,7 +21,7 @@ public interface ConditionalFlow extends MultipleSuccessorFlow {
 
 	/**
 	 * Adds a collection of conditioned flow's successors. 
-	 * Size of <code>succList</code> and <code>condList</code> must agree. 
+	 * Size of <tt>succList</tt> and <tt>condList</tt> must be equal. 
 	 * @param succList This flow's successors
 	 * @param condList The conditions attached to each successor
 	 */

@@ -8,10 +8,10 @@ import es.ull.isaatc.simulation.common.SimulationObject;
 
 /**
  * The process an element has to carry out.<p>
- * A flow is structured in a graph, so it can have successors and predecessor. One or several 
- * successors to this flow can be added by using <code>link</code>. If this flow is added as 
- * a successor for another flow, <code>addPredecessor</code> is invoked too. Having one or 
- * several successors implies implementing Sequence (WFP1)<p>
+ * A flow is structured as a graph, so it can have successors and predecessor. Successors can be
+ * added by using {@link #link(Flow)}. This implies invoking the {@link #addPredecessor(Flow)} 
+ * method for the new successor. By creating this basic structure, the Sequence workflow pattern
+ * (WFP1) is implemented.<p>
  * Flows can have not only successors and predecessors, but can be enclosed by an structured 
  * flow, which is considered its parent.<p>
  * This flow can be requested to be carried out by an element. To do this, a set of user-defined 

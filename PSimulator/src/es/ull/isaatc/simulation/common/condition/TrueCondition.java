@@ -1,17 +1,15 @@
 package es.ull.isaatc.simulation.common.condition;
 
 /**
- * Condition which use to define not conditional branches and situations 
- * without uncertainty. This Condition always return true. Normally it's 
- * used lika a default condition. 
- * @author ycallero
+ * Default {@link Condition} used to define not conditional branches and situations 
+ * without uncertainty. This {@link Condition} always returns true. 
+ * @author Yeray Callero
  *
  */
-public class TrueCondition extends Condition {
+public final class TrueCondition extends Condition {
 	
 	/**
-	 * Create new TrueCondition
-	 * @param id Identifier
+	 * Creates a new TrueCondition
 	 */
 	public TrueCondition(){
 	}

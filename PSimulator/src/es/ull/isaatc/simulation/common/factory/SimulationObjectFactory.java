@@ -8,6 +8,7 @@ import java.util.EnumSet;
 import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.simulation.common.ElementCreator;
 import es.ull.isaatc.simulation.common.ElementType;
+import es.ull.isaatc.simulation.common.FlowDrivenActivity;
 import es.ull.isaatc.simulation.common.SimulationCycle;
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
@@ -35,6 +36,8 @@ public interface SimulationObjectFactory {
 	Resource getResourceInstance(int id, String description) throws ClassCastException;
 	TimeDrivenActivity getTimeDrivenActivityInstance(int id, String description) throws ClassCastException;
 	TimeDrivenActivity getTimeDrivenActivityInstance(int id, String description, int priority, EnumSet<Modifier> modifiers) throws ClassCastException;
+	FlowDrivenActivity getFlowDrivenActivityInstance(int id, String description) throws ClassCastException;
+	FlowDrivenActivity getFlowDrivenActivityInstance(int id, String description, int priority) throws ClassCastException;
 	ElementCreator getElementCreatorInstance(int id, TimeFunction nElem) throws ClassCastException;
 	ElementCreator getElementCreatorInstance(int id, TimeFunction nElem, ElementType et, InitializerFlow flow) throws ClassCastException;
 	TimeDrivenGenerator getTimeDrivenGeneratorInstance(int id, ElementCreator creator, SimulationCycle cycle) throws ClassCastException;

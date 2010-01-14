@@ -4,37 +4,36 @@ import es.ull.isaatc.simulation.common.Element;
 import es.ull.isaatc.simulation.common.Simulation;
 
 /**
- * A logical condition which is used for create restrictions or 
- * uncertainty situations.
- * 
- * @author ycallero
+ * A logical condition which is used for creating restrictions or
+ * uncertain situations. A {@link Condition} is "checked" by using the 
+ * {@link #check(Element)} method and returns <tt>true</tt> if the condition is
+ * satisfied and <tt>false</tt> otherwise.
+ * @author Yeray Callero
  */
 
 public class Condition {
 	
-	/** Current simulation. It's used to comunicate whith simulation vars. */
+	/** Current simulation, which is used to communicate with simulation variables. */
 	public Simulation simul;
 	
 	/** 
 	 * Creates a new Condition.
-	 * @param id Condition's identifier
 	 */
 	public Condition(){
 	}
 	
 	/**
 	 * Creates a new Condition.
-	 * @param id Identifier.
-	 * @param simul Actual simulation.
+	 * @param simul Current simulation.
 	 */
 	public Condition(Simulation simul){
 		this.simul = simul;
 	}
 
 	/**
-	 * Check the condition to obtain the result of the logical operation.
+	 * Checks the condition to obtain the result of the logical operation.
 	 * @param e Element which want to check the condition.
-	 * @return The boolean result of the logical operation.
+	 * @return The boolean result of the logical operation (<tt>true</tt> by default).
 	 */
 	public boolean check(Element e) {
 		return true;
@@ -49,7 +48,7 @@ public class Condition {
 	}
 
 	/**
-	 * Set the actual simulation.
+	 * Sets the current simulation.
 	 * @param sim Simulation.
 	 */
 	public void setSimul(Simulation sim) {

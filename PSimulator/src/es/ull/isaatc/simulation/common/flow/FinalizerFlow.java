@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.common.flow;
 
 /**
- * A flow which finishes an execution branch. Only finalizer flows can be used as the last
+ * A {@link Flow} which finishes an execution branch. Only finalizer flows can be used as the last
  * step in a flow structure. 
  * @author Iván Castilla Rodríguez
  */

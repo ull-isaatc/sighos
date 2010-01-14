@@ -3,18 +3,17 @@ package es.ull.isaatc.simulation.common.condition;
 import es.ull.isaatc.simulation.common.Element;
 
 /**
- * Class used to simulate probability's conditions.
- * @author ycallero
+ * Defines a {@link Condition} which is satisfied according to a specified percentage
+ * of success.
+ * @author Yeray Callero
  *
  */
-public class PercentageCondition extends Condition {
-
-	/** Pribability of success */
-	double percentage;
+public final class PercentageCondition extends Condition {
+	/** Probability of success */
+	final private double percentage;
 	
 	/**
-	 * Create a new PercentageCondition.
-	 * @param id Identifier
+	 * Creates a new PercentageCondition.
 	 * @param percentage Percentage of success
 	 */
 	public PercentageCondition (double percentage) {
@@ -22,10 +21,10 @@ public class PercentageCondition extends Condition {
 	}
 	
 	/**
-	 * This function calculates a random number. If that number is
-	 * between 0 and percentage of success, the function returns true.
-	 * @param e Element which want to check the condition.
-	 * @return Return true dependeing on the percentage of success. 
+	 * Calculates a random (0, 100) number. If that number is
+	 * lower than the percentage of success, returns <tt>true</tt>.
+	 * @param e Element used to check the condition (useless in this case).
+	 * @return <tt>True</tt> if success, <tt>false</tt> otherwise 
 	 */
 	public boolean check(Element e) {
 		double randomProb = Math.random();

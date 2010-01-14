@@ -3,9 +3,9 @@ package es.ull.isaatc.simulation.common.flow;
 
 
 /**
- * A structured flow whose initial step is a parallel flow and whose final step
- * is a discriminator flow. Meets the Structured Discriminator pattern (WFP9). 
- * @author ycallero
+ * A {@link StructuredFlow} whose initial step is a {@link ParallelFlow} and whose final step
+ * is a {@link DiscriminatorFlow}. Meets the Structured Discriminator pattern (WFP9). 
+ * @author Yeray Callero
  */
 public interface StructuredDiscriminatorFlow extends PredefinedStructuredFlow{
 }
