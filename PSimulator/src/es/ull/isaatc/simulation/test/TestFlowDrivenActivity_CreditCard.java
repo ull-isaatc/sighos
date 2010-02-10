@@ -30,7 +30,7 @@ class ExperimentFDAE1 extends PooledExperiment {
     static final int NDAYS = 1;
 	static final double PERIOD = 1040.0;
 	static final TimeUnit unit = TimeUnit.MINUTE;
-	static SimulationFactory.SimulationType simType = SimulationType.GROUPED2;
+	static SimulationFactory.SimulationType simType = SimulationType.GROUPED3PHASE;
 	
 	public ExperimentFDAE1() {
 		super("Bank", NEXP);

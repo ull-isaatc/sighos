@@ -32,7 +32,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
     protected final String description;
     /** Total of work items waiting for carrying out this activity */
     protected int queueSize = 0;
-    /** Activity manager this activity belongs to */
+    /** {@link ActivityManager} where this activity is located */
     protected ActivityManager manager = null;
     /** Work Groups available to perform this activity */
     protected final PrioritizedTable<ActivityWorkGroup> workGroupTable;
@@ -40,16 +40,16 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
     protected boolean stillFeasible = true;
     /** Resources cancellation table */
     protected final ArrayList<CancelListEntry> cancellationList;
-    /** Last activity start */
+    /** Timestamp corresponding to the last time this activity was started */
     protected long lastStartTs = 0;
-    /** Last activity finish */
+    /** Timestamp corresponding to the last time this activity was finished */
     protected long lastFinishTs = 0;
 
 	/**
-     * Creates a new activity with 0 priority.
+     * Creates a new activity with the highest priority.
      * @param id Activity's identifier
-     * @param simul Simulation which this activity is attached to.
-     * @param description A short text describing this Activity.
+     * @param simul The {@link Simulation} where this activity is used
+     * @param description A short text describing this activity
      */
     public Activity(int id, Simulation simul, String description) {
         this(id, simul, description, 0);
@@ -57,9 +57,9 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 
     /**
      * Creates a new activity.
-     * @param id Activity's identifier.
-     * @param simul Simulation which this activity is attached to.
-     * @param description A short text describing this Activity.
+     * @param id Activity's identifier
+     * @param simul The {@link Simulation} where this activity is used
+     * @param description A short text describing this activity
      * @param priority Activity's priority.
      */
     public Activity(int id, Simulation simul, String description, int priority) {
@@ -71,88 +71,97 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 		cancellationList = new ArrayList<CancelListEntry>();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see es.ull.isaatc.simulation.Describable#getDescription()
-     */
+    @Override
 	public String getDescription() {
 		return description;
 	}
 
 	/**
-     * Returns the activity's priority.
-     * @return Value of the activity's priority.
+     * Returns this activity's priority.
+     * @return This activity's priority.
      */
+    @Override
     public int getPriority() {
         return priority;
     }
     
     /**
-     * Returns the activity manager this activity belongs to.
-     * @return The activity manager this activity belongs to.
+     * Returns the {@link ActivityManager} where this activity is located.
+     * @return The {@link ActivityManager} where this activity is located
      */
     public ActivityManager getManager() {
         return manager;
     }
 
     /**
-     * Sets the activity manager this activity type belongs to. It also
+     * Sets the {@link ActivityManager} where this activity is located. Also
      * adds this activity to the manager.
-     * @param manager The activity manager.
+     * @param manager {@link ActivityManager} where this activity is located.
      */
     public void setManager(ActivityManager manager) {
         this.manager = manager;
         manager.add(this);
     }
     
+    /**
+     * Returns <tt>true</tt> if this activity is interruptible, i.e., the activity is
+     * suspended when any of the the resources taken to perform the activity finalize 
+     * their availability. The activity can be resumed when there are available resources 
+     * again (<b>but not necessarily the same resources</b>). 
+     * <p>By default, an activity is not interruptible.  
+     * @return Always <tt>false</tt>. Subclasses overriding this method must change the 
+     * default behavior. 
+     */
     public boolean isInterruptible() {
     	return false;
     }
     
     /**
-     * Creates a new workgroup for this activity using the specified wg.
+     * Creates a new workgroup for this activity which uses the {@link ResourceType}s defined in 
+     * <tt>wg</tt>.
      * @param priority Priority of the workgroup
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(int priority, es.ull.isaatc.simulation.groupedExtraThreaded.WorkGroup wg) {
+    public int addWorkGroup(int priority, WorkGroup wg) {
     	int wgId = workGroupTable.size();
         workGroupTable.add(new ActivityWorkGroup(wgId, priority, wg));
         return wgId;
     }
     
     /**
-     * Creates a new workgroup for this activity using the specified wg. This workgroup
-     * is only available if cond is true.
+     * Creates a new workgroup for this activity which uses the {@link ResourceType}s defined in 
+     * <tt>wg</tt>. This workgroup is only available if <tt>cond</tt> is <tt>true</tt>.
      * @param priority Priority of the workgroup
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @param cond Availability condition
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(int priority, es.ull.isaatc.simulation.groupedExtraThreaded.WorkGroup wg, Condition cond) {
+    public int addWorkGroup(int priority, WorkGroup wg, Condition cond) {
     	int wgId = workGroupTable.size();
         workGroupTable.add(new ActivityWorkGroup(wgId, priority, wg, cond));
         return wgId;
     }
     
     /**
-     * Creates a new workgroup for this activity with the highest level of priority using 
-     * the specified wg.
+     * Creates a new workgroup for this activity which uses the {@link ResourceType}s defined in 
+     * <tt>wg</tt>and has the highest level of priority.
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(es.ull.isaatc.simulation.groupedExtraThreaded.WorkGroup wg) {    	
+    public int addWorkGroup(WorkGroup wg) {    	
         return addWorkGroup(0, wg);
     }
     
     /**
-     * Creates a new workgroup for this activity with the highest level of priority using 
-     * the specified wg. This workgroup is only available if cond is true.
+     * Creates a new workgroup for this activity which uses the {@link ResourceType}s defined in 
+     * <tt>wg</tt>and has the highest level of priority. This workgroup is only available if 
+     * <tt>cond</tt> is <tt>true</tt>.
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @param cond Availability condition
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(es.ull.isaatc.simulation.groupedExtraThreaded.WorkGroup wg, Condition cond) {    	
+    public int addWorkGroup(WorkGroup wg, Condition cond) {    	
         return addWorkGroup(0, wg, cond);
     }
 
@@ -164,11 +173,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
     	return workGroupTable.iterator();
     }
 
-    /**
-     * Searches and returns a workgroup with the specified id.
-     * @param wgId The id of the workgroup searched
-     * @return A workgroup contained in this activity with the specified id
-     */
+    @Override
     public ActivityWorkGroup getWorkGroup(int wgId) {
         Iterator<ActivityWorkGroup> iter = workGroupTable.iterator();
         while (iter.hasNext()) {
@@ -182,9 +187,9 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	/**
      * Checks if this activity can be performed with any of its workgroups. Firstly 
      * checks if the activity is not potentially feasible, then goes through the 
-     * workgroups looking for an appropriate one. If the activity can't be performed with 
+     * workgroups looking for an appropriate one. If this activity can't be performed with 
      * any of the workgroups it's marked as not potentially feasible. 
-     * @param wi Work Item wanting to perform the activity 
+     * @param wi {@link WorkItem} wanting to perform the activity 
      * @return True if the activity can be performed. False if the activity isn't feasible.
      */
     protected boolean isFeasible(WorkItem wi) {
@@ -250,7 +255,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	}
 	
 	/**
-	 * Adds a new ResouceType to the cancellation list.
+	 * Adds a new {@link ResourceType} to the cancellation list.
 	 * @param rt Resource type
 	 * @param duration Duration of the cancellation.
 	 */
@@ -301,20 +306,35 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 * @return True if this activity was actually finished; false in other case
 	 */
 	public abstract boolean finish(WorkItem wItem);
+
+	public long getLastStartTs() {
+		return lastStartTs;
+	}
+
+
+	public long getLastFinishTs() {
+		return lastFinishTs;
+	}
+
+	public void setLastFinishTs(long lastFinishTs) {
+		this.lastFinishTs = lastFinishTs;
+	}
 	
 	/**
-	 * A set of resources needed for carrying out an activity. A workgroup (WG) consists on a 
-	 * set of (resource type, #needed resources) pairs, a condition which determines if the 
-	 * workgroup can be used or not, and the priority of the workgroup inside the activity.
+	 * A {@link WorkGroup} which implements {@link es.ull.isaatc.simulation.common.ActivityWorkGroup ActivityWorkGroup}.
+	 * It may include a {@link Condition} which determines if the workgroup can be used or not to perform the 
+	 * activity. It also defines the priority of the workgroup with respect to the rest of workgroups of this
+	 * activity.
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class ActivityWorkGroup extends es.ull.isaatc.simulation.groupedExtraThreaded.WorkGroup implements es.ull.isaatc.simulation.common.ActivityWorkGroup, Comparable<ActivityWorkGroup> {
+	public class ActivityWorkGroup extends WorkGroup implements es.ull.isaatc.simulation.common.ActivityWorkGroup, Comparable<ActivityWorkGroup> {
 	    /** Workgroup's identifier */
 		protected int id;
 		/** Priority of the workgroup */
 	    protected int priority = 0;
 	    /** Availability condition */
 	    protected Condition cond;
+	    /** A pre-computed string with the complete identification of this workgroup */
 	    private final String idString; 
 
 	    /**
@@ -324,7 +344,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	     * @param priority Priority of the workgroup.
 	     * @param wg The original workgroup
 	     */    
-	    protected ActivityWorkGroup(int id, int priority, es.ull.isaatc.simulation.groupedExtraThreaded.WorkGroup wg) {
+	    protected ActivityWorkGroup(int id, int priority, WorkGroup wg) {
 	        this(id, priority, wg, new TrueCondition());
 	    }
 	    
@@ -336,7 +356,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	     * @param wg The original workgroup
 	     * @param cond  Availability condition
 	     */    
-	    protected ActivityWorkGroup(int id, int priority, es.ull.isaatc.simulation.groupedExtraThreaded.WorkGroup wg, Condition cond) {
+	    protected ActivityWorkGroup(int id, int priority, WorkGroup wg, Condition cond) {
 	        super(wg.resourceTypes, wg.needed);
 	        this.id = id;
 	        this.priority = priority;
@@ -346,31 +366,33 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 
 
 	    /**
-	     * Returns the activity this WG belongs to.
-	     * @return Activity this WG belongs to.
+	     * Returns the activity where this workgroup is defined.
+	     * @return The activity where this workgroup is defined
 	     */    
 	    protected Activity getActivity() {
 	        return Activity.this;
 	    }
 	    
 	    /**
-	     * Getter for property priority.
-	     * @return Value of property priority.
+	     * Returns the priority of this workgroup with respect to the rest of workgroups defined
+	     * in this activity.
+	     * @return Relative priority of this workgroup
 	     */
+	    @Override
 	    public int getPriority() {
 	        return priority;
 	    }
 	    
 	    /**
-	     * Checks if there are enough resources to carry out an activity by using this workgroup.   
-	     * The "potential" available resources are booked by the element requesting the activity. 
-	     * If there are less available resources than needed resources for any resource type, the 
-	     * activity can not be carried out, and all the "books" are removed.
+	     * Checks if there are enough {@link Resource}s to carry out this activity by using this workgroup.   
+	     * The "potential" available {@link Resource}s are booked by the {@link Element} requesting this 
+	     * activity. If there are less <b>available</b> resources than <b>needed</b> resources for any 
+	     * {@link ResourceType}, this activity can not be carried out, and all the "books" are removed.
 	     * Possible conflicts between resources inside the activity are solved by invoking a
 	     * branch-and-bound resource distribution algorithm. 
-	     * @param wi Work Item trying to carry out the activity with this workgroup 
-	     * @return True if there are more "potential" available resources than needed resources for
-	     * this workgroup. False in other case.
+	     * @param wi {@link WorkItem} trying to carry out this activity with this workgroup 
+	     * @return <tt>True</tt> if there are more "potential" available resources than needed resources for
+	     * this workgroup. <tt>False</tt> otherwise.
 	     */
 	    protected boolean isFeasible(WorkItem wi) {
 	    	boolean conflict = false;
@@ -509,7 +531,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 
 	    /**
 	     * Makes a depth first search looking for a solution.
-	     * @param pos Position to look for a solution [ResourceType, Resource] 
+	     * @param pos Position to look for a solution [{@link ResourceType}, {@link Resource}] 
 	     * @param ned Resources needed
 	     * @return True if a valid solution exists. False in other case.
 	     */
@@ -555,7 +577,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	    }
 	    
 	    /**
-	     * Catch the resources needed for each resource type to carry out an activity.
+	     * Catch the resources needed for each resource type to carry out this activity.
 	     * @param wi Work item which requires the resources
 	     * @return The minimum availability timestamp of the taken resources 
 	     */
@@ -568,10 +590,12 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	    	return minAvailability;
 	    }
 
+	    @Override
 		public int getIdentifier() {
 			return id;
 		}
 
+	    @Override
 		public String getDescription() {
 			StringBuilder str = new StringBuilder("WG" + id);
 	    	for (int i = 0; i < resourceTypes.length; i++)
@@ -584,6 +608,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	    	return idString;
 	    }
 
+	    @Override
 		public int compareTo(ActivityWorkGroup arg0) {
 			if (id < arg0.id)
 				return -1;
@@ -597,19 +622,6 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 			return cond;
 		}
 
-	}
-
-	public long getLastStartTs() {
-		return lastStartTs;
-	}
-
-
-	public long getLastFinishTs() {
-		return lastFinishTs;
-	}
-
-	public void setLastFinishTs(long lastFinishTs) {
-		this.lastFinishTs = lastFinishTs;
 	}
 
 }

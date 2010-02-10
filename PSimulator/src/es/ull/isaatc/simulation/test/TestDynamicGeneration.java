@@ -3,13 +3,12 @@
  */
 package es.ull.isaatc.simulation.test;
 
-import es.ull.isaatc.simulation.common.ElementType;
-import es.ull.isaatc.simulation.common.SimulationPeriodicCycle;
-import es.ull.isaatc.simulation.common.SimulationTimeFunction;
 import es.ull.isaatc.simulation.common.PooledExperiment;
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
 import es.ull.isaatc.simulation.common.Simulation;
+import es.ull.isaatc.simulation.common.SimulationPeriodicCycle;
+import es.ull.isaatc.simulation.common.SimulationTimeFunction;
 import es.ull.isaatc.simulation.common.TimeDrivenActivity;
 import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.common.WorkGroup;
@@ -18,7 +17,6 @@ import es.ull.isaatc.simulation.common.condition.NotCondition;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory;
 import es.ull.isaatc.simulation.common.factory.SimulationObjectFactory;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory.SimulationType;
-import es.ull.isaatc.simulation.common.flow.SingleFlow;
 
 class TestDynamicGenerationExperiment extends PooledExperiment {
 	SimulationType type;
@@ -47,8 +45,8 @@ class TestDynamicGenerationExperiment extends PooledExperiment {
 		TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance(0, "ACT0");
 		act0.addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 10.0), wg0, new NotCondition(cond));
 		
-		ElementType et0 = factory.getElementTypeInstance(0, "ET0");
-		SingleFlow sf0 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
+		factory.getElementTypeInstance(0, "ET0");
+		factory.getFlowInstance(0, "SingleFlow", act0);
 		return factory.getSimulation();
 	}
 }

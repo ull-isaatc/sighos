@@ -21,10 +21,10 @@ public enum UserMethod {
 	BEFORE_ROLE_OFF("beforeRoleOff", ResourceType.class, "public double beforeRoleOff()"),
 	AFTER_ROLE_ON("afterRoleOn", ResourceType.class, "public void afterRoleOn()"),
 	AFTER_ROLE_OFF("afterRoleOff", ResourceType.class, "public void afterRoleOff()"),
-	BEFORE_REQUEST("beforeRequest", Flow.class, "public boolean beforeRequest(Element e)", Element.class),
-	AFTER_FINALIZE("afterFinalize", TaskFlow.class, "public void afterFinalize(Element e)", Element.class),
-	AFTER_START("afterStart", SingleFlow.class, "public void afterStart(Element e)", Element.class),
-	IN_QUEUE("inqueue", SingleFlow.class, "public void inqueue(Element e)", Element.class);
+	BEFORE_REQUEST("beforeRequest", Flow.class, "public boolean beforeRequest(es.ull.isaatc.simulation.common.Element e)", Element.class),
+	AFTER_FINALIZE("afterFinalize", TaskFlow.class, "public void afterFinalize(es.ull.isaatc.simulation.common.Element e)", Element.class),
+	AFTER_START("afterStart", SingleFlow.class, "public void afterStart(es.ull.isaatc.simulation.common.Element e)", Element.class),
+	IN_QUEUE("inqueue", SingleFlow.class, "public void inqueue(es.ull.isaatc.simulation.common.Element e)", Element.class);
 	
 	private Class<?> containerClass;
 	private String name;

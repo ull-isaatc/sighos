@@ -42,15 +42,15 @@ public class StandardCompilator {
 	static public void compileCode(StringJFO src) {
 		
 		CompilationTask task = makeCompilerTask(src, tempStore);
-		System.out.println("Compiling...");
+//		System.out.println("Compiling...");
 		boolean hasCompiled = task.call(); // carry out the compilation
 		for (Diagnostic<?> d : diagnostics.getDiagnostics())
 			System.out.println(d);
 		if (!hasCompiled) {
 			System.out.println("Compilation failed");
 			System.exit(1);
-		} else
-			System.out.println("Generated Classes: " + tempStore.keySet());
+		} //else
+//			System.out.println("Generated Classes: " + tempStore.keySet());
 		bytecodeCache.putAll(tempStore);
 		tempStore.clear();
 	}
