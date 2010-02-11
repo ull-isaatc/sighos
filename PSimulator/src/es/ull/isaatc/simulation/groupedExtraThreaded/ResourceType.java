@@ -1,6 +1,8 @@
 package es.ull.isaatc.simulation.groupedExtraThreaded;
 
 import java.util.ArrayList;
+import java.util.TreeMap;
+
 
 /**
  * Represents the different roles that can be found in the system. The resources can serve for
@@ -235,18 +237,8 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	 * @author Iván Castilla Rodríguez
 	 */
 	protected class ResourceList {
-		/** List of resources */
-		private final ArrayList<Resource> resources;
-		/** A count of how many times each resource has been put as available */
-		private final ArrayList<Integer> counter;
-	    
-	    /**
-	     * Creates a new resource list.
-	     */
-	    public ResourceList() {
-	    	resources = new ArrayList<Resource>();
-	    	counter = new ArrayList<Integer>();
-	    }
+		private TreeMap<Resource, Integer> tree = new TreeMap<Resource, Integer>();
+		private ArrayList<Resource> list = new ArrayList<Resource>();
 
 	    /**
 	     * Adds a resource. If the resource isn't present in the list, it's included with a "1" count.
@@ -254,23 +246,14 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	     * @param res The resource added
 	     */
 	    public void add(Resource res) {
-	    	int pos = resources.indexOf(res);
-	    	if (pos == -1) {
-	    		resources.add(res);
-	    		counter.add(1);
+	    	Integer val = tree.get(res);
+	    	if (val == null) {
+	    		val = 1;
+	    		list.add(res);
 	    	}
 	    	else
-	    		counter.set(pos, counter.get(pos).intValue() + 1); 
-	    }
-	    
-	    /**
-	     * Adds a resource. The count of the resource is explicitly declared.
-	     * @param res The resource added
-	     * @param count How many times the resource has been put as available for this resource type.
-	     */
-	    public void add(Resource res, int count) {
-	    	resources.add(res);
-	    	counter.add(count);
+	    		val++;
+	    	tree.put(res, val);
 	    }
 	    
 	    /**
@@ -280,16 +263,16 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	     * @return True if the resource is completely removed from the list. False in other case.
 	     */
 	    public boolean remove(Resource res) {
-	    	int pos = resources.indexOf(res);
+	    	Integer val = tree.get(res);
 	    	// FIXME Debería crearme un tipo personalizado de excepción
-	    	if (pos == -1)
+	    	if (val == null)
 	    		throw new RuntimeException("Unexpected error: Resource not found in resource type");
-	    	if (counter.get(pos).intValue() > 1) {
-	    		counter.set(pos, new Integer(counter.get(pos).intValue() - 1));
+	    	if (val > 1) {
+	    		tree.put(res, val - 1);
 	    		return false;
 	    	}
-			resources.remove(pos);
-			counter.remove(pos);
+	    	tree.remove(res);
+	    	list.remove(res);
 	    	return true;
 	    }
 	    
@@ -299,16 +282,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	     * @return The resource at the specified position.
 	     */
 	    public Resource get(int index) {
-	    	return resources.get(index);
-	    }
-	    
-	    /**
-	     * Returns the count at the specified position
-	     * @param index The position of the count.
-	     * @return the count at the specified position
-	     */
-	    public int getCounter(int index) {
-	    	return counter.get(index);
+	    	return list.get(index);
 	    }
 	    
 	    /**
@@ -316,11 +290,11 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	     * @return The number of resources in this list.
 	     */
 	    public int size() {
-	    	return resources.size();
+	    	return list.size();
 	    }
 
 		public ArrayList<Resource> getResources() {
-			return resources;
+			return list;
 		}
 	}
 	
