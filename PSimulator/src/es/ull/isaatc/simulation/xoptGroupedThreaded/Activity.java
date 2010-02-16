@@ -1,5 +1,6 @@
 package es.ull.isaatc.simulation.xoptGroupedThreaded;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -185,7 +186,8 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
      * workgroups looking for an appropriate one. If the activity can't be performed with 
      * any of the workgroups it's marked as not potentially feasible. 
      * @param wi Work Item wanting to perform the activity 
-     * @return True if the activity can be performed. False if the activity isn't feasible.
+     * @return The set of resources which compound the solution. Null if there are not enough
+     * resources to carry out the activity by using this workgroup.
      */
     protected boolean isFeasible(WorkItem wi) {
     	if (!stillFeasible)
@@ -373,54 +375,38 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	     * this workgroup. False in other case.
 	     */
 	    protected boolean isFeasible(WorkItem wi) {
-	    	boolean conflict = false;
 	    	Element elem = wi.getElement();
 
 	    	wi.resetConflictZone();
 	    	if (!cond.check(elem))
 	    		return false;
-	        for (int i = 0; i < resourceTypes.length; i++) {
-	            ResourceType rt = resourceTypes[i];       	
-	        	int []avail = rt.getAvailable(wi);
-	        	// If there are less "potential" available resources than needed
-	            if (avail[0] + avail[1] < needed[i]) {
-	            	// The element frees the previously booked resources 
-	                rt.resetAvailable(wi);
-	                i--;
-	                for (; i >= 0; i--)
-	                    resourceTypes[i].resetAvailable(wi);
-	                wi.removeFromConflictZone();
-	                return false;            	
-	            }
-	            // If the available resources WITH conflicts are needed
-	            else if (avail[0] < needed[i])
-	                conflict = true;
-	        }
-	        // When this point is reached, that means that the activity is POTENTIALLY feasible
-	        wi.waitConflictSemaphore();
-	        // Now, this element has exclusive access to its resources. It's time to "recheck"
-	        // if the activity is feasible        
-	        if (conflict) { // The resource distribution algorithm is invoked
-	        	debug("Overlapped resources with " + elem);
-	            if (!distributeResources(wi)) {
-	                wi.removeFromConflictZone();
-	            	wi.signalConflictSemaphore();
-	            	return false;
-	            }
-	        }
-	        else if (wi.getConflictZone().size() > 1) {
-	        	debug("Possible conflict. Recheck is needed " + elem);
-	            int ned[] = needed.clone();
-	        	if (!hasSolution(new int[] {0, 0}, ned, wi)) {
-	                wi.removeFromConflictZone();
-	            	wi.signalConflictSemaphore();
-	            	// The element frees the previously booked resources 
-	            	for (ResourceType rt : resourceTypes)
-	            		rt.resetAvailable(wi);
-	        		return false;
+	    	
+	        int ned[] = needed.clone();
+	        int []pos = {0, -1}; // "Start" position
+	        
+	        // B&B algorithm for finding a solution
+	        // TODO Esto tendría que ciclar si no consigue hacer la solución
+	        while (findSolution(pos, ned, wi)) {
+        		wi.waitConflictSemaphore();
+	        	if (!wi.isConflictive()) 
+		            return true;
+	        	else {
+	        		if (wi.checkCaughtResources()) {
+	        			return true;
+	        		}
+	        		else {
+	        			// Resets the solution
+	        			wi.signalConflictSemaphore();
+	        			ArrayDeque<Resource> oldSolution = wi.getCaughtResources(); 
+	        			while (!oldSolution.isEmpty()) {
+	        				Resource res = oldSolution.peek();
+	        				res.removeFromSolution(wi);
+	        			}
+	        		}
 	        	}
 	        }
-	        return true;
+	        wi.removeFromConflictZone();
+	        return false;
 	    }
 	    
 	    /**
@@ -432,21 +418,8 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	     */
 	    protected boolean hasSolution(int []pos, int []nec, WorkItem wi) {
 	        for (int i = pos[0]; i < resourceTypes.length; i++) {
-	            ResourceType rt = resourceTypes[i];
-	            int j = pos[1];
-	            Resource res;
-	            int disp = 0;            
-	            while (((res = rt.getResource(j)) != null) && (disp < nec[i])) {
-	        		res.waitSemaphore();
-	        		// Only resources booked for this SF can be taken into account.
-	        		// The resource could have been released after the book phase, so it's needed to recheck this.
-	                if (res.isBooked(wi) && (res.getCurrentWI() == null) && (res.getCurrentResourceType() == null))
-	                    disp++;
-	        		res.signalSemaphore();
-	                j++;
-	            }
-	            if (disp < nec[i])
-	                return false;
+	            if (!resourceTypes[i].checkNeeded(pos[1], nec[i]))
+	            	return false;
 	        }
 	        return true;
 	    }
@@ -472,39 +445,13 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	                return aux;
 	            }
 	        }
-	        // Takes the first resource type
-	        ResourceType rt = resourceTypes[aux[0]];
-	        // Searches the NEXT available resource
-	        aux[1] = rt.getNextAvailableResource(aux[1] + 1, wi);
-
+	        // Takes the first resource type and searches the NEXT available resource
+	        aux[1] = resourceTypes[aux[0]].getNextAvailableResource(aux[1] + 1, wi);
 	        // This resource type don't have enough available resources
 	        if (aux[1] == -1)
-	            return null;
-	        return aux;
-	    }
+	        	return null;
 
-	    /**
-	     * Marks a resource as belonging to the solution
-	     * @param pos Position [ResourceType, Resource] of the resource
-	     */
-	    private void mark(int []pos) {
-	        Resource res = resourceTypes[pos[0]].getResource(pos[1]);
-	        // There's no need to access in mutex this area, because only resources booked by this SF
-	        // are taken into account, and only one SF can be at this stage for this resource at the same 
-	        // time (due to the conflict zone mutex)
-	        res.setCurrentResourceType(resourceTypes[pos[0]]);
-	    }
-	    
-	    /**
-	     * Removes the mark of a resource as belonging to the solution
-	     * @param pos Position [ResourceType, Resource] of the resource
-	     */
-	    private void unmark(int []pos) {
-	        Resource res = resourceTypes[pos[0]].getResource(pos[1]);
-	        // There's no need to access in mutex this area, because only resources booked by this SF
-	        // are taken into account, and only one SF can be at this stage for this resource at the same 
-	        // time (due to the conflict zone mutex)
-	        res.setCurrentResourceType(null);
+	        return aux;
 	    }
 
 	    /**
@@ -521,8 +468,6 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	        // No more elements needed => SOLUTION
 	        if (pos[0] == resourceTypes.length)
 	            return true;
-	        // This resource belongs to the solution...
-	        mark(pos);
 	        ned[pos[0]]--;
 	        // Bound
 	        if (hasSolution(pos, ned, wi))
@@ -530,44 +475,13 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	            if (findSolution(pos, ned, wi))
 	                return true;
 	        // There's no solution with this resource. Try without it
-	        unmark(pos);
+	        Resource res = resourceTypes[pos[0]].getResource(pos[1]);
+	        res.removeFromSolution(wi);
 	        ned[pos[0]]++;
 	        // ... and the search continues
 	        return findSolution(pos, ned, wi);        
 	    }
 	    
-	    /**
-	     * Distribute the resources when there is a conflict inside the activity.
-	     * @param wi Work item trying to carry out the activity with this workgroup 
-	     * @return True if a valid solution exists. False in other case.
-	     */
-	    protected boolean distributeResources(WorkItem wi) {
-	        int ned[] = needed.clone();
-	        int []pos = {0, -1}; // "Start" position
-	        
-	        // B&B algorithm for finding a solution
-	        if (findSolution(pos, ned, wi))
-	            return true;
-	        // If there is no solution, the "books" of this element are removed
-	        for (ResourceType rt : resourceTypes)
-	            rt.resetAvailable(wi);
-	        return false;
-	    }
-	    
-	    /**
-	     * Catch the resources needed for each resource type to carry out an activity.
-	     * @param wi Work item which requires the resources
-	     * @return The minimum availability timestamp of the taken resources 
-	     */
-	    protected long catchResources(WorkItem wi) {
-	    	long minAvailability = Long.MAX_VALUE;
-	    	for (int i = 0; i < resourceTypes.length; i++)
-	    		minAvailability = Math.min(minAvailability, resourceTypes[i].catchResources(needed[i], wi));
-	    	// When this point is reached, that means that the resources have been completely taken
-	    	wi.signalConflictSemaphore();
-	    	return minAvailability;
-	    }
-
 		public int getIdentifier() {
 			return id;
 		}

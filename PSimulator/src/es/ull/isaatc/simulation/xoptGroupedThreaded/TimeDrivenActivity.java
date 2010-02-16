@@ -126,12 +126,12 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
      */
     @Override
     protected boolean isFeasible(WorkItem wi) {
-    	if (super.isFeasible(wi)) {
+    	boolean resul = super.isFeasible(wi);
+    	if (resul) {
             if (!isNonPresential())
             	wi.getElement().setCurrent(wi);
-    		return true;
     	}
-    	return false;
+    	return resul;
     }
     
 	@Override
@@ -173,7 +173,8 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	public void carryOut(WorkItem wItem) {
 		Element elem = wItem.getElement();
 		wItem.getFlow().afterStart(elem);
-		long auxTs = wItem.getExecutionWG().catchResources(wItem);
+		long auxTs = wItem.catchResources();
+		
 		// The first time the activity is carried out (useful only for interruptible activities)
 		if (wItem.getTimeLeft() == -1) {
 			wItem.setTimeLeft(((TimeDrivenActivity.ActivityWorkGroup)wItem.getExecutionWG()).getDurationSample());

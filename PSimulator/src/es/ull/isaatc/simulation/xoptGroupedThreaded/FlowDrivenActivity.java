@@ -67,7 +67,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	public void carryOut(WorkItem wItem) {
 		Element elem = wItem.getElement();
 		wItem.getFlow().afterStart(elem);
-		wItem.getExecutionWG().catchResources(wItem);
+		wItem.catchResources();
 
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
 		elem.debug("Starts\t" + this + "\t" + description);

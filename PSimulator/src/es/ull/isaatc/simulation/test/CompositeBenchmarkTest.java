@@ -35,10 +35,10 @@ public class CompositeBenchmarkTest {
 		int []nThreads = {1,2,3};
 		int []nElems = {32, 128, 256};
 		int []nActs = {4, 8, 32};
-		int []nIters = {1000};
+		int []nIters = {5000};
 		BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.PARALLEL;
 		BenchmarkModel.OverlappingType ovType = BenchmarkModel.OverlappingType.SAMETIME;
-		SimulationFactory.SimulationType []simTypes = {SimulationType.PASIVE, SimulationType.GROUPED, SimulationType.GROUPEDX, SimulationType.GROUPED3PHASE};		
+		SimulationFactory.SimulationType []simTypes = {SimulationType.GROUPED3PHASE2};		
 		ArrayList<BenchmarkModel> configs = new ArrayList<BenchmarkModel>();
 		
 		int counter = 0;
@@ -60,17 +60,16 @@ public class CompositeBenchmarkTest {
 	}
 	
 	private static BenchmarkModel[] testSimpleResourceWorkload() {
-		boolean sequential = false;
+		boolean sequential = true;
 		int []nThreads = {1,2,3};
-		int []nElems = {1024, 2048};
-		int []nActs = {256, 1024, 2048};
+		int []nElems = {512};
+		int []nActs = {256, 512};
 		int []nIters = {10000};
 		long []workLoads = {0};
-		BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.RESOURCES;
+		BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.CONFLICT;
 		BenchmarkModel.OverlappingType ovType = BenchmarkModel.OverlappingType.SAMETIME;
 		SimulationFactory.SimulationType []simTypes = {SimulationType.GROUPED3PHASE2};		
-//		SimulationFactory.SimulationType []simTypes = {SimulationType.BUFFERED, SimulationType.GROUPED, SimulationType.GROUPED3PHASE};		
-		SimulationFactory.SimulationType []xsimTypes = {/*SimulationType.PASIVE, SimulationType.GROUPEDX*/};		
+		SimulationFactory.SimulationType []xsimTypes = {};		
 		ArrayList<BenchmarkModel> configs = new ArrayList<BenchmarkModel>();
 		
 		int counter = 0;
@@ -135,7 +134,6 @@ public class CompositeBenchmarkTest {
 					System.out.println("\tOK!");
 				}
 				System.out.println("End WARM UP...");
-//				configs = testSimultaneousActivities();
 				configs = testSimpleResourceWorkload();
 				buf.println(BenchmarkModel.getHeader() + "\tTime");
 				for (int i = 0; i < nExp; i++) {
@@ -150,6 +148,19 @@ public class CompositeBenchmarkTest {
 						sim.run();
 					}
 				}
+//				configs = testSimultaneousActivities();
+//				for (int i = 0; i < nExp; i++) {
+//					for (BenchmarkModel conf : configs) {
+//						buf.print(conf + "\t");
+//						System.out.print(conf + "\t");
+//						sim = conf.getTestModel();
+//						if (debug)
+//							sim.addInfoReceiver(new BenchmarkListener(sim, System.out));
+//						sim.addInfoReceiver(new FileCPUTimeView(sim, buf));
+////						sim.addInfoReceiver(new ProgressListener(sim));
+//						sim.run();
+//					}
+//				}
 				buf.close();
 			}
 		}.start();

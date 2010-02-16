@@ -3,6 +3,7 @@
  */
 package es.ull.isaatc.simulation.xoptGroupedThreaded;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
@@ -26,10 +27,12 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
      * the flow has not been carried out. */
     protected Activity.ActivityWorkGroup executionWG = null;
     /** List of caught resources */
-    protected ArrayList<Resource> caughtResources;
+    protected ArrayDeque<Resource> caughtResources;
     // Avoiding deadlocks (time-overlapped resources)
     /** List of conflictive elements */
     protected ConflictZone conflicts;
+    /** Amount of possible conflictive resources in the solution */
+    protected int conflictiveResources = 0;
     /** Stack of nested semaphores */
 	protected ArrayList<Semaphore> semStack;
 	/** The arrival order of this work item relatively to the rest of work items 
@@ -46,7 +49,7 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 	public WorkItem(WorkThread wThread) {
 		this.wThread = wThread;
 		elem = wThread.getElement();
-		caughtResources = new ArrayList<Resource>();
+		caughtResources = new ArrayDeque<Resource>();
 	}
 
 	/**
@@ -197,16 +200,53 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
      * Returns the list of the resources currently used by the element. 
 	 * @return Returns the list of resources caught by this element.
 	 */
-	public ArrayList<Resource> getCaughtResources() {
+	public ArrayDeque<Resource> getCaughtResources() {
 		return caughtResources;
 	}
 
+	public boolean checkCaughtResources() {
+		for (Resource res : caughtResources)
+			if (!res.checkSolution(this))
+				return false;
+		return true;
+	}
 	/**
 	 * Adds a resource to the list of resources caught by this element.
 	 * @param res A new resource.
 	 */
-	protected void addCaughtResource(Resource res) {
-		caughtResources.add(res);
+	protected void pushResource(Resource res, boolean conflictive) {
+		caughtResources.push(res);
+		if (conflictive)
+			conflictiveResources++;
+	}
+	
+	/**
+	 * Removes the last resource caught by this element.
+	 * @return The resource removed
+	 */
+	protected Resource popResource(boolean conflictive) {
+		if (conflictive)
+			conflictiveResources--;
+		return caughtResources.pop();
+	}
+	
+	protected boolean isConflictive() {
+		return (conflictiveResources > 0);
+	}
+	
+    /**
+     * Catch the resources needed for each resource type to carry out an activity.
+     * @return The minimum availability timestamp of the taken resources 
+     */
+	protected long catchResources() {
+    	long auxTs = Long.MAX_VALUE;
+    	for (Resource res : caughtResources) {
+    		auxTs = Math.min(auxTs, res.catchResource(this));;
+            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
+    	}
+    	// When this point is reached, that means that the resources have been completely taken
+    	signalConflictSemaphore();
+		return auxTs;
 	}
 	
     /**

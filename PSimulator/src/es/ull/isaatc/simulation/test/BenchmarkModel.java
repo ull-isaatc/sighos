@@ -46,7 +46,7 @@ public class BenchmarkModel {
 	 * - PARALLEL: Each resource simultaneously requests ALL the activities. 
 	 * @author Iván Castilla Rodríguez
 	 */
-	enum ModelType {NORESOURCES, RESOURCES, CONFLICT, TOTALCONFLICT, PARALLEL}
+	enum ModelType {NORESOURCES, RESOURCES, CONFLICT, MIXCONFLICT, TOTALCONFLICT, PARALLEL}
 	/**
 	 * Defines the temporal behaviour of the elements when requesting the activities:
 	 * - SAMETIME: All the elements request the activities at the same time
@@ -57,16 +57,20 @@ public class BenchmarkModel {
 	enum OverlappingType {SAMETIME, CONSECUTIVE, MIXED};
 	final static private String head = "EXP\t[ID]\tSimulation Type\tModel Type\tOverlapping Type\tThreads\tIterations\tWork load\tMix\tActivities\tElements";
 	final static private TimeUnit unit = TimeUnit.MINUTE;
+	final static private SimulationTimeFunction oneFunction = new SimulationTimeFunction(unit, "ConstantVariate", 1);
 	final int id;
 	final SimulationFactory.SimulationType simType;
 	final ModelType modType;
 	final OverlappingType ovType;
 	final int nThread;
 	final int nIter;
+	/** Amount of elements. By default it's taken as the activity duration. */
 	final int nElem;
 	final int nAct;
 	final int mixFactor;
 	final long workLoad;
+	final TimeStamp endTs;
+	final SimulationPeriodicCycle allCycle;
 
 	
 	/**
@@ -94,6 +98,16 @@ public class BenchmarkModel {
 		this.nAct = nAct;
 		this.mixFactor = mixFactor;
 		this.workLoad = workLoad;
+		switch(modType) {
+			case PARALLEL: this.endTs = new TimeStamp(TimeUnit.MINUTE, nElem * nAct * (nIter + 1) + 1); break;
+			case NORESOURCES:
+			case RESOURCES: 
+			case MIXCONFLICT: 
+			case TOTALCONFLICT:
+			case CONFLICT:
+			default: this.endTs = new TimeStamp(TimeUnit.MINUTE, nElem * (nIter + 1) + 1); break;
+		}
+		this.allCycle = new SimulationPeriodicCycle(unit, TimeStamp.getZero(), new SimulationTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0);
 	}
 
 	/**
@@ -111,16 +125,7 @@ public class BenchmarkModel {
 	public BenchmarkModel(int id, SimulationType simType, ModelType modType,
 			OverlappingType ovType, int nThread, int nIter, int nElem,
 			int nAct, long workLoad) {
-		this.id = id;
-		this.simType = simType;
-		this.modType = modType;
-		this.ovType = ovType;
-		this.nThread = nThread;
-		this.nIter = nIter;
-		this.nElem = nElem;
-		this.nAct = nAct;
-		this.mixFactor = 2;
-		this.workLoad = workLoad;
+		this(id, simType, modType, ovType, nThread, nIter, nElem, nAct, 2, workLoad);
 	}
 
  	/**
@@ -136,16 +141,7 @@ public class BenchmarkModel {
 	public BenchmarkModel(int id, SimulationType simType, ModelType modType,
 			OverlappingType ovType, int nThread, int nIter, int nElem,
 			int nAct) {
-		this.id = id;
-		this.simType = simType;
-		this.modType = modType;
-		this.ovType = ovType;
-		this.nThread = nThread;
-		this.nIter = nIter;
-		this.nElem = nElem;
-		this.nAct = nAct;
-		this.mixFactor = 2;
-		this.workLoad = 0;
+		this(id, simType, modType, ovType, nThread, nIter, nElem, nAct, 2, 0);
 	}
 	
 	@Override
@@ -164,89 +160,96 @@ public class BenchmarkModel {
 	public Simulation getTestModel() {
 		Simulation sim = null;
 		switch(modType) {
-			case NORESOURCES: sim = getTestOcurrenceSimN(); break;
-			case RESOURCES: sim = getTestOcurrenceSimResources(); break;
-			case CONFLICT: sim = getTestOcurrenceSimNResMix(); break;
-			case TOTALCONFLICT: sim = getTestOcurrenceSimNRes(); break;
+			case NORESOURCES: sim = getTestSimpleNoResources(); break;
+			case RESOURCES: sim = getTestSimpleResources(); break;
+			case CONFLICT: sim = getTestConflict(); break;
+			case MIXCONFLICT: sim = getTestMixConflict(); break;
+			case TOTALCONFLICT: sim = getTestTotalConflict(); break;
 			case PARALLEL: sim = getTestParallelSimResources(); break;
 		}
 		sim.setNThreads(nThread);
 		return sim;
 	}
 	
-	private Simulation getTestParallelSimResources() {
-		long actTime = nElem;
-		TimeStamp endTs = new TimeStamp(TimeUnit.MINUTE, actTime * nAct * (nIter + 1) + 1);	
-		ResourceType[] rts = new ResourceType[nAct];
-		WorkGroup[] wgs = new WorkGroup[nAct];
-		Resource[] res = new Resource[nElem * nAct];
-		
-		TimeDrivenActivity[] acts = new TimeDrivenActivity[nAct];
-		SingleFlow[] smfs = new SingleFlow[nAct];
-		
-		SimulationPeriodicCycle allCycle = new SimulationPeriodicCycle(unit, TimeStamp.getZero(), new SimulationTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0);
-		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
-		
-		SimulationUserCode code = new SimulationUserCode();
+	private void stdBuildElementGenerators(SimulationObjectFactory factory, ForLoopFlow[] smfs, TimeDrivenActivity[] acts, WorkGroup[] wgs) {
+		ElementType et = factory.getElementTypeInstance(0, "E_TEST");
+		int elemCounter = 0;
+		switch(ovType) {
+			case SAMETIME:
+				for (int i = 0; i < acts.length; i++)
+					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", nElem), wgs[i]);
+				for (ForLoopFlow smf : smfs) {
+					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", nElem / smfs.length), et, smf);
+					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, allCycle);
+				}
+				break;
+			case CONSECUTIVE:
+				for (int i = 0; i < acts.length; i++)
+					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", nElem), wgs[i]);
+				for (ForLoopFlow smf : smfs) {
+					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
+					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
+				}
+				break;
+			case MIXED:
+				for (int i = 0; i < acts.length; i++)
+					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", nElem / mixFactor), wgs[i]);
+				for (ForLoopFlow smf : smfs) {
+					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
+					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
+				}
+				break;
+		}
+	}
+
+	private SimulationUserCode addWorkLoad(SimulationObjectFactory factory) {
+		SimulationUserCode code = null;
 		if (workLoad > 0) {
+			code = new SimulationUserCode();
 			factory.getSimulation().putVar("AA", 0);
-			
 			code.add(UserMethod.BEFORE_REQUEST, "for (int i = 1; i < " + workLoad + "; i++)" +
 					"<%SET(S.AA, <%GET(S.AA)%> + Math.log(i))%>;" + 
 					"return super.beforeRequest(e);");
 		}
+		return code;
+	}
+	
+	private Simulation getTestParallelSimResources() {
+		ResourceType[] rts = new ResourceType[nAct];
+		WorkGroup[] wgs = new WorkGroup[nAct];
+		Resource[] res = new Resource[nElem * nAct];
+		TimeDrivenActivity[] acts = new TimeDrivenActivity[nAct];
+		SingleFlow[] smfs = new SingleFlow[nAct];
+		
+		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
+		
+		SimulationUserCode code = addWorkLoad(factory);
 		
 		for (int i = 0; i < acts.length; i++) {
 			rts[i] = factory.getResourceTypeInstance(i, "RT" + i);
 			wgs[i] = factory.getWorkGroupInstance(i, new ResourceType[] {rts[i]}, new int[] {1});
 			acts[i] = factory.getTimeDrivenActivityInstance(i, "A_TEST" + i);
-			if (workLoad > 0)
+			if (code != null)
 				smfs[i] = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", code, acts[i]);
 			else
 				smfs[i] = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", acts[i]);
 		}
-		ElementType et = factory.getElementTypeInstance(0, "E_TEST");
 		InterleavedRoutingFlow iFlow = (InterleavedRoutingFlow)factory.getFlowInstance(acts.length + 1, "InterleavedRoutingFlow");
 		for (SingleFlow sf : smfs)
 			iFlow.addBranch(sf);
 		ForLoopFlow rootFlow = (ForLoopFlow)factory.getFlowInstance(acts.length + 2, "ForLoopFlow", iFlow, TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 
-		SimulationTimeFunction oneFunction = new SimulationTimeFunction(unit, "ConstantVariate", 1);
-
 		for (int i = 0; i < nElem * nAct; i++) {
 			res[i] = factory.getResourceInstance(i, "RES_TEST" + i);
 			res[i].addTimeTableEntry(allCycle, endTs, rts[i % nAct]);
 		}
-		
-		int elemCounter = 0;
-		ElementCreator creator = null;
-		switch(ovType) {
-			case SAMETIME:
-				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
-				creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", nElem), et, rootFlow);
-				factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), new SimulationTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0));
-				break;
-			case CONSECUTIVE:
-				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
-				creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, rootFlow);
-				factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
-				break;
-			case MIXED:
-				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime / mixFactor), wgs[i]);
-				creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, rootFlow);
-				factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
-				break;
-		}
+
+		stdBuildElementGenerators(factory, new ForLoopFlow[] {rootFlow}, acts, wgs);
 		return factory.getSimulation();
 
 	}
 
-	private Simulation getTestOcurrenceSimResources() {
-		long actTime = nElem;
-		TimeStamp endTs = new TimeStamp(TimeUnit.MINUTE, actTime * (nIter + 1) + 1);	
+	private Simulation getTestSimpleResources() {
 		ResourceType[] rts = new ResourceType[nAct];
 		WorkGroup[] wgs = new WorkGroup[nAct];
 		Resource[] res = new Resource[nElem];
@@ -254,132 +257,61 @@ public class BenchmarkModel {
 		TimeDrivenActivity[] acts = new TimeDrivenActivity[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		
-		SimulationPeriodicCycle allCycle = new SimulationPeriodicCycle(unit, TimeStamp.getZero(), new SimulationTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0);
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
 		
-		SimulationUserCode code = new SimulationUserCode();
-		if (workLoad > 0) {
-			factory.getSimulation().putVar("AA", 0);
-			
-			code.add(UserMethod.BEFORE_REQUEST, "for (int i = 1; i < " + workLoad + "; i++)" +
-					"<%SET(S.AA, <%GET(S.AA)%> + Math.log(i))%>;" + 
-					"return super.beforeRequest(e);");
-		}
+		SimulationUserCode code = addWorkLoad(factory);
 		
 		for (int i = 0; i < acts.length; i++) {
 			rts[i] = factory.getResourceTypeInstance(i, "RT" + i);
 			wgs[i] = factory.getWorkGroupInstance(i, new ResourceType[] {rts[i]}, new int[] {1});
 			acts[i] = factory.getTimeDrivenActivityInstance(i, "A_TEST" + i);
 			SingleFlow sf = null;
-			if (workLoad > 0)
+			if (code != null)
 				sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", code, acts[i]);
 			else
 				sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", acts[i]);
 			smfs[i] = (ForLoopFlow)factory.getFlowInstance(i + acts.length, "ForLoopFlow", sf, TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 		}
-		ElementType et = factory.getElementTypeInstance(0, "E_TEST");
-		SimulationTimeFunction oneFunction = new SimulationTimeFunction(unit, "ConstantVariate", 1);
 
 		for (int i = 0; i < nElem; i++) {
 			res[i] = factory.getResourceInstance(i, "RES_TEST" + i);
 			res[i].addTimeTableEntry(allCycle, endTs, rts[i % nAct]);
 		}
 		
-		int elemCounter = 0;
-		switch(ovType) {
-			case SAMETIME:
-				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
-				for (ForLoopFlow smf : smfs) {
-					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", nElem / smfs.length), et, smf);
-					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), new SimulationTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0));
-				}
-				break;
-			case CONSECUTIVE:
-				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
-				for (ForLoopFlow smf : smfs) {
-					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
-					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
-				}
-				break;
-			case MIXED:
-				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime / mixFactor), wgs[i]);
-				for (ForLoopFlow smf : smfs) {
-					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
-					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
-				}
-				break;
-		}
+		stdBuildElementGenerators(factory, smfs, acts, wgs);
 		return factory.getSimulation();
 
 	}
 
-	private Simulation getTestOcurrenceSimN() {
-		long actTime = nElem;
-		TimeStamp endTs = new TimeStamp(TimeUnit.MINUTE, actTime * (nIter + 1) + 1);
+	private Simulation getTestSimpleNoResources() {
 		TimeDrivenActivity[] acts = new TimeDrivenActivity[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
 		
-		SimulationUserCode code = new SimulationUserCode();
-		if (workLoad > 0) {
-			factory.getSimulation().putVar("AA", 0);
-			
-			code.add(UserMethod.BEFORE_REQUEST, "for (int i = 1; i < " + workLoad + "; i++)" +
-					"<%SET(S.AA, <%GET(S.AA)%> + Math.log(i))%>;" + 
-					"return super.beforeRequest(e);");
-		}
+		SimulationUserCode code = addWorkLoad(factory);
 		
 		for (int i = 0; i < acts.length; i++) {
 			acts[i] = factory.getTimeDrivenActivityInstance(i, "A_TEST" + i);
 			SingleFlow sf = null;
-			if (workLoad > 0)
+			if (code != null)
 				sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", code, acts[i]);
 			else
 				sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", acts[i]);
 			smfs[i] = (ForLoopFlow)factory.getFlowInstance(i + acts.length, "ForLoopFlow", sf, TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 		}
-		ElementType et = factory.getElementTypeInstance(0, "E_TEST");
-		SimulationTimeFunction oneFunction = new SimulationTimeFunction(unit, "ConstantVariate", 1);
 		
 		WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[0], new int[0]);
-		int elemCounter = 0;
-		switch(ovType) {
-			case SAMETIME:
-				for (TimeDrivenActivity act : acts) 
-					act.addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime), wg);
-				for (ForLoopFlow smf : smfs) {
-					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", nElem / smfs.length), et, smf);
-					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), new SimulationTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0));
-				}
-				break;
-			case CONSECUTIVE:
-				for (TimeDrivenActivity act : acts)
-					act.addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime), wg);
-				for (ForLoopFlow smf : smfs) {
-					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
-					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
-				}
-				break;
-			case MIXED:
-				for (TimeDrivenActivity act : acts)
-					act.addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime / mixFactor), wg);
-				for (ForLoopFlow smf : smfs) {
-					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
-					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
-				}
-				break;
-		}
+		WorkGroup []wgs = new WorkGroup[nAct];
+		// Assigns the same WG to each activity
+		Arrays.fill(wgs, wg);
+		
+		stdBuildElementGenerators(factory, smfs, acts, wgs);
 		return factory.getSimulation();
 
 	}
 	
-	private Simulation getTestOcurrenceSimNRes() {
-		long actTime = nElem;
-		TimeStamp endTs = new TimeStamp(TimeUnit.MINUTE, actTime * (nIter + 1) + 1);
+	private Simulation getTestTotalConflict() {
 		TimeDrivenActivity[] acts = new TimeDrivenActivity[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		ResourceType[] rts = new ResourceType[nAct];
@@ -388,23 +320,14 @@ public class BenchmarkModel {
 
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
 		
-		SimulationUserCode code = new SimulationUserCode();
-		if (workLoad > 0) {
-			factory.getSimulation().putVar("AA", 0);
-			
-			code.add(UserMethod.BEFORE_REQUEST, "for (int i = 1; i < " + workLoad + "; i++)" +
-					"<%SET(S.AA, <%GET(S.AA)%> + Math.log(i))%>;" + 
-					"return super.beforeRequest(e);");
-		}
-
-		SimulationTimeFunction oneFunction = new SimulationTimeFunction(unit, "ConstantVariate", 1);
-		SimulationPeriodicCycle allCycle = new SimulationPeriodicCycle(unit, TimeStamp.getZero(), new SimulationTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0);
+		SimulationUserCode code = addWorkLoad(factory);
+		
 		for (int i = 0; i < nElem; i++)
 			res[i] = factory.getResourceInstance(i, "RES_TEST" + i);
 		for (int i = 0; i < acts.length; i++) {
 			acts[i] = factory.getTimeDrivenActivityInstance(i, "A_TEST" + i);
 			SingleFlow sf = null;
-			if (workLoad > 0)
+			if (code != null)
 				sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", code, acts[i]);
 			else
 				sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", acts[i]);
@@ -417,42 +340,12 @@ public class BenchmarkModel {
 			res[j].addTimeTableEntry(allCycle, endTs, list);
 //		for (int j = 0; j < nElem; j++)
 //			res[j].addTimeTableEntry(allCycle, endTs, rts[j % acts.length]);
-		ElementType et = factory.getElementTypeInstance(0, "E_TEST");
-		int elemCounter = 0;
-		switch(ovType) {
-			case SAMETIME:
-				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
-				for (ForLoopFlow smf : smfs) {
-					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", nElem / smfs.length), et, smf);
-					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, allCycle);					
-				}
-				break;
-			case CONSECUTIVE:
-				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
-				for (ForLoopFlow smf : smfs) {
-					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
-					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
-					
-				}
-				break;
-			case MIXED:
-				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime / mixFactor), wgs[i]);
-				for (ForLoopFlow smf : smfs) {
-					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
-					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
-					
-				}
-				break;
-		}
+		
+		stdBuildElementGenerators(factory, smfs, acts, wgs);
 		return factory.getSimulation();
 	}
 	
-	private Simulation getTestOcurrenceSimNResMix() {
-		long actTime = nElem;
-		TimeStamp endTs = new TimeStamp(TimeUnit.MINUTE, actTime * (nIter + 1) + 1);
+	private Simulation getTestMixConflict() {
 		TimeDrivenActivity[] acts = new TimeDrivenActivity[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		ResourceType[] rts = new ResourceType[nAct];
@@ -461,23 +354,14 @@ public class BenchmarkModel {
 
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
 		
-		SimulationUserCode code = new SimulationUserCode();
-		if (workLoad > 0) {
-			factory.getSimulation().putVar("AA", 0);
-			
-			code.add(UserMethod.BEFORE_REQUEST, "for (int i = 1; i < " + workLoad + "; i++)" +
-					"<%SET(S.AA, <%GET(S.AA)%> + Math.log(i))%>;" + 
-					"return super.beforeRequest(e);");
-		}
+		SimulationUserCode code = addWorkLoad(factory);
 		
-		SimulationTimeFunction oneFunction = new SimulationTimeFunction(unit, "ConstantVariate", 1);
-		SimulationPeriodicCycle allCycle = new SimulationPeriodicCycle(unit, TimeStamp.getZero(), new SimulationTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0);
 		for (int i = 0; i < nElem / 2; i++)
 			res[i] = factory.getResourceInstance(i, "RES_TEST" + i);
 		for (int i = 0; i < acts.length; i++) {
 			acts[i] = factory.getTimeDrivenActivityInstance(i, "A_TEST" + i);
 			SingleFlow sf = null;
-			if (workLoad > 0)
+			if (code != null)
 				sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", code, acts[i]);
 			else
 				sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", acts[i]);
@@ -488,38 +372,58 @@ public class BenchmarkModel {
 		ArrayList<ResourceType> list = new ArrayList<ResourceType>(Arrays.asList(rts));
 		for (int j = 0; j < nElem / 2; j++)
 			res[j].addTimeTableEntry(allCycle, endTs, list);
-		ElementType et = factory.getElementTypeInstance(0, "E_TEST");
-		int elemCounter = 0;
-		switch(ovType) {
-			case SAMETIME:
-				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
-				for (ForLoopFlow smf : smfs) {
-					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", nElem / smfs.length), et, smf);
-					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, allCycle);					
-				}
-				break;
-			case CONSECUTIVE:
-				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime), wgs[i]);
-				for (ForLoopFlow smf : smfs) {
-					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
-					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
-					
-				}
-				break;
-			case MIXED:
-				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", actTime / mixFactor), wgs[i]);
-				for (ForLoopFlow smf : smfs) {
-					ElementCreator creator = factory.getElementCreatorInstance(elemCounter, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
-					factory.getTimeDrivenGeneratorInstance(elemCounter++, creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
-					
-				}
-				break;
-		}
+		
+		stdBuildElementGenerators(factory, smfs, acts, wgs);
 
 		return factory.getSimulation();		
 	}
 
+	private Simulation getTestConflict() {
+		final int RTXACT = 4;
+		final int RTXRES = 2;
+		final double RESAVAILABILITYFACTOR = 1;
+		
+		ResourceType[] rts = new ResourceType[nAct * RTXACT];
+		WorkGroup[] wgs = new WorkGroup[nAct];
+		Resource[] res = new Resource[(int) (nElem * RTXACT * RESAVAILABILITYFACTOR)];
+		
+		TimeDrivenActivity[] acts = new TimeDrivenActivity[nAct];
+		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
+		
+		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
+		
+		SimulationUserCode code = addWorkLoad(factory);
+	
+		for (int i = 0; i < rts.length; i++)
+			rts[i] = factory.getResourceTypeInstance(i, "RT" + i);
+		
+		for (int i = 0; i < acts.length; i++) {
+			ResourceType[] rtGroup = new ResourceType[RTXACT];
+			int[] needGroup = new int[RTXACT];
+			for (int j = 0; j < RTXACT; j++) {
+				rtGroup[j] = rts[i * RTXACT + j];
+				needGroup[j] = 1;
+			}
+			wgs[i] = factory.getWorkGroupInstance(i, rtGroup, needGroup);
+			acts[i] = factory.getTimeDrivenActivityInstance(i, "A_TEST" + i);
+			SingleFlow sf = null;
+			if (code != null)
+				sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", code, acts[i]);
+			else
+				sf = (SingleFlow)factory.getFlowInstance(i, "SingleFlow", acts[i]);
+			smfs[i] = (ForLoopFlow)factory.getFlowInstance(i + acts.length, "ForLoopFlow", sf, TimeFunctionFactory.getInstance("ConstantVariate", nIter));
+		}
+
+		for (int i = 0; i < res.length; i++) {
+			res[i] = factory.getResourceInstance(i, "RES_TEST" + i);
+			ArrayList<ResourceType> roles = new ArrayList<ResourceType>();
+			for (int j = 0; j < RTXRES; j++)
+				roles.add(rts[(i + (int) (j * (rts.length / RTXRES) * RESAVAILABILITYFACTOR)) % rts.length]);
+			res[i].addTimeTableEntry(allCycle, endTs, roles);
+		}
+		
+		stdBuildElementGenerators(factory, smfs, acts, wgs);
+		return factory.getSimulation();
+
+	}
 }

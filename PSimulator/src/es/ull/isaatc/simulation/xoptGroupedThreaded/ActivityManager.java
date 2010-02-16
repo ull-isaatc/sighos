@@ -102,18 +102,18 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     	ArrayList<WorkItem> toRemove = new ArrayList<WorkItem>();
     	Iterator<WorkItem> iter = wiQueue.iterator();
     	while (iter.hasNext() && (uselessSF < wiQueue.size())) {
-    		WorkItem sf = iter.next();
-            Element e = sf.getElement();
-            Activity act = sf.getActivity();
+    		WorkItem wi = iter.next();
+            Element e = wi.getElement();
+            Activity act = wi.getActivity();
             e.waitSemaphore();
             
     		// The element's timestamp is updated. That's only useful to print messages
             e.setTs(getTs());
-            if (act.validElement(sf)) {
-            	if (act.isFeasible(sf)) {	// The activity can be performed
+            if (act.validElement(wi)) {
+            	if (act.isFeasible(wi)) {	// The activity can be performed
                 	e.signalSemaphore();
-                    act.carryOut(sf);
-            		toRemove.add(sf);
+                    act.carryOut(wi);
+            		toRemove.add(wi);
             		uselessSF--;
             	}
             	else {	// The activity can't be performed with the current resources
@@ -186,7 +186,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 					if (isDebugEnabled())
 						debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
 					// If the element is not performing a presential activity yet
-					if (elem.getCurrent() == null)
+					if (elem.getCurrent() == null) {
 						if (act.isFeasible(wi)) {
 				        	elem.signalSemaphore();
 							act.carryOut(wi);
@@ -195,6 +195,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 						else {
 				        	elem.signalSemaphore();
 						}
+					}
 					else {
 			        	elem.signalSemaphore();
 					}

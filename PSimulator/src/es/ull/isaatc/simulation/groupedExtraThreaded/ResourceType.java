@@ -70,6 +70,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
     		res.waitSemaphore();
             // First, I check if the resource is being used
             if (res.isAvailable()) {
+            	// This is needed to avoid resources which become unavailable at this ts
             	if (!wi.getActivity().isInterruptible() || res.getAvailability(this) > getTs()) {
 		            if (res.addBook(wi))
 		            	total[0]++;
