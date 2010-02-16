@@ -433,22 +433,29 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	     * @param pos Initial position [ResourceType, Resource].
 	     * @param nec Resources needed.
 	     * @return [ResourceType, Resource] where the next valid solution can be found; or
-	     * [ResourceType, -1] if no solution was found. 
+	     * <code>null</code> if no solution was found. 
 	     */
 	    private int []searchNext(int[] pos, int []nec, WorkItem wi) {
+	        int []aux = new int[2];
+	        aux[0] = pos[0];
+	        aux[1] = pos[1];
 	        // Searches a resource type that requires resources
-	        while (nec[pos[0]] == 0) {
-	            pos[0]++;
+	        while (nec[aux[0]] == 0) {
+	            aux[0]++;
 	            // The second index is reset
-	            pos[1] = -1;
+	            aux[1] = -1;
 	            // No more resources needed ==> SOLUTION
-	            if (pos[0] == resourceTypes.length) {
-	                return pos;
+	            if (aux[0] == resourceTypes.length) {
+	                return aux;
 	            }
 	        }
 	        // Takes the first resource type and searches the NEXT available resource
-	        pos[1] = resourceTypes[pos[0]].getNextAvailableResource(pos[1] + 1, wi);
-	        return pos;
+	        aux[1] = resourceTypes[aux[0]].getNextAvailableResource(aux[1] + 1, wi);
+	        // This resource type don't have enough available resources
+	        if (aux[1] == -1)
+	        	return null;
+
+	        return aux;
 	    }
 
 	    /**
@@ -460,7 +467,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	    protected boolean findSolution(int []pos, int []ned, WorkItem wi) {
 	        pos = searchNext(pos, ned, wi);
 	        // No solution
-	        if (pos[1] == -1)
+	        if (pos == null)
 	            return false;
 	        // No more elements needed => SOLUTION
 	        if (pos[0] == resourceTypes.length)
