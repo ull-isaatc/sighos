@@ -21,6 +21,7 @@ import es.ull.isaatc.simulation.common.info.ElementActionInfo;
  * the element can perform other activities while it's performing this one; and <code>INTERRUPTIBLE</code>, 
  * when the activity can be interrupted, and later continued, if the resources become unavailable 
  * while the activity is being performed.
+ * TODO Comment
  * @author Iván Castilla Rodríguez
  */
 public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simulation.common.TimeDrivenActivity {

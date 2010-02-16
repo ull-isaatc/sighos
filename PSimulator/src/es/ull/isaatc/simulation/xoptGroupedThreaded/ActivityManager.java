@@ -11,23 +11,21 @@ import es.ull.isaatc.util.PrioritizedMap;
 
 /**
  * Partition of activities. It serves as a mutual exclusion mechanism to access a set of activities
- * and a set of resource types. This mutual exclusion mechanism is never used implicitly by this object, 
- * so it must be controlled by the user by means of a semaphore. When the user wants to modify an object 
- * belonging to this AM, it's required to invoke the <code>waitSemaphore</code> method. When the modification 
- * finishes, the <code>signalSemaphore()</code> method must be invoked.  
+ * and a set of resource types. Each Activity Manager (AM) must be controlled by a single thread so to 
+ * ensure this mutual exclusion.
+ * TODO Comment
  * @author Iván Castilla Rodríguez
  */
 public class ActivityManager extends TimeStampedSimulationObject implements Describable {
-    /** Static counter for assigning each new id */
+    /** Static counter for assigning each new identifier */
 	private static int nextid = 0;
-	/** A prioritized table of activities */
+	/** A prioritized table of the activities handled from this AM */
 	protected final ArrayList<Activity> activityList;
-    /** A list of resorce types */
+    /** The list of resource types handled from this AM */
     protected final ArrayList<ResourceType> resourceTypeList;
-    /** This queue contains the work items that are waiting for activities of this AM */
+    /** A queue containing the work items that are waiting for activities of this AM */
     private final WorkItemQueue wiQueue;
-    
-    // ADDED. Changing events
+    /** */  
     private final ArrayDeque<WorkItem> requestingElements = new ArrayDeque<WorkItem>();
     private volatile boolean avResource = false;
     

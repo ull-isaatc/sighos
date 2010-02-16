@@ -22,18 +22,22 @@ import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.Flow;
 import es.ull.isaatc.util.Output;
 
 /**
- * Main simulation class. A simulation needs a model (introduced by means of the
- * <code>createModel()</code> method) to create several structures: activity
- * managers, logical processes...
- * <p>
+ * Main parallel discrete event simulation class. A simulation uses all kind of 
+ * {@link SimulationObject Simulation Objects} to define a model which will be executed.<p>
+ * Two important simulation objects are {@link Activity activities} and {@link ResourceType 
+ * resource types}. Both are grouped in different {@link ActivityManager activity managers}, 
+ * which serve as an initial partition for parallelism.<p>
+ * The simulation is feed with {@link BasicElement.DiscreteEvent discrete events} produced by 
+ * {@link BasicElement Basic elements}.
  * A simulation use <b>InfoListeners</b> to show results. The "listeners" can
  * be added by invoking the <code>addListener()</code> method. When the
  * <code>endTs</code> is reached, it stores its state. This state can be
  * obtained by using the <code>getState</code> method.
  * 
+ * TODO Comment
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulation {
+public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
@@ -109,18 +113,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	}
 	
 	/**
-	 * Contains the specifications of the model. All the components of the model
-	 * must be declared here.
-	 * <p>
-	 * The components are added simply by invoking their constructors. For
-	 * example: <code>
-	 * Activity a1 = new Activity(0, this, "Act1");
-	 * ResourceType rt1 = new ResourceType(0, this, "RT1");
-	 * </code>
-	 */
-	protected abstract void createModel();
-
-	/**
 	 * Starts the simulation execution. It creates and starts all the necessary 
 	 * structures. First, a <code>SafeLPElement</code> is added. The execution loop 
      * consists on waiting for the elements which are in execution, then the simulation clock is 
@@ -132,8 +124,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	public void run() {
 		if (out == null)
 			out = new Output();
-		
-		createModel();
 		debug("SIMULATION MODEL CREATED");
 		// Sets default AM creator
 		if (amCreator == null)

@@ -17,6 +17,7 @@ import es.ull.isaatc.util.DiscreteCycleIterator;
  * becomes unavailable at other simulation time. The availability of a resource is controlled
  * by means of timetable entries, which define a resource type and an availability cycle.
  * A resource finishes its execution when it has no longer valid timetable entries.
+ * TODO Comment
  * @author Carlos Martn Galn
  */
 public class Resource extends BasicElement implements es.ull.isaatc.simulation.common.Resource {

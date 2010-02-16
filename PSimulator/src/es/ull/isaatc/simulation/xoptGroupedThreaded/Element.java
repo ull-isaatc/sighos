@@ -13,7 +13,7 @@ import es.ull.isaatc.simulation.variable.EnumVariable;
 /**
  * Represents case instances that make use of activity flows in order to carry out
  * their events.
- * 
+ * TODO Comment
  * @author Iván Castilla Rodríguez
  */
 public class Element extends BasicElement implements es.ull.isaatc.simulation.common.Element {

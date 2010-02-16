@@ -5,10 +5,9 @@ package es.ull.isaatc.simulation.common;
 
 
 /**
- * A set of pairs &lt{@link ResourceType}, {@link Integer}&gt which defines how many resources from each type are
- * required to do something (typically an {@link Activity}).
+ * A set of pairs &lt{@link ResourceType}, {@link Integer}&gt which defines how many resources 
+ * from each type are required to do something (typically an {@link Activity}).
  * @author Iván Castilla Rodríguez
- *
  */
 public interface WorkGroup {
 	/**

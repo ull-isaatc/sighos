@@ -8,6 +8,7 @@ import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation.EventExecutor;
 
 /**
  * Represents the simulation component that carries out events. 
+ * TODO Comment
  * @author Carlos Martin Galan
  */
 public abstract class BasicElement extends TimeStampedSimulationObject {

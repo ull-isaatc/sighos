@@ -13,6 +13,7 @@ import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.SingleFlow;
 /**
  * Represents an element carrying out an activity. Work items are used as part of a work thread
  * every time a new activity has to be performed.
+ * TODO Comment
  * @author Iván Castilla Rodríguez
  */
 public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
@@ -256,14 +257,12 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
     protected void releaseCaughtResources() {
         // Generate unavailability periods.
         for (Resource res : caughtResources) {
-			for (int i = 0; i < act.cancellationList.size(); i++) {
-				es.ull.isaatc.simulation.xoptGroupedThreaded.Activity.CancelListEntry entry = act.cancellationList.get(i);
-				if (res.currentResourceType == entry.rt) {
-					long actualTs = elem.getTs();
-					res.setNotCanceled(false);
-					flow.simul.getInfoHandler().notifyInfo(new ResourceInfo(flow.simul, res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
-					res.generateCancelPeriodOffEvent(actualTs, entry.dur);
-				}
+        	long cancellation = act.getResourceCancelation(res.currentResourceType);
+        	if (cancellation > 0) {
+				long actualTs = elem.getTs();
+				res.setNotCanceled(false);
+				flow.simul.getInfoHandler().notifyInfo(new ResourceInfo(flow.simul, res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
+				res.generateCancelPeriodOffEvent(actualTs, cancellation);
 			}
 			elem.debug("Returned " + res);
         	// The resource is freed and the AMs are notified

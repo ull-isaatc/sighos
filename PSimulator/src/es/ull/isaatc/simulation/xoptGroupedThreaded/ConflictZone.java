@@ -14,6 +14,7 @@ import java.util.concurrent.Semaphore;
  * by means of the stack of semaphores.
  * Conflict zones can be merged. One of the conflict zones absorbs the other. Once this happens,
  * the "absorbed" CZ is nullified and "substituted" by the "absorbing" CZ. 
+ * TODO Comment
  * @author Iván Castilla Rodríguez
  */
 public class ConflictZone implements Comparable<ConflictZone> {

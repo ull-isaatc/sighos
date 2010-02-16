@@ -6,28 +6,27 @@
 
 package es.ull.isaatc.simulation.xoptGroupedThreaded;
 
-import es.ull.isaatc.simulation.xoptGroupedThreaded.ResourceType;
-
 /**
- * A set of {resource type, #needed resources} pairs.
+ * A set of pairs &lt{@link ResourceType}, {@link Integer}&gt which defines how many resources 
+ * from each type are required to do something (typically an {@link Activity}).
  * @author Iván Castilla Rodríguez
  */
 public class WorkGroup implements es.ull.isaatc.simulation.common.WorkGroup {
-    /** Set of (resource type, #needed) pairs. */
+    /** Set of resource types required */
 	protected final ResourceType[] resourceTypes;
+	/** Set of amounts of resources required */
 	protected final int[] needed;
     
     /**
-     * Creates a new instance of WorkGroup with an empty list of pairs
-     * {resource type, #needed resources}. 
+     * Creates a new WG which doesn't require resources. 
      */    
     public WorkGroup() {
         this(new ResourceType[0], new int[0]);
     }
 
     /**
-     * Creates a new instance of WorkGroup initializing the list of pairs
-     * {resource type, #needed resources} with one pair. 
+     * Creates a new WG which requires <code>needed</code> resources of type
+     * <code>rt</code>.
      * @param rt Resource Type
      * @param needed Resources needed
      */    
@@ -36,8 +35,8 @@ public class WorkGroup implements es.ull.isaatc.simulation.common.WorkGroup {
     }
 
     /**
-     * Creates a new instance of WorkGroup, initializing the list of pairs
-     * {resource type, #needed resources}.
+     * Creates a new WG which requires <code>needs[i]</code> resources of type
+     * <code>rts[i]</code>.
      * @param rts The resource types which compounds this WG.
      * @param needs The amounts of resource types required by this WG.
      */    

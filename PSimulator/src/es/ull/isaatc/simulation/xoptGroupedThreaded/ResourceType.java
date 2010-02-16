@@ -6,6 +6,7 @@ import java.util.TreeMap;
 /**
  * Represents the different roles that can be found in the system. The resources can serve for
  * different purposes, and each purpose is a role.
+ * TODO Comment
  * @author Carlos Martin Galan
  */
 public class ResourceType extends TimeStampedSimulationObject implements es.ull.isaatc.simulation.common.ResourceType {
