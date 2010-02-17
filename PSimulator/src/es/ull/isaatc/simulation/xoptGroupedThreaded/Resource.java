@@ -209,7 +209,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	            // Checks if the resource is busy (taken by other element or conflict in the same activity)
 	    		waitSemaphore();
 	    		// First checks if this resource was previously booked by this element 
-	        	if (!isBooked(wi)) {
+	        	if ((currentWI == null) && !isBooked(wi)) {
 	            	addBook(wi, rt);
 	    	        wi.pushResource(this, true);
 		        	// No other element has tried to book this resource

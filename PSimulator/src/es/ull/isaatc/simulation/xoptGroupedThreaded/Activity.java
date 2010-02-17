@@ -392,6 +392,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 		            return true;
 	        	// Any one of the resources taken for the solution also appears in a different AM 
 	        	else {
+		        	debug("Possible conflict. Recheck is needed " + elem);
 	        		// A recheck is needed
 	        		if (wi.checkCaughtResources()) {
 	        			return true;
@@ -404,6 +405,9 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	        				Resource res = oldSolution.peek();
 	        				res.removeFromSolution(wi);
 	        			}
+	        			ned = needed.clone();
+	        			pos[0] = 0;
+	        			pos[1] = -1;
 	        		}
 	        	}
 	        }
