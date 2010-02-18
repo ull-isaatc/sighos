@@ -37,85 +37,80 @@ import es.ull.isaatc.util.Output;
  * TODO Comment
  * @author Iván Castilla Rodríguez
  */
-public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
-	
+public class Simulation extends es.ull.isaatc.simulation.common.Simulation {	
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
-
 	/** List of element generators of the simulation. */
 	protected final ArrayList<Generator> generatorList = new ArrayList<Generator>();
-
 	/** List of activities present in the simulation. */
 	protected final TreeMap<Integer, Activity> activityList = new TreeMap<Integer, Activity>();
-
 	/** List of resource types present in the simulation. */
 	protected final TreeMap<Integer, ResourceType> resourceTypeList = new TreeMap<Integer, ResourceType>();
-
 	/** List of resource types present in the simulation. */
 	protected final TreeMap<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
-
 	/** List of activity managers that partition the simulation. */
-	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
-	
+	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();	
 	/** List of flows present in the simulation */
 	protected final TreeMap<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
-
 	/** List of active elements */
 	private final Map<Integer, Element> activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
-
-	protected ActivityManagerCreator amCreator = null;
-
-	/** Local virtual time. Represents the current simulation time for this LP. */
-	protected volatile long lvt;
+	/** A definition of how to create the AMs */
+	private ActivityManagerCreator amCreator = null;
+	/** Local virtual time. Represents the current simulation time */
+	private volatile long lvt;
     /** A counter to know how many events are in execution */
-    protected AtomicInteger executingEvents = new AtomicInteger(0);
-	/** A timestamp-ordered list of events whose timestamp is in the future. */
-	protected final TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>> waitQueue;
-    private EventExecutor [] executor;
-    private AtomicInteger execBarrier = new AtomicInteger(0);
+    private AtomicInteger executingEvents = new AtomicInteger(0);
+	/** A timestamp-ordered list of events whose timestamp is in the future. Events are grouped according 
+	 * to their timestamps. */
+	private final TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>> futureEventList  = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
+	/** The slave event executors */
+    private SlaveEventExecutor [] executor;
+    /** The barrier to control the phases of simulation */
+    private final AtomicInteger execBarrier = new AtomicInteger(0);
 	
 	/**
-	 * Creates a new instance of Simulation
-	 *
-	 * @param id
-	 *            This simulation's identifier
-	 * @param description
-	 *            A short text describing this simulation.
-	 * @param startTs
-	 *            Timestamp of simulation's start
-	 * @param endTs
-	 *            Timestamp of simulation's end
+	 * Creates a new Simulation which starts at <code>startTs</code> and finishes at <code>endTs</code>.
+	 * @param id This simulation's identifier
+	 * @param description A short text describing this simulation
+	 * @param unit Time unit used to define the simulation time
+	 * @param startTs Timestamp of simulation's start
+	 * @param endTs Timestamp of simulation's end
 	 */
 	public Simulation(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		super(id, description, unit, startTs, endTs);
-        waitQueue = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
 	}
 	
 	/**
-	 * Creates a new instance of Simulation
-	 *
-	 * @param id
-	 *            This simulation's identifier
-	 * @param description
-	 *            A short text describing this simulation.
-	 * @param startTs
-	 *            Simulation's start timestamp expresed in Simulation Time Units
-	 * @param endTs
-	 *            Simulation's end timestamp expresed in Simulation Time Units
+	 * Creates a new Simulation which starts at <code>startTs</code> and finishes at <code>endTs</code>.
+	 * @param id This simulation's identifier
+	 * @param description A short text describing this simulation
+	 * @param unit Time unit used to define the simulation time
+	 * @param startTs Simulation's start timestamp expresed in Simulation Time Units
+	 * @param endTs Simulation's end timestamp expresed in Simulation Time Units
 	 */
 	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
 		super(id, description, unit, startTs, endTs);
-        waitQueue = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
 	}
 	
 	/**
-	 * Starts the simulation execution. It creates and starts all the necessary 
-	 * structures. First, a <code>SafeLPElement</code> is added. The execution loop 
-     * consists on waiting for the elements which are in execution, then the simulation clock is 
+	 * Starts the execution of the simulation. It creates and initializes all the necessary 
+	 * structures.<p> The following checks and initializations are performed within this method:
+	 * <ol>
+	 * <li>If no customized {@link Output debug output} has been defined, the default one is 
+	 * used.</li>
+	 * <li>If no customized {@link ActivityManagerCreator AM creator} has been defined, the 
+	 * {@link StandardActivityManagerCreator default one} is used.</li>
+	 * <li>As many {@link SlaveEventExecutor event executors} as threads set by using 
+	 * {@link #setNThreads(int)} are created.</li>
+	 * <li>The user defined method {@link #init()} is invoked.</li>
+	 * <li>{@link Resource Resources} and {@link Generator generators} are started.</li>
+	 * </ol>
+	 * The execution loop consists on waiting for the elements which are in execution, then the 
+	 * waiting events are executed (@see #execWaitingElements()} 
      * advanced and a new set of events is executed.<br> 
 	 * Also checks if a valid output for debug messages has been declared. Note that no 
 	 * debug messages can be printed before this method is declared unless <code>setOutput</code>
@@ -125,18 +120,21 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		if (out == null)
 			out = new Output();
 		debug("SIMULATION MODEL CREATED");
+		
 		// Sets default AM creator
 		if (amCreator == null)
 			amCreator = new StandardActivityManagerCreator(this);
 		amCreator.createActivityManagers();
 		debugPrintActManager();
-
-        executor = new EventExecutor[nThreads];
+		
+		// Creates the event executors
+        executor = new SlaveEventExecutor[nThreads];
         for (int i = 0; i < nThreads; i++) {
-			executor[i] = new EventExecutor(i);
+			executor[i] = new SlaveEventExecutor(i);
 			executor[i].start();
 		}
 		
+        // The user defined method for initialization is invoked
 		init();
 
 		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
@@ -148,6 +146,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		for (Resource res : resourceList.values())
 			addWait(res.getStartEvent(internalStartTs));		
 
+		// Adds the event to control end of simulation
 		addWait(new SimulationElement().getStartEvent(internalEndTs));
         
         // Simulation main loop
@@ -164,6 +163,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
             	lvt + "\r\nPreviewed simulation time = " + internalEndTs);
     	printState();
 		
+        // The user defined method for finalization is invoked
 		end();
 		
 		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationEndInfo(this, System.currentTimeMillis(), this.internalEndTs));
@@ -171,28 +171,32 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	}
 
     /**
-     * Indicates if the simulation end has been reached.
-     * @return True if the maximum simulation time has been reached. False in other case.
+     * Indicates if the simulation clock has reached the simulation end.
+     * @return True if the simulation clock is higher or equal to the simulation end. False in other case.
      */
     public boolean isSimulationEnd() {
         return(lvt >= internalEndTs);
     }
 
+    /**
+     * Returns the current simulation time
+     * @return The current simulation time
+     */
 	public long getTs() {
 		return lvt;
 	}
     
     /**
      * Sends an event to the waiting queue. An event is added to the waiting queue if 
-     * its timestamp is greater than the LP timestamp.
+     * its timestamp is higher than the simulation time.
      * @param e Event to be added
      */
 	public void addWait(BasicElement.DiscreteEvent e) {
-		ArrayList<BasicElement.DiscreteEvent> list = waitQueue.get(e.getTs());
+		ArrayList<BasicElement.DiscreteEvent> list = futureEventList.get(e.getTs());
 		if (list == null) {
 			list = new ArrayList<BasicElement.DiscreteEvent>();
 			list.add(e);
-			waitQueue.put(e.getTs(), list);
+			futureEventList.put(e.getTs(), list);
 		}
 		else
 			list.add(e);
@@ -204,25 +208,28 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
      */
     private void execWaitingElements() {
     	// Updates the future event list with the events produced by the executor threads
-    	for (EventExecutor ee : executor) {
+    	for (SlaveEventExecutor ee : executor) {
     		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
     		while (!list.isEmpty()) {
     			BasicElement.DiscreteEvent e = list.pop();
     			addWait(e);
     		}    		
     	}
-        // Advances the simulation clock
         beforeClockTick();
-        lvt = waitQueue.firstKey();
+
+        // Advances the simulation clock
+        lvt = futureEventList.firstKey();
         infoHandler.notifyInfo(new TimeChangeInfo(this, lvt));
         afterClockTick();
         debug("SIMULATION TIME ADVANCING " + lvt);
-        // Events with timestamp greater or equal to the maximum simulation time aren't
+        // Events with timestamp higher or equal to the simulation end time aren't
         // executed
         if (lvt < internalEndTs) {
-        	ArrayList<BasicElement.DiscreteEvent> list = waitQueue.pollFirstEntry().getValue();
+        	ArrayList<BasicElement.DiscreteEvent> list = futureEventList.pollFirstEntry().getValue();
+        	// Distributes the events with the same timestamp among the executors
     		int share = list.size();
     		executingEvents.addAndGet(share);
+    		// if there aren't many events, the first executor deals with them all
     		if (share < executor.length)
     			executor[0].addEvents(list);    			
     		else {
@@ -237,13 +244,16 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
     
 	/**
-	 * A basic element which facilitates the end-of-simulation control. It simply
-	 * has an event at <code>maxgvt</code>, so there's always at least one event in 
-	 * the LP. 
+	 * A basic element which facilitates the control of the end of the simulation. It simply
+	 * schedules an event at <code>endTs</code>, so there's always at least one event in 
+	 * the simulation. 
 	 * @author Iván Castilla Rodríguez
 	 */
     class SimulationElement extends BasicElement {
 
+    	/**
+    	 * Creates a very simple element to control the simulation end.
+    	 */
 		public SimulationElement() {
 			super(0, Simulation.this);
 		}
@@ -258,15 +268,15 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
     }
     
 	/**
-	 * Does a debug print of this LP. Prints the current local time, the contents of
-	 * the waiting and execution queues, and the contents of the activity managers. 
+	 * Prints the current state of the simulation for debug purposes. Prints the current local 
+	 * time, the contents of the future event list and the execution queue. 
 	 */
 	protected void printState() {
 		if (isDebugEnabled()) {
 			StringBuffer strLong = new StringBuffer("------    LP STATE    ------");
 			strLong.append("LVT: " + lvt + "\r\n");
-	        strLong.append(waitQueue.size() + " waiting elements: ");
-	        for (ArrayList<BasicElement.DiscreteEvent> ad : waitQueue.values())
+	        strLong.append(futureEventList.size() + " waiting elements: ");
+	        for (ArrayList<BasicElement.DiscreteEvent> ad : futureEventList.values())
 	        	for (BasicElement.DiscreteEvent e : ad)
 	        		strLong.append(e + " ");
 	        strLong.append("\r\n" + executingEvents + " executing elements:");
@@ -276,13 +286,13 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		}
 	}
 
-	final class EventExecutor extends Thread {
-		private ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
-		private ArrayDeque<BasicElement.DiscreteEvent> extraWaitingEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
-		private AtomicBoolean flag = new AtomicBoolean(false);
-		private int index;
+	final class SlaveEventExecutor extends Thread implements EventExecutor {
+		private final ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+		private final ArrayDeque<BasicElement.DiscreteEvent> extraWaitingEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+		private final AtomicBoolean flag = new AtomicBoolean(false);
+		private final int index;
 		
-		public EventExecutor(int i) {
+		public SlaveEventExecutor(int i) {
 			super("LPExec-" + i);
 			index = i;
 		}
@@ -291,8 +301,16 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		 * @param event the event to set
 		 */
 		public void addEvent(BasicElement.DiscreteEvent event) {
-			executingEvents.incrementAndGet();
-			extraEvents.push(event);
+	    	long evTs = event.getTs();
+	        if (evTs == lvt) {
+				executingEvents.incrementAndGet();
+				extraEvents.push(event);
+	        }
+	        else if (evTs > lvt)
+				extraWaitingEvents.push(event);
+	        else
+	        	error("Causal restriction broken\t" + lvt + "\t" + event);
+			
 		}
 
 		/**
@@ -302,13 +320,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 			extraEvents.addAll(eventList);
 			execBarrier.incrementAndGet();
 			flag.set(true);
-		}
-
-		/**
-		 * @param event the event to set
-		 */
-		public void addWaitingEvent(BasicElement.DiscreteEvent event) {
-			extraWaitingEvents.push(event);
 		}
 
 		public ArrayDeque<BasicElement.DiscreteEvent> getWaitingEvents() {

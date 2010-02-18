@@ -3,8 +3,6 @@ package es.ull.isaatc.simulation.xoptGroupedThreaded;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation.EventExecutor;
-
 /**
  * Represents the simulation component that carries out events. 
  * TODO Comment
@@ -52,15 +50,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * @param e New event.
      */    
     protected void addEvent(DiscreteEvent e) {
-    	long evTs = e.getTs();
-    	long lpTs = simul.getTs();
-        if (evTs == lpTs) {
-    		((EventExecutor)Thread.currentThread()).addEvent(e);
-        }
-        else if (evTs > lpTs)
-    		((EventExecutor)Thread.currentThread()).addWaitingEvent(e);
-        else
-        	error("Causal restriction broken\t" + lpTs + "\t" + e);
+   		((EventExecutor)Thread.currentThread()).addEvent(e);
     }
 
     /**
