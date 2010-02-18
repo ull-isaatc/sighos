@@ -1,12 +1,12 @@
-package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
+package es.ull.isaatc.simulation.optGroupedThreaded.flow;
 
 import java.util.Collections;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import es.ull.isaatc.simulation.xoptGroupedThreaded.Element;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.WorkThread;
+import es.ull.isaatc.simulation.optGroupedThreaded.Element;
+import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.optGroupedThreaded.WorkThread;
 
 
 /**

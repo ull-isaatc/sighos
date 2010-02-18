@@ -4,7 +4,7 @@
  * Created on 17 de noviembre de 2005, 10:27
  */
 
-package es.ull.isaatc.simulation.xoptGroupedThreaded;
+package es.ull.isaatc.simulation.optGroupedThreaded;
 
 /**
  * A set of pairs &lt{@link ResourceType}, {@link Integer}&gt which defines how many resources 

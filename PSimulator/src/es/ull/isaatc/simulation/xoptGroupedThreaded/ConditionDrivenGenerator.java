@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.xoptGroupedThreaded;
+package es.ull.isaatc.simulation.optGroupedThreaded;
 
 /**
  * A generator driven by simulation events. Generates the elements when

@@ -1,4 +1,4 @@
-package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
+package es.ull.isaatc.simulation.optGroupedThreaded.flow;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,7 +6,7 @@ import java.util.Collections;
 
 import es.ull.isaatc.simulation.common.condition.Condition;
 import es.ull.isaatc.simulation.common.condition.TrueCondition;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
 
 /**
  * A multiple successor flow whose successors are conditioned, that is, the successor

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.xoptGroupedThreaded;
+package es.ull.isaatc.simulation.optGroupedThreaded;
 
 import java.util.Iterator;
 import java.util.Stack;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.xoptGroupedThreaded;
+package es.ull.isaatc.simulation.optGroupedThreaded;
 
 /**
  * An indicator of a class that it can create elements 

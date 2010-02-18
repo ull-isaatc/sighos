@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.xoptGroupedThreaded;
+package es.ull.isaatc.simulation.optGroupedThreaded;
 
 import es.ull.isaatc.simulation.common.SimulationCycle;
 import es.ull.isaatc.util.Cycle;

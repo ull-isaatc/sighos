@@ -1,4 +1,4 @@
-package es.ull.isaatc.simulation.xoptGroupedThreaded;
+package es.ull.isaatc.simulation.optGroupedThreaded;
 
 import java.util.ArrayList;
 import java.util.Collection;

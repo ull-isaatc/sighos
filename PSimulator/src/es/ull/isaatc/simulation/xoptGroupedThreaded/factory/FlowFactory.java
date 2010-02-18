@@ -1,4 +1,4 @@
-package es.ull.isaatc.simulation.xoptGroupedThreaded.factory;
+package es.ull.isaatc.simulation.optGroupedThreaded.factory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -9,8 +9,8 @@ import java.util.WeakHashMap;
 
 import es.ull.isaatc.simulation.common.factory.SimulationUserCode;
 import es.ull.isaatc.simulation.common.factory.StandardCompilator;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.Flow;
+import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.optGroupedThreaded.flow.Flow;
 
 /**
  * Generate Flow's instances.

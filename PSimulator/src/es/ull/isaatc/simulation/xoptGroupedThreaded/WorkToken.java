@@ -1,8 +1,8 @@
-package es.ull.isaatc.simulation.xoptGroupedThreaded;
+package es.ull.isaatc.simulation.optGroupedThreaded;
 
 import java.util.HashSet;
 
-import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.Flow;
+import es.ull.isaatc.simulation.optGroupedThreaded.flow.Flow;
 
 public class WorkToken {
 	

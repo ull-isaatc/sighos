@@ -1,8 +1,8 @@
-package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
+package es.ull.isaatc.simulation.optGroupedThreaded.flow;
 
 import es.ull.isaatc.simulation.common.condition.Condition;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.WorkThread;
+import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.optGroupedThreaded.WorkThread;
 
 /**
  * A structured loop flow which resembles a do-while loop. The internal flow

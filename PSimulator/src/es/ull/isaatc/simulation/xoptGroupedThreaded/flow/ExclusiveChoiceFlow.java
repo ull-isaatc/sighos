@@ -1,7 +1,7 @@
-package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
+package es.ull.isaatc.simulation.optGroupedThreaded.flow;
 
-import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.WorkThread;
+import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.optGroupedThreaded.WorkThread;
 
 
 /**

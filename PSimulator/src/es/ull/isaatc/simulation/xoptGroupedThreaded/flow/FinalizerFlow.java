@@ -1,4 +1,4 @@
-package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
+package es.ull.isaatc.simulation.optGroupedThreaded.flow;
 
 /**
  * A flow which finishes an execution branch. Only finalizer flows can be used as the last

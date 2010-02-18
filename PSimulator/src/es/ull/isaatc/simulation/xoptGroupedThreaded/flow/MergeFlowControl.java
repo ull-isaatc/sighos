@@ -1,10 +1,10 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
+package es.ull.isaatc.simulation.optGroupedThreaded.flow;
 
-import es.ull.isaatc.simulation.xoptGroupedThreaded.WorkThread;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.WorkToken;
+import es.ull.isaatc.simulation.optGroupedThreaded.WorkThread;
+import es.ull.isaatc.simulation.optGroupedThreaded.WorkToken;
 
 /**
  * Control of incoming branches per element. Counts how many incoming branches have

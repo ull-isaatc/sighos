@@ -4,7 +4,7 @@
  * Created on 8 de noviembre de 2005, 18:47
  */
 
-package es.ull.isaatc.simulation.xoptGroupedThreaded;
+package es.ull.isaatc.simulation.optGroupedThreaded;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.common.info.TimeChangeInfo;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.Flow;
+import es.ull.isaatc.simulation.optGroupedThreaded.flow.Flow;
 import es.ull.isaatc.util.Output;
 
 /**
@@ -340,7 +340,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.xoptGroupedThreaded.Activity} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.optGroupedThreaded.Activity} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param act
@@ -353,7 +353,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.xoptGroupedThreaded.ElementType} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.optGroupedThreaded.ElementType} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param et
@@ -366,7 +366,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.xoptGroupedThreaded.ResourceType} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.optGroupedThreaded.ResourceType} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param rt
@@ -379,7 +379,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.xoptGroupedThreaded.flow.Flow} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.optGroupedThreaded.flow.Flow} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param f

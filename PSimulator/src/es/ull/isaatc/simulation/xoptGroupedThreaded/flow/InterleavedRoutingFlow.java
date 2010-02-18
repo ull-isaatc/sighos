@@ -1,9 +1,9 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
+package es.ull.isaatc.simulation.optGroupedThreaded.flow;
 
-import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
 
 /**
  * A structured flow whose initial step is a parallel flow and whose final step

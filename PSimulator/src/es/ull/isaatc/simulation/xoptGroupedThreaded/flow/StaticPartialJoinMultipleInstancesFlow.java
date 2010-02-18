@@ -1,9 +1,9 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
+package es.ull.isaatc.simulation.optGroupedThreaded.flow;
 
-import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
 
 /**
  * Meets the Static Partial Join for Multiple Instances pattern (WFP34) if 

@@ -1,9 +1,9 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
+package es.ull.isaatc.simulation.optGroupedThreaded.flow;
 
-import es.ull.isaatc.simulation.xoptGroupedThreaded.WorkThread;
+import es.ull.isaatc.simulation.optGroupedThreaded.WorkThread;
 
 /**
  * A flow which executes some kind of work. A task flow is both an initializer and a finalizer

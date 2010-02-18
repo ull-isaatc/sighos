@@ -1,16 +1,16 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.xoptGroupedThreaded;
+package es.ull.isaatc.simulation.optGroupedThreaded;
 
 import es.ull.isaatc.simulation.common.FlowDrivenActivityWorkGroup;
 import es.ull.isaatc.simulation.common.condition.Condition;
 import es.ull.isaatc.simulation.common.flow.Flow;
 import es.ull.isaatc.simulation.common.flow.StructuredFlow;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.BasicFlow;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.FinalizerFlow;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.InitializerFlow;
+import es.ull.isaatc.simulation.optGroupedThreaded.flow.BasicFlow;
+import es.ull.isaatc.simulation.optGroupedThreaded.flow.FinalizerFlow;
+import es.ull.isaatc.simulation.optGroupedThreaded.flow.InitializerFlow;
 
 // FIXME: No funciona porque no cuadra con las dos etapas de este esquema. Se puede resolver la parte de coger los
 // recursos del FlowDrivenActivity, pero no los de la actividad que haya en su flujo interno

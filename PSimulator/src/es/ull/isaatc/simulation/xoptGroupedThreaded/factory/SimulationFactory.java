@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.xoptGroupedThreaded.factory;
+package es.ull.isaatc.simulation.optGroupedThreaded.factory;
 
 import java.util.EnumSet;
 
@@ -25,7 +25,7 @@ import es.ull.isaatc.simulation.common.factory.SimulationUserCode;
 import es.ull.isaatc.simulation.common.factory.StandardCompilator;
 import es.ull.isaatc.simulation.common.flow.Flow;
 import es.ull.isaatc.simulation.common.flow.InitializerFlow;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -64,14 +64,14 @@ public class SimulationFactory implements SimulationObjectFactory {
 
 	@Override
 	public ElementCreator getElementCreatorInstance(int id, TimeFunction elem) throws ClassCastException {
-		return new es.ull.isaatc.simulation.xoptGroupedThreaded.ElementCreator(simul, elem);
+		return new es.ull.isaatc.simulation.optGroupedThreaded.ElementCreator(simul, elem);
 	}
 
 	@Override
 	public ElementCreator getElementCreatorInstance(int id, TimeFunction elem, ElementType et, InitializerFlow flow) throws ClassCastException {
-		return new es.ull.isaatc.simulation.xoptGroupedThreaded.ElementCreator(simul, elem, 
-				(es.ull.isaatc.simulation.xoptGroupedThreaded.ElementType)et, 
-				(es.ull.isaatc.simulation.xoptGroupedThreaded.flow.InitializerFlow)flow);
+		return new es.ull.isaatc.simulation.optGroupedThreaded.ElementCreator(simul, elem, 
+				(es.ull.isaatc.simulation.optGroupedThreaded.ElementType)et, 
+				(es.ull.isaatc.simulation.optGroupedThreaded.flow.InitializerFlow)flow);
 	}
 
 	@Override
@@ -98,22 +98,22 @@ public class SimulationFactory implements SimulationObjectFactory {
 
 	@Override
 	public ElementType getElementTypeInstance(int id, String description) throws ClassCastException {
-		return new es.ull.isaatc.simulation.xoptGroupedThreaded.ElementType(id, simul, description);
+		return new es.ull.isaatc.simulation.optGroupedThreaded.ElementType(id, simul, description);
 	}
 
 	@Override
 	public ElementType getElementTypeInstance(int id, String description, int priority) throws ClassCastException {
-		return new es.ull.isaatc.simulation.xoptGroupedThreaded.ElementType(id, simul, description, priority);
+		return new es.ull.isaatc.simulation.optGroupedThreaded.ElementType(id, simul, description, priority);
 	}
 
 	@Override
 	public Resource getResourceInstance(int id, String description) throws ClassCastException {
-		return new es.ull.isaatc.simulation.xoptGroupedThreaded.Resource(id, simul, description);
+		return new es.ull.isaatc.simulation.optGroupedThreaded.Resource(id, simul, description);
 	}
 
 	@Override
 	public ResourceType getResourceTypeInstance(int id, String description) throws ClassCastException {
-		return new es.ull.isaatc.simulation.xoptGroupedThreaded.ResourceType(id, simul, description);
+		return new es.ull.isaatc.simulation.optGroupedThreaded.ResourceType(id, simul, description);
 	}
 
 	@Override
@@ -129,35 +129,35 @@ public class SimulationFactory implements SimulationObjectFactory {
 
 	@Override
 	public TimeDrivenActivity getTimeDrivenActivityInstance(int id,	String description) throws ClassCastException {
-		return new es.ull.isaatc.simulation.xoptGroupedThreaded.TimeDrivenActivity(id, simul, description);
+		return new es.ull.isaatc.simulation.optGroupedThreaded.TimeDrivenActivity(id, simul, description);
 	}
 
 	@Override
 	public TimeDrivenActivity getTimeDrivenActivityInstance(int id,	String description, int priority, EnumSet<Modifier> modifiers) throws ClassCastException {
-		return new es.ull.isaatc.simulation.xoptGroupedThreaded.TimeDrivenActivity(id, simul, description, priority, modifiers);
+		return new es.ull.isaatc.simulation.optGroupedThreaded.TimeDrivenActivity(id, simul, description, priority, modifiers);
 	}
 
 	@Override
 	public FlowDrivenActivity getFlowDrivenActivityInstance(int id, String description) throws ClassCastException {
-		return new es.ull.isaatc.simulation.xoptGroupedThreaded.FlowDrivenActivity(id, simul, description);
+		return new es.ull.isaatc.simulation.optGroupedThreaded.FlowDrivenActivity(id, simul, description);
 	}
 
 	@Override
 	public FlowDrivenActivity getFlowDrivenActivityInstance(int id, String description, int priority) throws ClassCastException {
-		return new es.ull.isaatc.simulation.xoptGroupedThreaded.FlowDrivenActivity(id, simul, description, priority);
+		return new es.ull.isaatc.simulation.optGroupedThreaded.FlowDrivenActivity(id, simul, description, priority);
 	}
 
 	@Override
 	public TimeDrivenGenerator getTimeDrivenGeneratorInstance(int id, ElementCreator creator, SimulationCycle cycle) throws ClassCastException {
-		return new es.ull.isaatc.simulation.xoptGroupedThreaded.TimeDrivenGenerator(simul, (es.ull.isaatc.simulation.xoptGroupedThreaded.ElementCreator)creator, cycle);
+		return new es.ull.isaatc.simulation.optGroupedThreaded.TimeDrivenGenerator(simul, (es.ull.isaatc.simulation.optGroupedThreaded.ElementCreator)creator, cycle);
 	}
 
 	@Override
 	public WorkGroup getWorkGroupInstance(int id, ResourceType[] rts, int[] needed) throws ClassCastException {
-		es.ull.isaatc.simulation.xoptGroupedThreaded.ResourceType[] temp = new es.ull.isaatc.simulation.xoptGroupedThreaded.ResourceType[rts.length];
+		es.ull.isaatc.simulation.optGroupedThreaded.ResourceType[] temp = new es.ull.isaatc.simulation.optGroupedThreaded.ResourceType[rts.length];
 		for (int i = 0; i < rts.length; i++)
-			temp[i] = (es.ull.isaatc.simulation.xoptGroupedThreaded.ResourceType)rts[i];
-		return new es.ull.isaatc.simulation.xoptGroupedThreaded.WorkGroup(temp, needed);
+			temp[i] = (es.ull.isaatc.simulation.optGroupedThreaded.ResourceType)rts[i];
+		return new es.ull.isaatc.simulation.optGroupedThreaded.WorkGroup(temp, needed);
 	}
 
 	@Override

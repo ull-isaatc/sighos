@@ -1,9 +1,9 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
+package es.ull.isaatc.simulation.optGroupedThreaded.flow;
 
-import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
 
 /**
  * A merge flow which allows all the true incoming branches to pass.

@@ -1,13 +1,13 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
+package es.ull.isaatc.simulation.optGroupedThreaded.flow;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
-import es.ull.isaatc.simulation.xoptGroupedThreaded.WorkThread;
+import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.optGroupedThreaded.WorkThread;
 
 /**
  * A flow with multiple successors. Multiple successors are split nodes, that is,
