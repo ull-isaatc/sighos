@@ -29,12 +29,6 @@ import es.ull.isaatc.util.Output;
  * which serve as an initial partition for parallelism.<p>
  * The simulation is feed with {@link BasicElement.DiscreteEvent discrete events} produced by 
  * {@link BasicElement Basic elements}.
- * A simulation use <b>InfoListeners</b> to show results. The "listeners" can
- * be added by invoking the <code>addListener()</code> method. When the
- * <code>endTs</code> is reached, it stores its state. This state can be
- * obtained by using the <code>getState</code> method.
- * 
- * TODO Comment
  * @author Iván Castilla Rodríguez
  */
 public class Simulation extends es.ull.isaatc.simulation.common.Simulation {	
@@ -106,8 +100,11 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	 * {@link StandardActivityManagerCreator default one} is used.</li>
 	 * <li>As many {@link SlaveEventExecutor event executors} as threads set by using 
 	 * {@link #setNThreads(int)} are created.</li>
+	 * <li>The AMs are equally distributed among the available executors</li> 
 	 * <li>The user defined method {@link #init()} is invoked.</li>
 	 * <li>{@link Resource Resources} and {@link Generator generators} are started.</li>
+	 * <li>The main simulation loop is run</li>
+	 * <li>The user defined method {@link #end()} is invoked.</li>
 	 * </ol>
 	 * The execution loop consists on waiting for the elements which are in execution, then the 
 	 * waiting events are executed (@see #execWaitingElements()} 
@@ -133,7 +130,11 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 			executor[i] = new SlaveEventExecutor(i);
 			executor[i].start();
 		}
-		
+
+        // Distributes the AMs among the executors
+        for (int i = 0; i < activityManagerList.size(); i++)
+        	executor[i % nThreads].assignActivitManager(activityManagerList.get(i));
+
         // The user defined method for initialization is invoked
 		init();
 
@@ -286,20 +287,43 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		}
 	}
 
+	/**
+	 * An event executor used by the simulation. A simulation normally declares as many "slaves" as available
+	 * cores in the computer.<p>
+	 * Event's execution is divided into two phases. First, the events assigned by the main simulation thread  
+	 * (by using {@link #addEvents(List)} are executed. If the execution of the events produces new events, 
+	 * they are added to the local buffers of the executor. <p>Once the execution of all the current events has
+	 * finished, the second phase is started, and the AM events are executed.  
+	 * @author Iván Castilla Rodríguez
+	 *
+	 */
 	final class SlaveEventExecutor extends Thread implements EventExecutor {
+		/** Execution local buffer */
 		private final ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+		/** Future event local buffer */
 		private final ArrayDeque<BasicElement.DiscreteEvent> extraWaitingEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+		/** A flag which indicates that the simulation has added new events to be executed by this executor */
 		private final AtomicBoolean flag = new AtomicBoolean(false);
-		private final int index;
-		
-		public SlaveEventExecutor(int i) {
-			super("LPExec-" + i);
-			index = i;
-		}
+		/** The list of AMs tackled by this executor */
+		private final ArrayDeque<ActivityManager> amList = new ArrayDeque<ActivityManager>();
 		
 		/**
-		 * @param event the event to set
+		 * Creates a new slave executor
+		 * @param id Executor's identifier 
 		 */
+		public SlaveEventExecutor(int id) {
+			super("LPExec-" + id);
+		}
+
+		/**
+		 * Assigns an AM to this executor. The events of this AM are executed from this thread.
+		 * @param am Activity Manager
+		 */
+		public void assignActivitManager(ActivityManager am) {
+			amList.add(am);
+		}
+		
+		@Override
 		public void addEvent(BasicElement.DiscreteEvent event) {
 	    	long evTs = event.getTs();
 	        if (evTs == lvt) {
@@ -313,15 +337,17 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 			
 		}
 
-		/**
-		 * @param event the event to set
-		 */
+		@Override
 		public void addEvents(List<BasicElement.DiscreteEvent> eventList) {
 			extraEvents.addAll(eventList);
 			execBarrier.incrementAndGet();
 			flag.set(true);
 		}
 
+		/**
+		 * Returns the contents of the local future event buffer.
+		 * @return The contents of the local future event buffer
+		 */
 		public ArrayDeque<BasicElement.DiscreteEvent> getWaitingEvents() {
 			return extraWaitingEvents;
 		}
@@ -336,9 +362,8 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 					}
 					// Waits to carry out the second phase
 					while (executingEvents.get() != 0);
-					int size = activityManagerList.size();
-					for (int i = index; i < size; i += executor.length)
-						activityManagerList.get(i).executeWork();
+					for (ActivityManager am : amList)
+						am.executeWork();
 					execBarrier.decrementAndGet();
 				}
 //				else
@@ -348,14 +373,9 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		}
 	}
 	
-
-	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.xoptGroupedThreaded.Activity} to the model. These method
-	 * is invoked from the object's constructor.
-	 * 
-	 * @param act
-	 *            Activity that's added to the model.
+	 * Adds an {@link Activity} to the model. This method is invoked from the object's constructor.
+	 * @param act Activity that's added to the model.
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
@@ -364,11 +384,8 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.xoptGroupedThreaded.ElementType} to the model. These method
-	 * is invoked from the object's constructor.
-	 * 
-	 * @param et
-	 *            Element Type that's added to the model.
+	 * Adds an {@link ElementType} to the model. This method is invoked from the object's constructor.
+	 * @param et Element Type that's added to the model.
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
@@ -377,11 +394,8 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.xoptGroupedThreaded.ResourceType} to the model. These method
-	 * is invoked from the object's constructor.
-	 * 
-	 * @param rt
-	 *            Resource Type that's added to the model.
+	 * Adds an {@link ResourceType} to the model. This method is invoked from the object's constructor.
+	 * @param rt Resource Type that's added to the model.
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
@@ -390,11 +404,8 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.xoptGroupedThreaded.flow.Flow} to the model. These method
-	 * is invoked from the object's constructor.
-	 * 
-	 * @param f
-	 *            Flow that's added to the model.
+	 * Adds an {@link Flow} to the model. This method is invoked from the object's constructor.
+	 * @param f Flow that's added to the model.
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
@@ -404,41 +415,35 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	}
 	
 	/**
-	 * Adds an activity manager to the simulation. The activity managers are
+	 * Adds a {@link Resource} to the simulation. This method is invoked from the object's constructor.
+	 * @param res Resource that's added to the model.
+	 * @return previous value associated with the key of specified object, or <code>null</code>
+	 *  if there was no previous mapping for key.
+	 */
+	protected Resource add(Resource res) {
+		return resourceList.put(res.getIdentifier(), res);
+	}
+	
+	/**
+	 * Adds an {@link ActivityManager} to the simulation. The activity managers are
 	 * automatically added from their constructor.
-	 * 
-	 * @param am
-	 *            Activity manager.
+	 * @param am Activity manager.
 	 */
 	protected void add(ActivityManager am) {
 		activityManagerList.add(am);
 	}
 
 	/**
-	 * Adds a generator to the simulation. The generators are automatically
+	 * Adds a {@link Generator} to the simulation. The generators are automatically
 	 * added from their constructor.
-	 * 
-	 * @param gen
-	 *            Generator.
+	 * @param gen Generator.
 	 */
 	protected void add(Generator gen) {
 		generatorList.add(gen);
 	}
 
 	/**
-	 * Adds a resoruce to the simulation. The resources are automatically added
-	 * from their constructor.
-	 * 
-	 * @param res
-	 *            Resource.
-	 */
-	protected void add(Resource res) {
-		resourceList.put(res.getIdentifier(), res);
-	}
-	
-	/**
 	 * Returns a list of the resources of the model.
-	 * 
 	 * @return Resources of the model.
 	 */
 	public TreeMap<Integer, Resource> getResourceList() {
@@ -447,7 +452,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
 	/**
 	 * Returns a list of the activities of the model.
-	 * 
 	 * @return Activities of the model.
 	 */
 	public TreeMap<Integer, Activity> getActivityList() {
@@ -456,7 +460,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
 	/**
 	 * Returns a list of the resource types of the model.
-	 * 
 	 * @return Resource types of the model.
 	 */
 	public TreeMap<Integer, ResourceType> getResourceTypeList() {
@@ -465,7 +468,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
 	/**
 	 * Returns a list of the element types of the model.
-	 * 
 	 * @return element types of the model.
 	 */
 	public TreeMap<Integer, ElementType> getElementTypeList() {
@@ -474,7 +476,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
 	/**
 	 * Returns a list of the flows of the model.
-	 * 
 	 * @return flows of the model.
 	 */
 	public TreeMap<Integer, Flow> getFlowList() {
@@ -483,7 +484,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
 	/**
 	 * Returns a list of the activity managers of the model.
-	 * 
 	 * @return Work activity managers of the model.
 	 */
 	public ArrayList<ActivityManager> getActivityManagerList() {
@@ -517,9 +517,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
 	/**
 	 * Adds an element when it starts its execution.
-	 * 
-	 * @param elem
-	 *            An element that starts its execution.
+	 * @param elem An element that starts its execution.
 	 */
 	public void addActiveElement(Element elem) {
 		activeElementList.put(elem.getIdentifier(), elem);
@@ -527,9 +525,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
 	/**
 	 * Removes an element when it finishes its execution.
-	 * 
-	 * @param elem
-	 *            An element that finishes its execution.
+	 * @param elem An element that finishes its execution.
 	 */
 	public void removeActiveElement(Element elem) {
 		activeElementList.remove(elem.getIdentifier());
@@ -537,15 +533,21 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
 	/**
 	 * Returns the element with the specified identifier.
-	 * 
-	 * @param id
-	 *            The element's identifier.
+	 * @param id The element's identifier.
 	 * @return The element with the specified identifier.
 	 */
 	public Element getActiveElement(int id) {
 		return activeElementList.get(id);
 	}
 
+	/**
+	 * Returns the current list of active elements.
+	 * @return The current list of active elements
+	 */
+	public Map<Integer, Element> getActiveElementList() {
+		return activeElementList;
+	}
+	
 	/**
 	 * Prints the contents of the activity managers created.
 	 */
@@ -558,8 +560,4 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		}
 	}
 
-	public Map<Integer, Element> getActiveElementList() {
-		return activeElementList;
-	};
-	
 }

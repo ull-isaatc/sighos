@@ -33,26 +33,18 @@ public abstract class SimulationObject implements es.ull.isaatc.simulation.commo
 	 * @return A short string describing the type of the simulation object.
 	 */
 	public abstract String getObjectTypeIdentifier();
-	
-    /**
-     * Returns the simulation which this object is attached to.
-     * @return Simulation this object belongs to
-     */
+
+	@Override
     public Simulation getSimulation() {
         return simul;
     }
-    
-    /**
-     * Returns the object's identifier
-     * @return The identifier of the object
-     */
+
+    @Override
 	public int getIdentifier() {
 		return(id);
 	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
+
+    @Override
 	public int compareTo(es.ull.isaatc.simulation.common.SimulationObject o) {
 		if (id < o.getIdentifier())
 			return -1;
@@ -61,6 +53,7 @@ public abstract class SimulationObject implements es.ull.isaatc.simulation.commo
 		return 0;
 	}
 
+    @Override
 	public String toString() {
     	return idString;
     }

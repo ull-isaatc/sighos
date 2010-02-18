@@ -21,6 +21,10 @@ public interface EventExecutor {
 	 * @param event New event to be added.
 	 */
 	void addEvent(BasicElement.DiscreteEvent event);
+	/**
+	 * Adds a collection of events to this executor to be executed immediately 
+	 * @param eventList A collection of events
+	 */
 	void addEvents(List<BasicElement.DiscreteEvent> eventList);
 
 }

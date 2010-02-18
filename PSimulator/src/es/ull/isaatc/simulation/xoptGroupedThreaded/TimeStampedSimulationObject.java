@@ -8,7 +8,6 @@ import es.ull.isaatc.simulation.common.Debuggable;
 /**
  * A simulation object which has knowledge of the simulation time.
  * @author Iván Castilla Rodríguez
- *
  */
 public abstract class TimeStampedSimulationObject extends VariableStoreSimulationObject implements Debuggable {
 
@@ -28,27 +27,18 @@ public abstract class TimeStampedSimulationObject extends VariableStoreSimulatio
 	 */
 	public abstract long getTs();
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Debuggable#debug(java.lang.String)
-	 */
+	@Override
     public void debug(String message) {
     	if (simul.isDebugEnabled())
     		simul.debug(this.toString() + "\t" + getTs() + "\t" + message);
 	}
 	
-    /*
-     * (non-Javadoc)
-     * @see es.ull.isaatc.simulation.Debuggable#error(java.lang.String)
-     */
+	@Override
 	public void error(String description) {
 		simul.error(this.toString() + "\t" + getTs() + "\t" + description);
 	}
     
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Debuggable#isDebugEnabled()
-	 */
+	@Override
 	public boolean isDebugEnabled() {
 		return simul.isDebugEnabled();
 	}

@@ -38,7 +38,7 @@ public class CompositeBenchmarkTest {
 		int []nIters = {5000};
 		BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.PARALLEL;
 		BenchmarkModel.OverlappingType ovType = BenchmarkModel.OverlappingType.SAMETIME;
-		SimulationFactory.SimulationType []simTypes = {SimulationType.GROUPED3PHASE2};		
+		SimulationFactory.SimulationType []simTypes = {SimulationType.GROUPED3PHASE};		
 		ArrayList<BenchmarkModel> configs = new ArrayList<BenchmarkModel>();
 		
 		int counter = 0;
@@ -68,7 +68,7 @@ public class CompositeBenchmarkTest {
 		long []workLoads = {0};
 		BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.RESOURCES;
 		BenchmarkModel.OverlappingType ovType = BenchmarkModel.OverlappingType.SAMETIME;
-		SimulationFactory.SimulationType []simTypes = {SimulationType.GROUPED3PHASE2};		
+		SimulationFactory.SimulationType []simTypes = {SimulationType.GROUPED3PHASE};		
 		SimulationFactory.SimulationType []xsimTypes = {};		
 		ArrayList<BenchmarkModel> configs = new ArrayList<BenchmarkModel>();
 		

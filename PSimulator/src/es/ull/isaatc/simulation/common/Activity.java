@@ -11,10 +11,10 @@ import es.ull.isaatc.util.Prioritizable;
  *
  */
 public interface Activity extends VariableStoreSimulationObject, Describable, Prioritizable {
-	/**
-	 * Returns the specified workgroup.
-	 * @param wgId Workgroup's identifier
-	 * @return the specified workgroup
-	 */
+    /**
+     * Searches and returns the WG with the specified identifier.
+     * @param wgId The identifier of the searched WG 
+     * @return A WG defined in this activity with the specified identifier
+     */
 	public ActivityWorkGroup getWorkGroup(int wgId);
 }

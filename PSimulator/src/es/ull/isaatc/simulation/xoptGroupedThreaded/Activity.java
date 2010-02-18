@@ -164,11 +164,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
     	return workGroupTable.iterator();
     }
 
-    /**
-     * Searches and returns the WG with the specified identifier.
-     * @param wgId The identifier of the searched WG 
-     * @return A WG defined in this activity with the specified identifier
-     */
+    @Override
     public ActivityWorkGroup getWorkGroup(int wgId) {
         Iterator<ActivityWorkGroup> iter = workGroupTable.iterator();
         while (iter.hasNext()) {

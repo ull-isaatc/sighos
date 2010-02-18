@@ -30,7 +30,7 @@ public class BenchmarkTest {
 	static BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.CONFLICT;
 	static boolean debug = true;
 	static PrintStream out = System.out;
-	static SimulationFactory.SimulationType simType = SimulationType.GROUPED3PHASE2;
+	static SimulationFactory.SimulationType simType = SimulationType.SEQUENTIAL;
 
 	/**
 	 * @param args
