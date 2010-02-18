@@ -379,8 +379,8 @@ public class BenchmarkModel {
 	}
 
 	private Simulation getTestConflict() {
-		final int RTXACT = 4;
-		final int RTXRES = 2;
+		final int RTXACT = 8;
+		final int RTXRES = 1;
 		final double RESAVAILABILITYFACTOR = 1;
 		
 		ResourceType[] rts = new ResourceType[nAct * RTXACT];

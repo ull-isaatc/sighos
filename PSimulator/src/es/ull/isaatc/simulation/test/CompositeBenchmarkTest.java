@@ -31,7 +31,7 @@ public class CompositeBenchmarkTest {
 	static PrintStream out = System.out;
 
 	private static BenchmarkModel[] testSimultaneousActivities() {
-		boolean sequential = false;
+		boolean sequential = true;
 		int []nThreads = {1,2,3};
 		int []nElems = {32, 128, 256};
 		int []nActs = {4, 8, 32};
@@ -60,13 +60,13 @@ public class CompositeBenchmarkTest {
 	}
 	
 	private static BenchmarkModel[] testSimpleResourceWorkload() {
-		boolean sequential = true;
+		boolean sequential = false;
 		int []nThreads = {1,2,3};
-		int []nElems = {512};
-		int []nActs = {256, 512};
+		int []nElems = {1024, 2048};
+		int []nActs = {256, 1024, 2048};
 		int []nIters = {10000};
 		long []workLoads = {0};
-		BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.CONFLICT;
+		BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.RESOURCES;
 		BenchmarkModel.OverlappingType ovType = BenchmarkModel.OverlappingType.SAMETIME;
 		SimulationFactory.SimulationType []simTypes = {SimulationType.GROUPED3PHASE2};		
 		SimulationFactory.SimulationType []xsimTypes = {};		
