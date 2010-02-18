@@ -1,9 +1,9 @@
-package es.ull.isaatc.simulation.optGroupedThreaded;
+package es.ull.isaatc.simulation.xoptGroupedThreaded;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import es.ull.isaatc.simulation.optGroupedThreaded.Simulation.EventExecutor;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation.EventExecutor;
 
 /**
  * Represents the simulation component that carries out events. 

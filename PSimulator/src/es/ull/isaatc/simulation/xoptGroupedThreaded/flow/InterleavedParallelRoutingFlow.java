@@ -1,15 +1,15 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.optGroupedThreaded.flow;
+package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.isaatc.simulation.optGroupedThreaded.Activity;
-import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
-import es.ull.isaatc.simulation.optGroupedThreaded.WorkThread;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.Activity;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.WorkThread;
 
 /**
  * A structured flow which contains a set of activities which must be performed according to a

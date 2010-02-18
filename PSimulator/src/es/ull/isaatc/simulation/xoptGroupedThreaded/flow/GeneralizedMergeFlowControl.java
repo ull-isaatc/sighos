@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.optGroupedThreaded.flow;
+package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import es.ull.isaatc.simulation.optGroupedThreaded.WorkThread;
-import es.ull.isaatc.simulation.optGroupedThreaded.WorkToken;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.WorkThread;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.WorkToken;
 
 /**
  * @author Iván Castilla Rodríguez

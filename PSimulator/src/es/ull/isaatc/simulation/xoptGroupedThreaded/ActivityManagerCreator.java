@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.optGroupedThreaded;
+package es.ull.isaatc.simulation.xoptGroupedThreaded;
 
 /**
  * @author Iván Castilla Rodríguez

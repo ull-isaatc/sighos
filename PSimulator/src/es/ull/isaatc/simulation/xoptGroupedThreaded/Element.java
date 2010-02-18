@@ -1,4 +1,4 @@
-package es.ull.isaatc.simulation.optGroupedThreaded;
+package es.ull.isaatc.simulation.xoptGroupedThreaded;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import es.ull.isaatc.simulation.common.info.ElementInfo;
-import es.ull.isaatc.simulation.optGroupedThreaded.flow.InitializerFlow;
-import es.ull.isaatc.simulation.optGroupedThreaded.flow.TaskFlow;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.InitializerFlow;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.TaskFlow;
 import es.ull.isaatc.simulation.variable.EnumVariable;
 
 /**

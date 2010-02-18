@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.optGroupedThreaded.flow;
+package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
 
 /**
  * A finalizer flow which merges several incoming branches into one.

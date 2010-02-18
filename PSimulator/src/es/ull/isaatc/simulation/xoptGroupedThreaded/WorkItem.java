@@ -1,14 +1,14 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.optGroupedThreaded;
+package es.ull.isaatc.simulation.xoptGroupedThreaded;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import es.ull.isaatc.simulation.common.info.ResourceInfo;
-import es.ull.isaatc.simulation.optGroupedThreaded.flow.SingleFlow;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.SingleFlow;
 
 /**
  * Represents an element carrying out an activity. Work items are used as part of a work thread

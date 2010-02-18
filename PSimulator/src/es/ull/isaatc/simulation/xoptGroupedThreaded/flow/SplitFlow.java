@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.optGroupedThreaded.flow;
+package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
 
 /**
  * A initializer flow which can create several outgoing branches.

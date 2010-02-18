@@ -1,4 +1,4 @@
-package es.ull.isaatc.simulation.optGroupedThreaded;
+package es.ull.isaatc.simulation.xoptGroupedThreaded;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -113,7 +113,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
      * @param wg The set of pairs <ResurceType, amount> which can be used to carry out this activity
      * @return The identifier of the new WG.
      */
-    public int addWorkGroup(int priority, es.ull.isaatc.simulation.optGroupedThreaded.WorkGroup wg) {
+    public int addWorkGroup(int priority, es.ull.isaatc.simulation.xoptGroupedThreaded.WorkGroup wg) {
     	int wgId = workGroupTable.size();
         workGroupTable.add(new ActivityWorkGroup(wgId, priority, wg));
         return wgId;
@@ -128,7 +128,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
      * @param cond Availability condition
      * @return The identifier of the new WG.
      */
-    public int addWorkGroup(int priority, es.ull.isaatc.simulation.optGroupedThreaded.WorkGroup wg, Condition cond) {
+    public int addWorkGroup(int priority, es.ull.isaatc.simulation.xoptGroupedThreaded.WorkGroup wg, Condition cond) {
     	int wgId = workGroupTable.size();
         workGroupTable.add(new ActivityWorkGroup(wgId, priority, wg, cond));
         return wgId;
@@ -140,7 +140,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
      * @param wg The set of pairs <ResurceType, amount> which can be used to carry out this activity
      * @return The identifier of the new WG.
      */
-    public int addWorkGroup(es.ull.isaatc.simulation.optGroupedThreaded.WorkGroup wg) {    	
+    public int addWorkGroup(es.ull.isaatc.simulation.xoptGroupedThreaded.WorkGroup wg) {    	
         return addWorkGroup(0, wg);
     }
     
@@ -152,7 +152,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
      * @param cond Availability condition
      * @return The identifier of the new WG.
      */
-    public int addWorkGroup(es.ull.isaatc.simulation.optGroupedThreaded.WorkGroup wg, Condition cond) {    	
+    public int addWorkGroup(es.ull.isaatc.simulation.xoptGroupedThreaded.WorkGroup wg, Condition cond) {    	
         return addWorkGroup(0, wg, cond);
     }
 
@@ -309,7 +309,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 * activity.
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class ActivityWorkGroup extends es.ull.isaatc.simulation.optGroupedThreaded.WorkGroup implements es.ull.isaatc.simulation.common.ActivityWorkGroup, Comparable<ActivityWorkGroup> {
+	public class ActivityWorkGroup extends es.ull.isaatc.simulation.xoptGroupedThreaded.WorkGroup implements es.ull.isaatc.simulation.common.ActivityWorkGroup, Comparable<ActivityWorkGroup> {
 	    /** The identifier of this WG */
 		protected final int id;
 		/** Priority of this WG */
@@ -326,7 +326,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	     * @param priority Priority of the WG.
 	     * @param wg The original WG
 	     */    
-	    protected ActivityWorkGroup(int id, int priority, es.ull.isaatc.simulation.optGroupedThreaded.WorkGroup wg) {
+	    protected ActivityWorkGroup(int id, int priority, es.ull.isaatc.simulation.xoptGroupedThreaded.WorkGroup wg) {
 	        this(id, priority, wg, new TrueCondition());
 	    }
 	    
@@ -338,7 +338,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	     * @param wg The original WG
 	     * @param cond Availability condition
 	     */    
-	    protected ActivityWorkGroup(int id, int priority, es.ull.isaatc.simulation.optGroupedThreaded.WorkGroup wg, Condition cond) {
+	    protected ActivityWorkGroup(int id, int priority, es.ull.isaatc.simulation.xoptGroupedThreaded.WorkGroup wg, Condition cond) {
 	        super(wg.resourceTypes, wg.needed);
 	        this.id = id;
 	        this.priority = priority;

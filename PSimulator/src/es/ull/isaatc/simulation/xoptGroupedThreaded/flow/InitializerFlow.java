@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.optGroupedThreaded.flow;
+package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
 
 /**
  * A flow which begins an execution branch. Only initializer flows can be used as the first

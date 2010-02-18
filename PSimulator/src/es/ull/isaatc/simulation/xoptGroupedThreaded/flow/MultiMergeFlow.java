@@ -1,10 +1,10 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.optGroupedThreaded.flow;
+package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
 
-import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
-import es.ull.isaatc.simulation.optGroupedThreaded.WorkThread;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.WorkThread;
 
 /**
  * Creates an OR flow which allows all the true incoming branches to pass. 

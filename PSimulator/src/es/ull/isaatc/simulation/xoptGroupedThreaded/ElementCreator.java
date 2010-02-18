@@ -1,12 +1,12 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.optGroupedThreaded;
+package es.ull.isaatc.simulation.xoptGroupedThreaded;
 
 import java.util.ArrayList;
 
 import es.ull.isaatc.function.TimeFunction;
-import es.ull.isaatc.simulation.optGroupedThreaded.flow.InitializerFlow;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.InitializerFlow;
 
 /**
  * Defines the way a generator creates elements when it's time to create them.

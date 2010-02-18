@@ -1,10 +1,10 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.optGroupedThreaded.flow;
+package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
 
-import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
-import es.ull.isaatc.simulation.optGroupedThreaded.WorkThread;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.WorkThread;
 
 /**
  * A merge flow which allows only one of the incoming branches to pass. Which one

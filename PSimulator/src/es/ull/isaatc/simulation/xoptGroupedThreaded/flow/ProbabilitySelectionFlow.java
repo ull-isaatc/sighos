@@ -1,13 +1,13 @@
 /**
  * 
  */
-package es.ull.isaatc.simulation.optGroupedThreaded.flow;
+package es.ull.isaatc.simulation.xoptGroupedThreaded.flow;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import es.ull.isaatc.simulation.optGroupedThreaded.Simulation;
-import es.ull.isaatc.simulation.optGroupedThreaded.WorkThread;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.Simulation;
+import es.ull.isaatc.simulation.xoptGroupedThreaded.WorkThread;
 
 /**
  * A flow which selects one outgoing branch among a set of them by using a probability value.
