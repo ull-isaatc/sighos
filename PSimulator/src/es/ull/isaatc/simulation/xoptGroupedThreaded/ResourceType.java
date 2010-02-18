@@ -13,7 +13,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
     /** Activity manager this resource type belongs to. */
     protected ActivityManager manager;
     /** A list of the currently available resources. */
-    protected final ResourceList availableResourceList;
+    protected final ResourceList availableResourceList = new ResourceList();
     /** A brief description of the resource type */
     protected final String description;
 
@@ -26,7 +26,6 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	public ResourceType(int id, Simulation simul, String description) {
 		super(id, simul);
         this.description = description;
-        availableResourceList = new ResourceList();
         simul.add(this);
 	}
 

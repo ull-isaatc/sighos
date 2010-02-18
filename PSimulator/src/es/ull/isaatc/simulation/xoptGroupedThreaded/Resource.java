@@ -22,13 +22,13 @@ import es.ull.isaatc.util.DiscreteCycleIterator;
  */
 public class Resource extends BasicElement implements es.ull.isaatc.simulation.common.Resource {
 	/** Timetable which defines the availability estructure of the resource. Define RollOn and RollOff events. */
-    protected final ArrayList<TimeTableEntry> timeTable;
+    protected final ArrayList<TimeTableEntry> timeTable = new ArrayList<TimeTableEntry>();
     /** A brief description of the resource */
     protected final String description;
     /** If true, indicates that this resource is being used after its availability time has expired */
     private boolean timeOut = false;
     /** List of currently active roles and the timestamp which marks the end of their availability time. */
-    protected final TreeMap<ResourceType, Long> currentRoles;
+    protected final TreeMap<ResourceType, Long> currentRoles = new TreeMap<ResourceType, Long>();
     /** A counter of the valid timetable entries which this resource is following. */
     private final AtomicInteger validTTEs = new AtomicInteger();
     /** The resource type which this resource is being booked for */
@@ -36,10 +36,10 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     /** Work item which currently holds this resource */
     protected WorkItem currentWI = null;
     /** List of elements trying to book this resource */
-    protected final TreeMap<WorkItem, ResourceType> bookList;
+    protected final TreeMap<WorkItem, ResourceType> bookList = new TreeMap<WorkItem, ResourceType>();
     /** Availability flag */
-    protected boolean notCanceled;
-    protected TreeMap<ActivityManager, Integer> currentAMs;
+    protected volatile boolean notCanceled = true;
+    protected TreeMap<ActivityManager, Integer> currentAMs = new TreeMap<ActivityManager, Integer>();
 
     /**
      * Creates a new instance of Resource.
@@ -50,11 +50,6 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	public Resource(int id, Simulation simul, String description) {
 		super(id, simul);
 		this.description = description;
-        timeTable = new ArrayList<TimeTableEntry>();
-        currentRoles = new TreeMap<ResourceType, Long>();
-        currentAMs = new TreeMap<ActivityManager, Integer>();
-        bookList = new TreeMap<WorkItem, ResourceType>();
-        notCanceled = true;
         simul.add(this);
 	}
 
@@ -334,9 +329,6 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 		waitSemaphore();
 		setTs(simul.getTs());
 		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, this, this.getCurrentResourceType(), currentWI, ResourceUsageInfo.Type.RELEASED, getTs()));
-        // The book is removed
-//		bookList.remove(currentWI); 
-//		debug("unbooked\t" + currentWI.getElement());
         currentWI = null;
         currentResourceType = null;        
         if (timeOut) {
@@ -443,12 +435,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         		addRole(role, ts + duration);
         		// The activity manger is informed of new available resources
         		
-        		// ADDED. Changing events
         		role.getManager().notifyResource();
-        		
-        		// REMOVED. Changing events
-//        		role.getManager().availableResource();
-        		
         		role.afterRoleOn();
         		RoleOffEvent rEvent = new RoleOffEvent(ts + duration, role, iter, duration);
         		addEvent(rEvent);
@@ -605,44 +592,6 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 		notCanceled = available;
 	}
 	
-	class ClockOnEntry {
-		private long init = 0;
-		private long finish = 0;
-		private long avCounter = 0;
-		
-		
-		public ClockOnEntry(long init) {
-			this.init = init;
-			finish = 0;
-			avCounter = 0;
-		}
-
-		public long getFinish() {
-			return finish;
-		}
-
-		public void setFinish(long finish) {
-			this.finish = finish;
-		}
-
-		public long getInit() {
-			return init;
-		}
-
-		public void setInit(long init) {
-			this.init = init;
-		}
-
-		public long getAvCounter() {
-			return avCounter;
-		}
-
-		public void setAvCounter(long avCounter) {
-			this.avCounter = avCounter;
-		}
-
-	}
-
 	public TreeMap<ResourceType, Long> getCurrentRoles() {
 		return currentRoles;
 	}

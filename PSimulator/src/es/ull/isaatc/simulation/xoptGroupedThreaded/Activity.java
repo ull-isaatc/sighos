@@ -40,11 +40,11 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
     /** The activity manager this activity is attached to */
     protected ActivityManager manager = null;
     /** WGs available to perform this activity */
-    protected final PrioritizedTable<ActivityWorkGroup> workGroupTable;
+    protected final PrioritizedTable<ActivityWorkGroup> workGroupTable = new PrioritizedTable<ActivityWorkGroup>();
     /** Indicates that the activity is potentially feasible. */
     protected boolean stillFeasible = true;
     /** Resource cancellation table */
-    protected final TreeMap<ResourceType, Long> cancellationList;
+    protected final TreeMap<ResourceType, Long> cancellationList = new TreeMap<ResourceType, Long>();
     /** Last activity start */
     protected long lastStartTs = 0;
     /** Last activity finish */
@@ -71,9 +71,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
         super(id, simul);
         this.description = description;
         this.priority = priority;
-        workGroupTable = new PrioritizedTable<ActivityWorkGroup>();
         simul.add(this);
-		cancellationList = new TreeMap<ResourceType, Long>();
     }
 
     @Override
@@ -313,11 +311,11 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 */
 	public class ActivityWorkGroup extends es.ull.isaatc.simulation.xoptGroupedThreaded.WorkGroup implements es.ull.isaatc.simulation.common.ActivityWorkGroup, Comparable<ActivityWorkGroup> {
 	    /** The identifier of this WG */
-		protected int id;
+		protected final int id;
 		/** Priority of this WG */
-	    protected int priority = 0;
+	    protected final int priority;
 	    /** Availability condition */
-	    protected Condition cond;
+	    protected final Condition cond;
 	    /** Precomputed string which identifies this WG */
 	    private final String idString; 
 

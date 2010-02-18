@@ -19,11 +19,11 @@ import java.util.concurrent.Semaphore;
  */
 public class ConflictZone implements Comparable<ConflictZone> {
 	/** List of element work items which have a conflict. */
-	protected final TreeSet<WorkItem> list;
+	protected final TreeSet<WorkItem> list = new TreeSet<WorkItem>();
 	/** Stack of semaphores which control a MUTEX region. */
-	protected final ArrayList<Semaphore> semStack;
+	protected final ArrayList<Semaphore> semStack = new ArrayList<Semaphore>();
 	/** A semaphore for accesing this zone. */
-	private final Semaphore semBook;
+	private final Semaphore semBook = new Semaphore(1);
 	/** If this CZ is absorbed by another one, the "absorbing" CZ */
 	protected ConflictZone substitute = null;
 	
@@ -32,9 +32,6 @@ public class ConflictZone implements Comparable<ConflictZone> {
 	 * @param wi The current work item using this conflict zone
 	 */
 	public ConflictZone(WorkItem wi) {
-		semBook = new Semaphore(1);
-		list = new TreeSet<WorkItem>();
-		semStack = new ArrayList<Semaphore>();
 		list.add(wi);
 	}
 	

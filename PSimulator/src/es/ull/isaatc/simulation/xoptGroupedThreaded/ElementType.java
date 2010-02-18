@@ -12,10 +12,10 @@ import java.util.HashMap;
  */
 public class ElementType extends VariableStoreSimulationObject implements es.ull.isaatc.simulation.common.ElementType {
 	/** Element's priority in an activity queue. Minimum value: 0. */
-	protected int priority = 0;
+	protected int priority;
     /** A brief description of the element type */
     protected final String description;
-    protected HashMap<String, Object> elementValues;
+    protected final HashMap<String, Object> elementValues = new HashMap<String, Object>();
 	
 	/**
 	 * Creates a new element type.
@@ -39,7 +39,6 @@ public class ElementType extends VariableStoreSimulationObject implements es.ull
 		this.priority = priority;
 		this.description = description;
 		simul.add(this);
-		elementValues = new HashMap<String, Object>();
 	}
 
 	@Override

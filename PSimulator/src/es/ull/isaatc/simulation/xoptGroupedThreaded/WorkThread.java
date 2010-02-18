@@ -35,7 +35,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
     /** The parent element thread */
     protected final WorkThread parent;
     /** The descendant work threads */
-	protected final ArrayList<WorkThread> descendants;
+	protected final ArrayList<WorkThread> descendants = new ArrayList<WorkThread>();
     /** Thread's initial flow */
     protected final Flow initialFlow;
 	/** Thread's current Work Item */
@@ -54,7 +54,6 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
     	this.token = token;
         this.elem = elem;
         this.parent = parent;
-        descendants = new ArrayList<WorkThread>();
         if (parent != null)
         	parent.addDescendant(this);
         this.initialFlow = initialFlow;

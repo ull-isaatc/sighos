@@ -20,11 +20,11 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     /** Static counter for assigning each new identifier */
 	private static int nextid = 0;
 	/** A prioritized table of the activities handled from this AM */
-	protected final ArrayList<Activity> activityList;
+	protected final ArrayList<Activity> activityList = new ArrayList<Activity>();
     /** The list of resource types handled from this AM */
-    protected final ArrayList<ResourceType> resourceTypeList;
+    protected final ArrayList<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
     /** A queue containing the work items that are waiting for activities of this AM */
-    private final WorkItemQueue wiQueue;
+    private final WorkItemQueue wiQueue = new WorkItemQueue();
     /** */  
     private final ArrayDeque<WorkItem> requestingElements = new ArrayDeque<WorkItem>();
     private volatile boolean avResource = false;
@@ -35,9 +35,6 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     */
     public ActivityManager(Simulation simul) {
         super(nextid++, simul);
-        resourceTypeList = new ArrayList<ResourceType>();
-        activityList = new ArrayList<Activity>();
-        wiQueue = new WorkItemQueue();
         simul.add(this);
     }
 

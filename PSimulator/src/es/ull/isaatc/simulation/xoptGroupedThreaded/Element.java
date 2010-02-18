@@ -23,7 +23,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	protected final InitializerFlow initialFlow;
 	/** Activity queues in which this element is. This list is used to notify the activities
 	 * when the element becomes available. */
-	protected final ArrayList<WorkItem> inQueue;
+	protected final ArrayList<WorkItem> inQueue = new ArrayList<WorkItem>();
 	/** Presential work item which the element is currently carrying out */
 	protected WorkItem current = null;
 	/** Main execution thread */
@@ -39,7 +39,6 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	public Element(int id, Simulation simul, ElementType et, InitializerFlow flow) {
 		super(id, simul);
 		this.elementType = et;
-		inQueue = new ArrayList<WorkItem>();
 		this.initialFlow = flow;
 		wThread = WorkThread.getInstanceMainWorkThread(this);
 	}
@@ -143,11 +142,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	protected void addAvailableElementEvents() {
 		synchronized(inQueue) {
 			for (int i = 0; (current == null) && (i < inQueue.size()); i++)
-				// ADDED. Changing events
 				inQueue.get(i).getActivity().getManager().notifyElement(inQueue.get(i));
-
-				// REMOVED. Changing events
-//				addEvent(new AvailableElementEvent(ts, inQueue.get(i)));
 		}		
 	}
 	
