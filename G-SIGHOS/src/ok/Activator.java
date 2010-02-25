@@ -1,4 +1,4 @@
-package g_sighos;
+package ok;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -10,7 +10,7 @@ import org.osgi.framework.BundleContext;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "g_sighos";
+	public static final String PLUGIN_ID = "ok";
 
 	// The shared instance
 	private static Activator plugin;
