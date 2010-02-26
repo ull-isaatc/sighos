@@ -59,7 +59,7 @@ public class ForLoopFlow extends StructuredLoopFlow implements es.ull.isaatc.sim
 					initialFlow.request(wThread.getInstanceDescendantWorkThread(initialFlow));
 				}
 				else {
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 					next(wThread);				
 				}
 			}

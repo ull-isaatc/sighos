@@ -113,7 +113,7 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 				if (beforeRequest(wThread.getElement()))
 					initialFlow.request(wThread.getInstanceDescendantWorkThread(initialFlow));
 				else {
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 					next(wThread);				
 				}
 			}

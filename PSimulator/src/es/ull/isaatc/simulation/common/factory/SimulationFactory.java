@@ -41,7 +41,7 @@ public class SimulationFactory {
 		GROUPEDX,
 		GROUPEDXX,
 		PASIVE,
-		GROUPED3PHASE
+		GROUPED3PHASE,
 		
 	}
 	public static SimulationObjectFactory getInstance(SimulationType type, int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {

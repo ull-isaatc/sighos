@@ -18,18 +18,18 @@ import es.ull.isaatc.util.DiscreteCycleIterator;
  * by means of timetable entries, which define a resource type and an availability cycle.
  * A resource finishes its execution when it has no longer valid timetable entries.
  * TODO Comment
- * @author Carlos Martn Galn
+ * @author Carlos Martín Galán
  */
 public class Resource extends BasicElement implements es.ull.isaatc.simulation.common.Resource {
-	/** Timetable which defines the availability estructure of the resource. Define RollOn and RollOff events. */
+	/** Timetable which defines the availability structure of the resource */
     protected final ArrayList<TimeTableEntry> timeTable = new ArrayList<TimeTableEntry>();
     /** A brief description of the resource */
     protected final String description;
     /** If true, indicates that this resource is being used after its availability time has expired */
     private boolean timeOut = false;
-    /** List of currently active roles and the timestamp which marks the end of their availability time. */
+    /** List of currently active roles and the timestamp which marks the end of their availability time */
     protected final TreeMap<ResourceType, Long> currentRoles = new TreeMap<ResourceType, Long>();
-    /** A counter of the valid timetable entries which this resource is following. */
+    /** A counter of the valid timetable entries which this resource is following */
     private final AtomicInteger validTTEs = new AtomicInteger();
     /** The resource type which this resource is being booked for */
     protected ResourceType currentResourceType = null;
@@ -39,10 +39,11 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     protected final TreeMap<WorkItem, ResourceType> bookList = new TreeMap<WorkItem, ResourceType>();
     /** Availability flag */
     protected volatile boolean notCanceled = true;
-    protected TreeMap<ActivityManager, Integer> currentAMs = new TreeMap<ActivityManager, Integer>();
+    /** List of current activity managers which contain a resource type using this resource */
+    protected final TreeMap<ActivityManager, Integer> currentAMs = new TreeMap<ActivityManager, Integer>();
 
     /**
-     * Creates a new instance of Resource.
+     * Creates a new Resource.
      * @param id This resource's identifier.
      * @param simul Simulation this resource is attached to.
      * @param description A short text describing this resource.
@@ -53,9 +54,9 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         simul.add(this);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.BasicElement#init()
+	/**
+	 * Launches the events corresponding to the timetable entries. If no valid entry is found, this resource 
+	 * finishes its execution. 
 	 */
 	@Override
     protected void init() {
@@ -74,53 +75,27 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 			notifyEnd();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.BasicElement#end()
-	 */
 	@Override
 	protected void end() {		
 	}
-	
-    /**
-     * Adds a new entry with a single role.
-     * @param cycle Cycle that characterizes this entry
-     * @param dur The long this resource plays this role every cycle
-     * @param role Role that the resource plays during this cycle
-     */
+
+	@Override
     public void addTimeTableEntry(SimulationCycle cycle, TimeStamp dur, es.ull.isaatc.simulation.common.ResourceType role) {
         timeTable.add(new TimeTableEntry(cycle, dur, role));
     }  
 
-    /**
-     * Adds a new entry with a several roles.
-     * @param cycle Cycle that characterizes this entry
-     * @param dur The long this resource plays this role every cycle
-     * @param roleList Roles that the resource play during this cycle
-     */
+	@Override
     public void addTimeTableEntry(SimulationCycle cycle, TimeStamp dur, ArrayList<es.ull.isaatc.simulation.common.ResourceType> roleList) {
     	for (int i = 0; i < roleList.size(); i++)
             addTimeTableEntry(cycle, dur, roleList.get(i));
     }  
     
-    /**
-     * Adds a new entry with a single role.
-     * @param cycle Cycle that characterizes this entry
-     * @param dur The long this resource plays this role every cycle expressed in the 
-     * simulation time unit
-     * @param role Role that the resource plays during this cycle
-     */
+	@Override
     public void addTimeTableEntry(SimulationCycle cycle, long dur, es.ull.isaatc.simulation.common.ResourceType role) {
     	addTimeTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), role);
     }  
 
-    /**
-     * Adds a new entry with a several roles.
-     * @param cycle Cycle that characterizes this entry
-     * @param dur The long this resource plays this role every cycle expressed in the 
-     * simulation time unit
-     * @param roleList Roles that the resource play during this cycle
-     */
+	@Override
     public void addTimeTableEntry(SimulationCycle cycle, long dur, ArrayList<es.ull.isaatc.simulation.common.ResourceType> roleList) {
     	addTimeTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), roleList);
     }  
@@ -130,10 +105,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 		return "RES";
 	}
 
-    /*
-     * (non-Javadoc)
-     * @see es.ull.isaatc.simulation.Describable#getDescription()
-     */
+	@Override
 	public String getDescription() {
 		return description;
 	}
@@ -184,20 +156,31 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	}
 
 	/**
-	 * Builds a list of activity managers referenced by the roles of the resource. 
-	 * @return Returns the currentManagers.
+	 * Notifies all the activity managers using this resource that it has become available. 
 	 */
-	public void notifyCurrentManagers() {
+	protected void notifyCurrentManagers() {
 		waitSemaphore();
 		for (ActivityManager am : currentAMs.keySet())
 			am.notifyResource();
 		signalSemaphore();
 	}
 
+	/**
+	 * Returns <code>true</code> if the resource is being used from multiple activity managers.
+	 * @return <code>True</code> if the resource is being used from multiple activity managers; 
+	 * <code>false</code> otherwise.
+	 */
 	protected boolean inSeveralManagers() {
 		return (currentAMs.size() > 1);
 	}
 	
+	/**
+	 * Tentatively adds this resource to a solution built to carry out an activity. First checks if this 
+	 * resource is not being using yet in another solution.
+	 * @param rt Resource type to be assigned in this solution 
+	 * @param wi Work item trying to catch this resource
+	 * @return <code>True</code> if this resource can be used in the solution; <code>false</code> otherwise.
+	 */
 	protected boolean add2Solution(ResourceType rt, WorkItem wi) {
 		if (notCanceled) {
 	    	if (inSeveralManagers()) {
@@ -228,6 +211,10 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 		return false;
 	}
 	
+	/**
+	 * Removes this resource from a solution it was tentatively added to. 
+	 * @param wi Work item which won't use this resource to carry out an activity.
+	 */
 	protected void removeFromSolution(WorkItem wi) {
     	if (inSeveralManagers()) {
     		waitSemaphore();
@@ -248,6 +235,12 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     	}
 	}
 	
+	/**
+	 * Checks if this resource, which was tentatively added to a solution, is still valid, i.e. has 
+	 * not been used to carry out another activity.
+	 * @param wi Work item trying to catch this resource
+	 * @return <code>True</code> if this resource is still valid for a solution; <code>false</code> otherwise.
+	 */
 	protected boolean checkSolution(WorkItem wi) {
 		if (inSeveralManagers()) {
 			waitSemaphore();
@@ -263,10 +256,12 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 		}
 		return true;
 	}
+	
 	/**
-	 * An element books this resource. The element is simply included in the book list
-	 * of this resource.
+	 * Makes a reservation on this resource. This step is required when a resource is being used from several activity
+	 * managers.
 	 * @param wi The work item booking this resource
+	 * @param rt The resource type to be assigned to this resource.
 	 */
 	protected void addBook(WorkItem wi, ResourceType rt) {
 		// First I complete the conflicts list
@@ -277,8 +272,8 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	}
 	
 	/**
-	 * An element releases the book over this resource. This, the element is removed from the 
-	 * book list of this resource.
+	 * Releases a reservation previously made on this resource. This step is required when a resource is being used 
+	 * from several activity managers.
 	 * @param wi The work item releasing the book over this resource.
 	 */
 	protected void removeBook(WorkItem wi) {
@@ -287,21 +282,18 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	}
 
 	/**
-	 * Checks if the resource is currently booked by the specified single flow
-	 * @param sf Single flow which can have booked the resource
-	 * @return True if this resource is currently booked by the specified single flow 
+	 * Checks if this resource is currently booked by the specified work item.
+	 * @param wi Work item which may have booked this resource
+	 * @return <code>True</code> if this resource is currently booked by the specified work item 
 	 */
 	protected boolean isBooked(WorkItem wi) {
 		return bookList.containsKey(wi);
 	}
 
 	/**
-	 * Marks this resource as taken by an element. Sets the current work item, and the
-	 * current resource type; and adds this resource to the item's caught resources list.
-	 * A "taken" element continues being booked. The book is released when the resource itself is
-	 * released. 
+	 * Definitely takes this resource by setting its current work item. If the resource was booked, the 
+	 * reservation is released. 
 	 * @param wi The work item which an element is executing
-	 * @param rt The role this resource has been taken for.
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
 	protected long catchResource(WorkItem wi) {
@@ -320,8 +312,8 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	
     /**
      * Releases this resource. If the resource has already expired its availability time, 
-     * the timeOut flag is set off. Sets the current work item and the current resource type 
-     * to <code>null</code>. The book of the resource is released too.
+     * the <code>timeOut</code> flag is set off. Sets the current work item and the current resource type 
+     * to <code>null</code>. 
      * @return True if the resource could be correctly released. False if the availability
      * time of the resource had already expired.
      */
@@ -342,7 +334,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     
     /**
      * Generates an event which finalizes a period of unavailability.
-     * @param ts Actual simulation time.
+     * @param ts Current simulation time.
      * @param duration Duration of the unavailability period.
      */
     public void generateCancelPeriodOffEvent(long ts, long duration) {
@@ -359,32 +351,26 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     }
     
     /**
-     * Getter for property currentResourceType.
-     * @return Value of property currentResourceType.
+     * Returns the current resource type this resource is being used for.
+     * @return Current resource type of this resource
      */
     public ResourceType getCurrentResourceType() {
         return currentResourceType;
     }
     
     /**
-     * Setter for property currentResourceType.
-     * @param rt New value of property currentResourceType.
-     */
-    protected void setCurrentResourceType(ResourceType rt) {
-        this.currentResourceType = rt;
-    }
-    
-    /**
-     * Getter for property timeOut.
-     * @return Value of property timeOut.
+     * Returns <code>true</code> if this resource is being used in spite of having finished its availability.
+     * @return <code>True</code> if this resource is being used in spite of having finished its availability;
+     * <code>false</code> otherwise.
      */
     protected boolean isTimeOut() {
         return timeOut;
     }
     
     /**
-     * Setter for property timeOut.
-     * @param timeOut New value of property timeOut.
+     * Sets the state of this resource as being used in spite of having finished its availability. 
+     * @param timeOut <code>True</code> if this resource is being used beyond its availability; 
+     * <code>false</code> otherwise.
      */
     protected void setTimeOut(boolean timeOut) {
         this.timeOut = timeOut;
@@ -393,7 +379,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     /**
      * Returns the availability of this resource for the specified resource type.
      * @param rt Resource type
-     * @return the availability of this resource for the specified resource type; 
+     * @return The availability of this resource for the specified resource type; 
      * <code>null</code> if the resource is not available for this resource type.
      */
     protected Long getAvailability(ResourceType rt) {
@@ -401,7 +387,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     }
     
     /**
-     * Makes available a resource with a specific role. 
+     * An event to make available this resource with a specific role. 
      */
     public class RoleOnEvent extends BasicElement.DiscreteEvent {
         /** Available role */
@@ -444,18 +430,10 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         		addEvent(rEvent);
         	}
         }
-
-
-		/**
-		 * @return Returns the role.
-		 */
-		public ResourceType getRole() {
-			return role;
-		}
     }
     
     /**
-     * Makes unavailable a resource with a specific role. 
+     * An event to make unavailable this resource with a specific role. 
      */
     public class RoleOffEvent extends BasicElement.DiscreteEvent {
         /** Unavailable role */
@@ -501,13 +479,6 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         		addEvent(rEvent);
         	}
         }
-
-		/**
-		 * @return Returns the role.
-		 */
-		public ResourceType getRole() {
-			return role;
-		}        
     }
 
 	/**

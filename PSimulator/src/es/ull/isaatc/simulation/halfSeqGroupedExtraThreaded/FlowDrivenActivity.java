@@ -66,7 +66,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	@Override
 	public void carryOut(WorkItem wItem) {
 		Element elem = wItem.getElement();
-		wItem.getExecutionWG().catchResources(wItem);
+		wItem.catchResources();
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
 		elem.debug("Starts\t" + this + "\t" + description);
 		InitializerFlow initialFlow = ((FlowDrivenActivity.ActivityWorkGroup)wItem.getExecutionWG()).getInitialFlow();

@@ -55,7 +55,7 @@ public class BenchmarkModel {
 	 * @author Iván Castilla Rodríguez
 	 */
 	enum OverlappingType {SAMETIME, CONSECUTIVE, MIXED};
-	final static private String head = "EXP\t[ID]\tSimulation Type\tModel Type\tOverlapping Type\tThreads\tIterations\tWork load\tMix\tActivities\tElements";
+	final private String head;
 	final static private TimeUnit unit = TimeUnit.MINUTE;
 	final static private SimulationTimeFunction oneFunction = new SimulationTimeFunction(unit, "ConstantVariate", 1);
 	final int id;
@@ -71,6 +71,9 @@ public class BenchmarkModel {
 	final long workLoad;
 	final TimeStamp endTs;
 	final SimulationPeriodicCycle allCycle;
+	int rtXact = 4;
+	int rtXres = 1;
+	double resAvailabilityFactor = 1;
 
 	
 	/**
@@ -107,6 +110,15 @@ public class BenchmarkModel {
 			case CONFLICT:
 			default: this.endTs = new TimeStamp(TimeUnit.MINUTE, nElem * (nIter + 1) + 1); break;
 		}
+		String auxHead = "Simulation Type\tModel Type\tOverlapping Type\tThreads\tIterations";
+		if (modType == ModelType.CONFLICT)
+			auxHead += "\tRTxACT\tRTxRES";
+		if (workLoad > 0)
+			auxHead += "\tWork load";
+		if (ovType == OverlappingType.MIXED)
+			auxHead += "\tMix";
+		auxHead += "\tActivities\tElements";
+		head = auxHead;
 		this.allCycle = new SimulationPeriodicCycle(unit, TimeStamp.getZero(), new SimulationTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0);
 	}
 
@@ -146,14 +158,23 @@ public class BenchmarkModel {
 	
 	@Override
 	public String toString() {
-		return "EXP\t[" + id + "]\t" + simType + "\t" + modType + "\t" + ovType + "\t" + nThread + "\t" + nIter + "\t" + workLoad + "\t" + mixFactor + "\t" + nAct + "\t" + nElem;
+		String text = "";
+		if (modType == ModelType.CONFLICT)
+			text += simType + "\t" + modType + "\t" + ovType + "\t" + nThread + "\t" + nIter + "\t" + rtXact + "\t" + rtXres;
+		else
+			text += simType + "\t" + modType + "\t" + ovType + "\t" + nThread + "\t" + nIter;
+		if (workLoad > 0)
+			text += "\t" + workLoad;
+		if (ovType == OverlappingType.MIXED)
+			text += "\t" + mixFactor;
+		return text + "\t" + nAct + "\t" + nElem;
 	}
 
 	/**
 	 * Returns the header of a table containing results from these experiments.
 	 * @return The list of fields as shown when using toString
 	 */
-	public static String getHeader() {
+	public String getHeader() {
 		return head;
 	}
 	
@@ -378,14 +399,32 @@ public class BenchmarkModel {
 		return factory.getSimulation();		
 	}
 
+	/**
+	 * @param rtXact the rtXact to set
+	 */
+	public void setRtXact(int rtXact) {
+		this.rtXact = rtXact;
+	}
+
+	/**
+	 * @param rtXres the rtXres to set
+	 */
+	public void setRtXres(int rtXres) {
+		this.rtXres = rtXres;
+	}
+
+	/**
+	 * @param resAvailabilityFactor the resAvailabilityFactor to set
+	 */
+	public void setResAvailabilityFactor(double resAvailabilityFactor) {
+		this.resAvailabilityFactor = resAvailabilityFactor;
+	}
+
 	private Simulation getTestConflict() {
-		final int RTXACT = 8;
-		final int RTXRES = 1;
-		final double RESAVAILABILITYFACTOR = 1;
 		
-		ResourceType[] rts = new ResourceType[nAct * RTXACT];
+		ResourceType[] rts = new ResourceType[nAct * rtXact];
 		WorkGroup[] wgs = new WorkGroup[nAct];
-		Resource[] res = new Resource[(int) (nElem * RTXACT * RESAVAILABILITYFACTOR)];
+		Resource[] res = new Resource[(int) (nElem * rtXact * resAvailabilityFactor)];
 		
 		TimeDrivenActivity[] acts = new TimeDrivenActivity[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
@@ -398,10 +437,10 @@ public class BenchmarkModel {
 			rts[i] = factory.getResourceTypeInstance(i, "RT" + i);
 		
 		for (int i = 0; i < acts.length; i++) {
-			ResourceType[] rtGroup = new ResourceType[RTXACT];
-			int[] needGroup = new int[RTXACT];
-			for (int j = 0; j < RTXACT; j++) {
-				rtGroup[j] = rts[i * RTXACT + j];
+			ResourceType[] rtGroup = new ResourceType[rtXact];
+			int[] needGroup = new int[rtXact];
+			for (int j = 0; j < rtXact; j++) {
+				rtGroup[j] = rts[i * rtXact + j];
 				needGroup[j] = 1;
 			}
 			wgs[i] = factory.getWorkGroupInstance(i, rtGroup, needGroup);
@@ -417,8 +456,8 @@ public class BenchmarkModel {
 		for (int i = 0; i < res.length; i++) {
 			res[i] = factory.getResourceInstance(i, "RES_TEST" + i);
 			ArrayList<ResourceType> roles = new ArrayList<ResourceType>();
-			for (int j = 0; j < RTXRES; j++)
-				roles.add(rts[(i + (int) (j * (rts.length / RTXRES) * RESAVAILABILITYFACTOR)) % rts.length]);
+			for (int j = 0; j < rtXres; j++)
+				roles.add(rts[(i + (int) (j * (rts.length / rtXres) * resAvailabilityFactor)) % rts.length]);
 			res[i].addTimeTableEntry(allCycle, endTs, roles);
 		}
 		

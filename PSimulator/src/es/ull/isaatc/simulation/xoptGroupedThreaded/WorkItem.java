@@ -13,44 +13,44 @@ import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.SingleFlow;
 /**
  * Represents an element carrying out an activity. Work items are used as part of a work thread
  * every time a new activity has to be performed.
- * TODO Comment
  * @author Iván Castilla Rodríguez
  */
 public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 	/** Work Thread this work item belongs to */
-	final protected WorkThread wThread;
+	final private WorkThread wThread;
+	/** Element that contains this work item */
 	final private Element elem;
     /** The current flow of this thread */	
-	protected SingleFlow flow;
+	private SingleFlow flow;
     /** Activity wrapped with this flow */
-    protected Activity act;
+    private Activity act;
     /** The workgroup which is used to carry out this flow. If <code>null</code>, 
      * the flow has not been carried out. */
-    protected Activity.ActivityWorkGroup executionWG = null;
+    private Activity.ActivityWorkGroup executionWG = null;
     /** List of caught resources */
-    protected ArrayDeque<Resource> caughtResources;
+    final private ArrayDeque<Resource> caughtResources = new ArrayDeque<Resource>();
     // Avoiding deadlocks (time-overlapped resources)
     /** List of conflictive elements */
-    protected ConflictZone conflicts;
+    private ConflictZone conflicts;
     /** Amount of possible conflictive resources in the solution */
-    protected int conflictiveResources = 0;
+    private int conflictiveResources = 0;
     /** Stack of nested semaphores */
-	protected ArrayList<Semaphore> semStack;
+	private ArrayList<Semaphore> semStack;
 	/** The arrival order of this work item relatively to the rest of work items 
 	 * in the same activity manager. */
-	protected int arrivalOrder;
+	private int arrivalOrder;
 	/** The simulation timestamp when this work item was requested. */
-	protected long arrivalTs = -1;
+	private long arrivalTs = -1;
 	/** The time left to finish the activity. Used in interruptible activities. */
-	protected long timeLeft = -1;
+	private long timeLeft = -1;
 	
 	/**
 	 * Creates a new work item belonging to work thread wThread.
+	 * @param wThread WorkThread this item belongs to
 	 */
 	public WorkItem(WorkThread wThread) {
 		this.wThread = wThread;
 		elem = wThread.getElement();
-		caughtResources = new ArrayDeque<Resource>();
 	}
 
 	/**
@@ -73,34 +73,22 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 		return wThread;
 	}
 
-	/**
-     * Returns the activity wrapped with the current single flow.
-     * @return Activity wrapped with the current single flow.
-     */
+	@Override
     public Activity getActivity() {
         return act;
     }   
 	
-    /**
-     * Gets the current single flow
-	 * @return the current single flow
-	 */
+	@Override
 	public SingleFlow getFlow() {
 		return flow;
 	}
 
-	/**
-     * Returns the element which carries out this flow.
-     * @return The associated element.
-     */
+	@Override
     public Element getElement() {
         return elem;
     }
     
-	/**
-	 * Returns the order this item occupies among the rest of work items.
-	 * @return the order of arrival of this work item to request the activity
-	 */
+	@Override
 	public int getArrivalOrder() {
 		return arrivalOrder;
 	}
@@ -113,10 +101,7 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 		this.arrivalOrder = arrivalOrder;
 	}
 
-	/**
-	 * Returns the timestamp when this work item arrives to request the current single flow.
-	 * @return the timestamp when this work item arrives to request the current single flow
-	 */
+	@Override
 	public long getArrivalTs() {
 		return arrivalTs;
 	}
@@ -129,10 +114,7 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 		this.arrivalTs = arrivalTs;
 	}
 
-	/**
-	 * Returns the time required to finish the current single flow (only for interruptible activities) 
-	 * @return the time required to finish the current single flow 
-	 */
+	@Override
 	public long getTimeLeft() {
 		return timeLeft;
 	}
@@ -153,10 +135,6 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
     	return wThread.getPriority();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
 	@Override
 	public int compareTo(es.ull.isaatc.simulation.common.WorkItem o) {
 		if (wThread.getIdentifier() < o.getIdentifier())
@@ -166,24 +144,23 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 		return 0;
 	}
 
+	/**
+	 * Returns the identifier of the work thread this item belongs to.
+	 */
 	@Override
 	public int getIdentifier() {
 		return wThread.getIdentifier();
 	}
 
 	
+	@Override
 	public boolean equals(Object o) {
 		if (((WorkItem)o).wThread.getIdentifier() == wThread.getIdentifier())
 			return true;
 		return false;
 	}
 	
-    /**
-     * Returns the workgroup which is used to perform this flow, or <code>null</code>  
-     * if the flow has not been carried out.
-	 * @return the workgroup which is used to perform this flow, or <code>null</code>  
-     * if the flow has not been carried out.
-	 */
+	@Override
 	public Activity.ActivityWorkGroup getExecutionWG() {
 		return executionWG;
 	}
@@ -205,12 +182,18 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 		return caughtResources;
 	}
 
+	/**
+	 * Checks if the list of resources selected to carry out an activity are still valid.
+	 * @return True if none of the selected resources is being used by a different element;
+	 * false in other case. 
+	 */
 	public boolean checkCaughtResources() {
 		for (Resource res : caughtResources)
 			if (!res.checkSolution(this))
 				return false;
 		return true;
 	}
+	
 	/**
 	 * Adds a resource to the list of resources caught by this element.
 	 * @param res A new resource.
@@ -231,6 +214,12 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 		return caughtResources.pop();
 	}
 	
+	/**
+	 * Returns true if any one of the resources taken to carry out an activity is active in more 
+	 * than one AM
+	 * @return True if any one of the resources taken to carry out an activity is active in more 
+	 * than one AM; false in other case.
+	 */
 	protected boolean isConflictive() {
 		return (conflictiveResources > 0);
 	}

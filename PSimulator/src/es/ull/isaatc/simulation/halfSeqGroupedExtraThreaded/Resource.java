@@ -2,8 +2,8 @@ package es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import es.ull.isaatc.simulation.common.SimulationCycle;
@@ -22,13 +22,13 @@ import es.ull.isaatc.util.DiscreteCycleIterator;
  */
 public class Resource extends BasicElement implements es.ull.isaatc.simulation.common.Resource {
 	/** Timetable which defines the availability estructure of the resource. Define RollOn and RollOff events. */
-    protected final ArrayList<TimeTableEntry> timeTable;
+    protected final ArrayList<TimeTableEntry> timeTable = new ArrayList<TimeTableEntry>();
     /** A brief description of the resource */
     protected final String description;
     /** If true, indicates that this resource is being used after its availability time has expired */
     private boolean timeOut = false;
     /** List of currently active roles and the timestamp which marks the end of their availibity time. */
-    protected final TreeMap<ResourceType, Long> currentRoles;
+    protected final TreeMap<ResourceType, Long> currentRoles = new TreeMap<ResourceType, Long>();
     /** A counter of the valid timetable entries which this resource is following. */
     private final AtomicInteger validTTEs = new AtomicInteger();
     /** The resource type which this resource is being booked for */
@@ -36,9 +36,10 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     /** Work item which currently holds this resource */
     protected WorkItem currentWI = null;
     /** List of elements trying to book this resource */
-    protected final TreeSet<WorkItem> bookList;
+    protected final TreeMap<WorkItem, ResourceType> bookList = new TreeMap<WorkItem, ResourceType>();
     /** Availability flag */
-    protected boolean notCanceled;
+    protected volatile boolean notCanceled;
+    protected TreeMap<ActivityManager, Integer> currentAMs = new TreeMap<ActivityManager, Integer>();
 
     /**
      * Creates a new instance of Resource.
@@ -49,9 +50,6 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	public Resource(int id, Simulation simul, String description) {
 		super(id, simul);
 		this.description = description;
-        timeTable = new ArrayList<TimeTableEntry>();
-        currentRoles = new TreeMap<ResourceType, Long>();
-        bookList = new TreeSet<WorkItem>();
         notCanceled = true;
         simul.add(this);
 	}
@@ -152,6 +150,14 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 		Long avEnd = currentRoles.get(role);
 		if ((avEnd == null) || (ts > avEnd))
 			currentRoles.put(role, ts);
+		// Updates AM list
+		ActivityManager am = role.getManager();
+		Integer counter = currentAMs.get(am);
+		if (counter == null)
+			counter = 1;
+		else
+			counter++;
+		currentAMs.put(am, counter);
 		signalSemaphore();
 	}
 
@@ -168,6 +174,13 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 		if (avEnd != null)
 			if (avEnd <= ts)
 				currentRoles.remove(role);
+		// Updates AM list
+		ActivityManager am = role.getManager();
+		Integer counter = currentAMs.get(am);
+		if (counter > 1)
+			currentAMs.put(am, counter - 1);
+		else
+			currentAMs.remove(am);
 		signalSemaphore();
 	}
 
@@ -175,15 +188,80 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 * Builds a list of activity managers referenced by the roles of the resource. 
 	 * @return Returns the currentManagers.
 	 */
-	public TreeSet<ActivityManager> getCurrentManagers() {
-		waitSemaphore();
-		TreeSet <ActivityManager> currentManagers = new TreeSet<ActivityManager>();
-		for (ResourceType role : currentRoles.keySet())
-			currentManagers.add(role.getManager());
-		signalSemaphore();
-		return currentManagers;
+	public Set<ActivityManager> getCurrentManagers() {
+		return currentAMs.keySet();
 	}
 
+	protected boolean inSeveralManagers() {
+		return (currentAMs.size() > 1);
+	}
+	
+	protected boolean add2Solution(ResourceType rt, WorkItem wi) {
+		if (notCanceled) {
+	    	if (inSeveralManagers()) {
+	            // Checks if the resource is busy (taken by other element or conflict in the same activity)
+	    		waitSemaphore();
+	    		// First checks if this resource was previously booked by this element 
+	        	if ((currentWI == null) && !isBooked(wi)) {
+	            	addBook(wi, rt);
+	    	        wi.pushResource(this, true);
+		        	// No other element has tried to book this resource
+		        	if (currentResourceType == null)
+		    	        currentResourceType = rt;
+	        		signalSemaphore();
+	        		return true;
+	        	}
+	    		signalSemaphore();
+	    	}
+	    	else {
+	    		// Simply checks if the resource is available and has not been used in another RT of the same activity yet.
+	            if (currentResourceType == null) {
+	    	        // This resource belongs to the solution...
+	    	        currentResourceType = rt;
+	    	        wi.pushResource(this, false);    	        
+	            	return true;
+	            }
+	    	}
+		}
+		return false;
+	}
+	
+	protected void removeFromSolution(WorkItem wi) {
+    	if (inSeveralManagers()) {
+    		waitSemaphore();
+	        wi.popResource(true);
+	        ResourceType rt = bookList.get(wi);
+	        removeBook(wi);
+    		if (currentResourceType == rt) {
+    			if (bookList.isEmpty())
+        			currentResourceType = null;
+    			else
+    				currentResourceType = bookList.firstEntry().getValue();
+    		}
+    		signalSemaphore();    		
+    	}
+    	else {
+	        currentResourceType = null;
+	        wi.popResource(false);    		
+    	}
+	}
+	
+	protected boolean checkSolution(WorkItem wi) {
+		if (inSeveralManagers()) {
+			waitSemaphore();
+			if (currentWI == null) {
+		        ResourceType rt = bookList.get(wi);
+		        currentResourceType = rt;
+			}
+			else {
+				signalSemaphore();
+				return false;
+			}
+			signalSemaphore();
+		}
+		return true;
+	}
+	
 	/**
 	 * An element books this resource. The element is simply included in the book list
 	 * of this resource.
@@ -191,13 +269,12 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 * @return False if the element has already booked this resource (in the same activity).
 	 * True in other case. 
 	 */
-	protected boolean addBook(WorkItem wi) {
+	protected void addBook(WorkItem wi, ResourceType rt) {
 		// First I complete the conflicts list
 		if (bookList.size() > 0)
-			wi.mergeConflictList(bookList.first());
-		boolean result = bookList.add(wi);
+			wi.mergeConflictList(bookList.firstKey());
+		bookList.put(wi, rt);
 		debug("booked\t" + wi.getElement());
-		return result;
 	}
 	
 	/**
@@ -216,7 +293,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 * @return True if this resource is currently booked by the specified single flow 
 	 */
 	protected boolean isBooked(WorkItem wi) {
-		return bookList.contains(wi);
+		return bookList.containsKey(wi);
 	}
 
 	/**
@@ -225,16 +302,22 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 * A "taken" element continues being booked. The book is released when the resource itself is
 	 * released. 
 	 * @param wi The work item which an element is executing
-	 * @param rt The role this resource has been taken for.
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
-	protected long catchResource(WorkItem wi, ResourceType rt) {
+	protected long catchResource(WorkItem wi) {
 		setTs(wi.getElement().getTs());
-		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, this, rt, wi, ResourceUsageInfo.Type.CAUGHT, getTs()));
-		currentWI = wi;
-		wi.addCaughtResource(this);
-		currentResourceType = rt;
-		return currentRoles.get(rt);
+		if (inSeveralManagers()) {
+			waitSemaphore();
+			simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, this, currentResourceType, wi, ResourceUsageInfo.Type.CAUGHT, getTs()));
+			removeBook(wi);
+			currentWI = wi;
+			signalSemaphore();
+		}
+		else {
+			simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, this, currentResourceType, wi, ResourceUsageInfo.Type.CAUGHT, getTs()));
+			currentWI = wi;			
+		}
+		return currentRoles.get(currentResourceType);
 	}
 	
     /**
@@ -502,7 +585,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 			simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, currentResourceType,ResourceInfo.Type.CANCELOFF, ts));
 			// FIXME: Habría que controlar el acceso concurrente a esta variable. Puede dar problemas.
 			setNotCanceled(true);
-			for (ActivityManager am : getCurrentManagers()) {
+			for (ActivityManager am : currentAMs.keySet()) {
 				// Beginning MUTEX access to activity manager
 				am.waitSemaphore();
 				// The activity manger is informed of new available resources
@@ -537,44 +620,6 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 		notCanceled = available;
 	}
 	
-	class ClockOnEntry {
-		private long init = 0;
-		private long finish = 0;
-		private long avCounter = 0;
-		
-		
-		public ClockOnEntry(long init) {
-			this.init = init;
-			finish = 0;
-			avCounter = 0;
-		}
-
-		public long getFinish() {
-			return finish;
-		}
-
-		public void setFinish(long finish) {
-			this.finish = finish;
-		}
-
-		public long getInit() {
-			return init;
-		}
-
-		public void setInit(long init) {
-			this.init = init;
-		}
-
-		public long getAvCounter() {
-			return avCounter;
-		}
-
-		public void setAvCounter(long avCounter) {
-			this.avCounter = avCounter;
-		}
-
-	}
-
 	public TreeMap<ResourceType, Long> getCurrentRoles() {
 		return currentRoles;
 	}

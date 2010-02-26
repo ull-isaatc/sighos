@@ -18,9 +18,9 @@ import es.ull.isaatc.util.Output;
  */
 public class BenchmarkTest {
 	private static final int MINARGS = 9;
-	static int nThreads = 3;
+	static int nThreads = 0;
 	static int nElem = 512;
-	static int nAct = 256;
+	static int nAct = 512;
 	static long actTime = nElem;
 	static int nIter = 10000;
 	static int nExp = 1;
@@ -30,7 +30,7 @@ public class BenchmarkTest {
 	static BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.CONFLICT;
 	static boolean debug = true;
 	static PrintStream out = System.out;
-	static SimulationFactory.SimulationType simType = SimulationType.SEQUENTIAL;
+	static SimulationFactory.SimulationType simType = SimulationType.GROUPEDXX;
 
 	/**
 	 * @param args

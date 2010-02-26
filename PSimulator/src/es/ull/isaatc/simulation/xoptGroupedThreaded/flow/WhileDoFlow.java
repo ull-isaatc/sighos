@@ -47,7 +47,7 @@ public class WhileDoFlow extends StructuredLoopFlow implements es.ull.isaatc.sim
 					finish(wThread);
 				}
 				else {
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 					next(wThread);				
 				}
 			}

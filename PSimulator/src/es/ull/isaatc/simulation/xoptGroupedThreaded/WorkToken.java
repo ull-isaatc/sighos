@@ -10,6 +10,7 @@ import es.ull.isaatc.simulation.xoptGroupedThreaded.flow.Flow;
  * @author Yeray Callero
  */
 public final class WorkToken {
+	// FIXME Debería ser un TreeSet
 	/** The list of flows already visited during the current timestamp */ 
 	private final HashSet<Flow> path = new HashSet<Flow>();
 	/** Validity of the work thread containing this token */

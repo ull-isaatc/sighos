@@ -31,7 +31,7 @@ public class CompositeBenchmarkTest {
 	static PrintStream out = System.out;
 
 	private static BenchmarkModel[] testSimultaneousActivities() {
-		boolean sequential = true;
+		boolean sequential = false;
 		int []nThreads = {1,2,3};
 		int []nElems = {32, 128, 256};
 		int []nActs = {4, 8, 32};
@@ -62,36 +62,60 @@ public class CompositeBenchmarkTest {
 	private static BenchmarkModel[] testSimpleResourceWorkload() {
 		boolean sequential = false;
 		int []nThreads = {1,2,3};
-		int []nElems = {1024, 2048};
-		int []nActs = {256, 1024, 2048};
+		int []nElems = {512};
+		int []nActs = {64};
 		int []nIters = {10000};
 		long []workLoads = {0};
-		BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.RESOURCES;
+		int []rtXact = {4};
+		int []rtXres = {2};
+		BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.CONFLICT;
 		BenchmarkModel.OverlappingType ovType = BenchmarkModel.OverlappingType.SAMETIME;
-		SimulationFactory.SimulationType []simTypes = {SimulationType.GROUPED3PHASE};		
-		SimulationFactory.SimulationType []xsimTypes = {};		
+		SimulationFactory.SimulationType []simTypes = {};		
+		SimulationFactory.SimulationType []xsimTypes = {SimulationType.GROUPEDXX};		
 		ArrayList<BenchmarkModel> configs = new ArrayList<BenchmarkModel>();
 		
 		int counter = 0;
-		for (int nIter : nIters) {
-			for (long wl : workLoads) {
-				for (int j = 0; j < nElems.length; j++) {
-					for (int k = 0; k < nActs.length && nActs[k] <= nElems[j]; k++) {
-						if (sequential) {
-							configs.add(new BenchmarkModel(counter++, SimulationFactory.SimulationType.SEQUENTIAL, modType, ovType, 1, nIter, nElems[j], nActs[k], 0, wl));
-							configs.add(new BenchmarkModel(counter++, SimulationFactory.SimulationType.SEQUENTIAL2, modType, ovType, 1, nIter, nElems[j], nActs[k], 0, wl));
-						}
-						for (SimulationType simType : simTypes) {
-							for (int nTh : nThreads)
-								configs.add(new BenchmarkModel(counter++, simType, modType, ovType, nTh, nIter, nElems[j], nActs[k], 0, wl));							
-						}
-						for (SimulationType simType : xsimTypes) {
-							configs.add(new BenchmarkModel(counter++, simType, modType, ovType, 0, nIter, nElems[j], nActs[k], 0, wl));							
-							for (int nTh : nThreads)
-								configs.add(new BenchmarkModel(counter++, simType, modType, ovType, nTh, nIter, nElems[j], nActs[k], 0, wl));							
+		BenchmarkModel bm = null;
+		for (int rtA : rtXact) {
+			for (int rtR : rtXres) {
+				for (int nIter : nIters) {
+					for (long wl : workLoads) {
+						for (int j = 0; j < nElems.length; j++) {
+							for (int k = 0; k < nActs.length && nActs[k] <= nElems[j]; k++) {
+								if (sequential) {
+									bm = new BenchmarkModel(counter++, SimulationFactory.SimulationType.SEQUENTIAL, modType, ovType, 1, nIter, nElems[j], nActs[k], 0, wl);
+									bm.setRtXact(rtA);
+									bm.setRtXres(rtR);
+									configs.add(bm);
+									bm = new BenchmarkModel(counter++, SimulationFactory.SimulationType.SEQUENTIAL2, modType, ovType, 1, nIter, nElems[j], nActs[k], 0, wl);
+									bm.setRtXact(rtA);
+									bm.setRtXres(rtR);
+									configs.add(bm);
+								}
+								for (SimulationType simType : simTypes) {
+									for (int nTh : nThreads) {
+										bm = new BenchmarkModel(counter++, simType, modType, ovType, nTh, nIter, nElems[j], nActs[k], 0, wl);
+										bm.setRtXact(rtA);
+										bm.setRtXres(rtR);
+										configs.add(bm);
+									}
+								}
+								for (SimulationType simType : xsimTypes) {
+									bm = new BenchmarkModel(counter++, simType, modType, ovType, 0, nIter, nElems[j], nActs[k], 0, wl);
+									bm.setRtXact(rtA);
+									bm.setRtXres(rtR);
+									configs.add(bm);
+									for (int nTh : nThreads) {
+										bm = new BenchmarkModel(counter++, simType, modType, ovType, nTh, nIter, nElems[j], nActs[k], 0, wl);
+										bm.setRtXact(rtA);
+										bm.setRtXres(rtR);
+										configs.add(bm);
+									}
+								}
+							}
 						}
 					}
-				}
+				}				
 			}
 		}
 		return configs.toArray(new BenchmarkModel[0]);
@@ -135,7 +159,7 @@ public class CompositeBenchmarkTest {
 				}
 				System.out.println("End WARM UP...");
 				configs = testSimpleResourceWorkload();
-				buf.println(BenchmarkModel.getHeader() + "\tTime");
+				buf.println(configs[0].getHeader() + "\tTime");
 				for (int i = 0; i < nExp; i++) {
 					for (BenchmarkModel conf : configs) {
 						buf.print(conf + "\t");

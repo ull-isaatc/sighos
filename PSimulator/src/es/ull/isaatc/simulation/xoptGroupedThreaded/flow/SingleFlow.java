@@ -69,7 +69,7 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 				if (beforeRequest(wThread.getElement()))
 					act.request(wThread.getNewWorkItem(this));
 				else {
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 					next(wThread);
 				}
 			}

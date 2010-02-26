@@ -17,17 +17,17 @@ import es.ull.isaatc.simulation.variable.Variable;
 
 
 /**
- * An identifiable object belonging to a simulation which can be compared. The identifier is
- * unique per type of simulation object, thus different types of simulation objects can use 
- * the same identifiers.
+ * An identifiable object belonging to a simulation which can be compared and can use 
+ * {@link Variable simulation variables]. The identifier is unique per type of simulation object, 
+ * thus different types of simulation objects can use the same identifiers.
  * @author Iván Castilla Rodríguez
  */
 public abstract class VariableStoreSimulationObject extends SimulationObject implements VariableStore {
-    /** Variable warehouse */
+    /** Variable store */
 	protected final TreeMap<String, Variable> varCollection = new TreeMap<String, Variable>();
     
 	/**
-     * Creates a new simulation object.
+     * Creates a new simulation object which can store variables.
      * @param id Unique identifier of the object
      * @param simul Simulation this object belongs to
      */
@@ -35,29 +35,17 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 		super(id, simul);
 	}
 
-	/**
-	 * Obtain a simulation's variable.
-	 * @param varName Variable name.
-	 * @return The Variable.
-	 */
+	@Override
 	public Variable getVar(String varName) {
 		return varCollection.get(varName);
 	}
 	
-	/**
-	 * Assign value to a simulation's variable.
-	 * @param varName Variable name.
-	 * @param value The new value.
-	 */
+	@Override
 	public void putVar(String varName, Variable value) {
 		varCollection.put(varName, value);
 	}
 	
-	/**
-	 * Assign value to a simulation's variable.
-	 * @param varName Variable name.
-	 * @param value The new value.
-	 */
+	@Override
 	public void putVar(String varName, double value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -67,11 +55,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 			varCollection.put(varName, new DoubleVariable(value));
 	}
 	
-	/**
-	 * Assign value to a simulation's variable.
-	 * @param varName Variable name.
-	 * @param value The new value.
-	 */
+	@Override
 	public void putVar(String varName, int value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -81,11 +65,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 			varCollection.put(varName, new IntVariable(value));
 	}
 
-	/**
-	 * Assign value to a simulation's variable.
-	 * @param varName Variable name.
-	 * @param value The new value.
-	 */
+	@Override
 	public void putVar(String varName, boolean value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -95,11 +75,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 			varCollection.put(varName, new BooleanVariable(value));
 	}
 
-	/**
-	 * Assign value to a simulation's variable.
-	 * @param varName Variable name.
-	 * @param value The new value.
-	 */
+	@Override
 	public void putVar(String varName, char value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -109,11 +85,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 			varCollection.put(varName, new CharacterVariable(value));
 	}
 	
-	/**
-	 * Assign value to a simulation's variable.
-	 * @param varName Variable name
-	 * @param value The new value.
-	 */
+	@Override
 	public void putVar(String varName, byte value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -123,11 +95,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 			varCollection.put(varName, new ByteVariable(value));
 	}
 
-	/**
-	 * Assign value to a simulation's variable.
-	 * @param varName Variable name.
-	 * @param value The new value.
-	 */
+	@Override
 	public void putVar(String varName, float value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -137,11 +105,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 			varCollection.put(varName, new FloatVariable(value));
 	}
 	
-	/**
-	 * Assign value to a simulation's variable.
-	 * @param varName Variable name.
-	 * @param value The new value.
-	 */
+	@Override
 	public void putVar(String varName, long value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -151,11 +115,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 			varCollection.put(varName, new LongVariable(value));
 	}
 	
-	/**
-	 * Assign value to a simulation's variable.
-	 * @param varName Variable name.
-	 * @param value The new value.
-	 */
+	@Override
 	public void putVar(String varName, short value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
@@ -164,7 +124,12 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 		} else
 			varCollection.put(varName, new ShortVariable(value));
 	}
-	
+
+	/**
+	 * Notifies the change of a simulation's variable view
+	 * @param params The required parameters
+	 * @return The value of the variable
+	 */
 	public double getVarViewValue(Object...params) {
 		String varName = (String) params[0];
 		params[0] = this;
