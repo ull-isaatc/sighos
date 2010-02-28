@@ -28,7 +28,7 @@ public class simplemodelo1 extends AbstractHandler {
 		MessageDialog.openInformation(
 				window.getShell(),
 				"Grafical SIGHOS",
-				"Aplicacion 1");
+				"Aplicacion 1 ");
 		return null;
 	}
 }
