@@ -152,5 +152,15 @@
          </toolbar>
       </menuContribution>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="g_sighos.PerspectiveFactory1"
+            fixed="true"
+            icon="icons/g.gif"
+            id="G_SIGHOS.perspective1"
+            name="GRAFICAL SIGHOS">
+      </perspective>
+   </extension>
 
 </plugin>
