@@ -4,77 +4,72 @@
 
    <extension
          point="org.eclipse.ui.commands">
-      <category
-            description="esto es una categoria "
-            id="ok.commands.category"
-            name="Sample Category">
-      </category>
       <command
-            categoryId="ok.commands.category"
+            categoryId="g_sighos.commands.category"
             helpContextId="esto es un comandos 1"
-            id="ok.commands.sampleCommand1"
+            id="g_sighos.commands.sampleCommand1"
             name="Sample Command">
       </command>
       <command
-            categoryId="ok.commands.category"
+            categoryId="g_sighos.commands.category"
             helpContextId="esto es un comandos 2"
-            id="ok.commands.sampleCommand2"
+            id="g_sighos.commands.sampleCommand2"
             name="Sample Command">
       </command>
       <command
-            categoryId="ok.commands.category"
+            categoryId="g_sighos.commands.category"
             helpContextId="esto es un comandos 3"
-            id="ok.commands.sampleCommand3"
+            id="g_sighos.commands.sampleCommand3"
             name="Sample Command">
       </command>
       <command
-            categoryId="ok.commands.category"
+            categoryId="g_sighos.commands.category"
             helpContextId="esto es un comandos 4"
-            id="ok.commands.sampleCommand4"
+            id="g_sighos.commands.sampleCommand4"
             name="Sample Command">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            commandId="ok.commands.sampleCommand1"
-            class="ok.handlers.simplemodelo1">
+            commandId="g_sighos.commands.sampleCommand1"
+            class="g_sighos.menus.simplemodelo1">
       </handler>
       <handler
-            class="ok.handlers.simplemodelo2"
-            commandId="ok.commands.sampleCommand2">
+            class="g_sighos.menus.simplemodelo2"
+            commandId="g_sighos.commands.sampleCommand2">
       </handler>
       <handler
-            class="ok.handlers.simplemodelo3"
-            commandId="ok.commands.sampleCommand3">
+            class="g_sighos.menus.simplemodelo3"
+            commandId="g_sighos.commands.sampleCommand3">
       </handler>
       <handler
-            class="ok.handlers.simplemodelo4"
-            commandId="ok.commands.sampleCommand4">
+            class="g_sighos.menus.simplemodelo4"
+            commandId="g_sighos.commands.sampleCommand4">
       </handler>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
       <key
-            commandId="ok.commands.sampleCommand1"
+            commandId="g_sighos.commands.sampleCommand1"
             contextId="org.eclipse.ui.contexts.window"
             sequence="M1+1"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            commandId="ok.commands.sampleCommand2"
+            commandId="g_sighos.commands.sampleCommand2"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+2">
       </key>
       <key
-            commandId="ok.commands.sampleCommand3"
+            commandId="g_sighos.commands.sampleCommand3"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+3">
+            sequence="M1+6">
       </key>
       <key
-            commandId="ok.commands.sampleCommand4"
+            commandId="g_sighos.commands.sampleCommand4"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+4">
@@ -87,17 +82,18 @@
          <menu
                label="Elementos"
                mnemonic="M"
-               id="ok.menus.sampleMenu">
+               id="g_sighos.menus.sampleMenu">
             <command
-                  commandId="ok.commands.sampleCommand1"
+                  commandId="g_sighos.commands.sampleCommand1"
                   icon="icons/1.gif"
-                  id="ok.menus.sampleCommand"
+                  id="g_sighos.menus.sampleCommand1"
                   label="elemento 1"
                   mnemonic="S">
             </command>
             <command
-                  commandId="ok.commands.sampleCommand2"
+                  commandId="g_sighos.commands.sampleCommand2"
                   icon="icons/2.gif"
+                  id="g_sighos.menus.sampleCommand1"
                   label="elemento 2"
                   style="push">
             </command>
@@ -106,14 +102,16 @@
                id="menu2"
                label="Estado">
             <command
-                  commandId="ok.commands.sampleCommand3"
+                  commandId="g_sighos.commands.sampleCommand3"
                   icon="icons/3.gif"
+                  id="g_sighos.menus.sampleCommand3"
                   label="estado 1"
                   style="push">
             </command>
             <command
-                  commandId="ok.commands.sampleCommand4"
+                  commandId="g_sighos.commands.sampleCommand4"
                   icon="icons/4.gif"
+                  id="g_sighos.menus.sampleCommand4"
                   label="estado 2"
                   style="push">
             </command>
@@ -122,33 +120,33 @@
       <menuContribution
             locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
          <toolbar
-               id="ok.toolbars.sampleToolbar">
+               id="g_sighos.toolbars.sampleToolbar">
             <command
-                  commandId="ok.commands.sampleCommand1"
+                  commandId="g_sighos.commands.sampleCommand1"
                   helpContextId="Nos dice hola"
-                  icon="icons/sample.gif"
-                  id="ok.toolbars.sampleCommand1"
+                  icon="icons/1.gif"
+                  id="g_sighos.toolbars.sampleCommand1"
                   tooltip="Say hello world">
             </command>
             <command
-                  commandId="ok.commands.sampleCommand2"
+                  commandId="g_sighos.commands.sampleCommand2"
                   helpContextId="Nos dice hola"
-                  icon="icons/sample.gif"
-                  id="ok.toolbars.sampleCommand2"
+                  icon="icons/2.gif"
+                  id="g_sighos.toolbars.sampleCommand2"
                   tooltip="Say hello world">
             </command>
             <command
-                  commandId="ok.commands.sampleCommand3"
+                  commandId="g_sighos.commands.sampleCommand3"
                   helpContextId="Nos dice hola"
-                  icon="icons/sample.gif"
-                  id="ok.toolbars.sampleCommand3"
+                  icon="icons/3.gif"
+                  id="g_sighos.toolbars.sampleCommand3"
                   tooltip="Say hello world">
             </command>
             <command
-                  commandId="ok.commands.sampleCommand4"
+                  commandId="g_sighos.commands.sampleCommand4"
                   helpContextId="Nos dice hola"
-                  icon="icons/sample.gif"
-                  id="ok.toolbars.sampleCommand4"
+                  icon="icons/4.gif"
+                  id="g_sighos.toolbars.sampleCommand4"
                   tooltip="Say hello world">
             </command>
          </toolbar>

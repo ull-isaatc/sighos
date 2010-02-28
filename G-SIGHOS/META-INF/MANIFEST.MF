@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Ok
-Bundle-SymbolicName: ok; singleton:=true
+Bundle-Name: g_sighos
+Bundle-SymbolicName: g_sighos;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: ok.Activator
+Bundle-Activator: g_sighos.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
