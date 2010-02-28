@@ -155,11 +155,10 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="g_sighos.PerspectiveFactory1"
-            fixed="true"
+            class="g_sighos.perspectives.PerspectiveSighos"
             icon="icons/g.gif"
-            id="G_SIGHOS.perspective1"
-            name="GRAFICAL SIGHOS">
+            id="g_sighos.perspectives.PerspectiveSighos"
+            name="Grafical SIGHOS">
       </perspective>
    </extension>
 
