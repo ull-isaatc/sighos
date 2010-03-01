@@ -23,24 +23,28 @@ import org.eclipse.jdt.ui.JavaUI;
  *  referred to as API constants while others are hardcoded and may be subject 
  *  to change. 
  */
-public class PerspectiveSighos implements IPerspectiveFactory {
+public class PerspectiveSighos  implements IPerspectiveFactory {
 
 	private IPageLayout factory;
-
+     
 	public PerspectiveSighos() {
-		super();
+		//super();
+		createInitialLayout(factory);
 	}
 
 	public void createInitialLayout(IPageLayout factory) {
 		this.factory = factory;
+			
 		addViews();
 		addActionSets();
 		addNewWizardShortcuts();
 		addPerspectiveShortcuts();
-		addViewShortcuts();
+		addViewShortcuts();  
+		
+		
 	}
 
-	private void addViews() {
+	private void addViews() { 
 		// Creates the overall folder layout. 
 		// Note that each new Folder uses a percentage of the remaining EditorArea.
 		
@@ -64,10 +68,10 @@ public class PerspectiveSighos implements IPerspectiveFactory {
 		topLeft.addView("org.eclipse.jdt.junit.ResultView"); //NON-NLS-1
 		
 		factory.addFastView("org.eclipse.team.ccvs.ui.RepositoriesView",0.50f); //NON-NLS-1
-		factory.addFastView("org.eclipse.team.sync.views.SynchronizeView", 0.50f); //NON-NLS-1
+		factory.addFastView("org.eclipse.team.sync.views.SynchronizeView", 0.50f); //NON-NLS-1n
 	}
 
-	private void addActionSets() {
+	private void addActionSets() { 
 		factory.addActionSet("org.eclipse.debug.ui.launchActionSet"); //NON-NLS-1
 		factory.addActionSet("org.eclipse.debug.ui.debugActionSet"); //NON-NLS-1
 		factory.addActionSet("org.eclipse.debug.ui.profileActionSet"); //NON-NLS-1
@@ -78,22 +82,23 @@ public class PerspectiveSighos implements IPerspectiveFactory {
 		factory.addActionSet("org.eclipse.ant.ui.actionSet.presentation"); //NON-NLS-1
 		factory.addActionSet(JavaUI.ID_ACTION_SET);
 		factory.addActionSet(JavaUI.ID_ELEMENT_CREATION_ACTION_SET);
-		factory.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET); //NON-NLS-1
+		factory.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET); //NON-NLS-1 
 	}
 
-	private void addPerspectiveShortcuts() {
+	private void addPerspectiveShortcuts() { 
 		factory.addPerspectiveShortcut("org.eclipse.team.ui.TeamSynchronizingPerspective"); //NON-NLS-1
 		factory.addPerspectiveShortcut("org.eclipse.team.cvs.ui.cvsPerspective"); //NON-NLS-1
 		factory.addPerspectiveShortcut("org.eclipse.ui.resourcePerspective"); //NON-NLS-1
 	}
 
-	private void addNewWizardShortcuts() {
+	private void addNewWizardShortcuts() { 
 		factory.addNewWizardShortcut("org.eclipse.team.cvs.ui.newProjectCheckout");//NON-NLS-1
 		factory.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//NON-NLS-1
-		factory.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//NON-NLS-1
+		factory.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//NON-NLS-1 
 	}
 
 	private void addViewShortcuts() {
+		
 		factory.addShowViewShortcut("org.eclipse.ant.ui.views.AntView"); //NON-NLS-1
 		factory.addShowViewShortcut("org.eclipse.team.ccvs.ui.AnnotateView"); //NON-NLS-1
 		factory.addShowViewShortcut("org.eclipse.pde.ui.DependenciesView"); //NON-NLS-1

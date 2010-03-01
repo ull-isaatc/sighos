@@ -5,25 +5,21 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            categoryId="g_sighos.commands.category"
             helpContextId="esto es un comandos 1"
             id="g_sighos.commands.sampleCommand1"
             name="Sample Command">
       </command>
       <command
-            categoryId="g_sighos.commands.category"
             helpContextId="esto es un comandos 2"
             id="g_sighos.commands.sampleCommand2"
             name="Sample Command">
       </command>
       <command
-            categoryId="g_sighos.commands.category"
             helpContextId="esto es un comandos 3"
             id="g_sighos.commands.sampleCommand3"
             name="Sample Command">
       </command>
       <command
-            categoryId="g_sighos.commands.category"
             helpContextId="esto es un comandos 4"
             id="g_sighos.commands.sampleCommand4"
             name="Sample Command">
@@ -97,6 +93,12 @@
                   label="elemento 2"
                   style="push">
             </command>
+            <visibleWhen
+                  checkEnabled="true">
+               <instanceof
+                     value="g_sighos.perspectives.PerspectiveSighos">
+               </instanceof>
+            </visibleWhen>
          </menu>
          <menu
                id="menu2"
@@ -115,6 +117,12 @@
                   label="estado 2"
                   style="push">
             </command>
+            <visibleWhen
+                  checkEnabled="false">
+               <instanceof
+                     value="g_sighos.perspectives.PerspectiveSighos">
+               </instanceof>
+            </visibleWhen>
          </menu>
       </menuContribution>
       <menuContribution
