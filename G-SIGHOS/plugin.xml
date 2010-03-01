@@ -164,7 +164,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="g_sighos.perspectives.PerspectiveSighos"
-            icon="icons/g.gif"
+            icon="icons/1.gif"
             id="g_sighos.perspectives.PerspectiveSighos"
             name="Grafical SIGHOS">
       </perspective>
