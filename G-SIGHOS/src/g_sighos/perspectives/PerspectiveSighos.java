@@ -64,7 +64,7 @@ public class PerspectiveSighos  implements IPerspectiveFactory {
 				IPageLayout.LEFT,
 				0.25f,
 				factory.getEditorArea());
-		topLeft.addView(IPageLayout.ID_RES_NAV);
+	//	topLeft.addView(IPageLayout.ID_RES_NAV);
 		topLeft.addView("org.eclipse.jdt.junit.ResultView"); //NON-NLS-1
 		
 		factory.addFastView("org.eclipse.team.ccvs.ui.RepositoriesView",0.50f); //NON-NLS-1
@@ -106,7 +106,7 @@ public class PerspectiveSighos  implements IPerspectiveFactory {
 		factory.addShowViewShortcut("org.eclipse.team.ui.GenericHistoryView"); //NON-NLS-1
 		factory.addShowViewShortcut(IConsoleConstants.ID_CONSOLE_VIEW);
 		factory.addShowViewShortcut(JavaUI.ID_PACKAGES);
-		factory.addShowViewShortcut(IPageLayout.ID_RES_NAV);
+	//	factory.addShowViewShortcut(IPageLayout.ID_RES_NAV);
 		factory.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
 		factory.addShowViewShortcut(IPageLayout.ID_OUTLINE);
 	}
