@@ -26,15 +26,16 @@ import org.eclipse.jdt.ui.JavaUI;
 public class PerspectiveSighos  implements IPerspectiveFactory {
 
 	private IPageLayout factory;
-     
+          
 	public PerspectiveSighos() {
-		//super();
-		createInitialLayout(factory);
+		super();
+		//createInitialLayout(factory);
 	}
 
 	public void createInitialLayout(IPageLayout factory) {
 		this.factory = factory;
-			
+		
+		
 		addViews();
 		addActionSets();
 		addNewWizardShortcuts();
@@ -64,6 +65,9 @@ public class PerspectiveSighos  implements IPerspectiveFactory {
 				IPageLayout.LEFT,
 				0.25f,
 				factory.getEditorArea());
+		
+		
+		
 	//	topLeft.addView(IPageLayout.ID_RES_NAV);
 		topLeft.addView("org.eclipse.jdt.junit.ResultView"); //NON-NLS-1
 		

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-
+ 
    <extension
          point="org.eclipse.ui.commands">
       <command
@@ -93,12 +93,6 @@
                   label="elemento 2"
                   style="push">
             </command>
-            <visibleWhen
-                  checkEnabled="true">
-               <instanceof
-                     value="g_sighos.perspectives.PerspectiveSighos">
-               </instanceof>
-            </visibleWhen>
          </menu>
          <menu
                id="menu2"
@@ -117,12 +111,6 @@
                   label="estado 2"
                   style="push">
             </command>
-            <visibleWhen
-                  checkEnabled="false">
-               <instanceof
-                     value="g_sighos.perspectives.PerspectiveSighos">
-               </instanceof>
-            </visibleWhen>
          </menu>
       </menuContribution>
       <menuContribution
@@ -164,7 +152,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="g_sighos.perspectives.PerspectiveSighos"
-            icon="icons/1.gif"
+            icon="icons/g.gif"
             id="g_sighos.perspectives.PerspectiveSighos"
             name="Grafical SIGHOS">
       </perspective>
