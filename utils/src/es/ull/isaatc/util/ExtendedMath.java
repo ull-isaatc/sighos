@@ -41,4 +41,76 @@ public class ExtendedMath {
 	public static double floor(double value, double factor) {
 		return Math.floor(value / factor) * factor;		
 	}
+
+	/**
+	 * 
+	 * @param k
+	 * @return
+	 * @author Patricia Shanahan pats@acm.org
+	 */
+	public static int nextHigherPowerOfTwo(int k) {
+		k--;
+		for (int i = 1; i < 32; i <<= 1) {
+			k = k | k >> i;
+		}
+		return k + 1;
+	}
+
+	/**
+	 * 
+	 * @param m
+	 * @param n
+	 * @return
+	 * @author Patricia Shanahan pats@acm.org
+	 */
+	public static int powInt(int m, int n) {
+		int bitMask = n;
+		int evenPower = m;
+		int result;
+		if ((bitMask & 1) != 0) {
+			result = m;
+		} else {
+			result = 1;
+		}
+		bitMask >>>= 1;
+		while (bitMask != 0) {
+			evenPower *= evenPower;
+			if ((bitMask & 1) != 0) {
+				result *= evenPower;
+			}
+			bitMask >>>= 1;
+		} // end while
+		return result;
+	}
+
+	/**
+	 * Raise a double to a positive integer power. Fast version of Math.pow.
+	 * 
+	 * @param x
+	 *            number to be taken to a power.
+	 * @param n
+	 *            power to take x to. 0 <= n <= Integer.MAX_VALUE Negative
+	 *            numbers will be treated as unsigned positives.
+	 * @return x to the power n
+	 * @author Patricia Shanahan pats@acm.org
+	 */
+	public static double power(double x, int n) {
+		int bitMask = n;
+		double evenPower = x;
+		double result;
+		if ((bitMask & 1) != 0) {
+			result = x;
+		} else {
+			result = 1;
+		}
+		bitMask >>>= 1;
+		while (bitMask != 0) {
+			evenPower *= evenPower;
+			if ((bitMask & 1) != 0) {
+				result *= evenPower;
+			}
+			bitMask >>>= 1;
+		} // end while
+		return result;
+	} // end power
 }
