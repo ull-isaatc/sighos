@@ -42,6 +42,7 @@ public class SimulationFactory {
 		GROUPEDXX,
 		PASIVE,
 		GROUPED3PHASE,
+		BONN3PHASE
 		
 	}
 	public static SimulationObjectFactory getInstance(SimulationType type, int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
@@ -57,6 +58,7 @@ public class SimulationFactory {
 		case GROUPEDXX: return new es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case PASIVE: return new es.ull.isaatc.simulation.groupedExtraPasiveThreads.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case GROUPED3PHASE: return new es.ull.isaatc.simulation.xoptGroupedThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case BONN3PHASE: return new es.ull.isaatc.simulation.bonn3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		}
 		return null;
 	}
@@ -74,6 +76,7 @@ public class SimulationFactory {
 		case GROUPEDXX: return new es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case PASIVE: return new es.ull.isaatc.simulation.groupedExtraPasiveThreads.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case GROUPED3PHASE: return new es.ull.isaatc.simulation.xoptGroupedThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case BONN3PHASE: return new es.ull.isaatc.simulation.bonn3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		}
 		return null;
 	}
