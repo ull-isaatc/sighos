@@ -257,7 +257,7 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
         TreeSet<ActivityManager> amList = new TreeSet<ActivityManager>();
         // Generate unavailability periods.
         for (Resource res : caughtResources) {
-        	long cancellation = act.getResourceCancelation(res.currentResourceType);
+        	long cancellation = act.getResourceCancelation(res.getCurrentResourceType());
         	if (cancellation > 0) {
 				long actualTs = elem.getTs();
 				res.setNotCanceled(false);

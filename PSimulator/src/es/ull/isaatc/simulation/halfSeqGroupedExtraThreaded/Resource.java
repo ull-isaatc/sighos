@@ -32,9 +32,9 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     /** A counter of the valid timetable entries which this resource is following. */
     private final AtomicInteger validTTEs = new AtomicInteger();
     /** The resource type which this resource is being booked for */
-    protected ResourceType currentResourceType = null;
+    protected volatile ResourceType currentResourceType = null;
     /** Work item which currently holds this resource */
-    protected WorkItem currentWI = null;
+    protected volatile WorkItem currentWI = null;
     /** List of elements trying to book this resource */
     protected final TreeMap<WorkItem, ResourceType> bookList = new TreeMap<WorkItem, ResourceType>();
     /** Availability flag */
@@ -229,7 +229,6 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	protected void removeFromSolution(WorkItem wi) {
     	if (inSeveralManagers()) {
     		waitSemaphore();
-	        wi.popResource(true);
 	        ResourceType rt = bookList.get(wi);
 	        removeBook(wi);
     		if (currentResourceType == rt) {
@@ -238,11 +237,12 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     			else
     				currentResourceType = bookList.firstEntry().getValue();
     		}
+	        wi.popResource(true);
     		signalSemaphore();    		
     	}
     	else {
-	        currentResourceType = null;
 	        wi.popResource(false);    		
+	        currentResourceType = null;
     	}
 	}
 	
@@ -334,8 +334,8 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         // The book is removed
 //		bookList.remove(currentWI); 
 //		debug("unbooked\t" + currentWI.getElement());
-        currentWI = null;
         currentResourceType = null;        
+        currentWI = null;
         if (timeOut) {
         	timeOut = false;
     		signalSemaphore();
@@ -369,14 +369,6 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
      */
     public ResourceType getCurrentResourceType() {
         return currentResourceType;
-    }
-    
-    /**
-     * Setter for property currentResourceType.
-     * @param rt New value of property currentResourceType.
-     */
-    protected void setCurrentResourceType(ResourceType rt) {
-        this.currentResourceType = rt;
     }
     
     /**
