@@ -13,13 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
-
+import es.ull.isaatc.simulation.bonn3Phase.flow.Flow;
 import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.common.info.TimeChangeInfo;
-import es.ull.isaatc.simulation.bonn3Phase.flow.Flow;
 import es.ull.isaatc.util.ExtendedMath;
 import es.ull.isaatc.util.Output;
 
@@ -54,8 +52,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 	private ActivityManagerCreator amCreator = null;
 	/** Local virtual time. Represents the current simulation time */
 	private volatile long lvt;
-    /** A counter to know how many events are in execution */
-    private AtomicInteger executingEvents = new AtomicInteger(0);
 	/** A timestamp-ordered list of events whose timestamp is in the future. Events are grouped according 
 	 * to their timestamps. */
 	private final TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>> futureEventList  = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
@@ -71,6 +67,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 	private Round[] tourRounds;
 	/** Flags to be set during the barrier */
 	private AtomicBoolean[] tourFlag;
+	private TPCBarrier secondBarrier;
     
 	/**
 	 * Creates a new Simulation which starts at <code>startTs</code> and finishes at <code>endTs</code>.
@@ -137,9 +134,12 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 		// Creates the event executors
         executor = new SlaveEventExecutor[nThreads];
     	/** The number of rounds used for the barrier */
-    	final int numRounds = (int) Math.ceil(Math.log(nThreads + 1) / Math.log(2.0));;
+    	final int numRounds = (int) Math.ceil(Math.log(nThreads + 1) / Math.log(2.0));
         for (int i = 0; i < nThreads; i++)
 			executor[i] = new SlaveEventExecutor(i + 1, numRounds);
+
+        // Starts second barrier
+		secondBarrier = new TournamentBarrier(executor);
 
 		final int numVirtualThreads = ExtendedMath.nextHigherPowerOfTwo(nThreads + 1);
         // Initializes the barrier of each executor
@@ -239,6 +239,41 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 			list.add(e);
 	}
 
+	private void executeEvents() {
+    	// Updates the future event list with the events produced by the executor threads
+    	for (SlaveEventExecutor ee : executor) {
+    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
+    		while (!list.isEmpty()) {
+    			BasicElement.DiscreteEvent e = list.pop();
+    			addWait(e);
+    		}    		
+    	}
+        beforeClockTick();
+
+        // Advances the simulation clock
+        lvt = futureEventList.firstKey();
+        infoHandler.notifyInfo(new TimeChangeInfo(this, lvt));
+        afterClockTick();
+        debug("SIMULATION TIME ADVANCING " + lvt);
+        // Events with timestamp higher or equal to the simulation end time aren't
+        // executed
+        if (lvt < internalEndTs) {
+        	ArrayList<BasicElement.DiscreteEvent> list = futureEventList.pollFirstEntry().getValue();
+        	// Distributes the events with the same timestamp among the executors
+    		int share = list.size();
+    		// if there aren't many events, the first executor deals with them all
+    		if (share < executor.length)
+    			executor[0].addEvents(list);    			
+    		else {
+	    		share = share / executor.length;
+	    		int iter = 0;
+	    		for (; iter < executor.length - 1; iter++)
+	    			executor[iter].addEvents(list.subList(share * iter, share * (iter + 1)));
+	    		executor[iter].addEvents(list.subList(share * iter, list.size()));
+    		}
+        }
+	}
+
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.bonn3Phase.BarrierEnabled#await()
 	 */
@@ -270,40 +305,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 			case ROOT:
 				while (tourFlag[currentRound].get() != tourSense) {
 				}
-		    	// Updates the future event list with the events produced by the executor threads
-		    	for (SlaveEventExecutor ee : executor) {
-		    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
-		    		while (!list.isEmpty()) {
-		    			BasicElement.DiscreteEvent e = list.pop();
-		    			addWait(e);
-		    		}    		
-		    	}
-		        beforeClockTick();
-
-		        // Advances the simulation clock
-		        lvt = futureEventList.firstKey();
-		        infoHandler.notifyInfo(new TimeChangeInfo(this, lvt));
-		        afterClockTick();
-		        debug("SIMULATION TIME ADVANCING " + lvt);
-		        // Events with timestamp higher or equal to the simulation end time aren't
-		        // executed
-		        if (lvt < internalEndTs) {
-		        	ArrayList<BasicElement.DiscreteEvent> list = futureEventList.pollFirstEntry().getValue();
-		        	// Distributes the events with the same timestamp among the executors
-		    		int share = list.size();
-		    		executingEvents.addAndGet(share);
-		    		// if there aren't many events, the first executor deals with them all
-		    		if (share < executor.length)
-		    			executor[0].addEvents(list);    			
-		    		else {
-			    		share = share / executor.length;
-			    		int iter = 0;
-			    		for (; iter < executor.length - 1; iter++)
-			    			executor[iter].addEvents(list.subList(share * iter, share * (iter + 1)));
-			    		executor[iter].addEvents(list.subList(share * iter, list.size()));
-		    		}
-		        }
-				
+				executeEvents();
 				tourFlagOut = tourSense;
 				// Exit switch statement (and thus the for loop).
 				break;
@@ -357,7 +359,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 	        for (ArrayList<BasicElement.DiscreteEvent> ad : futureEventList.values())
 	        	for (BasicElement.DiscreteEvent e : ad)
 	        		strLong.append(e + " ");
-	        strLong.append("\r\n" + executingEvents + " executing elements:");
 	        strLong.append("\r\n");
 	        strLong.append("\r\n------ LP STATE FINISHED ------\r\n");
 			debug(strLong.toString());
@@ -420,7 +421,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 		public void addEvent(BasicElement.DiscreteEvent event) {
 	    	long evTs = event.getTs();
 	        if (evTs == lvt) {
-				executingEvents.incrementAndGet();
 				extraEvents.push(event);
 	        }
 	        else if (evTs > lvt)
@@ -521,10 +521,10 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 				await();
 				while (!extraEvents.isEmpty()) {
 					extraEvents.pop().run();
-			    	executingEvents.decrementAndGet();
 				}
-				// Waits to carry out the second phase
-				while (executingEvents.get() != 0);
+				// Waits to carry out the second phase (unless there's only one executor)
+				if (nThreads > 1)
+					secondBarrier.await();
 				for (ActivityManager am : amList)
 					am.executeWork();
 			}
