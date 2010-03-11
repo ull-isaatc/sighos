@@ -438,7 +438,10 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	    			execEvents.pop().run();
 				// Every time the loop is entered we must wait for all the events from the 
 				// previous iteration to be finished (the execution queue must be empty)
-				await();
+	    		if (nThreads > 0)
+	    			await();
+	    		else
+	    			execWaitingElements();
 			}
 		}
 
