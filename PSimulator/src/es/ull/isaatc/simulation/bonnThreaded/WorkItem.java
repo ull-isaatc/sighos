@@ -3,9 +3,7 @@
  */
 package es.ull.isaatc.simulation.bonnThreaded;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
 
 import es.ull.isaatc.simulation.common.info.ResourceInfo;
@@ -28,10 +26,8 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
      * the flow has not been carried out. */
     protected Activity.ActivityWorkGroup executionWG = null;
     /** List of caught resources */
-    protected ArrayDeque<Resource> caughtResources = new ArrayDeque<Resource>();
+    protected ArrayList<Resource> caughtResources;
     // Avoiding deadlocks (time-overlapped resources)
-    /** Amount of possible conflictive resources in the solution */
-    protected int conflictiveResources = 0;
     /** List of conflictive elements */
     protected ConflictZone conflicts;
     /** Stack of nested semaphores */
@@ -50,6 +46,7 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 	public WorkItem(WorkThread wThread) {
 		this.wThread = wThread;
 		elem = wThread.getElement();
+		caughtResources = new ArrayList<Resource>();
 	}
 
 	/**
@@ -200,75 +197,42 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
      * Returns the list of the resources currently used by the element. 
 	 * @return Returns the list of resources caught by this element.
 	 */
-	public ArrayDeque<Resource> getCaughtResources() {
+	public ArrayList<Resource> getCaughtResources() {
 		return caughtResources;
 	}
 
-	public boolean checkCaughtResources() {
-		for (Resource res : caughtResources)
-			if (!res.checkSolution(this))
-				return false;
-		return true;
-	}
 	/**
 	 * Adds a resource to the list of resources caught by this element.
 	 * @param res A new resource.
 	 */
-	protected void pushResource(Resource res, boolean conflictive) {
-		caughtResources.push(res);
-		if (conflictive)
-			conflictiveResources++;
-	}
-	
-	/**
-	 * Removes the last resource caught by this element.
-	 * @return The resource removed
-	 */
-	protected Resource popResource(boolean conflictive) {
-		if (conflictive)
-			conflictiveResources--;
-		return caughtResources.pop();
-	}
-	
-	protected boolean isConflictive() {
-		return (conflictiveResources > 0);
+	protected void addCaughtResource(Resource res) {
+		caughtResources.add(res);
 	}
 	
     /**
-     * Catch the resources needed for each resource type to carry out an activity.
-     * @return The minimum availability timestamp of the taken resources 
-     */
-	protected long catchResources() {
-    	long auxTs = Long.MAX_VALUE;
-    	for (Resource res : caughtResources) {
-    		auxTs = Math.min(auxTs, res.catchResource(this));
-            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
-    	}
-    	// When this point is reached, that means that the resources have been completely taken
-    	signalConflictSemaphore();
-		return auxTs;
-	}
-
-	/**
      * Releases the resources caught by this item to perform the activity.
      * @return A list of activity managers affected by the released resources
      */
-    protected TreeSet<ActivityManager> releaseCaughtResources() {
-        TreeSet<ActivityManager> amList = new TreeSet<ActivityManager>();
+    protected ArrayList<ActivityManager> releaseCaughtResources() {
+        ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
         // Generate unavailability periods.
         for (Resource res : caughtResources) {
-        	long cancellation = act.getResourceCancelation(res.getCurrentResourceType());
-        	if (cancellation > 0) {
-				long actualTs = elem.getTs();
-				res.setNotCanceled(false);
-				flow.simul.getInfoHandler().notifyInfo(new ResourceInfo(flow.simul, res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
-				res.generateCancelPeriodOffEvent(actualTs, cancellation);
+			for (int i = 0; i < act.cancellationList.size(); i++) {
+				es.ull.isaatc.simulation.bonnThreaded.Activity.CancelListEntry entry = act.cancellationList.get(i);
+				if (res.currentResourceType == entry.rt) {
+					long actualTs = elem.getTs();
+					res.setNotCanceled(false);
+					flow.simul.getInfoHandler().notifyInfo(new ResourceInfo(flow.simul, res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
+					res.generateCancelPeriodOffEvent(actualTs, entry.dur);
+				}
 			}
 			elem.debug("Returned " + res);
         	// The resource is freed
         	if (res.releaseResource()) {
         		// The activity managers involved are included in the list
-        		amList.addAll(res.getCurrentManagers());
+        		for (ActivityManager am : res.getCurrentManagers())
+        			if (!amList.contains(am))
+        				amList.add(am);
         	}
         }
         caughtResources.clear();

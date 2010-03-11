@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.bonnThreaded;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.TreeSet;
 
 import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.simulation.common.SimulationTimeFunction;
@@ -192,7 +192,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	public void carryOut(WorkItem wItem) {
 		Element elem = wItem.getElement();
 		wItem.getFlow().afterStart(elem);
-		long auxTs = wItem.catchResources();
+		long auxTs = wItem.getExecutionWG().catchResources(wItem);
 		// The first time the activity is carried out (useful only for interruptible activities)
 		if (wItem.getTimeLeft() == -1) {
 			wItem.setTimeLeft(((TimeDrivenActivity.ActivityWorkGroup)wItem.getExecutionWG()).getDurationSample());
@@ -224,7 +224,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 		// Beginning MUTEX access to activity manager
 		manager.waitSemaphore();
 
-		TreeSet<ActivityManager> amList = wItem.releaseCaughtResources();
+		ArrayList<ActivityManager> amList = wItem.releaseCaughtResources();
 		if (!isNonPresential())
 			elem.setCurrent(null);
 
@@ -254,7 +254,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 			// Checks if there are pending activities that haven't noticed the
 			// element availability
 			if (!isNonPresential())
-				elem.addAvailableElementEvents(amList);
+				elem.addAvailableElementEvents();
 			return true;
 		}
 		// Added the condition(Lancaster compatibility), even when it should be unnecessary.

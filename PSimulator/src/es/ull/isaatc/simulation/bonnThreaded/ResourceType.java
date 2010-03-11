@@ -3,6 +3,7 @@ package es.ull.isaatc.simulation.bonnThreaded;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+
 /**
  * Represents the different roles that can be found in the system. The resources can serve for
  * different purposes, and each purpose is a role.
@@ -12,7 +13,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
     /** Activity manager this resource type belongs to. */
     protected ActivityManager manager;
     /** A list of the currently available resources. */
-    protected final ResourceList availableResourceList = new ResourceList();
+    protected final ResourceList availableResourceList;
     /** A brief description of the resource type */
     protected final String description;
 
@@ -25,6 +26,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	public ResourceType(int id, Simulation simul, String description) {
 		super(id, simul);
         this.description = description;
+        availableResourceList = new ResourceList();
         simul.add(this);
 	}
 
@@ -54,6 +56,46 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
         manager.add(this);
     }
     
+	/**
+	 * Books all the available resources and gets the total amount.
+     * @param wi Work item looking for available resources.
+	 * @return An array that contains the total amount of available resources without 
+	 * any conflicts (0) and the total amount of resources which are booked for, at least, 
+	 * other resource type in the same activity (1). 
+	 */
+    protected int[] getAvailable(WorkItem wi) {
+        int total[] = new int[2];
+        for (int i = 0; i < availableResourceList.size(); i++) {
+            Resource res = availableResourceList.get(i);
+    		res.waitSemaphore();
+            // First, I check if the resource is being used
+            if (res.isAvailable()) {
+            	// This is needed to avoid resources which become unavailable at this ts
+            	if (!wi.getActivity().isInterruptible() || res.getAvailability(this) > getTs()) {
+		            if (res.addBook(wi))
+		            	total[0]++;
+		            else
+		            	total[1]++;
+            	}
+            }
+    		res.signalSemaphore();
+        }
+        return total;
+    }
+
+    /**
+     * Frees the resources previously booked by a work item.
+     * @param wi Work item the resources were booked for.
+     */
+    protected void resetAvailable(WorkItem wi) {
+        for (int i = 0; i < availableResourceList.size(); i++) {
+        	Resource res = availableResourceList.get(i);
+    		res.waitSemaphore();
+        	res.removeBook(wi);
+    		res.signalSemaphore();
+        }
+    }
+
     /**
      * Returns the resource corresponding to the "ind" position.
      * @param ind Resource position in the availability list. 
@@ -72,36 +114,75 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
      * @return The resource's index or -1 if there are not available resources.
      */
     protected int getNextAvailableResource(int ind, WorkItem wi) {
-    	int total = availableResourceList.size();
-    	for (; ind < total; ind++) {
-    		Resource res = availableResourceList.get(ind);
-        	if (res.add2Solution(this, wi))
-        		return ind;
-    	}
-    	return -1;
-    }
-
-    /**
-     * Checks if there are enough available resources starting from the ind-th one. 
-     * @param ind Index of the first resource to check
-     * @param need Total amount of available resources required.
-     * @return True if there are more available resources than needed; false in other case.
-     */
-    protected boolean checkNeeded(int ind, int need) {
-    	int total = availableResourceList.size();
-    	if (ind + need > total)
-    		return false;
-    	int disp = 0;
-    	for (int i = ind; (i < total) && (disp < need); i++) {
-    		Resource res = availableResourceList.get(i);
-            if ((res.getCurrentWI() == null) && (res.getCurrentResourceType() == null))
-                disp++;    		
-    	}
-    	if (disp < need)
-    		return false;
-    	return true;
+        for (; ind < availableResourceList.size(); ind++) {
+            Resource res = availableResourceList.get(ind);
+            // Checks if the resource is busy (taken by other element or conflict in the same activity)
+    		res.waitSemaphore();
+    		// Only resources booked for this SF can be taken into account.
+    		// The resource could have been released after the book phase, so it's needed to recheck this.
+            if (res.isBooked(wi) && (res.isAvailable()) && (res.getCurrentResourceType() == null)) {
+        		res.signalSemaphore();
+            	return ind;
+            }
+    		res.signalSemaphore();
+        }
+        return -1;
     }
     
+	/**
+	 * Takes <code>n</code> resources from the available resource list. These resources
+	 * are marked as caught by the specified work item. <p>
+	 * The resources of this resource type are supposed to be already caught by another work
+	 * item or booked by this work item. When <code>n</code> resources are taken, the rest
+	 * are freed by releasing their book.
+	 * @param n Resources needed
+     * @param wi work item catching the resources
+	 * @return The minimum availability timestamp of the taken resources 
+	 */
+    protected long catchResources(int n, WorkItem wi) {
+    	long minAvailability = Long.MAX_VALUE;
+    	Element elem = wi.getElement();
+        debug("Decrease amount\t" + n + "\t" + elem);
+        
+        // When this point is reached, it is suppose that there are enough resources
+        for (int i = 0; i < availableResourceList.size(); i++) {
+            Resource res = availableResourceList.get(i);
+    		res.waitSemaphore();
+    		// MOD 11/11/08
+    		// Only resources booked by this SF are taken into account
+    		if (res.isBooked(wi)) {
+                // Checks the availability of the resource
+                if (res.isAvailable()) {
+                	// The resource has no conflict
+                	if (res.getCurrentResourceType() == null) {
+    	            	if (n > 0) {
+    	            		minAvailability = Math.min(minAvailability, res.catchResource(wi, this));
+    	            		n--;
+    	                    debug("Resource taken\t" + res + "\t " + n + "\t" + elem);
+    	            	}
+                	}
+                	// Conflict (in the same activity)
+                	// Theoretically, I have no need to check "n"
+                	else if (res.getCurrentResourceType() == this) {
+                		minAvailability = Math.min(minAvailability, res.catchResource(wi, this));
+                		n--;
+                        debug("Resource taken\t" + res + "\t " + n + "\t" + elem);
+                        // This check should be unneeded
+                        if (n < 0) {
+                        	error("More resources than expected\t"+ n + "\t" + elem);
+                        }
+                	}
+                }
+            	res.removeBook(wi);
+            }
+    		res.signalSemaphore();
+        }
+        // This check should be unneeded
+        if (n > 0)
+        	error("UNEXPECTED ERROR: Less resources than expected\t"+ n + "\t" + elem);
+        return minAvailability;
+    }
+
     /**
      * Adds a resource as available
      * @param res New available resource.
@@ -137,13 +218,26 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	}
 
 	/**
+	 * Obtain the available resources for this type.
+	 * @return The available resources.
+	 */
+	public int getAvailableResources() {
+		int counter = 0;
+		
+		for(Resource res: availableResourceList.getResources())
+			if (res.isAvailable())
+				counter++;
+		return counter;
+	}
+	
+	/**
 	 * Handles the overlap of timetable entries for the same resource, i.e., a resource that has 
 	 * several timetable entries at the same time interval with the same resource type. This list 
 	 * counts how many times it occurs to avoid incorrect behaviors of the amount of available
 	 * resources.
 	 * @author Iván Castilla Rodríguez
 	 */
-	protected class ResourceList  {
+	protected class ResourceList {
 		private TreeMap<Resource, Integer> tree = new TreeMap<Resource, Integer>();
 		private ArrayList<Resource> list = new ArrayList<Resource>();
 
@@ -191,15 +285,19 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	    public Resource get(int index) {
 	    	return list.get(index);
 	    }
-
-	    public ArrayList<Resource> getResourceList() {
-	    	return list;
-	    }
 	    
+	    /**
+	     * Returns the number of resources in this list. 
+	     * @return The number of resources in this list.
+	     */
 	    public int size() {
 	    	return list.size();
 	    }
-	}	
+
+		public ArrayList<Resource> getResources() {
+			return list;
+		}
+	}
 	
 	/**
 	 * Allows a user to specify an extra waiting time before the RollOn event. Returns a 

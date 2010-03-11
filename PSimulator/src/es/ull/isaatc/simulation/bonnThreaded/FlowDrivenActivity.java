@@ -3,16 +3,16 @@
  */
 package es.ull.isaatc.simulation.bonnThreaded;
 
-import java.util.TreeSet;
+import java.util.ArrayList;
 
 import es.ull.isaatc.simulation.common.FlowDrivenActivityWorkGroup;
 import es.ull.isaatc.simulation.common.condition.Condition;
+import es.ull.isaatc.simulation.bonnThreaded.flow.FinalizerFlow;
 import es.ull.isaatc.simulation.common.flow.Flow;
+import es.ull.isaatc.simulation.bonnThreaded.flow.InitializerFlow;
 import es.ull.isaatc.simulation.common.flow.StructuredFlow;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.bonnThreaded.flow.BasicFlow;
-import es.ull.isaatc.simulation.bonnThreaded.flow.FinalizerFlow;
-import es.ull.isaatc.simulation.bonnThreaded.flow.InitializerFlow;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -66,7 +66,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	@Override
 	public void carryOut(WorkItem wItem) {
 		Element elem = wItem.getElement();
-		wItem.catchResources();
+		wItem.getExecutionWG().catchResources(wItem);
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
 		elem.debug("Starts\t" + this + "\t" + description);
 		InitializerFlow initialFlow = ((FlowDrivenActivity.ActivityWorkGroup)wItem.getExecutionWG()).getInitialFlow();
@@ -82,7 +82,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 		// Beginning MUTEX access to activity manager
 		manager.waitSemaphore();
 
-		TreeSet<ActivityManager> amList = wItem.releaseCaughtResources();
+		ArrayList<ActivityManager> amList = wItem.releaseCaughtResources();
 
 		// Ending MUTEX access to activity manager
 		manager.signalSemaphore();

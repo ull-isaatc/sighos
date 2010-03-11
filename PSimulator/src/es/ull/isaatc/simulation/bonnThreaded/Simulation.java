@@ -162,7 +162,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
         executor = new SlaveEventExecutor[nThreads];
 		mainExecutor = new MasterExecutor();
         for (int i = 0; i < nThreads; i++)
-			executor[i] = new SlaveEventExecutor(i);
+			executor[i] = new SlaveEventExecutor(i + 1);
         
         final int numVirtualThreads = ExtendedMath.nextHigherPowerOfTwo(nThreads + 1);
         mainExecutor.setupBarrier(numVirtualThreads);
@@ -356,7 +356,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 					if (partnerId == 0)
 						partner = mainExecutor;
 					else
-						partner = executor[partnerId];
+						partner = executor[partnerId - 1];
 				}
 				Round roundObj = new Round(partner, role);
 				tourRounds[round] = roundObj;

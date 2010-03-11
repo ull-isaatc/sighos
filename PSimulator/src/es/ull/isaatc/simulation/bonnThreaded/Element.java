@@ -3,7 +3,6 @@ package es.ull.isaatc.simulation.bonnThreaded;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import es.ull.isaatc.simulation.common.info.ElementInfo;
@@ -142,12 +141,10 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	 * Creates the events to notify the activities that this element is now
 	 * available. All the activities this element is in their queues are notified.
 	 */
-	protected void addAvailableElementEvents(TreeSet<ActivityManager> amVisited) {
+	protected void addAvailableElementEvents() {
 		synchronized(inQueue) {
-			for (int i = 0; (current == null) && (i < inQueue.size()); i++) {
-				if (!amVisited.contains(inQueue.get(i).getActivity().getManager()))
-					addEvent(new AvailableElementEvent(ts, inQueue.get(i)));
-			}
+			for (int i = 0; (current == null) && (i < inQueue.size()); i++)
+				addEvent(new AvailableElementEvent(ts, inQueue.get(i)));
 		}		
 	}
 	
