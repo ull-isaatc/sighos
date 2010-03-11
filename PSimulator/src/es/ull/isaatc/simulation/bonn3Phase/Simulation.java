@@ -419,7 +419,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 		
 		@Override
 		public void addEvent(BasicElement.DiscreteEvent event) {
-	    	long evTs = event.getTs();
+	    	final long evTs = event.getTs();
 	        if (evTs == lvt) {
 				extraEvents.push(event);
 	        }
@@ -546,7 +546,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 	 * 
 	 * @author Patrick Peschlow
 	 */
-	private static class Round {
+	private static final class Round {
 		/** The "competitor" thread. */
 		private final BarrierEnabled partner;
 		/** The role of this thread in the current round. */

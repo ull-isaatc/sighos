@@ -69,10 +69,10 @@ public class ElementCreator implements BasicElementCreator, es.ull.isaatc.simula
             for (GenerationTrio gt : genTrio) {
             	p -= gt.getProp();
             	if (p <= 0.0){
-            		ElementType et = gt.getElementType();
-    	    		Element elem = new Element(Generator.incElemCounter(), gen.getSimulation(), et, gt.getFlow());
+            		final ElementType et = gt.getElementType();
+    	    		final Element elem = new Element(Generator.incElemCounter(), gen.getSimulation(), et, gt.getFlow());
     	    		elem.initializeElementVars(et.getElementValues());
-    	            BasicElement.DiscreteEvent e = elem.getStartEvent(gen.getTs());
+    	            final BasicElement.DiscreteEvent e = elem.getStartEvent(gen.getTs());
     	            elem.addEvent(e);
     	            break;
             	}
@@ -110,13 +110,13 @@ public class ElementCreator implements BasicElementCreator, es.ull.isaatc.simula
 	 * Description of a set of elements a generator can create.
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class GenerationTrio {
+	public static final class GenerationTrio {
 		/** Type of the created elements. */
-		protected final ElementType et;
+		private final ElementType et;
 		/** Description of the activity flow that the elements carry out. */
-		protected final InitializerFlow flow;
+		private final InitializerFlow flow;
 		/** Proportion of elements corresponding to this flow. */
-		protected final double prop;
+		private final double prop;
 		
 		/**
 		 * Creates a new kind of elements to generate.

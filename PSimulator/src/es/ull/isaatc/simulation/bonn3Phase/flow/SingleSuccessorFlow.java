@@ -29,7 +29,7 @@ public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.is
 	 * @param wThread  
 	 */
 	@Override
-	public void next(WorkThread wThread) {
+	public void next(final WorkThread wThread) {
 		super.next(wThread);
 		if (successor != null)
 			// FIXME: I'm creating a new event. This is logically correct, but in terms of efficiency it should be better to invoke the method directly.

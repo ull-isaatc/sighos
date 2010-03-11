@@ -53,7 +53,7 @@ public abstract class Generator extends BasicElement {
 	 * Returns and increases the element's counter in one step.
 	 * @return The current element's counter.
 	 */
-	public static int incElemCounter() {
+	protected static int incElemCounter() {
 		return elemCounter.getAndIncrement();
 	}
 
@@ -74,7 +74,7 @@ public abstract class Generator extends BasicElement {
      * This event is invoked every time a new set of elements has to be generated. 
      * It simply invokes the <code>creator.create</code> method.
      */
-    public class GenerateEvent extends DiscreteEvent {
+    public final class GenerateEvent extends DiscreteEvent {
         /**
          * Creates a new element-generation event.
          * @param ts Timestamp when this event must be executed.
