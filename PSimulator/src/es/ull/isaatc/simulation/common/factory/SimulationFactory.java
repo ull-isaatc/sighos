@@ -58,7 +58,7 @@ public class SimulationFactory {
 		case GROUPEDX: return new es.ull.isaatc.simulation.groupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case GROUPEDXX: return new es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case PASIVE: return new es.ull.isaatc.simulation.groupedExtraPasiveThreads.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case GROUPED3PHASE: return new es.ull.isaatc.simulation.xoptGroupedThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case GROUPED3PHASE: return new es.ull.isaatc.simulation.grouped3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONN3PHASE: return new es.ull.isaatc.simulation.bonn3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONNGROUPEDX: return new es.ull.isaatc.simulation.bonnThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		}
@@ -77,7 +77,7 @@ public class SimulationFactory {
 		case GROUPEDX: return new es.ull.isaatc.simulation.groupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case GROUPEDXX: return new es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case PASIVE: return new es.ull.isaatc.simulation.groupedExtraPasiveThreads.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case GROUPED3PHASE: return new es.ull.isaatc.simulation.xoptGroupedThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case GROUPED3PHASE: return new es.ull.isaatc.simulation.grouped3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONN3PHASE: return new es.ull.isaatc.simulation.bonn3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONNGROUPEDX: return new es.ull.isaatc.simulation.bonnThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		}
