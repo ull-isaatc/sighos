@@ -25,9 +25,10 @@ public class SimulationFactory {
 	 * <il>GROUPED: Versión modificada de BUFFERED que envía los eventos en bloques. Esto también obliga a modificar la
 	 * cola de eventos futuros para que los almacene en bloques.</li>
 	 * <il>GROUPEDX: Extensión de GROUPED que utiliza el hilo principal (que reparte los eventos) como otro hilo ejecutor más</li>
-	 * <il>GROUPEDXX: Pequeña modificación de GROUPEDX que intenta no avisar a todos los AM desde Element, sino sólo a aquellos 
-	 * no previamente avisados desde addAvailableElementEvents</il>
 	 * <il>GROUPED3PHASE: Híbrido de GROUPED y SIMEVENTS3PHASE , que elimina completamente los semáforos del AM.</li>
+	 * <il>GROUPED3PHASEX: Extensión de GROUPED3PHASE que emplea un hilo maestro además de los esclavos.</li>
+	 * <il>BONN3PHASE: Modificación de GROUPED3PHASE que usa la barrera Bonn.</li>
+	 * <il>BONNGROUPEDX: Modificación de GROUPEDX que usa la barrera Bonn.</li>
 	 * @author Iván Castilla Rodríguez
 	 */
 	public enum SimulationType {
@@ -42,6 +43,7 @@ public class SimulationFactory {
 		GROUPEDXX,
 		PASIVE,
 		GROUPED3PHASE,
+		GROUPED3PHASEX,
 		BONN3PHASE,
 		BONNGROUPEDX
 		
@@ -59,6 +61,7 @@ public class SimulationFactory {
 		case GROUPEDXX: return new es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case PASIVE: return new es.ull.isaatc.simulation.groupedExtraPasiveThreads.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case GROUPED3PHASE: return new es.ull.isaatc.simulation.grouped3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case GROUPED3PHASEX: return new es.ull.isaatc.simulation.groupedExtra3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONN3PHASE: return new es.ull.isaatc.simulation.bonn3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONNGROUPEDX: return new es.ull.isaatc.simulation.bonnThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		}
@@ -78,6 +81,7 @@ public class SimulationFactory {
 		case GROUPEDXX: return new es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case PASIVE: return new es.ull.isaatc.simulation.groupedExtraPasiveThreads.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case GROUPED3PHASE: return new es.ull.isaatc.simulation.grouped3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case GROUPED3PHASEX: return new es.ull.isaatc.simulation.groupedExtra3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONN3PHASE: return new es.ull.isaatc.simulation.bonn3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONNGROUPEDX: return new es.ull.isaatc.simulation.bonnThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		}

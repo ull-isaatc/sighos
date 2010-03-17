@@ -114,7 +114,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
      * @return The identifier of the new WG.
      */
     public int addWorkGroup(int priority, es.ull.isaatc.simulation.groupedExtra3Phase.WorkGroup wg) {
-    	int wgId = workGroupTable.size();
+    	final int wgId = workGroupTable.size();
         workGroupTable.add(new ActivityWorkGroup(wgId, priority, wg));
         return wgId;
     }
@@ -129,7 +129,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
      * @return The identifier of the new WG.
      */
     public int addWorkGroup(int priority, es.ull.isaatc.simulation.groupedExtra3Phase.WorkGroup wg, Condition cond) {
-    	int wgId = workGroupTable.size();
+    	final int wgId = workGroupTable.size();
         workGroupTable.add(new ActivityWorkGroup(wgId, priority, wg, cond));
         return wgId;
     }
@@ -166,9 +166,9 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 
     @Override
     public ActivityWorkGroup getWorkGroup(int wgId) {
-        Iterator<ActivityWorkGroup> iter = workGroupTable.iterator();
+        final Iterator<ActivityWorkGroup> iter = workGroupTable.iterator();
         while (iter.hasNext()) {
-        	ActivityWorkGroup opc = iter.next();
+        	final ActivityWorkGroup opc = iter.next();
         	if (opc.getIdentifier() == wgId)
         		return opc;        	
         }
@@ -188,9 +188,9 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
     	if (!stillFeasible)
     		return false;
     	// WGs with the same priority are traversed in random order
-        Iterator<ActivityWorkGroup> iter = workGroupTable.randomIterator();
+        final Iterator<ActivityWorkGroup> iter = workGroupTable.randomIterator();
         while (iter.hasNext()) {
-        	ActivityWorkGroup wg = iter.next();
+        	final ActivityWorkGroup wg = iter.next();
             if (wg.isFeasible(wi)) {
                 wi.setExecutionWG(wg);
         		debug("Can be carried out by\t" + wi.getElement().getIdentifier() + "\t" + wi.getExecutionWG());
@@ -264,7 +264,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 * @return The duration of the cancellation
 	 */
 	protected long getResourceCancelation(ResourceType rt) {
-		Long dur = cancellationList.get(rt);
+		final Long dur = cancellationList.get(rt);
 		if (dur == null)
 			return 0;
 		return dur;
@@ -369,7 +369,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	     * this WG. False in other case.
 	     */
 	    protected boolean isFeasible(WorkItem wi) {
-	    	Element elem = wi.getElement();
+	    	final Element elem = wi.getElement();
 
 	    	wi.resetConflictZone();
 	    	if (!cond.check(elem))
@@ -434,7 +434,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	     * <code>null</code> if no solution was found. 
 	     */
 	    private int []searchNext(int[] pos, int []nec, WorkItem wi) {
-	        int []aux = new int[2];
+	        final int []aux = new int[2];
 	        aux[0] = pos[0];
 	        aux[1] = pos[1];
 	        // Searches a resource type that requires resources

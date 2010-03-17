@@ -37,7 +37,7 @@ import es.ull.isaatc.util.Output;
  * assigned to each slave worker; the remaining events will be assigned to the master worker.
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulation {
+public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
@@ -125,18 +125,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	}
 	
 	/**
-	 * Contains the specifications of the model. All the components of the model
-	 * must be declared here.
-	 * <p>
-	 * The components are added simply by invoking their constructors. For
-	 * example: <code>
-	 * Activity a1 = new Activity(0, this, "Act1");
-	 * ResourceType rt1 = new ResourceType(0, this, "RT1");
-	 * </code>
-	 */
-	protected abstract void createModel();
-
-	/**
 	 * Starts the simulation execution. It creates and starts all the necessary 
 	 * structures. First, a <code>SafeLPElement</code> is added. The execution loop 
      * consists on waiting for the elements which are in execution, then the simulation clock is 
@@ -149,7 +137,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		if (out == null)
 			out = new Output();
 		
-		createModel();
 		debug("SIMULATION MODEL CREATED");
 		// Sets default AM creator
 		if (amCreator == null)

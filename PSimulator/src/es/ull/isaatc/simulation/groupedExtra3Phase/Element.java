@@ -171,7 +171,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	 * Finishes a flow. 
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class FinishFlowEvent extends BasicElement.DiscreteEvent {
+	public final class FinishFlowEvent extends BasicElement.DiscreteEvent {
 		/** The work thread that executes the finish */
 		private final WorkThread eThread;
 		/** The flow previously requested */

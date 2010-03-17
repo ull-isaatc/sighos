@@ -35,7 +35,7 @@ public class TimeDrivenGenerator extends Generator implements es.ull.isaatc.simu
 	@Override
 	protected void init() {
 		cycleIter = cycle.iterator(simul.getInternalStartTs(), simul.getInternalEndTs());
-    	long newTs = nextTs();
+    	final long newTs = nextTs();
     	if (newTs == -1)
             notifyEnd();
         else {
@@ -59,7 +59,7 @@ public class TimeDrivenGenerator extends Generator implements es.ull.isaatc.simu
      * event (if there is no more generation cycles remain).
      */
 	public void beforeCreate() {
-		long newTs = nextTs();
+		final long newTs = nextTs();
     	if (newTs == -1)
 		 	notifyEnd();
 		else {

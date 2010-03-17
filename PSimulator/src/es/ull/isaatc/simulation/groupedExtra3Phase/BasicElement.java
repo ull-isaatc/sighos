@@ -12,9 +12,9 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
     /** Current element's timestamp */
 	protected long ts;
     /** Access control */
-    final protected Semaphore sem;
+    final private Semaphore sem;
     /** Flag that indicates if the element has finished its execution */
-    final protected AtomicBoolean endFlag = new AtomicBoolean(false);
+    final private AtomicBoolean endFlag = new AtomicBoolean(false);
 
     /**
      * Creates a basic element. 
@@ -50,7 +50,13 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * @param e New event.
      */    
     protected void addEvent(DiscreteEvent e) {
-   		((EventExecutor)Thread.currentThread()).addEvent(e);
+    	final long evTs = e.getTs();
+    	final long lpTs = simul.getTs();
+    	assert lpTs <= evTs : "Causal restriction broken\t" + lpTs + "\t" + e; 
+        if (evTs == lpTs)
+           	((EventExecutor)Thread.currentThread()).addLocalEvent(e);
+        else if (evTs > lpTs)
+           	((EventExecutor)Thread.currentThread()).addWaitingEvent(e);
     }
 
     /**
@@ -183,7 +189,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * simulation.
      * @author Iván Castilla Rodríguez
      */
-    public class FinalizeEvent extends DiscreteEvent {
+    public final class FinalizeEvent extends DiscreteEvent {
         
         public FinalizeEvent() {
             super(simul.getTs());
@@ -200,7 +206,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * @author Iván Castilla Rodríguez
      *
      */
-    public class StartEvent extends DiscreteEvent {
+    public final class StartEvent extends DiscreteEvent {
         public StartEvent(long ts) {
             super(ts);
         }
