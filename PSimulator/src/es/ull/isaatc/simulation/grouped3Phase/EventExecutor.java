@@ -3,7 +3,6 @@
  */
 package es.ull.isaatc.simulation.grouped3Phase;
 
-import java.util.List;
 
 /**
  * A class capable to run events. A class implementing this interface must include two local
@@ -25,6 +24,6 @@ public interface EventExecutor {
 	 * Adds a collection of events to this executor to be executed immediately 
 	 * @param eventList A collection of events
 	 */
-	void addEvents(List<BasicElement.DiscreteEvent> eventList);
+	void notifyEvents();
 
 }

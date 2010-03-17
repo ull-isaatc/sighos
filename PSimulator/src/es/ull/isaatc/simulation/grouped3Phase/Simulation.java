@@ -57,6 +57,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	/** A timestamp-ordered list of events whose timestamp is in the future. Events are grouped according 
 	 * to their timestamps. */
 	private final TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>> futureEventList  = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
+	private ArrayList<BasicElement.DiscreteEvent> currentEvents;
 	/** The slave event executors */
     private SlaveEventExecutor [] executor;
     /** The barrier to control the phases of simulation */
@@ -226,20 +227,12 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
         // Events with timestamp higher or equal to the simulation end time aren't
         // executed
         if (lvt < internalEndTs) {
-        	ArrayList<BasicElement.DiscreteEvent> list = futureEventList.pollFirstEntry().getValue();
+        	currentEvents = futureEventList.pollFirstEntry().getValue();
         	// Distributes the events with the same timestamp among the executors
-    		int share = list.size();
-    		executingEvents.addAndGet(share);
-    		// if there aren't many events, the first executor deals with them all
-    		if (share < executor.length)
-    			executor[0].addEvents(list);    			
-    		else {
-	    		share = share / executor.length;
-	    		int iter = 0;
-	    		for (; iter < executor.length - 1; iter++)
-	    			executor[iter].addEvents(list.subList(share * iter, share * (iter + 1)));
-	    		executor[iter].addEvents(list.subList(share * iter, list.size()));
-    		}
+    		executingEvents.addAndGet(currentEvents.size());
+    		// Notifies the executors
+    		for (SlaveEventExecutor ee : executor)
+    			ee.notifyEvents();
         }
     }
 
@@ -291,13 +284,14 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	 * An event executor used by the simulation. A simulation normally declares as many "slaves" as available
 	 * cores in the computer.<p>
 	 * Event's execution is divided into two phases. First, the events assigned by the main simulation thread  
-	 * (by using {@link #addEvents(List)} are executed. If the execution of the events produces new events, 
+	 * (by using {@link #notifyEvents(List)} are executed. If the execution of the events produces new events, 
 	 * they are added to the local buffers of the executor. <p>Once the execution of all the current events has
 	 * finished, the second phase is started, and the AM events are executed.  
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
 	final class SlaveEventExecutor extends Thread implements EventExecutor {
+		private final int threadId;
 		/** Execution local buffer */
 		private final ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
 		/** Future event local buffer */
@@ -313,6 +307,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		 */
 		public SlaveEventExecutor(int id) {
 			super("LPExec-" + id);
+			threadId = id;
 		}
 
 		/**
@@ -338,8 +333,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		}
 
 		@Override
-		public void addEvents(List<BasicElement.DiscreteEvent> eventList) {
-			extraEvents.addAll(eventList);
+		public void notifyEvents() {
 			execBarrier.incrementAndGet();
 			flag.set(true);
 		}
@@ -356,10 +350,28 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		public void run() {
 			while (lvt < internalEndTs) {
 				if (flag.compareAndSet(true, false)) {
+		    		// Executes its events
+		    		final int totalEvents = currentEvents.size();
+		    		// if there aren't many events, the first executor deals with them all
+		    		if (threadId == 0 && totalEvents < nThreads) {
+		    			for (int i = 0; i < totalEvents; i++)
+		    				currentEvents.get(i).run();
+		    			executingEvents.addAndGet(-totalEvents);
+		    		}
+		    		else if (totalEvents >= nThreads) {
+		    			final int lastEvent = (threadId + 1 == nThreads) ? totalEvents : (totalEvents * (threadId + 1) / nThreads);
+		    			for (int i = totalEvents * threadId / nThreads; i < lastEvent; i++)
+		    				currentEvents.get(i).run();
+		    			executingEvents.addAndGet((totalEvents * threadId / nThreads) - lastEvent); 
+
+		    		}
+		    		
+		    		// Executes its local events
 					while (!extraEvents.isEmpty()) {
 						extraEvents.pop().run();
 				    	executingEvents.decrementAndGet();
 					}
+					
 					// Waits to carry out the second phase
 					while (executingEvents.get() != 0);
 					for (ActivityManager am : amList)
