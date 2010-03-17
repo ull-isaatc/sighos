@@ -274,14 +274,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	     * timestamp equal to the LP timestamp. 
 	     */
 	    private void execWaitingElements() {
-	    	// Updates the future event list with the events produced by the executor threads
-	    	for (SlaveEventExecutor ee : executor) {
-	    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
-	    		while (!list.isEmpty()) {
-	    			BasicElement.DiscreteEvent e = list.pop();
-	    			addWaitingEvent(e);
-	    		}    		
-	    	}
 	        // Advances the simulation clock
 	        beforeClockTick();
 	        lvt = futureEventList.firstKey();
@@ -314,20 +306,29 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		public void run() {
 			// Simulation main loop
 			while (!isSimulationEnd()) {
+				// Now the simulation clock can advance
+	            execWaitingElements();
 	    		while (!execEvents.isEmpty())
 	    			execEvents.pop().run();
 	    		execEventsBarrier.decrementAndGet();
-	    		while(execEventsBarrier.get() > 0)
+	    		while(execEventsBarrier.get() > 0);
+				assert execEventsBarrier.get() == 0 : "Barrier value: " + execEventsBarrier.get();
 				for (ActivityManager am : amList)
 					am.executeWork();
 				// Every time the loop is entered we must wait for all the events from the 
 				// previous iteration to be finished (the execution queue must be empty)
 				while (execAMBarrier.get() > 0);
-				// Now the simulation clock can advance
-	            execWaitingElements();
+				assert execAMBarrier.get() == 0 : "Barrier value: " + execAMBarrier.get();
+				assert execEventsBarrier.get() == 0 : "Barrier value: " + execEventsBarrier.get();
+		    	// Updates the future event list with the events produced by the executor threads
+		    	for (SlaveEventExecutor ee : executor) {
+		    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
+		    		while (!list.isEmpty()) {
+		    			BasicElement.DiscreteEvent e = list.pop();
+		    			addWaitingEvent(e);
+		    		}    		
+		    	}
 			}
-			// The simulation waits for all the events to be removed from the execution queue 
-			while (execAMBarrier.get() > 0);
 		}
 	}
 
@@ -403,6 +404,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 					execEventsBarrier.decrementAndGet();
 					// Waits to carry out the second phase
 					while (execEventsBarrier.get() > 0);
+					assert execEventsBarrier.get() == 0 : "Barrier value: " + execEventsBarrier.get();
 					for (ActivityManager am : amList)
 						am.executeWork();
 					execAMBarrier.decrementAndGet();

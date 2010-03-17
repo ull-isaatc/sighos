@@ -296,6 +296,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
 	protected long catchResource(WorkItem wi) {
+		assert currentResourceType != null : "" + this + "\t" + wi;
 		setTs(wi.getElement().getTs());
 		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, this, currentResourceType, wi, ResourceUsageInfo.Type.CAUGHT, getTs()));
 		if (inSeveralManagers()) {
