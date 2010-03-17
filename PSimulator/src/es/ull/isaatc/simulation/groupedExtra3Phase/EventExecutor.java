@@ -3,7 +3,6 @@
  */
 package es.ull.isaatc.simulation.groupedExtra3Phase;
 
-import java.util.List;
 
 /**
  * A class capable to run events. A class implementing this interface must include two local
@@ -20,11 +19,6 @@ public interface EventExecutor {
 	 * @param event New event to be added.
 	 */
 	void addLocalEvent(BasicElement.DiscreteEvent event);
-	/**
-	 * Adds a collection of events to this executor to be executed immediately 
-	 * @param eventList A collection of events
-	 */
-	void addEvents(List<BasicElement.DiscreteEvent> eventList);
     /**
      * Sends an event to the local waiting queue. An event is added to the waiting queue if 
      * its timestamp is higher than the simulation time.
