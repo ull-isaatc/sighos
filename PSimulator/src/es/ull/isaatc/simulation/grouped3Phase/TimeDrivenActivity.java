@@ -220,6 +220,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 				elem.debug("Finishes part of \t" + this + "\t" + description + "\t" + wItem.getTimeLeft());				
 			// The element is introduced in the queue
 			queueAdd(wItem); 
+			// FIXME: ¿No debería hacer un availableElements también?
 		}
 		return false;
 		

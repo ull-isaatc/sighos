@@ -1,6 +1,5 @@
 package es.ull.isaatc.simulation.grouped3Phase;
 
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -12,7 +11,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
     /** Current element's timestamp */
 	protected long ts;
     /** Access control */
-    final protected Semaphore sem;
+    final protected AtomicBoolean sem = new AtomicBoolean(false);
     /** Flag that indicates if the element has finished its execution */
     final protected AtomicBoolean endFlag = new AtomicBoolean(false);
 
@@ -23,7 +22,6 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      */
 	public BasicElement(int id, Simulation simul) {
 		super(id, simul);
-        sem = new Semaphore(1);
 	}
 
     /**
@@ -88,18 +86,14 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * Sends a "wait" signal to the semaphore.
      */    
     protected void waitSemaphore() {
-        try {
-			sem.acquire();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+    	while (!sem.compareAndSet(false, true));
     }
     
     /**
      * Sends a "continue" signal to the semaphore.
      */    
     protected void signalSemaphore() {
-        sem.release();
+        sem.set(false);
     }
     
 	public String getObjectTypeIdentifier() {
