@@ -121,20 +121,6 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
         return (ActivityWorkGroup)super.getWorkGroup(wgId);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see es.ull.isaatc.simulation.Activity#isFeasible(es.ull.isaatc.simulation.WorkItem)
-     */
-    @Override
-    protected boolean isFeasible(WorkItem wi) {
-    	boolean resul = super.isFeasible(wi);
-    	if (resul) {
-            if (!isNonPresential())
-            	wi.getElement().setCurrent(wi);
-    	}
-    	return resul;
-    }
-    
 	@Override
 	public String getObjectTypeIdentifier() {
 		return "TACT";
@@ -187,7 +173,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 		}
 		long finishTs = elem.getTs() + wItem.getTimeLeft();
 		// The required time for finishing the activity is reduced (useful only for interruptible activities)
-		if (isInterruptible() && (finishTs - auxTs > 0.0))
+		if (isInterruptible() && (finishTs - auxTs > 0))
 			wItem.setTimeLeft(finishTs - auxTs);				
 		else {
 			auxTs = finishTs;
@@ -217,8 +203,8 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 //			am.signalSemaphore();
 //		}
 		
-		// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
-		if (wItem.getTimeLeft() <= 0.0) {
+		assert wItem.getTimeLeft() <= 0 : "Time left < 0: " + wItem.getTimeLeft();
+		if (wItem.getTimeLeft() <= 0) {
 			simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + description);
@@ -285,7 +271,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	    /**
 	     * Returns the duration of the activity where this workgroup is used. 
 	     * The value returned by the random number function could be negative. 
-	     * In this case, it returns 0.0.
+	     * In this case, it returns 0.
 	     * @return The activity duration.
 	     */
 	    public long getDurationSample() {
@@ -295,7 +281,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	    /**
 	     * Returns the duration of the activity where this workgroup is used. 
 	     * The value returned by the random number function could be negative. 
-	     * In this case, it returns 0.0.
+	     * In this case, it returns 0.
 	     * @return The activity duration.
 	     */
 	    public TimeFunction getDuration() {

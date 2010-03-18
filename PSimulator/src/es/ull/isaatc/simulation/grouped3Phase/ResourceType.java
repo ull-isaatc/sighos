@@ -204,7 +204,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	/**
 	 * Allows a user to specify an extra waiting time before the RollOn event. Returns a 
 	 * long which represents the wait time before the RollOn event can be performed. By default
-	 * returns 0.0.
+	 * returns 0.
 	 * @return The wait time.
 	 */
 	public long beforeRoleOn() { return 0; };
@@ -217,7 +217,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	/**
 	 * Allows a user to specify an extra waiting time before the RollOff event. Returns a 
 	 * long which represents the wait time before the RollOff event can be performed. By default
-	 * returns 0.0.
+	 * returns 0.
 	 * @return The wait time.
 	 */
 	public long beforeRoleOff() { return 0; };

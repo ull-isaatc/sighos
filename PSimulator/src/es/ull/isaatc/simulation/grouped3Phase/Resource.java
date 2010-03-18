@@ -414,7 +414,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         @Override
         public void event() {
         	long waitTime = role.beforeRoleOn();
-        	if (waitTime == 0.0) {
+        	if (waitTime == 0) {
         		simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLON, ts));
         		debug("Resource available\t" + role);
         		role.incAvailable(Resource.this);
@@ -460,7 +460,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         @Override
         public void event() {
         	long waitTime = role.beforeRoleOff();
-        	if (waitTime == 0.0) {
+        	if (waitTime == 0) {
         		simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLOFF, ts));
         		role.decAvailable(Resource.this);
         		removeRole(role);

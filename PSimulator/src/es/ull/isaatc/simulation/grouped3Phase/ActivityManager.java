@@ -102,12 +102,13 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     		WorkItem wi = iter.next();
             Element e = wi.getElement();
             Activity act = wi.getActivity();
+    		// The element's timestamp is updated. That's only useful to print messages
+            e.setTs(getTs());
             if (act.mainElementActivity()) {
             	e.waitSemaphore();
-        		// The element's timestamp is updated. That's only useful to print messages
-                e.setTs(getTs());
                 if (e.getCurrent() == null) {
                 	if (act.isFeasible(wi)) {	// The activity can be performed
+                		e.setCurrent(wi);
                     	e.signalSemaphore();
                         act.carryOut(wi);
                 		toRemove.add(wi);
@@ -124,8 +125,6 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
             }   
             // The activity can be freely accessed by the element
             else {
-        		// The element's timestamp is updated. That's only useful to print messages
-                e.setTs(getTs());
             	if (act.isFeasible(wi)) {	// The activity can be performed
                     act.carryOut(wi);
             		toRemove.add(wi);
@@ -193,22 +192,31 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 					WorkItem wi = requestingElements.poll();
 					Element elem = wi.getElement();
 					Activity act = wi.getActivity();
-		            elem.waitSemaphore();
 					if (elem.isDebugEnabled())
 						elem.debug("Calling availableElement()\t" + act);
-					// If the element is not performing a presential activity yet
-					if (elem.getCurrent() == null) {
-						if (act.isFeasible(wi)) {
-				        	elem.signalSemaphore();
-							act.carryOut(wi);
-							act.queueRemove(wi);
+					if (act.mainElementActivity()) {
+			            elem.waitSemaphore();
+						// If the element is not performing a presential activity yet
+						if (elem.getCurrent() == null) {
+							if (act.isFeasible(wi)) {
+								elem.setCurrent(wi);
+					        	elem.signalSemaphore();
+								act.carryOut(wi);
+								act.queueRemove(wi);
+							}
+							else {
+					        	elem.signalSemaphore();
+							}
 						}
 						else {
 				        	elem.signalSemaphore();
-						}
+						}						
 					}
 					else {
-			        	elem.signalSemaphore();
+						if (act.isFeasible(wi)) {
+							act.carryOut(wi);
+							act.queueRemove(wi);
+						}
 					}
 				}
 			}
