@@ -143,11 +143,10 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	/**
 	 * An element is valid to perform a time-driven activity is it's not currently carrying 
 	 * out another activity or this activity is non presential.
-	 * @param wItem Work item requesting this activity 
 	 */
 	@Override
-	public boolean validElement(WorkItem wItem) {
-		return (wItem.getElement().getCurrent() == null || isNonPresential());
+	public boolean mainElementActivity() {
+		return !isNonPresential();
 	}
 
 	/*

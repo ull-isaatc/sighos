@@ -102,24 +102,38 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     		WorkItem wi = iter.next();
             Element e = wi.getElement();
             Activity act = wi.getActivity();
-            e.waitSemaphore();
-            
-    		// The element's timestamp is updated. That's only useful to print messages
-            e.setTs(getTs());
-            if (act.validElement(wi)) {
-            	if (act.isFeasible(wi)) {	// The activity can be performed
+            if (act.mainElementActivity()) {
+            	e.waitSemaphore();
+        		// The element's timestamp is updated. That's only useful to print messages
+                e.setTs(getTs());
+                if (e.getCurrent() == null) {
+                	if (act.isFeasible(wi)) {	// The activity can be performed
+                    	e.signalSemaphore();
+                        act.carryOut(wi);
+                		toRemove.add(wi);
+                		uselessSF--;
+                	}
+                	else {	// The activity can't be performed with the current resources
+                    	e.signalSemaphore();
+                    	uselessSF += act.getQueueSize();
+                	}
+                }
+                else {
                 	e.signalSemaphore();
+                }
+            }   
+            // The activity can be freely accessed by the element
+            else {
+        		// The element's timestamp is updated. That's only useful to print messages
+                e.setTs(getTs());
+            	if (act.isFeasible(wi)) {	// The activity can be performed
                     act.carryOut(wi);
             		toRemove.add(wi);
             		uselessSF--;
             	}
             	else {	// The activity can't be performed with the current resources
-                	e.signalSemaphore();
                 	uselessSF += act.getQueueSize();
             	}
-            }
-            else {
-            	e.signalSemaphore();
             }
 		}
     	// Postponed removal

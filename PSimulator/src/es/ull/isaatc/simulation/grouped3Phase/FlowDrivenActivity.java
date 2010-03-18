@@ -119,11 +119,10 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	
 	/**
 	 * All elements are valid to perform a flow-driven activity.
-	 * @param wItem Work item requesting this activity 
 	 */
 	@Override
-	public boolean validElement(WorkItem wItem) {
-		return true;
+	public boolean mainElementActivity() {
+		return false;
 	}
 
 	@Override
