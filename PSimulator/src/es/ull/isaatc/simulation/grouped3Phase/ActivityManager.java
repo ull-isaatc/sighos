@@ -71,7 +71,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     }
     
     protected void notifyElement(WorkItem wi) {
-    	requestingElements.add(wi);
+    	synchronized (requestingElements) {
+        	requestingElements.add(wi);			
+		}
     }
     
     protected void notifyResource() {
@@ -178,8 +180,8 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 					Element elem = wi.getElement();
 					Activity act = wi.getActivity();
 		            elem.waitSemaphore();
-					if (isDebugEnabled())
-						debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
+					if (elem.isDebugEnabled())
+						elem.debug("Calling availableElement()\t" + act);
 					// If the element is not performing a presential activity yet
 					if (elem.getCurrent() == null) {
 						if (act.isFeasible(wi)) {

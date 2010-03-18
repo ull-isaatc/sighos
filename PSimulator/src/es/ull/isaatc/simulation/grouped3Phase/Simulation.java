@@ -152,15 +152,9 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		addWait(new SimulationElement().getStartEvent(internalEndTs));
         
         // Simulation main loop
-		while (!isSimulationEnd()) {
-			// Every time the loop is entered we must wait for all the events from the 
-			// previous iteration to be finished (the execution queue must be empty)
-			while (execBarrier.get() > 0);
-			// Now the simulation clock can advance
-            execWaitingElements();
-		}
-		// The simulation waits for all the events to be removed from the execution queue 
-		while (execBarrier.get() > 0);
+		mainSimulationLoop();
+		
+		// Simulation has finished
     	debug("SIMULATION TIME FINISHES\r\nSimulation time = " +
             	lvt + "\r\nPreviewed simulation time = " + internalEndTs);
     	printState();
@@ -208,32 +202,40 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
      * Executes a simulation clock cycle. Extracts all the events from the waiting queue with 
      * timestamp equal to the LP timestamp. 
      */
-    private void execWaitingElements() {
-    	// Updates the future event list with the events produced by the executor threads
-    	for (SlaveEventExecutor ee : executor) {
-    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
-    		while (!list.isEmpty()) {
-    			BasicElement.DiscreteEvent e = list.pop();
-    			addWait(e);
-    		}    		
-    	}
-        beforeClockTick();
+    private void mainSimulationLoop() {
+		while (!isSimulationEnd()) {
+	        beforeClockTick();
 
-        // Advances the simulation clock
-        lvt = futureEventList.firstKey();
-        infoHandler.notifyInfo(new TimeChangeInfo(this, lvt));
-        afterClockTick();
-        debug("SIMULATION TIME ADVANCING " + lvt);
-        // Events with timestamp higher or equal to the simulation end time aren't
-        // executed
-        if (lvt < internalEndTs) {
-        	currentEvents = futureEventList.pollFirstEntry().getValue();
-        	// Distributes the events with the same timestamp among the executors
-    		executingEvents.addAndGet(currentEvents.size());
-    		// Notifies the executors
-    		for (SlaveEventExecutor ee : executor)
-    			ee.notifyEvents();
-        }
+	        // Advances the simulation clock
+	        lvt = futureEventList.firstKey();
+	        infoHandler.notifyInfo(new TimeChangeInfo(this, lvt));
+	        afterClockTick();
+	        debug("SIMULATION TIME ADVANCING " + lvt);
+	        
+	        // Events with timestamp higher or equal to the simulation end time aren't
+	        // executed
+	        if (lvt < internalEndTs) {
+	        	currentEvents = futureEventList.pollFirstEntry().getValue();
+	        	// Distributes the events with the same timestamp among the executors
+	    		executingEvents.addAndGet(currentEvents.size());
+	    		// Notifies the executors
+	    		for (SlaveEventExecutor ee : executor)
+	    			ee.notifyEvents();
+
+	    		// Every time the loop is entered we must wait for all the events from the 
+				// previous iteration to be finished (the execution queue must be empty)
+				while (execBarrier.get() > 0);
+		    	assert execBarrier.get() == 0 : "Barrier: " + execBarrier.get();
+				// Updates the future event list with the events produced by the executor threads
+		    	for (SlaveEventExecutor ee : executor) {
+		    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
+		    		while (!list.isEmpty()) {
+		    			BasicElement.DiscreteEvent e = list.pop();
+		    			addWait(e);
+		    		}    		
+		    	}
+	        }
+		}
     }
 
     
@@ -352,18 +354,18 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 				if (flag.compareAndSet(true, false)) {
 		    		// Executes its events
 		    		final int totalEvents = currentEvents.size();
+		    		int myEventsCount = 0;
 		    		// if there aren't many events, the first executor deals with them all
 		    		if (threadId == 0 && totalEvents < nThreads) {
 		    			for (int i = 0; i < totalEvents; i++)
 		    				currentEvents.get(i).run();
-		    			executingEvents.addAndGet(-totalEvents);
+		    			myEventsCount = totalEvents;
 		    		}
 		    		else if (totalEvents >= nThreads) {
 		    			final int lastEvent = (threadId + 1 == nThreads) ? totalEvents : (totalEvents * (threadId + 1) / nThreads);
 		    			for (int i = totalEvents * threadId / nThreads; i < lastEvent; i++)
 		    				currentEvents.get(i).run();
-		    			executingEvents.addAndGet((totalEvents * threadId / nThreads) - lastEvent); 
-
+		    			myEventsCount = lastEvent - (totalEvents * threadId / nThreads); 
 		    		}
 		    		
 		    		// Executes its local events
@@ -371,15 +373,16 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 						extraEvents.pop().run();
 				    	executingEvents.decrementAndGet();
 					}
+					// Now subtracts the original events, just to ensure that the barrier is not passed incorrectly 
+					executingEvents.addAndGet(-myEventsCount);
 					
 					// Waits to carry out the second phase
 					while (executingEvents.get() != 0);
+					assert executingEvents.get() == 0 : "Executing " + executingEvents.get();
 					for (ActivityManager am : amList)
 						am.executeWork();
 					execBarrier.decrementAndGet();
 				}
-//				else
-//					yield();
 			}
 			
 		}
