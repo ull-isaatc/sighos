@@ -17,21 +17,21 @@ import java.util.concurrent.Semaphore;
  * TODO Comment
  * @author Iván Castilla Rodríguez
  */
-public class ConflictZone implements Comparable<ConflictZone> {
+final class ConflictZone implements Comparable<ConflictZone> {
 	/** List of element work items which have a conflict. */
-	protected final TreeSet<WorkItem> list = new TreeSet<WorkItem>();
+	private final TreeSet<WorkItem> list = new TreeSet<WorkItem>();
 	/** Stack of semaphores which control a MUTEX region. */
-	protected final ArrayList<Semaphore> semStack = new ArrayList<Semaphore>();
+	private final ArrayList<Semaphore> semStack = new ArrayList<Semaphore>();
 	/** A semaphore for accesing this zone. */
 	private final Semaphore semBook = new Semaphore(1);
 	/** If this CZ is absorbed by another one, the "absorbing" CZ */
-	protected ConflictZone substitute = null;
+	private ConflictZone substitute = null;
 	
 	/**
 	 * Creates a new conflict zone containing only one object.
 	 * @param wi The current work item using this conflict zone
 	 */
-	public ConflictZone(WorkItem wi) {
+	protected ConflictZone(WorkItem wi) {
 		list.add(wi);
 	}
 	
@@ -109,7 +109,7 @@ public class ConflictZone implements Comparable<ConflictZone> {
 	 * other list.
 	 * @param other Another conflict zone
 	 */
-	public void merge(ConflictZone other) {
+	protected void merge(ConflictZone other) {
 		list.addAll(other.list);
 		semStack.addAll(other.semStack);
 		// Updates the conflict lists of any implied element
@@ -122,7 +122,7 @@ public class ConflictZone implements Comparable<ConflictZone> {
 	 * Returns the number of conflicting items handled by this conflict zone.
 	 * @return the number of conflicting items handled by this conflict zone
 	 */
-	public int size() {
+	protected int size() {
 		return list.size();
 	}
 	
@@ -132,8 +132,8 @@ public class ConflictZone implements Comparable<ConflictZone> {
 	 * @param wi Work item to be removed
 	 * @return True if the item existed in the list; false in other case.
 	 */
-	public boolean remove(WorkItem wi) {
-		Element elem = wi.getElement();
+	protected boolean remove(WorkItem wi) {
+		final Element elem = wi.getElement();
 		boolean result = false; 
 		elem.debug("Removing\t" + wi + "(" + this + ")");
 		acquire(elem);
@@ -149,8 +149,8 @@ public class ConflictZone implements Comparable<ConflictZone> {
 	 * is empty.
 	 * @return The stack of semaphores.
 	 */
-	public ArrayList<Semaphore> getSemaphores(WorkItem wi) {
-		Element elem = wi.getElement();
+	protected ArrayList<Semaphore> getSemaphores(WorkItem wi) {
+		final Element elem = wi.getElement();
 		acquire(elem);
 		// Once acquired we need to check the validity of this CZ
 		if (substitute != null) {
@@ -159,24 +159,10 @@ public class ConflictZone implements Comparable<ConflictZone> {
 		}			
 		if (semStack.isEmpty())
 			semStack.add(new Semaphore(1));
-		ArrayList<Semaphore> stack = new ArrayList<Semaphore>();
+		final ArrayList<Semaphore> stack = new ArrayList<Semaphore>();
 		stack.addAll(semStack);
 		release(elem);
 		return stack;
-	}
-
-	/**
-	 * @return the substitute
-	 */
-	public ConflictZone getSubstitute() {
-		return substitute;
-	}
-
-	/**
-	 * @param substitute the substitute to set
-	 */
-	public void setSubstitute(ConflictZone substitute) {
-		this.substitute = substitute;
 	}
 
 	/* (non-Javadoc)

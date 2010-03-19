@@ -20,9 +20,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     /** Static counter for assigning each new identifier */
 	private static int nextid = 0;
 	/** A prioritized table of the activities handled from this AM */
-	protected final ArrayList<Activity> activityList = new ArrayList<Activity>();
+	private final ArrayList<Activity> activityList = new ArrayList<Activity>();
     /** The list of resource types handled from this AM */
-    protected final ArrayList<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
+    private final ArrayList<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
     /** A queue containing the work items that are waiting for activities of this AM */
     private final WorkItemQueue wiQueue = new WorkItemQueue();
     /** */  
@@ -93,7 +93,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * which can't be performed with the current resources. If this amount is equal to the size
      * of waiting work items, this method stops. 
      */
-    protected void availableResource() {
+    private void availableResource() {
     	// First marks all the activities as "potentially feasible"
     	for (Activity act : activityList)
         	act.resetFeasible();
@@ -184,7 +184,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	}
 
 
-	public void executeWork() {
+	protected void executeWork() {
 		if (!requestingElements.isEmpty() || avResource) {
 			if (avResource) {
 				availableResource();
@@ -193,9 +193,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 			}
 			else {
 				while (!requestingElements.isEmpty()) {
-					WorkItem wi = requestingElements.poll();
-					Element elem = wi.getElement();
-					Activity act = wi.getActivity();
+					final WorkItem wi = requestingElements.poll();
+					final Element elem = wi.getElement();
+					final Activity act = wi.getActivity();
 					if (elem.isDebugEnabled())
 						elem.debug("Calling availableElement()\t" + act);
 					if (act.mainElementActivity()) {
@@ -237,7 +237,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	protected class WorkItemQueue extends PrioritizedMap<TreeSet<WorkItem>, WorkItem>{		
+	private static final class WorkItemQueue extends PrioritizedMap<TreeSet<WorkItem>, WorkItem>{		
 		/** A counter for the arrival order of the single flows */
 		private int arrivalOrder = 0;
 		/** A comparator to properly order the single flows. */
@@ -258,7 +258,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 		/**
 		 * Creates a new queue.
 		 */
-		public WorkItemQueue() {
+		private WorkItemQueue() {
 			super();
 		}
 
@@ -272,7 +272,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 			// has never been added to the queue (interruptible activities)
 			if (wi.getArrivalTs() == -1) {
 				wi.setArrivalOrder(arrivalOrder++);
-				wi.setArrivalTs(getTs());
+				wi.setArrivalTs(wi.getElement().getTs());
 			}
 			super.add(wi);
 		}

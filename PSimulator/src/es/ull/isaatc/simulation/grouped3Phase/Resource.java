@@ -118,11 +118,11 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 */
 	protected void addRole(ResourceType role, long ts) {
 		waitSemaphore();
-		Long avEnd = currentRoles.get(role);
+		final Long avEnd = currentRoles.get(role);
 		if ((avEnd == null) || (ts > avEnd))
 			currentRoles.put(role, ts);
 		// Updates AM list
-		ActivityManager am = role.getManager();
+		final ActivityManager am = role.getManager();
 		Integer counter = currentAMs.get(am);
 		if (counter == null)
 			counter = 1;
@@ -141,13 +141,13 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 */
 	protected void removeRole(ResourceType role) {
 		waitSemaphore();
-		Long avEnd = currentRoles.get(role);
+		final Long avEnd = currentRoles.get(role);
 		if (avEnd != null)
 			if (avEnd <= ts)
 				currentRoles.remove(role);
 		// Updates AM list
-		ActivityManager am = role.getManager();
-		Integer counter = currentAMs.get(am);
+		final ActivityManager am = role.getManager();
+		final Integer counter = currentAMs.get(am);
 		if (counter > 1)
 			currentAMs.put(am, counter - 1);
 		else
@@ -219,7 +219,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     	if (inSeveralManagers()) {
     		waitSemaphore();
 	        wi.popResource(true);
-	        ResourceType rt = bookList.get(wi);
+	        final ResourceType rt = bookList.get(wi);
 	        removeBook(wi);
     		if (currentResourceType == rt) {
     			if (bookList.isEmpty())
@@ -245,8 +245,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 		if (inSeveralManagers()) {
 			waitSemaphore();
 			if (currentWI == null) {
-		        ResourceType rt = bookList.get(wi);
-		        currentResourceType = rt;
+		        currentResourceType = bookList.get(wi);
 			}
 			else {
 				signalSemaphore();
@@ -389,7 +388,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     /**
      * An event to make available this resource with a specific role. 
      */
-    public class RoleOnEvent extends BasicElement.DiscreteEvent {
+    public final class RoleOnEvent extends BasicElement.DiscreteEvent {
         /** Available role */
         private final ResourceType role;
         /** Cycle iterator */
@@ -413,7 +412,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         
         @Override
         public void event() {
-        	long waitTime = role.beforeRoleOn();
+        	final long waitTime = role.beforeRoleOn();
         	if (waitTime == 0) {
         		simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLON, ts));
         		debug("Resource available\t" + role);
@@ -435,7 +434,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
     /**
      * An event to make unavailable this resource with a specific role. 
      */
-    public class RoleOffEvent extends BasicElement.DiscreteEvent {
+    public final class RoleOffEvent extends BasicElement.DiscreteEvent {
         /** Unavailable role */
         private final ResourceType role;
         /** Cycle iterator */
@@ -459,13 +458,13 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         
         @Override
         public void event() {
-        	long waitTime = role.beforeRoleOff();
+        	final long waitTime = role.beforeRoleOff();
         	if (waitTime == 0) {
         		simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLOFF, ts));
         		role.decAvailable(Resource.this);
         		removeRole(role);
         		debug("Resource unavailable\t" + role);
-        		long nextTs = iter.next();
+        		final long nextTs = iter.next();
     	        if (nextTs != -1) {
         			RoleOnEvent rEvent = new RoleOnEvent(nextTs, role, iter, duration);
         			addEvent(rEvent);            	
@@ -486,7 +485,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 * @author ycallero
 	 *
 	 */
-	public class CancelPeriodOnEvent extends BasicElement.DiscreteEvent {
+	public final class CancelPeriodOnEvent extends BasicElement.DiscreteEvent {
 		/** Cycle iterator */
 		private final DiscreteCycleIterator iter;
 		/** Duration of the availability */
@@ -520,7 +519,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 * @author ycallero
 	 *
 	 */
-	public class CancelPeriodOffEvent extends BasicElement.DiscreteEvent {
+	public final class CancelPeriodOffEvent extends BasicElement.DiscreteEvent {
 		/** Cycle iterator */
 		private final DiscreteCycleIterator iter;
 		/** Duration of the availability */
@@ -559,7 +558,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 * @param available The availability state of the resource.
 	 * @param ts
 	 */
-	public void setNotCanceled(boolean available) {
+	protected void setNotCanceled(boolean available) {
 		notCanceled = available;
 	}
 	

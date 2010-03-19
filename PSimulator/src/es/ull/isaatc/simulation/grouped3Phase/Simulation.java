@@ -134,7 +134,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
         // Distributes the AMs among the executors
         for (int i = 0; i < activityManagerList.size(); i++)
-        	executor[i % nThreads].assignActivitManager(activityManagerList.get(i));
+        	executor[i % nThreads].assignActivityManager(activityManagerList.get(i));
 
         // The user defined method for initialization is invoked
 		init();
@@ -316,13 +316,13 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		 * Assigns an AM to this executor. The events of this AM are executed from this thread.
 		 * @param am Activity Manager
 		 */
-		public void assignActivitManager(ActivityManager am) {
+		public void assignActivityManager(ActivityManager am) {
 			amList.add(am);
 		}
 		
 		@Override
 		public void addEvent(BasicElement.DiscreteEvent event) {
-	    	long evTs = event.getTs();
+	    	final long evTs = event.getTs();
 	        if (evTs == lvt) {
 				executingEvents.incrementAndGet();
 				extraEvents.push(event);

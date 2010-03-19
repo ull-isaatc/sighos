@@ -11,9 +11,9 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
     /** Current element's timestamp */
 	protected long ts;
     /** Access control */
-    final protected AtomicBoolean sem = new AtomicBoolean(false);
+    final private AtomicBoolean sem = new AtomicBoolean(false);
     /** Flag that indicates if the element has finished its execution */
-    final protected AtomicBoolean endFlag = new AtomicBoolean(false);
+    final private AtomicBoolean endFlag = new AtomicBoolean(false);
 
     /**
      * Creates a basic element. 
@@ -177,7 +177,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * simulation.
      * @author Iván Castilla Rodríguez
      */
-    public class FinalizeEvent extends DiscreteEvent {
+    public final class FinalizeEvent extends DiscreteEvent {
         
         public FinalizeEvent() {
             super(simul.getTs());
@@ -194,7 +194,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * @author Iván Castilla Rodríguez
      *
      */
-    public class StartEvent extends DiscreteEvent {
+    public final class StartEvent extends DiscreteEvent {
         public StartEvent(long ts) {
             super(ts);
         }

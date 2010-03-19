@@ -191,9 +191,11 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	
 	@Override
 	public int compareTo(WorkThread o) {
-		if (id > o.id)
+		final int id1 = id;
+		final int id2 = o.id;
+		if (id1 > id2)
 			return 1;
-		if (id < o.id)
+		if (id1 < id2)
 			return -1;
 		return 0;
 	}
@@ -229,7 +231,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	 * @return A new instance of a work thread created to carry out a new flow after a split
 	 */
 	public WorkThread getInstanceSubsequentWorkThread(boolean executable, Flow newFlow, WorkToken token) {
-		WorkToken newToken;
+		final WorkToken newToken;
 		if (!executable)
 			if (!token.isExecutable())
 				newToken = new WorkToken(token);

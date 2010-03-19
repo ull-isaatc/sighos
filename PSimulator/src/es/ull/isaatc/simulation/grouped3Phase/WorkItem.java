@@ -137,9 +137,11 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 
 	@Override
 	public int compareTo(es.ull.isaatc.simulation.common.WorkItem o) {
-		if (wThread.getIdentifier() < o.getIdentifier())
+		final int id = wThread.getIdentifier();
+		final int id2 = o.getIdentifier();
+		if (id < id2)
 			return -1;
-		if (wThread.getIdentifier() > o.getIdentifier())
+		if (id > id2)
 			return 1;
 		return 0;
 	}
@@ -246,9 +248,9 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
     protected void releaseCaughtResources() {
         // Generate unavailability periods.
         for (Resource res : caughtResources) {
-        	long cancellation = act.getResourceCancelation(res.currentResourceType);
+        	final long cancellation = act.getResourceCancelation(res.currentResourceType);
         	if (cancellation > 0) {
-				long actualTs = elem.getTs();
+				final long actualTs = elem.getTs();
 				res.setNotCanceled(false);
 				flow.simul.getInfoHandler().notifyInfo(new ResourceInfo(flow.simul, res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
 				res.generateCancelPeriodOffEvent(actualTs, cancellation);
@@ -295,13 +297,13 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 	
 	/**
 	 * Merges the conflict list of this work item and other one. Since one conflict zone must
-	 * be merged into the other, the election of the work item which "recibes" the merging 
-	 * operation depends on the id of the work item: the item with lower id "recibes" 
+	 * be merged into the other, the election of the work item which "receives" the merging 
+	 * operation depends on the id of the work item: the item with lower id "receives" 
 	 * the merging, and the other one "produces" the operation.
 	 * @param wi The work item whose conflict zone must be merged. 
 	 */
 	protected void mergeConflictList(WorkItem wi) {
-		int result = conflicts.compareTo(wi.getConflictZone());
+		final int result = conflicts.compareTo(wi.getConflictZone());
 		if (result != 0) {
 			if (result < 0)
 				conflicts.safeMerge(elem, wi.getConflictZone());

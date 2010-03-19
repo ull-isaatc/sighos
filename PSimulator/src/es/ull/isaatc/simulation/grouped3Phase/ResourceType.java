@@ -72,9 +72,9 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
      * @return The resource's index or -1 if there are not available resources.
      */
     protected int getNextAvailableResource(int ind, WorkItem wi) {
-    	int total = availableResourceList.size();
+    	final int total = availableResourceList.size();
     	for (; ind < total; ind++) {
-    		Resource res = availableResourceList.get(ind);
+    		final Resource res = availableResourceList.get(ind);
         	if (res.add2Solution(this, wi))
         		return ind;
     	}
@@ -88,12 +88,12 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
      * @return True if there are more available resources than needed; false in other case.
      */
     protected boolean checkNeeded(int ind, int need) {
-    	int total = availableResourceList.size();
+    	final int total = availableResourceList.size();
     	if (ind + need > total)
     		return false;
     	int disp = 0;
     	for (int i = ind; (i < total) && (disp < need); i++) {
-    		Resource res = availableResourceList.get(i);
+    		final Resource res = availableResourceList.get(i);
             if ((res.getCurrentWI() == null) && (res.getCurrentResourceType() == null))
                 disp++;    		
     	}
@@ -143,7 +143,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	 * resources.
 	 * @author Iván Castilla Rodríguez
 	 */
-	protected class ResourceList  {
+	private final static class ResourceList  {
 		private TreeMap<Resource, Integer> tree = new TreeMap<Resource, Integer>();
 		private ArrayList<Resource> list = new ArrayList<Resource>();
 
@@ -152,7 +152,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	     * If the resource exists already, the count is increased.
 	     * @param res The resource added
 	     */
-	    public synchronized void add(Resource res) {
+	    private synchronized void add(Resource res) {
 	    	Integer val = tree.get(res);
 	    	if (val == null) {
 	    		val = 1;
@@ -169,11 +169,9 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	     * @param res The resource removed.
 	     * @return True if the resource is completely removed from the list. False in other case.
 	     */
-	    public synchronized boolean remove(Resource res) {
+	    private synchronized boolean remove(Resource res) {
 	    	Integer val = tree.get(res);
-	    	// FIXME Debería crearme un tipo personalizado de excepción
-	    	if (val == null)
-	    		throw new RuntimeException("Unexpected error: Resource not found in resource type");
+	    	assert val != null : "Unexpected error: Resource not found in resource type";
 	    	if (val > 1) {
 	    		tree.put(res, val - 1);
 	    		return false;
@@ -188,15 +186,11 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	     * @param index The position of the resource
 	     * @return The resource at the specified position.
 	     */
-	    public Resource get(int index) {
+	    private Resource get(int index) {
 	    	return list.get(index);
 	    }
-
-	    public ArrayList<Resource> getResourceList() {
-	    	return list;
-	    }
 	    
-	    public int size() {
+	    private int size() {
 	    	return list.size();
 	    }
 	}
