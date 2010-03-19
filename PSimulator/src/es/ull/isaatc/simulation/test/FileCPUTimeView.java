@@ -37,8 +37,8 @@ public class FileCPUTimeView extends View {
 		}
 		else if (info instanceof SimulationEndInfo) {
 			endT = ((SimulationEndInfo)info).getCpuTime();
-			buf.println("" + (endT - iniT));
-			System.out.println("" + (endT - iniT));
+			buf.print("\t" + (endT - iniT));
+			System.out.print("\t" + (endT - iniT));
 			buf.flush();
 		}
 	}
