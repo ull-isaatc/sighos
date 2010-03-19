@@ -297,8 +297,8 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 	
 	/**
 	 * Merges the conflict list of this work item and other one. Since one conflict zone must
-	 * be merged into the other, the election of the work item which "recibes" the merging 
-	 * operation depends on the id of the work item: the item with lower id "recibes" 
+	 * be merged into the other, the election of the work item which "receives" the merging 
+	 * operation depends on the id of the work item: the item with lower id "receives" 
 	 * the merging, and the other one "produces" the operation.
 	 * @param wi The work item whose conflict zone must be merged. 
 	 */

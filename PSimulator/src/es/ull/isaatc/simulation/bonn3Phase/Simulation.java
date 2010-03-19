@@ -55,6 +55,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 	/** A timestamp-ordered list of events whose timestamp is in the future. Events are grouped according 
 	 * to their timestamps. */
 	private final TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>> futureEventList  = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
+	private ArrayList<BasicElement.DiscreteEvent> currentEvents;
 	/** The slave event executors */
     private SlaveEventExecutor [] executor;
 
@@ -67,7 +68,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 	private Round[] tourRounds;
 	/** Flags to be set during the barrier */
 	private AtomicBoolean[] tourFlag;
-	private TPCBarrier secondBarrier;
+	private TPCBarrier amBarrier;
     
 	/**
 	 * Creates a new Simulation which starts at <code>startTs</code> and finishes at <code>endTs</code>.
@@ -139,7 +140,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 			executor[i] = new SlaveEventExecutor(i + 1, numRounds);
 
         // Starts second barrier
-		secondBarrier = new TournamentBarrier(executor);
+		amBarrier = new TournamentBarrier(executor);
 
 		final int numVirtualThreads = ExtendedMath.nextHigherPowerOfTwo(nThreads + 1);
         // Initializes the barrier of each executor
@@ -168,13 +169,9 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 		}
 		// Barrier initialized
 		
-        // Start executors
-        for (SlaveEventExecutor ee : executor)
-        	ee.start();
-        
         // Distributes the AMs among the executors
         for (int i = 0; i < activityManagerList.size(); i++)
-        	executor[i % nThreads].assignActivitManager(activityManagerList.get(i));
+        	executor[i % nThreads].assignActivityManager(activityManagerList.get(i));
 
         // The user defined method for initialization is invoked
 		init();
@@ -191,7 +188,12 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 		// Adds the event to control end of simulation
 		addWait(new SimulationElement().getStartEvent(internalEndTs));
         
-        // Simulation main loop
+		// Initializes first events and launches the executors
+		advanceSimulationClock();
+        for (SlaveEventExecutor ee : executor)
+        	ee.start();
+
+		// Simulation main loop
 		while (!isSimulationEnd()) {
 			// Wait for all the events to be finished (the execution queue must be empty)
             await();
@@ -239,15 +241,20 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 			list.add(e);
 	}
 
-	private void executeEvents() {
-    	// Updates the future event list with the events produced by the executor threads
+	/**
+	 * Updates the future event list with the events produced by the executor threads
+	 */
+	private void updateFutureEventList() {
     	for (SlaveEventExecutor ee : executor) {
     		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
     		while (!list.isEmpty()) {
     			BasicElement.DiscreteEvent e = list.pop();
     			addWait(e);
     		}    		
-    	}
+    	}		
+	}
+	
+	private void advanceSimulationClock() {
         beforeClockTick();
 
         // Advances the simulation clock
@@ -257,21 +264,8 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
         debug("SIMULATION TIME ADVANCING " + lvt);
         // Events with timestamp higher or equal to the simulation end time aren't
         // executed
-        if (lvt < internalEndTs) {
-        	ArrayList<BasicElement.DiscreteEvent> list = futureEventList.pollFirstEntry().getValue();
-        	// Distributes the events with the same timestamp among the executors
-    		int share = list.size();
-    		// if there aren't many events, the first executor deals with them all
-    		if (share < executor.length)
-    			executor[0].addEvents(list);    			
-    		else {
-	    		share = share / executor.length;
-	    		int iter = 0;
-	    		for (; iter < executor.length - 1; iter++)
-	    			executor[iter].addEvents(list.subList(share * iter, share * (iter + 1)));
-	    		executor[iter].addEvents(list.subList(share * iter, list.size()));
-    		}
-        }
+        if (lvt < internalEndTs)
+        	currentEvents = futureEventList.pollFirstEntry().getValue();
 	}
 
 	/* (non-Javadoc)
@@ -305,7 +299,8 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 			case ROOT:
 				while (tourFlag[currentRound].get() != tourSense) {
 				}
-				executeEvents();
+				updateFutureEventList();
+				advanceSimulationClock();
 				tourFlagOut = tourSense;
 				// Exit switch statement (and thus the for loop).
 				break;
@@ -380,8 +375,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 		private final ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
 		/** Future event local buffer */
 		private final ArrayDeque<BasicElement.DiscreteEvent> extraWaitingEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
-		/** A flag which indicates that the simulation has added new events to be executed by this executor */
-		private final AtomicBoolean flag = new AtomicBoolean(false);
 		/** The list of AMs tackled by this executor */
 		private final ArrayDeque<ActivityManager> amList = new ArrayDeque<ActivityManager>();
 
@@ -413,7 +406,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 		 * Assigns an AM to this executor. The events of this AM are executed from this thread.
 		 * @param am Activity Manager
 		 */
-		public void assignActivitManager(ActivityManager am) {
+		public void assignActivityManager(ActivityManager am) {
 			amList.add(am);
 		}
 		
@@ -428,12 +421,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 	        else
 	        	error("Causal restriction broken\t" + lvt + "\t" + event);
 			
-		}
-
-		@Override
-		public void addEvents(List<BasicElement.DiscreteEvent> eventList) {
-			extraEvents.addAll(eventList);
-			flag.set(true);
 		}
 
 		/**
@@ -517,16 +504,31 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation imple
 		@Override
 		public void run() {			
 			while (lvt < internalEndTs) {
-				// Invokes barrier to start
-				await();
+	    		// Executes its events
+	    		final int totalEvents = currentEvents.size();
+	    		// if there aren't many events, the first executor deals with them all
+	    		if (threadId == 1 && totalEvents < nThreads) {
+	    			for (int i = 0; i < totalEvents; i++)
+	    				currentEvents.get(i).run();
+	    		}
+	    		else if (totalEvents >= nThreads) {
+	    			final int lastEvent = (threadId == nThreads) ? totalEvents : (totalEvents * threadId / nThreads);
+	    			for (int i = totalEvents * (threadId - 1) / nThreads; i < lastEvent; i++)
+	    				currentEvents.get(i).run();
+	    		}
+	    		
+	    		// Executes its local events
 				while (!extraEvents.isEmpty()) {
 					extraEvents.pop().run();
 				}
+			
 				// Waits to carry out the second phase (unless there's only one executor)
 				if (nThreads > 1)
-					secondBarrier.await();
+					amBarrier.await();
 				for (ActivityManager am : amList)
 					am.executeWork();
+				// Invokes barrier to start
+				await();
 			}
 			
 		}

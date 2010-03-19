@@ -141,8 +141,8 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	 */
 	protected void addAvailableElementEvents() {
 		synchronized(inQueue) {
-			for (int i = 0; (current == null) && (i < inQueue.size()); i++)
-				inQueue.get(i).getActivity().getManager().notifyElement(inQueue.get(i));
+			for (WorkItem wi : inQueue)
+				wi.getActivity().getManager().notifyElement(wi);
 		}		
 	}
 	

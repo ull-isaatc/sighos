@@ -203,8 +203,8 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 //			am.signalSemaphore();
 //		}
 		
-		assert wItem.getTimeLeft() <= 0 : "Time left < 0: " + wItem.getTimeLeft();
-		if (wItem.getTimeLeft() <= 0) {
+		assert wItem.getTimeLeft() >= 0 : "Time left < 0: " + wItem.getTimeLeft();
+		if (wItem.getTimeLeft() == 0) {
 			simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + description);

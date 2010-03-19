@@ -59,7 +59,11 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * @param wi Work item which is added to the waiting queue.
      */
     protected void queueAdd(WorkItem wi) {
-    	wiQueue.add(wi);
+    	// Synchronized because it can be concurrently accessed by different elements requesting different activities in
+    	// this AM
+    	synchronized (wiQueue) {
+        	wiQueue.add(wi);			
+		}
     }
     
     /**

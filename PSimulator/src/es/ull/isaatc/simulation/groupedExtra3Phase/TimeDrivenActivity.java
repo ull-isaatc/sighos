@@ -121,20 +121,6 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
         return (ActivityWorkGroup)super.getWorkGroup(wgId);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see es.ull.isaatc.simulation.Activity#isFeasible(es.ull.isaatc.simulation.WorkItem)
-     */
-    @Override
-    protected boolean isFeasible(WorkItem wi) {
-    	final boolean resul = super.isFeasible(wi);
-    	if (resul) {
-            if (!isNonPresential())
-            	wi.getElement().setCurrent(wi);
-    	}
-    	return resul;
-    }
-    
 	@Override
 	public String getObjectTypeIdentifier() {
 		return "TACT";
@@ -146,8 +132,8 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	 * @param wItem Work item requesting this activity 
 	 */
 	@Override
-	public boolean validElement(WorkItem wItem) {
-		return (wItem.getElement().getCurrent() == null || isNonPresential());
+	public boolean mainElementActivity() {
+		return (!isNonPresential());
 	}
 
 	/*

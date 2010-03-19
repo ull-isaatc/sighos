@@ -3,7 +3,6 @@
  */
 package es.ull.isaatc.simulation.bonn3Phase;
 
-import java.util.List;
 
 /**
  * A class capable to run events. A class implementing this interface must include two local
@@ -21,10 +20,4 @@ public interface EventExecutor {
 	 * @param event New event to be added.
 	 */
 	void addEvent(BasicElement.DiscreteEvent event);
-	/**
-	 * Adds a collection of events to this executor to be executed immediately 
-	 * @param eventList A collection of events
-	 */
-	void addEvents(List<BasicElement.DiscreteEvent> eventList);
-
 }

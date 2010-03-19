@@ -213,7 +213,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
      * Adds a work item to the queue.
      * @param wi Work Item added
      */
-    protected void queueAdd(WorkItem wi) {
+    protected synchronized void queueAdd(WorkItem wi) {
         manager.queueAdd(wi);
     	queueSize++;
 		wi.getElement().incInQueue(wi);
@@ -271,11 +271,10 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	}
 	
 	/**
-	 * Checks if the work item is valid to carry out this activity.
-	 * @param wItem Work item requesting this activity
-	 * @return True if the work item is valid, false in other case.
+	 * Returns true if this activity is the main activity that an element can do.
+	 * @return True if the activity requires an element MUTEX.
 	 */
-	public abstract boolean validElement(WorkItem wItem);
+	public abstract boolean mainElementActivity();
 	
 	/**
 	 * Requests this activity. Checks if this activity is feasible by the

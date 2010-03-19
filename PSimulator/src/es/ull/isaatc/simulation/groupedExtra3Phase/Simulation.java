@@ -286,6 +286,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		    		execEventsBarrier.addAndGet(nThreads + 1);
 		    		for (SlaveEventExecutor ee : executor)
 		    			ee.notifyEvents();
+		    		
 		            // Executes its events
 		    		final int totalEvents = currentEvents.size();
 		    		// if there aren't many events, the first executor deals with them all

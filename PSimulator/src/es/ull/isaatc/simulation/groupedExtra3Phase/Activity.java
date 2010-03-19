@@ -275,7 +275,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 * @param wItem Work item requesting this activity
 	 * @return True if the work item is valid, false in other case.
 	 */
-	public abstract boolean validElement(WorkItem wItem);
+	public abstract boolean mainElementActivity();
 	
 	/**
 	 * Requests this activity. Checks if this activity is feasible by the

@@ -59,7 +59,11 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * @param wi Work item which is added to the waiting queue.
      */
     protected void queueAdd(WorkItem wi) {
-    	wiQueue.add(wi);
+    	// Synchronized because it can be concurrently accessed by different elements requesting different activities in
+    	// this AM
+    	synchronized(wiQueue) {
+    		wiQueue.add(wi);
+    	}
     }
     
     /**
@@ -71,7 +75,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     }
     
     protected void notifyElement(WorkItem wi) {
-    	requestingElements.add(wi);
+    	synchronized(requestingElements) {
+    		requestingElements.add(wi);
+    	}
     }
     
     protected void notifyResource() {
@@ -100,25 +106,38 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     		final WorkItem wi = iter.next();
             final Element e = wi.getElement();
             final Activity act = wi.getActivity();
-            e.waitSemaphore();
-            
     		// The element's timestamp is updated. That's only useful to print messages
             e.setTs(getTs());
-            if (act.validElement(wi)) {
-            	if (act.isFeasible(wi)) {	// The activity can be performed
+            if (act.mainElementActivity()) {
+            	e.waitSemaphore();
+                if (e.getCurrent() == null) {
+                	if (act.isFeasible(wi)) {	// The activity can be performed
+                		e.setCurrent(wi);
+                    	e.signalSemaphore();
+                        act.carryOut(wi);
+                		toRemove.add(wi);
+                		uselessSF--;
+                	}
+                	else {	// The activity can't be performed with the current resources
+                    	e.signalSemaphore();
+                    	uselessSF += act.getQueueSize();
+                	}
+                }
+                else {
                 	e.signalSemaphore();
+                }
+            }   
+            // The activity can be freely accessed by the element
+            else {
+            	if (act.isFeasible(wi)) {	// The activity can be performed
                     act.carryOut(wi);
             		toRemove.add(wi);
             		uselessSF--;
             	}
             	else {	// The activity can't be performed with the current resources
-                	e.signalSemaphore();
                 	uselessSF += act.getQueueSize();
             	}
-            }
-            else {
-            	e.signalSemaphore();
-            }
+            }            
 		}
     	// Postponed removal
     	for (WorkItem sf : toRemove)
@@ -177,23 +196,33 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 					final WorkItem wi = requestingElements.poll();
 					final Element elem = wi.getElement();
 					final Activity act = wi.getActivity();
-		            elem.waitSemaphore();
-					if (isDebugEnabled())
-						debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
-					// If the element is not performing a presential activity yet
-					if (elem.getCurrent() == null) {
-						if (act.isFeasible(wi)) {
-				        	elem.signalSemaphore();
-							act.carryOut(wi);
-							act.queueRemove(wi);
+					
+					if (elem.isDebugEnabled())
+						elem.debug("Calling availableElement()\t" + act);
+					if (act.mainElementActivity()) {
+			            elem.waitSemaphore();
+						// If the element is not performing a presential activity yet
+						if (elem.getCurrent() == null) {
+							if (act.isFeasible(wi)) {
+								elem.setCurrent(wi);
+					        	elem.signalSemaphore();
+								act.carryOut(wi);
+								act.queueRemove(wi);
+							}
+							else {
+					        	elem.signalSemaphore();
+							}
 						}
 						else {
 				        	elem.signalSemaphore();
-						}
+						}						
 					}
 					else {
-			        	elem.signalSemaphore();
-					}
+						if (act.isFeasible(wi)) {
+							act.carryOut(wi);
+							act.queueRemove(wi);
+						}
+					}					
 				}
 			}
 		}
