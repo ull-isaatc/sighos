@@ -15,14 +15,10 @@ package es.ull.isaatc.simulation.groupedExtra3Phase;
  */
 public interface EventExecutor {
 	/**
-	 * Adds a new event to the execution local buffer of this executor. 
+	 * Adds a new event to this executor. The event is either added to the execution local buffer or 
+	 * the future event local buffer. 
 	 * @param event New event to be added.
 	 */
-	void addLocalEvent(BasicElement.DiscreteEvent event);
-    /**
-     * Sends an event to the local waiting queue. An event is added to the waiting queue if 
-     * its timestamp is higher than the simulation time.
-     * @param event Event to be added
-     */
-	void addWaitingEvent(BasicElement.DiscreteEvent event);
+	void addEvent(BasicElement.DiscreteEvent event);
+
 }

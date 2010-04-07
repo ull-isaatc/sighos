@@ -129,11 +129,10 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	/**
 	 * An element is valid to perform a time-driven activity is it's not currently carrying 
 	 * out another activity or this activity is non presential.
-	 * @param wItem Work item requesting this activity 
 	 */
 	@Override
 	public boolean mainElementActivity() {
-		return (!isNonPresential());
+		return !isNonPresential();
 	}
 
 	/*
@@ -204,8 +203,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 //			am.signalSemaphore();
 //		}
 		
-		// Being < 0 is an unexpected error
-		assert wItem.getTimeLeft() >= 0;
+		assert wItem.getTimeLeft() >= 0 : "Time left < 0: " + wItem.getTimeLeft();
 		if (wItem.getTimeLeft() == 0) {
 			simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 			if (elem.isDebugEnabled())
@@ -222,6 +220,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 				elem.debug("Finishes part of \t" + this + "\t" + description + "\t" + wItem.getTimeLeft());				
 			// The element is introduced in the queue
 			queueAdd(wItem); 
+			// FIXME: ¿No debería hacer un availableElements también?
 		}
 		return false;
 		

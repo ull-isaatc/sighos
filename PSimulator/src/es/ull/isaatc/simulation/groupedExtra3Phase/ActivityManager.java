@@ -61,9 +61,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     protected void queueAdd(WorkItem wi) {
     	// Synchronized because it can be concurrently accessed by different elements requesting different activities in
     	// this AM
-    	synchronized(wiQueue) {
-    		wiQueue.add(wi);
-    	}
+    	synchronized (wiQueue) {
+        	wiQueue.add(wi);			
+		}
     }
     
     /**
@@ -75,9 +75,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     }
     
     protected void notifyElement(WorkItem wi) {
-    	synchronized(requestingElements) {
-    		requestingElements.add(wi);
-    	}
+    	synchronized (requestingElements) {
+        	requestingElements.add(wi);			
+		}
     }
     
     protected void notifyResource() {
@@ -103,9 +103,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     	ArrayList<WorkItem> toRemove = new ArrayList<WorkItem>();
     	Iterator<WorkItem> iter = wiQueue.iterator();
     	while (iter.hasNext() && (uselessSF < wiQueue.size())) {
-    		final WorkItem wi = iter.next();
-            final Element e = wi.getElement();
-            final Activity act = wi.getActivity();
+    		WorkItem wi = iter.next();
+            Element e = wi.getElement();
+            Activity act = wi.getActivity();
     		// The element's timestamp is updated. That's only useful to print messages
             e.setTs(getTs());
             if (act.mainElementActivity()) {
@@ -137,7 +137,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
             	else {	// The activity can't be performed with the current resources
                 	uselessSF += act.getQueueSize();
             	}
-            }            
+            }
 		}
     	// Postponed removal
     	for (WorkItem sf : toRemove)
@@ -196,7 +196,6 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 					final WorkItem wi = requestingElements.poll();
 					final Element elem = wi.getElement();
 					final Activity act = wi.getActivity();
-					
 					if (elem.isDebugEnabled())
 						elem.debug("Calling availableElement()\t" + act);
 					if (act.mainElementActivity()) {
@@ -222,7 +221,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 							act.carryOut(wi);
 							act.queueRemove(wi);
 						}
-					}					
+					}
 				}
 			}
 		}

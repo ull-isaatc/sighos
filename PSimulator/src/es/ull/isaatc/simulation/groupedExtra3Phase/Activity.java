@@ -253,7 +253,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 * @param rt Resource type
 	 * @param duration Duration of the cancellation.
 	 */
-	protected void addResourceCancelation(ResourceType rt, long duration) {
+	public void addResourceCancelation(ResourceType rt, long duration) {
 		cancellationList.put(rt, duration);
 	}
 	
@@ -263,7 +263,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 * @param rt Resource Type
 	 * @return The duration of the cancellation
 	 */
-	protected long getResourceCancelation(ResourceType rt) {
+	public long getResourceCancelation(ResourceType rt) {
 		final Long dur = cancellationList.get(rt);
 		if (dur == null)
 			return 0;
@@ -271,9 +271,8 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	}
 	
 	/**
-	 * Checks if the work item is valid to carry out this activity.
-	 * @param wItem Work item requesting this activity
-	 * @return True if the work item is valid, false in other case.
+	 * Returns true if this activity is the main activity that an element can do.
+	 * @return True if the activity requires an element MUTEX.
 	 */
 	public abstract boolean mainElementActivity();
 	
@@ -394,7 +393,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	        		else {
 	        			// Resets the solution
 	        			wi.signalConflictSemaphore();
-	        			ArrayDeque<Resource> oldSolution = wi.getCaughtResources(); 
+	        			final ArrayDeque<Resource> oldSolution = wi.getCaughtResources(); 
 	        			while (!oldSolution.isEmpty()) {
 	        				Resource res = oldSolution.peek();
 	        				res.removeFromSolution(wi);
@@ -477,7 +476,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	            if (findSolution(pos, ned, wi))
 	                return true;
 	        // There's no solution with this resource. Try without it
-	        Resource res = resourceTypes[pos[0]].getResource(pos[1]);
+	        final Resource res = resourceTypes[pos[0]].getResource(pos[1]);
 	        res.removeFromSolution(wi);
 	        ned[pos[0]]++;
 	        // ... and the search continues

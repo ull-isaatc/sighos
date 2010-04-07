@@ -48,13 +48,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * @param e New event.
      */    
     protected void addEvent(DiscreteEvent e) {
-    	final long evTs = e.getTs();
-    	final long lpTs = simul.getTs();
-    	assert lpTs <= evTs : "Causal restriction broken\t" + lpTs + "\t" + e; 
-        if (evTs == lpTs)
-           	((EventExecutor)Thread.currentThread()).addLocalEvent(e);
-        else if (evTs > lpTs)
-           	((EventExecutor)Thread.currentThread()).addWaitingEvent(e);
+   		((EventExecutor)Thread.currentThread()).addEvent(e);
     }
 
     /**
@@ -92,7 +86,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * Sends a "wait" signal to the semaphore.
      */    
     protected void waitSemaphore() {
-    	while(!sem.compareAndSet(false, true));
+    	while (!sem.compareAndSet(false, true));
     }
     
     /**
