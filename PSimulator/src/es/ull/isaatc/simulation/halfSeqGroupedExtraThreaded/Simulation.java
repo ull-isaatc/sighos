@@ -157,12 +157,12 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		amCreator.createActivityManagers();
 		debugPrintActManager();
 
-        executor = new SlaveEventExecutor[nThreads];
-        for (int i = 0; i < nThreads; i++) {
+        executor = new SlaveEventExecutor[nThreads - 1];
+        for (int i = 0; i < nThreads - 1; i++) {
 			executor[i] = new SlaveEventExecutor(this, i);
 			executor[i].start();
 		}
-		nBunches = nThreads * grain + rest;
+		nBunches = (nThreads - 1) * grain + rest;
 		init();
 
 		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
@@ -244,7 +244,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	    			addEvents(list);    			
 	    		else {
 		    		share = share / nBunches;
-		    		for (int iter = 0; iter < nThreads; iter++)
+		    		for (int iter = 0; iter < (nThreads - 1); iter++)
 		    			executor[iter].addEvents(list.subList(share * iter * grain, share * grain * (iter + 1)));
 		    		addEvents(list.subList(share * executor.length * grain, list.size()));
 	    		}
@@ -259,6 +259,8 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 				// Every time the loop is entered we must wait for all the events from the 
 				// previous iteration to be finished (the execution queue must be empty)
 				while (executingEvents.get() > 0);
+//				assert activityManagerList.get(0).getQueueSize() == 0;
+//				assert activityManagerList.get(1).getQueueSize() == 0;
 				// Now the simulation clock can advance
 	            execWaitingElements();
 			}
