@@ -29,6 +29,7 @@ public class SimulationFactory {
 	 * <il>GROUPED3PHASEX: Extensión de GROUPED3PHASE que emplea un hilo maestro además de los esclavos.</li>
 	 * <il>BONN3PHASE: Modificación de GROUPED3PHASE que usa la barrera Bonn.</li>
 	 * <il>BONNGROUPEDX: Modificación de GROUPEDX que usa la barrera Bonn.</li>
+	 * <il>BONNGROUPEDX: Modificación de BONNGROUPEDX que intenta paralelizar un poquito más.</li>
 	 * @author Iván Castilla Rodríguez
 	 */
 	public enum SimulationType {
@@ -45,7 +46,8 @@ public class SimulationFactory {
 		GROUPED3PHASE,
 		GROUPED3PHASEX,
 		BONN3PHASE,
-		BONNGROUPEDX
+		BONNGROUPEDX,
+		BONNGROUPEDXX
 		
 	}
 	public static SimulationObjectFactory getInstance(SimulationType type, int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
@@ -64,6 +66,7 @@ public class SimulationFactory {
 		case GROUPED3PHASEX: return new es.ull.isaatc.simulation.groupedExtra3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONN3PHASE: return new es.ull.isaatc.simulation.bonn3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONNGROUPEDX: return new es.ull.isaatc.simulation.bonnThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case BONNGROUPEDXX: return new es.ull.isaatc.simulation.bonnXThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		}
 		return null;
 	}
@@ -84,6 +87,7 @@ public class SimulationFactory {
 		case GROUPED3PHASEX: return new es.ull.isaatc.simulation.groupedExtra3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONN3PHASE: return new es.ull.isaatc.simulation.bonn3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONNGROUPEDX: return new es.ull.isaatc.simulation.bonnThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case BONNGROUPEDXX: return new es.ull.isaatc.simulation.bonnXThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		}
 		return null;
 	}
