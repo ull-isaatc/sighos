@@ -9,16 +9,15 @@ package es.ull.isaatc.simulation.bonnThreaded;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import es.ull.isaatc.simulation.bonnThreaded.flow.Flow;
+import edu.bonn.cs.net.barrier.AbstractBarrier;
+import edu.bonn.cs.net.barrier.TournamentBarrier;
 import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.common.info.TimeChangeInfo;
-import es.ull.isaatc.util.ExtendedMath;
+import es.ull.isaatc.simulation.bonnThreaded.flow.Flow;
 import es.ull.isaatc.util.Output;
 
 /**
@@ -38,7 +37,7 @@ import es.ull.isaatc.util.Output;
  * assigned to each slave worker; the remaining events will be assigned to the master worker.
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulation {
+public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
@@ -70,22 +69,12 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	/** Local virtual time. Represents the current simulation time. */
 	protected volatile long lvt;
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
-	protected final TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>> waitQueue;
+	private final TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>> futureEventList;
+	private ArrayList<BasicElement.DiscreteEvent> currentEvents; 
 	/** The pool of slave event executors */ 
     private SlaveEventExecutor [] executor;
-    /** Represents the master executor, which runs events and the simulation clock */
-    private MasterExecutor mainExecutor;
-	// Fine grain adjust of the work load
-	/** Work load factor applied to slave workers */ 
-	private final int grain = 1;
-	/** Work load factor applied to the master worker */
-	private final int rest = 1;
-	/** Amount of sets of events to be distributed among the workers */
-	private int nBunches; 
-
-	// Bonn Barrier
-	/** Out flag set by the winner */
-	private volatile boolean tourFlagOut = false;
+    /** The barrier to control the phases of simulation */
+	private AbstractBarrier barrier;
 	
 	/**
 	 * Creates a new instance of Simulation
@@ -101,7 +90,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 */
 	public Simulation(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		super(id, description, unit, startTs, endTs);
-        waitQueue = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
+        futureEventList = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
 	}
@@ -120,23 +109,11 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 */
 	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
 		super(id, description, unit, startTs, endTs);
-        waitQueue = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
+        futureEventList = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
 	}
 	
-	/**
-	 * Contains the specifications of the model. All the components of the model
-	 * must be declared here.
-	 * <p>
-	 * The components are added simply by invoking their constructors. For
-	 * example: <code>
-	 * Activity a1 = new Activity(0, this, "Act1");
-	 * ResourceType rt1 = new ResourceType(0, this, "RT1");
-	 * </code>
-	 */
-	protected abstract void createModel();
-
 	/**
 	 * Starts the simulation execution. It creates and starts all the necessary 
 	 * structures. First, a <code>SafeLPElement</code> is added. The execution loop 
@@ -150,7 +127,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		if (out == null)
 			out = new Output();
 		
-		createModel();
 		debug("SIMULATION MODEL CREATED");
 		// Sets default AM creator
 		if (amCreator == null)
@@ -158,34 +134,33 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		amCreator.createActivityManagers();
 		debugPrintActManager();
 
-		nBunches = nThreads * grain + rest;
         executor = new SlaveEventExecutor[nThreads];
-		mainExecutor = new MasterExecutor();
-        for (int i = 0; i < nThreads; i++)
-			executor[i] = new SlaveEventExecutor(i + 1);
-        
-        final int numVirtualThreads = ExtendedMath.nextHigherPowerOfTwo(nThreads + 1);
-        mainExecutor.setupBarrier(numVirtualThreads);
-        for (SlaveEventExecutor se : executor)
-        	se.setupBarrier(numVirtualThreads);
-        
-        for (SlaveEventExecutor se : executor)
-        	se.start();
-        
-		init();
+        for (int i = 0; i < nThreads; i++) {
+			executor[i] = new SlaveEventExecutor(i);
+		}
+        barrier = new TournamentBarrier(executor, new BarrierAction());
+		
+        init();
 
 		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
 		// Starts all the generators
 		for (Generator gen : generatorList)
-			mainExecutor.addWaitingEvent(gen.getStartEvent(internalStartTs));
+			addWait(gen.getStartEvent(internalStartTs));
 		// Starts all the resources
 		for (Resource res : resourceList.values())
-			mainExecutor.addWaitingEvent(res.getStartEvent(internalStartTs));		
+			addWait(res.getStartEvent(internalStartTs));		
+		addWait(new SimulationElement().getStartEvent(internalEndTs));
+		
+		advanceSimulationClock();
 
-		mainExecutor.addWaitingEvent(new SimulationElement().getStartEvent(internalEndTs));
-        mainExecutor.start();
-        try {
-			mainExecutor.join();
+        for (int i = 0; i < nThreads; i++) {
+			executor[i].start();
+		}
+
+		try {
+			for (int i = 0; i < nThreads; i++) {
+				executor[i].join();
+			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -199,317 +174,49 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		debug("SIMULATION COMPLETELY FINISHED");
 	}
 
-	/**
-	 * Roles of the different threads during tournament barriers.
-	 * 
-	 * @author Patrick Peschlow
-	 */
-	private static enum Role {
-		WINNER, LOSER, WILDCARD, ROOT;
+	private void addWait(BasicElement.DiscreteEvent e) {
+		ArrayList<BasicElement.DiscreteEvent> list = futureEventList.get(e.getTs());
+		if (list == null) {
+			list = new ArrayList<BasicElement.DiscreteEvent>();
+			list.add(e);
+			futureEventList.put(e.getTs(), list);
+		}
+		else
+			list.add(e);		
 	}
-
-	/**
-	 * Helper object to pre-compute rounds of tournament barriers.
-	 * 
-	 * @author Patrick Peschlow
-	 */
-	private static class Round {
-		/** The "competitor" thread. */
-		private final EventExecutor partner;
-		/** The role of this thread in the current round. */
-		private final Role role;
-
-		private Round(EventExecutor partner, Role role) {
-			this.partner = partner;
-			this.role = role;
-		}
-	}
-
-	protected abstract class EventExecutor extends Thread {
-		protected final int threadId;
-		/** Sense-reversing flag */
-		protected boolean tourSense = false;
-		/** Pre-computed rounds */
-		protected final Round[] tourRounds;
-		/** Flags to be set during the barrier */
-		protected final AtomicBoolean[] tourFlag;
-		/** The number of rounds used for the barrier */		
-		protected final int numRounds;
-		
-		protected EventExecutor(int threadId) {
-			super("LPExec-" + threadId);
-			this.threadId = threadId;
-			numRounds = (int) Math.ceil(Math.log(nThreads + 1) / Math.log(2.0));
-			tourRounds = new Round[numRounds];
-			tourFlag = new AtomicBoolean[numRounds];
-		}
-		
-		protected abstract void addEvent(BasicElement.DiscreteEvent event);
-		protected abstract void addEvents(List<BasicElement.DiscreteEvent> eventList);
-		protected abstract void addWaitingEvent(BasicElement.DiscreteEvent event);
-		
-		protected abstract void setupBarrier(int numVirtualThreads);
-		protected abstract void await();
-
-	}
-
-	final private class SlaveEventExecutor extends EventExecutor {
-		private ArrayDeque<BasicElement.DiscreteEvent> events = new ArrayDeque<BasicElement.DiscreteEvent>();
-		private ArrayDeque<BasicElement.DiscreteEvent> extraWaitingEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
-		
-		private SlaveEventExecutor(int index) {
-			super(index);
-		}
-		
-		/**
-		 * @param event the event to set
-		 */
-		protected void addEvent(BasicElement.DiscreteEvent event) {
-			events.push(event);
-		}
-
-		/**
-		 * @param event the event to set
-		 */
-		protected void addEvents(List<BasicElement.DiscreteEvent> eventList) {
-			events.addAll(eventList);
-		}
-
-		/**
-		 * @param event the event to set
-		 */
-		protected void addWaitingEvent(BasicElement.DiscreteEvent event) {
-			extraWaitingEvents.push(event);
-		}
-
-		protected ArrayDeque<BasicElement.DiscreteEvent> getWaitingEvents() {
-			return extraWaitingEvents;
-		}
-		
+	
+	private final class BarrierAction implements Runnable {
 		@Override
 		public void run() {
-			long endTs = internalEndTs;
-			while (lvt < endTs) {
-				await();
-				while (!events.isEmpty()) {
-					events.pop().run();
-				}
-			}
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see es.ull.isaatc.simulation.bonnThreaded.Simulation.EventExecutor#await()
-		 */
-		@Override
-		protected void await() {
-			tourSense = !tourSense;
-			int currentRound = 0;
-			for (;;) {
-				final Round roundObj = tourRounds[currentRound];
-				assert roundObj.role != Role.ROOT;
-				switch (roundObj.role) {
-				case WINNER:
-					while (tourFlag[currentRound].get() != tourSense) {
-					}
-					++currentRound;
-					// Continue to next round.
-					continue;
-				case WILDCARD:
-					++currentRound;
-					// Continue to next round.
-					continue;
-				case LOSER:
-					roundObj.partner.tourFlag[currentRound].set(tourSense);
-					// Wait for the tournament winner (root) to complete the
-					// barrier action.
-					while (tourFlagOut != tourSense) {
-					}
-					// Exit switch statement (and thus the for loop).
-					break;
-				}
-				// Exit for loop.
-				break;
-			}
-		}
-
-		/* (non-Javadoc)
-		 * @see es.ull.isaatc.simulation.bonnThreaded.Simulation.EventExecutor#setupBarrier(int)
-		 */
-		@Override
-		protected void setupBarrier(int numVirtualThreads) {
-			for (int round = 0; round < numRounds; round++) {
-				final int partnerId = (threadId ^ ExtendedMath.powInt(2, round))
-						% numVirtualThreads;
-				final boolean isWinner = (threadId % ExtendedMath.powInt(2, round + 1) == 0);
-				Role role;
-				EventExecutor partner;
-				if (partnerId > nThreads) {
-					role = Role.WILDCARD;
-					partner = null;
-				} else {
-					if (isWinner) {
-						role = Role.WINNER;
-					} else {
-						role = Role.LOSER;
-					}
-					if (partnerId == 0)
-						partner = mainExecutor;
-					else
-						partner = executor[partnerId - 1];
-				}
-				Round roundObj = new Round(partner, role);
-				tourRounds[round] = roundObj;
-				tourFlag[round] = new AtomicBoolean(false);
-			}
-		}
-
-	}
-
-	final private class MasterExecutor extends EventExecutor {
-	    /** The list of current executing events for the main executor */ 
-		private ArrayDeque<BasicElement.DiscreteEvent> execEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
-
-		private MasterExecutor() {
-			super(0);
-		}
-		
-		@Override
-		protected void addEvent(BasicElement.DiscreteEvent event) {
-			execEvents.push(event);
-		}
-
-		@Override
-		protected void addEvents(List<BasicElement.DiscreteEvent> eventList) {
-			execEvents.addAll(eventList);
-		}
-
-		@Override
-		protected void addWaitingEvent(BasicElement.DiscreteEvent event) {
-			ArrayList<BasicElement.DiscreteEvent> list = waitQueue.get(event.getTs());
-			if (list == null) {
-				list = new ArrayList<BasicElement.DiscreteEvent>();
-				list.add(event);
-				waitQueue.put(event.getTs(), list);
-			}
-			else
-				list.add(event);
-		}
-
-	    /**
-	     * Executes a simulation clock cycle. Extracts all the events from the waiting queue with 
-	     * timestamp equal to the LP timestamp. 
-	     */
-	    private void execWaitingElements() {
 	    	// Updates the future event list with the events produced by the executor threads
 	    	for (SlaveEventExecutor ee : executor) {
 	    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
 	    		while (!list.isEmpty()) {
 	    			BasicElement.DiscreteEvent e = list.pop();
-	    			addWaitingEvent(e);
+	    			addWait(e);
 	    		}    		
 	    	}
-	        // Advances the simulation clock
-	        beforeClockTick();
-	        lvt = waitQueue.firstKey();
-	        infoHandler.notifyInfo(new TimeChangeInfo(Simulation.this, lvt));
-	        afterClockTick();
-	        debug("SIMULATION TIME ADVANCING " + lvt);
-	        // Events with timestamp greater or equal to the maximum simulation time aren't
-	        // executed
-	        if (lvt < internalEndTs) {
-	        	ArrayList<BasicElement.DiscreteEvent> list = waitQueue.pollFirstEntry().getValue();
-	    		int share = list.size();
-	    		if (share < nBunches)
-	    			addEvents(list);    			
-	    		else {
-		    		share = share / nBunches;
-		    		for (int iter = 0; iter < nThreads; iter++)
-		    			executor[iter].addEvents(list.subList(share * iter * grain, share * grain * (iter + 1)));
-		    		addEvents(list.subList(share * executor.length * grain, list.size()));
-	    		}
-	        }
-	    }
-
-		public void run() {
-	        // Simulation main loop
-			while (!isSimulationEnd()) {
-	    		while (!execEvents.isEmpty())
-	    			execEvents.pop().run();
-				// Every time the loop is entered we must wait for all the events from the 
-				// previous iteration to be finished (the execution queue must be empty)
-	    		if (nThreads > 0)
-	    			await();
-	    		else
-	    			execWaitingElements();
-			}
-		}
-
-		/* (non-Javadoc)
-		 * @see es.ull.isaatc.simulation.bonnThreaded.Simulation.EventExecutor#await()
-		 */
-		@Override
-		protected void await() {
-			tourSense = !tourSense;
-			int currentRound = 0;
-			for (;;) {
-				final Round roundObj = tourRounds[currentRound];
-				switch (roundObj.role) {
-				case WINNER:
-					while (tourFlag[currentRound].get() != tourSense) {
-					}
-					++currentRound;
-					// Continue to next round.
-					continue;
-				case WILDCARD:
-					++currentRound;
-					// Continue to next round.
-					continue;
-				case LOSER:
-					roundObj.partner.tourFlag[currentRound].set(tourSense);
-					// Wait for the tournament winner (root) to complete the
-					// barrier action.
-					while (tourFlagOut != tourSense) {
-					}
-					// Exit switch statement (and thus the for loop).
-					break;
-				case ROOT:
-					while (tourFlag[currentRound].get() != tourSense) {
-					}
-					execWaitingElements();
-					tourFlagOut = tourSense;
-					// Exit switch statement (and thus the for loop).
-					break;
-				}
-				// Exit for loop.
-				break;
-			}
-		}
-
-		/* (non-Javadoc)
-		 * @see es.ull.isaatc.simulation.bonnThreaded.Simulation.EventExecutor#setupBarrier(int)
-		 */
-		@Override
-		protected void setupBarrier(int numVirtualThreads) {
-			for (int round = 0; round < numRounds; round++) {
-				final int partnerId = ExtendedMath.powInt(2, round) % numVirtualThreads;
-				Role role = Role.WINNER;
-				EventExecutor partner;
-				if (partnerId > nThreads) {
-					role = Role.WILDCARD;
-					partner = null;
-				} else {
-					if (round == numRounds - 1) {
-						role = Role.ROOT;
-					}
-					partner = executor[partnerId - 1];
-				}
-				Round roundObj = new Round(partner, role);
-				tourRounds[round] = roundObj;
-				tourFlag[round] = new AtomicBoolean(false);
-			}
+	    	
+	    	advanceSimulationClock();
+			
 		}
 	}
+
+	private void advanceSimulationClock() {
+        beforeClockTick();
+
+        // Advances the simulation clock
+        lvt = futureEventList.firstKey();
+        infoHandler.notifyInfo(new TimeChangeInfo(this, lvt));
+        afterClockTick();
+        debug("SIMULATION TIME ADVANCING " + lvt);
+
+        if (!isSimulationEnd()) {
+        	currentEvents = futureEventList.pollFirstEntry().getValue();
+        }
+        
+	}
+	
     /**
      * Indicates if the simulation end has been reached.
      * @return True if the maximum simulation time has been reached. False in other case.
@@ -522,7 +229,84 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		return lvt;
 	}
 
-	/**
+    /**
+     * @author Iván Castilla Rodríguez
+     *
+     */
+    public class SlaveEventExecutor extends Thread implements EventExecutor {
+		private final int threadId;
+    	private final ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+    	private final ArrayDeque<BasicElement.DiscreteEvent> extraWaitingEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+    	
+		/**
+		 * Creates a new slave executor
+		 * @param id Executor's identifier 
+		 */
+		public SlaveEventExecutor(int id) {
+			super("LPExec-" + id);
+			threadId = id;
+		}
+
+    	/**
+    	 * @param event the event to set
+    	 */
+    	public void addEvent(BasicElement.DiscreteEvent event) {
+        	final long evTs = event.getTs();
+            if (evTs == lvt) {
+        		extraEvents.push(event);
+            }
+            else if (evTs > lvt) {
+            	extraWaitingEvents.push(event);
+            }
+            else
+            	error("Causal restriction broken\t" + lvt + "\t" + event);
+    	}
+
+    	public ArrayDeque<BasicElement.DiscreteEvent> getWaitingEvents() {
+    		return extraWaitingEvents;
+    	}
+    	
+    	@Override
+    	public void run() {
+			while (lvt < internalEndTs) {
+	    		// Executes its events
+	    		final int totalEvents = currentEvents.size();
+	    		// if there aren't many events, the first executor deals with them all
+	    		if (threadId == 0 && totalEvents < nThreads) {
+	    			for (int i = 0; i < totalEvents; i++)
+	    				currentEvents.get(i).run();
+	    		}
+	    		else if (totalEvents >= nThreads) {
+	    			final int lastEvent = (threadId + 1 == nThreads) ? totalEvents : (totalEvents * (threadId + 1) / nThreads);
+	    			for (int i = totalEvents * threadId / nThreads; i < lastEvent; i++)
+	    				currentEvents.get(i).run();
+	    		}
+	    		
+	    		// Executes its local events
+				while (!extraEvents.isEmpty()) {
+					extraEvents.pop().run();
+				}
+				
+				if (nThreads > 1)
+					barrier.await();
+				else {
+					// Updates the future event list with the events produced by the executor threads
+			    	for (SlaveEventExecutor ee : executor) {
+			    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
+			    		while (!list.isEmpty()) {
+			    			BasicElement.DiscreteEvent e = list.pop();
+			    			addWait(e);
+			    		}    		
+			    	}
+			    	advanceSimulationClock();					
+				}
+			}
+			
+    	}
+
+    }
+    
+    /**
 	 * A basic element which facilitates the end-of-simulation control. It simply
 	 * has an event at <code>maxgvt</code>, so there's always at least one event in 
 	 * the LP. 
@@ -551,8 +335,8 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		if (isDebugEnabled()) {
 			StringBuffer strLong = new StringBuffer("------    LP STATE    ------");
 			strLong.append("LVT: " + lvt + "\r\n");
-	        strLong.append(waitQueue.size() + " waiting elements: ");
-	        for (ArrayList<BasicElement.DiscreteEvent> ad : waitQueue.values())
+	        strLong.append(futureEventList.size() + " waiting elements: ");
+	        for (ArrayList<BasicElement.DiscreteEvent> ad : futureEventList.values())
 	        	for (BasicElement.DiscreteEvent e : ad)
 	        		strLong.append(e + " ");
 	        strLong.append("\r\n");

@@ -56,10 +56,10 @@ public class ForLoopFlow extends StructuredLoopFlow implements es.ull.isaatc.sim
 				int iter = Math.round((float)iterations.getPositiveValue(wThread.getElement().getTs()));
 				if (beforeRequest(wThread.getElement()) && (iter > 0)) {
 					checkList.put(wThread, iter);
-					wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
+					initialFlow.request(wThread.getInstanceDescendantWorkThread(initialFlow));
 				}
 				else {
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 					next(wThread);				
 				}
 			}
@@ -77,7 +77,7 @@ public class ForLoopFlow extends StructuredLoopFlow implements es.ull.isaatc.sim
 	public void finish(WorkThread wThread) {
 		int iter = checkList.get(wThread);
 		if (--iter > 0) {
-			wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
+			initialFlow.request(wThread.getInstanceDescendantWorkThread(initialFlow));
 			checkList.put(wThread, iter);
 		}
 		else {

@@ -31,7 +31,7 @@ public abstract class BasicFlow extends SimulationObject implements Flow {
 	 * Assigns this flow as the last flow visited by the work thread.
 	 * @param wThread Work thread which requested this flow.
 	 */
-	public void next(WorkThread wThread) {
+	public void next(final WorkThread wThread) {
 		wThread.setLastFlow(this);
 	}
 

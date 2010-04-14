@@ -13,7 +13,7 @@ import es.ull.isaatc.simulation.bonnThreaded.WorkThread;
  */
 public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.isaatc.simulation.common.flow.SingleFlow {
     /** The activity to be performed */
-    protected Activity act;
+    protected final Activity act;
     
 	/**
 	 * Creates a new single flow..
@@ -33,14 +33,6 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 		return act;
 	}
 
-	/**
-	 * Set a new Activity associated to the SingleFlow.
-	 * @param act The new Activity.
-	 */
-	public void setActivity(Activity act) {
-		this.act = act;
-	}
-	
 	/**
 	 * Allows a user to add actions carried out when an element is enqueued in an Activity, 
 	 * waiting for availables Resources. 
@@ -63,13 +55,13 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 	 * (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#request(es.ull.isaatc.simulation.WorkThread)
 	 */
-	public void request(WorkThread wThread) {
+	public void request(final WorkThread wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread.getElement()))
 					act.request(wThread.getNewWorkItem(this));
 				else {
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 					next(wThread);
 				}
 			}
@@ -85,7 +77,7 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 	 * (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.TaskFlow#finish(es.ull.isaatc.simulation.WorkThread)
 	 */
-	public void finish(WorkThread wThread) {
+	public void finish(final WorkThread wThread) {
 		if (act.finish(wThread.getWorkItem())) {
 			afterFinalize(wThread.getElement());
 			next(wThread);

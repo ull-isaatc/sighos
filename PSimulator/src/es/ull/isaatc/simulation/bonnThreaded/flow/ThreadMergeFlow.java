@@ -55,7 +55,7 @@ public class ThreadMergeFlow extends ANDJoinFlow implements es.ull.isaatc.simula
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (!beforeRequest(wThread.getElement()))
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 				arrive(wThread);
 				if (canPass(wThread)) {
 					control.get(wThread.getElement()).setActivated();
