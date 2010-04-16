@@ -28,7 +28,7 @@ import es.ull.isaatc.util.Output;
  * 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulation {
+public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
@@ -111,18 +111,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
 		super(id, description, unit, startTs, endTs);
 	}
-	
-	/**
-	 * Contains the specifications of the model. All the components of the model
-	 * must be declared here.
-	 * <p>
-	 * The components are added simply by invoking their constructors. For
-	 * example: <code>
-	 * Activity a1 = new Activity(0, this, "Act1");
-	 * ResourceType rt1 = new ResourceType(0, this, "RT1");
-	 * </code>
-	 */
-	protected abstract void createModel();
 
 	/**
 	 * Starts the simulation execution. It creates and starts all the necessary 
@@ -138,7 +126,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		if (out == null)
 			out = new Output();
 		
-		createModel();
 		debug("SIMULATION MODEL CREATED");
 		// Sets default AM creator
 		if (amCreator == null)
@@ -360,6 +347,10 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		return logicalProcessList.length;
 	}
 
+	public void setLogicalProcessCreator(LogicalProcessCreator lpCreator) {
+		this.lpCreator = lpCreator;
+	}
+	
 	/**
 	 * Returns the logical process that can be used as a default LP.
 	 * <p>

@@ -26,6 +26,7 @@ import es.ull.isaatc.simulation.common.factory.StandardCompilator;
 import es.ull.isaatc.simulation.common.flow.Flow;
 import es.ull.isaatc.simulation.common.flow.InitializerFlow;
 import es.ull.isaatc.simulation.sequential.Simulation;
+import es.ull.isaatc.simulation.sequential.SingleLogicalProcessCreator;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -33,7 +34,7 @@ import es.ull.isaatc.simulation.sequential.Simulation;
  */
 public class SimulationFactory implements SimulationObjectFactory {
 	private final static String workingPkg = "es.ull.isaatc.simulation.sequential";
-	private Simulation simul;
+	private final Simulation simul;
 
 	/**
 	 * @param id
@@ -41,11 +42,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	 * @param unit
 	 */
 	public SimulationFactory(int id, String description, TimeUnit unit) {
-		simul = new Simulation(id, description, unit) {
-			@Override
-			protected void createModel() {
-			}
-		};
+		simul = new Simulation(id, description, unit);
 	}
 
 	/**
@@ -56,11 +53,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	 * @param endTs
 	 */
 	public SimulationFactory(int id, String description, TimeUnit unit,	TimeStamp startTs, TimeStamp endTs) {
-		simul = new Simulation(id, description, unit, startTs, endTs) {
-			@Override
-			protected void createModel() {
-			}
-		};
+		simul = new Simulation(id, description, unit, startTs, endTs);
 	}
 
 	/**
@@ -71,11 +64,41 @@ public class SimulationFactory implements SimulationObjectFactory {
 	 * @param endTs
 	 */
 	public SimulationFactory(int id, String description, TimeUnit unit,	long startTs, long endTs) {
-		simul = new Simulation(id, description, unit, startTs, endTs) {
-			@Override
-			protected void createModel() {
-			}
-		};
+		simul = new Simulation(id, description, unit, startTs, endTs);
+	}
+
+	/**
+	 * @param id
+	 * @param description
+	 * @param unit
+	 */
+	public SimulationFactory(int id, String description, boolean opt, TimeUnit unit) {
+		this(id, description, unit);
+		simul.setLogicalProcessCreator(new SingleLogicalProcessCreator(simul, opt));
+	}
+
+	/**
+	 * @param id
+	 * @param description
+	 * @param unit
+	 * @param startTs
+	 * @param endTs
+	 */
+	public SimulationFactory(int id, String description, boolean opt, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
+		this(id, description, unit, startTs, endTs);
+		simul.setLogicalProcessCreator(new SingleLogicalProcessCreator(simul, opt));
+	}
+
+	/**
+	 * @param id
+	 * @param description
+	 * @param unit
+	 * @param startTs
+	 * @param endTs
+	 */
+	public SimulationFactory(int id, String description, boolean opt, TimeUnit unit, long startTs, long endTs) {
+		this(id, description, unit, startTs, endTs);
+		simul.setLogicalProcessCreator(new SingleLogicalProcessCreator(simul, opt));		
 	}
 
 	@Override

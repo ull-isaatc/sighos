@@ -2,15 +2,13 @@ package es.ull.isaatc.simulation.sequential;
 
 import java.util.PriorityQueue;
 
-import es.ull.isaatc.simulation.common.info.TimeChangeInfo;
-
 /** 
  * A logical process (LP) is a subregion of the simulation. It includes a set of resource types,
  * activities, resources, and elements. The LP handles a set of events which interact with any
  * of the components associated to this LP. An LP is subdivided into activity managers.   
  * @author Carlos Martín Galán
  */
-public class LogicalProcess extends TimeStampedSimulationObject implements Runnable {
+public abstract class LogicalProcess extends TimeStampedSimulationObject implements Runnable {
 	/** LP's counter. */
 	private static int nextId = 0;
     /** Local virtual time. Represents the current simulation time for this LP. */
@@ -64,65 +62,22 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * its timestamp is greater than the LP timestamp.
      * @param e Event to be added
      */
-	public void addWait(BasicElement.DiscreteEvent e) {
-		waitQueue.add(e);
-	}
+	public abstract void addWait(BasicElement.DiscreteEvent e);
 	
-	public void addExecution(BasicElement.DiscreteEvent e) {
-		e.run();
-	}
+	public abstract void addExecution(BasicElement.DiscreteEvent e);
 	
     /**
      * Removes an event from the waiting queue. An event is removed from the waiting 
      * queue when the LP reaches the timestamp of that event.
      * @return The first event of the waiting queue.
      */
-    protected BasicElement.DiscreteEvent removeWait() {
-        return waitQueue.poll();
-    }
+    protected abstract BasicElement.DiscreteEvent removeWait();
     
     /**
      * Executes a simulation clock cycle. Extracts all the events from the waiting queue with 
      * timestamp equal to the LP timestamp. 
      */
-    private void execWaitingElements() {
-        // Extracts the first event
-        if (! waitQueue.isEmpty()) {
-            BasicElement.DiscreteEvent e = removeWait();
-            // Advances the simulation clock
-            simul.beforeClockTick();
-            lvt = e.getTs();
-            simul.getInfoHandler().notifyInfo(new TimeChangeInfo(simul, this.getTs()));
-            simul.afterClockTick();
-            debug("SIMULATION TIME ADVANCING " + lvt);
-            // Events with timestamp greater or equal to the maximum simulation time aren't
-            // executed
-            if (lvt >= maxgvt)
-                addWait(e);
-            else {
-            	addExecution(e);
-                // Extracts all the events with the same timestamp
-                boolean flag = false;
-                do {
-                    if (! waitQueue.isEmpty()) {
-                        e = removeWait();
-                        if (e.getTs() == lvt) {
-                        	addExecution(e);
-                            flag = true;
-                        }
-                        else {  
-                            flag = false;
-                            addWait(e);
-                        }
-                    }
-                    else {  // The waiting queue is empty
-                        flag = false;
-                    }
-                } while ( flag );
-            }
-        }        
-    }
-
+    protected abstract void execWaitingElements();
     
 	/**
 	 * A basic element which facilitates the end-of-simulation control. It simply

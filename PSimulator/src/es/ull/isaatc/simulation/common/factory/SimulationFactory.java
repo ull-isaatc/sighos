@@ -13,8 +13,8 @@ import es.ull.isaatc.simulation.common.TimeUnit;
 public class SimulationFactory {
 	/**
 	 * Define los distintos tipos de simulación que pueden probarse<ul>
-	 * <il>SEQUENTIAL: Ejecución secuencial optimizada</li>
-	 * <il>SEQUENTIAL2: Ejecución secuencial a la que se le añade un buffer intermedio para que se parezca más a la ejecución paralela</li>
+	 * <il>SEQUENTIAL: Ejecución secuencial</li>
+	 * <il>SEQUENTIAL2: Ejecución secuencial optimizada</li>
 	 * <il>SIMEVENTS: Ejecución que intenta optimizar los eventos simultáneos usando un pool de threads</li>
 	 * <il>SIMEVENTS3PHASE: Ejecución que intenta optimizar los eventos simultáneos usando un pool de threads. En este caso se
 	 * trata de mejorar el resultado haciendo una ejecución en dos fases (más propiamente en 3) que elimina muchos de los bloqueos.</li>
@@ -55,7 +55,7 @@ public class SimulationFactory {
 	public static SimulationObjectFactory getInstance(SimulationType type, int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		switch (type) {
 		case SEQUENTIAL: return new es.ull.isaatc.simulation.sequential.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case SEQUENTIAL2: return new es.ull.isaatc.simulation.lessSequential.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case SEQUENTIAL2: return new es.ull.isaatc.simulation.sequential.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
 		case SIMEVENTS: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case SIMEVENTS3PHASE: return new es.ull.isaatc.simulation.optThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case INTERVAL: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
@@ -77,7 +77,7 @@ public class SimulationFactory {
 	public static SimulationObjectFactory getInstance(SimulationType type, int id, String description, TimeUnit unit, long startTs, long endTs) {
 		switch (type) {
 		case SEQUENTIAL: return new es.ull.isaatc.simulation.sequential.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case SEQUENTIAL2: return new es.ull.isaatc.simulation.lessSequential.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case SEQUENTIAL2: return new es.ull.isaatc.simulation.sequential.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
 		case SIMEVENTS: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case SIMEVENTS3PHASE: return new es.ull.isaatc.simulation.optThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case INTERVAL: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
