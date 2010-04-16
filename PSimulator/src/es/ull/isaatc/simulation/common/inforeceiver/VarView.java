@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.common.inforeceiver;
 
 import es.ull.isaatc.simulation.common.Simulation;
-import es.ull.isaatc.simulation.variable.Variable;
+import es.ull.isaatc.simulation.common.variable.Variable;
 
 public abstract class VarView extends View implements Variable {
 

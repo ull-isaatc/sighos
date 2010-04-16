@@ -1,27 +1,27 @@
-package es.ull.isaatc.simulation.variable;
+package es.ull.isaatc.simulation.common.variable;
 
 
 /**
- * Simulation's variable which house a short type.
+ * Simulation's variable which house a float type.
  * @author ycallero
  *
  */
-public class ShortVariable extends NumberVariable{
+public class FloatVariable extends NumberVariable {
 	
 	/**
-	 * Create a new ShortVariable.
+	 * Create a new FloatVariable.
 	 * @param value Init value.
 	 */
-	public ShortVariable(short value) {
-		this.value = new Short(value);
+	public FloatVariable(float value) {
+		this.value = new Float(value);
 	}
-	
+
 	/**
-	 * Create a new ShortVariable.
+	 * Create a new FloatVariable.
 	 * @param value Init value.
 	 */
-	public ShortVariable(double value) {
-		this.value = new Short((short)value);
+	public FloatVariable(double value) {
+		this.value = new Float(value);
 	}
 	
 	/**
@@ -30,7 +30,7 @@ public class ShortVariable extends NumberVariable{
 	 * @return True if both are equal.
 	 */	
 	public boolean equals(Variable obj) {
-		return (value.equals(obj.getValue()));
+		return value.equals(obj.getValue());
 	}
 
 	/**
@@ -38,7 +38,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(int value) {
-		this.value = new Short((short) value);	
+		this.value = new Float((float) value);
 	}
 
 	/**
@@ -47,9 +47,9 @@ public class ShortVariable extends NumberVariable{
 	 */
 	public void setValue(boolean value) {
 		if (value)
-			this.value = new Short((short) 0);
+			this.value = new Float(0);
 		else
-			this.value = new Short((short) 1);
+			this.value = new Float(1);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(char value) {
-		this.value = new Short((short) value);	
+		this.value = new Float((float) value);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(byte value) {
-		this.value = new Short((short) value);	
+		this.value = new Float((float) value);
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(double value) {
-		this.value = new Short((short) value);	
+		this.value = new Float((float) value);	
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(float value) {
-		this.value = new Short((short) value);	
+		this.value = new Float((float) value);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(long value) {
-		this.value = new Short((short) value);	
+		this.value = new Float((float) value);
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class ShortVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(short value) {
-		this.value = new Short((short) value);
+		this.value = new Float((float) value);
 	}
 
 }

@@ -3,16 +3,16 @@ package es.ull.isaatc.simulation.sequential;
 import java.util.TreeMap;
 
 import es.ull.isaatc.simulation.common.info.VarViewValueRequestInfo;
-import es.ull.isaatc.simulation.variable.BooleanVariable;
-import es.ull.isaatc.simulation.variable.ByteVariable;
-import es.ull.isaatc.simulation.variable.CharacterVariable;
-import es.ull.isaatc.simulation.variable.DoubleVariable;
-import es.ull.isaatc.simulation.variable.FloatVariable;
-import es.ull.isaatc.simulation.variable.IntVariable;
-import es.ull.isaatc.simulation.variable.LongVariable;
-import es.ull.isaatc.simulation.variable.ShortVariable;
-import es.ull.isaatc.simulation.variable.UserVariable;
-import es.ull.isaatc.simulation.variable.Variable;
+import es.ull.isaatc.simulation.common.variable.BooleanVariable;
+import es.ull.isaatc.simulation.common.variable.ByteVariable;
+import es.ull.isaatc.simulation.common.variable.CharacterVariable;
+import es.ull.isaatc.simulation.common.variable.DoubleVariable;
+import es.ull.isaatc.simulation.common.variable.FloatVariable;
+import es.ull.isaatc.simulation.common.variable.IntVariable;
+import es.ull.isaatc.simulation.common.variable.LongVariable;
+import es.ull.isaatc.simulation.common.variable.ShortVariable;
+import es.ull.isaatc.simulation.common.variable.UserVariable;
+import es.ull.isaatc.simulation.common.variable.Variable;
 
 
 /**

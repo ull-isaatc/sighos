@@ -1,33 +1,22 @@
-package es.ull.isaatc.simulation.variable;
+package es.ull.isaatc.simulation.common.variable;
 
 
 /**
- * Simulation's variable which house a boolean type.
+ * Simulation's variable which house a character type.
  * @author ycallero
  *
  */
-public class BooleanVariable implements UserVariable {
-	
-	/** Boolean value */
-	Boolean value;
+public class CharacterVariable implements UserVariable {
+
+	/** Character value */
+	Character value;
 
 	/**
-	 * Create a new BooleanVariable.
+	 * Create a new CharacterVariable.
 	 * @param value Init value.
 	 */
-	public BooleanVariable(Boolean value) {
+	public CharacterVariable(Character value) {
 		this.value = value;
-	}
-	
-	/**
-	 * Create a BooleanVariable.
-	 * @param value Init value.
-	 */
-	public BooleanVariable(double value) {
-		if (value == 0.0)
-			this.value = new Boolean(true);
-		else
-			this.value = new Boolean(false);
 	}
 	
 	/**
@@ -35,9 +24,7 @@ public class BooleanVariable implements UserVariable {
 	 * @return Variable's value.
 	 */
 	public Number getValue(Object... params) {
-		if (value.booleanValue())
-			return (new Integer(1));
-		return (new Integer(0));
+		return (new Integer(Character.charCount(value.charValue())));
 	}
 
 	/**
@@ -46,7 +33,7 @@ public class BooleanVariable implements UserVariable {
 	 * @return True if both are equal.
 	 */
 	public boolean equals(Variable arg0) {
-		return (getValue().equals(arg0.getValue()));
+		return (value.equals(arg0.getValue()));
 	}
 	
 	/**
@@ -62,7 +49,7 @@ public class BooleanVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(Object value) {
-		this.value = (Boolean) value;
+		this.value = (Character) value;
 	}
 	
 	/**
@@ -70,10 +57,7 @@ public class BooleanVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(int value) {
-		if (value == 0)
-			this.value = new Boolean(true);
-		else
-			this.value = new Boolean(false);
+		this.value = new Character((char) value);
 	}
 
 	/**
@@ -81,7 +65,10 @@ public class BooleanVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(boolean value) {
-		this.value = new Boolean(value);
+		if (value)
+			this.value = new Character('0');
+		else
+			this.value = new Character('1');
 	}
 
 	/**
@@ -89,10 +76,7 @@ public class BooleanVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(char value) {
-		if (value == '0')
-			this.value = new Boolean(true);
-		else
-			this.value = new Boolean(false);			
+		this.value = new Character((char) value);
 	}
 
 	/**
@@ -100,10 +84,7 @@ public class BooleanVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(byte value) {
-		if (value == 0)
-			this.value = new Boolean(true);
-		else
-			this.value = new Boolean(false);
+		this.value = new Character((char) value);
 	}
 
 	/**
@@ -111,10 +92,7 @@ public class BooleanVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(double value) {
-		if (value == 0)
-			this.value = new Boolean(true);
-		else
-			this.value = new Boolean(false);
+		this.value = new Character((char) value);
 	}
 
 	/**
@@ -122,10 +100,7 @@ public class BooleanVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(float value) {
-		if (value == 0)
-			this.value = new Boolean(true);
-		else
-			this.value = new Boolean(false);
+		this.value = new Character((char) value);
 	}
 
 	/**
@@ -133,10 +108,7 @@ public class BooleanVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(long value) {
-		if (value == 0)
-			this.value = new Boolean(true);
-		else
-			this.value = new Boolean(false);
+		this.value = new Character((char) value);
 	}
 
 	/**
@@ -144,9 +116,6 @@ public class BooleanVariable implements UserVariable {
 	 * @param value New value.
 	 */
 	public void setValue(short value) {
-		if (value == 0)
-			this.value = new Boolean(true);
-		else
-			this.value = new Boolean(false);
+		this.value = new Character((char) value);
 	}
 }

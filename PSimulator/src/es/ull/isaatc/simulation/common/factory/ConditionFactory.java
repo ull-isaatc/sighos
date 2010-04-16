@@ -4,10 +4,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import es.ull.isaatc.simulation.common.condition.Condition;
+import es.ull.isaatc.simulation.common.variable.IntVariable;
+import es.ull.isaatc.simulation.common.variable.Variable;
 import es.ull.isaatc.simulation.common.Element;
 import es.ull.isaatc.simulation.common.Simulation;
-import es.ull.isaatc.simulation.variable.IntVariable;
-import es.ull.isaatc.simulation.variable.Variable;
 
 /**
  * Generate Condition's instances. We can obtain a predefined Condition

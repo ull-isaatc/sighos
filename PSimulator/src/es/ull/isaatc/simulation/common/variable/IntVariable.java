@@ -1,32 +1,32 @@
-package es.ull.isaatc.simulation.variable;
+package es.ull.isaatc.simulation.common.variable;
 
 
 /**
- * Simulation's variable which house a float type.
+ * Simulation's variable which house a integer type.
  * @author ycallero
  *
  */
-public class FloatVariable extends NumberVariable {
-	
-	/**
-	 * Create a new FloatVariable.
-	 * @param value Init value.
-	 */
-	public FloatVariable(float value) {
-		this.value = new Float(value);
-	}
+public class IntVariable extends NumberVariable{
 
 	/**
-	 * Create a new FloatVariable.
+	 * Create a new InVariable.
 	 * @param value Init value.
 	 */
-	public FloatVariable(double value) {
-		this.value = new Float(value);
+	public IntVariable(int value) {
+		this.value = new Integer(value);
+	}
+	
+	/**
+	 * Create a new IntVariable.
+	 * @param value Init value.
+	 */
+	public IntVariable(double value) {
+		this.value = new Integer((int)value);
 	}
 	
 	/**
 	 * Compare two Variables. 
-	 * @param obj The Variable which you want compare.
+	 * @param arg0 The Variable which you want compare.
 	 * @return True if both are equal.
 	 */	
 	public boolean equals(Variable obj) {
@@ -36,9 +36,9 @@ public class FloatVariable extends NumberVariable {
 	/**
 	 * Set a new Variable's value from an integer.
 	 * @param value New value.
-	 */
+	 */	
 	public void setValue(int value) {
-		this.value = new Float((float) value);
+		this.value = new Integer((int) value);
 	}
 
 	/**
@@ -47,9 +47,9 @@ public class FloatVariable extends NumberVariable {
 	 */
 	public void setValue(boolean value) {
 		if (value)
-			this.value = new Float(0);
+			this.value = new Integer(0);
 		else
-			this.value = new Float(1);
+			this.value = new Integer(1);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(char value) {
-		this.value = new Float((float) value);
+		this.value = new Integer((int) value);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(byte value) {
-		this.value = new Float((float) value);
+		this.value = new Integer((int) value);
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(double value) {
-		this.value = new Float((float) value);	
+		this.value = new Integer((int) value);
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(float value) {
-		this.value = new Float((float) value);
+		this.value = new Integer((int) value);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(long value) {
-		this.value = new Float((float) value);
+		this.value = new Integer((int) value);
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class FloatVariable extends NumberVariable {
 	 * @param value New value.
 	 */
 	public void setValue(short value) {
-		this.value = new Float((float) value);
+		this.value = new Integer((int) value);
 	}
-
+	
 }

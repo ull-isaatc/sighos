@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.common;
 
-import es.ull.isaatc.simulation.variable.Variable;
+import es.ull.isaatc.simulation.common.variable.Variable;
 
 public interface VariableStore {
 	/**

@@ -7,10 +7,10 @@ import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import es.ull.isaatc.simulation.common.info.ElementInfo;
+import es.ull.isaatc.simulation.common.variable.EnumVariable;
 import es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.flow.Flow;
 import es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.flow.InitializerFlow;
 import es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.flow.TaskFlow;
-import es.ull.isaatc.simulation.variable.EnumVariable;
 
 /**
  * Represents case instances that make use of activity flows in order to carry out

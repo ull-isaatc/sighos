@@ -1,4 +1,4 @@
-package es.ull.isaatc.simulation.variable;
+package es.ull.isaatc.simulation.common.variable;
 
 import java.util.TreeMap;
 

@@ -10,10 +10,10 @@ import es.ull.isaatc.simulation.common.factory.SimulationFactory;
 import es.ull.isaatc.simulation.common.factory.SimulationObjectFactory;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory.SimulationType;
 import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
+import es.ull.isaatc.simulation.common.variable.EnumType;
+import es.ull.isaatc.simulation.common.variable.EnumVariable;
+import es.ull.isaatc.simulation.common.variable.IntVariable;
 import es.ull.isaatc.simulation.common.TimeDrivenActivity;
-import es.ull.isaatc.simulation.variable.EnumType;
-import es.ull.isaatc.simulation.variable.EnumVariable;
-import es.ull.isaatc.simulation.variable.IntVariable;
 
 /**
  * 

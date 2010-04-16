@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.test;
 
-import es.ull.isaatc.simulation.variable.EnumType;
-import es.ull.isaatc.simulation.variable.EnumVariable;
+import es.ull.isaatc.simulation.common.variable.EnumType;
+import es.ull.isaatc.simulation.common.variable.EnumVariable;
 
 class EnumTest1 {
 

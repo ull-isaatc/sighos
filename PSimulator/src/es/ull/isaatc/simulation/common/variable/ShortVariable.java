@@ -1,28 +1,36 @@
-package es.ull.isaatc.simulation.variable;
+package es.ull.isaatc.simulation.common.variable;
 
 
 /**
- * Simulation's variable which house a double type.
+ * Simulation's variable which house a short type.
  * @author ycallero
  *
  */
-public class DoubleVariable extends NumberVariable{
-
+public class ShortVariable extends NumberVariable{
+	
 	/**
-	 * Create a new DoubleVariable.
+	 * Create a new ShortVariable.
 	 * @param value Init value.
 	 */
-	public DoubleVariable(double value) {
-		this.value = new Double(value);
+	public ShortVariable(short value) {
+		this.value = new Short(value);
+	}
+	
+	/**
+	 * Create a new ShortVariable.
+	 * @param value Init value.
+	 */
+	public ShortVariable(double value) {
+		this.value = new Short((short)value);
 	}
 	
 	/**
 	 * Compare two Variables. 
-	 * @param arg0 The Variable which you want compare.
+	 * @param obj The Variable which you want compare.
 	 * @return True if both are equal.
-	 */
+	 */	
 	public boolean equals(Variable obj) {
-		return value.equals(obj.getValue());
+		return (value.equals(obj.getValue()));
 	}
 
 	/**
@@ -30,7 +38,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(int value) {
-		this.value = new Double((double) value);
+		this.value = new Short((short) value);	
 	}
 
 	/**
@@ -39,10 +47,9 @@ public class DoubleVariable extends NumberVariable{
 	 */
 	public void setValue(boolean value) {
 		if (value)
-			this.value = new Double(0);
+			this.value = new Short((short) 0);
 		else
-			this.value = new Double(1);
-		
+			this.value = new Short((short) 1);
 	}
 
 	/**
@@ -50,7 +57,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(char value) {
-		this.value = new Double((double) value);
+		this.value = new Short((short) value);	
 	}
 
 	/**
@@ -58,7 +65,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(byte value) {
-		this.value = new Double((double) value);
+		this.value = new Short((short) value);	
 	}
 
 	/**
@@ -66,7 +73,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(double value) {
-		this.value = new Double((double) value);
+		this.value = new Short((short) value);	
 	}
 
 	/**
@@ -74,7 +81,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(float value) {
-		this.value = new Double((double) value);
+		this.value = new Short((short) value);	
 	}
 
 	/**
@@ -82,7 +89,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(long value) {
-		this.value = new Double((double) value);
+		this.value = new Short((short) value);	
 	}
 
 	/**
@@ -90,7 +97,7 @@ public class DoubleVariable extends NumberVariable{
 	 * @param value New value.
 	 */
 	public void setValue(short value) {
-		this.value = new Double((double) value);
+		this.value = new Short((short) value);
 	}
 
 }

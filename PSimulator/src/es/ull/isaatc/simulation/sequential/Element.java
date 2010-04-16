@@ -10,7 +10,7 @@ import es.ull.isaatc.simulation.sequential.flow.Flow;
 import es.ull.isaatc.simulation.sequential.flow.InitializerFlow;
 import es.ull.isaatc.simulation.sequential.flow.TaskFlow;
 import es.ull.isaatc.simulation.common.info.ElementInfo;
-import es.ull.isaatc.simulation.variable.EnumVariable;
+import es.ull.isaatc.simulation.common.variable.EnumVariable;
 
 /**
  * Represents case instances that make use of activity flows in order to carry out
