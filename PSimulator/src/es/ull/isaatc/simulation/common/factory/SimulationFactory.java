@@ -47,7 +47,6 @@ public class SimulationFactory {
 		GROUPED3PHASE,
 		GROUPED3PHASEX,
 //		GROUPEDXHYBRID,
-		BONN3PHASE,
 		BONNGROUPEDX,
 		BONNGROUPEDXX
 		
@@ -61,13 +60,12 @@ public class SimulationFactory {
 		case INTERVAL: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, false, unit, startTs, endTs);
 		case BUFFERED: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
 		case GROUPED: return new es.ull.isaatc.simulation.groupedThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case GROUPEDX: return new es.ull.isaatc.simulation.groupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case GROUPEDX: return new es.ull.isaatc.simulation.groupedExtraThreaded.factory.SimulationFactory(id, description, false, unit, startTs, endTs);
 		case GROUPEDXX: return new es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case PASIVE: return new es.ull.isaatc.simulation.groupedExtraPasiveThreads.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case PASIVE: return new es.ull.isaatc.simulation.groupedExtraThreaded.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
 		case GROUPED3PHASE: return new es.ull.isaatc.simulation.grouped3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case GROUPED3PHASEX: return new es.ull.isaatc.simulation.groupedExtra3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 //		case GROUPEDXHYBRID: return new es.ull.isaatc.simulation.groupedXHybrid.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case BONN3PHASE: return new es.ull.isaatc.simulation.bonn3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONNGROUPEDX: return new es.ull.isaatc.simulation.bonnThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONNGROUPEDXX: return new es.ull.isaatc.simulation.bonnXThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		}
@@ -83,13 +81,12 @@ public class SimulationFactory {
 		case INTERVAL: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, false, unit, startTs, endTs);
 		case BUFFERED: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
 		case GROUPED: return new es.ull.isaatc.simulation.groupedThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case GROUPEDX: return new es.ull.isaatc.simulation.groupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case GROUPEDX: return new es.ull.isaatc.simulation.groupedExtraThreaded.factory.SimulationFactory(id, description, false, unit, startTs, endTs);
 		case GROUPEDXX: return new es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case PASIVE: return new es.ull.isaatc.simulation.groupedExtraPasiveThreads.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case PASIVE: return new es.ull.isaatc.simulation.groupedExtraThreaded.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
 		case GROUPED3PHASE: return new es.ull.isaatc.simulation.grouped3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case GROUPED3PHASEX: return new es.ull.isaatc.simulation.groupedExtra3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 //		case GROUPEDXHYBRID: return new es.ull.isaatc.simulation.groupedXHybrid.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case BONN3PHASE: return new es.ull.isaatc.simulation.bonn3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONNGROUPEDX: return new es.ull.isaatc.simulation.bonnThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONNGROUPEDXX: return new es.ull.isaatc.simulation.bonnXThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		}

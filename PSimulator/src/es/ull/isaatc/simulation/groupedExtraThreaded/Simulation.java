@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import es.ull.isaatc.simulation.common.TimeStamp;
@@ -85,6 +87,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	private final int rest = 1;
 	/** Amount of sets of events to be distributed among the workers */
 	private int nBunches; 
+	private final boolean pasive;
 	
 	/**
 	 * Creates a new instance of Simulation
@@ -99,10 +102,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	 *            Timestamp of simulation's end
 	 */
 	public Simulation(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
-		super(id, description, unit, startTs, endTs);
-        waitQueue = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
-        // The Local virtual time is set to the immediately previous instant to the simulation start time
-        lvt = internalStartTs - 1;
+		this(id, description, false, unit, startTs, endTs);
 	}
 	
 	/**
@@ -118,10 +118,47 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	 *            Simulation's end timestamp expresed in Simulation Time Units
 	 */
 	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
+		this(id, description, false, unit, startTs, endTs);
+	}
+	
+	/**
+	 * Creates a new instance of Simulation
+	 *
+	 * @param id
+	 *            This simulation's identifier
+	 * @param description
+	 *            A short text describing this simulation.
+	 * @param startTs
+	 *            Timestamp of simulation's start
+	 * @param endTs
+	 *            Timestamp of simulation's end
+	 */
+	public Simulation(int id, String description, boolean pasive, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		super(id, description, unit, startTs, endTs);
         waitQueue = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
+        this.pasive = pasive;
+	}
+	
+	/**
+	 * Creates a new instance of Simulation
+	 *
+	 * @param id
+	 *            This simulation's identifier
+	 * @param description
+	 *            A short text describing this simulation.
+	 * @param startTs
+	 *            Simulation's start timestamp expresed in Simulation Time Units
+	 * @param endTs
+	 *            Simulation's end timestamp expresed in Simulation Time Units
+	 */
+	public Simulation(int id, String description, boolean pasive, TimeUnit unit, long startTs, long endTs) {
+		super(id, description, unit, startTs, endTs);
+        waitQueue = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
+        // The Local virtual time is set to the immediately previous instant to the simulation start time
+        lvt = internalStartTs - 1;
+        this.pasive = pasive;
 	}
 	
 	/**
@@ -145,10 +182,18 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		debugPrintActManager();
 
         executor = new SlaveEventExecutor[nThreads - 1];
-        for (int i = 0; i < nThreads - 1; i++) {
-			executor[i] = new SlaveEventExecutor(this, i);
-			executor[i].start();
-		}
+        if (pasive) {
+	        for (int i = 0; i < nThreads - 1; i++) {
+				executor[i] = new PasiveSlaveEventExecutor(i);
+				executor[i].start();
+			}
+        }
+        else {
+            for (int i = 0; i < nThreads - 1; i++) {
+    			executor[i] = new ActiveSlaveEventExecutor(i);
+    			executor[i].start();
+    		}        	
+        }
 		nBunches = (nThreads - 1) * grain + rest;
 		init();
 
@@ -251,9 +296,113 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 			}
 			// The simulation waits for all the events to be removed from the execution queue 
 			while (executingEvents.get() > 0);
+			if (pasive)
+				for (SlaveEventExecutor slave : executor)
+					((PasiveSlaveEventExecutor)slave).notifyEnd();
 		}
 	}
-    /**
+	
+	private abstract class SlaveEventExecutor extends Thread implements EventExecutor {
+		private ArrayDeque<BasicElement.DiscreteEvent> events = new ArrayDeque<BasicElement.DiscreteEvent>();
+		private ArrayDeque<BasicElement.DiscreteEvent> extraWaitingEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+		
+		public SlaveEventExecutor(int index) {
+			super("LPExec-" + index);
+		}
+		
+		/**
+		 * @param event the event to set
+		 */
+		public void addEvent(BasicElement.DiscreteEvent event) {
+			events.push(event);
+		}
+		
+		/**
+		 * @param event the event to set
+		 */
+		public void addEvents(List<BasicElement.DiscreteEvent> eventList) {
+			events.addAll(eventList);
+			notifyEvents();
+		}
+
+		/**
+		 * @param event the event to set
+		 */
+		public void addWaitingEvent(BasicElement.DiscreteEvent event) {
+			extraWaitingEvents.push(event);
+		}
+
+		public ArrayDeque<BasicElement.DiscreteEvent> getWaitingEvents() {
+			return extraWaitingEvents;
+		}
+		
+		protected void executeEvents() {
+			while (!events.isEmpty()) {
+				events.pop().run();
+			}			
+		}
+		
+		protected abstract void notifyEvents(); 
+	}
+	
+	private class ActiveSlaveEventExecutor extends SlaveEventExecutor {
+		private AtomicBoolean flag = new AtomicBoolean(false);
+
+		public ActiveSlaveEventExecutor(int index) {
+			super(index);
+		}
+		
+		@Override
+		public void notifyEvents() {
+			flag.set(true);
+		}
+
+		@Override
+		public void run() {
+			long endTs = internalEndTs;
+			while (lvt < endTs) {
+				if (flag.compareAndSet(true, false)) {
+					executeEvents();
+				}
+			}			
+		}
+
+	}
+
+	private class PasiveSlaveEventExecutor extends SlaveEventExecutor {
+		private Semaphore lock = new Semaphore(0);
+		
+		public PasiveSlaveEventExecutor(int index) {
+			super(index);
+		}
+		
+		@Override
+		public void notifyEvents() {
+			lock.release();
+		}
+
+		public void notifyEnd() {
+			lock.release();
+		}
+		
+		@Override
+		public void run() {
+			long endTs = internalEndTs;
+			while (lvt < endTs) {
+				try {
+					lock.acquire();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				executeEvents();
+			}
+			
+		}
+
+	}
+	
+	/**
      * Indicates if the simulation end has been reached.
      * @return True if the maximum simulation time has been reached. False in other case.
      */
