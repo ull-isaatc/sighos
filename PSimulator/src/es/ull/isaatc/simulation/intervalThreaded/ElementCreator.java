@@ -72,7 +72,8 @@ public class ElementCreator implements BasicElementCreator, es.ull.isaatc.simula
             		ElementType et = gt.getElementType();
     	    		Element elem = new Element(Generator.incElemCounter(), gen.getSimulation(), et, gt.getFlow());
     	    		elem.initializeElementVars(et.getElementValues());
-    	            elem.start();
+    	            BasicElement.DiscreteEvent e = elem.getStartEvent(gen.getTs());
+    	            elem.addEvent(e);
     	            break;
             	}
             }

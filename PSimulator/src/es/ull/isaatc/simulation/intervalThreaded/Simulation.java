@@ -6,10 +6,12 @@
 
 package es.ull.isaatc.simulation.intervalThreaded;
 
+import java.util.AbstractQueue;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.TreeMap;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,28 +35,28 @@ import es.ull.isaatc.util.Output;
  * 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulation {
+public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	
 	/** List of resources present in the simulation. */
-	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
+	protected final Map<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
 
 	/** List of element generators of the simulation. */
 	protected final ArrayList<Generator> generatorList = new ArrayList<Generator>();
 
 	/** List of activities present in the simulation. */
-	protected final TreeMap<Integer, Activity> activityList = new TreeMap<Integer, Activity>();
+	protected final Map<Integer, Activity> activityList = new TreeMap<Integer, Activity>();
 
 	/** List of resource types present in the simulation. */
-	protected final TreeMap<Integer, ResourceType> resourceTypeList = new TreeMap<Integer, ResourceType>();
+	protected final Map<Integer, ResourceType> resourceTypeList = new TreeMap<Integer, ResourceType>();
 
 	/** List of resource types present in the simulation. */
-	protected final TreeMap<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
+	protected final Map<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
 
 	/** List of activity managers that partition the simulation. */
 	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
 	
 	/** List of flows present in the simulation */
-	protected final TreeMap<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
+	protected final Map<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
 
 	/** List of active elements */
 	private final Map<Integer, Element> activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
@@ -66,12 +68,10 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
     /** A counter to know how many events are in execution */
     protected AtomicInteger executingEvents = new AtomicInteger(0);
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
-	protected final PriorityBlockingQueue<BasicElement.DiscreteEvent> waitQueue;
-    /** The time interval that handles the simulation */
-    private long interval;
-    private long upperTs;
+	protected final AbstractQueue<BasicElement.DiscreteEvent> futureEventList;
     private EventExecutor [] executor;
     private int nextExecutor = 0; 
+    private final boolean buffered;
 	
 	/**
 	 * Creates a new instance of Simulation
@@ -85,12 +85,15 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * @param endTs
 	 *            Timestamp of simulation's end
 	 */
-	public Simulation(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
+	public Simulation(int id, String description, boolean buffered, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		super(id, description, unit, startTs, endTs);
-        waitQueue = new PriorityBlockingQueue<BasicElement.DiscreteEvent>();
+		if (buffered)
+			futureEventList = new PriorityQueue<BasicElement.DiscreteEvent>();
+		else
+			futureEventList = new PriorityBlockingQueue<BasicElement.DiscreteEvent>();
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
-        upperTs = lvt;
+        this.buffered = buffered;
 	}
 	
 	/**
@@ -105,36 +108,17 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * @param endTs
 	 *            Simulation's end timestamp expresed in Simulation Time Units
 	 */
-	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
+	public Simulation(int id, String description, boolean buffered, TimeUnit unit, long startTs, long endTs) {
 		super(id, description, unit, startTs, endTs);
-        waitQueue = new PriorityBlockingQueue<BasicElement.DiscreteEvent>();
+		if (buffered)
+			futureEventList = new PriorityQueue<BasicElement.DiscreteEvent>();
+		else
+			futureEventList = new PriorityBlockingQueue<BasicElement.DiscreteEvent>();
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
-        upperTs = lvt;
+        this.buffered = buffered;
 	}
 	
-	public void setInterval(TimeStamp interval) {
-        this.interval = unit.convert(interval);
-        upperTs = lvt + this.interval;		
-	}
-	
-	public void setInterval(long interval) {
-        this.interval = interval;
-        upperTs = lvt + interval;		
-	}
-	
-	/**
-	 * Contains the specifications of the model. All the components of the model
-	 * must be declared here.
-	 * <p>
-	 * The components are added simply by invoking their constructors. For
-	 * example: <code>
-	 * Activity a1 = new Activity(0, this, "Act1");
-	 * ResourceType rt1 = new ResourceType(0, this, "RT1");
-	 * </code>
-	 */
-	protected abstract void createModel();
-
 	/**
 	 * Starts the simulation execution. It creates and starts all the necessary 
 	 * structures. First, a <code>SafeLPElement</code> is added. The execution loop 
@@ -148,7 +132,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		if (out == null)
 			out = new Output();
 		
-		createModel();
 		debug("SIMULATION MODEL CREATED");
 		// Sets default AM creator
 		if (amCreator == null)
@@ -157,10 +140,18 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		debugPrintActManager();
 
         executor = new EventExecutor[nThreads];
-        for (int i = 0; i < nThreads; i++) {
-			executor[i] = new EventExecutor(i);
-			executor[i].start();
-		}
+        if (buffered) {
+	        for (int i = 0; i < nThreads; i++) {
+				executor[i] = new BufferedEventExecutor(i);
+				executor[i].start();
+			}
+        }
+        else {
+	        for (int i = 0; i < nThreads; i++) {
+				executor[i] = new EventExecutor(i);
+				executor[i].start();
+			}
+        }        	
 		
 		init();
 
@@ -168,20 +159,32 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		
 		// Starts all the generators
 		for (Generator gen : generatorList)
-			gen.start(internalStartTs);
+			addWait(gen.getStartEvent(internalStartTs));
 		// Starts all the resources
 		for (Resource res : resourceList.values())
-			res.start(internalStartTs);		
+			addWait(res.getStartEvent(internalStartTs));		
 
-        new SimulationElement().start(internalEndTs);
+		addWait(new SimulationElement().getStartEvent(internalEndTs));
         
         // Simulation main loop
-		while (!isSimulationEnd()) {
-			// Every time the loop is entered we must wait for all the events from the 
-			// previous iteration to be finished (the execution queue must be empty)
-			while (executingEvents.get() > 0);
-			// Now the simulation clock can advance
-            execWaitingElements();
+		if (buffered) {
+			while (!isSimulationEnd()) {
+				// Every time the loop is entered we must wait for all the events from the 
+				// previous iteration to be finished (the execution queue must be empty)
+				while (executingEvents.get() > 0);
+				// Now the simulation clock can advance
+				updateFutureEventList();
+	            execWaitingElements();	
+			}
+		}
+		else {
+			while (!isSimulationEnd()) {
+				// Every time the loop is entered we must wait for all the events from the 
+				// previous iteration to be finished (the execution queue must be empty)
+				while (executingEvents.get() > 0);
+				// Now the simulation clock can advance
+	            execWaitingElements();
+			}
 		}
 		// The simulation waits for all the events to be removed from the execution queue 
 		while (executingEvents.get() > 0);
@@ -206,7 +209,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	public long getTs() {
 		return lvt;
 	}
-
+	
     /**
      * Sends an event to the execution queue by looking for a thread to execute it. An event is 
      * added to the execution queue when the LP has reached the event timestamp. 
@@ -231,7 +234,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
      * @param e Event to be added
      */
 	public void addWait(BasicElement.DiscreteEvent e) {
-		waitQueue.add(e);
+		futureEventList.add(e);
 	}
 
     /**
@@ -240,7 +243,21 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
      * @return The first event of the waiting queue.
      */
     protected BasicElement.DiscreteEvent removeWait() {
-        return waitQueue.poll();
+        return futureEventList.poll();
+    }
+    
+    /**
+     * Updates the future event list with the events produced by the executor threads
+     */
+    private void updateFutureEventList() {
+    	for (EventExecutor ee : executor) {
+    		ArrayDeque<BasicElement.DiscreteEvent> list = ((BufferedEventExecutor)ee).getWaitingEvents();
+    		while (!list.isEmpty()) {
+    			BasicElement.DiscreteEvent e = list.pop();
+    			addWait(e);
+    		}    		
+    	}
+    	
     }
     
     /**
@@ -248,6 +265,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
      * timestamp equal to the LP timestamp. 
      */
     private void execWaitingElements() {
+        // Extracts the first event
         BasicElement.DiscreteEvent e = removeWait();
         // Advances the simulation clock
         beforeClockTick();
@@ -258,16 +276,12 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
         // Events with timestamp greater or equal to the maximum simulation time aren't
         // executed
         if (lvt >= internalEndTs)
-            addWait(e);
+			addWait(e);
         else {
         	do {
 	            addExecution(e);
 	            while (!executor[nextExecutor].setEvent(e)) {
 	                nextExecutor = (nextExecutor + 1) % executor.length;
-//	                Thread.yield();
-	//                    try {
-	//                      Thread.sleep(1);
-	//                    } catch (Exception exc) {}
 	            }
 	            nextExecutor = (nextExecutor + 1) % executor.length;
                 e = removeWait();
@@ -306,8 +320,8 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		if (isDebugEnabled()) {
 			StringBuffer strLong = new StringBuffer("------    LP STATE    ------");
 			strLong.append("LVT: " + lvt + "\r\n");
-	        strLong.append(waitQueue.size() + " waiting elements: ");
-	        for (BasicElement.DiscreteEvent e : waitQueue)
+	        strLong.append(futureEventList.size() + " waiting elements: ");
+	        for (BasicElement.DiscreteEvent e : futureEventList)
 	            strLong.append(e + " ");
 	        strLong.append("\r\n" + executingEvents + " executing elements:");
 	        strLong.append("\r\n");
@@ -316,21 +330,38 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		}
 	}
 
-	final class EventExecutor extends Thread {
-		private ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+	protected class EventExecutor extends Thread {
+		ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
 		AtomicReference<BasicElement.DiscreteEvent> event = new AtomicReference<BasicElement.DiscreteEvent>();
 		
-		public EventExecutor(int i) {
-			super("LPExec-" + i);
+		private EventExecutor(int id) {
+			super("LPExec-" + id);			
 		}
 		
 		/**
 		 * @param event the event to set
 		 */
 		public void addEvent(BasicElement.DiscreteEvent event) {
-			extraEvents.push(event);
+	    	final long evTs = event.getTs();
+	    	final long lpTs = lvt;
+	        if (evTs == lpTs) {
+	            addExecution(event);
+				extraEvents.push(event);
+	        }
+	        else if (evTs > lpTs)
+	    		addWaitingEvent(event);
+	        else
+	        	error("Causal restriction broken\t" + lpTs + "\t" + event);
+			
 		}
 
+		/**
+		 * @param event the event to set
+		 */
+		public void addWaitingEvent(BasicElement.DiscreteEvent event) {
+			addWait(event);
+		}
+		
 		/**
 		 * @param event the event to set
 		 */
@@ -348,17 +379,34 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 					}
 					event.set(null);
 				}
-				else
-					yield();
 			}
 			
+		}
+	}
+	
+	final class BufferedEventExecutor extends EventExecutor {
+		private ArrayDeque<BasicElement.DiscreteEvent> extraWaitingEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+		
+		public BufferedEventExecutor(int i) {
+			super(i);
+		}
+
+		/**
+		 * @param event the event to set
+		 */
+		public void addWaitingEvent(BasicElement.DiscreteEvent event) {
+			extraWaitingEvents.push(event);
+		}
+
+		public ArrayDeque<BasicElement.DiscreteEvent> getWaitingEvents() {
+			return extraWaitingEvents;
 		}
 	}
 	
 
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.intervalThreaded.Activity} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.intervalBufferThreaded.Activity} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param act
@@ -371,7 +419,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.intervalThreaded.ElementType} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.intervalBufferThreaded.ElementType} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param et
@@ -384,7 +432,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.intervalThreaded.ResourceType} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.intervalBufferThreaded.ResourceType} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param rt
@@ -397,7 +445,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	}
 	
 	/**
-	 * Adds an {@link es.ull.isaatc.simulation.intervalThreaded.flow.Flow} to the model. These method
+	 * Adds an {@link es.ull.isaatc.simulation.intervalBufferThreaded.flow.Flow} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param f
@@ -448,7 +496,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * 
 	 * @return Resources of the model.
 	 */
-	public TreeMap<Integer, Resource> getResourceList() {
+	public Map<Integer, Resource> getResourceList() {
 		return resourceList;
 	}
 
@@ -457,7 +505,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * 
 	 * @return Activities of the model.
 	 */
-	public TreeMap<Integer, Activity> getActivityList() {
+	public Map<Integer, Activity> getActivityList() {
 		return activityList;
 	}
 
@@ -466,7 +514,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * 
 	 * @return Resource types of the model.
 	 */
-	public TreeMap<Integer, ResourceType> getResourceTypeList() {
+	public Map<Integer, ResourceType> getResourceTypeList() {
 		return resourceTypeList;
 	}
 
@@ -475,7 +523,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * 
 	 * @return element types of the model.
 	 */
-	public TreeMap<Integer, ElementType> getElementTypeList() {
+	public Map<Integer, ElementType> getElementTypeList() {
 		return elementTypeList;
 	}
 
@@ -484,7 +532,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * 
 	 * @return flows of the model.
 	 */
-	public TreeMap<Integer, Flow> getFlowList() {
+	public Map<Integer, Flow> getFlowList() {
 		return flowList;
 	}
 

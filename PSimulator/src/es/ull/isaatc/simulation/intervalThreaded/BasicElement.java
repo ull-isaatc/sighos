@@ -30,19 +30,11 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
 
     /**
      * Starts the element execution.
-     */    
-    public void start() {
-		ts = simul.getTs();
-        addEvent(new StartEvent(ts));
-    }
-    
-    /**
-     * Starts the element execution.
      * @param ts The time stamp when the starting event of this element is scheduled
      */    
-    public void start(long ts) {
+    public StartEvent getStartEvent(long ts) {
 		this.ts = simul.getTs();
-        addEvent(new StartEvent(ts));
+        return new StartEvent(ts);
     }
     
     /**
@@ -60,16 +52,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      * @param e New event.
      */    
     protected void addEvent(DiscreteEvent e) {
-    	long evTs = e.getTs();
-    	long lpTs = simul.getTs();
-        if (evTs == lpTs) {
-            simul.addExecution(e);
-    		((EventExecutor)Thread.currentThread()).addEvent(e);
-        }
-        else if (evTs > lpTs)
-            simul.addWait(e);
-        else
-        	error("Causal restriction broken\t" + lpTs + "\t" + e);
+    	((EventExecutor)Thread.currentThread()).addEvent(e);
     }
 
     /**

@@ -15,8 +15,8 @@ public class SimulationFactory {
 	 * Define los distintos tipos de simulación que pueden probarse<ul>
 	 * <il>SEQUENTIAL: Ejecución secuencial</li>
 	 * <il>SEQUENTIAL2: Ejecución secuencial optimizada</li>
-	 * <il>SIMEVENTS: Ejecución que intenta optimizar los eventos simultáneos usando un pool de threads</li>
-	 * <il>SIMEVENTS3PHASE: Ejecución que intenta optimizar los eventos simultáneos usando un pool de threads. En este caso se
+	 * <il>EXTERNALPOOL: Ejecución que intenta optimizar los eventos simultáneos usando un pool de threads</li>
+	 * <il>EXTERNALPOOL3PHASE: Ejecución que intenta optimizar los eventos simultáneos usando un pool de threads. En este caso se
 	 * trata de mejorar el resultado haciendo una ejecución en dos fases (más propiamente en 3) que elimina muchos de los bloqueos.</li>
 	 * <il>INTERVAL: Modificación de SIMEVENTS para que se pueda adaptar en el futuro para una ejecución con reloj intervalar.
 	 * La mayor diferencia es que los hilos de ejecución se definen internamente a la simulación.</li>
@@ -36,8 +36,8 @@ public class SimulationFactory {
 	public enum SimulationType {
 		SEQUENTIAL, 
 		SEQUENTIAL2, 
-		SIMEVENTS,
-		SIMEVENTS3PHASE,
+		EXTERNALPOOL,
+		EXTERNALPOOL3PHASE,
 		INTERVAL,
 		BUFFERED,
 		GROUPED,
@@ -56,10 +56,10 @@ public class SimulationFactory {
 		switch (type) {
 		case SEQUENTIAL: return new es.ull.isaatc.simulation.sequential.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case SEQUENTIAL2: return new es.ull.isaatc.simulation.sequential.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
-		case SIMEVENTS: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case SIMEVENTS3PHASE: return new es.ull.isaatc.simulation.optThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case INTERVAL: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case BUFFERED: return new es.ull.isaatc.simulation.intervalBufferThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case EXTERNALPOOL: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case EXTERNALPOOL3PHASE: return new es.ull.isaatc.simulation.optThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case INTERVAL: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, false, unit, startTs, endTs);
+		case BUFFERED: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
 		case GROUPED: return new es.ull.isaatc.simulation.groupedThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case GROUPEDX: return new es.ull.isaatc.simulation.groupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case GROUPEDXX: return new es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
@@ -78,10 +78,10 @@ public class SimulationFactory {
 		switch (type) {
 		case SEQUENTIAL: return new es.ull.isaatc.simulation.sequential.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case SEQUENTIAL2: return new es.ull.isaatc.simulation.sequential.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
-		case SIMEVENTS: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case SIMEVENTS3PHASE: return new es.ull.isaatc.simulation.optThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case INTERVAL: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
-		case BUFFERED: return new es.ull.isaatc.simulation.intervalBufferThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case EXTERNALPOOL: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case EXTERNALPOOL3PHASE: return new es.ull.isaatc.simulation.optThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case INTERVAL: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, false, unit, startTs, endTs);
+		case BUFFERED: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
 		case GROUPED: return new es.ull.isaatc.simulation.groupedThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case GROUPEDX: return new es.ull.isaatc.simulation.groupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case GROUPEDXX: return new es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
