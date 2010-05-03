@@ -124,9 +124,9 @@ public abstract class Cycle {
 	 * @author Iván Castilla Rodríguez
 	 */
 	abstract protected class DiscreteIteratorLevel {
-		long currentTs;
+		protected long currentTs;
 		/** The end timestamp. */
-		long endTs;
+		protected long endTs;
 
 		public DiscreteIteratorLevel(long start, long end) {
 			reset(start, end);

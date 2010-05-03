@@ -19,10 +19,10 @@ public class WeeklyPeriodicCycle extends PeriodicCycle {
 	public enum WeekDays {
 		MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 	}
-	public static EnumSet<WeekDays> ALLWEEK = EnumSet.allOf(WeekDays.class);
-	public static EnumSet<WeekDays> WEEKEND = EnumSet.of(WeekDays.SATURDAY, WeekDays.SUNDAY);
-	public static EnumSet<WeekDays> WEEKDAYS = EnumSet.complementOf(WEEKEND);
-	private EnumSet<WeekDays> daySet;
+	public final static EnumSet<WeekDays> ALLWEEK = EnumSet.allOf(WeekDays.class);
+	public final static EnumSet<WeekDays> WEEKEND = EnumSet.of(WeekDays.SATURDAY, WeekDays.SUNDAY);
+	public final static EnumSet<WeekDays> WEEKDAYS = EnumSet.complementOf(WEEKEND);
+	private final EnumSet<WeekDays> daySet;
 	
 	/**
 	 * Creates a new weekly periodic cycle.

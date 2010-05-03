@@ -14,14 +14,14 @@ import es.ull.isaatc.function.TimeFunction;
  */
 public class PeriodicCycle extends Cycle {
 	/** Relative time when this cycle is expected to start. */
-	protected double startTs;
+	protected final double startTs;
 	/** Relative time when this cycle is expected to finish. */
-    protected double endTs = Double.NaN;
+    protected final double endTs;
     /** Time interval between two successive ocurrences of an event. */
-    protected TimeFunction period;
+    protected final TimeFunction period;
     /** How many times this cycle is executed. A value of 0 indicates 
      * infinite iterations. */
-    protected int iterations = 0;
+    protected final int iterations;
 
 	/**
 	 * Creates a cycle which ends at the specified timestamp.
@@ -34,6 +34,7 @@ public class PeriodicCycle extends Cycle {
         this.startTs = startTs;
         this.period = period;
         this.endTs = endTs;
+        this.iterations = 0;
 	}
 
 	/**
@@ -48,6 +49,7 @@ public class PeriodicCycle extends Cycle {
         this.startTs = startTs;
         this.period = period;
         this.iterations = iterations;
+        this.endTs = Double.NaN;
     }
     
     /**
@@ -62,7 +64,7 @@ public class PeriodicCycle extends Cycle {
 		this.startTs = startTs;
 		this.period = period;
 		this.endTs = endTs;
-		this.subCycle = subCycle;
+        this.iterations = 0;
 	}
 
 	/**
@@ -78,7 +80,7 @@ public class PeriodicCycle extends Cycle {
 		this.startTs = startTs;
 		this.period = period;
 		this.iterations = iterations;
-		this.subCycle = subCycle;
+        this.endTs = Double.NaN;
 	}
 
 	/**
@@ -143,9 +145,9 @@ public class PeriodicCycle extends Cycle {
 	 */
 	protected class PeriodicIteratorLevel extends Cycle.IteratorLevel {
 		/** The next timestamp. */
-		double nextTs;
+		private double nextTs;
 		/** The iterations left. */
-		int iter;
+		private int iter;
 		
 		/**
 		 * @param start The start timestamp.
@@ -219,11 +221,11 @@ public class PeriodicCycle extends Cycle {
 	 */
 	protected class PeriodicDiscreteIteratorLevel extends Cycle.DiscreteIteratorLevel {
 		/** The next timestamp. */
-		long nextTs;
+		private long nextTs;
 		/** The iterations left. */
-		int iter;
-		long cycleEndTs;
-		long cycleStartTs;
+		private int iter;
+		private long cycleEndTs;
+		private long cycleStartTs;
 		
 		/**
 		 * @param start The start timestamp.

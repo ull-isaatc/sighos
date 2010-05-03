@@ -240,7 +240,7 @@ public class RoundedPeriodicCycle extends PeriodicCycle {
 
 		@Override
 		public double getNextTs() {
-			return type.getValue(nextTs, factor) + shift;
+			return type.getValue(getNextTs(), factor) + shift;
 		}
 		
 		@Override
