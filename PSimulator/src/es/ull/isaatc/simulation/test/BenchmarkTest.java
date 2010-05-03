@@ -18,11 +18,11 @@ import es.ull.isaatc.util.Output;
  */
 public class BenchmarkTest {
 	private static final int MINARGS = 9;
-	static int nThreads = 0;
+	static int nThreads = 2;
 	static int nElem = 512;
 	static int nAct = 512;
 	static long actTime = nElem;
-	static int nIter = 10000;
+	static int nIter = 1000;
 	static int nExp = 1;
 	static int mixFactor = 2;
 	static long workLoad = 0;
@@ -30,7 +30,7 @@ public class BenchmarkTest {
 	static BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.CONFLICT;
 	static boolean debug = true;
 	static PrintStream out = System.out;
-	static SimulationFactory.SimulationType simType = SimulationType.GROUPEDXX;
+	static SimulationFactory.SimulationType simType = SimulationType.GROUPEDX;
 
 	/**
 	 * @param args
@@ -84,7 +84,7 @@ public class BenchmarkTest {
 				if (debug)
 					sim.addInfoReceiver(new BenchmarkListener(sim, System.out));
 				sim.addInfoReceiver(new CpuTimeView(sim));
-//				sim.addInfoReceiver(new ProgressListener(sim));
+				sim.addInfoReceiver(new ProgressListener(sim));
 //				sim.addInfoReceiver(new StdInfoView(sim));
 //				sim.setOutput(new Output(true));
 				return sim;

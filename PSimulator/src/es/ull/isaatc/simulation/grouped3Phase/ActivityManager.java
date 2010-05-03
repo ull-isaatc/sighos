@@ -10,6 +10,14 @@ import es.ull.isaatc.simulation.common.Describable;
 import es.ull.isaatc.util.PrioritizedMap;
 
 /**
+ * A partition in the set of activities of the simulation, which serves as an access control 
+ * mechanism. <p>
+ * In a 3-phase execution, AM are accessed
+ *   
+ * Work items which requests an activity belonging to this AM are put in a prioritized queue.
+ * Every time a resource becomes available for one resource type handled by this AM, the 
+ * prioritized queue is traversed to see if any work item can perform its requesting activity.
+ * 
  * Partition of activities. It serves as a mutual exclusion mechanism to access a set of activities
  * and a set of resource types. Each Activity Manager (AM) must be controlled by a single thread so to 
  * ensure this mutual exclusion.
@@ -25,12 +33,13 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     private final ArrayList<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
     /** A queue containing the work items that are waiting for activities of this AM */
     private final WorkItemQueue wiQueue = new WorkItemQueue();
-    /** */  
+    /** A FIFO queue of work items requesting an activity belonging to this AM */  
     private final ArrayDeque<WorkItem> requestingElements = new ArrayDeque<WorkItem>();
+    /** A flag to indicate if new resources have become available during the current clock tick */
     private volatile boolean avResource = false;
     
    /**
-	* Creates a new instance of ActivityManager.
+	* Creates a new Activity Manager.
 	* @param simul Simulation this activity manager belongs to
     */
     public ActivityManager(Simulation simul) {
@@ -73,25 +82,32 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     protected void queueRemove(WorkItem wi) {
     	wiQueue.remove(wi);
     }
-    
+   
+    /**
+     * Notifies this AM that a new work item has requested an activity.
+     * @param wi Work item requesting an activity
+     */
     protected void notifyElement(WorkItem wi) {
     	synchronized (requestingElements) {
         	requestingElements.add(wi);			
 		}
     }
     
+    /**
+     * Notifies this AM that a resource has become available.
+     */
     protected void notifyResource() {
     	avResource = true;
     }
         
     /**
-     * Informs the activities of new available resources. Reviews the queue of waiting work items 
-     * looking for those which can be executed with the new available resources. The work items 
-     * used are removed from the waiting queue.<p>
-     * In order not to traverse the whole list of work items, this method determines the
-     * amount of "useless" ones, that is, the amount of work items belonging to an activity 
-     * which can't be performed with the current resources. If this amount is equal to the size
-     * of waiting work items, this method stops. 
+     * Checks in order the queue of work items, identifying those which can carry out the 
+     * activity they were requesting. When a work item can carry out an activity, it's 
+     * remover from the queue.<p>
+     * Implementation detail: In order not to traverse the whole list of work items, this 
+     * method determines the amount of "useless" ones, that is, the amount of work items 
+     * belonging to an activity which can't be performed with the current resources. If this 
+     * amount is equal to the size of waiting work items, this method stops. 
      */
     private void availableResource() {
     	// First marks all the activities as "potentially feasible"
@@ -159,10 +175,12 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     	return wiQueue.iterator();
     }
     
+    @Override
 	public String getObjectTypeIdentifier() {
 		return "AM";
 	}
 
+    @Override
 	public long getTs() {
 		return simul.getTs();
 	}
@@ -172,8 +190,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	 * resource types.
 	 * @return A large description of this activity manager.
 	 */
+    @Override
 	public String getDescription() {
-        StringBuffer str = new StringBuffer();
+        StringBuilder str = new StringBuilder();
         str.append("Activity Manager " + id + "\r\n(Activity[priority]):");
         for (Activity a : activityList)
             str.append("\t\"" + a + "\"[" + a.getPriority() + "]");
@@ -183,7 +202,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
         return str.toString();
 	}
 
-
+    /**
+     * Executes the actions related to this AM
+     */
 	protected void executeWork() {
 		if (!requestingElements.isEmpty() || avResource) {
 			if (avResource) {

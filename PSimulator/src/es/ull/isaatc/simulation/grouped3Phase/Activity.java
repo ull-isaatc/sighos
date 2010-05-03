@@ -13,7 +13,8 @@ import es.ull.isaatc.util.PrioritizedTable;
  * type of {@link Resource resources} to be performed.  An activity is characterized by its 
  * priority and a set of {@link WorkGroup Workgroups} (WGs). Each WG represents a combination 
  * of {@link ResourceType resource types} required to carry out the activity.<p>
- * Each activity is attached to an {@link ActivityManager}, which manages the access to the activity.<p>
+ * Each activity is attached to an {@link ActivityManager}, which manages the access to the activity.
+ * <p>
  * An activity is potentially feasible if there is no proof that there are not enough resources
  * to perform it. An activity is feasible if it's potentially feasible and there is at least one
  * WG with enough available resources to perform the activity. The WGs are checked in 
