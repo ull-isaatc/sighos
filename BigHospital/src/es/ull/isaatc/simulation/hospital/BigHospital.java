@@ -42,7 +42,7 @@ class BigHospitalExperiment extends Experiment {
  *
  */
 public class BigHospital {
-
+	public static final int CENTRALSERVICESID = 0;
 	/**
 	 * @param args
 	 */
