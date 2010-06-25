@@ -37,12 +37,12 @@ class ExperimentProbSel extends PooledExperiment {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "EjProbabilidades", TimeUnit.MINUTE, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		sim = factory.getSimulation();
 
-    	TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance(0, "10 %", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-    	TimeDrivenActivity act1 = factory.getTimeDrivenActivityInstance(1, "30 %", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-    	TimeDrivenActivity act2 = factory.getTimeDrivenActivityInstance(2, "60 %", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-        ResourceType rt = factory.getResourceTypeInstance(0, "Empleado");
+    	TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance("10 %", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+    	TimeDrivenActivity act1 = factory.getTimeDrivenActivityInstance("30 %", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+    	TimeDrivenActivity act2 = factory.getTimeDrivenActivityInstance("60 %", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+        ResourceType rt = factory.getResourceTypeInstance("Empleado");
         
-        WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt}, new int[] {1});
+        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
 
         act0.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), wg);
         act1.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), wg);
@@ -51,23 +51,23 @@ class ExperimentProbSel extends PooledExperiment {
         SimulationPeriodicCycle subc2 = new SimulationPeriodicCycle(unit, 480, new SimulationTimeFunction(unit, "ConstantVariate", 1040), 5);
         SimulationPeriodicCycle c2 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 1040 * 7), 0, subc2);
 
-        factory.getResourceInstance(0, "Empleado1").addTimeTableEntry(c2, 420, rt);
-        factory.getResourceInstance(1, "Empleado2").addTimeTableEntry(c2, 420, rt);
-        factory.getResourceInstance(2, "Empleado3").addTimeTableEntry(c2, 420, rt);
+        factory.getResourceInstance("Empleado1").addTimeTableEntry(c2, 420, rt);
+        factory.getResourceInstance("Empleado2").addTimeTableEntry(c2, 420, rt);
+        factory.getResourceInstance("Empleado3").addTimeTableEntry(c2, 420, rt);
         
 
-        ProbabilitySelectionFlow root = (ProbabilitySelectionFlow)factory.getFlowInstance(10, "ProbabilitySelectionFlow");
-        SingleFlow sin0 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
+        ProbabilitySelectionFlow root = (ProbabilitySelectionFlow)factory.getFlowInstance("ProbabilitySelectionFlow");
+        SingleFlow sin0 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
         
         root.link(sin0, 0.1);
         root.link(sin1, 0.3);
         root.link(sin2, 0.6);
         
-        ElementType et = factory.getElementTypeInstance(0, "Cliente");
+        ElementType et = factory.getElementTypeInstance("Cliente");
         SimulationPeriodicCycle cGen = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 1040), NDAYS);
-        factory.getTimeDrivenGeneratorInstance(0, factory.getElementCreatorInstance(0, TimeFunctionFactory.getInstance("ConstantVariate", 100), et, root), cGen);        
+        factory.getTimeDrivenGeneratorInstance(factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 100), et, root), cGen);        
 		
 		StdInfoView debugView = new StdInfoView(sim);
 		sim.addInfoReceiver(debugView);

@@ -24,7 +24,7 @@ public class WFP02Simulation extends WFPTestSimulationFactory {
    	
         ResourceType rt = getDefResourceType("Operador");
         
-        WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt}, new int[] {1});
+        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
     	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Detección alarma", wg);
     	TimeDrivenActivity act1 = getDefTimeDrivenActivity("Mandar patrulla", wg, false);
     	TimeDrivenActivity act2 = getDefTimeDrivenActivity("Generar informe", wg, false);
@@ -34,10 +34,10 @@ public class WFP02Simulation extends WFPTestSimulationFactory {
         getDefResource("Operador3", rt);
         getDefResource("Operador4", rt);
         
-        SingleFlow root = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        ParallelFlow par1 = (ParallelFlow)factory.getFlowInstance(10, "ParallelFlow");
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
+        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        ParallelFlow par1 = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
+        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
         
         root.link(par1);
         par1.link(sin2);

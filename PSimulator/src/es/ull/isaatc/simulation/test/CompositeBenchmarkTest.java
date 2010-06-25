@@ -25,8 +25,8 @@ public class CompositeBenchmarkTest {
 
 	private static BenchmarkModel[] testParallel() {
 		boolean sequential = true;
-		int []nThreads = {1,3,7,15};
-		int []xnThreads = {0,1,2,3,6,7,14,15};
+		int []nThreads = {1,2,3};
+		int []xnThreads = {0,1,2,3};
 		int []nElems = {32, 128, 256};
 		int []nActs = {4, 8, 32};
 		int []nIters = {5000};
@@ -60,18 +60,18 @@ public class CompositeBenchmarkTest {
 	
 	private static BenchmarkModel[] testConflict() {
 		boolean sequential = true;
-		int []nThreads = {1,3,7,15};
-		int []xnThreads = {0,1,2,3,6,7,14,15};
+		int []nThreads = {1,2,3};
+		int []xnThreads = {3,4};
 		int []nElems = {512};
-		int []nActs = {64,128,256,512};
+		int []nActs = {512};
 		int []nIters = {10000};
 		long []workLoads = {0};
 		int []rtXact = {4,8};
 		int []rtXres = {1,2};
 		BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.CONFLICT;
 		BenchmarkModel.OverlappingType ovType = BenchmarkModel.OverlappingType.SAMETIME;
-		SimulationFactory.SimulationType []simTypes = {SimulationType.GROUPED3PHASE};		
-		SimulationFactory.SimulationType []xsimTypes = {SimulationType.PASIVE,SimulationType.GROUPEDX,SimulationType.BONNGROUPEDX, SimulationType.GROUPED3PHASEX};		
+		SimulationFactory.SimulationType []simTypes = {};		
+		SimulationFactory.SimulationType []xsimTypes = {SimulationType.GROUPEDX,SimulationType.BONNGROUPEDX, SimulationType.GROUPED3PHASEX};		
 		ArrayList<BenchmarkModel> configs = new ArrayList<BenchmarkModel>();
 		
 		int counter = 0;

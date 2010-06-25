@@ -54,12 +54,6 @@ public abstract class WFPTestSimulationFactory {
 	public final static TimeStamp SIMSTART = TimeStamp.getZero();
 	public final static TimeStamp SIMEND = TimeStamp.getDay();
 	public final static TimeUnit SIMUNIT = TimeUnit.MINUTE; 
-	private int resCounter = 0;	
-	private int rtCounter = 0;
-	private int actCounter = 0;
-	private int etCounter = 0;
-	private int egCounter = 0;
-	private int ecCounter = 0;
 	protected boolean detailed;
 	protected SimulationObjectFactory factory;
 	
@@ -88,13 +82,13 @@ public abstract class WFPTestSimulationFactory {
 	}
 	
 	public Resource getDefResource(String description, ResourceType rt) {
-		Resource res = factory.getResourceInstance(resCounter++, description);
+		Resource res = factory.getResourceInstance(description);
 		res.addTimeTableEntry(getResourceCycle(), RESAVAILABLE, rt);
 		return res;
 	}
 	
 	public ResourceType getDefResourceType(String description) {
-		return factory.getResourceTypeInstance(rtCounter++, description);
+		return factory.getResourceTypeInstance(description);
 	}
 	
 	public TimeDrivenActivity getDefTimeDrivenActivity(String description, WorkGroup wg) {
@@ -112,15 +106,15 @@ public abstract class WFPTestSimulationFactory {
 	public TimeDrivenActivity getDefTimeDrivenActivity(String description, int dur, WorkGroup wg, boolean presential) {
 		TimeDrivenActivity act = null;
 		if (!presential)
-			act = factory.getTimeDrivenActivityInstance(actCounter++, description, 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+			act = factory.getTimeDrivenActivityInstance(description, 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		else
-			act = factory.getTimeDrivenActivityInstance(actCounter++, description);
+			act = factory.getTimeDrivenActivityInstance(description);
     	act.addWorkGroup(new SimulationTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[dur]), wg);
 		return act;
 	}
 	
 	public ElementType getDefElementType(String description) {
-		return factory.getElementTypeInstance(etCounter++, description);
+		return factory.getElementTypeInstance(description);
 	}
 	
 	public SimulationPeriodicCycle getGeneratorCycle() {
@@ -132,7 +126,7 @@ public abstract class WFPTestSimulationFactory {
 	}
 	
 	public TimeDrivenGenerator getDefGenerator(int elems, ElementType et, InitializerFlow flow) {
-        return factory.getTimeDrivenGeneratorInstance(egCounter++, 
-        		factory.getElementCreatorInstance(ecCounter++, TimeFunctionFactory.getInstance("ConstantVariate", elems), factory.getSimulation().getElementType(0), flow), getGeneratorCycle());
+        return factory.getTimeDrivenGeneratorInstance(
+        		factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", elems), factory.getSimulation().getElementType(0), flow), getGeneratorCycle());
 	}
 }

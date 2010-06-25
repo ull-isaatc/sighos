@@ -6,8 +6,8 @@ package es.ull.isaatc.simulation.common;
 import java.util.EnumSet;
 
 import es.ull.isaatc.util.Cycle;
-import es.ull.isaatc.util.PeriodicCycle;
-import es.ull.isaatc.util.TableCycle;
+import es.ull.isaatc.util.WeeklyPeriodicCycle;
+import es.ull.isaatc.util.WeeklyPeriodicCycle.WeekDays;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -17,14 +17,8 @@ public class SimulationWeeklyPeriodicCycle implements SimulationCycle {
 	/**
 	 * 
 	 */
-	public enum WeekDays {
-		MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
-	}
-	public static EnumSet<WeekDays> ALLWEEK = EnumSet.allOf(WeekDays.class);
-	public static EnumSet<WeekDays> WEEKEND = EnumSet.of(WeekDays.SATURDAY, WeekDays.SUNDAY);
-	public static EnumSet<WeekDays> WEEKDAYS = EnumSet.complementOf(WEEKEND);
 	private EnumSet<WeekDays> daySet;
-	private final PeriodicCycle cycle;
+	private final WeeklyPeriodicCycle cycle;
 	
 	/**
 	 * Creates a new weekly periodic cycle.
@@ -33,16 +27,8 @@ public class SimulationWeeklyPeriodicCycle implements SimulationCycle {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public SimulationWeeklyPeriodicCycle(Simulation simul, EnumSet<WeekDays> daySet, TimeStamp startTs, TimeStamp endTs) {
-		this.daySet = daySet;
-		double []stamps = new double[daySet.size()];
-		int count = 0;
-		for (WeekDays day : daySet) 
-			stamps[count++] = simul.simulationTime2Long(new TimeStamp(TimeUnit.DAY, day.ordinal())); 
-		TableCycle subCycle = new TableCycle(stamps); 
-		cycle = new PeriodicCycle(simul.simulationTime2Long(startTs), 
-				new SimulationTimeFunction(simul.getTimeUnit(), "ConstantVariate", new TimeStamp(TimeUnit.WEEK, 1)).getFunction(), 
-				simul.simulationTime2Long(endTs), subCycle);
+	public SimulationWeeklyPeriodicCycle(TimeUnit unit, EnumSet<WeekDays> daySet, TimeStamp startTs, TimeStamp endTs) {
+		cycle = new WeeklyPeriodicCycle(daySet, unit.convert(TimeStamp.getDay()), unit.convert(startTs), unit.convert(endTs));
 	}
 
 	/**
@@ -52,16 +38,8 @@ public class SimulationWeeklyPeriodicCycle implements SimulationCycle {
 	 * @param startTs
 	 * @param iterations
 	 */
-	public SimulationWeeklyPeriodicCycle(Simulation simul, EnumSet<WeekDays> daySet, TimeStamp startTs, int iterations) {
-		this.daySet = daySet;
-		double []stamps = new double[daySet.size()];
-		int count = 0;
-		for (WeekDays day : daySet) 
-			stamps[count++] = simul.simulationTime2Long(new TimeStamp(TimeUnit.DAY, day.ordinal())); 
-		TableCycle subCycle = new TableCycle(stamps); 
-		cycle = new PeriodicCycle(simul.simulationTime2Long(startTs), 
-				new SimulationTimeFunction(simul.getTimeUnit(), "ConstantVariate", new TimeStamp(TimeUnit.WEEK, 1)).getFunction(), 
-				iterations, subCycle);
+	public SimulationWeeklyPeriodicCycle(TimeUnit unit, EnumSet<WeekDays> daySet, TimeStamp startTs, int iterations) {
+		cycle = new WeeklyPeriodicCycle(daySet, unit.convert(TimeStamp.getDay()), unit.convert(startTs), iterations);
 	}
 
 	/**
@@ -71,8 +49,8 @@ public class SimulationWeeklyPeriodicCycle implements SimulationCycle {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public SimulationWeeklyPeriodicCycle(Simulation simul, EnumSet<WeekDays> daySet, long startTs, long endTs) {
-		this(simul, daySet, new TimeStamp(simul.getTimeUnit(), startTs), new TimeStamp(simul.getTimeUnit(), endTs));
+	public SimulationWeeklyPeriodicCycle(TimeUnit unit, EnumSet<WeekDays> daySet, long startTs, long endTs) {
+		this(unit, daySet, new TimeStamp(unit, startTs), new TimeStamp(unit, endTs));
 	}
 
 	/**
@@ -82,8 +60,8 @@ public class SimulationWeeklyPeriodicCycle implements SimulationCycle {
 	 * @param startTs
 	 * @param iterations
 	 */
-	public SimulationWeeklyPeriodicCycle(Simulation simul, EnumSet<WeekDays> daySet, long startTs, int iterations) {
-		this(simul, daySet, new TimeStamp(simul.getTimeUnit(), startTs), iterations);
+	public SimulationWeeklyPeriodicCycle(TimeUnit unit, EnumSet<WeekDays> daySet, long startTs, int iterations) {
+		this(unit, daySet, new TimeStamp(unit, startTs), iterations);
 	}
 
 	/**

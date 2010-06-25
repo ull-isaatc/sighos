@@ -43,7 +43,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
     	ResourceType rt0 = getDefResourceType("Operario");
     	ResourceType rt1 = getDefResourceType("Operario especial");
     	
-        WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
 	   	
     	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Rellenar bidon", wg, false);
     	TimeDrivenActivity act1 = getDefTimeDrivenActivity("Realizar envío de bidon", wg, false);
@@ -70,7 +70,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
         code1.add(UserMethod.BEFORE_REQUEST, "System.out.println(\"Volumen actual es \" + <%GET(S.litrosIntroducidos)%> + \" litros\");" +	
         		"System.out.println(\"Capacidad bidon es \" + <%GET(A0.capacidadBidon)%> + \" litros\");" +
  				"return true;");
-        MultiChoiceFlow mul1 = (MultiChoiceFlow)factory.getFlowInstance(10, "MultiChoiceFlow", code1);
+        MultiChoiceFlow mul1 = (MultiChoiceFlow)factory.getFlowInstance("MultiChoiceFlow", code1);
 
         SimulationUserCode code2 = new SimulationUserCode();
         code2.add(UserMethod.AFTER_FINALIZE, "if (<%GET(S.litrosIntroducidos)%> < <%GET(A0.capacidadBidon)%>) {" +
@@ -79,7 +79,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
 				"System.out.println(\"Introducimos \" + random + \" litros y nuestro volumen actual es \" + <%GET(S.litrosIntroducidos)%> + \" litros\");" +
 	  	  "}");
         
-        SingleFlow root = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", code2, act0);
+        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", code2, act0);
         
         SimulationUserCode code3 = new SimulationUserCode();
         code3.add(UserMethod.BEFORE_REQUEST, 	"<%SET(S.litrosIntroducidos, 0)%>;" +
@@ -87,7 +87,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
  				"System.out.println(\"Nuevo envio realizado\");" +
  				"return true;");
 
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", code3, act1);
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", code3, act1);
         
         root.link(mul1);
         ArrayList<Flow> succList = new ArrayList<Flow>();

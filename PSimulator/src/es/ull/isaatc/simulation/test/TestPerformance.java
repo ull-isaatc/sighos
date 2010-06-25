@@ -34,7 +34,7 @@ public class TestPerformance {
 				int i = 0;
 				try {
 					for (; ; i++)
-						factory.getResourceTypeInstance(i, "RT" + i);
+						factory.getResourceTypeInstance("RT" + i);
 				} catch(OutOfMemoryError e) {
 					System.out.println("Not enough memory with " + i + " res. types");
 				} 

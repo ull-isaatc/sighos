@@ -26,7 +26,7 @@ public class WFP40Simulation extends WFPTestSimulationFactory {
 	@Override
 	protected void createModel() {
     	ResourceType rt = getDefResourceType("Technician");
-    	WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt}, new int[] {1});
+    	WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
     	
     	TimeDrivenActivity act0 = getDefTimeDrivenActivity("check oil", wg);
     	TimeDrivenActivity act1 = getDefTimeDrivenActivity("examine main unit", wg);
@@ -36,11 +36,11 @@ public class WFP40Simulation extends WFPTestSimulationFactory {
     	for (int i = 0; i < RES; i++)
     		getDefResource("RES" + i, rt);
     	
-    	InterleavedRoutingFlow root = (InterleavedRoutingFlow)factory.getFlowInstance(10, "InterleavedRoutingFlow");
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
-        SingleFlow sin4 = (SingleFlow)factory.getFlowInstance(3, "SingleFlow", act3);
+    	InterleavedRoutingFlow root = (InterleavedRoutingFlow)factory.getFlowInstance("InterleavedRoutingFlow");
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
+        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
+        SingleFlow sin4 = (SingleFlow)factory.getFlowInstance("SingleFlow", act3);
     	root.addBranch(sin1);
     	root.addBranch(sin2);
     	root.addBranch(sin3);

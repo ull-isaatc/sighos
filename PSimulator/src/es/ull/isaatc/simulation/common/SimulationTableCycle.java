@@ -32,7 +32,7 @@ public class SimulationTableCycle implements SimulationCycle {
 	 * @param subCycle Subcycle contained in this cycle
 	 */
 	public SimulationTableCycle(TimeUnit unit, TimeStamp[] timestamps, SimulationCycle subCycle) {
-		cycle = new TableCycle(simulationTime2Double(unit, timestamps), (Cycle)subCycle);
+		cycle = new TableCycle(simulationTime2Double(unit, timestamps), subCycle.getCycle());
 	}
 
 	/**

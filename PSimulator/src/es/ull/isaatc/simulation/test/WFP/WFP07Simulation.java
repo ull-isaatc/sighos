@@ -27,8 +27,8 @@ public class WFP07Simulation extends WFPTestSimulationFactory {
         ResourceType rt0 = getDefResourceType("Operador");
         ResourceType rt1 = getDefResourceType("Medico");
         
-        WorkGroup wgOp = factory.getWorkGroupInstance(0, new ResourceType[] {rt0}, new int[] {1});
-        WorkGroup wgMe = factory.getWorkGroupInstance(1, new ResourceType[] {rt1}, new int[] {1});
+        WorkGroup wgOp = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wgMe = factory.getWorkGroupInstance(new ResourceType[] {rt1}, new int[] {1});
 
         TimeDrivenActivity act0 = getDefTimeDrivenActivity("Envio policias", wgOp, false);
         TimeDrivenActivity act1 = getDefTimeDrivenActivity("Envio ambulancias", wgOp, false);
@@ -37,10 +37,10 @@ public class WFP07Simulation extends WFPTestSimulationFactory {
         getDefResource("Operador 1", rt0);
         getDefResource("Medico 1", rt1);
         
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
-        StructuredSynchroMergeFlow root = (StructuredSynchroMergeFlow)factory.getFlowInstance(10, "StructuredSynchroMergeFlow");
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
+        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
+        StructuredSynchroMergeFlow root = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
         
         Condition falseCond = new NotCondition(new TrueCondition());
         

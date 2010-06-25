@@ -34,6 +34,13 @@ import es.ull.isaatc.simulation.optThreaded.Simulation;
 public class SimulationFactory implements SimulationObjectFactory {
 	private final static String workingPkg = "es.ull.isaatc.simulation.optThreaded";
 	private Simulation simul;
+	private int rtId;
+	private int resId;
+	private int actId;
+	private int flowId;
+	private int creId;
+	private int etId;
+	private int condId;
 
 	/**
 	 * @param id
@@ -84,97 +91,97 @@ public class SimulationFactory implements SimulationObjectFactory {
 	}
 
 	@Override
-	public ElementCreator getElementCreatorInstance(int id, TimeFunction elem) throws ClassCastException {
+	public ElementCreator getElementCreatorInstance(TimeFunction elem) throws ClassCastException {
 		return new es.ull.isaatc.simulation.optThreaded.ElementCreator(simul, elem);
 	}
 
 	@Override
-	public ElementCreator getElementCreatorInstance(int id, TimeFunction elem, ElementType et, InitializerFlow flow) throws ClassCastException {
+	public ElementCreator getElementCreatorInstance(TimeFunction elem, ElementType et, InitializerFlow flow) throws ClassCastException {
 		return new es.ull.isaatc.simulation.optThreaded.ElementCreator(simul, elem, 
 				(es.ull.isaatc.simulation.optThreaded.ElementType)et, 
 				(es.ull.isaatc.simulation.optThreaded.flow.InitializerFlow)flow);
 	}
 
 	@Override
-	public ElementCreator getElementCreatorInstance(int id, TimeFunction elem, SimulationUserCode userMethods) throws ClassCastException {
+	public ElementCreator getElementCreatorInstance(TimeFunction elem, SimulationUserCode userMethods) throws ClassCastException {
 		// Prepare the constructor call
 		String constructorStr = "(Simulation sim, TimeFunction nElem) {super(sim, nElem);}";
 		// Prepare the new params.
-		Object obj = StandardCompilator.getInstance(workingPkg, "ElementCreator", id, constructorStr, userMethods, simul, elem);
+		Object obj = StandardCompilator.getInstance(workingPkg, "ElementCreator", creId++, constructorStr, userMethods, simul, elem);
 		if (obj != null)
 			return (ElementCreator)obj;
 		return null;
 	}
 
 	@Override
-	public ElementCreator getElementCreatorInstance(int id, TimeFunction elem, ElementType et, InitializerFlow flow, SimulationUserCode userMethods) throws ClassCastException {
+	public ElementCreator getElementCreatorInstance(TimeFunction elem, ElementType et, InitializerFlow flow, SimulationUserCode userMethods) throws ClassCastException {
 		// Prepare the constructor call
 		String constructorStr = "(Simulation sim, TimeFunction nElem, ElementType et, InitializerFlow flow) {super(sim, nElem, et, flow);}";
 		// Prepare the new params.
-		Object obj = StandardCompilator.getInstance(workingPkg, "ElementCreator", id, constructorStr, userMethods, simul, elem, et, flow);
+		Object obj = StandardCompilator.getInstance(workingPkg, "ElementCreator", creId++, constructorStr, userMethods, simul, elem, et, flow);
 		if (obj != null)
 			return (ElementCreator)obj;
 		return null;
 	}
 
 	@Override
-	public ElementType getElementTypeInstance(int id, String description) throws ClassCastException {
-		return new es.ull.isaatc.simulation.optThreaded.ElementType(id, simul, description);
+	public ElementType getElementTypeInstance(String description) throws ClassCastException {
+		return new es.ull.isaatc.simulation.optThreaded.ElementType(etId++, simul, description);
 	}
 
 	@Override
-	public ElementType getElementTypeInstance(int id, String description, int priority) throws ClassCastException {
-		return new es.ull.isaatc.simulation.optThreaded.ElementType(id, simul, description, priority);
+	public ElementType getElementTypeInstance(String description, int priority) throws ClassCastException {
+		return new es.ull.isaatc.simulation.optThreaded.ElementType(etId++, simul, description, priority);
 	}
 
 	@Override
-	public Resource getResourceInstance(int id, String description) throws ClassCastException {
-		return new es.ull.isaatc.simulation.optThreaded.Resource(id, simul, description);
+	public Resource getResourceInstance(String description) throws ClassCastException {
+		return new es.ull.isaatc.simulation.optThreaded.Resource(resId++, simul, description);
 	}
 
 	@Override
-	public ResourceType getResourceTypeInstance(int id, String description) throws ClassCastException {
-		return new es.ull.isaatc.simulation.optThreaded.ResourceType(id, simul, description);
+	public ResourceType getResourceTypeInstance(String description) throws ClassCastException {
+		return new es.ull.isaatc.simulation.optThreaded.ResourceType(rtId++, simul, description);
 	}
 
 	@Override
-	public ResourceType getResourceTypeInstance(int id, String description, SimulationUserCode userMethods) throws ClassCastException {
+	public ResourceType getResourceTypeInstance(String description, SimulationUserCode userMethods) throws ClassCastException {
 		// Prepare the constructor call
 		String constructorStr = "(int id, Simulation simul, String description) {super(id, simul, description);}";
 		// Prepare the new params.
-		Object obj = StandardCompilator.getInstance(workingPkg, "ResourceType", id, constructorStr, userMethods, id, simul, description);
+		Object obj = StandardCompilator.getInstance(workingPkg, "ResourceType", rtId, constructorStr, userMethods, rtId++, simul, description);
 		if (obj != null)
 			return (ResourceType)obj;
 		return null;
 	}
 
 	@Override
-	public TimeDrivenActivity getTimeDrivenActivityInstance(int id,	String description) throws ClassCastException {
-		return new es.ull.isaatc.simulation.optThreaded.TimeDrivenActivity(id, simul, description);
+	public TimeDrivenActivity getTimeDrivenActivityInstance(String description) throws ClassCastException {
+		return new es.ull.isaatc.simulation.optThreaded.TimeDrivenActivity(actId++, simul, description);
 	}
 
 	@Override
-	public TimeDrivenActivity getTimeDrivenActivityInstance(int id,	String description, int priority, EnumSet<Modifier> modifiers) throws ClassCastException {
-		return new es.ull.isaatc.simulation.optThreaded.TimeDrivenActivity(id, simul, description, priority, modifiers);
+	public TimeDrivenActivity getTimeDrivenActivityInstance(String description, int priority, EnumSet<Modifier> modifiers) throws ClassCastException {
+		return new es.ull.isaatc.simulation.optThreaded.TimeDrivenActivity(actId++, simul, description, priority, modifiers);
 	}
 
 	@Override
-	public FlowDrivenActivity getFlowDrivenActivityInstance(int id, String description) throws ClassCastException {
-		return new es.ull.isaatc.simulation.optThreaded.FlowDrivenActivity(id, simul, description);
+	public FlowDrivenActivity getFlowDrivenActivityInstance(String description) throws ClassCastException {
+		return new es.ull.isaatc.simulation.optThreaded.FlowDrivenActivity(actId++, simul, description);
 	}
 
 	@Override
-	public FlowDrivenActivity getFlowDrivenActivityInstance(int id, String description, int priority) throws ClassCastException {
-		return new es.ull.isaatc.simulation.optThreaded.FlowDrivenActivity(id, simul, description, priority);
+	public FlowDrivenActivity getFlowDrivenActivityInstance(String description, int priority) throws ClassCastException {
+		return new es.ull.isaatc.simulation.optThreaded.FlowDrivenActivity(actId++, simul, description, priority);
 	}
 
 	@Override
-	public TimeDrivenGenerator getTimeDrivenGeneratorInstance(int id, ElementCreator creator, SimulationCycle cycle) throws ClassCastException {
+	public TimeDrivenGenerator getTimeDrivenGeneratorInstance(ElementCreator creator, SimulationCycle cycle) throws ClassCastException {
 		return new es.ull.isaatc.simulation.optThreaded.TimeDrivenGenerator(simul, (es.ull.isaatc.simulation.optThreaded.ElementCreator)creator, cycle);
 	}
 
 	@Override
-	public WorkGroup getWorkGroupInstance(int id, ResourceType[] rts, int[] needed) throws ClassCastException {
+	public WorkGroup getWorkGroupInstance(ResourceType[] rts, int[] needed) throws ClassCastException {
 		es.ull.isaatc.simulation.optThreaded.ResourceType[] temp = new es.ull.isaatc.simulation.optThreaded.ResourceType[rts.length];
 		for (int i = 0; i < rts.length; i++)
 			temp[i] = (es.ull.isaatc.simulation.optThreaded.ResourceType)rts[i];
@@ -182,18 +189,18 @@ public class SimulationFactory implements SimulationObjectFactory {
 	}
 
 	@Override
-	public Flow getFlowInstance(int id, String flowType, Object... params) throws ClassCastException {
-		return FlowFactory.getInstance(id, flowType, simul, params);
+	public Flow getFlowInstance(String flowType, Object... params) throws ClassCastException {
+		return FlowFactory.getInstance(flowId++, flowType, simul, params);
 	}
 
 	@Override
-	public Flow getFlowInstance(int id, String flowType, SimulationUserCode userMethods, Object... params)
+	public Flow getFlowInstance(String flowType, SimulationUserCode userMethods, Object... params)
 			throws ClassCastException {
-		return FlowFactory.getInstance(id, flowType, userMethods, simul, params);
+		return FlowFactory.getInstance(flowId++, flowType, userMethods, simul, params);
 	}
 
-	public Condition getCustomizedConditionInstance(int id, String imports, String condition) {
-		return ConditionFactory.getInstance(simul, id, imports, condition);
+	public Condition getCustomizedConditionInstance(String imports, String condition) {
+		return ConditionFactory.getInstance(simul, condId++, imports, condition);
 	}
 
 }

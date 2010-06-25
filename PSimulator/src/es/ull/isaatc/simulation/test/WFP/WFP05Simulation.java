@@ -28,10 +28,10 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
         ResourceType rt3 = getDefResourceType("Comercial");
         ResourceType rt4 = getDefResourceType("Excavadora H8");
         
-        WorkGroup wgEBob = factory.getWorkGroupInstance(0, new ResourceType[] {rt0, rt2}, new int[] {1, 1});
-        WorkGroup wgED9 = factory.getWorkGroupInstance(1, new ResourceType[] {rt1, rt2}, new int[] {1, 1});
-        WorkGroup wgFacturacion = factory.getWorkGroupInstance(2, new ResourceType[] {rt3}, new int[] {1});
-        WorkGroup wgEH8 = factory.getWorkGroupInstance(3, new ResourceType[] {rt4, rt2}, new int[] {1, 1});
+        WorkGroup wgEBob = factory.getWorkGroupInstance(new ResourceType[] {rt0, rt2}, new int[] {1, 1});
+        WorkGroup wgED9 = factory.getWorkGroupInstance(new ResourceType[] {rt1, rt2}, new int[] {1, 1});
+        WorkGroup wgFacturacion = factory.getWorkGroupInstance(new ResourceType[] {rt3}, new int[] {1});
+        WorkGroup wgEH8 = factory.getWorkGroupInstance(new ResourceType[] {rt4, rt2}, new int[] {1, 1});
         
         TimeDrivenActivity act0 = getDefTimeDrivenActivity("Excavacion bobcat", wgEBob, false);
         TimeDrivenActivity act1 = getDefTimeDrivenActivity("Excavacion D9", wgED9, false);
@@ -47,12 +47,12 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
         getDefResource("Comercial1", rt3);
         getDefResource("H81", rt4);
 
-        ParallelFlow root = (ParallelFlow)factory.getFlowInstance(10, "ParallelFlow");
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
-        SimpleMergeFlow simme1 = (SimpleMergeFlow)factory.getFlowInstance(11, "SimpleMergeFlow");        
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
-        SingleFlow sin4 = (SingleFlow)factory.getFlowInstance(3, "SingleFlow", act3);
+        ParallelFlow root = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
+        SimpleMergeFlow simme1 = (SimpleMergeFlow)factory.getFlowInstance("SimpleMergeFlow");        
+        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
+        SingleFlow sin4 = (SingleFlow)factory.getFlowInstance("SingleFlow", act3);
         
         root.link(sin1);
         root.link(sin2);     

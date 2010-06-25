@@ -24,7 +24,7 @@ public class WFP31Simulation extends WFPTestSimulationFactory {
 	protected void createModel() {
         ResourceType rt0 = getDefResourceType("Director");
 	   	
-        WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
 
         TimeDrivenActivity act0 = getDefTimeDrivenActivity("AprobarCuenta", wg, false);
         TimeDrivenActivity act1 = getDefTimeDrivenActivity("ExpedirCheque", wg, false);
@@ -32,13 +32,13 @@ public class WFP31Simulation extends WFPTestSimulationFactory {
         getDefResource("Director 1", rt0);        
         getDefResource("Director 2", rt0);       
         
-        ParallelFlow root = (ParallelFlow)factory.getFlowInstance(10, "ParallelFlow");
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act0);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act0);
-        SingleFlow sin4 = (SingleFlow)factory.getFlowInstance(3, "SingleFlow", act1);
+        ParallelFlow root = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        SingleFlow sin4 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
 
-        PartialJoinFlow part1 = (PartialJoinFlow)factory.getFlowInstance(11, "PartialJoinFlow", 2);
+        PartialJoinFlow part1 = (PartialJoinFlow)factory.getFlowInstance("PartialJoinFlow", 2);
         
         root.link(sin1);
         root.link(sin2);

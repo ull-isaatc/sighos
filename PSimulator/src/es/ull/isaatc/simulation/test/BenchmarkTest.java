@@ -10,6 +10,7 @@ import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory.SimulationType;
 import es.ull.isaatc.simulation.common.inforeceiver.CpuTimeView;
+import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 import es.ull.isaatc.util.Output;
 
 /**
@@ -18,19 +19,21 @@ import es.ull.isaatc.util.Output;
  */
 public class BenchmarkTest {
 	private static final int MINARGS = 9;
-	static int nThreads = 2;
-	static int nElem = 512;
-	static int nAct = 512;
+	static int nThreads = 1;
+	static int nElem = 16;
+	static int nAct = 8;
 	static long actTime = nElem;
-	static int nIter = 1000;
+	static int nIter = 100000;
 	static int nExp = 1;
+	static int rtXact = 4;
+	static int rtXres = 1;
 	static int mixFactor = 2;
 	static long workLoad = 0;
 	static BenchmarkModel.OverlappingType ovType = BenchmarkModel.OverlappingType.SAMETIME;
 	static BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.CONFLICT;
 	static boolean debug = true;
 	static PrintStream out = System.out;
-	static SimulationFactory.SimulationType simType = SimulationType.GROUPEDX;
+	static SimulationFactory.SimulationType simType = SimulationType.SEQUENTIAL;
 
 	/**
 	 * @param args
@@ -65,26 +68,28 @@ public class BenchmarkTest {
 
 			@Override
 			public void start() {
-				t1 = System.currentTimeMillis();
+				t1 = System.nanoTime();
 				super.start();
 			}
 			
 			@Override
 			protected void end() {
 				super.end();
-				System.out.println("" + (System.currentTimeMillis() - t1));
+				System.out.println("TOTAL EXPERIMENT: " + ((System.nanoTime() - t1) / 1000000) + " miliseconds");
 			}
 			
 			@Override
 			public Simulation getSimulation(int ind) {
 				BenchmarkModel config = new BenchmarkModel(ind, simType, modType, ovType, nThreads, nIter, nElem, nAct, mixFactor, workLoad);
+				config.setRtXact(rtXact);
+				config.setRtXres(rtXres);
 				System.out.println(config);
 				Simulation sim = config.getTestModel(); 
 				
 				if (debug)
 					sim.addInfoReceiver(new BenchmarkListener(sim, System.out));
-				sim.addInfoReceiver(new CpuTimeView(sim));
-				sim.addInfoReceiver(new ProgressListener(sim));
+//				sim.addInfoReceiver(new CpuTimeView(sim));
+//				sim.addInfoReceiver(new ProgressListener(sim));
 //				sim.addInfoReceiver(new StdInfoView(sim));
 //				sim.setOutput(new Output(true));
 				return sim;
@@ -101,7 +106,7 @@ public class BenchmarkTest {
 //
 //			@Override
 //			public void start() {
-//				t1 = System.currentTimeMillis();
+//				t1 = System.nanoTime();
 //				for (int i = 0; i < nExperiments; i++) {
 //					Simulation sim = getSimulation(i);
 //					sim.setNThreads(nThreads);
@@ -122,7 +127,7 @@ public class BenchmarkTest {
 //				end();		
 //			}
 //			protected void end() {
-//				System.out.println("" + (System.currentTimeMillis() - t1));
+//				System.out.println("" + (System.nanoTime() - t1));
 //			}			
 //		}.start();
 	}

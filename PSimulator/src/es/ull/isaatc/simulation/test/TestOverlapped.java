@@ -41,22 +41,22 @@ class ExpOverlapped extends PooledExperiment {
 		Simulation sim = factory.getSimulation();
 
         // PASO 1: Inicializo las Activityes de las que se compone
-//    	TimeDrivenActivity actDummy = factory.getTimeDrivenActivityInstance(5, "Dummy");
-    	TimeDrivenActivity actSangre = factory.getTimeDrivenActivityInstance(0, "Análisis de sangre");
-    	TimeDrivenActivity actOrina = factory.getTimeDrivenActivityInstance(1, "Análisis de orina");
+//    	TimeDrivenActivity actDummy = factory.getTimeDrivenActivityInstance("Dummy");
+    	TimeDrivenActivity actSangre = factory.getTimeDrivenActivityInstance("Análisis de sangre");
+    	TimeDrivenActivity actOrina = factory.getTimeDrivenActivityInstance("Análisis de orina");
  
         // PASO 2: Inicializo las clases de recursos
-        ResourceType crSangre = factory.getResourceTypeInstance(0, "Máquina Análisis Sangre");
-        ResourceType crOrina = factory.getResourceTypeInstance(1, "Máquina Análisis Orina");
-//        ResourceType crDummy = factory.getResourceTypeInstance(2, "Dummy");
+        ResourceType crSangre = factory.getResourceTypeInstance("Máquina Análisis Sangre");
+        ResourceType crOrina = factory.getResourceTypeInstance("Máquina Análisis Orina");
+//        ResourceType crDummy = factory.getResourceTypeInstance("Dummy");
 
         // PASO 3: Creo las tablas de clases de recursos
-        WorkGroup wg1 = factory.getWorkGroupInstance(0, new ResourceType[] {crSangre}, new int[] {NEEDED});
+        WorkGroup wg1 = factory.getWorkGroupInstance(new ResourceType[] {crSangre}, new int[] {NEEDED});
         actSangre.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 20, 5), wg1);
 //        wg1.add(crOrina, 1);
-        WorkGroup wg2 = factory.getWorkGroupInstance(1, new ResourceType[] {crOrina}, new int[] {1});
+        WorkGroup wg2 = factory.getWorkGroupInstance(new ResourceType[] {crOrina}, new int[] {1});
         actOrina.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 20, 5), wg2);
-//        WorkGroup wg3 = factory.getWorkGroupInstance(5, new ResourceType[] {crDummy}, new int[] {1});
+//        WorkGroup wg3 = factory.getWorkGroupInstance(new ResourceType[] {crDummy}, new int[] {1});
 //        actDummy.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 10, 2), wg3);
 
 //		ArrayList<ResourceType> al1 = new ArrayList<ResourceType>();
@@ -69,26 +69,26 @@ class ExpOverlapped extends PooledExperiment {
 //		ArrayList<ResourceType> al2 = new ArrayList<ResourceType>();
 //		al2.add(crOrina);
 //		al2.add(crDummy);
-//		Resource orina1 = factory.getResourceInstance(1, "Máquina Análisis Orina 1");
+//		Resource orina1 = factory.getResourceInstance("Máquina Análisis Orina 1");
 //		orina1.addTimeTableEntry(new SimulationPeriodicCycle(unit, 480, RandomVariateFactory.getInstance("ConstantVariate", 1440), 0), 480, al2);
 
 		ArrayList<ResourceType> al2 = new ArrayList<ResourceType>();
 		al2.add(crOrina);
 		al2.add(crSangre);
         for (int i = 0; i < NRESOURCES; i++) {
-			Resource poli1 = factory.getResourceInstance(i, "Máquina Polivalente 1");
+			Resource poli1 = factory.getResourceInstance("Máquina Polivalente 1");
 			poli1.addTimeTableEntry(new SimulationPeriodicCycle(unit, 480, new SimulationTimeFunction(unit, "ConstantVariate", 1440), 0), 480, al2);
         }
         
-		ParallelFlow metaFlow = (ParallelFlow)factory.getFlowInstance(10, "ParallelFlow");
-		metaFlow.link((SingleFlow)factory.getFlowInstance(1, "SingleFlow", actOrina));
-		metaFlow.link((SingleFlow)factory.getFlowInstance(0, "SingleFlow", actSangre));
+		ParallelFlow metaFlow = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
+		metaFlow.link((SingleFlow)factory.getFlowInstance("SingleFlow", actOrina));
+		metaFlow.link((SingleFlow)factory.getFlowInstance("SingleFlow", actSangre));
 		
-//		SingleFlow metaFlow = (SingleFlow)factory.getFlowInstance(3, RandomVariateFactory.getInstance("ConstantVariate", 1), actDummy);     
+//		SingleFlow metaFlow = (SingleFlow)factory.getFlowInstance(RandomVariateFactory.getInstance("ConstantVariate", 1), actDummy);     
 		SimulationPeriodicCycle c = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 1440), NDAYS);
-		factory.getTimeDrivenGeneratorInstance(0, 
-				factory.getElementCreatorInstance(0, TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
-						factory.getElementTypeInstance(0, "ET0"), metaFlow), c);
+		factory.getTimeDrivenGeneratorInstance(
+				factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
+						factory.getElementTypeInstance("ET0"), metaFlow), c);
 		
 		sim.addInfoReceiver(new StdInfoView(sim));
 		return sim;

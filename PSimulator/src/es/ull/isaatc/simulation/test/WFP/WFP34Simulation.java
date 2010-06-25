@@ -26,7 +26,7 @@ public class WFP34Simulation extends WFPTestSimulationFactory {
 	@Override
 	protected void createModel() {
     	ResourceType rt = getDefResourceType("Director");
-    	WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt}, new int[] {1});
+    	WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
     	
     	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Sign Annual Report", wg);
     	TimeDrivenActivity act1 = getDefTimeDrivenActivity("Check acceptance", wg);
@@ -34,9 +34,9 @@ public class WFP34Simulation extends WFPTestSimulationFactory {
     	for (int i = 0; i < RES; i++)
     		getDefResource("Director" + i, rt);
 
-    	StaticPartialJoinMultipleInstancesFlow root = (StaticPartialJoinMultipleInstancesFlow)factory.getFlowInstance(10, "StaticPartialJoinMultipleInstancesFlow", 6, 4);
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
+    	StaticPartialJoinMultipleInstancesFlow root = (StaticPartialJoinMultipleInstancesFlow)factory.getFlowInstance("StaticPartialJoinMultipleInstancesFlow", 6, 4);
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
     	root.addBranch(sin1);
     	root.link(sin2);
     	

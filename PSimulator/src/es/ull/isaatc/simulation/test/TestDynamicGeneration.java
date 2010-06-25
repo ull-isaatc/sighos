@@ -31,22 +31,22 @@ class TestDynamicGenerationExperiment extends PooledExperiment {
 		TimeUnit unit = TimeUnit.MINUTE;
 		SimulationObjectFactory factory = SimulationFactory.getInstance(type, ind, "Test Dynamic", unit, 0, 1);
 		
-		ResourceType rt0 = factory.getResourceTypeInstance(0, "RT0");
-		ResourceType rt1 = factory.getResourceTypeInstance(1, "RT1");
+		ResourceType rt0 = factory.getResourceTypeInstance("RT0");
+		ResourceType rt1 = factory.getResourceTypeInstance("RT1");
 		
-		Resource r0 =  factory.getResourceInstance(0, "Res0");
+		Resource r0 =  factory.getResourceInstance("Res0");
 		r0.addTimeTableEntry(SimulationPeriodicCycle.newDailyCycle(unit), 1, rt0);
-		Resource r1 = factory.getResourceInstance(1, "Res1");
+		Resource r1 = factory.getResourceInstance("Res1");
 		r1.addTimeTableEntry(SimulationPeriodicCycle.newDailyCycle(unit), 1, rt1);
 		
-		WorkGroup wg0 = factory.getWorkGroupInstance(0, new ResourceType [] {rt0, rt1}, new int[] {1,1});
+		WorkGroup wg0 = factory.getWorkGroupInstance(new ResourceType [] {rt0, rt1}, new int[] {1,1});
 		
-		Condition cond = factory.getCustomizedConditionInstance(0, null, "false");
-		TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance(0, "ACT0");
+		Condition cond = factory.getCustomizedConditionInstance(null, "false");
+		TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance("ACT0");
 		act0.addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 10.0), wg0, new NotCondition(cond));
 		
-		factory.getElementTypeInstance(0, "ET0");
-		factory.getFlowInstance(0, "SingleFlow", act0);
+		factory.getElementTypeInstance("ET0");
+		factory.getFlowInstance("SingleFlow", act0);
 		return factory.getSimulation();
 	}
 }

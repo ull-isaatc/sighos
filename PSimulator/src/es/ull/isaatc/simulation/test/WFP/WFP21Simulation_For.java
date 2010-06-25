@@ -34,15 +34,15 @@ public class WFP21Simulation_For extends WFPTestSimulationFactory {
 	protected void createModel() {
         ResourceType rt0 = getDefResourceType("Maquina revelado");
         
-        WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
     	
     	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Revelar foto", wg, false);
 
         getDefResource("Maquina 1", rt0);        
         getDefResource("Maquina 2", rt0);
         
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        ForLoopFlow root = (ForLoopFlow)factory.getFlowInstance(10, "ForLoopFlow", sin1, TimeFunctionFactory.getInstance("ConstantVariate", 2));
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        ForLoopFlow root = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", sin1, TimeFunctionFactory.getInstance("ConstantVariate", 2));
 
         ElementType et = getDefElementType("Cliente");
         getDefGenerator(et, root);

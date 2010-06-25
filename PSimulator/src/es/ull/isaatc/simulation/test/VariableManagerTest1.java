@@ -33,7 +33,7 @@ class ExperimentTest1 extends PooledExperiment {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Ej", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		Simulation sim = factory.getSimulation();
 
-    	TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance(0, "Verificar cuenta", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+    	TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance("Verificar cuenta", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
         
     	sim.putVar("Coste total", new IntVariable(0));
     	act0.putVar("Coste", new IntVariable(200));

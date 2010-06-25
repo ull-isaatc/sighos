@@ -35,21 +35,21 @@ public class WFP21Simulation_WhileDo extends WFPTestSimulationFactory {
 	protected void createModel() {
         ResourceType rt0 = getDefResourceType("Maquina revelado");
         
-        WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
     	
     	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Revelar foto", wg, false);
 
         getDefResource("Maquina 1", rt0);        
         getDefResource("Maquina 2", rt0);
         
-        Condition cond = factory.getCustomizedConditionInstance(0, "", "<%GET(@E.fotosReveladas)%> < 10");
+        Condition cond = factory.getCustomizedConditionInstance("", "<%GET(@E.fotosReveladas)%> < 10");
         
         SimulationUserCode code1 = new SimulationUserCode();
         code1.add(UserMethod.AFTER_FINALIZE, "<%SET(@E.fotosReveladas, <%GET(@E.fotosReveladas)%> + 1)%>;"
 				+ "System.out.println(\"E\" + e.getIdentifier() + \": \" + <%GET(@E.fotosReveladas)%> + \" fotos reveladas.\");"
 				);
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", code1, act0);
-        WhileDoFlow root = (WhileDoFlow)factory.getFlowInstance(10, "WhileDoFlow", sin1, cond);
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", code1, act0);
+        WhileDoFlow root = (WhileDoFlow)factory.getFlowInstance("WhileDoFlow", sin1, cond);
 
         ElementType et = getDefElementType("Cliente");
         et.addElementVar("fotosReveladas", 0);

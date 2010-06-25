@@ -41,37 +41,37 @@ class ExperimentFDAE1 extends PooledExperiment {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "ExCreaditCard", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		sim = factory.getSimulation();
 		
-    	TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance(0, "Verify account", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-    	TimeDrivenActivity act1 = factory.getTimeDrivenActivityInstance(1, "Get card details", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-    	FlowDrivenActivity act2 = factory.getFlowDrivenActivityInstance(2, "Process completed");
-        ResourceType rt0 = factory.getResourceTypeInstance(0, "Cashier");
-        ResourceType rt1 = factory.getResourceTypeInstance(1, "Director");
+    	TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance("Verify account", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+    	TimeDrivenActivity act1 = factory.getTimeDrivenActivityInstance("Get card details", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+    	FlowDrivenActivity act2 = factory.getFlowDrivenActivityInstance("Process completed");
+        ResourceType rt0 = factory.getResourceTypeInstance("Cashier");
+        ResourceType rt1 = factory.getResourceTypeInstance("Director");
         
-        WorkGroup wg0 = factory.getWorkGroupInstance(0, new ResourceType[] {rt0}, new int[] {1});
-        WorkGroup wg1 = factory.getWorkGroupInstance(1, new ResourceType[] {rt1}, new int[] {1});
+        WorkGroup wg0 = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg1 = factory.getWorkGroupInstance(new ResourceType[] {rt1}, new int[] {1});
 
         act0.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), wg0);
         act1.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), wg0);
    
         SimulationPeriodicCycle c2 = SimulationPeriodicCycle.newDailyCycle(unit);
 
-        factory.getResourceInstance(0, "Cashier1").addTimeTableEntry(c2, 420, rt0);
-        factory.getResourceInstance(1, "Cashier2").addTimeTableEntry(c2, 420, rt0);
-        factory.getResourceInstance(2, "Cashier3").addTimeTableEntry(c2, 420, rt0);
-        factory.getResourceInstance(3, "Director1").addTimeTableEntry(c2, 420, rt1);
+        factory.getResourceInstance("Cashier1").addTimeTableEntry(c2, 420, rt0);
+        factory.getResourceInstance("Cashier2").addTimeTableEntry(c2, 420, rt0);
+        factory.getResourceInstance("Cashier3").addTimeTableEntry(c2, 420, rt0);
+        factory.getResourceInstance("Director1").addTimeTableEntry(c2, 420, rt1);
         
         
-        SingleFlow root = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
+        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
         
         root.link(sin1);
 
         act2.addWorkGroup(root, sin1, wg1);
-        SingleFlow whole = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
+        SingleFlow whole = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
          
-        ElementType et = factory.getElementTypeInstance(0, "Cliente");
+        ElementType et = factory.getElementTypeInstance("Cliente");
         SimulationPeriodicCycle cGen = SimulationPeriodicCycle.newDailyCycle(unit);
-        factory.getTimeDrivenGeneratorInstance(0, factory.getElementCreatorInstance(0, TimeFunctionFactory.getInstance("ConstantVariate", 3), et, whole), cGen);        
+        factory.getTimeDrivenGeneratorInstance(factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 3), et, whole), cGen);        
 		
 		sim.addInfoReceiver(new StdInfoView(sim));
 //		try {

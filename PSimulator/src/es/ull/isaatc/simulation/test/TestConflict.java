@@ -41,34 +41,34 @@ class ExpConflict extends PooledExperiment {
     	
     	ResourceType [] rts = new ResourceType[NRT];
 		for (int i = 0; i < NRT; i++)
-			rts[i] = factory.getResourceTypeInstance(i, "RT" + i);
+			rts[i] = factory.getResourceTypeInstance("RT" + i);
 		
 		WorkGroup wgs[] = new WorkGroup[NACTS];
-		wgs[0] = factory.getWorkGroupInstance(0, new ResourceType[] {rts[0], rts[1]}, new int[] {1, 1});
-		wgs[1] = factory.getWorkGroupInstance(1, new ResourceType[] {rts[3], rts[2]}, new int[] {1, 1});
+		wgs[0] = factory.getWorkGroupInstance(new ResourceType[] {rts[0], rts[1]}, new int[] {1, 1});
+		wgs[1] = factory.getWorkGroupInstance(new ResourceType[] {rts[3], rts[2]}, new int[] {1, 1});
 		
 		TimeDrivenActivity acts[] = new TimeDrivenActivity[NACTS];
 		for (int i = 0; i < NACTS; i++) {
-			acts[i] = factory.getTimeDrivenActivityInstance(i, "ACT" + i);
+			acts[i] = factory.getTimeDrivenActivityInstance("ACT" + i);
 			acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 40), wgs[i]);
 		}
 		
 		SimulationCycle c = SimulationPeriodicCycle.newDailyCycle(unit);
 		
-		Resource r0 = factory.getResourceInstance(0, "Res0");
-		Resource r1 = factory.getResourceInstance(1, "Res1");
+		Resource r0 = factory.getResourceInstance("Res0");
+		Resource r1 = factory.getResourceInstance("Res1");
 		r0.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[0]);
 		r0.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[2]);
 		r1.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[3]);
 		r1.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[1]);
 
 		SimulationCycle c1 = new SimulationPeriodicCycle(unit, new TimeStamp(TimeUnit.MINUTE, 1), new SimulationTimeFunction(unit, "ConstantVariate", 1440), new TimeStamp(TimeUnit.MINUTE, 480));
-		factory.getTimeDrivenGeneratorInstance(0, 
-				factory.getElementCreatorInstance(0, TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
-						factory.getElementTypeInstance(0, "ET0"), (InitializerFlow)factory.getFlowInstance(0, "SingleFlow", acts[0])), c1);
-		factory.getTimeDrivenGeneratorInstance(1, 
-				factory.getElementCreatorInstance(1, TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
-						factory.getElementTypeInstance(1, "ET1"), (InitializerFlow)factory.getFlowInstance(1, "SingleFlow", acts[1])), c1);
+		factory.getTimeDrivenGeneratorInstance(
+				factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
+						factory.getElementTypeInstance("ET0"), (InitializerFlow)factory.getFlowInstance("SingleFlow", acts[0])), c1);
+		factory.getTimeDrivenGeneratorInstance(
+				factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
+						factory.getElementTypeInstance("ET1"), (InitializerFlow)factory.getFlowInstance("SingleFlow", acts[1])), c1);
     }
     
     /**
@@ -84,23 +84,23 @@ class ExpConflict extends PooledExperiment {
     	
     	ResourceType [] rts = new ResourceType[NRT];
 		for (int i = 0; i < NRT; i++)
-			rts[i] = factory.getResourceTypeInstance(i, "RT" + i);
+			rts[i] = factory.getResourceTypeInstance("RT" + i);
 		WorkGroup wgs[] = new WorkGroup[NACTS];
-		wgs[0] = factory.getWorkGroupInstance(0, new ResourceType[] {rts[0], rts[1], rts[4]}, new int[] {1, 1, 1});
-		wgs[1] = factory.getWorkGroupInstance(1, new ResourceType[] {rts[3], rts[2]}, new int[] {1, 1});
-		wgs[2] = factory.getWorkGroupInstance(2, new ResourceType[] {rts[5]}, new int[] {1});
+		wgs[0] = factory.getWorkGroupInstance(new ResourceType[] {rts[0], rts[1], rts[4]}, new int[] {1, 1, 1});
+		wgs[1] = factory.getWorkGroupInstance(new ResourceType[] {rts[3], rts[2]}, new int[] {1, 1});
+		wgs[2] = factory.getWorkGroupInstance(new ResourceType[] {rts[5]}, new int[] {1});
 
 		TimeDrivenActivity acts[] = new TimeDrivenActivity[NACTS];
 		for (int i = 0; i < NACTS; i++) {
-			acts[i] = factory.getTimeDrivenActivityInstance(i, "ACT" + i);
+			acts[i] = factory.getTimeDrivenActivityInstance("ACT" + i);
 			acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 40), wgs[i]);
 		}
 
 		SimulationCycle c = SimulationPeriodicCycle.newDailyCycle(unit);
 		
-		Resource r0 = factory.getResourceInstance(0, "Res0");
-		Resource r1 = factory.getResourceInstance(1, "Res1");
-		Resource r2 = factory.getResourceInstance(2, "Res1");
+		Resource r0 = factory.getResourceInstance("Res0");
+		Resource r1 = factory.getResourceInstance("Res1");
+		Resource r2 = factory.getResourceInstance("Res1");
 		r0.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[0]);
 		r0.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[2]);
 		r1.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[3]);
@@ -109,15 +109,15 @@ class ExpConflict extends PooledExperiment {
 		r2.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[5]);
 
 		SimulationCycle c1 = new SimulationPeriodicCycle(unit, new TimeStamp(TimeUnit.MINUTE, 1), new SimulationTimeFunction(unit, "ConstantVariate", 1440), new TimeStamp(TimeUnit.MINUTE, 480));
-		factory.getTimeDrivenGeneratorInstance(0, 
-				factory.getElementCreatorInstance(0, TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
-						factory.getElementTypeInstance(0, "ET0"), (InitializerFlow)factory.getFlowInstance(0, "SingleFlow", acts[0])), c1);
-		factory.getTimeDrivenGeneratorInstance(1, 
-				factory.getElementCreatorInstance(1, TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
-						factory.getElementTypeInstance(1, "ET1"), (InitializerFlow)factory.getFlowInstance(1, "SingleFlow", acts[1])), c1);
-		factory.getTimeDrivenGeneratorInstance(2, 
-				factory.getElementCreatorInstance(2, TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
-						factory.getElementTypeInstance(2, "ET2"), (InitializerFlow)factory.getFlowInstance(2, "SingleFlow", acts[2])), c1);
+		factory.getTimeDrivenGeneratorInstance(
+				factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
+						factory.getElementTypeInstance("ET0"), (InitializerFlow)factory.getFlowInstance("SingleFlow", acts[0])), c1);
+		factory.getTimeDrivenGeneratorInstance(
+				factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
+						factory.getElementTypeInstance("ET1"), (InitializerFlow)factory.getFlowInstance("SingleFlow", acts[1])), c1);
+		factory.getTimeDrivenGeneratorInstance(
+				factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
+						factory.getElementTypeInstance("ET2"), (InitializerFlow)factory.getFlowInstance("SingleFlow", acts[2])), c1);
     }
     
 	@Override

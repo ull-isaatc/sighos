@@ -24,7 +24,7 @@ public class WFP03Simulation extends WFPTestSimulationFactory {
    	
         ResourceType rt = getDefResourceType("Comercial");
 
-        WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt}, new int[] {1});
+        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
         TimeDrivenActivity act0 = getDefTimeDrivenActivity("Generacion de factura", wg, false);
         TimeDrivenActivity act1 = getDefTimeDrivenActivity("Comprobacion de factura", 1, wg, false);
         TimeDrivenActivity act2 = getDefTimeDrivenActivity("Envio de mercancias", wg, false);
@@ -34,11 +34,11 @@ public class WFP03Simulation extends WFPTestSimulationFactory {
         getDefResource("Comercial2", rt);
         getDefResource("Comercial3", rt);
         
-        ParallelFlow root = (ParallelFlow)factory.getFlowInstance(10, "ParallelFlow");
-        SynchronizationFlow synchro1 = (SynchronizationFlow)factory.getFlowInstance(11, "SynchronizationFlow");
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
+        ParallelFlow root = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
+        SynchronizationFlow synchro1 = (SynchronizationFlow)factory.getFlowInstance("SynchronizationFlow");
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
+        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
         
         root.link(sin1);
         root.link(sin2);

@@ -26,7 +26,7 @@ public class WFP04Simulation extends WFPTestSimulationFactory {
     protected void createModel() {
    	
         ResourceType rt = getDefResourceType("Encargado");
-        WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt}, new int[] {1});
+        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
         
         TimeDrivenActivity act0 = getDefTimeDrivenActivity("Celebrar elecciones", wg, false);
         TimeDrivenActivity act1 = getDefTimeDrivenActivity("Recuentos de votos", wg, false);
@@ -34,10 +34,10 @@ public class WFP04Simulation extends WFPTestSimulationFactory {
         
         getDefResource("Encargado 1", rt); 
       
-        SingleFlow root = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        ExclusiveChoiceFlow excho1 = (ExclusiveChoiceFlow)factory.getFlowInstance(10, "ExclusiveChoiceFlow");
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
+        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        ExclusiveChoiceFlow excho1 = (ExclusiveChoiceFlow)factory.getFlowInstance("ExclusiveChoiceFlow");
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
+        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
         
         root.link(excho1);
         Condition falseCond = new NotCondition(new TrueCondition());

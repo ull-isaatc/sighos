@@ -25,7 +25,7 @@ public class WFP06Simulation extends WFPTestSimulationFactory {
     protected void createModel() {
    	
         ResourceType rt = getDefResourceType("Operador");
-        WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt}, new int[] {1});
+        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
 
         TimeDrivenActivity act0 = getDefTimeDrivenActivity("Recepcion de llamada", wg, false);
         TimeDrivenActivity act1 = getDefTimeDrivenActivity("Envio policias", wg, false);
@@ -35,11 +35,11 @@ public class WFP06Simulation extends WFPTestSimulationFactory {
         getDefResource("Operador1", rt);
         getDefResource("Operador2", rt);
         
-        SingleFlow root = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        MultiChoiceFlow mulcho1 = (MultiChoiceFlow)factory.getFlowInstance(10, "MultiChoiceFlow");
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance(3, "SingleFlow", act3);
+        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        MultiChoiceFlow mulcho1 = (MultiChoiceFlow)factory.getFlowInstance("MultiChoiceFlow");
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
+        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act3);
         
         root.link(mulcho1);
         Condition falseCond = new NotCondition(new TrueCondition());

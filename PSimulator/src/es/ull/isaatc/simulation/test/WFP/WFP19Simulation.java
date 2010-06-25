@@ -31,7 +31,7 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
 	@Override
 	protected void createModel() {
         ResourceType rt0 = getDefResourceType("Cajero");
-        WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
         
     	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Verificar cuenta", wg, false);
     	TimeDrivenActivity act1 = getDefTimeDrivenActivity("Obtener detalles tarjeta", wg, false);
@@ -45,8 +45,8 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
         // FIXME: NO FUNCIONA!!!
         code1.add(UserMethod.BEFORE_REQUEST, "<%SET(S.pass, !(boolean)<%GET(S.pass)%>)%>;" +
         		"return (boolean)<%GET(S.pass)%> && super.beforeRequest(e);");
-        SingleFlow root = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", code1, act0);
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
+        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", code1, act0);
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
         
         root.link(sin1);
 

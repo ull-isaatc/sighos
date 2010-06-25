@@ -39,7 +39,7 @@ public class WFP17Simulation extends WFPTestSimulationFactory {
 	@Override
 	protected void createModel() {
     	ResourceType rt = getDefResourceType("RT");
-    	WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt}, new int[] {1});
+    	WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
 
     	ArrayList<Activity> acts = new ArrayList<Activity>();
     	acts.add(getDefTimeDrivenActivity("A", wg));
@@ -60,8 +60,8 @@ public class WFP17Simulation extends WFPTestSimulationFactory {
     	dep.add(new Activity[] {acts.get(2), acts.get(3), acts.get(4)});
     	dep.add(new Activity[] {acts.get(1), acts.get(4)});
     	
-    	InterleavedParallelRoutingFlow root = (InterleavedParallelRoutingFlow)factory.getFlowInstance(10, "InterleavedParallelRoutingFlow", acts, dep);
-    	root.link(factory.getFlowInstance(0, "SingleFlow", finalAct));
+    	InterleavedParallelRoutingFlow root = (InterleavedParallelRoutingFlow)factory.getFlowInstance("InterleavedParallelRoutingFlow", acts, dep);
+    	root.link(factory.getFlowInstance("SingleFlow", finalAct));
 
     	getDefGenerator(getDefElementType("ET0"), root);
 	}

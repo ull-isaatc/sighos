@@ -22,7 +22,7 @@ public class WFP01Simulation extends WFPTestSimulationFactory {
 
         ResourceType rt = getDefResourceType("Cajero");
     	
-        WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt}, new int[] {1});
+        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
     	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Verificar cuenta", wg, false);
     	TimeDrivenActivity act1 = getDefTimeDrivenActivity("Obtener detalles tarjeta", wg, false);
         
@@ -31,8 +31,8 @@ public class WFP01Simulation extends WFPTestSimulationFactory {
         getDefResource("Cajero2", rt);
         getDefResource("Cajero3", rt);
         
-        SingleFlow root = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
+        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
         root.link(sin1);
          
         getDefGenerator(getDefElementType("Cliente"), root);

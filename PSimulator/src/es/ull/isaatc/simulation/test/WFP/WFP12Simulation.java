@@ -36,7 +36,7 @@ public class WFP12Simulation extends WFPTestSimulationFactory {
 	@Override
 	protected void createModel() {
     	ResourceType rt0 = getDefResourceType("Policeman");
-    	WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt0}, new int[] {1});
+    	WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
     	
     	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Receive Infringment", 1, wg);
     	TimeDrivenActivity act1 = getDefTimeDrivenActivity("Issue-Infringment-Notice", 5, wg, false);
@@ -45,13 +45,13 @@ public class WFP12Simulation extends WFPTestSimulationFactory {
     	for (int i = 0; i < RES; i++)
     		getDefResource("RES" + i, rt0);
     	
-    	SingleFlow root = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        ParallelFlow pf = (ParallelFlow)factory.getFlowInstance(10, "ParallelFlow");
+    	SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        ParallelFlow pf = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
     	root.link(pf);
-    	ThreadSplitFlow tsf = (ThreadSplitFlow)factory.getFlowInstance(11, "ThreadSplitFlow", 3);
-    	tsf.link(factory.getFlowInstance(1, "SingleFlow", act1));
+    	ThreadSplitFlow tsf = (ThreadSplitFlow)factory.getFlowInstance("ThreadSplitFlow", 3);
+    	tsf.link(factory.getFlowInstance("SingleFlow", act1));
     	pf.link(tsf);
-    	SingleFlow finalSf = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
+    	SingleFlow finalSf = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
     	pf.link(finalSf);
     	finalSf.link(root);
     	

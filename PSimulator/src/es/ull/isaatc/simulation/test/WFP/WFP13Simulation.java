@@ -36,7 +36,7 @@ public class WFP13Simulation extends WFPTestSimulationFactory {
 	@Override
 	protected void createModel() {
     	ResourceType rt0 = getDefResourceType("Director");
-    	WorkGroup wg = factory.getWorkGroupInstance(0, new ResourceType[] {rt0}, new int[] {1});
+    	WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
     	
     	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Sign Annual Report", wg);
     	TimeDrivenActivity act1 = getDefTimeDrivenActivity("Check acceptance", wg);
@@ -44,9 +44,9 @@ public class WFP13Simulation extends WFPTestSimulationFactory {
     	for (int i = 0; i < RES; i++)
     		getDefResource("Director" + i, rt0);
 
-		SynchronizedMultipleInstanceFlow root = (SynchronizedMultipleInstanceFlow)factory.getFlowInstance(10, "SynchronizedMultipleInstanceFlow", 6);
-    	root.addBranch((SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0));
-    	root.link(factory.getFlowInstance(1, "SingleFlow", act1));
+		SynchronizedMultipleInstanceFlow root = (SynchronizedMultipleInstanceFlow)factory.getFlowInstance("SynchronizedMultipleInstanceFlow", 6);
+    	root.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", act0));
+    	root.link(factory.getFlowInstance("SingleFlow", act1));
 
     	getDefGenerator(getDefElementType("ET0"), root);
 	}

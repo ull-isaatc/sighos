@@ -26,8 +26,8 @@ public class WFP08Simulation extends WFPTestSimulationFactory {
     	ResourceType rt0 = getDefResourceType("Maquina productora");
     	ResourceType rt1 = getDefResourceType("Empleados");
         
-        WorkGroup wgMa = factory.getWorkGroupInstance(0, new ResourceType[] {rt0}, new int[] {1});
-        WorkGroup wgEm = factory.getWorkGroupInstance(1, new ResourceType[] {rt1}, new int[] {1});
+        WorkGroup wgMa = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wgEm = factory.getWorkGroupInstance(new ResourceType[] {rt1}, new int[] {1});
 	   	
 		TimeDrivenActivity act0 = getDefTimeDrivenActivity("Crear destornilladores", 2, wgMa, false);
 		TimeDrivenActivity act1 = getDefTimeDrivenActivity("Crear llaves", 2, wgMa, false);
@@ -38,12 +38,12 @@ public class WFP08Simulation extends WFPTestSimulationFactory {
 		getDefResource("Maquina2", rt0);
 		getDefResource("Empleado1", rt1);
         
-        ParallelFlow root = (ParallelFlow)factory.getFlowInstance(10, "ParallelFlow");
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
-        MultiMergeFlow mulmer1 = (MultiMergeFlow)factory.getFlowInstance(11, "MultiMergeFlow");
-        SingleFlow sin4 = (SingleFlow)factory.getFlowInstance(3, "SingleFlow", act3);
+        ParallelFlow root = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
+        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
+        MultiMergeFlow mulmer1 = (MultiMergeFlow)factory.getFlowInstance("MultiMergeFlow");
+        SingleFlow sin4 = (SingleFlow)factory.getFlowInstance("SingleFlow", act3);
         
         
         root.link(sin1);

@@ -34,8 +34,8 @@ public class WFP28Simulation extends WFPTestSimulationFactory {
         ResourceType rt0 = getDefResourceType("Asistente");
         ResourceType rt1 = getDefResourceType("Personal Seguridad");
         
-        WorkGroup wg0 = factory.getWorkGroupInstance(0, new ResourceType[] {rt0}, new int[] {1});
-        WorkGroup wg1 = factory.getWorkGroupInstance(1, new ResourceType[] {rt1}, new int[] {1});
+        WorkGroup wg0 = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg1 = factory.getWorkGroupInstance(new ResourceType[] {rt1}, new int[] {1});
 	   	
         TimeDrivenActivity act0 = getDefTimeDrivenActivity("Confirmar llegada delegacion", 2, wg0, false);
         TimeDrivenActivity act1 = getDefTimeDrivenActivity("Chequeo de seguridad", 3, wg1, false);
@@ -46,11 +46,11 @@ public class WFP28Simulation extends WFPTestSimulationFactory {
         getDefResource("Segurita 1", rt1);
         getDefResource("Segurita 2", rt1);
         
-        ParallelFlow root = (ParallelFlow)factory.getFlowInstance(10, "ParallelFlow");
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance(0, "SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance(1, "SingleFlow", act1);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance(2, "SingleFlow", act2);
-        DiscriminatorFlow dis1 = (DiscriminatorFlow)factory.getFlowInstance(11, "DiscriminatorFlow");
+        ParallelFlow root = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
+        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
+        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
+        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
+        DiscriminatorFlow dis1 = (DiscriminatorFlow)factory.getFlowInstance("DiscriminatorFlow");
         
         root.link(sin1);
         root.link(sin2);
