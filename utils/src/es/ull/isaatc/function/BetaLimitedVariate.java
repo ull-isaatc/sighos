@@ -1,7 +1,6 @@
 package es.ull.isaatc.function;
 
 import simkit.random.BetaVariate;
-import simkit.random.RandomVariate;
 import es.ull.isaatc.function.TimeFunction;
 
 public class BetaLimitedVariate extends TimeFunction {

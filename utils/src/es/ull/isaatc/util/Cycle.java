@@ -128,10 +128,6 @@ public abstract class Cycle {
 		/** The end timestamp. */
 		protected long endTs;
 
-		public DiscreteIteratorLevel(long start, long end) {
-			reset(start, end);
-		}
-		
 		/**
 		 * Resets this level. The iterations are reset and the end timestamp is recomputed.
 		 * @param start The start timestamp.

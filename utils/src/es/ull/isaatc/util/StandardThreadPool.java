@@ -78,7 +78,8 @@ public class StandardThreadPool<T extends Runnable> implements ThreadPool<T> {
         return nThreads;
     }
 
-    public static <T1 extends Runnable> StandardThreadPool<T1> getPool(int nThreads) {
+    @SuppressWarnings("unchecked")
+	public static <T1 extends Runnable> StandardThreadPool<T1> getPool(int nThreads) {
     	if (tp == null) {
     		tp = new StandardThreadPool<T1>(nThreads) {
 	    		@Override

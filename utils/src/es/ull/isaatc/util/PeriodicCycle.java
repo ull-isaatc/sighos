@@ -232,7 +232,26 @@ public class PeriodicCycle extends Cycle {
 		 * @param end The end timestamp.
 		 */
 		public PeriodicDiscreteIteratorLevel(long start, long end) {
-			super(start, end);
+			currentTs = start;
+			this.iter = getIterations();
+			// Bad defined subcycles are controled here
+			if (!Double.isNaN(PeriodicCycle.this.getEndTs()))
+				endTs = Math.min(start + cycleEndTs, end);
+			else
+				endTs = end;
+			// If the "supercycle" starts after the simulation end.
+			if (end == -1) {
+				nextTs = -1;
+				currentTs = nextTs;
+			}
+			else {
+				nextTs = start + cycleStartTs;
+				// If the cycle starts after the simulation end
+				if (hasNext())
+					currentTs = next();
+				else
+					nextTs = -1;
+			}
 			cycleEndTs = Math.round(PeriodicCycle.this.getEndTs());
 			cycleStartTs = Math.round(PeriodicCycle.this.getStartTs()); 
 		}		
