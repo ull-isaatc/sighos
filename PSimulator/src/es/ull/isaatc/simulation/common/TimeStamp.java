@@ -104,4 +104,12 @@ public class TimeStamp {
 		return new TimeStamp(TimeUnit.DAY, 1);		
 	}
 
+	/**
+	 * Returns a "1 WEEK" timestamp.
+	 * @return A "1 WEEK" timestamp
+	 */
+	public static TimeStamp getWeek() {
+		return new TimeStamp(TimeUnit.WEEK, 1);		
+	}
+
 }

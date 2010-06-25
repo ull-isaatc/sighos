@@ -2,6 +2,7 @@ package es.ull.isaatc.simulation.grouped3Phase;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.TreeMap;
 
 import es.ull.isaatc.simulation.common.condition.Condition;
@@ -45,7 +46,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
     /** Indicates that the activity is potentially feasible. */
     protected boolean stillFeasible = true;
     /** Resource cancellation table */
-    protected final TreeMap<ResourceType, Long> cancellationList = new TreeMap<ResourceType, Long>();
+    protected final Map<ResourceType, Long> cancellationList = new TreeMap<ResourceType, Long>();
     /** Last activity start */
     protected long lastStartTs = 0;
     /** Last activity finish */

@@ -197,7 +197,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		nBunches = (nThreads - 1) * grain + rest;
 		init();
 
-		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
+		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationStartInfo(this, System.nanoTime(), this.internalStartTs));
 		mainExecutor = new MasterExecutor();
 		// Starts all the generators
 		for (Generator gen : generatorList)
@@ -219,7 +219,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		
 		end();
 		
-		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationEndInfo(this, System.currentTimeMillis(), this.internalEndTs));
+		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationEndInfo(this, System.nanoTime(), this.internalEndTs));
 		debug("SIMULATION COMPLETELY FINISHED");
 	}
 
@@ -558,48 +558,28 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		resourceList.put(res.getIdentifier(), res);
 	}
 	
-	/**
-	 * Returns a list of the resources of the model.
-	 * 
-	 * @return Resources of the model.
-	 */
-	public TreeMap<Integer, Resource> getResourceList() {
+	@Override
+	public Map<Integer, Resource> getResourceList() {
 		return resourceList;
 	}
 
-	/**
-	 * Returns a list of the activities of the model.
-	 * 
-	 * @return Activities of the model.
-	 */
-	public TreeMap<Integer, Activity> getActivityList() {
+	@Override
+	public Map<Integer, Activity> getActivityList() {
 		return activityList;
 	}
 
-	/**
-	 * Returns a list of the resource types of the model.
-	 * 
-	 * @return Resource types of the model.
-	 */
-	public TreeMap<Integer, ResourceType> getResourceTypeList() {
+	@Override
+	public Map<Integer, ResourceType> getResourceTypeList() {
 		return resourceTypeList;
 	}
-
-	/**
-	 * Returns a list of the element types of the model.
-	 * 
-	 * @return element types of the model.
-	 */
-	public TreeMap<Integer, ElementType> getElementTypeList() {
+	
+	@Override
+	public Map<Integer, ElementType> getElementTypeList() {
 		return elementTypeList;
 	}
 
-	/**
-	 * Returns a list of the flows of the model.
-	 * 
-	 * @return flows of the model.
-	 */
-	public TreeMap<Integer, Flow> getFlowList() {
+	@Override
+	public Map<Integer, Flow> getFlowList() {
 		return flowList;
 	}
 

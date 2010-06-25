@@ -160,6 +160,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
     	            		n--;
     	                    debug("Resource taken\t" + res + "\t " + n + "\t" + elem);
     	            	}
+    	            	res.removeBook(wi);
                 	}
                 	// Conflict (in the same activity)
                 	// Theoretically, I have no need to check "n"
@@ -167,13 +168,16 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
                 		minAvailability = Math.min(minAvailability, res.catchResource(wi, this));
                 		n--;
                         debug("Resource taken\t" + res + "\t " + n + "\t" + elem);
+                    	res.removeBook(wi);
                         // This check should be unneeded
                         if (n < 0) {
                         	error("More resources than expected\t"+ n + "\t" + elem);
                         }
                 	}
                 }
-            	res.removeBook(wi);
+                else {
+                	res.removeBook(wi);
+                }
             }
     		res.signalSemaphore();
         }

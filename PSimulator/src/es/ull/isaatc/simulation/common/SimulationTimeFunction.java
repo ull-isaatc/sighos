@@ -27,7 +27,10 @@ public class SimulationTimeFunction {
 			if (parameters[i] instanceof TimeStamp)
 				parameters[i] = unit.convert((TimeStamp)parameters[i]);
 			else if (parameters[i] instanceof Number)
-				parameters[i] = unit.convert(new TimeStamp(unit, Math.round(((Number)parameters[i]).doubleValue()))); 
+				parameters[i] = unit.convert(new TimeStamp(unit, Math.round(((Number)parameters[i]).doubleValue())));
+			// Emulates a kind of recursive behaviour
+			else if (parameters[i] instanceof SimulationTimeFunction)
+				parameters[i] = ((SimulationTimeFunction)parameters[i]).getFunction();
 		}
 		function = TimeFunctionFactory.getInstance(className, parameters);
 	}

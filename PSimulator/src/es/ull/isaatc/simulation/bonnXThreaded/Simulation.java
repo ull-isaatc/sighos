@@ -173,7 +173,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
         
 		init();
 
-		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationStartInfo(this, System.currentTimeMillis(), this.internalStartTs));
+		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationStartInfo(this, System.nanoTime(), this.internalStartTs));
 		// Starts all the generators
 		for (Generator gen : generatorList)
 			addFutureEvent(gen.getStartEvent(internalStartTs));
@@ -199,7 +199,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		
 		end();
 		
-		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationEndInfo(this, System.currentTimeMillis(), this.internalEndTs));
+		infoHandler.notifyInfo(new es.ull.isaatc.simulation.common.info.SimulationEndInfo(this, System.nanoTime(), this.internalEndTs));
 		debug("SIMULATION COMPLETELY FINISHED");
 	}
 
@@ -665,47 +665,27 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		resourceList.put(res.getIdentifier(), res);
 	}
 	
-	/**
-	 * Returns a list of the resources of the model.
-	 * 
-	 * @return Resources of the model.
-	 */
+	@Override
 	public Map<Integer, Resource> getResourceList() {
 		return resourceList;
 	}
 
-	/**
-	 * Returns a list of the activities of the model.
-	 * 
-	 * @return Activities of the model.
-	 */
+	@Override
 	public Map<Integer, Activity> getActivityList() {
 		return activityList;
 	}
 
-	/**
-	 * Returns a list of the resource types of the model.
-	 * 
-	 * @return Resource types of the model.
-	 */
+	@Override
 	public Map<Integer, ResourceType> getResourceTypeList() {
 		return resourceTypeList;
 	}
-
-	/**
-	 * Returns a list of the element types of the model.
-	 * 
-	 * @return element types of the model.
-	 */
+	
+	@Override
 	public Map<Integer, ElementType> getElementTypeList() {
 		return elementTypeList;
 	}
 
-	/**
-	 * Returns a list of the flows of the model.
-	 * 
-	 * @return flows of the model.
-	 */
+	@Override
 	public Map<Integer, Flow> getFlowList() {
 		return flowList;
 	}

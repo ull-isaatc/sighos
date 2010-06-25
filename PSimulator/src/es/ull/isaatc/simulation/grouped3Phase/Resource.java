@@ -2,6 +2,7 @@ package es.ull.isaatc.simulation.grouped3Phase;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,7 +23,7 @@ import es.ull.isaatc.util.DiscreteCycleIterator;
  */
 public class Resource extends BasicElement implements es.ull.isaatc.simulation.common.Resource {
 	/** Timetable which defines the availability structure of the resource */
-    protected final ArrayList<TimeTableEntry> timeTable = new ArrayList<TimeTableEntry>();
+    protected final List<TimeTableEntry> timeTable = new ArrayList<TimeTableEntry>();
     /** A brief description of the resource */
     protected final String description;
     /** If true, indicates that this resource is being used after its availability time has expired */

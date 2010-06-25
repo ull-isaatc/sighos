@@ -6,6 +6,7 @@
 
 package es.ull.isaatc.simulation.common;
 
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
@@ -308,6 +309,13 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	 */
 	public abstract Activity getActivity(int id);
 
+	/** 	 
+	 * Returns a list of the activities of the model. 	 
+	 * 
+	 *  @return Activities of the model. 	 
+	 */ 	
+	public abstract Map<Integer, ? extends Activity> getActivityList();
+	
 	/**
 	 * Returns the resource type with the corresponding identifier.
 	 * @param id Resource type identifier.
@@ -316,11 +324,25 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	public abstract ResourceType getResourceType(int id);
 
 	/**
+	 * Returns a list of the resource types of the model.
+	 * 
+	 * @return Resource types of the model.
+	 */
+	public abstract Map<Integer, ? extends ResourceType> getResourceTypeList();
+	
+	/**
 	 * Returns the resource with the corresponding identifier.
 	 * @param id Resource identifier.
 	 * @return A resource with the indicated identifier.
 	 */
 	public abstract Resource getResource(int id);
+
+	/**
+	 * Returns a list of the resources of the model.
+	 * 
+	 * @return Resources of the model.
+	 */
+	public abstract Map<Integer, ? extends Resource> getResourceList();
 
 	/**
 	 * Returns the element type with the corresponding identifier.
@@ -330,12 +352,26 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	public abstract ElementType getElementType(int id);
 
 	/**
+	 * Returns a list of the element types of the model.
+	 * 
+	 * @return element types of the model.
+	 */
+	public abstract Map<Integer, ? extends ElementType> getElementTypeList();
+	
+	/**
 	 * Returns the flow with the corresponding identifier.
 	 * @param id Flow identifier.
 	 * @return A flow with the indicated identifier.
 	 */
 	public abstract Flow getFlow(int id);
 
+	/**
+	 * Returns a list of the flows of the model.
+	 * 
+	 * @return flows of the model.
+	 */
+	public abstract Map<Integer, ? extends Flow> getFlowList();
+	
 	@Override
 	public String toString() {
 		return description + "(" + startTs + ", " + endTs + ")";

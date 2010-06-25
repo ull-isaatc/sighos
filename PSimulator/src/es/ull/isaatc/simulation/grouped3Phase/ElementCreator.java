@@ -4,6 +4,7 @@
 package es.ull.isaatc.simulation.grouped3Phase;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.simulation.grouped3Phase.flow.InitializerFlow;
@@ -16,7 +17,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.isaatc.simula
 	/** Number of objects created each time this creator is invoked. */
 	protected final TimeFunction nElem;
 	/** Each flow that will be generated */
-	protected final ArrayList<GenerationTrio> genTrio;
+	protected final List<GenerationTrio> genTrio;
 	/** Associated simulation */
 	protected final Simulation simul;
 

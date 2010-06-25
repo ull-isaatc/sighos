@@ -35,7 +35,7 @@ public class StdInfoView extends View {
 		if (info instanceof SimulationEndInfo) { 
 			SimulationEndInfo endInfo = (SimulationEndInfo) info;
 			out.println(info.toString() + ": CPU Time = " 
-					+ (endInfo.getCpuTime() - simulationInit) + " miliseconds.");
+					+ ((endInfo.getCpuTime() - simulationInit) / 1000000) + " miliseconds.");
 		} else {
 			if (info instanceof SimulationStartInfo) {
 				SimulationStartInfo startInfo = (SimulationStartInfo) info;

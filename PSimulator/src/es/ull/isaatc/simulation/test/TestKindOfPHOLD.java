@@ -138,7 +138,7 @@ public class TestKindOfPHOLD {
 
 			@Override
 			public void start() {
-				t1 = System.currentTimeMillis();
+				t1 = System.nanoTime();
 //				super.start();
 				for (int i = 0; i < nExperiments; i++)
 					getSimulation(i).run();
@@ -148,7 +148,7 @@ public class TestKindOfPHOLD {
 			@Override
 			protected void end() {
 				super.end();
-				System.out.println("" + (System.currentTimeMillis() - t1));
+				System.out.println("" + (System.nanoTime() - t1));
 			}
 
 			@Override

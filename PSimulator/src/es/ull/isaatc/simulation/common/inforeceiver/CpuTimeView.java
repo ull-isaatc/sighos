@@ -32,7 +32,7 @@ public class CpuTimeView extends View {
 		}
 		else if (info instanceof SimulationEndInfo) {
 			endT = ((SimulationEndInfo)info).getCpuTime();
-			System.out.println("" + (endT - iniT));
+			System.out.println("" + ((endT - iniT) / 1000000) + "ms");
 		}
 	}
 

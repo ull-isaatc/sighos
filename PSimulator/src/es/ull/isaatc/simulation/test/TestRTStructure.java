@@ -176,30 +176,30 @@ public class TestRTStructure {
 		for (int i = 0; i < NTEST; i++)
 			list[i] = new Integer(i % NDIF);
 		
-		t1 = System.currentTimeMillis();
+		t1 = System.nanoTime();
 		ResourceList1 rList1 = new ResourceList1();
 		for (Integer i : list)
 			rList1.add(i);
-		t2 = System.currentTimeMillis();
+		t2 = System.nanoTime();
 		for (int i = 0; i < NDIF; i++)
 			rList1.get(i);
-		t3 = System.currentTimeMillis();
+		t3 = System.nanoTime();
 		for (Integer i : list)
 			rList1.remove(i);
-		t4 = System.currentTimeMillis();
+		t4 = System.nanoTime();
 		System.out.println("Time List 1: " + (t4 - t1) + "\tADD: " + (t2 - t1) + "\tGET: " + (t3 - t2) + "\tREMOVE: " + (t4 - t3));
 
-		t1 = System.currentTimeMillis();
+		t1 = System.nanoTime();
 		ResourceList2 rList2 = new ResourceList2();
 		for (Integer i : list)
 			rList2.add(i);
-		t2 = System.currentTimeMillis();
+		t2 = System.nanoTime();
 		for (int i = 0; i < NDIF; i++)
 			rList2.get(i);
-		t3 = System.currentTimeMillis();
+		t3 = System.nanoTime();
 		for (Integer i : list)
 			rList2.remove(i);
-		t4 = System.currentTimeMillis();
+		t4 = System.nanoTime();
 		System.out.println("Time List 2: " + (t4 - t1) + "\tADD: " + (t2 - t1) + "\tGET: " + (t3 - t2) + "\tREMOVE: " + (t4 - t3));
 	}
 

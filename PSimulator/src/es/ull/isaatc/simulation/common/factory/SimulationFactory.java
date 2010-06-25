@@ -18,7 +18,7 @@ public class SimulationFactory {
 	 * <il>EXTERNALPOOL: Ejecución que intenta optimizar los eventos simultáneos usando un pool de threads</li>
 	 * <il>EXTERNALPOOL3PHASE: Ejecución que intenta optimizar los eventos simultáneos usando un pool de threads. En este caso se
 	 * trata de mejorar el resultado haciendo una ejecución en dos fases (más propiamente en 3) que elimina muchos de los bloqueos.</li>
-	 * <il>INTERVAL: Modificación de SIMEVENTS para que se pueda adaptar en el futuro para una ejecución con reloj intervalar.
+	 * <il>INTERVAL: Modificación de EXTERNALPOOL para que se pueda adaptar en el futuro para una ejecución con reloj intervalar.
 	 * La mayor diferencia es que los hilos de ejecución se definen internamente a la simulación.</li>
 	 * <il>BUFFERED: Versión modificada de INTERVAL que incluye buffers internos a cada hilo de ejecución para almacenar
 	 * localmente eventos de próxima ejecución y eventos a planificar en la lista de espera</li>

@@ -96,8 +96,8 @@ public class BenchmarkListener extends View {
 			cpuTime = ((SimulationStartInfo)info).getCpuTime();
 		}
 		else if (info instanceof SimulationEndInfo) {
-			cpuTime = ((SimulationEndInfo)info).getCpuTime() - cpuTime;
-			out.println("T:\t" + cpuTime + "\tElem Events:\t" + elemEvents + "\tRes Events:\t" + resEvents + "\nMax. concurrent Events:\t" + maxConcurrentEvents);
+			cpuTime = (((SimulationEndInfo)info).getCpuTime() - cpuTime) / 1000000;
+			out.println("T:\t" + cpuTime + " ms\tElem Events:\t" + elemEvents + "\tRes Events:\t" + resEvents + "\nMax. concurrent Events:\t" + maxConcurrentEvents);
 			out.println("STA:\t" + startEv + "\tEND:\t" + endEv + "\tREQ:\t" + reqActEv + "\tSAC\t" + startActEv + "\tEAC\t" + endActEv);
 		}
 	}
