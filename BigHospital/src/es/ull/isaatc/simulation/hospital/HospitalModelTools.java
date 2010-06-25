@@ -3,7 +3,13 @@
  */
 package es.ull.isaatc.simulation.hospital;
 
-import es.ull.isaatc.simulation.common.*;
+import es.ull.isaatc.simulation.common.Simulation;
+import es.ull.isaatc.simulation.common.SimulationCycle;
+import es.ull.isaatc.simulation.common.SimulationPeriodicCycle;
+import es.ull.isaatc.simulation.common.SimulationTableCycle;
+import es.ull.isaatc.simulation.common.SimulationTimeFunction;
+import es.ull.isaatc.simulation.common.TimeStamp;
+import es.ull.isaatc.simulation.common.TimeUnit;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -14,6 +20,8 @@ public class HospitalModelTools {
 	private static SimulationCycle stdHumanResourceCycle = null;
 	private static TimeStamp stdMaterialResourceAvailability = null;
 	private static SimulationCycle stdMaterialResourceCycle = null;
+	public static final long DAYSTART = 8;
+	public static final long WORKHOURS = 8;
 	
 	public static TimeStamp getStdHumanResourceAvailability(Simulation simul) {
 		if (stdHumanResourceAvailability == null)
@@ -48,4 +56,8 @@ public class HospitalModelTools {
 		return stdMaterialResourceCycle;
 	}
 
+	public static SimulationTimeFunction getNextHighFunction(TimeUnit unit, TimeStamp scale, TimeStamp shift, String className, Object... parameters) {
+		SimulationTimeFunction innerFunc = new SimulationTimeFunction(unit, className, parameters);
+		return new SimulationTimeFunction(unit, "NextHighFunction", innerFunc, scale, shift);
+	}
 }
