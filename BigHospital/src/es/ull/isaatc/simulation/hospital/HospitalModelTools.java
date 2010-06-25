@@ -6,10 +6,11 @@ package es.ull.isaatc.simulation.hospital;
 import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.SimulationCycle;
 import es.ull.isaatc.simulation.common.SimulationPeriodicCycle;
-import es.ull.isaatc.simulation.common.SimulationTableCycle;
 import es.ull.isaatc.simulation.common.SimulationTimeFunction;
+import es.ull.isaatc.simulation.common.SimulationWeeklyPeriodicCycle;
 import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeUnit;
+import es.ull.isaatc.util.WeeklyPeriodicCycle;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -31,10 +32,12 @@ public class HospitalModelTools {
 	
 	public static SimulationCycle getStdHumanResourceCycle(Simulation simul) {
 		if (stdHumanResourceCycle == null) {
-			TimeStamp[] st = new TimeStamp[5];
-			for (int i = 0; i < 5; i++)
-				st[i] = new TimeStamp(TimeUnit.HOUR, 8 + 24 * i);
-			stdHumanResourceCycle = new SimulationTableCycle(simul.getTimeUnit(), st);
+//			TimeStamp[] st = new TimeStamp[5];
+//			for (int i = 0; i < 5; i++)
+//				st[i] = new TimeStamp(TimeUnit.HOUR, 8 + 24 * i);
+//			stdHumanResourceCycle = new SimulationTableCycle(simul.getTimeUnit(), st);
+			stdHumanResourceCycle = new SimulationWeeklyPeriodicCycle(simul.getTimeUnit(), WeeklyPeriodicCycle.WEEKDAYS, 
+					new TimeStamp(TimeUnit.HOUR, 8), 0);
 		}
 		return stdHumanResourceCycle;
 	}
@@ -47,9 +50,6 @@ public class HospitalModelTools {
 	
 	public static SimulationCycle getStdMaterialResourceCycle(Simulation simul) {
 		if (stdMaterialResourceCycle == null) {
-			TimeStamp[] st = new TimeStamp[5];
-			for (int i = 0; i < 5; i++)
-				st[i] = new TimeStamp(TimeUnit.HOUR, 8 + 24 * i);
 			SimulationTimeFunction tf = new SimulationTimeFunction(simul.getTimeUnit(), "ConstantVariate", simul.getEndTs());
 			stdMaterialResourceCycle = new SimulationPeriodicCycle(simul.getTimeUnit(), simul.getStartTs(), tf, simul.getEndTs());
 		}

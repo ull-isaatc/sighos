@@ -53,44 +53,38 @@ public class SurgicalSubModel {
 	 * the P.A.C.U. and the I.C.U.
 	 * @param factory
 	 */
-	public static int createModel(SimulationObjectFactory factory, int firstId, ModelParameterMap params) {
+	public static void createModel(SimulationObjectFactory factory, ModelParameterMap params) {
 		final Simulation simul = factory.getSimulation();
 		 
-		int rtId = firstId;
 		// Resource types
-		ResourceType rtPACUBed = factory.getResourceTypeInstance(rtId++, "PACU Bed"); 
-		ResourceType rtICUBed = factory.getResourceTypeInstance(rtId++, "ICU Bed");
-		rtAnaes = factory.getResourceTypeInstance(rtId++, "Anaesthetist");			
+		ResourceType rtPACUBed = factory.getResourceTypeInstance("PACU Bed"); 
+		ResourceType rtICUBed = factory.getResourceTypeInstance("ICU Bed");
+		rtAnaes = factory.getResourceTypeInstance("Anaesthetist");			
 
 		// Resources
-		int resId = firstId;
 		final int nBedsPACU = ((Integer)params.get(Parameters.NBEDS_PACU)).intValue();
 		for (int i = 0; i < nBedsPACU; i++) {
-			Resource res = factory.getResourceInstance(resId++, "PACU Bed " + i);
+			Resource res = factory.getResourceInstance("PACU Bed " + i);
 			res.addTimeTableEntry(HospitalModelTools.getStdMaterialResourceCycle(simul), HospitalModelTools.getStdMaterialResourceAvailability(simul), rtPACUBed);
 		}
 		final int nBedsICU = ((Integer)params.get(Parameters.NBEDS_ICU)).intValue();
 		for (int i = 0; i < nBedsICU; i++) {
-			Resource res = factory.getResourceInstance(resId++, "ICU Bed " + i);
+			Resource res = factory.getResourceInstance("ICU Bed " + i);
 			res.addTimeTableEntry(HospitalModelTools.getStdMaterialResourceCycle(simul), HospitalModelTools.getStdMaterialResourceAvailability(simul), rtICUBed);
 		}
 		final int nAnaesthetists = ((Integer)params.get(Parameters.NANAESTHETISTS)).intValue();
 		for (int i = 0; i < nAnaesthetists; i++) {
-			Resource res = factory.getResourceInstance(resId++, "Anaesthetist " + i);
+			Resource res = factory.getResourceInstance("Anaesthetist " + i);
 			res.addTimeTableEntry(HospitalModelTools.getStdHumanResourceCycle(simul), HospitalModelTools.getStdHumanResourceAvailability(simul), rtAnaes);
 		}
 
 		// Workgroups
-		int wgId = firstId;
-		wgPACU = factory.getWorkGroupInstance(wgId++, new ResourceType[] {rtPACUBed}, new int[] {1});
-		wgICU = factory.getWorkGroupInstance(wgId++, new ResourceType[] {rtICUBed}, new int[] {1});
+		wgPACU = factory.getWorkGroupInstance(new ResourceType[] {rtPACUBed}, new int[] {1});
+		wgICU = factory.getWorkGroupInstance(new ResourceType[] {rtICUBed}, new int[] {1});
 
 		// Activities: Duration depends on the service, so workgroups are not added yet
-		int actId = firstId;
-		actPACU = factory.getTimeDrivenActivityInstance(actId++, "PACU stay");
-		actICU = factory.getTimeDrivenActivityInstance(actId++, "ICU stay");
-		
-		return Math.max(Math.max(rtId, resId), Math.max(wgId, actId));
+		actPACU = factory.getTimeDrivenActivityInstance("PACU stay");
+		actICU = factory.getTimeDrivenActivityInstance("ICU stay");
 	}
 	
 	/**
