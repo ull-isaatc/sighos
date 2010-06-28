@@ -233,6 +233,8 @@ public class PeriodicCycle extends Cycle {
 		 */
 		public PeriodicDiscreteIteratorLevel(long start, long end) {
 			currentTs = start;
+			cycleEndTs = Math.round(PeriodicCycle.this.getEndTs());
+			cycleStartTs = Math.round(PeriodicCycle.this.getStartTs()); 
 			this.iter = getIterations();
 			// Bad defined subcycles are controled here
 			if (!Double.isNaN(PeriodicCycle.this.getEndTs()))
@@ -252,8 +254,6 @@ public class PeriodicCycle extends Cycle {
 				else
 					nextTs = -1;
 			}
-			cycleEndTs = Math.round(PeriodicCycle.this.getEndTs());
-			cycleStartTs = Math.round(PeriodicCycle.this.getStartTs()); 
 		}		
 
 		@Override

@@ -122,7 +122,7 @@ public class TableCycle extends Cycle {
 		/** The current timestamp */
 		int count = 0;
 		/** The reference start timestamp */
-		final long startTs;
+		long startTs;
 		/** The timestamps as integers */
 		private final long []iTimestamps;
 		
@@ -155,6 +155,7 @@ public class TableCycle extends Cycle {
 		@Override
 		public long reset(long start, long newEnd) {
 			count = 0;
+			startTs = start;
 			currentTs = start;
 			this.endTs = newEnd;
 			// If the "supercycle" starts after the simulation end.
