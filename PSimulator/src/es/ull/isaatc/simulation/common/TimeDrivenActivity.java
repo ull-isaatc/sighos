@@ -24,21 +24,6 @@ public interface TimeDrivenActivity extends Activity {
 		INTERRUPTIBLE
 	}
 	
-	/** 
-	 * Returns <tt>true</tt> if the activity is non presential, i.e., an element can perform other 
-	 * activities at the same time. 
-	 * @return <tt>True</tt> if the activity is non presential, <tt>false</tt> in other case.
-	 */
-	boolean isNonPresential();
-	
-	/**
-	 * Returns <tt>true</tt> if the activity can be interrupted in case the required resources 
-	 * end their availability time. 
-	 * @return <tt>True</tt> if the activity can be interrupted, <tt>false</tt> if it keeps the 
-	 * resources even if they become not available. 
-	 */
-	boolean isInterruptible();
-	
 	/**
 	 * Returns the set of modifiers assigned to this activity.
 	 * @return The set of modifiers assigned to this activity

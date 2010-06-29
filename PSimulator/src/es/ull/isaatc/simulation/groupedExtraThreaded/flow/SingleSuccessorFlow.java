@@ -34,6 +34,7 @@ public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.is
 		if (successor != null)
 			// FIXME: I'm creating a new event. This is logically correct, but in terms of efficiency it should be better to invoke the method directly.
 			// The same can be applied to every single successor flow
+			// Moreover: why not creating a new WorkThread: wThread.getInstanceSubsequentWorkThread(wThread.isExecutable(), this, wThread.getToken())
 			wThread.getElement().addRequestEvent(successor, wThread);
 		else {
 			wThread.notifyEnd();

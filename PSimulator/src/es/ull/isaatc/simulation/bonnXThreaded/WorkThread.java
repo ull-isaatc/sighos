@@ -197,7 +197,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	 */
 	@Override
 	public String toString() {
-		return "SF" + id + "(" + elem + ")";
+		return "WT" + id + "(" + elem + ")";
 	}
 	
 	public int compareTo(WorkThread o) {

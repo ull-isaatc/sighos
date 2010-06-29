@@ -105,9 +105,27 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
         manager.add(this);
     }
     
+    /**
+     * Returns <tt>true</tt> if this activity is interruptible, i.e., the activity is
+     * suspended when any of the the resources taken to perform the activity finalize 
+     * their availability. The activity can be resumed when there are available resources 
+     * again (<b>but not necessarily the same resources</b>). 
+     * <p>By default, an activity is not interruptible.  
+     * @return Always <tt>false</tt>. Subclasses overriding this method must change the 
+     * default behavior. 
+     */
     public boolean isInterruptible() {
     	return false;
     }
+    
+	/** 
+	 * Returns <tt>true</tt> if the activity is non presential, i.e., an element can perform other 
+	 * activities at the same time. 
+	 * @return <tt>True</tt> if the activity is non presential, <tt>false</tt> in other case.
+	 */
+	public boolean isNonPresential() {
+		return true;
+	}
     
     /**
      * Creates a new workgroup for this activity using the specified wg.

@@ -116,6 +116,15 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
     	return false;
     }
     
+	/** 
+	 * Returns <tt>true</tt> if the activity is non presential, i.e., an element can perform other 
+	 * activities at the same time. 
+	 * @return <tt>True</tt> if the activity is non presential, <tt>false</tt> in other case.
+	 */
+	public boolean isNonPresential() {
+		return true;
+	}
+	
     /**
      * Creates a new workgroup for this activity which uses the {@link ResourceType}s defined in 
      * <tt>wg</tt>.

@@ -17,4 +17,5 @@ public interface Activity extends VariableStoreSimulationObject, Describable, Pr
      * @return A WG defined in this activity with the specified identifier
      */
 	public ActivityWorkGroup getWorkGroup(int wgId);
+	
 }

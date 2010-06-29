@@ -246,8 +246,8 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 			am.signalSemaphore();
 		}
 		
-		// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
-		if (wItem.getTimeLeft() <= 0.0) {
+		assert wItem.getTimeLeft() >= 0 : "Time left < 0: " + wItem.getTimeLeft();
+		if (wItem.getTimeLeft() == 0) {
 			simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + description);
@@ -263,7 +263,9 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes part of \t" + this + "\t" + description + "\t" + wItem.getTimeLeft());				
 			// The element is introduced in the queue
+			manager.waitSemaphore();
 			queueAdd(wItem); 
+			manager.signalSemaphore();
 		}
 		return false;
 		

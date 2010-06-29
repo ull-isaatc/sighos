@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.groupedThreaded.flow;
 
 import java.util.Collections;
-import java.util.SortedMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 import es.ull.isaatc.simulation.groupedThreaded.Element;
@@ -18,7 +18,7 @@ import es.ull.isaatc.simulation.groupedThreaded.WorkThread;
  *
  */
 public class SimpleMergeFlow extends ORJoinFlow implements es.ull.isaatc.simulation.common.flow.SimpleMergeFlow {
-	protected SortedMap<Element, Long> lastTs;
+	protected Map<Element, Long> lastTs;
 	
 	/**
 	 * Creates a new SimpleMergeFlow.
