@@ -3,6 +3,7 @@
  */
 package es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.flow;
 
+import es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.Element;
 import es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.Simulation;
 import es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.WorkThread;
 
@@ -52,23 +53,27 @@ public class ThreadMergeFlow extends ANDJoinFlow implements es.ull.isaatc.simula
 	 * @see es.ull.isaatc.simulation.Flow#request(es.ull.isaatc.simulation.WorkThread)
 	 */
 	public void request(WorkThread wThread) {
+		final Element elem = wThread.getElement();
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
-				if (!beforeRequest(wThread.getElement()))
+				if (!beforeRequest(elem))
 					wThread.setExecutable(false, this);
+				
+				elem.waitProtectedFlow(this);
 				arrive(wThread);
 				if (canPass(wThread)) {
-					control.get(wThread.getElement()).setActivated();
+					control.get(elem).setActivated();
 					next(wThread);
 				}
 				else {
 					// If no one of the branches was true, the thread of control must continue anyway
 					if (canReset(wThread) && !isActivated(wThread))
-						next(wThread.getInstanceSubsequentWorkThread(false, this, control.get(wThread.getElement()).getOutgoingFalseToken()));
+						next(wThread.getInstanceSubsequentWorkThread(false, this, control.get(elem).getOutgoingFalseToken()));
 					wThread.notifyEnd();
 				}
 				if (canReset(wThread))
 					reset(wThread);
+				elem.signalProtectedFlow(this);
 			}
 		} else
 			wThread.notifyEnd();

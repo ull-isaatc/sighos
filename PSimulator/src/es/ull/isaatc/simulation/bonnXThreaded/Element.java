@@ -151,7 +151,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 			for (int i = 0; (current == null) && (i < inQueue.size()); i++) {
 				final WorkItem wi = inQueue.get(i);
 				if (!wi.getActivity().isNonPresential())
-					addEvent(new AvailableElementEvent(ts, inQueue.get(i)));
+					addEvent(new AvailableElementEvent(ts, wi));
 			}
 		}		
 	}

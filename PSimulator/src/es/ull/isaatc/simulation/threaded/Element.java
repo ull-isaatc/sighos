@@ -3,7 +3,9 @@ package es.ull.isaatc.simulation.threaded;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import es.ull.isaatc.simulation.threaded.flow.Flow;
 import es.ull.isaatc.simulation.threaded.flow.InitializerFlow;
@@ -29,6 +31,8 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	protected WorkItem current = null;
 	/** Main execution thread */
 	protected final WorkThread wThread;
+	/** A structure to protect access to shared flows */
+	protected final Map<Flow, AtomicBoolean> protectedFlows;
 	
 	/**
 	 * Creates a new element.
@@ -43,6 +47,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 		inQueue = new ArrayList<WorkItem>();
 		this.initialFlow = flow;
 		wThread = WorkThread.getInstanceMainWorkThread(this);
+		protectedFlows = new HashMap<Flow, AtomicBoolean>();
 	}
 
 	@Override
@@ -143,8 +148,11 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	 */
 	protected void addAvailableElementEvents() {
 		synchronized(inQueue) {
-			for (int i = 0; (current == null) && (i < inQueue.size()); i++)
-				addEvent(new AvailableElementEvent(ts, inQueue.get(i)));
+			for (int i = 0; (current == null) && (i < inQueue.size()); i++) {
+				final WorkItem wi = inQueue.get(i);
+				if (!wi.getActivity().isNonPresential())
+					addEvent(new AvailableElementEvent(ts, wi));
+			}
 		}		
 	}
 	
@@ -155,6 +163,31 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	 */
 	public void addRequestEvent(Flow f, WorkThread wThread) {
 		addEvent(new RequestFlowEvent(ts, f, wThread));
+	}
+	
+	/**
+	 * Acquires a semaphore associated to a specific flow
+	 * @param flow The flow to be requested
+	 */
+	public void waitProtectedFlow(Flow flow) {
+		waitSemaphore();
+		if (!protectedFlows.containsKey(flow)) {
+			protectedFlows.put(flow, new AtomicBoolean(true));
+			signalSemaphore();
+		}
+		else {
+			signalSemaphore();
+			final AtomicBoolean localBool = protectedFlows.get(flow);
+			while (!localBool.compareAndSet(false, true));
+		}
+	}
+	
+	/**
+	 * Releases a semaphore associated to a specific flow
+	 * @param flow The flow to be requested
+	 */
+	public void signalProtectedFlow(Flow flow) {
+		protectedFlows.get(flow).set(false);
 	}
 	
 	public void initializeElementVars(HashMap<String, Object> varList) {

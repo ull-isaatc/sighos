@@ -1,6 +1,5 @@
 package es.ull.isaatc.simulation.intervalThreaded;
 
-import java.util.ArrayDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -116,7 +115,6 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
     public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEvent> {
         /** Timestamp when this event will be executed */
         final protected long ts;
-        protected ArrayDeque<DiscreteEvent> nextEvents = new ArrayDeque<DiscreteEvent>();
 
         /**
          * Creates a new basic event.

@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.threaded.flow;
 
 import java.util.Collections;
-import java.util.SortedMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 import es.ull.isaatc.simulation.threaded.Element;
@@ -24,7 +24,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow,
 	/** Amount of incoming branches */
 	protected int incomingBranches;
 	/** A structure to control the arrival of incoming branches */
-	protected final SortedMap<Element, MergeFlowControl> control;
+	protected final Map<Element, MergeFlowControl> control;
 	// FIXME Una posible mejora es hacer que haya factorías de los MergeFlowControl, de forma
 	// que sólo se pregunte por el safe una vez.
 	/** Indicates if the node is safe or it has to control several triggers for 
@@ -101,25 +101,28 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow,
 	 * @see es.ull.isaatc.simulation.Flow#request(es.ull.isaatc.simulation.WorkThread)
 	 */
 	public void request(WorkThread wThread) {
+		final Element elem = wThread.getElement();
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
-				if (!beforeRequest(wThread.getElement()))
+				if (!beforeRequest(elem))
 					wThread.setExecutable(false, this);
 			}
 
+			elem.waitProtectedFlow(this);
 			arrive(wThread);
 			if (canPass(wThread)) {
-				control.get(wThread.getElement()).setActivated();
+				control.get(elem).setActivated();
 				next(wThread);
 			}
 			else {
 				// If no one of the branches was true, the thread of control must continue anyway
 				if (canReset(wThread) && !isActivated(wThread))
-					next(wThread.getInstanceSubsequentWorkThread(false, this, control.get(wThread.getElement()).getOutgoingFalseToken()));
+					next(wThread.getInstanceSubsequentWorkThread(false, this, control.get(elem).getOutgoingFalseToken()));
 				wThread.notifyEnd();
 			}
 			if (canReset(wThread))
 				reset(wThread);
+			elem.signalProtectedFlow(this);
 		} else
 			wThread.notifyEnd();
 	}
