@@ -321,6 +321,11 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 */
 	public abstract boolean finish(WorkItem wItem);
 	
+	@Override
+	public int getWorkGroupSize() {
+		return workGroupTable.size();
+	}
+	
 	/**
 	 * A set of resources needed for carrying out this activity. A workgroup (WG) consists 
 	 * on a set of &lt{@link ResourceType}, {@link Integer}&gt pairs, a {@link Condition} 

@@ -128,7 +128,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	@Override
 	public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.common.flow.InitializerFlow initFlow,
 			es.ull.isaatc.simulation.common.flow.FinalizerFlow finalFlow, int priority, es.ull.isaatc.simulation.common.WorkGroup wg) {
-		ActivityWorkGroup aWg = new ActivityWorkGroup(id, initFlow, finalFlow, priority, (WorkGroup)wg);
+		ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), initFlow, finalFlow, priority, (WorkGroup)wg);
 		workGroupTable.add(aWg);
 		return aWg;
 	}
@@ -136,7 +136,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	@Override
 	public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.common.flow.InitializerFlow initFlow,
 			es.ull.isaatc.simulation.common.flow.FinalizerFlow finalFlow, int priority, es.ull.isaatc.simulation.common.WorkGroup wg, Condition cond) {
-		ActivityWorkGroup aWg = new ActivityWorkGroup(id, initFlow, finalFlow, priority, (WorkGroup)wg, cond);
+		ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), initFlow, finalFlow, priority, (WorkGroup)wg, cond);
 		workGroupTable.add(aWg);
 		return aWg;
 	}

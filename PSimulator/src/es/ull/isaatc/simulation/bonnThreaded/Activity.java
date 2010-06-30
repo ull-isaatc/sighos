@@ -329,6 +329,11 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 		this.lastFinishTs = lastFinishTs;
 	}
 	
+	@Override
+	public int getWorkGroupSize() {
+		return workGroupTable.size();
+	}
+	
 	/**
 	 * A {@link WorkGroup} which implements {@link es.ull.isaatc.simulation.common.ActivityWorkGroup ActivityWorkGroup}.
 	 * It may include a {@link Condition} which determines if the workgroup can be used or not to perform the 
