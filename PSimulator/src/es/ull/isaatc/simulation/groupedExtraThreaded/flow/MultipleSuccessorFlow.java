@@ -34,7 +34,7 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (!beforeRequest(wThread.getElement()))
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 			} else 
 				wThread.updatePath(this);
 			next(wThread);

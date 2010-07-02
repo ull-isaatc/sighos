@@ -44,7 +44,7 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow, es.ull.isaa
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (!beforeRequest(wThread.getElement()))
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 			} else 
 				wThread.updatePath(this);
 			next(wThread);

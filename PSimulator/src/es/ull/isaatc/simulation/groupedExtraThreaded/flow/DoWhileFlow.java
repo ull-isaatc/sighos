@@ -49,7 +49,7 @@ public class DoWhileFlow extends StructuredLoopFlow implements es.ull.isaatc.sim
 					wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
 				} 
 				else {
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 					next(wThread);				
 				}
 			}
