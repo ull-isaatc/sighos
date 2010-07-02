@@ -7,10 +7,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import es.ull.isaatc.simulation.common.Activity;
 import es.ull.isaatc.simulation.common.Simulation;
@@ -21,17 +19,18 @@ import es.ull.isaatc.simulation.common.info.SimulationInfo;
 import es.ull.isaatc.simulation.common.inforeceiver.View;
 
 /**
+ * This view is thread-safe
  * @author Iván Castilla Rodríguez
  *
  */
-public class ActivityQueueFileView extends View {
-	private final Map<Activity, AtomicInteger> queues;
+public class ActivityQueueFileSafeView extends View {
+	private final AtomicIntegerArray queues;
 	private final AtomicBoolean busy;
 	private PrintWriter buffer = null;
 	private final long dayUnit;
 	private long timeSlot;
 
-	public ActivityQueueFileView(Simulation simul, String fileName, TimeStamp period) {
+	public ActivityQueueFileSafeView(Simulation simul, String fileName, TimeStamp period) {
 		super(simul, "Activity queues");
 		dayUnit = simul.getTimeUnit().convert(period);
 		// The time slot is initialized to the next day
@@ -42,11 +41,10 @@ public class ActivityQueueFileView extends View {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		queues = new HashMap<Activity, AtomicInteger>();
-		for (Activity act : simul.getActivityList().values())
-			queues.put(act, new AtomicInteger(0));
-		for (Activity act : queues.keySet())
-			buffer.print(act.getDescription() + "\t");
+		final int size = simul.getActivityList().size();
+		queues = new AtomicIntegerArray(size);
+		for (int i = 0; i < size; i++)
+			buffer.print(simul.getActivity(i).getDescription() + "\t");
 		buffer.println();
 		addEntrance(ElementActionInfo.class);
 		addEntrance(SimulationEndInfo.class);
@@ -66,8 +64,8 @@ public class ActivityQueueFileView extends View {
 				while (!busy.compareAndSet(false, true));
 				// Double check in case a different thread gained access to this area
 				if (ts > timeSlot) {
-					for (AtomicInteger val : queues.values())
-						buffer.print(val.get() + "\t");
+					for (int i = 0; i < queues.length(); i++)
+						buffer.print(queues.get(i) + "\t");
 					buffer.println();
 					timeSlot += dayUnit;
 				}
@@ -75,10 +73,10 @@ public class ActivityQueueFileView extends View {
 			}
 			switch(eInfo.getType()) {
 			case REQACT:
-				queues.get(act).incrementAndGet();
+				queues.incrementAndGet(act.getIdentifier());
 				break;
 			case STAACT:
-				queues.get(act).decrementAndGet();
+				queues.decrementAndGet(act.getIdentifier());
 				break;
 			}
 		}

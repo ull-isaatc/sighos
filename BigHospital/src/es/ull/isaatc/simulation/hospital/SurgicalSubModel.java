@@ -4,9 +4,7 @@
 package es.ull.isaatc.simulation.hospital;
 
 import es.ull.isaatc.simulation.common.ElementType;
-import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
-import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.SimulationTimeFunction;
 import es.ull.isaatc.simulation.common.TimeDrivenActivity;
 import es.ull.isaatc.simulation.common.WorkGroup;
@@ -54,29 +52,14 @@ public class SurgicalSubModel {
 	 * @param factory
 	 */
 	public static void createModel(SimulationObjectFactory factory, ModelParameterMap params) {
-		final Simulation simul = factory.getSimulation();
-		 
-		// Resource types
-		ResourceType rtPACUBed = factory.getResourceTypeInstance("PACU Bed"); 
-		ResourceType rtICUBed = factory.getResourceTypeInstance("ICU Bed");
-		rtAnaes = factory.getResourceTypeInstance("Anaesthetist");			
-
-		// Resources
-		final int nBedsPACU = ((Integer)params.get(Parameters.NBEDS_PACU)).intValue();
-		for (int i = 0; i < nBedsPACU; i++) {
-			Resource res = factory.getResourceInstance("PACU Bed " + i);
-			res.addTimeTableEntry(HospitalModelTools.getStdMaterialResourceCycle(simul), HospitalModelTools.getStdMaterialResourceAvailability(simul), rtPACUBed);
-		}
-		final int nBedsICU = ((Integer)params.get(Parameters.NBEDS_ICU)).intValue();
-		for (int i = 0; i < nBedsICU; i++) {
-			Resource res = factory.getResourceInstance("ICU Bed " + i);
-			res.addTimeTableEntry(HospitalModelTools.getStdMaterialResourceCycle(simul), HospitalModelTools.getStdMaterialResourceAvailability(simul), rtICUBed);
-		}
-		final int nAnaesthetists = ((Integer)params.get(Parameters.NANAESTHETISTS)).intValue();
-		for (int i = 0; i < nAnaesthetists; i++) {
-			Resource res = factory.getResourceInstance("Anaesthetist " + i);
-			res.addTimeTableEntry(HospitalModelTools.getStdHumanResourceCycle(simul), HospitalModelTools.getStdHumanResourceAvailability(simul), rtAnaes);
-		}
+		for (Parameters p : Parameters.values())
+			if (params.get(p) == null)
+				throw new IllegalArgumentException("Param <<" + p + ">> missing");
+		
+		// Resource types and resources
+		ResourceType rtPACUBed = HospitalModelTools.createNStdMaterialResources(factory, "PACU Bed", ((Integer)params.get(Parameters.NBEDS_PACU)).intValue());
+		ResourceType rtICUBed = HospitalModelTools.createNStdMaterialResources(factory, "ICU Bed", ((Integer)params.get(Parameters.NBEDS_ICU)).intValue());
+		rtAnaes = HospitalModelTools.createNStdHumanResources(factory, "Anaesthetist", ((Integer)params.get(Parameters.NANAESTHETISTS)).intValue());
 
 		// Workgroups
 		wgPACU = factory.getWorkGroupInstance(new ResourceType[] {rtPACUBed}, new int[] {1});

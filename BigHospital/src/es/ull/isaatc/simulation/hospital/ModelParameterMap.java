@@ -20,7 +20,9 @@ public class ModelParameterMap {
 	}
 	
 	public void put(ModelParameter key, Object value) {
-		if (key.getType().isInstance(value))
+		if (values[key.ordinal()] != null)
+			throw new RuntimeException("Parameter <<" + key + ">> already initialized");
+		else if (key.getType().isInstance(value))
 			values[key.ordinal()] = value;
 		else
 			throw new ClassCastException("Invalid class. Received: " + value.getClass() + " expected: " + key.getType());
