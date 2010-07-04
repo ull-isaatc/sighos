@@ -15,6 +15,11 @@ import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.bonnXThreaded.flow.BasicFlow;
 
 /**
+ * An {@link Activity} that could be carried out by an {@link Element} and whose duration depends 
+ * on the finalization of an internal {@link es.ull.isaatc.simulation.common.flow.Flow Flow}.
+ * <p>
+ * This activity can be considered a hybrid {@link Activity} - {@link StructuredFlow}, and its behaviour is similar 
+ * to the latter. 
  * @author Iván Castilla Rodríguez
  *
  */
@@ -26,8 +31,13 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	private final BasicFlow virtualFinalFlow = new BasicFlow(simul) {
 
 		public void request(WorkThread wThread) {
-			Element elem = wThread.getElement();
-			elem.addEvent(elem.new FinishFlowEvent(elem.getTs(), wThread.getParent().getWorkItem().getFlow(), wThread.getParent()));
+			// FIXME: Only works if at least one true thread reaches the end. If all the threads are false, no output 
+			// will be produced
+			if (wThread.isExecutable()) {
+				final Element elem = wThread.getElement();
+				elem.addEvent(elem.new FinishFlowEvent(elem.getTs(), wThread.getParent().getWorkItem().getFlow(), wThread.getParent()));
+			}
+			wThread.notifyEnd();
 		}
 
 		@Override

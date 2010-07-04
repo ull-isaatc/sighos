@@ -35,8 +35,13 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 		}
 
 		public void request(WorkThread wThread) {
-			Element elem = wThread.getElement();
-			elem.addEvent(elem.new FinishFlowEvent(elem.getTs(), wThread.getParent().getWorkItem().getFlow(), wThread.getParent()));
+			// FIXME: Only works if at least one true thread reaches the end. If all the threads are false, no output 
+			// will be produced
+			if (wThread.isExecutable()) {
+				final Element elem = wThread.getElement();
+				elem.addEvent(elem.new FinishFlowEvent(elem.getTs(), wThread.getParent().getWorkItem().getFlow(), wThread.getParent()));
+			}
+			wThread.notifyEnd();
 		}
 
 		public void link(es.ull.isaatc.simulation.common.flow.Flow successor) {
