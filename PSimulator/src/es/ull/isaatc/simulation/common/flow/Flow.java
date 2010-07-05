@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation.common.flow;
 
+import java.util.Set;
+
 import es.ull.isaatc.simulation.common.Element;
 import es.ull.isaatc.simulation.common.SimulationObject;
 
@@ -51,8 +53,10 @@ public interface Flow extends SimulationObject {
 	 * Sets the structured flow which contains this flow and does the same for the
 	 * successors of this flow.
 	 * @param parent the structured flow which contains this flow and its successors.
+	 * @param visited list of already visited flows (to prevent infinite recursion when 
+	 * arbitrary loops are present)
 	 */
-	void setRecursiveStructureLink(StructuredFlow parent);
+	void setRecursiveStructureLink(StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited);
 	
 	/**
 	 * Allows a user to add conditions which the element requesting this flow must meet
