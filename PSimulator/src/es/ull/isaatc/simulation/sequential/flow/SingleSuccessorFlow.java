@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation.sequential.flow;
 
+import java.util.Set;
+
 import es.ull.isaatc.simulation.sequential.Simulation;
 import es.ull.isaatc.simulation.sequential.WorkThread;
 
@@ -42,10 +44,12 @@ public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.is
 		}
 	}
 	
-	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent) {
+	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited) {
 		setParent(parent);
+		visited.add(this);
 		if (successor != null)
-			successor.setRecursiveStructureLink(parent);			
+			if (!visited.contains(successor))
+				successor.setRecursiveStructureLink(parent, visited);			
 	}	
 
 	public void link(es.ull.isaatc.simulation.common.flow.Flow succ) {

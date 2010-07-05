@@ -2,6 +2,7 @@ package es.ull.isaatc.simulation.sequential;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Set;
 
 import es.ull.isaatc.simulation.common.FlowDrivenActivityWorkGroup;
 import es.ull.isaatc.simulation.common.condition.Condition;
@@ -47,7 +48,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 		public void link(es.ull.isaatc.simulation.common.flow.Flow successor) {
 		}
 
-		public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent) {
+		public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited) {
 		}
 		
 	};
@@ -145,6 +146,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	@Override
 	public void carryOut(WorkItem wItem, ArrayDeque<Resource> solution) {
 		Element elem = wItem.getElement();
+		wItem.getFlow().afterStart(elem);
 		wItem.catchResources(solution);
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
 		elem.debug("Starts\t" + this + "\t" + description);
