@@ -39,8 +39,6 @@ public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.is
 			wThread.getElement().addRequestEvent(successor, wThread);
 		else {
 			wThread.notifyEnd();
-			if (parent != null)
-				parent.finish(wThread.getParent());
 		}
 	}
 	
