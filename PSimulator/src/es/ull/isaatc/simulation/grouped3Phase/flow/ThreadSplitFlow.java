@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation.grouped3Phase.flow;
 
+import java.util.Set;
+
 import es.ull.isaatc.simulation.grouped3Phase.Simulation;
 import es.ull.isaatc.simulation.grouped3Phase.WorkThread;
 
@@ -60,7 +62,7 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow, es.ull.isaa
 	public void next(WorkThread wThread) {
 		super.next(wThread);
 		for (int i = 0; i < nInstances; i++)
-			successor.request(wThread.getInstanceSubsequentWorkThread(wThread.isExecutable(), this, wThread.getToken()));
+			wThread.getInstanceSubsequentWorkThread(wThread.isExecutable(), this, wThread.getToken()).requestFlow(successor);
         wThread.notifyEnd();			
 	}
 
@@ -69,10 +71,12 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow, es.ull.isaa
 		successor.addPredecessor(this);
 	}
 
-	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent) {
+	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited) {
 		setParent(parent);
+		visited.add(this);
 		if (successor != null)
-			successor.setRecursiveStructureLink(parent);		
+			if (!visited.contains(successor))
+				successor.setRecursiveStructureLink(parent, visited);		
 	}
 
 	@Override

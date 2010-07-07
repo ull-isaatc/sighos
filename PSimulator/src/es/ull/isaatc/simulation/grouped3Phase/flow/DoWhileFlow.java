@@ -46,7 +46,7 @@ public class DoWhileFlow extends StructuredLoopFlow implements es.ull.isaatc.sim
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread.getElement())) {
 					// Continue the simulation to the loop MetaFlow.
-					initialFlow.request(wThread.getInstanceDescendantWorkThread(initialFlow));
+					wThread.getInstanceDescendantWorkThread(initialFlow).requestFlow(initialFlow);
 				} 
 				else {
 					wThread.cancel(this);
@@ -67,7 +67,7 @@ public class DoWhileFlow extends StructuredLoopFlow implements es.ull.isaatc.sim
 	 */
 	public void finish(WorkThread wThread) {
 		if (cond.check(wThread.getElement())) {
-			initialFlow.request(wThread.getInstanceDescendantWorkThread(initialFlow));
+			wThread.getInstanceDescendantWorkThread(initialFlow).requestFlow(initialFlow);
 		} else {
 			afterFinalize(wThread.getElement());
 			next(wThread);

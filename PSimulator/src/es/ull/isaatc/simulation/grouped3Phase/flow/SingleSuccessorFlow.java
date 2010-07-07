@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation.grouped3Phase.flow;
 
+import java.util.Set;
+
 import es.ull.isaatc.simulation.grouped3Phase.Simulation;
 import es.ull.isaatc.simulation.grouped3Phase.WorkThread;
 
@@ -31,21 +33,20 @@ public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.is
 	@Override
 	public void next(final WorkThread wThread) {
 		super.next(wThread);
-		if (successor != null)
-			// FIXME: I'm creating a new event. This is logically correct, but in terms of efficiency it should be better to invoke the method directly.
-			// The same can be applied to every single successor flow
-			successor.request(wThread);
+		if (successor != null) {
+			wThread.requestFlow(successor);
+		}
 		else {
 			wThread.notifyEnd();
-			if (parent != null)
-				parent.finish(wThread.getParent());
 		}
 	}
 	
-	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent) {
+	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited) {
 		setParent(parent);
+		visited.add(this);
 		if (successor != null)
-			successor.setRecursiveStructureLink(parent);			
+			if (!visited.contains(successor))
+				successor.setRecursiveStructureLink(parent, visited);			
 	}	
 
 	public void link(es.ull.isaatc.simulation.common.flow.Flow succ) {

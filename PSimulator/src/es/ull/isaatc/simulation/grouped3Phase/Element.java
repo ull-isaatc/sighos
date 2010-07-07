@@ -109,7 +109,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 		simul.getInfoHandler().notifyInfo(new ElementInfo(this.simul, this, ElementInfo.Type.START, this.getTs()));
 		simul.addActiveElement(this);
 		if (initialFlow != null) {
-			initialFlow.request(wThread.getInstanceDescendantWorkThread(initialFlow));
+			wThread.getInstanceDescendantWorkThread(initialFlow).requestFlow(initialFlow);
 		}
 		else
 			notifyEnd();
@@ -196,6 +196,32 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 						if (value instanceof Character)
 							this.putVar(name, ((Character)value).charValue());
 				
+		}
+	}
+	
+	protected void addDelayedRequestEvent(Flow f, WorkThread wThread) {
+		addEvent(new DelayedRequestFlowEvent(ts + 1, f, wThread));
+	}
+	
+	/**
+	 * Requests a flow a time unit later than the current timestamp. This event is used by
+	 * {@link FlowDrivenActivity}.
+	 * @author Iván Castilla Rodríguez
+	 */
+	public class DelayedRequestFlowEvent extends BasicElement.DiscreteEvent {
+		/** The work thread that executes the request */
+		private final WorkThread eThread;
+		/** The flow to be requested */
+		private final Flow f;
+
+		public DelayedRequestFlowEvent(long ts, Flow f, WorkThread eThread) {
+			super(ts);
+			this.eThread = eThread;
+			this.f = f;
+		}		
+
+		public void event() {
+			eThread.requestFlow(f);
 		}
 	}
 	

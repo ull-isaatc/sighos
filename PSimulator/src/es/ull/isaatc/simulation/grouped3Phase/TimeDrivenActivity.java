@@ -90,14 +90,14 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 
 	@Override
     public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, int priority, es.ull.isaatc.simulation.common.WorkGroup wg) {
-    	ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg);
+    	final ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg);
         workGroupTable.add(aWg);
         return aWg;
     }
     
 	@Override
     public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, int priority, es.ull.isaatc.simulation.common.WorkGroup wg, Condition cond) {
-    	ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg, cond); 
+    	final ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg, cond); 
         workGroupTable.add(aWg);
         return aWg;
     }
@@ -194,15 +194,6 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 		if (!isNonPresential())
 			elem.setCurrent(null);
 
-		// Quito la única parte aleatoria
-//		int[] order = RandomPermutation.nextPermutation(amList.size());
-//		for (int ind : order) {
-//			ActivityManager am = amList.get(ind);
-//			am.waitSemaphore();
-//			am.availableResource();
-//			am.signalSemaphore();
-//		}
-		
 		assert wItem.getTimeLeft() >= 0 : "Time left < 0: " + wItem.getTimeLeft();
 		if (wItem.getTimeLeft() == 0) {
 			simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));

@@ -403,7 +403,12 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	    	if (!cond.check(elem))
 	    		return false;
 	    	
-	        int ned[] = needed.clone();
+	    	if (needed.length == 0) { // Infinite resources
+        		wi.waitConflictSemaphore(); // FIXME: unneeded, but fails if removed
+	    		return true;
+	    	}
+	    	
+	    	int ned[] = needed.clone();
 	        int []pos = {0, -1}; // "Start" position
 	        
 	        // B&B algorithm to find a solution

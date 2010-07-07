@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation.grouped3Phase;
 
+import java.util.Set;
+
 import es.ull.isaatc.simulation.common.FlowDrivenActivityWorkGroup;
 import es.ull.isaatc.simulation.common.condition.Condition;
 import es.ull.isaatc.simulation.common.flow.Flow;
@@ -12,14 +14,14 @@ import es.ull.isaatc.simulation.grouped3Phase.flow.BasicFlow;
 import es.ull.isaatc.simulation.grouped3Phase.flow.FinalizerFlow;
 import es.ull.isaatc.simulation.grouped3Phase.flow.InitializerFlow;
 
-// FIXME: No funciona porque no cuadra con las dos etapas de este esquema. Se puede resolver la parte de coger los
-// recursos del FlowDrivenActivity, pero no los de la actividad que haya en su flujo interno
 /**
  * An {@link Activity} that could be carried out by an {@link Element} and whose duration depends 
  * on the finalization of an internal {@link es.ull.isaatc.simulation.common.flow.Flow Flow}.
  * <p>
  * This activity can be considered a hybrid {@link Activity} - {@link StructuredFlow}, and its behaviour is similar 
  * to the latter. 
+ * In order to work in a 3-phase approach, the inner flow must be requested in a later time than the flow driven 
+ * activity. Consequently, the {@link Element.DelayedRequestFlowEvent} event is used. 
  * @author Iván Castilla Rodríguez
  *
  */
@@ -31,12 +33,6 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	private final BasicFlow virtualFinalFlow = new BasicFlow(simul) {
 
 		public void request(WorkThread wThread) {
-			// FIXME: Only works if at least one true thread reaches the end. If all the threads are false, no output 
-			// will be produced
-			if (wThread.isExecutable()) {
-				final Element elem = wThread.getElement();
-				elem.addEvent(elem.new FinishFlowEvent(elem.getTs(), wThread.getParent().getWorkItem().getFlow(), wThread.getParent()));
-			}
 			wThread.notifyEnd();
 		}
 
@@ -47,7 +43,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 		public void link(Flow successor) {}
 
 		@Override
-		public void setRecursiveStructureLink(StructuredFlow parent) {}		
+		public void setRecursiveStructureLink(StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited) {}		
 	};
 
 
@@ -75,14 +71,15 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	 */
 	@Override
 	public void carryOut(WorkItem wItem) {
-		Element elem = wItem.getElement();
+		final Element elem = wItem.getElement();
 		wItem.getFlow().afterStart(elem);
 		wItem.catchResources();
 
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
 		elem.debug("Starts\t" + this + "\t" + description);
 		InitializerFlow initialFlow = ((FlowDrivenActivity.ActivityWorkGroup)wItem.getExecutionWG()).getInitialFlow();
-		initialFlow.request(wItem.getWorkThread().getInstanceDescendantWorkThread(initialFlow));
+		// The inner request is scheduled a bit later
+		elem.addDelayedRequestEvent(initialFlow, wItem.getWorkThread().getInstanceDescendantWorkThread(initialFlow));
 	}
 
 	/* (non-Javadoc)
@@ -90,17 +87,9 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	 */
 	@Override
 	public boolean finish(WorkItem wItem) {
-		Element elem = wItem.getElement();
+		final Element elem = wItem.getElement();
 
 		wItem.releaseCaughtResources();
-
-//		int[] order = RandomPermutation.nextPermutation(amList.size());
-//		for (int ind : order) {
-//			ActivityManager am = amList.get(ind);
-//			am.waitSemaphore();
-//			am.availableResource();
-//			am.signalSemaphore();
-//		}
 
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 		if (elem.isDebugEnabled())
