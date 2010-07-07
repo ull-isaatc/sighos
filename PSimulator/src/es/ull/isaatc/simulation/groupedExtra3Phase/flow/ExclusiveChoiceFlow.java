@@ -37,15 +37,15 @@ public class ExclusiveChoiceFlow extends ConditionalFlow implements es.ull.isaat
 				if (!res) {
 					// Check the succesor's conditions.
 					res = conditionList.get(i).check(wThread.getElement());
-					successorList.get(i).request(wThread.getInstanceSubsequentWorkThread(res, this, wThread.getToken()));
+					wThread.getInstanceSubsequentWorkThread(res, this, wThread.getToken()).requestFlow(successorList.get(i));
 				}
 				// As soon as there is one true outgoing branch, the rest of branches are false
 				else
-					successorList.get(i).request(wThread.getInstanceSubsequentWorkThread(false, this, wThread.getToken()));
+					wThread.getInstanceSubsequentWorkThread(false, this, wThread.getToken()).requestFlow(successorList.get(i));
 			}
 		else
 			for (int i = 0; i < successorList.size(); i++)
-				successorList.get(i).request(wThread.getInstanceSubsequentWorkThread(false, this, wThread.getToken()));
+				wThread.getInstanceSubsequentWorkThread(false, this, wThread.getToken()).requestFlow(successorList.get(i));
 		wThread.notifyEnd();
 	}
 }

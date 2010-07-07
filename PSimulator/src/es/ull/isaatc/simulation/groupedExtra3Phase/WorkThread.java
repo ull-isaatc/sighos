@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import es.ull.isaatc.simulation.common.Identifiable;
+import es.ull.isaatc.simulation.groupedExtra3Phase.flow.BasicFlow;
 import es.ull.isaatc.simulation.groupedExtra3Phase.flow.Flow;
 import es.ull.isaatc.simulation.groupedExtra3Phase.flow.InitializerFlow;
 import es.ull.isaatc.simulation.groupedExtra3Phase.flow.SingleFlow;
+import es.ull.isaatc.simulation.groupedExtra3Phase.flow.TaskFlow;
 import es.ull.isaatc.util.Prioritizable;
 
 /**
@@ -19,7 +21,7 @@ import es.ull.isaatc.util.Prioritizable;
  * <li>Descendant thread</li>A thread created to carry out the inner flows of a structured flow.
  * To invoke, use: {@link #getInstanceDescendantWorkThread(InitializerFlow)}</li>
  * <li>Subsequent thread</li>A thread created to carry out a new flow after a split.
- * To invoke, use: {@link #getInstanceSubsequentWorkThread(boolean, Flow, WorkToken)}</li>
+ * To invoke, use: {@link #getInstanceSubsequentWorkThread(boolean, Flow, Flow, WorkToken)}</li>
  * </ol><p>
  *  A work thread has an associated token, which can be true or false. A false token is used
  *  only for synchronization purposes and doesn't execute task flows. 
@@ -40,6 +42,8 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	private final WorkItem wItem;
 	/** A flag to indicate if the thread executes the flow or not */
 	private WorkToken token;
+	/** The current flow the thread is in */
+	protected BasicFlow currentFlow = null;
 	/** The last flow the thread was in */
 	private Flow lastFlow = null;
     
@@ -61,12 +65,20 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
         wItem = new WorkItem(this);
     }
 
+    public void requestFlow(Flow f) {
+    	currentFlow = (BasicFlow)f;
+    	currentFlow.request(this);
+    }
+    
     /**
      * Notifies the parent this thread has finished.
      */
     public void notifyEnd() {
-    	if (parent != null)
+    	if (parent != null) {
     		parent.removeDescendant(this);
+    		if ((parent.descendants.size() == 0) && (parent.currentFlow != null))
+    			((TaskFlow)parent.currentFlow).finish(parent);
+    	}
     }
 
     /**
@@ -217,26 +229,25 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	 * @return A new instance of a work thread created to carry out the inner subflow of a structured flow
 	 */
 	public WorkThread getInstanceDescendantWorkThread(InitializerFlow newFlow) {
-		if (isExecutable())
-			return new WorkThread(new WorkToken(true), elem, this);
-		else
-			return new WorkThread(new WorkToken(false, newFlow), elem, this);
+		assert isExecutable() : "Invalid parent to create descendant work thread"; 
+		return new WorkThread(new WorkToken(true), elem, this);
 	}
 
 	/**
 	 * Returns a new instance of a work thread created to carry out a new flow after a split
 	 * @param executable Indicates if the thread to be created has to be valid or not
-	 * @param newFlow The new initial visited flow
+	 * @param prevFlow The previously visited flow
+	 * @param nextFlow TODO
 	 * @param token The token to be cloned in case this work thread is not valid and the token is also not valid. 
 	 * @return A new instance of a work thread created to carry out a new flow after a split
 	 */
-	public WorkThread getInstanceSubsequentWorkThread(boolean executable, Flow newFlow, WorkToken token) {
+	public WorkThread getInstanceSubsequentWorkThread(boolean executable, Flow prevFlow, WorkToken token) {
 		final WorkToken newToken;
 		if (!executable)
 			if (!token.isExecutable())
 				newToken = new WorkToken(token);
 			else
-				newToken = new WorkToken(false, newFlow);
+				newToken = new WorkToken(false, prevFlow);
 		else
 			newToken = new WorkToken(true);
 		return new WorkThread(newToken, elem, parent);

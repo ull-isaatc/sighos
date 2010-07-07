@@ -5,6 +5,7 @@ package es.ull.isaatc.simulation.groupedExtra3Phase.flow;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import es.ull.isaatc.simulation.groupedExtra3Phase.Simulation;
 import es.ull.isaatc.simulation.groupedExtra3Phase.WorkThread;
@@ -71,10 +72,12 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#setRecursiveStructureLink(es.ull.isaatc.simulation.StructuredFlow)
 	 */
-	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent) {
+	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited) {
 		 setParent(parent);
+		 visited.add(this);
 		 for (Flow f : successorList)
-			 f.setRecursiveStructureLink(parent); 	
+			 if (!visited.contains(f))
+				 f.setRecursiveStructureLink(parent, visited); 	
 	}
 
 	/**
