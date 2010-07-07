@@ -4,8 +4,10 @@
 package es.ull.isaatc.simulation.hospital;
 
 import es.ull.isaatc.function.TimeFunction;
+import es.ull.isaatc.simulation.common.flow.ForLoopFlow;
 import es.ull.isaatc.simulation.common.ElementCreator;
 import es.ull.isaatc.simulation.common.ElementType;
+import es.ull.isaatc.simulation.common.FlowDrivenActivity;
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
 import es.ull.isaatc.simulation.common.Simulation;
@@ -21,17 +23,15 @@ import es.ull.isaatc.simulation.common.condition.PercentageCondition;
 import es.ull.isaatc.simulation.common.factory.SimulationObjectFactory;
 import es.ull.isaatc.simulation.common.factory.SimulationUserCode;
 import es.ull.isaatc.simulation.common.factory.UserMethod;
+import es.ull.isaatc.simulation.common.flow.DoWhileFlow;
 import es.ull.isaatc.simulation.common.flow.ExclusiveChoiceFlow;
 import es.ull.isaatc.simulation.common.flow.FinalizerFlow;
 import es.ull.isaatc.simulation.common.flow.Flow;
-import es.ull.isaatc.simulation.common.flow.ForLoopFlow;
 import es.ull.isaatc.simulation.common.flow.InitializerFlow;
 import es.ull.isaatc.simulation.common.flow.InterleavedRoutingFlow;
-import es.ull.isaatc.simulation.common.flow.ParallelFlow;
 import es.ull.isaatc.simulation.common.flow.ProbabilitySelectionFlow;
 import es.ull.isaatc.simulation.common.flow.SingleFlow;
 import es.ull.isaatc.simulation.common.flow.StructuredSynchroMergeFlow;
-import es.ull.isaatc.simulation.common.flow.WhileDoFlow;
 import es.ull.isaatc.util.WeeklyPeriodicCycle;
 
 /**
@@ -130,8 +130,8 @@ public class StdMedicalSubModel {
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2), wgDocSucc, true);
 		TimeDrivenActivity actDelayAppAdm = HospitalModelTools.getDelay(factory, code + " Waiting for admission", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2ADM), false); 
-		TimeDrivenActivity actStayInBed = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " Stay in bed", 
-				(SimulationTimeFunction)params.get(Parameters.LOS), wgBed, false);
+		TimeDrivenActivity actDelayStay = HospitalModelTools.getDelay(factory, code + " Waiting for recovery", 
+				(SimulationTimeFunction)params.get(Parameters.LOS), false);
 		
 		// Flows
 		// Let's do that patients can directly go to the main loop (just to avoid warmup)
@@ -142,12 +142,12 @@ public class StdMedicalSubModel {
 		root.link(first, 0.15);
 		
 		StructuredSynchroMergeFlow oPTests = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
-		Flow[] labOPTest = CentralLabSubModel.getOutFlow(factory, (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
+		Flow[] labOPTest = CentralLabSubModel.getOPFlow(factory, (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
 				(Double)params.get(Parameters.PROB_LABMIC_OP), (Double)params.get(Parameters.PROB_LABPAT_OP)); 
 		oPTests.addBranch((InitializerFlow)labOPTest[0], (FinalizerFlow)labOPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_OP) * 100));
-		Flow[] nucOPTest = CentralServicesSubModel.getNuclearFlow(factory);
+		Flow[] nucOPTest = CentralServicesSubModel.getOPNuclearFlow(factory);
 		oPTests.addBranch((InitializerFlow)nucOPTest[0], (FinalizerFlow)nucOPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_OP) * 100));
-		Flow[] radOPTest = CentralServicesSubModel.getRadiologyFlow(factory);
+		Flow[] radOPTest = CentralServicesSubModel.getOPRadiologyFlow(factory);
 		oPTests.addBranch((InitializerFlow)radOPTest[0], (FinalizerFlow)radOPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_OP) * 100));
 		
 		InterleavedRoutingFlow beforeSucc = (InterleavedRoutingFlow)factory.getFlowInstance("InterleavedRoutingFlow");
@@ -161,18 +161,13 @@ public class StdMedicalSubModel {
 		firstDecision.link(mainLoop, new PercentageCondition(80));
 		root.link(mainLoop, 0.85);
 		
-		ExclusiveChoiceFlow admittanceDecision = (ExclusiveChoiceFlow)factory.getFlowInstance("ExclusiveChoiceFlow");
-		mainLoop.link(admittanceDecision);
-		double percAdmission = ((Double)params.get(Parameters.PROB_ADM)).doubleValue() * 100;
 		SingleFlow admission = (SingleFlow)factory.getFlowInstance("SingleFlow", actDelayAppAdm);
-		admittanceDecision.link(admission, new PercentageCondition(percAdmission));
-		SimulationUserCode userCode = new SimulationUserCode();
-		userCode.add(UserMethod.BEFORE_REQUEST, "<%SET(E.maketest, 1)%>; return true;");
-		userCode.add(UserMethod.AFTER_FINALIZE, "<%SET(E.maketest, 0)%>;");
-		SingleFlow stayInBed = (SingleFlow)factory.getFlowInstance("SingleFlow", userCode, actStayInBed);
-		ParallelFlow parallelStay = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
+		SimulationUserCode userCode1 = new SimulationUserCode();
+		userCode1.add(UserMethod.AFTER_FINALIZE, "<%SET(@E.maketest, 0)%>;");
+		SingleFlow stayInBed = (SingleFlow)factory.getFlowInstance("SingleFlow", userCode1, actDelayStay);
+		InterleavedRoutingFlow parallelStay = (InterleavedRoutingFlow)factory.getFlowInstance("InterleavedRoutingFlow");
 		admission.link(parallelStay);
-		parallelStay.link(stayInBed);
+		parallelStay.addBranch(stayInBed);
 
 		final Condition iPTestCond = new Condition() {
 			public boolean check(es.ull.isaatc.simulation.common.Element e) {
@@ -183,18 +178,29 @@ public class StdMedicalSubModel {
 		};
 
 		StructuredSynchroMergeFlow iPTests = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
-		Flow[] labIPTest = CentralLabSubModel.getOutFlow(factory, (Double)params.get(Parameters.PROB_LABLAB_IP), (Double)params.get(Parameters.PROB_LABHAE_IP),
+		Flow[] labIPTest = CentralLabSubModel.getIPFlow(factory, (Double)params.get(Parameters.PROB_LABLAB_IP), (Double)params.get(Parameters.PROB_LABHAE_IP),
 				(Double)params.get(Parameters.PROB_LABMIC_IP), (Double)params.get(Parameters.PROB_LABPAT_IP)); 
 		iPTests.addBranch((InitializerFlow)labIPTest[0], (FinalizerFlow)labIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_IP) * 100));
-		Flow[] nucIPTest = CentralServicesSubModel.getNuclearFlow(factory);
+		Flow[] nucIPTest = CentralServicesSubModel.getOPNuclearFlow(factory);
 		iPTests.addBranch((InitializerFlow)nucIPTest[0], (FinalizerFlow)nucIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_IP) * 100));
-		Flow[] radIPTest = CentralServicesSubModel.getRadiologyFlow(factory);
+		Flow[] radIPTest = CentralServicesSubModel.getOPRadiologyFlow(factory);
 		iPTests.addBranch((InitializerFlow)radIPTest[0], (FinalizerFlow)radIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_IP) * 100));
 		SingleFlow waitTilNextDay = (SingleFlow)factory.getFlowInstance("SingleFlow", HospitalModelTools.getWaitTilNextDay(factory, code + " Wait until next day", new TimeStamp(TimeUnit.HOUR, 8)));
 		waitTilNextDay.link(iPTests);
-		WhileDoFlow iterIPTests = (WhileDoFlow)factory.getFlowInstance("WhileDoFlow", waitTilNextDay, iPTests, iPTestCond);
-		parallelStay.link(iterIPTests);
+		DoWhileFlow iterIPTests = (DoWhileFlow)factory.getFlowInstance("DoWhileFlow", waitTilNextDay, iPTests, iPTestCond);
+		parallelStay.addBranch(iterIPTests);
 
+		FlowDrivenActivity actStay = (FlowDrivenActivity)factory.getFlowDrivenActivityInstance(code + " Being in bed");
+		actStay.addWorkGroup(admission, parallelStay, wgBed);
+		SimulationUserCode userCode2 = new SimulationUserCode();
+		userCode2.add(UserMethod.AFTER_START, "<%SET(@E.maketest, 1)%>;");
+		SingleFlow stay = (SingleFlow)factory.getFlowInstance("SingleFlow", userCode2, actStay);
+		
+		ExclusiveChoiceFlow admittanceDecision = (ExclusiveChoiceFlow)factory.getFlowInstance("ExclusiveChoiceFlow");
+		mainLoop.link(admittanceDecision);
+		double percAdmission = ((Double)params.get(Parameters.PROB_ADM)).doubleValue() * 100;
+		admittanceDecision.link(stay, new PercentageCondition(percAdmission));
+		
 		// Patients
 		TimeFunction nPatients = (TimeFunction)params.get(Parameters.NPATIENTS);
 		ElementCreator ec = factory.getElementCreatorInstance(nPatients, et, root);

@@ -39,7 +39,7 @@ public class ExecutionCounterFileSafeView extends View {
 		this.timeSlot = dayUnit;
 		busy = new AtomicBoolean(false);
 		try {
-			buffer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)));
+			buffer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)), true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -99,9 +99,9 @@ public class ExecutionCounterFileSafeView extends View {
 				}
 				if (infoType != -1) {
 					final Activity act = elemInfo.getActivity();
-					final Element elem = elemInfo.getElem();
+					final Element elem = elemInfo.getElement();
 					final ElementType et = elem.getType();
-					actExCounter[infoType][act.getIdentifier()].addExecution(elemInfo.getWg());
+					actExCounter[infoType][act.getIdentifier()].addExecution(elemInfo.getWorkGroup());
 					etExCounter[infoType].incrementAndGet(et.getIdentifier());
 					if (isDebugMode()) {
 						String message = new String();

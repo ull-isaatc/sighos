@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation.hospital;
 
+import java.util.EnumSet;
+
 import es.ull.isaatc.simulation.common.*;
 import es.ull.isaatc.simulation.common.factory.SimulationObjectFactory;
 import es.ull.isaatc.simulation.common.flow.Flow;
@@ -13,10 +15,10 @@ import es.ull.isaatc.simulation.common.flow.SingleFlow;
  *
  */
 public class CentralServicesSubModel {
-	private static TimeDrivenActivity actNucTest = null;
-	private static TimeDrivenActivity actRadTest = null;
-	private static TimeDrivenActivity actNucAnalysis = null;
-	private static TimeDrivenActivity actRadAnalysis = null;
+	private static TimeDrivenActivity actOPNucTest = null;
+	private static TimeDrivenActivity actOPRadTest = null;
+	private static TimeDrivenActivity actOPNucAnalysis = null;
+	private static TimeDrivenActivity actOPRadAnalysis = null;
 	
 	public enum Parameters implements ModelParameterMap.ModelParameter {
 		NTECHNUC(Integer.class, "Resources available for Nuclear Medicine"),
@@ -59,23 +61,23 @@ public class CentralServicesSubModel {
 		WorkGroup wgRad = factory.getWorkGroupInstance(new ResourceType[] {rtRad}, new int[] {1});
 		
 		// Activities
-		actNucTest = HospitalModelTools.createStdTimeDrivenActivity(factory, "Nuclear Medicine Test", 
-				(SimulationTimeFunction)params.get(Parameters.LENGTH_NUCTEST), wgNuc, true);
-		actRadTest = HospitalModelTools.createStdTimeDrivenActivity(factory, "Radiology Test", 
-				(SimulationTimeFunction)params.get(Parameters.LENGTH_RADTEST), wgRad, true);
-		actNucAnalysis = HospitalModelTools.createStdTimeDrivenActivity(factory, "Nuclear Medicine Analysis", 
-				(SimulationTimeFunction)params.get(Parameters.LENGTH_NUCANALYSIS), wgNuc, false);
-		actRadAnalysis = HospitalModelTools.createStdTimeDrivenActivity(factory, "Radiology Analysis", 
-				(SimulationTimeFunction)params.get(Parameters.LENGTH_RADANALYSIS), wgRad, false);
+		actOPNucTest = factory.getTimeDrivenActivityInstance("Nuclear Medicine Test OP", 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class)); 
+		actOPNucTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_NUCTEST), wgNuc);
+		actOPRadTest = factory.getTimeDrivenActivityInstance("Radiology Test OP", 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class)); 
+		actOPRadTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_RADTEST), wgRad); 
+		actOPNucAnalysis = factory.getTimeDrivenActivityInstance("Nuclear Medicine Analysis OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL)); 
+		actOPNucAnalysis.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_NUCANALYSIS), wgNuc); 
+		actOPRadAnalysis = factory.getTimeDrivenActivityInstance("Radiology Analysis OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actOPRadAnalysis.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_RADANALYSIS), wgRad);
 	}
 
 	/**
 	 * @return 
 	 */
-	public static Flow[] getNuclearFlow(SimulationObjectFactory factory) {
+	public static Flow[] getOPNuclearFlow(SimulationObjectFactory factory) {
 		Flow[] flow = new Flow[2];
-		flow[0] = (SingleFlow)factory.getFlowInstance("SingleFlow", actNucTest);
-		flow[1] = (SingleFlow)factory.getFlowInstance("SingleFlow", actNucAnalysis);
+		flow[0] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPNucTest);
+		flow[1] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPNucAnalysis);
 		flow[0].link(flow[1]);
 		return flow;
 	}
@@ -83,10 +85,10 @@ public class CentralServicesSubModel {
 	/**
 	 * @return 
 	 */
-	public static Flow[] getRadiologyFlow(SimulationObjectFactory factory) {
+	public static Flow[] getOPRadiologyFlow(SimulationObjectFactory factory) {
 		Flow[] flow = new Flow[2];
-		flow[0] = (SingleFlow)factory.getFlowInstance("SingleFlow", actRadTest);
-		flow[1] = (SingleFlow)factory.getFlowInstance("SingleFlow", actRadAnalysis);
+		flow[0] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPRadTest);
+		flow[1] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPRadAnalysis);
 		flow[0].link(flow[1]);
 		return flow;
 	}

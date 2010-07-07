@@ -133,20 +133,20 @@ public class CentralLabSubModel {
 		WorkGroup wgTestPat2 = factory.getWorkGroupInstance(new ResourceType[] {rtPatSlot, rtPatNurse}, new int[] {1, 1});
 		
 		// Activities
-		actOutSample = factory.getTimeDrivenActivityInstance("Take a sample", 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class));
+		actOutSample = factory.getTimeDrivenActivityInstance("Take a sample OP", 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class));
 		actOutSample.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_SAMPLE), wgSample);
-		actOutCent = factory.getTimeDrivenActivityInstance("Centrifugation", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actOutCent = factory.getTimeDrivenActivityInstance("Centrifugation OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		actOutCent.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_CENT), wgCent);
-		actOutTest = factory.getTimeDrivenActivityInstance("Analysis", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actOutTest = factory.getTimeDrivenActivityInstance("Analysis OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		actOutTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ANALYSIS), wgTest1);
 		actOutTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ANALYSIS), wgTest2);
-		actOutHaeTest = factory.getTimeDrivenActivityInstance("Haematology Analysis", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actOutHaeTest = factory.getTimeDrivenActivityInstance("Haematology Analysis OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		actOutHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAEANALYSIS), wgTestHae1);
 		actOutHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAEANALYSIS), wgTestHae2);
-		actOutMicTest = factory.getTimeDrivenActivityInstance("Microbiology Analysis", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actOutMicTest = factory.getTimeDrivenActivityInstance("Microbiology Analysis OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		actOutMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROANALYSIS), wgTestMic1);
 		actOutMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROANALYSIS), wgTestMic2);
-		actOutPatTest = factory.getTimeDrivenActivityInstance("Anatomopathology Analysis", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actOutPatTest = factory.getTimeDrivenActivityInstance("Anatomopathology Analysis OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		actOutPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATANALYSIS), wgTestPat1);
 		actOutPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATANALYSIS), wgTestPat2);
 		
@@ -178,7 +178,7 @@ public class CentralLabSubModel {
 	 * @param prob_pat
 	 * @return a workflow for performing laboratory tests with outpatients
 	 */
-	public static Flow[] getOutFlow(SimulationObjectFactory factory, double prob_test, double prob_hae, double prob_mic, double prob_pat) {
+	public static Flow[] getOPFlow(SimulationObjectFactory factory, double prob_test, double prob_hae, double prob_mic, double prob_pat) {
 		Flow[] flow = new Flow[2];
 		// Flow of a lab test
 		// Pre-analytical PHASE
@@ -206,7 +206,7 @@ public class CentralLabSubModel {
 	 * @param prob_pat
 	 * @return a workflow for performing laboratory tests with outpatients
 	 */
-	public static Flow[] getInFlow(SimulationObjectFactory factory, double prob_test, double prob_hae, double prob_mic, double prob_pat) {
+	public static Flow[] getIPFlow(SimulationObjectFactory factory, double prob_test, double prob_hae, double prob_mic, double prob_pat) {
 		Flow[] flow = new Flow[2];
 		// Flow of a lab test
 		// Pre-analytical PHASE

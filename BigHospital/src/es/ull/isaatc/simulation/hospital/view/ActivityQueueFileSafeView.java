@@ -37,7 +37,7 @@ public class ActivityQueueFileSafeView extends View {
 		timeSlot = dayUnit;
 		busy = new AtomicBoolean(false);
 		try {
-			buffer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)));
+			buffer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)), true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

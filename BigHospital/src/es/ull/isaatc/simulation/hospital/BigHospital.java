@@ -8,26 +8,29 @@ import es.ull.isaatc.simulation.common.Experiment;
 import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.SimulationPeriodicCycle;
 import es.ull.isaatc.simulation.common.SimulationTimeFunction;
+import es.ull.isaatc.simulation.common.SimulationWeeklyPeriodicCycle;
 import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory;
 import es.ull.isaatc.simulation.common.factory.SimulationObjectFactory;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory.SimulationType;
 import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
+import es.ull.isaatc.simulation.hospital.view.ActivityLengthFileSafeView;
 import es.ull.isaatc.simulation.hospital.view.ActivityQueueFileSafeView;
 import es.ull.isaatc.simulation.hospital.view.ExecutionCounterFileSafeView;
 import es.ull.isaatc.simulation.test.BenchmarkListener;
 import es.ull.isaatc.util.Output;
+import es.ull.isaatc.util.WeeklyPeriodicCycle;
 
 class BigHospitalExperiment extends Experiment {
 	private static final int NEXP = 1;
 	private static final TimeUnit unit = TimeUnit.MINUTE;
-	private static final SimulationFactory.SimulationType simType = SimulationType.GROUPEDX;
+	private static final SimulationFactory.SimulationType simType = SimulationType.SEQUENTIAL;
 	private static final TimeStamp warmUp = TimeStamp.getZero();
 	private static final TimeStamp endTs = new TimeStamp(TimeUnit.MONTH, 12);
 //	private static final TimeStamp endTs = new TimeStamp(TimeUnit.DAY, 1);
-	private static final int threads = 4;
-	private int debug = 0;
+	private static final int threads = 3;
+	private int debug = 2;
 	private boolean test = false;
 
 	public BigHospitalExperiment() {
@@ -79,7 +82,7 @@ class BigHospitalExperiment extends Experiment {
 		
 		// Gynaegology
 		ModelParameterMap gynParams = new ModelParameterMap(StdSurgicalSubModel.Parameters.values().length);
-		gynParams.put(StdSurgicalSubModel.Parameters.NBEDS, test? 1:15);
+		gynParams.put(StdSurgicalSubModel.Parameters.NBEDS, test? 1:20);
 		gynParams.put(StdSurgicalSubModel.Parameters.NSBEDS, test? 1:3);
 		gynParams.put(StdSurgicalSubModel.Parameters.NSURGEONS, test? 1:4);
 		gynParams.put(StdSurgicalSubModel.Parameters.NSURGERIES, test? 1:4);
@@ -93,10 +96,17 @@ class BigHospitalExperiment extends Experiment {
 		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABMIC_OP, 0.06);
 		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABHAE_OP, 0.1);
 		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABPAT_OP, 0.05);
+		gynParams.put(StdSurgicalSubModel.Parameters.PROB_NUC_IP, 0.01);
+		gynParams.put(StdSurgicalSubModel.Parameters.PROB_RAD_IP, 0.01);
+		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LAB_IP, 0.5);
+		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABLAB_IP, 0.90);
+		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABMIC_IP, 0.06);
+		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABHAE_IP, 0.1);
+		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABPAT_IP, 0.05);
 		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_OP1, new SimulationTimeFunction(unit, "ConstantVariate", 12));
 		// Patients wait at least one day before being admitted after last appointment. Admissions happen at 18:00
 		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_OP2ADM, HospitalModelTools.getNextHighFunction(unit, 
-				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 18), "ConstantVariate", TimeStamp.getDay())); 
+				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 18), "ConstantVariate", TimeStamp.getMinute())); 
 		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_OP2OP, test ?
 				new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.DAY, 1)) :
 				new SimulationTimeFunction(unit, "UniformVariate", new TimeStamp(TimeUnit.WEEK, 8), new TimeStamp(TimeUnit.WEEK, 12)));
@@ -137,24 +147,104 @@ class BigHospitalExperiment extends Experiment {
 		gynParams.put(StdSurgicalSubModel.Parameters.NAPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", test? 1:10));
 		gynParams.put(StdSurgicalSubModel.Parameters.INTERARRIVAL, test ? 
 				SimulationPeriodicCycle.newMonthlyCycle(unit, new TimeStamp(TimeUnit.MINUTE, 479)) :
-				SimulationPeriodicCycle.newDailyCycle(unit, new TimeStamp(TimeUnit.MINUTE, 479)));
+				new SimulationWeeklyPeriodicCycle(unit, WeeklyPeriodicCycle.WEEKDAYS, new TimeStamp(TimeUnit.MINUTE, 479), 0));
 		gynParams.put(StdSurgicalSubModel.Parameters.SINTERARRIVAL, test ? 
 				SimulationPeriodicCycle.newMonthlyCycle(unit, new TimeStamp(TimeUnit.MINUTE, 479)) :
-				SimulationPeriodicCycle.newDailyCycle(unit, new TimeStamp(TimeUnit.MINUTE, 479)));
+				new SimulationWeeklyPeriodicCycle(unit, WeeklyPeriodicCycle.WEEKDAYS, new TimeStamp(TimeUnit.MINUTE, 479), 0));
 		gynParams.put(StdSurgicalSubModel.Parameters.AINTERARRIVAL, test ? 
 				SimulationPeriodicCycle.newMonthlyCycle(unit, new TimeStamp(TimeUnit.MINUTE, 479)) :
-				SimulationPeriodicCycle.newDailyCycle(unit, new TimeStamp(TimeUnit.MINUTE, 479)));
+				new SimulationWeeklyPeriodicCycle(unit, WeeklyPeriodicCycle.WEEKDAYS, new TimeStamp(TimeUnit.MINUTE, 479), 0));
 		gynParams.put(StdSurgicalSubModel.Parameters.ITERSUCC, test ?
 				TimeFunctionFactory.getInstance("ConstantVariate", 1) :
 				TimeFunctionFactory.getInstance("UniformVariate", 1, 5));
 		gynParams.put(StdSurgicalSubModel.Parameters.PROB_1ST_APP, 0.2);
 		StdSurgicalSubModel.createModel(factory, "GYN", gynParams);
 
+		// Traumatology
+		ModelParameterMap traParams = new ModelParameterMap(StdSurgicalSubModel.Parameters.values().length);
+		traParams.put(StdSurgicalSubModel.Parameters.NBEDS, test? 1:15);
+		traParams.put(StdSurgicalSubModel.Parameters.NSBEDS, test? 1:3);
+		traParams.put(StdSurgicalSubModel.Parameters.NSURGEONS, test? 1:4);
+		traParams.put(StdSurgicalSubModel.Parameters.NSURGERIES, test? 1:4);
+		traParams.put(StdSurgicalSubModel.Parameters.NDOCTORS, test? 1:7);
+		traParams.put(StdSurgicalSubModel.Parameters.NSCRUBNURSES, test? 1:4);
+		traParams.put(StdSurgicalSubModel.Parameters.NSURGERY_ASSIST, test? 1:2);		
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_NUC_OP, 0.1);
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_RAD_OP, 0.01);
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_LAB_OP, 0.95);
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_LABLAB_OP, 0.90);
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_LABMIC_OP, 0.06);
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_LABHAE_OP, 0.1);
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_LABPAT_OP, 0.05);
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_NUC_IP, 0.01);
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_RAD_IP, 0.01);
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_LAB_IP, 0.5);
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_LABLAB_IP, 0.90);
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_LABMIC_IP, 0.06);
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_LABHAE_IP, 0.1);
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_LABPAT_IP, 0.05);
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_OP1, new SimulationTimeFunction(unit, "ConstantVariate", 12));
+		// Patients wait at least one day before being admitted after last appointment. Admissions happen at 18:00
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_OP2ADM, HospitalModelTools.getNextHighFunction(unit, 
+				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 18), "ConstantVariate", TimeStamp.getMinute())); 
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_OP2OP, test ?
+				new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.DAY, 1)) :
+				new SimulationTimeFunction(unit, "UniformVariate", new TimeStamp(TimeUnit.WEEK, 8), new TimeStamp(TimeUnit.WEEK, 12)));
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_OP2, new SimulationTimeFunction(unit, "ConstantVariate", 10));
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_ADM, 0.5);
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_SUR, new SimulationTimeFunction(unit, "ConstantVariate", 90));
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_SSUR, new SimulationTimeFunction(unit, "ConstantVariate", 30));
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_ASUR, new SimulationTimeFunction(unit, "ConstantVariate", 20));
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_POP, new SimulationTimeFunction(unit, "ConstantVariate", 10));
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_SUR2POP, test ? 
+				new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.DAY, 1)) :
+				new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.DAY, 20)));
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_ICU, test ? 
+				new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.HOUR, 2)) :
+				new SimulationTimeFunction(unit, "TriangleVariate", 
+				new TimeStamp(TimeUnit.HOUR, 2), new TimeStamp(TimeUnit.WEEK, 2), new TimeStamp(TimeUnit.DAY, 3)));
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_PACU, test ?  
+				new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.HOUR, 1)) :
+				new SimulationTimeFunction(unit, "TriangleVariate", 
+				new TimeStamp(TimeUnit.HOUR, 1), new TimeStamp(TimeUnit.DAY, 3), new TimeStamp(TimeUnit.HOUR, 7)));
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_SPACU, test ?  
+				new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.HOUR, 1)) :
+				new SimulationTimeFunction(unit, "UniformVariate", 
+				new TimeStamp(TimeUnit.HOUR, 1), new TimeStamp(TimeUnit.HOUR, 3)));
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_APACU, test ?  
+				new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.MINUTE, 10)) :
+				new SimulationTimeFunction(unit, "UniformVariate", 
+				new TimeStamp(TimeUnit.MINUTE, 10), new TimeStamp(TimeUnit.MINUTE, 30)));
+		// Patients wait at least one day after exiting, always at 12:00
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_SUR2EXIT, HospitalModelTools.getNextHighFunction(unit,
+				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 12), 
+				"TriangleVariate", TimeStamp.getHour(), new TimeStamp(TimeUnit.DAY, 4), TimeStamp.getDay()));
+		traParams.put(StdSurgicalSubModel.Parameters.LENGTH_SSUR2EXIT, HospitalModelTools.getNextHighFunction(unit,
+				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 12), 
+				"UniformVariate", TimeStamp.getHour(), TimeStamp.getDay()));
+		traParams.put(StdSurgicalSubModel.Parameters.NPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", test? 3:30));
+		traParams.put(StdSurgicalSubModel.Parameters.NSPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", test? 1:10));
+		traParams.put(StdSurgicalSubModel.Parameters.NAPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", test? 1:10));
+		traParams.put(StdSurgicalSubModel.Parameters.INTERARRIVAL, test ? 
+				SimulationPeriodicCycle.newMonthlyCycle(unit, new TimeStamp(TimeUnit.MINUTE, 479)) :
+				new SimulationWeeklyPeriodicCycle(unit, WeeklyPeriodicCycle.WEEKDAYS, new TimeStamp(TimeUnit.MINUTE, 479), 0));
+		traParams.put(StdSurgicalSubModel.Parameters.SINTERARRIVAL, test ? 
+				SimulationPeriodicCycle.newMonthlyCycle(unit, new TimeStamp(TimeUnit.MINUTE, 479)) :
+				new SimulationWeeklyPeriodicCycle(unit, WeeklyPeriodicCycle.WEEKDAYS, new TimeStamp(TimeUnit.MINUTE, 479), 0));
+		traParams.put(StdSurgicalSubModel.Parameters.AINTERARRIVAL, test ? 
+				SimulationPeriodicCycle.newMonthlyCycle(unit, new TimeStamp(TimeUnit.MINUTE, 479)) :
+				new SimulationWeeklyPeriodicCycle(unit, WeeklyPeriodicCycle.WEEKDAYS, new TimeStamp(TimeUnit.MINUTE, 479), 0));
+		traParams.put(StdSurgicalSubModel.Parameters.ITERSUCC, test ?
+				TimeFunctionFactory.getInstance("ConstantVariate", 1) :
+				TimeFunctionFactory.getInstance("UniformVariate", 1, 5));
+		traParams.put(StdSurgicalSubModel.Parameters.PROB_1ST_APP, 0.2);
+		StdSurgicalSubModel.createModel(factory, "TRA", traParams);
+
 		// Rheumatology
 		ModelParameterMap rheParams = new ModelParameterMap(StdMedicalSubModel.Parameters.values().length);
 		rheParams.put(StdMedicalSubModel.Parameters.NDOCTORS, test? 1:5);
 		rheParams.put(StdMedicalSubModel.Parameters.NBEDS, test? 1:5);
-		rheParams.put(StdMedicalSubModel.Parameters.PROB_ADM, 0.5);
+		rheParams.put(StdMedicalSubModel.Parameters.PROB_ADM, 0.01);
 		rheParams.put(StdMedicalSubModel.Parameters.PROB_NUC_OP, 0.1);
 		rheParams.put(StdMedicalSubModel.Parameters.PROB_RAD_OP, 0.15);
 		rheParams.put(StdMedicalSubModel.Parameters.PROB_LAB_OP, 0.95);
@@ -170,7 +260,7 @@ class BigHospitalExperiment extends Experiment {
 		rheParams.put(StdMedicalSubModel.Parameters.PROB_LABHAE_IP, 0.07);
 		rheParams.put(StdMedicalSubModel.Parameters.PROB_LABPAT_IP, 0.05);
 		rheParams.put(StdMedicalSubModel.Parameters.LENGTH_OP2ADM, HospitalModelTools.getNextHighFunction(unit, 
-				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 18), "ConstantVariate", TimeStamp.getDay())); 
+				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 18), "ConstantVariate", TimeStamp.getMinute())); 
 		rheParams.put(StdMedicalSubModel.Parameters.LOS, HospitalModelTools.getNextHighFunction(unit,
 				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 12), 
 				"TriangleVariate", TimeStamp.getHour(), new TimeStamp(TimeUnit.DAY, 7), new TimeStamp(TimeUnit.DAY, 2)));
@@ -179,15 +269,54 @@ class BigHospitalExperiment extends Experiment {
 				new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.DAY, 1)) :
 				new SimulationTimeFunction(unit, "UniformVariate", new TimeStamp(TimeUnit.WEEK, 8), new TimeStamp(TimeUnit.WEEK, 12)));
 		rheParams.put(StdMedicalSubModel.Parameters.LENGTH_OP2, new SimulationTimeFunction(unit, "ConstantVariate", 10));
-		rheParams.put(StdMedicalSubModel.Parameters.NPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", test? 3:50));
+		rheParams.put(StdMedicalSubModel.Parameters.NPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", test? 3:40));
 		rheParams.put(StdMedicalSubModel.Parameters.INTERARRIVAL, test ? 
 				SimulationPeriodicCycle.newMonthlyCycle(unit, new TimeStamp(TimeUnit.MINUTE, 479)) :
-				SimulationPeriodicCycle.newDailyCycle(unit, new TimeStamp(TimeUnit.MINUTE, 479)));
+				new SimulationWeeklyPeriodicCycle(unit, WeeklyPeriodicCycle.WEEKDAYS, new TimeStamp(TimeUnit.MINUTE, 479), 0));
 		rheParams.put(StdMedicalSubModel.Parameters.ITERSUCC, test ?
 				TimeFunctionFactory.getInstance("ConstantVariate", 1) :
 				TimeFunctionFactory.getInstance("UniformVariate", 1, 5));
 		rheParams.put(StdMedicalSubModel.Parameters.PROB_1ST_APP, 0.2);
 		StdMedicalSubModel.createModel(factory, "RHE", rheParams);
+
+		// Dermatology
+		ModelParameterMap derParams = new ModelParameterMap(StdMedicalSubModel.Parameters.values().length);
+		derParams.put(StdMedicalSubModel.Parameters.NDOCTORS, test? 1:5);
+		derParams.put(StdMedicalSubModel.Parameters.NBEDS, test? 1:5);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_ADM, 0.01);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_NUC_OP, 0.1);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_RAD_OP, 0.15);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_LAB_OP, 0.95);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_LABLAB_OP, 0.90);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_LABMIC_OP, 0.06);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_LABHAE_OP, 0.07);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_LABPAT_OP, 0.05);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_NUC_IP, 0.01);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_RAD_IP, 0.01);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_LAB_IP, 0.5);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_LABLAB_IP, 0.90);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_LABMIC_IP, 0.06);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_LABHAE_IP, 0.07);
+		derParams.put(StdMedicalSubModel.Parameters.PROB_LABPAT_IP, 0.05);
+		derParams.put(StdMedicalSubModel.Parameters.LENGTH_OP2ADM, HospitalModelTools.getNextHighFunction(unit, 
+				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 18), "ConstantVariate", TimeStamp.getMinute())); 
+		derParams.put(StdMedicalSubModel.Parameters.LOS, HospitalModelTools.getNextHighFunction(unit,
+				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 12), 
+				"TriangleVariate", TimeStamp.getHour(), new TimeStamp(TimeUnit.DAY, 7), new TimeStamp(TimeUnit.DAY, 2)));
+		derParams.put(StdMedicalSubModel.Parameters.LENGTH_OP1, new SimulationTimeFunction(unit, "ConstantVariate", 12));
+		derParams.put(StdMedicalSubModel.Parameters.LENGTH_OP2OP, test ?
+				new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.DAY, 1)) :
+				new SimulationTimeFunction(unit, "UniformVariate", new TimeStamp(TimeUnit.WEEK, 8), new TimeStamp(TimeUnit.WEEK, 12)));
+		derParams.put(StdMedicalSubModel.Parameters.LENGTH_OP2, new SimulationTimeFunction(unit, "ConstantVariate", 10));
+		derParams.put(StdMedicalSubModel.Parameters.NPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", test? 3:40));
+		derParams.put(StdMedicalSubModel.Parameters.INTERARRIVAL, test ? 
+				SimulationPeriodicCycle.newMonthlyCycle(unit, new TimeStamp(TimeUnit.MINUTE, 479)) :
+				new SimulationWeeklyPeriodicCycle(unit, WeeklyPeriodicCycle.WEEKDAYS, new TimeStamp(TimeUnit.MINUTE, 479), 0));
+		derParams.put(StdMedicalSubModel.Parameters.ITERSUCC, test ?
+				TimeFunctionFactory.getInstance("ConstantVariate", 1) :
+				TimeFunctionFactory.getInstance("UniformVariate", 1, 5));
+		derParams.put(StdMedicalSubModel.Parameters.PROB_1ST_APP, 0.2);
+		StdMedicalSubModel.createModel(factory, "RHE", derParams);
 	}
 	
 	@Override
@@ -199,6 +328,7 @@ class BigHospitalExperiment extends Experiment {
 		simul.setNThreads(threads);
 		simul.addInfoReceiver(new ActivityQueueFileSafeView(simul, "C:\\queue.txt", TimeStamp.getWeek()));
 		simul.addInfoReceiver(new ExecutionCounterFileSafeView(simul, "C:\\total.txt", warmUp, TimeStamp.getWeek()));
+		simul.addInfoReceiver(new ActivityLengthFileSafeView(simul, "C:\\act.txt", warmUp));
 		simul.addInfoReceiver(new BenchmarkListener(simul, System.out));
 		if (debug == 1)
 			simul.addInfoReceiver(new StdInfoView(simul));
