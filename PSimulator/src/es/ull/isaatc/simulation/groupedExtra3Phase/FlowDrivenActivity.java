@@ -33,12 +33,6 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	private final BasicFlow virtualFinalFlow = new BasicFlow(simul) {
 
 		public void request(WorkThread wThread) {
-			// FIXME: Only works if at least one true thread reaches the end. If all the threads are false, no output 
-			// will be produced
-			if (wThread.isExecutable()) {
-				final Element elem = wThread.getElement();
-				elem.addEvent(elem.new FinishFlowEvent(elem.getTs(), wThread.getParent().getWorkItem().getFlow(), wThread.getParent()));
-			}
 			wThread.notifyEnd();
 		}
 
@@ -77,14 +71,15 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	 */
 	@Override
 	public void carryOut(WorkItem wItem) {
-		Element elem = wItem.getElement();
+		final Element elem = wItem.getElement();
 		wItem.getFlow().afterStart(elem);
 		wItem.catchResources();
 
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
 		elem.debug("Starts\t" + this + "\t" + description);
 		InitializerFlow initialFlow = ((FlowDrivenActivity.ActivityWorkGroup)wItem.getExecutionWG()).getInitialFlow();
-		initialFlow.request(wItem.getWorkThread().getInstanceDescendantWorkThread(initialFlow));
+		// The inner request is scheduled a bit later
+		elem.addDelayedRequestEvent(initialFlow, wItem.getWorkThread().getInstanceDescendantWorkThread(initialFlow));
 	}
 
 	/* (non-Javadoc)
@@ -92,17 +87,9 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	 */
 	@Override
 	public boolean finish(WorkItem wItem) {
-		Element elem = wItem.getElement();
+		final Element elem = wItem.getElement();
 
 		wItem.releaseCaughtResources();
-
-//		int[] order = RandomPermutation.nextPermutation(amList.size());
-//		for (int ind : order) {
-//			ActivityManager am = amList.get(ind);
-//			am.waitSemaphore();
-//			am.availableResource();
-//			am.signalSemaphore();
-//		}
 
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 		if (elem.isDebugEnabled())

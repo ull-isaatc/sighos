@@ -199,6 +199,31 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 		}
 	}
 	
+	protected void addDelayedRequestEvent(Flow f, WorkThread wThread) {
+		addEvent(new DelayedRequestFlowEvent(ts + 1, f, wThread));
+	}
+	
+	/**
+	 * Requests a flow.
+	 * @author Iván Castilla Rodríguez
+	 */
+	public class DelayedRequestFlowEvent extends BasicElement.DiscreteEvent {
+		/** The work thread that executes the request */
+		private final WorkThread eThread;
+		/** The flow to be requested */
+		private final Flow f;
+
+		public DelayedRequestFlowEvent(long ts, Flow f, WorkThread eThread) {
+			super(ts);
+			this.eThread = eThread;
+			this.f = f;
+		}		
+
+		public void event() {
+			eThread.requestFlow(f);
+		}
+	}
+	
 	/**
 	 * Finishes a flow. 
 	 * @author Iván Castilla Rodríguez
