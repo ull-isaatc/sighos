@@ -204,7 +204,8 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	}
 	
 	/**
-	 * Requests a flow.
+	 * Requests a flow a time unit later than the current timestamp. This event is used by
+	 * {@link FlowDrivenActivity}.
 	 * @author Iván Castilla Rodríguez
 	 */
 	public class DelayedRequestFlowEvent extends BasicElement.DiscreteEvent {

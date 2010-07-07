@@ -14,14 +14,15 @@ import es.ull.isaatc.simulation.groupedExtra3Phase.flow.BasicFlow;
 import es.ull.isaatc.simulation.groupedExtra3Phase.flow.FinalizerFlow;
 import es.ull.isaatc.simulation.groupedExtra3Phase.flow.InitializerFlow;
 
-// FIXME: No funciona porque no cuadra con las dos etapas de este esquema. Se puede resolver la parte de coger los
-// recursos del FlowDrivenActivity, pero no los de la actividad que haya en su flujo interno
 /**
  * An {@link Activity} that could be carried out by an {@link Element} and whose duration depends 
  * on the finalization of an internal {@link es.ull.isaatc.simulation.common.flow.Flow Flow}.
  * <p>
  * This activity can be considered a hybrid {@link Activity} - {@link StructuredFlow}, and its behaviour is similar 
- * to the latter. 
+ * to the latter.
+ * <p>
+ * In order to work in a 3-phase approach, the inner flow must be requested in a later time than the flow driven 
+ * activity. Consequently, the {@link Element.DelayedRequestFlowEvent} event is used. 
  * @author Iván Castilla Rodríguez
  *
  */
