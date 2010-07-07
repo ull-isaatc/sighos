@@ -31,12 +31,6 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	private final BasicFlow virtualFinalFlow = new BasicFlow(simul) {
 
 		public void request(WorkThread wThread) {
-			// FIXME: Only works if at least one true thread reaches the end. If all the threads are false, no output 
-			// will be produced
-			if (wThread.isExecutable()) {
-				final Element elem = wThread.getElement();
-				elem.addEvent(elem.new FinishFlowEvent(elem.getTs(), wThread.getParent().getWorkItem().getFlow(), wThread.getParent()));
-			}
 			wThread.notifyEnd();
 		}
 

@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import es.ull.isaatc.simulation.common.Identifiable;
+import es.ull.isaatc.simulation.groupedExtraThreaded.flow.BasicFlow;
 import es.ull.isaatc.simulation.groupedExtraThreaded.flow.Flow;
 import es.ull.isaatc.simulation.groupedExtraThreaded.flow.InitializerFlow;
 import es.ull.isaatc.simulation.groupedExtraThreaded.flow.SingleFlow;
+import es.ull.isaatc.simulation.groupedExtraThreaded.flow.TaskFlow;
 import es.ull.isaatc.util.Prioritizable;
 
 /**
@@ -40,6 +42,8 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	protected final WorkItem wItem;
 	/** A flag to indicate if the thread executes the flow or not */
 	protected WorkToken token;
+	/** The current flow the thread is in */
+	protected BasicFlow currentFlow = null;
 	/** The last flow the thread was in */
 	protected Flow lastFlow = null;
     
@@ -59,12 +63,19 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
         wItem = new WorkItem(this);
     }
 
+    public void setCurrentFlow(Flow f) {
+    	currentFlow = (BasicFlow)f;
+    }
+    
     /**
      * Notifies the parent this thread has finished.
      */
     public void notifyEnd() {
-    	if (parent != null)
+    	if (parent != null) {
     		parent.removeDescendant(this);
+    		if ((parent.descendants.size() == 0) && (parent.currentFlow != null))
+    			((TaskFlow)parent.currentFlow).finish(parent);
+    	}
     }
     
     /**

@@ -38,12 +38,9 @@ public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.is
 			// The same can be applied to every single successor flow
 			// Moreover: why not creating a new WorkThread: wThread.getInstanceSubsequentWorkThread(wThread.isExecutable(), this, wThread.getToken())
 			wThread.getElement().addRequestEvent(successor, wThread);
-//			wThread.notifyEnd();
 		}
 		else {
 			wThread.notifyEnd();
-			if (parent != null)
-				parent.finish(wThread.getParent());
 		}
 	}
 	

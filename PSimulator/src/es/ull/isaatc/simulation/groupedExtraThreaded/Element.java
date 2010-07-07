@@ -228,6 +228,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 		}		
 
 		public void event() {
+			eThread.setCurrentFlow(f);
 			f.request(eThread);
 		}
 	}
