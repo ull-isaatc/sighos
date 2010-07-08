@@ -79,7 +79,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 		elem.debug("Starts\t" + this + "\t" + description);
 		InitializerFlow initialFlow = ((FlowDrivenActivity.ActivityWorkGroup)wItem.getExecutionWG()).getInitialFlow();
 		// The inner request is scheduled a bit later
-		elem.addDelayedRequestEvent(initialFlow, wItem.getWorkThread().getInstanceDescendantWorkThread(initialFlow));
+		elem.addDelayedRequestEvent(initialFlow, wItem.getWorkThread().getInstanceDescendantWorkThread());
 	}
 
 	/* (non-Javadoc)

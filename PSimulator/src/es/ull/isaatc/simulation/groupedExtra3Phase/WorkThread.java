@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import es.ull.isaatc.simulation.common.Identifiable;
 import es.ull.isaatc.simulation.groupedExtra3Phase.flow.BasicFlow;
 import es.ull.isaatc.simulation.groupedExtra3Phase.flow.Flow;
-import es.ull.isaatc.simulation.groupedExtra3Phase.flow.InitializerFlow;
 import es.ull.isaatc.simulation.groupedExtra3Phase.flow.SingleFlow;
 import es.ull.isaatc.simulation.groupedExtra3Phase.flow.TaskFlow;
 import es.ull.isaatc.util.Prioritizable;
@@ -19,7 +18,7 @@ import es.ull.isaatc.util.Prioritizable;
  * <li>Main thread. Is the element's main thread. Must be created by invoking the static method
  * {@link #getInstanceMainWorkThread(Element)}</li>
  * <li>Descendant thread</li>A thread created to carry out the inner flows of a structured flow.
- * To invoke, use: {@link #getInstanceDescendantWorkThread(InitializerFlow)}</li>
+ * To invoke, use: {@link #getInstanceDescendantWorkThread()}</li>
  * <li>Subsequent thread</li>A thread created to carry out a new flow after a split.
  * To invoke, use: {@link #getInstanceSubsequentWorkThread(boolean, Flow, Flow, WorkToken)}</li>
  * </ol><p>
@@ -225,10 +224,9 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	/**
 	 * Returns a new instance of a work thread created to carry out the inner subflow of a structured flow. 
 	 * The current thread is the parent of the newly created child thread. has the same state than the c
-	 * @param newFlow The first flow of the inner subflow
 	 * @return A new instance of a work thread created to carry out the inner subflow of a structured flow
 	 */
-	public WorkThread getInstanceDescendantWorkThread(InitializerFlow newFlow) {
+	public WorkThread getInstanceDescendantWorkThread() {
 		assert isExecutable() : "Invalid parent to create descendant work thread"; 
 		return new WorkThread(new WorkToken(true), elem, this);
 	}

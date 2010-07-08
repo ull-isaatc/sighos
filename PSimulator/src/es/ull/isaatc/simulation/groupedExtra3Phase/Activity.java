@@ -54,8 +54,8 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	/**
      * Creates a new activity with the highest priority.
      * @param id Activity's identifier
-     * @param simul Simulation which this activity is attached to.
-     * @param description A short text describing this activity.
+     * @param simul The {@link Simulation} where this activity is used
+     * @param description A short text describing this activity
      */
     public Activity(int id, Simulation simul, String description) {
         this(id, simul, description, 0);
@@ -63,9 +63,9 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 
     /**
      * Creates a new activity.
-     * @param id Activity's identifier.
-     * @param simul Simulation which this activity is attached to.
-     * @param description A short text describing this Activity.
+     * @param id Activity's identifier
+     * @param simul The {@link Simulation} where this activity is used
+     * @param description A short text describing this activity
      * @param priority Activity's priority.
      */
     public Activity(int id, Simulation simul, String description, int priority) {
@@ -90,17 +90,17 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
     }
     
     /**
-     * Returns the activity manager this activity is attached to.
-     * @return The activity manager this activity is attached to
+     * Returns the {@link ActivityManager} where this activity is located.
+     * @return The {@link ActivityManager} where this activity is located
      */
     public ActivityManager getManager() {
         return manager;
     }
 
     /**
-     * Sets the activity manager this activity is attached to. It also
+     * Sets the {@link ActivityManager} where this activity is located. Also
      * adds this activity to the manager.
-     * @param manager The activity manager.
+     * @param manager {@link ActivityManager} where this activity is located.
      */
     public void setManager(ActivityManager manager) {
         this.manager = manager;
@@ -384,16 +384,15 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	    }
 	    
 	    /**
-	     * Checks if there are enough resources to carry out this activity by using this WG.   
-	     * The "potential" available resources are booked by the work item requesting the activity. 
-	     * If there are less available resources than needed resources for any resource type, the 
-	     * activity can not be carried out, and all the "books" are removed.
-	     * In order to avoid possible conflicts between resources which appear in more than one 
-	     * resource type in the activity, a branch-and-bound resource distribution algorithm is 
-	     * invoked. 
-	     * @param wi Work Item trying to carry out the activity with this WG 
-	     * @return True if there are more "potential" available resources than needed resources for
-	     * this WG. False in other case.
+	     * Checks if there are enough {@link Resource}s to carry out this activity by using this workgroup.   
+	     * The "potential" available {@link Resource}s are booked by the {@link Element} requesting this 
+	     * activity. If there are less <b>available</b> resources than <b>needed</b> resources for any 
+	     * {@link ResourceType}, this activity can not be carried out, and all the "books" are removed.
+	     * Possible conflicts between resources inside the activity are solved by invoking a
+	     * branch-and-bound resource distribution algorithm. 
+	     * @param wi {@link WorkItem} trying to carry out this activity with this workgroup 
+	     * @return <tt>True</tt> if there are more "potential" available resources than needed resources for
+	     * this workgroup. <tt>False</tt> otherwise.
 	     */
 	    protected boolean isFeasible(WorkItem wi) {
 	    	final Element elem = wi.getElement();

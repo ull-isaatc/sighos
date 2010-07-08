@@ -55,7 +55,7 @@ public abstract class PredefinedStructuredFlow extends StructuredFlow implements
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread.getElement()))
-					wThread.getInstanceDescendantWorkThread(initialFlow).requestFlow(initialFlow);
+					wThread.getInstanceDescendantWorkThread().requestFlow(initialFlow);
 				else {
 					wThread.cancel(this);
 					next(wThread);				
