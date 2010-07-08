@@ -86,12 +86,12 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow implements e
 			for (int i = 0; i < successorList.size(); i++) {
 				boolean res = (ref >= aux) && (ref < (aux + probabilities.get(i)));
 				aux += probabilities.get(i);
-				successorList.get(i).request(wThread.getInstanceSubsequentWorkThread(res, this, wThread.getToken()));					
+				wThread.getInstanceSubsequentWorkThread(res, this, wThread.getToken()).requestFlow(successorList.get(i));					
 			}			
 		}
 		else
 			for (int i = 0; i < successorList.size(); i++)
-				successorList.get(i).request(wThread.getInstanceSubsequentWorkThread(false, this, wThread.getToken()));
+				wThread.getInstanceSubsequentWorkThread(false, this, wThread.getToken()).requestFlow(successorList.get(i));
 		wThread.notifyEnd();
 	}
 }

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import es.ull.isaatc.simulation.common.Identifiable;
+import es.ull.isaatc.simulation.bonnThreaded.flow.BasicFlow;
+import es.ull.isaatc.simulation.bonnThreaded.flow.TaskFlow;
 import es.ull.isaatc.simulation.bonnThreaded.flow.Flow;
 import es.ull.isaatc.simulation.bonnThreaded.flow.InitializerFlow;
 import es.ull.isaatc.simulation.bonnThreaded.flow.SingleFlow;
@@ -40,6 +42,8 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	private final WorkItem wItem;
 	/** A flag to indicate if the thread executes the flow or not */
 	private WorkToken token;
+	/** The current flow the thread is in */
+	private BasicFlow currentFlow = null;
 	/** The last flow the thread was in */
 	private Flow lastFlow = null;
     
@@ -61,12 +65,20 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
         wItem = new WorkItem(this);
     }
 
+    public void requestFlow(Flow f) {
+    	currentFlow = (BasicFlow)f;
+    	currentFlow.request(this);
+    }
+    
     /**
      * Notifies the parent this thread has finished.
      */
     public void notifyEnd() {
-    	if (parent != null)
+    	if (parent != null) {
     		parent.removeDescendant(this);
+    		if ((parent.descendants.size() == 0) && (parent.currentFlow != null))
+    			((TaskFlow)parent.currentFlow).finish(parent);
+    	}
     }
     
     /**
@@ -217,10 +229,8 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	 * @return A new instance of a work thread created to carry out the inner subflow of a structured flow
 	 */
 	public WorkThread getInstanceDescendantWorkThread(InitializerFlow newFlow) {
-		if (isExecutable())
-			return new WorkThread(new WorkToken(true), elem, this);
-		else
-			return new WorkThread(new WorkToken(false, newFlow), elem, this);
+		assert isExecutable() : "Invalid parent to create descendant work thread"; 
+		return new WorkThread(new WorkToken(true), elem, this);
 	}
 
 	/**

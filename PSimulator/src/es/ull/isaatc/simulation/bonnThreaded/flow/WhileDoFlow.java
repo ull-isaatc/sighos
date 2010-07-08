@@ -66,7 +66,7 @@ public class WhileDoFlow extends StructuredLoopFlow implements es.ull.isaatc.sim
 	public void finish(WorkThread wThread) {
 		// The loop condition is checked
 		if (cond.check(wThread.getElement())) {
-			initialFlow.request(wThread.getInstanceDescendantWorkThread(initialFlow));
+			wThread.getInstanceDescendantWorkThread(initialFlow).requestFlow(initialFlow);
 		} else {
 			afterFinalize(wThread.getElement());
 			next(wThread);
