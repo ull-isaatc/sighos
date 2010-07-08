@@ -9,12 +9,14 @@ package es.ull.isaatc.simulation.groupedThreaded;
 import es.ull.isaatc.simulation.groupedThreaded.ResourceType;
 
 /**
- * A set of {resource type, #needed resources} pairs.
+ * A basic implementation of {@link es.ull.isaatc.simulation.common.WorkGroup WorkGroup}
+ * which contains a set of {resource type, #needed resources} pairs.
  * @author Iván Castilla Rodríguez
  */
 public class WorkGroup implements es.ull.isaatc.simulation.common.WorkGroup {
-    /** Set of (resource type, #needed) pairs. */
+    /** Collection of {@link ResourceType}s required by this workgroup */
 	protected final ResourceType[] resourceTypes;
+	/** Corresponding amount of {@link Resource}s required from each {@link ResourceType} */ 
 	protected final int[] needed;
     
     /**
@@ -37,36 +39,41 @@ public class WorkGroup implements es.ull.isaatc.simulation.common.WorkGroup {
 
     /**
      * Creates a new instance of WorkGroup, initializing the list of pairs
-     * {resource type, #needed resources}.
-     * @param rts The resource types which compounds this WG.
-     * @param needs The amounts of resource types required by this WG.
+     * {resource type, #needed resources}.<p>
+     * The length of both arrays must be equal or an {@link IllegalArgumentException} will
+     * be thrown.
+     * @param rts Collection of {@link ResourceType}s required by this workgroup
+     * @param needs Corresponding amount of {@link Resource}s required from each {@link ResourceType}
      */    
     public WorkGroup(ResourceType[] rts, int []needs) {
+    	if (rts.length != needs.length)
+    		throw new IllegalArgumentException("rts and needs dimensions must be equal." +
+    				" rts has " + rts.length + " items and needs has " + needs.length);
     	this.resourceTypes = rts;
     	this.needed = needs;
     }
 
 	/**
-     * Returns the amount of entries of the resource type table.
-     * @return Amount of entries.
+     * Returns how many different {@link ResourceType}s require this workgroup.
+     * @return How many different {@link ResourceType}s require this workgroup
      */
     public int size() {
         return resourceTypes.length;
     }
     
     /**
-     * Returns the resource type from the position ind of the table.
-     * @param ind Index of the entry
-     * @return The resource type from the position ind. 
+     * Returns the ind-th {@link ResourceType}.
+     * @param ind Index of the {@link ResourceType}
+     * @return The ind-th {@link ResourceType} 
      */
     public ResourceType getResourceType(int ind) {
         return resourceTypes[ind];
     }
 
     /**
-     * Returns the needed amount of resources from the position ind of the table.
+     * Returns the needed amount of resources for the ind-th {@link ResourceType}.
      * @param ind Index of the entry
-     * @return The needed amount of resources from the position ind. 
+     * @return The needed amount of resources from the ind-th {@link ResourceType}
      */
     public int getNeeded(int ind) {
         return needed[ind];

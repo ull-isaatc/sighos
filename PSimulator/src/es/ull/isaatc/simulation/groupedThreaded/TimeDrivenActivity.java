@@ -90,14 +90,14 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 
 	@Override
     public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, int priority, es.ull.isaatc.simulation.common.WorkGroup wg) {
-    	ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg);
+    	final ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg);
         workGroupTable.add(aWg);
         return aWg;
     }
     
 	@Override
     public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, int priority, es.ull.isaatc.simulation.common.WorkGroup wg, Condition cond) {
-    	ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg, cond); 
+    	final ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg, cond); 
         workGroupTable.add(aWg);
         return aWg;
     }
@@ -156,7 +156,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	 */
 	@Override
 	public void request(WorkItem wItem) {
-		Element elem = wItem.getElement();
+		final Element elem = wItem.getElement();
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.REQACT, elem.getTs()));
 		if (elem.isDebugEnabled())
 			elem.debug("Requests\t" + this + "\t" + description);
@@ -190,7 +190,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	 */
 	@Override
 	public void carryOut(WorkItem wItem) {
-		Element elem = wItem.getElement();
+		final Element elem = wItem.getElement();
 		wItem.getFlow().afterStart(elem);
 		long auxTs = wItem.getExecutionWG().catchResources(wItem);
 		// The first time the activity is carried out (useful only for interruptible activities)
@@ -203,9 +203,9 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 			simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.RESACT, elem.getTs()));
 			elem.debug("Continues\t" + this + "\t" + description);						
 		}
-		long finishTs = elem.getTs() + wItem.getTimeLeft();
+		final long finishTs = elem.getTs() + wItem.getTimeLeft();
 		// The required time for finishing the activity is reduced (useful only for interruptible activities)
-		if (isInterruptible() && (finishTs - auxTs > 0.0))
+		if (isInterruptible() && (finishTs - auxTs > 0))
 			wItem.setTimeLeft(finishTs - auxTs);				
 		else {
 			auxTs = finishTs;
@@ -220,7 +220,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	 */
 	@Override
 	public boolean finish(WorkItem wItem) {
-		Element elem = wItem.getElement();
+		final Element elem = wItem.getElement();
 		// Beginning MUTEX access to activity manager
 		manager.waitSemaphore();
 
@@ -317,7 +317,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	    /**
 	     * Returns the duration of the activity where this workgroup is used. 
 	     * The value returned by the random number function could be negative. 
-	     * In this case, it returns 0.0.
+	     * In this case, it returns 0.
 	     * @return The activity duration.
 	     */
 	    public long getDurationSample() {
@@ -327,7 +327,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	    /**
 	     * Returns the duration of the activity where this workgroup is used. 
 	     * The value returned by the random number function could be negative. 
-	     * In this case, it returns 0.0.
+	     * In this case, it returns 0.
 	     * @return The activity duration.
 	     */
 	    public TimeFunction getDuration() {

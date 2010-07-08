@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation.groupedThreaded.flow;
 
+import java.util.TreeSet;
+
 import es.ull.isaatc.simulation.groupedThreaded.Simulation;
 import es.ull.isaatc.simulation.groupedThreaded.WorkThread;
 
@@ -30,7 +32,8 @@ public abstract class PredefinedStructuredFlow extends StructuredFlow implements
 	 * @param finalBranch Last step of the internal branch
 	 */
 	public void addBranch(es.ull.isaatc.simulation.common.flow.InitializerFlow initialBranch, es.ull.isaatc.simulation.common.flow.FinalizerFlow finalBranch) {
-		initialBranch.setRecursiveStructureLink(this);
+		final TreeSet<es.ull.isaatc.simulation.common.flow.Flow> visited = new TreeSet<es.ull.isaatc.simulation.common.flow.Flow>();
+		initialBranch.setRecursiveStructureLink(this, visited);
 		initialFlow.link(initialBranch);
 		finalBranch.link(finalFlow);		
 	}
@@ -52,9 +55,9 @@ public abstract class PredefinedStructuredFlow extends StructuredFlow implements
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread.getElement()))
-					wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
+					wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread());
 				else {
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 					next(wThread);				
 				}
 			}

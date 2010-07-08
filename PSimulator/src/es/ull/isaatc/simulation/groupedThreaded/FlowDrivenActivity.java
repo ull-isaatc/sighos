@@ -4,6 +4,7 @@
 package es.ull.isaatc.simulation.groupedThreaded;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import es.ull.isaatc.simulation.common.FlowDrivenActivityWorkGroup;
 import es.ull.isaatc.simulation.common.condition.Condition;
@@ -31,12 +32,6 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	private final BasicFlow virtualFinalFlow = new BasicFlow(simul) {
 
 		public void request(WorkThread wThread) {
-			// FIXME: Only works if at least one true thread reaches the end. If all the threads are false, no output 
-			// will be produced
-			if (wThread.isExecutable()) {
-				final Element elem = wThread.getElement();
-				elem.addEvent(elem.new FinishFlowEvent(elem.getTs(), wThread.getParent().getWorkItem().getFlow(), wThread.getParent()));
-			}
 			wThread.notifyEnd();
 		}
 
@@ -47,7 +42,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 		public void link(Flow successor) {}
 
 		@Override
-		public void setRecursiveStructureLink(StructuredFlow parent) {}		
+		public void setRecursiveStructureLink(StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited) {}		
 	};
 
 
@@ -75,12 +70,13 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	 */
 	@Override
 	public void carryOut(WorkItem wItem) {
-		Element elem = wItem.getElement();
+		final Element elem = wItem.getElement();
+		wItem.getFlow().afterStart(elem);
 		wItem.getExecutionWG().catchResources(wItem);
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
 		elem.debug("Starts\t" + this + "\t" + description);
 		InitializerFlow initialFlow = ((FlowDrivenActivity.ActivityWorkGroup)wItem.getExecutionWG()).getInitialFlow();
-		wItem.getWorkThread().getElement().addRequestEvent(initialFlow, wItem.getWorkThread().getInstanceDescendantWorkThread(initialFlow));
+		wItem.getWorkThread().getElement().addRequestEvent(initialFlow, wItem.getWorkThread().getInstanceDescendantWorkThread());
 	}
 
 	/* (non-Javadoc)

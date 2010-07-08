@@ -1,5 +1,7 @@
 package es.ull.isaatc.simulation.groupedThreaded.flow;
 
+import java.util.TreeSet;
+
 import es.ull.isaatc.simulation.common.condition.Condition;
 import es.ull.isaatc.simulation.common.condition.TrueCondition;
 import es.ull.isaatc.simulation.groupedThreaded.Simulation;
@@ -40,7 +42,8 @@ public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow impleme
 	 * @param cond This branch's condition.
 	 */
 	public void addBranch(es.ull.isaatc.simulation.common.flow.InitializerFlow initialBranch, es.ull.isaatc.simulation.common.flow.FinalizerFlow finalBranch, Condition cond) {
-		initialBranch.setRecursiveStructureLink(this);
+		final TreeSet<es.ull.isaatc.simulation.common.flow.Flow> visited = new TreeSet<es.ull.isaatc.simulation.common.flow.Flow>();
+		initialBranch.setRecursiveStructureLink(this, visited);
 		((MultiChoiceFlow)initialFlow).link(initialBranch, cond);
 		finalBranch.link(finalFlow);
 	}

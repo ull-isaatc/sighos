@@ -33,32 +33,33 @@ import es.ull.isaatc.util.Output;
  * 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulation {
+public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	
 	/** List of resources present in the simulation. */
-	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
+	protected final Map<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
 
 	/** List of element generators of the simulation. */
-	protected final ArrayList<Generator> generatorList = new ArrayList<Generator>();
+	protected final List<Generator> generatorList = new ArrayList<Generator>();
 
 	/** List of activities present in the simulation. */
-	protected final TreeMap<Integer, Activity> activityList = new TreeMap<Integer, Activity>();
+	protected final Map<Integer, Activity> activityList = new TreeMap<Integer, Activity>();
 
 	/** List of resource types present in the simulation. */
-	protected final TreeMap<Integer, ResourceType> resourceTypeList = new TreeMap<Integer, ResourceType>();
+	protected final Map<Integer, ResourceType> resourceTypeList = new TreeMap<Integer, ResourceType>();
 
 	/** List of resource types present in the simulation. */
-	protected final TreeMap<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
+	protected final Map<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
 
 	/** List of activity managers that partition the simulation. */
-	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
+	protected final List<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
 	
 	/** List of flows present in the simulation */
-	protected final TreeMap<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
+	protected final Map<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
 
 	/** List of active elements */
 	private final Map<Integer, Element> activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
 
+	/** The way the Activity Managers are created */
 	protected ActivityManagerCreator amCreator = null;
 
 	/** Local virtual time. Represents the current simulation time for this LP. */
@@ -108,18 +109,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	}
 	
 	/**
-	 * Contains the specifications of the model. All the components of the model
-	 * must be declared here.
-	 * <p>
-	 * The components are added simply by invoking their constructors. For
-	 * example: <code>
-	 * Activity a1 = new Activity(0, this, "Act1");
-	 * ResourceType rt1 = new ResourceType(0, this, "RT1");
-	 * </code>
-	 */
-	protected abstract void createModel();
-
-	/**
 	 * Starts the simulation execution. It creates and starts all the necessary 
 	 * structures. First, a <code>SafeLPElement</code> is added. The execution loop 
      * consists on waiting for the elements which are in execution, then the simulation clock is 
@@ -132,7 +121,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		if (out == null)
 			out = new Output();
 		
-		createModel();
 		debug("SIMULATION MODEL CREATED");
 		// Sets default AM creator
 		if (amCreator == null)
@@ -471,7 +459,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * 
 	 * @return Work activity managers of the model.
 	 */
-	public ArrayList<ActivityManager> getActivityManagerList() {
+	public List<ActivityManager> getActivityManagerList() {
 		return activityManagerList;
 	}
 
