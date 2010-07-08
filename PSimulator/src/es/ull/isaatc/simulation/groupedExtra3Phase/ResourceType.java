@@ -146,7 +146,10 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	 * @author Iván Castilla Rodríguez
 	 */
 	private final static class ResourceList  {
+		/** A set of <resource - count> pairs, where the count value indicates how many times a 
+		 * resource has been added to this resource type. */
 		final private Map<Resource, Integer> tree = new TreeMap<Resource, Integer>();
+		/** The list of available resources */
 		final private List<Resource> list = new ArrayList<Resource>();
 
 	    /**
@@ -195,10 +198,6 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	    private int size() {
 	    	return list.size();
 	    }
-
-		public List<Resource> getResources() {
-			return list;
-		}
 	}
 	
 	/**
