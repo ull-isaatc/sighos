@@ -1,6 +1,8 @@
 package es.ull.isaatc.simulation.groupedExtraThreaded;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 
@@ -242,8 +244,11 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	 * @author Iván Castilla Rodríguez
 	 */
 	protected class ResourceList {
-		private TreeMap<Resource, Integer> tree = new TreeMap<Resource, Integer>();
-		private ArrayList<Resource> list = new ArrayList<Resource>();
+		/** A set of <resource - count> pairs, where the count value indicates how many times a 
+		 * resource has been added to this resource type. */
+		final private Map<Resource, Integer> tree = new TreeMap<Resource, Integer>();
+		/** The list of available resources */
+		final private List<Resource> list = new ArrayList<Resource>();
 
 	    /**
 	     * Adds a resource. If the resource isn't present in the list, it's included with a "1" count.
@@ -269,9 +274,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	     */
 	    public boolean remove(Resource res) {
 	    	Integer val = tree.get(res);
-	    	// FIXME Debería crearme un tipo personalizado de excepción
-	    	if (val == null)
-	    		throw new RuntimeException("Unexpected error: Resource not found in resource type");
+	    	assert (val != null) : "Unexpected error: Resource " + res + " not found in resource type " + ResourceType.this;
 	    	if (val > 1) {
 	    		tree.put(res, val - 1);
 	    		return false;
@@ -298,7 +301,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	    	return list.size();
 	    }
 
-		public ArrayList<Resource> getResources() {
+		public List<Resource> getResources() {
 			return list;
 		}
 	}

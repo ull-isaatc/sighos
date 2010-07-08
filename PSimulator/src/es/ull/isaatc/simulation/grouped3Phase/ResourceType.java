@@ -1,6 +1,8 @@
 package es.ull.isaatc.simulation.grouped3Phase;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -144,8 +146,8 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	 * @author Iván Castilla Rodríguez
 	 */
 	private final static class ResourceList  {
-		private TreeMap<Resource, Integer> tree = new TreeMap<Resource, Integer>();
-		private ArrayList<Resource> list = new ArrayList<Resource>();
+		final private Map<Resource, Integer> tree = new TreeMap<Resource, Integer>();
+		final private List<Resource> list = new ArrayList<Resource>();
 
 	    /**
 	     * Adds a resource. If the resource isn't present in the list, it's included with a "1" count.
@@ -193,6 +195,10 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	    private int size() {
 	    	return list.size();
 	    }
+
+		public List<Resource> getResources() {
+			return list;
+		}
 	}
 	
 	/**
