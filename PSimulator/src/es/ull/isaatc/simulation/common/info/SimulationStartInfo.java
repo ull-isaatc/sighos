@@ -4,7 +4,7 @@ import es.ull.isaatc.simulation.common.Simulation;
 
 public class SimulationStartInfo extends AsynchronousInfo {
 
-	private long cpuTime;
+	final private long cpuTime;
 	
 	public SimulationStartInfo(Simulation simul, long cpuTime, long ts) {
 		super(simul, ts);

@@ -48,10 +48,10 @@ public class ExecutionTimeView extends VarView {
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof ElementActionInfo) {
 			ElementActionInfo elemActInfo = (ElementActionInfo) info;
-			WorkItem item = elemActInfo.getSf();
+			WorkItem item = elemActInfo.getWorkItem();
 			Activity act = elemActInfo.getActivity();
-			ActivityWorkGroup wg = elemActInfo.getWg();
-			Element elem = elemActInfo.getElem();
+			ActivityWorkGroup wg = elemActInfo.getWorkGroup();
+			Element elem = elemActInfo.getElement();
 			ElementType et = elem.getType();
 			SimulObjectStore id = new SimulObjectStore(item, act, elem, et, wg);
 			switch(elemActInfo.getType()) {
@@ -157,9 +157,9 @@ public class ExecutionTimeView extends VarView {
 				ResourceUsageInfo ruInfo = (ResourceUsageInfo) info;
 				switch(ruInfo.getType()) {
 				case CAUGHT: {
-					WorkItem item = ruInfo.getSf();
-					Resource res = ruInfo.getRes();
-					ResourceType rt = ruInfo.getRt();
+					WorkItem item = ruInfo.getWorkItem();
+					Resource res = ruInfo.getResource();
+					ResourceType rt = ruInfo.getResourceType();
 					Activity act = ruInfo.getActivity();
 					SimulObjectStore id = new SimulObjectStore(item, act, item.getElement(), item.getElement().getType(), item.getExecutionWG());
 					SfResources sfRes = startActivityTimes.get(id);

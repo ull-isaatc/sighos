@@ -2,6 +2,7 @@ package es.ull.isaatc.simulation.common.inforeceiver.statistics;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -16,9 +17,9 @@ import es.ull.isaatc.simulation.common.inforeceiver.VarView;
 
 public class ExecutionCounterView extends VarView {
 
-	HashMap<Activity, ActivityCounters> actExCounter;
-	HashMap<Element, Integer> elemExCounter;
-	HashMap<ElementType, Integer> etExCounter;
+	final private Map<Activity, ActivityCounters> actExCounter;
+	final private Map<Element, Integer> elemExCounter;
+	final private Map<ElementType, Integer> etExCounter;
 	
 	public ExecutionCounterView(Simulation simul) {
 		super(simul, "executionCounter");
@@ -31,13 +32,13 @@ public class ExecutionCounterView extends VarView {
 	@Override
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof ElementActionInfo) {
-			ElementActionInfo elemInfo = (ElementActionInfo) info;
+			final ElementActionInfo elemInfo = (ElementActionInfo) info;
 			switch(elemInfo.getType()) {
 			case ENDACT: {
-				Activity act = elemInfo.getActivity();
-				Element elem = elemInfo.getElem();
-				ElementType et = elem.getType();
-				updateActExCounters(act, elemInfo.getWg());
+				final Activity act = elemInfo.getActivity();
+				final Element elem = elemInfo.getElement();
+				final ElementType et = elem.getType();
+				updateActExCounters(act, elemInfo.getWorkGroup());
 				updateElemExCounter(elem);
 				updateEtExCounter(et);
 				if (isDebugMode()) {
@@ -47,10 +48,8 @@ public class ExecutionCounterView extends VarView {
 					message += act.getDescription() + " executed " + counters.exCounter + " times\n";
 					Iterator<Entry<ActivityWorkGroup, Integer>> iter = counters.wgExCounter.entrySet().iterator();
 					while(iter.hasNext()) {
-						Entry<ActivityWorkGroup, Integer> entry = iter.next();
-						ActivityWorkGroup wg = entry.getKey();
-						Integer exValue = entry.getValue();
-						message += "\t with workgroup " + wg.getDescription() + " " + exValue.intValue() + " times\n"; 
+						final Entry<ActivityWorkGroup, Integer> entry = iter.next();
+						message += "\t with workgroup " + entry.getKey().getDescription() + " " + entry.getValue() + " times\n"; 
 					}					
 					message += elem.toString() + " executed " + elemExCounter.get(elem).intValue() + " times\n";
 					message += "Type " + et.getDescription() + " executed " + etExCounter.get(et).intValue() + " times\n";
@@ -60,9 +59,8 @@ public class ExecutionCounterView extends VarView {
 			}
 			default: break;
 			}
-
 		} else {
-			Error err = new Error("Incorrect info recieved: " + info.toString());
+			Error err = new Error("Incorrect info received: " + info.toString());
 			err.printStackTrace();
 		}
 	}
@@ -96,7 +94,7 @@ public class ExecutionCounterView extends VarView {
 	}
 
 	private void updateActExCounters(Activity act, ActivityWorkGroup wg) {
-		ActivityCounters counter = actExCounter.get(act);
+		final ActivityCounters counter = actExCounter.get(act);
 		if (counter != null)
 			counter.addExecution(wg);
 		else
@@ -104,7 +102,7 @@ public class ExecutionCounterView extends VarView {
 	}
 	
 	private void updateElemExCounter(Element elem) {
-		Integer times = elemExCounter.get(elem);
+		final Integer times = elemExCounter.get(elem);
 		if (times != null)
 			elemExCounter.put(elem, times.intValue() + 1);
 		else
@@ -112,7 +110,7 @@ public class ExecutionCounterView extends VarView {
 	}
 	
 	private void updateEtExCounter(ElementType et) {
-		Integer times = etExCounter.get(et);
+		final Integer times = etExCounter.get(et);
 		if (times != null) 
 			etExCounter.put(et, times.intValue() + 1);
 		else
@@ -121,7 +119,7 @@ public class ExecutionCounterView extends VarView {
 	
 	class ActivityCounters {
 		public Integer exCounter;
-		public TreeMap<ActivityWorkGroup, Integer> wgExCounter;
+		final public Map<ActivityWorkGroup, Integer> wgExCounter;
 		
 		public ActivityCounters(ActivityWorkGroup wg) {
 			exCounter = new Integer(1);
@@ -131,7 +129,7 @@ public class ExecutionCounterView extends VarView {
 		
 		public void addExecution(ActivityWorkGroup wg) {
 			exCounter = new Integer(exCounter.intValue() + 1);
-			Integer times = wgExCounter.get(wg);
+			final Integer times = wgExCounter.get(wg);
 			if (times != null)
 				wgExCounter.put(wg, times.intValue()+1);
 			else

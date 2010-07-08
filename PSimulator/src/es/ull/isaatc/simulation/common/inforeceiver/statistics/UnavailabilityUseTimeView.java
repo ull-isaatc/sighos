@@ -45,8 +45,8 @@ public class UnavailabilityUseTimeView extends VarView {
 		String message = new String();
 		if (info instanceof ResourceInfo) {
 			ResourceInfo resInfo = (ResourceInfo) info;
-			Resource res = resInfo.getRes();
-			ResourceType rt = resInfo.getRt();
+			Resource res = resInfo.getResource();
+			ResourceType rt = resInfo.getResourceType();
 			Long requestTs = resInfo.getTs();
 			SimulObjectStore id = new SimulObjectStore(res,rt);
 			switch(resInfo.getType()) {
@@ -75,7 +75,7 @@ public class UnavailabilityUseTimeView extends VarView {
 		} else
 			if (info instanceof ElementActionInfo) {
 				ElementActionInfo elemInfo = (ElementActionInfo) info;
-				WorkItem item = elemInfo.getSf();
+				WorkItem item = elemInfo.getWorkItem();
 				Long requestTime = elemInfo.getTs();
 				switch(elemInfo.getType()) {
 				case ENDACT: {
@@ -135,9 +135,9 @@ public class UnavailabilityUseTimeView extends VarView {
 						ResourceUsageInfo resUsInfo = (ResourceUsageInfo) info;
 						switch(resUsInfo.getType()) {
 						case CAUGHT: {
-							WorkItem item = resUsInfo.getSf();
-							Resource res = resUsInfo.getRes();
-							ResourceType rt = resUsInfo.getRt();
+							WorkItem item = resUsInfo.getWorkItem();
+							Resource res = resUsInfo.getResource();
+							ResourceType rt = resUsInfo.getResourceType();
 							SfResources sfRes = resCaughted.get(item);
 							if (sfRes != null) 
 								sfRes.resList.put(res, rt);

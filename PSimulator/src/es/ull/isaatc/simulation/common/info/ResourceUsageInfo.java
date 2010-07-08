@@ -26,56 +26,40 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 			
 		};
 	
-	private Resource res;
-	private ResourceType rt;
-	private WorkItem sf;
-	private Activity act;
-	private Type type;
+	final private Resource res;
+	final private ResourceType rt;
+	final private WorkItem wi;
+	final private Activity act;
+	final private Type type;
 	
-	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, WorkItem sf, Type type, long ts) {
+	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, WorkItem wi, Type type, long ts) {
 		super(simul, ts);
 		this.res = res;
 		this.rt = rt;
-		this.sf =sf;
-		this.act = sf.getActivity();
+		this.wi =wi;
+		this.act = wi.getActivity();
 		this.type = type;
 	}
 	
-	public Resource getRes() {
+	public Resource getResource() {
 		return res;
 	}
 	
-	public void setRes(Resource res) {
-		this.res = res;
-	}
-	
-	public ResourceType getRt() {
+	public ResourceType getResourceType() {
 		return rt;
 	}
 	
-	public void setRt(ResourceType rt) {
-		this.rt = rt;
-	}
-	
-	public WorkItem getSf() {
-		return sf;
-	}
-	
-	public void setSf(WorkItem sf) {
-		this.sf = sf;
+	public WorkItem getWorkItem() {
+		return wi;
 	}
 	
 	public Type getType() {
 		return type;
 	}
 	
-	public void setType(Type type) {
-		this.type = type;
-	}
-	
 	public String toString() {
 		String message = "" + simul.long2SimulationTime(getTs()) + "\t";
-		message += sf.getElement().toString() + " \t";
+		message += wi.getElement().toString() + " \t";
 		message += type.getDescription() + "\t" + res.getDescription() + "\t";
 		message += "ROLE: " + rt.getDescription() + "\t";	
 		message += "ACT: " + act.getDescription();

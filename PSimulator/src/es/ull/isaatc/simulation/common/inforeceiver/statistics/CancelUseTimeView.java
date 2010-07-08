@@ -47,7 +47,7 @@ public class CancelUseTimeView extends VarView {
 		String message = new String();
 		if (info instanceof ResourceInfo) {
 			ResourceInfo resInfo = (ResourceInfo) info;
-			Resource res = resInfo.getRes();
+			Resource res = resInfo.getResource();
 			Long requestTs = resInfo.getTs();
 			switch(resInfo.getType()) {
 			case CANCELON: {
@@ -99,7 +99,7 @@ public class CancelUseTimeView extends VarView {
 		} else
 			if (info instanceof ElementActionInfo) {
 				ElementActionInfo elemInfo = (ElementActionInfo) info;
-				WorkItem item = elemInfo.getSf();
+				WorkItem item = elemInfo.getWorkItem();
 				switch(elemInfo.getType()) {
 				case ENDACT: {
 					Long actStart = actStarts.get(item);
@@ -205,9 +205,9 @@ public class CancelUseTimeView extends VarView {
 						ResourceUsageInfo resUsInfo = (ResourceUsageInfo) info;
 						switch(resUsInfo.getType()) {
 						case CAUGHT: {
-							WorkItem item = resUsInfo.getSf();
-							Resource res = resUsInfo.getRes();
-							ResourceType rt = resUsInfo.getRt();
+							WorkItem item = resUsInfo.getWorkItem();
+							Resource res = resUsInfo.getResource();
+							ResourceType rt = resUsInfo.getResourceType();
 							SfResources sfRes = resCaughted.get(item);
 							if (sfRes != null) 
 								sfRes.resList.put(res, rt);

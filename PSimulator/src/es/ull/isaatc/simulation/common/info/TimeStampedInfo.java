@@ -4,7 +4,7 @@ import es.ull.isaatc.simulation.common.Simulation;
 
 public abstract class TimeStampedInfo extends SimulationInfo {
 
-	public final long ts;
+	final protected long ts;
 	
 	TimeStampedInfo(Simulation simul, long ts) {
 		super(simul);

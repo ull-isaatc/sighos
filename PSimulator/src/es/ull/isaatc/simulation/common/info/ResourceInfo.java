@@ -29,9 +29,9 @@ public class ResourceInfo extends AsynchronousInfo {
 			}				
 		};
 	
-	private Resource res;
-	private ResourceType rt;
-	private Type type;
+	final private Resource res;
+	final private ResourceType rt;
+	final private Type type;
 	
 	public ResourceInfo(Simulation simul, Resource res, ResourceType rt, Type type, long ts) {
 		super(simul, ts);
@@ -40,28 +40,16 @@ public class ResourceInfo extends AsynchronousInfo {
 		this.type = type;
 	}
 	
-	public Resource getRes() {
+	public Resource getResource() {
 		return res;
 	}
 	
-	public void setRes(Resource res) {
-		this.res = res;
-	}
-	
-	public ResourceType getRt() {
+	public ResourceType getResourceType() {
 		return rt;
-	}
-	
-	public void setRt(ResourceType rt) {
-		this.rt = rt;
 	}
 	
 	public Type getType() {
 		return type;
-	}
-	
-	public void setType(Type type) {
-		this.type = type;
 	}
 	
 	public String toString() {

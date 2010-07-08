@@ -24,7 +24,7 @@ public class CurrentElementsView extends VarView {
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof ElementInfo) {
 			ElementInfo elemInfo = (ElementInfo) info;
-			ElementType et = elemInfo.getElem().getType();
+			ElementType et = elemInfo.getElement().getType();
 			switch(elemInfo.getType()) {
 			case START: {
 				Integer times = etActiveElem.get(et);

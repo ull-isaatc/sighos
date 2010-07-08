@@ -29,43 +29,31 @@ public class ElementActionInfo extends AsynchronousInfo {
 			
 		};
 	
-	private WorkItem sf;
-	private Activity act;
-	private ActivityWorkGroup wg;
-	private Element elem;
-	private Type type;
+	final private WorkItem wi;
+	final private Activity act;
+	final private ActivityWorkGroup wg;
+	final private Element elem;
+	final private Type type;
 	
-	public ElementActionInfo(Simulation simul, WorkItem sf, Element elem, Type type, long ts) {
+	public ElementActionInfo(Simulation simul, WorkItem wi, Element elem, Type type, long ts) {
 		super(simul, ts);
-		this.sf = sf;
-		this.act = sf.getActivity();
-		this.wg = sf.getExecutionWG();
+		this.wi = wi;
+		this.act = wi.getActivity();
+		this.wg = wi.getExecutionWG();
 		this.elem = elem;
 		this.type = type;
 	}
 	
-	public Element getElem() {
+	public Element getElement() {
 		return elem;
 	}
 	
-	public void setElem(Element elem) {
-		this.elem = elem;
-	}
-	
-	public WorkItem getSf() {
-		return sf;
-	}
-	
-	public void setSf(WorkItem sf) {
-		this.sf = sf;
+	public WorkItem getWorkItem() {
+		return wi;
 	}
 	
 	public Type getType() {
 		return type;
-	}
-	
-	public void setType(Type type) {
-		this.type = type;
 	}
 	
 	public String toString() {
@@ -83,7 +71,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 		return act;
 	}
 
-	public ActivityWorkGroup getWg() {
+	public ActivityWorkGroup getWorkGroup() {
 		return wg;
 	}
 }

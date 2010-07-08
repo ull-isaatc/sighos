@@ -23,8 +23,8 @@ public class ElementInfo extends AsynchronousInfo {
 
 		};
 	
-	private Element elem;
-	private Type type;
+	final private Element elem;
+	final private Type type;
 	
 	public ElementInfo(Simulation simul, Element elem, Type type, long ts) {
 		super(simul, ts);
@@ -32,17 +32,12 @@ public class ElementInfo extends AsynchronousInfo {
 		this.type = type;
 	}
 	
-	public Element getElem() {
+	public Element getElement() {
 		return elem;
 	}
-	public void setElem(Element elem) {
-		this.elem = elem;
-	}
+
 	public Type getType() {
 		return type;
-	}
-	public void setType(Type type) {
-		this.type = type;
 	}
 	
 	public String toString() {

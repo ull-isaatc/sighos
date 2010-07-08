@@ -29,7 +29,7 @@ public class CancelTimeView extends VarView {
 		String message = new String();
 		if (info instanceof ResourceInfo) {
 			ResourceInfo resInfo = (ResourceInfo) info;
-			Resource res = resInfo.getRes();
+			Resource res = resInfo.getResource();
 			Long requestTime = resInfo.getTs();
 			StartCounter counter = cancelStarts.get(res);
 			if (isDebugMode())

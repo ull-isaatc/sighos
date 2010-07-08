@@ -39,9 +39,9 @@ public class WaitTimeView extends VarView {
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof ElementActionInfo) {
 			ElementActionInfo elemInfo = (ElementActionInfo) info;
-			WorkItem item = elemInfo.getSf();
+			WorkItem item = elemInfo.getWorkItem();
 			Activity act = elemInfo.getActivity();
-			Element elem = elemInfo.getElem();
+			Element elem = elemInfo.getElement();
 			ElementType et = elem.getType();
 			SimulObjectStore id = new SimulObjectStore(item, act, elem, et);
 			switch(elemInfo.getType()) {

@@ -38,8 +38,8 @@ public class AvailabilityTimeView extends VarView {
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof ResourceInfo) {
 			ResourceInfo resInfo = (ResourceInfo) info;
-			Resource res = resInfo.getRes();
-			ResourceType rt = resInfo.getRt();
+			Resource res = resInfo.getResource();
+			ResourceType rt = resInfo.getResourceType();
 			long ts = resInfo.getTs();
 			String message = new String();
 			if (isDebugMode()) {

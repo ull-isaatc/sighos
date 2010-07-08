@@ -13,6 +13,4 @@ public abstract class SimulationInfo {
 	public Simulation getSimul() {
 		return simul;
 	}
-	
-	public abstract String toString();
 }
