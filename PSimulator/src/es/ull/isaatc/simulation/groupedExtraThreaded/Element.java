@@ -110,7 +110,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 		simul.getInfoHandler().notifyInfo(new ElementInfo(this.simul, this, ElementInfo.Type.START, this.getTs()));
 		simul.addActiveElement(this);
 		if (initialFlow != null) {
-			addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
+			addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread());
 		}
 		else
 			notifyEnd();
