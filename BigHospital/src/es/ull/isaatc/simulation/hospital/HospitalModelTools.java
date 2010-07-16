@@ -29,6 +29,7 @@ public class HospitalModelTools {
 	private static TimeStamp stdMaterialResourceAvailability = null;
 	private static SimulationCycle stdMaterialResourceCycle = null;
 	private static WorkGroup dummyWG = null;
+	private static TimeStamp scale = null;
 	public static final TimeStamp DAYSTART = new TimeStamp(TimeUnit.HOUR, 8);
 	public static final TimeStamp WORKHOURS = new TimeStamp(TimeUnit.HOUR, 8);
 	
@@ -88,6 +89,19 @@ public class HospitalModelTools {
 		return rt;
 	}
 	
+	public static void setScale(TimeStamp scale) {
+		HospitalModelTools.scale = scale;
+	}
+	
+	public static SimulationTimeFunction getScaledSimulationTimeFunction(TimeUnit unit, String className, Object... parameters) {
+		if (scale == null) {
+			return new SimulationTimeFunction(unit, className, parameters);
+		}
+		else {
+			return getNextHighFunction(unit, scale, TimeStamp.getZero(), className, parameters);
+		}			
+	}
+	
 	public static SimulationTimeFunction getNextHighFunction(TimeUnit unit, TimeStamp scale, TimeStamp shift, String className, Object... parameters) {
 		SimulationTimeFunction innerFunc = new SimulationTimeFunction(unit, className, parameters);
 		return new SimulationTimeFunction(unit, "NextHighFunction", innerFunc, scale, shift);
@@ -118,7 +132,7 @@ public class HospitalModelTools {
 	public static TimeDrivenActivity getWaitTilNextDay(SimulationObjectFactory factory, String description, TimeStamp startNextDay) {
 		if (dummyWG == null)
 			dummyWG = factory.getWorkGroupInstance(new ResourceType[] {}, new int[] {});
-		TimeDrivenActivity act  = factory.getTimeDrivenActivityInstance(description);
+		TimeDrivenActivity act  = factory.getTimeDrivenActivityInstance(description, 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		act.addWorkGroup(getNextHighFunction(factory.getSimulation().getTimeUnit(),	
 				TimeStamp.getDay(), startNextDay, "ConstantVariate", TimeStamp.getMinute()), dummyWG);
 		return act;

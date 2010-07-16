@@ -138,17 +138,17 @@ public class CentralLabSubModel {
 		actOutCent = factory.getTimeDrivenActivityInstance("Centrifugation OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		actOutCent.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_CENT), wgCent);
 		actOutTest = factory.getTimeDrivenActivityInstance("Analysis OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actOutTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ANALYSIS), wgTest1);
-		actOutTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ANALYSIS), wgTest2);
+		actOutTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ANALYSIS), 0, wgTest1);
+		actOutTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ANALYSIS), 1, wgTest2);
 		actOutHaeTest = factory.getTimeDrivenActivityInstance("Haematology Analysis OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actOutHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAEANALYSIS), wgTestHae1);
-		actOutHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAEANALYSIS), wgTestHae2);
+		actOutHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAEANALYSIS), 0, wgTestHae1);
+		actOutHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAEANALYSIS), 1, wgTestHae2);
 		actOutMicTest = factory.getTimeDrivenActivityInstance("Microbiology Analysis OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actOutMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROANALYSIS), wgTestMic1);
-		actOutMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROANALYSIS), wgTestMic2);
+		actOutMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROANALYSIS), 0, wgTestMic1);
+		actOutMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROANALYSIS), 1, wgTestMic2);
 		actOutPatTest = factory.getTimeDrivenActivityInstance("Anatomopathology Analysis OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actOutPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATANALYSIS), wgTestPat1);
-		actOutPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATANALYSIS), wgTestPat2);
+		actOutPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATANALYSIS), 0, wgTestPat1);
+		actOutPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATANALYSIS), 1, wgTestPat2);
 		
 		// Creates more priority activities for inpatients
 		actInSample = factory.getTimeDrivenActivityInstance("Take a sample IP", 1, EnumSet.noneOf(TimeDrivenActivity.Modifier.class));
@@ -156,17 +156,17 @@ public class CentralLabSubModel {
 		actInCent = factory.getTimeDrivenActivityInstance("Centrifugation IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		actInCent.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_CENT), wgCent);
 		actInTest = factory.getTimeDrivenActivityInstance("Analysis IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actInTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ANALYSIS), wgTest1);
-		actInTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ANALYSIS), wgTest2);
+		actInTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ANALYSIS), 0, wgTest1);
+		actInTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ANALYSIS), 1, wgTest2);
 		actInHaeTest = factory.getTimeDrivenActivityInstance("Haematology Analysis IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actInHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAEANALYSIS), wgTestHae1);
-		actInHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAEANALYSIS), wgTestHae2);
+		actInHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAEANALYSIS), 0, wgTestHae1);
+		actInHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAEANALYSIS), 1, wgTestHae2);
 		actInMicTest = factory.getTimeDrivenActivityInstance("Microbiology Analysis IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actInMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROANALYSIS), wgTestMic1);
-		actInMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROANALYSIS), wgTestMic2);
+		actInMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROANALYSIS), 0, wgTestMic1);
+		actInMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROANALYSIS), 1, wgTestMic2);
 		actInPatTest = factory.getTimeDrivenActivityInstance("Anatomopathology Analysis IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actInPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATANALYSIS), wgTestPat1);
-		actInPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATANALYSIS), wgTestPat2);
+		actInPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATANALYSIS), 0, wgTestPat1);
+		actInPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATANALYSIS), 1, wgTestPat2);
 	}
 
 	/**
