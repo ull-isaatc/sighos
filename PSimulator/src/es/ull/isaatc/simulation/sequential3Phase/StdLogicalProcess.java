@@ -82,6 +82,8 @@ public class StdLogicalProcess extends LogicalProcess {
                         flag = false;
                     }
                 } while ( flag );
+                for (ActivityManager am : simul.getActivityManagerList())
+                	am.executeWork();
             }
         }        
     }

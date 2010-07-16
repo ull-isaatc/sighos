@@ -48,7 +48,9 @@ public class SimulationFactory {
 		GROUPED3PHASE,
 		GROUPED3PHASEX,
 		BONNGROUPEDX,
-		BONNGROUPEDXX
+		BONNGROUPEDXX,
+		SEQ3PHASE,
+		SEQ3PHASE2
 		
 	}
 	public static SimulationObjectFactory getInstance(SimulationType type, int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
@@ -67,6 +69,8 @@ public class SimulationFactory {
 		case GROUPED3PHASEX: return new es.ull.isaatc.simulation.groupedExtra3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONNGROUPEDX: return new es.ull.isaatc.simulation.bonnThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case BONNGROUPEDXX: return new es.ull.isaatc.simulation.bonnXThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case SEQ3PHASE: return new es.ull.isaatc.simulation.sequential3Phase.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case SEQ3PHASE2: return new es.ull.isaatc.simulation.sequential3Phase.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
 		}
 		return null;
 	}

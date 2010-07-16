@@ -145,7 +145,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
 		elem.debug("Starts\t" + this + "\t" + description);
 		InitializerFlow initialFlow = ((FlowDrivenActivity.ActivityWorkGroup)wItem.getExecutionWG()).getInitialFlow();
-		wItem.getWorkThread().getElement().addRequestEvent(initialFlow, wItem.getWorkThread().getInstanceDescendantWorkThread(initialFlow));
+		wItem.getWorkThread().getElement().addDelayedRequestEvent(initialFlow, wItem.getWorkThread().getInstanceDescendantWorkThread(initialFlow));
 	}
 
 	/*
@@ -165,7 +165,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 //		}
 
 		for (ActivityManager am : amList)
-			am.availableResource();
+			am.notifyResource();
 
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 		if (elem.isDebugEnabled())
@@ -194,15 +194,6 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 		
 	}
 
-	/**
-	 * All elements are valid to perform a flow-driven activity.
-	 * @param wItem Work item requesting this activity 
-	 */
-	@Override
-	public boolean validElement(WorkItem wItem) {
-		return true;
-	}
-    
 	@Override
 	public String getObjectTypeIdentifier() {
 		return "FACT";

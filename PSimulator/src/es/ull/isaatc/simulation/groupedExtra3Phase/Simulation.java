@@ -130,7 +130,8 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
         for (int i = 0; i < nThreads; i++) {
 			executor[i] = new SlaveEventExecutor(i);
         }
-        barrier = new TournamentBarrier(executor.length, new BarrierAction());
+        if (nThreads > 1)
+        	barrier = new TournamentBarrier(executor.length, new BarrierAction());
         
         // Distributes the AMs among the executors
         for (int i = 0; i < activityManagerList.size(); i++)

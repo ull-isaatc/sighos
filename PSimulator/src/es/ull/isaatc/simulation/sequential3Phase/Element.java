@@ -1,6 +1,5 @@
 package es.ull.isaatc.simulation.sequential3Phase;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -139,8 +138,9 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	 * available. All the activities this element is in their queues are notified.
 	 */
 	protected void addAvailableElementEvents() {
-		for (int i = 0; (current == null) && (i < inQueue.size()); i++)
-			addEvent(new AvailableElementEvent(ts, inQueue.get(i)));
+		for (WorkItem wi : inQueue)
+			if (!wi.getActivity().isNonPresential())
+				wi.getActivity().getManager().notifyElement(wi);
 	}
 	
 	/**
@@ -150,6 +150,10 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 	 */
 	public void addRequestEvent(Flow f, WorkThread wThread) {
 		addEvent(new RequestFlowEvent(ts, f, wThread));
+	}
+	
+	public void addDelayedRequestEvent(Flow f, WorkThread wThread) {
+		addEvent(new RequestFlowEvent(ts + 1, f, wThread));
 	}
 	
 	public void initializeElementVars(HashMap<String, Object> varList) {
@@ -218,33 +222,4 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 		}
 	}
 	
-	/**
-	 * Informs an activity about an available element in its queue.
-	 * @author Iván Castilla Rodríguez
-	 */
-	public class AvailableElementEvent extends BasicElement.DiscreteEvent {
-		/** Flow informed of the availability of the element */
-		private final WorkItem eThread;
-
-		public AvailableElementEvent(long ts, WorkItem eThread) {
-			super(ts, eThread.getActivity().getManager().getLp());
-			this.eThread = eThread;
-		}
-
-		@Override
-		public void event() {
-			Activity act = eThread.getActivity();
-
-			if (isDebugEnabled())
-				debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
-			// If the element is not performing a presential activity yet
-			if (current == null) {
-				ArrayDeque<Resource> solution = act.isFeasible(eThread);
-				if (solution != null) {
-					act.carryOut(eThread, solution);
-					act.queueRemove(eThread);
-				}
-			}
-		}
-	}
 }

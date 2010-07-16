@@ -28,6 +28,8 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     private LogicalProcess lp;
     /** This queue contains the work items that are waiting for activities of this AM */
     private final WorkItemQueue wiQueue;
+    private final ArrayDeque<WorkItem> requestingElements = new ArrayDeque<WorkItem>();
+    private volatile boolean avResource = false;
     
    /**
 	* Creates a new instance of ActivityManager.
@@ -89,6 +91,14 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     	wiQueue.remove(wi);
     }
     
+    protected void notifyElement(WorkItem wi) {
+       	requestingElements.add(wi);			
+    }
+    
+    protected void notifyResource() {
+    	avResource = true;
+    }
+        
     /**
      * Informs the activities of new available resources. Reviews the queue of waiting work items 
      * looking for those which can be executed with the new available resources. The work items 
@@ -98,7 +108,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * which can't be performed with the current resources. If this amount is equal to the size
      * of waiting work items, this method stops. 
      */
-    protected void availableResource() {
+    private void availableResource() {
     	// First marks all the activities as "potentially feasible"
     	for (Activity act : activityList)
         	act.resetFeasible();
@@ -114,7 +124,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
             
     		// The element's timestamp is updated. That's only useful to print messages
             e.setTs(getTs());
-            if (act.validElement(sf)) {
+            if (act.isNonPresential() || e.getCurrent() == null) {
             	ArrayDeque<Resource> solution = act.isFeasible(sf); 
             	if (solution != null) {	// The activity can be performed
                     act.carryOut(sf, solution);
@@ -130,6 +140,32 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     	for (WorkItem sf : toRemove)
     		sf.getActivity().queueRemove(sf);
     } 
+
+	protected void executeWork() {
+		if (!requestingElements.isEmpty() || avResource) {
+			if (avResource) {
+				availableResource();
+				avResource = false;
+				requestingElements.clear();
+			}
+			else {
+				while (!requestingElements.isEmpty()) {
+					final WorkItem wi = requestingElements.poll();
+					final Element elem = wi.getElement();
+					final Activity act = wi.getActivity();
+					if (elem.isDebugEnabled())
+						elem.debug("Calling availableElement()\t" + act);
+					if (act.isNonPresential() || elem.getCurrent() == null) {
+		            	ArrayDeque<Resource> solution = act.isFeasible(wi); 
+		            	if (solution != null) {	// The activity can be performed
+							act.carryOut(wi, solution);
+							act.queueRemove(wi);
+						}
+					}
+				}
+			}
+		}
+	}
 
     /**
      * Returns an iterator over the array containing the work items which have requested

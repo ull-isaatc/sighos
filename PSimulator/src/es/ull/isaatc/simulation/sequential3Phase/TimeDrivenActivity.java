@@ -143,16 +143,6 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 		return "TACT";
 	}
 
-	/**
-	 * An element is valid to perform a time-driven activity is it's not currently carrying 
-	 * out another activity or this activity is non presential.
-	 * @param wItem Work item requesting this activity 
-	 */
-	@Override
-	public boolean validElement(WorkItem wItem) {
-		return (wItem.getElement().getCurrent() == null || isNonPresential());
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Activity#request(es.ull.isaatc.simulation.WorkItem)
@@ -163,20 +153,9 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.REQACT, elem.getTs()));
 		if (elem.isDebugEnabled())
 			elem.debug("Requests\t" + this + "\t" + description);
-		// If the element is not performing a presential activity yet or the
-		// activity to be requested is non presential
-		if (validElement(wItem)) {
-			// There are enough resources to perform the activity
-			ArrayDeque<Resource> solution = isFeasible(wItem); 
-			if (solution != null) {
-				carryOut(wItem, solution);
-			}
-			else {
-				queueAdd(wItem); // The element is introduced in the queue
-			}
-		} else {
-			queueAdd(wItem); // The element is introduced in the queue
-		}
+		
+		queueAdd(wItem); // The element is introduced in the queue
+		manager.notifyElement(wItem);
 	}
 	
 	/**
@@ -233,10 +212,10 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 
 		// FIXME: Esto sustituye a lo anterior para que sea determinista
 		for (ActivityManager am : amList)
-			am.availableResource();
+			am.notifyResource();
 
-		// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
-		if (wItem.getTimeLeft() <= 0.0) {
+		assert wItem.getTimeLeft() >= 0 : "Time left < 0: " + wItem.getTimeLeft();
+		if (wItem.getTimeLeft() == 0) {
 			simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + description);

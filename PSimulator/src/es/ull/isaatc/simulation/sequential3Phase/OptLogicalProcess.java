@@ -56,6 +56,9 @@ public class OptLogicalProcess extends LogicalProcess {
     protected void execWaitingElements() {
         while (!execQueue.isEmpty())
     		execQueue.pop().run();
+        for (ActivityManager am : simul.getActivityManagerList())
+        	am.executeWork();
+        
         // Extracts the first event
         if (! waitQueue.isEmpty()) {
             BasicElement.DiscreteEvent e = removeWait();

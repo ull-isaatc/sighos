@@ -302,7 +302,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
         		role.incAvailable(Resource.this);
         		addRole(role, ts + duration);
         		// The activity manger is informed of new available resources
-        		role.getManager().availableResource(); 
+        		role.getManager().notifyResource(); 
         		role.afterRoleOn();
         		RoleOffEvent rEvent = new RoleOffEvent(ts + duration, role, iter, duration);
         		addEvent(rEvent);
@@ -439,7 +439,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 			setNotCanceled(true);
 			for (ActivityManager am : getCurrentManagers()) {
 				// The activity manger is informed of new available resources
-				am.availableResource(); 
+				am.notifyResource(); 
 			}
 			long nextTs = -1;
 			if (iter != null)
