@@ -329,26 +329,14 @@ public class StdSurgicalSubModel {
 	}
 
 	public static void createDeterministicModel(SimulationObjectFactory factory, String code, ModelParameterMap params) {
-		for (Parameters p : Parameters.values())
-			if (params.get(p) == null)
-				throw new IllegalArgumentException("Param <<" + p + ">> missing");
-		
 		final Simulation simul = factory.getSimulation();
 		// Element types
 		ElementType et = factory.getElementTypeInstance(code + " Patient");
 		et.addElementVar("maketest", 0);
 		
 		// Resource types and standard resources
-//		ResourceType rtBed = HospitalModelTools.createNStdMaterialResources(factory, code + " Bed", (Integer)params.get(Parameters.NBEDS)); 
-//		ResourceType rtSurgeon = HospitalModelTools.createNStdHumanResources(factory, code + " Surgeon", (Integer)params.get(Parameters.NSURGEONS));
-//		ResourceType rtSurgery = HospitalModelTools.createNStdMaterialResources(factory, code + " Surgery", (Integer)params.get(Parameters.NSURGERIES));
-//		ResourceType rtScrubNurse = HospitalModelTools.createNStdHumanResources(factory, code + " Scrub Nurse", (Integer)params.get(Parameters.NSCRUBNURSES)); 
-		ResourceType rtDoctorFirst = factory.getResourceTypeInstance(code + " Doctor 1st");
 		ResourceType rtDoctorSucc = factory.getResourceTypeInstance(code + " Doctor Succ");
-//		ResourceType rtSurgeryAssist = factory.getResourceTypeInstance(code + " Surgery Assistant");
 		
-		SimulationCycle doctorFirstCycle = new SimulationWeeklyPeriodicCycle(simul.getTimeUnit(), 
-				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelTools.DAYSTART, 0);
 		final double probFirstApp = ((Double)params.get(Parameters.PROB_1ST_APP)).doubleValue();
 		long hoursFirst = Math.round(HospitalModelTools.WORKHOURS.getValue() * probFirstApp);
 		SimulationCycle doctorSuccCycle = new SimulationWeeklyPeriodicCycle(simul.getTimeUnit(), 
@@ -358,43 +346,20 @@ public class StdSurgicalSubModel {
 		final int nDoctors = ((Integer)params.get(Parameters.NDOCTORS)).intValue();
 		for (int i = 0; i < nDoctors; i++) {
 			Resource res = factory.getResourceInstance(code + " Doctor " + i);
-			res.addTimeTableEntry(doctorFirstCycle, new TimeStamp(TimeUnit.HOUR, hoursFirst), rtDoctorFirst);
 			res.addTimeTableEntry(doctorSuccCycle, new TimeStamp(TimeUnit.HOUR, HospitalModelTools.WORKHOURS.getValue() - hoursFirst), rtDoctorSucc);
 		}
-//		final int nSurgAssist = ((Integer)params.get(Parameters.NSURGERY_ASSIST)).intValue();
-//		// Surgery assistants are doubled because can be used in two surgeries at the same time
-//		for (int i = 0; i < nSurgAssist; i++) {
-//			HospitalModelTools.getStdHumanResource(factory, code + " Surgery Assistant" + i + "a", rtSurgeryAssist);
-//			HospitalModelTools.getStdHumanResource(factory, code + " Surgery Assistant" + i + "b", rtSurgeryAssist);
-//		}
 
 		// Workgroups
-//		WorkGroup wgBed = factory.getWorkGroupInstance(new ResourceType[] {rtBed}, new int[] {1});
-		WorkGroup wgDocFirst = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorFirst}, new int[] {1});
 		WorkGroup wgDocSucc = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorSucc}, new int[] {1});
-//		WorkGroup wgSur = factory.getWorkGroupInstance(new ResourceType[] {rtSurgery, rtSurgeon, rtScrubNurse, rtSurgeryAssist, SurgicalSubModel.getAnaesthetistRT()}, new int[] {1, 1, 1, 1, 1});
 
 		// Time Driven Activities
-		TimeDrivenActivity actFirstApp = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " 1st Out App",
-				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP1), wgDocFirst, true);
 		TimeDrivenActivity actDelaySucc = HospitalModelTools.getDelay(factory, code + " Waiting for next appointment", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2OP), false);
 		TimeDrivenActivity actSuccApp = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " Successive Out App",
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2), wgDocSucc, true);
-//		TimeDrivenActivity actDelayPOP = HospitalModelTools.getDelay(factory, code + " Waiting for post-surgery appointment", 
-//				(SimulationTimeFunction)params.get(Parameters.LENGTH_SUR2POP), false);
-//		TimeDrivenActivity actDelayAppAdm = HospitalModelTools.getDelay(factory, code + " Waiting for admission", 
-//				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2ADM), false);
-//		TimeDrivenActivity actPostSurApp = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " Post-Surgery App",
-//				(SimulationTimeFunction)params.get(Parameters.LENGTH_POP), wgDocSucc, true);
-//		TimeDrivenActivity actSurgery = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " Surgery", 
-//				(SimulationTimeFunction)params.get(Parameters.LENGTH_SUR), wgSur, true);
-//		TimeDrivenActivity actDelayPostSur = HospitalModelTools.getDelay(factory, code + " Recovering after Surgery",
-//				(SimulationTimeFunction)params.get(Parameters.LENGTH_SUR2EXIT), true);
 
 		// Flows
 		// Let's do that patients can directly go to the main loop (just to avoid warmup)
-		SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", actFirstApp);
 		
 		StructuredSynchroMergeFlow testDecision = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
 		Flow[] labTest = CentralLabSubModel.getOPFlow(factory, (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
@@ -413,34 +378,8 @@ public class StdSurgicalSubModel {
 		beforeSucc.link(succ);
 
 		ForLoopFlow mainLoop = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", beforeSucc, succ, (TimeFunction)params.get(Parameters.ITERSUCC));
-		root.link(mainLoop);
 		
-//		SimulationUserCode userCodeEnableIPTests = new SimulationUserCode();
-//		userCodeEnableIPTests.add(UserMethod.AFTER_START, "<%SET(@E.maketest, 1)%>;");
-//		SimulationUserCode userCodeDisableIPTests = new SimulationUserCode();
-//		userCodeDisableIPTests.add(UserMethod.AFTER_FINALIZE, "<%SET(@E.maketest, 0)%>;");
-
-		// Flow for ordinary surgical patients
-//		FlowDrivenActivity actStay = factory.getFlowDrivenActivityInstance(code + " Stay in bed");
-//		SingleFlow surgicalPhase = (SingleFlow)factory.getFlowInstance("SingleFlow", userCodeEnableIPTests, actStay);
-//		mainLoop.link(surgicalPhase);
-//		SingleFlow ordinaryAdmission = (SingleFlow)factory.getFlowInstance("SingleFlow", actDelayAppAdm);
-//		SingleFlow surgery = (SingleFlow)factory.getFlowInstance("SingleFlow", actSurgery);
-//		ordinaryAdmission.link(surgery);
-//
-//		SurgicalSubModel.addPACUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PACU), et);
-//		SingleFlow PACU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalSubModel.getActPACU());
-//		surgery.link(PACU);
-//		SingleFlow postOp = (SingleFlow)factory.getFlowInstance("SingleFlow", userCodeDisableIPTests, actDelayPostSur);
-//		PACU.link(postOp);
-//
-//		actStay.addWorkGroup(ordinaryAdmission, postOp, wgBed);
-//		SingleFlow delayPostSur = (SingleFlow)factory.getFlowInstance("SingleFlow", actDelayPOP);
-//		surgicalPhase.link(delayPostSur);
-//		SingleFlow postSurApp = (SingleFlow)factory.getFlowInstance("SingleFlow", actPostSurApp);
-//		delayPostSur.link(postSurApp);
-		
-		ElementCreator ec = factory.getElementCreatorInstance((TimeFunction)params.get(Parameters.NPATIENTS), et, root);
+		ElementCreator ec = factory.getElementCreatorInstance((TimeFunction)params.get(Parameters.NPATIENTS), et, mainLoop);
 		factory.getTimeDrivenGeneratorInstance(ec, (SimulationCycle)params.get(Parameters.INTERARRIVAL));
 	}
 	
@@ -451,11 +390,8 @@ public class StdSurgicalSubModel {
 		et.addElementVar("maketest", 0);
 		
 		// Resource types and standard resources
-		ResourceType rtDoctorFirst = factory.getResourceTypeInstance(code + " Doctor 1st");
 		ResourceType rtDoctorSucc = factory.getResourceTypeInstance(code + " Doctor Succ");
 		
-		SimulationCycle doctorFirstCycle = new SimulationWeeklyPeriodicCycle(simul.getTimeUnit(), 
-				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelTools.DAYSTART, 0);
 		final double probFirstApp = ((Double)params.get(Parameters.PROB_1ST_APP)).doubleValue();
 		long hoursFirst = Math.round(HospitalModelTools.WORKHOURS.getValue() * probFirstApp);
 		SimulationCycle doctorSuccCycle = new SimulationWeeklyPeriodicCycle(simul.getTimeUnit(), 
@@ -465,17 +401,13 @@ public class StdSurgicalSubModel {
 		final int nDoctors = ((Integer)params.get(Parameters.NDOCTORS)).intValue();
 		for (int i = 0; i < nDoctors; i++) {
 			Resource res = factory.getResourceInstance(code + " Doctor " + i);
-			res.addTimeTableEntry(doctorFirstCycle, new TimeStamp(TimeUnit.HOUR, hoursFirst), rtDoctorFirst);
 			res.addTimeTableEntry(doctorSuccCycle, new TimeStamp(TimeUnit.HOUR, HospitalModelTools.WORKHOURS.getValue() - hoursFirst), rtDoctorSucc);
 		}
 
 		// Workgroups
-		WorkGroup wgDocFirst = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorFirst}, new int[] {1});
 		WorkGroup wgDocSucc = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorSucc}, new int[] {1});
 
 		// Time Driven Activities
-		TimeDrivenActivity actFirstApp = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " 1st Out App",
-				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP1), wgDocFirst, true);
 		TimeDrivenActivity actDelaySucc = HospitalModelTools.getDelay(factory, code + " Waiting for next appointment", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2OP), false);
 		TimeDrivenActivity actSuccApp = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " Successive Out App",
@@ -483,12 +415,6 @@ public class StdSurgicalSubModel {
 
 		// Flows
 		// Let's do that patients can directly go to the main loop (just to avoid warmup)
-		ProbabilitySelectionFlow root = (ProbabilitySelectionFlow)factory.getFlowInstance("ProbabilitySelectionFlow");
-		SingleFlow first = (SingleFlow)factory.getFlowInstance("SingleFlow", actFirstApp);
-		ExclusiveChoiceFlow firstDecision = (ExclusiveChoiceFlow)factory.getFlowInstance("ExclusiveChoiceFlow");
-		first.link(firstDecision);
-		root.link(first, 0.15);
-		
 		StructuredSynchroMergeFlow testDecision = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
 		Flow[] labTest = CentralLabSubModel.getOPFlow(factory, (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
 				(Double)params.get(Parameters.PROB_LABMIC_OP), (Double)params.get(Parameters.PROB_LABPAT_OP)); 
@@ -506,10 +432,8 @@ public class StdSurgicalSubModel {
 		beforeSucc.link(succ);
 
 		ForLoopFlow mainLoop = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", beforeSucc, succ, (TimeFunction)params.get(Parameters.ITERSUCC));
-		firstDecision.link(mainLoop, new PercentageCondition(80));
-		root.link(mainLoop, 0.85);
 		
-		ElementCreator ec = factory.getElementCreatorInstance((TimeFunction)params.get(Parameters.NPATIENTS), et, root);
+		ElementCreator ec = factory.getElementCreatorInstance((TimeFunction)params.get(Parameters.NPATIENTS), et, mainLoop);
 		factory.getTimeDrivenGeneratorInstance(ec, (SimulationCycle)params.get(Parameters.INTERARRIVAL));
 	}	
 }

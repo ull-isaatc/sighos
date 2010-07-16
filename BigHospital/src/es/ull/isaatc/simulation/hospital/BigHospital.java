@@ -50,11 +50,11 @@ class BigHospitalExperiment extends Experiment {
 	private void addViews(Simulation simul) {
 		simul.setNThreads(threads);
 //		simul.addInfoReceiver(new ActivityQueueFileSafeView(simul, "C:\\queue.txt", viewPeriod));
-		simul.addInfoReceiver(new ExecutionCounterFileSafeView(simul, "C:\\total.txt", warmUp, viewPeriod));
-		simul.addInfoReceiver(new ActivityLengthFileSafeView(simul, "C:\\act.txt", warmUp));
+//		simul.addInfoReceiver(new ExecutionCounterFileSafeView(simul, "C:\\total.txt", warmUp, viewPeriod));
+//		simul.addInfoReceiver(new ActivityLengthFileSafeView(simul, "C:\\act.txt", warmUp));
 //		simul.addInfoReceiver(new NurseUsageFileSafeView(simul, "C:\\outTime.txt"));
 //		simul.addInfoReceiver(new SimultaneousEventFileSafeView(simul, "C:\\events2.txt"));
-		simul.addInfoReceiver(new ResourceUsageFileSafeView(simul, "C:\\res.txt", viewPeriod));
+//		simul.addInfoReceiver(new ResourceUsageFileSafeView(simul, "C:\\res.txt", viewPeriod));
 		simul.addInfoReceiver(new ActionsCounterView(simul, System.out));
 //		simul.addInfoReceiver(new PeriodStdInfoFileSafeView(simul, new TimeStamp(TimeUnit.DAY, 280), new TimeStamp(TimeUnit.DAY, 281), "C:\\trace.txt"));
 //		simul.addInfoReceiver(new PeriodStdInfoFileSafeView(simul, TimeStamp.getZero(), endTs, "C:\\trace.txt"));
@@ -203,22 +203,10 @@ class BigHospitalExperiment extends Experiment {
 		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_PATANALYSIS, HospitalModelTools.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 20));
 		CentralLabSubModel.createModel(factory, centralLabParams);
-		// Surgical common services
-		ModelParameterMap surParams = new ModelParameterMap(SurgicalSubModel.Parameters.values().length);
-		surParams.put(SurgicalSubModel.Parameters.NBEDS_ICU, 15);
-		surParams.put(SurgicalSubModel.Parameters.NBEDS_PACU, 10);
-		surParams.put(SurgicalSubModel.Parameters.NANAESTHETISTS, 4);
-		SurgicalSubModel.createModel(factory, surParams);
 		
 		// Gynaegology
 		ModelParameterMap gynParams = new ModelParameterMap(StdSurgicalSubModel.Parameters.values().length);
-		gynParams.put(StdSurgicalSubModel.Parameters.NBEDS, 20);
-		gynParams.put(StdSurgicalSubModel.Parameters.NSBEDS, 3);
-		gynParams.put(StdSurgicalSubModel.Parameters.NSURGEONS, 4);
-		gynParams.put(StdSurgicalSubModel.Parameters.NSURGERIES, 4);
 		gynParams.put(StdSurgicalSubModel.Parameters.NDOCTORS, 7);
-		gynParams.put(StdSurgicalSubModel.Parameters.NSCRUBNURSES, 4);
-		gynParams.put(StdSurgicalSubModel.Parameters.NSURGERY_ASSIST, 2);		
 		gynParams.put(StdSurgicalSubModel.Parameters.PROB_NUC_OP, 0.1);
 		gynParams.put(StdSurgicalSubModel.Parameters.PROB_RAD_OP, 0.01);
 		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LAB_OP, 0.95);
@@ -233,13 +221,6 @@ class BigHospitalExperiment extends Experiment {
 //		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABMIC_OP, 0.0);
 //		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABHAE_OP, 0.0);
 //		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABPAT_OP, 0.0);
-		gynParams.put(StdSurgicalSubModel.Parameters.PROB_NUC_IP, 0.0);
-		gynParams.put(StdSurgicalSubModel.Parameters.PROB_RAD_IP, 0.0);
-		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LAB_IP, 1.0);
-		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABLAB_IP, 1.0);
-		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABMIC_IP, 0.0);
-		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABHAE_IP, 0.0);
-		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABPAT_IP, 0.0);
 		// First OP Appointments takes up to the next quarter
 		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_OP1, HospitalModelTools.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", new TimeStamp(TimeUnit.MINUTE, 12))); 
@@ -253,45 +234,8 @@ class BigHospitalExperiment extends Experiment {
 		// Subsequent OP Appointments always ends at 5 minute multiples
 		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_OP2, HospitalModelTools.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", new TimeStamp(TimeUnit.MINUTE, 5))); 
-		gynParams.put(StdSurgicalSubModel.Parameters.PROB_ADM, 1.0);
-		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_SUR, HospitalModelTools.getScaledSimulationTimeFunction(unit, 
-				"ConstantVariate", new TimeStamp(TimeUnit.MINUTE, 90)));
-		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_SSUR, HospitalModelTools.getScaledSimulationTimeFunction(unit, 
-				"ConstantVariate", new TimeStamp(TimeUnit.MINUTE, 30)));
-		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_ASUR, HospitalModelTools.getScaledSimulationTimeFunction(unit, 
-				"ConstantVariate", new TimeStamp(TimeUnit.MINUTE, 20)));
-		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_POP, HospitalModelTools.getScaledSimulationTimeFunction(unit, 
-				"ConstantVariate", new TimeStamp(TimeUnit.MINUTE, 8)));
-		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_SUR2POP, 
-				HospitalModelTools.getNextHighFunction(unit, TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 8), 
-						"ConstantVariate", new TimeStamp(TimeUnit.DAY, 20)));
-		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_ICU, 
-				HospitalModelTools.getScaledSimulationTimeFunction(unit, "ConstantVariate", 
-				new TimeStamp(TimeUnit.DAY, 3)));
-		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_PACU, 
-				HospitalModelTools.getScaledSimulationTimeFunction(unit, "ConstantVariate", 
-				new TimeStamp(TimeUnit.HOUR, 7)));
-		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_SPACU, 
-				HospitalModelTools.getScaledSimulationTimeFunction(unit, "ConstantVariate", 
-				new TimeStamp(TimeUnit.HOUR, 2)));
-		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_APACU, 
-				HospitalModelTools.getScaledSimulationTimeFunction(unit, "ConstantVariate", 
-				new TimeStamp(TimeUnit.MINUTE, 20)));
-		// Patients wait at least one day after exiting, always at 12:00
-		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_SUR2EXIT, HospitalModelTools.getNextHighFunction(unit,
-				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 12), 
-				"ConstantVariate", TimeStamp.getDay()));
-		gynParams.put(StdSurgicalSubModel.Parameters.LENGTH_SSUR2EXIT, HospitalModelTools.getNextHighFunction(unit,
-				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 12), 
-				"ConstantVariate", new TimeStamp(TimeUnit.HOUR, 12)));
 		gynParams.put(StdSurgicalSubModel.Parameters.NPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 40));
-		gynParams.put(StdSurgicalSubModel.Parameters.NSPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 10));
-		gynParams.put(StdSurgicalSubModel.Parameters.NAPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 10));
 		gynParams.put(StdSurgicalSubModel.Parameters.INTERARRIVAL, 
-				new SimulationWeeklyPeriodicCycle(unit, WeeklyPeriodicCycle.WEEKDAYS, new TimeStamp(TimeUnit.MINUTE, PATIENTARRIVAL), 0));
-		gynParams.put(StdSurgicalSubModel.Parameters.SINTERARRIVAL, 
-				new SimulationWeeklyPeriodicCycle(unit, WeeklyPeriodicCycle.WEEKDAYS, new TimeStamp(TimeUnit.MINUTE, PATIENTARRIVAL), 0));
-		gynParams.put(StdSurgicalSubModel.Parameters.AINTERARRIVAL, 
 				new SimulationWeeklyPeriodicCycle(unit, WeeklyPeriodicCycle.WEEKDAYS, new TimeStamp(TimeUnit.MINUTE, PATIENTARRIVAL), 0));
 		gynParams.put(StdSurgicalSubModel.Parameters.ITERSUCC, 
 				TimeFunctionFactory.getInstance("ConstantVariate", 3));
@@ -449,9 +393,12 @@ class BigHospitalExperiment extends Experiment {
 		StdSurgicalSubModel.createModel(factory, "TRA", gynParams);
 		StdSurgicalSubModel.createModel(factory, "NEU", gynParams);
 		StdSurgicalSubModel.createModel(factory, "NEPH", gynParams);
-//		StdSurgicalSubModel.createModel(factory, "TRA2", gynParams);
-//		StdSurgicalSubModel.createModel(factory, "TRA3", gynParams);
-//		StdSurgicalSubModel.createModel(factory, "TRA4", gynParams);
+		StdSurgicalSubModel.createModel(factory, "TRA2", gynParams);
+		StdSurgicalSubModel.createModel(factory, "TRA3", gynParams);
+		StdSurgicalSubModel.createModel(factory, "TRA4", gynParams);
+		StdSurgicalSubModel.createModel(factory, "TRA5", gynParams);
+		StdSurgicalSubModel.createModel(factory, "TRA6", gynParams);
+		StdSurgicalSubModel.createModel(factory, "TRA7", gynParams);
 
 		// Traumatology
 		ModelParameterMap traParams = new ModelParameterMap(StdSurgicalSubModel.Parameters.values().length);
@@ -816,7 +763,7 @@ class BigHospitalExperiment extends Experiment {
 		// FIXME: Default generator (Mersenne twister) is failing with multiple threads
 		RandomNumberFactory.setDefaultClass("simkit.random.Congruential");
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Big Hospital", unit, TimeStamp.getZero(), endTs);
-		createDeterministicModel(factory);
+		createModel(factory);
 
 		Simulation simul = factory.getSimulation();
 		addViews(simul);

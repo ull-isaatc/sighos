@@ -133,6 +133,9 @@ public class CentralLabSubModel {
 		WorkGroup wgTestPat2 = factory.getWorkGroupInstance(new ResourceType[] {rtPatSlot, rtPatNurse}, new int[] {1, 1});
 		
 		// Activities
+		// TODO: Importante: en esta parte, si se usa siempre el 1er WG, el SEQUENTIAL acaba más elementos y ejecuta más eventos
+		// Si se usa siempre el 2º WG, el GROUPED3PHASEX acaba (considerablemente) más elementos y ejecuta más eventos (y tarda menos tiempo).
+		// Usando los 2 WG, incluso con prioridades, el caso es más parecido al primero.
 		actOutSample = factory.getTimeDrivenActivityInstance("Take a sample OP", 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class));
 		actOutSample.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_SAMPLE), wgSample);
 		actOutCent = factory.getTimeDrivenActivityInstance("Centrifugation OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
