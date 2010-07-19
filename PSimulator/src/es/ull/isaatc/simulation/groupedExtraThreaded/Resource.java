@@ -522,11 +522,12 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	}
 
 	/**
-	 * Checks if a resource is available.
+	 * Checks if a resource is available for a specific Resource Type. The resource type is used to prevent 
+	 * using a resource when it's becoming unavailable right at this timestamp. 
 	 * @return True if the resource is available.
 	 */
-	public boolean isAvailable() {
-		return ((getCurrentWI() == null) && (notCanceled));
+	public boolean isAvailable(ResourceType rt) {
+		return ((getCurrentWI() == null) && (notCanceled) && (getAvailability(rt) > ts));
 	}
 	
 	/**

@@ -76,7 +76,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
         for (; ind < availableResourceList.size(); ind++) {
             Resource res = availableResourceList.get(ind);
             // Checks if the resource is busy (taken by other element or conflict in the same activity)
-            if (res.isAvailable() && (res.getCurrentResourceType() == null)) {
+            if (res.isAvailable(this) && (res.getCurrentResourceType() == null)) {
             	return ind;
             }
         }
@@ -125,7 +125,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 		int counter = 0;
 		
 		for(Resource res: availableResourceList.getResources())
-			if (res.isAvailable())
+			if (res.isAvailable(this))
 				counter++;
 		return counter;
 	}

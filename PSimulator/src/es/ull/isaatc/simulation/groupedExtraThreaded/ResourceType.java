@@ -71,7 +71,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
             Resource res = availableResourceList.get(i);
     		res.waitSemaphore();
             // First, I check if the resource is being used
-            if (res.isAvailable()) {
+            if (res.isAvailable(this)) {
             	// This is needed to avoid resources which become unavailable at this ts
             	if (!wi.getActivity().isInterruptible() || res.getAvailability(this) > getTs()) {
 		            if (res.addBook(wi))
@@ -122,7 +122,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
     		res.waitSemaphore();
     		// Only resources booked for this SF can be taken into account.
     		// The resource could have been released after the book phase, so it's needed to recheck this.
-            if (res.isBooked(wi) && (res.isAvailable()) && (res.getCurrentResourceType() == null)) {
+            if (res.isBooked(wi) && (res.isAvailable(this)) && (res.getCurrentResourceType() == null)) {
         		res.signalSemaphore();
             	return ind;
             }
@@ -154,7 +154,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
     		// Only resources booked by this SF are taken into account
     		if (res.isBooked(wi)) {
                 // Checks the availability of the resource
-                if (res.isAvailable()) {
+                if (res.isAvailable(this)) {
                 	// The resource has no conflict
                 	if (res.getCurrentResourceType() == null) {
     	            	if (n > 0) {
@@ -231,7 +231,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 		int counter = 0;
 		
 		for(Resource res: availableResourceList.getResources())
-			if (res.isAvailable())
+			if (res.isAvailable(this))
 				counter++;
 		return counter;
 	}
