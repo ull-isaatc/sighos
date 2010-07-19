@@ -449,8 +449,12 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	     * @return True if there is a reachable solution. False in other case.
 	     */
 	    protected boolean hasSolution(int []pos, int []nec, WorkItem wi) {
-	        for (int i = pos[0]; i < resourceTypes.length; i++) {
-	            if (!resourceTypes[i].checkNeeded(pos[1], nec[i]))
+	    	// Checks the current RT
+            if (!resourceTypes[pos[0]].checkNeeded(pos[1], nec[pos[0]]))
+            	return false;
+            // For the next resource types, the first index must be 0
+	        for (int i = pos[0] + 1; i < resourceTypes.length; i++) {
+	            if (!resourceTypes[i].checkNeeded(0, nec[i]))
 	            	return false;
 	        }
 	        return true;

@@ -473,9 +473,10 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	     * @return True if there is a reachable solution. False in other case.
 	     */
 	    protected boolean hasSolution(int []pos, int []nec, WorkItem wi) {
+	    	// Start revision in current position
+            int j = pos[1];
 	        for (int i = pos[0]; i < resourceTypes.length; i++) {
 	            ResourceType rt = resourceTypes[i];
-	            int j = pos[1];
 	            Resource res;
 	            int disp = 0;            
 	            while (((res = rt.getResource(j)) != null) && (disp < nec[i])) {
@@ -487,6 +488,8 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	        		res.signalSemaphore();
 	                j++;
 	            }
+	            // For the following RTs, starts from the first one
+	            j = 0;
 	            if (disp < nec[i])
 	                return false;
 	        }
