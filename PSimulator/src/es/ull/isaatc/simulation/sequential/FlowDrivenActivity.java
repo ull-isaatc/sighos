@@ -10,6 +10,7 @@ import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.sequential.flow.BasicFlow;
 import es.ull.isaatc.simulation.sequential.flow.FinalizerFlow;
 import es.ull.isaatc.simulation.sequential.flow.InitializerFlow;
+import es.ull.isaatc.util.RandomPermutation;
 
 /**
  * A task which could be carried out by an element and whose duration depends on the finalization
@@ -158,14 +159,14 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 
 		ArrayList<ActivityManager> amList = wItem.releaseCaughtResources();
 
-//		int[] order = RandomPermutation.nextPermutation(amList.size());
-//		for (int ind : order) {
-//			ActivityManager am = amList.get(ind);
-//			am.availableResource();
-//		}
-
-		for (ActivityManager am : amList)
+		int[] order = RandomPermutation.nextPermutation(amList.size());
+		for (int ind : order) {
+			ActivityManager am = amList.get(ind);
 			am.availableResource();
+		}
+
+//		for (ActivityManager am : amList)
+//			am.availableResource();
 
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 		if (elem.isDebugEnabled())

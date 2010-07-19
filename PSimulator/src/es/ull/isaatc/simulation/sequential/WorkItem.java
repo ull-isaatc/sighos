@@ -223,4 +223,8 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
         return amList;
     }
 
+	@Override
+	public String toString() {
+		return wThread + "\tACT: " + act.getDescription();
+	}
 }

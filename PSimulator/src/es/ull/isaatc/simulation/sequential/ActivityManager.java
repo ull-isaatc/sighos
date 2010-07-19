@@ -182,7 +182,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	protected class WorkItemQueue extends PrioritizedMap<TreeSet<WorkItem>, WorkItem>{		
+	private static final  class WorkItemQueue extends PrioritizedMap<TreeSet<WorkItem>, WorkItem>{		
 		/** A counter for the arrival order of the single flows */
 		private int arrivalOrder = 0;
 		/** A comparator to properly order the single flows. */
@@ -218,7 +218,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 			// has never been added to the queue (interruptible activities)
 			if (wi.getArrivalTs() == -1) {
 				wi.setArrivalOrder(arrivalOrder++);
-				wi.setArrivalTs(getTs());
+				wi.setArrivalTs(wi.getElement().getTs());
 			}
 			super.add(wi);
 		}

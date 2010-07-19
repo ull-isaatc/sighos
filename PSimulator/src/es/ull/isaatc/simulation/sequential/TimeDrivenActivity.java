@@ -9,6 +9,7 @@ import es.ull.isaatc.simulation.common.SimulationTimeFunction;
 import es.ull.isaatc.simulation.common.TimeDrivenActivityWorkGroup;
 import es.ull.isaatc.simulation.common.condition.Condition;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
+import es.ull.isaatc.util.RandomPermutation;
 
 /**
  * A task which could be carried out by an element in a specified time. This kind of activities
@@ -223,17 +224,16 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 		if (!isNonPresential())
 			elem.setCurrent(null);
 
-
-//		int[] order = RandomPermutation.nextPermutation(amList.size());
-//		for (int ind : order) {
-//			ActivityManager am = amList.get(ind);
-//			// FIXME: Esto debería ser un evento por cada AM
-//			am.availableResource();
-//		}
+		int[] order = RandomPermutation.nextPermutation(amList.size());
+		for (int ind : order) {
+			ActivityManager am = amList.get(ind);
+			// FIXME: Esto debería ser un evento por cada AM
+			am.availableResource();
+		}
 
 		// FIXME: Esto sustituye a lo anterior para que sea determinista
-		for (ActivityManager am : amList)
-			am.availableResource();
+//		for (ActivityManager am : amList)
+//			am.availableResource();
 
 		// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
 		if (wItem.getTimeLeft() <= 0.0) {
