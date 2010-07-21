@@ -8,6 +8,7 @@ import es.ull.isaatc.simulation.common.SimulationTimeFunction;
 import es.ull.isaatc.simulation.common.TimeDrivenActivityWorkGroup;
 import es.ull.isaatc.simulation.common.condition.Condition;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
+import es.ull.isaatc.util.RandomPermutation;
 
 /**
  * A task which could be carried out by an element in a specified time. This kind of activities
@@ -231,20 +232,20 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 		// Ending MUTEX access to activity manager
 		manager.signalSemaphore();
 
-		// Quito la única parte aleatoria
-//		int[] order = RandomPermutation.nextPermutation(amList.size());
-//		for (int ind : order) {
-//			ActivityManager am = amList.get(ind);
-//			am.waitSemaphore();
-//			am.availableResource();
-//			am.signalSemaphore();
-//		}
-
-		for (ActivityManager am : amList) {
+		int[] order = RandomPermutation.nextPermutation(amList.size());
+		for (int ind : order) {
+			final ActivityManager am = amList.get(ind);
 			am.waitSemaphore();
 			am.availableResource();
 			am.signalSemaphore();
 		}
+
+		// This lines can be used to make this part more deterministic
+//		for (ActivityManager am : amList) {
+//			am.waitSemaphore();
+//			am.availableResource();
+//			am.signalSemaphore();
+//		}
 		
 		assert wItem.getTimeLeft() >= 0 : "Time left < 0: " + wItem.getTimeLeft();
 		if (wItem.getTimeLeft() == 0) {
