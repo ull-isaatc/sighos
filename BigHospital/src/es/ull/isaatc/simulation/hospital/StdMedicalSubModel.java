@@ -99,21 +99,21 @@ public class StdMedicalSubModel {
 		// Resource types and standard resources
 		ResourceType rtDoctorFirst = factory.getResourceTypeInstance(code + " Doctor 1st");
 		ResourceType rtDoctorSucc = factory.getResourceTypeInstance(code + " Doctor Succ");
-		ResourceType rtBed = HospitalModelTools.createNStdMaterialResources(factory, code + " MED Bed", (Integer)params.get(Parameters.NBEDS));
+		ResourceType rtBed = HospitalModelConfig.createNStdMaterialResources(factory, code + " MED Bed", (Integer)params.get(Parameters.NBEDS));
 		
 		SimulationCycle doctorFirstCycle = new SimulationWeeklyPeriodicCycle(simul.getTimeUnit(), 
-				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelTools.DAYSTART, 0);
+				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelConfig.DAYSTART, 0);
 		final double probFirstApp = ((Double)params.get(Parameters.PROB_1ST_APP)).doubleValue();
-		long hoursFirst = Math.round(HospitalModelTools.WORKHOURS.getValue() * probFirstApp);
+		long hoursFirst = Math.round(HospitalModelConfig.WORKHOURS.getValue() * probFirstApp);
 		SimulationCycle doctorSuccCycle = new SimulationWeeklyPeriodicCycle(simul.getTimeUnit(), 
-				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelTools.DAYSTART.add(new TimeStamp(TimeUnit.HOUR, hoursFirst)), 0);
+				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelConfig.DAYSTART.add(new TimeStamp(TimeUnit.HOUR, hoursFirst)), 0);
 
 		// Resources with non-standard behaviour
 		final int nDoctors = ((Integer)params.get(Parameters.NDOCTORS)).intValue();
 		for (int i = 0; i < nDoctors; i++) {
 			Resource res = factory.getResourceInstance(code + " Doctor " + i);
 			res.addTimeTableEntry(doctorFirstCycle, new TimeStamp(TimeUnit.HOUR, hoursFirst), rtDoctorFirst);
-			res.addTimeTableEntry(doctorSuccCycle, new TimeStamp(TimeUnit.HOUR, HospitalModelTools.WORKHOURS.getValue() - hoursFirst), rtDoctorSucc);
+			res.addTimeTableEntry(doctorSuccCycle, new TimeStamp(TimeUnit.HOUR, HospitalModelConfig.WORKHOURS.getValue() - hoursFirst), rtDoctorSucc);
 		}
 
 		// Workgroups
@@ -122,15 +122,15 @@ public class StdMedicalSubModel {
 		WorkGroup wgBed = factory.getWorkGroupInstance(new ResourceType[] {rtBed}, new int[] {1});
 
 		// Time Driven Activities
-		TimeDrivenActivity actFirstApp = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " 1st Out App", 
+		TimeDrivenActivity actFirstApp = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " 1st Out App", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP1), wgDocFirst, true);
-		TimeDrivenActivity actDelaySucc = HospitalModelTools.getDelay(factory, code + " Waiting for next appointment", 
+		TimeDrivenActivity actDelaySucc = HospitalModelConfig.getDelay(factory, code + " Waiting for next appointment", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2OP), false); 
-		TimeDrivenActivity actSuccApp = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " Successive Out App", 
+		TimeDrivenActivity actSuccApp = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " Successive Out App", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2), wgDocSucc, true);
-		TimeDrivenActivity actDelayAppAdm = HospitalModelTools.getDelay(factory, code + " Waiting for admission", 
+		TimeDrivenActivity actDelayAppAdm = HospitalModelConfig.getDelay(factory, code + " Waiting for admission", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2ADM), false); 
-		TimeDrivenActivity actDelayStay = HospitalModelTools.getDelay(factory, code + " Waiting for recovery", 
+		TimeDrivenActivity actDelayStay = HospitalModelConfig.getDelay(factory, code + " Waiting for recovery", 
 				(SimulationTimeFunction)params.get(Parameters.LOS), false);
 		
 		// Flows
@@ -185,7 +185,7 @@ public class StdMedicalSubModel {
 		iPTests.addBranch((InitializerFlow)nucIPTest[0], (FinalizerFlow)nucIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_IP) * 100));
 		Flow[] radIPTest = CentralServicesSubModel.getOPRadiologyFlow(factory);
 		iPTests.addBranch((InitializerFlow)radIPTest[0], (FinalizerFlow)radIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_IP) * 100));
-		SingleFlow waitTilNextDay = (SingleFlow)factory.getFlowInstance("SingleFlow", HospitalModelTools.getWaitTilNextDay(factory, code + " Wait until next day", new TimeStamp(TimeUnit.HOUR, 8)));
+		SingleFlow waitTilNextDay = (SingleFlow)factory.getFlowInstance("SingleFlow", HospitalModelConfig.getWaitTilNextDay(factory, code + " Wait until next day", new TimeStamp(TimeUnit.HOUR, 8)));
 		waitTilNextDay.link(iPTests);
 		DoWhileFlow iterIPTests = (DoWhileFlow)factory.getFlowInstance("DoWhileFlow", waitTilNextDay, iPTests, iPTestCond);
 		parallelStay.addBranch(iterIPTests);

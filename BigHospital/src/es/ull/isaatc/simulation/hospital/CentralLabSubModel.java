@@ -87,37 +87,37 @@ public class CentralLabSubModel {
 		Simulation simul = factory.getSimulation();
 		
 		// Resource types and standard resources
-		ResourceType rtTech = HospitalModelTools.createNStdHumanResources(factory, "Lab Technician", (Integer)params.get(Parameters.NTECH)); 
-		ResourceType rtSlot = HospitalModelTools.createNStdMaterialResources(factory, "Analytical slot", (Integer)params.get(Parameters.NSLOTS)); 
+		ResourceType rtTech = HospitalModelConfig.createNStdHumanResources(factory, "Lab Technician", (Integer)params.get(Parameters.NTECH)); 
+		ResourceType rtSlot = HospitalModelConfig.createNStdMaterialResources(factory, "Analytical slot", (Integer)params.get(Parameters.NSLOTS)); 
 		final int nNurses = ((Integer)params.get(Parameters.NNURSES)).intValue();
 		final int nXNurses = ((Integer)params.get(Parameters.NXNURSES)).intValue();
-		ResourceType rtNurse = HospitalModelTools.createNStdHumanResources(factory, "Lab Nurse", nNurses - nXNurses);
+		ResourceType rtNurse = HospitalModelConfig.createNStdHumanResources(factory, "Lab Nurse", nNurses - nXNurses);
 		ResourceType rtXNurse = factory.getResourceTypeInstance("Lab Specialist Nurse");
 		
-		ResourceType rtHaeTech = HospitalModelTools.createNStdHumanResources(factory, "Haematology Lab Technician", (Integer)params.get(Parameters.NHAETECH)); 
+		ResourceType rtHaeTech = HospitalModelConfig.createNStdHumanResources(factory, "Haematology Lab Technician", (Integer)params.get(Parameters.NHAETECH)); 
 		ResourceType rtHaeNurse = factory.getResourceTypeInstance("Haematology Lab Nurse"); 
-		ResourceType rtHaeSlot = HospitalModelTools.createNStdMaterialResources(factory, "Haematology Lab Analytical slot", (Integer)params.get(Parameters.NHAESLOTS)); 
-		ResourceType rtMicTech = HospitalModelTools.createNStdHumanResources(factory, "Microbiology Lab Technician", (Integer)params.get(Parameters.NMICROTECH)); 
-		ResourceType rtMicNurse = HospitalModelTools.createNStdHumanResources(factory, "Microbiology Lab Nurse", (Integer)params.get(Parameters.NMICRONURSES));
-		ResourceType rtMicSlot = HospitalModelTools.createNStdMaterialResources(factory, "Microbiology Lab Analytical slot", (Integer)params.get(Parameters.NMICROSLOTS)); 
-		ResourceType rtPatTech = HospitalModelTools.createNStdHumanResources(factory, "Anatomopathology Lab Technician", (Integer)params.get(Parameters.NPATTECH)); 
-		ResourceType rtPatNurse = HospitalModelTools.createNStdHumanResources(factory, "Anatomopathology Lab Nurse", (Integer)params.get(Parameters.NPATNURSES));
-		ResourceType rtPatSlot = HospitalModelTools.createNStdMaterialResources(factory, "Anatomopathology Lab Analytical slot", (Integer)params.get(Parameters.NPATSLOTS)); 
+		ResourceType rtHaeSlot = HospitalModelConfig.createNStdMaterialResources(factory, "Haematology Lab Analytical slot", (Integer)params.get(Parameters.NHAESLOTS)); 
+		ResourceType rtMicTech = HospitalModelConfig.createNStdHumanResources(factory, "Microbiology Lab Technician", (Integer)params.get(Parameters.NMICROTECH)); 
+		ResourceType rtMicNurse = HospitalModelConfig.createNStdHumanResources(factory, "Microbiology Lab Nurse", (Integer)params.get(Parameters.NMICRONURSES));
+		ResourceType rtMicSlot = HospitalModelConfig.createNStdMaterialResources(factory, "Microbiology Lab Analytical slot", (Integer)params.get(Parameters.NMICROSLOTS)); 
+		ResourceType rtPatTech = HospitalModelConfig.createNStdHumanResources(factory, "Anatomopathology Lab Technician", (Integer)params.get(Parameters.NPATTECH)); 
+		ResourceType rtPatNurse = HospitalModelConfig.createNStdHumanResources(factory, "Anatomopathology Lab Nurse", (Integer)params.get(Parameters.NPATNURSES));
+		ResourceType rtPatSlot = HospitalModelConfig.createNStdMaterialResources(factory, "Anatomopathology Lab Analytical slot", (Integer)params.get(Parameters.NPATSLOTS)); 
 		
 		// Specific Resources
 		final int n24HTech = ((Integer)params.get(Parameters.N24HTECH)).intValue();
 		for (int i = 0; i < n24HTech; i++) {
 			// Since they work 24/7, they can be considered material resources 
-			HospitalModelTools.getStdMaterialResource(factory, "24/7 Lab Technician " + i, rtTech);
+			HospitalModelConfig.getStdMaterialResource(factory, "24/7 Lab Technician " + i, rtTech);
 		}
 		for (int i = 0; i < nXNurses; i++) {
-			Resource res = HospitalModelTools.getStdHumanResource(factory, "Lab Specialist Nurse " + i, rtNurse);
-			res.addTimeTableEntry(HospitalModelTools.getStdHumanResourceCycle(simul), HospitalModelTools.getStdHumanResourceAvailability(simul), rtXNurse);
+			Resource res = HospitalModelConfig.getStdHumanResource(factory, "Lab Specialist Nurse " + i, rtNurse);
+			res.addTimeTableEntry(HospitalModelConfig.getStdHumanResourceCycle(simul), HospitalModelConfig.getStdHumanResourceAvailability(simul), rtXNurse);
 		}
 		final int nHaeNurses = (Integer)params.get(Parameters.NHAENURSES);
 		for (int i = 0; i < nHaeNurses; i++) {
-			Resource res = HospitalModelTools.getStdHumanResource(factory, "Haematology Lab Nurse " + i, rtHaeNurse);
-			res.addTimeTableEntry(HospitalModelTools.getStdHumanResourceCycle(simul), HospitalModelTools.getStdHumanResourceAvailability(simul), rtNurse);
+			Resource res = HospitalModelConfig.getStdHumanResource(factory, "Haematology Lab Nurse " + i, rtHaeNurse);
+			res.addTimeTableEntry(HospitalModelConfig.getStdHumanResourceCycle(simul), HospitalModelConfig.getStdHumanResourceAvailability(simul), rtNurse);
 		}
 			
 		// Workgroups

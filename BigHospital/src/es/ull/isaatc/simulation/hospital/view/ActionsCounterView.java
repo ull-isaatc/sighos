@@ -81,8 +81,15 @@ public class ActionsCounterView extends View {
 		}
 		else if (info instanceof SimulationEndInfo) {
 			cpuTime = (((SimulationEndInfo)info).getCpuTime() - cpuTime) / 1000000;
-			out.println("T:\t" + cpuTime + " ms\tElem Events:\t" + elemEvents + "\tRes Events:\t" + resEvents + "\nMax. concurrent Events:\t" + maxConcurrentEvents);
-			out.println("STA:\t" + startEv + "\tEND:\t" + endEv + "\tREQ:\t" + reqActEv + "\tSAC\t" + startActEv + "\tEAC\t" + endActEv);
+			out.println("T (ms):\t" + cpuTime);
+			out.println("Elem Events:\t" + elemEvents);
+			out.println("Res Events:\t" + resEvents);
+			out.println("Max. concurrent Events:\t" + maxConcurrentEvents);
+			out.println("STA:\t" + startEv);
+			out.println("END:\t" + endEv);
+			out.println("REQ:\t" + reqActEv);
+			out.println("SAC\t" + startActEv);
+			out.println("EAC\t" + endActEv);
 		}
 	}
 }

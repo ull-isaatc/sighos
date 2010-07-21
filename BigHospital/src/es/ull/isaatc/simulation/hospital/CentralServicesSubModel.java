@@ -53,8 +53,8 @@ public class CentralServicesSubModel {
 				throw new IllegalArgumentException("Param <<" + p + ">> missing");
 
 		// Resource types
-		ResourceType rtNuc = HospitalModelTools.createNStdHumanResources(factory, "Nuclear Medicine Technician", (Integer)params.get(Parameters.NTECHNUC));
-		ResourceType rtRad = HospitalModelTools.createNStdHumanResources(factory, "Radiology Technician", (Integer)params.get(Parameters.NTECHRAD));
+		ResourceType rtNuc = HospitalModelConfig.createNStdHumanResources(factory, "Nuclear Medicine Technician", (Integer)params.get(Parameters.NTECHNUC));
+		ResourceType rtRad = HospitalModelConfig.createNStdHumanResources(factory, "Radiology Technician", (Integer)params.get(Parameters.NTECHRAD));
 
 		// Workgroups
 		WorkGroup wgNuc = factory.getWorkGroupInstance(new ResourceType[] {rtNuc}, new int[] {1});

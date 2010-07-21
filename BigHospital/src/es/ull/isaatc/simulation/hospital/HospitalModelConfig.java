@@ -23,15 +23,20 @@ import es.ull.isaatc.util.WeeklyPeriodicCycle;
  * @author Iván Castilla Rodríguez
  *
  */
-public class HospitalModelTools {
+public class HospitalModelConfig {
 	private static TimeStamp stdHumanResourceAvailability = null;
 	private static SimulationCycle stdHumanResourceCycle = null;
 	private static TimeStamp stdMaterialResourceAvailability = null;
 	private static SimulationCycle stdMaterialResourceCycle = null;
-	private static WorkGroup dummyWG = null;
 	private static TimeStamp scale = null;
+	/** The time unit of the model */
+	public static final TimeUnit UNIT = TimeUnit.MINUTE;
+	/** The time when human resources start working every day */
 	public static final TimeStamp DAYSTART = new TimeStamp(TimeUnit.HOUR, 8);
+	/** How long human resources work every day */
 	public static final TimeStamp WORKHOURS = new TimeStamp(TimeUnit.HOUR, 8);
+	/** Patients arrive 10 minutes before 8 am */
+	public static final TimeStamp PATIENTARRIVAL = new TimeStamp(TimeUnit.MINUTE, 470);
 	
 	public static TimeStamp getStdHumanResourceAvailability(Simulation simul) {
 		if (stdHumanResourceAvailability == null)
@@ -90,7 +95,7 @@ public class HospitalModelTools {
 	}
 	
 	public static void setScale(TimeStamp scale) {
-		HospitalModelTools.scale = scale;
+		HospitalModelConfig.scale = scale;
 	}
 	
 	public static SimulationTimeFunction getScaledSimulationTimeFunction(TimeUnit unit, String className, Object... parameters) {
@@ -118,8 +123,7 @@ public class HospitalModelTools {
 	}
 	
 	public static TimeDrivenActivity getDelay(SimulationObjectFactory factory, String description, SimulationTimeFunction duration, boolean presential) {
-		if (dummyWG == null)
-			dummyWG = factory.getWorkGroupInstance(new ResourceType[] {}, new int[] {});
+		WorkGroup dummyWG = factory.getWorkGroupInstance(new ResourceType[] {}, new int[] {});
 		TimeDrivenActivity act = null;
 		if (!presential)
 			act = factory.getTimeDrivenActivityInstance(description, 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
@@ -130,8 +134,7 @@ public class HospitalModelTools {
 	}
 	
 	public static TimeDrivenActivity getWaitTilNextDay(SimulationObjectFactory factory, String description, TimeStamp startNextDay) {
-		if (dummyWG == null)
-			dummyWG = factory.getWorkGroupInstance(new ResourceType[] {}, new int[] {});
+		WorkGroup dummyWG = factory.getWorkGroupInstance(new ResourceType[] {}, new int[] {});
 		TimeDrivenActivity act  = factory.getTimeDrivenActivityInstance(description, 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		act.addWorkGroup(getNextHighFunction(factory.getSimulation().getTimeUnit(),	
 				TimeStamp.getDay(), startNextDay, "ConstantVariate", TimeStamp.getMinute()), dummyWG);

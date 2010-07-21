@@ -125,7 +125,7 @@ public class StdSurgicalSubModel {
 		iPTests.addBranch((InitializerFlow)nucIPTest[0], (FinalizerFlow)nucIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_IP) * 100));
 		Flow[] radIPTest = CentralServicesSubModel.getOPRadiologyFlow(factory);
 		iPTests.addBranch((InitializerFlow)radIPTest[0], (FinalizerFlow)radIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_IP) * 100));
-		SingleFlow waitTilNextDay = (SingleFlow)factory.getFlowInstance("SingleFlow", HospitalModelTools.getWaitTilNextDay(factory, code + " Wait until next day", new TimeStamp(TimeUnit.HOUR, 8)));
+		SingleFlow waitTilNextDay = (SingleFlow)factory.getFlowInstance("SingleFlow", HospitalModelConfig.getWaitTilNextDay(factory, code + " Wait until next day", new TimeStamp(TimeUnit.HOUR, 8)));
 		waitTilNextDay.link(iPTests);
 		DoWhileFlow iterIPTests = (DoWhileFlow)factory.getFlowInstance("DoWhileFlow", waitTilNextDay, iPTests, iPTestCond);
 		return iterIPTests;
@@ -145,34 +145,34 @@ public class StdSurgicalSubModel {
 		ElementType aEt = factory.getElementTypeInstance(code + " AMB Patient");
 		
 		// Resource types and standard resources
-		ResourceType rtBed = HospitalModelTools.createNStdMaterialResources(factory, code + " Bed", (Integer)params.get(Parameters.NBEDS)); 
-		ResourceType rtSBed = HospitalModelTools.createNStdMaterialResources(factory, code + " S Bed", (Integer)params.get(Parameters.NSBEDS)); 
-		ResourceType rtSurgeon = HospitalModelTools.createNStdHumanResources(factory, code + " Surgeon", (Integer)params.get(Parameters.NSURGEONS));
-		ResourceType rtSurgery = HospitalModelTools.createNStdMaterialResources(factory, code + " Surgery", (Integer)params.get(Parameters.NSURGERIES));
-		ResourceType rtScrubNurse = HospitalModelTools.createNStdHumanResources(factory, code + " Scrub Nurse", (Integer)params.get(Parameters.NSCRUBNURSES)); 
+		ResourceType rtBed = HospitalModelConfig.createNStdMaterialResources(factory, code + " Bed", (Integer)params.get(Parameters.NBEDS)); 
+		ResourceType rtSBed = HospitalModelConfig.createNStdMaterialResources(factory, code + " S Bed", (Integer)params.get(Parameters.NSBEDS)); 
+		ResourceType rtSurgeon = HospitalModelConfig.createNStdHumanResources(factory, code + " Surgeon", (Integer)params.get(Parameters.NSURGEONS));
+		ResourceType rtSurgery = HospitalModelConfig.createNStdMaterialResources(factory, code + " Surgery", (Integer)params.get(Parameters.NSURGERIES));
+		ResourceType rtScrubNurse = HospitalModelConfig.createNStdHumanResources(factory, code + " Scrub Nurse", (Integer)params.get(Parameters.NSCRUBNURSES)); 
 		ResourceType rtDoctorFirst = factory.getResourceTypeInstance(code + " Doctor 1st");
 		ResourceType rtDoctorSucc = factory.getResourceTypeInstance(code + " Doctor Succ");
 		ResourceType rtSurgeryAssist = factory.getResourceTypeInstance(code + " Surgery Assistant");
 		
 		SimulationCycle doctorFirstCycle = new SimulationWeeklyPeriodicCycle(simul.getTimeUnit(), 
-				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelTools.DAYSTART, 0);
+				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelConfig.DAYSTART, 0);
 		final double probFirstApp = ((Double)params.get(Parameters.PROB_1ST_APP)).doubleValue();
-		long hoursFirst = Math.round(HospitalModelTools.WORKHOURS.getValue() * probFirstApp);
+		long hoursFirst = Math.round(HospitalModelConfig.WORKHOURS.getValue() * probFirstApp);
 		SimulationCycle doctorSuccCycle = new SimulationWeeklyPeriodicCycle(simul.getTimeUnit(), 
-				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelTools.DAYSTART.add(new TimeStamp(TimeUnit.HOUR, hoursFirst)), 0);
+				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelConfig.DAYSTART.add(new TimeStamp(TimeUnit.HOUR, hoursFirst)), 0);
 
 		// Resources with non-standard behaviour
 		final int nDoctors = ((Integer)params.get(Parameters.NDOCTORS)).intValue();
 		for (int i = 0; i < nDoctors; i++) {
 			Resource res = factory.getResourceInstance(code + " Doctor " + i);
 			res.addTimeTableEntry(doctorFirstCycle, new TimeStamp(TimeUnit.HOUR, hoursFirst), rtDoctorFirst);
-			res.addTimeTableEntry(doctorSuccCycle, new TimeStamp(TimeUnit.HOUR, HospitalModelTools.WORKHOURS.getValue() - hoursFirst), rtDoctorSucc);
+			res.addTimeTableEntry(doctorSuccCycle, new TimeStamp(TimeUnit.HOUR, HospitalModelConfig.WORKHOURS.getValue() - hoursFirst), rtDoctorSucc);
 		}
 		final int nSurgAssist = ((Integer)params.get(Parameters.NSURGERY_ASSIST)).intValue();
 		// Surgery assistants are doubled because can be used in two surgeries at the same time
 		for (int i = 0; i < nSurgAssist; i++) {
-			HospitalModelTools.getStdHumanResource(factory, code + " Surgery Assistant" + i + "a", rtSurgeryAssist);
-			HospitalModelTools.getStdHumanResource(factory, code + " Surgery Assistant" + i + "b", rtSurgeryAssist);
+			HospitalModelConfig.getStdHumanResource(factory, code + " Surgery Assistant" + i + "a", rtSurgeryAssist);
+			HospitalModelConfig.getStdHumanResource(factory, code + " Surgery Assistant" + i + "b", rtSurgeryAssist);
 		}
 
 		// Workgroups
@@ -183,27 +183,27 @@ public class StdSurgicalSubModel {
 		WorkGroup wgSur = factory.getWorkGroupInstance(new ResourceType[] {rtSurgery, rtSurgeon, rtScrubNurse, rtSurgeryAssist, SurgicalSubModel.getAnaesthetistRT()}, new int[] {1, 1, 1, 1, 1});
 
 		// Time Driven Activities
-		TimeDrivenActivity actFirstApp = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " 1st Out App",
+		TimeDrivenActivity actFirstApp = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " 1st Out App",
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP1), wgDocFirst, true);
-		TimeDrivenActivity actDelaySucc = HospitalModelTools.getDelay(factory, code + " Waiting for next appointment", 
+		TimeDrivenActivity actDelaySucc = HospitalModelConfig.getDelay(factory, code + " Waiting for next appointment", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2OP), false);
-		TimeDrivenActivity actSuccApp = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " Successive Out App",
+		TimeDrivenActivity actSuccApp = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " Successive Out App",
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2), wgDocSucc, true);
-		TimeDrivenActivity actDelayPOP = HospitalModelTools.getDelay(factory, code + " Waiting for post-surgery appointment", 
+		TimeDrivenActivity actDelayPOP = HospitalModelConfig.getDelay(factory, code + " Waiting for post-surgery appointment", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_SUR2POP), false);
-		TimeDrivenActivity actDelayAppAdm = HospitalModelTools.getDelay(factory, code + " Waiting for admission", 
+		TimeDrivenActivity actDelayAppAdm = HospitalModelConfig.getDelay(factory, code + " Waiting for admission", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2ADM), false);
-		TimeDrivenActivity actPostSurApp = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " Post-Surgery App",
+		TimeDrivenActivity actPostSurApp = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " Post-Surgery App",
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_POP), wgDocSucc, true);
-		TimeDrivenActivity actSurgery = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " Surgery", 
+		TimeDrivenActivity actSurgery = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " Surgery", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_SUR), wgSur, true);
-		TimeDrivenActivity actShortSurgery = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " Short Surgery", 
+		TimeDrivenActivity actShortSurgery = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " Short Surgery", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_SSUR), wgSur, true);
-		TimeDrivenActivity actAmbSurgery = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " AMB Surgery", 
+		TimeDrivenActivity actAmbSurgery = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " AMB Surgery", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_ASUR), wgSur, true);
-		TimeDrivenActivity actDelayPostSur = HospitalModelTools.getDelay(factory, code + " Recovering after Surgery",
+		TimeDrivenActivity actDelayPostSur = HospitalModelConfig.getDelay(factory, code + " Recovering after Surgery",
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_SUR2EXIT), true);
-		TimeDrivenActivity actDelayPostShortSur = HospitalModelTools.getDelay(factory, code + " Recovering after Short Surgery",
+		TimeDrivenActivity actDelayPostShortSur = HospitalModelConfig.getDelay(factory, code + " Recovering after Short Surgery",
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_SSUR2EXIT), true);
 
 		// Flows
@@ -338,24 +338,24 @@ public class StdSurgicalSubModel {
 		ResourceType rtDoctorSucc = factory.getResourceTypeInstance(code + " Doctor Succ");
 		
 		final double probFirstApp = ((Double)params.get(Parameters.PROB_1ST_APP)).doubleValue();
-		long hoursFirst = Math.round(HospitalModelTools.WORKHOURS.getValue() * probFirstApp);
+		long hoursFirst = Math.round(HospitalModelConfig.WORKHOURS.getValue() * probFirstApp);
 		SimulationCycle doctorSuccCycle = new SimulationWeeklyPeriodicCycle(simul.getTimeUnit(), 
-				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelTools.DAYSTART.add(new TimeStamp(TimeUnit.HOUR, hoursFirst)), 0);
+				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelConfig.DAYSTART.add(new TimeStamp(TimeUnit.HOUR, hoursFirst)), 0);
 
 		// Resources with non-standard behaviour
 		final int nDoctors = ((Integer)params.get(Parameters.NDOCTORS)).intValue();
 		for (int i = 0; i < nDoctors; i++) {
 			Resource res = factory.getResourceInstance(code + " Doctor " + i);
-			res.addTimeTableEntry(doctorSuccCycle, new TimeStamp(TimeUnit.HOUR, HospitalModelTools.WORKHOURS.getValue() - hoursFirst), rtDoctorSucc);
+			res.addTimeTableEntry(doctorSuccCycle, new TimeStamp(TimeUnit.HOUR, HospitalModelConfig.WORKHOURS.getValue() - hoursFirst), rtDoctorSucc);
 		}
 
 		// Workgroups
 		WorkGroup wgDocSucc = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorSucc}, new int[] {1});
 
 		// Time Driven Activities
-		TimeDrivenActivity actDelaySucc = HospitalModelTools.getDelay(factory, code + " Waiting for next appointment", 
+		TimeDrivenActivity actDelaySucc = HospitalModelConfig.getDelay(factory, code + " Waiting for next appointment", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2OP), false);
-		TimeDrivenActivity actSuccApp = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " Successive Out App",
+		TimeDrivenActivity actSuccApp = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " Successive Out App",
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2), wgDocSucc, true);
 
 		// Flows
@@ -383,57 +383,4 @@ public class StdSurgicalSubModel {
 		factory.getTimeDrivenGeneratorInstance(ec, (SimulationCycle)params.get(Parameters.INTERARRIVAL));
 	}
 	
-	public static void createSmallModel(SimulationObjectFactory factory, String code, ModelParameterMap params) {
-		final Simulation simul = factory.getSimulation();
-		// Element types
-		ElementType et = factory.getElementTypeInstance(code + " Patient");
-		et.addElementVar("maketest", 0);
-		
-		// Resource types and standard resources
-		ResourceType rtDoctorSucc = factory.getResourceTypeInstance(code + " Doctor Succ");
-		
-		final double probFirstApp = ((Double)params.get(Parameters.PROB_1ST_APP)).doubleValue();
-		long hoursFirst = Math.round(HospitalModelTools.WORKHOURS.getValue() * probFirstApp);
-		SimulationCycle doctorSuccCycle = new SimulationWeeklyPeriodicCycle(simul.getTimeUnit(), 
-				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelTools.DAYSTART.add(new TimeStamp(TimeUnit.HOUR, hoursFirst)), 0);
-
-		// Resources with non-standard behaviour
-		final int nDoctors = ((Integer)params.get(Parameters.NDOCTORS)).intValue();
-		for (int i = 0; i < nDoctors; i++) {
-			Resource res = factory.getResourceInstance(code + " Doctor " + i);
-			res.addTimeTableEntry(doctorSuccCycle, new TimeStamp(TimeUnit.HOUR, HospitalModelTools.WORKHOURS.getValue() - hoursFirst), rtDoctorSucc);
-		}
-
-		// Workgroups
-		WorkGroup wgDocSucc = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorSucc}, new int[] {1});
-
-		// Time Driven Activities
-		TimeDrivenActivity actDelaySucc = HospitalModelTools.getDelay(factory, code + " Waiting for next appointment", 
-				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2OP), false);
-		TimeDrivenActivity actSuccApp = HospitalModelTools.createStdTimeDrivenActivity(factory, code + " Successive Out App",
-				(SimulationTimeFunction)params.get(Parameters.LENGTH_OP2), wgDocSucc, true);
-
-		// Flows
-		// Let's do that patients can directly go to the main loop (just to avoid warmup)
-		StructuredSynchroMergeFlow testDecision = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
-		Flow[] labTest = CentralLabSubModel.getOPFlow(factory, (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
-				(Double)params.get(Parameters.PROB_LABMIC_OP), (Double)params.get(Parameters.PROB_LABPAT_OP)); 
-		testDecision.addBranch((InitializerFlow)labTest[0], (FinalizerFlow)labTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_OP) * 100));
-		Flow[] nucTest = CentralServicesSubModel.getOPNuclearFlow(factory);
-		testDecision.addBranch((InitializerFlow)nucTest[0], (FinalizerFlow)nucTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_OP) * 100));
-		Flow[] radTest = CentralServicesSubModel.getOPRadiologyFlow(factory);
-		testDecision.addBranch((InitializerFlow)radTest[0], (FinalizerFlow)radTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_OP) * 100));
-		
-		InterleavedRoutingFlow beforeSucc = (InterleavedRoutingFlow)factory.getFlowInstance("InterleavedRoutingFlow");
-		beforeSucc.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actDelaySucc));
-		beforeSucc.addBranch(testDecision);
-		
-		SingleFlow succ = (SingleFlow)factory.getFlowInstance("SingleFlow", actSuccApp);
-		beforeSucc.link(succ);
-
-		ForLoopFlow mainLoop = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", beforeSucc, succ, (TimeFunction)params.get(Parameters.ITERSUCC));
-		
-		ElementCreator ec = factory.getElementCreatorInstance((TimeFunction)params.get(Parameters.NPATIENTS), et, mainLoop);
-		factory.getTimeDrivenGeneratorInstance(ec, (SimulationCycle)params.get(Parameters.INTERARRIVAL));
-	}	
 }

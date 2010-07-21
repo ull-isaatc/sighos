@@ -57,9 +57,9 @@ public class SurgicalSubModel {
 				throw new IllegalArgumentException("Param <<" + p + ">> missing");
 		
 		// Resource types and resources
-		ResourceType rtPACUBed = HospitalModelTools.createNStdMaterialResources(factory, "PACU Bed", ((Integer)params.get(Parameters.NBEDS_PACU)).intValue());
-		ResourceType rtICUBed = HospitalModelTools.createNStdMaterialResources(factory, "ICU Bed", ((Integer)params.get(Parameters.NBEDS_ICU)).intValue());
-		rtAnaes = HospitalModelTools.createNStdHumanResources(factory, "Anaesthetist", ((Integer)params.get(Parameters.NANAESTHETISTS)).intValue());
+		ResourceType rtPACUBed = HospitalModelConfig.createNStdMaterialResources(factory, "PACU Bed", ((Integer)params.get(Parameters.NBEDS_PACU)).intValue());
+		ResourceType rtICUBed = HospitalModelConfig.createNStdMaterialResources(factory, "ICU Bed", ((Integer)params.get(Parameters.NBEDS_ICU)).intValue());
+		rtAnaes = HospitalModelConfig.createNStdHumanResources(factory, "Anaesthetist", ((Integer)params.get(Parameters.NANAESTHETISTS)).intValue());
 
 		// Workgroups
 		wgPACU = factory.getWorkGroupInstance(new ResourceType[] {rtPACUBed}, new int[] {1});
