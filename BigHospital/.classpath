@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/utils"/>
 	<classpathentry kind="lib" path="lib/jcommon-1.0.15.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.12.jar"/>
+	<classpathentry kind="lib" path="/utils/lib/simkit.jar" sourcepath="S:/simulacion/soft/simkit/src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
