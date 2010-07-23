@@ -3,6 +3,7 @@
  */
 package es.ull.isaatc.simulation.hospital.scenarios;
 
+import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.hospital.CentralLabSubModel;
 import es.ull.isaatc.simulation.hospital.HospitalModelConfig;
@@ -23,10 +24,12 @@ public final class StdCentralLabParameters extends ModelParameterMap {
 		put(CentralLabSubModel.Parameters.NNURSES, 16);
 		put(CentralLabSubModel.Parameters.NXNURSES, 10);
 		put(CentralLabSubModel.Parameters.NSLOTS, 150);
+		put(CentralLabSubModel.Parameters.NCENT, 160);
 		put(CentralLabSubModel.Parameters.LENGTH_SAMPLE, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
-				"UniformVariate", 4, 9));
-		put(CentralLabSubModel.Parameters.LENGTH_CENT, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
-				"UniformVariate", 2, 4));
+				"UniformVariate", 2, 3));
+		// Centrifugation lasts until next 15 minutes 
+		put(CentralLabSubModel.Parameters.LENGTH_CENT, HospitalModelConfig.getNextHighFunction(unit, 
+				new TimeStamp(TimeUnit.MINUTE, 15), TimeStamp.getZero(), "ConstantVariate", 6)); 
 		put(CentralLabSubModel.Parameters.LENGTH_ANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 8));
 		put(CentralLabSubModel.Parameters.NHAETECH, 2);

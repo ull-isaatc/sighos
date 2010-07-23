@@ -24,10 +24,7 @@ import es.ull.isaatc.util.WeeklyPeriodicCycle;
  *
  */
 public class HospitalModelConfig {
-	private static TimeStamp stdHumanResourceAvailability = null;
 	private static SimulationCycle stdHumanResourceCycle = null;
-	private static TimeStamp stdMaterialResourceAvailability = null;
-	private static SimulationCycle stdMaterialResourceCycle = null;
 	private static TimeStamp scale = null;
 	/** The time unit of the model */
 	public static final TimeUnit UNIT = TimeUnit.MINUTE;
@@ -38,38 +35,30 @@ public class HospitalModelConfig {
 	/** Patients arrive 10 minutes before 8 am */
 	public static final TimeStamp PATIENTARRIVAL = new TimeStamp(TimeUnit.MINUTE, 470);
 	
-	public static TimeStamp getStdHumanResourceAvailability(Simulation simul) {
-		if (stdHumanResourceAvailability == null)
-			stdHumanResourceAvailability = WORKHOURS;
-		return stdHumanResourceAvailability;
+	public static TimeStamp getStdHumanResourceAvailability() {
+		return WORKHOURS;
 	}
 	
-	public static SimulationCycle getStdHumanResourceCycle(Simulation simul) {
+	public static SimulationCycle getStdHumanResourceCycle() {
 		if (stdHumanResourceCycle == null) {
-			stdHumanResourceCycle = new SimulationWeeklyPeriodicCycle(simul.getTimeUnit(), WeeklyPeriodicCycle.WEEKDAYS, 
+			stdHumanResourceCycle = new SimulationWeeklyPeriodicCycle(UNIT, WeeklyPeriodicCycle.WEEKDAYS, 
 					DAYSTART, 0);
 		}
 		return stdHumanResourceCycle;
 	}
 
 	public static TimeStamp getStdMaterialResourceAvailability(Simulation simul) {
-		if (stdMaterialResourceAvailability == null)
-			stdMaterialResourceAvailability = simul.getEndTs();
-		return stdMaterialResourceAvailability;
+		return simul.getEndTs();
 	}
 	
 	public static SimulationCycle getStdMaterialResourceCycle(Simulation simul) {
-		if (stdMaterialResourceCycle == null) {
-			SimulationTimeFunction tf = new SimulationTimeFunction(simul.getTimeUnit(), "ConstantVariate", simul.getEndTs());
-			stdMaterialResourceCycle = new SimulationPeriodicCycle(simul.getTimeUnit(), simul.getStartTs(), tf, simul.getEndTs());
-		}
-		return stdMaterialResourceCycle;
+		SimulationTimeFunction tf = new SimulationTimeFunction(simul.getTimeUnit(), "ConstantVariate", simul.getEndTs());
+		return new SimulationPeriodicCycle(simul.getTimeUnit(), simul.getStartTs(), tf, simul.getEndTs());
 	}
 
 	public static Resource getStdHumanResource(SimulationObjectFactory factory, String description, ResourceType rt) {
-		Simulation simul = factory.getSimulation();
 		Resource res = factory.getResourceInstance(description);
-		res.addTimeTableEntry(getStdHumanResourceCycle(simul), getStdHumanResourceAvailability(simul), rt);
+		res.addTimeTableEntry(getStdHumanResourceCycle(), getStdHumanResourceAvailability(), rt);
 		return res;		
 	}
 	
@@ -134,10 +123,14 @@ public class HospitalModelConfig {
 	}
 	
 	public static TimeDrivenActivity getWaitTilNextDay(SimulationObjectFactory factory, String description, TimeStamp startNextDay) {
+		return getWaitTilNext(factory, description, TimeStamp.getDay(), startNextDay);
+	}
+
+	public static TimeDrivenActivity getWaitTilNext(SimulationObjectFactory factory, String description, TimeStamp waitScale, TimeStamp waitShift) {
 		WorkGroup dummyWG = factory.getWorkGroupInstance(new ResourceType[] {}, new int[] {});
 		TimeDrivenActivity act  = factory.getTimeDrivenActivityInstance(description, 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		act.addWorkGroup(getNextHighFunction(factory.getSimulation().getTimeUnit(),	
-				TimeStamp.getDay(), startNextDay, "ConstantVariate", TimeStamp.getMinute()), dummyWG);
+		final TimeUnit unit = factory.getSimulation().getTimeUnit();
+		act.addWorkGroup(getNextHighFunction(unit, waitScale, waitShift, "ConstantVariate", new TimeStamp(unit, 1)), dummyWG);
 		return act;
 	}
 }

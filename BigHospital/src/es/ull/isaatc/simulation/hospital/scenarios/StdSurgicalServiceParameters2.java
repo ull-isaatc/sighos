@@ -34,6 +34,7 @@ public final class StdSurgicalServiceParameters2 extends ModelParameterMap {
 		put(StdSurgicalSubModel.Parameters.PROB_NUC_OP, 0.1);
 		put(StdSurgicalSubModel.Parameters.PROB_RAD_OP, 0.5);
 		put(StdSurgicalSubModel.Parameters.PROB_LAB_OP, 0.5);
+		put(StdSurgicalSubModel.Parameters.PROB_LABCENT_OP, 0.70);
 		put(StdSurgicalSubModel.Parameters.PROB_LABLAB_OP, 0.90);
 		put(StdSurgicalSubModel.Parameters.PROB_LABMIC_OP, 0.06);
 		put(StdSurgicalSubModel.Parameters.PROB_LABHAE_OP, 0.1);
@@ -41,6 +42,7 @@ public final class StdSurgicalServiceParameters2 extends ModelParameterMap {
 		put(StdSurgicalSubModel.Parameters.PROB_NUC_IP, 0.01);
 		put(StdSurgicalSubModel.Parameters.PROB_RAD_IP, 0.2);
 		put(StdSurgicalSubModel.Parameters.PROB_LAB_IP, 0.2);
+		put(StdSurgicalSubModel.Parameters.PROB_LABCENT_IP, 0.70);
 		put(StdSurgicalSubModel.Parameters.PROB_LABLAB_IP, 0.90);
 		put(StdSurgicalSubModel.Parameters.PROB_LABMIC_IP, 0.06);
 		put(StdSurgicalSubModel.Parameters.PROB_LABHAE_IP, 0.1);
@@ -78,7 +80,7 @@ public final class StdSurgicalServiceParameters2 extends ModelParameterMap {
 		put(StdSurgicalSubModel.Parameters.LENGTH_SSUR2EXIT, HospitalModelConfig.getNextHighFunction(unit,
 				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 12), 
 				"UniformVariate", TimeStamp.getHour(), TimeStamp.getDay()));
-		put(StdSurgicalSubModel.Parameters.NPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 30));
+		put(StdSurgicalSubModel.Parameters.NPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 25));
 		put(StdSurgicalSubModel.Parameters.NSPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 5));
 		put(StdSurgicalSubModel.Parameters.NAPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 5));
 		final TimeStamp pArrival = HospitalModelConfig.PATIENTARRIVAL;
@@ -91,6 +93,7 @@ public final class StdSurgicalServiceParameters2 extends ModelParameterMap {
 		put(StdSurgicalSubModel.Parameters.ITERSUCC, 
 				TimeFunctionFactory.getInstance("UniformVariate", 1, 5));
 		put(StdSurgicalSubModel.Parameters.PROB_1ST_APP, 0.2);
+		put(StdSurgicalSubModel.Parameters.HOURS_INTERIPTEST, 48);
 	}
 
 }

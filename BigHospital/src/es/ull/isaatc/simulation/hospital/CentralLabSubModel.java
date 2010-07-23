@@ -7,7 +7,6 @@ import java.util.EnumSet;
 
 import es.ull.isaatc.simulation.common.Resource;
 import es.ull.isaatc.simulation.common.ResourceType;
-import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.SimulationTimeFunction;
 import es.ull.isaatc.simulation.common.TimeDrivenActivity;
 import es.ull.isaatc.simulation.common.WorkGroup;
@@ -42,6 +41,7 @@ public class CentralLabSubModel {
 		NNURSES(Integer.class, "Number of nurses"),
 		NXNURSES(Integer.class, "Number of specialist nurses"),
 		NSLOTS(Integer.class, "'Slots' for analytical tests"),
+		NCENT(Integer.class, "'Slots' for centrifugation"),
 		LENGTH_SAMPLE(SimulationTimeFunction.class, "Duration of taking a sample"),
 		LENGTH_CENT(SimulationTimeFunction.class, "Duration of centrifugation"),
 		// The analysis slot is an abstraction, result of dividing the length of a test by the number of tests
@@ -84,11 +84,10 @@ public class CentralLabSubModel {
 			if (params.get(p) == null)
 				throw new IllegalArgumentException("Param <<" + p + ">> missing");
 		
-		Simulation simul = factory.getSimulation();
-		
 		// Resource types and standard resources
 		ResourceType rtTech = HospitalModelConfig.createNStdHumanResources(factory, "Lab Technician", (Integer)params.get(Parameters.NTECH)); 
 		ResourceType rtSlot = HospitalModelConfig.createNStdMaterialResources(factory, "Analytical slot", (Integer)params.get(Parameters.NSLOTS)); 
+		ResourceType rtCent = HospitalModelConfig.createNStdMaterialResources(factory, "Centrifugation slot", (Integer)params.get(Parameters.NCENT)); 
 		final int nNurses = ((Integer)params.get(Parameters.NNURSES)).intValue();
 		final int nXNurses = ((Integer)params.get(Parameters.NXNURSES)).intValue();
 		ResourceType rtNurse = HospitalModelConfig.createNStdHumanResources(factory, "Lab Nurse", nNurses - nXNurses);
@@ -112,17 +111,17 @@ public class CentralLabSubModel {
 		}
 		for (int i = 0; i < nXNurses; i++) {
 			Resource res = HospitalModelConfig.getStdHumanResource(factory, "Lab Specialist Nurse " + i, rtNurse);
-			res.addTimeTableEntry(HospitalModelConfig.getStdHumanResourceCycle(simul), HospitalModelConfig.getStdHumanResourceAvailability(simul), rtXNurse);
+			res.addTimeTableEntry(HospitalModelConfig.getStdHumanResourceCycle(), HospitalModelConfig.getStdHumanResourceAvailability(), rtXNurse);
 		}
 		final int nHaeNurses = (Integer)params.get(Parameters.NHAENURSES);
 		for (int i = 0; i < nHaeNurses; i++) {
 			Resource res = HospitalModelConfig.getStdHumanResource(factory, "Haematology Lab Nurse " + i, rtHaeNurse);
-			res.addTimeTableEntry(HospitalModelConfig.getStdHumanResourceCycle(simul), HospitalModelConfig.getStdHumanResourceAvailability(simul), rtNurse);
+			res.addTimeTableEntry(HospitalModelConfig.getStdHumanResourceCycle(), HospitalModelConfig.getStdHumanResourceAvailability(), rtNurse);
 		}
 			
 		// Workgroups
 		WorkGroup wgSample = factory.getWorkGroupInstance(new ResourceType[] {rtNurse}, new int[] {1});
-		WorkGroup wgCent = factory.getWorkGroupInstance(new ResourceType[] {rtNurse}, new int[] {1});
+		WorkGroup wgCent = factory.getWorkGroupInstance(new ResourceType[] {rtCent}, new int[] {1});
 		WorkGroup wgTest1 = factory.getWorkGroupInstance(new ResourceType[] {rtSlot, rtTech}, new int[] {1, 1});
 		WorkGroup wgTest2 = factory.getWorkGroupInstance(new ResourceType[] {rtSlot, rtXNurse}, new int[] {1, 1});
 		WorkGroup wgTestHae1 = factory.getWorkGroupInstance(new ResourceType[] {rtHaeSlot, rtHaeTech}, new int[] {1, 1});
@@ -133,9 +132,6 @@ public class CentralLabSubModel {
 		WorkGroup wgTestPat2 = factory.getWorkGroupInstance(new ResourceType[] {rtPatSlot, rtPatNurse}, new int[] {1, 1});
 		
 		// Activities
-		// TODO: Importante: en esta parte, si se usa siempre el 1er WG, el SEQUENTIAL acaba más elementos y ejecuta más eventos
-		// Si se usa siempre el 2º WG, el GROUPED3PHASEX acaba (considerablemente) más elementos y ejecuta más eventos (y tarda menos tiempo).
-		// Usando los 2 WG, incluso con prioridades, el caso es más parecido al primero.
 		actOutSample = factory.getTimeDrivenActivityInstance("Take a sample OP", 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class));
 		actOutSample.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_SAMPLE), wgSample);
 		actOutCent = factory.getTimeDrivenActivityInstance("Centrifugation OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
@@ -181,20 +177,21 @@ public class CentralLabSubModel {
 	 * @param prob_pat
 	 * @return a workflow for performing laboratory tests with outpatients
 	 */
-	public static Flow[] getOPFlow(SimulationObjectFactory factory, double prob_test, double prob_hae, double prob_mic, double prob_pat) {
+	public static Flow[] getOPFlow(SimulationObjectFactory factory, double prob_cent, double prob_test, double prob_hae, double prob_mic, double prob_pat) {
 		Flow[] flow = new Flow[2];
 		// Flow of a lab test
 		// Pre-analytical PHASE
 		flow[0] = factory.getFlowInstance("SingleFlow", actOutSample);
-		SingleFlow cent = (SingleFlow)factory.getFlowInstance("SingleFlow", actOutCent);
-		flow[0].link(cent);
+		StructuredSynchroMergeFlow centDecision = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
+		centDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOutCent), new PercentageCondition(prob_cent * 100));
+		flow[0].link(centDecision);
 		// Analytical PHASE
 		StructuredSynchroMergeFlow testDecision = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
 		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOutTest), new PercentageCondition(prob_test * 100));
 		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOutHaeTest), new PercentageCondition(prob_hae * 100));
 		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOutMicTest), new PercentageCondition(prob_mic * 100));
 		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOutPatTest), new PercentageCondition(prob_pat * 100));
-		cent.link(testDecision);
+		centDecision.link(testDecision);
 		
 		flow[1] = testDecision;
 		return flow;
@@ -209,20 +206,21 @@ public class CentralLabSubModel {
 	 * @param prob_pat
 	 * @return a workflow for performing laboratory tests with outpatients
 	 */
-	public static Flow[] getIPFlow(SimulationObjectFactory factory, double prob_test, double prob_hae, double prob_mic, double prob_pat) {
+	public static Flow[] getIPFlow(SimulationObjectFactory factory, double prob_cent, double prob_test, double prob_hae, double prob_mic, double prob_pat) {
 		Flow[] flow = new Flow[2];
 		// Flow of a lab test
 		// Pre-analytical PHASE
 		flow[0] = factory.getFlowInstance("SingleFlow", actInSample);
-		SingleFlow cent = (SingleFlow)factory.getFlowInstance("SingleFlow", actInCent);
-		flow[0].link(cent);
+		StructuredSynchroMergeFlow centDecision = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
+		centDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actInCent), new PercentageCondition(prob_cent * 100));
+		flow[0].link(centDecision);
 		// Analytical PHASE
 		StructuredSynchroMergeFlow testDecision = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
 		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actInTest), new PercentageCondition(prob_test * 100));
 		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actInHaeTest), new PercentageCondition(prob_hae * 100));
 		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actInMicTest), new PercentageCondition(prob_mic * 100));
 		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actInPatTest), new PercentageCondition(prob_pat * 100));
-		cent.link(testDecision);
+		centDecision.link(testDecision);
 		
 		flow[1] = testDecision;
 		return flow;

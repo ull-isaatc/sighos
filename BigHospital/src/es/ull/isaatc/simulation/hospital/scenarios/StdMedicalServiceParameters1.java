@@ -29,6 +29,7 @@ public final class StdMedicalServiceParameters1 extends ModelParameterMap {
 		put(StdMedicalSubModel.Parameters.PROB_NUC_OP, 0.05);
 		put(StdMedicalSubModel.Parameters.PROB_RAD_OP, 0.1);
 		put(StdMedicalSubModel.Parameters.PROB_LAB_OP, 0.95);
+		put(StdMedicalSubModel.Parameters.PROB_LABCENT_OP, 0.70);
 		put(StdMedicalSubModel.Parameters.PROB_LABLAB_OP, 0.90);
 		put(StdMedicalSubModel.Parameters.PROB_LABMIC_OP, 0.06);
 		put(StdMedicalSubModel.Parameters.PROB_LABHAE_OP, 0.07);
@@ -36,6 +37,7 @@ public final class StdMedicalServiceParameters1 extends ModelParameterMap {
 		put(StdMedicalSubModel.Parameters.PROB_NUC_IP, 0.01);
 		put(StdMedicalSubModel.Parameters.PROB_RAD_IP, 0.01);
 		put(StdMedicalSubModel.Parameters.PROB_LAB_IP, 0.5);
+		put(StdMedicalSubModel.Parameters.PROB_LABCENT_IP, 0.70);
 		put(StdMedicalSubModel.Parameters.PROB_LABLAB_IP, 0.90);
 		put(StdMedicalSubModel.Parameters.PROB_LABMIC_IP, 0.06);
 		put(StdMedicalSubModel.Parameters.PROB_LABHAE_IP, 0.07);
@@ -49,12 +51,14 @@ public final class StdMedicalServiceParameters1 extends ModelParameterMap {
 		put(StdMedicalSubModel.Parameters.LENGTH_OP2OP, 
 				new SimulationTimeFunction(unit, "UniformVariate", new TimeStamp(TimeUnit.WEEK, 8), new TimeStamp(TimeUnit.WEEK, 12)));
 		put(StdMedicalSubModel.Parameters.LENGTH_OP2, new SimulationTimeFunction(unit, "ConstantVariate", 10));
-		put(StdMedicalSubModel.Parameters.NPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 40));
+		put(StdMedicalSubModel.Parameters.NPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 25));
+		put(StdMedicalSubModel.Parameters.NCPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 5));
 		put(StdMedicalSubModel.Parameters.INTERARRIVAL, 
 				new SimulationWeeklyPeriodicCycle(unit, WeeklyPeriodicCycle.WEEKDAYS, HospitalModelConfig.PATIENTARRIVAL, 0));
 		put(StdMedicalSubModel.Parameters.ITERSUCC, 
 				TimeFunctionFactory.getInstance("UniformVariate", 1, 5));
 		put(StdMedicalSubModel.Parameters.PROB_1ST_APP, 0.2);
+		put(StdMedicalSubModel.Parameters.HOURS_INTERIPTEST, 24);
 	}
 
 }

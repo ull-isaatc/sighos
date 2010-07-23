@@ -83,8 +83,6 @@ public final class HospitalSubModel {
 	}
 
 	public static void createDeterministicModel(SimulationObjectFactory factory, TimeStamp scale) {
-		HospitalModelConfig.setScale(scale);
-		
 		final TimeUnit unit = factory.getSimulation().getTimeUnit();
 		HospitalModelConfig.setScale(scale);
 		
@@ -108,10 +106,11 @@ public final class HospitalSubModel {
 		centralLabParams.put(CentralLabSubModel.Parameters.NNURSES, 16);
 		centralLabParams.put(CentralLabSubModel.Parameters.NXNURSES, 10);
 		centralLabParams.put(CentralLabSubModel.Parameters.NSLOTS, 150);
+		centralLabParams.put(CentralLabSubModel.Parameters.NCENT, 160);
 		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_SAMPLE, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
-				"ConstantVariate", 6));
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_CENT, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
-				"ConstantVariate", 10));
+				"ConstantVariate", 2));
+		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_CENT, HospitalModelConfig.getNextHighFunction(unit, 
+				new TimeStamp(TimeUnit.MINUTE, 15), TimeStamp.getZero(), "ConstantVariate", 6));
 		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_ANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 8));
 		centralLabParams.put(CentralLabSubModel.Parameters.NHAETECH, 2);
@@ -138,6 +137,7 @@ public final class HospitalSubModel {
 		gynParams.put(StdSurgicalSubModel.Parameters.PROB_RAD_OP, 0.0);
 		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LAB_OP, 1.0);
 		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABLAB_OP, 1.0);
+		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABCENT_OP, 1.0);
 		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABMIC_OP, 0.0);
 		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABHAE_OP, 0.0);
 		gynParams.put(StdSurgicalSubModel.Parameters.PROB_LABPAT_OP, 0.0);
@@ -179,7 +179,7 @@ public final class HospitalSubModel {
 
 		for (int i = 0; i < nXNurses; i++) {
 			Resource res = HospitalModelConfig.getStdHumanResource(factory, "Lab Specialist Nurse " + i, rtNurse);
-			res.addTimeTableEntry(HospitalModelConfig.getStdHumanResourceCycle(factory.getSimulation()), HospitalModelConfig.getStdHumanResourceAvailability(factory.getSimulation()), rtXNurse);
+			res.addTimeTableEntry(HospitalModelConfig.getStdHumanResourceCycle(), HospitalModelConfig.getStdHumanResourceAvailability(), rtXNurse);
 		}
 
 		WorkGroup wgSample = factory.getWorkGroupInstance(new ResourceType[] {rtNurse}, new int[] {1});
