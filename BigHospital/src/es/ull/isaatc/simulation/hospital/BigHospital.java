@@ -3,12 +3,14 @@
  */
 package es.ull.isaatc.simulation.hospital;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import simkit.random.RandomNumberFactory;
 import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.common.ElementCreator;
 import es.ull.isaatc.simulation.common.ElementType;
-import es.ull.isaatc.simulation.common.Experiment;
 import es.ull.isaatc.simulation.common.Simulation;
 import es.ull.isaatc.simulation.common.SimulationCycle;
 import es.ull.isaatc.simulation.common.SimulationWeeklyPeriodicCycle;
@@ -19,6 +21,7 @@ import es.ull.isaatc.simulation.common.factory.SimulationObjectFactory;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory.SimulationType;
 import es.ull.isaatc.simulation.common.flow.Flow;
 import es.ull.isaatc.simulation.common.flow.InitializerFlow;
+import es.ull.isaatc.simulation.common.inforeceiver.ProgressView;
 import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
 import es.ull.isaatc.simulation.hospital.view.ActionsCounterView;
 import es.ull.isaatc.simulation.hospital.view.ActivityLengthFileSafeView;
@@ -29,58 +32,54 @@ import es.ull.isaatc.simulation.hospital.view.SimultaneousEventFileSafeView;
 import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.WeeklyPeriodicCycle;
 
-class BigHospitalExperiment extends Experiment {
-	private static int debug = 0;
+/**
+ * @author Iván Castilla Rodríguez
+ *
+ */
+public class BigHospital {
 	private static final String SEP = "----------------------------------------";
-
-	private static final String OUTPATH = "N:\\Tesis\\hResults\\";
-	private static final int NEXP = 5;
-	private static final SimulationFactory.SimulationType []simTypes = {SimulationType.GROUPED3PHASEX};
+	private static int debug = 0;
+	private static String outputPath;
+	private static TimeStamp viewPeriod;
 	private static final TimeStamp warmUp = TimeStamp.getZero();
-	private static final TimeStamp viewPeriod = new TimeStamp(TimeUnit.WEEK, 1);
-	private static final TimeStamp endTs = new TimeStamp(TimeUnit.MONTH, 24);
-	private static final TimeStamp scale = new TimeStamp(TimeUnit.MINUTE, 5);
-	private static final int [] nServices = {3,3,3,3,3,3};
 
-	public BigHospitalExperiment() {
-		super("Big Hospital Experiments", NEXP);
-	}
-
-	private void addViews(Simulation simul, int debug) {
+	private static void addViews(Simulation simul, int debug) {
 		simul.addInfoReceiver(new ActionsCounterView(simul, System.out));
-//		simul.addInfoReceiver(new ProgressView(simul));
-		if (debug == 1) {
-			simul.addInfoReceiver(new ActivityQueueFileSafeView(simul, OUTPATH + "queue" + simul.getIdentifier() + ".txt", viewPeriod));
-			simul.addInfoReceiver(new ExecutionCounterFileSafeView(simul, OUTPATH + "total" + simul.getIdentifier() + ".txt", warmUp, viewPeriod));
-			simul.addInfoReceiver(new ActivityLengthFileSafeView(simul, OUTPATH + "act" + simul.getIdentifier() + ".txt", warmUp));
-			simul.addInfoReceiver(new SimultaneousEventFileSafeView(simul, OUTPATH + "events" + simul.getIdentifier() + ".txt"));
-			simul.addInfoReceiver(new ResourceUsageFileSafeView(simul, OUTPATH + "res" + simul.getIdentifier() + ".txt", viewPeriod));
+		if (debug == 1)
+			simul.addInfoReceiver(new ProgressView(simul));
+		else if (debug == 2) {
+			simul.addInfoReceiver(new ActivityQueueFileSafeView(simul, outputPath + "queue" + simul.getIdentifier() + ".txt", viewPeriod));
+			simul.addInfoReceiver(new ExecutionCounterFileSafeView(simul, outputPath + "total" + simul.getIdentifier() + ".txt", warmUp, viewPeriod));
+			simul.addInfoReceiver(new ActivityLengthFileSafeView(simul, outputPath + "act" + simul.getIdentifier() + ".txt", warmUp));
+			simul.addInfoReceiver(new SimultaneousEventFileSafeView(simul, outputPath + "events" + simul.getIdentifier() + ".txt"));
+			simul.addInfoReceiver(new ResourceUsageFileSafeView(simul, outputPath + "res" + simul.getIdentifier() + ".txt", viewPeriod));
 		}
-		else if (debug == 2)
-			simul.addInfoReceiver(new StdInfoView(simul));
 		else if (debug == 3)
+			simul.addInfoReceiver(new StdInfoView(simul));
+		else if (debug == 4)
 			simul.setOutput(new Output(true));		
 	}
 	
-	@Override
-	// This method is not used here
-	public Simulation getSimulation(int ind) {
-		return null;
-	}
-
-	private void normalExp() {
+	private static void normalExp(int nExperiments, String expType, int nServ, int months, int minuteScale) {
+		TimeStamp endTs = new TimeStamp(TimeUnit.MONTH, months);
+		TimeStamp scale = new TimeStamp(TimeUnit.MINUTE, minuteScale);
 		int simIndex = 0;
 		// FIXME: Default generator (Mersenne twister) is failing with multiple threads
 		RandomNumberFactory.setDefaultClass("simkit.random.Congruential");
 
-		// First sequential for warmup
-		System.out.println("INITIALIZING...");
-		SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQUENTIAL, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), TimeStamp.getDay());
-		HospitalSubModel.createModel(factory, scale, nServices);	
-		Simulation simul = factory.getSimulation();
-		simul.run();
+		int []nServices = new int[6];
+		Arrays.fill(nServices, nServ);
 		
-		System.out.println(SEP);
+		// First sequential for warmup
+		if (expType.contains("w")) {
+			System.out.println("INITIALIZING...");
+			SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQUENTIAL, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);			
+			HospitalSubModel.createModel(factory, scale, new int[] {1,1,1,1,1,1});	
+			Simulation simul = factory.getSimulation();
+			simul.run();
+			System.out.println(SEP);
+		}	
+		
 		System.out.println("EXPERIMENT CONFIG:");
 		System.out.println("Scale\t" + scale);
 		System.out.print("N. services");
@@ -88,38 +87,49 @@ class BigHospitalExperiment extends Experiment {
 			System.out.print("\t" + serv);
 		System.out.println();
 		System.out.println(SEP);
-		System.out.println("STARTING SEQUENTIAL EXPERIMENTS...");
-		// Now sequential experiments
-		for (int i = 0; i < nExperiments + 1; i++) {
-			System.out.println(SimulationType.SEQUENTIAL + "\t" + i);
-			factory = SimulationFactory.getInstance(SimulationType.SEQUENTIAL, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
-			HospitalSubModel.createModel(factory, scale, nServices);	
-			simul = factory.getSimulation();
-			addViews(simul, debug);
-			simul.run();
-			System.out.println(SEP);
+		
+		if (expType.contains("s")) {
+			System.out.println("STARTING SEQUENTIAL EXPERIMENTS...");
+			// Now sequential experiments
+			for (int i = 0; i < nExperiments; i++) {
+				System.out.println(SimulationType.SEQUENTIAL + "\t" + i);
+				SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQUENTIAL, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
+				HospitalSubModel.createModel(factory, scale, nServices);	
+				Simulation simul = factory.getSimulation();
+				addViews(simul, debug);
+				simul.run();
+				System.out.println(SEP);
+			}
 		}
-		// Now "better" sequential experiments
-		for (int i = 0; i < nExperiments; i++) {
-			System.out.println(SimulationType.SEQ3PHASE2 + "\t" + i);
-			factory = SimulationFactory.getInstance(SimulationType.SEQ3PHASE2, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
-			HospitalSubModel.createModel(factory, scale, nServices);	
-			simul = factory.getSimulation();
-			addViews(simul, debug);
-			simul.run();
-			System.out.println(SEP);
+		if (expType.contains("3")) {
+			// Now "better" sequential experiments
+			for (int i = 0; i < nExperiments; i++) {
+				System.out.println(SimulationType.SEQ3PHASE2 + "\t" + i);
+				SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQ3PHASE2, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
+				HospitalSubModel.createModel(factory, scale, nServices);	
+				Simulation simul = factory.getSimulation();
+				addViews(simul, debug);
+				simul.run();
+				System.out.println(SEP);
+			}
 		}
 		
+		ArrayList<SimulationFactory.SimulationType> simTypes = new ArrayList<SimulationFactory.SimulationType>();			
+		if (expType.contains("p"))
+			simTypes.add(SimulationType.GROUPED3PHASEX);
+		if (expType.contains("g"))
+			simTypes.add(SimulationType.GROUPEDX);
 		// Now parallel experiments
-		System.out.println("STARTING PARALLEL EXPERIMENTS...");
+		if (simTypes.size() > 0)
+			System.out.println("STARTING PARALLEL EXPERIMENTS...");
 		int maxThreads = Runtime.getRuntime().availableProcessors();
 		for (SimulationType type : simTypes) {
 			for (int th = 1; th <= maxThreads; th++) {
 				for (int i = 0; i < nExperiments; i++) {
 					System.out.println(type + "[" + th + "]\t" + i);
-					factory = SimulationFactory.getInstance(type, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
+					SimulationObjectFactory factory = SimulationFactory.getInstance(type, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
 					HospitalSubModel.createModel(factory, scale, nServices);	
-					simul = factory.getSimulation();
+					Simulation simul = factory.getSimulation();
 					addViews(simul, debug);
 					simul.setNThreads(th);
 					simul.run();
@@ -129,7 +139,8 @@ class BigHospitalExperiment extends Experiment {
 		}		
 	}
 
-	private void testExp() {
+	private static void testExp(int minuteScale) {
+		TimeStamp scale = new TimeStamp(TimeUnit.MINUTE, minuteScale);
 		SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQUENTIAL, 0, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, 3));
 		final TimeUnit unit = factory.getSimulation().getTimeUnit();
 		HospitalModelConfig.setScale(scale);
@@ -174,19 +185,24 @@ class BigHospitalExperiment extends Experiment {
 		
 		Simulation simul = factory.getSimulation();
 		simul.addInfoReceiver(new ActionsCounterView(simul, System.out));
-		simul.addInfoReceiver(new ActivityQueueFileSafeView(simul, OUTPATH + "queue" + simul.getIdentifier() + ".txt", TimeStamp.getDay()));
-		simul.addInfoReceiver(new ExecutionCounterFileSafeView(simul, OUTPATH + "total" + simul.getIdentifier() + ".txt", warmUp, TimeStamp.getDay()));
-		simul.addInfoReceiver(new ActivityLengthFileSafeView(simul, OUTPATH + "act" + simul.getIdentifier() + ".txt", warmUp));
-		simul.addInfoReceiver(new SimultaneousEventFileSafeView(simul, OUTPATH + "events" + simul.getIdentifier() + ".txt"));
-		simul.addInfoReceiver(new ResourceUsageFileSafeView(simul, OUTPATH + "res" + simul.getIdentifier() + ".txt", TimeStamp.getDay()));
+		simul.addInfoReceiver(new ActivityQueueFileSafeView(simul, outputPath + "queue" + simul.getIdentifier() + ".txt", TimeStamp.getDay()));
+		simul.addInfoReceiver(new ExecutionCounterFileSafeView(simul, outputPath + "total" + simul.getIdentifier() + ".txt", warmUp, TimeStamp.getDay()));
+		simul.addInfoReceiver(new ActivityLengthFileSafeView(simul, outputPath + "act" + simul.getIdentifier() + ".txt", warmUp));
+		simul.addInfoReceiver(new SimultaneousEventFileSafeView(simul, outputPath + "events" + simul.getIdentifier() + ".txt"));
+		simul.addInfoReceiver(new ResourceUsageFileSafeView(simul, outputPath + "res" + simul.getIdentifier() + ".txt", TimeStamp.getDay()));
 		simul.run();
 		
 	}
-	@Override
-	public void start() {
-//		SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQUENTIAL, 0, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), new TimeStamp(TimeUnit.MONTH, 12));
+	
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+//		RandomNumberFactory.setDefaultClass("simkit.random.Congruential");
+//		SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.GROUPEDX, 0, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), new TimeStamp(TimeUnit.MONTH, 12));
 //		HospitalSubModel.createModel(factory, scale, new int[] {3,3,3,3,3,3});	
 //		Simulation simul = factory.getSimulation();
+//		simul.setNThreads(4);
 //		simul.addInfoReceiver(new ActionsCounterView(simul, System.out));
 //		simul.addInfoReceiver(new ActivityQueueFileSafeView(simul, OUTPATH + "queue" + simul.getIdentifier() + ".txt", viewPeriod));
 //		simul.addInfoReceiver(new ExecutionCounterFileSafeView(simul, OUTPATH + "total" + simul.getIdentifier() + ".txt", warmUp, viewPeriod));
@@ -194,22 +210,23 @@ class BigHospitalExperiment extends Experiment {
 //		simul.addInfoReceiver(new SimultaneousEventFileSafeView(simul, OUTPATH + "events" + simul.getIdentifier() + ".txt"));
 //		simul.addInfoReceiver(new ResourceUsageFileSafeView(simul, OUTPATH + "res" + simul.getIdentifier() + ".txt", viewPeriod));
 //		simul.run();
-		normalExp();
-		end();		
-	}
-	
-}
-
-/**
- * @author Iván Castilla Rodríguez
- *
- */
-public class BigHospital {
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		new BigHospitalExperiment().start();
+		if (args.length < 5) {
+			System.out.println("Wrong argument number");
+			System.exit(-1);
+		}
+		int nExperiments = Integer.parseInt(args[0]);
+		String expType = args[1];
+		int nServices = Integer.parseInt(args[2]);
+		int months = Integer.parseInt(args[3]);
+		int minuteScale = Integer.parseInt(args[4]);
+		if (args.length > 5) {
+			debug = Integer.parseInt(args[5]);
+			if (debug == 2) {
+				outputPath = args[6];
+				viewPeriod = new TimeStamp(TimeUnit.DAY, Integer.parseInt(args[7]));
+			}
+		}
+		normalExp(nExperiments, expType, nServices, months, minuteScale);
 	}
 
 }
