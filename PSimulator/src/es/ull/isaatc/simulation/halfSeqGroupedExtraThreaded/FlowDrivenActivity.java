@@ -3,6 +3,7 @@
  */
 package es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded;
 
+import java.util.Set;
 import java.util.TreeSet;
 
 import es.ull.isaatc.simulation.common.FlowDrivenActivityWorkGroup;
@@ -47,7 +48,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 		public void link(Flow successor) {}
 
 		@Override
-		public void setRecursiveStructureLink(StructuredFlow parent) {}		
+		public void setRecursiveStructureLink(StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited) {}		
 	};
 
 

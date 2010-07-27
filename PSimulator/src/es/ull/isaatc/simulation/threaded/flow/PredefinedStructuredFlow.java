@@ -30,7 +30,7 @@ public abstract class PredefinedStructuredFlow extends StructuredFlow implements
 	 * @param finalBranch Last step of the internal branch
 	 */
 	public void addBranch(es.ull.isaatc.simulation.common.flow.InitializerFlow initialBranch, es.ull.isaatc.simulation.common.flow.FinalizerFlow finalBranch) {
-		initialBranch.setRecursiveStructureLink(this);
+		initialBranch.setRecursiveStructureLink(this, null);
 		initialFlow.link(initialBranch);
 		finalBranch.link(finalFlow);		
 	}

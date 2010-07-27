@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation.common;
 
+import simkit.random.RandomNumberFactory;
+import es.ull.isaatc.function.RandomFunction;
 import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.function.TimeFunctionFactory;
 
@@ -33,6 +35,9 @@ public class SimulationTimeFunction {
 				parameters[i] = ((SimulationTimeFunction)parameters[i]).getFunction();
 		}
 		function = TimeFunctionFactory.getInstance(className, parameters);
+		if (function instanceof RandomFunction) {
+			((RandomFunction)function).getRandom().setRandomNumber(RandomNumberFactory.getInstance());
+		}
 	}
 	
 	/**

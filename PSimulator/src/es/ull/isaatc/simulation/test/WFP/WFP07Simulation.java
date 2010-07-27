@@ -32,14 +32,18 @@ public class WFP07Simulation extends WFPTestSimulationFactory {
 
         TimeDrivenActivity act0 = getDefTimeDrivenActivity("Envio policias", wgOp, false);
         TimeDrivenActivity act1 = getDefTimeDrivenActivity("Envio ambulancias", wgOp, false);
-        TimeDrivenActivity act2 = getDefTimeDrivenActivity("Transferencia pacientes", wgMe, false);
+        TimeDrivenActivity act2 = getDefTimeDrivenActivity("Envio bomberos", wgOp, false);
+        TimeDrivenActivity act3 = getDefTimeDrivenActivity("Transferencia pacientes", wgMe, false);
 
         getDefResource("Operador 1", rt0);
+        getDefResource("Operador 2", rt0);
+        getDefResource("Operador 3", rt0);
         getDefResource("Medico 1", rt1);
         
         SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
         SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
         SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
+        SingleFlow sin4 = (SingleFlow)factory.getFlowInstance("SingleFlow", act3);
         StructuredSynchroMergeFlow root = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
         
         Condition falseCond = new NotCondition(new TrueCondition());
@@ -48,7 +52,8 @@ public class WFP07Simulation extends WFPTestSimulationFactory {
 
         root.addBranch(sin1, falseCond);
         root.addBranch(sin2);
-        root.link(sin3);
+        root.addBranch(sin3, falseCond);
+        root.link(sin4);
 
         getDefGenerator(getDefElementType("Emergencia"), root);
 

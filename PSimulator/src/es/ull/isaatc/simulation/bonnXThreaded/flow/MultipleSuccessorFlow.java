@@ -5,6 +5,7 @@ package es.ull.isaatc.simulation.bonnXThreaded.flow;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import es.ull.isaatc.simulation.bonnXThreaded.Simulation;
 import es.ull.isaatc.simulation.bonnXThreaded.WorkThread;
@@ -34,7 +35,7 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (!beforeRequest(wThread.getElement()))
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 			} else 
 				wThread.updatePath(this);
 			next(wThread);
@@ -71,10 +72,12 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#setRecursiveStructureLink(es.ull.isaatc.simulation.StructuredFlow)
 	 */
-	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent) {
+	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited) {
 		 setParent(parent);
+		 visited.add(this);
 		 for (Flow f : successorList)
-			 f.setRecursiveStructureLink(parent); 	
+			 if (!visited.contains(f))
+				 f.setRecursiveStructureLink(parent, visited); 	
 	}
 
 	/**

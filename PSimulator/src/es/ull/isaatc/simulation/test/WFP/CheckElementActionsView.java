@@ -62,12 +62,12 @@ public abstract class CheckElementActionsView extends WFPTestView {
 					System.out.println("ERROR!!: Unexpected event (wrong TS)");
 				ok = false;
 			}
-			else if (ref[eInfo.getElem().getIdentifier()] == null) {	
+			else if (ref[eInfo.getElement().getIdentifier()] == null) {	
 				if (detailed)
 					System.out.println("ERROR!!: Unexpected event (wrong Element)");
 				ok = false;
 			}
-			else if (!ref[eInfo.getElem().getIdentifier()].check(eInfo.getActivity().getIdentifier())) {
+			else if (!ref[eInfo.getElement().getIdentifier()].check(eInfo.getActivity().getIdentifier())) {
 				if (detailed)
 					System.out.println("ERROR!!: Unexpected event (wrong Activity)");
 				ok = false;					

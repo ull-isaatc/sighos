@@ -34,11 +34,11 @@ public class CheckResourcesListener extends View {
 			int rt;
 			switch(rInfo.getType()) {
 			case ROLON:
-				rt = rInfo.getRt().getIdentifier();
+				rt = rInfo.getResourceType().getIdentifier();
 				resCreated[rt]++;
 				break;
 			case ROLOFF:
-				rt = rInfo.getRt().getIdentifier();
+				rt = rInfo.getResourceType().getIdentifier();
 				resFinished[rt]++;
 				break;
 			}

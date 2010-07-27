@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.flow;
 
+import java.util.Set;
+
 import es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.Simulation;
 import es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.WorkThread;
 
@@ -42,10 +44,10 @@ public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.is
 		}
 	}
 	
-	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent) {
+	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited) {
 		setParent(parent);
 		if (successor != null)
-			successor.setRecursiveStructureLink(parent);			
+			successor.setRecursiveStructureLink(parent, null);			
 	}	
 
 	public void link(es.ull.isaatc.simulation.common.flow.Flow succ) {

@@ -334,4 +334,8 @@ public class WorkItem implements es.ull.isaatc.simulation.common.WorkItem {
 			sem.release();
 	}
 
+	@Override
+	public String toString() {
+		return wThread + "\tACT: " + act.getDescription();
+	}
 }

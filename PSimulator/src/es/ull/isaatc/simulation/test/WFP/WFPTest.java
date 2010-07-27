@@ -8,8 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.TreeMap;
 
 import es.ull.isaatc.simulation.common.Experiment;
-import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.common.Simulation;
+import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory;
 import es.ull.isaatc.simulation.common.factory.SimulationFactory.SimulationType;
 import es.ull.isaatc.simulation.common.inforeceiver.StdInfoView;
@@ -18,18 +18,21 @@ class WFPTestExperiment extends Experiment {
 	int wfp = -1;
 	boolean detailed;
 	SimulationType type;
+	int nThreads = 1;
 	
-	public WFPTestExperiment(SimulationType type, boolean detailed) {
+	public WFPTestExperiment(SimulationType type, int nThreads, boolean detailed) {
 		super("Testing WFPs...", WFPTest.simulations.size());
 		this.detailed = detailed;
 		this.type = type;
+		this.nThreads = nThreads;
 	}
 	
-	public WFPTestExperiment(SimulationType type, int wfp, boolean detailed) {
+	public WFPTestExperiment(SimulationType type, int wfp, int nThreads, boolean detailed) {
 		super("Testing WFPs...", 1);
 		this.wfp = wfp;
 		this.detailed = detailed;
 		this.type = type;
+		this.nThreads = nThreads;
 	}
 
 	private Simulation class2Simulation(Class<?> cl, int ind) {
@@ -74,7 +77,8 @@ class WFPTestExperiment extends Experiment {
 		for (int i = 0; i < nExperiments; i++) {
 			Simulation sim = getSimulation(i);
 //	        sim.addInfoReceiver(new CheckElementActionViewBuilder(sim));
-			sim.addInfoReceiver(new StdInfoView(sim));
+//			sim.addInfoReceiver(new StdInfoView(sim));
+			sim.setNThreads(nThreads);
 			sim.run();
 		}
 	}
@@ -113,7 +117,7 @@ public class WFPTest {
 		simulations.put(30, WFP30Simulation.class);
 		simulations.put(40, WFP40Simulation.class);
 
-		new WFPTestExperiment(SimulationType.SEQUENTIAL, 40, true).start();
+		new WFPTestExperiment(SimulationType.GROUPEDX, 7, 4, false).start();
 	}
 
 }

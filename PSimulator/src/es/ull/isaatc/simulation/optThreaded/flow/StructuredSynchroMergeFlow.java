@@ -40,7 +40,7 @@ public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow impleme
 	 * @param cond This branch's condition.
 	 */
 	public void addBranch(es.ull.isaatc.simulation.common.flow.InitializerFlow initialBranch, es.ull.isaatc.simulation.common.flow.FinalizerFlow finalBranch, Condition cond) {
-		initialBranch.setRecursiveStructureLink(this);
+		initialBranch.setRecursiveStructureLink(this, null);
 		((MultiChoiceFlow)initialFlow).link(initialBranch, cond);
 		finalBranch.link(finalFlow);
 	}

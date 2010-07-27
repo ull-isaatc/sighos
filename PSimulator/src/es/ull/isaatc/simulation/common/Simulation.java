@@ -88,7 +88,7 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	protected Output out = null;
 	
     /** Variable store */
-	protected final TreeMap<String, Variable> varCollection = new TreeMap<String, Variable>();
+	protected final Map<String, Variable> varCollection = new TreeMap<String, Variable>();
 	
 	/** A handler for the information produced by the execution of this simulation */
 	protected final SimulationInfoHandler infoHandler = new SimulationInfoHandler();

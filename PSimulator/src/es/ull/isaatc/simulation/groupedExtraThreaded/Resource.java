@@ -527,7 +527,8 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	 * @return True if the resource is available.
 	 */
 	public boolean isAvailable(ResourceType rt) {
-		return ((getCurrentWI() == null) && (notCanceled) && (getAvailability(rt) > ts));
+		// Asking if the availability time for this resource is 0 has been removed since can lead to errors
+		return ((getCurrentWI() == null) && (notCanceled));
 	}
 	
 	/**

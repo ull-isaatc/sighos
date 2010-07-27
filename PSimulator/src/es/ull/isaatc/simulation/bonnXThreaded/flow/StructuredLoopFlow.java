@@ -1,5 +1,7 @@
 package es.ull.isaatc.simulation.bonnXThreaded.flow;
 
+import java.util.TreeSet;
+
 import es.ull.isaatc.simulation.bonnXThreaded.Simulation;
 
 
@@ -22,7 +24,8 @@ public abstract class StructuredLoopFlow extends StructuredFlow implements es.ul
 		super(simul);
 		initialFlow = initialSubFlow;
 		finalFlow = finalSubFlow;
-		initialFlow.setRecursiveStructureLink(this);
+		final TreeSet<es.ull.isaatc.simulation.common.flow.Flow> visited = new TreeSet<es.ull.isaatc.simulation.common.flow.Flow>();
+		initialFlow.setRecursiveStructureLink(this, visited);
 	}
 
 	/**

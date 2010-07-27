@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import es.ull.isaatc.simulation.common.Identifiable;
+import es.ull.isaatc.simulation.bonnXThreaded.flow.BasicFlow;
+import es.ull.isaatc.simulation.bonnXThreaded.flow.TaskFlow;
 import es.ull.isaatc.simulation.bonnXThreaded.flow.Flow;
-import es.ull.isaatc.simulation.bonnXThreaded.flow.InitializerFlow;
 import es.ull.isaatc.simulation.bonnXThreaded.flow.SingleFlow;
 import es.ull.isaatc.util.Prioritizable;
 
@@ -36,12 +37,12 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
     protected final WorkThread parent;
     /** The descendant work threads */
 	protected final ArrayList<WorkThread> descendants;
-    /** Thread's initial flow */
-    protected final Flow initialFlow;
 	/** Thread's current Work Item */
 	protected final WorkItem wItem;
 	/** A flag to indicate if the thread executes the flow or not */
 	protected WorkToken token;
+	/** The current flow the thread is in */
+	protected BasicFlow currentFlow = null;
 	/** The last flow the thread was in */
 	protected Flow lastFlow = null;
     
@@ -50,24 +51,30 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
      * @param elem Element that executes this flow.
      * @param act Activity wrapped with this flow.
      */
-    private WorkThread(WorkToken token, Element elem, Flow initialFlow, WorkThread parent) {
+    private WorkThread(WorkToken token, Element elem, WorkThread parent) {
     	this.token = token;
         this.elem = elem;
         this.parent = parent;
         descendants = new ArrayList<WorkThread>();
         if (parent != null)
         	parent.addDescendant(this);
-        this.initialFlow = initialFlow;
         this.id = counter.getAndIncrement();
         wItem = new WorkItem(this);
     }
 
+    public void setCurrentFlow(Flow f) {
+    	currentFlow = (BasicFlow)f;
+    }
+    
     /**
      * Notifies the parent this thread has finished.
      */
     public void notifyEnd() {
-    	if (parent != null)
+    	if (parent != null) {
     		parent.removeDescendant(this);
+    		if ((parent.descendants.size() == 0) && (parent.currentFlow != null))
+    			((TaskFlow)parent.currentFlow).finish(parent);
+    	}
     }
     
     /**
@@ -98,20 +105,10 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	}
 
 	/**
-	 * @param executable the executable to set
 	 */
-	public void setExecutable(boolean executable) {
-		token = new WorkToken(executable);
-	}
-	
-	/**
-	 * @param executable the executable to set
-	 */
-	public void setExecutable(boolean executable, Flow startPoint) {
-		if (!executable)
-			token = new WorkToken(executable, startPoint);
-		else
-			token = new WorkToken(executable);
+	public void cancel(Flow startPoint) {
+		token.reset();
+		token.addFlow(startPoint);
 	}
 
 	/**
@@ -209,14 +206,12 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	}
 	
 	public static WorkThread getInstanceMainWorkThread(Element elem) {
-		return new WorkThread(new WorkToken(true), elem, elem.getFlow(), null);
+		return new WorkThread(new WorkToken(true), elem, null);
 	}
 	
-	public WorkThread getInstanceDescendantWorkThread(InitializerFlow newFlow) {
-		if (isExecutable())
-			return new WorkThread(new WorkToken(true), elem, newFlow, this);
-		else
-			return new WorkThread(new WorkToken(false, newFlow), elem, newFlow, this);
+	public WorkThread getInstanceDescendantWorkThread() {
+		assert isExecutable() : "Invalid parent to create descendant work thread"; 
+		return new WorkThread(new WorkToken(true), elem, this);
 	}
 
 	public WorkThread getInstanceSubsequentWorkThread(boolean executable, Flow newFlow, WorkToken token) {
@@ -228,7 +223,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 				newToken = new WorkToken(false, newFlow);
 		else
 			newToken = new WorkToken(true);
-		return new WorkThread(newToken, elem, newFlow, parent);
+		return new WorkThread(newToken, elem, parent);
 	}
 
 	public void updatePath(Flow flow) {

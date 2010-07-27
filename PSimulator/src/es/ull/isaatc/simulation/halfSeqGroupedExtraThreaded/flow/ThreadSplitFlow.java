@@ -3,6 +3,8 @@
  */
 package es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.flow;
 
+import java.util.Set;
+
 import es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.Simulation;
 import es.ull.isaatc.simulation.halfSeqGroupedExtraThreaded.WorkThread;
 
@@ -69,10 +71,10 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow, es.ull.isaa
 		successor.addPredecessor(this);
 	}
 
-	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent) {
+	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited) {
 		setParent(parent);
 		if (successor != null)
-			successor.setRecursiveStructureLink(parent);		
+			successor.setRecursiveStructureLink(parent, null);		
 	}
 
 	@Override

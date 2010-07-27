@@ -66,22 +66,22 @@ public class CheckFlowsView extends WFPTestView {
 			switch(eInfo.getType()) {
 			case REQACT:
 				ev = new EventToCheck(Type.REQACT, eInfo.getActivity().getIdentifier(), eInfo.getTs());
-				printResult(futureFlow.get(eInfo.getElem().getIdentifier()).remove(ev), "unexpected event!"); 
+				printResult(futureFlow.get(eInfo.getElement().getIdentifier()).remove(ev), "unexpected event!"); 
 				// debería chequear los recursos
-				futureFlow.get(eInfo.getElem().getIdentifier()).add(new EventToCheck(Type.STAACT, eInfo.getActivity().getIdentifier(), eInfo.getTs()));
+				futureFlow.get(eInfo.getElement().getIdentifier()).add(new EventToCheck(Type.STAACT, eInfo.getActivity().getIdentifier(), eInfo.getTs()));
 				break;
 			case STAACT:
 				ev = new EventToCheck(Type.STAACT, eInfo.getActivity().getIdentifier(), eInfo.getTs());
-				printResult(futureFlow.get(eInfo.getElem().getIdentifier()).remove(ev), "unexpected event!"); 
+				printResult(futureFlow.get(eInfo.getElement().getIdentifier()).remove(ev), "unexpected event!"); 
 				double nextTs = eInfo.getTs() + getSimul().simulationTime2Long(durations[eInfo.getActivity().getIdentifier()]);
-				futureFlow.get(eInfo.getElem().getIdentifier()).add(new EventToCheck(Type.ENDACT, eInfo.getActivity().getIdentifier(), nextTs));
+				futureFlow.get(eInfo.getElement().getIdentifier()).add(new EventToCheck(Type.ENDACT, eInfo.getActivity().getIdentifier(), nextTs));
 				break;
 			case ENDACT:
 				ev = new EventToCheck(Type.ENDACT, eInfo.getActivity().getIdentifier(), eInfo.getTs());
-				printResult(futureFlow.get(eInfo.getElem().getIdentifier()).remove(ev), "unexpected event!"); 
-				SingleFlowNode f = flow.search(eInfo.getSf().getFlow().getIdentifier());
+				printResult(futureFlow.get(eInfo.getElement().getIdentifier()).remove(ev), "unexpected event!"); 
+				SingleFlowNode f = flow.search(eInfo.getWorkItem().getFlow().getIdentifier());
 				if (f.next != null)
-					f.next.add2FutureFlow(eInfo.getElem().getIdentifier(), eInfo.getTs());
+					f.next.add2FutureFlow(eInfo.getElement().getIdentifier(), eInfo.getTs());
 				break;
 			}
 		}
@@ -89,12 +89,12 @@ public class CheckFlowsView extends WFPTestView {
 			ElementInfo eInfo = (ElementInfo) info;
 			switch(eInfo.getType()) {
 			case START:
-				flow.add2FutureFlow(eInfo.getElem().getIdentifier(), eInfo.getTs());
+				flow.add2FutureFlow(eInfo.getElement().getIdentifier(), eInfo.getTs());
 				break;
 			case FINISH:
 				if (detailed)
 					System.out.print(eInfo + "...\t");
-				printResult(futureFlow.get(eInfo.getElem().getIdentifier()).isEmpty(), "unexpected end: not all the events were executed!"); 
+				printResult(futureFlow.get(eInfo.getElement().getIdentifier()).isEmpty(), "unexpected end: not all the events were executed!"); 
 				break;
 			}
 		}

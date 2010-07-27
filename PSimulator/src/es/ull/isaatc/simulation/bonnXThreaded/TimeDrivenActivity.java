@@ -190,7 +190,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	 */
 	@Override
 	public void carryOut(WorkItem wItem) {
-		Element elem = wItem.getElement();
+		final Element elem = wItem.getElement();
 		wItem.getFlow().afterStart(elem);
 		long auxTs = wItem.getExecutionWG().catchResources(wItem);
 		// The first time the activity is carried out (useful only for interruptible activities)

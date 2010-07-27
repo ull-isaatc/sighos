@@ -10,6 +10,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Semaphore;
@@ -39,13 +40,13 @@ import es.ull.isaatc.util.Output;
  * assigned to each slave worker; the remaining events will be assigned to the master worker.
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulation {
+public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	
 	/** List of resources present in the simulation. */
 	protected final Map<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
 
 	/** List of element generators of the simulation. */
-	protected final ArrayList<Generator> generatorList = new ArrayList<Generator>();
+	protected final List<Generator> generatorList = new ArrayList<Generator>();
 
 	/** List of activities present in the simulation. */
 	protected final Map<Integer, Activity> activityList = new TreeMap<Integer, Activity>();
@@ -57,7 +58,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	protected final Map<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
 
 	/** List of activity managers that partition the simulation. */
-	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
+	protected final List<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
 	
 	/** List of flows present in the simulation */
 	protected final Map<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
@@ -122,18 +123,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
 	}
-	
-	/**
-	 * Contains the specifications of the model. All the components of the model
-	 * must be declared here.
-	 * <p>
-	 * The components are added simply by invoking their constructors. For
-	 * example: <code>
-	 * Activity a1 = new Activity(0, this, "Act1");
-	 * ResourceType rt1 = new ResourceType(0, this, "RT1");
-	 * </code>
-	 */
-	protected abstract void createModel();
 
 	/**
 	 * Starts the simulation execution. It creates and starts all the necessary 
@@ -148,7 +137,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		if (out == null)
 			out = new Output();
 		
-		createModel();
 		debug("SIMULATION MODEL CREATED");
 		// Sets default AM creator
 		if (amCreator == null)
@@ -695,7 +683,7 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * 
 	 * @return Work activity managers of the model.
 	 */
-	public ArrayList<ActivityManager> getActivityManagerList() {
+	public List<ActivityManager> getActivityManagerList() {
 		return activityManagerList;
 	}
 

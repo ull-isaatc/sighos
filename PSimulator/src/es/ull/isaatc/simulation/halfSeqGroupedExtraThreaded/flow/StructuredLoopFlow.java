@@ -22,7 +22,7 @@ public abstract class StructuredLoopFlow extends StructuredFlow implements es.ul
 		super(simul);
 		initialFlow = initialSubFlow;
 		finalFlow = finalSubFlow;
-		initialFlow.setRecursiveStructureLink(this);
+		initialFlow.setRecursiveStructureLink(this, null);
 	}
 
 	/**

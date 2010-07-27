@@ -46,12 +46,12 @@ public class CheckElementActionViewBuilder extends View {
 			list = new ArrayList<Integer>();
 		}
 		else {
-			list = entry.get(eInfo.getElem().getIdentifier());
+			list = entry.get(eInfo.getElement().getIdentifier());
 			if (list == null)
 				list = new ArrayList<Integer>();
 		}
 		list.add(eInfo.getActivity().getIdentifier());
-		entry.put(eInfo.getElem().getIdentifier(), list);		
+		entry.put(eInfo.getElement().getIdentifier(), list);		
 	}
 	
 	private void printEvent(TreeMap<Long, TreeMap<Integer, ArrayList<Integer>>> events, String eventType) {
@@ -75,8 +75,8 @@ public class CheckElementActionViewBuilder extends View {
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof ElementActionInfo) {
 			ElementActionInfo eInfo = (ElementActionInfo) info;
-			if (!elements.contains(eInfo.getElem().getIdentifier()))
-				elements.add(eInfo.getElem().getIdentifier());
+			if (!elements.contains(eInfo.getElement().getIdentifier()))
+				elements.add(eInfo.getElement().getIdentifier());
 			switch(eInfo.getType()) {
 			case REQACT:
 				fillEvent(eInfo, reqEvents);
