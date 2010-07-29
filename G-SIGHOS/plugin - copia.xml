@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="grafical.sighos.plugin.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="grafical.sighos.plugin.perspective"
+            id="grafical.sighos.plugin.perspective"
+            name="perspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="grafical.sighos.plugin.commands.exitHandler"
+            id="grafical.sighos.plugin.commands.exit"
+            name="exit">
+      </command>
+      <command
+            defaultHandler="grafical.sighos.plugin.commands.maximizeHandler"
+            id="grafical.sighos.plugin.commands.maximize"
+            name="maximize no funcional">
+      </command>
+      <command
+            defaultHandler="grafical.sighos.plugin.dialogs.standard.handler.opendialog"
+            id="grafical.sighos.plugin.dialogs.standard"
+            name="dialogo">
+      </command>
+      <command
+            defaultHandler="grafical.sighos.plugin.commands.abrirficherohandler"
+            id="grafical.sighos.plugin.commands.abrirfichero"
+            name="abrirfichero">
+      </command>
+      <command
+            defaultHandler="grafical.sighos.plugin.commands.guardarficherohandler"
+            id="grafical.sighos.plugin.commands.guardarfichero"
+            name="guardarfichero">
+      </command>
+      <command
+            defaultHandler="grafical.sighos.plugin.commands.listahandler"
+            id="grafical.sighos.plugin.commands.nuevoFormulario"
+            name="Nuevo Proyecto">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               id="fileMenu"
+               label="Files_SIGHOS">
+            <command
+                  commandId="grafical.sighos.plugin.commands.exit"
+                  label="exit"
+                  style="push"
+                  tooltip="Salir de la aplicacion">
+            </command>
+            <command
+                  commandId="grafical.sighos.plugin.commands.abrirfichero"
+                  label="abrir fichero"
+                  style="push"
+                  tooltip="abrir un fichero">
+            </command>
+            <command
+                  commandId="grafical.sighos.plugin.commands.guardarfichero"
+                  label="guardar fichero"
+                  style="push">
+            </command>
+            <command
+                  commandId="grafical.sighos.plugin.commands.nuevoFormulario"
+                  label="Nuevo Proyecto"
+                  style="push">
+            </command>
+         </menu>
+         <command
+               commandId="grafical.sighos.plugin.dialogs.standard"
+               label="Dialogo"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="grafical.sighos.plugin.view.comando"
+            id="grafical.sighos.plugin.view.comando"
+            name="comando"
+            restorable="true">
+      </view>
+      <view
+            class="grafical.sighos.plugin.view.inicial"
+            id="grafical.sighos.plugin.view.inicial"
+            name="inicial"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+         <view
+               id="grafical.sighos.plugin.view.inicial"
+               minimized="false"
+               ratio="0.3"
+               relationship="top"
+               relative="org.eclipse.ui.editorss">
+         </view>
+         <view
+               id="grafical.sighos.plugin.view.comando"
+               minimized="false"
+               ratio="0.3"
+               relationship="top"
+               relative="org.eclipse.ui.editorss">
+         </view>
+      </perspectiveExtension>
+   </extension>
+
+</plugin>
