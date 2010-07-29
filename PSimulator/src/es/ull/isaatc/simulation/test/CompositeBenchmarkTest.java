@@ -121,9 +121,11 @@ public class CompositeBenchmarkTest {
 		final BenchmarkModel.OverlappingType W_OVER = BenchmarkModel.OverlappingType.SAMETIME;
 		final SimulationFactory.SimulationType []simTypes = {SimulationType.SEQUENTIAL, SimulationType.SEQ3PHASE2,SimulationType.GROUPEDX,SimulationType.GROUPED3PHASEX};
 		
-		BenchmarkModel[] configs = new BenchmarkModel[SimulationFactory.SimulationType.values().length];
-		for (SimulationFactory.SimulationType simType : simTypes)
-			configs[simType.ordinal()] = new BenchmarkModel(simType.ordinal(), simType, modType, W_OVER, W_THREADS, W_ITER, W_ELEM, W_ACT);
+		BenchmarkModel[] configs = new BenchmarkModel[simTypes.length];
+		for (int i = 0; i < simTypes.length; i++) {
+			SimulationType simType = simTypes[i]; 
+			configs[i] = new BenchmarkModel(simType.ordinal(), simType, modType, W_OVER, W_THREADS, W_ITER, W_ELEM, W_ACT);
+		}
 		return configs;
 	}
 	
