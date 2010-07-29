@@ -6,10 +6,6 @@
 
 package es.ull.isaatc.simulation.bonnThreaded;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,7 +76,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
     private SlaveEventExecutor [] executor;
     /** The barrier to control the phases of simulation */
 	private AbstractBarrier barrier;
-	private PrintWriter stFile = null;
 	
 	/**
 	 * Creates a new instance of Simulation
@@ -159,11 +154,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		
 		advanceSimulationClock();
 
-		try {
-			stFile = new PrintWriter(new BufferedWriter(new FileWriter("C:\\events.txt")), true);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
         for (int i = 0; i < nThreads; i++) {
 			executor[i].start();
 		}
@@ -175,7 +165,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		stFile.close();
     	debug("SIMULATION TIME FINISHES\r\nSimulation time = " +
             	lvt + "\r\nPreviewed simulation time = " + internalEndTs);
     	printState();
@@ -200,17 +189,14 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	private final class BarrierAction implements Runnable {
 		@Override
 		public void run() {
-			stFile.print(lvt);
 	    	// Updates the future event list with the events produced by the executor threads
 	    	for (SlaveEventExecutor ee : executor) {
-	    		stFile.print("\t" + ee.stExecutedEvents);
 	    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
 	    		while (!list.isEmpty()) {
 	    			BasicElement.DiscreteEvent e = list.pop();
 	    			addWait(e);
 	    		}    		
 	    	}
-	    	stFile.println();
 	    	
 	    	advanceSimulationClock();
 			
@@ -252,7 +238,6 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		private final int threadId;
     	private final ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
     	private final ArrayDeque<BasicElement.DiscreteEvent> extraWaitingEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
-    	private int stExecutedEvents = 0;
     	
 		/**
 		 * Creates a new slave executor
@@ -291,25 +276,20 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	    		if (threadId == 0 && totalEvents < nThreads) {
 	    			for (int i = 0; i < totalEvents; i++)
 	    				currentEvents.get(i).run();
-	    			stExecutedEvents = totalEvents;
 	    		}
 	    		else if (totalEvents >= nThreads) {
 	    			final int lastEvent = (threadId + 1 == nThreads) ? totalEvents : (totalEvents * (threadId + 1) / nThreads);
 	    			for (int i = totalEvents * threadId / nThreads; i < lastEvent; i++)
 	    				currentEvents.get(i).run();
-	    			stExecutedEvents = lastEvent;
 	    		}
 	    		
 	    		// Executes its local events
 				while (!extraEvents.isEmpty()) {
 					extraEvents.pop().run();
-					stExecutedEvents++;
 				}
 				
-				if (nThreads > 1) {
+				if (nThreads > 1)
 					barrier.await(threadId);
-					stExecutedEvents = 0;
-				}
 				else {
 					// Updates the future event list with the events produced by the executor threads
 			    	for (SlaveEventExecutor ee : executor) {

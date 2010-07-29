@@ -59,7 +59,6 @@ public class CompositeBenchmarkTest {
 	}
 	
 	private static BenchmarkModel[] testConflict() {
-		boolean sequential = true;
 		int []nThreads = {1,2,3};
 		int []xnThreads = {3,4};
 		int []nElems = {512};
@@ -71,6 +70,7 @@ public class CompositeBenchmarkTest {
 		BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.CONFLICT;
 		BenchmarkModel.OverlappingType ovType = BenchmarkModel.OverlappingType.SAMETIME;
 		SimulationFactory.SimulationType []simTypes = {};		
+		SimulationFactory.SimulationType []ssimTypes = {SimulationType.SEQUENTIAL, SimulationType.SEQUENTIAL2, SimulationType.SEQ3PHASE, SimulationType.SEQ3PHASE2};		
 		SimulationFactory.SimulationType []xsimTypes = {SimulationType.GROUPEDX,SimulationType.BONNGROUPEDX, SimulationType.GROUPED3PHASEX};		
 		ArrayList<BenchmarkModel> configs = new ArrayList<BenchmarkModel>();
 		
@@ -82,12 +82,8 @@ public class CompositeBenchmarkTest {
 					for (long wl : workLoads) {
 						for (int j = 0; j < nElems.length; j++) {
 							for (int k = 0; k < nActs.length && nActs[k] <= nElems[j]; k++) {
-								if (sequential) {
-									bm = new BenchmarkModel(counter++, SimulationFactory.SimulationType.SEQUENTIAL, modType, ovType, 1, nIter, nElems[j], nActs[k], 0, wl);
-									bm.setRtXact(rtA);
-									bm.setRtXres(rtR);
-									configs.add(bm);
-									bm = new BenchmarkModel(counter++, SimulationFactory.SimulationType.SEQUENTIAL2, modType, ovType, 1, nIter, nElems[j], nActs[k], 0, wl);
+								for (SimulationType simType : ssimTypes) {
+									bm = new BenchmarkModel(counter++, simType, modType, ovType, 1, nIter, nElems[j], nActs[k], 0, wl);
 									bm.setRtXact(rtA);
 									bm.setRtXres(rtR);
 									configs.add(bm);
@@ -123,8 +119,10 @@ public class CompositeBenchmarkTest {
 		final int W_ITER = 100;
 		final int W_THREADS = 1;
 		final BenchmarkModel.OverlappingType W_OVER = BenchmarkModel.OverlappingType.SAMETIME;
+		final SimulationFactory.SimulationType []simTypes = {SimulationType.SEQUENTIAL, SimulationType.SEQ3PHASE2,SimulationType.GROUPEDX,SimulationType.GROUPED3PHASEX};
+		
 		BenchmarkModel[] configs = new BenchmarkModel[SimulationFactory.SimulationType.values().length];
-		for (SimulationFactory.SimulationType simType : SimulationFactory.SimulationType.values())
+		for (SimulationFactory.SimulationType simType : simTypes)
 			configs[simType.ordinal()] = new BenchmarkModel(simType.ordinal(), simType, modType, W_OVER, W_THREADS, W_ITER, W_ELEM, W_ACT);
 		return configs;
 	}
