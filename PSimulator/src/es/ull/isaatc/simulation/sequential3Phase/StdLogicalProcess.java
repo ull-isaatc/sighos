@@ -49,6 +49,8 @@ public class StdLogicalProcess extends LogicalProcess {
      * timestamp equal to the LP timestamp. 
      */
     protected void execWaitingElements() {
+        for (ActivityManager am : simul.getActivityManagerList())
+        	am.executeWork();
         // Extracts the first event
         if (! waitQueue.isEmpty()) {
             BasicElement.DiscreteEvent e = removeWait();
@@ -82,8 +84,6 @@ public class StdLogicalProcess extends LogicalProcess {
                         flag = false;
                     }
                 } while ( flag );
-                for (ActivityManager am : simul.getActivityManagerList())
-                	am.executeWork();
             }
         }        
     }
