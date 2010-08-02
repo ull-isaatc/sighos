@@ -46,7 +46,7 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow, es.ull.isaa
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (!beforeRequest(wThread.getElement()))
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 			} else 
 				wThread.updatePath(this);
 			next(wThread);
@@ -73,8 +73,10 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow, es.ull.isaa
 
 	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited) {
 		setParent(parent);
+		visited.add(this);
 		if (successor != null)
-			successor.setRecursiveStructureLink(parent, null);		
+			if (!visited.contains(successor))
+				successor.setRecursiveStructureLink(parent, visited);		
 	}
 
 	@Override

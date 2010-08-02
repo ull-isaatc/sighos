@@ -35,7 +35,7 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (!beforeRequest(wThread.getElement()))
-					wThread.setExecutable(false, this);
+					wThread.cancel(this);
 			} else 
 				wThread.updatePath(this);
 			next(wThread);
@@ -74,8 +74,10 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	 */
 	public void setRecursiveStructureLink(es.ull.isaatc.simulation.common.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.common.flow.Flow> visited) {
 		 setParent(parent);
+		 visited.add(this);
 		 for (Flow f : successorList)
-			 f.setRecursiveStructureLink(parent, null); 	
+			 if (!visited.contains(f))
+				 f.setRecursiveStructureLink(parent, visited); 	
 	}
 
 	/**

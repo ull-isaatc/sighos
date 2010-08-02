@@ -14,6 +14,7 @@ import es.ull.isaatc.simulation.groupedThreaded.flow.InitializerFlow;
 import es.ull.isaatc.simulation.common.flow.StructuredFlow;
 import es.ull.isaatc.simulation.common.info.ElementActionInfo;
 import es.ull.isaatc.simulation.groupedThreaded.flow.BasicFlow;
+import es.ull.isaatc.util.RandomPermutation;
 
 /**
  * An {@link Activity} that could be carried out by an {@link Element} and whose duration depends 
@@ -93,19 +94,20 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 		// Ending MUTEX access to activity manager
 		manager.signalSemaphore();
 
-//		int[] order = RandomPermutation.nextPermutation(amList.size());
-//		for (int ind : order) {
-//			ActivityManager am = amList.get(ind);
-//			am.waitSemaphore();
-//			am.availableResource();
-//			am.signalSemaphore();
-//		}
-
-		for (ActivityManager am : amList) {
+		int[] order = RandomPermutation.nextPermutation(amList.size());
+		for (int ind : order) {
+			final ActivityManager am = amList.get(ind);
 			am.waitSemaphore();
 			am.availableResource();
-			am.signalSemaphore();			
+			am.signalSemaphore();
 		}
+
+		// This lines can be used to make this part more deterministic
+//		for (ActivityManager am : amList) {
+//			am.waitSemaphore();
+//			am.availableResource();
+//			am.signalSemaphore();			
+//		}
 		
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 		if (elem.isDebugEnabled())

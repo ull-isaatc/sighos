@@ -10,6 +10,7 @@ import java.util.AbstractQueue;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
@@ -41,7 +42,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	protected final Map<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
 
 	/** List of element generators of the simulation. */
-	protected final ArrayList<Generator> generatorList = new ArrayList<Generator>();
+	protected final List<Generator> generatorList = new ArrayList<Generator>();
 
 	/** List of activities present in the simulation. */
 	protected final Map<Integer, Activity> activityList = new TreeMap<Integer, Activity>();
@@ -53,7 +54,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	protected final Map<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
 
 	/** List of activity managers that partition the simulation. */
-	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
+	protected final List<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
 	
 	/** List of flows present in the simulation */
 	protected final Map<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
@@ -61,9 +62,10 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	/** List of active elements */
 	private final Map<Integer, Element> activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
 
+	/** The way the Activity Managers are created */
 	protected ActivityManagerCreator amCreator = null;
 
-	/** Local virtual time. Represents the current simulation time for this LP. */
+	/** Local virtual time. Represents the current simulation time. */
 	protected volatile long lvt;
     /** A counter to know how many events are in execution */
     protected AtomicInteger executingEvents = new AtomicInteger(0);
@@ -521,7 +523,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	 * 
 	 * @return Work activity managers of the model.
 	 */
-	public ArrayList<ActivityManager> getActivityManagerList() {
+	public List<ActivityManager> getActivityManagerList() {
 		return activityManagerList;
 	}
 

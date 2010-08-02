@@ -110,7 +110,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 		simul.getInfoHandler().notifyInfo(new ElementInfo(this.simul, this, ElementInfo.Type.START, this.getTs()));
 		simul.addActiveElement(this);
 		if (initialFlow != null) {
-			addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
+			addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread());
 		}
 		else
 			notifyEnd();
@@ -151,7 +151,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 			for (int i = 0; (current == null) && (i < inQueue.size()); i++) {
 				final WorkItem wi = inQueue.get(i);
 				if (!wi.getActivity().isNonPresential())
-					addEvent(new AvailableElementEvent(ts, inQueue.get(i)));
+					addEvent(new AvailableElementEvent(ts, wi));
 			}
 		}		
 	}
@@ -228,6 +228,7 @@ public class Element extends BasicElement implements es.ull.isaatc.simulation.co
 		}		
 
 		public void event() {
+			eThread.setCurrentFlow(f);
 			f.request(eThread);
 		}
 	}
