@@ -1,10 +1,13 @@
 package es.ull.isaatc.simulation.threaded;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import es.ull.isaatc.simulation.common.info.TimeChangeInfo;
+import es.ull.isaatc.simulation.threaded.BasicElement.DiscreteEvent;
 import es.ull.isaatc.util.SingleThreadPool;
 import es.ull.isaatc.util.StandardThreadPool;
 import es.ull.isaatc.util.ThreadPool;
@@ -29,7 +32,7 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      * finishes its execution. */
     protected long maxgvt; 
     /** Thread pool to execute events */
-    protected final ThreadPool<BasicElement.DiscreteEvent> tp;
+    protected final InnerThreadPool tp;
     /** A counter to know how many events are in execution */
     protected int executingEvents = 0;
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
@@ -75,10 +78,10 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
      */
 	public LogicalProcess(Simulation simul, long startT, long endT, int nThreads) {
 		super(nextId++, simul);
-		if (nThreads == 1)
-			tp = new SingleThreadPool<BasicElement.DiscreteEvent>();
+		if (simul.isJavaPool())
+			tp = new JavaThreadPool(nThreads);
 		else
-			tp = new StandardThreadPool<BasicElement.DiscreteEvent>(nThreads);
+			tp = new MyThreadPool(nThreads);
         waitQueue = new PriorityBlockingQueue<BasicElement.DiscreteEvent>();
         lpLock = new ReentrantLock();
         execEmpty = lpLock.newCondition();
@@ -304,4 +307,48 @@ public class LogicalProcess extends TimeStampedSimulationObject implements Runna
 		}
 	}
 	
+	private interface InnerThreadPool {
+		void execute(BasicElement.DiscreteEvent e);
+		void shutdown();
+	}
+	
+	private class MyThreadPool implements InnerThreadPool {
+	    /** Thread pool to execute events */
+	    private final ThreadPool<BasicElement.DiscreteEvent> tp;
+		
+		public MyThreadPool(int nThreads) {
+			if (nThreads == 1)
+				tp = new SingleThreadPool<BasicElement.DiscreteEvent>();
+			else
+				tp = new StandardThreadPool<BasicElement.DiscreteEvent>(nThreads);
+		}
+
+		@Override
+		public void execute(DiscreteEvent e) {
+			tp.execute(e);
+		}
+
+		@Override
+		public void shutdown() {
+			tp.shutdown();
+		}		
+	}
+	
+	private class JavaThreadPool implements InnerThreadPool {
+	    private final ExecutorService tp;
+		
+	    public JavaThreadPool(int nThreads) {
+	        tp = Executors.newFixedThreadPool(nThreads);
+		}
+
+		@Override
+		public void execute(DiscreteEvent e) {
+			tp.execute(e);
+		}
+
+		@Override
+		public void shutdown() {
+			tp.shutdown();
+		}		
+	}
 }

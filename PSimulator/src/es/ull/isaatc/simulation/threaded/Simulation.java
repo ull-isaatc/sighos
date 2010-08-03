@@ -29,7 +29,7 @@ import es.ull.isaatc.util.Output;
  * 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulation {
+public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
@@ -63,24 +63,8 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 
 	protected ActivityManagerCreator amCreator = null;
 	protected LogicalProcessCreator lpCreator = null;
+	private final boolean javaPool;
 	
-	/**
-	 * Empty constructor for compatibility purposes
-	 */
-	public Simulation() {
-	}
-	
-	/**
-	 * Creates a new instance of Simulation
-	 * 
-	 * @param id This simulation's identifier
-	 * @param description A short text describing this simulation.
-	 */
-	public Simulation(int id, String description, TimeUnit unit) {
-		super(id, description, unit);
-	}
-
-
 	/**
 	 * Creates a new instance of Simulation
 	 *
@@ -93,8 +77,9 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * @param endTs
 	 *            Timestamp of simulation's end
 	 */
-	public Simulation(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
+	public Simulation(int id, String description, boolean javaPool, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		super(id, description, unit, startTs, endTs);
+		this.javaPool = javaPool;
 	}
 	
 	/**
@@ -109,21 +94,17 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 	 * @param endTs
 	 *            Simulation's end timestamp expresed in Simulation Time Units
 	 */
-	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
+	public Simulation(int id, String description, boolean javaPool, TimeUnit unit, long startTs, long endTs) {
 		super(id, description, unit, startTs, endTs);
+		this.javaPool = javaPool;
 	}
 	
 	/**
-	 * Contains the specifications of the model. All the components of the model
-	 * must be declared here.
-	 * <p>
-	 * The components are added simply by invoking their constructors. For
-	 * example: <code>
-	 * Activity a1 = new Activity(0, this, "Act1");
-	 * ResourceType rt1 = new ResourceType(0, this, "RT1");
-	 * </code>
+	 * @return the javaPool
 	 */
-	protected abstract void createModel();
+	public boolean isJavaPool() {
+		return javaPool;
+	}
 
 	/**
 	 * Starts the simulation execution. It creates and starts all the necessary 
@@ -138,7 +119,6 @@ public abstract class Simulation extends es.ull.isaatc.simulation.common.Simulat
 		if (out == null)
 			out = new Output();
 		
-		createModel();
 		debug("SIMULATION MODEL CREATED");
 		// Sets default AM creator
 		if (amCreator == null)

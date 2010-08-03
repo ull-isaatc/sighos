@@ -38,6 +38,7 @@ public class SimulationFactory {
 		SEQUENTIAL, 
 		SEQUENTIAL2, 
 		EXTERNALPOOL,
+		EXTERNALJAVAPOOL,
 		EXTERNALPOOL3PHASE,
 		INTERVAL,
 		BUFFERED,
@@ -57,7 +58,8 @@ public class SimulationFactory {
 		switch (type) {
 		case SEQUENTIAL: return new es.ull.isaatc.simulation.sequential.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case SEQUENTIAL2: return new es.ull.isaatc.simulation.sequential.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
-		case EXTERNALPOOL: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case EXTERNALPOOL: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, false, unit, startTs, endTs);
+		case EXTERNALJAVAPOOL: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
 		case EXTERNALPOOL3PHASE: return new es.ull.isaatc.simulation.optThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case INTERVAL: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, false, unit, startTs, endTs);
 		case BUFFERED: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
@@ -79,7 +81,8 @@ public class SimulationFactory {
 		switch (type) {
 		case SEQUENTIAL: return new es.ull.isaatc.simulation.sequential.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case SEQUENTIAL2: return new es.ull.isaatc.simulation.sequential.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
-		case EXTERNALPOOL: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
+		case EXTERNALPOOL: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, false, unit, startTs, endTs);
+		case EXTERNALJAVAPOOL: return new es.ull.isaatc.simulation.threaded.factory.SimulationFactory(id, description, true, unit, startTs, endTs);
 		case EXTERNALPOOL3PHASE: return new es.ull.isaatc.simulation.optThreaded.factory.SimulationFactory(id, description, unit, startTs, endTs);
 		case INTERVAL: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, false, unit, startTs, endTs);
 		case BUFFERED: return new es.ull.isaatc.simulation.intervalThreaded.factory.SimulationFactory(id, description, true, unit, startTs, endTs);

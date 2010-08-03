@@ -46,13 +46,11 @@ public class SimulationFactory implements SimulationObjectFactory {
 	 * @param id
 	 * @param description
 	 * @param unit
+	 * @param startTs
+	 * @param endTs
 	 */
-	public SimulationFactory(int id, String description, TimeUnit unit) {
-		simul = new Simulation(id, description, unit) {
-			@Override
-			protected void createModel() {
-			}
-		};
+	public SimulationFactory(int id, String description, boolean javaPool, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
+		simul = new Simulation(id, description, javaPool, unit, startTs, endTs);
 	}
 
 	/**
@@ -62,27 +60,8 @@ public class SimulationFactory implements SimulationObjectFactory {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public SimulationFactory(int id, String description, TimeUnit unit,	TimeStamp startTs, TimeStamp endTs) {
-		simul = new Simulation(id, description, unit, startTs, endTs) {
-			@Override
-			protected void createModel() {
-			}
-		};
-	}
-
-	/**
-	 * @param id
-	 * @param description
-	 * @param unit
-	 * @param startTs
-	 * @param endTs
-	 */
-	public SimulationFactory(int id, String description, TimeUnit unit,	long startTs, long endTs) {
-		simul = new Simulation(id, description, unit, startTs, endTs) {
-			@Override
-			protected void createModel() {
-			}
-		};
+	public SimulationFactory(int id, String description, boolean javaPool, TimeUnit unit, long startTs, long endTs) {
+		simul = new Simulation(id, description, javaPool, unit, startTs, endTs);
 	}
 
 	@Override

@@ -97,7 +97,7 @@ class KindOfPHOLDSimulation extends Simulation {
 	int eventProcess;
 	
 	public KindOfPHOLDSimulation(int id, TimeStamp endTs, int n, int nElem, int eventIter, int eventProcess) {
-		super(id, "PHOLD", TimeUnit.MINUTE, TimeStamp.getZero(), endTs);
+		super(id, "PHOLD", false, TimeUnit.MINUTE, TimeStamp.getZero(), endTs);
 		values = new AtomicLongArray(n);
 		this.nElem = nElem;
 		this.eventIter = eventIter;
@@ -106,12 +106,6 @@ class KindOfPHOLDSimulation extends Simulation {
 
 	public void setValue(int id, long value) {
 		values.set(id % values.length(), value);
-	}
-	
-	@Override
-	protected void createModel() {
-		BasicElementCreator elemCreator = new RequestingElementCreator(this, nElem, eventIter, eventProcess);
-		new TimeDrivenGenerator(this, elemCreator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), new SimulationTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0));
 	}
 	
 }
@@ -153,7 +147,9 @@ public class TestKindOfPHOLD {
 
 			@Override
 			public Simulation getSimulation(int ind) {
-				Simulation sim = new KindOfPHOLDSimulation(ind, new TimeStamp(TimeUnit.MINUTE, nIter + 1), nAct, nElem, eventIter, eventProcess);
+				KindOfPHOLDSimulation sim = new KindOfPHOLDSimulation(ind, new TimeStamp(TimeUnit.MINUTE, nIter + 1), nAct, nElem, eventIter, eventProcess);
+				BasicElementCreator elemCreator = new RequestingElementCreator(sim, nElem, eventIter, eventProcess);
+				new TimeDrivenGenerator(sim, elemCreator, new SimulationPeriodicCycle(sim.getTimeUnit(), TimeStamp.getZero(), new SimulationTimeFunction(sim.getTimeUnit(), "ConstantVariate", sim.getEndTs().getValue()), 0));
 				sim.addInfoReceiver(new CpuTimeView(sim));
 //				sim.setOutput(new Output(true));
 				return sim;
