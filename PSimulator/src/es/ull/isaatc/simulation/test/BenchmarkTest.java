@@ -22,7 +22,6 @@ public class BenchmarkTest {
 	static int nThreads = 1;
 	static int nElem = 16;
 	static int nAct = 8;
-	static long actTime = nElem;
 	static int nIter = 100000;
 	static int nExp = 1;
 	static int rtXact = 4;
@@ -41,11 +40,11 @@ public class BenchmarkTest {
 	public static void main(String[] args) {
 		int argCounter = 0;
 		if (args.length >= MINARGS) {
+			simType = SimulationType.valueOf(args[argCounter++]);
 			modType = BenchmarkModel.ModelType.valueOf(args[argCounter++]);
 			ovType = BenchmarkModel.OverlappingType.valueOf(args[argCounter++]);
 			nAct = Integer.parseInt(args[argCounter++]);
 			nElem = Integer.parseInt(args[argCounter++]);
-			actTime = Integer.parseInt(args[argCounter++]);
 			nIter = Integer.parseInt(args[argCounter++]);
 			nThreads = Integer.parseInt(args[argCounter++]);
 			nExp = Integer.parseInt(args[argCounter++]);
@@ -59,7 +58,7 @@ public class BenchmarkTest {
 					debug = "D".equals(args[args.length - 1]);
 			}
 		} else if (args.length > 0) { 
-			System.err.println("Wrong number of arguments.\n Arguments expected: 6");
+			System.err.println("Wrong number of arguments.\n Arguments expected: " + MINARGS);
 			System.exit(0);
 		} 
 		
