@@ -82,9 +82,9 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	private ArrayDeque<BasicElement.DiscreteEvent> execEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
 	// Fine grain adjust of the work load
 	/** Work load factor applied to slave workers */ 
-	private final int grain = 1;
+	public int grain = 1;
 	/** Work load factor applied to the master worker */
-	private final int rest = 1;
+	public int rest = 1;
 	/** Amount of sets of events to be distributed among the workers */
 	private int nBunches; 
 	private final boolean pasive;
