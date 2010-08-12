@@ -78,8 +78,8 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
     private SlaveEventExecutor [] executor;
     /** Represents the master executor, which runs events and the simulation clock */
     private MasterExecutor mainExecutor;
-    /** The list of current executing events for the main executor */ 
-	private ArrayDeque<BasicElement.DiscreteEvent> execEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+    /** The list of current executing events */ 
+	private List<BasicElement.DiscreteEvent> currentEvents;
 	// Fine grain adjust of the work load
 	/** Work load factor applied to slave workers */ 
 	public int grain = 1;
@@ -185,13 +185,11 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
         if (pasive) {
 	        for (int i = 0; i < nThreads - 1; i++) {
 				executor[i] = new PasiveSlaveEventExecutor(i);
-				executor[i].start();
 			}
         }
         else {
             for (int i = 0; i < nThreads - 1; i++) {
     			executor[i] = new ActiveSlaveEventExecutor(i);
-    			executor[i].start();
     		}        	
         }
 		nBunches = (nThreads - 1) * grain + rest;
@@ -201,13 +199,19 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		mainExecutor = new MasterExecutor();
 		// Starts all the generators
 		for (Generator gen : generatorList)
-			mainExecutor.addWaitingEvent(gen.getStartEvent(internalStartTs));
+			addWait(gen.getStartEvent(internalStartTs));
 		// Starts all the resources
 		for (Resource res : resourceList.values())
-			mainExecutor.addWaitingEvent(res.getStartEvent(internalStartTs));		
+			addWait(res.getStartEvent(internalStartTs));		
 
-		mainExecutor.addWaitingEvent(new SimulationElement().getStartEvent(internalEndTs));
-        mainExecutor.start();
+		addWait(new SimulationElement().getStartEvent(internalEndTs));
+
+    	advanceSimulationClock();
+    	
+		mainExecutor.start();
+        for (int i = 0; i < nThreads - 1; i++)
+			executor[i].start();
+        
         try {
 			mainExecutor.join();
 		} catch (InterruptedException e) {
@@ -223,125 +227,150 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		debug("SIMULATION COMPLETELY FINISHED");
 	}
 
+	private void advanceSimulationClock() {
+        beforeClockTick();
+        lvt = waitQueue.firstKey();
+        infoHandler.notifyInfo(new TimeChangeInfo(Simulation.this, lvt));
+        afterClockTick();
+        debug("SIMULATION TIME ADVANCING " + lvt);
+        if (lvt < internalEndTs) {
+        	currentEvents = waitQueue.pollFirstEntry().getValue();
+    		executingEvents.addAndGet(currentEvents.size());
+        }			
+	}
+	
 	final class MasterExecutor extends Thread implements EventExecutor {
+		/** Execution local buffer */
+		private final ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
 
 		@Override
 		public void addEvent(BasicElement.DiscreteEvent event) {
-			execEvents.push(event);
-		}
-
-		@Override
-		public void addEvents(List<BasicElement.DiscreteEvent> eventList) {
-			execEvents.addAll(eventList);
-		}
-
-		@Override
-		public void addWaitingEvent(BasicElement.DiscreteEvent event) {
-			ArrayList<BasicElement.DiscreteEvent> list = waitQueue.get(event.getTs());
-			if (list == null) {
-				list = new ArrayList<BasicElement.DiscreteEvent>();
-				list.add(event);
-				waitQueue.put(event.getTs(), list);
-			}
-			else
-				list.add(event);
+	    	final long evTs = event.getTs();
+	        if (evTs == lvt) {
+	        	executingEvents.incrementAndGet();
+				extraEvents.push(event);
+	        }
+	        else if (evTs > lvt) {
+	           	addWait(event);
+	        }
+	        else
+	        	error("Causal restriction broken\t" + lvt + "\t" + event);
 		}
 
 	    /**
 	     * Executes a simulation clock cycle. Extracts all the events from the waiting queue with 
 	     * timestamp equal to the LP timestamp. 
 	     */
-	    private void execWaitingElements() {
-	    	// Updates the future event list with the events produced by the executor threads
-	    	for (SlaveEventExecutor ee : executor) {
-	    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
-	    		while (!list.isEmpty()) {
-	    			BasicElement.DiscreteEvent e = list.pop();
-	    			addWaitingEvent(e);
-	    		}    		
-	    	}
-	        // Advances the simulation clock
-	        beforeClockTick();
-	        lvt = waitQueue.firstKey();
-	        infoHandler.notifyInfo(new TimeChangeInfo(Simulation.this, lvt));
-	        afterClockTick();
-	        debug("SIMULATION TIME ADVANCING " + lvt);
-	        // Events with timestamp greater or equal to the maximum simulation time aren't
-	        // executed
-	        if (lvt < internalEndTs) {
-	        	ArrayList<BasicElement.DiscreteEvent> list = waitQueue.pollFirstEntry().getValue();
-	    		int share = list.size();
-	    		executingEvents.addAndGet(share);
-	    		if (share < nBunches)
-	    			addEvents(list);    			
-	    		else {
-		    		share = share / nBunches;
-		    		for (int iter = 0; iter < (nThreads - 1); iter++)
-		    			executor[iter].addEvents(list.subList(share * iter * grain, share * grain * (iter + 1)));
-		    		addEvents(list.subList(share * executor.length * grain, list.size()));
-	    		}
-	        }
-	    }
-
 		public void run() {
 	        // Simulation main loop
 			while (!isSimulationEnd()) {
-	    		while (!execEvents.isEmpty())
-	    			execEvents.pop().run();
-				// Every time the loop is entered we must wait for all the events from the 
-				// previous iteration to be finished (the execution queue must be empty)
+	    		// Executes its events
+	    		final int totalEvents = currentEvents.size();
+	    		int myEventsCount = 0;
+	    		// if there aren't many events, the master executor deals with them all
+	    		if ((nThreads == 1) || (totalEvents < nThreads)) {
+	    			for (int i = 0; i < totalEvents; i++)
+	    				currentEvents.get(i).run();
+	    			myEventsCount = totalEvents; 
+	    		}
+	    		else {
+	    			int share = totalEvents / nBunches;
+	    			for (int i = share * executor.length * grain; i < totalEvents; i++)
+	    				currentEvents.get(i).run();
+	    			myEventsCount = totalEvents - share * executor.length * grain; 
+	    		}
+	    		
+	    		// Executes its local events
+				while (!extraEvents.isEmpty()) {
+					extraEvents.pop().run();
+			    	executingEvents.decrementAndGet();
+				}
+				// Now subtracts the original events, just to ensure that the barrier is not passed incorrectly 
+				executingEvents.addAndGet(-myEventsCount);
+
+				// Waits for the slave executors to finish
 				while (executingEvents.get() > 0);
-				// Now the simulation clock can advance
-	            execWaitingElements();
+				
+		    	// Updates the future event list with the events produced by the executor threads
+		    	for (SlaveEventExecutor ee : executor) {
+		    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
+		    		while (!list.isEmpty()) {
+		    			BasicElement.DiscreteEvent e = list.pop();
+		    			addWait(e);
+		    		}    		
+		    	}
+		        // Advances the simulation clock
+		    	advanceSimulationClock();
+
+				// Notifies the slaves that the events are available
+				for (SlaveEventExecutor ee : executor)
+					ee.notifyEvents();
 			}
-			// The simulation waits for all the events to be removed from the execution queue 
-			while (executingEvents.get() > 0);
-			if (pasive)
-				for (SlaveEventExecutor slave : executor)
-					((PasiveSlaveEventExecutor)slave).notifyEnd();
-		}
+	    }
+
 	}
 	
 	private abstract class SlaveEventExecutor extends Thread implements EventExecutor {
-		private ArrayDeque<BasicElement.DiscreteEvent> events = new ArrayDeque<BasicElement.DiscreteEvent>();
+		protected ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
 		private ArrayDeque<BasicElement.DiscreteEvent> extraWaitingEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+		protected final int threadId; 
 		
 		public SlaveEventExecutor(int index) {
 			super("LPExec-" + index);
+			threadId = index;
 		}
 		
 		/**
 		 * @param event the event to set
 		 */
 		public void addEvent(BasicElement.DiscreteEvent event) {
-			events.push(event);
+	    	final long evTs = event.getTs();
+	        if (evTs == lvt) {
+	        	executingEvents.incrementAndGet();
+				extraEvents.push(event);
+	        }
+	        else if (evTs > lvt) {
+				extraWaitingEvents.push(event);
+	        }
+	        else
+	        	error("Causal restriction broken\t" + lvt + "\t" + event);
 		}
 		
-		/**
-		 * @param event the event to set
-		 */
-		public void addEvents(List<BasicElement.DiscreteEvent> eventList) {
-			events.addAll(eventList);
-			notifyEvents();
-		}
-
-		/**
-		 * @param event the event to set
-		 */
-		public void addWaitingEvent(BasicElement.DiscreteEvent event) {
-			extraWaitingEvents.push(event);
-		}
-
 		public ArrayDeque<BasicElement.DiscreteEvent> getWaitingEvents() {
 			return extraWaitingEvents;
 		}
 		
-		protected void executeEvents() {
-			while (!events.isEmpty()) {
-				events.pop().run();
-			}			
+		@Override
+		public void run() {
+	        // Simulation main loop
+			while (!isSimulationEnd()) {
+	    		// Executes its events
+	    		final int totalEvents = currentEvents.size();
+	    		int myEventsCount = 0;
+	    		// if there aren't many events, the master executor deals with them all
+	    		if (totalEvents >= nThreads) {
+	    			final int share = totalEvents / nBunches;
+	    			final int lastEvent = share * (threadId + 1) * grain;
+	    			for (int i = share * threadId * grain; i < lastEvent; i++)
+	    				currentEvents.get(i).run();
+	    			myEventsCount = share * grain; 
+	    		}
+	    		
+	    		// Executes its local events
+				while (!extraEvents.isEmpty()) {
+					extraEvents.pop().run();
+			    	executingEvents.decrementAndGet();
+				}
+				// Now subtracts the original events, just to ensure that the barrier is not passed incorrectly 
+				executingEvents.addAndGet(-myEventsCount);
+	    		
+				// Every time the loop is entered we must wait for all the events from the 
+				// previous iteration to be finished
+				await();
+			}
 		}
-		
+
+		protected abstract void await();
 		protected abstract void notifyEvents(); 
 	}
 	
@@ -358,12 +387,8 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		}
 
 		@Override
-		public void run() {
-			long endTs = internalEndTs;
-			while (lvt < endTs) {
-				if (flag.compareAndSet(true, false)) {
-					executeEvents();
-				}
+		protected void await() {
+			while (!flag.compareAndSet(true, false)) {
 			}			
 		}
 
@@ -381,23 +406,13 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 			lock.release();
 		}
 
-		public void notifyEnd() {
-			lock.release();
-		}
-		
 		@Override
-		public void run() {
-			long endTs = internalEndTs;
-			while (lvt < endTs) {
-				try {
-					lock.acquire();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				executeEvents();
-			}
-			
+		protected void await() {
+			try {
+				lock.acquire();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}			
 		}
 
 	}
@@ -414,24 +429,17 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		return lvt;
 	}
 
-    /**
-     * Sends an event to the execution queue by looking for a thread to execute it. An event is 
-     * added to the execution queue when the LP has reached the event timestamp. 
-     * @param e Event to be executed
-     */
-	public void addExecution(BasicElement.DiscreteEvent e) {
-		executingEvents.incrementAndGet();
+	public void addWait(BasicElement.DiscreteEvent event) {
+		ArrayList<BasicElement.DiscreteEvent> list = waitQueue.get(event.getTs());
+		if (list == null) {
+			list = new ArrayList<BasicElement.DiscreteEvent>();
+			list.add(event);
+			waitQueue.put(event.getTs(), list);
+		}
+		else
+			list.add(event);
 	}
 
-    /**
-     * Removes an event from the execution queue, but performing a previous synchronization.
-     * The synchronization consists on waiting for the LP to lock, or for the simulation end.
-     * @param e Event to be removed
-     */
-    protected void removeExecution(BasicElement.DiscreteEvent e) {
-    	executingEvents.decrementAndGet();
-    }
-    
 	/**
 	 * A basic element which facilitates the end-of-simulation control. It simply
 	 * has an event at <code>maxgvt</code>, so there's always at least one event in 
