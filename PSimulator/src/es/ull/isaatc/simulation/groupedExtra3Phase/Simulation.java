@@ -34,19 +34,19 @@ import es.ull.isaatc.util.Output;
  */
 public class Simulation extends es.ull.isaatc.simulation.common.Simulation {	
 	/** List of resources present in the simulation. */
-	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
+	protected final Map<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
 	/** List of element generators of the simulation. */
-	protected final ArrayList<Generator> generatorList = new ArrayList<Generator>();
+	protected final List<Generator> generatorList = new ArrayList<Generator>();
 	/** List of activities present in the simulation. */
-	protected final TreeMap<Integer, Activity> activityList = new TreeMap<Integer, Activity>();
+	protected final Map<Integer, Activity> activityList = new TreeMap<Integer, Activity>();
 	/** List of resource types present in the simulation. */
-	protected final TreeMap<Integer, ResourceType> resourceTypeList = new TreeMap<Integer, ResourceType>();
+	protected final Map<Integer, ResourceType> resourceTypeList = new TreeMap<Integer, ResourceType>();
 	/** List of resource types present in the simulation. */
-	protected final TreeMap<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
+	protected final Map<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
 	/** List of activity managers that partition the simulation. */
-	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();	
+	protected final List<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();	
 	/** List of flows present in the simulation */
-	protected final TreeMap<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
+	protected final Map<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
 	/** List of active elements */
 	private final Map<Integer, Element> activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
 	/** A definition of how to create the AMs */
@@ -58,7 +58,8 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	/** A timestamp-ordered list of events whose timestamp is in the future. Events are grouped according 
 	 * to their timestamps. */
 	private final TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>> futureEventList  = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
-	private ArrayList<BasicElement.DiscreteEvent> currentEvents;
+    /** The list of current executing events */ 
+	private List<BasicElement.DiscreteEvent> currentEvents;
 	/** The slave event executors */
     private SlaveEventExecutor [] executor;
     /** The barrier to control the phases of simulation */
@@ -492,7 +493,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	 * Returns a list of the activity managers of the model.
 	 * @return Work activity managers of the model.
 	 */
-	public ArrayList<ActivityManager> getActivityManagerList() {
+	public List<ActivityManager> getActivityManagerList() {
 		return activityManagerList;
 	}
 

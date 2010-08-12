@@ -40,40 +40,30 @@ import es.ull.isaatc.util.Output;
  * @author Iván Castilla Rodríguez
  */
 public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
-	
 	/** List of resources present in the simulation. */
 	protected final Map<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
-
 	/** List of element generators of the simulation. */
 	protected final List<Generator> generatorList = new ArrayList<Generator>();
-
 	/** List of activities present in the simulation. */
 	protected final Map<Integer, Activity> activityList = new TreeMap<Integer, Activity>();
-
 	/** List of resource types present in the simulation. */
 	protected final Map<Integer, ResourceType> resourceTypeList = new TreeMap<Integer, ResourceType>();
-
 	/** List of resource types present in the simulation. */
 	protected final Map<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
-
 	/** List of activity managers that partition the simulation. */
 	protected final List<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
-	
 	/** List of flows present in the simulation */
 	protected final Map<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
-
 	/** List of active elements */
 	private final Map<Integer, Element> activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
-
 	/** The way the Activity Managers are created */
-	protected ActivityManagerCreator amCreator = null;
-
+	private ActivityManagerCreator amCreator = null;
 	/** Local virtual time. Represents the current simulation time. */
-	protected volatile long lvt;
+	private volatile long lvt;
     /** A counter to know how many events are in execution */
-    protected AtomicInteger executingEvents = new AtomicInteger(0);
+    private AtomicInteger executingEvents = new AtomicInteger(0);
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
-	protected final TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>> waitQueue;
+	private final TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>> futureEventList;
 	/** The pool of slave event executors */ 
     private SlaveEventExecutor [] executor;
     /** Represents the master executor, which runs events and the simulation clock */
@@ -135,7 +125,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	 */
 	public Simulation(int id, String description, boolean pasive, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		super(id, description, unit, startTs, endTs);
-        waitQueue = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
+        futureEventList = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
         this.pasive = pasive;
@@ -155,7 +145,7 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	 */
 	public Simulation(int id, String description, boolean pasive, TimeUnit unit, long startTs, long endTs) {
 		super(id, description, unit, startTs, endTs);
-        waitQueue = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
+        futureEventList = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
         this.pasive = pasive;
@@ -229,12 +219,12 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 
 	private void advanceSimulationClock() {
         beforeClockTick();
-        lvt = waitQueue.firstKey();
+        lvt = futureEventList.firstKey();
         infoHandler.notifyInfo(new TimeChangeInfo(Simulation.this, lvt));
         afterClockTick();
         debug("SIMULATION TIME ADVANCING " + lvt);
         if (lvt < internalEndTs) {
-        	currentEvents = waitQueue.pollFirstEntry().getValue();
+        	currentEvents = futureEventList.pollFirstEntry().getValue();
     		executingEvents.addAndGet(currentEvents.size());
         }			
 	}
@@ -430,11 +420,11 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 	}
 
 	public void addWait(BasicElement.DiscreteEvent event) {
-		ArrayList<BasicElement.DiscreteEvent> list = waitQueue.get(event.getTs());
+		ArrayList<BasicElement.DiscreteEvent> list = futureEventList.get(event.getTs());
 		if (list == null) {
 			list = new ArrayList<BasicElement.DiscreteEvent>();
 			list.add(event);
-			waitQueue.put(event.getTs(), list);
+			futureEventList.put(event.getTs(), list);
 		}
 		else
 			list.add(event);
@@ -469,8 +459,8 @@ public class Simulation extends es.ull.isaatc.simulation.common.Simulation {
 		if (isDebugEnabled()) {
 			StringBuffer strLong = new StringBuffer("------    LP STATE    ------");
 			strLong.append("LVT: " + lvt + "\r\n");
-	        strLong.append(waitQueue.size() + " waiting elements: ");
-	        for (ArrayList<BasicElement.DiscreteEvent> ad : waitQueue.values())
+	        strLong.append(futureEventList.size() + " waiting elements: ");
+	        for (ArrayList<BasicElement.DiscreteEvent> ad : futureEventList.values())
 	        	for (BasicElement.DiscreteEvent e : ad)
 	        		strLong.append(e + " ");
 	        strLong.append("\r\n" + executingEvents + " executing elements:");
