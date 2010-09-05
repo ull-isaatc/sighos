@@ -24,9 +24,9 @@ public final class StdCentralServicesParameters extends ModelParameterMap {
 				"UniformVariate", 4, 12));
 		put(CentralServicesSubModel.Parameters.LENGTH_RADTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"UniformVariate", 4, 12));
-		put(CentralServicesSubModel.Parameters.LENGTH_NUCANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		put(CentralServicesSubModel.Parameters.LENGTH_NUCREPORT, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"UniformVariate", 8, 16));
-		put(CentralServicesSubModel.Parameters.LENGTH_RADANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		put(CentralServicesSubModel.Parameters.LENGTH_RADREPORT, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"UniformVariate", 7, 14));
 	}
 

@@ -30,22 +30,22 @@ public final class StdCentralLabParameters extends ModelParameterMap {
 		// Centrifugation lasts until next 15 minutes 
 		put(CentralLabSubModel.Parameters.LENGTH_CENT, HospitalModelConfig.getNextHighFunction(unit, 
 				new TimeStamp(TimeUnit.MINUTE, 15), TimeStamp.getZero(), "ConstantVariate", 6)); 
-		put(CentralLabSubModel.Parameters.LENGTH_ANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		put(CentralLabSubModel.Parameters.LENGTH_TEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 8));
 		put(CentralLabSubModel.Parameters.NHAETECH, 2);
 		put(CentralLabSubModel.Parameters.NHAENURSES, 5);
 		put(CentralLabSubModel.Parameters.NHAESLOTS, 40);
-		put(CentralLabSubModel.Parameters.LENGTH_HAEANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		put(CentralLabSubModel.Parameters.LENGTH_HAETEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 15));
 		put(CentralLabSubModel.Parameters.NMICROTECH, 10);
 		put(CentralLabSubModel.Parameters.NMICRONURSES, 0);
 		put(CentralLabSubModel.Parameters.NMICROSLOTS, 50);
-		put(CentralLabSubModel.Parameters.LENGTH_MICROANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit,
+		put(CentralLabSubModel.Parameters.LENGTH_MICROTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit,
 				"ConstantVariate", 20));
 		put(CentralLabSubModel.Parameters.NPATTECH, 6);
 		put(CentralLabSubModel.Parameters.NPATNURSES, 1);
 		put(CentralLabSubModel.Parameters.NPATSLOTS, 50);
-		put(CentralLabSubModel.Parameters.LENGTH_PATANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		put(CentralLabSubModel.Parameters.LENGTH_PATTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 20));
 	}
 

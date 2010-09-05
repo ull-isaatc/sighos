@@ -33,16 +33,26 @@ import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.WeeklyPeriodicCycle;
 
 /**
+ * The main class to simulate a big hospital.
+ * 
  * @author Iván Castilla Rodríguez
- *
  */
 public class BigHospital {
 	private static final String SEP = "----------------------------------------";
+	/** Debug level utilized to decide which views use during the simulation */ 
 	private static int debug = 0;
+	/** The path where the output files are written to */
 	private static String outputPath;
+	/** Sampling rate for outputs */
 	private static TimeStamp viewPeriod;
+	/** Warm-up period. No results are shown during this time */
 	private static final TimeStamp warmUp = TimeStamp.getZero();
 
+	/**
+	 * Set which views will be used during the simulation according to the debug level
+	 * @param simul Current simulation
+	 * @param debug Debug level
+	 */
 	private static void addViews(Simulation simul, int debug) {
 		simul.addInfoReceiver(new ActionsCounterView(simul, System.out));
 		if (debug == 1)
@@ -60,21 +70,29 @@ public class BigHospital {
 			simul.setOutput(new Output(true));		
 	}
 	
-	private static void normalExp(int nExperiments, String expType, int nServ, int months, int minuteScale) {
+	/**
+	 * A regular experiment that creates a fixed amount of departments from each predefined type. 
+	 * @param nReplicas Replicas of each experiment to perform 
+	 * @param expType Types of experiments to perform
+	 * @param nDept The amount of departments of each predefined type to create
+	 * @param months Length of the simulation in months
+	 * @param minuteScale The finest grain of the simulation time (in minutes). No process lasts less than this value.
+	 */
+	private static void normalExp(int nReplicas, String expType, int nDept, int months, int minuteScale) {
 		TimeStamp endTs = new TimeStamp(TimeUnit.MONTH, months);
 		TimeStamp scale = new TimeStamp(TimeUnit.MINUTE, minuteScale);
 		int simIndex = 0;
 		// FIXME: Default generator (Mersenne twister) is failing with multiple threads
 		RandomNumberFactory.setDefaultClass("simkit.random.Congruential");
 
-		int []nServices = new int[6];
-		Arrays.fill(nServices, nServ);
+		int []nDeparments = new int[6];
+		Arrays.fill(nDeparments, nDept);
 		
 		// First sequential for warmup
 		if (expType.contains("w")) {
 			System.out.println("INITIALIZING...");
 			SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQUENTIAL, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);			
-			HospitalSubModel.createModel(factory, scale, new int[] {1,1,1,1,1,1});	
+			HospitalModel.createModel(factory, scale, new int[] {1,1,1,1,1,1});	
 			Simulation simul = factory.getSimulation();
 			simul.run();
 			System.out.println(SEP);
@@ -82,19 +100,19 @@ public class BigHospital {
 		
 		System.out.println("EXPERIMENT CONFIG:");
 		System.out.println("Scale\t" + scale);
-		System.out.print("N. services");
-		for (int serv : nServices)
-			System.out.print("\t" + serv);
+		System.out.print("N. departments");
+		for (int dept : nDeparments)
+			System.out.print("\t" + dept);
 		System.out.println();
 		System.out.println(SEP);
 		
 		if (expType.contains("s")) {
 			System.out.println("STARTING SEQUENTIAL EXPERIMENTS...");
 			// Now sequential experiments
-			for (int i = 0; i < nExperiments; i++) {
+			for (int i = 0; i < nReplicas; i++) {
 				System.out.println(SimulationType.SEQUENTIAL + "\t" + i);
 				SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQUENTIAL, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
-				HospitalSubModel.createModel(factory, scale, nServices);	
+				HospitalModel.createModel(factory, scale, nDeparments);	
 				Simulation simul = factory.getSimulation();
 				addViews(simul, debug);
 				simul.run();
@@ -103,10 +121,10 @@ public class BigHospital {
 		}
 		if (expType.contains("3")) {
 			// Now "better" sequential experiments
-			for (int i = 0; i < nExperiments; i++) {
+			for (int i = 0; i < nReplicas; i++) {
 				System.out.println(SimulationType.SEQ3PHASE2 + "\t" + i);
 				SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQ3PHASE2, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
-				HospitalSubModel.createModel(factory, scale, nServices);	
+				HospitalModel.createModel(factory, scale, nDeparments);	
 				Simulation simul = factory.getSimulation();
 				addViews(simul, debug);
 				simul.run();
@@ -125,10 +143,10 @@ public class BigHospital {
 		int maxThreads = Runtime.getRuntime().availableProcessors();
 		for (SimulationType type : simTypes) {
 			for (int th = 1; th <= maxThreads; th++) {
-				for (int i = 0; i < nExperiments; i++) {
+				for (int i = 0; i < nReplicas; i++) {
 					System.out.println(type + "[" + th + "]\t" + i);
 					SimulationObjectFactory factory = SimulationFactory.getInstance(type, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
-					HospitalSubModel.createModel(factory, scale, nServices);	
+					HospitalModel.createModel(factory, scale, nDeparments);	
 					Simulation simul = factory.getSimulation();
 					addViews(simul, debug);
 					simul.setNThreads(th);
@@ -139,6 +157,11 @@ public class BigHospital {
 		}		
 	}
 
+	/**
+	 * Creates a small experiment for testing purposes
+	 * @param minuteScale The finest grain of the simulation time (in minutes). No process lasts less than this value.
+	 */
+	@SuppressWarnings("unused")
 	private static void testExp(int minuteScale) {
 		TimeStamp scale = new TimeStamp(TimeUnit.MINUTE, minuteScale);
 		SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQUENTIAL, 0, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, 3));
@@ -157,22 +180,22 @@ public class BigHospital {
 				"ConstantVariate", 2));
 		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_CENT, HospitalModelConfig.getNextHighFunction(unit, 
 				new TimeStamp(TimeUnit.MINUTE, 15), TimeStamp.getZero(), "ConstantVariate", 6));
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_ANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_TEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 8));
 		centralLabParams.put(CentralLabSubModel.Parameters.NHAETECH, 2);
 		centralLabParams.put(CentralLabSubModel.Parameters.NHAENURSES, 5);
 		centralLabParams.put(CentralLabSubModel.Parameters.NHAESLOTS, 40);
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_HAEANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_HAETEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 15));
 		centralLabParams.put(CentralLabSubModel.Parameters.NMICROTECH, 10);
 		centralLabParams.put(CentralLabSubModel.Parameters.NMICRONURSES, 0);
 		centralLabParams.put(CentralLabSubModel.Parameters.NMICROSLOTS, 50);
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_MICROANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit,
+		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_MICROTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit,
 				"ConstantVariate", 20));
 		centralLabParams.put(CentralLabSubModel.Parameters.NPATTECH, 6);
 		centralLabParams.put(CentralLabSubModel.Parameters.NPATNURSES, 1);
 		centralLabParams.put(CentralLabSubModel.Parameters.NPATSLOTS, 50);
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_PATANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_PATTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 20));
 		CentralLabSubModel.createModel(factory, centralLabParams);
 		Flow[] root = CentralLabSubModel.getOPFlow(factory, 0.5, 1.0, 0.07, 0.06, 0.05);
@@ -216,7 +239,7 @@ public class BigHospital {
 		}
 		int nExperiments = Integer.parseInt(args[0]);
 		String expType = args[1];
-		int nServices = Integer.parseInt(args[2]);
+		int nDepartments = Integer.parseInt(args[2]);
 		int months = Integer.parseInt(args[3]);
 		int minuteScale = Integer.parseInt(args[4]);
 		if (args.length > 5) {
@@ -226,7 +249,7 @@ public class BigHospital {
 				viewPeriod = new TimeStamp(TimeUnit.DAY, Integer.parseInt(args[7]));
 			}
 		}
-		normalExp(nExperiments, expType, nServices, months, minuteScale);
+		normalExp(nExperiments, expType, nDepartments, months, minuteScale);
 	}
 
 }

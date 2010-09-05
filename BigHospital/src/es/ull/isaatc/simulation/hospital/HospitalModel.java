@@ -16,22 +16,29 @@ import es.ull.isaatc.simulation.common.factory.SimulationObjectFactory;
 import es.ull.isaatc.simulation.common.flow.SingleFlow;
 import es.ull.isaatc.simulation.hospital.scenarios.StdCentralLabParameters;
 import es.ull.isaatc.simulation.hospital.scenarios.StdCentralServicesParameters;
-import es.ull.isaatc.simulation.hospital.scenarios.StdMedicalServiceParameters1;
-import es.ull.isaatc.simulation.hospital.scenarios.StdMedicalServiceParameters2;
-import es.ull.isaatc.simulation.hospital.scenarios.StdMedicalServiceParameters3;
+import es.ull.isaatc.simulation.hospital.scenarios.StdMedicalDepartmentParameters1;
+import es.ull.isaatc.simulation.hospital.scenarios.StdMedicalDepartmentParameters2;
+import es.ull.isaatc.simulation.hospital.scenarios.StdMedicalDepartmentParameters3;
 import es.ull.isaatc.simulation.hospital.scenarios.StdSurgicalParameters;
-import es.ull.isaatc.simulation.hospital.scenarios.StdSurgicalServiceParameters1;
-import es.ull.isaatc.simulation.hospital.scenarios.StdSurgicalServiceParameters2;
-import es.ull.isaatc.simulation.hospital.scenarios.StdSurgicalServiceParameters3;
+import es.ull.isaatc.simulation.hospital.scenarios.StdSurgicalDepartmentParameters1;
+import es.ull.isaatc.simulation.hospital.scenarios.StdSurgicalDepartmentParameters2;
+import es.ull.isaatc.simulation.hospital.scenarios.StdSurgicalDepartmentParameters3;
 import es.ull.isaatc.util.WeeklyPeriodicCycle;
 
 /**
+ *  The main class to create a model of a hospital. Several modules defined in different classes are used.
  *  
  * @author Iván Castilla Rodríguez
  */
-public final class HospitalSubModel {
+public final class HospitalModel {
 
-	public static void createModel(SimulationObjectFactory factory, TimeStamp scale, int []nServices) {
+	/**
+	 * Creates a model of a hospital
+	 * @param factory A factory for simulation components
+	 * @param scale The finest grain of the simulation time (in minutes). No process lasts less than this value.
+	 * @param nDepartments The amount of departments created for each predefined type 
+	 */
+	public static void createModel(SimulationObjectFactory factory, TimeStamp scale, int []nDepartments) {
 		HospitalModelConfig.setScale(scale);
 		
 		// Central services
@@ -40,44 +47,44 @@ public final class HospitalSubModel {
 		// Central Lab
 		ModelParameterMap centralLabParams = new StdCentralLabParameters();
 		CentralLabSubModel.createModel(factory, centralLabParams);
-		// Surgical common services
+		// Surgical common units
 		ModelParameterMap surParams = new StdSurgicalParameters();
-		SurgicalSubModel.createModel(factory, surParams);
+		SurgicalDptCommonModel.createModel(factory, surParams);
 		
 		int count = 0;
-		// Like-Gynaegology services
-		ModelParameterMap gynParams = new StdSurgicalServiceParameters1();
-		for (int i = 1; i <= nServices[count]; i++)
+		// Like-Gynaegology departments
+		ModelParameterMap gynParams = new StdSurgicalDepartmentParameters1();
+		for (int i = 1; i <= nDepartments[count]; i++)
 			StdSurgicalSubModel.createModel(factory, "GYN" + i, gynParams);
 		count++;
 
 		// Like-Traumatology
-		ModelParameterMap traParams = new StdSurgicalServiceParameters2();
-		for (int i = 1; i <= nServices[count]; i++)
+		ModelParameterMap traParams = new StdSurgicalDepartmentParameters2();
+		for (int i = 1; i <= nDepartments[count]; i++)
 			StdSurgicalSubModel.createModel(factory, "TRA" + i, traParams);
 		count++;
 
 		// Like-Nephrology
-		ModelParameterMap nepParams = new StdSurgicalServiceParameters3();
-		for (int i = 1; i <= nServices[count]; i++)
+		ModelParameterMap nepParams = new StdSurgicalDepartmentParameters3();
+		for (int i = 1; i <= nDepartments[count]; i++)
 			StdSurgicalSubModel.createModel(factory, "NEP" + i, nepParams);
 		count++;
 		
 		// Like-Rheumatology
-		ModelParameterMap rheParams = new StdMedicalServiceParameters1();
-		for (int i = 1; i <= nServices[count]; i++)
+		ModelParameterMap rheParams = new StdMedicalDepartmentParameters1();
+		for (int i = 1; i <= nDepartments[count]; i++)
 			StdMedicalSubModel.createModel(factory, "RHE" + i, rheParams);
 		count++;
 
 		// Like-Dermatology
-		ModelParameterMap derParams = new StdMedicalServiceParameters2();
-		for (int i = 1; i <= nServices[count]; i++)
+		ModelParameterMap derParams = new StdMedicalDepartmentParameters2();
+		for (int i = 1; i <= nDepartments[count]; i++)
 			StdMedicalSubModel.createModel(factory, "DER"+ i, derParams);
 		count++;
 
 		// Like-Ophthalmology
-		ModelParameterMap ophParams = new StdMedicalServiceParameters3();
-		for (int i = 1; i <= nServices[count]; i++)
+		ModelParameterMap ophParams = new StdMedicalDepartmentParameters3();
+		for (int i = 1; i <= nDepartments[count]; i++)
 			StdMedicalSubModel.createModel(factory, "OPH" + i, ophParams);
 		count++;
 	}
@@ -94,9 +101,9 @@ public final class HospitalSubModel {
 				"ConstantVariate", 10));
 		centralParams.put(CentralServicesSubModel.Parameters.LENGTH_RADTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 10));
-		centralParams.put(CentralServicesSubModel.Parameters.LENGTH_NUCANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		centralParams.put(CentralServicesSubModel.Parameters.LENGTH_NUCREPORT, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 12));
-		centralParams.put(CentralServicesSubModel.Parameters.LENGTH_RADANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		centralParams.put(CentralServicesSubModel.Parameters.LENGTH_RADREPORT, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 10));
 		CentralServicesSubModel.createModel(factory, centralParams);
 		// Central Lab
@@ -111,22 +118,22 @@ public final class HospitalSubModel {
 				"ConstantVariate", 2));
 		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_CENT, HospitalModelConfig.getNextHighFunction(unit, 
 				new TimeStamp(TimeUnit.MINUTE, 15), TimeStamp.getZero(), "ConstantVariate", 6));
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_ANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_TEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 8));
 		centralLabParams.put(CentralLabSubModel.Parameters.NHAETECH, 2);
 		centralLabParams.put(CentralLabSubModel.Parameters.NHAENURSES, 5);
 		centralLabParams.put(CentralLabSubModel.Parameters.NHAESLOTS, 40);
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_HAEANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_HAETEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 15));
 		centralLabParams.put(CentralLabSubModel.Parameters.NMICROTECH, 10);
 		centralLabParams.put(CentralLabSubModel.Parameters.NMICRONURSES, 0);
 		centralLabParams.put(CentralLabSubModel.Parameters.NMICROSLOTS, 50);
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_MICROANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit,
+		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_MICROTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit,
 				"ConstantVariate", 20));
 		centralLabParams.put(CentralLabSubModel.Parameters.NPATTECH, 6);
 		centralLabParams.put(CentralLabSubModel.Parameters.NPATNURSES, 1);
 		centralLabParams.put(CentralLabSubModel.Parameters.NPATSLOTS, 50);
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_PATANALYSIS, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_PATTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 20));
 		CentralLabSubModel.createModel(factory, centralLabParams);
 		
@@ -171,7 +178,7 @@ public final class HospitalSubModel {
 		final TimeUnit unit = factory.getSimulation().getTimeUnit();
 
 		ResourceType rtTech = HospitalModelConfig.createNStdHumanResources(factory, "Lab Technician", 2); 
-		ResourceType rtSlot = HospitalModelConfig.createNStdMaterialResources(factory, "Analytical slot", 10); 
+		ResourceType rtSlot = HospitalModelConfig.createNStdMaterialResources(factory, "Test slot", 10); 
 		final int nNurses = 2;
 		final int nXNurses = 1;
 		ResourceType rtNurse = HospitalModelConfig.createNStdHumanResources(factory, "Lab Nurse", nNurses - nXNurses);
@@ -193,7 +200,7 @@ public final class HospitalSubModel {
 		TimeDrivenActivity actOutCent = factory.getTimeDrivenActivityInstance("Centrifugation OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		actOutCent.addWorkGroup(HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 30), wgCent);
-		TimeDrivenActivity actOutTest = factory.getTimeDrivenActivityInstance("Analysis OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		TimeDrivenActivity actOutTest = factory.getTimeDrivenActivityInstance("Test OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		actOutTest.addWorkGroup(HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 20), 0, wgTest1);
 		actOutTest.addWorkGroup(HospitalModelConfig.getScaledSimulationTimeFunction(unit, 

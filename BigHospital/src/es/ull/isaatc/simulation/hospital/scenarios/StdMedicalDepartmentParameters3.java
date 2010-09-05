@@ -17,18 +17,18 @@ import es.ull.isaatc.util.WeeklyPeriodicCycle;
  * @author Iván Castilla Rodríguez
  *
  */
-public final class StdMedicalServiceParameters2 extends ModelParameterMap {
+public final class StdMedicalDepartmentParameters3 extends ModelParameterMap {
 
-	public StdMedicalServiceParameters2() {
+	public StdMedicalDepartmentParameters3() {
 		super(StdMedicalSubModel.Parameters.values().length);
 		
 		final TimeUnit unit = HospitalModelConfig.UNIT;
 		put(StdMedicalSubModel.Parameters.NDOCTORS, 5);
 		put(StdMedicalSubModel.Parameters.NBEDS, 5);
-		put(StdMedicalSubModel.Parameters.PROB_ADM, 0.01);
-		put(StdMedicalSubModel.Parameters.PROB_NUC_OP, 0.01);
-		put(StdMedicalSubModel.Parameters.PROB_RAD_OP, 0.01);
-		put(StdMedicalSubModel.Parameters.PROB_LAB_OP, 0.3);
+		put(StdMedicalSubModel.Parameters.PROB_ADM, 0.001);
+		put(StdMedicalSubModel.Parameters.PROB_NUC_OP, 0.05);
+		put(StdMedicalSubModel.Parameters.PROB_RAD_OP, 0.05);
+		put(StdMedicalSubModel.Parameters.PROB_LAB_OP, 0.05);
 		put(StdMedicalSubModel.Parameters.PROB_LABCENT_OP, 0.70);
 		put(StdMedicalSubModel.Parameters.PROB_LABLAB_OP, 0.90);
 		put(StdMedicalSubModel.Parameters.PROB_LABMIC_OP, 0.06);
@@ -49,7 +49,7 @@ public final class StdMedicalServiceParameters2 extends ModelParameterMap {
 				"TriangleVariate", TimeStamp.getHour(), new TimeStamp(TimeUnit.DAY, 7), new TimeStamp(TimeUnit.DAY, 2)));
 		put(StdMedicalSubModel.Parameters.LENGTH_OP1, new SimulationTimeFunction(unit, "ConstantVariate", 12));
 		put(StdMedicalSubModel.Parameters.LENGTH_OP2OP, 
-				new SimulationTimeFunction(unit, "UniformVariate", new TimeStamp(TimeUnit.WEEK, 8), new TimeStamp(TimeUnit.WEEK, 12)));
+				new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.YEAR, 1)));
 		put(StdMedicalSubModel.Parameters.LENGTH_OP2, new SimulationTimeFunction(unit, "ConstantVariate", 10));
 		put(StdMedicalSubModel.Parameters.NPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 25));
 		put(StdMedicalSubModel.Parameters.NCPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 5));

@@ -17,9 +17,9 @@ import es.ull.isaatc.util.WeeklyPeriodicCycle;
  * @author Iván Castilla Rodríguez
  *
  */
-public final class StdSurgicalServiceParameters3 extends ModelParameterMap {
+public final class StdSurgicalDepartmentParameters3 extends ModelParameterMap {
 
-	public StdSurgicalServiceParameters3() {
+	public StdSurgicalDepartmentParameters3() {
 		super(StdSurgicalSubModel.Parameters.values().length);
 		
 		final TimeUnit unit = HospitalModelConfig.UNIT;

@@ -12,10 +12,12 @@ import es.ull.isaatc.simulation.common.condition.ElementTypeCondition;
 import es.ull.isaatc.simulation.common.factory.SimulationObjectFactory;
 
 /**
+ * Model of the common facilities and resources for the surgical departments. Includes PACU, ICU and
+ * the anaesthetists.
+ * 
  * @author Iván Castilla Rodríguez
- *
  */
-public class SurgicalSubModel {
+public class SurgicalDptCommonModel {
 	private static TimeDrivenActivity actPACU = null;
 	private static TimeDrivenActivity actICU = null;
 	private static ResourceType rtAnaes = null;
@@ -47,7 +49,7 @@ public class SurgicalSubModel {
 	}
 	
 	/**
-	 * Creates the structures that are common to all the surgical services, that is, 
+	 * Creates the structures that are common to all the surgical departments, that is, 
 	 * the P.A.C.U. and the I.C.U.
 	 * @param factory
 	 */
@@ -65,7 +67,7 @@ public class SurgicalSubModel {
 		wgPACU = factory.getWorkGroupInstance(new ResourceType[] {rtPACUBed}, new int[] {1});
 		wgICU = factory.getWorkGroupInstance(new ResourceType[] {rtICUBed}, new int[] {1});
 
-		// Activities: Duration depends on the service, so workgroups are not added yet
+		// Activities: Duration depends on the department, so workgroups are not added yet
 		actPACU = factory.getTimeDrivenActivityInstance("PACU stay");
 		actICU = factory.getTimeDrivenActivityInstance("ICU stay");
 	}

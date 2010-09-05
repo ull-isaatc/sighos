@@ -11,22 +11,23 @@ import es.ull.isaatc.simulation.common.flow.Flow;
 import es.ull.isaatc.simulation.common.flow.SingleFlow;
 
 /**
+ * Model of the central services of a hospital
+ * 
  * @author Iván Castilla Rodríguez
- *
  */
 public class CentralServicesSubModel {
 	private static TimeDrivenActivity actOPNucTest = null;
 	private static TimeDrivenActivity actOPRadTest = null;
-	private static TimeDrivenActivity actOPNucAnalysis = null;
-	private static TimeDrivenActivity actOPRadAnalysis = null;
+	private static TimeDrivenActivity actOPNucReport = null;
+	private static TimeDrivenActivity actOPRadReport = null;
 	
 	public enum Parameters implements ModelParameterMap.ModelParameter {
 		NTECHNUC(Integer.class, "Resources available for Nuclear Medicine"),
 		LENGTH_NUCTEST(SimulationTimeFunction.class, "Duration of the test"),
-		LENGTH_NUCANALYSIS(SimulationTimeFunction.class, "Duration of the analysis of results"),
+		LENGTH_NUCREPORT(SimulationTimeFunction.class, "Duration of the preparation of the report of results"),
 		NTECHRAD(Integer.class, "Resources available for Radiology"),
 		LENGTH_RADTEST(SimulationTimeFunction.class, "Duration of the test"),
-		LENGTH_RADANALYSIS(SimulationTimeFunction.class, "Duration of the analysis of results");
+		LENGTH_RADREPORT(SimulationTimeFunction.class, "Duration of the preparation of the report of results");
 		
 		private final Class<?> type;
 		private final String description;
@@ -65,30 +66,32 @@ public class CentralServicesSubModel {
 		actOPNucTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_NUCTEST), wgNuc);
 		actOPRadTest = factory.getTimeDrivenActivityInstance("Radiology Test OP", 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class)); 
 		actOPRadTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_RADTEST), wgRad); 
-		actOPNucAnalysis = factory.getTimeDrivenActivityInstance("Nuclear Medicine Analysis OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL)); 
-		actOPNucAnalysis.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_NUCANALYSIS), wgNuc); 
-		actOPRadAnalysis = factory.getTimeDrivenActivityInstance("Radiology Analysis OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actOPRadAnalysis.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_RADANALYSIS), wgRad);
+		actOPNucReport = factory.getTimeDrivenActivityInstance("Nuclear Medicine Report OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL)); 
+		actOPNucReport.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_NUCREPORT), wgNuc); 
+		actOPRadReport = factory.getTimeDrivenActivityInstance("Radiology Report OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actOPRadReport.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_RADREPORT), wgRad);
 	}
 
 	/**
-	 * @return 
+	 * Creates the flow for a nuclear test for an outpatient. 
+	 * @return The flow for a nuclear test for an outpatient
 	 */
 	public static Flow[] getOPNuclearFlow(SimulationObjectFactory factory) {
 		Flow[] flow = new Flow[2];
 		flow[0] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPNucTest);
-		flow[1] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPNucAnalysis);
+		flow[1] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPNucReport);
 		flow[0].link(flow[1]);
 		return flow;
 	}
 
 	/**
-	 * @return 
+	 * Creates the flow for a X-ray test for an outpatient. 
+	 * @return The flow for a X-ray test for an outpatient
 	 */
 	public static Flow[] getOPRadiologyFlow(SimulationObjectFactory factory) {
 		Flow[] flow = new Flow[2];
 		flow[0] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPRadTest);
-		flow[1] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPRadAnalysis);
+		flow[1] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPRadReport);
 		flow[0].link(flow[1]);
 		return flow;
 	}

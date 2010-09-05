@@ -17,18 +17,18 @@ import es.ull.isaatc.util.WeeklyPeriodicCycle;
  * @author Iván Castilla Rodríguez
  *
  */
-public final class StdMedicalServiceParameters1 extends ModelParameterMap {
+public final class StdMedicalDepartmentParameters2 extends ModelParameterMap {
 
-	public StdMedicalServiceParameters1() {
+	public StdMedicalDepartmentParameters2() {
 		super(StdMedicalSubModel.Parameters.values().length);
 		
 		final TimeUnit unit = HospitalModelConfig.UNIT;
 		put(StdMedicalSubModel.Parameters.NDOCTORS, 5);
 		put(StdMedicalSubModel.Parameters.NBEDS, 5);
 		put(StdMedicalSubModel.Parameters.PROB_ADM, 0.01);
-		put(StdMedicalSubModel.Parameters.PROB_NUC_OP, 0.05);
-		put(StdMedicalSubModel.Parameters.PROB_RAD_OP, 0.1);
-		put(StdMedicalSubModel.Parameters.PROB_LAB_OP, 0.95);
+		put(StdMedicalSubModel.Parameters.PROB_NUC_OP, 0.01);
+		put(StdMedicalSubModel.Parameters.PROB_RAD_OP, 0.01);
+		put(StdMedicalSubModel.Parameters.PROB_LAB_OP, 0.3);
 		put(StdMedicalSubModel.Parameters.PROB_LABCENT_OP, 0.70);
 		put(StdMedicalSubModel.Parameters.PROB_LABLAB_OP, 0.90);
 		put(StdMedicalSubModel.Parameters.PROB_LABMIC_OP, 0.06);
@@ -36,7 +36,7 @@ public final class StdMedicalServiceParameters1 extends ModelParameterMap {
 		put(StdMedicalSubModel.Parameters.PROB_LABPAT_OP, 0.05);
 		put(StdMedicalSubModel.Parameters.PROB_NUC_IP, 0.01);
 		put(StdMedicalSubModel.Parameters.PROB_RAD_IP, 0.01);
-		put(StdMedicalSubModel.Parameters.PROB_LAB_IP, 0.5);
+		put(StdMedicalSubModel.Parameters.PROB_LAB_IP, 0.1);
 		put(StdMedicalSubModel.Parameters.PROB_LABCENT_IP, 0.70);
 		put(StdMedicalSubModel.Parameters.PROB_LABLAB_IP, 0.90);
 		put(StdMedicalSubModel.Parameters.PROB_LABMIC_IP, 0.06);
@@ -58,7 +58,7 @@ public final class StdMedicalServiceParameters1 extends ModelParameterMap {
 		put(StdMedicalSubModel.Parameters.ITERSUCC, 
 				TimeFunctionFactory.getInstance("UniformVariate", 1, 5));
 		put(StdMedicalSubModel.Parameters.PROB_1ST_APP, 0.2);
-		put(StdMedicalSubModel.Parameters.HOURS_INTERIPTEST, 24);
+		put(StdMedicalSubModel.Parameters.HOURS_INTERIPTEST, 48);
 	}
 
 }

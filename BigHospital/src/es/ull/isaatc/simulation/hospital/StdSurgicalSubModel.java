@@ -44,11 +44,11 @@ import es.ull.isaatc.util.WeeklyPeriodicCycle;
 public class StdSurgicalSubModel {
 	public enum Parameters implements ModelParameterMap.ModelParameter {
 		NBEDS(Integer.class, "Beds available"),
-		NSBEDS(Integer.class, "Beds available for short surgeries"),
-		NSURGERIES(Integer.class, "Surgeries available for the service"),
-		NSURGEONS(Integer.class, "Surgeons available for the service"),
-		NDOCTORS(Integer.class, "Doctors available for the service"),
-		NSCRUBNURSES(Integer.class, "Scrub Nurses available for the service"),
+		NSBEDS(Integer.class, "Beds available for short stays"),
+		NSURGERIES(Integer.class, "Surgeries available for the department"),
+		NSURGEONS(Integer.class, "Surgeons available for the department"),
+		NDOCTORS(Integer.class, "Doctors available for the department"),
+		NSCRUBNURSES(Integer.class, "Scrub Nurses available for the department"),
 		NSURGERY_ASSIST(Integer.class, "Surgery Assistants: since 1 can be used in two surgeries, it is considered 2 resources"),
 		PROB_RAD_OP(Double.class, "Probability of performing an X-Ray test during appointments"),
 		PROB_NUC_OP(Double.class, "Probability of performing a scanner test during appointments"),
@@ -73,21 +73,21 @@ public class StdSurgicalSubModel {
 		LENGTH_OP2OP(SimulationTimeFunction.class, "Time between successive appointments"),
 		LENGTH_SUR2POP(SimulationTimeFunction.class, "Time between surgery and post-surgery appointment"),
 		LENGTH_SUR(SimulationTimeFunction.class, "Length of surgery"),
-		LENGTH_SSUR(SimulationTimeFunction.class, "Length of short surgery"),
+		LENGTH_SSUR(SimulationTimeFunction.class, "Length of surgery (short-stay)"),
 		LENGTH_ASUR(SimulationTimeFunction.class, "Length of ambulatory surgery"),
-		LENGTH_SPACU(SimulationTimeFunction.class, "Length of P.A.C.U. stay after short surgery"),
+		LENGTH_SPACU(SimulationTimeFunction.class, "Length of P.A.C.U. stay after surgery (short-stay)"),
 		LENGTH_APACU(SimulationTimeFunction.class, "Length of P.A.C.U. stay after ambulatory surgery"),
 		LENGTH_PACU(SimulationTimeFunction.class, "Length of P.A.C.U. stay"),
 		LENGTH_ICU(SimulationTimeFunction.class, "Length of I.C.U. stay"),
 		LENGTH_SUR2EXIT(SimulationTimeFunction.class, "Minimum stay after surgery"),
-		LENGTH_SSUR2EXIT(SimulationTimeFunction.class, "Minimum stay after short surgery"),
+		LENGTH_SSUR2EXIT(SimulationTimeFunction.class, "Minimum stay after surgery (short-stay)"),
 		PROB_ADM(Double.class, "Probability of being admitted"),
-		NPATIENTS(TimeFunction.class, "Number of patients that arrives at the service"),
+		NPATIENTS(TimeFunction.class, "Number of patients that arrives at the department"),
 		INTERARRIVAL(SimulationCycle.class, "Time between successive arrivals of patients"),
-		NAPATIENTS(TimeFunction.class, "Number of patients that arrives at the service for ambulatory surgery"),
+		NAPATIENTS(TimeFunction.class, "Number of patients that arrives at the department for ambulatory surgery"),
 		AINTERARRIVAL(SimulationCycle.class, "Time between successive arrivals of patients for ambulatory surgery"),
-		NSPATIENTS(TimeFunction.class, "Number of patients that arrives at the service for short surgery"),
-		SINTERARRIVAL(SimulationCycle.class, "Time between successive arrivals of patients for short surgery"),
+		NSPATIENTS(TimeFunction.class, "Number of patients that arrives at the department for surgery (short-stay)"),
+		SINTERARRIVAL(SimulationCycle.class, "Time between successive arrivals of patients for surgery (short-stay)"),
 		ITERSUCC(TimeFunction.class, "Number of successive appointments"),
 		PROB_1ST_APP(Double.class, "Probability of a doctor being devoted to first appointment"),
 		HOURS_INTERIPTEST(Integer.class, "Time (in hours) between successive IP tests");
@@ -145,7 +145,7 @@ public class StdSurgicalSubModel {
 		// Element types
 		ElementType et = factory.getElementTypeInstance(code + " Patient");
 		et.addElementVar("maketest", 0);
-		ElementType sEt = factory.getElementTypeInstance(code + " Patient (short surgery)");
+		ElementType sEt = factory.getElementTypeInstance(code + " Patient (short-stay)");
 		sEt.addElementVar("maketest", 0);
 		ElementType aEt = factory.getElementTypeInstance(code + " AMB Patient");
 		
@@ -185,7 +185,7 @@ public class StdSurgicalSubModel {
 		WorkGroup wgSBed = factory.getWorkGroupInstance(new ResourceType[] {rtSBed}, new int[] {1});
 		WorkGroup wgDocFirst = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorFirst}, new int[] {1});
 		WorkGroup wgDocSucc = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorSucc}, new int[] {1});
-		WorkGroup wgSur = factory.getWorkGroupInstance(new ResourceType[] {rtSurgery, rtSurgeon, rtScrubNurse, rtSurgeryAssist, SurgicalSubModel.getAnaesthetistRT()}, new int[] {1, 1, 1, 1, 1});
+		WorkGroup wgSur = factory.getWorkGroupInstance(new ResourceType[] {rtSurgery, rtSurgeon, rtScrubNurse, rtSurgeryAssist, SurgicalDptCommonModel.getAnaesthetistRT()}, new int[] {1, 1, 1, 1, 1});
 
 		// Time Driven Activities
 		TimeDrivenActivity actFirstApp = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " 1st Out App",
@@ -202,13 +202,13 @@ public class StdSurgicalSubModel {
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_POP), wgDocSucc, true);
 		TimeDrivenActivity actSurgery = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " Surgery", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_SUR), wgSur, true);
-		TimeDrivenActivity actShortSurgery = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " Short Surgery", 
+		TimeDrivenActivity actShortSurgery = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " Surgery (short-stay)", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_SSUR), wgSur, true);
 		TimeDrivenActivity actAmbSurgery = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " AMB Surgery", 
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_ASUR), wgSur, true);
 		TimeDrivenActivity actDelayPostSur = HospitalModelConfig.getDelay(factory, code + " Recovering after Surgery",
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_SUR2EXIT), true);
-		TimeDrivenActivity actDelayPostShortSur = HospitalModelConfig.getDelay(factory, code + " Recovering after Short Surgery",
+		TimeDrivenActivity actDelayPostShortSur = HospitalModelConfig.getDelay(factory, code + " Recovering after Surgery (short-stay)",
 				(SimulationTimeFunction)params.get(Parameters.LENGTH_SSUR2EXIT), true);
 
 		// Flows
@@ -255,13 +255,13 @@ public class StdSurgicalSubModel {
 		SingleFlow ordinaryAdmission = (SingleFlow)factory.getFlowInstance("SingleFlow", actDelayAppAdm);
 		SingleFlow surgery = (SingleFlow)factory.getFlowInstance("SingleFlow", actSurgery);
 
-		SurgicalSubModel.addPACUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PACU), et);
-		SurgicalSubModel.addICUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ICU), et);
-		SingleFlow PACU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalSubModel.getActPACU());
+		SurgicalDptCommonModel.addPACUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PACU), et);
+		SurgicalDptCommonModel.addICUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ICU), et);
+		SingleFlow PACU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalDptCommonModel.getActPACU());
 		surgery.link(PACU);
 		ProbabilitySelectionFlow afterSurgery = (ProbabilitySelectionFlow)factory.getFlowInstance("ProbabilitySelectionFlow");
 		PACU.link(afterSurgery);
-		SingleFlow ICU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalSubModel.getActICU());
+		SingleFlow ICU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalDptCommonModel.getActICU());
 		afterSurgery.link(ICU, 0.2);
 		SingleFlow postICU = (SingleFlow)factory.getFlowInstance("SingleFlow", userCodeDisableIPTests, actDelayPostSur);
 		ICU.link(postICU);
@@ -293,8 +293,8 @@ public class StdSurgicalSubModel {
 		SingleFlow shortSurgery = (SingleFlow)factory.getFlowInstance("SingleFlow", actShortSurgery);
 		SingleFlow postShortSur = (SingleFlow)factory.getFlowInstance("SingleFlow", actDelayPostShortSur);
 
-		SurgicalSubModel.addPACUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_SPACU), sEt);
-		SingleFlow shortPACU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalSubModel.getActPACU());
+		SurgicalDptCommonModel.addPACUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_SPACU), sEt);
+		SingleFlow shortPACU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalDptCommonModel.getActPACU());
 
 		StructuredSynchroMergeFlow iPTests = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
 		Flow[] labIPTest = CentralLabSubModel.getIPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_IP), (Double)params.get(Parameters.PROB_LABLAB_IP), (Double)params.get(Parameters.PROB_LABHAE_IP),
@@ -326,8 +326,8 @@ public class StdSurgicalSubModel {
 		// Flow for ambulatory patients
 		SingleFlow ambSurgery = (SingleFlow)factory.getFlowInstance("SingleFlow", actAmbSurgery);
 
-		SurgicalSubModel.addPACUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_APACU), aEt);
-		SingleFlow ambPACU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalSubModel.getActPACU());
+		SurgicalDptCommonModel.addPACUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_APACU), aEt);
+		SingleFlow ambPACU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalDptCommonModel.getActPACU());
 		ambSurgery.link(ambPACU);
 				
 		SingleFlow delayPostAmbSur = (SingleFlow)factory.getFlowInstance("SingleFlow", actDelayPOP);
