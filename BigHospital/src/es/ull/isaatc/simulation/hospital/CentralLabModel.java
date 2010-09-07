@@ -21,7 +21,7 @@ import es.ull.isaatc.simulation.common.flow.StructuredSynchroMergeFlow;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class CentralLabSubModel {
+public class CentralLabModel {
 	private static TimeDrivenActivity actOutSample = null;
 	private static TimeDrivenActivity actOutCent = null;
 	private static TimeDrivenActivity actOutTest = null;

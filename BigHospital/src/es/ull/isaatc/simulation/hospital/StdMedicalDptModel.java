@@ -39,7 +39,7 @@ import es.ull.isaatc.util.WeeklyPeriodicCycle;
  * @author Iván Castilla Rodríguez
  *
  */
-public class StdMedicalSubModel {
+public class StdMedicalDptModel {
 	public enum Parameters implements ModelParameterMap.ModelParameter {
 		NDOCTORS(Integer.class, "Doctors available"),
 		NBEDS(Integer.class, "Beds available"),
@@ -149,12 +149,12 @@ public class StdMedicalSubModel {
 		root.link(first, 0.15);
 		
 		StructuredSynchroMergeFlow oPTests = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
-		Flow[] labOPTest = CentralLabSubModel.getOPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_OP), (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
+		Flow[] labOPTest = CentralLabModel.getOPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_OP), (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
 				(Double)params.get(Parameters.PROB_LABMIC_OP), (Double)params.get(Parameters.PROB_LABPAT_OP)); 
 		oPTests.addBranch((InitializerFlow)labOPTest[0], (FinalizerFlow)labOPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_OP) * 100));
-		Flow[] nucOPTest = CentralServicesSubModel.getOPNuclearFlow(factory);
+		Flow[] nucOPTest = CentralServicesModel.getOPNuclearFlow(factory);
 		oPTests.addBranch((InitializerFlow)nucOPTest[0], (FinalizerFlow)nucOPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_OP) * 100));
-		Flow[] radOPTest = CentralServicesSubModel.getOPRadiologyFlow(factory);
+		Flow[] radOPTest = CentralServicesModel.getOPRadiologyFlow(factory);
 		oPTests.addBranch((InitializerFlow)radOPTest[0], (FinalizerFlow)radOPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_OP) * 100));
 		
 		InterleavedRoutingFlow beforeSucc = (InterleavedRoutingFlow)factory.getFlowInstance("InterleavedRoutingFlow");
@@ -185,12 +185,12 @@ public class StdMedicalSubModel {
 		};
 
 		StructuredSynchroMergeFlow iPTests = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
-		Flow[] labIPTest = CentralLabSubModel.getIPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_IP), (Double)params.get(Parameters.PROB_LABLAB_IP), (Double)params.get(Parameters.PROB_LABHAE_IP),
+		Flow[] labIPTest = CentralLabModel.getIPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_IP), (Double)params.get(Parameters.PROB_LABLAB_IP), (Double)params.get(Parameters.PROB_LABHAE_IP),
 				(Double)params.get(Parameters.PROB_LABMIC_IP), (Double)params.get(Parameters.PROB_LABPAT_IP)); 
 		iPTests.addBranch((InitializerFlow)labIPTest[0], (FinalizerFlow)labIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_IP) * 100));
-		Flow[] nucIPTest = CentralServicesSubModel.getOPNuclearFlow(factory);
+		Flow[] nucIPTest = CentralServicesModel.getOPNuclearFlow(factory);
 		iPTests.addBranch((InitializerFlow)nucIPTest[0], (FinalizerFlow)nucIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_IP) * 100));
-		Flow[] radIPTest = CentralServicesSubModel.getOPRadiologyFlow(factory);
+		Flow[] radIPTest = CentralServicesModel.getOPRadiologyFlow(factory);
 		iPTests.addBranch((InitializerFlow)radIPTest[0], (FinalizerFlow)radIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_IP) * 100));
 		int hours = (Integer)params.get(Parameters.HOURS_INTERIPTEST);
 		SingleFlow waitTilNext = (SingleFlow)factory.getFlowInstance("SingleFlow", HospitalModelConfig.getWaitTilNext(factory, code + " Wait until next test", 

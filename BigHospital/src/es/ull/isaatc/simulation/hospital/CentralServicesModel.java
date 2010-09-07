@@ -15,7 +15,7 @@ import es.ull.isaatc.simulation.common.flow.SingleFlow;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class CentralServicesSubModel {
+public class CentralServicesModel {
 	private static TimeDrivenActivity actOPNucTest = null;
 	private static TimeDrivenActivity actOPRadTest = null;
 	private static TimeDrivenActivity actOPNucReport = null;

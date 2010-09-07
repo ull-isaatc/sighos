@@ -10,7 +10,7 @@ import es.ull.isaatc.simulation.common.TimeStamp;
 import es.ull.isaatc.simulation.common.TimeUnit;
 import es.ull.isaatc.simulation.hospital.HospitalModelConfig;
 import es.ull.isaatc.simulation.hospital.ModelParameterMap;
-import es.ull.isaatc.simulation.hospital.StdMedicalSubModel;
+import es.ull.isaatc.simulation.hospital.StdMedicalDptModel;
 import es.ull.isaatc.util.WeeklyPeriodicCycle;
 
 /**
@@ -20,45 +20,45 @@ import es.ull.isaatc.util.WeeklyPeriodicCycle;
 public final class StdMedicalDepartmentParameters2 extends ModelParameterMap {
 
 	public StdMedicalDepartmentParameters2() {
-		super(StdMedicalSubModel.Parameters.values().length);
+		super(StdMedicalDptModel.Parameters.values().length);
 		
 		final TimeUnit unit = HospitalModelConfig.UNIT;
-		put(StdMedicalSubModel.Parameters.NDOCTORS, 5);
-		put(StdMedicalSubModel.Parameters.NBEDS, 5);
-		put(StdMedicalSubModel.Parameters.PROB_ADM, 0.01);
-		put(StdMedicalSubModel.Parameters.PROB_NUC_OP, 0.01);
-		put(StdMedicalSubModel.Parameters.PROB_RAD_OP, 0.01);
-		put(StdMedicalSubModel.Parameters.PROB_LAB_OP, 0.3);
-		put(StdMedicalSubModel.Parameters.PROB_LABCENT_OP, 0.70);
-		put(StdMedicalSubModel.Parameters.PROB_LABLAB_OP, 0.90);
-		put(StdMedicalSubModel.Parameters.PROB_LABMIC_OP, 0.06);
-		put(StdMedicalSubModel.Parameters.PROB_LABHAE_OP, 0.07);
-		put(StdMedicalSubModel.Parameters.PROB_LABPAT_OP, 0.05);
-		put(StdMedicalSubModel.Parameters.PROB_NUC_IP, 0.01);
-		put(StdMedicalSubModel.Parameters.PROB_RAD_IP, 0.01);
-		put(StdMedicalSubModel.Parameters.PROB_LAB_IP, 0.1);
-		put(StdMedicalSubModel.Parameters.PROB_LABCENT_IP, 0.70);
-		put(StdMedicalSubModel.Parameters.PROB_LABLAB_IP, 0.90);
-		put(StdMedicalSubModel.Parameters.PROB_LABMIC_IP, 0.06);
-		put(StdMedicalSubModel.Parameters.PROB_LABHAE_IP, 0.07);
-		put(StdMedicalSubModel.Parameters.PROB_LABPAT_IP, 0.05);
-		put(StdMedicalSubModel.Parameters.LENGTH_OP2ADM, HospitalModelConfig.getNextHighFunction(unit, 
+		put(StdMedicalDptModel.Parameters.NDOCTORS, 5);
+		put(StdMedicalDptModel.Parameters.NBEDS, 5);
+		put(StdMedicalDptModel.Parameters.PROB_ADM, 0.01);
+		put(StdMedicalDptModel.Parameters.PROB_NUC_OP, 0.01);
+		put(StdMedicalDptModel.Parameters.PROB_RAD_OP, 0.01);
+		put(StdMedicalDptModel.Parameters.PROB_LAB_OP, 0.3);
+		put(StdMedicalDptModel.Parameters.PROB_LABCENT_OP, 0.70);
+		put(StdMedicalDptModel.Parameters.PROB_LABLAB_OP, 0.90);
+		put(StdMedicalDptModel.Parameters.PROB_LABMIC_OP, 0.06);
+		put(StdMedicalDptModel.Parameters.PROB_LABHAE_OP, 0.07);
+		put(StdMedicalDptModel.Parameters.PROB_LABPAT_OP, 0.05);
+		put(StdMedicalDptModel.Parameters.PROB_NUC_IP, 0.01);
+		put(StdMedicalDptModel.Parameters.PROB_RAD_IP, 0.01);
+		put(StdMedicalDptModel.Parameters.PROB_LAB_IP, 0.1);
+		put(StdMedicalDptModel.Parameters.PROB_LABCENT_IP, 0.70);
+		put(StdMedicalDptModel.Parameters.PROB_LABLAB_IP, 0.90);
+		put(StdMedicalDptModel.Parameters.PROB_LABMIC_IP, 0.06);
+		put(StdMedicalDptModel.Parameters.PROB_LABHAE_IP, 0.07);
+		put(StdMedicalDptModel.Parameters.PROB_LABPAT_IP, 0.05);
+		put(StdMedicalDptModel.Parameters.LENGTH_OP2ADM, HospitalModelConfig.getNextHighFunction(unit, 
 				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 18), "ConstantVariate", TimeStamp.getMinute())); 
-		put(StdMedicalSubModel.Parameters.LOS, HospitalModelConfig.getNextHighFunction(unit,
+		put(StdMedicalDptModel.Parameters.LOS, HospitalModelConfig.getNextHighFunction(unit,
 				TimeStamp.getDay(), new TimeStamp(TimeUnit.HOUR, 12), 
 				"TriangleVariate", TimeStamp.getHour(), new TimeStamp(TimeUnit.DAY, 7), new TimeStamp(TimeUnit.DAY, 2)));
-		put(StdMedicalSubModel.Parameters.LENGTH_OP1, new SimulationTimeFunction(unit, "ConstantVariate", 12));
-		put(StdMedicalSubModel.Parameters.LENGTH_OP2OP, 
+		put(StdMedicalDptModel.Parameters.LENGTH_OP1, new SimulationTimeFunction(unit, "ConstantVariate", 12));
+		put(StdMedicalDptModel.Parameters.LENGTH_OP2OP, 
 				new SimulationTimeFunction(unit, "UniformVariate", new TimeStamp(TimeUnit.WEEK, 8), new TimeStamp(TimeUnit.WEEK, 12)));
-		put(StdMedicalSubModel.Parameters.LENGTH_OP2, new SimulationTimeFunction(unit, "ConstantVariate", 10));
-		put(StdMedicalSubModel.Parameters.NPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 25));
-		put(StdMedicalSubModel.Parameters.NCPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 5));
-		put(StdMedicalSubModel.Parameters.INTERARRIVAL, 
+		put(StdMedicalDptModel.Parameters.LENGTH_OP2, new SimulationTimeFunction(unit, "ConstantVariate", 10));
+		put(StdMedicalDptModel.Parameters.NPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 25));
+		put(StdMedicalDptModel.Parameters.NCPATIENTS, TimeFunctionFactory.getInstance("ConstantVariate", 5));
+		put(StdMedicalDptModel.Parameters.INTERARRIVAL, 
 				new SimulationWeeklyPeriodicCycle(unit, WeeklyPeriodicCycle.WEEKDAYS, HospitalModelConfig.PATIENTARRIVAL, 0));
-		put(StdMedicalSubModel.Parameters.ITERSUCC, 
+		put(StdMedicalDptModel.Parameters.ITERSUCC, 
 				TimeFunctionFactory.getInstance("UniformVariate", 1, 5));
-		put(StdMedicalSubModel.Parameters.PROB_1ST_APP, 0.2);
-		put(StdMedicalSubModel.Parameters.HOURS_INTERIPTEST, 48);
+		put(StdMedicalDptModel.Parameters.PROB_1ST_APP, 0.2);
+		put(StdMedicalDptModel.Parameters.HOURS_INTERIPTEST, 48);
 	}
 
 }

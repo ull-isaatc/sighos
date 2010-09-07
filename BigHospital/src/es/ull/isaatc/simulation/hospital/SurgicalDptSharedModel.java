@@ -17,7 +17,7 @@ import es.ull.isaatc.simulation.common.factory.SimulationObjectFactory;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class SurgicalDptCommonModel {
+public class SurgicalDptSharedModel {
 	private static TimeDrivenActivity actPACU = null;
 	private static TimeDrivenActivity actICU = null;
 	private static ResourceType rtAnaes = null;

@@ -4,7 +4,7 @@
 package es.ull.isaatc.simulation.hospital.scenarios;
 
 import es.ull.isaatc.simulation.hospital.ModelParameterMap;
-import es.ull.isaatc.simulation.hospital.SurgicalDptCommonModel;
+import es.ull.isaatc.simulation.hospital.SurgicalDptSharedModel;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -13,11 +13,11 @@ import es.ull.isaatc.simulation.hospital.SurgicalDptCommonModel;
 public final class StdSurgicalParameters extends ModelParameterMap {
 
 	public StdSurgicalParameters() {
-		super(SurgicalDptCommonModel.Parameters.values().length);
+		super(SurgicalDptSharedModel.Parameters.values().length);
 		
-		put(SurgicalDptCommonModel.Parameters.NBEDS_ICU, 15);
-		put(SurgicalDptCommonModel.Parameters.NBEDS_PACU, 10);
-		put(SurgicalDptCommonModel.Parameters.NANAESTHETISTS, 4);
+		put(SurgicalDptSharedModel.Parameters.NBEDS_ICU, 15);
+		put(SurgicalDptSharedModel.Parameters.NBEDS_PACU, 10);
+		put(SurgicalDptSharedModel.Parameters.NANAESTHETISTS, 4);
 	}
 
 }

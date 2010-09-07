@@ -169,36 +169,36 @@ public class BigHospital {
 		HospitalModelConfig.setScale(scale);
 		
 		// Central Lab
-		ModelParameterMap centralLabParams = new ModelParameterMap(CentralLabSubModel.Parameters.values().length);
-		centralLabParams.put(CentralLabSubModel.Parameters.NTECH, 23);
-		centralLabParams.put(CentralLabSubModel.Parameters.N24HTECH, 5);
-		centralLabParams.put(CentralLabSubModel.Parameters.NNURSES, 16);
-		centralLabParams.put(CentralLabSubModel.Parameters.NXNURSES, 10);
-		centralLabParams.put(CentralLabSubModel.Parameters.NSLOTS, 150);
-		centralLabParams.put(CentralLabSubModel.Parameters.NCENT, 160);
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_SAMPLE, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		ModelParameterMap centralLabParams = new ModelParameterMap(CentralLabModel.Parameters.values().length);
+		centralLabParams.put(CentralLabModel.Parameters.NTECH, 23);
+		centralLabParams.put(CentralLabModel.Parameters.N24HTECH, 5);
+		centralLabParams.put(CentralLabModel.Parameters.NNURSES, 16);
+		centralLabParams.put(CentralLabModel.Parameters.NXNURSES, 10);
+		centralLabParams.put(CentralLabModel.Parameters.NSLOTS, 150);
+		centralLabParams.put(CentralLabModel.Parameters.NCENT, 160);
+		centralLabParams.put(CentralLabModel.Parameters.LENGTH_SAMPLE, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 2));
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_CENT, HospitalModelConfig.getNextHighFunction(unit, 
+		centralLabParams.put(CentralLabModel.Parameters.LENGTH_CENT, HospitalModelConfig.getNextHighFunction(unit, 
 				new TimeStamp(TimeUnit.MINUTE, 15), TimeStamp.getZero(), "ConstantVariate", 6));
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_TEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		centralLabParams.put(CentralLabModel.Parameters.LENGTH_TEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 8));
-		centralLabParams.put(CentralLabSubModel.Parameters.NHAETECH, 2);
-		centralLabParams.put(CentralLabSubModel.Parameters.NHAENURSES, 5);
-		centralLabParams.put(CentralLabSubModel.Parameters.NHAESLOTS, 40);
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_HAETEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		centralLabParams.put(CentralLabModel.Parameters.NHAETECH, 2);
+		centralLabParams.put(CentralLabModel.Parameters.NHAENURSES, 5);
+		centralLabParams.put(CentralLabModel.Parameters.NHAESLOTS, 40);
+		centralLabParams.put(CentralLabModel.Parameters.LENGTH_HAETEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 15));
-		centralLabParams.put(CentralLabSubModel.Parameters.NMICROTECH, 10);
-		centralLabParams.put(CentralLabSubModel.Parameters.NMICRONURSES, 0);
-		centralLabParams.put(CentralLabSubModel.Parameters.NMICROSLOTS, 50);
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_MICROTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit,
+		centralLabParams.put(CentralLabModel.Parameters.NMICROTECH, 10);
+		centralLabParams.put(CentralLabModel.Parameters.NMICRONURSES, 0);
+		centralLabParams.put(CentralLabModel.Parameters.NMICROSLOTS, 50);
+		centralLabParams.put(CentralLabModel.Parameters.LENGTH_MICROTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit,
 				"ConstantVariate", 20));
-		centralLabParams.put(CentralLabSubModel.Parameters.NPATTECH, 6);
-		centralLabParams.put(CentralLabSubModel.Parameters.NPATNURSES, 1);
-		centralLabParams.put(CentralLabSubModel.Parameters.NPATSLOTS, 50);
-		centralLabParams.put(CentralLabSubModel.Parameters.LENGTH_PATTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		centralLabParams.put(CentralLabModel.Parameters.NPATTECH, 6);
+		centralLabParams.put(CentralLabModel.Parameters.NPATNURSES, 1);
+		centralLabParams.put(CentralLabModel.Parameters.NPATSLOTS, 50);
+		centralLabParams.put(CentralLabModel.Parameters.LENGTH_PATTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 20));
-		CentralLabSubModel.createModel(factory, centralLabParams);
-		Flow[] root = CentralLabSubModel.getOPFlow(factory, 0.5, 1.0, 0.07, 0.06, 0.05);
+		CentralLabModel.createModel(factory, centralLabParams);
+		Flow[] root = CentralLabModel.getOPFlow(factory, 0.5, 1.0, 0.07, 0.06, 0.05);
 		
 		ElementType et = factory.getElementTypeInstance("P");
 		TimeFunction nPatients = TimeFunctionFactory.getInstance("ConstantVariate", 1000);

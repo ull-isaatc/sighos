@@ -41,7 +41,7 @@ import es.ull.isaatc.util.WeeklyPeriodicCycle;
  * @author Iván Castilla Rodríguez
  *
  */
-public class StdSurgicalSubModel {
+public class StdSurgicalDptModel {
 	public enum Parameters implements ModelParameterMap.ModelParameter {
 		NBEDS(Integer.class, "Beds available"),
 		NSBEDS(Integer.class, "Beds available for short stays"),
@@ -121,12 +121,12 @@ public class StdSurgicalSubModel {
 		};
 
 		StructuredSynchroMergeFlow iPTests = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
-		Flow[] labIPTest = CentralLabSubModel.getIPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_IP), (Double)params.get(Parameters.PROB_LABLAB_IP), 
+		Flow[] labIPTest = CentralLabModel.getIPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_IP), (Double)params.get(Parameters.PROB_LABLAB_IP), 
 				(Double)params.get(Parameters.PROB_LABHAE_IP), (Double)params.get(Parameters.PROB_LABMIC_IP), (Double)params.get(Parameters.PROB_LABPAT_IP)); 
 		iPTests.addBranch((InitializerFlow)labIPTest[0], (FinalizerFlow)labIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_IP) * 100));
-		Flow[] nucIPTest = CentralServicesSubModel.getOPNuclearFlow(factory);
+		Flow[] nucIPTest = CentralServicesModel.getOPNuclearFlow(factory);
 		iPTests.addBranch((InitializerFlow)nucIPTest[0], (FinalizerFlow)nucIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_IP) * 100));
-		Flow[] radIPTest = CentralServicesSubModel.getOPRadiologyFlow(factory);
+		Flow[] radIPTest = CentralServicesModel.getOPRadiologyFlow(factory);
 		iPTests.addBranch((InitializerFlow)radIPTest[0], (FinalizerFlow)radIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_IP) * 100));
 		int hours = (Integer)params.get(Parameters.HOURS_INTERIPTEST);
 		SingleFlow waitTilNext = (SingleFlow)factory.getFlowInstance("SingleFlow", HospitalModelConfig.getWaitTilNext(factory, code + " Wait until next test", 
@@ -185,7 +185,7 @@ public class StdSurgicalSubModel {
 		WorkGroup wgSBed = factory.getWorkGroupInstance(new ResourceType[] {rtSBed}, new int[] {1});
 		WorkGroup wgDocFirst = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorFirst}, new int[] {1});
 		WorkGroup wgDocSucc = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorSucc}, new int[] {1});
-		WorkGroup wgSur = factory.getWorkGroupInstance(new ResourceType[] {rtSurgery, rtSurgeon, rtScrubNurse, rtSurgeryAssist, SurgicalDptCommonModel.getAnaesthetistRT()}, new int[] {1, 1, 1, 1, 1});
+		WorkGroup wgSur = factory.getWorkGroupInstance(new ResourceType[] {rtSurgery, rtSurgeon, rtScrubNurse, rtSurgeryAssist, SurgicalDptSharedModel.getAnaesthetistRT()}, new int[] {1, 1, 1, 1, 1});
 
 		// Time Driven Activities
 		TimeDrivenActivity actFirstApp = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " 1st Out App",
@@ -220,12 +220,12 @@ public class StdSurgicalSubModel {
 		root.link(first, 0.15);
 		
 		StructuredSynchroMergeFlow testDecision = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
-		Flow[] labTest = CentralLabSubModel.getOPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_OP), (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
+		Flow[] labTest = CentralLabModel.getOPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_OP), (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
 				(Double)params.get(Parameters.PROB_LABMIC_OP), (Double)params.get(Parameters.PROB_LABPAT_OP)); 
 		testDecision.addBranch((InitializerFlow)labTest[0], (FinalizerFlow)labTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_OP) * 100));
-		Flow[] nucTest = CentralServicesSubModel.getOPNuclearFlow(factory);
+		Flow[] nucTest = CentralServicesModel.getOPNuclearFlow(factory);
 		testDecision.addBranch((InitializerFlow)nucTest[0], (FinalizerFlow)nucTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_OP) * 100));
-		Flow[] radTest = CentralServicesSubModel.getOPRadiologyFlow(factory);
+		Flow[] radTest = CentralServicesModel.getOPRadiologyFlow(factory);
 		testDecision.addBranch((InitializerFlow)radTest[0], (FinalizerFlow)radTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_OP) * 100));
 		
 		InterleavedRoutingFlow beforeSucc = (InterleavedRoutingFlow)factory.getFlowInstance("InterleavedRoutingFlow");
@@ -255,13 +255,13 @@ public class StdSurgicalSubModel {
 		SingleFlow ordinaryAdmission = (SingleFlow)factory.getFlowInstance("SingleFlow", actDelayAppAdm);
 		SingleFlow surgery = (SingleFlow)factory.getFlowInstance("SingleFlow", actSurgery);
 
-		SurgicalDptCommonModel.addPACUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PACU), et);
-		SurgicalDptCommonModel.addICUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ICU), et);
-		SingleFlow PACU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalDptCommonModel.getActPACU());
+		SurgicalDptSharedModel.addPACUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PACU), et);
+		SurgicalDptSharedModel.addICUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_ICU), et);
+		SingleFlow PACU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalDptSharedModel.getActPACU());
 		surgery.link(PACU);
 		ProbabilitySelectionFlow afterSurgery = (ProbabilitySelectionFlow)factory.getFlowInstance("ProbabilitySelectionFlow");
 		PACU.link(afterSurgery);
-		SingleFlow ICU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalDptCommonModel.getActICU());
+		SingleFlow ICU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalDptSharedModel.getActICU());
 		afterSurgery.link(ICU, 0.2);
 		SingleFlow postICU = (SingleFlow)factory.getFlowInstance("SingleFlow", userCodeDisableIPTests, actDelayPostSur);
 		ICU.link(postICU);
@@ -293,16 +293,16 @@ public class StdSurgicalSubModel {
 		SingleFlow shortSurgery = (SingleFlow)factory.getFlowInstance("SingleFlow", actShortSurgery);
 		SingleFlow postShortSur = (SingleFlow)factory.getFlowInstance("SingleFlow", actDelayPostShortSur);
 
-		SurgicalDptCommonModel.addPACUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_SPACU), sEt);
-		SingleFlow shortPACU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalDptCommonModel.getActPACU());
+		SurgicalDptSharedModel.addPACUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_SPACU), sEt);
+		SingleFlow shortPACU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalDptSharedModel.getActPACU());
 
 		StructuredSynchroMergeFlow iPTests = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
-		Flow[] labIPTest = CentralLabSubModel.getIPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_IP), (Double)params.get(Parameters.PROB_LABLAB_IP), (Double)params.get(Parameters.PROB_LABHAE_IP),
+		Flow[] labIPTest = CentralLabModel.getIPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_IP), (Double)params.get(Parameters.PROB_LABLAB_IP), (Double)params.get(Parameters.PROB_LABHAE_IP),
 				(Double)params.get(Parameters.PROB_LABMIC_IP), (Double)params.get(Parameters.PROB_LABPAT_IP)); 
 		iPTests.addBranch((InitializerFlow)labIPTest[0], (FinalizerFlow)labIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_IP) * 100));
-		Flow[] nucIPTest = CentralServicesSubModel.getOPNuclearFlow(factory);
+		Flow[] nucIPTest = CentralServicesModel.getOPNuclearFlow(factory);
 		iPTests.addBranch((InitializerFlow)nucIPTest[0], (FinalizerFlow)nucIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_IP) * 100));
-		Flow[] radIPTest = CentralServicesSubModel.getOPRadiologyFlow(factory);
+		Flow[] radIPTest = CentralServicesModel.getOPRadiologyFlow(factory);
 		iPTests.addBranch((InitializerFlow)radIPTest[0], (FinalizerFlow)radIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_IP) * 100));
 
 		InterleavedRoutingFlow parallelShortStay = (InterleavedRoutingFlow)factory.getFlowInstance("InterleavedRoutingFlow");
@@ -326,8 +326,8 @@ public class StdSurgicalSubModel {
 		// Flow for ambulatory patients
 		SingleFlow ambSurgery = (SingleFlow)factory.getFlowInstance("SingleFlow", actAmbSurgery);
 
-		SurgicalDptCommonModel.addPACUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_APACU), aEt);
-		SingleFlow ambPACU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalDptCommonModel.getActPACU());
+		SurgicalDptSharedModel.addPACUWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_APACU), aEt);
+		SingleFlow ambPACU = (SingleFlow)factory.getFlowInstance("SingleFlow", SurgicalDptSharedModel.getActPACU());
 		ambSurgery.link(ambPACU);
 				
 		SingleFlow delayPostAmbSur = (SingleFlow)factory.getFlowInstance("SingleFlow", actDelayPOP);
@@ -380,12 +380,12 @@ public class StdSurgicalSubModel {
 		// Let's do that patients can directly go to the main loop (just to avoid warmup)
 		
 		StructuredSynchroMergeFlow testDecision = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
-		Flow[] labTest = CentralLabSubModel.getOPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_OP), (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
+		Flow[] labTest = CentralLabModel.getOPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_OP), (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
 				(Double)params.get(Parameters.PROB_LABMIC_OP), (Double)params.get(Parameters.PROB_LABPAT_OP)); 
 		testDecision.addBranch((InitializerFlow)labTest[0], (FinalizerFlow)labTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_OP) * 100));
-		Flow[] nucTest = CentralServicesSubModel.getOPNuclearFlow(factory);
+		Flow[] nucTest = CentralServicesModel.getOPNuclearFlow(factory);
 		testDecision.addBranch((InitializerFlow)nucTest[0], (FinalizerFlow)nucTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_OP) * 100));
-		Flow[] radTest = CentralServicesSubModel.getOPRadiologyFlow(factory);
+		Flow[] radTest = CentralServicesModel.getOPRadiologyFlow(factory);
 		testDecision.addBranch((InitializerFlow)radTest[0], (FinalizerFlow)radTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_OP) * 100));
 		
 		InterleavedRoutingFlow beforeSucc = (InterleavedRoutingFlow)factory.getFlowInstance("InterleavedRoutingFlow");
