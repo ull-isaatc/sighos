@@ -22,18 +22,18 @@ import es.ull.isaatc.simulation.common.flow.StructuredSynchroMergeFlow;
  * @author Iván Castilla Rodríguez
  */
 public class CentralLabModel {
-	private static TimeDrivenActivity actOutSample = null;
-	private static TimeDrivenActivity actOutCent = null;
-	private static TimeDrivenActivity actOutTest = null;
-	private static TimeDrivenActivity actOutHaeTest = null;
-	private static TimeDrivenActivity actOutMicTest = null;
-	private static TimeDrivenActivity actOutPatTest = null;
-	private static TimeDrivenActivity actInSample = null;
-	private static TimeDrivenActivity actInCent = null;
-	private static TimeDrivenActivity actInTest = null;
-	private static TimeDrivenActivity actInHaeTest = null;
-	private static TimeDrivenActivity actInMicTest = null;
-	private static TimeDrivenActivity actInPatTest = null;
+	private static TimeDrivenActivity actOPSample = null;
+	private static TimeDrivenActivity actOPCent = null;
+	private static TimeDrivenActivity actOPTest = null;
+	private static TimeDrivenActivity actOPHaeTest = null;
+	private static TimeDrivenActivity actOPMicTest = null;
+	private static TimeDrivenActivity actOPPatTest = null;
+	private static TimeDrivenActivity actIPSample = null;
+	private static TimeDrivenActivity actIPCent = null;
+	private static TimeDrivenActivity actIPTest = null;
+	private static TimeDrivenActivity actIPHaeTest = null;
+	private static TimeDrivenActivity actIPMicTest = null;
+	private static TimeDrivenActivity actIPPatTest = null;
 	
 	public enum Parameters implements ModelParameterMap.ModelParameter {
 		NTECH(Integer.class, "Number of technicians"),
@@ -139,40 +139,40 @@ public class CentralLabModel {
 		WorkGroup wgTestPat2 = factory.getWorkGroupInstance(new ResourceType[] {rtPatSlot, rtPatNurse}, new int[] {1, 1});
 		
 		// Activities
-		actOutSample = factory.getTimeDrivenActivityInstance("Take a sample OP", 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class));
-		actOutSample.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_SAMPLE), wgSample);
-		actOutCent = factory.getTimeDrivenActivityInstance("Centrifugation OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actOutCent.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_CENT), wgCent);
-		actOutTest = factory.getTimeDrivenActivityInstance("Test OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actOutTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_TEST), 0, wgTest1);
-		actOutTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_TEST), 1, wgTest2);
-		actOutHaeTest = factory.getTimeDrivenActivityInstance("Haematology Test OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actOutHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAETEST), 0, wgTestHae1);
-		actOutHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAETEST), 1, wgTestHae2);
-		actOutMicTest = factory.getTimeDrivenActivityInstance("Microbiology Test OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actOutMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROTEST), 0, wgTestMic1);
-		actOutMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROTEST), 1, wgTestMic2);
-		actOutPatTest = factory.getTimeDrivenActivityInstance("Anatomopathology Test OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actOutPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATTEST), 0, wgTestPat1);
-		actOutPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATTEST), 1, wgTestPat2);
+		actOPSample = factory.getTimeDrivenActivityInstance("Take a sample OP", 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class));
+		actOPSample.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_SAMPLE), wgSample);
+		actOPCent = factory.getTimeDrivenActivityInstance("Centrifugation OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actOPCent.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_CENT), wgCent);
+		actOPTest = factory.getTimeDrivenActivityInstance("Test OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actOPTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_TEST), 0, wgTest1);
+		actOPTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_TEST), 1, wgTest2);
+		actOPHaeTest = factory.getTimeDrivenActivityInstance("Haematology Test OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actOPHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAETEST), 0, wgTestHae1);
+		actOPHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAETEST), 1, wgTestHae2);
+		actOPMicTest = factory.getTimeDrivenActivityInstance("Microbiology Test OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actOPMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROTEST), 0, wgTestMic1);
+		actOPMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROTEST), 1, wgTestMic2);
+		actOPPatTest = factory.getTimeDrivenActivityInstance("Anatomopathology Test OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actOPPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATTEST), 0, wgTestPat1);
+		actOPPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATTEST), 1, wgTestPat2);
 		
 		// Creates more priority activities for inpatients
-		actInSample = factory.getTimeDrivenActivityInstance("Take a sample IP", 1, EnumSet.noneOf(TimeDrivenActivity.Modifier.class));
-		actInSample.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_SAMPLE), wgSample);
-		actInCent = factory.getTimeDrivenActivityInstance("Centrifugation IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actInCent.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_CENT), wgCent);
-		actInTest = factory.getTimeDrivenActivityInstance("Test IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actInTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_TEST), 0, wgTest1);
-		actInTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_TEST), 1, wgTest2);
-		actInHaeTest = factory.getTimeDrivenActivityInstance("Haematology Test IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actInHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAETEST), 0, wgTestHae1);
-		actInHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAETEST), 1, wgTestHae2);
-		actInMicTest = factory.getTimeDrivenActivityInstance("Microbiology Test IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actInMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROTEST), 0, wgTestMic1);
-		actInMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROTEST), 1, wgTestMic2);
-		actInPatTest = factory.getTimeDrivenActivityInstance("Anatomopathology Test IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		actInPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATTEST), 0, wgTestPat1);
-		actInPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATTEST), 1, wgTestPat2);
+		actIPSample = factory.getTimeDrivenActivityInstance("Take a sample IP", 1, EnumSet.noneOf(TimeDrivenActivity.Modifier.class));
+		actIPSample.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_SAMPLE), wgSample);
+		actIPCent = factory.getTimeDrivenActivityInstance("Centrifugation IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actIPCent.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_CENT), wgCent);
+		actIPTest = factory.getTimeDrivenActivityInstance("Test IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actIPTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_TEST), 0, wgTest1);
+		actIPTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_TEST), 1, wgTest2);
+		actIPHaeTest = factory.getTimeDrivenActivityInstance("Haematology Test IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actIPHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAETEST), 0, wgTestHae1);
+		actIPHaeTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_HAETEST), 1, wgTestHae2);
+		actIPMicTest = factory.getTimeDrivenActivityInstance("Microbiology Test IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actIPMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROTEST), 0, wgTestMic1);
+		actIPMicTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_MICROTEST), 1, wgTestMic2);
+		actIPPatTest = factory.getTimeDrivenActivityInstance("Anatomopathology Test IP", 1, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		actIPPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATTEST), 0, wgTestPat1);
+		actIPPatTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_PATTEST), 1, wgTestPat2);
 	}
 
 	/**
@@ -189,16 +189,16 @@ public class CentralLabModel {
 		Flow[] flow = new Flow[2];
 		// Flow of a lab test
 		// Preparation of the sample
-		flow[0] = factory.getFlowInstance("SingleFlow", actOutSample);
+		flow[0] = factory.getFlowInstance("SingleFlow", actOPSample);
 		StructuredSynchroMergeFlow centDecision = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
-		centDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOutCent), new PercentageCondition(prob_cent * 100));
+		centDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOPCent), new PercentageCondition(prob_cent * 100));
 		flow[0].link(centDecision);
 		// Test
 		StructuredSynchroMergeFlow testDecision = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
-		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOutTest), new PercentageCondition(prob_test * 100));
-		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOutHaeTest), new PercentageCondition(prob_hae * 100));
-		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOutMicTest), new PercentageCondition(prob_mic * 100));
-		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOutPatTest), new PercentageCondition(prob_pat * 100));
+		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOPTest), new PercentageCondition(prob_test * 100));
+		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOPHaeTest), new PercentageCondition(prob_hae * 100));
+		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOPMicTest), new PercentageCondition(prob_mic * 100));
+		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actOPPatTest), new PercentageCondition(prob_pat * 100));
 		centDecision.link(testDecision);
 		
 		flow[1] = testDecision;
@@ -212,22 +212,22 @@ public class CentralLabModel {
 	 * @param prob_hae
 	 * @param prob_mic
 	 * @param prob_pat
-	 * @return A workflow for performing laboratory tests with outpatients
+	 * @return A workflow for performing laboratory tests with inpatients
 	 */
 	public static Flow[] getIPFlow(SimulationObjectFactory factory, double prob_cent, double prob_test, double prob_hae, double prob_mic, double prob_pat) {
 		Flow[] flow = new Flow[2];
 		// Flow of a lab test
 		// Preparation of the sample
-		flow[0] = factory.getFlowInstance("SingleFlow", actInSample);
+		flow[0] = factory.getFlowInstance("SingleFlow", actIPSample);
 		StructuredSynchroMergeFlow centDecision = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
-		centDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actInCent), new PercentageCondition(prob_cent * 100));
+		centDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actIPCent), new PercentageCondition(prob_cent * 100));
 		flow[0].link(centDecision);
 		// Test
 		StructuredSynchroMergeFlow testDecision = (StructuredSynchroMergeFlow)factory.getFlowInstance("StructuredSynchroMergeFlow");
-		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actInTest), new PercentageCondition(prob_test * 100));
-		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actInHaeTest), new PercentageCondition(prob_hae * 100));
-		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actInMicTest), new PercentageCondition(prob_mic * 100));
-		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actInPatTest), new PercentageCondition(prob_pat * 100));
+		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actIPTest), new PercentageCondition(prob_test * 100));
+		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actIPHaeTest), new PercentageCondition(prob_hae * 100));
+		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actIPMicTest), new PercentageCondition(prob_mic * 100));
+		testDecision.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", actIPPatTest), new PercentageCondition(prob_pat * 100));
 		centDecision.link(testDecision);
 		
 		flow[1] = testDecision;

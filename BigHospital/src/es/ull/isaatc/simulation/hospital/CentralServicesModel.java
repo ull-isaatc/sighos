@@ -16,15 +16,15 @@ import es.ull.isaatc.simulation.common.flow.SingleFlow;
  * @author Iván Castilla Rodríguez
  */
 public class CentralServicesModel {
-	private static TimeDrivenActivity actOPNucTest = null;
+	private static TimeDrivenActivity actOPUSSTest = null;
 	private static TimeDrivenActivity actOPRadTest = null;
-	private static TimeDrivenActivity actOPNucReport = null;
+	private static TimeDrivenActivity actOPUSSReport = null;
 	private static TimeDrivenActivity actOPRadReport = null;
 	
 	public enum Parameters implements ModelParameterMap.ModelParameter {
-		NTECHNUC(Integer.class, "Resources available for Nuclear Medicine"),
-		LENGTH_NUCTEST(SimulationTimeFunction.class, "Duration of the test"),
-		LENGTH_NUCREPORT(SimulationTimeFunction.class, "Duration of the preparation of the report of results"),
+		NTECHUSS(Integer.class, "Resources available for USS"),
+		LENGTH_USSTEST(SimulationTimeFunction.class, "Duration of the test"),
+		LENGTH_USSREPORT(SimulationTimeFunction.class, "Duration of the preparation of the report of results"),
 		NTECHRAD(Integer.class, "Resources available for Radiology"),
 		LENGTH_RADTEST(SimulationTimeFunction.class, "Duration of the test"),
 		LENGTH_RADREPORT(SimulationTimeFunction.class, "Duration of the preparation of the report of results");
@@ -54,20 +54,20 @@ public class CentralServicesModel {
 				throw new IllegalArgumentException("Param <<" + p + ">> missing");
 
 		// Resource types
-		ResourceType rtNuc = HospitalModelConfig.createNStdHumanResources(factory, "Nuclear Medicine Technician", (Integer)params.get(Parameters.NTECHNUC));
+		ResourceType rtUSS = HospitalModelConfig.createNStdHumanResources(factory, "USS Technician", (Integer)params.get(Parameters.NTECHUSS));
 		ResourceType rtRad = HospitalModelConfig.createNStdHumanResources(factory, "Radiology Technician", (Integer)params.get(Parameters.NTECHRAD));
 
 		// Workgroups
-		WorkGroup wgNuc = factory.getWorkGroupInstance(new ResourceType[] {rtNuc}, new int[] {1});
+		WorkGroup wgUSS = factory.getWorkGroupInstance(new ResourceType[] {rtUSS}, new int[] {1});
 		WorkGroup wgRad = factory.getWorkGroupInstance(new ResourceType[] {rtRad}, new int[] {1});
 		
 		// Activities
-		actOPNucTest = factory.getTimeDrivenActivityInstance("Nuclear Medicine Test OP", 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class)); 
-		actOPNucTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_NUCTEST), wgNuc);
+		actOPUSSTest = factory.getTimeDrivenActivityInstance("USS Test OP", 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class)); 
+		actOPUSSTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_USSTEST), wgUSS);
 		actOPRadTest = factory.getTimeDrivenActivityInstance("Radiology Test OP", 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class)); 
 		actOPRadTest.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_RADTEST), wgRad); 
-		actOPNucReport = factory.getTimeDrivenActivityInstance("Nuclear Medicine Report OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL)); 
-		actOPNucReport.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_NUCREPORT), wgNuc); 
+		actOPUSSReport = factory.getTimeDrivenActivityInstance("USS Report OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL)); 
+		actOPUSSReport.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_USSREPORT), wgUSS); 
 		actOPRadReport = factory.getTimeDrivenActivityInstance("Radiology Report OP", 2, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		actOPRadReport.addWorkGroup((SimulationTimeFunction)params.get(Parameters.LENGTH_RADREPORT), wgRad);
 	}
@@ -76,10 +76,10 @@ public class CentralServicesModel {
 	 * Creates the flow for a nuclear test for an outpatient. 
 	 * @return The flow for a nuclear test for an outpatient
 	 */
-	public static Flow[] getOPNuclearFlow(SimulationObjectFactory factory) {
+	public static Flow[] getOPUSSFlow(SimulationObjectFactory factory) {
 		Flow[] flow = new Flow[2];
-		flow[0] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPNucTest);
-		flow[1] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPNucReport);
+		flow[0] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPUSSTest);
+		flow[1] = (SingleFlow)factory.getFlowInstance("SingleFlow", actOPUSSReport);
 		flow[0].link(flow[1]);
 		return flow;
 	}

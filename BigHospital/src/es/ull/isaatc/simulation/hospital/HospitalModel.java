@@ -95,13 +95,13 @@ public final class HospitalModel {
 		
 		// Central services
 		ModelParameterMap centralParams = new ModelParameterMap(CentralServicesModel.Parameters.values().length);
-		centralParams.put(CentralServicesModel.Parameters.NTECHNUC, 4);
+		centralParams.put(CentralServicesModel.Parameters.NTECHUSS, 4);
 		centralParams.put(CentralServicesModel.Parameters.NTECHRAD, 10);
-		centralParams.put(CentralServicesModel.Parameters.LENGTH_NUCTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		centralParams.put(CentralServicesModel.Parameters.LENGTH_USSTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 10));
 		centralParams.put(CentralServicesModel.Parameters.LENGTH_RADTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 10));
-		centralParams.put(CentralServicesModel.Parameters.LENGTH_NUCREPORT, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		centralParams.put(CentralServicesModel.Parameters.LENGTH_USSREPORT, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 12));
 		centralParams.put(CentralServicesModel.Parameters.LENGTH_RADREPORT, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"ConstantVariate", 10));

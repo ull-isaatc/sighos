@@ -152,7 +152,7 @@ public class StdMedicalDptModel {
 		Flow[] labOPTest = CentralLabModel.getOPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_OP), (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
 				(Double)params.get(Parameters.PROB_LABMIC_OP), (Double)params.get(Parameters.PROB_LABPAT_OP)); 
 		oPTests.addBranch((InitializerFlow)labOPTest[0], (FinalizerFlow)labOPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_OP) * 100));
-		Flow[] nucOPTest = CentralServicesModel.getOPNuclearFlow(factory);
+		Flow[] nucOPTest = CentralServicesModel.getOPUSSFlow(factory);
 		oPTests.addBranch((InitializerFlow)nucOPTest[0], (FinalizerFlow)nucOPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_OP) * 100));
 		Flow[] radOPTest = CentralServicesModel.getOPRadiologyFlow(factory);
 		oPTests.addBranch((InitializerFlow)radOPTest[0], (FinalizerFlow)radOPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_OP) * 100));
@@ -188,7 +188,7 @@ public class StdMedicalDptModel {
 		Flow[] labIPTest = CentralLabModel.getIPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_IP), (Double)params.get(Parameters.PROB_LABLAB_IP), (Double)params.get(Parameters.PROB_LABHAE_IP),
 				(Double)params.get(Parameters.PROB_LABMIC_IP), (Double)params.get(Parameters.PROB_LABPAT_IP)); 
 		iPTests.addBranch((InitializerFlow)labIPTest[0], (FinalizerFlow)labIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_IP) * 100));
-		Flow[] nucIPTest = CentralServicesModel.getOPNuclearFlow(factory);
+		Flow[] nucIPTest = CentralServicesModel.getOPUSSFlow(factory);
 		iPTests.addBranch((InitializerFlow)nucIPTest[0], (FinalizerFlow)nucIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_IP) * 100));
 		Flow[] radIPTest = CentralServicesModel.getOPRadiologyFlow(factory);
 		iPTests.addBranch((InitializerFlow)radIPTest[0], (FinalizerFlow)radIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_IP) * 100));

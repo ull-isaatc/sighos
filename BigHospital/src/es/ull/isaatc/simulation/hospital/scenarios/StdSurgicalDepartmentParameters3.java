@@ -27,7 +27,7 @@ public final class StdSurgicalDepartmentParameters3 extends ModelParameterMap {
 		put(StdSurgicalDptModel.Parameters.NBEDS, 20);
 		put(StdSurgicalDptModel.Parameters.NSBEDS, 3);
 		put(StdSurgicalDptModel.Parameters.NSURGEONS, 4);
-		put(StdSurgicalDptModel.Parameters.NSURGERIES, 4);
+		put(StdSurgicalDptModel.Parameters.NOPTHEATRES, 4);
 		put(StdSurgicalDptModel.Parameters.NDOCTORS, 7);
 		put(StdSurgicalDptModel.Parameters.NSCRUBNURSES, 4);
 		put(StdSurgicalDptModel.Parameters.NSURGERY_ASSIST, 2);		

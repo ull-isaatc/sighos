@@ -18,13 +18,13 @@ public final class StdCentralServicesParameters extends ModelParameterMap {
 		super(CentralServicesModel.Parameters.values().length);
 		
 		final TimeUnit unit = HospitalModelConfig.UNIT;
-		put(CentralServicesModel.Parameters.NTECHNUC, 4);
+		put(CentralServicesModel.Parameters.NTECHUSS, 4);
 		put(CentralServicesModel.Parameters.NTECHRAD, 10);
-		put(CentralServicesModel.Parameters.LENGTH_NUCTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		put(CentralServicesModel.Parameters.LENGTH_USSTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"UniformVariate", 4, 12));
 		put(CentralServicesModel.Parameters.LENGTH_RADTEST, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"UniformVariate", 4, 12));
-		put(CentralServicesModel.Parameters.LENGTH_NUCREPORT, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
+		put(CentralServicesModel.Parameters.LENGTH_USSREPORT, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"UniformVariate", 8, 16));
 		put(CentralServicesModel.Parameters.LENGTH_RADREPORT, HospitalModelConfig.getScaledSimulationTimeFunction(unit, 
 				"UniformVariate", 7, 14));

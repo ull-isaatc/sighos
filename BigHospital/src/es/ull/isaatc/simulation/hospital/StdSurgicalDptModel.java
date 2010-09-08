@@ -45,7 +45,7 @@ public class StdSurgicalDptModel {
 	public enum Parameters implements ModelParameterMap.ModelParameter {
 		NBEDS(Integer.class, "Beds available"),
 		NSBEDS(Integer.class, "Beds available for short stays"),
-		NSURGERIES(Integer.class, "Surgeries available for the department"),
+		NOPTHEATRES(Integer.class, "Op. Theatres available for the department"),
 		NSURGEONS(Integer.class, "Surgeons available for the department"),
 		NDOCTORS(Integer.class, "Doctors available for the department"),
 		NSCRUBNURSES(Integer.class, "Scrub Nurses available for the department"),
@@ -124,7 +124,7 @@ public class StdSurgicalDptModel {
 		Flow[] labIPTest = CentralLabModel.getIPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_IP), (Double)params.get(Parameters.PROB_LABLAB_IP), 
 				(Double)params.get(Parameters.PROB_LABHAE_IP), (Double)params.get(Parameters.PROB_LABMIC_IP), (Double)params.get(Parameters.PROB_LABPAT_IP)); 
 		iPTests.addBranch((InitializerFlow)labIPTest[0], (FinalizerFlow)labIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_IP) * 100));
-		Flow[] nucIPTest = CentralServicesModel.getOPNuclearFlow(factory);
+		Flow[] nucIPTest = CentralServicesModel.getOPUSSFlow(factory);
 		iPTests.addBranch((InitializerFlow)nucIPTest[0], (FinalizerFlow)nucIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_IP) * 100));
 		Flow[] radIPTest = CentralServicesModel.getOPRadiologyFlow(factory);
 		iPTests.addBranch((InitializerFlow)radIPTest[0], (FinalizerFlow)radIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_IP) * 100));
@@ -153,7 +153,7 @@ public class StdSurgicalDptModel {
 		ResourceType rtBed = HospitalModelConfig.createNStdMaterialResources(factory, code + " Bed", (Integer)params.get(Parameters.NBEDS)); 
 		ResourceType rtSBed = HospitalModelConfig.createNStdMaterialResources(factory, code + " S Bed", (Integer)params.get(Parameters.NSBEDS)); 
 		ResourceType rtSurgeon = HospitalModelConfig.createNStdHumanResources(factory, code + " Surgeon", (Integer)params.get(Parameters.NSURGEONS));
-		ResourceType rtSurgery = HospitalModelConfig.createNStdMaterialResources(factory, code + " Surgery", (Integer)params.get(Parameters.NSURGERIES));
+		ResourceType rtOpTheatre = HospitalModelConfig.createNStdMaterialResources(factory, code + " Op. Theatre", (Integer)params.get(Parameters.NOPTHEATRES));
 		ResourceType rtScrubNurse = HospitalModelConfig.createNStdHumanResources(factory, code + " Scrub Nurse", (Integer)params.get(Parameters.NSCRUBNURSES)); 
 		ResourceType rtDoctorFirst = factory.getResourceTypeInstance(code + " Doctor 1st");
 		ResourceType rtDoctorSucc = factory.getResourceTypeInstance(code + " Doctor Succ");
@@ -185,7 +185,7 @@ public class StdSurgicalDptModel {
 		WorkGroup wgSBed = factory.getWorkGroupInstance(new ResourceType[] {rtSBed}, new int[] {1});
 		WorkGroup wgDocFirst = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorFirst}, new int[] {1});
 		WorkGroup wgDocSucc = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorSucc}, new int[] {1});
-		WorkGroup wgSur = factory.getWorkGroupInstance(new ResourceType[] {rtSurgery, rtSurgeon, rtScrubNurse, rtSurgeryAssist, SurgicalDptSharedModel.getAnaesthetistRT()}, new int[] {1, 1, 1, 1, 1});
+		WorkGroup wgSur = factory.getWorkGroupInstance(new ResourceType[] {rtOpTheatre, rtSurgeon, rtScrubNurse, rtSurgeryAssist, SurgicalDptSharedModel.getAnaesthetistRT()}, new int[] {1, 1, 1, 1, 1});
 
 		// Time Driven Activities
 		TimeDrivenActivity actFirstApp = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " 1st Out App",
@@ -223,7 +223,7 @@ public class StdSurgicalDptModel {
 		Flow[] labTest = CentralLabModel.getOPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_OP), (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
 				(Double)params.get(Parameters.PROB_LABMIC_OP), (Double)params.get(Parameters.PROB_LABPAT_OP)); 
 		testDecision.addBranch((InitializerFlow)labTest[0], (FinalizerFlow)labTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_OP) * 100));
-		Flow[] nucTest = CentralServicesModel.getOPNuclearFlow(factory);
+		Flow[] nucTest = CentralServicesModel.getOPUSSFlow(factory);
 		testDecision.addBranch((InitializerFlow)nucTest[0], (FinalizerFlow)nucTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_OP) * 100));
 		Flow[] radTest = CentralServicesModel.getOPRadiologyFlow(factory);
 		testDecision.addBranch((InitializerFlow)radTest[0], (FinalizerFlow)radTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_OP) * 100));
@@ -300,7 +300,7 @@ public class StdSurgicalDptModel {
 		Flow[] labIPTest = CentralLabModel.getIPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_IP), (Double)params.get(Parameters.PROB_LABLAB_IP), (Double)params.get(Parameters.PROB_LABHAE_IP),
 				(Double)params.get(Parameters.PROB_LABMIC_IP), (Double)params.get(Parameters.PROB_LABPAT_IP)); 
 		iPTests.addBranch((InitializerFlow)labIPTest[0], (FinalizerFlow)labIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_IP) * 100));
-		Flow[] nucIPTest = CentralServicesModel.getOPNuclearFlow(factory);
+		Flow[] nucIPTest = CentralServicesModel.getOPUSSFlow(factory);
 		iPTests.addBranch((InitializerFlow)nucIPTest[0], (FinalizerFlow)nucIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_IP) * 100));
 		Flow[] radIPTest = CentralServicesModel.getOPRadiologyFlow(factory);
 		iPTests.addBranch((InitializerFlow)radIPTest[0], (FinalizerFlow)radIPTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_IP) * 100));
@@ -383,7 +383,7 @@ public class StdSurgicalDptModel {
 		Flow[] labTest = CentralLabModel.getOPFlow(factory, (Double)params.get(Parameters.PROB_LABCENT_OP), (Double)params.get(Parameters.PROB_LABLAB_OP), (Double)params.get(Parameters.PROB_LABHAE_OP),
 				(Double)params.get(Parameters.PROB_LABMIC_OP), (Double)params.get(Parameters.PROB_LABPAT_OP)); 
 		testDecision.addBranch((InitializerFlow)labTest[0], (FinalizerFlow)labTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_LAB_OP) * 100));
-		Flow[] nucTest = CentralServicesModel.getOPNuclearFlow(factory);
+		Flow[] nucTest = CentralServicesModel.getOPUSSFlow(factory);
 		testDecision.addBranch((InitializerFlow)nucTest[0], (FinalizerFlow)nucTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_NUC_OP) * 100));
 		Flow[] radTest = CentralServicesModel.getOPRadiologyFlow(factory);
 		testDecision.addBranch((InitializerFlow)radTest[0], (FinalizerFlow)radTest[1], new PercentageCondition((Double)params.get(Parameters.PROB_RAD_OP) * 100));
