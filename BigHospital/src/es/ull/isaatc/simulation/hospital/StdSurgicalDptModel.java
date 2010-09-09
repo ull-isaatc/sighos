@@ -49,7 +49,7 @@ public class StdSurgicalDptModel {
 		NSURGEONS(Integer.class, "Surgeons available for the department"),
 		NDOCTORS(Integer.class, "Doctors available for the department"),
 		NSCRUBNURSES(Integer.class, "Scrub Nurses available for the department"),
-		NSURGERY_ASSIST(Integer.class, "Surgery Assistants: since 1 can be used in two surgeries, it is considered 2 resources"),
+		NCIRCNURSES(Integer.class, "Circulating Nurses: since 1 can be used in two surgeries, it is considered 2 resources"),
 		PROB_RAD_OP(Double.class, "Probability of performing an X-Ray test during appointments"),
 		PROB_NUC_OP(Double.class, "Probability of performing a scanner test during appointments"),
 		PROB_LAB_OP(Double.class, "Probability of performing a lab test during appointments"),
@@ -157,7 +157,7 @@ public class StdSurgicalDptModel {
 		ResourceType rtScrubNurse = HospitalModelConfig.createNStdHumanResources(factory, code + " Scrub Nurse", (Integer)params.get(Parameters.NSCRUBNURSES)); 
 		ResourceType rtDoctorFirst = factory.getResourceTypeInstance(code + " Doctor 1st");
 		ResourceType rtDoctorSucc = factory.getResourceTypeInstance(code + " Doctor Succ");
-		ResourceType rtSurgeryAssist = factory.getResourceTypeInstance(code + " Surgery Assistant");
+		ResourceType rtCircNurse = factory.getResourceTypeInstance(code + " Circulating Nurse");
 		
 		SimulationCycle doctorFirstCycle = new SimulationWeeklyPeriodicCycle(simul.getTimeUnit(), 
 				WeeklyPeriodicCycle.WEEKDAYS, HospitalModelConfig.DAYSTART, 0);
@@ -173,11 +173,11 @@ public class StdSurgicalDptModel {
 			res.addTimeTableEntry(doctorFirstCycle, new TimeStamp(TimeUnit.HOUR, hoursFirst), rtDoctorFirst);
 			res.addTimeTableEntry(doctorSuccCycle, new TimeStamp(TimeUnit.HOUR, HospitalModelConfig.WORKHOURS.getValue() - hoursFirst), rtDoctorSucc);
 		}
-		final int nSurgAssist = ((Integer)params.get(Parameters.NSURGERY_ASSIST)).intValue();
-		// Surgery assistants are doubled because can be used in two surgeries at the same time
-		for (int i = 0; i < nSurgAssist; i++) {
-			HospitalModelConfig.getStdHumanResource(factory, code + " Surgery Assistant" + i + "a", rtSurgeryAssist);
-			HospitalModelConfig.getStdHumanResource(factory, code + " Surgery Assistant" + i + "b", rtSurgeryAssist);
+		final int nCircNurse = ((Integer)params.get(Parameters.NCIRCNURSES)).intValue();
+		// Circulating nurses are doubled because can be used in two surgeries at the same time
+		for (int i = 0; i < nCircNurse; i++) {
+			HospitalModelConfig.getStdHumanResource(factory, code + " Circulating Nurse" + i + "a", rtCircNurse);
+			HospitalModelConfig.getStdHumanResource(factory, code + " Circulating Nurse" + i + "b", rtCircNurse);
 		}
 
 		// Workgroups
@@ -185,7 +185,7 @@ public class StdSurgicalDptModel {
 		WorkGroup wgSBed = factory.getWorkGroupInstance(new ResourceType[] {rtSBed}, new int[] {1});
 		WorkGroup wgDocFirst = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorFirst}, new int[] {1});
 		WorkGroup wgDocSucc = factory.getWorkGroupInstance(new ResourceType[] {rtDoctorSucc}, new int[] {1});
-		WorkGroup wgSur = factory.getWorkGroupInstance(new ResourceType[] {rtOpTheatre, rtSurgeon, rtScrubNurse, rtSurgeryAssist, SurgicalDptSharedModel.getAnaesthetistRT()}, new int[] {1, 1, 1, 1, 1});
+		WorkGroup wgSur = factory.getWorkGroupInstance(new ResourceType[] {rtOpTheatre, rtSurgeon, rtScrubNurse, rtCircNurse, SurgicalDptSharedModel.getAnaesthetistRT()}, new int[] {1, 1, 1, 1, 1});
 
 		// Time Driven Activities
 		TimeDrivenActivity actFirstApp = HospitalModelConfig.createStdTimeDrivenActivity(factory, code + " 1st Out App",
