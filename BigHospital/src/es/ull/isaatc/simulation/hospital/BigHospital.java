@@ -3,6 +3,10 @@
  */
 package es.ull.isaatc.simulation.hospital;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -29,6 +33,7 @@ import es.ull.isaatc.simulation.hospital.view.ActivityQueueFileSafeView;
 import es.ull.isaatc.simulation.hospital.view.ExecutionCounterFileSafeView;
 import es.ull.isaatc.simulation.hospital.view.ResourceUsageFileSafeView;
 import es.ull.isaatc.simulation.hospital.view.SimultaneousEventFileSafeView;
+import es.ull.isaatc.simulation.test.FileCPUTimeView;
 import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.WeeklyPeriodicCycle;
 
@@ -157,6 +162,113 @@ public class BigHospital {
 		}		
 	}
 
+	private static void autoExp(int nReplicas, String expType, int months, int minuteScale, String fileName) {
+		TimeStamp endTs = new TimeStamp(TimeUnit.MONTH, months);
+		TimeStamp scale = new TimeStamp(TimeUnit.MINUTE, minuteScale);
+		int simIndex = 0;
+		int []nThreads = new int[] {2,4,8,16};
+		int []nThreads2 = new int[] {2,4,8,15};
+		int []nDept = new int[] {2,3,4};
+		int [][]nDeparments = new int[nDept.length][];
+		for (int i = 0; i < nDept.length; i++) {
+			nDeparments[i] = new int[6];
+			Arrays.fill(nDeparments[i], nDept[i]);
+		}
+		// FIXME: Default generator (Mersenne twister) is failing with multiple threads
+		RandomNumberFactory.setDefaultClass("simkit.random.Congruential");
+
+		PrintWriter buf = null;
+		try {
+			buf = new PrintWriter(new BufferedWriter(new FileWriter(fileName)), true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		// First sequential for warmup
+		if (expType.contains("w")) {
+			System.out.println("INITIALIZING...");
+			SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQUENTIAL, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);			
+			HospitalModel.createModel(factory, scale, new int[] {1,1,1,1,1,1});	
+			Simulation simul = factory.getSimulation();
+			simul.run();
+			System.out.println(SEP);
+		}	
+
+		
+		System.out.println("EXPERIMENT CONFIG:");
+		System.out.println("Scale\t" + scale);
+		System.out.println();
+		System.out.println(SEP);
+		
+		for (int[] nDepart : nDeparments) {
+			if (expType.contains("s")) {
+				System.out.println("STARTING SEQUENTIAL EXPERIMENTS...");
+				// Now sequential experiments
+				for (int i = 0; i < nReplicas; i++) {
+					System.out.println(SimulationType.SEQUENTIAL + "\t" + i);
+					buf.print(SimulationType.SEQUENTIAL + "\t" + 1 + "\t" + nDept[0]);
+					SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQUENTIAL, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
+					HospitalModel.createModel(factory, scale, nDepart);	
+					Simulation simul = factory.getSimulation();
+					simul.addInfoReceiver(new FileCPUTimeView(simul, buf));
+//					simul.run();
+					System.out.println(SEP);
+				}
+				buf.println();
+			}
+			if (expType.contains("3")) {
+				// Now "better" sequential experiments
+				for (int i = 0; i < nReplicas; i++) {
+					System.out.println(SimulationType.SEQ3PHASE2 + "\t" + i);
+					buf.print(SimulationType.SEQ3PHASE2 + "\t" + 1 + "\t" + nDept[0]);
+					SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQ3PHASE2, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
+					HospitalModel.createModel(factory, scale, nDepart);	
+					Simulation simul = factory.getSimulation();
+					simul.addInfoReceiver(new FileCPUTimeView(simul, buf));
+//					simul.run();
+					System.out.println(SEP);
+				}
+				buf.println();
+			}
+			// Now parallel experiments
+			if (expType.contains("p")) {
+				SimulationType type = SimulationType.GROUPED3PHASEX;
+				for (int th : nThreads) {
+					for (int i = 0; i < nReplicas; i++) {
+						System.out.println(type + "[" + th + "]\t" + i);
+						buf.print(type + "\t" + th + "\t" + nDept[0]);
+						SimulationObjectFactory factory = SimulationFactory.getInstance(type, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
+						HospitalModel.createModel(factory, scale, nDepart);	
+						Simulation simul = factory.getSimulation();
+						simul.addInfoReceiver(new FileCPUTimeView(simul, buf));
+						simul.setNThreads(th);
+//						simul.run();
+						System.out.println(SEP);					
+					}
+					buf.println();
+				}
+			}
+			if (expType.contains("g")) {
+				SimulationType type = SimulationType.GROUPED3PHASE;
+				for (int th : nThreads2) {
+					for (int i = 0; i < nReplicas; i++) {
+						System.out.println(type + "[" + th + "]\t" + i);
+						buf.print(type + "\t" + th + "\t" + nDept[0]);
+						SimulationObjectFactory factory = SimulationFactory.getInstance(type, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
+						HospitalModel.createModel(factory, scale, nDepart);	
+						Simulation simul = factory.getSimulation();
+						simul.addInfoReceiver(new FileCPUTimeView(simul, buf));
+						simul.setNThreads(th);
+//						simul.run();
+						System.out.println(SEP);					
+					}
+					buf.println();
+				}
+			}
+		}
+		buf.close();
+	}
+
 	/**
 	 * Creates a small experiment for testing purposes
 	 * @param minuteScale The finest grain of the simulation time (in minutes). No process lasts less than this value.
@@ -233,23 +345,36 @@ public class BigHospital {
 //		simul.addInfoReceiver(new SimultaneousEventFileSafeView(simul, OUTPATH + "events" + simul.getIdentifier() + ".txt"));
 //		simul.addInfoReceiver(new ResourceUsageFileSafeView(simul, OUTPATH + "res" + simul.getIdentifier() + ".txt", viewPeriod));
 //		simul.run();
-		if (args.length < 5) {
+
+		
+//		if (args.length < 5) {
+//			System.out.println("Wrong argument number");
+//			System.exit(-1);
+//		}
+//		int nExperiments = Integer.parseInt(args[0]);
+//		String expType = args[1];
+//		int nDepartments = Integer.parseInt(args[2]);
+//		int months = Integer.parseInt(args[3]);
+//		int minuteScale = Integer.parseInt(args[4]);
+//		if (args.length > 5) {
+//			debug = Integer.parseInt(args[5]);
+//			if (debug == 2) {
+//				outputPath = args[6];
+//				viewPeriod = new TimeStamp(TimeUnit.DAY, Integer.parseInt(args[7]));
+//			}
+//		}
+//		normalExp(nExperiments, expType, nDepartments, months, minuteScale);
+
+		if (args.length < 4) {
 			System.out.println("Wrong argument number");
 			System.exit(-1);
 		}
 		int nExperiments = Integer.parseInt(args[0]);
 		String expType = args[1];
-		int nDepartments = Integer.parseInt(args[2]);
-		int months = Integer.parseInt(args[3]);
-		int minuteScale = Integer.parseInt(args[4]);
-		if (args.length > 5) {
-			debug = Integer.parseInt(args[5]);
-			if (debug == 2) {
-				outputPath = args[6];
-				viewPeriod = new TimeStamp(TimeUnit.DAY, Integer.parseInt(args[7]));
-			}
-		}
-		normalExp(nExperiments, expType, nDepartments, months, minuteScale);
+		int months = Integer.parseInt(args[2]);
+		int minuteScale = Integer.parseInt(args[3]);
+		String fileName = args[4];
+		autoExp(nExperiments, expType, months, minuteScale, fileName);
 	}
 
 }
