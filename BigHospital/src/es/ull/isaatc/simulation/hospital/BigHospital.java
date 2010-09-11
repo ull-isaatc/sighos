@@ -211,7 +211,7 @@ public class BigHospital {
 					HospitalModel.createModel(factory, scale, nDepart);	
 					Simulation simul = factory.getSimulation();
 					simul.addInfoReceiver(new FileCPUTimeView(simul, buf));
-//					simul.run();
+					simul.run();
 					System.out.println(SEP);
 				}
 				buf.println();
@@ -225,7 +225,7 @@ public class BigHospital {
 					HospitalModel.createModel(factory, scale, nDepart);	
 					Simulation simul = factory.getSimulation();
 					simul.addInfoReceiver(new FileCPUTimeView(simul, buf));
-//					simul.run();
+					simul.run();
 					System.out.println(SEP);
 				}
 				buf.println();
@@ -242,7 +242,7 @@ public class BigHospital {
 						Simulation simul = factory.getSimulation();
 						simul.addInfoReceiver(new FileCPUTimeView(simul, buf));
 						simul.setNThreads(th);
-//						simul.run();
+						simul.run();
 						System.out.println(SEP);					
 					}
 					buf.println();
@@ -259,7 +259,7 @@ public class BigHospital {
 						Simulation simul = factory.getSimulation();
 						simul.addInfoReceiver(new FileCPUTimeView(simul, buf));
 						simul.setNThreads(th);
-//						simul.run();
+						simul.run();
 						System.out.println(SEP);					
 					}
 					buf.println();
