@@ -203,10 +203,10 @@ public class BigHospital {
 		for (int[] nDepart : nDeparments) {
 			if (expType.contains("s")) {
 				System.out.println("STARTING SEQUENTIAL EXPERIMENTS...");
+				buf.print(SimulationType.SEQUENTIAL + "\t" + 1 + "\t" + nDepart[0]);
 				// Now sequential experiments
 				for (int i = 0; i < nReplicas; i++) {
 					System.out.println(SimulationType.SEQUENTIAL + "\t" + i);
-					buf.print(SimulationType.SEQUENTIAL + "\t" + 1 + "\t" + nDept[0]);
 					SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQUENTIAL, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
 					HospitalModel.createModel(factory, scale, nDepart);	
 					Simulation simul = factory.getSimulation();
@@ -217,10 +217,10 @@ public class BigHospital {
 				buf.println();
 			}
 			if (expType.contains("3")) {
+				buf.print(SimulationType.SEQ3PHASE2 + "\t" + 1 + "\t" + nDepart[0]);
 				// Now "better" sequential experiments
 				for (int i = 0; i < nReplicas; i++) {
 					System.out.println(SimulationType.SEQ3PHASE2 + "\t" + i);
-					buf.print(SimulationType.SEQ3PHASE2 + "\t" + 1 + "\t" + nDept[0]);
 					SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.SEQ3PHASE2, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
 					HospitalModel.createModel(factory, scale, nDepart);	
 					Simulation simul = factory.getSimulation();
@@ -234,9 +234,9 @@ public class BigHospital {
 			if (expType.contains("p")) {
 				SimulationType type = SimulationType.GROUPED3PHASEX;
 				for (int th : nThreads) {
+					buf.print(type + "\t" + th + "\t" + nDepart[0]);
 					for (int i = 0; i < nReplicas; i++) {
 						System.out.println(type + "[" + th + "]\t" + i);
-						buf.print(type + "\t" + th + "\t" + nDept[0]);
 						SimulationObjectFactory factory = SimulationFactory.getInstance(type, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
 						HospitalModel.createModel(factory, scale, nDepart);	
 						Simulation simul = factory.getSimulation();
@@ -251,9 +251,9 @@ public class BigHospital {
 			if (expType.contains("g")) {
 				SimulationType type = SimulationType.GROUPED3PHASE;
 				for (int th : nThreads2) {
+					buf.print(type + "\t" + th + "\t" + nDepart[0]);
 					for (int i = 0; i < nReplicas; i++) {
 						System.out.println(type + "[" + th + "]\t" + i);
-						buf.print(type + "\t" + th + "\t" + nDept[0]);
 						SimulationObjectFactory factory = SimulationFactory.getInstance(type, simIndex++, "Big Hospital", HospitalModelConfig.UNIT, TimeStamp.getZero(), endTs);
 						HospitalModel.createModel(factory, scale, nDepart);	
 						Simulation simul = factory.getSimulation();
