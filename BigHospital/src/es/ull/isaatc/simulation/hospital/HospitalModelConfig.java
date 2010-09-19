@@ -20,11 +20,15 @@ import es.ull.isaatc.simulation.common.factory.SimulationObjectFactory;
 import es.ull.isaatc.util.WeeklyPeriodicCycle;
 
 /**
+ * Contains the main utilities and generic methods used to build a model of a hospital. The typical methods
+ * to create activities, human and material resources, etc have been defined here.
+ *   
  * @author Iván Castilla Rodríguez
- *
  */
 public class HospitalModelConfig {
+	/** The typical cycle to define a human resource availability */
 	private static SimulationCycle stdHumanResourceCycle = null;
+	/** The scale to be used in the simulation */
 	private static TimeStamp scale = null;
 	/** The time unit of the model */
 	public static final TimeUnit UNIT = TimeUnit.MINUTE;
@@ -35,10 +39,19 @@ public class HospitalModelConfig {
 	/** Patients arrive 10 minutes before 8 am */
 	public static final TimeStamp PATIENTARRIVAL = new TimeStamp(TimeUnit.MINUTE, 470);
 	
+	/**
+	 * Returns the amount of time a human resource is typically available, that is, 8 hours. 
+	 * @return the amount of time a human resource is typically available
+	 */
 	public static TimeStamp getStdHumanResourceAvailability() {
 		return WORKHOURS;
 	}
 	
+	/**
+	 * Creates and returns the typical cycle to define the availability of a human resource. 
+	 * A human resource is typically available at 8 am every weekday. 
+	 * @return the typical cycle to define the availability of a human resource
+	 */
 	public static SimulationCycle getStdHumanResourceCycle() {
 		if (stdHumanResourceCycle == null) {
 			stdHumanResourceCycle = new SimulationWeeklyPeriodicCycle(UNIT, WeeklyPeriodicCycle.WEEKDAYS, 
@@ -47,21 +60,52 @@ public class HospitalModelConfig {
 		return stdHumanResourceCycle;
 	}
 
+	/**
+	 * Returns the amount of time a material resource is typically available, which is the total length 
+	 * of the simulation. 
+	 * @param simul Simulation where this resource is to be declared
+	 * @return the amount of time a material resource is typically available
+	 */
 	public static TimeStamp getStdMaterialResourceAvailability(Simulation simul) {
 		return simul.getEndTs();
 	}
 	
+	/**
+	 * Creates and returns the typical cycle to define the availability of a material resource. Since 
+	 * a material resource is always available, simply defines a cycle starting and ending together with
+	 * the simulation.   
+	 * @param simul Simulation where this resource is to be declared
+	 * @return the typical cycle to define the availability of a material resource
+	 */
 	public static SimulationCycle getStdMaterialResourceCycle(Simulation simul) {
 		SimulationTimeFunction tf = new SimulationTimeFunction(simul.getTimeUnit(), "ConstantVariate", simul.getEndTs());
 		return new SimulationPeriodicCycle(simul.getTimeUnit(), simul.getStartTs(), tf, simul.getEndTs());
 	}
 
+	/**
+	 * Returns a human resource with the specified description and available for the specified resource 
+	 * type according to the typical availability. 
+	 * @param factory The simulation factory used to create the components of this simulation
+	 * @param description A brief text describing this resource
+	 * @param rt The role this resource type plays during its availability
+	 * @return a human resource with the specified description and available for the specified resource 
+	 * type according to the typical availability
+	 */
 	public static Resource getStdHumanResource(SimulationObjectFactory factory, String description, ResourceType rt) {
 		Resource res = factory.getResourceInstance(description);
 		res.addTimeTableEntry(getStdHumanResourceCycle(), getStdHumanResourceAvailability(), rt);
 		return res;		
 	}
 	
+	/**
+	 * Returns a material resource with the specified description and available for the specified resource 
+	 * type according to the typical availability. 
+	 * @param factory The simulation factory used to create the components of this simulation
+	 * @param description A brief text describing this resource
+	 * @param rt The role this resource type plays during its availability
+	 * @return a material resource with the specified description and available for the specified resource 
+	 * type according to the typical availability
+	 */
 	public static Resource getStdMaterialResource(SimulationObjectFactory factory, String description, ResourceType rt) {
 		Simulation simul = factory.getSimulation();
 		Resource res = factory.getResourceInstance(description);
@@ -69,6 +113,14 @@ public class HospitalModelConfig {
 		return res;		
 	}
 	
+	/**
+	 * Creates a resource type with the specified description and <tt>nRes</tt> resources belonging to 
+	 * such resource type. 
+	 * @param factory
+	 * @param description
+	 * @param nRes
+	 * @return
+	 */
 	public static ResourceType createNStdHumanResources(SimulationObjectFactory factory, String description, int nRes) {
 		ResourceType rt = factory.getResourceTypeInstance(description);
 		for (int i = 0; i < nRes; i++)
