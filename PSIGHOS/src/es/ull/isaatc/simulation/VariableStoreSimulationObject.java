@@ -1,0 +1,14 @@
+/**
+ * 
+ */
+package es.ull.isaatc.simulation;
+
+
+/**
+ * A simulation's object which can store variables.
+ * @author Iván Castilla Rodríguez
+ *
+ */
+public interface VariableStoreSimulationObject extends SimulationObject, VariableStore {
+
+}
