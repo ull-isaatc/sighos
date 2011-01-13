@@ -3,7 +3,7 @@ package es.ull.isaatc.simulation.parallel;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import es.ull.isaatc.simulation.Identifiable;
+import es.ull.isaatc.simulation.core.Identifiable;
 import es.ull.isaatc.simulation.parallel.flow.BasicFlow;
 import es.ull.isaatc.simulation.parallel.flow.Flow;
 import es.ull.isaatc.simulation.parallel.flow.SingleFlow;

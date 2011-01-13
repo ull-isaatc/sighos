@@ -11,7 +11,7 @@ import es.ull.isaatc.simulation.parallel.WorkThread;
  * A flow which executes a single activity. 
  * @author Iván Castilla Rodríguez
  */
-public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.isaatc.simulation.flow.SingleFlow {
+public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.isaatc.simulation.core.flow.SingleFlow {
     /** The activity to be performed */
     protected final Activity act;
     
@@ -38,17 +38,17 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 	 * waiting for availables Resources. 
 	 * @param e Element requesting this single flow
 	 */
-	public void inqueue(es.ull.isaatc.simulation.Element e){};
+	public void inqueue(es.ull.isaatc.simulation.core.Element e){};
 	
 	/**
 	 * Allows a user to add actions carried out when the element actually starts the
 	 * execution of the activity.
 	 * @param e Element requesting this single flow
 	 */
-	public void afterStart(es.ull.isaatc.simulation.Element e){};
+	public void afterStart(es.ull.isaatc.simulation.core.Element e){};
 	
 	@Override
-	public void afterFinalize(es.ull.isaatc.simulation.Element e) {
+	public void afterFinalize(es.ull.isaatc.simulation.core.Element e) {
 	}
 	
 	/*
@@ -88,7 +88,7 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 	 * (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#addPredecessor(es.ull.isaatc.simulation.Flow)
 	 */
-	public void addPredecessor(es.ull.isaatc.simulation.flow.Flow newFlow) {
+	public void addPredecessor(es.ull.isaatc.simulation.core.flow.Flow newFlow) {
 	}
 
 }

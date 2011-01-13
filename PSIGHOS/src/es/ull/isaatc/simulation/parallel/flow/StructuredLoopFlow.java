@@ -11,7 +11,7 @@ import es.ull.isaatc.simulation.parallel.Simulation;
  * Meets the Structured Loop pattern (WFP21). 
  * @author ycallero
  */
-public abstract class StructuredLoopFlow extends StructuredFlow implements es.ull.isaatc.simulation.flow.StructuredLoopFlow {
+public abstract class StructuredLoopFlow extends StructuredFlow implements es.ull.isaatc.simulation.core.flow.StructuredLoopFlow {
 	
 	/**
 	 * Create a new StructuredLoopFlow starting in <code>initialSubFlow</code> and 
@@ -24,7 +24,7 @@ public abstract class StructuredLoopFlow extends StructuredFlow implements es.ul
 		super(simul);
 		initialFlow = initialSubFlow;
 		finalFlow = finalSubFlow;
-		final TreeSet<es.ull.isaatc.simulation.flow.Flow> visited = new TreeSet<es.ull.isaatc.simulation.flow.Flow>();
+		final TreeSet<es.ull.isaatc.simulation.core.flow.Flow> visited = new TreeSet<es.ull.isaatc.simulation.core.flow.Flow>();
 		initialFlow.setRecursiveStructureLink(this, visited);
 	}
 

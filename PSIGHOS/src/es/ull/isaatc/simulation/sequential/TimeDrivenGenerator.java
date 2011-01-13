@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation.sequential;
 
-import es.ull.isaatc.simulation.SimulationCycle;
+import es.ull.isaatc.simulation.core.SimulationCycle;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.DiscreteCycleIterator;
 
@@ -11,7 +11,7 @@ import es.ull.isaatc.util.DiscreteCycleIterator;
  * A generator which creates elements following a temporal pattern. 
  * @author Ivan Castilla Rodrguez
  */
-public class TimeDrivenGenerator extends Generator implements es.ull.isaatc.simulation.TimeDrivenGenerator {
+public class TimeDrivenGenerator extends Generator implements es.ull.isaatc.simulation.core.TimeDrivenGenerator {
     /** Cycle that controls the generation of elements. */
     protected final Cycle cycle;
     /** The iterator which moves through the defined cycle */

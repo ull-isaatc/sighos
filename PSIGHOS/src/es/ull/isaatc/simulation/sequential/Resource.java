@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.isaatc.simulation.SimulationCycle;
-import es.ull.isaatc.simulation.TimeStamp;
-import es.ull.isaatc.simulation.TimeTableEntry;
+import es.ull.isaatc.simulation.core.SimulationCycle;
+import es.ull.isaatc.simulation.core.TimeStamp;
+import es.ull.isaatc.simulation.core.TimeTableEntry;
 import es.ull.isaatc.simulation.info.ResourceInfo;
 import es.ull.isaatc.simulation.info.ResourceUsageInfo;
 import es.ull.isaatc.util.DiscreteCycleIterator;
@@ -18,7 +18,7 @@ import es.ull.isaatc.util.DiscreteCycleIterator;
  * A resource finishes its execution when it has no longer valid timetable entries.
  * @author Carlos Martín Galán
  */
-public class Resource extends BasicElement implements es.ull.isaatc.simulation.Resource {
+public class Resource extends BasicElement implements es.ull.isaatc.simulation.core.Resource {
 	/** Timetable which defines the availability estructure of the resource. Define RollOn and RollOff events. */
     protected final ArrayList<TimeTableEntry> timeTable = new ArrayList<TimeTableEntry>();
     /** Availability time table. Define CancelPeriodOn and CancelPeriodOff events */
@@ -97,7 +97,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.R
      * @param dur The long this resource plays this role every cycle
      * @param role Role that the resource plays during this cycle
      */
-    public void addTimeTableEntry(SimulationCycle cycle, TimeStamp dur, es.ull.isaatc.simulation.ResourceType role) {
+    public void addTimeTableEntry(SimulationCycle cycle, TimeStamp dur, es.ull.isaatc.simulation.core.ResourceType role) {
         timeTable.add(new TimeTableEntry(cycle, dur, role));
     }  
 
@@ -107,7 +107,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.R
      * @param dur The long this resource plays this role every cycle
      * @param roleList Roles that the resource play during this cycle
      */
-    public void addTimeTableEntry(SimulationCycle cycle, TimeStamp dur, ArrayList<es.ull.isaatc.simulation.ResourceType> roleList) {
+    public void addTimeTableEntry(SimulationCycle cycle, TimeStamp dur, ArrayList<es.ull.isaatc.simulation.core.ResourceType> roleList) {
     	for (int i = 0; i < roleList.size(); i++)
             addTimeTableEntry(cycle, dur, roleList.get(i));
     }  
@@ -119,7 +119,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.R
      * simulation time unit
      * @param role Role that the resource plays during this cycle
      */
-    public void addTimeTableEntry(SimulationCycle cycle, long dur, es.ull.isaatc.simulation.ResourceType role) {
+    public void addTimeTableEntry(SimulationCycle cycle, long dur, es.ull.isaatc.simulation.core.ResourceType role) {
     	addTimeTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), role);
     }  
 
@@ -130,28 +130,28 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.R
      * simulation time unit
      * @param roleList Roles that the resource play during this cycle
      */
-    public void addTimeTableEntry(SimulationCycle cycle, long dur, ArrayList<es.ull.isaatc.simulation.ResourceType> roleList) {
+    public void addTimeTableEntry(SimulationCycle cycle, long dur, ArrayList<es.ull.isaatc.simulation.core.ResourceType> roleList) {
     	addTimeTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), roleList);
     }  
 
     @Override
-    public void addCancelTableEntry(SimulationCycle cycle, TimeStamp dur, es.ull.isaatc.simulation.ResourceType role) {
+    public void addCancelTableEntry(SimulationCycle cycle, TimeStamp dur, es.ull.isaatc.simulation.core.ResourceType role) {
         cancelPeriodTable.add(new TimeTableEntry(cycle, dur, role));
     }  
 
     @Override
-    public void addCancelTableEntry(SimulationCycle cycle, TimeStamp dur, ArrayList<es.ull.isaatc.simulation.ResourceType> roleList) {
+    public void addCancelTableEntry(SimulationCycle cycle, TimeStamp dur, ArrayList<es.ull.isaatc.simulation.core.ResourceType> roleList) {
     	for (int i = 0; i < roleList.size(); i++)
             addCancelTableEntry(cycle, dur, roleList.get(i));
     }  
     
     @Override
-    public void addCancelTableEntry(SimulationCycle cycle, long dur, es.ull.isaatc.simulation.ResourceType role) {
+    public void addCancelTableEntry(SimulationCycle cycle, long dur, es.ull.isaatc.simulation.core.ResourceType role) {
     	addCancelTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), role);
     }  
 
     @Override
-    public void addCancelTableEntry(SimulationCycle cycle, long dur, ArrayList<es.ull.isaatc.simulation.ResourceType> roleList) {
+    public void addCancelTableEntry(SimulationCycle cycle, long dur, ArrayList<es.ull.isaatc.simulation.core.ResourceType> roleList) {
     	addCancelTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), roleList);
     }  
     
@@ -544,7 +544,7 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.R
 	}
 
 	@Override
-	public Collection<es.ull.isaatc.simulation.TimeTableEntry> getTimeTableEntries() {
+	public Collection<es.ull.isaatc.simulation.core.TimeTableEntry> getTimeTableEntries() {
 		return timeTable;
 	}
 	

@@ -3,11 +3,11 @@
  */
 package es.ull.isaatc.simulation.test.WFP;
 
+import es.ull.isaatc.simulation.core.Simulation;
 import es.ull.isaatc.simulation.info.ResourceInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationInfo;
 import es.ull.isaatc.simulation.inforeceiver.View;
-import es.ull.isaatc.simulation.Simulation;
 
 /**
  * @author Iván Castilla Rodríguez

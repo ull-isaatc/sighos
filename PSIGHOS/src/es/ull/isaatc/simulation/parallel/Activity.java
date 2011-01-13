@@ -31,7 +31,7 @@ import es.ull.isaatc.util.PrioritizedTable;
  * resource can't be used during a period of time after the activity finishes.
  * @author Carlos Martín Galán
  */
-public abstract class Activity extends TimeStampedSimulationObject implements es.ull.isaatc.simulation.Activity {
+public abstract class Activity extends TimeStampedSimulationObject implements es.ull.isaatc.simulation.core.Activity {
     /** Priority. 0 for the higher priority, higher values for lower priorities */
     protected int priority = 0;
     /** A brief description of this activity */
@@ -332,7 +332,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 * activity.
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class ActivityWorkGroup extends es.ull.isaatc.simulation.parallel.WorkGroup implements es.ull.isaatc.simulation.ActivityWorkGroup, Comparable<ActivityWorkGroup> {
+	public class ActivityWorkGroup extends es.ull.isaatc.simulation.parallel.WorkGroup implements es.ull.isaatc.simulation.core.ActivityWorkGroup, Comparable<ActivityWorkGroup> {
 	    /** The identifier of this WG */
 		protected final int id;
 		/** Priority of this WG */

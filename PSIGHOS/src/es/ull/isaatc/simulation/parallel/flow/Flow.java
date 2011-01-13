@@ -18,7 +18,7 @@ import es.ull.isaatc.simulation.parallel.WorkThread;
  * the Element can definitely request this flow.  
  * @author Iván Castilla Rodríguez
  */
-public interface Flow extends es.ull.isaatc.simulation.flow.Flow {
+public interface Flow extends es.ull.isaatc.simulation.core.flow.Flow {
 
 	/**
 	 * Requests this flow. An element, by means of a work thread, requests this flow to

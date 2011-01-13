@@ -1,10 +1,10 @@
 package es.ull.isaatc.simulation.test.WFP;
-import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.TimeStamp;
-import es.ull.isaatc.simulation.TimeDrivenActivity;
-import es.ull.isaatc.simulation.WorkGroup;
+import es.ull.isaatc.simulation.core.ResourceType;
+import es.ull.isaatc.simulation.core.TimeDrivenActivity;
+import es.ull.isaatc.simulation.core.TimeStamp;
+import es.ull.isaatc.simulation.core.WorkGroup;
+import es.ull.isaatc.simulation.core.flow.SingleFlow;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.isaatc.simulation.flow.SingleFlow;
 
 /**
  * WFP 1, Example 1: Tarjeta de Credito

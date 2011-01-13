@@ -15,7 +15,7 @@ import es.ull.isaatc.simulation.parallel.flow.SingleFlow;
  * every time a new activity has to be performed.
  * @author Iván Castilla Rodríguez
  */
-public class WorkItem implements es.ull.isaatc.simulation.WorkItem {
+public class WorkItem implements es.ull.isaatc.simulation.core.WorkItem {
 	/** Work Thread this work item belongs to */
 	final private WorkThread wThread;
 	/** Element that contains this work item */
@@ -136,7 +136,7 @@ public class WorkItem implements es.ull.isaatc.simulation.WorkItem {
     }
 
 	@Override
-	public int compareTo(es.ull.isaatc.simulation.WorkItem o) {
+	public int compareTo(es.ull.isaatc.simulation.core.WorkItem o) {
 		final int id = wThread.getIdentifier();
 		final int id2 = o.getIdentifier();
 		if (id < id2)

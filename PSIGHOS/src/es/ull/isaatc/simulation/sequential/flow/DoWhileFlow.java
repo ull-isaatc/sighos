@@ -11,7 +11,7 @@ import es.ull.isaatc.simulation.condition.Condition;
  * flow finishes. 
  * @author ycallero
  */
-public class DoWhileFlow extends StructuredLoopFlow implements es.ull.isaatc.simulation.flow.DoWhileFlow {
+public class DoWhileFlow extends StructuredLoopFlow implements es.ull.isaatc.simulation.core.flow.DoWhileFlow {
 	/** Condition which controls the loop operation. */
 	protected final Condition cond;
 	

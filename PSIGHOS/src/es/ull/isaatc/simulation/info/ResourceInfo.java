@@ -2,9 +2,9 @@ package es.ull.isaatc.simulation.info;
 
 import java.util.EnumSet;
 
-import es.ull.isaatc.simulation.Resource;
-import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.core.Resource;
+import es.ull.isaatc.simulation.core.ResourceType;
+import es.ull.isaatc.simulation.core.Simulation;
 import es.ull.isaatc.simulation.info.AsynchronousInfo;
 
 public class ResourceInfo extends AsynchronousInfo {

@@ -10,7 +10,7 @@ import es.ull.isaatc.simulation.condition.Condition;
  * this flow finishes. 
  * @author ycallero
  */
-public class WhileDoFlow extends StructuredLoopFlow implements es.ull.isaatc.simulation.flow.WhileDoFlow {
+public class WhileDoFlow extends StructuredLoopFlow implements es.ull.isaatc.simulation.core.flow.WhileDoFlow {
 	/** Condition which controls the loop operation. */
 	protected final Condition cond;
 	

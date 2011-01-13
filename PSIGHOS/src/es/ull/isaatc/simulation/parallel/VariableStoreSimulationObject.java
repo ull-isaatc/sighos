@@ -2,7 +2,7 @@ package es.ull.isaatc.simulation.parallel;
 
 import java.util.TreeMap;
 
-import es.ull.isaatc.simulation.VariableStore;
+import es.ull.isaatc.simulation.core.VariableStore;
 import es.ull.isaatc.simulation.info.VarViewValueRequestInfo;
 import es.ull.isaatc.simulation.variable.BooleanVariable;
 import es.ull.isaatc.simulation.variable.ByteVariable;

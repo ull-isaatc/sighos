@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.condition;
 
-import es.ull.isaatc.simulation.Element;
+import es.ull.isaatc.simulation.core.Element;
 
 /**
  * Defines a {@link Condition} which is satisfied according to a specified percentage

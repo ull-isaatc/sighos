@@ -1,14 +1,14 @@
 package es.ull.isaatc.simulation.test.WFP;
 
-import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.TimeDrivenActivity;
-import es.ull.isaatc.simulation.WorkGroup;
 import es.ull.isaatc.simulation.condition.Condition;
 import es.ull.isaatc.simulation.condition.NotCondition;
 import es.ull.isaatc.simulation.condition.TrueCondition;
+import es.ull.isaatc.simulation.core.ResourceType;
+import es.ull.isaatc.simulation.core.TimeDrivenActivity;
+import es.ull.isaatc.simulation.core.WorkGroup;
+import es.ull.isaatc.simulation.core.flow.SingleFlow;
+import es.ull.isaatc.simulation.core.flow.StructuredSynchroMergeFlow;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.isaatc.simulation.flow.SingleFlow;
-import es.ull.isaatc.simulation.flow.StructuredSynchroMergeFlow;
 
 /**
  * WFP 7. Example 1: Transferencia Pacientes

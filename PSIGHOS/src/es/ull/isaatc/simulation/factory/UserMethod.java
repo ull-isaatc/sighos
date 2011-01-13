@@ -3,12 +3,12 @@
  */
 package es.ull.isaatc.simulation.factory;
 
-import es.ull.isaatc.simulation.Element;
-import es.ull.isaatc.simulation.ElementCreator;
-import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.flow.Flow;
-import es.ull.isaatc.simulation.flow.SingleFlow;
-import es.ull.isaatc.simulation.flow.TaskFlow;
+import es.ull.isaatc.simulation.core.Element;
+import es.ull.isaatc.simulation.core.ElementCreator;
+import es.ull.isaatc.simulation.core.ResourceType;
+import es.ull.isaatc.simulation.core.flow.Flow;
+import es.ull.isaatc.simulation.core.flow.SingleFlow;
+import es.ull.isaatc.simulation.core.flow.TaskFlow;
 
 /**
  * @author Iván Castilla Rodríguez

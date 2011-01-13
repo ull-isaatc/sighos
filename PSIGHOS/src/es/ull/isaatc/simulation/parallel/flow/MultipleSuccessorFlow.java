@@ -15,7 +15,7 @@ import es.ull.isaatc.simulation.parallel.WorkThread;
  * new work threads are created from this flow on, when it's requested.
  * @author Iván Castilla Rodríguez
  */
-public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFlow, es.ull.isaatc.simulation.flow.MultipleSuccessorFlow {
+public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFlow, es.ull.isaatc.simulation.core.flow.MultipleSuccessorFlow {
 	/** Successor list */
 	protected final ArrayList<Flow> successorList;
 
@@ -46,13 +46,13 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#addPredecessor(es.ull.isaatc.simulation.Flow)
 	 */
-	public void addPredecessor(es.ull.isaatc.simulation.flow.Flow newFlow) {
+	public void addPredecessor(es.ull.isaatc.simulation.core.flow.Flow newFlow) {
 	}
 
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#link(es.ull.isaatc.simulation.Flow)
 	 */
-	public void link(es.ull.isaatc.simulation.flow.Flow successor) {
+	public void link(es.ull.isaatc.simulation.core.flow.Flow successor) {
 		successorList.add((Flow)successor);
     	successor.addPredecessor(this);
 	}
@@ -62,8 +62,8 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	 * <code>successor.addPredecessor</code> to build the graph properly. 
 	 * @param succList This flow's successors.
 	 */
-	public void link(Collection<es.ull.isaatc.simulation.flow.Flow> succList) {
-        for (es.ull.isaatc.simulation.flow.Flow succ : succList) {
+	public void link(Collection<es.ull.isaatc.simulation.core.flow.Flow> succList) {
+        for (es.ull.isaatc.simulation.core.flow.Flow succ : succList) {
         	successorList.add((Flow)succ);
         	succ.addPredecessor(this);
         }		
@@ -72,7 +72,7 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#setRecursiveStructureLink(es.ull.isaatc.simulation.StructuredFlow)
 	 */
-	public void setRecursiveStructureLink(es.ull.isaatc.simulation.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.flow.Flow> visited) {
+	public void setRecursiveStructureLink(es.ull.isaatc.simulation.core.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.core.flow.Flow> visited) {
 		 setParent(parent);
 		 visited.add(this);
 		 for (Flow f : successorList)
@@ -84,8 +84,8 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	 * Returns the list of successor flows which follows this one.
 	 * @return the list of successor flows which follows this one.
 	 */
-	public ArrayList<es.ull.isaatc.simulation.flow.Flow> getSuccessorList() {
-		ArrayList<es.ull.isaatc.simulation.flow.Flow> newSuccList = new ArrayList<es.ull.isaatc.simulation.flow.Flow>();
+	public ArrayList<es.ull.isaatc.simulation.core.flow.Flow> getSuccessorList() {
+		ArrayList<es.ull.isaatc.simulation.core.flow.Flow> newSuccList = new ArrayList<es.ull.isaatc.simulation.core.flow.Flow>();
 		for (Flow f : successorList)
 			newSuccList.add(f);
 		return newSuccList;

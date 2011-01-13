@@ -17,7 +17,7 @@ import es.ull.isaatc.simulation.parallel.WorkThread;
  * @author ycallero
  *
  */
-public class SimpleMergeFlow extends ORJoinFlow implements es.ull.isaatc.simulation.flow.SimpleMergeFlow {
+public class SimpleMergeFlow extends ORJoinFlow implements es.ull.isaatc.simulation.core.flow.SimpleMergeFlow {
 	protected Map<Element, Long> lastTs;
 	
 	/**

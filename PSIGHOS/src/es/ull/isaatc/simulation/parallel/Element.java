@@ -19,7 +19,7 @@ import es.ull.isaatc.simulation.variable.EnumVariable;
  * TODO Comment
  * @author Iván Castilla Rodríguez
  */
-public class Element extends BasicElement implements es.ull.isaatc.simulation.Element {
+public class Element extends BasicElement implements es.ull.isaatc.simulation.core.Element {
 	/** Element type */
 	protected ElementType elementType;
 	/** First step of the flow of the element */

@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * different purposes, and each purpose is a role.
  * @author Carlos Martin Galan
  */
-public class ResourceType extends TimeStampedSimulationObject implements es.ull.isaatc.simulation.ResourceType {
+public class ResourceType extends TimeStampedSimulationObject implements es.ull.isaatc.simulation.core.ResourceType {
     /** Activity manager this resource type belongs to. */
     protected ActivityManager manager;
     /** A list of the currently available resources. */

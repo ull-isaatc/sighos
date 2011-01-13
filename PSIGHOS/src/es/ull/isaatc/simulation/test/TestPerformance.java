@@ -3,10 +3,10 @@
  */
 package es.ull.isaatc.simulation.test;
 
-import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.Simulation;
-import es.ull.isaatc.simulation.TimeStamp;
-import es.ull.isaatc.simulation.TimeUnit;
+import es.ull.isaatc.simulation.core.PooledExperiment;
+import es.ull.isaatc.simulation.core.Simulation;
+import es.ull.isaatc.simulation.core.TimeStamp;
+import es.ull.isaatc.simulation.core.TimeUnit;
 import es.ull.isaatc.simulation.factory.SimulationFactory;
 import es.ull.isaatc.simulation.factory.SimulationObjectFactory;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;

@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.condition;
 
-import es.ull.isaatc.simulation.Element;
-import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.core.Element;
+import es.ull.isaatc.simulation.core.Simulation;
 
 /**
  * A logical condition which is used for creating restrictions or

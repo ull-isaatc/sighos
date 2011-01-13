@@ -3,9 +3,9 @@ package es.ull.isaatc.simulation.factory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import es.ull.isaatc.simulation.Element;
-import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.condition.Condition;
+import es.ull.isaatc.simulation.core.Element;
+import es.ull.isaatc.simulation.core.Simulation;
 import es.ull.isaatc.simulation.variable.IntVariable;
 import es.ull.isaatc.simulation.variable.Variable;
 

@@ -11,7 +11,7 @@ package es.ull.isaatc.simulation.sequential;
  * A set of {resource type, #needed resources} pairs.
  * @author Iván Castilla Rodríguez
  */
-public class WorkGroup implements es.ull.isaatc.simulation.WorkGroup {
+public class WorkGroup implements es.ull.isaatc.simulation.core.WorkGroup {
     /** Set of (resource type, #needed) pairs. */
 	protected final ResourceType[] resourceTypes;
 	protected final int[] needed;
@@ -77,7 +77,7 @@ public class WorkGroup implements es.ull.isaatc.simulation.WorkGroup {
 	}
 
 	@Override
-	public es.ull.isaatc.simulation.ResourceType[] getResourceTypes() {
+	public es.ull.isaatc.simulation.core.ResourceType[] getResourceTypes() {
 		return resourceTypes;
 	}
 }

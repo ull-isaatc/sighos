@@ -12,7 +12,7 @@ import es.ull.isaatc.simulation.parallel.flow.InitializerFlow;
  * Defines the way a generator creates elements when it's time to create them.
  * @author Iván Castilla Rodríguez
  */
-public class ElementCreator implements BasicElementCreator, es.ull.isaatc.simulation.ElementCreator {
+public class ElementCreator implements BasicElementCreator, es.ull.isaatc.simulation.core.ElementCreator {
 	/** Number of objects created each time this creator is invoked. */
 	protected final TimeFunction nElem;
 	/** Each flow that will be generated */
@@ -49,7 +49,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.isaatc.simula
 	 * @param flow Description of the activity flow that the elements carry out.
 	 * @param prop Proportion of elements corresponding to this metaflow.
 	 */
-	public void add(es.ull.isaatc.simulation.ElementType et, es.ull.isaatc.simulation.flow.InitializerFlow flow, double prop) {
+	public void add(es.ull.isaatc.simulation.core.ElementType et, es.ull.isaatc.simulation.core.flow.InitializerFlow flow, double prop) {
 		genTrio.add(new GenerationTrio((ElementType)et, (InitializerFlow)flow, prop));
 	}
 

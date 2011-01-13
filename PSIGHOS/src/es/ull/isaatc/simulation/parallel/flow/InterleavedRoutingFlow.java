@@ -11,7 +11,7 @@ import es.ull.isaatc.simulation.parallel.Simulation;
  * activities are presential.
  * @author Iván Castilla Rodríguez
  */
-public class InterleavedRoutingFlow extends PredefinedStructuredFlow implements es.ull.isaatc.simulation.flow.InterleavedRoutingFlow {
+public class InterleavedRoutingFlow extends PredefinedStructuredFlow implements es.ull.isaatc.simulation.core.flow.InterleavedRoutingFlow {
 
 	/**
 	 * Creates a new InterleavedRoutingFlow 

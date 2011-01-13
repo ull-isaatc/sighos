@@ -6,20 +6,20 @@ package es.ull.isaatc.simulation.factory;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunction;
-import es.ull.isaatc.simulation.ElementCreator;
-import es.ull.isaatc.simulation.ElementType;
-import es.ull.isaatc.simulation.FlowDrivenActivity;
-import es.ull.isaatc.simulation.Resource;
-import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.Simulation;
-import es.ull.isaatc.simulation.SimulationCycle;
-import es.ull.isaatc.simulation.TimeDrivenActivity;
-import es.ull.isaatc.simulation.TimeDrivenGenerator;
-import es.ull.isaatc.simulation.WorkGroup;
-import es.ull.isaatc.simulation.TimeDrivenActivity.Modifier;
 import es.ull.isaatc.simulation.condition.Condition;
-import es.ull.isaatc.simulation.flow.Flow;
-import es.ull.isaatc.simulation.flow.InitializerFlow;
+import es.ull.isaatc.simulation.core.ElementCreator;
+import es.ull.isaatc.simulation.core.ElementType;
+import es.ull.isaatc.simulation.core.FlowDrivenActivity;
+import es.ull.isaatc.simulation.core.Resource;
+import es.ull.isaatc.simulation.core.ResourceType;
+import es.ull.isaatc.simulation.core.Simulation;
+import es.ull.isaatc.simulation.core.SimulationCycle;
+import es.ull.isaatc.simulation.core.TimeDrivenActivity;
+import es.ull.isaatc.simulation.core.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.core.WorkGroup;
+import es.ull.isaatc.simulation.core.TimeDrivenActivity.Modifier;
+import es.ull.isaatc.simulation.core.flow.Flow;
+import es.ull.isaatc.simulation.core.flow.InitializerFlow;
 
 
 /**

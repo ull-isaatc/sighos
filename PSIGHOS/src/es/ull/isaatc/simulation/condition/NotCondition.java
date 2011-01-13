@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.condition;
 
-import es.ull.isaatc.simulation.Element;
+import es.ull.isaatc.simulation.core.Element;
 
 /**
  * Condition used to build NOT logical operations. This NotCondition 

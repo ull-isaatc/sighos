@@ -11,7 +11,7 @@ package es.ull.isaatc.simulation.parallel;
  * from each type are required to do something (typically an {@link Activity}).
  * @author Iván Castilla Rodríguez
  */
-public class WorkGroup implements es.ull.isaatc.simulation.WorkGroup {
+public class WorkGroup implements es.ull.isaatc.simulation.core.WorkGroup {
     /** Set of resource types required */
 	protected final ResourceType[] resourceTypes;
 	/** Set of amounts of resources required */
@@ -77,7 +77,7 @@ public class WorkGroup implements es.ull.isaatc.simulation.WorkGroup {
 	}
 
 	@Override
-	public es.ull.isaatc.simulation.ResourceType[] getResourceTypes() {
+	public es.ull.isaatc.simulation.core.ResourceType[] getResourceTypes() {
 		return resourceTypes;
 	}
 }

@@ -7,9 +7,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.TreeMap;
 
-import es.ull.isaatc.simulation.Experiment;
-import es.ull.isaatc.simulation.Simulation;
-import es.ull.isaatc.simulation.TimeUnit;
+import es.ull.isaatc.simulation.core.Experiment;
+import es.ull.isaatc.simulation.core.Simulation;
+import es.ull.isaatc.simulation.core.TimeUnit;
 import es.ull.isaatc.simulation.factory.SimulationFactory;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.isaatc.simulation.inforeceiver.StdInfoView;

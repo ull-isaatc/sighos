@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation.test.WFP;
 
-import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.core.Simulation;
 import es.ull.isaatc.simulation.info.ElementInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationInfo;

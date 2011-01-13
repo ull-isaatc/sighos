@@ -12,7 +12,7 @@ import es.ull.isaatc.simulation.sequential.WorkThread;
  * Meets the Parallel Split pattern (WFP2) 
  * @author Iván Castilla Rodríguez
  */
-public class ParallelFlow extends MultipleSuccessorFlow implements es.ull.isaatc.simulation.flow.ParallelFlow {
+public class ParallelFlow extends MultipleSuccessorFlow implements es.ull.isaatc.simulation.core.flow.ParallelFlow {
 
 	/**
 	 * Creates a new ParallelFlow

@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.condition;
 
-import es.ull.isaatc.simulation.Element;
-import es.ull.isaatc.simulation.ElementType;
+import es.ull.isaatc.simulation.core.Element;
+import es.ull.isaatc.simulation.core.ElementType;
 
 /**
  * Condition used to check if an {@link Element} belongs to a specified {@link ElementType}.

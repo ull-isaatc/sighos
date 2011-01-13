@@ -6,19 +6,19 @@ package es.ull.isaatc.simulation.test;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.Simulation;
-import es.ull.isaatc.simulation.SimulationPeriodicCycle;
-import es.ull.isaatc.simulation.SimulationTimeFunction;
-import es.ull.isaatc.simulation.TimeDrivenActivity;
-import es.ull.isaatc.simulation.TimeUnit;
-import es.ull.isaatc.simulation.WorkGroup;
+import es.ull.isaatc.simulation.core.PooledExperiment;
+import es.ull.isaatc.simulation.core.ResourceType;
+import es.ull.isaatc.simulation.core.Simulation;
+import es.ull.isaatc.simulation.core.SimulationPeriodicCycle;
+import es.ull.isaatc.simulation.core.SimulationTimeFunction;
+import es.ull.isaatc.simulation.core.TimeDrivenActivity;
+import es.ull.isaatc.simulation.core.TimeUnit;
+import es.ull.isaatc.simulation.core.WorkGroup;
+import es.ull.isaatc.simulation.core.flow.ParallelFlow;
+import es.ull.isaatc.simulation.core.flow.SingleFlow;
 import es.ull.isaatc.simulation.factory.SimulationFactory;
 import es.ull.isaatc.simulation.factory.SimulationObjectFactory;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.isaatc.simulation.flow.ParallelFlow;
-import es.ull.isaatc.simulation.flow.SingleFlow;
 import es.ull.isaatc.simulation.inforeceiver.StdInfoView;
 
 /**

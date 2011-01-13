@@ -21,7 +21,7 @@ import es.ull.isaatc.simulation.variable.Variable;
  * the same identifiers.
  * @author Iván Castilla Rodríguez
  */
-public abstract class VariableStoreSimulationObject extends SimulationObject implements es.ull.isaatc.simulation.VariableStoreSimulationObject {
+public abstract class VariableStoreSimulationObject extends SimulationObject implements es.ull.isaatc.simulation.core.VariableStoreSimulationObject {
     /** Variable warehouse */
 	protected final TreeMap<String, Variable> varCollection = new TreeMap<String, Variable>();
     

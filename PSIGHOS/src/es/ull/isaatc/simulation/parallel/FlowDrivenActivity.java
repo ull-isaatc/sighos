@@ -5,10 +5,10 @@ package es.ull.isaatc.simulation.parallel;
 
 import java.util.Set;
 
-import es.ull.isaatc.simulation.FlowDrivenActivityWorkGroup;
 import es.ull.isaatc.simulation.condition.Condition;
-import es.ull.isaatc.simulation.flow.Flow;
-import es.ull.isaatc.simulation.flow.StructuredFlow;
+import es.ull.isaatc.simulation.core.FlowDrivenActivityWorkGroup;
+import es.ull.isaatc.simulation.core.flow.Flow;
+import es.ull.isaatc.simulation.core.flow.StructuredFlow;
 import es.ull.isaatc.simulation.info.ElementActionInfo;
 import es.ull.isaatc.simulation.parallel.flow.BasicFlow;
 import es.ull.isaatc.simulation.parallel.flow.FinalizerFlow;
@@ -16,7 +16,7 @@ import es.ull.isaatc.simulation.parallel.flow.InitializerFlow;
 
 /**
  * An {@link Activity} that could be carried out by an {@link Element} and whose duration depends 
- * on the finalization of an internal {@link es.ull.isaatc.simulation.flow.Flow Flow}.
+ * on the finalization of an internal {@link es.ull.isaatc.simulation.core.flow.Flow Flow}.
  * <p>
  * This activity can be considered a hybrid {@link Activity} - {@link StructuredFlow}, and its behaviour is similar 
  * to the latter.
@@ -26,7 +26,7 @@ import es.ull.isaatc.simulation.parallel.flow.InitializerFlow;
  * @author Iván Castilla Rodríguez
  *
  */
-public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simulation.FlowDrivenActivity {
+public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simulation.core.FlowDrivenActivity {
 	/** 
 	 * An artificially created final node. This flow informs the flow-driven
 	 * activity that it has being finalized.
@@ -44,7 +44,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 		public void link(Flow successor) {}
 
 		@Override
-		public void setRecursiveStructureLink(StructuredFlow parent, Set<es.ull.isaatc.simulation.flow.Flow> visited) {}		
+		public void setRecursiveStructureLink(StructuredFlow parent, Set<es.ull.isaatc.simulation.core.flow.Flow> visited) {}		
 	};
 
 
@@ -126,30 +126,30 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	}
 
 	@Override
-	public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.flow.InitializerFlow initFlow,
-			es.ull.isaatc.simulation.flow.FinalizerFlow finalFlow, int priority, es.ull.isaatc.simulation.WorkGroup wg) {
+	public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.core.flow.InitializerFlow initFlow,
+			es.ull.isaatc.simulation.core.flow.FinalizerFlow finalFlow, int priority, es.ull.isaatc.simulation.core.WorkGroup wg) {
 		ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), initFlow, finalFlow, priority, (WorkGroup)wg);
 		workGroupTable.add(aWg);
 		return aWg;
 	}
 
 	@Override
-	public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.flow.InitializerFlow initFlow,
-			es.ull.isaatc.simulation.flow.FinalizerFlow finalFlow, int priority, es.ull.isaatc.simulation.WorkGroup wg, Condition cond) {
+	public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.core.flow.InitializerFlow initFlow,
+			es.ull.isaatc.simulation.core.flow.FinalizerFlow finalFlow, int priority, es.ull.isaatc.simulation.core.WorkGroup wg, Condition cond) {
 		ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), initFlow, finalFlow, priority, (WorkGroup)wg, cond);
 		workGroupTable.add(aWg);
 		return aWg;
 	}
 
 	@Override
-	public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.flow.InitializerFlow initFlow, 
-			es.ull.isaatc.simulation.flow.FinalizerFlow finalFlow, es.ull.isaatc.simulation.WorkGroup wg) {
+	public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.core.flow.InitializerFlow initFlow, 
+			es.ull.isaatc.simulation.core.flow.FinalizerFlow finalFlow, es.ull.isaatc.simulation.core.WorkGroup wg) {
 		return addWorkGroup(initFlow, finalFlow, 0, wg);
 	}
 
 	@Override
-	public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.flow.InitializerFlow initFlow, 
-			es.ull.isaatc.simulation.flow.FinalizerFlow finalFlow, es.ull.isaatc.simulation.WorkGroup wg, Condition cond) {
+	public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.isaatc.simulation.core.flow.InitializerFlow initFlow, 
+			es.ull.isaatc.simulation.core.flow.FinalizerFlow finalFlow, es.ull.isaatc.simulation.core.WorkGroup wg, Condition cond) {
 		return addWorkGroup(initFlow, finalFlow, 0, wg, cond);
 	}
 
@@ -157,16 +157,16 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 		final protected InitializerFlow initFlow;
 		final protected FinalizerFlow finalFlow;
 		
-		protected ActivityWorkGroup(int id, es.ull.isaatc.simulation.flow.InitializerFlow initFlow, 
-				es.ull.isaatc.simulation.flow.FinalizerFlow finalFlow, int priority, WorkGroup wg) {
+		protected ActivityWorkGroup(int id, es.ull.isaatc.simulation.core.flow.InitializerFlow initFlow, 
+				es.ull.isaatc.simulation.core.flow.FinalizerFlow finalFlow, int priority, WorkGroup wg) {
 			super(id, priority, wg);
 			this.initFlow = (InitializerFlow)initFlow;
 			this.finalFlow = (FinalizerFlow)finalFlow;
 			this.finalFlow.link(virtualFinalFlow);
 		}
 
-		protected ActivityWorkGroup(int id, es.ull.isaatc.simulation.flow.InitializerFlow initFlow, 
-				es.ull.isaatc.simulation.flow.FinalizerFlow finalFlow, int priority, WorkGroup wg, Condition cond) {
+		protected ActivityWorkGroup(int id, es.ull.isaatc.simulation.core.flow.InitializerFlow initFlow, 
+				es.ull.isaatc.simulation.core.flow.FinalizerFlow finalFlow, int priority, WorkGroup wg, Condition cond) {
 			super(id, priority, wg, cond);
 			this.initFlow = (InitializerFlow)initFlow;
 			this.finalFlow = (FinalizerFlow)finalFlow;

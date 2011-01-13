@@ -17,7 +17,7 @@ import es.ull.isaatc.simulation.sequential.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ThreadMergeFlow extends ANDJoinFlow implements es.ull.isaatc.simulation.flow.ThreadMergeFlow {
+public class ThreadMergeFlow extends ANDJoinFlow implements es.ull.isaatc.simulation.core.flow.ThreadMergeFlow {
 	
 	/**
 	 * Creates a new thread merge flow

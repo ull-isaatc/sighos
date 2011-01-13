@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.test;
 
-import es.ull.isaatc.simulation.Element;
 import es.ull.isaatc.simulation.condition.PercentageCondition;
+import es.ull.isaatc.simulation.core.Element;
 
 public class PercentageConditionExample {
 

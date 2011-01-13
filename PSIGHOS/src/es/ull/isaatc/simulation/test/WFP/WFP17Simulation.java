@@ -5,12 +5,12 @@ package es.ull.isaatc.simulation.test.WFP;
 
 import java.util.ArrayList;
 
-import es.ull.isaatc.simulation.Activity;
-import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.TimeDrivenActivity;
-import es.ull.isaatc.simulation.WorkGroup;
+import es.ull.isaatc.simulation.core.Activity;
+import es.ull.isaatc.simulation.core.ResourceType;
+import es.ull.isaatc.simulation.core.TimeDrivenActivity;
+import es.ull.isaatc.simulation.core.WorkGroup;
+import es.ull.isaatc.simulation.core.flow.InterleavedParallelRoutingFlow;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.isaatc.simulation.flow.InterleavedParallelRoutingFlow;
 
 /**
  * WFP 17. Interleaved Parallel Routing

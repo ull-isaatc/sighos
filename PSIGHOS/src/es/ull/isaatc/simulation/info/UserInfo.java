@@ -1,6 +1,6 @@
 package es.ull.isaatc.simulation.info;
 
-import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.core.Simulation;
 
 public abstract class UserInfo extends AsynchronousInfo {
 

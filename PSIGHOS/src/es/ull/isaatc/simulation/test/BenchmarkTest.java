@@ -5,8 +5,8 @@ package es.ull.isaatc.simulation.test;
 
 import java.io.PrintStream;
 
-import es.ull.isaatc.simulation.PooledExperiment;
-import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.core.PooledExperiment;
+import es.ull.isaatc.simulation.core.Simulation;
 import es.ull.isaatc.simulation.factory.SimulationFactory;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.isaatc.simulation.inforeceiver.CpuTimeView;

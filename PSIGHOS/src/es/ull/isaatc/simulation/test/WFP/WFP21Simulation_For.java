@@ -1,13 +1,13 @@
 package es.ull.isaatc.simulation.test.WFP;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.ElementType;
-import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.TimeDrivenActivity;
-import es.ull.isaatc.simulation.WorkGroup;
+import es.ull.isaatc.simulation.core.ElementType;
+import es.ull.isaatc.simulation.core.ResourceType;
+import es.ull.isaatc.simulation.core.TimeDrivenActivity;
+import es.ull.isaatc.simulation.core.WorkGroup;
+import es.ull.isaatc.simulation.core.flow.ForLoopFlow;
+import es.ull.isaatc.simulation.core.flow.SingleFlow;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.isaatc.simulation.flow.ForLoopFlow;
-import es.ull.isaatc.simulation.flow.SingleFlow;
 
 /**
  * WFP 21. Example 2: Revelado fotográfico (implemented with a for structure)

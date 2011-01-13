@@ -5,7 +5,7 @@ package es.ull.isaatc.simulation.test;
 
 import java.io.PrintStream;
 
-import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.core.Simulation;
 import es.ull.isaatc.simulation.info.ElementActionInfo;
 import es.ull.isaatc.simulation.info.ElementInfo;
 import es.ull.isaatc.simulation.info.ResourceInfo;

@@ -20,7 +20,7 @@ import es.ull.isaatc.simulation.parallel.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public class InterleavedParallelRoutingFlow extends StructuredFlow implements es.ull.isaatc.simulation.flow.InterleavedParallelRoutingFlow {
+public class InterleavedParallelRoutingFlow extends StructuredFlow implements es.ull.isaatc.simulation.core.flow.InterleavedParallelRoutingFlow {
 	protected Collection<Activity> acts;
 	protected Collection<Activity[]> dependencies;
 
@@ -126,16 +126,16 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 	}
 
 	@Override
-	public Collection<es.ull.isaatc.simulation.Activity> getActivities() {
-		ArrayList<es.ull.isaatc.simulation.Activity> temp = new ArrayList<es.ull.isaatc.simulation.Activity>();
+	public Collection<es.ull.isaatc.simulation.core.Activity> getActivities() {
+		ArrayList<es.ull.isaatc.simulation.core.Activity> temp = new ArrayList<es.ull.isaatc.simulation.core.Activity>();
 		for (Activity a : acts)
 			temp.add(a);
 		return temp;
 	}
 
 	@Override
-	public Collection<es.ull.isaatc.simulation.Activity[]> getDependencies() {
-		ArrayList<es.ull.isaatc.simulation.Activity[]> temp = new ArrayList<es.ull.isaatc.simulation.Activity[]>();
+	public Collection<es.ull.isaatc.simulation.core.Activity[]> getDependencies() {
+		ArrayList<es.ull.isaatc.simulation.core.Activity[]> temp = new ArrayList<es.ull.isaatc.simulation.core.Activity[]>();
 		for (Activity[] dep : dependencies)
 			temp.add(dep);
 		return temp;

@@ -14,7 +14,7 @@ import es.ull.isaatc.simulation.info.ResourceInfo;
  * every time a new activity has to be performed.
  * @author Iván Castilla Rodríguez
  */
-public class WorkItem implements es.ull.isaatc.simulation.WorkItem {
+public class WorkItem implements es.ull.isaatc.simulation.core.WorkItem {
 	/** Work Thread this work item belongs to */
 	final protected WorkThread wThread;
 	final private Element elem;
@@ -144,7 +144,7 @@ public class WorkItem implements es.ull.isaatc.simulation.WorkItem {
     }
 
 	@Override
-	public int compareTo(es.ull.isaatc.simulation.WorkItem o) {
+	public int compareTo(es.ull.isaatc.simulation.core.WorkItem o) {
 		if (wThread.getIdentifier() < o.getIdentifier())
 			return -1;
 		if (wThread.getIdentifier() > o.getIdentifier())

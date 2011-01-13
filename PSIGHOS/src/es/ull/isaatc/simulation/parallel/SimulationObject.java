@@ -7,7 +7,7 @@ package es.ull.isaatc.simulation.parallel;
  * the same identifiers.
  * @author Iván Castilla Rodríguez
  */
-public abstract class SimulationObject implements es.ull.isaatc.simulation.SimulationObject {
+public abstract class SimulationObject implements es.ull.isaatc.simulation.core.SimulationObject {
     /** Unique object identifier  */
 	protected final int id;
     /** Simulation this object belongs to */
@@ -45,7 +45,7 @@ public abstract class SimulationObject implements es.ull.isaatc.simulation.Simul
 	}
 
     @Override
-	public int compareTo(es.ull.isaatc.simulation.SimulationObject o) {
+	public int compareTo(es.ull.isaatc.simulation.core.SimulationObject o) {
 		if (id < o.getIdentifier())
 			return -1;
 		if (id > o.getIdentifier())

@@ -10,7 +10,7 @@ import es.ull.isaatc.simulation.parallel.Simulation;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SynchronizedMultipleInstanceFlow extends StaticPartialJoinMultipleInstancesFlow implements es.ull.isaatc.simulation.flow.SynchronizedMultipleInstanceFlow {
+public class SynchronizedMultipleInstanceFlow extends StaticPartialJoinMultipleInstancesFlow implements es.ull.isaatc.simulation.core.flow.SynchronizedMultipleInstanceFlow {
 
 	/**
 	 * Creates a Synchronized Multiple Instances flow

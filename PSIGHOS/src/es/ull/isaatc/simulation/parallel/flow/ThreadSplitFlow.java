@@ -17,7 +17,7 @@ import es.ull.isaatc.simulation.parallel.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ThreadSplitFlow extends BasicFlow implements SplitFlow, es.ull.isaatc.simulation.flow.ThreadSplitFlow {
+public class ThreadSplitFlow extends BasicFlow implements SplitFlow, es.ull.isaatc.simulation.core.flow.ThreadSplitFlow {
 	/** Number of outgoing threads produced by this flow */
 	protected final int nInstances;
 	/** The unique successor of this flow */
@@ -36,7 +36,7 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow, es.ull.isaa
 	/* (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#addPredecessor(es.ull.isaatc.simulation.Flow)
 	 */
-	public void addPredecessor(es.ull.isaatc.simulation.flow.Flow predecessor) {
+	public void addPredecessor(es.ull.isaatc.simulation.core.flow.Flow predecessor) {
 	}
 
 	/* (non-Javadoc)
@@ -66,12 +66,12 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow, es.ull.isaa
         wThread.notifyEnd();			
 	}
 
-	public void link(es.ull.isaatc.simulation.flow.Flow successor) {
+	public void link(es.ull.isaatc.simulation.core.flow.Flow successor) {
 		this.successor = (Flow)successor;
 		successor.addPredecessor(this);
 	}
 
-	public void setRecursiveStructureLink(es.ull.isaatc.simulation.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.flow.Flow> visited) {
+	public void setRecursiveStructureLink(es.ull.isaatc.simulation.core.flow.StructuredFlow parent, Set<es.ull.isaatc.simulation.core.flow.Flow> visited) {
 		setParent(parent);
 		visited.add(this);
 		if (successor != null)

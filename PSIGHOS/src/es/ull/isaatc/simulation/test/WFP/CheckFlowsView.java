@@ -7,17 +7,17 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
-import es.ull.isaatc.simulation.Simulation;
-import es.ull.isaatc.simulation.TimeStamp;
 import es.ull.isaatc.simulation.info.ElementActionInfo;
 import es.ull.isaatc.simulation.info.ElementInfo;
 import es.ull.isaatc.simulation.info.SimulationEndInfo;
 import es.ull.isaatc.simulation.info.SimulationInfo;
 import es.ull.isaatc.simulation.info.SimulationStartInfo;
 import es.ull.isaatc.simulation.info.ElementActionInfo.Type;
-import es.ull.isaatc.simulation.flow.Flow;
-import es.ull.isaatc.simulation.flow.ParallelFlow;
-import es.ull.isaatc.simulation.flow.SingleFlow;
+import es.ull.isaatc.simulation.core.Simulation;
+import es.ull.isaatc.simulation.core.TimeStamp;
+import es.ull.isaatc.simulation.core.flow.Flow;
+import es.ull.isaatc.simulation.core.flow.ParallelFlow;
+import es.ull.isaatc.simulation.core.flow.SingleFlow;
 
 /**
  * @author Iván Castilla Rodríguez

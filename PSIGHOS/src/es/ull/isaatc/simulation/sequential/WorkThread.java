@@ -2,7 +2,7 @@ package es.ull.isaatc.simulation.sequential;
 
 import java.util.ArrayList;
 
-import es.ull.isaatc.simulation.Identifiable;
+import es.ull.isaatc.simulation.core.Identifiable;
 import es.ull.isaatc.simulation.sequential.flow.BasicFlow;
 import es.ull.isaatc.simulation.sequential.flow.TaskFlow;
 import es.ull.isaatc.simulation.sequential.flow.Flow;

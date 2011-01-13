@@ -8,7 +8,7 @@ import es.ull.isaatc.simulation.sequential.Simulation;
  * is a partial join flow. Meets the Structured Partial Join pattern (WFP30). 
  * @author ycallero
  */
-public class StructuredPartialJoinFlow extends PredefinedStructuredFlow implements es.ull.isaatc.simulation.flow.StructuredPartialJoinFlow {
+public class StructuredPartialJoinFlow extends PredefinedStructuredFlow implements es.ull.isaatc.simulation.core.flow.StructuredPartialJoinFlow {
 	
 	/**
 	 * Creates a new StructuredPartialJoinFlow.

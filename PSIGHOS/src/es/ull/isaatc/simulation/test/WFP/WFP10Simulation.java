@@ -2,19 +2,19 @@ package es.ull.isaatc.simulation.test.WFP;
 
 import java.util.ArrayList;
 
-import es.ull.isaatc.simulation.Element;
-import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.Simulation;
-import es.ull.isaatc.simulation.TimeDrivenActivity;
-import es.ull.isaatc.simulation.WorkGroup;
 import es.ull.isaatc.simulation.condition.Condition;
 import es.ull.isaatc.simulation.condition.NotCondition;
+import es.ull.isaatc.simulation.core.Element;
+import es.ull.isaatc.simulation.core.ResourceType;
+import es.ull.isaatc.simulation.core.Simulation;
+import es.ull.isaatc.simulation.core.TimeDrivenActivity;
+import es.ull.isaatc.simulation.core.WorkGroup;
+import es.ull.isaatc.simulation.core.flow.Flow;
+import es.ull.isaatc.simulation.core.flow.MultiChoiceFlow;
+import es.ull.isaatc.simulation.core.flow.SingleFlow;
 import es.ull.isaatc.simulation.factory.SimulationUserCode;
 import es.ull.isaatc.simulation.factory.UserMethod;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.isaatc.simulation.flow.Flow;
-import es.ull.isaatc.simulation.flow.MultiChoiceFlow;
-import es.ull.isaatc.simulation.flow.SingleFlow;
 
 /**
  * WFP 10. Arbitrary Cycle

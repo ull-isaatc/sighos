@@ -1,10 +1,10 @@
 package es.ull.isaatc.simulation.info;
 
-import es.ull.isaatc.simulation.Activity;
-import es.ull.isaatc.simulation.Resource;
-import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.Simulation;
-import es.ull.isaatc.simulation.WorkItem;
+import es.ull.isaatc.simulation.core.Activity;
+import es.ull.isaatc.simulation.core.Resource;
+import es.ull.isaatc.simulation.core.ResourceType;
+import es.ull.isaatc.simulation.core.Simulation;
+import es.ull.isaatc.simulation.core.WorkItem;
 import es.ull.isaatc.simulation.info.AsynchronousInfo;
 
 public class ResourceUsageInfo extends AsynchronousInfo {

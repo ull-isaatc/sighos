@@ -3,8 +3,8 @@
  */
 package es.ull.isaatc.simulation.factory;
 
-import es.ull.isaatc.simulation.TimeStamp;
-import es.ull.isaatc.simulation.TimeUnit;
+import es.ull.isaatc.simulation.core.TimeStamp;
+import es.ull.isaatc.simulation.core.TimeUnit;
 
 /**
  * @author Iván Castilla Rodríguez

@@ -3,12 +3,12 @@
  */
 package es.ull.isaatc.simulation.test.WFP;
 
-import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.TimeDrivenActivity;
-import es.ull.isaatc.simulation.WorkGroup;
+import es.ull.isaatc.simulation.core.ResourceType;
+import es.ull.isaatc.simulation.core.TimeDrivenActivity;
+import es.ull.isaatc.simulation.core.WorkGroup;
+import es.ull.isaatc.simulation.core.flow.InterleavedRoutingFlow;
+import es.ull.isaatc.simulation.core.flow.SingleFlow;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.isaatc.simulation.flow.InterleavedRoutingFlow;
-import es.ull.isaatc.simulation.flow.SingleFlow;
 
 /**
  * WFP 40. 

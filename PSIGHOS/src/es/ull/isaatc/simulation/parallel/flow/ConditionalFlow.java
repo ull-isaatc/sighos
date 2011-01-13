@@ -15,7 +15,7 @@ import es.ull.isaatc.simulation.parallel.Simulation;
  * @author ycallero
  *
  */
-public abstract class ConditionalFlow extends MultipleSuccessorFlow implements es.ull.isaatc.simulation.flow.ConditionalFlow {
+public abstract class ConditionalFlow extends MultipleSuccessorFlow implements es.ull.isaatc.simulation.core.flow.ConditionalFlow {
 	/** Condition list associated to the successor list. */
 	protected final ArrayList<Condition> conditionList;
 	
@@ -34,7 +34,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow implements e
 	 * @param successor This flow's successor.
 	 */
 	@Override
-	public void link(es.ull.isaatc.simulation.flow.Flow successor) {
+	public void link(es.ull.isaatc.simulation.core.flow.Flow successor) {
 		link(successor, new TrueCondition());
 	}
 	
@@ -43,7 +43,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow implements e
 	 * @param successor This flow's successor
 	 * @param cond The condition that has to be met to invoke the successor
 	 */
-	public void link(es.ull.isaatc.simulation.flow.Flow successor, Condition cond) {
+	public void link(es.ull.isaatc.simulation.core.flow.Flow successor, Condition cond) {
 		super.link(successor);
 		conditionList.add(cond);
 	}
@@ -54,7 +54,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow implements e
 	 * @param succList This flow's successors
 	 */
 	@Override
-	public void link(Collection<es.ull.isaatc.simulation.flow.Flow> succList) {
+	public void link(Collection<es.ull.isaatc.simulation.core.flow.Flow> succList) {
 		link(succList, Collections.nCopies(succList.size(), (Condition)new TrueCondition()));
 	}
 
@@ -64,7 +64,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow implements e
 	 * @param succList This flow's successors
 	 * @param condList The conditions attached to each successor
 	 */
-	public void link(Collection<es.ull.isaatc.simulation.flow.Flow> succList, Collection<Condition> condList) {
+	public void link(Collection<es.ull.isaatc.simulation.core.flow.Flow> succList, Collection<Condition> condList) {
 		super.link(succList);
 		conditionList.addAll(condList);
 	}

@@ -14,7 +14,7 @@ import es.ull.isaatc.simulation.sequential.WorkThread;
  * @author ycallero
  *
  */
-public class ExclusiveChoiceFlow extends ConditionalFlow implements es.ull.isaatc.simulation.flow.ExclusiveChoiceFlow {
+public class ExclusiveChoiceFlow extends ConditionalFlow implements es.ull.isaatc.simulation.core.flow.ExclusiveChoiceFlow {
 
 	/**
 	 * Creates a new ExclusiveChoiceFlow.

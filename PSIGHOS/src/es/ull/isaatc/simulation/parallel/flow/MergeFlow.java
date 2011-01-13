@@ -20,7 +20,7 @@ import es.ull.isaatc.simulation.parallel.WorkThread;
  * continues the execution.
  * @author ycallero
  */
-public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow, es.ull.isaatc.simulation.flow.MergeFlow {
+public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow, es.ull.isaatc.simulation.core.flow.MergeFlow {
 	/** Amount of incoming branches */
 	protected int incomingBranches;
 	/** A structure to control the arrival of incoming branches */
@@ -131,7 +131,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow,
 	 * (non-Javadoc)
 	 * @see es.ull.isaatc.simulation.Flow#addPredecessor(es.ull.isaatc.simulation.Flow)
 	 */
-	public void addPredecessor(es.ull.isaatc.simulation.flow.Flow newFlow) {
+	public void addPredecessor(es.ull.isaatc.simulation.core.flow.Flow newFlow) {
 		incomingBranches++;
 	}
 

@@ -6,21 +6,21 @@ package es.ull.isaatc.simulation.test.WFP;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.ElementType;
-import es.ull.isaatc.simulation.SimulationPeriodicCycle;
-import es.ull.isaatc.simulation.SimulationTimeFunction;
-import es.ull.isaatc.simulation.Resource;
-import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.Simulation;
-import es.ull.isaatc.simulation.TimeStamp;
-import es.ull.isaatc.simulation.TimeDrivenActivity;
-import es.ull.isaatc.simulation.TimeDrivenGenerator;
-import es.ull.isaatc.simulation.TimeUnit;
-import es.ull.isaatc.simulation.WorkGroup;
+import es.ull.isaatc.simulation.core.ElementType;
+import es.ull.isaatc.simulation.core.Resource;
+import es.ull.isaatc.simulation.core.ResourceType;
+import es.ull.isaatc.simulation.core.Simulation;
+import es.ull.isaatc.simulation.core.SimulationPeriodicCycle;
+import es.ull.isaatc.simulation.core.SimulationTimeFunction;
+import es.ull.isaatc.simulation.core.TimeDrivenActivity;
+import es.ull.isaatc.simulation.core.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.core.TimeStamp;
+import es.ull.isaatc.simulation.core.TimeUnit;
+import es.ull.isaatc.simulation.core.WorkGroup;
+import es.ull.isaatc.simulation.core.flow.InitializerFlow;
 import es.ull.isaatc.simulation.factory.SimulationFactory;
 import es.ull.isaatc.simulation.factory.SimulationObjectFactory;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.isaatc.simulation.flow.InitializerFlow;
 
 /**
  * The base class to create tests for Workflow patterns.

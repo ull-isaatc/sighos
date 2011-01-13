@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunction;
-import es.ull.isaatc.simulation.SimulationTimeFunction;
-import es.ull.isaatc.simulation.TimeDrivenActivityWorkGroup;
 import es.ull.isaatc.simulation.condition.Condition;
+import es.ull.isaatc.simulation.core.SimulationTimeFunction;
+import es.ull.isaatc.simulation.core.TimeDrivenActivityWorkGroup;
 import es.ull.isaatc.simulation.info.ElementActionInfo;
 import es.ull.isaatc.util.RandomPermutation;
 
@@ -26,7 +26,7 @@ import es.ull.isaatc.util.RandomPermutation;
  * while the activity is being performed.
  * @author Iván Castilla Rodríguez
  */
-public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simulation.TimeDrivenActivity {
+public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simulation.core.TimeDrivenActivity {
 	/** The set of modifiers of this activity. */
     protected final EnumSet<Modifier> modifiers;
 
@@ -91,26 +91,26 @@ public class TimeDrivenActivity extends Activity implements es.ull.isaatc.simula
 	}
 
 	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, int priority, es.ull.isaatc.simulation.WorkGroup wg) {
+    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, int priority, es.ull.isaatc.simulation.core.WorkGroup wg) {
     	ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg);
         workGroupTable.add(aWg);
         return aWg;
     }
     
 	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, int priority, es.ull.isaatc.simulation.WorkGroup wg, Condition cond) {
+    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, int priority, es.ull.isaatc.simulation.core.WorkGroup wg, Condition cond) {
     	ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg, cond); 
         workGroupTable.add(aWg);
         return aWg;
     }
     
 	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, es.ull.isaatc.simulation.WorkGroup wg) {    	
+    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, es.ull.isaatc.simulation.core.WorkGroup wg) {    	
         return addWorkGroup(duration, 0, wg);
     }
     
 	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, es.ull.isaatc.simulation.WorkGroup wg, Condition cond) {    	
+    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, es.ull.isaatc.simulation.core.WorkGroup wg, Condition cond) {    	
         return addWorkGroup(duration, 0, wg, cond);
     }
 

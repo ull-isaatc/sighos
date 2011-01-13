@@ -10,7 +10,7 @@ import es.ull.isaatc.simulation.parallel.Simulation;
  * Meets the Synchronization pattern (WFP3). 
  * @author ycallero
  */
-public class SynchronizationFlow extends ANDJoinFlow implements es.ull.isaatc.simulation.flow.SynchronizationFlow {
+public class SynchronizationFlow extends ANDJoinFlow implements es.ull.isaatc.simulation.core.flow.SynchronizationFlow {
 		
 	/**
 	 * Create a new SynchronizationFlow.
@@ -35,7 +35,7 @@ public class SynchronizationFlow extends ANDJoinFlow implements es.ull.isaatc.si
 	 * @param newFlow The last step of the incoming branch. 
 	 */
 	@Override
-	public void addPredecessor(es.ull.isaatc.simulation.flow.Flow newFlow) {
+	public void addPredecessor(es.ull.isaatc.simulation.core.flow.Flow newFlow) {
 		super.addPredecessor(newFlow);
 		acceptValue = incomingBranches;
 	}	

@@ -6,8 +6,8 @@ import java.util.PriorityQueue;
 import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 
-import es.ull.isaatc.simulation.TimeStamp;
-import es.ull.isaatc.simulation.TimeUnit;
+import es.ull.isaatc.simulation.core.TimeStamp;
+import es.ull.isaatc.simulation.core.TimeUnit;
 import es.ull.isaatc.simulation.info.TimeChangeInfo;
 import es.ull.isaatc.simulation.sequential.flow.Flow;
 import es.ull.isaatc.util.Output;
@@ -24,7 +24,7 @@ import es.ull.isaatc.util.Output;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class Simulation extends es.ull.isaatc.simulation.Simulation {
+public class Simulation extends es.ull.isaatc.simulation.core.Simulation {
 
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();

@@ -10,7 +10,7 @@ import java.util.HashMap;
  * and is used for statistic issues.
  * @author Iván Castilla Rodríguez
  */
-public class ElementType extends VariableStoreSimulationObject implements es.ull.isaatc.simulation.ElementType {
+public class ElementType extends VariableStoreSimulationObject implements es.ull.isaatc.simulation.core.ElementType {
 	/** Element's priority in an activity queue. Minimum value: 0. */
 	protected int priority;
     /** A brief description of the element type */

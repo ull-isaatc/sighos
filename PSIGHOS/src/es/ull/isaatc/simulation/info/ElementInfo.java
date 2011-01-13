@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.info;
 
-import es.ull.isaatc.simulation.Element;
-import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.core.Element;
+import es.ull.isaatc.simulation.core.Simulation;
 import es.ull.isaatc.simulation.info.AsynchronousInfo;
 
 public class ElementInfo extends AsynchronousInfo {

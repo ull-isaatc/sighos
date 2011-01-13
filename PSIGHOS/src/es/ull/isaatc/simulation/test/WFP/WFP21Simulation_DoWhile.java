@@ -1,15 +1,15 @@
 package es.ull.isaatc.simulation.test.WFP;
 
-import es.ull.isaatc.simulation.ElementType;
-import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.TimeDrivenActivity;
-import es.ull.isaatc.simulation.WorkGroup;
 import es.ull.isaatc.simulation.condition.Condition;
+import es.ull.isaatc.simulation.core.ElementType;
+import es.ull.isaatc.simulation.core.ResourceType;
+import es.ull.isaatc.simulation.core.TimeDrivenActivity;
+import es.ull.isaatc.simulation.core.WorkGroup;
+import es.ull.isaatc.simulation.core.flow.DoWhileFlow;
+import es.ull.isaatc.simulation.core.flow.SingleFlow;
 import es.ull.isaatc.simulation.factory.SimulationUserCode;
 import es.ull.isaatc.simulation.factory.UserMethod;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.isaatc.simulation.flow.DoWhileFlow;
-import es.ull.isaatc.simulation.flow.SingleFlow;
 
 /**
  * WFP 21. Example 2: Revelado fotográfico (implemented with a do-while structure)
