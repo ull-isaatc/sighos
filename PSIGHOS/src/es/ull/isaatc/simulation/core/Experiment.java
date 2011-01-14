@@ -42,7 +42,11 @@ public abstract class Experiment implements Describable {
 	 * Implementations of this method must call {@link #getSimulation(int)} to carry out all the 
 	 * simulations planned in this experiment.
 	 */
-	public abstract void start();
+	public void start() {
+		for (int i = 0; i < nExperiments; i++) {
+			getSimulation(i).run();
+		}		
+	}
 
 	/**
 	 * Makes the postprocess of the experiments. The user should place here the actions that must be

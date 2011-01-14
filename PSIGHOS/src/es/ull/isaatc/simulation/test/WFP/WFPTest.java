@@ -69,18 +69,10 @@ class WFPTestExperiment extends Experiment {
 		else {
 			sim = class2Simulation(WFPTest.simulations.pollFirstEntry().getValue(), ind);
 		}
+//        sim.addInfoReceiver(new CheckElementActionViewBuilder(sim));
+//		sim.addInfoReceiver(new StdInfoView(sim));
+		sim.setNThreads(nThreads);
 		return sim;
-	}
-
-	@Override
-	public void start() {
-		for (int i = 0; i < nExperiments; i++) {
-			Simulation sim = getSimulation(i);
-//	        sim.addInfoReceiver(new CheckElementActionViewBuilder(sim));
-//			sim.addInfoReceiver(new StdInfoView(sim));
-			sim.setNThreads(nThreads);
-			sim.run();
-		}
 	}
 }
 
