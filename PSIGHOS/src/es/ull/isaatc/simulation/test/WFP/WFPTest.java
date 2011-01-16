@@ -12,7 +12,6 @@ import es.ull.isaatc.simulation.core.Simulation;
 import es.ull.isaatc.simulation.core.TimeUnit;
 import es.ull.isaatc.simulation.factory.SimulationFactory;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.isaatc.simulation.inforeceiver.StdInfoView;
 
 class WFPTestExperiment extends Experiment {
 	int wfp = -1;

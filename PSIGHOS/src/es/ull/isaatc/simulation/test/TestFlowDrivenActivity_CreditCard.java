@@ -1,6 +1,4 @@
 package es.ull.isaatc.simulation.test;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
@@ -20,7 +18,6 @@ import es.ull.isaatc.simulation.factory.SimulationFactory;
 import es.ull.isaatc.simulation.factory.SimulationObjectFactory;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.isaatc.simulation.inforeceiver.StdInfoView;
-import es.ull.isaatc.util.Output;
 
 /**
  * 
@@ -74,12 +71,7 @@ class ExperimentFDAE1 extends PooledExperiment {
         factory.getTimeDrivenGeneratorInstance(factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 3), et, whole), cGen);        
 		
 		sim.addInfoReceiver(new StdInfoView(sim));
-//		try {
-//			sim.setOutput(new Output(true, new FileWriter("c:\\test.txt")));
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+
 		return sim;
 	}
 	
