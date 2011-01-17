@@ -5,6 +5,7 @@ package es.ull.isaatc.util;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -14,7 +15,7 @@ import java.util.TreeMap;
  */
 public abstract class PrioritizedMap<T extends Collection<E>, E extends Prioritizable> {
     /** Array of priority levels. */
-	protected TreeMap<Integer, T> levels;
+	protected final Map<Integer, T> levels;
     /** Number of objects which this table contains. This value is updated when an object
      * is added or removed. */
     private int nObj;
@@ -39,6 +40,8 @@ public abstract class PrioritizedMap<T extends Collection<E>, E extends Prioriti
 	
 	public void remove(E obj) {
 		T level = levels.get(obj.getPriority());
+		if (level == null)
+			System.err.println(obj);
 		level.remove(obj);
 		if (level.isEmpty())
 			levels.remove(obj.getPriority());
@@ -76,7 +79,7 @@ public abstract class PrioritizedMap<T extends Collection<E>, E extends Prioriti
      */
 	protected class FIFOIterator implements Iterator<E> {
         /** Main iterator level by level of the external estructure. */   
-        private Iterator<T> outIter;
+        final private Iterator<T> outIter;
         /** Minor iterator object by object of each level. */
         private Iterator<E> inIter = null;
         
