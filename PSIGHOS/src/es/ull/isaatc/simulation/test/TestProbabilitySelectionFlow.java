@@ -3,7 +3,7 @@ import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.core.ElementType;
-import es.ull.isaatc.simulation.core.PooledExperiment;
+import es.ull.isaatc.simulation.core.Experiment;
 import es.ull.isaatc.simulation.core.ResourceType;
 import es.ull.isaatc.simulation.core.Simulation;
 import es.ull.isaatc.simulation.core.SimulationPeriodicCycle;
@@ -22,7 +22,7 @@ import es.ull.isaatc.simulation.inforeceiver.StdInfoView;
 /**
  * 
  */
-class ExperimentProbSel extends PooledExperiment {
+class ExperimentProbSel extends Experiment {
 	static final int NEXP = 1;
     static final int NDAYS = 1;
 	static SimulationFactory.SimulationType simType = SimulationType.PARALLEL;

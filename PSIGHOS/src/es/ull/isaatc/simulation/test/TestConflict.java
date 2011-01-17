@@ -1,7 +1,7 @@
 package es.ull.isaatc.simulation.test;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.core.PooledExperiment;
+import es.ull.isaatc.simulation.core.Experiment;
 import es.ull.isaatc.simulation.core.Resource;
 import es.ull.isaatc.simulation.core.ResourceType;
 import es.ull.isaatc.simulation.core.Simulation;
@@ -18,7 +18,7 @@ import es.ull.isaatc.simulation.factory.SimulationObjectFactory;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.isaatc.util.Output;
 
-class ExpConflict extends PooledExperiment {
+class ExpConflict extends Experiment {
     static final int NDAYS = 1;
     static final int NTESTS = 1;
 	static SimulationFactory.SimulationType simType = SimulationType.PARALLEL;

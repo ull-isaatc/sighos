@@ -5,7 +5,7 @@ package es.ull.isaatc.simulation.test;
 
 import es.ull.isaatc.simulation.condition.Condition;
 import es.ull.isaatc.simulation.condition.NotCondition;
-import es.ull.isaatc.simulation.core.PooledExperiment;
+import es.ull.isaatc.simulation.core.Experiment;
 import es.ull.isaatc.simulation.core.Resource;
 import es.ull.isaatc.simulation.core.ResourceType;
 import es.ull.isaatc.simulation.core.Simulation;
@@ -18,7 +18,7 @@ import es.ull.isaatc.simulation.factory.SimulationFactory;
 import es.ull.isaatc.simulation.factory.SimulationObjectFactory;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
 
-class TestDynamicGenerationExperiment extends PooledExperiment {
+class TestDynamicGenerationExperiment extends Experiment {
 	SimulationType type;
 	
 	public TestDynamicGenerationExperiment(SimulationType type) {

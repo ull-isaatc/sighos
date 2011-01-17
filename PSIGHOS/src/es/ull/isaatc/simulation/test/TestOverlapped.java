@@ -3,7 +3,7 @@ package es.ull.isaatc.simulation.test;
 import java.util.ArrayList;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.core.PooledExperiment;
+import es.ull.isaatc.simulation.core.Experiment;
 import es.ull.isaatc.simulation.core.Resource;
 import es.ull.isaatc.simulation.core.ResourceType;
 import es.ull.isaatc.simulation.core.Simulation;
@@ -23,7 +23,7 @@ import es.ull.isaatc.simulation.inforeceiver.StdInfoView;
 /**
  * 
  */
-class ExpOverlapped extends PooledExperiment {
+class ExpOverlapped extends Experiment {
 	final static SimulationFactory.SimulationType simType = SimulationType.PARALLEL;
 	final static TimeUnit unit = TimeUnit.MINUTE;
     static final int NDAYS = 1;

@@ -49,7 +49,7 @@
 		<!-- Create the distribution directory -->
 		<mkdir dir="${dist}" />
 		<!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
-		<jar jarfile="${dist}/PSIGHOS.jar" basedir="${build}" includes="**/*.*" manifest="${basedir}/META-INF/MANIFEST.MF" />
+		<jar jarfile="${dist}/PSIGHOS.jar" basedir="${build}" includes="**/*.*" excludes="**/test/**" manifest="${basedir}/META-INF/MANIFEST.MF" />
 		<jar jarfile="${dist}/utils.jar" basedir="${utils.build}" />
 		<!-- copy resources from src to bin -->
 		<copy todir="${dist}" preservelastmodified="true">
@@ -62,8 +62,10 @@
 		<!-- Create the distribution directory -->
 		<mkdir dir="${dist}" />
 		<!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
-		<jar jarfile="${dist}/PSIGHOS.jar" basedir="${build}" includes="**/*.*" manifest="${basedir}/META-INF/MANIFEST.MF" >
-			<fileset dir="${src}"/>
+		<jar jarfile="${dist}/PSIGHOS.jar" basedir="${build}" includes="**/*.*" excludes="**/test/**" manifest="${basedir}/META-INF/MANIFEST.MF" >
+			<fileset dir="${src}">
+				<exclude name="**/test/**"/>
+			</fileset>
 		</jar>
 		<jar jarfile="${dist}/utils.jar">
 			<fileset dir="${utils.src}"/>

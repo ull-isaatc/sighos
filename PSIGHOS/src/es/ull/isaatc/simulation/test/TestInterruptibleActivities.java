@@ -6,7 +6,7 @@ package es.ull.isaatc.simulation.test;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.core.PooledExperiment;
+import es.ull.isaatc.simulation.core.Experiment;
 import es.ull.isaatc.simulation.core.ResourceType;
 import es.ull.isaatc.simulation.core.Simulation;
 import es.ull.isaatc.simulation.core.SimulationPeriodicCycle;
@@ -38,7 +38,7 @@ public class TestInterruptibleActivities {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new PooledExperiment("Testing interruptible activities", 1) {
+		new Experiment("Testing interruptible activities", 1) {
 
 			@Override
 			public Simulation getSimulation(int ind) {

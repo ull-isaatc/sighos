@@ -2,7 +2,7 @@ package es.ull.isaatc.simulation.test;
 
 import java.util.EnumSet;
 
-import es.ull.isaatc.simulation.core.PooledExperiment;
+import es.ull.isaatc.simulation.core.Experiment;
 import es.ull.isaatc.simulation.core.Simulation;
 import es.ull.isaatc.simulation.core.TimeDrivenActivity;
 import es.ull.isaatc.simulation.core.TimeStamp;
@@ -18,7 +18,7 @@ import es.ull.isaatc.simulation.variable.IntVariable;
 /**
  * 
  */
-class ExperimentTest1 extends PooledExperiment {
+class ExperimentTest1 extends Experiment {
 	final static SimulationFactory.SimulationType simType = SimulationType.PARALLEL;
 	final static TimeUnit unit = TimeUnit.MINUTE;
 	static final int NEXP = 1;

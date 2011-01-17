@@ -3,7 +3,7 @@
  */
 package es.ull.isaatc.simulation.test;
 
-import es.ull.isaatc.simulation.core.PooledExperiment;
+import es.ull.isaatc.simulation.core.Experiment;
 import es.ull.isaatc.simulation.core.Simulation;
 import es.ull.isaatc.simulation.core.TimeStamp;
 import es.ull.isaatc.simulation.core.TimeUnit;
@@ -25,7 +25,7 @@ public class TestPerformance {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new PooledExperiment("EXP", 1) {
+		new Experiment("EXP", 1) {
 
 			@Override
 			public Simulation getSimulation(int ind) {
