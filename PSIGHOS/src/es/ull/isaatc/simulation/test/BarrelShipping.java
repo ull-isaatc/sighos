@@ -1,7 +1,6 @@
 package es.ull.isaatc.simulation.test;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumSet;
 
 import es.ull.isaatc.function.TimeFunctionFactory;
@@ -21,14 +20,14 @@ import es.ull.isaatc.simulation.factory.SimulationUserCode;
 import es.ull.isaatc.simulation.factory.UserMethod;
 import es.ull.isaatc.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.isaatc.simulation.inforeceiver.StdInfoView;
-import es.ull.isaatc.simulation.parallel.ElementCreator;
-import es.ull.isaatc.simulation.parallel.ElementType;
-import es.ull.isaatc.simulation.parallel.Resource;
-import es.ull.isaatc.simulation.parallel.TimeDrivenActivity;
-import es.ull.isaatc.simulation.parallel.WorkGroup;
-import es.ull.isaatc.simulation.parallel.flow.Flow;
-import es.ull.isaatc.simulation.parallel.flow.MultiChoiceFlow;
-import es.ull.isaatc.simulation.parallel.flow.SingleFlow;
+import es.ull.isaatc.simulation.core.ElementCreator;
+import es.ull.isaatc.simulation.core.ElementType;
+import es.ull.isaatc.simulation.core.Resource;
+import es.ull.isaatc.simulation.core.TimeDrivenActivity;
+import es.ull.isaatc.simulation.core.WorkGroup;
+import es.ull.isaatc.simulation.core.flow.Flow;
+import es.ull.isaatc.simulation.core.flow.MultiChoiceFlow;
+import es.ull.isaatc.simulation.core.flow.SingleFlow;
 
 class BarrelShippingExperiment extends PooledExperiment {
 
@@ -49,25 +48,25 @@ class BarrelShippingExperiment extends PooledExperiment {
 		sim.putVar("totalLiters", 0.0);
 		sim.putVar("shipments", 0);
 
-		ElementType etShipping = (ElementType) factory.getElementTypeInstance("etShipping");
+		ElementType etShipping = factory.getElementTypeInstance("etShipping");
 		
-		ResourceType rtOperator = (ResourceType) factory.getResourceTypeInstance("rtOperator");
+		ResourceType rtOperator = factory.getResourceTypeInstance("rtOperator");
     	
 		// Defines the resource timetables: Operators work only the weekdays, starting at 8 am 
 		SimulationWeeklyPeriodicCycle resCycle = new SimulationWeeklyPeriodicCycle(sim.getTimeUnit(), WeeklyPeriodicCycle.WEEKDAYS, 480, 0);
 
 		// Declares two operators who work 8 hours a day
-		Resource operator1 = (Resource) factory.getResourceInstance("Operator1");
+		Resource operator1 = factory.getResourceInstance("Operator1");
 		operator1.addTimeTableEntry(resCycle, 480, rtOperator);
-		Resource operator2 = (Resource) factory.getResourceInstance("Operator2");
+		Resource operator2 = factory.getResourceInstance("Operator2");
 		operator2.addTimeTableEntry(resCycle, 480, rtOperator);
 		
 		// Defines the needs of the activities in terms of resources
-		WorkGroup wgOperator = (WorkGroup)factory.getWorkGroupInstance(new ResourceType [] {rtOperator}, new int[] {1});	
+		WorkGroup wgOperator = factory.getWorkGroupInstance(new ResourceType [] {rtOperator}, new int[] {1});	
 
 		// Declares activities (Tasks)
-		TimeDrivenActivity actFilling = (TimeDrivenActivity) factory.getTimeDrivenActivityInstance("Barrel Filling", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		TimeDrivenActivity actShipping = (TimeDrivenActivity)factory.getTimeDrivenActivityInstance("Barrel Shipping", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		TimeDrivenActivity actFilling = factory.getTimeDrivenActivityInstance("Barrel Filling", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		TimeDrivenActivity actShipping = factory.getTimeDrivenActivityInstance("Barrel Shipping", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 
 		// Declares variables for the Barrel Filling activity
 		actFilling.putVar("barrelCapacity", 100);
@@ -77,7 +76,7 @@ class BarrelShippingExperiment extends PooledExperiment {
 		actShipping.addWorkGroup(new SimulationTimeFunction(sim.getTimeUnit(), "ConstantVariate", 20.0), wgOperator);
 
 		// Defines loop conditions	
-		Condition cond = (Condition) factory.getCustomizedConditionInstance("", "<%GET(S.totalLiters)%> < <%GET(A0.barrelCapacity)%>");
+		Condition cond = factory.getCustomizedConditionInstance("", "<%GET(S.totalLiters)%> < <%GET(A0.barrelCapacity)%>");
 		NotCondition notCond = new NotCondition(cond);
 
 		// Declares a MultiChoice node	
@@ -108,11 +107,11 @@ class BarrelShippingExperiment extends PooledExperiment {
 		ArrayList<Condition> condList = new ArrayList<Condition>();
 		condList.add(cond);
 		condList.add(notCond);
-		mul1.link((Collection)succList, (Collection)condList);
+		mul1.link(succList, condList);
 
 		// Defines the way the processes are created
 		SimulationWeeklyPeriodicCycle cGen = new SimulationWeeklyPeriodicCycle(sim.getTimeUnit(), WeeklyPeriodicCycle.WEEKDAYS, 0, NDAYS);
-		ElementCreator ec = (ElementCreator) factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 1.0), etShipping, root);
+		ElementCreator ec = factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 1.0), etShipping, root);
 		factory.getTimeDrivenGeneratorInstance(ec, cGen);
 
 		sim.addInfoReceiver(new StdInfoView(sim));

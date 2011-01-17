@@ -20,7 +20,6 @@ import es.ull.isaatc.simulation.info.VarViewValueRequestInfo;
 import es.ull.isaatc.simulation.inforeceiver.InfoHandler;
 import es.ull.isaatc.simulation.inforeceiver.InfoReceiver;
 import es.ull.isaatc.simulation.inforeceiver.Listener;
-import es.ull.isaatc.simulation.inforeceiver.VarView;
 
 public class SimulationInfoHandler implements InfoHandler {
 
@@ -62,10 +61,6 @@ public class SimulationInfoHandler implements InfoHandler {
 	}
 	
 	private void indexReceiver(InfoReceiver receiver) {
-		if (receiver instanceof VarView) {
-			VarView var = (VarView) receiver;
-			receiver.getSimul().putVar(var.getVarName(), var);
-		}
 		for (Class<?> cl: receiver.getEntrance()) {
 			if (definedInfos.contains(cl)){
 				ArrayList<InfoReceiver> list = entranceList.get(cl);
