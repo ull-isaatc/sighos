@@ -46,7 +46,7 @@ class BarrelShippingExperiment extends PooledExperiment {
 		Simulation sim = factory.getSimulation();
 		
 		// Declares global model variables
-		sim.putVar("totalGallons", 0.0);
+		sim.putVar("totalLiters", 0.0);
 		sim.putVar("shipments", 0);
 
 		ElementType etShipping = (ElementType) factory.getElementTypeInstance("etShipping");
@@ -56,11 +56,11 @@ class BarrelShippingExperiment extends PooledExperiment {
 		// Defines the resource timetables: Operators work only the weekdays, starting at 8 am 
 		SimulationWeeklyPeriodicCycle resCycle = new SimulationWeeklyPeriodicCycle(sim.getTimeUnit(), WeeklyPeriodicCycle.WEEKDAYS, 480, 0);
 
-		// Declares two operators who work 7 hours a day
+		// Declares two operators who work 8 hours a day
 		Resource operator1 = (Resource) factory.getResourceInstance("Operator1");
-		operator1.addTimeTableEntry(resCycle, 420, rtOperator);
+		operator1.addTimeTableEntry(resCycle, 480, rtOperator);
 		Resource operator2 = (Resource) factory.getResourceInstance("Operator2");
-		operator2.addTimeTableEntry(resCycle, 420, rtOperator);
+		operator2.addTimeTableEntry(resCycle, 480, rtOperator);
 		
 		// Defines the needs of the activities in terms of resources
 		WorkGroup wgOperator = (WorkGroup)factory.getWorkGroupInstance(new ResourceType [] {rtOperator}, new int[] {1});	
@@ -70,14 +70,14 @@ class BarrelShippingExperiment extends PooledExperiment {
 		TimeDrivenActivity actShipping = (TimeDrivenActivity)factory.getTimeDrivenActivityInstance("Barrel Shipping", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 
 		// Declares variables for the Barrel Filling activity
-		actFilling.putVar("barrelCapacity", 20);
+		actFilling.putVar("barrelCapacity", 100);
 
 		// Defines duration of activities
 		actFilling.addWorkGroup(new SimulationTimeFunction(sim.getTimeUnit(), "ConstantVariate", 15.0), wgOperator);
 		actShipping.addWorkGroup(new SimulationTimeFunction(sim.getTimeUnit(), "ConstantVariate", 20.0), wgOperator);
 
 		// Defines loop conditions	
-		Condition cond = (Condition) factory.getCustomizedConditionInstance("", "<%GET(S.totalGallons)%> < <%GET(A0.barrelCapacity)%>");
+		Condition cond = (Condition) factory.getCustomizedConditionInstance("", "<%GET(S.totalLiters)%> < <%GET(A0.barrelCapacity)%>");
 		NotCondition notCond = new NotCondition(cond);
 
 		// Declares a MultiChoice node	
@@ -86,16 +86,16 @@ class BarrelShippingExperiment extends PooledExperiment {
 		// Defines the way the variables are updated when filling the barrels	
 		SimulationUserCode userMethods = new SimulationUserCode();
 		userMethods.add(UserMethod.AFTER_FINALIZE, 
-				"if (<%GET(S.totalGallons)%> < <%GET(A0.barrelCapacity)%>) {" +
+				"if (<%GET(S.totalLiters)%> < <%GET(A0.barrelCapacity)%>) {" +
 					"double random = Math.random() * 50; " +
-					"<%SET(S.totalGallons, <%GET(S.totalGallons)%> + random)%>;" +	
+					"<%SET(S.totalLiters, <%GET(S.totalLiters)%> + random)%>;" +	
 				"}");
 		SingleFlow root = (SingleFlow) factory.getFlowInstance("SingleFlow", userMethods , actFilling);
 			
 
 		// Defines the way the variables are updated when shipping the barrels
 		userMethods.clear();
-		userMethods.add(UserMethod.BEFORE_REQUEST, "<%SET(S.totalGallons, 0)%>;" +
+		userMethods.add(UserMethod.BEFORE_REQUEST, "<%SET(S.totalLiters, 0)%>;" +
 					"<%SET(S.shipments, <%GET(S.shipments)%> + 1)%>;" +
 					"return true;");
 		SingleFlow sin1 = (SingleFlow) factory.getFlowInstance("SingleFlow", userMethods, actShipping);
