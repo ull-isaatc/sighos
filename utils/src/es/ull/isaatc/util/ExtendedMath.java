@@ -45,8 +45,7 @@ public class ExtendedMath {
 	/**
 	 * 
 	 * @param k
-	 * @return
-	 * @author Patricia Shanahan pats@acm.org
+	 * @return .
 	 */
 	public static int nextHigherPowerOfTwo(int k) {
 		k--;
@@ -60,8 +59,7 @@ public class ExtendedMath {
 	 * 
 	 * @param m
 	 * @param n
-	 * @return
-	 * @author Patricia Shanahan pats@acm.org
+	 * @return .
 	 */
 	public static int powInt(int m, int n) {
 		int bitMask = n;
@@ -92,7 +90,6 @@ public class ExtendedMath {
 	 *            power to take x to. 0 <= n <= Integer.MAX_VALUE Negative
 	 *            numbers will be treated as unsigned positives.
 	 * @return x to the power n
-	 * @author Patricia Shanahan pats@acm.org
 	 */
 	public static double power(double x, int n) {
 		int bitMask = n;
