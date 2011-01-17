@@ -18,7 +18,7 @@ import es.ull.isaatc.simulation.variable.Variable;
 
 /**
  * An identifiable object belonging to a simulation which can be compared and can use 
- * {@link Variable simulation variables]. The identifier is unique per type of simulation object, 
+ * {@link Variable simulation variables}. The identifier is unique per type of simulation object, 
  * thus different types of simulation objects can use the same identifiers.
  * @author Iván Castilla Rodríguez
  */

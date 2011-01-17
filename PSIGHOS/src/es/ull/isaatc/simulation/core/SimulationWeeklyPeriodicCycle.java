@@ -22,8 +22,8 @@ public class SimulationWeeklyPeriodicCycle implements SimulationCycle {
 	
 	/**
 	 * Creates a new weekly periodic cycle.
+	 * @param unit Timestamp units in a day. For example: if time unit is minute, this should be 1440.0
 	 * @param daySet
-	 * @param dayUnit Timestamp units in a day. For example: if time unit is minute, this should be 1440.0
 	 * @param startTs
 	 * @param endTs
 	 */
@@ -33,8 +33,8 @@ public class SimulationWeeklyPeriodicCycle implements SimulationCycle {
 
 	/**
 	 * Creates a new weekly periodic cycle.
-	 * @param daySet
-	 * @param dayUnit Timestamp units in a day. For example: if time unit is minute, this should be 1440.0
+	 * @param unit Timestamp units in a day. For example: if time unit is minute, this should be 1440.0
+	 * @param daySet 
 	 * @param startTs
 	 * @param iterations
 	 */
@@ -44,8 +44,8 @@ public class SimulationWeeklyPeriodicCycle implements SimulationCycle {
 
 	/**
 	 * Creates a new weekly periodic cycle.
-	 * @param daySet
-	 * @param dayUnit Timestamp units in a day. For example: if time unit is minute, this should be 1440.0
+	 * @param unit Timestamp units in a day. For example: if time unit is minute, this should be 1440.0
+	 * @param daySet 
 	 * @param startTs
 	 * @param endTs
 	 */
@@ -55,8 +55,8 @@ public class SimulationWeeklyPeriodicCycle implements SimulationCycle {
 
 	/**
 	 * Creates a new weekly periodic cycle.
+	 * @param unit Timestamp units in a day. For example: if time unit is minute, this should be 1440.0
 	 * @param daySet
-	 * @param dayUnit Timestamp units in a day. For example: if time unit is minute, this should be 1440.0
 	 * @param startTs
 	 * @param iterations
 	 */

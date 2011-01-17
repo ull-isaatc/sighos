@@ -4,7 +4,7 @@ package es.ull.isaatc.simulation.core.flow;
 /**
  * A {@link JoinFlow} which merges several incoming branches into a single outgoing branch. 
  * A class implementing this interface must handle the incoming branches in an internal 
- * structure and must also manage separately each {@link Element}.
+ * structure and must also manage separately each {@link es.ull.isaatc.simulation.core.Element}.
  * @author Yeray Callero
  */
 public interface MergeFlow extends SingleSuccessorFlow, JoinFlow {

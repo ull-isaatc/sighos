@@ -17,11 +17,11 @@
 	
 	<path id="classpath">
 		<fileset dir="${lib}">
-			<include name="**/*.jar" />
+			<include name="*.jar" />
 		</fileset>
-		<pathelement path="${utils.build}/" />
+		<pathelement path="${utils.build}/" /> 
 		<fileset dir="${utils.lib}">
-			<include name="**/*.jar" />
+			<include name="*.jar" />
 		</fileset>
 	</path>
 

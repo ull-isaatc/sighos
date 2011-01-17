@@ -98,7 +98,6 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
         /**
          * Creates a new basic event.
          * @param ts Timestamp when the event will be executed.
-         * @param lp Logical process where the event will be executed.
          */
         public DiscreteEvent(long ts) {
             this.ts = ts;

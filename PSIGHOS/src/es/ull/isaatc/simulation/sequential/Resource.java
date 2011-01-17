@@ -495,7 +495,6 @@ public class Resource extends BasicElement implements es.ull.isaatc.simulation.c
 	/**
 	 * Sets the available flag of a resource.
 	 * @param available The availability state of the resource.
-	 * @param ts
 	 */
 	public void setNotCanceled(boolean available) {
 		notCanceled = available;

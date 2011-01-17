@@ -24,7 +24,6 @@ public class CheckElementActionViewBuilder extends View {
 	TreeSet<Integer> elements;
 	/**
 	 * @param simul
-	 * @param description
 	 */
 	public CheckElementActionViewBuilder(Simulation simul) {
 		super(simul, "Builds the code to check a WFP");

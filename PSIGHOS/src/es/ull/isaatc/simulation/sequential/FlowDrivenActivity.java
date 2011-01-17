@@ -71,7 +71,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
     
     /**
      * Creates a new workgroup for this activity. 
-     * @param initialFlow The first step of the flow 
+     * @param initFlow The first step of the flow 
      * @param finalFlow The last step of the flow
      * @param priority Priority of the workgroup
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
@@ -86,7 +86,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
     
     /**
      * Creates a new workgroup for this activity
-     * @param initialFlow The first step of the flow 
+     * @param initFlow The first step of the flow 
      * @param finalFlow The last step of the flow
      * @param priority Priority of the workgroup
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
@@ -240,8 +240,10 @@ public class FlowDrivenActivity extends Activity implements es.ull.isaatc.simula
 	    /**
 	     * Creates a new instance of WorkGroup
 	     * @param id Identifier of this workgroup.
-	     * @param duration Duration of the activity when using this WG.
+	     * @param initialFlow Initial Flow
+	     * @param finalFlow Final Flow
 	     * @param priority Priority of the workgroup.
+	     * @param wg WorkGroup
 	     * @param cond  Availability condition
 	     */    
 	    protected ActivityWorkGroup(int id, es.ull.isaatc.simulation.core.flow.InitializerFlow initialFlow, 

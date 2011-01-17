@@ -60,7 +60,7 @@ public class TimeStamp {
 	
 	/**
 	 * Multiplies this timestamp by the specified factor
-	 * @param op The multiplying timestamp
+	 * @param factor The multiplying timestamp
 	 * @return A new timestamp whose value is the product of this timestamp and the received factor.
 	 */
 	public TimeStamp multiply(double factor) {

@@ -13,8 +13,8 @@ import es.ull.isaatc.util.Prioritizable;
  */
 public interface ActivityWorkGroup extends WorkGroup, Prioritizable, Describable, Identifiable {
 	/**
-	 * Returns the associated {@link Condition} to this {@link Workgroup}.
-	 * @return the associated {@link Condition} to this {@link Workgroup}
+	 * Returns the associated {@link Condition} to this {@link WorkGroup}.
+	 * @return the associated {@link Condition} to this {@link WorkGroup}
 	 */
 	Condition getCondition();
 }

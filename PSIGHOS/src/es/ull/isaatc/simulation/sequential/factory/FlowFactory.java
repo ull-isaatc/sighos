@@ -51,8 +51,6 @@ public class FlowFactory {
 	 * attempts to find the Flow assuming the the name is fully qualified.
 	 * Then searches the "search packages." The search path defaults to "es.ull.isaatc.sequential.flow"
 	 * but additional search packages can be added.
-	 * @see #addSearchPackage(String)
-	 * @see #setSearchPackages(Set)
 	 **/
 	public static Class<?> findFullyQualifiedNameFor(String className) {
 		Class<?> theClass = null;
@@ -100,9 +98,9 @@ public class FlowFactory {
 	
 	/**
 	 * Get a Flow's instance.
-	 * @param objectType Flow's type.
 	 * @param id Identifier.
-	 * @param sim Actual simulation.
+	 * @param flowType Flow's type.
+	 * @param simul Actual simulation.
 	 * @param initargs Rest of the params.
 	 * @return A Flow's instance.
 	 */

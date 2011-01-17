@@ -68,9 +68,9 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 
     /**
      * Searches the first available resource (a resource which is not being used yet) with 
-     * this role. The search starts at position <code>ind</code>.
-     * @param solution The solution where the resource will be added to   
+     * this role. The search starts at position <code>ind</code>.   
      * @param ind Position to start the search.
+     * @param wi WorkItem.
      * @return The resource's index or -1 if there are not available resources.
      */
     protected int getNextAvailableResource(int ind, WorkItem wi) {

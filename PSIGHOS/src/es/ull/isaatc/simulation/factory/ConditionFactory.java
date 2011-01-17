@@ -89,10 +89,10 @@ public class ConditionFactory {
 	
 	/**
 	 * Get a Condition's instance.
-	 * @param condType The type of the condition.
-	 * @param id Identifier.
 	 * @param sim Actual simulation.
-	 * @param params Rest of the params.
+	 * @param id Identifier.
+	 * @param imports Imports of the Condition code.
+	 * @param condition Condition code.
 	 * @return A Condition's instance.
 	 */
 	static public Condition getInstance(Simulation sim, int id, String imports, String condition){

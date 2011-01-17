@@ -20,7 +20,7 @@ import es.ull.isaatc.util.Prioritizable;
  * <li>Descendant thread</li>A thread created to carry out the inner flows of a structured flow.
  * To invoke, use: {@link #getInstanceDescendantWorkThread()}</li>
  * <li>Subsequent thread</li>A thread created to carry out a new flow after a split.
- * To invoke, use: {@link #getInstanceSubsequentWorkThread(boolean, Flow, Flow, WorkToken)}</li>
+ * To invoke, use: {@link #getInstanceSubsequentWorkThread(boolean, Flow, WorkToken)}</li>
  * </ol><p>
  *  A work thread has an associated token, which can be true or false. A false token is used
  *  only for synchronization purposes and doesn't execute task flows. 
@@ -235,7 +235,6 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	 * Returns a new instance of a work thread created to carry out a new flow after a split
 	 * @param executable Indicates if the thread to be created has to be valid or not
 	 * @param prevFlow The previously visited flow
-	 * @param nextFlow TODO
 	 * @param token The token to be cloned in case this work thread is not valid and the token is also not valid. 
 	 * @return A new instance of a work thread created to carry out a new flow after a split
 	 */

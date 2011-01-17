@@ -19,7 +19,7 @@ public interface SingleFlow extends SingleSuccessorFlow, TaskFlow {
 
 	/**
 	 * Allows a user for adding a customized code when an {@link Element}
-	 * is enqueued in an {@link Activity}, waiting for available {@link Resources}. 
+	 * is enqueued in an {@link Activity}, waiting for available {@link es.ull.isaatc.simulation.core.Resource}. 
 	 * @param e {@link Element} requesting this {@link SingleFlow}
 	 */
 	public void inqueue(Element e);

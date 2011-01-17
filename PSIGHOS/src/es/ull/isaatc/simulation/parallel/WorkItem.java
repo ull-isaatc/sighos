@@ -243,7 +243,6 @@ public class WorkItem implements es.ull.isaatc.simulation.core.WorkItem {
 	
     /**
      * Releases the resources caught by this item to perform the activity.
-     * @return A list of activity managers affected by the released resources
      */
     protected void releaseCaughtResources() {
         // Generate unavailability periods.

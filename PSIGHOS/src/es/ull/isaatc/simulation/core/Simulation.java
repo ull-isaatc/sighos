@@ -166,7 +166,7 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	/**
 	 * A convenience method for converting a long value expressed in the simulation's time unit
 	 * to a timestamp.
-	 * @param source A long value expressed in the simulation's time unit
+	 * @param sourceValue A long value expressed in the simulation's time unit
 	 * @return A timestamp representing the received long value in the simulation's time unit 
 	 */
 	public TimeStamp long2SimulationTime(long sourceValue) {

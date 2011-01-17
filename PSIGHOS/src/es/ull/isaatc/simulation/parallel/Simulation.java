@@ -93,7 +93,7 @@ public class Simulation extends es.ull.isaatc.simulation.core.Simulation {
 	 * used.</li>
 	 * <li>If no customized {@link ActivityManagerCreator AM creator} has been defined, the 
 	 * {@link StandardActivityManagerCreator default one} is used.</li>
-	 * <li>As many {@link SlaveEventExecutor event executors} as threads set by using 
+	 * <li>As many SlaveEventExecutor event executors as threads set by using 
 	 * {@link #setNThreads(int)} are created.</li>
 	 * <li>The AMs are equally distributed among the available executors</li> 
 	 * <li>The user defined method {@link #init()} is invoked.</li>

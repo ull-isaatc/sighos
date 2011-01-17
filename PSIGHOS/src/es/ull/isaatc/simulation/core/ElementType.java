@@ -7,7 +7,7 @@ import es.ull.isaatc.util.Prioritizable;
 
 /**
  * The type of an element. It serves for grouping and identification purposes. Elements
- * belonging to the same type have the same priority {@see Prioritizable}. Since individual 
+ * belonging to the same type have the same priority Prioritizable. Since individual 
  * elements are not visible when defining the model, element variables are also defined from the 
  * {@link ElementType}.
  * @author Iván Castilla Rodríguez

@@ -6,9 +6,6 @@ package es.ull.isaatc.simulation.sequential;
 /**
  * A generator driven by simulation events. Generates the elements when
  * certain condition/s is/are triggered.<p>
- * Any descendant must implement one or more of the {@link es.ull.isaatc.simulation.listener.EventListener}
- * interfaces. Thus, this generator would be able to listen what is happening
- * during a simulation.<p>
  * The user of this class should add the following code every time the condition/s is/are triggered:
  * <code>
  * addEvent(new GenerateEvent(ts));

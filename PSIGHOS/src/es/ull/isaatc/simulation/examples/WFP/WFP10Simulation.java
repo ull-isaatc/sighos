@@ -27,7 +27,6 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
 	/**
 	 * @param type
 	 * @param id
-	 * @param description
 	 * @param detailed
 	 */
 	public WFP10Simulation(SimulationType type, int id, boolean detailed) {

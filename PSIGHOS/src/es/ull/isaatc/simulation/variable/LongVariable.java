@@ -26,7 +26,7 @@ public class LongVariable extends NumberVariable{
 	
 	/**
 	 * Compare two Variables. 
-	 * @param arg0 The Variable which you want compare.
+	 * @param obj The Variable which you want compare.
 	 * @return True if both are equal.
 	 */	
 	public boolean equas(Variable obj) {

@@ -81,8 +81,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
     }
     
     /**
-	 * @param e
-	 * @return
+	 * @param wThread WorkThread
 	 * @see java.util.TreeSet#add(java.lang.Object)
 	 */
 	public void addDescendant(WorkThread wThread) {
@@ -90,8 +89,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	}
 
 	/**
-	 * @param o
-	 * @return
+	 * @param wThread WorkThread
 	 * @see java.util.TreeSet#remove(java.lang.Object)
 	 */
 	public void removeDescendant(WorkThread wThread) {

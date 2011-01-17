@@ -131,7 +131,6 @@ public class BenchmarkModel {
 	 * @param nIter
 	 * @param nElem
 	 * @param nAct
-	 * @param mixFactor
 	 * @param workLoad
 	 */
 	public BenchmarkModel(int id, SimulationType simType, ModelType modType,
