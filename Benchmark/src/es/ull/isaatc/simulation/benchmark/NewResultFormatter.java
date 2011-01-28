@@ -34,14 +34,14 @@ public class NewResultFormatter {
 //	public static int[]NPROCS = {1, 2, 4, 8};
 	public static int[]NTHREADS = {1, 2, 4, 8, 16, 32, 64, 128};
 	public static int[]NACTS = {1, 2, 4, 8, 16, 32};
-	public static int[]NELEM = {4096, 8192, 16384};
+	public static int[]NELEM = {4096};
 		
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		String filename = "resul1.xls";
-		String dir = "S:\\simulacion\\Benchmark\\Iris ubuntu\\200 iter 8 proc\\";
+		String dir = "S:\\simulacion\\Benchmark\\Jonatan\\";
 		
 		// create a new workbook
 		HSSFWorkbook wb = new HSSFWorkbook();
@@ -73,7 +73,7 @@ public class NewResultFormatter {
 				BufferedReader[] inFiles = new BufferedReader[NACTS.length];
 				for (int i = 0; i < NACTS.length; i++) {
 					try {
-						inFiles[i] = new BufferedReader(new FileReader(dir + "pa" + NACTS[i] + "th" + nTh + "" + nElem + ".txt"));
+						inFiles[i] = new BufferedReader(new FileReader(dir + "p4a" + NACTS[i] + "th" + nTh + "" + nElem + ".txt"));
 						c = r.createCell((short)(i+1));
 						c.setCellValue(Double.parseDouble(inFiles[i].readLine()));
 						inFiles[i].close();
