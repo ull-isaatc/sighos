@@ -25,13 +25,13 @@ import es.ull.isaatc.simulation.ElementCreator;
 import es.ull.isaatc.simulation.ElementType;
 import es.ull.isaatc.simulation.Resource;
 import es.ull.isaatc.simulation.ResourceType;
+import es.ull.isaatc.simulation.Simulation;
 import es.ull.isaatc.simulation.SimulationCycle;
 import es.ull.isaatc.simulation.SimulationPeriodicCycle;
 import es.ull.isaatc.simulation.SimulationRoundedPeriodicCycle;
 import es.ull.isaatc.simulation.SimulationTime;
 import es.ull.isaatc.simulation.SimulationTimeFunction;
 import es.ull.isaatc.simulation.SimulationTimeUnit;
-import es.ull.isaatc.simulation.StandAloneLPSimulation;
 import es.ull.isaatc.simulation.TimeDrivenActivity;
 import es.ull.isaatc.simulation.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.WorkGroup;
@@ -46,7 +46,7 @@ import es.ull.isaatc.util.RoundedPeriodicCycle;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SimGS extends StandAloneLPSimulation {
+public class SimGS extends Simulation {
 	/** "Envoltorio" del fichero Excel de entrada */
 	private GSExcelInputWrapper input;
 	/** Estructura que incluye las vistas de la simulación */
@@ -71,17 +71,17 @@ public class SimGS extends StandAloneLPSimulation {
 				new GSElementTypeWaitView(this, input), 
 				new GSResourceStdUsageView(this, input));
 		for (View v : views.getListeners()) {
-			addInfoReciever(v);
+			addInfoReceiver(v);
 		}
-		addInfoReciever(new StdInfoView(this));
+		addInfoReceiver(new StdInfoView(this));
 	}
 
 	/**
 	 * Crea el fichero Excel de resultado al terminar la simulación
 	 */
 	@Override
-	public void finalize() {
-		super.finalize();
+	public void end() {
+		super.end();
 		// Crea una nueva hoja
 		HSSFWorkbook wb = new HSSFWorkbook();
 		

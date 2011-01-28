@@ -11,13 +11,13 @@ import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunction;
 import es.ull.isaatc.function.TimeFunctionFactory;
 import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.flow.SingleFlow;
 import es.ull.isaatc.simulation.info.*;
-import es.ull.isaatc.simulation.listener.*;
 import es.ull.isaatc.util.Cycle;
 import es.ull.isaatc.util.Output;
 import es.ull.isaatc.util.PeriodicCycle;
 
-class SimSurgeries extends StandAloneLPSimulation {
+class SimSurgeries extends Simulation {
 	public enum PatientType {
 //		ACMF ("ACMF", "LogisticVariate", new Object[] {35.6895, 9.9821}, 2032),
 		ACMF ("ACMF", "GammaVariate", new Object[] {4.29512, 8.76201}, 2032),
@@ -86,14 +86,14 @@ class SimSurgeries extends StandAloneLPSimulation {
 		}
 	}
 	// Tiempo total del estudio: 2 años en minutos (un año bisiesto)
-	public static final double TOTALTIME = 731 * 1440.0;
+	public static final double TOTALTIME = 731;
 	// Número de quirófanos disponibles
 	public static final int NSURGERIES = 9;
 	// Número de quirófanos con horario de tarde disponibles
 	public static final int NXSURGERIES = 1;
 	
 	public SimSurgeries(int id) {
-		super(id, "HUNSC Surgeries (" + id +")", 0.0, TOTALTIME);
+		super(id, "HUNSC Surgeries (" + id +")", SimulationTimeUnit.MINUTE, SimulationTime.getZero(), new SimulationTime(SimulationTimeUnit.DAY, TOTALTIME));
 	}
 
 	/* (non-Javadoc)
@@ -105,30 +105,29 @@ class SimSurgeries extends StandAloneLPSimulation {
 		RandomVariateFactory.setDefaultRandomNumber(RandomNumberFactory.getInstance(System.currentTimeMillis()));
 		// Primero suponemos un único tipo de quirófano
 		ResourceType surgery = new ResourceType(0, this, "Surgery");
-		WorkGroup wgSurgery = new WorkGroup(0, this, "Surgery WG");
-		wgSurgery.add(surgery, 1);
+		WorkGroup wgSurgery = new WorkGroup(surgery, 1);
 		
 		// Activities, Element types, Generators
 		for (PatientType pt : PatientType.values()) {
-			Activity act = new Activity(pt.ordinal(), this, pt.getName());
-			act.addWorkGroup(TimeFunctionFactory.getInstance(pt.getDist(), pt.getParam()), wgSurgery);
+			TimeDrivenActivity act = new TimeDrivenActivity(pt.ordinal(), this, pt.getName());
+			act.addWorkGroup(new SimulationTimeFunction(this, pt.getDist(), pt.getParam()), wgSurgery);
 			ElementType et = new ElementType(pt.ordinal(), this, "Patient " + pt.getName());
 			// Obtengo una exponencial que genere los pacientes usando como dato de partida
 			// el total de pacientes llegados en el periodo de estudio (2 años)
-			TimeFunction expo = TimeFunctionFactory.getInstance("ExponentialVariate", TOTALTIME / pt.getSamples());
-			Cycle c = new PeriodicCycle(expo.getValue(0.0), expo, 0);
-			ElementCreator ec = new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", 1), et, new SingleMetaFlow(pt.ordinal(), RandomVariateFactory.getInstance("ConstantVariate", 1), act));
+			SimulationTimeFunction expo = new SimulationTimeFunction(this, "ExponentialVariate", (TOTALTIME * 1440.0) / pt.getSamples());
+			SimulationPeriodicCycle c = new SimulationPeriodicCycle(this, expo.getFunction().getValue(0.0), expo, 0);
+			ElementCreator ec = new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", 1), et, new SingleFlow(this, act));
 	        new TimeDrivenGenerator(this, ec, c);
 		}
 		
 		// Resources: Surgeries. Start at 8 am and finish at 3 pm
-		PeriodicCycle c1 = new PeriodicCycle(480.0, TimeFunctionFactory.getInstance("ConstantVariate", 1440.0), 0);
+		SimulationPeriodicCycle c1 = SimulationPeriodicCycle.newDailyCycle(this, 480);
 		for (int i = 0; i < NSURGERIES; i++) {
 			Resource r = new Resource(i, this, "Surgery " + i);
-			r.addTimeTableEntry(c1, 420.0, surgery);
+			r.addTimeTableEntry(c1, 420, surgery);
 		}
 		// Extra resources: Surgeries. Start at 4 pm finish after 165 minutes every 2 days
-		PeriodicCycle c2 = new PeriodicCycle(960.0, TimeFunctionFactory.getInstance("ConstantVariate", 2880.0), 0);
+		SimulationPeriodicCycle c2 = new SimulationPeriodicCycle(this, 960, new SimulationTimeFunction(this, "ConstantVariate", 2880), 0);
 		for (int i = 0; i < NXSURGERIES; i++) {
 			Resource r = new Resource(i + NSURGERIES, this, "XSurgery " + i);
 			r.addTimeTableEntry(c2, 165.0, surgery);
@@ -342,16 +341,6 @@ class ExpSurgeries extends Experiment {
 	
 	public Simulation getSimulation(int ind) {		
 		SimSurgeries sim = new SimSurgeries(ind);
-		ListenerController cont = new ListenerController() {
-			@Override
-			public void end() {
-				super.end();
-				for (String str : getListenerResults()) {
-					System.out.println(str);
-				}
-			}
-		};
-		sim.setListenerController(cont);
 //		sim.setOutput(new Output(true));
 //		cont.addListener(new StdInfoListener());
 //		cont.addListener(new HUNSCListener5());
