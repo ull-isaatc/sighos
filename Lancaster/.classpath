@@ -5,5 +5,6 @@
 	<classpathentry kind="lib" path="lib/actions.jar"/>
 	<classpathentry kind="lib" path="lib/simkit.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/utils"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SimulatorWF"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

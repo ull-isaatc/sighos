@@ -3,29 +3,28 @@
  */
 package es.ull.isaatc.rli;
 
-import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.ConstantFunction;
 import es.ull.isaatc.function.PeriodicProportionFunction;
-import es.ull.isaatc.function.TimeFunction;
-import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.function.UniformlyDistributedSplitFunction;
+import es.ull.isaatc.function.SimulationUniformlyDistributedSplitFunction;
 import es.ull.isaatc.simulation.ElementCreator;
 import es.ull.isaatc.simulation.ElementType;
 import es.ull.isaatc.simulation.Resource;
 import es.ull.isaatc.simulation.ResourceType;
-import es.ull.isaatc.simulation.StandAloneLPSimulation;
+import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.SimulationCycle;
+import es.ull.isaatc.simulation.SimulationPeriodicCycle;
+import es.ull.isaatc.simulation.SimulationTimeFunction;
+import es.ull.isaatc.simulation.SimulationTimeUnit;
 import es.ull.isaatc.simulation.TimeDrivenGenerator;
 import es.ull.isaatc.simulation.TransitionActivity;
-import es.ull.isaatc.simulation.TransitionSingleMetaFlow;
 import es.ull.isaatc.simulation.WorkGroup;
-import es.ull.isaatc.util.Cycle;
-import es.ull.isaatc.util.PeriodicCycle;
+import es.ull.isaatc.simulation.flow.SingleFlow;
 
 /**
  * @author Iván
  *
  */
-public class RLIIP14GSimulation extends StandAloneLPSimulation {
+public class RLIIP14GSimulation extends Simulation {
 	static final int NDAYS = 364 * 2;
 	
 	public enum AdmissionMethod {
@@ -649,7 +648,7 @@ public class RLIIP14GSimulation extends StandAloneLPSimulation {
 
 	
 	public RLIIP14GSimulation(int id) {
-		super(id, "RLI Inpatient Model", 0.0, NDAYS);
+		super(id, "RLI Inpatient Model", SimulationTimeUnit.DAY, 0.0, NDAYS);
 	}
 	
 	protected void testModel() {
@@ -662,20 +661,21 @@ public class RLIIP14GSimulation extends StandAloneLPSimulation {
 
 		// Defines resource types, resources and Workgroups
 		int resCount = 0;
-		Cycle c = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", endTs), 0);
+		SimulationCycle c = new SimulationPeriodicCycle(this, 0.0, new SimulationTimeFunction(this, "ConstantVariate", endTs), 0);
+		WorkGroup wgs[] = new WorkGroup[WardType.values().length];		
+		int count = 0;
 		for (WardType ward : WardType.values()) {
 			ResourceType rt = new ResourceType(ward.ordinal(), this, "W" + ward);
 			for (int i = 0; i < ward.getBeds(); i++)
 				new Resource(resCount++, this, "BED" + i + "_W" + ward).addTimeTableEntry(c, endTs, rt);
-			WorkGroup wg = new WorkGroup(ward.ordinal(), this, "WG" + ward);
-			wg.add(rt, 1);
+			wgs[count++] = new WorkGroup(rt, 1);
 		}
 
 		// Element creators
 		ElementCreator [] creators = new ElementCreator[AdmissionMethod.values().length];
-		creators[AdmissionMethod.AE.ordinal()] = new ElementCreator(new ConstantFunction(1));
-		creators[AdmissionMethod.GP.ordinal()] = new ElementCreator(new ConstantFunction(1));
-		creators[AdmissionMethod.OR.ordinal()] = new ElementCreator(new PeriodicProportionFunction(AdmissionMethod.OR.getPatientsWeek(), AdmissionMethod.OR.getPatientsDaily(), 1.0));
+		creators[AdmissionMethod.AE.ordinal()] = new ElementCreator(this, new ConstantFunction(1));
+		creators[AdmissionMethod.GP.ordinal()] = new ElementCreator(this, new ConstantFunction(1));
+		creators[AdmissionMethod.OR.ordinal()] = new ElementCreator(this, new PeriodicProportionFunction(AdmissionMethod.OR.getPatientsWeek(), AdmissionMethod.OR.getPatientsDaily(), 1.0));
 //		for (AdmissionMethod adm : AdmissionMethod.values())
 //			creators[adm.ordinal()] = new ElementCreator(new ConstantFunction(1));
 
@@ -683,13 +683,12 @@ public class RLIIP14GSimulation extends StandAloneLPSimulation {
 		for (Specialty spec : Specialty.values()) {
 			// First activities and flows
 			TransitionActivity actEmer = new TransitionActivity(spec.ordinal(), this, "EMER " + spec + ": Stay in bed", 0);
-			TransitionSingleMetaFlow fEmer = new TransitionSingleMetaFlow(spec.ordinal(), RandomVariateFactory.getInstance("ConstantVariate", 1), actEmer);
+			SingleFlow fEmer = new SingleFlow(this, actEmer);
 			TransitionActivity actElec = new TransitionActivity(Specialty.values().length + spec.ordinal(), this, "ELEC" + spec + ": Stay in bed", 1);
-			TransitionSingleMetaFlow fElec = new TransitionSingleMetaFlow(Specialty.values().length + spec.ordinal(), RandomVariateFactory.getInstance("ConstantVariate", 1), actElec);
+			SingleFlow fElec = new SingleFlow(this, actElec);
 			for (WardType ward : WardType.values()) {
-				WorkGroup wg = getWorkGroup(ward.ordinal());
-				actEmer.addWorkGroup(TimeFunctionFactory.getInstance(ward.getEmerDist(), ward.getEmerParam()), wg);
-				actElec.addWorkGroup(TimeFunctionFactory.getInstance(ward.getElecDist(), ward.getElecParam()), wg);
+				actEmer.addWorkGroup(new SimulationTimeFunction(this, ward.getEmerDist(), ward.getEmerParam()), wgs[ward.ordinal()]);
+				actElec.addWorkGroup(new SimulationTimeFunction(this, ward.getElecDist(), ward.getElecParam()), wgs[ward.ordinal()]);
 			}
 			// Defines transitions
 			actEmer.addTransitions(spec.getEmerMatrix());
@@ -708,27 +707,27 @@ public class RLIIP14GSimulation extends StandAloneLPSimulation {
 			
 		// Defines main cycle (starting at 8h) and element generators
 		AdmissionMethod adm = AdmissionMethod.AE;
-		TimeFunction[] part = new TimeFunction[adm.patientsWeek.length * adm.patientsDaily.length];
+		SimulationTimeFunction[] part = new SimulationTimeFunction[adm.patientsWeek.length * adm.patientsDaily.length];
 		int ind = 0;
 		for (int pw : adm.patientsWeek)
 			for (double p : adm.patientsDaily)
-				part[ind++] = TimeFunctionFactory.getInstance("ExponentialVariate", 1.0 / (pw * p));
-		Cycle subCycle = new PeriodicCycle(0.0, new UniformlyDistributedSplitFunction(part, 1.0), 0); 
-		Cycle dailyCycle = new PeriodicCycle(0.0001, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 0, subCycle);
+				part[ind++] = new SimulationTimeFunction(this, "ExponentialVariate", 1.0 / (pw * p));
+		SimulationCycle subCycle = new SimulationPeriodicCycle(this, 0.0, new SimulationUniformlyDistributedSplitFunction(this, part, 1.0), 0); 
+		SimulationCycle dailyCycle = new SimulationPeriodicCycle(this, 0.0001, new SimulationTimeFunction(this, "ConstantVariate", 1.0), 0, subCycle);
 		new TimeDrivenGenerator(this, creators[adm.ordinal()], dailyCycle);
 		
 		adm = AdmissionMethod.GP;
-		part = new TimeFunction[adm.patientsWeek.length * adm.patientsDaily.length];
+		part = new SimulationTimeFunction[adm.patientsWeek.length * adm.patientsDaily.length];
 		ind = 0;
 		for (int pw : adm.patientsWeek)
 			for (double p : adm.patientsDaily)
-				part[ind++] = TimeFunctionFactory.getInstance("ExponentialVariate", 1.0 / (pw * p));
-		subCycle = new PeriodicCycle(0.0, new UniformlyDistributedSplitFunction(part, 1.0), 0); 
-		dailyCycle = new PeriodicCycle(0.0001, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 0, subCycle);
+				part[ind++] = new SimulationTimeFunction(this, "ExponentialVariate", 1.0 / (pw * p));
+		subCycle = new SimulationPeriodicCycle(this, 0.0, new SimulationUniformlyDistributedSplitFunction(this, part, 1.0), 0); 
+		dailyCycle = new SimulationPeriodicCycle(this, 0.0001, new SimulationTimeFunction(this, "ConstantVariate", 1.0), 0, subCycle);
 		new TimeDrivenGenerator(this, creators[adm.ordinal()], dailyCycle);
 		
 		adm = AdmissionMethod.OR;
-		dailyCycle = new PeriodicCycle(0.0001, TimeFunctionFactory.getInstance("ConstantVariate", 1.0), 0);
+		dailyCycle = new SimulationPeriodicCycle(this, 0.0001, new SimulationTimeFunction(this, "ConstantVariate", 1.0), 0);
 		new TimeDrivenGenerator(this, creators[adm.ordinal()], dailyCycle);
 
 //		for (AdmissionMethod adm : AdmissionMethod.values()) {
@@ -745,7 +744,9 @@ public class RLIIP14GSimulation extends StandAloneLPSimulation {
 	
 	@Override
 	protected void createModel() {
+		debug("start model creation");
 		testModel();
+		debug("end model creation");
 	}
 
 }

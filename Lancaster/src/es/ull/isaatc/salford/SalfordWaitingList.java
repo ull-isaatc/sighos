@@ -3,14 +3,20 @@
  */
 package es.ull.isaatc.salford;
 
-import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.*;
+import es.ull.isaatc.simulation.ElementType;
+import es.ull.isaatc.simulation.PooledExperiment;
+import es.ull.isaatc.simulation.ResourceType;
+import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.SimulationTimeFunction;
+import es.ull.isaatc.simulation.SimulationTimeUnit;
+import es.ull.isaatc.simulation.TimeDrivenActivity;
+import es.ull.isaatc.simulation.WorkGroup;
 
-class SalfordWLSimulation extends StandAloneLPSimulation {
+class SalfordWLSimulation extends Simulation {
 	static final String [] specNames = new String[] {"ESP1"};
 	static final int [] slotSize = new int[] {50};
 	public SalfordWLSimulation(int id, double startTs, double endTs) {
-		super(id, "Salford Waiting List Model", startTs, endTs);
+		super(id, "Salford Waiting List Model", SimulationTimeUnit.WEEK, startTs, endTs);
 	}
 
 	@Override
@@ -27,13 +33,12 @@ class SalfordWLSimulation extends StandAloneLPSimulation {
 		
 		// Defines activities
 		for (int i = 0; i < specNames.length; i++)
-			new Activity(i, this, "Get Slot " + specNames[i]);
+			new TimeDrivenActivity(i, this, "Get Slot " + specNames[i]);
 		
 		// Defines Workgroups and associate to activities
 		for (int i = 0; i < specNames.length; i++) {
-			WorkGroup wg = new WorkGroup(i, this, "WG " + specNames[i]);
-			wg.add(getResourceType(i), 1);
-			getActivity(i).addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 0), wg);
+			WorkGroup wg = new WorkGroup(getResourceType(i), 1);
+			((TimeDrivenActivity)getActivity(i)).addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 0), wg);
 		}
 		
 		// Defines available resources
@@ -57,7 +62,7 @@ class SalfordWLExperiment extends PooledExperiment {
 	public Simulation getSimulation(int ind) {
 		Simulation sim = new SalfordWLSimulation(ind, 0.0, NWEEKS * 7);
 		// TODO Auto-generated method stub
-		return null;
+		return sim;
 	}
 }
 /**

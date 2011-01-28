@@ -3,23 +3,18 @@
  */
 package es.ull.isaatc.rli;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import simkit.random.ExponentialVariate;
-import simkit.random.RandomVariate;
-import simkit.random.RandomVariateFactory;
-
-import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.info.TimeChangeInfo;
-import es.ull.isaatc.simulation.listener.*;
+import es.ull.isaatc.simulation.PooledExperiment;
+import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.SimulationTime;
+import es.ull.isaatc.simulation.SimulationTimeUnit;
+import es.ull.isaatc.util.Output;
 
 /**
  * Time unit is DAY.
  * @author Iván Castilla Rodríguez
  */
 class RLIIPExperiment extends PooledExperiment {
-	static final int NEXP = 2;
+	static final int NEXP = 1;
 	
 	public RLIIPExperiment() {
 		super("Inpatients", NEXP);
@@ -30,61 +25,30 @@ class RLIIPExperiment extends PooledExperiment {
 //		Simulation sim = new RLIIP8GSimulation(ind);
 //		Simulation sim = new RLIIP7GSimulation(ind);
 		Simulation sim = new RLIIP14GSimulation(ind);
-		ListenerController cont = new RLIListenerController(ind);
-//		ListenerController cont = new ListenerController();
-		sim.setListenerController(cont);
-		cont.addListener(new RLIPathwayListener());
-		cont.addListener(new RLIOccListener(1.0));
-		cont.addListener(new TimeChangeListener() {
-			int day = 0;
-			public void infoEmited(TimeChangeInfo info) {
-				if (info.getTs() >= day) { 
-					System.out.print("#");
-					day++;
-					if (day % 30 == 0)
-						System.out.println();
-				}
-			}
-			/* (non-Javadoc)
-			 * @see java.lang.Object#toString()
-			 */
-			@Override
-			public String toString() {
-				return "";
-			}
-			
-		});
-		cont.addListener(new SimulationTimeListener());
+		sim.addInfoReceiver(new RLIPathwayView(sim));
+		sim.addInfoReceiver(new RLIOccView(sim, new SimulationTime(SimulationTimeUnit.DAY, 1.0)));
+		sim.setOutput(new Output(true));
+//		cont.addListener(new TimeChangeListener() {
+//			int day = 0;
+//			public void infoEmited(TimeChangeInfo info) {
+//				if (info.getTs() >= day) { 
+//					System.out.print("#");
+//					day++;
+//					if (day % 30 == 0)
+//						System.out.println();
+//				}
+//			}
+//			/* (non-Javadoc)
+//			 * @see java.lang.Object#toString()
+//			 */
+//			@Override
+//			public String toString() {
+//				return "";
+//			}
+//			
+//		});
+//		cont.addListener(new SimulationTimeListener());
 		return sim;
-	}
-}
-
-class RLIListenerController extends ListenerController {
-	private FileWriter file;
-	private final static String PATH = "C:\\Users\\Iván\\Documents\\Lancaster\\ResSIGHOS\\"; 
-
-	/**
-	 * @param ind
-	 */
-	public RLIListenerController(int ind) {
-		super();
-		try {
-			file = new FileWriter(PATH + "Res14Sim" + (ind + 5) + ".txt");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public void end() {
-		super.end();
-		try {
-			for (String res : getListenerResults())
-				file.write(res + "\n=====================================================\n");
-			file.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }
 

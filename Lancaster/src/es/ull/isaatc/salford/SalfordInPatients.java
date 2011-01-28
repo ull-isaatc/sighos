@@ -9,24 +9,35 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import simkit.random.RandomVariateFactory;
 import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.simulation.*;
-import es.ull.isaatc.simulation.listener.*;
-import es.ull.isaatc.util.Cycle;
-import es.ull.isaatc.util.Output;
-import es.ull.isaatc.util.PeriodicCycle;
+import es.ull.isaatc.simulation.ElementCreator;
+import es.ull.isaatc.simulation.ElementType;
+import es.ull.isaatc.simulation.PooledExperiment;
+import es.ull.isaatc.simulation.Resource;
+import es.ull.isaatc.simulation.ResourceType;
+import es.ull.isaatc.simulation.Simulation;
+import es.ull.isaatc.simulation.SimulationCycle;
+import es.ull.isaatc.simulation.SimulationPeriodicCycle;
+import es.ull.isaatc.simulation.SimulationTime;
+import es.ull.isaatc.simulation.SimulationTimeFunction;
+import es.ull.isaatc.simulation.SimulationTimeUnit;
+import es.ull.isaatc.simulation.TimeDrivenActivity;
+import es.ull.isaatc.simulation.TimeDrivenGenerator;
+import es.ull.isaatc.simulation.TransitionActivity;
+import es.ull.isaatc.simulation.WorkGroup;
+import es.ull.isaatc.simulation.flow.SingleFlow;
+import es.ull.isaatc.simulation.inforeceiver.StdInfoView;
 
-class SalfordIPSimulation extends StandAloneLPSimulation {
+class SalfordIPSimulation extends Simulation {
 	static final int NDAYS = 100;
 	static final int NWARDS = 2;
 	static final int NBEDS = 2;
-	static final int NPAC = 100;
+	static final int NPAC = 10;
 	static final String FILE_NAME = "C:\\Users\\Iván\\Documents\\Salford\\testTrans1.txt";
 //	static final String FILE_NAME = "C:\\Users\\Iván\\Documents\\Salford\\test1.txt";
 	
 	public SalfordIPSimulation(int id) {
-		super(id, "Salford Inpatient Model", 0.0, NDAYS);
+		super(id, "Salford Inpatient Model", SimulationTimeUnit.DAY, SimulationTime.getZero(), new SimulationTime(SimulationTimeUnit.DAY, NDAYS));
 	}
 
 	protected void loadedModel() {
@@ -39,9 +50,10 @@ class SalfordIPSimulation extends StandAloneLPSimulation {
 			String line = br.readLine();
 		    String[] wardNames = line.split("\\t");
 		    // Resource Types and WorkGroups
+		    WorkGroup[] wgs = new WorkGroup[wardNames.length];
 		    for (int i = 0; i < wardNames.length; i++) {
 		    	ResourceType rt = new ResourceType(i, this, "W_" + wardNames[i]);
-		    	new WorkGroup(i, this, wardNames[i]).add(rt, 1);
+		    	wgs[i] = new WorkGroup(rt, 1);
 		    }
 	    	TransitionActivity[] acts = new TransitionActivity[3];
 		    while ((line = br.readLine()) != null) {
@@ -53,7 +65,7 @@ class SalfordIPSimulation extends StandAloneLPSimulation {
 		    	
 		    	for (int i = 0; i < 3; i++) {
 			    	for (int j = 0; j < wardNames.length; j++)
-			    		acts[i].addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 1), getWorkGroup(j));
+			    		acts[i].addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 1), wgs[j]);
 		    		addTransitions(br, acts[i], wardNames.length);
 		    	}
 		    	
@@ -72,7 +84,7 @@ class SalfordIPSimulation extends StandAloneLPSimulation {
 		}
 	}
 
-	private void addTransitionsFrom(String[] percentages, TransitionActivity act, Activity.WorkGroup fromTrans) {
+	private void addTransitionsFrom(String[] percentages, TransitionActivity act, TimeDrivenActivity.ActivityWorkGroup fromTrans) {
 		// I assume there are no transitions to gate
 		for (int k = 1; k < percentages.length - 1; k++) {
 			double p = new Double(percentages[k]);
@@ -82,12 +94,25 @@ class SalfordIPSimulation extends StandAloneLPSimulation {
 		// Last transition
 		double p = new Double(percentages[percentages.length - 1]);
 		if (p > 0.0)
-			act.addTransition(fromTrans, act.finalTransition, p);		
+			act.addFinalTransition(fromTrans, p);		
+	}
+	
+	private void addInitialTransitions(String[] percentages, TransitionActivity act) {
+		// I assume there are no transitions to gate
+		for (int k = 1; k < percentages.length - 1; k++) {
+			double p = new Double(percentages[k]);
+			if (p > 0.0)
+				act.addInitialTransition(act.getWorkGroup(k - 1), p);
+		}
+		// Last transition
+		double p = new Double(percentages[percentages.length - 1]);
+		if (p > 0.0)
+			act.addInitialFinalTransition(p);		
 	}
 	
 	private void addTransitions(BufferedReader br, TransitionActivity act, int nWards) throws IOException {
 		// Transitions from gate
-		addTransitionsFrom(br.readLine().split("\\t"), act, act.initialTransition);
+		addInitialTransitions(br.readLine().split("\\t"), act);
 
 		for (int j = 0; j < nWards; j++) {
 			addTransitionsFrom(br.readLine().split("\\t"), act, act.getWorkGroup(j));
@@ -111,36 +136,41 @@ class SalfordIPSimulation extends StandAloneLPSimulation {
 
 		// Defines Workgroups
 		for (int i = 0; i < NWARDS; i++) {
-			WorkGroup wg = new WorkGroup(i, this, "WG" + i);
-			wg.add(getResourceType(i), 1);
-			act.addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", 1), wg);
+			WorkGroup wg = new WorkGroup(getResourceType(i), 1);
+			act.addWorkGroup(new SimulationTimeFunction(this, "ConstantVariate", 1), wg);
 		}
 		
 		// Defines transitions
-		act.addTransition(act.initialTransition, act.getWorkGroup(0), 0.5);
-		act.addTransition(act.initialTransition, act.getWorkGroup(1), 0.5);
+		act.addInitialTransition(act.getWorkGroup(0), 0.5);
+		act.addInitialTransition(act.getWorkGroup(1), 0.5);
 		act.addTransition(act.getWorkGroup(0), act.getWorkGroup(1), 1.0);
 		act.addTransition(act.getWorkGroup(1), act.getWorkGroup(0), 0.2);
-		act.addTransition(act.getWorkGroup(1), act.finalTransition, 0.8);
+		act.addFinalTransition(act.getWorkGroup(1), 0.8);
 		
 		// Defines resources
-		Cycle c = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", endTs), 0);
-		for (int i = 0; i < NWARDS; i++) {
-			for(int j = 0; j < NBEDS; j++) {
-				new Resource(i * NBEDS + j, this, "BED" + j + "_W" + i).addTimeTableEntry(c, endTs, getResourceType(i));
-			}
+		SimulationCycle c = new SimulationPeriodicCycle(this, 0.0, new SimulationTimeFunction(this, "ConstantVariate", endTs), 0);
+//		for (int i = 0; i < NWARDS; i++) {
+//			for(int j = 0; j < NBEDS; j++) {
+//				new Resource(i * NBEDS + j, this, "BED" + j + "_W" + i).addTimeTableEntry(c, endTs, getResourceType(i));
+//			}
+//		}
+		for(int j = 0; j < NBEDS * 2; j++) {
+			new Resource(j, this, "BED" + j + "_W0").addTimeTableEntry(c, endTs, getResourceType(0));
+		}
+		for(int j = 0; j < NBEDS; j++) {
+			new Resource((NBEDS * 2) + j, this, "BED" + j + "_W1").addTimeTableEntry(c, endTs, getResourceType(1));
 		}
 
 		// Defines flow
-		TransitionSingleMetaFlow f = new TransitionSingleMetaFlow(0, RandomVariateFactory.getInstance("ConstantVariate", 1), act);
-		Cycle c1 = new PeriodicCycle(0.0, TimeFunctionFactory.getInstance("ConstantVariate", endTs), 0);
-        new TimeDrivenGenerator(this, new ElementCreator(TimeFunctionFactory.getInstance("ConstantVariate", NPAC), getElementType(0), f), c1);        
+		SingleFlow f = new SingleFlow(this, act);
+		SimulationCycle c1 = new SimulationPeriodicCycle(this, 0.0, new SimulationTimeFunction(this, "ConstantVariate", endTs), 0);
+        new TimeDrivenGenerator(this, new ElementCreator(this, TimeFunctionFactory.getInstance("ConstantVariate", NPAC), getElementType(0), f), c1);        
 		
 	}
 	
 	@Override
 	protected void createModel() {
-		loadedModel();
+		testModel();
 	}
 }
 
@@ -158,18 +188,8 @@ class SalfordIPExperiment extends PooledExperiment {
 	@Override
 	public Simulation getSimulation(int ind) {
 		Simulation sim = new SalfordIPSimulation(ind);
-		ListenerController cont = new ListenerController() {
-			@Override
-			public void end() {
-				super.end();
-				for (String res : getListenerResults()) {
-					System.out.println(res);
-				}
-			}
-		};
-		sim.setListenerController(cont);
+		sim.addInfoReceiver(new StdInfoView(sim));
 //		sim.setOutput(new Output(true));
-//		cont.addListener(new StdInfoListener());
 //		cont.addListener(new ResourceStdUsageListener(1));
 //		cont.addListener(new ResourceUsageListener());
 //		cont.addListener(new ActivityListener(PERIOD));
