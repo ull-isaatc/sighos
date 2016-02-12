@@ -130,7 +130,7 @@ public class ARMDParams extends ModelParams {
 	}
 
 	/**
-	 * @return Years to first eye incidence of early ARM; Double.MAX_VALUE if event is not hapenning
+	 * @return Years to first eye incidence of early ARM; Double.MAX_VALUE if event is not happening
 	 */
 	public double getEARMTime(double age) {
 		final double []rnd = new double[pEARM.length];

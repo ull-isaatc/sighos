@@ -18,27 +18,6 @@ public class OphthalmologicPatient extends Patient {
 		RD
 	}
 
-	public enum DiseaseStage {
-		EARM1(Disease.AMD),
-		AMD_CNV1(Disease.AMD),
-		AMD_GA1(Disease.AMD),
-		EARM2(Disease.AMD),
-		AMD_CNV2(Disease.AMD),
-		AMD_GA2(Disease.AMD);
-		
-		private final Disease disease;
-		private DiseaseStage(Disease dis) {
-			this.disease = dis;
-		}
-		
-		/**
-		 * @return the disease
-		 */
-		public Disease getDisease() {
-			return disease;
-		}
-	}
-	
 	// Random number generators for initial risks to be compared with specific probabilities
 	private static final Random RNG_P_CNV1 = new Random();
 	private static final Random RNG_SENSITIVITY = new Random();
@@ -46,12 +25,13 @@ public class OphthalmologicPatient extends Patient {
 	
 	private static final int TEST_DELAY = 10;
 
-	// Time to events and events
+	// Time to events, and events
 	private long timeToEARM;
 	private long timeToAMD;
-	private EARMEvent eARMEvent;
-	private AMDEvent aMDEvent;
-
+	private EARMEvent eARMEvent = null;
+	private AMDEvent aMDEvent = null;
+	private CNVFromGAEvent cNVFromGAEvent = null; 
+	
 	/** The random reference to compare with the probability of developing CNV in the first eye */ 
 	private final double rndProbCNV1;
 	/** The random reference to compare with the sensitivity */
@@ -59,13 +39,13 @@ public class OphthalmologicPatient extends Patient {
 	/** The random reference to compare with the specificity */
 	private final double rndSpecificity;
 	/** Current visual acuity, measured as logMAR units: 0 is the best possible vision*/
-	private double va;
+//	private double va;
 	/** Defines whether the patient is currently diagnosed */
 	private boolean isDiagnosed = false;
+	/** The current state of the first eye of the patient */
 	private final EnumSet<EyeState> eye1;
+	/** The current state of the second eye of the patient */
 	private final EnumSet<EyeState> eye2;
-	/** The current state of the patient */
-	private final EnumSet<DiseaseStage> diseaseStage = EnumSet.noneOf(DiseaseStage.class);
 
 	/**
 	 * @param simul
@@ -91,39 +71,40 @@ public class OphthalmologicPatient extends Patient {
 	 */
 	public OphthalmologicPatient(OphthalmologicPatient original, int nIntervention) {
 		super(original, nIntervention);
-		this.eARMEvent = new EARMEvent(original.getEARMEvent().getTs() + TEST_DELAY * nIntervention);
-		this.aMDEvent = new AMDEvent(original.getAMDEvent().getTs() + TEST_DELAY * nIntervention);
+		this.eye1 = EnumSet.copyOf(original.eye1);
+		this.eye2 = EnumSet.copyOf(original.eye2);
+		this.timeToEARM = (original.timeToEARM < Long.MAX_VALUE) ? original.timeToEARM + TEST_DELAY * nIntervention : Long.MAX_VALUE;
+		this.timeToAMD = (original.timeToAMD < Long.MAX_VALUE) ? original.timeToAMD + TEST_DELAY * nIntervention : Long.MAX_VALUE;
 		this.rndProbCNV1 = original.rndProbCNV1;
 		this.rndSensitivity = original.rndSensitivity;
 		this.rndSpecificity = original.rndSpecificity;
-		this.eye1 = EnumSet.copyOf(original.eye1);
-		this.eye2 = EnumSet.copyOf(original.eye2);
-		// FIXME: See what happen to resourceUsage
 	}
 
 	@Override
 	protected void init() {
 		super.init();
-		// Cancel EARM if death happens before
+		// Do not schedule EARM if death happens before
 		if (timeToDeath <= timeToEARM) {
 			this.eARMEvent = null;
 			timeToEARM = Long.MAX_VALUE;
 		}
-		// Cancel AMD if death happens before
+		// Do not schedule AMD if death happens before
 		if (timeToDeath <= timeToAMD) {
 			this.aMDEvent = null;
 			timeToAMD = Long.MAX_VALUE;
 		}
 
+		// Do not schedule AMD if EARM happens before
 		if (timeToEARM < timeToAMD) {
 			this.aMDEvent = null;
-			this.eARMEvent = new EARMEvent(timeToEARM);
+			this.eARMEvent = new EARMEvent(timeToEARM, eye1, eye2);
 			addEvent(eARMEvent);
 		}
+		// Do not schedule EARM if AMD happens before
 		else if (timeToAMD < Long.MAX_VALUE) {
 			// EARM would never happen
 			this.eARMEvent = null;
-			this.aMDEvent = new AMDEvent(timeToAMD);
+			this.aMDEvent = new AMDEvent(timeToAMD, eye1, eye2);
 			addEvent(aMDEvent);
 		}
 		
@@ -148,23 +129,21 @@ public class OphthalmologicPatient extends Patient {
 	}
 
 	/**
-	 * @return the diseaseStage
+	 * @return the state of the first eye
 	 */
-	public EnumSet<DiseaseStage> getDiseaseStage() {
-		return diseaseStage;
+	public EnumSet<EyeState> getEye1State() {
+		return eye1;
 	}
 
-	public void progress(DiseaseStage newStage) {
-		diseaseStage.add(newStage);
+	/**
+	 * @return the state of the fellow eye
+	 */
+	public EnumSet<EyeState> getEye2State() {
+		return eye2;
 	}
-	
-	public void progressFrom(DiseaseStage oldStage, DiseaseStage newStage) {
-		diseaseStage.remove(oldStage);
-		progress(newStage);
-	}
-	
+
 	public boolean isHealthy() {
-		return diseaseStage.isEmpty();
+		return eye1.isEmpty() && eye2.isEmpty();
 	}
 		
 	/**
@@ -191,62 +170,82 @@ public class OphthalmologicPatient extends Patient {
 		return cost;
 	}
 	
-	/**
-	 * @return The EARM event of this patient.
-	 */
-	public EARMEvent getEARMEvent() {
-		return eARMEvent;
-	}
-	
-	/**
-	 * @return The AMD event of this patient.
-	 */
-	public AMDEvent getAMDEvent() {
-		return aMDEvent;
-	}
-
 	public final class EARMEvent extends CancelableEvent {
-
-		public EARMEvent(long ts) {
+		private final EnumSet<EyeState> affectedEye;
+		private final EnumSet<EyeState> fellowEye;
+		
+		public EARMEvent(long ts, EnumSet<EyeState> affectedEye, EnumSet<EyeState> fellowEye) {
 			super(ts);
+			this.affectedEye = affectedEye;
+			this.fellowEye = fellowEye;
 		}
 
 		@Override
 		public void event() {
 			if (!cancelled) {
-				eye1.add(EyeState.EARM);
-				progress(DiseaseStage.EARM1);
-				simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, PatientInfo.Type.EARM1, this.getTs()));
+				affectedEye.add(EyeState.EARM);
+				simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, (affectedEye.equals(eye1))? PatientInfo.Type.EARM1 : PatientInfo.Type.EARM2, this.getTs()));
 				long timeToAMD = ((RETALSimulation)simul).getTimeToAMDFromEARM(OphthalmologicPatient.this);
+				System.out.println(ts + "\t" + OphthalmologicPatient.this + "\t" + timeToAMD + "\t" + timeToDeath);
 				// Schedule AMD event only if death is not happening before
-				if (timeToAMD < timeToDeath) 
-					aMDEvent = new AMDEvent(timeToAMD); 
+				if (timeToAMD < timeToDeath) {
+					aMDEvent = new AMDEvent(timeToAMD, affectedEye, fellowEye);
+					addEvent(aMDEvent);
+				}
 			}			
 		}
 		
 	}
 
 	public final class AMDEvent extends CancelableEvent {
+		private final EnumSet<EyeState> affectedEye;
+		private final EnumSet<EyeState> fellowEye;
 
-		public AMDEvent(long ts) {
+		public AMDEvent(long ts, EnumSet<EyeState> affectedEye, EnumSet<EyeState> fellowEye) {
 			super(ts);
+			this.affectedEye = affectedEye;
+			this.fellowEye = fellowEye;
 		}
 
 		@Override
 		public void event() {
 			if (!cancelled) {
-				eye1.remove(EyeState.EARM);
+				affectedEye.remove(EyeState.EARM);
 				// Switches state to AMD, either GA or CNV
 				if (rndProbCNV1 <= ((RETALSimulation)simul).getProbabilityCNV(OphthalmologicPatient.this)) {
-					eye1.add(EyeState.AMD_CNV);
-					progressFrom(DiseaseStage.EARM1, DiseaseStage.AMD_CNV1);
-					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, PatientInfo.Type.CNV1, this.getTs()));
+					affectedEye.add(EyeState.AMD_CNV);
+					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, (affectedEye.equals(eye1))? PatientInfo.Type.CNV1 : PatientInfo.Type.CNV2, this.getTs()));
 				}
 				else {
-					eye1.add(EyeState.AMD_GA);
-					progressFrom(DiseaseStage.EARM1, DiseaseStage.AMD_GA1);
-					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, PatientInfo.Type.GA1, this.getTs()));
+					affectedEye.add(EyeState.AMD_GA);
+					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, (affectedEye.equals(eye1))? PatientInfo.Type.GA1 : PatientInfo.Type.GA2, this.getTs()));
+					long timeToCNV = ((RETALSimulation)simul).getTimeToCNVFromGA(OphthalmologicPatient.this, fellowEye);
+					if (timeToCNV < Long.MAX_VALUE) {
+						cNVFromGAEvent = new CNVFromGAEvent(timeToCNV, affectedEye, fellowEye);
+						addEvent(cNVFromGAEvent);
+					}
 				}
+			}			
+		}
+		
+	}
+	
+	public final class CNVFromGAEvent extends CancelableEvent {
+		private final EnumSet<EyeState> affectedEye;
+		private final EnumSet<EyeState> fellowEye;
+
+		public CNVFromGAEvent(long ts, EnumSet<EyeState> affectedEye, EnumSet<EyeState> fellowEye) {
+			super(ts);
+			this.affectedEye = affectedEye;
+			this.fellowEye = fellowEye;
+		}
+
+		@Override
+		public void event() {
+			if (!cancelled) {
+				affectedEye.remove(EyeState.AMD_GA);
+				affectedEye.add(EyeState.AMD_CNV);
+				simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, (affectedEye.equals(eye1))? PatientInfo.Type.CNV1 : PatientInfo.Type.CNV2, this.getTs()));
 			}			
 		}
 		

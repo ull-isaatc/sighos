@@ -21,7 +21,7 @@ public class PatientCreator implements BasicElementCreator {
 	/** Associated simulation */
 	protected final RETALSimulation simul;
 	/** A distribution to characterize the initial age of each generated patient */
-	protected final TimeFunction initialAges = new ConstantFunction(40);
+	protected final TimeFunction initialAges;
 	/** Probability of being men */
 	protected final double pMen;
 	protected final Random RNG_SEX = new Random();
@@ -29,11 +29,12 @@ public class PatientCreator implements BasicElementCreator {
 	/**
 	 * 
 	 */
-	public PatientCreator(RETALSimulation simul, TimeFunction nPatients, double pMen) {
+	public PatientCreator(RETALSimulation simul, TimeFunction nPatients, double pMen, TimeFunction initialAges) {
 		// TODO Auto-generated constructor stub
 		this.nPatients = nPatients;
 		this.simul = simul;
 		this.pMen = pMen;
+		this.initialAges = initialAges;
 	}
 
 	protected Patient createPatient() {

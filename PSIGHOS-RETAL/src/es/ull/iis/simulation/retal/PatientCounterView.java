@@ -17,6 +17,9 @@ public class PatientCounterView extends View {
 	private int nEARM1;
 	private int nCNV1;
 	private int nGA1;
+	private int nEARM2;
+	private int nCNV2;
+	private int nGA2;
 	private int nDeaths;
 	
 	/**
@@ -38,6 +41,9 @@ public class PatientCounterView extends View {
 			System.out.println("DEVELOP EARM IN FIRST EYE: " + nEARM1);
 			System.out.println("DEVELOP CNV IN FIRST EYE: " + nCNV1);
 			System.out.println("DEVELOP GA IN FIRST EYE: " + nGA1);
+			System.out.println("DEVELOP EARM IN FELLOW EYE: " + nEARM2);
+			System.out.println("DEVELOP CNV IN FELLOW EYE: " + nCNV2);
+			System.out.println("DEVELOP GA IN FELLOW EYE: " + nGA2);
 			System.out.println("DEAD: " + nDeaths);
 		}
 		else if (info instanceof PatientInfo) {
@@ -53,6 +59,15 @@ public class PatientCounterView extends View {
 					break;
 				case GA1:
 					nGA1++;
+					break;
+				case EARM2:
+					nEARM2++;
+					break;
+				case CNV2:
+					nCNV2++;
+					break;
+				case GA2:
+					nGA2++;
 					break;
 				case DEATH:
 					nDeaths++;

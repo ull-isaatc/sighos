@@ -7,6 +7,7 @@ import es.ull.isaatc.function.ConstantFunction;
 import es.ull.isaatc.function.TimeFunction;
 
 /**
+ * FIXME: Create a different approach for appointments, since they are not additive
  * An item that describes a specific resource, the unit cost of this resource and how frequently is used this resource during a year 
  * @author Iván Castilla Rodríguez
  *

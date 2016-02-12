@@ -16,8 +16,8 @@ public class OphthalmologicPatientCreator extends PatientCreator {
 	 * @param nPatients
 	 * @param pMen
 	 */
-	public OphthalmologicPatientCreator(RETALSimulation simul, TimeFunction nPatients, double pMen) {
-		super(simul, nPatients, pMen);
+	public OphthalmologicPatientCreator(RETALSimulation simul, TimeFunction nPatients, double pMen, TimeFunction initialAges) {
+		super(simul, nPatients, pMen, initialAges);
 	}
 
 	@Override

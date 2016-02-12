@@ -21,6 +21,9 @@ public class PatientCounterHistogramView extends View {
 	private final int [] nEARM1;
 	private final int [] nCNV1;
 	private final int [] nGA1;
+	private final int [] nEARM2;
+	private final int [] nCNV2;
+	private final int [] nGA2;
 	private final int [] nDeaths;
 	
 	/**
@@ -37,6 +40,9 @@ public class PatientCounterHistogramView extends View {
 		nEARM1 = new int[nIntervals];
 		nCNV1 = new int[nIntervals];
 		nGA1 = new int[nIntervals];
+		nEARM2 = new int[nIntervals];
+		nCNV2 = new int[nIntervals];
+		nGA2 = new int[nIntervals];
 		nDeaths = new int[nIntervals];
 		addEntrance(PatientInfo.class);
 		addEntrance(SimulationEndInfo.class);
@@ -48,9 +54,9 @@ public class PatientCounterHistogramView extends View {
 	@Override
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof SimulationEndInfo) {
-			System.out.println("AGE\tBASELINE\tEARM 1E\tCNV 1E\tGA 1E\tDEATH");
+			System.out.println("AGE\tBASE\tEARM 1E\tCNV 1E\tGA 1E\tEARM 2E\tCNV 2E\tGA 2E\tDEATH");
 			for (int i = 0; i < nIntervals; i++)
-				System.out.println((minAge + i * length) + "\t" + nPatients[i] + "\t" + nEARM1[i] + "\t" + nCNV1[i] + "\t" + nGA1[i] + "\t" + nDeaths[i]);
+				System.out.println((minAge + i * length) + "\t" + nPatients[i] + "\t" + nEARM1[i] + "\t" + nCNV1[i] + "\t" + nGA1[i] + "\t" + nEARM2[i] + "\t" + nCNV2[i] + "\t" + nGA2[i] + "\t" + nDeaths[i]);
 		}
 		else if (info instanceof PatientInfo) {
 			int interval = (int)((((PatientInfo) info).getPatient().getAge() - minAge) / length);
@@ -66,6 +72,15 @@ public class PatientCounterHistogramView extends View {
 					break;
 				case GA1:
 					nGA1[interval]++;
+					break;
+				case EARM2:
+					nEARM2[interval]++;
+					break;
+				case CNV2:
+					nCNV2[interval]++;
+					break;
+				case GA2:
+					nGA2[interval]++;
 					break;
 				case DEATH:
 					nDeaths[interval]++;

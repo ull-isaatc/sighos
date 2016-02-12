@@ -11,6 +11,9 @@ import java.util.Random;
  */
 public class CommonParams extends ModelParams {
 	public final static int MAX_AGE = 104;
+	public final static int INIT_AGE = 40;
+	public final static double P_MEN = 0.5;
+	
 	// Parameters for death
 	private final static Random RNG_DEATH = new Random();
 	private final static double ALPHA_DEATH[] = new double[] {Math.exp(-10.09626023), Math.exp(-11.27134293)};
