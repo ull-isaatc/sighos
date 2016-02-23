@@ -1,0 +1,288 @@
+import java_cup.runtime.*;
+import es.ull.iis.simulation.factory.*;
+import java.io.StringReader;
+
+action code {:
+	private void reportError(String error) {
+		java.lang.Error err = new Error(error);
+		
+		err.printStackTrace();
+	}
+:}
+
+/* Terminals (tokens returned by the scanner). */
+// Tag terminals
+terminal	SymbolValue	STARTTAG, GETTAG, SETTAG, ENDTAG;
+// Puntuation terminals
+terminal	SymbolValue	LPAREN, RPAREN, COMMA, SPACE, DOT, CHAR;
+// Simulation objects terminals
+terminal	SymbolValue 	ACT, SIMUL, RESTYPE, RES, ELEMTYPE, DINELEM, DINELEMTYPE;
+terminal	SymbolValue		ACTPARAM, SIMULPARAM, RESTYPEPARAM, RESPARAM, ELEMTYPEPARAM, DINELEMPARAM, DINELEMTYPEPARAM, WGPARAM;	
+// Model characteristics terminals
+terminal	SymbolValue	TOTALACTIVITIES, TOTALRESOURCETYPES, TOTALRESOURCES, TOTALWORKGROUPS, TOTALELEMENTTYPES;
+terminal	SymbolValue INITIALSIMULATIONTIME, FINALSIMULATIONTIME, ID, ACTIVEELEMENTS, LASTSTART, LASTFINISH;
+terminal	SymbolValue	QUEUESIZE, AVAILABLERESOURCES, VARVIEW, CURRENTTS;
+// Strings terminals
+terminal	SymbolValue	VALUE, CODE;	 
+
+/* Non-terminals */
+non terminal	String source, setparams, tag, gettagexp, settagexp, getid, setid, value, complexvalue, param;
+non terminal	String actgetcharac, simulgetcharac, rtgetcharac, rgetcharac, etgetcharac, detgetcharac, degetcharac, getparams;
+
+/* The grammar */
+
+source ::=	{: RESULT = ""; :}
+			 		| STARTTAG tag:tg	source:src	{: RESULT = tg + src; :} 
+					| CODE:c source:src						{: RESULT = c.getValue() + src; :}
+;
+
+tag ::= 	gettagexp:exp		{: RESULT = exp; :}
+				| settagexp:exp		{: RESULT = exp; :}
+;
+
+gettagexp ::= GETTAG LPAREN getid:getcode RPAREN ENDTAG	{: RESULT = getcode; :}
+;
+
+getid ::= 	ACT:id actgetcharac:ch
+      				{: 
+								int pos = id.getValue().indexOf(".");
+								String number = id.getValue().substring(1,pos);
+      					RESULT = "simul.getActivity(" + number + ")." + ch; 
+							:}
+					|	SIMUL simulgetcharac:ch
+							{: 	
+								RESULT = "simul." + ch; 
+							:}
+					|	RESTYPE:id rtgetcharac:ch
+							{: 
+								int pos = id.getValue().indexOf(".");
+								String number = id.getValue().substring(2,pos);
+								RESULT = "simul.getResourceType(" + number + ")." + ch; 
+							:}
+					|	RES:id rgetcharac:ch
+							{: 
+								int pos = id.getValue().indexOf(".");
+								String number = id.getValue().substring(1,pos);
+								RESULT = "simul.getResourceList().get(" + number + ")." + ch; 
+							:}
+					|	ELEMTYPE:id etgetcharac:ch
+							{: 
+								int pos = id.getValue().indexOf(".");
+								String number = id.getValue().substring(2,pos);
+								RESULT = "simul.getElementType(" + number + ")." + ch; 
+							:}
+					|	DINELEMTYPE:id detgetcharac:ch
+							{:
+								if ((id.getContext().compareTo("logicExp") == 0) ||
+										(id.getContext().compareTo("beforeRequest") == 0) ||
+										(id.getContext().compareTo("inqueue") == 0) ||
+										(id.getContext().compareTo("afterStart") == 0) ||
+										(id.getContext().compareTo("afterFinalize") == 0))
+									RESULT = "((Element)e).getElementType()." + ch;
+								else {
+									reportError("The event " + id.getContext() + " can't access to an ElementType object."); 
+									RESULT = "";
+								}
+							:}
+					|  DINELEM:id degetcharac:ch
+							{: 
+								if ((id.getContext().compareTo("logicExp") == 0) ||
+										(id.getContext().compareTo("beforeRequest") == 0) ||
+										(id.getContext().compareTo("inqueue") == 0) ||
+										(id.getContext().compareTo("afterStart") == 0) ||
+										(id.getContext().compareTo("afterFinalize") == 0))
+									RESULT = "e." + ch;
+								else {
+									reportError("The event " + id.getContext() + " can't access to an Element object."); 
+									RESULT = "";
+								}
+							:}
+;
+
+actgetcharac ::= VALUE:var 		{: RESULT = "getVar(\"" + var.getValue() + "\").getValue().doubleValue()"; :}
+						 		| ID 					{: RESULT = "getId()"; :}
+								| LASTSTART 	{: RESULT = "getLastStartTs()"; :}
+								| LASTFINISH 	{: RESULT = "getLastFinishTs()"; :}
+								|	QUEUESIZE		{: RESULT = "getQueueSize()"; :}
+								| VARVIEW:var	getparams:param {:
+																		 						if ((var.getValue().compareTo("executionTime") == 0) || (var.getValue().compareTo("waitTime") == 0)
+																										|| (var.getValue().compareTo("executionCounter") == 0)) 
+																		   						RESULT = "getVarViewValue(\"" + var.getValue() + "\"" + param + ")"; 	
+																							:}
+;
+
+simulgetcharac ::= 	VALUE:var 							{: RESULT = "getVar(\"" + var.getValue() + "\").getValue().doubleValue()"; :}
+							 		| TOTALACTIVITIES 				{: RESULT = "getActivityList().size()"; :}
+									| TOTALRESOURCETYPES 			{: RESULT = "getResourceTypeList().size()"; :}
+									| TOTALRESOURCES 					{: RESULT = "getResourceList().size()"; :}
+									| TOTALWORKGROUPS					{: RESULT = "getWorkGroupList().size()"; :}
+									|	TOTALELEMENTTYPES				{: RESULT = "getElementTypeList().size()"; :}
+									| INITIALSIMULATIONTIME		{: RESULT = "getStartTs()"; :}
+									| FINALSIMULATIONTIME			{: RESULT = "getEndTs()"; :}
+									| ID											{: RESULT = "getId()"; :}
+									| ACTIVEELEMENTS					{: RESULT = "getActiveElementList().size()"; :}
+									| VARVIEW:var	getparams:param {:
+																			 						if (var.getValue().compareTo("createdElements") == 0) 
+																			   						RESULT = "getVarViewValue(\"" + var.getValue() + "\"" + param + ")"; 	
+																								:}
+;
+
+rtgetcharac ::= 	VALUE:var {: RESULT = "getVar(\"" + var.getValue() + "\").getValue().doubleValue()"; :} 
+								|	ID {: RESULT = "getId()"; :}
+								| AVAILABLERESOURCES {: RESULT = "getAvailableResources()";:}
+								| VARVIEW:var	getparams:param {:
+																		 						if ((var.getValue().compareTo("executionTime") == 0) 
+																										|| (var.getValue().compareTo("unavailabilityUse") == 0)	 
+																										|| (var.getValue().compareTo("cancelUse") == 0) )	
+																		   						RESULT = "getVarViewValue(\"" + var.getValue() + "\"" + param + ")"; 	
+																							:}
+;
+
+rgetcharac ::= 		VALUE:var {: RESULT = "getVar(\"" + var.getValue() + "\").getValue().doubleValue()"; :}
+					 			|	ID {: RESULT = "getId()"; :}
+								| VARVIEW:var	getparams:param {:
+																		 						if ( (var.getValue().compareTo("createdElements") == 0) 
+																										|| (var.getValue().compareTo("availabilityTime") == 0) 
+																										|| (var.getValue().compareTo("cancelTime") == 0)
+																										|| (var.getValue().compareTo("unavailabilityUse") == 0)	 
+																										|| (var.getValue().compareTo("executionTime") == 0)	 
+																										|| (var.getValue().compareTo("cancelUse") == 0)	) 
+																		   						RESULT = "getVarViewValue(\"" + var.getValue() + "\"" + param + ")"; 	
+																						  :}
+;
+
+etgetcharac ::= 	VALUE:var {: RESULT = "getVar(\"" + var.getValue() + "\").getValue().doubleValue()"; :}
+								|	ID {: RESULT = "getId()"; :}
+								| VARVIEW:var	getparams:param {:
+																		 						if ((var.getValue().compareTo("executionTime") == 0) || (var.getValue().compareTo("waitTime") == 0)
+																										|| (var.getValue().compareTo("executionCounter") == 0)
+																										|| (var.getValue().compareTo("requestCounter") == 0)
+																										|| (var.getValue().compareTo("currentElements") == 0))
+																		   						RESULT = "getVarViewValue(\"" + var.getValue() + "\"" + param + ")"; 	
+																						  :}
+;
+
+detgetcharac ::= 	VALUE:var {: RESULT = "getVar(\"" + var.getValue() + "\").getValue().doubleValue()"; :}
+						 		|	ID {: RESULT = "getId()"; :}
+								| VARVIEW:var	getparams:param {:
+																		 						if ((var.getValue().compareTo("executionTime") == 0) || (var.getValue().compareTo("waitTime") == 0)
+																											|| (var.getValue().compareTo("executionCounter") == 0)
+																											|| (var.getValue().compareTo("requestCounter") == 0)
+																											|| (var.getValue().compareTo("currentElements") == 0))
+																		   						RESULT = "getVarViewValue(\"" + var.getValue() + "\"" + param + ")"; 	
+																						  :}
+;
+
+degetcharac ::= 	VALUE:var {: RESULT = "getVar(\"" + var.getValue() + "\").getValue().doubleValue()"; :}
+								|	ID {: RESULT = "getId()"; :}
+								| VARVIEW:var	getparams:param {:
+																		 						if ((var.getValue().compareTo("executionTime") == 0) || (var.getValue().compareTo("waitTime") == 0)
+																											|| (var.getValue().compareTo("executionCounter") == 0) 
+																											|| (var.getValue().compareTo("requestCounter") == 0)) 
+																		   						RESULT = "getVarViewValue(\"" + var.getValue() + "\"" + param + ")"; 	
+																							:}
+;
+
+getparams ::=			 {: RESULT = ""; :}
+								| COMMA value:val getparams:params {: RESULT = "," + val + params; :}
+;
+
+settagexp ::= SETTAG LPAREN setparams:exp RPAREN ENDTAG	{: RESULT = exp; :}
+;
+
+setparams ::= setid:id COMMA value:val {: RESULT = id + "," + val + ")"; :}
+;
+
+setid ::=		ACT:id VALUE:var
+      				{: 
+								int pos = id.getValue().indexOf(".");
+								String number = id.getValue().substring(1,pos);
+      					RESULT = "simul.getActivity(" + number + ").putVar(\"" + var.getValue() + "\""; 
+							:}
+					|	SIMUL:id VALUE:var	
+							{: 	
+								RESULT = "simul.putVar(\"" + var.getValue() + "\""; 
+							:}
+					|	RESTYPE:id VALUE:var
+							{: 
+								int pos = id.getValue().indexOf(".");
+								String number = id.getValue().substring(1,pos);
+								RESULT = "simul.getResourceType(" + number + ").putVar(\"" + var.getValue() + "\""; 
+							:}
+					|  RES:id VALUE:var	
+							{: 
+								int pos = id.getValue().indexOf(".");
+								String number = id.getValue().substring(1,pos);
+								RESULT = "simul.getResourceList().get(" + number + ").putVar(\"" + var.getValue() + "\""; 
+							:}
+					|	ELEMTYPE:id VALUE:var
+							{: 
+								int pos = id.getValue().indexOf(".");
+								String number = id.getValue().substring(1,pos);
+								RESULT = "simul.getElementType(" + number + ").putVar(\"" + var.getValue() + "\""; 
+							:}
+					|	DINELEMTYPE:id VALUE:var
+							{: 
+								RESULT = "((Element)e).getElementType().putVar(\"" + var.getValue() + "\""; 
+							:}
+					|	DINELEM:id VALUE:var
+							{: 
+								RESULT = "e.putVar(\"" + var.getValue() + "\""; 
+							:}
+;
+
+value ::=	STARTTAG gettagexp:tag	value:val {: RESULT = tag + val; :}
+     		|	complexvalue:val {: RESULT = val; :}
+				| SPACE value:val {: RESULT = " " + val; :}
+				|	param:p value:val {: RESULT = p + val; :}
+				| CURRENTTS {: RESULT = "e.getTs()"; :} 
+;
+
+complexvalue ::= {: RESULT = ""; :} 
+						 	| VALUE:val  complexvalue:cmp {: RESULT = val.getValue() + cmp; :}
+						 	| DOT complexvalue:cmp {: RESULT = "." + cmp; :}
+						 	| LPAREN value:val RPAREN complexvalue:cmp2 {: RESULT = "(" + val + ")" + cmp2; :}
+							| CHAR:ch value:val {: RESULT = ch.getValue() + val; :}
+;
+
+param ::= ACTPARAM:p   
+					{: 
+						String number = p.getValue().substring(1,p.getValue().length());
+      			RESULT = "simul.getActivity(" + number + ")"; 
+					:}
+				| SIMULPARAM
+      		{: 
+      			RESULT = "simul"; 
+					:}
+				| RESPARAM:p
+      		{: 
+						String number = p.getValue().substring(1,p.getValue().length());
+						RESULT = "simul.getResourceList().get(" + number + ")";  
+					:}
+				| RESTYPEPARAM:p
+					{:
+						String number = p.getValue().substring(2,p.getValue().length());
+						RESULT = "simul.getResourceType(" + number + ")";
+					:}
+				| DINELEMPARAM:p
+					{:
+						RESULT = "e";
+					:}
+				| DINELEMTYPEPARAM:p
+					{:
+						RESULT = "((Element)e).getElementType()";
+					:}
+				| ELEMTYPEPARAM:p
+					{:
+						String number = p.getValue().substring(2,p.getValue().length());
+						RESULT = "simul.getElementType(" + number + ")";
+					:}
+				| WGPARAM:p
+					{:
+						String match = p.getValue();
+						int pointPos = match.indexOf(".");
+						String actNumber = match.substring(1,pointPos);
+						String wgNumber = match.substring(pointPos + 3,p.getValue().length());
+						RESULT = "simul.getActivity(" + actNumber + ").getWorkGroup(" + wgNumber + ")";
+					:}
+; 
