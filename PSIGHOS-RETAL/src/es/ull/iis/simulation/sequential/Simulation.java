@@ -10,7 +10,7 @@ import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.sequential.flow.Flow;
-import es.ull.isaatc.util.Output;
+import es.ull.iis.util.Output;
 
 /**
  * Main simulation class. A simulation needs a model (introduced by means of the

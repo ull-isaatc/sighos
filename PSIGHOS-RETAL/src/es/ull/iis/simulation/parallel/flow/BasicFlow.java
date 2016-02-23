@@ -37,7 +37,7 @@ public abstract class BasicFlow extends SimulationObject implements Flow {
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Flow#getParent()
+	 * @see es.ull.iis.simulation.Flow#getParent()
 	 */
 	public StructuredFlow getParent() {
 		return parent;
@@ -45,7 +45,7 @@ public abstract class BasicFlow extends SimulationObject implements Flow {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Flow#setParent(es.ull.isaatc.simulation.StructuredFlow)
+	 * @see es.ull.iis.simulation.Flow#setParent(es.ull.iis.simulation.StructuredFlow)
 	 */
 	public void setParent(es.ull.iis.simulation.core.flow.StructuredFlow parent) {
 		this.parent = (StructuredFlow)parent;

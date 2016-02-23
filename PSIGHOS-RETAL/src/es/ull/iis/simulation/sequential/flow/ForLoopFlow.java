@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
-import es.ull.isaatc.function.TimeFunction;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * A structured loop flow which resembles a for loop. The internal flow is
@@ -47,7 +47,7 @@ public class ForLoopFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	}
 	
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Flow#request(es.ull.isaatc.simulation.WorkThread)
+	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
 	public void request(WorkThread wThread) {
 		if (!wThread.wasVisited(this)) {
@@ -71,7 +71,7 @@ public class ForLoopFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.TaskFlow#finish(es.ull.isaatc.simulation.WorkThread)
+	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.WorkThread)
 	 */
 	public void finish(WorkThread wThread) {
 		int iter = checkList.get(wThread);

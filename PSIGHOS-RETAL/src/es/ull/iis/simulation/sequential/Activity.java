@@ -6,7 +6,7 @@ import java.util.Iterator;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.isaatc.util.PrioritizedTable;
+import es.ull.iis.util.PrioritizedTable;
 
 /**
  * A task which could be carried out by an element. An activity is characterized by its priority
@@ -74,7 +74,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 
     /*
      * (non-Javadoc)
-     * @see es.ull.isaatc.simulation.Describable#getDescription()
+     * @see es.ull.iis.simulation.Describable#getDescription()
      */
 	public String getDescription() {
 		return description;

@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.sequential;
 
 import es.ull.iis.simulation.core.SimulationCycle;
-import es.ull.isaatc.util.Cycle;
-import es.ull.isaatc.util.DiscreteCycleIterator;
+import es.ull.iis.util.Cycle;
+import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
  * A generator which creates elements following a temporal pattern. 
@@ -30,7 +30,7 @@ public class TimeDrivenGenerator extends Generator implements es.ull.iis.simulat
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.BasicElement#init()
+	 * @see es.ull.iis.simulation.BasicElement#init()
 	 */
 	@Override
 	protected void init() {

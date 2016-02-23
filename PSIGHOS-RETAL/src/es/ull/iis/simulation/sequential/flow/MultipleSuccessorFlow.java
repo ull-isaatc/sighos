@@ -29,7 +29,7 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements es.ull.
 	}
 	
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Flow#request(es.ull.isaatc.simulation.WorkThread)
+	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
 	public void request(WorkThread wThread) {
 		if (!wThread.wasVisited(this)) {
@@ -44,13 +44,13 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements es.ull.
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Flow#addPredecessor(es.ull.isaatc.simulation.Flow)
+	 * @see es.ull.iis.simulation.Flow#addPredecessor(es.ull.iis.simulation.Flow)
 	 */
 	public void addPredecessor(es.ull.iis.simulation.core.flow.Flow newFlow) {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Flow#link(es.ull.isaatc.simulation.Flow)
+	 * @see es.ull.iis.simulation.Flow#link(es.ull.iis.simulation.Flow)
 	 */
 	public void link(es.ull.iis.simulation.core.flow.Flow successor) {
 		successorList.add((Flow)successor);
@@ -70,7 +70,7 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements es.ull.
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Flow#setRecursiveStructureLink(es.ull.isaatc.simulation.StructuredFlow)
+	 * @see es.ull.iis.simulation.Flow#setRecursiveStructureLink(es.ull.iis.simulation.StructuredFlow)
 	 */
 	public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow parent, Set<es.ull.iis.simulation.core.flow.Flow> visited) {
 		 setParent(parent);

@@ -80,7 +80,7 @@ public class Patient extends BasicElement {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.sequential.BasicElement#init()
+	 * @see es.ull.iis.simulation.sequential.BasicElement#init()
 	 */
 	@Override
 	protected void init() {
@@ -89,7 +89,7 @@ public class Patient extends BasicElement {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.sequential.BasicElement#end()
+	 * @see es.ull.iis.simulation.sequential.BasicElement#end()
 	 */
 	@Override
 	protected void end() {
@@ -111,7 +111,7 @@ public class Patient extends BasicElement {
 	}
 	
 	/**
-	 * Redeclaration of addEvent to make it visible from the rest of classes of this package. @see es.ull.isaatc.simulation.sequential.BasicElement.addEvent
+	 * Redeclaration of addEvent to make it visible from the rest of classes of this package. @see es.ull.iis.simulation.sequential.BasicElement.addEvent
 	 * @param e
 	 */
 	protected void addEvent(DiscreteEvent e) {

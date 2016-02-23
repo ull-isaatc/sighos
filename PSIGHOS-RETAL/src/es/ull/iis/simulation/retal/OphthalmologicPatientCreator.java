@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.retal;
 
-import es.ull.isaatc.function.TimeFunction;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * @author Iván Castilla

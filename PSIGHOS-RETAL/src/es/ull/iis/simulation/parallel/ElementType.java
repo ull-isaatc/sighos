@@ -53,7 +53,7 @@ public class ElementType extends VariableStoreSimulationObject implements es.ull
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Describable#getDescription()
+	 * @see es.ull.iis.simulation.Describable#getDescription()
 	 */
 	public String getDescription() {
 		return description;
@@ -61,7 +61,7 @@ public class ElementType extends VariableStoreSimulationObject implements es.ull
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.util.Prioritizable#getPriority()
+	 * @see es.ull.iis.util.Prioritizable#getPriority()
 	 */
 	public int getPriority() {
 		return priority;

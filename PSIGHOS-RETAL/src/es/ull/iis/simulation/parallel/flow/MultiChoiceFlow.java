@@ -23,7 +23,7 @@ public class MultiChoiceFlow extends ConditionalFlow implements es.ull.iis.simul
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.BasicFlow#next(es.ull.isaatc.simulation.WorkThread)
+	 * @see es.ull.iis.simulation.BasicFlow#next(es.ull.iis.simulation.WorkThread)
 	 */
 	@Override
 	public void next(WorkThread wThread) {

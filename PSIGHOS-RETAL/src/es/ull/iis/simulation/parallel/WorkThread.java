@@ -8,7 +8,7 @@ import es.ull.iis.simulation.parallel.flow.BasicFlow;
 import es.ull.iis.simulation.parallel.flow.Flow;
 import es.ull.iis.simulation.parallel.flow.SingleFlow;
 import es.ull.iis.simulation.parallel.flow.TaskFlow;
-import es.ull.isaatc.util.Prioritizable;
+import es.ull.iis.util.Prioritizable;
 
 /**
  * A sequential branch of activities in an element's flow. Represents an element instance, so

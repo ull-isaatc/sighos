@@ -30,7 +30,7 @@ public abstract class TimeStampedSimulationObject extends VariableStoreSimulatio
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Debuggable#debug(java.lang.String)
+	 * @see es.ull.iis.simulation.Debuggable#debug(java.lang.String)
 	 */
     public void debug(String message) {
     	if (simul.isDebugEnabled())
@@ -39,7 +39,7 @@ public abstract class TimeStampedSimulationObject extends VariableStoreSimulatio
 	
     /*
      * (non-Javadoc)
-     * @see es.ull.isaatc.simulation.Debuggable#error(java.lang.String)
+     * @see es.ull.iis.simulation.Debuggable#error(java.lang.String)
      */
 	public void error(String description) {
 		simul.error(this.toString() + "\t" + getTs() + "\t" + description);
@@ -47,7 +47,7 @@ public abstract class TimeStampedSimulationObject extends VariableStoreSimulatio
     
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Debuggable#isDebugEnabled()
+	 * @see es.ull.iis.simulation.Debuggable#isDebugEnabled()
 	 */
 	public boolean isDebugEnabled() {
 		return simul.isDebugEnabled();

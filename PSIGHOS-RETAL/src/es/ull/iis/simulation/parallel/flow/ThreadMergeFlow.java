@@ -44,13 +44,13 @@ public class ThreadMergeFlow extends ANDJoinFlow implements es.ull.iis.simulatio
 	}
 	
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Flow#addPredecessor(es.ull.isaatc.simulation.Flow)
+	 * @see es.ull.iis.simulation.Flow#addPredecessor(es.ull.iis.simulation.Flow)
 	 */
 	public void addPredecessor(Flow predecessor) {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Flow#request(es.ull.isaatc.simulation.WorkThread)
+	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
 	public void request(WorkThread wThread) {
 		final Element elem = wThread.getElement();

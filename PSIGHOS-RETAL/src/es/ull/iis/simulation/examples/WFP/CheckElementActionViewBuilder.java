@@ -68,7 +68,7 @@ public class CheckElementActionViewBuilder extends View {
 	}
 	
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.inforeceiver.InfoReceiver#infoEmited(es.ull.isaatc.simulation.info.SimulationInfo)
+	 * @see es.ull.iis.simulation.inforeceiver.InfoReceiver#infoEmited(es.ull.iis.simulation.info.SimulationInfo)
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {

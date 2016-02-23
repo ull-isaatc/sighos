@@ -19,7 +19,7 @@ import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.TimeDrivenActivity.Modifier;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
-import es.ull.isaatc.function.TimeFunction;
+import es.ull.iis.function.TimeFunction;
 
 
 /**

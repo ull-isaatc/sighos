@@ -4,24 +4,24 @@
 package es.ull.iis.simulation.core;
 
 import simkit.random.RandomNumberFactory;
-import es.ull.isaatc.function.RandomFunction;
-import es.ull.isaatc.function.TimeFunction;
-import es.ull.isaatc.function.TimeFunctionFactory;
+import es.ull.iis.function.RandomFunction;
+import es.ull.iis.function.TimeFunction;
+import es.ull.iis.function.TimeFunctionFactory;
 
 /**
- * A wrapper class for {@link es.ull.isaatc.function.TimeFunction TimeFunction}.
+ * A wrapper class for {@link es.ull.iis.function.TimeFunction TimeFunction}.
  * Thus {@link TimeStamp} can be used to define the time function parameters.
  * @author Iván Castilla Rodríguez
  */
 public class SimulationTimeFunction {
-	/** Inner {@link es.ull.isaatc.function.TimeFunction TimeFunction} */
+	/** Inner {@link es.ull.iis.function.TimeFunction TimeFunction} */
 	private final TimeFunction function;
 
 	/**
 	 * Creates a time function to be used in a simulation.
 	 * @param unit Simulation time unit
 	 * @param className Name of the time function (must be a class accepted by 
-	 * {@link es.ull.isaatc.function.TimeFunctionFactory TimeFunctionFactory} 
+	 * {@link es.ull.iis.function.TimeFunctionFactory TimeFunctionFactory} 
 	 * @param parameters Parameters of the time function to be created
 	 */
 	public SimulationTimeFunction(TimeUnit unit, String className, Object... parameters) {
@@ -41,10 +41,10 @@ public class SimulationTimeFunction {
 	}
 	
 	/**
-	 * Returns the inner {@link es.ull.isaatc.function.TimeFunction TimeFunction}
-	 * @return the inner {@link es.ull.isaatc.function.TimeFunction TimeFunction}
+	 * Returns the inner {@link es.ull.iis.function.TimeFunction TimeFunction}
+	 * @return the inner {@link es.ull.iis.function.TimeFunction TimeFunction}
 	 */
-	public es.ull.isaatc.function.TimeFunction getFunction() {
+	public es.ull.iis.function.TimeFunction getFunction() {
 		return function;
 	}
 }

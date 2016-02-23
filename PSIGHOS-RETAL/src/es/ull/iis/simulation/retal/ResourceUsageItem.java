@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.retal;
 
-import es.ull.isaatc.function.ConstantFunction;
-import es.ull.isaatc.function.TimeFunction;
+import es.ull.iis.function.ConstantFunction;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * FIXME: Create a different approach for appointments, since they are not additive

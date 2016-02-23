@@ -24,7 +24,7 @@ import es.ull.iis.simulation.variable.LongVariable;
 import es.ull.iis.simulation.variable.ShortVariable;
 import es.ull.iis.simulation.variable.UserVariable;
 import es.ull.iis.simulation.variable.Variable;
-import es.ull.isaatc.util.Output;
+import es.ull.iis.util.Output;
 
 /**
  * Main simulation class, identified by means of an identifier and a description.

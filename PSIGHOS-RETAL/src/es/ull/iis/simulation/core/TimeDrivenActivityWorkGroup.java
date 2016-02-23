@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.core;
 
-import es.ull.isaatc.function.TimeFunction;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * An {@link ActivityWorkGroup} which includes a duration when associated to a {@link TimeDrivenActivity}.

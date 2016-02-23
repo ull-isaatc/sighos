@@ -22,7 +22,7 @@ public class MultiMergeFlow extends ORJoinFlow implements es.ull.iis.simulation.
 	}
 	
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.MergeFlow#canPass(es.ull.isaatc.simulation.WorkThread)
+	 * @see es.ull.iis.simulation.MergeFlow#canPass(es.ull.iis.simulation.WorkThread)
 	 */
 	@Override
 	protected boolean canPass(WorkThread wThread) {

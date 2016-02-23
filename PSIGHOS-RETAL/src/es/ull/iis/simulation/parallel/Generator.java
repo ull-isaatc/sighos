@@ -64,7 +64,7 @@ public abstract class Generator extends BasicElement {
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.BasicElement#end()
+	 * @see es.ull.iis.simulation.BasicElement#end()
 	 */
 	@Override
 	protected void end() {

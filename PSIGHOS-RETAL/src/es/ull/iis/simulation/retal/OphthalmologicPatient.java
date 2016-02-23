@@ -6,7 +6,7 @@ package es.ull.iis.simulation.retal;
 import java.util.EnumSet;
 import java.util.Random;
 
-import es.ull.isaatc.util.DiscreteCycleIterator;
+import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
  * @author Iván Castilla

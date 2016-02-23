@@ -6,7 +6,7 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeDrivenActivityWorkGroup;
 import es.ull.iis.simulation.info.ElementActionInfo;
-import es.ull.isaatc.function.TimeFunction;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * A task which could be carried out by an element in a specified time. This kind of activities
@@ -137,7 +137,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.iis.simulatio
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Activity#request(es.ull.isaatc.simulation.WorkItem)
+	 * @see es.ull.iis.simulation.Activity#request(es.ull.iis.simulation.WorkItem)
 	 */
 	@Override
 	public void request(WorkItem wItem) {
@@ -184,7 +184,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.iis.simulatio
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Activity#finish(es.ull.isaatc.simulation.WorkItem)
+	 * @see es.ull.iis.simulation.Activity#finish(es.ull.iis.simulation.WorkItem)
 	 */
 	@Override
 	public boolean finish(WorkItem wItem) {

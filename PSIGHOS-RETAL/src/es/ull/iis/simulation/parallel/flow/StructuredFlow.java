@@ -27,7 +27,7 @@ public abstract class StructuredFlow extends SingleSuccessorFlow implements Task
 	
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Flow#addPredecessor(es.ull.isaatc.simulation.Flow)
+	 * @see es.ull.iis.simulation.Flow#addPredecessor(es.ull.iis.simulation.Flow)
 	 */
 	public void addPredecessor(es.ull.iis.simulation.core.flow.Flow newFlow) {
 	}

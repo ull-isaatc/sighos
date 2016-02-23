@@ -17,7 +17,8 @@ import es.ull.iis.simulation.variable.Variable;
  *
  */
 public class ConditionFactory {
-	private final static String workingPkg = "es.ull.isaatc.simulation.common.condition";
+	// TODO: Change to get package automatically
+	private final static String workingPkg = "es.ull.iis.simulation.common.condition";
 	
 	/**
 	 * Generate a new condition through a logic expression. Parse the

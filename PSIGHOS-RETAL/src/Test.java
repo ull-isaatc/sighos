@@ -12,7 +12,7 @@ import es.ull.iis.simulation.factory.SimulationFactory;
 import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
-import es.ull.isaatc.function.TimeFunctionFactory;
+import es.ull.iis.function.TimeFunctionFactory;
 
 /**
  * 

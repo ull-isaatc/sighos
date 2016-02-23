@@ -68,7 +68,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.iis.simulatio
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.groupedExtraThreaded.Activity#carryOut(es.ull.isaatc.simulation.groupedExtraThreaded.WorkItem)
+	 * @see es.ull.iis.simulation.groupedExtraThreaded.Activity#carryOut(es.ull.iis.simulation.groupedExtraThreaded.WorkItem)
 	 */
 	@Override
 	public void carryOut(WorkItem wItem) {
@@ -84,7 +84,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.iis.simulatio
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.groupedExtraThreaded.Activity#finish(es.ull.isaatc.simulation.groupedExtraThreaded.WorkItem)
+	 * @see es.ull.iis.simulation.groupedExtraThreaded.Activity#finish(es.ull.iis.simulation.groupedExtraThreaded.WorkItem)
 	 */
 	@Override
 	public boolean finish(WorkItem wItem) {
@@ -99,7 +99,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.iis.simulatio
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.groupedExtraThreaded.Activity#request(es.ull.isaatc.simulation.groupedExtraThreaded.WorkItem)
+	 * @see es.ull.iis.simulation.groupedExtraThreaded.Activity#request(es.ull.iis.simulation.groupedExtraThreaded.WorkItem)
 	 */
 	@Override
 	public void request(WorkItem wItem) {

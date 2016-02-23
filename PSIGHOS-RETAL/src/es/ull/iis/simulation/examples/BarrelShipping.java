@@ -26,8 +26,8 @@ import es.ull.iis.simulation.factory.SimulationUserCode;
 import es.ull.iis.simulation.factory.UserMethod;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
-import es.ull.isaatc.function.TimeFunctionFactory;
-import es.ull.isaatc.util.WeeklyPeriodicCycle;
+import es.ull.iis.function.TimeFunctionFactory;
+import es.ull.iis.util.WeeklyPeriodicCycle;
 
 class BarrelShippingExperiment extends Experiment {
 

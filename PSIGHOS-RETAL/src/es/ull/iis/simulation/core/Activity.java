@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.core;
 
-import es.ull.isaatc.util.Prioritizable;
+import es.ull.iis.util.Prioritizable;
 
 /**
  * A task which requires certain amount and type of resources to be performed.

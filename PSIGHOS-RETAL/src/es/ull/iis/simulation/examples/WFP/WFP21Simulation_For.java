@@ -7,7 +7,7 @@ import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.ForLoopFlow;
 import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.isaatc.function.TimeFunctionFactory;
+import es.ull.iis.function.TimeFunctionFactory;
 
 /**
  * WFP 21. Example 2: Revelado fotográfico (implemented with a for structure)
@@ -27,7 +27,7 @@ public class WFP21Simulation_For extends WFPTestSimulationFactory {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.test.WFP.WFPTestSimulationFactory#createModel()
+	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel()
 	 */
 	@Override
 	protected void createModel() {

@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.core;
 
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.isaatc.util.Prioritizable;
+import es.ull.iis.util.Prioritizable;
 
 /**
  * A {@link WorkGroup} which is used inside an {@link Activity}. It may have an associated 

@@ -28,7 +28,7 @@ public class GeneralizedMergeFlowControl extends MergeFlowControl {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.MergeFlowControl#arrive(es.ull.isaatc.simulation.WorkThread)
+	 * @see es.ull.iis.simulation.MergeFlowControl#arrive(es.ull.iis.simulation.WorkThread)
 	 */
 	@Override
 	public void arrive(WorkThread wThread) {
@@ -45,7 +45,7 @@ public class GeneralizedMergeFlowControl extends MergeFlowControl {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.MergeFlowControl#canReset(int)
+	 * @see es.ull.iis.simulation.MergeFlowControl#canReset(int)
 	 */
 	@Override
 	public boolean canReset(int checkValue) {

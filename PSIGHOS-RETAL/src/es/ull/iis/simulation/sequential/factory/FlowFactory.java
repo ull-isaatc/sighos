@@ -18,7 +18,7 @@ import es.ull.iis.simulation.sequential.flow.Flow;
  *
  */
 public class FlowFactory {
-	private final static String workingPkg = "es.ull.isaatc.simulation.sequential.flow";
+	private final static String workingPkg = "es.ull.iis.simulation.sequential.flow";
 	static int id = 0;
 	/**
      * A list of packages to search for RandomVariates if the
@@ -49,7 +49,7 @@ public class FlowFactory {
 	/**
 	 * Finds the Flow Class corresponding to the given name. First
 	 * attempts to find the Flow assuming the the name is fully qualified.
-	 * Then searches the "search packages." The search path defaults to "es.ull.isaatc.sequential.flow"
+	 * Then searches the "search packages." The search path defaults to "es.ull.iis.sequential.flow"
 	 * but additional search packages can be added.
 	 **/
 	public static Class<?> findFullyQualifiedNameFor(String className) {
@@ -131,7 +131,7 @@ public class FlowFactory {
 	}
 
 	static public Flow getInstance(int id, String flowType, SimulationUserCode userMethods, Simulation simul, Object... initargs) {
-		userMethods.addImports("import es.ull.isaatc.simulation.sequential.*;");
+		userMethods.addImports("import es.ull.iis.simulation.sequential.*;");
 		Class<?>[] parameterTypes = StandardCompilator.param2Classes(initargs);
 		String cons = createConstructor(flowType, id, parameterTypes);
 		Object [] newParams = new Object[initargs.length + 1];

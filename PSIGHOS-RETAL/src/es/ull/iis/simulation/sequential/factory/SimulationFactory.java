@@ -25,14 +25,14 @@ import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationUserCode;
 import es.ull.iis.simulation.factory.StandardCompilator;
 import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.isaatc.function.TimeFunction;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
 public class SimulationFactory implements SimulationObjectFactory {
-	private final static String workingPkg = "es.ull.isaatc.simulation.sequential";
+	private final static String workingPkg = "es.ull.iis.simulation.sequential";
 	private final Simulation simul;
 	private int rtId;
 	private int resId;

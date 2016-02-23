@@ -3,17 +3,17 @@
  */
 package es.ull.iis.simulation.core;
 
-import es.ull.isaatc.util.Cycle;
-import es.ull.isaatc.util.TableCycle;
+import es.ull.iis.util.Cycle;
+import es.ull.iis.util.TableCycle;
 
 /**
- * A wrapper class for {@link es.ull.isaatc.util.TableCycle TableCycle} to be used inside a simulation. 
+ * A wrapper class for {@link es.ull.iis.util.TableCycle TableCycle} to be used inside a simulation. 
  * Thus {@link TimeStamp} can be used to define the cycle parameters.
  * @author Iván Castilla Rodríguez
  *
  */
 public class SimulationTableCycle implements SimulationCycle {
-	/** Inner {@link es.ull.isaatc.util.TableCycle TableCycle} */ 
+	/** Inner {@link es.ull.iis.util.TableCycle TableCycle} */ 
 	private final TableCycle cycle;
 	
 	/**

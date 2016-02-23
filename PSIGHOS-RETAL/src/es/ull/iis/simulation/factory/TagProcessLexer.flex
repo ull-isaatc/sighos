@@ -2,10 +2,10 @@
  * This class is a simple example lexer.
  */
 
-package es.ull.isaatc.simulation.factory;
+package es.ull.iis.simulation.factory;
  
 import java_cup.runtime.*;
-import es.ull.isaatc.simulation.factory.*;
+import es.ull.iis.simulation.factory.*;
  
 %%
 

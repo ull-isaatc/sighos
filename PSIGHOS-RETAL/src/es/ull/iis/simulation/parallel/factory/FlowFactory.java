@@ -18,7 +18,7 @@ import es.ull.iis.simulation.parallel.flow.Flow;
  *
  */
 public class FlowFactory {
-	private final static String workingPkg = Flow.class.getPackage().getName(); //"es.ull.isaatc.simulation.intervalGroupedThreaded.flow";
+	private final static String workingPkg = Flow.class.getPackage().getName(); //"es.ull.iis.simulation.intervalGroupedThreaded.flow";
 	static int id = 0;
 	/**
      * A list of packages to search for RandomVariates if the
@@ -49,7 +49,7 @@ public class FlowFactory {
 	/**
 	 * Finds the Flow Class corresponding to the given name. First
 	 * attempts to find the Flow assuming the the name is fully qualified.
-	 * Then searches the "search packages." The search path defaults to "es.ull.isaatc.threaded.flow"
+	 * Then searches the "search packages." The search path defaults to "es.ull.iis.threaded.flow"
 	 * but additional search packages can be added.
 	 **/
 	public static Class<?> findFullyQualifiedNameFor(String className) {

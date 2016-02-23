@@ -10,7 +10,7 @@ import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.sequential.flow.BasicFlow;
 import es.ull.iis.simulation.sequential.flow.FinalizerFlow;
 import es.ull.iis.simulation.sequential.flow.InitializerFlow;
-import es.ull.isaatc.util.RandomPermutation;
+import es.ull.iis.util.RandomPermutation;
 
 /**
  * A task which could be carried out by an element and whose duration depends on the finalization
@@ -151,7 +151,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.iis.simulatio
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Activity#finish(es.ull.isaatc.simulation.WorkItem)
+	 * @see es.ull.iis.simulation.Activity#finish(es.ull.iis.simulation.WorkItem)
 	 */
 	@Override
 	public boolean finish(WorkItem wItem) {
@@ -176,7 +176,7 @@ public class FlowDrivenActivity extends Activity implements es.ull.iis.simulatio
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Activity#request(es.ull.isaatc.simulation.WorkItem)
+	 * @see es.ull.iis.simulation.Activity#request(es.ull.iis.simulation.WorkItem)
 	 */
 	@Override
 	public void request(WorkItem wItem) {

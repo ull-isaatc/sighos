@@ -97,7 +97,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements es.ull.ii
 	
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Flow#request(es.ull.isaatc.simulation.WorkThread)
+	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
 	public void request(WorkThread wThread) {
 		if (!wThread.wasVisited(this)) {
@@ -125,7 +125,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements es.ull.ii
 	
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Flow#addPredecessor(es.ull.isaatc.simulation.Flow)
+	 * @see es.ull.iis.simulation.Flow#addPredecessor(es.ull.iis.simulation.Flow)
 	 */
 	public void addPredecessor(es.ull.iis.simulation.core.flow.Flow newFlow) {
 		incomingBranches++;

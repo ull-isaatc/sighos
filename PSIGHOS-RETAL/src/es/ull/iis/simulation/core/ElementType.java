@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.core;
 
-import es.ull.isaatc.util.Prioritizable;
+import es.ull.iis.util.Prioritizable;
 
 /**
  * The type of an element. It serves for grouping and identification purposes. Elements

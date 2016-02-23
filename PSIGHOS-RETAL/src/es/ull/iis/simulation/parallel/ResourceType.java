@@ -33,7 +33,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Describable#getDescription()
+	 * @see es.ull.iis.simulation.Describable#getDescription()
 	 */
 	public String getDescription() {
 		return description;

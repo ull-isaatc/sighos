@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.core.flow;
 
-import es.ull.isaatc.function.TimeFunction;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * A {@link StructuredLoopFlow} which resembles a for loop. The internal flow is

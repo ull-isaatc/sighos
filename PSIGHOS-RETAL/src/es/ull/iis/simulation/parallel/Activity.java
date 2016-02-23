@@ -7,7 +7,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.isaatc.util.PrioritizedTable;
+import es.ull.iis.util.PrioritizedTable;
 
 /**
  * A task which could be carried out by a {@link WorkItem} and requires certain amount and 

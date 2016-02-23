@@ -11,7 +11,7 @@ import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
-import es.ull.isaatc.function.ConstantFunction;
+import es.ull.iis.function.ConstantFunction;
 
 /**
  * @author Iván Castilla

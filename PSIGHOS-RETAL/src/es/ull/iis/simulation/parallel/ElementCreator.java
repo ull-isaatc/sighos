@@ -6,7 +6,7 @@ package es.ull.iis.simulation.parallel;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.parallel.flow.InitializerFlow;
-import es.ull.isaatc.function.TimeFunction;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * Defines the way a generator creates elements when it's time to create them.
@@ -59,7 +59,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.BasicElementCreator#create(es.ull.isaatc.simulation.Generator)
+	 * @see es.ull.iis.simulation.BasicElementCreator#create(es.ull.iis.simulation.Generator)
 	 */
 	public void create(Generator gen) {
 		int n = (int)nElem.getPositiveValue(gen.getTs());

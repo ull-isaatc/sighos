@@ -38,7 +38,7 @@ public class WhileDoFlow extends StructuredLoopFlow implements es.ull.iis.simula
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Flow#request(es.ull.isaatc.simulation.WorkThread)
+	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
 	public void request(WorkThread wThread) {
 		if (!wThread.wasVisited(this)) {
@@ -61,7 +61,7 @@ public class WhileDoFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.TaskFlow#finish(es.ull.isaatc.simulation.WorkThread)
+	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.WorkThread)
 	 */
 	public void finish(WorkThread wThread) {
 		// The loop condition is checked

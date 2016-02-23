@@ -29,7 +29,7 @@ public class WFP21Simulation_DoWhile extends WFPTestSimulationFactory {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.test.WFP.WFPTestSimulationFactory#createModel()
+	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel()
 	 */
 	@Override
 	protected void createModel() {

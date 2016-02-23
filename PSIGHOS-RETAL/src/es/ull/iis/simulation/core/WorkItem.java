@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.core;
 
 import es.ull.iis.simulation.core.flow.SingleFlow;
-import es.ull.isaatc.util.Prioritizable;
+import es.ull.iis.util.Prioritizable;
 
 /**
  * A work item is an instance of an {@link Element} performing a {@link SingleFlow}.

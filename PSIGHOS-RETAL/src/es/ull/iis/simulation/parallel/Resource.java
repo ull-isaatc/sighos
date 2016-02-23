@@ -10,7 +10,7 @@ import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeTableEntry;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
-import es.ull.isaatc.util.DiscreteCycleIterator;
+import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
  * A resource is an element that becomes available at a specific simulation time and 

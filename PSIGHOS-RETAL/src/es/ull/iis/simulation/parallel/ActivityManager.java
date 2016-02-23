@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.core.Describable;
-import es.ull.isaatc.util.PrioritizedMap;
+import es.ull.iis.util.PrioritizedMap;
 
 /**
  * Partition of activities. It serves as a mutual exclusion mechanism to access a set of activities

@@ -1,5 +1,5 @@
 import java_cup.runtime.*;
-import es.ull.isaatc.simulation.factory.*;
+import es.ull.iis.simulation.factory.*;
 import java.io.StringReader;
 
 action code {:

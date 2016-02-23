@@ -25,7 +25,7 @@ import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationUserCode;
 import es.ull.iis.simulation.factory.StandardCompilator;
 import es.ull.iis.simulation.parallel.Simulation;
-import es.ull.isaatc.function.TimeFunction;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * @author Iván Castilla Rodríguez

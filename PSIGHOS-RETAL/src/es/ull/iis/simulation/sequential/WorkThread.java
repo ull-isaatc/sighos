@@ -8,7 +8,7 @@ import es.ull.iis.simulation.sequential.flow.Flow;
 import es.ull.iis.simulation.sequential.flow.InitializerFlow;
 import es.ull.iis.simulation.sequential.flow.SingleFlow;
 import es.ull.iis.simulation.sequential.flow.TaskFlow;
-import es.ull.isaatc.util.Prioritizable;
+import es.ull.iis.util.Prioritizable;
 
 /**
  * A sequential branch of activities in an element's flow. Represents an element instance, so
@@ -169,7 +169,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.Identifiable#getIdentifier()
+	 * @see es.ull.iis.simulation.Identifiable#getIdentifier()
 	 */
 	public int getIdentifier() {
 		return id;

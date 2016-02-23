@@ -9,7 +9,7 @@ import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeTableEntry;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
-import es.ull.isaatc.util.DiscreteCycleIterator;
+import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
  * A resource is an element that becomes available at a specific simulation time and 
@@ -54,7 +54,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.BasicElement#init()
+	 * @see es.ull.iis.simulation.BasicElement#init()
 	 */
 	@Override
     protected void init() {
@@ -85,7 +85,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.BasicElement#end()
+	 * @see es.ull.iis.simulation.BasicElement#end()
 	 */
 	@Override
 	protected void end() {		
@@ -162,7 +162,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
 
     /*
      * (non-Javadoc)
-     * @see es.ull.isaatc.simulation.Describable#getDescription()
+     * @see es.ull.iis.simulation.Describable#getDescription()
      */
 	public String getDescription() {
 		return description;

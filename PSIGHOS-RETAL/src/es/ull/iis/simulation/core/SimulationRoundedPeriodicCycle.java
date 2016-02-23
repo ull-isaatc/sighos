@@ -3,9 +3,9 @@
  */
 package es.ull.iis.simulation.core;
 
-import es.ull.isaatc.util.Cycle;
-import es.ull.isaatc.util.RoundedPeriodicCycle;
-import es.ull.isaatc.util.RoundedPeriodicCycle.Type;
+import es.ull.iis.util.Cycle;
+import es.ull.iis.util.RoundedPeriodicCycle;
+import es.ull.iis.util.RoundedPeriodicCycle.Type;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -69,7 +69,7 @@ public class SimulationRoundedPeriodicCycle implements SimulationCycle {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.SimulationCycle#getCycle()
+	 * @see es.ull.iis.simulation.SimulationCycle#getCycle()
 	 */
 	@Override
 	public Cycle getCycle() {

@@ -8,8 +8,8 @@ import java.util.Random;
 import es.ull.iis.simulation.sequential.BasicElement;
 import es.ull.iis.simulation.sequential.BasicElementCreator;
 import es.ull.iis.simulation.sequential.Generator;
-import es.ull.isaatc.function.ConstantFunction;
-import es.ull.isaatc.function.TimeFunction;
+import es.ull.iis.function.ConstantFunction;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -42,7 +42,7 @@ public class PatientCreator implements BasicElementCreator {
 	}
 	
 	/* (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.sequential.BasicElementCreator#create(es.ull.isaatc.simulation.sequential.Generator)
+	 * @see es.ull.iis.simulation.sequential.BasicElementCreator#create(es.ull.iis.simulation.sequential.Generator)
 	 */
 	@Override
 	public void create(Generator gen) {

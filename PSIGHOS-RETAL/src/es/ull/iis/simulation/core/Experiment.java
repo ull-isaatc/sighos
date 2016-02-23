@@ -57,7 +57,7 @@ public abstract class Experiment implements Describable {
 
 	/*
 	 * (non-Javadoc)
-	 * @see es.ull.isaatc.simulation.common.Describable#getDescription()
+	 * @see es.ull.iis.simulation.common.Describable#getDescription()
 	 */
 	@Override
 	public String getDescription() {
