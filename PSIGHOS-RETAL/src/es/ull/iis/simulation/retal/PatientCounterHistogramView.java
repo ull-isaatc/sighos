@@ -6,13 +6,13 @@ package es.ull.iis.simulation.retal;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
  * @author Iván Castilla
  *
  */
-public class PatientCounterHistogramView extends View {
+public class PatientCounterHistogramView extends Listener {
 	private final int length;
 	private final int nIntervals;
 	private final int minAge;
@@ -44,6 +44,7 @@ public class PatientCounterHistogramView extends View {
 		nCNV2 = new int[nIntervals];
 		nGA2 = new int[nIntervals];
 		nDeaths = new int[nIntervals];
+		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
 		addEntrance(SimulationEndInfo.class);
 	}

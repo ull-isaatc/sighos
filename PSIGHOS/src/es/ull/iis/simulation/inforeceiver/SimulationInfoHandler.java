@@ -20,7 +20,6 @@ import es.ull.iis.simulation.info.VarViewValueRequestInfo;
 import es.ull.iis.simulation.inforeceiver.InfoHandler;
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
 import es.ull.iis.simulation.inforeceiver.Listener;
-import es.ull.iis.simulation.retal.PatientInfo;
 
 public class SimulationInfoHandler implements InfoHandler {
 
@@ -43,8 +42,6 @@ public class SimulationInfoHandler implements InfoHandler {
 		definedInfos.add(ResourceInfo.class);
 		definedInfos.add(ResourceUsageInfo.class);
 		definedInfos.add(TimeChangeInfo.class);
-		//TODO: Esto no debería estar aquí
-		definedInfos.add(PatientInfo.class);
 	}
 		
 	private boolean isUserInfo(Type type) {

@@ -6,13 +6,13 @@ package es.ull.iis.simulation.retal;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
  * @author Iván Castilla
  *
  */
-public class PatientCounterView extends View {
+public class PatientCounterView extends Listener {
 	private int nPatients;
 	private int nEARM1;
 	private int nCNV1;
@@ -27,6 +27,7 @@ public class PatientCounterView extends View {
 	 */
 	public PatientCounterView(Simulation simul) {
 		super(simul, "Counter of patients");
+		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
 		addEntrance(SimulationEndInfo.class);
 	}
