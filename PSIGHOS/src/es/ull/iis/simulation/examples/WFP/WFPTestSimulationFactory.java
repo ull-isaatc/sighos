@@ -5,7 +5,6 @@ package es.ull.iis.simulation.examples.WFP;
 
 import java.util.EnumSet;
 
-import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.Resource;
 import es.ull.iis.simulation.core.ResourceType;
@@ -21,6 +20,7 @@ import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.factory.SimulationFactory;
 import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
+import es.ull.iis.function.TimeFunctionFactory;
 
 /**
  * The base class to create tests for Workflow patterns.

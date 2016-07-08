@@ -5,7 +5,6 @@ package es.ull.iis.simulation.parallel.factory;
 
 import java.util.EnumSet;
 
-import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.ElementCreator;
 import es.ull.iis.simulation.core.ElementType;
@@ -26,6 +25,7 @@ import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationUserCode;
 import es.ull.iis.simulation.factory.StandardCompilator;
 import es.ull.iis.simulation.parallel.Simulation;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * @author Iván Castilla Rodríguez

@@ -53,8 +53,7 @@ public class CheckFlowsView extends WFPTestView {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * es.ull.iis.simulation.inforeceiver.InfoReceiver#infoEmited(es.ull.
-	 * isaatc.simulation.info.SimulationInfo)
+	 * es.ull.iis.simulation.inforeceiver.InfoReceiver#infoEmited(es.ull.iis.simulation.info.SimulationInfo)
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {

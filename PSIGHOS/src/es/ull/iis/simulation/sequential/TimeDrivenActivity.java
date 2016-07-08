@@ -4,11 +4,11 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
-import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeDrivenActivityWorkGroup;
 import es.ull.iis.simulation.info.ElementActionInfo;
+import es.ull.iis.function.TimeFunction;
 import es.ull.iis.util.RandomPermutation;
 
 /**

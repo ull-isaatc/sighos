@@ -1,7 +1,6 @@
 package es.ull.iis.simulation.examples;
 import java.util.EnumSet;
 
-import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.FlowDrivenActivity;
@@ -18,6 +17,7 @@ import es.ull.iis.simulation.factory.SimulationFactory;
 import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
+import es.ull.iis.function.TimeFunctionFactory;
 
 /**
  * 

@@ -45,7 +45,7 @@ public enum TimeUnit {
 	 * @param sourceUnit Source time unit
 	 * @return The value of the source when expressed as this time unit.
 	 */
-	public long convert(long sourceValue, TimeUnit sourceUnit) {
+	public long convert(double sourceValue, TimeUnit sourceUnit) {
 		return Math.round(sourceValue * conversion[sourceUnit.ordinal()][ordinal()]);
 	}
 	

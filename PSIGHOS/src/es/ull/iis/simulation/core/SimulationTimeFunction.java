@@ -3,10 +3,10 @@
  */
 package es.ull.iis.simulation.core;
 
+import simkit.random.RandomNumberFactory;
 import es.ull.iis.function.RandomFunction;
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
-import simkit.random.RandomNumberFactory;
 
 /**
  * A wrapper class for {@link es.ull.iis.function.TimeFunction TimeFunction}.

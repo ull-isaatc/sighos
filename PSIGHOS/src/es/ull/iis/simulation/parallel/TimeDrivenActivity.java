@@ -2,11 +2,11 @@ package es.ull.iis.simulation.parallel;
 
 import java.util.EnumSet;
 
-import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeDrivenActivityWorkGroup;
 import es.ull.iis.simulation.info.ElementActionInfo;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * A task which could be carried out by an element in a specified time. This kind of activities

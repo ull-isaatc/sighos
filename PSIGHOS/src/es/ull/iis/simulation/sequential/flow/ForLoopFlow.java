@@ -6,9 +6,9 @@ package es.ull.iis.simulation.sequential.flow;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * A structured loop flow which resembles a for loop. The internal flow is

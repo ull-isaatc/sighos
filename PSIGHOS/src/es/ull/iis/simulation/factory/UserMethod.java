@@ -21,6 +21,7 @@ public enum UserMethod {
 	BEFORE_ROLE_OFF("beforeRoleOff", ResourceType.class, "public double beforeRoleOff()"),
 	AFTER_ROLE_ON("afterRoleOn", ResourceType.class, "public void afterRoleOn()"),
 	AFTER_ROLE_OFF("afterRoleOff", ResourceType.class, "public void afterRoleOff()"),
+	// TODO: Change to get package automatically
 	BEFORE_REQUEST("beforeRequest", Flow.class, "public boolean beforeRequest(es.ull.iis.simulation.core.Element e)", Element.class),
 	AFTER_FINALIZE("afterFinalize", TaskFlow.class, "public void afterFinalize(es.ull.iis.simulation.core.Element e)", Element.class),
 	AFTER_START("afterStart", SingleFlow.class, "public void afterStart(es.ull.iis.simulation.core.Element e)", Element.class),

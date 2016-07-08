@@ -5,7 +5,6 @@ package es.ull.iis.simulation.factory;
 
 import java.util.EnumSet;
 
-import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.ElementCreator;
 import es.ull.iis.simulation.core.ElementType;
@@ -20,6 +19,7 @@ import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.TimeDrivenActivity.Modifier;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.function.TimeFunction;
 
 
 /**

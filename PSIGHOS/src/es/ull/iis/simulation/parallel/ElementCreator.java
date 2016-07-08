@@ -5,8 +5,8 @@ package es.ull.iis.simulation.parallel;
 
 import java.util.ArrayList;
 
-import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.parallel.flow.InitializerFlow;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * Defines the way a generator creates elements when it's time to create them.

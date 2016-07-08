@@ -1,6 +1,5 @@
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.TimeDrivenActivity;
@@ -8,6 +7,7 @@ import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.ForLoopFlow;
 import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
+import es.ull.iis.function.TimeFunctionFactory;
 
 /**
  * WFP 21. Example 2: Revelado fotográfico (implemented with a for structure)

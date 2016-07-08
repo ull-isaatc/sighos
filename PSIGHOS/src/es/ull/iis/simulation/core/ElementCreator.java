@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.core;
 
-import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.function.TimeFunction;
 
 /**
  * @author Iván Castilla Rodríguez
