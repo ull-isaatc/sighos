@@ -1,6 +1,0 @@
-<Plugins>
-	<plugin>
-		<description>Plugin de edición de workflows</description>
-		<pluginClass>es.ull.isaatc.simulation.editor.plugin.designer.SighosDesignerPlugin</pluginClass>
-	</plugin>
-</Plugins>
