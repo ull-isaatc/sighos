@@ -5,11 +5,10 @@ package es.ull.iis.simulation.retal;
 
 import java.util.Random;
 
+import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.sequential.BasicElement;
 import es.ull.iis.simulation.sequential.BasicElementCreator;
 import es.ull.iis.simulation.sequential.Generator;
-import es.ull.iis.function.ConstantFunction;
-import es.ull.iis.function.TimeFunction;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -17,7 +16,7 @@ import es.ull.iis.function.TimeFunction;
  */
 public class PatientCreator implements BasicElementCreator {
 	/** Number of objects created each time this creator is invoked. */
-	protected final TimeFunction nPatients;
+	protected final int nPatients;
 	/** Associated simulation */
 	protected final RETALSimulation simul;
 	/** A distribution to characterize the initial age of each generated patient */
@@ -29,7 +28,7 @@ public class PatientCreator implements BasicElementCreator {
 	/**
 	 * 
 	 */
-	public PatientCreator(RETALSimulation simul, TimeFunction nPatients, double pMen, TimeFunction initialAges) {
+	public PatientCreator(RETALSimulation simul, int nPatients, double pMen, TimeFunction initialAges) {
 		// TODO Auto-generated constructor stub
 		this.nPatients = nPatients;
 		this.simul = simul;
@@ -38,7 +37,9 @@ public class PatientCreator implements BasicElementCreator {
 	}
 
 	protected Patient createPatient() {
-		return new Patient(simul, initialAges.getValue(0), (RNG_SEX.nextDouble() < pMen) ? 0 : 1);
+		final int sex = (RNG_SEX.nextDouble() < pMen) ? 0 : 1;
+		final double age = initialAges.getValue(0);
+		return new Patient(simul, age, sex, simul.getTimeToDeath(age, sex));
 	}
 	
 	/* (non-Javadoc)
@@ -46,8 +47,7 @@ public class PatientCreator implements BasicElementCreator {
 	 */
 	@Override
 	public void create(Generator gen) {
-		int n = (int)nPatients.getPositiveValue(gen.getTs());
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < nPatients; i++) {
 			Patient p = createPatient();
 			final BasicElement.DiscreteEvent ev = p.getStartEvent(simul.getTs());
 			p.addEvent(ev);

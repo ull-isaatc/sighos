@@ -33,28 +33,28 @@ public class RETALSimulation extends Simulation {
 		super(id, DESCRIPTION, SIMUNIT, SIMSTART, SIMEND);
 		this.commonParams = commonParams;
 		this.armdParams = armdParams;
-		PatientCreator creator = new OphthalmologicPatientCreator(this, new ConstantFunction(nPatients), pMen, new ConstantFunction(initAge));
+		PatientCreator creator = new OphthalmologicPatientCreator(this, nPatients, pMen, new ConstantFunction(initAge));
 		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
 //		addInfoReceiver(new PatientInfoView(this));
 		addInfoReceiver(new PatientCounterView(this));
-		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5));
+		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5, true));
 	}
 
 	/**
 	 * @return the deathtime
 	 */
-	protected long getTimeToDeath(Patient pat) {
-		final double time = commonParams.getDeathTime(pat.getAge(), pat.getSex());
+	protected long getTimeToDeath(double age, int sex) {
+		final double time = commonParams.getDeathTime(age, sex);
 		return getTs() + unit.convert(time, TimeUnit.YEAR);
 	}
 
-	protected long getTimeToEARM(OphthalmologicPatient pat) {
-		final double time = armdParams.getEARMTime(pat.getAge());
+	protected long getTimeToEARM(double age) {
+		final double time = armdParams.getEARMTime(age);
 		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : getTs() +  unit.convert(time, TimeUnit.YEAR);
 	}
 
-	protected long getTimeToAMD(OphthalmologicPatient pat) {
-		final double time = armdParams.getAMDTime(pat.getAge());
+	protected long getTimeToAMD(double age) {
+		final double time = armdParams.getAMDTime(age);
 		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : getTs() +  unit.convert(time, TimeUnit.YEAR);
 	}
 	

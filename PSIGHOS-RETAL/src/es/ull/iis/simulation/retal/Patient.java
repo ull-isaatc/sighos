@@ -47,7 +47,7 @@ public class Patient extends BasicElement {
 	 * @param initAge The initial age of the patient
 	 * @param sex Sex of the patient
 	 */
-	public Patient(RETALSimulation simul, double initAge, int sex) {
+	public Patient(RETALSimulation simul, double initAge, int sex, long timeToDeath) {
 		super(patientCounter, simul);
 		intervention = new NullIntervention();
 		patientCounter += N_INTERVENTIONS;
@@ -56,7 +56,7 @@ public class Patient extends BasicElement {
 		this.clonedFrom = null;
 		this.nIntervention = 0;
 		// Limiting lifespan to MAX AGE
-		timeToDeath = simul.getTimeToDeath(this);
+		this.timeToDeath = timeToDeath;
 	}
 
 	/**

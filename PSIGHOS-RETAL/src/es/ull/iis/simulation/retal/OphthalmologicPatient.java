@@ -52,13 +52,13 @@ public class OphthalmologicPatient extends Patient {
 	 * @param initAge
 	 * @param sex
 	 */
-	public OphthalmologicPatient(RETALSimulation simul, double initAge, int sex) {
-		super(simul, initAge, sex);
+	public OphthalmologicPatient(RETALSimulation simul, double initAge, int sex, long timeToDeath, long timeToEARM, long timeToAMD) {
+		super(simul, initAge, sex, timeToDeath);
 		eye1 = EnumSet.noneOf(EyeState.class);
 		eye2 = EnumSet.noneOf(EyeState.class);
 		// Check if all the events are required
-		timeToEARM = simul.getTimeToEARM(this);
-		timeToAMD = simul.getTimeToAMD(this);
+		this.timeToEARM = timeToEARM;
+		this.timeToAMD = timeToAMD;
 		
 		this.rndProbCNV1 = RNG_P_CNV1.nextDouble();
 		this.rndSensitivity = RNG_SENSITIVITY.nextDouble();
@@ -73,8 +73,21 @@ public class OphthalmologicPatient extends Patient {
 		super(original, nIntervention);
 		this.eye1 = EnumSet.copyOf(original.eye1);
 		this.eye2 = EnumSet.copyOf(original.eye2);
-		this.timeToEARM = (original.timeToEARM < Long.MAX_VALUE) ? original.timeToEARM + TEST_DELAY * nIntervention : Long.MAX_VALUE;
-		this.timeToAMD = (original.timeToAMD < Long.MAX_VALUE) ? original.timeToAMD + TEST_DELAY * nIntervention : Long.MAX_VALUE;
+		// FIXME: Check if this is the way to apply improvements
+		if (original.timeToEARM < Long.MAX_VALUE) {
+			this.timeToAMD = Long.MAX_VALUE;
+			if (original.timeToEARM + TEST_DELAY * nIntervention < timeToDeath)
+				this.timeToEARM += TEST_DELAY * nIntervention;
+			else
+				this.timeToEARM = Long.MAX_VALUE;
+		} 
+		else if (original.timeToAMD < Long.MAX_VALUE) {
+			this.timeToEARM = Long.MAX_VALUE;
+			if (original.timeToAMD + TEST_DELAY * nIntervention < timeToDeath)
+				this.timeToAMD += TEST_DELAY * nIntervention;
+			else
+				this.timeToAMD = Long.MAX_VALUE;
+		}
 		this.rndProbCNV1 = original.rndProbCNV1;
 		this.rndSensitivity = original.rndSensitivity;
 		this.rndSpecificity = original.rndSpecificity;
@@ -83,19 +96,8 @@ public class OphthalmologicPatient extends Patient {
 	@Override
 	protected void init() {
 		super.init();
-		// Do not schedule EARM if death happens before
-		if (timeToDeath <= timeToEARM) {
-			this.eARMEvent = null;
-			timeToEARM = Long.MAX_VALUE;
-		}
-		// Do not schedule AMD if death happens before
-		if (timeToDeath <= timeToAMD) {
-			this.aMDEvent = null;
-			timeToAMD = Long.MAX_VALUE;
-		}
-
 		// Do not schedule AMD if EARM happens before
-		if (timeToEARM < timeToAMD) {
+		if (timeToEARM < Long.MAX_VALUE) {
 			this.aMDEvent = null;
 			this.eARMEvent = new EARMEvent(timeToEARM, eye1, eye2);
 			addEvent(eARMEvent);
@@ -186,7 +188,7 @@ public class OphthalmologicPatient extends Patient {
 				affectedEye.add(EyeState.EARM);
 				simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, (affectedEye.equals(eye1))? PatientInfo.Type.EARM1 : PatientInfo.Type.EARM2, this.getTs()));
 				long timeToAMD = ((RETALSimulation)simul).getTimeToAMDFromEARM(OphthalmologicPatient.this);
-				System.out.println(ts + "\t" + OphthalmologicPatient.this + "\t" + timeToAMD + "\t" + timeToDeath);
+//				System.out.println(ts + "\t" + OphthalmologicPatient.this + "\t" + timeToAMD + "\t" + timeToDeath);
 				// Schedule AMD event only if death is not happening before
 				if (timeToAMD < timeToDeath) {
 					aMDEvent = new AMDEvent(timeToAMD, affectedEye, fellowEye);

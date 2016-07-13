@@ -17,6 +17,7 @@ public class ARMDParams extends ModelParams {
 	private final static Random RNG_EARM = new Random();
 //	private final static double ALPHA_EARM = Math.exp(-11.41320441);
 //	private final static double BETA_EARM = 0.097865047;
+	/** Parameters for an empiric distribution on incidence of EARM. Source: Rotterdam study as stated in Karnon's report (pag 25) */
 	private final static double [][] P_EARM = {	
 			{55, 60, 3, 2179},
 			{60, 65, 32, 6085},
