@@ -49,7 +49,7 @@ public class RETALSimulation extends Simulation {
 	}
 
 	protected long getTimeToEARM(double age) {
-		final double time = armdParams.getEARMTime(age);
+		final double time = armdParams.getEARMTime(age, EnumSet.of(EyeState.HEALTHY), EnumSet.of(EyeState.HEALTHY));
 		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : getTs() +  unit.convert(time, TimeUnit.YEAR);
 	}
 
@@ -59,7 +59,7 @@ public class RETALSimulation extends Simulation {
 	}
 	
 	protected long getTimeToAMDFromEARM(OphthalmologicPatient pat) {
-		final double time = armdParams.getEARM2AMDTime(pat.getAge(), pat.getEye2State());
+		final double time = armdParams.getEARM2AMDTime(pat.getAge(), pat.getEye1State(), pat.getEye2State());
 		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : getTs() +  unit.convert(time, TimeUnit.YEAR);		
 	}
 
@@ -73,8 +73,8 @@ public class RETALSimulation extends Simulation {
 	 * @param fellowEye State of the fellow eye.
 	 * @return time to 
 	 */
-	protected long getTimeToCNVFromGA(OphthalmologicPatient pat, EnumSet<EyeState> fellowEye) {
-		final double time = armdParams.getGA2CNVTime(pat.getAge(), fellowEye); 
+	protected long getTimeToCNVFromGA(OphthalmologicPatient pat, EnumSet<EyeState> firstEye, EnumSet<EyeState> fellowEye) {
+		final double time = armdParams.getGA2CNVTime(pat.getAge(), firstEye, fellowEye); 
 		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : getTs() +  unit.convert(time, TimeUnit.YEAR);	
 	}
 }

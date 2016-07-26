@@ -224,7 +224,7 @@ public class OphthalmologicPatient extends Patient {
 				else {
 					affectedEye.add(EyeState.AMD_GA);
 					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, (affectedEye.equals(eye1))? PatientInfo.Type.GA1 : PatientInfo.Type.GA2, this.getTs()));
-					long timeToCNV = ((RETALSimulation)simul).getTimeToCNVFromGA(OphthalmologicPatient.this, fellowEye);
+					long timeToCNV = ((RETALSimulation)simul).getTimeToCNVFromGA(OphthalmologicPatient.this, affectedEye, fellowEye);
 					if (timeToCNV < Long.MAX_VALUE) {
 						cNVFromGAEvent = new CNVFromGAEvent(timeToCNV, affectedEye, fellowEye);
 						addEvent(cNVFromGAEvent);
