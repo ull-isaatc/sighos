@@ -54,8 +54,8 @@ public class OphthalmologicPatient extends Patient {
 	 */
 	public OphthalmologicPatient(RETALSimulation simul, double initAge, int sex, long timeToDeath, long timeToEARM, long timeToAMD) {
 		super(simul, initAge, sex, timeToDeath);
-		eye1 = EnumSet.noneOf(EyeState.class);
-		eye2 = EnumSet.noneOf(EyeState.class);
+		eye1 = EnumSet.of(EyeState.HEALTHY);
+		eye2 = EnumSet.of(EyeState.HEALTHY);
 		// Check if all the events are required
 		this.timeToEARM = timeToEARM;
 		this.timeToAMD = timeToAMD;
@@ -158,6 +158,7 @@ public class OphthalmologicPatient extends Patient {
 	public double computeCost(double initAge, double endAge) {
 		double cost = 0.0;
 		for(EyeState stage : eye1) {
+			// FIXME: Check if res == null
 			final ResourceUsageItem[] res = OphthalmologicResourceUsage.getResourceUsageItems(stage);
 			for (ResourceUsageItem usage : res) {
 				cost += usage.computeCost(initAge, endAge);
@@ -185,11 +186,13 @@ public class OphthalmologicPatient extends Patient {
 		@Override
 		public void event() {
 			if (!cancelled) {
+				affectedEye.remove(EyeState.HEALTHY);
 				affectedEye.add(EyeState.EARM);
 				simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, (affectedEye.equals(eye1))? PatientInfo.Type.EARM1 : PatientInfo.Type.EARM2, this.getTs()));
 				long timeToAMD = ((RETALSimulation)simul).getTimeToAMDFromEARM(OphthalmologicPatient.this);
 //				System.out.println(ts + "\t" + OphthalmologicPatient.this + "\t" + timeToAMD + "\t" + timeToDeath);
 				// Schedule AMD event only if death is not happening before
+				// FIXME: Check whether timeToAMD should always be lower than death of MAX_VALUE
 				if (timeToAMD < timeToDeath) {
 					aMDEvent = new AMDEvent(timeToAMD, affectedEye, fellowEye);
 					addEvent(aMDEvent);

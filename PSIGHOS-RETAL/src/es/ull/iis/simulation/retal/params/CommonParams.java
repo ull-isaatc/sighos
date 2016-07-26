@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal;
+package es.ull.iis.simulation.retal.params;
 
 import java.util.Random;
 
@@ -11,8 +11,8 @@ import java.util.Random;
  */
 public class CommonParams extends ModelParams {
 	public final static int MAX_AGE = 100;
-	public final static int INIT_AGE = 40;
-	public final static double P_MEN = 0.5;
+	private final static int INIT_AGE = 40;
+	private final static double P_MEN = 0.5;
 	
 	// Parameters for death. Source: Spanish 2014 Mortality risk. INE
 	// Adjusted using a Gompertz distribution with logs or the yearly mortality risks from age 40 to 100.
@@ -36,5 +36,12 @@ public class CommonParams extends ModelParams {
 		return Math.min(generateGompertz(ALPHA_DEATH[sex], BETA_DEATH[sex], initAge, RNG_DEATH.nextDouble()), MAX_AGE - initAge);
 	}
 	
+	public double getPMen() {
+		return P_MEN;		
+	}
+	
+	public double getInitAge() {
+		return INIT_AGE;		
+	}
 
 }

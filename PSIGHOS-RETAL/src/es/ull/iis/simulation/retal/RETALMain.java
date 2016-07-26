@@ -3,6 +3,9 @@
  */
 package es.ull.iis.simulation.retal;
 
+import es.ull.iis.simulation.retal.params.ARMDParams;
+import es.ull.iis.simulation.retal.params.CommonParams;
+
 /**
  * @author Iván Castilla Rodríguez
  *
@@ -17,7 +20,7 @@ public class RETALMain {
 	public static void main(String[] args) {
 		final CommonParams commonParams = new CommonParams(true);
 		final ARMDParams armdParams = new ARMDParams(true);
-		final RETALSimulation simul = new RETALSimulation(0, commonParams, armdParams, NPATIENTS, CommonParams.P_MEN, CommonParams.INIT_AGE);
+		final RETALSimulation simul = new RETALSimulation(0, commonParams, armdParams, NPATIENTS);
 		simul.run();
 
 //		final Random RNG = new Random(); 

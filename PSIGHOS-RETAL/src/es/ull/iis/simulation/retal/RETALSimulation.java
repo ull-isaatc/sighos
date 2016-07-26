@@ -9,6 +9,8 @@ import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.retal.params.ARMDParams;
+import es.ull.iis.simulation.retal.params.CommonParams;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
 import es.ull.iis.function.ConstantFunction;
@@ -20,8 +22,6 @@ import es.ull.iis.function.ConstantFunction;
 public class RETALSimulation extends Simulation {
 	public final static TimeUnit SIMUNIT = TimeUnit.DAY;
 	private final static String DESCRIPTION = "RETAL Simulation";
-	public final static TimeStamp SIMSTART = TimeStamp.getZero();
-	public final static TimeStamp SIMEND = new TimeStamp(TimeUnit.YEAR, CommonParams.MAX_AGE - CommonParams.INIT_AGE + 1);
 	private final CommonParams commonParams;
 	private final ARMDParams armdParams;
 
@@ -29,11 +29,11 @@ public class RETALSimulation extends Simulation {
 	 * @param id
 	 * @param baseCase
 	 */
-	public RETALSimulation(int id, CommonParams commonParams, ARMDParams armdParams, int nPatients, double pMen, int initAge) {
-		super(id, DESCRIPTION, SIMUNIT, SIMSTART, SIMEND);
+	public RETALSimulation(int id, CommonParams commonParams, ARMDParams armdParams, int nPatients) {
+		super(id, DESCRIPTION, SIMUNIT, TimeStamp.getZero(), new TimeStamp(TimeUnit.YEAR, (long) (CommonParams.MAX_AGE - commonParams.getInitAge() + 1)));
 		this.commonParams = commonParams;
 		this.armdParams = armdParams;
-		PatientCreator creator = new OphthalmologicPatientCreator(this, nPatients, pMen, new ConstantFunction(initAge));
+		PatientCreator creator = new OphthalmologicPatientCreator(this, nPatients, commonParams.getPMen(), new ConstantFunction(commonParams.getInitAge()));
 		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
 //		addInfoReceiver(new PatientInfoView(this));
 		addInfoReceiver(new PatientCounterView(this));
@@ -54,7 +54,7 @@ public class RETALSimulation extends Simulation {
 	}
 
 	protected long getTimeToAMD(double age) {
-		final double time = armdParams.getAMDTime(age);
+		final double time = armdParams.getAMDTime(age, EnumSet.of(EyeState.HEALTHY), EnumSet.of(EyeState.HEALTHY));
 		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : getTs() +  unit.convert(time, TimeUnit.YEAR);
 	}
 	

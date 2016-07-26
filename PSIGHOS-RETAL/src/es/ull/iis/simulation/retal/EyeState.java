@@ -8,6 +8,7 @@ package es.ull.iis.simulation.retal;
  *
  */
 public enum EyeState {
+	HEALTHY,	// Non-apparent problem
 	EARM,		// Early age-related macular degeneration
 	AMD_GA,		// Late macular degeneration with geographic atrophy
 	AMD_CNV,	// Late macular degeneration with choroidal neovascularization

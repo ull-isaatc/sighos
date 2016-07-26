@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.retal;
 
+import es.ull.iis.simulation.retal.params.CommonParams;
+
 /**
  * @author Iván Castilla
  *
