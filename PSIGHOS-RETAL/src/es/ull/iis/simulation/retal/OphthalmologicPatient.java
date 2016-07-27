@@ -160,14 +160,18 @@ public class OphthalmologicPatient extends Patient {
 		for(EyeState stage : eye1) {
 			// FIXME: Check if res == null
 			final ResourceUsageItem[] res = OphthalmologicResourceUsage.getResourceUsageItems(stage);
-			for (ResourceUsageItem usage : res) {
-				cost += usage.computeCost(initAge, endAge);
+			if (res != null) {
+				for (ResourceUsageItem usage : res) {
+					cost += usage.computeCost(initAge, endAge);
+				}
 			}
 		}
 		for(EyeState stage : eye2) {
 			final ResourceUsageItem[] res = OphthalmologicResourceUsage.getResourceUsageItems(stage);
-			for (ResourceUsageItem usage : res) {
-				cost += usage.computeCost(initAge, endAge);
+			if (res != null) {
+				for (ResourceUsageItem usage : res) {
+					cost += usage.computeCost(initAge, endAge);
+				}
 			}
 		}
 		return cost;
@@ -192,7 +196,7 @@ public class OphthalmologicPatient extends Patient {
 				long timeToAMD = ((RETALSimulation)simul).getTimeToAMDFromEARM(OphthalmologicPatient.this);
 //				System.out.println(ts + "\t" + OphthalmologicPatient.this + "\t" + timeToAMD + "\t" + timeToDeath);
 				// Schedule AMD event only if death is not happening before
-				// FIXME: Check whether timeToAMD should always be lower than death of MAX_VALUE
+				// FIXME: Check whether timeToAMD should always be lower than death or MAX_VALUE
 				if (timeToAMD < timeToDeath) {
 					aMDEvent = new AMDEvent(timeToAMD, affectedEye, fellowEye);
 					addEvent(aMDEvent);
