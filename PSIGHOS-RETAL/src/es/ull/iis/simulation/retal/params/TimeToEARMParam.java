@@ -3,18 +3,17 @@
  */
 package es.ull.iis.simulation.retal.params;
 
-import java.util.EnumSet;
-import java.util.Random;
+import java.util.Iterator;
 
-import es.ull.iis.simulation.retal.EyeState;
+import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.retal.OphthalmologicPatient;
 
 /**
- * @author masbe_000
+ * @author Iván Castilla Rodríguez
  *
  */
-public class TimeToEARMParam extends TimeToEventParam {
+public class TimeToEARMParam extends SimpleEmpiricTimeToEventParam {
 	// Parameters for First eye incidence of EARM --> BAD ADJUST!!!!
-	private final static Random RNG_EARM = new Random();
 //	private final static double ALPHA_EARM = Math.exp(-11.41320441);
 //	private final static double BETA_EARM = 0.097865047;
 	/** Parameters for an empiric distribution on incidence of EARM. Source: Rotterdam study as stated in Karnon's report (pag 25) */
@@ -25,29 +24,51 @@ public class TimeToEARMParam extends TimeToEventParam {
 			{70, 75, 97, 5102},
 			{75, 80, 102, 3212},
 			{80, CommonParams.MAX_AGE, 110, 2159}};
-	/** First-eye incidence of EARM */
-	private final double [][] pEARM = new double[P_EARM.length][3];	
 
 	/**
 	 * @param baseCase
 	 */
 	public TimeToEARMParam(boolean baseCase) {
-		super(baseCase);
+		super(baseCase, TimeUnit.YEAR, P_EARM.length);
 		// FIXME: should work diferently when baseCase = false
 		
 		// Initialize first-eye incidence of EARM
-		initProbabilities(P_EARM, pEARM);		
+		initProbabilities(P_EARM, probabilities);		
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.retal.params.TimeToEventParam#getTimeToEvent(double, java.util.EnumSet, java.util.EnumSet)
+	/**
+	 * Generates a valid time to EARM, i.e., an event time that is either lower than the time to death or INFINITE 
+	 * @param age Current age of the patient
+	 * @param timeToDeath The expected time to death of the patient
+	 * @return A time to EARM that is lower than time to death or INFINITE
 	 */
 	@Override
-	public double getTimeToEvent(double age, EnumSet<EyeState> firstEye, EnumSet<EyeState> fellowEye) {
-		final double []rnd = new double[pEARM.length];
-		for (int j = 0; j <pEARM.length; j++)
-			rnd[j] = RNG_EARM.nextDouble();
-		return getTimeToEvent(pEARM, age, rnd);
+	public long getValidatedTimeToEvent(OphthalmologicPatient pat, boolean firstEye) {
+		long timeToEARM;
+		final long timeToDeath = pat.getTimeToDeath();
+		
+		// If there are no stored values in the queue, generate a new one
+		if (queue.isEmpty()) {
+			timeToEARM = getTimeToEvent(pat, firstEye);
+		}
+		// If there are stored values in the queue, I try with them in the first place
+		else {
+			final Iterator<Long> iter = queue.iterator();
+			do {
+				timeToEARM = iter.next();
+				if (timeToEARM < timeToDeath)
+					iter.remove();
+			} while (iter.hasNext() && timeToEARM >= timeToDeath);
+			// If no valid event is found, generate a new one
+			if (timeToEARM >= timeToDeath)
+				timeToEARM = getTimeToEvent(pat, firstEye);
+		}
+		// Generate new times to event until we get a valid one
+		while (timeToEARM != Long.MAX_VALUE && timeToEARM >= timeToDeath) {
+			queue.push(timeToEARM);
+			timeToEARM = getTimeToEvent(pat, firstEye);
+		}
+		return timeToEARM;
 	}
-
+	
 }

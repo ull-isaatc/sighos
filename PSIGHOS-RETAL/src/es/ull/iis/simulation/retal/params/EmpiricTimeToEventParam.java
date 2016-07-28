@@ -3,26 +3,45 @@
  */
 package es.ull.iis.simulation.retal.params;
 
-import java.util.EnumSet;
 import java.util.Random;
 
-import es.ull.iis.simulation.retal.EyeState;
+import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.retal.OphthalmologicPatient;
 
 /**
- * @author Iván Castilla
+ * @author Iván Castilla Rodríguez
  *
  */
-public abstract class TimeToEventParam {
-	protected final boolean baseCase;
+public abstract class EmpiricTimeToEventParam {
+	/** True if first order parameters must be generated; false if second order analysis must be performed */
+	final protected boolean baseCase;
+	/** The time unit this parameter is expressed in */
+	final protected TimeUnit unit;
 
 	/**
 	 * 
 	 */
-	public TimeToEventParam(boolean baseCase) {
+	public EmpiricTimeToEventParam(boolean baseCase, TimeUnit unit) {
 		this.baseCase = baseCase;
+		this.unit = unit;
 	}
 
-	public abstract double getTimeToEvent(double age, EnumSet<EyeState> firstEye, EnumSet<EyeState> fellowEye);
+	/**
+	 * Returns the "brute" simulation time when a specific event will happen (expressed in simulation time units)
+	 * @param pat A patient
+	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
+	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
+	 */
+	public abstract long getTimeToEvent(OphthalmologicPatient pat, boolean firstEye);
+	/**
+	 * Returns the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
+	 * the time is coherent with the state and future/past events of the patient
+	 * @param pat A patient
+	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
+	 * @return the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
+	 * the time is coherent with the state and future/past events of the patient
+	 */
+	public abstract long getValidatedTimeToEvent(OphthalmologicPatient pat, boolean firstEye);
 	
 	/**
 	 * Initializes the probability arrays according to how they are defined

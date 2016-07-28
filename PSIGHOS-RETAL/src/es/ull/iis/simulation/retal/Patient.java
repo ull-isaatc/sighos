@@ -148,6 +148,13 @@ public class Patient extends BasicElement {
 	}
 
 	/**
+	 * @return the timeToDeath
+	 */
+	public long getTimeToDeath() {
+		return timeToDeath;
+	}
+
+	/**
 	 * @return the clonedFrom
 	 */
 	public Patient getClonedFrom() {

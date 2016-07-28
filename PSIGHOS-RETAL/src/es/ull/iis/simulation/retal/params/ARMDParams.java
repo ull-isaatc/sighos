@@ -3,11 +3,8 @@
  */
 package es.ull.iis.simulation.retal.params;
 
-import java.util.EnumSet;
 import java.util.Map;
 import java.util.TreeMap;
-
-import es.ull.iis.simulation.retal.EyeState;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -72,56 +69,45 @@ public class ARMDParams extends ModelParams {
 	}
 
 	/**
-	 * @return Years to first eye incidence of early ARM; Double.MAX_VALUE if event is not happening
+	 * @return the timeToEARM
 	 */
-	public double getEARMTime(double age, EnumSet<EyeState> firstEye, EnumSet<EyeState> fellowEye) {
-		return timeToEARM.getTimeToEvent(age, firstEye, fellowEye);
-	}
-	
-	/**
-	 * @return the time to first eye incidence of AMD
-	 */
-	public double getAMDTime(double age, EnumSet<EyeState> firstEye, EnumSet<EyeState> fellowEye) {
-		return timeToAMD.getTimeToEvent(age, firstEye, fellowEye);
+	public TimeToEARMParam getTimeToEARM() {
+		return timeToEARM;
 	}
 
 	/**
-	 * 
-	 * @param age
-	 * @param fellowEye
-	 * @return the time to first eye progression from ARM to AMD
+	 * @return the timeToAMD
 	 */
-	public double getEARM2AMDTime(double age, EnumSet<EyeState> firstEye, EnumSet<EyeState> fellowEye) {
-		return timeToAMDFromEARM.getTimeToEvent(age, firstEye, fellowEye);
+	public TimeToAMDParam getTimeToAMD() {
+		return timeToAMD;
 	}
 
 	/**
-	 * 
-	 * @param age
-	 * @param fellowEye
-	 * @return
+	 * @return the timeToE2CNV
 	 */
-	public double getGA2CNVTime(double age, EnumSet<EyeState> firstEye, EnumSet<EyeState> fellowEye) {
-		return timeToE1CNV.getTimeToEvent(age, firstEye, fellowEye);
+	public TimeToE2CNVParam getTimeToE2CNV() {
+		return timeToE2CNV;
 	}
 
 	/**
-	 * 
-	 * @param age
-	 * @param firstEye
-	 * @return
+	 * @return the timeToE2GA
 	 */
-	public double getE2Time2GA(double age, EnumSet<EyeState> firstEye, EnumSet<EyeState> fellowEye) {
-		return timeToE2GA.getTimeToEvent(age, firstEye, fellowEye);
+	public TimeToE2GAParam getTimeToE2GA() {
+		return timeToE2GA;
 	}
 
 	/**
-	 * 
-	 * @param age
-	 * @param firstEye
-	 * @return
+	 * @return the timeToAMDFromEARM
 	 */
-	public double getE2Time2CNV(double age, EnumSet<EyeState> firstEye, EnumSet<EyeState> fellowEye) {
-		return timeToE2CNV.getTimeToEvent(age, firstEye, fellowEye);
+	public TimeToAMDFromEARMParam getTimeToAMDFromEARM() {
+		return timeToAMDFromEARM;
 	}
+
+	/**
+	 * @return the timeToE1CNV
+	 */
+	public TimeToE1CNVParam getTimeToE1CNV() {
+		return timeToE1CNV;
+	}
+
 }

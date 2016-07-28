@@ -3,8 +3,7 @@
  */
 package es.ull.iis.simulation.retal;
 
-import java.util.EnumSet;
-
+import es.ull.iis.function.ConstantFunction;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeStamp;
@@ -13,7 +12,6 @@ import es.ull.iis.simulation.retal.params.ARMDParams;
 import es.ull.iis.simulation.retal.params.CommonParams;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
-import es.ull.iis.function.ConstantFunction;
 
 /**
  * @author Iván Castilla
@@ -48,33 +46,35 @@ public class RETALSimulation extends Simulation {
 		return getTs() + unit.convert(time, TimeUnit.YEAR);
 	}
 
-	protected long getTimeToEARM(double age) {
-		final double time = armdParams.getEARMTime(age, EnumSet.of(EyeState.HEALTHY), EnumSet.of(EyeState.HEALTHY));
-		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : getTs() +  unit.convert(time, TimeUnit.YEAR);
+	/**
+	 * Returns years to first eye incidence of early ARM; Long.MAX_VALUE if event is not happening
+	 * @param age
+	 * @return
+	 */
+	protected long getTimeToEARM(OphthalmologicPatient pat) {
+		return armdParams.getTimeToEARM().getValidatedTimeToEvent(pat, true);
 	}
 
-	protected long getTimeToAMD(double age) {
-		final double time = armdParams.getAMDTime(age, EnumSet.of(EyeState.HEALTHY), EnumSet.of(EyeState.HEALTHY));
-		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : getTs() +  unit.convert(time, TimeUnit.YEAR);
+	protected long getTimeToAMD(OphthalmologicPatient pat) {
+		return armdParams.getTimeToAMD().getValidatedTimeToEvent(pat, true);
 	}
 	
-	protected long getTimeToAMDFromEARM(OphthalmologicPatient pat) {
-		final double time = armdParams.getEARM2AMDTime(pat.getAge(), pat.getEye1State(), pat.getEye2State());
-		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : getTs() +  unit.convert(time, TimeUnit.YEAR);		
+	protected long getTimeToAMDFromEARM(OphthalmologicPatient pat, boolean firstEye) {
+		return armdParams.getTimeToAMDFromEARM().getValidatedTimeToEvent(pat, firstEye);
+	}
+
+	/**
+	 * 
+	 * @param pat Patient with GA in an eye that may progress to CNV
+	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
+	 * @return time to 
+	 */
+	protected long getTimeToCNVFromGA(OphthalmologicPatient pat, boolean firstEye) {
+		return armdParams.getTimeToE1CNV().getValidatedTimeToEvent(pat, firstEye); 
 	}
 
 	protected double getProbabilityCNV(OphthalmologicPatient pat) {
 		return armdParams.getProbabilityCNV(pat.getAge());
 	}
 	
-	/**
-	 * 
-	 * @param pat Patient with GA in an eye that may progress to CNV
-	 * @param fellowEye State of the fellow eye.
-	 * @return time to 
-	 */
-	protected long getTimeToCNVFromGA(OphthalmologicPatient pat, EnumSet<EyeState> firstEye, EnumSet<EyeState> fellowEye) {
-		final double time = armdParams.getGA2CNVTime(pat.getAge(), firstEye, fellowEye); 
-		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : getTs() +  unit.convert(time, TimeUnit.YEAR);	
-	}
 }
