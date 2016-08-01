@@ -8,6 +8,9 @@ import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.retal.inforeceiver.PatientCounterHistogramView;
+import es.ull.iis.simulation.retal.inforeceiver.PatientCounterView;
+import es.ull.iis.simulation.retal.inforeceiver.PatientInfoView;
 import es.ull.iis.simulation.retal.params.ARMDParams;
 import es.ull.iis.simulation.retal.params.CommonParams;
 import es.ull.iis.simulation.sequential.Simulation;
@@ -33,7 +36,7 @@ public class RETALSimulation extends Simulation {
 		this.armdParams = armdParams;
 		PatientCreator creator = new OphthalmologicPatientCreator(this, nPatients, commonParams.getPMen(), new ConstantFunction(commonParams.getInitAge()));
 		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
-//		addInfoReceiver(new PatientInfoView(this));
+		addInfoReceiver(new PatientInfoView(this));
 		addInfoReceiver(new PatientCounterView(this));
 		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5, true));
 	}

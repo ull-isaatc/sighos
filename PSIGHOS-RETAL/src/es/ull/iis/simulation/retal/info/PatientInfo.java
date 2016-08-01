@@ -1,10 +1,11 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal;
+package es.ull.iis.simulation.retal.info;
 
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.AsynchronousInfo;
+import es.ull.iis.simulation.retal.Patient;
 
 /**
  * @author Iván Castilla

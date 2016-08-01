@@ -1,12 +1,13 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal;
+package es.ull.iis.simulation.retal.inforeceiver;
 
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
+import es.ull.iis.simulation.retal.info.PatientInfo;
 
 /**
  * @author Iván Castilla

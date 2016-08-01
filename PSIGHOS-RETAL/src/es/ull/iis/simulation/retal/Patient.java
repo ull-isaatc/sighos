@@ -6,6 +6,7 @@ package es.ull.iis.simulation.retal;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.retal.info.PatientInfo;
 import es.ull.iis.simulation.sequential.BasicElement;
 
 /**

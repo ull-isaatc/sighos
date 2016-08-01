@@ -6,6 +6,7 @@ package es.ull.iis.simulation.retal;
 import java.util.EnumSet;
 import java.util.Random;
 
+import es.ull.iis.simulation.retal.info.PatientInfo;
 import es.ull.iis.util.DiscreteCycleIterator;
 
 /**

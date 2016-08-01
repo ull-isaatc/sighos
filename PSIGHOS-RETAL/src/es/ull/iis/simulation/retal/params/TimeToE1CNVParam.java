@@ -23,7 +23,7 @@ public class TimeToE1CNVParam extends CompoundEmpiricTimeToEventParam {
 	@Override
 	public long getValidatedTimeToEvent(OphthalmologicPatient pat, boolean firstEye) {
 		// TODO Auto-generated method stub
-		return 0;
+		return Long.MAX_VALUE;
 	}
 
 }

@@ -68,7 +68,8 @@ public class TimeToEARMParam extends SimpleEmpiricTimeToEventParam {
 			queue.push(timeToEARM);
 			timeToEARM = getTimeToEvent(pat, firstEye);
 		}
-		return timeToEARM;
+//		return timeToEARM;
+		return 1;
 	}
 	
 }
