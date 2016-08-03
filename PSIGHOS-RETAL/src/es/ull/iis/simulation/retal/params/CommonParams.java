@@ -5,6 +5,9 @@ package es.ull.iis.simulation.retal.params;
 
 import java.util.Random;
 
+import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.retal.Patient;
+
 /**
  * @author Iván Castilla Rodríguez
  *
@@ -32,8 +35,9 @@ public class CommonParams extends ModelParams {
 	/**
 	 * @return Years to death of the patient or years to MAX_AGE 
 	 */
-	public double getDeathTime(double initAge, int sex) {
-		return Math.min(generateGompertz(ALPHA_DEATH[sex], BETA_DEATH[sex], initAge, RNG_DEATH.nextDouble()), MAX_AGE - initAge);
+	public long getDeathTime(Patient pat) {
+		final double time = Math.min(generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), RNG_DEATH.nextDouble()), MAX_AGE - pat.getAge());
+		return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
 	}
 	
 	public double getPMen() {

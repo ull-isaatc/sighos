@@ -4,6 +4,8 @@
 package es.ull.iis.simulation.retal.params;
 
 import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.OphthalmologicPatient;
@@ -21,6 +23,18 @@ public class TimeToAMDParam extends SimpleEmpiricTimeToEventParam {
 			{60, 70, 3.602758243, 12461},
 			{70, 80, 6.48455774, 8314},
 			{80, CommonParams.MAX_AGE, 3.019364846, 2159}};
+
+	/** Minimum age. maximum age, CNV cases, and total cases of incident AMD */
+	private final static double [][] P_CNV = {
+			{60, 65, 1, 1},
+			{65, 70, 2, 5},
+			{70, 75, 7, 10},
+			{75, 80, 9, 14},
+			{80, CommonParams.MAX_AGE, 9, 17}};
+	
+	/** Proportion of CNV (against GA) in first eye incident AMD */
+	private final TreeMap<Integer, Double> pCNV = new TreeMap<Integer, Double>();
+	
 	
 	/**
 	 * 
@@ -31,6 +45,10 @@ public class TimeToAMDParam extends SimpleEmpiricTimeToEventParam {
 
 		// Initialize first-eye incidence of AMD
 		initProbabilities(P_AMD, probabilities);		
+		// Initialize proportion of CNV (against GA) in first eye incident AMD
+		for (int i = 0; i < P_CNV.length; i++) {
+			pCNV.put((int)P_CNV[i][0], P_CNV[i][2]/ P_CNV[i][3]);
+		}
 	}
 
 	@Override
@@ -43,7 +61,7 @@ public class TimeToAMDParam extends SimpleEmpiricTimeToEventParam {
 		// be artificially underestimating the incidence of AMD in healthy eyes. Hence, we have to use the random distribution to create a 
 		// valid time to AMD
 		if (timeToEARM < timeToDeath) {
-			// First, we calibrate the time to AMD distribution until we get a valid time (in this case, INFINITE is a valid case) 
+			// First, we calibrate the time to AMD distribution until we get a valid time (in this case, INFINITE is a valid value) 
 			timeToAMD = getTimeToEvent(pat, firstEye);
 			// Generate new times to event until we get a valid one
 			while (timeToAMD != Long.MAX_VALUE) {
@@ -77,4 +95,12 @@ public class TimeToAMDParam extends SimpleEmpiricTimeToEventParam {
 		return timeToAMD;
 	}
 
+	public boolean isCNV(OphthalmologicPatient pat, boolean firstEye) {
+		final Map.Entry<Integer, Double> entry = pCNV.lowerEntry((int)pat.getAge());
+		if (entry != null) {
+			final double rnd = (firstEye) ? pat.getRndProbCNV1() : pat.getRndProbCNV2();
+			return (rnd <= entry.getValue());
+		}
+		return false;		
+	}
 }

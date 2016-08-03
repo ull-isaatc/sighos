@@ -10,12 +10,12 @@ import es.ull.iis.simulation.retal.OphthalmologicPatient;
  * @author Iván Castilla Rodríguez
  * TODO Create class correctly
  */
-public class TimeToE1CNVParam extends CompoundEmpiricTimeToEventParam {
+public class TimeToCNVFromGAParam extends CompoundEmpiricTimeToEventParam {
 
 	/**
 	 * @param baseCase
 	 */
-	public TimeToE1CNVParam(boolean baseCase) {
+	public TimeToCNVFromGAParam(boolean baseCase) {
 		super(baseCase, TimeUnit.YEAR);
 		// TODO Auto-generated constructor stub
 	}

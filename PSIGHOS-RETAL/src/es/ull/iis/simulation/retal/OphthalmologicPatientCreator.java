@@ -25,6 +25,6 @@ public class OphthalmologicPatientCreator extends PatientCreator {
 	protected Patient createPatient() {
 		final double age = initialAges.getValue(0);
 		final int sex = (RNG_SEX.nextDouble() < pMen) ? 0 : 1;
-		return new OphthalmologicPatient(simul, age, sex, simul.getTimeToDeath(age, sex));
+		return new OphthalmologicPatient(simul, age, sex);
 	}
 }

@@ -5,6 +5,8 @@ package es.ull.iis.simulation.retal.params;
 
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
@@ -18,14 +20,39 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 	// Parameters for progression to AMD given that FE has no ARM --> Adjust not tested
 //	private final static double ALPHA_ARM2AMD_FE_NOARM = Math.exp(-7.218078288);
 //	private final static double BETA_ARM2AMD_FE_NOARM = 0.043182526;
+	/**
+	 * Minimum age. maximum age, incident patients and patients-year at risk that progress from EARM to AMD, given NO ARM in fellow eye. 
+	 * Source: Karnon model
+	 */
 	private final static double [][] P_EARM2AMD_E2_NOARM = { 
 			{60, 70, 3.63796991807317, 359},
 			{70, 80, 16.6795708705063, 724},
 			{80, CommonParams.MAX_AGE, 11.7406621342988, 335}};
+	/**
+	 * Minimum age. maximum age, incident patients and patients-year at risk that progress from EARM to AMD, given EARM in both eyes. 
+	 * Source: Karnon model
+	 */
 	private final static double [][] P_EARM2AMD_E2_EARM = { 
 			{60, 70, 4.070393438, 84.40999139},
 			{70, 80, 9.631457912, 87.85529716},
 			{80, CommonParams.MAX_AGE, 2.298334696, 13.78122308}};
+	/**
+	 * Minimum age. maximum age, incident patients and patients-year at risk that progress from EARM to AMD, given GA in fellow eyes. 
+	 * Source: Karnon model (assumed to be equal to progression rate from EARM to AMD, given EARM in fellow eye.
+	 */
+	private final static double [][] P_EARM2AMD_E2_GA = { 
+			{60, 70, 4.070393438, 84.40999139},
+			{70, 80, 9.631457912, 87.85529716},
+			{80, CommonParams.MAX_AGE, 2.298334696, 13.78122308}};
+
+	/** Minimum age. maximum age, CNV cases, and total cases of AMD evolving from EARM */
+	private final static double [][] P_CNV = {
+			{60, 70, 3, 6},
+			{70, 80, 16, 24},
+			{80, CommonParams.MAX_AGE, 9, 17}};
+
+	/** Proportion of CNV (against GA) in eye evolving from EARM */
+	private final TreeMap<Integer, Double> pCNV = new TreeMap<Integer, Double>();
 	
 	/**
 	 * @param baseCase
@@ -41,6 +68,13 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 		info = new StructuredInfo(P_EARM2AMD_E2_EARM.length);
 		initProbabilities(P_EARM2AMD_E2_EARM, info.probabilities);
 		tuples.put(EyeState.EARM, info);
+		info = new StructuredInfo(P_EARM2AMD_E2_GA.length);
+		initProbabilities(P_EARM2AMD_E2_GA, info.probabilities);
+		tuples.put(EyeState.AMD_GA, info);
+		// Initialize proportion of CNV (against GA) in eye evolving from EARM
+		for (int i = 0; i < P_CNV.length; i++) {
+			pCNV.put((int)P_CNV[i][0], P_CNV[i][2]/ P_CNV[i][3]);
+		}
 	}
 
 	@Override
@@ -100,5 +134,13 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 		}			
 		return timeToAMD;
 	}
-	
+
+	public boolean isCNV(OphthalmologicPatient pat, boolean firstEye) {
+		final Map.Entry<Integer, Double> entry = pCNV.lowerEntry((int)pat.getAge());
+		if (entry != null) {
+			final double rnd = (firstEye) ? pat.getRndProbCNV1() : pat.getRndProbCNV2();
+			return (rnd <= entry.getValue());
+		}
+		return false;		
+	}
 }

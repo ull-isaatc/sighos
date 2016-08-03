@@ -39,7 +39,7 @@ public class PatientCreator implements BasicElementCreator {
 	protected Patient createPatient() {
 		final int sex = (RNG_SEX.nextDouble() < pMen) ? 0 : 1;
 		final double age = initialAges.getValue(0);
-		return new Patient(simul, age, sex, simul.getTimeToDeath(age, sex));
+		return new Patient(simul, age, sex);
 	}
 	
 	/* (non-Javadoc)

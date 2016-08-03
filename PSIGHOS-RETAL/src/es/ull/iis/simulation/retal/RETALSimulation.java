@@ -8,6 +8,7 @@ import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.retal.inforeceiver.AffectedPatientHistoryView;
 import es.ull.iis.simulation.retal.inforeceiver.PatientCounterHistogramView;
 import es.ull.iis.simulation.retal.inforeceiver.PatientCounterView;
 import es.ull.iis.simulation.retal.inforeceiver.PatientInfoView;
@@ -36,48 +37,18 @@ public class RETALSimulation extends Simulation {
 		this.armdParams = armdParams;
 		PatientCreator creator = new OphthalmologicPatientCreator(this, nPatients, commonParams.getPMen(), new ConstantFunction(commonParams.getInitAge()));
 		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
-		addInfoReceiver(new PatientInfoView(this));
+//		addInfoReceiver(new PatientInfoView(this));
+//		addInfoReceiver(new AffectedPatientHistoryView(this));
 		addInfoReceiver(new PatientCounterView(this));
 		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5, true));
 	}
 
-	/**
-	 * @return the deathtime
-	 */
-	protected long getTimeToDeath(double age, int sex) {
-		final double time = commonParams.getDeathTime(age, sex);
-		return getTs() + unit.convert(time, TimeUnit.YEAR);
+	public CommonParams getCommonParams() {
+		return commonParams;
 	}
 
-	/**
-	 * Returns years to first eye incidence of early ARM; Long.MAX_VALUE if event is not happening
-	 * @param age
-	 * @return
-	 */
-	protected long getTimeToEARM(OphthalmologicPatient pat) {
-		return armdParams.getTimeToEARM().getValidatedTimeToEvent(pat, true);
+	public ARMDParams getArmdParams() {
+		return armdParams;
 	}
 
-	protected long getTimeToAMD(OphthalmologicPatient pat) {
-		return armdParams.getTimeToAMD().getValidatedTimeToEvent(pat, true);
-	}
-	
-	protected long getTimeToAMDFromEARM(OphthalmologicPatient pat, boolean firstEye) {
-		return armdParams.getTimeToAMDFromEARM().getValidatedTimeToEvent(pat, firstEye);
-	}
-
-	/**
-	 * 
-	 * @param pat Patient with GA in an eye that may progress to CNV
-	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
-	 * @return time to 
-	 */
-	protected long getTimeToCNVFromGA(OphthalmologicPatient pat, boolean firstEye) {
-		return armdParams.getTimeToE1CNV().getValidatedTimeToEvent(pat, firstEye); 
-	}
-
-	protected double getProbabilityCNV(OphthalmologicPatient pat) {
-		return armdParams.getProbabilityCNV(pat.getAge());
-	}
-	
 }
