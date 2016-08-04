@@ -34,6 +34,10 @@ public class OphthalmologicPatient extends Patient {
 	private EARMEvent eARMEvent = null;
 	private CNVEvent cNVEvent = null;
 	private GAEvent gAEvent = null;
+	private long timeToE2GA = Long.MAX_VALUE;
+	private long timeToE2CNV = Long.MAX_VALUE;
+	private CNVEvent e2CNVEvent = null;
+	private GAEvent e2GAEvent = null;
 	
 	/** The random reference to compare with the probability of developing CNV in the first eye */ 
 	private final double rndProbCNV1;
@@ -98,22 +102,22 @@ public class OphthalmologicPatient extends Patient {
 	@Override
 	protected void init() {
 		super.init();
-		timeToEARM = armdParams.getTimeToEARM().getValidatedTimeToEvent(this, true);
-		final long timeToAMD = armdParams.getTimeToAMD().getValidatedTimeToEvent(this, true);
+		timeToEARM = armdParams.getTimeToEARM().getValidatedTimeToEvent(this);
+		final long[] timeToAMD = armdParams.getTimeToE1AMD().getValidatedTimeToEventAndState(this);
 		// Schedule an EARM event
 		if (timeToEARM < Long.MAX_VALUE) {
 			eARMEvent = new EARMEvent(timeToEARM, true);
 			addEvent(eARMEvent);
 		}
 		// Schedule either a CNV or a GA event
-		else if (timeToAMD < Long.MAX_VALUE) {
-			if (armdParams.getTimeToAMD().isCNV(this, true)) {
-				timeToCNV = timeToAMD;
+		else if (timeToAMD != null) {
+			if (timeToAMD[1] == EyeState.AMD_CNV.ordinal()) {
+				timeToCNV = timeToAMD[0];
 				cNVEvent = new CNVEvent(timeToCNV, true);
 				addEvent(cNVEvent);				
 			}
 			else {
-				timeToGA = timeToAMD;
+				timeToGA = timeToAMD[0];
 				gAEvent = new GAEvent(timeToGA, true);
 				addEvent(gAEvent);				
 			}
@@ -184,6 +188,14 @@ public class OphthalmologicPatient extends Patient {
 	 */
 	public long getTimeToGA() {
 		return timeToGA;
+	}
+
+	public long getTimeToE2GA() {
+		return timeToE2GA;
+	}
+
+	public long getTimeToE2CNV() {
+		return timeToE2CNV;
 	}
 
 	public double getAgeAt(EyeState state) {
@@ -259,7 +271,7 @@ public class OphthalmologicPatient extends Patient {
 				affectedEye.remove(EyeState.HEALTHY);
 				affectedEye.add(EyeState.EARM);
 				simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, (firstEye)? PatientInfo.Type.EARM1 : PatientInfo.Type.EARM2, this.getTs()));
-				final long timeToAMD = armdParams.getTimeToAMDFromEARM().getValidatedTimeToEvent(OphthalmologicPatient.this, firstEye);
+				long timeToAMD = armdParams.getTimeToAMDFromEARM().getValidatedTimeToEvent(OphthalmologicPatient.this, firstEye);
 //				System.out.println(ts + "\t" + OphthalmologicPatient.this + "\t" + timeToCNV + "\t" + timeToDeath);
 				// Schedule AMD event only if death is not happening before
 				// FIXME: Check whether timeToCNV should always be lower than death or MAX_VALUE
@@ -273,7 +285,22 @@ public class OphthalmologicPatient extends Patient {
 					timeToGA = timeToAMD;
 					addEvent(gAEvent);
 				}
-				
+				// Schedule events for fellow eye if needed
+				if (firstEye) {
+					final long[] timeAndStateE2 = armdParams.getTimeToE2AMD().getValidatedTimeToEventAndState(OphthalmologicPatient.this);
+					if (timeAndStateE2 != null) {
+						if (EyeState.AMD_CNV.ordinal() == (int)timeAndStateE2[1]) {
+							e2CNVEvent = new CNVEvent(timeAndStateE2[0], false);
+							timeToE2CNV = timeAndStateE2[0];
+							addEvent(e2CNVEvent);
+						}
+						else if (EyeState.AMD_GA.ordinal() == (int)timeAndStateE2[1]) {
+							e2GAEvent = new GAEvent(timeAndStateE2[0], false);
+							timeToE2GA = timeAndStateE2[0];
+							addEvent(e2GAEvent);
+						}
+					}
+				}
 			}			
 		}
 		
@@ -298,8 +325,7 @@ public class OphthalmologicPatient extends Patient {
 				// Assign new stage
 				affectedEye.add(EyeState.AMD_GA);
 				simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, (firstEye)? PatientInfo.Type.GA1 : PatientInfo.Type.GA2, this.getTs()));
-				timeToCNV = (firstEye) ? armdParams.getTimeToE1CNV().getValidatedTimeToEvent(OphthalmologicPatient.this, firstEye) :
-					armdParams.getTimeToE2CNV().getValidatedTimeToEvent(OphthalmologicPatient.this, firstEye) ;
+				timeToCNV = armdParams.getTimeToCNVFromGA().getValidatedTimeToEvent(OphthalmologicPatient.this, firstEye);
 				if (timeToCNV < Long.MAX_VALUE) {
 					cNVEvent = new CNVEvent(timeToCNV, firstEye);
 					addEvent(cNVEvent);

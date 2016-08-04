@@ -60,7 +60,12 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 		super(baseCase, unit);
 	}
 
-	@Override
+	/**
+	 * Returns the "brute" simulation time when a specific event will happen (expressed in simulation time units)
+	 * @param pat A patient
+	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
+	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
+	 */
 	public long getTimeToEvent(OphthalmologicPatient pat, boolean firstEye) {
 		final EnumSet<EyeState> otherEye = (firstEye) ? pat.getEye2State() : pat.getEye1State();
 		final long time;
@@ -85,5 +90,15 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 		}			
 		return time;		
 	}
+	
+	/**
+	 * Returns the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
+	 * the time is coherent with the state and future/past events of the patient
+	 * @param pat A patient
+	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
+	 * @return the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
+	 * the time is coherent with the state and future/past events of the patient
+	 */
+	public abstract long getValidatedTimeToEvent(OphthalmologicPatient pat, boolean firstEye);
 	
 }

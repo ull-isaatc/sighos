@@ -6,7 +6,6 @@ package es.ull.iis.simulation.retal.params;
 import java.util.Random;
 
 import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -26,23 +25,6 @@ public abstract class EmpiricTimeToEventParam {
 		this.unit = unit;
 	}
 
-	/**
-	 * Returns the "brute" simulation time when a specific event will happen (expressed in simulation time units)
-	 * @param pat A patient
-	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
-	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
-	 */
-	public abstract long getTimeToEvent(OphthalmologicPatient pat, boolean firstEye);
-	/**
-	 * Returns the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
-	 * the time is coherent with the state and future/past events of the patient
-	 * @param pat A patient
-	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
-	 * @return the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
-	 * the time is coherent with the state and future/past events of the patient
-	 */
-	public abstract long getValidatedTimeToEvent(OphthalmologicPatient pat, boolean firstEye);
-	
 	/**
 	 * Initializes the probability arrays according to how they are defined
 	 * @param source The original probabilities, expressed either as probabilities or numerator and denominator. 

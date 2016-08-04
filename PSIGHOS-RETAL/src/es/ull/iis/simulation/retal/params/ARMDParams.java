@@ -10,11 +10,10 @@ package es.ull.iis.simulation.retal.params;
 public class ARMDParams extends ModelParams {
 
 	private final TimeToEARMParam timeToEARM;
-	private final TimeToAMDParam timeToAMD;
-	private final TimeToE2CNVParam timeToE2CNV;
-	private final TimeToE2GAParam timeToE2GA;
+	private final TimeToE1AMDParam timeToE1AMD;
+	private final TimeToE2AMDParam timeToE2AMD;
 	private final TimeToAMDFromEARMParam timeToAMDFromEARM;
-	private final TimeToCNVFromGAParam timeToE1CNV;
+	private final TimeToCNVFromGAParam timeToCNVFromGA;
 
 	/**
 	 * 
@@ -22,11 +21,10 @@ public class ARMDParams extends ModelParams {
 	public ARMDParams(boolean baseCase) {
 		super(baseCase);
 		timeToEARM = new TimeToEARMParam(baseCase);
-		timeToAMD = new TimeToAMDParam(baseCase);
-		timeToE2CNV = new TimeToE2CNVParam(baseCase);
-		timeToE2GA = new TimeToE2GAParam(baseCase);
+		timeToE1AMD = new TimeToE1AMDParam(baseCase);
+		timeToE2AMD = new TimeToE2AMDParam(baseCase);
 		timeToAMDFromEARM = new TimeToAMDFromEARMParam(baseCase);		
-		timeToE1CNV = new TimeToCNVFromGAParam(baseCase);
+		timeToCNVFromGA = new TimeToCNVFromGAParam(baseCase);
 	}
 
 	/**
@@ -37,24 +35,17 @@ public class ARMDParams extends ModelParams {
 	}
 
 	/**
-	 * @return the timeToAMD
+	 * @return the timeToE1AMD
 	 */
-	public TimeToAMDParam getTimeToAMD() {
-		return timeToAMD;
+	public TimeToE1AMDParam getTimeToE1AMD() {
+		return timeToE1AMD;
 	}
 
 	/**
-	 * @return the timeToE2CNV
+	 * @return the timeToE2AMD
 	 */
-	public TimeToE2CNVParam getTimeToE2CNV() {
-		return timeToE2CNV;
-	}
-
-	/**
-	 * @return the timeToE2GA
-	 */
-	public TimeToE2GAParam getTimeToE2GA() {
-		return timeToE2GA;
+	public TimeToE2AMDParam getTimeToE2AMD() {
+		return timeToE2AMD;
 	}
 
 	/**
@@ -65,10 +56,10 @@ public class ARMDParams extends ModelParams {
 	}
 
 	/**
-	 * @return the timeToE1CNV
+	 * @return the timeToCNVFromGA
 	 */
-	public TimeToCNVFromGAParam getTimeToE1CNV() {
-		return timeToE1CNV;
+	public TimeToCNVFromGAParam getTimeToCNVFromGA() {
+		return timeToCNVFromGA;
 	}
 
 }

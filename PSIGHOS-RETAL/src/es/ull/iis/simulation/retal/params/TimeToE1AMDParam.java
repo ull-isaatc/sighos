@@ -8,13 +8,14 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.OphthalmologicPatient;
 
 /**
  * @author Iván Castilla
  *
  */
-public class TimeToAMDParam extends SimpleEmpiricTimeToEventParam {
+public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 	// Parameters for first eye incidence of AMD -->  BAD ADJUST!!!!
 //	private final static double ALPHA_AMD = Math.exp(-11.4989645);
 //	private final static double BETA_AMD = 0.05463568;
@@ -39,7 +40,7 @@ public class TimeToAMDParam extends SimpleEmpiricTimeToEventParam {
 	/**
 	 * 
 	 */
-	public TimeToAMDParam(boolean baseCase) {
+	public TimeToE1AMDParam(boolean baseCase) {
 		super(baseCase, TimeUnit.YEAR, P_AMD.length);
 		// FIXME: should work diferently when baseCase = false
 
@@ -51,9 +52,9 @@ public class TimeToAMDParam extends SimpleEmpiricTimeToEventParam {
 		}
 	}
 
-	@Override
-	public long getValidatedTimeToEvent(OphthalmologicPatient pat, boolean firstEye) {
-		long timeToAMD;
+	public long[] getValidatedTimeToEventAndState(OphthalmologicPatient pat) {
+		long[] timeAndState = new long[2];
+		
 		final long timeToEARM = pat.getTimeToEARM();
 		final long timeToDeath = pat.getTimeToDeath();		
 		
@@ -62,45 +63,44 @@ public class TimeToAMDParam extends SimpleEmpiricTimeToEventParam {
 		// valid time to AMD
 		if (timeToEARM < timeToDeath) {
 			// First, we calibrate the time to AMD distribution until we get a valid time (in this case, INFINITE is a valid value) 
-			timeToAMD = getTimeToEvent(pat, firstEye);
+			timeAndState[0] = getTimeToEvent(pat);
 			// Generate new times to event until we get a valid one
-			while (timeToAMD != Long.MAX_VALUE) {
-				queue.push(timeToAMD);
-				timeToAMD = getTimeToEvent(pat, firstEye);
+			while (timeAndState[0] != Long.MAX_VALUE) {
+				queue.push(timeAndState[0]);
+				timeAndState[0] = getTimeToEvent(pat);
 			}
 		}
 		else {
 			// If there are no stored values in the queue, generate a new one
 			if (queue.isEmpty()) {
-				timeToAMD = getTimeToEvent(pat, firstEye);
+				timeAndState[0] = getTimeToEvent(pat);
 			}
 			// If there are stored values in the queue, I try with them in the first place
 			else {
 				final Iterator<Long> iter = queue.iterator();
 				do {
-					timeToAMD = iter.next();
-					if (timeToAMD < timeToDeath)
+					timeAndState[0] = iter.next();
+					if (timeAndState[0] < timeToDeath)
 						iter.remove();
-				} while (iter.hasNext() && timeToAMD >= timeToDeath);
+				} while (iter.hasNext() && timeAndState[0] >= timeToDeath);
 				// If no valid event is found, generate a new one
-				if (timeToAMD >= timeToDeath)
-					timeToAMD = getTimeToEvent(pat, firstEye);
+				if (timeAndState[0] >= timeToDeath)
+					timeAndState[0] = getTimeToEvent(pat);
 			}
 			// Generate new times to event until we get a valid one
-			while (timeToAMD != Long.MAX_VALUE && timeToAMD >= timeToDeath) {
-				queue.push(timeToAMD);
-				timeToAMD = getTimeToEvent(pat, firstEye);
+			while (timeAndState[0] != Long.MAX_VALUE && timeAndState[0] >= timeToDeath) {
+				queue.push(timeAndState[0]);
+				timeAndState[0] = getTimeToEvent(pat);
 			}
-		}			
-		return timeToAMD;
-	}
-
-	public boolean isCNV(OphthalmologicPatient pat, boolean firstEye) {
-		final Map.Entry<Integer, Double> entry = pCNV.lowerEntry((int)pat.getAge());
-		if (entry != null) {
-			final double rnd = (firstEye) ? pat.getRndProbCNV1() : pat.getRndProbCNV2();
-			return (rnd <= entry.getValue());
 		}
-		return false;		
+		if (timeAndState[0] == Long.MAX_VALUE)
+			return null;
+		final Map.Entry<Integer, Double> entry = pCNV.lowerEntry((int)pat.getAge());
+		timeAndState[1] = EyeState.AMD_GA.ordinal();
+		if (entry != null) {
+			final double rnd = pat.getRndProbCNV1();
+			timeAndState[1] = (rnd <= entry.getValue()) ? EyeState.AMD_CNV.ordinal() : EyeState.AMD_GA.ordinal();
+		}
+		return timeAndState;
 	}
 }

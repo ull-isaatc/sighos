@@ -45,6 +45,8 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 			{70, 80, 9.631457912, 87.85529716},
 			{80, CommonParams.MAX_AGE, 2.298334696, 13.78122308}};
 
+	// FIXME: Missing probabilities when CNV in fellow eye
+	
 	/** Minimum age. maximum age, CNV cases, and total cases of AMD evolving from EARM */
 	private final static double [][] P_CNV = {
 			{60, 70, 3, 6},
@@ -78,7 +80,6 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 	}
 
 	@Override
-	// TODO: Fix completely
 	public long getValidatedTimeToEvent(OphthalmologicPatient pat, boolean firstEye) {
 		long timeToAMD;
 		final long timeToEARM = pat.getTimeToEARM();

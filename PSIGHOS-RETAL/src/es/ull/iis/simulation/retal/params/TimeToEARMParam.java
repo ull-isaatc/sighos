@@ -30,26 +30,26 @@ public class TimeToEARMParam extends SimpleEmpiricTimeToEventParam {
 	 */
 	public TimeToEARMParam(boolean baseCase) {
 		super(baseCase, TimeUnit.YEAR, P_EARM.length);
-		// FIXME: should work diferently when baseCase = false
+		// FIXME: should work differently when baseCase = false
 		
 		// Initialize first-eye incidence of EARM
 		initProbabilities(P_EARM, probabilities);		
 	}
 
 	/**
+	/**
 	 * Generates a valid time to EARM, i.e., an event time that is either lower than the time to death or INFINITE 
 	 * @param age Current age of the patient
 	 * @param timeToDeath The expected time to death of the patient
 	 * @return A time to EARM that is lower than time to death or INFINITE
 	 */
-	@Override
-	public long getValidatedTimeToEvent(OphthalmologicPatient pat, boolean firstEye) {
+	public long getValidatedTimeToEvent(OphthalmologicPatient pat) {
 		long timeToEARM;
 		final long timeToDeath = pat.getTimeToDeath();
 		
 		// If there are no stored values in the queue, generate a new one
 		if (queue.isEmpty()) {
-			timeToEARM = getTimeToEvent(pat, firstEye);
+			timeToEARM = getTimeToEvent(pat);
 		}
 		// If there are stored values in the queue, I try with them in the first place
 		else {
@@ -61,12 +61,12 @@ public class TimeToEARMParam extends SimpleEmpiricTimeToEventParam {
 			} while (iter.hasNext() && timeToEARM >= timeToDeath);
 			// If no valid event is found, generate a new one
 			if (timeToEARM >= timeToDeath)
-				timeToEARM = getTimeToEvent(pat, firstEye);
+				timeToEARM = getTimeToEvent(pat);
 		}
 		// Generate new times to event until we get a valid one
 		while (timeToEARM != Long.MAX_VALUE && timeToEARM >= timeToDeath) {
 			queue.push(timeToEARM);
-			timeToEARM = getTimeToEvent(pat, firstEye);
+			timeToEARM = getTimeToEvent(pat);
 		}
 		return timeToEARM;
 	}

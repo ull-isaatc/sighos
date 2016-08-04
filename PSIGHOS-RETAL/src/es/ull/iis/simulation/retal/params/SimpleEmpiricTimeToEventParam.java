@@ -33,10 +33,9 @@ public abstract class SimpleEmpiricTimeToEventParam extends EmpiricTimeToEventPa
 	/**
 	 * Returns the "brute" simulation time when a specific event will happen (expressed in simulation time units)
 	 * @param pat A patient
-	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
-	public long getTimeToEvent(OphthalmologicPatient pat, boolean firstEye) {
+	public long getTimeToEvent(OphthalmologicPatient pat) {
 		final double []rnd = new double[probabilities.length];
 		for (int j = 0; j < probabilities.length; j++)
 			rnd[j] = rng.nextDouble();
@@ -44,4 +43,5 @@ public abstract class SimpleEmpiricTimeToEventParam extends EmpiricTimeToEventPa
 		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, unit);
 		
 	}
+
 }
