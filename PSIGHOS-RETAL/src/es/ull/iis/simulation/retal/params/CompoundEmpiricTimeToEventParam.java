@@ -5,6 +5,7 @@ package es.ull.iis.simulation.retal.params;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -52,6 +53,33 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 				return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, unit);
 			}
 		}
+		
+		public long getValidatedTimeToEvent(OphthalmologicPatient pat) {
+			final long timeToDeath = pat.getTimeToDeath();
+			long timeToEvent;
+			// If there are no stored values in the queue, generate a new one
+			if (queue.isEmpty()) {
+				timeToEvent = getTimeToEvent(pat);
+			}
+			// If there are stored values in the queue, I try with them in the first place
+			else {
+				final Iterator<Long> iter = queue.iterator();
+				do {
+					timeToEvent = iter.next();
+					if (timeToEvent < timeToDeath)
+						iter.remove();
+				} while (iter.hasNext() && timeToEvent >= timeToDeath);
+				// If no valid event is found, generate a new one
+				if (timeToEvent >= timeToDeath)
+					timeToEvent = getTimeToEvent(pat);
+			}
+			// Generate new times to event until we get a valid one
+			while (timeToEvent != Long.MAX_VALUE && timeToEvent >= timeToDeath) {
+				queue.push(timeToEvent);
+				timeToEvent = getTimeToEvent(pat);
+			}
+			return timeToEvent;
+		}
 	}
 	/**
 	 * 
@@ -66,7 +94,7 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
-	public long getTimeToEvent(OphthalmologicPatient pat, boolean firstEye) {
+	protected long getTimeToEvent(OphthalmologicPatient pat, boolean firstEye) {
 		final EnumSet<EyeState> otherEye = (firstEye) ? pat.getEye2State() : pat.getEye1State();
 		final long time;
 		
@@ -90,15 +118,5 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 		}			
 		return time;		
 	}
-	
-	/**
-	 * Returns the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
-	 * the time is coherent with the state and future/past events of the patient
-	 * @param pat A patient
-	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
-	 * @return the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
-	 * the time is coherent with the state and future/past events of the patient
-	 */
-	public abstract long getValidatedTimeToEvent(OphthalmologicPatient pat, boolean firstEye);
 	
 }

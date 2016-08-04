@@ -198,17 +198,18 @@ public class OphthalmologicPatient extends Patient {
 		return timeToE2CNV;
 	}
 
-	public double getAgeAt(EyeState state) {
+	public double getAgeAt(EyeState state, boolean firstEye) {
 		long ageAt = Long.MAX_VALUE;
 		switch(state) {
 		case EARM:
-			ageAt = timeToEARM;
+			// FIXME: Currently no EARM in fellow eye
+			ageAt = (firstEye) ? timeToEARM : Long.MAX_VALUE;
 			break;
 		case AMD_CNV:
-			ageAt = timeToCNV;
+			ageAt = (firstEye) ? timeToCNV : timeToE2CNV;
 			break;
 		case AMD_GA:
-			ageAt = timeToGA;
+			ageAt = (firstEye) ? timeToGA : timeToE2GA;
 			break;
 		case CDME:
 			break;
@@ -271,19 +272,20 @@ public class OphthalmologicPatient extends Patient {
 				affectedEye.remove(EyeState.HEALTHY);
 				affectedEye.add(EyeState.EARM);
 				simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, (firstEye)? PatientInfo.Type.EARM1 : PatientInfo.Type.EARM2, this.getTs()));
-				long timeToAMD = armdParams.getTimeToAMDFromEARM().getValidatedTimeToEvent(OphthalmologicPatient.this, firstEye);
+				long[] timeAndState = armdParams.getTimeToAMDFromEARM().getValidatedTimeToEvent(OphthalmologicPatient.this, firstEye);
 //				System.out.println(ts + "\t" + OphthalmologicPatient.this + "\t" + timeToCNV + "\t" + timeToDeath);
 				// Schedule AMD event only if death is not happening before
-				// FIXME: Check whether timeToCNV should always be lower than death or MAX_VALUE
-				if (armdParams.getTimeToAMDFromEARM().isCNV(OphthalmologicPatient.this, firstEye)) {
-					cNVEvent = new CNVEvent(timeToAMD, firstEye);
-					timeToCNV = timeToAMD;
-					addEvent(cNVEvent);
-				}
-				else {
-					gAEvent = new GAEvent(timeToAMD, firstEye);
-					timeToGA = timeToAMD;
-					addEvent(gAEvent);
+				if (timeAndState != null) {
+					if (EyeState.AMD_CNV.ordinal() == (int)timeAndState[1]) {
+						cNVEvent = new CNVEvent(timeAndState[0], firstEye);
+						timeToCNV = timeAndState[0];
+						addEvent(cNVEvent);
+					}
+					else if (EyeState.AMD_GA.ordinal() == (int)timeAndState[1]) {
+						gAEvent = new GAEvent(timeAndState[0], firstEye);
+						timeToGA = timeAndState[0];
+						addEvent(gAEvent);
+					}
 				}
 				// Schedule events for fellow eye if needed
 				if (firstEye) {
@@ -330,6 +332,13 @@ public class OphthalmologicPatient extends Patient {
 					cNVEvent = new CNVEvent(timeToCNV, firstEye);
 					addEvent(cNVEvent);
 				}
+				
+				// When the disease advances in an eye, the risk for the fellow eye increases
+				// TODO
+//				final EnumSet<EyeState> fellowEye = (firstEye) ? eye2 : eye1;
+//				if (fellowEye.contains(EyeState.AMD_GA)) {
+//					
+//				}
 			}			
 		}
 		

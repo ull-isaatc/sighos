@@ -139,7 +139,7 @@ public class TimeToE2AMDParam {
 	 */
 	public TimeToE2AMDParam(boolean baseCase) {
 		this.baseCase = baseCase;
-		// FIXME: should work diferently when baseCase = false
+		// FIXME: should work differently when baseCase = false
 		
 		// Initialize probability of fellow-eye developing CNV given EARM in first eye
 		tuples.put(EyeState.EARM, new StructuredInfo(P_E2AMD_E1EARM));
@@ -220,7 +220,7 @@ public class TimeToE2AMDParam {
 				timeAndState = info.getTimeToEvent(pat);
 		}
 		// Generate new times to event until we get a valid one
-		while (timeAndState[0] != Long.MAX_VALUE && timeAndState[0] >= timeToDeath) {
+		while (timeAndState != null && timeAndState[0] >= timeToDeath) {
 			info.queue.push(timeAndState);
 			timeAndState = info.getTimeToEvent(pat);
 		}

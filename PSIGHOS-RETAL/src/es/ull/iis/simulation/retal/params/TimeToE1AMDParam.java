@@ -53,7 +53,7 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 	}
 
 	public long[] getValidatedTimeToEventAndState(OphthalmologicPatient pat) {
-		long[] timeAndState = new long[2];
+		long timeToAMD;
 		
 		final long timeToEARM = pat.getTimeToEARM();
 		final long timeToDeath = pat.getTimeToDeath();		
@@ -63,44 +63,45 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 		// valid time to AMD
 		if (timeToEARM < timeToDeath) {
 			// First, we calibrate the time to AMD distribution until we get a valid time (in this case, INFINITE is a valid value) 
-			timeAndState[0] = getTimeToEvent(pat);
+			timeToAMD = getTimeToEvent(pat);
 			// Generate new times to event until we get a valid one
-			while (timeAndState[0] != Long.MAX_VALUE) {
-				queue.push(timeAndState[0]);
-				timeAndState[0] = getTimeToEvent(pat);
+			while (timeToAMD != Long.MAX_VALUE) {
+				queue.push(timeToAMD);
+				timeToAMD = getTimeToEvent(pat);
 			}
 		}
 		else {
 			// If there are no stored values in the queue, generate a new one
 			if (queue.isEmpty()) {
-				timeAndState[0] = getTimeToEvent(pat);
+				timeToAMD = getTimeToEvent(pat);
 			}
 			// If there are stored values in the queue, I try with them in the first place
 			else {
 				final Iterator<Long> iter = queue.iterator();
 				do {
-					timeAndState[0] = iter.next();
-					if (timeAndState[0] < timeToDeath)
+					timeToAMD = iter.next();
+					if (timeToAMD < timeToDeath)
 						iter.remove();
-				} while (iter.hasNext() && timeAndState[0] >= timeToDeath);
+				} while (iter.hasNext() && timeToAMD >= timeToDeath);
 				// If no valid event is found, generate a new one
-				if (timeAndState[0] >= timeToDeath)
-					timeAndState[0] = getTimeToEvent(pat);
+				if (timeToAMD >= timeToDeath)
+					timeToAMD = getTimeToEvent(pat);
 			}
 			// Generate new times to event until we get a valid one
-			while (timeAndState[0] != Long.MAX_VALUE && timeAndState[0] >= timeToDeath) {
-				queue.push(timeAndState[0]);
-				timeAndState[0] = getTimeToEvent(pat);
+			while (timeToAMD != Long.MAX_VALUE && timeToAMD >= timeToDeath) {
+				queue.push(timeToAMD);
+				timeToAMD = getTimeToEvent(pat);
 			}
 		}
-		if (timeAndState[0] == Long.MAX_VALUE)
+		if (timeToAMD == Long.MAX_VALUE)
 			return null;
+		
 		final Map.Entry<Integer, Double> entry = pCNV.lowerEntry((int)pat.getAge());
-		timeAndState[1] = EyeState.AMD_GA.ordinal();
-		if (entry != null) {
-			final double rnd = pat.getRndProbCNV1();
-			timeAndState[1] = (rnd <= entry.getValue()) ? EyeState.AMD_CNV.ordinal() : EyeState.AMD_GA.ordinal();
+		// TODO: Check if this condition should arise an error
+		if (entry == null) {
+			return new long[] {timeToAMD, EyeState.AMD_GA.ordinal()};
 		}
-		return timeAndState;
+		final double rnd = pat.getRndProbCNV1();
+		return new long[] {timeToAMD, (rnd <= entry.getValue()) ? EyeState.AMD_CNV.ordinal() : EyeState.AMD_GA.ordinal()};
 	}
 }
