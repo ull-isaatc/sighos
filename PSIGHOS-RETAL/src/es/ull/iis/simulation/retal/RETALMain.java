@@ -13,7 +13,7 @@ import es.ull.iis.simulation.retal.params.CommonParams;
 public class RETALMain {
 //	public final static TimeStamp GENSTART = TimeStamp.getZero();
 //	public final static TimeStamp GENPERIOD = TimeStamp.getDay();
-	public final static int NPATIENTS = 1000;
+	public final static int NPATIENTS = 10000;
 
 //	private final static SimulationTimeFunction deathTime = new SimulationTimeFunction(SIMUNIT, "ConstantVariate", new TimeStamp(TimeUnit.YEAR, 40));
 	

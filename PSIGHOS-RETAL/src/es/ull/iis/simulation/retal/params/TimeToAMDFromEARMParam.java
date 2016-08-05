@@ -109,8 +109,8 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
 	 * the time is coherent with the state and future/past events of the patient
 	 */
-	public long[] getValidatedTimeToEvent(OphthalmologicPatient pat, boolean firstEye) {		
-		final EnumSet<EyeState> otherEye = (firstEye) ? pat.getEye2State() : pat.getEye1State();
+	public long[] getValidatedTimeToEvent(OphthalmologicPatient pat, int eye) {		
+		final EnumSet<EyeState> otherEye = pat.getEyeState(eye);
 		final StructuredInfo info;
 		// Other eye has CNV
 		if (otherEye.contains(EyeState.AMD_CNV)) {
@@ -146,7 +146,7 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 		if (entry == null) {
 			return new long[] {timeToAMD, EyeState.AMD_GA.ordinal()};
 		}
-		final double rnd = (firstEye) ? pat.getRndProbCNV1() : pat.getRndProbCNV2();
+		final double rnd = pat.getRndProbCNV(eye);
 		return new long[] {timeToAMD, (rnd <= entry.getValue()) ? EyeState.AMD_CNV.ordinal() : EyeState.AMD_GA.ordinal()};
 	}
 

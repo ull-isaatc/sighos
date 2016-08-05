@@ -115,8 +115,8 @@ public class PatientCounterHistogramView extends Listener {
 				case DEATH:
 					if (detailDeaths) {
 						final PatientInfo p = (PatientInfo) info;
-						final EnumSet<EyeState> eye1 = ((OphthalmologicPatient)p.getPatient()).getEye1State();
-						final EnumSet<EyeState> eye2 = ((OphthalmologicPatient)p.getPatient()).getEye2State();
+						final EnumSet<EyeState> eye1 = ((OphthalmologicPatient)p.getPatient()).getEyeState(0);
+						final EnumSet<EyeState> eye2 = ((OphthalmologicPatient)p.getPatient()).getEyeState(1);
 						if (eye1.contains(EyeState.AMD_CNV) || eye2.contains(EyeState.AMD_CNV))
 							nDeaths[3][interval]++;
 						else if (eye1.contains(EyeState.AMD_GA) || eye2.contains(EyeState.AMD_GA))

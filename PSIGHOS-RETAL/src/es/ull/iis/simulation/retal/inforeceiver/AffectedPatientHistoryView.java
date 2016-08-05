@@ -31,8 +31,8 @@ public class AffectedPatientHistoryView extends Listener {
 		addEntrance(SimulationStartInfo.class);
 	}
 
-	private String getAgeAt(OphthalmologicPatient pat, EyeState state, boolean firstEye) {
-		final double ageAt = pat.getAgeAt(state, firstEye);
+	private String getAgeAt(OphthalmologicPatient pat, EyeState state, int eye) {
+		final double ageAt = pat.getAgeAt(state, eye);
 		return (ageAt == Double.MAX_VALUE) ? "INF" : ("" + ageAt); 
 	}
 	@Override
@@ -44,10 +44,10 @@ public class AffectedPatientHistoryView extends Listener {
 			PatientInfo pInfo = (PatientInfo) info;
 			OphthalmologicPatient pat = (OphthalmologicPatient) pInfo.getPatient();
 			if (pInfo.getType() == PatientInfo.Type.FINISH) {
-				if (pat.getTimeToEARM() != Long.MAX_VALUE || pat.getTimeToGA() != Long.MAX_VALUE || pat.getTimeToCNV() != Long.MAX_VALUE)
-					out.println(pat + "\t" + pat.getInitAge() + "\t" + getAgeAt(pat, EyeState.EARM, true) + "\t" 
-							+ getAgeAt(pat, EyeState.AMD_GA, true) + "\t" + getAgeAt(pat, EyeState.AMD_CNV, true) + "\t" 
-							+ getAgeAt(pat, EyeState.AMD_GA, false) + "\t" + getAgeAt(pat, EyeState.AMD_CNV, false)+ "\t" + pat.getAge());
+				if (pat.getTimeToEARM(0) != Long.MAX_VALUE || pat.getTimeToGA(0) != Long.MAX_VALUE || pat.getTimeToCNV(0) != Long.MAX_VALUE)
+					out.println(pat + "\t" + pat.getInitAge() + "\t" + getAgeAt(pat, EyeState.EARM, 0) + "\t" 
+							+ getAgeAt(pat, EyeState.AMD_GA, 0) + "\t" + getAgeAt(pat, EyeState.AMD_CNV, 0) + "\t" 
+							+ getAgeAt(pat, EyeState.AMD_GA, 1) + "\t" + getAgeAt(pat, EyeState.AMD_CNV, 1)+ "\t" + pat.getAge());
 			}
 		}
 	}

@@ -94,8 +94,8 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
-	protected long getTimeToEvent(OphthalmologicPatient pat, boolean firstEye) {
-		final EnumSet<EyeState> otherEye = (firstEye) ? pat.getEye2State() : pat.getEye1State();
+	protected long getTimeToEvent(OphthalmologicPatient pat, int eye) {
+		final EnumSet<EyeState> otherEye = pat.getEyeState(eye);
 		final long time;
 		
 		// Other eye has CNV

@@ -17,11 +17,7 @@ import es.ull.iis.simulation.retal.OphthalmologicPatient;
  * @author Iván Castilla Rodríguez
  *
  */
-public class TimeToE2AMDParam {
-	/** True if first order parameters must be generated; false if second order analysis must be performed */
-	final protected boolean baseCase;
-	/** The time unit this parameter is expressed in */
-	final protected TimeUnit unit = TimeUnit.YEAR;
+public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 
 	/**
 	 * <Minimum age. maximum age, probability of CNV, probability of GA> given EARM in first eye. 
@@ -138,7 +134,7 @@ public class TimeToE2AMDParam {
 	 * 
 	 */
 	public TimeToE2AMDParam(boolean baseCase) {
-		this.baseCase = baseCase;
+		super(baseCase, TimeUnit.YEAR);
 		// FIXME: should work differently when baseCase = false
 		
 		// Initialize probability of fellow-eye developing CNV given EARM in first eye
@@ -154,7 +150,7 @@ public class TimeToE2AMDParam {
 	}
 
 	public long[] getTimeToEventAndState(OphthalmologicPatient pat) {
-		final EnumSet<EyeState> otherEye = pat.getEye1State();
+		final EnumSet<EyeState> otherEye = pat.getEyeState(0);
 		final long[] timeAndState;
 		
 		// Other eye has CNV
@@ -181,7 +177,7 @@ public class TimeToE2AMDParam {
 	public long[] getValidatedTimeToEventAndState(OphthalmologicPatient pat) {
 		final long timeToDeath = pat.getTimeToDeath();
 		long[] timeAndState;
-		final EnumSet<EyeState> otherEye = pat.getEye1State();
+		final EnumSet<EyeState> otherEye = pat.getEyeState(0);
 		final StructuredInfo info;
 		
 		if (otherEye.contains(EyeState.AMD_CNV)) {

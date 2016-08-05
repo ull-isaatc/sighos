@@ -209,26 +209,6 @@ public class Patient extends BasicElement {
 		update();
 	}
 	
-	/**
-	 * Defines a discrete event whose execution can be cancelled after being scheduled
-	 * @author Iván Castilla Rodríguez
-	 *
-	 */
-	public abstract class CancelableEvent extends DiscreteEvent {
-		protected boolean cancelled = false;
-		
-		public CancelableEvent(long ts) {
-			super(ts);
-		}
-
-		/**
-		 * Sets the event as cancelled. Cannot be (theoretically) reverted.
-		 */
-		public void cancel() {
-			cancelled = true;
-		}
-	}
-	
 	public final class DeathEvent extends DiscreteEvent {
 		
 		public DeathEvent(long ts) {

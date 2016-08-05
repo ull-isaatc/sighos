@@ -79,9 +79,9 @@ public class TimeToCNVFromGAParam extends CompoundEmpiricTimeToEventParam {
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
 	 * the time is coherent with the state and future/past events of the patient
 	 */
-	public long getValidatedTimeToEvent(OphthalmologicPatient pat, boolean firstEye) {
+	public long getValidatedTimeToEvent(OphthalmologicPatient pat, int eye) {
 		
-		final EnumSet<EyeState> otherEye = (firstEye) ? pat.getEye2State() : pat.getEye1State();
+		final EnumSet<EyeState> otherEye = pat.getEyeState(eye);
 		final StructuredInfo info;
 		// Other eye has CNV
 		if (otherEye.contains(EyeState.AMD_CNV)) {

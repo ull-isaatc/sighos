@@ -55,7 +55,7 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 	public long[] getValidatedTimeToEventAndState(OphthalmologicPatient pat) {
 		long timeToAMD;
 		
-		final long timeToEARM = pat.getTimeToEARM();
+		final long timeToEARM = pat.getTimeToEARM(0);
 		final long timeToDeath = pat.getTimeToDeath();		
 		
 		// If we obtained a valid time to EARM, we don't need time to AMD. However, if we don't use the "time to AMD" generator, we would 
@@ -101,7 +101,7 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 		if (entry == null) {
 			return new long[] {timeToAMD, EyeState.AMD_GA.ordinal()};
 		}
-		final double rnd = pat.getRndProbCNV1();
+		final double rnd = pat.getRndProbCNV(0);
 		return new long[] {timeToAMD, (rnd <= entry.getValue()) ? EyeState.AMD_CNV.ordinal() : EyeState.AMD_GA.ordinal()};
 	}
 }
