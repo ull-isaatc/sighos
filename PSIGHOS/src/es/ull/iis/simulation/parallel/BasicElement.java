@@ -132,6 +132,15 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
         public abstract void event();
         
         /**
+         * Cancels this event. This function only works when the event is currently scheduled in the 
+         * simulation.
+         * @return True if the event can be cancelled; false otherwise. 
+         */
+        public boolean cancel() {
+        	return simul.removeWait(this);
+        }
+        
+        /**
          * String representation of the event
          * @return A character string "E[#]".
          */

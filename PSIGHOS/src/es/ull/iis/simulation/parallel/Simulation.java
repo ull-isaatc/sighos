@@ -204,6 +204,16 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 			list.add(e);
 	}
 
+    /**
+     * Removes a specific event from the waiting queue. This function can be used to cancel an event
+     * FIXME: Not tested!!!
+     * @param e Event to be removed
+     * @return True if the queue contained the event; false otherwise
+     */
+    protected boolean removeWait(BasicElement.DiscreteEvent e) {
+        return (futureEventList.remove(e) != null);
+    }
+    
 	private class BarrierAction implements Runnable {
 		@Override
 		public void run() {

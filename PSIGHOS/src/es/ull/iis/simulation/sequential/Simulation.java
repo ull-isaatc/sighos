@@ -225,6 +225,15 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
         return waitQueue.poll();
     }
     
+    /**
+     * Removes a specific event from the waiting queue. This function can be used to cancel an event
+     * @param e Event to be removed
+     * @return True if the queue contained the event; false otherwise
+     */
+    protected boolean removeWait(BasicElement.DiscreteEvent e) {
+        return waitQueue.remove(e);
+    }
+    
 	/**
 	 * Adds an {@link es.ull.iis.simulation.sequential.Activity} to the model. These method
 	 * is invoked from the object's constructor.
