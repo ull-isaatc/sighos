@@ -129,6 +129,38 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 				return new long[] {pat.getTs() + pat.getSimulation().getTimeUnit().convert(ageAtEvent, unit), stateAtEvent.ordinal()};
 			}
 		}
+
+		public long[] getValidatedTimeToEventAndState(OphthalmologicPatient pat) {
+			final long timeToDeath = pat.getTimeToDeath();
+			final long currentTime = pat.getTs();
+			long[] timeAndState;
+
+			// If there are no stored values in the queue, generate a new one
+			if (queue.isEmpty()) {
+				timeAndState = getTimeToEvent(pat);
+			}
+			// If there are stored values in the queue, I try with them in the first place
+			else {
+				final Iterator<long[]> iter = queue.iterator();
+				do {
+					timeAndState = iter.next();
+					if (timeAndState[0] < timeToDeath)
+						iter.remove();
+					// Check if the stored time already passed --> If so, discharge
+					if (timeAndState[0] <= currentTime)
+						timeAndState[0] = Long.MAX_VALUE;
+				} while (iter.hasNext() && timeAndState[0] >= timeToDeath);
+				// If no valid event is found, generate a new one
+				if (timeAndState[0] >= timeToDeath)
+					timeAndState = getTimeToEvent(pat);
+			}
+			// Generate new times to event until we get a valid one
+			while (timeAndState != null && timeAndState[0] >= timeToDeath) {
+				queue.push(timeAndState);
+				timeAndState = getTimeToEvent(pat);
+			}
+			return timeAndState;		
+		}
 	}
 	/**
 	 * 
@@ -175,8 +207,6 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 	}
 	
 	public long[] getValidatedTimeToEventAndState(OphthalmologicPatient pat) {
-		final long timeToDeath = pat.getTimeToDeath();
-		long[] timeAndState;
 		final EnumSet<EyeState> otherEye = pat.getEyeState(0);
 		final StructuredInfo info;
 		
@@ -199,28 +229,7 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 			return null;
 		}
 		
-		// If there are no stored values in the queue, generate a new one
-		if (info.queue.isEmpty()) {
-			timeAndState = info.getTimeToEvent(pat);
-		}
-		// If there are stored values in the queue, I try with them in the first place
-		else {
-			final Iterator<long[]> iter = info.queue.iterator();
-			do {
-				timeAndState = iter.next();
-				if (timeAndState[0] < timeToDeath)
-					iter.remove();
-			} while (iter.hasNext() && timeAndState[0] >= timeToDeath);
-			// If no valid event is found, generate a new one
-			if (timeAndState[0] >= timeToDeath)
-				timeAndState = info.getTimeToEvent(pat);
-		}
-		// Generate new times to event until we get a valid one
-		while (timeAndState != null && timeAndState[0] >= timeToDeath) {
-			info.queue.push(timeAndState);
-			timeAndState = info.getTimeToEvent(pat);
-		}
-		return timeAndState;		
+		return info.getValidatedTimeToEventAndState(pat);
 	}
 	
 }

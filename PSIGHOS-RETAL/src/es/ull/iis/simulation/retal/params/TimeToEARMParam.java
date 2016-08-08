@@ -46,6 +46,7 @@ public class TimeToEARMParam extends SimpleEmpiricTimeToEventParam {
 	public long getValidatedTimeToEvent(OphthalmologicPatient pat) {
 		long timeToEARM;
 		final long timeToDeath = pat.getTimeToDeath();
+		final long currentTime = pat.getTs();
 		
 		// If there are no stored values in the queue, generate a new one
 		if (queue.isEmpty()) {
@@ -58,6 +59,9 @@ public class TimeToEARMParam extends SimpleEmpiricTimeToEventParam {
 				timeToEARM = iter.next();
 				if (timeToEARM < timeToDeath)
 					iter.remove();
+				// Check if the stored time already passed --> If so, discharge
+				if (timeToEARM <= currentTime)
+					timeToEARM = Long.MAX_VALUE;
 			} while (iter.hasNext() && timeToEARM >= timeToDeath);
 			// If no valid event is found, generate a new one
 			if (timeToEARM >= timeToDeath)

@@ -57,6 +57,7 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 		
 		final long timeToEARM = pat.getTimeToEARM(0);
 		final long timeToDeath = pat.getTimeToDeath();		
+		final long currentTime = pat.getTs();
 		
 		// If we obtained a valid time to EARM, we don't need time to AMD. However, if we don't use the "time to AMD" generator, we would 
 		// be artificially underestimating the incidence of AMD in healthy eyes. Hence, we have to use the random distribution to create a 
@@ -82,6 +83,9 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 					timeToAMD = iter.next();
 					if (timeToAMD < timeToDeath)
 						iter.remove();
+					// Check if the stored time already passed --> If so, discharge
+					if (timeToAMD <= currentTime)
+						timeToAMD = Long.MAX_VALUE;
 				} while (iter.hasNext() && timeToAMD >= timeToDeath);
 				// If no valid event is found, generate a new one
 				if (timeToAMD >= timeToDeath)

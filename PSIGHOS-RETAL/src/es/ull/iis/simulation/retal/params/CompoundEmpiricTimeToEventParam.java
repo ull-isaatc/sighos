@@ -56,6 +56,7 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 		
 		public long getValidatedTimeToEvent(OphthalmologicPatient pat) {
 			final long timeToDeath = pat.getTimeToDeath();
+			final long currentTime = pat.getTs();
 			long timeToEvent;
 			// If there are no stored values in the queue, generate a new one
 			if (queue.isEmpty()) {
@@ -68,6 +69,9 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 					timeToEvent = iter.next();
 					if (timeToEvent < timeToDeath)
 						iter.remove();
+					// Check if the stored time already passed --> If so, discharge
+					if (timeToEvent <= currentTime)
+						timeToEvent = Long.MAX_VALUE;
 				} while (iter.hasNext() && timeToEvent >= timeToDeath);
 				// If no valid event is found, generate a new one
 				if (timeToEvent >= timeToDeath)
