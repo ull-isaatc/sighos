@@ -10,8 +10,19 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
+ * A class to generate time to AMD in an eye with EARM. 
+ * The age-adjusted probability of AMD is adapted from the Rotterdam study [1], as used in Karnon's report [2].
+ * 
+ * References:
+ * [1] Klaver, C.C. et al., 2001. Incidence and progression rates of age-related maculopathy: the Rotterdam Study. 
+ * Investigative ophthalmology & visual science, 42(10), pp.2237–41.  
+ * [2] Karnon, J. et al., 2008. A preliminary model-based assessment of the cost-utility of a screening programme for early 
+ * age-related macular degeneration. Health technology assessment (Winchester, England), 12(27), pp.iii–iv, ix–124. 
+ * [3] Spanish Eyes Epidemiological (SEE) Study Group, 2011. Prevalence of age-related macular degeneration in Spain. 
+ * The British journal of ophthalmology, 95, pp.931–936.
  * @author Iván Castilla Rodríguez
  *
  */
@@ -19,39 +30,41 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 	// Parameters for progression to AMD given that FE has no ARM --> Adjust not tested
 //	private final static double ALPHA_ARM2AMD_FE_NOARM = Math.exp(-7.218078288);
 //	private final static double BETA_ARM2AMD_FE_NOARM = 0.043182526;
+	/** Calibration parameter to adjust the simulated prevalence to that observed in [3] */ 
+	private final static double CALIBRATION_FACTOR = ARMDParams.CALIBRATED ? 5.0 : 1.0;
 	/**
 	 * Minimum age. maximum age, incident patients and patients-year at risk that progress from EARM to AMD, given NO ARM in fellow eye. 
-	 * Source: Karnon model
+	 * Source: [2]
 	 */
 	private final static double [][] P_AMD_E2_NOARM = { 
-			{60, 70, 3.63796991807317, 359},
-			{70, 80, 16.6795708705063, 724},
-			{80, CommonParams.MAX_AGE, 11.7406621342988, 335}};
+			{60, 70, 3.63796991807317 * CALIBRATION_FACTOR, 359},
+			{70, 80, 16.6795708705063 * CALIBRATION_FACTOR, 724},
+			{80, CommonParams.MAX_AGE, 11.7406621342988 * CALIBRATION_FACTOR, 335}};
 	/**
 	 * Minimum age. maximum age, incident patients and patients-year at risk that progress from EARM to AMD, given EARM in both eyes. 
-	 * Source: Karnon model
+	 * Source: [2]
 	 */
 	private final static double [][] P_AMD_E2_EARM = { 
-			{60, 70, 4.070393438, 84.40999139},
-			{70, 80, 9.631457912, 87.85529716},
-			{80, CommonParams.MAX_AGE, 2.298334696, 13.78122308}};
+			{60, 70, 4.070393438 * CALIBRATION_FACTOR, 84.40999139},
+			{70, 80, 9.631457912 * CALIBRATION_FACTOR, 87.85529716},
+			{80, CommonParams.MAX_AGE, 2.298334696 * CALIBRATION_FACTOR, 13.78122308}};
 	/**
 	 * Minimum age. maximum age, incident patients and patients-year at risk that progress from EARM to AMD, given GA in fellow eyes. 
-	 * Source: Karnon model (assumed to be equal to progression rate from EARM to AMD, given EARM in fellow eye).
+	 * Source: [2] (assumed to be equal to progression rate from EARM to AMD, given EARM in fellow eye).
 	 */
 	private final static double [][] P_AMD_E2_GA = { 
-			{60, 70, 4.070393438, 84.40999139},
-			{70, 80, 9.631457912, 87.85529716},
-			{80, CommonParams.MAX_AGE, 2.298334696, 13.78122308}};
+			{60, 70, 4.070393438 * CALIBRATION_FACTOR, 84.40999139},
+			{70, 80, 9.631457912 * CALIBRATION_FACTOR, 87.85529716},
+			{80, CommonParams.MAX_AGE, 2.298334696 * CALIBRATION_FACTOR, 13.78122308}};
 
 	/**
 	 * Minimum age. maximum age, probability of progression from EARM to AMD, given CNV in fellow eyes. 
-	 * Source: Karnon model (I have added both CNV and GA probabilities and then I apply.
+	 * Source: [2] (I have added both CNV and GA probabilities and then I apply.
 	 */
 	private final static double [][] P_AMD_E2_CNV = { 
-			{50, 70, 0.042279983+0.082645813},
-			{70, 75, 0.05732427+0.111660068},
-			{75, CommonParams.MAX_AGE, 0.066058103+0.128941355}};
+			{50, 70, (0.042279983+0.082645813) * CALIBRATION_FACTOR},
+			{70, 75, (0.05732427+0.111660068) * CALIBRATION_FACTOR},
+			{75, CommonParams.MAX_AGE, (0.066058103+0.128941355) * CALIBRATION_FACTOR}};
 	
 	/** Minimum age. maximum age, CNV cases, and total cases of AMD evolving from EARM */
 	private final static double [][] P_CNV = {
@@ -73,8 +86,8 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 	/**
 	 * @param baseCase
 	 */
-	public TimeToAMDFromEARMParam(boolean baseCase) {
-		super(baseCase, TimeUnit.YEAR);
+	public TimeToAMDFromEARMParam(RETALSimulation simul, boolean baseCase) {
+		super(simul, baseCase, TimeUnit.YEAR);
 		// FIXME: should work diferently when baseCase = false
 		
 		// Initialize probability of first-eye developing AMD from EARM
@@ -109,8 +122,8 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
 	 * the time is coherent with the state and future/past events of the patient
 	 */
-	public long[] getValidatedTimeToEvent(OphthalmologicPatient pat, int eye) {		
-		final EnumSet<EyeState> otherEye = pat.getEyeState(eye);
+	public EyeStateAndValue getValidatedTimeToEventAndState(OphthalmologicPatient pat, int eye) {		
+		final EnumSet<EyeState> otherEye = pat.getEyeState(1 - eye);
 		final StructuredInfo info;
 		// Other eye has CNV
 		if (otherEye.contains(EyeState.AMD_CNV)) {
@@ -144,10 +157,10 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 				pCNV_E2_CNV.lowerEntry((int)pat.getAge()) : pCNV.lowerEntry((int)pat.getAge());
 		// TODO: Check if this condition should arise an error				
 		if (entry == null) {
-			return new long[] {timeToAMD, EyeState.AMD_GA.ordinal()};
+			return new EyeStateAndValue(EyeState.AMD_GA, timeToAMD);
 		}
 		final double rnd = pat.getRndProbCNV(eye);
-		return new long[] {timeToAMD, (rnd <= entry.getValue()) ? EyeState.AMD_CNV.ordinal() : EyeState.AMD_GA.ordinal()};
+		return new EyeStateAndValue((rnd <= entry.getValue()) ? EyeState.AMD_CNV : EyeState.AMD_GA, timeToAMD);
 	}
 
 }

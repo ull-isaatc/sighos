@@ -7,8 +7,20 @@ import java.util.Iterator;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
+ * A class to generate ages at which EARM appears. 
+ * The age-adjusted probability of EARM is adapted from the Rotterdam study [1], as used in Karnon's report [2].
+ * Then, the specific values are calibrated according to the SEE study in Spain [3].
+ * 
+ * References:
+ * [1] Klaver, C.C. et al., 2001. Incidence and progression rates of age-related maculopathy: the Rotterdam Study. 
+ * Investigative ophthalmology & visual science, 42(10), pp.2237–41.  
+ * [2] Karnon, J. et al., 2008. A preliminary model-based assessment of the cost-utility of a screening programme for early 
+ * age-related macular degeneration. Health technology assessment (Winchester, England), 12(27), pp.iii–iv, ix–124. 
+ * [3] Spanish Eyes Epidemiological (SEE) Study Group, 2011. Prevalence of age-related macular degeneration in Spain. 
+ * The British journal of ophthalmology, 95, pp.931–936.
  * @author Iván Castilla Rodríguez
  *
  */
@@ -16,20 +28,24 @@ public class TimeToEARMParam extends SimpleEmpiricTimeToEventParam {
 	// Parameters for First eye incidence of EARM --> BAD ADJUST!!!!
 //	private final static double ALPHA_EARM = Math.exp(-11.41320441);
 //	private final static double BETA_EARM = 0.097865047;
-	/** Parameters for an empiric distribution on incidence of EARM. Source: Rotterdam study as stated in Karnon's report (pag 25) */
+	/** Calibration parameter for early ages to adjust the simulated prevalence to that observed in [3] */ 
+	private final static double CALIBRATION_FACTOR_1 = ARMDParams.CALIBRATED ? 3.0 : 1.0;;
+	/** Calibration parameters for late ages to adjust the simulated prevalence to that observed in [3] */ 
+	private final static double CALIBRATION_FACTOR_2 = ARMDParams.CALIBRATED ? 1.0 : 1.0;
+	/** Parameters for an empirical distribution on incidence of EARM. Source: [3] */
 	private final static double [][] P_EARM = {	
-			{55, 60, 3, 2179},
-			{60, 65, 32, 6085},
-			{65, 70, 69, 6376},
-			{70, 75, 97, 5102},
-			{75, 80, 102, 3212},
-			{80, CommonParams.MAX_AGE, 110, 2159}};
+			{55, 60, 3 * CALIBRATION_FACTOR_1, 2179},
+			{60, 65, 32 * CALIBRATION_FACTOR_1, 6085},
+			{65, 70, 69 * CALIBRATION_FACTOR_1, 6376},
+			{70, 75, 97 * CALIBRATION_FACTOR_2, 5102},
+			{75, 80, 102 * CALIBRATION_FACTOR_2, 3212},
+			{80, CommonParams.MAX_AGE, 110 * CALIBRATION_FACTOR_2, 2159}};
 
 	/**
 	 * @param baseCase
 	 */
-	public TimeToEARMParam(boolean baseCase) {
-		super(baseCase, TimeUnit.YEAR, P_EARM.length);
+	public TimeToEARMParam(RETALSimulation simul, boolean baseCase) {
+		super(simul, baseCase, TimeUnit.YEAR, P_EARM.length);
 		// FIXME: should work differently when baseCase = false
 		
 		// Initialize first-eye incidence of EARM

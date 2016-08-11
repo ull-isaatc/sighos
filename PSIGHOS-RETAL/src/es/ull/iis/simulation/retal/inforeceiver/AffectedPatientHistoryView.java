@@ -12,6 +12,7 @@ import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.OphthalmologicPatient;
 import es.ull.iis.simulation.retal.info.PatientInfo;
+import es.ull.iis.simulation.retal.params.CNVStage;
 
 /**
  * @author Iván Castilla
@@ -19,35 +20,65 @@ import es.ull.iis.simulation.retal.info.PatientInfo;
  */
 public class AffectedPatientHistoryView extends Listener {
 	private final PrintStream out = System.out;
+	private final static EyeState[] STATES = {EyeState.EARM, EyeState.AMD_GA, EyeState.AMD_CNV};
+	private final boolean detailed;
 	
 
 	/**
 	 * @param simul
 	 */
-	public AffectedPatientHistoryView(Simulation simul) {
+	public AffectedPatientHistoryView(Simulation simul, boolean detailed) {
 		super(simul, "Standard patient viewer");
+		this.detailed = detailed;
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
 		addEntrance(SimulationStartInfo.class);
+	}
+	/**
+	 * @param simul
+	 */
+	public AffectedPatientHistoryView(Simulation simul) {
+		this(simul, false);
 	}
 
 	private String getAgeAt(OphthalmologicPatient pat, EyeState state, int eye) {
 		final double ageAt = pat.getAgeAt(state, eye);
 		return (ageAt == Double.MAX_VALUE) ? "INF" : ("" + ageAt); 
 	}
+	
+	private String getAgeAt(OphthalmologicPatient pat, CNVStage stage, int eye) {
+		final double ageAt = pat.getAgeAt(stage, eye);
+		return (ageAt == Double.MAX_VALUE) ? "INF" : ("" + ageAt); 
+	}
+	
 	@Override
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof SimulationStartInfo) {
-			out.println("Patient\tINIT_AGE\tEARM\tGA1\tCNV1\tGA2\tCNV2\tDEATH");
+			final StringBuilder str = new StringBuilder("Patient\tINIT_AGE\t");
+			for (int i = 0; i < STATES.length; i++)
+				str.append(STATES[i]).append("_E1\t").append(STATES[i]).append("_E2\t");
+			if (detailed) {
+				for (CNVStage stage : CNVStage.ALL_STAGES) { 
+					str.append(stage.getType()).append("_").append(stage.getPosition()).append("_E1\t");
+					str.append(stage.getType()).append("_").append(stage.getPosition()).append("_E2\t");
+				}
+			}
+			out.println(str.append("DEATH"));
 		}
 		else {
 			PatientInfo pInfo = (PatientInfo) info;
 			OphthalmologicPatient pat = (OphthalmologicPatient) pInfo.getPatient();
 			if (pInfo.getType() == PatientInfo.Type.FINISH) {
-				if (pat.getTimeToEARM(0) != Long.MAX_VALUE || pat.getTimeToGA(0) != Long.MAX_VALUE || pat.getTimeToCNV(0) != Long.MAX_VALUE)
-					out.println(pat + "\t" + pat.getInitAge() + "\t" + getAgeAt(pat, EyeState.EARM, 0) + "\t" 
-							+ getAgeAt(pat, EyeState.AMD_GA, 0) + "\t" + getAgeAt(pat, EyeState.AMD_CNV, 0) + "\t" 
-							+ getAgeAt(pat, EyeState.AMD_GA, 1) + "\t" + getAgeAt(pat, EyeState.AMD_CNV, 1)+ "\t" + pat.getAge());
+				if (pat.getTimeToEARM(0) != Long.MAX_VALUE || pat.getTimeToGA(0) != Long.MAX_VALUE || pat.getTimeToCNV(0) != Long.MAX_VALUE) {
+					final StringBuilder str = new StringBuilder(pat.toString()).append("\t").append(pat.getInitAge()).append("\t");
+					for (int i = 0; i < STATES.length; i++)
+						str.append(getAgeAt(pat, STATES[i], 0)).append("\t").append(getAgeAt(pat, STATES[i], 1)).append("\t");
+					if (detailed) {
+						for (CNVStage stage : CNVStage.ALL_STAGES)
+							str.append(getAgeAt(pat, stage, 0)).append("\t").append(getAgeAt(pat, stage, 1)).append("\t");
+					}
+					out.println(str.append(pat.getAge()));
+				}
 			}
 		}
 	}

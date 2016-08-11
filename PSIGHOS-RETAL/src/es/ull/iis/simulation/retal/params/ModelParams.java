@@ -5,6 +5,8 @@ package es.ull.iis.simulation.retal.params;
 
 import java.util.Random;
 
+import es.ull.iis.simulation.retal.RETALSimulation;
+
 /**
  * @author Iván Castilla Rodríguez
  *
@@ -14,12 +16,15 @@ public abstract class ModelParams {
 	 * True if base case parameters (expected values) should be used. False for second order simulations.
 	 */
 	protected final boolean baseCase;
+	/** The simulation these parameters are attached to */
+	protected final RETALSimulation simul;
 
 	/**
 	 * 
 	 * @param baseCase True if base case parameters (expected values) should be used. False for second order simulations.
 	 */
-	public ModelParams(boolean baseCase) {
+	public ModelParams(RETALSimulation simul, boolean baseCase) {
+		this.simul = simul;
 		this.baseCase = baseCase;
 	}
 

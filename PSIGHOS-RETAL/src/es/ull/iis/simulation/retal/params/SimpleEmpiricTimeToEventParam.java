@@ -8,6 +8,7 @@ import java.util.Random;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -24,8 +25,8 @@ public abstract class SimpleEmpiricTimeToEventParam extends EmpiricTimeToEventPa
 	/**
 	 * 
 	 */
-	public SimpleEmpiricTimeToEventParam(boolean baseCase, TimeUnit unit, int nAgeGroups) {
-		super(baseCase, unit);
+	public SimpleEmpiricTimeToEventParam(RETALSimulation simul, boolean baseCase, TimeUnit unit, int nAgeGroups) {
+		super(simul, baseCase, unit);
 		this.rng = new Random();
 		this.probabilities = new double[nAgeGroups][3];
 	}
@@ -40,7 +41,7 @@ public abstract class SimpleEmpiricTimeToEventParam extends EmpiricTimeToEventPa
 		for (int j = 0; j < probabilities.length; j++)
 			rnd[j] = rng.nextDouble();
 		final double time = getTimeToEvent(probabilities, pat.getAge(), rnd);
-		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, unit);
+		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + simul.getTimeUnit().convert(time, unit);
 		
 	}
 

@@ -3,9 +3,6 @@
  */
 package es.ull.iis.simulation.retal;
 
-import es.ull.iis.simulation.retal.params.ARMDParams;
-import es.ull.iis.simulation.retal.params.CommonParams;
-
 /**
  * @author Iván Castilla Rodríguez
  *
@@ -13,14 +10,11 @@ import es.ull.iis.simulation.retal.params.CommonParams;
 public class RETALMain {
 //	public final static TimeStamp GENSTART = TimeStamp.getZero();
 //	public final static TimeStamp GENPERIOD = TimeStamp.getDay();
-	public final static int NPATIENTS = 10000;
 
 //	private final static SimulationTimeFunction deathTime = new SimulationTimeFunction(SIMUNIT, "ConstantVariate", new TimeStamp(TimeUnit.YEAR, 40));
 	
 	public static void main(String[] args) {
-		final CommonParams commonParams = new CommonParams(true);
-		final ARMDParams armdParams = new ARMDParams(true);
-		final RETALSimulation simul = new RETALSimulation(0, commonParams, armdParams, NPATIENTS);
+		final RETALSimulation simul = new RETALSimulation(0);
 		simul.run();
 
 //		final Random RNG = new Random(); 

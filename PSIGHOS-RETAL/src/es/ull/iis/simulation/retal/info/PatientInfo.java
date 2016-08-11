@@ -15,12 +15,8 @@ public class PatientInfo extends AsynchronousInfo {
 	/** Possible types of element information */
 	public enum Type {
 			START ("PATIENT STARTS"),
-			EARM1 ("PATIENT WITH EARLY ARM IN FIRST EYE"),
-			CNV1 ("PATIENT WITH CNV IN FIRST EYE"),
-			GA1 ("PATIENT WITH GA IN FIRST EYE"),
-			EARM2 ("PATIENT WITH EARLY ARM IN FELLOW EYE"),
-			CNV2 ("PATIENT WITH CNV IN FELLOW EYE"),
-			GA2 ("PATIENT WITH GA IN FELLOW EYE"),
+			CHANGE_EYE_STATE ("PATIENT EYE STATE'S CHANGE"),
+			CHANGE_CNV_STAGE ("PATIENT WITH CNV CHANGES STAGE"),
 			SCREENED ("PATIENT IS SCREENED"),
 			DIAGNOSED ("PATIENT IS DIAGNOSED"),
 			DEATH ("PATIENT DIES"),
@@ -40,6 +36,19 @@ public class PatientInfo extends AsynchronousInfo {
 	
 	final private Patient patient;
 	final private Type type;
+	final private int eyeIndex;
+
+	/**
+	 * @param simul
+	 * @param patient
+	 * @param ts
+	 */
+	public PatientInfo(Simulation simul, Patient patient, Type type, int eyeIndex, long ts) {
+		super(simul, ts);
+		this.patient = patient;
+		this.type = type;
+		this.eyeIndex = eyeIndex;
+	}
 
 	/**
 	 * @param simul
@@ -47,9 +56,7 @@ public class PatientInfo extends AsynchronousInfo {
 	 * @param ts
 	 */
 	public PatientInfo(Simulation simul, Patient patient, Type type, long ts) {
-		super(simul, ts);
-		this.patient = patient;
-		this.type = type;
+		this(simul, patient, type, -1, ts);
 	}
 
 	/**
@@ -64,6 +71,13 @@ public class PatientInfo extends AsynchronousInfo {
 	 */
 	public Type getType() {
 		return type;
+	}
+
+	/**
+	 * @return the eyeIndex
+	 */
+	public int getEyeIndex() {
+		return eyeIndex;
 	}
 
 	public String toString() {

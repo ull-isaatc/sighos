@@ -10,8 +10,19 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
+ * A class to generate time to first eye incidence of AMD. Either CNV or GA can appear.
+ * The age-adjusted probability of AMD is adapted from the Rotterdam study [1], as used in Karnon's report [2].
+ * 
+ * References:
+ * [1] Klaver, C.C. et al., 2001. Incidence and progression rates of age-related maculopathy: the Rotterdam Study. 
+ * Investigative ophthalmology & visual science, 42(10), pp.2237–41.  
+ * [2] Karnon, J. et al., 2008. A preliminary model-based assessment of the cost-utility of a screening programme for early 
+ * age-related macular degeneration. Health technology assessment (Winchester, England), 12(27), pp.iii–iv, ix–124. 
+ * [3] Spanish Eyes Epidemiological (SEE) Study Group, 2011. Prevalence of age-related macular degeneration in Spain. 
+ * The British journal of ophthalmology, 95, pp.931–936.
  * @author Iván Castilla
  *
  */
@@ -19,11 +30,13 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 	// Parameters for first eye incidence of AMD -->  BAD ADJUST!!!!
 //	private final static double ALPHA_AMD = Math.exp(-11.4989645);
 //	private final static double BETA_AMD = 0.05463568;
+	/** Calibration parameter to adjust the simulated prevalence to that observed in [3] */ 
+	private final static double CALIBRATION_FACTOR_1 = ARMDParams.CALIBRATED ? 3.0 : 1.0;
 	private final static double [][] P_AMD = {	
-			{55, 60, 0, 2179},
-			{60, 70, 3.602758243, 12461},
-			{70, 80, 6.48455774, 8314},
-			{80, CommonParams.MAX_AGE, 3.019364846, 2159}};
+			{55, 60, 0 * CALIBRATION_FACTOR_1, 2179},
+			{60, 70, 3.602758243 * CALIBRATION_FACTOR_1, 12461},
+			{70, 80, 6.48455774 * CALIBRATION_FACTOR_1, 8314},
+			{80, CommonParams.MAX_AGE, 3.019364846 * CALIBRATION_FACTOR_1, 2159}};
 
 	/** Minimum age. maximum age, CNV cases, and total cases of incident AMD */
 	private final static double [][] P_CNV = {
@@ -40,8 +53,8 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 	/**
 	 * 
 	 */
-	public TimeToE1AMDParam(boolean baseCase) {
-		super(baseCase, TimeUnit.YEAR, P_AMD.length);
+	public TimeToE1AMDParam(RETALSimulation simul, boolean baseCase) {
+		super(simul, baseCase, TimeUnit.YEAR, P_AMD.length);
 		// FIXME: should work diferently when baseCase = false
 
 		// Initialize first-eye incidence of AMD
@@ -52,7 +65,7 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 		}
 	}
 
-	public long[] getValidatedTimeToEventAndState(OphthalmologicPatient pat) {
+	public EyeStateAndValue getValidatedTimeToEventAndState(OphthalmologicPatient pat) {
 		long timeToAMD;
 		
 		final long timeToEARM = pat.getTimeToEARM(0);
@@ -103,9 +116,9 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 		final Map.Entry<Integer, Double> entry = pCNV.lowerEntry((int)pat.getAge());
 		// TODO: Check if this condition should arise an error
 		if (entry == null) {
-			return new long[] {timeToAMD, EyeState.AMD_GA.ordinal()};
+			return new EyeStateAndValue(EyeState.AMD_GA, timeToAMD);
 		}
 		final double rnd = pat.getRndProbCNV(0);
-		return new long[] {timeToAMD, (rnd <= entry.getValue()) ? EyeState.AMD_CNV.ordinal() : EyeState.AMD_GA.ordinal()};
+		return new EyeStateAndValue((rnd <= entry.getValue()) ? EyeState.AMD_CNV : EyeState.AMD_GA, timeToAMD);
 	}
 }

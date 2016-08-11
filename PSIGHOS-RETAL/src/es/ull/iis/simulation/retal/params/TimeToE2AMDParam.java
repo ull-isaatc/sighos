@@ -12,6 +12,7 @@ import java.util.Random;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -52,19 +53,89 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 	/** Probability of developing GA in fellow eye, given the state of the first eye */
 	final protected EnumMap<EyeState, StructuredInfo> tuples = new EnumMap<EyeState, StructuredInfo>(EyeState.class);
 
-	class StructuredInfo {
+	/**
+	 * 
+	 */
+	public TimeToE2AMDParam(RETALSimulation simul, boolean baseCase) {
+		super(simul, baseCase, TimeUnit.YEAR);
+		// FIXME: should work differently when baseCase = false
+		
+		// Initialize probability of fellow-eye developing CNV given EARM in first eye
+		tuples.put(EyeState.EARM, new StructuredInfo(P_E2AMD_E1EARM));
+		// Initialize probability of fellow-eye developing CNV given CNV in first eye
+		tuples.put(EyeState.AMD_CNV, new StructuredInfo(P_E2AMD_E1CNV));
+		// Initialize probability of fellow-eye developing CNV given GA in first eye
+		tuples.put(EyeState.AMD_GA, new StructuredInfo(P_E2AMD_E1GA));
+		
+		// FIXME: Check
+		tuples.put(EyeState.HEALTHY, new StructuredInfo());
+
+	}
+
+	public EyeStateAndValue getTimeToEventAndState(OphthalmologicPatient pat) {
+		final EnumSet<EyeState> otherEye = pat.getEyeState(0);
+		final EyeStateAndValue timeAndState;
+		
+		// Other eye has CNV
+		if (otherEye.contains(EyeState.AMD_CNV)) {
+			timeAndState = tuples.get(EyeState.AMD_CNV).getTimeToEvent(pat);
+		}
+		// Other eye has GA
+		else if (otherEye.contains(EyeState.AMD_GA)) {
+			timeAndState = tuples.get(EyeState.AMD_GA).getTimeToEvent(pat);
+		}
+		// Other eye has EARM
+		else if (otherEye.contains(EyeState.EARM)) {
+			timeAndState = tuples.get(EyeState.EARM).getTimeToEvent(pat);
+		}
+		else if (otherEye.contains(EyeState.HEALTHY)) {
+			timeAndState = tuples.get(EyeState.HEALTHY).getTimeToEvent(pat);
+		}
+		else {
+			timeAndState = null;
+		}			
+		return timeAndState;		
+	}
+	
+	public EyeStateAndValue getValidatedTimeToEventAndState(OphthalmologicPatient pat) {
+		final EnumSet<EyeState> otherEye = pat.getEyeState(0);
+		final StructuredInfo info;
+		
+		if (otherEye.contains(EyeState.AMD_CNV)) {
+			 info = tuples.get(EyeState.AMD_CNV);
+		}
+		// Other eye has GA
+		else if (otherEye.contains(EyeState.AMD_GA)) {
+			info = tuples.get(EyeState.AMD_GA);
+		}
+		// Other eye has EARM
+		else if (otherEye.contains(EyeState.EARM)) {
+			info = tuples.get(EyeState.EARM);
+		}
+		else if (otherEye.contains(EyeState.HEALTHY)) {
+			info = tuples.get(EyeState.HEALTHY);
+		}
+		else {
+			pat.error("Invalid state in other eye when computing time from EARM to AMD");
+			return null;
+		}
+		
+		return info.getValidatedTimeToEventAndState(pat);
+	}
+	
+	private final class StructuredInfo {
 		/** Random number generator for this param */
-		final Random rng;
+		private final Random rng;
 		/** An internal list of generated times to event to be used when creating validated times to event */
-		final LinkedList<long[]> queue;
+		private final LinkedList<EyeStateAndValue> queue;
 		/** Age-adjusted Probabilities to progress to CNV or GA. Each row contains <low limit of time interval,  
 		 * high limit of time interval, probability of CNV, accumulated probability of GA + CNV>*/
-		final double [][] probabilities;
+		private final double [][] probabilities;
 		
 		public StructuredInfo(double[][] probabilities) {
 			this.rng = new Random();
 			this.probabilities = probabilities;
-			this.queue = new LinkedList<long[]>();
+			this.queue = new LinkedList<EyeStateAndValue>();
 		}
 		
 		public StructuredInfo() {
@@ -78,7 +149,7 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 		 * @param pat
 		 * @return
 		 */
-		public long[] getTimeToEvent(OphthalmologicPatient pat) {
+		public EyeStateAndValue getTimeToEvent(OphthalmologicPatient pat) {
 			if (probabilities == null) {
 				return null;
 			}
@@ -126,14 +197,14 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 				}
 				if (ageAtEvent == Double.MAX_VALUE) 
 					return null;				
-				return new long[] {pat.getTs() + pat.getSimulation().getTimeUnit().convert(ageAtEvent, unit), stateAtEvent.ordinal()};
+				return new EyeStateAndValue(stateAtEvent, pat.getTs() + simul.getTimeUnit().convert(ageAtEvent, unit));
 			}
 		}
 
-		public long[] getValidatedTimeToEventAndState(OphthalmologicPatient pat) {
+		public EyeStateAndValue getValidatedTimeToEventAndState(OphthalmologicPatient pat) {
 			final long timeToDeath = pat.getTimeToDeath();
 			final long currentTime = pat.getTs();
-			long[] timeAndState;
+			EyeStateAndValue timeAndState;
 
 			// If there are no stored values in the queue, generate a new one
 			if (queue.isEmpty()) {
@@ -141,95 +212,23 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 			}
 			// If there are stored values in the queue, I try with them in the first place
 			else {
-				final Iterator<long[]> iter = queue.iterator();
+				final Iterator<EyeStateAndValue> iter = queue.iterator();
 				do {
 					timeAndState = iter.next();
-					if (timeAndState[0] < timeToDeath)
+					if (timeAndState.getValue() < timeToDeath)
 						iter.remove();
 					// Check if the stored time already passed --> If so, discharge
-					if (timeAndState[0] <= currentTime)
-						timeAndState[0] = Long.MAX_VALUE;
-				} while (iter.hasNext() && timeAndState[0] >= timeToDeath);
+				} while (iter.hasNext() && ((timeAndState.getValue() >= timeToDeath) || (timeAndState.getValue() <= currentTime)));
 				// If no valid event is found, generate a new one
-				if (timeAndState[0] >= timeToDeath)
+				if ((timeAndState.getValue() >= timeToDeath) || (timeAndState.getValue() <= currentTime))
 					timeAndState = getTimeToEvent(pat);
 			}
 			// Generate new times to event until we get a valid one
-			while (timeAndState != null && timeAndState[0] >= timeToDeath) {
+			while (timeAndState != null && timeAndState.getValue() >= timeToDeath) {
 				queue.push(timeAndState);
 				timeAndState = getTimeToEvent(pat);
 			}
 			return timeAndState;		
 		}
 	}
-	/**
-	 * 
-	 */
-	public TimeToE2AMDParam(boolean baseCase) {
-		super(baseCase, TimeUnit.YEAR);
-		// FIXME: should work differently when baseCase = false
-		
-		// Initialize probability of fellow-eye developing CNV given EARM in first eye
-		tuples.put(EyeState.EARM, new StructuredInfo(P_E2AMD_E1EARM));
-		// Initialize probability of fellow-eye developing CNV given CNV in first eye
-		tuples.put(EyeState.AMD_CNV, new StructuredInfo(P_E2AMD_E1CNV));
-		// Initialize probability of fellow-eye developing CNV given GA in first eye
-		tuples.put(EyeState.AMD_GA, new StructuredInfo(P_E2AMD_E1GA));
-		
-		// FIXME: Check
-		tuples.put(EyeState.HEALTHY, new StructuredInfo());
-
-	}
-
-	public long[] getTimeToEventAndState(OphthalmologicPatient pat) {
-		final EnumSet<EyeState> otherEye = pat.getEyeState(0);
-		final long[] timeAndState;
-		
-		// Other eye has CNV
-		if (otherEye.contains(EyeState.AMD_CNV)) {
-			timeAndState = tuples.get(EyeState.AMD_CNV).getTimeToEvent(pat);
-		}
-		// Other eye has GA
-		else if (otherEye.contains(EyeState.AMD_GA)) {
-			timeAndState = tuples.get(EyeState.AMD_GA).getTimeToEvent(pat);
-		}
-		// Other eye has EARM
-		else if (otherEye.contains(EyeState.EARM)) {
-			timeAndState = tuples.get(EyeState.EARM).getTimeToEvent(pat);
-		}
-		else if (otherEye.contains(EyeState.HEALTHY)) {
-			timeAndState = tuples.get(EyeState.HEALTHY).getTimeToEvent(pat);
-		}
-		else {
-			timeAndState = null;
-		}			
-		return timeAndState;		
-	}
-	
-	public long[] getValidatedTimeToEventAndState(OphthalmologicPatient pat) {
-		final EnumSet<EyeState> otherEye = pat.getEyeState(0);
-		final StructuredInfo info;
-		
-		if (otherEye.contains(EyeState.AMD_CNV)) {
-			 info = tuples.get(EyeState.AMD_CNV);
-		}
-		// Other eye has GA
-		else if (otherEye.contains(EyeState.AMD_GA)) {
-			info = tuples.get(EyeState.AMD_GA);
-		}
-		// Other eye has EARM
-		else if (otherEye.contains(EyeState.EARM)) {
-			info = tuples.get(EyeState.EARM);
-		}
-		else if (otherEye.contains(EyeState.HEALTHY)) {
-			info = tuples.get(EyeState.HEALTHY);
-		}
-		else {
-			pat.error("Invalid state in other eye when computing time from EARM to AMD");
-			return null;
-		}
-		
-		return info.getValidatedTimeToEventAndState(pat);
-	}
-	
 }

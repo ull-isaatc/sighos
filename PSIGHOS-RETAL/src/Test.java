@@ -13,6 +13,8 @@ import es.ull.iis.simulation.factory.SimulationFactory;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
+import simkit.random.RandomVariate;
+import simkit.random.RandomVariateFactory;
 
 /**
  * 
@@ -96,6 +98,26 @@ class CalibrationTest {
 		
 	}
 }
+
+	class WeibullTest {
+		final double alpha;
+		final double beta;
+		final int n;
+		final RandomVariate rnd;
+		
+		public WeibullTest(int n, double alpha, double beta) {
+			this.n = n;
+			this.alpha = alpha;
+			this.beta = beta;
+			rnd = RandomVariateFactory.getInstance("WeibullVariate", alpha, beta);
+		}
+		
+		public void test() {
+			for (int i = 0; i < n; i++)
+				System.out.println(rnd.generate());
+		}
+	}
+	
 /**
  * @author icasrod
  *
@@ -108,7 +130,7 @@ public class Test {
 	public static void main(String[] args) {
 //		SimulTest sim = new SimulTest();
 //		sim.run();
-		CalibrationTest.testThis();
+		new WeibullTest(5000, 1.999174026, 478.7268718).test();
 	}
 
 }

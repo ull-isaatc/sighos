@@ -8,6 +8,7 @@ import java.util.EnumSet;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -52,8 +53,8 @@ public class TimeToCNVFromGAParam extends CompoundEmpiricTimeToEventParam {
 	/**
 	 * @param baseCase
 	 */
-	public TimeToCNVFromGAParam(boolean baseCase) {
-		super(baseCase, TimeUnit.YEAR);
+	public TimeToCNVFromGAParam(RETALSimulation simul, boolean baseCase) {
+		super(simul, baseCase, TimeUnit.YEAR);
 		// FIXME: should work diferently when baseCase = false
 		
 		// Initialize probability of first-eye developing AMD from EARM
@@ -81,7 +82,7 @@ public class TimeToCNVFromGAParam extends CompoundEmpiricTimeToEventParam {
 	 */
 	public long getValidatedTimeToEvent(OphthalmologicPatient pat, int eye) {
 		
-		final EnumSet<EyeState> otherEye = pat.getEyeState(eye);
+		final EnumSet<EyeState> otherEye = pat.getEyeState(1 - eye);
 		final StructuredInfo info;
 		// Other eye has CNV
 		if (otherEye.contains(EyeState.AMD_CNV)) {

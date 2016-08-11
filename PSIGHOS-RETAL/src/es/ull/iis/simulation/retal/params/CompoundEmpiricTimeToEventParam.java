@@ -12,6 +12,7 @@ import java.util.Random;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -50,7 +51,7 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 				for (int j = 0; j < probabilities.length; j++)
 					rnd[j] = rng.nextDouble();
 				final double time = CompoundEmpiricTimeToEventParam.getTimeToEvent(probabilities, pat.getAge(), rnd);
-				return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, unit);
+				return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + simul.getTimeUnit().convert(time, unit);
 			}
 		}
 		
@@ -88,8 +89,8 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 	/**
 	 * 
 	 */
-	public CompoundEmpiricTimeToEventParam(boolean baseCase, TimeUnit unit) {
-		super(baseCase, unit);
+	public CompoundEmpiricTimeToEventParam(RETALSimulation simul, boolean baseCase, TimeUnit unit) {
+		super(simul, baseCase, unit);
 	}
 
 	/**
@@ -99,7 +100,7 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
 	protected long getTimeToEvent(OphthalmologicPatient pat, int eye) {
-		final EnumSet<EyeState> otherEye = pat.getEyeState(eye);
+		final EnumSet<EyeState> otherEye = pat.getEyeState(1 - eye);
 		final long time;
 		
 		// Other eye has CNV

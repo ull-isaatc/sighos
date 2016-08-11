@@ -23,6 +23,7 @@ import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
  *
  */
 public class RETALSimulation extends Simulation {
+	private final static int NPATIENTS = 10000;
 	public final static TimeUnit SIMUNIT = TimeUnit.DAY;
 	private final static String DESCRIPTION = "RETAL Simulation";
 	private final CommonParams commonParams;
@@ -32,17 +33,17 @@ public class RETALSimulation extends Simulation {
 	 * @param id
 	 * @param baseCase
 	 */
-	public RETALSimulation(int id, CommonParams commonParams, ARMDParams armdParams, int nPatients) {
-		super(id, DESCRIPTION, SIMUNIT, TimeStamp.getZero(), new TimeStamp(TimeUnit.YEAR, (long) (CommonParams.MAX_AGE - commonParams.getInitAge() + 1)));
-		this.commonParams = commonParams;
-		this.armdParams = armdParams;
-		PatientCreator creator = new OphthalmologicPatientCreator(this, nPatients, commonParams.getPMen(), new ConstantFunction(commonParams.getInitAge()));
+	public RETALSimulation(int id) {
+		super(id, DESCRIPTION, SIMUNIT, TimeStamp.getZero(), new TimeStamp(TimeUnit.YEAR, (long) (CommonParams.MAX_AGE - CommonParams.MIN_AGE + 1)));
+		this.commonParams = new CommonParams(this, true);
+		this.armdParams = new ARMDParams(this, true);
+		PatientCreator creator = new OphthalmologicPatientCreator(this, NPATIENTS, commonParams.getPMen(), new ConstantFunction(commonParams.getInitAge()));
 		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
 //		addInfoReceiver(new PatientInfoView(this));
 //		addInfoReceiver(new AffectedPatientHistoryView(this));
 		addInfoReceiver(new PatientPrevalenceView(this));
-		addInfoReceiver(new PatientCounterView(this));
-		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5, true));
+//		addInfoReceiver(new PatientCounterView(this));
+		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5));
 	}
 
 	public CommonParams getCommonParams() {

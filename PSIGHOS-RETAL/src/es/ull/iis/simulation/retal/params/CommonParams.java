@@ -7,6 +7,7 @@ import java.util.Random;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.Patient;
+import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -14,7 +15,7 @@ import es.ull.iis.simulation.retal.Patient;
  */
 public class CommonParams extends ModelParams {
 	public final static int MAX_AGE = 100;
-	private final static int INIT_AGE = 40;
+	public final static int MIN_AGE = 40;
 	private final static double P_MEN = 0.5;
 	
 	// Parameters for death. Source: Spanish 2014 Mortality risk. INE
@@ -28,8 +29,8 @@ public class CommonParams extends ModelParams {
 	/**
 	 * 
 	 */
-	public CommonParams(boolean baseCase) {
-		super(baseCase);
+	public CommonParams(RETALSimulation simul, boolean baseCase) {
+		super(simul, baseCase);
 	}
 
 	/**
@@ -37,7 +38,7 @@ public class CommonParams extends ModelParams {
 	 */
 	public long getDeathTime(Patient pat) {
 		final double time = Math.min(generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), RNG_DEATH.nextDouble()), MAX_AGE - pat.getAge());
-		return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
+		return pat.getTs() + simul.getTimeUnit().convert(time, TimeUnit.YEAR);
 	}
 	
 	public double getPMen() {
@@ -45,7 +46,7 @@ public class CommonParams extends ModelParams {
 	}
 	
 	public double getInitAge() {
-		return INIT_AGE;		
+		return MIN_AGE;		
 	}
 
 }
