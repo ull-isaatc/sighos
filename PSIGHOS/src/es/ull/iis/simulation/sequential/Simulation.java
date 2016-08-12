@@ -145,6 +145,9 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
     	debug("SIMULATION TIME FINISHES\r\nSimulation time = " +
             	lvt + "\r\nPreviewed simulation time = " + internalEndTs);
     	printState();
+    	
+        // The user defined method for finalization is invoked
+		end();
 		
 		infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationEndInfo(this, System.nanoTime(), this.internalEndTs));
 		debug("SIMULATION COMPLETELY FINISHED");
