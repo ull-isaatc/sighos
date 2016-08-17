@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.retal;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.Random;
@@ -29,6 +30,9 @@ public class OphthalmologicPatient extends Patient {
 	// Random number generators for initial risks to be compared with specific probabilities
 	private static final Random[] RNG_P_CNV = {new Random(), new Random()};
 	private static final Random RNG_TYPE_POSITION_CNV = new Random();
+	private static final Random RNG_PROG_TWICE_GA = new Random();
+	private static final Random RNG_PROG_GA = new Random();
+	private static final Random RNG_LEVELS_LOST_SF = new Random();
 	private static final Random RNG_SENSITIVITY = new Random();
 	private static final Random RNG_SPECIFICITY = new Random();
 	
@@ -42,18 +46,25 @@ public class OphthalmologicPatient extends Patient {
 	private final double[] rndProbCNV = new double[2];
 	/** The random reference to determine which is the initial type and position of the lesion in CNV */ 
 	private final double rndTypeAndPositionCNV;
+	/** The random reference to determine if the patient VA worsens upon GA */
+	private final double rndProgGA;
+	/** The random reference to whether this patient, if develops GA, gets a 6-lines instead of 3-lines penalty upon progression */
+	private final double rndProgTwiceGA;
+	/** The random reference to the number of levels that this patient loses whenever he/she loses VA in SF */
+	private final ArrayList<Double> rndLevelsLostSF;
 	/** The random reference to compare with the sensitivity */
 	private final double rndSensitivity;
 	/** The random reference to compare with the specificity */
 	private final double rndSpecificity;
 	/** Current visual acuity, measured as logMAR units: 0 is the best possible vision*/
-//	private double va;
+	private final double[] va = new double[2];
 	/** Defines whether the patient is currently diagnosed */
 	private boolean isDiagnosed = false;
 	/** The current state of the eyes of the patient */
 	private final EnumSet<?>[] eyes = new EnumSet<?>[2];
 	/** The current type and position of the CNV lesions in each eye; null if no CNV */
-	private final CNVStage[] currentCNVStage = new CNVStage[2];  
+	private final CNVStage[] currentCNVStage = new CNVStage[2];
+	
 	
 	private final CommonParams commonParams;
 	private final ARMDParams armdParams;
@@ -75,6 +86,9 @@ public class OphthalmologicPatient extends Patient {
 		this.rndSensitivity = RNG_SENSITIVITY.nextDouble();
 		this.rndSpecificity = RNG_SPECIFICITY.nextDouble();
 		this.rndTypeAndPositionCNV = RNG_TYPE_POSITION_CNV.nextDouble();
+		this.rndProgTwiceGA = RNG_PROG_TWICE_GA.nextDouble();
+		this.rndProgGA = RNG_PROG_GA.nextDouble();
+		this.rndLevelsLostSF = new ArrayList<Double>();
 		this.commonParams = simul.getCommonParams();
 		this.armdParams = simul.getArmdParams();
 	}
@@ -93,6 +107,9 @@ public class OphthalmologicPatient extends Patient {
 		this.rndProbCNV[0] = original.rndProbCNV[0];
 		this.rndProbCNV[1] = original.rndProbCNV[1];
 		this.rndTypeAndPositionCNV = original.rndTypeAndPositionCNV;
+		this.rndProgTwiceGA = original.rndProgTwiceGA;
+		this.rndProgGA = original.rndProgGA;
+		this.rndLevelsLostSF = new ArrayList<Double>(original.rndLevelsLostSF);
 		this.rndSensitivity = original.rndSensitivity;
 		this.rndSpecificity = original.rndSpecificity;
 		this.commonParams = original.commonParams;
@@ -158,6 +175,13 @@ public class OphthalmologicPatient extends Patient {
 		return currentCNVStage[eyeIndex];
 	}
 
+	/**
+	 * @return the va
+	 */
+	public double getVA(int eyeIndex) {
+		return va[eyeIndex];
+	}
+
 	public boolean isHealthy() {
 		return eyes[0].isEmpty() && eyes[1].isEmpty();
 	}
@@ -168,6 +192,29 @@ public class OphthalmologicPatient extends Patient {
 
 	public double getRndTypeAndPositionCNV() {
 		return rndTypeAndPositionCNV;
+	}
+
+	/**
+	 * @return the rndProgGA
+	 */
+	public double getRndProgGA() {
+		return rndProgGA;
+	}
+
+	/**
+	 * @return the rndProgTwiceGA
+	 */
+	public double getRndProgTwiceGA() {
+		return rndProgTwiceGA;
+	}
+
+	/**
+	 * @return the rndLevelsLostSF
+	 */
+	public double getRndLevelsLostSF() {
+		final double rnd = RNG_LEVELS_LOST_SF.nextDouble();
+		rndLevelsLostSF.add(rnd);
+		return rnd;
 	}
 
 	/**
@@ -195,6 +242,21 @@ public class OphthalmologicPatient extends Patient {
 	public int getNCNVStageEvents(int eye) {
 		return cNVStageEvents[eye].size();
 	}
+
+	/**
+	 * 
+	 * @param stage
+	 * @param eye
+	 * @return
+	 */
+	public long getTimeToCNVStage(CNVStage stage, int eye) {
+		for (CNVStageEvent event : ((LinkedList<CNVStageEvent>)cNVStageEvents[eye])) {			
+			if (stage.equals(event.getNewStage()))
+				return event.getTs();
+		}
+		return Long.MAX_VALUE;
+	}
+	
 	/**
 	 * 
 	 * @param stage
@@ -247,34 +309,11 @@ public class OphthalmologicPatient extends Patient {
 	}
 	
 	/**
-	 * Computes the cost associated to the current state between initAge and endAge
-	 * @param initAge Age at which the patient starts using the resources
-	 * @param endAge Age at which the patient ends using the resources 
-	 * @return The accumulated cost during the defined period
+	 * Updates the current utility of the patient according to the state of his/her eyes
 	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public double computeCost(double initAge, double endAge) {
-		double cost = 0.0;
-		for(EyeState stage : (EnumSet<EyeState>)eyes[0]) {
-			// FIXME: Check if res == null
-			final ResourceUsageItem[] res = OphthalmologicResourceUsage.getResourceUsageItems(stage);
-			if (res != null) {
-				for (ResourceUsageItem usage : res) {
-					cost += usage.computeCost(initAge, endAge);
-				}
-			}
-		}
-		for(EyeState stage :(EnumSet<EyeState>) eyes[1]) {
-			final ResourceUsageItem[] res = OphthalmologicResourceUsage.getResourceUsageItems(stage);
-			if (res != null) {
-				for (ResourceUsageItem usage : res) {
-					cost += usage.computeCost(initAge, endAge);
-				}
-			}
-		}
-		return cost;
-	}
+	private void updateUtility() {
+		
+	}  
 	
 	public final class EARMEvent extends DiscreteEvent {
 		private final int eyeIndex;

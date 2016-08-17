@@ -3,10 +3,13 @@
  */
 package es.ull.iis.simulation.retal;
 
+import java.util.ArrayList;
+
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.info.PatientInfo;
+import es.ull.iis.simulation.retal.outcome.Outcome;
 import es.ull.iis.simulation.sequential.BasicElement;
 
 /**
@@ -14,11 +17,6 @@ import es.ull.iis.simulation.sequential.BasicElement;
  *
  */
 public class Patient extends BasicElement {
-	/** Number of interventions that will be compared for a patient. This value is also used to determine the id of the patient */ 
-	private static final int N_INTERVENTIONS = 2;
-	/** Counter to assign a unique id to each patient */
-	private static int patientCounter = 0;
-	
 	private Patient clonedFrom;
 	/** The intervention branch that this "clone" of the patient belongs to */
 	protected final int nIntervention;
@@ -35,12 +33,11 @@ public class Patient extends BasicElement {
 	protected final Intervention intervention;
 	/** The timestamp of the last event executed (but the current one) */
 	private long lastTs = -1;
-	/** The accumulated cost incurred by this patient */
-	private double cummCost = 0.0;
-	/** The accumulated QALYs lived by this patient */
-	private double cummQALYs = 0.0;
-	/** The current utility applied to this patient */
-	private double utility;
+	/** The timestamp when this patient enters the simulation */
+	private long startTs;
+	/** The current currentUtility applied to this patient */
+	private double currentUtility = 1.0;
+	private final ArrayList<Outcome> outcomes;
 	
 	/**
 	 * Creates a patient and initializes the default events
@@ -49,15 +46,15 @@ public class Patient extends BasicElement {
 	 * @param sex Sex of the patient
 	 */
 	public Patient(RETALSimulation simul, double initAge, int sex) {
-		super(patientCounter, simul);
+		super(simul.getPatientCounter() * RETALSimulation.NINTERVENTIONS, simul);
 		intervention = new NullIntervention();
-		patientCounter += N_INTERVENTIONS;
 		this.initAge = 365*initAge;
 		this.sex = sex;
 		this.clonedFrom = null;
 		this.nIntervention = 0;
 		// Limiting lifespan to MAX AGE
 		this.timeToDeath = simul.getCommonParams().getDeathTime(this);
+		this.outcomes = simul.getOutcomes();
 	}
 
 	/**
@@ -73,6 +70,7 @@ public class Patient extends BasicElement {
 		this.initAge = original.initAge;
 		this.sex = original.sex;
 		this.timeToDeath = original.timeToDeath;
+		this.outcomes = original.outcomes;
 	}
 	
 	@Override
@@ -85,6 +83,7 @@ public class Patient extends BasicElement {
 	 */
 	@Override
 	protected void init() {
+		startTs = this.getTs();
 		simul.getInfoHandler().notifyInfo(new PatientInfo(this.simul, this, PatientInfo.Type.START, this.getTs()));
 		addEvent(new DeathEvent(timeToDeath));
 	}
@@ -104,9 +103,9 @@ public class Patient extends BasicElement {
 	 * @return An array of patients containing all the clones including the original one in position 0.    
 	 */
 	protected Patient[] clone() {
-		Patient[] clones = new Patient[N_INTERVENTIONS];
+		Patient[] clones = new Patient[RETALSimulation.NINTERVENTIONS];
 		clones[0] = this;
-		for (int i = 0; i < N_INTERVENTIONS - 1; i++)
+		for (int i = 0; i < RETALSimulation.NINTERVENTIONS - 1; i++)
 			clones[i] = new Patient(this, i);
 		return clones;
 	}
@@ -134,11 +133,18 @@ public class Patient extends BasicElement {
 	}
 
 	/**
+	 * @return the startTs
+	 */
+	public long getStartTs() {
+		return startTs;
+	}
+
+	/**
 	 * 
 	 * @return the current age of the patient
 	 */
 	public double getAge() {
-		return (initAge + ts) / 365.0;
+		return (initAge + ts - startTs) / 365.0;
 	}
 	
 	/**
@@ -163,39 +169,17 @@ public class Patient extends BasicElement {
 	}
 
 	/**
-	 * @return the cummCost
-	 */
-	public double getCummCost() {
-		return cummCost;
-	}
-
-	/**
-	 * @return the cummQALYs
-	 */
-	public double getCummQALYs() {
-		return cummQALYs;
-	}
-
-	public void update() {
-		cummQALYs += (ts - lastTs) * utility / 365.0;
-		cummCost = computeCost(lastTs / 365.0, ts / 365.0); 
-	}
-	
-	/**
-	 * Computes the cost associated to the current state between initAge and endAge
-	 * @param initAge Age at which the patient starts using the resources
-	 * @param endAge Age at which the patient ends using the resources 
-	 * @return The accumulated cost during the defined period
-	 */
-	public double computeCost(double initAge, double endAge) {
-		return 0.0;
-	}
-
-	/**
-	 * @return the utility
+	 * @return the currentUtility
 	 */
 	public double getUtility() {
-		return utility;
+		return currentUtility;
+	}
+
+	/**
+	 * @param currentUtility the current utility to set
+	 */
+	public void setUtility(double currentUtility) {
+		this.currentUtility = currentUtility;
 	}
 
 	@Override
@@ -206,9 +190,18 @@ public class Patient extends BasicElement {
 	public void setTs(long ts) {
 		lastTs = this.ts;
 		super.setTs(ts);
-		update();
+		for (Outcome outcome : outcomes) {
+			outcome.update(this);
+		}
 	}
 	
+	/**
+	 * @return the lastTs
+	 */
+	public long getLastTs() {
+		return lastTs;
+	}
+
 	public final class DeathEvent extends DiscreteEvent {
 		
 		public DeathEvent(long ts) {
