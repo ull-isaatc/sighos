@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.retal.params;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.TreeMap;
 
@@ -16,16 +17,6 @@ import es.ull.iis.simulation.retal.RETALSimulation;
  */
 // FIXME: Currently only using first-order estimates
 public class VAParam extends Param {
-	public static class VAProgressionPair {
-		public long timeToChange;
-		public double va;
-		
-		public VAProgressionPair(long ts, double va) {
-			this.timeToChange = ts;
-			this.va = va;
-		}		
-	}
-	
 	/**
 	 * Source: Karnon model
 	 */
@@ -67,19 +58,18 @@ public class VAParam extends Param {
 	}
 
 	/**
-	 * 
+	 * Returns the visual acuity of an eye upon incidence of a new stage in the ARMD progression. 
 	 * @param pat
 	 * @param eyeIndex
-	 * @return
+	 * @return The visual acuity of an eye upon incidence of a new stage in the ARMD progression.
 	 */
-	public double getVAAtIncidence(OphthalmologicPatient pat, int eyeIndex) {
-		final EnumSet<EyeState> affectedEye = pat.getEyeState(eyeIndex);
+	public double getVAAtIncidence(EyeState incidentState, CNVStage incidentCNVStage) {
 		final double va;
 		
-		if (affectedEye.contains(EyeState.AMD_CNV)) {
-			va = VA_AT_INCIDENCE_CNV.get(pat.getCurrentCNVStage(eyeIndex))[0];
+		if (incidentState.equals(EyeState.AMD_CNV)) {
+			va = VA_AT_INCIDENCE_CNV.get(incidentCNVStage)[0];
 		}
-		else if (affectedEye.contains(EyeState.AMD_GA)) {	
+		else if (incidentState.equals(EyeState.AMD_GA)) {	
 			va = VA_AT_INCIDENCE_GA[0];
 		}
 		else {
@@ -87,31 +77,46 @@ public class VAParam extends Param {
 		}
 		return va;
 	}
-	
+
 	/**
 	 * Returns a set of 
 	 * @param pat
 	 * @param eyeIndex
 	 * @return
 	 */
-	public VAProgressionPair[] getVAProgression(OphthalmologicPatient pat, int eyeIndex) {
-		final EnumSet<EyeState> affectedEye = pat.getEyeState(eyeIndex);
-		
-		if (affectedEye.contains(EyeState.AMD_CNV)) {
-			final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
-			// Subfoveal lesion
-			if (stage.getPosition() == CNVStage.Position.SF)  {
-				return progSF.getLevelChanges(pat, eyeIndex);
+	public ArrayList<VAProgressionPair> getVAProgression(OphthalmologicPatient pat, int eyeIndex, EyeState incidentState, CNVStage incidentCNVStage) {
+		ArrayList<VAProgressionPair> changes;
+		final double vaAtStart = pat.getVA(eyeIndex);
+		// If the patient had the worst VA, it remains the same
+		if (vaAtStart == VisualAcuity.MAX_LOGMAR) {
+			changes = new ArrayList<VAProgressionPair>();
+			changes.add(new VAProgressionPair(simul.getTs() - pat.getLastVAChangeTs(eyeIndex), vaAtStart));
+		}
+		else {				
+			// Computes the new VA expected for the new eye state; if no new state is expected (death), uses the current VA 
+			final double incidentVA = (incidentState == null) ? vaAtStart : Math.max(vaAtStart, getVAAtIncidence(incidentState, incidentCNVStage));
+			
+			final EnumSet<EyeState> affectedEye = pat.getEyeState(eyeIndex);
+			if (affectedEye.contains(EyeState.AMD_CNV)) {
+				final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
+				// Subfoveal lesion
+				if (stage.getPosition() == CNVStage.Position.SF)  {
+					changes = progSF.getVAProgression(pat, eyeIndex, incidentVA);
+				}
+				// Juxtafoveal or extrafoveal lesion
+				else {
+					changes = progEF_JF.getVAProgression(pat, eyeIndex, incidentVA); 
+				}
 			}
-			// Juxtafoveal or extrafoveal lesion
+			else if (affectedEye.contains(EyeState.AMD_GA)) {
+				changes = progGA.getVAProgression(pat, eyeIndex, incidentVA); 
+			}
 			else {
-				final long endT = simul.getTs();
-				return progEF_JF.getVA(pat, eyeIndex); 
+				// No progression but the incident VA is expected if the eye is healthy or has EARM
+				changes = new ArrayList<VAProgressionPair>();
+				changes.add(new VAProgressionPair(simul.getTs() - pat.getLastVAChangeTs(eyeIndex), incidentVA));
 			}
 		}
-		else if (affectedEye.contains(EyeState.AMD_GA)) {
-			return progGA.getProgression(pat, eyeIndex); 
-		}
-		return null;
+		return changes;
 	}
 }

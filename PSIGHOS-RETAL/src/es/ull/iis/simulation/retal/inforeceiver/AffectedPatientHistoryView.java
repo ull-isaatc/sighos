@@ -22,14 +22,16 @@ public class AffectedPatientHistoryView extends Listener {
 	private final PrintStream out = System.out;
 	private final static EyeState[] STATES = {EyeState.EARM, EyeState.AMD_GA, EyeState.AMD_CNV};
 	private final boolean detailed;
+	private final EyeState filterByState;
 	
 
 	/**
 	 * @param simul
 	 */
-	public AffectedPatientHistoryView(Simulation simul, boolean detailed) {
+	public AffectedPatientHistoryView(Simulation simul, boolean detailed, EyeState filterByState) {
 		super(simul, "Standard patient viewer");
 		this.detailed = detailed;
+		this.filterByState = filterByState;
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
 		addEntrance(SimulationStartInfo.class);
@@ -38,7 +40,7 @@ public class AffectedPatientHistoryView extends Listener {
 	 * @param simul
 	 */
 	public AffectedPatientHistoryView(Simulation simul) {
-		this(simul, false);
+		this(simul, false, EyeState.EARM);
 	}
 
 	private String getAgeAt(OphthalmologicPatient pat, EyeState state, int eye) {
@@ -69,7 +71,18 @@ public class AffectedPatientHistoryView extends Listener {
 			PatientInfo pInfo = (PatientInfo) info;
 			OphthalmologicPatient pat = (OphthalmologicPatient) pInfo.getPatient();
 			if (pInfo.getType() == PatientInfo.Type.FINISH) {
-				if (pat.getTimeToEARM(0) != Long.MAX_VALUE || pat.getTimeToGA(0) != Long.MAX_VALUE || pat.getTimeToCNV(0) != Long.MAX_VALUE) {
+				boolean condition = false;
+				if (filterByState == EyeState.AMD_CNV) {
+					condition = condition || (pat.getTimeToCNV(0) != Long.MAX_VALUE || pat.getTimeToCNV(1) != Long.MAX_VALUE);
+				}
+				else if (filterByState == EyeState.AMD_GA) {
+					condition = condition || (pat.getTimeToCNV(0) != Long.MAX_VALUE || pat.getTimeToCNV(1) != Long.MAX_VALUE)
+							 || (pat.getTimeToGA(0) != Long.MAX_VALUE || pat.getTimeToGA(1) != Long.MAX_VALUE);					
+				}
+				else if (filterByState == EyeState.EARM) {
+					condition = condition || (pat.getTimeToEARM(0) != Long.MAX_VALUE || pat.getTimeToGA(0) != Long.MAX_VALUE || pat.getTimeToCNV(0) != Long.MAX_VALUE);
+				}
+				if (condition) {
 					final StringBuilder str = new StringBuilder(pat.toString()).append("\t").append(pat.getInitAge()).append("\t");
 					for (int i = 0; i < STATES.length; i++)
 						str.append(getAgeAt(pat, STATES[i], 0)).append("\t").append(getAgeAt(pat, STATES[i], 1)).append("\t");

@@ -202,6 +202,13 @@ public class Patient extends BasicElement {
 		return lastTs;
 	}
 
+	/**
+	 * Last things to do when the patient is death, and before the {@link FinalizeEvent} event is launched.
+	 */
+	public void death() {
+		
+	}
+	
 	public final class DeathEvent extends DiscreteEvent {
 		
 		public DeathEvent(long ts) {
@@ -211,7 +218,7 @@ public class Patient extends BasicElement {
 		@Override
 		public void event() {
 			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DEATH, this.getTs()));
-			// TODO Save statistics
+			death();
 			notifyEnd();
 		}
 	

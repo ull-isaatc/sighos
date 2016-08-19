@@ -12,6 +12,7 @@ import es.ull.iis.simulation.retal.info.PatientInfo;
 import es.ull.iis.simulation.retal.params.ARMDParams;
 import es.ull.iis.simulation.retal.params.CommonParams;
 import es.ull.iis.simulation.retal.params.EyeStateAndValue;
+import es.ull.iis.simulation.retal.params.VAProgressionPair;
 import es.ull.iis.simulation.retal.params.CNVStage;
 import es.ull.iis.simulation.retal.params.CNVStageAndValue;
 import es.ull.iis.util.DiscreteCycleIterator;
@@ -40,7 +41,10 @@ public class OphthalmologicPatient extends Patient {
 	private final EARMEvent[] eARMEvent = {null, null};
 	private final GAEvent[] gAEvent = {null, null};
 	private final CNVEvent[] cNVEvent = {null, null};
-	private final LinkedList<?>[] cNVStageEvents = {new LinkedList<CNVStageEvent>(), new LinkedList<CNVStageEvent>()};	
+	private final LinkedList<?>[] cNVStageEvents = {new LinkedList<CNVStageEvent>(), new LinkedList<CNVStageEvent>()};
+	private final LinkedList<?>[] vaProgression = {new LinkedList<VAProgressionPair>(), new LinkedList<VAProgressionPair>()};
+	/** Last timestamp when VA changed */
+	private final long[] lastVAChangeTs = new long[2];
 	
 	/** The random reference to compare with the probability of developing CNV in the first and fellow eyes */ 
 	private final double[] rndProbCNV = new double[2];
@@ -56,8 +60,6 @@ public class OphthalmologicPatient extends Patient {
 	private final double rndSensitivity;
 	/** The random reference to compare with the specificity */
 	private final double rndSpecificity;
-	/** Current visual acuity, measured as logMAR units: 0 is the best possible vision*/
-	private final double[] va = new double[2];
 	/** Defines whether the patient is currently diagnosed */
 	private boolean isDiagnosed = false;
 	/** The current state of the eyes of the patient */
@@ -76,10 +78,6 @@ public class OphthalmologicPatient extends Patient {
 	 */
 	public OphthalmologicPatient(RETALSimulation simul, double initAge, int sex) {
 		super(simul, initAge, sex);
-		eyes[0] = EnumSet.of(EyeState.HEALTHY);
-		eyes[1] = EnumSet.of(EyeState.HEALTHY);
-		currentCNVStage[0] = null;
-		currentCNVStage[1] = null;
 		
 		this.rndProbCNV[0] = RNG_P_CNV[0].nextDouble();
 		this.rndProbCNV[1] = RNG_P_CNV[1].nextDouble();
@@ -91,16 +89,27 @@ public class OphthalmologicPatient extends Patient {
 		this.rndLevelsLostSF = new ArrayList<Double>();
 		this.commonParams = simul.getCommonParams();
 		this.armdParams = simul.getArmdParams();
+		
+		eyes[0] = EnumSet.of(EyeState.HEALTHY);
+		eyes[1] = EnumSet.of(EyeState.HEALTHY);
+		currentCNVStage[0] = null;
+		currentCNVStage[1] = null;
+		// Visual acuity supposed to be perfect at start
+		updateVA(new VAProgressionPair(0, 0.0), 0);
+		updateVA(new VAProgressionPair(0, 0.0), 1);
 	}
 
 	/**
 	 * @param original
 	 * @param nIntervention
 	 */
+	@SuppressWarnings("unchecked")
 	public OphthalmologicPatient(OphthalmologicPatient original, int nIntervention) {
 		super(original, nIntervention);
 		this.eyes[0] = EnumSet.copyOf(original.eyes[0]);
 		this.eyes[1] = EnumSet.copyOf(original.eyes[1]);
+		((LinkedList<VAProgressionPair>)this.vaProgression[0]).addAll(original.getVaProgression(0));
+		((LinkedList<VAProgressionPair>)this.vaProgression[1]).addAll(original.getVaProgression(1));
 		this.currentCNVStage[0] = original.currentCNVStage[0];
 		this.currentCNVStage[1] = original.currentCNVStage[1];
 		
@@ -178,12 +187,58 @@ public class OphthalmologicPatient extends Patient {
 	/**
 	 * @return the va
 	 */
+	@SuppressWarnings("unchecked")
 	public double getVA(int eyeIndex) {
-		return va[eyeIndex];
+		return ((LinkedList<VAProgressionPair>)vaProgression[eyeIndex]).getLast().va;
 	}
 
+	/** 
+	 * Updates the progression and current visual acuity of the specified eye. The progression is updated with the list of changes.
+	 * The last change is used to set the current visual acuity. 
+	 * @param newVAs List of changes in visual acuity since the last update 
+	 * @param eyeIndex Index of the affected eye (0 for first eye, 1 for second eye)
+	 */
+	@SuppressWarnings("unchecked")
+	private void updateVA(ArrayList<VAProgressionPair> newVAs, int eyeIndex) {
+		for (VAProgressionPair pair : newVAs) {
+			lastVAChangeTs[eyeIndex] += pair.timeToChange;
+			((LinkedList<VAProgressionPair>)vaProgression[eyeIndex]).add(pair);
+		}
+	}
+
+	/**
+	 * Updates the progression and current visual acuity of the specified eye. The change is added to the progression list
+	 * and used to set the current visual acuity. 
+	 * @param newVA Last change produced in the specified eye
+	 * @param eyeIndex Index of the affected eye (0 for first eye, 1 for second eye)
+	 */
+	@SuppressWarnings("unchecked")
+	private void updateVA(VAProgressionPair newVA, int eyeIndex) {
+		lastVAChangeTs[eyeIndex] += newVA.timeToChange;
+		((LinkedList<VAProgressionPair>)vaProgression[eyeIndex]).add(newVA);
+	}
+	/**
+	 * @return the vaProgression
+	 */
+	@SuppressWarnings("unchecked")
+	public LinkedList<VAProgressionPair> getVaProgression(int eyeIndex) {
+		return (LinkedList<VAProgressionPair>)vaProgression[eyeIndex];
+	}
+
+	/**
+	 * @param eyeIndex
+	 * @return the lastVAChangeTs
+	 */
+	public long getLastVAChangeTs(int eyeIndex) {
+		return lastVAChangeTs[eyeIndex];
+	}
+
+	/**
+	 * Returns true if both eyes are healthy
+	 * @return True if both eyes are healthy; false in other case.
+	 */
 	public boolean isHealthy() {
-		return eyes[0].isEmpty() && eyes[1].isEmpty();
+		return eyes[0].contains(EyeState.HEALTHY) && eyes[1].contains(EyeState.HEALTHY);
 	}
 		
 	public double getRndProbCNV(int eye) {
@@ -293,6 +348,7 @@ public class OphthalmologicPatient extends Patient {
 		case CDME:
 			break;
 		case HEALTHY:
+			ageAt = 0;
 			break;
 		case NCDME:
 			break;
@@ -315,6 +371,14 @@ public class OphthalmologicPatient extends Patient {
 		
 	}  
 	
+	@Override
+	public void death() {
+		super.death();
+		// Updates VA changes produced since the last event
+		updateVA(armdParams.getVAProgressionToDeath(this, 0), 0);
+		updateVA(armdParams.getVAProgressionToDeath(this, 1), 1);
+	}
+	
 	public final class EARMEvent extends DiscreteEvent {
 		private final int eyeIndex;
 		
@@ -325,6 +389,8 @@ public class OphthalmologicPatient extends Patient {
 
 		@Override
 		public void event() {
+			// Update VA changes before changing the state. Theoretically, no changes should occur with healthy eyes
+			updateVA(armdParams.getVAProgression(OphthalmologicPatient.this, eyeIndex, EyeState.EARM), eyeIndex);
 			@SuppressWarnings("unchecked")
 			final EnumSet<EyeState> affectedEye = (EnumSet<EyeState>)eyes[eyeIndex];
 			affectedEye.remove(EyeState.HEALTHY);
@@ -446,6 +512,8 @@ public class OphthalmologicPatient extends Patient {
 		
 		@Override
 		public void event() {
+			// Update VA changes before changing the state. Theoretically, no changes should occur with EARM eyes
+			updateVA(armdParams.getVAProgression(OphthalmologicPatient.this, eyeIndex, EyeState.AMD_GA), eyeIndex);
 			@SuppressWarnings("unchecked")
 			final EnumSet<EyeState> affectedEye = (EnumSet<EyeState>)eyes[eyeIndex];
 			// Remove previous stages
@@ -486,6 +554,11 @@ public class OphthalmologicPatient extends Patient {
 		
 		@Override
 		public void event() {
+			// Advances the calculation of the incident CNV stage
+			final CNVStage stage = armdParams.getInitialCNVStage(OphthalmologicPatient.this, eyeIndex);			
+			// Update VA changes before changing the state. 
+			updateVA(armdParams.getVAProgression(OphthalmologicPatient.this, eyeIndex, stage), eyeIndex);
+			
 			@SuppressWarnings("unchecked")
 			final EnumSet<EyeState> affectedEye = (EnumSet<EyeState>)eyes[eyeIndex];
 			// Remove previous stages
@@ -497,7 +570,6 @@ public class OphthalmologicPatient extends Patient {
 			affectedEye.add(EyeState.AMD_CNV);
 			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, PatientInfo.Type.CHANGE_EYE_STATE, eyeIndex, this.getTs()));
 			// Assign specific CNV stage
-			final CNVStage stage = armdParams.getInitialCNVStage(OphthalmologicPatient.this, eyeIndex);			
 			final CNVStageEvent newEvent = new CNVStageEvent(ts, stage, eyeIndex);
 			((LinkedList<CNVStageEvent>)cNVStageEvents[eyeIndex]).add(newEvent);
 			addEvent(newEvent);
@@ -525,6 +597,10 @@ public class OphthalmologicPatient extends Patient {
 
 		@Override
 		public void event() {
+			// Only update VA if it's a progression in CNV stage and not setting the first CNV stage
+			if (currentCNVStage[eyeIndex] != null) {
+				updateVA(armdParams.getVAProgression(OphthalmologicPatient.this, eyeIndex, newStage), eyeIndex);				
+			}
 			currentCNVStage[eyeIndex] = newStage;
 			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, OphthalmologicPatient.this, PatientInfo.Type.CHANGE_CNV_STAGE, eyeIndex, this.getTs()));
 			// Schedule next CNV stage

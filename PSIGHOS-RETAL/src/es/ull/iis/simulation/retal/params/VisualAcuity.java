@@ -11,6 +11,9 @@ import java.util.TreeMap;
  */
 public final class VisualAcuity {
 	final static public double LETTERS_BLINDNESS = 10;
+	/**
+	 * The maximum logMAR score, equivalent to blindness 
+	 */
 	final static public double MAX_LOGMAR = 1.6; 
 	final static private double[][] LOGMAR_AND_LETTERS = {
 			{1.60, 0},

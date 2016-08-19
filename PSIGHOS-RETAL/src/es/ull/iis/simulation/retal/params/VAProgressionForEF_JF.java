@@ -1,11 +1,12 @@
 package es.ull.iis.simulation.retal.params;
 
+import java.util.ArrayList;
+
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.OphthalmologicPatient;
 import es.ull.iis.simulation.retal.RETALSimulation;
-import es.ull.iis.simulation.retal.params.VAParam;
 
-final class VAProgressionForEF_JF extends Param {
+final class VAProgressionForEF_JF extends VAProgressionParam {
 	private static final double[] CONSTANT = {0.07, 0.188};
 	private static final double[] BASELINE_VA = {0.919, 0.067};
 	private static final double[] LOG_DAYS = {0.048, 0.038};
@@ -23,19 +24,17 @@ final class VAProgressionForEF_JF extends Param {
 		lesionTypeCoef = LESION_TYPE[0];
 	}
 	
-	public VAParam.VAProgressionPair[] getVA(OphthalmologicPatient pat, int eyeIndex) {
+	@Override
+	public ArrayList<VAProgressionPair> getVAProgression(OphthalmologicPatient pat, int eyeIndex, double expectedVA) {
+		final ArrayList<VAProgressionPair> array = new ArrayList<VAProgressionPair>();
 		final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
 		final double currentVA = pat.getVA(eyeIndex);
 		final long timeSinceLastEvent = simul.getTs() - pat.getTimeToCNVStage(stage, eyeIndex);
 		final double logDays = Math.log(TimeUnit.DAY.convert(timeSinceLastEvent, simul.getTimeUnit()));
 		// Made to mimic Karnon
 		final int lesion = (stage.getType() == CNVStage.Type.MC) ? 2 : 3;
-		if (currentVA >= VisualAcuity.MAX_LOGMAR)
-			return null;
 		final double newVA = Math.min(VisualAcuity.MAX_LOGMAR, constantCoef + (logDays * logDaysCoef) + (currentVA * baselineVACoef) + (lesion * lesionTypeCoef));
-		if (newVA < currentVA)
-			return null;
-		else
-			return new VAParam.VAProgressionPair[] {new VAParam.VAProgressionPair(timeSinceLastEvent, newVA)};			
+		array.add(new VAProgressionPair(timeSinceLastEvent, Math.max(expectedVA, newVA)));
+		return array;
 	}
 }

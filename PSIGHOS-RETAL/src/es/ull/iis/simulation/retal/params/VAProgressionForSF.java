@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.OphthalmologicPatient;
 import es.ull.iis.simulation.retal.RETALSimulation;
-import es.ull.iis.simulation.retal.params.VAParam;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -16,7 +15,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class VAProgressionForSF extends Param {
+public class VAProgressionForSF extends VAProgressionParam {
 	private final static int[] LETTERS_LOST = {5, 10, 15, 20};
 	// Parameters for any VA level change for SF CNV lesions 
 	// Source: Karnon model
@@ -90,11 +89,9 @@ public class VAProgressionForSF extends Param {
 		for (int i = 0; i < probabilities.length; i++) {
 			probabilities[i] = coef[i] / coef[coef.length - 1];
 		}
-		for (int i = 0; i < probabilities.length - 1; i++) {
-			if (probabilities[i] > rnd)
-				return i;
-		}
-		return probabilities.length;
+		int index = 0;
+		for (; probabilities[index] < rnd; index++);
+		return index;
 	}
 	
 	private double getTimeToChange(CNVStage stage, double ageAtSF, double fuva) {
@@ -102,27 +99,38 @@ public class VAProgressionForSF extends Param {
 		final double beta = Math.exp(-(consCoef + ageAtSF * ageCoef + fuva * fubasevaCoef + 
 				((stage.getType() == CNVStage.Type.MC) ? minclassicCoef : ((stage.getType() == CNVStage.Type.OCCULT) ? occultCoef : 0))) / alpha);
 		final RandomVariate rnd = RandomVariateFactory.getInstance("WeibullVariate", alpha, beta);
-		// FIXME: According to Karnon, this should return "days", but not sure yet
 		return rnd.generate();		
 	}
 	
-	public VAParam.VAProgressionPair[] getLevelChanges(OphthalmologicPatient pat, int eyeIndex) {
-		final ArrayList<VAParam.VAProgressionPair> changes = new ArrayList<VAParam.VAProgressionPair>();
+	@Override
+	public ArrayList<VAProgressionPair> getVAProgression(OphthalmologicPatient pat, int eyeIndex, double expectedVA) {
+		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>();
 		final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
-		double fuva = VisualAcuity.getLettersFromLogMAR(pat.getVA(eyeIndex));
-		double ageAtSF = pat.getAgeAt(stage, eyeIndex);
-		long timeToChange = (long)getTimeToChange(stage, ageAtSF, fuva);
 		long daysSinceEvent = TimeUnit.DAY.convert(simul.getTs() - pat.getTimeToCNVStage(stage, eyeIndex), simul.getTimeUnit());
-		while ((timeToChange < daysSinceEvent) && (fuva >= VisualAcuity.LETTERS_BLINDNESS)) {
-			fuva -= LETTERS_LOST[getMultiLogitResult(pat.getRndLevelsLostSF(), stage, ageAtSF, daysSinceEvent, fuva)];
-			if (fuva < 0.0)
-				fuva = 0.0;
-			changes.add(new VAParam.VAProgressionPair(timeToChange, VisualAcuity.getLogMARFromLetters(fuva)));
+		double ageAtSF = pat.getAgeAt(stage, eyeIndex);		
+		double lastFuva = VisualAcuity.getLettersFromLogMAR(pat.getVA(eyeIndex));
+		
+		// Computes new full VA and the time to progress to such VA
+		long timeToChange = (long)getTimeToChange(stage, ageAtSF, lastFuva);
+		double newFuva = Math.max(0.0, lastFuva - LETTERS_LOST[getMultiLogitResult(pat.getRndLevelsLostSF(), stage, ageAtSF, daysSinceEvent, lastFuva)]);
+		while ((timeToChange < daysSinceEvent) && (lastFuva >= VisualAcuity.LETTERS_BLINDNESS)) {
+			changes.add(new VAProgressionPair(timeToChange, VisualAcuity.getLogMARFromLetters(newFuva)));
 			ageAtSF += timeToChange / 365.0;
-			daysSinceEvent -= timeToChange; 
-			timeToChange = (long)getTimeToChange(stage, ageAtSF, fuva);
+			daysSinceEvent -= timeToChange;
+			lastFuva = newFuva;
+			timeToChange = (long)getTimeToChange(stage, ageAtSF, lastFuva);
+			newFuva = Math.max(0.0, lastFuva - LETTERS_LOST[getMultiLogitResult(pat.getRndLevelsLostSF(), stage, ageAtSF, daysSinceEvent, lastFuva)]);
 		}
-		final VAParam.VAProgressionPair[] arrayChanges = new VAParam.VAProgressionPair[changes.size()];
-		return (VAParam.VAProgressionPair[])changes.toArray(arrayChanges);
+		// The patient reaches blindness
+		if (lastFuva < VisualAcuity.LETTERS_BLINDNESS) {
+			changes.add(new VAProgressionPair(daysSinceEvent, VisualAcuity.MAX_LOGMAR));
+		}
+		// Else, the change happens in the future
+		else {
+			// Computes a linear interpolation of the new full VA
+			newFuva = lastFuva + (newFuva - lastFuva) * daysSinceEvent / timeToChange;
+			changes.add(new VAProgressionPair(daysSinceEvent, Math.max(expectedVA, VisualAcuity.getLogMARFromLetters(newFuva))));
+		}
+		return changes;
 	}
 }

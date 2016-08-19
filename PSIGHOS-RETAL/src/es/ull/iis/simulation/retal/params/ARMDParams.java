@@ -3,6 +3,9 @@
  */
 package es.ull.iis.simulation.retal.params;
 
+import java.util.ArrayList;
+
+import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.OphthalmologicPatient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 
@@ -19,6 +22,7 @@ public class ARMDParams extends ModelParams {
 	private final TimeToAMDFromEARMParam timeToAMDFromEARM;
 	private final TimeToCNVFromGAParam timeToCNVFromGA;
 	private final CNVStageParam timeToCNVStage;
+	private final VAParam vaParam;
 	
 	/**
 	 * 
@@ -31,6 +35,7 @@ public class ARMDParams extends ModelParams {
 		timeToAMDFromEARM = new TimeToAMDFromEARMParam(simul, baseCase);		
 		timeToCNVFromGA = new TimeToCNVFromGAParam(simul, baseCase);
 		timeToCNVStage = new CNVStageParam(simul, baseCase);
+		vaParam = new VAParam(simul, baseCase);
 	}
 
 	/**
@@ -78,5 +83,17 @@ public class ARMDParams extends ModelParams {
 
 	public CNVStageAndValue getTimeToNextCNVStage(OphthalmologicPatient pat, int eyeIndex) {
 		return timeToCNVStage.getValidatedTimeToEvent(pat, eyeIndex);
+	}
+	
+	public ArrayList<VAProgressionPair> getVAProgression(OphthalmologicPatient pat, int eyeIndex, EyeState incidentState) {
+		return vaParam.getVAProgression(pat, eyeIndex, incidentState, null);
+	}
+
+	public ArrayList<VAProgressionPair> getVAProgression(OphthalmologicPatient pat, int eyeIndex, CNVStage incidentCNVStage) {
+		return vaParam.getVAProgression(pat, eyeIndex, EyeState.AMD_CNV, incidentCNVStage);
+	}
+
+	public ArrayList<VAProgressionPair> getVAProgressionToDeath(OphthalmologicPatient pat, int eyeIndex) {
+		return vaParam.getVAProgression(pat, eyeIndex, null, null);
 	}
 }
