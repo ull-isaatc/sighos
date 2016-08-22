@@ -95,8 +95,12 @@ public class OphthalmologicPatient extends Patient {
 		currentCNVStage[0] = null;
 		currentCNVStage[1] = null;
 		// Visual acuity supposed to be perfect at start
-		updateVA(new VAProgressionPair(0, 0.0), 0);
-		updateVA(new VAProgressionPair(0, 0.0), 1);
+		final VAProgressionPair newVA = new VAProgressionPair(0, 0.0);
+		lastVAChangeTs[0] += newVA.timeToChange;
+		((LinkedList<VAProgressionPair>)vaProgression[0]).add(newVA);
+		lastVAChangeTs[1] += newVA.timeToChange;
+		((LinkedList<VAProgressionPair>)vaProgression[1]).add(newVA);
+		setUtility(armdParams.getUtilityFromVA(this));
 	}
 
 	/**
@@ -204,19 +208,9 @@ public class OphthalmologicPatient extends Patient {
 			lastVAChangeTs[eyeIndex] += pair.timeToChange;
 			((LinkedList<VAProgressionPair>)vaProgression[eyeIndex]).add(pair);
 		}
+		setUtility(armdParams.getUtilityFromVA(this));
 	}
 
-	/**
-	 * Updates the progression and current visual acuity of the specified eye. The change is added to the progression list
-	 * and used to set the current visual acuity. 
-	 * @param newVA Last change produced in the specified eye
-	 * @param eyeIndex Index of the affected eye (0 for first eye, 1 for second eye)
-	 */
-	@SuppressWarnings("unchecked")
-	private void updateVA(VAProgressionPair newVA, int eyeIndex) {
-		lastVAChangeTs[eyeIndex] += newVA.timeToChange;
-		((LinkedList<VAProgressionPair>)vaProgression[eyeIndex]).add(newVA);
-	}
 	/**
 	 * @return the vaProgression
 	 */
@@ -363,13 +357,6 @@ public class OphthalmologicPatient extends Patient {
 			return (initAge + ageAt) / 365.0;
 		return Double.MAX_VALUE;
 	}
-	
-	/**
-	 * Updates the current utility of the patient according to the state of his/her eyes
-	 */
-	private void updateUtility() {
-		
-	}  
 	
 	@Override
 	public void death() {

@@ -53,9 +53,9 @@ public class RETALSimulation extends Simulation {
 		PatientCreator creator = new OphthalmologicPatientCreator(this, NPATIENTS, commonParams.getPMen(), new ConstantFunction(commonParams.getInitAge()));
 		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
 //		addInfoReceiver(new PatientInfoView(this));
-		addInfoReceiver(new AffectedPatientHistoryView(this, true, EyeState.AMD_CNV));
-		addInfoReceiver(new AffectedPatientHistoryVAView(this, EyeState.AMD_CNV));
-		addInfoReceiver(new PatientPrevalenceView(this));
+//		addInfoReceiver(new AffectedPatientHistoryView(this, true, EyeState.AMD_CNV));
+//		addInfoReceiver(new AffectedPatientHistoryVAView(this, EyeState.AMD_CNV));
+//		addInfoReceiver(new PatientPrevalenceView(this));
 //		addInfoReceiver(new PatientCounterView(this));
 		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5));
 		outcomes.add(new Cost(this, DISCOUNT_RATE));
@@ -88,5 +88,7 @@ public class RETALSimulation extends Simulation {
 	public void end() {
 		// FIXME: Prepare to compute outcomes in case not all the patients are dead
 		super.end();
+		for (Outcome outcome : outcomes)
+			outcome.print(true);
 	}
 }

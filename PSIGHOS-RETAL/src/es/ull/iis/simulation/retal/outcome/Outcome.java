@@ -33,6 +33,8 @@ public abstract class Outcome {
 
 	public abstract void update(Patient pat);
 	
+	public abstract void print(boolean detailed);
+	
 	/**
 	 * Apply a discount rate to a value. 
 	 * @param value A constant value that applied each year

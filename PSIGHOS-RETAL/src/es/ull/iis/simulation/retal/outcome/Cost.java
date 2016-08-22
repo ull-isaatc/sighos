@@ -64,4 +64,10 @@ public class Cost extends Outcome {
 		aggregated[interventionId] += cost;
 	}
 
+	@Override
+	public void print(boolean detailed) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

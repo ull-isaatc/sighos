@@ -71,6 +71,7 @@ public class Patient extends BasicElement {
 		this.sex = original.sex;
 		this.timeToDeath = original.timeToDeath;
 		this.outcomes = original.outcomes;
+		this.currentUtility = original.currentUtility;
 	}
 	
 	@Override

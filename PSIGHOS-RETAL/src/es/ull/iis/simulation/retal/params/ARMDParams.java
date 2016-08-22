@@ -23,6 +23,7 @@ public class ARMDParams extends ModelParams {
 	private final TimeToCNVFromGAParam timeToCNVFromGA;
 	private final CNVStageParam timeToCNVStage;
 	private final VAParam vaParam;
+	private final VAtoUtilityParam vaToUtility; 
 	
 	/**
 	 * 
@@ -36,6 +37,7 @@ public class ARMDParams extends ModelParams {
 		timeToCNVFromGA = new TimeToCNVFromGAParam(simul, baseCase);
 		timeToCNVStage = new CNVStageParam(simul, baseCase);
 		vaParam = new VAParam(simul, baseCase);
+		vaToUtility = new VAtoUtilityParam(simul, baseCase);
 	}
 
 	/**
@@ -95,5 +97,10 @@ public class ARMDParams extends ModelParams {
 
 	public ArrayList<VAProgressionPair> getVAProgressionToDeath(OphthalmologicPatient pat, int eyeIndex) {
 		return vaParam.getVAProgression(pat, eyeIndex, null, null);
+	}
+	
+	public double getUtilityFromVA(OphthalmologicPatient pat) {
+		final double age = pat.getAge();
+		return Math.max(vaToUtility.getUtility(age, pat.getVA(0)), vaToUtility.getUtility(age, pat.getVA(1)));		
 	}
 }
