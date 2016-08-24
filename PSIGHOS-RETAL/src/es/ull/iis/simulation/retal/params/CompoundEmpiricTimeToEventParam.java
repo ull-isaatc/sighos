@@ -11,7 +11,7 @@ import java.util.Random;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
@@ -42,7 +42,7 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 			this.queue = null;
 		}
 		
-		public long getTimeToEvent(OphthalmologicPatient pat) {
+		public long getTimeToEvent(Patient pat) {
 			if (probabilities == null) {
 				return Long.MAX_VALUE;
 			}
@@ -55,7 +55,7 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 			}
 		}
 		
-		public long getValidatedTimeToEvent(OphthalmologicPatient pat) {
+		public long getValidatedTimeToEvent(Patient pat) {
 			final long timeToDeath = pat.getTimeToDeath();
 			final long currentTime = pat.getTs();
 			long timeToEvent;
@@ -99,7 +99,7 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
-	protected long getTimeToEvent(OphthalmologicPatient pat, int eye) {
+	protected long getTimeToEvent(Patient pat, int eye) {
 		final EnumSet<EyeState> otherEye = pat.getEyeState(1 - eye);
 		final long time;
 		

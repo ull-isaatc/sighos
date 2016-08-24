@@ -6,7 +6,7 @@ package es.ull.iis.simulation.retal.params;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -103,7 +103,7 @@ public class VAProgressionForSF extends VAProgressionParam {
 	}
 	
 	@Override
-	public ArrayList<VAProgressionPair> getVAProgression(OphthalmologicPatient pat, int eyeIndex, double expectedVA) {
+	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>();
 		final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
 		long daysSinceEvent = TimeUnit.DAY.convert(simul.getTs() - pat.getTimeToCNVStage(stage, eyeIndex), simul.getTimeUnit());

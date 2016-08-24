@@ -6,7 +6,7 @@ package es.ull.iis.simulation.retal.params;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
@@ -41,7 +41,7 @@ public class VAProgressionForGA extends VAProgressionParam {
 	}
 
 	@Override
-	public ArrayList<VAProgressionPair> getVAProgression(OphthalmologicPatient pat, int eyeIndex, double expectedVA) {
+	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
 		final ArrayList<VAProgressionPair> array = new ArrayList<VAProgressionPair>();
 		final double currentVA = pat.getVA(eyeIndex);
 		final double rnd = pat.getRndProgGA();

@@ -32,8 +32,8 @@ public class QualityAdjustedLifeExpectancy extends Outcome {
 
 	@Override
 	public void update(Patient pat) {
-		final int patientId = pat.getIdentifier() / RETALSimulation.NINTERVENTIONS;
-		final int interventionId = pat.getIdentifier() % RETALSimulation.NINTERVENTIONS;
+		final int patientId = pat.getIdentifier();
+		final int interventionId = pat.getnIntervention();
 		final double value = applyDiscount(pat.getUtility(), TimeUnit.YEAR.convert(pat.getLastTs(), simul.getTimeUnit()), TimeUnit.YEAR.convert(pat.getTs(), simul.getTimeUnit()));
 		qalys[patientId][interventionId] += value;
 		aggregated[interventionId] += value;

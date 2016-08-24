@@ -5,7 +5,7 @@ package es.ull.iis.simulation.retal.params;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
@@ -31,5 +31,5 @@ public abstract class VAProgressionParam extends Param {
 	 * @param expectedVA The expected visual acuity if no changes are derived from this progression
 	 * @return The progression of the visual acuity according to the current state of the specified eye
 	 */
-	public abstract ArrayList<VAProgressionPair> getVAProgression(OphthalmologicPatient pat, int eyeIndex, double expectedVA);
+	public abstract ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA);
 }

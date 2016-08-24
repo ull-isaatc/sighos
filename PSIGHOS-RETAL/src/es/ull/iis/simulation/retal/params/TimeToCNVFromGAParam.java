@@ -7,7 +7,7 @@ import java.util.EnumSet;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
@@ -80,7 +80,7 @@ public class TimeToCNVFromGAParam extends CompoundEmpiricTimeToEventParam {
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
 	 * the time is coherent with the state and future/past events of the patient
 	 */
-	public long getValidatedTimeToEvent(OphthalmologicPatient pat, int eye) {
+	public long getValidatedTimeToEvent(Patient pat, int eye) {
 		
 		final EnumSet<EyeState> otherEye = pat.getEyeState(1 - eye);
 		final StructuredInfo info;

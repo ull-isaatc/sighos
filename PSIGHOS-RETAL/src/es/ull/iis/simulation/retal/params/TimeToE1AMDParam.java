@@ -9,7 +9,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
@@ -65,7 +65,7 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 		}
 	}
 
-	public EyeStateAndValue getValidatedTimeToEventAndState(OphthalmologicPatient pat) {
+	public EyeStateAndValue getValidatedTimeToEventAndState(Patient pat) {
 		long timeToAMD;
 		
 		final long timeToEARM = pat.getTimeToEARM(0);

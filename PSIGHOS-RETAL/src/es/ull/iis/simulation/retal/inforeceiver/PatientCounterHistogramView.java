@@ -12,7 +12,7 @@ import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.info.PatientInfo;
 import es.ull.iis.simulation.retal.params.CNVStage;
 
@@ -120,7 +120,7 @@ public class PatientCounterHistogramView extends Listener {
 		}
 		else if (info instanceof PatientInfo) {
 			final PatientInfo p = (PatientInfo) info;
-			final OphthalmologicPatient pat = (OphthalmologicPatient)p.getPatient();
+			final Patient pat = (Patient)p.getPatient();
 			final int interval = (int)((pat.getAge() - minAge) / length);
 			final int eyeIndex = p.getEyeIndex();
 			switch(((PatientInfo) info).getType()) {

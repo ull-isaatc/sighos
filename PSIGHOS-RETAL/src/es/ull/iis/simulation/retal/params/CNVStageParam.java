@@ -6,7 +6,7 @@ package es.ull.iis.simulation.retal.params;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
@@ -81,7 +81,7 @@ public class CNVStageParam extends Param {
 
 	}
 	
-	public CNVStage getInitialTypeAndPosition(OphthalmologicPatient pat, int eyeIndex) {
+	public CNVStage getInitialTypeAndPosition(Patient pat, int eyeIndex) {
 		if (eyeIndex == 0) { 
 			final double key = initProb1.ceilingKey(pat.getRndTypeAndPositionCNV());
 			return initProb1.get(key);
@@ -93,7 +93,7 @@ public class CNVStageParam extends Param {
 		
 	}
 	
-	public CNVStageAndValue getValidatedTimeToEvent(OphthalmologicPatient pat, int eyeIndex) {
+	public CNVStageAndValue getValidatedTimeToEvent(Patient pat, int eyeIndex) {
 		CNVStage currentStage = pat.getCurrentCNVStage(eyeIndex);
 		CNVStage.Type newType = currentStage.getType();
 		CNVStage.Position newPosition = currentStage.getPosition();

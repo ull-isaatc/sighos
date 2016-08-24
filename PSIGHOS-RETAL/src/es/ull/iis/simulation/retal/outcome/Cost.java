@@ -5,9 +5,8 @@ package es.ull.iis.simulation.retal.outcome;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
-import es.ull.iis.simulation.retal.OphthalmologicResourceUsage;
 import es.ull.iis.simulation.retal.Patient;
+import es.ull.iis.simulation.retal.OphthalmologicResourceUsage;
 import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.ResourceUsageItem;
 
@@ -35,7 +34,7 @@ public class Cost extends Outcome {
 	 */
 	@Override
 	public void update(Patient pat) {
-		OphthalmologicPatient p = (OphthalmologicPatient)pat;
+		Patient p = (Patient)pat;
 		final double initAge = TimeUnit.YEAR.convert(pat.getLastTs(), simul.getTimeUnit()); 
 		final double endAge = TimeUnit.YEAR.convert(pat.getTs(), simul.getTimeUnit()); 
 		double cost = 0.0;
@@ -57,8 +56,8 @@ public class Cost extends Outcome {
 			}
 		}
 
-		final int patientId = pat.getIdentifier() / RETALSimulation.NINTERVENTIONS;
-		final int interventionId = pat.getIdentifier() % RETALSimulation.NINTERVENTIONS;
+		final int patientId = pat.getIdentifier();
+		final int interventionId = pat.getnIntervention();
 		cost = applyDiscount(cost, initAge, endAge);
 		costs[patientId][interventionId] += cost;
 		aggregated[interventionId] += cost;

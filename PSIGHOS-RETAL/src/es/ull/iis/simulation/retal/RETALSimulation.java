@@ -33,35 +33,56 @@ public class RETALSimulation extends Simulation {
 	public final static int NINTERVENTIONS = 2;
 	/** Counter to assign a unique id to each patient */
 	private int patientCounter = 0;
+	public final static int NPATIENTS = 1000;
+	
+	private final Patient[] generatedPatients = new Patient[NPATIENTS]; 
 	
 	private final static double DISCOUNT_RATE = 0.0; 
-	public final static int NPATIENTS = 1000;
 	public final static TimeUnit SIMUNIT = TimeUnit.DAY;
 	private final static String DESCRIPTION = "RETAL Simulation";
+	private final static String[] INTERVENTION_DESC = {"Clinical detection", "Screening"};
 	private final CommonParams commonParams;
 	private final ARMDParams armdParams;
-	private final ArrayList<Outcome> outcomes = new ArrayList<Outcome>();
+	private final ArrayList<Outcome> outcomes;
+	private final int nIntervention;
 
 	/**
 	 * @param id
 	 * @param baseCase
 	 */
 	public RETALSimulation(int id) {
-		super(id, DESCRIPTION, SIMUNIT, TimeStamp.getZero(), new TimeStamp(TimeUnit.YEAR, (long) (CommonParams.MAX_AGE - CommonParams.MIN_AGE + 1)));
+		super(id, DESCRIPTION + " " + INTERVENTION_DESC[0], SIMUNIT, TimeStamp.getZero(), new TimeStamp(TimeUnit.YEAR, (long) (CommonParams.MAX_AGE - CommonParams.MIN_AGE + 1)));
 		this.commonParams = new CommonParams(this, true);
 		this.armdParams = new ARMDParams(this, true);
-		PatientCreator creator = new OphthalmologicPatientCreator(this, NPATIENTS, commonParams.getPMen(), new ConstantFunction(commonParams.getInitAge()));
+		this.nIntervention = 0;
+		PatientCreator creator = new PatientCreator(this, NPATIENTS, commonParams.getPMen(), new ConstantFunction(commonParams.getInitAge()));
 		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
+		outcomes = new ArrayList<Outcome>();
+		outcomes.add(new Cost(this, DISCOUNT_RATE));
+		outcomes.add(new QualityAdjustedLifeExpectancy(this, DISCOUNT_RATE));
+		addInfoReceivers();
+	}
+
+	public RETALSimulation(RETALSimulation original, int nIntervention) {
+		super(original.id, DESCRIPTION+ " " + INTERVENTION_DESC[nIntervention], original.getTimeUnit(), original.getStartTs(), original.getEndTs());
+		this.commonParams = original.commonParams;
+		this.armdParams = original.armdParams;
+		this.nIntervention = nIntervention;
+		PatientCreator creator = new PatientCreator(this, original.generatedPatients, commonParams.getPMen(), new ConstantFunction(commonParams.getInitAge()), nIntervention);
+		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
+		this.outcomes = new ArrayList<Outcome>(original.outcomes);
+		addInfoReceivers();
+	}
+	
+	private void addInfoReceivers() {
 //		addInfoReceiver(new PatientInfoView(this));
 //		addInfoReceiver(new AffectedPatientHistoryView(this, true, EyeState.AMD_CNV));
 //		addInfoReceiver(new AffectedPatientHistoryVAView(this, EyeState.AMD_CNV));
-//		addInfoReceiver(new PatientPrevalenceView(this));
-//		addInfoReceiver(new PatientCounterView(this));
+		addInfoReceiver(new PatientPrevalenceView(this));
+		addInfoReceiver(new PatientCounterView(this));
 		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5));
-		outcomes.add(new Cost(this, DISCOUNT_RATE));
-		outcomes.add(new QualityAdjustedLifeExpectancy(this, DISCOUNT_RATE));
 	}
-
+	
 	public CommonParams getCommonParams() {
 		return commonParams;
 	}
@@ -83,12 +104,17 @@ public class RETALSimulation extends Simulation {
 	public ArrayList<Outcome> getOutcomes() {
 		return outcomes;
 	}
+	
+	public void addGeneratedPatient(Patient pat, int order) {
+		generatedPatients[order] = pat;
+	}
 
 	@Override
 	public void end() {
 		// FIXME: Prepare to compute outcomes in case not all the patients are dead
 		super.end();
-		for (Outcome outcome : outcomes)
-			outcome.print(true);
+		if (nIntervention == NINTERVENTIONS - 1)
+			for (Outcome outcome : outcomes)
+				outcome.print(true);
 	}
 }

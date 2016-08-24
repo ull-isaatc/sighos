@@ -9,7 +9,7 @@ import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.info.PatientInfo;
 import es.ull.iis.simulation.retal.params.VAProgressionPair;
 
@@ -42,7 +42,7 @@ public class AffectedPatientHistoryVAView extends Listener {
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof PatientInfo) {
 			PatientInfo pInfo = (PatientInfo) info;
-			OphthalmologicPatient pat = (OphthalmologicPatient) pInfo.getPatient();
+			Patient pat = (Patient) pInfo.getPatient();
 			if (pInfo.getType() == PatientInfo.Type.FINISH) {
 				boolean condition = false;
 				if (filterByState == EyeState.AMD_CNV) {

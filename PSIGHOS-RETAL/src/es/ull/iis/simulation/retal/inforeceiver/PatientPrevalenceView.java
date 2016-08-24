@@ -9,7 +9,7 @@ import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.info.PatientInfo;
 import es.ull.iis.simulation.retal.params.CommonParams;
 
@@ -54,7 +54,7 @@ public class PatientPrevalenceView extends Listener {
 		}
 		else {
 			PatientInfo pInfo = (PatientInfo) info;
-			OphthalmologicPatient pat = (OphthalmologicPatient) pInfo.getPatient();
+			Patient pat = (Patient) pInfo.getPatient();
 			if (pInfo.getType() == PatientInfo.Type.FINISH) {
 				final double initAge = pat.getInitAge(); 
 				final double ageAtDeath = pat.getAge();

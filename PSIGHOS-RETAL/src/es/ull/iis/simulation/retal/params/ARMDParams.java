@@ -6,7 +6,7 @@ package es.ull.iis.simulation.retal.params;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
@@ -23,7 +23,8 @@ public class ARMDParams extends ModelParams {
 	private final TimeToCNVFromGAParam timeToCNVFromGA;
 	private final CNVStageParam timeToCNVStage;
 	private final VAParam vaParam;
-	private final VAtoUtilityParam vaToUtility; 
+	private final VAtoUtilityParam vaToUtility;
+	private final ClinicalPresentationParam clinicalPresentation;
 	
 	/**
 	 * 
@@ -38,40 +39,41 @@ public class ARMDParams extends ModelParams {
 		timeToCNVStage = new CNVStageParam(simul, baseCase);
 		vaParam = new VAParam(simul, baseCase);
 		vaToUtility = new VAtoUtilityParam(simul, baseCase);
+		clinicalPresentation = new ClinicalPresentationParam(simul, baseCase);
 	}
 
 	/**
 	 * @return the timeToEARM
 	 */
-	public long getTimeToEARM(OphthalmologicPatient pat) {
+	public long getTimeToEARM(Patient pat) {
 		return timeToEARM.getValidatedTimeToEvent(pat);
 	}
 
 	/**
 	 * @return the timeToE1AMD
 	 */
-	public EyeStateAndValue getTimeToE1AMD(OphthalmologicPatient pat) {
+	public EyeStateAndValue getTimeToE1AMD(Patient pat) {
 		return timeToE1AMD.getValidatedTimeToEventAndState(pat);
 	}
 
 	/**
 	 * @return the timeToE2AMD
 	 */
-	public EyeStateAndValue getTimeToE2AMD(OphthalmologicPatient pat) {
+	public EyeStateAndValue getTimeToE2AMD(Patient pat) {
 		return timeToE2AMD.getValidatedTimeToEventAndState(pat);
 	}
 
 	/**
 	 * @return the timeToAMDFromEARM
 	 */
-	public EyeStateAndValue getTimeToAMDFromEARM(OphthalmologicPatient pat, int eyeIndex) {
+	public EyeStateAndValue getTimeToAMDFromEARM(Patient pat, int eyeIndex) {
 		return timeToAMDFromEARM.getValidatedTimeToEventAndState(pat, eyeIndex);
 	}
 
 	/**
 	 * @return the timeToCNVFromGA
 	 */
-	public long getTimeToCNVFromGA(OphthalmologicPatient pat, int eyeIndex) {
+	public long getTimeToCNVFromGA(Patient pat, int eyeIndex) {
 		return timeToCNVFromGA.getValidatedTimeToEvent(pat, eyeIndex);
 	}
 
@@ -79,28 +81,32 @@ public class ARMDParams extends ModelParams {
 	 * Return the 
 	 * @return
 	 */
-	public CNVStage getInitialCNVStage(OphthalmologicPatient pat, int eyeIndex) {
+	public CNVStage getInitialCNVStage(Patient pat, int eyeIndex) {
 		return timeToCNVStage.getInitialTypeAndPosition(pat, eyeIndex);
 	}
 
-	public CNVStageAndValue getTimeToNextCNVStage(OphthalmologicPatient pat, int eyeIndex) {
+	public CNVStageAndValue getTimeToNextCNVStage(Patient pat, int eyeIndex) {
 		return timeToCNVStage.getValidatedTimeToEvent(pat, eyeIndex);
 	}
 	
-	public ArrayList<VAProgressionPair> getVAProgression(OphthalmologicPatient pat, int eyeIndex, EyeState incidentState) {
+	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, EyeState incidentState) {
 		return vaParam.getVAProgression(pat, eyeIndex, incidentState, null);
 	}
 
-	public ArrayList<VAProgressionPair> getVAProgression(OphthalmologicPatient pat, int eyeIndex, CNVStage incidentCNVStage) {
+	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, CNVStage incidentCNVStage) {
 		return vaParam.getVAProgression(pat, eyeIndex, EyeState.AMD_CNV, incidentCNVStage);
 	}
 
-	public ArrayList<VAProgressionPair> getVAProgressionToDeath(OphthalmologicPatient pat, int eyeIndex) {
+	public ArrayList<VAProgressionPair> getVAProgressionToDeath(Patient pat, int eyeIndex) {
 		return vaParam.getVAProgression(pat, eyeIndex, null, null);
 	}
 	
-	public double getUtilityFromVA(OphthalmologicPatient pat) {
+	public double getUtilityFromVA(Patient pat) {
 		final double age = pat.getAge();
 		return Math.max(vaToUtility.getUtility(age, pat.getVA(0)), vaToUtility.getUtility(age, pat.getVA(1)));		
+	}
+	
+	public double getProbabilityClinicalPresentation(Patient pat) {
+		return clinicalPresentation.getProbability(pat);
 	}
 }

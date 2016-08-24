@@ -8,7 +8,7 @@ import java.util.EnumSet;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
@@ -84,7 +84,7 @@ public class VAParam extends Param {
 	 * @param eyeIndex
 	 * @return
 	 */
-	public ArrayList<VAProgressionPair> getVAProgression(OphthalmologicPatient pat, int eyeIndex, EyeState incidentState, CNVStage incidentCNVStage) {
+	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, EyeState incidentState, CNVStage incidentCNVStage) {
 		ArrayList<VAProgressionPair> changes;
 		final double vaAtStart = pat.getVA(eyeIndex);
 		// If the patient had the worst VA, it remains the same

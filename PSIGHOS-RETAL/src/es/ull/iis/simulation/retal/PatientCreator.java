@@ -11,35 +11,48 @@ import es.ull.iis.simulation.sequential.BasicElementCreator;
 import es.ull.iis.simulation.sequential.Generator;
 
 /**
- * @author Iván Castilla Rodríguez
+ * @author Iván Castilla
  *
  */
 public class PatientCreator implements BasicElementCreator {
 	/** Number of objects created each time this creator is invoked. */
-	protected final int nPatients;
+	private final int nPatients;
 	/** Associated simulation */
-	protected final RETALSimulation simul;
+	private final RETALSimulation simul;
 	/** A distribution to characterize the initial age of each generated patient */
-	protected final TimeFunction initialAges;
+	private final TimeFunction initialAges;
 	/** Probability of being men */
-	protected final double pMen;
-	protected final Random RNG_SEX = new Random();
+	private final double pMen;
+	private final Random RNG_SEX = new Random();
+	private final Patient[] copyOf;
+	private final int intervention;
 
 	/**
-	 * 
+	 * @param simul
+	 * @param nPatients
+	 * @param pMen
 	 */
 	public PatientCreator(RETALSimulation simul, int nPatients, double pMen, TimeFunction initialAges) {
-		// TODO Auto-generated constructor stub
 		this.nPatients = nPatients;
 		this.simul = simul;
 		this.pMen = pMen;
 		this.initialAges = initialAges;
+		this.copyOf = null;
+		this.intervention = 0;
 	}
-
-	protected Patient createPatient() {
-		final int sex = (RNG_SEX.nextDouble() < pMen) ? 0 : 1;
-		final double age = initialAges.getValue(0);
-		return new Patient(simul, age, sex);
+	
+	/**
+	 * @param simul
+	 * @param nPatients
+	 * @param pMen
+	 */
+	public PatientCreator(RETALSimulation simul, Patient[] copyOf, double pMen, TimeFunction initialAges, int intervention) {
+		this.nPatients = copyOf.length;
+		this.simul = simul;
+		this.pMen = pMen;
+		this.initialAges = initialAges;
+		this.copyOf = copyOf;
+		this.intervention = intervention;
 	}
 	
 	/* (non-Javadoc)
@@ -47,11 +60,23 @@ public class PatientCreator implements BasicElementCreator {
 	 */
 	@Override
 	public void create(Generator gen) {
-		for (int i = 0; i < nPatients; i++) {
-			Patient p = createPatient();
-			final BasicElement.DiscreteEvent ev = p.getStartEvent(simul.getTs());
-			p.addEvent(ev);
+		if (copyOf == null) {
+			for (int i = 0; i < nPatients; i++) {
+				final double age = initialAges.getValue(0);
+				final int sex = (RNG_SEX.nextDouble() < pMen) ? 0 : 1;
+				Patient p = new Patient(simul, age, sex, intervention);
+				simul.addGeneratedPatient(p, i);
+				final BasicElement.DiscreteEvent ev = p.getStartEvent(simul.getTs());
+				p.addEvent(ev);
+			}
 		}
-	}
-
+		else {
+			for (int i = 0; i < nPatients; i++) {
+				Patient p = new Patient(simul, copyOf[i], intervention);
+				simul.addGeneratedPatient(p, i);
+				final BasicElement.DiscreteEvent ev = p.getStartEvent(simul.getTs());
+				p.addEvent(ev);
+			}			
+		}
+	}	
 }

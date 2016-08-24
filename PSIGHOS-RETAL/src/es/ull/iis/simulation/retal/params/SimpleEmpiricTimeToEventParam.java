@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.Random;
 
 import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
@@ -36,7 +36,7 @@ public abstract class SimpleEmpiricTimeToEventParam extends EmpiricTimeToEventPa
 	 * @param pat A patient
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
-	public long getTimeToEvent(OphthalmologicPatient pat) {
+	public long getTimeToEvent(Patient pat) {
 		final double []rnd = new double[probabilities.length];
 		for (int j = 0; j < probabilities.length; j++)
 			rnd[j] = rng.nextDouble();

@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.retal.params;
 
 import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -31,7 +31,7 @@ public class WeibullTimeToEventParam extends Param {
 	 * @param pat A patient
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
-	public long getTimeToEvent(OphthalmologicPatient pat) {
+	public long getTimeToEvent(Patient pat) {
 		final long time = pat.getTs() + simul.getTimeUnit().convert(rnd.generate(), unit);
 		return (time > simul.getInternalEndTs()) ? Long.MAX_VALUE : time;
 	}

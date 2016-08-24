@@ -10,7 +10,7 @@ import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.info.PatientInfo;
 import es.ull.iis.simulation.retal.params.CNVStage;
 
@@ -43,12 +43,12 @@ public class AffectedPatientHistoryView extends Listener {
 		this(simul, false, EyeState.EARM);
 	}
 
-	private String getAgeAt(OphthalmologicPatient pat, EyeState state, int eye) {
+	private String getAgeAt(Patient pat, EyeState state, int eye) {
 		final double ageAt = pat.getAgeAt(state, eye);
 		return (ageAt == Double.MAX_VALUE) ? "INF" : ("" + ageAt); 
 	}
 	
-	private String getAgeAt(OphthalmologicPatient pat, CNVStage stage, int eye) {
+	private String getAgeAt(Patient pat, CNVStage stage, int eye) {
 		final double ageAt = pat.getAgeAt(stage, eye);
 		return (ageAt == Double.MAX_VALUE) ? "INF" : ("" + ageAt); 
 	}
@@ -69,7 +69,7 @@ public class AffectedPatientHistoryView extends Listener {
 		}
 		else {
 			PatientInfo pInfo = (PatientInfo) info;
-			OphthalmologicPatient pat = (OphthalmologicPatient) pInfo.getPatient();
+			Patient pat = (Patient) pInfo.getPatient();
 			if (pInfo.getType() == PatientInfo.Type.FINISH) {
 				boolean condition = false;
 				if (filterByState == EyeState.AMD_CNV) {

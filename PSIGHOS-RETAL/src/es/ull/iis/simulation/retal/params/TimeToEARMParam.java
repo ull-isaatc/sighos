@@ -6,7 +6,7 @@ package es.ull.iis.simulation.retal.params;
 import java.util.Iterator;
 
 import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.retal.OphthalmologicPatient;
+import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
@@ -59,7 +59,7 @@ public class TimeToEARMParam extends SimpleEmpiricTimeToEventParam {
 	 * @param timeToDeath The expected time to death of the patient
 	 * @return A time to EARM that is lower than time to death or INFINITE
 	 */
-	public long getValidatedTimeToEvent(OphthalmologicPatient pat) {
+	public long getValidatedTimeToEvent(Patient pat) {
 		long timeToEARM;
 		final long timeToDeath = pat.getTimeToDeath();
 		final long currentTime = pat.getTs();
