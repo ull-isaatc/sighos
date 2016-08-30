@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
+import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -83,11 +84,11 @@ public class CNVStageParam extends Param {
 	
 	public CNVStage getInitialTypeAndPosition(Patient pat, int eyeIndex) {
 		if (eyeIndex == 0) { 
-			final double key = initProb1.ceilingKey(pat.getRndTypeAndPositionCNV());
+			final double key = initProb1.ceilingKey(pat.getRandomNumber(RandomForPatient.ITEM.ARMD_TYPE_POSITION_CNV));
 			return initProb1.get(key);
 		}
 		else {
-			final double key = initProb2.ceilingKey(pat.getRndTypeAndPositionCNV());
+			final double key = initProb2.ceilingKey(pat.getRandomNumber(RandomForPatient.ITEM.ARMD_TYPE_POSITION_CNV));
 			return initProb2.get(key);
 		}
 		

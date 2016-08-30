@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.retal.params;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -11,6 +12,7 @@ import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
+import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * A class to generate time to first eye incidence of AMD. Either CNV or GA can appear.
@@ -26,7 +28,7 @@ import es.ull.iis.simulation.retal.RETALSimulation;
  * @author Iván Castilla
  *
  */
-public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
+public class TimeToE1AMDParam extends EmpiricTimeToEventParam {
 	// Parameters for first eye incidence of AMD -->  BAD ADJUST!!!!
 //	private final static double ALPHA_AMD = Math.exp(-11.4989645);
 //	private final static double BETA_AMD = 0.05463568;
@@ -48,13 +50,18 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 	
 	/** Proportion of CNV (against GA) in first eye incident AMD */
 	private final TreeMap<Integer, Double> pCNV = new TreeMap<Integer, Double>();
+	/** An internal list of generated times to event to be used when creating validated times to event */
+	final protected LinkedList<Long> queue = new LinkedList<Long>();
+	/** First-eye incidence of EARM */
+	final protected double [][] probabilities;	
 	
 	
 	/**
 	 * 
 	 */
 	public TimeToE1AMDParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase, TimeUnit.YEAR, P_AMD.length);
+		super(simul, baseCase, TimeUnit.YEAR);
+		this.probabilities = new double[P_AMD.length][3];
 		// FIXME: should work diferently when baseCase = false
 
 		// Initialize first-eye incidence of AMD
@@ -65,10 +72,21 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 		}
 	}
 
+	/**
+	 * Returns the "brute" simulation time when a specific event will happen (expressed in simulation time units)
+	 * @param pat A patient
+	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
+	 */
+	public long getTimeToEvent(Patient pat) {
+		final double []rnd = pat.getRandomNumber(RandomForPatient.ITEM.TIME_TO_E1AMD, probabilities.length);
+		final double time = getTimeToEvent(probabilities, pat.getAge(), rnd);
+		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + simul.getTimeUnit().convert(time, unit);
+	}
+
 	public EyeStateAndValue getValidatedTimeToEventAndState(Patient pat) {
 		long timeToAMD;
 		
-		final long timeToEARM = pat.getTimeToEARM(0);
+		final long timeToEARM = pat.getTimeToEyeState(EyeState.EARM, 0);
 		final long timeToDeath = pat.getTimeToDeath();		
 		final long currentTime = pat.getTs();
 		
@@ -118,7 +136,7 @@ public class TimeToE1AMDParam extends SimpleEmpiricTimeToEventParam {
 		if (entry == null) {
 			return new EyeStateAndValue(EyeState.AMD_GA, timeToAMD);
 		}
-		final double rnd = pat.getRndProbCNV(0);
+		final double rnd = pat.getRandomNumber(RandomForPatient.ITEM.ARMD_P_CNV1);
 		return new EyeStateAndValue((rnd <= entry.getValue()) ? EyeState.AMD_CNV : EyeState.AMD_GA, timeToAMD);
 	}
 }

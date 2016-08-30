@@ -7,12 +7,12 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Random;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
+import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -24,20 +24,20 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 
 	class StructuredInfo {
 		/** Random number generator for this param */
-		final Random rng;
+		final RandomForPatient.ITEM rngItem;
 		/** An internal list of generated times to event to be used when creating validated times to event */
 		final LinkedList<Long> queue;
 		/** First-eye incidence of EARM */
 		final double [][] probabilities;
 		
-		public StructuredInfo(int nAgeGroups) {
-			this.rng = new Random();
+		public StructuredInfo(int nAgeGroups, RandomForPatient.ITEM rngItem) {
+			this.rngItem = rngItem;
 			this.probabilities = new double[nAgeGroups][3];
 			this.queue = new LinkedList<Long>();
 		}
 		
 		public StructuredInfo() {
-			this.rng = null;
+			this.rngItem = null;
 			this.probabilities = null;
 			this.queue = null;
 		}
@@ -47,9 +47,7 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 				return Long.MAX_VALUE;
 			}
 			else {
-				final double []rnd = new double[probabilities.length];
-				for (int j = 0; j < probabilities.length; j++)
-					rnd[j] = rng.nextDouble();
+				final double []rnd = pat.getRandomNumber(rngItem, probabilities.length);
 				final double time = CompoundEmpiricTimeToEventParam.getTimeToEvent(probabilities, pat.getAge(), rnd);
 				return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + simul.getTimeUnit().convert(time, unit);
 			}

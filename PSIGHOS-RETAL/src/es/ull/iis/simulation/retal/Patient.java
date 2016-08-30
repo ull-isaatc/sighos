@@ -6,7 +6,6 @@ package es.ull.iis.simulation.retal;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.LinkedList;
-import java.util.Random;
 
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
@@ -14,12 +13,13 @@ import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.info.PatientInfo;
 import es.ull.iis.simulation.retal.outcome.Outcome;
 import es.ull.iis.simulation.retal.params.ARMDParams;
+import es.ull.iis.simulation.retal.params.CNVStage;
+import es.ull.iis.simulation.retal.params.CNVStageAndValue;
 import es.ull.iis.simulation.retal.params.CommonParams;
+import es.ull.iis.simulation.retal.params.DRParams;
 import es.ull.iis.simulation.retal.params.EyeStateAndValue;
 import es.ull.iis.simulation.retal.params.VAProgressionPair;
 import es.ull.iis.simulation.sequential.BasicElement;
-import es.ull.iis.simulation.retal.params.CNVStage;
-import es.ull.iis.simulation.retal.params.CNVStageAndValue;
 import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
@@ -28,14 +28,24 @@ import es.ull.iis.util.DiscreteCycleIterator;
  *
  */
 public class Patient extends BasicElement {
+	private enum DISEASES {
+		ARMD,
+		DR
+	};
+	private EnumSet<DISEASES> affectedBy = EnumSet.noneOf(DISEASES.class); 
 	private Patient clonedFrom;
 	/** The intervention branch that this "clone" of the patient belongs to */
-	protected final int nIntervention;
+	private final int nIntervention;
 	/** Initial age of the patient (stored in days) */
-	protected final double initAge;
+	private final double initAge;
 	/** Sex of the patient: 0 for men, 1 for women */
-	protected final int sex;
-	
+	private final int sex;
+	/** The age this patient is diabetic since. Long.MAX_VALUE if he/she's not diabetic */
+	private double diabeticSince = -1.0;
+	/** Type of DM; -1 if no diabetic */
+	private int diabetesType = -1;
+	/** Hemoglobin A1c */
+	private double hbA1c;
 	// Event times
 	/** Precomputed time to death for this patient */
 	protected final long timeToDeath;
@@ -48,61 +58,34 @@ public class Patient extends BasicElement {
 	private long startTs;
 	/** The current currentUtility applied to this patient */
 	private double currentUtility = 1.0;
+	/** The outcomes that are measured for this patient */
 	private final ArrayList<Outcome> outcomes;
 	
-	public enum Disease {
-		AMD,
-		RD
-	}
-
-	// Random number generators for initial risks to be compared with specific probabilities
-	private static final Random[] RNG_P_CNV = {new Random(), new Random()};
-	private static final Random RNG_TYPE_POSITION_CNV = new Random();
-	private static final Random RNG_PROG_TWICE_GA = new Random();
-	private static final Random RNG_PROG_GA = new Random();
-	private static final Random RNG_LEVELS_LOST_SF = new Random();
-	private static final Random RNG_SENSITIVITY = new Random();
-	private static final Random RNG_SPECIFICITY = new Random();
-	private static final Random RNG_CLINICAL_PRESENTATION = new Random();
-	
+	/** Random number generators for initial risks to be compared with specific probabilities */
+	private final RandomForPatient rng;
 	// Events
+	private DiabetesEvent diabetesEvent = null;
 	private final EARMEvent[] eARMEvent = {null, null};
 	private final GAEvent[] gAEvent = {null, null};
 	private final CNVEvent[] cNVEvent = {null, null};
 	private final LinkedList<?>[] cNVStageEvents = {new LinkedList<CNVStageEvent>(), new LinkedList<CNVStageEvent>()};
 	private final LinkedList<?>[] vaProgression = {new LinkedList<VAProgressionPair>(), new LinkedList<VAProgressionPair>()};
+	private NonProliferativeDREvent nPDREvent = null;
+	private ProliferativeDREvent pDREvent = null;
+	private ClinicallySignificantDMEEvent cSMEEvent = null;
 	/** Last timestamp when VA changed */
 	private final long[] lastVAChangeTs = new long[2];
 	
-	/** The random reference to compare with the probability of developing CNV in the first and fellow eyes */ 
-	private final double[] rndProbCNV = new double[2];
-	/** The random reference to determine which is the initial type and position of the lesion in CNV */ 
-	private final double rndTypeAndPositionCNV;
-	/** The random reference to determine if the patient VA worsens upon GA */
-	private final double rndProgGA;
-	/** The random reference to whether this patient, if develops GA, gets a 6-lines instead of 3-lines penalty upon progression */
-	private final double rndProgTwiceGA;
-	/** The random reference to the number of levels that this patient loses whenever he/she loses VA in SF */
-	private final ArrayList<Double> rndLevelsLostSF;
-	private int countRndLevelsLostSF = 0;
-	/** The random reference to compare with the sensitivity */
-	private final double rndSensitivity;
-	/** The random reference to compare with the specificity */
-	private final double rndSpecificity;
-	/** The random reference to determine if the patient is clinically detected every time his/her state changes */
-	private final ArrayList<Double> rndClinicalPresentation;
-	private int countRndClinicalPresentation = 0;
 	/** Defines whether the patient is currently diagnosed */
 	private long diagnosed = Long.MAX_VALUE;
 	/** The current state of the eyes of the patient */
 	private final EnumSet<?>[] eyes = new EnumSet<?>[2];
 	/** The current type and position of the CNV lesions in each eye; null if no CNV */
 	private final CNVStage[] currentCNVStage = new CNVStage[2];
-	/** True if the patient is currently mimicking another one */
-	private boolean isMimicking;
 	
 	private final CommonParams commonParams;
 	private final ARMDParams armdParams;
+	private final DRParams drParams;
 
 	/**
 	 * Creates a patient and initializes the default events
@@ -110,28 +93,21 @@ public class Patient extends BasicElement {
 	 * @param initAge The initial age of the patient
 	 * @param sex Sex of the patient
 	 */
-	public Patient(RETALSimulation simul, double initAge, int sex, int nIntervention) {
+	public Patient(RETALSimulation simul, double initAge, int nIntervention) {
 		super(simul.getPatientCounter(), simul);
+		this.rng = new RandomForPatient();
+		this.commonParams = simul.getCommonParams();
+		this.armdParams = simul.getArmdParams();
+		this.drParams = simul.getDrParams();
+
 		intervention = new NullIntervention();
 		this.initAge = 365*initAge;
-		this.sex = sex;
+		this.sex = commonParams.getSex(this);
 		this.clonedFrom = null;
 		this.nIntervention = nIntervention;
 		// Limiting lifespan to MAX AGE
-		this.timeToDeath = simul.getCommonParams().getDeathTime(this);
+		this.timeToDeath = simul.getCommonParams().getTimeToDeath(this);
 		this.outcomes = simul.getOutcomes();
-		
-		this.rndProbCNV[0] = RNG_P_CNV[0].nextDouble();
-		this.rndProbCNV[1] = RNG_P_CNV[1].nextDouble();
-		this.rndSensitivity = RNG_SENSITIVITY.nextDouble();
-		this.rndSpecificity = RNG_SPECIFICITY.nextDouble();
-		this.rndTypeAndPositionCNV = RNG_TYPE_POSITION_CNV.nextDouble();
-		this.rndProgTwiceGA = RNG_PROG_TWICE_GA.nextDouble();
-		this.rndProgGA = RNG_PROG_GA.nextDouble();
-		this.rndLevelsLostSF = new ArrayList<Double>();
-		this.rndClinicalPresentation = new ArrayList<Double>();
-		this.commonParams = simul.getCommonParams();
-		this.armdParams = simul.getArmdParams();
 		
 		eyes[0] = EnumSet.of(EyeState.HEALTHY);
 		eyes[1] = EnumSet.of(EyeState.HEALTHY);
@@ -144,9 +120,6 @@ public class Patient extends BasicElement {
 		lastVAChangeTs[1] += newVA.timeToChange;
 		((LinkedList<VAProgressionPair>)vaProgression[1]).add(newVA);
 		setUtility(armdParams.getUtilityFromVA(this));
-		
-		// This patient is not a copy of any other
-		isMimicking = false;
 	}
 
 	/**
@@ -157,6 +130,11 @@ public class Patient extends BasicElement {
 	@SuppressWarnings("unchecked")
 	public Patient(RETALSimulation simul, Patient original, int nIntervention) {
 		super(original.id, simul);
+		this.rng = new RandomForPatient(original.rng); 
+		this.commonParams = original.commonParams;
+		this.armdParams = original.armdParams;
+		this.drParams = original.drParams;
+
 		intervention = new Screening(new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1), 1.0, 1.0);
 		this.clonedFrom = original;
 		this.nIntervention = nIntervention;
@@ -164,18 +142,6 @@ public class Patient extends BasicElement {
 		this.sex = original.sex;
 		this.timeToDeath = original.timeToDeath;
 		this.outcomes = original.outcomes;
-
-		this.rndProbCNV[0] = original.rndProbCNV[0];
-		this.rndProbCNV[1] = original.rndProbCNV[1];
-		this.rndTypeAndPositionCNV = original.rndTypeAndPositionCNV;
-		this.rndProgTwiceGA = original.rndProgTwiceGA;
-		this.rndProgGA = original.rndProgGA;
-		this.rndLevelsLostSF = new ArrayList<Double>(original.rndLevelsLostSF);
-		this.rndSensitivity = original.rndSensitivity;
-		this.rndSpecificity = original.rndSpecificity;
-		this.rndClinicalPresentation = new ArrayList<Double>(original.rndClinicalPresentation);
-		this.commonParams = original.commonParams;
-		this.armdParams = original.armdParams;
 
 		eyes[0] = EnumSet.of(EyeState.HEALTHY);
 		eyes[1] = EnumSet.of(EyeState.HEALTHY);
@@ -188,9 +154,6 @@ public class Patient extends BasicElement {
 		lastVAChangeTs[1] += newVA.timeToChange;
 		((LinkedList<VAProgressionPair>)vaProgression[1]).add(newVA);
 		setUtility(armdParams.getUtilityFromVA(this));
-
-		// This patient is a copy of another
-		isMimicking = true;
 	}
 
 	@Override
@@ -203,6 +166,29 @@ public class Patient extends BasicElement {
 		startTs = this.getTs();
 		simul.getInfoHandler().notifyInfo(new PatientInfo(this.simul, this, PatientInfo.Type.START, this.getTs()));
 		addEvent(new DeathEvent(timeToDeath));
+		// Checks if he/she is diabetic
+		if (commonParams.isDiabetic(this)) {
+			diabetesType = commonParams.getDiabetesType(this);
+			diabeticSince = getAge() - commonParams.getDurationOfDM(this);
+			final EnumSet<EyeState> startWith = drParams.startsWith(this);
+			// TODO: Check if bilateral is required
+			if (startWith.size() > 0) {
+				eyes[0].remove(EyeState.HEALTHY);
+				for (EyeState state : startWith)
+					((EnumSet<EyeState>)eyes[0]).add(state);
+				affectedBy.add(DISEASES.DR);
+			}
+		}
+		// Else, schedules a diabetes event
+		else {
+			final long timeToDiabetes = commonParams.getTimeToDiabetes(this);
+			if (timeToDiabetes < Long.MAX_VALUE) {
+				diabetesEvent = new DiabetesEvent(timeToDiabetes);
+				addEvent(diabetesEvent);
+			}				
+		}
+		
+		// Schedules ARMD-related events
 		long timeToEvent = armdParams.getTimeToEARM(this);
 		final EyeStateAndValue timeToAMD = armdParams.getTimeToE1AMD(this);
 		// Schedule an EARM event
@@ -222,6 +208,7 @@ public class Patient extends BasicElement {
 			}
 		}
 		
+		// Schedules screening-related events
 		if (intervention instanceof Screening) {
 			final DiscreteCycleIterator screeningIterator = ((Screening)intervention).getScreeningCycle().getCycle().iterator(simul.getInternalStartTs(), simul.getInternalEndTs());
 			addEvent(new ScreeningEvent(screeningIterator.next(), screeningIterator));
@@ -234,14 +221,12 @@ public class Patient extends BasicElement {
 	@Override
 	protected void end() {
 		simul.getInfoHandler().notifyInfo(new PatientInfo(this.simul, this, PatientInfo.Type.FINISH, this.getTs()));
-
 	}
 	
 	/**
 	 * Redeclaration of addEvent to make it visible from the rest of classes of this package. @see es.ull.iis.simulation.sequential.BasicElement.addEvent
 	 * @param e
 	 */
-	// TODO: Check if it can be removed
 	protected void addEvent(DiscreteEvent e) {
 		super.addEvent(e);
 	}
@@ -283,6 +268,20 @@ public class Patient extends BasicElement {
 	}
 
 	/**
+	 * @return the diabeticSince
+	 */
+	public double getDiabeticSince() {
+		return diabeticSince;
+	}
+
+	/**
+	 * @return the diabetesType
+	 */
+	public int getDiabetesType() {
+		return diabetesType;
+	}
+
+	/**
 	 * @return the timeToDeath
 	 */
 	public long getTimeToDeath() {
@@ -314,11 +313,11 @@ public class Patient extends BasicElement {
 		this.currentUtility = currentUtility;
 	}
 
-	@Override
 	/**
 	 * Sets the current timestamp for this patient, saves the previous timestamp in @link(lastTs), and updates costs and QALYs.
 	 * @param ts New timestamp to be assigned
 	 */
+	@Override
 	public void setTs(long ts) {
 		lastTs = this.ts;
 		super.setTs(ts);
@@ -346,16 +345,11 @@ public class Patient extends BasicElement {
 	 */
 	public void checkDiagnosis() {
 		if (!isDiagnosed()) {
-			double rnd;
-			if (isMimicking && countRndClinicalPresentation < rndClinicalPresentation.size()) {
-				rnd = rndClinicalPresentation.get(countRndClinicalPresentation++);
+			if (affectedBy.contains(DISEASES.ARMD)) {
+				if (rng.getRandomNumber(RandomForPatient.ITEM.ARMD_CLINICAL_PRESENTATION) < armdParams.getProbabilityClinicalPresentation(Patient.this))
+					this.diagnosed = ts;
 			}
-			else {
-				rnd = RNG_CLINICAL_PRESENTATION.nextDouble();
-				rndClinicalPresentation.add(rnd);
-			}
-			if (rnd < armdParams.getProbabilityClinicalPresentation(Patient.this))
-				this.diagnosed = ts;
+			// TODO: Add clinical diagnosis with DR
 		}		
 	}
 
@@ -422,68 +416,52 @@ public class Patient extends BasicElement {
 	public boolean isHealthy() {
 		return eyes[0].contains(EyeState.HEALTHY) && eyes[1].contains(EyeState.HEALTHY);
 	}
-		
-	public double getRndProbCNV(int eye) {
-		return rndProbCNV[eye];
-	}
-
-	public double getRndTypeAndPositionCNV() {
-		return rndTypeAndPositionCNV;
-	}
-
+	
 	/**
-	 * @return the rndProgGA
+	 * Returns a random number between 0 and 1 for the specified item
+	 * @param item Tha case that requires a random number
+	 * @return a random number between 0 and 1 for the specified item
 	 */
-	public double getRndProgGA() {
-		return rndProgGA;
+	public double getRandomNumber(RandomForPatient.ITEM item) {
+		return rng.getRandomNumber(item);
 	}
-
+	
 	/**
-	 * @return the rndProgTwiceGA
+	 * Returns N random number between 0 and 1 for the specified item
+	 * @param item The case that requires a random number
+	 * @param n The number of random numbers to return
+	 * @return N random number between 0 and 1 for the specified item
 	 */
-	public double getRndProgTwiceGA() {
-		return rndProgTwiceGA;
+	public double[] getRandomNumber(RandomForPatient.ITEM item, int n) {
+		return rng.getRandomNumber(item, n);
 	}
-
+	
 	/**
-	 * @return the rndLevelsLostSF
+	 * @return the time to a specific eye state
 	 */
-	public double getRndLevelsLostSF() {
-		// The second condition should be useless, but just in case there are changes due to the lack of control of the random seeds
-		if (isMimicking && countRndLevelsLostSF < rndLevelsLostSF.size()) {
-			return rndLevelsLostSF.get(countRndLevelsLostSF++);
+	public long getTimeToEyeState(EyeState state, int eye) {
+		final long time;
+		switch (state) {
+		case AMD_CNV:
+			time = (cNVEvent[eye] == null) ? Long.MAX_VALUE : cNVEvent[eye].getTs();
+			break;
+		case AMD_GA:
+			time = (gAEvent[eye] == null) ? Long.MAX_VALUE : gAEvent[eye].getTs();
+			break;
+		case EARM:
+			time = (eARMEvent[eye] == null) ? Long.MAX_VALUE : eARMEvent[eye].getTs();
+			break;
+		case HEALTHY:
+			time = 0;
+			break;
+		case CDME:
+		case NCDME:
+		case NPDR:
+		case PDR:
+		default:
+			time = Long.MAX_VALUE;
 		}
-		else {
-			final double rnd = RNG_LEVELS_LOST_SF.nextDouble();
-			rndLevelsLostSF.add(rnd);
-			return rnd;
-		}
-	}
-
-	/**
-	 * @return the timeToEARM
-	 */
-	public long getTimeToEARM(int eye) {
-		return (eARMEvent[eye] == null) ? Long.MAX_VALUE : eARMEvent[eye].getTs();
-	}
-
-	/**
-	 * @return the timeToCNV
-	 */
-	public long getTimeToCNV(int eye) {
-		return (cNVEvent[eye] == null) ? Long.MAX_VALUE : cNVEvent[eye].getTs();
-	}
-
-	/**
-	 * @return the timeToGA
-	 */
-	public long getTimeToGA(int eye) {
-		return (gAEvent[eye] == null) ? Long.MAX_VALUE : gAEvent[eye].getTs();
-	}
-
-	// Only for testing purposes
-	public int getNCNVStageEvents(int eye) {
-		return cNVStageEvents[eye].size();
+		return time;
 	}
 
 	/**
@@ -521,32 +499,7 @@ public class Patient extends BasicElement {
 	 * @return
 	 */
 	public double getAgeAt(EyeState state, int eye) {
-		long ageAt = Long.MAX_VALUE;
-		switch(state) {
-		case EARM:
-			// FIXME: Currently no EARM in fellow eye
-			ageAt = getTimeToEARM(eye);
-			break;
-		case AMD_CNV:
-			ageAt = getTimeToCNV(eye);
-			break;
-		case AMD_GA:
-			ageAt = getTimeToGA(eye);
-			break;
-		case CDME:
-			break;
-		case HEALTHY:
-			ageAt = 0;
-			break;
-		case NCDME:
-			break;
-		case NPDR:
-			break;
-		case PDR:
-			break;
-		default:
-			break;
-		}
+		long ageAt = getTimeToEyeState(state, eye);
 		if (ageAt != Long.MAX_VALUE)
 			return (initAge + ageAt) / 365.0;
 		return Double.MAX_VALUE;
@@ -555,13 +508,13 @@ public class Patient extends BasicElement {
 	/**
 	 * Last things to do when the patient is death, and before the {@link FinalizeEvent} event is launched.
 	 */
-	public void death() {
+	protected void death() {
 		// Updates VA changes produced since the last event
 		updateVA(armdParams.getVAProgressionToDeath(this, 0), 0);
 		updateVA(armdParams.getVAProgressionToDeath(this, 1), 1);
 	}
 	
-	public final class EARMEvent extends DiscreteEvent {
+	protected final class EARMEvent extends DiscreteEvent {
 		private final int eyeIndex;
 		
 		public EARMEvent(long ts, int eyeIndex) {
@@ -578,6 +531,8 @@ public class Patient extends BasicElement {
 			affectedEye.remove(EyeState.HEALTHY);
 			affectedEye.add(EyeState.EARM);
 			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.CHANGE_EYE_STATE, eyeIndex, this.getTs()));
+			affectedBy.add(DISEASES.ARMD);
+
 			EyeStateAndValue timeAndState = armdParams.getTimeToAMDFromEARM(Patient.this, eyeIndex);
 			if (timeAndState != null) {
 				if (EyeState.AMD_CNV == timeAndState.getState()) {
@@ -609,7 +564,7 @@ public class Patient extends BasicElement {
 		
 	}
 
-	public abstract class AMDEvent extends DiscreteEvent {
+	protected abstract class AMDEvent extends DiscreteEvent {
 		protected final int eyeIndex;
 		public AMDEvent(long ts, int eyeIndex) {
 			super(ts);
@@ -623,7 +578,7 @@ public class Patient extends BasicElement {
 			//... but if it had GA...
 			if (fellowEye.contains(EyeState.AMD_GA)) {
 				final long newTimeToCNV = armdParams.getTimeToCNVFromGA(Patient.this, 1 - eyeIndex);
-				if (newTimeToCNV < getTimeToCNV(1 - eyeIndex)) {
+				if (newTimeToCNV < getTimeToEyeState(EyeState.AMD_CNV, 1 - eyeIndex)) {
 					// If a CNV event was previously scheduled to happen later than the new event
 					// we have to cancel it 
 					if (cNVEvent[1 - eyeIndex] != null) {
@@ -655,7 +610,7 @@ public class Patient extends BasicElement {
 		
 		private void rescheduleAMDEvent(EyeStateAndValue timeAndState, int eye) {
 			// If the new event happens before the already scheduled ones (in case an AMD was already schedule)
-			if (timeAndState.getValue() < getTimeToCNV(eye) || timeAndState.getValue() < getTimeToGA(eye)) {
+			if (timeAndState.getValue() < getTimeToEyeState(EyeState.AMD_CNV, eye) || timeAndState.getValue() < getTimeToEyeState(EyeState.AMD_GA, eye)) {
 				// If a CNV event was previously scheduled to happen later than the new event
 				// we have to cancel it 
 				if (cNVEvent[eye] != null) {
@@ -679,7 +634,7 @@ public class Patient extends BasicElement {
 		}
 	}
 	
-	public final class GAEvent extends AMDEvent {
+	protected final class GAEvent extends AMDEvent {
 
 		public GAEvent(long ts, int eyeIndex) {
 			super(ts, eyeIndex);
@@ -707,7 +662,8 @@ public class Patient extends BasicElement {
 			// Assign new stage
 			affectedEye.add(EyeState.AMD_GA);
 			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.CHANGE_EYE_STATE, eyeIndex, this.getTs()));
-			
+			affectedBy.add(DISEASES.ARMD);
+
 			// Schedule a CNV event
 			final long timeToEvent = armdParams.getTimeToCNVFromGA(Patient.this, eyeIndex);
 			if (timeToEvent < Long.MAX_VALUE) {
@@ -724,7 +680,7 @@ public class Patient extends BasicElement {
 		
 	}
 	
-	public final class CNVEvent extends AMDEvent {
+	protected final class CNVEvent extends AMDEvent {
 
 		public CNVEvent(long ts, int eyeIndex) {
 			super(ts, eyeIndex);
@@ -756,6 +712,8 @@ public class Patient extends BasicElement {
 			// Assign new stage
 			affectedEye.add(EyeState.AMD_CNV);
 			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.CHANGE_EYE_STATE, eyeIndex, this.getTs()));
+			affectedBy.add(DISEASES.ARMD);
+
 			// Assign specific CNV stage
 			final CNVStageEvent newEvent = new CNVStageEvent(ts, stage, eyeIndex);
 			((LinkedList<CNVStageEvent>)cNVStageEvents[eyeIndex]).add(newEvent);
@@ -768,7 +726,7 @@ public class Patient extends BasicElement {
 		}		
 	}
 	
-	public final class CNVStageEvent extends DiscreteEvent {
+	protected final class CNVStageEvent extends DiscreteEvent {
 		private final int eyeIndex;
 		private final CNVStage newStage;
 		
@@ -806,7 +764,8 @@ public class Patient extends BasicElement {
 		}
 		
 	}
-	public final class ScreeningEvent extends DiscreteEvent {
+	
+	protected final class ScreeningEvent extends DiscreteEvent {
 		private final DiscreteCycleIterator iterator;
 
 		public ScreeningEvent(long ts, DiscreteCycleIterator screeningIterator) {
@@ -819,7 +778,7 @@ public class Patient extends BasicElement {
 			// Patient healthy
 			if (isHealthy()) {
 				// True negative
-				if (rndSpecificity > ((Screening)intervention).getSpecificity()) {
+				if (rng.getRandomNumber(RandomForPatient.ITEM.SPECIFICITY) > ((Screening)intervention).getSpecificity()) {
 					// Schedule next screening appointment (if required) 
 					long next = iterator.next();
 					if (next != -1) {
@@ -834,7 +793,7 @@ public class Patient extends BasicElement {
 			// Patient ill
 			else {
 				// False negative
-				if (rndSensitivity > ((Screening)intervention).getSensitivity()) {
+				if (rng.getRandomNumber(RandomForPatient.ITEM.SENSITIVITY) > ((Screening)intervention).getSensitivity()) {
 					// Schedule next screening appointment (if required) 
 					long next = iterator.next();
 					if (next != -1) {
@@ -844,8 +803,6 @@ public class Patient extends BasicElement {
 				// True positive
 				else {
 					diagnosed = ts;
-					// TODO: Check if this could change now or upon an effective treatment
-					isMimicking = false;
 					// TODO: Add costs of true positive						
 				}					
 			}
@@ -853,6 +810,165 @@ public class Patient extends BasicElement {
 		
 	}
 	
+	protected final class DiabetesEvent extends DiscreteEvent {
+		
+		public DiabetesEvent(long ts) {
+			super(ts);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void event() {
+			diabeticSince = getAge();
+			diabetesType = commonParams.getDiabetesType(Patient.this);
+			// TODO: Check if it has sense to go directly from diabetes to some degree of DR. It would make sense if it were 
+			// "diagnosed" diabetes and not "real" diabetes
+			final EnumSet<EyeState> startWith = drParams.startsWith(Patient.this);
+			// TODO: Check if bilateral is required
+			if (startWith.size() > 0) {
+				eyes[0].remove(EyeState.HEALTHY);
+				affectedBy.add(DISEASES.DR);
+				for (EyeState state : startWith)
+					((EnumSet<EyeState>)eyes[0]).add(state);
+			}
+			if (eyes[0].contains(EyeState.NPDR)) {
+				final long timeToEvent = drParams.getTimeToPDR(Patient.this);
+				if (timeToEvent < Long.MAX_VALUE) {
+					pDREvent = new ProliferativeDREvent(timeToEvent, 0);
+					addEvent(pDREvent);
+				}
+			}
+			else if (eyes[0].contains(EyeState.PDR)) {
+				final long timeToEvent = drParams.getTimeToCSME(Patient.this);
+				if (timeToEvent < Long.MAX_VALUE) {
+					cSMEEvent = new ClinicallySignificantDMEEvent(timeToEvent, 0);
+					addEvent(cSMEEvent);
+				}
+			}
+			else {
+				final long timeToEvent = drParams.getTimeToNPDR(Patient.this);
+				if (timeToEvent < Long.MAX_VALUE) {
+					nPDREvent = new NonProliferativeDREvent(timeToEvent, 0);
+					addEvent(nPDREvent);
+				}
+			}
+			// TODO: Add actions related to become diabetic (death???)
+		}		
+	}
+	
+	protected final class NonProliferativeDREvent extends DiscreteEvent {
+		private final int eyeIndex;
+		
+		public NonProliferativeDREvent(long ts, int eyeIndex) {
+			super(ts);
+			this.eyeIndex = eyeIndex;
+		}
+
+		@Override
+		public void event() {
+			@SuppressWarnings("unchecked")
+			final EnumSet<EyeState> affectedEye = (EnumSet<EyeState>)eyes[eyeIndex];
+
+			// Remove previous stages
+			affectedEye.remove(EyeState.HEALTHY);
+			
+			// Assign new stage
+			affectedEye.add(EyeState.NPDR);
+			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.CHANGE_EYE_STATE, eyeIndex, this.getTs()));
+			affectedBy.add(DISEASES.DR);
+			
+			// Schedules a new event 
+			final long timeToEvent = drParams.getTimeToPDR(Patient.this);
+			if (timeToEvent < Long.MAX_VALUE) {
+				pDREvent = new ProliferativeDREvent(timeToEvent, eyeIndex);
+				addEvent(pDREvent);
+			}
+			
+			// Checks diagnosis
+			checkDiagnosis();
+		}		
+	}
+	
+	protected final class ProliferativeDREvent extends DiscreteEvent {
+		private final int eyeIndex;
+		
+		public ProliferativeDREvent(long ts, int eyeIndex) {
+			super(ts);
+			this.eyeIndex = eyeIndex;
+		}
+
+		@Override
+		public void event() {
+			@SuppressWarnings("unchecked")
+			final EnumSet<EyeState> affectedEye = (EnumSet<EyeState>)eyes[eyeIndex];
+
+			// Remove previous stages
+			affectedEye.remove(EyeState.HEALTHY);
+			affectedEye.remove(EyeState.NPDR);
+			
+			// Assign new stage
+			affectedEye.add(EyeState.PDR);
+			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.CHANGE_EYE_STATE, eyeIndex, this.getTs()));
+			affectedBy.add(DISEASES.DR);
+			
+			// Schedules a new event 
+			final long timeToEvent = drParams.getTimeToCSME(Patient.this);
+			if (timeToEvent < Long.MAX_VALUE) {
+				cSMEEvent = new ClinicallySignificantDMEEvent(timeToEvent, 0);
+				addEvent(cSMEEvent);
+			}
+			
+			// Checks diagnosis
+			checkDiagnosis();
+		}		
+	}
+	
+	protected final class DMEEvent extends DiscreteEvent {
+		private final int eyeIndex;
+		
+		public DMEEvent(long ts, int eyeIndex) {
+			super(ts);
+			this.eyeIndex = eyeIndex;
+		}
+
+		@Override
+		public void event() {
+		}		
+	}
+	
+	protected final class ClinicallySignificantDMEEvent extends DiscreteEvent {
+		private final int eyeIndex;
+		
+		public ClinicallySignificantDMEEvent(long ts, int eyeIndex) {
+			super(ts);
+			this.eyeIndex = eyeIndex;
+		}
+
+		@Override
+		public void event() {
+			@SuppressWarnings("unchecked")
+			final EnumSet<EyeState> affectedEye = (EnumSet<EyeState>)eyes[eyeIndex];
+
+			// Remove previous stages
+			affectedEye.remove(EyeState.HEALTHY);
+			// This state is not incompatible with DR, so there is no need to remove any other DR stage
+			affectedEye.remove(EyeState.NCDME);			
+			
+			// Assign new stage
+			affectedEye.add(EyeState.CDME);
+			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.CHANGE_EYE_STATE, eyeIndex, this.getTs()));
+			affectedBy.add(DISEASES.DR);
+			
+			// Checks diagnosis
+			checkDiagnosis();
+		}		
+	}
+	
+	/**
+	 * The event of the death of the patient.  
+	 * @author Ivan Castilla Rodriguez
+	 *
+	 */
 	public final class DeathEvent extends DiscreteEvent {
 		
 		public DeathEvent(long ts) {

@@ -9,6 +9,7 @@ import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
+import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -58,16 +59,16 @@ public class TimeToCNVFromGAParam extends CompoundEmpiricTimeToEventParam {
 		// FIXME: should work diferently when baseCase = false
 		
 		// Initialize probability of first-eye developing AMD from EARM
-		StructuredInfo info = new StructuredInfo(P_CNV_E2_NOARM.length);
+		StructuredInfo info = new StructuredInfo(P_CNV_E2_NOARM.length, RandomForPatient.ITEM.TIME_TO_CNV_E2_NOARM);
 		initProbabilities(P_CNV_E2_NOARM, info.probabilities);
 		tuples.put(EyeState.HEALTHY, info);
-		info = new StructuredInfo(P_CNV_E2_EARM.length);
+		info = new StructuredInfo(P_CNV_E2_EARM.length, RandomForPatient.ITEM.TIME_TO_CNV_E2_EARM);
 		initProbabilities(P_CNV_E2_EARM, info.probabilities);
 		tuples.put(EyeState.EARM, info);
-		info = new StructuredInfo(P_CNV_E2_GA.length);
+		info = new StructuredInfo(P_CNV_E2_GA.length, RandomForPatient.ITEM.TIME_TO_CNV_E2_GA);
 		initProbabilities(P_CNV_E2_GA, info.probabilities);
 		tuples.put(EyeState.AMD_GA, info);
-		info = new StructuredInfo(P_CNV_E2_CNV.length);
+		info = new StructuredInfo(P_CNV_E2_CNV.length, RandomForPatient.ITEM.TIME_TO_CNV_E2_CNV);
 		initProbabilities(P_CNV_E2_CNV, info.probabilities);
 		tuples.put(EyeState.AMD_CNV, info);
 	}

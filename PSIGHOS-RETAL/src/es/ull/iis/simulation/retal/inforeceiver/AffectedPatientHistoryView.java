@@ -73,14 +73,14 @@ public class AffectedPatientHistoryView extends Listener {
 			if (pInfo.getType() == PatientInfo.Type.FINISH) {
 				boolean condition = false;
 				if (filterByState == EyeState.AMD_CNV) {
-					condition = condition || (pat.getTimeToCNV(0) != Long.MAX_VALUE || pat.getTimeToCNV(1) != Long.MAX_VALUE);
+					condition = condition || (pat.getTimeToEyeState(EyeState.AMD_CNV, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_CNV, 1) != Long.MAX_VALUE);
 				}
 				else if (filterByState == EyeState.AMD_GA) {
-					condition = condition || (pat.getTimeToCNV(0) != Long.MAX_VALUE || pat.getTimeToCNV(1) != Long.MAX_VALUE)
-							 || (pat.getTimeToGA(0) != Long.MAX_VALUE || pat.getTimeToGA(1) != Long.MAX_VALUE);					
+					condition = condition || (pat.getTimeToEyeState(EyeState.AMD_CNV, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_CNV, 1) != Long.MAX_VALUE)
+							 || (pat.getTimeToEyeState(EyeState.AMD_GA, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_GA, 1) != Long.MAX_VALUE);					
 				}
 				else if (filterByState == EyeState.EARM) {
-					condition = condition || (pat.getTimeToEARM(0) != Long.MAX_VALUE || pat.getTimeToGA(0) != Long.MAX_VALUE || pat.getTimeToCNV(0) != Long.MAX_VALUE);
+					condition = condition || (pat.getTimeToEyeState(EyeState.EARM, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_GA, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_CNV, 0) != Long.MAX_VALUE);
 				}
 				if (condition) {
 					final StringBuilder str = new StringBuilder(pat.toString()).append("\t").append(pat.getInitAge()).append("\t");

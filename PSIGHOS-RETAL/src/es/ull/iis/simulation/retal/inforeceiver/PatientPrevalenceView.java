@@ -9,6 +9,7 @@ import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
+import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.info.PatientInfo;
 import es.ull.iis.simulation.retal.params.CommonParams;
@@ -58,9 +59,9 @@ public class PatientPrevalenceView extends Listener {
 			if (pInfo.getType() == PatientInfo.Type.FINISH) {
 				final double initAge = pat.getInitAge(); 
 				final double ageAtDeath = pat.getAge();
-				final double ageAtEARM = (pat.getTimeToEARM(0) == Long.MAX_VALUE) ? Double.MAX_VALUE : (initAge + (pat.getTimeToEARM(0) / 365.0));
-				final double ageAtGA = (pat.getTimeToGA(0) == Long.MAX_VALUE) ? Double.MAX_VALUE : (initAge + (Math.min(pat.getTimeToGA(0), pat.getTimeToGA(1)) / 365.0));
-				final double ageAtCNV = (pat.getTimeToCNV(0) == Long.MAX_VALUE) ? Double.MAX_VALUE : (initAge + (Math.min(pat.getTimeToCNV(0), pat.getTimeToCNV(1)) / 365.0));
+				final double ageAtEARM = (pat.getTimeToEyeState(EyeState.EARM, 0) == Long.MAX_VALUE) ? Double.MAX_VALUE : (initAge + (pat.getTimeToEyeState(EyeState.EARM, 0) / 365.0));
+				final double ageAtGA = (pat.getTimeToEyeState(EyeState.AMD_GA, 0) == Long.MAX_VALUE) ? Double.MAX_VALUE : (initAge + (Math.min(pat.getTimeToEyeState(EyeState.AMD_GA, 0), pat.getTimeToEyeState(EyeState.AMD_GA, 1)) / 365.0));
+				final double ageAtCNV = (pat.getTimeToEyeState(EyeState.AMD_CNV, 0) == Long.MAX_VALUE) ? Double.MAX_VALUE : (initAge + (Math.min(pat.getTimeToEyeState(EyeState.AMD_CNV, 0), pat.getTimeToEyeState(EyeState.AMD_CNV, 1)) / 365.0));
 				final double ageAtAMD = Math.min(ageAtGA, ageAtCNV);
 				// First check if the patient died before the lowest interval
 				if (ageAtDeath > AGES[0][0]) {

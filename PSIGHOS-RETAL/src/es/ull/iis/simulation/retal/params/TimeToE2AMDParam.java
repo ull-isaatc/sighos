@@ -13,6 +13,7 @@ import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
+import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -61,11 +62,11 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 		// FIXME: should work differently when baseCase = false
 		
 		// Initialize probability of fellow-eye developing CNV given EARM in first eye
-		tuples.put(EyeState.EARM, new StructuredInfo(P_E2AMD_E1EARM));
+		tuples.put(EyeState.EARM, new StructuredInfo(P_E2AMD_E1EARM, RandomForPatient.ITEM.TIME_TO_E2AMD_E1EARM));
 		// Initialize probability of fellow-eye developing CNV given CNV in first eye
-		tuples.put(EyeState.AMD_CNV, new StructuredInfo(P_E2AMD_E1CNV));
+		tuples.put(EyeState.AMD_CNV, new StructuredInfo(P_E2AMD_E1CNV, RandomForPatient.ITEM.TIME_TO_E2AMD_E1CNV));
 		// Initialize probability of fellow-eye developing CNV given GA in first eye
-		tuples.put(EyeState.AMD_GA, new StructuredInfo(P_E2AMD_E1GA));
+		tuples.put(EyeState.AMD_GA, new StructuredInfo(P_E2AMD_E1GA, RandomForPatient.ITEM.TIME_TO_E2AMD_E1GA));
 		
 		// FIXME: Check
 		tuples.put(EyeState.HEALTHY, new StructuredInfo());
@@ -125,21 +126,21 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 	
 	private final class StructuredInfo {
 		/** Random number generator for this param */
-		private final Random rng;
+		private final RandomForPatient.ITEM rngItem;
 		/** An internal list of generated times to event to be used when creating validated times to event */
 		private final LinkedList<EyeStateAndValue> queue;
 		/** Age-adjusted Probabilities to progress to CNV or GA. Each row contains <low limit of time interval,  
 		 * high limit of time interval, probability of CNV, accumulated probability of GA + CNV>*/
 		private final double [][] probabilities;
 		
-		public StructuredInfo(double[][] probabilities) {
-			this.rng = new Random();
+		public StructuredInfo(double[][] probabilities, RandomForPatient.ITEM rngItem) {
+			this.rngItem = rngItem;
 			this.probabilities = probabilities;
 			this.queue = new LinkedList<EyeStateAndValue>();
 		}
 		
 		public StructuredInfo() {
-			this.rng = null;
+			this.rngItem = null;
 			this.probabilities = null;
 			this.queue = null;
 		}
@@ -154,9 +155,7 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 				return null;
 			}
 			else {
-				final double []rnd = new double[probabilities.length];
-				for (int j = 0; j < probabilities.length; j++)
-					rnd[j] = rng.nextDouble();
+				final double []rnd = pat.getRandomNumber(rngItem, probabilities.length);
 				final double currentAge = pat.getAge();
 				// Start by assigning "infinite" to ageAtEvent
 				double ageAtEvent = Double.MAX_VALUE;

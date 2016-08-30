@@ -15,5 +15,6 @@ public enum EyeState {
 	NPDR,		// Non-prolipherative diabetic retinopathy 
 	PDR,		// Prolipherative diabetic retinopathy
 	CDME,		// Central diabetic macular edema
-	NCDME		// Non-central diabetic macular edema
+	NCDME,		// Non-central diabetic macular edema
+	UNTREATABLE	// An state where there is no posible treatment for the eye  
 }

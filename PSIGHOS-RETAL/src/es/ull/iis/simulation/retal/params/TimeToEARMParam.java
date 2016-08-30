@@ -4,10 +4,12 @@
 package es.ull.iis.simulation.retal.params;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
+import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * A class to generate ages at which EARM appears. 
@@ -24,7 +26,7 @@ import es.ull.iis.simulation.retal.RETALSimulation;
  * @author Iván Castilla Rodríguez
  *
  */
-public class TimeToEARMParam extends SimpleEmpiricTimeToEventParam {
+public class TimeToEARMParam extends EmpiricTimeToEventParam {
 	// Parameters for First eye incidence of EARM --> BAD ADJUST!!!!
 //	private final static double ALPHA_EARM = Math.exp(-11.41320441);
 //	private final static double BETA_EARM = 0.097865047;
@@ -40,19 +42,34 @@ public class TimeToEARMParam extends SimpleEmpiricTimeToEventParam {
 			{70, 75, 97 * CALIBRATION_FACTOR_2, 5102},
 			{75, 80, 102 * CALIBRATION_FACTOR_2, 3212},
 			{80, CommonParams.MAX_AGE, 110 * CALIBRATION_FACTOR_2, 2159}};
+	/** An internal list of generated times to event to be used when creating validated times to event */
+	final protected LinkedList<Long> queue = new LinkedList<Long>();
+	/** First-eye incidence of EARM */
+	final protected double [][] probabilities;	
 
 	/**
 	 * @param baseCase
 	 */
 	public TimeToEARMParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase, TimeUnit.YEAR, P_EARM.length);
+		super(simul, baseCase, TimeUnit.YEAR);
+		this.probabilities = new double[P_EARM.length][3];
 		// FIXME: should work differently when baseCase = false
 		
 		// Initialize first-eye incidence of EARM
 		initProbabilities(P_EARM, probabilities);		
 	}
-
+	
 	/**
+	 * Returns the "brute" simulation time when a specific event will happen (expressed in simulation time units)
+	 * @param pat A patient
+	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
+	 */
+	public long getTimeToEvent(Patient pat) {
+		final double []rnd = pat.getRandomNumber(RandomForPatient.ITEM.TIME_TO_EARM, probabilities.length);
+		final double time = getTimeToEvent(probabilities, pat.getAge(), rnd);
+		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + simul.getTimeUnit().convert(time, unit);
+	}
+
 	/**
 	 * Generates a valid time to EARM, i.e., an event time that is either lower than the time to death or INFINITE 
 	 * @param age Current age of the patient
