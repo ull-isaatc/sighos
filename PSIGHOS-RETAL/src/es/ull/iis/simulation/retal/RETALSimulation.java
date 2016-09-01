@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.retal;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 
 import es.ull.iis.function.ConstantFunction;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
@@ -30,6 +31,12 @@ import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
  *
  */
 public class RETALSimulation extends Simulation {
+	public enum DISEASES {
+		ARMD,
+		DR
+	};	
+	/** Selects the diseases included in the model. For debug, mainly */
+	public static EnumSet<DISEASES> ACTIVE_DISEASES = EnumSet.of(DISEASES.DR); 
 	/** Number of interventions that will be compared for a patient. This value is also used to determine the id of the patient */ 
 	public final static int NINTERVENTIONS = 2;
 	/** Counter to assign a unique id to each patient */
