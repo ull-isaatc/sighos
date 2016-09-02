@@ -13,6 +13,7 @@ import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
+import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.info.PatientInfo;
 import es.ull.iis.simulation.retal.params.CNVStage;
 
@@ -21,6 +22,7 @@ import es.ull.iis.simulation.retal.params.CNVStage;
  *
  */
 public class PatientCounterHistogramView extends Listener {
+	private final EnumSet<RETALSimulation.DISEASES> diseases;
 	private final int length;
 	private final int nIntervals;
 	private final int minAge;
@@ -30,6 +32,7 @@ public class PatientCounterHistogramView extends Listener {
 	private final EnumMap<EyeState, int[][]> nEyeState;
 	private final TreeMap<CNVStage, int[][]> nCNVStage; 
 	private final int [][] nDeaths;
+	private final int [] nDiabetes;
 	
 	/**
 	 * 
@@ -38,8 +41,8 @@ public class PatientCounterHistogramView extends Listener {
 	 * @param maxAge
 	 * @param length
 	 */
-	public PatientCounterHistogramView(Simulation simul, int minAge, int maxAge, int length) {
-		this(simul, minAge, maxAge, length, false, false);
+	public PatientCounterHistogramView(Simulation simul, int minAge, int maxAge, int length, EnumSet<RETALSimulation.DISEASES> diseases) {
+		this(simul, minAge, maxAge, length, diseases, false, false);
 	}
 
 	/**
@@ -50,21 +53,31 @@ public class PatientCounterHistogramView extends Listener {
 	 * @param length
 	 * @param detailDeaths
 	 */
-	public PatientCounterHistogramView(Simulation simul, int minAge, int maxAge, int length, boolean detailDeaths, boolean detailCNV) {
+	public PatientCounterHistogramView(Simulation simul, int minAge, int maxAge, int length, EnumSet<RETALSimulation.DISEASES> diseases, boolean detailDeaths, boolean detailCNV) {
 		super(simul, "Counter of patients");
+		this.diseases = diseases;
 		this.length = length;
 		this.nIntervals = ((maxAge - minAge) / length) + 1;
 		this.minAge = minAge;
 		this.detailDeaths = detailDeaths;
 		this.detailCNV = detailCNV;
 		nPatients = new int[nIntervals];
+		nDiabetes = new int[nIntervals];
 		nDeaths = new int[4][nIntervals];
 		nEyeState = new EnumMap<EyeState, int[][]>(EyeState.class);
-		// FIXME: Manually filled by now... but expected to be automatized 
-		nEyeState.put(EyeState.EARM, new int[nIntervals][2]);
-		nEyeState.put(EyeState.AMD_GA, new int[nIntervals][2]);
-		nEyeState.put(EyeState.AMD_CNV, new int[nIntervals][2]);
-		if (detailCNV) {
+		// FIXME: Manually filled by now... but expected to be automatized
+		if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
+			nEyeState.put(EyeState.EARM, new int[nIntervals][2]);
+			nEyeState.put(EyeState.AMD_GA, new int[nIntervals][2]);
+			nEyeState.put(EyeState.AMD_CNV, new int[nIntervals][2]);
+		}
+		if (diseases.contains(RETALSimulation.DISEASES.DR)) {
+			nEyeState.put(EyeState.NPDR, new int[nIntervals][2]);
+			nEyeState.put(EyeState.NON_HR_PDR, new int[nIntervals][2]);
+			nEyeState.put(EyeState.HR_PDR, new int[nIntervals][2]);
+			nEyeState.put(EyeState.CSME, new int[nIntervals][2]);
+		}
+		if (detailCNV && diseases.contains(RETALSimulation.DISEASES.ARMD)) {
 			nCNVStage = new TreeMap<CNVStage, int[][]>();
 			for (CNVStage stage : CNVStage.ALL_STAGES) { 
 				nCNVStage.put(stage , new int[nIntervals][2]);
@@ -84,10 +97,10 @@ public class PatientCounterHistogramView extends Listener {
 	@Override
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof SimulationEndInfo) {
-			final StringBuilder strHead = new StringBuilder("AGE\tBASE");
+			final StringBuilder strHead = new StringBuilder("AGE\tBASE\tDIABETES");
 			for (EyeState state : nEyeState.keySet())
 				strHead.append("\t").append(state.toString()).append("_1E\t").append(state.toString()).append("_2E");
-			if (detailCNV) {
+			if (detailCNV && diseases.contains(RETALSimulation.DISEASES.ARMD)) {
 				for (CNVStage stage : CNVStage.ALL_STAGES) { 
 					strHead.append("\t").append(stage.getType()).append("_").append(stage.getPosition()).append("_1E\t");
 					strHead.append(stage.getType()).append("_").append(stage.getPosition()).append("_2E");
@@ -101,10 +114,10 @@ public class PatientCounterHistogramView extends Listener {
 			}
 			System.out.println(strHead);
 			for (int i = 0; i < nIntervals; i++) {
-				final StringBuilder str = new StringBuilder((minAge + i * length) + "\t" + nPatients[i]); 
+				final StringBuilder str = new StringBuilder((minAge + i * length) + "\t" + nPatients[i] + "\t" + nDiabetes[i]); 
 				for (EyeState state : nEyeState.keySet())
 					str.append("\t").append(nEyeState.get(state)[i][0]).append("\t").append(nEyeState.get(state)[i][1]);
-				if (detailCNV) {
+				if (detailCNV && diseases.contains(RETALSimulation.DISEASES.ARMD)) {
 					for (CNVStage stage : CNVStage.ALL_STAGES) 
 						str.append("\t").append(nCNVStage.get(stage)[i][0]).append("\t").append(nCNVStage.get(stage)[i][1]);
 				}
@@ -123,27 +136,20 @@ public class PatientCounterHistogramView extends Listener {
 			final Patient pat = (Patient)p.getPatient();
 			final int interval = (int)((pat.getAge() - minAge) / length);
 			final int eyeIndex = p.getEyeIndex();
-			switch(((PatientInfo) info).getType()) {
+			switch(p.getType()) {
 				case START:
 					nPatients[interval]++; 
 					break;
 				case CHANGE_EYE_STATE:
-					final EnumSet<EyeState> eye = pat.getEyeState(eyeIndex);
-					if (eye.contains(EyeState.AMD_CNV)) {
-						nEyeState.get(EyeState.AMD_CNV)[interval][eyeIndex]++;
-					}
-					else if (eye.contains(EyeState.AMD_GA)) {
-						nEyeState.get(EyeState.AMD_GA)[interval][eyeIndex]++;
-					}
-					else if (eye.contains(EyeState.EARM)) {
-						nEyeState.get(EyeState.EARM)[interval][eyeIndex]++;
-					}
+					nEyeState.get(p.getToState())[interval][eyeIndex]++;
 					break;
 				case CHANGE_CNV_STAGE:
-					if (detailCNV) {
-						final CNVStage newStage = pat.getCurrentCNVStage(eyeIndex);
-						nCNVStage.get(newStage)[interval][eyeIndex]++;
+					if (detailCNV && diseases.contains(RETALSimulation.DISEASES.ARMD)) {
+						nCNVStage.get(p.getToCNVStage())[interval][eyeIndex]++;
 					}
+					break;
+				case DIABETES:
+					nDiabetes[interval]++;
 					break;
 				case DEATH:
 					if (detailDeaths) {

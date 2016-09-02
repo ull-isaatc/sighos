@@ -5,7 +5,9 @@ package es.ull.iis.simulation.retal.info;
 
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.AsynchronousInfo;
+import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
+import es.ull.iis.simulation.retal.params.CNVStage;
 
 /**
  * @author Iván Castilla
@@ -17,6 +19,7 @@ public class PatientInfo extends AsynchronousInfo {
 			START ("PATIENT STARTS"),
 			CHANGE_EYE_STATE ("PATIENT EYE STATE'S CHANGE"),
 			CHANGE_CNV_STAGE ("PATIENT WITH CNV CHANGES STAGE"),
+			DIABETES ("PATIENT STARTS WITH DIABETES"),
 			SCREENED ("PATIENT IS SCREENED"),
 			DIAGNOSED ("PATIENT IS DIAGNOSED"),
 			DEATH ("PATIENT DIES"),
@@ -37,6 +40,8 @@ public class PatientInfo extends AsynchronousInfo {
 	final private Patient patient;
 	final private Type type;
 	final private int eyeIndex;
+	final private EyeState toState;
+	final private CNVStage toCNVStage;
 
 	/**
 	 * @param simul
@@ -48,6 +53,8 @@ public class PatientInfo extends AsynchronousInfo {
 		this.patient = patient;
 		this.type = type;
 		this.eyeIndex = eyeIndex;
+		this.toState = null;
+		this.toCNVStage = null;
 	}
 
 	/**
@@ -57,6 +64,40 @@ public class PatientInfo extends AsynchronousInfo {
 	 */
 	public PatientInfo(Simulation simul, Patient patient, Type type, long ts) {
 		this(simul, patient, type, -1, ts);
+	}
+
+	/**
+	 * 
+	 * @param simul
+	 * @param patient
+	 * @param toState
+	 * @param eyeIndex
+	 * @param ts
+	 */
+	public PatientInfo(Simulation simul, Patient patient, EyeState toState, int eyeIndex, long ts) {
+		super(simul, ts);
+		this.patient = patient;
+		this.type = Type.CHANGE_EYE_STATE;
+		this.eyeIndex = eyeIndex;
+		this.toState = toState;
+		this.toCNVStage = null;
+	}
+
+	/**
+	 * 
+	 * @param simul
+	 * @param patient
+	 * @param toState
+	 * @param eyeIndex
+	 * @param ts
+	 */
+	public PatientInfo(Simulation simul, Patient patient, CNVStage toCNVStage, int eyeIndex, long ts) {
+		super(simul, ts);
+		this.patient = patient;
+		this.type = Type.CHANGE_CNV_STAGE;
+		this.eyeIndex = eyeIndex;
+		this.toState = null;
+		this.toCNVStage = toCNVStage;
 	}
 
 	/**
@@ -78,6 +119,20 @@ public class PatientInfo extends AsynchronousInfo {
 	 */
 	public int getEyeIndex() {
 		return eyeIndex;
+	}
+
+	/**
+	 * @return the toState
+	 */
+	public EyeState getToState() {
+		return toState;
+	}
+
+	/**
+	 * @return the toCNVStage
+	 */
+	public CNVStage getToCNVStage() {
+		return toCNVStage;
 	}
 
 	public String toString() {

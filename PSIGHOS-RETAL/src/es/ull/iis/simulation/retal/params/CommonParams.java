@@ -3,9 +3,11 @@
  */
 package es.ull.iis.simulation.retal.params;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
@@ -32,6 +34,8 @@ public class CommonParams extends ModelParams {
 	private final static double BETA_DEATH[] = new double[] {0.097793214, 0.108276765};
 
 	private final DiabetesParam diabetes;
+	private final VAParam vaParam;
+	private final VAtoUtilityParam vaToUtility;
 	
 	/**
 	 * 
@@ -39,6 +43,8 @@ public class CommonParams extends ModelParams {
 	public CommonParams(RETALSimulation simul, boolean baseCase) {
 		super(simul, baseCase);
 		diabetes = new DiabetesParam(simul, baseCase);
+		vaParam = new VAParam(simul, baseCase);
+		vaToUtility = new VAtoUtilityParam(simul, baseCase);
 	}
 
 	/**
@@ -73,4 +79,26 @@ public class CommonParams extends ModelParams {
 	public long getTimeToDiabetes(Patient pat) {
 		return diabetes.getValidatedTimeToEvent(pat);
 	}
+
+	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, EyeState incidentState) {
+		return vaParam.getVAProgression(pat, eyeIndex, incidentState, null);
+	}
+
+	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, CNVStage incidentCNVStage) {
+		return vaParam.getVAProgression(pat, eyeIndex, EyeState.AMD_CNV, incidentCNVStage);
+	}
+
+	public ArrayList<VAProgressionPair> getVAProgressionToDeath(Patient pat, int eyeIndex) {
+		return vaParam.getVAProgression(pat, eyeIndex, null, null);
+	}
+	
+	public double getInitialVA(Patient pat, int eyeIndex) {
+		return vaParam.getInitialVA(pat, eyeIndex);
+	}
+	
+	public double getUtilityFromVA(Patient pat) {
+		final double age = pat.getAge();
+		return Math.max(vaToUtility.getUtility(age, pat.getVA(0)), vaToUtility.getUtility(age, pat.getVA(1)));		
+	}
+	
 }

@@ -22,9 +22,7 @@ public class ARMDParams extends ModelParams {
 	private final TimeToAMDFromEARMParam timeToAMDFromEARM;
 	private final TimeToCNVFromGAParam timeToCNVFromGA;
 	private final CNVStageParam timeToCNVStage;
-	private final VAParam vaParam;
-	private final VAtoUtilityParam vaToUtility;
-	private final ClinicalPresentationParam clinicalPresentation;
+	private final ClinicalPresentationARMDParam clinicalPresentation;
 	
 	/**
 	 * 
@@ -37,9 +35,7 @@ public class ARMDParams extends ModelParams {
 		timeToAMDFromEARM = new TimeToAMDFromEARMParam(simul, baseCase);		
 		timeToCNVFromGA = new TimeToCNVFromGAParam(simul, baseCase);
 		timeToCNVStage = new CNVStageParam(simul, baseCase);
-		vaParam = new VAParam(simul, baseCase);
-		vaToUtility = new VAtoUtilityParam(simul, baseCase);
-		clinicalPresentation = new ClinicalPresentationParam(simul, baseCase);
+		clinicalPresentation = new ClinicalPresentationARMDParam(simul, baseCase);
 	}
 
 	/**
@@ -87,23 +83,6 @@ public class ARMDParams extends ModelParams {
 
 	public CNVStageAndValue getTimeToNextCNVStage(Patient pat, int eyeIndex) {
 		return timeToCNVStage.getValidatedTimeToEvent(pat, eyeIndex);
-	}
-	
-	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, EyeState incidentState) {
-		return vaParam.getVAProgression(pat, eyeIndex, incidentState, null);
-	}
-
-	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, CNVStage incidentCNVStage) {
-		return vaParam.getVAProgression(pat, eyeIndex, EyeState.AMD_CNV, incidentCNVStage);
-	}
-
-	public ArrayList<VAProgressionPair> getVAProgressionToDeath(Patient pat, int eyeIndex) {
-		return vaParam.getVAProgression(pat, eyeIndex, null, null);
-	}
-	
-	public double getUtilityFromVA(Patient pat) {
-		final double age = pat.getAge();
-		return Math.max(vaToUtility.getUtility(age, pat.getVA(0)), vaToUtility.getUtility(age, pat.getVA(1)));		
 	}
 	
 	public double getProbabilityClinicalPresentation(Patient pat) {

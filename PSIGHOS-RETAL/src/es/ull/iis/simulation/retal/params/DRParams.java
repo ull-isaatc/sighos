@@ -77,6 +77,7 @@ public class DRParams extends ModelParams {
 	private final AnnualBasedTimeToEventParam timeToHRPDRFromNonHRPDR;
 	private final AnnualBasedTimeToEventParam timeToCSMEAndHRPDRFromCSMEAndNonHRPDR;
 	private final AnnualBasedTimeToEventParam timeToCSMEAndHRPDRFromHRPDR;
+	private final ClinicalPresentationDRParam clinicalPresentation;
 
 	/**
 	 * @param simul
@@ -93,6 +94,7 @@ public class DRParams extends ModelParams {
 		this.timeToHRPDRFromNonHRPDR = new AnnualBasedTimeToEventParam(simul, baseCase, ANNUAL_PROB_HR_PDR_FROM_NONHR_PDR, RandomForPatient.ITEM.TIME_TO_HR_PDR_FROM_NONHR_PDR);
 		this.timeToCSMEAndHRPDRFromCSMEAndNonHRPDR = new AnnualBasedTimeToEventParam(simul, baseCase, ANNUAL_PROB_CSME_AND_HR_PDR_FROM_CSME_AND_NON_HR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_CSME_AND_NON_HR_PDR);
 		this.timeToCSMEAndHRPDRFromHRPDR = new AnnualBasedTimeToEventParam(simul, baseCase, ANNUAL_PROB_CSME_AND_HR_PDR_FROM_HR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_HR_PDR);
+		this.clinicalPresentation = new ClinicalPresentationDRParam(simul, baseCase);
 	}
 
 	/** 
@@ -179,4 +181,7 @@ public class DRParams extends ModelParams {
 		return timeToCSMEAndHRPDRFromHRPDR.getTimeToEvent(pat);
 	}
 
+	public double getProbabilityClinicalPresentation(Patient pat) {
+		return clinicalPresentation.getProbability(pat);
+	}
 }

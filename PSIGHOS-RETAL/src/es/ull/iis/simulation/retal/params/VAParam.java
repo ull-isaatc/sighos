@@ -15,7 +15,8 @@ import es.ull.iis.simulation.retal.RETALSimulation;
  * @author Iván Castilla Rodríguez
  *
  */
-// FIXME: Currently only using first-order estimates
+// TODO: Add second-order estimates
+// TODO: Add predictions for DR
 public class VAParam extends Param {
 	/**
 	 * Source: Karnon model
@@ -58,9 +59,20 @@ public class VAParam extends Param {
 	}
 
 	/**
+	 * Returns the initial VA when the eye is already affected.
+	 * A priori, it should be used only for DR
+	 * @param pat A patient
+	 * @param eyeIndex Index of the affected eye (0 for first eye, 1 for second eye)
+	 * @return
+	 */
+	public double getInitialVA(Patient pat, int eyeIndex) {
+		
+	}
+	
+	/**
 	 * Returns the visual acuity of an eye upon incidence of a new stage in the ARMD progression. 
-	 * @param pat
-	 * @param eyeIndex
+	 * @param pat A patient
+	 * @param eyeIndex Index of the affected eye (0 for first eye, 1 for second eye)
 	 * @return The visual acuity of an eye upon incidence of a new stage in the ARMD progression.
 	 */
 	public double getVAAtIncidence(EyeState incidentState, CNVStage incidentCNVStage) {
@@ -80,8 +92,8 @@ public class VAParam extends Param {
 
 	/**
 	 * Returns a set of 
-	 * @param pat
-	 * @param eyeIndex
+	 * @param pat A patient
+	 * @param eyeIndex Index of the affected eye (0 for first eye, 1 for second eye)
 	 * @return
 	 */
 	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, EyeState incidentState, CNVStage incidentCNVStage) {

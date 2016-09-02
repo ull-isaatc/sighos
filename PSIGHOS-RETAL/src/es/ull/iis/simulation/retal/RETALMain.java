@@ -16,8 +16,8 @@ public class RETALMain {
 	public static void main(String[] args) {
 		final RETALSimulation simul = new RETALSimulation(0, true);
 		simul.run();
-		final RETALSimulation simul2 = new RETALSimulation(simul, 1);
-		simul2.run();
+//		final RETALSimulation simul2 = new RETALSimulation(simul, 1);
+//		simul2.run();
 
 //		final Random RNG = new Random(); 
 //		for (int i = 0; i < 10000; i++)

@@ -42,7 +42,7 @@ public class RETALSimulation extends Simulation {
 	/** Counter to assign a unique id to each patient */
 	private int patientCounter = 0;
 	private final boolean baseCase;
-	public final static int NPATIENTS = 1000;
+	public final static int NPATIENTS = 10000;
 	
 	private final Patient[] generatedPatients = new Patient[NPATIENTS]; 
 	
@@ -90,11 +90,11 @@ public class RETALSimulation extends Simulation {
 	
 	private void addInfoReceivers() {
 //		addInfoReceiver(new PatientInfoView(this));
-//		addInfoReceiver(new AffectedPatientHistoryView(this, true, EyeState.AMD_CNV));
+		addInfoReceiver(new AffectedPatientHistoryView(this, ACTIVE_DISEASES, true));
 //		addInfoReceiver(new AffectedPatientHistoryVAView(this, EyeState.AMD_CNV));
-		addInfoReceiver(new PatientPrevalenceView(this));
-		addInfoReceiver(new PatientCounterView(this));
-		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5));
+		addInfoReceiver(new PatientPrevalenceView(this, ACTIVE_DISEASES));
+		addInfoReceiver(new PatientCounterView(this, ACTIVE_DISEASES));
+		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5, ACTIVE_DISEASES));
 	}
 	
 	public CommonParams getCommonParams() {
@@ -134,8 +134,8 @@ public class RETALSimulation extends Simulation {
 	public void end() {
 		// FIXME: Prepare to compute outcomes in case not all the patients are dead
 		super.end();
-		if (nIntervention == NINTERVENTIONS - 1)
-			for (Outcome outcome : outcomes)
-				outcome.print(true);
+//		if (nIntervention == NINTERVENTIONS - 1)
+//			for (Outcome outcome : outcomes)
+//				outcome.print(true);
 	}
 }

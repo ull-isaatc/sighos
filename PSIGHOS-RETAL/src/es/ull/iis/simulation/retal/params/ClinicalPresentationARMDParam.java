@@ -14,9 +14,12 @@ import es.ull.iis.simulation.retal.RETALSimulation;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ClinicalPresentationParam extends Param {	
+public class ClinicalPresentationARMDParam extends Param {
+	/** An index to locate a specific eye state in the {@link #probabilities} array */
 	final private static EnumMap<EyeState, Integer> order  = new EnumMap<EyeState, Integer>(EyeState.class);
+	/** An index to locate a specific CNV stage in the {@link #probabilities} array */
 	final private static EnumMap<CNVStage.Position, Integer> orderCNV  = new EnumMap<CNVStage.Position, Integer>(CNVStage.Position.class);
+	/** The annual probability to be clinically detected depending on the states of first and fellow eyes */
 	final private static double[][] probabilities;
 	
 	static {
@@ -41,7 +44,7 @@ public class ClinicalPresentationParam extends Param {
 	 * @param simul
 	 * @param baseCase
 	 */
-	public ClinicalPresentationParam(RETALSimulation simul, boolean baseCase) {
+	public ClinicalPresentationARMDParam(RETALSimulation simul, boolean baseCase) {
 		super(simul, baseCase);
 	}
 
