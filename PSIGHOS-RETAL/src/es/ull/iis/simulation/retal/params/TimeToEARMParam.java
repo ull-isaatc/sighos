@@ -65,7 +65,7 @@ public class TimeToEARMParam extends EmpiricTimeToEventParam {
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
 	public long getTimeToEvent(Patient pat) {
-		final double []rnd = pat.getRandomNumber(RandomForPatient.ITEM.TIME_TO_EARM, probabilities.length);
+		final double []rnd = pat.draw(RandomForPatient.ITEM.TIME_TO_EARM, probabilities.length);
 		final double time = getTimeToEvent(probabilities, pat.getAge(), rnd);
 		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + simul.getTimeUnit().convert(time, unit);
 	}

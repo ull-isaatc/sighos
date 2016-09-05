@@ -56,7 +56,7 @@ public class CommonParams extends ModelParams {
 	}
 	
 	public int getSex(Patient pat) {
-		return (pat.getRandomNumber(RandomForPatient.ITEM.SEX) < P_MEN) ? 0 : 1;
+		return (pat.draw(RandomForPatient.ITEM.SEX) < P_MEN) ? 0 : 1;
 	}
 	
 	public double getInitAge() {
@@ -69,7 +69,7 @@ public class CommonParams extends ModelParams {
 	}
 	
 	public int getDiabetesType(Patient pat) {
-		return (pat.getRandomNumber(RandomForPatient.ITEM.DIABETES_TYPE) < P_DM1) ? 1 : 2; 
+		return (pat.draw(RandomForPatient.ITEM.DIABETES_TYPE) < P_DM1) ? 1 : 2; 
 	}
 	
 	public double getDurationOfDM(Patient pat) {

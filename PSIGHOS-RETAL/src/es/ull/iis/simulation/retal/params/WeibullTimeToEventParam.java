@@ -6,6 +6,7 @@ package es.ull.iis.simulation.retal.params;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
+import simkit.random.RandomNumber;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -19,10 +20,10 @@ public class WeibullTimeToEventParam extends Param {
 	/**
 	 * 
 	 */
-	public WeibullTimeToEventParam(RETALSimulation simul, boolean baseCase, TimeUnit unit, double alpha, double beta) {
+	public WeibullTimeToEventParam(RETALSimulation simul, boolean baseCase, TimeUnit unit, RandomNumber rng, double alpha, double beta) {
 		super(simul, baseCase);
 		// TODO Prepare the param for 2nd order analysis
-		rnd = RandomVariateFactory.getInstance("WeibullVariate", alpha, beta);
+		rnd = RandomVariateFactory.getInstance("WeibullVariate", rng, alpha, beta);
 		this.unit = unit;
 	}
 

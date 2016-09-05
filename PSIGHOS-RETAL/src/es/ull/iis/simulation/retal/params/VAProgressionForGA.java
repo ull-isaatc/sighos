@@ -46,7 +46,7 @@ public class VAProgressionForGA extends VAProgressionParam {
 	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
 		final ArrayList<VAProgressionPair> array = new ArrayList<VAProgressionPair>();
 		final double currentVA = pat.getVA(eyeIndex);
-		final double rnd = pat.getRandomNumber(RandomForPatient.ITEM.ARMD_PROG_GA);
+		final double rnd = pat.draw(RandomForPatient.ITEM.ARMD_PROG_GA);
 		int year = yearlyProgression.length;
 		for (int i = 0; (i < yearlyProgression.length) && (year == yearlyProgression.length); i++) {
 			if (rnd < yearlyProgression[i])
@@ -59,7 +59,7 @@ public class VAProgressionForGA extends VAProgressionParam {
 		}
 		else {
 			// Else, checks how much this patient progresses 
-			double incVA = (pat.getRandomNumber(RandomForPatient.ITEM.ARMD_PROG_TWICE_GA) < PROP_PROGRESSING_TWICE) ? LOSS_6_LINES : LOSS_3_LINES;
+			double incVA = (pat.draw(RandomForPatient.ITEM.ARMD_PROG_TWICE_GA) < PROP_PROGRESSING_TWICE) ? LOSS_6_LINES : LOSS_3_LINES;
 			long time = simul.getTimeUnit().convert(year + 1, TimeUnit.YEAR);
 			// If the change will happen in the future, performs a linear interpolation to estimate the new VA
 			if (timeSinceGA <= time) {

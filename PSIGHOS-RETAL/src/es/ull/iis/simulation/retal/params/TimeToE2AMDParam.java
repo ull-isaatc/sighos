@@ -155,7 +155,7 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 				return null;
 			}
 			else {
-				final double []rnd = pat.getRandomNumber(rngItem, probabilities.length);
+				final double []rnd = pat.draw(rngItem, probabilities.length);
 				final double currentAge = pat.getAge();
 				// Start by assigning "infinite" to ageAtEvent
 				double ageAtEvent = Double.MAX_VALUE;

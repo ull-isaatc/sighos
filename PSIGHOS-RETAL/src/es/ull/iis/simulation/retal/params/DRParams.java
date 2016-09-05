@@ -121,22 +121,22 @@ public class DRParams extends ModelParams {
 		while (prevalence[count][1] < age) {
 			count++;
 		}
-		final double rnd = pat.getRandomNumber(RandomForPatient.ITEM.DR_INITIAL_STATE);
+		final double rnd = pat.draw(RandomForPatient.ITEM.DR_INITIAL_STATE);
 		if (rnd < prevalence[count][2])
 			// no new pathological state to add
 			;
 		else if (rnd < prevalence[count][3]) {
 			states.add(EyeState.NPDR);
-			if (pat.getRandomNumber(RandomForPatient.ITEM.DR_INITIAL_ME) < NPDR_PERCENTAGE_ME[typeDM]) {
-				if (pat.getRandomNumber(RandomForPatient.ITEM.DR_INITIAL_CSME) < CSME)
+			if (pat.draw(RandomForPatient.ITEM.DR_INITIAL_ME) < NPDR_PERCENTAGE_ME[typeDM]) {
+				if (pat.draw(RandomForPatient.ITEM.DR_INITIAL_CSME) < CSME)
 					states.add(EyeState.CSME);
 			}
 		}
 		else if (rnd < prevalence[count][4]) {
 			// FIXME: Check to see what happen with HR_PDR
 			states.add(EyeState.NON_HR_PDR);
-			if (pat.getRandomNumber(RandomForPatient.ITEM.DR_INITIAL_ME) < PDR_PERCENTAGE_ME[typeDM]) {
-				if (pat.getRandomNumber(RandomForPatient.ITEM.DR_INITIAL_CSME) < CSME)
+			if (pat.draw(RandomForPatient.ITEM.DR_INITIAL_ME) < PDR_PERCENTAGE_ME[typeDM]) {
+				if (pat.draw(RandomForPatient.ITEM.DR_INITIAL_CSME) < CSME)
 					states.add(EyeState.CSME);
 			}
 		}

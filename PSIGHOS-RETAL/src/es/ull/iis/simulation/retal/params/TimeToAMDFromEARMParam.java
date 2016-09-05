@@ -160,7 +160,7 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 		if (entry == null) {
 			return new EyeStateAndValue(EyeState.AMD_GA, timeToAMD);
 		}
-		final double rnd = (eye == 0) ? pat.getRandomNumber(RandomForPatient.ITEM.ARMD_P_CNV1) : pat.getRandomNumber(RandomForPatient.ITEM.ARMD_P_CNV2);
+		final double rnd = (eye == 0) ? pat.draw(RandomForPatient.ITEM.ARMD_P_CNV1) : pat.draw(RandomForPatient.ITEM.ARMD_P_CNV2);
 		return new EyeStateAndValue((rnd <= entry.getValue()) ? EyeState.AMD_CNV : EyeState.AMD_GA, timeToAMD);
 	}
 

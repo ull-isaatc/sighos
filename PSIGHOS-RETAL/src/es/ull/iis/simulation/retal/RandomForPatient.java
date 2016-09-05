@@ -5,7 +5,9 @@ package es.ull.iis.simulation.retal;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.Random;
+
+import simkit.random.RandomNumber;
+import simkit.random.RandomNumberFactory;
 
 /**
  * A container class for all the random number generators of a patient
@@ -28,6 +30,12 @@ public class RandomForPatient {
 		TIME_TO_E2AMD_E1EARM,
 		TIME_TO_E2AMD_E1GA,
 		TIME_TO_E2AMD_E1CNV,
+		TIME_TO_PC_FROM_MC,
+		TIME_TO_PC_FROM_OCC,
+		TIME_TO_MC_FROM_OCC,
+		TIME_TO_JF_FROM_EF,
+		TIME_TO_SF_FROM_EF,
+		TIME_TO_SF_FROM_JF,
 		ARMD_P_CNV1,
 		ARMD_P_CNV2,
 		ARMD_TYPE_POSITION_CNV,
@@ -44,6 +52,10 @@ public class RandomForPatient {
 		DR_INITIAL_ME,
 		DR_INITIAL_CSME,
 		DR_CLINICAL_PRESENTATION,
+		DR_INITIAL_VA,
+		DR_VA_NONHR_PDR,
+		DR_VA_HR_PDR,
+		DR_VA_CSME,		
 		TIME_TO_NPDR,
 		TIME_TO_PDR,
 		TIME_TO_CSME,
@@ -54,10 +66,10 @@ public class RandomForPatient {
 		TIME_TO_CSME_AND_HR_PDR_FROM_CSME_AND_NON_HR_PDR,
 		TIME_TO_CSME_AND_HR_PDR_FROM_HR_PDR
 	}
-	private final static EnumMap<ITEM, Random> RANDOM_GENERATORS = new EnumMap<ITEM, Random>(ITEM.class);
+	private final static EnumMap<ITEM, RandomNumber> RANDOM_GENERATORS = new EnumMap<ITEM, RandomNumber>(ITEM.class);
 	static {
 		for (ITEM item : ITEM.values())
-			RANDOM_GENERATORS.put(item, new Random());
+			RANDOM_GENERATORS.put(item, RandomNumberFactory.getInstance());
 	}
 
 	private final EnumMap<ITEM, ArrayList<Double>> rng;
@@ -86,12 +98,22 @@ public class RandomForPatient {
 		}
 	}
 	
-	public double getRandomNumber(ITEM item) {
+	public static RandomNumber getRandomNumber(ITEM item) {
+		return RANDOM_GENERATORS.get(item);
+	}
+	
+	public static void reset() {
+		for (RandomNumber rng : RANDOM_GENERATORS.values()) {
+			rng.resetSeed();
+		}
+	}
+	
+	public double draw(ITEM item) {
 		double rnd;
 		final ArrayList<Double> itemRng = rng.get(item);
 		// If this is not a reused generator 
 		if (countersRng == null) { 
-			rnd = RANDOM_GENERATORS.get(item).nextDouble();
+			rnd = RANDOM_GENERATORS.get(item).draw();
 			itemRng.add(rnd);
 		}
 		else {
@@ -100,7 +122,7 @@ public class RandomForPatient {
 				rnd = itemRng.get(counter);
 			}
 			else {
-				rnd = RANDOM_GENERATORS.get(item).nextDouble();
+				rnd = RANDOM_GENERATORS.get(item).draw();
 				itemRng.add(rnd);				
 			}
 			countersRng.put(item, counter + 1);
@@ -108,13 +130,13 @@ public class RandomForPatient {
 		return rnd;
 	}
 	
-	public double[] getRandomNumber(ITEM item, int n) {
+	public double[] draw(ITEM item, int n) {
 		double[] rnd = new double[n];
 		final ArrayList<Double> itemRng = rng.get(item);
 		// If this is not a reused generator 
 		if (countersRng == null) { 
 			for (int i = 0; i < n; i++) {
-				rnd[i] = RANDOM_GENERATORS.get(item).nextDouble();
+				rnd[i] = RANDOM_GENERATORS.get(item).draw();
 				rng.get(item).add(rnd[i]);
 			}
 		}
@@ -127,7 +149,7 @@ public class RandomForPatient {
 			}
 			else {
 				for (int i = 0; i < n; i++) {
-					rnd[i] = RANDOM_GENERATORS.get(item).nextDouble();
+					rnd[i] = RANDOM_GENERATORS.get(item).draw();
 					rng.get(item).add(rnd[i]);
 				}
 			}

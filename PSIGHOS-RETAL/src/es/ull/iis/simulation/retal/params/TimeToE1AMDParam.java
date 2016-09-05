@@ -78,7 +78,7 @@ public class TimeToE1AMDParam extends EmpiricTimeToEventParam {
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
 	public long getTimeToEvent(Patient pat) {
-		final double []rnd = pat.getRandomNumber(RandomForPatient.ITEM.TIME_TO_E1AMD, probabilities.length);
+		final double []rnd = pat.draw(RandomForPatient.ITEM.TIME_TO_E1AMD, probabilities.length);
 		final double time = getTimeToEvent(probabilities, pat.getAge(), rnd);
 		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + simul.getTimeUnit().convert(time, unit);
 	}
@@ -136,7 +136,7 @@ public class TimeToE1AMDParam extends EmpiricTimeToEventParam {
 		if (entry == null) {
 			return new EyeStateAndValue(EyeState.AMD_GA, timeToAMD);
 		}
-		final double rnd = pat.getRandomNumber(RandomForPatient.ITEM.ARMD_P_CNV1);
+		final double rnd = pat.draw(RandomForPatient.ITEM.ARMD_P_CNV1);
 		return new EyeStateAndValue((rnd <= entry.getValue()) ? EyeState.AMD_CNV : EyeState.AMD_GA, timeToAMD);
 	}
 }

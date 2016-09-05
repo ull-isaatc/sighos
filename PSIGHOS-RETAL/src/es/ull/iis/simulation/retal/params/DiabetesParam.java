@@ -224,7 +224,7 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 	public boolean isDiabetic(Patient pat) {
 		final int age = (int)pat.getAge();
 		final double prob = (pat.getSex() == CommonParams.MAN) ? prevalenceMen[age - MIN_AGE_PREVALENCE] : prevalenceWomen[age - MIN_AGE_PREVALENCE];
-		return (pat.getRandomNumber(RandomForPatient.ITEM.DIABETIC) < prob);
+		return (pat.draw(RandomForPatient.ITEM.DIABETIC) < prob);
 	}
 	
 	/**
@@ -250,11 +250,11 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 	private long getTimeToEvent(Patient pat) {
 		final double time;
 		if (pat.getSex() == CommonParams.MAN) {
-			final double []rnd = pat.getRandomNumber(RandomForPatient.ITEM.DIABETES_INCIDENCE, incidenceMen.length);
+			final double []rnd = pat.draw(RandomForPatient.ITEM.DIABETES_INCIDENCE, incidenceMen.length);
 			time = getTimeToEvent(incidenceMen, pat.getAge(), rnd);			
 		}
 		else {
-			final double []rnd = pat.getRandomNumber(RandomForPatient.ITEM.DIABETES_INCIDENCE, incidenceWomen.length);
+			final double []rnd = pat.draw(RandomForPatient.ITEM.DIABETES_INCIDENCE, incidenceWomen.length);
 			time = getTimeToEvent(incidenceWomen, pat.getAge(), rnd);						
 		}
 		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + simul.getTimeUnit().convert(time, unit);

@@ -16,6 +16,8 @@ public class RETALMain {
 	public static void main(String[] args) {
 		final RETALSimulation simul = new RETALSimulation(0, true);
 		simul.run();
+		// TODO: Check that reset works fine!!!
+//		RandomForPatient.reset();
 //		final RETALSimulation simul2 = new RETALSimulation(simul, 1);
 //		simul2.run();
 

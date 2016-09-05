@@ -113,14 +113,14 @@ public class VAProgressionForSF extends VAProgressionParam {
 		
 		// Computes new full VA and the time to progress to such VA
 		long timeToChange = (long)getTimeToChange(stage, ageAtSF, lastFuva);
-		double newFuva = Math.max(0.0, lastFuva - LETTERS_LOST[getMultiLogitResult(pat.getRandomNumber(RandomForPatient.ITEM.ARMD_LEVELS_LOST_SF), stage, ageAtSF, daysSinceEvent, lastFuva)]);
+		double newFuva = Math.max(0.0, lastFuva - LETTERS_LOST[getMultiLogitResult(pat.draw(RandomForPatient.ITEM.ARMD_LEVELS_LOST_SF), stage, ageAtSF, daysSinceEvent, lastFuva)]);
 		while ((timeToChange < daysSinceEvent) && (lastFuva >= VisualAcuity.LETTERS_BLINDNESS)) {
 			changes.add(new VAProgressionPair(timeToChange, VisualAcuity.getLogMARFromLetters(newFuva)));
 			ageAtSF += timeToChange / 365.0;
 			daysSinceEvent -= timeToChange;
 			lastFuva = newFuva;
 			timeToChange = (long)getTimeToChange(stage, ageAtSF, lastFuva);
-			newFuva = Math.max(0.0, lastFuva - LETTERS_LOST[getMultiLogitResult(pat.getRandomNumber(RandomForPatient.ITEM.ARMD_LEVELS_LOST_SF), stage, ageAtSF, daysSinceEvent, lastFuva)]);
+			newFuva = Math.max(0.0, lastFuva - LETTERS_LOST[getMultiLogitResult(pat.draw(RandomForPatient.ITEM.ARMD_LEVELS_LOST_SF), stage, ageAtSF, daysSinceEvent, lastFuva)]);
 		}
 		// The patient reaches blindness
 		if (lastFuva < VisualAcuity.LETTERS_BLINDNESS) {

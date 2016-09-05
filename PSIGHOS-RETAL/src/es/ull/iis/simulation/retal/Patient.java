@@ -338,14 +338,21 @@ public class Patient extends BasicElement {
 	public void checkDiagnosis() {
 		if (!isDiagnosed()) {
 			if (affectedBy.contains(RETALSimulation.DISEASES.ARMD)) {
-				if (rng.getRandomNumber(RandomForPatient.ITEM.ARMD_CLINICAL_PRESENTATION) < armdParams.getProbabilityClinicalPresentation(Patient.this))
+				if (rng.draw(RandomForPatient.ITEM.ARMD_CLINICAL_PRESENTATION) < armdParams.getProbabilityClinicalPresentation(Patient.this))
 					this.diagnosed = ts;
 			}
 			if (affectedBy.contains(RETALSimulation.DISEASES.DR)) {
-				if (rng.getRandomNumber(RandomForPatient.ITEM.DR_CLINICAL_PRESENTATION) < drParams.getProbabilityClinicalPresentation(Patient.this))
+				if (rng.draw(RandomForPatient.ITEM.DR_CLINICAL_PRESENTATION) < drParams.getProbabilityClinicalPresentation(Patient.this))
 					this.diagnosed = ts;
 			}
 		}		
+	}
+
+	/**
+	 * @return the affectedBy
+	 */
+	public EnumSet<RETALSimulation.DISEASES> getAffectedBy() {
+		return affectedBy;
 	}
 
 	/**
@@ -417,8 +424,8 @@ public class Patient extends BasicElement {
 	 * @param item The case that requires a random number
 	 * @return a random number between 0 and 1 for the specified item
 	 */
-	public double getRandomNumber(RandomForPatient.ITEM item) {
-		return rng.getRandomNumber(item);
+	public double draw(RandomForPatient.ITEM item) {
+		return rng.draw(item);
 	}
 	
 	/**
@@ -427,24 +434,24 @@ public class Patient extends BasicElement {
 	 * @param n The number of random numbers to return
 	 * @return N random number between 0 and 1 for the specified item
 	 */
-	public double[] getRandomNumber(RandomForPatient.ITEM item, int n) {
-		return rng.getRandomNumber(item, n);
+	public double[] draw(RandomForPatient.ITEM item, int n) {
+		return rng.draw(item, n);
 	}
 	
 	/**
 	 * @return the time to a specific eye state
 	 */
-	public long getTimeToEyeState(EyeState state, int eye) {
+	public long getTimeToEyeState(EyeState state, int eyeIndex) {
 		final long time;
 		switch (state) {
 		case AMD_CNV:
-			time = (cNVEvent[eye] == null) ? Long.MAX_VALUE : cNVEvent[eye].getTs();
+			time = (cNVEvent[eyeIndex] == null) ? Long.MAX_VALUE : cNVEvent[eyeIndex].getTs();
 			break;
 		case AMD_GA:
-			time = (gAEvent[eye] == null) ? Long.MAX_VALUE : gAEvent[eye].getTs();
+			time = (gAEvent[eyeIndex] == null) ? Long.MAX_VALUE : gAEvent[eyeIndex].getTs();
 			break;
 		case EARM:
-			time = (eARMEvent[eye] == null) ? Long.MAX_VALUE : eARMEvent[eye].getTs();
+			time = (eARMEvent[eyeIndex] == null) ? Long.MAX_VALUE : eARMEvent[eyeIndex].getTs();
 			break;
 		case HEALTHY:
 			time = 0;
@@ -470,11 +477,11 @@ public class Patient extends BasicElement {
 	/**
 	 * 
 	 * @param stage
-	 * @param eye
+	 * @param eyeIndex
 	 * @return
 	 */
-	public long getTimeToCNVStage(CNVStage stage, int eye) {
-		for (CNVStageEvent event : ((LinkedList<CNVStageEvent>)cNVStageEvents[eye])) {			
+	public long getTimeToCNVStage(CNVStage stage, int eyeIndex) {
+		for (CNVStageEvent event : ((LinkedList<CNVStageEvent>)cNVStageEvents[eyeIndex])) {			
 			if (stage.equals(event.getNewStage()))
 				return event.getTs();
 		}
@@ -484,11 +491,11 @@ public class Patient extends BasicElement {
 	/**
 	 * 
 	 * @param stage
-	 * @param eye
+	 * @param eyeIndex
 	 * @return
 	 */
-	public double getAgeAt(CNVStage stage, int eye) {
-		for (CNVStageEvent event : ((LinkedList<CNVStageEvent>)cNVStageEvents[eye])) {			
+	public double getAgeAt(CNVStage stage, int eyeIndex) {
+		for (CNVStageEvent event : ((LinkedList<CNVStageEvent>)cNVStageEvents[eyeIndex])) {			
 			if (stage.equals(event.getNewStage()))
 				return (initAge + event.getTs()) / 365.0;
 		}
@@ -496,13 +503,13 @@ public class Patient extends BasicElement {
 	}
 	
 	/**
-	 * 
+	 * Returns the age that the patient had when a particular eye state was reached
 	 * @param state
-	 * @param eye
-	 * @return
+	 * @param eyeIndex
+	 * @return The age that the patient had when a particular eye state was reached
 	 */
-	public double getAgeAt(EyeState state, int eye) {
-		long ageAt = getTimeToEyeState(state, eye);
+	public double getAgeAt(EyeState state, int eyeIndex) {
+		long ageAt = getTimeToEyeState(state, eyeIndex);
 		if (ageAt != Long.MAX_VALUE)
 			return (initAge + ageAt) / 365.0;
 		return Double.MAX_VALUE;
@@ -781,7 +788,7 @@ public class Patient extends BasicElement {
 			// Patient healthy
 			if (isHealthy()) {
 				// True negative
-				if (rng.getRandomNumber(RandomForPatient.ITEM.SPECIFICITY) > ((Screening)intervention).getSpecificity()) {
+				if (rng.draw(RandomForPatient.ITEM.SPECIFICITY) > ((Screening)intervention).getSpecificity()) {
 					// Schedule next screening appointment (if required) 
 					long next = iterator.next();
 					if (next != -1) {
@@ -796,7 +803,7 @@ public class Patient extends BasicElement {
 			// Patient ill
 			else {
 				// False negative
-				if (rng.getRandomNumber(RandomForPatient.ITEM.SENSITIVITY) > ((Screening)intervention).getSensitivity()) {
+				if (rng.draw(RandomForPatient.ITEM.SENSITIVITY) > ((Screening)intervention).getSensitivity()) {
 					// Schedule next screening appointment (if required) 
 					long next = iterator.next();
 					if (next != -1) {

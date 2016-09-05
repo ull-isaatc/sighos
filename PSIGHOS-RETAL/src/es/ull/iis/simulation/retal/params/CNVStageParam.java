@@ -9,6 +9,7 @@ import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
+import es.ull.iis.simulation.retal.RandomForPatient.ITEM;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -73,22 +74,22 @@ public class CNVStageParam extends Param {
 			initProb2.put(acc / total, trio.typeAndPos);
 		}
 		// Currently initialized as they are in the Karnon model
-		timeToPCFromMC = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, 1.809603571, 500.6219586);
-		timeToPCFromOcc = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, 2.653739171, 592.4042407);
-		timeToMCFromOcc = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, 1.999174026, 478.7268718);
-		timeToJFFromEF = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, 2.504770922, 186.7827681);
-		timeToSFFromEF = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, 4.568238801, 225.9139343);
-		timeToSFFromJF = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, 1.831164809, 197.2107448);
+		timeToPCFromMC = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_PC_FROM_MC), 1.809603571, 500.6219586);
+		timeToPCFromOcc = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_PC_FROM_OCC), 2.653739171, 592.4042407);
+		timeToMCFromOcc = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_MC_FROM_OCC), 1.999174026, 478.7268718);
+		timeToJFFromEF = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_JF_FROM_EF), 2.504770922, 186.7827681);
+		timeToSFFromEF = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_SF_FROM_EF), 4.568238801, 225.9139343);
+		timeToSFFromJF = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_SF_FROM_JF), 1.831164809, 197.2107448);
 
 	}
 	
 	public CNVStage getInitialTypeAndPosition(Patient pat, int eyeIndex) {
 		if (eyeIndex == 0) { 
-			final double key = initProb1.ceilingKey(pat.getRandomNumber(RandomForPatient.ITEM.ARMD_TYPE_POSITION_CNV));
+			final double key = initProb1.ceilingKey(pat.draw(RandomForPatient.ITEM.ARMD_TYPE_POSITION_CNV));
 			return initProb1.get(key);
 		}
 		else {
-			final double key = initProb2.ceilingKey(pat.getRandomNumber(RandomForPatient.ITEM.ARMD_TYPE_POSITION_CNV));
+			final double key = initProb2.ceilingKey(pat.draw(RandomForPatient.ITEM.ARMD_TYPE_POSITION_CNV));
 			return initProb2.get(key);
 		}
 		
