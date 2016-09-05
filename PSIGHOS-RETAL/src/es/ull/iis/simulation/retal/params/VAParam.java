@@ -94,6 +94,11 @@ public class VAParam extends Param {
 		return va;
 	}
 
+	private static void print(ArrayList<VAProgressionPair> pairs) {
+		for (VAProgressionPair pair : pairs) 
+			System.err.println(pair);		
+		
+	}
 	/**
 	 * Merges two lists of visual acuity changes. Each list contains at least one change, due at the end of the studied period. 
 	 * The resulting list uses the worst state possible between both lists, by calculating the missing values as a linear interpolation.
@@ -107,6 +112,8 @@ public class VAParam extends Param {
 		final Iterator<VAProgressionPair> iter2 = changes2.iterator();
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>(changes1.size() + changes2.size() - 1);
 		
+		try {
+		
 		VAProgressionPair pair1 = iter1.next();
 		VAProgressionPair pair2 = iter2.next();
 		double lastVA1 = vaAtStart;
@@ -118,7 +125,7 @@ public class VAParam extends Param {
 		while (iter1.hasNext() || iter2.hasNext()) {
 			if (t1 < t2) {
 				final double interpolated = lastVA2 + (pair2.va - lastVA2) / (t2 - lastT2);
-				changes.add((interpolated < pair1.va) ? new VAProgressionPair(t1, interpolated) : pair1);
+				changes.add((interpolated > pair1.va) ? new VAProgressionPair(t1, interpolated) : pair1);
 				lastT1 = t1;
 				lastVA1 = pair1.va;
 				pair1 = iter1.next();
@@ -126,27 +133,42 @@ public class VAParam extends Param {
 			}
 			else if (t2 < t1) {
 				final double interpolated = lastVA1 + (pair1.va - lastVA1) / (t1 - lastT1);
-				changes.add((interpolated < pair2.va) ? new VAProgressionPair(t2, interpolated) : pair2);
+				changes.add((interpolated > pair2.va) ? new VAProgressionPair(t2, interpolated) : pair2);
 				lastT2 = t2;
 				lastVA2 = pair2.va;
 				pair2 = iter2.next();
 				t2 += pair2.timeToChange;
 			}
 			else {
-				changes.add((pair1.va < pair2.va) ? pair1 : pair2);
-				lastT1 = t1;
-				lastT2 = t2;
-				lastVA1 = pair1.va;
-				lastVA2 = pair2.va;
-				pair1 = iter1.next();
-				pair2 = iter2.next();
-				t1 += pair1.timeToChange;
-				t2 += pair2.timeToChange;
+				changes.add((pair1.va > pair2.va) ? pair1 : pair2);
+				// To avoid problems with 0 offsets
+				if (iter1.hasNext()) {
+					lastT1 = t1;
+					lastVA1 = pair1.va;
+					pair1 = iter1.next();
+					t1 += pair1.timeToChange;
+				}
+				if (iter2.hasNext()) {
+					lastT2 = t2;
+					lastVA2 = pair2.va;
+					pair2 = iter2.next();
+					t2 += pair2.timeToChange;
+				}
 			}
 		}
 		// This point is reached when both have no next pair
-		changes.add((pair1.va < pair2.va) ? pair1 : pair2);
+		changes.add((pair1.va > pair2.va) ? pair1 : pair2);
+		} catch(Exception e) {
+			System.err.println("Changes 1:");
+			print(changes1);
+			System.err.println("Changes 2:");
+			print(changes2);
+			System.err.println("Changes merged:");
+			print(changes);
+			e.printStackTrace();
+		} finally {
 		return changes;
+		}
 	}
 	
 	/**
@@ -167,45 +189,42 @@ public class VAParam extends Param {
 			// Computes the new VA expected for the new eye state; if no new state is expected (death), uses the current VA 
 			final double incidentVA = (incidentState == null) ? vaAtStart : Math.max(vaAtStart, getVAAtIncidence(incidentState, incidentCNVStage));
 			
-			// If the patient is just starting to suffer something...
-			if (pat.getAffectedBy().isEmpty()) {
-				// No progression but the incident VA is expected if the eye is healthy or has EARM
+			final EnumSet<EyeState> affectedEye = pat.getEyeState(eyeIndex);
+			// No progression but the incident VA is expected if the eye is healthy
+			if (affectedEye.contains(EyeState.HEALTHY)) {
 				changes = new ArrayList<VAProgressionPair>();
 				changes.add(new VAProgressionPair(simul.getTs() - pat.getLastVAChangeTs(eyeIndex), incidentVA));
 			}
-			else {				
-				if (pat.getAffectedBy().contains(RETALSimulation.DISEASES.ARMD)) {
-					final EnumSet<EyeState> affectedEye = pat.getEyeState(eyeIndex);
-					if (affectedEye.contains(EyeState.AMD_CNV)) {
-						final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
-						// Subfoveal lesion
-						if (stage.getPosition() == CNVStage.Position.SF)  {
-							changes = progSF.getVAProgression(pat, eyeIndex, incidentVA);
-						}
-						// Juxtafoveal or extrafoveal lesion
-						else {
-							changes = progEF_JF.getVAProgression(pat, eyeIndex, incidentVA); 
-						}
+			else {
+				if (affectedEye.contains(EyeState.AMD_CNV)) {
+					final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
+					// Subfoveal lesion
+					if (stage.getPosition() == CNVStage.Position.SF)  {
+						changes = progSF.getVAProgression(pat, eyeIndex, incidentVA);
 					}
-					else if (affectedEye.contains(EyeState.AMD_GA)) {
-						changes = progGA.getVAProgression(pat, eyeIndex, incidentVA); 
-					}
+					// Juxtafoveal or extrafoveal lesion
 					else {
-						// No progression but the incident VA is expected if the eye has EARM
-						changes = new ArrayList<VAProgressionPair>();
-						changes.add(new VAProgressionPair(simul.getTs() - pat.getLastVAChangeTs(eyeIndex), incidentVA));
+						changes = progEF_JF.getVAProgression(pat, eyeIndex, incidentVA); 
 					}
 				}
-				if (pat.getAffectedBy().contains(RETALSimulation.DISEASES.DR)) {
+				else if (affectedEye.contains(EyeState.AMD_GA)) {
+					changes = progGA.getVAProgression(pat, eyeIndex, incidentVA); 
+				}
+				else {
+					// No progression but the incident VA is expected if the eye has EARM
+					changes = new ArrayList<VAProgressionPair>();
+					changes.add(new VAProgressionPair(simul.getTs() - pat.getLastVAChangeTs(eyeIndex), incidentVA));
+				}
+				if (affectedEye.contains(EyeState.CSME) || affectedEye.contains(EyeState.NPDR) || affectedEye.contains(EyeState.NON_HR_PDR)
+						|| affectedEye.contains(EyeState.HR_PDR)) {
 					ArrayList<VAProgressionPair> changesDR = progDR.getVAProgression(pat, eyeIndex, incidentVA);
 					// If the patient was already affected by ARMD, both progressions have to be merged
-					if (pat.getAffectedBy().contains(RETALSimulation.DISEASES.ARMD)) {
+					if (changes != null) {
 						changes = mergeVAProgressions(vaAtStart, changes, changesDR);
 					}
 					else {
 						changes = changesDR;
 					}
-					
 				}
 			}
 		}

@@ -69,27 +69,27 @@ public class VAProgressionForDR extends VAProgressionParam {
 			changes.add(new VAProgressionPair(timeSinceLastChange, expectedVA));
 		}
 		else {
-			final long yearsSinceLastChange = TimeUnit.YEAR.convert(timeSinceLastChange, simul.getTimeUnit());
+			final int yearsSinceLastChange = (int)(TimeUnit.DAY.convert(timeSinceLastChange, simul.getTimeUnit()) / 365);
 			double va = pat.getVA(eyeIndex);
 			
 			final double[] rnd;
 			final double[] probVA;
 			if (pat.getEyeState(eyeIndex).contains(EyeState.NON_HR_PDR)) {
-				rnd = pat.draw(RandomForPatient.ITEM.DR_VA_NONHR_PDR, (int)yearsSinceLastChange+1);
+				rnd = pat.draw(RandomForPatient.ITEM.DR_VA_NONHR_PDR, yearsSinceLastChange + 1);
 				probVA = PROB_VA_NONHR_PDR;
 			}
 			else if (pat.getEyeState(eyeIndex).contains(EyeState.HR_PDR)) {
-				rnd = pat.draw(RandomForPatient.ITEM.DR_VA_HR_PDR, (int)yearsSinceLastChange+1);
+				rnd = pat.draw(RandomForPatient.ITEM.DR_VA_HR_PDR, yearsSinceLastChange + 1);
 				probVA = PROB_VA_HR_PDR;
 			}
 			else if (pat.getEyeState(eyeIndex).contains(EyeState.CSME)) {
-				rnd = pat.draw(RandomForPatient.ITEM.DR_VA_CSME, (int)yearsSinceLastChange+1);
+				rnd = pat.draw(RandomForPatient.ITEM.DR_VA_CSME, yearsSinceLastChange + 1);
 				probVA = PROB_VA_CSME;
 			}
 			else {
 				pat.error("Trying to calculate VA loss from DR with a patient who has not DR");
 				probVA = new double[2];
-				rnd = new double[(int)yearsSinceLastChange+1];
+				rnd = new double[yearsSinceLastChange + 1];
 			}
 			long timeToChange = 0;
 			// More than a year since last change
@@ -104,12 +104,13 @@ public class VAProgressionForDR extends VAProgressionParam {
 					}
 				}
 			}
-			// See if there is an additional change in the remaining time (less than a year)
+			// Sees if there is an additional change in the remaining time (less than a year)
 			timeToChange += (timeSinceLastChange - simul.getTimeUnit().convert(yearsSinceLastChange, TimeUnit.YEAR));
-			if (rnd[(int)yearsSinceLastChange] < probVA[0]) {
+			if (rnd[rnd.length - 1] < probVA[0]) {
 				va = Math.min(VisualAcuity.MAX_LOGMAR, Math.max(va + probVA[1], expectedVA));
-				changes.add(new VAProgressionPair(timeToChange, va));
 			}
+			// Adds the last change
+			changes.add(new VAProgressionPair(timeToChange, va));
 		}
 			
 		return changes;
