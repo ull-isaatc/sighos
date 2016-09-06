@@ -17,9 +17,9 @@ public class RETALMain {
 		final RETALSimulation simul = new RETALSimulation(0, true);
 		simul.run();
 		// TODO: Check that reset works fine!!!
-//		RandomForPatient.reset();
-//		final RETALSimulation simul2 = new RETALSimulation(simul, 1);
-//		simul2.run();
+		RandomForPatient.reset();
+		final RETALSimulation simul2 = new RETALSimulation(simul, 1);
+		simul2.run();
 
 //		final Random RNG = new Random(); 
 //		for (int i = 0; i < 10000; i++)

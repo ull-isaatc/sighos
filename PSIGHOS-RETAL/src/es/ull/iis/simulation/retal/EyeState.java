@@ -15,6 +15,5 @@ public enum EyeState {
 	NPDR,		// Non-prolipherative diabetic retinopathy
 	NON_HR_PDR,	// Non high-risk prolipherative diabetic retinopathy
 	HR_PDR,		// High-risk prolipherative diabetic retinopathy
-	CSME,		// Clinically significant diabetic macular edema
-	UNTREATABLE	// An state where there is no posible treatment for the eye  
+	CSME		// Clinically significant diabetic macular edema
 }

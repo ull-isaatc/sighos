@@ -53,7 +53,7 @@ public class TimeToEARMParam extends EmpiricTimeToEventParam {
 	public TimeToEARMParam(RETALSimulation simul, boolean baseCase) {
 		super(simul, baseCase, TimeUnit.YEAR);
 		this.probabilities = new double[P_EARM.length][3];
-		// FIXME: should work differently when baseCase = false
+		// TODO: should work differently when baseCase = false
 		
 		// Initialize first-eye incidence of EARM
 		initProbabilities(P_EARM, probabilities);		

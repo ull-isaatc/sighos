@@ -22,7 +22,7 @@ public class CommonParams extends ModelParams {
 	public final static int MAN = 0;
 	public final static int WOMAN = 1;
 	private final static double P_MEN = 0.5;
-	// TODO: change by a real value
+	// FIXME: change by a real value
 	private final static double P_DM1 = 0.1;
 	
 	// Parameters for death. Source: Spanish 2014 Mortality risk. INE

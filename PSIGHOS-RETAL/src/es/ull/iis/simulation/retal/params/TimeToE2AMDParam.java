@@ -59,7 +59,7 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 	 */
 	public TimeToE2AMDParam(RETALSimulation simul, boolean baseCase) {
 		super(simul, baseCase, TimeUnit.YEAR);
-		// FIXME: should work differently when baseCase = false
+		// TODO: should work differently when baseCase = false
 		
 		// Initialize probability of fellow-eye developing CNV given EARM in first eye
 		tuples.put(EyeState.EARM, new StructuredInfo(P_E2AMD_E1EARM, RandomForPatient.ITEM.TIME_TO_E2AMD_E1EARM));

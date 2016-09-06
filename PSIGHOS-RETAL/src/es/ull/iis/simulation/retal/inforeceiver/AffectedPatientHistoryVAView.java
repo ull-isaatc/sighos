@@ -4,12 +4,13 @@
 package es.ull.iis.simulation.retal.inforeceiver;
 
 import java.io.PrintStream;
+import java.util.EnumSet;
 
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
+import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.info.PatientInfo;
 import es.ull.iis.simulation.retal.params.VAProgressionPair;
 
@@ -17,16 +18,14 @@ import es.ull.iis.simulation.retal.params.VAProgressionPair;
  * @author Iván Castilla
  *
  */
-public class AffectedPatientHistoryVAView extends Listener {
+public class AffectedPatientHistoryVAView extends FilteredListener {
 	private final PrintStream out = System.out;
-	private final EyeState filterByState;
 
 	/**
 	 * @param simul
 	 */
-	public AffectedPatientHistoryVAView(Simulation simul, EyeState filterByState) {
-		super(simul, "Standard patient viewer");
-		this.filterByState = filterByState;		
+	public AffectedPatientHistoryVAView(Simulation simul, EnumSet<RETALSimulation.DISEASES> diseases, boolean includeDiabetes, EyeState filterARMDByState, EyeState filterDRByState) {
+		super(simul, "Standard patient viewer", diseases, includeDiabetes, filterARMDByState, filterDRByState);
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
 	}
@@ -34,8 +33,8 @@ public class AffectedPatientHistoryVAView extends Listener {
 	/**
 	 * @param simul
 	 */
-	public AffectedPatientHistoryVAView(Simulation simul) {
-		this(simul, EyeState.EARM);
+	public AffectedPatientHistoryVAView(Simulation simul, EnumSet<RETALSimulation.DISEASES> diseases, boolean includeDiabetes) {
+		this(simul, diseases, includeDiabetes, EyeState.EARM, EyeState.NPDR);
 	}
 
 	@Override
@@ -44,18 +43,7 @@ public class AffectedPatientHistoryVAView extends Listener {
 			PatientInfo pInfo = (PatientInfo) info;
 			Patient pat = (Patient) pInfo.getPatient();
 			if (pInfo.getType() == PatientInfo.Type.FINISH) {
-				boolean condition = false;
-				if (filterByState == EyeState.AMD_CNV) {
-					condition = condition || (pat.getTimeToEyeState(EyeState.AMD_CNV, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_CNV, 1) != Long.MAX_VALUE);
-				}
-				else if (filterByState == EyeState.AMD_GA) {
-					condition = condition || (pat.getTimeToEyeState(EyeState.AMD_CNV, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_CNV, 1) != Long.MAX_VALUE)
-							 || (pat.getTimeToEyeState(EyeState.AMD_GA, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_GA, 1) != Long.MAX_VALUE);					
-				}
-				else if (filterByState == EyeState.EARM) {
-					condition = condition || (pat.getTimeToEyeState(EyeState.EARM, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_GA, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_CNV, 0) != Long.MAX_VALUE);
-				}
-				if (condition) {
+				if (checkFilter(pat)) {
 					final double startAge = pat.getInitAge();
 					out.print(pat.toString() + "\tEye 1\t");
 					long ts = pat.getStartTs();

@@ -9,7 +9,6 @@ import java.util.EnumSet;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
-import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
@@ -20,27 +19,19 @@ import es.ull.iis.simulation.retal.params.CNVStage;
  * @author Iván Castilla
  *
  */
-public class AffectedPatientHistoryView extends Listener {
-	private final EnumSet<RETALSimulation.DISEASES> diseases;
+public class AffectedPatientHistoryView extends FilteredListener {
 	private final PrintStream out = System.out;
 	private final EyeState[] STATES_ARMD = {EyeState.EARM, EyeState.AMD_GA, EyeState.AMD_CNV};
 	private final EyeState[] STATES_DR = {EyeState.NPDR, EyeState.NON_HR_PDR, EyeState.HR_PDR, EyeState.CSME};
 	private final boolean detailed;
-	private final boolean includeDiabetes;
-	private final EyeState filterARMDByState;
-	private final EyeState filterDRByState;
 	
 
 	/**
 	 * @param simul
 	 */
 	public AffectedPatientHistoryView(Simulation simul, EnumSet<RETALSimulation.DISEASES> diseases, boolean detailed, boolean includeDiabetes, EyeState filterARMDByState, EyeState filterDRByState) {
-		super(simul, "Standard patient viewer");
-		this.diseases = diseases;
+		super(simul, "Standard patient viewer", diseases, includeDiabetes, filterARMDByState, filterDRByState);
 		this.detailed = detailed;
-		this.includeDiabetes = includeDiabetes;
-		this.filterARMDByState = filterARMDByState;
-		this.filterDRByState = filterDRByState;
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
 		addEntrance(SimulationStartInfo.class);
@@ -94,40 +85,7 @@ public class AffectedPatientHistoryView extends Listener {
 			PatientInfo pInfo = (PatientInfo) info;
 			Patient pat = (Patient) pInfo.getPatient();
 			if (pInfo.getType() == PatientInfo.Type.FINISH) {
-				boolean condition = false;
-				if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
-					if (filterARMDByState == EyeState.AMD_CNV) {
-						condition = condition || (pat.getTimeToEyeState(EyeState.AMD_CNV, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_CNV, 1) != Long.MAX_VALUE);
-					}
-					else if (filterARMDByState == EyeState.AMD_GA) {
-						condition = condition || (pat.getTimeToEyeState(EyeState.AMD_CNV, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_CNV, 1) != Long.MAX_VALUE)
-								 || (pat.getTimeToEyeState(EyeState.AMD_GA, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_GA, 1) != Long.MAX_VALUE);					
-					}
-					else if (filterARMDByState == EyeState.EARM) {
-						condition = condition || (pat.getTimeToEyeState(EyeState.EARM, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_GA, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.AMD_CNV, 0) != Long.MAX_VALUE);
-					}
-				}
-				if (diseases.contains(RETALSimulation.DISEASES.DR)) {
-					if (filterDRByState == EyeState.CSME) {
-						condition = condition || (pat.getTimeToEyeState(EyeState.CSME, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.CSME, 1) != Long.MAX_VALUE);
-					}
-					else if (filterDRByState == EyeState.HR_PDR) {
-						condition = condition || (pat.getTimeToEyeState(EyeState.HR_PDR, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.HR_PDR, 1) != Long.MAX_VALUE);
-					}
-					else if (filterDRByState == EyeState.NON_HR_PDR) {
-						condition = condition || (pat.getTimeToEyeState(EyeState.NON_HR_PDR, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.NON_HR_PDR, 1) != Long.MAX_VALUE)
-								 || (pat.getTimeToEyeState(EyeState.HR_PDR, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.HR_PDR, 1) != Long.MAX_VALUE);
-					}
-					else if (filterDRByState == EyeState.NPDR) {
-						condition = condition || (pat.getTimeToEyeState(EyeState.NPDR, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.NPDR, 1) != Long.MAX_VALUE)
-								 || (pat.getTimeToEyeState(EyeState.NON_HR_PDR, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.NON_HR_PDR, 1) != Long.MAX_VALUE)
-								 || (pat.getTimeToEyeState(EyeState.HR_PDR, 0) != Long.MAX_VALUE || pat.getTimeToEyeState(EyeState.HR_PDR, 1) != Long.MAX_VALUE);
-					}
-				}
-				if (includeDiabetes) {
-					condition = condition || pat.isDiabetic();
-				}
-				if (condition) {
+				if (checkFilter(pat)) {
 					final StringBuilder str = new StringBuilder(pat.toString()).append("\t").append(pat.getInitAge()).append("\t").append(pat.getAgeAtDiabetes()).append("\t");
 					if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
 						for (int i = 0; i < STATES_ARMD.length; i++)

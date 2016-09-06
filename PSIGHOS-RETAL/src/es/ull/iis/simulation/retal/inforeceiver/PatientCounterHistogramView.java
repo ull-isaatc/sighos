@@ -65,7 +65,7 @@ public class PatientCounterHistogramView extends Listener {
 		nDiabetes = new int[nIntervals];
 		nDeaths = new int[4][nIntervals];
 		nEyeState = new EnumMap<EyeState, int[][]>(EyeState.class);
-		// FIXME: Manually filled by now... but expected to be automatized
+		// TODO: Manually filled by now... but expected to be automatized
 		if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
 			nEyeState.put(EyeState.EARM, new int[nIntervals][2]);
 			nEyeState.put(EyeState.AMD_GA, new int[nIntervals][2]);

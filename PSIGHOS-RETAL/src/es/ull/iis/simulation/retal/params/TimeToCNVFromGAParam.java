@@ -13,7 +13,6 @@ import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla Rodríguez
- * TODO Create class correctly
  */
 public class TimeToCNVFromGAParam extends CompoundEmpiricTimeToEventParam {
 	
@@ -56,7 +55,7 @@ public class TimeToCNVFromGAParam extends CompoundEmpiricTimeToEventParam {
 	 */
 	public TimeToCNVFromGAParam(RETALSimulation simul, boolean baseCase) {
 		super(simul, baseCase, TimeUnit.YEAR);
-		// FIXME: should work diferently when baseCase = false
+		// TODO: should work diferently when baseCase = false
 		
 		// Initialize probability of first-eye developing AMD from EARM
 		StructuredInfo info = new StructuredInfo(P_CNV_E2_NOARM.length, RandomForPatient.ITEM.TIME_TO_CNV_E2_NOARM);

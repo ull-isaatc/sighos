@@ -17,7 +17,6 @@ import es.ull.iis.simulation.retal.RETALSimulation;
  *
  */
 // TODO: Add second-order estimates
-// TODO: Add predictions for DR
 public class VAParam extends Param {
 	/**
 	 * Source: Karnon model

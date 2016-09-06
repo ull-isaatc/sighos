@@ -31,15 +31,15 @@ public class ClinicalPresentationDRParam extends Param {
 	}
 
 	public double getProbability(Patient pat) {
-		// TODO: Currently only checking first eye
-		final EnumSet<EyeState> eye = pat.getEyeState(0);
-		if (eye.contains(EyeState.CSME))
+		final EnumSet<EyeState> eye1 = pat.getEyeState(0);
+		final EnumSet<EyeState> eye2 = pat.getEyeState(1);
+		if (eye1.contains(EyeState.CSME) || eye2.contains(EyeState.CSME))
 			return probabilities[order.get(EyeState.CSME)];
-		if (eye.contains(EyeState.HR_PDR))
+		if (eye1.contains(EyeState.HR_PDR) || eye2.contains(EyeState.HR_PDR))
 			return probabilities[order.get(EyeState.HR_PDR)];
-		if (eye.contains(EyeState.NON_HR_PDR))
+		if (eye1.contains(EyeState.NON_HR_PDR) || eye2.contains(EyeState.NON_HR_PDR))
 			return probabilities[order.get(EyeState.NON_HR_PDR)];
-		if (eye.contains(EyeState.NPDR))
+		if (eye1.contains(EyeState.NPDR) || eye2.contains(EyeState.NPDR))
 			return probabilities[order.get(EyeState.NPDR)];
 		return 0.0;
 	}

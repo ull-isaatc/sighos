@@ -138,8 +138,6 @@ public class PatientCounterView extends Listener {
 					case NPDR:
 						nNPDR[eyeIndex]++;
 						break;
-					case UNTREATABLE:
-						break;
 					default:
 						break;
 					
@@ -152,6 +150,7 @@ public class PatientCounterView extends Listener {
 					break;
 				case DIABETES:
 					nDiabetes++;
+					break;
 				case DEATH:
 					nDeaths++;
 					break;

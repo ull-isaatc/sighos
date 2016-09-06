@@ -63,10 +63,10 @@ public class Patient extends BasicElement {
 	private final CNVEvent[] cNVEvent = {null, null};
 	private final LinkedList<?>[] cNVStageEvents = {new LinkedList<CNVStageEvent>(), new LinkedList<CNVStageEvent>()};
 	private final LinkedList<?>[] vaProgression = {new LinkedList<VAProgressionPair>(), new LinkedList<VAProgressionPair>()};
-	private NonProliferativeDREvent nPDREvent = null;
-	private NonHighRiskProliferativeDREvent nonHRPDREvent = null;
-	private HighRiskProliferativeDREvent hRPDREvent = null;
-	private ClinicallySignificantDMEEvent cSMEEvent = null;
+	private NonProliferativeDREvent[] nPDREvent = {null, null};;
+	private NonHighRiskProliferativeDREvent[] nonHRPDREvent = {null, null};;
+	private HighRiskProliferativeDREvent[] hRPDREvent = {null, null};;
+	private ClinicallySignificantDMEEvent[] cSMEEvent = {null, null};;
 	/** Last timestamp when VA changed */
 	private final long[] lastVAChangeTs = new long[2];
 	
@@ -87,6 +87,7 @@ public class Patient extends BasicElement {
 	 * @param initAge The initial age of the patient
 	 * @param sex Sex of the patient
 	 */
+	@SuppressWarnings("unchecked")
 	public Patient(RETALSimulation simul, double initAge, int nIntervention) {
 		super(simul.getPatientCounter(), simul);
 		this.rng = new RandomForPatient();
@@ -457,16 +458,16 @@ public class Patient extends BasicElement {
 			time = 0;
 			break;
 		case CSME:
-			time = (cSMEEvent == null) ? Long.MAX_VALUE : cSMEEvent.getTs();
+			time = (cSMEEvent[eyeIndex] == null) ? Long.MAX_VALUE : cSMEEvent[eyeIndex].getTs();
 			break;
 		case NPDR:
-			time = (nPDREvent == null) ? Long.MAX_VALUE : nPDREvent.getTs();
+			time = (nPDREvent[eyeIndex] == null) ? Long.MAX_VALUE : nPDREvent[eyeIndex].getTs(); 
 			break;
 		case NON_HR_PDR:
-			time = (nonHRPDREvent == null) ? Long.MAX_VALUE : nonHRPDREvent.getTs();
+			time = (nonHRPDREvent[eyeIndex] == null) ? Long.MAX_VALUE : nonHRPDREvent[eyeIndex].getTs();
 			break;
 		case HR_PDR:
-			time = (hRPDREvent == null) ? Long.MAX_VALUE : hRPDREvent.getTs();
+			time = (hRPDREvent[eyeIndex] == null) ? Long.MAX_VALUE : hRPDREvent[eyeIndex].getTs(); 
 			break;
 		default:
 			time = Long.MAX_VALUE;
@@ -480,6 +481,7 @@ public class Patient extends BasicElement {
 	 * @param eyeIndex
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public long getTimeToCNVStage(CNVStage stage, int eyeIndex) {
 		for (CNVStageEvent event : ((LinkedList<CNVStageEvent>)cNVStageEvents[eyeIndex])) {			
 			if (stage.equals(event.getNewStage()))
@@ -494,6 +496,7 @@ public class Patient extends BasicElement {
 	 * @param eyeIndex
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public double getAgeAt(CNVStage stage, int eyeIndex) {
 		for (CNVStageEvent event : ((LinkedList<CNVStageEvent>)cNVStageEvents[eyeIndex])) {			
 			if (stage.equals(event.getNewStage()))
@@ -705,6 +708,7 @@ public class Patient extends BasicElement {
 			return false;
 		}
 		
+		@SuppressWarnings("unchecked")
 		@Override
 		public void event() {
 			// Advances the calculation of the incident CNV stage
@@ -712,7 +716,6 @@ public class Patient extends BasicElement {
 			// Update VA changes before changing the state. 
 			updateVA(commonParams.getVAProgression(Patient.this, eyeIndex, stage), eyeIndex);
 			
-			@SuppressWarnings("unchecked")
 			final EnumSet<EyeState> affectedEye = (EnumSet<EyeState>)eyes[eyeIndex];
 			// Remove previous stages
 			affectedEye.remove(EyeState.HEALTHY);
@@ -753,6 +756,7 @@ public class Patient extends BasicElement {
 			return newStage;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void event() {
 			// Only update VA if it's a progression in CNV stage and not setting the first CNV stage
@@ -827,6 +831,85 @@ public class Patient extends BasicElement {
 		}
 
 		@SuppressWarnings("unchecked")
+		private void assignInitialEyeState(EnumSet<EyeState> startWith, int eyeIndex) {
+			if (startWith.size() > 0) {
+				eyes[eyeIndex].remove(EyeState.HEALTHY);
+				for (EyeState state : startWith)
+					((EnumSet<EyeState>)eyes[eyeIndex]).add(state);
+				affectedBy.add(RETALSimulation.DISEASES.DR);
+
+				if (eyes[eyeIndex].contains(EyeState.NPDR)) {
+					// Assign the event but not execute it. This is done to ensure that "timeTo..." and "ageAt..." methods work fine 
+					nPDREvent[eyeIndex] = new NonProliferativeDREvent(ts, eyeIndex);
+					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, EyeState.NPDR, eyeIndex, ts));						
+					final long timeToEvent = drParams.getTimeToPDR(Patient.this);
+					if (timeToEvent < Long.MAX_VALUE) {
+						nonHRPDREvent[eyeIndex] = new NonHighRiskProliferativeDREvent(timeToEvent, eyeIndex);
+						addEvent(nonHRPDREvent[eyeIndex]);
+					}
+					if (!eyes[eyeIndex].contains(EyeState.CSME)) {
+						final long timeToCSME = drParams.getTimeToCSME(Patient.this);
+						if (timeToCSME < Long.MAX_VALUE) {
+							cSMEEvent[eyeIndex] = new ClinicallySignificantDMEEvent(timeToCSME, eyeIndex);
+							addEvent(cSMEEvent[eyeIndex]);
+						}
+					}
+				}
+				else if (eyes[eyeIndex].contains(EyeState.NON_HR_PDR)) {
+					// Assign the event but not execute it. This is done to ensure that "timeTo..." and "ageAt..." methods work fine 
+					nonHRPDREvent[eyeIndex] = new NonHighRiskProliferativeDREvent(ts, eyeIndex);
+					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, EyeState.NON_HR_PDR, eyeIndex, ts));						
+					if (!eyes[eyeIndex].contains(EyeState.CSME)) {
+						final long timeToCSME = drParams.getTimeToCSMEAndNonHRPDRFromNonHRPDR(Patient.this);
+						if (timeToCSME < Long.MAX_VALUE) {
+							cSMEEvent[eyeIndex] = new ClinicallySignificantDMEEvent(timeToCSME, eyeIndex);
+							addEvent(cSMEEvent[eyeIndex]);
+						}
+						final long timeToHRPDR = drParams.getTimeToHRPDRFromNonHRPDR(Patient.this);
+						if (timeToHRPDR < Long.MAX_VALUE) {
+							hRPDREvent[eyeIndex] = new HighRiskProliferativeDREvent(timeToHRPDR, eyeIndex);
+							addEvent(hRPDREvent[eyeIndex]);
+						}					
+					}
+					else {
+						final long timeToHRPDR = drParams.getTimeToCSMEAndHRPDRFromCSMEAndNonHRPDR(Patient.this);
+						if (timeToHRPDR < Long.MAX_VALUE) {
+							hRPDREvent[eyeIndex] = new HighRiskProliferativeDREvent(timeToHRPDR, eyeIndex);
+							addEvent(hRPDREvent[eyeIndex]);
+						}										
+					}				
+				}
+				else if (eyes[eyeIndex].contains(EyeState.HR_PDR)) {
+					// Assign the event but not execute it. This is done to ensure that "timeTo..." and "ageAt..." methods work fine 
+					hRPDREvent[eyeIndex] = new HighRiskProliferativeDREvent(ts, eyeIndex);
+					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, EyeState.HR_PDR, eyeIndex, ts));						
+					if (!eyes[eyeIndex].contains(EyeState.CSME)) {
+						final long timeToCSME = drParams.getTimeToCSMEAndHRPDRFromHRPDR(Patient.this);
+						if (timeToCSME < Long.MAX_VALUE) {
+							cSMEEvent[eyeIndex] = new ClinicallySignificantDMEEvent(timeToCSME, eyeIndex);
+							addEvent(cSMEEvent[eyeIndex]);
+						}
+					}
+				}
+				if (eyes[eyeIndex].contains(EyeState.CSME)) {
+					// Assign the event but not execute it. This is done to ensure that "timeTo..." and "ageAt..." methods work fine 
+					cSMEEvent[eyeIndex] = new ClinicallySignificantDMEEvent(ts, eyeIndex);
+					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, EyeState.CSME, eyeIndex, ts));						
+				}
+			}
+			else {
+				final long timeToEvent = drParams.getTimeToNPDR(Patient.this);
+				if (timeToEvent < Long.MAX_VALUE) {
+					nPDREvent[eyeIndex] = new NonProliferativeDREvent(timeToEvent, eyeIndex);
+					addEvent(nPDREvent[eyeIndex]);
+				}
+			}
+			// Update the visual acuity to reflect the incident problem
+			final ArrayList<VAProgressionPair> newVA = new ArrayList<VAProgressionPair>(); 
+			newVA.add(new VAProgressionPair(ts, commonParams.getInitialVA(Patient.this, eyeIndex)));			
+			updateVA(newVA, eyeIndex);			
+		}
+		
 		@Override
 		public void event() {
 			diabetesType = commonParams.getDiabetesType(Patient.this);
@@ -834,85 +917,10 @@ public class Patient extends BasicElement {
 			
 			// TODO: Check if it has sense to go directly from diabetes to some degree of DR. It would make sense if it were 
 			// "diagnosed" diabetes and not "real" diabetes
-			final EnumSet<EyeState> startWith = drParams.startsWith(Patient.this);
-			// TODO: Check if bilateral is required
-			if (startWith.size() > 0) {
-				eyes[0].remove(EyeState.HEALTHY);
-				for (EyeState state : startWith)
-					((EnumSet<EyeState>)eyes[0]).add(state);
-				affectedBy.add(RETALSimulation.DISEASES.DR);
-
-				if (eyes[0].contains(EyeState.NPDR)) {
-					// Assign the event but not execute it. This is done to ensure that "timeTo..." and "ageAt..." methods work fine 
-					nPDREvent = new NonProliferativeDREvent(ts, 0);
-					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, EyeState.NPDR, 0, ts));						
-					final long timeToEvent = drParams.getTimeToPDR(Patient.this);
-					if (timeToEvent < Long.MAX_VALUE) {
-						nonHRPDREvent = new NonHighRiskProliferativeDREvent(timeToEvent, 0);
-						addEvent(nonHRPDREvent);
-					}
-					if (!eyes[0].contains(EyeState.CSME)) {
-						final long timeToCSME = drParams.getTimeToCSME(Patient.this);
-						if (timeToCSME < Long.MAX_VALUE) {
-							cSMEEvent = new ClinicallySignificantDMEEvent(timeToCSME, 0);
-							addEvent(cSMEEvent);
-						}
-					}
-				}
-				else if (eyes[0].contains(EyeState.NON_HR_PDR)) {
-					// Assign the event but not execute it. This is done to ensure that "timeTo..." and "ageAt..." methods work fine 
-					nonHRPDREvent = new NonHighRiskProliferativeDREvent(ts, 0);
-					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, EyeState.NON_HR_PDR, 0, ts));						
-					if (!eyes[0].contains(EyeState.CSME)) {
-						final long timeToCSME = drParams.getTimeToCSMEAndNonHRPDRFromNonHRPDR(Patient.this);
-						if (timeToCSME < Long.MAX_VALUE) {
-							cSMEEvent = new ClinicallySignificantDMEEvent(timeToCSME, 0);
-							addEvent(cSMEEvent);
-						}
-						final long timeToHRPDR = drParams.getTimeToHRPDRFromNonHRPDR(Patient.this);
-						if (timeToHRPDR < Long.MAX_VALUE) {
-							hRPDREvent = new HighRiskProliferativeDREvent(timeToHRPDR, 0);
-							addEvent(hRPDREvent);
-						}					
-					}
-					else {
-						final long timeToHRPDR = drParams.getTimeToCSMEAndHRPDRFromCSMEAndNonHRPDR(Patient.this);
-						if (timeToHRPDR < Long.MAX_VALUE) {
-							hRPDREvent = new HighRiskProliferativeDREvent(timeToHRPDR, 0);
-							addEvent(hRPDREvent);
-						}										
-					}				
-				}
-				else if (eyes[0].contains(EyeState.HR_PDR)) {
-					// Assign the event but not execute it. This is done to ensure that "timeTo..." and "ageAt..." methods work fine 
-					hRPDREvent = new HighRiskProliferativeDREvent(ts, 0);
-					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, EyeState.HR_PDR, 0, ts));						
-					if (!eyes[0].contains(EyeState.CSME)) {
-						final long timeToCSME = drParams.getTimeToCSMEAndHRPDRFromHRPDR(Patient.this);
-						if (timeToCSME < Long.MAX_VALUE) {
-							cSMEEvent = new ClinicallySignificantDMEEvent(timeToCSME, 0);
-							addEvent(cSMEEvent);
-						}
-					}
-				}
-				if (eyes[0].contains(EyeState.CSME)) {
-					// Assign the event but not execute it. This is done to ensure that "timeTo..." and "ageAt..." methods work fine 
-					cSMEEvent = new ClinicallySignificantDMEEvent(ts, 0);
-					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, EyeState.CSME, 0, ts));						
-				}
-			}
-			else {
-				final long timeToEvent = drParams.getTimeToNPDR(Patient.this);
-				if (timeToEvent < Long.MAX_VALUE) {
-					nPDREvent = new NonProliferativeDREvent(timeToEvent, 0);
-					addEvent(nPDREvent);
-				}
-			}
-			// Update the visual acuity to reflect the incident problem
-			final ArrayList<VAProgressionPair> newVA = new ArrayList<VAProgressionPair>(); 
-			newVA.add(new VAProgressionPair(ts, commonParams.getInitialVA(Patient.this, 0)));			
-			updateVA(newVA, 0);
-			
+			final EnumSet<EyeState>[] startWith = drParams.startsWith(Patient.this);
+			// Initializes the state of both eyes
+			assignInitialEyeState(startWith[0], 0);
+			assignInitialEyeState(startWith[1], 1);
 			// Check if the new state arises the diagnosis
 			checkDiagnosis();
 			// TODO: Add actions related to become diabetic (death???)
@@ -930,7 +938,7 @@ public class Patient extends BasicElement {
 		@Override
 		public boolean cancel() {
 			if (super.cancel()) {
-				nPDREvent = null;
+				nPDREvent[eyeIndex] = null;
 				return true;
 			}
 			return false;
@@ -954,13 +962,13 @@ public class Patient extends BasicElement {
 			// Schedules events for PDR and CSME 
 			final long timeToEvent = drParams.getTimeToPDR(Patient.this);
 			if (timeToEvent < Long.MAX_VALUE) {
-				nonHRPDREvent = new NonHighRiskProliferativeDREvent(timeToEvent, eyeIndex);
-				addEvent(nonHRPDREvent);
+				nonHRPDREvent[eyeIndex] = new NonHighRiskProliferativeDREvent(timeToEvent, eyeIndex);
+				addEvent(nonHRPDREvent[eyeIndex]);
 			}
 			final long timeToCSME = drParams.getTimeToCSME(Patient.this);
 			if (timeToCSME < Long.MAX_VALUE) {
-				cSMEEvent = new ClinicallySignificantDMEEvent(timeToCSME, 0);
-				addEvent(cSMEEvent);
+				cSMEEvent[eyeIndex] = new ClinicallySignificantDMEEvent(timeToCSME, eyeIndex);
+				addEvent(cSMEEvent[eyeIndex]);
 			}
 			
 			// Checks diagnosis
@@ -979,7 +987,7 @@ public class Patient extends BasicElement {
 		@Override
 		public boolean cancel() {
 			if (super.cancel()) {
-				nonHRPDREvent = null;
+				nonHRPDREvent[eyeIndex] = null;
 				return true;
 			}
 			return false;
@@ -1007,11 +1015,11 @@ public class Patient extends BasicElement {
 			if (!affectedEye.contains(EyeState.CSME)) {
 				final long timeToCSME = drParams.getTimeToCSMEAndNonHRPDRFromNonHRPDR(Patient.this);
 				if (timeToCSME < getTimeToEyeState(EyeState.CSME, eyeIndex)) {
-					if (cSMEEvent != null) {
-						cSMEEvent.cancel();
+					if (cSMEEvent[eyeIndex] != null) {
+						cSMEEvent[eyeIndex].cancel();
 					}
-					cSMEEvent = new ClinicallySignificantDMEEvent(timeToCSME, eyeIndex);
-					addEvent(cSMEEvent);
+					cSMEEvent[eyeIndex] = new ClinicallySignificantDMEEvent(timeToCSME, eyeIndex);
+					addEvent(cSMEEvent[eyeIndex]);
 				}
 				timeToHRPDR = drParams.getTimeToHRPDRFromNonHRPDR(Patient.this);
 			}
@@ -1020,8 +1028,8 @@ public class Patient extends BasicElement {
 			}
 			// TODO: Check if it could arrive here with an already scheduled HR_DR event
 			if (timeToHRPDR < Long.MAX_VALUE) {
-				hRPDREvent = new HighRiskProliferativeDREvent(timeToHRPDR, eyeIndex);
-				addEvent(hRPDREvent);
+				hRPDREvent[eyeIndex] = new HighRiskProliferativeDREvent(timeToHRPDR, eyeIndex);
+				addEvent(hRPDREvent[eyeIndex]);
 			}										
 			
 			// Checks diagnosis
@@ -1040,7 +1048,7 @@ public class Patient extends BasicElement {
 		@Override
 		public boolean cancel() {
 			if (super.cancel()) {
-				hRPDREvent = null;
+				hRPDREvent[eyeIndex] = null;
 				return true;
 			}
 			return false;
@@ -1067,11 +1075,11 @@ public class Patient extends BasicElement {
 			if (!affectedEye.contains(EyeState.CSME)) {
 				final long timeToCSME = drParams.getTimeToCSMEAndHRPDRFromHRPDR(Patient.this);
 				if (timeToCSME < getTimeToEyeState(EyeState.CSME, eyeIndex)) {
-					if (cSMEEvent != null) {
-						cSMEEvent.cancel();
+					if (cSMEEvent[eyeIndex] != null) {
+						cSMEEvent[eyeIndex].cancel();
 					}
-					cSMEEvent = new ClinicallySignificantDMEEvent(timeToCSME, eyeIndex);
-					addEvent(cSMEEvent);
+					cSMEEvent[eyeIndex] = new ClinicallySignificantDMEEvent(timeToCSME, eyeIndex);
+					addEvent(cSMEEvent[eyeIndex]);
 				}
 			}
 
@@ -1091,7 +1099,7 @@ public class Patient extends BasicElement {
 		@Override
 		public boolean cancel() {
 			if (super.cancel()) {
-				cSMEEvent = null;
+				cSMEEvent[eyeIndex] = null;
 				return true;
 			}
 			return false;
@@ -1118,11 +1126,11 @@ public class Patient extends BasicElement {
 			if (affectedEye.contains(EyeState.NON_HR_PDR)) {
 				final long timeToHRPDR = drParams.getTimeToCSMEAndHRPDRFromCSME(Patient.this);
 				if (timeToHRPDR < getTimeToEyeState(EyeState.HR_PDR, eyeIndex)) {
-					if (hRPDREvent != null) {
-						hRPDREvent.cancel();
+					if (hRPDREvent[eyeIndex] != null) {
+						hRPDREvent[eyeIndex].cancel();
 					}
-					hRPDREvent = new HighRiskProliferativeDREvent(timeToHRPDR, eyeIndex);
-					addEvent(hRPDREvent);
+					hRPDREvent[eyeIndex] = new HighRiskProliferativeDREvent(timeToHRPDR, eyeIndex);
+					addEvent(hRPDREvent[eyeIndex]);
 				}
 			}
 			// If the eye hadn't reached PDR yet
@@ -1131,20 +1139,20 @@ public class Patient extends BasicElement {
 				final long timeToHRPDR = drParams.getTimeToCSMEAndHRPDRFromCSME(Patient.this);
 				if (timeToNonHRPDR < timeToHRPDR) {
 					if (timeToNonHRPDR < getTimeToEyeState(EyeState.NON_HR_PDR, eyeIndex)) {
-						if (nonHRPDREvent != null) {
-							nonHRPDREvent.cancel();
+						if (nonHRPDREvent[eyeIndex] != null) {
+							nonHRPDREvent[eyeIndex].cancel();
 						}
-						nonHRPDREvent = new NonHighRiskProliferativeDREvent(timeToNonHRPDR, eyeIndex);
-						addEvent(nonHRPDREvent);
+						nonHRPDREvent[eyeIndex] = new NonHighRiskProliferativeDREvent(timeToNonHRPDR, eyeIndex);
+						addEvent(nonHRPDREvent[eyeIndex]);
 					}
 				}
 				else if (timeToHRPDR < Long.MAX_VALUE) {
 					if (timeToHRPDR < getTimeToEyeState(EyeState.HR_PDR, eyeIndex)) {
-						if (hRPDREvent != null) {
-							hRPDREvent.cancel();
+						if (hRPDREvent[eyeIndex] != null) {
+							hRPDREvent[eyeIndex].cancel();
 						}
-						hRPDREvent = new HighRiskProliferativeDREvent(timeToHRPDR, eyeIndex);
-						addEvent(hRPDREvent);
+						hRPDREvent[eyeIndex] = new HighRiskProliferativeDREvent(timeToHRPDR, eyeIndex);
+						addEvent(hRPDREvent[eyeIndex]);
 					}
 				}
 			}

@@ -91,7 +91,7 @@ public class RETALSimulation extends Simulation {
 	private void addInfoReceivers() {
 //		addInfoReceiver(new PatientInfoView(this));
 		addInfoReceiver(new AffectedPatientHistoryView(this, ACTIVE_DISEASES, true));
-//		addInfoReceiver(new AffectedPatientHistoryVAView(this, EyeState.AMD_CNV));
+		addInfoReceiver(new AffectedPatientHistoryVAView(this, ACTIVE_DISEASES, true));
 		addInfoReceiver(new PatientPrevalenceView(this, ACTIVE_DISEASES));
 		addInfoReceiver(new PatientCounterView(this, ACTIVE_DISEASES));
 		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5, ACTIVE_DISEASES));
@@ -134,8 +134,8 @@ public class RETALSimulation extends Simulation {
 	public void end() {
 		// FIXME: Prepare to compute outcomes in case not all the patients are dead
 		super.end();
-//		if (nIntervention == NINTERVENTIONS - 1)
-//			for (Outcome outcome : outcomes)
-//				outcome.print(true);
+		if (nIntervention == NINTERVENTIONS - 1)
+			for (Outcome outcome : outcomes)
+				outcome.print(true);
 	}
 }

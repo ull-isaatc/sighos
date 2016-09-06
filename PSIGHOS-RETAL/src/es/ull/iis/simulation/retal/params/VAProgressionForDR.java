@@ -95,7 +95,8 @@ public class VAProgressionForDR extends VAProgressionParam {
 			// More than a year since last change
 			if (yearsSinceLastChange > 0) {
 				final long yearConstant = simul.getTimeUnit().convert(1, TimeUnit.YEAR);
-				for (int i = 0; i < yearsSinceLastChange; i++) {
+				int i = 0;
+				for (; (i < yearsSinceLastChange) && (va < VisualAcuity.MAX_LOGMAR); i++) {
 					timeToChange += yearConstant;
 					if (rnd[i] < probVA[0]) {
 						va = Math.min(VisualAcuity.MAX_LOGMAR, va + probVA[1]);
@@ -103,6 +104,9 @@ public class VAProgressionForDR extends VAProgressionParam {
 						timeToChange = 0;
 					}
 				}
+				if (i < yearsSinceLastChange) {
+					timeToChange = (yearsSinceLastChange - i) * yearConstant; 
+				}					
 			}
 			// Sees if there is an additional change in the remaining time (less than a year)
 			timeToChange += (timeSinceLastChange - simul.getTimeUnit().convert(yearsSinceLastChange, TimeUnit.YEAR));

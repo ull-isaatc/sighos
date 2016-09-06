@@ -62,7 +62,7 @@ public class TimeToE1AMDParam extends EmpiricTimeToEventParam {
 	public TimeToE1AMDParam(RETALSimulation simul, boolean baseCase) {
 		super(simul, baseCase, TimeUnit.YEAR);
 		this.probabilities = new double[P_AMD.length][3];
-		// FIXME: should work diferently when baseCase = false
+		// TODO: should work diferently when baseCase = false
 
 		// Initialize first-eye incidence of AMD
 		initProbabilities(P_AMD, probabilities);		

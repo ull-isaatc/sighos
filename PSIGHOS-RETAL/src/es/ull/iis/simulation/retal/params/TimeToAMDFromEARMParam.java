@@ -89,7 +89,7 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 	 */
 	public TimeToAMDFromEARMParam(RETALSimulation simul, boolean baseCase) {
 		super(simul, baseCase, TimeUnit.YEAR);
-		// FIXME: should work diferently when baseCase = false
+		// TODO: should work diferently when baseCase = false
 		
 		// Initialize probability of first-eye developing AMD from EARM
 		StructuredInfo info = new StructuredInfo(P_AMD_E2_NOARM.length, RandomForPatient.ITEM.TIME_TO_AMD_E2_NOARM);
