@@ -23,6 +23,7 @@ import es.ull.iis.simulation.retal.outcome.QualityAdjustedLifeExpectancy;
 import es.ull.iis.simulation.retal.params.ARMDParams;
 import es.ull.iis.simulation.retal.params.CommonParams;
 import es.ull.iis.simulation.retal.params.DRParams;
+import es.ull.iis.simulation.retal.params.ResourceUsageParam;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
 
@@ -39,22 +40,22 @@ public class RETALSimulation extends Simulation {
 	public static EnumSet<DISEASES> ACTIVE_DISEASES = EnumSet.of(DISEASES.DR); 
 	/** Number of interventions that will be compared for a patient. This value is also used to determine the id of the patient */ 
 	public final static int NINTERVENTIONS = 2;
+	private final static String[] INTERVENTION_DESC = {"Clinical detection", "Screening"};
+	private final static double DISCOUNT_RATE = 0.0; 
+	private final static String DESCRIPTION = "RETAL Simulation";
 	/** Counter to assign a unique id to each patient */
 	private int patientCounter = 0;
-	private final boolean baseCase;
 	public final static int NPATIENTS = 10000;
+	public final static TimeUnit SIMUNIT = TimeUnit.DAY;
 	
 	private final Patient[] generatedPatients = new Patient[NPATIENTS]; 
-	
-	private final static double DISCOUNT_RATE = 0.0; 
-	public final static TimeUnit SIMUNIT = TimeUnit.DAY;
-	private final static String DESCRIPTION = "RETAL Simulation";
-	private final static String[] INTERVENTION_DESC = {"Clinical detection", "Screening"};
+	private final boolean baseCase;
 	private final CommonParams commonParams;
 	private final ARMDParams armdParams;
 	private final DRParams drParams;
-	private final ArrayList<Outcome> outcomes;
 	private final int nIntervention;
+	private final Cost cost;
+	private final QualityAdjustedLifeExpectancy qaly;
 
 	/**
 	 * @param id
@@ -69,9 +70,8 @@ public class RETALSimulation extends Simulation {
 		this.nIntervention = 0;
 		PatientCreator creator = new PatientCreator(this, NPATIENTS, new ConstantFunction(commonParams.getInitAge()));
 		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
-		outcomes = new ArrayList<Outcome>();
-		outcomes.add(new Cost(this, DISCOUNT_RATE));
-		outcomes.add(new QualityAdjustedLifeExpectancy(this, DISCOUNT_RATE));
+		cost = new Cost(this, DISCOUNT_RATE, new ResourceUsageParam(this, baseCase));
+		qaly = new QualityAdjustedLifeExpectancy(this, DISCOUNT_RATE);
 		addInfoReceivers();
 	}
 
@@ -84,7 +84,8 @@ public class RETALSimulation extends Simulation {
 		this.nIntervention = nIntervention;
 		PatientCreator creator = new PatientCreator(this, original.generatedPatients, nIntervention);
 		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
-		this.outcomes = new ArrayList<Outcome>(original.outcomes);
+		this.cost = original.cost;
+		this.qaly = original.qaly;
 		addInfoReceivers();
 	}
 	
@@ -119,13 +120,6 @@ public class RETALSimulation extends Simulation {
 		return patientCounter++;
 	}
 
-	/**
-	 * @return the outcomes
-	 */
-	public ArrayList<Outcome> getOutcomes() {
-		return outcomes;
-	}
-	
 	public void addGeneratedPatient(Patient pat, int order) {
 		generatedPatients[order] = pat;
 	}
@@ -134,8 +128,9 @@ public class RETALSimulation extends Simulation {
 	public void end() {
 		// FIXME: Prepare to compute outcomes in case not all the patients are dead
 		super.end();
-		if (nIntervention == NINTERVENTIONS - 1)
-			for (Outcome outcome : outcomes)
-				outcome.print(true);
+		if (nIntervention == NINTERVENTIONS - 1) {
+			cost.print(true);
+			qaly.print(true);
+		}
 	}
 }

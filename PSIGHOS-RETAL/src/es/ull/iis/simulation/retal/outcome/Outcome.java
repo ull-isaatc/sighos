@@ -36,7 +36,7 @@ public abstract class Outcome {
 	public abstract void print(boolean detailed);
 	
 	/**
-	 * Apply a discount rate to a value. 
+	 * Apply a discount rate to a constant value over a time period. 
 	 * @param value A constant value that applied each year
 	 * @param initAge The age that the patient had when starting the period
 	 * @param endAge The age that the patient had when ending the period
@@ -48,6 +48,17 @@ public abstract class Outcome {
 		return value * (-1 / Math.log(1 + discountRate)) * (Math.pow(1 + discountRate, -endAge) - Math.pow(1 + discountRate, -initAge));
 	}
 	
+	/**
+	 * Apply a discount rate to a value at a specific moment of the simulation.
+	 * @param value A value
+	 * @param time The specific age when the discount is applied 
+	 * @return A discounted value
+	 */
+	protected double applyPunctualDiscount(double value, double time) {
+		if (discountRate == 0.0)
+			return value;
+		return value / Math.pow(1 + discountRate, time);
+	}
 	/**
 	 * @return the unit
 	 */

@@ -51,8 +51,8 @@ public class Patient extends BasicElement {
 	private long startTs;
 	/** The current currentUtility applied to this patient */
 	private double currentUtility = 1.0;
-	/** The outcomes that are measured for this patient */
-	private final ArrayList<Outcome> outcomes;
+	/** The cost measured for this patient */
+	private final Cost cost;
 	
 	/** Random number generators for initial risks to be compared with specific probabilities */
 	private final RandomForPatient rng;

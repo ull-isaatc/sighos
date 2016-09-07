@@ -3,12 +3,13 @@
  */
 package es.ull.iis.simulation.retal.outcome;
 
+import java.util.ArrayList;
+
 import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.OphthalmologicResourceUsage;
 import es.ull.iis.simulation.retal.RETALSimulation;
-import es.ull.iis.simulation.retal.ResourceUsageItem;
+import es.ull.iis.simulation.retal.params.ResourceUsageParam;
+import es.ull.iis.simulation.retal.params.ResourceUsageItem;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -17,9 +18,11 @@ import es.ull.iis.simulation.retal.ResourceUsageItem;
 public class Cost extends Outcome {
 	private final double[][]costs = new double[RETALSimulation.NPATIENTS][RETALSimulation.NINTERVENTIONS];
 	private final double[]aggregated = new double[RETALSimulation.NINTERVENTIONS];
+	private final ResourceUsageParam resourceUsage;
 	
-	public Cost(RETALSimulation simul, double discountRate) {
+	public Cost(RETALSimulation simul, double discountRate, ResourceUsageParam resourceUsage) {
 		super(simul, "Cost", "€", discountRate);
+		this.resourceUsage = resourceUsage;
 	}
 
 	@Override
@@ -34,39 +37,37 @@ public class Cost extends Outcome {
 	 */
 	@Override
 	public void update(Patient pat) {
-		Patient p = (Patient)pat;
 		final double initAge = TimeUnit.YEAR.convert(pat.getLastTs(), simul.getTimeUnit()); 
 		final double endAge = TimeUnit.YEAR.convert(pat.getTs(), simul.getTimeUnit()); 
 		double cost = 0.0;
-		for(EyeState stage : p.getEyeState(0)) {
-			// FIXME: Check if res == null
-			final ResourceUsageItem[] res = OphthalmologicResourceUsage.getResourceUsageItems(stage);
-			if (res != null) {
-				for (ResourceUsageItem usage : res) {
-					cost += usage.computeCost(initAge, endAge);
-				}
+		final ArrayList<ResourceUsageItem> res = resourceUsage.getResourceUsageItems(pat);
+		if (res != null) {
+			for (ResourceUsageItem usage : res) {
+				cost += usage.computeCost(initAge, endAge);
 			}
 		}
-		for(EyeState stage : p.getEyeState(1)) {
-			final ResourceUsageItem[] res = OphthalmologicResourceUsage.getResourceUsageItems(stage);
-			if (res != null) {
-				for (ResourceUsageItem usage : res) {
-					cost += usage.computeCost(initAge, endAge);
-				}
-			}
-		}
-
-		final int patientId = pat.getIdentifier();
 		final int interventionId = pat.getnIntervention();
 		cost = applyDiscount(cost, initAge, endAge);
-		costs[patientId][interventionId] += cost;
+		costs[pat.getIdentifier()][interventionId] += cost;
 		aggregated[interventionId] += cost;
 	}
 
 	@Override
 	public void print(boolean detailed) {
-		// TODO Auto-generated method stub
-		
+		if (detailed) {
+			for (int i = 0; i < RETALSimulation.NPATIENTS; i++) {
+				System.out.print("[" + i + "]\t");
+				for (int j = 0; j < RETALSimulation.NINTERVENTIONS; j++) {
+					System.out.print(costs[i][j] + " " + unit + "\t");
+				}
+				System.out.println();
+			}
+		}
+		System.out.println(this + " summary:");
+		for (int j = 0; j < RETALSimulation.NINTERVENTIONS; j++) {
+			System.out.print(aggregated[j] / RETALSimulation.NPATIENTS + " " + unit + "\t");
+		}
+		System.out.println();
 	}
-
+	
 }
