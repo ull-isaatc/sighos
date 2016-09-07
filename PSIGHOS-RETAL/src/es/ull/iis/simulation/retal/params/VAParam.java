@@ -93,11 +93,6 @@ public class VAParam extends Param {
 		return va;
 	}
 
-	private static void print(ArrayList<VAProgressionPair> pairs) {
-		for (VAProgressionPair pair : pairs) 
-			System.err.println(pair);		
-		
-	}
 	/**
 	 * Merges two lists of visual acuity changes. Each list contains at least one change, due at the end of the studied period. 
 	 * The resulting list uses the worst state possible between both lists, by calculating the missing values as a linear interpolation.
@@ -110,8 +105,6 @@ public class VAParam extends Param {
 		final Iterator<VAProgressionPair> iter1 = changes1.iterator();
 		final Iterator<VAProgressionPair> iter2 = changes2.iterator();
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>(changes1.size() + changes2.size() - 1);
-		
-		try {
 		
 		VAProgressionPair pair1 = iter1.next();
 		VAProgressionPair pair2 = iter2.next();
@@ -157,17 +150,7 @@ public class VAParam extends Param {
 		}
 		// This point is reached when both have no next pair
 		changes.add((pair1.va > pair2.va) ? pair1 : pair2);
-		} catch(Exception e) {
-			System.err.println("Changes 1:");
-			print(changes1);
-			System.err.println("Changes 2:");
-			print(changes2);
-			System.err.println("Changes merged:");
-			print(changes);
-			e.printStackTrace();
-		} finally {
 		return changes;
-		}
 	}
 	
 	/**

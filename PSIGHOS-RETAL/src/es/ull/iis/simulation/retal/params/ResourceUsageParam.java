@@ -22,7 +22,7 @@ public final class ResourceUsageParam extends Param {
 		return null;
 	}
 	
-	public ArrayList<ResourceUsageItem> getResourceUsageForDiagnosis(Patient pat) {
+	public ArrayList<ResourceUsageItem> getResourceUsageForDiagnosis(Patient pat, RETALSimulation.DISEASES disease) {
 		return null;
 	}
 }

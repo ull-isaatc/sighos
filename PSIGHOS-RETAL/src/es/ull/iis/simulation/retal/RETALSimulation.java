@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.retal;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 
 import es.ull.iis.function.ConstantFunction;
@@ -18,7 +17,6 @@ import es.ull.iis.simulation.retal.inforeceiver.PatientCounterView;
 import es.ull.iis.simulation.retal.inforeceiver.PatientInfoView;
 import es.ull.iis.simulation.retal.inforeceiver.PatientPrevalenceView;
 import es.ull.iis.simulation.retal.outcome.Cost;
-import es.ull.iis.simulation.retal.outcome.Outcome;
 import es.ull.iis.simulation.retal.outcome.QualityAdjustedLifeExpectancy;
 import es.ull.iis.simulation.retal.params.ARMDParams;
 import es.ull.iis.simulation.retal.params.CommonParams;
@@ -70,7 +68,7 @@ public class RETALSimulation extends Simulation {
 		this.nIntervention = 0;
 		PatientCreator creator = new PatientCreator(this, NPATIENTS, new ConstantFunction(commonParams.getInitAge()));
 		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
-		cost = new Cost(this, DISCOUNT_RATE, new ResourceUsageParam(this, baseCase));
+		cost = new Cost(this, DISCOUNT_RATE);
 		qaly = new QualityAdjustedLifeExpectancy(this, DISCOUNT_RATE);
 		addInfoReceivers();
 	}
@@ -111,6 +109,20 @@ public class RETALSimulation extends Simulation {
 	 */
 	public DRParams getDrParams() {
 		return drParams;
+	}
+
+	/**
+	 * @return the cost
+	 */
+	public Cost getCost() {
+		return cost;
+	}
+
+	/**
+	 * @return the qaly
+	 */
+	public QualityAdjustedLifeExpectancy getQaly() {
+		return qaly;
 	}
 
 	/**

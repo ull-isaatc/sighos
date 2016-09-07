@@ -31,7 +31,8 @@ public abstract class Outcome {
 
 	public abstract double[] getValue();
 
-	public abstract void update(Patient pat);
+	public abstract void update(Patient pat, double value, double initAge, double endAge);
+	public abstract void update(Patient pat, double value, double age);
 	
 	public abstract void print(boolean detailed);
 	

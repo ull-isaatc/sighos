@@ -36,6 +36,7 @@ public class CommonParams extends ModelParams {
 	private final DiabetesParam diabetes;
 	private final VAParam vaParam;
 	private final VAtoUtilityParam vaToUtility;
+	private final ResourceUsageParam resourceUsage;
 	
 	/**
 	 * 
@@ -45,6 +46,7 @@ public class CommonParams extends ModelParams {
 		diabetes = new DiabetesParam(simul, baseCase);
 		vaParam = new VAParam(simul, baseCase);
 		vaToUtility = new VAtoUtilityParam(simul, baseCase);
+		resourceUsage = new ResourceUsageParam(simul, baseCase);
 	}
 
 	/**
@@ -101,4 +103,25 @@ public class CommonParams extends ModelParams {
 		return Math.max(vaToUtility.getUtility(age, pat.getVA(0)), vaToUtility.getUtility(age, pat.getVA(1)));		
 	}
 	
+	public double getCostForState(Patient pat, double initAge, double endAge) {
+		final ArrayList<ResourceUsageItem> res = resourceUsage.getResourceUsageItems(pat);
+		double cost = 0.0;
+		if (res != null) {
+			for (ResourceUsageItem usage : res) {
+				cost += usage.computeCost(initAge, endAge);
+			}
+		}		
+		return cost;
+	}
+	
+	public double getDiagnosisCost(Patient pat, RETALSimulation.DISEASES disease) {
+		final ArrayList<ResourceUsageItem> res = resourceUsage.getResourceUsageForDiagnosis(pat, disease);
+		double cost = 0.0;
+		if (res != null) {
+			for (ResourceUsageItem usage : res) {
+				cost += usage.getUnitCost();
+			}
+		}		
+		return cost;
+	}
 }

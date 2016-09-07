@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.retal.outcome;
 
-import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 
@@ -31,11 +30,19 @@ public class QualityAdjustedLifeExpectancy extends Outcome {
 	}
 
 	@Override
-	public void update(Patient pat) {
+	public void update(Patient pat, double value, double initAge, double endAge) {
 		final int patientId = pat.getIdentifier();
 		final int interventionId = pat.getnIntervention();
-		final double value = applyDiscount(pat.getUtility(), TimeUnit.YEAR.convert(pat.getLastTs(), simul.getTimeUnit()), TimeUnit.YEAR.convert(pat.getTs(), simul.getTimeUnit()));
+		value = applyDiscount(value, initAge, endAge);
 		qalys[patientId][interventionId] += value;
+		aggregated[interventionId] += value;
+	}
+
+	@Override
+	public void update(Patient pat, double value, double age) {
+		final int interventionId = pat.getnIntervention();
+		value = applyPunctualDiscount(value, age);
+		qalys[pat.getIdentifier()][interventionId] += value;
 		aggregated[interventionId] += value;
 	}
 

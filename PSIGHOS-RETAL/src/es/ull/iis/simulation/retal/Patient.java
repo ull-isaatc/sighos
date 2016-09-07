@@ -11,7 +11,8 @@ import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.info.PatientInfo;
-import es.ull.iis.simulation.retal.outcome.Outcome;
+import es.ull.iis.simulation.retal.outcome.Cost;
+import es.ull.iis.simulation.retal.outcome.QualityAdjustedLifeExpectancy;
 import es.ull.iis.simulation.retal.params.ARMDParams;
 import es.ull.iis.simulation.retal.params.CNVStage;
 import es.ull.iis.simulation.retal.params.CNVStageAndValue;
@@ -53,6 +54,8 @@ public class Patient extends BasicElement {
 	private double currentUtility = 1.0;
 	/** The cost measured for this patient */
 	private final Cost cost;
+	/** The QALYs for this patient */
+	private final QualityAdjustedLifeExpectancy qaly; 
 	
 	/** Random number generators for initial risks to be compared with specific probabilities */
 	private final RandomForPatient rng;
@@ -102,7 +105,8 @@ public class Patient extends BasicElement {
 		this.nIntervention = nIntervention;
 		// Limiting lifespan to MAX AGE
 		this.timeToDeath = simul.getCommonParams().getTimeToDeath(this);
-		this.outcomes = simul.getOutcomes();
+		this.cost = simul.getCost();
+		this.qaly = simul.getQaly();
 		
 		eyes[0] = EnumSet.of(EyeState.HEALTHY);
 		eyes[1] = EnumSet.of(EyeState.HEALTHY);
@@ -136,7 +140,8 @@ public class Patient extends BasicElement {
 		this.initAge = original.initAge;
 		this.sex = original.sex;
 		this.timeToDeath = original.timeToDeath;
-		this.outcomes = original.outcomes;
+		this.cost = original.cost;
+		this.qaly = original.qaly;
 
 		eyes[0] = EnumSet.of(EyeState.HEALTHY);
 		eyes[1] = EnumSet.of(EyeState.HEALTHY);
@@ -293,13 +298,6 @@ public class Patient extends BasicElement {
 	}
 
 	/**
-	 * @return the currentUtility
-	 */
-	public double getUtility() {
-		return currentUtility;
-	}
-
-	/**
 	 * @param currentUtility the current utility to set
 	 */
 	public void setUtility(double currentUtility) {
@@ -314,9 +312,11 @@ public class Patient extends BasicElement {
 	public void setTs(long ts) {
 		lastTs = this.ts;
 		super.setTs(ts);
-		for (Outcome outcome : outcomes) {
-			outcome.update(this);
-		}
+		final double initAge = TimeUnit.YEAR.convert(lastTs, simul.getTimeUnit()); 
+		final double endAge = TimeUnit.YEAR.convert(ts, simul.getTimeUnit());
+		final double periodCost = commonParams.getCostForState(this, initAge, endAge);
+		cost.update(this, periodCost, initAge, endAge);
+		qaly.update(this, currentUtility, initAge, endAge);
 	}
 	
 	/**
@@ -339,12 +339,20 @@ public class Patient extends BasicElement {
 	public void checkDiagnosis() {
 		if (!isDiagnosed()) {
 			if (affectedBy.contains(RETALSimulation.DISEASES.ARMD)) {
-				if (rng.draw(RandomForPatient.ITEM.ARMD_CLINICAL_PRESENTATION) < armdParams.getProbabilityClinicalPresentation(Patient.this))
+				if (rng.draw(RandomForPatient.ITEM.ARMD_CLINICAL_PRESENTATION) < armdParams.getProbabilityClinicalPresentation(Patient.this)) {
 					this.diagnosed = ts;
+					final double diagnosisCost = commonParams.getDiagnosisCost(this, RETALSimulation.DISEASES.ARMD);
+					cost.update(this, diagnosisCost, getAge());
+				}
 			}
+		}
+		if (!isDiagnosed()) {
 			if (affectedBy.contains(RETALSimulation.DISEASES.DR)) {
-				if (rng.draw(RandomForPatient.ITEM.DR_CLINICAL_PRESENTATION) < drParams.getProbabilityClinicalPresentation(Patient.this))
+				if (rng.draw(RandomForPatient.ITEM.DR_CLINICAL_PRESENTATION) < drParams.getProbabilityClinicalPresentation(Patient.this)) {
 					this.diagnosed = ts;
+					final double diagnosisCost = commonParams.getDiagnosisCost(this, RETALSimulation.DISEASES.DR);
+					cost.update(this, diagnosisCost, getAge());
+				}
 			}
 		}		
 	}
