@@ -18,12 +18,6 @@ public class Cost extends Outcome {
 		super(simul, "Cost", "€", discountRate);
 	}
 
-	@Override
-	public double[] getValue() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	/**
 	 * Computes the cost associated to the current state of the patient
 	 * @param pat The patient who updates the cost 

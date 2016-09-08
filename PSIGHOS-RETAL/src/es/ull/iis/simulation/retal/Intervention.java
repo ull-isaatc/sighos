@@ -10,4 +10,5 @@ package es.ull.iis.simulation.retal;
  */
 public interface Intervention {
 
+	public int getId();
 }

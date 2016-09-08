@@ -29,9 +29,20 @@ public abstract class Outcome {
 		this.discountRate = discountRate;
 	}
 
-	public abstract double[] getValue();
-
+	/**
+	 * Updates the value of this outcome for a specified period
+	 * @param pat A patient
+	 * @param value A constant value during the period
+	 * @param initAge Initial age when the value is applied
+	 * @param endAge End age when the value is applied
+	 */
 	public abstract void update(Patient pat, double value, double initAge, double endAge);
+	/**
+	 * Updates the value of this outcome at a specified age
+	 * @param pat A patient
+	 * @param value The value to update
+	 * @param age The age at which the value is applied
+	 */
 	public abstract void update(Patient pat, double value, double age);
 	
 	public abstract void print(boolean detailed);
@@ -65,13 +76,6 @@ public abstract class Outcome {
 	 */
 	public String getUnit() {
 		return unit;
-	}
-
-	/**
-	 * @return the simul
-	 */
-	public RETALSimulation getSimul() {
-		return simul;
 	}
 
 	@Override

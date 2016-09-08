@@ -3,6 +3,11 @@
  */
 package es.ull.iis.simulation.retal;
 
+import es.ull.iis.simulation.core.SimulationPeriodicCycle;
+import es.ull.iis.simulation.core.SimulationTimeFunction;
+import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.retal.params.ScreeningParam;
+
 /**
  * @author Iván Castilla Rodríguez
  *
@@ -14,11 +19,13 @@ public class RETALMain {
 //	private final static SimulationTimeFunction deathTime = new SimulationTimeFunction(SIMUNIT, "ConstantVariate", new TimeStamp(TimeUnit.YEAR, 40));
 	
 	public static void main(String[] args) {
-		final RETALSimulation simul = new RETALSimulation(0, true);
+		final RETALSimulation simul = new RETALSimulation(0, true, new NullIntervention());
 		simul.run();
 		// TODO: Check that reset works fine!!!
 		RandomForPatient.reset();
-		final RETALSimulation simul2 = new RETALSimulation(simul, 1);
+		ScreeningParam scrParam = new ScreeningParam(null, true);
+		Screening interv1 = new Screening(new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1), scrParam);
+		final RETALSimulation simul2 = new RETALSimulation(simul, interv1);
 		simul2.run();
 
 //		final Random RNG = new Random(); 

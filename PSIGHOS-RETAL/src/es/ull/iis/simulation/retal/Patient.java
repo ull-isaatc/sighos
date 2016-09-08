@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.LinkedList;
 
-import es.ull.iis.simulation.core.SimulationPeriodicCycle;
-import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.info.PatientInfo;
 import es.ull.iis.simulation.retal.outcome.Cost;
@@ -91,18 +89,18 @@ public class Patient extends BasicElement {
 	 * @param sex Sex of the patient
 	 */
 	@SuppressWarnings("unchecked")
-	public Patient(RETALSimulation simul, double initAge, int nIntervention) {
+	public Patient(RETALSimulation simul, double initAge, Intervention intervention) {
 		super(simul.getPatientCounter(), simul);
 		this.rng = new RandomForPatient();
 		this.commonParams = simul.getCommonParams();
 		this.armdParams = simul.getArmdParams();
 		this.drParams = simul.getDrParams();
 
-		intervention = new NullIntervention();
+		this.intervention = intervention;
+		this.nIntervention = intervention.getId();
 		this.initAge = 365*initAge;
 		this.sex = commonParams.getSex(this);
 		this.clonedFrom = null;
-		this.nIntervention = nIntervention;
 		// Limiting lifespan to MAX AGE
 		this.timeToDeath = simul.getCommonParams().getTimeToDeath(this);
 		this.cost = simul.getCost();
@@ -127,16 +125,16 @@ public class Patient extends BasicElement {
 	 * @param nIntervention New intervention this clone is assigned to
 	 */
 	@SuppressWarnings("unchecked")
-	public Patient(RETALSimulation simul, Patient original, int nIntervention) {
+	public Patient(RETALSimulation simul, Patient original, Intervention intervention) {
 		super(original.id, simul);
 		this.rng = new RandomForPatient(original.rng); 
 		this.commonParams = original.commonParams;
 		this.armdParams = original.armdParams;
 		this.drParams = original.drParams;
 
-		intervention = new Screening(new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1), 1.0, 1.0);
+		this.intervention = intervention;
+		this.nIntervention = intervention.getId();
 		this.clonedFrom = original;
-		this.nIntervention = nIntervention;
 		this.initAge = original.initAge;
 		this.sex = original.sex;
 		this.timeToDeath = original.timeToDeath;
@@ -333,6 +331,12 @@ public class Patient extends BasicElement {
 		return (diagnosed < Long.MAX_VALUE);
 	}
 
+	public void setDiagnosed(RETALSimulation.DISEASES disease) {
+		diagnosed = ts;
+		final double diagnosisCost = commonParams.getDiagnosisCost(this, disease);
+		cost.update(this, diagnosisCost, getAge());
+	}
+	
 	/**
 	 * Updates the state of the patient to reflect whether he/she has been diagnosed
 	 */
@@ -340,18 +344,14 @@ public class Patient extends BasicElement {
 		if (!isDiagnosed()) {
 			if (affectedBy.contains(RETALSimulation.DISEASES.ARMD)) {
 				if (rng.draw(RandomForPatient.ITEM.ARMD_CLINICAL_PRESENTATION) < armdParams.getProbabilityClinicalPresentation(Patient.this)) {
-					this.diagnosed = ts;
-					final double diagnosisCost = commonParams.getDiagnosisCost(this, RETALSimulation.DISEASES.ARMD);
-					cost.update(this, diagnosisCost, getAge());
+					setDiagnosed(RETALSimulation.DISEASES.ARMD);
 				}
 			}
 		}
 		if (!isDiagnosed()) {
 			if (affectedBy.contains(RETALSimulation.DISEASES.DR)) {
 				if (rng.draw(RandomForPatient.ITEM.DR_CLINICAL_PRESENTATION) < drParams.getProbabilityClinicalPresentation(Patient.this)) {
-					this.diagnosed = ts;
-					final double diagnosisCost = commonParams.getDiagnosisCost(this, RETALSimulation.DISEASES.DR);
-					cost.update(this, diagnosisCost, getAge());
+					setDiagnosed(RETALSimulation.DISEASES.DR);
 				}
 			}
 		}		
@@ -800,7 +800,7 @@ public class Patient extends BasicElement {
 			// Patient healthy
 			if (isHealthy()) {
 				// True negative
-				if (rng.draw(RandomForPatient.ITEM.SPECIFICITY) > ((Screening)intervention).getSpecificity()) {
+				if (rng.draw(RandomForPatient.ITEM.SPECIFICITY) > ((Screening)intervention).getSpecificity(Patient.this)) {
 					// Schedule next screening appointment (if required) 
 					long next = iterator.next();
 					if (next != -1) {
@@ -815,7 +815,7 @@ public class Patient extends BasicElement {
 			// Patient ill
 			else {
 				// False negative
-				if (rng.draw(RandomForPatient.ITEM.SENSITIVITY) > ((Screening)intervention).getSensitivity()) {
+				if (rng.draw(RandomForPatient.ITEM.SENSITIVITY) > ((Screening)intervention).getSensitivity(Patient.this)) {
 					// Schedule next screening appointment (if required) 
 					long next = iterator.next();
 					if (next != -1) {
@@ -824,7 +824,8 @@ public class Patient extends BasicElement {
 				}
 				// True positive
 				else {
-					diagnosed = ts;
+					// TODO: check if taking the first one is a good option...
+					setDiagnosed((RETALSimulation.DISEASES) affectedBy.toArray()[0]);
 					// TODO: Add costs of true positive						
 				}					
 			}

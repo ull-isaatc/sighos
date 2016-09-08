@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.retal;
 
 import es.ull.iis.simulation.core.SimulationCycle;
+import es.ull.iis.simulation.retal.params.ScreeningParam;
 
 /**
  * @author icasrod
@@ -11,8 +12,7 @@ import es.ull.iis.simulation.core.SimulationCycle;
  */
 public class Screening implements Intervention {
 	private final SimulationCycle screeningCycle;
-	private final double specificity;
-	private final double sensitivity;
+	private final ScreeningParam param;
 
 	/**
 	 * 
@@ -20,10 +20,9 @@ public class Screening implements Intervention {
 	 * @param specificity
 	 * @param sensitivity
 	 */
-	public Screening(SimulationCycle screeningCycle, double specificity, double sensitivity) {
+	public Screening(SimulationCycle screeningCycle, ScreeningParam param) {
 		this.screeningCycle = screeningCycle;
-		this.specificity = specificity;
-		this.sensitivity = sensitivity;
+		this.param = param;
 	}
 
 	/**
@@ -36,15 +35,20 @@ public class Screening implements Intervention {
 	/**
 	 * @return the specificity
 	 */
-	public double getSpecificity() {
-		return specificity;
+	public double getSpecificity(Patient pat) {
+		return param.getSpecificity(pat);
 	}
 
 	/**
 	 * @return the sensitivity
 	 */
-	public double getSensitivity() {
-		return sensitivity;
+	public double getSensitivity(Patient pat) {
+		return param.getSensitivity(pat);
+	}
+
+	@Override
+	public int getId() {
+		return 1;
 	}
 
 }

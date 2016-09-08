@@ -21,14 +21,6 @@ public class QualityAdjustedLifeExpectancy extends Outcome {
 		super(simul, "Quality Adjusted Life Expectancy", "QALY", discountRate);
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.retal.outcome.Outcome#getValue()
-	 */
-	@Override
-	public double[] getValue() {
-		return aggregated;
-	}
-
 	@Override
 	public void update(Patient pat, double value, double initAge, double endAge) {
 		final int patientId = pat.getIdentifier();

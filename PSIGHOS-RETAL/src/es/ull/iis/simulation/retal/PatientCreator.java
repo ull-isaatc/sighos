@@ -21,19 +21,19 @@ public class PatientCreator implements BasicElementCreator {
 	/** A distribution to characterize the initial age of each generated patient */
 	private final TimeFunction initialAges;
 	private final Patient[] copyOf;
-	private final int intervention;
+	private final Intervention intervention;
 
 	/**
 	 * @param simul
 	 * @param nPatients
 	 * @param pMen
 	 */
-	public PatientCreator(RETALSimulation simul, int nPatients, TimeFunction initialAges) {
+	public PatientCreator(RETALSimulation simul, int nPatients, TimeFunction initialAges, Intervention intervention) {
 		this.nPatients = nPatients;
 		this.simul = simul;
 		this.initialAges = initialAges;
 		this.copyOf = null;
-		this.intervention = 0;
+		this.intervention = intervention;
 	}
 	
 	/**
@@ -43,7 +43,7 @@ public class PatientCreator implements BasicElementCreator {
 	 * @param copyOf An original set of patients created for a previous simulation (and already simulated)
 	 * @param intervention Numerical identifier of the intervention
 	 */
-	public PatientCreator(RETALSimulation simul, Patient[] copyOf, int intervention) {
+	public PatientCreator(RETALSimulation simul, Patient[] copyOf, Intervention intervention) {
 		this.nPatients = copyOf.length;
 		this.simul = simul;
 		this.initialAges = null;
