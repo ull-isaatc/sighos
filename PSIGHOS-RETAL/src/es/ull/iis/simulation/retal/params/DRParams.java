@@ -219,4 +219,8 @@ public class DRParams extends ModelParams {
 	public double getProbabilityClinicalPresentation(Patient pat) {
 		return clinicalPresentation.getProbability(pat);
 	}
+	
+	public long getTimeToClinicalPresentation(Patient pat) {
+		return clinicalPresentation.getValidatedTimeToEvent(pat);
+	}
 }

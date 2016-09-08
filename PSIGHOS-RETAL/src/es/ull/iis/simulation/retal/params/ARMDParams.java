@@ -84,4 +84,8 @@ public class ARMDParams extends ModelParams {
 	public double getProbabilityClinicalPresentation(Patient pat) {
 		return clinicalPresentation.getProbability(pat);
 	}
+	
+	public long getTimeToClinicalPresentation(Patient pat) {
+		return clinicalPresentation.getValidatedTimeToEvent(pat);
+	}
 }

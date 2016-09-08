@@ -331,29 +331,43 @@ public class Patient extends BasicElement {
 	public boolean isDiagnosed() {
 		if (diagnoseEvent == null)
 			return false;
-		return (diagnoseEvent.getTs() < ts);
+		return (diagnoseEvent.getTs() <= ts);
 	}
 	
 	/**
 	 * Updates the state of the patient to reflect whether he/she has been diagnosed
 	 */
 	public void checkDiagnosis() {
-		if (!isDiagnosed()) {
+		final long timeToDiagnosis = (diagnoseEvent == null) ? Long.MAX_VALUE : diagnoseEvent.getTs(); 
+		if (timeToDiagnosis > ts) {
+			long timeToARMDDiagnosis = Long.MAX_VALUE;
 			if (affectedBy.contains(RETALSimulation.DISEASES.ARMD)) {
-				if (rng.draw(RandomForPatient.ITEM.ARMD_CLINICAL_PRESENTATION) < armdParams.getProbabilityClinicalPresentation(Patient.this)) {
-					diagnoseEvent = new DiagnoseEvent(ts, RETALSimulation.DISEASES.ARMD);
-					addEvent(diagnoseEvent);
+				timeToARMDDiagnosis = armdParams.getTimeToClinicalPresentation(this);
+			}
+			long timeToDRDiagnosis = Long.MAX_VALUE;
+			if (affectedBy.contains(RETALSimulation.DISEASES.DR)) {
+				timeToDRDiagnosis = drParams.getTimeToClinicalPresentation(this);
+			}
+			if (timeToARMDDiagnosis < timeToDiagnosis) {
+				if (timeToDiagnosis < Long.MAX_VALUE) {
+					diagnoseEvent.cancel();
+				}					
+				if (timeToDRDiagnosis < timeToARMDDiagnosis) {
+					diagnoseEvent = new DiagnoseEvent(timeToDRDiagnosis, RETALSimulation.DISEASES.DR);					
 				}
+				else {
+					diagnoseEvent = new DiagnoseEvent(timeToARMDDiagnosis, RETALSimulation.DISEASES.ARMD);					
+				}
+				addEvent(diagnoseEvent);
+			}
+			else if (timeToDRDiagnosis < timeToDiagnosis) {
+				if (timeToDiagnosis < Long.MAX_VALUE) {
+					diagnoseEvent.cancel();
+				}					
+				diagnoseEvent = new DiagnoseEvent(timeToDRDiagnosis, RETALSimulation.DISEASES.DR);					
+				addEvent(diagnoseEvent);				
 			}
 		}
-		if (!isDiagnosed()) {
-			if (affectedBy.contains(RETALSimulation.DISEASES.DR)) {
-				if (rng.draw(RandomForPatient.ITEM.DR_CLINICAL_PRESENTATION) < drParams.getProbabilityClinicalPresentation(Patient.this)) {
-					diagnoseEvent = new DiagnoseEvent(ts, RETALSimulation.DISEASES.DR);
-					addEvent(diagnoseEvent);
-				}
-			}
-		}		
 	}
 
 	/**
@@ -830,6 +844,8 @@ public class Patient extends BasicElement {
 				else {
 					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.TP, this.getTs()));
 					// TODO: check if taking the first one is a good option...
+					if (diagnoseEvent != null)
+						diagnoseEvent.cancel();
 					diagnoseEvent = new DiagnoseEvent(ts, (RETALSimulation.DISEASES)affectedBy.toArray()[0]);
 					addEvent(diagnoseEvent);
 					// TODO: Add changes of true positive						
@@ -852,6 +868,15 @@ public class Patient extends BasicElement {
 			final double diagnosisCost = commonParams.getDiagnosisCost(Patient.this, disease);
 			cost.update(Patient.this, diagnosisCost, getAge());
 			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DIAGNOSED, this.getTs()));
+		}
+		
+		@Override
+		public boolean cancel() {
+			if (super.cancel()) {
+				diagnoseEvent = null;
+				return true;
+			}
+			return false;
 		}
 	}
 	

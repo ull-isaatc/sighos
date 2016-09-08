@@ -3,8 +3,10 @@ package es.ull.iis.simulation.retal.params;
 import java.util.EnumMap;
 import java.util.EnumSet;
 
+import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
+import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * FIXME: Currently assuming that CSME and HR_PDR are always detected
@@ -15,7 +17,7 @@ public class ClinicalPresentationDRParam extends Param {
 	/** An index to locate a specific eye state in the {@link #probabilities} array */
 	final private static EnumMap<EyeState, Integer> order  = new EnumMap<EyeState, Integer>(EyeState.class);
 	/** The annual probability to be clinically detected depending on the states of the first eye */	
-	private final static double [] probabilities = {0.1, 0.2, 1.0, 1.0}; 
+	private final static double [] probabilities = {0.001, 0.002, 0.8, 0.9}; 
 
 	static {
 		int cont = 0;
@@ -42,4 +44,23 @@ public class ClinicalPresentationDRParam extends Param {
 			return probabilities[order.get(EyeState.NPDR)];
 		return 0.0;
 	}
+
+	public long getValidatedTimeToEvent(Patient pat) {
+		final double yearlyProb = getProbability(pat);
+		final int currentAge = (int) pat.getAge();
+		final int yearsToDeath = (int)pat.getAgeAtDeath() - currentAge;
+		// First year
+		if (pat.draw(RandomForPatient.ITEM.DR_CLINICAL_PRESENTATION) < yearlyProb)
+			return pat.getTs();
+		// Following years but the last
+		for (int age = 1; age < yearsToDeath; age++) {
+			if (pat.draw(RandomForPatient.ITEM.DR_CLINICAL_PRESENTATION) < yearlyProb)
+				return pat.getTs() + pat.getSimulation().getTimeUnit().convert(age, TimeUnit.YEAR);
+		}
+		// Last year
+		if (pat.draw(RandomForPatient.ITEM.DR_CLINICAL_PRESENTATION) < yearlyProb)
+			return pat.getTs() + pat.getSimulation().getTimeUnit().convert(yearsToDeath, TimeUnit.YEAR);
+		return Long.MAX_VALUE;
+	}
+
 }
