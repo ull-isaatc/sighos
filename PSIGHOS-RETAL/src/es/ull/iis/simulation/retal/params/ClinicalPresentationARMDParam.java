@@ -8,7 +8,6 @@ import java.util.EnumSet;
 
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -44,8 +43,8 @@ public class ClinicalPresentationARMDParam extends Param {
 	 * @param simul
 	 * @param baseCase
 	 */
-	public ClinicalPresentationARMDParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase);
+	public ClinicalPresentationARMDParam(boolean baseCase) {
+		super(baseCase);
 	}
 
 	private int getOrder(Patient pat, int eyeIndex) {

@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
@@ -49,7 +48,7 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 			else {
 				final double []rnd = pat.draw(rngItem, probabilities.length);
 				final double time = CompoundEmpiricTimeToEventParam.getTimeToEvent(probabilities, pat.getAge(), rnd);
-				return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + simul.getTimeUnit().convert(time, unit);
+				return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, unit);
 			}
 		}
 		
@@ -87,8 +86,8 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 	/**
 	 * 
 	 */
-	public CompoundEmpiricTimeToEventParam(RETALSimulation simul, boolean baseCase, TimeUnit unit) {
-		super(simul, baseCase, unit);
+	public CompoundEmpiricTimeToEventParam(boolean baseCase, TimeUnit unit) {
+		super(baseCase, unit);
 	}
 
 	/**

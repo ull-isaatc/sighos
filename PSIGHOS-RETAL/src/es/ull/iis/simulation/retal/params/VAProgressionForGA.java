@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
@@ -36,8 +35,8 @@ public class VAProgressionForGA extends VAProgressionParam {
 	 * @param simul
 	 * @param baseCase
 	 */
-	public VAProgressionForGA(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase);
+	public VAProgressionForGA(boolean baseCase) {
+		super(baseCase);
 		for (int i = 0; i < VA_PROGRESSION.length; i++)
 			yearlyProgression[i] = VA_PROGRESSION[i][0];
 	}
@@ -52,7 +51,7 @@ public class VAProgressionForGA extends VAProgressionParam {
 			if (rnd < yearlyProgression[i])
 				year = i;
 		}
-		final long timeSinceGA = simul.getTs() - pat.getTimeToEyeState(EyeState.AMD_GA, eyeIndex);
+		final long timeSinceGA = pat.getSimulation().getTs() - pat.getTimeToEyeState(EyeState.AMD_GA, eyeIndex);
 		// If no changes in four years, it is supposed not to progress
 		if (year == yearlyProgression.length) {
 			array.add(new VAProgressionPair(timeSinceGA, expectedVA));
@@ -60,7 +59,7 @@ public class VAProgressionForGA extends VAProgressionParam {
 		else {
 			// Else, checks how much this patient progresses 
 			double incVA = (pat.draw(RandomForPatient.ITEM.ARMD_PROG_TWICE_GA) < PROP_PROGRESSING_TWICE) ? LOSS_6_LINES : LOSS_3_LINES;
-			long time = simul.getTimeUnit().convert(year + 1, TimeUnit.YEAR);
+			long time = pat.getSimulation().getTimeUnit().convert(year + 1, TimeUnit.YEAR);
 			// If the change will happen in the future, performs a linear interpolation to estimate the new VA
 			if (timeSinceGA <= time) {
 				incVA = incVA * timeSinceGA / time;

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -40,8 +39,8 @@ public class VAProgressionForDR extends VAProgressionParam {
 	 * @param simul
 	 * @param baseCase
 	 */
-	public VAProgressionForDR(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase);
+	public VAProgressionForDR(boolean baseCase) {
+		super(baseCase);
 		initialDR = RandomVariateFactory.getInstance("NormalVariate", RandomForPatient.getRandomNumber(RandomForPatient.ITEM.DR_INITIAL_VA), MEAN_SD_VA_DR[0], MEAN_SD_VA_DR[1]);
 	}
 
@@ -64,12 +63,12 @@ public class VAProgressionForDR extends VAProgressionParam {
 	@Override
 	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>();
-		final long timeSinceLastChange = simul.getTs() - pat.getLastVAChangeTs(eyeIndex);
+		final long timeSinceLastChange = pat.getSimulation().getTs() - pat.getLastVAChangeTs(eyeIndex);
 		if (pat.getEyeState(eyeIndex).contains(EyeState.NPDR)) {
 			changes.add(new VAProgressionPair(timeSinceLastChange, expectedVA));
 		}
 		else {
-			final int yearsSinceLastChange = (int)(TimeUnit.DAY.convert(timeSinceLastChange, simul.getTimeUnit()) / 365);
+			final int yearsSinceLastChange = (int)(TimeUnit.DAY.convert(timeSinceLastChange, pat.getSimulation().getTimeUnit()) / 365);
 			double va = pat.getVA(eyeIndex);
 			
 			final double[] rnd;
@@ -94,7 +93,7 @@ public class VAProgressionForDR extends VAProgressionParam {
 			long timeToChange = 0;
 			// More than a year since last change
 			if (yearsSinceLastChange > 0) {
-				final long yearConstant = simul.getTimeUnit().convert(1, TimeUnit.YEAR);
+				final long yearConstant = pat.getSimulation().getTimeUnit().convert(1, TimeUnit.YEAR);
 				int i = 0;
 				for (; (i < yearsSinceLastChange) && (va < VisualAcuity.MAX_LOGMAR); i++) {
 					timeToChange += yearConstant;
@@ -109,7 +108,7 @@ public class VAProgressionForDR extends VAProgressionParam {
 				}					
 			}
 			// Sees if there is an additional change in the remaining time (less than a year)
-			timeToChange += (timeSinceLastChange - simul.getTimeUnit().convert(yearsSinceLastChange, TimeUnit.YEAR));
+			timeToChange += (timeSinceLastChange - pat.getSimulation().getTimeUnit().convert(yearsSinceLastChange, TimeUnit.YEAR));
 			if (rnd[rnd.length - 1] < probVA[0]) {
 				va = Math.min(VisualAcuity.MAX_LOGMAR, Math.max(va + probVA[1], expectedVA));
 			}

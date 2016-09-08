@@ -5,7 +5,6 @@ package es.ull.iis.simulation.retal.params;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
@@ -21,8 +20,8 @@ public class AnnualBasedTimeToEventParam extends Param {
 	 * @param simul
 	 * @param baseCase
 	 */
-	public AnnualBasedTimeToEventParam(RETALSimulation simul, boolean baseCase, double annualProbability, RandomForPatient.ITEM item) {
-		super(simul, baseCase);
+	public AnnualBasedTimeToEventParam(boolean baseCase, double annualProbability, RandomForPatient.ITEM item) {
+		super(baseCase);
 		this.item = item;
 		this.minusAvgTimeToEvent = -(1/annualProbability);
 	}
@@ -30,6 +29,6 @@ public class AnnualBasedTimeToEventParam extends Param {
 	public long getTimeToEvent(Patient pat) {
 		final double lifetime = pat.getAgeAtDeath() - pat.getAge();
 		final double time = minusAvgTimeToEvent * Math.log(pat.draw(item));
-		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + simul.getTimeUnit().convert(time, TimeUnit.YEAR);
+		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
 	}
 }

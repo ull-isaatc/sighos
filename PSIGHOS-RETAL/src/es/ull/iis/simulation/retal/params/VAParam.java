@@ -10,7 +10,6 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -53,12 +52,12 @@ public class VAParam extends Param {
 	 * @param simul
 	 * @param baseCase
 	 */
-	public VAParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase);
-		progGA = new VAProgressionForGA(simul, baseCase);
-		progEF_JF = new VAProgressionForEF_JF(simul, baseCase);
-		progSF = new VAProgressionForSF(simul, baseCase);
-		progDR = new VAProgressionForDR(simul, baseCase);
+	public VAParam(boolean baseCase) {
+		super(baseCase);
+		progGA = new VAProgressionForGA(baseCase);
+		progEF_JF = new VAProgressionForEF_JF(baseCase);
+		progSF = new VAProgressionForSF(baseCase);
+		progDR = new VAProgressionForDR(baseCase);
 	}
 
 	/**
@@ -165,7 +164,7 @@ public class VAParam extends Param {
 		// If the patient had the worst VA, it remains the same
 		if (vaAtStart == VisualAcuity.MAX_LOGMAR) {
 			changes = new ArrayList<VAProgressionPair>();
-			changes.add(new VAProgressionPair(simul.getTs() - pat.getLastVAChangeTs(eyeIndex), vaAtStart));
+			changes.add(new VAProgressionPair(pat.getSimulation().getTs() - pat.getLastVAChangeTs(eyeIndex), vaAtStart));
 		}
 		else {				
 			// Computes the new VA expected for the new eye state; if no new state is expected (death), uses the current VA 
@@ -175,7 +174,7 @@ public class VAParam extends Param {
 			// No progression but the incident VA is expected if the eye is healthy
 			if (affectedEye.contains(EyeState.HEALTHY)) {
 				changes = new ArrayList<VAProgressionPair>();
-				changes.add(new VAProgressionPair(simul.getTs() - pat.getLastVAChangeTs(eyeIndex), incidentVA));
+				changes.add(new VAProgressionPair(pat.getSimulation().getTs() - pat.getLastVAChangeTs(eyeIndex), incidentVA));
 			}
 			else {
 				if (affectedEye.contains(EyeState.AMD_CNV)) {
@@ -195,7 +194,7 @@ public class VAParam extends Param {
 				else {
 					// No progression but the incident VA is expected if the eye has EARM
 					changes = new ArrayList<VAProgressionPair>();
-					changes.add(new VAProgressionPair(simul.getTs() - pat.getLastVAChangeTs(eyeIndex), incidentVA));
+					changes.add(new VAProgressionPair(pat.getSimulation().getTs() - pat.getLastVAChangeTs(eyeIndex), incidentVA));
 				}
 				if (affectedEye.contains(EyeState.CSME) || affectedEye.contains(EyeState.NPDR) || affectedEye.contains(EyeState.NON_HR_PDR)
 						|| affectedEye.contains(EyeState.HR_PDR)) {

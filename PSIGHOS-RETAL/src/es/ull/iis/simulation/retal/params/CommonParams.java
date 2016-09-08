@@ -41,12 +41,12 @@ public class CommonParams extends ModelParams {
 	/**
 	 * 
 	 */
-	public CommonParams(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase);
-		diabetes = new DiabetesParam(simul, baseCase);
-		vaParam = new VAParam(simul, baseCase);
-		vaToUtility = new VAtoUtilityParam(simul, baseCase);
-		resourceUsage = new ResourceUsageParam(simul, baseCase);
+	public CommonParams(boolean baseCase) {
+		super(baseCase);
+		diabetes = new DiabetesParam(baseCase);
+		vaParam = new VAParam(baseCase);
+		vaToUtility = new VAtoUtilityParam(baseCase);
+		resourceUsage = new ResourceUsageParam(baseCase);
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class CommonParams extends ModelParams {
 	 */
 	public long getTimeToDeath(Patient pat) {
 		final double time = Math.min(generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), RNG_DEATH.nextDouble()), MAX_AGE - pat.getAge());
-		return pat.getTs() + simul.getTimeUnit().convert(time, TimeUnit.YEAR);
+		return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
 	}
 	
 	public int getSex(Patient pat) {

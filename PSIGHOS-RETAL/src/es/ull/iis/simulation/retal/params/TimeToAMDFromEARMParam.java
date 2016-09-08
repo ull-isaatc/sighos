@@ -10,7 +10,6 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
@@ -87,8 +86,8 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 	/**
 	 * @param baseCase
 	 */
-	public TimeToAMDFromEARMParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase, TimeUnit.YEAR);
+	public TimeToAMDFromEARMParam(boolean baseCase) {
+		super(baseCase, TimeUnit.YEAR);
 		// TODO: should work diferently when baseCase = false
 		
 		// Initialize probability of first-eye developing AMD from EARM

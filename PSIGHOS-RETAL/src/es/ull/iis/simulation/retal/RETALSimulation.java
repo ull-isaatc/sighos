@@ -12,6 +12,7 @@ import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.inforeceiver.AffectedPatientHistoryVAView;
 import es.ull.iis.simulation.retal.inforeceiver.AffectedPatientHistoryView;
+import es.ull.iis.simulation.retal.inforeceiver.DiagnosticView;
 import es.ull.iis.simulation.retal.inforeceiver.PatientCounterHistogramView;
 import es.ull.iis.simulation.retal.inforeceiver.PatientCounterView;
 import es.ull.iis.simulation.retal.inforeceiver.PatientInfoView;
@@ -61,9 +62,9 @@ public class RETALSimulation extends Simulation {
 	public RETALSimulation(int id, boolean baseCase, Intervention intervention) {
 		super(id, DESCRIPTION + " " + INTERVENTION_DESC[intervention.getId()], SIMUNIT, TimeStamp.getZero(), new TimeStamp(TimeUnit.YEAR, (long) (CommonParams.MAX_AGE - CommonParams.MIN_AGE + 1)));
 		this.baseCase = baseCase;
-		this.commonParams = new CommonParams(this, baseCase);
-		this.armdParams = new ARMDParams(this, baseCase);
-		this.drParams = new DRParams(this, baseCase);
+		this.commonParams = new CommonParams(baseCase);
+		this.armdParams = new ARMDParams(baseCase);
+		this.drParams = new DRParams(baseCase);
 		this.intervention = intervention;
 		PatientCreator creator = new PatientCreator(this, NPATIENTS, new ConstantFunction(commonParams.getInitAge()), intervention);
 		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
@@ -90,6 +91,7 @@ public class RETALSimulation extends Simulation {
 //		addInfoReceiver(new PatientInfoView(this));
 //		addInfoReceiver(new AffectedPatientHistoryView(this, ACTIVE_DISEASES, true));
 //		addInfoReceiver(new AffectedPatientHistoryVAView(this, ACTIVE_DISEASES, true));
+		addInfoReceiver(new DiagnosticView(this));
 		addInfoReceiver(new PatientPrevalenceView(this, ACTIVE_DISEASES));
 		addInfoReceiver(new PatientCounterView(this, ACTIVE_DISEASES));
 		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5, ACTIVE_DISEASES));
@@ -140,8 +142,8 @@ public class RETALSimulation extends Simulation {
 		// FIXME: Prepare to compute outcomes in case not all the patients are dead
 		super.end();
 		if (intervention.getId() == NINTERVENTIONS - 1) {
-			cost.print(true);
-			qaly.print(true);
+			cost.print(false);
+			qaly.print(false);
 		}
 	}
 }

@@ -5,7 +5,6 @@ import java.util.EnumSet;
 
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
  * FIXME: Currently assuming that CSME and HR_PDR are always detected
@@ -26,8 +25,8 @@ public class ClinicalPresentationDRParam extends Param {
 		order.put(EyeState.CSME, cont++);		
 	}
 
-	public ClinicalPresentationDRParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase);
+	public ClinicalPresentationDRParam(boolean baseCase) {
+		super(baseCase);
 	}
 
 	public double getProbability(Patient pat) {

@@ -7,7 +7,6 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
 import es.ull.iis.simulation.retal.RandomForPatient.ITEM;
 
@@ -53,8 +52,8 @@ public class CNVStageParam extends Param {
 	/**
 	 * 
 	 */
-	public CNVStageParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase);
+	public CNVStageParam(boolean baseCase) {
+		super(baseCase);
 		double total = 0.0;
 		for (Trio trio : INIT_PROBS_EYE1) {
 			total += trio.value;
@@ -74,12 +73,12 @@ public class CNVStageParam extends Param {
 			initProb2.put(acc / total, trio.typeAndPos);
 		}
 		// Currently initialized as they are in the Karnon model
-		timeToPCFromMC = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_PC_FROM_MC), 1.809603571, 500.6219586);
-		timeToPCFromOcc = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_PC_FROM_OCC), 2.653739171, 592.4042407);
-		timeToMCFromOcc = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_MC_FROM_OCC), 1.999174026, 478.7268718);
-		timeToJFFromEF = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_JF_FROM_EF), 2.504770922, 186.7827681);
-		timeToSFFromEF = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_SF_FROM_EF), 4.568238801, 225.9139343);
-		timeToSFFromJF = new WeibullTimeToEventParam(simul, baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_SF_FROM_JF), 1.831164809, 197.2107448);
+		timeToPCFromMC = new WeibullTimeToEventParam(baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_PC_FROM_MC), 1.809603571, 500.6219586);
+		timeToPCFromOcc = new WeibullTimeToEventParam(baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_PC_FROM_OCC), 2.653739171, 592.4042407);
+		timeToMCFromOcc = new WeibullTimeToEventParam(baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_MC_FROM_OCC), 1.999174026, 478.7268718);
+		timeToJFFromEF = new WeibullTimeToEventParam(baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_JF_FROM_EF), 2.504770922, 186.7827681);
+		timeToSFFromEF = new WeibullTimeToEventParam(baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_SF_FROM_EF), 4.568238801, 225.9139343);
+		timeToSFFromJF = new WeibullTimeToEventParam(baseCase, TimeUnit.DAY, RandomForPatient.getRandomNumber(ITEM.TIME_TO_SF_FROM_JF), 1.831164809, 197.2107448);
 
 	}
 	

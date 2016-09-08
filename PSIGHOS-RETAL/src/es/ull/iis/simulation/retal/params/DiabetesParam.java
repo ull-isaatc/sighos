@@ -8,7 +8,6 @@ import java.util.LinkedList;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
@@ -90,8 +89,8 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 	 * @param simul
 	 * @param baseCase
 	 */
-	public DiabetesParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase, TimeUnit.YEAR);
+	public DiabetesParam(boolean baseCase) {
+		super(baseCase, TimeUnit.YEAR);
 		incidenceMen = new double[DM2_MEN_INCIDENCE.length][3];
 		incidenceWomen = new double[DM2_WOMEN_INCIDENCE.length][3];
 		initProbabilities(DM2_MEN_INCIDENCE, incidenceMen);
@@ -145,7 +144,7 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 			final double []rnd = pat.draw(RandomForPatient.ITEM.DIABETES_INCIDENCE, incidenceWomen.length);
 			time = getTimeToEvent(incidenceWomen, pat.getAge(), rnd);						
 		}
-		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + simul.getTimeUnit().convert(time, unit);
+		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, unit);
 	}
 
 	/** 

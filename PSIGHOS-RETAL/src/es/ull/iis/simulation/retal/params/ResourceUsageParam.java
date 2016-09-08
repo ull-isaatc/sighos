@@ -14,8 +14,8 @@ import es.ull.iis.simulation.retal.RETALSimulation;
  */
 public final class ResourceUsageParam extends Param {
 
-	public ResourceUsageParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase);
+	public ResourceUsageParam(boolean baseCase) {
+		super(baseCase);
 	}
 	
 	public ArrayList<ResourceUsageItem> getResourceUsageItems(Patient pat) {

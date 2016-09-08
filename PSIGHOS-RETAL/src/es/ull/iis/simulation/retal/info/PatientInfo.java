@@ -37,11 +37,19 @@ public class PatientInfo extends AsynchronousInfo {
 
 		};
 	
+	public enum ScreeningResult {
+		TP,
+		FP,
+		TN, 
+		FN
+	}
+	
 	final private Patient patient;
 	final private Type type;
 	final private int eyeIndex;
 	final private EyeState toState;
 	final private CNVStage toCNVStage;
+	final private ScreeningResult scrResult;
 
 	/**
 	 * @param simul
@@ -55,6 +63,7 @@ public class PatientInfo extends AsynchronousInfo {
 		this.eyeIndex = eyeIndex;
 		this.toState = null;
 		this.toCNVStage = null;
+		this.scrResult = null;
 	}
 
 	/**
@@ -64,6 +73,21 @@ public class PatientInfo extends AsynchronousInfo {
 	 */
 	public PatientInfo(Simulation simul, Patient patient, Type type, long ts) {
 		this(simul, patient, type, -1, ts);
+	}
+
+	/**
+	 * @param simul
+	 * @param patient
+	 * @param ts
+	 */
+	public PatientInfo(Simulation simul, Patient patient, ScreeningResult result, long ts) {
+		super(simul, ts);
+		this.patient = patient;
+		this.type = Type.SCREENED;
+		this.eyeIndex = -1;
+		this.toState = null;
+		this.toCNVStage = null;
+		this.scrResult = result;
 	}
 
 	/**
@@ -81,6 +105,7 @@ public class PatientInfo extends AsynchronousInfo {
 		this.eyeIndex = eyeIndex;
 		this.toState = toState;
 		this.toCNVStage = null;
+		this.scrResult = null;
 	}
 
 	/**
@@ -98,6 +123,7 @@ public class PatientInfo extends AsynchronousInfo {
 		this.eyeIndex = eyeIndex;
 		this.toState = null;
 		this.toCNVStage = toCNVStage;
+		this.scrResult = null;
 	}
 
 	/**
@@ -133,6 +159,13 @@ public class PatientInfo extends AsynchronousInfo {
 	 */
 	public CNVStage getToCNVStage() {
 		return toCNVStage;
+	}
+
+	/**
+	 * @return the screening result
+	 */
+	public ScreeningResult getScrResult() {
+		return scrResult;
 	}
 
 	public String toString() {

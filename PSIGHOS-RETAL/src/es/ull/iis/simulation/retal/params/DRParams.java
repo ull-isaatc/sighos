@@ -7,7 +7,6 @@ import java.util.EnumSet;
 
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
@@ -80,18 +79,18 @@ public class DRParams extends ModelParams {
 	 * @param simul
 	 * @param baseCase
 	 */
-	public DRParams(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase);
-		this.timeToNPDR = new AnnualBasedTimeToEventParam(simul, baseCase, ANNUAL_PROB_NPDR, RandomForPatient.ITEM.TIME_TO_NPDR);
-		this.timeToPDR = new AnnualBasedTimeToEventParam(simul, baseCase, ANNUAL_PROB_PDR, RandomForPatient.ITEM.TIME_TO_PDR);
-		this.timeToCSME = new AnnualBasedTimeToEventParam(simul, baseCase, ANNUAL_PROB_CSME, RandomForPatient.ITEM.TIME_TO_CSME);
-		this.timeToCSMEAndNonHRPDRFromCSME = new AnnualBasedTimeToEventParam(simul, baseCase, ANNUAL_PROB_CSME_AND_NONHR_PDR_FROM_CSME, RandomForPatient.ITEM.TIME_TO_CSME_AND_NONHR_PDR_FROM_CSME);
-		this.timeToCSMEAndHRPDRFromCSME = new AnnualBasedTimeToEventParam(simul, baseCase, ANNUAL_PROB_CSME_AND_HR_PDR_FROM_CSME, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_CSME);
-		this.timeToCSMEAndNonHRPDRFromNonHRPDR = new AnnualBasedTimeToEventParam(simul, baseCase, ANNUAL_PROB_CSME_AND_NONHR_PDR_FROM_NONHR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_NONHR_PDR_FROM_NONHR_PDR);
-		this.timeToHRPDRFromNonHRPDR = new AnnualBasedTimeToEventParam(simul, baseCase, ANNUAL_PROB_HR_PDR_FROM_NONHR_PDR, RandomForPatient.ITEM.TIME_TO_HR_PDR_FROM_NONHR_PDR);
-		this.timeToCSMEAndHRPDRFromCSMEAndNonHRPDR = new AnnualBasedTimeToEventParam(simul, baseCase, ANNUAL_PROB_CSME_AND_HR_PDR_FROM_CSME_AND_NON_HR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_CSME_AND_NON_HR_PDR);
-		this.timeToCSMEAndHRPDRFromHRPDR = new AnnualBasedTimeToEventParam(simul, baseCase, ANNUAL_PROB_CSME_AND_HR_PDR_FROM_HR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_HR_PDR);
-		this.clinicalPresentation = new ClinicalPresentationDRParam(simul, baseCase);
+	public DRParams(boolean baseCase) {
+		super(baseCase);
+		this.timeToNPDR = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_NPDR, RandomForPatient.ITEM.TIME_TO_NPDR);
+		this.timeToPDR = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_PDR, RandomForPatient.ITEM.TIME_TO_PDR);
+		this.timeToCSME = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_CSME, RandomForPatient.ITEM.TIME_TO_CSME);
+		this.timeToCSMEAndNonHRPDRFromCSME = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_CSME_AND_NONHR_PDR_FROM_CSME, RandomForPatient.ITEM.TIME_TO_CSME_AND_NONHR_PDR_FROM_CSME);
+		this.timeToCSMEAndHRPDRFromCSME = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_CSME_AND_HR_PDR_FROM_CSME, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_CSME);
+		this.timeToCSMEAndNonHRPDRFromNonHRPDR = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_CSME_AND_NONHR_PDR_FROM_NONHR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_NONHR_PDR_FROM_NONHR_PDR);
+		this.timeToHRPDRFromNonHRPDR = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_HR_PDR_FROM_NONHR_PDR, RandomForPatient.ITEM.TIME_TO_HR_PDR_FROM_NONHR_PDR);
+		this.timeToCSMEAndHRPDRFromCSMEAndNonHRPDR = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_CSME_AND_HR_PDR_FROM_CSME_AND_NON_HR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_CSME_AND_NON_HR_PDR);
+		this.timeToCSMEAndHRPDRFromHRPDR = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_CSME_AND_HR_PDR_FROM_HR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_HR_PDR);
+		this.clinicalPresentation = new ClinicalPresentationDRParam(baseCase);
 		double acum = 0.0;
 		for (int i = 0; i < prevalenceDM1.length;i++) {
 			acum += DM1_PREVALENCE[i+1] / DM1_PREVALENCE[0];

@@ -7,12 +7,10 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Random;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
@@ -57,8 +55,8 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 	/**
 	 * 
 	 */
-	public TimeToE2AMDParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase, TimeUnit.YEAR);
+	public TimeToE2AMDParam(boolean baseCase) {
+		super(baseCase, TimeUnit.YEAR);
 		// TODO: should work differently when baseCase = false
 		
 		// Initialize probability of fellow-eye developing CNV given EARM in first eye
@@ -196,7 +194,7 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 				}
 				if (ageAtEvent == Double.MAX_VALUE) 
 					return null;				
-				return new EyeStateAndValue(stateAtEvent, pat.getTs() + simul.getTimeUnit().convert(ageAtEvent, unit));
+				return new EyeStateAndValue(stateAtEvent, pat.getTs() + pat.getSimulation().getTimeUnit().convert(ageAtEvent, unit));
 			}
 		}
 

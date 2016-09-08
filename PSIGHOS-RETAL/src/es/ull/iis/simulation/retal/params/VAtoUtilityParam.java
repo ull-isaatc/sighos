@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.retal.params;
 
-import es.ull.iis.simulation.retal.RETALSimulation;
-
 /**
  * Based on Sheffield utilities
  * Source: Karnon page 52, table 58
@@ -20,8 +18,8 @@ public class VAtoUtilityParam extends Param {
 	 * @param simul
 	 * @param baseCase
 	 */
-	public VAtoUtilityParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase);
+	public VAtoUtilityParam(boolean baseCase) {
+		super(baseCase);
 	}
 
 	public double getUtility(double age, double va) {

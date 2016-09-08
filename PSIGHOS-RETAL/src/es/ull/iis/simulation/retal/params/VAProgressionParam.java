@@ -6,7 +6,6 @@ package es.ull.iis.simulation.retal.params;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -18,8 +17,8 @@ public abstract class VAProgressionParam extends Param {
 	 * @param simul
 	 * @param baseCase
 	 */
-	public VAProgressionParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase);
+	public VAProgressionParam(boolean baseCase) {
+		super(baseCase);
 	}
 
 	/**

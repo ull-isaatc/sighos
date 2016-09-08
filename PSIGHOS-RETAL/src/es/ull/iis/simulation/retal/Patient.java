@@ -68,11 +68,10 @@ public class Patient extends BasicElement {
 	private NonHighRiskProliferativeDREvent[] nonHRPDREvent = {null, null};;
 	private HighRiskProliferativeDREvent[] hRPDREvent = {null, null};;
 	private ClinicallySignificantDMEEvent[] cSMEEvent = {null, null};;
+	private DiagnoseEvent diagnoseEvent = null;
 	/** Last timestamp when VA changed */
 	private final long[] lastVAChangeTs = new long[2];
 	
-	/** Defines whether the patient is currently diagnosed */
-	private long diagnosed = Long.MAX_VALUE;
 	/** The current state of the eyes of the patient */
 	private final EnumSet<?>[] eyes = new EnumSet<?>[2];
 	/** The current type and position of the CNV lesions in each eye; null if no CNV */
@@ -308,13 +307,15 @@ public class Patient extends BasicElement {
 	 */
 	@Override
 	public void setTs(long ts) {
-		lastTs = this.ts;
 		super.setTs(ts);
-		final double initAge = TimeUnit.YEAR.convert(lastTs, simul.getTimeUnit()); 
-		final double endAge = TimeUnit.YEAR.convert(ts, simul.getTimeUnit());
-		final double periodCost = commonParams.getCostForState(this, initAge, endAge);
-		cost.update(this, periodCost, initAge, endAge);
-		qaly.update(this, currentUtility, initAge, endAge);
+		if (lastTs != ts) {
+			lastTs = this.ts;
+			final double initAge = TimeUnit.YEAR.convert(lastTs, simul.getTimeUnit()); 
+			final double endAge = TimeUnit.YEAR.convert(ts, simul.getTimeUnit());
+			final double periodCost = commonParams.getCostForState(this, initAge, endAge);
+			cost.update(this, periodCost, initAge, endAge);
+			qaly.update(this, currentUtility, initAge, endAge);
+		}
 	}
 	
 	/**
@@ -328,13 +329,9 @@ public class Patient extends BasicElement {
 	 * @return the diagnosed
 	 */
 	public boolean isDiagnosed() {
-		return (diagnosed < Long.MAX_VALUE);
-	}
-
-	public void setDiagnosed(RETALSimulation.DISEASES disease) {
-		diagnosed = ts;
-		final double diagnosisCost = commonParams.getDiagnosisCost(this, disease);
-		cost.update(this, diagnosisCost, getAge());
+		if (diagnoseEvent == null)
+			return false;
+		return (diagnoseEvent.getTs() < ts);
 	}
 	
 	/**
@@ -344,14 +341,16 @@ public class Patient extends BasicElement {
 		if (!isDiagnosed()) {
 			if (affectedBy.contains(RETALSimulation.DISEASES.ARMD)) {
 				if (rng.draw(RandomForPatient.ITEM.ARMD_CLINICAL_PRESENTATION) < armdParams.getProbabilityClinicalPresentation(Patient.this)) {
-					setDiagnosed(RETALSimulation.DISEASES.ARMD);
+					diagnoseEvent = new DiagnoseEvent(ts, RETALSimulation.DISEASES.ARMD);
+					addEvent(diagnoseEvent);
 				}
 			}
 		}
 		if (!isDiagnosed()) {
 			if (affectedBy.contains(RETALSimulation.DISEASES.DR)) {
 				if (rng.draw(RandomForPatient.ITEM.DR_CLINICAL_PRESENTATION) < drParams.getProbabilityClinicalPresentation(Patient.this)) {
-					setDiagnosed(RETALSimulation.DISEASES.DR);
+					diagnoseEvent = new DiagnoseEvent(ts, RETALSimulation.DISEASES.DR);
+					addEvent(diagnoseEvent);
 				}
 			}
 		}		
@@ -800,7 +799,8 @@ public class Patient extends BasicElement {
 			// Patient healthy
 			if (isHealthy()) {
 				// True negative
-				if (rng.draw(RandomForPatient.ITEM.SPECIFICITY) > ((Screening)intervention).getSpecificity(Patient.this)) {
+				if (rng.draw(RandomForPatient.ITEM.SPECIFICITY) <= ((Screening)intervention).getSpecificity(Patient.this)) {
+					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.TN, this.getTs()));
 					// Schedule next screening appointment (if required) 
 					long next = iterator.next();
 					if (next != -1) {
@@ -809,13 +809,17 @@ public class Patient extends BasicElement {
 				}
 				// False positive
 				else {
-					// TODO: Add costs of false positive						
+					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.FP, this.getTs()));
+					// TODO: Check if ARMD is the best one to select or something different should be done...
+					final double diagnosisCost = commonParams.getDiagnosisCost(Patient.this, RETALSimulation.DISEASES.ARMD);
+					cost.update(Patient.this, diagnosisCost, getAge());
 				}
 			}
 			// Patient ill
 			else {
 				// False negative
 				if (rng.draw(RandomForPatient.ITEM.SENSITIVITY) > ((Screening)intervention).getSensitivity(Patient.this)) {
+					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.FN, this.getTs()));
 					// Schedule next screening appointment (if required) 
 					long next = iterator.next();
 					if (next != -1) {
@@ -824,13 +828,31 @@ public class Patient extends BasicElement {
 				}
 				// True positive
 				else {
+					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.TP, this.getTs()));
 					// TODO: check if taking the first one is a good option...
-					setDiagnosed((RETALSimulation.DISEASES) affectedBy.toArray()[0]);
-					// TODO: Add costs of true positive						
+					diagnoseEvent = new DiagnoseEvent(ts, (RETALSimulation.DISEASES)affectedBy.toArray()[0]);
+					addEvent(diagnoseEvent);
+					// TODO: Add changes of true positive						
 				}					
 			}
 		}
 		
+	}
+	
+	protected final class DiagnoseEvent extends DiscreteEvent {
+		final RETALSimulation.DISEASES disease;
+		
+		public DiagnoseEvent(long ts, RETALSimulation.DISEASES disease) {
+			super(ts);
+			this.disease = disease;
+		}
+
+		@Override
+		public void event() {
+			final double diagnosisCost = commonParams.getDiagnosisCost(Patient.this, disease);
+			cost.update(Patient.this, diagnosisCost, getAge());
+			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DIAGNOSED, this.getTs()));
+		}
 	}
 	
 	protected final class DiabetesEvent extends DiscreteEvent {

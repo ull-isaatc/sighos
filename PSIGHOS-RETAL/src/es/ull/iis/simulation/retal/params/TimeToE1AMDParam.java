@@ -11,7 +11,6 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
@@ -59,8 +58,8 @@ public class TimeToE1AMDParam extends EmpiricTimeToEventParam {
 	/**
 	 * 
 	 */
-	public TimeToE1AMDParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase, TimeUnit.YEAR);
+	public TimeToE1AMDParam(boolean baseCase) {
+		super(baseCase, TimeUnit.YEAR);
 		this.probabilities = new double[P_AMD.length][3];
 		// TODO: should work diferently when baseCase = false
 
@@ -80,7 +79,7 @@ public class TimeToE1AMDParam extends EmpiricTimeToEventParam {
 	public long getTimeToEvent(Patient pat) {
 		final double []rnd = pat.draw(RandomForPatient.ITEM.TIME_TO_E1AMD, probabilities.length);
 		final double time = getTimeToEvent(probabilities, pat.getAge(), rnd);
-		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + simul.getTimeUnit().convert(time, unit);
+		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, unit);
 	}
 
 	public EyeStateAndValue getValidatedTimeToEventAndState(Patient pat) {

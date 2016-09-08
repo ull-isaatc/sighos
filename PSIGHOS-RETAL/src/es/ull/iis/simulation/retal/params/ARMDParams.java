@@ -3,11 +3,7 @@
  */
 package es.ull.iis.simulation.retal.params;
 
-import java.util.ArrayList;
-
-import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -27,15 +23,15 @@ public class ARMDParams extends ModelParams {
 	/**
 	 * 
 	 */
-	public ARMDParams(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase);
-		timeToEARM = new TimeToEARMParam(simul, baseCase);
-		timeToE1AMD = new TimeToE1AMDParam(simul, baseCase);
-		timeToE2AMD = new TimeToE2AMDParam(simul, baseCase);
-		timeToAMDFromEARM = new TimeToAMDFromEARMParam(simul, baseCase);		
-		timeToCNVFromGA = new TimeToCNVFromGAParam(simul, baseCase);
-		timeToCNVStage = new CNVStageParam(simul, baseCase);
-		clinicalPresentation = new ClinicalPresentationARMDParam(simul, baseCase);
+	public ARMDParams(boolean baseCase) {
+		super(baseCase);
+		timeToEARM = new TimeToEARMParam(baseCase);
+		timeToE1AMD = new TimeToE1AMDParam(baseCase);
+		timeToE2AMD = new TimeToE2AMDParam(baseCase);
+		timeToAMDFromEARM = new TimeToAMDFromEARMParam(baseCase);		
+		timeToCNVFromGA = new TimeToCNVFromGAParam(baseCase);
+		timeToCNVStage = new CNVStageParam(baseCase);
+		clinicalPresentation = new ClinicalPresentationARMDParam(baseCase);
 	}
 
 	/**

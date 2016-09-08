@@ -6,7 +6,6 @@ package es.ull.iis.simulation.retal.params;
 import java.util.Random;
 
 import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -19,8 +18,8 @@ public abstract class EmpiricTimeToEventParam extends Param {
 	/**
 	 * 
 	 */
-	public EmpiricTimeToEventParam(RETALSimulation simul, boolean baseCase, TimeUnit unit) {
-		super (simul, baseCase);
+	public EmpiricTimeToEventParam(boolean baseCase, TimeUnit unit) {
+		super (baseCase);
 		this.unit = unit;
 	}
 

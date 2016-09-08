@@ -8,7 +8,6 @@ import java.util.EnumSet;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
@@ -53,8 +52,8 @@ public class TimeToCNVFromGAParam extends CompoundEmpiricTimeToEventParam {
 	/**
 	 * @param baseCase
 	 */
-	public TimeToCNVFromGAParam(RETALSimulation simul, boolean baseCase) {
-		super(simul, baseCase, TimeUnit.YEAR);
+	public TimeToCNVFromGAParam(boolean baseCase) {
+		super(baseCase, TimeUnit.YEAR);
 		// TODO: should work diferently when baseCase = false
 		
 		// Initialize probability of first-eye developing AMD from EARM

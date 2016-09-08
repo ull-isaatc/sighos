@@ -19,12 +19,13 @@ public class RETALMain {
 //	private final static SimulationTimeFunction deathTime = new SimulationTimeFunction(SIMUNIT, "ConstantVariate", new TimeStamp(TimeUnit.YEAR, 40));
 	
 	public static void main(String[] args) {
-		final RETALSimulation simul = new RETALSimulation(0, true, new NullIntervention());
+		final boolean baseCase = true;
+		final RETALSimulation simul = new RETALSimulation(0, baseCase, new NullIntervention());
 		simul.run();
 		// TODO: Check that reset works fine!!!
 		RandomForPatient.reset();
-		ScreeningParam scrParam = new ScreeningParam(null, true);
-		Screening interv1 = new Screening(new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1), scrParam);
+		Screening interv1 = new Screening(new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, 
+				new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 730), 2), new ScreeningParam(baseCase));
 		final RETALSimulation simul2 = new RETALSimulation(simul, interv1);
 		simul2.run();
 
