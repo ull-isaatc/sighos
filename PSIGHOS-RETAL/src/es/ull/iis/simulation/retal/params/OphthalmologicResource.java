@@ -8,7 +8,9 @@ package es.ull.iis.simulation.retal.params;
  *
  */
 public enum OphthalmologicResource {
-	APPOINTMENT("Outpatient appointment", 149.8),	// Source: Spanish Official Tariffs
+	OPH_APPOINTMENT("Outpatient ophthalmologist appointment", 149.8),	// Source: Spanish Official Tariffs
+	APPOINTMENT("Outpatient appointment", 62.43),	// Source: Spanish Official Tariffs
+	OCTAL("Use of software", 0.0),					// Source: Assumption
 	OCT("OCT", 182.29),								// Source: Spanish Official Tariffs
 	CLINICAL_EXAM("Clinical Examination", 149.8),	// Source: Spanish Official Tariffs, same as out. appointment
 	RETINO("Retinography", 99.5),					// Source: Spanish Official Tariffs

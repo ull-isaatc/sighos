@@ -5,6 +5,7 @@ package es.ull.iis.simulation.retal.params;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
@@ -16,6 +17,7 @@ import es.ull.iis.simulation.retal.RandomForPatient;
  */
 public final class ResourceUsageParam extends Param {
 	final private ArrayList<ResourceUsageItem> diagResources;
+	final private ArrayList<ResourceUsageItem> screenResources;
 	final private static int VISITS_CNV = 12; 
 	final private static int VISITS_GA = 4; 
 	final private static int VISITS_EARM = 1; 
@@ -27,8 +29,8 @@ public final class ResourceUsageParam extends Param {
 	final private static int MIN_VISITS_NPDR = 1;
 	final private static int MAX_VISITS_NPDR = 6; 
 
-	// FIXME: Change by real number
-	final private static int N_ANTIVEGF = 3;
+	/** Annual frequency of antiVEGF treatment the first two years and later on */
+	final private static int[] N_ANTIVEGF = {12, 4};
 	
 	public ResourceUsageParam(boolean baseCase) {
 		super(baseCase);
@@ -36,6 +38,11 @@ public final class ResourceUsageParam extends Param {
 		diagResources.add(new ResourceUsageItem(OphthalmologicResource.OCT, 1));
 		diagResources.add(new ResourceUsageItem(OphthalmologicResource.RETINO, 1));
 		diagResources.add(new ResourceUsageItem(OphthalmologicResource.CLINICAL_EXAM, 1));
+		screenResources = new ArrayList<ResourceUsageItem>();
+		screenResources.add(new ResourceUsageItem(OphthalmologicResource.OCT, 1));
+		screenResources.add(new ResourceUsageItem(OphthalmologicResource.RETINO, 1));
+		screenResources.add(new ResourceUsageItem(OphthalmologicResource.OCTAL, 1));
+		screenResources.add(new ResourceUsageItem(OphthalmologicResource.APPOINTMENT, 1));
 	}
 
 	/**
@@ -73,16 +80,34 @@ public final class ResourceUsageParam extends Param {
 		return annualVisits;
 	}
 	
-	public ArrayList<ResourceUsageItem> getResourceUsageItems(Patient pat) {
+	private double getAntiVEGFForARMDCost(double ageAtTreatment, double initAge, double endAge) {
+		double cost = 0.0;
+		// The treatment started more than two years ago
+		if (initAge - ageAtTreatment >= 2.0) {
+			cost += new ResourceUsageItem(OphthalmologicResource.RANIBIZUMAB, N_ANTIVEGF[1]).computeCost(initAge, endAge);
+		}
+		// The treatment started less than two years ago and it's been active for less than two years 
+		else if (endAge - ageAtTreatment <= 2.0) {
+			cost += new ResourceUsageItem(OphthalmologicResource.RANIBIZUMAB, N_ANTIVEGF[0]).computeCost(initAge, endAge);
+		}
+		// The treatment started less than two years ago and it's been active for more than two years 
+		else {
+			cost += new ResourceUsageItem(OphthalmologicResource.RANIBIZUMAB, N_ANTIVEGF[0]).computeCost(initAge, ageAtTreatment + 2.0);
+			cost += new ResourceUsageItem(OphthalmologicResource.RANIBIZUMAB, N_ANTIVEGF[1]).computeCost(ageAtTreatment + 2.0, endAge);
+		}
+		return cost;
+	}
+	
+	public double getResourceUsageCost(Patient pat, double initAge, double endAge) {
 		if (!pat.isDiagnosed()) {
-			return null;
+			return 0.0;
 		}
 		else {
-			final ArrayList<ResourceUsageItem> resources = new ArrayList<ResourceUsageItem>();
+			double cost = 0.0;
 			// Outpatient appointments
 			double annualVisits = getAnnualOutpatientAppointments(pat);
 			if (annualVisits > 0.0)
-				resources.add(new ResourceUsageItem(OphthalmologicResource.APPOINTMENT, annualVisits));
+				cost += new ResourceUsageItem(OphthalmologicResource.OPH_APPOINTMENT, annualVisits).computeCost(initAge, endAge);
 			
 			// If affected by ARMD and...
 			if (pat.getAffectedBy().contains(RETALSimulation.DISEASES.ARMD)) {
@@ -92,14 +117,14 @@ public final class ResourceUsageParam extends Param {
 					if (pat.getEyeState(0).contains(EyeState.AMD_CNV)) {
 						final CNVStage stage = pat.getCurrentCNVStage(0);
 						if (stage.getPosition() != CNVStage.Position.SF || stage.getType() != CNVStage.Type.OCCULT) {
-							resources.add(new ResourceUsageItem(OphthalmologicResource.RANIBIZUMAB, N_ANTIVEGF));
+							cost += getAntiVEGFForARMDCost(TimeUnit.DAY.convert(pat.getOnAntiVEGFSince(0), pat.getSimulation().getTimeUnit()) / 365.0, initAge, endAge);
 						}
 					}
 					// Treatment for second eye
 					if (pat.getEyeState(1).contains(EyeState.AMD_CNV)) {
 						final CNVStage stage = pat.getCurrentCNVStage(1);
 						if (stage.getPosition() != CNVStage.Position.SF || stage.getType() != CNVStage.Type.OCCULT) {
-							resources.add(new ResourceUsageItem(OphthalmologicResource.RANIBIZUMAB, N_ANTIVEGF));
+							cost += getAntiVEGFForARMDCost(TimeUnit.DAY.convert(pat.getOnAntiVEGFSince(1), pat.getSimulation().getTimeUnit()) / 365.0, initAge, endAge);
 						}
 					}
 				}
@@ -116,14 +141,25 @@ public final class ResourceUsageParam extends Param {
 			else if (pat.getAffectedBy().contains(RETALSimulation.DISEASES.DR)) {
 				
 			}
-			return resources;
+			return cost;
 		}
 	}
 	
-	public ArrayList<ResourceUsageItem> getResourceUsageForDiagnosis(Patient pat, RETALSimulation.DISEASES disease) {
-		final ArrayList<ResourceUsageItem> resources = new ArrayList<ResourceUsageItem>(diagResources);
+	public double getDiagnosisCost(Patient pat, RETALSimulation.DISEASES disease) {
+		double cost = 0.0;
+		for (ResourceUsageItem usage : diagResources) {
+			cost += usage.getUnitCost();
+		}
 		if (pat.getAffectedBy().contains(RETALSimulation.DISEASES.ARMD))
-			resources.add(new ResourceUsageItem(OphthalmologicResource.ANGIO, 1));
-		return resources;
+			cost += OphthalmologicResource.ANGIO.getUnitCost();
+		return cost;
+	}
+	
+	public double getScreeningCost(Patient pat) {
+		double cost = 0.0;
+		for (ResourceUsageItem usage : screenResources) {
+			cost += usage.getUnitCost();
+		}
+		return cost;		
 	}
 }

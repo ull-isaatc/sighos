@@ -25,7 +25,7 @@ public class RETALMain {
 		// TODO: Check that reset works fine!!!
 		RandomForPatient.reset();
 		Screening interv1 = new Screening(new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, 
-				new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 730), 2), new ScreeningParam(baseCase));
+				new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 5*365), 0), new ScreeningParam(baseCase));
 		final RETALSimulation simul2 = new RETALSimulation(simul, interv1);
 		simul2.run();
 

@@ -104,24 +104,14 @@ public class CommonParams extends ModelParams {
 	}
 	
 	public double getCostForState(Patient pat, double initAge, double endAge) {
-		final ArrayList<ResourceUsageItem> res = resourceUsage.getResourceUsageItems(pat);
-		double cost = 0.0;
-		if (res != null) {
-			for (ResourceUsageItem usage : res) {
-				cost += usage.computeCost(initAge, endAge);
-			}
-		}		
-		return cost;
+		return resourceUsage.getResourceUsageCost(pat, initAge, endAge);
 	}
 	
 	public double getDiagnosisCost(Patient pat, RETALSimulation.DISEASES disease) {
-		final ArrayList<ResourceUsageItem> res = resourceUsage.getResourceUsageForDiagnosis(pat, disease);
-		double cost = 0.0;
-		if (res != null) {
-			for (ResourceUsageItem usage : res) {
-				cost += usage.getUnitCost();
-			}
-		}		
-		return cost;
+		return resourceUsage.getDiagnosisCost(pat, disease);
+	}
+	
+	public double getScreeningCost(Patient pat) {
+		return resourceUsage.getScreeningCost(pat);
 	}
 }

@@ -35,7 +35,7 @@ public class RETALSimulation extends Simulation {
 		DR
 	};	
 	/** Selects the diseases included in the model. For debug, mainly */
-	public static EnumSet<DISEASES> ACTIVE_DISEASES = EnumSet.of(DISEASES.DR); 
+	public static EnumSet<DISEASES> ACTIVE_DISEASES = EnumSet.of(DISEASES.ARMD); 
 	/** Number of interventions that will be compared for a patient. This value is also used to determine the id of the patient */ 
 	public final static int NINTERVENTIONS = 2;
 	private final static String[] INTERVENTION_DESC = {"Clinical detection", "Screening"};
@@ -92,9 +92,9 @@ public class RETALSimulation extends Simulation {
 //		addInfoReceiver(new AffectedPatientHistoryView(this, ACTIVE_DISEASES, true));
 //		addInfoReceiver(new AffectedPatientHistoryVAView(this, ACTIVE_DISEASES, true));
 		addInfoReceiver(new DiagnosticView(this));
-		addInfoReceiver(new PatientPrevalenceView(this, ACTIVE_DISEASES));
+//		addInfoReceiver(new PatientPrevalenceView(this, ACTIVE_DISEASES));
 		addInfoReceiver(new PatientCounterView(this, ACTIVE_DISEASES));
-		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5, ACTIVE_DISEASES));
+//		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5, ACTIVE_DISEASES));
 	}
 	
 	public CommonParams getCommonParams() {

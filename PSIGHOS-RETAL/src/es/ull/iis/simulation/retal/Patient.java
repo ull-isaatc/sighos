@@ -71,6 +71,8 @@ public class Patient extends BasicElement {
 	private DiagnoseEvent diagnoseEvent = null;
 	/** Last timestamp when VA changed */
 	private final long[] lastVAChangeTs = new long[2];
+	/** Timestamp when treatmen with antiVEGF started */
+	private final long[] onAntiVEGFSince = {Long.MAX_VALUE, Long.MAX_VALUE};
 	
 	/** The current state of the eyes of the patient */
 	private final EnumSet<?>[] eyes = new EnumSet<?>[2];
@@ -288,6 +290,15 @@ public class Patient extends BasicElement {
 	}
 	
 	/**
+	 * Returns the timestamp when the patient started treatment with antiVEGF in the specified eye
+	 * @param eyeIndex Index of the eye (0 for first eye, 1 for second eye)
+	 * @return the timestamp when the patient started treatment with antiVEGF in the specified eye
+	 */
+	public long getOnAntiVEGFSince(int eyeIndex) {
+		return onAntiVEGFSince[eyeIndex];
+	}
+
+	/**
 	 * @return the clonedFrom
 	 */
 	public Patient getClonedFrom() {
@@ -378,7 +389,7 @@ public class Patient extends BasicElement {
 	}
 
 	/**
-	 * @param eyeIndex
+	 * @param eyeIndex Index of the eye (0 for first eye, 1 for second eye)
 	 * @return the state of the first eye
 	 */
 	@SuppressWarnings("unchecked")
@@ -387,7 +398,7 @@ public class Patient extends BasicElement {
 	}
 
 	/**
-	 * @param eyeIndex
+	 * @param eyeIndex Index of the eye (0 for first eye, 1 for second eye)
 	 * @return the currentCNVStage
 	 */
 	public CNVStage getCurrentCNVStage(int eyeIndex) {
@@ -756,7 +767,11 @@ public class Patient extends BasicElement {
 			checkFellowEye();
 			
 			// Checks diagnosis
-			checkDiagnosis();			
+			checkDiagnosis();
+			// If already diagnosed, the treatment with antiVEGF starts
+			if (isDiagnosed()) {
+				onAntiVEGFSince[eyeIndex] = ts;
+			}
 		}		
 	}
 	
@@ -810,6 +825,8 @@ public class Patient extends BasicElement {
 
 		@Override
 		public void event() {
+			final double screenCost = commonParams.getScreeningCost(Patient.this);
+			cost.update(Patient.this, screenCost, getAge());
 			// Patient healthy
 			if (isHealthy()) {
 				// True negative
@@ -868,6 +885,11 @@ public class Patient extends BasicElement {
 			final double diagnosisCost = commonParams.getDiagnosisCost(Patient.this, disease);
 			cost.update(Patient.this, diagnosisCost, getAge());
 			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DIAGNOSED, this.getTs()));
+			// If suffering CNV when diagnosed, the treatment with antiVEGF starts
+			if (eyes[0].contains(EyeState.AMD_CNV))
+				onAntiVEGFSince[0] = ts;
+			if (eyes[1].contains(EyeState.AMD_CNV))
+				onAntiVEGFSince[1] = ts;
 		}
 		
 		@Override

@@ -17,14 +17,12 @@ import es.ull.iis.simulation.retal.RandomForPatient;
 public class VAProgressionForCNV extends VAProgressionParam {
 	// Source: conversion using table from Patel, P.J. et al., 2008. 
 	// Intersession repeatability of visual acuity scores in age-related macular degeneration. Investigative Ophthalmology and Visual Science, 49(10), pp.4347–4352.
-	private final double LOGMAR_MINUS_15_LETTERS = 0.30103;
+	private final double LOGMAR_MINUS_15_LETTERS = 0.3;
 	
 	// Source: Cummulative probabilities from Hurley, S.F., Matthews, J.P. & Guymer, R.H., 2008. Cost-effectiveness of ranibizumab for neovascular age-related macular degeneration. Cost effectiveness and resource allocation : C/E, 6, p.12. 
-	private final double[] untreated1YearProgression = {0.05, 0.622, 0.857, 1};
-	private final double[] untreated2YearsProgression = {0, 0.848, 0.918, 1};
-	private final double[] ranibizumab1YearProgression = {0.338, 0.946, 0.988, 1};
-	private final double[] ranibizumab2YearsProgression = {0.03, 0.932, 0.983, 1};
-	private final double[] logMARChanges = {-LOGMAR_MINUS_15_LETTERS, 0.0, LOGMAR_MINUS_15_LETTERS, 2*LOGMAR_MINUS_15_LETTERS};
+	private final double[][] untreatedYearlyProgression = {{0.05, 0.285, 0.428}, {0, 0.07, 0.152}};
+	private final double[][] ranibizumabYearlyProgression = {{0.338, 0.38, 0.392}, {0.03, 0.081, 0.098}};
+	private final double[] logMARChanges = {-LOGMAR_MINUS_15_LETTERS, LOGMAR_MINUS_15_LETTERS, 2*LOGMAR_MINUS_15_LETTERS};
 
 	/**
 	 * @param baseCase
@@ -35,11 +33,12 @@ public class VAProgressionForCNV extends VAProgressionParam {
 
 	private double getVAChange(Patient pat, double[] probabilities) {
 		final double rnd = pat.draw(RandomForPatient.ITEM.ARMD_PROG_CNV);
-		for (int i = 0; i < logMARChanges.length - 1; i++) {
+		for (int i = 0; i < logMARChanges.length; i++) {
 			if (rnd <= probabilities[i])
 				return logMARChanges[i];
 		}
-		return logMARChanges[logMARChanges.length - 1];
+		// No change
+		return 0.0;
 	}
 	
 	/* (non-Javadoc)
@@ -47,14 +46,66 @@ public class VAProgressionForCNV extends VAProgressionParam {
 	 */
 	@Override
 	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
-		final ArrayList<VAProgressionPair> array = new ArrayList<VAProgressionPair>();
+		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>();
 		final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
-		final double currentVA = pat.getVA(eyeIndex);
-		double yearsSinceEvent = TimeUnit.DAY.convert(pat.getSimulation().getTs() - pat.getTimeToCNVStage(stage, eyeIndex), pat.getSimulation().getTimeUnit()) / 365.0;
-		if (yearsSinceEvent > 1.0) {
-			
+		double va = pat.getVA(eyeIndex);
+		final double yearsSinceEvent = TimeUnit.DAY.convert(pat.getSimulation().getTs() - pat.getTimeToCNVStage(stage, eyeIndex), pat.getSimulation().getTimeUnit()) / 365.0;
+		final int exactYearsSinceEvent = (int)yearsSinceEvent;
+		final double[][] progression;
+		if (pat.isDiagnosed()) {
+			progression = ranibizumabYearlyProgression;
+			// Do not use expected VA if on treatment
+			expectedVA = va;
 		}
-		return null;
+		else {
+			progression = untreatedYearlyProgression;
+		}
+		
+		long timeToChange = 0;
+		// More than a year since last change
+		if (yearsSinceEvent > 1.0) {
+			final long yearConstant = pat.getSimulation().getTimeUnit().convert(1, TimeUnit.YEAR);
+			// Check change for year 1
+			double vaChange = getVAChange(pat, progression[0]);
+			if (vaChange != 0.0) {
+				va = Math.min(VisualAcuity.MAX_LOGMAR, Math.max(0.0, va + vaChange));
+				changes.add(new VAProgressionPair(yearConstant, va));
+			}
+			else {
+				timeToChange += yearConstant;
+			}
+			// Check changes for year 2 and on
+			if (yearsSinceEvent > 2.0) {
+				int i = 1;
+				for (; (i < exactYearsSinceEvent) && (va < VisualAcuity.MAX_LOGMAR); i++) {
+					timeToChange += yearConstant;
+					vaChange = getVAChange(pat, progression[1]);
+					if (vaChange != 0.0) {
+						va = Math.min(VisualAcuity.MAX_LOGMAR, Math.max(0.0, va + vaChange));
+						changes.add(new VAProgressionPair(timeToChange, va));
+						timeToChange = 0;
+					}
+				}
+				// If I get to the MAX_LOGMAR before the end of the period
+				if (i < exactYearsSinceEvent) {
+					timeToChange = (exactYearsSinceEvent - i) * yearConstant; 
+				}					
+			}
+			// Sees if there is an additional change in the remaining time (less than a year)
+			timeToChange += pat.getSimulation().getTimeUnit().convert(yearsSinceEvent - exactYearsSinceEvent, TimeUnit.YEAR);
+			// Calculate the proportional VA loss/gain
+			va = Math.min(VisualAcuity.MAX_LOGMAR, Math.max(expectedVA, va + getVAChange(pat, progression[1]) * (yearsSinceEvent - exactYearsSinceEvent)));
+		}
+		// Less than a year since last change
+		else {
+			timeToChange = pat.getSimulation().getTs() - pat.getTimeToCNVStage(stage, eyeIndex);
+			// Calculate the proportional VA loss/gain
+			va = Math.min(VisualAcuity.MAX_LOGMAR, Math.max(expectedVA, va + getVAChange(pat, progression[0]) * yearsSinceEvent));
+		}
+		// Adds the last change
+		if (timeToChange > 0)
+			changes.add(new VAProgressionPair(timeToChange, va));
+		return changes;
 	}
 
 }

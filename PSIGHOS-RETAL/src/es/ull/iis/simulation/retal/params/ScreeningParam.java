@@ -34,10 +34,10 @@ public class ScreeningParam extends Param {
 		final EnumSet<EyeState> eye1 = pat.getEyeState(0);
 		final EnumSet<EyeState> eye2 = pat.getEyeState(1);
 		if (eye1.contains(EyeState.AMD_CNV) || eye2.contains(EyeState.AMD_CNV)) {
-			final CNVStage stage1 = pat.getCurrentCNVStage(0);
-			final CNVStage stage2 = pat.getCurrentCNVStage(1);
+			final CNVStage.Position pos1 = (pat.getCurrentCNVStage(0) == null) ? null : pat.getCurrentCNVStage(0).getPosition();
+			final CNVStage.Position pos2 = (pat.getCurrentCNVStage(1) == null) ? null : pat.getCurrentCNVStage(1).getPosition();
 			// FIXME: Check with Rodrigo
-			if (stage1.getPosition() == CNVStage.Position.SF || stage2.getPosition() == CNVStage.Position.SF)
+			if (CNVStage.Position.SF.equals(pos1) || CNVStage.Position.SF.equals(pos2))
 				return CNV_SEVERE_MILD_SENSITIVITY[0];
 			else
 				return CNV_SEVERE_MILD_SENSITIVITY[1];				
