@@ -43,8 +43,9 @@ public class VAParam extends Param {
 			VA_AT_INCIDENCE_CNV.put(CNVStage.ALL_STAGES[i], VA_AT_INCIDENCE_CNV_VALUES[i]);
 	}
 
-	private final VAProgressionForEF_JF progEF_JF;
-	private final VAProgressionForSF progSF;
+//	private final VAProgressionForEF_JF progEF_JF;
+//	private final VAProgressionForSF progSF;
+	private final VAProgressionForCNV progCNV;
 	private final VAProgressionForGA progGA;
 	private final VAProgressionForDR progDR;
 	
@@ -55,8 +56,9 @@ public class VAParam extends Param {
 	public VAParam(boolean baseCase) {
 		super(baseCase);
 		progGA = new VAProgressionForGA(baseCase);
-		progEF_JF = new VAProgressionForEF_JF(baseCase);
-		progSF = new VAProgressionForSF(baseCase);
+		progCNV = new VAProgressionForCNV(baseCase);
+//		progEF_JF = new VAProgressionForEF_JF(baseCase);
+//		progSF = new VAProgressionForSF(baseCase);
 		progDR = new VAProgressionForDR(baseCase);
 	}
 
@@ -178,15 +180,16 @@ public class VAParam extends Param {
 			}
 			else {
 				if (affectedEye.contains(EyeState.AMD_CNV)) {
-					final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
-					// Subfoveal lesion
-					if (stage.getPosition() == CNVStage.Position.SF)  {
-						changes = progSF.getVAProgression(pat, eyeIndex, incidentVA);
-					}
-					// Juxtafoveal or extrafoveal lesion
-					else {
-						changes = progEF_JF.getVAProgression(pat, eyeIndex, incidentVA); 
-					}
+					changes = progCNV.getVAProgression(pat, eyeIndex, incidentVA);
+//					final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
+//					// Subfoveal lesion
+//					if (stage.getPosition() == CNVStage.Position.SF)  {
+//						changes = progSF.getVAProgression(pat, eyeIndex, incidentVA);
+//					}
+//					// Juxtafoveal or extrafoveal lesion
+//					else {
+//						changes = progEF_JF.getVAProgression(pat, eyeIndex, incidentVA); 
+//					}
 				}
 				else if (affectedEye.contains(EyeState.AMD_GA)) {
 					changes = progGA.getVAProgression(pat, eyeIndex, incidentVA); 
