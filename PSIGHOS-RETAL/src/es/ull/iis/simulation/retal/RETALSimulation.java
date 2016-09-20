@@ -144,6 +144,17 @@ public class RETALSimulation extends Simulation {
 		if (intervention.getId() == NINTERVENTIONS - 1) {
 			cost.print(false);
 			qaly.print(false);
+			double icer = (cost.getValue(1) - cost.getValue(0)) / (qaly.getValue(1) - qaly.getValue(0));
+			System.out.print("ICER = ");
+			if (icer < 0.0) {
+				if (cost.getValue(1) < cost.getValue(0))
+					System.out.println("DOMINATES");
+				else 
+					System.out.println("DOMINATED");
+			}
+			else {
+				System.out.println(icer + " " + cost.getUnit() + "/" + qaly.getUnit());
+			}
 		}
 	}
 }

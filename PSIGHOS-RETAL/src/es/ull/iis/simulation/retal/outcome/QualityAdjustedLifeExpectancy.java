@@ -12,7 +12,6 @@ import es.ull.iis.simulation.retal.RETALSimulation;
  */
 public class QualityAdjustedLifeExpectancy extends Outcome {
 	private final double[][]qalys = new double[RETALSimulation.NPATIENTS][RETALSimulation.NINTERVENTIONS];
-	private final double[]aggregated = new double[RETALSimulation.NINTERVENTIONS];
 
 	/**
 	 * @param simul

@@ -309,9 +309,9 @@ public class Patient extends BasicElement {
 	public void setTs(long ts) {
 		super.setTs(ts);
 		if (lastTs != ts) {
+			final double initAge = TimeUnit.DAY.convert(lastTs, simul.getTimeUnit()) / 365.0; 
+			final double endAge = TimeUnit.DAY.convert(ts, simul.getTimeUnit()) / 365.0;
 			lastTs = this.ts;
-			final double initAge = TimeUnit.YEAR.convert(lastTs, simul.getTimeUnit()); 
-			final double endAge = TimeUnit.YEAR.convert(ts, simul.getTimeUnit());
 			final double periodCost = commonParams.getCostForState(this, initAge, endAge);
 			cost.update(this, periodCost, initAge, endAge);
 			qaly.update(this, currentUtility, initAge, endAge);

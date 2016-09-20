@@ -12,7 +12,6 @@ import es.ull.iis.simulation.retal.RETALSimulation;
  */
 public class Cost extends Outcome {
 	private final double[][]costs = new double[RETALSimulation.NPATIENTS][RETALSimulation.NINTERVENTIONS];
-	private final double[]aggregated = new double[RETALSimulation.NINTERVENTIONS];
 	
 	public Cost(RETALSimulation simul, double discountRate) {
 		super(simul, "Cost", "€", discountRate);

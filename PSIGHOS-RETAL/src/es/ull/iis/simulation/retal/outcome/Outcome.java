@@ -18,6 +18,7 @@ public abstract class Outcome {
 	/** The unit used to measure the outcome */
 	protected final String unit;
 	protected final double discountRate;
+	protected final double[]aggregated = new double[RETALSimulation.NINTERVENTIONS];
 	
 	/**
 	 * 
@@ -71,6 +72,11 @@ public abstract class Outcome {
 			return value;
 		return value / Math.pow(1 + discountRate, time);
 	}
+	
+	public double getValue(int intervention) {
+		return aggregated[intervention];
+	}
+	
 	/**
 	 * @return the unit
 	 */

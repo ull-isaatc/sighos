@@ -9,10 +9,10 @@ package es.ull.iis.simulation.retal.params;
  */
 public enum OphthalmologicResource {
 	APPOINTMENT("Outpatient appointment", 149.8),	// Source: Spanish Official Tariffs
-	OCT("OCT", 125.07),								// Source: eSalud
-	CLINICAL_EXAM("Clinical Examination", 28.41),	// Source: Sender et al. 2013
-	RETINO("Retinography", 62.95),					// Source: eSalud
-	ANGIO("Angiography", 190.71),					// Source: Casaroli-marano et al. 2013
+	OCT("OCT", 182.29),								// Source: Spanish Official Tariffs
+	CLINICAL_EXAM("Clinical Examination", 149.8),	// Source: Spanish Official Tariffs, same as out. appointment
+	RETINO("Retinography", 99.5),					// Source: Spanish Official Tariffs
+	ANGIO("Angiography", 173.88),					// Source: Spanish Official Tariffs
 	RANIBIZUMAB("Ranibizumab", 913.1),				// Source: Portalfarma
 	PHOTOCOAGULATION("Photocoagulation", 982.96),	// Source: Spanish Official Tariffs 
 	;
