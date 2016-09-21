@@ -77,6 +77,14 @@ public abstract class Outcome {
 		return aggregated[intervention];
 	}
 	
+	public double getAverage(int intervention) {
+		return aggregated[intervention] / RETALSimulation.NPATIENTS;		
+	}
+	
+	public double getSD(int intervention) {
+		// FIXME Add SD
+		return 0.0;
+	}
 	/**
 	 * @return the unit
 	 */

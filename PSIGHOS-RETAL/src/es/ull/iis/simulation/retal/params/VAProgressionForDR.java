@@ -34,6 +34,10 @@ public class VAProgressionForDR extends VAProgressionParam {
 	 * Source: Rein */
 	private final static double[] PROB_VA_CSME = {0.3, 0.1056};
 
+	private final static double LOSS_RATE_TREATED_NONHR_PDR = 0.4571;
+	private final static double LOSS_RATE_TREATED_HR_PDR = 0.4160;
+	private final static double LOSS_RATE_TREATED_CSME = 0.3750;
+	
 	private final RandomVariate initialDR;
 
 	/**
@@ -74,22 +78,30 @@ public class VAProgressionForDR extends VAProgressionParam {
 			
 			final double[] rnd;
 			final double[] probVA;
+			final double lossRate;
 			if (pat.getEyeState(eyeIndex).contains(EyeState.NON_HR_PDR)) {
 				rnd = pat.draw(RandomForPatient.ITEM.DR_VA_NONHR_PDR, yearsSinceLastChange + 1);
 				probVA = PROB_VA_NONHR_PDR;
+				lossRate = LOSS_RATE_TREATED_NONHR_PDR;
 			}
 			else if (pat.getEyeState(eyeIndex).contains(EyeState.HR_PDR)) {
 				rnd = pat.draw(RandomForPatient.ITEM.DR_VA_HR_PDR, yearsSinceLastChange + 1);
 				probVA = PROB_VA_HR_PDR;
+				lossRate = LOSS_RATE_TREATED_HR_PDR;
 			}
 			else if (pat.getEyeState(eyeIndex).contains(EyeState.CSME)) {
 				rnd = pat.draw(RandomForPatient.ITEM.DR_VA_CSME, yearsSinceLastChange + 1);
 				probVA = PROB_VA_CSME;
+				lossRate = LOSS_RATE_TREATED_CSME;
 			}
 			else {
 				pat.error("Trying to calculate VA loss from DR with a patient who has not DR");
 				probVA = new double[2];
 				rnd = new double[yearsSinceLastChange + 1];
+				lossRate = 1.0;
+			}
+			if (pat.isDiagnosed()) {
+				probVA[0] *= lossRate; 
 			}
 			long timeToChange = 0;
 			// More than a year since last change
