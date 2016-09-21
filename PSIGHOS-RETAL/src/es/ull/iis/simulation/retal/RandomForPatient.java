@@ -16,6 +16,7 @@ import simkit.random.RandomNumberFactory;
  */
 public class RandomForPatient {
 	public static enum ITEM {
+		DEATH,
 		SEX,
 		TIME_TO_EARM,
 		TIME_TO_E1AMD,

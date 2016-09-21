@@ -16,6 +16,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
+// FIXME: Do take effectiveness of treatments from Rein! First check if treatment for CSME is antiVEGF or PFC
 public class VAProgressionForDR extends VAProgressionParam {
 	/** 
 	 * Mean and SD VA for diabetic retinopathy. 

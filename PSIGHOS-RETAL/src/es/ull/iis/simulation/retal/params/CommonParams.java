@@ -4,12 +4,10 @@
 package es.ull.iis.simulation.retal.params;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
@@ -23,12 +21,9 @@ public class CommonParams extends ModelParams {
 	public final static int MAN = 0;
 	public final static int WOMAN = 1;
 	private final static double P_MEN = 0.5;
-	// FIXME: change by a real value
-	private final static double P_DM1 = 0.1;
 	
 	// Parameters for death. Source: Spanish 2014 Mortality risk. INE
 	// Adjusted using a Gompertz distribution with logs or the yearly mortality risks from age 40 to 100.
-	private final static Random RNG_DEATH = new Random();
 	/** Alpha parameter for a Gompertz distribution on the mortality risk for men and women */
 	private final static double ALPHA_DEATH[] = new double[] {Math.exp(-10.72495061), Math.exp(-12.03468863)};
 	/** Beta parameter for a Gompertz distribution on the mortality risk for men and women */
@@ -51,11 +46,34 @@ public class CommonParams extends ModelParams {
 	}
 
 	/**
-	 * @return Years to death of the patient or years to MAX_AGE 
+	 * Returns the simulation time until the death of the patient, according to the Spanish mortality tables.
+	 * The risk of death can be increased by the specified factor.
+	 * @param pat A patient
+	 * @param addRisk Additional risk of death, expressed as a factor 
+	 * @return Simulation time to death of the patient or to MAX_AGE 
+	 */
+	private long getTimeToDeath(Patient pat, double addRisk) {
+		final double time = Math.min(generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), pat.draw(RandomForPatient.ITEM.DEATH) / addRisk), MAX_AGE - pat.getAge());
+		return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
+	}
+	
+	/**
+	 * Returns the simulation time until the death of the patient, according to the Spanish mortality tables. 
+	 * @param pat A patient
+	 * @return Simulation time to death of the patient or to MAX_AGE 
 	 */
 	public long getTimeToDeath(Patient pat) {
-		final double time = Math.min(generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), RNG_DEATH.nextDouble()), MAX_AGE - pat.getAge());
-		return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
+		return getTimeToDeath(pat, 1.0);
+	}
+	
+	/**
+	 * Returns the simulation time until the death of the patient, according to the Spanish mortality tables, 
+	 * and taking into account diabetes. 
+	 * @param pat A patient
+	 * @return Simulation time to death of the patient or to MAX_AGE 
+	 */
+	public long getTimeToDeathDiabetic(Patient pat) {
+		return getTimeToDeath(pat, diabetes.getAdditionalMortalityRisk());
 	}
 	
 	public int getSex(Patient pat) {
@@ -72,7 +90,7 @@ public class CommonParams extends ModelParams {
 	}
 	
 	public int getDiabetesType(Patient pat) {
-		return (pat.draw(RandomForPatient.ITEM.DIABETES_TYPE) < P_DM1) ? 1 : 2; 
+		return (pat.draw(RandomForPatient.ITEM.DIABETES_TYPE) < diabetes.getProbabilityDM1()) ? 1 : 2; 
 	}
 	
 	public double getDurationOfDM(Patient pat) {
@@ -108,8 +126,8 @@ public class CommonParams extends ModelParams {
 		return resourceUsage.getResourceUsageCost(pat, initAge, endAge);
 	}
 	
-	public double getDiagnosisCost(Patient pat, RETALSimulation.DISEASES disease) {
-		return resourceUsage.getDiagnosisCost(pat, disease);
+	public double getDiagnosisCost(Patient pat) {
+		return resourceUsage.getDiagnosisCost(pat);
 	}
 	
 	public double getScreeningCost(Patient pat) {

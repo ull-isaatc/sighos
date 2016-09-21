@@ -8,14 +8,13 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-// FIXME: Currently only using first-order estimates
+// TODO: Currently only using first-order estimates
 public class VAParam {
 	/**
 	 * Source: Karnon model
@@ -60,7 +59,8 @@ public class VAParam {
 	 * @param eyeIndex
 	 * @return
 	 */
-	private double getVAAtIncidence(EyeState state, CNVStage stage) {
+	@SuppressWarnings("unused")
+	private static double getVAAtIncidence(EyeState state, CNVStage stage) {
 		final double va;
 		
 		if (state.equals(EyeState.AMD_CNV)) {

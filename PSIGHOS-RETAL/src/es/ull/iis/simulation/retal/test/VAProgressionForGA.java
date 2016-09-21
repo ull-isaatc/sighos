@@ -11,7 +11,7 @@ import es.ull.iis.simulation.core.TimeUnit;
  * @author Iván Castilla Rodríguez
  *
  */
-//FIXME: Adapt to first and second order as in the rest of similar classes
+//TODO: Adapt to first and second order as in the rest of similar classes
 class VAProgressionForGA {
 	private static final double LOSS_3_LINES = 0.3;
 	private static final double LOSS_6_LINES = 0.6;

@@ -11,11 +11,11 @@ import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * Parameters related to diabetic retinopathy and diabetic macular edema
+ * In most cases, central macular edema and clinically significant macular edema are considered equivalent, based on expert opinion
  * @author Ivan Castilla Rodriguez
  *
  */
 // TODO: Add second order
-// FIXME: Check consistency between clinically-significant macular edema and central macular edema
 public class DRParams extends ModelParams {
 	/**
 	 * Prevalence of DR in DM1 for 40-50 group age

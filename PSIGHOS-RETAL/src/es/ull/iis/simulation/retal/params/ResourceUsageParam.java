@@ -173,7 +173,7 @@ public final class ResourceUsageParam extends Param {
 		}
 	}
 	
-	public double getDiagnosisCost(Patient pat, RETALSimulation.DISEASES disease) {
+	public double getDiagnosisCost(Patient pat) {
 		double cost = 0.0;
 		for (ResourceUsageItem usage : diagResources) {
 			cost += usage.getUnitCost();

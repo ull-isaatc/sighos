@@ -9,14 +9,15 @@ import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
- * FIXME: Currently assuming that CSME and HR_PDR are always detected
+ * 
  * @author Iván Castilla Rodríguez
  *
  */
 public class ClinicalPresentationDRParam extends Param {
 	/** An index to locate a specific eye state in the {@link #probabilities} array */
 	final private static EnumMap<EyeState, Integer> order  = new EnumMap<EyeState, Integer>(EyeState.class);
-	/** The annual probability to be clinically detected depending on the states of the first eye */	
+	//FIXME: Currently assigning arbitrary clinical detection rates
+	/** The annual probability to be clinically detected depending on the states of the first eye. Assumption */	
 	private final static double [] probabilities = {0.001, 0.002, 0.8, 0.9}; 
 
 	static {

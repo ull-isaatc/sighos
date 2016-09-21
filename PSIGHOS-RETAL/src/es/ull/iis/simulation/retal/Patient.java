@@ -38,9 +38,6 @@ public class Patient extends BasicElement {
 	private final int sex;
 	/** Type of DM; -1 if no diabetic */
 	private int diabetesType = -1;
-	// Event times
-	/** Precomputed time to death for this patient */
-	protected final long timeToDeath;
 	
 	/** The specific intervention assigned to the patient */
 	protected final Intervention intervention;
@@ -58,6 +55,7 @@ public class Patient extends BasicElement {
 	/** Random number generators for initial risks to be compared with specific probabilities */
 	private final RandomForPatient rng;
 	// Events
+	private DeathEvent deathEvent = null;
 	private DiabetesEvent diabetesEvent = null;
 	private final EARMEvent[] eARMEvent = {null, null};
 	private final GAEvent[] gAEvent = {null, null};
@@ -104,8 +102,6 @@ public class Patient extends BasicElement {
 		this.initAge = 365*initAge;
 		this.sex = commonParams.getSex(this);
 		this.clonedFrom = null;
-		// Limiting lifespan to MAX AGE
-		this.timeToDeath = simul.getCommonParams().getTimeToDeath(this);
 		this.cost = simul.getCost();
 		this.qaly = simul.getQaly();
 		
@@ -140,7 +136,6 @@ public class Patient extends BasicElement {
 		this.clonedFrom = original;
 		this.initAge = original.initAge;
 		this.sex = original.sex;
-		this.timeToDeath = original.timeToDeath;
 		this.cost = original.cost;
 		this.qaly = original.qaly;
 
@@ -166,16 +161,17 @@ public class Patient extends BasicElement {
 	protected void init() {
 		startTs = this.getTs();
 		simul.getInfoHandler().notifyInfo(new PatientInfo(this.simul, this, PatientInfo.Type.START, this.getTs()));
-		addEvent(new DeathEvent(timeToDeath));
 
-		// FIXME: Maybe the diabetes should be checked even when DR is not included in the model
-		if (RETALSimulation.ACTIVE_DISEASES.contains(RETALSimulation.DISEASES.DR)) {
-			// Checks if he/she is diabetic
-			final long timeToDiabetes = commonParams.isDiabetic(this) ? startTs : commonParams.getTimeToDiabetes(this);
-			if (timeToDiabetes < Long.MAX_VALUE) {
-				diabetesEvent = new DiabetesEvent(timeToDiabetes);
-				addEvent(diabetesEvent);
-			}
+		// Checks if he/she is diabetic
+		final long timeToDiabetes = commonParams.isDiabetic(this) ? startTs : commonParams.getTimeToDiabetes(this);
+		if (timeToDiabetes < Long.MAX_VALUE) {
+			diabetesEvent = new DiabetesEvent(timeToDiabetes);
+			addEvent(diabetesEvent);
+		}
+		// If he/she is diabetic, the time to death has been already assigned
+		if (!isDiabetic()) {
+			deathEvent = new DeathEvent(commonParams.getTimeToDeath(this));
+			addEvent(deathEvent);
 		}
 		
 		if (RETALSimulation.ACTIVE_DISEASES.contains(RETALSimulation.DISEASES.ARMD)) {
@@ -274,11 +270,12 @@ public class Patient extends BasicElement {
 	 * @return the timeToDeath
 	 */
 	public long getTimeToDeath() {
-		return timeToDeath;
+		return (deathEvent == null) ? Long.MAX_VALUE : deathEvent.getTs();
 	}
 
 	public double getAgeAtDeath() {
-		return (initAge + timeToDeath) / 365.0;
+		final long timeToDeath = getTimeToDeath();
+		return (timeToDeath == Long.MAX_VALUE) ? Double.MAX_VALUE : ((initAge + timeToDeath) / 365.0);
 	}
 	
 	public long getTimeToDiabetes() {
@@ -375,10 +372,10 @@ public class Patient extends BasicElement {
 					diagnoseEvent.cancel();
 				}					
 				if (timeToDRDiagnosis < timeToARMDDiagnosis) {
-					diagnoseEvent = new DiagnoseEvent(timeToDRDiagnosis, RETALSimulation.DISEASES.DR);					
+					diagnoseEvent = new DiagnoseEvent(timeToDRDiagnosis);					
 				}
 				else {
-					diagnoseEvent = new DiagnoseEvent(timeToARMDDiagnosis, RETALSimulation.DISEASES.ARMD);					
+					diagnoseEvent = new DiagnoseEvent(timeToARMDDiagnosis);					
 				}
 				addEvent(diagnoseEvent);
 			}
@@ -386,7 +383,7 @@ public class Patient extends BasicElement {
 				if (timeToDiagnosis < Long.MAX_VALUE) {
 					diagnoseEvent.cancel();
 				}					
-				diagnoseEvent = new DiagnoseEvent(timeToDRDiagnosis, RETALSimulation.DISEASES.DR);					
+				diagnoseEvent = new DiagnoseEvent(timeToDRDiagnosis);					
 				addEvent(diagnoseEvent);				
 			}
 		}
@@ -852,8 +849,7 @@ public class Patient extends BasicElement {
 				// False positive
 				else {
 					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.FP, this.getTs()));
-					// TODO: Check if ARMD is the best one to select or something different should be done...
-					final double diagnosisCost = commonParams.getDiagnosisCost(Patient.this, RETALSimulation.DISEASES.ARMD);
+					final double diagnosisCost = commonParams.getDiagnosisCost(Patient.this);
 					cost.update(Patient.this, diagnosisCost, getAge());
 				}
 			}
@@ -871,10 +867,9 @@ public class Patient extends BasicElement {
 				// True positive
 				else {
 					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.TP, this.getTs()));
-					// TODO: check if taking the first one is a good option...
 					if (diagnoseEvent != null)
 						diagnoseEvent.cancel();
-					diagnoseEvent = new DiagnoseEvent(ts, (RETALSimulation.DISEASES)affectedBy.toArray()[0]);
+					diagnoseEvent = new DiagnoseEvent(ts);
 					addEvent(diagnoseEvent);
 					// TODO: Add changes of true positive						
 				}					
@@ -884,16 +879,14 @@ public class Patient extends BasicElement {
 	}
 	
 	protected final class DiagnoseEvent extends DiscreteEvent {
-		final RETALSimulation.DISEASES disease;
 		
-		public DiagnoseEvent(long ts, RETALSimulation.DISEASES disease) {
+		public DiagnoseEvent(long ts) {
 			super(ts);
-			this.disease = disease;
 		}
 
 		@Override
 		public void event() {
-			final double diagnosisCost = commonParams.getDiagnosisCost(Patient.this, disease);
+			final double diagnosisCost = commonParams.getDiagnosisCost(Patient.this);
 			cost.update(Patient.this, diagnosisCost, getAge());
 			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DIAGNOSED, this.getTs()));
 			// If suffering CNV when diagnosed, the treatment with antiVEGF starts
@@ -1009,15 +1002,24 @@ public class Patient extends BasicElement {
 			diabetesType = commonParams.getDiabetesType(Patient.this);
 			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DIABETES, this.getTs()));			
 			
-			// TODO: Check if it has sense to go directly from diabetes to some degree of DR. It would make sense if it were 
-			// "diagnosed" diabetes and not "real" diabetes
-			final EnumSet<EyeState>[] startWith = drParams.startsWith(Patient.this);
-			// Initializes the state of both eyes
-			assignInitialEyeState(startWith[0], 0);
-			assignInitialEyeState(startWith[1], 1);
-			// Check if the new state arises the diagnosis
-			checkDiagnosis();
-			// TODO: Add actions related to become diabetic (death???)
+			if (RETALSimulation.ACTIVE_DISEASES.contains(RETALSimulation.DISEASES.DR)) {
+				// TODO: Check if it has sense to go directly from diabetes to some degree of DR. It would make sense if it were 
+				// "diagnosed" diabetes and not "real" diabetes
+				final EnumSet<EyeState>[] startWith = drParams.startsWith(Patient.this);
+				// Initializes the state of both eyes
+				assignInitialEyeState(startWith[0], 0);
+				assignInitialEyeState(startWith[1], 1);
+				// Check if the new state arises the diagnosis
+				checkDiagnosis();
+			}
+			long newTimeToDeath = commonParams.getTimeToDeathDiabetic(Patient.this);
+			if (newTimeToDeath < getTimeToDeath()) {
+				if (deathEvent != null) {
+					deathEvent.cancel();
+				}
+				deathEvent = new DeathEvent(newTimeToDeath);
+				addEvent(deathEvent);
+			}
 		}		
 	}
 	
@@ -1278,5 +1280,13 @@ public class Patient extends BasicElement {
 			notifyEnd();
 		}
 	
+		@Override
+		public boolean cancel() {
+			if (super.cancel()) {
+				deathEvent = null;
+				return true;
+			}
+			return false;
+		}
 	}
 }

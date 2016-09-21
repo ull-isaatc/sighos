@@ -69,6 +69,16 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 			{13, 62}, {5, 39}, {6, 39}, {8, 31}, {8, 27}, {1, 7}, {0, 6}, {0, 5}, {1, 10}, {0, 4},
 			{0, 1}			
 	};
+	// FIXME: change by better adjusted value
+	/** The percentage of DM1 among diabetics. Source: Report from Federacion Española de Diabeticos */
+	private final static double P_DM1 = 0.13;
+	/** 
+	 * Additional mortality risk for people affected by diabetes. As it is used in 
+	 * Rein, D.B. et al., 2011. The cost-effectiveness of three screening alternatives for people with diabetes with 
+	 * no or early diabetic retinopathy. Health services research, 46(5), pp.1534–61.  
+	 */
+	private final static double ADDITIONAL_MORTALITY_RISK = 2.0;
+	
 	/** Duration of diagnosed diabetes by age. Source: Rein */
 	private final static double[][] DURATION_OF_DM2 = {
 			{30, 40, 8.35},
@@ -84,6 +94,8 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 	private final double[][] incidenceWomen;
 	private final double[] prevalenceMen;
 	private final double[] prevalenceWomen;
+	private final double pDM1;
+	private final double addMortalityRisk;
 	
 	/**
 	 * @param simul
@@ -91,6 +103,8 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 	 */
 	public DiabetesParam(boolean baseCase) {
 		super(baseCase, TimeUnit.YEAR);
+		pDM1 = P_DM1;
+		addMortalityRisk = ADDITIONAL_MORTALITY_RISK;
 		incidenceMen = new double[DM2_MEN_INCIDENCE.length][3];
 		incidenceWomen = new double[DM2_WOMEN_INCIDENCE.length][3];
 		initProbabilities(DM2_MEN_INCIDENCE, incidenceMen);
@@ -104,7 +118,7 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 	}
 
 	/**
-	 * Returns whether a patient, according to his/her age and sex, is diabetic 
+	 * Returns whether a patient, according to his/her age and sex, should be diabetic 
 	 * @param pat A patient
 	 * @return True if the patient is diabetic; false else
 	 */
@@ -114,6 +128,21 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 		return (pat.draw(RandomForPatient.ITEM.DIABETIC) < prob);
 	}
 	
+	/**
+	 * Returns the probability that a diabetic patient has DM1, as opposed to DM2
+	 * @return the probability that a diabetic patient has DM1, as opposed to DM2
+	 */
+	public double getProbabilityDM1() {
+		return pDM1;
+	}
+
+	/**
+	 * @return the addMortalityRisk
+	 */
+	public double getAdditionalMortalityRisk() {
+		return addMortalityRisk;
+	}
+
 	/**
 	 * Returns the duration of the diabetes in a patient 
 	 * @param pat A patient
