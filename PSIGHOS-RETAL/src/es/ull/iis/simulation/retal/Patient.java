@@ -71,8 +71,10 @@ public class Patient extends BasicElement {
 	private DiagnoseEvent diagnoseEvent = null;
 	/** Last timestamp when VA changed */
 	private final long[] lastVAChangeTs = new long[2];
-	/** Timestamp when treatmen with antiVEGF started */
-	private final long[] onAntiVEGFSince = {Long.MAX_VALUE, Long.MAX_VALUE};
+	/** Timestamp when treatmen with antiVEGF for CNV started */
+	private final long[] onAntiVEGFCNV = {Long.MAX_VALUE, Long.MAX_VALUE};
+	/** Timestamp when treatmen with antiVEGF for CSME started */
+	private final long[] onAntiVEGFCSME = {Long.MAX_VALUE, Long.MAX_VALUE};
 	
 	/** The current state of the eyes of the patient */
 	private final EnumSet<?>[] eyes = new EnumSet<?>[2];
@@ -290,12 +292,21 @@ public class Patient extends BasicElement {
 	}
 	
 	/**
-	 * Returns the timestamp when the patient started treatment with antiVEGF in the specified eye
+	 * Returns the timestamp when the patient started treatment with antiVEGF in the specified eye for CNV
 	 * @param eyeIndex Index of the eye (0 for first eye, 1 for second eye)
-	 * @return the timestamp when the patient started treatment with antiVEGF in the specified eye
+	 * @return the timestamp when the patient started treatment with antiVEGF in the specified eye for CNV
 	 */
-	public long getOnAntiVEGFSince(int eyeIndex) {
-		return onAntiVEGFSince[eyeIndex];
+	public long getOnAntiVEGFCNV(int eyeIndex) {
+		return onAntiVEGFCNV[eyeIndex];
+	}
+
+	/**
+	 * Returns the timestamp when the patient started treatment with antiVEGF in the specified eye for CSME
+	 * @param eyeIndex Index of the eye (0 for first eye, 1 for second eye)
+	 * @return the timestamp when the patient started treatment with antiVEGF in the specified eye for CSME
+	 */
+	public long getOnAntiVEGFCSME(int eyeIndex) {
+		return onAntiVEGFCSME[eyeIndex];
 	}
 
 	/**
@@ -770,7 +781,7 @@ public class Patient extends BasicElement {
 			checkDiagnosis();
 			// If already diagnosed, the treatment with antiVEGF starts
 			if (isDiagnosed()) {
-				onAntiVEGFSince[eyeIndex] = ts;
+				onAntiVEGFCNV[eyeIndex] = ts;
 			}
 		}		
 	}
@@ -887,9 +898,14 @@ public class Patient extends BasicElement {
 			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DIAGNOSED, this.getTs()));
 			// If suffering CNV when diagnosed, the treatment with antiVEGF starts
 			if (eyes[0].contains(EyeState.AMD_CNV))
-				onAntiVEGFSince[0] = ts;
+				onAntiVEGFCNV[0] = ts;
 			if (eyes[1].contains(EyeState.AMD_CNV))
-				onAntiVEGFSince[1] = ts;
+				onAntiVEGFCNV[1] = ts;
+			// If suffering CSME when diagnosed, the treatment with antiVEGF starts
+			if (eyes[0].contains(EyeState.CSME))
+				onAntiVEGFCSME[0] = ts;
+			if (eyes[1].contains(EyeState.CSME))
+				onAntiVEGFCSME[1] = ts;
 		}
 		
 		@Override
@@ -1237,6 +1253,10 @@ public class Patient extends BasicElement {
 			
 			// Checks diagnosis
 			checkDiagnosis();
+			// If already diagnosed, the treatment with antiVEGF starts
+			if (isDiagnosed()) {
+				onAntiVEGFCSME[eyeIndex] = ts;
+			}
 		}		
 	}
 	

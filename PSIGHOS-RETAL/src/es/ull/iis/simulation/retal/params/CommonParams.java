@@ -17,6 +17,7 @@ import es.ull.iis.simulation.retal.RandomForPatient;
  *
  */
 public class CommonParams extends ModelParams {
+	public final static boolean ANTIVEGF_2YEARS_ASSUMPTION = true;
 	public final static int MAX_AGE = 100;
 	public final static int MIN_AGE = 40;
 	public final static int MAN = 0;

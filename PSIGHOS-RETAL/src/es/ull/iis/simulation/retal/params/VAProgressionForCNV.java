@@ -49,9 +49,12 @@ public class VAProgressionForCNV extends VAProgressionParam {
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>();
 		final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
 		double va = pat.getVA(eyeIndex);
-		final double yearsSinceEvent = TimeUnit.DAY.convert(pat.getSimulation().getTs() - pat.getTimeToCNVStage(stage, eyeIndex), pat.getSimulation().getTimeUnit()) / 365.0;
+		final long startTs = pat.getTimeToCNVStage(stage, eyeIndex);
+		final long endTs = pat.getSimulation().getTs();
+		final double yearsSinceEvent = TimeUnit.DAY.convert(endTs - startTs, pat.getSimulation().getTimeUnit()) / 365.0;
 		final int exactYearsSinceEvent = (int)yearsSinceEvent;
 		final double[][] progression;
+		// FIXME: Make treatment effective only first two years
 		if (pat.isDiagnosed()) {
 			progression = ranibizumabYearlyProgression;
 			// Do not use expected VA if on treatment
@@ -98,7 +101,7 @@ public class VAProgressionForCNV extends VAProgressionParam {
 		}
 		// Less than a year since last change
 		else {
-			timeToChange = pat.getSimulation().getTs() - pat.getTimeToCNVStage(stage, eyeIndex);
+			timeToChange = endTs - startTs;
 			// Calculate the proportional VA loss/gain
 			va = Math.min(VisualAcuity.MAX_LOGMAR, Math.max(expectedVA, va + getVAChange(pat, progression[0]) * yearsSinceEvent));
 		}

@@ -17,6 +17,7 @@ public enum OphthalmologicResource {
 	ANGIO("Angiography", 173.88),					// Source: Spanish Official Tariffs
 	RANIBIZUMAB("Ranibizumab", 913.1),				// Source: Portalfarma
 	PHOTOCOAGULATION("Photocoagulation", 982.96),	// Source: Spanish Official Tariffs 
+	TEST("Only for test", 100.0)
 	;
 	
 	private final String description;
