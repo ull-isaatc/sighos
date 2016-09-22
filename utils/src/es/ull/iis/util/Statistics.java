@@ -9,6 +9,9 @@ package es.ull.iis.util;
  *
  */
 public class Statistics {
+	/** The factor to calculate 95% CI from SD */
+	final static private double CI95FACTOR = 1.96;
+	
 	/**
 	 * Returns the average of a set of values
 	 * @param values Set of values.
@@ -147,5 +150,10 @@ public class Statistics {
 	 */
 	public static double relError100(double th, double exp) {
 		return relError(th, exp) * 100;
+	}
+	
+	public static double[] normal95CI(double mean, double sd, int n) {
+		final double ci = CI95FACTOR * sd / Math.sqrt(n);
+		return new double[] {mean - ci, mean + ci};
 	}
 }
