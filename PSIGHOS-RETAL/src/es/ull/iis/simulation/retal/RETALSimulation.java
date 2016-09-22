@@ -96,11 +96,11 @@ public class RETALSimulation extends Simulation {
 //		addInfoReceiver(new PatientInfoView(this));
 //		addInfoReceiver(new AffectedPatientHistoryView(this, ACTIVE_DISEASES, true));
 //		addInfoReceiver(new AffectedPatientHistoryVAView(this, ACTIVE_DISEASES, true));
-		addInfoReceiver(new DiagnosticView(this));
+//		addInfoReceiver(new DiagnosticView(this));
 //		addInfoReceiver(new PatientPrevalenceView(this, ACTIVE_DISEASES));
-		addInfoReceiver(new PatientCounterView(this, ACTIVE_DISEASES));
+//		addInfoReceiver(new PatientCounterView(this, ACTIVE_DISEASES));
 //		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5, ACTIVE_DISEASES));
-		addInfoReceiver(new ICERView(this, false));
+		addInfoReceiver(new ICERView(this, false, true, true, false));
 	}
 	
 	public CommonParams getCommonParams() {
@@ -162,5 +162,7 @@ public class RETALSimulation extends Simulation {
 	public void end() {
 		// FIXME: Prepare to compute outcomes in case not all the patients are dead
 		super.end();
+		cost.print(true, false);
+		qaly.print(true, false);
 	}
 }

@@ -3,8 +3,11 @@
  */
 package es.ull.iis.simulation.retal.outcome;
 
+import java.util.Arrays;
+
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
+import es.ull.iis.util.Statistics;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -19,6 +22,7 @@ public abstract class Outcome {
 	protected final String unit;
 	protected final double discountRate;
 	protected final double[]aggregated = new double[RETALSimulation.NINTERVENTIONS];
+	protected final double[][]values = new double[RETALSimulation.NINTERVENTIONS][RETALSimulation.NPATIENTS];
 	
 	/**
 	 * 
@@ -37,16 +41,41 @@ public abstract class Outcome {
 	 * @param initAge Initial age when the value is applied
 	 * @param endAge End age when the value is applied
 	 */
-	public abstract void update(Patient pat, double value, double initAge, double endAge);
+	public void update(Patient pat, double value, double initAge, double endAge) {
+		final int interventionId = pat.getnIntervention();
+		value = applyDiscount(value, initAge, endAge);
+		values[interventionId][pat.getIdentifier()] += value;
+		aggregated[interventionId] += value;
+	}
 	/**
 	 * Updates the value of this outcome at a specified age
 	 * @param pat A patient
 	 * @param value The value to update
 	 * @param age The age at which the value is applied
 	 */
-	public abstract void update(Patient pat, double value, double age);
+	public void update(Patient pat, double value, double age) {
+		final int interventionId = pat.getnIntervention();
+		value = applyPunctualDiscount(value, age);
+		values[interventionId][pat.getIdentifier()] += value;
+		aggregated[interventionId] += value;
+	}
 	
-	public abstract void print(boolean detailed);
+	public void print(boolean detailed, boolean units) {
+		if (detailed) {
+			for (int i = 0; i < RETALSimulation.NPATIENTS; i++) {
+				System.out.print("[" + i + "]\t");
+				for (int j = 0; j < RETALSimulation.NINTERVENTIONS; j++) {
+					System.out.print(values[j][i] + (units ? (" " + unit) : "") + "\t");
+				}
+				System.out.println();
+			}
+		}
+		System.out.println(this + " summary:");
+		for (int j = 0; j < RETALSimulation.NINTERVENTIONS; j++) {
+			System.out.print(aggregated[j] / RETALSimulation.NPATIENTS + (units ? (" " + unit) : "") + "\t");
+		}
+		System.out.println();
+	}
 	
 	/**
 	 * Apply a discount rate to a constant value over a time period. 
@@ -72,9 +101,20 @@ public abstract class Outcome {
 			return value;
 		return value / Math.pow(1 + discountRate, time);
 	}
-	
-	public double getValue(int intervention) {
-		return aggregated[intervention];
+	/**
+	 * Returns average, SD, lower 95%CI, upper 95%CI, percentile 2.5%, percentile 97.5% for each intervention
+	 * @return
+	 */
+	public double[][] getResults() {
+		final double[][] results = new double[aggregated.length][6];
+		for (int i = 0; i < results.length; i++) {
+			final double avg = getAverage(i);
+			final double sd = Statistics.stdDev(values[i], avg);
+			final double[] ci = Statistics.normal95CI(avg, sd, RETALSimulation.NPATIENTS);
+			final double[] cip = get95CI(i, true);
+			results[i] = new double[] {avg, sd, ci[0], ci[1], cip[0], cip[1]};
+		}
+		return results;
 	}
 	
 	public double getAverage(int intervention) {
@@ -82,9 +122,18 @@ public abstract class Outcome {
 	}
 	
 	public double getSD(int intervention) {
-		// FIXME Add SD
-		return 0.0;
+		return Statistics.stdDev(values[intervention], getAverage(intervention));
 	}
+	
+	public double[] get95CI(int intervention, boolean percentile) {
+		if (!percentile)
+			return Statistics.normal95CI(getAverage(intervention), getSD(intervention), RETALSimulation.NPATIENTS);
+		final double[] ordered = Arrays.copyOf(values[intervention], RETALSimulation.NPATIENTS);
+		Arrays.sort(ordered);
+		final int index = (int)Math.ceil(RETALSimulation.NPATIENTS * 0.025);
+		return new double[] {ordered[index - 1], ordered[RETALSimulation.NPATIENTS - index]}; 
+	}
+	
 	/**
 	 * @return the unit
 	 */

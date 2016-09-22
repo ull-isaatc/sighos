@@ -107,6 +107,7 @@ public class VAParam {
 	 * @param changes2 Changes due to eye disease 2
 	 * @return The worst possible list of changes in visual acuity for a patient affected by two different problems.
 	 */
+	// FIXME: Eventually fails. Possibly due to incorrect final change assigned in DR or CNV 
 	private static ArrayList<VAProgressionPair> mergeVAProgressions(double vaAtStart, ArrayList<VAProgressionPair> changes1, ArrayList<VAProgressionPair> changes2) {
 		final Iterator<VAProgressionPair> iter1 = changes1.iterator();
 		final Iterator<VAProgressionPair> iter2 = changes2.iterator();
