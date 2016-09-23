@@ -49,13 +49,17 @@ public class VAProgressionForCNV extends VAProgressionParam {
 		final double timeInYear2Progression = (endTs - startTs - timeInYear1Progression) / 365.0;
 		double va = currentVA;
 
+		if (timeInYear1Progression == 0 && (timeInYear2Progression == 0.0)) {
+			pat.error("Progression CNV. Both times should not be 0");
+		}
+		
 		// Progression during first year after starting in this stage (if valid)
 		if (timeInYear1Progression > 0) {
 			// Calculate the proportional VA loss/gain
 			va = Math.min(VisualAcuity.MAX_LOGMAR, Math.max(expectedVA, va + getVAChange(pat, progression[0]) * timeInYear1Progression / 365.0));			
 			changes.add(new VAProgressionPair(timeInYear1Progression, va));
 		}
-		// Porgression during second year and on after starting in this stage (if valid)
+		// Progression during second year and on after starting in this stage (if valid)
 		if (timeInYear2Progression > 0.0) {
 			final int exactYearsSinceEvent = (int)timeInYear2Progression;
 			long timeToChange = 0;
@@ -84,7 +88,11 @@ public class VAProgressionForCNV extends VAProgressionParam {
 				va = Math.min(VisualAcuity.MAX_LOGMAR, Math.max(expectedVA, va + getVAChange(pat, progression[1]) * (timeInYear2Progression - exactYearsSinceEvent)));
 				changes.add(new VAProgressionPair(timeToChange, va));	
 			}
+			if (timeToChange == 0 && changes.size() == 0)
+				pat.error("Progression CNV. Badly composed");
 		}
+		if (changes.size() == 0)
+			pat.error("Progression CNV. Badly composed");
 		return changes;
 	}
 	

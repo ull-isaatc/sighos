@@ -117,45 +117,51 @@ public class VAParam {
 		VAProgressionPair pair2 = iter2.next();
 		double lastVA1 = vaAtStart;
 		double lastVA2 = vaAtStart;
-		long lastT1 = 0;
-		long lastT2 = 0;
 		long t1 = pair1.timeToChange;
 		long t2 = pair2.timeToChange;
 		while (iter1.hasNext() || iter2.hasNext()) {
 			if (t1 < t2) {
-				final double interpolated = lastVA2 + (pair2.va - lastVA2) / (t2 - lastT2);
-				changes.add((interpolated > pair1.va) ? new VAProgressionPair(t1, interpolated) : pair1);
-				lastT1 = t1;
+				// Update time of pair 2
+				t2 = t2 - t1;
+				// Interpolate VA in pair 2
+				lastVA2 = lastVA2 + (pair2.va - lastVA2) / t1;
+				// Take the worst VA
+				changes.add(new VAProgressionPair(t1, (lastVA2 > pair1.va) ? lastVA2 : pair1.va));
+				// Update pair 1
 				lastVA1 = pair1.va;
 				pair1 = iter1.next();
-				t1 += pair1.timeToChange;
+				t1 = pair1.timeToChange;
 			}
 			else if (t2 < t1) {
-				final double interpolated = lastVA1 + (pair1.va - lastVA1) / (t1 - lastT1);
-				changes.add((interpolated > pair2.va) ? new VAProgressionPair(t2, interpolated) : pair2);
-				lastT2 = t2;
+				// Update time of pair 1
+				t1 = t1 - t2;
+				// Interpolate VA in pair 1
+				lastVA1 = lastVA1 + (pair1.va - lastVA1) / t2;
+				// Take the worst VA
+				changes.add(new VAProgressionPair(t2, (lastVA1 > pair2.va) ? lastVA1 : pair2.va));
+				// Update pair 2
 				lastVA2 = pair2.va;
 				pair2 = iter2.next();
-				t2 += pair2.timeToChange;
+				t2 = pair2.timeToChange;
 			}
 			else {
 				changes.add((pair1.va > pair2.va) ? pair1 : pair2);
+				// Update pair 1
 				if (iter1.hasNext()) {
-					lastT1 = t1;
 					pair1 = iter1.next();
 					lastVA1 = pair1.va;
-					t1 += pair1.timeToChange;
+					t1 = pair1.timeToChange;
 				}
+				// Update pair 2
 				if (iter2.hasNext()) {
-					lastT2 = t2;
 					pair2 = iter2.next();
 					lastVA2 = pair2.va;
-					t2 += pair2.timeToChange;
+					t2 = pair2.timeToChange;
 				}
 			}
 		}
 		// This point is reached when both have no next pair
-		changes.add((pair1.va > pair2.va) ? pair1 : pair2);
+		changes.add(new VAProgressionPair(t2, (pair1.va > pair2.va) ? pair1.va : pair2.va));
 		return changes;
 	}
 		
@@ -199,38 +205,41 @@ public class VAParam {
 		double vaAtStart = 0.0;
 		ArrayList<VAProgressionPair> changes1 = new ArrayList<VAProgressionPair>();
 		ArrayList<VAProgressionPair> changes2 = new ArrayList<VAProgressionPair>();
+		changes1.add(new VAProgressionPair(365, 0.763));
+		changes1.add(new VAProgressionPair(152, 0.763));
+		changes2.add(new VAProgressionPair(517, 0.763));
 //		changes1.add(new VAProgressionPair(1, 0.3));
 //		changes1.add(new VAProgressionPair(1, 0.4));
 //		changes1.add(new VAProgressionPair(1, 0.6));
 //		changes1.add(new VAProgressionPair(1, 0.95));
 //		changes2.add(new VAProgressionPair(2, 0.5));
 //		changes2.add(new VAProgressionPair(2, 0.9));
-		changes1.add(new VAProgressionPair(6205, 0.20290285195581328));
-		changes2.add(new VAProgressionPair(365, 0.23850285195581328));
-		changes2.add(new VAProgressionPair(365, 0.2741028519558133));
-		changes2.add(new VAProgressionPair(365, 0.3097028519558133));
-		changes2.add(new VAProgressionPair(365, 0.34530285195581334));
-		changes2.add(new VAProgressionPair(365, 0.38090285195581336));
-		changes2.add(new VAProgressionPair(365, 0.4165028519558134));
-		changes2.add(new VAProgressionPair(365, 0.4521028519558134));
-		changes2.add(new VAProgressionPair(365, 0.4877028519558134));
-		changes2.add(new VAProgressionPair(365, 0.5233028519558134));
-		changes2.add(new VAProgressionPair(365, 0.5589028519558134));
-		changes2.add(new VAProgressionPair(365, 0.5945028519558133));
-		changes2.add(new VAProgressionPair(365, 0.6301028519558133));
-		changes2.add(new VAProgressionPair(365, 0.6657028519558132));
-		changes2.add(new VAProgressionPair(365, 0.7013028519558132));
-		changes2.add(new VAProgressionPair(365, 0.7369028519558132));
-		changes2.add(new VAProgressionPair(365, 0.7725028519558131));
-		changes2.add(new VAProgressionPair(365, 0.8081028519558131));
-		changes2.add(new VAProgressionPair(0, 0.8437028519558131));
+//		changes1.add(new VAProgressionPair(6205, 0.20290285195581328));
+//		changes2.add(new VAProgressionPair(365, 0.23850285195581328));
+//		changes2.add(new VAProgressionPair(365, 0.2741028519558133));
+//		changes2.add(new VAProgressionPair(365, 0.3097028519558133));
+//		changes2.add(new VAProgressionPair(365, 0.34530285195581334));
+//		changes2.add(new VAProgressionPair(365, 0.38090285195581336));
+//		changes2.add(new VAProgressionPair(365, 0.4165028519558134));
+//		changes2.add(new VAProgressionPair(365, 0.4521028519558134));
+//		changes2.add(new VAProgressionPair(365, 0.4877028519558134));
+//		changes2.add(new VAProgressionPair(365, 0.5233028519558134));
+//		changes2.add(new VAProgressionPair(365, 0.5589028519558134));
+//		changes2.add(new VAProgressionPair(365, 0.5945028519558133));
+//		changes2.add(new VAProgressionPair(365, 0.6301028519558133));
+//		changes2.add(new VAProgressionPair(365, 0.6657028519558132));
+//		changes2.add(new VAProgressionPair(365, 0.7013028519558132));
+//		changes2.add(new VAProgressionPair(365, 0.7369028519558132));
+//		changes2.add(new VAProgressionPair(365, 0.7725028519558131));
+//		changes2.add(new VAProgressionPair(365, 0.8081028519558131));
+//		changes2.add(new VAProgressionPair(0, 0.8437028519558131));
 		
 		System.out.println("Pair 1");
-		printProgression(changes1, 6205);
+		printProgression(changes1, 517);
 		System.out.println("Pair 2");
-		printProgression(changes2, 6205);
+		printProgression(changes2, 517);
 		System.out.println("Merged");
-		printProgression(mergeVAProgressions(vaAtStart, changes2, changes1), 6205);
+		printProgression(mergeVAProgressions(vaAtStart, changes1, changes2), 517);
 	}
 
 	public static void main(String[] args) {
@@ -241,13 +250,15 @@ public class VAParam {
 //		boolean diagnosed = true;
 //		double expectedVA = 0.6;
 //		printProgression(progCNV.getVAProgression(currentTs, lastChangeTs, currentVA, stage, diagnosed, expectedVA));
-		long startStageTs = 0;
-		long onAntiVEGFTs = 0;
-		long startTs = 0 * 365 + 23;
-		long endTs = 0 * 365 + 197;
-		double currentVA = 0.0;
-		double expectedVA = 0.0;
-		boolean diagnosed = true;
-		printProgression(progCNV.getVAProgression(startTs, endTs, startStageTs, onAntiVEGFTs, currentVA, diagnosed, expectedVA), endTs - startTs);
+		
+//		long startStageTs = 0;
+//		long onAntiVEGFTs = 0;
+//		long startTs = 0 * 365 + 23;
+//		long endTs = 0 * 365 + 197;
+//		double currentVA = 0.0;
+//		double expectedVA = 0.0;
+//		boolean diagnosed = true;
+//		printProgression(progCNV.getVAProgression(startTs, endTs, startStageTs, onAntiVEGFTs, currentVA, diagnosed, expectedVA), endTs - startTs);
+		testMerge();
 	}
 }

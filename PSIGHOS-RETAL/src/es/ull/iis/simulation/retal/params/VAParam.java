@@ -111,53 +111,60 @@ public class VAParam extends Param {
 		VAProgressionPair pair2 = iter2.next();
 		double lastVA1 = vaAtStart;
 		double lastVA2 = vaAtStart;
-		long lastT1 = 0;
-		long lastT2 = 0;
 		long t1 = pair1.timeToChange;
 		long t2 = pair2.timeToChange;
 		while (iter1.hasNext() || iter2.hasNext()) {
 			if (t1 < t2) {
-				final double interpolated = lastVA2 + (pair2.va - lastVA2) / (t2 - lastT2);
-				changes.add((interpolated > pair1.va) ? new VAProgressionPair(t1, interpolated) : pair1);
-				lastT1 = t1;
+				// Update time of pair 2
+				t2 = t2 - t1;
+				// Interpolate VA in pair 2
+				lastVA2 = lastVA2 + (pair2.va - lastVA2) / t1;
+				// Take the worst VA
+				changes.add(new VAProgressionPair(t1, (lastVA2 > pair1.va) ? lastVA2 : pair1.va));
+				// Update pair 1
 				lastVA1 = pair1.va;
-				if (!iter1.hasNext()) {
-					pat.error("Trying to merge invalid visual acuities");
-				}
 				pair1 = iter1.next();
-				t1 += pair1.timeToChange;
+				t1 = pair1.timeToChange;
 			}
 			else if (t2 < t1) {
-				final double interpolated = lastVA1 + (pair1.va - lastVA1) / (t1 - lastT1);
-				changes.add((interpolated > pair2.va) ? new VAProgressionPair(t2, interpolated) : pair2);
-				lastT2 = t2;
+				// Update time of pair 1
+				t1 = t1 - t2;
+				// Interpolate VA in pair 1
+				lastVA1 = lastVA1 + (pair1.va - lastVA1) / t2;
+				// Take the worst VA
+				changes.add(new VAProgressionPair(t2, (lastVA1 > pair2.va) ? lastVA1 : pair2.va));
+				// Update pair 2
 				lastVA2 = pair2.va;
-				if (!iter2.hasNext()) {
-					pat.error("Trying to merge invalid visual acuities");
-				}
 				pair2 = iter2.next();
-				t2 += pair2.timeToChange;
+				t2 = pair2.timeToChange;
 			}
 			else {
 				changes.add((pair1.va > pair2.va) ? pair1 : pair2);
-				// To avoid problems with 0 offsets
+				// Update pair 1
 				if (iter1.hasNext()) {
-					lastT1 = t1;
-					lastVA1 = pair1.va;
 					pair1 = iter1.next();
-					t1 += pair1.timeToChange;
+					lastVA1 = pair1.va;
+					t1 = pair1.timeToChange;
 				}
+				// Update pair 2
 				if (iter2.hasNext()) {
-					lastT2 = t2;
-					lastVA2 = pair2.va;
 					pair2 = iter2.next();
-					t2 += pair2.timeToChange;
+					lastVA2 = pair2.va;
+					t2 = pair2.timeToChange;
 				}
 			}
 		}
 		// This point is reached when both have no next pair
-		changes.add((pair1.va > pair2.va) ? pair1 : pair2);
+		changes.add(new VAProgressionPair(t2, (pair1.va > pair2.va) ? pair1.va : pair2.va));
 		return changes;
+	}
+
+	private boolean checkChanges(ArrayList<VAProgressionPair> changes, long ts) {
+		long sum = 0;
+		for (VAProgressionPair pair : changes) {
+			sum += pair.timeToChange;
+		}
+		return (sum == ts);
 	}
 	
 	/**
@@ -211,6 +218,10 @@ public class VAParam extends Param {
 					ArrayList<VAProgressionPair> changesDR = progDR.getVAProgression(pat, eyeIndex, incidentVA);
 					// If the patient was already affected by ARMD, both progressions have to be merged
 					if (changes != null) {
+						if (!checkChanges(changes, pat.getSimulation().getTs() - pat.getLastVAChangeTs(eyeIndex)))
+							pat.error("Wrongly computed VA progression in an ARMD eye");
+						if (!checkChanges(changesDR, pat.getSimulation().getTs() - pat.getLastVAChangeTs(eyeIndex)))
+							pat.error("Wrongly computed VA progression in an DR eye");
 						changes = mergeVAProgressions(pat, vaAtStart, changes, changesDR);
 					}
 					else {
