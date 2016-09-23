@@ -1237,6 +1237,7 @@ public class Patient extends BasicElement {
 			// Remove previous stages
 			affectedEye.remove(EyeState.HEALTHY);
 			affectedEye.remove(EyeState.NPDR);
+			affectedEye.remove(EyeState.NON_HR_PDR);
 			
 			// Assign new stage
 			affectedEye.add(EyeState.HR_PDR);

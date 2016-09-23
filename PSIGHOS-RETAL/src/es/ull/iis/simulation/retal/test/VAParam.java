@@ -93,9 +93,9 @@ public class VAParam {
 				return progEF_JF.getVA(stage, initialVA, daysFrom); 
 			}
 		}
-		else if (state.equals(EyeState.AMD_GA)) {
-			return progGA.getProgression(initialVA, daysFrom); 
-		}
+//		else if (state.equals(EyeState.AMD_GA)) {
+//			return progGA.getProgression(long startGATs, long startTs, long endTs, double currentVA, double expectedVA); 
+//		}
 		return null;
 	}
 	
@@ -182,13 +182,17 @@ public class VAParam {
 			System.out.println("No progression");		
 	}
 	
-	private static void printProgression(ArrayList<VAProgressionPair> pairs) {
-		for (VAProgressionPair pair : pairs) 
-			System.out.println(pair);		
+	private static void printProgression(ArrayList<VAProgressionPair> pairs, long ts) {
+		long sum = 0;
+		for (VAProgressionPair pair : pairs) {
+			sum += pair.timeToChange;
+			System.out.println(pair);
+		}
+		System.out.println((sum == ts) ? "OK" : "FAIL!!!!!");
 	}
 	
 	public static void testDR() {
-		printProgression(progDR.getVAProgression(2000, 0, EnumSet.of(EyeState.NON_HR_PDR), 0.0, 1.0));
+		printProgression(progDR.getVAProgression(2000, 0, EnumSet.of(EyeState.NON_HR_PDR), 0.0, 1.0), 2000);
 	}
 	
 	public static void testMerge() {
@@ -222,20 +226,28 @@ public class VAParam {
 		changes2.add(new VAProgressionPair(0, 0.8437028519558131));
 		
 		System.out.println("Pair 1");
-		printProgression(changes1);
+		printProgression(changes1, 6205);
 		System.out.println("Pair 2");
-		printProgression(changes2);
+		printProgression(changes2, 6205);
 		System.out.println("Merged");
-		printProgression(mergeVAProgressions(vaAtStart, changes2, changes1));
+		printProgression(mergeVAProgressions(vaAtStart, changes2, changes1), 6205);
 	}
 
 	public static void main(String[] args) {
-		long currentTs = 2000;
-		long lastChangeTs = 0;
-		double currentVA = 0.3;
-		CNVStage stage = new CNVStage(CNVStage.Type.OCCULT, CNVStage.Position.SF);
+//		long currentTs = 2000;
+//		long lastChangeTs = 0;
+//		double currentVA = 0.3;
+//		CNVStage stage = new CNVStage(CNVStage.Type.OCCULT, CNVStage.Position.SF);
+//		boolean diagnosed = true;
+//		double expectedVA = 0.6;
+//		printProgression(progCNV.getVAProgression(currentTs, lastChangeTs, currentVA, stage, diagnosed, expectedVA));
+		long startStageTs = 0;
+		long onAntiVEGFTs = 0;
+		long startTs = 0 * 365 + 23;
+		long endTs = 0 * 365 + 197;
+		double currentVA = 0.0;
+		double expectedVA = 0.0;
 		boolean diagnosed = true;
-		double expectedVA = 0.6;
-		printProgression(progCNV.getVAProgression(currentTs, lastChangeTs, currentVA, stage, diagnosed, expectedVA));
+		printProgression(progCNV.getVAProgression(startTs, endTs, startStageTs, onAntiVEGFTs, currentVA, diagnosed, expectedVA), endTs - startTs);
 	}
 }

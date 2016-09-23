@@ -43,36 +43,72 @@ public class VAProgressionForGA extends VAProgressionParam {
 
 	@Override
 	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
-		final ArrayList<VAProgressionPair> array = new ArrayList<VAProgressionPair>();
-		final double currentVA = pat.getVA(eyeIndex);
+		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>();
 		final double rnd = pat.draw(RandomForPatient.ITEM.ARMD_PROG_GA);
-		int year = yearlyProgression.length;
-		for (int i = 0; (i < yearlyProgression.length) && (year == yearlyProgression.length); i++) {
-			if (rnd < yearlyProgression[i])
-				year = i;
-		}
-		final long timeSinceGA = pat.getSimulation().getTs() - pat.getTimeToEyeState(EyeState.AMD_GA, eyeIndex);
-		// If no changes in four years, it is supposed not to progress
-		if (year == yearlyProgression.length) {
-			array.add(new VAProgressionPair(timeSinceGA, expectedVA));
+		final long startTs = pat.getLastVAChangeTs(eyeIndex); 
+		final long startGATs = pat.getTimeToEyeState(EyeState.AMD_GA, eyeIndex);
+		final long endTs = pat.getSimulation().getTs();
+		final long daysSinceGA = startTs - startGATs;
+		final long fourYearsInDays = yearlyProgression.length * 365;
+		final long period = endTs - startTs;
+
+		// More than four years since GA onset... no changes but the expected va
+		if (daysSinceGA >= fourYearsInDays) {
+			changes.add(new VAProgressionPair(period, expectedVA));
 		}
 		else {
-			// Else, checks how much this patient progresses 
-			double incVA = (pat.draw(RandomForPatient.ITEM.ARMD_PROG_TWICE_GA) < PROP_PROGRESSING_TWICE) ? LOSS_6_LINES : LOSS_3_LINES;
-			long time = pat.getSimulation().getTimeUnit().convert(year + 1, TimeUnit.YEAR);
-			// If the change will happen in the future, performs a linear interpolation to estimate the new VA
-			if (timeSinceGA <= time) {
-				incVA = incVA * timeSinceGA / time;
-				time = timeSinceGA;
+			double va = pat.getVA(eyeIndex);
+			final int yearsSinceGA = (int)(daysSinceGA / 365.0);
+			int year = yearlyProgression.length;
+			// See when it is supposed to change the VA
+			for (int i = 0; (i < yearlyProgression.length) && (year == yearlyProgression.length); i++) {
+				if (rnd < yearlyProgression[i]) {
+					year = i;
+				}
 			}
-			// If the change happens within the period that the patient had GA
-			else if (timeSinceGA > time) {
-				array.add(new VAProgressionPair(time, Math.min(VisualAcuity.MAX_LOGMAR, currentVA + incVA)));
-				time = timeSinceGA - time;
+			// No change
+			if (year == yearlyProgression.length) {
+				changes.add(new VAProgressionPair(period, expectedVA));
 			}
-			// Uses the expected VA if it's higher than the computed VA
-			array.add(new VAProgressionPair(time, Math.min(VisualAcuity.MAX_LOGMAR, Math.max(currentVA + incVA, expectedVA))));
+			// Supposed to happen in the past... Ignore it
+			else if (year < yearsSinceGA) {
+				changes.add(new VAProgressionPair(period, expectedVA));
+			}
+			// Supposed to happen in the first year of the period being analized
+			else if (year == yearsSinceGA) {
+				final long timeToChange = Math.min(period, 365 - daysSinceGA % 365);
+				if (timeToChange > 0) {
+					// Checks how much this patient progresses 
+					final double incVA = (pat.draw(RandomForPatient.ITEM.ARMD_PROG_TWICE_GA) < PROP_PROGRESSING_TWICE) ? LOSS_6_LINES : LOSS_3_LINES;
+					// Apply only proportional loss
+					va = Math.min(VisualAcuity.MAX_LOGMAR, va + incVA * (timeToChange / 365.0));
+					changes.add(new VAProgressionPair(timeToChange, va));
+				}
+				// Schedules a new event for the remaining of the period
+				if (period > timeToChange) {
+					changes.add(new VAProgressionPair(period - timeToChange, Math.max(expectedVA, va)));
+				}
+			}
+			else {
+				// Checks how much this patient progresses 
+				final double incVA = (pat.draw(RandomForPatient.ITEM.ARMD_PROG_TWICE_GA) < PROP_PROGRESSING_TWICE) ? LOSS_6_LINES : LOSS_3_LINES;
+				// The change happens in the future
+				if ((year + 1) * 365 >= endTs - startGATs) {
+					changes.add(new VAProgressionPair(period, Math.max(expectedVA, Math.min(VisualAcuity.MAX_LOGMAR, va + incVA * (endTs - startGATs) / (year * 365)))));
+				}
+				else {
+					final long timeToChange = pat.getSimulation().getTimeUnit().convert(year + 1, TimeUnit.YEAR) - startTs;
+					if (period > timeToChange) {
+						va = Math.min(VisualAcuity.MAX_LOGMAR, va + incVA);
+						changes.add(new VAProgressionPair(timeToChange, va));
+						changes.add(new VAProgressionPair(period - timeToChange, Math.max(expectedVA, va)));
+					}
+					else  {
+						changes.add(new VAProgressionPair(timeToChange, Math.max(expectedVA, Math.min(VisualAcuity.MAX_LOGMAR, va + incVA))));						
+					}
+				}
+			}
 		}
-		return array;
+		return changes;
 	}
 }
