@@ -13,21 +13,20 @@ import es.ull.iis.simulation.retal.params.ScreeningParam;
  *
  */
 public class RETALMain {
-//	public final static TimeStamp GENSTART = TimeStamp.getZero();
-//	public final static TimeStamp GENPERIOD = TimeStamp.getDay();
-
-//	private final static SimulationTimeFunction deathTime = new SimulationTimeFunction(SIMUNIT, "ConstantVariate", new TimeStamp(TimeUnit.YEAR, 40));
+	final private static int NSIM = 10;
 	
 	public static void main(String[] args) {
 		final boolean baseCase = true;
-		final RETALSimulation simul = new RETALSimulation(0, baseCase, new NullIntervention());
-		simul.run();
-		// TODO: Check that reset works fine!!!
-		RandomForPatient.reset();
-		Screening interv1 = new Screening(new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, 
+		final Screening interv1 = new Screening(new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, 
 				new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 5*365), 0), new ScreeningParam(baseCase));
-		final RETALSimulation simul2 = new RETALSimulation(simul, interv1);
-		simul2.run();
+		for (int i = 0; i < NSIM; i++) {
+			final RETALSimulation simul = new RETALSimulation(i, baseCase, new NullIntervention());
+			simul.run();
+			// TODO: Check that reset works fine!!!
+			RandomForPatient.reset();
+			final RETALSimulation simul2 = new RETALSimulation(simul, interv1);
+			simul2.run();
+		}
 
 //		final Random RNG = new Random(); 
 //		for (int i = 0; i < 10000; i++)

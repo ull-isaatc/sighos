@@ -111,12 +111,9 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 		else if (otherEye.contains(EyeState.EARM)) {
 			info = tuples.get(EyeState.EARM);
 		}
-		else if (otherEye.contains(EyeState.HEALTHY)) {
-			info = tuples.get(EyeState.HEALTHY);
-		}
+		// Other eye is healthy or affected by a different disease
 		else {
-			pat.error("Invalid state in other eye when computing time from EARM to AMD");
-			return null;
+			info = tuples.get(EyeState.HEALTHY);
 		}
 		
 		return info.getValidatedTimeToEventAndState(pat);

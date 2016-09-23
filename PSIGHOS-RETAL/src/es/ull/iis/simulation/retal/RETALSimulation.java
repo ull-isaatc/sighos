@@ -162,7 +162,7 @@ public class RETALSimulation extends Simulation {
 	public void end() {
 		// FIXME: Prepare to compute outcomes in case not all the patients are dead
 		super.end();
-		cost.print(true, false);
-		qaly.print(true, false);
+//		cost.print(true, false);
+//		qaly.print(true, false);
 	}
 }

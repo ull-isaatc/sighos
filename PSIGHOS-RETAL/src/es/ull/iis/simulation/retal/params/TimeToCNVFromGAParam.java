@@ -95,13 +95,9 @@ public class TimeToCNVFromGAParam extends CompoundEmpiricTimeToEventParam {
 		else if (otherEye.contains(EyeState.EARM)) {
 			info = tuples.get(EyeState.EARM);
 		}
-		// Other eye is healthy
-		else if (otherEye.contains(EyeState.HEALTHY)) {
-			info = tuples.get(EyeState.HEALTHY);
-		}
+		// Other eye is healthy or affected by a different disease
 		else {
-			pat.error("Invalid state in other eye when computing time from EARM to AMD");
-			return Long.MAX_VALUE;
+			info = tuples.get(EyeState.HEALTHY);
 		}
 		return info.getValidatedTimeToEvent(pat);
 	}

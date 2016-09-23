@@ -5,6 +5,7 @@ package es.ull.iis.simulation.retal;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import es.ull.iis.simulation.core.TimeUnit;
@@ -819,6 +820,10 @@ public class Patient extends BasicElement {
 			
 			// Checks diagnosis
 			checkDiagnosis();
+			// If state worsens, the treatment with antiVEGF starts again
+			if (isDiagnosed()) {
+				onAntiVEGFCNV[eyeIndex] = ts;
+			}
 		}
 		
 	}
@@ -992,6 +997,7 @@ public class Patient extends BasicElement {
 				}
 			}
 			// Update the visual acuity to reflect the incident problem
+			// FIXME: Why I'm doing this here???????? If healthy... why updating VA???
 			final ArrayList<VAProgressionPair> newVA = new ArrayList<VAProgressionPair>(); 
 			newVA.add(new VAProgressionPair(ts, commonParams.getInitialVA(Patient.this, eyeIndex)));			
 			updateVA(newVA, eyeIndex);			
@@ -1016,9 +1022,79 @@ public class Patient extends BasicElement {
 			if (newTimeToDeath < getTimeToDeath()) {
 				if (deathEvent != null) {
 					deathEvent.cancel();
+					deathEvent = new DeathEvent(newTimeToDeath);
+					addEvent(deathEvent);
+					// Cancel all pending events scheduled to happen after death
+					if (diabetesEvent != null) {
+						if (diabetesEvent.getTs() >= newTimeToDeath) {
+							diabetesEvent.cancel();
+							diabetesEvent = null;
+						}
+					}
+					if (diagnoseEvent != null) {
+						if (diagnoseEvent.getTs() >= newTimeToDeath) {
+							diagnoseEvent.cancel();
+							diagnoseEvent = null;
+						}
+					}
+					for (int i = 0; i < 2; i++) {
+						if (eARMEvent[i] != null) {
+							if (eARMEvent[i].getTs() >= newTimeToDeath) {
+								eARMEvent[i].cancel();
+								eARMEvent[i] = null;
+							}
+						}
+						if (gAEvent[i] != null) {
+							if (gAEvent[i].getTs() >= newTimeToDeath) {
+								gAEvent[i].cancel();
+								gAEvent[i] = null;
+							}
+						}
+						if (cNVEvent[i] != null) {
+							if (cNVEvent[i].getTs() >= newTimeToDeath) {
+								cNVEvent[i].cancel();
+								cNVEvent[i] = null;
+							}
+						}
+						if (nPDREvent[i] != null) {
+							if (nPDREvent[i].getTs() >= newTimeToDeath) {
+								nPDREvent[i].cancel();
+								nPDREvent[i] = null;
+							}
+						}
+						if (nonHRPDREvent[i] != null) {
+							if (nonHRPDREvent[i].getTs() >= newTimeToDeath) {
+								nonHRPDREvent[i].cancel();
+								nonHRPDREvent[i] = null;
+							}
+						}
+						if (hRPDREvent[i] != null) {
+							if (hRPDREvent[i].getTs() >= newTimeToDeath) {
+								hRPDREvent[i].cancel();
+								hRPDREvent[i] = null;
+							}
+						}
+						if (cSMEEvent[i] != null) {
+							if (cSMEEvent[i].getTs() >= newTimeToDeath) {
+								cSMEEvent[i].cancel();
+								cSMEEvent[i] = null;
+							}
+						}
+						@SuppressWarnings("unchecked")
+						Iterator<CNVStageEvent> iter = (Iterator<CNVStageEvent>)cNVStageEvents[i].iterator();
+						while (iter.hasNext()) {
+							final CNVStageEvent event = iter.next();
+							if (event.getTs() >= newTimeToDeath) {
+								event.cancel();
+								iter.remove();
+							}
+						}
+					}
 				}
-				deathEvent = new DeathEvent(newTimeToDeath);
-				addEvent(deathEvent);
+				else {
+					deathEvent = new DeathEvent(newTimeToDeath);
+					addEvent(deathEvent);
+				}
 			}
 		}		
 	}

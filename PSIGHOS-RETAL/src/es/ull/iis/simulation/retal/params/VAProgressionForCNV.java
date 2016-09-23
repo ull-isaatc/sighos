@@ -41,28 +41,11 @@ public class VAProgressionForCNV extends VAProgressionParam {
 		return 0.0;
 	}
 	
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.retal.params.VAProgressionParam#getVAProgression(es.ull.iis.simulation.retal.Patient, int, double)
-	 */
-	@Override
-	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
+	private ArrayList<VAProgressionPair> modelProgression(Patient pat, double[][] progression, long startTs, long endTs, double currentVA, double expectedVA) {
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>();
-		final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
-		double va = pat.getVA(eyeIndex);
-		final long startTs = pat.getTimeToCNVStage(stage, eyeIndex);
-		final long endTs = pat.getSimulation().getTs();
-		final double yearsSinceEvent = TimeUnit.DAY.convert(endTs - startTs, pat.getSimulation().getTimeUnit()) / 365.0;
+		final double yearsSinceEvent = (endTs - startTs) / 365.0;
 		final int exactYearsSinceEvent = (int)yearsSinceEvent;
-		final double[][] progression;
-		// FIXME: Make treatment effective only first two years
-		if (pat.isDiagnosed()) {
-			progression = ranibizumabYearlyProgression;
-			// Do not use expected VA if on treatment
-			expectedVA = va;
-		}
-		else {
-			progression = untreatedYearlyProgression;
-		}
+		double va = currentVA;
 		
 		long timeToChange = 0;
 		// More than a year since last change
@@ -107,7 +90,44 @@ public class VAProgressionForCNV extends VAProgressionParam {
 		}
 		// Adds the last change
 		if (timeToChange > 0)
-			changes.add(new VAProgressionPair(timeToChange, va));
+			changes.add(new VAProgressionPair(timeToChange, va));	
+		return changes;
+	}
+	
+	/* (non-Javadoc)
+	 * @see es.ull.iis.simulation.retal.params.VAProgressionParam#getVAProgression(es.ull.iis.simulation.retal.Patient, int, double)
+	 */
+	@Override
+	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
+		double va = pat.getVA(eyeIndex);
+		final long startTs = pat.getTimeToCNVStage(pat.getCurrentCNVStage(eyeIndex), eyeIndex);
+		final long endTs = pat.getSimulation().getTs();
+		final TimeUnit simUnit = pat.getSimulation().getTimeUnit();
+		// TODO: Check that making treatment effective only first two years is working fine
+		final ArrayList<VAProgressionPair> changes;
+		if (pat.isDiagnosed()) {
+			if (CommonParams.ANTIVEGF_2YEARS_ASSUMPTION) {
+				final long twoYearsSinceAntiVEGF = simUnit.convert(2, TimeUnit.YEAR) + pat.getOnAntiVEGFCNV(eyeIndex);
+				if (startTs >= twoYearsSinceAntiVEGF) {
+					changes = modelProgression(pat, untreatedYearlyProgression, startTs, endTs, va, expectedVA);
+				}
+				else if (endTs <= twoYearsSinceAntiVEGF) {
+					changes = modelProgression(pat, ranibizumabYearlyProgression, startTs, endTs, va, va);
+				}
+				else {
+					changes = modelProgression(pat, ranibizumabYearlyProgression, startTs, twoYearsSinceAntiVEGF, va, va);
+					changes.addAll(modelProgression(pat, untreatedYearlyProgression, twoYearsSinceAntiVEGF, endTs, changes.get(changes.size() - 1).va, expectedVA));
+				}
+			}
+			// Assumming no time limit in effectiveness
+			else {
+				// Do not use expected VA if on treatment
+				changes = modelProgression(pat, ranibizumabYearlyProgression, startTs, endTs, va, va);
+			}
+		}
+		else {
+			changes = modelProgression(pat, untreatedYearlyProgression, startTs, endTs, va, expectedVA);
+		}
 		return changes;
 	}
 

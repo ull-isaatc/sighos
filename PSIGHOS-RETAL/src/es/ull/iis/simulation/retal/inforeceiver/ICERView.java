@@ -11,7 +11,6 @@ import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.outcome.Cost;
-import es.ull.iis.simulation.retal.outcome.Outcome;
 import es.ull.iis.simulation.retal.outcome.QualityAdjustedLifeExpectancy;
 
 /**
@@ -89,7 +88,6 @@ public class ICERView extends Listener {
 			else {
 				if (simul.isCloned()) {
 					final double icer = (costResults[1][0] - costResults[0][0]) / (qalyResults[1][0] - qalyResults[0][0]);
-					// FIXME Add average and SD or CIs
 					out.print(simul.getIdentifier() + "\t");
 					printOutcome(costResults[0]);
 					printOutcome(costResults[1]);

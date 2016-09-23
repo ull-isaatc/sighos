@@ -102,8 +102,7 @@ public class VAParam extends Param {
 	 * @param changes2 Changes due to eye disease 2
 	 * @return The worst possible list of changes in visual acuity for a patient affected by two different problems.
 	 */
-	// FIXME: Eventually fails. Possibly due to incorrect final change assigned in DR or CNV 
-	private ArrayList<VAProgressionPair> mergeVAProgressions(double vaAtStart, ArrayList<VAProgressionPair> changes1, ArrayList<VAProgressionPair> changes2) {
+	private ArrayList<VAProgressionPair> mergeVAProgressions(Patient pat, double vaAtStart, ArrayList<VAProgressionPair> changes1, ArrayList<VAProgressionPair> changes2) {
 		final Iterator<VAProgressionPair> iter1 = changes1.iterator();
 		final Iterator<VAProgressionPair> iter2 = changes2.iterator();
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>(changes1.size() + changes2.size() - 1);
@@ -122,6 +121,9 @@ public class VAParam extends Param {
 				changes.add((interpolated > pair1.va) ? new VAProgressionPair(t1, interpolated) : pair1);
 				lastT1 = t1;
 				lastVA1 = pair1.va;
+				if (!iter1.hasNext()) {
+					pat.error("Trying to merge invalid visual acuities");
+				}
 				pair1 = iter1.next();
 				t1 += pair1.timeToChange;
 			}
@@ -130,6 +132,9 @@ public class VAParam extends Param {
 				changes.add((interpolated > pair2.va) ? new VAProgressionPair(t2, interpolated) : pair2);
 				lastT2 = t2;
 				lastVA2 = pair2.va;
+				if (!iter2.hasNext()) {
+					pat.error("Trying to merge invalid visual acuities");
+				}
 				pair2 = iter2.next();
 				t2 += pair2.timeToChange;
 			}
@@ -161,6 +166,7 @@ public class VAParam extends Param {
 	 * @param eyeIndex Index of the affected eye (0 for first eye, 1 for second eye)
 	 * @return
 	 */
+	// FIXME: All progressions must be reviewed to start from last change in VA
 	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, EyeState incidentState, CNVStage incidentCNVStage) {
 		ArrayList<VAProgressionPair> changes = null;
 		final double vaAtStart = pat.getVA(eyeIndex);
@@ -205,7 +211,7 @@ public class VAParam extends Param {
 					ArrayList<VAProgressionPair> changesDR = progDR.getVAProgression(pat, eyeIndex, incidentVA);
 					// If the patient was already affected by ARMD, both progressions have to be merged
 					if (changes != null) {
-						changes = mergeVAProgressions(vaAtStart, changes, changesDR);
+						changes = mergeVAProgressions(pat, vaAtStart, changes, changesDR);
 					}
 					else {
 						changes = changesDR;
