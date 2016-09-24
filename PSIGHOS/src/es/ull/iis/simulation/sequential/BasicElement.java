@@ -94,6 +94,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
     public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEvent> {
         /** Timestamp when this event will be executed */
         final protected long ts;
+        protected boolean cancelled = false;
 
         /**
          * Creates a new basic event.
@@ -123,6 +124,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
          * @return True if the event can be cancelled; false otherwise. 
          */
         public boolean cancel() {
+        	cancelled = true;
         	return simul.removeWait(this);
         }
         

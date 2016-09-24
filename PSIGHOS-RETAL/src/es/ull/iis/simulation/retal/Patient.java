@@ -164,14 +164,14 @@ public class Patient extends BasicElement {
 		simul.getInfoHandler().notifyInfo(new PatientInfo(this.simul, this, PatientInfo.Type.START, this.getTs()));
 
 		final long timeToDeath;
+		final long timeToDiabetes = commonParams.getTimeToDiabetes(this);
 		// Checks if he/she is diabetic
-		if (commonParams.isDiabetic(this)) {
+		if (commonParams.isDiabetic(this) || timeToDiabetes == 0) {
 			diabetesType = commonParams.getDiabetesType(Patient.this);
 			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DIABETES, this.getTs()));			
 			timeToDeath = commonParams.getTimeToDeathDiabetic(Patient.this);
 		}
 		else {
-			final long timeToDiabetes = commonParams.getTimeToDiabetes(this);
 			if (timeToDiabetes < Long.MAX_VALUE) {
 				diabetesEvent = new DiabetesEvent(timeToDiabetes);
 				addEvent(diabetesEvent);
@@ -851,6 +851,8 @@ public class Patient extends BasicElement {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void event() {
+			if (cancelled)
+				error(this.getClass().getName() + " event was cancelled");
 			// Advances the calculation of the incident CNV stage
 			final CNVStage stage = armdParams.getInitialCNVStage(Patient.this, eyeIndex);			
 			// Update VA changes before changing the state. 
@@ -903,6 +905,8 @@ public class Patient extends BasicElement {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void event() {
+			if (cancelled)
+				error(this.getClass().getName() + " event was cancelled");
 			// Only update VA if it's a progression in CNV stage and not setting the first CNV stage
 			if (currentCNVStage[eyeIndex] != null) {
 				updateVA(commonParams.getVAProgression(Patient.this, eyeIndex, newStage), eyeIndex);				

@@ -21,6 +21,8 @@ public class CommonParams extends ModelParams {
 	public final static int MAN = 0;
 	public final static int WOMAN = 1;
 	private final static double P_MEN = 0.5;
+	// FIXME: Should be related to simulation time unit 
+	public final static long MIN_TIME_TO_EVENT = 30;
 	
 	// Parameters for death. Source: Spanish 2014 Mortality risk. INE
 	// Adjusted using a Gompertz distribution with logs or the yearly mortality risks from age 40 to 100.
