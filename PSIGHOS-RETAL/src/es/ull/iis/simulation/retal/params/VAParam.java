@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.retal.params;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -102,7 +103,7 @@ public class VAParam extends Param {
 	 * @param changes2 Changes due to eye disease 2
 	 * @return The worst possible list of changes in visual acuity for a patient affected by two different problems.
 	 */
-	private ArrayList<VAProgressionPair> mergeVAProgressions(Patient pat, double vaAtStart, ArrayList<VAProgressionPair> changes1, ArrayList<VAProgressionPair> changes2) {
+	protected ArrayList<VAProgressionPair> mergeVAProgressions(Patient pat, double vaAtStart, AbstractList<VAProgressionPair> changes1, AbstractList<VAProgressionPair> changes2) {
 		final Iterator<VAProgressionPair> iter1 = changes1.iterator();
 		final Iterator<VAProgressionPair> iter2 = changes2.iterator();
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>(changes1.size() + changes2.size() - 1);

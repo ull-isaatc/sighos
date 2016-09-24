@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.retal.params;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
@@ -119,9 +120,15 @@ public class CommonParams extends ModelParams {
 		return vaParam.getInitialVA(pat, eyeIndex);
 	}
 	
-	public double getUtilityFromVA(Patient pat) {
-		final double age = pat.getAge();
-		return Math.max(vaToUtility.getUtility(age, pat.getVA(0)), vaToUtility.getUtility(age, pat.getVA(1)));		
+	public LinkedList<VAProgressionPair> getUtilityFromVA(Patient pat) {
+		double age = MIN_AGE;
+		ArrayList<VAProgressionPair> progression = vaParam.mergeVAProgressions(pat, 0.0, pat.getVaProgression(0), pat.getVaProgression(1));
+		LinkedList<VAProgressionPair> utilities = new LinkedList<VAProgressionPair>();
+		for (VAProgressionPair pair : progression) {
+			age += pair.timeToChange / 365.0;
+			utilities.add(new VAProgressionPair(pair.timeToChange, vaToUtility.getUtility(age, pair.va)));
+		}
+		return utilities;		
 	}
 	
 	public double getCostForState(Patient pat, double initAge, double endAge) {

@@ -25,7 +25,7 @@ public class ScreeningParam extends Param {
 	
 	final public static int PERIODICITY_YEARS = 5;
 	final public static int START_YEAR = 0;
-	final private static double[] P_ATTENDING = {0.75,0.9};
+	final private static double[] P_ATTENDING = {0,0};
 	
 	/**
 	 * @param simul

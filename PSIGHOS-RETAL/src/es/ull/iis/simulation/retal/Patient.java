@@ -46,8 +46,6 @@ public class Patient extends BasicElement {
 	private long lastTs = -1;
 	/** The timestamp when this patient enters the simulation */
 	private long startTs;
-	/** The current currentUtility applied to this patient */
-	private double currentUtility = 1.0;
 	/** The cost measured for this patient */
 	private final Cost cost;
 	/** The QALYs for this patient */
@@ -116,7 +114,6 @@ public class Patient extends BasicElement {
 		((LinkedList<VAProgressionPair>)vaProgression[0]).add(newVA);
 		lastVAChangeTs[1] += newVA.timeToChange;
 		((LinkedList<VAProgressionPair>)vaProgression[1]).add(newVA);
-		setUtility(commonParams.getUtilityFromVA(this));
 	}
 
 	/**
@@ -150,7 +147,6 @@ public class Patient extends BasicElement {
 		((LinkedList<VAProgressionPair>)vaProgression[0]).add(newVA);
 		lastVAChangeTs[1] += newVA.timeToChange;
 		((LinkedList<VAProgressionPair>)vaProgression[1]).add(newVA);
-		setUtility(commonParams.getUtilityFromVA(this));
 	}
 
 	@Override
@@ -334,13 +330,6 @@ public class Patient extends BasicElement {
 	}
 
 	/**
-	 * @param currentUtility the current utility to set
-	 */
-	public void setUtility(double currentUtility) {
-		this.currentUtility = currentUtility;
-	}
-
-	/**
 	 * Sets the current timestamp for this patient, saves the previous timestamp in @link(lastTs), and updates costs and QALYs.
 	 * @param ts New timestamp to be assigned
 	 */
@@ -354,7 +343,6 @@ public class Patient extends BasicElement {
 			if (ts > 0) {
 				final double periodCost = commonParams.getCostForState(this, initAge, endAge);
 				cost.update(this, periodCost, initAge, endAge);
-				qaly.update(this, currentUtility, initAge, endAge);
 			}
 		}
 	}
@@ -455,7 +443,6 @@ public class Patient extends BasicElement {
 			lastVAChangeTs[eyeIndex] += pair.timeToChange;
 			((LinkedList<VAProgressionPair>)vaProgression[eyeIndex]).add(pair);
 		}
-		setUtility(commonParams.getUtilityFromVA(this));
 	}
 
 	/**
@@ -587,6 +574,7 @@ public class Patient extends BasicElement {
 		// Updates VA changes produced since the last event
 		updateVA(commonParams.getVAProgressionToDeath(this, 0), 0);
 		updateVA(commonParams.getVAProgressionToDeath(this, 1), 1);
+		qaly.update(this, commonParams.getUtilityFromVA(this));
 	}
 	
 	@SuppressWarnings("unchecked")
