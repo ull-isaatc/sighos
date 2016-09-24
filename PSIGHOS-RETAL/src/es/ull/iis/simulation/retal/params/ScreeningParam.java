@@ -23,6 +23,8 @@ public class ScreeningParam extends Param {
 //	final private static double CNV_SENSITIVITY = 0.83;
 	final private static double[] CNV_SEVERE_MILD_SENSITIVITY = {0.96, 0.36};
 	
+	final public static int PERIODICITY_YEARS = 5;
+	final public static int START_YEAR = 0;
 	final private static double[] P_ATTENDING = {0.75,0.9};
 	
 	/**

@@ -40,7 +40,7 @@ public class RETALSimulation extends Simulation {
 	/** Number of interventions that will be compared for a patient. This value is also used to determine the id of the patient */ 
 	public final static int NINTERVENTIONS = 2;
 	private final static String[] INTERVENTION_DESC = {"Clinical detection", "Screening"};
-	private final static double DISCOUNT_RATE = 0.0; 
+	private final static double DISCOUNT_RATE = 0.03; 
 	private final static String DESCRIPTION = "RETAL Simulation";
 	/** Counter to assign a unique id to each patient */
 	private int patientCounter = 0;

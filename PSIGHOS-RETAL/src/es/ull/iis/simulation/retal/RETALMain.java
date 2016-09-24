@@ -13,12 +13,12 @@ import es.ull.iis.simulation.retal.params.ScreeningParam;
  *
  */
 public class RETALMain {
-	final private static int NSIM = 1000;
+	final private static int NSIM = 5000;
 	
 	public static void main(String[] args) {
 		final boolean baseCase = true;
-		final Screening interv1 = new Screening(new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, 
-				new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 5*365), 0), new ScreeningParam(baseCase));
+		final Screening interv1 = new Screening(new SimulationPeriodicCycle(TimeUnit.YEAR, (long)(ScreeningParam.START_YEAR * 365), 
+				new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", ScreeningParam.PERIODICITY_YEARS*365), 0), new ScreeningParam(baseCase));
 		for (int i = 0; i < NSIM; i++) {
 			final RETALSimulation simul = new RETALSimulation(i, baseCase, new NullIntervention());
 			simul.run();
