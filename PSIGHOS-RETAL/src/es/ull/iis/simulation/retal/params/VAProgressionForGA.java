@@ -90,7 +90,7 @@ public class VAProgressionForGA extends VAProgressionParam {
 				}
 				if (changes.size() == 0) {
 					// FIXME: Bad idea: possibly masking errors...
-					changes.add(new VAProgressionPair(endTs - startTs, expectedVA));
+					changes.add(new VAProgressionPair(period, expectedVA));
 				}
 			}
 			else {
@@ -101,7 +101,7 @@ public class VAProgressionForGA extends VAProgressionParam {
 					changes.add(new VAProgressionPair(period, Math.max(expectedVA, Math.min(VisualAcuity.MAX_LOGMAR, va + incVA * (endTs - startGATs) / (year * 365)))));
 				}
 				else {
-					final long timeToChange = pat.getSimulation().getTimeUnit().convert(year + 1, TimeUnit.YEAR) - startTs;
+					final long timeToChange = pat.getSimulation().getTimeUnit().convert(year + 1, TimeUnit.YEAR) - startTs + startGATs;
 					if (period > timeToChange) {
 						va = Math.min(VisualAcuity.MAX_LOGMAR, va + incVA);
 						changes.add(new VAProgressionPair(timeToChange, va));
