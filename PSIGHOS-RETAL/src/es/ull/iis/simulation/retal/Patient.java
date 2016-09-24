@@ -951,17 +951,17 @@ public class Patient extends BasicElement {
 					// True negative
 					if (rng.draw(RandomForPatient.ITEM.SPECIFICITY) <= ((Screening)intervention).getSpecificity(Patient.this)) {
 						simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.TN, this.getTs()));
-						// Schedule next screening appointment (if required) 
-						long next = iterator.next();
-						if (next != -1) {
-							addEvent(new ScreeningEvent(next, iterator));
-						}
 					}
 					// False positive
 					else {
 						simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.FP, this.getTs()));
 						final double diagnosisCost = commonParams.getDiagnosisCost(Patient.this);
 						cost.update(Patient.this, diagnosisCost, getAge() - CommonParams.MIN_AGE);
+					}
+					// Schedule next screening appointment (if required) 
+					long next = iterator.next();
+					if (next != -1) {
+						addEvent(new ScreeningEvent(next, iterator));
 					}
 				}
 				// Patient ill
@@ -987,6 +987,7 @@ public class Patient extends BasicElement {
 				}
 			}
 			else {
+				simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.NA, this.getTs()));
 				// Schedule next screening appointment (if required) 
 				long next = iterator.next();
 				if (next != -1) {

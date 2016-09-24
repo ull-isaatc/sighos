@@ -24,6 +24,7 @@ public class DiagnosticView extends Listener {
 	private final int[] fn = new int[RETALSimulation.DISEASES.values().length + 1];
 	private int fp;
 	private int tn;
+	private int na;		// Not attending
 	private static final RETALSimulation.DISEASES[] DISEASES = RETALSimulation.DISEASES.values();
 	
 	/**
@@ -57,6 +58,8 @@ public class DiagnosticView extends Listener {
 			}
 			out.println("TOTAL TN: " + tn);
 			out.println("TOTAL FP: " + fp);
+			out.println("TOTAL NA: " + na);
+			out.println("TOTAL SCREENING: " + (na + tn + fp + tp[DISEASES.length] + fn[DISEASES.length]));			
 		}
 		else if (info instanceof PatientInfo) {
 			final PatientInfo p = (PatientInfo) info;
@@ -84,6 +87,9 @@ public class DiagnosticView extends Listener {
 					break;
 				case TN:
 					tn++;
+					break;
+				case NA:
+					na++;
 					break;
 				case TP:
 					for (int i = 0; i < DISEASES.length; i++) {

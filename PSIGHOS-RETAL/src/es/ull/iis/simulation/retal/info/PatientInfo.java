@@ -41,7 +41,8 @@ public class PatientInfo extends AsynchronousInfo {
 		TP,
 		FP,
 		TN, 
-		FN
+		FN,
+		NA		// Not attending
 	}
 	
 	final private Patient patient;
