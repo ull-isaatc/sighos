@@ -67,7 +67,9 @@ public class RandomForPatient {
 		TIME_TO_HR_PDR_FROM_NONHR_PDR,
 		TIME_TO_CSME_AND_HR_PDR_FROM_CSME_AND_NON_HR_PDR,
 		TIME_TO_CSME_AND_HR_PDR_FROM_HR_PDR,
-		ANNUAL_VISITS
+		ANNUAL_VISITS,
+		PFC_USE,
+		ATTENDING_SCREENING
 	}
 	private final static EnumMap<ITEM, RandomNumber> RANDOM_GENERATORS = new EnumMap<ITEM, RandomNumber>(ITEM.class);
 	static {

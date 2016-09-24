@@ -46,6 +46,10 @@ public class Screening implements Intervention {
 		return param.getSensitivity(pat);
 	}
 
+	public boolean isAttending(Patient pat) {
+		return param.isAttending(pat);
+	}
+	
 	@Override
 	public int getId() {
 		return 1;

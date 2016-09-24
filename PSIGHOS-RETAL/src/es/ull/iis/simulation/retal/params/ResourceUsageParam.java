@@ -33,6 +33,8 @@ public final class ResourceUsageParam extends Param {
 	final private static int[] N_ANTIVEGF_CNV = {12, 4};
 	/** Annual frequency of antiVEGF treatment the first two years and later on for CSME */
 	final private static int[] N_ANTIVEGF_CSME = {13, 4};
+	/** Min and max use of PFC in NON_HR_PDR and HR_PDR, respectively */
+	final private static int[][] MIN_MAX_USE_PFC = {{17, 26}, {8, 13}};
 	
 	public ResourceUsageParam(boolean baseCase) {
 		super(baseCase);
@@ -141,6 +143,16 @@ public final class ResourceUsageParam extends Param {
 		return 0.0;
 	}
 	
+	private double photocoagulationCost(Patient pat, double initAge, double endAge, int eyeIndex) {
+		if (pat.getEyeState(eyeIndex).contains(EyeState.NON_HR_PDR)){
+			return new ResourceUsageItem(OphthalmologicResource.PHOTOCOAGULATION, pat.draw(RandomForPatient.ITEM.PFC_USE) * (MIN_MAX_USE_PFC[0][1] - MIN_MAX_USE_PFC[0][0])).computeCost(initAge, endAge);
+		}
+		else if (pat.getEyeState(eyeIndex).contains(EyeState.HR_PDR)){
+			return new ResourceUsageItem(OphthalmologicResource.PHOTOCOAGULATION, pat.draw(RandomForPatient.ITEM.PFC_USE) * (MIN_MAX_USE_PFC[1][1] - MIN_MAX_USE_PFC[1][0])).computeCost(initAge, endAge);
+		}
+		return 0.0;
+	}
+	
 	public double getResourceUsageCost(Patient pat, double initAge, double endAge) {
 		if (!pat.isDiagnosed()) {
 			return 0.0;
@@ -149,13 +161,19 @@ public final class ResourceUsageParam extends Param {
 			double cost = 0.0;
 			// Outpatient appointments
 			double annualVisits = getAnnualOutpatientAppointments(pat);
-			if (annualVisits > 0.0)
+			if (annualVisits > 0.0) {
 				cost += new ResourceUsageItem(OphthalmologicResource.OPH_APPOINTMENT, annualVisits).computeCost(initAge, endAge);
+				cost += new ResourceUsageItem(OphthalmologicResource.RETINO, annualVisits).computeCost(initAge, endAge);
+			}
 			
 			// Use of AntiVEGF in both eyes
 			cost += getAntiVEGFCost(pat, initAge, endAge, 0);
 			cost += getAntiVEGFCost(pat, initAge, endAge, 1);
 			
+			if (pat.getAffectedBy().contains(RETALSimulation.DISEASES.DR)) {
+				cost += photocoagulationCost(pat, initAge, endAge, 0);
+				cost += photocoagulationCost(pat, initAge, endAge, 1);
+			}
 			// If affected by ARMD and...
 			if (pat.getAffectedBy().contains(RETALSimulation.DISEASES.ARMD)) {
 				// If affected by both DR and ARMD

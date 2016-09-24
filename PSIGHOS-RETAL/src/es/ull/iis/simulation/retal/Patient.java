@@ -941,46 +941,56 @@ public class Patient extends BasicElement {
 
 		@Override
 		public void event() {
-			final double screenCost = commonParams.getScreeningCost(Patient.this);
-			cost.update(Patient.this, screenCost, getAge());
-			// Patient healthy
-			if (isHealthy()) {
-				// True negative
-				if (rng.draw(RandomForPatient.ITEM.SPECIFICITY) <= ((Screening)intervention).getSpecificity(Patient.this)) {
-					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.TN, this.getTs()));
-					// Schedule next screening appointment (if required) 
-					long next = iterator.next();
-					if (next != -1) {
-						addEvent(new ScreeningEvent(next, iterator));
+			if (((Screening)intervention).isAttending(Patient.this)) {
+				final double screenCost = commonParams.getScreeningCost(Patient.this);
+				cost.update(Patient.this, screenCost, getAge());
+				// Patient healthy
+				if (isHealthy()) {
+					// True negative
+					if (rng.draw(RandomForPatient.ITEM.SPECIFICITY) <= ((Screening)intervention).getSpecificity(Patient.this)) {
+						simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.TN, this.getTs()));
+						// Schedule next screening appointment (if required) 
+						long next = iterator.next();
+						if (next != -1) {
+							addEvent(new ScreeningEvent(next, iterator));
+						}
+					}
+					// False positive
+					else {
+						simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.FP, this.getTs()));
+						final double diagnosisCost = commonParams.getDiagnosisCost(Patient.this);
+						cost.update(Patient.this, diagnosisCost, getAge());
 					}
 				}
-				// False positive
+				// Patient ill
 				else {
-					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.FP, this.getTs()));
-					final double diagnosisCost = commonParams.getDiagnosisCost(Patient.this);
-					cost.update(Patient.this, diagnosisCost, getAge());
+					// False negative
+					if (rng.draw(RandomForPatient.ITEM.SENSITIVITY) > ((Screening)intervention).getSensitivity(Patient.this)) {
+						simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.FN, this.getTs()));
+						// Schedule next screening appointment (if required) 
+						long next = iterator.next();
+						if (next != -1) {
+							addEvent(new ScreeningEvent(next, iterator));
+						}
+					}
+					// True positive
+					else {
+						simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.TP, this.getTs()));
+						if (diagnoseEvent != null)
+							diagnoseEvent.cancel();
+						diagnoseEvent = new DiagnoseEvent(ts);
+						addEvent(diagnoseEvent);
+						// TODO: Add changes of true positive						
+					}					
 				}
 			}
-			// Patient ill
 			else {
-				// False negative
-				if (rng.draw(RandomForPatient.ITEM.SENSITIVITY) > ((Screening)intervention).getSensitivity(Patient.this)) {
-					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.FN, this.getTs()));
-					// Schedule next screening appointment (if required) 
-					long next = iterator.next();
-					if (next != -1) {
-						addEvent(new ScreeningEvent(next, iterator));
-					}
+				// Schedule next screening appointment (if required) 
+				long next = iterator.next();
+				if (next != -1) {
+					addEvent(new ScreeningEvent(next, iterator));
 				}
-				// True positive
-				else {
-					simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.TP, this.getTs()));
-					if (diagnoseEvent != null)
-						diagnoseEvent.cancel();
-					diagnoseEvent = new DiagnoseEvent(ts);
-					addEvent(diagnoseEvent);
-					// TODO: Add changes of true positive						
-				}					
+
 			}
 		}
 		

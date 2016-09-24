@@ -88,8 +88,10 @@ public class VAProgressionForGA extends VAProgressionParam {
 				if (period > timeToChange) {
 					changes.add(new VAProgressionPair(period - timeToChange, Math.max(expectedVA, va)));
 				}
-				if (changes.size() == 0)
-					pat.error("GA wrongly initialized VA");
+				if (changes.size() == 0) {
+					// FIXME: Bad idea: possibly masking errors...
+					changes.add(new VAProgressionPair(endTs - startTs, expectedVA));
+				}
 			}
 			else {
 				// Checks how much this patient progresses 

@@ -7,6 +7,7 @@ import java.util.EnumSet;
 
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
+import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla
@@ -21,6 +22,8 @@ public class ScreeningParam extends Param {
 	final private static double[] EMD_SEVERE_MILD_SENSITIVITY = {0.97, 0.58};
 //	final private static double CNV_SENSITIVITY = 0.83;
 	final private static double[] CNV_SEVERE_MILD_SENSITIVITY = {0.96, 0.36};
+	
+	final private static double[] P_ATTENDING = {0.75,0.9};
 	
 	/**
 	 * @param simul
@@ -54,5 +57,9 @@ public class ScreeningParam extends Param {
 	
 	public double getSpecificity(Patient pat) {
 		return SPECIFICITY;		
+	}
+	
+	public boolean isAttending(Patient pat) {
+		return (pat.draw(RandomForPatient.ITEM.ATTENDING_SCREENING) < P_ATTENDING[pat.isDiabetic() ? 1 : 0]);
 	}
 }
