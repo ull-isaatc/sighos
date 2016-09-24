@@ -351,9 +351,11 @@ public class Patient extends BasicElement {
 			final double initAge = TimeUnit.DAY.convert(lastTs, simul.getTimeUnit()) / 365.0; 
 			final double endAge = TimeUnit.DAY.convert(ts, simul.getTimeUnit()) / 365.0;
 			lastTs = this.ts;
-			final double periodCost = commonParams.getCostForState(this, initAge, endAge);
-			cost.update(this, periodCost, initAge, endAge);
-			qaly.update(this, currentUtility, initAge, endAge);
+			if (ts > 0) {
+				final double periodCost = commonParams.getCostForState(this, initAge, endAge);
+				cost.update(this, periodCost, initAge, endAge);
+				qaly.update(this, currentUtility, initAge, endAge);
+			}
 		}
 	}
 	
@@ -943,7 +945,7 @@ public class Patient extends BasicElement {
 		public void event() {
 			if (((Screening)intervention).isAttending(Patient.this)) {
 				final double screenCost = commonParams.getScreeningCost(Patient.this);
-				cost.update(Patient.this, screenCost, getAge());
+				cost.update(Patient.this, screenCost, getAge() - CommonParams.MIN_AGE);
 				// Patient healthy
 				if (isHealthy()) {
 					// True negative
@@ -959,7 +961,7 @@ public class Patient extends BasicElement {
 					else {
 						simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.ScreeningResult.FP, this.getTs()));
 						final double diagnosisCost = commonParams.getDiagnosisCost(Patient.this);
-						cost.update(Patient.this, diagnosisCost, getAge());
+						cost.update(Patient.this, diagnosisCost, getAge() - CommonParams.MIN_AGE);
 					}
 				}
 				// Patient ill
@@ -1005,7 +1007,7 @@ public class Patient extends BasicElement {
 		@Override
 		public void event() {
 			final double diagnosisCost = commonParams.getDiagnosisCost(Patient.this);
-			cost.update(Patient.this, diagnosisCost, getAge());
+			cost.update(Patient.this, diagnosisCost, getAge() - CommonParams.MIN_AGE);
 			simul.getInfoHandler().notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DIAGNOSED, this.getTs()));
 			// If suffering CNV when diagnosed, the treatment with antiVEGF starts
 			if (eyes[0].contains(EyeState.AMD_CNV))
