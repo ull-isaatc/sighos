@@ -120,7 +120,17 @@ public class VAParam {
 		long t1 = pair1.timeToChange;
 		long t2 = pair2.timeToChange;
 		while (iter1.hasNext() || iter2.hasNext()) {
-			if (t1 < t2) {
+			if (t1 == 0) {
+				lastVA1 = pair1.va;
+				pair1 = iter1.next();
+				t1 = pair1.timeToChange;
+			}
+			else if (t2 == 0) {
+				lastVA2 = pair2.va;
+				pair2 = iter2.next();
+				t2 = pair2.timeToChange;
+			}
+			else if (t1 < t2) {
 				// Update time of pair 2
 				t2 = t2 - t1;
 				// Interpolate VA in pair 2
@@ -205,9 +215,15 @@ public class VAParam {
 		double vaAtStart = 0.0;
 		ArrayList<VAProgressionPair> changes1 = new ArrayList<VAProgressionPair>();
 		ArrayList<VAProgressionPair> changes2 = new ArrayList<VAProgressionPair>();
-		changes1.add(new VAProgressionPair(365, 0.763));
-		changes1.add(new VAProgressionPair(152, 0.763));
-		changes2.add(new VAProgressionPair(517, 0.763));
+		
+		changes1.add(new VAProgressionPair(0, 0));
+		changes1.add(new VAProgressionPair(9834, 0));
+		changes1.add(new VAProgressionPair(1187, 0.150298257));
+		changes1.add(new VAProgressionPair(250, 0.561257161109589));
+		changes2.add(new VAProgressionPair(0, 0));
+		changes2.add(new VAProgressionPair(10818, 0));
+		changes2.add(new VAProgressionPair(0, 0));
+		changes2.add(new VAProgressionPair(453, 0));
 //		changes1.add(new VAProgressionPair(1, 0.3));
 //		changes1.add(new VAProgressionPair(1, 0.4));
 //		changes1.add(new VAProgressionPair(1, 0.6));
@@ -235,11 +251,11 @@ public class VAParam {
 //		changes2.add(new VAProgressionPair(0, 0.8437028519558131));
 		
 		System.out.println("Pair 1");
-		printProgression(changes1, 517);
+		printProgression(changes1, 11271);
 		System.out.println("Pair 2");
-		printProgression(changes2, 517);
+		printProgression(changes2, 11271);
 		System.out.println("Merged");
-		printProgression(mergeVAProgressions(vaAtStart, changes1, changes2), 517);
+		printProgression(mergeVAProgressions(vaAtStart, changes1, changes2), 11271);
 	}
 
 	public static void main(String[] args) {

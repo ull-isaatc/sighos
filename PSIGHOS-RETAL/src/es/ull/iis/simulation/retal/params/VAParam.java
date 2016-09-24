@@ -115,7 +115,17 @@ public class VAParam extends Param {
 		long t1 = pair1.timeToChange;
 		long t2 = pair2.timeToChange;
 		while (iter1.hasNext() || iter2.hasNext()) {
-			if (t1 < t2) {
+			if (t1 == 0) {
+				lastVA1 = pair1.va;
+				pair1 = iter1.next();
+				t1 = pair1.timeToChange;
+			}
+			else if (t2 == 0) {
+				lastVA2 = pair2.va;
+				pair2 = iter2.next();
+				t2 = pair2.timeToChange;
+			}
+			else if (t1 < t2) {
 				// Update time of pair 2
 				t2 = t2 - t1;
 				// Interpolate VA in pair 2
