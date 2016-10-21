@@ -41,8 +41,8 @@ public class RoundFunction extends TimeFunction {
 	 * @see es.ull.iis.function.TimeFunction#getValue(double)
 	 */
 	@Override
-	public double getValue(double ts) {
-		double val = func.getValue(ts);
+	public double getValue(TimeFunctionParams params) {
+		double val = func.getValue(params);
 		if (scale != 0.0) {
 			switch(type) {
 				case CEIL:					

@@ -75,8 +75,8 @@ public class LinearFunction extends TimeFunction {
 		this.shift = b;
 	}
 
-	public double getValue(double ts) {
-		return scale.getValue(ts) * ts + shift.getValue(ts);
+	public double getValue(TimeFunctionParams params) {
+		return scale.getValue(params) * params.getTime() + shift.getValue(params);
 	}
 
 	/**

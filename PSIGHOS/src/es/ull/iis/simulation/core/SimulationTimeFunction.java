@@ -7,13 +7,14 @@ import simkit.random.RandomNumberFactory;
 import es.ull.iis.function.RandomFunction;
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
+import es.ull.iis.function.TimeFunctionParams;
 
 /**
  * A wrapper class for {@link es.ull.iis.function.TimeFunction TimeFunction}.
  * Thus {@link TimeStamp} can be used to define the time function parameters.
  * @author Iván Castilla Rodríguez
  */
-public class SimulationTimeFunction {
+public class SimulationTimeFunction extends TimeFunction {
 	/** Inner {@link es.ull.iis.function.TimeFunction TimeFunction} */
 	private final TimeFunction function;
 
@@ -32,19 +33,22 @@ public class SimulationTimeFunction {
 				parameters[i] = unit.convert(new TimeStamp(unit, Math.round(((Number)parameters[i]).doubleValue())));
 			// Emulates a kind of recursive behaviour
 			else if (parameters[i] instanceof SimulationTimeFunction)
-				parameters[i] = ((SimulationTimeFunction)parameters[i]).getFunction();
+				parameters[i] = ((SimulationTimeFunction)parameters[i]).function;
 		}
 		function = TimeFunctionFactory.getInstance(className, parameters);
 		if (function instanceof RandomFunction) {
 			((RandomFunction)function).getRandom().setRandomNumber(RandomNumberFactory.getInstance());
 		}
 	}
-	
-	/**
-	 * Returns the inner {@link es.ull.iis.function.TimeFunction TimeFunction}
-	 * @return the inner {@link es.ull.iis.function.TimeFunction TimeFunction}
-	 */
-	public es.ull.iis.function.TimeFunction getFunction() {
-		return function;
+
+	@Override
+	public double getValue(TimeFunctionParams params) {
+		return function.getValue(params);
+	}
+
+	@Override
+	public void setParameters(Object... params) {
+		// TODO Auto-generated method stub
+		
 	}
 }

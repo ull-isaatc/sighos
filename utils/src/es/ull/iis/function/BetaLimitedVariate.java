@@ -25,7 +25,7 @@ public class BetaLimitedVariate extends TimeFunction {
 	}
 	
 	@Override
-	public double getValue(double ts) {
+	public double getValue(TimeFunctionParams params) {
 		return rnd.generate()*(upperLimit - lowerLimit) + lowerLimit;
 	}
 

@@ -11,7 +11,7 @@ import es.ull.iis.simulation.core.flow.InitializerFlow;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface Element extends VariableStoreSimulationObject {
+public interface Element extends BasicElement, VariableStoreSimulationObject {
 	/**
 	 * Returns the corresponding type of the element.
 	 * @return the corresponding type of the element

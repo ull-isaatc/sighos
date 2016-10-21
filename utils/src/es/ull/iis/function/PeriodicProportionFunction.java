@@ -57,8 +57,8 @@ public class PeriodicProportionFunction extends TimeFunction {
 	 * @see es.ull.iis.function.TimeFunction#getValue(double)
 	 */
 	@Override
-	public double getValue(double ts) {
-		int unit = (int) (ts / timeUnit);
+	public double getValue(TimeFunctionParams params) {
+		int unit = (int) (params.getTime() / timeUnit);
 		int indexp = unit % prop.length;
 		int indexv = (unit / prop.length) % nElem.length;
 		return nElem[indexv] * prop[indexp];

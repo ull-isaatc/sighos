@@ -33,10 +33,10 @@ public class UniformlyDistributedSplitFunction extends TimeFunction {
 	 * @see es.ull.iis.function.TimeFunction#getValue(double)
 	 */
 	@Override
-	public double getValue(double ts) {
-		int unit = (int) (ts / timeUnit);
+	public double getValue(TimeFunctionParams params) {
+		int unit = (int) (params.getTime() / timeUnit);
 		int index = unit % part.length;
-		return part[index].getValue(ts);
+		return part[index].getValue(params);
 	}
 
 	/* (non-Javadoc)

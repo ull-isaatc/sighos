@@ -41,10 +41,8 @@ public class RandomFunction extends TimeFunction {
 		this.rnd = rnd;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.function.TimeFunction#getValue(double)
-	 */
-	public double getValue(double ts) {
+	@Override
+	public double getValue(TimeFunctionParams params) {
 		return rnd.generate();
 	}
 

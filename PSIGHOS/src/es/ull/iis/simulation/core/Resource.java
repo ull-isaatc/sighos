@@ -17,7 +17,7 @@ import java.util.Collection;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface Resource extends VariableStoreSimulationObject, Describable {
+public interface Resource extends BasicElement, VariableStoreSimulationObject, Describable {
 	/**
 	 * Returns a collection with the timetable defined for this resource.
 	 * @return a collection with the timetable defined for this resource

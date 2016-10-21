@@ -35,9 +35,9 @@ public class NextHighFunction extends TimeFunction {
 	 * @see es.ull.iis.function.TimeFunction#getValue(double)
 	 */
 	@Override
-	public double getValue(double ts) {
-		double val = func.getValue(ts);
-		double auxVal = Math.ceil((ts + val - shift) / scale) * scale + shift;
+	public double getValue(TimeFunctionParams params) {
+		final double ts = params.getTime();
+		final double auxVal = Math.ceil((ts + func.getValue(params) - shift) / scale) * scale + shift;
 		return auxVal - ts;
 	}
 

@@ -53,7 +53,7 @@ public class ForLoopFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	public void request(WorkThread wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
-				int iter = Math.round((float)iterations.getPositiveValue(wThread.getElement().getTs()));
+				int iter = Math.round((float)iterations.getValue(wThread.getElement()));
 				if (beforeRequest(wThread.getElement()) && (iter > 0)) {
 					checkList.put(wThread, iter);
 					wThread.getInstanceDescendantWorkThread().requestFlow(initialFlow);

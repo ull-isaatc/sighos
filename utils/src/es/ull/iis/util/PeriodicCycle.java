@@ -1,6 +1,7 @@
 package es.ull.iis.util;
 
 import es.ull.iis.function.TimeFunction;
+import es.ull.iis.function.TimeFunctionParams;
 
 /**
  * Defines a periodically repeated sequence of events. It can be defined in 
@@ -148,6 +149,7 @@ public class PeriodicCycle extends Cycle {
 		private double nextTs;
 		/** The iterations left. */
 		private int iter;
+		final private TimeFunctionParams param;
 		
 		/**
 		 * @param start The start timestamp.
@@ -155,6 +157,12 @@ public class PeriodicCycle extends Cycle {
 		 */
 		public PeriodicIteratorLevel(double start, double end) {
 			super(start, end);
+			param = new TimeFunctionParams() {
+				@Override
+				public double getTime() {
+					return currentTs;
+				}
+			};
 		}		
 
 		@Override
@@ -210,7 +218,7 @@ public class PeriodicCycle extends Cycle {
 			if (iter > 0)
 				iter--;
 			// Computes the next valid timestamp...
-			nextTs += getPeriod().getPositiveValue(currentTs);
+			nextTs += getPeriod().getValue(param);
 			return currentTs;
 		}
 	}
@@ -226,6 +234,7 @@ public class PeriodicCycle extends Cycle {
 		private int iter;
 		private long cycleEndTs;
 		private long cycleStartTs;
+		final private TimeFunctionParams param;
 		
 		/**
 		 * @param start The start timestamp.
@@ -254,6 +263,12 @@ public class PeriodicCycle extends Cycle {
 				else
 					nextTs = -1;
 			}
+			param = new TimeFunctionParams() {
+				@Override
+				public double getTime() {
+					return currentTs;
+				}
+			};
 		}		
 
 		@Override
@@ -309,7 +324,7 @@ public class PeriodicCycle extends Cycle {
 			if (iter > 0)
 				iter--;
 			// Computes the next valid timestamp...
-			nextTs += getPeriod().getPositiveValue(currentTs);
+			nextTs += getPeriod().getValue(param);
 			return currentTs;
 		}
 	}

@@ -4,11 +4,10 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
+import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeDrivenActivityWorkGroup;
 import es.ull.iis.simulation.info.ElementActionInfo;
-import es.ull.iis.function.TimeFunction;
 import es.ull.iis.util.RandomPermutation;
 
 /**
@@ -91,26 +90,26 @@ public class TimeDrivenActivity extends Activity implements es.ull.iis.simulatio
 	}
 
 	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, int priority, es.ull.iis.simulation.core.WorkGroup wg) {
+    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, int priority, es.ull.iis.simulation.core.WorkGroup wg) {
     	ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg);
         workGroupTable.add(aWg);
         return aWg;
     }
     
 	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {
+    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {
     	ActivityWorkGroup aWg = new ActivityWorkGroup(workGroupTable.size(), duration, priority, (WorkGroup)wg, cond); 
         workGroupTable.add(aWg);
         return aWg;
     }
     
 	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, es.ull.iis.simulation.core.WorkGroup wg) {    	
+    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, es.ull.iis.simulation.core.WorkGroup wg) {    	
         return addWorkGroup(duration, 0, wg);
     }
     
 	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(SimulationTimeFunction duration, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
+    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
         return addWorkGroup(duration, 0, wg, cond);
     }
 
@@ -193,7 +192,7 @@ public class TimeDrivenActivity extends Activity implements es.ull.iis.simulatio
 		
 		// The first time the activity is carried out (useful only for interruptible activities)
 		if (wItem.getTimeLeft() == -1) {
-			wItem.setTimeLeft(((TimeDrivenActivity.ActivityWorkGroup)wItem.getExecutionWG()).getDurationSample());
+			wItem.setTimeLeft(((TimeDrivenActivity.ActivityWorkGroup)wItem.getExecutionWG()).getDurationSample(elem));
 			simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
 			elem.debug("Starts\t" + this + "\t" + description);			
 		}
@@ -275,9 +274,9 @@ public class TimeDrivenActivity extends Activity implements es.ull.iis.simulatio
 	     * @param priority Priority of the workgroup.
 	     * @param wg Original workgroup
 	     */    
-	    protected ActivityWorkGroup(int id, SimulationTimeFunction duration, int priority, WorkGroup wg) {
+	    protected ActivityWorkGroup(int id, TimeFunction duration, int priority, WorkGroup wg) {
 	        super(id, priority, wg);
-	        this.duration = duration.getFunction();
+	        this.duration = duration;
 	    }
 	    
 	    /**
@@ -287,9 +286,9 @@ public class TimeDrivenActivity extends Activity implements es.ull.iis.simulatio
 	     * @param priority Priority of the workgroup.
 	     * @param cond  Availability condition
 	     */    
-	    protected ActivityWorkGroup(int id, SimulationTimeFunction duration, int priority, WorkGroup wg, Condition cond) {
+	    protected ActivityWorkGroup(int id, TimeFunction duration, int priority, WorkGroup wg, Condition cond) {
 	        super(id, priority, wg, cond);
-	        this.duration = duration.getFunction();
+	        this.duration = duration;
 	    }
 
 
@@ -308,8 +307,8 @@ public class TimeDrivenActivity extends Activity implements es.ull.iis.simulatio
 	     * In this case, it returns 0.0.
 	     * @return The activity duration.
 	     */
-	    public long getDurationSample() {
-	        return Math.round(duration.getPositiveValue(getTs()));
+	    public long getDurationSample(Element elem) {
+	        return Math.round(duration.getValue(elem));
 	    }
 	    
 	    /**

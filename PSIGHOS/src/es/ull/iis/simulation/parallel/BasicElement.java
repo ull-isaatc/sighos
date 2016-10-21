@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * TODO Comment
  * @author Carlos Martin Galan
  */
-public abstract class BasicElement extends TimeStampedSimulationObject {
+public abstract class BasicElement extends TimeStampedSimulationObject implements es.ull.iis.simulation.core.BasicElement {
     /** Current element's timestamp */
 	protected long ts;
     /** Access control */
@@ -68,6 +68,11 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
      */
     public long getTs() {
         return ts;
+    }
+    
+    @Override
+    public double getTime() {
+    	return ts;
     }
     
     /**

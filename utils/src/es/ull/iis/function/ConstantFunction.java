@@ -31,7 +31,7 @@ public class ConstantFunction extends TimeFunction {
 	/* (non-Javadoc)
 	 * @see es.ull.iis.function.TimeFunction#getValue(double)
 	 */
-	public double getValue(double ts) {
+	public double getValue(TimeFunctionParams params) {
 		return val;
 	}
 

@@ -10,23 +10,11 @@ package es.ull.iis.function;
 public abstract class TimeFunction {
 	/**
 	 * Returns a value as indicated by the definition of this function. 
-	 * @param ts Time parameter which can be used to determine the value to be returned.
+	 * @param params The parameters which can be used to determine the value to be returned.
 	 * @return A value as indicated by the definition of this function.
 	 */
-	public abstract double getValue(double ts);
+	public abstract double getValue(TimeFunctionParams params);
 
-	/**
-	 * Simply calls <code>getValue</code> to return a value. However, if the value is negative, returns 0.0
-	 * @param ts Time parameter which can be used to determine the value to be returned.
-	 * @return A positive value corresponding to the definition of this function.
-	 */
-	public double getPositiveValue(double ts) {
-    	double res = getValue(ts);
-    	if (res < 0.0)
-    		res = 0.0;
-    	return res;
-	}
-	
 	/**
 	 * Sets the parameters of this function.
 	 * @param params Parameters required by this function.

@@ -62,7 +62,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
 	 * @see es.ull.iis.simulation.BasicElementCreator#create(es.ull.iis.simulation.Generator)
 	 */
 	public void create(Generator gen) {
-		int n = (int)nElem.getPositiveValue(gen.getTs());
+		int n = (int)nElem.getValue(gen);
 		n = beforeCreateElements(n);
         for (int i = 0; i < n; i++) {
             double p = Math.random();

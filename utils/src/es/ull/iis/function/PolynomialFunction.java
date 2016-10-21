@@ -33,7 +33,7 @@ public class PolynomialFunction extends TimeFunction {
 	public PolynomialFunction(double coefficients[]) {
 	    this.length = coefficients.length;
 	    int i = 0;
-	    this.coefficients = new RandomFunction[length];
+	    this.coefficients = new TimeFunction[length];
 	    for (double j : coefficients)
 	    	this.coefficients[i++] = new RandomFunction(RandomVariateFactory.getInstance("ConstantVariate", j));
 	    
@@ -46,10 +46,10 @@ public class PolynomialFunction extends TimeFunction {
 
 
 	@Override
-	public double getValue(double ts) {
+	public double getValue(TimeFunctionParams params) {
 	    double value = 0;
 	    for (int i = 0; i < length ; i++) {
-		value += Math.pow(ts, length - i - 1) * coefficients[i].getValue(ts);
+		value += Math.pow(params.getTime(), length - i - 1) * coefficients[i].getValue(params);
 	    }
 	    return value;
 	}
@@ -74,4 +74,5 @@ public class PolynomialFunction extends TimeFunction {
 	public void setParameters(Object... params) {
 		this.coefficients = (TimeFunction[]) params;
 	}
+
 }

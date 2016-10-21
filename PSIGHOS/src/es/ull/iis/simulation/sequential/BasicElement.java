@@ -6,7 +6,7 @@ package es.ull.iis.simulation.sequential;
  * Represents the simulation component that carries out events. 
  * @author Carlos Martin Galan
  */
-public abstract class BasicElement extends TimeStampedSimulationObject {
+public abstract class BasicElement extends TimeStampedSimulationObject implements es.ull.iis.simulation.core.BasicElement {
     /** Current element's timestamp */
 	protected long ts;
 
@@ -67,6 +67,11 @@ public abstract class BasicElement extends TimeStampedSimulationObject {
     @Override
 	public long getTs() {
         return ts;
+    }
+    
+    @Override
+    public double getTime() {
+    	return ts;
     }
     
     /**
