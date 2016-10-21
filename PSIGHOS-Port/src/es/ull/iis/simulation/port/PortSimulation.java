@@ -9,9 +9,11 @@ import es.ull.iis.simulation.sequential.ResourceType;
 import java.util.EnumSet;
 
 import es.ull.iis.function.TimeFunctionFactory;
+import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.ElementTypeCondition;
 import es.ull.iis.simulation.sequential.ElementCreator;
 import es.ull.iis.simulation.sequential.FlowDrivenActivity;
+import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.SimulationWeeklyPeriodicCycle;
@@ -50,7 +52,7 @@ public class PortSimulation extends Simulation {
 	private static final String BLOCK_ID_VAR = "BlockId";
 	private static final String CONS_VAR = "ConstantVariate";
 	private static final double[] TIME_TO_UNLOAD = {15.0};
-	private static final double[] TIME_TO_YARD = {20.0};
+	private static final long[][] TIME_FROM_BERTH_TO_BLOCK = {{20, 30, 40}};
 	private static final double[] TIME_TO_PLACE = {10.0};
 	private static final int[] CONTAINERS_PER_DAY = {10};
 	private int resIdCounter = 0;
@@ -106,25 +108,27 @@ public class PortSimulation extends Simulation {
 		// Activities
 		final TimeDrivenActivity aCallTruck = new TimeDrivenActivity(actCounter++, this, ACT_CALL_TRUCK);
 		aCallTruck.addWorkGroup()
+		/// FIXME: El tiempo depende de dónde esté el camión... ¿Cómo controlo esto?
 		final TimeDrivenActivity aUnload = new TimeDrivenActivity(actCounter++, this, ACT_UNLOAD); 
 		for (int i = 0; i < N_BERTHS; i++) {
-			aUnload.addWorkGroup(new SimulationTimeFunction(unit, PortSimulation.CONS_VAR, TIME_TO_UNLOAD[i]), wgUnload[i], new ElementTypeCondition(et[i]));
+			aUnload.addWorkGroup(new SimulationTimeFunction(unit, PortSimulation.CONS_VAR, TIME_TO_UNLOAD[i]), wgUnload[i], new Condition() {
+				@Override
+				public boolean check(Element e) {
+					return (((Container)e).getBerth() == i);
+				}
+			});
 		}
 		final TimeDrivenActivity aToYard = new TimeDrivenActivity(actCounter++, this, ACT_TO_YARD);
-		for (int i = 0; i < N_BLOCKS; i++) {
-			aToYard.addWorkGroup(new SimulationTimeFunction(unit, PortSimulation.CONS_VAR, TIME_TO_YARD[i]), wgEmpty, 
-					simFactory.getCustomizedConditionInstance("", "<%GET(@E." + BLOCK_ID_VAR + ")%> == " + i));
-		}
+		aToYard.addWorkGroup(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK), wgEmpty);
 		final TimeDrivenActivity aPlace = new TimeDrivenActivity(actCounter++, this, ACT_PLACE);
 		for (int i = 0; i < N_BLOCKS; i++) {
-			aPlace.addWorkGroup(new SimulationTimeFunction(unit, PortSimulation.CONS_VAR, TIME_TO_PLACE[i]), wgPlace[i], 
-					simFactory.getCustomizedConditionInstance("", "<%GET(@E." + BLOCK_ID_VAR + ")%> == " + i));
-		}
-		// TODO: Exactly the same as aToYard... Unify?
-		final TimeDrivenActivity aTruckReturn = new TimeDrivenActivity(actCounter++, this, ACT_RETURN);
-		for (int i = 0; i < N_BLOCKS; i++) {
-			aTruckReturn.addWorkGroup(new SimulationTimeFunction(unit, PortSimulation.CONS_VAR, TIME_TO_YARD[i]), wgEmpty, 
-					simFactory.getCustomizedConditionInstance("", "<%GET(@E." + BLOCK_ID_VAR + ")%> == " + i));
+			aPlace.addWorkGroup(new SimulationTimeFunction(unit, PortSimulation.CONS_VAR, TIME_TO_PLACE[i]), wgPlace[i],
+					new Condition() {
+				@Override
+				public boolean check(Element e) {
+					return (((Container)e).getBlock() == i);
+				}
+			});
 		}
 
 		// Defines the flow for the former activities
