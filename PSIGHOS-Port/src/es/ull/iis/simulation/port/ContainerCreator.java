@@ -3,33 +3,46 @@
  */
 package es.ull.iis.simulation.port;
 
-import es.ull.iis.function.TimeFunction;
+import es.ull.iis.simulation.sequential.BasicElement;
 import es.ull.iis.simulation.sequential.BasicElementCreator;
 import es.ull.iis.simulation.sequential.ElementType;
 import es.ull.iis.simulation.sequential.Generator;
-import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.flow.InitializerFlow;
 
 /**
  * @author Iván Castilla
  *
  */
-public class ContainerCreator implements BasicElementCreator, es.ull.iis.simulation.core.ElementCreator {
-
+public class ContainerCreator implements BasicElementCreator {
+	private final ArrivalPlanning plan;
+	private final PortSimulation simul;
+	private final ElementType et;
+	private final InitializerFlow flow;
+	// TODO: Check if this is valid when multiple creators are used
+	private int n = 0;
+	
 	/**
 	 * @param sim
 	 * @param nElem
 	 * @param et
 	 * @param flow
 	 */
-	public ContainerCreator(Simulation sim, TimeFunction nElem, ElementType et, InitializerFlow flow) {
-		super(sim, nElem, et, flow);
+	public ContainerCreator(PortSimulation simul, ArrivalPlanning plan, ElementType et, InitializerFlow flow) {
+		this.simul = simul;
+		this.plan = plan;
+		this.flow = flow;
+		this.et = et;
 	}
 
 	@Override
 	public void create(Generator gen) {
-		final int nContainers = nelem.
-		for (int i = 0; i < )
-		super.create(gen);
+		final double arrivalTime = gen.getTime();		
+		final int[] containers = plan.getDestinationBlocks(arrivalTime);
+		for (int i = 0; i < containers.length; i++) {
+			Container container = new Container(n++, simul, et, flow, plan.getBerth(), containers[i]);
+			final BasicElement.DiscreteEvent ev = container.getStartEvent(simul.getTs());
+			container.addEvent(ev);
+		}
 	}
+
 }

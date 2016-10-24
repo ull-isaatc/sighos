@@ -3,30 +3,22 @@
  */
 package es.ull.iis.simulation.port;
 
-import es.ull.iis.simulation.sequential.Resource;
-import es.ull.iis.simulation.sequential.ResourceType;
-
-import java.util.EnumSet;
-
-import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.condition.ElementTypeCondition;
-import es.ull.iis.simulation.sequential.ElementCreator;
-import es.ull.iis.simulation.sequential.FlowDrivenActivity;
 import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.SimulationWeeklyPeriodicCycle;
-import es.ull.iis.simulation.sequential.TimeDrivenActivity;
-import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.sequential.flow.SingleFlow;
-import es.ull.iis.simulation.sequential.WorkGroup;
-import es.ull.iis.util.WeeklyPeriodicCycle;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.sequential.ElementType;
+import es.ull.iis.simulation.sequential.FlowDrivenActivity;
+import es.ull.iis.simulation.sequential.Resource;
+import es.ull.iis.simulation.sequential.ResourceType;
 import es.ull.iis.simulation.sequential.Simulation;
+import es.ull.iis.simulation.sequential.TimeDrivenActivity;
+import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
+import es.ull.iis.simulation.sequential.WorkGroup;
+import es.ull.iis.simulation.sequential.flow.SingleFlow;
 
 /**
  * @author Iván Castilla
@@ -43,18 +35,15 @@ public class PortSimulation extends Simulation {
 	protected static final String YARD_CRANE = "Yard Crane";
 	private static final String TRUCK = "Truck";
 	private static final String CONTAINER = "Container";
-	private static final String ACT_CALL_TRUCK = "Call Truck";
+	private static final String ACT_TRUCK_RETURN = "Truck returning";
 	private static final String ACT_UNLOAD = "Unload";
 	private static final String ACT_TO_YARD = "Lead to yard";
 	private static final String ACT_PLACE = "Place container";
 	private static final String ACT_SEA_TO_YARD = "Sea to yard";
-	private static final String ID_VAR = "ID";
-	private static final String BLOCK_ID_VAR = "BlockId";
 	private static final String CONS_VAR = "ConstantVariate";
 	private static final double[] TIME_TO_UNLOAD = {15.0};
 	private static final long[][] TIME_FROM_BERTH_TO_BLOCK = {{20, 30, 40}};
 	private static final double[] TIME_TO_PLACE = {10.0};
-	private static final int[] CONTAINERS_PER_DAY = {10};
 	private int resIdCounter = 0;
 	private int rtIdCounter = 0; 
 	private int actCounter = 0;
@@ -106,15 +95,13 @@ public class PortSimulation extends Simulation {
 		}
 		
 		// Activities
-		final TimeDrivenActivity aCallTruck = new TimeDrivenActivity(actCounter++, this, ACT_CALL_TRUCK);
-		aCallTruck.addWorkGroup()
-		/// FIXME: El tiempo depende de dónde esté el camión... ¿Cómo controlo esto?
 		final TimeDrivenActivity aUnload = new TimeDrivenActivity(actCounter++, this, ACT_UNLOAD); 
 		for (int i = 0; i < N_BERTHS; i++) {
+			final int berthId = i;
 			aUnload.addWorkGroup(new SimulationTimeFunction(unit, PortSimulation.CONS_VAR, TIME_TO_UNLOAD[i]), wgUnload[i], new Condition() {
 				@Override
 				public boolean check(Element e) {
-					return (((Container)e).getBerth() == i);
+					return (((Container)e).getBerth() == berthId);
 				}
 			});
 		}
@@ -122,34 +109,37 @@ public class PortSimulation extends Simulation {
 		aToYard.addWorkGroup(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK), wgEmpty);
 		final TimeDrivenActivity aPlace = new TimeDrivenActivity(actCounter++, this, ACT_PLACE);
 		for (int i = 0; i < N_BLOCKS; i++) {
+			final int blockId = i;
 			aPlace.addWorkGroup(new SimulationTimeFunction(unit, PortSimulation.CONS_VAR, TIME_TO_PLACE[i]), wgPlace[i],
 					new Condition() {
 				@Override
 				public boolean check(Element e) {
-					return (((Container)e).getBlock() == i);
+					return (((Container)e).getBlock() == blockId);
 				}
 			});
 		}
+		final TimeDrivenActivity aTruckReturn = new TimeDrivenActivity(actCounter++, this, ACT_TRUCK_RETURN);
+		aTruckReturn.addWorkGroup(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK), wgEmpty);
 
 		// Defines the flow for the former activities
-		final SingleFlow sfCallTruck = new SingleFlow(this, aCallTruck);
 		final SingleFlow sfUnload = new SingleFlow(this, aUnload);
 		final SingleFlow sfToYard = new SingleFlow(this, aToYard);
 		final SingleFlow sfPlace = new SingleFlow(this, aPlace);		
-		sfCallTruck.link(sfUnload);
+		final SingleFlow sfTruckReturn = new SingleFlow(this, aTruckReturn);
 		sfUnload.link(sfToYard);
 		sfToYard.link(sfPlace);
+		sfPlace.link(sfTruckReturn);
 		
 		// defines the main activity that drives the whole process, which involves seizing a truck
 		final FlowDrivenActivity mainAct = new FlowDrivenActivity(actCounter++, this, ACT_SEA_TO_YARD);
-		mainAct.addWorkGroup(sfCallTruck, sfPlace, wgTruck);
+		mainAct.addWorkGroup(sfUnload, sfTruckReturn, wgTruck);
 		final SingleFlow sfMain = new SingleFlow(this, mainAct);
 		
 		// Generate orders for unloading containers
-		final ArrivalPlanning planning = new ArrivalPlanning("testStowagePlan1");
+		final ArrivalPlanning planning = new ArrivalPlanning(0, "testStowagePlan1");
 		for (int i = 0; i < N_BERTHS; i++) {
-			final ContainerCreator cc = new ContainerCreator(this, TimeFunctionFactory.getInstance(CONS_VAR, CONTAINERS_PER_DAY[i]), et, sfMain);
-			final TimeDrivenGenerator gen = new TimeDrivenGenerator(this, cc, planning);
+			final ContainerCreator cc = new ContainerCreator(this, planning, et, sfMain);
+			new TimeDrivenGenerator(this, cc, planning);
 		}
 		
 		addInfoReceivers();

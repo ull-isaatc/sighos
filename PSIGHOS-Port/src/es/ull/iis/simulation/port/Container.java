@@ -36,4 +36,8 @@ public class Container extends Element {
 		return block;
 	}
 
+	@Override
+	protected void addEvent(DiscreteEvent e) {
+		super.addEvent(e);
+	}
 }

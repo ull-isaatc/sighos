@@ -22,8 +22,9 @@ public class ArrivalPlanning implements SimulationCycle {
 	/** Inner {@link es.ull.iis.util.TableCycle TableCycle} */ 
 	private final TableCycle cycle;
 	private final TreeMap<Double, int[]>arrivals;
+	private final int berth;
 
-	public ArrivalPlanning(TreeMap<Double, int[]>arrivals) {
+	public ArrivalPlanning(int berth, TreeMap<Double, int[]>arrivals) {
 		final double[] arrivalTimes = new double[arrivals.size()];
 		int index = 0;
 		for (Double key : arrivals.keySet()) {
@@ -31,9 +32,11 @@ public class ArrivalPlanning implements SimulationCycle {
 		}
 		this.cycle = new TableCycle(arrivalTimes);
 		this.arrivals = arrivals;
+		this.berth = berth;
 	}
 
-	public ArrivalPlanning(String fileName) {
+	public ArrivalPlanning(int berth, String fileName) {
+		this.berth = berth;
 		arrivals = new TreeMap<Double, int[]>();
 		double[] arrivalTimes = null;
 		BufferedReader f = null;
@@ -96,6 +99,13 @@ public class ArrivalPlanning implements SimulationCycle {
 	@Override
 	public Cycle getCycle() {
 		return cycle;
+	}
+
+	/**
+	 * @return the berth
+	 */
+	public int getBerth() {
+		return berth;
 	}
 
 }
