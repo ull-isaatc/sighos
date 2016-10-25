@@ -25,6 +25,18 @@ public interface Resource extends BasicElement, VariableStoreSimulationObject, D
 	Collection<TimeTableEntry> getTimeTableEntries();
 	
 	/**
+	 * Adds a timetable entry for the whole duration of the simulation
+	 * @param role The type of this resource during every activation 
+	 */
+    void addTimeTableEntry(ResourceType role);
+    
+	/**
+	 * Adds a timetable entry for the whole duration of the simulation with overlapped resource types
+	 * @param roleList The types of this resource during every activation 
+	 */
+    void addTimeTableEntry(ArrayList<ResourceType> roleList);
+	
+    /**
 	 * Adds a timetable entry
 	 * @param cycle Simulation cycle to define activation time
 	 * @param dur How long the resource is active

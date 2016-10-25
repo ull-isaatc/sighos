@@ -65,13 +65,20 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
 		simul.getInfoHandler().notifyInfo(new ResourceInfo(this.simul, this, this.getCurrentResourceType(), ResourceInfo.Type.START, ts));
 		for (int i = 0 ; i < timeTable.size(); i++) {
 			TimeTableEntry tte = timeTable.get(i);
-	        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getInternalEndTs());
-	        long nextTs = iter.next();
-	        if (nextTs != -1) {
-	            RoleOnEvent rEvent = new RoleOnEvent(nextTs, (ResourceType) tte.getRole(), iter, simul.simulationTime2Long(tte.getDuration()));
+			if (tte.isPermanent()) {
+	            RoleOnEvent rEvent = new RoleOnEvent(ts, (ResourceType) tte.getRole(), null, simul.getInternalEndTs());
 	            addEvent(rEvent);
 	            validTTEs.incrementAndGet();
-	        }
+			}
+			else {
+		        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getInternalEndTs());
+		        long nextTs = iter.next();
+		        if (nextTs != -1) {
+		            RoleOnEvent rEvent = new RoleOnEvent(nextTs, (ResourceType) tte.getRole(), iter, simul.simulationTime2Long(tte.getDuration()));
+		            addEvent(rEvent);
+		            validTTEs.incrementAndGet();
+		        }
+			}
 		}
 		for (int i = 0 ; i < cancelPeriodTable.size(); i++) {
 			TimeTableEntry tte = cancelPeriodTable.get(i);
@@ -91,6 +98,17 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
 	protected void end() {		
 	}
 
+	@Override
+	public void addTimeTableEntry(es.ull.iis.simulation.core.ResourceType role) {
+		timeTable.add(new TimeTableEntry(role));
+	}
+
+	@Override
+	public void addTimeTableEntry(ArrayList<es.ull.iis.simulation.core.ResourceType> roleList) {
+    	for (int i = 0; i < roleList.size(); i++)
+            addTimeTableEntry(roleList.get(i));
+	}
+	
 	@Override
     public void addTimeTableEntry(SimulationCycle cycle, TimeStamp dur, es.ull.iis.simulation.core.ResourceType role) {
         timeTable.add(new TimeTableEntry(cycle, dur, role));
@@ -451,8 +469,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
         		debug("Resource available\t" + role);
         		role.incAvailable(Resource.this);
         		addRole(role, ts + duration);
-        		// The activity manger is informed of new available resources
-        		
+        		// The activity manger is informed of new available resources        		
         		role.getManager().notifyResource();
         		role.afterRoleOn();
         		RoleOffEvent rEvent = new RoleOffEvent(ts + duration, role, iter, duration);
@@ -497,7 +514,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
         		role.decAvailable(Resource.this);
         		removeRole(role);
         		debug("Resource unavailable\t" + role);
-        		final long nextTs = iter.next();
+        		final long nextTs = (iter == null) ? -1 : iter.next();
     	        if (nextTs != -1) {
         			RoleOnEvent rEvent = new RoleOnEvent(nextTs, role, iter, duration);
         			addEvent(rEvent);            	

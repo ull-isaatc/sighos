@@ -61,13 +61,20 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
 		simul.getInfoHandler().notifyInfo(new ResourceInfo(this.simul, this, this.getCurrentResourceType(), ResourceInfo.Type.START, ts));
 		for (int i = 0 ; i < timeTable.size(); i++) {
 			TimeTableEntry tte = timeTable.get(i);
-	        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getInternalEndTs());
-	        long nextTs = iter.next();
-	        if (nextTs != -1) {
-	            RoleOnEvent rEvent = new RoleOnEvent(nextTs, (ResourceType) tte.getRole(), iter, simul.simulationTime2Long(tte.getDuration()));
+			if (tte.isPermanent()) {
+	            final RoleOnEvent rEvent = new RoleOnEvent(ts, (ResourceType) tte.getRole(), null, simul.getInternalEndTs());
 	            addEvent(rEvent);
 	            validTTEs++;
-	        }
+			}
+			else {
+		        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getInternalEndTs());
+		        long nextTs = iter.next();
+		        if (nextTs != -1) {
+		            RoleOnEvent rEvent = new RoleOnEvent(nextTs, (ResourceType) tte.getRole(), iter, simul.simulationTime2Long(tte.getDuration()));
+		            addEvent(rEvent);
+		            validTTEs++;
+		        }
+			}
 		}
 		for (int i = 0 ; i < cancelPeriodTable.size(); i++) {
 			TimeTableEntry tte = cancelPeriodTable.get(i);
@@ -91,7 +98,18 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
 	protected void end() {		
 	}
 	
-    /**
+	@Override
+	public void addTimeTableEntry(es.ull.iis.simulation.core.ResourceType role) {
+		timeTable.add(new TimeTableEntry(role));
+	}
+
+	@Override
+	public void addTimeTableEntry(ArrayList<es.ull.iis.simulation.core.ResourceType> roleList) {
+    	for (int i = 0; i < roleList.size(); i++)
+            addTimeTableEntry(roleList.get(i));
+	}
+	
+	/**
      * Adds a new entry with a single role.
      * @param cycle Cycle that characterizes this entry
      * @param dur The long this resource plays this role every cycle
@@ -327,8 +345,8 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
         
         @Override
         public void event() {
-        	long waitTime = role.beforeRoleOn();
-        	if (waitTime == 0.0) {
+        	final long waitTime = role.beforeRoleOn();
+        	if (waitTime == 0) {
         		simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLON, ts));
         		debug("Resource available\t" + role);
         		role.incAvailable(Resource.this);
@@ -380,13 +398,13 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
         
         @Override
         public void event() {
-        	long waitTime = role.beforeRoleOff();
-        	if (waitTime == 0.0) {
+        	final long waitTime = role.beforeRoleOff();
+        	if (waitTime == 0) {
         		simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLOFF, ts));
         		role.decAvailable(Resource.this);
         		removeRole(role);
         		debug("Resource unavailable\t" + role);
-        		long nextTs = iter.next();
+        		final long nextTs = (iter == null) ? -1 : iter.next();
         		if (nextTs != -1) {
         			RoleOnEvent rEvent = new RoleOnEvent(nextTs, role, iter, duration);
         			addEvent(rEvent);            	
@@ -546,5 +564,5 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
 	public Collection<es.ull.iis.simulation.core.TimeTableEntry> getTimeTableEntries() {
 		return timeTable;
 	}
-	
+
 }

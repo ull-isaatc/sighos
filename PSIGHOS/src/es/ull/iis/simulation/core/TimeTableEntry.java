@@ -27,6 +27,19 @@ public class TimeTableEntry {
 		this.role = role;
 	}
     
+    /** Creates a new instance of TimeTableEntry that represents a permanent resource
+     * @param role Role that the resource plays during this cycle
+     */
+	public TimeTableEntry(ResourceType role) {
+		this.cycle = null;
+		this.duration = null;
+		this.role = role;
+	}
+    
+	public boolean isPermanent() {
+		return (cycle == null);
+	}
+	
     /**
      * Returns how long this resource plays this role every cycle.
      * @return how long this resource plays this role every cycle
