@@ -5,7 +5,6 @@ package es.ull.iis.simulation.port;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.Element;
-import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
@@ -28,8 +27,8 @@ public class PortSimulation extends Simulation {
 	final private static String DESCRIPTION = "Port Simulation";
 	private static final int N_BERTHS = 1;
 	private static final int[] N_QUAYS_PER_BERTH = {2};
-	private static final int N_BLOCKS = 1;
-	private static final int[] N_QUAYS_PER_BLOCK = {1};
+	private static final int N_BLOCKS = 3;
+	private static final int[] N_QUAYS_PER_BLOCK = {1, 1, 1};
 	private static final int N_TRUCKS = 4;
 	protected static final String QUAY_CRANE = "Quay Crane";
 	protected static final String YARD_CRANE = "Yard Crane";
@@ -43,7 +42,7 @@ public class PortSimulation extends Simulation {
 	private static final String CONS_VAR = "ConstantVariate";
 	private static final double[] TIME_TO_UNLOAD = {15.0};
 	private static final long[][] TIME_FROM_BERTH_TO_BLOCK = {{20, 30, 40}};
-	private static final double[] TIME_TO_PLACE = {10.0};
+	private static final double[] TIME_TO_PLACE = {10.0, 10.0, 10.0};
 	private int resIdCounter = 0;
 	private int rtIdCounter = 0; 
 	private int actCounter = 0;
@@ -65,13 +64,13 @@ public class PortSimulation extends Simulation {
 			rtQuayCranes[i] = new QuayCraneResourceType(rtIdCounter++, this, i);
 			for (int j = 0; j < N_QUAYS_PER_BERTH[i]; j++) {
 				final Resource res = new Resource(resIdCounter++, this, QUAY_CRANE + " " + i + "." + j);
-				res.addTimeTableEntry(SimulationPeriodicCycle.newWeeklyCycle(unit), endTs, rtQuayCranes[i]);
+				res.addTimeTableEntry(rtQuayCranes[i]);
 			}
 		}
 		final ResourceType rtTrucks = new ResourceType(rtIdCounter++, this, TRUCK);
 		for (int i = 0; i < N_TRUCKS; i++) {
 			final Resource res = new Resource(resIdCounter++, this, TRUCK + " " + i);
-			res.addTimeTableEntry(SimulationPeriodicCycle.newWeeklyCycle(unit), endTs, rtTrucks);
+			res.addTimeTableEntry(rtTrucks);
 		}
 		
 		final ResourceType[] rtYardCranes = new ResourceType[N_BLOCKS];
@@ -79,7 +78,7 @@ public class PortSimulation extends Simulation {
 			rtYardCranes[i] = new YardCraneResourceType(rtIdCounter++, this, i);
 			for (int j = 0; j < N_QUAYS_PER_BLOCK[i]; j++) {
 				final Resource res = new Resource(resIdCounter++, this, YARD_CRANE + " " + i + "." + j);
-				res.addTimeTableEntry(SimulationPeriodicCycle.newWeeklyCycle(unit), endTs, rtYardCranes[i]);
+				res.addTimeTableEntry(rtYardCranes[i]);
 			}
 		}
 		// Defines the needs of the activities in terms of resources
@@ -136,7 +135,7 @@ public class PortSimulation extends Simulation {
 		final SingleFlow sfMain = new SingleFlow(this, mainAct);
 		
 		// Generate orders for unloading containers
-		final ArrivalPlanning planning = new ArrivalPlanning(0, "testStowagePlan1");
+		final ArrivalPlanning planning = new ArrivalPlanning(0, "C:\\Users\\Iván Castilla\\git\\sighos\\PSIGHOS-Port\\src\\es\\ull\\iis\\simulation\\port\\testStowagePlan1.txt");
 		for (int i = 0; i < N_BERTHS; i++) {
 			final ContainerCreator cc = new ContainerCreator(this, planning, et, sfMain);
 			new TimeDrivenGenerator(this, cc, planning);
