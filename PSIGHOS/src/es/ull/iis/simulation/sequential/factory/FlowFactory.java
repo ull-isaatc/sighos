@@ -37,6 +37,7 @@ public class FlowFactory {
      **/
     protected static boolean verbose;
     
+    private static int flowId = 0; 
 	/**
 	 * Create de Flow's classes index.
 	 */
@@ -86,7 +87,7 @@ public class FlowFactory {
 		return theClass;
 	}
 	
-	static private String createConstructor(String flowType, Integer id, Class<?>... params) {
+	static private String createConstructor(String flowType, Class<?>... params) {
 		String code = "(Simulation simul";
 		String strParam = ") {super(simul";
 		for (int i = 0; i < params.length; i++) {
@@ -98,13 +99,12 @@ public class FlowFactory {
 	
 	/**
 	 * Get a Flow's instance.
-	 * @param id Identifier.
 	 * @param flowType Flow's type.
 	 * @param simul Actual simulation.
 	 * @param initargs Rest of the params.
 	 * @return A Flow's instance.
 	 */
-	static public Flow getInstance(int id, String flowType, Simulation simul, Object... initargs) {
+	static public Flow getInstance(String flowType, Simulation simul, Object... initargs) {
 		Class<?> cl = findFullyQualifiedNameFor(flowType);
 		Constructor<?>[] consList = cl.getConstructors();
 		Object [] newParams = new Object[initargs.length + 1];
@@ -130,14 +130,14 @@ public class FlowFactory {
 		return null;	
 	}
 
-	static public Flow getInstance(int id, String flowType, SimulationUserCode userMethods, Simulation simul, Object... initargs) {
+	static public Flow getInstance(String flowType, SimulationUserCode userMethods, Simulation simul, Object... initargs) {
 		userMethods.addImports("import es.ull.iis.simulation.sequential.*;");
 		Class<?>[] parameterTypes = StandardCompilator.param2Classes(initargs);
-		String cons = createConstructor(flowType, id, parameterTypes);
+		String cons = createConstructor(flowType, parameterTypes);
 		Object [] newParams = new Object[initargs.length + 1];
 		newParams[0] = simul;
 		for (int i = 1; i < newParams.length; i++)
 			newParams[i] = initargs[i - 1];
-		return (Flow)StandardCompilator.getInstance(workingPkg, flowType, id, cons, userMethods, newParams);
+		return (Flow)StandardCompilator.getInstance(workingPkg, flowType, flowId++, cons, userMethods, newParams);
 	}
 }

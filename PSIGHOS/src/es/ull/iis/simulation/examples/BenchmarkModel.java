@@ -196,7 +196,7 @@ public class BenchmarkModel {
 		switch(ovType) {
 			case SAMETIME:
 				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", nElem), wgs[i]);
+					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", nElem), 0, wgs[i]);
 				for (ForLoopFlow smf : smfs) {
 					ElementCreator creator = factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", nElem / smfs.length), et, smf);
 					factory.getTimeDrivenGeneratorInstance(creator, allCycle);
@@ -204,7 +204,7 @@ public class BenchmarkModel {
 				break;
 			case CONSECUTIVE:
 				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", nElem), wgs[i]);
+					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", nElem), 0, wgs[i]);
 				for (ForLoopFlow smf : smfs) {
 					ElementCreator creator = factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
 					factory.getTimeDrivenGeneratorInstance(creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
@@ -212,7 +212,7 @@ public class BenchmarkModel {
 				break;
 			case MIXED:
 				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", nElem / mixFactor), wgs[i]);
+					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", nElem / mixFactor), 0, wgs[i]);
 				for (ForLoopFlow smf : smfs) {
 					ElementCreator creator = factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
 					factory.getTimeDrivenGeneratorInstance(creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));

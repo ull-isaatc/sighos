@@ -21,7 +21,6 @@ public abstract class SimulationObject implements es.ull.iis.simulation.core.Sim
      * @param simul Simulation this object belongs to
      */
 	public SimulationObject(int id, Simulation simul) {
-		super();
 		this.simul = simul;
 		this.id = id;
 		idString = new String("[" + getObjectTypeIdentifier() + id + "]");

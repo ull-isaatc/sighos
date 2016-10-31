@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 
 import es.ull.iis.function.TimeFunction;
+import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.TimeDrivenActivityWorkGroup;
 import es.ull.iis.simulation.info.ElementActionInfo;
@@ -31,46 +32,42 @@ public class TimeDrivenActivity extends Activity implements es.ull.iis.simulatio
 
 	/**
      * Creates a new activity with the highest priority and default behavior.
-     * @param id Activity's identifier
      * @param simul Simulation which this activity is attached to.
      * @param description A short text describing this Activity.
      */
-    public TimeDrivenActivity(int id, Simulation simul, String description) {
-        this(id, simul, description, 0, EnumSet.noneOf(Modifier.class));
+    public TimeDrivenActivity(Simulation simul, String description) {
+        this(simul, description, 0, EnumSet.noneOf(Modifier.class));
     }
 
     /**
      * Creates a new activity with the specified priority and default behavior.
-     * @param id Activity's identifier.
      * @param simul Simulation which this activity is attached to.
      * @param description A short text describing this Activity.
      * @param priority Activity's priority.
      */
-    public TimeDrivenActivity(int id, Simulation simul, String description, int priority) {
-        this(id, simul, description, priority, EnumSet.noneOf(Modifier.class));
+    public TimeDrivenActivity(Simulation simul, String description, int priority) {
+        this(simul, description, priority, EnumSet.noneOf(Modifier.class));
     }
     
     /**
      * Creates a new activity with the highest priority and customized behavior.
-     * @param id Activity's identifier.
      * @param simul Simulation which this activity is attached to.
      * @param description A short text describing this Activity.
      * @param modifiers Indicates if the activity has special characteristics. 
      */
-    public TimeDrivenActivity(int id, Simulation simul, String description, EnumSet<Modifier> modifiers) {
-        this(id, simul, description, 0, modifiers);
+    public TimeDrivenActivity(Simulation simul, String description, EnumSet<Modifier> modifiers) {
+        this(simul, description, 0, modifiers);
     }
 
     /**
      * Creates a new activity with the specified priority and customized behavior.
-     * @param id Activity's identifier.
      * @param simul Simulation which this activity is attached to.
      * @param description A short text describing this Activity.
      * @param priority Activity's priority.
      * @param modifiers Indicates if the activity has special characteristics. 
      */
-    public TimeDrivenActivity(int id, Simulation simul, String description, int priority, EnumSet<Modifier> modifiers) {
-        super(id, simul, description, priority);
+    public TimeDrivenActivity(Simulation simul, String description, int priority, EnumSet<Modifier> modifiers) {
+        super(simul, description, priority);
         this.modifiers = modifiers;
     }
 
@@ -104,13 +101,13 @@ public class TimeDrivenActivity extends Activity implements es.ull.iis.simulatio
     }
     
 	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, es.ull.iis.simulation.core.WorkGroup wg) {    	
-        return addWorkGroup(duration, 0, wg);
+    public TimeDrivenActivityWorkGroup addWorkGroup(long duration, int priority, es.ull.iis.simulation.core.WorkGroup wg) {
+        return addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", duration), priority, wg);
     }
     
 	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
-        return addWorkGroup(duration, 0, wg, cond);
+    public TimeDrivenActivityWorkGroup addWorkGroup(long duration, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
+        return addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", duration), priority, wg, cond);
     }
 
     /**

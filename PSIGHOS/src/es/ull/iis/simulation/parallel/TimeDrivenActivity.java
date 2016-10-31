@@ -3,6 +3,7 @@ package es.ull.iis.simulation.parallel;
 import java.util.EnumSet;
 
 import es.ull.iis.function.TimeFunction;
+import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.TimeDrivenActivityWorkGroup;
 import es.ull.iis.simulation.info.ElementActionInfo;
@@ -102,13 +103,13 @@ public class TimeDrivenActivity extends Activity implements es.ull.iis.simulatio
     }
     
 	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, es.ull.iis.simulation.core.WorkGroup wg) {    	
-        return addWorkGroup(duration, 0, wg);
+    public TimeDrivenActivityWorkGroup addWorkGroup(long duration, int priority, es.ull.iis.simulation.core.WorkGroup wg) {    	
+        return addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", duration), priority, wg);
     }
     
 	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
-        return addWorkGroup(duration, 0, wg, cond);
+    public TimeDrivenActivityWorkGroup addWorkGroup(long duration, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
+        return addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", duration), priority, wg, cond);
     }
 
     /**

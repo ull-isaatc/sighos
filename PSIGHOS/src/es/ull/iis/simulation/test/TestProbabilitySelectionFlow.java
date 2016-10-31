@@ -44,9 +44,9 @@ class ExperimentProbSel extends Experiment {
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
 
-        act0.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), wg);
-        act1.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), wg);
-        act2.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), wg);
+        act0.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), 0, wg);
+        act1.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), 0, wg);
+        act2.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), 0, wg);
    
         SimulationPeriodicCycle subc2 = new SimulationPeriodicCycle(unit, 480, new SimulationTimeFunction(unit, "ConstantVariate", 1040), 5);
         SimulationPeriodicCycle c2 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 1040 * 7), 0, subc2);

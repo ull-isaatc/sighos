@@ -50,7 +50,7 @@ class ExpConflict extends Experiment {
 		TimeDrivenActivity acts[] = new TimeDrivenActivity[NACTS];
 		for (int i = 0; i < NACTS; i++) {
 			acts[i] = factory.getTimeDrivenActivityInstance("ACT" + i);
-			acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 40), wgs[i]);
+			acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 40), 0, wgs[i]);
 		}
 		
 		SimulationCycle c = SimulationPeriodicCycle.newDailyCycle(unit);
@@ -93,7 +93,7 @@ class ExpConflict extends Experiment {
 		TimeDrivenActivity acts[] = new TimeDrivenActivity[NACTS];
 		for (int i = 0; i < NACTS; i++) {
 			acts[i] = factory.getTimeDrivenActivityInstance("ACT" + i);
-			acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 40), wgs[i]);
+			acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 40), 0, wgs[i]);
 		}
 
 		SimulationCycle c = SimulationPeriodicCycle.newDailyCycle(unit);

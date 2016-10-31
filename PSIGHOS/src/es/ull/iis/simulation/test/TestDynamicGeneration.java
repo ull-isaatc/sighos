@@ -43,7 +43,7 @@ class TestDynamicGenerationExperiment extends Experiment {
 		
 		Condition cond = factory.getCustomizedConditionInstance(null, "false");
 		TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance("ACT0");
-		act0.addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 10.0), wg0, new NotCondition(cond));
+		act0.addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 10.0), 0, wg0, new NotCondition(cond));
 		
 		factory.getElementTypeInstance("ET0");
 		factory.getFlowInstance("SingleFlow", act0);

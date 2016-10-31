@@ -8,8 +8,6 @@ package es.ull.iis.simulation.sequential;
  * @author Ivan Castilla Rodrguez
  */
 public abstract class Generator extends BasicElement {
-    /** Created-element counter. This way each element has a different identifier. */
-	protected static int elemCounter = 0;
     /** Generator's counter */
     private static int counter = 0;
     /** Specifies the way the elements are created. */
@@ -31,30 +29,6 @@ public abstract class Generator extends BasicElement {
      * corresponding <code>BasicElementCreator.create</code>  
      */
     public abstract void beforeCreate();
-
-    /**
-     * Returns the current element's counter.
-     * @return The current element's counter.
-     */
-    public static int getElemCounter() {
-        return elemCounter;
-    }
-    
-    /**
-     * Establish a new initial value for the element's counter. 
-	 * @param elemCounter A new element's counter value.
-	 */
-	public static void setElemCounter(int elemCounter) {
-		Generator.elemCounter = elemCounter;
-	}
-
-	/**
-	 * Returns and increases the element's counter in one step.
-	 * @return The current element's counter.
-	 */
-	public static int incElemCounter() {
-		return elemCounter++;
-	}
 
 	@Override
 	public String getObjectTypeIdentifier() {    	

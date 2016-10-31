@@ -50,23 +50,21 @@ public class FlowDrivenActivity extends Activity implements es.ull.iis.simulatio
 	
 	/**
      * Creates a new flow-driven activity.
-     * @param id Activity's identifier
      * @param simul Simulation which this activity is attached to.
      * @param description A short text describing this Activity.
      */
-    public FlowDrivenActivity(int id, Simulation simul, String description) {
-        this(id, simul, description, 0);
+    public FlowDrivenActivity(Simulation simul, String description) {
+        this(simul, description, 0);
     }
 
     /**
      * Creates a new flow-driven activity.
-     * @param id Activity's identifier.
      * @param simul Simulation which this activity is attached to.
      * @param description A short text describing this Activity.
      * @param priority Activity's priority.
      */
-    public FlowDrivenActivity(int id, Simulation simul, String description, int priority) {
-        super(id, simul, description, priority);
+    public FlowDrivenActivity(Simulation simul, String description, int priority) {
+        super(simul, description, priority);
     }
     
     /**

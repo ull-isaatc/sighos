@@ -44,8 +44,8 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
      * @param simul Simulation this resource is attached to.
      * @param description A short text describing this resource.
      */
-	public Resource(int id, Simulation simul, String description) {
-		super(id, simul);
+	public Resource(Simulation simul, String description) {
+		super(simul.getNextResourceId(), simul);
 		this.description = description;
         currentRoles = new TreeMap<ResourceType, Long>();
         notCanceled = true;

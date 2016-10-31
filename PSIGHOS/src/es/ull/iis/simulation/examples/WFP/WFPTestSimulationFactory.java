@@ -109,7 +109,7 @@ public abstract class WFPTestSimulationFactory {
 			act = factory.getTimeDrivenActivityInstance(description, 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
 		else
 			act = factory.getTimeDrivenActivityInstance(description);
-    	act.addWorkGroup(new SimulationTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[dur]), wg);
+    	act.addWorkGroup(new SimulationTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[dur]), 0, wg);
 		return act;
 	}
 	

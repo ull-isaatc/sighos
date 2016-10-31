@@ -72,8 +72,8 @@ class BarrelShippingExperiment extends Experiment {
 		actFilling.putVar("barrelCapacity", 100);
 
 		// Defines duration of activities
-		actFilling.addWorkGroup(new SimulationTimeFunction(sim.getTimeUnit(), "ConstantVariate", 15.0), wgOperator);
-		actShipping.addWorkGroup(new SimulationTimeFunction(sim.getTimeUnit(), "ConstantVariate", 20.0), wgOperator);
+		actFilling.addWorkGroup(new SimulationTimeFunction(sim.getTimeUnit(), "ConstantVariate", 15.0), 0, wgOperator);
+		actShipping.addWorkGroup(new SimulationTimeFunction(sim.getTimeUnit(), "ConstantVariate", 20.0), 0, wgOperator);
 
 		// Defines loop conditions	
 		Condition cond = factory.getCustomizedConditionInstance("", "<%GET(S.totalLiters)%> < <%GET(A0.barrelCapacity)%>");

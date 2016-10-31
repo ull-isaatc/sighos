@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.sequential.flow.InitializerFlow;
 import es.ull.iis.function.TimeFunction;
+import es.ull.iis.function.TimeFunctionFactory;
 
 /**
  * Defines the way a generator creates elements when it's time to create them.
@@ -44,6 +45,26 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
 	}
 	
 	/**
+	 * Creates a creator of elements.
+	 * @param sim Simulation this object belongs to.
+	 * @param nElem Number of objects created each time this creator is invoked.
+	 */
+	public ElementCreator(Simulation sim, int nElem) {
+		this(sim, TimeFunctionFactory.getInstance("ConstantVariate", nElem));
+	}
+	
+	/**
+	 * Creates a creator of a single type of elements.
+	 * @param sim Simulation this object belongs to.
+	 * @param nElem Number of objects created each time this creator is invoked.
+	 * @param et The type of the elements to be created
+	 * @param flow The description of the flow of the elements to be created.
+	 */
+	public ElementCreator(Simulation sim, int nElem, ElementType et, InitializerFlow flow) {
+		this(sim, nElem);
+	}
+	
+	/**
 	 * Adds a [element type, metaflow, proportion] trio.
 	 * @param et Element type
 	 * @param flow Description of the activity flow that the elements carry out.
@@ -65,7 +86,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
             	p -= gt.getProp();
             	if (p <= 0.0){
             		ElementType et = gt.getElementType();
-    	    		Element elem = new Element(Generator.incElemCounter(), (Simulation) gen.getSimulation(), et, gt.getFlow());
+    	    		Element elem = new Element(gen.getSimulation(), et, gt.getFlow());
     	    		elem.initializeElementVars(et.getElementValues());
     	            final BasicElement.DiscreteEvent e = elem.getStartEvent(gen.getTs());
     	            elem.addEvent(e);

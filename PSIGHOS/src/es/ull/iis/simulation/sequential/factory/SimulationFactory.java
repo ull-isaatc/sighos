@@ -35,11 +35,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	private final static String workingPkg = "es.ull.iis.simulation.sequential";
 	private final Simulation simul;
 	private int rtId;
-	private int resId;
-	private int actId;
-	private int flowId;
 	private int creId;
-	private int etId;
 	private int condId;
 
 	/**
@@ -114,22 +110,22 @@ public class SimulationFactory implements SimulationObjectFactory {
 
 	@Override
 	public ElementType getElementTypeInstance(String description) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.ElementType(etId++, simul, description);
+		return new es.ull.iis.simulation.sequential.ElementType(simul, description);
 	}
 
 	@Override
 	public ElementType getElementTypeInstance(String description, int priority) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.ElementType(etId++, simul, description, priority);
+		return new es.ull.iis.simulation.sequential.ElementType(simul, description, priority);
 	}
 
 	@Override
 	public Resource getResourceInstance(String description) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.Resource(resId++, simul, description);
+		return new es.ull.iis.simulation.sequential.Resource(simul, description);
 	}
 
 	@Override
 	public ResourceType getResourceTypeInstance(String description) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.ResourceType(rtId++, simul, description);
+		return new es.ull.iis.simulation.sequential.ResourceType(simul, description);
 	}
 
 	@Override
@@ -137,7 +133,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 		// Prepare the constructor call
 		String constructorStr = "(int id, Simulation simul, String description) {super(id, simul, description);}";
 		// Prepare the new params.
-		Object obj = StandardCompilator.getInstance(workingPkg, "ResourceType", rtId, constructorStr, userMethods, rtId++, simul, description);
+		Object obj = StandardCompilator.getInstance(workingPkg, "ResourceType", rtId++, constructorStr, userMethods, simul, description);
 		if (obj != null)
 			return (ResourceType)obj;
 		return null;
@@ -145,22 +141,22 @@ public class SimulationFactory implements SimulationObjectFactory {
 
 	@Override
 	public TimeDrivenActivity getTimeDrivenActivityInstance(String description) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.TimeDrivenActivity(actId++, simul, description);
+		return new es.ull.iis.simulation.sequential.TimeDrivenActivity(simul, description);
 	}
 
 	@Override
 	public TimeDrivenActivity getTimeDrivenActivityInstance(String description, int priority, EnumSet<Modifier> modifiers) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.TimeDrivenActivity(actId++, simul, description, priority, modifiers);
+		return new es.ull.iis.simulation.sequential.TimeDrivenActivity(simul, description, priority, modifiers);
 	}
 
 	@Override
 	public FlowDrivenActivity getFlowDrivenActivityInstance(String description) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.FlowDrivenActivity(actId++, simul, description);
+		return new es.ull.iis.simulation.sequential.FlowDrivenActivity(simul, description);
 	}
 
 	@Override
 	public FlowDrivenActivity getFlowDrivenActivityInstance(String description, int priority) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.FlowDrivenActivity(actId++, simul, description, priority);
+		return new es.ull.iis.simulation.sequential.FlowDrivenActivity(simul, description, priority);
 	}
 
 	@Override
@@ -178,13 +174,13 @@ public class SimulationFactory implements SimulationObjectFactory {
 
 	@Override
 	public Flow getFlowInstance(String flowType, Object... params) throws ClassCastException {
-		return FlowFactory.getInstance(flowId++, flowType, simul, params);
+		return FlowFactory.getInstance(flowType, simul, params);
 	}
 
 	@Override
 	public Flow getFlowInstance(String flowType, SimulationUserCode userMethods, Object... params)
 			throws ClassCastException {
-		return FlowFactory.getInstance(flowId++, flowType, userMethods, simul, params);
+		return FlowFactory.getInstance(flowType, userMethods, simul, params);
 	}
 
 	public Condition getCustomizedConditionInstance(String imports, String condition) {

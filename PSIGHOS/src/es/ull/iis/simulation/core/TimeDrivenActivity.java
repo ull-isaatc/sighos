@@ -51,19 +51,21 @@ public interface TimeDrivenActivity extends Activity {
     TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, int priority, WorkGroup wg, Condition cond);
 
     /**
-     * Creates a new workgroup for this activity with the highest level of priority. 
+     * Creates a new workgroup for this activity. 
      * @param duration Duration of the activity when performed with the new workgroup
+     * @param priority Priority of the workgroup
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup created.
      */
-    TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, WorkGroup wg);    	
-
+    TimeDrivenActivityWorkGroup addWorkGroup(long duration, int priority, WorkGroup wg);
+    
     /**
-     * Creates a new workgroup for this activity with the highest level of priority. 
+     * Creates a new workgroup for this activity. 
      * @param duration Duration of the activity when performed with the new workgroup
+     * @param priority Priority of the workgroup
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @param cond Availability condition
      * @return The new workgroup created.
-     */
-    TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, WorkGroup wg, Condition cond);    	
+     */    
+    TimeDrivenActivityWorkGroup addWorkGroup(long duration, int priority, WorkGroup wg, Condition cond);
 }

@@ -26,30 +26,42 @@ import es.ull.iis.util.Output;
  */
 public class Simulation extends es.ull.iis.simulation.core.Simulation {
 
+	/** The identifier to be assigned to the next resource */ 
+	protected int nextResourceId = 0;
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
 
 	/** List of element generators of the simulation. */
 	protected final ArrayList<Generator> generatorList = new ArrayList<Generator>();
 
+	/** The identifier to be assigned to the next activity */ 
+	protected int nextActivityId = 0;
 	/** List of activities present in the simulation. */
 	protected final TreeMap<Integer, Activity> activityList = new TreeMap<Integer, Activity>();
 
+	/** The identifier to be assigned to the next resource type */ 
+	protected int nextResourceTypeId = 0;
 	/** List of resource types present in the simulation. */
 	protected final TreeMap<Integer, ResourceType> resourceTypeList = new TreeMap<Integer, ResourceType>();
 
+	/** The identifier to be assigned to the next element type */ 
+	protected int nextElementTypeId = 0;
 	/** List of resource types present in the simulation. */
 	protected final TreeMap<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
 
 	/** List of activity managers that partition the simulation. */
 	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
 	
+	/** The identifier to be assigned to the next flow */ 
+	protected int nextFlowId = 0;
 	/** List of flows present in the simulation */
 	protected final TreeMap<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
 
 	/** End-of-simulation control */
 	private CountDownLatch endSignal;
 
+	/** The identifier to be assigned to the next element */ 
+	protected int nextElementId = 0;
 	/** List of active elements */
 	private final Map<Integer, Element> activeElementList = new TreeMap<Integer, Element>();
 
@@ -237,6 +249,54 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
         return waitQueue.remove(e);
     }
     
+	/**
+	 * @return the nextResourceId
+	 */
+	protected int getNextResourceId() {
+		return nextResourceId++;
+	}
+
+
+	/**
+	 * @return the nextActivityId
+	 */
+	protected int getNextActivityId() {
+		return nextActivityId++;
+	}
+
+
+	/**
+	 * @return the nextResourceTypeId
+	 */
+	protected int getNextResourceTypeId() {
+		return nextResourceTypeId++;
+	}
+
+
+	/**
+	 * @return the nextElementTypeId
+	 */
+	protected int getNextElementTypeId() {
+		return nextElementTypeId++;
+	}
+
+
+	/**
+	 * @return the nextFlowId
+	 */
+	public int getNextFlowId() {
+		return nextFlowId++;
+	}
+
+
+	/**
+	 * @return the nextElementId
+	 */
+	protected int getNextElementId() {
+		return nextElementId++;
+	}
+
+
 	/**
 	 * Adds an {@link es.ull.iis.simulation.sequential.Activity} to the model. These method
 	 * is invoked from the object's constructor.

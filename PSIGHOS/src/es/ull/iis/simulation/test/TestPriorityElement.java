@@ -49,7 +49,7 @@ public class TestPriorityElement {
 				TimeDrivenActivity acts[] = new TimeDrivenActivity[NACT];
 				for (int i = 0; i < NACT; i++) {
 					acts[i] = factory.getTimeDrivenActivityInstance("ACT" + i, i / 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class));
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 10), wg);
+					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 10), 0, wg);
 				}
 				SimulationPeriodicCycle c1 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 200), 0);
 				SimulationPeriodicCycle c2 = new SimulationPeriodicCycle(unit, 20, new SimulationTimeFunction(unit, "ConstantVariate", 100), 0);
