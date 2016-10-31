@@ -49,12 +49,11 @@ public class FlowDrivenActivity extends Activity implements es.ull.iis.simulatio
 
 
 	/**
-	 * @param id
 	 * @param simul
 	 * @param description
 	 */
-	public FlowDrivenActivity(int id, Simulation simul, String description) {
-		super(id, simul, description);
+	public FlowDrivenActivity(Simulation simul, String description) {
+		super(simul, description);
 	}
 
 	/**
@@ -63,8 +62,8 @@ public class FlowDrivenActivity extends Activity implements es.ull.iis.simulatio
 	 * @param description
 	 * @param priority
 	 */
-	public FlowDrivenActivity(int id, Simulation simul, String description, int priority) {
-		super(id, simul, description, priority);
+	public FlowDrivenActivity(Simulation simul, String description, int priority) {
+		super(simul, description, priority);
 	}
 
 	/* (non-Javadoc)

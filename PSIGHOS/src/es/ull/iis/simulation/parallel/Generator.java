@@ -1,7 +1,5 @@
 package es.ull.iis.simulation.parallel;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * An element which creates elements. This is the base class to create a set of similar
  * elements. A generator must be used with a creator: the generator specifies WHEN to create
@@ -9,8 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Ivan Castilla Rodrguez
  */
 public abstract class Generator extends BasicElement {
-    /** Created-element counter. This way each element has a different identifier. */
-	protected final static AtomicInteger elemCounter = new AtomicInteger(0);
     /** Generator's counter */
     private static int counter = 0;
     /** Specifies the way the elements are created. */
@@ -32,30 +28,6 @@ public abstract class Generator extends BasicElement {
      * corresponding <code>BasicElementCreator.create</code>  
      */
     public abstract void beforeCreate();
-
-    /**
-     * Returns the current element's counter.
-     * @return The current element's counter.
-     */
-    public static int getElemCounter() {
-        return elemCounter.get();
-    }
-    
-    /**
-     * Establish a new initial value for the element's counter. 
-	 * @param elemCounter A new element's counter value.
-	 */
-	public static void setElemCounter(int elemCounter) {
-		Generator.elemCounter.set(elemCounter);
-	}
-
-	/**
-	 * Returns and increases the element's counter in one step.
-	 * @return The current element's counter.
-	 */
-	protected static int incElemCounter() {
-		return elemCounter.getAndIncrement();
-	}
 
 	@Override
 	public String getObjectTypeIdentifier() {    	

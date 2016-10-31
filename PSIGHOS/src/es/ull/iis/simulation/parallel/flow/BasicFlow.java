@@ -13,8 +13,6 @@ import es.ull.iis.simulation.parallel.WorkThread;
  * @author Iván Castilla Rodríguez
  */
 public abstract class BasicFlow extends SimulationObject implements Flow {
-	/** Generator of unique identifiers */
-	private static int counter = 0;
 	/** The structured flow containing this flow. */
 	protected StructuredFlow parent = null;
 	
@@ -23,7 +21,7 @@ public abstract class BasicFlow extends SimulationObject implements Flow {
 	 * @param simul The simulation this flow belongs to.
 	 */
 	public BasicFlow(Simulation simul) {
-		super(counter++, simul);
+		super(simul.getNextFlowId(), simul);
 		simul.add(this);
 	}
 	

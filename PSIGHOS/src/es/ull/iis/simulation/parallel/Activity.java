@@ -53,23 +53,21 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 
 	/**
      * Creates a new activity with the highest priority.
-     * @param id Activity's identifier
      * @param simul The {@link Simulation} where this activity is used
      * @param description A short text describing this activity
      */
-    public Activity(int id, Simulation simul, String description) {
-        this(id, simul, description, 0);
+    public Activity(Simulation simul, String description) {
+        this(simul, description, 0);
     }
 
     /**
      * Creates a new activity.
-     * @param id Activity's identifier
      * @param simul The {@link Simulation} where this activity is used
      * @param description A short text describing this activity
      * @param priority Activity's priority.
      */
-    public Activity(int id, Simulation simul, String description, int priority) {
-        super(id, simul);
+    public Activity(Simulation simul, String description, int priority) {
+        super(simul.getNextActivityId(), simul);
         this.description = description;
         this.priority = priority;
         simul.add(this);
