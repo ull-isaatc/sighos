@@ -62,7 +62,7 @@ public class ResourceUsageItem {
 	 * @return The proportional cost of using a resource during the defined period of time 
 	 */
 	public double computeCost(double initAge, double endAge) {
-		double usage = yearlyUse.getValue(initAge);
+		double usage = yearlyUse.getValue(null);
 		return getUnitCost() * usage * (endAge - initAge);
 	}
 	

@@ -18,8 +18,6 @@ public class ContainerCreator implements BasicElementCreator {
 	private final PortSimulation simul;
 	private final ElementType et;
 	private final InitializerFlow flow;
-	// TODO: Check if this is valid when multiple creators are used
-	private int n = 0;
 	
 	/**
 	 * @param sim
@@ -39,7 +37,7 @@ public class ContainerCreator implements BasicElementCreator {
 		final double arrivalTime = gen.getTime();		
 		final int[] containers = plan.getDestinationBlocks(arrivalTime);
 		for (int i = 0; i < containers.length; i++) {
-			Container container = new Container(n++, simul, et, flow, plan.getBerth(), containers[i]);
+			final Container container = new Container(simul, et, flow, plan.getBerth(), containers[i]);
 			final BasicElement.DiscreteEvent ev = container.getStartEvent(simul.getTs());
 			container.addEvent(ev);
 		}

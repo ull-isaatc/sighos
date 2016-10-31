@@ -19,7 +19,7 @@ public class QuayCraneResourceType extends ResourceType {
 	 * @param description
 	 */
 	public QuayCraneResourceType(int id, Simulation simul, int berth) {
-		super(id, simul, PortSimulation.QUAY_CRANE + " " + id);
+		super(simul, PortSimulation.QUAY_CRANE + " " + id);
 		this.berth = berth;
 	}
 

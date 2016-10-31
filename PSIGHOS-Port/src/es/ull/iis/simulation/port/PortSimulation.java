@@ -8,7 +8,6 @@ import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.sequential.ElementType;
 import es.ull.iis.simulation.sequential.FlowDrivenActivity;
 import es.ull.iis.simulation.sequential.Resource;
@@ -40,12 +39,11 @@ public class PortSimulation extends Simulation {
 	private static final String ACT_PLACE = "Place container";
 	private static final String ACT_SEA_TO_YARD = "Sea to yard";
 	private static final String CONS_VAR = "ConstantVariate";
-	private static final double[] TIME_TO_UNLOAD = {15.0};
+	private static final long[] TIME_TO_UNLOAD = {15};
 	private static final long[][] TIME_FROM_BERTH_TO_BLOCK = {{20, 30, 40}};
-	private static final double[] TIME_TO_PLACE = {10.0, 10.0, 10.0};
-	private int resIdCounter = 0;
-	private int rtIdCounter = 0; 
-	private int actCounter = 0;
+	private static final long[] TIME_TO_PLACE = {10, 10, 10};
+	private int qCraneIdCounter = 0; 
+	private int yCraneIdCounter = 0; 
 	
 	/**
 	 * @param id
@@ -57,27 +55,27 @@ public class PortSimulation extends Simulation {
 	public PortSimulation(int id, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		super(id, DESCRIPTION + " " + id, unit, startTs, endTs);
 		// Creates the main element type representing containers
-		final ElementType et = new ElementType(0, this, CONTAINER);
+		final ElementType et = new ElementType(this, CONTAINER);
 		// Creates the resource types and specific resources
 		final ResourceType[] rtQuayCranes = new ResourceType[N_BERTHS];
 		for (int i = 0; i < N_BERTHS; i++) {
-			rtQuayCranes[i] = new QuayCraneResourceType(rtIdCounter++, this, i);
+			rtQuayCranes[i] = new QuayCraneResourceType(qCraneIdCounter++, this, i);
 			for (int j = 0; j < N_QUAYS_PER_BERTH[i]; j++) {
-				final Resource res = new Resource(resIdCounter++, this, QUAY_CRANE + " " + i + "." + j);
+				final Resource res = new Resource(this, QUAY_CRANE + " " + i + "." + j);
 				res.addTimeTableEntry(rtQuayCranes[i]);
 			}
 		}
-		final ResourceType rtTrucks = new ResourceType(rtIdCounter++, this, TRUCK);
+		final ResourceType rtTrucks = new ResourceType(this, TRUCK);
 		for (int i = 0; i < N_TRUCKS; i++) {
-			final Resource res = new Resource(resIdCounter++, this, TRUCK + " " + i);
+			final Resource res = new Resource(this, TRUCK + " " + i);
 			res.addTimeTableEntry(rtTrucks);
 		}
 		
 		final ResourceType[] rtYardCranes = new ResourceType[N_BLOCKS];
 		for (int i = 0; i < N_BLOCKS; i++) {
-			rtYardCranes[i] = new YardCraneResourceType(rtIdCounter++, this, i);
+			rtYardCranes[i] = new YardCraneResourceType(yCraneIdCounter++, this, i);
 			for (int j = 0; j < N_QUAYS_PER_BLOCK[i]; j++) {
-				final Resource res = new Resource(resIdCounter++, this, YARD_CRANE + " " + i + "." + j);
+				final Resource res = new Resource(this, YARD_CRANE + " " + i + "." + j);
 				res.addTimeTableEntry(rtYardCranes[i]);
 			}
 		}
@@ -94,22 +92,22 @@ public class PortSimulation extends Simulation {
 		}
 		
 		// Activities
-		final TimeDrivenActivity aUnload = new TimeDrivenActivity(actCounter++, this, ACT_UNLOAD); 
+		final TimeDrivenActivity aUnload = new TimeDrivenActivity(this, ACT_UNLOAD); 
 		for (int i = 0; i < N_BERTHS; i++) {
 			final int berthId = i;
-			aUnload.addWorkGroup(new SimulationTimeFunction(unit, PortSimulation.CONS_VAR, TIME_TO_UNLOAD[i]), wgUnload[i], new Condition() {
+			aUnload.addWorkGroup(TIME_TO_UNLOAD[i], 0, wgUnload[i], new Condition() {
 				@Override
 				public boolean check(Element e) {
 					return (((Container)e).getBerth() == berthId);
 				}
 			});
 		}
-		final TimeDrivenActivity aToYard = new TimeDrivenActivity(actCounter++, this, ACT_TO_YARD);
-		aToYard.addWorkGroup(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK), wgEmpty);
-		final TimeDrivenActivity aPlace = new TimeDrivenActivity(actCounter++, this, ACT_PLACE);
+		final TimeDrivenActivity aToYard = new TimeDrivenActivity(this, ACT_TO_YARD);
+		aToYard.addWorkGroup(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK), 0, wgEmpty);
+		final TimeDrivenActivity aPlace = new TimeDrivenActivity(this, ACT_PLACE);
 		for (int i = 0; i < N_BLOCKS; i++) {
 			final int blockId = i;
-			aPlace.addWorkGroup(new SimulationTimeFunction(unit, PortSimulation.CONS_VAR, TIME_TO_PLACE[i]), wgPlace[i],
+			aPlace.addWorkGroup(TIME_TO_PLACE[i], 0, wgPlace[i],
 					new Condition() {
 				@Override
 				public boolean check(Element e) {
@@ -117,8 +115,8 @@ public class PortSimulation extends Simulation {
 				}
 			});
 		}
-		final TimeDrivenActivity aTruckReturn = new TimeDrivenActivity(actCounter++, this, ACT_TRUCK_RETURN);
-		aTruckReturn.addWorkGroup(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK), wgEmpty);
+		final TimeDrivenActivity aTruckReturn = new TimeDrivenActivity(this, ACT_TRUCK_RETURN);
+		aTruckReturn.addWorkGroup(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK), 0, wgEmpty);
 
 		// Defines the flow for the former activities
 		final SingleFlow sfUnload = new SingleFlow(this, aUnload);
@@ -130,7 +128,7 @@ public class PortSimulation extends Simulation {
 		sfPlace.link(sfTruckReturn);
 		
 		// defines the main activity that drives the whole process, which involves seizing a truck
-		final FlowDrivenActivity mainAct = new FlowDrivenActivity(actCounter++, this, ACT_SEA_TO_YARD);
+		final FlowDrivenActivity mainAct = new FlowDrivenActivity(this, ACT_SEA_TO_YARD);
 		mainAct.addWorkGroup(sfUnload, sfTruckReturn, wgTruck);
 		final SingleFlow sfMain = new SingleFlow(this, mainAct);
 		
@@ -140,12 +138,6 @@ public class PortSimulation extends Simulation {
 			final ContainerCreator cc = new ContainerCreator(this, planning, et, sfMain);
 			new TimeDrivenGenerator(this, cc, planning);
 		}
-		
-		addInfoReceivers();
-	}
-
-	private void addInfoReceivers() {
-		addInfoReceiver(new StdInfoView(this));
 	}
 	
 }

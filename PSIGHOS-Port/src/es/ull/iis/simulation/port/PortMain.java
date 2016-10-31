@@ -3,9 +3,11 @@
  */
 package es.ull.iis.simulation.port;
 
+import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.inforeceiver.StdInfoView;
 
 /**
  * The main simulation class for a port. A port is divided into three areas: sea, yard and earth. Ships arrive at a 
@@ -15,17 +17,26 @@ import es.ull.iis.simulation.core.TimeUnit;
  * @author Iván Castilla
  *
  */
-public class PortMain {
+public class PortMain extends Experiment {
 	private static final int NSIM = 1;
 	private static final TimeUnit PORT_TIME_UNIT = TimeUnit.MINUTE;
 	private static final TimeStamp START_TS = TimeStamp.getZero();
 	private static final TimeStamp END_TS = TimeStamp.getWeek();
 	protected static final String CONS_VAR = "ConstantVariate";
 
+	public PortMain() {
+		super("PORTS", NSIM);
+	}
+	
 	public static void main(String[] args) {
-		for (int id = 0; id < NSIM; id++) {
-			final Simulation sim = new PortSimulation(id, PORT_TIME_UNIT, START_TS, END_TS);
-			sim.run();
-		}
+		new PortMain().start();
+	}
+
+	@Override
+	public Simulation getSimulation(int ind) {
+		Simulation sim = new PortSimulation(ind, PORT_TIME_UNIT, START_TS, END_TS);
+		sim.addInfoReceiver(new StdInfoView(sim));
+
+		return sim;
 	}
 }

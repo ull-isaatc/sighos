@@ -16,8 +16,8 @@ public class Container extends Element {
 	private final int berth;
 	private final int block;
 
-	public Container(int id, Simulation simul, ElementType et, InitializerFlow flow, int berth, int block) {
-		super(id, simul, et, flow);
+	public Container(Simulation simul, ElementType et, InitializerFlow flow, int berth, int block) {
+		super(simul, et, flow);
 		this.berth = berth;
 		this.block = block;
 	}

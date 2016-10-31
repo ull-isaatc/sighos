@@ -19,7 +19,7 @@ public class YardCraneResourceType extends ResourceType {
 	 * @param description
 	 */
 	public YardCraneResourceType(int id, Simulation simul, int block) {
-		super(id, simul, PortSimulation.YARD_CRANE + " " + id);
+		super(simul, PortSimulation.YARD_CRANE + " " + id);
 		this.block = block;
 	}
 

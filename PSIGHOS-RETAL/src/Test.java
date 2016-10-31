@@ -40,7 +40,7 @@ class SimulTest {
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
 		TimeDrivenActivity act = null;
 		act = factory.getTimeDrivenActivityInstance("Consulta");
-    	act.addWorkGroup(new SimulationTimeFunction(SIMUNIT, "ConstantVariate", new TimeStamp(TimeUnit.MINUTE, 10)), wg);
+    	act.addWorkGroup(new SimulationTimeFunction(SIMUNIT, "ConstantVariate", new TimeStamp(TimeUnit.MINUTE, 10)), 0, wg);
 		
         SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act);
         

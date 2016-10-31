@@ -58,7 +58,7 @@ public class PatientCreator implements BasicElementCreator {
 	public void create(Generator gen) {
 		if (copyOf == null) {
 			for (int i = 0; i < nPatients; i++) {
-				final double age = initialAges.getValue(0);
+				final double age = initialAges.getValue(null);
 				Patient p = new Patient(simul, age, intervention);
 				simul.addGeneratedPatient(p, i);
 				final BasicElement.DiscreteEvent ev = p.getStartEvent(simul.getTs());
