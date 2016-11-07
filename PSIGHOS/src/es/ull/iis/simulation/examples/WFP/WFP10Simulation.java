@@ -7,7 +7,7 @@ import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.MultiChoiceFlow;
@@ -44,8 +44,8 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
     	
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
 	   	
-    	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Rellenar bidon", wg, false);
-    	TimeDrivenActivity act1 = getDefTimeDrivenActivity("Realizar envío de bidon", wg, false);
+    	Activity act0 = getDefActivity("Rellenar bidon", wg, false);
+    	Activity act1 = getDefActivity("Realizar envío de bidon", wg, false);
     	
     	act0.putVar("capacidadBidon", 20);
     	getSimulation().putVar("litrosIntroducidos", 0.0);

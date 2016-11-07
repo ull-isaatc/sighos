@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
 import es.ull.iis.simulation.core.flow.SimpleMergeFlow;
@@ -33,10 +33,10 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
         WorkGroup wgFacturacion = factory.getWorkGroupInstance(new ResourceType[] {rt3}, new int[] {1});
         WorkGroup wgEH8 = factory.getWorkGroupInstance(new ResourceType[] {rt4, rt2}, new int[] {1, 1});
         
-        TimeDrivenActivity act0 = getDefTimeDrivenActivity("Excavacion bobcat", wgEBob, false);
-        TimeDrivenActivity act1 = getDefTimeDrivenActivity("Excavacion D9", wgED9, false);
-        TimeDrivenActivity act2 = getDefTimeDrivenActivity("Facturacion", 2, wgFacturacion, false);
-        TimeDrivenActivity act3 = getDefTimeDrivenActivity("Excavacion H8", 1, wgEH8, false);
+        Activity act0 = getDefActivity("Excavacion bobcat", wgEBob, false);
+        Activity act1 = getDefActivity("Excavacion D9", wgED9, false);
+        Activity act2 = getDefActivity("Facturacion", 2, wgFacturacion, false);
+        Activity act3 = getDefActivity("Excavacion H8", 1, wgEH8, false);
         
         getDefResource("Bobcat1", rt0);
         getDefResource("D91", rt1);

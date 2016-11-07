@@ -4,7 +4,7 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.ExclusiveChoiceFlow;
 import es.ull.iis.simulation.core.flow.SingleFlow;
@@ -28,9 +28,9 @@ public class WFP04Simulation extends WFPTestSimulationFactory {
         ResourceType rt = getDefResourceType("Encargado");
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
         
-        TimeDrivenActivity act0 = getDefTimeDrivenActivity("Celebrar elecciones", wg, false);
-        TimeDrivenActivity act1 = getDefTimeDrivenActivity("Recuentos de votos", wg, false);
-        TimeDrivenActivity act2 = getDefTimeDrivenActivity("Declarar resultados", wg, false);
+        Activity act0 = getDefActivity("Celebrar elecciones", wg, false);
+        Activity act1 = getDefActivity("Recuentos de votos", wg, false);
+        Activity act2 = getDefActivity("Declarar resultados", wg, false);
         
         getDefResource("Encargado 1", rt); 
       

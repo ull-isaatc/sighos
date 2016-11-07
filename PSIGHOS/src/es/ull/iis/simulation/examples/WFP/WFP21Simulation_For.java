@@ -2,7 +2,7 @@ package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.ForLoopFlow;
 import es.ull.iis.simulation.core.flow.SingleFlow;
@@ -35,7 +35,7 @@ public class WFP21Simulation_For extends WFPTestSimulationFactory {
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
     	
-    	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Revelar foto", wg, false);
+    	Activity act0 = getDefActivity("Revelar foto", wg, false);
 
         getDefResource("Maquina 1", rt0);        
         getDefResource("Maquina 2", rt0);

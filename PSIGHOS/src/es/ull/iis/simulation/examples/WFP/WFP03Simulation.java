@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
 import es.ull.iis.simulation.core.flow.SingleFlow;
@@ -25,9 +25,9 @@ public class WFP03Simulation extends WFPTestSimulationFactory {
         ResourceType rt = getDefResourceType("Comercial");
 
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
-        TimeDrivenActivity act0 = getDefTimeDrivenActivity("Generacion de factura", wg, false);
-        TimeDrivenActivity act1 = getDefTimeDrivenActivity("Comprobacion de factura", 1, wg, false);
-        TimeDrivenActivity act2 = getDefTimeDrivenActivity("Envio de mercancias", wg, false);
+        Activity act0 = getDefActivity("Generacion de factura", wg, false);
+        Activity act1 = getDefActivity("Comprobacion de factura", 1, wg, false);
+        Activity act2 = getDefActivity("Envio de mercancias", wg, false);
         
 
         getDefResource("Comercial1", rt);

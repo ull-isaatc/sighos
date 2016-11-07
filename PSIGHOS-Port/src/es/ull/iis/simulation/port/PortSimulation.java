@@ -5,15 +5,13 @@ package es.ull.iis.simulation.port;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.Element;
-import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.sequential.Activity;
 import es.ull.iis.simulation.sequential.ElementType;
-import es.ull.iis.simulation.sequential.FlowDrivenActivity;
 import es.ull.iis.simulation.sequential.Resource;
 import es.ull.iis.simulation.sequential.ResourceType;
 import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.iis.simulation.sequential.TimeDrivenActivity;
 import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
 import es.ull.iis.simulation.sequential.WorkGroup;
 import es.ull.iis.simulation.sequential.flow.SingleFlow;
@@ -38,7 +36,6 @@ public class PortSimulation extends Simulation {
 	private static final String ACT_TO_YARD = "Lead to yard";
 	private static final String ACT_PLACE = "Place container";
 	private static final String ACT_SEA_TO_YARD = "Sea to yard";
-	private static final String CONS_VAR = "ConstantVariate";
 	private static final long[] TIME_TO_UNLOAD = {15};
 	private static final long[][] TIME_FROM_BERTH_TO_BLOCK = {{20, 30, 40}};
 	private static final long[] TIME_TO_PLACE = {10, 10, 10};
@@ -92,7 +89,7 @@ public class PortSimulation extends Simulation {
 		}
 		
 		// Activities
-		final TimeDrivenActivity aUnload = new TimeDrivenActivity(this, ACT_UNLOAD); 
+		final Activity aUnload = new Activity(this, ACT_UNLOAD); 
 		for (int i = 0; i < N_BERTHS; i++) {
 			final int berthId = i;
 			aUnload.addWorkGroup(TIME_TO_UNLOAD[i], 0, wgUnload[i], new Condition() {
@@ -102,9 +99,9 @@ public class PortSimulation extends Simulation {
 				}
 			});
 		}
-		final TimeDrivenActivity aToYard = new TimeDrivenActivity(this, ACT_TO_YARD);
+		final Activity aToYard = new Activity(this, ACT_TO_YARD);
 		aToYard.addWorkGroup(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK), 0, wgEmpty);
-		final TimeDrivenActivity aPlace = new TimeDrivenActivity(this, ACT_PLACE);
+		final Activity aPlace = new Activity(this, ACT_PLACE);
 		for (int i = 0; i < N_BLOCKS; i++) {
 			final int blockId = i;
 			aPlace.addWorkGroup(TIME_TO_PLACE[i], 0, wgPlace[i],
@@ -115,7 +112,7 @@ public class PortSimulation extends Simulation {
 				}
 			});
 		}
-		final TimeDrivenActivity aTruckReturn = new TimeDrivenActivity(this, ACT_TRUCK_RETURN);
+		final Activity aTruckReturn = new Activity(this, ACT_TRUCK_RETURN);
 		aTruckReturn.addWorkGroup(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK), 0, wgEmpty);
 
 		// Defines the flow for the former activities
@@ -128,7 +125,7 @@ public class PortSimulation extends Simulation {
 		sfPlace.link(sfTruckReturn);
 		
 		// defines the main activity that drives the whole process, which involves seizing a truck
-		final FlowDrivenActivity mainAct = new FlowDrivenActivity(this, ACT_SEA_TO_YARD);
+		final Activity mainAct = new Activity(this, ACT_SEA_TO_YARD);
 		mainAct.addWorkGroup(sfUnload, sfTruckReturn, wgTruck);
 		final SingleFlow sfMain = new SingleFlow(this, mainAct);
 		

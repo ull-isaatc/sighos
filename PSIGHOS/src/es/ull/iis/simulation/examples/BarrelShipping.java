@@ -13,7 +13,7 @@ import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.SimulationWeeklyPeriodicCycle;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
@@ -65,8 +65,8 @@ class BarrelShippingExperiment extends Experiment {
 		WorkGroup wgOperator = factory.getWorkGroupInstance(new ResourceType [] {rtOperator}, new int[] {1});	
 
 		// Declares activities (Tasks)
-		TimeDrivenActivity actFilling = factory.getTimeDrivenActivityInstance("Barrel Filling", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-		TimeDrivenActivity actShipping = factory.getTimeDrivenActivityInstance("Barrel Shipping", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+		Activity actFilling = factory.getActivityInstance("Barrel Filling", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
+		Activity actShipping = factory.getActivityInstance("Barrel Shipping", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
 
 		// Declares variables for the Barrel Filling activity
 		actFilling.putVar("barrelCapacity", 100);

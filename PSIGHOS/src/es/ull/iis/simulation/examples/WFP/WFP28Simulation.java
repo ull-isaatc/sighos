@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.DiscriminatorFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
@@ -36,9 +36,9 @@ public class WFP28Simulation extends WFPTestSimulationFactory {
         WorkGroup wg0 = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
         WorkGroup wg1 = factory.getWorkGroupInstance(new ResourceType[] {rt1}, new int[] {1});
 	   	
-        TimeDrivenActivity act0 = getDefTimeDrivenActivity("Confirmar llegada delegacion", 2, wg0, false);
-        TimeDrivenActivity act1 = getDefTimeDrivenActivity("Chequeo de seguridad", 3, wg1, false);
-        TimeDrivenActivity act2 = getDefTimeDrivenActivity("Preparacion para nueva delegacion", 2, wg0, false);
+        Activity act0 = getDefActivity("Confirmar llegada delegacion", 2, wg0, false);
+        Activity act1 = getDefActivity("Chequeo de seguridad", 3, wg1, false);
+        Activity act2 = getDefActivity("Preparacion para nueva delegacion", 2, wg0, false);
 
         getDefResource("Asistente 1", rt0);        
         getDefResource("Asistente 2", rt0);

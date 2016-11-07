@@ -4,7 +4,7 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.MultiChoiceFlow;
 import es.ull.iis.simulation.core.flow.SingleFlow;
@@ -27,10 +27,10 @@ public class WFP06Simulation extends WFPTestSimulationFactory {
         ResourceType rt = getDefResourceType("Operador");
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
 
-        TimeDrivenActivity act0 = getDefTimeDrivenActivity("Recepcion de llamada", wg, false);
-        TimeDrivenActivity act1 = getDefTimeDrivenActivity("Envio policias", wg, false);
-        TimeDrivenActivity act2 = getDefTimeDrivenActivity("Envio ambulancias", wg, false);
-        TimeDrivenActivity act3 = getDefTimeDrivenActivity("Envio bomberos", wg, false);
+        Activity act0 = getDefActivity("Recepcion de llamada", wg, false);
+        Activity act1 = getDefActivity("Envio policias", wg, false);
+        Activity act2 = getDefActivity("Envio ambulancias", wg, false);
+        Activity act3 = getDefActivity("Envio bomberos", wg, false);
         
         getDefResource("Operador1", rt);
         getDefResource("Operador2", rt);

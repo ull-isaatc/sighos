@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.examples.WFP;
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.SingleFlow;
@@ -23,8 +23,8 @@ public class WFP01Simulation extends WFPTestSimulationFactory {
         ResourceType rt = getDefResourceType("Cajero");
     	
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
-    	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Verificar cuenta", wg, false);
-    	TimeDrivenActivity act1 = getDefTimeDrivenActivity("Obtener detalles tarjeta", wg, false);
+    	Activity act0 = getDefActivity("Verificar cuenta", wg, false);
+    	Activity act1 = getDefActivity("Obtener detalles tarjeta", wg, false);
         
    
         getDefResource("Cajero1", rt);

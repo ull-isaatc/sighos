@@ -24,7 +24,7 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkItem {
     protected Activity act;
     /** The workgroup which is used to carry out this flow. If <code>null</code>, 
      * the flow has not been carried out. */
-    protected Activity.ActivityWorkGroup executionWG = null;
+    protected ActivityWorkGroup executionWG = null;
     /** List of caught resources */
     protected ArrayDeque<Resource> caughtResources;
 	/** The arrival order of this work item relatively to the rest of work items 
@@ -170,7 +170,7 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkItem {
 	 * @return the workgroup which is used to perform this flow, or <code>null</code>  
      * if the flow has not been carried out.
 	 */
-	public Activity.ActivityWorkGroup getExecutionWG() {
+	public ActivityWorkGroup getExecutionWG() {
 		return executionWG;
 	}
 
@@ -179,7 +179,7 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkItem {
 	 * carry out the activity.
 	 * @param executionWG the workgroup which is used to carry out this flow.
 	 */
-	public void setExecutionWG(Activity.ActivityWorkGroup executionWG) {
+	public void setExecutionWG(ActivityWorkGroup executionWG) {
 		this.executionWG = executionWG;
 	}
 

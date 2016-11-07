@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.core.flow.StructuredDiscriminatorFlow;
@@ -33,9 +33,9 @@ public class WFP09Simulation extends WFPTestSimulationFactory {
 	   	
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
 
-        TimeDrivenActivity act0 = getDefTimeDrivenActivity("Comprobar respiracion", 0, wg, false);
-        TimeDrivenActivity act1 = getDefTimeDrivenActivity("Comprobar pulso", 1, wg, false);
-        TimeDrivenActivity act2 = getDefTimeDrivenActivity("Masaje cardiaco", 2, wg, false);
+        Activity act0 = getDefActivity("Comprobar respiracion", 0, wg, false);
+        Activity act1 = getDefActivity("Comprobar pulso", 1, wg, false);
+        Activity act2 = getDefActivity("Masaje cardiaco", 2, wg, false);
         
         getDefResource("Doctor 1", rt0);        
         getDefResource("Doctor 2", rt0);        

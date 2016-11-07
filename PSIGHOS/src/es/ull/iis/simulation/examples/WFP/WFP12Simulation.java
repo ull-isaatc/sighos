@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
 import es.ull.iis.simulation.core.flow.SingleFlow;
@@ -37,9 +37,9 @@ public class WFP12Simulation extends WFPTestSimulationFactory {
     	ResourceType rt0 = getDefResourceType("Policeman");
     	WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
     	
-    	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Receive Infringment", 1, wg);
-    	TimeDrivenActivity act1 = getDefTimeDrivenActivity("Issue-Infringment-Notice", 5, wg, false);
-    	TimeDrivenActivity act2 = getDefTimeDrivenActivity("Coffee", 1, wg);
+    	Activity act0 = getDefActivity("Receive Infringment", 1, wg);
+    	Activity act1 = getDefActivity("Issue-Infringment-Notice", 5, wg, false);
+    	Activity act2 = getDefActivity("Coffee", 1, wg);
     	
     	for (int i = 0; i < RES; i++)
     		getDefResource("RES" + i, rt0);

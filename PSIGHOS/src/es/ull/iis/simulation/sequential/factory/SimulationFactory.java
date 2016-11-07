@@ -5,19 +5,19 @@ package es.ull.iis.simulation.sequential.factory;
 
 import java.util.EnumSet;
 
+import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.ElementCreator;
 import es.ull.iis.simulation.core.ElementType;
-import es.ull.iis.simulation.core.FlowDrivenActivity;
 import es.ull.iis.simulation.core.Resource;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.SimulationCycle;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity.Modifier;
 import es.ull.iis.simulation.core.TimeDrivenGenerator;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.TimeDrivenActivity.Modifier;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.factory.ConditionFactory;
@@ -25,7 +25,6 @@ import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationUserCode;
 import es.ull.iis.simulation.factory.StandardCompilator;
 import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.iis.function.TimeFunction;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -140,23 +139,18 @@ public class SimulationFactory implements SimulationObjectFactory {
 	}
 
 	@Override
-	public TimeDrivenActivity getTimeDrivenActivityInstance(String description) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.TimeDrivenActivity(simul, description);
+	public Activity getActivityInstance(String description) throws ClassCastException {
+		return new es.ull.iis.simulation.sequential.Activity(simul, description);
 	}
 
 	@Override
-	public TimeDrivenActivity getTimeDrivenActivityInstance(String description, int priority, EnumSet<Modifier> modifiers) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.TimeDrivenActivity(simul, description, priority, modifiers);
+	public Activity getActivityInstance(String description, int priority, EnumSet<Modifier> modifiers) throws ClassCastException {
+		return new es.ull.iis.simulation.sequential.Activity(simul, description, priority, modifiers);
 	}
 
 	@Override
-	public FlowDrivenActivity getFlowDrivenActivityInstance(String description) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.FlowDrivenActivity(simul, description);
-	}
-
-	@Override
-	public FlowDrivenActivity getFlowDrivenActivityInstance(String description, int priority) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.FlowDrivenActivity(simul, description, priority);
+	public Activity getActivityInstance(String description, int priority) throws ClassCastException {
+		return new es.ull.iis.simulation.sequential.Activity(simul, description, priority);
 	}
 
 	@Override

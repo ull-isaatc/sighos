@@ -11,7 +11,7 @@ import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
@@ -46,9 +46,9 @@ public class TestPriorityElement {
 				
 		        ResourceType rt = factory.getResourceTypeInstance("RT0");
 		        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {2});
-				TimeDrivenActivity acts[] = new TimeDrivenActivity[NACT];
+				Activity acts[] = new Activity[NACT];
 				for (int i = 0; i < NACT; i++) {
-					acts[i] = factory.getTimeDrivenActivityInstance("ACT" + i, i / 2, EnumSet.noneOf(TimeDrivenActivity.Modifier.class));
+					acts[i] = factory.getActivityInstance("ACT" + i, i / 2, EnumSet.noneOf(Activity.Modifier.class));
 					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 10), 0, wg);
 				}
 				SimulationPeriodicCycle c1 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 200), 0);

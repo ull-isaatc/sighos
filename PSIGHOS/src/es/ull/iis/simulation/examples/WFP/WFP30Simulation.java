@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.core.flow.StructuredPartialJoinFlow;
@@ -33,8 +33,8 @@ public class WFP30Simulation extends WFPTestSimulationFactory {
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
 
-        TimeDrivenActivity act0 = getDefTimeDrivenActivity("AprobarCuenta", wg, false);
-    	TimeDrivenActivity act1 = getDefTimeDrivenActivity("ExpedirCheque", wg, false);
+        Activity act0 = getDefActivity("AprobarCuenta", wg, false);
+    	Activity act1 = getDefActivity("ExpedirCheque", wg, false);
     	
         getDefResource("Director 1", rt0);        
         getDefResource("Director 2", rt0);

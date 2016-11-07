@@ -11,7 +11,7 @@ import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.factory.SimulationFactory;
@@ -42,7 +42,7 @@ class TestDynamicGenerationExperiment extends Experiment {
 		WorkGroup wg0 = factory.getWorkGroupInstance(new ResourceType [] {rt0, rt1}, new int[] {1,1});
 		
 		Condition cond = factory.getCustomizedConditionInstance(null, "false");
-		TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance("ACT0");
+		Activity act0 = factory.getActivityInstance("ACT0");
 		act0.addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 10.0), 0, wg0, new NotCondition(cond));
 		
 		factory.getElementTypeInstance("ET0");

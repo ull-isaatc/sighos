@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.core.flow.ThreadMergeFlow;
@@ -36,9 +36,9 @@ public class WFP41_42Simulation extends WFPTestSimulationFactory {
     	getDefResource("Ref1", rt1);
     	getDefResource("Ref2", rt1);
 		
-    	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Confirm paper receival", 0, wg0, false);
-    	TimeDrivenActivity act1 = getDefTimeDrivenActivity("Independent Peer review", 6, wg1, false);
-    	TimeDrivenActivity act2 = getDefTimeDrivenActivity("Notify authors", 0, wg0, false);
+    	Activity act0 = getDefActivity("Confirm paper receival", 0, wg0, false);
+    	Activity act1 = getDefActivity("Independent Peer review", 6, wg1, false);
+    	Activity act2 = getDefActivity("Notify authors", 0, wg0, false);
 		
         SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
 

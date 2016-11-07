@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
@@ -25,9 +25,9 @@ public class WFP02Simulation extends WFPTestSimulationFactory {
         ResourceType rt = getDefResourceType("Operador");
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
-    	TimeDrivenActivity act0 = getDefTimeDrivenActivity("Detección alarma", wg);
-    	TimeDrivenActivity act1 = getDefTimeDrivenActivity("Mandar patrulla", wg, false);
-    	TimeDrivenActivity act2 = getDefTimeDrivenActivity("Generar informe", wg, false);
+    	Activity act0 = getDefActivity("Detección alarma", wg);
+    	Activity act1 = getDefActivity("Mandar patrulla", wg, false);
+    	Activity act2 = getDefActivity("Generar informe", wg, false);
    
         getDefResource("Operador1", rt);
         getDefResource("Operador2", rt);

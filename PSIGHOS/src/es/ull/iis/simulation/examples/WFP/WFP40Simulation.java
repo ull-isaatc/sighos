@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.InterleavedRoutingFlow;
 import es.ull.iis.simulation.core.flow.SingleFlow;
@@ -28,10 +28,10 @@ public class WFP40Simulation extends WFPTestSimulationFactory {
     	ResourceType rt = getDefResourceType("Technician");
     	WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
     	
-    	TimeDrivenActivity act0 = getDefTimeDrivenActivity("check oil", wg);
-    	TimeDrivenActivity act1 = getDefTimeDrivenActivity("examine main unit", wg);
-    	TimeDrivenActivity act2 = getDefTimeDrivenActivity("review warranty", wg);
-    	TimeDrivenActivity act3 = getDefTimeDrivenActivity("final check", wg);
+    	Activity act0 = getDefActivity("check oil", wg);
+    	Activity act1 = getDefActivity("examine main unit", wg);
+    	Activity act2 = getDefActivity("review warranty", wg);
+    	Activity act3 = getDefActivity("final check", wg);
     	
     	for (int i = 0; i < RES; i++)
     		getDefResource("RES" + i, rt);

@@ -8,7 +8,7 @@ import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
@@ -37,9 +37,9 @@ class ExperimentProbSel extends Experiment {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "EjProbabilidades", TimeUnit.MINUTE, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		sim = factory.getSimulation();
 
-    	TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance("10 %", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-    	TimeDrivenActivity act1 = factory.getTimeDrivenActivityInstance("30 %", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-    	TimeDrivenActivity act2 = factory.getTimeDrivenActivityInstance("60 %", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+    	Activity act0 = factory.getActivityInstance("10 %", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
+    	Activity act1 = factory.getActivityInstance("30 %", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
+    	Activity act2 = factory.getActivityInstance("60 %", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
         ResourceType rt = factory.getResourceTypeInstance("Empleado");
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});

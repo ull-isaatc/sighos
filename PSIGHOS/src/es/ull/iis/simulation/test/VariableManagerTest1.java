@@ -4,7 +4,7 @@ import java.util.EnumSet;
 
 import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.factory.SimulationFactory;
@@ -33,7 +33,7 @@ class ExperimentTest1 extends Experiment {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Ej", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		Simulation sim = factory.getSimulation();
 
-    	TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance("Verificar cuenta", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
+    	Activity act0 = factory.getActivityInstance("Verificar cuenta", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
         
     	sim.putVar("Coste total", new IntVariable(0));
     	act0.putVar("Coste", new IntVariable(200));

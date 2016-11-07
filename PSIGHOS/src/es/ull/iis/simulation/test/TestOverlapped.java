@@ -9,7 +9,7 @@ import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
@@ -24,7 +24,7 @@ import es.ull.iis.simulation.inforeceiver.StdInfoView;
  * 
  */
 class ExpOverlapped extends Experiment {
-	final static SimulationFactory.SimulationType simType = SimulationType.PARALLEL;
+	final static SimulationFactory.SimulationType simType = SimulationType.SEQUENTIAL;
 	final static TimeUnit unit = TimeUnit.MINUTE;
     static final int NDAYS = 1;
     static final int NTESTS = 2;
@@ -41,9 +41,9 @@ class ExpOverlapped extends Experiment {
 		Simulation sim = factory.getSimulation();
 
         // PASO 1: Inicializo las Activityes de las que se compone
-//    	TimeDrivenActivity actDummy = factory.getTimeDrivenActivityInstance("Dummy");
-    	TimeDrivenActivity actSangre = factory.getTimeDrivenActivityInstance("Análisis de sangre");
-    	TimeDrivenActivity actOrina = factory.getTimeDrivenActivityInstance("Análisis de orina");
+//    	Activity actDummy = factory.getActivityInstance("Dummy");
+    	Activity actSangre = factory.getActivityInstance("Análisis de sangre");
+    	Activity actOrina = factory.getActivityInstance("Análisis de orina");
  
         // PASO 2: Inicializo las clases de recursos
         ResourceType crSangre = factory.getResourceTypeInstance("Máquina Análisis Sangre");

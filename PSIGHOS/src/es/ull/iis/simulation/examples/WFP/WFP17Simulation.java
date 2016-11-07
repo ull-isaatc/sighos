@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.InterleavedParallelRoutingFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
@@ -41,13 +40,13 @@ public class WFP17Simulation extends WFPTestSimulationFactory {
     	WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
 
     	ArrayList<Activity> acts = new ArrayList<Activity>();
-    	acts.add(getDefTimeDrivenActivity("A", wg));
-    	acts.add(getDefTimeDrivenActivity("B", wg));
-    	acts.add(getDefTimeDrivenActivity("C", wg));
-    	acts.add(getDefTimeDrivenActivity("D", wg));
-    	acts.add(getDefTimeDrivenActivity("E", wg));
-    	acts.add(getDefTimeDrivenActivity("F", wg));
-    	TimeDrivenActivity finalAct = getDefTimeDrivenActivity("G", wg);
+    	acts.add(getDefActivity("A", wg));
+    	acts.add(getDefActivity("B", wg));
+    	acts.add(getDefActivity("C", wg));
+    	acts.add(getDefActivity("D", wg));
+    	acts.add(getDefActivity("E", wg));
+    	acts.add(getDefActivity("F", wg));
+    	Activity finalAct = getDefActivity("G", wg);
     	
     	for (int i = 0; i < RES; i++)
     		getDefResource("RES" + i, rt);

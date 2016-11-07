@@ -11,7 +11,7 @@ import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
@@ -28,7 +28,7 @@ import es.ull.iis.simulation.inforeceiver.StdInfoView;
  */
 public class TestInterruptibleActivities {
 	static final TimeUnit unit = TimeUnit.MINUTE;
-	static SimulationFactory.SimulationType simType = SimulationType.PARALLEL;
+	static SimulationFactory.SimulationType simType = SimulationType.SEQUENTIAL;
 	static final int NACT = 1;
 	static final int NELEMT = 1;
 	static final int NELEM = 2;
@@ -49,9 +49,9 @@ public class TestInterruptibleActivities {
 		        ResourceType rt = factory.getResourceTypeInstance("RT0");
 		        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
 
-				TimeDrivenActivity acts[] = new TimeDrivenActivity[NACT];
+				Activity acts[] = new Activity[NACT];
 				for (int i = 0; i < NACT; i++) {
-					acts[i] = factory.getTimeDrivenActivityInstance("ACT" + i, i / 2, EnumSet.of(TimeDrivenActivity.Modifier.INTERRUPTIBLE));
+					acts[i] = factory.getActivityInstance("ACT" + i, i / 2, EnumSet.of(Activity.Modifier.INTERRUPTIBLE));
 					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 101), 0, wg);
 				}
 				SimulationPeriodicCycle c1 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 200), 0);

@@ -26,7 +26,7 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkItem {
     private Activity act;
     /** The workgroup which is used to carry out this flow. If <code>null</code>, 
      * the flow has not been carried out. */
-    private Activity.ActivityWorkGroup executionWG = null;
+    private ActivityWorkGroup executionWG = null;
     /** List of caught resources */
     final private ArrayDeque<Resource> caughtResources = new ArrayDeque<Resource>();
     // Avoiding deadlocks (time-overlapped resources)
@@ -163,7 +163,7 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkItem {
 	}
 	
 	@Override
-	public Activity.ActivityWorkGroup getExecutionWG() {
+	public ActivityWorkGroup getExecutionWG() {
 		return executionWG;
 	}
 
@@ -172,7 +172,7 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkItem {
 	 * carry out the activity.
 	 * @param executionWG the workgroup which is used to carry out this flow.
 	 */
-	public void setExecutionWG(Activity.ActivityWorkGroup executionWG) {
+	public void setExecutionWG(ActivityWorkGroup executionWG) {
 		this.executionWG = executionWG;
 	}
 

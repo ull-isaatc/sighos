@@ -2,11 +2,19 @@ package es.ull.iis.simulation.sequential;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.Set;
 
+import es.ull.iis.function.TimeFunction;
+import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.info.ElementActionInfo;
+import es.ull.iis.simulation.sequential.flow.BasicFlow;
+import es.ull.iis.simulation.sequential.flow.InitializerFlow;
 import es.ull.iis.util.PrioritizedTable;
+import es.ull.iis.util.RandomPermutation;
 
 /**
  * A task which could be carried out by an element. An activity is characterized by its priority
@@ -21,12 +29,44 @@ import es.ull.iis.util.PrioritizedTable;
  * available. If the activity is feasible, the element "carries out" the activity, that is, 
  * catches the resources needed to perform the activity. Whenever it is determined that the 
  * activity has finished, the element releases the resources previously caught.<p>
- * An activity can also defined cancellation periods for each one of the resource types it uses. 
+ * An activity can also define cancellation periods for each one of the resource types it uses. 
  * If an element takes a resource belonging to one of the cancellation periods of the activity, this
  * resource can't be used during a period of time after the activity finishes.
+ * FIXME: Complete and rewrite (original description for TimeDrivenActivities)
+ *  A task which could be carried out by an element in a specified time. This kind of activities
+ * can be characterized by a priority value, presentiality, interruptibility, and a set of 
+ * workgropus. Each workgroup represents a combination of resource types required for carrying out 
+ * the activity, and the duration of the activity when performed with this workgroup.<p>
+ * By default, time-driven activities are presential, that is, an element carrying out this 
+ * activity can't perform simultaneously any other presential activity; and ininterruptible, i.e., 
+ * once started, the activity keeps its resources until it's finished, even if the resources become 
+ * unavailable while the activity is being performed. This two characteristics are customizable by 
+ * means of the <code>Modifier</code> enum type. An activity can be <code>NONPRESENTIAL</code>, when 
+ * the element can perform other activities while it's performing this one; and <code>INTERRUPTIBLE</code>, 
+ * when the activity can be interrupted, and later continued, if the resources become unavailable 
+ * while the activity is being performed.
+
  * @author Carlos Martín Galán
  */
-public abstract class Activity extends TimeStampedSimulationObject implements es.ull.iis.simulation.core.Activity {
+public class Activity extends TimeStampedSimulationObject implements es.ull.iis.simulation.core.Activity {
+	/** 
+	 * An artificially created final node. This flow informs the flow-driven
+	 * work groups that they have being finalized.
+	 */
+	private BasicFlow virtualFinalFlow = new BasicFlow(simul) {
+		public void addPredecessor(es.ull.iis.simulation.core.flow.Flow newFlow) {}
+
+		public void request(WorkThread wThread) {
+			wThread.notifyEnd();
+		}
+
+		public void link(es.ull.iis.simulation.core.flow.Flow successor) {}
+
+		public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow parent, Set<es.ull.iis.simulation.core.flow.Flow> visited) {}
+		
+	};
+	/** The set of modifiers of this activity. */
+    protected final EnumSet<Modifier> modifiers;
     /** Priority. The lowest the value, the highest the priority */
     protected int priority = 0;
     /** A brief description of the activity */
@@ -52,7 +92,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
      * @param description A short text describing this Activity.
      */
     public Activity(Simulation simul, String description) {
-        this(simul, description, 0);
+        this(simul, description, 0, EnumSet.noneOf(Modifier.class));
     }
 
     /**
@@ -62,12 +102,34 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
      * @param priority Activity's priority.
      */
     public Activity(Simulation simul, String description, int priority) {
+        this(simul, description, priority, EnumSet.noneOf(Modifier.class));
+    }
+
+    /**
+     * Creates a new activity with the highest priority and customized behavior.
+     * @param simul Simulation which this activity is attached to.
+     * @param description A short text describing this Activity.
+     * @param modifiers Indicates if the activity has special characteristics. 
+     */
+    public Activity(Simulation simul, String description, EnumSet<Modifier> modifiers) {
+        this(simul, description, 0, modifiers);
+    }
+
+    /**
+     * Creates a new activity with the specified priority and customized behavior.
+     * @param simul Simulation which this activity is attached to.
+     * @param description A short text describing this Activity.
+     * @param priority Activity's priority.
+     * @param modifiers Indicates if the activity has special characteristics. 
+     */
+    public Activity(Simulation simul, String description, int priority, EnumSet<Modifier> modifiers) {
         super(simul.getNextActivityId(), simul);
         this.description = description;
         this.priority = priority;
         workGroupTable = new PrioritizedTable<ActivityWorkGroup>();
         simul.add(this);
 		cancellationList = new ArrayList<CancelListEntry>();
+        this.modifiers = modifiers;
     }
 
     /*
@@ -104,17 +166,31 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
         manager.add(this);
     }
     
-    public boolean isInterruptible() {
-    	return false;
-    }
-    
+	@Override
+	public EnumSet<Modifier> getModifiers() {
+		return modifiers;
+	}
+	
 	/** 
 	 * Returns <tt>true</tt> if the activity is non presential, i.e., an element can perform other 
 	 * activities at the same time. 
 	 * @return <tt>True</tt> if the activity is non presential, <tt>false</tt> in other case.
 	 */
-	public boolean isNonPresential() {
-		return true;
+    public boolean isNonPresential() {
+        return modifiers.contains(Modifier.NONPRESENTIAL);
+    }
+
+    /**
+     * Returns <tt>true</tt> if this activity is interruptible, i.e., the activity is
+     * suspended when any of the the resources taken to perform the activity finalize 
+     * their availability. The activity can be resumed when there are available resources 
+     * again (<b>but not necessarily the same resources</b>). 
+     * <p>By default, an activity is not interruptible.  
+     * @return Always <tt>false</tt>. Subclasses overriding this method must change the 
+     * default behavior. 
+     */
+	public boolean isInterruptible() {
+		return modifiers.contains(Modifier.INTERRUPTIBLE);
 	}
 	
 	/**
@@ -125,7 +201,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
      */
     public int addWorkGroup(int priority, WorkGroup wg) {
     	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(wgId, priority, wg));
+        workGroupTable.add(new ActivityWorkGroup(this, wgId, priority, wg));
         return wgId;
     }
     
@@ -139,7 +215,7 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
      */
     public int addWorkGroup(int priority, WorkGroup wg, Condition cond) {
     	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(wgId, priority, wg, cond));
+        workGroupTable.add(new ActivityWorkGroup(this, wgId, priority, wg, cond));
         return wgId;
     }
     
@@ -164,6 +240,60 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
         return addWorkGroup(0, wg, cond);
     }
 
+	@Override
+    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {
+		TimeDrivenActivityWorkGroup aWg = new TimeDrivenActivityWorkGroup(this, workGroupTable.size(), duration, priority, (WorkGroup)wg, cond); 
+        workGroupTable.add(aWg);
+        return aWg;
+    }
+    
+	@Override
+    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, int priority, es.ull.iis.simulation.core.WorkGroup wg) {
+		return addWorkGroup(duration, priority, (WorkGroup)wg, new TrueCondition());
+    }
+    
+	@Override
+    public TimeDrivenActivityWorkGroup addWorkGroup(long duration, int priority, es.ull.iis.simulation.core.WorkGroup wg) {
+        return addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", duration), priority, wg);
+    }
+    
+	@Override
+    public TimeDrivenActivityWorkGroup addWorkGroup(long duration, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
+        return addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", duration), priority, wg, cond);
+    }
+
+	@Override
+    public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.iis.simulation.core.flow.InitializerFlow initFlow, 
+    		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {
+    	FlowDrivenActivityWorkGroup aWg = new FlowDrivenActivityWorkGroup(this, workGroupTable.size(), initFlow, finalFlow, priority, (WorkGroup)wg, cond);
+		workGroupTable.add(aWg);
+		// Activities with Flow-driven workgroups cannot be presential nor interruptible
+		modifiers.add(Modifier.NONPRESENTIAL);
+		if (!modifiers.contains(Modifier.INTERRUPTIBLE)) {
+			error("Trying to add a flow-driven workgroup to an interruptible activity. This attribute will be overriden to ensure proper functioning");
+			modifiers.remove(Modifier.INTERRUPTIBLE);
+		}
+		return aWg;
+    }
+    
+	@Override
+    public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.iis.simulation.core.flow.InitializerFlow initFlow, 
+    		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, int priority, es.ull.iis.simulation.core.WorkGroup wg) {
+    	return addWorkGroup(initFlow, finalFlow, priority, wg, new TrueCondition());
+    }
+    
+	@Override
+    public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
+    		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, es.ull.iis.simulation.core.WorkGroup wg) {    	
+        return addWorkGroup(initialFlow, finalFlow, 0, wg);
+    }
+    
+	@Override
+    public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
+    		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
+        return addWorkGroup(initialFlow, finalFlow, 0, wg, cond);
+    }
+    
     /**
      * Returns an iterator over the workgroups of this activity.
      * @return An iterator over the workgroups that can perform this activity.
@@ -206,6 +336,8 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
             if (solution != null) {
                 wi.setExecutionWG(wg);
         		debug("Can be carried out by\t" + wi.getElement().getIdentifier() + "\t" + wi.getExecutionWG());
+                if (!isNonPresential())
+                	wi.getElement().setCurrent(wi);
                 return solution;
             }            
         }
@@ -286,10 +418,15 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	
 	/**
 	 * Checks if the element is valid to perform this activity.
+	 * An element is valid to perform an activity is it's not currently carrying
+	 * out another activity or this activity is non presential.
 	 * @param wItem Work item requesting this activity
 	 * @return True if the element is valid, false in other case.
 	 */
-	public abstract boolean validElement(WorkItem wItem);
+	public boolean validElement(WorkItem wItem) {
+		return (wItem.getElement().getCurrent() == null || isNonPresential());
+	}
+
 	
 	/**
 	 * Requests this activity. Checks if this activity is feasible by the
@@ -297,226 +434,132 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 	 * is called; in other case, the work item is added to this activity's queue.
 	 * @param wItem Work Item requesting this activity.
 	 */
-	public abstract void request(WorkItem wItem);
+	public void request(WorkItem wItem) {
+		final Element elem = wItem.getElement();
+		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.REQACT, elem.getTs()));
+		if (elem.isDebugEnabled())
+			elem.debug("Requests\t" + this + "\t" + description);
+		// If the element is not performing a presential activity yet or the
+		// activity to be requested is non presential
+		if (validElement(wItem)) {
+			// There are enough resources to perform the activity
+			final ArrayDeque<Resource> solution = isFeasible(wItem); 
+			if (solution != null) {
+				carryOut(wItem, solution);
+			}
+			else {
+				queueAdd(wItem); // The element is introduced in the queue
+			}
+		} else {
+			queueAdd(wItem); // The element is introduced in the queue
+		}
+	
+	}
 
 	/**
-	 * Catches the resources required to carry out this activity.
+	 * Catches the resources required to carry out this activity. In case it used a time-driven workgroup,
+	 * updates the element's timestamp, catch the corresponding resources and produces a 
+	 * <code>FinishFlowEvent</code>. In case it used a flow-driven workgroup, catches the resources required 
+	 * and launches the initial flow.
 	 * @param wItem Work item requesting this activity
 	 */
-	public abstract void carryOut(WorkItem wItem, ArrayDeque<Resource> solution);
+	public void carryOut(WorkItem wItem, ArrayDeque<Resource> solution) {
+		final Element elem = wItem.getElement();
+		wItem.getFlow().afterStart(elem);
+		long auxTs = wItem.catchResources(solution);
+		// Before this line, the code is common for time- and flow- driven WGs
+		
+		if (wItem.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
+			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
+			elem.debug("Starts\t" + this + "\t" + description);
+			InitializerFlow initialFlow = ((FlowDrivenActivityWorkGroup)wItem.getExecutionWG()).getInitialFlow();
+			wItem.getWorkThread().getElement().addRequestEvent(initialFlow, wItem.getWorkThread().getInstanceDescendantWorkThread(initialFlow));
+		}
+		else if (wItem.getExecutionWG() instanceof TimeDrivenActivityWorkGroup) {
+			// The first time the activity is carried out (useful only for interruptible activities)
+			if (wItem.getTimeLeft() == -1) {
+				wItem.setTimeLeft(((TimeDrivenActivityWorkGroup)wItem.getExecutionWG()).getDurationSample(elem));
+				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
+				elem.debug("Starts\t" + this + "\t" + description);			
+			}
+			else {
+				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.RESACT, elem.getTs()));
+				elem.debug("Continues\t" + this + "\t" + description);						
+			}
+			long finishTs = elem.getTs() + wItem.getTimeLeft();
+			// The required time for finishing the activity is reduced (useful only for interruptible activities)
+			if (isInterruptible() && (finishTs - auxTs > 0.0))
+				wItem.setTimeLeft(finishTs - auxTs);				
+			else {
+				auxTs = finishTs;
+				wItem.setTimeLeft(0);
+			}
+			elem.addEvent(elem.new FinishFlowEvent(auxTs, wItem.getFlow(), wItem.getWorkThread()));
+		}
+		else {
+			elem.error("Trying to carry out unexpected type of workgroup");
+		}
+	}
 
 	/**
 	 * Releases the resources required to carry out this activity.
 	 * @param wItem Work item which requested this activity
 	 * @return True if this activity was actually finished; false in other case
 	 */
-	public abstract boolean finish(WorkItem wItem);
+	public boolean finish(WorkItem wItem) {
+		final Element elem = wItem.getElement();
+
+		final ArrayList<ActivityManager> amList = wItem.releaseCaughtResources();
+
+		if (!isNonPresential())
+			elem.setCurrent(null);
+
+		final int[] order = RandomPermutation.nextPermutation(amList.size());
+		for (int ind : order) {
+			ActivityManager am = amList.get(ind);
+			// FIXME: Esto debería ser un evento por cada AM
+			am.availableResource();
+		}
+
+		// FIXME: Esto sustituye a lo anterior para que sea determinista
+//		for (ActivityManager am : amList)
+//			am.availableResource();
+
+		if (wItem.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
+			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
+			if (elem.isDebugEnabled())
+				elem.debug("Finishes\t" + this + "\t" + description);
+	        return true;
+		}
+		else if (wItem.getExecutionWG() instanceof TimeDrivenActivityWorkGroup) {
+			// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
+			if (wItem.getTimeLeft() <= 0.0) {
+				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
+				if (elem.isDebugEnabled())
+					elem.debug("Finishes\t" + this + "\t" + description);
+				// Checks if there are pending activities that haven't noticed the
+				// element availability
+				if (!isNonPresential())
+					elem.addAvailableElementEvents();
+				return true;
+			}
+			// Added the condition(Lancaster compatibility), even when it should be unnecessary.
+			else {
+				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.INTACT, elem.getTs()));
+				if (elem.isDebugEnabled())
+					elem.debug("Finishes part of \t" + this + "\t" + description + "\t" + wItem.getTimeLeft());				
+				// The element is introduced in the queue
+				queueAdd(wItem); 
+			}
+		}
+		return false;		
+	}
 	
 	@Override
 	public int getWorkGroupSize() {
 		return workGroupTable.size();
 	}
 	
-	/**
-	 * A set of resources needed for carrying out an activity. A workgroup (WG) consists on a 
-	 * set of (resource type, #needed resources) pairs, a condition which determines if the 
-	 * workgroup can be used or not, and the priority of the workgroup inside the activity.
-	 * @author Iván Castilla Rodríguez
-	 */
-	public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulation.core.ActivityWorkGroup, Comparable<ActivityWorkGroup> {
-	    /** Workgroup's identifier */
-		protected int id;
-		/** Priority of the workgroup */
-	    protected int priority = 0;
-	    /** Availability condition */
-	    protected Condition cond;
-	    private final String idString; 
-		
-	    /**
-	     * Creates a new instance of WorkGroup which contains the same resource types
-	     * than an already existing one.
-	     * @param id Identifier of this workgroup.
-	     * @param priority Priority of the workgroup.
-	     * @param wg The original workgroup
-	     */    
-	    protected ActivityWorkGroup(int id, int priority, WorkGroup wg) {
-	        this(id, priority, wg, new TrueCondition());
-	    }
-	    
-	    /**
-	     * Creates a new instance of WorkGroup which contains the same resource types
-	     * than an already existing one.
-	     * @param id Identifier of this workgroup.
-	     * @param priority Priority of the workgroup.
-	     * @param wg The original workgroup
-	     * @param cond  Availability condition
-	     */    
-	    protected ActivityWorkGroup(int id, int priority, WorkGroup wg, Condition cond) {
-	        super(wg.resourceTypes, wg.needed);
-	        this.id = id;
-	        this.priority = priority;
-	        this.cond = cond;
-	        this.idString = new String("(" + Activity.this + ")" + getDescription());
-	    }
-
-
-	    /**
-	     * Returns the activity this WG belongs to.
-	     * @return Activity this WG belongs to.
-	     */    
-	    protected Activity getActivity() {
-	        return Activity.this;
-	    }
-	    
-	    /**
-	     * Getter for property priority.
-	     * @return Value of property priority.
-	     */
-	    public int getPriority() {
-	        return priority;
-	    }
-	    
-	    /**
-	     * Checks if there are enough resources to carry out an activity by using this workgroup.   
-	     * The "potential" available resources are booked by the element requesting the activity. 
-	     * If there are less available resources than needed resources for any resource type, the 
-	     * activity can not be carried out, and all the "books" are removed.
-	     * Possible conflicts between resources inside the activity are solved by invoking a
-	     * branch-and-bound resource distribution algorithm. 
-	     * @param wi Work Item trying to carry out the activity with this workgroup 
-	     * @return The set of resources which compound the solution. Null if there are not enough
-	     * resources to carry out the activity by using this workgroup.
-	     */
-	    protected ArrayDeque<Resource> isFeasible(WorkItem wi) {
-
-	    	if (!cond.check(wi.getElement()))
-	    		return null;
-
-	    	int ned[] = needed.clone();
-	    	if (ned.length == 0) // Infinite resources
-	    		return new ArrayDeque<Resource>(); 
-	        int []pos = {0, -1}; // "Start" position
-	        
-	        int totalRes = 0;
-	        for (int n : ned)
-	            totalRes += n;
-	        ArrayDeque<Resource> solution = new ArrayDeque<Resource>(totalRes);
-	        // B&B algorithm for finding a solution
-	        if (findSolution(solution, pos, ned, wi))
-	            return solution;
-	        return null;
-	    }
-	    
-	    /**
-	     * Returns the position [ResourceType, Resource] of the next valid solution. The initial position
-	     * <code>pos</code> is supposed as correct.
-	     * @param pos Initial position [ResourceType, Resource].
-	     * @param nec Resource needed.
-	     * @return [ResourceType, Resource] where the next valid solution can be found.
-	     */
-	    private int []searchNext(int[] pos, int []nec, WorkItem wi) {
-	        int []aux = new int[2];
-	        aux[0] = pos[0];
-	        aux[1] = pos[1];
-	        // Searches a resource type that requires resources
-	        while (nec[aux[0]] == 0) {
-	            aux[0]++;
-	            // The second index is reset
-	            aux[1] = -1;
-	            // No more resources needed ==> SOLUTION
-	            if (aux[0] == resourceTypes.length) {
-	                return aux;
-	            }
-	        }
-	        // Takes the first resource type
-	        ResourceType rt = resourceTypes[aux[0]];
-	        // Searches the NEXT available resource
-	        aux[1] = rt.getNextAvailableResource(aux[1] + 1, wi);
-
-	        // This resource type don't have enough available resources
-	        if (aux[1] == -1)
-	            return null;
-	        return aux;
-	    }
-
-	    /**
-	     * Marks a resource as belonging to the solution
-	     * @param pos Position [ResourceType, Resource] of the resource
-	     */
-	    private void mark(int []pos, ArrayDeque<Resource> solution) {
-	        Resource res = resourceTypes[pos[0]].getResource(pos[1]);
-	        res.setCurrentResourceType(resourceTypes[pos[0]]);
-	        solution.push(res);
-	    }
-	    
-	    /**
-	     * Removes the mark of a resource as belonging to the solution
-	     * @param pos Position [ResourceType, Resource] of the resource
-	     */
-	    private void unmark(int []pos, ArrayDeque<Resource> solution) {
-	        Resource res = resourceTypes[pos[0]].getResource(pos[1]);
-	        res.setCurrentResourceType(null);
-	        solution.pop();
-	    }
-
-	    /**
-	     * Makes a depth first search looking for a solution.
-	     * @param pos Position to look for a solution [ResourceType, Resource] 
-	     * @param ned Resources needed
-	     * @return True if a valid solution exists. False in other case.
-	     */
-	    protected boolean findSolution(ArrayDeque<Resource> solution, int []pos, int []ned, WorkItem wi) {
-	        pos = searchNext(pos, ned, wi);
-	        // No solution
-	        if (pos == null)
-	            return false;
-	        // No more elements needed => SOLUTION
-	        if (pos[0] == resourceTypes.length)
-	            return true;
-	        // This resource belongs to the solution...
-	        mark(pos, solution);
-	        ned[pos[0]]--;
-	        // ... the search continues
-            if (findSolution(solution, pos, ned, wi))
-                return true;
-	        // There's no solution with this resource. Try without it
-	        unmark(pos, solution);
-	        ned[pos[0]]++;
-	        // ... and the search continues
-	        return findSolution(solution, pos, ned, wi);        
-	    }
-	    
-		public int getIdentifier() {
-			return id;
-		}
-
-		public String getDescription() {
-			StringBuilder str = new StringBuilder("WG" + id);
-			for (int i = 0; i < resourceTypes.length; i++)
-				str.append(" [" + resourceTypes[i] + "," + needed[i] + "]");
-			return str.toString();
-		}
-
-	    @Override
-	    public String toString() {
-	    	return idString;
-	    }
-
-		public int compareTo(ActivityWorkGroup arg0) {
-			if (id < arg0.id)
-				return -1;
-			if (id > arg0.id)
-				return 1;
-			return 0;
-		}
-
-		@Override
-		public Condition getCondition() {
-			return cond;
-		}
-
-	}
-
 	public long getLastStartTs() {
 		return lastStartTs;
 	}
@@ -530,4 +573,8 @@ public abstract class Activity extends TimeStampedSimulationObject implements es
 		this.lastFinishTs = lastFinishTs;
 	}
 
+	protected BasicFlow getVirtualFinalFlow() {
+		return virtualFinalFlow;
+	}
+	
 }

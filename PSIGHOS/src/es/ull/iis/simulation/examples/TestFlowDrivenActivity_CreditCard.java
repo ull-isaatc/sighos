@@ -3,12 +3,11 @@ import java.util.EnumSet;
 
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.core.FlowDrivenActivity;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.TimeDrivenActivity;
+import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
@@ -27,7 +26,7 @@ class ExperimentFDAE1 extends Experiment {
     static final int NDAYS = 1;
 	static final double PERIOD = 1040.0;
 	static final TimeUnit unit = TimeUnit.MINUTE;
-	static SimulationFactory.SimulationType simType = SimulationType.PARALLEL;
+	static SimulationFactory.SimulationType simType = SimulationType.SEQUENTIAL;
 	
 	public ExperimentFDAE1() {
 		super("Bank", NEXP);
@@ -38,9 +37,9 @@ class ExperimentFDAE1 extends Experiment {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "ExCreaditCard", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		sim = factory.getSimulation();
 		
-    	TimeDrivenActivity act0 = factory.getTimeDrivenActivityInstance("Verify account", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-    	TimeDrivenActivity act1 = factory.getTimeDrivenActivityInstance("Get card details", 0, EnumSet.of(TimeDrivenActivity.Modifier.NONPRESENTIAL));
-    	FlowDrivenActivity act2 = factory.getFlowDrivenActivityInstance("Process completed");
+    	Activity act0 = factory.getActivityInstance("Verify account", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
+    	Activity act1 = factory.getActivityInstance("Get card details", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
+    	Activity act2 = factory.getActivityInstance("Process completed");
         ResourceType rt0 = factory.getResourceTypeInstance("Cashier");
         ResourceType rt1 = factory.getResourceTypeInstance("Director");
         
