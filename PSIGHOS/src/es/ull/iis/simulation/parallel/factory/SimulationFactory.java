@@ -33,11 +33,8 @@ public class SimulationFactory implements SimulationObjectFactory {
 	private final static String workingPkg = Simulation.class.getPackage().getName();
 	private Simulation simul;
 	private int rtId;
-	private int resId;
-	private int actId;
 	private int flowId;
 	private int creId;
-	private int etId;
 	private int condId;
 
 	/**
@@ -103,30 +100,30 @@ public class SimulationFactory implements SimulationObjectFactory {
 
 	@Override
 	public ElementType getElementTypeInstance(String description) throws ClassCastException {
-		return new es.ull.iis.simulation.parallel.ElementType(etId++, simul, description);
+		return new es.ull.iis.simulation.parallel.ElementType(simul, description);
 	}
 
 	@Override
 	public ElementType getElementTypeInstance(String description, int priority) throws ClassCastException {
-		return new es.ull.iis.simulation.parallel.ElementType(etId++, simul, description, priority);
+		return new es.ull.iis.simulation.parallel.ElementType(simul, description, priority);
 	}
 
 	@Override
 	public Resource getResourceInstance(String description) throws ClassCastException {
-		return new es.ull.iis.simulation.parallel.Resource(resId++, simul, description);
+		return new es.ull.iis.simulation.parallel.Resource(simul, description);
 	}
 
 	@Override
 	public ResourceType getResourceTypeInstance(String description) throws ClassCastException {
-		return new es.ull.iis.simulation.parallel.ResourceType(rtId++, simul, description);
+		return new es.ull.iis.simulation.parallel.ResourceType(simul, description);
 	}
 
 	@Override
 	public ResourceType getResourceTypeInstance(String description, SimulationUserCode userMethods) throws ClassCastException {
 		// Prepare the constructor call
-		String constructorStr = "(int id, Simulation simul, String description) {super(id, simul, description);}";
+		String constructorStr = "(Simulation simul, String description) {super(simul, description);}";
 		// Prepare the new params.
-		Object obj = StandardCompilator.getInstance(workingPkg, "ResourceType", rtId, constructorStr, userMethods, rtId++, simul, description);
+		Object obj = StandardCompilator.getInstance(workingPkg, "ResourceType", rtId++, constructorStr, userMethods, simul, description);
 		if (obj != null)
 			return (ResourceType)obj;
 		return null;
@@ -134,18 +131,18 @@ public class SimulationFactory implements SimulationObjectFactory {
 
 	@Override
 	public Activity getActivityInstance(String description) throws ClassCastException {
-		return new es.ull.iis.simulation.parallel.Activity(actId++, simul, description);
+		return new es.ull.iis.simulation.parallel.Activity(simul, description);
 	}
 
 	@Override
 	public Activity getActivityInstance(String description, int priority,
 			EnumSet<es.ull.iis.simulation.core.Activity.Modifier> modifiers) throws ClassCastException {
-		return new es.ull.iis.simulation.parallel.Activity(actId++, simul, description, priority, modifiers);
+		return new es.ull.iis.simulation.parallel.Activity(simul, description, priority, modifiers);
 	}
 
 	@Override
 	public Activity getActivityInstance(String description, int priority) throws ClassCastException {
-		return new es.ull.iis.simulation.parallel.Activity(actId++, simul, description, priority);
+		return new es.ull.iis.simulation.parallel.Activity(simul, description, priority);
 	}
 
 	@Override

@@ -26,7 +26,20 @@ import es.ull.iis.util.Output;
  * {@link BasicElement Basic elements}.
  * @author Iván Castilla Rodríguez
  */
-public class Simulation extends es.ull.iis.simulation.core.Simulation {	
+public class Simulation extends es.ull.iis.simulation.core.Simulation {
+	/** The identifier to be assigned to the next resource */ 
+	protected int nextResourceId = 0;
+	/** The identifier to be assigned to the next activity */ 
+	protected int nextActivityId = 0;
+	/** The identifier to be assigned to the next resource type */ 
+	protected int nextResourceTypeId = 0;
+	/** The identifier to be assigned to the next element type */ 
+	protected int nextElementTypeId = 0;
+	/** The identifier to be assigned to the next flow */ 
+	protected AtomicInteger nextFlowId = new AtomicInteger(0);
+	/** The identifier to be assigned to the next element */ 
+	protected AtomicInteger nextElementId = new AtomicInteger(0);
+
 	/** List of resources present in the simulation. */
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
 	/** List of element generators of the simulation. */
@@ -214,6 +227,53 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
         return (futureEventList.remove(e) != null);
     }
     
+	/**
+	 * @return the nextResourceId
+	 */
+	protected int getNextResourceId() {
+		return nextResourceId++;
+	}
+
+
+	/**
+	 * @return the nextActivityId
+	 */
+	protected int getNextActivityId() {
+		return nextActivityId++;
+	}
+
+
+	/**
+	 * @return the nextResourceTypeId
+	 */
+	protected int getNextResourceTypeId() {
+		return nextResourceTypeId++;
+	}
+
+
+	/**
+	 * @return the nextElementTypeId
+	 */
+	protected int getNextElementTypeId() {
+		return nextElementTypeId++;
+	}
+
+
+	/**
+	 * @return the nextFlowId
+	 */
+	public int getNextFlowId() {
+		return nextFlowId.getAndIncrement();
+	}
+
+
+	/**
+	 * @return the nextElementId
+	 */
+	protected int getNextElementId() {
+		return nextElementId.getAndIncrement();
+	}
+
 	private class BarrierAction implements Runnable {
 		@Override
 		public void run() {

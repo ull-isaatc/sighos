@@ -21,12 +21,11 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 
     /**
      * Creates a new resource type.
-     * @param id Resource type's identifier
      * @param simul Associated simulation
      * @param description A short text describing this resource type.
      */
-	public ResourceType(int id, Simulation simul, String description) {
-		super(id, simul);
+	public ResourceType(Simulation simul, String description) {
+		super(simul.getNextResourceTypeId(), simul);
         this.description = description;
         simul.add(this);
 	}

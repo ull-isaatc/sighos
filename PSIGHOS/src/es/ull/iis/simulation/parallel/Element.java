@@ -41,8 +41,8 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 * @param et Element type this element belongs to
 	 * @param flow First step of this element's flow
 	 */
-	public Element(int id, Simulation simul, ElementType et, InitializerFlow flow) {
-		super(id, simul);
+	public Element(Simulation simul, ElementType et, InitializerFlow flow) {
+		super(simul.getNextElementId(), simul);
 		this.elementType = et;
 		this.initialFlow = flow;
 		wThread = WorkThread.getInstanceMainWorkThread(this);

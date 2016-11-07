@@ -82,46 +82,42 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 
 	/**
      * Creates a new activity with the highest priority.
-     * @param id Activity's identifier
      * @param simul The {@link Simulation} where this activity is used
      * @param description A short text describing this activity
      */
-    public Activity(int id, Simulation simul, String description) {
-        this(id, simul, description, 0, EnumSet.noneOf(Modifier.class));
+    public Activity(Simulation simul, String description) {
+        this(simul, description, 0, EnumSet.noneOf(Modifier.class));
     }
 
     /**
      * Creates a new activity.
-     * @param id Activity's identifier
      * @param simul The {@link Simulation} where this activity is used
      * @param description A short text describing this activity
      * @param priority Activity's priority.
      */
-    public Activity(int id, Simulation simul, String description, int priority) {
-        this(id, simul, description, priority, EnumSet.noneOf(Modifier.class));
+    public Activity(Simulation simul, String description, int priority) {
+        this(simul, description, priority, EnumSet.noneOf(Modifier.class));
     }
 
     /**
      * Creates a new activity with the highest priority and customized behavior.
-     * @param id Activity's identifier.
      * @param simul Simulation which this activity is attached to.
      * @param description A short text describing this Activity.
      * @param modifiers Indicates if the activity has special characteristics. 
      */
-    public Activity(int id, Simulation simul, String description, EnumSet<Modifier> modifiers) {
-        this(id, simul, description, 0, modifiers);
+    public Activity(Simulation simul, String description, EnumSet<Modifier> modifiers) {
+        this(simul, description, 0, modifiers);
     }
 
     /**
      * Creates a new activity with the specified priority and customized behavior.
-     * @param id Activity's identifier.
      * @param simul Simulation which this activity is attached to.
      * @param description A short text describing this Activity.
      * @param priority Activity's priority.
      * @param modifiers Indicates if the activity has special characteristics. 
      */
-    public Activity(int id, Simulation simul, String description, int priority, EnumSet<Modifier> modifiers) {
-        super(id, simul);
+    public Activity(Simulation simul, String description, int priority, EnumSet<Modifier> modifiers) {
+        super(simul.getNextActivityId(), simul);
         this.modifiers = modifiers;
         this.description = description;
         this.priority = priority;
