@@ -212,6 +212,12 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 			es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {
 		FlowDrivenActivityWorkGroup aWg = new FlowDrivenActivityWorkGroup(this, workGroupTable.size(), initFlow, finalFlow, priority, (WorkGroup)wg, cond);
 		workGroupTable.add(aWg);
+		// Activities with Flow-driven workgroups cannot be presential nor interruptible
+		modifiers.add(Modifier.NONPRESENTIAL);
+		if (modifiers.contains(Modifier.INTERRUPTIBLE)) {
+			error("Trying to add a flow-driven workgroup to an interruptible activity. This attribute will be overriden to ensure proper functioning");
+			modifiers.remove(Modifier.INTERRUPTIBLE);
+		}
 		return aWg;
 	}
 

@@ -269,7 +269,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 		workGroupTable.add(aWg);
 		// Activities with Flow-driven workgroups cannot be presential nor interruptible
 		modifiers.add(Modifier.NONPRESENTIAL);
-		if (!modifiers.contains(Modifier.INTERRUPTIBLE)) {
+		if (modifiers.contains(Modifier.INTERRUPTIBLE)) {
 			error("Trying to add a flow-driven workgroup to an interruptible activity. This attribute will be overriden to ensure proper functioning");
 			modifiers.remove(Modifier.INTERRUPTIBLE);
 		}
