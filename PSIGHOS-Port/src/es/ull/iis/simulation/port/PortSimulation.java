@@ -35,7 +35,7 @@ public class PortSimulation extends Simulation {
 	private static final String ACT_UNLOAD = "Unload";
 	private static final String ACT_TO_YARD = "Lead to yard";
 	private static final String ACT_PLACE = "Place container";
-	private static final String ACT_SEA_TO_YARD = "Sea to yard";
+	public static final String ACT_SEA_TO_YARD = "Sea to yard";
 	private static final long[] TIME_TO_UNLOAD = {15};
 	private static final long[][] TIME_FROM_BERTH_TO_BLOCK = {{20, 30, 40}};
 	private static final long[] TIME_TO_PLACE = {10, 10, 10};
@@ -130,7 +130,7 @@ public class PortSimulation extends Simulation {
 		final SingleFlow sfMain = new SingleFlow(this, mainAct);
 		
 		// Generate orders for unloading containers
-		final ArrivalPlanning planning = new ArrivalPlanning(0, "C:\\Users\\Iván Castilla\\git\\sighos\\PSIGHOS-Port\\src\\es\\ull\\iis\\simulation\\port\\testStowagePlan1.txt");
+		final ArrivalPlanning planning = new ArrivalPlanning(0, "C:\\Users\\Rosi1\\git\\sighos\\PSIGHOS-Port\\src\\es\\ull\\iis\\simulation\\port\\testStowagePlan1.txt");
 		for (int i = 0; i < N_BERTHS; i++) {
 			final ContainerCreator cc = new ContainerCreator(this, planning, et, sfMain);
 			new TimeDrivenGenerator(this, cc, planning);

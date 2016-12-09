@@ -8,6 +8,7 @@ import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
+import es.ull.iis.simulation.port.inforeceiver.ContainerTimeListener;
 
 /**
  * The main simulation class for a port. A port is divided into three areas: sea, yard and earth. Ships arrive at a 
@@ -35,7 +36,8 @@ public class PortMain extends Experiment {
 	@Override
 	public Simulation getSimulation(int ind) {
 		Simulation sim = new PortSimulation(ind, PORT_TIME_UNIT, START_TS, END_TS);
-		sim.addInfoReceiver(new StdInfoView(sim));
+//		sim.addInfoReceiver(new StdInfoView(sim));
+		sim.addInfoReceiver(new ContainerTimeListener(sim));
 
 		return sim;
 	}
