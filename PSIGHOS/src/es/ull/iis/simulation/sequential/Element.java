@@ -29,7 +29,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	/** Presential work item which the element is currently carrying out */
 	protected WorkItem current = null;
 	/** Main execution thread */
-	protected final WorkThread wThread;
+	protected final WorkThread mainThread;
 	
 	/**
 	 * Creates a new element.
@@ -42,7 +42,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 		this.elementType = et;
 		inQueue = new ArrayList<WorkItem>();
 		this.initialFlow = flow;
-		wThread = WorkThread.getInstanceMainWorkThread(this);
+		mainThread = WorkThread.getInstanceMainWorkThread(this);
 	}
 
 	@Override
@@ -105,7 +105,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 		simul.getInfoHandler().notifyInfo(new ElementInfo(this.simul, this, ElementInfo.Type.START, this.getTs()));
 		simul.addActiveElement(this);
 		if (initialFlow != null) {
-			addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
+			addRequestEvent(initialFlow, mainThread.getInstanceDescendantWorkThread(initialFlow));
 		}
 		else
 			notifyEnd();
@@ -178,20 +178,20 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 */
 	public class RequestFlowEvent extends BasicElement.DiscreteEvent {
 		/** The work thread that executes the request */
-		private final WorkThread eThread;
+		private final WorkThread wThread;
 		/** The flow to be requested */
 		private final Flow f;
 
-		public RequestFlowEvent(long ts, Flow f, WorkThread eThread) {
+		public RequestFlowEvent(long ts, Flow f, WorkThread wThread) {
 			super(ts);
-			this.eThread = eThread;
+			this.wThread = wThread;
 			this.f = f;
 		}		
 
 		@Override
 		public void event() {
-			eThread.setCurrentFlow(f);
-			f.request(eThread);
+			wThread.setCurrentFlow(f);
+			f.request(wThread);
 		}
 	}
 	
@@ -201,19 +201,19 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 */
 	public class FinishFlowEvent extends BasicElement.DiscreteEvent {
 		/** The work thread that executes the finish */
-		private final WorkThread eThread;
+		private final WorkThread wThread;
 		/** The flow previously requested */
 		private final TaskFlow f;
 
-		public FinishFlowEvent(long ts, TaskFlow f, WorkThread eThread) {
+		public FinishFlowEvent(long ts, TaskFlow f, WorkThread wThread) {
 			super(ts);
 			this.f = f;
-			this.eThread = eThread;
+			this.wThread = wThread;
 		}		
 
 		@Override
 		public void event() {
-			f.finish(eThread);
+			f.finish(wThread);
 		}
 	}
 	

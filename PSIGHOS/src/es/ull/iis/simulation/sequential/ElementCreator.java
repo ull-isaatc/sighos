@@ -61,7 +61,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
 	 * @param flow The description of the flow of the elements to be created.
 	 */
 	public ElementCreator(Simulation sim, int nElem, ElementType et, InitializerFlow flow) {
-		this(sim, nElem);
+		this(sim, TimeFunctionFactory.getInstance("ConstantVariate", nElem), et, flow);
 	}
 	
 	/**

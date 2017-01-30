@@ -13,7 +13,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  */
 public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.iis.simulation.core.flow.SingleFlow {
     /** The activity to be performed */
-    protected Activity act;
+    private final Activity act;
     
 	/**
 	 * Creates a new single flow..
@@ -33,14 +33,6 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 		return act;
 	}
 
-	/**
-	 * Set a new Activity associated to the SingleFlow.
-	 * @param act The new Activity.
-	 */
-	public void setActivity(Activity act) {
-		this.act = act;
-	}
-	
 	/**
 	 * Allows a user to add actions carried out when an element is enqueued in an Activity, 
 	 * waiting for availables Resources. 

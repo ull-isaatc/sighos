@@ -73,7 +73,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
      */
     protected int getNextAvailableResource(int ind, WorkItem wi) {
         for (; ind < availableResourceList.size(); ind++) {
-            Resource res = availableResourceList.get(ind);
+            final Resource res = availableResourceList.get(ind);
             // Checks if the resource is busy (taken by other element or conflict in the same activity)
             if (res.isAvailable(this) && (res.getCurrentResourceType() == null)) {
             	return ind;
@@ -258,5 +258,15 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	 */
 	public ResourceList getAvailableResourceList() {
 		return availableResourceList;
+	}
+
+	@Override
+	public es.ull.iis.simulation.core.Resource[] addGenericResources(int n) {
+		final Resource[] res = new Resource[n];
+		for (int i = 0; i < n; i++) {
+			res[i] = new Resource(simul, description + " " + i);
+			res[i].addTimeTableEntry(this);
+		}
+		return null;
 	}
 } 

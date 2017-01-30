@@ -232,4 +232,14 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	public ResourceList getAvailableResourceList() {
 		return availableResourceList;
 	}
+
+	@Override
+	public es.ull.iis.simulation.core.Resource[] addGenericResources(int n) {
+		final Resource[] res = new Resource[n];
+		for (int i = 0; i < n; i++) {
+			res[i] = new Resource(simul, description + " " + i);
+			res[i].addTimeTableEntry(this);
+		}
+		return null;
+	}
 } 

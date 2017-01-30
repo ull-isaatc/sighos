@@ -43,4 +43,12 @@ public interface ResourceType extends VariableStoreSimulationObject, Describable
 	public void afterRoleOff();
 
 	// End of user methods
+	
+	/**
+	 * Adds n resources of type {@link ResourceType}. This method is useful when you simply want to create a
+	 * set of resources that are available all the time as {@link ResourceType}.
+	 * @param n Number of generic resources to create.
+	 * @return The set of resources created.
+	 */
+	public Resource[] addGenericResources(int n);
 }

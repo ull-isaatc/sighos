@@ -87,12 +87,12 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
         // A count of the useless single flows 
     	int uselessSF = 0;
     	// A postponed removal list
-    	ArrayList<WorkItem> toRemove = new ArrayList<WorkItem>();
-    	Iterator<WorkItem> iter = wiQueue.iterator();
+    	final ArrayList<WorkItem> toRemove = new ArrayList<WorkItem>();
+    	final Iterator<WorkItem> iter = wiQueue.iterator();
     	while (iter.hasNext() && (uselessSF < wiQueue.size())) {
-    		WorkItem sf = iter.next();
-            Element e = sf.getElement();
-            Activity act = sf.getActivity();
+    		final WorkItem sf = iter.next();
+            final Element e = sf.getElement();
+            final Activity act = sf.getActivity();
             
     		// The element's timestamp is updated. That's only useful to print messages
             e.setTs(getTs());

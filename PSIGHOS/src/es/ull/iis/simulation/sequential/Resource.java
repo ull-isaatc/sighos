@@ -351,7 +351,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
         		debug("Resource available\t" + role);
         		role.incAvailable(Resource.this);
         		addRole(role, ts + duration);
-        		// The activity manger is informed of new available resources
+        		// The activity manager is informed of new available resources
         		role.getManager().availableResource(); 
         		role.afterRoleOn();
         		RoleOffEvent rEvent = new RoleOffEvent(ts + duration, role, iter, duration);
