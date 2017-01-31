@@ -4,7 +4,7 @@ import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.ActivityWorkGroup;
 import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.WorkItem;
+import es.ull.iis.simulation.core.WorkThread;
 import es.ull.iis.simulation.info.AsynchronousInfo;
 
 public class ElementActionInfo extends AsynchronousInfo {
@@ -29,13 +29,13 @@ public class ElementActionInfo extends AsynchronousInfo {
 			
 		};
 	
-	final private WorkItem wi;
+	final private WorkThread wi;
 	final private Activity act;
 	final private ActivityWorkGroup wg;
 	final private Element elem;
 	final private Type type;
 	
-	public ElementActionInfo(Simulation simul, WorkItem wi, Element elem, Type type, long ts) {
+	public ElementActionInfo(Simulation simul, WorkThread wi, Element elem, Type type, long ts) {
 		super(simul, ts);
 		this.wi = wi;
 		this.act = wi.getActivity();
@@ -48,7 +48,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 		return elem;
 	}
 	
-	public WorkItem getWorkItem() {
+	public WorkThread getWorkItem() {
 		return wi;
 	}
 	

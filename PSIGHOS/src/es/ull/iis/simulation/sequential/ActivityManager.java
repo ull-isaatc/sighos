@@ -24,8 +24,8 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	protected final ArrayList<Activity> activityList;
     /** A list of resorce types */
     protected final ArrayList<ResourceType> resourceTypeList;
-    /** This queue contains the work items that are waiting for activities of this AM */
-    private final WorkItemQueue wiQueue;
+    /** This queue contains the work threads that are waiting for activities of this AM */
+    private final WorkThreadQueue wtQueue;
     
    /**
 	* Creates a new instance of ActivityManager.
@@ -35,7 +35,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
         super(nextid++, simul);
         resourceTypeList = new ArrayList<ResourceType>();
         activityList = new ArrayList<Activity>();
-        wiQueue = new WorkItemQueue();
+        wtQueue = new WorkThreadQueue();
         simul.add(this);
     }
 
@@ -56,19 +56,19 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     }
 
     /**
-     * Adds a work item to the waiting queue.
-     * @param wi Work item which is added to the waiting queue.
+     * Adds a work thread to the waiting queue.
+     * @param wt Work thread which is added to the waiting queue.
      */
-    protected void queueAdd(WorkItem wi) {
-    	wiQueue.add(wi);
+    protected void queueAdd(WorkThread wt) {
+    	wtQueue.add(wt);
     }
     
     /**
-     * Removes a work item from the waiting queue.
-     * @param wi work item which is removed from the waiting queue.
+     * Removes a work thread from the waiting queue.
+     * @param wt work thread which is removed from the waiting queue.
      */
-    protected void queueRemove(WorkItem wi) {
-    	wiQueue.remove(wi);
+    protected void queueRemove(WorkThread wt) {
+    	wtQueue.remove(wt);
     }
     
     /**
@@ -87,20 +87,20 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
         // A count of the useless single flows 
     	int uselessSF = 0;
     	// A postponed removal list
-    	final ArrayList<WorkItem> toRemove = new ArrayList<WorkItem>();
-    	final Iterator<WorkItem> iter = wiQueue.iterator();
-    	while (iter.hasNext() && (uselessSF < wiQueue.size())) {
-    		final WorkItem sf = iter.next();
-            final Element e = sf.getElement();
-            final Activity act = sf.getActivity();
+    	final ArrayList<WorkThread> toRemove = new ArrayList<WorkThread>();
+    	final Iterator<WorkThread> iter = wtQueue.iterator();
+    	while (iter.hasNext() && (uselessSF < wtQueue.size())) {
+    		final WorkThread wt = iter.next();
+            final Element elem = wt.getElement();
+            final Activity act = wt.getActivity();
             
     		// The element's timestamp is updated. That's only useful to print messages
-            e.setTs(getTs());
-            if (act.validElement(sf)) {
-            	ArrayDeque<Resource> solution = act.isFeasible(sf); 
+            elem.setTs(getTs());
+            if (act.validElement(wt)) {
+            	ArrayDeque<Resource> solution = act.isFeasible(wt); 
             	if (solution != null) {	// The activity can be performed
-                    act.carryOut(sf, solution);
-            		toRemove.add(sf);
+                    act.carryOut(wt, solution);
+            		toRemove.add(wt);
             		uselessSF--;
             	}
             	else {	// The activity can't be performed with the current resources
@@ -109,23 +109,23 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
             }
 		}
     	// Postponed removal
-    	for (WorkItem sf : toRemove)
-    		sf.getActivity().queueRemove(sf);
+    	for (WorkThread wt : toRemove)
+    		wt.getActivity().queueRemove(wt);
     } 
 
     /**
-     * Returns an iterator over the array containing the work items which have requested
+     * Returns an iterator over the array containing the work threads which have requested
      * activities belonging to this activity manager.<p>
      * The order followed is: <ol>
-     * <li>the work item's priority (its element type's priority)</li>
+     * <li>the work thread's priority (its element type's priority)</li>
      * <li>the activity's priority</li>
      * <li>the arrival order</li>
      * </ol>
-     * @return an iterator over the array containing the work items which have requested
+     * @return an iterator over the array containing the work threads which have requested
      * activities belonging to this activity manager.
      */
-    public Iterator<WorkItem> getQueueIterator() {
-    	return wiQueue.iterator();
+    public Iterator<WorkThread> getQueueIterator() {
+    	return wtQueue.iterator();
     }
     
 	@Override
@@ -164,12 +164,12 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	private static final  class WorkItemQueue extends PrioritizedMap<TreeSet<WorkItem>, WorkItem>{		
+	private static final class WorkThreadQueue extends PrioritizedMap<TreeSet<WorkThread>, WorkThread>{		
 		/** A counter for the arrival order of the single flows */
 		private int arrivalOrder = 0;
 		/** A comparator to properly order the single flows. */
-		private Comparator<WorkItem> comp = new Comparator<WorkItem>() {
-			public int compare(WorkItem o1, WorkItem o2) {
+		private Comparator<WorkThread> comp = new Comparator<WorkThread>() {
+			public int compare(WorkThread o1, WorkThread o2) {
 				if (o1.equals(o2))
 					return 0;
 				if (o1.getActivity().getPriority() > o2.getActivity().getPriority())
@@ -185,29 +185,29 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 		/**
 		 * Creates a new queue.
 		 */
-		public WorkItemQueue() {
+		public WorkThreadQueue() {
 			super();
 		}
 
 		/**
-		 * Adds a work item to the queue. The arrival order and timestamp of the 
-		 * work item are set here. 
-		 * @param wi The work item to be added.
+		 * Adds a work thread to the queue. The arrival order and timestamp of the 
+		 * work thread are set here. 
+		 * @param wt The work thread to be added.
 		 */
 		@Override
-		public void add(WorkItem wi) {
+		public void add(WorkThread wt) {
 			// The arrival order and timestamp are only assigned if the single flow 
 			// has never been added to the queue (interruptible activities)
-			if (wi.getArrivalTs() == -1) {
-				wi.setArrivalOrder(arrivalOrder++);
-				wi.setArrivalTs(wi.getElement().getTs());
+			if (wt.getArrivalTs() == -1) {
+				wt.setArrivalOrder(arrivalOrder++);
+				wt.setArrivalTs(wt.getElement().getTs());
 			}
-			super.add(wi);
+			super.add(wt);
 		}
 
 		@Override
-		public TreeSet<WorkItem> createLevel(Integer priority) {
-			return new TreeSet<WorkItem>(comp);
+		public TreeSet<WorkThread> createLevel(Integer priority) {
+			return new TreeSet<WorkThread>(comp);
 		}
 		
 	}

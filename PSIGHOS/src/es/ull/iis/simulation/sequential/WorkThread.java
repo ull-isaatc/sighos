@@ -1,14 +1,13 @@
 package es.ull.iis.simulation.sequential;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.core.Identifiable;
-import es.ull.iis.simulation.sequential.flow.BasicFlow;
+import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.sequential.flow.Flow;
 import es.ull.iis.simulation.sequential.flow.InitializerFlow;
 import es.ull.iis.simulation.sequential.flow.SingleFlow;
 import es.ull.iis.simulation.sequential.flow.TaskFlow;
-import es.ull.iis.util.Prioritizable;
 
 /**
  * A sequential branch of activities in an element's flow. Represents an element instance, so
@@ -26,7 +25,7 @@ import es.ull.iis.util.Prioritizable;
  *  only for synchronization purposes and doesn't execute task flows. 
  * @author Iván Castilla Rodríguez
  */
-public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkThread> {
+public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
 	/** Thread's Counter. Useful for identifying each single flow */
 	private static int counter = 0;
 	/** Thread's internal identifier */
@@ -39,14 +38,26 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	protected final ArrayList<WorkThread> descendants;
     /** Thread's initial flow */
     protected final Flow initialFlow;
-	/** Thread's current Work Item */
-	protected final WorkItem wItem;
 	/** A flag to indicate if the thread executes the flow or not */
 	protected WorkToken token;
 	/** The current flow the thread is in */
-	protected BasicFlow currentFlow = null;
+	protected Flow currentFlow = null;
 	/** The last flow the thread was in */
 	protected Flow lastFlow = null;
+    /** Activity currently being performed by the element associated to this work thread */
+    protected Activity currentActivity;
+    /** The workgroup which is used to carry out this flow. If <code>null</code>, 
+     * the flow has not been carried out. */
+    protected ActivityWorkGroup executionWG = null;
+    /** List of caught resources */
+    protected ArrayDeque<Resource> caughtResources;
+	/** The arrival order of this work thread relatively to the rest of work threads 
+	 * in the same activity manager. */
+	protected int arrivalOrder;
+	/** The simulation timestamp when this work thread was requested. */
+	protected long arrivalTs = -1;
+	/** The time left to finish the activity. Used in interruptible activities. */
+	protected long timeLeft = -1;
     
     /** 
      * Creates a new work thread. The constructor is private since it must be invoked from the 
@@ -65,13 +76,25 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
         	parent.addDescendant(this);
         this.initialFlow = initialFlow;
         this.id = counter++;
-        wItem = new WorkItem(this);
     }
 
     public void setCurrentFlow(Flow f) {
-    	currentFlow = (BasicFlow)f;
+    	currentFlow = f;
+		executionWG = null;
+		arrivalTs = -1;
+		timeLeft = -1;    		
+    	if (f instanceof SingleFlow) {
+    		currentActivity = ((SingleFlow)f).getActivity();
+    	}
     }
-    
+
+	@Override
+	public SingleFlow getSingleFlow() {
+		if (currentFlow instanceof SingleFlow)
+			return (SingleFlow)currentFlow;
+		return null;
+	}
+	    
     /**
      * Notifies the parent this thread has finished.
      */
@@ -159,21 +182,6 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 		return parent;
 	}
 
-	/**
-	 * @return the wItem
-	 */
-	public WorkItem getNewWorkItem(SingleFlow sf) {
-		wItem.reset(sf);
-		return wItem;
-	}
-
-	/**
-	 * @return the wItem
-	 */
-	public WorkItem getWorkItem() {
-		return wItem;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Identifiable#getIdentifier()
@@ -212,13 +220,13 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	 */
 	@Override
 	public String toString() {
-		return "SF" + id + "(" + elem + ")";
+		return "WT" + id + "(" + elem + ")\tACT: " + currentActivity.getDescription();
 	}
 	
-	public int compareTo(WorkThread o) {
-		if (id > o.id)
+	public int compareTo(es.ull.iis.simulation.core.WorkThread o) {
+		if (id > o.getIdentifier())
 			return 1;
-		if (id < o.id)
+		if (id < o.getIdentifier())
 			return -1;
 		return 0;
 	}
@@ -287,6 +295,129 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	 */
 	public boolean wasVisited (Flow flow) {
 		return token.wasVisited(flow);
+	}
+
+	/**
+	 * Returns the order this thread occupies among the rest of work threads.
+	 * @return the order of arrival of this work thread to request the activity
+	 */
+	public int getArrivalOrder() {
+		return arrivalOrder;
+	}
+
+	/**
+	 * Sets the order this thread occupies among the rest of work threads.
+	 * @param arrivalOrder the order of arrival of this work thread to request the activity
+	 */
+	public void setArrivalOrder(int arrivalOrder) {
+		this.arrivalOrder = arrivalOrder;
+	}
+
+	/**
+	 * Returns the timestamp when this work thread arrives to request the current single flow.
+	 * @return the timestamp when this work thread arrives to request the current single flow
+	 */
+	public long getArrivalTs() {
+		return arrivalTs;
+	}
+
+	/**
+	 * Sets the timestamp when this work thread arrives to request the current single flow.
+	 * @param arrivalTs the timestamp when this work thread arrives to request the current single flow
+	 */
+	public void setArrivalTs(long arrivalTs) {
+		this.arrivalTs = arrivalTs;
+	}
+
+	/**
+	 * Returns the time required to finish the current single flow (only for interruptible activities) 
+	 * @return the time required to finish the current single flow 
+	 */
+	public long getTimeLeft() {
+		return timeLeft;
+	}
+
+	/**
+	 * Sets the time required to finish the current single flow .
+	 * @param timeLeft the time required to finish the current single flow 
+	 */
+	public void setTimeLeft(long timeLeft) {
+		this.timeLeft = timeLeft;
+	}
+
+    /**
+     * Returns the workgroup which is used to perform this flow, or <code>null</code>  
+     * if the flow has not been carried out.
+	 * @return the workgroup which is used to perform this flow, or <code>null</code>  
+     * if the flow has not been carried out.
+	 */
+	public ActivityWorkGroup getExecutionWG() {
+		return executionWG;
+	}
+
+	/**
+	 * When the single flow can be carried out, sets the workgroup used to
+	 * carry out the activity.
+	 * @param executionWG the workgroup which is used to carry out this flow.
+	 */
+	public void setExecutionWG(ActivityWorkGroup executionWG) {
+		this.executionWG = executionWG;
+	}
+
+    /**
+     * Catch the resources needed for each resource type to carry out an activity.
+     * @return The minimum availability timestamp of the taken resources 
+     */
+	protected long catchResources(ArrayDeque<Resource> caughtResources) {
+		this.caughtResources = caughtResources;
+    	long auxTs = Long.MAX_VALUE;
+    	for (Resource res : caughtResources) {
+    		auxTs = Math.min(auxTs, res.catchResource(this));;
+            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
+    	}
+		return auxTs;
+	}
+	
+    /**
+     * Releases the resources caught by this item to perform the activity.
+     * @return A list of activity managers affected by the released resources
+     */
+    protected ArrayList<ActivityManager> releaseCaughtResources() {
+        ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
+        // Generate unavailability periods.
+        for (Resource res : caughtResources) {
+			for (int i = 0; i < currentActivity.cancellationList.size(); i++) {
+				es.ull.iis.simulation.sequential.Activity.CancelListEntry entry = currentActivity.cancellationList.get(i);
+				if (res.currentResourceType == entry.rt) {
+					long actualTs = elem.getTs();
+					res.setNotCanceled(false);
+					currentFlow.getSimulation().getInfoHandler().notifyInfo(new ResourceInfo(currentFlow.getSimulation(), res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
+					res.generateCancelPeriodOffEvent(actualTs, entry.dur);
+				}
+			}
+			elem.debug("Returned " + res);
+        	// The resource is freed
+        	if (res.releaseResource()) {
+        		// The activity managers involved are included in the list
+        		for (ActivityManager am : res.getCurrentManagers())
+        			if (!amList.contains(am))
+        				amList.add(am);
+        	}
+        }
+        caughtResources.clear();
+        return amList;
+    }
+
+	@Override
+	public boolean equals(Object o) {
+		if (((WorkThread)o).id == id)
+			return true;
+		return false;
+	}
+
+	@Override
+	public Activity getActivity() {
+		return currentActivity;
 	}
 
 }

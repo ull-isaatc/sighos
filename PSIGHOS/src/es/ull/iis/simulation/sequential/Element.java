@@ -25,9 +25,9 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	protected final InitializerFlow initialFlow;
 	/** Activity queues in which this element is. This list is used to notify the activities
 	 * when the element becomes available. */
-	protected final ArrayList<WorkItem> inQueue;
-	/** Presential work item which the element is currently carrying out */
-	protected WorkItem current = null;
+	protected final ArrayList<WorkThread> inQueue;
+	/** Presential work thread which the element is currently carrying out */
+	protected WorkThread current = null;
 	/** Main execution thread */
 	protected final WorkThread mainThread;
 	
@@ -40,7 +40,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	public Element(Simulation simul, ElementType et, InitializerFlow flow) {
 		super(simul.getNextElementId(), simul);
 		this.elementType = et;
-		inQueue = new ArrayList<WorkItem>();
+		inQueue = new ArrayList<WorkThread>();
 		this.initialFlow = flow;
 		mainThread = WorkThread.getInstanceMainWorkThread(this);
 	}
@@ -60,23 +60,23 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 
 	/**
 	 * If the element is currently performing an activity, returns the work
-	 * item used by the element. If the element is not performing any presential 
+	 * thread used by the element. If the element is not performing any presential 
 	 * activity, returns null.
-	 * @return The work item corresponding to the current presential activity being
+	 * @return The work thread corresponding to the current presential activity being
 	 * performed by this element.
 	 */
-	public WorkItem getCurrent() {
+	public WorkThread getCurrent() {
 		return current;
 	}
 
 	/**
-	 * Sets the work item corresponding to the current presential activity 
+	 * Sets the work thread corresponding to the current presential activity 
 	 * being performed by this element. 
-	 * @param current The work item corresponding to the current presential activity 
+	 * @param current The work thread corresponding to the current presential activity 
 	 * being performed by this element. A null value indicates that the element has 
 	 * finished performing the activity.
 	 */
-	protected void setCurrent(WorkItem current) {
+	protected void setCurrent(WorkThread current) {
 		this.current = current;
 	}
 
@@ -118,19 +118,19 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	}
 
 	/**
-	 * Notifies a new work item is waiting in an activity queue.
-	 * @param wi Work item waiting in queue.
+	 * Notifies a new work thread is waiting in an activity queue.
+	 * @param wt Work thread waiting in queue.
 	 */
-	protected void incInQueue(WorkItem wi) {
-			inQueue.add(wi);
+	protected void incInQueue(WorkThread wt) {
+			inQueue.add(wt);
 	}
 
 	/**
-	 * Notifies a work item has finished waiting in an activity queue.
-	 * @param wi Work item that was waiting in a queue.
+	 * Notifies a work thread has finished waiting in an activity queue.
+	 * @param wt Work thread that was waiting in a queue.
 	 */
-	protected void decInQueue(WorkItem wi) {
-			inQueue.remove(wi);
+	protected void decInQueue(WorkThread wt) {
+			inQueue.remove(wt);
 	}
 
 	/**
@@ -223,25 +223,25 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 */
 	public class AvailableElementEvent extends BasicElement.DiscreteEvent {
 		/** Flow informed of the availability of the element */
-		private final WorkItem eThread;
+		private final WorkThread wThread;
 
-		public AvailableElementEvent(long ts, WorkItem eThread) {
+		public AvailableElementEvent(long ts, WorkThread wThread) {
 			super(ts);
-			this.eThread = eThread;
+			this.wThread = wThread;
 		}
 
 		@Override
 		public void event() {
-			Activity act = eThread.getActivity();
+			Activity act = wThread.getActivity();
 
 			if (isDebugEnabled())
 				debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
 			// If the element is not performing a presential activity yet
 			if (current == null) {
-				ArrayDeque<Resource> solution = act.isFeasible(eThread);
+				ArrayDeque<Resource> solution = act.isFeasible(wThread);
 				if (solution != null) {
-					act.carryOut(eThread, solution);
-					act.queueRemove(eThread);
+					act.carryOut(wThread, solution);
+					act.queueRemove(wThread);
 				}
 			}
 		}

@@ -58,8 +58,9 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 	public void request(WorkThread wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
-				if (beforeRequest(wThread.getElement()))
-					act.request(wThread.getNewWorkItem(this));
+				if (beforeRequest(wThread.getElement())) {
+					act.request(wThread);
+				}
 				else {
 					wThread.setExecutable(false, this);
 					next(wThread);
@@ -78,7 +79,7 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.WorkThread)
 	 */
 	public void finish(WorkThread wThread) {
-		if (act.finish(wThread.getWorkItem())) {
+		if (act.finish(wThread)) {
 			afterFinalize(wThread.getElement());
 			next(wThread);
 		}

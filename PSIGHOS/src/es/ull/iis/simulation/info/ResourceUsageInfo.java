@@ -4,7 +4,7 @@ import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.Resource;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.WorkItem;
+import es.ull.iis.simulation.core.WorkThread;
 import es.ull.iis.simulation.info.AsynchronousInfo;
 
 public class ResourceUsageInfo extends AsynchronousInfo {
@@ -28,16 +28,16 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	
 	final private Resource res;
 	final private ResourceType rt;
-	final private WorkItem wi;
+	final private WorkThread wt;
 	final private Activity act;
 	final private Type type;
 	
-	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, WorkItem wi, Type type, long ts) {
+	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, WorkThread wt, Type type, long ts) {
 		super(simul, ts);
 		this.res = res;
 		this.rt = rt;
-		this.wi =wi;
-		this.act = wi.getActivity();
+		this.wt =wt;
+		this.act = wt.getActivity();
 		this.type = type;
 	}
 	
@@ -49,8 +49,8 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 		return rt;
 	}
 	
-	public WorkItem getWorkItem() {
-		return wi;
+	public WorkThread getWorkThread() {
+		return wt;
 	}
 	
 	public Type getType() {
@@ -59,7 +59,7 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	
 	public String toString() {
 		String message = "" + simul.long2SimulationTime(getTs()) + "\t";
-		message += wi.getElement().toString() + " \t";
+		message += wt.getElement().toString() + " \t";
 		message += type.getDescription() + "\t" + res.getDescription() + "\t";
 		message += "ROLE: " + rt.getDescription() + "\t";	
 		message += "ACT: " + act.getDescription();

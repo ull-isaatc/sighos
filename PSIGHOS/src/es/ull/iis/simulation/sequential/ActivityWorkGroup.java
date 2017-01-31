@@ -78,13 +78,13 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      * activity can not be carried out, and all the "books" are removed.
      * Possible conflicts between resources inside the activity are solved by invoking a
      * branch-and-bound resource distribution algorithm. 
-     * @param wi Work Item trying to carry out the activity with this workgroup 
+     * @param wThread Work thread trying to carry out the activity with this workgroup 
      * @return The set of resources which compound the solution. Null if there are not enough
      * resources to carry out the activity by using this workgroup.
      */
-    protected ArrayDeque<Resource> isFeasible(WorkItem wi) {
+    protected ArrayDeque<Resource> isFeasible(WorkThread wThread) {
 
-    	if (!cond.check(wi.getElement()))
+    	if (!cond.check(wThread.getElement()))
     		return null;
 
     	int ned[] = needed.clone();
@@ -97,7 +97,7 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
             totalRes += n;
         ArrayDeque<Resource> solution = new ArrayDeque<Resource>(totalRes);
         // B&B algorithm for finding a solution
-        if (findSolution(solution, pos, ned, wi))
+        if (findSolution(solution, pos, ned, wThread))
             return solution;
         return null;
     }
@@ -109,7 +109,7 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      * @param nec Resource needed.
      * @return [ResourceType, Resource] where the next valid solution can be found.
      */
-    private int []searchNext(int[] pos, int []nec, WorkItem wi) {
+    private int []searchNext(int[] pos, int []nec, WorkThread wThread) {
         int []aux = new int[2];
         aux[0] = pos[0];
         aux[1] = pos[1];
@@ -126,7 +126,7 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
         // Takes the first resource type
         ResourceType rt = resourceTypes[aux[0]];
         // Searches the NEXT available resource
-        aux[1] = rt.getNextAvailableResource(aux[1] + 1, wi);
+        aux[1] = rt.getNextAvailableResource(aux[1] + 1);
 
         // This resource type don't have enough available resources
         if (aux[1] == -1)
@@ -160,8 +160,8 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      * @param ned Resources needed
      * @return True if a valid solution exists. False in other case.
      */
-    protected boolean findSolution(ArrayDeque<Resource> solution, int []pos, int []ned, WorkItem wi) {
-        pos = searchNext(pos, ned, wi);
+    protected boolean findSolution(ArrayDeque<Resource> solution, int []pos, int []ned, WorkThread wThread) {
+        pos = searchNext(pos, ned, wThread);
         // No solution
         if (pos == null)
             return false;
@@ -172,13 +172,13 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
         mark(pos, solution);
         ned[pos[0]]--;
         // ... the search continues
-        if (findSolution(solution, pos, ned, wi))
+        if (findSolution(solution, pos, ned, wThread))
             return true;
         // There's no solution with this resource. Try without it
         unmark(pos, solution);
         ned[pos[0]]++;
         // ... and the search continues
-        return findSolution(solution, pos, ned, wi);        
+        return findSolution(solution, pos, ned, wThread);        
     }
     
 	public int getIdentifier() {

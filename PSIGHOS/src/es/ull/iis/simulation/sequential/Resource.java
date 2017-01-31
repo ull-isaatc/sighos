@@ -33,8 +33,8 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
     private int validTTEs = 0;
     /** The resource type which this resource is being booked for */
     protected ResourceType currentResourceType = null;
-    /** Work item which currently holds this resource */
-    protected WorkItem currentWI = null;
+    /** Work thread which currently holds this resource */
+    protected WorkThread currentWT = null;
     /** Availability flag */
     protected boolean notCanceled;
 
@@ -229,13 +229,13 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
 	 * current resource type; and adds this resource to the item's caught resources list.
 	 * A "taken" element continues being booked. The book is released when the resource itself is
 	 * released. 
-	 * @param wi The work item which an element is executing
+	 * @param wt The work thread in charge of executing the current flow
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
-	protected long catchResource(WorkItem wi) {
-		setTs(wi.getElement().getTs());
-		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, this, currentResourceType, wi, ResourceUsageInfo.Type.CAUGHT, getTs()));
-		currentWI = wi;
+	protected long catchResource(WorkThread wt) {
+		setTs(wt.getElement().getTs());
+		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, this, currentResourceType, wt, ResourceUsageInfo.Type.CAUGHT, getTs()));
+		currentWT = wt;
 		return currentRoles.get(currentResourceType);
 	}
 	
@@ -248,8 +248,8 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
      */
     protected boolean releaseResource() {
 		setTs(simul.getTs());
-		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, this, this.getCurrentResourceType(), currentWI, ResourceUsageInfo.Type.RELEASED, getTs()));
-        currentWI = null;
+		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, this, this.getCurrentResourceType(), currentWT, ResourceUsageInfo.Type.RELEASED, getTs()));
+        currentWT = null;
         currentResourceType = null;        
         if (timeOut) {
         	timeOut = false;
@@ -272,8 +272,8 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
      * Returns the work item of the element which currently owns this resource.
      * @return The current work item.
      */
-    protected WorkItem getCurrentWI() {
-        return currentWI;
+    protected WorkThread getCurrentWI() {
+        return currentWT;
     }
     
     /**

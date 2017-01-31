@@ -75,10 +75,6 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
     protected boolean stillFeasible = true;
     /** Resource cancellation table */
     protected final Map<ResourceType, Long> cancellationList = new TreeMap<ResourceType, Long>();
-    /** Last activity start */
-    protected long lastStartTs = 0;
-    /** Last activity finish */
-    protected long lastFinishTs = 0;
 
 	/**
      * Creates a new activity with the highest priority.
@@ -350,7 +346,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
         manager.queueAdd(wi);
     	queueSize++;
 		wi.getElement().incInQueue(wi);
-		wi.getFlow().inqueue(wi.getElement());
+		wi.getSingleFlow().inqueue(wi.getElement());
     }
     
     /**
@@ -433,7 +429,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 	 */
 	public void carryOut(WorkItem wItem) {
 		final Element elem = wItem.getElement();
-		wItem.getFlow().afterStart(elem);
+		wItem.getSingleFlow().afterStart(elem);
 		long auxTs = wItem.catchResources();
 
 		if (wItem.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
@@ -462,7 +458,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 				auxTs = finishTs;
 				wItem.setTimeLeft(0);
 			}
-			elem.addEvent(elem.new FinishFlowEvent(auxTs, wItem.getFlow(), wItem.getWorkThread()));
+			elem.addEvent(elem.new FinishFlowEvent(auxTs, wItem.getSingleFlow(), wItem.getWorkThread()));
 		} 
 		else {
 			elem.error("Trying to carry out unexpected type of workgroup");
@@ -518,19 +514,6 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 		return workGroupTable.size();
 	}
 	
-	public long getLastStartTs() {
-		return lastStartTs;
-	}
-
-
-	public long getLastFinishTs() {
-		return lastFinishTs;
-	}
-
-	public void setLastFinishTs(long lastFinishTs) {
-		this.lastFinishTs = lastFinishTs;
-	}
-
 	/**
 	 * @return the virtualFinalFlow
 	 */

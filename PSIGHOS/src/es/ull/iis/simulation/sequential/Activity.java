@@ -81,10 +81,6 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
     protected boolean stillFeasible = true;
     /** Resources cancellation table */
     protected final ArrayList<CancelListEntry> cancellationList;
-    /** Last activity start */
-    protected long lastStartTs = 0;
-    /** Last activity finish */
-    protected long lastFinishTs = 0;
 
 	/**
      * Creates a new activity with 0 priority.
@@ -322,22 +318,22 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
      * checks if the activity is not potentially feasible, then goes through the 
      * workgroups looking for an appropriate one. If the activity can't be performed with 
      * any of the workgroups it's marked as not potentially feasible. 
-     * @param wi Work Item wanting to perform the activity 
+     * @param wt Work thread wanting to perform the activity 
      * @return The set of resources which compound the solution. Null if there are not enough
      * resources to carry out the activity by using this workgroup.
      */
-    protected ArrayDeque<Resource> isFeasible(WorkItem wi) {
+    protected ArrayDeque<Resource> isFeasible(WorkThread wt) {
     	if (!stillFeasible)
     		return null;
         Iterator<ActivityWorkGroup> iter = workGroupTable.randomIterator();
         while (iter.hasNext()) {
         	ActivityWorkGroup wg = iter.next();
-        	ArrayDeque<Resource> solution = wg.isFeasible(wi); 
+        	ArrayDeque<Resource> solution = wg.isFeasible(wt); 
             if (solution != null) {
-                wi.setExecutionWG(wg);
-        		debug("Can be carried out by\t" + wi.getElement().getIdentifier() + "\t" + wi.getExecutionWG());
+                wt.setExecutionWG(wg);
+        		debug("Can be carried out by\t" + wt.getElement().getIdentifier() + "\t" + wt.getExecutionWG());
                 if (!isNonPresential())
-                	wi.getElement().setCurrent(wi);
+                	wt.getElement().setCurrent(wt);
                 return solution;
             }            
         }
@@ -354,23 +350,23 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
     
     /**
      * Add a work item to the element queue.
-     * @param wi Work Item added
+     * @param wt Work Item added
      */
-    protected void queueAdd(WorkItem wi) {
-        manager.queueAdd(wi);
+    protected void queueAdd(WorkThread wt) {
+        manager.queueAdd(wt);
     	queueSize++;
-		wi.getElement().incInQueue(wi);
-		wi.getFlow().inqueue(wi.getElement());
+		wt.getElement().incInQueue(wt);
+		wt.getSingleFlow().inqueue(wt.getElement());
     }
     
     /**
      * Remove a specific work item from the element queue.
-     * @param wi Work Item that must be removed from the element queue.
+     * @param wt Work Item that must be removed from the element queue.
      */
-    protected void queueRemove(WorkItem wi) {
-    	manager.queueRemove(wi);
+    protected void queueRemove(WorkThread wt) {
+    	manager.queueRemove(wt);
     	queueSize--;
-		wi.getElement().decInQueue(wi);
+		wt.getElement().decInQueue(wt);
     }
 
     /**
@@ -420,11 +416,11 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 	 * Checks if the element is valid to perform this activity.
 	 * An element is valid to perform an activity is it's not currently carrying
 	 * out another activity or this activity is non presential.
-	 * @param wItem Work item requesting this activity
+	 * @param wThread Work thread requesting this activity
 	 * @return True if the element is valid, false in other case.
 	 */
-	public boolean validElement(WorkItem wItem) {
-		return (wItem.getElement().getCurrent() == null || isNonPresential());
+	public boolean validElement(WorkThread wThread) {
+		return (wThread.getElement().getCurrent() == null || isNonPresential());
 	}
 
 	
@@ -432,26 +428,26 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 	 * Requests this activity. Checks if this activity is feasible by the
 	 * specified work item. If the activity is feasible, <code>carryOut</code>
 	 * is called; in other case, the work item is added to this activity's queue.
-	 * @param wItem Work Item requesting this activity.
+	 * @param wThread Work thread requesting this activity.
 	 */
-	public void request(WorkItem wItem) {
-		final Element elem = wItem.getElement();
-		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.REQACT, elem.getTs()));
+	public void request(WorkThread wThread) {
+		final Element elem = wThread.getElement();
+		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, elem, ElementActionInfo.Type.REQACT, elem.getTs()));
 		if (elem.isDebugEnabled())
 			elem.debug("Requests\t" + this + "\t" + description);
 		// If the element is not performing a presential activity yet or the
 		// activity to be requested is non presential
-		if (validElement(wItem)) {
+		if (validElement(wThread)) {
 			// There are enough resources to perform the activity
-			final ArrayDeque<Resource> solution = isFeasible(wItem); 
+			final ArrayDeque<Resource> solution = isFeasible(wThread); 
 			if (solution != null) {
-				carryOut(wItem, solution);
+				carryOut(wThread, solution);
 			}
 			else {
-				queueAdd(wItem); // The element is introduced in the queue
+				queueAdd(wThread); // The element is introduced in the queue
 			}
 		} else {
-			queueAdd(wItem); // The element is introduced in the queue
+			queueAdd(wThread); // The element is introduced in the queue
 		}
 	
 	}
@@ -461,40 +457,40 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 	 * updates the element's timestamp, catch the corresponding resources and produces a 
 	 * <code>FinishFlowEvent</code>. In case it used a flow-driven workgroup, catches the resources required 
 	 * and launches the initial flow.
-	 * @param wItem Work item requesting this activity
+	 * @param wThread Work thread requesting this activity
 	 */
-	public void carryOut(WorkItem wItem, ArrayDeque<Resource> solution) {
-		final Element elem = wItem.getElement();
-		wItem.getFlow().afterStart(elem);
-		long auxTs = wItem.catchResources(solution);
+	public void carryOut(WorkThread wThread, ArrayDeque<Resource> solution) {
+		final Element elem = wThread.getElement();
+		wThread.getSingleFlow().afterStart(elem);
+		long auxTs = wThread.catchResources(solution);
 		// Before this line, the code is common for time- and flow- driven WGs
 		
-		if (wItem.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
-			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
+		if (wThread.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
+			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
 			elem.debug("Starts\t" + this + "\t" + description);
-			InitializerFlow initialFlow = ((FlowDrivenActivityWorkGroup)wItem.getExecutionWG()).getInitialFlow();
-			wItem.getWorkThread().getElement().addRequestEvent(initialFlow, wItem.getWorkThread().getInstanceDescendantWorkThread(initialFlow));
+			InitializerFlow initialFlow = ((FlowDrivenActivityWorkGroup)wThread.getExecutionWG()).getInitialFlow();
+			elem.addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
 		}
-		else if (wItem.getExecutionWG() instanceof TimeDrivenActivityWorkGroup) {
+		else if (wThread.getExecutionWG() instanceof TimeDrivenActivityWorkGroup) {
 			// The first time the activity is carried out (useful only for interruptible activities)
-			if (wItem.getTimeLeft() == -1) {
-				wItem.setTimeLeft(((TimeDrivenActivityWorkGroup)wItem.getExecutionWG()).getDurationSample(elem));
-				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
+			if (wThread.getTimeLeft() == -1) {
+				wThread.setTimeLeft(((TimeDrivenActivityWorkGroup)wThread.getExecutionWG()).getDurationSample(elem));
+				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
 				elem.debug("Starts\t" + this + "\t" + description);			
 			}
 			else {
-				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.RESACT, elem.getTs()));
+				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, elem, ElementActionInfo.Type.RESACT, elem.getTs()));
 				elem.debug("Continues\t" + this + "\t" + description);						
 			}
-			long finishTs = elem.getTs() + wItem.getTimeLeft();
+			long finishTs = elem.getTs() + wThread.getTimeLeft();
 			// The required time for finishing the activity is reduced (useful only for interruptible activities)
 			if (isInterruptible() && (finishTs - auxTs > 0.0))
-				wItem.setTimeLeft(finishTs - auxTs);				
+				wThread.setTimeLeft(finishTs - auxTs);				
 			else {
 				auxTs = finishTs;
-				wItem.setTimeLeft(0);
+				wThread.setTimeLeft(0);
 			}
-			elem.addEvent(elem.new FinishFlowEvent(auxTs, wItem.getFlow(), wItem.getWorkThread()));
+			elem.addEvent(elem.new FinishFlowEvent(auxTs, wThread.getSingleFlow(), wThread));
 		}
 		else {
 			elem.error("Trying to carry out unexpected type of workgroup");
@@ -503,13 +499,13 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 
 	/**
 	 * Releases the resources required to carry out this activity.
-	 * @param wItem Work item which requested this activity
+	 * @param wThread Work thread which requested this activity
 	 * @return True if this activity was actually finished; false in other case
 	 */
-	public boolean finish(WorkItem wItem) {
-		final Element elem = wItem.getElement();
+	public boolean finish(WorkThread wThread) {
+		final Element elem = wThread.getElement();
 
-		final ArrayList<ActivityManager> amList = wItem.releaseCaughtResources();
+		final ArrayList<ActivityManager> amList = wThread.releaseCaughtResources();
 
 		if (!isNonPresential())
 			elem.setCurrent(null);
@@ -525,16 +521,16 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 //		for (ActivityManager am : amList)
 //			am.availableResource();
 
-		if (wItem.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
-			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
+		if (wThread.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
+			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + description);
 	        return true;
 		}
-		else if (wItem.getExecutionWG() instanceof TimeDrivenActivityWorkGroup) {
+		else if (wThread.getExecutionWG() instanceof TimeDrivenActivityWorkGroup) {
 			// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
-			if (wItem.getTimeLeft() <= 0.0) {
-				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
+			if (wThread.getTimeLeft() <= 0.0) {
+				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 				if (elem.isDebugEnabled())
 					elem.debug("Finishes\t" + this + "\t" + description);
 				// Checks if there are pending activities that haven't noticed the
@@ -545,11 +541,11 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 			}
 			// Added the condition(Lancaster compatibility), even when it should be unnecessary.
 			else {
-				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.INTACT, elem.getTs()));
+				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, elem, ElementActionInfo.Type.INTACT, elem.getTs()));
 				if (elem.isDebugEnabled())
-					elem.debug("Finishes part of \t" + this + "\t" + description + "\t" + wItem.getTimeLeft());				
+					elem.debug("Finishes part of \t" + this + "\t" + description + "\t" + wThread.getTimeLeft());				
 				// The element is introduced in the queue
-				queueAdd(wItem); 
+				queueAdd(wThread); 
 			}
 		}
 		return false;		
@@ -558,19 +554,6 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 	@Override
 	public int getWorkGroupSize() {
 		return workGroupTable.size();
-	}
-	
-	public long getLastStartTs() {
-		return lastStartTs;
-	}
-
-
-	public long getLastFinishTs() {
-		return lastFinishTs;
-	}
-
-	public void setLastFinishTs(long lastFinishTs) {
-		this.lastFinishTs = lastFinishTs;
 	}
 
 	protected BasicFlow getVirtualFinalFlow() {

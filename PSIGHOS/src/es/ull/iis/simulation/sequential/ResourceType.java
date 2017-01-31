@@ -71,7 +71,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
      * @param ind Position to start the search.
      * @return The resource's index or -1 if there are not available resources.
      */
-    protected int getNextAvailableResource(int ind, WorkItem wi) {
+    protected int getNextAvailableResource(int ind) {
         for (; ind < availableResourceList.size(); ind++) {
             final Resource res = availableResourceList.get(ind);
             // Checks if the resource is busy (taken by other element or conflict in the same activity)

@@ -7,11 +7,11 @@ import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.util.Prioritizable;
 
 /**
- * A work item is an instance of an {@link Element} performing a {@link SingleFlow}.
+ * A work thread is an instance of an {@link Element} performing a {@link SingleFlow}.
  * @author Iván Castilla Rodríguez
  *
  */
-public interface WorkItem extends Comparable<WorkItem>, Prioritizable, Identifiable {
+public interface WorkThread extends Comparable<WorkThread>, Prioritizable, Identifiable {
 	/**
      * Returns the activity being performed.
      * @return The activity being performed
@@ -19,10 +19,10 @@ public interface WorkItem extends Comparable<WorkItem>, Prioritizable, Identifia
     public Activity getActivity();
 	
     /**
-     * Returns the single flow being performed.
-	 * @return The single flow being performed
+     * Returns the single flow being performed, in case this work thread is performing an activity. Otherwise, returns null.
+	 * @return The single flow being performed or null if this work thread is not currently performing an activity.
 	 */
-	public SingleFlow getFlow();
+	public SingleFlow getSingleFlow();
 
 	/**
      * Returns the element performing this single flow.

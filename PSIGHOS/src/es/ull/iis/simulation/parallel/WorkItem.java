@@ -15,7 +15,7 @@ import es.ull.iis.simulation.parallel.flow.SingleFlow;
  * every time a new activity has to be performed.
  * @author Iván Castilla Rodríguez
  */
-public class WorkItem implements es.ull.iis.simulation.core.WorkItem {
+public class WorkItem implements es.ull.iis.simulation.core.WorkThread {
 	/** Work Thread this work item belongs to */
 	final private WorkThread wThread;
 	/** Element that contains this work item */
@@ -79,7 +79,7 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkItem {
     }   
 	
 	@Override
-	public SingleFlow getFlow() {
+	public SingleFlow getSingleFlow() {
 		return flow;
 	}
 
@@ -136,7 +136,7 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkItem {
     }
 
 	@Override
-	public int compareTo(es.ull.iis.simulation.core.WorkItem o) {
+	public int compareTo(es.ull.iis.simulation.core.WorkThread o) {
 		final int id = wThread.getIdentifier();
 		final int id2 = o.getIdentifier();
 		if (id < id2)

@@ -78,7 +78,7 @@ public class CheckFlowsView extends WFPTestView {
 			case ENDACT:
 				ev = new EventToCheck(Type.ENDACT, eInfo.getActivity().getIdentifier(), eInfo.getTs());
 				printResult(futureFlow.get(eInfo.getElement().getIdentifier()).remove(ev), "unexpected event!"); 
-				SingleFlowNode f = flow.search(eInfo.getWorkItem().getFlow().getIdentifier());
+				SingleFlowNode f = flow.search(eInfo.getWorkItem().getSingleFlow().getIdentifier());
 				if (f.next != null)
 					f.next.add2FutureFlow(eInfo.getElement().getIdentifier(), eInfo.getTs());
 				break;
