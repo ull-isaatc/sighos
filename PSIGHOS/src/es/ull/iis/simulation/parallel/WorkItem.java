@@ -59,7 +59,7 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkThread {
 	 */
 	public void reset(SingleFlow flow) {
 		this.flow = flow;
-		this.act = flow.getActivity();
+		this.act = flow.getBasicStep();
 		executionWG = null;
 		arrivalTs = -1;
 		timeLeft = -1;
@@ -74,7 +74,7 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkThread {
 	}
 
 	@Override
-    public Activity getActivity() {
+    public Activity getBasicStep() {
         return act;
     }   
 	

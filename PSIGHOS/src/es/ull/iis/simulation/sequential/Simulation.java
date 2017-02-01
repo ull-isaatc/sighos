@@ -35,9 +35,9 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	protected final ArrayList<Generator> generatorList = new ArrayList<Generator>();
 
 	/** The identifier to be assigned to the next activity */ 
-	protected int nextActivityId = 0;
+	protected int nextActivityId = 1;
 	/** List of activities present in the simulation. */
-	protected final TreeMap<Integer, Activity> activityList = new TreeMap<Integer, Activity>();
+	protected final TreeMap<Integer, BasicStep> activityList = new TreeMap<Integer, BasicStep>();
 
 	/** The identifier to be assigned to the next resource type */ 
 	protected int nextResourceTypeId = 0;
@@ -298,7 +298,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 
 
 	/**
-	 * Adds an {@link es.ull.iis.simulation.sequential.Activity} to the model. These method
+	 * Adds an {@link es.ull.iis.simulation.sequential.BasicStep} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param act
@@ -306,7 +306,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
-	protected Activity add(Activity act) {
+	protected BasicStep add(BasicStep act) {
 		return activityList.put(act.getIdentifier(), act);
 	}
 	
@@ -389,7 +389,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	}
 
 	@Override
-	public Map<Integer, Activity> getActivityList() {
+	public Map<Integer, BasicStep> getActivityList() {
 		return activityList;
 	}
 
@@ -418,7 +418,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	}
 
 	@Override
-	public Activity getActivity(int id) {
+	public BasicStep getActivity(int id) {
 		return activityList.get(id);
 	}
 

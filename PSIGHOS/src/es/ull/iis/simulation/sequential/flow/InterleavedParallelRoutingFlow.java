@@ -43,7 +43,7 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 		// Sets the corresponding single flows
 		TreeMap<Activity, SingleFlow> fMap = new TreeMap<Activity, SingleFlow>();
 		for (Activity a : acts)
-			fMap.put(a, new SingleFlow(simul, (es.ull.iis.simulation.sequential.Activity)a));
+			fMap.put(a, new SingleFlow(simul, (es.ull.iis.simulation.sequential.BasicStep)a));
 		
 		TreeMap<SingleFlow, Flow> succLink = new TreeMap<SingleFlow, Flow>();
 		TreeMap<SingleFlow, Flow> predLink = new TreeMap<SingleFlow, Flow>();

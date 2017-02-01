@@ -6,16 +6,16 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 
 /**
- * A set of resources needed for carrying out an activity. A workgroup (WG) consists on a 
+ * A set of resources needed for carrying out an basicStep. A workgroup (WG) consists on a 
  * set of (resource type, #needed resources) pairs, a condition which determines if the 
- * workgroup can be used or not, and the priority of the workgroup inside the activity.
+ * workgroup can be used or not, and the priority of the workgroup inside the basicStep.
  * @author Iván Castilla Rodríguez
  */
 public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulation.core.ActivityWorkGroup, Comparable<ActivityWorkGroup> {
     /**
 	 * 
 	 */
-	private final Activity activity;
+	private final BasicStep basicStep;
 	/** Workgroup's identifier */
 	protected int id;
 	/** Priority of the workgroup */
@@ -30,10 +30,10 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      * @param id Identifier of this workgroup.
      * @param priority Priority of the workgroup.
      * @param wg The original workgroup
-     * @param activity TODO
+     * @param basicStep TODO
      */    
-    protected ActivityWorkGroup(Activity activity, int id, int priority, WorkGroup wg) {
-        this(activity, id, priority, wg, new TrueCondition());
+    protected ActivityWorkGroup(BasicStep basicStep, int id, int priority, WorkGroup wg) {
+        this(basicStep, id, priority, wg, new TrueCondition());
     }
     
     /**
@@ -43,24 +43,24 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      * @param priority Priority of the workgroup.
      * @param wg The original workgroup
      * @param cond  Availability condition
-     * @param activity TODO
+     * @param basicStep TODO
      */    
-    protected ActivityWorkGroup(Activity activity, int id, int priority, WorkGroup wg, Condition cond) {
+    protected ActivityWorkGroup(BasicStep basicStep, int id, int priority, WorkGroup wg, Condition cond) {
         super(wg.resourceTypes, wg.needed);
-		this.activity = activity;
+		this.basicStep = basicStep;
         this.id = id;
         this.priority = priority;
         this.cond = cond;
-        this.idString = new String("(" + this.activity + ")" + getDescription());
+        this.idString = new String("(" + this.basicStep + ")" + getDescription());
     }
 
 
     /**
-     * Returns the activity this WG belongs to.
-     * @return Activity this WG belongs to.
+     * Returns the basicStep this WG belongs to.
+     * @return basicStep this WG belongs to.
      */    
-    protected Activity getActivity() {
-        return this.activity;
+    protected BasicStep getBasicStep() {
+        return this.basicStep;
     }
     
     /**
@@ -72,15 +72,15 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
     }
     
     /**
-     * Checks if there are enough resources to carry out an activity by using this workgroup.   
-     * The "potential" available resources are booked by the element requesting the activity. 
+     * Checks if there are enough resources to carry out an basicStep by using this workgroup.   
+     * The "potential" available resources are booked by the element requesting the basicStep. 
      * If there are less available resources than needed resources for any resource type, the 
-     * activity can not be carried out, and all the "books" are removed.
-     * Possible conflicts between resources inside the activity are solved by invoking a
+     * basicStep can not be carried out, and all the "books" are removed.
+     * Possible conflicts between resources inside the basicStep are solved by invoking a
      * branch-and-bound resource distribution algorithm. 
-     * @param wThread Work thread trying to carry out the activity with this workgroup 
+     * @param wThread Work thread trying to carry out the basicStep with this workgroup 
      * @return The set of resources which compound the solution. Null if there are not enough
-     * resources to carry out the activity by using this workgroup.
+     * resources to carry out the basicStep by using this workgroup.
      */
     protected ArrayDeque<Resource> isFeasible(WorkThread wThread) {
 

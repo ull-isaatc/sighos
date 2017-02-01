@@ -105,7 +105,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     	while (iter.hasNext() && (uselessSF < wiQueue.size())) {
     		WorkItem wi = iter.next();
             Element e = wi.getElement();
-            Activity act = wi.getActivity();
+            Activity act = wi.getBasicStep();
     		// The element's timestamp is updated. That's only useful to print messages
             e.setTs(getTs());
             if (act.mainElementActivity()) {
@@ -141,7 +141,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 		}
     	// Postponed removal
     	for (WorkItem sf : toRemove)
-    		sf.getActivity().queueRemove(sf);
+    		sf.getBasicStep().queueRemove(sf);
     } 
 
     /**
@@ -195,7 +195,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 				while (!requestingElements.isEmpty()) {
 					final WorkItem wi = requestingElements.poll();
 					final Element elem = wi.getElement();
-					final Activity act = wi.getActivity();
+					final Activity act = wi.getBasicStep();
 					if (elem.isDebugEnabled())
 						elem.debug("Calling availableElement()\t" + act);
 					if (act.mainElementActivity()) {
@@ -245,8 +245,8 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 			public int compare(WorkItem o1, WorkItem o2) {
 				if (o1.equals(o2))
 					return 0;
-				final int p1 = o1.getActivity().getPriority();
-				final int p2 = o2.getActivity().getPriority();
+				final int p1 = o1.getBasicStep().getPriority();
+				final int p2 = o2.getBasicStep().getPriority();
 				if (p1 > p2)
 					return 1;
 				if (p1 < p2)

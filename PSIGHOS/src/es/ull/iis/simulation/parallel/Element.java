@@ -148,8 +148,8 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	protected void addAvailableElementEvents() {
 		synchronized(inQueue) {
 			for (WorkItem wi : inQueue)
-				if (!wi.getActivity().isNonPresential())
-					wi.getActivity().getManager().notifyElement(wi);
+				if (!wi.getBasicStep().isNonPresential())
+					wi.getBasicStep().getManager().notifyElement(wi);
 		}		
 	}
 	

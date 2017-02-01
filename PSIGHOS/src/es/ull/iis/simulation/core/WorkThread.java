@@ -16,7 +16,7 @@ public interface WorkThread extends Comparable<WorkThread>, Prioritizable, Ident
      * Returns the activity being performed.
      * @return The activity being performed
      */
-    public Activity getActivity();
+    public BasicStep getBasicStep();
 	
     /**
      * Returns the single flow being performed, in case this work thread is performing an activity. Otherwise, returns null.

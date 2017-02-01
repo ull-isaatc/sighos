@@ -232,7 +232,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 
 		@Override
 		public void event() {
-			Activity act = wThread.getActivity();
+			BasicStep act = wThread.getBasicStep();
 
 			if (isDebugEnabled())
 				debug("Calling availableElement()\t" + act + "\t" + act.getDescription());

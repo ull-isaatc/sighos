@@ -1,11 +1,10 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.core.Activity;
+import es.ull.iis.simulation.core.BasicStep;
 import es.ull.iis.simulation.core.Resource;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.WorkThread;
-import es.ull.iis.simulation.info.AsynchronousInfo;
 
 public class ResourceUsageInfo extends AsynchronousInfo {
 
@@ -29,7 +28,7 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	final private Resource res;
 	final private ResourceType rt;
 	final private WorkThread wt;
-	final private Activity act;
+	final private BasicStep<?,?,?> act;
 	final private Type type;
 	
 	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, WorkThread wt, Type type, long ts) {
@@ -37,7 +36,7 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 		this.res = res;
 		this.rt = rt;
 		this.wt =wt;
-		this.act = wt.getActivity();
+		this.act = wt.getBasicStep();
 		this.type = type;
 	}
 	
@@ -66,7 +65,7 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 		return message;
 	}
 
-	public Activity getActivity() {
+	public BasicStep<?, ?, ?> getActivity() {
 		return act;
 	}
 }

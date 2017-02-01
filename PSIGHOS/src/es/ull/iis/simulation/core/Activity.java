@@ -3,31 +3,20 @@
  */
 package es.ull.iis.simulation.core;
 
+import java.util.ArrayDeque;
 import java.util.EnumSet;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.flow.FinalizerFlow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
-import es.ull.iis.util.Prioritizable;
 
 /**
  * A task which requires certain amount and type of resources to be performed.
  * @author Iván Castilla Rodríguez
  *
  */
-public interface Activity extends VariableStoreSimulationObject, Describable, Prioritizable {
-    /**
-     * Searches and returns the WG with the specified identifier.
-     * @param wgId The identifier of the searched WG 
-     * @return A WG defined in this activity with the specified identifier
-     */
-	public ActivityWorkGroup getWorkGroup(int wgId);
-	/**
-	 * Returns the amount of WGs associated to this activity
-	 * @return the amount of WGs associated to this activity
-	 */
-	public int getWorkGroupSize();	
+public interface Activity<AWG extends ActivityWorkGroup, WT extends WorkThread, R extends Resource> extends BasicStep<AWG, WT, R> {
 
 	/** Indicates special characteristics of this activity */
 	enum Modifier {
@@ -123,5 +112,11 @@ public interface Activity extends VariableStoreSimulationObject, Describable, Pr
      */
     FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initFlow, FinalizerFlow finalFlow, WorkGroup wg, Condition cond);    	
 	
+	/**
+	 * Catches the resources required to carry out this activity and schedules a new event to finish it. 
+	 * @param wThread Work thread requesting this basic step
+	 */
+	public void carryOut(WT wThread, ArrayDeque<R> solution);
+
 
 }

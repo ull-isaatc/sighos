@@ -124,7 +124,7 @@ public class CheckFlowsView extends WFPTestView {
 	private FlowNode createFlow(Flow f) {
 		if (f instanceof SingleFlow) {
 			SingleFlow sf = (SingleFlow) f;
-			int actId = sf.getActivity().getIdentifier();
+			int actId = sf.getBasicStep().getIdentifier();
 			if (sf.getSuccessor() == null)
 				return new SingleFlowNode(sf.getIdentifier(), actId, getSimul()
 						.simulationTime2Long(durations[actId]), null);

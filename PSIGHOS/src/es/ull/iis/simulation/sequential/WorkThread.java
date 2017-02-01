@@ -2,6 +2,7 @@ package es.ull.iis.simulation.sequential;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.sequential.flow.Flow;
@@ -45,12 +46,12 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
 	/** The last flow the thread was in */
 	protected Flow lastFlow = null;
     /** Activity currently being performed by the element associated to this work thread */
-    protected Activity currentActivity;
+    protected BasicStep currentActivity;
     /** The workgroup which is used to carry out this flow. If <code>null</code>, 
      * the flow has not been carried out. */
     protected ActivityWorkGroup executionWG = null;
     /** List of caught resources */
-    protected ArrayDeque<Resource> caughtResources;
+    final protected TreeMap<Integer, ArrayDeque<Resource>> caughtResources = new TreeMap<Integer, ArrayDeque<Resource>>();
 	/** The arrival order of this work thread relatively to the rest of work threads 
 	 * in the same activity manager. */
 	protected int arrivalOrder;
@@ -84,7 +85,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
 		arrivalTs = -1;
 		timeLeft = -1;    		
     	if (f instanceof SingleFlow) {
-    		currentActivity = ((SingleFlow)f).getActivity();
+    		currentActivity = ((SingleFlow)f).getBasicStep();
     	}
     }
 
@@ -368,8 +369,10 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
      * Catch the resources needed for each resource type to carry out an activity.
      * @return The minimum availability timestamp of the taken resources 
      */
-	protected long catchResources(ArrayDeque<Resource> caughtResources) {
-		this.caughtResources = caughtResources;
+	protected long acquireResources(ArrayDeque<Resource> caughtResources, int id) {
+		if (this.caughtResources.containsKey(id))
+			elem.error("Trying to assign group of resources to already occupied group when catching. ID:" + id);
+		this.caughtResources.put(id, caughtResources);
     	long auxTs = Long.MAX_VALUE;
     	for (Resource res : caughtResources) {
     		auxTs = Math.min(auxTs, res.catchResource(this));;
@@ -382,12 +385,14 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
      * Releases the resources caught by this item to perform the activity.
      * @return A list of activity managers affected by the released resources
      */
-    protected ArrayList<ActivityManager> releaseCaughtResources() {
+    protected ArrayList<ActivityManager> releaseResources(int id) {
+		if (!this.caughtResources.containsKey(id))
+			elem.error("Trying to release group of resources not already created. ID:" + id);
         ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
         // Generate unavailability periods.
-        for (Resource res : caughtResources) {
+        for (Resource res : caughtResources.get(id)) {
 			for (int i = 0; i < currentActivity.cancellationList.size(); i++) {
-				es.ull.iis.simulation.sequential.Activity.CancelListEntry entry = currentActivity.cancellationList.get(i);
+				es.ull.iis.simulation.sequential.BasicStep.CancelListEntry entry = currentActivity.cancellationList.get(i);
 				if (res.currentResourceType == entry.rt) {
 					long actualTs = elem.getTs();
 					res.setNotCanceled(false);
@@ -404,7 +409,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
         				amList.add(am);
         	}
         }
-        caughtResources.clear();
+        caughtResources.remove(id);
         return amList;
     }
 
@@ -416,7 +421,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
 	}
 
 	@Override
-	public Activity getActivity() {
+	public BasicStep getBasicStep() {
 		return currentActivity;
 	}
 

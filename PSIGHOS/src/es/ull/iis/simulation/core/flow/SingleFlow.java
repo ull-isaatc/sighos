@@ -3,19 +3,19 @@
  */
 package es.ull.iis.simulation.core.flow;
 
-import es.ull.iis.simulation.core.Activity;
+import es.ull.iis.simulation.core.BasicStep;
 import es.ull.iis.simulation.core.Element;
 
 /**
- * A {@link Flow} which executes an {@link Activity}. 
+ * A {@link Flow} which executes an {@link BasicStep}. 
  * @author Iván Castilla Rodríguez
  */
 public interface SingleFlow extends SingleSuccessorFlow, TaskFlow {
 	/**
-	 * Obtains the {@link Activity} associated to this {@link SingleFlow}.
-	 * @return The associated {@link Activity} 
+	 * Obtains the {@link BasicStep} associated to this {@link SingleFlow}.
+	 * @return The associated {@link BasicStep} 
 	 */
-	public Activity getActivity();
+	public BasicStep getBasicStep();
 
 	/**
 	 * Allows a user for adding a customized code when an {@link Element}

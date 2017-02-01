@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.sequential.flow;
 
-import es.ull.iis.simulation.sequential.Activity;
+import es.ull.iis.simulation.sequential.BasicStep;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
 
@@ -13,23 +13,20 @@ import es.ull.iis.simulation.sequential.WorkThread;
  */
 public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.iis.simulation.core.flow.SingleFlow {
     /** The activity to be performed */
-    private final Activity act;
+    private final BasicStep act;
     
 	/**
 	 * Creates a new single flow..
 	 * @param simul The simulation this flow belongs to
 	 * @param act Activity to be performed
 	 */
-	public SingleFlow(Simulation simul, Activity act) {
+	public SingleFlow(Simulation simul, BasicStep act) {
 		super(simul);
 		this.act = act;
 	}
 
-	/**
-	 * Obtain the Activity associated to the SingleFlow.
-	 * @return The associated Activity.
-	 */
-	public Activity getActivity() {
+	@Override
+	public BasicStep getBasicStep() {
 		return act;
 	}
 

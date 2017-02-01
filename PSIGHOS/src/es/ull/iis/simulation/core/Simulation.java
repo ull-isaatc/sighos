@@ -307,14 +307,14 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	 * @param id Activity identifier.
 	 * @return An activity with the indicated identifier.
 	 */
-	public abstract Activity getActivity(int id);
+	public abstract BasicStep getActivity(int id);
 
 	/** 	 
 	 * Returns a list of the activities of the model. 	 
 	 * 
 	 *  @return Activities of the model. 	 
 	 */ 	
-	public abstract Map<Integer, ? extends Activity> getActivityList();
+	public abstract Map<Integer, ? extends BasicStep> getActivityList();
 	
 	/**
 	 * Returns the resource type with the corresponding identifier.

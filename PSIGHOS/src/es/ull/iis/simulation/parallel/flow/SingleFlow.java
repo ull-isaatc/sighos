@@ -29,7 +29,7 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 	 * Obtain the Activity associated to the SingleFlow.
 	 * @return The associated Activity.
 	 */
-	public Activity getActivity() {
+	public Activity getBasicStep() {
 		return act;
 	}
 

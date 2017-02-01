@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.ActivityWorkGroup;
+import es.ull.iis.simulation.core.BasicStep;
 import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.WorkThread;
@@ -30,7 +30,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 		};
 	
 	final private WorkThread wi;
-	final private Activity act;
+	final private BasicStep<?, ?,?> act;
 	final private ActivityWorkGroup wg;
 	final private Element elem;
 	final private Type type;
@@ -38,7 +38,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 	public ElementActionInfo(Simulation simul, WorkThread wi, Element elem, Type type, long ts) {
 		super(simul, ts);
 		this.wi = wi;
-		this.act = wi.getActivity();
+		this.act = wi.getBasicStep();
 		this.wg = wi.getExecutionWG();
 		this.elem = elem;
 		this.type = type;
@@ -67,7 +67,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 		return message;
 	}
 
-	public Activity getActivity() {
+	public BasicStep<?, ?, ?> getActivity() {
 		return act;
 	}
 
