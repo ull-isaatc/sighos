@@ -6,7 +6,6 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.Flow;
@@ -44,10 +43,10 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
     	
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
 	   	
-    	Activity act0 = getDefActivity("Rellenar bidon", wg, false);
-    	Activity act1 = getDefActivity("Realizar envío de bidon", wg, false);
+    	Activity<?, ?, ?> act0 = getDefActivity("Rellenar bidon", wg, false);
+    	Activity<?, ?, ?> act1 = getDefActivity("Realizar envío de bidon", wg, false);
     	
-    	act0.putVar("capacidadBidon", 20);
+    	getSimulation().putVar("capacidadBidon", 20);
     	getSimulation().putVar("litrosIntroducidos", 0.0);
     	getSimulation().putVar("enviosRealizados", 0);
         
@@ -59,7 +58,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
         Condition cond = new Condition(getSimulation()) {
         	@Override
         	public boolean check(Element e) {
-        		return simul.getVar("litrosIntroducidos").getValue().doubleValue() < ((Simulation)simul).getActivity(0).getVar("capacidadBidon").getValue().doubleValue();
+        		return simul.getVar("litrosIntroducidos").getValue().doubleValue() < simul.getVar("capacidadBidon").getValue().doubleValue();
         	}
         };
         

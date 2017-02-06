@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.sequential.flow.SingleFlow;
 
 /**
  * A set of resources needed for carrying out an basicStep. A workgroup (WG) consists on a 
@@ -15,7 +16,7 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
     /**
 	 * 
 	 */
-	private final BasicStep basicStep;
+	private final SingleFlow basicStep;
 	/** Workgroup's identifier */
 	protected int id;
 	/** Priority of the workgroup */
@@ -32,7 +33,7 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      * @param wg The original workgroup
      * @param basicStep TODO
      */    
-    protected ActivityWorkGroup(BasicStep basicStep, int id, int priority, WorkGroup wg) {
+    public ActivityWorkGroup(SingleFlow basicStep, int id, int priority, WorkGroup wg) {
         this(basicStep, id, priority, wg, new TrueCondition());
     }
     
@@ -45,7 +46,7 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      * @param cond  Availability condition
      * @param basicStep TODO
      */    
-    protected ActivityWorkGroup(BasicStep basicStep, int id, int priority, WorkGroup wg, Condition cond) {
+    public ActivityWorkGroup(SingleFlow basicStep, int id, int priority, WorkGroup wg, Condition cond) {
         super(wg.resourceTypes, wg.needed);
 		this.basicStep = basicStep;
         this.id = id;
@@ -59,7 +60,7 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      * Returns the basicStep this WG belongs to.
      * @return basicStep this WG belongs to.
      */    
-    protected BasicStep getBasicStep() {
+    protected SingleFlow getBasicStep() {
         return this.basicStep;
     }
     

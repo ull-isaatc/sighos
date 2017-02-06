@@ -10,6 +10,7 @@ import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.sequential.flow.Flow;
+import es.ull.iis.simulation.sequential.flow.SingleFlow;
 import es.ull.iis.util.Output;
 
 /**
@@ -37,7 +38,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	/** The identifier to be assigned to the next activity */ 
 	protected int nextActivityId = 1;
 	/** List of activities present in the simulation. */
-	protected final TreeMap<Integer, BasicStep> activityList = new TreeMap<Integer, BasicStep>();
+	protected final TreeMap<Integer, SingleFlow> activityList = new TreeMap<Integer, SingleFlow>();
 
 	/** The identifier to be assigned to the next resource type */ 
 	protected int nextResourceTypeId = 0;
@@ -306,7 +307,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
-	protected BasicStep add(BasicStep act) {
+	public SingleFlow add(SingleFlow act) {
 		return activityList.put(act.getIdentifier(), act);
 	}
 	
@@ -389,7 +390,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	}
 
 	@Override
-	public Map<Integer, BasicStep> getActivityList() {
+	public Map<Integer, SingleFlow> getActivityList() {
 		return activityList;
 	}
 
@@ -418,7 +419,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	}
 
 	@Override
-	public BasicStep getActivity(int id) {
+	public SingleFlow getActivity(int id) {
 		return activityList.get(id);
 	}
 

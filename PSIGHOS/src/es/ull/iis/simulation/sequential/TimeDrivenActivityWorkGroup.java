@@ -21,7 +21,7 @@ public class TimeDrivenActivityWorkGroup extends ActivityWorkGroup implements es
      * @param wg Original workgroup
      * @param timeDrivenActivity TODO
      */    
-    protected TimeDrivenActivityWorkGroup(Activity timeDrivenActivity, int id, TimeFunction duration, int priority, WorkGroup wg) {
+    public TimeDrivenActivityWorkGroup(Activity timeDrivenActivity, int id, TimeFunction duration, int priority, WorkGroup wg) {
         super(timeDrivenActivity, id, priority, wg);
         this.duration = duration;
     }
@@ -34,7 +34,7 @@ public class TimeDrivenActivityWorkGroup extends ActivityWorkGroup implements es
      * @param cond  Availability condition
      * @param timeDrivenActivity TODO
      */    
-    protected TimeDrivenActivityWorkGroup(Activity timeDrivenActivity, int id, TimeFunction duration, int priority, WorkGroup wg, Condition cond) {
+    public TimeDrivenActivityWorkGroup(Activity timeDrivenActivity, int id, TimeFunction duration, int priority, WorkGroup wg, Condition cond) {
         super(timeDrivenActivity, id, priority, wg, cond);
         this.duration = duration;
     }

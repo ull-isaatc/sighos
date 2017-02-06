@@ -65,18 +65,18 @@ class BarrelShippingExperiment extends Experiment {
 		WorkGroup wgOperator = factory.getWorkGroupInstance(new ResourceType [] {rtOperator}, new int[] {1});	
 
 		// Declares activities (Tasks)
-		Activity actFilling = factory.getActivityInstance("Barrel Filling", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
-		Activity actShipping = factory.getActivityInstance("Barrel Shipping", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
+		Activity<?,?,?> actFilling = factory.getActivityInstance("Barrel Filling", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
+		Activity<?,?,?> actShipping = factory.getActivityInstance("Barrel Shipping", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
 
 		// Declares variables for the Barrel Filling activity
-		actFilling.putVar("barrelCapacity", 100);
+		sim.putVar("barrelCapacity", 100);
 
 		// Defines duration of activities
 		actFilling.addWorkGroup(new SimulationTimeFunction(sim.getTimeUnit(), "ConstantVariate", 15.0), 0, wgOperator);
 		actShipping.addWorkGroup(new SimulationTimeFunction(sim.getTimeUnit(), "ConstantVariate", 20.0), 0, wgOperator);
 
 		// Defines loop conditions	
-		Condition cond = factory.getCustomizedConditionInstance("", "<%GET(S.totalLiters)%> < <%GET(A0.barrelCapacity)%>");
+		Condition cond = factory.getCustomizedConditionInstance("", "<%GET(S.totalLiters)%> < <%GET(S.barrelCapacity)%>");
 		NotCondition notCond = new NotCondition(cond);
 
 		// Declares a MultiChoice node	
@@ -85,7 +85,7 @@ class BarrelShippingExperiment extends Experiment {
 		// Defines the way the variables are updated when filling the barrels	
 		SimulationUserCode userMethods = new SimulationUserCode();
 		userMethods.add(UserMethod.AFTER_FINALIZE, 
-				"if (<%GET(S.totalLiters)%> < <%GET(A0.barrelCapacity)%>) {" +
+				"if (<%GET(S.totalLiters)%> < <%GET(S.barrelCapacity)%>) {" +
 					"double random = Math.random() * 50; " +
 					"<%SET(S.totalLiters, <%GET(S.totalLiters)%> + random)%>;" +	
 				"}");

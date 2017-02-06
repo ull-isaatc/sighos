@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.sequential.flow.Flow;
 import es.ull.iis.simulation.sequential.flow.InitializerFlow;
+import es.ull.iis.simulation.sequential.flow.SingleFlow;
 import es.ull.iis.simulation.sequential.flow.TaskFlow;
 import es.ull.iis.simulation.variable.EnumVariable;
 
@@ -121,7 +122,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 * Notifies a new work thread is waiting in an activity queue.
 	 * @param wt Work thread waiting in queue.
 	 */
-	protected void incInQueue(WorkThread wt) {
+	public void incInQueue(WorkThread wt) {
 			inQueue.add(wt);
 	}
 
@@ -129,7 +130,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 * Notifies a work thread has finished waiting in an activity queue.
 	 * @param wt Work thread that was waiting in a queue.
 	 */
-	protected void decInQueue(WorkThread wt) {
+	public void decInQueue(WorkThread wt) {
 			inQueue.remove(wt);
 	}
 
@@ -232,7 +233,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 
 		@Override
 		public void event() {
-			BasicStep act = wThread.getBasicStep();
+			SingleFlow act = wThread.getBasicStep();
 
 			if (isDebugEnabled())
 				debug("Calling availableElement()\t" + act + "\t" + act.getDescription());

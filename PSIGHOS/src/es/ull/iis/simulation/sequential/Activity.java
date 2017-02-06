@@ -16,13 +16,14 @@ import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.sequential.flow.BasicFlow;
 import es.ull.iis.simulation.sequential.flow.InitializerFlow;
+import es.ull.iis.simulation.sequential.flow.SingleFlow;
 import es.ull.iis.util.RandomPermutation;
 
 /**
  * @author Iván Castilla
  *
  */
-public class Activity extends BasicStep implements es.ull.iis.simulation.core.Activity<ActivityWorkGroup, WorkThread, Resource> {
+public class Activity extends SingleFlow implements es.ull.iis.simulation.core.Activity<ActivityWorkGroup, WorkThread, Resource> {
 	/** 
 	 * An artificially created final node. This flow informs the flow-driven
 	 * work groups that they have being finalized.
@@ -144,7 +145,7 @@ public class Activity extends BasicStep implements es.ull.iis.simulation.core.Ac
 		// Activities with Flow-driven workgroups cannot be presential nor interruptible
 		modifiers.add(Modifier.NONPRESENTIAL);
 		if (modifiers.contains(Modifier.INTERRUPTIBLE)) {
-			error("Trying to add a flow-driven workgroup to an interruptible activity. This attribute will be overriden to ensure proper functioning");
+			simul.error("Trying to add a flow-driven workgroup to an interruptible activity. This attribute will be overriden to ensure proper functioning");
 			modifiers.remove(Modifier.INTERRUPTIBLE);
 		}
 		return aWg;
@@ -193,25 +194,39 @@ public class Activity extends BasicStep implements es.ull.iis.simulation.core.Ac
 	 */
 	@Override
 	public void request(WorkThread wThread) {
-		final Element elem = wThread.getElement();
-		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, elem, ElementActionInfo.Type.REQACT, elem.getTs()));
-		if (elem.isDebugEnabled())
-			elem.debug("Requests\t" + this + "\t" + description);
-		// If the element is not performing a presential activity yet or the
-		// activity to be requested is non presential
-		if (validElement(wThread)) {
-			// There are enough resources to perform the activity
-			final ArrayDeque<Resource> solution = isFeasible(wThread); 
-			if (solution != null) {
-				carryOut(wThread, solution);
+		if (!wThread.wasVisited(this)) {
+			if (wThread.isExecutable()) {
+				if (beforeRequest(wThread.getElement())) {
+					final Element elem = wThread.getElement();
+					simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, elem, ElementActionInfo.Type.REQACT, elem.getTs()));
+					if (elem.isDebugEnabled())
+						elem.debug("Requests\t" + this + "\t" + description);
+					// If the element is not performing a presential activity yet or the
+					// activity to be requested is non presential
+					if (validElement(wThread)) {
+						// There are enough resources to perform the activity
+						final ArrayDeque<Resource> solution = isFeasible(wThread); 
+						if (solution != null) {
+							carryOut(wThread, solution);
+						}
+						else {
+							queueAdd(wThread); // The element is introduced in the queue
+						}
+					} else {
+						queueAdd(wThread); // The element is introduced in the queue
+					}
+				}
+				else {
+					wThread.setExecutable(false, this);
+					next(wThread);
+				}
 			}
 			else {
-				queueAdd(wThread); // The element is introduced in the queue
+				wThread.updatePath(this);
+				next(wThread);
 			}
-		} else {
-			queueAdd(wThread); // The element is introduced in the queue
-		}
-	
+		} else
+			wThread.notifyEnd();
 	}
 
     @Override
@@ -224,7 +239,7 @@ public class Activity extends BasicStep implements es.ull.iis.simulation.core.Ac
         	ArrayDeque<Resource> solution = wg.isFeasible(wt); 
             if (solution != null) {
                 wt.setExecutionWG(wg);
-        		debug("Can be carried out by\t" + wt.getElement().getIdentifier() + "\t" + wt.getExecutionWG());
+        		wt.getElement().debug("Can carry out \t" + this + "\t" + wt.getExecutionWG());
                 if (!isNonPresential())
                 	wt.getElement().setCurrent(wt);
                 return solution;
@@ -283,10 +298,9 @@ public class Activity extends BasicStep implements es.ull.iis.simulation.core.Ac
 	/**
 	 * Releases the resources required to carry out this activity.
 	 * @param wThread Work thread which requested this activity
-	 * @return True if this activity was actually finished; false in other case
 	 */
 	@Override
-	public boolean finish(WorkThread wThread) {
+	public void finish(WorkThread wThread) {
 		final Element elem = wThread.getElement();
 
 		final ArrayList<ActivityManager> amList = wThread.releaseResources(-id);
@@ -309,7 +323,8 @@ public class Activity extends BasicStep implements es.ull.iis.simulation.core.Ac
 			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + description);
-	        return true;
+			afterFinalize(wThread.getElement());
+			next(wThread);
 		}
 		else if (wThread.getExecutionWG() instanceof TimeDrivenActivityWorkGroup) {
 			// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
@@ -321,7 +336,8 @@ public class Activity extends BasicStep implements es.ull.iis.simulation.core.Ac
 				// element availability
 				if (!isNonPresential())
 					elem.addAvailableElementEvents();
-				return true;
+				afterFinalize(wThread.getElement());
+				next(wThread);
 			}
 			// Added the condition(Lancaster compatibility), even when it should be unnecessary.
 			else {
@@ -332,7 +348,6 @@ public class Activity extends BasicStep implements es.ull.iis.simulation.core.Ac
 				queueAdd(wThread); 
 			}
 		}
-		return false;		
 	}
 	
 }

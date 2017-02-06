@@ -33,16 +33,16 @@ class ExperimentTest1 extends Experiment {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Ej", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		Simulation sim = factory.getSimulation();
 
-    	Activity act0 = factory.getActivityInstance("Verificar cuenta", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
+    	factory.getActivityInstance("Verificar cuenta", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
         
     	sim.putVar("Coste total", new IntVariable(0));
-    	act0.putVar("Coste", new IntVariable(200));
+    	sim.putVar("Coste", new IntVariable(200));
     	
-    	IntVariable temp = (IntVariable) act0.getVar("Coste");
+    	IntVariable temp = (IntVariable) sim.getVar("Coste");
     	temp.setValue(temp.getValue().intValue() * 10);  	
-    	System.out.println("A0.Coste = " + act0.getVar("Coste").toString());
+    	System.out.println("Coste de la actividad = " + sim.getVar("Coste").toString());
     	
-    	((IntVariable)sim.getVar("Coste total")).setValue(act0.getVar("Coste").getValue());
+    	((IntVariable)sim.getVar("Coste total")).setValue(sim.getVar("Coste").getValue());
     	System.out.println("Coste total= " + sim.getVar("Coste total").toString());
     	
     	EnumType type = new EnumType("Deportivo", "Familiar", "Gasoil");

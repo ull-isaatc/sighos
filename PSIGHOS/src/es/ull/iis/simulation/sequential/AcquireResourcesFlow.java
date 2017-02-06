@@ -7,20 +7,23 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
+import es.ull.iis.simulation.sequential.flow.SingleFlow;
 
 /**
  * @author Iván Castilla
  *
  */
-public class AcquireResources extends BasicStep {
+public class AcquireResourcesFlow extends SingleFlow {
 	private final int resourcesId;
 
 	/**
 	 * @param simul
 	 * @param description
 	 */
-	public AcquireResources(Simulation simul, String description, int resourcesId) {
+	public AcquireResourcesFlow(Simulation simul, String description, int resourcesId) {
 		super(simul, description);
+		if (resourcesId <= 0)
+			simul.error("Trying to create a negative resource Id in acquire resources flow: " + description);
 		this.resourcesId = resourcesId;
 	}
 
@@ -29,8 +32,10 @@ public class AcquireResources extends BasicStep {
 	 * @param description
 	 * @param priority
 	 */
-	public AcquireResources(Simulation simul, String description, int resourcesId, int priority) {
+	public AcquireResourcesFlow(Simulation simul, String description, int resourcesId, int priority) {
 		super(simul, description, priority);
+		if (resourcesId <= 0)
+			simul.error("Trying to create a negative resource Id in acquire resources flow: " + description);
 		this.resourcesId = resourcesId;
 	}
 
@@ -39,22 +44,37 @@ public class AcquireResources extends BasicStep {
 	 */
 	@Override
 	public void request(WorkThread wThread) {
-		final Element elem = wThread.getElement();
-		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, elem, ElementActionInfo.Type.REQACT, elem.getTs()));
-		if (elem.isDebugEnabled())
-			elem.debug("Requests\t" + this + "\t" + description);
-		if (validElement(wThread)) {
-			// There are enough resources to perform the activity
-			final ArrayDeque<Resource> solution = isFeasible(wThread); 
-			if (solution != null) {
-				carryOut(wThread, solution);
+		if (!wThread.wasVisited(this)) {
+			if (wThread.isExecutable()) {
+				if (beforeRequest(wThread.getElement())) {
+					final Element elem = wThread.getElement();
+					simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, elem, ElementActionInfo.Type.REQACT, elem.getTs()));
+					if (elem.isDebugEnabled())
+						elem.debug("Requests\t" + this + "\t" + description);
+					if (validElement(wThread)) {
+						// There are enough resources to perform the activity
+						final ArrayDeque<Resource> solution = isFeasible(wThread); 
+						if (solution != null) {
+							carryOut(wThread, solution);
+						}
+						else {
+							queueAdd(wThread); // The element is introduced in the queue
+						}
+					} else {
+						queueAdd(wThread); // The element is introduced in the queue
+					}
+				}
+				else {
+					wThread.setExecutable(false, this);
+					next(wThread);
+				}
 			}
 			else {
-				queueAdd(wThread); // The element is introduced in the queue
+				wThread.updatePath(this);
+				next(wThread);
 			}
-		} else {
-			queueAdd(wThread); // The element is introduced in the queue
-		}
+		} else
+			wThread.notifyEnd();
 	}
 
 
@@ -80,7 +100,7 @@ public class AcquireResources extends BasicStep {
         	ArrayDeque<Resource> solution = wg.isFeasible(wt); 
             if (solution != null) {
                 wt.setExecutionWG(wg);
-        		debug("Resources can be acquired by\t" + wt.getElement().getIdentifier() + "\t" + wt.getExecutionWG());
+        		wt.getElement().debug("Can carry out \t" + this + "\t" + wt.getExecutionWG());
                 return solution;
             }            
         }
@@ -96,8 +116,7 @@ public class AcquireResources extends BasicStep {
 
 	// TODO Consider removal from superclass
 	@Override
-	public boolean finish(WorkThread wThread) {
-		return true;
+	public void finish(WorkThread wThread) {
 	}
 
 	/* (non-Javadoc)

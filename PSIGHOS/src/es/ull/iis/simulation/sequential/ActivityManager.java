@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.core.Describable;
+import es.ull.iis.simulation.sequential.flow.SingleFlow;
 import es.ull.iis.util.PrioritizedMap;
 
 /**
@@ -21,7 +22,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     /** Static counter for assigning each new id */
 	private static int nextid = 0;
 	/** A prioritized table of activities */
-	protected final ArrayList<BasicStep> activityList;
+	protected final ArrayList<SingleFlow> activityList;
     /** A list of resorce types */
     protected final ArrayList<ResourceType> resourceTypeList;
     /** This queue contains the work threads that are waiting for activities of this AM */
@@ -34,7 +35,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     public ActivityManager(Simulation simul) {
         super(nextid++, simul);
         resourceTypeList = new ArrayList<ResourceType>();
-        activityList = new ArrayList<BasicStep>();
+        activityList = new ArrayList<SingleFlow>();
         wtQueue = new WorkThreadQueue();
         simul.add(this);
     }
@@ -43,7 +44,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * Adds an activity to this activity manager.
      * @param a Activity added
      */
-    protected void add(BasicStep a) {
+    public void add(SingleFlow a) {
         activityList.add(a);
     }
     
@@ -51,7 +52,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * Adds a resource type to this activity manager.
      * @param rt Resource type added
      */
-    protected void add(ResourceType rt) {
+    public void add(ResourceType rt) {
         resourceTypeList.add(rt);
     }
 
@@ -59,7 +60,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * Adds a work thread to the waiting queue.
      * @param wt Work thread which is added to the waiting queue.
      */
-    protected void queueAdd(WorkThread wt) {
+    public void queueAdd(WorkThread wt) {
     	wtQueue.add(wt);
     }
     
@@ -67,7 +68,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * Removes a work thread from the waiting queue.
      * @param wt work thread which is removed from the waiting queue.
      */
-    protected void queueRemove(WorkThread wt) {
+    public void queueRemove(WorkThread wt) {
     	wtQueue.remove(wt);
     }
     
@@ -82,7 +83,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      */
     protected void availableResource() {
     	// First marks all the activities as "potentially feasible"
-    	for (BasicStep act : activityList)
+    	for (SingleFlow act : activityList)
         	act.resetFeasible();
         // A count of the useless single flows 
     	int uselessSF = 0;
@@ -92,7 +93,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     	while (iter.hasNext() && (uselessSF < wtQueue.size())) {
     		final WorkThread wt = iter.next();
             final Element elem = wt.getElement();
-            final BasicStep act = wt.getBasicStep();
+            final SingleFlow act = wt.getBasicStep();
             
     		// The element's timestamp is updated. That's only useful to print messages
             elem.setTs(getTs());
@@ -146,7 +147,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	public String getDescription() {
         StringBuffer str = new StringBuffer();
         str.append("Activity Manager " + id + "\r\n(Activity[priority]):");
-        for (BasicStep a : activityList)
+        for (SingleFlow a : activityList)
             str.append("\t\"" + a + "\"[" + a.getPriority() + "]");
         str.append("\r\nResource Types: ");
         for (ResourceType rt : resourceTypeList)

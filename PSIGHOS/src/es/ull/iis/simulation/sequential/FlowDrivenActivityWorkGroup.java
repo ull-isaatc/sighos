@@ -25,7 +25,7 @@ public class FlowDrivenActivityWorkGroup extends es.ull.iis.simulation.sequentia
      * @param wg Original workgroup
      * @param flowDrivenActivity TODO
      */    
-    protected  FlowDrivenActivityWorkGroup(Activity flowDrivenActivity, int id, es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
+    public FlowDrivenActivityWorkGroup(Activity flowDrivenActivity, int id, es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
     		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, int priority, WorkGroup wg) {
         super(flowDrivenActivity, id, priority, wg);
         this.initialFlow = (InitializerFlow)initialFlow;
@@ -43,7 +43,7 @@ public class FlowDrivenActivityWorkGroup extends es.ull.iis.simulation.sequentia
      * @param cond  Availability condition
      * @param flowDrivenActivity TODO
      */    
-    protected  FlowDrivenActivityWorkGroup(Activity flowDrivenActivity, int id, es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
+    public FlowDrivenActivityWorkGroup(Activity flowDrivenActivity, int id, es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
     		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, int priority, WorkGroup wg, Condition cond) {
         super(flowDrivenActivity, id, priority, wg, cond);
         this.initialFlow = (InitializerFlow)initialFlow;

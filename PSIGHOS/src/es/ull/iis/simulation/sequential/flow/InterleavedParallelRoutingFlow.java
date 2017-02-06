@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.core.Activity;
+import es.ull.iis.simulation.sequential.Activity;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
 
@@ -40,18 +40,14 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 		
 		this.acts = acts;
 		this.dependencies = dependencies;
-		// Sets the corresponding single flows
-		TreeMap<Activity, SingleFlow> fMap = new TreeMap<Activity, SingleFlow>();
-		for (Activity a : acts)
-			fMap.put(a, new SingleFlow(simul, (es.ull.iis.simulation.sequential.BasicStep)a));
 		
 		TreeMap<SingleFlow, Flow> succLink = new TreeMap<SingleFlow, Flow>();
 		TreeMap<SingleFlow, Flow> predLink = new TreeMap<SingleFlow, Flow>();
 		// Counts predecessors and successors
 		for (Activity[] list : dependencies) {
 			for (int i = 0; i < list.length - 1; i++) {
-				SingleFlow pred = fMap.get(list[i]);
-				SingleFlow succ = fMap.get(list[i + 1]);
+				SingleFlow pred = list[i];
+				SingleFlow succ = list[i + 1];
 					
 				Flow succFlow = succLink.get(pred);
 				// If it has no successor, it's added as its own successor
@@ -79,14 +75,14 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 		// Builds the dependencies graph
 		for (Activity[] list : dependencies) {
 			for (int i = 0; i < list.length - 1; i++) {
-				SingleFlow pred = fMap.get(list[i]);
-				SingleFlow succ = fMap.get(list[i + 1]);
+				SingleFlow pred = list[i];
+				SingleFlow succ = list[i + 1];
 				succLink.get(pred).link(predLink.get(succ));
 			}
 		}
 		
 		// Links the remainder activities to the initial and final flow
-		for (SingleFlow f : fMap.values()) {
+		for (SingleFlow f : acts) {
 			if (!predLink.containsKey(f))
 				initialFlow.link(f);
 			if (!succLink.containsKey(f))

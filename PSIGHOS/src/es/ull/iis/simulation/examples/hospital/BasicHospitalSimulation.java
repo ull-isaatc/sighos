@@ -103,20 +103,16 @@ public class BasicHospitalSimulation extends Simulation {
 		actSurgery.addWorkGroup(40, 0, wgSurgery1);
 		actSurgery.addWorkGroup(60, 0, wgSurgery2);
 		
-		// Create the workflow
-		SingleFlow sfAppointment = new SingleFlow(this, actAppointment);
-		SingleFlow sfSurgery = new SingleFlow(this, actSurgery);
-		
 		// Create a conditional flow to determine if a patient requires surgery
 		ExclusiveChoiceFlow fRequireSurgery = new ExclusiveChoiceFlow(this);
 		// Define 5% of patients requiring surgery
 		PercentageCondition requiresSurgeryCondition = new PercentageCondition(5.0);
 		
-		sfAppointment.link(fRequireSurgery);
-		fRequireSurgery.link(sfSurgery, requiresSurgeryCondition);
-		sfSurgery.link(sfAppointment);
+		actAppointment.link(fRequireSurgery);
+		fRequireSurgery.link(actSurgery, requiresSurgeryCondition);
+		actSurgery.link(actAppointment);
 		
-		ElementCreator creator = new ElementCreator(this, 20, etPatient, sfAppointment);
+		ElementCreator creator = new ElementCreator(this, 20, etPatient, actAppointment);
 		TimeDrivenGenerator gen = new TimeDrivenGenerator(this, creator, docCycle);
 	}
 

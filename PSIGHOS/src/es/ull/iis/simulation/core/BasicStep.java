@@ -11,7 +11,7 @@ import es.ull.iis.util.Prioritizable;
  * @author Iván Castilla
  *
  */
-public interface BasicStep<AWG extends ActivityWorkGroup, WT extends WorkThread, R extends Resource> extends VariableStoreSimulationObject, Describable, Prioritizable {
+public interface BasicStep<AWG extends ActivityWorkGroup, WT extends WorkThread, R extends Resource> extends Describable, Prioritizable, Identifiable {
     /**
      * Searches and returns the WG with the specified identifier.
      * @param wgId The identifier of the searched WG 
@@ -25,14 +25,6 @@ public interface BasicStep<AWG extends ActivityWorkGroup, WT extends WorkThread,
 	 */
 	public int getWorkGroupSize();
 	
-	/**
-	 * Requests this basic step. Checks if it is feasible by the specified work thread. 
-	 * If it is feasible, <code>carryOut</code> is called; in other case, the work thread is added 
-	 * to this basic step's queue.
-	 * @param wThread Work thread requesting this basic step.
-	 */
-	public void request(WT wThread);
-
 	/**
      * Checks if this basic step can be performed with any of its workgroups. Firstly 
      * checks if the basic step is not potentially feasible, then goes through the 
@@ -56,12 +48,4 @@ public interface BasicStep<AWG extends ActivityWorkGroup, WT extends WorkThread,
 	 * @param wThread Work thread requesting this basic step
 	 */
 	public void carryOut(WT wThread, ArrayDeque<R> solution);
-
-	/**
-	 * Releases the resources required to carry out this basic step.
-	 * @param wThread Work thread which requested this basic step
-	 * @return True if this basic step was actually finished; false in other case
-	 */
-	public boolean finish(WT wThread);
-	
 }

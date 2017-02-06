@@ -46,7 +46,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
 	/** The last flow the thread was in */
 	protected Flow lastFlow = null;
     /** Activity currently being performed by the element associated to this work thread */
-    protected BasicStep currentActivity;
+    protected SingleFlow currentActivity;
     /** The workgroup which is used to carry out this flow. If <code>null</code>, 
      * the flow has not been carried out. */
     protected ActivityWorkGroup executionWG = null;
@@ -85,7 +85,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
 		arrivalTs = -1;
 		timeLeft = -1;    		
     	if (f instanceof SingleFlow) {
-    		currentActivity = ((SingleFlow)f).getBasicStep();
+    		currentActivity = (SingleFlow)f;
     	}
     }
 
@@ -391,8 +391,8 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
         ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
         // Generate unavailability periods.
         for (Resource res : caughtResources.get(id)) {
-			for (int i = 0; i < currentActivity.cancellationList.size(); i++) {
-				es.ull.iis.simulation.sequential.BasicStep.CancelListEntry entry = currentActivity.cancellationList.get(i);
+			for (int i = 0; i < currentActivity.getCancellationList().size(); i++) {
+				es.ull.iis.simulation.sequential.flow.SingleFlow.CancelListEntry entry = currentActivity.getCancellationList().get(i);
 				if (res.currentResourceType == entry.rt) {
 					long actualTs = elem.getTs();
 					res.setNotCanceled(false);
@@ -421,7 +421,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
 	}
 
 	@Override
-	public BasicStep getBasicStep() {
+	public SingleFlow getBasicStep() {
 		return currentActivity;
 	}
 

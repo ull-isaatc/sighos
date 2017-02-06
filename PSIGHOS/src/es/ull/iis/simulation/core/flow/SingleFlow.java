@@ -11,11 +11,6 @@ import es.ull.iis.simulation.core.Element;
  * @author Iván Castilla Rodríguez
  */
 public interface SingleFlow extends SingleSuccessorFlow, TaskFlow {
-	/**
-	 * Obtains the {@link BasicStep} associated to this {@link SingleFlow}.
-	 * @return The associated {@link BasicStep} 
-	 */
-	public BasicStep getBasicStep();
 
 	/**
 	 * Allows a user for adding a customized code when an {@link Element}
