@@ -4,9 +4,8 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.flow.SingleFlow;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.StaticPartialJoinMultipleInstancesFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
@@ -28,17 +27,15 @@ public class WFP34Simulation extends WFPTestSimulationFactory {
     	ResourceType rt = getDefResourceType("Director");
     	WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
     	
-    	Activity act0 = getDefActivity("Sign Annual Report", wg);
-    	Activity act1 = getDefActivity("Check acceptance", wg);
+    	ActivityFlow<?,?> act0 = getDefActivity("Sign Annual Report", wg);
+    	ActivityFlow<?,?> act1 = getDefActivity("Check acceptance", wg);
     	
     	for (int i = 0; i < RES; i++)
     		getDefResource("Director" + i, rt);
 
     	StaticPartialJoinMultipleInstancesFlow root = (StaticPartialJoinMultipleInstancesFlow)factory.getFlowInstance("StaticPartialJoinMultipleInstancesFlow", 6, 4);
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
-    	root.addBranch(sin1);
-    	root.link(sin2);
+    	root.addBranch(act0);
+    	root.link(act1);
     	
         getDefGenerator(getDefElementType("ET0"), root);
 		

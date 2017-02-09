@@ -9,15 +9,14 @@ import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationFactory;
-import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
+import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 
 /**
@@ -42,8 +41,8 @@ class ExpOverlapped extends Experiment {
 
         // PASO 1: Inicializo las Activityes de las que se compone
 //    	Activity actDummy = factory.getActivityInstance("Dummy");
-    	Activity actSangre = factory.getActivityInstance("Análisis de sangre");
-    	Activity actOrina = factory.getActivityInstance("Análisis de orina");
+    	ActivityFlow<?,?> actSangre = factory.getActivityInstance("Análisis de sangre");
+    	ActivityFlow<?,?> actOrina = factory.getActivityInstance("Análisis de orina");
  
         // PASO 2: Inicializo las clases de recursos
         ResourceType crSangre = factory.getResourceTypeInstance("Máquina Análisis Sangre");
@@ -81,8 +80,8 @@ class ExpOverlapped extends Experiment {
         }
         
 		ParallelFlow metaFlow = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
-		metaFlow.link((SingleFlow)factory.getFlowInstance("SingleFlow", actOrina));
-		metaFlow.link((SingleFlow)factory.getFlowInstance("SingleFlow", actSangre));
+		metaFlow.link(actOrina);
+		metaFlow.link(actSangre);
 		
 //		SingleFlow metaFlow = (SingleFlow)factory.getFlowInstance(RandomVariateFactory.getInstance("ConstantVariate", 1), actDummy);     
 		SimulationPeriodicCycle c = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 1440), NDAYS);

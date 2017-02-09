@@ -5,9 +5,9 @@ package es.ull.iis.simulation.examples.WFP;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.InterleavedParallelRoutingFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
@@ -39,24 +39,24 @@ public class WFP17Simulation extends WFPTestSimulationFactory {
     	ResourceType rt = getDefResourceType("RT");
     	WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
 
-    	ArrayList<Activity> acts = new ArrayList<Activity>();
+    	ArrayList<ActivityFlow<?,?>> acts = new ArrayList<ActivityFlow<?,?>>();
     	acts.add(getDefActivity("A", wg));
     	acts.add(getDefActivity("B", wg));
     	acts.add(getDefActivity("C", wg));
     	acts.add(getDefActivity("D", wg));
     	acts.add(getDefActivity("E", wg));
     	acts.add(getDefActivity("F", wg));
-    	Activity finalAct = getDefActivity("G", wg);
+    	ActivityFlow<?,?> finalAct = getDefActivity("G", wg);
     	
     	for (int i = 0; i < RES; i++)
     		getDefResource("RES" + i, rt);
     	
     	// Dependencies
-    	ArrayList<Activity[]> dep = new ArrayList<Activity[]>();
-    	dep.add(new Activity[] {acts.get(0), acts.get(1)});
-    	dep.add(new Activity[] {acts.get(0), acts.get(2)});
-    	dep.add(new Activity[] {acts.get(2), acts.get(3), acts.get(4)});
-    	dep.add(new Activity[] {acts.get(1), acts.get(4)});
+    	ArrayList<ActivityFlow<?,?>[]> dep = new ArrayList<ActivityFlow<?,?>[]>();
+    	dep.add(new ActivityFlow[] {acts.get(0), acts.get(1)});
+    	dep.add(new ActivityFlow[] {acts.get(0), acts.get(2)});
+    	dep.add(new ActivityFlow[] {acts.get(2), acts.get(3), acts.get(4)});
+    	dep.add(new ActivityFlow[] {acts.get(1), acts.get(4)});
     	
     	InterleavedParallelRoutingFlow root = (InterleavedParallelRoutingFlow)factory.getFlowInstance("InterleavedParallelRoutingFlow", acts, dep);
     	root.link(factory.getFlowInstance("SingleFlow", finalAct));

@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.Flow;
+import es.ull.iis.simulation.core.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.inforeceiver.InfoHandler;
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
 import es.ull.iis.simulation.inforeceiver.SimulationInfoHandler;
@@ -33,7 +35,7 @@ import es.ull.iis.util.Output;
  * <li>{@link ResourceType}</li>
  * <li>{@link Resource}</li>
  * <li>{@link WorkGroup}</li>
- * <li>{@link Activity}</li>
+ * <li>{@link ActivityFlow}</li>
  * <li>{@link ElementType}</li>
  * <li>{@link Flow}</li>
  * <li>{@link TimeDrivenGenerator}</li>
@@ -307,14 +309,14 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	 * @param id Activity identifier.
 	 * @return An activity with the indicated identifier.
 	 */
-	public abstract BasicStep getActivity(int id);
+	public abstract RequestResourcesFlow<?,?> getActivity(int id);
 
 	/** 	 
 	 * Returns a list of the activities of the model. 	 
 	 * 
 	 *  @return Activities of the model. 	 
 	 */ 	
-	public abstract Map<Integer, ? extends BasicStep> getActivityList();
+	public abstract Map<Integer, ? extends RequestResourcesFlow<?,?>> getActivityList();
 	
 	/**
 	 * Returns the resource type with the corresponding identifier.

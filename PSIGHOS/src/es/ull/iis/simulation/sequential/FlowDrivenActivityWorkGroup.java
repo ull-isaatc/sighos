@@ -1,6 +1,7 @@
 package es.ull.iis.simulation.sequential;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.sequential.flow.ActivityFlow;
 import es.ull.iis.simulation.sequential.flow.FinalizerFlow;
 import es.ull.iis.simulation.sequential.flow.InitializerFlow;
 
@@ -25,12 +26,11 @@ public class FlowDrivenActivityWorkGroup extends es.ull.iis.simulation.sequentia
      * @param wg Original workgroup
      * @param flowDrivenActivity TODO
      */    
-    public FlowDrivenActivityWorkGroup(Activity flowDrivenActivity, int id, es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
+    public FlowDrivenActivityWorkGroup(ActivityFlow flowDrivenActivity, int id, es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
     		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, int priority, WorkGroup wg) {
         super(flowDrivenActivity, id, priority, wg);
         this.initialFlow = (InitializerFlow)initialFlow;
         this.finalFlow = (FinalizerFlow)finalFlow;
-        finalFlow.link(flowDrivenActivity.getVirtualFinalFlow());
     }
     
     /**
@@ -43,12 +43,11 @@ public class FlowDrivenActivityWorkGroup extends es.ull.iis.simulation.sequentia
      * @param cond  Availability condition
      * @param flowDrivenActivity TODO
      */    
-    public FlowDrivenActivityWorkGroup(Activity flowDrivenActivity, int id, es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
+    public FlowDrivenActivityWorkGroup(ActivityFlow flowDrivenActivity, int id, es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
     		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, int priority, WorkGroup wg, Condition cond) {
         super(flowDrivenActivity, id, priority, wg, cond);
         this.initialFlow = (InitializerFlow)initialFlow;
         this.finalFlow = (FinalizerFlow)finalFlow;
-        finalFlow.link(flowDrivenActivity.getVirtualFinalFlow());
     }
 
     /**

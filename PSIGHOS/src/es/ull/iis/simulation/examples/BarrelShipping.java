@@ -3,6 +3,7 @@ package es.ull.iis.simulation.examples;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
+import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.core.ElementCreator;
@@ -13,20 +14,18 @@ import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.SimulationWeeklyPeriodicCycle;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.MultiChoiceFlow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationFactory;
+import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationUserCode;
 import es.ull.iis.simulation.factory.UserMethod;
-import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
-import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.util.WeeklyPeriodicCycle;
 
 class BarrelShippingExperiment extends Experiment {
@@ -64,9 +63,23 @@ class BarrelShippingExperiment extends Experiment {
 		// Defines the needs of the activities in terms of resources
 		WorkGroup wgOperator = factory.getWorkGroupInstance(new ResourceType [] {rtOperator}, new int[] {1});	
 
+		// Defines the way the variables are updated when filling the barrels	
+		SimulationUserCode userMethods = new SimulationUserCode();
+		userMethods.add(UserMethod.AFTER_FINALIZE, 
+				"if (<%GET(S.totalLiters)%> < <%GET(S.barrelCapacity)%>) {" +
+					"double random = Math.random() * 50; " +
+					"<%SET(S.totalLiters, <%GET(S.totalLiters)%> + random)%>;" +	
+				"}");
+			
 		// Declares activities (Tasks)
-		Activity<?,?,?> actFilling = factory.getActivityInstance("Barrel Filling", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
-		Activity<?,?,?> actShipping = factory.getActivityInstance("Barrel Shipping", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
+		ActivityFlow<?,?> actFilling = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", userMethods, "Barrel Filling", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+		// Defines the way the variables are updated when shipping the barrels
+		userMethods.clear();
+		userMethods.add(UserMethod.BEFORE_REQUEST, "<%SET(S.totalLiters, 0)%>;" +
+					"<%SET(S.shipments, <%GET(S.shipments)%> + 1)%>;" +
+					"return true;");
+
+		ActivityFlow<?,?> actShipping = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", userMethods, "Barrel Shipping", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
 
 		// Declares variables for the Barrel Filling activity
 		sim.putVar("barrelCapacity", 100);
@@ -82,28 +95,12 @@ class BarrelShippingExperiment extends Experiment {
 		// Declares a MultiChoice node	
 		MultiChoiceFlow mul1 = (MultiChoiceFlow) factory.getFlowInstance("MultiChoiceFlow");
 
-		// Defines the way the variables are updated when filling the barrels	
-		SimulationUserCode userMethods = new SimulationUserCode();
-		userMethods.add(UserMethod.AFTER_FINALIZE, 
-				"if (<%GET(S.totalLiters)%> < <%GET(S.barrelCapacity)%>) {" +
-					"double random = Math.random() * 50; " +
-					"<%SET(S.totalLiters, <%GET(S.totalLiters)%> + random)%>;" +	
-				"}");
-		SingleFlow root = (SingleFlow) factory.getFlowInstance("SingleFlow", userMethods , actFilling);
-			
-
-		// Defines the way the variables are updated when shipping the barrels
-		userMethods.clear();
-		userMethods.add(UserMethod.BEFORE_REQUEST, "<%SET(S.totalLiters, 0)%>;" +
-					"<%SET(S.shipments, <%GET(S.shipments)%> + 1)%>;" +
-					"return true;");
-		SingleFlow sin1 = (SingleFlow) factory.getFlowInstance("SingleFlow", userMethods, actShipping);
 
 		// Defines the workflow
-		root.link(mul1);
+		actFilling.link(mul1);
 		ArrayList<Flow> succList = new ArrayList<Flow>();
-		succList.add(root);
-		succList.add(sin1);
+		succList.add(actFilling);
+		succList.add(actShipping);
 		ArrayList<Condition> condList = new ArrayList<Condition>();
 		condList.add(cond);
 		condList.add(notCond);
@@ -111,7 +108,7 @@ class BarrelShippingExperiment extends Experiment {
 
 		// Defines the way the processes are created
 		SimulationWeeklyPeriodicCycle cGen = new SimulationWeeklyPeriodicCycle(sim.getTimeUnit(), WeeklyPeriodicCycle.WEEKDAYS, 0, NDAYS);
-		ElementCreator ec = factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 1.0), etShipping, root);
+		ElementCreator ec = factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 1.0), etShipping, actFilling);
 		factory.getTimeDrivenGeneratorInstance(ec, cGen);
 
 		sim.addInfoReceiver(new StdInfoView(sim));

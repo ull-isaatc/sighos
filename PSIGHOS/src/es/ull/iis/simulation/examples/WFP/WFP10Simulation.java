@@ -6,11 +6,10 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.MultiChoiceFlow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationUserCode;
 import es.ull.iis.simulation.factory.UserMethod;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
@@ -43,8 +42,8 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
     	
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
 	   	
-    	Activity<?, ?, ?> act0 = getDefActivity("Rellenar bidon", wg, false);
-    	Activity<?, ?, ?> act1 = getDefActivity("Realizar envío de bidon", wg, false);
+    	ActivityFlow<?,?> act0 = getDefActivity("Rellenar bidon", wg, false);
+    	ActivityFlow<?,?> act1 = getDefActivity("Realizar envío de bidon", wg, false);
     	
     	getSimulation().putVar("capacidadBidon", 20);
     	getSimulation().putVar("litrosIntroducidos", 0.0);

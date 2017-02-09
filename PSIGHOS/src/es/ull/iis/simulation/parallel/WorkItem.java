@@ -79,7 +79,7 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkThread {
     }   
 	
 	@Override
-	public SingleFlow getSingleFlow() {
+	public SingleFlow getCurrentFlow() {
 		return flow;
 	}
 

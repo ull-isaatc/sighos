@@ -1,11 +1,10 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
 /**
@@ -25,27 +24,24 @@ public class WFP02Simulation extends WFPTestSimulationFactory {
         ResourceType rt = getDefResourceType("Operador");
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
-    	Activity act0 = getDefActivity("Detección alarma", wg);
-    	Activity act1 = getDefActivity("Mandar patrulla", wg, false);
-    	Activity act2 = getDefActivity("Generar informe", wg, false);
+    	ActivityFlow<?,?> act0 = getDefActivity("Detección alarma", wg);
+    	ActivityFlow<?,?> act1 = getDefActivity("Mandar patrulla", wg, false);
+    	ActivityFlow<?,?> act2 = getDefActivity("Generar informe", wg, false);
    
         getDefResource("Operador1", rt);
         getDefResource("Operador2", rt);
         getDefResource("Operador3", rt);
         getDefResource("Operador4", rt);
         
-        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
         ParallelFlow par1 = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
         
-        root.link(par1);
-        par1.link(sin2);
-        par1.link(sin3);
+        act0.link(par1);
+        par1.link(act1);
+        par1.link(act2);
          
-        getDefGenerator(getDefElementType("Activaciones de alarma"), root);
+        getDefGenerator(getDefElementType("Activaciones de alarma"), act0);
 //        addInfoReceiver(new WFP02CheckView(this, detailed));
-        getSimulation().addInfoReceiver(new CheckFlowsView(getSimulation(), root, new TimeStamp[] {DEFACTDURATION[0], DEFACTDURATION[0], DEFACTDURATION[0]}, detailed));
+        getSimulation().addInfoReceiver(new CheckFlowsView(getSimulation(), act0, new TimeStamp[] {DEFACTDURATION[0], DEFACTDURATION[0], DEFACTDURATION[0]}, detailed));
     }
 	
 }

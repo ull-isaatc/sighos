@@ -126,16 +126,16 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 	}
 
 	@Override
-	public Collection<es.ull.iis.simulation.core.Activity> getActivities() {
-		ArrayList<es.ull.iis.simulation.core.Activity> temp = new ArrayList<es.ull.iis.simulation.core.Activity>();
+	public Collection<es.ull.iis.simulation.core.flow.ActivityFlow> getActivities() {
+		ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow> temp = new ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow>();
 		for (Activity a : acts)
 			temp.add(a);
 		return temp;
 	}
 
 	@Override
-	public Collection<es.ull.iis.simulation.core.Activity[]> getDependencies() {
-		ArrayList<es.ull.iis.simulation.core.Activity[]> temp = new ArrayList<es.ull.iis.simulation.core.Activity[]>();
+	public Collection<es.ull.iis.simulation.core.flow.ActivityFlow[]> getDependencies() {
+		ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow[]> temp = new ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow[]>();
 		for (Activity[] dep : dependencies)
 			temp.add(dep);
 		return temp;

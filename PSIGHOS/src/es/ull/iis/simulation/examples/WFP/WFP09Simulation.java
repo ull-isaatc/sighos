@@ -1,9 +1,8 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.flow.SingleFlow;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.StructuredDiscriminatorFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
@@ -33,21 +32,18 @@ public class WFP09Simulation extends WFPTestSimulationFactory {
 	   	
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
 
-        Activity act0 = getDefActivity("Comprobar respiracion", 0, wg, false);
-        Activity act1 = getDefActivity("Comprobar pulso", 1, wg, false);
-        Activity act2 = getDefActivity("Masaje cardiaco", 2, wg, false);
+        ActivityFlow<?,?> act0 = getDefActivity("Comprobar respiracion", 0, wg, false);
+        ActivityFlow<?,?> act1 = getDefActivity("Comprobar pulso", 1, wg, false);
+        ActivityFlow<?,?> act2 = getDefActivity("Masaje cardiaco", 2, wg, false);
         
         getDefResource("Doctor 1", rt0);        
         getDefResource("Doctor 2", rt0);        
         
         StructuredDiscriminatorFlow root = (StructuredDiscriminatorFlow)factory.getFlowInstance("StructuredDiscriminatorFlow");
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
               
-        root.addBranch(sin1);
-        root.addBranch(sin2);
-        root.link(sin3);
+        root.addBranch(act0);
+        root.addBranch(act1);
+        root.link(act2);
         
         getDefGenerator(getDefElementType("Paciente"), root);
 		

@@ -1,10 +1,9 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.core.flow.SynchronizationFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
@@ -25,9 +24,9 @@ public class WFP03Simulation extends WFPTestSimulationFactory {
         ResourceType rt = getDefResourceType("Comercial");
 
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
-        Activity act0 = getDefActivity("Generacion de factura", wg, false);
-        Activity act1 = getDefActivity("Comprobacion de factura", 1, wg, false);
-        Activity act2 = getDefActivity("Envio de mercancias", wg, false);
+        ActivityFlow<?,?> act0 = getDefActivity("Generacion de factura", wg, false);
+        ActivityFlow<?,?> act1 = getDefActivity("Comprobacion de factura", 1, wg, false);
+        ActivityFlow<?,?> act2 = getDefActivity("Envio de mercancias", wg, false);
         
 
         getDefResource("Comercial1", rt);
@@ -36,15 +35,12 @@ public class WFP03Simulation extends WFPTestSimulationFactory {
         
         ParallelFlow root = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
         SynchronizationFlow synchro1 = (SynchronizationFlow)factory.getFlowInstance("SynchronizationFlow");
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
         
-        root.link(sin1);
-        root.link(sin2);
-        sin1.link(synchro1);
-        sin2.link(synchro1);
-        synchro1.link(sin3);
+        root.link(act0);
+        root.link(act1);
+        act0.link(synchro1);
+        act1.link(synchro1);
+        synchro1.link(act2);
         
         getDefGenerator(getDefElementType("Cliente"), root);
 

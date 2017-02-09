@@ -14,7 +14,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface TaskFlow extends es.ull.iis.simulation.core.flow.TaskFlow, InitializerFlow, FinalizerFlow {
+public interface TaskFlow extends InitializerFlow, FinalizerFlow {
 	/**
 	 * Finishes the associated task.
 	 * @param wThread The work thread which requested this flow.

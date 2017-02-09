@@ -4,7 +4,7 @@ import java.util.ArrayDeque;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.sequential.flow.SingleFlow;
+import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
 
 /**
  * A set of resources needed for carrying out an basicStep. A workgroup (WG) consists on a 
@@ -16,7 +16,7 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
     /**
 	 * 
 	 */
-	private final SingleFlow basicStep;
+	private final RequestResourcesFlow basicStep;
 	/** Workgroup's identifier */
 	protected int id;
 	/** Priority of the workgroup */
@@ -33,7 +33,7 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      * @param wg The original workgroup
      * @param basicStep TODO
      */    
-    public ActivityWorkGroup(SingleFlow basicStep, int id, int priority, WorkGroup wg) {
+    public ActivityWorkGroup(RequestResourcesFlow basicStep, int id, int priority, WorkGroup wg) {
         this(basicStep, id, priority, wg, new TrueCondition());
     }
     
@@ -46,7 +46,7 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      * @param cond  Availability condition
      * @param basicStep TODO
      */    
-    public ActivityWorkGroup(SingleFlow basicStep, int id, int priority, WorkGroup wg, Condition cond) {
+    public ActivityWorkGroup(RequestResourcesFlow basicStep, int id, int priority, WorkGroup wg, Condition cond) {
         super(wg.resourceTypes, wg.needed);
 		this.basicStep = basicStep;
         this.id = id;
@@ -60,7 +60,7 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      * Returns the basicStep this WG belongs to.
      * @return basicStep this WG belongs to.
      */    
-    protected SingleFlow getBasicStep() {
+    protected RequestResourcesFlow getBasicStep() {
         return this.basicStep;
     }
     
@@ -83,7 +83,7 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      * @return The set of resources which compound the solution. Null if there are not enough
      * resources to carry out the basicStep by using this workgroup.
      */
-    protected ArrayDeque<Resource> isFeasible(WorkThread wThread) {
+    public ArrayDeque<Resource> isFeasible(WorkThread wThread) {
 
     	if (!cond.check(wThread.getElement()))
     		return null;

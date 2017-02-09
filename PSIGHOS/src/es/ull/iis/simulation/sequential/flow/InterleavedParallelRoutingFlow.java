@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.sequential.Activity;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
 
@@ -21,8 +20,8 @@ import es.ull.iis.simulation.sequential.WorkThread;
  *
  */
 public class InterleavedParallelRoutingFlow extends StructuredFlow implements es.ull.iis.simulation.core.flow.InterleavedParallelRoutingFlow {
-	protected Collection<Activity> acts;
-	protected Collection<Activity[]> dependencies;
+	protected Collection<ActivityFlow> acts;
+	protected Collection<ActivityFlow[]> dependencies;
 	/**
 	 * Creates a flow which contains a set of activities that must be performed according to a
 	 * predefined set of partial orderings.
@@ -31,7 +30,7 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 	 * @param dependencies A set of activity arrays, so that each array indicates precedence relations
 	 * among the activities.
 	 */
-	public InterleavedParallelRoutingFlow(Simulation simul, Collection<Activity> acts, Collection<Activity[]> dependencies) {
+	public InterleavedParallelRoutingFlow(Simulation simul, Collection<ActivityFlow> acts, Collection<ActivityFlow[]> dependencies) {
 		super(simul);
 		initialFlow = new ParallelFlow(simul);
 		initialFlow.setParent(this);
@@ -41,20 +40,20 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 		this.acts = acts;
 		this.dependencies = dependencies;
 		
-		TreeMap<SingleFlow, Flow> succLink = new TreeMap<SingleFlow, Flow>();
-		TreeMap<SingleFlow, Flow> predLink = new TreeMap<SingleFlow, Flow>();
+		TreeMap<ActivityFlow, Flow> succLink = new TreeMap<ActivityFlow, Flow>();
+		TreeMap<ActivityFlow, Flow> predLink = new TreeMap<ActivityFlow, Flow>();
 		// Counts predecessors and successors
-		for (Activity[] list : dependencies) {
+		for (ActivityFlow[] list : dependencies) {
 			for (int i = 0; i < list.length - 1; i++) {
-				SingleFlow pred = list[i];
-				SingleFlow succ = list[i + 1];
+				ActivityFlow pred = list[i];
+				ActivityFlow succ = list[i + 1];
 					
 				Flow succFlow = succLink.get(pred);
 				// If it has no successor, it's added as its own successor
 				if (succFlow == null) 
 					succLink.put(pred, pred);
 				// If it already has a single successor, a parallel flow is added as successor
-				else if (succFlow instanceof SingleFlow) {
+				else if (succFlow instanceof ActivityFlow) {
 					succLink.put(pred, new ParallelFlow(simul));
 					pred.link(succLink.get(pred));
 				}
@@ -65,7 +64,7 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 				if (predFlow == null) 
 					predLink.put(succ, succ);
 				// If it already has a single predecessor, a sync flow is added as predecessor
-				else if (predFlow instanceof SingleFlow) {
+				else if (predFlow instanceof ActivityFlow) {
 					predLink.put(succ, new SynchronizationFlow(simul));
 					predLink.get(succ).link(succ);
 				}
@@ -73,16 +72,16 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 		}
 		
 		// Builds the dependencies graph
-		for (Activity[] list : dependencies) {
+		for (ActivityFlow[] list : dependencies) {
 			for (int i = 0; i < list.length - 1; i++) {
-				SingleFlow pred = list[i];
-				SingleFlow succ = list[i + 1];
+				ActivityFlow pred = list[i];
+				ActivityFlow succ = list[i + 1];
 				succLink.get(pred).link(predLink.get(succ));
 			}
 		}
 		
 		// Links the remainder activities to the initial and final flow
-		for (SingleFlow f : acts) {
+		for (ActivityFlow f : acts) {
 			if (!predLink.containsKey(f))
 				initialFlow.link(f);
 			if (!succLink.containsKey(f))
@@ -94,7 +93,7 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.WorkThread)
 	 */
 	public void finish(WorkThread wThread) {
-		afterFinalize(wThread.getElement());
+		afterFinalize(wThread);
 		next(wThread);
 
 	}
@@ -121,17 +120,17 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 	}
 
 	@Override
-	public Collection<es.ull.iis.simulation.core.Activity> getActivities() {
-		ArrayList<es.ull.iis.simulation.core.Activity> temp = new ArrayList<es.ull.iis.simulation.core.Activity>();
-		for (Activity a : acts)
+	public Collection<es.ull.iis.simulation.core.flow.ActivityFlow<?,?>> getActivities() {
+		ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow<?,?>> temp = new ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow<?,?>>();
+		for (ActivityFlow a : acts)
 			temp.add(a);
 		return temp;
 	}
 
 	@Override
-	public Collection<es.ull.iis.simulation.core.Activity[]> getDependencies() {
-		ArrayList<es.ull.iis.simulation.core.Activity[]> temp = new ArrayList<es.ull.iis.simulation.core.Activity[]>();
-		for (Activity[] dep : dependencies)
+	public Collection<es.ull.iis.simulation.core.flow.ActivityFlow<?,?>[]> getDependencies() {
+		ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow<?,?>[]> temp = new ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow<?,?>[]>();
+		for (ActivityFlow[] dep : dependencies)
 			temp.add(dep);
 		return temp;
 	}

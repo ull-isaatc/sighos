@@ -3,10 +3,9 @@ package es.ull.iis.simulation.examples.WFP;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.DoWhileFlow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationUserCode;
 import es.ull.iis.simulation.factory.UserMethod;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
@@ -37,7 +36,7 @@ public class WFP21Simulation_DoWhile extends WFPTestSimulationFactory {
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
     	
-    	Activity act0 = getDefActivity("Revelar foto", wg, false);
+    	ActivityFlow<?,?> act0 = getDefActivity("Revelar foto", wg, false);
 
         getDefResource("Maquina 1", rt0);        
         getDefResource("Maquina 2", rt0);

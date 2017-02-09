@@ -11,11 +11,11 @@ import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeDrivenGenerator;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.factory.SimulationFactory;
 import es.ull.iis.simulation.factory.SimulationObjectFactory;
@@ -91,24 +91,24 @@ public abstract class WFPTestSimulationFactory {
 		return factory.getResourceTypeInstance(description);
 	}
 	
-	public Activity getDefActivity(String description, WorkGroup wg) {
+	public ActivityFlow<?,?> getDefActivity(String description, WorkGroup wg) {
 		return getDefActivity(description, 0, wg, true);
 	}
 	
-	public Activity getDefActivity(String description, WorkGroup wg, boolean presential) {
+	public ActivityFlow<?,?> getDefActivity(String description, WorkGroup wg, boolean presential) {
 		return getDefActivity(description, 0, wg, presential);
 	}
 	
-	public Activity getDefActivity(String description, int dur, WorkGroup wg) {
+	public ActivityFlow<?,?> getDefActivity(String description, int dur, WorkGroup wg) {
 		return getDefActivity(description, dur, wg, true);
 	}
 	
-	public Activity getDefActivity(String description, int dur, WorkGroup wg, boolean presential) {
-		Activity act = null;
+	public ActivityFlow<?,?> getDefActivity(String description, int dur, WorkGroup wg, boolean presential) {
+		ActivityFlow<?,?> act = null;
 		if (!presential)
-			act = factory.getActivityInstance(description, 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
+			act = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", description, 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
 		else
-			act = factory.getActivityInstance(description);
+			act = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", description);
     	act.addWorkGroup(new SimulationTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[dur]), 0, wg);
 		return act;
 	}

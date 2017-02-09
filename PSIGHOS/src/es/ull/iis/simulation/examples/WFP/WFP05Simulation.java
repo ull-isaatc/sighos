@@ -1,11 +1,10 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
 import es.ull.iis.simulation.core.flow.SimpleMergeFlow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
 /**
@@ -33,10 +32,10 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
         WorkGroup wgFacturacion = factory.getWorkGroupInstance(new ResourceType[] {rt3}, new int[] {1});
         WorkGroup wgEH8 = factory.getWorkGroupInstance(new ResourceType[] {rt4, rt2}, new int[] {1, 1});
         
-        Activity act0 = getDefActivity("Excavacion bobcat", wgEBob, false);
-        Activity act1 = getDefActivity("Excavacion D9", wgED9, false);
-        Activity act2 = getDefActivity("Facturacion", 2, wgFacturacion, false);
-        Activity act3 = getDefActivity("Excavacion H8", 1, wgEH8, false);
+        ActivityFlow<?,?> act0 = getDefActivity("Excavacion bobcat", wgEBob, false);
+        ActivityFlow<?,?> act1 = getDefActivity("Excavacion D9", wgED9, false);
+        ActivityFlow<?,?> act2 = getDefActivity("Facturacion", 2, wgFacturacion, false);
+        ActivityFlow<?,?> act3 = getDefActivity("Excavacion H8", 1, wgEH8, false);
         
         getDefResource("Bobcat1", rt0);
         getDefResource("D91", rt1);
@@ -48,19 +47,15 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
         getDefResource("H81", rt4);
 
         ParallelFlow root = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
         SimpleMergeFlow simme1 = (SimpleMergeFlow)factory.getFlowInstance("SimpleMergeFlow");        
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
-        SingleFlow sin4 = (SingleFlow)factory.getFlowInstance("SingleFlow", act3);
         
-        root.link(sin1);
-        root.link(sin2);     
-        root.link(sin4);     
-        sin1.link(simme1);
-        sin2.link(simme1);
-        sin4.link(simme1);
-        simme1.link(sin3);
+        root.link(act0);
+        root.link(act1);     
+        root.link(act3);     
+        act0.link(simme1);
+        act1.link(simme1);
+        act3.link(simme1);
+        simme1.link(act2);
         
         getDefGenerator(getDefElementType("Excavacion"), root);
 //        getSimulation().addInfoReceiver(new WFP05CheckView(getSimulation(), detailed));

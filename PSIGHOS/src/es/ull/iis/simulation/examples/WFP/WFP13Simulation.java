@@ -4,9 +4,8 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.flow.SingleFlow;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.SynchronizedMultipleInstanceFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
@@ -37,14 +36,14 @@ public class WFP13Simulation extends WFPTestSimulationFactory {
     	ResourceType rt0 = getDefResourceType("Director");
     	WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
     	
-    	Activity act0 = getDefActivity("Sign Annual Report", wg);
-    	Activity act1 = getDefActivity("Check acceptance", wg);
+    	ActivityFlow<?,?> act0 = getDefActivity("Sign Annual Report", wg);
+    	ActivityFlow<?,?> act1 = getDefActivity("Check acceptance", wg);
     	
     	for (int i = 0; i < RES; i++)
     		getDefResource("Director" + i, rt0);
 
 		SynchronizedMultipleInstanceFlow root = (SynchronizedMultipleInstanceFlow)factory.getFlowInstance("SynchronizedMultipleInstanceFlow", 6);
-    	root.addBranch((SingleFlow)factory.getFlowInstance("SingleFlow", act0));
+    	root.addBranch(act0);
     	root.link(factory.getFlowInstance("SingleFlow", act1));
 
     	getDefGenerator(getDefElementType("ET0"), root);

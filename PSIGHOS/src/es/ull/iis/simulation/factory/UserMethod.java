@@ -6,9 +6,11 @@ package es.ull.iis.simulation.factory;
 import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.ElementCreator;
 import es.ull.iis.simulation.core.ResourceType;
+import es.ull.iis.simulation.core.WorkThread;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
+import es.ull.iis.simulation.core.flow.FinalizerFlow;
 import es.ull.iis.simulation.core.flow.Flow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
-import es.ull.iis.simulation.core.flow.TaskFlow;
+import es.ull.iis.simulation.core.flow.RequestResourcesFlow;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -23,9 +25,9 @@ public enum UserMethod {
 	AFTER_ROLE_OFF("afterRoleOff", ResourceType.class, "public void afterRoleOff()"),
 	// TODO: Change to get package automatically
 	BEFORE_REQUEST("beforeRequest", Flow.class, "public boolean beforeRequest(es.ull.iis.simulation.core.Element e)", Element.class),
-	AFTER_FINALIZE("afterFinalize", TaskFlow.class, "public void afterFinalize(es.ull.iis.simulation.core.Element e)", Element.class),
-	AFTER_START("afterStart", SingleFlow.class, "public void afterStart(es.ull.iis.simulation.core.Element e)", Element.class),
-	IN_QUEUE("inqueue", SingleFlow.class, "public void inqueue(es.ull.iis.simulation.core.Element e)", Element.class);
+	AFTER_FINALIZE("afterFinalize", FinalizerFlow.class, "public void afterFinalize(es.ull.iis.simulation.core.WorkThread wThread)", WorkThread.class),
+	AFTER_START("afterStart", ActivityFlow.class, "public void afterStart(es.ull.iis.simulation.core.WorkThread wThread)", WorkThread.class),
+	IN_QUEUE("inqueue", RequestResourcesFlow.class, "public void inqueue(es.ull.iis.simulation.core.WorkThread wThread)", WorkThread.class);
 	
 	private Class<?> containerClass;
 	private String name;

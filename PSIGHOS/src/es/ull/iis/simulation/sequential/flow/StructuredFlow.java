@@ -33,7 +33,7 @@ public abstract class StructuredFlow extends SingleSuccessorFlow implements Task
 	}
 
 	@Override
-	public void afterFinalize(es.ull.iis.simulation.core.Element e) {
+	public void afterFinalize(es.ull.iis.simulation.core.WorkThread<?> wt) {
 	}
 
 	@Override

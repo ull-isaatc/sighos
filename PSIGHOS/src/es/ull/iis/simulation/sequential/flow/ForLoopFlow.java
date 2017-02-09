@@ -81,7 +81,7 @@ public class ForLoopFlow extends StructuredLoopFlow implements es.ull.iis.simula
 		}
 		else {
 			checkList.remove(wThread);
-			afterFinalize(wThread.getElement());
+			afterFinalize(wThread);
 			next(wThread);
 		}
 	}

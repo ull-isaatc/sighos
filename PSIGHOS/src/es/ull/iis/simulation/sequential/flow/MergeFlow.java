@@ -145,7 +145,10 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements es.ull.ii
 	public boolean isSafe() {
 		return safe;
 	}
-	
+
+	@Override
+	public void afterFinalize(es.ull.iis.simulation.core.WorkThread<?> wt) {}
+
 }
 
 

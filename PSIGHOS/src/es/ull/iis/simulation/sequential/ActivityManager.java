@@ -1,13 +1,12 @@
 package es.ull.iis.simulation.sequential;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.core.Describable;
-import es.ull.iis.simulation.sequential.flow.SingleFlow;
+import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
 import es.ull.iis.util.PrioritizedMap;
 
 /**
@@ -22,7 +21,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     /** Static counter for assigning each new id */
 	private static int nextid = 0;
 	/** A prioritized table of activities */
-	protected final ArrayList<SingleFlow> activityList;
+	protected final ArrayList<RequestResourcesFlow> activityList;
     /** A list of resorce types */
     protected final ArrayList<ResourceType> resourceTypeList;
     /** This queue contains the work threads that are waiting for activities of this AM */
@@ -35,7 +34,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     public ActivityManager(Simulation simul) {
         super(nextid++, simul);
         resourceTypeList = new ArrayList<ResourceType>();
-        activityList = new ArrayList<SingleFlow>();
+        activityList = new ArrayList<RequestResourcesFlow>();
         wtQueue = new WorkThreadQueue();
         simul.add(this);
     }
@@ -44,7 +43,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * Adds an activity to this activity manager.
      * @param a Activity added
      */
-    public void add(SingleFlow a) {
+    public void add(RequestResourcesFlow a) {
         activityList.add(a);
     }
     
@@ -81,9 +80,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * which can't be performed with the current resources. If this amount is equal to the size
      * of waiting work items, this method stops. 
      */
-    protected void availableResource() {
+    public void availableResource() {
     	// First marks all the activities as "potentially feasible"
-    	for (SingleFlow act : activityList)
+    	for (RequestResourcesFlow act : activityList)
         	act.resetFeasible();
         // A count of the useless single flows 
     	int uselessSF = 0;
@@ -93,25 +92,23 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     	while (iter.hasNext() && (uselessSF < wtQueue.size())) {
     		final WorkThread wt = iter.next();
             final Element elem = wt.getElement();
-            final SingleFlow act = wt.getBasicStep();
+            // TODO: Check whether it always works fine
+            final RequestResourcesFlow act = (RequestResourcesFlow) wt.getCurrentFlow();
             
     		// The element's timestamp is updated. That's only useful to print messages
             elem.setTs(getTs());
-            if (act.validElement(wt)) {
-            	ArrayDeque<Resource> solution = act.isFeasible(wt); 
-            	if (solution != null) {	// The activity can be performed
-                    act.carryOut(wt, solution);
-            		toRemove.add(wt);
-            		uselessSF--;
-            	}
-            	else {	// The activity can't be performed with the current resources
-                	uselessSF += act.getQueueSize();
-            	}
-            }
+            final int result = act.availableResource(wt);
+            if (result == -1) {
+        		toRemove.add(wt);
+        		uselessSF--;
+        	}
+        	else if (result > 0) {	// The activity can't be performed with the current resources
+            	uselessSF += result;
+        	}
 		}
-    	// Postponed removal
+    	// Postponed removal to avoid conflict with the activity manager queue
     	for (WorkThread wt : toRemove)
-    		wt.getBasicStep().queueRemove(wt);
+    		((RequestResourcesFlow) wt.getCurrentFlow()).queueRemove(wt);
     } 
 
     /**
@@ -147,7 +144,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	public String getDescription() {
         StringBuffer str = new StringBuffer();
         str.append("Activity Manager " + id + "\r\n(Activity[priority]):");
-        for (SingleFlow a : activityList)
+        for (RequestResourcesFlow a : activityList)
             str.append("\t\"" + a + "\"[" + a.getPriority() + "]");
         str.append("\r\nResource Types: ");
         for (ResourceType rt : resourceTypeList)
@@ -173,9 +170,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 			public int compare(WorkThread o1, WorkThread o2) {
 				if (o1.equals(o2))
 					return 0;
-				if (o1.getBasicStep().getPriority() > o2.getBasicStep().getPriority())
+				if (((RequestResourcesFlow) o1.getCurrentFlow()).getPriority() > ((RequestResourcesFlow) o2.getCurrentFlow()).getPriority())
 					return 1;
-				if (o1.getBasicStep().getPriority() < o2.getBasicStep().getPriority())
+				if (((RequestResourcesFlow) o1.getCurrentFlow()).getPriority() < ((RequestResourcesFlow) o2.getCurrentFlow()).getPriority())
 					return -1;
 				if (o1.getArrivalOrder() > o2.getArrivalOrder())
 					return 1;

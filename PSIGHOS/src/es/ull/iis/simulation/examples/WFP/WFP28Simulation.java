@@ -1,11 +1,10 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.DiscriminatorFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
 /**
@@ -36,9 +35,9 @@ public class WFP28Simulation extends WFPTestSimulationFactory {
         WorkGroup wg0 = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
         WorkGroup wg1 = factory.getWorkGroupInstance(new ResourceType[] {rt1}, new int[] {1});
 	   	
-        Activity act0 = getDefActivity("Confirmar llegada delegacion", 2, wg0, false);
-        Activity act1 = getDefActivity("Chequeo de seguridad", 3, wg1, false);
-        Activity act2 = getDefActivity("Preparacion para nueva delegacion", 2, wg0, false);
+        ActivityFlow<?,?> act0 = getDefActivity("Confirmar llegada delegacion", 2, wg0, false);
+        ActivityFlow<?,?> act1 = getDefActivity("Chequeo de seguridad", 3, wg1, false);
+        ActivityFlow<?,?> act2 = getDefActivity("Preparacion para nueva delegacion", 2, wg0, false);
 
         getDefResource("Asistente 1", rt0);        
         getDefResource("Asistente 2", rt0);
@@ -46,16 +45,13 @@ public class WFP28Simulation extends WFPTestSimulationFactory {
         getDefResource("Segurita 2", rt1);
         
         ParallelFlow root = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
         DiscriminatorFlow dis1 = (DiscriminatorFlow)factory.getFlowInstance("DiscriminatorFlow");
         
-        root.link(sin1);
-        root.link(sin2);
-        sin1.link(dis1);
-        sin2.link(dis1);
-        dis1.link(sin3);
+        root.link(act0);
+        root.link(act1);
+        act0.link(dis1);
+        act1.link(dis1);
+        dis1.link(act2);
         
         getDefGenerator(getDefElementType("Asistente"), root);
 	}

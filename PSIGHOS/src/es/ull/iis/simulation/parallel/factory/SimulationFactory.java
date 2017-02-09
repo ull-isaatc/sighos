@@ -7,7 +7,6 @@ import java.util.EnumSet;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.ElementCreator;
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.Resource;
@@ -17,6 +16,7 @@ import es.ull.iis.simulation.core.TimeDrivenGenerator;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.factory.ConditionFactory;
@@ -130,18 +130,18 @@ public class SimulationFactory implements SimulationObjectFactory {
 	}
 
 	@Override
-	public Activity getActivityInstance(String description) throws ClassCastException {
+	public ActivityFlow getActivityInstance(String description) throws ClassCastException {
 		return new es.ull.iis.simulation.parallel.Activity(simul, description);
 	}
 
 	@Override
-	public Activity getActivityInstance(String description, int priority,
-			EnumSet<es.ull.iis.simulation.core.Activity.Modifier> modifiers) throws ClassCastException {
+	public ActivityFlow getActivityInstance(String description, int priority,
+			EnumSet<es.ull.iis.simulation.core.flow.ActivityFlow.Modifier> modifiers) throws ClassCastException {
 		return new es.ull.iis.simulation.parallel.Activity(simul, description, priority, modifiers);
 	}
 
 	@Override
-	public Activity getActivityInstance(String description, int priority) throws ClassCastException {
+	public ActivityFlow getActivityInstance(String description, int priority) throws ClassCastException {
 		return new es.ull.iis.simulation.parallel.Activity(simul, description, priority);
 	}
 

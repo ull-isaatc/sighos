@@ -13,10 +13,10 @@ import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ForLoopFlow;
 import es.ull.iis.simulation.core.flow.InterleavedRoutingFlow;
 import es.ull.iis.simulation.core.flow.SingleFlow;
@@ -191,7 +191,7 @@ public class BenchmarkModel {
 		return sim;
 	}
 	
-	private void stdBuildElementGenerators(SimulationObjectFactory factory, ForLoopFlow[] smfs, Activity[] acts, WorkGroup[] wgs) {
+	private void stdBuildElementGenerators(SimulationObjectFactory factory, ForLoopFlow[] smfs, ActivityFlow[] acts, WorkGroup[] wgs) {
 		ElementType et = factory.getElementTypeInstance("E_TEST");
 		switch(ovType) {
 			case SAMETIME:
@@ -237,7 +237,7 @@ public class BenchmarkModel {
 		ResourceType[] rts = new ResourceType[nAct];
 		WorkGroup[] wgs = new WorkGroup[nAct];
 		Resource[] res = new Resource[nElem * nAct];
-		Activity[] acts = new Activity[nAct];
+		ActivityFlow[] acts = new ActivityFlow[nAct];
 		SingleFlow[] smfs = new SingleFlow[nAct];
 		
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
@@ -273,7 +273,7 @@ public class BenchmarkModel {
 		WorkGroup[] wgs = new WorkGroup[nAct];
 		Resource[] res = new Resource[nElem];
 		
-		Activity[] acts = new Activity[nAct];
+		ActivityFlow[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
@@ -303,7 +303,7 @@ public class BenchmarkModel {
 	}
 
 	private Simulation getTestSimpleNoResources() {
-		Activity[] acts = new Activity[nAct];
+		ActivityFlow[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
@@ -331,7 +331,7 @@ public class BenchmarkModel {
 	}
 	
 	private Simulation getTestTotalConflict() {
-		Activity[] acts = new Activity[nAct];
+		ActivityFlow[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		ResourceType[] rts = new ResourceType[nAct];
 		WorkGroup[] wgs = new WorkGroup[nAct];
@@ -365,7 +365,7 @@ public class BenchmarkModel {
 	}
 	
 	private Simulation getTestMixConflict() {
-		Activity[] acts = new Activity[nAct];
+		ActivityFlow[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		ResourceType[] rts = new ResourceType[nAct];
 		WorkGroup[] wgs = new WorkGroup[nAct];
@@ -424,7 +424,7 @@ public class BenchmarkModel {
 		WorkGroup[] wgs = new WorkGroup[nAct];
 		Resource[] res = new Resource[(int) (nElem * rtXact * resAvailabilityFactor)];
 		
-		Activity[] acts = new Activity[nAct];
+		ActivityFlow[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);

@@ -8,10 +8,10 @@ import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationCycle;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.factory.SimulationFactory;
 import es.ull.iis.simulation.factory.SimulationObjectFactory;
@@ -47,7 +47,7 @@ class ExpConflict extends Experiment {
 		wgs[0] = factory.getWorkGroupInstance(new ResourceType[] {rts[0], rts[1]}, new int[] {1, 1});
 		wgs[1] = factory.getWorkGroupInstance(new ResourceType[] {rts[3], rts[2]}, new int[] {1, 1});
 		
-		Activity acts[] = new Activity[NACTS];
+		ActivityFlow<?,?> acts[] = new ActivityFlow[NACTS];
 		for (int i = 0; i < NACTS; i++) {
 			acts[i] = factory.getActivityInstance("ACT" + i);
 			acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 40), 0, wgs[i]);
@@ -90,7 +90,7 @@ class ExpConflict extends Experiment {
 		wgs[1] = factory.getWorkGroupInstance(new ResourceType[] {rts[3], rts[2]}, new int[] {1, 1});
 		wgs[2] = factory.getWorkGroupInstance(new ResourceType[] {rts[5]}, new int[] {1});
 
-		Activity acts[] = new Activity[NACTS];
+		ActivityFlow<?,?> acts[] = new ActivityFlow[NACTS];
 		for (int i = 0; i < NACTS; i++) {
 			acts[i] = factory.getActivityInstance("ACT" + i);
 			acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 40), 0, wgs[i]);

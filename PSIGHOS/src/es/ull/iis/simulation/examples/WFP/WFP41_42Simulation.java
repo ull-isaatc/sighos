@@ -4,9 +4,8 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.flow.SingleFlow;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ThreadMergeFlow;
 import es.ull.iis.simulation.core.flow.ThreadSplitFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
@@ -36,20 +35,17 @@ public class WFP41_42Simulation extends WFPTestSimulationFactory {
     	getDefResource("Ref1", rt1);
     	getDefResource("Ref2", rt1);
 		
-    	Activity act0 = getDefActivity("Confirm paper receival", 0, wg0, false);
-    	Activity act1 = getDefActivity("Independent Peer review", 6, wg1, false);
-    	Activity act2 = getDefActivity("Notify authors", 0, wg0, false);
+    	ActivityFlow<?,?> act0 = getDefActivity("Confirm paper receival", 0, wg0, false);
+    	ActivityFlow<?,?> act1 = getDefActivity("Independent Peer review", 6, wg1, false);
+    	ActivityFlow<?,?> act2 = getDefActivity("Notify authors", 0, wg0, false);
 		
-        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-
         ThreadSplitFlow split = (ThreadSplitFlow)factory.getFlowInstance("ThreadSplitFlow", 3);
-		root.link(split);
-        SingleFlow peer = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
-		split.link(peer);
+		act0.link(split);
+		split.link(act1);
         ThreadMergeFlow merge = (ThreadMergeFlow)factory.getFlowInstance("ThreadMergeFlow", 3);
-		peer.link(merge);
-		merge.link((SingleFlow)factory.getFlowInstance("SingleFlow", act2));
+        act1.link(merge);
+		merge.link(act2);
 
-        getDefGenerator(getDefElementType("ET0"), root);
+        getDefGenerator(getDefElementType("ET0"), act0);
 	}
 }

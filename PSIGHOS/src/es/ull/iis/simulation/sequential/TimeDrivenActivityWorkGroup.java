@@ -2,6 +2,7 @@ package es.ull.iis.simulation.sequential;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.sequential.flow.ActivityFlow;
 
 /**
  * A set of resources needed for carrying out an activity. A workgroup (WG) consists on a 
@@ -21,7 +22,7 @@ public class TimeDrivenActivityWorkGroup extends ActivityWorkGroup implements es
      * @param wg Original workgroup
      * @param timeDrivenActivity TODO
      */    
-    public TimeDrivenActivityWorkGroup(Activity timeDrivenActivity, int id, TimeFunction duration, int priority, WorkGroup wg) {
+    public TimeDrivenActivityWorkGroup(ActivityFlow timeDrivenActivity, int id, TimeFunction duration, int priority, WorkGroup wg) {
         super(timeDrivenActivity, id, priority, wg);
         this.duration = duration;
     }
@@ -34,7 +35,7 @@ public class TimeDrivenActivityWorkGroup extends ActivityWorkGroup implements es
      * @param cond  Availability condition
      * @param timeDrivenActivity TODO
      */    
-    public TimeDrivenActivityWorkGroup(Activity timeDrivenActivity, int id, TimeFunction duration, int priority, WorkGroup wg, Condition cond) {
+    public TimeDrivenActivityWorkGroup(ActivityFlow timeDrivenActivity, int id, TimeFunction duration, int priority, WorkGroup wg, Condition cond) {
         super(timeDrivenActivity, id, priority, wg, cond);
         this.duration = duration;
     }

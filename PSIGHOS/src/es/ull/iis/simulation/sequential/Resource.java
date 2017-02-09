@@ -246,7 +246,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
      * @return True if the resource could be correctly released. False if the availability
      * time of the resource had already expired.
      */
-    protected boolean releaseResource() {
+    public boolean releaseResource() {
 		setTs(simul.getTs());
 		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, this, this.getCurrentResourceType(), currentWT, ResourceUsageInfo.Type.RELEASED, getTs()));
         currentWT = null;

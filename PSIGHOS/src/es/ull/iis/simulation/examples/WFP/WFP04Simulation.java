@@ -4,10 +4,9 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ExclusiveChoiceFlow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
 /**
@@ -28,23 +27,20 @@ public class WFP04Simulation extends WFPTestSimulationFactory {
         ResourceType rt = getDefResourceType("Encargado");
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
         
-        Activity act0 = getDefActivity("Celebrar elecciones", wg, false);
-        Activity act1 = getDefActivity("Recuentos de votos", wg, false);
-        Activity act2 = getDefActivity("Declarar resultados", wg, false);
+        ActivityFlow<?,?> act0 = getDefActivity("Celebrar elecciones", wg, false);
+        ActivityFlow<?,?> act1 = getDefActivity("Recuentos de votos", wg, false);
+        ActivityFlow<?,?> act2 = getDefActivity("Declarar resultados", wg, false);
         
         getDefResource("Encargado 1", rt); 
-      
-        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-        ExclusiveChoiceFlow excho1 = (ExclusiveChoiceFlow)factory.getFlowInstance("ExclusiveChoiceFlow");
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
-        
-        root.link(excho1);
-        Condition falseCond = new NotCondition(new TrueCondition());
-        excho1.link(sin2);
-        excho1.link(sin3, falseCond);
 
-        getDefGenerator(getDefElementType("Votante"), root);
+        ExclusiveChoiceFlow excho1 = (ExclusiveChoiceFlow)factory.getFlowInstance("ExclusiveChoiceFlow");
+        
+        act0.link(excho1);
+        Condition falseCond = new NotCondition(new TrueCondition());
+        excho1.link(act1);
+        excho1.link(act2, falseCond);
+
+        getDefGenerator(getDefElementType("Votante"), act0);
 //        getSimulation().addInfoReceiver(new WFP04CheckView(getSimulation(), detailed));
     }
 	

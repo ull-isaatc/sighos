@@ -1,6 +1,5 @@
 package es.ull.iis.simulation.sequential;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,7 +8,7 @@ import java.util.Map.Entry;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.sequential.flow.Flow;
 import es.ull.iis.simulation.sequential.flow.InitializerFlow;
-import es.ull.iis.simulation.sequential.flow.SingleFlow;
+import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.sequential.flow.TaskFlow;
 import es.ull.iis.simulation.variable.EnumVariable;
 
@@ -77,7 +76,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 * being performed by this element. A null value indicates that the element has 
 	 * finished performing the activity.
 	 */
-	protected void setCurrent(WorkThread current) {
+	public void setCurrent(WorkThread current) {
 		this.current = current;
 	}
 
@@ -138,9 +137,15 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 * Creates the events to notify the activities that this element is now
 	 * available. All the activities this element is in their queues are notified.
 	 */
-	protected void addAvailableElementEvents() {
-		for (int i = 0; (current == null) && (i < inQueue.size()); i++)
-			addEvent(new AvailableElementEvent(ts, inQueue.get(i)));
+	public void addAvailableElementEvents() {
+		for (int i = 0; (current == null) && (i < inQueue.size()); i++) {
+			final WorkThread wThread = inQueue.get(i);
+            final RequestResourcesFlow act = (RequestResourcesFlow) wThread.getCurrentFlow();
+
+			if (isDebugEnabled())
+				debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
+			act.availableElement(wThread);
+		}
 	}
 	
 	/**
@@ -218,33 +223,4 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 		}
 	}
 	
-	/**
-	 * Informs an activity about an available element in its queue.
-	 * @author Iván Castilla Rodríguez
-	 */
-	public class AvailableElementEvent extends BasicElement.DiscreteEvent {
-		/** Flow informed of the availability of the element */
-		private final WorkThread wThread;
-
-		public AvailableElementEvent(long ts, WorkThread wThread) {
-			super(ts);
-			this.wThread = wThread;
-		}
-
-		@Override
-		public void event() {
-			SingleFlow act = wThread.getBasicStep();
-
-			if (isDebugEnabled())
-				debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
-			// If the element is not performing a presential activity yet
-			if (current == null) {
-				ArrayDeque<Resource> solution = act.isFeasible(wThread);
-				if (solution != null) {
-					act.carryOut(wThread, solution);
-					act.queueRemove(wThread);
-				}
-			}
-		}
-	}
 }

@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.core;
 
-import es.ull.iis.simulation.core.flow.SingleFlow;
+import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.util.Prioritizable;
 
 /**
@@ -11,18 +11,19 @@ import es.ull.iis.util.Prioritizable;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface WorkThread extends Comparable<WorkThread>, Prioritizable, Identifiable {
+public interface WorkThread<F extends Flow> extends Comparable<WorkThread<F>>, Prioritizable, Identifiable {
+
 	/**
-     * Returns the activity being performed.
-     * @return The activity being performed
-     */
-    public BasicStep getBasicStep();
-	
-    /**
-     * Returns the single flow being performed, in case this work thread is performing an activity. Otherwise, returns null.
-	 * @return The single flow being performed or null if this work thread is not currently performing an activity.
+	 * Sets the flow currently executed by this workthread 
+	 * @param f The flow to be performed
 	 */
-	public SingleFlow getSingleFlow();
+    public void setCurrentFlow(F f);
+
+    /**
+     * Returns the flow being performed.
+	 * @return The flow being performed.
+	 */
+	public F getCurrentFlow();
 
 	/**
      * Returns the element performing this single flow.

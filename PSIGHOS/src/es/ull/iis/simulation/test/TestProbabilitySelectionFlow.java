@@ -8,15 +8,14 @@ import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ProbabilitySelectionFlow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationFactory;
-import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
+import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 
 /**
@@ -37,9 +36,9 @@ class ExperimentProbSel extends Experiment {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "EjProbabilidades", TimeUnit.MINUTE, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		sim = factory.getSimulation();
 
-    	Activity act0 = factory.getActivityInstance("10 %", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
-    	Activity act1 = factory.getActivityInstance("30 %", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
-    	Activity act2 = factory.getActivityInstance("60 %", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
+    	ActivityFlow<?,?> act0 = factory.getActivityInstance("10 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+    	ActivityFlow<?,?> act1 = factory.getActivityInstance("30 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+    	ActivityFlow<?,?> act2 = factory.getActivityInstance("60 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
         ResourceType rt = factory.getResourceTypeInstance("Empleado");
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
@@ -57,13 +56,10 @@ class ExperimentProbSel extends Experiment {
         
 
         ProbabilitySelectionFlow root = (ProbabilitySelectionFlow)factory.getFlowInstance("ProbabilitySelectionFlow");
-        SingleFlow sin0 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
         
-        root.link(sin0, 0.1);
-        root.link(sin1, 0.3);
-        root.link(sin2, 0.6);
+        root.link(act0, 0.1);
+        root.link(act1, 0.3);
+        root.link(act2, 0.6);
         
         ElementType et = factory.getElementTypeInstance("Cliente");
         SimulationPeriodicCycle cGen = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 1040), NDAYS);

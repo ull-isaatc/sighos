@@ -7,7 +7,6 @@ import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.PercentageCondition;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.sequential.Activity;
 import es.ull.iis.simulation.sequential.ElementCreator;
 import es.ull.iis.simulation.sequential.ElementType;
 import es.ull.iis.simulation.sequential.Resource;
@@ -15,8 +14,8 @@ import es.ull.iis.simulation.sequential.ResourceType;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
 import es.ull.iis.simulation.sequential.WorkGroup;
+import es.ull.iis.simulation.sequential.flow.ActivityFlow;
 import es.ull.iis.simulation.sequential.flow.ExclusiveChoiceFlow;
-import es.ull.iis.simulation.sequential.flow.SingleFlow;
 
 /**
  * The model of the hospital to be simulated.
@@ -90,8 +89,8 @@ public class BasicHospitalSimulation extends Simulation {
 		resDoctor3.addTimeTableEntry(surgeonCycle, 3 * 60, rtSurgeon);
 		
 		// Create the activities
-		Activity actAppointment = new Activity(this, "Appointment");
-		Activity actSurgery = new Activity(this, "Surgery");
+		ActivityFlow actAppointment = new ActivityFlow(this, "Appointment");
+		ActivityFlow actSurgery = new ActivityFlow(this, "Surgery");
 		
 		// Define the workgroups
 		WorkGroup wgAppointment = new WorkGroup(rtDoctor, 1);
@@ -113,7 +112,7 @@ public class BasicHospitalSimulation extends Simulation {
 		actSurgery.link(actAppointment);
 		
 		ElementCreator creator = new ElementCreator(this, 20, etPatient, actAppointment);
-		TimeDrivenGenerator gen = new TimeDrivenGenerator(this, creator, docCycle);
+		new TimeDrivenGenerator(this, creator, docCycle);
 	}
 
 }

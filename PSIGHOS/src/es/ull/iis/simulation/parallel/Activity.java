@@ -39,7 +39,7 @@ import es.ull.iis.util.PrioritizedTable;
  * resource can't be used during a period of time after the activity finishes.
  * @author Carlos Martín Galán
  */
-public class Activity extends TimeStampedSimulationObject implements es.ull.iis.simulation.core.Activity {
+public class Activity extends TimeStampedSimulationObject implements es.ull.iis.simulation.core.flow.ActivityFlow {
 	/** 
 	 * An artificially created final node. This flow informs the flow-driven
 	 * activity that it has being finalized.
@@ -346,7 +346,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
         manager.queueAdd(wi);
     	queueSize++;
 		wi.getElement().incInQueue(wi);
-		wi.getSingleFlow().inqueue(wi.getElement());
+		wi.getCurrentFlow().inqueue(wi.getElement());
     }
     
     /**
@@ -429,7 +429,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 	 */
 	public void carryOut(WorkItem wItem) {
 		final Element elem = wItem.getElement();
-		wItem.getSingleFlow().afterStart(elem);
+		wItem.getCurrentFlow().afterStart(elem);
 		long auxTs = wItem.catchResources();
 
 		if (wItem.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
@@ -458,7 +458,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 				auxTs = finishTs;
 				wItem.setTimeLeft(0);
 			}
-			elem.addEvent(elem.new FinishFlowEvent(auxTs, wItem.getSingleFlow(), wItem.getWorkThread()));
+			elem.addEvent(elem.new FinishFlowEvent(auxTs, wItem.getCurrentFlow(), wItem.getWorkThread()));
 		} 
 		else {
 			elem.error("Trying to carry out unexpected type of workgroup");

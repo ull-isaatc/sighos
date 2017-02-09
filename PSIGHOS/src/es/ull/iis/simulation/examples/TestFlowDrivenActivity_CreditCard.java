@@ -1,22 +1,21 @@
 package es.ull.iis.simulation.examples;
 import java.util.EnumSet;
 
+import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.flow.SingleFlow;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.factory.SimulationFactory;
-import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
+import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
-import es.ull.iis.function.TimeFunctionFactory;
 
 /**
  * 
@@ -37,9 +36,9 @@ class ExperimentFDAE1 extends Experiment {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "ExCreaditCard", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		sim = factory.getSimulation();
 		
-    	Activity act0 = factory.getActivityInstance("Verify account", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
-    	Activity act1 = factory.getActivityInstance("Get card details", 0, EnumSet.of(Activity.Modifier.NONPRESENTIAL));
-    	Activity act2 = factory.getActivityInstance("Process completed");
+    	ActivityFlow<?,?> act0 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "Verify account", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+    	ActivityFlow<?,?> act1 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "Get card details", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+    	ActivityFlow<?,?> act2 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "Process completed");
         ResourceType rt0 = factory.getResourceTypeInstance("Cashier");
         ResourceType rt1 = factory.getResourceTypeInstance("Director");
         
@@ -56,18 +55,13 @@ class ExperimentFDAE1 extends Experiment {
         factory.getResourceInstance("Cashier3").addTimeTableEntry(c2, 420, rt0);
         factory.getResourceInstance("Director1").addTimeTableEntry(c2, 420, rt1);
         
-        
-        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
-        
-        root.link(sin1);
+        act0.link(act1);
 
-        act2.addWorkGroup(root, sin1, wg1);
-        SingleFlow whole = (SingleFlow)factory.getFlowInstance("SingleFlow", act2);
+        act2.addWorkGroup(act0, act1, wg1);
          
         ElementType et = factory.getElementTypeInstance("Cliente");
         SimulationPeriodicCycle cGen = SimulationPeriodicCycle.newDailyCycle(unit);
-        factory.getTimeDrivenGeneratorInstance(factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 3), et, whole), cGen);        
+        factory.getTimeDrivenGeneratorInstance(factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 3), et, act2), cGen);        
 		
 		sim.addInfoReceiver(new StdInfoView(sim));
 

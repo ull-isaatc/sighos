@@ -1,22 +1,24 @@
 /**
  * 
  */
-package es.ull.iis.simulation.core;
+package es.ull.iis.simulation.core.flow;
 
-import java.util.ArrayDeque;
 import java.util.EnumSet;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.core.flow.FinalizerFlow;
-import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.simulation.core.ActivityWorkGroup;
+import es.ull.iis.simulation.core.FlowDrivenActivityWorkGroup;
+import es.ull.iis.simulation.core.TimeDrivenActivityWorkGroup;
+import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.WorkThread;
 
 /**
  * A task which requires certain amount and type of resources to be performed.
  * @author Iván Castilla Rodríguez
  *
  */
-public interface Activity<AWG extends ActivityWorkGroup, WT extends WorkThread, R extends Resource> extends BasicStep<AWG, WT, R> {
+public interface ActivityFlow<AWG extends ActivityWorkGroup, WT extends WorkThread<?>> extends RequestResourcesFlow<AWG, WT>, TaskFlow {
 
 	/** Indicates special characteristics of this activity */
 	enum Modifier {
@@ -113,10 +115,11 @@ public interface Activity<AWG extends ActivityWorkGroup, WT extends WorkThread, 
     FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initFlow, FinalizerFlow finalFlow, WorkGroup wg, Condition cond);    	
 	
 	/**
-	 * Catches the resources required to carry out this activity and schedules a new event to finish it. 
-	 * @param wThread Work thread requesting this basic step
+	 * Allows a user for adding a customized code when the {@link WorkThread} actually starts the
+	 * execution of the {@link ActivityFlow}.
+	 * @param wt {@link WorkThread} requesting this {@link ActivityFlow}
 	 */
-	public void carryOut(WT wThread, ArrayDeque<R> solution);
-
+	public void afterStart(WT wThread);
+	
 
 }

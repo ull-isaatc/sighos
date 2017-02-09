@@ -69,7 +69,7 @@ public class DoWhileFlow extends StructuredLoopFlow implements es.ull.iis.simula
 		if (cond.check(wThread.getElement())) {
 			wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
 		} else {
-			afterFinalize(wThread.getElement());
+			afterFinalize(wThread);
 			next(wThread);
 		}
 	}

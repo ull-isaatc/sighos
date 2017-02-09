@@ -4,10 +4,11 @@
 package es.ull.iis.simulation.core;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.util.Prioritizable;
 
 /**
- * A {@link WorkGroup} which is used inside an {@link Activity}. It may have an associated 
+ * A {@link WorkGroup} which is used inside an {@link ActivityFlow}. It may have an associated 
  * {@link Condition} and a priority.
  * @author Iván Castilla Rodríguez
  */

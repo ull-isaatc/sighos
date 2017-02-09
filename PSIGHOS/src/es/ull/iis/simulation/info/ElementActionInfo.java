@@ -1,14 +1,13 @@
 package es.ull.iis.simulation.info;
 
 import es.ull.iis.simulation.core.ActivityWorkGroup;
-import es.ull.iis.simulation.core.BasicStep;
 import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.WorkThread;
-import es.ull.iis.simulation.info.AsynchronousInfo;
+import es.ull.iis.simulation.core.flow.RequestResourcesFlow;
 
 public class ElementActionInfo extends AsynchronousInfo {
-
+	
 	/** Possible types of element information */
 	public enum Type {
 			REQACT	("REQUEST ACTIVITY"), 
@@ -29,18 +28,18 @@ public class ElementActionInfo extends AsynchronousInfo {
 			
 		};
 	
-	final private WorkThread wi;
-	final private BasicStep<?, ?,?> act;
+	final private WorkThread<?> wThread;
+	final private RequestResourcesFlow<?, ?> act;
 	final private ActivityWorkGroup wg;
 	final private Element elem;
 	final private Type type;
 	
-	public ElementActionInfo(Simulation simul, WorkThread wi, Element elem, Type type, long ts) {
+	public ElementActionInfo(Simulation simul, WorkThread<?> wThread, Type type, long ts) {
 		super(simul, ts);
-		this.wi = wi;
-		this.act = wi.getBasicStep();
-		this.wg = wi.getExecutionWG();
-		this.elem = elem;
+		this.wThread = wThread;
+		this.act = (RequestResourcesFlow<?, ?>)wThread.getCurrentFlow();
+		this.wg = wThread.getExecutionWG();
+		this.elem = wThread.getElement();
 		this.type = type;
 	}
 	
@@ -48,8 +47,8 @@ public class ElementActionInfo extends AsynchronousInfo {
 		return elem;
 	}
 	
-	public WorkThread getWorkItem() {
-		return wi;
+	public WorkThread<?> getWorkThread() {
+		return wThread;
 	}
 	
 	public Type getType() {
@@ -67,7 +66,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 		return message;
 	}
 
-	public BasicStep<?, ?, ?> getActivity() {
+	public RequestResourcesFlow<?, ?> getActivity() {
 		return act;
 	}
 

@@ -8,7 +8,7 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.sequential.flow.SingleFlow;
+import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -41,7 +41,7 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 		for (int i = 0; i < nManagers; i++)
 			new ActivityManager(simul);
 		// The activities are associated to the activity managers
-		for (SingleFlow a : simul.getActivityList().values()) {
+		for (RequestResourcesFlow a : simul.getActivityList().values()) {
 			Iterator<ActivityWorkGroup> iter = a.iterator();
 			// This step is for non-resource-types activities
 			boolean found = false;
@@ -81,7 +81,7 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 			for (Integer key : simul.getResourceTypeList().keySet())
 				put(key, new TreeSet<Integer>());
 			// Goes through the activity list to built the adyacent list 
-			for (SingleFlow a : simul.getActivityList().values()) {
+			for (RequestResourcesFlow a : simul.getActivityList().values()) {
 				Iterator<ActivityWorkGroup> iter = a.iterator();
 				// Looks for the first WorkGroup that contains at least one resource type
 				int firstWG = 1;

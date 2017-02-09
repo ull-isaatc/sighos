@@ -2,12 +2,11 @@ package es.ull.iis.simulation.sequential;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.sequential.flow.Flow;
 import es.ull.iis.simulation.sequential.flow.InitializerFlow;
-import es.ull.iis.simulation.sequential.flow.SingleFlow;
 import es.ull.iis.simulation.sequential.flow.TaskFlow;
 
 /**
@@ -26,7 +25,7 @@ import es.ull.iis.simulation.sequential.flow.TaskFlow;
  *  only for synchronization purposes and doesn't execute task flows. 
  * @author Iván Castilla Rodríguez
  */
-public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
+public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow> {
 	/** Thread's Counter. Useful for identifying each single flow */
 	private static int counter = 0;
 	/** Thread's internal identifier */
@@ -45,8 +44,6 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
 	protected Flow currentFlow = null;
 	/** The last flow the thread was in */
 	protected Flow lastFlow = null;
-    /** Activity currently being performed by the element associated to this work thread */
-    protected SingleFlow currentActivity;
     /** The workgroup which is used to carry out this flow. If <code>null</code>, 
      * the flow has not been carried out. */
     protected ActivityWorkGroup executionWG = null;
@@ -79,21 +76,17 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
         this.id = counter++;
     }
 
-    public void setCurrentFlow(Flow f) {
+	@Override
+	public void setCurrentFlow(Flow f) {
     	currentFlow = f;
 		executionWG = null;
 		arrivalTs = -1;
 		timeLeft = -1;    		
-    	if (f instanceof SingleFlow) {
-    		currentActivity = (SingleFlow)f;
-    	}
-    }
+	}
 
-	@Override
-	public SingleFlow getSingleFlow() {
-		if (currentFlow instanceof SingleFlow)
-			return (SingleFlow)currentFlow;
-		return null;
+    @Override
+	public Flow getCurrentFlow() {
+		return currentFlow;
 	}
 	    
     /**
@@ -221,10 +214,11 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
 	 */
 	@Override
 	public String toString() {
-		return "WT" + id + "(" + elem + ")\tACT: " + currentActivity.getDescription();
+		return "WT" + id + "(" + elem + ")\tFLOW: " + currentFlow;
 	}
 	
-	public int compareTo(es.ull.iis.simulation.core.WorkThread o) {
+	@Override
+	public int compareTo(es.ull.iis.simulation.core.WorkThread<Flow> o) {
 		if (id > o.getIdentifier())
 			return 1;
 		if (id < o.getIdentifier())
@@ -369,7 +363,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
      * Catch the resources needed for each resource type to carry out an activity.
      * @return The minimum availability timestamp of the taken resources 
      */
-	protected long acquireResources(ArrayDeque<Resource> caughtResources, int id) {
+	public long acquireResources(ArrayDeque<Resource> caughtResources, int id) {
 		if (this.caughtResources.containsKey(id))
 			elem.error("Trying to assign group of resources to already occupied group when catching. ID:" + id);
 		this.caughtResources.put(id, caughtResources);
@@ -385,32 +379,8 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
      * Releases the resources caught by this item to perform the activity.
      * @return A list of activity managers affected by the released resources
      */
-    protected ArrayList<ActivityManager> releaseResources(int id) {
-		if (!this.caughtResources.containsKey(id))
-			elem.error("Trying to release group of resources not already created. ID:" + id);
-        ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
-        // Generate unavailability periods.
-        for (Resource res : caughtResources.get(id)) {
-			for (int i = 0; i < currentActivity.getCancellationList().size(); i++) {
-				es.ull.iis.simulation.sequential.flow.SingleFlow.CancelListEntry entry = currentActivity.getCancellationList().get(i);
-				if (res.currentResourceType == entry.rt) {
-					long actualTs = elem.getTs();
-					res.setNotCanceled(false);
-					currentFlow.getSimulation().getInfoHandler().notifyInfo(new ResourceInfo(currentFlow.getSimulation(), res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
-					res.generateCancelPeriodOffEvent(actualTs, entry.dur);
-				}
-			}
-			elem.debug("Returned " + res);
-        	// The resource is freed
-        	if (res.releaseResource()) {
-        		// The activity managers involved are included in the list
-        		for (ActivityManager am : res.getCurrentManagers())
-        			if (!amList.contains(am))
-        				amList.add(am);
-        	}
-        }
-        caughtResources.remove(id);
-        return amList;
+    public Collection<Resource> releaseResources(int id) {
+        return caughtResources.remove(id);
     }
 
 	@Override
@@ -420,9 +390,5 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread {
 		return false;
 	}
 
-	@Override
-	public SingleFlow getBasicStep() {
-		return currentActivity;
-	}
 
 }

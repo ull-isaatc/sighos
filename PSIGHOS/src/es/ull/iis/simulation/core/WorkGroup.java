@@ -3,10 +3,11 @@
  */
 package es.ull.iis.simulation.core;
 
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 
 /**
  * A set of pairs &lt{@link ResourceType}, {@link Integer}&gt which defines how many resources 
- * from each type are required to do something (typically an {@link Activity}).
+ * from each type are required to do something (typically an {@link ActivityFlow}).
  * @author Iván Castilla Rodríguez
  */
 public interface WorkGroup {

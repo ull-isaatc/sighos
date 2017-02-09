@@ -3,17 +3,13 @@
  */
 package es.ull.iis.simulation.sequential.factory;
 
-import java.util.EnumSet;
-
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.ElementCreator;
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.Resource;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.SimulationCycle;
-import es.ull.iis.simulation.core.Activity.Modifier;
 import es.ull.iis.simulation.core.TimeDrivenGenerator;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
@@ -136,21 +132,6 @@ public class SimulationFactory implements SimulationObjectFactory {
 		if (obj != null)
 			return (ResourceType)obj;
 		return null;
-	}
-
-	@Override
-	public Activity getActivityInstance(String description) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.Activity(simul, description);
-	}
-
-	@Override
-	public Activity getActivityInstance(String description, int priority, EnumSet<Modifier> modifiers) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.Activity(simul, description, priority, modifiers);
-	}
-
-	@Override
-	public Activity getActivityInstance(String description, int priority) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.Activity(simul, description, priority);
 	}
 
 	@Override

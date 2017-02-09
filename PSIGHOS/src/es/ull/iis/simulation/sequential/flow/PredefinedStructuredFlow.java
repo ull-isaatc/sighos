@@ -74,7 +74,7 @@ public abstract class PredefinedStructuredFlow extends StructuredFlow implements
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.WorkThread)
 	 */
 	public void finish(WorkThread wThread) {
-		afterFinalize(wThread.getElement());
+		afterFinalize(wThread);
 		next(wThread);
 	}
 }

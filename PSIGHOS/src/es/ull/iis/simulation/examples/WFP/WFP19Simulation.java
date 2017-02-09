@@ -1,8 +1,7 @@
 package es.ull.iis.simulation.examples.WFP;
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.flow.SingleFlow;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.factory.SimulationUserCode;
 import es.ull.iis.simulation.factory.UserMethod;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
@@ -32,8 +31,8 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
         ResourceType rt0 = getDefResourceType("Cajero");
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
         
-    	Activity act0 = getDefActivity("Verificar cuenta", wg, false);
-    	Activity act1 = getDefActivity("Obtener detalles tarjeta", wg, false);
+    	ActivityFlow<?,?> act0 = getDefActivity("Verificar cuenta", wg, false);
+    	ActivityFlow<?,?> act1 = getDefActivity("Obtener detalles tarjeta", wg, false);
         
         getDefResource("Cajero1", rt0);
         getDefResource("Cajero2", rt0);
@@ -45,9 +44,8 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
         code1.add(UserMethod.BEFORE_REQUEST, "<%SET(S.pass, !(boolean)<%GET(S.pass)%>)%>;" +
         		"return (boolean)<%GET(S.pass)%> && super.beforeRequest(e);");
         SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", code1, act0);
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
         
-        root.link(sin1);
+        root.link(act1);
 
         getDefGenerator(getDefElementType("Cliente"), root);
 	}

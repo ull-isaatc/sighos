@@ -1,9 +1,8 @@
 package es.ull.iis.simulation.examples.WFP;
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.flow.SingleFlow;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
 /**
@@ -23,21 +22,19 @@ public class WFP01Simulation extends WFPTestSimulationFactory {
         ResourceType rt = getDefResourceType("Cajero");
     	
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
-    	Activity act0 = getDefActivity("Verificar cuenta", wg, false);
-    	Activity act1 = getDefActivity("Obtener detalles tarjeta", wg, false);
+    	ActivityFlow<?,?> act0 = getDefActivity("Verificar cuenta", wg, false);
+    	ActivityFlow<?,?> act1 = getDefActivity("Obtener detalles tarjeta", wg, false);
         
    
         getDefResource("Cajero1", rt);
         getDefResource("Cajero2", rt);
         getDefResource("Cajero3", rt);
         
-        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
-        root.link(sin1);
+        act0.link(act1);
          
-        getDefGenerator(getDefElementType("Cliente"), root);
+        getDefGenerator(getDefElementType("Cliente"), act0);
 //        addInfoReceiver(new WFP01CheckView(this, detailed));
-        getSimulation().addInfoReceiver(new CheckFlowsView(getSimulation(), root, new TimeStamp[] {DEFACTDURATION[0], DEFACTDURATION[0]}, detailed));
+        getSimulation().addInfoReceiver(new CheckFlowsView(getSimulation(), act0, new TimeStamp[] {DEFACTDURATION[0], DEFACTDURATION[0]}, detailed));
     }
 	
 }

@@ -42,7 +42,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject implement
      * Adds a new event to the element's event list. 
      * @param e New event.
      */    
-    protected void addEvent(DiscreteEvent e) {
+    public void addEvent(DiscreteEvent e) {
         if (e.getTs() < simul.getTs())
         	error("Causal restriction broken\t" + simul.getTs() + "\t" + e);
         else if (e.getTs() > simul.getTs())

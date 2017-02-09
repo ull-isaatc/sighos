@@ -2,10 +2,9 @@ package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ForLoopFlow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.iis.function.TimeFunctionFactory;
 
@@ -35,13 +34,12 @@ public class WFP21Simulation_For extends WFPTestSimulationFactory {
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
     	
-    	Activity act0 = getDefActivity("Revelar foto", wg, false);
+    	ActivityFlow<?,?> act0 = getDefActivity("Revelar foto", wg, false);
 
         getDefResource("Maquina 1", rt0);        
         getDefResource("Maquina 2", rt0);
         
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-        ForLoopFlow root = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", sin1, TimeFunctionFactory.getInstance("ConstantVariate", 2));
+        ForLoopFlow root = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", act0, TimeFunctionFactory.getInstance("ConstantVariate", 2));
 
         ElementType et = getDefElementType("Cliente");
         getDefGenerator(et, root);

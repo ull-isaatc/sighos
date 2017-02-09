@@ -11,12 +11,11 @@ import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationFactory;
 import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
@@ -49,9 +48,9 @@ public class TestInterruptibleActivities {
 		        ResourceType rt = factory.getResourceTypeInstance("RT0");
 		        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
 
-				Activity acts[] = new Activity[NACT];
+				ActivityFlow<?,?> acts[] = new ActivityFlow[NACT];
 				for (int i = 0; i < NACT; i++) {
-					acts[i] = factory.getActivityInstance("ACT" + i, i / 2, EnumSet.of(Activity.Modifier.INTERRUPTIBLE));
+					acts[i] = factory.getActivityInstance("ACT" + i, i / 2, EnumSet.of(ActivityFlow.Modifier.INTERRUPTIBLE));
 					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 101), 0, wg);
 				}
 				SimulationPeriodicCycle c1 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 200), 0);
@@ -60,8 +59,7 @@ public class TestInterruptibleActivities {
 					factory.getResourceInstance("RES" + i).addTimeTableEntry(c2, 40, rt);
 				ParallelFlow meta = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
 				for (int i = 0; i < NACT; i++) {
-					SingleFlow sin = (SingleFlow)factory.getFlowInstance("SingleFlow", acts[i]);
-					meta.link(sin);
+					meta.link(acts[i]);
 				}
 				for (int i = 0; i < NELEMT; i++)
 					factory.getTimeDrivenGeneratorInstance(

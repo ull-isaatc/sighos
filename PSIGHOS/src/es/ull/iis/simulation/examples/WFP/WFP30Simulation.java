@@ -1,9 +1,8 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.flow.SingleFlow;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.StructuredPartialJoinFlow;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
@@ -13,6 +12,7 @@ import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
  * @author Iván Castilla
  *
  */
+// TODO: Check carefully
 public class WFP30Simulation extends WFPTestSimulationFactory {
 
 	/**
@@ -33,21 +33,19 @@ public class WFP30Simulation extends WFPTestSimulationFactory {
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
 
-        Activity act0 = getDefActivity("AprobarCuenta", wg, false);
-    	Activity act1 = getDefActivity("ExpedirCheque", wg, false);
+        ActivityFlow<?,?> act0_0 = getDefActivity("AprobarCuenta", wg, false);
+        ActivityFlow<?,?> act0_1 = getDefActivity("AprobarCuenta", wg, false);
+        ActivityFlow<?,?> act0_2 = getDefActivity("AprobarCuenta", wg, false);
+    	ActivityFlow<?,?> act1 = getDefActivity("ExpedirCheque", wg, false);
     	
         getDefResource("Director 1", rt0);        
         getDefResource("Director 2", rt0);
         
         StructuredPartialJoinFlow root = (StructuredPartialJoinFlow)factory.getFlowInstance("StructuredPartialJoinFlow", 2);
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-        SingleFlow sin2 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-        SingleFlow sin3 = (SingleFlow)factory.getFlowInstance("SingleFlow", act0);
-        SingleFlow sin4 = (SingleFlow)factory.getFlowInstance("SingleFlow", act1);
-        root.addBranch(sin1);
-        root.addBranch(sin2);
-        root.addBranch(sin3);
-        root.link(sin4);
+        root.addBranch(act0_0);
+        root.addBranch(act0_1);
+        root.addBranch(act0_2);
+        root.link(act1);
         
         getDefGenerator(getDefElementType("Peticion de cheque"), root);
 	}
