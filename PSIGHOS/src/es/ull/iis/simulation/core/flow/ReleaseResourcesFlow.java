@@ -4,12 +4,13 @@
 package es.ull.iis.simulation.core.flow;
 
 import es.ull.iis.simulation.core.ResourceType;
+import es.ull.iis.simulation.core.WorkThread;
 
 /**
  * @author Iván Castilla
  *
  */
-public interface ReleaseResourcesFlow<RT extends ResourceType> extends FinalizerFlow, SingleSuccessorFlow {
+public interface ReleaseResourcesFlow<WT extends WorkThread<?>, RT extends ResourceType> extends FinalizerFlow<WT>, SingleSuccessorFlow<WT>, ResourcesFlow {
 	
 	/**
 	 * Adds a new ResouceType to the cancellation list.

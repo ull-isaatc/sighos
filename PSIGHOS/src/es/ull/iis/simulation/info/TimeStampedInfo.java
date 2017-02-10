@@ -6,7 +6,7 @@ public abstract class TimeStampedInfo extends SimulationInfo {
 
 	final protected long ts;
 	
-	TimeStampedInfo(Simulation simul, long ts) {
+	TimeStampedInfo(Simulation<?> simul, long ts) {
 		super(simul);
 		this.ts = ts;
 	}

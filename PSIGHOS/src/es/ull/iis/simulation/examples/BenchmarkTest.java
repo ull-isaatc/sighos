@@ -7,8 +7,8 @@ import java.io.PrintStream;
 
 import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.factory.SimulationFactory;
-import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
+import es.ull.iis.simulation.core.factory.SimulationFactory;
+import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 
 /**
  * @author Iván Castilla Rodríguez

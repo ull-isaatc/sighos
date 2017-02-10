@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.core.flow;
 
+import es.ull.iis.simulation.core.WorkThread;
 
 /**
  * Meets the Static Partial Join for Multiple Instances pattern (WFP34) if 
@@ -11,7 +12,7 @@ package es.ull.iis.simulation.core.flow;
  * {@link SynchronizedMultipleInstanceFlow}.
  * @author Iván Castilla Rodríguez
  */
-public interface StaticPartialJoinMultipleInstancesFlow extends PredefinedStructuredFlow {
+public interface StaticPartialJoinMultipleInstancesFlow<WT extends WorkThread<?>> extends PredefinedStructuredFlow<WT> {
 	/**
 	 * Returns the number of thread instances created in this flow.
 	 * @return The number of thread instances created in this flow

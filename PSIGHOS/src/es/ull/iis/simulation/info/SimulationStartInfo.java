@@ -6,7 +6,7 @@ public class SimulationStartInfo extends AsynchronousInfo {
 
 	final private long cpuTime;
 	
-	public SimulationStartInfo(Simulation simul, long cpuTime, long ts) {
+	public SimulationStartInfo(Simulation<?> simul, long cpuTime, long ts) {
 		super(simul, ts);
 		this.cpuTime = cpuTime;
 	}
@@ -16,6 +16,6 @@ public class SimulationStartInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		return "SIMULATION START INFO: " + simul.getDescription() + "\n";
+		return simul.long2SimulationTime(getTs()) + "\t[SIM]\tSIMULATION START\t " + simul.getDescription();
 	}
 }

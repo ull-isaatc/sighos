@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.core.flow;
 
-
+import es.ull.iis.simulation.core.WorkThread;
 
 /**
  * An {@link ORJoinFlow} which allows all the true incoming branches to pass. The 
@@ -10,5 +10,5 @@ package es.ull.iis.simulation.core.flow;
  * @author ycallero
  *
  */
-public interface SimpleMergeFlow extends ORJoinFlow {
+public interface SimpleMergeFlow<WT extends WorkThread<?>> extends ORJoinFlow<WT> {
 }

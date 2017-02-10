@@ -26,7 +26,7 @@ public final class PercentageCondition extends Condition {
 	 * @param e Element used to check the condition (useless in this case).
 	 * @return <tt>True</tt> if success, <tt>false</tt> otherwise 
 	 */
-	public boolean check(Element e) {
+	public boolean check(Element<?> e) {
 		double randomProb = Math.random();
 		if (randomProb < percentage)
 			return true;

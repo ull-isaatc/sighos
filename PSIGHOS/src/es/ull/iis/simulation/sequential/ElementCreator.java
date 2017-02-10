@@ -5,7 +5,7 @@ package es.ull.iis.simulation.sequential;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.sequential.flow.InitializerFlow;
+import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 
@@ -13,7 +13,7 @@ import es.ull.iis.function.TimeFunctionFactory;
  * Defines the way a generator creates elements when it's time to create them.
  * @author Iván Castilla Rodríguez
  */
-public class ElementCreator implements BasicElementCreator, es.ull.iis.simulation.core.ElementCreator {
+public class ElementCreator implements BasicElementCreator, es.ull.iis.simulation.core.ElementCreator<WorkThread> {
 	/** Number of objects created each time this creator is invoked. */
 	protected final TimeFunction nElem;
 	/** Each flow that will be generated */
@@ -39,7 +39,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
 	 * @param et The type of the elements to be created
 	 * @param flow The description of the flow of the elements to be created.
 	 */
-	public ElementCreator(Simulation sim, TimeFunction nElem, ElementType et, InitializerFlow flow) {
+	public ElementCreator(Simulation sim, TimeFunction nElem, ElementType et, InitializerFlow<WorkThread> flow) {
 		this(sim, nElem);
 		genTrio.add(new GenerationTrio(et, flow, 1.0));
 	}
@@ -60,7 +60,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
 	 * @param et The type of the elements to be created
 	 * @param flow The description of the flow of the elements to be created.
 	 */
-	public ElementCreator(Simulation sim, int nElem, ElementType et, InitializerFlow flow) {
+	public ElementCreator(Simulation sim, int nElem, ElementType et, InitializerFlow<WorkThread> flow) {
 		this(sim, TimeFunctionFactory.getInstance("ConstantVariate", nElem), et, flow);
 	}
 	
@@ -70,8 +70,8 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
 	 * @param flow Description of the activity flow that the elements carry out.
 	 * @param prop Proportion of elements corresponding to this metaflow.
 	 */
-	public void add(es.ull.iis.simulation.core.ElementType et, es.ull.iis.simulation.core.flow.InitializerFlow flow, double prop) {
-		genTrio.add(new GenerationTrio((ElementType)et, (InitializerFlow)flow, prop));
+	public void add(es.ull.iis.simulation.core.ElementType et, InitializerFlow<WorkThread> flow, double prop) {
+		genTrio.add(new GenerationTrio((ElementType)et, flow, prop));
 	}
 
 	/* (non-Javadoc)
@@ -130,7 +130,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
 		/** Type of the created elements. */
 		protected final ElementType et;
 		/** Description of the activity flow that the elements carry out. */
-		protected final InitializerFlow flow;
+		protected final InitializerFlow<WorkThread> flow;
 		/** Proportion of elements corresponding to this flow. */
 		protected final double prop;
 		
@@ -140,7 +140,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
 		 * @param flow Description of the activity flow that the elements carry out.
 		 * @param prop Proportion of elements corresponding to this flow.
 		 */
-		public GenerationTrio(ElementType et, InitializerFlow flow, double prop) {
+		public GenerationTrio(ElementType et, InitializerFlow<WorkThread> flow, double prop) {
 			super();
 			this.et = et;
 			this.flow = flow;
@@ -159,7 +159,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
 		 * Returns the flow.
 		 * @return the flow
 		 */
-		public InitializerFlow getFlow() {
+		public InitializerFlow<WorkThread> getFlow() {
 			return flow;
 		}
 

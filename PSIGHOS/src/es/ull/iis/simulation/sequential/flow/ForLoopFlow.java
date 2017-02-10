@@ -6,9 +6,12 @@ package es.ull.iis.simulation.sequential.flow;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import es.ull.iis.function.TimeFunction;
+import es.ull.iis.simulation.core.flow.FinalizerFlow;
+import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.simulation.core.flow.TaskFlow;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
-import es.ull.iis.function.TimeFunction;
 
 /**
  * A structured loop flow which resembles a for loop. The internal flow is
@@ -17,7 +20,7 @@ import es.ull.iis.function.TimeFunction;
  * of iterations, since decimal values are rounded to the closest integer.  
  * @author Iván Castilla Rodríguez
  */
-public class ForLoopFlow extends StructuredLoopFlow implements es.ull.iis.simulation.core.flow.ForLoopFlow {
+public class ForLoopFlow extends StructuredLoopFlow implements es.ull.iis.simulation.core.flow.ForLoopFlow<WorkThread> {
 	/** Loop iterations */
 	protected final TimeFunction iterations; 
 	/** List used by the control system. */
@@ -30,7 +33,7 @@ public class ForLoopFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	 * @param finalSubFlow Last step of the internal subflow
 	 * @param iterations Loop iterations.
  	 */
-	public ForLoopFlow(Simulation simul, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, TimeFunction iterations) {
+	public ForLoopFlow(Simulation simul, InitializerFlow<WorkThread> initialSubFlow, FinalizerFlow<WorkThread> finalSubFlow, TimeFunction iterations) {
 		super(simul, initialSubFlow, finalSubFlow);
 		this.iterations = iterations;
 		checkList = new TreeMap<WorkThread, Integer>();
@@ -42,7 +45,7 @@ public class ForLoopFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	 * @param subFlow A unique flow defining an internal subflow
 	 * @param iterations Loop iterations.
  	 */
-	public ForLoopFlow(Simulation simul, TaskFlow subFlow, TimeFunction iterations) {
+	public ForLoopFlow(Simulation simul, TaskFlow<WorkThread> subFlow, TimeFunction iterations) {
 		this(simul, subFlow, subFlow, iterations);
 	}
 	

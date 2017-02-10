@@ -14,11 +14,11 @@ import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.factory.SimulationFactory;
+import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
+import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
-import es.ull.iis.simulation.factory.SimulationFactory;
-import es.ull.iis.simulation.factory.SimulationObjectFactory;
-import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 
 /**
@@ -40,8 +40,8 @@ public class TestInterruptibleActivities {
 		new Experiment("Testing interruptible activities", 1) {
 
 			@Override
-			public Simulation getSimulation(int ind) {
-				Simulation sim = null;
+			public Simulation<?> getSimulation(int ind) {
+				Simulation<?> sim = null;
 				SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Testing interruptible activities", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.MINUTE, 400));
 				sim = factory.getSimulation();
 				

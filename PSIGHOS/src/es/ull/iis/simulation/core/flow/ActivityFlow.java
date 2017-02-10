@@ -18,7 +18,7 @@ import es.ull.iis.simulation.core.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface ActivityFlow<AWG extends ActivityWorkGroup, WT extends WorkThread<?>> extends RequestResourcesFlow<AWG, WT>, TaskFlow {
+public interface ActivityFlow<WT extends WorkThread<?>, AWG extends ActivityWorkGroup> extends RequestResourcesFlow<WT, AWG>, TaskFlow<WT> {
 
 	/** Indicates special characteristics of this activity */
 	enum Modifier {
@@ -82,7 +82,7 @@ public interface ActivityFlow<AWG extends ActivityWorkGroup, WT extends WorkThre
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup created.
      */
-    FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initFlow, FinalizerFlow finalFlow, int priority, WorkGroup wg);
+    FlowDrivenActivityWorkGroup<WT> addWorkGroup(InitializerFlow<WT> initFlow, FinalizerFlow<WT> finalFlow, int priority, WorkGroup wg);
     
     /**
      * Creates a new workgroup for this activity. 
@@ -93,7 +93,7 @@ public interface ActivityFlow<AWG extends ActivityWorkGroup, WT extends WorkThre
      * @param cond Availability condition
      * @return The new workgroup created.
      */    
-    FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initFlow, FinalizerFlow finalFlow, int priority, WorkGroup wg, Condition cond);
+    FlowDrivenActivityWorkGroup<WT> addWorkGroup(InitializerFlow<WT> initFlow, FinalizerFlow<WT> finalFlow, int priority, WorkGroup wg, Condition cond);
 
     /**
      * Creates a new workgroup for this activity with the highest level of priority. 
@@ -102,7 +102,7 @@ public interface ActivityFlow<AWG extends ActivityWorkGroup, WT extends WorkThre
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup created.
      */
-    FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initFlow, FinalizerFlow finalFlow, WorkGroup wg);    	
+    FlowDrivenActivityWorkGroup<WT> addWorkGroup(InitializerFlow<WT> initFlow, FinalizerFlow<WT> finalFlow, WorkGroup wg);    	
 
     /**
      * Creates a new workgroup for this activity with the highest level of priority. 
@@ -112,7 +112,7 @@ public interface ActivityFlow<AWG extends ActivityWorkGroup, WT extends WorkThre
      * @param cond Availability condition
      * @return The new workgroup created.
      */
-    FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initFlow, FinalizerFlow finalFlow, WorkGroup wg, Condition cond);    	
+    FlowDrivenActivityWorkGroup<WT> addWorkGroup(InitializerFlow<WT> initFlow, FinalizerFlow<WT> finalFlow, WorkGroup wg, Condition cond);    	
 	
 	/**
 	 * Allows a user for adding a customized code when the {@link WorkThread} actually starts the

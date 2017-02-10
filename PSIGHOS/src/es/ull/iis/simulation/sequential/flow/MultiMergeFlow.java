@@ -11,7 +11,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * Meets the Multi-Merge pattern (WFP8).
  * @author Iván Castilla Rodríguez
  */
-public class MultiMergeFlow extends ORJoinFlow implements es.ull.iis.simulation.core.flow.MultiMergeFlow {
+public class MultiMergeFlow extends ORJoinFlow implements es.ull.iis.simulation.core.flow.MultiMergeFlow<WorkThread> {
 
 	/**
 	 * Creates a new MultiMergeFlow.

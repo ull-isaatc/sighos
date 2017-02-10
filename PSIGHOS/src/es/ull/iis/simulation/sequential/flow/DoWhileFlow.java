@@ -1,6 +1,9 @@
 package es.ull.iis.simulation.sequential.flow;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.core.flow.FinalizerFlow;
+import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.simulation.core.flow.TaskFlow;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
 
@@ -11,7 +14,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * flow finishes. 
  * @author ycallero
  */
-public class DoWhileFlow extends StructuredLoopFlow implements es.ull.iis.simulation.core.flow.DoWhileFlow {
+public class DoWhileFlow extends StructuredLoopFlow implements es.ull.iis.simulation.core.flow.DoWhileFlow<WorkThread> {
 	/** Condition which controls the loop operation. */
 	protected final Condition cond;
 	
@@ -22,7 +25,7 @@ public class DoWhileFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	 * @param finalSubFlow Last step of the internal subflow
 	 * @param postCondition Break loop condition.
  	 */
-	public DoWhileFlow(Simulation simul, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, Condition postCondition) {
+	public DoWhileFlow(Simulation simul, InitializerFlow<WorkThread> initialSubFlow, FinalizerFlow<WorkThread> finalSubFlow, Condition postCondition) {
 		super(simul, initialSubFlow, finalSubFlow);
 		cond = postCondition;
 	}
@@ -33,7 +36,7 @@ public class DoWhileFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	 * @param subFlow A unique flow defining an internal subflow
 	 * @param postCondition Break loop condition.
  	 */
-	public DoWhileFlow(Simulation simul, TaskFlow subFlow, Condition postCondition) {
+	public DoWhileFlow(Simulation simul, TaskFlow<WorkThread> subFlow, Condition postCondition) {
 		this(simul, subFlow, subFlow, postCondition);
 	}
 

@@ -7,7 +7,8 @@ import java.util.Collection;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.core.Describable;
+import es.ull.iis.simulation.core.flow.FinalizerFlow;
+import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.sequential.ActivityManager;
@@ -21,7 +22,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * @author Iván Castilla
  *
  */
-public class ReleaseResourcesFlow extends SingleSuccessorFlow implements es.ull.iis.simulation.core.flow.ReleaseResourcesFlow<ResourceType>, FinalizerFlow, Describable {
+public class ReleaseResourcesFlow extends SingleSuccessorFlow implements es.ull.iis.simulation.core.flow.ReleaseResourcesFlow<WorkThread, ResourceType>, FinalizerFlow<WorkThread> {
     /** A brief description of the activity */
     protected final String description;
     /** A unique identifier that sets which resources to release */
@@ -135,8 +136,8 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements es.ull.
 	}
 	
 	@Override
-	public void addPredecessor(es.ull.iis.simulation.core.flow.Flow newFlow) {}
+	public void addPredecessor(Flow<WorkThread> newFlow) {}
 
 	@Override
-	public void afterFinalize(es.ull.iis.simulation.core.WorkThread<?> wt) {}
+	public void afterFinalize(WorkThread wt) {}
 }

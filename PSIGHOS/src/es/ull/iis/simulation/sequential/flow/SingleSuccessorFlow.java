@@ -5,6 +5,7 @@ package es.ull.iis.simulation.sequential.flow;
 
 import java.util.Set;
 
+import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
 
@@ -12,9 +13,9 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * A flow with a unique successor.
  * @author Iván Castilla Rodríguez
  */
-public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.iis.simulation.core.flow.SingleSuccessorFlow {
+public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.iis.simulation.core.flow.SingleSuccessorFlow<WorkThread> {
 	/** The unique successor of this flow */
-	protected Flow successor;
+	protected Flow<WorkThread> successor;
 
 	/**
 	 * Creates a new unique successor flow.
@@ -42,7 +43,7 @@ public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.ii
 		}
 	}
 	
-	public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow parent, Set<es.ull.iis.simulation.core.flow.Flow> visited) {
+	public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow<WorkThread> parent, Set<Flow<WorkThread>> visited) {
 		setParent(parent);
 		visited.add(this);
 		if (successor != null)
@@ -50,8 +51,8 @@ public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.ii
 				successor.setRecursiveStructureLink(parent, visited);			
 	}	
 
-	public es.ull.iis.simulation.core.flow.Flow link(es.ull.iis.simulation.core.flow.Flow succ) {
-		successor = (Flow) succ;
+	public Flow<WorkThread> link(Flow<WorkThread> succ) {
+		successor = (Flow<WorkThread>) succ;
 		succ.addPredecessor(this);
 		return succ;
 	}
@@ -59,7 +60,7 @@ public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.ii
 	/**
 	 * @return the successor
 	 */
-	public Flow getSuccessor() {
+	public Flow<WorkThread> getSuccessor() {
 		return successor;
 	}
 	

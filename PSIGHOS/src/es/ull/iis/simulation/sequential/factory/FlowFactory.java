@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import es.ull.iis.simulation.factory.SimulationUserCode;
-import es.ull.iis.simulation.factory.StandardCompilator;
+import es.ull.iis.simulation.core.factory.SimulationUserCode;
+import es.ull.iis.simulation.core.factory.StandardCompilator;
+import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.iis.simulation.sequential.flow.Flow;
 
 /**
  * Generate Flow's instances.
@@ -104,7 +104,7 @@ public class FlowFactory {
 	 * @param initargs Rest of the params.
 	 * @return A Flow's instance.
 	 */
-	static public Flow getInstance(String flowType, Simulation simul, Object... initargs) {
+	static public Flow<?> getInstance(String flowType, Simulation simul, Object... initargs) {
 		Class<?> cl = findFullyQualifiedNameFor(flowType);
 		Constructor<?>[] consList = cl.getConstructors();
 		Object [] newParams = new Object[initargs.length + 1];
@@ -113,7 +113,7 @@ public class FlowFactory {
 			newParams[i] = initargs[i - 1];
 		for (int i = 0; i < consList.length; i++) {
 			try {
-				return (Flow)consList[i].newInstance(newParams);
+				return (Flow<?>)consList[i].newInstance(newParams);
 			} catch (InstantiationException e) {
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
@@ -130,7 +130,7 @@ public class FlowFactory {
 		return null;	
 	}
 
-	static public Flow getInstance(String flowType, SimulationUserCode userMethods, Simulation simul, Object... initargs) {
+	static public Flow<?> getInstance(String flowType, SimulationUserCode userMethods, Simulation simul, Object... initargs) {
 		userMethods.addImports("import es.ull.iis.simulation.sequential.*;");
 		Class<?>[] parameterTypes = StandardCompilator.param2Classes(initargs);
 		String cons = createConstructor(flowType, parameterTypes);
@@ -138,6 +138,6 @@ public class FlowFactory {
 		newParams[0] = simul;
 		for (int i = 1; i < newParams.length; i++)
 			newParams[i] = initargs[i - 1];
-		return (Flow)StandardCompilator.getInstance(workingPkg, flowType, flowId++, cons, userMethods, newParams);
+		return (Flow<?>)StandardCompilator.getInstance(workingPkg, flowType, flowId++, cons, userMethods, newParams);
 	}
 }

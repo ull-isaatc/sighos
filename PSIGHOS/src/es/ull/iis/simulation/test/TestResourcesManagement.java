@@ -3,21 +3,17 @@
  */
 package es.ull.iis.simulation.test;
 
-import es.ull.iis.function.TimeFunctionFactory;
-import es.ull.iis.simulation.condition.PercentageCondition;
 import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.sequential.ElementCreator;
 import es.ull.iis.simulation.sequential.ElementType;
-import es.ull.iis.simulation.sequential.Resource;
 import es.ull.iis.simulation.sequential.ResourceType;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
 import es.ull.iis.simulation.sequential.WorkGroup;
 import es.ull.iis.simulation.sequential.flow.ActivityFlow;
-import es.ull.iis.simulation.sequential.flow.ExclusiveChoiceFlow;
 import es.ull.iis.simulation.sequential.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
 
@@ -45,22 +41,14 @@ public class TestResourcesManagement extends Experiment {
 			final ResourceType rtTransport = new ResourceType(this, "Transport");
 			final ResourceType rtLocationA = new ResourceType(this, "LocationA");
 			final ResourceType rtLocationB = new ResourceType(this, "LocationB");
-			
+
 			// Create the specific resources
-			final Resource resOperatorA = new Resource(this, "OperatorA 1");
-			final Resource resOperatorB = new Resource(this, "OperatorB 1");
-			final Resource resMachine = new Resource(this, "Machine 1");
-			final Resource resTransport = new Resource(this, "Transport 1");
-			final Resource resLocationA = new Resource(this, "LocationA 1");
-			final Resource resLocationB = new Resource(this, "LocationB 1");
-			
-			// Define the roles of the resources
-			resOperatorA.addTimeTableEntry(rtOperatorA);
-			resOperatorB.addTimeTableEntry(rtOperatorB);
-			resMachine.addTimeTableEntry(rtMachine);
-			resTransport.addTimeTableEntry(rtTransport);
-			resLocationA.addTimeTableEntry(rtLocationA);
-			resLocationB.addTimeTableEntry(rtLocationB);
+			rtOperatorA.addGenericResources(1);
+			rtOperatorB.addGenericResources(1);
+			rtMachine.addGenericResources(1);
+			rtTransport.addGenericResources(1);
+			rtLocationA.addGenericResources(2);
+			rtLocationB.addGenericResources(1);
 			
 			// Define the workgroups
 			final WorkGroup wgLocationA = new WorkGroup(rtLocationA, 1);
@@ -97,9 +85,9 @@ public class TestResourcesManagement extends Experiment {
 			// Create flow
 			reqLocationA.link(reqOperatorA).link(actWorkAtLocationA).link(relOperatorA).link(reqTransport).link(relLocationA);
 			relLocationA.link(actMoveFromAToB).link(reqLocationB).link(relTransport).link(actWorkAtLocationB).link(relLocationB);
-			
-			ElementCreator creator = new ElementCreator(this, 5, et, reqLocationA);
-			new TimeDrivenGenerator(this, creator, docCycle);
+			SimulationPeriodicCycle cycle = SimulationPeriodicCycle.newDailyCycle(unit, 0);
+			ElementCreator creator = new ElementCreator(this, 2, et, reqLocationA);
+			new TimeDrivenGenerator(this, creator, cycle);
 		}
 	}
 	
@@ -111,7 +99,7 @@ public class TestResourcesManagement extends Experiment {
 	}
 
 	@Override
-	public es.ull.iis.simulation.core.Simulation getSimulation(int ind) {
+	public Simulation getSimulation(int ind) {
 		Simulation sim = new SimulationResourcesManagement(ind);
 		sim.addInfoReceiver(new StdInfoView(sim));
 		return sim;

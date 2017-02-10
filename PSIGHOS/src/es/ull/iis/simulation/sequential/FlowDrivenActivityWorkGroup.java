@@ -2,8 +2,8 @@ package es.ull.iis.simulation.sequential;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.sequential.flow.ActivityFlow;
-import es.ull.iis.simulation.sequential.flow.FinalizerFlow;
-import es.ull.iis.simulation.sequential.flow.InitializerFlow;
+import es.ull.iis.simulation.core.flow.FinalizerFlow;
+import es.ull.iis.simulation.core.flow.InitializerFlow;
 
 /**
  * A set of resources needed for carrying out an activity. A workgroup (WG) consists on a 
@@ -11,11 +11,11 @@ import es.ull.iis.simulation.sequential.flow.InitializerFlow;
  * workgroup inside the activity.
  * @author Iván Castilla Rodríguez
  */
-public class FlowDrivenActivityWorkGroup extends es.ull.iis.simulation.sequential.ActivityWorkGroup implements es.ull.iis.simulation.core.FlowDrivenActivityWorkGroup {
+public class FlowDrivenActivityWorkGroup extends es.ull.iis.simulation.sequential.ActivityWorkGroup implements es.ull.iis.simulation.core.FlowDrivenActivityWorkGroup<WorkThread> {
 	/** The first step of the subflow */
-    final protected InitializerFlow initialFlow;
+    final protected InitializerFlow<WorkThread> initialFlow;
     /** The last step of the subflow */
-    final protected FinalizerFlow finalFlow;
+    final protected FinalizerFlow<WorkThread> finalFlow;
     
     /**
      * Creates a new instance of WorkGroup
@@ -26,11 +26,11 @@ public class FlowDrivenActivityWorkGroup extends es.ull.iis.simulation.sequentia
      * @param wg Original workgroup
      * @param flowDrivenActivity TODO
      */    
-    public FlowDrivenActivityWorkGroup(ActivityFlow flowDrivenActivity, int id, es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
-    		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, int priority, WorkGroup wg) {
+    public FlowDrivenActivityWorkGroup(ActivityFlow flowDrivenActivity, int id, InitializerFlow<WorkThread> initialFlow, 
+    		FinalizerFlow<WorkThread> finalFlow, int priority, WorkGroup wg) {
         super(flowDrivenActivity, id, priority, wg);
-        this.initialFlow = (InitializerFlow)initialFlow;
-        this.finalFlow = (FinalizerFlow)finalFlow;
+        this.initialFlow = initialFlow;
+        this.finalFlow = finalFlow;
     }
     
     /**
@@ -43,18 +43,18 @@ public class FlowDrivenActivityWorkGroup extends es.ull.iis.simulation.sequentia
      * @param cond  Availability condition
      * @param flowDrivenActivity TODO
      */    
-    public FlowDrivenActivityWorkGroup(ActivityFlow flowDrivenActivity, int id, es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
-    		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, int priority, WorkGroup wg, Condition cond) {
+    public FlowDrivenActivityWorkGroup(ActivityFlow flowDrivenActivity, int id, InitializerFlow<WorkThread> initialFlow, 
+    		FinalizerFlow<WorkThread> finalFlow, int priority, WorkGroup wg, Condition cond) {
         super(flowDrivenActivity, id, priority, wg, cond);
-        this.initialFlow = (InitializerFlow)initialFlow;
-        this.finalFlow = (FinalizerFlow)finalFlow;
+        this.initialFlow = initialFlow;
+        this.finalFlow = finalFlow;
     }
 
     /**
      * Returns the first step of the subflow
 	 * @return the initialFlow
 	 */
-	public InitializerFlow getInitialFlow() {
+	public InitializerFlow<WorkThread> getInitialFlow() {
 		return initialFlow;
 	}
 
@@ -62,7 +62,7 @@ public class FlowDrivenActivityWorkGroup extends es.ull.iis.simulation.sequentia
      * Returns the last step of the subflow
 	 * @return the finalFlow
 	 */
-	public FinalizerFlow getFinalFlow() {
+	public FinalizerFlow<WorkThread> getFinalFlow() {
 		return finalFlow;
 	}
 

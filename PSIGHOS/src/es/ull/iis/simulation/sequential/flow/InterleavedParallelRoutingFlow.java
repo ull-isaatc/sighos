@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
 
@@ -19,7 +20,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public class InterleavedParallelRoutingFlow extends StructuredFlow implements es.ull.iis.simulation.core.flow.InterleavedParallelRoutingFlow {
+public class InterleavedParallelRoutingFlow extends StructuredFlow implements es.ull.iis.simulation.core.flow.InterleavedParallelRoutingFlow<WorkThread> {
 	protected Collection<ActivityFlow> acts;
 	protected Collection<ActivityFlow[]> dependencies;
 	/**
@@ -40,15 +41,15 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 		this.acts = acts;
 		this.dependencies = dependencies;
 		
-		TreeMap<ActivityFlow, Flow> succLink = new TreeMap<ActivityFlow, Flow>();
-		TreeMap<ActivityFlow, Flow> predLink = new TreeMap<ActivityFlow, Flow>();
+		TreeMap<ActivityFlow, Flow<WorkThread>> succLink = new TreeMap<ActivityFlow, Flow<WorkThread>>();
+		TreeMap<ActivityFlow, Flow<WorkThread>> predLink = new TreeMap<ActivityFlow, Flow<WorkThread>>();
 		// Counts predecessors and successors
 		for (ActivityFlow[] list : dependencies) {
 			for (int i = 0; i < list.length - 1; i++) {
 				ActivityFlow pred = list[i];
 				ActivityFlow succ = list[i + 1];
 					
-				Flow succFlow = succLink.get(pred);
+				Flow<WorkThread> succFlow = succLink.get(pred);
 				// If it has no successor, it's added as its own successor
 				if (succFlow == null) 
 					succLink.put(pred, pred);
@@ -59,7 +60,7 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 				}
 				// else, the parallel flow is kept as the successor
 
-				Flow predFlow = predLink.get(succ);
+				Flow<WorkThread> predFlow = predLink.get(succ);
 				// If it has no predecessor, it's added as its own predecessor
 				if (predFlow == null) 
 					predLink.put(succ, succ);
@@ -120,16 +121,16 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 	}
 
 	@Override
-	public Collection<es.ull.iis.simulation.core.flow.ActivityFlow<?,?>> getActivities() {
-		ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow<?,?>> temp = new ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow<?,?>>();
+	public Collection<es.ull.iis.simulation.core.flow.ActivityFlow<WorkThread,?>> getActivities() {
+		ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow<WorkThread,?>> temp = new ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow<WorkThread,?>>();
 		for (ActivityFlow a : acts)
 			temp.add(a);
 		return temp;
 	}
 
 	@Override
-	public Collection<es.ull.iis.simulation.core.flow.ActivityFlow<?,?>[]> getDependencies() {
-		ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow<?,?>[]> temp = new ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow<?,?>[]>();
+	public Collection<es.ull.iis.simulation.core.flow.ActivityFlow<WorkThread,?>[]> getDependencies() {
+		ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow<WorkThread,?>[]> temp = new ArrayList<es.ull.iis.simulation.core.flow.ActivityFlow<WorkThread,?>[]>();
 		for (ActivityFlow[] dep : dependencies)
 			temp.add(dep);
 		return temp;

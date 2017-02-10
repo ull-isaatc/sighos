@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.core.flow;
 
-
+import es.ull.iis.simulation.core.WorkThread;
 
 /**
  * An {@link ANDJoinFlow} which merges a specified amount of work threads. It should be used with
@@ -14,5 +14,5 @@ package es.ull.iis.simulation.core.flow;
  * be created is used.
  * @author Iván Castilla Rodríguez
  */
-public interface ThreadMergeFlow extends ANDJoinFlow {
+public interface ThreadMergeFlow<WT extends WorkThread<?>> extends ANDJoinFlow<WT> {
 }

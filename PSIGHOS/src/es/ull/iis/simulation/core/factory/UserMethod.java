@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.factory;
+package es.ull.iis.simulation.core.factory;
 
 import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.ElementCreator;

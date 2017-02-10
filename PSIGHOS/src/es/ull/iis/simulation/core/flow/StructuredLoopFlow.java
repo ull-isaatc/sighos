@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.core.flow;
 
-
+import es.ull.iis.simulation.core.WorkThread;
 
 /**
  * A {@link StructuredFlow} which defines a repetitive subflow. Different subclasses
@@ -9,6 +9,6 @@ package es.ull.iis.simulation.core.flow;
  * Meets the Structured Loop pattern (WFP21). 
  * @author Yeray Callero
  */
-public interface StructuredLoopFlow extends StructuredFlow {
+public interface StructuredLoopFlow<WT extends WorkThread<?>> extends StructuredFlow<WT> {
 }
 

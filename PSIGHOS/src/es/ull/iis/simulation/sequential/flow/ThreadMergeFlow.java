@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.sequential.flow;
 
+import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
 
@@ -17,7 +18,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ThreadMergeFlow extends ANDJoinFlow implements es.ull.iis.simulation.core.flow.ThreadMergeFlow {
+public class ThreadMergeFlow extends ANDJoinFlow implements es.ull.iis.simulation.core.flow.ThreadMergeFlow<WorkThread> {
 	
 	/**
 	 * Creates a new thread merge flow
@@ -45,7 +46,7 @@ public class ThreadMergeFlow extends ANDJoinFlow implements es.ull.iis.simulatio
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#addPredecessor(es.ull.iis.simulation.Flow)
 	 */
-	public void addPredecessor(Flow predecessor) {
+	public void addPredecessor(Flow<WorkThread> predecessor) {
 	}
 
 	/* (non-Javadoc)

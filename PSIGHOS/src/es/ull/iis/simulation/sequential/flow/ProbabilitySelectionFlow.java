@@ -17,7 +17,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ProbabilitySelectionFlow extends MultipleSuccessorFlow implements es.ull.iis.simulation.core.flow.ProbabilitySelectionFlow {
+public class ProbabilitySelectionFlow extends MultipleSuccessorFlow implements es.ull.iis.simulation.core.flow.ProbabilitySelectionFlow<WorkThread> {
 	/** List of probabilities associated to each outgoing branch */
 	protected final ArrayList<Double> probabilities;
 	/** The sum total of all the outgoing branches. This value should be 1.0, but it's 
@@ -39,7 +39,7 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow implements e
 	 * @param successor This flow's successor
 	 * @param prob The probability of this successor of being chosen
 	 */
-	public Flow link(es.ull.iis.simulation.core.flow.Flow successor, double prob) {
+	public Flow<WorkThread> link(Flow<WorkThread> successor, double prob) {
 		super.link(successor);
 		probabilities.add(prob);
 		sum += prob;
@@ -50,7 +50,7 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow implements e
 	 * Adds a probabilistic flow's successor. A probability of 1.0 is associated to this successor
 	 * @param successor This flow's successor
 	 */
-	public Flow link(es.ull.iis.simulation.core.flow.Flow successor) {
+	public Flow<WorkThread> link(Flow<WorkThread> successor) {
 		return link(successor, 1.0);
 	}
 	
@@ -60,7 +60,7 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow implements e
 	 * @param succList This flow's successors
 	 * @param probList The probability of these successors of being chosen
 	 */
-	public void link(Collection<es.ull.iis.simulation.core.flow.Flow> succList, Collection<Double> probList) {
+	public void link(Collection<Flow<WorkThread>> succList, Collection<Double> probList) {
 		super.link(succList);
 		probabilities.addAll(probList);	
 		for (double val : probList)
@@ -72,7 +72,7 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow implements e
 	 * is assigned to each successor. 
 	 * @param succList This flow's successors
 	 */
-	public void link(Collection<es.ull.iis.simulation.core.flow.Flow> succList) {
+	public void link(Collection<Flow<WorkThread>> succList) {
 		ArrayList<Double> probList = new ArrayList<Double>();
 		for (int i = 0; i < succList.size(); i++)
 			probList.add(1.0 / (double)succList.size());

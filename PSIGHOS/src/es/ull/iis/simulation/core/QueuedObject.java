@@ -9,7 +9,7 @@ package es.ull.iis.simulation.core;
  * @author Iván Castilla
  *
  */
-public interface QueuedSimulationObject<T> extends SimulationObject {
+public interface QueuedObject<T> {
     /**
      * Add an object to the queue.
      * @param obj Object added

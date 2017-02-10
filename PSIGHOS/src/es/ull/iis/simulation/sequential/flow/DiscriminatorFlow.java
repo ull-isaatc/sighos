@@ -1,6 +1,7 @@
 package es.ull.iis.simulation.sequential.flow;
 
 import es.ull.iis.simulation.sequential.Simulation;
+import es.ull.iis.simulation.sequential.WorkThread;
 
 
 /**
@@ -9,7 +10,7 @@ import es.ull.iis.simulation.sequential.Simulation;
  * Meets the Blocking Discriminator pattern (WFP28). 
  * @author ycallero
  */
-public class DiscriminatorFlow extends ANDJoinFlow implements es.ull.iis.simulation.core.flow.DiscriminatorFlow {
+public class DiscriminatorFlow extends ANDJoinFlow implements es.ull.iis.simulation.core.flow.DiscriminatorFlow<WorkThread> {
 	
 	/**
 	 * Create a new DiscriminatorFlow.

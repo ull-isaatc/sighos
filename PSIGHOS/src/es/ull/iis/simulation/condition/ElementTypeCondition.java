@@ -27,8 +27,8 @@ public final class ElementTypeCondition extends Condition{
 	 * @param e {@link Element} to be checked with the condition.
 	 * @return The result of the logical condition.
 	 */
-	public boolean check(Element e) {
-		if (type.getIdentifier() == ((Element) e).getType().getIdentifier())
+	public boolean check(Element<?> e) {
+		if (type.getIdentifier() == ((Element<?>) e).getType().getIdentifier())
 			return true;
 		return false;
 	}

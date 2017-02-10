@@ -33,7 +33,7 @@ public class ResourceInfo extends AsynchronousInfo {
 	final private ResourceType rt;
 	final private Type type;
 	
-	public ResourceInfo(Simulation simul, Resource res, ResourceType rt, Type type, long ts) {
+	public ResourceInfo(Simulation<?> simul, Resource res, ResourceType rt, Type type, long ts) {
 		super(simul, ts);
 		this.res = res;
 		this.rt = rt;
@@ -53,7 +53,7 @@ public class ResourceInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		String message = "" + simul.long2SimulationTime(getTs()) + "\t" + res.toString() + "\t" + res.getDescription() + "\t" + type.getDescription();
+		String message = "" + simul.long2SimulationTime(getTs()) + "\t" + res.toString() + "\t" + type.getDescription() + "\t" + res.getDescription();
 		if ((EnumSet.of(type).equals(EnumSet.of(Type.ROLON))) || (EnumSet.of(type).equals(EnumSet.of(Type.ROLOFF)))) {
 			message += "\tRT: " + rt.getDescription(); 
 		}

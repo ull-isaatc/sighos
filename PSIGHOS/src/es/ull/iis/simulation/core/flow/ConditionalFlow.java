@@ -3,6 +3,7 @@ package es.ull.iis.simulation.core.flow;
 import java.util.Collection;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.core.WorkThread;
 
 /**
  * A {@link MultipleSuccessorFlow} whose successors are conditioned, that is, the successor
@@ -11,14 +12,14 @@ import es.ull.iis.simulation.condition.Condition;
  * @author Yeray Callero
  *
  */
-public interface ConditionalFlow extends MultipleSuccessorFlow {
+public interface ConditionalFlow<WT extends WorkThread<?>> extends MultipleSuccessorFlow<WT> {
 	/**
 	 * Adds a conditioned flow's successor. 
 	 * @param successor This flow's successor
 	 * @param cond The condition that has to be met to invoke the successor
 	 * @return TODO
 	 */
-	public Flow link(Flow successor, Condition cond);
+	public Flow<WT> link(Flow<WT> successor, Condition cond);
 
 	/**
 	 * Adds a collection of conditioned flow's successors. 
@@ -26,6 +27,6 @@ public interface ConditionalFlow extends MultipleSuccessorFlow {
 	 * @param succList This flow's successors
 	 * @param condList The conditions attached to each successor
 	 */
-	public void link(Collection<Flow> succList, Collection<Condition> condList);
+	public void link(Collection<Flow<WT>> succList, Collection<Condition> condList);
 	
 }

@@ -3,6 +3,8 @@ package es.ull.iis.simulation.sequential.flow;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.core.flow.Flow;
+import es.ull.iis.simulation.core.flow.JoinFlow;
 import es.ull.iis.simulation.sequential.Element;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
@@ -19,7 +21,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * continues the execution.
  * @author ycallero
  */
-public abstract class MergeFlow extends SingleSuccessorFlow implements es.ull.iis.simulation.core.flow.MergeFlow, JoinFlow {
+public abstract class MergeFlow extends SingleSuccessorFlow implements es.ull.iis.simulation.core.flow.MergeFlow<WorkThread>, JoinFlow<WorkThread> {
 	/** Amount of incoming branches */
 	protected int incomingBranches;
 	/** A structure to control the arrival of incoming branches */
@@ -127,7 +129,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements es.ull.ii
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#addPredecessor(es.ull.iis.simulation.Flow)
 	 */
-	public void addPredecessor(es.ull.iis.simulation.core.flow.Flow newFlow) {
+	public void addPredecessor(Flow<WorkThread> newFlow) {
 		incomingBranches++;
 	}
 
@@ -147,7 +149,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements es.ull.ii
 	}
 
 	@Override
-	public void afterFinalize(es.ull.iis.simulation.core.WorkThread<?> wt) {}
+	public void afterFinalize(WorkThread wt) {}
 
 }
 

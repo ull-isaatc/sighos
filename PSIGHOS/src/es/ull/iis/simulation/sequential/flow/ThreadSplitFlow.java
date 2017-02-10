@@ -5,6 +5,8 @@ package es.ull.iis.simulation.sequential.flow;
 
 import java.util.Set;
 
+import es.ull.iis.simulation.core.flow.Flow;
+import es.ull.iis.simulation.core.flow.SplitFlow;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
 
@@ -17,11 +19,11 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ThreadSplitFlow extends BasicFlow implements es.ull.iis.simulation.core.flow.ThreadSplitFlow, SplitFlow {
+public class ThreadSplitFlow extends BasicFlow implements es.ull.iis.simulation.core.flow.ThreadSplitFlow<WorkThread>, SplitFlow<WorkThread> {
 	/** Number of outgoing threads produced by this flow */
 	protected final int nInstances;
 	/** The unique successor of this flow */
-	protected Flow successor;
+	protected Flow<WorkThread> successor;
 
 	/**
 	 * Creates a new thread split flow
@@ -36,7 +38,7 @@ public class ThreadSplitFlow extends BasicFlow implements es.ull.iis.simulation.
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#addPredecessor(es.ull.iis.simulation.Flow)
 	 */
-	public void addPredecessor(es.ull.iis.simulation.core.flow.Flow predecessor) {
+	public void addPredecessor(Flow<WorkThread> predecessor) {
 	}
 
 	/* (non-Javadoc)
@@ -66,13 +68,13 @@ public class ThreadSplitFlow extends BasicFlow implements es.ull.iis.simulation.
         wThread.notifyEnd();			
 	}
 
-	public es.ull.iis.simulation.core.flow.Flow link(es.ull.iis.simulation.core.flow.Flow successor) {
-		this.successor = (Flow)successor;
+	public Flow<WorkThread> link(Flow<WorkThread> successor) {
+		this.successor = (Flow<WorkThread>)successor;
 		successor.addPredecessor(this);
 		return successor;
 	}
 
-	public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow parent, Set<es.ull.iis.simulation.core.flow.Flow> visited) {
+	public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow<WorkThread> parent, Set<Flow<WorkThread>> visited) {
 		setParent(parent);
 		visited.add(this);
 		if (successor != null)

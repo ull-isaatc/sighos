@@ -1,6 +1,7 @@
 package es.ull.iis.simulation.core.flow;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.core.WorkThread;
 
 /**
  * A {@link StructuredLoopFlow} which resembles a do-while loop. The internal flow
@@ -9,7 +10,7 @@ import es.ull.iis.simulation.condition.Condition;
  * flow finishes. 
  * @author Yeray Callero
  */
-public interface DoWhileFlow extends StructuredLoopFlow {
+public interface DoWhileFlow<WT extends WorkThread<?>> extends StructuredLoopFlow<WT> {
 	/** 
 	 * Returns the condition which controls the loop operation.
 	 * @return The condition which controls the loop operation

@@ -11,7 +11,7 @@ import es.ull.iis.util.Prioritizable;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface WorkThread<F extends Flow> extends Comparable<WorkThread<F>>, Prioritizable, Identifiable {
+public interface WorkThread<F extends Flow<?>> extends Comparable<WorkThread<F>>, Prioritizable, Identifiable {
 
 	/**
 	 * Sets the flow currently executed by this workthread 
@@ -29,7 +29,7 @@ public interface WorkThread<F extends Flow> extends Comparable<WorkThread<F>>, P
      * Returns the element performing this single flow.
      * @return The element performing this single flow
      */
-    public Element getElement();
+    public Element<?> getElement();
     
 	/**
 	 * Returns the order this item occupies among the rest of work items.

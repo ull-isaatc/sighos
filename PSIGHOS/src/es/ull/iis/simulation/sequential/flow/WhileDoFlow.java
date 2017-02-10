@@ -1,6 +1,9 @@
 package es.ull.iis.simulation.sequential.flow;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.core.flow.FinalizerFlow;
+import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.simulation.core.flow.TaskFlow;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
 
@@ -10,7 +13,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * this flow finishes. 
  * @author ycallero
  */
-public class WhileDoFlow extends StructuredLoopFlow implements es.ull.iis.simulation.core.flow.WhileDoFlow {
+public class WhileDoFlow extends StructuredLoopFlow implements es.ull.iis.simulation.core.flow.WhileDoFlow<WorkThread> {
 	/** Condition which controls the loop operation. */
 	protected final Condition cond;
 	
@@ -21,7 +24,7 @@ public class WhileDoFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	 * @param finalSubFlow Last step of the internal subflow
 	 * @param prevCondition Break loop condition.
  	 */
-	public WhileDoFlow(Simulation simul, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, Condition prevCondition) {
+	public WhileDoFlow(Simulation simul, InitializerFlow<WorkThread> initialSubFlow, FinalizerFlow<WorkThread> finalSubFlow, Condition prevCondition) {
 		super(simul, initialSubFlow, finalSubFlow);
 		cond = prevCondition;
 	}
@@ -32,7 +35,7 @@ public class WhileDoFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	 * @param subFlow A unique flow defining an internal subflow
 	 * @param prevCondition Break loop condition.
  	 */
-	public WhileDoFlow(Simulation simul, TaskFlow subFlow, Condition prevCondition) {
+	public WhileDoFlow(Simulation simul, TaskFlow<WorkThread> subFlow, Condition prevCondition) {
 		this(simul, subFlow, subFlow, prevCondition);
 	}
 

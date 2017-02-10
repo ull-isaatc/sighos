@@ -17,14 +17,14 @@ import es.ull.iis.simulation.core.SimulationWeeklyPeriodicCycle;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.factory.SimulationFactory;
+import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
+import es.ull.iis.simulation.core.factory.SimulationUserCode;
+import es.ull.iis.simulation.core.factory.UserMethod;
+import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.MultiChoiceFlow;
-import es.ull.iis.simulation.factory.SimulationFactory;
-import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.factory.SimulationObjectFactory;
-import es.ull.iis.simulation.factory.SimulationUserCode;
-import es.ull.iis.simulation.factory.UserMethod;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.util.WeeklyPeriodicCycle;
 
@@ -38,10 +38,10 @@ class BarrelShippingExperiment extends Experiment {
 	}
 	
 	@Override
-	public Simulation getSimulation(int ind) {
+	public Simulation<?> getSimulation(int ind) {
 		
-		SimulationObjectFactory factory = SimulationFactory.getInstance(SimulationType.PARALLEL, ind, "Barrel shipping", TimeUnit.MINUTE, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
-		Simulation sim = factory.getSimulation();
+		SimulationObjectFactory<?,?> factory = SimulationFactory.getInstance(SimulationType.PARALLEL, ind, "Barrel shipping", TimeUnit.MINUTE, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
+		Simulation<?> sim = factory.getSimulation();
 		
 		// Declares global model variables
 		sim.putVar("totalLiters", 0.0);
@@ -93,7 +93,7 @@ class BarrelShippingExperiment extends Experiment {
 		NotCondition notCond = new NotCondition(cond);
 
 		// Declares a MultiChoice node	
-		MultiChoiceFlow mul1 = (MultiChoiceFlow) factory.getFlowInstance("MultiChoiceFlow");
+		MultiChoiceFlow<?> mul1 = (MultiChoiceFlow<?>) factory.getFlowInstance("MultiChoiceFlow");
 
 
 		// Defines the workflow

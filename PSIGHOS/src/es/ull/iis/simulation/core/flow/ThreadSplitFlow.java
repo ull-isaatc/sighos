@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.core.flow;
 
-
+import es.ull.iis.simulation.core.WorkThread;
 
 /**
  * A {@link SplitFlow} which creates several instances of the current work thread. It physically
@@ -13,7 +13,7 @@ package es.ull.iis.simulation.core.flow;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface ThreadSplitFlow extends SplitFlow {
+public interface ThreadSplitFlow<WT extends WorkThread<?>> extends SplitFlow<WT> {
 	/**
 	 * Returns the amount of instances to be created.
 	 * @return The amount of instances to be created

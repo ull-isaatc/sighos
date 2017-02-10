@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.sequential.flow;
 
 import es.ull.iis.simulation.sequential.Simulation;
+import es.ull.iis.simulation.sequential.WorkThread;
 
 /**
  * A structured flow whose initial step is a parallel flow and whose final step
@@ -11,7 +12,7 @@ import es.ull.iis.simulation.sequential.Simulation;
  * activities are presential.
  * @author Iván Castilla Rodríguez
  */
-public class InterleavedRoutingFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.InterleavedRoutingFlow {
+public class InterleavedRoutingFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.InterleavedRoutingFlow<WorkThread> {
 
 	/**
 	 * Creates a new InterleavedRoutingFlow 

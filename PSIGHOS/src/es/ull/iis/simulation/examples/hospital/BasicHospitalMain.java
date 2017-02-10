@@ -7,6 +7,7 @@ import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
+import es.ull.iis.simulation.sequential.WorkThread;
 
 /**
  * Main class to execute the "hospital" tutorial example.
@@ -37,9 +38,9 @@ public class BasicHospitalMain extends Experiment {
 	}
 
 	@Override
-	public Simulation getSimulation(int ind) {
+	public Simulation<WorkThread> getSimulation(int ind) {
 		// Creates a simulation based on minutes, which lasts for a week (7 days X 24 hours X 60 minutes)
-		Simulation sim = new BasicHospitalSimulation(ind, "Hospital" + ind, TimeUnit.MINUTE, 0, 7 * 24 * 60);
+		Simulation<WorkThread> sim = new BasicHospitalSimulation(ind, "Hospital" + ind, TimeUnit.MINUTE, 0, 7 * 24 * 60);
 		sim.addInfoReceiver(new StdInfoView(sim));
 
 		return sim;

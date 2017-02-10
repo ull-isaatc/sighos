@@ -11,11 +11,11 @@ import es.ull.iis.simulation.core.SimulationTimeFunction;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.factory.SimulationFactory;
+import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
+import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ProbabilitySelectionFlow;
-import es.ull.iis.simulation.factory.SimulationFactory;
-import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 
 /**
@@ -24,7 +24,7 @@ import es.ull.iis.simulation.inforeceiver.StdInfoView;
 class ExperimentProbSel extends Experiment {
 	static final int NEXP = 1;
     static final int NDAYS = 1;
-	static SimulationFactory.SimulationType simType = SimulationType.PARALLEL;
+	static SimulationFactory.SimulationType simType = SimulationType.SEQUENTIAL;
 	
 	public ExperimentProbSel() {
 		super("Banco", NEXP);

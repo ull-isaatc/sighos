@@ -5,9 +5,9 @@ import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.StructuredSynchroMergeFlow;
-import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
 /**
  * WFP 7. Example 1: Transferencia Pacientes

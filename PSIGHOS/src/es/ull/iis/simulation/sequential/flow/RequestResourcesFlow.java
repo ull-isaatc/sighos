@@ -7,7 +7,8 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.core.QueuedSimulationObject;
+import es.ull.iis.simulation.core.QueuedObject;
+import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.sequential.ActivityManager;
 import es.ull.iis.simulation.sequential.ActivityWorkGroup;
@@ -23,7 +24,7 @@ import es.ull.iis.util.PrioritizedTable;
  * @author Iván Castilla
  *
  */
-public class RequestResourcesFlow extends SingleSuccessorFlow implements es.ull.iis.simulation.core.flow.RequestResourcesFlow<ActivityWorkGroup, WorkThread>, Prioritizable, QueuedSimulationObject<WorkThread> {
+public class RequestResourcesFlow extends SingleSuccessorFlow implements es.ull.iis.simulation.core.flow.RequestResourcesFlow<WorkThread, ActivityWorkGroup>, Prioritizable, QueuedObject<WorkThread> {
     /** Priority. The lowest the value, the highest the priority */
     protected final int priority;
     /** A brief description of the activity */
@@ -297,7 +298,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements es.ull.
 	public void inqueue(WorkThread wt){};	
 	
 	@Override
-	public void addPredecessor(es.ull.iis.simulation.core.flow.Flow newFlow) {}
+	public void addPredecessor(Flow<WorkThread> newFlow) {}
 
 	@Override
 	public void availableElement(WorkThread wThread) {

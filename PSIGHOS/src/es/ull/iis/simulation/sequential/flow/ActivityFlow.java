@@ -14,7 +14,10 @@ import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.core.flow.FinalizerFlow;
 import es.ull.iis.simulation.core.flow.Flow;
+import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.simulation.core.flow.TaskFlow;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.sequential.ActivityManager;
@@ -62,24 +65,24 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * while the activity is being performed.
  * @author Iván Castilla Rodríguez
  */
-public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.simulation.core.flow.ActivityFlow<ActivityWorkGroup, WorkThread>, es.ull.iis.simulation.core.flow.ReleaseResourcesFlow<ResourceType>, TaskFlow {
+public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.simulation.core.flow.ActivityFlow<WorkThread, ActivityWorkGroup>, es.ull.iis.simulation.core.flow.ReleaseResourcesFlow<WorkThread, ResourceType>, TaskFlow<WorkThread> {
 	private static int resourcesIdCounter = -1;
 	/** 
 	 * An artificially created final node. This flow informs the flow-driven
 	 * work groups that they have being finalized.
 	 */
 	private BasicFlow virtualFinalFlow = new BasicFlow(simul) {
-		public void addPredecessor(es.ull.iis.simulation.core.flow.Flow newFlow) {}
+		public void addPredecessor(Flow<WorkThread> newFlow) {}
 
 		public void request(WorkThread wThread) {
 			wThread.notifyEnd();
 		}
 
-		public Flow link(es.ull.iis.simulation.core.flow.Flow successor) {
+		public Flow<WorkThread> link(Flow<WorkThread> successor) {
 			return successor;
 		}
 
-		public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow parent, Set<es.ull.iis.simulation.core.flow.Flow> visited) {}
+		public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow<WorkThread> parent, Set<Flow<WorkThread>> visited) {}
 		
 	};	
 	/** The set of modifiers of this activity. */
@@ -179,8 +182,8 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
     }
 
 	@Override
-    public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.iis.simulation.core.flow.InitializerFlow initFlow, 
-    		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {
+    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow<WorkThread> initFlow, 
+    		FinalizerFlow<WorkThread> finalFlow, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {
     	FlowDrivenActivityWorkGroup aWg = new FlowDrivenActivityWorkGroup(this, workGroupTable.size(), initFlow, finalFlow, priority, (WorkGroup)wg, cond);
 		finalFlow.link(virtualFinalFlow);
 		workGroupTable.add(aWg);
@@ -194,20 +197,20 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
     }
     
 	@Override
-    public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.iis.simulation.core.flow.InitializerFlow initFlow, 
-    		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, int priority, es.ull.iis.simulation.core.WorkGroup wg) {
+    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow<WorkThread> initFlow, 
+    		FinalizerFlow<WorkThread> finalFlow, int priority, es.ull.iis.simulation.core.WorkGroup wg) {
     	return addWorkGroup(initFlow, finalFlow, priority, wg, new TrueCondition());
     }
     
 	@Override
-    public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
-    		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, es.ull.iis.simulation.core.WorkGroup wg) {    	
+    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow<WorkThread> initialFlow, 
+    		FinalizerFlow<WorkThread> finalFlow, es.ull.iis.simulation.core.WorkGroup wg) {    	
         return addWorkGroup(initialFlow, finalFlow, 0, wg);
     }
     
 	@Override
-    public FlowDrivenActivityWorkGroup addWorkGroup(es.ull.iis.simulation.core.flow.InitializerFlow initialFlow, 
-    		es.ull.iis.simulation.core.flow.FinalizerFlow finalFlow, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
+    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow<WorkThread> initialFlow, 
+    		FinalizerFlow<WorkThread> finalFlow, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
         return addWorkGroup(initialFlow, finalFlow, 0, wg, cond);
     }
     
@@ -278,7 +281,7 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
 		if (wThread.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
 			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, ElementActionInfo.Type.STAACT, elem.getTs()));
 			elem.debug("Starts\t" + this + "\t" + description);
-			InitializerFlow initialFlow = ((FlowDrivenActivityWorkGroup)wThread.getExecutionWG()).getInitialFlow();
+			InitializerFlow<WorkThread> initialFlow = ((FlowDrivenActivityWorkGroup)wThread.getExecutionWG()).getInitialFlow();
 			elem.addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
 		}
 		else if (wThread.getExecutionWG() instanceof TimeDrivenActivityWorkGroup) {
@@ -388,6 +391,6 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
 	public void afterStart(WorkThread wThread) {}
 
 	@Override
-	public void afterFinalize(es.ull.iis.simulation.core.WorkThread<?> wt) {}
+	public void afterFinalize(WorkThread wt) {}
 	
 }

@@ -7,12 +7,12 @@ import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.factory.SimulationUserCode;
+import es.ull.iis.simulation.core.factory.UserMethod;
+import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.MultiChoiceFlow;
-import es.ull.iis.simulation.factory.SimulationUserCode;
-import es.ull.iis.simulation.factory.UserMethod;
-import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
 /**
  * WFP 10. Arbitrary Cycle

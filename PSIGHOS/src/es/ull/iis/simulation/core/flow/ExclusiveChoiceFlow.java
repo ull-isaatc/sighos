@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.core.flow;
 
-
+import es.ull.iis.simulation.core.WorkThread;
 
 /**
  * A {@link ConditionalFlow} which allows only one of the outgoing branches to be activated.
@@ -11,5 +11,5 @@ package es.ull.iis.simulation.core.flow;
  * @author Yeray Callero
  *
  */
-public interface ExclusiveChoiceFlow extends ConditionalFlow {
+public interface ExclusiveChoiceFlow<WT extends WorkThread<?>> extends ConditionalFlow<WT> {
 }

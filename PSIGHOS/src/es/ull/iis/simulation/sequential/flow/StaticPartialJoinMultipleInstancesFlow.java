@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.sequential.flow;
 
 import es.ull.iis.simulation.sequential.Simulation;
+import es.ull.iis.simulation.sequential.WorkThread;
 
 /**
  * Meets the Static Partial Join for Multiple Instances pattern (WFP34) if 
@@ -14,7 +15,7 @@ import es.ull.iis.simulation.sequential.Simulation;
  * @author Iván Castilla Rodríguez
  *
  */
-public class StaticPartialJoinMultipleInstancesFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StaticPartialJoinMultipleInstancesFlow {
+public class StaticPartialJoinMultipleInstancesFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StaticPartialJoinMultipleInstancesFlow<WorkThread> {
 	/**	The number of thread instances this flow creates */
 	protected int nInstances;
 	/** The number of threads which must finish to pass the control */

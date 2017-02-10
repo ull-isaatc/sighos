@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import es.ull.iis.simulation.core.flow.Flow;
+import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.simulation.core.flow.TaskFlow;
 import es.ull.iis.simulation.info.ElementInfo;
-import es.ull.iis.simulation.sequential.flow.Flow;
-import es.ull.iis.simulation.sequential.flow.InitializerFlow;
 import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
-import es.ull.iis.simulation.sequential.flow.TaskFlow;
 import es.ull.iis.simulation.variable.EnumVariable;
 
 /**
@@ -18,11 +18,11 @@ import es.ull.iis.simulation.variable.EnumVariable;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class Element extends BasicElement implements es.ull.iis.simulation.core.Element {
+public class Element extends BasicElement implements es.ull.iis.simulation.core.Element<WorkThread> {
 	/** Element type */
 	protected ElementType elementType;
 	/** First step of the flow of the element */
-	protected final InitializerFlow initialFlow;
+	protected final InitializerFlow<WorkThread> initialFlow;
 	/** Activity queues in which this element is. This list is used to notify the activities
 	 * when the element becomes available. */
 	protected final ArrayList<WorkThread> inQueue;
@@ -37,7 +37,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 * @param et Element type this element belongs to
 	 * @param flow First step of this element's flow
 	 */
-	public Element(Simulation simul, ElementType et, InitializerFlow flow) {
+	public Element(Simulation simul, ElementType et, InitializerFlow<WorkThread> flow) {
 		super(simul.getNextElementId(), simul);
 		this.elementType = et;
 		inQueue = new ArrayList<WorkThread>();
@@ -84,7 +84,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 * Returns the first step of this element's flow.
 	 * @return the first step of this element's flow.
 	 */
-	public InitializerFlow getFlow() {
+	public InitializerFlow<WorkThread> getFlow() {
 		return initialFlow;
 	}
 
@@ -153,7 +153,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 * @param f The flow to be requested
 	 * @param wThread The work thread used to request the flow
 	 */
-	public void addRequestEvent(Flow f, WorkThread wThread) {
+	public void addRequestEvent(Flow<WorkThread> f, WorkThread wThread) {
 		addEvent(new RequestFlowEvent(ts, f, wThread));
 	}
 	
@@ -186,9 +186,9 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 		/** The work thread that executes the request */
 		private final WorkThread wThread;
 		/** The flow to be requested */
-		private final Flow f;
+		private final Flow<WorkThread> f;
 
-		public RequestFlowEvent(long ts, Flow f, WorkThread wThread) {
+		public RequestFlowEvent(long ts, Flow<WorkThread> f, WorkThread wThread) {
 			super(ts);
 			this.wThread = wThread;
 			this.f = f;
@@ -209,9 +209,9 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 		/** The work thread that executes the finish */
 		private final WorkThread wThread;
 		/** The flow previously requested */
-		private final TaskFlow f;
+		private final TaskFlow<WorkThread> f;
 
-		public FinishFlowEvent(long ts, TaskFlow f, WorkThread wThread) {
+		public FinishFlowEvent(long ts, TaskFlow<WorkThread> f, WorkThread wThread) {
 			super(ts);
 			this.f = f;
 			this.wThread = wThread;

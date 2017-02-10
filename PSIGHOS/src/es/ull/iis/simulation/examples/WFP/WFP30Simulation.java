@@ -2,9 +2,9 @@ package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.StructuredPartialJoinFlow;
-import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
 /**
  * WFP 30. Expedición Cheques

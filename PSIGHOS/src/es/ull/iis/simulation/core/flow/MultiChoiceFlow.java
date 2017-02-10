@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.core.flow;
 
-
+import es.ull.iis.simulation.core.WorkThread;
 
 /**
  * A {@link ConditionalFlow} which allows all outgoing branches which meet their condition to be activated.
@@ -8,5 +8,5 @@ package es.ull.iis.simulation.core.flow;
  * Meets the Multi-Choice pattern (WFP6). 
  * @author Yeray Callero
  */
-public interface MultiChoiceFlow extends ConditionalFlow {
+public interface MultiChoiceFlow<WT extends WorkThread<?>> extends ConditionalFlow<WT> {
 }

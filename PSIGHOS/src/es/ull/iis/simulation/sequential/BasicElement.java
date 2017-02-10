@@ -45,10 +45,11 @@ public abstract class BasicElement extends TimeStampedSimulationObject implement
     public void addEvent(DiscreteEvent e) {
         if (e.getTs() < simul.getTs())
         	error("Causal restriction broken\t" + simul.getTs() + "\t" + e);
-        else if (e.getTs() > simul.getTs())
+        // TODO: Check collateral effects
+        else //if (e.getTs() > simul.getTs())
             simul.addWait(e);
-        else
-        	simul.addExecution(e);
+//        else
+//        	simul.addExecution(e);
     }
 
     /**

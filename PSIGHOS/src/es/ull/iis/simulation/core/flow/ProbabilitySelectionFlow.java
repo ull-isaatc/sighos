@@ -5,6 +5,8 @@ package es.ull.iis.simulation.core.flow;
 
 import java.util.Collection;
 
+import es.ull.iis.simulation.core.WorkThread;
+
 /**
  * A {@link MultipleSuccessorFlow} which selects one outgoing branch among a set of them by 
  * using a probability value. Each outgoing branch has a value (0.0 - 1.0] expressing the 
@@ -12,7 +14,7 @@ import java.util.Collection;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface ProbabilitySelectionFlow extends MultipleSuccessorFlow {
+public interface ProbabilitySelectionFlow<WT extends WorkThread<?>> extends MultipleSuccessorFlow<WT> {
 	/**
 	 * Adds a probabilistic flow's successor.
 	 * @param successor This flow's successor
@@ -20,7 +22,7 @@ public interface ProbabilitySelectionFlow extends MultipleSuccessorFlow {
 	 * @return TODO
 	 * @return The successor (useful for chained links)
 	 */
-	public Flow link(Flow successor, double prob);
+	public Flow<WT> link(Flow<WT> successor, double prob);
 
 	/**
 	 * Adds a collection of probabilistic flow's successor. 
@@ -28,6 +30,6 @@ public interface ProbabilitySelectionFlow extends MultipleSuccessorFlow {
 	 * @param succList This flow's successors
 	 * @param probList The probability of these successors to be chosen
 	 */
-	public void link(Collection<Flow> succList, Collection<Double> probList);
+	public void link(Collection<Flow<WT>> succList, Collection<Double> probList);
 	
 }

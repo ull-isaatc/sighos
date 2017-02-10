@@ -14,5 +14,5 @@ public interface SimulationObject extends Identifiable, Comparable<SimulationObj
 	 * Returns the associated {@link Simulation}.
 	 * @return the associated {@link Simulation}
 	 */
-	Simulation getSimulation();
+	Simulation<?> getSimulation();
 }

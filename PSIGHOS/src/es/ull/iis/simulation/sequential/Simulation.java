@@ -9,7 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.info.TimeChangeInfo;
-import es.ull.iis.simulation.sequential.flow.Flow;
+import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
 import es.ull.iis.util.Output;
 
@@ -25,7 +25,7 @@ import es.ull.iis.util.Output;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class Simulation extends es.ull.iis.simulation.core.Simulation {
+public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread> {
 
 	/** The identifier to be assigned to the next resource */ 
 	protected int nextResourceId = 0;
@@ -56,7 +56,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	/** The identifier to be assigned to the next flow */ 
 	protected int nextFlowId = 0;
 	/** List of flows present in the simulation */
-	protected final TreeMap<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
+	protected final TreeMap<Integer, Flow<WorkThread>> flowList = new TreeMap<Integer, Flow<WorkThread>>();
 
 	/** End-of-simulation control */
 	private CountDownLatch endSignal;
@@ -346,7 +346,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
-	public Flow add(Flow f) {
+	public Flow<WorkThread> add(Flow<WorkThread> f) {
 		return flowList.put(f.getIdentifier(), f);
 		
 	}
@@ -405,7 +405,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	}
 
 	@Override
-	public Map<Integer, Flow> getFlowList() {
+	public Map<Integer, Flow<WorkThread>> getFlowList() {
 		return flowList;
 	}
 
@@ -439,7 +439,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	}
 
 	@Override
-	public Flow getFlow(int id) {
+	public Flow<WorkThread> getFlow(int id) {
 		return flowList.get(id);
 	}
 

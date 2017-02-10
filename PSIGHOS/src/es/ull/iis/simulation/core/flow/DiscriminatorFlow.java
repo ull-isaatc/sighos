@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.core.flow;
 
-
+import es.ull.iis.simulation.core.WorkThread;
 
 /**
  * An {@link ANDJoinFlow} which allows only the first true incoming branch to pass. It is
@@ -8,5 +8,5 @@ package es.ull.iis.simulation.core.flow;
  * Meets the Blocking Discriminator pattern (WFP28). 
  * @author Yeray Callero
  */
-public interface DiscriminatorFlow extends ANDJoinFlow {
+public interface DiscriminatorFlow<WT extends WorkThread<?>> extends ANDJoinFlow<WT> {
 }

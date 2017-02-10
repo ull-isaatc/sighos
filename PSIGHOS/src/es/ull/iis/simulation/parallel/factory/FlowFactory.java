@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import es.ull.iis.simulation.factory.SimulationUserCode;
-import es.ull.iis.simulation.factory.StandardCompilator;
+import es.ull.iis.simulation.core.factory.SimulationUserCode;
+import es.ull.iis.simulation.core.factory.StandardCompilator;
 import es.ull.iis.simulation.parallel.Simulation;
 import es.ull.iis.simulation.parallel.flow.Flow;
 

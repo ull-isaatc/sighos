@@ -7,9 +7,9 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.InterleavedParallelRoutingFlow;
-import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
 /**
  * WFP 17. Interleaved Parallel Routing

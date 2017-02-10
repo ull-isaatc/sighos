@@ -1,6 +1,7 @@
 package es.ull.iis.simulation.sequential.flow;
 
 import es.ull.iis.simulation.sequential.Simulation;
+import es.ull.iis.simulation.sequential.WorkThread;
 
 
 /**
@@ -8,7 +9,7 @@ import es.ull.iis.simulation.sequential.Simulation;
  * is a partial join flow. Meets the Structured Partial Join pattern (WFP30). 
  * @author ycallero
  */
-public class StructuredPartialJoinFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StructuredPartialJoinFlow {
+public class StructuredPartialJoinFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StructuredPartialJoinFlow<WorkThread> {
 	
 	/**
 	 * Creates a new StructuredPartialJoinFlow.

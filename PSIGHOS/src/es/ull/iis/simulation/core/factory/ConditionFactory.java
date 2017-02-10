@@ -1,4 +1,4 @@
-package es.ull.iis.simulation.factory;
+package es.ull.iis.simulation.core.factory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -96,7 +96,7 @@ public class ConditionFactory {
 	 * @param condition Condition code.
 	 * @return A Condition's instance.
 	 */
-	static public Condition getInstance(Simulation sim, int id, String imports, String condition){
+	static public Condition getInstance(Simulation<?> sim, int id, String imports, String condition){
 		String classCode = generateClass(id, imports, condition);
 		StringJFO src = null;
 		try {

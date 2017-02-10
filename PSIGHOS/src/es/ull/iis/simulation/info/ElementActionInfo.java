@@ -4,7 +4,7 @@ import es.ull.iis.simulation.core.ActivityWorkGroup;
 import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.WorkThread;
-import es.ull.iis.simulation.core.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.core.flow.ResourcesFlow;
 
 public class ElementActionInfo extends AsynchronousInfo {
 	
@@ -29,21 +29,21 @@ public class ElementActionInfo extends AsynchronousInfo {
 		};
 	
 	final private WorkThread<?> wThread;
-	final private RequestResourcesFlow<?, ?> act;
+	final private ResourcesFlow act;
 	final private ActivityWorkGroup wg;
-	final private Element elem;
+	final private Element<?> elem;
 	final private Type type;
 	
-	public ElementActionInfo(Simulation simul, WorkThread<?> wThread, Type type, long ts) {
+	public ElementActionInfo(Simulation<?> simul, WorkThread<?> wThread, Type type, long ts) {
 		super(simul, ts);
 		this.wThread = wThread;
-		this.act = (RequestResourcesFlow<?, ?>)wThread.getCurrentFlow();
+		this.act = (ResourcesFlow)wThread.getCurrentFlow();
 		this.wg = wThread.getExecutionWG();
 		this.elem = wThread.getElement();
 		this.type = type;
 	}
 	
-	public Element getElement() {
+	public Element<?> getElement() {
 		return elem;
 	}
 	
@@ -66,7 +66,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 		return message;
 	}
 
-	public RequestResourcesFlow<?, ?> getActivity() {
+	public ResourcesFlow getActivity() {
 		return act;
 	}
 

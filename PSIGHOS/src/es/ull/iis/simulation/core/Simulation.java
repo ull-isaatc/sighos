@@ -64,7 +64,7 @@ import es.ull.iis.util.Output;
  * defining the destination for error and debug messages.
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation implements Callable<Integer>, Runnable, Identifiable, Describable, Debuggable, VariableStore {
+public abstract class Simulation<WT extends WorkThread<?>> implements Callable<Integer>, Runnable, Identifiable, Describable, Debuggable, VariableStore {
 	/** Simulation's identifier */
 	protected int id;
 	
@@ -365,14 +365,14 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 	 * @param id Flow identifier.
 	 * @return A flow with the indicated identifier.
 	 */
-	public abstract Flow getFlow(int id);
+	public abstract Flow<WT> getFlow(int id);
 
 	/**
 	 * Returns a list of the flows of the model.
 	 * 
 	 * @return flows of the model.
 	 */
-	public abstract Map<Integer, ? extends Flow> getFlowList();
+	public abstract Map<Integer, ? extends Flow<WT>> getFlowList();
 	
 	@Override
 	public String toString() {

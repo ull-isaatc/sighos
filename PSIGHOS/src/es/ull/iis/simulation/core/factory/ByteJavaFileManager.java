@@ -1,4 +1,4 @@
-package es.ull.iis.simulation.factory;
+package es.ull.iis.simulation.core.factory;
 
 import java.io.IOException;
 import java.util.HashMap;

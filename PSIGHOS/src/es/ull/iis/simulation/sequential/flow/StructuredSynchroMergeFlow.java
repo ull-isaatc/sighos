@@ -4,14 +4,18 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.core.flow.FinalizerFlow;
+import es.ull.iis.simulation.core.flow.Flow;
+import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.sequential.Simulation;
+import es.ull.iis.simulation.sequential.WorkThread;
 
 /**
  * A structured flow whose initial step is a multi-choice flow and whose final step
  * is a synchronization. Meets the Structured Synchronization pattern (WFP7). 
  * @author ycallero
  */
-public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StructuredSynchroMergeFlow {
+public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StructuredSynchroMergeFlow<WorkThread> {
 	
 	/**
 	 * Create a new StructuredSynchroMergeMetaFlow.
@@ -31,7 +35,7 @@ public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow impleme
 	 * @param cond This branch's condition.
 	 */
 	
-	public void addBranch(es.ull.iis.simulation.core.flow.TaskFlow branch, Condition cond) {
+	public void addBranch(es.ull.iis.simulation.core.flow.TaskFlow<WorkThread> branch, Condition cond) {
 		addBranch(branch, branch, cond);
 	}
 	
@@ -41,20 +45,20 @@ public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow impleme
 	 * @param finalBranch Last step of the internal branch
 	 * @param cond This branch's condition.
 	 */
-	public void addBranch(es.ull.iis.simulation.core.flow.InitializerFlow initialBranch, es.ull.iis.simulation.core.flow.FinalizerFlow finalBranch, Condition cond) {
-		final TreeSet<es.ull.iis.simulation.core.flow.Flow> visited = new TreeSet<es.ull.iis.simulation.core.flow.Flow>(); 
+	public void addBranch(InitializerFlow<WorkThread> initialBranch, FinalizerFlow<WorkThread> finalBranch, Condition cond) {
+		final TreeSet<Flow<WorkThread>> visited = new TreeSet<Flow<WorkThread>>(); 
 		initialBranch.setRecursiveStructureLink(this, visited);
 		((MultiChoiceFlow)initialFlow).link(initialBranch, cond);
 		finalBranch.link(finalFlow);
 	}
 	
 	@Override
-	public void addBranch(es.ull.iis.simulation.core.flow.InitializerFlow initialBranch, es.ull.iis.simulation.core.flow.FinalizerFlow finalBranch) {
+	public void addBranch(InitializerFlow<WorkThread> initialBranch, FinalizerFlow<WorkThread> finalBranch) {
 		addBranch(initialBranch, finalBranch, new TrueCondition());		
 	}
 	
 	@Override
-	public void addBranch(es.ull.iis.simulation.core.flow.TaskFlow initialBranch) {
+	public void addBranch(es.ull.iis.simulation.core.flow.TaskFlow<WorkThread> initialBranch) {
 		addBranch(initialBranch, new TrueCondition());
 	}
 }

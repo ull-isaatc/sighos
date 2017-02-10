@@ -23,16 +23,16 @@ public class ElementInfo extends AsynchronousInfo {
 
 		};
 	
-	final private Element elem;
+	final private Element<?> elem;
 	final private Type type;
 	
-	public ElementInfo(Simulation simul, Element elem, Type type, long ts) {
+	public ElementInfo(Simulation<?> simul, Element<?> elem, Type type, long ts) {
 		super(simul, ts);
 		this.elem = elem;
 		this.type = type;
 	}
 	
-	public Element getElement() {
+	public Element<?> getElement() {
 		return elem;
 	}
 

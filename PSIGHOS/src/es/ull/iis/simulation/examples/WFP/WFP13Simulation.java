@@ -5,9 +5,9 @@ package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.SynchronizedMultipleInstanceFlow;
-import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 
 /**
  * WFP 13. Multiple Instances with a priori design-time knowledge

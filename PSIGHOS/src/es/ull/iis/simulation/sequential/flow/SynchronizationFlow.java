@@ -1,6 +1,8 @@
 package es.ull.iis.simulation.sequential.flow;
 
+import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.sequential.Simulation;
+import es.ull.iis.simulation.sequential.WorkThread;
 
 
 
@@ -10,7 +12,7 @@ import es.ull.iis.simulation.sequential.Simulation;
  * Meets the Synchronization pattern (WFP3). 
  * @author ycallero
  */
-public class SynchronizationFlow extends ANDJoinFlow implements es.ull.iis.simulation.core.flow.SynchronizationFlow {
+public class SynchronizationFlow extends ANDJoinFlow implements es.ull.iis.simulation.core.flow.SynchronizationFlow<WorkThread> {
 		
 	/**
 	 * Create a new SynchronizationFlow.
@@ -35,7 +37,7 @@ public class SynchronizationFlow extends ANDJoinFlow implements es.ull.iis.simul
 	 * @param newFlow The last step of the incoming branch. 
 	 */
 	@Override
-	public void addPredecessor(es.ull.iis.simulation.core.flow.Flow newFlow) {
+	public void addPredecessor(Flow<WorkThread> newFlow) {
 		super.addPredecessor(newFlow);
 		acceptValue = incomingBranches;
 	}

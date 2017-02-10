@@ -8,6 +8,7 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.sequential.Simulation;
+import es.ull.iis.simulation.sequential.WorkThread;
 
 /**
  * A multiple successor flow whose successors are conditioned, that is, the successor
@@ -16,7 +17,7 @@ import es.ull.iis.simulation.sequential.Simulation;
  * @author ycallero
  *
  */
-public abstract class ConditionalFlow extends MultipleSuccessorFlow implements es.ull.iis.simulation.core.flow.ConditionalFlow {
+public abstract class ConditionalFlow extends MultipleSuccessorFlow implements es.ull.iis.simulation.core.flow.ConditionalFlow<WorkThread> {
 	/** Condition list associated to the successor list. */
 	protected final ArrayList<Condition> conditionList;
 	
@@ -35,7 +36,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow implements e
 	 * @param successor This flow's successor.
 	 */
 	@Override
-	public Flow link(es.ull.iis.simulation.core.flow.Flow successor) {
+	public Flow<WorkThread> link(Flow<WorkThread> successor) {
 		return link(successor, new TrueCondition());
 	}
 	
@@ -44,7 +45,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow implements e
 	 * @param successor This flow's successor
 	 * @param cond The condition that has to be met to invoke the successor
 	 */
-	public Flow link(es.ull.iis.simulation.core.flow.Flow successor, Condition cond) {
+	public Flow<WorkThread> link(Flow<WorkThread> successor, Condition cond) {
 		super.link(successor);
 		conditionList.add(cond);
 		return successor;
@@ -56,7 +57,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow implements e
 	 * @param succList This flow's successors
 	 */
 	@Override
-	public void link(Collection<es.ull.iis.simulation.core.flow.Flow> succList) {
+	public void link(Collection<Flow<WorkThread>> succList) {
 		link(succList, Collections.nCopies(succList.size(), (Condition)new TrueCondition()));
 	}
 
@@ -66,7 +67,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow implements e
 	 * @param succList This flow's successors
 	 * @param condList The conditions attached to each successor
 	 */
-	public void link(Collection<es.ull.iis.simulation.core.flow.Flow> succList, Collection<Condition> condList) {
+	public void link(Collection<Flow<WorkThread>> succList, Collection<Condition> condList) {
 		super.link(succList);
 		conditionList.addAll(condList);
 	}

@@ -4,14 +4,13 @@
 package es.ull.iis.simulation.core.flow;
 
 import es.ull.iis.simulation.core.ActivityWorkGroup;
-import es.ull.iis.simulation.core.Describable;
 import es.ull.iis.simulation.core.WorkThread;
 
 /**
  * @author Iván Castilla
  *
  */
-public interface RequestResourcesFlow<AWG extends ActivityWorkGroup, WT extends WorkThread<?>> extends Describable, InitializerFlow, SingleSuccessorFlow {
+public interface RequestResourcesFlow<WT extends WorkThread<?>, AWG extends ActivityWorkGroup> extends InitializerFlow<WT>, SingleSuccessorFlow<WT>, ResourcesFlow {
 	/**
 	 * Allows a user for adding a customized code when a {@link es.ull.iis.simulation.core.WorkThread} from an {@link es.ull.iis.simulation.core.Element}
 	 * is enqueued, waiting for available {@link es.ull.iis.simulation.core.Resource}. 

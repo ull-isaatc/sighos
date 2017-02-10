@@ -4,7 +4,7 @@ import es.ull.iis.simulation.core.Simulation;
 
 public abstract class UserInfo extends AsynchronousInfo {
 
-	public UserInfo(Simulation simul, long ts) {
+	public UserInfo(Simulation<?> simul, long ts) {
 		super(simul, ts);
 	}
 

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
+import es.ull.iis.simulation.core.flow.Flow;
+import es.ull.iis.simulation.core.flow.SplitFlow;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkThread;
 
@@ -15,9 +17,9 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * new work threads are created from this flow on, when it's requested.
  * @author Iván Castilla Rodríguez
  */
-public abstract class MultipleSuccessorFlow extends BasicFlow implements es.ull.iis.simulation.core.flow.MultipleSuccessorFlow, SplitFlow {
+public abstract class MultipleSuccessorFlow extends BasicFlow implements es.ull.iis.simulation.core.flow.MultipleSuccessorFlow<WorkThread>, SplitFlow<WorkThread> {
 	/** Successor list */
-	protected final ArrayList<Flow> successorList;
+	protected final ArrayList<Flow<WorkThread>> successorList;
 
 	/**
 	 * Creates a flow with multiple successors.
@@ -25,7 +27,7 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements es.ull.
 	 */
 	public MultipleSuccessorFlow(Simulation simul) {
 		super(simul);
-		successorList = new ArrayList<Flow>();
+		successorList = new ArrayList<Flow<WorkThread>>();
 	}
 	
 	/* (non-Javadoc)
@@ -46,14 +48,14 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements es.ull.
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#addPredecessor(es.ull.iis.simulation.Flow)
 	 */
-	public void addPredecessor(es.ull.iis.simulation.core.flow.Flow newFlow) {
+	public void addPredecessor(Flow<WorkThread> newFlow) {
 	}
 
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#link(es.ull.iis.simulation.Flow)
 	 */
-	public es.ull.iis.simulation.core.flow.Flow link(es.ull.iis.simulation.core.flow.Flow successor) {
-		successorList.add((Flow)successor);
+	public Flow<WorkThread> link(Flow<WorkThread> successor) {
+		successorList.add(successor);
     	successor.addPredecessor(this);
     	return successor;
 	}
@@ -63,9 +65,9 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements es.ull.
 	 * <code>successor.addPredecessor</code> to build the graph properly. 
 	 * @param succList This flow's successors.
 	 */
-	public void link(Collection<es.ull.iis.simulation.core.flow.Flow> succList) {
-        for (es.ull.iis.simulation.core.flow.Flow succ : succList) {
-        	successorList.add((Flow)succ);
+	public void link(Collection<Flow<WorkThread>> succList) {
+        for (Flow<WorkThread> succ : succList) {
+        	successorList.add(succ);
         	succ.addPredecessor(this);
         }		
 	}
@@ -73,10 +75,10 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements es.ull.
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#setRecursiveStructureLink(es.ull.iis.simulation.StructuredFlow)
 	 */
-	public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow parent, Set<es.ull.iis.simulation.core.flow.Flow> visited) {
+	public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow<WorkThread> parent, Set<Flow<WorkThread>> visited) {
 		 setParent(parent);
 		 visited.add(this);
-		 for (Flow f : successorList)
+		 for (Flow<WorkThread> f : successorList)
 			 if (!visited.contains(f))
 				 f.setRecursiveStructureLink(parent, visited); 	
 	}
@@ -85,9 +87,9 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements es.ull.
 	 * Returns the list of successor flows which follows this one.
 	 * @return the list of successor flows which follows this one.
 	 */
-	public ArrayList<es.ull.iis.simulation.core.flow.Flow> getSuccessorList() {
-		ArrayList<es.ull.iis.simulation.core.flow.Flow> newSuccList = new ArrayList<es.ull.iis.simulation.core.flow.Flow>();
-		for (Flow f : successorList)
+	public ArrayList<Flow<WorkThread>> getSuccessorList() {
+		ArrayList<Flow<WorkThread>> newSuccList = new ArrayList<Flow<WorkThread>>();
+		for (Flow<WorkThread> f : successorList)
 			newSuccList.add(f);
 		return newSuccList;
 	}

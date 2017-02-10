@@ -4,7 +4,7 @@
 // Tue Aug 05 16:27:19 BST 2008
 //----------------------------------------------------
 
-package es.ull.iis.simulation.factory;
+package es.ull.iis.simulation.core.factory;
 
 /** CUP generated class containing symbol constants. */
 public class TagProcessSymbols {
