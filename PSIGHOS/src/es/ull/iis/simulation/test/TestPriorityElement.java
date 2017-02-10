@@ -47,7 +47,7 @@ public class TestPriorityElement {
 		        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {2});
 				ActivityFlow<?,?> acts[] = new ActivityFlow[NACT];
 				for (int i = 0; i < NACT; i++) {
-					acts[i] = factory.getActivityInstance("ACT" + i, i / 2, EnumSet.noneOf(ActivityFlow.Modifier.class));
+					acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "ACT" + i, i / 2, EnumSet.noneOf(ActivityFlow.Modifier.class));
 					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 10), 0, wg);
 				}
 				SimulationPeriodicCycle c1 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 200), 0);

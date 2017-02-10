@@ -19,6 +19,7 @@ import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.factory.SimulationFactory;
 import es.ull.iis.simulation.factory.SimulationObjectFactory;
+import es.ull.iis.simulation.factory.SimulationUserCode;
 import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
 import es.ull.iis.function.TimeFunctionFactory;
 
@@ -109,6 +110,28 @@ public abstract class WFPTestSimulationFactory {
 			act = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", description, 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
 		else
 			act = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", description);
+    	act.addWorkGroup(new SimulationTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[dur]), 0, wg);
+		return act;
+	}
+	
+	public ActivityFlow<?,?> getDefActivity(SimulationUserCode code, String description, WorkGroup wg) {
+		return getDefActivity(code, description, 0, wg, true);
+	}
+	
+	public ActivityFlow<?,?> getDefActivity(SimulationUserCode code, String description, WorkGroup wg, boolean presential) {
+		return getDefActivity(code, description, 0, wg, presential);
+	}
+	
+	public ActivityFlow<?,?> getDefActivity(SimulationUserCode code, String description, int dur, WorkGroup wg) {
+		return getDefActivity(code, description, dur, wg, true);
+	}
+	
+	public ActivityFlow<?,?> getDefActivity(SimulationUserCode code, String description, int dur, WorkGroup wg, boolean presential) {
+		ActivityFlow<?,?> act = null;
+		if (!presential)
+			act = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", code, description, 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+		else
+			act = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", code, description);
     	act.addWorkGroup(new SimulationTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[dur]), 0, wg);
 		return act;
 	}

@@ -17,8 +17,10 @@ public interface ProbabilitySelectionFlow extends MultipleSuccessorFlow {
 	 * Adds a probabilistic flow's successor.
 	 * @param successor This flow's successor
 	 * @param prob The probability of this successor to be chosen
+	 * @return TODO
+	 * @return The successor (useful for chained links)
 	 */
-	public void link(Flow successor, double prob);
+	public Flow link(Flow successor, double prob);
 
 	/**
 	 * Adds a collection of probabilistic flow's successor. 

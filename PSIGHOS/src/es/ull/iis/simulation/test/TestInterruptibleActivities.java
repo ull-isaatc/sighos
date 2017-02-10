@@ -50,7 +50,7 @@ public class TestInterruptibleActivities {
 
 				ActivityFlow<?,?> acts[] = new ActivityFlow[NACT];
 				for (int i = 0; i < NACT; i++) {
-					acts[i] = factory.getActivityInstance("ACT" + i, i / 2, EnumSet.of(ActivityFlow.Modifier.INTERRUPTIBLE));
+					acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "ACT" + i, i / 2, EnumSet.of(ActivityFlow.Modifier.INTERRUPTIBLE));
 					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 101), 0, wg);
 				}
 				SimulationPeriodicCycle c1 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 200), 0);

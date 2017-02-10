@@ -42,9 +42,6 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
     	
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
 	   	
-    	ActivityFlow<?,?> act0 = getDefActivity("Rellenar bidon", wg, false);
-    	ActivityFlow<?,?> act1 = getDefActivity("Realizar envío de bidon", wg, false);
-    	
     	getSimulation().putVar("capacidadBidon", 20);
     	getSimulation().putVar("litrosIntroducidos", 0.0);
     	getSimulation().putVar("enviosRealizados", 0);
@@ -76,26 +73,26 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
 				"System.out.println(\"Introducimos \" + random + \" litros y nuestro volumen actual es \" + <%GET(S.litrosIntroducidos)%> + \" litros\");" +
 	  	  "}");
         
-        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", code2, act0);
-        
+    	ActivityFlow<?,?> act0 = getDefActivity(code2, "Rellenar bidon", wg, false);
+    	
         SimulationUserCode code3 = new SimulationUserCode();
         code3.add(UserMethod.BEFORE_REQUEST, 	"<%SET(S.litrosIntroducidos, 0)%>;" +
  				"<%SET(S.enviosRealizados, <%GET(S.enviosRealizados)%> + 1)%>;" +
  				"System.out.println(\"Nuevo envio realizado\");" +
  				"return true;");
 
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", code3, act1);
+    	ActivityFlow<?,?> act1 = getDefActivity(code3, "Realizar envío de bidon", wg, false);
         
-        root.link(mul1);
+        act0.link(mul1);
         ArrayList<Flow> succList = new ArrayList<Flow>();
-        succList.add(root);
-        succList.add(sin1);
+        succList.add(act0);
+        succList.add(act1);
         ArrayList<Condition> condList = new ArrayList<Condition>();
         condList.add(cond);
         condList.add(notCond);
         mul1.link(succList, condList);
         
-        getDefGenerator(getDefElementType("Cliente"), root);
+        getDefGenerator(getDefElementType("Cliente"), act0);
 	}
 
 }

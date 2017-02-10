@@ -36,9 +36,9 @@ class ExperimentProbSel extends Experiment {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "EjProbabilidades", TimeUnit.MINUTE, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		sim = factory.getSimulation();
 
-    	ActivityFlow<?,?> act0 = factory.getActivityInstance("10 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
-    	ActivityFlow<?,?> act1 = factory.getActivityInstance("30 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
-    	ActivityFlow<?,?> act2 = factory.getActivityInstance("60 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+    	ActivityFlow<?,?> act0 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "10 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+    	ActivityFlow<?,?> act1 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "30 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+    	ActivityFlow<?,?> act2 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "60 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
         ResourceType rt = factory.getResourceTypeInstance("Empleado");
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});

@@ -54,7 +54,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 		public void addPredecessor(Flow newFlow) {}
 
 		@Override
-		public void link(Flow successor) {}
+		public Flow link(Flow successor) {}
 
 		@Override
 		public void setRecursiveStructureLink(StructuredFlow parent, Set<es.ull.iis.simulation.core.flow.Flow> visited) {}		

@@ -16,8 +16,9 @@ public interface ConditionalFlow extends MultipleSuccessorFlow {
 	 * Adds a conditioned flow's successor. 
 	 * @param successor This flow's successor
 	 * @param cond The condition that has to be met to invoke the successor
+	 * @return TODO
 	 */
-	public void link(Flow successor, Condition cond);
+	public Flow link(Flow successor, Condition cond);
 
 	/**
 	 * Adds a collection of conditioned flow's successors. 

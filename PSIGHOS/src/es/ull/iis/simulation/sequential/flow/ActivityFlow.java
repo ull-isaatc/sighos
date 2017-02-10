@@ -14,6 +14,7 @@ import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.sequential.ActivityManager;
@@ -74,7 +75,9 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
 			wThread.notifyEnd();
 		}
 
-		public void link(es.ull.iis.simulation.core.flow.Flow successor) {}
+		public Flow link(es.ull.iis.simulation.core.flow.Flow successor) {
+			return successor;
+		}
 
 		public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow parent, Set<es.ull.iis.simulation.core.flow.Flow> visited) {}
 		

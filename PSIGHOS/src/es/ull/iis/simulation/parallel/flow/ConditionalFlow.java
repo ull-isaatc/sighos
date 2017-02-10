@@ -6,6 +6,7 @@ import java.util.Collections;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.parallel.Simulation;
 
 /**
@@ -34,7 +35,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow implements e
 	 * @param successor This flow's successor.
 	 */
 	@Override
-	public void link(es.ull.iis.simulation.core.flow.Flow successor) {
+	public Flow link(es.ull.iis.simulation.core.flow.Flow successor) {
 		link(successor, new TrueCondition());
 	}
 	
@@ -43,7 +44,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow implements e
 	 * @param successor This flow's successor
 	 * @param cond The condition that has to be met to invoke the successor
 	 */
-	public void link(es.ull.iis.simulation.core.flow.Flow successor, Condition cond) {
+	public Flow link(es.ull.iis.simulation.core.flow.Flow successor, Condition cond) {
 		super.link(successor);
 		conditionList.add(cond);
 	}

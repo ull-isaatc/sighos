@@ -50,9 +50,10 @@ public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.ii
 				successor.setRecursiveStructureLink(parent, visited);			
 	}	
 
-	public void link(es.ull.iis.simulation.core.flow.Flow succ) {
+	public es.ull.iis.simulation.core.flow.Flow link(es.ull.iis.simulation.core.flow.Flow succ) {
 		successor = (Flow) succ;
 		succ.addPredecessor(this);
+		return succ;
 	}
 
 	/**

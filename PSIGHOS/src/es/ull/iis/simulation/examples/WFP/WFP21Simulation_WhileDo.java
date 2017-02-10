@@ -36,8 +36,6 @@ public class WFP21Simulation_WhileDo extends WFPTestSimulationFactory {
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
     	
-    	ActivityFlow<?,?> act0 = getDefActivity("Revelar foto", wg, false);
-
         getDefResource("Maquina 1", rt0);        
         getDefResource("Maquina 2", rt0);
         
@@ -47,8 +45,8 @@ public class WFP21Simulation_WhileDo extends WFPTestSimulationFactory {
         code1.add(UserMethod.AFTER_FINALIZE, "<%SET(@E.fotosReveladas, <%GET(@E.fotosReveladas)%> + 1)%>;"
 				+ "System.out.println(\"E\" + e.getIdentifier() + \": \" + <%GET(@E.fotosReveladas)%> + \" fotos reveladas.\");"
 				);
-        SingleFlow sin1 = (SingleFlow)factory.getFlowInstance("SingleFlow", code1, act0);
-        WhileDoFlow root = (WhileDoFlow)factory.getFlowInstance("WhileDoFlow", sin1, cond);
+    	ActivityFlow<?,?> act0 = getDefActivity(code1, "Revelar foto", wg, false);
+        WhileDoFlow root = (WhileDoFlow)factory.getFlowInstance("WhileDoFlow", act0, cond);
 
         ElementType et = getDefElementType("Cliente");
         et.addElementVar("fotosReveladas", 0);

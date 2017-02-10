@@ -31,9 +31,6 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
         ResourceType rt0 = getDefResourceType("Cajero");
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
         
-    	ActivityFlow<?,?> act0 = getDefActivity("Verificar cuenta", wg, false);
-    	ActivityFlow<?,?> act1 = getDefActivity("Obtener detalles tarjeta", wg, false);
-        
         getDefResource("Cajero1", rt0);
         getDefResource("Cajero2", rt0);
         getDefResource("Cajero3", rt0);
@@ -43,10 +40,12 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
         // FIXME: NO FUNCIONA!!!
         code1.add(UserMethod.BEFORE_REQUEST, "<%SET(S.pass, !(boolean)<%GET(S.pass)%>)%>;" +
         		"return (boolean)<%GET(S.pass)%> && super.beforeRequest(e);");
-        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", code1, act0);
+    	ActivityFlow<?,?> act0 = getDefActivity(code1, "Verificar cuenta", wg, false);
+    	ActivityFlow<?,?> act1 = getDefActivity("Obtener detalles tarjeta", wg, false);
         
-        root.link(act1);
+        
+        act0.link(act1);
 
-        getDefGenerator(getDefElementType("Cliente"), root);
+        getDefGenerator(getDefElementType("Cliente"), act0);
 	}
 }

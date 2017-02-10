@@ -33,7 +33,7 @@ class ExperimentTest1 extends Experiment {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Ej", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		Simulation sim = factory.getSimulation();
 
-    	factory.getActivityInstance("Verificar cuenta", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+		factory.getFlowInstance("ActivityFlow", "Verificar cuenta", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
         
     	sim.putVar("Coste total", new IntVariable(0));
     	sim.putVar("Coste", new IntVariable(200));

@@ -42,7 +42,7 @@ class TestDynamicGenerationExperiment extends Experiment {
 		WorkGroup wg0 = factory.getWorkGroupInstance(new ResourceType [] {rt0, rt1}, new int[] {1,1});
 		
 		Condition cond = factory.getCustomizedConditionInstance(null, "false");
-		ActivityFlow<?,?> act0 = factory.getActivityInstance("ACT0");
+		ActivityFlow<?,?> act0 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "ACT0");
 		act0.addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 10.0), 0, wg0, new NotCondition(cond));
 		
 		factory.getElementTypeInstance("ET0");

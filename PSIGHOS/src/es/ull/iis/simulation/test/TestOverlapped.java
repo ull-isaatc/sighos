@@ -41,8 +41,8 @@ class ExpOverlapped extends Experiment {
 
         // PASO 1: Inicializo las Activityes de las que se compone
 //    	Activity actDummy = factory.getActivityInstance("Dummy");
-    	ActivityFlow<?,?> actSangre = factory.getActivityInstance("Análisis de sangre");
-    	ActivityFlow<?,?> actOrina = factory.getActivityInstance("Análisis de orina");
+    	ActivityFlow<?,?> actSangre = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "Análisis de sangre");
+    	ActivityFlow<?,?> actOrina = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "Análisis de orina");
  
         // PASO 2: Inicializo las clases de recursos
         ResourceType crSangre = factory.getResourceTypeInstance("Máquina Análisis Sangre");

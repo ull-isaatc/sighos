@@ -52,7 +52,7 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#link(es.ull.iis.simulation.Flow)
 	 */
-	public void link(es.ull.iis.simulation.core.flow.Flow successor) {
+	public es.ull.iis.simulation.core.flow.Flow link(es.ull.iis.simulation.core.flow.Flow successor) {
 		successorList.add((Flow)successor);
     	successor.addPredecessor(this);
 	}

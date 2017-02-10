@@ -6,6 +6,7 @@ package es.ull.iis.simulation.parallel.flow;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.parallel.Simulation;
 import es.ull.iis.simulation.parallel.WorkThread;
 
@@ -38,7 +39,7 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow implements e
 	 * @param successor This flow's successor
 	 * @param prob The probability of this successor of being chosen
 	 */
-	public void link(es.ull.iis.simulation.core.flow.Flow successor, double prob) {
+	public Flow link(es.ull.iis.simulation.core.flow.Flow successor, double prob) {
 		super.link(successor);
 		probabilities.add(prob);
 		sum += prob;
@@ -48,7 +49,7 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow implements e
 	 * Adds a probabilistic flow's successor. A probability of 1.0 is associated to this successor
 	 * @param successor This flow's successor
 	 */
-	public void link(es.ull.iis.simulation.core.flow.Flow successor) {
+	public Flow link(es.ull.iis.simulation.core.flow.Flow successor) {
 		link(successor, 1.0);
 	}
 	

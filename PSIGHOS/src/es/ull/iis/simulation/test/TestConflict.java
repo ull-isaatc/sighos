@@ -49,7 +49,7 @@ class ExpConflict extends Experiment {
 		
 		ActivityFlow<?,?> acts[] = new ActivityFlow[NACTS];
 		for (int i = 0; i < NACTS; i++) {
-			acts[i] = factory.getActivityInstance("ACT" + i);
+			acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "ACT" + i);
 			acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 40), 0, wgs[i]);
 		}
 		
@@ -92,7 +92,7 @@ class ExpConflict extends Experiment {
 
 		ActivityFlow<?,?> acts[] = new ActivityFlow[NACTS];
 		for (int i = 0; i < NACTS; i++) {
-			acts[i] = factory.getActivityInstance("ACT" + i);
+			acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "ACT" + i);
 			acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 40), 0, wgs[i]);
 		}
 

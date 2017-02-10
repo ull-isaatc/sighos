@@ -19,7 +19,6 @@ import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ForLoopFlow;
 import es.ull.iis.simulation.core.flow.InterleavedRoutingFlow;
-import es.ull.iis.simulation.core.flow.SingleFlow;
 import es.ull.iis.simulation.factory.SimulationFactory;
 import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationUserCode;
@@ -191,7 +190,7 @@ public class BenchmarkModel {
 		return sim;
 	}
 	
-	private void stdBuildElementGenerators(SimulationObjectFactory factory, ForLoopFlow[] smfs, ActivityFlow[] acts, WorkGroup[] wgs) {
+	private void stdBuildElementGenerators(SimulationObjectFactory factory, ForLoopFlow[] smfs, ActivityFlow<?,?>[] acts, WorkGroup[] wgs) {
 		ElementType et = factory.getElementTypeInstance("E_TEST");
 		switch(ovType) {
 			case SAMETIME:
@@ -237,8 +236,7 @@ public class BenchmarkModel {
 		ResourceType[] rts = new ResourceType[nAct];
 		WorkGroup[] wgs = new WorkGroup[nAct];
 		Resource[] res = new Resource[nElem * nAct];
-		ActivityFlow[] acts = new ActivityFlow[nAct];
-		SingleFlow[] smfs = new SingleFlow[nAct];
+		ActivityFlow<?,?>[] acts = new ActivityFlow[nAct];
 		
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
 		
@@ -247,14 +245,13 @@ public class BenchmarkModel {
 		for (int i = 0; i < acts.length; i++) {
 			rts[i] = factory.getResourceTypeInstance("RT" + i);
 			wgs[i] = factory.getWorkGroupInstance(new ResourceType[] {rts[i]}, new int[] {1});
-			acts[i] = factory.getActivityInstance("A_TEST" + i);
 			if (code != null)
-				smfs[i] = (SingleFlow)factory.getFlowInstance("SingleFlow", code, acts[i]);
+				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", code, "A_TEST" + i);
 			else
-				smfs[i] = (SingleFlow)factory.getFlowInstance("SingleFlow", acts[i]);
+				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "A_TEST" + i);
 		}
 		InterleavedRoutingFlow iFlow = (InterleavedRoutingFlow)factory.getFlowInstance("InterleavedRoutingFlow");
-		for (SingleFlow sf : smfs)
+		for (ActivityFlow<?,?> sf : acts)
 			iFlow.addBranch(sf);
 		ForLoopFlow rootFlow = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", iFlow, TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 
@@ -273,7 +270,7 @@ public class BenchmarkModel {
 		WorkGroup[] wgs = new WorkGroup[nAct];
 		Resource[] res = new Resource[nElem];
 		
-		ActivityFlow[] acts = new ActivityFlow[nAct];
+		ActivityFlow<?,?>[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
@@ -283,13 +280,11 @@ public class BenchmarkModel {
 		for (int i = 0; i < acts.length; i++) {
 			rts[i] = factory.getResourceTypeInstance("RT" + i);
 			wgs[i] = factory.getWorkGroupInstance(new ResourceType[] {rts[i]}, new int[] {1});
-			acts[i] = factory.getActivityInstance("A_TEST" + i);
-			SingleFlow sf = null;
 			if (code != null)
-				sf = (SingleFlow)factory.getFlowInstance("SingleFlow", code, acts[i]);
+				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", code, "A_TEST" + i);
 			else
-				sf = (SingleFlow)factory.getFlowInstance("SingleFlow", acts[i]);
-			smfs[i] = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", sf, TimeFunctionFactory.getInstance("ConstantVariate", nIter));
+				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "A_TEST" + i);
+			smfs[i] = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", acts[i], TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 		}
 
 		for (int i = 0; i < nElem; i++) {
@@ -303,7 +298,7 @@ public class BenchmarkModel {
 	}
 
 	private Simulation getTestSimpleNoResources() {
-		ActivityFlow[] acts = new ActivityFlow[nAct];
+		ActivityFlow<?,?>[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
@@ -311,13 +306,11 @@ public class BenchmarkModel {
 		SimulationUserCode code = addWorkLoad(factory);
 		
 		for (int i = 0; i < acts.length; i++) {
-			acts[i] = factory.getActivityInstance("A_TEST" + i);
-			SingleFlow sf = null;
 			if (code != null)
-				sf = (SingleFlow)factory.getFlowInstance("SingleFlow", code, acts[i]);
+				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", code, "A_TEST" + i);
 			else
-				sf = (SingleFlow)factory.getFlowInstance("SingleFlow", acts[i]);
-			smfs[i] = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", sf, TimeFunctionFactory.getInstance("ConstantVariate", nIter));
+				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "A_TEST" + i);
+			smfs[i] = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", acts[i], TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 		}
 		
 		WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[0], new int[0]);
@@ -331,7 +324,7 @@ public class BenchmarkModel {
 	}
 	
 	private Simulation getTestTotalConflict() {
-		ActivityFlow[] acts = new ActivityFlow[nAct];
+		ActivityFlow<?,?>[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		ResourceType[] rts = new ResourceType[nAct];
 		WorkGroup[] wgs = new WorkGroup[nAct];
@@ -344,13 +337,11 @@ public class BenchmarkModel {
 		for (int i = 0; i < nElem; i++)
 			res[i] = factory.getResourceInstance("RES_TEST" + i);
 		for (int i = 0; i < acts.length; i++) {
-			acts[i] = factory.getActivityInstance("A_TEST" + i);
-			SingleFlow sf = null;
 			if (code != null)
-				sf = (SingleFlow)factory.getFlowInstance("SingleFlow", code, acts[i]);
+				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", code, "A_TEST" + i);
 			else
-				sf = (SingleFlow)factory.getFlowInstance("SingleFlow", acts[i]);
-			smfs[i] = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", sf, TimeFunctionFactory.getInstance("ConstantVariate", nIter));
+				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "A_TEST" + i);
+			smfs[i] = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", acts[i], TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 			rts[i] = factory.getResourceTypeInstance("RT_TEST" + i);
 			wgs[i] = factory.getWorkGroupInstance(new ResourceType[] {rts[i]}, new int[] {1});
 		}
@@ -365,7 +356,7 @@ public class BenchmarkModel {
 	}
 	
 	private Simulation getTestMixConflict() {
-		ActivityFlow[] acts = new ActivityFlow[nAct];
+		ActivityFlow<?,?>[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		ResourceType[] rts = new ResourceType[nAct];
 		WorkGroup[] wgs = new WorkGroup[nAct];
@@ -378,13 +369,11 @@ public class BenchmarkModel {
 		for (int i = 0; i < nElem / 2; i++)
 			res[i] = factory.getResourceInstance("RES_TEST" + i);
 		for (int i = 0; i < acts.length; i++) {
-			acts[i] = factory.getActivityInstance("A_TEST" + i);
-			SingleFlow sf = null;
 			if (code != null)
-				sf = (SingleFlow)factory.getFlowInstance("SingleFlow", code, acts[i]);
+				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", code, "A_TEST" + i);
 			else
-				sf = (SingleFlow)factory.getFlowInstance("SingleFlow", acts[i]);
-			smfs[i] = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", sf, TimeFunctionFactory.getInstance("ConstantVariate", nIter));
+				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "A_TEST" + i);
+			smfs[i] = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", acts[i], TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 			rts[i] = factory.getResourceTypeInstance("RT_TEST" + i);
 			wgs[i] = factory.getWorkGroupInstance(new ResourceType[] {rts[i]}, new int[] {1});
 		}
@@ -424,7 +413,7 @@ public class BenchmarkModel {
 		WorkGroup[] wgs = new WorkGroup[nAct];
 		Resource[] res = new Resource[(int) (nElem * rtXact * resAvailabilityFactor)];
 		
-		ActivityFlow[] acts = new ActivityFlow[nAct];
+		ActivityFlow<?,?>[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
@@ -442,13 +431,11 @@ public class BenchmarkModel {
 				needGroup[j] = 1;
 			}
 			wgs[i] = factory.getWorkGroupInstance(rtGroup, needGroup);
-			acts[i] = factory.getActivityInstance("A_TEST" + i);
-			SingleFlow sf = null;
 			if (code != null)
-				sf = (SingleFlow)factory.getFlowInstance("SingleFlow", code, acts[i]);
+				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", code, "A_TEST" + i);
 			else
-				sf = (SingleFlow)factory.getFlowInstance("SingleFlow", acts[i]);
-			smfs[i] = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", sf, TimeFunctionFactory.getInstance("ConstantVariate", nIter));
+				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "A_TEST" + i);
+			smfs[i] = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", acts[i], TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 		}
 
 		for (int i = 0; i < res.length; i++) {

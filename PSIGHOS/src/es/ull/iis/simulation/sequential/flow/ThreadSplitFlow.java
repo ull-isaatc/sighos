@@ -66,9 +66,10 @@ public class ThreadSplitFlow extends BasicFlow implements es.ull.iis.simulation.
         wThread.notifyEnd();			
 	}
 
-	public void link(es.ull.iis.simulation.core.flow.Flow successor) {
+	public es.ull.iis.simulation.core.flow.Flow link(es.ull.iis.simulation.core.flow.Flow successor) {
 		this.successor = (Flow)successor;
 		successor.addPredecessor(this);
+		return successor;
 	}
 
 	public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow parent, Set<es.ull.iis.simulation.core.flow.Flow> visited) {

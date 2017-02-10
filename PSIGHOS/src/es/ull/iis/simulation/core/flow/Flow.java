@@ -27,8 +27,9 @@ public interface Flow extends SimulationObject {
 	 * Adds a flow's successor. This method must invoke <code>successor.addPredecessor</code>
 	 * to build the graph properly. 
 	 * @param successor This flow's successor.
+	 * @return The successor (useful for chained links)
 	 */
-	void link(Flow successor);	
+	Flow link(Flow successor);	
 	
 	/**
 	 * Notifies this flow that it has been linked (i.e. added as a successor) to
