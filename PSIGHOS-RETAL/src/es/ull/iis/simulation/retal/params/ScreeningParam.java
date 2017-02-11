@@ -21,11 +21,11 @@ public class ScreeningParam extends Param {
 //	final private static double EMD_SENSITIVITY = 0.90;
 	final private static double[] EMD_SEVERE_MILD_SENSITIVITY = {0.97, 0.58};
 //	final private static double CNV_SENSITIVITY = 0.83;
-	final private static double[] CNV_SEVERE_MILD_SENSITIVITY = {0.96, 0.36};
+	final private static double[] CNV_SEVERE_MILD_SENSITIVITY = {0.96, 0.96};
 	
 	final public static int PERIODICITY_YEARS = 5;
 	final public static int START_YEAR = 0;
-	final private static double[] P_ATTENDING = {0.75,0.9};
+	final private static double[] P_ATTENDING = {0.75,0.75};
 	
 	/**
 	 * @param simul
