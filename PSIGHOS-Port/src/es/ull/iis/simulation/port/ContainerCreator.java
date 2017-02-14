@@ -6,8 +6,9 @@ package es.ull.iis.simulation.port;
 import es.ull.iis.simulation.sequential.BasicElement;
 import es.ull.iis.simulation.sequential.BasicElementCreator;
 import es.ull.iis.simulation.sequential.ElementType;
-import es.ull.iis.simulation.sequential.Generator;
-import es.ull.iis.simulation.sequential.flow.InitializerFlow;
+import es.ull.iis.simulation.sequential.ElementGenerator;
+import es.ull.iis.simulation.sequential.WorkThread;
+import es.ull.iis.simulation.core.flow.InitializerFlow;
 
 /**
  * @author Iván Castilla
@@ -33,7 +34,7 @@ public class ContainerCreator implements BasicElementCreator {
 	}
 
 	@Override
-	public void create(Generator gen) {
+	public void create(ElementGenerator gen) {
 		final double arrivalTime = gen.getTime();		
 		final int[] containers = plan.getDestinationBlocks(arrivalTime);
 		for (int i = 0; i < containers.length; i++) {

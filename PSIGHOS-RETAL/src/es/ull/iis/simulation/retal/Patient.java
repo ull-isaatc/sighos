@@ -228,14 +228,6 @@ public class Patient extends BasicElement {
 	}
 	
 	/**
-	 * Redeclaration of addEvent to make it visible from the rest of classes of this package. @see es.ull.iis.simulation.sequential.BasicElement.addEvent
-	 * @param e
-	 */
-	protected void addEvent(DiscreteEvent e) {
-		super.addEvent(e);
-	}
-
-	/**
 	 * @return
 	 */
 	public int getnIntervention() {

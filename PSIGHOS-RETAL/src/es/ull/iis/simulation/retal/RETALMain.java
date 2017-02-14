@@ -13,7 +13,7 @@ import es.ull.iis.simulation.retal.params.ScreeningParam;
  *
  */
 public class RETALMain {
-	final private static int NSIM = 5000;
+	final private static int NSIM = 1;
 	
 	public static void main(String[] args) {
 		final boolean baseCase = true;

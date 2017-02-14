@@ -6,7 +6,7 @@ package es.ull.iis.simulation.retal;
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.sequential.BasicElement;
 import es.ull.iis.simulation.sequential.BasicElementCreator;
-import es.ull.iis.simulation.sequential.Generator;
+import es.ull.iis.simulation.sequential.ElementGenerator;
 
 /**
  * A class to create patients, either from scratch or mimicking a previous set of patients created in a different simulation.
@@ -55,7 +55,7 @@ public class PatientCreator implements BasicElementCreator {
 	 * @see es.ull.iis.simulation.sequential.BasicElementCreator#create(es.ull.iis.simulation.sequential.Generator)
 	 */
 	@Override
-	public void create(Generator gen) {
+	public void create(ElementGenerator gen) {
 		if (copyOf == null) {
 			for (int i = 0; i < nPatients; i++) {
 				final double age = initialAges.getValue(null);

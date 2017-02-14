@@ -6,7 +6,8 @@ package es.ull.iis.simulation.port;
 import es.ull.iis.simulation.sequential.Element;
 import es.ull.iis.simulation.sequential.ElementType;
 import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.iis.simulation.sequential.flow.InitializerFlow;
+import es.ull.iis.simulation.sequential.WorkThread;
+import es.ull.iis.simulation.core.flow.InitializerFlow;
 
 /**
  * @author Iván Castilla
@@ -34,10 +35,5 @@ public class Container extends Element {
 	 */
 	public int getBlock() {
 		return block;
-	}
-
-	@Override
-	protected void addEvent(DiscreteEvent e) {
-		super.addEvent(e);
 	}
 }

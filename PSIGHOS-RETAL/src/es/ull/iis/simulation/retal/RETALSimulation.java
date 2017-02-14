@@ -100,7 +100,7 @@ public class RETALSimulation extends Simulation {
 //		addInfoReceiver(new PatientPrevalenceView(this, ACTIVE_DISEASES));
 //		addInfoReceiver(new PatientCounterView(this, ACTIVE_DISEASES));
 //		addInfoReceiver(new PatientCounterHistogramView(this, 40, CommonParams.MAX_AGE, 5, ACTIVE_DISEASES));
-		addInfoReceiver(new ICERView(this, false, true, true, false));
+//		addInfoReceiver(new ICERView(this, false, true, true, false));
 	}
 	
 	public CommonParams getCommonParams() {

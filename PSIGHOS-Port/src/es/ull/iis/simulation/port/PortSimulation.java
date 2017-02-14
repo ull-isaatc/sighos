@@ -4,17 +4,16 @@
 package es.ull.iis.simulation.port;
 
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.core.Element;
+import es.ull.iis.simulation.sequential.Element;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.sequential.Activity;
 import es.ull.iis.simulation.sequential.ElementType;
 import es.ull.iis.simulation.sequential.Resource;
 import es.ull.iis.simulation.sequential.ResourceType;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
 import es.ull.iis.simulation.sequential.WorkGroup;
-import es.ull.iis.simulation.sequential.flow.SingleFlow;
+import es.ull.iis.simulation.sequential.flow.ActivityFlow;
 
 /**
  * @author Iván Castilla
@@ -89,50 +88,45 @@ public class PortSimulation extends Simulation {
 		}
 		
 		// Activities
-		final Activity aUnload = new Activity(this, ACT_UNLOAD); 
+		final ActivityFlow aUnload = new ActivityFlow(this, ACT_UNLOAD); 
 		for (int i = 0; i < N_BERTHS; i++) {
 			final int berthId = i;
-			aUnload.addWorkGroup(TIME_TO_UNLOAD[i], 0, wgUnload[i], new Condition() {
+			aUnload.addWorkGroup(TIME_TO_UNLOAD[i], 0, wgUnload[i], new Condition<Element>() {
 				@Override
 				public boolean check(Element e) {
 					return (((Container)e).getBerth() == berthId);
 				}
 			});
 		}
-		final Activity aToYard = new Activity(this, ACT_TO_YARD);
+		final ActivityFlow aToYard = new ActivityFlow(this, ACT_TO_YARD);
 		aToYard.addWorkGroup(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK), 0, wgEmpty);
-		final Activity aPlace = new Activity(this, ACT_PLACE);
+		final ActivityFlow aPlace = new ActivityFlow(this, ACT_PLACE);
 		for (int i = 0; i < N_BLOCKS; i++) {
 			final int blockId = i;
 			aPlace.addWorkGroup(TIME_TO_PLACE[i], 0, wgPlace[i],
-					new Condition() {
+					new Condition<Element>() {
 				@Override
 				public boolean check(Element e) {
 					return (((Container)e).getBlock() == blockId);
 				}
 			});
 		}
-		final Activity aTruckReturn = new Activity(this, ACT_TRUCK_RETURN);
+		final ActivityFlow aTruckReturn = new ActivityFlow(this, ACT_TRUCK_RETURN);
 		aTruckReturn.addWorkGroup(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK), 0, wgEmpty);
 
 		// Defines the flow for the former activities
-		final SingleFlow sfUnload = new SingleFlow(this, aUnload);
-		final SingleFlow sfToYard = new SingleFlow(this, aToYard);
-		final SingleFlow sfPlace = new SingleFlow(this, aPlace);		
-		final SingleFlow sfTruckReturn = new SingleFlow(this, aTruckReturn);
-		sfUnload.link(sfToYard);
-		sfToYard.link(sfPlace);
-		sfPlace.link(sfTruckReturn);
+		aUnload.link(aToYard);
+		aToYard.link(aPlace);
+		aPlace.link(aTruckReturn);
 		
 		// defines the main activity that drives the whole process, which involves seizing a truck
-		final Activity mainAct = new Activity(this, ACT_SEA_TO_YARD);
-		mainAct.addWorkGroup(sfUnload, sfTruckReturn, wgTruck);
-		final SingleFlow sfMain = new SingleFlow(this, mainAct);
+		final ActivityFlow mainAct = new ActivityFlow(this, ACT_SEA_TO_YARD);
+		mainAct.addWorkGroup(aUnload, aTruckReturn, wgTruck);
 		
 		// Generate orders for unloading containers
-		final ArrivalPlanning planning = new ArrivalPlanning(0, "C:\\Users\\Rosi1\\git\\sighos\\PSIGHOS-Port\\src\\es\\ull\\iis\\simulation\\port\\testStowagePlan1.txt");
+		final ArrivalPlanning planning = new ArrivalPlanning(0, "C:\\Users\\Iván Castilla\\git\\sighos\\PSIGHOS-Port\\src\\es\\ull\\iis\\simulation\\port\\testStowagePlan1.txt");
 		for (int i = 0; i < N_BERTHS; i++) {
-			final ContainerCreator cc = new ContainerCreator(this, planning, et, sfMain);
+			final ContainerCreator cc = new ContainerCreator(this, planning, et, mainAct);
 			new TimeDrivenGenerator(this, cc, planning);
 		}
 	}

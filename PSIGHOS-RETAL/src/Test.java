@@ -4,14 +4,13 @@ import es.ull.iis.simulation.core.Resource;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.SimulationPeriodicCycle;
 import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.Activity;
 import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.flow.SingleFlow;
-import es.ull.iis.simulation.factory.SimulationFactory;
-import es.ull.iis.simulation.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.factory.SimulationObjectFactory;
+import es.ull.iis.simulation.core.factory.SimulationFactory;
+import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
+import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
+import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -38,17 +37,15 @@ class SimulTest {
 		res.addTimeTableEntry(new SimulationPeriodicCycle(SIMUNIT, RESSTART, new SimulationTimeFunction(SIMUNIT, "ConstantVariate", RESPERIOD), 0), RESAVAILABLE, rt);
 
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
-		Activity act = null;
+		ActivityFlow<?,?> act = null;
 		act = factory.getActivityInstance("Consulta");
     	act.addWorkGroup(new SimulationTimeFunction(SIMUNIT, "ConstantVariate", new TimeStamp(TimeUnit.MINUTE, 10)), 0, wg);
 		
-        SingleFlow root = (SingleFlow)factory.getFlowInstance("SingleFlow", act);
-        
         ElementType et = factory.getElementTypeInstance("Paciente");
         et.putVar("coste", 0);
         
         factory.getTimeDrivenGeneratorInstance(
-        		factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 10), et, root), 
+        		factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 10), et, act), 
         		new SimulationPeriodicCycle(SIMUNIT, GENSTART, new SimulationTimeFunction(SIMUNIT, "ConstantVariate", GENPERIOD), 0));
         
         factory.getSimulation().addInfoReceiver(new StdInfoView(factory.getSimulation()));
