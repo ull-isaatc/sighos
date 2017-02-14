@@ -11,7 +11,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * Successors are evaluated in order.
  * @author ycallero
  */
-public class MultiChoiceFlow extends ConditionalFlow implements es.ull.iis.simulation.core.flow.MultiChoiceFlow<WorkThread> {
+public class MultiChoiceFlow extends ConditionalFlow implements es.ull.iis.simulation.core.flow.MultiChoiceFlow {
 	
 	/**
 	 * Creates a new MultiChoiceFlow.

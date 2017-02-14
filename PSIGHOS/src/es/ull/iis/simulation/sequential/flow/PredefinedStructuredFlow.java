@@ -17,7 +17,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class PredefinedStructuredFlow extends StructuredFlow implements es.ull.iis.simulation.core.flow.PredefinedStructuredFlow<WorkThread> {
+public abstract class PredefinedStructuredFlow extends StructuredFlow implements es.ull.iis.simulation.core.flow.PredefinedStructuredFlow {
 
 	/**
 	 * Creates a new structured flow with predefined entry and exit points.
@@ -34,8 +34,8 @@ public abstract class PredefinedStructuredFlow extends StructuredFlow implements
 	 * @param initialBranch First step of the internal branch
 	 * @param finalBranch Last step of the internal branch
 	 */
-	public void addBranch(InitializerFlow<WorkThread> initialBranch, FinalizerFlow<WorkThread> finalBranch) {
-		final TreeSet<Flow<WorkThread>> visited = new TreeSet<Flow<WorkThread>>(); 
+	public void addBranch(InitializerFlow initialBranch, FinalizerFlow finalBranch) {
+		final TreeSet<Flow> visited = new TreeSet<Flow>(); 
 		initialBranch.setRecursiveStructureLink(this, visited);
 		initialFlow.link(initialBranch);
 		finalBranch.link(finalFlow);		
@@ -46,7 +46,7 @@ public abstract class PredefinedStructuredFlow extends StructuredFlow implements
 	 * <code>initialFlow</code> as predecessor and the <code>finalFlow</code> as successor. 
 	 * @param branch A unique flow defining an internal branch
 	 */
-	public void addBranch(es.ull.iis.simulation.core.flow.TaskFlow<WorkThread> branch) {
+	public void addBranch(es.ull.iis.simulation.core.flow.TaskFlow branch) {
 		addBranch(branch, branch);		
 	}
 

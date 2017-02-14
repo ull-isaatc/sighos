@@ -12,7 +12,7 @@ import es.ull.iis.simulation.core.flow.Flow;
 public class WorkToken {
 	
 	/** The list of flows already visited during the current timestamp */ 
-	final TreeSet<Flow<WorkThread>> path;
+	final TreeSet<Flow> path;
 	/** Validity of the work thread containing this token */
 	boolean state;
 	
@@ -22,7 +22,7 @@ public class WorkToken {
 	 */
 	public WorkToken (boolean state) {
 		this.state = state;
-		path = new TreeSet<Flow<WorkThread>>();
+		path = new TreeSet<Flow>();
 	}
 
 	/**
@@ -30,7 +30,7 @@ public class WorkToken {
 	 * @param state The initial state of the work token
 	 * @param startPoint The first flow that this token passes by
 	 */
-	public WorkToken(boolean state, Flow<WorkThread> startPoint) {
+	public WorkToken(boolean state, Flow startPoint) {
 		this(state);
 		path.add(startPoint);
 	}
@@ -57,7 +57,7 @@ public class WorkToken {
 	 * Adds a flow to the list of visited ones.
 	 * @param visited New flow visited by the work thread containing this token
 	 */
-	public void addFlow(Flow<WorkThread> visited) {
+	public void addFlow(Flow visited) {
 		path.add(visited);
 	}
 	
@@ -65,7 +65,7 @@ public class WorkToken {
 	 * Adds a collection of flows to the list of visited ones.
 	 * @param path Collection of new flow visited by the work thread containing this token
 	 */
-	public void addFlow(TreeSet<Flow<WorkThread>> path) {
+	public void addFlow(TreeSet<Flow> path) {
 		this.path.addAll(path);
 	}
 	
@@ -75,7 +75,7 @@ public class WorkToken {
 	 * @return True of the specified flow was already visited by the work thread containing this token;
 	 * false in other case.
 	 */
-	public boolean wasVisited(Flow<WorkThread> flow) {
+	public boolean wasVisited(Flow flow) {
 		return path.contains(flow);
 	}
 	
@@ -99,7 +99,7 @@ public class WorkToken {
 	 * Returns the list of flows already visited by the work thread containing this token.
 	 * @return The list of flows already visited by the work thread containing this token
 	 */
-	public TreeSet<Flow<WorkThread>> getPath() {
+	public TreeSet<Flow> getPath() {
 		return path;
 	}
 }

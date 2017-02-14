@@ -18,14 +18,14 @@ import es.ull.iis.simulation.sequential.WorkToken;
  *
  */
 public class GeneralizedMergeFlowControl extends MergeFlowControl {
-	protected SortedMap<Flow<WorkThread>, LinkedList<WorkToken>> incBranches;
+	protected SortedMap<Flow, LinkedList<WorkToken>> incBranches;
 
 	/**
 	 * @param flow
 	 */
 	public GeneralizedMergeFlowControl(MergeFlow flow) {
 		super(flow);
-		incBranches = new TreeMap<Flow<WorkThread>, LinkedList<WorkToken>>();
+		incBranches = new TreeMap<Flow, LinkedList<WorkToken>>();
 	}
 
 	/* (non-Javadoc)
@@ -56,9 +56,9 @@ public class GeneralizedMergeFlowControl extends MergeFlowControl {
 	@Override
 	public boolean reset() {
 		super.reset();
-		Iterator<Map.Entry<Flow<WorkThread>, LinkedList<WorkToken>>> iter = incBranches.entrySet().iterator();
+		Iterator<Map.Entry<Flow, LinkedList<WorkToken>>> iter = incBranches.entrySet().iterator();
 		while (iter.hasNext()) {
-			Map.Entry<Flow<WorkThread>, LinkedList<WorkToken>> entry = iter.next();
+			Map.Entry<Flow, LinkedList<WorkToken>> entry = iter.next();
 			entry.getValue().removeFirst();
 			if (!entry.getValue().isEmpty()) {
 				WorkToken token = entry.getValue().peek();

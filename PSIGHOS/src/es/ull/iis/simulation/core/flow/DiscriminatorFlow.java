@@ -8,5 +8,5 @@ import es.ull.iis.simulation.core.WorkThread;
  * Meets the Blocking Discriminator pattern (WFP28). 
  * @author Yeray Callero
  */
-public interface DiscriminatorFlow<WT extends WorkThread<?>> extends ANDJoinFlow<WT> {
+public interface DiscriminatorFlow extends ANDJoinFlow {
 }

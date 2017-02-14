@@ -5,8 +5,6 @@ package es.ull.iis.simulation.core.flow;
 
 import java.util.Collection;
 
-import es.ull.iis.simulation.core.WorkThread;
-
 /**
  * A {@link StructuredFlow} which contains a set of activities which must be performed according to a
  * predefined set of partial orderings. Partial orderings are defined using a collection of 
@@ -16,12 +14,12 @@ import es.ull.iis.simulation.core.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface InterleavedParallelRoutingFlow<WT extends WorkThread<?>> extends StructuredFlow<WT> {
+public interface InterleavedParallelRoutingFlow extends StructuredFlow {
 	/**
 	 * Returns the collection of activities included in this structure.
 	 * @return The collection of activities included in this structure
 	 */
-	public Collection<ActivityFlow<WT,?>> getActivities();
+	public Collection<ActivityFlow> getActivities();
 	
 	/**
 	 * Returns the partial orderings defined for this structure. Partial orderings are defined using 
@@ -29,6 +27,6 @@ public interface InterleavedParallelRoutingFlow<WT extends WorkThread<?>> extend
 	 * thus A1 must be executed before A2, A2 before A3, and so on. 
 	 * @return The partial orderings defined for this structure
 	 */
-	public Collection<ActivityFlow<WT,?>[]> getDependencies();
+	public Collection<ActivityFlow[]> getDependencies();
 	
 }

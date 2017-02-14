@@ -11,7 +11,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SynchronizedMultipleInstanceFlow extends StaticPartialJoinMultipleInstancesFlow implements es.ull.iis.simulation.core.flow.SynchronizedMultipleInstanceFlow<WorkThread> {
+public class SynchronizedMultipleInstanceFlow extends StaticPartialJoinMultipleInstancesFlow implements es.ull.iis.simulation.core.flow.SynchronizedMultipleInstanceFlow {
 
 	/**
 	 * Creates a Synchronized Multiple Instances flow

@@ -8,5 +8,5 @@ import es.ull.iis.simulation.core.WorkThread;
  * Meets the Synchronization pattern (WFP3). 
  * @author Yeray Callero
  */
-public interface SynchronizationFlow<WT extends WorkThread<?>> extends ANDJoinFlow<WT> {
+public interface SynchronizationFlow extends ANDJoinFlow {
 }

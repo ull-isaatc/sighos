@@ -9,7 +9,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * is a partial join flow. Meets the Structured Partial Join pattern (WFP30). 
  * @author ycallero
  */
-public class StructuredPartialJoinFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StructuredPartialJoinFlow<WorkThread> {
+public class StructuredPartialJoinFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StructuredPartialJoinFlow {
 	
 	/**
 	 * Creates a new StructuredPartialJoinFlow.

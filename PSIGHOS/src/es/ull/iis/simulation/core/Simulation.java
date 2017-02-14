@@ -12,10 +12,10 @@ import java.util.concurrent.Callable;
 
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.Flow;
-import es.ull.iis.simulation.core.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.inforeceiver.InfoHandler;
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
 import es.ull.iis.simulation.inforeceiver.SimulationInfoHandler;
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.variable.BooleanVariable;
 import es.ull.iis.simulation.variable.ByteVariable;
 import es.ull.iis.simulation.variable.CharacterVariable;
@@ -64,7 +64,7 @@ import es.ull.iis.util.Output;
  * defining the destination for error and debug messages.
  * @author Iván Castilla Rodríguez
  */
-public abstract class Simulation<WT extends WorkThread<?>> implements Callable<Integer>, Runnable, Identifiable, Describable, Debuggable, VariableStore {
+public abstract class Simulation implements Callable<Integer>, Runnable, Identifiable, Describable, Debuggable, VariableStore {
 	/** Simulation's identifier */
 	protected int id;
 	
@@ -98,6 +98,7 @@ public abstract class Simulation<WT extends WorkThread<?>> implements Callable<I
 	/** Number of worker threads which run the simulation events (if required by the implementation) */
 	protected int nThreads = 1;
 	
+	protected Model model;
 	/**
 	 * Empty constructor for compatibility purposes
 	 */
@@ -111,11 +112,12 @@ public abstract class Simulation<WT extends WorkThread<?>> implements Callable<I
 	 * @param description A short text describing this simulation.
 	 * @param unit This simulation's time unit
 	 */
-	public Simulation(int id, String description, TimeUnit unit) {
+	public Simulation(int id, String description, Model model) {
 		super();
 		this.id = id;
 		this.description = description;
-		this.unit = unit;
+		this.model = model;
+		this.unit = Model.getDefTimeUnit();
 	}
 
 
@@ -128,8 +130,8 @@ public abstract class Simulation<WT extends WorkThread<?>> implements Callable<I
 	 * @param startTs Timestamp of simulation's start
 	 * @param endTs Timestamp of simulation's end
 	 */
-	public Simulation(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
-		this(id, description, unit);
+	public Simulation(int id, String description, Model model, TimeStamp startTs, TimeStamp endTs) {
+		this(id, description, model);
 
 		this.startTs = startTs;
 		this.internalStartTs = simulationTime2Long(startTs);
@@ -146,8 +148,8 @@ public abstract class Simulation<WT extends WorkThread<?>> implements Callable<I
 	 * @param startTs Timestamp of simulation's start expressed in Simulation Time Units
 	 * @param endTs Timestamp of simulation's end expressed in Simulation Time Units
 	 */
-	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
-		this(id, description, unit);
+	public Simulation(int id, String description, Model model, long startTs, long endTs) {
+		this(id, description, model);
 
 		this.startTs = new TimeStamp(unit, startTs);
 		this.internalStartTs = startTs;
@@ -304,76 +306,6 @@ public abstract class Simulation<WT extends WorkThread<?>> implements Callable<I
 		this.out = out;
 	}
 
-	/**
-	 * Returns the activity with the corresponding identifier.
-	 * @param id Activity identifier.
-	 * @return An activity with the indicated identifier.
-	 */
-	public abstract RequestResourcesFlow<?,?> getActivity(int id);
-
-	/** 	 
-	 * Returns a list of the activities of the model. 	 
-	 * 
-	 *  @return Activities of the model. 	 
-	 */ 	
-	public abstract Map<Integer, ? extends RequestResourcesFlow<?,?>> getActivityList();
-	
-	/**
-	 * Returns the resource type with the corresponding identifier.
-	 * @param id Resource type identifier.
-	 * @return A resource type with the indicated identifier.
-	 */
-	public abstract ResourceType getResourceType(int id);
-
-	/**
-	 * Returns a list of the resource types of the model.
-	 * 
-	 * @return Resource types of the model.
-	 */
-	public abstract Map<Integer, ? extends ResourceType> getResourceTypeList();
-	
-	/**
-	 * Returns the resource with the corresponding identifier.
-	 * @param id Resource identifier.
-	 * @return A resource with the indicated identifier.
-	 */
-	public abstract Resource getResource(int id);
-
-	/**
-	 * Returns a list of the resources of the model.
-	 * 
-	 * @return Resources of the model.
-	 */
-	public abstract Map<Integer, ? extends Resource> getResourceList();
-
-	/**
-	 * Returns the element type with the corresponding identifier.
-	 * @param id Element type identifier.
-	 * @return An element type with the indicated identifier.
-	 */
-	public abstract ElementType getElementType(int id);
-
-	/**
-	 * Returns a list of the element types of the model.
-	 * 
-	 * @return element types of the model.
-	 */
-	public abstract Map<Integer, ? extends ElementType> getElementTypeList();
-	
-	/**
-	 * Returns the flow with the corresponding identifier.
-	 * @param id Flow identifier.
-	 * @return A flow with the indicated identifier.
-	 */
-	public abstract Flow<WT> getFlow(int id);
-
-	/**
-	 * Returns a list of the flows of the model.
-	 * 
-	 * @return flows of the model.
-	 */
-	public abstract Map<Integer, ? extends Flow<WT>> getFlowList();
-	
 	@Override
 	public String toString() {
 		return description + "(" + startTs + ", " + endTs + ")";

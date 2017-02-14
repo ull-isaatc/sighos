@@ -6,7 +6,7 @@ public class SimulationStartInfo extends AsynchronousInfo {
 
 	final private long cpuTime;
 	
-	public SimulationStartInfo(Simulation<?> simul, long cpuTime, long ts) {
+	public SimulationStartInfo(Simulation simul, long cpuTime, long ts) {
 		super(simul, ts);
 		this.cpuTime = cpuTime;
 	}

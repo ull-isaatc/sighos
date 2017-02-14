@@ -9,11 +9,11 @@ import es.ull.iis.simulation.core.WorkThread;
  * A {@link Flow} with a unique successor.
  * @author Iván Castilla Rodríguez
  */
-public interface SingleSuccessorFlow<WT extends WorkThread<?>> extends Flow<WT> {
+public interface SingleSuccessorFlow extends Flow {
 	/**
 	 * Returns this {@link Flow}'s unique successor. 
 	 * @return This {@link Flow}'s unique successor
 	 */
-	public Flow<WT> getSuccessor();
+	public Flow getSuccessor();
 	
 }

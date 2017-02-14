@@ -9,6 +9,6 @@ import es.ull.iis.simulation.core.WorkThread;
  * Meets the Structured Loop pattern (WFP21). 
  * @author Yeray Callero
  */
-public interface StructuredLoopFlow<WT extends WorkThread<?>> extends StructuredFlow<WT> {
+public interface StructuredLoopFlow extends StructuredFlow {
 }
 

@@ -8,5 +8,5 @@ import es.ull.iis.simulation.core.WorkThread;
  * Meets the Blocking Partial Join pattern (WFP31). 
  * @author Yeray Callero
  */
-public interface PartialJoinFlow<WT extends WorkThread<?>> extends ANDJoinFlow<WT> {
+public interface PartialJoinFlow extends ANDJoinFlow {
 }

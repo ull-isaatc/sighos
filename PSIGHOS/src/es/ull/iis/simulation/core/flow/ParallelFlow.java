@@ -10,5 +10,5 @@ import es.ull.iis.simulation.core.WorkThread;
  * Meets the Parallel Split pattern (WFP2) 
  * @author Iván Castilla Rodríguez
  */
-public interface ParallelFlow<WT extends WorkThread<?>> extends MultipleSuccessorFlow<WT> {
+public interface ParallelFlow extends MultipleSuccessorFlow {
 }

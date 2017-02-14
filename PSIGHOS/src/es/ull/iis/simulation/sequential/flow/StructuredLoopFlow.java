@@ -7,7 +7,6 @@ import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.core.flow.TaskFlow;
 import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.iis.simulation.sequential.WorkThread;
 
 
 /**
@@ -16,7 +15,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * Meets the Structured Loop pattern (WFP21). 
  * @author ycallero
  */
-public abstract class StructuredLoopFlow extends StructuredFlow implements es.ull.iis.simulation.core.flow.StructuredLoopFlow<WorkThread> {
+public abstract class StructuredLoopFlow extends StructuredFlow implements es.ull.iis.simulation.core.flow.StructuredLoopFlow {
 	
 	/**
 	 * Create a new StructuredLoopFlow starting in <code>initialSubFlow</code> and 
@@ -25,11 +24,11 @@ public abstract class StructuredLoopFlow extends StructuredFlow implements es.ul
 	 * @param initialSubFlow First step of the internal subflow
 	 * @param finalSubFlow Last step of the internal subflow
 	 */
-	public StructuredLoopFlow(Simulation simul, InitializerFlow<WorkThread> initialSubFlow, FinalizerFlow<WorkThread> finalSubFlow) {
+	public StructuredLoopFlow(Simulation simul, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow) {
 		super(simul);
 		initialFlow = initialSubFlow;
 		finalFlow = finalSubFlow;
-		final TreeSet<Flow<WorkThread>> visited = new TreeSet<Flow<WorkThread>>(); 
+		final TreeSet<Flow> visited = new TreeSet<Flow>(); 
 		initialFlow.setRecursiveStructureLink(this, visited);
 	}
 
@@ -38,7 +37,7 @@ public abstract class StructuredLoopFlow extends StructuredFlow implements es.ul
 	 * @param simul Simulation this flow belongs to
 	 * @param subFlow A unique flow defining an internal subflow
 	 */
-	public StructuredLoopFlow(Simulation simul, TaskFlow<WorkThread> subFlow) {
+	public StructuredLoopFlow(Simulation simul, TaskFlow subFlow) {
 		this(simul, subFlow, subFlow);
 	}
 }

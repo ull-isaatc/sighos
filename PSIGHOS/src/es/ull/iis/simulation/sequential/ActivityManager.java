@@ -59,7 +59,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * Adds a work thread to the waiting queue.
      * @param wt Work thread which is added to the waiting queue.
      */
-    public void queueAdd(WorkThread wt) {
+    public void queueAdd(es.ull.iis.simulation.core.WorkThread wt) {
     	wtQueue.add(wt);
     }
     
@@ -162,12 +162,12 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	private static final class WorkThreadQueue extends PrioritizedMap<TreeSet<WorkThread>, WorkThread>{		
+	private static final class WorkThreadQueue extends PrioritizedMap<TreeSet<es.ull.iis.simulation.core.WorkThread>, es.ull.iis.simulation.core.WorkThread>{		
 		/** A counter for the arrival order of the single flows */
 		private int arrivalOrder = 0;
 		/** A comparator to properly order the single flows. */
-		private Comparator<WorkThread> comp = new Comparator<WorkThread>() {
-			public int compare(WorkThread o1, WorkThread o2) {
+		private Comparator<es.ull.iis.simulation.core.WorkThread> comp = new Comparator<es.ull.iis.simulation.core.WorkThread>() {
+			public int compare(es.ull.iis.simulation.core.WorkThread o1, es.ull.iis.simulation.core.WorkThread o2) {
 				if (o1.equals(o2))
 					return 0;
 				if (((RequestResourcesFlow) o1.getCurrentFlow()).getPriority() > ((RequestResourcesFlow) o2.getCurrentFlow()).getPriority())
@@ -193,7 +193,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 		 * @param wt The work thread to be added.
 		 */
 		@Override
-		public void add(WorkThread wt) {
+		public void add(es.ull.iis.simulation.core.WorkThread wt) {
 			// The arrival order and timestamp are only assigned if the single flow 
 			// has never been added to the queue (interruptible activities)
 			if (wt.getArrivalTs() == -1) {
@@ -204,8 +204,8 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 		}
 
 		@Override
-		public TreeSet<WorkThread> createLevel(Integer priority) {
-			return new TreeSet<WorkThread>(comp);
+		public TreeSet<es.ull.iis.simulation.core.WorkThread> createLevel(Integer priority) {
+			return new TreeSet<es.ull.iis.simulation.core.WorkThread>(comp);
 		}
 		
 	}

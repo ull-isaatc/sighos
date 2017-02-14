@@ -11,7 +11,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * passes depends on the <code>acceptValue</code>.
  * @author Iván Castilla Rodríguez
  */
-public abstract class ANDJoinFlow extends MergeFlow implements es.ull.iis.simulation.core.flow.ANDJoinFlow<WorkThread> {
+public abstract class ANDJoinFlow extends MergeFlow implements es.ull.iis.simulation.core.flow.ANDJoinFlow {
 	/** The number of branches which have to arrive to pass the control thread */
 	protected int acceptValue;
 

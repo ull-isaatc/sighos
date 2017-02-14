@@ -27,7 +27,7 @@ import es.ull.iis.simulation.sequential.ElementCreator;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SimulationFactory implements SimulationObjectFactory<Flow<WorkThread>, WorkThread> {
+public class SimulationFactory implements SimulationObjectFactory<Flow, WorkThread> {
 	private final static String workingPkg = "es.ull.iis.simulation.sequential";
 	private final Simulation simul;
 	private int rtId;
@@ -76,7 +76,7 @@ public class SimulationFactory implements SimulationObjectFactory<Flow<WorkThrea
 	}
 
 	@Override
-	public ElementCreator getElementCreatorInstance(TimeFunction elem, ElementType et, InitializerFlow<WorkThread> flow) throws ClassCastException {
+	public ElementCreator getElementCreatorInstance(TimeFunction elem, ElementType et, InitializerFlow flow) throws ClassCastException {
 		return new ElementCreator(simul, elem, (es.ull.iis.simulation.sequential.ElementType) et, flow);
 	}
 
@@ -92,7 +92,7 @@ public class SimulationFactory implements SimulationObjectFactory<Flow<WorkThrea
 	}
 
 	@Override
-	public ElementCreator getElementCreatorInstance(TimeFunction elem, ElementType et, InitializerFlow<WorkThread> flow, SimulationUserCode userMethods) throws ClassCastException {
+	public ElementCreator getElementCreatorInstance(TimeFunction elem, ElementType et, InitializerFlow flow, SimulationUserCode userMethods) throws ClassCastException {
 		// Prepare the constructor call
 		String constructorStr = "(Simulation sim, TimeFunction nElem, ElementType et, InitializerFlow flow) {super(sim, nElem, et, flow);}";
 		// Prepare the new params.
@@ -148,14 +148,14 @@ public class SimulationFactory implements SimulationObjectFactory<Flow<WorkThrea
 	}
 
 	@Override
-	public Flow<WorkThread> getFlowInstance(String flowType, Object... params) throws ClassCastException {
-		return (Flow<WorkThread>) FlowFactory.getInstance(flowType, simul, params);
+	public Flow getFlowInstance(String flowType, Object... params) throws ClassCastException {
+		return (Flow) FlowFactory.getInstance(flowType, simul, params);
 	}
 
 	@Override
-	public Flow<WorkThread> getFlowInstance(String flowType, SimulationUserCode userMethods, Object... params)
+	public Flow getFlowInstance(String flowType, SimulationUserCode userMethods, Object... params)
 			throws ClassCastException {
-		return (Flow<WorkThread>) FlowFactory.getInstance(flowType, userMethods, simul, params);
+		return (Flow) FlowFactory.getInstance(flowType, userMethods, simul, params);
 	}
 
 	public Condition getCustomizedConditionInstance(String imports, String condition) {

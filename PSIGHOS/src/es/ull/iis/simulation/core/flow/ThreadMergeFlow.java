@@ -14,5 +14,5 @@ import es.ull.iis.simulation.core.WorkThread;
  * be created is used.
  * @author Iván Castilla Rodríguez
  */
-public interface ThreadMergeFlow<WT extends WorkThread<?>> extends ANDJoinFlow<WT> {
+public interface ThreadMergeFlow extends ANDJoinFlow {
 }

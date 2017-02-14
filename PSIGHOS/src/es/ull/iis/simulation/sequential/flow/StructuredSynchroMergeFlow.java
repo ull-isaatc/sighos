@@ -15,7 +15,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * is a synchronization. Meets the Structured Synchronization pattern (WFP7). 
  * @author ycallero
  */
-public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StructuredSynchroMergeFlow<WorkThread> {
+public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StructuredSynchroMergeFlow {
 	
 	/**
 	 * Create a new StructuredSynchroMergeMetaFlow.
@@ -35,7 +35,7 @@ public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow impleme
 	 * @param cond This branch's condition.
 	 */
 	
-	public void addBranch(es.ull.iis.simulation.core.flow.TaskFlow<WorkThread> branch, Condition cond) {
+	public void addBranch(es.ull.iis.simulation.core.flow.TaskFlow branch, Condition cond) {
 		addBranch(branch, branch, cond);
 	}
 	
@@ -45,20 +45,20 @@ public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow impleme
 	 * @param finalBranch Last step of the internal branch
 	 * @param cond This branch's condition.
 	 */
-	public void addBranch(InitializerFlow<WorkThread> initialBranch, FinalizerFlow<WorkThread> finalBranch, Condition cond) {
-		final TreeSet<Flow<WorkThread>> visited = new TreeSet<Flow<WorkThread>>(); 
+	public void addBranch(InitializerFlow initialBranch, FinalizerFlow finalBranch, Condition cond) {
+		final TreeSet<Flow> visited = new TreeSet<Flow>(); 
 		initialBranch.setRecursiveStructureLink(this, visited);
 		((MultiChoiceFlow)initialFlow).link(initialBranch, cond);
 		finalBranch.link(finalFlow);
 	}
 	
 	@Override
-	public void addBranch(InitializerFlow<WorkThread> initialBranch, FinalizerFlow<WorkThread> finalBranch) {
+	public void addBranch(InitializerFlow initialBranch, FinalizerFlow finalBranch) {
 		addBranch(initialBranch, finalBranch, new TrueCondition());		
 	}
 	
 	@Override
-	public void addBranch(es.ull.iis.simulation.core.flow.TaskFlow<WorkThread> initialBranch) {
+	public void addBranch(es.ull.iis.simulation.core.flow.TaskFlow initialBranch) {
 		addBranch(initialBranch, new TrueCondition());
 	}
 }

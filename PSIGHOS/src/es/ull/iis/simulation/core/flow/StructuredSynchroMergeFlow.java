@@ -8,13 +8,13 @@ import es.ull.iis.simulation.core.WorkThread;
  * is a {@link SynchronizationFlow}. Meets the Structured Synchronization pattern (WFP7). 
  * @author Yeray Callero
  */
-public interface StructuredSynchroMergeFlow<WT extends WorkThread<?>> extends PredefinedStructuredFlow<WT>{
+public interface StructuredSynchroMergeFlow extends PredefinedStructuredFlow{
 	/**
 	 * Variation of <code>addBranch</code> which allows to indicate a condition
 	 * @param branch A unique flow defining an internal branch
 	 * @param cond This branch's condition.
 	 */	
-	void addBranch(TaskFlow<WT> branch, Condition cond);
+	void addBranch(TaskFlow branch, Condition cond);
 	
 	/**
 	 * Variation of <code>addBranch</code> which allows to indicate a condition
@@ -22,5 +22,5 @@ public interface StructuredSynchroMergeFlow<WT extends WorkThread<?>> extends Pr
 	 * @param finalBranch Last step of the internal branch
 	 * @param cond This branch's condition.
 	 */
-	void addBranch(InitializerFlow<WT> initialBranch, FinalizerFlow<WT> finalBranch, Condition cond);
+	void addBranch(InitializerFlow initialBranch, FinalizerFlow finalBranch, Condition cond);
 }

@@ -10,11 +10,11 @@ import es.ull.iis.function.TimeFunction;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface ElementCreator<WT extends WorkThread<?>> {
+public interface ElementCreator {
 	
 	TimeFunction getNElem();
 
-	void add(ElementType et, InitializerFlow<WT> flow, double prop);
+	void add(ElementType et, InitializerFlow flow, double prop);
 	
 	/* User methods */
 	public int beforeCreateElements(int n);

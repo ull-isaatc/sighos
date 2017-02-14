@@ -1,10 +1,10 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.core.Resource;
-import es.ull.iis.simulation.core.ResourceType;
+import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.WorkThread;
-import es.ull.iis.simulation.core.flow.ResourcesFlow;
+import es.ull.iis.simulation.model.flow.FlowExecutor;
+import es.ull.iis.simulation.model.flow.ResourcesFlow;
 
 public class ResourceUsageInfo extends AsynchronousInfo {
 
@@ -27,16 +27,16 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	
 	final private Resource res;
 	final private ResourceType rt;
-	final private WorkThread<?> wt;
+	final private FlowExecutor fExecutor;
 	final private ResourcesFlow act;
 	final private Type type;
 	
-	public ResourceUsageInfo(Simulation<?> simul, Resource res, ResourceType rt, WorkThread<?> wt, Type type, long ts) {
+	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, FlowExecutor fExecutor, ResourcesFlow act, Type type, long ts) {
 		super(simul, ts);
 		this.res = res;
 		this.rt = rt;
-		this.wt =wt;
-		this.act = (ResourcesFlow)wt.getCurrentFlow();
+		this.fExecutor =fExecutor;
+		this.act = act;
 		this.type = type;
 	}
 	
@@ -48,8 +48,8 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 		return rt;
 	}
 	
-	public WorkThread<?> getWorkThread() {
-		return wt;
+	public FlowExecutor getFlowExecutor() {
+		return fExecutor;
 	}
 	
 	public Type getType() {
@@ -58,7 +58,7 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	
 	public String toString() {
 		String message = "" + simul.long2SimulationTime(getTs()) + "\t";
-		message += wt.getElement().toString() + " \t";
+		message += fExecutor.toString() + " \t";
 		message += type.getDescription() + "\t" + res.getDescription() + "\t";
 		message += "ROLE: " + rt.getDescription() + "\t";	
 		message += "ACT: " + act.getDescription();

@@ -1,0 +1,35 @@
+package es.ull.iis.simulation.model.flow;
+
+import java.util.TreeSet;
+
+/**
+ * A structured flow which defines a repetitive subflow. Different subclasses
+ * of this class represent different loop structures: while-do, do-while, for...
+ * Meets the Structured Loop pattern (WFP21). 
+ * @author ycallero
+ */
+public abstract class StructuredLoopFlow extends StructuredFlow {
+	
+	/**
+	 * Create a new StructuredLoopFlow starting in <code>initialSubFlow</code> and 
+	 * finishing in <code>finalSubFlow</code>.
+	 * @param initialSubFlow First step of the internal subflow
+	 * @param finalSubFlow Last step of the internal subflow
+	 */
+	public StructuredLoopFlow(InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow) {
+		super();
+		initialFlow = initialSubFlow;
+		finalFlow = finalSubFlow;
+		final TreeSet<Flow> visited = new TreeSet<Flow>(); 
+		initialFlow.setRecursiveStructureLink(this, visited);
+	}
+
+	/**
+	 * Create a new StructuredLoopFlow consisting of a unique flow.
+	 * @param subFlow A unique flow defining an internal subflow
+	 */
+	public StructuredLoopFlow(TaskFlow subFlow) {
+		this(subFlow, subFlow);
+	}
+}
+

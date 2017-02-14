@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.condition;
 
-import es.ull.iis.simulation.core.Element;
+import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.core.Simulation;
 
 /**
@@ -14,7 +14,7 @@ import es.ull.iis.simulation.core.Simulation;
 public class Condition {
 	
 	/** Current simulation, which is used to communicate with simulation variables. */
-	public Simulation<?> simul;
+	public Simulation simul;
 	
 	/** 
 	 * Creates a new Condition.
@@ -26,7 +26,7 @@ public class Condition {
 	 * Creates a new Condition.
 	 * @param simul Current simulation.
 	 */
-	public Condition(Simulation<?> simul){
+	public Condition(Simulation simul){
 		this.simul = simul;
 	}
 
@@ -35,7 +35,7 @@ public class Condition {
 	 * @param e Element which want to check the condition.
 	 * @return The boolean result of the logical operation (<tt>true</tt> by default).
 	 */
-	public boolean check(Element<?> e) {
+	public boolean check(Element e) {
 		return true;
 	}
 	
@@ -43,7 +43,7 @@ public class Condition {
 	 * Returns the current simulation.
 	 * @return The simulation.
 	 */
-	public Simulation<?> getSimul() {
+	public Simulation getSimul() {
 		return simul;
 	}
 
@@ -51,7 +51,7 @@ public class Condition {
 	 * Sets the current simulation.
 	 * @param sim Simulation.
 	 */
-	public void setSimul(Simulation<?> sim) {
+	public void setSimul(Simulation sim) {
 		simul = sim;
 	}
 }

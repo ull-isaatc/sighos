@@ -18,11 +18,11 @@ import es.ull.iis.simulation.variable.EnumVariable;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class Element extends BasicElement implements es.ull.iis.simulation.core.Element<WorkThread> {
+public class Element extends BasicElement implements es.ull.iis.simulation.model.Element {
 	/** Element type */
 	protected ElementType elementType;
 	/** First step of the flow of the element */
-	protected final InitializerFlow<WorkThread> initialFlow;
+	protected final InitializerFlow initialFlow;
 	/** Activity queues in which this element is. This list is used to notify the activities
 	 * when the element becomes available. */
 	protected final ArrayList<WorkThread> inQueue;
@@ -37,7 +37,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 * @param et Element type this element belongs to
 	 * @param flow First step of this element's flow
 	 */
-	public Element(Simulation simul, ElementType et, InitializerFlow<WorkThread> flow) {
+	public Element(Simulation simul, ElementType et, InitializerFlow flow) {
 		super(simul.getNextElementId(), simul);
 		this.elementType = et;
 		inQueue = new ArrayList<WorkThread>();
@@ -84,7 +84,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 * Returns the first step of this element's flow.
 	 * @return the first step of this element's flow.
 	 */
-	public InitializerFlow<WorkThread> getFlow() {
+	public InitializerFlow getFlow() {
 		return initialFlow;
 	}
 
@@ -102,7 +102,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 */
 	@Override
 	protected void init() {
-		simul.getInfoHandler().notifyInfo(new ElementInfo(this.simul, this, ElementInfo.Type.START, this.getTs()));
+		simul.getInfoHandler().notifyInfo(new ElementInfo(simul, this, elementType.getModelET(), ElementInfo.Type.START, this.getTs()));
 		simul.addActiveElement(this);
 		if (initialFlow != null) {
 			addRequestEvent(initialFlow, mainThread.getInstanceDescendantWorkThread(initialFlow));
@@ -113,7 +113,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 
 	@Override
 	protected void end() {
-		simul.getInfoHandler().notifyInfo(new ElementInfo(this.simul, this, ElementInfo.Type.FINISH, this.getTs()));
+		simul.getInfoHandler().notifyInfo(new ElementInfo(simul, this, elementType.getModelET(), ElementInfo.Type.FINISH, this.getTs()));
 		simul.removeActiveElement(this);
 	}
 
@@ -147,13 +147,9 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 			act.availableElement(wThread);
 		}
 	}
-	
-	/**
-	 * Adds a new request event.
-	 * @param f The flow to be requested
-	 * @param wThread The work thread used to request the flow
-	 */
-	public void addRequestEvent(Flow<WorkThread> f, WorkThread wThread) {
+
+	@Override
+	public void addRequestEvent(Flow f, es.ull.iis.simulation.core.WorkThread wThread) {
 		addEvent(new RequestFlowEvent(ts, f, wThread));
 	}
 	
@@ -184,11 +180,11 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 */
 	public class RequestFlowEvent extends BasicElement.DiscreteEvent {
 		/** The work thread that executes the request */
-		private final WorkThread wThread;
+		private final es.ull.iis.simulation.core.WorkThread wThread;
 		/** The flow to be requested */
-		private final Flow<WorkThread> f;
+		private final Flow f;
 
-		public RequestFlowEvent(long ts, Flow<WorkThread> f, WorkThread wThread) {
+		public RequestFlowEvent(long ts, Flow f, es.ull.iis.simulation.core.WorkThread wThread) {
 			super(ts);
 			this.wThread = wThread;
 			this.f = f;
@@ -209,9 +205,9 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 		/** The work thread that executes the finish */
 		private final WorkThread wThread;
 		/** The flow previously requested */
-		private final TaskFlow<WorkThread> f;
+		private final TaskFlow f;
 
-		public FinishFlowEvent(long ts, TaskFlow<WorkThread> f, WorkThread wThread) {
+		public FinishFlowEvent(long ts, TaskFlow f, WorkThread wThread) {
 			super(ts);
 			this.f = f;
 			this.wThread = wThread;

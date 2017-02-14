@@ -22,7 +22,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * @author Iván Castilla
  *
  */
-public class ReleaseResourcesFlow extends SingleSuccessorFlow implements es.ull.iis.simulation.core.flow.ReleaseResourcesFlow<WorkThread, ResourceType>, FinalizerFlow<WorkThread> {
+public class ReleaseResourcesFlow extends SingleSuccessorFlow implements es.ull.iis.simulation.core.flow.ReleaseResourcesFlow<WorkThread, ResourceType>, FinalizerFlow {
     /** A brief description of the activity */
     protected final String description;
     /** A unique identifier that sets which resources to release */
@@ -136,7 +136,7 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements es.ull.
 	}
 	
 	@Override
-	public void addPredecessor(Flow<WorkThread> newFlow) {}
+	public void addPredecessor(Flow newFlow) {}
 
 	@Override
 	public void afterFinalize(WorkThread wt) {}

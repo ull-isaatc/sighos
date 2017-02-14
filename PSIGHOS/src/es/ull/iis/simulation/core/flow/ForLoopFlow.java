@@ -12,7 +12,7 @@ import es.ull.iis.simulation.core.WorkThread;
  * defining the number of iterations, since decimal values are rounded to the closest integer.  
  * @author Iván Castilla Rodríguez
  */
-public interface ForLoopFlow<WT extends WorkThread<?>> extends StructuredLoopFlow<WT> {
+public interface ForLoopFlow extends StructuredLoopFlow {
 	/**
 	 * Returns the function which characterizes the iterations performed in the loop.
 	 * @return The function which characterizes the iterations performed in the loop

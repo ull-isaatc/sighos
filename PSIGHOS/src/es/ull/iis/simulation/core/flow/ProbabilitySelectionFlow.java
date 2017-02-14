@@ -14,7 +14,7 @@ import es.ull.iis.simulation.core.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface ProbabilitySelectionFlow<WT extends WorkThread<?>> extends MultipleSuccessorFlow<WT> {
+public interface ProbabilitySelectionFlow extends MultipleSuccessorFlow {
 	/**
 	 * Adds a probabilistic flow's successor.
 	 * @param successor This flow's successor
@@ -22,7 +22,7 @@ public interface ProbabilitySelectionFlow<WT extends WorkThread<?>> extends Mult
 	 * @return TODO
 	 * @return The successor (useful for chained links)
 	 */
-	public Flow<WT> link(Flow<WT> successor, double prob);
+	public Flow link(Flow successor, double prob);
 
 	/**
 	 * Adds a collection of probabilistic flow's successor. 
@@ -30,6 +30,6 @@ public interface ProbabilitySelectionFlow<WT extends WorkThread<?>> extends Mult
 	 * @param succList This flow's successors
 	 * @param probList The probability of these successors to be chosen
 	 */
-	public void link(Collection<Flow<WT>> succList, Collection<Double> probList);
+	public void link(Collection<Flow> succList, Collection<Double> probList);
 	
 }

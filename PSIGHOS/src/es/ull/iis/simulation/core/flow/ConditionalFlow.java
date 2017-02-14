@@ -12,14 +12,14 @@ import es.ull.iis.simulation.core.WorkThread;
  * @author Yeray Callero
  *
  */
-public interface ConditionalFlow<WT extends WorkThread<?>> extends MultipleSuccessorFlow<WT> {
+public interface ConditionalFlow extends MultipleSuccessorFlow {
 	/**
 	 * Adds a conditioned flow's successor. 
 	 * @param successor This flow's successor
 	 * @param cond The condition that has to be met to invoke the successor
 	 * @return TODO
 	 */
-	public Flow<WT> link(Flow<WT> successor, Condition cond);
+	public Flow link(Flow successor, Condition cond);
 
 	/**
 	 * Adds a collection of conditioned flow's successors. 
@@ -27,6 +27,6 @@ public interface ConditionalFlow<WT extends WorkThread<?>> extends MultipleSucce
 	 * @param succList This flow's successors
 	 * @param condList The conditions attached to each successor
 	 */
-	public void link(Collection<Flow<WT>> succList, Collection<Condition> condList);
+	public void link(Collection<Flow> succList, Collection<Condition> condList);
 	
 }

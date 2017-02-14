@@ -10,7 +10,7 @@ import es.ull.iis.simulation.core.WorkThread;
  * this flow finishes.
  * @author Yeray Callero
  */
-public interface WhileDoFlow<WT extends WorkThread<?>> extends StructuredLoopFlow<WT> {
+public interface WhileDoFlow extends StructuredLoopFlow {
 	/** 
 	 * Returns the condition which controls the loop operation.
 	 * @return The condition which controls the loop operation

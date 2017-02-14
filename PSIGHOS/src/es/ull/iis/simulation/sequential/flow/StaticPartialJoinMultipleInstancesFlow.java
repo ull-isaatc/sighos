@@ -15,7 +15,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public class StaticPartialJoinMultipleInstancesFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StaticPartialJoinMultipleInstancesFlow<WorkThread> {
+public class StaticPartialJoinMultipleInstancesFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StaticPartialJoinMultipleInstancesFlow {
 	/**	The number of thread instances this flow creates */
 	protected int nInstances;
 	/** The number of threads which must finish to pass the control */

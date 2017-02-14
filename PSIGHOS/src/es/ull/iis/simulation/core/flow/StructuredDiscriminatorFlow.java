@@ -7,5 +7,5 @@ import es.ull.iis.simulation.core.WorkThread;
  * is a {@link DiscriminatorFlow}. Meets the Structured Discriminator pattern (WFP9). 
  * @author Yeray Callero
  */
-public interface StructuredDiscriminatorFlow<WT extends WorkThread<?>> extends PredefinedStructuredFlow<WT> {
+public interface StructuredDiscriminatorFlow extends PredefinedStructuredFlow {
 }

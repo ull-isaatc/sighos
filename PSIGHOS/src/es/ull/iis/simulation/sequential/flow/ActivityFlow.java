@@ -65,24 +65,24 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * while the activity is being performed.
  * @author Iván Castilla Rodríguez
  */
-public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.simulation.core.flow.ActivityFlow<WorkThread, ActivityWorkGroup>, es.ull.iis.simulation.core.flow.ReleaseResourcesFlow<WorkThread, ResourceType>, TaskFlow<WorkThread> {
+public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.simulation.core.flow.ActivityFlow, es.ull.iis.simulation.core.flow.ReleaseResourcesFlow, TaskFlow {
 	private static int resourcesIdCounter = -1;
 	/** 
 	 * An artificially created final node. This flow informs the flow-driven
 	 * work groups that they have being finalized.
 	 */
 	private BasicFlow virtualFinalFlow = new BasicFlow(simul) {
-		public void addPredecessor(Flow<WorkThread> newFlow) {}
+		public void addPredecessor(Flow newFlow) {}
 
 		public void request(WorkThread wThread) {
 			wThread.notifyEnd();
 		}
 
-		public Flow<WorkThread> link(Flow<WorkThread> successor) {
+		public Flow link(Flow successor) {
 			return successor;
 		}
 
-		public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow<WorkThread> parent, Set<Flow<WorkThread>> visited) {}
+		public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow parent, Set<Flow> visited) {}
 		
 	};	
 	/** The set of modifiers of this activity. */
@@ -182,8 +182,8 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
     }
 
 	@Override
-    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow<WorkThread> initFlow, 
-    		FinalizerFlow<WorkThread> finalFlow, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {
+    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initFlow, 
+    		FinalizerFlow finalFlow, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {
     	FlowDrivenActivityWorkGroup aWg = new FlowDrivenActivityWorkGroup(this, workGroupTable.size(), initFlow, finalFlow, priority, (WorkGroup)wg, cond);
 		finalFlow.link(virtualFinalFlow);
 		workGroupTable.add(aWg);
@@ -197,20 +197,20 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
     }
     
 	@Override
-    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow<WorkThread> initFlow, 
-    		FinalizerFlow<WorkThread> finalFlow, int priority, es.ull.iis.simulation.core.WorkGroup wg) {
+    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initFlow, 
+    		FinalizerFlow finalFlow, int priority, es.ull.iis.simulation.core.WorkGroup wg) {
     	return addWorkGroup(initFlow, finalFlow, priority, wg, new TrueCondition());
     }
     
 	@Override
-    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow<WorkThread> initialFlow, 
-    		FinalizerFlow<WorkThread> finalFlow, es.ull.iis.simulation.core.WorkGroup wg) {    	
+    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initialFlow, 
+    		FinalizerFlow finalFlow, es.ull.iis.simulation.core.WorkGroup wg) {    	
         return addWorkGroup(initialFlow, finalFlow, 0, wg);
     }
     
 	@Override
-    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow<WorkThread> initialFlow, 
-    		FinalizerFlow<WorkThread> finalFlow, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
+    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initialFlow, 
+    		FinalizerFlow finalFlow, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
         return addWorkGroup(initialFlow, finalFlow, 0, wg, cond);
     }
     
@@ -281,7 +281,7 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
 		if (wThread.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
 			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, ElementActionInfo.Type.STAACT, elem.getTs()));
 			elem.debug("Starts\t" + this + "\t" + description);
-			InitializerFlow<WorkThread> initialFlow = ((FlowDrivenActivityWorkGroup)wThread.getExecutionWG()).getInitialFlow();
+			InitializerFlow initialFlow = ((FlowDrivenActivityWorkGroup)wThread.getExecutionWG()).getInitialFlow();
 			elem.addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
 		}
 		else if (wThread.getExecutionWG() instanceof TimeDrivenActivityWorkGroup) {

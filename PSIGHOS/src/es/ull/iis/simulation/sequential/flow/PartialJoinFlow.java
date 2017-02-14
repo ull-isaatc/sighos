@@ -10,7 +10,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * Meets the Blocking Partial Join pattern (WFP31). 
  * @author ycallero
  */
-public class PartialJoinFlow extends ANDJoinFlow implements es.ull.iis.simulation.core.flow.PartialJoinFlow<WorkThread> {
+public class PartialJoinFlow extends ANDJoinFlow implements es.ull.iis.simulation.core.flow.PartialJoinFlow {
 	
 	/**
 	 * Creates a new PartialJoinFlow.

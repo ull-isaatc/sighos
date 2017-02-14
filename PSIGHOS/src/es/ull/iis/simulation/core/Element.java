@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.core;
 
+import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
 
 /**
@@ -11,7 +12,7 @@ import es.ull.iis.simulation.core.flow.InitializerFlow;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface Element<WT extends WorkThread<?>> extends BasicElement, VariableStoreSimulationObject {
+public interface Element extends BasicElement, VariableStoreSimulationObject {
 	/**
 	 * Returns the corresponding type of the element.
 	 * @return the corresponding type of the element
@@ -21,5 +22,13 @@ public interface Element<WT extends WorkThread<?>> extends BasicElement, Variabl
 	 * Returns the associated {@link es.ull.iis.simulation.core.flow.Flow Flow}.
 	 * @return the associated {@link es.ull.iis.simulation.core.flow.Flow Flow}
 	 */
-	InitializerFlow<WT> getFlow();
+	InitializerFlow getFlow();
+	
+	/**
+	 * Adds a new request event.
+	 * @param f The flow to be requested
+	 * @param wThread The work thread used to request the flow
+	 */
+	void addRequestEvent(Flow f, WorkThread wThread);
+	
 }

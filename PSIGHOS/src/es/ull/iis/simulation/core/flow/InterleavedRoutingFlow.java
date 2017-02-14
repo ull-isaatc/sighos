@@ -11,5 +11,5 @@ import es.ull.iis.simulation.core.WorkThread;
  * activities are presential.
  * @author Iván Castilla Rodríguez
  */
-public interface InterleavedRoutingFlow<WT extends WorkThread<?>> extends PredefinedStructuredFlow<WT> {
+public interface InterleavedRoutingFlow extends PredefinedStructuredFlow {
 }

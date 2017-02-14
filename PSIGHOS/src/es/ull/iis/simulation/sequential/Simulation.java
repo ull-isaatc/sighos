@@ -7,8 +7,9 @@ import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 
 import es.ull.iis.simulation.core.TimeStamp;
-import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.info.TimeChangeInfo;
+import es.ull.iis.simulation.model.DiscreteEvent;
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
 import es.ull.iis.util.Output;
@@ -25,7 +26,7 @@ import es.ull.iis.util.Output;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread> {
+public class Simulation extends es.ull.iis.simulation.core.Simulation {
 
 	/** The identifier to be assigned to the next resource */ 
 	protected int nextResourceId = 0;
@@ -33,7 +34,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
 
 	/** List of element generators of the simulation. */
-	protected final ArrayList<Generator> generatorList = new ArrayList<Generator>();
+	protected final ArrayList<ElementGenerator> generatorList = new ArrayList<ElementGenerator>();
 
 	/** The identifier to be assigned to the next activity */ 
 	protected int nextActivityId = 1;
@@ -44,11 +45,15 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 	protected int nextResourceTypeId = 0;
 	/** List of resource types present in the simulation. */
 	protected final TreeMap<Integer, ResourceType> resourceTypeList = new TreeMap<Integer, ResourceType>();
+	/** List of resource types present in the simulation. */
+	protected final TreeMap<es.ull.iis.simulation.model.ResourceType, ResourceType> resourceTypeMap = new TreeMap<es.ull.iis.simulation.model.ResourceType, ResourceType>();
 
 	/** The identifier to be assigned to the next element type */ 
 	protected int nextElementTypeId = 0;
 	/** List of resource types present in the simulation. */
 	protected final TreeMap<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
+	/** List of resource types present in the simulation. */
+	protected final TreeMap<es.ull.iis.simulation.model.ElementType, ElementType> elementTypeMap = new TreeMap<es.ull.iis.simulation.model.ElementType, ElementType>();
 
 	/** List of activity managers that partition the simulation. */
 	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
@@ -56,7 +61,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 	/** The identifier to be assigned to the next flow */ 
 	protected int nextFlowId = 0;
 	/** List of flows present in the simulation */
-	protected final TreeMap<Integer, Flow<WorkThread>> flowList = new TreeMap<Integer, Flow<WorkThread>>();
+	protected final TreeMap<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
 
 	/** End-of-simulation control */
 	private CountDownLatch endSignal;
@@ -72,7 +77,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 	protected long lvt;
 
 	/** A timestamp-ordered list of events whose timestamp is in the future. */
-	protected final PriorityQueue<BasicElement.DiscreteEvent> waitQueue = new PriorityQueue<BasicElement.DiscreteEvent>();
+	protected final PriorityQueue<DiscreteEvent> waitQueue = new PriorityQueue<DiscreteEvent>();
 	
 	/**
 	 * Creates a new instance of Simulation
@@ -80,8 +85,9 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 	 * @param id This simulation's identifier
 	 * @param description A short text describing this simulation.
 	 */
-	public Simulation(int id, String description, TimeUnit unit) {
-		super(id, description, unit);
+	public Simulation(int id, String description, Model model) {
+		super(id, description, model);
+		createSimulationObjects();
 	}
 
 
@@ -97,8 +103,9 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 	 * @param endTs
 	 *            Timestamp of simulation's end
 	 */
-	public Simulation(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
-		super(id, description, unit, startTs, endTs);
+	public Simulation(int id, String description, Model model, TimeStamp startTs, TimeStamp endTs) {
+		super(id, description, model, startTs, endTs);
+		createSimulationObjects();
 	}
 	
 	/**
@@ -113,10 +120,26 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 	 * @param endTs
 	 *            Simulation's end timestamp expresed in Simulation Time Units
 	 */
-	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
-		super(id, description, unit, startTs, endTs);
+	public Simulation(int id, String description, Model model, long startTs, long endTs) {
+		super(id, description, model, startTs, endTs);
+		createSimulationObjects();
 	}
 
+	private void createSimulationObjects() {
+		for (es.ull.iis.simulation.model.ElementType et : model.getElementTypeList()) {
+			new ElementType(this, et);
+		}
+		for (es.ull.iis.simulation.model.ResourceType rt : model.getResourceTypeList()) {
+			new ResourceType(this, rt);
+		}
+		for (es.ull.iis.simulation.model.Resource res : model.getResourceList()) {
+			new Resource(this, res);
+		}
+		for (es.ull.iis.simulation.model.flow.Flow flow : model.getFlowList()) {
+			new WorkGroup(this, wg);
+		}
+		
+	}
 	/**
 	 * Starts the simulation execution. It creates and starts all the necessary 
 	 * structures. This method blocks until all the logical processes have finished 
@@ -143,14 +166,14 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 		infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationStartInfo(this, System.nanoTime(), this.internalStartTs));
 		
 		// Starts all the generators
-		for (Generator gen : generatorList)
-			addWait(gen.getStartEvent(internalStartTs));
+		for (ElementGenerator gen : generatorList)
+			addWait(gen.onCreate(internalStartTs));
 		// Starts all the resources
 		for (Resource res : resourceList.values())
-			addWait(res.getStartEvent(internalStartTs));
+			addWait(res.onCreate(internalStartTs));
 
 		// Adds the event to control end of simulation
-		addWait(new SimulationElement().getStartEvent(internalEndTs));
+		addWait(new SimulationElement().onCreate(internalEndTs));
 		
 		while (!isSimulationEnd())
             execWaitingElements();
@@ -189,7 +212,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
     protected void execWaitingElements() {
         // Extracts the first event
         if (! waitQueue.isEmpty()) {
-            BasicElement.DiscreteEvent e = removeWait();
+            DiscreteEvent e = removeWait();
             // Advances the simulation clock
             beforeClockTick();
             lvt = e.getTs();
@@ -229,15 +252,15 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
      * its timestamp is greater than the LP timestamp.
      * @param e Event to be added
      */
-	public void addWait(BasicElement.DiscreteEvent e) {
+	public void addWait(DiscreteEvent e) {
 		waitQueue.add(e);
 	}
 	
-	public void addExecution(BasicElement.DiscreteEvent e) {
+	public void addExecution(DiscreteEvent e) {
 		e.run();
 	}
 	
-    protected BasicElement.DiscreteEvent removeWait() {
+    protected DiscreteEvent removeWait() {
         return waitQueue.poll();
     }
     
@@ -246,7 +269,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
      * @param e Event to be removed
      * @return True if the queue contained the event; false otherwise
      */
-    protected boolean removeWait(BasicElement.DiscreteEvent e) {
+    protected boolean removeWait(DiscreteEvent e) {
         return waitQueue.remove(e);
     }
     
@@ -321,6 +344,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 	 *  if there was no previous mapping for key.
 	 */
 	protected ElementType add(ElementType et) {
+		elementTypeMap.put(et.getModelET(), et);
 		return elementTypeList.put(et.getIdentifier(), et);
 	}
 	
@@ -334,6 +358,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 	 *  if there was no previous mapping for key.
 	 */
 	protected ResourceType add(ResourceType rt) {
+		resourceTypeMap.put(rt.getModelRT(), rt);
 		return resourceTypeList.put(rt.getIdentifier(), rt);
 	}
 	
@@ -346,7 +371,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
-	public Flow<WorkThread> add(Flow<WorkThread> f) {
+	public Flow add(Flow f) {
 		return flowList.put(f.getIdentifier(), f);
 		
 	}
@@ -369,7 +394,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 	 * @param gen
 	 *            Generator.
 	 */
-	protected void add(Generator gen) {
+	protected void add(ElementGenerator gen) {
 		generatorList.add(gen);
 	}
 
@@ -384,28 +409,48 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 		resourceList.put(res.getIdentifier(), res);
 	}
 	
-	@Override
+	/**
+	 * Returns a list of the resources of the model.
+	 * 
+	 * @return Resources of the model.
+	 */
 	public Map<Integer, Resource> getResourceList() {
 		return resourceList;
 	}
 
-	@Override
+	/** 	 
+	 * Returns a list of the activities of the model. 	 
+	 * 
+	 *  @return Activities of the model. 	 
+	 */ 	
 	public Map<Integer, RequestResourcesFlow> getActivityList() {
 		return activityList;
 	}
 
-	@Override
+	/**
+	 * Returns a list of the resource types of the model.
+	 * 
+	 * @return Resource types of the model.
+	 */
 	public Map<Integer, ResourceType> getResourceTypeList() {
 		return resourceTypeList;
 	}
 	
-	@Override
+	/**
+	 * Returns a list of the element types of the model.
+	 * 
+	 * @return element types of the model.
+	 */
 	public Map<Integer, ElementType> getElementTypeList() {
 		return elementTypeList;
 	}
 
-	@Override
-	public Map<Integer, Flow<WorkThread>> getFlowList() {
+	/**
+	 * Returns a list of the flows of the model.
+	 * 
+	 * @return flows of the model.
+	 */
+	public Map<Integer, Flow> getFlowList() {
 		return flowList;
 	}
 
@@ -418,28 +463,66 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 		return activityManagerList;
 	}
 
-	@Override
+	/**
+	 * Returns the activity with the corresponding identifier.
+	 * @param id Activity identifier.
+	 * @return An activity with the indicated identifier.
+	 */
 	public RequestResourcesFlow getActivity(int id) {
 		return activityList.get(id);
 	}
 
-	@Override
+	/**
+	 * Returns the resource with the corresponding identifier.
+	 * @param id Resource identifier.
+	 * @return A resource with the indicated identifier.
+	 */
 	public Resource getResource(int id) {
 		return resourceList.get(id);
 	}
 
-	@Override
+	/**
+	 * Returns the resource type with the corresponding identifier.
+	 * @param id Resource type identifier.
+	 * @return A resource type with the indicated identifier.
+	 */
 	public ResourceType getResourceType(int id) {
 		return resourceTypeList.get(id);
 	}
 
-	@Override
+	/**
+	 * Returns the "simulation" resource type corresponding to a "model" resource type.
+	 * @param modelRT Resource type.
+	 * @return A resource type with the indicated identifier.
+	 */
+	public ResourceType getResourceType(es.ull.iis.simulation.model.ResourceType modelRT) {
+		return resourceTypeMap.get(modelRT);
+	}
+
+	/**
+	 * Returns the element type with the corresponding identifier.
+	 * @param id Element type identifier.
+	 * @return An element type with the indicated identifier.
+	 */
 	public ElementType getElementType(int id) {
 		return elementTypeList.get(id);
 	}
 
-	@Override
-	public Flow<WorkThread> getFlow(int id) {
+	/**
+	 * Returns the "simulation" element type  corresponding to a "model" element type.
+	 * @param modelET Element type.
+	 * @return An element type with the indicated identifier.
+	 */
+	public ElementType getElementType(es.ull.iis.simulation.model.ElementType modelET) {
+		return elementTypeMap.get(modelET);
+	}
+
+	/**
+	 * Returns the flow with the corresponding identifier.
+	 * @param id Flow identifier.
+	 * @return A flow with the indicated identifier.
+	 */
+	public Flow getFlow(int id) {
 		return flowList.get(id);
 	}
 
@@ -502,7 +585,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation<WorkThread
 			StringBuffer strLong = new StringBuffer("------    LP STATE    ------");
 			strLong.append("LVT: " + lvt + "\r\n");
 	        strLong.append(waitQueue.size() + " waiting elements: ");
-	        for (BasicElement.DiscreteEvent e : waitQueue)
+	        for (DiscreteEvent e : waitQueue)
 	            strLong.append(e + " ");
 	        strLong.append("\r\n------ LP STATE FINISHED ------\r\n");
 			debug(strLong.toString());

@@ -12,7 +12,7 @@ import es.ull.iis.simulation.core.WorkThread;
  * {@link SynchronizedMultipleInstanceFlow}.
  * @author Iván Castilla Rodríguez
  */
-public interface StaticPartialJoinMultipleInstancesFlow<WT extends WorkThread<?>> extends PredefinedStructuredFlow<WT> {
+public interface StaticPartialJoinMultipleInstancesFlow extends PredefinedStructuredFlow {
 	/**
 	 * Returns the number of thread instances created in this flow.
 	 * @return The number of thread instances created in this flow

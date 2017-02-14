@@ -1,14 +1,12 @@
 package es.ull.iis.simulation.core.flow;
 
-import es.ull.iis.simulation.core.WorkThread;
-
 /**
  * A {@link JoinFlow} which merges several incoming branches into a single outgoing branch. 
  * A class implementing this interface must handle the incoming branches in an internal 
  * structure and must also manage separately each {@link es.ull.iis.simulation.core.Element}.
  * @author Yeray Callero
  */
-public interface MergeFlow<WT extends WorkThread<?>> extends SingleSuccessorFlow<WT>, JoinFlow<WT> {
+public interface MergeFlow extends SingleSuccessorFlow, JoinFlow {
 	/**
 	 * Returns the safety of this flow. 
 	 * @return The safety of this flow

@@ -8,7 +8,7 @@ public class VarViewValueRequestInfo extends SynchronousInfo {
 	private final Object requestObject;
 	private Object[] params;
 	
-	public VarViewValueRequestInfo(Simulation<?> simul, String varName, Object requestObject, Object[] params, long ts) {
+	public VarViewValueRequestInfo(Simulation simul, String varName, Object requestObject, Object[] params, long ts) {
 		super(simul, ts);
 		this.varName = varName;
 		this.requestObject = requestObject;

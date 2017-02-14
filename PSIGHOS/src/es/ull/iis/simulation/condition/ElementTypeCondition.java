@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.condition;
 
-import es.ull.iis.simulation.core.Element;
-import es.ull.iis.simulation.core.ElementType;
+import es.ull.iis.simulation.model.Element;
+import es.ull.iis.simulation.model.ElementType;
 
 /**
  * Condition used to check if an {@link Element} belongs to a specified {@link ElementType}.
@@ -27,8 +27,8 @@ public final class ElementTypeCondition extends Condition{
 	 * @param e {@link Element} to be checked with the condition.
 	 * @return The result of the logical condition.
 	 */
-	public boolean check(Element<?> e) {
-		if (type.getIdentifier() == ((Element<?>) e).getType().getIdentifier())
+	public boolean check(Element e) {
+		if (type == e.getType())
 			return true;
 		return false;
 	}

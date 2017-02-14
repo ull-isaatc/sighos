@@ -3,17 +3,17 @@
  */
 package es.ull.iis.simulation.sequential.flow;
 
+import es.ull.iis.simulation.core.WorkThread;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.SimulationObject;
-import es.ull.iis.simulation.sequential.WorkThread;
 
 
 /**
  * Basic implementation of a flow. Defines the default behavior of most methods. 
  * @author Iván Castilla Rodríguez
  */
-public abstract class BasicFlow extends SimulationObject implements Flow<WorkThread> {
+public abstract class BasicFlow extends SimulationObject implements Flow {
 	/** The structured flow containing this flow. */
 	protected StructuredFlow parent = null;
 	
@@ -48,7 +48,7 @@ public abstract class BasicFlow extends SimulationObject implements Flow<WorkThr
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#setParent(es.ull.iis.simulation.StructuredFlow)
 	 */
-	public void setParent(es.ull.iis.simulation.core.flow.StructuredFlow<WorkThread> parent) {
+	public void setParent(es.ull.iis.simulation.core.flow.StructuredFlow parent) {
 		this.parent = (StructuredFlow)parent;
 	}
 
@@ -56,7 +56,7 @@ public abstract class BasicFlow extends SimulationObject implements Flow<WorkThr
 	 * By default, returns true.
 	 * @return True by default.
 	 */
-	public boolean beforeRequest(es.ull.iis.simulation.core.Element<WorkThread> e) {
+	public boolean beforeRequest(es.ull.iis.simulation.core.Element e) {
 		return true;
 	}
 

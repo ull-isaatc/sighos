@@ -4,7 +4,7 @@ import es.ull.iis.simulation.core.Simulation;
 
 public class TimeChangeInfo extends AsynchronousInfo {
 
-	public TimeChangeInfo(Simulation<?> simul, long ts) {
+	public TimeChangeInfo(Simulation simul, long ts) {
 		super(simul, ts);
 	}
 	

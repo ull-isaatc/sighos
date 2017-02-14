@@ -10,5 +10,5 @@ import es.ull.iis.simulation.core.WorkThread;
  * step in a flow structure. 
  * @author Iván Castilla Rodríguez
  */
-public interface InitializerFlow<WT extends WorkThread<?>> extends Flow<WT> {
+public interface InitializerFlow extends Flow {
 }

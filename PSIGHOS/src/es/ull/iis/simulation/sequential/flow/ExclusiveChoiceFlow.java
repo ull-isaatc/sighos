@@ -14,7 +14,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * @author ycallero
  *
  */
-public class ExclusiveChoiceFlow extends ConditionalFlow implements es.ull.iis.simulation.core.flow.ExclusiveChoiceFlow<WorkThread> {
+public class ExclusiveChoiceFlow extends ConditionalFlow implements es.ull.iis.simulation.core.flow.ExclusiveChoiceFlow {
 
 	/**
 	 * Creates a new ExclusiveChoiceFlow.

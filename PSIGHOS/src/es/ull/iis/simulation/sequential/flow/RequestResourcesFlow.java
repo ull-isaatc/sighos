@@ -16,7 +16,7 @@ import es.ull.iis.simulation.sequential.Element;
 import es.ull.iis.simulation.sequential.Resource;
 import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.WorkGroup;
-import es.ull.iis.simulation.sequential.WorkThread;
+import es.ull.iis.simulation.core.WorkThread;
 import es.ull.iis.util.Prioritizable;
 import es.ull.iis.util.PrioritizedTable;
 
@@ -24,7 +24,7 @@ import es.ull.iis.util.PrioritizedTable;
  * @author Iván Castilla
  *
  */
-public class RequestResourcesFlow extends SingleSuccessorFlow implements es.ull.iis.simulation.core.flow.RequestResourcesFlow<WorkThread, ActivityWorkGroup>, Prioritizable, QueuedObject<WorkThread> {
+public class RequestResourcesFlow extends SingleSuccessorFlow implements es.ull.iis.simulation.core.flow.RequestResourcesFlow, Prioritizable, QueuedObject<WorkThread> {
     /** Priority. The lowest the value, the highest the priority */
     protected final int priority;
     /** A brief description of the activity */
@@ -170,7 +170,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements es.ull.
 	public void request(WorkThread wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
-				final Element elem = wThread.getElement();
+				final Element elem = (Element)wThread.getElement();
 				if (beforeRequest(elem)) {
 					simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, ElementActionInfo.Type.REQACT, elem.getTs()));
 					if (elem.isDebugEnabled())
@@ -207,7 +207,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements es.ull.
 	 * @param wThread Work thread requesting this basic step
 	 */
 	protected void carryOut(WorkThread wThread, ArrayDeque<Resource> solution) {
-		final Element elem = wThread.getElement();
+		final Element elem = (Element)wThread.getElement();
 		wThread.acquireResources(solution, resourcesId);
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, ElementActionInfo.Type.STAACT, elem.getTs()));
 		next(wThread);
@@ -298,7 +298,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements es.ull.
 	public void inqueue(WorkThread wt){};	
 	
 	@Override
-	public void addPredecessor(Flow<WorkThread> newFlow) {}
+	public void addPredecessor(Flow newFlow) {}
 
 	@Override
 	public void availableElement(WorkThread wThread) {

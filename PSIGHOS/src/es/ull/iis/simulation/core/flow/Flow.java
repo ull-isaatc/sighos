@@ -23,33 +23,33 @@ import es.ull.iis.simulation.core.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface Flow<WT extends WorkThread<?>> extends SimulationObject {
+public interface Flow extends SimulationObject {
 	/**
 	 * Adds a flow's successor. This method must invoke <code>successor.addPredecessor</code>
 	 * to build the graph properly. 
 	 * @param successor This flow's successor.
 	 * @return The successor (useful for chained links)
 	 */
-	Flow<WT> link(Flow<WT> successor);	
+	Flow link(Flow successor);	
 	
 	/**
 	 * Notifies this flow that it has been linked (i.e. added as a successor) to
 	 * another flow.
 	 * @param predecessor This flow's predecessor.
 	 */
-	void addPredecessor(Flow<WT> predecessor);
+	void addPredecessor(Flow predecessor);
 	
 	/**
 	 * Returns the structured flow which contains this flow.
 	 * @return the structured flow which contains this flow.
 	 */
-	StructuredFlow<WT> getParent();
+	StructuredFlow getParent();
 	
 	/**
 	 * Sets the structured flow which contains this flow. 
 	 * @param parent the structured flow which contains this flow.
 	 */
-	void setParent(StructuredFlow<WT> parent);
+	void setParent(StructuredFlow parent);
 	
 	/**
 	 * Sets the structured flow which contains this flow and does the same for the
@@ -58,7 +58,7 @@ public interface Flow<WT extends WorkThread<?>> extends SimulationObject {
 	 * @param visited list of already visited flows (to prevent infinite recursion when 
 	 * arbitrary loops are present)
 	 */
-	void setRecursiveStructureLink(StructuredFlow<WT> parent, Set<es.ull.iis.simulation.core.flow.Flow<WT>> visited);
+	void setRecursiveStructureLink(StructuredFlow parent, Set<Flow> visited);
 	
 	/**
 	 * Allows a user to add conditions which the element requesting this flow must meet
@@ -66,7 +66,7 @@ public interface Flow<WT extends WorkThread<?>> extends SimulationObject {
 	 * @param e The element trying to request this flow.
 	 * @return True if this flow can be requested; false in other case.
 	 */
-	boolean beforeRequest(Element<WT> e);
+	boolean beforeRequest(Element e);
 	
 	
 	/**
@@ -74,13 +74,13 @@ public interface Flow<WT extends WorkThread<?>> extends SimulationObject {
 	 * carry it out.
 	 * @param wThread The work thread requesting this flow.
 	 */
-	void request(WT wThread);
+	void request(WorkThread wThread);
 	
 	/**
 	 * Requests this flow successor(s) to continue the execution. This method is invoked 
 	 * after all the tasks associated to this flow has been successfully carried out.
 	 * @param wThread The work thread which requested this flow.
 	 */
-	void next(WT wThread);
+	void next(WorkThread wThread);
 	
 }

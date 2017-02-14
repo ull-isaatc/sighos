@@ -8,9 +8,9 @@ import es.ull.iis.simulation.core.WorkThread;
  * one or several internal branches.
  * @author Yeray Callero
  */
-public interface StructuredFlow<WT extends WorkThread<?>> extends SingleSuccessorFlow<WT>, TaskFlow<WT> {
+public interface StructuredFlow extends SingleSuccessorFlow, TaskFlow {
 	/**	The entry point to the internal structure */
-	InitializerFlow<WT> getInitialFlow();
+	InitializerFlow getInitialFlow();
 	/**	The exit point of the internal structure */
-	FinalizerFlow<WT> getFinalFlow();
+	FinalizerFlow getFinalFlow();
 }

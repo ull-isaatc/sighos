@@ -5,7 +5,6 @@ import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.core.flow.TaskFlow;
 import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.iis.simulation.sequential.WorkThread;
 
 
 
@@ -16,11 +15,11 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * @author ycallero
  *
  */
-public abstract class StructuredFlow extends SingleSuccessorFlow implements TaskFlow<WorkThread>, es.ull.iis.simulation.core.flow.StructuredFlow<WorkThread> {
+public abstract class StructuredFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.iis.simulation.core.flow.StructuredFlow {
 	/**	The entry point of the internal structure */
-	protected InitializerFlow<WorkThread> initialFlow = null;
+	protected InitializerFlow initialFlow = null;
 	/**	The exit point of the internal structure */
-	protected FinalizerFlow<WorkThread> finalFlow = null;
+	protected FinalizerFlow finalFlow = null;
 	
 	/**
 	 * Creates a new structured flow with no initial nor final step.
@@ -34,20 +33,20 @@ public abstract class StructuredFlow extends SingleSuccessorFlow implements Task
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#addPredecessor(es.ull.iis.simulation.Flow)
 	 */
-	public void addPredecessor(Flow<WorkThread> newFlow) {
+	public void addPredecessor(Flow newFlow) {
 	}
 
 	@Override
-	public void afterFinalize(WorkThread wt) {
+	public void afterFinalize(es.ull.iis.simulation.core.WorkThread wt) {
 	}
 
 	@Override
-	public FinalizerFlow<WorkThread> getFinalFlow() {
+	public FinalizerFlow getFinalFlow() {
 		return finalFlow;
 	}
 
 	@Override
-	public InitializerFlow<WorkThread> getInitialFlow() {
+	public InitializerFlow getInitialFlow() {
 		return initialFlow;
 	}
 	

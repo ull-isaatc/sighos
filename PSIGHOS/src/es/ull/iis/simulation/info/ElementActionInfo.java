@@ -1,10 +1,10 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.core.ActivityWorkGroup;
-import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.WorkThread;
-import es.ull.iis.simulation.core.flow.ResourcesFlow;
+import es.ull.iis.simulation.model.ActivityWorkGroup;
+import es.ull.iis.simulation.model.Element;
+import es.ull.iis.simulation.model.flow.FlowExecutor;
+import es.ull.iis.simulation.model.flow.ResourcesFlow;
 
 public class ElementActionInfo extends AsynchronousInfo {
 	
@@ -28,27 +28,27 @@ public class ElementActionInfo extends AsynchronousInfo {
 			
 		};
 	
-	final private WorkThread<?> wThread;
+	final private FlowExecutor fExecutor;
 	final private ResourcesFlow act;
 	final private ActivityWorkGroup wg;
-	final private Element<?> elem;
+	final private Element elem;
 	final private Type type;
 	
-	public ElementActionInfo(Simulation<?> simul, WorkThread<?> wThread, Type type, long ts) {
+	public ElementActionInfo(Simulation simul, FlowExecutor fExecutor, Element elem, ResourcesFlow act, ActivityWorkGroup wg, Type type, long ts) {
 		super(simul, ts);
-		this.wThread = wThread;
-		this.act = (ResourcesFlow)wThread.getCurrentFlow();
-		this.wg = wThread.getExecutionWG();
-		this.elem = wThread.getElement();
+		this.fExecutor = fExecutor;
+		this.act = act;
+		this.wg = wg;
+		this.elem = elem;
 		this.type = type;
 	}
 	
-	public Element<?> getElement() {
+	public Element getElement() {
 		return elem;
 	}
 	
-	public WorkThread<?> getWorkThread() {
-		return wThread;
+	public FlowExecutor getFlowExecutor() {
+		return fExecutor;
 	}
 	
 	public Type getType() {
@@ -62,7 +62,6 @@ public class ElementActionInfo extends AsynchronousInfo {
 		if (wg != null) {
 			message += "\tWG: " + wg.getDescription();
 		}
-		message += "\tET: " + elem.getType().getDescription();
 		return message;
 	}
 

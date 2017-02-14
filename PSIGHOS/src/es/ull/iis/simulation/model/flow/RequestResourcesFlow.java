@@ -1,0 +1,145 @@
+/**
+ * 
+ */
+package es.ull.iis.simulation.model.flow;
+
+import java.util.Iterator;
+
+import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.model.ActivityWorkGroup;
+import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.util.Prioritizable;
+import es.ull.iis.util.PrioritizedTable;
+
+/**
+ * @author Iván Castilla
+ *
+ */
+public class RequestResourcesFlow extends SingleSuccessorFlow implements InitializerFlow, ResourcesFlow, Prioritizable {
+    /** Priority. The lowest the value, the highest the priority */
+    protected final int priority;
+    /** A brief description of the activity */
+    protected final String description;
+    /** Work Groups available to perform this basic step */
+    protected final PrioritizedTable<ActivityWorkGroup> workGroupTable;
+    /** A unique identifier that serves to tell a ReleaseResourcesFlow which resources to release */
+	protected final int resourcesId;
+
+	/**
+	 * @param simul
+	 * @param description
+	 */
+	public RequestResourcesFlow(String description, int resourcesId) {
+		this(description, resourcesId, 0);
+	}
+
+	/**
+	 * @param simul
+	 * @param description
+	 * @param priority
+	 */
+	public RequestResourcesFlow(String description, int resourcesId, int priority) {
+		super();
+        this.description = description;
+        this.priority = priority;
+		this.resourcesId = resourcesId;
+        workGroupTable = new PrioritizedTable<ActivityWorkGroup>();
+	}
+
+	@Override
+	public String getDescription() {
+		return description;
+	}
+
+	@Override
+    public int getPriority() {
+        return priority;
+    }
+	
+	/**
+	 * Allows a user for adding a customized code when a {@link es.ull.iis.simulation.core.WorkThread} from an {@link es.ull.iis.simulation.core.Element}
+	 * is enqueued, waiting for available {@link es.ull.iis.simulation.core.Resource}. 
+	 * @param wt {@link es.ull.iis.simulation.core.WorkThread} requesting resources
+	 */
+	public void inqueue(FlowExecutor fe) {}
+	
+	
+	/**
+     * Creates a new workgroup for this activity using the specified wg.
+     * @param priority Priority of the workgroup
+     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
+     * @return The new workgroup's identifier.
+     */
+    public int addWorkGroup(int priority, WorkGroup wg) {
+    	int wgId = workGroupTable.size();
+        workGroupTable.add(new ActivityWorkGroup(this, wgId, priority, wg));
+        return wgId;
+    }
+    
+    /**
+     * Creates a new workgroup for this activity using the specified wg. This workgroup
+     * is only available if cond is true.
+     * @param priority Priority of the workgroup
+     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
+     * @param cond Availability condition
+     * @return The new workgroup's identifier.
+     */
+    public int addWorkGroup(int priority, WorkGroup wg, Condition cond) {
+    	int wgId = workGroupTable.size();
+        workGroupTable.add(new ActivityWorkGroup(this, wgId, priority, wg, cond));
+        return wgId;
+    }
+    
+    /**
+     * Creates a new workgroup for this activity with the highest level of priority using 
+     * the specified wg.
+     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
+     * @return The new workgroup's identifier.
+     */
+    public int addWorkGroup(WorkGroup wg) {    	
+        return addWorkGroup(0, wg);
+    }
+    
+    /**
+     * Creates a new workgroup for this activity with the highest level of priority using 
+     * the specified wg. This workgroup is only available if cond is true.
+     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
+     * @param cond Availability condition
+     * @return The new workgroup's identifier.
+     */
+    public int addWorkGroup(WorkGroup wg, Condition cond) {    	
+        return addWorkGroup(0, wg, cond);
+    }
+
+    /**
+     * Searches and returns a workgroup with the specified id.
+     * @param wgId The id of the workgroup searched
+     * @return A workgroup contained in this activity with the specified id
+     */
+    public ActivityWorkGroup getWorkGroup(int wgId) {
+        Iterator<ActivityWorkGroup> iter = workGroupTable.iterator();
+        while (iter.hasNext()) {
+        	ActivityWorkGroup opc = iter.next();
+        	if (opc.getIdentifier() == wgId)
+        		return opc;        	
+        }
+        return null;
+    }
+	
+	/**
+	 * Returns the amount of WGs associated to this activity
+	 * @return the amount of WGs associated to this activity
+	 */
+	public int getWorkGroupSize() {
+		return workGroupTable.size();
+	}
+
+	@Override
+	public void addPredecessor(Flow newFlow) {}
+	
+	@Override
+	public String getObjectTypeIdentifier() {
+		return "ACQ";
+	}
+
+}

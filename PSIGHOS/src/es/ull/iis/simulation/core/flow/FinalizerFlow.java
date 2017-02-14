@@ -9,11 +9,11 @@ import es.ull.iis.simulation.core.WorkThread;
  * just after the task performed by the flow has been performed.<p>
  * @author Iván Castilla Rodríguez
  */
-public interface FinalizerFlow<WT extends WorkThread<?>> extends Flow<WT> {
+public interface FinalizerFlow extends Flow {
 	/**
 	 * Allows a user for adding customized code carried out after the flow has finished. 
-	 * @param wt {@link WorkThread} requesting this flow
+	 * @param WorkThread {@link WorkThread} requesting this flow
 	 */
-	void afterFinalize(WT wt);
+	void afterFinalize(WorkThread wt);
 
 }

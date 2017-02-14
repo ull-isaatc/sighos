@@ -13,7 +13,7 @@ import es.ull.iis.simulation.core.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface ThreadSplitFlow<WT extends WorkThread<?>> extends SplitFlow<WT> {
+public interface ThreadSplitFlow extends SplitFlow {
 	/**
 	 * Returns the amount of instances to be created.
 	 * @return The amount of instances to be created

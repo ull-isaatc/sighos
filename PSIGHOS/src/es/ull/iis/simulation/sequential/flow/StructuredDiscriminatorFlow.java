@@ -9,7 +9,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * is a discriminator flow. Meets the Structured Discriminator pattern (WFP9). 
  * @author ycallero
  */
-public class StructuredDiscriminatorFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StructuredDiscriminatorFlow<WorkThread> {
+public class StructuredDiscriminatorFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.StructuredDiscriminatorFlow {
 	/**
 	 * Create a new StructureDiscriminatorMetaFlow.
 	 * @param simul Simulation this flow belongs to

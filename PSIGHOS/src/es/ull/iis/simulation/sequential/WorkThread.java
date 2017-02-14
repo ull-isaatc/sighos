@@ -25,7 +25,7 @@ import es.ull.iis.simulation.core.flow.TaskFlow;
  *  only for synchronization purposes and doesn't execute task flows. 
  * @author Iván Castilla Rodríguez
  */
-public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow<WorkThread>> {
+public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor, Comparable<WorkThread> {
 	/** Thread's Counter. Useful for identifying each single flow */
 	private static int counter = 0;
 	/** Thread's internal identifier */
@@ -37,13 +37,13 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow<Wo
     /** The descendant work threads */
 	protected final ArrayList<WorkThread> descendants;
     /** Thread's initial flow */
-    protected final Flow<WorkThread> initialFlow;
+    protected final Flow initialFlow;
 	/** A flag to indicate if the thread executes the flow or not */
 	protected WorkToken token;
 	/** The current flow the thread is in */
-	protected Flow<WorkThread> currentFlow = null;
+	protected Flow currentFlow = null;
 	/** The last flow the thread was in */
-	protected Flow<WorkThread> lastFlow = null;
+	protected Flow lastFlow = null;
     /** The workgroup which is used to carry out this flow. If <code>null</code>, 
      * the flow has not been carried out. */
     protected ActivityWorkGroup executionWG = null;
@@ -65,7 +65,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow<Wo
      * @param initialFlow The first flow to be executed by this thread
      * @param parent The parent thread, if this thread is included within a structured flow
      */
-    private WorkThread(WorkToken token, Element elem, Flow<WorkThread> initialFlow, WorkThread parent) {
+    private WorkThread(WorkToken token, Element elem, Flow initialFlow, WorkThread parent) {
     	this.token = token;
         this.elem = elem;
         this.parent = parent;
@@ -76,16 +76,22 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow<Wo
         this.id = counter++;
     }
 
-	@Override
-	public void setCurrentFlow(Flow<WorkThread> f) {
+	/**
+	 * Sets the flow currently executed by this workthread 
+	 * @param f The flow to be performed
+	 */
+	public void setCurrentFlow(Flow f) {
     	currentFlow = f;
 		executionWG = null;
 		arrivalTs = -1;
 		timeLeft = -1;    		
 	}
 
-    @Override
-	public Flow<WorkThread> getCurrentFlow() {
+    /**
+     * Returns the flow being performed.
+	 * @return The flow being performed.
+	 */
+	public Flow getCurrentFlow() {
 		return currentFlow;
 	}
 	    
@@ -96,7 +102,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow<Wo
     	if (parent != null) {
     		parent.removeDescendant(this);
     		if ((parent.descendants.size() == 0) && (parent.currentFlow != null))
-    			((TaskFlow<WorkThread>)parent.currentFlow).finish(parent);
+    			((TaskFlow)parent.currentFlow).finish(parent);
     	}
     }
     
@@ -137,7 +143,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow<Wo
 	/**
 	 * @param executable the executable to set
 	 */
-	public void setExecutable(boolean executable, Flow<WorkThread> startPoint) {
+	public void setExecutable(boolean executable, Flow startPoint) {
 		if (!executable)
 			token = new WorkToken(executable, startPoint);
 		else
@@ -148,7 +154,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow<Wo
 	 * Returns the last flow visited by this workthread
 	 * @return the last flow visited by this workthread
 	 */
-	public Flow<WorkThread> getLastFlow() {
+	public Flow getLastFlow() {
 		return lastFlow;
 	}
 
@@ -156,13 +162,13 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow<Wo
 	 * Sets the last flow visited by this thread.
 	 * @param lastFlow The lastFlow visited by this thread
 	 */
-	public void setLastFlow(Flow<WorkThread> lastFlow) {
+	public void setLastFlow(Flow lastFlow) {
 		this.lastFlow = lastFlow;
 	}
 
 	/**
-     * Returns the element which carries out this flow.
-     * @return The associated element.
+     * Returns the element performing this single flow.
+     * @return The element performing this single flow
      */
     public Element getElement() {
         return elem;
@@ -218,7 +224,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow<Wo
 	}
 	
 	@Override
-	public int compareTo(es.ull.iis.simulation.core.WorkThread<Flow<WorkThread>> o) {
+	public int compareTo(WorkThread o) {
 		if (id > o.getIdentifier())
 			return 1;
 		if (id < o.getIdentifier())
@@ -235,13 +241,13 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow<Wo
 	public static WorkThread getInstanceMainWorkThread(Element elem) {
 		return new WorkThread(new WorkToken(true), elem, elem.getFlow(), null);
 	}
-	
+
 	/**
 	 * Returns a new instance of a work thread created to carry out the inner subflow of a structured flow. 
 	 * The current thread is the parent of the newly created child thread. has the same state than the c
 	 * @return A new instance of a work thread created to carry out the inner subflow of a structured flow
 	 */
-	public WorkThread getInstanceDescendantWorkThread(InitializerFlow<WorkThread> newFlow) {
+	public WorkThread getInstanceDescendantWorkThread(InitializerFlow newFlow) {
 		if (isExecutable())
 			return new WorkThread(new WorkToken(true), elem, newFlow, this);
 		else
@@ -255,7 +261,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow<Wo
 	 * @param token The token to be cloned in case this work thread is not valid and the token is also not valid. 
 	 * @return A new instance of a work thread created to carry out a new flow after a split
 	 */
-	public WorkThread getInstanceSubsequentWorkThread(boolean executable, Flow<WorkThread> newFlow, WorkToken token) {
+	public WorkThread getInstanceSubsequentWorkThread(boolean executable, Flow newFlow, WorkToken token) {
 		WorkToken newToken;
 		if (!executable)
 			if (!token.isExecutable())
@@ -271,7 +277,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow<Wo
 	 * Adds a new visited flow to the list.
 	 * @param flow New visited flow
 	 */
-	public void updatePath(Flow<WorkThread> flow) {
+	public void updatePath(Flow flow) {
 		token.addFlow(flow);
 	}
 
@@ -288,7 +294,7 @@ public class WorkThread implements es.ull.iis.simulation.core.WorkThread<Flow<Wo
 	 * @param flow Flow to be checked.
 	 * @return True if the specified flow was already visited from this thread; false otherwise.
 	 */
-	public boolean wasVisited (Flow<WorkThread> flow) {
+	public boolean wasVisited (Flow flow) {
 		return token.wasVisited(flow);
 	}
 

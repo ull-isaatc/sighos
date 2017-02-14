@@ -12,7 +12,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * activities are presential.
  * @author Iván Castilla Rodríguez
  */
-public class InterleavedRoutingFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.InterleavedRoutingFlow<WorkThread> {
+public class InterleavedRoutingFlow extends PredefinedStructuredFlow implements es.ull.iis.simulation.core.flow.InterleavedRoutingFlow {
 
 	/**
 	 * Creates a new InterleavedRoutingFlow 

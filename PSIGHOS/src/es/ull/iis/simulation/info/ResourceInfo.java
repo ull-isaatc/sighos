@@ -2,8 +2,8 @@ package es.ull.iis.simulation.info;
 
 import java.util.EnumSet;
 
-import es.ull.iis.simulation.core.Resource;
-import es.ull.iis.simulation.core.ResourceType;
+import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.AsynchronousInfo;
 
@@ -33,7 +33,7 @@ public class ResourceInfo extends AsynchronousInfo {
 	final private ResourceType rt;
 	final private Type type;
 	
-	public ResourceInfo(Simulation<?> simul, Resource res, ResourceType rt, Type type, long ts) {
+	public ResourceInfo(Simulation simul, Resource res, ResourceType rt, Type type, long ts) {
 		super(simul, ts);
 		this.res = res;
 		this.rt = rt;

@@ -13,7 +13,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * Meets the Parallel Split pattern (WFP2) 
  * @author Iván Castilla Rodríguez
  */
-public class ParallelFlow extends MultipleSuccessorFlow implements es.ull.iis.simulation.core.flow.ParallelFlow<WorkThread> {
+public class ParallelFlow extends MultipleSuccessorFlow implements es.ull.iis.simulation.core.flow.ParallelFlow {
 
 	/**
 	 * Creates a new ParallelFlow
@@ -30,7 +30,7 @@ public class ParallelFlow extends MultipleSuccessorFlow implements es.ull.iis.si
 	public void next(WorkThread wThread) {
 		super.next(wThread);
 		if (successorList.size() > 0)
-			for(Flow<WorkThread> succ : successorList)
+			for(Flow succ : successorList)
 				wThread.getElement().addRequestEvent(succ, wThread.getInstanceSubsequentWorkThread(wThread.isExecutable(), this, wThread.getToken()));
         wThread.notifyEnd();
 	}

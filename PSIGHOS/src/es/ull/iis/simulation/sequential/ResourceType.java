@@ -8,24 +8,30 @@ import java.util.ArrayList;
  * different purposes, and each purpose is a role.
  * @author Carlos Martin Galan
  */
-public class ResourceType extends TimeStampedSimulationObject implements es.ull.iis.simulation.core.ResourceType {
+public class ResourceType extends TimeStampedSimulationObject {
     /** Activity manager this resource type belongs to. */
     protected ActivityManager manager;
     /** A list of the currently available resources. */
     protected final ResourceList availableResourceList;
-    /** A brief description of the resource type */
-    protected final String description;
+    private final es.ull.iis.simulation.model.ResourceType modelRT;
 
     /**
      * Creates a new resource type.
      * @param simul Associated simulation
      * @param description A short text describing this resource type.
      */
-	public ResourceType(Simulation simul, String description) {
+	public ResourceType(Simulation simul, es.ull.iis.simulation.model.ResourceType modelRT) {
 		super(simul.getNextResourceTypeId(), simul);
-        this.description = description;
+        this.modelRT = modelRT;
         availableResourceList = new ResourceList();
         simul.add(this);
+	}
+
+	/**
+	 * @return the modelRT
+	 */
+	public es.ull.iis.simulation.model.ResourceType getModelRT() {
+		return modelRT;
 	}
 
 	/*
@@ -33,7 +39,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	 * @see es.ull.iis.simulation.Describable#getDescription()
 	 */
 	public String getDescription() {
-		return description;
+		return modelRT.getDescription();
 	}
 
     /**
@@ -108,7 +114,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
     
     @Override
 	public String getObjectTypeIdentifier() {
-		return "RT";
+		return modelRT.getObjectTypeIdentifier();
 	}
 
     @Override
@@ -232,12 +238,16 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	 * returns 0.0.
 	 * @return The wait time.
 	 */
-	public long beforeRoleOn() { return 0; };
+	public long beforeRoleOn() { 
+		return modelRT.beforeRoleOn(); 
+	}
 	
 	/**
 	 * Allows a user to specify actions to be performed after the RollOn event.
 	 */
-	public void afterRoleOn() {};
+	public void afterRoleOn() {
+		modelRT.afterRoleOn();
+	}
 	
 	/**
 	 * Allows a user to specify an extra waiting time before the RollOff event. Returns a 
@@ -245,12 +255,16 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	 * returns 0.0.
 	 * @return The wait time.
 	 */
-	public long beforeRoleOff() { return 0; };
+	public long beforeRoleOff() { 
+		return modelRT.beforeRoleOff(); 
+	}
 	
 	/**
 	 * Allows a user to specify actions to be performed after the RollOff event.
 	 */
-	public void afterRoleOff() {}
+	public void afterRoleOff() {
+		modelRT.afterRoleOff();
+	}
 
 	/**
 	 * Returns the list of available resources.
@@ -258,15 +272,5 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	 */
 	public ResourceList getAvailableResourceList() {
 		return availableResourceList;
-	}
-
-	@Override
-	public es.ull.iis.simulation.core.Resource[] addGenericResources(int n) {
-		final Resource[] res = new Resource[n];
-		for (int i = 0; i < n; i++) {
-			res[i] = new Resource(simul, description + " " + i);
-			res[i].addTimeTableEntry(this);
-		}
-		return null;
 	}
 } 

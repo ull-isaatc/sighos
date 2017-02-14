@@ -10,7 +10,7 @@ import es.ull.iis.simulation.core.WorkThread;
  * passes depends on a defined acceptance value.
  * @author Iván Castilla Rodríguez
  */
-public interface ANDJoinFlow<WT extends WorkThread<?>> extends MergeFlow<WT> {
+public interface ANDJoinFlow extends MergeFlow {
 	/**
 	 * Returns the acceptance value for this flow.
 	 * @return The acceptance value for this flow

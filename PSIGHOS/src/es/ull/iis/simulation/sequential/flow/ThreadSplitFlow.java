@@ -19,11 +19,11 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ThreadSplitFlow extends BasicFlow implements es.ull.iis.simulation.core.flow.ThreadSplitFlow<WorkThread>, SplitFlow<WorkThread> {
+public class ThreadSplitFlow extends BasicFlow implements es.ull.iis.simulation.core.flow.ThreadSplitFlow, SplitFlow {
 	/** Number of outgoing threads produced by this flow */
 	protected final int nInstances;
 	/** The unique successor of this flow */
-	protected Flow<WorkThread> successor;
+	protected Flow successor;
 
 	/**
 	 * Creates a new thread split flow
@@ -38,7 +38,7 @@ public class ThreadSplitFlow extends BasicFlow implements es.ull.iis.simulation.
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#addPredecessor(es.ull.iis.simulation.Flow)
 	 */
-	public void addPredecessor(Flow<WorkThread> predecessor) {
+	public void addPredecessor(Flow predecessor) {
 	}
 
 	/* (non-Javadoc)
@@ -68,13 +68,13 @@ public class ThreadSplitFlow extends BasicFlow implements es.ull.iis.simulation.
         wThread.notifyEnd();			
 	}
 
-	public Flow<WorkThread> link(Flow<WorkThread> successor) {
-		this.successor = (Flow<WorkThread>)successor;
+	public Flow link(Flow successor) {
+		this.successor = (Flow)successor;
 		successor.addPredecessor(this);
 		return successor;
 	}
 
-	public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow<WorkThread> parent, Set<Flow<WorkThread>> visited) {
+	public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow parent, Set<Flow> visited) {
 		setParent(parent);
 		visited.add(this);
 		if (successor != null)

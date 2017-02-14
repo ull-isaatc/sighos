@@ -12,12 +12,12 @@ import es.ull.iis.simulation.core.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface TaskFlow<WT extends WorkThread<?>> extends InitializerFlow<WT>, FinalizerFlow<WT> {
+public interface TaskFlow extends InitializerFlow, FinalizerFlow {
 	/**
 	 * Finishes the associated task.
 	 * @param wThread The work thread which requested this flow.
 	 */
-	void finish(WT wThread);
+	void finish(WorkThread wThread);
 
 
 }

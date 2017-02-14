@@ -4,7 +4,7 @@ import es.ull.iis.simulation.core.Simulation;
 
 public abstract class AsynchronousInfo extends TimeStampedInfo {
 
-	public AsynchronousInfo(Simulation<?> simul, long ts) {
+	public AsynchronousInfo(Simulation simul, long ts) {
 		super(simul, ts);
 	}
 

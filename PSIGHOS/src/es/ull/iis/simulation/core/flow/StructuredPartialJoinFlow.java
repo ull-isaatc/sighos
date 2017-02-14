@@ -7,5 +7,5 @@ import es.ull.iis.simulation.core.WorkThread;
  * is a {@link PartialJoinFlow}. Meets the Structured Partial Join pattern (WFP30). 
  * @author Yeray Callero
  */
-public interface StructuredPartialJoinFlow<WT extends WorkThread<?>> extends PredefinedStructuredFlow<WT> {
+public interface StructuredPartialJoinFlow extends PredefinedStructuredFlow {
 }

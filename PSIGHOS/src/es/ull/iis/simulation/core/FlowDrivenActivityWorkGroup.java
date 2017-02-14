@@ -10,8 +10,8 @@ import es.ull.iis.simulation.core.flow.InitializerFlow;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface FlowDrivenActivityWorkGroup<WT extends WorkThread<?>> {
+public interface FlowDrivenActivityWorkGroup {
 
-	InitializerFlow<WT> getInitialFlow();
-	FinalizerFlow<WT> getFinalFlow();
+	InitializerFlow getInitialFlow();
+	FinalizerFlow getFinalFlow();
 }

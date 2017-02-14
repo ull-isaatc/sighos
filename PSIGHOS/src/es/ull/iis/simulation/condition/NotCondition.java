@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.condition;
 
-import es.ull.iis.simulation.core.Element;
+import es.ull.iis.simulation.model.Element;
 
 /**
  * Condition used to build NOT logical operations. This NotCondition 
@@ -26,7 +26,7 @@ public final class NotCondition extends Condition {
 	 * @param e Element used to check the condition.
 	 * @return The negated result of the associated Condition
 	 */
-	public boolean check(Element<?> e) {
+	public boolean check(Element e) {
 		return !cond.check(e);
 	}
 

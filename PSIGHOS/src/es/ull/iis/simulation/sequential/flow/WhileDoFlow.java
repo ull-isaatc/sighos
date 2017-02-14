@@ -5,7 +5,6 @@ import es.ull.iis.simulation.core.flow.FinalizerFlow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.core.flow.TaskFlow;
 import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.iis.simulation.sequential.WorkThread;
 
 /**
  * A structured loop flow which resembles a while-do loop. A precondition is
@@ -13,7 +12,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * this flow finishes. 
  * @author ycallero
  */
-public class WhileDoFlow extends StructuredLoopFlow implements es.ull.iis.simulation.core.flow.WhileDoFlow<WorkThread> {
+public class WhileDoFlow extends StructuredLoopFlow implements es.ull.iis.simulation.core.flow.WhileDoFlow {
 	/** Condition which controls the loop operation. */
 	protected final Condition cond;
 	
@@ -24,7 +23,7 @@ public class WhileDoFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	 * @param finalSubFlow Last step of the internal subflow
 	 * @param prevCondition Break loop condition.
  	 */
-	public WhileDoFlow(Simulation simul, InitializerFlow<WorkThread> initialSubFlow, FinalizerFlow<WorkThread> finalSubFlow, Condition prevCondition) {
+	public WhileDoFlow(Simulation simul, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, Condition prevCondition) {
 		super(simul, initialSubFlow, finalSubFlow);
 		cond = prevCondition;
 	}
@@ -35,7 +34,7 @@ public class WhileDoFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	 * @param subFlow A unique flow defining an internal subflow
 	 * @param prevCondition Break loop condition.
  	 */
-	public WhileDoFlow(Simulation simul, TaskFlow<WorkThread> subFlow, Condition prevCondition) {
+	public WhileDoFlow(Simulation simul, TaskFlow subFlow, Condition prevCondition) {
 		this(simul, subFlow, subFlow, prevCondition);
 	}
 
@@ -43,7 +42,7 @@ public class WhileDoFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
-	public void request(WorkThread wThread) {
+	public void request(es.ull.iis.simulation.core.WorkThread wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread.getElement())) {
@@ -66,7 +65,7 @@ public class WhileDoFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.WorkThread)
 	 */
-	public void finish(WorkThread wThread) {
+	public void finish(es.ull.iis.simulation.core.WorkThread wThread) {
 		// The loop condition is checked
 		if (cond.check(wThread.getElement())) {
 			wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));

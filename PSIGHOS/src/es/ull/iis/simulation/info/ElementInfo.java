@@ -1,8 +1,8 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.info.AsynchronousInfo;
+import es.ull.iis.simulation.model.Element;
+import es.ull.iis.simulation.model.ElementType;
 
 public class ElementInfo extends AsynchronousInfo {
 
@@ -23,16 +23,18 @@ public class ElementInfo extends AsynchronousInfo {
 
 		};
 	
-	final private Element<?> elem;
+	final private Element elem;
 	final private Type type;
+	final private ElementType et;
 	
-	public ElementInfo(Simulation<?> simul, Element<?> elem, Type type, long ts) {
+	public ElementInfo(Simulation simul, Element elem, ElementType et, Type type, long ts) {
 		super(simul, ts);
 		this.elem = elem;
 		this.type = type;
+		this.et = et;
 	}
 	
-	public Element<?> getElement() {
+	public Element getElement() {
 		return elem;
 	}
 
@@ -41,6 +43,6 @@ public class ElementInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		return "" + simul.long2SimulationTime(getTs()) + "\t" + elem.toString() + " \t" + type.getDescription() + "\tET: " + elem.getType().getDescription();
+		return "" + simul.long2SimulationTime(getTs()) + "\t" + elem.toString() + " \t" + type.getDescription() + "\tET: " + et.getDescription();
 	}
 }

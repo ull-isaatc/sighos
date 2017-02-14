@@ -5,6 +5,7 @@ import java.util.ArrayDeque;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
+import es.ull.iis.util.Prioritizable;
 
 /**
  * A set of resources needed for carrying out an basicStep. A workgroup (WG) consists on a 
@@ -12,31 +13,11 @@ import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
  * workgroup can be used or not, and the priority of the workgroup inside the basicStep.
  * @author Iván Castilla Rodríguez
  */
-public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulation.core.ActivityWorkGroup, Comparable<ActivityWorkGroup> {
-    /**
-	 * 
-	 */
-	private final RequestResourcesFlow basicStep;
-	/** Workgroup's identifier */
-	protected int id;
-	/** Priority of the workgroup */
-    protected int priority = 0;
-    /** Availability condition */
-    protected Condition cond;
-    private final String idString; 
+public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Prioritizable {
+	protected final int[] needed;
+	protected final ResourceType[] resourceTypes;
+    protected final es.ull.iis.simulation.model.ActivityWorkGroup modelAWG;
 	
-    /**
-     * Creates a new instance of WorkGroup which contains the same resource types
-     * than an already existing one.
-     * @param id Identifier of this workgroup.
-     * @param priority Priority of the workgroup.
-     * @param wg The original workgroup
-     * @param basicStep TODO
-     */    
-    public ActivityWorkGroup(RequestResourcesFlow basicStep, int id, int priority, WorkGroup wg) {
-        this(basicStep, id, priority, wg, new TrueCondition());
-    }
-    
     /**
      * Creates a new instance of WorkGroup which contains the same resource types
      * than an already existing one.
@@ -46,30 +27,23 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      * @param cond  Availability condition
      * @param basicStep TODO
      */    
-    public ActivityWorkGroup(RequestResourcesFlow basicStep, int id, int priority, WorkGroup wg, Condition cond) {
-        super(wg.resourceTypes, wg.needed);
-		this.basicStep = basicStep;
-        this.id = id;
-        this.priority = priority;
-        this.cond = cond;
-        this.idString = new String("(" + this.basicStep + ")" + getDescription());
+    public ActivityWorkGroup(Simulation simul, es.ull.iis.simulation.model.ActivityWorkGroup modelAWG) {
+    	es.ull.iis.simulation.model.WorkGroup.Pair[] originalPairs = modelAWG.getPairs();
+    	needed = new int[originalPairs.length];
+    	resourceTypes = new ResourceType[originalPairs.length];
+    	for (int i = 0; i < originalPairs.length; i++) {
+    		needed[i] = originalPairs[i].needed;
+    		resourceTypes[i] = simul.getResourceType(originalPairs[i].rt);
+    	}
+        this.modelAWG = modelAWG;
     }
 
-
-    /**
-     * Returns the basicStep this WG belongs to.
-     * @return basicStep this WG belongs to.
-     */    
-    protected RequestResourcesFlow getBasicStep() {
-        return this.basicStep;
-    }
-    
     /**
      * Getter for property priority.
      * @return Value of property priority.
      */
     public int getPriority() {
-        return priority;
+        return modelAWG.getPriority();
     }
     
     /**
@@ -85,7 +59,7 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
      */
     public ArrayDeque<Resource> isFeasible(WorkThread wThread) {
 
-    	if (!cond.check(wThread.getElement()))
+    	if (!getCondition().check(wThread.getElement()))
     		return null;
 
     	int ned[] = needed.clone();
@@ -183,32 +157,22 @@ public class ActivityWorkGroup extends WorkGroup implements es.ull.iis.simulatio
     }
     
 	public int getIdentifier() {
-		return id;
+		return modelAWG.getIdentifier();
 	}
 
 	public String getDescription() {
-		StringBuilder str = new StringBuilder("WG" + id);
+		StringBuilder str = new StringBuilder("WG" + getIdentifier());
 		for (int i = 0; i < resourceTypes.length; i++)
 			str.append(" [" + resourceTypes[i] + "," + needed[i] + "]");
 		return str.toString();
 	}
 
-    @Override
-    public String toString() {
-    	return idString;
-    }
-
 	public int compareTo(ActivityWorkGroup arg0) {
-		if (id < arg0.id)
-			return -1;
-		if (id > arg0.id)
-			return 1;
-		return 0;
+		return modelAWG.compareTo(arg0.modelAWG);
 	}
 
-	@Override
 	public Condition getCondition() {
-		return cond;
+		return modelAWG.getCondition();
 	}
 
 }

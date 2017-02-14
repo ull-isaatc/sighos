@@ -11,5 +11,5 @@ import es.ull.iis.simulation.core.WorkThread;
  * @author Yeray Callero
  *
  */
-public interface ExclusiveChoiceFlow<WT extends WorkThread<?>> extends ConditionalFlow<WT> {
+public interface ExclusiveChoiceFlow extends ConditionalFlow {
 }

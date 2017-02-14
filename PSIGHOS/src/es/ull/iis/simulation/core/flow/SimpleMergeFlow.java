@@ -10,5 +10,5 @@ import es.ull.iis.simulation.core.WorkThread;
  * @author ycallero
  *
  */
-public interface SimpleMergeFlow<WT extends WorkThread<?>> extends ORJoinFlow<WT> {
+public interface SimpleMergeFlow extends ORJoinFlow {
 }
