@@ -20,28 +20,6 @@ public abstract class BasicElement extends TimeStampedSimulationObject implement
 	}
 
     /**
-     * Starts the element execution.
-     * @param ts The time stamp when the starting event of this element is scheduled
-     */    
-	public DiscreteEvent onCreate(long ts) {
-        return new StartEvent(ts);
-	}
-	
-	public DiscreteEvent onDestroy() {
-        return new FinalizeEvent();
-	}
-	
-    /**
-     * Contains the declaration of the first event/s that the element executes.
-     */
-    protected abstract void init();
-    
-    /**
-     * Contains the actions the element carried out when it finishes its execution. 
-     */
-    protected abstract void end();
-    
-    /**
      * Adds a new event to the element's event list. 
      * @param e New event.
      */    
@@ -60,8 +38,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject implement
      * created.
      */
     protected void notifyEnd() {
-    	debug("Finished");
-        addEvent(new FinalizeEvent());
+        addEvent(onDestroy());
     }
     
 	@Override
@@ -84,15 +61,14 @@ public abstract class BasicElement extends TimeStampedSimulationObject implement
      * simulation.
      * @author Iván Castilla Rodríguez
      */
-    public final class FinalizeEvent extends DiscreteEvent {
+    public final class DefaultFinalizeEvent extends DiscreteEvent {
         
-        public FinalizeEvent() {
+        public DefaultFinalizeEvent() {
             super(simul.getTs());
         }
         
         public void event() {
         	debug("Ends execution");
-        	BasicElement.this.end();
         }
     }
 
@@ -101,14 +77,13 @@ public abstract class BasicElement extends TimeStampedSimulationObject implement
      * @author Iván Castilla Rodríguez
      *
      */
-    public final class StartEvent extends DiscreteEvent {
-        public StartEvent(long ts) {
+    public final class DefaultStartEvent extends DiscreteEvent {
+        public DefaultStartEvent(long ts) {
             super(ts);
         }
 
         public void event() {
         	debug("Starts Execution");
-            BasicElement.this.init();
         }
     }
 }

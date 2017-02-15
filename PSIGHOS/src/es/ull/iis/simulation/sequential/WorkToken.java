@@ -2,7 +2,7 @@ package es.ull.iis.simulation.sequential;
 
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.core.flow.Flow;
+import es.ull.iis.simulation.model.flow.Flow;
 
 /**
  * The information of the current state of a {@link WorkThread work thread}. Basically indicates if 
@@ -12,9 +12,9 @@ import es.ull.iis.simulation.core.flow.Flow;
 public class WorkToken {
 	
 	/** The list of flows already visited during the current timestamp */ 
-	final TreeSet<Flow> path;
+	private final TreeSet<Flow> path = new TreeSet<Flow>();
 	/** Validity of the work thread containing this token */
-	boolean state;
+	private boolean state;
 	
 	/**
 	 * Creates a work token.
@@ -22,7 +22,6 @@ public class WorkToken {
 	 */
 	public WorkToken (boolean state) {
 		this.state = state;
-		path = new TreeSet<Flow>();
 	}
 
 	/**

@@ -15,7 +15,7 @@ import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
 import es.ull.iis.simulation.sequential.WorkGroup;
 import es.ull.iis.simulation.sequential.flow.ActivityFlow;
-import es.ull.iis.simulation.sequential.flow.ExclusiveChoiceFlow;
+import es.ull.iis.simulation.sequential.flow.ExclusiveChoiceFlowBehaviour;
 
 /**
  * The model of the hospital to be simulated.
@@ -103,7 +103,7 @@ public class BasicHospitalSimulation extends Simulation {
 		actSurgery.addWorkGroup(60, 0, wgSurgery2);
 		
 		// Create a conditional flow to determine if a patient requires surgery
-		ExclusiveChoiceFlow fRequireSurgery = new ExclusiveChoiceFlow(this);
+		ExclusiveChoiceFlowBehaviour fRequireSurgery = new ExclusiveChoiceFlowBehaviour(this);
 		// Define 5% of patients requiring surgery
 		PercentageCondition requiresSurgeryCondition = new PercentageCondition(5.0);
 		
@@ -111,7 +111,7 @@ public class BasicHospitalSimulation extends Simulation {
 		fRequireSurgery.link(actSurgery, requiresSurgeryCondition);
 		actSurgery.link(actAppointment);
 		
-		ElementCreator creator = new ElementCreator(this, 20, etPatient, actAppointment);
+		ElementGenerator creator = new ElementGenerator(this, 20, etPatient, actAppointment);
 		new TimeDrivenGenerator(this, creator, docCycle);
 	}
 

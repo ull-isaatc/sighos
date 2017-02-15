@@ -28,6 +28,13 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow {
 		this.nInstances = nInstances;
 	}
 
+	/**
+	 * @return the successor
+	 */
+	public Flow getSuccessor() {
+		return successor;
+	}
+
 	@Override
 	public void addPredecessor(Flow predecessor) {
 	}

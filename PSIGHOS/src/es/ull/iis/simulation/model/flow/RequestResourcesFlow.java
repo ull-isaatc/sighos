@@ -6,6 +6,7 @@ package es.ull.iis.simulation.model.flow;
 import java.util.Iterator;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.util.Prioritizable;
@@ -15,7 +16,7 @@ import es.ull.iis.util.PrioritizedTable;
  * @author Iván Castilla
  *
  */
-public class RequestResourcesFlow extends SingleSuccessorFlow implements InitializerFlow, ResourcesFlow, Prioritizable {
+public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlow, ResourcesFlow, Prioritizable {
     /** Priority. The lowest the value, the highest the priority */
     protected final int priority;
     /** A brief description of the activity */
@@ -57,6 +58,13 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements Initial
     }
 	
 	/**
+	 * @return the resourcesId
+	 */
+	public int getResourcesId() {
+		return resourcesId;
+	}
+
+	/**
 	 * Allows a user for adding a customized code when a {@link es.ull.iis.simulation.core.WorkThread} from an {@link es.ull.iis.simulation.core.Element}
 	 * is enqueued, waiting for available {@link es.ull.iis.simulation.core.Resource}. 
 	 * @param wt {@link es.ull.iis.simulation.core.WorkThread} requesting resources
@@ -72,7 +80,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements Initial
      */
     public int addWorkGroup(int priority, WorkGroup wg) {
     	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(this, wgId, priority, wg));
+        workGroupTable.add(new ActivityWorkGroup(this, wgId, priority, wg, new TrueCondition()));
         return wgId;
     }
     
@@ -140,6 +148,10 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements Initial
 	@Override
 	public String getObjectTypeIdentifier() {
 		return "ACQ";
+	}
+
+	@Override
+	public void afterFinalize(FlowExecutor fe) {
 	}
 
 }

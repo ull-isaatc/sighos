@@ -1,14 +1,12 @@
 package es.ull.iis.simulation.sequential;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.core.SimulationCycle;
-import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.model.DiscreteEvent;
+import es.ull.iis.simulation.model.flow.ResourcesFlow;
 import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
@@ -57,53 +55,14 @@ public class Resource extends BasicElement {
         }
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.iis.simulation.BasicElement#init()
+    /**
+	 * @return the modelRes
 	 */
-	@Override
-    protected void init() {
-		simul.getInfoHandler().notifyInfo(new ResourceInfo(this.simul, modelRes, this.getCurrentResourceType().getModelRT(), ResourceInfo.Type.START, getTs()));
-		for (int i = 0 ; i < timeTable.size(); i++) {
-			TimeTableEntry tte = timeTable.get(i);
-			if (tte.isPermanent()) {
-	            final RoleOnEvent rEvent = new RoleOnEvent(getTs(), (ResourceType) tte.getRole(), null, simul.getInternalEndTs());
-	            addEvent(rEvent);
-	            validTTEs++;
-			}
-			else {
-		        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getInternalEndTs());
-		        long nextTs = iter.next();
-		        if (nextTs != -1) {
-		            RoleOnEvent rEvent = new RoleOnEvent(nextTs, (ResourceType) tte.getRole(), iter, simul.simulationTime2Long(tte.getDuration()));
-		            addEvent(rEvent);
-		            validTTEs++;
-		        }
-			}
-		}
-		for (int i = 0 ; i < cancelPeriodTable.size(); i++) {
-			TimeTableEntry tte = cancelPeriodTable.get(i);
-	        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getInternalEndTs());
-	        long nextTs = iter.next();
-	        if (nextTs != -1) {
-	            CancelPeriodOnEvent aEvent = new CancelPeriodOnEvent(nextTs, iter, simul.simulationTime2Long(tte.getDuration()));
-	            addEvent(aEvent);
-	            validTTEs++;
-	        }
-		}
-		if (validTTEs == 0)// at least one tte should be valid
-			notifyEnd();
+	public es.ull.iis.simulation.model.Resource getModelRes() {
+		return modelRes;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.iis.simulation.BasicElement#end()
-	 */
 	@Override
-	protected void end() {		
-	}
-	
-    @Override
 	public String getObjectTypeIdentifier() {
 		return modelRes.getObjectTypeIdentifier();
 	}
@@ -163,7 +122,7 @@ public class Resource extends BasicElement {
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
 	protected long catchResource(WorkThread wt) {
-		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, modelRes, currentResourceType.getModelRT(), wt, wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, getTs()));
+		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, modelRes, currentResourceType.getModelRT(), wt, (ResourcesFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, getTs()));
 		currentWT = wt;
 		return currentRoles.get(currentResourceType);
 	}
@@ -176,7 +135,7 @@ public class Resource extends BasicElement {
      * time of the resource had already expired.
      */
     public boolean releaseResource() {
-		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, modelRes, currentResourceType.getModelRT(), currentWT, wt.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, getTs()));
+		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, modelRes, currentResourceType.getModelRT(), currentWT, (ResourcesFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, getTs()));
         currentWT = null;
         currentResourceType = null;        
         if (timeOut) {
@@ -245,7 +204,62 @@ public class Resource extends BasicElement {
     protected Long getAvailability(ResourceType rt) {
     	return currentRoles.get(rt); 
     }
+
+	@Override
+	public DiscreteEvent onCreate(long ts) {
+		return new CreateResourceEvent(ts);
+	}
+
+	@Override
+	public DiscreteEvent onDestroy() {
+		return new BasicElement.DefaultFinalizeEvent();
+	}
+
+	public TreeMap<ResourceType, Long> getCurrentRoles() {
+		return currentRoles;
+	}
     
+    public class CreateResourceEvent extends DiscreteEvent {
+
+    	public CreateResourceEvent(long ts) {
+    		super(ts);
+		}
+    	
+		@Override
+		public void event() {
+			simul.getInfoHandler().notifyInfo(new ResourceInfo(simul, modelRes, getCurrentResourceType().getModelRT(), ResourceInfo.Type.START, getTs()));
+			for (int i = 0 ; i < timeTable.size(); i++) {
+				TimeTableEntry tte = timeTable.get(i);
+				if (tte.isPermanent()) {
+		            final RoleOnEvent rEvent = new RoleOnEvent(getTs(), (ResourceType) tte.getRole(), null, simul.getInternalEndTs());
+		            addEvent(rEvent);
+		            validTTEs++;
+				}
+				else {
+			        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getInternalEndTs());
+			        long nextTs = iter.next();
+			        if (nextTs != -1) {
+			            RoleOnEvent rEvent = new RoleOnEvent(nextTs, (ResourceType) tte.getRole(), iter, simul.simulationTime2Long(tte.getDuration()));
+			            addEvent(rEvent);
+			            validTTEs++;
+			        }
+				}
+			}
+			for (int i = 0 ; i < cancelPeriodTable.size(); i++) {
+				TimeTableEntry tte = cancelPeriodTable.get(i);
+		        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getInternalEndTs());
+		        long nextTs = iter.next();
+		        if (nextTs != -1) {
+		            CancelPeriodOnEvent aEvent = new CancelPeriodOnEvent(nextTs, iter, simul.simulationTime2Long(tte.getDuration()));
+		            addEvent(aEvent);
+		            validTTEs++;
+		        }
+			}
+			if (validTTEs == 0)// at least one tte should be valid
+				notifyEnd();
+		}
+    	
+    }
     /**
      * Makes available a resource with a specific role. 
      */
@@ -483,9 +497,4 @@ public class Resource extends BasicElement {
 		}
 
 	}
-
-	public TreeMap<ResourceType, Long> getCurrentRoles() {
-		return currentRoles;
-	}
-
 }

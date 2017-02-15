@@ -13,7 +13,7 @@ import es.ull.iis.function.TimeFunctionFactory;
  * Defines the way a generator creates elements when it's time to create them.
  * @author Iván Castilla Rodríguez
  */
-public class ElementCreator implements ModelObject {
+public class ElementGenerator implements ModelObject {
 	/** Number of objects created each time this creator is invoked. */
 	protected final TimeFunction nElem;
 	/** Each flow that will be generated */
@@ -23,7 +23,7 @@ public class ElementCreator implements ModelObject {
 	 * Creates a creator of elements.
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 */
-	public ElementCreator(TimeFunction nElem) {
+	public ElementGenerator(TimeFunction nElem) {
 		genTrio = new ArrayList<GenerationTrio>();
 		this.nElem = nElem;
 	}
@@ -34,7 +34,7 @@ public class ElementCreator implements ModelObject {
 	 * @param et The type of the elements to be created
 	 * @param flow The description of the flow of the elements to be created.
 	 */
-	public ElementCreator(TimeFunction nElem, ElementType et, InitializerFlow flow) {
+	public ElementGenerator(TimeFunction nElem, ElementType et, InitializerFlow flow) {
 		this(nElem);
 		genTrio.add(new GenerationTrio(et, flow, 1.0));
 	}
@@ -44,7 +44,7 @@ public class ElementCreator implements ModelObject {
 	 * @param sim Simulation this object belongs to.
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 */
-	public ElementCreator(int nElem) {
+	public ElementGenerator(int nElem) {
 		this(TimeFunctionFactory.getInstance("ConstantVariate", nElem));
 	}
 	
@@ -54,7 +54,7 @@ public class ElementCreator implements ModelObject {
 	 * @param et The type of the elements to be created
 	 * @param flow The description of the flow of the elements to be created.
 	 */
-	public ElementCreator(int nElem, ElementType et, InitializerFlow flow) {
+	public ElementGenerator(int nElem, ElementType et, InitializerFlow flow) {
 		this(TimeFunctionFactory.getInstance("ConstantVariate", nElem), et, flow);
 	}
 	

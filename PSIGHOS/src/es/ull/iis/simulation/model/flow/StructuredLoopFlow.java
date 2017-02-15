@@ -8,6 +8,7 @@ import java.util.TreeSet;
  * Meets the Structured Loop pattern (WFP21). 
  * @author ycallero
  */
+// TODO: Consider merge StructuredLoopFlows into PredefinedStructuredFlows
 public abstract class StructuredLoopFlow extends StructuredFlow {
 	
 	/**

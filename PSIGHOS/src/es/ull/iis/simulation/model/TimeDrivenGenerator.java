@@ -12,7 +12,7 @@ import es.ull.iis.simulation.model.flow.InitializerFlow;
  * @author Ivan Castilla Rodriguez
  *
  */
-public class TimeDrivenGenerator extends ElementCreator {
+public class TimeDrivenGenerator extends ElementGenerator {
     /** Cycle that controls the generation of elements. */
     protected final SimulationCycle cycle;
 

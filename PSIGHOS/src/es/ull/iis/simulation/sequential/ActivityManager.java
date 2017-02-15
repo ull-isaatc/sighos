@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.core.Describable;
-import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
 import es.ull.iis.util.PrioritizedMap;
 
 /**
@@ -21,7 +20,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     /** Static counter for assigning each new id */
 	private static int nextid = 0;
 	/** A prioritized table of activities */
-	protected final ArrayList<RequestResourcesFlow> activityList;
+	protected final ArrayList<RequestResources> activityList;
     /** A list of resorce types */
     protected final ArrayList<ResourceType> resourceTypeList;
     /** This queue contains the work threads that are waiting for activities of this AM */
@@ -34,7 +33,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     public ActivityManager(Simulation simul) {
         super(nextid++, simul);
         resourceTypeList = new ArrayList<ResourceType>();
-        activityList = new ArrayList<RequestResourcesFlow>();
+        activityList = new ArrayList<RequestResources>();
         wtQueue = new WorkThreadQueue();
         simul.add(this);
     }
@@ -43,7 +42,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * Adds an activity to this activity manager.
      * @param a Activity added
      */
-    public void add(RequestResourcesFlow a) {
+    public void add(RequestResources a) {
         activityList.add(a);
     }
     
@@ -59,7 +58,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * Adds a work thread to the waiting queue.
      * @param wt Work thread which is added to the waiting queue.
      */
-    public void queueAdd(es.ull.iis.simulation.core.WorkThread wt) {
+    public void queueAdd(WorkThread wt) {
     	wtQueue.add(wt);
     }
     
@@ -82,7 +81,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      */
     public void availableResource() {
     	// First marks all the activities as "potentially feasible"
-    	for (RequestResourcesFlow act : activityList)
+    	for (RequestResources act : activityList)
         	act.resetFeasible();
         // A count of the useless single flows 
     	int uselessSF = 0;
@@ -91,12 +90,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     	final Iterator<WorkThread> iter = wtQueue.iterator();
     	while (iter.hasNext() && (uselessSF < wtQueue.size())) {
     		final WorkThread wt = iter.next();
-            final Element elem = wt.getElement();
             // TODO: Check whether it always works fine
-            final RequestResourcesFlow act = (RequestResourcesFlow) wt.getCurrentFlow();
+            final RequestResources act = (RequestResources) wt.getCurrentFlow();
             
-    		// The element's timestamp is updated. That's only useful to print messages
-            elem.setTs(getTs());
             final int result = act.availableResource(wt);
             if (result == -1) {
         		toRemove.add(wt);
@@ -108,7 +104,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 		}
     	// Postponed removal to avoid conflict with the activity manager queue
     	for (WorkThread wt : toRemove)
-    		((RequestResourcesFlow) wt.getCurrentFlow()).queueRemove(wt);
+    		((RequestResources) wt.getCurrentFlow()).queueRemove(wt);
     } 
 
     /**
@@ -144,7 +140,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	public String getDescription() {
         StringBuffer str = new StringBuffer();
         str.append("Activity Manager " + id + "\r\n(Activity[priority]):");
-        for (RequestResourcesFlow a : activityList)
+        for (RequestResources a : activityList)
             str.append("\t\"" + a + "\"[" + a.getPriority() + "]");
         str.append("\r\nResource Types: ");
         for (ResourceType rt : resourceTypeList)
@@ -162,17 +158,17 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	private static final class WorkThreadQueue extends PrioritizedMap<TreeSet<es.ull.iis.simulation.core.WorkThread>, es.ull.iis.simulation.core.WorkThread>{		
+	private static final class WorkThreadQueue extends PrioritizedMap<TreeSet<WorkThread>, WorkThread>{		
 		/** A counter for the arrival order of the single flows */
 		private int arrivalOrder = 0;
 		/** A comparator to properly order the single flows. */
-		private Comparator<es.ull.iis.simulation.core.WorkThread> comp = new Comparator<es.ull.iis.simulation.core.WorkThread>() {
-			public int compare(es.ull.iis.simulation.core.WorkThread o1, es.ull.iis.simulation.core.WorkThread o2) {
+		private Comparator<WorkThread> comp = new Comparator<WorkThread>() {
+			public int compare(WorkThread o1, WorkThread o2) {
 				if (o1.equals(o2))
 					return 0;
-				if (((RequestResourcesFlow) o1.getCurrentFlow()).getPriority() > ((RequestResourcesFlow) o2.getCurrentFlow()).getPriority())
+				if (((RequestResources) o1.getCurrentFlow()).getPriority() > ((RequestResources) o2.getCurrentFlow()).getPriority())
 					return 1;
-				if (((RequestResourcesFlow) o1.getCurrentFlow()).getPriority() < ((RequestResourcesFlow) o2.getCurrentFlow()).getPriority())
+				if (((RequestResources) o1.getCurrentFlow()).getPriority() < ((RequestResources) o2.getCurrentFlow()).getPriority())
 					return -1;
 				if (o1.getArrivalOrder() > o2.getArrivalOrder())
 					return 1;
@@ -193,7 +189,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 		 * @param wt The work thread to be added.
 		 */
 		@Override
-		public void add(es.ull.iis.simulation.core.WorkThread wt) {
+		public void add(WorkThread wt) {
 			// The arrival order and timestamp are only assigned if the single flow 
 			// has never been added to the queue (interruptible activities)
 			if (wt.getArrivalTs() == -1) {
@@ -204,8 +200,8 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 		}
 
 		@Override
-		public TreeSet<es.ull.iis.simulation.core.WorkThread> createLevel(Integer priority) {
-			return new TreeSet<es.ull.iis.simulation.core.WorkThread>(comp);
+		public TreeSet<WorkThread> createLevel(Integer priority) {
+			return new TreeSet<WorkThread>(comp);
 		}
 		
 	}

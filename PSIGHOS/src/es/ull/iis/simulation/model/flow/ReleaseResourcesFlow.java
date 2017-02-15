@@ -30,6 +30,13 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 		cancellationList = new TreeMap<ResourceType, Long>();
 	}
 	
+	/**
+	 * @return the resourcesId
+	 */
+	public int getResourcesId() {
+		return resourcesId;
+	}
+
 	@Override
 	public String getDescription() {
 		return description;
@@ -54,6 +61,13 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 		return duration;
 	}
 	
+	/**
+	 * @return the cancellationList
+	 */
+	public TreeMap<ResourceType, Long> getCancellationList() {
+		return cancellationList;
+	}
+
 	@Override
 	public String getObjectTypeIdentifier() {
 		return "REL";

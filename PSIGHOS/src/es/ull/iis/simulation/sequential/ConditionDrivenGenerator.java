@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.sequential;
 
-import es.ull.iis.simulation.model.ElementCreator;
+import es.ull.iis.simulation.model.ElementGenerator;
 
 /**
  * A generator driven by simulation events. Generates the elements when
@@ -21,7 +21,7 @@ public abstract class ConditionDrivenGenerator extends ElementGenerator {
 	 * @param simul Simulation which uses this generator
 	 * @param creator The way the elements are created every time the condition is triggered
 	 */
-	public ConditionDrivenGenerator(Simulation simul, ElementCreator creator) {
+	public ConditionDrivenGenerator(Simulation simul, ElementGenerator creator) {
 		super(simul, creator);
 	}
 

@@ -71,34 +71,34 @@ public class SimulationFactory implements SimulationObjectFactory<Flow, WorkThre
 	}
 
 	@Override
-	public ElementCreator getElementCreatorInstance(TimeFunction elem) throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.ElementCreator(simul, elem);
+	public ElementGenerator getElementCreatorInstance(TimeFunction elem) throws ClassCastException {
+		return new es.ull.iis.simulation.sequential.ElementGenerator(simul, elem);
 	}
 
 	@Override
-	public ElementCreator getElementCreatorInstance(TimeFunction elem, ElementType et, InitializerFlow flow) throws ClassCastException {
-		return new ElementCreator(simul, elem, (es.ull.iis.simulation.sequential.ElementType) et, flow);
+	public ElementGenerator getElementCreatorInstance(TimeFunction elem, ElementType et, InitializerFlow flow) throws ClassCastException {
+		return new ElementGenerator(simul, elem, (es.ull.iis.simulation.sequential.ElementType) et, flow);
 	}
 
 	@Override
-	public ElementCreator getElementCreatorInstance(TimeFunction elem, SimulationUserCode userMethods) throws ClassCastException {
+	public ElementGenerator getElementCreatorInstance(TimeFunction elem, SimulationUserCode userMethods) throws ClassCastException {
 		// Prepare the constructor call
 		String constructorStr = "(Simulation sim, TimeFunction nElem) {super(sim, nElem);}";
 		// Prepare the new params.
 		Object obj = StandardCompilator.getInstance(workingPkg, "ElementCreator", creId++, constructorStr, userMethods, simul, elem);
 		if (obj != null)
-			return (ElementCreator)obj;
+			return (ElementGenerator)obj;
 		return null;
 	}
 
 	@Override
-	public ElementCreator getElementCreatorInstance(TimeFunction elem, ElementType et, InitializerFlow flow, SimulationUserCode userMethods) throws ClassCastException {
+	public ElementGenerator getElementCreatorInstance(TimeFunction elem, ElementType et, InitializerFlow flow, SimulationUserCode userMethods) throws ClassCastException {
 		// Prepare the constructor call
 		String constructorStr = "(Simulation sim, TimeFunction nElem, ElementType et, InitializerFlow flow) {super(sim, nElem, et, flow);}";
 		// Prepare the new params.
 		Object obj = StandardCompilator.getInstance(workingPkg, "ElementCreator", creId++, constructorStr, userMethods, simul, elem, et, flow);
 		if (obj != null)
-			return (ElementCreator)obj;
+			return (ElementGenerator)obj;
 		return null;
 	}
 
@@ -136,7 +136,7 @@ public class SimulationFactory implements SimulationObjectFactory<Flow, WorkThre
 	@Override
 	public TimeDrivenGenerator getTimeDrivenGeneratorInstance(es.ull.iis.simulation.core.ElementCreator<WorkThread> creator, SimulationCycle cycle)
 			throws ClassCastException {
-		return new es.ull.iis.simulation.sequential.TimeDrivenGenerator(simul, (es.ull.iis.simulation.sequential.ElementCreator)creator, cycle);
+		return new es.ull.iis.simulation.sequential.TimeDrivenGenerator(simul, (es.ull.iis.simulation.sequential.ElementGenerator)creator, cycle);
 	}
 
 	@Override

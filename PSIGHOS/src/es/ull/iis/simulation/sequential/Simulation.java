@@ -10,8 +10,9 @@ import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Model;
-import es.ull.iis.simulation.core.flow.Flow;
-import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.sequential.flow.FlowBehaviour;
 import es.ull.iis.util.Output;
 
 /**
@@ -39,7 +40,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	/** The identifier to be assigned to the next activity */ 
 	protected int nextActivityId = 1;
 	/** List of activities present in the simulation. */
-	protected final TreeMap<Integer, RequestResourcesFlow> activityList = new TreeMap<Integer, RequestResourcesFlow>();
+	protected final TreeMap<Integer, RequestResources> activityList = new TreeMap<Integer, RequestResources>();
 
 	/** The identifier to be assigned to the next resource type */ 
 	protected int nextResourceTypeId = 0;
@@ -61,7 +62,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	/** The identifier to be assigned to the next flow */ 
 	protected int nextFlowId = 0;
 	/** List of flows present in the simulation */
-	protected final TreeMap<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
+	protected final TreeMap<Integer, FlowBehaviour> flowList = new TreeMap<Integer, FlowBehaviour>();
 
 	/** End-of-simulation control */
 	private CountDownLatch endSignal;
@@ -136,7 +137,12 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 			new Resource(this, res);
 		}
 		for (es.ull.iis.simulation.model.flow.Flow flow : model.getFlowList()) {
-			new WorkGroup(this, wg);
+			if (flow instanceof RequestResourcesFlow) {
+				new RequestResources(this, (RequestResourcesFlow)flow);				
+			}
+			else if (flow instanceof ActivityFlow) {
+				new Activity(this, (ActivityFlow)flow);
+			}
 		}
 		
 	}
@@ -330,7 +336,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
-	public RequestResourcesFlow add(RequestResourcesFlow act) {
+	public RequestResources add(RequestResources act) {
 		return activityList.put(act.getIdentifier(), act);
 	}
 	
@@ -363,7 +369,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	}
 	
 	/**
-	 * Adds an {@link es.ull.iis.simulation.sequential.flow.Flow} to the model. These method
+	 * Adds an {@link es.ull.iis.simulation.sequential.flow.FlowBehaviour} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param f
@@ -371,7 +377,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
-	public Flow add(Flow f) {
+	public FlowBehaviour add(FlowBehaviour f) {
 		return flowList.put(f.getIdentifier(), f);
 		
 	}
@@ -423,7 +429,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * 
 	 *  @return Activities of the model. 	 
 	 */ 	
-	public Map<Integer, RequestResourcesFlow> getActivityList() {
+	public Map<Integer, RequestResources> getActivityList() {
 		return activityList;
 	}
 
@@ -450,7 +456,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * 
 	 * @return flows of the model.
 	 */
-	public Map<Integer, Flow> getFlowList() {
+	public Map<Integer, FlowBehaviour> getFlowList() {
 		return flowList;
 	}
 
@@ -468,7 +474,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @param id Activity identifier.
 	 * @return An activity with the indicated identifier.
 	 */
-	public RequestResourcesFlow getActivity(int id) {
+	public RequestResources getActivity(int id) {
 		return activityList.get(id);
 	}
 
@@ -522,7 +528,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @param id Flow identifier.
 	 * @return A flow with the indicated identifier.
 	 */
-	public Flow getFlow(int id) {
+	public FlowBehaviour getFlow(int id) {
 		return flowList.get(id);
 	}
 
@@ -612,11 +618,13 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 		}
 
 		@Override
-		protected void init() {
+		public DiscreteEvent onCreate(long ts) {
+			return new BasicElement.DefaultStartEvent(ts);
 		}
-		
+
 		@Override
-		protected void end() {
+		public DiscreteEvent onDestroy() {
+			return new BasicElement.DefaultFinalizeEvent();
 		}
     }
     

@@ -10,10 +10,9 @@ import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.model.FlowDrivenActivityWorkGroup;
+import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.TimeDrivenActivityWorkGroup;
 import es.ull.iis.simulation.model.WorkGroup;
 
 /**
@@ -143,8 +142,8 @@ public class ActivityFlow extends RequestResourcesFlow implements TaskFlow {
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup created.
      */
-    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, int priority, WorkGroup wg, Condition cond) {
-		TimeDrivenActivityWorkGroup aWg = new TimeDrivenActivityWorkGroup(this, workGroupTable.size(), duration, priority, (WorkGroup)wg, cond); 
+    public ActivityWorkGroup addWorkGroup(TimeFunction duration, int priority, WorkGroup wg, Condition cond) {
+		ActivityWorkGroup aWg = new ActivityWorkGroup(this, workGroupTable.size(), duration, priority, wg, cond); 
         workGroupTable.add(aWg);
         return aWg;
     }
@@ -157,7 +156,7 @@ public class ActivityFlow extends RequestResourcesFlow implements TaskFlow {
      * @param cond Availability condition
      * @return The new workgroup created.
      */    
-    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, int priority, WorkGroup wg) {
+    public ActivityWorkGroup addWorkGroup(TimeFunction duration, int priority, WorkGroup wg) {
 		return addWorkGroup(duration, priority, (WorkGroup)wg, new TrueCondition());
     }
     
@@ -168,7 +167,7 @@ public class ActivityFlow extends RequestResourcesFlow implements TaskFlow {
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup created.
      */
-    public TimeDrivenActivityWorkGroup addWorkGroup(long duration, int priority, WorkGroup wg) {
+    public ActivityWorkGroup addWorkGroup(long duration, int priority, WorkGroup wg) {
         return addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", duration), priority, wg);
     }
     
@@ -180,7 +179,7 @@ public class ActivityFlow extends RequestResourcesFlow implements TaskFlow {
      * @param cond Availability condition
      * @return The new workgroup created.
      */    
-    public TimeDrivenActivityWorkGroup addWorkGroup(long duration, int priority, WorkGroup wg, Condition cond) {    	
+    public ActivityWorkGroup addWorkGroup(long duration, int priority, WorkGroup wg, Condition cond) {    	
         return addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", duration), priority, wg, cond);
     }
 
@@ -192,8 +191,8 @@ public class ActivityFlow extends RequestResourcesFlow implements TaskFlow {
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup created.
      */
-    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initFlow, FinalizerFlow finalFlow, int priority, WorkGroup wg, Condition cond) {
-    	FlowDrivenActivityWorkGroup aWg = new FlowDrivenActivityWorkGroup(this, workGroupTable.size(), initFlow, finalFlow, priority, (WorkGroup)wg, cond);
+    public ActivityWorkGroup addWorkGroup(InitializerFlow initFlow, FinalizerFlow finalFlow, int priority, WorkGroup wg, Condition cond) {
+    	ActivityWorkGroup aWg = new ActivityWorkGroup(this, workGroupTable.size(), initFlow, finalFlow, priority, (WorkGroup)wg, cond);
 		workGroupTable.add(aWg);
 		// Activities with Flow-driven workgroups cannot be presential nor interruptible
 		modifiers.add(Modifier.NONPRESENTIAL);
@@ -213,7 +212,7 @@ public class ActivityFlow extends RequestResourcesFlow implements TaskFlow {
      * @param cond Availability condition
      * @return The new workgroup created.
      */    
-    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initFlow, FinalizerFlow finalFlow, int priority, WorkGroup wg) {
+    public ActivityWorkGroup addWorkGroup(InitializerFlow initFlow, FinalizerFlow finalFlow, int priority, WorkGroup wg) {
     	return addWorkGroup(initFlow, finalFlow, priority, wg, new TrueCondition());
     }
     
@@ -224,7 +223,7 @@ public class ActivityFlow extends RequestResourcesFlow implements TaskFlow {
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup created.
      */
-    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initialFlow, FinalizerFlow finalFlow, WorkGroup wg) {    	
+    public ActivityWorkGroup addWorkGroup(InitializerFlow initialFlow, FinalizerFlow finalFlow, WorkGroup wg) {    	
         return addWorkGroup(initialFlow, finalFlow, 0, wg);
     }
     
@@ -236,7 +235,7 @@ public class ActivityFlow extends RequestResourcesFlow implements TaskFlow {
      * @param cond Availability condition
      * @return The new workgroup created.
      */
-    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initialFlow, FinalizerFlow finalFlow, WorkGroup wg, Condition cond) {    	
+    public ActivityWorkGroup addWorkGroup(InitializerFlow initialFlow, FinalizerFlow finalFlow, WorkGroup wg, Condition cond) {    	
         return addWorkGroup(initialFlow, finalFlow, 0, wg, cond);
     }
     
@@ -259,6 +258,13 @@ public class ActivityFlow extends RequestResourcesFlow implements TaskFlow {
 		return duration;
 	}
 	
+	/**
+	 * @return the cancellationList
+	 */
+	public TreeMap<ResourceType, Long> getCancellationList() {
+		return cancellationList;
+	}
+
 	@Override
 	public String getObjectTypeIdentifier() {
 		return "ACT";
@@ -270,9 +276,5 @@ public class ActivityFlow extends RequestResourcesFlow implements TaskFlow {
 	 * @param fe {@link FlowExecutor} requesting this {@link ActivityFlow}
 	 */
 	public void afterStart(FlowExecutor fe) {
-	}
-
-	@Override
-	public void afterFinalize(FlowExecutor fe) {
 	}
 }

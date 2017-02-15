@@ -1,12 +1,13 @@
 /**
  * 
  */
-package es.ull.iis.simulation.sequential.flow;
+package es.ull.iis.simulation.sequential;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -14,21 +15,22 @@ import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.core.flow.FinalizerFlow;
-import es.ull.iis.simulation.core.flow.Flow;
-import es.ull.iis.simulation.core.flow.InitializerFlow;
-import es.ull.iis.simulation.core.flow.TaskFlow;
+import es.ull.iis.simulation.model.flow.FinalizerFlow;
+import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.flow.InitializerFlow;
+import es.ull.iis.simulation.model.flow.StructuredFlow;
+import es.ull.iis.simulation.model.flow.TaskFlow;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
+import es.ull.iis.simulation.model.ActivityWorkGroup.DrivenBy;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.BasicFlow;
 import es.ull.iis.simulation.sequential.ActivityManager;
 import es.ull.iis.simulation.sequential.ActivityWorkGroup;
 import es.ull.iis.simulation.sequential.Element;
-import es.ull.iis.simulation.sequential.FlowDrivenActivityWorkGroup;
 import es.ull.iis.simulation.sequential.Resource;
 import es.ull.iis.simulation.sequential.ResourceType;
 import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.iis.simulation.sequential.TimeDrivenActivityWorkGroup;
-import es.ull.iis.simulation.sequential.WorkGroup;
 import es.ull.iis.simulation.sequential.WorkThread;
 
 /**
@@ -65,13 +67,12 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * while the activity is being performed.
  * @author Iván Castilla Rodríguez
  */
-public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.simulation.core.flow.ActivityFlow, es.ull.iis.simulation.core.flow.ReleaseResourcesFlow, TaskFlow {
-	private static int resourcesIdCounter = -1;
+public class Activity extends RequestResources {
 	/** 
 	 * An artificially created final node. This flow informs the flow-driven
 	 * work groups that they have being finalized.
 	 */
-	private BasicFlowBehaviour virtualFinalFlow = new BasicFlowBehaviour(simul) {
+	private BasicFlow virtualFinalFlow = new BasicFlow() {
 		public void addPredecessor(Flow newFlow) {}
 
 		public void request(WorkThread wThread) {
@@ -82,68 +83,32 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
 			return successor;
 		}
 
-		public void setRecursiveStructureLink(es.ull.iis.simulation.core.flow.StructuredFlow parent, Set<Flow> visited) {}
+		public void setRecursiveStructureLink(StructuredFlow parent, Set<Flow> visited) {}
 		
-	};	
-	/** The set of modifiers of this activity. */
-    protected final EnumSet<Modifier> modifiers;
+	};
     /** Resources cancellation table */
-    protected final TreeMap<ResourceType, CancelListEntry<ResourceType>> cancellationList;
+    protected final TreeMap<ResourceType, Long> cancellationList = new TreeMap<ResourceType, Long>();
 
 	/**
      * Creates a new activity with 0 priority.
      * @param simul Simulation which this activity is attached to.
      * @param description A short text describing this Activity.
      */
-    public ActivityFlow(Simulation simul, String description) {
-        this(simul, description, 0, EnumSet.noneOf(Modifier.class));
+    public Activity(Simulation simul, ActivityFlow modelAct) {
+        super(simul, modelAct);
+        final TreeMap<es.ull.iis.simulation.model.ResourceType, Long> originalList = modelAct.getCancellationList();
+        for (Entry<es.ull.iis.simulation.model.ResourceType, Long> entry : originalList.entrySet()) {
+        	cancellationList.put(simul.getResourceType(entry.getKey()), entry.getValue());
+        }
     }
 
-    /**
-     * Creates a new activity.
-     * @param simul Simulation which this activity is attached to.
-     * @param description A short text describing this Activity.
-     * @param priority Activity's priority.
-     */
-    public ActivityFlow(Simulation simul, String description, int priority) {
-        this(simul, description, priority, EnumSet.noneOf(Modifier.class));
-    }
-
-    /**
-     * Creates a new activity with the highest priority and customized behavior.
-     * @param simul Simulation which this activity is attached to.
-     * @param description A short text describing this Activity.
-     * @param modifiers Indicates if the activity has special characteristics. 
-     */
-    public ActivityFlow(Simulation simul, String description, EnumSet<Modifier> modifiers) {
-        this(simul, description, 0, modifiers);
-    }
-
-    /**
-     * Creates a new activity with the specified priority and customized behavior.
-     * @param simul Simulation which this activity is attached to.
-     * @param description A short text describing this Activity.
-     * @param priority Activity's priority.
-     * @param modifiers Indicates if the activity has special characteristics. 
-     */
-    public ActivityFlow(Simulation simul, String description, int priority, EnumSet<Modifier> modifiers) {
-        super(simul, description, resourcesIdCounter--, priority);
-        this.modifiers = modifiers;
-		cancellationList = new TreeMap<ResourceType, CancelListEntry<ResourceType>>();
-    }
-
-	@Override
-	public EnumSet<Modifier> getModifiers() {
-		return modifiers;
-	}
-	
 	/** 
 	 * Returns <tt>true</tt> if the activity is non presential, i.e., an element can perform other 
 	 * activities at the same time. 
 	 * @return <tt>True</tt> if the activity is non presential, <tt>false</tt> in other case.
 	 */
     public boolean isNonPresential() {
-        return modifiers.contains(Modifier.NONPRESENTIAL);
+        return ((ActivityFlow)modelReq).isNonPresential();
     }
 
     /**
@@ -156,91 +121,19 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
      * default behavior. 
      */
 	public boolean isInterruptible() {
-		return modifiers.contains(Modifier.INTERRUPTIBLE);
-	}
-	
-	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {
-		TimeDrivenActivityWorkGroup aWg = new TimeDrivenActivityWorkGroup(this, workGroupTable.size(), duration, priority, (WorkGroup)wg, cond); 
-        workGroupTable.add(aWg);
-        return aWg;
-    }
-    
-	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(TimeFunction duration, int priority, es.ull.iis.simulation.core.WorkGroup wg) {
-		return addWorkGroup(duration, priority, (WorkGroup)wg, new TrueCondition());
-    }
-    
-	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(long duration, int priority, es.ull.iis.simulation.core.WorkGroup wg) {
-        return addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", duration), priority, wg);
-    }
-    
-	@Override
-    public TimeDrivenActivityWorkGroup addWorkGroup(long duration, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
-        return addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", duration), priority, wg, cond);
-    }
-
-	@Override
-    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initFlow, 
-    		FinalizerFlow finalFlow, int priority, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {
-    	FlowDrivenActivityWorkGroup aWg = new FlowDrivenActivityWorkGroup(this, workGroupTable.size(), initFlow, finalFlow, priority, (WorkGroup)wg, cond);
-		finalFlow.link(virtualFinalFlow);
-		workGroupTable.add(aWg);
-		// Activities with Flow-driven workgroups cannot be presential nor interruptible
-		modifiers.add(Modifier.NONPRESENTIAL);
-		if (modifiers.contains(Modifier.INTERRUPTIBLE)) {
-			simul.error("Trying to add a flow-driven workgroup to an interruptible activity. This attribute will be overriden to ensure proper functioning");
-			modifiers.remove(Modifier.INTERRUPTIBLE);
-		}
-		return aWg;
-    }
-    
-	@Override
-    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initFlow, 
-    		FinalizerFlow finalFlow, int priority, es.ull.iis.simulation.core.WorkGroup wg) {
-    	return addWorkGroup(initFlow, finalFlow, priority, wg, new TrueCondition());
-    }
-    
-	@Override
-    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initialFlow, 
-    		FinalizerFlow finalFlow, es.ull.iis.simulation.core.WorkGroup wg) {    	
-        return addWorkGroup(initialFlow, finalFlow, 0, wg);
-    }
-    
-	@Override
-    public FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initialFlow, 
-    		FinalizerFlow finalFlow, es.ull.iis.simulation.core.WorkGroup wg, Condition cond) {    	
-        return addWorkGroup(initialFlow, finalFlow, 0, wg, cond);
-    }
-    
-	/**
-	 * Adds a new ResouceType to the cancellation list.
-	 * @param rt Resource type
-	 * @param duration Duration of the cancellation.
-	 */
-	@Override
-	public void addResourceCancellation(ResourceType rt, long duration) {
-		CancelListEntry<ResourceType> entry = new CancelListEntry<ResourceType>(rt, duration);
-		cancellationList.put(rt, entry);
+		return ((ActivityFlow)modelReq).isInterruptible();
 	}
 	
 	/**
 	 * @return the cancellationList
 	 */
-	@Override
 	public long getResourceCancellation(ResourceType rt) {
-		CancelListEntry<ResourceType> entry = cancellationList.get(rt); 
+		Long entry = cancellationList.get(rt); 
 		if (entry == null)
 			return 0;
-		return entry.dur;
+		return entry;
 	}
 	
-	@Override
-	public String getObjectTypeIdentifier() {
-		return "ACT";
-	}
-
 	/**
 	 * Checks if the element is valid to perform this activity.
 	 * An element is valid to perform an activity is it's not currently carrying
@@ -273,27 +166,27 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
 	 */
 	@Override
 	protected void carryOut(WorkThread wThread, ArrayDeque<Resource> solution) {
-		afterStart(wThread);
-		long auxTs = wThread.acquireResources(solution, resourcesId);
+		((ActivityFlow)modelReq).afterStart(wThread);
+		long auxTs = wThread.acquireResources(solution, modelReq.getResourcesId());
 		// Before this line, the code is common for time- and flow- driven WGs
 		
 		final Element elem = wThread.getElement();
-		if (wThread.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
-			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, ElementActionInfo.Type.STAACT, elem.getTs()));
-			elem.debug("Starts\t" + this + "\t" + description);
-			InitializerFlow initialFlow = ((FlowDrivenActivityWorkGroup)wThread.getExecutionWG()).getInitialFlow();
+		if (wThread.getExecutionWG().getDrivenBy() == DrivenBy.FLOW) {
+			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, wThread.getElement(), modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+			elem.debug("Starts\t" + this + "\t" + modelReq.getDescription());
+			final InitializerFlow initialFlow = wThread.getExecutionWG().getInitialFlow();
 			elem.addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
 		}
-		else if (wThread.getExecutionWG() instanceof TimeDrivenActivityWorkGroup) {
+		else if (wThread.getExecutionWG().getDrivenBy() == DrivenBy.TIME) {
 			// The first time the activity is carried out (useful only for interruptible activities)
 			if (wThread.getTimeLeft() == -1) {
-				wThread.setTimeLeft(((TimeDrivenActivityWorkGroup)wThread.getExecutionWG()).getDurationSample(elem));
-				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, ElementActionInfo.Type.STAACT, elem.getTs()));
-				elem.debug("Starts\t" + this + "\t" + description);			
+				wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
+				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, wThread.getElement(), modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+				elem.debug("Starts\t" + this + "\t" + modelReq.getDescription());			
 			}
 			else {
-				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, ElementActionInfo.Type.RESACT, elem.getTs()));
-				elem.debug("Continues\t" + this + "\t" + description);						
+				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, wThread.getElement(), modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
+				elem.debug("Continues\t" + this + "\t" + modelReq.getDescription());						
 			}
 			long finishTs = elem.getTs() + wThread.getTimeLeft();
 			// The required time for finishing the activity is reduced (useful only for interruptible activities)
@@ -303,7 +196,7 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
 				auxTs = finishTs;
 				wThread.setTimeLeft(0);
 			}
-			elem.addEvent(elem.new FinishFlowEvent(auxTs, this, wThread));
+			elem.addFinishEvent(auxTs, modelReq, wThread);
 		}
 		else {
 			elem.error("Trying to carry out unexpected type of workgroup");
@@ -314,11 +207,10 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
 	 * Releases the resources required to carry out this activity.
 	 * @param wThread Work thread which requested this activity
 	 */
-	@Override
 	public void finish(WorkThread wThread) {
 		final Element elem = wThread.getElement();
 
-		final Collection<Resource> caughtResources = wThread.releaseResources(resourcesId);
+		final Collection<Resource> caughtResources = wThread.releaseResources(modelReq.getResourcesId());
 		if (caughtResources == null) {
 			elem.error("Trying to release group of resources not already created. ID:" + id);
 		}
@@ -329,7 +221,7 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
         	if (cancellationDuration > 0) {
 				long actualTs = elem.getTs();
 				res.setNotCanceled(false);
-				simul.getInfoHandler().notifyInfo(new ResourceInfo(simul, res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
+				simul.getInfoHandler().notifyInfo(new ResourceInfo(simul, res.getModelRes(), res.getCurrentResourceType().getModelRT(), ResourceInfo.Type.CANCELON, actualTs));
 				res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
 			}
 			elem.debug("Returned " + res);
@@ -356,41 +248,34 @@ public class ActivityFlow extends RequestResourcesFlow implements es.ull.iis.sim
 			am.availableResource();
 		}		
 
-		if (wThread.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
-			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, ElementActionInfo.Type.ENDACT, elem.getTs()));
+		if (wThread.getExecutionWG().getDrivenBy() == DrivenBy.FLOW) {
+			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, wThread.getElement(), modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
 			if (elem.isDebugEnabled())
-				elem.debug("Finishes\t" + this + "\t" + description);
-			afterFinalize(wThread);
+				elem.debug("Finishes\t" + this + "\t" + modelReq.getDescription());
+			modelReq.afterFinalize(wThread);
 			next(wThread);
 		}
-		else if (wThread.getExecutionWG() instanceof TimeDrivenActivityWorkGroup) {
+		else if (wThread.getExecutionWG().getDrivenBy() == DrivenBy.TIME) {
 			// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
 			if (wThread.getTimeLeft() <= 0.0) {
-				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, ElementActionInfo.Type.ENDACT, elem.getTs()));
+				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, wThread.getElement(), modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
 				if (elem.isDebugEnabled())
-					elem.debug("Finishes\t" + this + "\t" + description);
+					elem.debug("Finishes\t" + this + "\t" + modelReq.getDescription());
 				// Checks if there are pending activities that haven't noticed the
 				// element availability
 				if (!isNonPresential())
 					elem.addAvailableElementEvents();
-				afterFinalize(wThread);
+				modelReq.afterFinalize(wThread);
 				next(wThread);
 			}
 			// Added the condition(Lancaster compatibility), even when it should be unnecessary.
 			else {
-				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, ElementActionInfo.Type.INTACT, elem.getTs()));
+				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, wThread.getElement(), modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.INTACT, elem.getTs()));
 				if (elem.isDebugEnabled())
-					elem.debug("Finishes part of \t" + this + "\t" + description + "\t" + wThread.getTimeLeft());				
+					elem.debug("Finishes part of \t" + this + "\t" + modelReq.getDescription() + "\t" + wThread.getTimeLeft());				
 				// The element is introduced in the queue
 				queueAdd(wThread); 
 			}
 		}
 	}
-
-	@Override
-	public void afterStart(WorkThread wThread) {}
-
-	@Override
-	public void afterFinalize(WorkThread wt) {}
-	
 }

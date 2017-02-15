@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.core.flow.Flow;
-import es.ull.iis.simulation.core.flow.InitializerFlow;
-import es.ull.iis.simulation.core.flow.TaskFlow;
+import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.flow.InitializerFlow;
+import es.ull.iis.simulation.model.flow.TaskFlow;
+import es.ull.iis.util.Prioritizable;
 
 /**
  * A sequential branch of activities in an element's flow. Represents an element instance, so
@@ -25,7 +26,7 @@ import es.ull.iis.simulation.core.flow.TaskFlow;
  *  only for synchronization purposes and doesn't execute task flows. 
  * @author Iván Castilla Rodríguez
  */
-public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor, Comparable<WorkThread> {
+public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor, Comparable<WorkThread>, Prioritizable {
 	/** Thread's Counter. Useful for identifying each single flow */
 	private static int counter = 0;
 	/** Thread's internal identifier */
@@ -134,20 +135,12 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 	}
 
 	/**
-	 * @param executable the executable to set
+	 * Changes the state of this thread to not valid and restarts the path of visited flows.
+	 * @param startPoint The initial flow to control infinite loops with not valid threads. 
 	 */
-	public void setExecutable(boolean executable) {
-		token = new WorkToken(executable);
-	}
-	
-	/**
-	 * @param executable the executable to set
-	 */
-	public void setExecutable(boolean executable, Flow startPoint) {
-		if (!executable)
-			token = new WorkToken(executable, startPoint);
-		else
-			token = new WorkToken(executable);
+	public void cancel(Flow startPoint) {
+		token.reset();
+		token.addFlow(startPoint);
 	}
 
 	/**

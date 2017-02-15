@@ -28,6 +28,13 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow {
 	}
 
 	/**
+	 * @return the conditionList
+	 */
+	public ArrayList<Condition> getConditionList() {
+		return conditionList;
+	}
+
+	/**
 	 * Adds a conditioned flow's successor. The associated condition is set to true by default.
 	 * This method must invoke <code>successor.addPredecessor</code> to build the graph properly. 
 	 * @param successor This flow's successor.

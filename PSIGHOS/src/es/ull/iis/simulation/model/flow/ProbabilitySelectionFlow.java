@@ -16,10 +16,6 @@ import java.util.Collection;
 public class ProbabilitySelectionFlow extends MultipleSuccessorFlow {
 	/** List of probabilities associated to each outgoing branch */
 	protected final ArrayList<Double> probabilities;
-	/** The sum total of all the outgoing branches. This value should be 1.0, but it's 
-	 * explicitly declared to avoid misdefinitions. 
-	 */
-	protected double sum = 0.0;
 
 	/**
 	 * Creates a new Probability Selection flow associated to the specified simulation
@@ -30,6 +26,13 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow {
 	}
 
 	/**
+	 * @return the probabilities
+	 */
+	public ArrayList<Double> getProbabilities() {
+		return probabilities;
+	}
+
+	/**
 	 * Adds a probabilistic flow's successor.
 	 * @param successor This flow's successor
 	 * @param prob The probability of this successor of being chosen
@@ -37,7 +40,6 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow {
 	public Flow link(Flow successor, double prob) {
 		super.link(successor);
 		probabilities.add(prob);
-		sum += prob;
 		return successor;
 	}
 
@@ -58,8 +60,6 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow {
 	public void link(Collection<Flow> succList, Collection<Double> probList) {
 		super.link(succList);
 		probabilities.addAll(probList);	
-		for (double val : probList)
-			sum += val;
 	}
 	
 	/**

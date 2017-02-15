@@ -5,11 +5,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import es.ull.iis.simulation.core.flow.Flow;
-import es.ull.iis.simulation.core.flow.InitializerFlow;
-import es.ull.iis.simulation.core.flow.TaskFlow;
+import es.ull.iis.simulation.model.DiscreteEvent;
+import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.flow.InitializerFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.model.flow.TaskFlow;
 import es.ull.iis.simulation.info.ElementInfo;
-import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.variable.EnumVariable;
 
 /**
@@ -54,8 +55,8 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 	 * Returns the element type this element belongs to.
 	 * @return the elementType
 	 */
-	public ElementType getType() {
-		return elementType;
+	public es.ull.iis.simulation.model.ElementType getType() {
+		return elementType.getModelET();
 	}
 
 	/**
@@ -101,20 +102,21 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 	 * the element finishes immediately.
 	 */
 	@Override
-	protected void init() {
+	public DiscreteEvent onCreate(long ts) {
 		simul.getInfoHandler().notifyInfo(new ElementInfo(simul, this, elementType.getModelET(), ElementInfo.Type.START, this.getTs()));
 		simul.addActiveElement(this);
 		if (initialFlow != null) {
-			addRequestEvent(initialFlow, mainThread.getInstanceDescendantWorkThread(initialFlow));
+			return new RequestFlowEvent(ts, initialFlow, mainThread.getInstanceDescendantWorkThread(initialFlow));
 		}
 		else
-			notifyEnd();
+			return onDestroy();
 	}
 
 	@Override
-	protected void end() {
+	public DiscreteEvent onDestroy() {
 		simul.getInfoHandler().notifyInfo(new ElementInfo(simul, this, elementType.getModelET(), ElementInfo.Type.FINISH, this.getTs()));
 		simul.removeActiveElement(this);
+		return new DefaultFinalizeEvent();
 	}
 
 	/**
@@ -148,9 +150,12 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 		}
 	}
 
-	@Override
-	public void addRequestEvent(Flow f, es.ull.iis.simulation.core.WorkThread wThread) {
-		addEvent(new RequestFlowEvent(ts, f, wThread));
+	public void addRequestEvent(Flow f, WorkThread wThread) {
+		addEvent(new RequestFlowEvent(getTs(), f, wThread));
+	}
+	
+	public void addFinishEvent(long ts, Flow f, WorkThread wThread) {
+		addEvent(new FinishFlowEvent(ts, f, wThread))
 	}
 	
 	public void initializeElementVars(HashMap<String, Object> varList) {
@@ -178,13 +183,13 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 	 * Requests a flow.
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class RequestFlowEvent extends BasicElement.DiscreteEvent {
+	public class RequestFlowEvent extends DiscreteEvent {
 		/** The work thread that executes the request */
-		private final es.ull.iis.simulation.core.WorkThread wThread;
+		private final WorkThread wThread;
 		/** The flow to be requested */
 		private final Flow f;
 
-		public RequestFlowEvent(long ts, Flow f, es.ull.iis.simulation.core.WorkThread wThread) {
+		public RequestFlowEvent(long ts, Flow f, WorkThread wThread) {
 			super(ts);
 			this.wThread = wThread;
 			this.f = f;
@@ -201,7 +206,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 	 * Finishes a flow. 
 	 * @author Iván Castilla Rodríguez
 	 */
-	public class FinishFlowEvent extends BasicElement.DiscreteEvent {
+	public class FinishFlowEvent extends DiscreteEvent {
 		/** The work thread that executes the finish */
 		private final WorkThread wThread;
 		/** The flow previously requested */

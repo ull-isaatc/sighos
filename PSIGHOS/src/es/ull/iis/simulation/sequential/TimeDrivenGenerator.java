@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.sequential;
 
+import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.util.Cycle;
 import es.ull.iis.util.DiscreteCycleIterator;
 
@@ -26,18 +27,13 @@ public class TimeDrivenGenerator extends ElementGenerator {
 		cycleIter = cycle.iterator(simul.getInternalStartTs(), simul.getInternalEndTs());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.iis.simulation.BasicElement#init()
-	 */
 	@Override
-	protected void init() {
+	public DiscreteEvent onCreate(long ts) {
     	final long newTs = nextEvent();
     	if (newTs == -1)
-            notifyEnd();
+            return onDestroy();
         else {
-            GenerateEvent e = new GenerateEvent(newTs);
-            addEvent(e);
+            return new GenerateEvent(newTs);
         }
 	}
 
