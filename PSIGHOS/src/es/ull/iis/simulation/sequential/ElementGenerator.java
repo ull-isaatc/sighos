@@ -2,6 +2,7 @@ package es.ull.iis.simulation.sequential;
 
 import java.util.ArrayList;
 
+import es.ull.iis.function.TimeFunctionParams;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.ElementType;
 
@@ -11,7 +12,7 @@ import es.ull.iis.simulation.model.ElementType;
  * the elements whereas the creator specifies HOW to create them.
  * @author Ivan Castilla Rodrguez
  */
-public abstract class ElementGenerator extends BasicElement {
+public abstract class ElementGenerator extends BasicElement implements TimeFunctionParams {
     /** Generator's counter */
     private static int counter = 0;
     /** Specifies the way the elements are created. */
@@ -44,6 +45,11 @@ public abstract class ElementGenerator extends BasicElement {
      * don't have to create more elements.
      */
 	public abstract long nextEvent();
+	
+	@Override
+	public double getTime() {
+		return getTs();
+	}
 	
     /**
      * This event is invoked every time a new set of elements has to be generated. 

@@ -18,20 +18,30 @@ import es.ull.iis.util.PrioritizedTable;
  */
 public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlow, ResourceHandlerFlow, Prioritizable {
     /** Priority. The lowest the value, the highest the priority */
-    protected final int priority;
+    private final int priority;
     /** A brief description of the activity */
-    protected final String description;
+    private final String description;
     /** Work Groups available to perform this basic step */
-    protected final PrioritizedTable<ActivityWorkGroup> workGroupTable;
+    private final PrioritizedTable<ActivityWorkGroup> workGroupTable;
     /** A unique identifier that serves to tell a ReleaseResourcesFlow which resources to release */
-	protected final int resourcesId;
+	private final int resourcesId;
+	/** Only one exclusive set of resources can be acquired by an element at the same time */
+	private final boolean exclusive;
 
 	/**
 	 * @param simul
 	 * @param description
 	 */
 	public RequestResourcesFlow(String description, int resourcesId) {
-		this(description, resourcesId, 0);
+		this(description, resourcesId, 0, false);
+	}
+
+	/**
+	 * @param simul
+	 * @param description
+	 */
+	public RequestResourcesFlow(String description, int resourcesId, int priority) {
+		this(description, resourcesId, priority, false);
 	}
 
 	/**
@@ -39,11 +49,12 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * @param description
 	 * @param priority
 	 */
-	public RequestResourcesFlow(String description, int resourcesId, int priority) {
+	public RequestResourcesFlow(String description, int resourcesId, int priority, boolean exclusive) {
 		super();
         this.description = description;
         this.priority = priority;
 		this.resourcesId = resourcesId;
+		this.exclusive = exclusive;
         workGroupTable = new PrioritizedTable<ActivityWorkGroup>();
 	}
 
@@ -57,6 +68,13 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
         return priority;
     }
 	
+	/**
+	 * @return the exclusive
+	 */
+	public boolean isExclusive() {
+		return exclusive;
+	}
+
 	/**
 	 * @return the resourcesId
 	 */

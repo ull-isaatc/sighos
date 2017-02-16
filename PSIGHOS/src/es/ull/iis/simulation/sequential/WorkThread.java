@@ -6,10 +6,14 @@ import java.util.Collection;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
+import es.ull.iis.simulation.model.flow.DelayFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
-import es.ull.iis.simulation.model.flow.TaskFlow;
+import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 import es.ull.iis.util.Prioritizable;
 
 /**
@@ -59,6 +63,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 	protected long arrivalTs = -1;
 	/** The time left to finish the activity. Used in interruptible activities. */
 	protected long timeLeft = -1;
+	private long minResourcesAvailability;
     
     /** 
      * Creates a new work thread. The constructor is private since it must be invoked from the 
@@ -105,7 +110,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
     	if (parent != null) {
     		parent.removeDescendant(this);
     		if ((parent.descendants.size() == 0) && (parent.currentFlow != null))
-    			((TaskFlow)parent.currentFlow).finish(parent);
+    			elem.getFlowHandler().finish(parent);
     	}
     }
     
@@ -347,8 +352,8 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 	 * @return the workgroup which is used to perform this flow, or <code>null</code>  
      * if the flow has not been carried out.
 	 */
-	public ActivityWorkGroup getExecutionWG() {
-		return executionWG;
+	public es.ull.iis.simulation.model.ActivityWorkGroup getExecutionWG() {
+		return executionWG.getModelAWG();
 	}
 
 	/**
@@ -362,60 +367,141 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 
     /**
      * Catch the resources needed for each resource type to carry out an activity.
-     * @return The minimum availability timestamp of the taken resources 
      */
-	public long acquireResources(ArrayDeque<Resource> caughtResources, int id) {
-		if (this.caughtResources.containsKey(id))
-			elem.error("Trying to assign group of resources to already occupied group when catching. ID:" + id);
-		this.caughtResources.put(id, caughtResources);
-    	long auxTs = Long.MAX_VALUE;
-    	for (Resource res : caughtResources) {
-    		auxTs = Math.min(auxTs, res.catchResource(this));;
-            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
-    	}
-		return auxTs;
+	public boolean acquireResources(RequestResourcesFlow reqFlow) {
+		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getExecutionWG(), ElementActionInfo.Type.REQACT, elem.getTs()));
+		if (elem.isDebugEnabled())
+			elem.debug("Requests\t" + this + "\t" + reqFlow.getDescription());
+		RequestResources req = (RequestResources)elem.simul.getActivity(reqFlow);
+		if (!reqFlow.isExclusive() || (elem.getCurrent() == null)) {
+			// There are enough resources to perform the activity
+			final ArrayDeque<Resource> solution = req.isFeasible(this); 
+			if (solution != null) {
+				if (reqFlow.isExclusive()) 
+					elem.setCurrent(this);
+				final int resourcesId = reqFlow.getResourcesId();
+				if (this.caughtResources.containsKey(resourcesId))
+					elem.error("Trying to assign group of resources to already occupied group when catching. ID:" + resourcesId);
+				this.caughtResources.put(resourcesId, solution);
+		    	long auxTs = Long.MAX_VALUE;
+		    	for (Resource res : solution) {
+		    		auxTs = Math.min(auxTs, res.catchResource(this));;
+		            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
+		    	}
+				minResourcesAvailability = auxTs;
+				elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getExecutionWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+				elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());
+				return true;
+			}
+		}
+		req.queueAdd(this); // The element is introduced in the queue
+		return false;
 	}
-	
+
     /**
      * Releases the resources caught by this item to perform the activity.
      * @return A list of activity managers affected by the released resources
      */
-    public Collection<ActivityManager> releaseResources(int id, TreeMap<ResourceType, Long> cancellationList) {
-		final Collection<Resource> resources = caughtResources.remove(id);
+    public boolean releaseResources(ReleaseResourcesFlow relFlow) {
+        final TreeSet<ActivityManager> amList = new TreeSet<ActivityManager>();
+		final Collection<Resource> resources = caughtResources.remove(relFlow.getResourcesId());
 		if (resources == null) {
-			elem.error("Trying to release group of resources not already created. ID:" + id);
-			return null;
+			elem.error("Trying to release group of resources not already created. ID:" + relFlow.getResourcesId());
+			return false;
 		}
-		else {
-	        TreeSet<ActivityManager> amList = new TreeSet<ActivityManager>();
-	        // Generate unavailability periods.
-	        for (Resource res : resources) {
-	        	final long cancellationDuration = cancellationList.get(res.getCurrentResourceType());
-	        	if (cancellationDuration > 0) {
-					final long actualTs = elem.getTs();
-					res.setNotCanceled(false);
-					elem.simul.getInfoHandler().notifyInfo(new ResourceInfo(elem.simul, res.getModelRes(), res.getCurrentResourceType().getModelRT(), ResourceInfo.Type.CANCELON, actualTs));
-					res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
-				}
-				elem.debug("Returned " + res);
-	        	// The resource is freed
-	        	if (res.releaseResource()) {
-	        		// The activity managers involved are included in the list
-	        		for (ActivityManager am : res.getCurrentManagers()) {
-	        			amList.add(am);
-	        		}
-	        	}
-	        }
-	        return amList;
-			
+        // Generate unavailability periods.
+        for (Resource res : resources) {
+        	final long cancellationDuration = ((ReleaseResources)elem.simul.getActivity(relFlow)).getResourceCancellation(res.getCurrentResourceType());
+        	if (cancellationDuration > 0) {
+				final long actualTs = elem.getTs();
+				res.setNotCanceled(false);
+				elem.simul.getInfoHandler().notifyInfo(new ResourceInfo(elem.simul, res.getModelRes(), res.getCurrentResourceType().getModelRT(), ResourceInfo.Type.CANCELON, actualTs));
+				res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
+			}
+			elem.debug("Returned " + res);
+        	// The resource is freed
+        	if (res.releaseResource()) {
+        		// The activity managers involved are included in the list
+        		for (ActivityManager am : res.getCurrentManagers()) {
+        			amList.add(am);
+        		}
+        	}
+        }
+
+	        // FIXME: Preparado para hacerlo aleatorio
+//					final int[] order = RandomPermutation.nextPermutation(amList.size());
+//					for (int ind : order) {
+//						ActivityManager am = amList.get(ind);
+//						am.availableResource();
+//					}
+
+		for (ActivityManager am : amList) {
+			am.availableResource();
 		}
+		
+		// TODO Change by more appropriate messages
+		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, relFlow, getExecutionWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
+		if (elem.isDebugEnabled())
+			elem.debug("Finishes\t" + this + "\t" + relFlow.getDescription());
+		relFlow.afterFinalize(this);
+		return true;
+
     }
 
+    public void startDelay(DelayFlow f) {
+		// The first time the activity is carried out (useful only for interruptible activities)
+		if (timeLeft == -1) {
+			// wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
+			timeLeft = f.getDurationSample(this);
+			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, (ResourceHandlerFlow) currentFlow, executionWG.getModelAWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+			elem.debug("Starts\t" + this + "\t" + f.getDescription());			
+		}
+		else {
+			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, (ResourceHandlerFlow) currentFlow, executionWG.getModelAWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
+			elem.debug("Continues\t" + this + "\t" + f.getDescription());			
+		}
+		long finishTs = elem.getTs() + timeLeft;
+		// The required time for finishing the activity is reduced (useful only for interruptible activities)
+		if (f.isInterruptible() && (finishTs - minResourcesAvailability > 0.0)) {
+			timeLeft = finishTs - minResourcesAvailability;
+			finishTs = minResourcesAvailability;
+		}
+		else {
+			timeLeft = 0;
+		}
+		elem.addFinishEvent(finishTs, this);
+    }
+    
+    // FIXME: La cagué con las actividades interrumpibles...
+    public boolean endDelay(DelayFlow f) {
+		// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
+		if (timeLeft <= 0.0) {
+			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, getExecutionWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
+			if (elem.isDebugEnabled())
+				elem.debug("Finishes\t" + this + "\t" + f.getDescription());
+			f.afterFinalize(this);
+			return true;
+		}
+		// Added the condition(Lancaster compatibility), even when it should be unnecessary.
+		else {
+			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, getExecutionWG(), ElementActionInfo.Type.INTACT, elem.getTs()));
+			if (elem.isDebugEnabled())
+				elem.debug("Finishes part of \t" + this + "\t" + f.getDescription() + "\t" + timeLeft);				
+			// The element is introduced in the queue
+			queueAdd(this); 
+		}
+    }
+    
 	@Override
 	public boolean equals(Object o) {
 		if (((WorkThread)o).id == id)
 			return true;
 		return false;
+	}
+
+	@Override
+	public double getTime() {
+		return elem.getTs();
 	}
 
 

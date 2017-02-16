@@ -92,7 +92,7 @@ public class Activity extends RequestResources implements ReleaseResourceHandler
 	 * @return <tt>True</tt> if the activity is non presential, <tt>false</tt> in other case.
 	 */
     public boolean isNonPresential() {
-        return ((ActivityFlow)modelReq).isNonPresential();
+        return !((ActivityFlow)modelReq).isExclusive();
     }
 
     /**
@@ -117,19 +117,6 @@ public class Activity extends RequestResources implements ReleaseResourceHandler
 			return 0;
 		return duration;
 	}
-	
-	/**
-	 * Checks if the element is valid to perform this activity.
-	 * An element is valid to perform an activity is it's not currently carrying
-	 * out another activity or this activity is non presential.
-	 * @param wThread Work thread requesting this activity
-	 * @return True if the element is valid, false in other case.
-	 */
-	// TODO: Change by a Condition to make it more generic or implement a "hold"-kind flow
-	@Override
-	protected boolean validElement(WorkThread wThread) {
-		return (wThread.getElement().getCurrent() == null || isNonPresential());
-	}
 
     @Override
     protected ArrayDeque<Resource> isFeasible(WorkThread wt) {
@@ -140,106 +127,4 @@ public class Activity extends RequestResources implements ReleaseResourceHandler
     	}
         return solution;
     }
-
-	/**
-	 * Catches the resources required to carry out this activity. In case it used a time-driven workgroup,
-	 * updates the element's timestamp, catch the corresponding resources and produces a 
-	 * <code>FinishFlowEvent</code>. In case it used a flow-driven workgroup, catches the resources required 
-	 * and launches the initial flow.
-	 * @param wThread Work thread requesting this activity
-	 */
-	@Override
-	protected void carryOut(WorkThread wThread, ArrayDeque<Resource> solution) {
-		((ActivityFlow)modelReq).afterStart(wThread);
-		long auxTs = wThread.acquireResources(solution, modelReq.getResourcesId());
-		// Before this line, the code is common for time- and flow- driven WGs
-		
-		final Element elem = wThread.getElement();
-		if (wThread.getExecutionWG().getDrivenBy() == DrivenBy.FLOW) {
-			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, wThread.getElement(), modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
-			elem.debug("Starts\t" + this + "\t" + modelReq.getDescription());
-			final InitializerFlow initialFlow = wThread.getExecutionWG().getInitialFlow();
-			elem.addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));
-		}
-		else if (wThread.getExecutionWG().getDrivenBy() == DrivenBy.TIME) {
-			// The first time the activity is carried out (useful only for interruptible activities)
-			if (wThread.getTimeLeft() == -1) {
-				wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
-				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, wThread.getElement(), modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
-				elem.debug("Starts\t" + this + "\t" + modelReq.getDescription());			
-			}
-			else {
-				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, wThread.getElement(), modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
-				elem.debug("Continues\t" + this + "\t" + modelReq.getDescription());						
-			}
-			long finishTs = elem.getTs() + wThread.getTimeLeft();
-			// The required time for finishing the activity is reduced (useful only for interruptible activities)
-			if (isInterruptible() && (finishTs - auxTs > 0.0))
-				wThread.setTimeLeft(finishTs - auxTs);				
-			else {
-				auxTs = finishTs;
-				wThread.setTimeLeft(0);
-			}
-			elem.addFinishEvent(auxTs, modelReq, wThread);
-		}
-		else {
-			elem.error("Trying to carry out unexpected type of workgroup");
-		}
-	}
-
-	/**
-	 * Releases the resources required to carry out this activity.
-	 * @param wThread Work thread which requested this activity
-	 */
-	@Override
-	public boolean releaseResources(WorkThread wThread) {
-		final ActivityFlow f =(ActivityFlow) wThread.getCurrentFlow();
-		final Element elem = wThread.getElement();
-        Collection<ActivityManager> amList = wThread.releaseResources(f.getResourcesId(), cancellationList);
-
-		if (!isNonPresential())
-			elem.setCurrent(null);
-
-        // FIXME: Preparado para hacerlo aleatorio
-//		final int[] order = RandomPermutation.nextPermutation(amList.size());
-//		for (int ind : order) {
-//			ActivityManager am = amList.get(ind);
-//			am.availableResource();
-//		}
-
-		for (ActivityManager am : amList) {
-			am.availableResource();
-		}		
-
-		if (wThread.getExecutionWG().getDrivenBy() == DrivenBy.FLOW) {
-			simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, wThread.getElement(), modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
-			if (elem.isDebugEnabled())
-				elem.debug("Finishes\t" + this + "\t" + modelReq.getDescription());
-			modelReq.afterFinalize(wThread);
-			return true;
-		}
-		else if (wThread.getExecutionWG().getDrivenBy() == DrivenBy.TIME) {
-			// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
-			if (wThread.getTimeLeft() <= 0.0) {
-				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, wThread.getElement(), modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
-				if (elem.isDebugEnabled())
-					elem.debug("Finishes\t" + this + "\t" + modelReq.getDescription());
-				// Checks if there are pending activities that haven't noticed the
-				// element availability
-				if (!isNonPresential())
-					elem.addAvailableElementEvents();
-				modelReq.afterFinalize(wThread);
-				return true;
-			}
-			// Added the condition(Lancaster compatibility), even when it should be unnecessary.
-			else {
-				simul.getInfoHandler().notifyInfo(new ElementActionInfo(this.simul, wThread, wThread.getElement(), modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.INTACT, elem.getTs()));
-				if (elem.isDebugEnabled())
-					elem.debug("Finishes part of \t" + this + "\t" + modelReq.getDescription() + "\t" + wThread.getTimeLeft());				
-				// The element is introduced in the queue
-				queueAdd(wThread); 
-			}
-		}
-		return false;
-	}
 }

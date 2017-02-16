@@ -8,5 +8,4 @@ package es.ull.iis.simulation.sequential;
  *
  */
 public interface AcquireResourceHandler extends ResourceHandler {
-	boolean acquireResources(WorkThread wThread);
 }

@@ -2,11 +2,7 @@ package es.ull.iis.simulation.sequential;
 
 import java.util.ArrayDeque;
 
-import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.model.ActivityWorkGroup.DrivenBy;
-import es.ull.iis.simulation.model.flow.FinalizerFlow;
-import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.util.Prioritizable;
 
 /**
@@ -55,10 +51,6 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
         return modelAWG.getPriority();
     }
     
-    public DrivenBy getDrivenBy() {
-    	return modelAWG.getDrivenBy();
-    }
-    
     /**
      * Checks if there are enough resources to carry out an basicStep by using this workgroup.   
      * The "potential" available resources are booked by the element requesting the basicStep. 
@@ -72,7 +64,7 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
      */
     public ArrayDeque<Resource> isFeasible(WorkThread wThread) {
 
-    	if (!getCondition().check(wThread.getElement()))
+    	if (!getCondition().check(wThread))
     		return null;
 
     	int ned[] = needed.clone();
@@ -188,43 +180,4 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
 		return modelAWG.getCondition();
 	}
 
-	/**
-     * Returns the duration of the activity where this workgroup is used. 
-     * The value returned by the random number function could be negative. 
-     * In this case, it returns 0.0.
-     * @return The activity duration.
-     */
-    public TimeFunction getDuration() {
-        return modelAWG.getDuration();
-    }
-    
-    /**
-     * Returns the first step of the subflow
-	 * @return the initialFlow
-	 */
-	public InitializerFlow getInitialFlow() {
-		return modelAWG.getInitialFlow();
-	}
-
-	/**
-     * Returns the last step of the subflow
-	 * @return the finalFlow
-	 */
-	public FinalizerFlow getFinalFlow() {
-		return modelAWG.getFinalFlow();
-	}
-	
-    /**
-     * Returns the duration of the activity where this workgroup is used. 
-     * The value returned by the random number function could be negative. 
-     * In this case, it returns 0.
-     * @return The activity duration.
-     */
-    public long getDurationSample(Element elem) {
-    	if (getDrivenBy() == DrivenBy.TIME)
-    		return Math.round(getDuration().getValue(elem));
-    	else 
-    		return Long.MAX_VALUE;
-    }
-    
 }

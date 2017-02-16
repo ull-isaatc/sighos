@@ -1,6 +1,5 @@
 package es.ull.iis.simulation.sequential;
 
-import es.ull.iis.function.TimeFunctionParams;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
 
@@ -8,7 +7,7 @@ import es.ull.iis.simulation.model.EventSource;
  * Represents the simulation component that carries out events. 
  * @author Carlos Martin Galan
  */
-public abstract class BasicElement extends TimeStampedSimulationObject implements EventSource, TimeFunctionParams {
+public abstract class BasicElement extends TimeStampedSimulationObject implements EventSource {
 
     /**
      * Creates a basic element. 
@@ -48,11 +47,6 @@ public abstract class BasicElement extends TimeStampedSimulationObject implement
 	
 	@Override
 	public long getTs() {
-		return simul.getTs();
-	}
-	
-	@Override
-	public double getTime() {
 		return simul.getTs();
 	}
 	

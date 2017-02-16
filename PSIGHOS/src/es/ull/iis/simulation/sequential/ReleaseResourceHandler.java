@@ -8,5 +8,4 @@ package es.ull.iis.simulation.sequential;
  *
  */
 public interface ReleaseResourceHandler extends ResourceHandler {
-	boolean releaseResources(WorkThread wThread);
 }

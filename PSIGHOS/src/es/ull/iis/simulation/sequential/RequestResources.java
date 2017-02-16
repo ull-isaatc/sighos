@@ -17,7 +17,7 @@ import es.ull.iis.util.PrioritizedTable;
  * @author Iván Castilla
  *
  */
-public class RequestResources extends VariableStoreSimulationObject implements Prioritizable, QueuedObject<WorkThread>, AcquireResourceHandler {
+public class RequestResources extends VariableStoreSimulationObject implements Prioritizable, QueuedObject<WorkThread>, ResourceHandler {
     /** Total of work items waiting for carrying out this activity */
     protected int queueSize = 0;
     /** Activity manager this activity belongs to */
@@ -100,36 +100,6 @@ public class RequestResources extends VariableStoreSimulationObject implements P
 	
 	public int getWorkGroupSize() {
 		return workGroupTable.size();
-	}
-	
-	@Override
-	public boolean acquireResources(WorkThread wThread) {
-		final Element elem = wThread.getElement();
-		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, elem, modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.REQACT, elem.getTs()));
-		if (elem.isDebugEnabled())
-			elem.debug("Requests\t" + this + "\t" + modelReq.getDescription());
-		if (validElement(wThread)) {
-			// There are enough resources to perform the activity
-			final ArrayDeque<Resource> solution = isFeasible(wThread); 
-			if (solution != null) {
-				carryOut(wThread, solution);
-				return true;
-			}
-		}
-		queueAdd(wThread); // The element is introduced in the queue
-		return false;
-	}
-
-
-	/**
-	 * Catches the resources required to carry out this basic step. 
-	 * @param wThread Work thread requesting this basic step
-	 */
-	protected void carryOut(WorkThread wThread, ArrayDeque<Resource> solution) {
-		final Element elem = wThread.getElement();
-		wThread.acquireResources(solution, modelReq.getResourcesId());
-		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, elem, modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
-		elem.addFinishEvent(simul.getTs(), modelReq, wThread);
 	}
 	
 	/**

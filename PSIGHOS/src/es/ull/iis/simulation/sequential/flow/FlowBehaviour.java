@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.DelayFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
@@ -58,7 +59,7 @@ public class FlowBehaviour {
 					for (int i = 0; i < successorList.size(); i++) {
 						if (!res) {
 							// Check the succesor's conditions.
-							res = conditionList.get(i).check(elem);
+							res = conditionList.get(i).check(wThread);
 							elem.addRequestEvent(successorList.get(i), wThread.getInstanceSubsequentWorkThread(res, f, wThread.getToken()));
 						}
 						else
@@ -67,7 +68,7 @@ public class FlowBehaviour {
 				}
 				else { // For MultiChoiceFlow
 					for (int i = 0; i < successorList.size(); i++) {
-						final boolean res = conditionList.get(i).check(elem);
+						final boolean res = conditionList.get(i).check(wThread);
 						elem.addRequestEvent(successorList.get(i), wThread.getInstanceSubsequentWorkThread(res, f, wThread.getToken()));
 					}
 				}
@@ -129,7 +130,7 @@ public class FlowBehaviour {
 							finish(wThread);
 						}
 						else if (f instanceof es.ull.iis.simulation.model.flow.ForLoopFlow) {
-							int iter = Math.round((float)((es.ull.iis.simulation.model.flow.ForLoopFlow)f).getIterations().getValue(elem));
+							int iter = Math.round((float)((es.ull.iis.simulation.model.flow.ForLoopFlow)f).getIterations().getValue(wThread));
 							if (iter > 0) {
 								TreeMap<WorkThread, Integer> chk = checkList.get(f);
 								if (chk == null) {
@@ -151,15 +152,15 @@ public class FlowBehaviour {
 						}
 					}
 					else if (f instanceof ReleaseResourcesFlow) {
-						((ReleaseResources)elem.getSimulation().getActivity((ReleaseResourcesFlow)f)).releaseResources(wThread);
+						wThread.releaseResources((ReleaseResourcesFlow)f);
 						next(wThread);
 					}
-					else if (f instanceof ActivityFlow) {
-						((Activity)elem.getSimulation().getActivity((ActivityFlow)f)).acquireResources(wThread);
-					}
 					else if (f instanceof RequestResourcesFlow) {
-						if (((RequestResources)elem.getSimulation().getActivity((RequestResourcesFlow)f)).acquireResources(wThread))
+						if (wThread.acquireResources((RequestResourcesFlow)f))
 							next(wThread);
+					}
+					else if (f instanceof DelayFlow) {
+						wThread.startDelay((DelayFlow)f);
 					}
 					else {
 						next(wThread);						
@@ -177,7 +178,7 @@ public class FlowBehaviour {
 		final es.ull.iis.simulation.model.flow.Flow f = wThread.getCurrentFlow();
 		if (f instanceof es.ull.iis.simulation.model.flow.StructuredFlow) {
 			if (f instanceof es.ull.iis.simulation.model.flow.DoWhileFlow) {
-				if (((es.ull.iis.simulation.model.flow.DoWhileFlow)f).getCondition().check(elem)) {
+				if (((es.ull.iis.simulation.model.flow.DoWhileFlow)f).getCondition().check(wThread)) {
 					final InitializerFlow initialFlow = ((es.ull.iis.simulation.model.flow.StructuredFlow)f).getInitialFlow();
 					elem.addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));						
 				} else {
@@ -187,7 +188,7 @@ public class FlowBehaviour {
 			}
 			else if (f instanceof es.ull.iis.simulation.model.flow.WhileDoFlow) {
 				// The loop condition is checked
-				if (((es.ull.iis.simulation.model.flow.WhileDoFlow)f).getCondition().check(elem)) {
+				if (((es.ull.iis.simulation.model.flow.WhileDoFlow)f).getCondition().check(wThread)) {
 					final InitializerFlow initialFlow = ((es.ull.iis.simulation.model.flow.StructuredFlow)f).getInitialFlow();
 					elem.addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));						
 				} else {
@@ -209,10 +210,20 @@ public class FlowBehaviour {
 				}
 			}
 			else {
+				if (f instanceof ActivityFlow) {
+					if (((ActivityFlow)f).isExclusive()) {
+						wThread.getElement().setCurrent(null);
+					}
+				}
 				((es.ull.iis.simulation.model.flow.StructuredFlow)f).afterFinalize(wThread);
 				next(wThread);
 			}
-		}		
+		}
+		else if (f instanceof DelayFlow) {
+			if (wThread.endDelay((DelayFlow)f)) {
+				next(wThread);
+			}
+		}
 	}
 }
 

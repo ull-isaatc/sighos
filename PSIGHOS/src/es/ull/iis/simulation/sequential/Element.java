@@ -10,6 +10,7 @@ import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.model.flow.TaskFlow;
+import es.ull.iis.simulation.sequential.flow.FlowBehaviour;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.variable.EnumVariable;
 
@@ -31,6 +32,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 	protected WorkThread current = null;
 	/** Main execution thread */
 	protected final WorkThread mainThread;
+	private final FlowBehaviour flowHandler = new FlowBehaviour(this);
 	
 	/**
 	 * Creates a new element.
@@ -79,6 +81,11 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 	 */
 	public void setCurrent(WorkThread current) {
 		this.current = current;
+		if (current == null) {
+			// Checks if there are pending activities that haven't noticed the
+			// element availability
+			addAvailableElementEvents();			
+		}
 	}
 
 	/**
@@ -120,6 +127,13 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 	}
 
 	/**
+	 * @return the flowHandler
+	 */
+	public FlowBehaviour getFlowHandler() {
+		return flowHandler;
+	}
+
+	/**
 	 * Notifies a new work thread is waiting in an activity queue.
 	 * @param wt Work thread waiting in queue.
 	 */
@@ -154,8 +168,8 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 		addEvent(new RequestFlowEvent(getTs(), f, wThread));
 	}
 	
-	public void addFinishEvent(long ts, Flow f, WorkThread wThread) {
-		addEvent(new FinishFlowEvent(ts, f, wThread))
+	public void addFinishEvent(long ts, WorkThread wThread) {
+		addEvent(new FinishFlowEvent(ts, wThread));
 	}
 	
 	public void initializeElementVars(HashMap<String, Object> varList) {
@@ -198,7 +212,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 		@Override
 		public void event() {
 			wThread.setCurrentFlow(f);
-			f.request(wThread);
+			flowHandler.request(wThread);
 		}
 	}
 	
@@ -209,18 +223,15 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 	public class FinishFlowEvent extends DiscreteEvent {
 		/** The work thread that executes the finish */
 		private final WorkThread wThread;
-		/** The flow previously requested */
-		private final TaskFlow f;
 
-		public FinishFlowEvent(long ts, TaskFlow f, WorkThread wThread) {
+		public FinishFlowEvent(long ts, WorkThread wThread) {
 			super(ts);
-			this.f = f;
 			this.wThread = wThread;
 		}		
 
 		@Override
 		public void event() {
-			f.finish(wThread);
+			flowHandler.finish(wThread);
 		}
 	}
 	

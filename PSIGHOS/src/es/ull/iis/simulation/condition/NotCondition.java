@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.condition;
 
-import es.ull.iis.simulation.model.Element;
+import es.ull.iis.simulation.model.flow.FlowExecutor;
 
 /**
  * Condition used to build NOT logical operations. This NotCondition 
@@ -26,8 +26,8 @@ public final class NotCondition extends Condition {
 	 * @param e Element used to check the condition.
 	 * @return The negated result of the associated Condition
 	 */
-	public boolean check(Element e) {
-		return !cond.check(e);
+	public boolean check(FlowExecutor fe) {
+		return !cond.check(fe);
 	}
 
 	/**
