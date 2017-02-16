@@ -5,78 +5,63 @@ package es.ull.iis.simulation.sequential;
 
 import java.util.Collection;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
-import es.ull.iis.simulation.core.flow.FinalizerFlow;
-import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.info.ElementActionInfo;
-import es.ull.iis.simulation.info.ResourceInfo;
-import es.ull.iis.simulation.sequential.ActivityManager;
-import es.ull.iis.simulation.sequential.Element;
-import es.ull.iis.simulation.sequential.Resource;
-import es.ull.iis.simulation.sequential.ResourceType;
-import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.iis.simulation.sequential.WorkThread;
+import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
+import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 
 /**
  * @author Iván Castilla
  *
  */
-public class ReleaseResources {
-    /** A brief description of the activity */
-    protected final String description;
-    /** A unique identifier that sets which resources to release */
-	protected final int resourcesId;
+public class ReleaseResources extends VariableStoreSimulationObject implements ReleaseResourceHandler {
     /** Resources cancellation table */
     protected final TreeMap<ResourceType, Long> cancellationList;
 
+    private final ReleaseResourcesFlow modelRel;
+    
 	/**
 	 * @param simul
 	 * @param description
 	 */
-	public ReleaseResources(Simulation simul, String description, int resourcesId) {
-		super(simul);
-        this.description = description;
-		this.resourcesId = resourcesId;
+	public ReleaseResources(Simulation simul, ReleaseResourcesFlow modelRel) {
+		super(simul.getNextActivityId(), simul);
+		
+		this.modelRel = modelRel;
 		cancellationList = new TreeMap<ResourceType, Long>();
 	}
 	
 	@Override
+	public ResourceHandlerFlow getModelResHandler() {
+		return modelRel;
+	}
+	
 	public String getDescription() {
-		return description;
+		return modelRel.getDescription();
 	}
 
 	@Override
-	public void request(WorkThread wThread) {
-		if (!wThread.wasVisited(this)) {
-			if (wThread.isExecutable()) {
-				final Element elem = wThread.getElement();
-				if (beforeRequest(elem)) {
-					final Collection<Resource> caughtResources = wThread.releaseResources(resourcesId);
-					if (caughtResources == null) {
-						elem.error("Trying to release group of resources not already created. ID:" + id);
-					}
-			        TreeSet<ActivityManager> amList = new TreeSet<ActivityManager>();
-			        // Generate unavailability periods.
-			        for (Resource res : caughtResources) {
-			        	final long cancellationDuration = getResourceCancellation(res.getCurrentResourceType());
-			        	if (cancellationDuration > 0) {
-							long actualTs = elem.getTs();
-							res.setNotCanceled(false);
-							simul.getInfoHandler().notifyInfo(new ResourceInfo(simul, res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
-							res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
-						}
-						elem.debug("Returned " + res);
-			        	// The resource is freed
-			        	if (res.releaseResource()) {
-			        		// The activity managers involved are included in the list
-			        		for (ActivityManager am : res.getCurrentManagers()) {
-			        			amList.add(am);
-			        		}
-			        	}
-			        }
+	public String getObjectTypeIdentifier() {
+		return modelRel.getObjectTypeIdentifier();
+	}
 
-			        // FIXME: Preparado para hacerlo aleatorio
+	/**
+	 * @return the cancellationList
+	 */
+	public long getResourceCancellation(ResourceType rt) {
+		Long duration = cancellationList.get(rt); 
+		if (duration == null)
+			return 0;
+		return duration;
+	}
+	
+	@Override
+	public boolean releaseResources(WorkThread wThread) {
+		final ReleaseResourcesFlow f =(ReleaseResourcesFlow) wThread.getCurrentFlow();
+		final Element elem = wThread.getElement();
+        Collection<ActivityManager> amList = wThread.releaseResources(f.getResourcesId(), cancellationList);
+
+        // FIXME: Preparado para hacerlo aleatorio
 //					final int[] order = RandomPermutation.nextPermutation(amList.size());
 //					for (int ind : order) {
 //						ActivityManager am = amList.get(ind);
@@ -84,60 +69,16 @@ public class ReleaseResources {
 //						am.availableResource();
 //					}
 
-					for (ActivityManager am : amList) {
-						am.availableResource();
-					}
-					
-					// TODO Change by more appropriate messages
-					simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, ElementActionInfo.Type.ENDACT, elem.getTs()));
-					if (elem.isDebugEnabled())
-						elem.debug("Finishes\t" + this + "\t" + description);
-					afterFinalize(wThread);
-					next(wThread);
-				}
-				else {
-					wThread.setExecutable(false, this);
-					next(wThread);
-				}
-			}
-			else {
-				wThread.updatePath(this);
-				next(wThread);
-			}
-		} else
-			wThread.notifyEnd();
+		for (ActivityManager am : amList) {
+			am.availableResource();
+		}
+		
+		// TODO Change by more appropriate messages
+		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, wThread.getElement(), modelRel, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
+		if (elem.isDebugEnabled())
+			elem.debug("Finishes\t" + this + "\t" + getDescription());
+		f.afterFinalize(wThread);
+		return true;
 	}
 
-	/**
-	 * Adds a new ResouceType to the cancellation list.
-	 * @param rt Resource type
-	 * @param duration Duration of the cancellation.
-	 */
-	@Override
-	public void addResourceCancellation(ResourceType rt, long duration) {
-		CancelListEntry<ResourceType> entry = new CancelListEntry<ResourceType>(rt, duration);
-		cancellationList.put(rt, entry);
-	}
-	
-	/**
-	 * @return the cancellationList
-	 */
-	@Override
-	public long getResourceCancellation(ResourceType rt) {
-		CancelListEntry<ResourceType> entry = cancellationList.get(rt); 
-		if (entry == null)
-			return 0;
-		return entry.dur;
-	}
-	
-	@Override
-	public String getObjectTypeIdentifier() {
-		return "REL";
-	}
-	
-	@Override
-	public void addPredecessor(Flow newFlow) {}
-
-	@Override
-	public void afterFinalize(WorkThread wt) {}
 }

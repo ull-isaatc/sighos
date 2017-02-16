@@ -4,7 +4,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
+import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.TaskFlow;
@@ -32,7 +34,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 	/** Thread's internal identifier */
 	protected final int id;
     /** Element which carries out this flow. */    
-    protected final Element elem; 
+    private final Element elem; 
     /** The parent element thread */
     protected final WorkThread parent;
     /** The descendant work threads */
@@ -378,8 +380,35 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
      * Releases the resources caught by this item to perform the activity.
      * @return A list of activity managers affected by the released resources
      */
-    public Collection<Resource> releaseResources(int id) {
-        return caughtResources.remove(id);
+    public Collection<ActivityManager> releaseResources(int id, TreeMap<ResourceType, Long> cancellationList) {
+		final Collection<Resource> resources = caughtResources.remove(id);
+		if (resources == null) {
+			elem.error("Trying to release group of resources not already created. ID:" + id);
+			return null;
+		}
+		else {
+	        TreeSet<ActivityManager> amList = new TreeSet<ActivityManager>();
+	        // Generate unavailability periods.
+	        for (Resource res : resources) {
+	        	final long cancellationDuration = cancellationList.get(res.getCurrentResourceType());
+	        	if (cancellationDuration > 0) {
+					final long actualTs = elem.getTs();
+					res.setNotCanceled(false);
+					elem.simul.getInfoHandler().notifyInfo(new ResourceInfo(elem.simul, res.getModelRes(), res.getCurrentResourceType().getModelRT(), ResourceInfo.Type.CANCELON, actualTs));
+					res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
+				}
+				elem.debug("Returned " + res);
+	        	// The resource is freed
+	        	if (res.releaseResource()) {
+	        		// The activity managers involved are included in the list
+	        		for (ActivityManager am : res.getCurrentManagers()) {
+	        			amList.add(am);
+	        		}
+	        	}
+	        }
+	        return amList;
+			
+		}
     }
 
 	@Override

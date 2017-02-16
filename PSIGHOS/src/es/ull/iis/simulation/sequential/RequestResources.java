@@ -9,6 +9,7 @@ import java.util.Iterator;
 import es.ull.iis.simulation.core.QueuedObject;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 import es.ull.iis.util.Prioritizable;
 import es.ull.iis.util.PrioritizedTable;
 
@@ -16,7 +17,7 @@ import es.ull.iis.util.PrioritizedTable;
  * @author Iván Castilla
  *
  */
-public class RequestResources extends VariableStoreSimulationObject implements Prioritizable, QueuedObject<WorkThread> {
+public class RequestResources extends VariableStoreSimulationObject implements Prioritizable, QueuedObject<WorkThread>, AcquireResourceHandler {
     /** Total of work items waiting for carrying out this activity */
     protected int queueSize = 0;
     /** Activity manager this activity belongs to */
@@ -40,6 +41,11 @@ public class RequestResources extends VariableStoreSimulationObject implements P
         	workGroupTable.add(new ActivityWorkGroup(simul, modelAWG));
         }
         simul.add(this);
+	}
+
+	@Override
+	public ResourceHandlerFlow getModelResHandler() {
+		return modelReq;
 	}
 
 	public String getDescription() {
@@ -96,7 +102,8 @@ public class RequestResources extends VariableStoreSimulationObject implements P
 		return workGroupTable.size();
 	}
 	
-	public void request(WorkThread wThread) {
+	@Override
+	public boolean acquireResources(WorkThread wThread) {
 		final Element elem = wThread.getElement();
 		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, elem, modelReq, wThread.getExecutionWG().getModelAWG(), ElementActionInfo.Type.REQACT, elem.getTs()));
 		if (elem.isDebugEnabled())
@@ -106,13 +113,11 @@ public class RequestResources extends VariableStoreSimulationObject implements P
 			final ArrayDeque<Resource> solution = isFeasible(wThread); 
 			if (solution != null) {
 				carryOut(wThread, solution);
+				return true;
 			}
-			else {
-				queueAdd(wThread); // The element is introduced in the queue
-			}
-		} else {
-			queueAdd(wThread); // The element is introduced in the queue
 		}
+		queueAdd(wThread); // The element is introduced in the queue
+		return false;
 	}
 
 

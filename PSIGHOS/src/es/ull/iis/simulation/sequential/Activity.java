@@ -4,34 +4,18 @@
 package es.ull.iis.simulation.sequential;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import es.ull.iis.function.TimeFunction;
-import es.ull.iis.function.TimeFunctionFactory;
-import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.model.flow.FinalizerFlow;
-import es.ull.iis.simulation.model.flow.Flow;
-import es.ull.iis.simulation.model.flow.InitializerFlow;
-import es.ull.iis.simulation.model.flow.StructuredFlow;
-import es.ull.iis.simulation.model.flow.TaskFlow;
 import es.ull.iis.simulation.info.ElementActionInfo;
-import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.model.ActivityWorkGroup.DrivenBy;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.BasicFlow;
-import es.ull.iis.simulation.sequential.ActivityManager;
-import es.ull.iis.simulation.sequential.ActivityWorkGroup;
-import es.ull.iis.simulation.sequential.Element;
-import es.ull.iis.simulation.sequential.Resource;
-import es.ull.iis.simulation.sequential.ResourceType;
-import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.iis.simulation.sequential.WorkThread;
+import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.flow.InitializerFlow;
+import es.ull.iis.simulation.model.flow.StructuredFlow;
 
 /**
  * A flow which executes a single activity.
@@ -67,7 +51,7 @@ import es.ull.iis.simulation.sequential.WorkThread;
  * while the activity is being performed.
  * @author Iván Castilla Rodríguez
  */
-public class Activity extends RequestResources {
+public class Activity extends RequestResources implements ReleaseResourceHandler {
 	/** 
 	 * An artificially created final node. This flow informs the flow-driven
 	 * work groups that they have being finalized.
@@ -128,10 +112,10 @@ public class Activity extends RequestResources {
 	 * @return the cancellationList
 	 */
 	public long getResourceCancellation(ResourceType rt) {
-		Long entry = cancellationList.get(rt); 
-		if (entry == null)
+		Long duration = cancellationList.get(rt); 
+		if (duration == null)
 			return 0;
-		return entry;
+		return duration;
 	}
 	
 	/**
@@ -207,32 +191,11 @@ public class Activity extends RequestResources {
 	 * Releases the resources required to carry out this activity.
 	 * @param wThread Work thread which requested this activity
 	 */
-	public void finish(WorkThread wThread) {
+	@Override
+	public boolean releaseResources(WorkThread wThread) {
+		final ActivityFlow f =(ActivityFlow) wThread.getCurrentFlow();
 		final Element elem = wThread.getElement();
-
-		final Collection<Resource> caughtResources = wThread.releaseResources(modelReq.getResourcesId());
-		if (caughtResources == null) {
-			elem.error("Trying to release group of resources not already created. ID:" + id);
-		}
-        ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
-        // Generate unavailability periods.
-        for (Resource res : caughtResources) {
-        	final long cancellationDuration = getResourceCancellation(res.getCurrentResourceType());
-        	if (cancellationDuration > 0) {
-				long actualTs = elem.getTs();
-				res.setNotCanceled(false);
-				simul.getInfoHandler().notifyInfo(new ResourceInfo(simul, res.getModelRes(), res.getCurrentResourceType().getModelRT(), ResourceInfo.Type.CANCELON, actualTs));
-				res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
-			}
-			elem.debug("Returned " + res);
-        	// The resource is freed
-        	if (res.releaseResource()) {
-        		// The activity managers involved are included in the list
-        		for (ActivityManager am : res.getCurrentManagers())
-        			if (!amList.contains(am))
-        				amList.add(am);
-        	}
-        }
+        Collection<ActivityManager> amList = wThread.releaseResources(f.getResourcesId(), cancellationList);
 
 		if (!isNonPresential())
 			elem.setCurrent(null);
@@ -253,7 +216,7 @@ public class Activity extends RequestResources {
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + modelReq.getDescription());
 			modelReq.afterFinalize(wThread);
-			next(wThread);
+			return true;
 		}
 		else if (wThread.getExecutionWG().getDrivenBy() == DrivenBy.TIME) {
 			// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
@@ -266,7 +229,7 @@ public class Activity extends RequestResources {
 				if (!isNonPresential())
 					elem.addAvailableElementEvents();
 				modelReq.afterFinalize(wThread);
-				next(wThread);
+				return true;
 			}
 			// Added the condition(Lancaster compatibility), even when it should be unnecessary.
 			else {
@@ -277,5 +240,6 @@ public class Activity extends RequestResources {
 				queueAdd(wThread); 
 			}
 		}
+		return false;
 	}
 }

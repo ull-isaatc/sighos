@@ -16,7 +16,7 @@ import es.ull.iis.util.PrioritizedTable;
  * @author Iván Castilla
  *
  */
-public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlow, ResourcesFlow, Prioritizable {
+public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlow, ResourceHandlerFlow, Prioritizable {
     /** Priority. The lowest the value, the highest the priority */
     protected final int priority;
     /** A brief description of the activity */

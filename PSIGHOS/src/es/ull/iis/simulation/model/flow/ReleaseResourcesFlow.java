@@ -11,7 +11,7 @@ import es.ull.iis.simulation.model.ResourceType;
  * @author Iván Castilla
  *
  */
-public class ReleaseResourcesFlow extends SingleSuccessorFlow implements ResourcesFlow, FinalizerFlow {
+public class ReleaseResourcesFlow extends SingleSuccessorFlow implements ResourceHandlerFlow, FinalizerFlow {
     /** A brief description of the activity */
     protected final String description;
     /** A unique identifier that sets which resources to release */

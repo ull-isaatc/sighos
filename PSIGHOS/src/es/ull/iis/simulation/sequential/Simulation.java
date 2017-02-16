@@ -40,7 +40,9 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	/** The identifier to be assigned to the next activity */ 
 	protected int nextActivityId = 1;
 	/** List of activities present in the simulation. */
-	protected final TreeMap<Integer, RequestResources> activityList = new TreeMap<Integer, RequestResources>();
+	protected final TreeMap<Integer, ResourceHandler> resHandlerList = new TreeMap<Integer, ResourceHandler>();
+	/** List of activities present in the simulation. */
+	protected final TreeMap<es.ull.iis.simulation.model.flow.ResourceHandlerFlow, ResourceHandler> resHandlerMap = new TreeMap<es.ull.iis.simulation.model.flow.ResourceHandlerFlow, ResourceHandler>();
 
 	/** The identifier to be assigned to the next resource type */ 
 	protected int nextResourceTypeId = 0;
@@ -336,8 +338,9 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
-	public RequestResources add(RequestResources act) {
-		return activityList.put(act.getIdentifier(), act);
+	public ResourceHandler add(ResourceHandler act) {
+		resHandlerMap.put(act.getModelResHandler(), act);
+		return resHandlerList.put(act.getIdentifier(), act);
 	}
 	
 	/**
@@ -429,8 +432,8 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * 
 	 *  @return Activities of the model. 	 
 	 */ 	
-	public Map<Integer, RequestResources> getActivityList() {
-		return activityList;
+	public Map<Integer, ResourceHandler> getActivityList() {
+		return resHandlerList;
 	}
 
 	/**
@@ -474,8 +477,17 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @param id Activity identifier.
 	 * @return An activity with the indicated identifier.
 	 */
-	public RequestResources getActivity(int id) {
-		return activityList.get(id);
+	public ResourceHandler getActivity(int id) {
+		return resHandlerList.get(id);
+	}
+
+	/**
+	 * Returns the "simulation" resource handler corresponding to the specified "model" resource handler.
+	 * @param modelResHandler "Model" resource handler.
+	 * @return The "simulation" resource handler corresponding to the specified "model" resource handler.
+	 */
+	public ResourceHandler getActivity(es.ull.iis.simulation.model.flow.ResourceHandlerFlow modelResHandler) {
+		return resHandlerMap.get(modelResHandler);
 	}
 
 	/**

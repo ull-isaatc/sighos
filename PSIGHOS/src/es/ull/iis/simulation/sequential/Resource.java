@@ -6,7 +6,7 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.model.DiscreteEvent;
-import es.ull.iis.simulation.model.flow.ResourcesFlow;
+import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
@@ -122,7 +122,7 @@ public class Resource extends BasicElement {
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
 	protected long catchResource(WorkThread wt) {
-		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, modelRes, currentResourceType.getModelRT(), wt, (ResourcesFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, getTs()));
+		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, modelRes, currentResourceType.getModelRT(), wt, (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, getTs()));
 		currentWT = wt;
 		return currentRoles.get(currentResourceType);
 	}
@@ -135,7 +135,7 @@ public class Resource extends BasicElement {
      * time of the resource had already expired.
      */
     public boolean releaseResource() {
-		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, modelRes, currentResourceType.getModelRT(), currentWT, (ResourcesFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, getTs()));
+		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, modelRes, currentResourceType.getModelRT(), currentWT, (ResourceHandlerFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, getTs()));
         currentWT = null;
         currentResourceType = null;        
         if (timeOut) {

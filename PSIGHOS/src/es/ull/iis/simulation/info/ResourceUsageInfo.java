@@ -4,7 +4,7 @@ import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.model.flow.FlowExecutor;
-import es.ull.iis.simulation.model.flow.ResourcesFlow;
+import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 
 public class ResourceUsageInfo extends AsynchronousInfo {
 
@@ -28,10 +28,10 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	final private Resource res;
 	final private ResourceType rt;
 	final private FlowExecutor fExecutor;
-	final private ResourcesFlow act;
+	final private ResourceHandlerFlow act;
 	final private Type type;
 	
-	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, FlowExecutor fExecutor, ResourcesFlow act, Type type, long ts) {
+	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, FlowExecutor fExecutor, ResourceHandlerFlow act, Type type, long ts) {
 		super(simul, ts);
 		this.res = res;
 		this.rt = rt;
@@ -65,7 +65,7 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 		return message;
 	}
 
-	public ResourcesFlow getActivity() {
+	public ResourceHandlerFlow getActivity() {
 		return act;
 	}
 }

@@ -9,11 +9,16 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.sequential.Activity;
 import es.ull.iis.simulation.sequential.ActivityManager;
 import es.ull.iis.simulation.sequential.Element;
+import es.ull.iis.simulation.sequential.ReleaseResources;
+import es.ull.iis.simulation.sequential.RequestResources;
 import es.ull.iis.simulation.sequential.Resource;
 import es.ull.iis.simulation.sequential.WorkThread;
 
@@ -145,6 +150,17 @@ public class FlowBehaviour {
 							elem.addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));						
 						}
 					}
+					else if (f instanceof ReleaseResourcesFlow) {
+						((ReleaseResources)elem.getSimulation().getActivity((ReleaseResourcesFlow)f)).releaseResources(wThread);
+						next(wThread);
+					}
+					else if (f instanceof ActivityFlow) {
+						((Activity)elem.getSimulation().getActivity((ActivityFlow)f)).acquireResources(wThread);
+					}
+					else if (f instanceof RequestResourcesFlow) {
+						if (((RequestResources)elem.getSimulation().getActivity((RequestResourcesFlow)f)).acquireResources(wThread))
+							next(wThread);
+					}
 					else {
 						next(wThread);						
 					}
@@ -157,51 +173,6 @@ public class FlowBehaviour {
 			wThread.notifyEnd();
 	}
 
-	public void request(WorkThread wThread, ReleaseResourcesFlow f) {
-		final Collection<Resource> caughtResources = wThread.releaseResources(f.getResourcesId());
-		if (caughtResources == null) {
-			elem.error("Trying to release group of resources not already created. ID:" + f.getResourcesId());
-		}
-        TreeSet<ActivityManager> amList = new TreeSet<ActivityManager>();
-        // Generate unavailability periods.
-        for (Resource res : caughtResources) {
-        	final long cancellationDuration = getResourceCancellation(res.getCurrentResourceType());
-        	if (cancellationDuration > 0) {
-				long actualTs = elem.getTs();
-				res.setNotCanceled(false);
-				simul.getInfoHandler().notifyInfo(new ResourceInfo(simul, res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
-				res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
-			}
-			elem.debug("Returned " + res);
-        	// The resource is freed
-        	if (res.releaseResource()) {
-        		// The activity managers involved are included in the list
-        		for (ActivityManager am : res.getCurrentManagers()) {
-        			amList.add(am);
-        		}
-        	}
-        }
-
-        // FIXME: Preparado para hacerlo aleatorio
-//					final int[] order = RandomPermutation.nextPermutation(amList.size());
-//					for (int ind : order) {
-//						ActivityManager am = amList.get(ind);
-//						// FIXME: Esto debería ser un evento por cada AM
-//						am.availableResource();
-//					}
-
-		for (ActivityManager am : amList) {
-			am.availableResource();
-		}
-		
-		// TODO Change by more appropriate messages
-		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, ElementActionInfo.Type.ENDACT, elem.getTs()));
-		if (elem.isDebugEnabled())
-			elem.debug("Finishes\t" + this + "\t" + description);
-		afterFinalize(wThread);
-		next(wThread);
-	}
-	
 	public void finish(WorkThread wThread) {
 		final es.ull.iis.simulation.model.flow.Flow f = wThread.getCurrentFlow();
 		if (f instanceof es.ull.iis.simulation.model.flow.StructuredFlow) {
@@ -347,42 +318,8 @@ class SimpleMergeFlow extends ORJoinFlow {
 	}
 }
 
-class RequestResourcesFlow extends SingleSuccessorFlow implements es.ull.iis.simulation.core.flow.RequestResourcesFlow, Prioritizable, QueuedObject<WorkThread> {
+class RequestResourcesFlowa extends SingleSuccessorFlow implements es.ull.iis.simulation.core.flow.RequestResourcesFlow, Prioritizable, QueuedObject<WorkThread> {
     protected ActivityManager manager = null;
-
-	public void request(WorkThread wThread) {
-		if (!wThread.wasVisited(this)) {
-			if (wThread.isExecutable()) {
-				final Element elem = elem;
-				if (beforeRequest(elem)) {
-					simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, ElementActionInfo.Type.REQACT, elem.getTs()));
-					if (elem.isDebugEnabled())
-						elem.debug("Requests\t" + this + "\t" + description);
-					if (validElement(wThread)) {
-						// There are enough resources to perform the activity
-						final ArrayDeque<Resource> solution = isFeasible(wThread); 
-						if (solution != null) {
-							carryOut(wThread, solution);
-						}
-						else {
-							queueAdd(wThread); // The element is introduced in the queue
-						}
-					} else {
-						queueAdd(wThread); // The element is introduced in the queue
-					}
-				}
-				else {
-					wThread.setExecutable(false, this);
-					next(wThread);
-				}
-			}
-			else {
-				wThread.updatePath(this);
-				next(wThread);
-			}
-		} else
-			wThread.notifyEnd();
-	}
 
 	protected void carryOut(WorkThread wThread, ArrayDeque<Resource> solution) {
 		final Element elem = elem;
@@ -391,26 +328,4 @@ class RequestResourcesFlow extends SingleSuccessorFlow implements es.ull.iis.sim
 		next(wThread);
 	}
 	
-	protected ArrayDeque<Resource> isFeasible(WorkThread wt) {
-    	if (!stillFeasible)
-    		return null;
-        Iterator<ActivityWorkGroup> iter = workGroupTable.randomIterator();
-        while (iter.hasNext()) {
-        	ActivityWorkGroup wg = iter.next();
-        	ArrayDeque<Resource> solution = wg.isFeasible(wt); 
-            if (solution != null) {
-                wt.setExecutionWG(wg);
-        		wt.getElement().debug("Can carry out \t" + this + "\t" + wt.getExecutionWG());
-                return solution;
-            }            
-        }
-        stillFeasible = false;
-        return null;
-	}
-
-	protected boolean validElement(WorkThread wThread) {
-		return true;
-	}
-
-	…
 }
