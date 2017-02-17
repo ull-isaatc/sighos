@@ -5,13 +5,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.simulation.model.flow.TaskFlow;
 import es.ull.iis.simulation.sequential.flow.FlowBehaviour;
-import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.variable.EnumVariable;
 
 /**
@@ -74,7 +73,8 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 
 	/**
 	 * Sets the work thread corresponding to the current presential activity 
-	 * being performed by this element. 
+	 * being performed by this element.Creates the events to notify the activities that this element is now
+	 * available. All the activities this element is in their queues are notified. 
 	 * @param current The work thread corresponding to the current presential activity 
 	 * being performed by this element. A null value indicates that the element has 
 	 * finished performing the activity.
@@ -84,7 +84,14 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 		if (current == null) {
 			// Checks if there are pending activities that haven't noticed the
 			// element availability
-			addAvailableElementEvents();			
+			for (int i = 0; (current == null) && (i < inQueue.size()); i++) {
+				final WorkThread wThread = inQueue.get(i);
+	            final RequestResourcesFlow act = (RequestResourcesFlow) wThread.getCurrentFlow();
+
+				if (isDebugEnabled())
+					debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
+				wThread.availableElement(simul.getRequestResource(act));
+			}
 		}
 	}
 
@@ -147,21 +154,6 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 	 */
 	public void decInQueue(WorkThread wt) {
 			inQueue.remove(wt);
-	}
-
-	/**
-	 * Creates the events to notify the activities that this element is now
-	 * available. All the activities this element is in their queues are notified.
-	 */
-	public void addAvailableElementEvents() {
-		for (int i = 0; (current == null) && (i < inQueue.size()); i++) {
-			final WorkThread wThread = inQueue.get(i);
-            final RequestResourcesFlow act = (RequestResourcesFlow) wThread.getCurrentFlow();
-
-			if (isDebugEnabled())
-				debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
-			act.availableElement(wThread);
-		}
 	}
 
 	public void addRequestEvent(Flow f, WorkThread wThread) {

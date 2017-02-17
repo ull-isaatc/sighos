@@ -10,9 +10,8 @@ import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Model;
-import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.simulation.sequential.flow.FlowBehaviour;
 import es.ull.iis.util.Output;
 
 /**
@@ -40,9 +39,13 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	/** The identifier to be assigned to the next activity */ 
 	protected int nextActivityId = 1;
 	/** List of activities present in the simulation. */
-	protected final TreeMap<Integer, ResourceHandler> resHandlerList = new TreeMap<Integer, ResourceHandler>();
+	protected final TreeMap<Integer, RequestResources> reqFlowList = new TreeMap<Integer, RequestResources>();
 	/** List of activities present in the simulation. */
-	protected final TreeMap<es.ull.iis.simulation.model.flow.ResourceHandlerFlow, ResourceHandler> resHandlerMap = new TreeMap<es.ull.iis.simulation.model.flow.ResourceHandlerFlow, ResourceHandler>();
+	protected final TreeMap<es.ull.iis.simulation.model.flow.RequestResourcesFlow, RequestResources> reqFlowMap = new TreeMap<es.ull.iis.simulation.model.flow.RequestResourcesFlow, RequestResources>();
+	/** List of activities present in the simulation. */
+	protected final TreeMap<Integer, ReleaseResources> relFlowList = new TreeMap<Integer, ReleaseResources>();
+	/** List of activities present in the simulation. */
+	protected final TreeMap<es.ull.iis.simulation.model.flow.ReleaseResourcesFlow, ReleaseResources> relFlowMap = new TreeMap<es.ull.iis.simulation.model.flow.ReleaseResourcesFlow, ReleaseResources>();
 
 	/** The identifier to be assigned to the next resource type */ 
 	protected int nextResourceTypeId = 0;
@@ -61,11 +64,6 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	/** List of activity managers that partition the simulation. */
 	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
 	
-	/** The identifier to be assigned to the next flow */ 
-	protected int nextFlowId = 0;
-	/** List of flows present in the simulation */
-	protected final TreeMap<Integer, FlowBehaviour> flowList = new TreeMap<Integer, FlowBehaviour>();
-
 	/** End-of-simulation control */
 	private CountDownLatch endSignal;
 
@@ -142,8 +140,8 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 			if (flow instanceof RequestResourcesFlow) {
 				new RequestResources(this, (RequestResourcesFlow)flow);				
 			}
-			else if (flow instanceof ActivityFlow) {
-				new Activity(this, (ActivityFlow)flow);
+			else if (flow instanceof ReleaseResourcesFlow) {
+				new ReleaseResources(this, (ReleaseResourcesFlow)flow);
 			}
 		}
 		
@@ -314,14 +312,6 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 
 
 	/**
-	 * @return the nextFlowId
-	 */
-	public int getNextFlowId() {
-		return nextFlowId++;
-	}
-
-
-	/**
 	 * @return the nextElementId
 	 */
 	protected int getNextElementId() {
@@ -338,9 +328,23 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
-	public ResourceHandler add(ResourceHandler act) {
-		resHandlerMap.put(act.getModelResHandler(), act);
-		return resHandlerList.put(act.getIdentifier(), act);
+	public RequestResources add(RequestResources act) {
+		reqFlowMap.put(act.getModelReqFlow(), act);
+		return reqFlowList.put(act.getIdentifier(), act);
+	}
+
+	/**
+	 * Adds an {@link es.ull.iis.simulation.sequential.BasicStep} to the model. These method
+	 * is invoked from the object's constructor.
+	 * 
+	 * @param act
+	 *            Activity that's added to the model.
+	 * @return previous value associated with the key of specified object, or <code>null</code>
+	 *  if there was no previous mapping for key.
+	 */
+	public ReleaseResources add(ReleaseResources act) {
+		relFlowMap.put(act.getModelRelFlow(), act);
+		return relFlowList.put(act.getIdentifier(), act);
 	}
 	
 	/**
@@ -369,20 +373,6 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	protected ResourceType add(ResourceType rt) {
 		resourceTypeMap.put(rt.getModelRT(), rt);
 		return resourceTypeList.put(rt.getIdentifier(), rt);
-	}
-	
-	/**
-	 * Adds an {@link es.ull.iis.simulation.sequential.flow.FlowBehaviour} to the model. These method
-	 * is invoked from the object's constructor.
-	 * 
-	 * @param f
-	 *            Flow that's added to the model.
-	 * @return previous value associated with the key of specified object, or <code>null</code>
-	 *  if there was no previous mapping for key.
-	 */
-	public FlowBehaviour add(FlowBehaviour f) {
-		return flowList.put(f.getIdentifier(), f);
-		
 	}
 	
 	/**
@@ -432,8 +422,8 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * 
 	 *  @return Activities of the model. 	 
 	 */ 	
-	public Map<Integer, ResourceHandler> getActivityList() {
-		return resHandlerList;
+	public Map<Integer, RequestResources> getActivityList() {
+		return reqFlowList;
 	}
 
 	/**
@@ -455,15 +445,6 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	}
 
 	/**
-	 * Returns a list of the flows of the model.
-	 * 
-	 * @return flows of the model.
-	 */
-	public Map<Integer, FlowBehaviour> getFlowList() {
-		return flowList;
-	}
-
-	/**
 	 * Returns a list of the activity managers of the model.
 	 * 
 	 * @return Work activity managers of the model.
@@ -477,8 +458,8 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @param id Activity identifier.
 	 * @return An activity with the indicated identifier.
 	 */
-	public ResourceHandler getActivity(int id) {
-		return resHandlerList.get(id);
+	public RequestResources getRequestResource(int id) {
+		return reqFlowList.get(id);
 	}
 
 	/**
@@ -486,8 +467,26 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @param modelResHandler "Model" resource handler.
 	 * @return The "simulation" resource handler corresponding to the specified "model" resource handler.
 	 */
-	public ResourceHandler getActivity(es.ull.iis.simulation.model.flow.ResourceHandlerFlow modelResHandler) {
-		return resHandlerMap.get(modelResHandler);
+	public ReleaseResources getReleaseResource(es.ull.iis.simulation.model.flow.ReleaseResourcesFlow modelRelHandler) {
+		return relFlowMap.get(modelRelHandler);
+	}
+
+	/**
+	 * Returns the activity with the corresponding identifier.
+	 * @param id Activity identifier.
+	 * @return An activity with the indicated identifier.
+	 */
+	public ReleaseResources getReleaseResource(int id) {
+		return relFlowList.get(id);
+	}
+
+	/**
+	 * Returns the "simulation" resource handler corresponding to the specified "model" resource handler.
+	 * @param modelResHandler "Model" resource handler.
+	 * @return The "simulation" resource handler corresponding to the specified "model" resource handler.
+	 */
+	public RequestResources getRequestResource(es.ull.iis.simulation.model.flow.RequestResourcesFlow modelResHandler) {
+		return reqFlowMap.get(modelResHandler);
 	}
 
 	/**
@@ -533,15 +532,6 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 */
 	public ElementType getElementType(es.ull.iis.simulation.model.ElementType modelET) {
 		return elementTypeMap.get(modelET);
-	}
-
-	/**
-	 * Returns the flow with the corresponding identifier.
-	 * @param id Flow identifier.
-	 * @return A flow with the indicated identifier.
-	 */
-	public FlowBehaviour getFlow(int id) {
-		return flowList.get(id);
 	}
 
 	/**

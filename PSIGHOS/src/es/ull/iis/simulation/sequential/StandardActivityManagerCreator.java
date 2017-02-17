@@ -8,8 +8,6 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.sequential.flow.RequestResourcesFlow;
-
 /**
  * @author Iván Castilla Rodríguez
  *
@@ -41,12 +39,12 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 		for (int i = 0; i < nManagers; i++)
 			new ActivityManager(simul);
 		// The activities are associated to the activity managers
-		for (RequestResourcesFlow a : simul.getActivityList().values()) {
+		for (RequestResources a : simul.getActivityList().values()) {
 			Iterator<ActivityWorkGroup> iter = a.iterator();
 			// This step is for non-resource-types activities
 			boolean found = false;
 			while (iter.hasNext() && !found) {
-				WorkGroup wg = iter.next();
+				ActivityWorkGroup wg = iter.next();
 				if (wg.size() > 0) {
 					a.setManager(simul.getActivityManagerList().get(marks.get(wg.getResourceType(0).getIdentifier())));
 					found = true;
@@ -81,12 +79,12 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 			for (Integer key : simul.getResourceTypeList().keySet())
 				put(key, new TreeSet<Integer>());
 			// Goes through the activity list to built the adyacent list 
-			for (RequestResourcesFlow a : simul.getActivityList().values()) {
+			for (RequestResources a : simul.getActivityList().values()) {
 				Iterator<ActivityWorkGroup> iter = a.iterator();
 				// Looks for the first WorkGroup that contains at least one resource type
 				int firstWG = 1;
 				while (iter.hasNext()) {
-					WorkGroup wg = iter.next();
+					ActivityWorkGroup wg = iter.next();
 					if (wg.size() > 0) {
 						if (firstWG == 1)
 							ind1 = wg.getResourceType(0).getIdentifier();

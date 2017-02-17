@@ -4,23 +4,19 @@
 package es.ull.iis.simulation.sequential.flow;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.model.flow.ANDJoinFlow;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.DelayFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
+import es.ull.iis.simulation.model.flow.MergeFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.simulation.sequential.Activity;
-import es.ull.iis.simulation.sequential.ActivityManager;
 import es.ull.iis.simulation.sequential.Element;
-import es.ull.iis.simulation.sequential.ReleaseResources;
-import es.ull.iis.simulation.sequential.RequestResources;
-import es.ull.iis.simulation.sequential.Resource;
 import es.ull.iis.simulation.sequential.WorkThread;
 
 /**
@@ -119,56 +115,78 @@ public class FlowBehaviour {
 	public void request(WorkThread wThread) {
 		final es.ull.iis.simulation.model.flow.Flow f = wThread.getCurrentFlow();
 		if (!wThread.wasVisited(f)) {
-			if (wThread.isExecutable()) {
-				if (!f.beforeRequest(wThread)) {
-					wThread.cancel(f);
+			if (f instanceof MergeFlow) {
+				if (wThread.isExecutable()) {
+					if (!f.beforeRequest(wThread)) {
+						wThread.cancel(f);
+					}
+				}
+				arrive(wThread, (MergeFlow)f);
+				if (canPass(wThread, (MergeFlow)f)) {
+					control.get(elem).setActivated();
 					next(wThread);
 				}
 				else {
-					if (f instanceof es.ull.iis.simulation.model.flow.StructuredFlow) {
-						if (f instanceof es.ull.iis.simulation.model.flow.WhileDoFlow) {
-							finish(wThread);
-						}
-						else if (f instanceof es.ull.iis.simulation.model.flow.ForLoopFlow) {
-							int iter = Math.round((float)((es.ull.iis.simulation.model.flow.ForLoopFlow)f).getIterations().getValue(wThread));
-							if (iter > 0) {
-								TreeMap<WorkThread, Integer> chk = checkList.get(f);
-								if (chk == null) {
-									chk = new TreeMap<WorkThread, Integer>();
-									checkList.put(f, chk);
+					// If no one of the branches was true, the thread of control must continue anyway
+					if (canReset(wThread, (MergeFlow)f) && !isActivated(wThread))
+						next(wThread.getInstanceSubsequentWorkThread(false, f, control.get(elem).getOutgoingFalseToken()));
+					wThread.notifyEnd();
+				}
+				if (canReset(wThread, (MergeFlow)f))
+					reset(wThread);
+			}
+			else {
+				if (wThread.isExecutable()) {
+					if (!f.beforeRequest(wThread)) {
+						wThread.cancel(f);
+						next(wThread);
+					}
+					else {
+						if (f instanceof es.ull.iis.simulation.model.flow.StructuredFlow) {
+							if (f instanceof es.ull.iis.simulation.model.flow.WhileDoFlow) {
+								finish(wThread);
+							}
+							else if (f instanceof es.ull.iis.simulation.model.flow.ForLoopFlow) {
+								int iter = Math.round((float)((es.ull.iis.simulation.model.flow.ForLoopFlow)f).getIterations().getValue(wThread));
+								if (iter > 0) {
+									TreeMap<WorkThread, Integer> chk = checkList.get(f);
+									if (chk == null) {
+										chk = new TreeMap<WorkThread, Integer>();
+										checkList.put(f, chk);
+									}
+									chk.put(wThread, iter);
+									final InitializerFlow initialFlow = ((es.ull.iis.simulation.model.flow.StructuredFlow)f).getInitialFlow();
+									elem.addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));						
 								}
-								chk.put(wThread, iter);
+								else {
+									wThread.cancel(f);
+									next(wThread);
+								}
+							}
+							else {
 								final InitializerFlow initialFlow = ((es.ull.iis.simulation.model.flow.StructuredFlow)f).getInitialFlow();
 								elem.addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));						
 							}
-							else {
-								wThread.cancel(f);
+						}
+						else if (f instanceof ReleaseResourcesFlow) {
+							wThread.releaseResources((ReleaseResourcesFlow)f);
+							next(wThread);
+						}
+						else if (f instanceof RequestResourcesFlow) {
+							if (wThread.acquireResources((RequestResourcesFlow)f))
 								next(wThread);
-							}
+						}
+						else if (f instanceof DelayFlow) {
+							wThread.startDelay((DelayFlow)f);
 						}
 						else {
-							final InitializerFlow initialFlow = ((es.ull.iis.simulation.model.flow.StructuredFlow)f).getInitialFlow();
-							elem.addRequestEvent(initialFlow, wThread.getInstanceDescendantWorkThread(initialFlow));						
+							next(wThread);						
 						}
 					}
-					else if (f instanceof ReleaseResourcesFlow) {
-						wThread.releaseResources((ReleaseResourcesFlow)f);
-						next(wThread);
-					}
-					else if (f instanceof RequestResourcesFlow) {
-						if (wThread.acquireResources((RequestResourcesFlow)f))
-							next(wThread);
-					}
-					else if (f instanceof DelayFlow) {
-						wThread.startDelay((DelayFlow)f);
-					}
-					else {
-						next(wThread);						
-					}
+				} else {
+					wThread.updatePath(f);
+					next(wThread);
 				}
-			} else {
-				wThread.updatePath(f);
-				next(wThread);
 			}
 		} else
 			wThread.notifyEnd();
@@ -209,33 +227,35 @@ public class FlowBehaviour {
 					next(wThread);
 				}
 			}
-			else {
-				if (f instanceof ActivityFlow) {
-					if (((ActivityFlow)f).isExclusive()) {
-						wThread.getElement().setCurrent(null);
-					}
+			else if (f instanceof ActivityFlow) {
+				if (wThread.endActivity((ActivityFlow)f)) {
+					((es.ull.iis.simulation.model.flow.StructuredFlow)f).afterFinalize(wThread);
+					next(wThread);
 				}
+				else {
+					// Request again the activity
+					request(wThread);
+				}					
+			}
+			else {
 				((es.ull.iis.simulation.model.flow.StructuredFlow)f).afterFinalize(wThread);
 				next(wThread);
 			}
 		}
 		else if (f instanceof DelayFlow) {
-			if (wThread.endDelay((DelayFlow)f)) {
-				next(wThread);
-			}
+			wThread.endDelay((DelayFlow)f);
+			next(wThread);
 		}
 	}
-}
 
-abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow {
-	protected void arrive(WorkThread wThread) {
+	protected void arrive(WorkThread wThread, MergeFlow f) {
 		if (!control.containsKey(elem))
-			control.put(elem, getNewBranchesControl());
+			control.put(f, getNewBranchesControl(f));
 		control.get(elem).arrive(wThread);
 	}
 
-	protected boolean canReset(WorkThread wThread) {
-		return control.get(elem).canReset(incomingBranches);
+	protected boolean canReset(WorkThread wThread, MergeFlow f) {
+		return control.get(elem).canReset(f.getIncomingBranches());
 	}
 
 	protected void reset(WorkThread wThread) {
@@ -247,36 +267,16 @@ abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow {
 		return control.get(elem).isActivated();
 	}
 
-	public void request(WorkThread wThread) {
-		if (!wThread.wasVisited(this)) {
-			if (wThread.isExecutable()) {
-				if (!beforeRequest(elem))
-					wThread.setExecutable(false, this);
-			}
-
-			arrive(wThread);
-			if (canPass(wThread)) {
-				control.get(elem).setActivated();
-				next(wThread);
-			}
-			else {
-				// If no one of the branches was true, the thread of control must continue anyway
-				if (canReset(wThread) && !isActivated(wThread))
-					next(wThread.getInstanceSubsequentWorkThread(false, this, control.get(elem).getOutgoingFalseToken()));
-				wThread.notifyEnd();
-			}
-			if (canReset(wThread))
-				reset(wThread);
-		} else
-			wThread.notifyEnd();
+	protected MergeFlowControl getNewBranchesControl(MergeFlow f) {
+		return (f.isSafe())? new SafeMergeFlowControl(f) : new GeneralizedMergeFlowControl(f); 
 	}
-}
 
-abstract class ANDJoinFlow extends MergeFlow {
-	protected boolean canPass(WorkThread wThread) {
-		return (!control.get(elem).isActivated() 
-				&& (control.get(elem).getTrueChecked() == acceptValue));
+	protected boolean canPass(WorkThread wThread, MergeFlow f) {
+		if (f instanceof ANDJoinFlow) {
+			return (!control.get(elem).isActivated() && (control.get(elem).getTrueChecked() == ((ANDJoinFlow)f).getAcceptValue()));
+		}
 	}
+
 }
 
 class ThreadMergeFlow extends ANDJoinFlow {
@@ -327,16 +327,4 @@ class SimpleMergeFlow extends ORJoinFlow {
 		lastTs.remove(elem);
 		super.reset(wThread);
 	}
-}
-
-class RequestResourcesFlowa extends SingleSuccessorFlow implements es.ull.iis.simulation.core.flow.RequestResourcesFlow, Prioritizable, QueuedObject<WorkThread> {
-    protected ActivityManager manager = null;
-
-	protected void carryOut(WorkThread wThread, ArrayDeque<Resource> solution) {
-		final Element elem = elem;
-		wThread.acquireResources(solution, resourcesId);
-		simul.getInfoHandler().notifyInfo(new ElementActionInfo(simul, wThread, ElementActionInfo.Type.STAACT, elem.getTs()));
-		next(wThread);
-	}
-	
 }

@@ -8,12 +8,12 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.DelayFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 import es.ull.iis.util.Prioritizable;
 
 /**
@@ -61,6 +61,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 	protected int arrivalOrder;
 	/** The simulation timestamp when this work thread was requested. */
 	protected long arrivalTs = -1;
+	// TODO: Substitute by %work finished
 	/** The time left to finish the activity. Used in interruptible activities. */
 	protected long timeLeft = -1;
 	private long minResourcesAvailability;
@@ -248,8 +249,14 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 	 * @return A new instance of a work thread created to carry out the inner subflow of a structured flow
 	 */
 	public WorkThread getInstanceDescendantWorkThread(InitializerFlow newFlow) {
-		if (isExecutable())
-			return new WorkThread(new WorkToken(true), elem, newFlow, this);
+		if (isExecutable()) {
+			final WorkThread wt = new WorkThread(new WorkToken(true), elem, newFlow, this);
+			// If this thread was interrupted, the descendant thread must take it into account
+			if (timeLeft > 0.0) {
+				wt.setTimeLeft(timeLeft);
+			}
+			return wt;
+		}
 		else
 			return new WorkThread(new WorkToken(false, newFlow), elem, newFlow, this);
 	}
@@ -372,7 +379,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getExecutionWG(), ElementActionInfo.Type.REQACT, elem.getTs()));
 		if (elem.isDebugEnabled())
 			elem.debug("Requests\t" + this + "\t" + reqFlow.getDescription());
-		RequestResources req = (RequestResources)elem.simul.getActivity(reqFlow);
+		final RequestResources req = elem.simul.getRequestResource(reqFlow);
 		if (!reqFlow.isExclusive() || (elem.getCurrent() == null)) {
 			// There are enough resources to perform the activity
 			final ArrayDeque<Resource> solution = req.isFeasible(this); 
@@ -398,6 +405,59 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 		return false;
 	}
 
+    public int availableResource(RequestResources reqResources) {
+    	final RequestResourcesFlow reqFlow = reqResources.getModelReqFlow();
+		if (!reqFlow.isExclusive() || (elem.getCurrent() == null)) {
+			// There are enough resources to perform the activity
+			final ArrayDeque<Resource> solution = reqResources.isFeasible(this); 
+			if (solution != null) {
+				if (reqFlow.isExclusive()) 
+					elem.setCurrent(this);
+				final int resourcesId = reqFlow.getResourcesId();
+				if (this.caughtResources.containsKey(resourcesId))
+					elem.error("Trying to assign group of resources to already occupied group when catching. ID:" + resourcesId);
+				this.caughtResources.put(resourcesId, solution);
+		    	long auxTs = Long.MAX_VALUE;
+		    	for (Resource res : solution) {
+		    		auxTs = Math.min(auxTs, res.catchResource(this));;
+		            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
+		    	}
+				minResourcesAvailability = auxTs;
+				elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getExecutionWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+				elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());
+				return -1;
+			}
+			else {
+				return reqResources.getQueueSize();
+			}
+		}
+		else {
+			return 0;
+		}
+    }
+
+	public void availableElement(RequestResources reqResources) {
+    	final RequestResourcesFlow reqFlow = reqResources.getModelReqFlow();
+    	final ArrayDeque<Resource> solution = reqResources.isFeasible(this);
+		if (solution != null) {
+			if (reqFlow.isExclusive()) 
+				elem.setCurrent(this);
+			final int resourcesId = reqFlow.getResourcesId();
+			if (this.caughtResources.containsKey(resourcesId))
+				elem.error("Trying to assign group of resources to already occupied group when catching. ID:" + resourcesId);
+			this.caughtResources.put(resourcesId, solution);
+	    	long auxTs = Long.MAX_VALUE;
+	    	for (Resource res : solution) {
+	    		auxTs = Math.min(auxTs, res.catchResource(this));;
+	            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
+	    	}
+			minResourcesAvailability = auxTs;
+			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getExecutionWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+			elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());
+			reqResources.queueRemove(this);
+		}
+	}
+	
     /**
      * Releases the resources caught by this item to perform the activity.
      * @return A list of activity managers affected by the released resources
@@ -411,7 +471,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 		}
         // Generate unavailability periods.
         for (Resource res : resources) {
-        	final long cancellationDuration = ((ReleaseResources)elem.simul.getActivity(relFlow)).getResourceCancellation(res.getCurrentResourceType());
+        	final long cancellationDuration = (elem.simul.getReleaseResource(relFlow)).getResourceCancellation(res.getCurrentResourceType());
         	if (cancellationDuration > 0) {
 				final long actualTs = elem.getTs();
 				res.setNotCanceled(false);
@@ -453,16 +513,16 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 		if (timeLeft == -1) {
 			// wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
 			timeLeft = f.getDurationSample(this);
-			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, (ResourceHandlerFlow) currentFlow, executionWG.getModelAWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, executionWG.getModelAWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
 			elem.debug("Starts\t" + this + "\t" + f.getDescription());			
 		}
 		else {
-			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, (ResourceHandlerFlow) currentFlow, executionWG.getModelAWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
+			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, executionWG.getModelAWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
 			elem.debug("Continues\t" + this + "\t" + f.getDescription());			
 		}
 		long finishTs = elem.getTs() + timeLeft;
 		// The required time for finishing the activity is reduced (useful only for interruptible activities)
-		if (f.isInterruptible() && (finishTs - minResourcesAvailability > 0.0)) {
+		if (f.partOfInterruptible() && (finishTs - minResourcesAvailability > 0.0)) {
 			timeLeft = finishTs - minResourcesAvailability;
 			finishTs = minResourcesAvailability;
 		}
@@ -472,24 +532,29 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 		elem.addFinishEvent(finishTs, this);
     }
     
-    // FIXME: La cagué con las actividades interrumpibles...
-    public boolean endDelay(DelayFlow f) {
+    public void endDelay(DelayFlow f) {
 		// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
 		if (timeLeft <= 0.0) {
 			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, getExecutionWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + f.getDescription());
 			f.afterFinalize(this);
-			return true;
 		}
-		// Added the condition(Lancaster compatibility), even when it should be unnecessary.
 		else {
 			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, getExecutionWG(), ElementActionInfo.Type.INTACT, elem.getTs()));
 			if (elem.isDebugEnabled())
-				elem.debug("Finishes part of \t" + this + "\t" + f.getDescription() + "\t" + timeLeft);				
-			// The element is introduced in the queue
-			queueAdd(this); 
+				elem.debug("Finishes part of \t" + this + "\t" + f.getDescription() + "\t" + timeLeft);
+			// Notifies the parent workthread that the activity was interrupted
+			parent.setTimeLeft(timeLeft);
 		}
+    }
+    
+    public boolean endActivity(ActivityFlow f) {
+    	if (f.isExclusive()) {
+    		elem.setCurrent(null);
+    	}
+		// It was an interruptible activity and it was interrupted
+		return (timeLeft <= 0.0);
     }
     
 	@Override

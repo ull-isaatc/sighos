@@ -91,9 +91,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     	while (iter.hasNext() && (uselessSF < wtQueue.size())) {
     		final WorkThread wt = iter.next();
             // TODO: Check whether it always works fine
-            final RequestResources act = (RequestResources) wt.getCurrentFlow();
+            final RequestResources reqResources = (RequestResources) wt.getCurrentFlow();
             
-            final int result = act.availableResource(wt);
+            final int result = wt.availableResource(reqResources);
             if (result == -1) {
         		toRemove.add(wt);
         		uselessSF--;

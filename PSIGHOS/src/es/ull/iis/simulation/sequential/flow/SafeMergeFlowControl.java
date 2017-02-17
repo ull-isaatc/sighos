@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.sequential.flow;
 
+import es.ull.iis.simulation.model.flow.MergeFlow;
 import es.ull.iis.simulation.sequential.WorkThread;
 
 /**

@@ -4,34 +4,24 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.function.TimeFunction;
-import es.ull.iis.simulation.core.Describable;
 
 /**
  * @author Iván Castilla
  *
  */
-public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, Describable {
+public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ResourceHandlerFlow {
     /** A brief description of the delay */
     private final String description;
 	/** Duration of the delay */
     private final TimeFunction duration;
-    private final boolean interruptible;
 
 	/**
 	 * 
 	 */
 	public DelayFlow(String description, TimeFunction duration) {
-		this(description, duration, false);
-	}
-
-	/**
-	 * 
-	 */
-	public DelayFlow(String description, TimeFunction duration, boolean interruptible) {
 		super();
 		this.description = description;
 		this.duration = duration;
-		this.interruptible = interruptible;
 	}
 
 	@Override
@@ -57,10 +47,14 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, Describa
     }
     
 	/**
-	 * @return the interruptible
+	 * Returns true if this delay flow is being used as part of an interruptible activity
+	 * @return True if this delay flow is being used as part of an interruptible activity
 	 */
-	public boolean isInterruptible() {
-		return interruptible;
+	public boolean partOfInterruptible() {
+		if (parent != null)
+			if (parent instanceof ActivityFlow)
+				return ((ActivityFlow)parent).isInterruptible();
+		return false;
 	}
 
 	/* (non-Javadoc)

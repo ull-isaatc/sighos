@@ -169,7 +169,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      */
     public int addWorkGroup(TimeFunction duration, int priority, WorkGroup wg, Condition cond) {
     	final int wgId = ((RequestResourcesFlow)initialFlow).addWorkGroup(priority, wg, cond);
-    	final DelayFlow delayFlow = new DelayFlow("WG" + wgId + "_DELAY " + description, duration, interruptible);
+    	final DelayFlow delayFlow = new DelayFlow("WG" + wgId + "_DELAY " + description, duration);
     	delayFlow.setParent(this);
     	selectWorkGroupFlow.link(delayFlow, new WGCondition(wgId));
     	delayFlow.link(finalFlow);
@@ -227,6 +227,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
     	finalFlow.link(this.finalFlow);
     	
 		// Activities with Flow-driven workgroups cannot be presential nor interruptible
+    	interruptible = false;
     	exclusive = false;
         return wgId;
     }

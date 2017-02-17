@@ -7,9 +7,7 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 
 import es.ull.iis.simulation.core.QueuedObject;
-import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 import es.ull.iis.util.Prioritizable;
 import es.ull.iis.util.PrioritizedTable;
 
@@ -43,8 +41,7 @@ public class RequestResources extends VariableStoreSimulationObject implements P
         simul.add(this);
 	}
 
-	@Override
-	public ResourceHandlerFlow getModelResHandler() {
+	public RequestResourcesFlow getModelReqFlow() {
 		return modelReq;
 	}
 
@@ -177,27 +174,4 @@ public class RequestResources extends VariableStoreSimulationObject implements P
     public void resetFeasible() {
     	stillFeasible = true;
     }
-    
-	public void availableElement(WorkThread wThread) {
-		final ArrayDeque<Resource> solution = isFeasible(wThread);
-		if (solution != null) {
-			carryOut(wThread, solution);
-			queueRemove(wThread);
-		}
-	}
-
-	public int availableResource(WorkThread wThread) {
-        if (validElement(wThread)) {
-        	final ArrayDeque<Resource> solution = isFeasible(wThread); 
-        	if (solution != null) {	// The activity can be performed
-                carryOut(wThread, solution);
-                return -1;
-        	}
-        	else {
-        		return getQueueSize();
-        	}
-        }
-        return 0;
-		
-	}
 }

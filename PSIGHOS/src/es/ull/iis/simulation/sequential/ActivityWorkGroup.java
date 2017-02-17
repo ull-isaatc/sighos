@@ -43,12 +43,20 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
 		return modelAWG;
 	}
 
+	public ResourceType getResourceType(int ind) {
+		return resourceTypes[ind];		
+	}
+	
 	/**
      * Getter for property priority.
      * @return Value of property priority.
      */
     public int getPriority() {
         return modelAWG.getPriority();
+    }
+    
+    public int size() {
+    	return resourceTypes.length;
     }
     
     /**

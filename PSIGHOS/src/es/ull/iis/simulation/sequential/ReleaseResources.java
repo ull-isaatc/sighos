@@ -3,10 +3,10 @@
  */
 package es.ull.iis.simulation.sequential;
 
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
-import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 
 /**
  * @author Iván Castilla
@@ -14,7 +14,7 @@ import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
  */
 public class ReleaseResources extends VariableStoreSimulationObject implements ResourceHandler {
     /** Resources cancellation table */
-    protected final TreeMap<ResourceType, Long> cancellationList;
+    protected final TreeMap<ResourceType, Long> cancellationList = new TreeMap<ResourceType, Long>();
 
     private final ReleaseResourcesFlow modelRel;
     
@@ -23,14 +23,15 @@ public class ReleaseResources extends VariableStoreSimulationObject implements R
 	 * @param description
 	 */
 	public ReleaseResources(Simulation simul, ReleaseResourcesFlow modelRel) {
-		super(simul.getNextActivityId(), simul);
-		
+		super(simul.getNextActivityId(), simul);		
 		this.modelRel = modelRel;
-		cancellationList = new TreeMap<ResourceType, Long>();
+        final TreeMap<es.ull.iis.simulation.model.ResourceType, Long> originalList = modelRel.getCancellationList();
+        for (Entry<es.ull.iis.simulation.model.ResourceType, Long> entry : originalList.entrySet()) {
+        	cancellationList.put(simul.getResourceType(entry.getKey()), entry.getValue());
+        }
 	}
 	
-	@Override
-	public ResourceHandlerFlow getModelResHandler() {
+	public ReleaseResourcesFlow getModelRelFlow() {
 		return modelRel;
 	}
 	
