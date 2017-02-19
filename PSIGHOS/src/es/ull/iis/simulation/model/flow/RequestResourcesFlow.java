@@ -5,6 +5,8 @@ package es.ull.iis.simulation.model.flow;
 
 import java.util.Iterator;
 
+import es.ull.iis.function.TimeFunction;
+import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
@@ -98,9 +100,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * @return The new workgroup's identifier.
      */
     public int addWorkGroup(int priority, WorkGroup wg) {
-    	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(model, this, wgId, priority, wg, new TrueCondition()));
-        return wgId;
+    	return addWorkGroup(priority, wg, new TrueCondition(), 0L);
     }
     
     /**
@@ -112,9 +112,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * @return The new workgroup's identifier.
      */
     public int addWorkGroup(int priority, WorkGroup wg, Condition cond) {
-    	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(model, this, wgId, priority, wg, cond));
-        return wgId;
+    	return addWorkGroup(priority, wg, cond, 0L);
     }
     
     /**
@@ -124,7 +122,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * @return The new workgroup's identifier.
      */
     public int addWorkGroup(WorkGroup wg) {    	
-        return addWorkGroup(0, wg);
+    	return addWorkGroup(0, wg, new TrueCondition(), 0L);
     }
     
     /**
@@ -135,7 +133,55 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * @return The new workgroup's identifier.
      */
     public int addWorkGroup(WorkGroup wg, Condition cond) {    	
-        return addWorkGroup(0, wg, cond);
+    	return addWorkGroup(0, wg, cond, 0L);
+    }
+	
+    /**
+     * Creates a new workgroup for this activity. 
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @param priority Priority of the workgroup
+     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
+     * @return The new workgroup's identifier.
+     */
+    public int addWorkGroup(int priority, WorkGroup wg, Condition cond, TimeFunction duration) {
+    	final int wgId = workGroupTable.size();
+        workGroupTable.add(new ActivityWorkGroup(model, this, wgId, priority, wg, cond, duration));
+        return wgId;
+    }
+    
+    /**
+     * Creates a new workgroup for this activity. 
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @param priority Priority of the workgroup
+     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
+     * @param cond Availability condition
+     * @return The new workgroup's identifier.
+     */    
+    public int addWorkGroup(int priority, WorkGroup wg, TimeFunction duration) {
+		return addWorkGroup(priority, (WorkGroup)wg, new TrueCondition(), duration);
+    }
+    
+    /**
+     * Creates a new workgroup for this activity. 
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @param priority Priority of the workgroup
+     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
+     * @return The new workgroup's identifier.
+     */
+    public int addWorkGroup(int priority, WorkGroup wg, long duration) {
+        return addWorkGroup(priority, wg, TimeFunctionFactory.getInstance("ConstantVariate", duration));
+    }
+    
+    /**
+     * Creates a new workgroup for this activity. 
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @param priority Priority of the workgroup
+     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
+     * @param cond Availability condition
+     * @return The new workgroup's identifier.
+     */    
+    public int addWorkGroup(int priority, WorkGroup wg, Condition cond, long duration) {    	
+        return addWorkGroup(priority, wg, cond, TimeFunctionFactory.getInstance("ConstantVariate", duration));
     }
 
     /**
@@ -163,10 +209,29 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 
 	@Override
 	public void addPredecessor(Flow newFlow) {}
+    
+	/**
+	 * Returns true if this delay flow is being used as part of an interruptible activity
+	 * @return True if this delay flow is being used as part of an interruptible activity
+	 */
+	public boolean partOfInterruptible() {
+		if (parent != null)
+			if (parent instanceof ActivityFlow)
+				return ((ActivityFlow)parent).isInterruptible();
+		return false;
+	}
 	
 	@Override
 	public String getObjectTypeIdentifier() {
 		return "ACQ";
+	}
+	
+	/**
+	 * Allows a user for adding a customized code when the {@link WorkThread} actually starts the
+	 * execution of the {@link ActivityFlow}.
+	 * @param fe {@link FlowExecutor} requesting this {@link ActivityFlow}
+	 */
+	public void afterStart(FlowExecutor fe) {
 	}
 
 	@Override

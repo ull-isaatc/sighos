@@ -4,12 +4,10 @@
 package es.ull.iis.simulation.model.flow;
 
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import es.ull.iis.function.TimeFunction;
-import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
@@ -52,18 +50,6 @@ import es.ull.iis.util.Prioritizable;
 public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow, Prioritizable {
 	private static int resourcesIdCounter = -1;
 
-	protected class WGCondition extends Condition {
-		final int wgId;
-		public WGCondition(int wgId) {
-			super();
-			this.wgId = wgId;
-		}		
-		
-		@Override
-		public boolean check(FlowExecutor fe) {			
-			return (fe.getExecutionWG().getIdentifier() == wgId);
-		}
-	}
     /** Priority. The lowest the value, the highest the priority */
     protected final int priority;
     /** A brief description of the activity */
@@ -71,9 +57,6 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 	/** The set of modifiers of this activity. */
     private boolean interruptible;
     private boolean exclusive;
-    /** Resources cancellation table */
-    private final TreeMap<ResourceType, Long> cancellationList;
-    private final ExclusiveChoiceFlow selectWorkGroupFlow;
 
 	/**
      * Creates a new activity with 0 priority.
@@ -112,21 +95,13 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
     	this.priority = priority;
     	this.description = description;
     	final int resId = resourcesIdCounter--;
-        initialFlow = new RequestResourcesFlow(model, "REQ " + description, resId , priority, exclusive) {
-        	@Override
-        	public void afterFinalize(FlowExecutor fe) {
-        		afterStart(fe);
-        	}
-        };
+        initialFlow = new RequestResourcesFlow(model, "REQ " + description, resId , priority, exclusive);
         initialFlow.setParent(this);
-        selectWorkGroupFlow = new ExclusiveChoiceFlow(model);
-        selectWorkGroupFlow.setParent(this);
-        initialFlow.link(selectWorkGroupFlow);
         finalFlow = new ReleaseResourcesFlow(model, "REL " + description, resId);
         finalFlow.setParent(this);
+        initialFlow.link(finalFlow);
         this.exclusive = exclusive;
         this.interruptible = interruptible;
-		cancellationList = new TreeMap<ResourceType, Long>();
     }
 
 	@Override
@@ -160,151 +135,95 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 	public boolean isInterruptible() {
 		return interruptible;
 	}
-	
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(TimeFunction duration, int priority, WorkGroup wg, Condition cond) {
-    	final int wgId = ((RequestResourcesFlow)initialFlow).addWorkGroup(priority, wg, cond);
-    	final DelayFlow delayFlow = new DelayFlow(model, "WG" + wgId + "_DELAY " + description, duration);
-    	delayFlow.setParent(this);
-    	selectWorkGroupFlow.link(delayFlow, new WGCondition(wgId));
-    	delayFlow.link(finalFlow);
-        return wgId;
-    }
-    
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */    
-    public int addWorkGroup(TimeFunction duration, int priority, WorkGroup wg) {
-		return addWorkGroup(duration, priority, (WorkGroup)wg, new TrueCondition());
-    }
-    
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(long duration, int priority, WorkGroup wg) {
-        return addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", duration), priority, wg);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */    
-    public int addWorkGroup(long duration, int priority, WorkGroup wg, Condition cond) {    	
-        return addWorkGroup(TimeFunctionFactory.getInstance("ConstantVariate", duration), priority, wg, cond);
-    }
 
     /**
      * Creates a new workgroup for this activity. 
-     * @param initFlow First step of the flow that have to be performed 
-     * @param finalFlow Last step of the flow that have to be performed 
+     * @param duration Duration of the activity when performed with the new workgroup
      * @param priority Priority of the workgroup
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(InitializerFlow initFlow, FinalizerFlow finalFlow, int priority, WorkGroup wg, Condition cond) {
-    	final int wgId = ((RequestResourcesFlow)initialFlow).addWorkGroup(priority, wg, cond);
-		final TreeSet<Flow> visited = new TreeSet<Flow>(); 
-    	initFlow.setRecursiveStructureLink(parent, visited);
-    	selectWorkGroupFlow.link(initFlow, new WGCondition(wgId));
-    	finalFlow.link(this.finalFlow);
-    	
-		// Activities with Flow-driven workgroups cannot be presential nor interruptible
-    	interruptible = false;
-    	exclusive = false;
-        return wgId;
+    public int addWorkGroup(int priority, WorkGroup wg, Condition cond, TimeFunction duration) {
+		return ((RequestResourcesFlow)initialFlow).addWorkGroup(priority, wg, cond, duration);
     }
     
     /**
      * Creates a new workgroup for this activity. 
-     * @param initFlow First step of the flow that have to be performed 
-     * @param finalFlow Last step of the flow that have to be performed 
+     * @param duration Duration of the activity when performed with the new workgroup
      * @param priority Priority of the workgroup
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @param cond Availability condition
      * @return The new workgroup's identifier.
      */    
-    public int addWorkGroup(InitializerFlow initFlow, FinalizerFlow finalFlow, int priority, WorkGroup wg) {
-    	return addWorkGroup(initFlow, finalFlow, priority, wg, new TrueCondition());
+    public int addWorkGroup(int priority, WorkGroup wg, TimeFunction duration) {
+		return ((RequestResourcesFlow)initialFlow).addWorkGroup(priority, wg, duration);
     }
     
     /**
-     * Creates a new workgroup for this activity with the highest level of priority. 
-     * @param initFlow First step of the flow that have to be performed 
-     * @param finalFlow Last step of the flow that have to be performed 
+     * Creates a new workgroup for this activity. 
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @param priority Priority of the workgroup
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @return The new workgroup's identifier.
      */
-    public int addWorkGroup(InitializerFlow initialFlow, FinalizerFlow finalFlow, WorkGroup wg) {    	
-        return addWorkGroup(initialFlow, finalFlow, 0, wg);
+    public int addWorkGroup(int priority, WorkGroup wg, long duration) {
+        return ((RequestResourcesFlow)initialFlow).addWorkGroup(priority, wg, duration);
     }
     
     /**
-     * Creates a new workgroup for this activity with the highest level of priority. 
-     * @param initFlow First step of the flow that have to be performed 
-     * @param finalFlow Last step of the flow that have to be performed 
+     * Creates a new workgroup for this activity. 
+     * @param duration Duration of the activity when performed with the new workgroup
+     * @param priority Priority of the workgroup
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
      * @param cond Availability condition
      * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(InitializerFlow initialFlow, FinalizerFlow finalFlow, WorkGroup wg, Condition cond) {    	
-        return addWorkGroup(initialFlow, finalFlow, 0, wg, cond);
+     */    
+    public int addWorkGroup(int priority, WorkGroup wg, Condition cond, long duration) {    	
+        return ((RequestResourcesFlow)initialFlow).addWorkGroup(priority, wg, cond, duration);
     }
-    
+
+    /**
+     * Searches and returns a workgroup with the specified id.
+     * @param wgId The id of the workgroup searched
+     * @return A workgroup contained in this activity with the specified id
+     */
+    public ActivityWorkGroup getWorkGroup(int wgId) {
+        return ((RequestResourcesFlow)initialFlow).getWorkGroup(wgId);
+    }
+	
+	/**
+	 * Returns the amount of WGs associated to this activity
+	 * @return the amount of WGs associated to this activity
+	 */
+	public int getWorkGroupSize() {
+		return ((RequestResourcesFlow)initialFlow).getWorkGroupSize();
+	}
+
 	/**
 	 * Adds a new ResouceType to the cancellation list.
 	 * @param rt Resource type
 	 * @param duration Duration of the cancellation.
 	 */
 	public void addResourceCancellation(ResourceType rt, long duration) {
-		cancellationList.put(rt, duration);
+		((ReleaseResourcesFlow)finalFlow).addResourceCancellation(rt, duration);
 	}
 	
 	/**
 	 * @return the cancellationList
 	 */
 	public long getResourceCancellation(ResourceType rt) {
-		final Long duration = cancellationList.get(rt); 
-		if (duration == null)
-			return 0;
-		return duration;
+		return ((ReleaseResourcesFlow)finalFlow).getResourceCancellation(rt);
 	}
 	
 	/**
 	 * @return the cancellationList
 	 */
 	public TreeMap<ResourceType, Long> getCancellationList() {
-		return cancellationList;
+		return ((ReleaseResourcesFlow)finalFlow).getCancellationList();
 	}
 
 	@Override
 	public String getObjectTypeIdentifier() {
 		return "ACT";
-	}
-	
-	/**
-	 * Allows a user for adding a customized code when the {@link WorkThread} actually starts the
-	 * execution of the {@link ActivityFlow}.
-	 * @param fe {@link FlowExecutor} requesting this {@link ActivityFlow}
-	 */
-	public void afterStart(FlowExecutor fe) {
 	}
 }

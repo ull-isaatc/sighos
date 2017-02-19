@@ -46,17 +46,6 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, Resource
     public long getDurationSample(FlowExecutor fe) {
     	return Math.round(getDuration().getValue(fe));
     }
-    
-	/**
-	 * Returns true if this delay flow is being used as part of an interruptible activity
-	 * @return True if this delay flow is being used as part of an interruptible activity
-	 */
-	public boolean partOfInterruptible() {
-		if (parent != null)
-			if (parent instanceof ActivityFlow)
-				return ((ActivityFlow)parent).isInterruptible();
-		return false;
-	}
 
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.model.flow.Flow#addPredecessor(es.ull.iis.simulation.model.flow.Flow)

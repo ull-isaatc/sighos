@@ -70,22 +70,22 @@ public class TestResourcesManagement extends Experiment {
 			final ReleaseResourcesFlow relOperatorA = new ReleaseResourcesFlow(this, "Release operator A", 2);
 			final ReleaseResourcesFlow relTransport = new ReleaseResourcesFlow(this, "Release transport", 3);
 			
-//			final ActivityFlow actWorkAtLocationA = new ActivityFlow(this, "Work at location A");
-//			final ActivityFlow actWorkAtLocationB = new ActivityFlow(this, "Work at location B");
-//			final ActivityFlow actMoveFromAToB = new ActivityFlow(this, "Move from A to B");
+			final ActivityFlow actWorkAtLocationA = new ActivityFlow(this, "Work at location A");
+			final ActivityFlow actWorkAtLocationB = new ActivityFlow(this, "Work at location B");
+			final ActivityFlow actMoveFromAToB = new ActivityFlow(this, "Move from A to B");
 			
 			// Assign duration and workgroups to activities
 			reqLocationA.addWorkGroup(wgLocationA);
 			reqLocationB.addWorkGroup(wgLocationB);
 			reqOperatorA.addWorkGroup(wgOperatorA);
 			reqTransport.addWorkGroup(wgTransport);
-//			actWorkAtLocationA.addWorkGroup(10, 0, wgMachine);
-//			actWorkAtLocationB.addWorkGroup(10, 0, wgOperatorB);
-//			actMoveFromAToB.addWorkGroup(5, 0, wgEmpty);
+			actWorkAtLocationA.addWorkGroup(0, wgMachine, 10L);
+			actWorkAtLocationB.addWorkGroup(0, wgOperatorB, 10L);
+			actMoveFromAToB.addWorkGroup(0, wgEmpty, 5L);
 
 			// Create flow
-			reqLocationA.link(reqOperatorA)./*link(actWorkAtLocationA).*/link(relOperatorA).link(reqTransport).link(relLocationA);
-			relLocationA./*link(actMoveFromAToB).*/link(reqLocationB).link(relTransport)./*link(actWorkAtLocationB).*/link(relLocationB);
+			reqLocationA.link(reqOperatorA).link(actWorkAtLocationA).link(relOperatorA).link(reqTransport).link(relLocationA);
+			relLocationA.link(actMoveFromAToB).link(reqLocationB).link(relTransport).link(actWorkAtLocationB).link(relLocationB);
 			SimulationPeriodicCycle cycle = SimulationPeriodicCycle.newDailyCycle(UNIT, 0);
 			new TimeDrivenGenerator(this, 1, et, reqLocationA, cycle);
 		}

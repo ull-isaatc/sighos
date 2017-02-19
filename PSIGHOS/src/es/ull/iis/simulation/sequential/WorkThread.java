@@ -359,10 +359,14 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 	 * @return the workgroup which is used to perform this flow, or <code>null</code>  
      * if the flow has not been carried out.
 	 */
-	public es.ull.iis.simulation.model.ActivityWorkGroup getExecutionWG() {
+	public es.ull.iis.simulation.model.ActivityWorkGroup getModelWG() {
 		if (executionWG == null)
 			return null;
 		return executionWG.getModelAWG();
+	}
+
+	public ActivityWorkGroup getExecutionWG() {
+		return executionWG;
 	}
 
 	/**
@@ -378,7 +382,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
      * Catch the resources needed for each resource type to carry out an activity.
      */
 	public boolean acquireResources(RequestResourcesFlow reqFlow) {
-		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getExecutionWG(), ElementActionInfo.Type.REQACT, elem.getTs()));
+		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.REQACT, elem.getTs()));
 		if (elem.isDebugEnabled())
 			elem.debug("Requests\t" + this + "\t" + reqFlow.getDescription());
 		final RequestResources req = elem.simul.getRequestResource(reqFlow);
@@ -398,8 +402,30 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 		            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
 		    	}
 				minResourcesAvailability = auxTs;
-				elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getExecutionWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+				elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
 				elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());
+				reqFlow.afterStart(this);
+				// The first time the activity is carried out (useful only for interruptible activities)
+				if (timeLeft == -1) {
+					// wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
+					timeLeft = executionWG.getDurationSample(this);
+					elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+					elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());			
+				}
+				else {
+					elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
+					elem.debug("Continues\t" + this + "\t" + reqFlow.getDescription());			
+				}
+				long finishTs = elem.getTs() + timeLeft;
+				// The required time for finishing the activity is reduced (useful only for interruptible activities)
+				if (reqFlow.partOfInterruptible() && (finishTs - minResourcesAvailability > 0.0)) {
+					timeLeft = finishTs - minResourcesAvailability;
+					finishTs = minResourcesAvailability;
+				}
+				else {
+					timeLeft = 0;
+				}
+				elem.addFinishEvent(finishTs, this);
 				return true;
 			}
 		}
@@ -425,9 +451,30 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 		            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
 		    	}
 				minResourcesAvailability = auxTs;
-				elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getExecutionWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+				elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
 				elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());
-				elem.getFlowHandler().next(this);
+				reqFlow.afterStart(this);
+				// The first time the activity is carried out (useful only for interruptible activities)
+				if (timeLeft == -1) {
+					// wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
+					timeLeft = executionWG.getDurationSample(this);
+					elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+					elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());			
+				}
+				else {
+					elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
+					elem.debug("Continues\t" + this + "\t" + reqFlow.getDescription());			
+				}
+				long finishTs = elem.getTs() + timeLeft;
+				// The required time for finishing the activity is reduced (useful only for interruptible activities)
+				if (reqFlow.partOfInterruptible() && (finishTs - minResourcesAvailability > 0.0)) {
+					timeLeft = finishTs - minResourcesAvailability;
+					finishTs = minResourcesAvailability;
+				}
+				else {
+					timeLeft = 0;
+				}
+				elem.addFinishEvent(finishTs, this);
 				return -1;
 			}
 			else {
@@ -455,9 +502,30 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 	            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
 	    	}
 			minResourcesAvailability = auxTs;
-			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getExecutionWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
-			elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());
+	    	
+			reqFlow.afterStart(this);
+			// The first time the activity is carried out (useful only for interruptible activities)
+			if (timeLeft == -1) {
+				// wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
+				timeLeft = executionWG.getDurationSample(this);
+				elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+				elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());			
+			}
+			else {
+				elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
+				elem.debug("Continues\t" + this + "\t" + reqFlow.getDescription());			
+			}
+			long finishTs = elem.getTs() + timeLeft;
+			// The required time for finishing the activity is reduced (useful only for interruptible activities)
+			if (reqFlow.partOfInterruptible() && (finishTs - minResourcesAvailability > 0.0)) {
+				timeLeft = finishTs - minResourcesAvailability;
+				finishTs = minResourcesAvailability;
+			}
+			else {
+				timeLeft = 0;
+			}
 			reqResources.queueRemove(this);
+			elem.addFinishEvent(finishTs, this);
 		}
 	}
 	
@@ -503,7 +571,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 		}
 		
 		// TODO Change by more appropriate messages
-		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, relFlow, getExecutionWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
+		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, relFlow, getModelWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
 		if (elem.isDebugEnabled())
 			elem.debug("Finishes\t" + this + "\t" + relFlow.getDescription());
 		relFlow.afterFinalize(this);
@@ -512,39 +580,23 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
     }
 
     public void startDelay(DelayFlow f) {
-		// The first time the activity is carried out (useful only for interruptible activities)
-		if (timeLeft == -1) {
-			// wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
-			timeLeft = f.getDurationSample(this);
-			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, executionWG.getModelAWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
-			elem.debug("Starts\t" + this + "\t" + f.getDescription());			
-		}
-		else {
-			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, executionWG.getModelAWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
-			elem.debug("Continues\t" + this + "\t" + f.getDescription());			
-		}
-		long finishTs = elem.getTs() + timeLeft;
-		// The required time for finishing the activity is reduced (useful only for interruptible activities)
-		if (f.partOfInterruptible() && (finishTs - minResourcesAvailability > 0.0)) {
-			timeLeft = finishTs - minResourcesAvailability;
-			finishTs = minResourcesAvailability;
-		}
-		else {
-			timeLeft = 0;
-		}
+		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, executionWG.getModelAWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+		elem.debug("Starts\t" + this + "\t" + f.getDescription());			
+		long finishTs = elem.getTs() + f.getDurationSample(this);
+		timeLeft = 0;
 		elem.addFinishEvent(finishTs, this);
     }
     
     public void endDelay(DelayFlow f) {
 		// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
 		if (timeLeft <= 0.0) {
-			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, getExecutionWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
+			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, getModelWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + f.getDescription());
 			f.afterFinalize(this);
 		}
 		else {
-			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, getExecutionWG(), ElementActionInfo.Type.INTACT, elem.getTs()));
+			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, getModelWG(), ElementActionInfo.Type.INTACT, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes part of \t" + this + "\t" + f.getDescription() + "\t" + timeLeft);
 			// Notifies the parent workthread that the activity was interrupted

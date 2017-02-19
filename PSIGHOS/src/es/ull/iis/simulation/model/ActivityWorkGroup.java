@@ -1,5 +1,6 @@
 package es.ull.iis.simulation.model;
 
+import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.Describable;
 import es.ull.iis.simulation.core.Identifiable;
@@ -16,13 +17,14 @@ public class ActivityWorkGroup extends WorkGroup implements Prioritizable, Descr
     /**
 	 * 
 	 */
-	private final RequestResourcesFlow basicStep;
+	final protected RequestResourcesFlow basicStep;
 	/** Workgroup's identifier */
-	protected int id;
+	final protected int id;
 	/** Priority of the workgroup */
-    protected int priority = 0;
+    final protected int priority;
     /** Availability condition */
-    protected Condition cond;
+    final protected Condition cond;
+    final protected TimeFunction duration;
     private final String idString; 
 	
     /**
@@ -34,12 +36,13 @@ public class ActivityWorkGroup extends WorkGroup implements Prioritizable, Descr
      * @param cond  Availability condition
      * @param basicStep TODO
      */    
-    public ActivityWorkGroup(Model model, RequestResourcesFlow basicStep, int id, int priority, WorkGroup wg, Condition cond) {
+    public ActivityWorkGroup(Model model, RequestResourcesFlow basicStep, int id, int priority, WorkGroup wg, Condition cond, TimeFunction duration) {
         super(model, wg.pairs);
 		this.basicStep = basicStep;
         this.id = id;
         this.priority = priority;
         this.cond = cond;
+        this.duration = duration;
         this.idString = new String("(" + this.basicStep + ")" + getDescription());
     }
 
@@ -59,7 +62,14 @@ public class ActivityWorkGroup extends WorkGroup implements Prioritizable, Descr
         return priority;
     }
 
-    @Override
+    /**
+	 * @return the duration
+	 */
+	public TimeFunction getDuration() {
+		return duration;
+	}
+
+	@Override
 	public int getIdentifier() {
 		return id;
 	}

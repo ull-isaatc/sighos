@@ -117,7 +117,7 @@ public class RequestResources extends VariableStoreSimulationObject implements P
         	ArrayDeque<Resource> solution = wg.isFeasible(wt); 
             if (solution != null) {
                 wt.setExecutionWG(wg);
-        		wt.getElement().debug("Can carry out \t" + this + "\t" + wt.getExecutionWG());
+        		wt.getElement().debug("Can carry out \t" + this + "\t" + wt.getModelWG());
                 return solution;
             }            
         }

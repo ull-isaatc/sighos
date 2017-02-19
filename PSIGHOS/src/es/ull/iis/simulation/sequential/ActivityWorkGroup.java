@@ -3,6 +3,7 @@ package es.ull.iis.simulation.sequential;
 import java.util.ArrayDeque;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.model.flow.FlowExecutor;
 import es.ull.iis.util.Prioritizable;
 
 /**
@@ -187,5 +188,16 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
 	public Condition getCondition() {
 		return modelAWG.getCondition();
 	}
+
+    /**
+     * Returns the duration of the activity where this workgroup is used. 
+     * The value returned by the random number function could be negative. 
+     * In this case, it returns 0.
+     * @return The activity duration.
+     */
+    public long getDurationSample(FlowExecutor fe) {
+    	return Math.round(modelAWG.getDuration().getValue(fe));
+    }
+    
 
 }

@@ -12,5 +12,5 @@ import es.ull.iis.simulation.model.ActivityWorkGroup;
  *
  */
 public interface FlowExecutor extends TimeFunctionParams {
-	ActivityWorkGroup getExecutionWG();
+	ActivityWorkGroup getModelWG();
 }

@@ -29,6 +29,7 @@ public class ReleaseResources extends VariableStoreSimulationObject implements R
         for (Entry<es.ull.iis.simulation.model.ResourceType, Long> entry : originalList.entrySet()) {
         	cancellationList.put(simul.getResourceType(entry.getKey()), entry.getValue());
         }
+        simul.add(this);
 	}
 	
 	public ReleaseResourcesFlow getModelRelFlow() {
