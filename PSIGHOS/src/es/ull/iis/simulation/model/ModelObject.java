@@ -8,15 +8,17 @@ package es.ull.iis.simulation.model;
  *
  */
 public abstract class ModelObject implements Comparable<ModelObject> {
-	private static int idGenerator = 0;
 	protected final Model model;
 	private final String objectTypeId;
 	private final int id;
+    /** String which represents the object */
+    private final String idString;
 	
-	public ModelObject(Model model, String objectTypeId) {
+	public ModelObject(Model model, int id, String objectTypeId) {
 		this.model = model;
 		this.objectTypeId = objectTypeId;
-		id = idGenerator++;
+		this.id = id;
+		idString = new String("[" + objectTypeId + id + "]");
 	}
 	
 	/**
@@ -43,4 +45,10 @@ public abstract class ModelObject implements Comparable<ModelObject> {
 			return 1;
 		return 0;
 	}
+
+
+	@Override
+	public String toString() {
+    	return idString;
+    }
 }

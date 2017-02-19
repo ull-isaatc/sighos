@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.sequential;
 
-import es.ull.iis.simulation.core.Debuggable;
+import es.ull.iis.simulation.model.Debuggable;
 
 /**
  * A simulation object which has knowledge of the simulation time.

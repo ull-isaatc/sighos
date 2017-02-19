@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.core;
 
-
+import es.ull.iis.simulation.model.Describable;
 
 /**
  * Controls a set of simulation experiments. 

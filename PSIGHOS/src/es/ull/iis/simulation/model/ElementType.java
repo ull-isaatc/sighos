@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.model;
 
-import es.ull.iis.simulation.core.Describable;
 import es.ull.iis.util.Prioritizable;
 
 /**
@@ -31,7 +30,7 @@ public class ElementType extends ModelObject implements Describable, Prioritizab
 	 * @param priority The priority to set.
 	 */
 	public ElementType(Model model, String description, int priority) {
-		super(model, "ET");
+		super(model, model.getElementTypeList().size(), "ET");
 		this.priority = priority;
 		this.description = description;
 		model.add(this);

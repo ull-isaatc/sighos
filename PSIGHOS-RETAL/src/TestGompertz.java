@@ -1,4 +1,4 @@
-import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.GompertzVariate;
 
 public class TestGompertz {

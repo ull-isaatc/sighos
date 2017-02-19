@@ -19,7 +19,7 @@ public abstract class BasicFlow extends ModelObject implements Flow {
 	 * @param simul The simulation this flow belongs to.
 	 */
 	public BasicFlow(Model model) {
-		super(model, "F");
+		super(model, model.getFlowList().size(), "F");
 		model.add(this);
 	}
 	

@@ -12,10 +12,6 @@ import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.Resource;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.SimulationWeeklyPeriodicCycle;
-import es.ull.iis.simulation.core.TimeStamp;
-import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
@@ -26,6 +22,10 @@ import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.MultiChoiceFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
+import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.ModelWeeklyPeriodicCycle;
+import es.ull.iis.simulation.model.TimeStamp;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.WeeklyPeriodicCycle;
 
 class BarrelShippingExperiment extends Experiment {
@@ -52,7 +52,7 @@ class BarrelShippingExperiment extends Experiment {
 		ResourceType rtOperator = factory.getResourceTypeInstance("rtOperator");
     	
 		// Defines the resource timetables: Operators work only the weekdays, starting at 8 am 
-		SimulationWeeklyPeriodicCycle resCycle = new SimulationWeeklyPeriodicCycle(sim.getTimeUnit(), WeeklyPeriodicCycle.WEEKDAYS, 480, 0);
+		ModelWeeklyPeriodicCycle resCycle = new ModelWeeklyPeriodicCycle(sim.getTimeUnit(), WeeklyPeriodicCycle.WEEKDAYS, 480, 0);
 
 		// Declares two operators who work 8 hours a day
 		Resource operator1 = factory.getResourceInstance("Operator1");
@@ -85,8 +85,8 @@ class BarrelShippingExperiment extends Experiment {
 		sim.putVar("barrelCapacity", 100);
 
 		// Defines duration of activities
-		actFilling.addWorkGroup(new SimulationTimeFunction(sim.getTimeUnit(), "ConstantVariate", 15.0), 0, wgOperator);
-		actShipping.addWorkGroup(new SimulationTimeFunction(sim.getTimeUnit(), "ConstantVariate", 20.0), 0, wgOperator);
+		actFilling.addWorkGroup(new ModelTimeFunction(sim.getTimeUnit(), "ConstantVariate", 15.0), 0, wgOperator);
+		actShipping.addWorkGroup(new ModelTimeFunction(sim.getTimeUnit(), "ConstantVariate", 20.0), 0, wgOperator);
 
 		// Defines loop conditions	
 		Condition cond = factory.getCustomizedConditionInstance("", "<%GET(S.totalLiters)%> < <%GET(S.barrelCapacity)%>");
@@ -107,7 +107,7 @@ class BarrelShippingExperiment extends Experiment {
 		mul1.link(succList, condList);
 
 		// Defines the way the processes are created
-		SimulationWeeklyPeriodicCycle cGen = new SimulationWeeklyPeriodicCycle(sim.getTimeUnit(), WeeklyPeriodicCycle.WEEKDAYS, 0, NDAYS);
+		ModelWeeklyPeriodicCycle cGen = new ModelWeeklyPeriodicCycle(sim.getTimeUnit(), WeeklyPeriodicCycle.WEEKDAYS, 0, NDAYS);
 		ElementCreator ec = factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 1.0), etShipping, actFilling);
 		factory.getTimeDrivenGeneratorInstance(ec, cGen);
 

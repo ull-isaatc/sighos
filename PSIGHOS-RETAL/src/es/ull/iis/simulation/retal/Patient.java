@@ -8,7 +8,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.retal.info.PatientInfo;
 import es.ull.iis.simulation.retal.outcome.Cost;
 import es.ull.iis.simulation.retal.outcome.QualityAdjustedLifeExpectancy;
@@ -19,7 +19,7 @@ import es.ull.iis.simulation.retal.params.CommonParams;
 import es.ull.iis.simulation.retal.params.DRParams;
 import es.ull.iis.simulation.retal.params.EyeStateAndValue;
 import es.ull.iis.simulation.retal.params.VAProgressionPair;
-import es.ull.iis.simulation.sequential.BasicElement;
+import es.ull.iis.simulation.sequential.EventSource;
 import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
@@ -27,7 +27,7 @@ import es.ull.iis.util.DiscreteCycleIterator;
  * @author Iván Castilla
  *
  */
-public class Patient extends BasicElement {
+public class Patient extends EventSource {
 	private EnumSet<RETALSimulation.DISEASES> affectedBy = EnumSet.noneOf(RETALSimulation.DISEASES.class); 
 	/** The original patient, this one was cloned from */ 
 	private Patient clonedFrom;
@@ -220,7 +220,7 @@ public class Patient extends BasicElement {
 	}
 	
 	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.sequential.BasicElement#end()
+	 * @see es.ull.iis.simulation.sequential.EventSource#end()
 	 */
 	@Override
 	protected void end() {

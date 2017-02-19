@@ -5,11 +5,11 @@ package es.ull.iis.simulation.test;
 
 import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.TimeStamp;
-import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
+import es.ull.iis.simulation.model.TimeStamp;
+import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * @author Iván Castilla Rodríguez

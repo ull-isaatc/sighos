@@ -16,8 +16,8 @@ public interface Element extends EventSource {
 	 */
 	ElementType getType();
 	/**
-	 * Returns the associated {@link es.ull.iis.simulation.core.flow.Flow Flow}.
-	 * @return the associated {@link es.ull.iis.simulation.core.flow.Flow Flow}
+	 * Returns the associated {@link es.ull.iis.simulation.model.flow.InitializerFlow Flow}.
+	 * @return the associated {@link es.ull.iis.simulation.model.flow.InitializerFlow Flow}
 	 */
 	InitializerFlow getFlow();
 

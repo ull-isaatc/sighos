@@ -45,7 +45,7 @@ public class WorkGroup extends ModelObject {
      * @param needs The amounts of resource types required by this WG.
      */    
     public WorkGroup(Model model, ResourceType[] rts, int []needs) {
-    	super(model, "WG");
+    	super(model, model.getWorkGroupList().size(), "WG");
     	this.pairs = new Pair[rts.length];
     	for (int i = 0; i < rts.length; i++)
     		pairs[i] = new Pair(rts[i], needs[i]);
@@ -58,7 +58,7 @@ public class WorkGroup extends ModelObject {
      * @param pairs The pairs <resource type, needed resources>.
      */    
     public WorkGroup(Model model, Pair[] pairs) {
-    	super(model, "WG");
+    	super(model, model.getWorkGroupList().size(), "WG");
     	this.pairs = pairs;
 		model.add(this);
     }

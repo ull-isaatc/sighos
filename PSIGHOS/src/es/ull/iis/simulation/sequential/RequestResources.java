@@ -6,7 +6,7 @@ package es.ull.iis.simulation.sequential;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 
-import es.ull.iis.simulation.core.QueuedObject;
+import es.ull.iis.simulation.model.QueuedObject;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.Prioritizable;
 import es.ull.iis.util.PrioritizedTable;

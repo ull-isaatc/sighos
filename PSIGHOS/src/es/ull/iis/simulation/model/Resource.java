@@ -6,13 +6,9 @@ package es.ull.iis.simulation.model;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import es.ull.iis.simulation.core.Describable;
-import es.ull.iis.simulation.core.SimulationCycle;
-import es.ull.iis.simulation.core.TimeStamp;
-
 /**
  * A simulation resource whose availability is controlled by means of timetable entries.
- * A timetable entry us a trio &lt{@link ResourceType}, {@link SimulationCycle}, long&gt which defines a 
+ * A timetable entry us a trio &lt{@link ResourceType}, {@link ModelCycle}, long&gt which defines a 
  * resource type, an availability cycle, and the duration of each availability period. Timetable entries 
  * can be overlapped in time, thus allowing the resource for being potentially available for
  * different resource types simultaneously.
@@ -32,7 +28,7 @@ public class Resource extends ModelObject implements Describable {
 	 * 
 	 */
 	public Resource(Model model, String description) {
-		super(model, "RES");
+		super(model, model.getResourceList().size(), "RES");
 		this.description = description;
 		model.add(this);
 	}
@@ -81,7 +77,7 @@ public class Resource extends ModelObject implements Describable {
 	 * @param dur How long the resource is active
 	 * @param role The type of this resource during every activation 
 	 */
-	public void addTimeTableEntry(SimulationCycle cycle, TimeStamp dur, ResourceType role) {
+	public void addTimeTableEntry(ModelCycle cycle, TimeStamp dur, ResourceType role) {
         timeTable.add(new TimeTableEntry(cycle, dur, role));
     }
     
@@ -91,7 +87,7 @@ public class Resource extends ModelObject implements Describable {
 	 * @param dur How long the resource is active
 	 * @param roleList The types of this resource during every activation 
 	 */
-	public void addTimeTableEntry(SimulationCycle cycle, TimeStamp dur, ArrayList<ResourceType> roleList) {
+	public void addTimeTableEntry(ModelCycle cycle, TimeStamp dur, ArrayList<ResourceType> roleList) {
     	for (int i = 0; i < roleList.size(); i++)
             addTimeTableEntry(cycle, dur, roleList.get(i));
     }  
@@ -102,7 +98,7 @@ public class Resource extends ModelObject implements Describable {
 	 * @param dur How long the resource is active using the default model time unit
 	 * @param role The type of this resource during every activation 
 	 */
-	public void addTimeTableEntry(SimulationCycle cycle, long dur, ResourceType role) {
+	public void addTimeTableEntry(ModelCycle cycle, long dur, ResourceType role) {
     	addTimeTableEntry(cycle, new TimeStamp(model.getUnit(), dur), role);
     }  
     
@@ -112,7 +108,7 @@ public class Resource extends ModelObject implements Describable {
 	 * @param dur How long the resource is active using the default model time unit
 	 * @param roleList The types of this resource during every activation 
 	 */
-	public void addTimeTableEntry(SimulationCycle cycle, long dur, ArrayList<ResourceType> roleList) {
+	public void addTimeTableEntry(ModelCycle cycle, long dur, ArrayList<ResourceType> roleList) {
     	addTimeTableEntry(cycle, new TimeStamp(model.getUnit(), dur), roleList);
     }  
     
@@ -122,7 +118,7 @@ public class Resource extends ModelObject implements Describable {
      * @param dur The long this resource plays this role every cycle
      * @param role Role that the resource plays during this cycle
      */
-	public void addCancelTableEntry(SimulationCycle cycle, TimeStamp dur, ResourceType role) {
+	public void addCancelTableEntry(ModelCycle cycle, TimeStamp dur, ResourceType role) {
         cancelPeriodTable.add(new TimeTableEntry(cycle, dur, role));
     }  
 
@@ -132,7 +128,7 @@ public class Resource extends ModelObject implements Describable {
      * @param dur The long this resource plays this role every cycle
      * @param roleList Roles that the resource play during this cycle
      */
-	public void addCancelTableEntry(SimulationCycle cycle, TimeStamp dur, ArrayList<ResourceType> roleList) {
+	public void addCancelTableEntry(ModelCycle cycle, TimeStamp dur, ArrayList<ResourceType> roleList) {
     	for (int i = 0; i < roleList.size(); i++)
             addCancelTableEntry(cycle, dur, roleList.get(i));
     }  
@@ -144,7 +140,7 @@ public class Resource extends ModelObject implements Describable {
      * default model time unit
      * @param role Role that the resource plays during this cycle
      */
-	public void addCancelTableEntry(SimulationCycle cycle, long dur, ResourceType role) {
+	public void addCancelTableEntry(ModelCycle cycle, long dur, ResourceType role) {
     	addCancelTableEntry(cycle, new TimeStamp(model.getUnit(), dur), role);
     }  
 
@@ -155,7 +151,7 @@ public class Resource extends ModelObject implements Describable {
      * default model time unit
      * @param roleList Roles that the resource play during this cycle
      */
-	public void addCancelTableEntry(SimulationCycle cycle, long dur, ArrayList<ResourceType> roleList) {
+	public void addCancelTableEntry(ModelCycle cycle, long dur, ArrayList<ResourceType> roleList) {
     	addCancelTableEntry(cycle, new TimeStamp(model.getUnit(), dur), roleList);
     }      
 }

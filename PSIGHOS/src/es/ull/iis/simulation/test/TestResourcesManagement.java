@@ -4,13 +4,13 @@
 package es.ull.iis.simulation.test;
 
 import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.core.SimulationPeriodicCycle;
-import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.TimeDrivenGenerator;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
@@ -86,7 +86,7 @@ public class TestResourcesManagement extends Experiment {
 			// Create flow
 			reqLocationA.link(reqOperatorA).link(actWorkAtLocationA).link(relOperatorA).link(reqTransport).link(relLocationA);
 			relLocationA.link(actMoveFromAToB).link(reqLocationB).link(relTransport).link(actWorkAtLocationB).link(relLocationB);
-			SimulationPeriodicCycle cycle = SimulationPeriodicCycle.newDailyCycle(UNIT, 0);
+			ModelPeriodicCycle cycle = ModelPeriodicCycle.newDailyCycle(UNIT, 0);
 			new TimeDrivenGenerator(this, 1, et, reqLocationA, cycle);
 		}
 	}

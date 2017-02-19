@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.core.factory;
 
-import es.ull.iis.simulation.core.TimeStamp;
-import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.model.TimeStamp;
+import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * @author Iván Castilla Rodríguez

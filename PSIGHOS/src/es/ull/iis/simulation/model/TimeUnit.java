@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.core;
+package es.ull.iis.simulation.model;
 
 /**
  * Different time units that can be used in a simulation.

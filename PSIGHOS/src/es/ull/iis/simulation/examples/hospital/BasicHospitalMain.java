@@ -4,10 +4,10 @@
 package es.ull.iis.simulation.examples.hospital;
 
 import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.sequential.Simulation;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
-import es.ull.iis.simulation.sequential.WorkThread;
+import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * Main class to execute the "hospital" tutorial example.
@@ -29,18 +29,19 @@ import es.ull.iis.simulation.sequential.WorkThread;
  *
  */
 public class BasicHospitalMain extends Experiment {
-
+	private final Model model;
 	/**
 	 * @param nExperiments
 	 */
 	public BasicHospitalMain(int nExperiments) {
 		super("Basic Hospital Experiment", nExperiments);
+		model = new BasicHospitalModel(TimeUnit.MINUTE);
 	}
 
 	@Override
-	public Simulation<WorkThread> getSimulation(int ind) {
+	public Simulation getSimulation(int ind) {
 		// Creates a simulation based on minutes, which lasts for a week (7 days X 24 hours X 60 minutes)
-		Simulation<WorkThread> sim = new BasicHospitalSimulation(ind, "Hospital" + ind, TimeUnit.MINUTE, 0, 7 * 24 * 60);
+		Simulation sim = new Simulation(ind, "Hospital" + ind, model, 0, 7 * 24 * 60);
 		sim.addInfoReceiver(new StdInfoView(sim));
 
 		return sim;

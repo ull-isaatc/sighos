@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.core;
 
+import es.ull.iis.simulation.model.Describable;
 
 /**
  * The type of a resource. Defines roles or specializations of the resources.<p>

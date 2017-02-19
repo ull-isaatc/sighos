@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.core;
+package es.ull.iis.simulation.model;
 
 /**
  * Indicates that an object have a unique identifier.

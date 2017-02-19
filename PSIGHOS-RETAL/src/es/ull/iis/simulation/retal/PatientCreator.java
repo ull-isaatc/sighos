@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.retal;
 
 import es.ull.iis.function.TimeFunction;
-import es.ull.iis.simulation.sequential.BasicElement;
-import es.ull.iis.simulation.sequential.BasicElementCreator;
+import es.ull.iis.simulation.sequential.EventSource;
+import es.ull.iis.simulation.sequential.EventSource;
 import es.ull.iis.simulation.sequential.ElementGenerator;
 
 /**
@@ -61,7 +61,7 @@ public class PatientCreator implements BasicElementCreator {
 				final double age = initialAges.getValue(null);
 				Patient p = new Patient(simul, age, intervention);
 				simul.addGeneratedPatient(p, i);
-				final BasicElement.DiscreteEvent ev = p.getStartEvent(simul.getTs());
+				final EventSource.DiscreteEvent ev = p.getStartEvent(simul.getTs());
 				p.addEvent(ev);
 			}
 		}
@@ -69,7 +69,7 @@ public class PatientCreator implements BasicElementCreator {
 			for (int i = 0; i < nPatients; i++) {
 				Patient p = new Patient(simul, copyOf[i], intervention);
 				simul.addGeneratedPatient(p, i);
-				final BasicElement.DiscreteEvent ev = p.getStartEvent(simul.getTs());
+				final EventSource.DiscreteEvent ev = p.getStartEvent(simul.getTs());
 				p.addEvent(ev);
 			}			
 		}

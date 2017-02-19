@@ -10,9 +10,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.bonn.cs.net.jbarrier.barrier.AbstractBarrier;
 import edu.bonn.cs.net.jbarrier.barrier.TournamentBarrier;
-import es.ull.iis.simulation.core.TimeStamp;
-import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.info.TimeChangeInfo;
+import es.ull.iis.simulation.model.TimeStamp;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.parallel.flow.Flow;
 import es.ull.iis.util.Output;
 

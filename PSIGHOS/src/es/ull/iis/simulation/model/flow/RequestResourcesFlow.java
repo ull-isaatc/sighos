@@ -86,9 +86,9 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	}
 
 	/**
-	 * Allows a user for adding a customized code when a {@link es.ull.iis.simulation.core.WorkThread} from an {@link es.ull.iis.simulation.core.Element}
-	 * is enqueued, waiting for available {@link es.ull.iis.simulation.core.Resource}. 
-	 * @param wt {@link es.ull.iis.simulation.core.WorkThread} requesting resources
+	 * Allows a user for adding a customized code when a {@link es.ull.iis.simulation.model.flow.FlowExecutor} from an {@link es.ull.iis.simulation.model.Element}
+	 * is enqueued, waiting for available {@link es.ull.iis.simulation.model.Resource}. 
+	 * @param wt {@link es.ull.iis.simulation.model.flow.FlowExecutor} requesting resources
 	 */
 	public void inqueue(FlowExecutor fe) {}
 	

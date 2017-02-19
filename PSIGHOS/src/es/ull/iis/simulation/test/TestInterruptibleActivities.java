@@ -9,10 +9,6 @@ import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.SimulationPeriodicCycle;
-import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.TimeStamp;
-import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
@@ -20,6 +16,10 @@ import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
+import es.ull.iis.simulation.model.ModelPeriodicCycle;
+import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.TimeStamp;
+import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -51,10 +51,10 @@ public class TestInterruptibleActivities {
 				ActivityFlow<?,?> acts[] = new ActivityFlow[NACT];
 				for (int i = 0; i < NACT; i++) {
 					acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "ACT" + i, i / 2, EnumSet.of(ActivityFlow.Modifier.INTERRUPTIBLE));
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 101), 0, wg);
+					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 101), 0, wg);
 				}
-				SimulationPeriodicCycle c1 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 200), 0);
-				SimulationPeriodicCycle c2 = new SimulationPeriodicCycle(unit, 20, new SimulationTimeFunction(unit, "ConstantVariate", 100), 0);
+				ModelPeriodicCycle c1 = new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", 200), 0);
+				ModelPeriodicCycle c2 = new ModelPeriodicCycle(unit, 20, new ModelTimeFunction(unit, "ConstantVariate", 100), 0);
 				for (int i = 0; i < NRES; i++)
 					factory.getResourceInstance("RES" + i).addTimeTableEntry(c2, 40, rt);
 				ParallelFlow meta = (ParallelFlow)factory.getFlowInstance("ParallelFlow");

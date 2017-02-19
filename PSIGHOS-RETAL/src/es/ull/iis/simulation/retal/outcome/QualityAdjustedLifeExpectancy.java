@@ -5,7 +5,7 @@ package es.ull.iis.simulation.retal.outcome;
 
 import java.util.LinkedList;
 
-import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RETALSimulation;
 import es.ull.iis.simulation.retal.params.VAProgressionPair;

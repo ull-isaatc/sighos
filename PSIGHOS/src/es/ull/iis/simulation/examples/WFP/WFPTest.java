@@ -9,10 +9,10 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
+import es.ull.iis.simulation.model.TimeUnit;
 
 class WFPTestExperiment extends Experiment {
 	int wfp = -1;

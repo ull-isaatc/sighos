@@ -5,17 +5,17 @@ import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.Resource;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.SimulationCycle;
-import es.ull.iis.simulation.core.SimulationPeriodicCycle;
-import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.TimeStamp;
-import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.simulation.model.ModelCycle;
+import es.ull.iis.simulation.model.ModelPeriodicCycle;
+import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.TimeStamp;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Output;
 
 class ExpConflict extends Experiment {
@@ -50,10 +50,10 @@ class ExpConflict extends Experiment {
 		ActivityFlow<?,?> acts[] = new ActivityFlow[NACTS];
 		for (int i = 0; i < NACTS; i++) {
 			acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "ACT" + i);
-			acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 40), 0, wgs[i]);
+			acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 40), 0, wgs[i]);
 		}
 		
-		SimulationCycle c = SimulationPeriodicCycle.newDailyCycle(unit);
+		ModelCycle c = ModelPeriodicCycle.newDailyCycle(unit);
 		
 		Resource r0 = factory.getResourceInstance("Res0");
 		Resource r1 = factory.getResourceInstance("Res1");
@@ -62,7 +62,7 @@ class ExpConflict extends Experiment {
 		r1.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[3]);
 		r1.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[1]);
 
-		SimulationCycle c1 = new SimulationPeriodicCycle(unit, new TimeStamp(TimeUnit.MINUTE, 1), new SimulationTimeFunction(unit, "ConstantVariate", 1440), new TimeStamp(TimeUnit.MINUTE, 480));
+		ModelCycle c1 = new ModelPeriodicCycle(unit, new TimeStamp(TimeUnit.MINUTE, 1), new ModelTimeFunction(unit, "ConstantVariate", 1440), new TimeStamp(TimeUnit.MINUTE, 480));
 		factory.getTimeDrivenGeneratorInstance(
 				factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
 						factory.getElementTypeInstance("ET0"), (InitializerFlow)factory.getFlowInstance("SingleFlow", acts[0])), c1);
@@ -93,10 +93,10 @@ class ExpConflict extends Experiment {
 		ActivityFlow<?,?> acts[] = new ActivityFlow[NACTS];
 		for (int i = 0; i < NACTS; i++) {
 			acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "ACT" + i);
-			acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 40), 0, wgs[i]);
+			acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 40), 0, wgs[i]);
 		}
 
-		SimulationCycle c = SimulationPeriodicCycle.newDailyCycle(unit);
+		ModelCycle c = ModelPeriodicCycle.newDailyCycle(unit);
 		
 		Resource r0 = factory.getResourceInstance("Res0");
 		Resource r1 = factory.getResourceInstance("Res1");
@@ -108,7 +108,7 @@ class ExpConflict extends Experiment {
 		r2.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[4]);
 		r2.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[5]);
 
-		SimulationCycle c1 = new SimulationPeriodicCycle(unit, new TimeStamp(TimeUnit.MINUTE, 1), new SimulationTimeFunction(unit, "ConstantVariate", 1440), new TimeStamp(TimeUnit.MINUTE, 480));
+		ModelCycle c1 = new ModelPeriodicCycle(unit, new TimeStamp(TimeUnit.MINUTE, 1), new ModelTimeFunction(unit, "ConstantVariate", 1440), new TimeStamp(TimeUnit.MINUTE, 480));
 		factory.getTimeDrivenGeneratorInstance(
 				factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
 						factory.getElementTypeInstance("ET0"), (InitializerFlow)factory.getFlowInstance("SingleFlow", acts[0])), c1);

@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.core;
 
+import es.ull.iis.simulation.model.Describable;
 import es.ull.iis.util.Prioritizable;
 
 /**

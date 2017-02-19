@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.core;
 
+import es.ull.iis.simulation.model.Identifiable;
 
 /**
  * An {@link Identifiable} object associated to a {@link Simulation}.

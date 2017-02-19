@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.core;
+package es.ull.iis.simulation.model;
 
 /**
  * A timed value expressed as a pair &lt{@link TimeUnit}, long}&gt.

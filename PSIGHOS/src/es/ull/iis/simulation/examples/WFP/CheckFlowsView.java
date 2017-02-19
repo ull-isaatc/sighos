@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementActionInfo.Type;
+import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;

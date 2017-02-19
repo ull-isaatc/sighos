@@ -5,7 +5,7 @@ package es.ull.iis.simulation.retal.params;
 
 import java.util.Random;
 
-import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * @author Iván Castilla Rodríguez

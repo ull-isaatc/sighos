@@ -5,6 +5,8 @@ package es.ull.iis.simulation.core;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
+import es.ull.iis.simulation.model.Describable;
+import es.ull.iis.simulation.model.Identifiable;
 import es.ull.iis.util.Prioritizable;
 
 /**

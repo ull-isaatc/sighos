@@ -5,6 +5,7 @@ package es.ull.iis.simulation.core;
 
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.simulation.model.Identifiable;
 import es.ull.iis.util.Prioritizable;
 
 /**

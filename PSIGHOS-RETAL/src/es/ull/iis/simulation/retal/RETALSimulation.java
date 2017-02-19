@@ -6,10 +6,10 @@ package es.ull.iis.simulation.retal;
 import java.util.EnumSet;
 
 import es.ull.iis.function.ConstantFunction;
-import es.ull.iis.simulation.core.SimulationPeriodicCycle;
-import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.TimeStamp;
-import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.model.ModelPeriodicCycle;
+import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.TimeStamp;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.retal.inforeceiver.AffectedPatientHistoryVAView;
 import es.ull.iis.simulation.retal.inforeceiver.AffectedPatientHistoryView;
 import es.ull.iis.simulation.retal.inforeceiver.DiagnosticView;
@@ -71,7 +71,7 @@ public class RETALSimulation extends Simulation {
 		this.drParams = new DRParams(baseCase);
 		this.intervention = intervention;
 		PatientCreator creator = new PatientCreator(this, NPATIENTS, new ConstantFunction(commonParams.getInitAge()), intervention);
-		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
+		new TimeDrivenGenerator(this, creator, new ModelPeriodicCycle(TimeUnit.YEAR, (long)0, new ModelTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
 		cost = new Cost(this, DISCOUNT_RATE);
 		qaly = new QualityAdjustedLifeExpectancy(this, DISCOUNT_RATE);
 		addInfoReceivers();
@@ -86,7 +86,7 @@ public class RETALSimulation extends Simulation {
 		this.armdParams = original.armdParams;
 		this.drParams = original.drParams;
 		PatientCreator creator = new PatientCreator(this, original.generatedPatients, intervention);
-		new TimeDrivenGenerator(this, creator, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
+		new TimeDrivenGenerator(this, creator, new ModelPeriodicCycle(TimeUnit.YEAR, (long)0, new ModelTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
 		this.cost = original.cost;
 		this.qaly = original.qaly;
 		addInfoReceivers();

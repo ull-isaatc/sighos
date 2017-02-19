@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.core;
+package es.ull.iis.simulation.model;
 
 import es.ull.iis.util.Cycle;
 
@@ -11,7 +11,7 @@ import es.ull.iis.util.Cycle;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface SimulationCycle {
+public interface ModelCycle {
 	/**
 	 * Returns the inner {@link es.ull.iis.util.Cycle Cycle}.
 	 * @return the inner {@link es.ull.iis.util.Cycle Cycle}

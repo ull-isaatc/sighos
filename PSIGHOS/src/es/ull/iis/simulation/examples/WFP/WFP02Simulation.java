@@ -1,11 +1,11 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
+import es.ull.iis.simulation.model.TimeStamp;
 
 /**
  * WFP 2, example 2: Alarma

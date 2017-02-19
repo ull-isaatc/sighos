@@ -5,17 +5,16 @@ package es.ull.iis.simulation.examples.hospital;
 
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.PercentageCondition;
-import es.ull.iis.simulation.core.SimulationPeriodicCycle;
-import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.sequential.ElementCreator;
-import es.ull.iis.simulation.sequential.ElementType;
-import es.ull.iis.simulation.sequential.Resource;
-import es.ull.iis.simulation.sequential.ResourceType;
-import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
-import es.ull.iis.simulation.sequential.WorkGroup;
-import es.ull.iis.simulation.sequential.flow.ActivityFlow;
-import es.ull.iis.simulation.sequential.flow.ExclusiveChoiceFlowBehaviour;
+import es.ull.iis.simulation.model.ElementType;
+import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.ModelPeriodicCycle;
+import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.TimeDrivenGenerator;
+import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.ExclusiveChoiceFlow;
 
 /**
  * The model of the hospital to be simulated.
@@ -36,7 +35,7 @@ import es.ull.iis.simulation.sequential.flow.ExclusiveChoiceFlowBehaviour;
  * @author Iván Castilla Rodríguez
  *
  */
-public class BasicHospitalSimulation extends Simulation {
+public class BasicHospitalModel extends Model {
 
 	/**
 	 * @param id
@@ -45,8 +44,8 @@ public class BasicHospitalSimulation extends Simulation {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public BasicHospitalSimulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
-		super(id, description, unit, startTs, endTs);
+	public BasicHospitalModel(TimeUnit unit) {
+		super(unit);
 		// Define the model
 		
 		// The only element type: patients
@@ -70,9 +69,9 @@ public class BasicHospitalSimulation extends Simulation {
 		
 		// Define the work timetables
 		// ... for doctors and nurses (starting at 8:00)
-		SimulationPeriodicCycle docCycle = SimulationPeriodicCycle.newDailyCycle(unit, 8 * 60);
+		ModelPeriodicCycle docCycle = ModelPeriodicCycle.newDailyCycle(unit, 8 * 60);
 		// .. for surgeons (starting at 11:00)
-		SimulationPeriodicCycle surgeonCycle = SimulationPeriodicCycle.newDailyCycle(unit, 11 * 60);
+		ModelPeriodicCycle surgeonCycle = ModelPeriodicCycle.newDailyCycle(unit, 11 * 60);
 		
 		// Define the roles of the resources
 		resDoctor1.addTimeTableEntry(docCycle, 7 * 60, rtDoctor);
@@ -93,17 +92,17 @@ public class BasicHospitalSimulation extends Simulation {
 		ActivityFlow actSurgery = new ActivityFlow(this, "Surgery");
 		
 		// Define the workgroups
-		WorkGroup wgAppointment = new WorkGroup(rtDoctor, 1);
-		WorkGroup wgSurgery1 = new WorkGroup(new ResourceType[] {rtSurgeon, rtNurse}, new int[] {2, 1});
-		WorkGroup wgSurgery2 = new WorkGroup(new ResourceType[] {rtSurgeon, rtNurse}, new int[] {1, 1});
+		WorkGroup wgAppointment = new WorkGroup(this, rtDoctor, 1);
+		WorkGroup wgSurgery1 = new WorkGroup(this, new ResourceType[] {rtSurgeon, rtNurse}, new int[] {2, 1});
+		WorkGroup wgSurgery2 = new WorkGroup(this, new ResourceType[] {rtSurgeon, rtNurse}, new int[] {1, 1});
 		
 		// Assign duration and workgroups to activities
-		actAppointment.addWorkGroup(TimeFunctionFactory.getInstance("UniformVariate", 7, 10), 0, wgAppointment);
-		actSurgery.addWorkGroup(40, 0, wgSurgery1);
-		actSurgery.addWorkGroup(60, 0, wgSurgery2);
+		actAppointment.addWorkGroup(0, wgAppointment, TimeFunctionFactory.getInstance("UniformVariate", 7, 10));
+		actSurgery.addWorkGroup(0, wgSurgery1, 40L);
+		actSurgery.addWorkGroup(0, wgSurgery2, 60L);
 		
 		// Create a conditional flow to determine if a patient requires surgery
-		ExclusiveChoiceFlowBehaviour fRequireSurgery = new ExclusiveChoiceFlowBehaviour(this);
+		ExclusiveChoiceFlow fRequireSurgery = new ExclusiveChoiceFlow(this);
 		// Define 5% of patients requiring surgery
 		PercentageCondition requiresSurgeryCondition = new PercentageCondition(5.0);
 		
@@ -111,8 +110,7 @@ public class BasicHospitalSimulation extends Simulation {
 		fRequireSurgery.link(actSurgery, requiresSurgeryCondition);
 		actSurgery.link(actAppointment);
 		
-		ElementGenerator creator = new ElementGenerator(this, 20, etPatient, actAppointment);
-		new TimeDrivenGenerator(this, creator, docCycle);
+		new TimeDrivenGenerator(this, 20, etPatient, actAppointment, docCycle);
 	}
 
 }

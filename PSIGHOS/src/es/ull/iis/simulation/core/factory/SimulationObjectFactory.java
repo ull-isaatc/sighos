@@ -10,12 +10,12 @@ import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.Resource;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.SimulationCycle;
 import es.ull.iis.simulation.core.TimeDrivenGenerator;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.WorkThread;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.simulation.model.ModelCycle;
 
 
 /**
@@ -35,7 +35,7 @@ public interface SimulationObjectFactory<F extends Flow<WT>, WT extends WorkThre
 	ElementCreator<WT> getElementCreatorInstance(TimeFunction nElem, ElementType et, InitializerFlow<WT> flow) throws ClassCastException;
 	ElementCreator<WT> getElementCreatorInstance(TimeFunction nElem, SimulationUserCode userMethods) throws ClassCastException;
 	ElementCreator<WT> getElementCreatorInstance(TimeFunction nElem, ElementType et, InitializerFlow<WT> flow, SimulationUserCode userMethods) throws ClassCastException;
-	TimeDrivenGenerator getTimeDrivenGeneratorInstance(ElementCreator<WT> creator, SimulationCycle cycle) throws ClassCastException;
+	TimeDrivenGenerator getTimeDrivenGeneratorInstance(ElementCreator<WT> creator, ModelCycle cycle) throws ClassCastException;
 	F getFlowInstance(String flowType, Object... params) throws ClassCastException;
 	F getFlowInstance(String flowType, SimulationUserCode userMethods, Object... params) throws ClassCastException;
 }

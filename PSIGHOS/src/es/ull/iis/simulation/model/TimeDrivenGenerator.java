@@ -5,7 +5,6 @@ package es.ull.iis.simulation.model;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
-import es.ull.iis.simulation.core.SimulationCycle;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 
 /**
@@ -14,12 +13,12 @@ import es.ull.iis.simulation.model.flow.InitializerFlow;
  */
 public class TimeDrivenGenerator extends ElementGenerator {
     /** Cycle that controls the generation of elements. */
-    protected final SimulationCycle cycle;
+    protected final ModelCycle cycle;
 
 	/**
 	 * 
 	 */
-	public TimeDrivenGenerator(Model model, TimeFunction nElem, SimulationCycle cycle) {
+	public TimeDrivenGenerator(Model model, TimeFunction nElem, ModelCycle cycle) {
 		super(model, nElem);
 		this.cycle = cycle;
 	}
@@ -30,7 +29,7 @@ public class TimeDrivenGenerator extends ElementGenerator {
 	 * @param et The type of the elements to be created
 	 * @param flow The description of the flow of the elements to be created.
 	 */
-	public TimeDrivenGenerator(Model model, TimeFunction nElem, ElementType et, InitializerFlow flow, SimulationCycle cycle) {
+	public TimeDrivenGenerator(Model model, TimeFunction nElem, ElementType et, InitializerFlow flow, ModelCycle cycle) {
 		super(model, nElem, et, flow);
 		this.cycle = cycle;
 	}
@@ -40,7 +39,7 @@ public class TimeDrivenGenerator extends ElementGenerator {
 	 * @param sim Simulation this object belongs to.
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 */
-	public TimeDrivenGenerator(Model model, int nElem, SimulationCycle cycle) {
+	public TimeDrivenGenerator(Model model, int nElem, ModelCycle cycle) {
 		this(model, TimeFunctionFactory.getInstance("ConstantVariate", nElem), cycle);
 	}
 	
@@ -50,7 +49,7 @@ public class TimeDrivenGenerator extends ElementGenerator {
 	 * @param et The type of the elements to be created
 	 * @param flow The description of the flow of the elements to be created.
 	 */
-	public TimeDrivenGenerator(Model model, int nElem, ElementType et, InitializerFlow flow, SimulationCycle cycle) {
+	public TimeDrivenGenerator(Model model, int nElem, ElementType et, InitializerFlow flow, ModelCycle cycle) {
 		this(model, TimeFunctionFactory.getInstance("ConstantVariate", nElem), et, flow, cycle);
 	}
 	
@@ -65,7 +64,7 @@ public class TimeDrivenGenerator extends ElementGenerator {
 	/**
 	 * @return the cycle
 	 */
-	public SimulationCycle getCycle() {
+	public ModelCycle getCycle() {
 		return cycle;
 	}
 

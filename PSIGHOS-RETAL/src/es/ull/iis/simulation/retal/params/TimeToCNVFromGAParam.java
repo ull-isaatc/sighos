@@ -5,7 +5,7 @@ package es.ull.iis.simulation.retal.params;
 
 import java.util.EnumSet;
 
-import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RandomForPatient;

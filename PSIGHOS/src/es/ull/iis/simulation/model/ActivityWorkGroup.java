@@ -2,8 +2,6 @@ package es.ull.iis.simulation.model;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.core.Describable;
-import es.ull.iis.simulation.core.Identifiable;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.Prioritizable;
 

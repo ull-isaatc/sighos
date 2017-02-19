@@ -178,8 +178,7 @@ public class FlowBehaviour {
 							next(wThread);
 						}
 						else if (f instanceof RequestResourcesFlow) {
-							if (wThread.acquireResources((RequestResourcesFlow)f))
-								next(wThread);
+							wThread.acquireResources((RequestResourcesFlow)f);
 						}
 						else if (f instanceof DelayFlow) {
 							wThread.startDelay((DelayFlow)f);
@@ -249,6 +248,10 @@ public class FlowBehaviour {
 		}
 		else if (f instanceof DelayFlow) {
 			wThread.endDelay((DelayFlow)f);
+			next(wThread);
+		}
+		else if (f instanceof RequestResourcesFlow) {
+			wThread.endDelay((RequestResourcesFlow)f);
 			next(wThread);
 		}
 	}

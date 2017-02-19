@@ -6,7 +6,6 @@ package es.ull.iis.simulation.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.util.Output;
 

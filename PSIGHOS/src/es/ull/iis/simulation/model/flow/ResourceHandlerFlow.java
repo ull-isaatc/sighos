@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.core.Describable;
+import es.ull.iis.simulation.model.Describable;
 
 /**
  * @author Iván Castilla

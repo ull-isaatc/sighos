@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.core;
+package es.ull.iis.simulation.model;
 
 /**
  * A simulation object with an attached queue

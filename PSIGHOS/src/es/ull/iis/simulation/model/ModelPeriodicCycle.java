@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.core;
+package es.ull.iis.simulation.model;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.util.Cycle;
@@ -13,7 +13,7 @@ import es.ull.iis.util.PeriodicCycle;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SimulationPeriodicCycle implements SimulationCycle {
+public class ModelPeriodicCycle implements ModelCycle {
 	/** Inner {@link es.ull.iis.util.PeriodicCycle PeriodicCycle} */
 	private final PeriodicCycle cycle;
 	
@@ -24,7 +24,7 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param period Time interval between two successive ocurrences of an event
 	 * @param endTs Relative time when this cycle is expected to finish
 	 */
-	public SimulationPeriodicCycle(TimeUnit unit, TimeStamp startTs, TimeFunction period, TimeStamp endTs) {
+	public ModelPeriodicCycle(TimeUnit unit, TimeStamp startTs, TimeFunction period, TimeStamp endTs) {
 		cycle = new PeriodicCycle(unit.convert(startTs), period, unit.convert(endTs));
 	}
 
@@ -35,7 +35,7 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param period Time interval between two successive ocurrences of an event
 	 * @param iterations How many times this cycle is executed. A value of 0 indicates infinite iterations
 	 */
-	public SimulationPeriodicCycle(TimeUnit unit, TimeStamp startTs, TimeFunction period, int iterations) {
+	public ModelPeriodicCycle(TimeUnit unit, TimeStamp startTs, TimeFunction period, int iterations) {
 		cycle = new PeriodicCycle(unit.convert(startTs), period, iterations);
 	}
 
@@ -47,8 +47,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param endTs Relative time when this cycle is expected to finish
 	 * @param subCycle Subcycle contained in this cycle
 	 */
-	public SimulationPeriodicCycle(TimeUnit unit, TimeStamp startTs, TimeFunction period,
-			TimeStamp endTs, SimulationCycle subCycle) {
+	public ModelPeriodicCycle(TimeUnit unit, TimeStamp startTs, TimeFunction period,
+			TimeStamp endTs, ModelCycle subCycle) {
 		cycle = new PeriodicCycle(unit.convert(startTs), period, unit.convert(endTs), subCycle.getCycle());
 	}
 
@@ -60,8 +60,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param iterations How many times this cycle is executed. A value of 0 indicates infinite iterations
 	 * @param subCycle Subcycle contained in this cycle
 	 */
-	public SimulationPeriodicCycle(TimeUnit unit, TimeStamp startTs, TimeFunction period,
-			int iterations, SimulationCycle subCycle) {
+	public ModelPeriodicCycle(TimeUnit unit, TimeStamp startTs, TimeFunction period,
+			int iterations, ModelCycle subCycle) {
 		cycle = new PeriodicCycle(unit.convert(startTs), period, iterations, subCycle.getCycle());
 	}
 
@@ -72,7 +72,7 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param period Time interval between two successive ocurrences of an event
 	 * @param endTs Relative time when this cycle is expected to finish expressed in <tt>unit</tt>
 	 */
-	public SimulationPeriodicCycle(TimeUnit unit, long startTs, SimulationTimeFunction period, long endTs) {
+	public ModelPeriodicCycle(TimeUnit unit, long startTs, ModelTimeFunction period, long endTs) {
 		this(unit, new TimeStamp(unit, startTs), period, new TimeStamp(unit, endTs));
 	}
 
@@ -83,7 +83,7 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param period Time interval between two successive ocurrences of an event
 	 * @param iterations How many times this cycle is executed. A value of 0 indicates infinite iterations
 	 */
-	public SimulationPeriodicCycle(TimeUnit unit, long startTs, SimulationTimeFunction period,
+	public ModelPeriodicCycle(TimeUnit unit, long startTs, ModelTimeFunction period,
 			int iterations) {
 		this(unit, new TimeStamp(unit, startTs), period, iterations);
 	}
@@ -96,8 +96,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param endTs Relative time when this cycle is expected to finish expressed in <tt>unit</tt>
 	 * @param subCycle Subcycle contained in this cycle
 	 */
-	public SimulationPeriodicCycle(TimeUnit unit, long startTs, SimulationTimeFunction period,
-			long endTs, SimulationCycle subCycle) {
+	public ModelPeriodicCycle(TimeUnit unit, long startTs, ModelTimeFunction period,
+			long endTs, ModelCycle subCycle) {
 		this(unit, new TimeStamp(unit, startTs), period, new TimeStamp(unit, endTs), subCycle);
 	}
 
@@ -109,8 +109,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param iterations How many times this cycle is executed. A value of 0 indicates infinite iterations
 	 * @param subCycle Subcycle contained in this cycle
 	 */
-	public SimulationPeriodicCycle(TimeUnit unit, long startTs, SimulationTimeFunction period,
-			int iterations, SimulationCycle subCycle) {
+	public ModelPeriodicCycle(TimeUnit unit, long startTs, ModelTimeFunction period,
+			int iterations, ModelCycle subCycle) {
 		this(unit, new TimeStamp(unit, startTs), period, iterations, subCycle);
 	}
 
@@ -124,8 +124,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param unit TimeUnit this cycle is attached to. 
 	 * @return An hourly cycle
 	 */
-	public static SimulationPeriodicCycle newHourlyCycle(TimeUnit unit) {
-		return new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.HOUR, 1)), 0);
+	public static ModelPeriodicCycle newHourlyCycle(TimeUnit unit) {
+		return new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.HOUR, 1)), 0);
 	}
 	
 	/**
@@ -133,8 +133,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param unit TimeUnit this cycle is attached to. 
 	 * @return A daily cycle
 	 */
-	public static SimulationPeriodicCycle newDailyCycle(TimeUnit unit) {
-		return new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.DAY, 1)), 0);
+	public static ModelPeriodicCycle newDailyCycle(TimeUnit unit) {
+		return new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.DAY, 1)), 0);
 	}
 
 	/**
@@ -142,8 +142,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param unit TimeUnit this cycle is attached to. 
 	 * @return A weekly cycle
 	 */
-	public static SimulationPeriodicCycle newWeeklyCycle(TimeUnit unit) {
-		return new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.WEEK, 1)), 0);
+	public static ModelPeriodicCycle newWeeklyCycle(TimeUnit unit) {
+		return new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.WEEK, 1)), 0);
 	}
 
 	/**
@@ -151,8 +151,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param unit TimeUnit this cycle is attached to. 
 	 * @return A monthly cycle
 	 */
-	public static SimulationPeriodicCycle newMonthlyCycle(TimeUnit unit) {
-		return new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.MONTH, 1)), 0);
+	public static ModelPeriodicCycle newMonthlyCycle(TimeUnit unit) {
+		return new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.MONTH, 1)), 0);
 	}
 
 	/**
@@ -161,8 +161,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param startTs Timestamp (using specified time unit) when this cycle starts
 	 * @return An hourly cycle
 	 */
-	public static SimulationPeriodicCycle newHourlyCycle(TimeUnit unit, long startTs) {
-		return new SimulationPeriodicCycle(unit, startTs, new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.HOUR, 1)), 0);
+	public static ModelPeriodicCycle newHourlyCycle(TimeUnit unit, long startTs) {
+		return new ModelPeriodicCycle(unit, startTs, new ModelTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.HOUR, 1)), 0);
 	}
 	
 	/**
@@ -171,8 +171,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param startTs Timestamp (using specified time unit) when this cycle starts
 	 * @return A daily cycle
 	 */
-	public static SimulationPeriodicCycle newDailyCycle(TimeUnit unit, long startTs) {
-		return new SimulationPeriodicCycle(unit, startTs, new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.DAY, 1)), 0);
+	public static ModelPeriodicCycle newDailyCycle(TimeUnit unit, long startTs) {
+		return new ModelPeriodicCycle(unit, startTs, new ModelTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.DAY, 1)), 0);
 	}
 
 	/**
@@ -181,8 +181,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param startTs Timestamp (using specified time unit) when this cycle starts
 	 * @return A weekly cycle
 	 */
-	public static SimulationPeriodicCycle newWeeklyCycle(TimeUnit unit, long startTs) {
-		return new SimulationPeriodicCycle(unit, startTs, new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.WEEK, 1)), 0);
+	public static ModelPeriodicCycle newWeeklyCycle(TimeUnit unit, long startTs) {
+		return new ModelPeriodicCycle(unit, startTs, new ModelTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.WEEK, 1)), 0);
 	}
 
 	/**
@@ -191,8 +191,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param startTs Timestamp (using specified time unit) when this cycle starts
 	 * @return A monthly cycle
 	 */
-	public static SimulationPeriodicCycle newMonthlyCycle(TimeUnit unit, long startTs) {
-		return new SimulationPeriodicCycle(unit, startTs, new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.MONTH, 1)), 0);
+	public static ModelPeriodicCycle newMonthlyCycle(TimeUnit unit, long startTs) {
+		return new ModelPeriodicCycle(unit, startTs, new ModelTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.MONTH, 1)), 0);
 	}
 	
 	/**
@@ -201,8 +201,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param startTs Timestamp when this cycle starts
 	 * @return An hourly cycle
 	 */
-	public static SimulationPeriodicCycle newHourlyCycle(TimeUnit unit, TimeStamp startTs) {
-		return new SimulationPeriodicCycle(unit, startTs, new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.HOUR, 1)), 0);
+	public static ModelPeriodicCycle newHourlyCycle(TimeUnit unit, TimeStamp startTs) {
+		return new ModelPeriodicCycle(unit, startTs, new ModelTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.HOUR, 1)), 0);
 	}
 	
 	/**
@@ -211,8 +211,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param startTs Timestamp when this cycle starts
 	 * @return A daily cycle
 	 */
-	public static SimulationPeriodicCycle newDailyCycle(TimeUnit unit, TimeStamp startTs) {
-		return new SimulationPeriodicCycle(unit, startTs, new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.DAY, 1)), 0);
+	public static ModelPeriodicCycle newDailyCycle(TimeUnit unit, TimeStamp startTs) {
+		return new ModelPeriodicCycle(unit, startTs, new ModelTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.DAY, 1)), 0);
 	}
 
 	/**
@@ -221,8 +221,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param startTs Timestamp when this cycle starts
 	 * @return A weekly cycle
 	 */
-	public static SimulationPeriodicCycle newWeeklyCycle(TimeUnit unit, TimeStamp startTs) {
-		return new SimulationPeriodicCycle(unit, startTs, new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.WEEK, 1)), 0);
+	public static ModelPeriodicCycle newWeeklyCycle(TimeUnit unit, TimeStamp startTs) {
+		return new ModelPeriodicCycle(unit, startTs, new ModelTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.WEEK, 1)), 0);
 	}
 
 	/**
@@ -231,8 +231,8 @@ public class SimulationPeriodicCycle implements SimulationCycle {
 	 * @param startTs Timestamp when this cycle starts
 	 * @return A monthly cycle
 	 */
-	public static SimulationPeriodicCycle newMonthlyCycle(TimeUnit unit, TimeStamp startTs) {
-		return new SimulationPeriodicCycle(unit, startTs, new SimulationTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.MONTH, 1)), 0);
+	public static ModelPeriodicCycle newMonthlyCycle(TimeUnit unit, TimeStamp startTs) {
+		return new ModelPeriodicCycle(unit, startTs, new ModelTimeFunction(unit, "ConstantVariate", new TimeStamp(TimeUnit.MONTH, 1)), 0);
 	}	
 	
 }

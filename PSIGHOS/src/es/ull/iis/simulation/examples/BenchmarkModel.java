@@ -11,10 +11,6 @@ import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.Resource;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.SimulationPeriodicCycle;
-import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.TimeStamp;
-import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
@@ -24,6 +20,10 @@ import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ForLoopFlow;
 import es.ull.iis.simulation.core.flow.InterleavedRoutingFlow;
+import es.ull.iis.simulation.model.ModelPeriodicCycle;
+import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.TimeStamp;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.function.TimeFunctionFactory;
 
 /**
@@ -56,7 +56,7 @@ public class BenchmarkModel {
 	enum OverlappingType {SAMETIME, CONSECUTIVE, MIXED};
 	final private String head;
 	final static private TimeUnit unit = TimeUnit.MINUTE;
-	final static private SimulationTimeFunction oneFunction = new SimulationTimeFunction(unit, "ConstantVariate", 1);
+	final static private ModelTimeFunction oneFunction = new ModelTimeFunction(unit, "ConstantVariate", 1);
 	final int id;
 	final SimulationFactory.SimulationType simType;
 	final ModelType modType;
@@ -69,7 +69,7 @@ public class BenchmarkModel {
 	final int mixFactor;
 	final long workLoad;
 	final TimeStamp endTs;
-	final SimulationPeriodicCycle allCycle;
+	final ModelPeriodicCycle allCycle;
 	int rtXact = 4;
 	int rtXres = 1;
 	double resAvailabilityFactor = 1;
@@ -118,7 +118,7 @@ public class BenchmarkModel {
 			auxHead += "\tMix";
 		auxHead += "\tActivities\tElements";
 		head = auxHead;
-		this.allCycle = new SimulationPeriodicCycle(unit, TimeStamp.getZero(), new SimulationTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0);
+		this.allCycle = new ModelPeriodicCycle(unit, TimeStamp.getZero(), new ModelTimeFunction(unit, "ConstantVariate", endTs.getValue()), 0);
 	}
 
 	/**
@@ -195,7 +195,7 @@ public class BenchmarkModel {
 		switch(ovType) {
 			case SAMETIME:
 				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", nElem), 0, wgs[i]);
+					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", nElem), 0, wgs[i]);
 				for (ForLoopFlow smf : smfs) {
 					ElementCreator creator = factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", nElem / smfs.length), et, smf);
 					factory.getTimeDrivenGeneratorInstance(creator, allCycle);
@@ -203,18 +203,18 @@ public class BenchmarkModel {
 				break;
 			case CONSECUTIVE:
 				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", nElem), 0, wgs[i]);
+					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", nElem), 0, wgs[i]);
 				for (ForLoopFlow smf : smfs) {
 					ElementCreator creator = factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
-					factory.getTimeDrivenGeneratorInstance(creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
+					factory.getTimeDrivenGeneratorInstance(creator, new ModelPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
 				}
 				break;
 			case MIXED:
 				for (int i = 0; i < acts.length; i++)
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", nElem / mixFactor), 0, wgs[i]);
+					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", nElem / mixFactor), 0, wgs[i]);
 				for (ForLoopFlow smf : smfs) {
 					ElementCreator creator = factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 1), et, smf);
-					factory.getTimeDrivenGeneratorInstance(creator, new SimulationPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
+					factory.getTimeDrivenGeneratorInstance(creator, new ModelPeriodicCycle(unit, TimeStamp.getZero(), oneFunction, nElem));
 				}
 				break;
 		}

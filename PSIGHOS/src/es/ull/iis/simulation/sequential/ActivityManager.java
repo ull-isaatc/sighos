@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.core.Describable;
+import es.ull.iis.simulation.model.Describable;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.PrioritizedMap;
 

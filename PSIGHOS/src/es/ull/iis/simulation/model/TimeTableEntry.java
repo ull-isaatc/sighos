@@ -3,16 +3,13 @@
  */
 package es.ull.iis.simulation.model;
 
-import es.ull.iis.simulation.core.SimulationCycle;
-import es.ull.iis.simulation.core.TimeStamp;
-
 /**
  * Represents the role that a resource plays at a specific time cycle.
  * @author Iván Castilla Rodríguez
  */
 public class TimeTableEntry {
 	/** Cycle that characterizes this entry */
-	private final SimulationCycle cycle;
+	private final ModelCycle cycle;
     /** The long this resource plays this role every cycle */
 	private final TimeStamp duration;
     /** Role that the resource plays during this cycle */
@@ -23,7 +20,7 @@ public class TimeTableEntry {
      * @param dur How long this resource plays this role every cycle
      * @param role Role that the resource plays during this cycle
      */
-	public TimeTableEntry(SimulationCycle cycle, TimeStamp dur, ResourceType role) {
+	public TimeTableEntry(ModelCycle cycle, TimeStamp dur, ResourceType role) {
 		this.cycle = cycle;
 		this.duration = dur;
 		this.role = role;
@@ -54,7 +51,7 @@ public class TimeTableEntry {
      * Returns the cycle that characterizes this entry.
 	 * @return the cycle that characterizes this entry
 	 */
-	public SimulationCycle getCycle() {
+	public ModelCycle getCycle() {
 		return cycle;
 	}
 

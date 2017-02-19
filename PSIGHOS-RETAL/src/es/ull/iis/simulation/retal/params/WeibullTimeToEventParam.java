@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.retal.params;
 
-import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.retal.Patient;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariate;

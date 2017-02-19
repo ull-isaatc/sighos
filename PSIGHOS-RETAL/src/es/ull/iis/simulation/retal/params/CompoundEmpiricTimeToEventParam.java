@@ -8,7 +8,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.RandomForPatient;

@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.retal;
 
-import es.ull.iis.simulation.core.SimulationCycle;
+import es.ull.iis.simulation.model.ModelCycle;
 import es.ull.iis.simulation.retal.params.ScreeningParam;
 
 /**
@@ -11,7 +11,7 @@ import es.ull.iis.simulation.retal.params.ScreeningParam;
  *
  */
 public class Screening implements Intervention {
-	private final SimulationCycle screeningCycle;
+	private final ModelCycle screeningCycle;
 	private final ScreeningParam param;
 
 	/**
@@ -20,7 +20,7 @@ public class Screening implements Intervention {
 	 * @param specificity
 	 * @param sensitivity
 	 */
-	public Screening(SimulationCycle screeningCycle, ScreeningParam param) {
+	public Screening(ModelCycle screeningCycle, ScreeningParam param) {
 		this.screeningCycle = screeningCycle;
 		this.param = param;
 	}
@@ -28,7 +28,7 @@ public class Screening implements Intervention {
 	/**
 	 * @return the screeningCycle
 	 */
-	public SimulationCycle getScreeningCycle() {
+	public ModelCycle getScreeningCycle() {
 		return screeningCycle;
 	}
 

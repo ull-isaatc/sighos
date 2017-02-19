@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.model;
 
-import es.ull.iis.simulation.core.Describable;
-
 /**
  * The type of a resource. Defines roles or specializations of the resources.<p>
  * A user can define customized code associated to different events where this class
@@ -23,7 +21,7 @@ public class ResourceType extends ModelObject implements Describable {
 	 * 
 	 */
 	public ResourceType(Model model, String description) {
-		super(model, "RT");
+		super(model, model.getResourceTypeList().size(), "RT");
 		this.description = description;
 		model.add(this);
 	}

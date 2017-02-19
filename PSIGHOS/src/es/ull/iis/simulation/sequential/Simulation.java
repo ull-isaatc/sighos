@@ -6,10 +6,10 @@ import java.util.PriorityQueue;
 import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 
-import es.ull.iis.simulation.core.TimeStamp;
 import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.Output;

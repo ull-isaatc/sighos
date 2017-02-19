@@ -9,14 +9,14 @@ import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.Resource;
 import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.SimulationPeriodicCycle;
-import es.ull.iis.simulation.core.SimulationTimeFunction;
-import es.ull.iis.simulation.core.TimeUnit;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
+import es.ull.iis.simulation.model.ModelPeriodicCycle;
+import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.TimeUnit;
 
 class TestDynamicGenerationExperiment extends Experiment {
 	SimulationType type;
@@ -35,15 +35,15 @@ class TestDynamicGenerationExperiment extends Experiment {
 		ResourceType rt1 = factory.getResourceTypeInstance("RT1");
 		
 		Resource r0 =  factory.getResourceInstance("Res0");
-		r0.addTimeTableEntry(SimulationPeriodicCycle.newDailyCycle(unit), 1, rt0);
+		r0.addTimeTableEntry(ModelPeriodicCycle.newDailyCycle(unit), 1, rt0);
 		Resource r1 = factory.getResourceInstance("Res1");
-		r1.addTimeTableEntry(SimulationPeriodicCycle.newDailyCycle(unit), 1, rt1);
+		r1.addTimeTableEntry(ModelPeriodicCycle.newDailyCycle(unit), 1, rt1);
 		
 		WorkGroup wg0 = factory.getWorkGroupInstance(new ResourceType [] {rt0, rt1}, new int[] {1,1});
 		
 		Condition cond = factory.getCustomizedConditionInstance(null, "false");
 		ActivityFlow<?,?> act0 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "ACT0");
-		act0.addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 10.0), 0, wg0, new NotCondition(cond));
+		act0.addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10.0), 0, wg0, new NotCondition(cond));
 		
 		factory.getElementTypeInstance("ET0");
 		factory.getFlowInstance("SingleFlow", act0);

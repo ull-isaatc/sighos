@@ -2,7 +2,7 @@ package es.ull.iis.simulation.retal.params;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.core.TimeUnit;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.retal.Patient;
 
 final class VAProgressionForEF_JF extends VAProgressionParam {
