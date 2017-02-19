@@ -19,7 +19,7 @@ import es.ull.iis.simulation.variable.EnumVariable;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class Element extends BasicElement implements es.ull.iis.simulation.model.Element {
+public class Element extends EventSource implements es.ull.iis.simulation.model.Element {
 	/** Element type */
 	protected ElementType elementType;
 	/** First step of the flow of the element */
@@ -40,16 +40,11 @@ public class Element extends BasicElement implements es.ull.iis.simulation.model
 	 * @param flow First step of this element's flow
 	 */
 	public Element(Simulation simul, ElementType et, InitializerFlow flow) {
-		super(simul.getNextElementId(), simul);
+		super(simul.getNextElementId(), simul, "E");
 		this.elementType = et;
 		inQueue = new ArrayList<WorkThread>();
 		this.initialFlow = flow;
 		mainThread = WorkThread.getInstanceMainWorkThread(this);
-	}
-
-	@Override
-	public String getObjectTypeIdentifier() {
-		return "E";
 	}
 
 	/**

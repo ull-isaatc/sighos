@@ -117,7 +117,7 @@ public abstract class Simulation implements Callable<Integer>, Runnable, Identif
 		this.id = id;
 		this.description = description;
 		this.model = model;
-		this.unit = Model.getDefTimeUnit();
+		this.unit = model.getUnit();
 	}
 
 

@@ -12,7 +12,7 @@ import es.ull.iis.util.Prioritizable;
  * workgroup can be used or not, and the priority of the workgroup inside the basicStep.
  * @author Iván Castilla Rodríguez
  */
-public class ActivityWorkGroup extends WorkGroup implements Prioritizable, Describable, Identifiable, Comparable<ActivityWorkGroup> {
+public class ActivityWorkGroup extends WorkGroup implements Prioritizable, Describable, Identifiable {
     /**
 	 * 
 	 */
@@ -34,8 +34,8 @@ public class ActivityWorkGroup extends WorkGroup implements Prioritizable, Descr
      * @param cond  Availability condition
      * @param basicStep TODO
      */    
-    public ActivityWorkGroup(RequestResourcesFlow basicStep, int id, int priority, WorkGroup wg, Condition cond) {
-        super(wg.pairs);
+    public ActivityWorkGroup(Model model, RequestResourcesFlow basicStep, int id, int priority, WorkGroup wg, Condition cond) {
+        super(model, wg.pairs);
 		this.basicStep = basicStep;
         this.id = id;
         this.priority = priority;

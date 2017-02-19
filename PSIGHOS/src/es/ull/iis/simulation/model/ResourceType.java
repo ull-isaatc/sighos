@@ -15,25 +15,22 @@ import es.ull.iis.simulation.core.Describable;
  * </ul>
  * @author Iván Castilla Rodríguez
  */
-public class ResourceType implements ModelObject, Describable {
+public class ResourceType extends ModelObject implements Describable {
     /** A brief description of the resource type */
     protected final String description;
 
 	/**
 	 * 
 	 */
-	public ResourceType(String description) {
+	public ResourceType(Model model, String description) {
+		super(model, "RT");
 		this.description = description;
+		model.add(this);
 	}
 
 	@Override
 	public String getDescription() {
 		return description;
-	}
-
-    @Override
-	public String getObjectTypeIdentifier() {
-		return "RT";
 	}
 
 	// User methods
@@ -79,7 +76,7 @@ public class ResourceType implements ModelObject, Describable {
 	public Resource[] addGenericResources(int n) {
 		final Resource[] res = new Resource[n];
 		for (int i = 0; i < n; i++) {
-			res[i] = new Resource(description + " " + i);
+			res[i] = new Resource(model, description + " " + i);
 			res[i].addTimeTableEntry(this);
 		}
 		return res;

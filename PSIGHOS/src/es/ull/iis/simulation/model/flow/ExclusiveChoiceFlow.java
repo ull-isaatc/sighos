@@ -1,5 +1,7 @@
 package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.Model;
+
 /**
  * A {@link ConditionalFlow} which allows only one of the outgoing branches to be activated.
  * Successors are evaluated in order. When one of the outgoing branches meets its
@@ -14,8 +16,8 @@ public class ExclusiveChoiceFlow extends ConditionalFlow {
 	/**
 	 * Creates a new ExclusiveChoiceFlow.
 	 */
-	public ExclusiveChoiceFlow() {
-		super();
+	public ExclusiveChoiceFlow(Model model) {
+		super(model);
 	}
 
 }

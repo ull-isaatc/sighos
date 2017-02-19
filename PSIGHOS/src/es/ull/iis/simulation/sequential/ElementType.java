@@ -18,7 +18,7 @@ public class ElementType extends VariableStoreSimulationObject {
 	 * @param priority The priority to set.
 	 */
 	public ElementType(Simulation simul, es.ull.iis.simulation.model.ElementType modelET) {
-		super(simul.getNextElementTypeId(), simul);
+		super(simul.getNextElementTypeId(), simul, "ET");
 		this.modelET = modelET;
 		simul.add(this);
 	}
@@ -28,11 +28,6 @@ public class ElementType extends VariableStoreSimulationObject {
 	 */
 	public es.ull.iis.simulation.model.ElementType getModelET() {
 		return modelET;
-	}
-
-	@Override
-	public String getObjectTypeIdentifier() {
-		return modelET.getObjectTypeIdentifier();
 	}
 
 	public String getDescription() {

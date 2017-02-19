@@ -1,6 +1,7 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.model.Model;
 
 /**
  * A structured loop flow which resembles a do-while loop. The internal flow
@@ -19,8 +20,8 @@ public class DoWhileFlow extends StructuredLoopFlow {
 	 * @param finalSubFlow Last step of the internal subflow
 	 * @param postCondition Break loop condition.
  	 */
-	public DoWhileFlow(InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, Condition postCondition) {
-		super(initialSubFlow, finalSubFlow);
+	public DoWhileFlow(Model model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, Condition postCondition) {
+		super(model, initialSubFlow, finalSubFlow);
 		cond = postCondition;
 	}
 
@@ -29,8 +30,8 @@ public class DoWhileFlow extends StructuredLoopFlow {
 	 * @param subFlow A unique flow defining an internal subflow
 	 * @param postCondition Break loop condition.
  	 */
-	public DoWhileFlow(TaskFlow subFlow, Condition postCondition) {
-		this(subFlow, subFlow, postCondition);
+	public DoWhileFlow(Model model, TaskFlow subFlow, Condition postCondition) {
+		this(model, subFlow, subFlow, postCondition);
 	}
 
 	/** 

@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.function.TimeFunction;
+import es.ull.iis.simulation.model.Model;
 
 /**
  * A structured loop flow which resembles a for loop. The internal flow is
@@ -22,8 +23,8 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	 * @param finalSubFlow Last step of the internal subflow
 	 * @param iterations Loop iterations.
  	 */
-	public ForLoopFlow(InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, TimeFunction iterations) {
-		super(initialSubFlow, finalSubFlow);
+	public ForLoopFlow(Model model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, TimeFunction iterations) {
+		super(model, initialSubFlow, finalSubFlow);
 		this.iterations = iterations;
 	}
 	
@@ -32,8 +33,8 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	 * @param subFlow A unique flow defining an internal subflow
 	 * @param iterations Loop iterations.
  	 */
-	public ForLoopFlow(TaskFlow subFlow, TimeFunction iterations) {
-		this(subFlow, subFlow, iterations);
+	public ForLoopFlow(Model model, TaskFlow subFlow, TimeFunction iterations) {
+		this(model, subFlow, subFlow, iterations);
 	}
 	
 	/**

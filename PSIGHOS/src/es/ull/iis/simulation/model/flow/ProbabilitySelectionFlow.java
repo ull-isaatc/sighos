@@ -6,6 +6,8 @@ package es.ull.iis.simulation.model.flow;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import es.ull.iis.simulation.model.Model;
+
 /**
  * A {@link MultipleSuccessorFlow} which selects one outgoing branch among a set of them by 
  * using a probability value. Each outgoing branch has a value (0.0 - 1.0] expressing the 
@@ -20,8 +22,8 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow {
 	/**
 	 * Creates a new Probability Selection flow associated to the specified simulation
 	 */
-	public ProbabilitySelectionFlow() {
-		super();
+	public ProbabilitySelectionFlow(Model model) {
+		super(model);
 		probabilities = new ArrayList<Double>();
 	}
 

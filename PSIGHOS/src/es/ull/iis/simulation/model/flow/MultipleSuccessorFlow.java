@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
+import es.ull.iis.simulation.model.Model;
+
 /**
  * A flow with multiple successors. Multiple successors are split nodes, that is,
  * new work threads are created from this flow on, when it's requested.
@@ -20,8 +22,8 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	 * Creates a flow with multiple successors.
 	 * @param simul The simulation this flow belongs to.
 	 */
-	public MultipleSuccessorFlow() {
-		super();
+	public MultipleSuccessorFlow(Model model) {
+		super(model);
 		successorList = new ArrayList<Flow>();
 	}
 

@@ -8,7 +8,7 @@ package es.ull.iis.simulation.model;
  * from each type are required to do something (typically an {@link ActivityFlow}).
  * @author Iván Castilla Rodríguez
  */
-public class WorkGroup implements ModelObject {
+public class WorkGroup extends ModelObject {
 	public class Pair {
 		public final ResourceType rt;
 		public final int needed;
@@ -24,9 +24,8 @@ public class WorkGroup implements ModelObject {
 	/**
 	 * 
 	 */
-	public WorkGroup() {
-		// TODO: Check if it should be "null" or an empty array
-		pairs = null;
+	public WorkGroup(Model model) {
+		this(model, new Pair[0]);
 	}
 
     /**
@@ -35,8 +34,8 @@ public class WorkGroup implements ModelObject {
      * @param rt Resource Type
      * @param needed Resources needed
      */    
-    public WorkGroup(ResourceType rt, int needed) {
-        this(new ResourceType[] {rt}, new int[] {needed});
+    public WorkGroup(Model model, ResourceType rt, int needed) {
+        this(model, new ResourceType[] {rt}, new int[] {needed});
     }
 
     /**
@@ -45,10 +44,12 @@ public class WorkGroup implements ModelObject {
      * @param rts The resource types which compounds this WG.
      * @param needs The amounts of resource types required by this WG.
      */    
-    public WorkGroup(ResourceType[] rts, int []needs) {
+    public WorkGroup(Model model, ResourceType[] rts, int []needs) {
+    	super(model, "WG");
     	this.pairs = new Pair[rts.length];
     	for (int i = 0; i < rts.length; i++)
     		pairs[i] = new Pair(rts[i], needs[i]);
+		model.add(this);
     }
 
     /**
@@ -56,8 +57,10 @@ public class WorkGroup implements ModelObject {
      * {resource type, #needed resources}.
      * @param pairs The pairs <resource type, needed resources>.
      */    
-    public WorkGroup(Pair[] pairs) {
+    public WorkGroup(Model model, Pair[] pairs) {
+    	super(model, "WG");
     	this.pairs = pairs;
+		model.add(this);
     }
 
 	/**
@@ -68,11 +71,6 @@ public class WorkGroup implements ModelObject {
         return pairs.length;
     }
     
-	@Override
-	public String getObjectTypeIdentifier() {
-		return "WG";
-	}
-
 	/**
 	 * Returns the {@link Pair}s of this {@link WorkGroup}.
 	 * @return the {@link Pair}s of this {@link WorkGroup}

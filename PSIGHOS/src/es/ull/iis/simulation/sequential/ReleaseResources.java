@@ -23,7 +23,7 @@ public class ReleaseResources extends VariableStoreSimulationObject implements R
 	 * @param description
 	 */
 	public ReleaseResources(Simulation simul, ReleaseResourcesFlow modelRel) {
-		super(simul.getNextActivityId(), simul);		
+		super(simul.getNextActivityId(), simul, "REL");		
 		this.modelRel = modelRel;
         final TreeMap<es.ull.iis.simulation.model.ResourceType, Long> originalList = modelRel.getCancellationList();
         for (Entry<es.ull.iis.simulation.model.ResourceType, Long> entry : originalList.entrySet()) {
@@ -37,11 +37,6 @@ public class ReleaseResources extends VariableStoreSimulationObject implements R
 	
 	public String getDescription() {
 		return modelRel.getDescription();
-	}
-
-	@Override
-	public String getObjectTypeIdentifier() {
-		return modelRel.getObjectTypeIdentifier();
 	}
 
 	/**

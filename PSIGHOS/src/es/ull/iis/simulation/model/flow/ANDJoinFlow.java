@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.Model;
+
 /**
  * A merge flow which allows only one of the incoming branches to pass. Which one
  * passes depends on the <code>acceptValue</code>.
@@ -15,24 +17,24 @@ public abstract class ANDJoinFlow extends MergeFlow {
 	/**
 	 * Creates a new AND flow.
 	 */
-	public ANDJoinFlow() {
-		this(true, 0);
+	public ANDJoinFlow(Model model) {
+		this(model, true, 0);
 	}
 	
 	/**
 	 * Creates a new AND flow
 	 * @param acceptValue The number of branches which have to arrive to pass the control thread
 	 */
-	public ANDJoinFlow(int acceptValue) {
-		this(true, acceptValue);
+	public ANDJoinFlow(Model model, int acceptValue) {
+		this(model, true, acceptValue);
 	}
 	
 	/**
 	 * Create a new AND Flow which can be used in a safe context or a general one.
 	 * @param safe True for safe context; false in other case
 	 */
-	public ANDJoinFlow(boolean safe) {
-		this(safe, 0);
+	public ANDJoinFlow(Model model, boolean safe) {
+		this(model, safe, 0);
 	}
 	
 	/**
@@ -40,8 +42,8 @@ public abstract class ANDJoinFlow extends MergeFlow {
 	 * @param safe True for safe context; false in other case
 	 * @param acceptValue The number of branches which have to arrive to pass the control thread
 	 */
-	public ANDJoinFlow(boolean safe, int acceptValue) {
-		super(safe);
+	public ANDJoinFlow(Model model, boolean safe, int acceptValue) {
+		super(model, safe);
 		this.acceptValue = acceptValue;
 	}
 	

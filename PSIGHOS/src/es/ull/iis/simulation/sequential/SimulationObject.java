@@ -14,16 +14,18 @@ public abstract class SimulationObject implements es.ull.iis.simulation.core.Sim
     protected final Simulation simul;
     /** String which represents the object */
     private final String idString;
+    private final String objTypeId;
     
 	/**
      * Creates a new simulation object.
      * @param id Unique identifier of the object
      * @param simul Simulation this object belongs to
      */
-	public SimulationObject(int id, Simulation simul) {
+	public SimulationObject(int id, Simulation simul, String objTypeId) {
 		this.simul = simul;
 		this.id = id;
-		idString = new String("[" + getObjectTypeIdentifier() + id + "]");
+		this.objTypeId = objTypeId;
+		idString = new String("[" + objTypeId + id + "]");
 	}
 
 	/**
@@ -31,7 +33,9 @@ public abstract class SimulationObject implements es.ull.iis.simulation.core.Sim
 	 * This should be a 3-or-less character description.
 	 * @return A short string describing the type of the simulation object.
 	 */
-	public abstract String getObjectTypeIdentifier();
+	public String getObjectTypeIdentifier() {
+		return objTypeId;
+	}
 	
     /**
      * Returns the simulation which this object is attached to.

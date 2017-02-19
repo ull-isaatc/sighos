@@ -360,6 +360,8 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
      * if the flow has not been carried out.
 	 */
 	public es.ull.iis.simulation.model.ActivityWorkGroup getExecutionWG() {
+		if (executionWG == null)
+			return null;
 		return executionWG.getModelAWG();
 	}
 
@@ -425,6 +427,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 				minResourcesAvailability = auxTs;
 				elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getExecutionWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
 				elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());
+				elem.getFlowHandler().next(this);
 				return -1;
 			}
 			else {

@@ -3,11 +3,14 @@
  */
 package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.ModelObject;
+
 /**
  * Basic implementation of a flow. Defines the default behavior of most methods. 
  * @author Iván Castilla Rodríguez
  */
-public abstract class BasicFlow implements Flow {
+public abstract class BasicFlow extends ModelObject implements Flow {
 	/** The structured flow containing this flow. */
 	protected StructuredFlow parent = null;
 	
@@ -15,7 +18,9 @@ public abstract class BasicFlow implements Flow {
 	 * Create a new basic flow.
 	 * @param simul The simulation this flow belongs to.
 	 */
-	public BasicFlow() {
+	public BasicFlow(Model model) {
+		super(model, "F");
+		model.add(this);
 	}
 	
 	@Override
@@ -37,9 +42,4 @@ public abstract class BasicFlow implements Flow {
 		return true;
 	}
 
-	@Override
-	public String getObjectTypeIdentifier() {
-		return "F";
-	}
-	
 }

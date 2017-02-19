@@ -21,7 +21,7 @@ public class ResourceType extends TimeStampedSimulationObject {
      * @param description A short text describing this resource type.
      */
 	public ResourceType(Simulation simul, es.ull.iis.simulation.model.ResourceType modelRT) {
-		super(simul.getNextResourceTypeId(), simul);
+		super(simul.getNextResourceTypeId(), simul, "RT");
         this.modelRT = modelRT;
         availableResourceList = new ResourceList();
         simul.add(this);
@@ -112,11 +112,6 @@ public class ResourceType extends TimeStampedSimulationObject {
         	res.setTimeOut(true);
     }
     
-    @Override
-	public String getObjectTypeIdentifier() {
-		return modelRT.getObjectTypeIdentifier();
-	}
-
     @Override
 	public long getTs() {
 		return manager.getTs();

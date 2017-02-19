@@ -20,7 +20,7 @@ import es.ull.iis.simulation.core.TimeStamp;
  * @author Iván Castilla Rodríguez
  *
  */
-public class Resource implements ModelObject, Describable {
+public class Resource extends ModelObject implements Describable {
     /** A brief description of the resource */
     protected final String description;
 	/** Timetable which defines the availability estructure of the resource. Define RollOn and RollOff events. */
@@ -31,18 +31,15 @@ public class Resource implements ModelObject, Describable {
 	/**
 	 * 
 	 */
-	public Resource(String description) {
+	public Resource(Model model, String description) {
+		super(model, "RES");
 		this.description = description;
+		model.add(this);
 	}
 
 	@Override
 	public String getDescription() {
 		return description;
-	}
-
-	@Override
-	public String getObjectTypeIdentifier() {
-		return "RES";
 	}
 
 	/**
@@ -106,7 +103,7 @@ public class Resource implements ModelObject, Describable {
 	 * @param role The type of this resource during every activation 
 	 */
 	public void addTimeTableEntry(SimulationCycle cycle, long dur, ResourceType role) {
-    	addTimeTableEntry(cycle, new TimeStamp(Model.getDefTimeUnit(), dur), role);
+    	addTimeTableEntry(cycle, new TimeStamp(model.getUnit(), dur), role);
     }  
     
 	/**
@@ -116,7 +113,7 @@ public class Resource implements ModelObject, Describable {
 	 * @param roleList The types of this resource during every activation 
 	 */
 	public void addTimeTableEntry(SimulationCycle cycle, long dur, ArrayList<ResourceType> roleList) {
-    	addTimeTableEntry(cycle, new TimeStamp(Model.getDefTimeUnit(), dur), roleList);
+    	addTimeTableEntry(cycle, new TimeStamp(model.getUnit(), dur), roleList);
     }  
     
     /**
@@ -148,7 +145,7 @@ public class Resource implements ModelObject, Describable {
      * @param role Role that the resource plays during this cycle
      */
 	public void addCancelTableEntry(SimulationCycle cycle, long dur, ResourceType role) {
-    	addCancelTableEntry(cycle, new TimeStamp(Model.getDefTimeUnit(), dur), role);
+    	addCancelTableEntry(cycle, new TimeStamp(model.getUnit(), dur), role);
     }  
 
     /**
@@ -159,6 +156,6 @@ public class Resource implements ModelObject, Describable {
      * @param roleList Roles that the resource play during this cycle
      */
 	public void addCancelTableEntry(SimulationCycle cycle, long dur, ArrayList<ResourceType> roleList) {
-    	addCancelTableEntry(cycle, new TimeStamp(Model.getDefTimeUnit(), dur), roleList);
+    	addCancelTableEntry(cycle, new TimeStamp(model.getUnit(), dur), roleList);
     }      
 }

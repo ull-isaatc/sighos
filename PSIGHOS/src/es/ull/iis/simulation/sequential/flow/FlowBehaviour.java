@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.sequential.flow;
 
 import java.util.ArrayList;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.condition.Condition;
@@ -14,8 +13,11 @@ import es.ull.iis.simulation.model.flow.DelayFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.MergeFlow;
+import es.ull.iis.simulation.model.flow.MultiMergeFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.model.flow.SimpleMergeFlow;
+import es.ull.iis.simulation.model.flow.ThreadMergeFlow;
 import es.ull.iis.simulation.sequential.Element;
 import es.ull.iis.simulation.sequential.WorkThread;
 
@@ -29,6 +31,7 @@ public class FlowBehaviour {
 	protected final TreeMap<Flow, MergeFlowControl> control = new TreeMap<Flow, MergeFlowControl>();
 	/** List used by the control system. */
 	protected final TreeMap<Flow, TreeMap<WorkThread, Integer>> checkList = new TreeMap<Flow, TreeMap<WorkThread,Integer>>();
+	protected TreeMap<Flow, Long> lastTs = new TreeMap<Flow, Long>();
 
 	/**
 	 * 
@@ -111,7 +114,7 @@ public class FlowBehaviour {
 		}
 		
 	}
-
+	
 	public void request(WorkThread wThread) {
 		final es.ull.iis.simulation.model.flow.Flow f = wThread.getCurrentFlow();
 		if (!wThread.wasVisited(f)) {
@@ -121,19 +124,21 @@ public class FlowBehaviour {
 						wThread.cancel(f);
 					}
 				}
-				arrive(wThread, (MergeFlow)f);
-				if (canPass(wThread, (MergeFlow)f)) {
-					control.get(elem).setActivated();
-					next(wThread);
+				if (wThread.isExecutable() || !(f instanceof ThreadMergeFlow)) {				
+					arrive(wThread, (MergeFlow)f);
+					if (canPass(wThread, (MergeFlow)f)) {
+						control.get(elem).setActivated();
+						next(wThread);
+					}
+					else {
+						// If no one of the branches was true, the thread of control must continue anyway
+						if (canReset(wThread, (MergeFlow)f) && !isActivated(wThread))
+							next(wThread.getInstanceSubsequentWorkThread(false, f, control.get(elem).getOutgoingFalseToken()));
+						wThread.notifyEnd();
+					}
+					if (canReset(wThread, (MergeFlow)f))
+						reset(wThread, (MergeFlow)f);
 				}
-				else {
-					// If no one of the branches was true, the thread of control must continue anyway
-					if (canReset(wThread, (MergeFlow)f) && !isActivated(wThread))
-						next(wThread.getInstanceSubsequentWorkThread(false, f, control.get(elem).getOutgoingFalseToken()));
-					wThread.notifyEnd();
-				}
-				if (canReset(wThread, (MergeFlow)f))
-					reset(wThread);
 			}
 			else {
 				if (wThread.isExecutable()) {
@@ -258,7 +263,10 @@ public class FlowBehaviour {
 		return control.get(elem).canReset(f.getIncomingBranches());
 	}
 
-	protected void reset(WorkThread wThread) {
+	protected void reset(WorkThread wThread, MergeFlow f) {
+		if (f instanceof SimpleMergeFlow) {
+			lastTs.remove(elem);
+		}
 		if (control.get(elem).reset())
 			control.remove(elem);
 	}
@@ -275,56 +283,21 @@ public class FlowBehaviour {
 		if (f instanceof ANDJoinFlow) {
 			return (!control.get(elem).isActivated() && (control.get(elem).getTrueChecked() == ((ANDJoinFlow)f).getAcceptValue()));
 		}
-	}
-
-}
-
-class ThreadMergeFlow extends ANDJoinFlow {
-	public void request(WorkThread wThread) {
-		if (!wThread.wasVisited(this)) {
-			if (wThread.isExecutable()) {
-				if (!beforeRequest(elem))
-					wThread.setExecutable(false, this);
-				arrive(wThread);
-				if (canPass(wThread)) {
-					control.get(elem).setActivated();
-					next(wThread);
-				}
-				else {
-					// If no one of the branches was true, the thread of control must continue anyway
-					if (canReset(wThread) && !isActivated(wThread))
-						next(wThread.getInstanceSubsequentWorkThread(false, this, control.get(elem).getOutgoingFalseToken()));
-					wThread.notifyEnd();
-				}
-				if (canReset(wThread))
-					reset(wThread);
+		else if (f instanceof MultiMergeFlow) {
+			return wThread.isExecutable();
+		}
+		else if (f instanceof SimpleMergeFlow) {
+			if (!lastTs.containsKey(f)) {
+				lastTs.put(f, (long)-1);
 			}
-		} else
-			wThread.notifyEnd();
+			if (wThread.isExecutable() && (elem.getTs() > lastTs.get(f))) {
+				lastTs.put(f, elem.getTs());
+				return true;
+			}
+			return false;
+		}
+		return true;
 	}
-}
-class MultiMergeFlow extends ORJoinFlow {
-	protected boolean canPass(WorkThread wThread) {
-		return wThread.isExecutable();
-	}
+
 }
 
-class SimpleMergeFlow extends ORJoinFlow {
-	protected SortedMap<Element, Long> lastTs;
-
-	protected boolean canPass(WorkThread wThread) {
-		if (!lastTs.containsKey(elem)) {
-			lastTs.put(elem, (long)-1);
-		}
-		if (wThread.isExecutable() && (elem.getTs() > lastTs.get(elem))) {
-			lastTs.put(elem, elem.getTs());
-			return true;
-		}
-		return false;
-	}
-	
-	protected void reset(WorkThread wThread) {
-		lastTs.remove(elem);
-		super.reset(wThread);
-	}
-}

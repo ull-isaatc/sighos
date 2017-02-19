@@ -31,7 +31,7 @@ public class RequestResources extends VariableStoreSimulationObject implements P
 	 * @param description
 	 */
 	public RequestResources(Simulation simul, RequestResourcesFlow modelReq) {
-		super(simul.getNextActivityId(), simul);
+		super(simul.getNextActivityId(), simul, "REQ");
 		this.modelReq = modelReq;
         workGroupTable = new PrioritizedTable<ActivityWorkGroup>();
         for (int i = 0; i < modelReq.getWorkGroupSize(); i++) {
@@ -132,11 +132,6 @@ public class RequestResources extends VariableStoreSimulationObject implements P
 	 */
 	protected boolean validElement(WorkThread wThread) {
 		return true;
-	}
-
-	@Override
-	public String getObjectTypeIdentifier() {
-		return modelReq.getObjectTypeIdentifier();
 	}
 
     /**

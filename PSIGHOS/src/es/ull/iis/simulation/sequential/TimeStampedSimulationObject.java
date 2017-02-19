@@ -18,8 +18,8 @@ public abstract class TimeStampedSimulationObject extends VariableStoreSimulatio
 	 * @param id Object's identifier
 	 * @param simul Simulation this object belongs to
 	 */
-	public TimeStampedSimulationObject(int id, Simulation simul) {
-		super(id, simul);
+	public TimeStampedSimulationObject(int id, Simulation simul, String objTypeId) {
+		super(id, simul, objTypeId);
 	}
 
 	/**

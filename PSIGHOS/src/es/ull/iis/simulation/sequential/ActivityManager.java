@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.core.Describable;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.PrioritizedMap;
 
 /**
@@ -31,7 +32,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	* @param simul Simulation this activity manager belongs to
     */
     public ActivityManager(Simulation simul) {
-        super(nextid++, simul);
+        super(nextid++, simul, "AM");
         resourceTypeList = new ArrayList<ResourceType>();
         activityList = new ArrayList<RequestResources>();
         wtQueue = new WorkThreadQueue();
@@ -91,9 +92,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     	while (iter.hasNext() && (uselessSF < wtQueue.size())) {
     		final WorkThread wt = iter.next();
             // TODO: Check whether it always works fine
-            final RequestResources reqResources = (RequestResources) wt.getCurrentFlow();
+            final RequestResourcesFlow reqResources = (RequestResourcesFlow) wt.getCurrentFlow();
             
-            final int result = wt.availableResource(reqResources);
+            final int result = wt.availableResource(simul.getRequestResource(reqResources));
             if (result == -1) {
         		toRemove.add(wt);
         		uselessSF--;
@@ -104,7 +105,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 		}
     	// Postponed removal to avoid conflict with the activity manager queue
     	for (WorkThread wt : toRemove)
-    		((RequestResources) wt.getCurrentFlow()).queueRemove(wt);
+    		simul.getRequestResource((RequestResourcesFlow) wt.getCurrentFlow()).queueRemove(wt);
     } 
 
     /**
@@ -122,11 +123,6 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
     	return wtQueue.iterator();
     }
     
-	@Override
-	public String getObjectTypeIdentifier() {
-		return "AM";
-	}
-
 	@Override
 	public long getTs() {
 		return simul.getTs();
@@ -166,9 +162,9 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 			public int compare(WorkThread o1, WorkThread o2) {
 				if (o1.equals(o2))
 					return 0;
-				if (((RequestResources) o1.getCurrentFlow()).getPriority() > ((RequestResources) o2.getCurrentFlow()).getPriority())
+				if (((RequestResourcesFlow) o1.getCurrentFlow()).getPriority() > ((RequestResourcesFlow) o2.getCurrentFlow()).getPriority())
 					return 1;
-				if (((RequestResources) o1.getCurrentFlow()).getPriority() < ((RequestResources) o2.getCurrentFlow()).getPriority())
+				if (((RequestResourcesFlow) o1.getCurrentFlow()).getPriority() < ((RequestResourcesFlow) o2.getCurrentFlow()).getPriority())
 					return -1;
 				if (o1.getArrivalOrder() > o2.getArrivalOrder())
 					return 1;

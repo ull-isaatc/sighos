@@ -30,8 +30,8 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
      * @param id Unique identifier of the object
      * @param simul Simulation this object belongs to
      */
-	public VariableStoreSimulationObject(int id, Simulation simul) {
-		super(id, simul);
+	public VariableStoreSimulationObject(int id, Simulation simul, String objTypeId) {
+		super(id, simul, objTypeId);
 	}
 
 	/**

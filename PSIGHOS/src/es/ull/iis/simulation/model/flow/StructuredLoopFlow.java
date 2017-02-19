@@ -2,6 +2,8 @@ package es.ull.iis.simulation.model.flow;
 
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.model.Model;
+
 /**
  * A structured flow which defines a repetitive subflow. Different subclasses
  * of this class represent different loop structures: while-do, do-while, for...
@@ -17,8 +19,8 @@ public abstract class StructuredLoopFlow extends StructuredFlow {
 	 * @param initialSubFlow First step of the internal subflow
 	 * @param finalSubFlow Last step of the internal subflow
 	 */
-	public StructuredLoopFlow(InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow) {
-		super();
+	public StructuredLoopFlow(Model model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow) {
+		super(model);
 		initialFlow = initialSubFlow;
 		finalFlow = finalSubFlow;
 		final TreeSet<Flow> visited = new TreeSet<Flow>(); 
@@ -29,8 +31,8 @@ public abstract class StructuredLoopFlow extends StructuredFlow {
 	 * Create a new StructuredLoopFlow consisting of a unique flow.
 	 * @param subFlow A unique flow defining an internal subflow
 	 */
-	public StructuredLoopFlow(TaskFlow subFlow) {
-		this(subFlow, subFlow);
+	public StructuredLoopFlow(Model model, TaskFlow subFlow) {
+		this(model, subFlow, subFlow);
 	}
 }
 

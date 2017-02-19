@@ -8,6 +8,7 @@ import java.util.Iterator;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.util.Prioritizable;
 import es.ull.iis.util.PrioritizedTable;
@@ -32,16 +33,16 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * @param simul
 	 * @param description
 	 */
-	public RequestResourcesFlow(String description, int resourcesId) {
-		this(description, resourcesId, 0, false);
+	public RequestResourcesFlow(Model model, String description, int resourcesId) {
+		this(model, description, resourcesId, 0, false);
 	}
 
 	/**
 	 * @param simul
 	 * @param description
 	 */
-	public RequestResourcesFlow(String description, int resourcesId, int priority) {
-		this(description, resourcesId, priority, false);
+	public RequestResourcesFlow(Model model, String description, int resourcesId, int priority) {
+		this(model, description, resourcesId, priority, false);
 	}
 
 	/**
@@ -49,8 +50,8 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * @param description
 	 * @param priority
 	 */
-	public RequestResourcesFlow(String description, int resourcesId, int priority, boolean exclusive) {
-		super();
+	public RequestResourcesFlow(Model model, String description, int resourcesId, int priority, boolean exclusive) {
+		super(model);
         this.description = description;
         this.priority = priority;
 		this.resourcesId = resourcesId;
@@ -98,7 +99,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      */
     public int addWorkGroup(int priority, WorkGroup wg) {
     	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(this, wgId, priority, wg, new TrueCondition()));
+        workGroupTable.add(new ActivityWorkGroup(model, this, wgId, priority, wg, new TrueCondition()));
         return wgId;
     }
     
@@ -112,7 +113,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      */
     public int addWorkGroup(int priority, WorkGroup wg, Condition cond) {
     	int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(this, wgId, priority, wg, cond));
+        workGroupTable.add(new ActivityWorkGroup(model, this, wgId, priority, wg, cond));
         return wgId;
     }
     

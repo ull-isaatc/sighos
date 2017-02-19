@@ -1,6 +1,7 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.model.Model;
 
 /**
  * A structured loop flow which resembles a while-do loop. A precondition is
@@ -18,8 +19,8 @@ public class WhileDoFlow extends StructuredLoopFlow {
 	 * @param finalSubFlow Last step of the internal subflow
 	 * @param postCondition Break loop condition.
  	 */
-	public WhileDoFlow(InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, Condition postCondition) {
-		super(initialSubFlow, finalSubFlow);
+	public WhileDoFlow(Model model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, Condition postCondition) {
+		super(model, initialSubFlow, finalSubFlow);
 		cond = postCondition;
 	}
 
@@ -28,8 +29,8 @@ public class WhileDoFlow extends StructuredLoopFlow {
 	 * @param subFlow A unique flow defining an internal subflow
 	 * @param postCondition Break loop condition.
  	 */
-	public WhileDoFlow(TaskFlow subFlow, Condition postCondition) {
-		this(subFlow, subFlow, postCondition);
+	public WhileDoFlow(Model model, TaskFlow subFlow, Condition postCondition) {
+		this(model, subFlow, subFlow, postCondition);
 	}
 
 	/** 

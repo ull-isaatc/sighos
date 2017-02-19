@@ -19,8 +19,8 @@ public class TimeDrivenGenerator extends ElementGenerator {
 	/**
 	 * 
 	 */
-	public TimeDrivenGenerator(TimeFunction nElem, SimulationCycle cycle) {
-		super(nElem);
+	public TimeDrivenGenerator(Model model, TimeFunction nElem, SimulationCycle cycle) {
+		super(model, nElem);
 		this.cycle = cycle;
 	}
 
@@ -30,8 +30,8 @@ public class TimeDrivenGenerator extends ElementGenerator {
 	 * @param et The type of the elements to be created
 	 * @param flow The description of the flow of the elements to be created.
 	 */
-	public TimeDrivenGenerator(TimeFunction nElem, ElementType et, InitializerFlow flow, SimulationCycle cycle) {
-		super(nElem, et, flow);
+	public TimeDrivenGenerator(Model model, TimeFunction nElem, ElementType et, InitializerFlow flow, SimulationCycle cycle) {
+		super(model, nElem, et, flow);
 		this.cycle = cycle;
 	}
 	
@@ -40,8 +40,8 @@ public class TimeDrivenGenerator extends ElementGenerator {
 	 * @param sim Simulation this object belongs to.
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 */
-	public TimeDrivenGenerator(int nElem, SimulationCycle cycle) {
-		this(TimeFunctionFactory.getInstance("ConstantVariate", nElem), cycle);
+	public TimeDrivenGenerator(Model model, int nElem, SimulationCycle cycle) {
+		this(model, TimeFunctionFactory.getInstance("ConstantVariate", nElem), cycle);
 	}
 	
 	/**
@@ -50,8 +50,8 @@ public class TimeDrivenGenerator extends ElementGenerator {
 	 * @param et The type of the elements to be created
 	 * @param flow The description of the flow of the elements to be created.
 	 */
-	public TimeDrivenGenerator(int nElem, ElementType et, InitializerFlow flow, SimulationCycle cycle) {
-		this(TimeFunctionFactory.getInstance("ConstantVariate", nElem), et, flow, cycle);
+	public TimeDrivenGenerator(Model model, int nElem, ElementType et, InitializerFlow flow, SimulationCycle cycle) {
+		this(model, TimeFunctionFactory.getInstance("ConstantVariate", nElem), et, flow, cycle);
 	}
 	
 	/* (non-Javadoc)

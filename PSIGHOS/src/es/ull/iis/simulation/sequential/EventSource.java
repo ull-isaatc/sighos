@@ -1,21 +1,20 @@
 package es.ull.iis.simulation.sequential;
 
 import es.ull.iis.simulation.model.DiscreteEvent;
-import es.ull.iis.simulation.model.EventSource;
 
 /**
  * Represents the simulation component that carries out events. 
  * @author Carlos Martin Galan
  */
-public abstract class BasicElement extends TimeStampedSimulationObject implements EventSource {
+public abstract class EventSource extends TimeStampedSimulationObject {
 
     /**
      * Creates a basic element. 
      * @param id Element's identifier
      * @param simul Attached simulation object
      */
-	public BasicElement(int id, Simulation simul) {
-		super(id, simul);
+	public EventSource(int id, Simulation simul, String objTypeId) {
+		super(id, simul, objTypeId);
 	}
 
     /**
@@ -40,10 +39,8 @@ public abstract class BasicElement extends TimeStampedSimulationObject implement
         addEvent(onDestroy());
     }
     
-	@Override
-	public String getObjectTypeIdentifier() {
-		return "BE";
-	}
+	public abstract DiscreteEvent onCreate(long ts);
+	public abstract DiscreteEvent onDestroy();
 	
 	@Override
 	public long getTs() {

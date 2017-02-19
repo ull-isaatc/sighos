@@ -1,5 +1,7 @@
 package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.Model;
+
 /**
  * A conditional flow which allows all outgoing branches which meet their condition to be activated.
  * Successors are evaluated in order. The rest of branches produce a false work thread.<p>   
@@ -12,8 +14,8 @@ public class MultiChoiceFlow extends ConditionalFlow {
 	/**
 	 * Creates a new MultiChoiceFlow.
 	 */
-	public MultiChoiceFlow() {
-		super();
+	public MultiChoiceFlow(Model model) {
+		super(model);
 	}
 
 }

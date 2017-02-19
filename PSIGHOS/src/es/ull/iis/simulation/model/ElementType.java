@@ -11,20 +11,18 @@ import es.ull.iis.util.Prioritizable;
  * and is used for statistic issues.
  * @author Iván Castilla Rodríguez
  */
-public class ElementType implements ModelObject, Describable, Prioritizable {
+public class ElementType extends ModelObject implements Describable, Prioritizable {
 	/** Element's priority in an activity queue. Minimum value: 0. */
 	private int priority = 0;
     /** A brief description of the element type */
     private final String description;
-
     
 	/**
 	 * Creates a new element type with the highest priority.
 	 * @param description A short text describing this element type.
 	 */
-	public ElementType(String description) {
-		this.priority = 0;
-		this.description = description;
+	public ElementType(Model model, String description) {
+		this(model, description, 0);
 	}
 
 	/**
@@ -32,14 +30,11 @@ public class ElementType implements ModelObject, Describable, Prioritizable {
 	 * @param description A short text describing this element type.
 	 * @param priority The priority to set.
 	 */
-	public ElementType(String description, int priority) {
+	public ElementType(Model model, String description, int priority) {
+		super(model, "ET");
 		this.priority = priority;
 		this.description = description;
-	}
-
-	@Override
-	public String getObjectTypeIdentifier() {
-		return "ET";
+		model.add(this);
 	}
 
 	@Override

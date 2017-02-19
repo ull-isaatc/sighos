@@ -15,7 +15,7 @@ import es.ull.iis.util.Output;
  *
  */
 public class Model {
-	private static TimeUnit defTimeUnit = TimeUnit.MINUTE; 
+	private final static TimeUnit defTimeUnit = TimeUnit.MINUTE; 
 	/** Output for printing debug and error messages */
 	private static Output out = new Output();
 	private final ArrayList<EventSource> eventSourceList = new ArrayList<EventSource>();
@@ -24,14 +24,18 @@ public class Model {
 	private final ArrayList<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
 	private final ArrayList<WorkGroup> workGroupList = new ArrayList<WorkGroup>();
 	private final ArrayList<Flow> flowList = new ArrayList<Flow>();
+	private final TimeUnit unit;
 
 	/**
 	 * 
 	 */
 	public Model() {
-		// TODO Auto-generated constructor stub
+		this(defTimeUnit);
 	}
 
+	public Model(TimeUnit unit) {
+		this.unit = unit;
+	}
 	/**
 	 * @return the defTimeUnit
 	 */
@@ -40,10 +44,10 @@ public class Model {
 	}
 
 	/**
-	 * @param defTimeUnit the defTimeUnit to set
+	 * @return the unit
 	 */
-	public static void setDefTimeUnit(TimeUnit defTimeUnit) {
-		Model.defTimeUnit = defTimeUnit;
+	public TimeUnit getUnit() {
+		return unit;
 	}
 
 	public static void debug(String description) {
@@ -76,7 +80,7 @@ public class Model {
 	public void add(Flow f) { 
 		flowList.add(f);
 	}
-	
+
 	public List<EventSource> getEventSourceList() { 
 		return eventSourceList;
 	}
@@ -95,5 +99,4 @@ public class Model {
 	public List<Flow> getFlowList() { 
 		return flowList;
 	}
-	
 }

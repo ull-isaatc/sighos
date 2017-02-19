@@ -13,7 +13,7 @@ import es.ull.iis.function.TimeFunctionFactory;
  * Defines the way a generator creates elements when it's time to create them.
  * @author Iván Castilla Rodríguez
  */
-public class ElementGenerator implements ModelObject {
+public class ElementGenerator extends ModelObject implements EventSource {
 	/** Number of objects created each time this creator is invoked. */
 	protected final TimeFunction nElem;
 	/** Each flow that will be generated */
@@ -23,9 +23,11 @@ public class ElementGenerator implements ModelObject {
 	 * Creates a creator of elements.
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 */
-	public ElementGenerator(TimeFunction nElem) {
+	public ElementGenerator(Model model, TimeFunction nElem) {
+		super(model, "GEN");
 		genTrio = new ArrayList<GenerationTrio>();
 		this.nElem = nElem;
+		model.add(this);
 	}
 	
 	/**
@@ -34,8 +36,8 @@ public class ElementGenerator implements ModelObject {
 	 * @param et The type of the elements to be created
 	 * @param flow The description of the flow of the elements to be created.
 	 */
-	public ElementGenerator(TimeFunction nElem, ElementType et, InitializerFlow flow) {
-		this(nElem);
+	public ElementGenerator(Model model, TimeFunction nElem, ElementType et, InitializerFlow flow) {
+		this(model, nElem);
 		genTrio.add(new GenerationTrio(et, flow, 1.0));
 	}
 	
@@ -44,8 +46,8 @@ public class ElementGenerator implements ModelObject {
 	 * @param sim Simulation this object belongs to.
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 */
-	public ElementGenerator(int nElem) {
-		this(TimeFunctionFactory.getInstance("ConstantVariate", nElem));
+	public ElementGenerator(Model model, int nElem) {
+		this(model, TimeFunctionFactory.getInstance("ConstantVariate", nElem));
 	}
 	
 	/**
@@ -54,8 +56,8 @@ public class ElementGenerator implements ModelObject {
 	 * @param et The type of the elements to be created
 	 * @param flow The description of the flow of the elements to be created.
 	 */
-	public ElementGenerator(int nElem, ElementType et, InitializerFlow flow) {
-		this(TimeFunctionFactory.getInstance("ConstantVariate", nElem), et, flow);
+	public ElementGenerator(Model model, int nElem, ElementType et, InitializerFlow flow) {
+		this(model, TimeFunctionFactory.getInstance("ConstantVariate", nElem), et, flow);
 	}
 	
 	/**
@@ -96,11 +98,6 @@ public class ElementGenerator implements ModelObject {
 		return genTrio;
 	}
 
-	@Override
-	public String getObjectTypeIdentifier() {
-		return "CRE";
-	}
-	
 	/**
 	 * Description of a set of elements a generator can create.
 	 * @author Iván Castilla Rodríguez

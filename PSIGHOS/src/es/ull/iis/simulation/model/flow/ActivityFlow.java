@@ -10,6 +10,7 @@ import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.util.Prioritizable;
@@ -78,8 +79,8 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      * Creates a new activity with 0 priority.
      * @param description A short text describing this Activity.
      */
-    public ActivityFlow(String description) {
-        this(description, 0, true, false);
+    public ActivityFlow(Model model, String description) {
+        this(model, description, 0, true, false);
     }
 
     /**
@@ -87,8 +88,8 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      * @param description A short text describing this Activity.
      * @param priority Activity's priority.
      */
-    public ActivityFlow(String description, int priority) {
-        this(description, priority, true, false);
+    public ActivityFlow(Model model, String description, int priority) {
+        this(model, description, priority, true, false);
     }
 
     /**
@@ -96,8 +97,8 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      * @param description A short text describing this Activity.
      * @param modifiers Indicates if the activity has special characteristics. 
      */
-    public ActivityFlow(String description, boolean exclusive, boolean interruptible) {
-        this(description, 0, exclusive, interruptible);
+    public ActivityFlow(Model model, String description, boolean exclusive, boolean interruptible) {
+        this(model, description, 0, exclusive, interruptible);
     }
 
     /**
@@ -106,22 +107,22 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      * @param priority Activity's priority.
      * @param modifiers Indicates if the activity has special characteristics. 
      */
-    public ActivityFlow(String description, int priority, boolean exclusive, boolean interruptible) {
-    	super();
+    public ActivityFlow(Model model, String description, int priority, boolean exclusive, boolean interruptible) {
+    	super(model);
     	this.priority = priority;
     	this.description = description;
     	final int resId = resourcesIdCounter--;
-        initialFlow = new RequestResourcesFlow("REQ " + description, resId , priority, exclusive) {
+        initialFlow = new RequestResourcesFlow(model, "REQ " + description, resId , priority, exclusive) {
         	@Override
         	public void afterFinalize(FlowExecutor fe) {
         		afterStart(fe);
         	}
         };
         initialFlow.setParent(this);
-        selectWorkGroupFlow = new ExclusiveChoiceFlow();
+        selectWorkGroupFlow = new ExclusiveChoiceFlow(model);
         selectWorkGroupFlow.setParent(this);
         initialFlow.link(selectWorkGroupFlow);
-        finalFlow = new ReleaseResourcesFlow("REL " + description, resId);
+        finalFlow = new ReleaseResourcesFlow(model, "REL " + description, resId);
         finalFlow.setParent(this);
         this.exclusive = exclusive;
         this.interruptible = interruptible;
@@ -169,7 +170,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      */
     public int addWorkGroup(TimeFunction duration, int priority, WorkGroup wg, Condition cond) {
     	final int wgId = ((RequestResourcesFlow)initialFlow).addWorkGroup(priority, wg, cond);
-    	final DelayFlow delayFlow = new DelayFlow("WG" + wgId + "_DELAY " + description, duration);
+    	final DelayFlow delayFlow = new DelayFlow(model, "WG" + wgId + "_DELAY " + description, duration);
     	delayFlow.setParent(this);
     	selectWorkGroupFlow.link(delayFlow, new WGCondition(wgId));
     	delayFlow.link(finalFlow);

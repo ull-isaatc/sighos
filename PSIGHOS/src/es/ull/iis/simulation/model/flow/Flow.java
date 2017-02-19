@@ -5,8 +5,6 @@ package es.ull.iis.simulation.model.flow;
 
 import java.util.Set;
 
-import es.ull.iis.simulation.model.ModelObject;
-
 /**
  * The process an element has to carry out.<p>
  * A flow is structured as a graph, so it can have successors and predecessor. Successors can be
@@ -21,7 +19,7 @@ import es.ull.iis.simulation.model.ModelObject;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface Flow extends ModelObject {
+public interface Flow {
 	/**
 	 * Adds a flow's successor. This method must invoke <code>successor.addPredecessor</code>
 	 * to build the graph properly. 

@@ -16,7 +16,7 @@ import es.ull.iis.util.DiscreteCycleIterator;
  * A resource finishes its execution when it has no longer valid timetable entries.
  * @author Carlos Martín Galán
  */
-public class Resource extends BasicElement {
+public class Resource extends EventSource {
 	/** Timetable which defines the availability estructure of the resource. Define RollOn and RollOff events. */
     protected final ArrayList<TimeTableEntry> timeTable = new ArrayList<TimeTableEntry>();
     /** Availability time table. Define CancelPeriodOn and CancelPeriodOff events */
@@ -42,7 +42,7 @@ public class Resource extends BasicElement {
      * @param description A short text describing this resource.
      */
 	public Resource(Simulation simul, es.ull.iis.simulation.model.Resource modelRes) {
-		super(simul.getNextResourceId(), simul);
+		super(simul.getNextResourceId(), simul, "RES");
         currentRoles = new TreeMap<ResourceType, Long>();
         notCanceled = true;
         this.modelRes = modelRes;
@@ -60,11 +60,6 @@ public class Resource extends BasicElement {
 	 */
 	public es.ull.iis.simulation.model.Resource getModelRes() {
 		return modelRes;
-	}
-
-	@Override
-	public String getObjectTypeIdentifier() {
-		return modelRes.getObjectTypeIdentifier();
 	}
 
     /*
@@ -212,7 +207,7 @@ public class Resource extends BasicElement {
 
 	@Override
 	public DiscreteEvent onDestroy() {
-		return new BasicElement.DefaultFinalizeEvent();
+		return new EventSource.DefaultFinalizeEvent();
 	}
 
 	public TreeMap<ResourceType, Long> getCurrentRoles() {
@@ -227,7 +222,7 @@ public class Resource extends BasicElement {
     	
 		@Override
 		public void event() {
-			simul.getInfoHandler().notifyInfo(new ResourceInfo(simul, modelRes, getCurrentResourceType().getModelRT(), ResourceInfo.Type.START, getTs()));
+			simul.getInfoHandler().notifyInfo(new ResourceInfo(simul, modelRes, null, ResourceInfo.Type.START, getTs()));
 			for (int i = 0 ; i < timeTable.size(); i++) {
 				TimeTableEntry tte = timeTable.get(i);
 				if (tte.isPermanent()) {

@@ -1,5 +1,7 @@
 package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.Model;
+
 /**
  * A flow which merges several incoming branches into a single outgoing branch. The incoming 
  * branches are handled in an internal structure and managed per element.<p> When an incoming 
@@ -22,16 +24,16 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow 
 	/**
 	 * Create a new MergeFlow intended to be used in a safe context.
 	 */
-	public MergeFlow() {
-		this(true);
+	public MergeFlow(Model model) {
+		this(model, true);
 	}
 
 	/**
 	 * Create a new MergeFlow which can be used in a safe context or a general one.
 	 * @param safe True for safe context; false in other case
 	 */
-	public MergeFlow(boolean safe) {
-		super();
+	public MergeFlow(Model model, boolean safe) {
+		super(model);
 		this.safe = safe;
 	}
 

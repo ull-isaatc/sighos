@@ -5,6 +5,7 @@ package es.ull.iis.simulation.model.flow;
 
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 
 /**
@@ -23,8 +24,8 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 	 * @param simul
 	 * @param description
 	 */
-	public ReleaseResourcesFlow(String description, int resourcesId) {
-		super();
+	public ReleaseResourcesFlow(Model model, String description, int resourcesId) {
+		super(model);
         this.description = description;
 		this.resourcesId = resourcesId;
 		cancellationList = new TreeMap<ResourceType, Long>();

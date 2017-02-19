@@ -34,7 +34,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
 
 	/** List of element generators of the simulation. */
-	protected final ArrayList<ElementGenerator> generatorList = new ArrayList<ElementGenerator>();
+	protected final ArrayList<EventSource> eventSourceList = new ArrayList<EventSource>();
 
 	/** The identifier to be assigned to the next activity */ 
 	protected int nextActivityId = 1;
@@ -126,6 +126,17 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 		createSimulationObjects();
 	}
 
+	public EventSource getEventSourceFromModel(es.ull.iis.simulation.model.EventSource evSource) {
+		if (evSource instanceof es.ull.iis.simulation.model.TimeDrivenGenerator) {
+			return new TimeDrivenGenerator(this, (es.ull.iis.simulation.model.TimeDrivenGenerator)evSource);
+		}
+		else if (evSource instanceof es.ull.iis.simulation.model.Element) {
+			final es.ull.iis.simulation.model.Element modelElem = (es.ull.iis.simulation.model.Element) evSource;
+			return new Element(this, getElementType(modelElem.getType()), modelElem.getFlow());
+		}
+		return null;
+	}
+	
 	private void createSimulationObjects() {
 		for (es.ull.iis.simulation.model.ElementType et : model.getElementTypeList()) {
 			new ElementType(this, et);
@@ -135,6 +146,9 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 		}
 		for (es.ull.iis.simulation.model.Resource res : model.getResourceList()) {
 			new Resource(this, res);
+		}
+		for (es.ull.iis.simulation.model.EventSource evSource : model.getEventSourceList()) {
+			getEventSourceFromModel(evSource);
 		}
 		for (es.ull.iis.simulation.model.flow.Flow flow : model.getFlowList()) {
 			if (flow instanceof RequestResourcesFlow) {
@@ -172,8 +186,8 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 		infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationStartInfo(this, System.nanoTime(), this.internalStartTs));
 		
 		// Starts all the generators
-		for (ElementGenerator gen : generatorList)
-			addWait(gen.onCreate(internalStartTs));
+		for (EventSource evSource : eventSourceList)
+			addWait(evSource.onCreate(internalStartTs));
 		// Starts all the resources
 		for (Resource res : resourceList.values())
 			addWait(res.onCreate(internalStartTs));
@@ -393,8 +407,8 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @param gen
 	 *            Generator.
 	 */
-	protected void add(ElementGenerator gen) {
-		generatorList.add(gen);
+	protected void add(EventSource gen) {
+		eventSourceList.add(gen);
 	}
 
 	/**
@@ -610,23 +624,23 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * the simulation. 
 	 * @author Iván Castilla Rodríguez
 	 */
-    class SimulationElement extends BasicElement {
+    class SimulationElement extends EventSource {
 
     	/**
     	 * Creates a very simple element to control the simulation end.
     	 */
 		public SimulationElement() {
-			super(0, Simulation.this);
+			super(0, Simulation.this, "SE");
 		}
 
 		@Override
 		public DiscreteEvent onCreate(long ts) {
-			return new BasicElement.DefaultStartEvent(ts);
+			return new EventSource.DefaultStartEvent(ts);
 		}
 
 		@Override
 		public DiscreteEvent onDestroy() {
-			return new BasicElement.DefaultFinalizeEvent();
+			return new EventSource.DefaultFinalizeEvent();
 		}
     }
     

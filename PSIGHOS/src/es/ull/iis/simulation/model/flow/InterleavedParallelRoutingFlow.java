@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.model.Model;
+
 /**
  * A structured flow which contains a set of activities which must be performed according to a
  * predefined set of partial orderings. Partial orderings are defined using a collection of activity 
@@ -26,11 +28,11 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow {
 	 * @param dependencies A set of activity arrays, so that each array indicates precedence relations
 	 * among the activities.
 	 */
-	public InterleavedParallelRoutingFlow(Collection<ActivityFlow> acts, Collection<ActivityFlow[]> dependencies) {
-		super();
-		initialFlow = new ParallelFlow();
+	public InterleavedParallelRoutingFlow(Model model, Collection<ActivityFlow> acts, Collection<ActivityFlow[]> dependencies) {
+		super(model);
+		initialFlow = new ParallelFlow(model);
 		initialFlow.setParent(this);
-		finalFlow = new SynchronizationFlow();
+		finalFlow = new SynchronizationFlow(model);
 		finalFlow.setParent(this);
 		
 		this.acts = acts;
@@ -50,7 +52,7 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow {
 					succLink.put(pred, pred);
 				// If it already has a single successor, a parallel flow is added as successor
 				else if (succFlow instanceof ActivityFlow) {
-					succLink.put(pred, new ParallelFlow());
+					succLink.put(pred, new ParallelFlow(model));
 					pred.link(succLink.get(pred));
 				}
 				// else, the parallel flow is kept as the successor
@@ -61,7 +63,7 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow {
 					predLink.put(succ, succ);
 				// If it already has a single predecessor, a sync flow is added as predecessor
 				else if (predFlow instanceof ActivityFlow) {
-					predLink.put(succ, new SynchronizationFlow());
+					predLink.put(succ, new SynchronizationFlow(model));
 					predLink.get(succ).link(succ);
 				}
 			}

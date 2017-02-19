@@ -8,6 +8,4 @@ package es.ull.iis.simulation.model;
  *
  */
 public interface EventSource {
-	DiscreteEvent onCreate(long ts);
-	DiscreteEvent onDestroy();
 }

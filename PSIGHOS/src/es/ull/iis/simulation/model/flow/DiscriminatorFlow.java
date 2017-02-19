@@ -1,5 +1,7 @@
 package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.Model;
+
 /**
  * An AND join flow which allows only the first true incoming branch to pass. It is
  * reset when all the incoming branches are activated exactly once.
@@ -12,8 +14,8 @@ public class DiscriminatorFlow extends ANDJoinFlow {
 	 * Create a new DiscriminatorFlow.
 	 * @param simul Simulation this flow belongs to.
 	 */
-	public DiscriminatorFlow() {
-		super(1);
+	public DiscriminatorFlow(Model model) {
+		super(model,1 );
 	}
 
 	/**
@@ -21,8 +23,8 @@ public class DiscriminatorFlow extends ANDJoinFlow {
 	 * @param simul Simulation this flow belongs to
 	 * @param safe True for safe context; false in other case
 	 */
-	public DiscriminatorFlow(boolean safe) {
-		super(safe, 1);
+	public DiscriminatorFlow(Model model, boolean safe) {
+		super(model, safe, 1);
 	}
 	
 }

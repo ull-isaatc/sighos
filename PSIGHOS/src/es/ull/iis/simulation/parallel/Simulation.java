@@ -22,8 +22,8 @@ import es.ull.iis.util.Output;
  * Two important simulation objects are {@link Activity activities} and {@link ResourceType 
  * resource types}. Both are grouped in different {@link ActivityManager activity managers}, 
  * which serve as an initial partition for parallelism.<p>
- * The simulation is feed with {@link BasicElement.DiscreteEvent discrete events} produced by 
- * {@link BasicElement Basic elements}.
+ * The simulation is feed with {@link EventSource.DiscreteEvent discrete events} produced by 
+ * {@link EventSource Basic elements}.
  * @author Iván Castilla Rodríguez
  */
 public class Simulation extends es.ull.iis.simulation.core.Simulation {

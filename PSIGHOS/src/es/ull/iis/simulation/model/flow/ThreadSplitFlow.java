@@ -5,6 +5,8 @@ package es.ull.iis.simulation.model.flow;
 
 import java.util.Set;
 
+import es.ull.iis.simulation.model.Model;
+
 /**
  * A flow which creates several instances of the current work thread. It physically
  * works as a single successor flow, but functionally as a parallel flow. It should
@@ -23,8 +25,8 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow {
 	 * Creates a new thread split flow
 	 * @param nInstances Number of outgoing threads
 	 */
-	public ThreadSplitFlow(int nInstances) {
-		super();
+	public ThreadSplitFlow(Model model, int nInstances) {
+		super(model);
 		this.nInstances = nInstances;
 	}
 

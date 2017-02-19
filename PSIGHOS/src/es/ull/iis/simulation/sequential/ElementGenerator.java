@@ -12,7 +12,7 @@ import es.ull.iis.simulation.model.ElementType;
  * the elements whereas the creator specifies HOW to create them.
  * @author Ivan Castilla Rodrguez
  */
-public abstract class ElementGenerator extends BasicElement implements TimeFunctionParams {
+public abstract class ElementGenerator extends EventSource implements TimeFunctionParams {
     /** Generator's counter */
     private static int counter = 0;
     /** Specifies the way the elements are created. */
@@ -24,16 +24,11 @@ public abstract class ElementGenerator extends BasicElement implements TimeFunct
      * @param modelGen The way the elements are created.
      */
     public ElementGenerator(Simulation simul, es.ull.iis.simulation.model.ElementGenerator modelGen) {
-        super(counter++, simul);
+        super(counter++, simul, "GEN");
         simul.add(this);
         this.modelGen = modelGen;
     }
   
-	@Override
-	public String getObjectTypeIdentifier() {    	
-        return modelGen.getObjectTypeIdentifier();        
-    }
-
 	@Override
 	public DiscreteEvent onDestroy() {
 		return new DefaultFinalizeEvent();
