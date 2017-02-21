@@ -7,7 +7,7 @@ package es.ull.iis.simulation.model;
  * @author Ivan Castilla Rodriguez
  *
  */
-public abstract class ModelObject implements Comparable<ModelObject> {
+public abstract class ModelObject implements Comparable<ModelObject>, Identifiable {
 	protected final Model model;
 	private final String objectTypeId;
 	private final int id;
@@ -46,7 +46,11 @@ public abstract class ModelObject implements Comparable<ModelObject> {
 		return 0;
 	}
 
-
+	@Override
+	public int getIdentifier() {
+		return id;
+	}
+	
 	@Override
 	public String toString() {
     	return idString;

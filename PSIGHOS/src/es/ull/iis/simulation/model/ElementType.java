@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.model;
 
+import java.util.TreeMap;
+
 import es.ull.iis.util.Prioritizable;
 
 /**
@@ -15,6 +17,7 @@ public class ElementType extends ModelObject implements Describable, Prioritizab
 	private int priority = 0;
     /** A brief description of the element type */
     private final String description;
+    protected final TreeMap<String, Object> elementValues = new TreeMap<String, Object>();
     
 	/**
 	 * Creates a new element type with the highest priority.
@@ -52,5 +55,19 @@ public class ElementType extends ModelObject implements Describable, Prioritizab
 	 */
 	public void setPriority(int priority) {
 		this.priority = priority;
+	}
+	
+	/**
+	 * Adds a variable which will be associated to every element of this type. Once instantiated,
+	 * each element has its own variable.
+	 * @param name Variable name
+	 * @param value Initial value of the variable.
+	 */
+	public void addElementVar(String name, Object value) {
+		elementValues.put(name, value);
+	}
+	
+	public TreeMap<String,  Object> getElementValues() {
+		return elementValues;
 	}
 }

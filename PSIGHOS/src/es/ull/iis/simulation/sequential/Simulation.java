@@ -132,7 +132,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 		}
 		else if (evSource instanceof es.ull.iis.simulation.model.Element) {
 			final es.ull.iis.simulation.model.Element modelElem = (es.ull.iis.simulation.model.Element) evSource;
-			return new Element(this, getElementType(modelElem.getType()), modelElem.getFlow());
+			return new Element(this, modelElem);
 		}
 		return null;
 	}

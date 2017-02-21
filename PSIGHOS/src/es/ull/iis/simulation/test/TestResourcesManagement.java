@@ -87,7 +87,7 @@ public class TestResourcesManagement extends Experiment {
 			reqLocationA.link(reqOperatorA).link(actWorkAtLocationA).link(relOperatorA).link(reqTransport).link(relLocationA);
 			relLocationA.link(actMoveFromAToB).link(reqLocationB).link(relTransport).link(actWorkAtLocationB).link(relLocationB);
 			ModelPeriodicCycle cycle = ModelPeriodicCycle.newDailyCycle(UNIT, 0);
-			new TimeDrivenGenerator(this, 1, et, reqLocationA, cycle);
+			new TimeDrivenGenerator(this, 2, et, reqLocationA, cycle);
 		}
 	}
 	

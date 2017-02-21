@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.port;
 
-import es.ull.iis.simulation.sequential.ResourceType;
-import es.ull.iis.simulation.sequential.Simulation;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.Model;
 
 /**
  * @author Iván Castilla
@@ -15,11 +15,11 @@ public class YardCraneResourceType extends ResourceType {
 
 	/**
 	 * @param id
-	 * @param simul
+	 * @param model
 	 * @param description
 	 */
-	public YardCraneResourceType(int id, Simulation simul, int block) {
-		super(simul, PortSimulation.YARD_CRANE + " " + id);
+	public YardCraneResourceType(int id, Model model, int block) {
+		super(model, PortModel.YARD_CRANE + " " + id);
 		this.block = block;
 	}
 

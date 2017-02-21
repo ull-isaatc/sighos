@@ -9,16 +9,33 @@ import es.ull.iis.simulation.model.flow.InitializerFlow;
  * @author Iván Castilla
  *
  */
-public interface Element extends EventSource {
+public class Element extends ModelObject implements EventSource {
+	/** Element type */
+	protected ElementType elementType;
+	/** First step of the flow of the element */
+	protected final InitializerFlow initialFlow;
+	
+	public Element(Model model, ElementType elementType, InitializerFlow initialFlow) {
+		super(model, model.getEventSourceList().size(), "E");
+		this.elementType = elementType;
+		this.initialFlow = initialFlow;
+		model.add(this);
+	}
+	
 	/**
 	 * Returns the corresponding type of the element.
 	 * @return the corresponding type of the element
 	 */
-	ElementType getType();
+	public ElementType getType() {
+		return elementType;
+	}
+	
 	/**
 	 * Returns the associated {@link es.ull.iis.simulation.model.flow.InitializerFlow Flow}.
 	 * @return the associated {@link es.ull.iis.simulation.model.flow.InitializerFlow Flow}
 	 */
-	InitializerFlow getFlow();
+	public InitializerFlow getFlow() {
+		return initialFlow;
+	}
 
 }

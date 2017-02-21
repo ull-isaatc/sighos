@@ -8,6 +8,7 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
+import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.DelayFlow;
 import es.ull.iis.simulation.model.flow.Flow;
@@ -173,6 +174,11 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
      */
     public Element getElement() {
         return elem;
+    }
+    
+    @Override
+    public es.ull.iis.simulation.model.Element getModelElement() {
+    	return elem.getModelElem();
     }
     
     /**
@@ -382,7 +388,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
      * Catch the resources needed for each resource type to carry out an activity.
      */
 	public boolean acquireResources(RequestResourcesFlow reqFlow) {
-		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.REQACT, elem.getTs()));
+		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem.getModelElem(), reqFlow, getModelWG(), ElementActionInfo.Type.REQACT, elem.getTs()));
 		if (elem.isDebugEnabled())
 			elem.debug("Requests\t" + this + "\t" + reqFlow.getDescription());
 		final RequestResources req = elem.simul.getRequestResource(reqFlow);
@@ -406,12 +412,12 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 				if (timeLeft == -1) {
 					// wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
 					timeLeft = executionWG.getDurationSample(this);
-					elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+					elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem.getModelElem(), reqFlow, getModelWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
 					elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());			
 					reqFlow.afterStart(this);
 				}
 				else {
-					elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
+					elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem.getModelElem(), reqFlow, getModelWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
 					elem.debug("Continues\t" + this + "\t" + reqFlow.getDescription());			
 				}
 				long finishTs = elem.getTs() + timeLeft;
@@ -453,12 +459,12 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 				if (timeLeft == -1) {
 					// wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
 					timeLeft = executionWG.getDurationSample(this);
-					elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+					elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem.getModelElem(), reqFlow, getModelWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
 					elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());			
 					reqFlow.afterStart(this);
 				}
 				else {
-					elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
+					elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem.getModelElem(), reqFlow, getModelWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
 					elem.debug("Continues\t" + this + "\t" + reqFlow.getDescription());			
 				}
 				long finishTs = elem.getTs() + timeLeft;
@@ -503,12 +509,12 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 			if (timeLeft == -1) {
 				// wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
 				timeLeft = executionWG.getDurationSample(this);
-				elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+				elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem.getModelElem(), reqFlow, getModelWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
 				elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());			
 				reqFlow.afterStart(this);
 			}
 			else {
-				elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, reqFlow, getModelWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
+				elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem.getModelElem(), reqFlow, getModelWG(), ElementActionInfo.Type.RESACT, elem.getTs()));
 				elem.debug("Continues\t" + this + "\t" + reqFlow.getDescription());			
 			}
 			long finishTs = elem.getTs() + timeLeft;
@@ -567,7 +573,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 		}
 		
 		// TODO Change by more appropriate messages
-		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, relFlow, getModelWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
+		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem.getModelElem(), relFlow, getModelWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
 		if (elem.isDebugEnabled())
 			elem.debug("Finishes\t" + this + "\t" + relFlow.getDescription());
 		relFlow.afterFinalize(this);
@@ -576,7 +582,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
     }
 
     public void startDelay(DelayFlow f) {
-		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, executionWG.getModelAWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
+		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem.getModelElem(), f, getModelWG(), ElementActionInfo.Type.STAACT, elem.getTs()));
 		elem.debug("Starts\t" + this + "\t" + f.getDescription());			
 		long finishTs = elem.getTs() + f.getDurationSample(this);
 		timeLeft = 0;
@@ -584,7 +590,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
     }
     
     public void endDelay(DelayFlow f) {
-		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, getModelWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
+		elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem.getModelElem(), f, getModelWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
 		if (elem.isDebugEnabled())
 			elem.debug("Finishes\t" + this + "\t" + f.getDescription());
 		f.afterFinalize(this);
@@ -593,13 +599,13 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
     public void endDelay(RequestResourcesFlow f) {
 		// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
 		if (timeLeft <= 0.0) {
-			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, getModelWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
+			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem.getModelElem(), f, getModelWG(), ElementActionInfo.Type.ENDACT, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + f.getDescription());
 			f.afterFinalize(this);
 		}
 		else {
-			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem, f, getModelWG(), ElementActionInfo.Type.INTACT, elem.getTs()));
+			elem.simul.getInfoHandler().notifyInfo(new ElementActionInfo(elem.simul, this, elem.getModelElem(), f, getModelWG(), ElementActionInfo.Type.INTACT, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes part of \t" + this + "\t" + f.getDescription() + "\t" + timeLeft);
 			// Notifies the parent workthread that the activity was interrupted
@@ -625,6 +631,11 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 	@Override
 	public double getTime() {
 		return elem.getTs();
+	}
+
+	@Override
+	public ElementType getType() {
+		return elem.getType();
 	}
 
 

@@ -4,7 +4,8 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.function.TimeFunctionParams;
-import es.ull.iis.simulation.model.ActivityWorkGroup;
+import es.ull.iis.simulation.model.Element;
+import es.ull.iis.simulation.model.ElementType;
 
 /**
  * A class that executes a flow
@@ -12,5 +13,6 @@ import es.ull.iis.simulation.model.ActivityWorkGroup;
  *
  */
 public interface FlowExecutor extends TimeFunctionParams {
-	ActivityWorkGroup getModelWG();
+	ElementType getType();
+	Element getModelElement();
 }

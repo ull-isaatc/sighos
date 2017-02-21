@@ -87,6 +87,24 @@ public class ElementGenerator extends ModelObject implements EventSource {
 	 */
 	public void afterCreateElements() {}
 
+	public Element[] createElements(int n, long ts) {
+		final Element[] elems = new Element[n];
+        for (int i = 0; i < n; i++) {
+            double p = Math.random();
+            for (es.ull.iis.simulation.model.ElementGenerator.GenerationTrio gt : genTrio) {
+            	p -= gt.getProp();
+            	if (p <= 0.0){
+            		final ElementType et = gt.getElementType();
+    	    		elems[i] = new Element(model, et, gt.getFlow());
+    	    		// TODO: Fix when use of variables is clear
+//    	    		elems[i].initializeElementVars(et.getElementValues());
+    	            break;
+            	}
+            }
+        }
+		return elems;
+	}
+	
 	public TimeFunction getNElem() {
 		return nElem;
 	}

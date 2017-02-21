@@ -4,23 +4,23 @@
 package es.ull.iis.simulation.port;
 
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.sequential.Element;
-import es.ull.iis.simulation.core.TimeStamp;
-import es.ull.iis.simulation.core.TimeUnit;
-import es.ull.iis.simulation.sequential.ElementType;
-import es.ull.iis.simulation.sequential.Resource;
-import es.ull.iis.simulation.sequential.ResourceType;
-import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.iis.simulation.sequential.TimeDrivenGenerator;
-import es.ull.iis.simulation.sequential.WorkGroup;
-import es.ull.iis.simulation.sequential.flow.ActivityFlow;
+import es.ull.iis.simulation.model.ElementType;
+import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.DelayFlow;
+import es.ull.iis.simulation.model.flow.FlowExecutor;
+import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
 /**
  * @author Iván Castilla
  *
  */
-public class PortSimulation extends Simulation {
-	final private static String DESCRIPTION = "Port Simulation";
+public class PortModel extends Model {
 	private static final int N_BERTHS = 1;
 	private static final int[] N_QUAYS_PER_BERTH = {2};
 	private static final int N_BLOCKS = 3;
@@ -34,7 +34,8 @@ public class PortSimulation extends Simulation {
 	private static final String ACT_UNLOAD = "Unload";
 	private static final String ACT_TO_YARD = "Lead to yard";
 	private static final String ACT_PLACE = "Place container";
-	public static final String ACT_SEA_TO_YARD = "Sea to yard";
+	public static final String ACT_REQ_TRUCK = "Pick up truck";
+	public static final String ACT_REL_TRUCK = "Free truck";
 	private static final long[] TIME_TO_UNLOAD = {15};
 	private static final long[][] TIME_FROM_BERTH_TO_BLOCK = {{20, 30, 40}};
 	private static final long[] TIME_TO_PLACE = {10, 10, 10};
@@ -48,10 +49,12 @@ public class PortSimulation extends Simulation {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public PortSimulation(int id, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
-		super(id, DESCRIPTION + " " + id, unit, startTs, endTs);
+	public PortModel(TimeUnit unit) {
+		super(unit);
 		// Creates the main element type representing containers
 		final ElementType et = new ElementType(this, CONTAINER);
+		et.addElementVar("Berth", 0);
+		et.addElementVar("Block", 0);
 		// Creates the resource types and specific resources
 		final ResourceType[] rtQuayCranes = new ResourceType[N_BERTHS];
 		for (int i = 0; i < N_BERTHS; i++) {
@@ -76,58 +79,54 @@ public class PortSimulation extends Simulation {
 			}
 		}
 		// Defines the needs of the activities in terms of resources
-		final WorkGroup wgEmpty = new WorkGroup();
-		final WorkGroup wgTruck = new WorkGroup(rtTrucks, 1);
+		final WorkGroup wgEmpty = new WorkGroup(this);
+		final WorkGroup wgTruck = new WorkGroup(this, rtTrucks, 1);
 		final WorkGroup []wgUnload = new WorkGroup[N_BERTHS];
 		for (int i = 0; i < N_BERTHS; i++) {
-			wgUnload[i] = new WorkGroup(rtQuayCranes[i], 1);
+			wgUnload[i] = new WorkGroup(this, rtQuayCranes[i], 1);
 		}
 		final WorkGroup []wgPlace = new WorkGroup[N_BLOCKS];
 		for (int i = 0; i < N_BLOCKS; i++) {
-			wgPlace[i] = new WorkGroup(rtYardCranes[i], 1);
+			wgPlace[i] = new WorkGroup(this, rtYardCranes[i], 1);
 		}
 		
 		// Activities
 		final ActivityFlow aUnload = new ActivityFlow(this, ACT_UNLOAD); 
 		for (int i = 0; i < N_BERTHS; i++) {
 			final int berthId = i;
-			aUnload.addWorkGroup(TIME_TO_UNLOAD[i], 0, wgUnload[i], new Condition<Element>() {
+			aUnload.addWorkGroup(0, wgUnload[i], new Condition() {
 				@Override
-				public boolean check(Element e) {
-					return (((Container)e).getBerth() == berthId);
+				public boolean check(FlowExecutor fe) {
+					return (((Container)fe.getModelElement()).getBerth() == berthId);
 				}
-			});
+			}, TIME_TO_UNLOAD[i]);
 		}
-		final ActivityFlow aToYard = new ActivityFlow(this, ACT_TO_YARD);
-		aToYard.addWorkGroup(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK), 0, wgEmpty);
+		final DelayFlow aToYard = new DelayFlow(this, ACT_TO_YARD, new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK));
 		final ActivityFlow aPlace = new ActivityFlow(this, ACT_PLACE);
 		for (int i = 0; i < N_BLOCKS; i++) {
 			final int blockId = i;
-			aPlace.addWorkGroup(TIME_TO_PLACE[i], 0, wgPlace[i],
-					new Condition<Element>() {
+			aPlace.addWorkGroup(0, wgPlace[i],
+					new Condition() {
 				@Override
-				public boolean check(Element e) {
-					return (((Container)e).getBlock() == blockId);
+				public boolean check(FlowExecutor fe) {
+					return (((Container)fe.getModelElement()).getBlock() == blockId);
 				}
-			});
+			}, TIME_TO_PLACE[i]);
 		}
 		final ActivityFlow aTruckReturn = new ActivityFlow(this, ACT_TRUCK_RETURN);
-		aTruckReturn.addWorkGroup(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK), 0, wgEmpty);
+		aTruckReturn.addWorkGroup(0, wgEmpty, new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK));
 
-		// Defines the flow for the former activities
-		aUnload.link(aToYard);
-		aToYard.link(aPlace);
-		aPlace.link(aTruckReturn);
+		final RequestResourcesFlow reqTruck = new RequestResourcesFlow(this, ACT_REQ_TRUCK, 1);
+		reqTruck.addWorkGroup(wgTruck);
+		final ReleaseResourcesFlow relTruck = new ReleaseResourcesFlow(this, ACT_REL_TRUCK, 1);
 		
-		// defines the main activity that drives the whole process, which involves seizing a truck
-		final ActivityFlow mainAct = new ActivityFlow(this, ACT_SEA_TO_YARD);
-		mainAct.addWorkGroup(aUnload, aTruckReturn, wgTruck);
+		// Defines the flow for the former activities
+		reqTruck.link(aUnload).link(aToYard).link(aPlace).link(aTruckReturn).link(relTruck);
 		
 		// Generate orders for unloading containers
 		final ArrivalPlanning planning = new ArrivalPlanning(0, "C:\\Users\\Iván Castilla\\git\\sighos\\PSIGHOS-Port\\src\\es\\ull\\iis\\simulation\\port\\testStowagePlan1.txt");
 		for (int i = 0; i < N_BERTHS; i++) {
-			final ContainerCreator cc = new ContainerCreator(this, planning, et, mainAct);
-			new TimeDrivenGenerator(this, cc, planning);
+			new ContainerCreator(this, planning, et, reqTruck);
 		}
 	}
 	

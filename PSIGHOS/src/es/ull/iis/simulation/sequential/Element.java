@@ -1,9 +1,8 @@
 package es.ull.iis.simulation.sequential;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.model.DiscreteEvent;
@@ -19,7 +18,7 @@ import es.ull.iis.simulation.variable.EnumVariable;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class Element extends EventSource implements es.ull.iis.simulation.model.Element {
+public class Element extends EventSource {
 	/** Element type */
 	protected ElementType elementType;
 	/** First step of the flow of the element */
@@ -32,6 +31,7 @@ public class Element extends EventSource implements es.ull.iis.simulation.model.
 	/** Main execution thread */
 	protected final WorkThread mainThread;
 	private final FlowBehaviour flowHandler = new FlowBehaviour(this);
+	private final es.ull.iis.simulation.model.Element modelElem;
 	
 	/**
 	 * Creates a new element.
@@ -39,12 +39,20 @@ public class Element extends EventSource implements es.ull.iis.simulation.model.
 	 * @param et Element type this element belongs to
 	 * @param flow First step of this element's flow
 	 */
-	public Element(Simulation simul, ElementType et, InitializerFlow flow) {
+	public Element(Simulation simul, es.ull.iis.simulation.model.Element modelElem) {
 		super(simul.getNextElementId(), simul, "E");
-		this.elementType = et;
+		this.elementType = simul.getElementType(modelElem.getType());
 		inQueue = new ArrayList<WorkThread>();
-		this.initialFlow = flow;
+		this.initialFlow = modelElem.getFlow();
+		this.modelElem = modelElem;
 		mainThread = WorkThread.getInstanceMainWorkThread(this);
+	}
+
+	/**
+	 * @return the modelElem
+	 */
+	public es.ull.iis.simulation.model.Element getModelElem() {
+		return modelElem;
 	}
 
 	/**
@@ -112,7 +120,7 @@ public class Element extends EventSource implements es.ull.iis.simulation.model.
 	 */
 	@Override
 	public DiscreteEvent onCreate(long ts) {
-		simul.getInfoHandler().notifyInfo(new ElementInfo(simul, this, elementType.getModelET(), ElementInfo.Type.START, this.getTs()));
+		simul.getInfoHandler().notifyInfo(new ElementInfo(simul, modelElem, elementType.getModelET(), ElementInfo.Type.START, this.getTs()));
 		simul.addActiveElement(this);
 		if (initialFlow != null) {
 			return new RequestFlowEvent(ts, initialFlow, mainThread.getInstanceDescendantWorkThread(initialFlow));
@@ -123,7 +131,7 @@ public class Element extends EventSource implements es.ull.iis.simulation.model.
 
 	@Override
 	public DiscreteEvent onDestroy() {
-		simul.getInfoHandler().notifyInfo(new ElementInfo(simul, this, elementType.getModelET(), ElementInfo.Type.FINISH, this.getTs()));
+		simul.getInfoHandler().notifyInfo(new ElementInfo(simul, modelElem, elementType.getModelET(), ElementInfo.Type.FINISH, this.getTs()));
 		simul.removeActiveElement(this);
 		return new DefaultFinalizeEvent();
 	}
@@ -159,24 +167,24 @@ public class Element extends EventSource implements es.ull.iis.simulation.model.
 		addEvent(new FinishFlowEvent(ts, wThread));
 	}
 	
-	public void initializeElementVars(HashMap<String, Object> varList) {
-		Iterator<Entry<String, Object>> iter = varList.entrySet().iterator();
-		while (iter.hasNext()) {
-			Entry<String, Object> entry = iter.next();
-			String name = entry.getKey();
-			Object value = entry.getValue();
-			if (value instanceof Number)
+	public void initializeElementVars(TreeMap<String, Object> varList) {
+		for (Entry<String, Object> entry : varList.entrySet()) {
+			final String name = entry.getKey();
+			final Object value = entry.getValue();
+			if (value instanceof Number) {
 				this.putVar(name, ((Number)value).doubleValue());
-			else
-				if (value instanceof Boolean)
+			}
+			else {
+				if (value instanceof Boolean) {
 					this.putVar(name, ((Boolean)value).booleanValue());
-				else 
-					if (value instanceof EnumVariable)
+				}
+				else if (value instanceof EnumVariable) {
 						this.putVar(name, ((EnumVariable)value));
-					else 
-						if (value instanceof Character)
-							this.putVar(name, ((Character)value).charValue());
-				
+				}
+				else if (value instanceof Character) {
+					this.putVar(name, ((Character)value).charValue());
+				}
+			}
 		}
 	}
 	

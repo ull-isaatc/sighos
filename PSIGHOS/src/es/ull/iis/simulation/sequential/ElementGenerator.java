@@ -1,10 +1,7 @@
 package es.ull.iis.simulation.sequential;
 
-import java.util.ArrayList;
-
 import es.ull.iis.function.TimeFunctionParams;
 import es.ull.iis.simulation.model.DiscreteEvent;
-import es.ull.iis.simulation.model.ElementType;
 
 /**
  * An element which creates elements. This is the base class to create a set of similar
@@ -67,20 +64,13 @@ public abstract class ElementGenerator extends EventSource implements TimeFuncti
 		public void event() {
     		int n = (int)modelGen.getNElem().getValue(ElementGenerator.this);
     		n = modelGen.beforeCreateElements(n);
-            for (int i = 0; i < n; i++) {
-                double p = Math.random();
-                final ArrayList<es.ull.iis.simulation.model.ElementGenerator.GenerationTrio> trios = modelGen.getGenerationTrios();
-                for (es.ull.iis.simulation.model.ElementGenerator.GenerationTrio gt : trios) {
-                	p -= gt.getProp();
-                	if (p <= 0.0){
-                		ElementType et = gt.getElementType();
-        	    		Element elem = new Element(simul, simul.getElementType(et), gt.getFlow());
-        	            final DiscreteEvent e = elem.onCreate(simul.getTs());
-        	            elem.addEvent(e);
-        	            break;
-                	}
-                }
-            }
+    		final es.ull.iis.simulation.model.Element[] modelElems = modelGen.createElements(n, ts);
+    		for (es.ull.iis.simulation.model.Element modelElem : modelElems) {
+    			Element elem = new Element(simul, modelElem);
+	    		elem.initializeElementVars(modelElem.getType().getElementValues());
+	            final DiscreteEvent e = elem.onCreate(simul.getTs());
+	            elem.addEvent(e);
+    		}
             modelGen.afterCreateElements();
             final long newTs = nextEvent();
             if (newTs == -1) {

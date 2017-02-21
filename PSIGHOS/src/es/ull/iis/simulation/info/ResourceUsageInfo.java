@@ -1,5 +1,6 @@
 package es.ull.iis.simulation.info;
 
+import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
@@ -30,12 +31,14 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	final private FlowExecutor fExecutor;
 	final private ResourceHandlerFlow act;
 	final private Type type;
+	final private Element elem;
 	
-	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, FlowExecutor fExecutor, ResourceHandlerFlow act, Type type, long ts) {
+	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, FlowExecutor fExecutor, Element elem, ResourceHandlerFlow act, Type type, long ts) {
 		super(simul, ts);
 		this.res = res;
 		this.rt = rt;
 		this.fExecutor =fExecutor;
+		this.elem = elem;
 		this.act = act;
 		this.type = type;
 	}
@@ -57,8 +60,8 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		String message = "" + simul.long2SimulationTime(getTs()) + "\t" + res.toString() + "\t";
-		message += type.getDescription() + "\t" + res.getDescription() + "\t";
+		String message = "" + simul.long2SimulationTime(getTs()) + "\t" + elem.toString() + "\t";
+		message += type.getDescription() + "\t" + res.toString() + "\t" + res.getDescription() + "\t";
 		message += "ROLE: " + rt.getDescription() + "\t";	
 		message += "ACT: " + act.getDescription() + " \t";
 		message += fExecutor.toString();

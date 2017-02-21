@@ -5,6 +5,7 @@ package es.ull.iis.simulation.port;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionParams;
+import es.ull.iis.simulation.model.flow.FlowExecutor;
 
 /**
  * @author Iván Castilla
@@ -25,13 +26,8 @@ public class DistanceTimeFunction extends TimeFunction {
 	 */
 	@Override
 	public double getValue(TimeFunctionParams params) {
-		if (params instanceof Container) {
-			final Container container = (Container)params;
-			return timeFromBerth2Block[container.getBerth()][container.getBlock()];
-		}
-		else {
-			return 0.0;
-		}
+		final Container container = (Container)((FlowExecutor)params).getModelElement();
+		return timeFromBerth2Block[container.getBerth()][container.getBlock()];
 	}
 
 	/* (non-Javadoc)

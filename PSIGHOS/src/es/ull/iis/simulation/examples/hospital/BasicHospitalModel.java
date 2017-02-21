@@ -110,7 +110,7 @@ public class BasicHospitalModel extends Model {
 		fRequireSurgery.link(actSurgery, requiresSurgeryCondition);
 		actSurgery.link(actAppointment);
 		
-		new TimeDrivenGenerator(this, 20, etPatient, actAppointment, docCycle);
+		new TimeDrivenGenerator(this, 1, etPatient, actAppointment, docCycle);
 	}
 
 }

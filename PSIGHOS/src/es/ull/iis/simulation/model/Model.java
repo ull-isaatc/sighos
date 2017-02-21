@@ -23,6 +23,7 @@ public class Model {
 	private final ArrayList<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
 	private final ArrayList<WorkGroup> workGroupList = new ArrayList<WorkGroup>();
 	private final ArrayList<Flow> flowList = new ArrayList<Flow>();
+//	private final ArrayList<Element> elemList = new ArrayList<Element>();
 	private final TimeUnit unit;
 
 	/**
@@ -79,6 +80,9 @@ public class Model {
 	public void add(Flow f) { 
 		flowList.add(f);
 	}
+//	public void add(Element elem) {
+//		elemList.add(elem);
+//	}
 
 	public List<EventSource> getEventSourceList() { 
 		return eventSourceList;
@@ -98,4 +102,7 @@ public class Model {
 	public List<Flow> getFlowList() { 
 		return flowList;
 	}
+//	public List<Element> getElementList() {
+//		return elemList;
+//	}
 }

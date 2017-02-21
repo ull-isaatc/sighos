@@ -9,7 +9,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.core.SimulationCycle;
+import es.ull.iis.function.TimeFunction;
+import es.ull.iis.function.TimeFunctionParams;
+import es.ull.iis.simulation.model.ModelCycle;
 import es.ull.iis.util.Cycle;
 import es.ull.iis.util.TableCycle;
 
@@ -17,7 +19,7 @@ import es.ull.iis.util.TableCycle;
  * @author Iván Castilla
  *
  */
-public class ArrivalPlanning implements SimulationCycle {
+public class ArrivalPlanning extends TimeFunction implements ModelCycle {
 	private static final String COMMENT_MARK = "//";
 	/** Inner {@link es.ull.iis.util.TableCycle TableCycle} */ 
 	private final TableCycle cycle;
@@ -106,6 +108,18 @@ public class ArrivalPlanning implements SimulationCycle {
 	 */
 	public int getBerth() {
 		return berth;
+	}
+
+	@Override
+	public double getValue(TimeFunctionParams params) {
+		double arrivalTime = params.getTime();
+		return arrivals.get(arrivalTime).length;
+	}
+
+	@Override
+	public void setParameters(Object... params) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

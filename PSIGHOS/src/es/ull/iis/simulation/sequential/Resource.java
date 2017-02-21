@@ -117,7 +117,7 @@ public class Resource extends EventSource {
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
 	protected long catchResource(WorkThread wt) {
-		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, modelRes, currentResourceType.getModelRT(), wt, (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, getTs()));
+		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, modelRes, currentResourceType.getModelRT(), wt, wt.getModelElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, getTs()));
 		currentWT = wt;
 		return currentRoles.get(currentResourceType);
 	}
@@ -130,7 +130,7 @@ public class Resource extends EventSource {
      * time of the resource had already expired.
      */
     public boolean releaseResource() {
-		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, modelRes, currentResourceType.getModelRT(), currentWT, (ResourceHandlerFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, getTs()));
+		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, modelRes, currentResourceType.getModelRT(), currentWT, currentWT.getModelElement(), (ResourceHandlerFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, getTs()));
         currentWT = null;
         currentResourceType = null;        
         if (timeOut) {

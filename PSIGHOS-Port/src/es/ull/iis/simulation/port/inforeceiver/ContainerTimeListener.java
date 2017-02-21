@@ -10,7 +10,7 @@ import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
-import es.ull.iis.simulation.port.PortSimulation;
+import es.ull.iis.simulation.port.PortModel;
 
 /**
  * @author Rosi1
@@ -36,7 +36,7 @@ public class ContainerTimeListener extends Listener {
 			final int containerId = eInfo.getElement().getIdentifier(); 
 			switch (eInfo.getType()) {
 			case ENDACT:
-				if (eInfo.getActivity().getDescription().equals(PortSimulation.ACT_SEA_TO_YARD)) {
+				if (eInfo.getActivity().getDescription().equals(PortModel.ACT_REL_TRUCK)) {
 					tContainer.get(containerId)[1] = eInfo.getTs();
 				}
 				break;
@@ -47,7 +47,7 @@ public class ContainerTimeListener extends Listener {
 			case RESACT:
 				break;
 			case STAACT:
-				if (eInfo.getActivity().getDescription().equals(PortSimulation.ACT_SEA_TO_YARD)) {
+				if (eInfo.getActivity().getDescription().equals(PortModel.ACT_REQ_TRUCK)) {
 					Long[] time = new Long[2];
 					time[0] = eInfo.getTs();
 					time[1] = (long)-1;
