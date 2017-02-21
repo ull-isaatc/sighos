@@ -1,10 +1,10 @@
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.StructuredPartialJoinFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.StructuredPartialJoinFlow;
 
 /**
  * WFP 30. Expedición Cheques
@@ -31,12 +31,12 @@ public class WFP30Simulation extends WFPTestSimulationFactory {
 	protected void createModel() {
         ResourceType rt0 = getDefResourceType("Director");
         
-        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
 
-        ActivityFlow<?,?> act0_0 = getDefActivity("AprobarCuenta", wg, false);
-        ActivityFlow<?,?> act0_1 = getDefActivity("AprobarCuenta", wg, false);
-        ActivityFlow<?,?> act0_2 = getDefActivity("AprobarCuenta", wg, false);
-    	ActivityFlow<?,?> act1 = getDefActivity("ExpedirCheque", wg, false);
+        ActivityFlow act0_0 = getDefActivity("AprobarCuenta", wg, false);
+        ActivityFlow act0_1 = getDefActivity("AprobarCuenta", wg, false);
+        ActivityFlow act0_2 = getDefActivity("AprobarCuenta", wg, false);
+    	ActivityFlow act1 = getDefActivity("ExpedirCheque", wg, false);
     	
         getDefResource("Director 1", rt0);        
         getDefResource("Director 2", rt0);

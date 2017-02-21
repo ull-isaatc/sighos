@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.core.Element;
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationUserCode;
 import es.ull.iis.simulation.core.factory.UserMethod;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.Flow;
-import es.ull.iis.simulation.core.flow.MultiChoiceFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.flow.MultiChoiceFlow;
 
 /**
  * WFP 10. Arbitrary Cycle
@@ -40,7 +40,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
     	ResourceType rt0 = getDefResourceType("Operario");
     	ResourceType rt1 = getDefResourceType("Operario especial");
     	
-        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
 	   	
     	getSimulation().putVar("capacidadBidon", 20);
     	getSimulation().putVar("litrosIntroducidos", 0.0);
@@ -73,7 +73,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
 				"System.out.println(\"Introducimos \" + random + \" litros y nuestro volumen actual es \" + <%GET(S.litrosIntroducidos)%> + \" litros\");" +
 	  	  "}");
         
-    	ActivityFlow<?,?> act0 = getDefActivity(code2, "Rellenar bidon", wg, false);
+    	ActivityFlow act0 = getDefActivity(code2, "Rellenar bidon", wg, false);
     	
         SimulationUserCode code3 = new SimulationUserCode();
         code3.add(UserMethod.BEFORE_REQUEST, 	"<%SET(S.litrosIntroducidos, 0)%>;" +
@@ -81,7 +81,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
  				"System.out.println(\"Nuevo envio realizado\");" +
  				"return true;");
 
-    	ActivityFlow<?,?> act1 = getDefActivity(code3, "Realizar envío de bidon", wg, false);
+    	ActivityFlow act1 = getDefActivity(code3, "Realizar envío de bidon", wg, false);
         
         act0.link(mul1);
         ArrayList<Flow> succList = new ArrayList<Flow>();

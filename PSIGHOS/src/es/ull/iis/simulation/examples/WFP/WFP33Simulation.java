@@ -1,11 +1,11 @@
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.ParallelFlow;
-import es.ull.iis.simulation.core.flow.SynchronizationFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.ParallelFlow;
+import es.ull.iis.simulation.model.flow.SynchronizationFlow;
 
 /**
  * WFP 33. Envío Mercancías
@@ -23,17 +23,17 @@ public class WFP33Simulation extends WFPTestSimulationFactory {
 	protected void createModel() {
         ResourceType rt0 = getDefResourceType("Comercial");
         
-        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
 	   	
-        ActivityFlow<?,?> act0 = getDefActivity("Generacion de factura", wg, false);
-        ActivityFlow<?,?> act1 = getDefActivity("Comprobacion de factura", wg, false);
-        ActivityFlow<?,?> act2 = getDefActivity("Envio de mercancias", wg, false);
+        ActivityFlow act0 = getDefActivity("Generacion de factura", wg, false);
+        ActivityFlow act1 = getDefActivity("Comprobacion de factura", wg, false);
+        ActivityFlow act2 = getDefActivity("Envio de mercancias", wg, false);
         
         getDefResource("Comercial 1", rt0);        
         getDefResource("Comercial 2", rt0);        
         getDefResource("Comercial 3", rt0);        
         
-        ParallelFlow root = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
+        ParallelFlow root = new ParallelFlow(model);
 
         SynchronizationFlow synchro1 = (SynchronizationFlow)factory.getFlowInstance("SynchronizationFlow", false);
         

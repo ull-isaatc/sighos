@@ -1,10 +1,11 @@
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.ParallelFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.ParallelFlow;
 import es.ull.iis.simulation.model.TimeStamp;
 
 /**
@@ -19,21 +20,21 @@ public class WFP02Simulation extends WFPTestSimulationFactory {
 		super(type, id, "WFP2: Parallel Split. EjAlarma", detailed);
     }
     
-    protected void createModel() {
+    protected void createModel(Model model) {
    	
         ResourceType rt = getDefResourceType("Operador");
         
-        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
-    	ActivityFlow<?,?> act0 = getDefActivity("Detección alarma", wg);
-    	ActivityFlow<?,?> act1 = getDefActivity("Mandar patrulla", wg, false);
-    	ActivityFlow<?,?> act2 = getDefActivity("Generar informe", wg, false);
+        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
+    	ActivityFlow act0 = getDefActivity("Detección alarma", wg);
+    	ActivityFlow act1 = getDefActivity("Mandar patrulla", wg, false);
+    	ActivityFlow act2 = getDefActivity("Generar informe", wg, false);
    
         getDefResource("Operador1", rt);
         getDefResource("Operador2", rt);
         getDefResource("Operador3", rt);
         getDefResource("Operador4", rt);
         
-        ParallelFlow par1 = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
+        ParallelFlow par1 = new ParallelFlow(model);
         
         act0.link(par1);
         par1.link(act1);

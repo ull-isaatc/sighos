@@ -2,13 +2,13 @@ package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.ElementType;
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationUserCode;
 import es.ull.iis.simulation.core.factory.UserMethod;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.WhileDoFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.WhileDoFlow;
 
 /**
  * WFP 21. Example 2: Revelado fotográfico (implemented with a while-do structure)
@@ -34,7 +34,7 @@ public class WFP21Simulation_WhileDo extends WFPTestSimulationFactory {
 	protected void createModel() {
         ResourceType rt0 = getDefResourceType("Maquina revelado");
         
-        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
     	
         getDefResource("Maquina 1", rt0);        
         getDefResource("Maquina 2", rt0);
@@ -45,7 +45,7 @@ public class WFP21Simulation_WhileDo extends WFPTestSimulationFactory {
         code1.add(UserMethod.AFTER_FINALIZE, "<%SET(@E.fotosReveladas, <%GET(@E.fotosReveladas)%> + 1)%>;"
 				+ "System.out.println(\"E\" + e.getIdentifier() + \": \" + <%GET(@E.fotosReveladas)%> + \" fotos reveladas.\");"
 				);
-    	ActivityFlow<?,?> act0 = getDefActivity(code1, "Revelar foto", wg, false);
+    	ActivityFlow act0 = getDefActivity(code1, "Revelar foto", wg, false);
         WhileDoFlow root = (WhileDoFlow)factory.getFlowInstance("WhileDoFlow", act0, cond);
 
         ElementType et = getDefElementType("Cliente");

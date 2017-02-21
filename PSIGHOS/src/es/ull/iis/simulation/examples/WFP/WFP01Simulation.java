@@ -1,8 +1,9 @@
 package es.ull.iis.simulation.examples.WFP;
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.TimeStamp;
 
 /**
@@ -17,13 +18,13 @@ public class WFP01Simulation extends WFPTestSimulationFactory {
 		super(type, id, "WFP1: Sequence. EjTarjetaCredito", detailed);
     }
     
-    protected void createModel() {
+    protected void createModel(Model model) {
 
         ResourceType rt = getDefResourceType("Cajero");
     	
-        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
-    	ActivityFlow<?,?> act0 = getDefActivity("Verificar cuenta", wg, false);
-    	ActivityFlow<?,?> act1 = getDefActivity("Obtener detalles tarjeta", wg, false);
+        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
+    	ActivityFlow act0 = getDefActivity("Verificar cuenta", wg, false);
+    	ActivityFlow act1 = getDefActivity("Obtener detalles tarjeta", wg, false);
         
    
         getDefResource("Cajero1", rt);

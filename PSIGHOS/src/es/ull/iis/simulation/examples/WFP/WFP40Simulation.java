@@ -3,11 +3,11 @@
  */
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.InterleavedRoutingFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.InterleavedRoutingFlow;
 
 /**
  * WFP 40. 
@@ -25,12 +25,12 @@ public class WFP40Simulation extends WFPTestSimulationFactory {
 	@Override
 	protected void createModel() {
     	ResourceType rt = getDefResourceType("Technician");
-    	WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
+    	WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
     	
-    	ActivityFlow<?,?> act0 = getDefActivity("check oil", wg);
-    	ActivityFlow<?,?> act1 = getDefActivity("examine main unit", wg);
-    	ActivityFlow<?,?> act2 = getDefActivity("review warranty", wg);
-    	ActivityFlow<?,?> act3 = getDefActivity("final check", wg);
+    	ActivityFlow act0 = getDefActivity("check oil", wg);
+    	ActivityFlow act1 = getDefActivity("examine main unit", wg);
+    	ActivityFlow act2 = getDefActivity("review warranty", wg);
+    	ActivityFlow act3 = getDefActivity("final check", wg);
     	
     	for (int i = 0; i < RES; i++)
     		getDefResource("RES" + i, rt);

@@ -3,11 +3,12 @@ package es.ull.iis.simulation.examples.WFP;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.ExclusiveChoiceFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.ExclusiveChoiceFlow;
 
 /**
  * WFP 4 Example 1: Sistema Votación
@@ -22,18 +23,18 @@ public class WFP04Simulation extends WFPTestSimulationFactory {
 		super(type, id, "WFP4: Exclusive Choice. EjSistemaVotacion", detailed);
     }
     
-    protected void createModel() {
+    protected void createModel(Model model) {
    	
         ResourceType rt = getDefResourceType("Encargado");
-        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
+        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
         
-        ActivityFlow<?,?> act0 = getDefActivity("Celebrar elecciones", wg, false);
-        ActivityFlow<?,?> act1 = getDefActivity("Recuentos de votos", wg, false);
-        ActivityFlow<?,?> act2 = getDefActivity("Declarar resultados", wg, false);
+        ActivityFlow act0 = getDefActivity("Celebrar elecciones", wg, false);
+        ActivityFlow act1 = getDefActivity("Recuentos de votos", wg, false);
+        ActivityFlow act2 = getDefActivity("Declarar resultados", wg, false);
         
         getDefResource("Encargado 1", rt); 
 
-        ExclusiveChoiceFlow excho1 = (ExclusiveChoiceFlow)factory.getFlowInstance("ExclusiveChoiceFlow");
+        ExclusiveChoiceFlow excho1 = new ExclusiveChoiceFlow(model);
         
         act0.link(excho1);
         Condition falseCond = new NotCondition(new TrueCondition());

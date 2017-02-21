@@ -1,10 +1,10 @@
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.StructuredDiscriminatorFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.StructuredDiscriminatorFlow;
 
 /**
  * WFP 9. Paro cardiaco
@@ -30,11 +30,11 @@ public class WFP09Simulation extends WFPTestSimulationFactory {
 	protected void createModel() {
         ResourceType rt0 = getDefResourceType("Doctor");
 	   	
-        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
 
-        ActivityFlow<?,?> act0 = getDefActivity("Comprobar respiracion", 0, wg, false);
-        ActivityFlow<?,?> act1 = getDefActivity("Comprobar pulso", 1, wg, false);
-        ActivityFlow<?,?> act2 = getDefActivity("Masaje cardiaco", 2, wg, false);
+        ActivityFlow act0 = getDefActivity("Comprobar respiracion", 0, wg, false);
+        ActivityFlow act1 = getDefActivity("Comprobar pulso", 1, wg, false);
+        ActivityFlow act2 = getDefActivity("Masaje cardiaco", 2, wg, false);
         
         getDefResource("Doctor 1", rt0);        
         getDefResource("Doctor 2", rt0);        

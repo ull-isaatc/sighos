@@ -5,18 +5,19 @@ package es.ull.iis.simulation.examples.WFP;
 
 import java.util.EnumSet;
 
-import es.ull.iis.simulation.core.ElementType;
-import es.ull.iis.simulation.core.Resource;
-import es.ull.iis.simulation.core.ResourceType;
+import es.ull.iis.simulation.model.ElementType;
+import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.TimeDrivenGenerator;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.TimeDrivenGenerator;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.core.factory.SimulationUserCode;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.InitializerFlow;
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ModelTimeFunction;
 import es.ull.iis.simulation.model.TimeStamp;
@@ -56,18 +57,23 @@ public abstract class WFPTestSimulationFactory {
 	public final static TimeStamp SIMEND = TimeStamp.getDay();
 	public final static TimeUnit SIMUNIT = TimeUnit.MINUTE; 
 	protected boolean detailed;
-	protected SimulationObjectFactory factory;
+	private Simulation simul;
+	private Model model;
 	
 	public WFPTestSimulationFactory(SimulationType type, int id, String description, boolean detailed) {
-		factory = SimulationFactory.getInstance(type, id, description, SIMUNIT, SIMSTART, SIMEND);
-		createModel();
+		model = new Model(SIMUNIT); 
+		createModel(model);
 		this.detailed = detailed;
+		if (SimulationType.SEQUENTIAL.equals(type))
+			simul = new es.ull.iis.simulation.sequential.Simulation(id, description, model, SIMSTART, SIMEND);
+		else
+			simul = new es.ull.iis.simulation.parallel.Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);
 	}
 	
-	protected abstract void createModel();
+	protected abstract void createModel(Model model);
 	
 	public Simulation getSimulation() {
-		return factory.getSimulation();
+		return simul;
 	}
 	
 	public ModelTimeFunction getActivityDefDuration() {
@@ -83,61 +89,57 @@ public abstract class WFPTestSimulationFactory {
 	}
 	
 	public Resource getDefResource(String description, ResourceType rt) {
-		Resource res = factory.getResourceInstance(description);
+		final Resource res = new Resource(model, description);
 		res.addTimeTableEntry(getResourceCycle(), RESAVAILABLE, rt);
 		return res;
 	}
 	
 	public ResourceType getDefResourceType(String description) {
-		return factory.getResourceTypeInstance(description);
+		return new ResourceType(model, description);
 	}
 	
-	public ActivityFlow<?,?> getDefActivity(String description, WorkGroup wg) {
+	public ActivityFlow getDefActivity(String description, WorkGroup wg) {
 		return getDefActivity(description, 0, wg, true);
 	}
 	
-	public ActivityFlow<?,?> getDefActivity(String description, WorkGroup wg, boolean presential) {
+	public ActivityFlow getDefActivity(String description, WorkGroup wg, boolean presential) {
 		return getDefActivity(description, 0, wg, presential);
 	}
 	
-	public ActivityFlow<?,?> getDefActivity(String description, int dur, WorkGroup wg) {
+	public ActivityFlow getDefActivity(String description, int dur, WorkGroup wg) {
 		return getDefActivity(description, dur, wg, true);
 	}
 	
-	public ActivityFlow<?,?> getDefActivity(String description, int dur, WorkGroup wg, boolean presential) {
-		ActivityFlow<?,?> act = null;
-		if (!presential)
-			act = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", description, 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
-		else
-			act = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", description);
-    	act.addWorkGroup(new ModelTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[dur]), 0, wg);
+	public ActivityFlow getDefActivity(String description, int dur, WorkGroup wg, boolean presential) {
+		ActivityFlow act = new ActivityFlow(model, description, presential, false);
+    	act.addWorkGroup(0, wg, new ModelTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[dur]));
 		return act;
 	}
 	
-	public ActivityFlow<?,?> getDefActivity(SimulationUserCode code, String description, WorkGroup wg) {
+	public ActivityFlow getDefActivity(SimulationUserCode code, String description, WorkGroup wg) {
 		return getDefActivity(code, description, 0, wg, true);
 	}
 	
-	public ActivityFlow<?,?> getDefActivity(SimulationUserCode code, String description, WorkGroup wg, boolean presential) {
+	public ActivityFlow getDefActivity(SimulationUserCode code, String description, WorkGroup wg, boolean presential) {
 		return getDefActivity(code, description, 0, wg, presential);
 	}
 	
-	public ActivityFlow<?,?> getDefActivity(SimulationUserCode code, String description, int dur, WorkGroup wg) {
+	public ActivityFlow getDefActivity(SimulationUserCode code, String description, int dur, WorkGroup wg) {
 		return getDefActivity(code, description, dur, wg, true);
 	}
 	
-	public ActivityFlow<?,?> getDefActivity(SimulationUserCode code, String description, int dur, WorkGroup wg, boolean presential) {
-		ActivityFlow<?,?> act = null;
+	public ActivityFlow getDefActivity(SimulationUserCode code, String description, int dur, WorkGroup wg, boolean presential) {
+		ActivityFlow act = null;
 		if (!presential)
-			act = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", code, description, 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+			act = (ActivityFlow)factory.getFlowInstance("ActivityFlow", code, description, 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
 		else
-			act = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", code, description);
+			act = (ActivityFlow)factory.getFlowInstance("ActivityFlow", code, description);
     	act.addWorkGroup(new ModelTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[dur]), 0, wg);
 		return act;
 	}
 	
 	public ElementType getDefElementType(String description) {
-		return factory.getElementTypeInstance(description);
+		return new ElementType(model, description);
 	}
 	
 	public ModelPeriodicCycle getGeneratorCycle() {
@@ -149,7 +151,6 @@ public abstract class WFPTestSimulationFactory {
 	}
 	
 	public TimeDrivenGenerator getDefGenerator(int elems, ElementType et, InitializerFlow flow) {
-        return factory.getTimeDrivenGeneratorInstance(
-        		factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", elems), factory.getSimulation().getElementType(0), flow), getGeneratorCycle());
+        return new TimeDrivenGenerator(model, elems, et, flow, getGeneratorCycle());
 	}
 }

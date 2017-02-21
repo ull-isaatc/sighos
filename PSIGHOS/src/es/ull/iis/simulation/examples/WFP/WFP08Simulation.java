@@ -1,11 +1,12 @@
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.MultiMergeFlow;
-import es.ull.iis.simulation.core.flow.ParallelFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.MultiMergeFlow;
+import es.ull.iis.simulation.model.flow.ParallelFlow;
 
 /**
  * WFP 8. Control de calidad
@@ -21,23 +22,23 @@ public class WFP08Simulation extends WFPTestSimulationFactory {
 	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel()
 	 */
 	@Override
-	protected void createModel() {
+	protected void createModel(Model model) {
     	ResourceType rt0 = getDefResourceType("Maquina productora");
     	ResourceType rt1 = getDefResourceType("Empleados");
         
-        WorkGroup wgMa = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
-        WorkGroup wgEm = factory.getWorkGroupInstance(new ResourceType[] {rt1}, new int[] {1});
+        WorkGroup wgMa = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wgEm = new WorkGroup(model, new ResourceType[] {rt1}, new int[] {1});
 	   	
-		ActivityFlow<?,?> act0 = getDefActivity("Crear destornilladores", 2, wgMa, false);
-		ActivityFlow<?,?> act1 = getDefActivity("Crear llaves", 2, wgMa, false);
-		ActivityFlow<?,?> act2 = getDefActivity("Crear niveladores", 1, wgMa, false);
-		ActivityFlow<?,?> act3 = getDefActivity("Control de calidad", 2, wgEm, false);
+		ActivityFlow act0 = getDefActivity("Crear destornilladores", 2, wgMa, false);
+		ActivityFlow act1 = getDefActivity("Crear llaves", 2, wgMa, false);
+		ActivityFlow act2 = getDefActivity("Crear niveladores", 1, wgMa, false);
+		ActivityFlow act3 = getDefActivity("Control de calidad", 2, wgEm, false);
         
 		getDefResource("Maquina1", rt0);
 		getDefResource("Maquina2", rt0);
 		getDefResource("Empleado1", rt1);
         
-        ParallelFlow root = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
+        ParallelFlow root = new ParallelFlow(model);
         MultiMergeFlow mulmer1 = (MultiMergeFlow)factory.getFlowInstance("MultiMergeFlow");
         
         root.link(act0);

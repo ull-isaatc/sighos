@@ -3,11 +3,11 @@
  */
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.SynchronizedMultipleInstanceFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.SynchronizedMultipleInstanceFlow;
 
 /**
  * WFP 13. Multiple Instances with a priori design-time knowledge
@@ -34,10 +34,10 @@ public class WFP13Simulation extends WFPTestSimulationFactory {
 	@Override
 	protected void createModel() {
     	ResourceType rt0 = getDefResourceType("Director");
-    	WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
+    	WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
     	
-    	ActivityFlow<?,?> act0 = getDefActivity("Sign Annual Report", wg);
-    	ActivityFlow<?,?> act1 = getDefActivity("Check acceptance", wg);
+    	ActivityFlow act0 = getDefActivity("Sign Annual Report", wg);
+    	ActivityFlow act1 = getDefActivity("Check acceptance", wg);
     	
     	for (int i = 0; i < RES; i++)
     		getDefResource("Director" + i, rt0);

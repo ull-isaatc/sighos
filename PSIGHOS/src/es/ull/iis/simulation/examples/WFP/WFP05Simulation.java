@@ -1,11 +1,12 @@
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.ParallelFlow;
-import es.ull.iis.simulation.core.flow.SimpleMergeFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.ParallelFlow;
+import es.ull.iis.simulation.model.flow.SimpleMergeFlow;
 
 /**
  * WFP 5. Example 1: Excavaciones
@@ -19,7 +20,7 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
 		super(type, id, "WFP5: Simple Merge. EjExcavaciones", detailed);
     }
     
-    protected void createModel() {
+    protected void createModel(Model model) {
    	
         ResourceType rt0 = getDefResourceType("Excavadora bobcat");
         ResourceType rt1 = getDefResourceType("Excavadora D9");
@@ -27,15 +28,15 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
         ResourceType rt3 = getDefResourceType("Comercial");
         ResourceType rt4 = getDefResourceType("Excavadora H8");
         
-        WorkGroup wgEBob = factory.getWorkGroupInstance(new ResourceType[] {rt0, rt2}, new int[] {1, 1});
-        WorkGroup wgED9 = factory.getWorkGroupInstance(new ResourceType[] {rt1, rt2}, new int[] {1, 1});
-        WorkGroup wgFacturacion = factory.getWorkGroupInstance(new ResourceType[] {rt3}, new int[] {1});
-        WorkGroup wgEH8 = factory.getWorkGroupInstance(new ResourceType[] {rt4, rt2}, new int[] {1, 1});
+        WorkGroup wgEBob = new WorkGroup(model, new ResourceType[] {rt0, rt2}, new int[] {1, 1});
+        WorkGroup wgED9 = new WorkGroup(model, new ResourceType[] {rt1, rt2}, new int[] {1, 1});
+        WorkGroup wgFacturacion = new WorkGroup(model, new ResourceType[] {rt3}, new int[] {1});
+        WorkGroup wgEH8 = new WorkGroup(model, new ResourceType[] {rt4, rt2}, new int[] {1, 1});
         
-        ActivityFlow<?,?> act0 = getDefActivity("Excavacion bobcat", wgEBob, false);
-        ActivityFlow<?,?> act1 = getDefActivity("Excavacion D9", wgED9, false);
-        ActivityFlow<?,?> act2 = getDefActivity("Facturacion", 2, wgFacturacion, false);
-        ActivityFlow<?,?> act3 = getDefActivity("Excavacion H8", 1, wgEH8, false);
+        ActivityFlow act0 = getDefActivity("Excavacion bobcat", wgEBob, false);
+        ActivityFlow act1 = getDefActivity("Excavacion D9", wgED9, false);
+        ActivityFlow act2 = getDefActivity("Facturacion", 2, wgFacturacion, false);
+        ActivityFlow act3 = getDefActivity("Excavacion H8", 1, wgEH8, false);
         
         getDefResource("Bobcat1", rt0);
         getDefResource("D91", rt1);
@@ -46,8 +47,8 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
         getDefResource("Comercial1", rt3);
         getDefResource("H81", rt4);
 
-        ParallelFlow root = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
-        SimpleMergeFlow simme1 = (SimpleMergeFlow)factory.getFlowInstance("SimpleMergeFlow");        
+        ParallelFlow root = new ParallelFlow(model);
+        SimpleMergeFlow simme1 = new SimpleMergeFlow(model);        
         
         root.link(act0);
         root.link(act1);     

@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.Flow;
-import es.ull.iis.simulation.core.flow.ParallelFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.flow.ParallelFlow;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementActionInfo.Type;
 import es.ull.iis.simulation.model.TimeStamp;
@@ -122,8 +122,8 @@ public class CheckFlowsView extends WFPTestView {
 	}
 	
 	private FlowNode createFlow(Flow f) {
-		if (f instanceof ActivityFlow<?,?>) {
-			ActivityFlow<?,?> sf = (ActivityFlow<?,?>) f;
+		if (f instanceof ActivityFlow) {
+			ActivityFlow sf = (ActivityFlow) f;
 			int actId = sf.getIdentifier();
 			if (sf.getSuccessor() == null)
 				return new SingleFlowNode(sf.getIdentifier(), actId, getSimul()

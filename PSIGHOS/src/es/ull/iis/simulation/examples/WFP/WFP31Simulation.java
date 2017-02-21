@@ -1,11 +1,11 @@
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.ParallelFlow;
-import es.ull.iis.simulation.core.flow.PartialJoinFlow;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.ParallelFlow;
+import es.ull.iis.simulation.model.flow.PartialJoinFlow;
 
 /**
  * WFP 31. Banco
@@ -23,17 +23,17 @@ public class WFP31Simulation extends WFPTestSimulationFactory {
 	protected void createModel() {
         ResourceType rt0 = getDefResourceType("Director");
 	   	
-        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
 
-        ActivityFlow<?,?> act0_0 = getDefActivity("AprobarCuenta", wg, false);
-        ActivityFlow<?,?> act0_1 = getDefActivity("AprobarCuenta", wg, false);
-        ActivityFlow<?,?> act0_2 = getDefActivity("AprobarCuenta", wg, false);
-        ActivityFlow<?,?> act1 = getDefActivity("ExpedirCheque", wg, false);
+        ActivityFlow act0_0 = getDefActivity("AprobarCuenta", wg, false);
+        ActivityFlow act0_1 = getDefActivity("AprobarCuenta", wg, false);
+        ActivityFlow act0_2 = getDefActivity("AprobarCuenta", wg, false);
+        ActivityFlow act1 = getDefActivity("ExpedirCheque", wg, false);
     	
         getDefResource("Director 1", rt0);        
         getDefResource("Director 2", rt0);       
         
-        ParallelFlow root = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
+        ParallelFlow root = new ParallelFlow(model);
 
         PartialJoinFlow part1 = (PartialJoinFlow)factory.getFlowInstance("PartialJoinFlow", 2);
         
