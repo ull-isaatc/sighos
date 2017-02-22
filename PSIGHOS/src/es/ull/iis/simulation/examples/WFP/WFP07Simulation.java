@@ -22,8 +22,8 @@ public class WFP07Simulation extends WFPTestSimulationFactory {
 		super(type, id, "WFP7: Structured Synchronizing Merge. EjTransferenciaPacientes", detailed);
     }
     
-    protected void createModel(Model model) {
-   	
+    protected Model createModel() {
+		model = new Model(SIMUNIT);   	
         ResourceType rt0 = getDefResourceType("Operador");
         ResourceType rt1 = getDefResourceType("Medico");
         
@@ -54,6 +54,7 @@ public class WFP07Simulation extends WFPTestSimulationFactory {
         getDefGenerator(getDefElementType("Emergencia"), root);
 
 //        getSimulation().addInfoReceiver(new WFP07CheckView(getSimulation(), detailed));
+        return model;
     }
 	
 }

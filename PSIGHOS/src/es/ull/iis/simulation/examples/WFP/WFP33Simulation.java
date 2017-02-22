@@ -1,5 +1,6 @@
 package es.ull.iis.simulation.examples.WFP;
 
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
@@ -20,8 +21,9 @@ public class WFP33Simulation extends WFPTestSimulationFactory {
 	}
 
 	@Override
-	protected void createModel() {
-        ResourceType rt0 = getDefResourceType("Comercial");
+	protected Model createModel() {
+		Model model = new Model(SIMUNIT);       
+		ResourceType rt0 = getDefResourceType("Comercial");
         
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
 	   	
@@ -35,7 +37,7 @@ public class WFP33Simulation extends WFPTestSimulationFactory {
         
         ParallelFlow root = new ParallelFlow(model);
 
-        SynchronizationFlow synchro1 = (SynchronizationFlow)factory.getFlowInstance("SynchronizationFlow", false);
+        SynchronizationFlow synchro1 = new SynchronizationFlow(model, false);
         
         root.link(act0);
         root.link(act1);
@@ -44,5 +46,6 @@ public class WFP33Simulation extends WFPTestSimulationFactory {
         synchro1.link(act2);
         
         getDefGenerator(getDefElementType("Cliente"), root);
+    	return model;
 	}
 }

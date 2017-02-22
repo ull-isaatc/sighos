@@ -20,8 +20,8 @@ public class WFP03Simulation extends WFPTestSimulationFactory {
 		super(type, id, "WFP3: Synchronization. EjEnvioMercacias", detailed);
     }
     
-    protected void createModel(Model model) {
-   	
+    protected Model createModel() {
+		model = new Model(SIMUNIT);   	
         ResourceType rt = getDefResourceType("Comercial");
 
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
@@ -47,6 +47,7 @@ public class WFP03Simulation extends WFPTestSimulationFactory {
 
 //        addInfoReceiver(new WFP03CheckView(this, detailed));
 //        getSimulation().addInfoReceiver(new CheckFlowsView(getSimulation(), root, new Time[] {DEFACTDURATION[0], DEFACTDURATION[1], DEFACTDURATION[0]}, detailed));
+        return model;
     }
 	
 }

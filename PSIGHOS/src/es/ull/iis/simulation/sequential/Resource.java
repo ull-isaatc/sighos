@@ -166,6 +166,11 @@ public class Resource extends EventSource {
         return currentResourceType;
     }
     
+    public es.ull.iis.simulation.model.ResourceType getCurrentModelResourceType() {
+    	if (currentResourceType == null)
+    		return null;
+    	return currentResourceType.getModelRT();
+    }
     /**
      * Setter for property currentResourceType.
      * @param rt New value of property currentResourceType.
@@ -389,7 +394,7 @@ public class Resource extends EventSource {
 
 		@Override
 		public void event() {
-			simul.getInfoHandler().notifyInfo(new ResourceInfo(simul, modelRes, currentResourceType.getModelRT(), ResourceInfo.Type.CANCELON, ts));
+			simul.getInfoHandler().notifyInfo(new ResourceInfo(simul, modelRes, getCurrentModelResourceType(), ResourceInfo.Type.CANCELON, ts));
 			setNotCanceled(false);
 			CancelPeriodOffEvent aEvent = new CancelPeriodOffEvent(ts + duration, iter, duration);
 			addEvent(aEvent);
@@ -422,7 +427,7 @@ public class Resource extends EventSource {
 
 		@Override
 		public void event() {
-			simul.getInfoHandler().notifyInfo(new ResourceInfo(simul, modelRes, currentResourceType.getModelRT(), ResourceInfo.Type.CANCELOFF, ts));
+			simul.getInfoHandler().notifyInfo(new ResourceInfo(simul, modelRes, getCurrentModelResourceType(), ResourceInfo.Type.CANCELOFF, ts));
 			setNotCanceled(true);
 			for (ActivityManager am : getCurrentManagers()) {
 				// The activity manger is informed of new available resources

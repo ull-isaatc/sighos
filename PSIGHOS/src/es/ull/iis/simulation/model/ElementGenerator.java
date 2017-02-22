@@ -24,7 +24,7 @@ public class ElementGenerator extends ModelObject implements EventSource {
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 */
 	public ElementGenerator(Model model, TimeFunction nElem) {
-		super(model, model.getEventSourceList().size(), "GEN");
+		super(model, model.getElementGeneratorList().size(), "GEN");
 		genTrio = new ArrayList<GenerationTrio>();
 		this.nElem = nElem;
 		model.add(this);

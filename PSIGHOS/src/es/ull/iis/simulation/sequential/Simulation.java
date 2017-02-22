@@ -126,14 +126,23 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 		createSimulationObjects();
 	}
 
-	public EventSource getEventSourceFromModel(es.ull.iis.simulation.model.EventSource evSource) {
-		if (evSource instanceof es.ull.iis.simulation.model.TimeDrivenGenerator) {
-			return new TimeDrivenGenerator(this, (es.ull.iis.simulation.model.TimeDrivenGenerator)evSource);
-		}
-		else if (evSource instanceof es.ull.iis.simulation.model.Element) {
-			final es.ull.iis.simulation.model.Element modelElem = (es.ull.iis.simulation.model.Element) evSource;
-			return new Element(this, modelElem);
-		}
+//	public EventSource getEventSourceFromModel(es.ull.iis.simulation.model.EventSource evSource) {
+//		if (evSource instanceof es.ull.iis.simulation.model.TimeDrivenGenerator) {
+//			return new TimeDrivenGenerator(this, (es.ull.iis.simulation.model.TimeDrivenGenerator)evSource);
+//		}
+//		else if (evSource instanceof es.ull.iis.simulation.model.Element) {
+//			final es.ull.iis.simulation.model.Element modelElem = (es.ull.iis.simulation.model.Element) evSource;
+//			return new Element(this, modelElem);
+//		}
+//		return null;
+//	}
+	
+	/**
+	 * An extensible method to indicate the simulation how to create specific types of element generators
+	 * @param gen The model definition of the generator
+	 * @return A simulation-able element generator
+	 */
+	public ElementGenerator createSpecificElementGenerator(es.ull.iis.simulation.model.ElementGenerator gen) {
 		return null;
 	}
 	
@@ -147,9 +156,17 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 		for (es.ull.iis.simulation.model.Resource res : model.getResourceList()) {
 			new Resource(this, res);
 		}
-		for (es.ull.iis.simulation.model.EventSource evSource : model.getEventSourceList()) {
-			getEventSourceFromModel(evSource);
+		for (es.ull.iis.simulation.model.ElementGenerator gen : model.getElementGeneratorList()) {
+			if (gen instanceof es.ull.iis.simulation.model.TimeDrivenGenerator) {
+				new TimeDrivenGenerator(this, (es.ull.iis.simulation.model.TimeDrivenGenerator)gen);
+			}
+			else {
+				createSpecificElementGenerator(gen);
+			}
 		}
+//		for (es.ull.iis.simulation.model.EventSource evSource : model.getEventSourceList()) {
+//			getEventSourceFromModel(evSource);
+//		}
 		for (es.ull.iis.simulation.model.flow.Flow flow : model.getFlowList()) {
 			if (flow instanceof RequestResourcesFlow) {
 				new RequestResources(this, (RequestResourcesFlow)flow);				

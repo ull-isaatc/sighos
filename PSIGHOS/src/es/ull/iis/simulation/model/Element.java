@@ -16,10 +16,9 @@ public class Element extends ModelObject implements EventSource {
 	protected final InitializerFlow initialFlow;
 	
 	public Element(Model model, ElementType elementType, InitializerFlow initialFlow) {
-		super(model, model.getEventSourceList().size(), "E");
+		super(model, model.getNewElementId(), "E");
 		this.elementType = elementType;
 		this.initialFlow = initialFlow;
-		model.add(this);
 	}
 	
 	/**

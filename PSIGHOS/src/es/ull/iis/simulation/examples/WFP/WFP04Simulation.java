@@ -23,8 +23,8 @@ public class WFP04Simulation extends WFPTestSimulationFactory {
 		super(type, id, "WFP4: Exclusive Choice. EjSistemaVotacion", detailed);
     }
     
-    protected void createModel(Model model) {
-   	
+    protected Model createModel() {
+		model = new Model(SIMUNIT);   	
         ResourceType rt = getDefResourceType("Encargado");
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
         
@@ -43,6 +43,8 @@ public class WFP04Simulation extends WFPTestSimulationFactory {
 
         getDefGenerator(getDefElementType("Votante"), act0);
 //        getSimulation().addInfoReceiver(new WFP04CheckView(getSimulation(), detailed));
+        return model;
+
     }
 	
 }

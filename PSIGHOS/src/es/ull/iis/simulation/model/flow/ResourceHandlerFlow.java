@@ -9,6 +9,6 @@ import es.ull.iis.simulation.model.Describable;
  * @author Iván Castilla
  *
  */
-public interface ResourceHandlerFlow extends Describable {
+public interface ResourceHandlerFlow extends Flow, Describable {
 
 }

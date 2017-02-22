@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.examples.WFP;
 
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
@@ -23,8 +24,9 @@ public class WFP40Simulation extends WFPTestSimulationFactory {
 	}
 
 	@Override
-	protected void createModel() {
-    	ResourceType rt = getDefResourceType("Technician");
+	protected Model createModel() {
+		Model model = new Model(SIMUNIT);    	
+		ResourceType rt = getDefResourceType("Technician");
     	WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
     	
     	ActivityFlow act0 = getDefActivity("check oil", wg);
@@ -35,13 +37,14 @@ public class WFP40Simulation extends WFPTestSimulationFactory {
     	for (int i = 0; i < RES; i++)
     		getDefResource("RES" + i, rt);
     	
-    	InterleavedRoutingFlow root = (InterleavedRoutingFlow)factory.getFlowInstance("InterleavedRoutingFlow");
+    	InterleavedRoutingFlow root = new InterleavedRoutingFlow(model);
     	root.addBranch(act0);
     	root.addBranch(act1);
     	root.addBranch(act2);
     	root.link(act3);
 
         getDefGenerator(getDefElementType("ET0"), root);
+    	return model;
 		
 	}
 }

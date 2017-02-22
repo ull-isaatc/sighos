@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.examples.WFP;
 
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
@@ -29,11 +30,12 @@ public class WFP12Simulation extends WFPTestSimulationFactory {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel()
+	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected void createModel() {
-    	ResourceType rt0 = getDefResourceType("Policeman");
+	protected Model createModel() {
+		model = new Model(SIMUNIT);    	
+		ResourceType rt0 = getDefResourceType("Policeman");
     	WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
     	
     	ActivityFlow act0 = getDefActivity("Receive Infringment", 1, wg);
@@ -45,13 +47,13 @@ public class WFP12Simulation extends WFPTestSimulationFactory {
     	
         ParallelFlow pf = new ParallelFlow(model);
     	act0.link(pf);
-    	ThreadSplitFlow tsf = (ThreadSplitFlow)factory.getFlowInstance("ThreadSplitFlow", 3);
-    	tsf.link(factory.getFlowInstance("SingleFlow", act1));
+    	ThreadSplitFlow tsf = new ThreadSplitFlow(model, 3);
+    	tsf.link(act1);
     	pf.link(tsf);
-    	pf.link(act2);
-    	act2.link(act0);
+    	pf.link(act2).link(act0);
     	
         getDefGenerator(getDefElementType("ET0"), act0);    	
+        return model;
 	}
 
 }

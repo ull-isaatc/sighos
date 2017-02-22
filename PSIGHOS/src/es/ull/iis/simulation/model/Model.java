@@ -15,15 +15,17 @@ import es.ull.iis.util.Output;
  */
 public class Model {
 	private final static TimeUnit defTimeUnit = TimeUnit.MINUTE; 
+	private int elemCounter = 0;
 	/** Output for printing debug and error messages */
 	private static Output out = new Output();
-	private final ArrayList<EventSource> eventSourceList = new ArrayList<EventSource>();
+//	private final ArrayList<EventSource> eventSourceList = new ArrayList<EventSource>();
 	private final ArrayList<ElementType> elementTypeList = new ArrayList<ElementType>();
 	private final ArrayList<Resource> resourceList = new ArrayList<Resource>();
 	private final ArrayList<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
 	private final ArrayList<WorkGroup> workGroupList = new ArrayList<WorkGroup>();
 	private final ArrayList<Flow> flowList = new ArrayList<Flow>();
 //	private final ArrayList<Element> elemList = new ArrayList<Element>();
+	private final ArrayList<ElementGenerator> genList = new ArrayList<ElementGenerator>();
 	private final TimeUnit unit;
 
 	/**
@@ -62,9 +64,20 @@ public class Model {
 		return out.isDebugEnabled();
 	}
 	
-	public void add(EventSource ev) { 
-		eventSourceList.add(ev);
+	public int getNewElementId() {
+		return elemCounter++;
 	}
+	
+	/**
+	 * Resets variables or contents of the model. It should be invoked by the user when the same model is used for multiple replicas
+	 * and contains variables that must be initialized among replicas.
+	 */
+	public void reset() {		
+	}
+	
+//	public void add(EventSource ev) { 
+//		eventSourceList.add(ev);
+//	}
 	public void add(ElementType et) { 
 		elementTypeList.add(et);
 	}
@@ -80,13 +93,16 @@ public class Model {
 	public void add(Flow f) { 
 		flowList.add(f);
 	}
+	public void add(ElementGenerator gen) {
+	genList.add(gen);
+}
 //	public void add(Element elem) {
 //		elemList.add(elem);
 //	}
 
-	public List<EventSource> getEventSourceList() { 
-		return eventSourceList;
-	}
+//	public List<EventSource> getEventSourceList() { 
+//		return eventSourceList;
+//	}
 	public List<ElementType> getElementTypeList() { 
 		return elementTypeList;
 	}
@@ -102,7 +118,10 @@ public class Model {
 	public List<Flow> getFlowList() { 
 		return flowList;
 	}
+	public List<ElementGenerator> getElementGeneratorList() {
+		return genList;
+	}
 //	public List<Element> getElementList() {
-//		return elemList;
-//	}
+//	return elemList;
+//}
 }

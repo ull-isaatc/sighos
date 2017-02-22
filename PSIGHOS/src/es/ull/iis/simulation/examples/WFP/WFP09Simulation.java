@@ -1,5 +1,6 @@
 package es.ull.iis.simulation.examples.WFP;
 
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
@@ -24,11 +25,12 @@ public class WFP09Simulation extends WFPTestSimulationFactory {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel()
+	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected void createModel() {
-        ResourceType rt0 = getDefResourceType("Doctor");
+	protected Model createModel() {
+		model = new Model(SIMUNIT);        
+		ResourceType rt0 = getDefResourceType("Doctor");
 	   	
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
 
@@ -39,14 +41,15 @@ public class WFP09Simulation extends WFPTestSimulationFactory {
         getDefResource("Doctor 1", rt0);        
         getDefResource("Doctor 2", rt0);        
         
-        StructuredDiscriminatorFlow root = (StructuredDiscriminatorFlow)factory.getFlowInstance("StructuredDiscriminatorFlow");
+        StructuredDiscriminatorFlow root = new StructuredDiscriminatorFlow(model);
               
         root.addBranch(act0);
         root.addBranch(act1);
         root.link(act2);
         
         getDefGenerator(getDefElementType("Paciente"), root);
-		
+        return model;
+
 	}
 
 }

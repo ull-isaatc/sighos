@@ -1,5 +1,6 @@
 package es.ull.iis.simulation.examples.WFP;
 
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
@@ -25,11 +26,12 @@ public class WFP28Simulation extends WFPTestSimulationFactory {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel()
+	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected void createModel() {
-        ResourceType rt0 = getDefResourceType("Asistente");
+	protected Model createModel() {
+		Model model = new Model(SIMUNIT);        
+		ResourceType rt0 = getDefResourceType("Asistente");
         ResourceType rt1 = getDefResourceType("Personal Seguridad");
         
         WorkGroup wg0 = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
@@ -45,7 +47,7 @@ public class WFP28Simulation extends WFPTestSimulationFactory {
         getDefResource("Segurita 2", rt1);
         
         ParallelFlow root = new ParallelFlow(model);
-        DiscriminatorFlow dis1 = (DiscriminatorFlow)factory.getFlowInstance("DiscriminatorFlow");
+        DiscriminatorFlow dis1 = new DiscriminatorFlow(model);
         
         root.link(act0);
         root.link(act1);
@@ -54,5 +56,6 @@ public class WFP28Simulation extends WFPTestSimulationFactory {
         dis1.link(act2);
         
         getDefGenerator(getDefElementType("Asistente"), root);
+    	return model;
 	}
 }

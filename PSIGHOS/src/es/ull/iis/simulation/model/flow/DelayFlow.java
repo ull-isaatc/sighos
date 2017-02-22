@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.function.TimeFunction;
+import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.model.Model;
 
 /**
@@ -23,6 +24,13 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, Resource
 		super(model);
 		this.description = description;
 		this.duration = duration;
+	}
+
+	/**
+	 * 
+	 */
+	public DelayFlow(Model model, String description, long duration) {
+		this(model, description, TimeFunctionFactory.getInstance("ConstantVariate", duration));
 	}
 
 	@Override

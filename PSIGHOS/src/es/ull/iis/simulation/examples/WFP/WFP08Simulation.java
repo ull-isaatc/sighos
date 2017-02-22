@@ -19,11 +19,12 @@ public class WFP08Simulation extends WFPTestSimulationFactory {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel()
+	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected void createModel(Model model) {
-    	ResourceType rt0 = getDefResourceType("Maquina productora");
+	protected Model createModel() {
+		model = new Model(SIMUNIT);    	
+		ResourceType rt0 = getDefResourceType("Maquina productora");
     	ResourceType rt1 = getDefResourceType("Empleados");
         
         WorkGroup wgMa = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
@@ -39,7 +40,7 @@ public class WFP08Simulation extends WFPTestSimulationFactory {
 		getDefResource("Empleado1", rt1);
         
         ParallelFlow root = new ParallelFlow(model);
-        MultiMergeFlow mulmer1 = (MultiMergeFlow)factory.getFlowInstance("MultiMergeFlow");
+        MultiMergeFlow mulmer1 = new MultiMergeFlow(model);
         
         root.link(act0);
         root.link(act1);
@@ -50,7 +51,8 @@ public class WFP08Simulation extends WFPTestSimulationFactory {
         mulmer1.link(act3);
 
         getDefGenerator(getDefElementType("Remesa productos"), root);
-        
+        return model;
+
 	}
 	
 }

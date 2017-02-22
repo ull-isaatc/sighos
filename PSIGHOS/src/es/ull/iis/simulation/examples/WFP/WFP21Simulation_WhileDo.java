@@ -1,7 +1,8 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.core.ElementType;
+import es.ull.iis.simulation.model.ElementType;
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationUserCode;
@@ -28,11 +29,12 @@ public class WFP21Simulation_WhileDo extends WFPTestSimulationFactory {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel()
+	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected void createModel() {
-        ResourceType rt0 = getDefResourceType("Maquina revelado");
+	protected Model createModel() {
+		Model model = new Model(SIMUNIT);        
+		ResourceType rt0 = getDefResourceType("Maquina revelado");
         
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
     	
@@ -46,10 +48,11 @@ public class WFP21Simulation_WhileDo extends WFPTestSimulationFactory {
 				+ "System.out.println(\"E\" + e.getIdentifier() + \": \" + <%GET(@E.fotosReveladas)%> + \" fotos reveladas.\");"
 				);
     	ActivityFlow act0 = getDefActivity(code1, "Revelar foto", wg, false);
-        WhileDoFlow root = (WhileDoFlow)factory.getFlowInstance("WhileDoFlow", act0, cond);
+        WhileDoFlow root = new WhileDoFlow(model, act0, cond);
 
         ElementType et = getDefElementType("Cliente");
         et.addElementVar("fotosReveladas", 0);
         getDefGenerator(et, root);
+    	return model;
 	}
 }

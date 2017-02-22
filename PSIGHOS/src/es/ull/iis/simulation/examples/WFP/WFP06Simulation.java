@@ -22,8 +22,8 @@ public class WFP06Simulation extends WFPTestSimulationFactory {
 		super(type, id, "WFP6: Multichoice. EjLamadasEmergencia", detailed);
     }
     
-    protected void createModel(Model model) {
-   	
+    protected Model createModel() {
+		model = new Model(SIMUNIT);   	
         ResourceType rt = getDefResourceType("Operador");
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
 
@@ -45,6 +45,7 @@ public class WFP06Simulation extends WFPTestSimulationFactory {
 
         getDefGenerator(getDefElementType("Emergencia"), act0);
 //        getSimulation().addInfoReceiver(new WFP06CheckView(getSimulation(), detailed));
+        return model;
     }
 	
 }

@@ -8,16 +8,15 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.core.Simulation;
-import es.ull.iis.simulation.model.flow.ActivityFlow;
-import es.ull.iis.simulation.model.flow.Flow;
-import es.ull.iis.simulation.model.flow.ParallelFlow;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementActionInfo.Type;
-import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.flow.ParallelFlow;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -25,16 +24,16 @@ import es.ull.iis.simulation.info.SimulationStartInfo;
  */
 public class CheckFlowsView extends WFPTestView {
 	FlowNode flow;
-	TimeStamp[] durations;
+	long[] durations;
 	ArrayList<TreeSet<EventToCheck>> futureFlow;
 	private boolean ok = true;
 
 	public CheckFlowsView(Simulation simul, Flow f,
-			TimeStamp[] durations) {
+			long[] durations) {
 		this(simul, f, durations, true);
 	}
 
-	public CheckFlowsView(Simulation simul, Flow f, TimeStamp[] durations, boolean detailed) {
+	public CheckFlowsView(Simulation simul, Flow f, long[] durations, boolean detailed) {
 		super(simul, "Checking flows...", detailed);
 		addEntrance(ElementInfo.class);
 		addEntrance(ElementActionInfo.class);
@@ -72,13 +71,13 @@ public class CheckFlowsView extends WFPTestView {
 			case STAACT:
 				ev = new EventToCheck(Type.STAACT, eInfo.getActivity().getIdentifier(), eInfo.getTs());
 				printResult(futureFlow.get(eInfo.getElement().getIdentifier()).remove(ev), "unexpected event!"); 
-				double nextTs = eInfo.getTs() + getSimul().simulationTime2Long(durations[eInfo.getActivity().getIdentifier()]);
+				long nextTs = eInfo.getTs() + durations[eInfo.getActivity().getIdentifier()];
 				futureFlow.get(eInfo.getElement().getIdentifier()).add(new EventToCheck(Type.ENDACT, eInfo.getActivity().getIdentifier(), nextTs));
 				break;
 			case ENDACT:
 				ev = new EventToCheck(Type.ENDACT, eInfo.getActivity().getIdentifier(), eInfo.getTs());
 				printResult(futureFlow.get(eInfo.getElement().getIdentifier()).remove(ev), "unexpected event!"); 
-				SingleFlowNode f = flow.search(eInfo.getFlowExecutor().getCurrentFlow().getIdentifier());
+				SingleFlowNode f = flow.search(eInfo.getActivity().getIdentifier());
 				if (f.next != null)
 					f.next.add2FutureFlow(eInfo.getElement().getIdentifier(), eInfo.getTs());
 				break;
@@ -126,10 +125,8 @@ public class CheckFlowsView extends WFPTestView {
 			ActivityFlow sf = (ActivityFlow) f;
 			int actId = sf.getIdentifier();
 			if (sf.getSuccessor() == null)
-				return new SingleFlowNode(sf.getIdentifier(), actId, getSimul()
-						.simulationTime2Long(durations[actId]), null);
-			return new SingleFlowNode(sf.getIdentifier(), actId, getSimul().simulationTime2Long(
-					durations[actId]), createFlow(sf.getSuccessor()));
+				return new SingleFlowNode(sf.getIdentifier(), actId, durations[actId], null);
+			return new SingleFlowNode(sf.getIdentifier(), actId, durations[actId], createFlow(sf.getSuccessor()));
 		}
 		if (f instanceof ParallelFlow) {
 			ParallelFlow pf = (ParallelFlow) f;

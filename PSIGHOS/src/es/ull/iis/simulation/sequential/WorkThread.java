@@ -548,7 +548,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
         	if (cancellationDuration > 0) {
 				final long actualTs = elem.getTs();
 				res.setNotCanceled(false);
-				elem.simul.getInfoHandler().notifyInfo(new ResourceInfo(elem.simul, res.getModelRes(), res.getCurrentResourceType().getModelRT(), ResourceInfo.Type.CANCELON, actualTs));
+				elem.simul.getInfoHandler().notifyInfo(new ResourceInfo(elem.simul, res.getModelRes(), res.getCurrentModelResourceType(), ResourceInfo.Type.CANCELON, actualTs));
 				res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
 			}
 			elem.debug("Returned " + res);

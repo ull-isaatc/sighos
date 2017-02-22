@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.examples.WFP;
 
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
@@ -29,11 +30,12 @@ public class WFP13Simulation extends WFPTestSimulationFactory {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel()
+	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected void createModel() {
-    	ResourceType rt0 = getDefResourceType("Director");
+	protected Model createModel() {
+		model = new Model(SIMUNIT);    	
+		ResourceType rt0 = getDefResourceType("Director");
     	WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
     	
     	ActivityFlow act0 = getDefActivity("Sign Annual Report", wg);
@@ -42,11 +44,12 @@ public class WFP13Simulation extends WFPTestSimulationFactory {
     	for (int i = 0; i < RES; i++)
     		getDefResource("Director" + i, rt0);
 
-		SynchronizedMultipleInstanceFlow root = (SynchronizedMultipleInstanceFlow)factory.getFlowInstance("SynchronizedMultipleInstanceFlow", 6);
+		SynchronizedMultipleInstanceFlow root = new SynchronizedMultipleInstanceFlow(model, 6);
     	root.addBranch(act0);
-    	root.link(factory.getFlowInstance("SingleFlow", act1));
+    	root.link(act1);
 
     	getDefGenerator(getDefElementType("ET0"), root);
+    	return model;
 	}
 
 }

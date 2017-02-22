@@ -127,13 +127,13 @@ public class FlowBehaviour {
 				if (wThread.isExecutable() || !(f instanceof ThreadMergeFlow)) {				
 					arrive(wThread, (MergeFlow)f);
 					if (canPass(wThread, (MergeFlow)f)) {
-						control.get(elem).setActivated();
+						control.get(f).setActivated();
 						next(wThread);
 					}
 					else {
 						// If no one of the branches was true, the thread of control must continue anyway
-						if (canReset(wThread, (MergeFlow)f) && !isActivated(wThread))
-							next(wThread.getInstanceSubsequentWorkThread(false, f, control.get(elem).getOutgoingFalseToken()));
+						if (canReset(wThread, (MergeFlow)f) && !isActivated(wThread, (MergeFlow)f))
+							next(wThread.getInstanceSubsequentWorkThread(false, f, control.get(f).getOutgoingFalseToken()));
 						wThread.notifyEnd();
 					}
 					if (canReset(wThread, (MergeFlow)f))
@@ -257,25 +257,25 @@ public class FlowBehaviour {
 	}
 
 	protected void arrive(WorkThread wThread, MergeFlow f) {
-		if (!control.containsKey(elem))
+		if (!control.containsKey(f))
 			control.put(f, getNewBranchesControl(f));
-		control.get(elem).arrive(wThread);
+		control.get(f).arrive(wThread);
 	}
 
 	protected boolean canReset(WorkThread wThread, MergeFlow f) {
-		return control.get(elem).canReset(f.getIncomingBranches());
+		return control.get(f).canReset(f.getIncomingBranches());
 	}
 
 	protected void reset(WorkThread wThread, MergeFlow f) {
 		if (f instanceof SimpleMergeFlow) {
-			lastTs.remove(elem);
+			lastTs.remove(f);
 		}
-		if (control.get(elem).reset())
-			control.remove(elem);
+		if (control.get(f).reset())
+			control.remove(f);
 	}
 
-	protected boolean isActivated(WorkThread wThread) {
-		return control.get(elem).isActivated();
+	protected boolean isActivated(WorkThread wThread, MergeFlow f) {
+		return control.get(f).isActivated();
 	}
 
 	protected MergeFlowControl getNewBranchesControl(MergeFlow f) {
@@ -284,7 +284,7 @@ public class FlowBehaviour {
 
 	protected boolean canPass(WorkThread wThread, MergeFlow f) {
 		if (f instanceof ANDJoinFlow) {
-			return (!control.get(elem).isActivated() && (control.get(elem).getTrueChecked() == ((ANDJoinFlow)f).getAcceptValue()));
+			return (!control.get(f).isActivated() && (control.get(f).getTrueChecked() == ((ANDJoinFlow)f).getAcceptValue()));
 		}
 		else if (f instanceof MultiMergeFlow) {
 			return wThread.isExecutable();

@@ -1,10 +1,9 @@
 package es.ull.iis.simulation.examples.WFP;
+import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
-import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
-import es.ull.iis.simulation.model.TimeStamp;
 
 /**
  * WFP 1, Example 1: Tarjeta de Credito
@@ -18,8 +17,8 @@ public class WFP01Simulation extends WFPTestSimulationFactory {
 		super(type, id, "WFP1: Sequence. EjTarjetaCredito", detailed);
     }
     
-    protected void createModel(Model model) {
-
+    protected Model createModel() {
+		model = new Model(SIMUNIT);    	
         ResourceType rt = getDefResourceType("Cajero");
     	
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
@@ -35,7 +34,8 @@ public class WFP01Simulation extends WFPTestSimulationFactory {
          
         getDefGenerator(getDefElementType("Cliente"), act0);
 //        addInfoReceiver(new WFP01CheckView(this, detailed));
-        getSimulation().addInfoReceiver(new CheckFlowsView(getSimulation(), act0, new TimeStamp[] {DEFACTDURATION[0], DEFACTDURATION[0]}, detailed));
+        getSimulation().addInfoReceiver(new CheckFlowsView(getSimulation(), act0, new long[] {DEFACTDURATION[0], DEFACTDURATION[0]}, detailed));
+        return model;
     }
 	
 }

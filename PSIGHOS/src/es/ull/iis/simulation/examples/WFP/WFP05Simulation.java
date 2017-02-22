@@ -20,8 +20,8 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
 		super(type, id, "WFP5: Simple Merge. EjExcavaciones", detailed);
     }
     
-    protected void createModel(Model model) {
-   	
+    protected Model createModel() {
+		model = new Model(SIMUNIT);   	
         ResourceType rt0 = getDefResourceType("Excavadora bobcat");
         ResourceType rt1 = getDefResourceType("Excavadora D9");
         ResourceType rt2 = getDefResourceType("Conductor");
@@ -60,6 +60,8 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
         
         getDefGenerator(getDefElementType("Excavacion"), root);
 //        getSimulation().addInfoReceiver(new WFP05CheckView(getSimulation(), detailed));
+        return model;
+
     }
 	
 }

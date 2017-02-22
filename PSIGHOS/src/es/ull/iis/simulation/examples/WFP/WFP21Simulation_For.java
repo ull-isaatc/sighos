@@ -1,6 +1,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.core.ElementType;
+import es.ull.iis.simulation.model.ElementType;
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
@@ -26,11 +27,12 @@ public class WFP21Simulation_For extends WFPTestSimulationFactory {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel()
+	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected void createModel() {
-        ResourceType rt0 = getDefResourceType("Maquina revelado");
+	protected Model createModel() {
+		Model model = new Model(SIMUNIT);        
+		ResourceType rt0 = getDefResourceType("Maquina revelado");
         
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
     	
@@ -39,9 +41,10 @@ public class WFP21Simulation_For extends WFPTestSimulationFactory {
         getDefResource("Maquina 1", rt0);        
         getDefResource("Maquina 2", rt0);
         
-        ForLoopFlow root = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", act0, TimeFunctionFactory.getInstance("ConstantVariate", 2));
+        ForLoopFlow root = new ForLoopFlow(model, act0, TimeFunctionFactory.getInstance("ConstantVariate", 2));
 
         ElementType et = getDefElementType("Cliente");
         getDefGenerator(et, root);
+    	return model;
 	}
 }
