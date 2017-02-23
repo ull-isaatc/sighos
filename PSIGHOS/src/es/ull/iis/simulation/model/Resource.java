@@ -211,6 +211,16 @@ public class Resource extends EventSource implements Describable {
 		return engine.isAvailable(rt);
 	}
 
+    /**
+     * Generates an event which finalizes a period of unavailability.
+     * @param ts Actual simulation time.
+     * @param duration Duration of the unavailability period.
+     */
+    public void generateCancelPeriodOffEvent(long ts, long duration) {
+    	CancelPeriodOffEvent aEvent = new CancelPeriodOffEvent(ts + duration, null, 0);
+        model.getSimulationEngine().addEvent(aEvent);
+    }
+    
     public class CreateResourceEvent extends DiscreteEvent {
 
     	public CreateResourceEvent(long ts) {

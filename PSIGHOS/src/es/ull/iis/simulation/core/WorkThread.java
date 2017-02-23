@@ -5,6 +5,7 @@ package es.ull.iis.simulation.core;
 
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.simulation.model.ActivityWorkGroupEngine;
 import es.ull.iis.simulation.model.Identifiable;
 import es.ull.iis.util.Prioritizable;
 
@@ -57,7 +58,7 @@ public interface WorkThread extends Comparable<WorkThread>, Prioritizable, Ident
 	 * @return the workgroup which is used to perform this flow, or <tt>null</tt>  
      * if the flow has not been carried out.
 	 */
-	ActivityWorkGroup getExecutionWG();
+	ActivityWorkGroupEngine getExecutionWG();
 
 	/**
 	 * Returns true if the specified flow was already visited from this thread.

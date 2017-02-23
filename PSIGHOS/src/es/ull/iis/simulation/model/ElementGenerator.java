@@ -8,12 +8,13 @@ import java.util.ArrayList;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
+import es.ull.iis.function.TimeFunctionParams;
 
 /**
  * Defines the way a generator creates elements when it's time to create them.
  * @author Iván Castilla Rodríguez
  */
-public class ElementGenerator extends EventSource {
+public abstract class ElementGenerator extends EventSource implements TimeFunctionParams {
 	/** Number of objects created each time this creator is invoked. */
 	protected final TimeFunction nElem;
 	/** Each flow that will be generated */
@@ -58,6 +59,11 @@ public class ElementGenerator extends EventSource {
 	 */
 	public ElementGenerator(Model model, int nElem, ElementType et, InitializerFlow flow) {
 		this(model, TimeFunctionFactory.getInstance("ConstantVariate", nElem), et, flow);
+	}
+	
+	@Override
+	public DiscreteEvent onDestroy() {
+		return new DefaultFinalizeEvent();
 	}
 	
 	/**
@@ -109,6 +115,9 @@ public class ElementGenerator extends EventSource {
 		return nElem;
 	}
 
+	public int getSampleNElem() {
+		return (int) nElem.getValue(this);
+	}
 	/**
 	 * @return the genTrio
 	 */
@@ -116,6 +125,13 @@ public class ElementGenerator extends EventSource {
 		return genTrio;
 	}
 
+    /**
+     * Returns the next timestamp when elements have to be generated. 
+     * @return The next timestamp to generate elements. -1 if this generator
+     * don't have to create more elements.
+     */
+	public abstract long nextEvent();
+	
 	/**
 	 * Description of a set of elements a generator can create.
 	 * @author Iván Castilla Rodríguez
@@ -166,4 +182,42 @@ public class ElementGenerator extends EventSource {
 		}
 	}
 
+    /**
+     * This event is invoked every time a new set of elements has to be generated. 
+     * It simply invokes the <code>creator.create</code> method.
+     */
+    public class GenerateEvent extends DiscreteEvent {
+        /**
+         * Creates a new element-generation event.
+         * @param ts Timestamp when this event must be executed.
+         */
+        public GenerateEvent(long ts) {
+            super(ts);
+        }
+        
+        /**
+         * Generates the elements corresponding to this timestamp. After this, 
+         * it checks the following event.
+         */
+        @Override
+		public void event() {
+    		int n = getSampleNElem();
+    		n = beforeCreateElements(n);
+    		final Element[] modelElems = createElements(n, ts);
+    		for (Element elem : modelElems) {
+	    		elem.initializeElementVars(elem.getType().getElementValues());
+	            final DiscreteEvent e = elem.onCreate(model.getSimulationEngine().getTs());
+	            model.getSimulationEngine().addEvent(e);
+    		}
+            afterCreateElements();
+            final long newTs = nextEvent();
+            if (newTs == -1) {
+    		 	notifyEnd();
+            }
+			else {
+				final GenerateEvent e = new GenerateEvent(newTs);
+				model.getSimulationEngine().addEvent(e);
+			}
+        }
+    }
 }

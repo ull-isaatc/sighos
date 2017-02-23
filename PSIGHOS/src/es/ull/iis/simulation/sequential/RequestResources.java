@@ -21,7 +21,7 @@ public class RequestResources extends VariableStoreSimulationObject implements P
     /** Activity manager this activity belongs to */
     protected ActivityManager manager = null;
     /** Work Groups available to perform this basic step */
-    protected final PrioritizedTable<ActivityWorkGroup> workGroupTable;
+    protected final PrioritizedTable<ActivityWorkGroupEngine> workGroupTable;
     /** Indicates that the basic step is potentially feasible. */
     protected boolean stillFeasible = true;
 
@@ -33,10 +33,10 @@ public class RequestResources extends VariableStoreSimulationObject implements P
 	public RequestResources(SequentialSimulationEngine simul, RequestResourcesFlow modelReq) {
 		super(simul.getNextActivityId(), simul, "REQ");
 		this.modelReq = modelReq;
-        workGroupTable = new PrioritizedTable<ActivityWorkGroup>();
+        workGroupTable = new PrioritizedTable<ActivityWorkGroupEngine>();
         for (int i = 0; i < modelReq.getWorkGroupSize(); i++) {
         	es.ull.iis.simulation.model.ActivityWorkGroup modelAWG = modelReq.getWorkGroup(i);
-        	workGroupTable.add(new ActivityWorkGroup(simul, modelAWG));
+        	workGroupTable.add(new ActivityWorkGroupEngine(simul, modelAWG));
         }
         simul.add(this);
 	}
@@ -76,7 +76,7 @@ public class RequestResources extends VariableStoreSimulationObject implements P
      * Returns an iterator over the workgroups of this activity.
      * @return An iterator over the workgroups that can perform this activity.
      */
-    public Iterator<ActivityWorkGroup> iterator() {
+    public Iterator<ActivityWorkGroupEngine> iterator() {
     	return workGroupTable.iterator();
     }
 
@@ -85,10 +85,10 @@ public class RequestResources extends VariableStoreSimulationObject implements P
      * @param wgId The id of the workgroup searched
      * @return A workgroup contained in this activity with the specified id
      */
-    public ActivityWorkGroup getWorkGroup(int wgId) {
-        Iterator<ActivityWorkGroup> iter = workGroupTable.iterator();
+    public ActivityWorkGroupEngine getWorkGroup(int wgId) {
+        Iterator<ActivityWorkGroupEngine> iter = workGroupTable.iterator();
         while (iter.hasNext()) {
-        	ActivityWorkGroup opc = iter.next();
+        	ActivityWorkGroupEngine opc = iter.next();
         	if (opc.getIdentifier() == wgId)
         		return opc;        	
         }
@@ -111,9 +111,9 @@ public class RequestResources extends VariableStoreSimulationObject implements P
 	protected ArrayDeque<ResourceEngine> isFeasible(WorkThread wt) {
     	if (!stillFeasible)
     		return null;
-        Iterator<ActivityWorkGroup> iter = workGroupTable.randomIterator();
+        Iterator<ActivityWorkGroupEngine> iter = workGroupTable.randomIterator();
         while (iter.hasNext()) {
-        	ActivityWorkGroup wg = iter.next();
+        	ActivityWorkGroupEngine wg = iter.next();
         	ArrayDeque<ResourceEngine> solution = wg.isFeasible(wt); 
             if (solution != null) {
                 wt.setExecutionWG(wg);

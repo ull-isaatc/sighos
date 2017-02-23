@@ -144,6 +144,7 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	protected abstract void initializeEngine();
 	protected abstract void launchInitialEvents();
 	protected abstract void simulationLoop();
+	public abstract ActivityWorkGroupEngine getActivityWorkGroupEngineInstance(ActivityWorkGroup modelWG);
 	public abstract ResourceTypeEngine getResourceTypeEngineInstance(ResourceType modelRT);
 	public abstract ResourceEngine getResourceEngineInstance(Resource modelRes);
 	public abstract ResourceList getResourceListInstance(ResourceType modelRT);

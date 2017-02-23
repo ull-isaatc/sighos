@@ -2,6 +2,7 @@ package es.ull.iis.simulation.model;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.model.flow.FlowExecutor;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.Prioritizable;
 
@@ -24,6 +25,7 @@ public class ActivityWorkGroup extends WorkGroup implements Prioritizable, Descr
     final protected Condition cond;
     final protected TimeFunction duration;
     private final String idString; 
+    private ActivityWorkGroupEngine wgEngine;
 	
     /**
      * Creates a new instance of WorkGroup which contains the same resource types
@@ -67,6 +69,16 @@ public class ActivityWorkGroup extends WorkGroup implements Prioritizable, Descr
 		return duration;
 	}
 
+    /**
+     * Returns the duration of the activity where this workgroup is used. 
+     * The value returned by the random number function could be negative. 
+     * In this case, it returns 0.
+     * @return The activity duration.
+     */
+    public long getDurationSample(FlowExecutor fe) {
+    	return Math.round(duration.getValue(fe));
+    }
+
 	@Override
 	public int getIdentifier() {
 		return id;
@@ -84,16 +96,13 @@ public class ActivityWorkGroup extends WorkGroup implements Prioritizable, Descr
     	return idString;
     }
 
-	public int compareTo(ActivityWorkGroup arg0) {
-		if (id < arg0.id)
-			return -1;
-		if (id > arg0.id)
-			return 1;
-		return 0;
-	}
-
 	public Condition getCondition() {
 		return cond;
 	}
-
+	
+	@Override
+	protected void assignSimulation(SimulationEngine simul) {
+		super.assignSimulation(simul);
+		wgEngine = simul.getActivityWorkGroupEngineInstance(this);		
+	}
 }

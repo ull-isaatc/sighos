@@ -78,4 +78,14 @@ public class WorkGroup extends ModelObject {
 	public Pair[] getPairs() {
 		return pairs;
 	}
+
+	public ResourceType getResourceType(int ind) {
+		return pairs[ind].rt;		
+	}
+    
+	@Override
+	protected void assignSimulation(SimulationEngine simul) {
+		// TODO Auto-generated method stub
+		
+	}
 }

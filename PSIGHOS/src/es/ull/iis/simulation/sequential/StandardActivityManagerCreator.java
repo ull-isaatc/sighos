@@ -40,11 +40,11 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 			new ActivityManager(simul);
 		// The activities are associated to the activity managers
 		for (RequestResources a : simul.getActivityList().values()) {
-			Iterator<ActivityWorkGroup> iter = a.iterator();
+			Iterator<ActivityWorkGroupEngine> iter = a.iterator();
 			// This step is for non-resource-types activities
 			boolean found = false;
 			while (iter.hasNext() && !found) {
-				ActivityWorkGroup wg = iter.next();
+				ActivityWorkGroupEngine wg = iter.next();
 				if (wg.size() > 0) {
 					a.setManager(simul.getActivityManagerList().get(marks.get(wg.getResourceType(0).getIdentifier())));
 					found = true;
@@ -80,11 +80,11 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 				put(key, new TreeSet<Integer>());
 			// Goes through the activity list to built the adyacent list 
 			for (RequestResources a : simul.getActivityList().values()) {
-				Iterator<ActivityWorkGroup> iter = a.iterator();
+				Iterator<ActivityWorkGroupEngine> iter = a.iterator();
 				// Looks for the first WorkGroup that contains at least one resource type
 				int firstWG = 1;
 				while (iter.hasNext()) {
-					ActivityWorkGroup wg = iter.next();
+					ActivityWorkGroupEngine wg = iter.next();
 					if (wg.size() > 0) {
 						if (firstWG == 1)
 							ind1 = wg.getResourceType(0).getIdentifier();

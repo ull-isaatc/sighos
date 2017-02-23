@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.core.flow;
 
-import es.ull.iis.simulation.core.ActivityWorkGroup;
 import es.ull.iis.simulation.core.WorkThread;
+import es.ull.iis.simulation.model.ActivityWorkGroupEngine;
 
 /**
  * @author Iván Castilla
@@ -23,7 +23,7 @@ public interface RequestResourcesFlow extends InitializerFlow, SingleSuccessorFl
      * @param wgId The identifier of the searched WG 
      * @return A WG defined in this activity with the specified identifier
      */
-	public ActivityWorkGroup getWorkGroup(int wgId);
+	public ActivityWorkGroupEngine getWorkGroup(int wgId);
 	
 	/**
 	 * Returns the amount of WGs associated to this activity

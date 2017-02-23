@@ -54,7 +54,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 	protected Flow lastFlow = null;
     /** The workgroup which is used to carry out this flow. If <code>null</code>, 
      * the flow has not been carried out. */
-    protected ActivityWorkGroup executionWG = null;
+    protected ActivityWorkGroupEngine executionWG = null;
     /** List of caught resources */
     final protected TreeMap<Integer, ArrayDeque<ResourceEngine>> caughtResources = new TreeMap<Integer, ArrayDeque<ResourceEngine>>();
 	/** The arrival order of this work thread relatively to the rest of work threads 
@@ -371,7 +371,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 		return executionWG.getModelAWG();
 	}
 
-	public ActivityWorkGroup getExecutionWG() {
+	public ActivityWorkGroupEngine getExecutionWG() {
 		return executionWG;
 	}
 
@@ -380,7 +380,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 	 * carry out the activity.
 	 * @param executionWG the workgroup which is used to carry out this flow.
 	 */
-	public void setExecutionWG(ActivityWorkGroup executionWG) {
+	public void setExecutionWG(ActivityWorkGroupEngine executionWG) {
 		this.executionWG = executionWG;
 	}
 

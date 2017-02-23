@@ -12,9 +12,7 @@ import es.ull.iis.util.Prioritizable;
  * workgroup can be used or not, and the priority of the workgroup inside the basicStep.
  * @author Iván Castilla Rodríguez
  */
-public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Prioritizable {
-	protected final int[] needed;
-	protected final ResourceTypeEngine[] resourceTypes;
+public class ActivityWorkGroupEngine implements es.ull.iis.simulation.model.ActivityWorkGroupEngine {
     protected final es.ull.iis.simulation.model.ActivityWorkGroup modelAWG;
 	
     /**
@@ -26,14 +24,7 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
      * @param cond  Availability condition
      * @param basicStep TODO
      */    
-    public ActivityWorkGroup(SequentialSimulationEngine simul, es.ull.iis.simulation.model.ActivityWorkGroup modelAWG) {
-    	es.ull.iis.simulation.model.WorkGroup.Pair[] originalPairs = modelAWG.getPairs();
-    	needed = new int[originalPairs.length];
-    	resourceTypes = new ResourceTypeEngine[originalPairs.length];
-    	for (int i = 0; i < originalPairs.length; i++) {
-    		needed[i] = originalPairs[i].needed;
-    		resourceTypes[i] = simul.getResourceType(originalPairs[i].rt);
-    	}
+    public ActivityWorkGroupEngine(SequentialSimulationEngine simul, es.ull.iis.simulation.model.ActivityWorkGroup modelAWG) {
         this.modelAWG = modelAWG;
     }
 
@@ -44,22 +35,6 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
 		return modelAWG;
 	}
 
-	public ResourceTypeEngine getResourceType(int ind) {
-		return resourceTypes[ind];		
-	}
-	
-	/**
-     * Getter for property priority.
-     * @return Value of property priority.
-     */
-    public int getPriority() {
-        return modelAWG.getPriority();
-    }
-    
-    public int size() {
-    	return resourceTypes.length;
-    }
-    
     /**
      * Checks if there are enough resources to carry out an basicStep by using this workgroup.   
      * The "potential" available resources are booked by the element requesting the basicStep. 
@@ -170,34 +145,6 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
         return findSolution(solution, pos, ned, wThread);        
     }
     
-	public int getIdentifier() {
-		return modelAWG.getIdentifier();
-	}
-
-	public String getDescription() {
-		StringBuilder str = new StringBuilder("WG" + getIdentifier());
-		for (int i = 0; i < resourceTypes.length; i++)
-			str.append(" [" + resourceTypes[i] + "," + needed[i] + "]");
-		return str.toString();
-	}
-
-	public int compareTo(ActivityWorkGroup arg0) {
-		return modelAWG.compareTo(arg0.modelAWG);
-	}
-
-	public Condition getCondition() {
-		return modelAWG.getCondition();
-	}
-
-    /**
-     * Returns the duration of the activity where this workgroup is used. 
-     * The value returned by the random number function could be negative. 
-     * In this case, it returns 0.
-     * @return The activity duration.
-     */
-    public long getDurationSample(FlowExecutor fe) {
-    	return Math.round(modelAWG.getDuration().getValue(fe));
-    }
     
 
 }

@@ -7,6 +7,7 @@ import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.Resource.CancelPeriodOffEvent;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.flow.FlowExecutor;
 import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
@@ -104,7 +105,7 @@ public class ResourceEngine extends EventSourceEngine implements es.ull.iis.simu
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
 	protected long catchResource(WorkThread wt) {
-		simul.getModel().getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, (Resource) modelEv, currentResourceType.getModelRT(), wt, wt.getModelElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
+		simul.getModel().getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, (Resource) modelEv, currentResourceType, wt, wt.getModelElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
 		currentWT = wt;
 		return currentRoles.get(currentResourceType);
 	}
@@ -117,7 +118,7 @@ public class ResourceEngine extends EventSourceEngine implements es.ull.iis.simu
      * time of the resource had already expired.
      */
     public boolean releaseResource() {
-    	simul.getModel().getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, (Resource) modelEv, currentResourceType.getModelRT(), currentWT, currentWT.getModelElement(), (ResourceHandlerFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
+    	simul.getModel().getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, (Resource) modelEv, currentResourceType, currentWT, currentWT.getModelElement(), (ResourceHandlerFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
         currentWT = null;
         currentResourceType = null;        
         if (timeOut) {
@@ -125,16 +126,6 @@ public class ResourceEngine extends EventSourceEngine implements es.ull.iis.simu
         	return false;
         }
         return true;
-    }
-    
-    /**
-     * Generates an event which finalizes a period of unavailability.
-     * @param ts Actual simulation time.
-     * @param duration Duration of the unavailability period.
-     */
-    public void generateCancelPeriodOffEvent(long ts, long duration) {
-    	CancelPeriodOffEvent aEvent = new CancelPeriodOffEvent(ts + duration, null, 0);
-        addEvent(aEvent);
     }
     
     /**

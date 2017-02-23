@@ -12,7 +12,7 @@ import es.ull.iis.simulation.condition.TrueCondition;
  * activity.
  * @author Iván Castilla Rodríguez
  */
-public class ActivityWorkGroup extends es.ull.iis.simulation.parallel.WorkGroup implements es.ull.iis.simulation.core.ActivityWorkGroup, Comparable<ActivityWorkGroup> {
+public class ActivityWorkGroup extends es.ull.iis.simulation.parallel.WorkGroup implements es.ull.iis.simulation.model.ActivityWorkGroupEngine, Comparable<ActivityWorkGroup> {
     /**
 	 * 
 	 */

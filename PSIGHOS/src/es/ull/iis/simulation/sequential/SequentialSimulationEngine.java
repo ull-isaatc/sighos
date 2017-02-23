@@ -7,11 +7,14 @@ import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 
 import es.ull.iis.simulation.info.TimeChangeInfo;
+import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.ElementType;
+import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.SimulationEngine;
 
 /**
  * Main simulation class. A simulation needs a model (introduced by means of the
@@ -507,23 +510,28 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	 * the simulation. 
 	 * @author Iván Castilla Rodríguez
 	 */
-    class SimulationElement extends EventSourceEngine {
+    class SimulationElement extends EventSource {
 
     	/**
     	 * Creates a very simple element to control the simulation end.
     	 */
 		public SimulationElement() {
-			super(0, SequentialSimulationEngine.this, "SE");
+			super(SequentialSimulationEngine.this.model, 0, "SE");
 		}
 
 		@Override
 		public DiscreteEvent onCreate(long ts) {
-			return new EventSourceEngine.DefaultStartEvent(ts);
+			return new EventSource.DefaultStartEvent(ts);
 		}
 
 		@Override
 		public DiscreteEvent onDestroy() {
-			return new EventSourceEngine.DefaultFinalizeEvent();
+			return new EventSource.DefaultFinalizeEvent();
+		}
+
+		@Override
+		protected void assignSimulation(SimulationEngine simul) {
+			// TODO
 		}
     }
 
@@ -549,6 +557,11 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	@Override
 	public es.ull.iis.simulation.model.ResourceEngine getResourceEngineInstance(Resource modelRes) {
 		return new ResourceEngine(this, modelRes);
+	}
+
+	@Override
+	public es.ull.iis.simulation.model.ActivityWorkGroupEngine getActivityWorkGroupEngineInstance(ActivityWorkGroup modelWG) {
+		return new ActivityWorkGroupEngine(this, modelWG);
 	}
 
 	@Override

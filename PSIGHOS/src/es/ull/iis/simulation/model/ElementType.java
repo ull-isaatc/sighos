@@ -70,4 +70,8 @@ public class ElementType extends ModelObject implements Describable, Prioritizab
 	public TreeMap<String,  Object> getElementValues() {
 		return elementValues;
 	}
+
+	@Override
+	protected void assignSimulation(SimulationEngine simul) {
+	}
 }
