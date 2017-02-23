@@ -11,7 +11,7 @@ import java.util.TreeMap;
  * TODO Comment
  * @author Carlos Martin Galan
  */
-public class ResourceType extends TimeStampedSimulationObject implements es.ull.iis.simulation.core.ResourceType {
+public class ResourceType extends TimeStampedSimulationObject implements es.ull.iis.simulation.model.ResourceTypeEngine {
     /** Activity manager this resource type belongs to. */
     protected ActivityManager manager;
     /** A list of the currently available resources. */
@@ -234,7 +234,7 @@ public class ResourceType extends TimeStampedSimulationObject implements es.ull.
 	}
 
 	@Override
-	public es.ull.iis.simulation.core.Resource[] addGenericResources(int n) {
+	public es.ull.iis.simulation.model.ResourceEngine[] addGenericResources(int n) {
 		final Resource[] res = new Resource[n];
 		for (int i = 0; i < n; i++) {
 			res[i] = new Resource(simul, description + " " + i);

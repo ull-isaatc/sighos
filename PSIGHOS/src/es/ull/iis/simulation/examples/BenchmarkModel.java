@@ -8,9 +8,6 @@ import java.util.Arrays;
 
 import es.ull.iis.simulation.core.ElementCreator;
 import es.ull.iis.simulation.core.ElementType;
-import es.ull.iis.simulation.core.Resource;
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
@@ -22,6 +19,9 @@ import es.ull.iis.simulation.core.flow.ForLoopFlow;
 import es.ull.iis.simulation.core.flow.InterleavedRoutingFlow;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.ResourceEngine;
+import es.ull.iis.simulation.model.ResourceTypeEngine;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.function.TimeFunctionFactory;
@@ -176,8 +176,8 @@ public class BenchmarkModel {
 		return head;
 	}
 	
-	public Simulation getTestModel() {
-		Simulation sim = null;
+	public SimulationEngine getTestModel() {
+		SimulationEngine sim = null;
 		switch(modType) {
 			case NORESOURCES: sim = getTestSimpleNoResources(); break;
 			case RESOURCES: sim = getTestSimpleResources(); break;
@@ -232,10 +232,10 @@ public class BenchmarkModel {
 		return code;
 	}
 	
-	private Simulation getTestParallelSimResources() {
-		ResourceType[] rts = new ResourceType[nAct];
+	private SimulationEngine getTestParallelSimResources() {
+		ResourceTypeEngine[] rts = new ResourceTypeEngine[nAct];
 		WorkGroup[] wgs = new WorkGroup[nAct];
-		Resource[] res = new Resource[nElem * nAct];
+		ResourceEngine[] res = new ResourceEngine[nElem * nAct];
 		ActivityFlow<?,?>[] acts = new ActivityFlow[nAct];
 		
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
@@ -244,7 +244,7 @@ public class BenchmarkModel {
 		
 		for (int i = 0; i < acts.length; i++) {
 			rts[i] = factory.getResourceTypeInstance("RT" + i);
-			wgs[i] = factory.getWorkGroupInstance(new ResourceType[] {rts[i]}, new int[] {1});
+			wgs[i] = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rts[i]}, new int[] {1});
 			if (code != null)
 				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", code, "A_TEST" + i);
 			else
@@ -265,10 +265,10 @@ public class BenchmarkModel {
 
 	}
 
-	private Simulation getTestSimpleResources() {
-		ResourceType[] rts = new ResourceType[nAct];
+	private SimulationEngine getTestSimpleResources() {
+		ResourceTypeEngine[] rts = new ResourceTypeEngine[nAct];
 		WorkGroup[] wgs = new WorkGroup[nAct];
-		Resource[] res = new Resource[nElem];
+		ResourceEngine[] res = new ResourceEngine[nElem];
 		
 		ActivityFlow<?,?>[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
@@ -279,7 +279,7 @@ public class BenchmarkModel {
 		
 		for (int i = 0; i < acts.length; i++) {
 			rts[i] = factory.getResourceTypeInstance("RT" + i);
-			wgs[i] = factory.getWorkGroupInstance(new ResourceType[] {rts[i]}, new int[] {1});
+			wgs[i] = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rts[i]}, new int[] {1});
 			if (code != null)
 				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", code, "A_TEST" + i);
 			else
@@ -297,7 +297,7 @@ public class BenchmarkModel {
 
 	}
 
-	private Simulation getTestSimpleNoResources() {
+	private SimulationEngine getTestSimpleNoResources() {
 		ActivityFlow<?,?>[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
 		
@@ -313,7 +313,7 @@ public class BenchmarkModel {
 			smfs[i] = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", acts[i], TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 		}
 		
-		WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[0], new int[0]);
+		WorkGroup wg = factory.getWorkGroupInstance(new ResourceTypeEngine[0], new int[0]);
 		WorkGroup []wgs = new WorkGroup[nAct];
 		// Assigns the same WG to each activity
 		Arrays.fill(wgs, wg);
@@ -323,12 +323,12 @@ public class BenchmarkModel {
 
 	}
 	
-	private Simulation getTestTotalConflict() {
+	private SimulationEngine getTestTotalConflict() {
 		ActivityFlow<?,?>[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
-		ResourceType[] rts = new ResourceType[nAct];
+		ResourceTypeEngine[] rts = new ResourceTypeEngine[nAct];
 		WorkGroup[] wgs = new WorkGroup[nAct];
-		Resource[] res = new Resource[nElem];
+		ResourceEngine[] res = new ResourceEngine[nElem];
 
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
 		
@@ -343,9 +343,9 @@ public class BenchmarkModel {
 				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "A_TEST" + i);
 			smfs[i] = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", acts[i], TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 			rts[i] = factory.getResourceTypeInstance("RT_TEST" + i);
-			wgs[i] = factory.getWorkGroupInstance(new ResourceType[] {rts[i]}, new int[] {1});
+			wgs[i] = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rts[i]}, new int[] {1});
 		}
-		ArrayList<ResourceType> list = new ArrayList<ResourceType>(Arrays.asList(rts));
+		ArrayList<ResourceTypeEngine> list = new ArrayList<ResourceTypeEngine>(Arrays.asList(rts));
 		for (int j = 0; j < nElem; j++)
 			res[j].addTimeTableEntry(allCycle, endTs, list);
 //		for (int j = 0; j < nElem; j++)
@@ -355,12 +355,12 @@ public class BenchmarkModel {
 		return factory.getSimulation();
 	}
 	
-	private Simulation getTestMixConflict() {
+	private SimulationEngine getTestMixConflict() {
 		ActivityFlow<?,?>[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
-		ResourceType[] rts = new ResourceType[nAct];
+		ResourceTypeEngine[] rts = new ResourceTypeEngine[nAct];
 		WorkGroup[] wgs = new WorkGroup[nAct];
-		Resource[] res = new Resource[nElem];
+		ResourceEngine[] res = new ResourceEngine[nElem];
 
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, id, "TEST", unit, TimeStamp.getZero(), endTs);
 		
@@ -375,9 +375,9 @@ public class BenchmarkModel {
 				acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "A_TEST" + i);
 			smfs[i] = (ForLoopFlow)factory.getFlowInstance("ForLoopFlow", acts[i], TimeFunctionFactory.getInstance("ConstantVariate", nIter));
 			rts[i] = factory.getResourceTypeInstance("RT_TEST" + i);
-			wgs[i] = factory.getWorkGroupInstance(new ResourceType[] {rts[i]}, new int[] {1});
+			wgs[i] = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rts[i]}, new int[] {1});
 		}
-		ArrayList<ResourceType> list = new ArrayList<ResourceType>(Arrays.asList(rts));
+		ArrayList<ResourceTypeEngine> list = new ArrayList<ResourceTypeEngine>(Arrays.asList(rts));
 		for (int j = 0; j < nElem / 2; j++)
 			res[j].addTimeTableEntry(allCycle, endTs, list);
 		
@@ -407,11 +407,11 @@ public class BenchmarkModel {
 		this.resAvailabilityFactor = resAvailabilityFactor;
 	}
 
-	private Simulation getTestConflict() {
+	private SimulationEngine getTestConflict() {
 		
-		ResourceType[] rts = new ResourceType[nAct * rtXact];
+		ResourceTypeEngine[] rts = new ResourceTypeEngine[nAct * rtXact];
 		WorkGroup[] wgs = new WorkGroup[nAct];
-		Resource[] res = new Resource[(int) (nElem * rtXact * resAvailabilityFactor)];
+		ResourceEngine[] res = new ResourceEngine[(int) (nElem * rtXact * resAvailabilityFactor)];
 		
 		ActivityFlow<?,?>[] acts = new ActivityFlow[nAct];
 		ForLoopFlow[] smfs = new ForLoopFlow[nAct];
@@ -424,7 +424,7 @@ public class BenchmarkModel {
 			rts[i] = factory.getResourceTypeInstance("RT" + i);
 		
 		for (int i = 0; i < acts.length; i++) {
-			ResourceType[] rtGroup = new ResourceType[rtXact];
+			ResourceTypeEngine[] rtGroup = new ResourceTypeEngine[rtXact];
 			int[] needGroup = new int[rtXact];
 			for (int j = 0; j < rtXact; j++) {
 				rtGroup[j] = rts[i * rtXact + j];
@@ -440,7 +440,7 @@ public class BenchmarkModel {
 
 		for (int i = 0; i < res.length; i++) {
 			res[i] = factory.getResourceInstance("RES_TEST" + i);
-			ArrayList<ResourceType> roles = new ArrayList<ResourceType>();
+			ArrayList<ResourceTypeEngine> roles = new ArrayList<ResourceTypeEngine>();
 			for (int j = 0; j < rtXres; j++)
 				roles.add(rts[(i + (int) (j * (rts.length / rtXres) * resAvailabilityFactor)) % rts.length]);
 			res[i].addTimeTableEntry(allCycle, endTs, roles);

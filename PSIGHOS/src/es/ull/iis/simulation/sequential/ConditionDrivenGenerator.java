@@ -19,7 +19,7 @@ public abstract class ConditionDrivenGenerator extends ElementGenerator {
 	 * @param simul Simulation which uses this generator
 	 * @param creator The way the elements are created every time the condition is triggered
 	 */
-	public ConditionDrivenGenerator(Simulation simul, es.ull.iis.simulation.model.ElementGenerator creator) {
+	public ConditionDrivenGenerator(SequentialSimulationEngine simul, es.ull.iis.simulation.model.ElementGenerator creator) {
 		super(simul, creator);
 	}
 

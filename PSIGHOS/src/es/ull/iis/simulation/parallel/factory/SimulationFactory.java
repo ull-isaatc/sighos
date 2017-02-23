@@ -9,8 +9,6 @@ import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.ElementCreator;
 import es.ull.iis.simulation.core.ElementType;
-import es.ull.iis.simulation.core.Resource;
-import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.TimeDrivenGenerator;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.ConditionFactory;
@@ -21,6 +19,8 @@ import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.model.ModelCycle;
+import es.ull.iis.simulation.model.ResourceEngine;
+import es.ull.iis.simulation.model.ResourceTypeEngine;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.parallel.Simulation;
@@ -60,7 +60,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	}
 
 	@Override
-	public es.ull.iis.simulation.core.Simulation getSimulation() {
+	public es.ull.iis.simulation.model.SimulationEngine getSimulation() {
 		return simul;
 	}
 
@@ -109,23 +109,23 @@ public class SimulationFactory implements SimulationObjectFactory {
 	}
 
 	@Override
-	public Resource getResourceInstance(String description) throws ClassCastException {
+	public ResourceEngine getResourceInstance(String description) throws ClassCastException {
 		return new es.ull.iis.simulation.parallel.Resource(simul, description);
 	}
 
 	@Override
-	public ResourceType getResourceTypeInstance(String description) throws ClassCastException {
+	public ResourceTypeEngine getResourceTypeInstance(String description) throws ClassCastException {
 		return new es.ull.iis.simulation.parallel.ResourceType(simul, description);
 	}
 
 	@Override
-	public ResourceType getResourceTypeInstance(String description, SimulationUserCode userMethods) throws ClassCastException {
+	public ResourceTypeEngine getResourceTypeInstance(String description, SimulationUserCode userMethods) throws ClassCastException {
 		// Prepare the constructor call
 		String constructorStr = "(Simulation simul, String description) {super(simul, description);}";
 		// Prepare the new params.
 		Object obj = StandardCompilator.getInstance(workingPkg, "ResourceType", rtId++, constructorStr, userMethods, simul, description);
 		if (obj != null)
-			return (ResourceType)obj;
+			return (ResourceTypeEngine)obj;
 		return null;
 	}
 
@@ -151,7 +151,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	}
 
 	@Override
-	public WorkGroup getWorkGroupInstance(ResourceType[] rts, int[] needed) throws ClassCastException {
+	public WorkGroup getWorkGroupInstance(ResourceTypeEngine[] rts, int[] needed) throws ClassCastException {
 		es.ull.iis.simulation.parallel.ResourceType[] temp = new es.ull.iis.simulation.parallel.ResourceType[rts.length];
 		for (int i = 0; i < rts.length; i++)
 			temp[i] = (es.ull.iis.simulation.parallel.ResourceType)rts[i];

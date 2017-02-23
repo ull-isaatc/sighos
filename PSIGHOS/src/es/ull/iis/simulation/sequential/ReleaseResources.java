@@ -14,7 +14,7 @@ import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
  */
 public class ReleaseResources extends VariableStoreSimulationObject implements ResourceHandler {
     /** Resources cancellation table */
-    protected final TreeMap<ResourceType, Long> cancellationList = new TreeMap<ResourceType, Long>();
+    protected final TreeMap<ResourceTypeEngine, Long> cancellationList = new TreeMap<ResourceTypeEngine, Long>();
 
     private final ReleaseResourcesFlow modelRel;
     
@@ -22,7 +22,7 @@ public class ReleaseResources extends VariableStoreSimulationObject implements R
 	 * @param simul
 	 * @param description
 	 */
-	public ReleaseResources(Simulation simul, ReleaseResourcesFlow modelRel) {
+	public ReleaseResources(SequentialSimulationEngine simul, ReleaseResourcesFlow modelRel) {
 		super(simul.getNextActivityId(), simul, "REL");		
 		this.modelRel = modelRel;
         final TreeMap<es.ull.iis.simulation.model.ResourceType, Long> originalList = modelRel.getCancellationList();
@@ -43,7 +43,7 @@ public class ReleaseResources extends VariableStoreSimulationObject implements R
 	/**
 	 * @return the cancellationList
 	 */
-	public long getResourceCancellation(ResourceType rt) {
+	public long getResourceCancellation(ResourceTypeEngine rt) {
 		Long duration = cancellationList.get(rt); 
 		if (duration == null)
 			return 0;

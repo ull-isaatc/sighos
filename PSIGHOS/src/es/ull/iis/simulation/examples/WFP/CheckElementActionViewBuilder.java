@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.model.SimulationEngine;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -25,7 +25,7 @@ public class CheckElementActionViewBuilder extends View {
 	/**
 	 * @param simul
 	 */
-	public CheckElementActionViewBuilder(Simulation simul) {
+	public CheckElementActionViewBuilder(SimulationEngine simul) {
 		super(simul, "Builds the code to check a WFP");
 		reqEvents = new TreeMap<Long, TreeMap<Integer,ArrayList<Integer>>>();
 		staEvents = new TreeMap<Long, TreeMap<Integer,ArrayList<Integer>>>();

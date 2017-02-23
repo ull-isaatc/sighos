@@ -21,7 +21,7 @@ public class TimeDrivenGenerator extends ElementGenerator {
      * @param creator The way the elements are created every "tic" of the cycle 
      * @param cycle Control of the time between generations 
      */
-	public TimeDrivenGenerator(Simulation simul, es.ull.iis.simulation.model.TimeDrivenGenerator generator) {
+	public TimeDrivenGenerator(SequentialSimulationEngine simul, es.ull.iis.simulation.model.TimeDrivenGenerator generator) {
 		super(simul, generator);
 		final Cycle cycle = generator.getCycle().getCycle();
 		cycleIter = cycle.iterator(simul.getInternalStartTs(), simul.getInternalEndTs());

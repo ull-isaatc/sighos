@@ -8,11 +8,10 @@ import java.util.concurrent.CountDownLatch;
 
 import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.model.DiscreteEvent;
+import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Model;
-import es.ull.iis.simulation.model.TimeStamp;
-import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
-import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.util.Output;
+import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.ResourceType;
 
 /**
  * Main simulation class. A simulation needs a model (introduced by means of the
@@ -26,15 +25,15 @@ import es.ull.iis.util.Output;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class Simulation extends es.ull.iis.simulation.core.Simulation {
+public class SequentialSimulationEngine extends es.ull.iis.simulation.model.SimulationEngine {
 
 	/** The identifier to be assigned to the next resource */ 
 	protected int nextResourceId = 0;
 	/** List of resources present in the simulation. */
-	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
+	protected final TreeMap<Integer, ResourceEngine> resourceList = new TreeMap<Integer, ResourceEngine>();
 
 	/** List of element generators of the simulation. */
-	protected final ArrayList<EventSource> eventSourceList = new ArrayList<EventSource>();
+	protected final ArrayList<EventSourceEngine> eventSourceList = new ArrayList<EventSourceEngine>();
 
 	/** The identifier to be assigned to the next activity */ 
 	protected int nextActivityId = 1;
@@ -50,16 +49,14 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	/** The identifier to be assigned to the next resource type */ 
 	protected int nextResourceTypeId = 0;
 	/** List of resource types present in the simulation. */
-	protected final TreeMap<Integer, ResourceType> resourceTypeList = new TreeMap<Integer, ResourceType>();
+	protected final TreeMap<Integer, ResourceTypeEngine> resourceTypeList = new TreeMap<Integer, ResourceTypeEngine>();
 	/** List of resource types present in the simulation. */
-	protected final TreeMap<es.ull.iis.simulation.model.ResourceType, ResourceType> resourceTypeMap = new TreeMap<es.ull.iis.simulation.model.ResourceType, ResourceType>();
+	protected final TreeMap<es.ull.iis.simulation.model.ResourceType, ResourceTypeEngine> resourceTypeMap = new TreeMap<es.ull.iis.simulation.model.ResourceType, ResourceTypeEngine>();
 
 	/** The identifier to be assigned to the next element type */ 
 	protected int nextElementTypeId = 0;
 	/** List of resource types present in the simulation. */
 	protected final TreeMap<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
-	/** List of resource types present in the simulation. */
-	protected final TreeMap<es.ull.iis.simulation.model.ElementType, ElementType> elementTypeMap = new TreeMap<es.ull.iis.simulation.model.ElementType, ElementType>();
 
 	/** List of activity managers that partition the simulation. */
 	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
@@ -82,48 +79,16 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	
 	/**
 	 * Creates a new instance of Simulation
-	 * 
-	 * @param id This simulation's identifier
-	 * @param description A short text describing this simulation.
-	 */
-	public Simulation(int id, String description, Model model) {
-		super(id, description, model);
-		createSimulationObjects();
-	}
-
-
-	/**
-	 * Creates a new instance of Simulation
 	 *
 	 * @param id
 	 *            This simulation's identifier
-	 * @param description
-	 *            A short text describing this simulation.
-	 * @param startTs
-	 *            Timestamp of simulation's start
-	 * @param endTs
-	 *            Timestamp of simulation's end
-	 */
-	public Simulation(int id, String description, Model model, TimeStamp startTs, TimeStamp endTs) {
-		super(id, description, model, startTs, endTs);
-		createSimulationObjects();
-	}
-	
-	/**
-	 * Creates a new instance of Simulation
-	 *
-	 * @param id
-	 *            This simulation's identifier
-	 * @param description
-	 *            A short text describing this simulation.
 	 * @param startTs
 	 *            Simulation's start timestamp expresed in Simulation Time Units
 	 * @param endTs
 	 *            Simulation's end timestamp expresed in Simulation Time Units
 	 */
-	public Simulation(int id, String description, Model model, long startTs, long endTs) {
-		super(id, description, model, startTs, endTs);
-		createSimulationObjects();
+	public SequentialSimulationEngine(int id, Model model, long startTs, long endTs) {
+		super(id, model, startTs, endTs);
 	}
 
 //	public EventSource getEventSourceFromModel(es.ull.iis.simulation.model.EventSource evSource) {
@@ -137,95 +102,6 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 //		return null;
 //	}
 	
-	/**
-	 * An extensible method to indicate the simulation how to create specific types of element generators
-	 * @param gen The model definition of the generator
-	 * @return A simulation-able element generator
-	 */
-	public ElementGenerator createSpecificElementGenerator(es.ull.iis.simulation.model.ElementGenerator gen) {
-		return null;
-	}
-	
-	private void createSimulationObjects() {
-		for (es.ull.iis.simulation.model.ElementType et : model.getElementTypeList()) {
-			new ElementType(this, et);
-		}
-		for (es.ull.iis.simulation.model.ResourceType rt : model.getResourceTypeList()) {
-			new ResourceType(this, rt);
-		}
-		for (es.ull.iis.simulation.model.Resource res : model.getResourceList()) {
-			new Resource(this, res);
-		}
-		for (es.ull.iis.simulation.model.ElementGenerator gen : model.getElementGeneratorList()) {
-			if (gen instanceof es.ull.iis.simulation.model.TimeDrivenGenerator) {
-				new TimeDrivenGenerator(this, (es.ull.iis.simulation.model.TimeDrivenGenerator)gen);
-			}
-			else {
-				createSpecificElementGenerator(gen);
-			}
-		}
-//		for (es.ull.iis.simulation.model.EventSource evSource : model.getEventSourceList()) {
-//			getEventSourceFromModel(evSource);
-//		}
-		for (es.ull.iis.simulation.model.flow.Flow flow : model.getFlowList()) {
-			if (flow instanceof RequestResourcesFlow) {
-				new RequestResources(this, (RequestResourcesFlow)flow);				
-			}
-			else if (flow instanceof ReleaseResourcesFlow) {
-				new ReleaseResources(this, (ReleaseResourcesFlow)flow);
-			}
-		}
-		
-	}
-	/**
-	 * Starts the simulation execution. It creates and starts all the necessary 
-	 * structures. This method blocks until all the logical processes have finished 
-	 * their execution.<p>
-	 * If a state is indicated, sets the state of this simulation.<p>
-	 * Checks if a valid output for debug messages has been declared. Note that no 
-	 * debug messages can be printed before this method is declared unless <code>setOutput</code>
-	 * had been invoked. 
-	 */
-	@Override
-	public void run() {
-		if (out == null)
-			out = new Output();
-		
-		debug("SIMULATION MODEL CREATED");
-		// Sets default AM creator
-		if (amCreator == null)
-			amCreator = new StandardActivityManagerCreator(this);
-		amCreator.createActivityManagers();
-		debugPrintActManager();
-		
-		init();
-
-		infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationStartInfo(this, System.nanoTime(), this.internalStartTs));
-		
-		// Starts all the generators
-		for (EventSource evSource : eventSourceList)
-			addWait(evSource.onCreate(internalStartTs));
-		// Starts all the resources
-		for (Resource res : resourceList.values())
-			addWait(res.onCreate(internalStartTs));
-
-		// Adds the event to control end of simulation
-		addWait(new SimulationElement().onCreate(internalEndTs));
-		
-		while (!isSimulationEnd())
-            execWaitingElements();
-		// Frees the execution queue
-    	debug("SIMULATION TIME FINISHES\r\nSimulation time = " +
-            	lvt + "\r\nPreviewed simulation time = " + internalEndTs);
-    	printState();
-    	
-        // The user defined method for finalization is invoked
-		end();
-		
-		infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationEndInfo(this, System.nanoTime(), this.internalEndTs));
-		debug("SIMULATION COMPLETELY FINISHED");
-	}
-
     /**
      * Indicates if the simulation clock has reached the simulation end.
      * @return True if the simulation clock is higher or equal to the simulation end. False in other case.
@@ -251,10 +127,10 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
         if (! waitQueue.isEmpty()) {
             DiscreteEvent e = removeWait();
             // Advances the simulation clock
-            beforeClockTick();
+            model.beforeClockTick();
             lvt = e.getTs();
-            infoHandler.notifyInfo(new TimeChangeInfo(this, lvt));
-            afterClockTick();
+            model.getInfoHandler().notifyInfo(new TimeChangeInfo(this, lvt));
+            model.afterClockTick();
             debug("SIMULATION TIME ADVANCING " + lvt);
             // Events with timestamp greater or equal to the maximum simulation time aren't
             // executed
@@ -388,12 +264,11 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 *  if there was no previous mapping for key.
 	 */
 	protected ElementType add(ElementType et) {
-		elementTypeMap.put(et.getModelET(), et);
 		return elementTypeList.put(et.getIdentifier(), et);
 	}
 	
 	/**
-	 * Adds an {@link es.ull.iis.simulation.sequential.ResourceType} to the model. These method
+	 * Adds an {@link es.ull.iis.simulation.sequential.ResourceTypeEngine} to the model. These method
 	 * is invoked from the object's constructor.
 	 * 
 	 * @param rt
@@ -401,7 +276,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @return previous value associated with the key of specified object, or <code>null</code>
 	 *  if there was no previous mapping for key.
 	 */
-	protected ResourceType add(ResourceType rt) {
+	protected ResourceTypeEngine add(ResourceTypeEngine rt) {
 		resourceTypeMap.put(rt.getModelRT(), rt);
 		return resourceTypeList.put(rt.getIdentifier(), rt);
 	}
@@ -424,7 +299,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @param gen
 	 *            Generator.
 	 */
-	protected void add(EventSource gen) {
+	protected void add(EventSourceEngine gen) {
 		eventSourceList.add(gen);
 	}
 
@@ -435,7 +310,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @param res
 	 *            Resource.
 	 */
-	protected void add(Resource res) {
+	protected void add(ResourceEngine res) {
 		resourceList.put(res.getIdentifier(), res);
 	}
 	
@@ -444,7 +319,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * 
 	 * @return Resources of the model.
 	 */
-	public Map<Integer, Resource> getResourceList() {
+	public Map<Integer, ResourceEngine> getResourceList() {
 		return resourceList;
 	}
 
@@ -462,7 +337,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * 
 	 * @return Resource types of the model.
 	 */
-	public Map<Integer, ResourceType> getResourceTypeList() {
+	public Map<Integer, ResourceTypeEngine> getResourceTypeList() {
 		return resourceTypeList;
 	}
 	
@@ -525,7 +400,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @param id Resource identifier.
 	 * @return A resource with the indicated identifier.
 	 */
-	public Resource getResource(int id) {
+	public ResourceEngine getResource(int id) {
 		return resourceList.get(id);
 	}
 
@@ -534,7 +409,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @param id Resource type identifier.
 	 * @return A resource type with the indicated identifier.
 	 */
-	public ResourceType getResourceType(int id) {
+	public ResourceTypeEngine getResourceType(int id) {
 		return resourceTypeList.get(id);
 	}
 
@@ -543,7 +418,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * @param modelRT Resource type.
 	 * @return A resource type with the indicated identifier.
 	 */
-	public ResourceType getResourceType(es.ull.iis.simulation.model.ResourceType modelRT) {
+	public ResourceTypeEngine getResourceType(es.ull.iis.simulation.model.ResourceType modelRT) {
 		return resourceTypeMap.get(modelRT);
 	}
 
@@ -554,15 +429,6 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 */
 	public ElementType getElementType(int id) {
 		return elementTypeList.get(id);
-	}
-
-	/**
-	 * Returns the "simulation" element type  corresponding to a "model" element type.
-	 * @param modelET Element type.
-	 * @return An element type with the indicated identifier.
-	 */
-	public ElementType getElementType(es.ull.iis.simulation.model.ElementType modelET) {
-		return elementTypeMap.get(modelET);
 	}
 
 	/**
@@ -641,26 +507,77 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 	 * the simulation. 
 	 * @author Iván Castilla Rodríguez
 	 */
-    class SimulationElement extends EventSource {
+    class SimulationElement extends EventSourceEngine {
 
     	/**
     	 * Creates a very simple element to control the simulation end.
     	 */
 		public SimulationElement() {
-			super(0, Simulation.this, "SE");
+			super(0, SequentialSimulationEngine.this, "SE");
 		}
 
 		@Override
 		public DiscreteEvent onCreate(long ts) {
-			return new EventSource.DefaultStartEvent(ts);
+			return new EventSourceEngine.DefaultStartEvent(ts);
 		}
 
 		@Override
 		public DiscreteEvent onDestroy() {
-			return new EventSource.DefaultFinalizeEvent();
+			return new EventSourceEngine.DefaultFinalizeEvent();
 		}
     }
+
+	@Override
+	public void initializeEngine() {
+		// Sets default AM creator
+		if (amCreator == null)
+			amCreator = new StandardActivityManagerCreator(this);
+		amCreator.createActivityManagers();
+		debugPrintActManager();		
+	}
+
+	@Override
+	public es.ull.iis.simulation.model.ResourceTypeEngine getResourceTypeEngineInstance(ResourceType modelRT) {
+		return new ResourceTypeEngine(this, modelRT);
+	}
+
+	@Override
+	public es.ull.iis.simulation.model.ResourceList getResourceListInstance(ResourceType modelRT) {
+		return new ResourceList();
+	}
+
+	@Override
+	public es.ull.iis.simulation.model.ResourceEngine getResourceEngineInstance(Resource modelRes) {
+		return new ResourceEngine(this, modelRes);
+	}
+
+	@Override
+	protected void launchInitialEvents() {
+		// Starts all the generators
+		for (EventSourceEngine evSource : eventSourceList)
+			addWait(evSource.onCreate(internalStartTs));
+		// Starts all the resources
+		for (ResourceEngine res : resourceList.values())
+			addWait(res.onCreate(internalStartTs));
+
+		// Adds the event to control end of simulation
+		addWait(new SimulationElement().onCreate(internalEndTs));		
+	}
+
+	@Override
+	protected void simulationLoop() {
+		while (!isSimulationEnd())
+            execWaitingElements();		
+	}
+
+	@Override
+	public void addEvent(DiscreteEvent ev) {
+		if (ev.getTs() < lvt) {
+			error("Causal restriction broken\t" + lvt + "\t" + ev);
+		}
+        else {
+            addWait(ev);
+        }		
+	}
     
-    
-	
 }

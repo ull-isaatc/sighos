@@ -20,7 +20,7 @@ import es.ull.iis.util.DiscreteCycleIterator;
  * TODO Comment
  * @author Carlos Martín Galán
  */
-public class Resource extends BasicElement implements es.ull.iis.simulation.core.Resource {
+public class Resource extends BasicElement implements es.ull.iis.simulation.model.ResourceEngine {
 	/** Timetable which defines the availability structure of the resource */
     protected final ArrayList<TimeTableEntry> timeTable = new ArrayList<TimeTableEntry>();
     /** Availability time table. Define CancelPeriodOn and CancelPeriodOff events */
@@ -59,6 +59,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
 	 * Launches the events corresponding to the timetable entries. If no valid entry is found, this resource 
 	 * finishes its execution. 
 	 */
+	// FIXME: MODEL Can be replaced by the createResourceEvent 
 	@Override
     protected void init() {
 		simul.getInfoHandler().notifyInfo(new ResourceInfo(this.simul, this, this.getCurrentResourceType(), ResourceInfo.Type.START, ts));
@@ -98,55 +99,55 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
 	}
 
 	@Override
-	public void addTimeTableEntry(es.ull.iis.simulation.core.ResourceType role) {
+	public void addTimeTableEntry(es.ull.iis.simulation.model.ResourceTypeEngine role) {
 		timeTable.add(new TimeTableEntry(role));
 	}
 
 	@Override
-	public void addTimeTableEntry(ArrayList<es.ull.iis.simulation.core.ResourceType> roleList) {
+	public void addTimeTableEntry(ArrayList<es.ull.iis.simulation.model.ResourceTypeEngine> roleList) {
     	for (int i = 0; i < roleList.size(); i++)
             addTimeTableEntry(roleList.get(i));
 	}
 	
 	@Override
-    public void addTimeTableEntry(ModelCycle cycle, TimeStamp dur, es.ull.iis.simulation.core.ResourceType role) {
+    public void addTimeTableEntry(ModelCycle cycle, TimeStamp dur, es.ull.iis.simulation.model.ResourceTypeEngine role) {
         timeTable.add(new TimeTableEntry(cycle, dur, role));
     }  
 
 	@Override
-    public void addTimeTableEntry(ModelCycle cycle, TimeStamp dur, ArrayList<es.ull.iis.simulation.core.ResourceType> roleList) {
+    public void addTimeTableEntry(ModelCycle cycle, TimeStamp dur, ArrayList<es.ull.iis.simulation.model.ResourceTypeEngine> roleList) {
     	for (int i = 0; i < roleList.size(); i++)
             addTimeTableEntry(cycle, dur, roleList.get(i));
     }  
     
 	@Override
-    public void addTimeTableEntry(ModelCycle cycle, long dur, es.ull.iis.simulation.core.ResourceType role) {
+    public void addTimeTableEntry(ModelCycle cycle, long dur, es.ull.iis.simulation.model.ResourceTypeEngine role) {
     	addTimeTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), role);
     }  
 
 	@Override
-    public void addTimeTableEntry(ModelCycle cycle, long dur, ArrayList<es.ull.iis.simulation.core.ResourceType> roleList) {
+    public void addTimeTableEntry(ModelCycle cycle, long dur, ArrayList<es.ull.iis.simulation.model.ResourceTypeEngine> roleList) {
     	addTimeTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), roleList);
     }  
     
 	@Override
-    public void addCancelTableEntry(ModelCycle cycle, TimeStamp dur, es.ull.iis.simulation.core.ResourceType role) {
+    public void addCancelTableEntry(ModelCycle cycle, TimeStamp dur, es.ull.iis.simulation.model.ResourceTypeEngine role) {
         cancelPeriodTable.add(new TimeTableEntry(cycle, dur, role));
     }  
 
 	@Override
-    public void addCancelTableEntry(ModelCycle cycle, TimeStamp dur, ArrayList<es.ull.iis.simulation.core.ResourceType> roleList) {
+    public void addCancelTableEntry(ModelCycle cycle, TimeStamp dur, ArrayList<es.ull.iis.simulation.model.ResourceTypeEngine> roleList) {
     	for (int i = 0; i < roleList.size(); i++)
             addCancelTableEntry(cycle, dur, roleList.get(i));
     }  
     
 	@Override
-    public void addCancelTableEntry(ModelCycle cycle, long dur, es.ull.iis.simulation.core.ResourceType role) {
+    public void addCancelTableEntry(ModelCycle cycle, long dur, es.ull.iis.simulation.model.ResourceTypeEngine role) {
     	addCancelTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), role);
     }  
 
 	@Override
-    public void addCancelTableEntry(ModelCycle cycle, long dur, ArrayList<es.ull.iis.simulation.core.ResourceType> roleList) {
+    public void addCancelTableEntry(ModelCycle cycle, long dur, ArrayList<es.ull.iis.simulation.model.ResourceTypeEngine> roleList) {
     	addCancelTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), roleList);
     }
     
@@ -180,6 +181,8 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
 			counter++;
 		currentAMs.put(am, counter);
 		signalSemaphore();
+		// The activity manger is informed of new available resources        		
+		role.getManager().notifyResource();
 	}
 
 	/**
@@ -208,7 +211,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
 	/**
 	 * Notifies all the activity managers using this resource that it has become available. 
 	 */
-	protected void notifyCurrentManagers() {
+	public void notifyCurrentManagers() {
 		waitSemaphore();
 		for (ActivityManager am : currentAMs.keySet())
 			am.notifyResource();
@@ -468,8 +471,6 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.core
         		debug("Resource available\t" + role);
         		role.incAvailable(Resource.this);
         		addRole(role, ts + duration);
-        		// The activity manger is informed of new available resources        		
-        		role.getManager().notifyResource();
         		role.afterRoleOn();
         		RoleOffEvent rEvent = new RoleOffEvent(ts + duration, role, iter, duration);
         		addEvent(rEvent);

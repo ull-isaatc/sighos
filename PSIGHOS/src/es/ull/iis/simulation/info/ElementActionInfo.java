@@ -1,8 +1,8 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.Element;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.flow.FlowExecutor;
 import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 
@@ -34,7 +34,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 	final private Element elem;
 	final private Type type;
 	
-	public ElementActionInfo(Simulation simul, FlowExecutor fExecutor, Element elem, ResourceHandlerFlow act, ActivityWorkGroup wg, Type type, long ts) {
+	public ElementActionInfo(SimulationEngine simul, FlowExecutor fExecutor, Element elem, ResourceHandlerFlow act, ActivityWorkGroup wg, Type type, long ts) {
 		super(simul, ts);
 		this.fExecutor = fExecutor;
 		this.act = act;

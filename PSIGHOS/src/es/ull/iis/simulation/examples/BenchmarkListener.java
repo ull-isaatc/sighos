@@ -5,7 +5,6 @@ package es.ull.iis.simulation.examples;
 
 import java.io.PrintStream;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
@@ -13,6 +12,7 @@ import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
 import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.model.SimulationEngine;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -34,7 +34,7 @@ public class BenchmarkListener extends View {
 	long cpuTime;
 	PrintStream out;
 
-	public BenchmarkListener(Simulation simul, PrintStream out) {
+	public BenchmarkListener(SimulationEngine simul, PrintStream out) {
 		super(simul, "Bench");
 		this.out = out;
 		addEntrance(SimulationStartInfo.class);

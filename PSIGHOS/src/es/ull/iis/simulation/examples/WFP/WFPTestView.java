@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.model.SimulationEngine;
 
 /**
  * A series of classes to automatically check the correct behavior of the different WF patterns.
@@ -13,11 +13,11 @@ import es.ull.iis.simulation.inforeceiver.View;
 public abstract class WFPTestView extends View {
 	boolean detailed = true;
 	
-	public WFPTestView(Simulation simul, String description) {
+	public WFPTestView(SimulationEngine simul, String description) {
 		this(simul, description, true);
 	}
 
-	public WFPTestView(Simulation simul, String description, boolean detailed) {
+	public WFPTestView(SimulationEngine simul, String description, boolean detailed) {
 		super(simul, description);
 		this.detailed = detailed;
 	}

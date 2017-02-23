@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.core.flow;
 
-import es.ull.iis.simulation.core.ResourceType;
+import es.ull.iis.simulation.model.ResourceTypeEngine;
 
 /**
  * @author Iván Castilla
@@ -16,12 +16,12 @@ public interface ReleaseResourcesFlow extends FinalizerFlow, SingleSuccessorFlow
 	 * @param rt Resource type
 	 * @param duration Duration of the cancellation.
 	 */
-	public void addResourceCancellation(ResourceType rt, long duration);
+	public void addResourceCancellation(ResourceTypeEngine rt, long duration);
 
 	/**
 	 * @return the cancellationList
 	 */
-	public long getResourceCancellation(ResourceType rt);
+	public long getResourceCancellation(ResourceTypeEngine rt);
 	
 	/** 
 	 * Elements of the cancellation list.
@@ -29,10 +29,10 @@ public interface ReleaseResourcesFlow extends FinalizerFlow, SingleSuccessorFlow
 	 *
 	 */
 	public class CancelListEntry {		
-		public ResourceType rt;
+		public ResourceTypeEngine rt;
 		public long dur;
 		
-		public CancelListEntry(ResourceType rt, long dur) {
+		public CancelListEntry(ResourceTypeEngine rt, long dur) {
 			this.rt = rt;
 			this.dur = dur;
 		}

@@ -14,8 +14,11 @@ package es.ull.iis.simulation.model;
  * @author Iván Castilla Rodríguez
  */
 public class ResourceType extends ModelObject implements Describable {
+    /** A list of the currently available resources. */
+    protected ResourceList availableResourceList = null;
     /** A brief description of the resource type */
     protected final String description;
+    protected ResourceTypeEngine engine = null;
 
 	/**
 	 * 
@@ -27,10 +30,80 @@ public class ResourceType extends ModelObject implements Describable {
 	}
 
 	@Override
+	protected void assignSimulation(SimulationEngine simul) {
+		availableResourceList = simul.getResourceListInstance(this);
+		engine = simul.getResourceTypeEngineInstance(this);
+	}
+	
+	@Override
 	public String getDescription() {
 		return description;
 	}
 
+    /**
+     * Returns the resource corresponding to the "ind" position.
+     * @param ind Resource position in the availability list. 
+     * @return Resource corresponding to the "ind" position".
+     */
+    protected Resource getResource(int ind) {
+        return availableResourceList.get(ind);
+    }
+      
+    /**
+     * Searches the first available resource (a resource which is not being used yet) with 
+     * this role. The search starts at position <code>ind</code>.   
+     * @param ind Position to start the search.
+     * @return The resource's index or -1 if there are not available resources.
+     */
+    protected int getNextAvailableResource(int ind) {
+    	final int total = availableResourceList.size();
+        for (; ind < total; ind++) {
+            final Resource res = availableResourceList.get(ind);
+            // Checks if the resource is busy (taken by other element or conflict in the same activity)
+            if (res.isAvailable(this) && (res.getCurrentResourceType() == null)) {
+            	return ind;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Adds a resource as available
+     * @param res New available resource.
+     */
+    protected void incAvailable(Resource res) {
+    	debug("Resource added\t" + res);
+        availableResourceList.add(res);
+		// If the resource was being used in a previous "availability period", it was marked as
+        // "timeOut". This mark can be removed.
+        if ((res.getCurrentResourceType() == this) && res.isTimeOut())
+        	res.setTimeOut(false);
+    }
+    
+    /**
+     * Removes a resource from the available list. 
+     * @param res New unavailable resource.
+     */
+    protected void decAvailable(Resource res) {
+    	debug("Resource removed\t" + res);
+        // If the resource is being used for this resource type, it's marked as "timeOut"
+        if (availableResourceList.remove(res) && (res.getCurrentResourceType() == this))
+        	res.setTimeOut(true);
+    }
+
+	/**
+	 * Obtain the available resources for this type.
+	 * @return The available resources.
+	 */
+	public int getAvailableResources() {
+		int counter = 0;
+		
+		for(Resource res: availableResourceList.getResources())
+			if (res.isAvailable(this))
+				counter++;
+		return counter;
+	}
+    
 	// User methods
 	
 	/**
@@ -79,4 +152,14 @@ public class ResourceType extends ModelObject implements Describable {
 		}
 		return res;
 	}
+
+	/**
+	 * Returns the list of available resources.
+	 * @return the list of available resources
+	 */
+	public ResourceList getAvailableResourceList() {
+		return availableResourceList;
+	}
+
+	
 }

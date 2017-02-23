@@ -7,8 +7,6 @@ import java.util.EnumSet;
 
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
@@ -18,6 +16,8 @@ import es.ull.iis.simulation.core.flow.ParallelFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.ResourceTypeEngine;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -40,13 +40,13 @@ public class TestInterruptibleActivities {
 		new Experiment("Testing interruptible activities", 1) {
 
 			@Override
-			public Simulation<?> getSimulation(int ind) {
-				Simulation<?> sim = null;
+			public SimulationEngine<?> getSimulation(int ind) {
+				SimulationEngine<?> sim = null;
 				SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Testing interruptible activities", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.MINUTE, 400));
 				sim = factory.getSimulation();
 				
-		        ResourceType rt = factory.getResourceTypeInstance("RT0");
-		        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
+		        ResourceTypeEngine rt = factory.getResourceTypeInstance("RT0");
+		        WorkGroup wg = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rt}, new int[] {1});
 
 				ActivityFlow<?,?> acts[] = new ActivityFlow[NACT];
 				for (int i = 0; i < NACT; i++) {

@@ -5,12 +5,12 @@ package es.ull.iis.simulation.core.factory;
 
 import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.ElementCreator;
-import es.ull.iis.simulation.core.ResourceType;
 import es.ull.iis.simulation.core.WorkThread;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.FinalizerFlow;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.model.ResourceTypeEngine;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -19,10 +19,10 @@ import es.ull.iis.simulation.core.flow.RequestResourcesFlow;
 public enum UserMethod {
 	BEFORE_CREATE_ELEMENTS("beforeCreateElements", ElementCreator.class, "public int beforeCreateElements(int n)", Integer.class),
 	AFTER_CREATE_ELEMENTS("afterCreateElements", ElementCreator.class, "public void afterCreateElements()"),
-	BEFORE_ROLE_ON("beforeRoleOn", ResourceType.class, "public double beforeRoleOn()"),
-	BEFORE_ROLE_OFF("beforeRoleOff", ResourceType.class, "public double beforeRoleOff()"),
-	AFTER_ROLE_ON("afterRoleOn", ResourceType.class, "public void afterRoleOn()"),
-	AFTER_ROLE_OFF("afterRoleOff", ResourceType.class, "public void afterRoleOff()"),
+	BEFORE_ROLE_ON("beforeRoleOn", ResourceTypeEngine.class, "public double beforeRoleOn()"),
+	BEFORE_ROLE_OFF("beforeRoleOff", ResourceTypeEngine.class, "public double beforeRoleOff()"),
+	AFTER_ROLE_ON("afterRoleOn", ResourceTypeEngine.class, "public void afterRoleOn()"),
+	AFTER_ROLE_OFF("afterRoleOff", ResourceTypeEngine.class, "public void afterRoleOff()"),
 	// TODO: Change to get package automatically
 	BEFORE_REQUEST("beforeRequest", Flow.class, "public boolean beforeRequest(es.ull.iis.simulation.core.Element e)", Element.class),
 	AFTER_FINALIZE("afterFinalize", FinalizerFlow.class, "public void afterFinalize(es.ull.iis.simulation.core.WorkThread wThread)", WorkThread.class),

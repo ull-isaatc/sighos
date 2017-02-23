@@ -3,11 +3,11 @@
  */
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.model.SimulationEngine;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -18,7 +18,7 @@ public class CheckResourcesListener extends View {
 	private int[] resCreated;
 	private int[] resFinished;
 
-	public CheckResourcesListener(Simulation simul, int []resources) {
+	public CheckResourcesListener(SimulationEngine simul, int []resources) {
 		super(simul, "Element checker");
 		this.resources = resources;
 		resCreated = new int[resources.length];

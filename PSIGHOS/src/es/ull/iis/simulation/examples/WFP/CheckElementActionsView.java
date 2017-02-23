@@ -6,11 +6,11 @@ package es.ull.iis.simulation.examples.WFP;
 import java.util.Set;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
+import es.ull.iis.simulation.model.SimulationEngine;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -22,11 +22,11 @@ public abstract class CheckElementActionsView extends WFPTestView {
 	protected TreeMap<Long, ElementReferenceInfos[]> refEndActs;
 	private boolean ok = true;
 
-	public CheckElementActionsView(Simulation simul, String description) {
+	public CheckElementActionsView(SimulationEngine simul, String description) {
 		this(simul, description, true);
 	}
 
-	public CheckElementActionsView(Simulation simul, String description, boolean detailed) {
+	public CheckElementActionsView(SimulationEngine simul, String description, boolean detailed) {
 		super(simul, description, detailed);
 		refRequests = new TreeMap<Long, ElementReferenceInfos[]>();
 		refStartActs = new TreeMap<Long, ElementReferenceInfos[]>();

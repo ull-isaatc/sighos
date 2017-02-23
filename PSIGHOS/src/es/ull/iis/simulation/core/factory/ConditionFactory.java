@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.Element;
-import es.ull.iis.simulation.core.Simulation;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.variable.IntVariable;
 import es.ull.iis.simulation.variable.Variable;
 
@@ -38,7 +38,7 @@ public class ConditionFactory {
 
 		// Include imports
 		finalCode += "import " + Condition.class.getName() + ";";	
-		finalCode += "import " + Simulation.class.getName() + ";";
+		finalCode += "import " + SimulationEngine.class.getName() + ";";
 		finalCode += "import " + Element.class.getName() + ";";
 		finalCode += "import " + IntVariable.class.getName() + ";";
 		finalCode += "import " + Variable.class.getName() + ";";
@@ -76,7 +76,7 @@ public class ConditionFactory {
 				StandardCompilator.getBytecodeCache().remove(workingPkg + "." + src.getClassName());
 			StandardCompilator.compileCode(src);
 			cl = loader.loadClass(workingPkg + "." + src.getClassName());
-			Constructor<?> cons = cl.getConstructor(Simulation.class);
+			Constructor<?> cons = cl.getConstructor(SimulationEngine.class);
 			return cons;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -96,7 +96,7 @@ public class ConditionFactory {
 	 * @param condition Condition code.
 	 * @return A Condition's instance.
 	 */
-	static public Condition getInstance(Simulation<?> sim, int id, String imports, String condition){
+	static public Condition getInstance(SimulationEngine<?> sim, int id, String imports, String condition){
 		String classCode = generateClass(id, imports, condition);
 		StringJFO src = null;
 		try {

@@ -13,7 +13,7 @@ import es.ull.iis.simulation.core.WorkThread;
 public interface RequestResourcesFlow extends InitializerFlow, SingleSuccessorFlow, ResourcesFlow {
 	/**
 	 * Allows a user for adding a customized code when a {@link es.ull.iis.simulation.core.WorkThread} from an {@link es.ull.iis.simulation.core.Element}
-	 * is enqueued, waiting for available {@link es.ull.iis.simulation.core.Resource}. 
+	 * is enqueued, waiting for available {@link es.ull.iis.simulation.model.ResourceEngine}. 
 	 * @param WorkThread {@link es.ull.iis.simulation.core.WorkThread} requesting resources
 	 */
 	public void inqueue(WorkThread wt);

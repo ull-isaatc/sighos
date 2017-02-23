@@ -15,7 +15,7 @@ import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.simulation.sequential.Simulation;
+import es.ull.iis.simulation.sequential.SequentialSimulationEngine;
 
 /**
  * @author Iván Castilla
@@ -100,8 +100,8 @@ public class TestResourcesManagement extends Experiment {
 	}
 
 	@Override
-	public Simulation getSimulation(int ind) {
-		Simulation sim = new Simulation(ind, "Testing resource management " + ind, model, 0, END_TIME);
+	public SequentialSimulationEngine getSimulation(int ind) {
+		SequentialSimulationEngine sim = new SequentialSimulationEngine(ind, "Testing resource management " + ind, model, 0, END_TIME);
 		sim.addInfoReceiver(new StdInfoView(sim));
 		return sim;
 	}

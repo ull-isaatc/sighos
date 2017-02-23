@@ -3,10 +3,10 @@
  */
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
+import es.ull.iis.simulation.model.SimulationEngine;
 
 /**
  * Checks the elements created and finished during the simulation
@@ -24,7 +24,7 @@ public class CheckElementsView extends WFPTestView {
 	 * @param elements An array where each position is an element type, and each value is the amount of 
 	 * elements which should be created per type.
 	 */
-	public CheckElementsView(Simulation simul, int []elements) {
+	public CheckElementsView(SimulationEngine simul, int []elements) {
 		super(simul, "Element checker");
 		this.elements = elements;
 		elemCreated = new int[elements.length];

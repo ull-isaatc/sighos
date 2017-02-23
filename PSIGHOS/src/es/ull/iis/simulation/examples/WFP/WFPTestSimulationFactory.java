@@ -8,7 +8,7 @@ import java.util.EnumSet;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.core.Simulation;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.TimeDrivenGenerator;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
@@ -49,21 +49,21 @@ public abstract class WFPTestSimulationFactory {
 	public final static TimeStamp SIMEND = TimeStamp.getDay();
 	public final static TimeUnit SIMUNIT = TimeUnit.MINUTE; 
 	protected boolean detailed;
-	private Simulation simul;
+	private SimulationEngine simul;
 	protected Model model;
 	
 	public WFPTestSimulationFactory(SimulationType type, int id, String description, boolean detailed) {
 		model = createModel();		
 		this.detailed = detailed;
 		if (SimulationType.SEQUENTIAL.equals(type))
-			simul = new es.ull.iis.simulation.sequential.Simulation(id, description, model, SIMSTART, SIMEND);
+			simul = new es.ull.iis.simulation.sequential.SequentialSimulationEngine(id, description, model, SIMSTART, SIMEND);
 		else
 			simul = new es.ull.iis.simulation.parallel.Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);
 	}
 	
 	protected abstract Model createModel();
 	
-	public Simulation getSimulation() {
+	public SimulationEngine getSimulation() {
 		return simul;
 	}
 	

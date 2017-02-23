@@ -3,12 +3,12 @@ package es.ull.iis.simulation.test;
 import java.util.EnumSet;
 
 import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.variable.EnumType;
@@ -29,9 +29,9 @@ class ExperimentTest1 extends Experiment {
 		super("Banco", NEXP);
 	}
 
-	public Simulation getSimulation(int ind) {
+	public SimulationEngine getSimulation(int ind) {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Ej", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
-		Simulation sim = factory.getSimulation();
+		SimulationEngine sim = factory.getSimulation();
 
 		factory.getFlowInstance("ActivityFlow", "Verificar cuenta", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
         

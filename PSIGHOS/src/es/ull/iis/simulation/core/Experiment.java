@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.core;
 
 import es.ull.iis.simulation.model.Describable;
+import es.ull.iis.simulation.model.SimulationEngine;
 
 /**
  * Controls a set of simulation experiments. 
@@ -36,7 +37,7 @@ public abstract class Experiment implements Describable {
 	 * @param ind Number of the experiment
 	 * @return A new simulation object.
 	 */
-	public abstract Simulation getSimulation(int ind);
+	public abstract SimulationEngine getSimulation(int ind);
 
 	/**
 	 * Implementations of this method must call {@link #getSimulation(int)} to carry out all the 

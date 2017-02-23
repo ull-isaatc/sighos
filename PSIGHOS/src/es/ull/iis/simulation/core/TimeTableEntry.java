@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.core;
 
 import es.ull.iis.simulation.model.ModelCycle;
+import es.ull.iis.simulation.model.ResourceTypeEngine;
 import es.ull.iis.simulation.model.TimeStamp;
 
 /**
@@ -16,14 +17,14 @@ public class TimeTableEntry {
     /** The long this resource plays this role every cycle */
 	private final TimeStamp duration;
     /** Role that the resource plays during this cycle */
-	private final ResourceType role;
+	private final ResourceTypeEngine role;
     
     /** Creates a new instance of TimeTableEntry
      * @param cycle Cycle that characterizes this entry
      * @param dur How long this resource plays this role every cycle
      * @param role Role that the resource plays during this cycle
      */
-	public TimeTableEntry(ModelCycle cycle, TimeStamp dur, ResourceType role) {
+	public TimeTableEntry(ModelCycle cycle, TimeStamp dur, ResourceTypeEngine role) {
 		this.cycle = cycle;
 		this.duration = dur;
 		this.role = role;
@@ -32,7 +33,7 @@ public class TimeTableEntry {
     /** Creates a new instance of TimeTableEntry that represents a permanent resource
      * @param role Role that the resource plays during this cycle
      */
-	public TimeTableEntry(ResourceType role) {
+	public TimeTableEntry(ResourceTypeEngine role) {
 		this.cycle = null;
 		this.duration = null;
 		this.role = role;
@@ -62,7 +63,7 @@ public class TimeTableEntry {
      * Returns the role that the resource plays during this cycle.
      * @return the role that the resource plays during this cycle
      */
-    public ResourceType getRole() {
+    public ResourceTypeEngine getRole() {
         return role;
     }
     

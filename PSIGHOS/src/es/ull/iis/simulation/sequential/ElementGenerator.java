@@ -9,7 +9,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
  * the elements whereas the creator specifies HOW to create them.
  * @author Ivan Castilla Rodrguez
  */
-public abstract class ElementGenerator extends EventSource implements TimeFunctionParams {
+public abstract class ElementGenerator extends EventSourceEngine implements TimeFunctionParams {
     /** Generator's counter */
     private static int counter = 0;
     /** Specifies the way the elements are created. */
@@ -20,7 +20,7 @@ public abstract class ElementGenerator extends EventSource implements TimeFuncti
      * @param simul Simulation object.
      * @param modelGen The way the elements are created.
      */
-    public ElementGenerator(Simulation simul, es.ull.iis.simulation.model.ElementGenerator modelGen) {
+    public ElementGenerator(SequentialSimulationEngine simul, es.ull.iis.simulation.model.ElementGenerator modelGen) {
         super(counter++, simul, "GEN");
         simul.add(this);
         this.modelGen = modelGen;

@@ -13,7 +13,7 @@ import es.ull.iis.function.TimeFunctionFactory;
  * Defines the way a generator creates elements when it's time to create them.
  * @author Iván Castilla Rodríguez
  */
-public class ElementGenerator extends ModelObject implements EventSource {
+public class ElementGenerator extends EventSource {
 	/** Number of objects created each time this creator is invoked. */
 	protected final TimeFunction nElem;
 	/** Each flow that will be generated */

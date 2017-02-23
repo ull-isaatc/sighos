@@ -1,11 +1,11 @@
-package es.ull.iis.simulation.sequential;
+package es.ull.iis.simulation.model;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.model.Describable;
+import es.ull.iis.simulation.model.flow.FlowExecutor;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.PrioritizedMap;
 
@@ -17,11 +17,11 @@ import es.ull.iis.util.PrioritizedMap;
  * finishes, the <code>signalSemaphore()</code> method must be invoked.  
  * @author Iván Castilla Rodríguez
  */
-public class ActivityManager extends TimeStampedSimulationObject implements Describable {
+public abstract class ActivityManager implements Describable {
     /** Static counter for assigning each new id */
 	private static int nextid = 0;
 	/** A prioritized table of activities */
-	protected final ArrayList<RequestResources> activityList;
+	protected final ArrayList<RequestResourcesFlow> activityList;
     /** A list of resorce types */
     protected final ArrayList<ResourceTypeEngine> resourceTypeList;
     /** This queue contains the work threads that are waiting for activities of this AM */
@@ -31,10 +31,10 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	* Creates a new instance of ActivityManager.
 	* @param simul Simulation this activity manager belongs to
     */
-    public ActivityManager(SequentialSimulationEngine simul) {
+    public ActivityManager(SimulationEngine simul) {
         super(nextid++, simul, "AM");
         resourceTypeList = new ArrayList<ResourceTypeEngine>();
-        activityList = new ArrayList<RequestResources>();
+        activityList = new ArrayList<RequestResourcesFlow>();
         wtQueue = new WorkThreadQueue();
         simul.add(this);
     }
@@ -43,7 +43,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * Adds an activity to this activity manager.
      * @param a Activity added
      */
-    public void add(RequestResources a) {
+    public void add(RequestResourcesFlow a) {
         activityList.add(a);
     }
     
@@ -59,7 +59,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * Adds a work thread to the waiting queue.
      * @param wt Work thread which is added to the waiting queue.
      */
-    public void queueAdd(WorkThread wt) {
+    public void queueAdd(FlowExecutor wt) {
     	wtQueue.add(wt);
     }
     
@@ -67,7 +67,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * Removes a work thread from the waiting queue.
      * @param wt work thread which is removed from the waiting queue.
      */
-    public void queueRemove(WorkThread wt) {
+    public void queueRemove(FlowExecutor wt) {
     	wtQueue.remove(wt);
     }
     
@@ -80,33 +80,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * which can't be performed with the current resources. If this amount is equal to the size
      * of waiting work items, this method stops. 
      */
-    public void availableResource() {
-    	// First marks all the activities as "potentially feasible"
-    	for (RequestResources act : activityList)
-        	act.resetFeasible();
-        // A count of the useless single flows 
-    	int uselessSF = 0;
-    	// A postponed removal list
-    	final ArrayList<WorkThread> toRemove = new ArrayList<WorkThread>();
-    	final Iterator<WorkThread> iter = wtQueue.iterator();
-    	while (iter.hasNext() && (uselessSF < wtQueue.size())) {
-    		final WorkThread wt = iter.next();
-            // TODO: Check whether it always works fine
-            final RequestResourcesFlow reqResources = (RequestResourcesFlow) wt.getCurrentFlow();
-            
-            final int result = wt.availableResource(simul.getRequestResource(reqResources));
-            if (result == -1) {
-        		toRemove.add(wt);
-        		uselessSF--;
-        	}
-        	else if (result > 0) {	// The activity can't be performed with the current resources
-            	uselessSF += result;
-        	}
-		}
-    	// Postponed removal to avoid conflict with the activity manager queue
-    	for (WorkThread wt : toRemove)
-    		simul.getRequestResource((RequestResourcesFlow) wt.getCurrentFlow()).queueRemove(wt);
-    } 
+    public abstract void availableResource();
 
     /**
      * Returns an iterator over the array containing the work threads which have requested
@@ -119,15 +93,10 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
      * @return an iterator over the array containing the work threads which have requested
      * activities belonging to this activity manager.
      */
-    public Iterator<WorkThread> getQueueIterator() {
+    public Iterator<FlowExecutor> getQueueIterator() {
     	return wtQueue.iterator();
     }
     
-	@Override
-	public long getTs() {
-		return simul.getTs();
-	}
-
 	/**
 	 * Builds a detailed description of this activity manager, including activities and 
 	 * resource types.
@@ -136,7 +105,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	public String getDescription() {
         StringBuffer str = new StringBuffer();
         str.append("Activity Manager " + id + "\r\n(Activity[priority]):");
-        for (RequestResources a : activityList)
+        for (RequestResourcesFlow a : activityList)
             str.append("\t\"" + a + "\"[" + a.getPriority() + "]");
         str.append("\r\nResource Types: ");
         for (ResourceTypeEngine rt : resourceTypeList)
@@ -154,12 +123,12 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	private static final class WorkThreadQueue extends PrioritizedMap<TreeSet<WorkThread>, WorkThread>{		
+	private static final class WorkThreadQueue extends PrioritizedMap<TreeSet<FlowExecutor>, FlowExecutor>{		
 		/** A counter for the arrival order of the single flows */
 		private int arrivalOrder = 0;
 		/** A comparator to properly order the single flows. */
-		private Comparator<WorkThread> comp = new Comparator<WorkThread>() {
-			public int compare(WorkThread o1, WorkThread o2) {
+		private Comparator<FlowExecutor> comp = new Comparator<FlowExecutor>() {
+			public int compare(FlowExecutor o1, FlowExecutor o2) {
 				if (o1.equals(o2))
 					return 0;
 				if (((RequestResourcesFlow) o1.getCurrentFlow()).getPriority() > ((RequestResourcesFlow) o2.getCurrentFlow()).getPriority())
@@ -185,7 +154,7 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 		 * @param wt The work thread to be added.
 		 */
 		@Override
-		public void add(WorkThread wt) {
+		public void add(FlowExecutor wt) {
 			// The arrival order and timestamp are only assigned if the single flow 
 			// has never been added to the queue (interruptible activities)
 			if (wt.getArrivalTs() == -1) {
@@ -196,8 +165,8 @@ public class ActivityManager extends TimeStampedSimulationObject implements Desc
 		}
 
 		@Override
-		public TreeSet<WorkThread> createLevel(Integer priority) {
-			return new TreeSet<WorkThread>(comp);
+		public TreeSet<FlowExecutor> createLevel(Integer priority) {
+			return new TreeSet<FlowExecutor>(comp);
 		}
 		
 	}

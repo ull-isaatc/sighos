@@ -22,11 +22,11 @@ import es.ull.iis.util.Output;
  * Two important simulation objects are {@link Activity activities} and {@link ResourceType 
  * resource types}. Both are grouped in different {@link ActivityManager activity managers}, 
  * which serve as an initial partition for parallelism.<p>
- * The simulation is feed with {@link EventSource.DiscreteEvent discrete events} produced by 
- * {@link EventSource Basic elements}.
+ * The simulation is feed with {@link EventSourceEngine.DiscreteEvent discrete events} produced by 
+ * {@link EventSourceEngine Basic elements}.
  * @author Iván Castilla Rodríguez
  */
-public class Simulation extends es.ull.iis.simulation.core.Simulation {
+public class Simulation extends es.ull.iis.simulation.model.SimulationEngine {
 	/** The identifier to be assigned to the next resource */ 
 	protected int nextResourceId = 0;
 	/** The identifier to be assigned to the next activity */ 
@@ -126,24 +126,7 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 			out = new Output();
 		debug("SIMULATION MODEL CREATED");
 		
-		// Sets default AM creator
-		if (amCreator == null)
-			amCreator = new StandardActivityManagerCreator(this);
-		amCreator.createActivityManagers();
-		debugPrintActManager();
-		
-		// Creates the event executors
-        executor = new SlaveEventExecutor[nThreads];
-        for (int i = 0; i < nThreads; i++) {
-			executor[i] = new SlaveEventExecutor(i);
-        }
-        if (nThreads > 1)
-        	barrier = new TournamentBarrier(executor.length, new BarrierAction());
-        
-        // Distributes the AMs among the executors
-        for (int i = 0; i < activityManagerList.size(); i++)
-        	executor[i % nThreads].assignActivityManager(activityManagerList.get(i));
-
+		initializeEngine();
         // The user defined method for initialization is invoked
 		init();
 
@@ -630,4 +613,24 @@ public class Simulation extends es.ull.iis.simulation.core.Simulation {
 		}
 	}
 
+	@Override
+	public void initializeEngine() {
+		// Sets default AM creator
+		if (amCreator == null)
+			amCreator = new StandardActivityManagerCreator(this);
+		amCreator.createActivityManagers();
+		debugPrintActManager();		
+		// Creates the event executors
+        executor = new SlaveEventExecutor[nThreads];
+        for (int i = 0; i < nThreads; i++) {
+			executor[i] = new SlaveEventExecutor(i);
+        }
+        if (nThreads > 1)
+        	barrier = new TournamentBarrier(executor.length, new BarrierAction());
+        
+        // Distributes the AMs among the executors
+        for (int i = 0; i < activityManagerList.size(); i++)
+        	executor[i % nThreads].assignActivityManager(activityManagerList.get(i));
+
+	}
 }

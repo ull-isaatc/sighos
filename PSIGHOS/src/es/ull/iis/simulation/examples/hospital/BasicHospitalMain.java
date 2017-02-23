@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.examples.hospital;
 
 import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.sequential.Simulation;
+import es.ull.iis.simulation.sequential.SequentialSimulationEngine;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -39,9 +39,9 @@ public class BasicHospitalMain extends Experiment {
 	}
 
 	@Override
-	public Simulation getSimulation(int ind) {
+	public SequentialSimulationEngine getSimulation(int ind) {
 		// Creates a simulation based on minutes, which lasts for a week (7 days X 24 hours X 60 minutes)
-		Simulation sim = new Simulation(ind, "Hospital" + ind, model, 0, 7 * 24 * 60);
+		SequentialSimulationEngine sim = new SequentialSimulationEngine(ind, "Hospital" + ind, model, 0, 7 * 24 * 60);
 		sim.addInfoReceiver(new StdInfoView(sim));
 
 		return sim;

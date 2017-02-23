@@ -30,7 +30,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
      * @param id Unique identifier of the object
      * @param simul Simulation this object belongs to
      */
-	public VariableStoreSimulationObject(int id, Simulation simul, String objTypeId) {
+	public VariableStoreSimulationObject(int id, SequentialSimulationEngine simul, String objTypeId) {
 		super(id, simul, objTypeId);
 	}
 
@@ -167,7 +167,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 	public double getVarViewValue(Object...params) {
 		String varName = (String) params[0];
 		params[0] = this;
-		Number value = ((Simulation)simul).getInfoHandler().notifyInfo(new VarViewValueRequestInfo((Simulation)simul, varName, this, params, (Long)params[params.length-1]));
+		Number value = ((SequentialSimulationEngine)simul).getInfoHandler().notifyInfo(new VarViewValueRequestInfo((SequentialSimulationEngine)simul, varName, this, params, (Long)params[params.length-1]));
 		if (value != null)
 			return value.doubleValue();
 		else

@@ -1,12 +1,12 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.core.Simulation;
+import es.ull.iis.simulation.model.SimulationEngine;
 
 public class SimulationEndInfo extends AsynchronousInfo {
 
 	final private long cpuTime;
 
-	public SimulationEndInfo(Simulation simul, long cpuTime, long ts) {
+	public SimulationEndInfo(SimulationEngine simul, long cpuTime, long ts) {
 		super(simul, ts);
 		this.cpuTime = cpuTime;
 	}

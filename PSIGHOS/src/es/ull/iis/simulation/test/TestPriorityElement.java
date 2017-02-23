@@ -7,8 +7,6 @@ import java.util.EnumSet;
 
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
@@ -18,6 +16,8 @@ import es.ull.iis.simulation.core.flow.ParallelFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.ResourceTypeEngine;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
@@ -39,12 +39,12 @@ public class TestPriorityElement {
 		new Experiment("Testing priority", 1) {
 
 			@Override
-			public Simulation getSimulation(int ind) {
+			public SimulationEngine getSimulation(int ind) {
 				SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Testing Elements with priority", unit, 0, 200);
-				Simulation sim = factory.getSimulation();
+				SimulationEngine sim = factory.getSimulation();
 				
-		        ResourceType rt = factory.getResourceTypeInstance("RT0");
-		        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {2});
+		        ResourceTypeEngine rt = factory.getResourceTypeInstance("RT0");
+		        WorkGroup wg = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rt}, new int[] {2});
 				ActivityFlow<?,?> acts[] = new ActivityFlow[NACT];
 				for (int i = 0; i < NACT; i++) {
 					acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "ACT" + i, i / 2, EnumSet.noneOf(ActivityFlow.Modifier.class));

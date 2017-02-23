@@ -56,7 +56,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
      * the flow has not been carried out. */
     protected ActivityWorkGroup executionWG = null;
     /** List of caught resources */
-    final protected TreeMap<Integer, ArrayDeque<Resource>> caughtResources = new TreeMap<Integer, ArrayDeque<Resource>>();
+    final protected TreeMap<Integer, ArrayDeque<ResourceEngine>> caughtResources = new TreeMap<Integer, ArrayDeque<ResourceEngine>>();
 	/** The arrival order of this work thread relatively to the rest of work threads 
 	 * in the same activity manager. */
 	protected int arrivalOrder;
@@ -394,7 +394,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 		final RequestResources req = elem.simul.getRequestResource(reqFlow);
 		if (!reqFlow.isExclusive() || (elem.getCurrent() == null)) {
 			// There are enough resources to perform the activity
-			final ArrayDeque<Resource> solution = req.isFeasible(this); 
+			final ArrayDeque<ResourceEngine> solution = req.isFeasible(this); 
 			if (solution != null) {
 				if (reqFlow.isExclusive()) 
 					elem.setCurrent(this);
@@ -403,7 +403,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 					elem.error("Trying to assign group of resources to already occupied group when catching. ID:" + resourcesId);
 				this.caughtResources.put(resourcesId, solution);
 		    	long auxTs = Long.MAX_VALUE;
-		    	for (Resource res : solution) {
+		    	for (ResourceEngine res : solution) {
 		    		auxTs = Math.min(auxTs, res.catchResource(this));;
 		            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
 		    	}
@@ -441,7 +441,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
     	final RequestResourcesFlow reqFlow = reqResources.getModelReqFlow();
 		if (!reqFlow.isExclusive() || (elem.getCurrent() == null)) {
 			// There are enough resources to perform the activity
-			final ArrayDeque<Resource> solution = reqResources.isFeasible(this); 
+			final ArrayDeque<ResourceEngine> solution = reqResources.isFeasible(this); 
 			if (solution != null) {
 				if (reqFlow.isExclusive()) 
 					elem.setCurrent(this);
@@ -450,7 +450,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 					elem.error("Trying to assign group of resources to already occupied group when catching. ID:" + resourcesId);
 				this.caughtResources.put(resourcesId, solution);
 		    	long auxTs = Long.MAX_VALUE;
-		    	for (Resource res : solution) {
+		    	for (ResourceEngine res : solution) {
 		    		auxTs = Math.min(auxTs, res.catchResource(this));;
 		            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
 		    	}
@@ -490,7 +490,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 
 	public void availableElement(RequestResources reqResources) {
     	final RequestResourcesFlow reqFlow = reqResources.getModelReqFlow();
-    	final ArrayDeque<Resource> solution = reqResources.isFeasible(this);
+    	final ArrayDeque<ResourceEngine> solution = reqResources.isFeasible(this);
 		if (solution != null) {
 			if (reqFlow.isExclusive()) 
 				elem.setCurrent(this);
@@ -499,7 +499,7 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
 				elem.error("Trying to assign group of resources to already occupied group when catching. ID:" + resourcesId);
 			this.caughtResources.put(resourcesId, solution);
 	    	long auxTs = Long.MAX_VALUE;
-	    	for (Resource res : solution) {
+	    	for (ResourceEngine res : solution) {
 	    		auxTs = Math.min(auxTs, res.catchResource(this));;
 	            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
 	    	}
@@ -537,13 +537,13 @@ public class WorkThread implements es.ull.iis.simulation.model.flow.FlowExecutor
      */
     public boolean releaseResources(ReleaseResourcesFlow relFlow) {
         final TreeSet<ActivityManager> amList = new TreeSet<ActivityManager>();
-		final Collection<Resource> resources = caughtResources.remove(relFlow.getResourcesId());
+		final Collection<ResourceEngine> resources = caughtResources.remove(relFlow.getResourcesId());
 		if (resources == null) {
 			elem.error("Trying to release group of resources not already created. ID:" + relFlow.getResourcesId());
 			return false;
 		}
         // Generate unavailability periods.
-        for (Resource res : resources) {
+        for (ResourceEngine res : resources) {
         	final long cancellationDuration = (elem.simul.getReleaseResource(relFlow)).getResourceCancellation(res.getCurrentResourceType());
         	if (cancellationDuration > 0) {
 				final long actualTs = elem.getTs();

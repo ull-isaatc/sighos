@@ -1,5 +1,6 @@
 package es.ull.iis.simulation.sequential;
 
+import es.ull.iis.simulation.model.Model;
 
 /**
  * An identifiable object belonging to a simulation which can be compared. The identifier is
@@ -11,18 +12,20 @@ public abstract class SimulationObject implements es.ull.iis.simulation.core.Sim
     /** Unique object identifier  */
 	protected final int id;
     /** Simulation this object belongs to */
-    protected final Simulation simul;
+    protected final SequentialSimulationEngine simul;
     /** String which represents the object */
     private final String idString;
     private final String objTypeId;
+    protected final Model model;
     
 	/**
      * Creates a new simulation object.
      * @param id Unique identifier of the object
      * @param simul Simulation this object belongs to
      */
-	public SimulationObject(int id, Simulation simul, String objTypeId) {
+	public SimulationObject(int id, SequentialSimulationEngine simul, String objTypeId) {
 		this.simul = simul;
+		this.model = simul.getModel();
 		this.id = id;
 		this.objTypeId = objTypeId;
 		idString = new String("[" + objTypeId + id + "]");
@@ -41,7 +44,7 @@ public abstract class SimulationObject implements es.ull.iis.simulation.core.Sim
      * Returns the simulation which this object is attached to.
      * @return Simulation this object belongs to
      */
-    public Simulation getSimulation() {
+    public SequentialSimulationEngine getSimulation() {
         return simul;
     }
     

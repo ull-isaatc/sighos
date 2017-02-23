@@ -8,12 +8,12 @@ package es.ull.iis.simulation.sequential;
  *
  */
 public abstract class ActivityManagerCreator {
-	protected final Simulation simul;
+	protected final SequentialSimulationEngine simul;
 
 	/**
 	 * @param simul
 	 */
-	public ActivityManagerCreator(Simulation simul) {
+	public ActivityManagerCreator(SequentialSimulationEngine simul) {
 		this.simul = simul;
 	}
 

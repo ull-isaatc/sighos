@@ -8,10 +8,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.TimeUnit;
 
 class WFPTestExperiment extends Experiment {
@@ -35,8 +35,8 @@ class WFPTestExperiment extends Experiment {
 		this.nThreads = nThreads;
 	}
 
-	private Simulation class2Simulation(Class<?> cl, int ind) {
-		Simulation sim = null;
+	private SimulationEngine class2Simulation(Class<?> cl, int ind) {
+		SimulationEngine sim = null;
 		try {
 			if (cl == null)
 				sim = SimulationFactory.getInstance(type, ind, "No valid simulation", TimeUnit.MINUTE, 0, 0).getSimulation();
@@ -61,8 +61,8 @@ class WFPTestExperiment extends Experiment {
 	}
 	
 	@Override
-	public Simulation getSimulation(int ind) {
-		Simulation sim = null;
+	public SimulationEngine getSimulation(int ind) {
+		SimulationEngine sim = null;
 		if (wfp != -1) {
 			sim = class2Simulation(WFPTest.simulations.get(wfp), ind);
 		}

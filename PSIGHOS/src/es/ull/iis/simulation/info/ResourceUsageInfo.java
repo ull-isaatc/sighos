@@ -3,7 +3,7 @@ package es.ull.iis.simulation.info;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.core.Simulation;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.flow.FlowExecutor;
 import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 
@@ -33,7 +33,7 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	final private Type type;
 	final private Element elem;
 	
-	public ResourceUsageInfo(Simulation simul, Resource res, ResourceType rt, FlowExecutor fExecutor, Element elem, ResourceHandlerFlow act, Type type, long ts) {
+	public ResourceUsageInfo(SimulationEngine simul, Resource res, ResourceType rt, FlowExecutor fExecutor, Element elem, ResourceHandlerFlow act, Type type, long ts) {
 		super(simul, ts);
 		this.res = res;
 		this.rt = rt;

@@ -2,13 +2,13 @@ package es.ull.iis.simulation.inforeceiver;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.core.Simulation;
+import es.ull.iis.simulation.model.SimulationEngine;
 
 public abstract class Listener extends InfoReceiver {
 
 	private final ArrayList<Class<?>> generatedInfos = new ArrayList<Class<?>>();
 	
-	public Listener (Simulation simul, String description) {
+	public Listener (SimulationEngine simul, String description) {
 		super(simul, description);
 	}
 	public void addGenerated(Class<?> cl) {

@@ -9,9 +9,6 @@ import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.core.ElementCreator;
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.core.Resource;
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
@@ -24,6 +21,9 @@ import es.ull.iis.simulation.core.flow.MultiChoiceFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.ModelTimeFunction;
 import es.ull.iis.simulation.model.ModelWeeklyPeriodicCycle;
+import es.ull.iis.simulation.model.ResourceEngine;
+import es.ull.iis.simulation.model.ResourceTypeEngine;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.WeeklyPeriodicCycle;
@@ -38,10 +38,10 @@ class BarrelShippingExperiment extends Experiment {
 	}
 	
 	@Override
-	public Simulation<?> getSimulation(int ind) {
+	public SimulationEngine<?> getSimulation(int ind) {
 		
 		SimulationObjectFactory<?,?> factory = SimulationFactory.getInstance(SimulationType.PARALLEL, ind, "Barrel shipping", TimeUnit.MINUTE, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
-		Simulation<?> sim = factory.getSimulation();
+		SimulationEngine<?> sim = factory.getSimulation();
 		
 		// Declares global model variables
 		sim.putVar("totalLiters", 0.0);
@@ -49,19 +49,19 @@ class BarrelShippingExperiment extends Experiment {
 
 		ElementType etShipping = factory.getElementTypeInstance("etShipping");
 		
-		ResourceType rtOperator = factory.getResourceTypeInstance("rtOperator");
+		ResourceTypeEngine rtOperator = factory.getResourceTypeInstance("rtOperator");
     	
 		// Defines the resource timetables: Operators work only the weekdays, starting at 8 am 
 		ModelWeeklyPeriodicCycle resCycle = new ModelWeeklyPeriodicCycle(sim.getTimeUnit(), WeeklyPeriodicCycle.WEEKDAYS, 480, 0);
 
 		// Declares two operators who work 8 hours a day
-		Resource operator1 = factory.getResourceInstance("Operator1");
+		ResourceEngine operator1 = factory.getResourceInstance("Operator1");
 		operator1.addTimeTableEntry(resCycle, 480, rtOperator);
-		Resource operator2 = factory.getResourceInstance("Operator2");
+		ResourceEngine operator2 = factory.getResourceInstance("Operator2");
 		operator2.addTimeTableEntry(resCycle, 480, rtOperator);
 		
 		// Defines the needs of the activities in terms of resources
-		WorkGroup wgOperator = factory.getWorkGroupInstance(new ResourceType [] {rtOperator}, new int[] {1});	
+		WorkGroup wgOperator = factory.getWorkGroupInstance(new ResourceTypeEngine [] {rtOperator}, new int[] {1});	
 
 		// Defines the way the variables are updated when filling the barrels	
 		SimulationUserCode userMethods = new SimulationUserCode();

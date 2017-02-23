@@ -30,7 +30,7 @@ public class RequestResources extends VariableStoreSimulationObject implements P
 	 * @param simul
 	 * @param description
 	 */
-	public RequestResources(Simulation simul, RequestResourcesFlow modelReq) {
+	public RequestResources(SequentialSimulationEngine simul, RequestResourcesFlow modelReq) {
 		super(simul.getNextActivityId(), simul, "REQ");
 		this.modelReq = modelReq;
         workGroupTable = new PrioritizedTable<ActivityWorkGroup>();
@@ -108,13 +108,13 @@ public class RequestResources extends VariableStoreSimulationObject implements P
      * @return The set of resources which compound the solution. Null if there are not enough
      * resources to carry out the basic step by using this workgroup.
      */
-	protected ArrayDeque<Resource> isFeasible(WorkThread wt) {
+	protected ArrayDeque<ResourceEngine> isFeasible(WorkThread wt) {
     	if (!stillFeasible)
     		return null;
         Iterator<ActivityWorkGroup> iter = workGroupTable.randomIterator();
         while (iter.hasNext()) {
         	ActivityWorkGroup wg = iter.next();
-        	ArrayDeque<Resource> solution = wg.isFeasible(wt); 
+        	ArrayDeque<ResourceEngine> solution = wg.isFeasible(wt); 
             if (solution != null) {
                 wt.setExecutionWG(wg);
         		wt.getElement().debug("Can carry out \t" + this + "\t" + wt.getModelWG());

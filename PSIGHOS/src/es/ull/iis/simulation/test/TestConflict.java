@@ -2,9 +2,6 @@ package es.ull.iis.simulation.test;
 
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.core.Resource;
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
@@ -14,6 +11,9 @@ import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.model.ModelCycle;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.ResourceEngine;
+import es.ull.iis.simulation.model.ResourceTypeEngine;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Output;
@@ -39,13 +39,13 @@ class ExpConflict extends Experiment {
     	final int NACTS = 2;
     	final int NELEM = 1;
     	
-    	ResourceType [] rts = new ResourceType[NRT];
+    	ResourceTypeEngine [] rts = new ResourceTypeEngine[NRT];
 		for (int i = 0; i < NRT; i++)
 			rts[i] = factory.getResourceTypeInstance("RT" + i);
 		
 		WorkGroup wgs[] = new WorkGroup[NACTS];
-		wgs[0] = factory.getWorkGroupInstance(new ResourceType[] {rts[0], rts[1]}, new int[] {1, 1});
-		wgs[1] = factory.getWorkGroupInstance(new ResourceType[] {rts[3], rts[2]}, new int[] {1, 1});
+		wgs[0] = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rts[0], rts[1]}, new int[] {1, 1});
+		wgs[1] = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rts[3], rts[2]}, new int[] {1, 1});
 		
 		ActivityFlow<?,?> acts[] = new ActivityFlow[NACTS];
 		for (int i = 0; i < NACTS; i++) {
@@ -55,8 +55,8 @@ class ExpConflict extends Experiment {
 		
 		ModelCycle c = ModelPeriodicCycle.newDailyCycle(unit);
 		
-		Resource r0 = factory.getResourceInstance("Res0");
-		Resource r1 = factory.getResourceInstance("Res1");
+		ResourceEngine r0 = factory.getResourceInstance("Res0");
+		ResourceEngine r1 = factory.getResourceInstance("Res1");
 		r0.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[0]);
 		r0.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[2]);
 		r1.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[3]);
@@ -82,13 +82,13 @@ class ExpConflict extends Experiment {
     	final int NACTS = 3;
     	final int NELEM = 1;
     	
-    	ResourceType [] rts = new ResourceType[NRT];
+    	ResourceTypeEngine [] rts = new ResourceTypeEngine[NRT];
 		for (int i = 0; i < NRT; i++)
 			rts[i] = factory.getResourceTypeInstance("RT" + i);
 		WorkGroup wgs[] = new WorkGroup[NACTS];
-		wgs[0] = factory.getWorkGroupInstance(new ResourceType[] {rts[0], rts[1], rts[4]}, new int[] {1, 1, 1});
-		wgs[1] = factory.getWorkGroupInstance(new ResourceType[] {rts[3], rts[2]}, new int[] {1, 1});
-		wgs[2] = factory.getWorkGroupInstance(new ResourceType[] {rts[5]}, new int[] {1});
+		wgs[0] = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rts[0], rts[1], rts[4]}, new int[] {1, 1, 1});
+		wgs[1] = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rts[3], rts[2]}, new int[] {1, 1});
+		wgs[2] = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rts[5]}, new int[] {1});
 
 		ActivityFlow<?,?> acts[] = new ActivityFlow[NACTS];
 		for (int i = 0; i < NACTS; i++) {
@@ -98,9 +98,9 @@ class ExpConflict extends Experiment {
 
 		ModelCycle c = ModelPeriodicCycle.newDailyCycle(unit);
 		
-		Resource r0 = factory.getResourceInstance("Res0");
-		Resource r1 = factory.getResourceInstance("Res1");
-		Resource r2 = factory.getResourceInstance("Res1");
+		ResourceEngine r0 = factory.getResourceInstance("Res0");
+		ResourceEngine r1 = factory.getResourceInstance("Res1");
+		ResourceEngine r2 = factory.getResourceInstance("Res1");
 		r0.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[0]);
 		r0.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[2]);
 		r1.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[3]);
@@ -121,9 +121,9 @@ class ExpConflict extends Experiment {
     }
     
 	@Override
-	public Simulation getSimulation(int ind) {
+	public SimulationEngine getSimulation(int ind) {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "TestConflicts", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
-		Simulation sim = factory.getSimulation();
+		SimulationEngine sim = factory.getSimulation();
 		createSimulation1(factory);
 		sim.setOutput(new Output(true));
 		return sim;

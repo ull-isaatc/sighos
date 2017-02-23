@@ -9,7 +9,7 @@ import es.ull.iis.simulation.model.flow.InitializerFlow;
  * @author Iván Castilla
  *
  */
-public class Element extends ModelObject implements EventSource {
+public class Element extends EventSource {
 	/** Element type */
 	protected ElementType elementType;
 	/** First step of the flow of the element */

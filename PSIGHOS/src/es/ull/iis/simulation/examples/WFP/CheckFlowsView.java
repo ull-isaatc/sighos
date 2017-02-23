@@ -7,13 +7,13 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementActionInfo.Type;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.ParallelFlow;
@@ -28,12 +28,12 @@ public class CheckFlowsView extends WFPTestView {
 	ArrayList<TreeSet<EventToCheck>> futureFlow;
 	private boolean ok = true;
 
-	public CheckFlowsView(Simulation simul, Flow f,
+	public CheckFlowsView(SimulationEngine simul, Flow f,
 			long[] durations) {
 		this(simul, f, durations, true);
 	}
 
-	public CheckFlowsView(Simulation simul, Flow f, long[] durations, boolean detailed) {
+	public CheckFlowsView(SimulationEngine simul, Flow f, long[] durations, boolean detailed) {
 		super(simul, "Checking flows...", detailed);
 		addEntrance(ElementInfo.class);
 		addEntrance(ElementActionInfo.class);

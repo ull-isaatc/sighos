@@ -2,7 +2,6 @@ package es.ull.iis.simulation.inforeceiver;
 
 import java.io.PrintStream;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
@@ -11,6 +10,7 @@ import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
 import es.ull.iis.simulation.info.TimeChangeInfo;
+import es.ull.iis.simulation.model.SimulationEngine;
 
 public class StdInfoView extends View {
 
@@ -19,7 +19,7 @@ public class StdInfoView extends View {
 	
 	private final PrintStream out = System.out;
 
-	public StdInfoView(Simulation simul) {
+	public StdInfoView(SimulationEngine simul) {
 		super(simul, "STANDARD INFO VIEW");
 		addEntrance(SimulationStartInfo.class);
 		addEntrance(SimulationEndInfo.class);

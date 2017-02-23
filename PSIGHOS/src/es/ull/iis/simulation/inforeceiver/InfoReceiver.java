@@ -2,16 +2,16 @@ package es.ull.iis.simulation.inforeceiver;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationInfo;
+import es.ull.iis.simulation.model.SimulationEngine;
 
 public abstract class InfoReceiver {
 
 	private final ArrayList<Class<?>> entrance = new ArrayList<Class<?>>();
-	private Simulation simul = null;
+	private SimulationEngine simul = null;
 	private String description = null;
 	
-	public InfoReceiver (Simulation simul, String description) {
+	public InfoReceiver (SimulationEngine simul, String description) {
 		this.simul = simul;
 		this.description = description;
 	}
@@ -34,11 +34,11 @@ public abstract class InfoReceiver {
 		return entrance;
 	}
 
-	public Simulation getSimul() {
+	public SimulationEngine getSimul() {
 		return simul;
 	}
 
-	public void setSimul(Simulation simul) {
+	public void setSimul(SimulationEngine simul) {
 		this.simul = simul;
 	}
 

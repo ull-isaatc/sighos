@@ -14,7 +14,7 @@ import es.ull.iis.util.Prioritizable;
  */
 public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Prioritizable {
 	protected final int[] needed;
-	protected final ResourceType[] resourceTypes;
+	protected final ResourceTypeEngine[] resourceTypes;
     protected final es.ull.iis.simulation.model.ActivityWorkGroup modelAWG;
 	
     /**
@@ -26,10 +26,10 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
      * @param cond  Availability condition
      * @param basicStep TODO
      */    
-    public ActivityWorkGroup(Simulation simul, es.ull.iis.simulation.model.ActivityWorkGroup modelAWG) {
+    public ActivityWorkGroup(SequentialSimulationEngine simul, es.ull.iis.simulation.model.ActivityWorkGroup modelAWG) {
     	es.ull.iis.simulation.model.WorkGroup.Pair[] originalPairs = modelAWG.getPairs();
     	needed = new int[originalPairs.length];
-    	resourceTypes = new ResourceType[originalPairs.length];
+    	resourceTypes = new ResourceTypeEngine[originalPairs.length];
     	for (int i = 0; i < originalPairs.length; i++) {
     		needed[i] = originalPairs[i].needed;
     		resourceTypes[i] = simul.getResourceType(originalPairs[i].rt);
@@ -44,7 +44,7 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
 		return modelAWG;
 	}
 
-	public ResourceType getResourceType(int ind) {
+	public ResourceTypeEngine getResourceType(int ind) {
 		return resourceTypes[ind];		
 	}
 	
@@ -71,20 +71,20 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
      * @return The set of resources which compound the solution. Null if there are not enough
      * resources to carry out the basicStep by using this workgroup.
      */
-    public ArrayDeque<Resource> isFeasible(WorkThread wThread) {
+    public ArrayDeque<ResourceEngine> isFeasible(WorkThread wThread) {
 
     	if (!getCondition().check(wThread))
     		return null;
 
     	int ned[] = needed.clone();
     	if (ned.length == 0) // Infinite resources
-    		return new ArrayDeque<Resource>(); 
+    		return new ArrayDeque<ResourceEngine>(); 
         int []pos = {0, -1}; // "Start" position
         
         int totalRes = 0;
         for (int n : ned)
             totalRes += n;
-        ArrayDeque<Resource> solution = new ArrayDeque<Resource>(totalRes);
+        ArrayDeque<ResourceEngine> solution = new ArrayDeque<ResourceEngine>(totalRes);
         // B&B algorithm for finding a solution
         if (findSolution(solution, pos, ned, wThread))
             return solution;
@@ -113,7 +113,7 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
             }
         }
         // Takes the first resource type
-        ResourceType rt = resourceTypes[aux[0]];
+        ResourceTypeEngine rt = resourceTypes[aux[0]];
         // Searches the NEXT available resource
         aux[1] = rt.getNextAvailableResource(aux[1] + 1);
 
@@ -127,8 +127,8 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
      * Marks a resource as belonging to the solution
      * @param pos Position [ResourceType, Resource] of the resource
      */
-    private void mark(int []pos, ArrayDeque<Resource> solution) {
-        Resource res = resourceTypes[pos[0]].getResource(pos[1]);
+    private void mark(int []pos, ArrayDeque<ResourceEngine> solution) {
+        ResourceEngine res = resourceTypes[pos[0]].getResource(pos[1]);
         res.setCurrentResourceType(resourceTypes[pos[0]]);
         solution.push(res);
     }
@@ -137,8 +137,8 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
      * Removes the mark of a resource as belonging to the solution
      * @param pos Position [ResourceType, Resource] of the resource
      */
-    private void unmark(int []pos, ArrayDeque<Resource> solution) {
-        Resource res = resourceTypes[pos[0]].getResource(pos[1]);
+    private void unmark(int []pos, ArrayDeque<ResourceEngine> solution) {
+        ResourceEngine res = resourceTypes[pos[0]].getResource(pos[1]);
         res.setCurrentResourceType(null);
         solution.pop();
     }
@@ -149,7 +149,7 @@ public class ActivityWorkGroup implements Comparable<ActivityWorkGroup>, Priorit
      * @param ned Resources needed
      * @return True if a valid solution exists. False in other case.
      */
-    protected boolean findSolution(ArrayDeque<Resource> solution, int []pos, int []ned, WorkThread wThread) {
+    protected boolean findSolution(ArrayDeque<ResourceEngine> solution, int []pos, int []ned, WorkThread wThread) {
         pos = searchNext(pos, ned, wThread);
         // No solution
         if (pos == null)

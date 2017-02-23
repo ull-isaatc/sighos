@@ -6,9 +6,9 @@ package es.ull.iis.simulation.examples;
 import java.io.PrintStream;
 
 import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
+import es.ull.iis.simulation.model.SimulationEngine;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -75,12 +75,12 @@ public class BenchmarkTest {
 			}
 			
 			@Override
-			public Simulation getSimulation(int ind) {
+			public SimulationEngine getSimulation(int ind) {
 				BenchmarkModel config = new BenchmarkModel(ind, simType, modType, ovType, nThreads, nIter, nElem, nAct, mixFactor, workLoad);
 				config.setRtXact(rtXact);
 				config.setRtXres(rtXres);
 				System.out.println(config);
-				Simulation sim = config.getTestModel(); 
+				SimulationEngine sim = config.getTestModel(); 
 				
 				if (debug)
 					sim.addInfoReceiver(new BenchmarkListener(sim, System.out));

@@ -7,7 +7,7 @@ package es.ull.iis.simulation.model;
  * @author Ivan Castilla Rodriguez
  *
  */
-public abstract class ModelObject implements Comparable<ModelObject>, Identifiable {
+public abstract class ModelObject implements Comparable<ModelObject>, Identifiable, Debuggable {
 	protected final Model model;
 	private final String objectTypeId;
 	private final int id;
@@ -55,4 +55,31 @@ public abstract class ModelObject implements Comparable<ModelObject>, Identifiab
 	public String toString() {
     	return idString;
     }
+	
+	/*
+	 * (non-Javadoc)
+	 * @see es.ull.iis.simulation.Debuggable#debug(java.lang.String)
+	 */
+    public void debug(String message) {
+    	if (Model.isDebugEnabled())
+    		Model.debug(this.toString() + "\t" + model.getSimulationEngine().getTs() + "\t" + message);
+	}
+	
+    /*
+     * (non-Javadoc)
+     * @see es.ull.iis.simulation.Debuggable#error(java.lang.String)
+     */
+	public void error(String description) {
+		Model.error(this.toString() + "\t" + model.getSimulationEngine().getTs() + "\t" + description);
+	}
+    
+	/*
+	 * (non-Javadoc)
+	 * @see es.ull.iis.simulation.Debuggable#isDebugEnabled()
+	 */
+	public boolean isDebugEnabled() {
+		return Model.isDebugEnabled();
+	}
+
+	protected abstract void assignSimulation(SimulationEngine simul);
 }

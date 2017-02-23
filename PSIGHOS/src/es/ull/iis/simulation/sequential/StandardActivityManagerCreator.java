@@ -17,7 +17,7 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 	/**
 	 * @param simul
 	 */
-	public StandardActivityManagerCreator(Simulation simul) {
+	public StandardActivityManagerCreator(SequentialSimulationEngine simul) {
 		super(simul);
 	}
 
@@ -55,7 +55,7 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 				a.setManager(new ActivityManager(simul));
 			}
 		}
-		for (ResourceType rt : simul.getResourceTypeList().values())
+		for (ResourceTypeEngine rt : simul.getResourceTypeList().values())
 			rt.setManager(simul.getActivityManagerList().get(marks.get(rt.getIdentifier())));
 	}
 
@@ -114,7 +114,7 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 		int DFS(TreeMap<Integer, Integer> marks) {
 			int nManagers = 0;
 			Stack<Integer> toVisit = new Stack<Integer>();
-			for (ResourceType rt : simul.getResourceTypeList().values())
+			for (ResourceTypeEngine rt : simul.getResourceTypeList().values())
 				marks.put(rt.getIdentifier(), -1);// Not-visited mark
 			for (Integer key : marks.keySet())
 				if (marks.get(key) == -1) {
@@ -140,7 +140,7 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 				StringBuffer str = new StringBuffer();
 				// Pinto el graph para chequeo
 				for (Integer key : keySet()) {
-					ResourceType rt = simul.getResourceType(key);
+					ResourceTypeEngine rt = simul.getResourceType(key);
 					str.append("Resource Type (" + key + "): " + rt.getDescription()
 							+ "\r\n");
 					str.append("\tNeighbours: ");

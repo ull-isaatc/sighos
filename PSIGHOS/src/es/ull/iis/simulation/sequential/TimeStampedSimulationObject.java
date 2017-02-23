@@ -3,14 +3,12 @@
  */
 package es.ull.iis.simulation.sequential;
 
-import es.ull.iis.simulation.model.Debuggable;
-
 /**
  * A simulation object which has knowledge of the simulation time.
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class TimeStampedSimulationObject extends VariableStoreSimulationObject implements Debuggable {
+public abstract class TimeStampedSimulationObject extends VariableStoreSimulationObject {
 
 	/**
 	 * Creates a new simulation object with an identifier and having knowledge of the 
@@ -18,7 +16,7 @@ public abstract class TimeStampedSimulationObject extends VariableStoreSimulatio
 	 * @param id Object's identifier
 	 * @param simul Simulation this object belongs to
 	 */
-	public TimeStampedSimulationObject(int id, Simulation simul, String objTypeId) {
+	public TimeStampedSimulationObject(int id, SequentialSimulationEngine simul, String objTypeId) {
 		super(id, simul, objTypeId);
 	}
 
@@ -27,30 +25,5 @@ public abstract class TimeStampedSimulationObject extends VariableStoreSimulatio
 	 * @return Simulation timestamp of the object.
 	 */
 	public abstract long getTs();
-
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.iis.simulation.Debuggable#debug(java.lang.String)
-	 */
-    public void debug(String message) {
-    	if (simul.isDebugEnabled())
-    		simul.debug(this.toString() + "\t" + getTs() + "\t" + message);
-	}
-	
-    /*
-     * (non-Javadoc)
-     * @see es.ull.iis.simulation.Debuggable#error(java.lang.String)
-     */
-	public void error(String description) {
-		simul.error(this.toString() + "\t" + getTs() + "\t" + description);
-	}
-    
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.iis.simulation.Debuggable#isDebugEnabled()
-	 */
-	public boolean isDebugEnabled() {
-		return simul.isDebugEnabled();
-	}
 
 }

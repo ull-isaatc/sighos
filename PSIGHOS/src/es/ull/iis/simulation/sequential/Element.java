@@ -18,7 +18,7 @@ import es.ull.iis.simulation.variable.EnumVariable;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class Element extends EventSource {
+public class Element extends EventSourceEngine {
 	/** Element type */
 	protected ElementType elementType;
 	/** First step of the flow of the element */
@@ -39,7 +39,7 @@ public class Element extends EventSource {
 	 * @param et Element type this element belongs to
 	 * @param flow First step of this element's flow
 	 */
-	public Element(Simulation simul, es.ull.iis.simulation.model.Element modelElem) {
+	public Element(SequentialSimulationEngine simul, es.ull.iis.simulation.model.Element modelElem) {
 		super(simul.getNextElementId(), simul, "E");
 		this.elementType = simul.getElementType(modelElem.getType());
 		inQueue = new ArrayList<WorkThread>();

@@ -4,8 +4,6 @@ import java.util.EnumSet;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
@@ -14,6 +12,8 @@ import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.ResourceTypeEngine;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -31,19 +31,19 @@ class ExperimentFDAE1 extends Experiment {
 		super("Bank", NEXP);
 	}
 
-	public Simulation<?> getSimulation(int ind) {
-		Simulation<?> sim = null;
+	public SimulationEngine<?> getSimulation(int ind) {
+		SimulationEngine<?> sim = null;
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "ExCreaditCard", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		sim = factory.getSimulation();
 		
     	ActivityFlow<?,?> act0 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "Verify account", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
     	ActivityFlow<?,?> act1 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "Get card details", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
     	ActivityFlow<?,?> act2 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "Process completed");
-        ResourceType rt0 = factory.getResourceTypeInstance("Cashier");
-        ResourceType rt1 = factory.getResourceTypeInstance("Director");
+        ResourceTypeEngine rt0 = factory.getResourceTypeInstance("Cashier");
+        ResourceTypeEngine rt1 = factory.getResourceTypeInstance("Director");
         
-        WorkGroup wg0 = factory.getWorkGroupInstance(new ResourceType[] {rt0}, new int[] {1});
-        WorkGroup wg1 = factory.getWorkGroupInstance(new ResourceType[] {rt1}, new int[] {1});
+        WorkGroup wg0 = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rt0}, new int[] {1});
+        WorkGroup wg1 = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rt1}, new int[] {1});
 
         act0.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15, 2), 0, wg0);
         act1.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15, 2), 0, wg0);

@@ -4,9 +4,6 @@ import java.util.ArrayList;
 
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.core.Resource;
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
@@ -16,6 +13,9 @@ import es.ull.iis.simulation.core.flow.ParallelFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.ResourceEngine;
+import es.ull.iis.simulation.model.ResourceTypeEngine;
+import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -35,9 +35,9 @@ class ExpOverlapped extends Experiment {
 		super(description, NTESTS);
 	}
 
-	public Simulation getSimulation(int ind) {
+	public SimulationEngine getSimulation(int ind) {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Sistema de análisis", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
-		Simulation sim = factory.getSimulation();
+		SimulationEngine sim = factory.getSimulation();
 
         // PASO 1: Inicializo las Activityes de las que se compone
 //    	Activity actDummy = factory.getActivityInstance("Dummy");
@@ -45,15 +45,15 @@ class ExpOverlapped extends Experiment {
     	ActivityFlow<?,?> actOrina = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "Análisis de orina");
  
         // PASO 2: Inicializo las clases de recursos
-        ResourceType crSangre = factory.getResourceTypeInstance("Máquina Análisis Sangre");
-        ResourceType crOrina = factory.getResourceTypeInstance("Máquina Análisis Orina");
+        ResourceTypeEngine crSangre = factory.getResourceTypeInstance("Máquina Análisis Sangre");
+        ResourceTypeEngine crOrina = factory.getResourceTypeInstance("Máquina Análisis Orina");
 //        ResourceType crDummy = factory.getResourceTypeInstance("Dummy");
 
         // PASO 3: Creo las tablas de clases de recursos
-        WorkGroup wg1 = factory.getWorkGroupInstance(new ResourceType[] {crSangre}, new int[] {NEEDED});
+        WorkGroup wg1 = factory.getWorkGroupInstance(new ResourceTypeEngine[] {crSangre}, new int[] {NEEDED});
         actSangre.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 20, 5), 0, wg1);
 //        wg1.add(crOrina, 1);
-        WorkGroup wg2 = factory.getWorkGroupInstance(new ResourceType[] {crOrina}, new int[] {1});
+        WorkGroup wg2 = factory.getWorkGroupInstance(new ResourceTypeEngine[] {crOrina}, new int[] {1});
         actOrina.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 20, 5), 0, wg2);
 //        WorkGroup wg3 = factory.getWorkGroupInstance(new ResourceType[] {crDummy}, new int[] {1});
 //        actDummy.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 10, 2), wg3);
@@ -71,11 +71,11 @@ class ExpOverlapped extends Experiment {
 //		Resource orina1 = factory.getResourceInstance("Máquina Análisis Orina 1");
 //		orina1.addTimeTableEntry(new ModelPeriodicCycle(unit, 480, RandomVariateFactory.getInstance("ConstantVariate", 1440), 0), 480, al2);
 
-		ArrayList<ResourceType> al2 = new ArrayList<ResourceType>();
+		ArrayList<ResourceTypeEngine> al2 = new ArrayList<ResourceTypeEngine>();
 		al2.add(crOrina);
 		al2.add(crSangre);
         for (int i = 0; i < NRESOURCES; i++) {
-			Resource poli1 = factory.getResourceInstance("Máquina Polivalente 1");
+			ResourceEngine poli1 = factory.getResourceInstance("Máquina Polivalente 1");
 			poli1.addTimeTableEntry(new ModelPeriodicCycle(unit, 480, new ModelTimeFunction(unit, "ConstantVariate", 1440), 0), 480, al2);
         }
         
