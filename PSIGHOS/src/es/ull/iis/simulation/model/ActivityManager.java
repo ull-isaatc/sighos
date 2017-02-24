@@ -7,6 +7,7 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.model.flow.FlowExecutor;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.sequential.RequestResources;
 import es.ull.iis.util.PrioritizedMap;
 
 /**
@@ -17,26 +18,27 @@ import es.ull.iis.util.PrioritizedMap;
  * finishes, the <code>signalSemaphore()</code> method must be invoked.  
  * @author Iván Castilla Rodríguez
  */
-public abstract class ActivityManager implements Describable {
+public class ActivityManager extends ModelObject implements Describable {
     /** Static counter for assigning each new id */
 	private static int nextid = 0;
 	/** A prioritized table of activities */
 	protected final ArrayList<RequestResourcesFlow> activityList;
     /** A list of resorce types */
-    protected final ArrayList<ResourceTypeEngine> resourceTypeList;
+    protected final ArrayList<ResourceType> resourceTypeList;
     /** This queue contains the work threads that are waiting for activities of this AM */
     private final WorkThreadQueue wtQueue;
+    private ActivityManagerEngine engine = null;
     
    /**
 	* Creates a new instance of ActivityManager.
 	* @param simul Simulation this activity manager belongs to
     */
-    public ActivityManager(SimulationEngine simul) {
-        super(nextid++, simul, "AM");
-        resourceTypeList = new ArrayList<ResourceTypeEngine>();
+    public ActivityManager(Model model) {
+        super(model, nextid++, "AM");
+        resourceTypeList = new ArrayList<ResourceType>();
         activityList = new ArrayList<RequestResourcesFlow>();
         wtQueue = new WorkThreadQueue();
-        simul.add(this);
+        model.add(this);
     }
 
     /**
@@ -51,7 +53,7 @@ public abstract class ActivityManager implements Describable {
      * Adds a resource type to this activity manager.
      * @param rt Resource type added
      */
-    public void add(ResourceTypeEngine rt) {
+    public void add(ResourceType rt) {
         resourceTypeList.add(rt);
     }
 
@@ -71,6 +73,10 @@ public abstract class ActivityManager implements Describable {
     	wtQueue.remove(wt);
     }
     
+    public int queueSize() {
+    	return wtQueue.size();
+    }
+    
     /**
      * Informs the activities of new available resources. Reviews the queue of waiting work items 
      * looking for those which can be executed with the new available resources. The work items 
@@ -80,7 +86,12 @@ public abstract class ActivityManager implements Describable {
      * which can't be performed with the current resources. If this amount is equal to the size
      * of waiting work items, this method stops. 
      */
-    public abstract void availableResource();
+    public void notifyResource() {
+    	// First marks all the activities as "potentially feasible"
+    	for (RequestResourcesFlow act : activityList)
+        	act.resetFeasible();
+    	engine.notifyResource();
+    }
 
     /**
      * Returns an iterator over the array containing the work threads which have requested
@@ -104,11 +115,11 @@ public abstract class ActivityManager implements Describable {
 	 */
 	public String getDescription() {
         StringBuffer str = new StringBuffer();
-        str.append("Activity Manager " + id + "\r\n(Activity[priority]):");
+        str.append("Activity Manager " + getIdentifier() + "\r\n(Activity[priority]):");
         for (RequestResourcesFlow a : activityList)
             str.append("\t\"" + a + "\"[" + a.getPriority() + "]");
         str.append("\r\nResource Types: ");
-        for (ResourceTypeEngine rt : resourceTypeList)
+        for (ResourceType rt : resourceTypeList)
             str.append("\t\"" + rt + "\"");
         return str.toString();
 	}
@@ -169,5 +180,10 @@ public abstract class ActivityManager implements Describable {
 			return new TreeSet<FlowExecutor>(comp);
 		}
 		
+	}
+
+	@Override
+	protected void assignSimulation(SimulationEngine simul) {
+		engine = simul.getActivityManagerEngineInstance(this);
 	}
 }

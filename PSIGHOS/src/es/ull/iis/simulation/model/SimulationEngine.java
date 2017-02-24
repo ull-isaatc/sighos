@@ -6,12 +6,6 @@
 
 package es.ull.iis.simulation.model;
 
-import es.ull.iis.simulation.core.Element;
-import es.ull.iis.simulation.core.ElementType;
-import es.ull.iis.simulation.core.TimeDrivenGenerator;
-import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
 import es.ull.iis.util.Output;
 
@@ -147,7 +141,9 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	public abstract ActivityWorkGroupEngine getActivityWorkGroupEngineInstance(ActivityWorkGroup modelWG);
 	public abstract ResourceTypeEngine getResourceTypeEngineInstance(ResourceType modelRT);
 	public abstract ResourceEngine getResourceEngineInstance(Resource modelRes);
+	public abstract ElementEngine getElementEngineInstance(Element modelElem);
 	public abstract ResourceList getResourceListInstance(ResourceType modelRT);
+	public abstract ActivityManagerEngine getActivityManagerEngineInstance(ActivityManager modelAM);
 	public abstract void addEvent(DiscreteEvent ev); 
 	/**
 	 * Prints the current state of the simulation for debug purposes. Prints the current local 

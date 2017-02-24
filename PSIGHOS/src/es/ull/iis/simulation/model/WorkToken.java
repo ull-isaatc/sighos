@@ -1,8 +1,9 @@
-package es.ull.iis.simulation.sequential;
+package es.ull.iis.simulation.model;
 
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.sequential.WorkThread;
 
 /**
  * The information of the current state of a {@link WorkThread work thread}. Basically indicates if 

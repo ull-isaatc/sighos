@@ -207,6 +207,14 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 		return workGroupTable.size();
 	}
 
+    /**
+     * Returns an iterator over the WGs of this activity.
+     * @return An iterator over the WGs that can perform this activity.
+     */
+    public Iterator<ActivityWorkGroup> iterator() {
+    	return workGroupTable.iterator();
+    }
+
 	@Override
 	public void addPredecessor(Flow newFlow) {}
     

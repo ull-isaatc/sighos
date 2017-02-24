@@ -6,7 +6,10 @@ import java.util.PriorityQueue;
 import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 
+import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.info.TimeChangeInfo;
+import es.ull.iis.simulation.model.ActivityManager;
+import es.ull.iis.simulation.model.ActivityManagerCreator;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.ElementType;
@@ -15,6 +18,7 @@ import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.StandardActivityManagerCreator;
 
 /**
  * Main simulation class. A simulation needs a model (introduced by means of the
@@ -62,7 +66,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	protected final TreeMap<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
 
 	/** List of activity managers that partition the simulation. */
-	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();
+	protected final ArrayList<ActivityManagerEngine> activityManagerList = new ArrayList<ActivityManagerEngine>();
 	
 	/** End-of-simulation control */
 	private CountDownLatch endSignal;
@@ -70,9 +74,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	/** The identifier to be assigned to the next element */ 
 	protected int nextElementId = 0;
 	/** List of active elements */
-	private final Map<Integer, Element> activeElementList = new TreeMap<Integer, Element>();
-
-	protected ActivityManagerCreator amCreator = null;
+	private final Map<Integer, ElementEngine> activeElementList = new TreeMap<Integer, ElementEngine>();
 
     /** Local virtual time. Represents the current simulation time */
 	protected long lvt;
@@ -291,7 +293,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	 * @param am
 	 *            Activity manager.
 	 */
-	protected void add(ActivityManager am) {
+	protected void add(ActivityManagerEngine am) {
 		activityManagerList.add(am);
 	}
 
@@ -358,7 +360,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	 * 
 	 * @return Work activity managers of the model.
 	 */
-	public ArrayList<ActivityManager> getActivityManagerList() {
+	public ArrayList<ActivityManagerEngine> getActivityManagerList() {
 		return activityManagerList;
 	}
 
@@ -440,7 +442,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	 * @param elem
 	 *            An element that starts its execution.
 	 */
-	public void addActiveElement(Element elem) {
+	public void addActiveElement(ElementEngine elem) {
 		activeElementList.put(elem.getIdentifier(), elem);
 	}
 
@@ -450,7 +452,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	 * @param elem
 	 *            An element that finishes its execution.
 	 */
-	public void removeActiveElement(Element elem) {
+	public void removeActiveElement(ElementEngine elem) {
 		activeElementList.remove(elem.getIdentifier());
 	}
 
@@ -461,7 +463,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	 *            The element's identifier.
 	 * @return The element with the specified identifier.
 	 */
-	public Element getActiveElement(int id) {
+	public ElementEngine getActiveElement(int id) {
 		return activeElementList.get(id);
 	}
 
@@ -470,18 +472,6 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	 */
 	protected void notifyEnd() {
 		endSignal.countDown();
-	}
-
-	/**
-	 * Prints the contents of the activity managers created.
-	 */
-	protected void debugPrintActManager() {
-		if (isDebugEnabled()) {
-			StringBuffer str1 = new StringBuffer("Activity Managers:\r\n");
-			for (ActivityManager am : activityManagerList)
-				str1.append(am.getDescription() + "\r\n");
-			debug(str1.toString());
-		}
 	}
 
 	/**
@@ -500,7 +490,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 		}
 	}
 
-	public Map<Integer, Element> getActiveElementList() {
+	public Map<Integer, ElementEngine> getActiveElementList() {
 		return activeElementList;
 	}
 	
@@ -537,11 +527,6 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 
 	@Override
 	public void initializeEngine() {
-		// Sets default AM creator
-		if (amCreator == null)
-			amCreator = new StandardActivityManagerCreator(this);
-		amCreator.createActivityManagers();
-		debugPrintActManager();		
 	}
 
 	@Override
@@ -564,6 +549,16 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 		return new ActivityWorkGroupEngine(this, modelWG);
 	}
 
+	@Override
+	public es.ull.iis.simulation.model.ActivityManagerEngine getActivityManagerEngineInstance(ActivityManager modelAM) {
+		return new ActivityManagerEngine(this, modelAM);
+	}
+
+	@Override
+	public es.ull.iis.simulation.model.ElementEngine getElementEngineInstance(Element modelElem) {
+		return new ElementEngine(this, modelElem);
+	}
+    
 	@Override
 	protected void launchInitialEvents() {
 		// Starts all the generators
@@ -592,5 +587,5 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
             addWait(ev);
         }		
 	}
-    
+
 }

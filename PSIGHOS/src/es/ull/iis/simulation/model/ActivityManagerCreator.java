@@ -1,20 +1,21 @@
 /**
  * 
  */
-package es.ull.iis.simulation.sequential;
+package es.ull.iis.simulation.model;
+
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
 public abstract class ActivityManagerCreator {
-	protected final SequentialSimulationEngine simul;
+	protected final Model model;
 
 	/**
 	 * @param simul
 	 */
-	public ActivityManagerCreator(SequentialSimulationEngine simul) {
-		this.simul = simul;
+	public ActivityManagerCreator(Model model) {
+		this.model = model;
 	}
 
 	/**

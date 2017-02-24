@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.model.WorkToken;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.MergeFlow;
 import es.ull.iis.simulation.sequential.WorkThread;
-import es.ull.iis.simulation.sequential.WorkToken;
 
 /**
  * @author Iván Castilla Rodríguez

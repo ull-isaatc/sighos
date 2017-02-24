@@ -20,7 +20,7 @@ import es.ull.iis.util.DiscreteCycleIterator;
  * A resource finishes its execution when it has no longer valid timetable entries.
  * @author Carlos Martín Galán
  */
-public class ResourceEngine extends EventSourceEngine implements es.ull.iis.simulation.model.ResourceEngine {
+public class ResourceEngine extends EventSourceEngine<Resource> implements es.ull.iis.simulation.model.ResourceEngine {
     /** If true, indicates that this resource is being used after its availability time has expired */
     private boolean timeOut = false;
     /** List of currently active roles and the timestamp which marks the end of their availibity time. */
@@ -66,7 +66,7 @@ public class ResourceEngine extends EventSourceEngine implements es.ull.iis.simu
 		if ((avEnd == null) || (ts > avEnd))
 			currentRoles.put(role, ts);
 		// The activity manager is informed of new available resources
-		role.getManager().availableResource(); 
+		role.notifyResource(); 
 	}
 
 	/**
@@ -88,8 +88,8 @@ public class ResourceEngine extends EventSourceEngine implements es.ull.iis.simu
 	 * Builds a list of activity managers referenced by the roles of the resource. 
 	 * @return Returns the currentManagers.
 	 */
-	public ArrayList<ActivityManager> getCurrentManagers() {
-		ArrayList <ActivityManager> currentManagers = new ArrayList<ActivityManager>();
+	public ArrayList<ActivityManagerEngine> getCurrentManagers() {
+		ArrayList <ActivityManagerEngine> currentManagers = new ArrayList<ActivityManagerEngine>();
 		for (ResourceType role : currentRoles.keySet())
 			if (!currentManagers.contains(role.getManager()))
 				currentManagers.add(role.getManager());
@@ -147,9 +147,9 @@ public class ResourceEngine extends EventSourceEngine implements es.ull.iis.simu
     
 	@Override
 	public void notifyCurrentManagers() {
-		for (ActivityManager am : getCurrentManagers()) {
+		for (ActivityManagerEngine am : getCurrentManagers()) {
 			// The activity manger is informed of new available resources
-			am.availableResource(); 
+			am.notifyResource(); 
 		}
 	}
 

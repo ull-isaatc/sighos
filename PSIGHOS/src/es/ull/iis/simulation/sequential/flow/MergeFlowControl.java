@@ -3,9 +3,9 @@
  */
 package es.ull.iis.simulation.sequential.flow;
 
+import es.ull.iis.simulation.model.WorkToken;
 import es.ull.iis.simulation.model.flow.MergeFlow;
 import es.ull.iis.simulation.sequential.WorkThread;
-import es.ull.iis.simulation.sequential.WorkToken;
 
 /**
  * Control of incoming branches per element. Counts how many incoming branches have

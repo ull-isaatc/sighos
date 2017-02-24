@@ -1,12 +1,18 @@
 /**
  * 
  */
-package es.ull.iis.simulation.parallel;
+package es.ull.iis.simulation.model;
 
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.sequential.ActivityWorkGroupEngine;
+import es.ull.iis.simulation.sequential.RequestResources;
+import es.ull.iis.simulation.sequential.SequentialSimulationEngine;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -17,8 +23,8 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 	/**
 	 * @param simul
 	 */
-	public StandardActivityManagerCreator(Simulation simul) {
-		super(simul);
+	public StandardActivityManagerCreator(Model model) {
+		super(model);
 	}
 
 	/**
@@ -32,31 +38,31 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 		// The graph is an array consisting on sets of resource types
 		SimulationGraph graph = new SimulationGraph();
 		
-		TreeMap<Integer, Integer> marks = new TreeMap<Integer, Integer>();
+		TreeMap<ResourceType, ActivityManager> marks = new TreeMap<ResourceType, ActivityManager>();
 		// This counter lets us mark each partition
 		int nManagers = graph.DFS(marks);
 		// The activity managers are created
 		for (int i = 0; i < nManagers; i++)
-			new ActivityManager(simul);
+			new ActivityManager(model);
 		// The activities are associated to the activity managers
-		for (Activity a : simul.getActivityList().values()) {
-			Iterator<ActivityWorkGroup> iter = a.iterator();
+		for (RequestResourcesFlow f : model.getActivityList()) {
+			Iterator<ActivityWorkGroup> iter = (f).iterator();
 			// This step is for non-resource-types activities
 			boolean found = false;
 			while (iter.hasNext() && !found) {
-				WorkGroup wg = iter.next();
+				ActivityWorkGroup wg = iter.next();
 				if (wg.size() > 0) {
-					a.setManager(simul.getActivityManagerList().get(marks.get(wg.getResourceType(0).getIdentifier())));
+					f.setManager(marks.get(wg.getResourceType(0)));
 					found = true;
 				}
 			}
 			if (!found) {
 				nManagers++;
-				a.setManager(new ActivityManager(simul));
+				f.setManager(new ActivityManager(model));
 			}
 		}
-		for (ResourceType rt : simul.getResourceTypeList().values())
-			rt.setManager(simul.getActivityManagerList().get(marks.get(rt.getIdentifier())));
+		for (ResourceType rt : model.getResourceTypeList())
+			rt.setManager(marks.get(rt));
 	}
 
 	/**
@@ -67,29 +73,29 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	class SimulationGraph extends TreeMap<Integer, TreeSet<Integer>> {
+	class SimulationGraph extends TreeMap<ResourceType, TreeSet<ResourceType>> {
 		private static final long serialVersionUID = 1L;
 
 		/**
 		 * Creates a graph representing the activities and resource types of the model.
 		 */
 		SimulationGraph() {
-			int ind1 = -1, ind2 = -1;
+			ResourceType ind1 = null, ind2 = null;
 			// Starts by creating one node per resource type
-			for (Integer key : simul.getResourceTypeList().keySet())
-				put(key, new TreeSet<Integer>());
+			for (ResourceType rt : model.getResourceTypeList())
+				put(rt, new TreeSet<ResourceType>());
 			// Goes through the activity list to built the adyacent list 
-			for (Activity a : simul.getActivityList().values()) {
-				Iterator<ActivityWorkGroup> iter = a.iterator();
+			for (RequestResourcesFlow f : model.getActivityList()) {
+				Iterator<ActivityWorkGroup> iter = f.iterator();
 				// Looks for the first WorkGroup that contains at least one resource type
 				int firstWG = 1;
 				while (iter.hasNext()) {
-					WorkGroup wg = iter.next();
+					ActivityWorkGroup wg = iter.next();
 					if (wg.size() > 0) {
 						if (firstWG == 1)
-							ind1 = wg.getResourceType(0).getIdentifier();
+							ind1 = wg.getResourceType(0);
 						for (; firstWG < wg.size(); firstWG++) {
-							ind2 = wg.getResourceType(firstWG).getIdentifier();
+							ind2 = wg.getResourceType(firstWG);
 							get(ind1).add(ind2);
 							get(ind2).add(ind1);
 							ind1 = ind2;
@@ -111,21 +117,23 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 		 * @return
 		 *            The amount of activity managers to be created.
 		 */
-		int DFS(TreeMap<Integer, Integer> marks) {
+		int DFS(TreeMap<ResourceType, ActivityManager> marks) {
+			ActivityManager am = new ActivityManager(model);
 			int nManagers = 0;
-			Stack<Integer> toVisit = new Stack<Integer>();
-			for (ResourceType rt : simul.getResourceTypeList().values())
-				marks.put(rt.getIdentifier(), -1);// Not-visited mark
-			for (Integer key : marks.keySet())
-				if (marks.get(key) == -1) {
+			Stack<ResourceType> toVisit = new Stack<ResourceType>();
+			for (ResourceType rt : model.getResourceTypeList())
+				marks.put(rt, null);// Not-visited mark
+			for (ResourceType key : marks.keySet())
+				if (marks.get(key) == null) {
 					toVisit.push(key);
 					while (!toVisit.isEmpty()) {
-						Integer node = toVisit.pop();
-						marks.put(node, nManagers);
-						for (Integer nnode : get(node))
-							if (marks.get(nnode) == -1)
+						ResourceType node = toVisit.pop();
+						marks.put(node, am);
+						for (ResourceType nnode : get(node))
+							if (marks.get(nnode) == null)
 								toVisit.push(nnode);					
 					}
+					am = new ActivityManager(model);
 					nManagers++;
 				}
 			return nManagers;
@@ -136,19 +144,18 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 		 * the links.
 		 */
 		void debug() {
-			if (simul.isDebugEnabled()) {
+			if (Model.isDebugEnabled()) {
 				StringBuffer str = new StringBuffer();
 				// Pinto el graph para chequeo
-				for (Integer key : keySet()) {
-					ResourceType rt = simul.getResourceType(key);
-					str.append("Resource Type (" + key + "): " + rt.getDescription()
+				for (ResourceType rt : keySet()) {
+					str.append("Resource Type (" + rt.getIdentifier() + "): " + rt.getDescription()
 							+ "\r\n");
 					str.append("\tNeighbours: ");
-					for (Integer nodo : get(key))
+					for (ResourceType nodo : get(rt))
 						str.append(nodo + "\t");
 					str.append("\r\n");
 				}
-				simul.debug("Graph created\r\n" + str.toString());
+				Model.debug("Graph created\r\n" + str.toString());
 			}
 		}
 	}

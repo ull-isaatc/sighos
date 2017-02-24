@@ -19,6 +19,8 @@ public class ResourceType extends ModelObject implements Describable {
     /** A brief description of the resource type */
     protected final String description;
     protected ResourceTypeEngine engine = null;
+    /** Activity manager this resource type belongs to. */
+    protected ActivityManager manager;
 
 	/**
 	 * 
@@ -80,6 +82,28 @@ public class ResourceType extends ModelObject implements Describable {
         	res.setTimeOut(false);
     }
     
+    public void notifyResource() {
+    	manager.notifyResource();    	
+    }
+    
+    /**
+     * Returns the activity manager this resource type belongs to.
+     * @return Value of property manager.
+     */
+    public ActivityManager getManager() {
+        return manager;
+    }
+    
+    /**
+     * Sets the activity manager this resource type belongs to. It also
+     * adds this resource type to the manager.
+     * @param manager New value of property manager.
+     */
+    public void setManager(ActivityManager manager) {
+        this.manager = manager;
+        manager.add(this);
+    }
+
     /**
      * Removes a resource from the available list. 
      * @param res New unavailable resource.

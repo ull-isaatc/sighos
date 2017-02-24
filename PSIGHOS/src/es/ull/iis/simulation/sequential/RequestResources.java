@@ -19,7 +19,7 @@ public class RequestResources extends VariableStoreSimulationObject implements P
     /** Total of work items waiting for carrying out this activity */
     protected int queueSize = 0;
     /** Activity manager this activity belongs to */
-    protected ActivityManager manager = null;
+    protected ActivityManagerEngine manager = null;
     /** Work Groups available to perform this basic step */
     protected final PrioritizedTable<ActivityWorkGroupEngine> workGroupTable;
     /** Indicates that the basic step is potentially feasible. */
@@ -58,7 +58,7 @@ public class RequestResources extends VariableStoreSimulationObject implements P
      * Returns the activity manager this activity belongs to.
      * @return The activity manager this activity belongs to.
      */
-    public ActivityManager getManager() {
+    public ActivityManagerEngine getManager() {
         return manager;
     }
 
@@ -67,7 +67,7 @@ public class RequestResources extends VariableStoreSimulationObject implements P
      * adds this activity to the manager.
      * @param manager The activity manager.
      */
-    public void setManager(ActivityManager manager) {
+    public void setManager(ActivityManagerEngine manager) {
         this.manager = manager;
         manager.add(this);
     }

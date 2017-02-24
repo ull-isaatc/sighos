@@ -14,6 +14,7 @@ import es.ull.iis.simulation.inforeceiver.InfoHandler;
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
 import es.ull.iis.simulation.inforeceiver.SimulationInfoHandler;
 import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.variable.BooleanVariable;
 import es.ull.iis.simulation.variable.ByteVariable;
 import es.ull.iis.simulation.variable.CharacterVariable;
@@ -44,8 +45,10 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 	private final ArrayList<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
 	private final ArrayList<WorkGroup> workGroupList = new ArrayList<WorkGroup>();
 	private final ArrayList<Flow> flowList = new ArrayList<Flow>();
+	private final ArrayList<RequestResourcesFlow> actList = new ArrayList<RequestResourcesFlow>();
 //	private final ArrayList<Element> elemList = new ArrayList<Element>();
 	private final ArrayList<ElementGenerator> genList = new ArrayList<ElementGenerator>();
+	private final ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
 
 	/** Output for printing debug and error messages */
 	protected static Output out = new Output();
@@ -58,6 +61,9 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 	
 	/** The simulation engine that executes this model */
 	protected SimulationEngine simulationEngine = null;
+	
+	/** The way the activity managers are created */
+	protected ActivityManagerCreator amCreator = null;
 	
 	/**
 	 * 
@@ -160,6 +166,11 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 					"Please use the setSimulationEngine() method before invoking run()"); 
 		}
 		else {
+			// Sets default AM creator
+			if (amCreator == null)
+				amCreator = new StandardActivityManagerCreator(this);
+			amCreator.createActivityManagers();
+			debugPrintActManager();		
 			simulationEngine.initializeEngine();
 			init();
 	
@@ -205,10 +216,15 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 	}
 	public void add(Flow f) { 
 		flowList.add(f);
+		if (f instanceof RequestResourcesFlow)
+			actList.add((RequestResourcesFlow)f);
 	}
 	public void add(ElementGenerator gen) {
-	genList.add(gen);
-}
+		genList.add(gen);
+	}
+	public void add(ActivityManager am) {
+		amList.add(am);
+	}
 //	public void add(Element elem) {
 //		elemList.add(elem);
 //	}
@@ -231,8 +247,14 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 	public List<Flow> getFlowList() { 
 		return flowList;
 	}
+	public List<RequestResourcesFlow> getActivityList() { 
+		return actList;
+	}
 	public List<ElementGenerator> getElementGeneratorList() {
 		return genList;
+	}
+	public List<ActivityManager> getActivityManagerList() {
+		return amList;
 	}
 //	public List<Element> getElementList() {
 //	return elemList;
@@ -363,6 +385,18 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 			return -1;
 	}
 	
+	/**
+	 * Prints the contents of the activity managers created.
+	 */
+	protected void debugPrintActManager() {
+		if (isDebugEnabled()) {
+			StringBuffer str1 = new StringBuffer("Activity Managers:\r\n");
+			for (ActivityManager am : amList)
+				str1.append(am.getDescription() + "\r\n");
+			debug(str1.toString());
+		}
+	}
+
 	/**
 	 * Adds an information receiver which processes information produced by this simulation.
 	 * @param receiver A processor for the information produced by this simulation
