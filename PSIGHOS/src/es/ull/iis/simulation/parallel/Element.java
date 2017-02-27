@@ -30,7 +30,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	/** Presential work item which the element is currently carrying out */
 	protected WorkItem current = null;
 	/** Main execution thread */
-	protected final WorkThread wThread;
+	protected final FlowExecutor wThread;
 	/** A structure to protect access to shared flows */
 	protected final Map<Flow, AtomicBoolean> protectedFlows;
 	
@@ -45,7 +45,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 		super(simul.getNextElementId(), simul);
 		this.elementType = et;
 		this.initialFlow = flow;
-		wThread = WorkThread.getInstanceMainWorkThread(this);
+		wThread = FlowExecutor.getInstanceMainWorkThread(this);
 		protectedFlows = new HashMap<Flow, AtomicBoolean>();
 	}
 
@@ -106,7 +106,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 */
 	@Override
 	protected void init() {
-		simul.getInfoHandler().notifyInfo(new ElementInfo(this.simul, this, ElementInfo.Type.START, this.getTs()));
+		simul.notifyInfo(null).notifyInfo(new ElementInfo(this.simul, this, ElementInfo.Type.START, this.getTs()));
 		simul.addActiveElement(this);
 		if (initialFlow != null) {
 			wThread.getInstanceDescendantWorkThread().requestFlow(initialFlow);
@@ -117,7 +117,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 
 	@Override
 	protected void end() {
-		simul.getInfoHandler().notifyInfo(new ElementInfo(this.simul, this, ElementInfo.Type.FINISH, this.getTs()));
+		simul.notifyInfo(null).notifyInfo(new ElementInfo(this.simul, this, ElementInfo.Type.FINISH, this.getTs()));
 		simul.removeActiveElement(this);
 	}
 
@@ -199,7 +199,7 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 		}
 	}
 	
-	protected void addDelayedRequestEvent(Flow f, WorkThread wThread) {
+	protected void addDelayedRequestEvent(Flow f, FlowExecutor wThread) {
 		addEvent(new DelayedRequestFlowEvent(ts + 1, f, wThread));
 	}
 	
@@ -210,11 +210,11 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 */
 	public class DelayedRequestFlowEvent extends BasicElement.DiscreteEvent {
 		/** The work thread that executes the request */
-		private final WorkThread eThread;
+		private final FlowExecutor eThread;
 		/** The flow to be requested */
 		private final Flow f;
 
-		public DelayedRequestFlowEvent(long ts, Flow f, WorkThread eThread) {
+		public DelayedRequestFlowEvent(long ts, Flow f, FlowExecutor eThread) {
 			super(ts);
 			this.eThread = eThread;
 			this.f = f;
@@ -231,11 +231,11 @@ public class Element extends BasicElement implements es.ull.iis.simulation.core.
 	 */
 	public final class FinishFlowEvent extends BasicElement.DiscreteEvent {
 		/** The work thread that executes the finish */
-		private final WorkThread eThread;
+		private final FlowExecutor eThread;
 		/** The flow previously requested */
 		private final TaskFlow f;
 
-		public FinishFlowEvent(long ts, TaskFlow f, WorkThread eThread) {
+		public FinishFlowEvent(long ts, TaskFlow f, FlowExecutor eThread) {
 			super(ts);
 			this.f = f;
 			this.eThread = eThread;

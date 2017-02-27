@@ -1,7 +1,9 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
+
 
 /**
  * A structured loop flow which resembles a do-while loop. The internal flow
@@ -40,6 +42,19 @@ public class DoWhileFlow extends StructuredLoopFlow {
 	 */
 	public Condition getCondition() {
 		return cond;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.FlowExecutor)
+	 */
+	public void finish(FlowExecutor wThread) {
+		if (cond.check(wThread)) {
+			wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantFlowExecutor(initialFlow));
+		} else {
+			afterFinalize(wThread);
+			next(wThread);
+		}
 	}
 
 }

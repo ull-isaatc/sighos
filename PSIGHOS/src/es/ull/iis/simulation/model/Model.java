@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
 import es.ull.iis.simulation.core.VariableStore;
-import es.ull.iis.simulation.inforeceiver.InfoHandler;
+import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
 import es.ull.iis.simulation.inforeceiver.SimulationInfoHandler;
 import es.ull.iis.simulation.model.flow.Flow;
@@ -171,10 +171,11 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 				amCreator = new StandardActivityManagerCreator(this);
 			amCreator.createActivityManagers();
 			debugPrintActManager();		
+			// FIXME: Falta añadir la inicialización de todos los objetos del modelo
 			simulationEngine.initializeEngine();
 			init();
 	
-			infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationStartInfo(simulationEngine, System.nanoTime(), simulationEngine.getInternalStartTs()));
+			infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationStartInfo(this, System.nanoTime(), simulationEngine.getInternalStartTs()));
 			
 			simulationEngine.launchInitialEvents();
 			simulationEngine.simulationLoop();
@@ -187,7 +188,7 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 	        // The user defined method for finalization is invoked
 			end();
 			
-			infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationEndInfo(simulationEngine, System.nanoTime(), simulationEngine.getInternalEndTs()));
+			infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationEndInfo(this, System.nanoTime(), simulationEngine.getInternalEndTs()));
 			debug("SIMULATION COMPLETELY FINISHED");
 		}
 	}
@@ -407,10 +408,10 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 
 	/**
 	 * Returns the handler for the information produced by the execution of this simulation.
-	 * @return The handler for the information produced by the execution of this simulation
+	 * @param info TODO
 	 */
-	public InfoHandler getInfoHandler() {
-		return infoHandler;
+	public Number notifyInfo(SimulationInfo info) {
+		return infoHandler.notifyInfo(info);
 	}
 	
 	// User methods

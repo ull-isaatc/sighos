@@ -14,7 +14,7 @@ public interface RequestResourcesFlow extends InitializerFlow, SingleSuccessorFl
 	/**
 	 * Allows a user for adding a customized code when a {@link es.ull.iis.simulation.core.WorkThread} from an {@link es.ull.iis.simulation.core.Element}
 	 * is enqueued, waiting for available {@link es.ull.iis.simulation.model.ResourceEngine}. 
-	 * @param WorkThread {@link es.ull.iis.simulation.core.WorkThread} requesting resources
+	 * @param FlowExecutor {@link es.ull.iis.simulation.core.WorkThread} requesting resources
 	 */
 	public void inqueue(WorkThread wt);
 	

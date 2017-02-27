@@ -5,9 +5,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.model.flow.FlowExecutor;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.simulation.sequential.RequestResources;
 import es.ull.iis.util.PrioritizedMap;
 
 /**
@@ -170,7 +168,7 @@ public class ActivityManager extends ModelObject implements Describable {
 			// has never been added to the queue (interruptible activities)
 			if (wt.getArrivalTs() == -1) {
 				wt.setArrivalOrder(arrivalOrder++);
-				wt.setArrivalTs(wt.getElement().getTs());
+				wt.setArrivalTs(wt.getElement().getModel().getSimulationEngine().getTs());
 			}
 			super.add(wt);
 		}

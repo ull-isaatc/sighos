@@ -26,7 +26,7 @@ import es.ull.iis.util.Prioritizable;
  *  only for synchronization purposes and doesn't execute task flows. 
  * @author Iván Castilla Rodríguez
  */
-public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkThread> {
+public class FlowExecutor implements Identifiable, Prioritizable, Comparable<FlowExecutor> {
 	/** Thread's Counter. Useful for identifying each single flow */
 	private static AtomicInteger counter = new AtomicInteger();
 	/** Thread's internal identifier */
@@ -34,9 +34,9 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
     /** Element owner of this thread. */    
     private final Element elem; 
     /** The parent element thread */
-    private final WorkThread parent;
+    private final FlowExecutor parent;
     /** The descendant work threads */
-	private final ArrayList<WorkThread> descendants = new ArrayList<WorkThread>();
+	private final ArrayList<FlowExecutor> descendants = new ArrayList<FlowExecutor>();
 	/** Thread's current Work Item */
 	private final WorkItem wItem;
 	/** A flag to indicate if the thread executes the flow or not */
@@ -54,7 +54,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
      * @param initialFlow The first flow to be executed by this thread
      * @param parent The parent thread, if this thread is included within a structured flow
      */
-    private WorkThread(WorkToken token, Element elem, WorkThread parent) {
+    private FlowExecutor(WorkToken token, Element elem, FlowExecutor parent) {
     	this.token = token;
         this.elem = elem;
         this.parent = parent;
@@ -84,7 +84,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
      * Adds a thread to the list of descendants.
      * @param wThread Descendant thread
      */
-	public void addDescendant(WorkThread wThread) {
+	public void addDescendant(FlowExecutor wThread) {
 		descendants.add(wThread);
 	}
 
@@ -93,7 +93,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	 * the element has to be notified and finished.
 	 * @param wThread Descendant thread
 	 */
-	public void removeDescendant(WorkThread wThread) {
+	public void removeDescendant(FlowExecutor wThread) {
 		descendants.remove(wThread);
 		if (parent == null && descendants.size() == 0)
 			elem.notifyEnd();
@@ -144,7 +144,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
      * Returns the parent thread.
      * @return The parent thread.
      */
-	public WorkThread getParent() {
+	public FlowExecutor getParent() {
 		return parent;
 	}
 
@@ -175,7 +175,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	 * @param counter The new counter.
 	 */
 	public static void setCounter(int counter) {
-		WorkThread.counter.set(counter);
+		FlowExecutor.counter.set(counter);
 	}
 	
 	/**
@@ -201,7 +201,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	}
 	
 	@Override
-	public int compareTo(WorkThread o) {
+	public int compareTo(FlowExecutor o) {
 		final int id1 = id;
 		final int id2 = o.id;
 		if (id1 > id2)
@@ -217,8 +217,8 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	 * @param elem Element owner of this thread
 	 * @return A new instance of the element's main work thread
 	 */
-	public static WorkThread getInstanceMainWorkThread(Element elem) {
-		return new WorkThread(new WorkToken(true), elem, null);
+	public static FlowExecutor getInstanceMainWorkThread(Element elem) {
+		return new FlowExecutor(new WorkToken(true), elem, null);
 	}
 	
 	/**
@@ -226,9 +226,9 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	 * The current thread is the parent of the newly created child thread. has the same state than the c
 	 * @return A new instance of a work thread created to carry out the inner subflow of a structured flow
 	 */
-	public WorkThread getInstanceDescendantWorkThread() {
+	public FlowExecutor getInstanceDescendantWorkThread() {
 		assert isExecutable() : "Invalid parent to create descendant work thread"; 
-		return new WorkThread(new WorkToken(true), elem, this);
+		return new FlowExecutor(new WorkToken(true), elem, this);
 	}
 
 	/**
@@ -238,7 +238,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 	 * @param token The token to be cloned in case this work thread is not valid and the token is also not valid. 
 	 * @return A new instance of a work thread created to carry out a new flow after a split
 	 */
-	public WorkThread getInstanceSubsequentWorkThread(boolean executable, Flow prevFlow, WorkToken token) {
+	public FlowExecutor getInstanceSubsequentWorkThread(boolean executable, Flow prevFlow, WorkToken token) {
 		final WorkToken newToken;
 		if (!executable)
 			if (!token.isExecutable())
@@ -247,7 +247,7 @@ public class WorkThread implements Identifiable, Prioritizable, Comparable<WorkT
 				newToken = new WorkToken(false, prevFlow);
 		else
 			newToken = new WorkToken(true);
-		return new WorkThread(newToken, elem, parent);
+		return new FlowExecutor(newToken, elem, parent);
 	}
 
 	/**

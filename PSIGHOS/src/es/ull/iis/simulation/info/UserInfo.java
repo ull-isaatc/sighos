@@ -1,11 +1,11 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Model;
 
 public abstract class UserInfo extends AsynchronousInfo {
 
-	public UserInfo(SimulationEngine simul, long ts) {
-		super(simul, ts);
+	public UserInfo(Model model, long ts) {
+		super(model, ts);
 	}
 
 	public boolean finalInfo = false;

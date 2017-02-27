@@ -3,7 +3,9 @@
  */
 package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
+
 
 /**
  * A merge flow which allows only one of the incoming branches to pass. Which one
@@ -45,6 +47,15 @@ public abstract class ANDJoinFlow extends MergeFlow {
 	public ANDJoinFlow(Model model, boolean safe, int acceptValue) {
 		super(model, safe);
 		this.acceptValue = acceptValue;
+	}
+	
+	/* (non-Javadoc)
+	 * @see es.ull.iis.simulation.MergeFlow#canPass(es.ull.iis.simulation.FlowExecutor)
+	 */
+	@Override
+	protected boolean canPass(FlowExecutor wThread) {
+		return (!control.get(wThread.getElement()).isActivated() 
+				&& (control.get(wThread.getElement()).getTrueChecked() == acceptValue));
 	}
 	
 	/**

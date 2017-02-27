@@ -3,15 +3,12 @@ package es.ull.iis.simulation.sequential;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
-import es.ull.iis.simulation.model.DiscreteEvent;
+import es.ull.iis.simulation.model.ActivityManager;
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Resource;
-import es.ull.iis.simulation.model.Resource.CancelPeriodOffEvent;
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.flow.FlowExecutor;
 import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
-import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
  * A resource is an element that becomes available at a specific simulation time and 
@@ -30,7 +27,7 @@ public class ResourceEngine extends EventSourceEngine<Resource> implements es.ul
     /** The resource type which this resource is being booked for */
     protected ResourceType currentResourceType = null;
     /** Work thread which currently holds this resource */
-    protected WorkThread currentWT = null;
+    protected FlowExecutor currentWT = null;
     /** Availability flag */
     protected boolean notCanceled;
 
@@ -44,7 +41,6 @@ public class ResourceEngine extends EventSourceEngine<Resource> implements es.ul
 		super(simul, modelRes, "RES");
         currentRoles = new TreeMap<ResourceType, Long>();
         notCanceled = true;
-        simul.add(this);
 	}
 
     /**
@@ -88,8 +84,9 @@ public class ResourceEngine extends EventSourceEngine<Resource> implements es.ul
 	 * Builds a list of activity managers referenced by the roles of the resource. 
 	 * @return Returns the currentManagers.
 	 */
-	public ArrayList<ActivityManagerEngine> getCurrentManagers() {
-		ArrayList <ActivityManagerEngine> currentManagers = new ArrayList<ActivityManagerEngine>();
+	@Override
+	public ArrayList<ActivityManager> getCurrentManagers() {
+		ArrayList <ActivityManager> currentManagers = new ArrayList<ActivityManager>();
 		for (ResourceType role : currentRoles.keySet())
 			if (!currentManagers.contains(role.getManager()))
 				currentManagers.add(role.getManager());
@@ -104,8 +101,8 @@ public class ResourceEngine extends EventSourceEngine<Resource> implements es.ul
 	 * @param wt The work thread in charge of executing the current flow
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
-	protected long catchResource(WorkThread wt) {
-		simul.getModel().getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, (Resource) modelEv, currentResourceType, wt, wt.getModelElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
+	public long catchResource(FlowExecutor wt) {
+		simul.getModel().notifyInfo(new ResourceUsageInfo(simul.getModel(), (Resource) modelEv, currentResourceType, wt, wt.getElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
 		currentWT = wt;
 		return currentRoles.get(currentResourceType);
 	}
@@ -118,7 +115,7 @@ public class ResourceEngine extends EventSourceEngine<Resource> implements es.ul
      * time of the resource had already expired.
      */
     public boolean releaseResource() {
-    	simul.getModel().getInfoHandler().notifyInfo(new ResourceUsageInfo(simul, (Resource) modelEv, currentResourceType, currentWT, currentWT.getModelElement(), (ResourceHandlerFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
+    	simul.getModel().notifyInfo(new ResourceUsageInfo(simul.getModel(), (Resource) modelEv, currentResourceType, currentWT, currentWT.getElement(), (ResourceHandlerFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
         currentWT = null;
         currentResourceType = null;        
         if (timeOut) {
@@ -147,7 +144,7 @@ public class ResourceEngine extends EventSourceEngine<Resource> implements es.ul
     
 	@Override
 	public void notifyCurrentManagers() {
-		for (ActivityManagerEngine am : getCurrentManagers()) {
+		for (ActivityManager am : getCurrentManagers()) {
 			// The activity manger is informed of new available resources
 			am.notifyResource(); 
 		}
@@ -201,6 +198,25 @@ public class ResourceEngine extends EventSourceEngine<Resource> implements es.ul
 		notCanceled = available;
 	}
 
+	@Override
+	public boolean add2Solution(ResourceType rt, FlowExecutor fe) {
+        // Checks if the resource is busy (taken by other element or conflict in the same activity)
+		// TODO: Check if "isAvailable" is required in this condition
+        if (isAvailable(rt) && (currentResourceType == null)) {
+	        // This resource belongs to the solution...
+	        currentResourceType = rt;
+	        fe.pushResource(modelEv);    	        
+        	return true;
+        }
+		return false;
+	}
+
+	@Override
+	public void removeFromSolution(FlowExecutor fe) {
+        currentResourceType = null;
+        fe.popResource();    		
+	}
+	
 	class ClockOnEntry {
 		private long init = 0;
 		private long finish = 0;

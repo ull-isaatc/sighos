@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.parallel.flow;
 
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 /**
  * A flow which executes some kind of work. A task flow is both an initializer and a finalizer
@@ -19,6 +19,6 @@ public interface TaskFlow extends es.ull.iis.simulation.core.flow.TaskFlow, Init
 	 * Finishes the associated task.
 	 * @param wThread The work thread which requested this flow.
 	 */
-	void finish(WorkThread wThread);
+	void finish(FlowExecutor wThread);
 
 }

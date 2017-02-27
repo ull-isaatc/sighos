@@ -3,10 +3,9 @@ package es.ull.iis.simulation.model;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.model.flow.Flow;
-import es.ull.iis.simulation.sequential.WorkThread;
 
 /**
- * The information of the current state of a {@link WorkThread work thread}. Basically indicates if 
+ * The information of the current state of a {@link FlowExecutor work thread}. Basically indicates if 
  * the current work thread is valid or not, and records the visited flows to avoid infinite loops. 
  * @author Yeray Callero
  */

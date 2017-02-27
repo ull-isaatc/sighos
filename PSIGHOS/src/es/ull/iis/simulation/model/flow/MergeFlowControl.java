@@ -1,11 +1,11 @@
 /**
  * 
  */
-package es.ull.iis.simulation.sequential.flow;
+package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.WorkToken;
 import es.ull.iis.simulation.model.flow.MergeFlow;
-import es.ull.iis.simulation.sequential.WorkThread;
 
 /**
  * Control of incoming branches per element. Counts how many incoming branches have
@@ -28,7 +28,7 @@ public abstract class MergeFlowControl {
 		this.flow = flow;
 	}
 	
-	public abstract void arrive(WorkThread wThread);
+	public abstract void arrive(FlowExecutor wThread);
 
 	public abstract boolean canReset(int checkValue);
 	

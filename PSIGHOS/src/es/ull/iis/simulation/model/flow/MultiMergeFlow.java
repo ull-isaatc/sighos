@@ -3,7 +3,9 @@
  */
 package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
+
 
 /**
  * Creates an OR flow which allows all the true incoming branches to pass. 
@@ -19,4 +21,11 @@ public class MultiMergeFlow extends ORJoinFlow {
 		super(model);
 	}
 	
+	/* (non-Javadoc)
+	 * @see es.ull.iis.simulation.MergeFlow#canPass(es.ull.iis.simulation.FlowExecutor)
+	 */
+	@Override
+	protected boolean canPass(FlowExecutor wThread) {
+		return wThread.isExecutable();
+	}
 }

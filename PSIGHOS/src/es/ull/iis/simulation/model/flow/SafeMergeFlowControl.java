@@ -1,10 +1,10 @@
 /**
  * 
  */
-package es.ull.iis.simulation.sequential.flow;
+package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.flow.MergeFlow;
-import es.ull.iis.simulation.sequential.WorkThread;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -19,10 +19,10 @@ public class SafeMergeFlowControl extends MergeFlowControl {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.MergeFlowControl#arrive(es.ull.iis.simulation.WorkThread)
+	 * @see es.ull.iis.simulation.MergeFlowControl#arrive(es.ull.iis.simulation.FlowExecutor)
 	 */
 	@Override
-	public void arrive(WorkThread wThread) {
+	public void arrive(FlowExecutor wThread) {
 		if (wThread.isExecutable())
 			trueChecked++;
 		else

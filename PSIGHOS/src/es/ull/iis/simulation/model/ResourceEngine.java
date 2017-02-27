@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.model;
 
-import es.ull.iis.simulation.model.flow.FlowExecutor;
+import java.util.ArrayList;
 
 /**
  * A simulation resource whose availability is controlled by means of timetable entries.
@@ -20,10 +20,15 @@ public interface ResourceEngine {
 	int decValidTimeTableEntries();
 	int getValidTimeTableEntries();
 	void notifyCurrentManagers();
+	ArrayList<ActivityManager> getCurrentManagers();
 	ResourceType getCurrentResourceType();
 	FlowExecutor getCurrentFlowExecutor();
 	boolean isAvailable(ResourceType rt);
 	void addRole(ResourceType role, long ts);
 	void removeRole(ResourceType role);
 	void setNotCanceled(boolean available);
+	boolean add2Solution(ResourceType rt, FlowExecutor fe);
+	void removeFromSolution(FlowExecutor fe);
+	long catchResource(FlowExecutor wt);
+	boolean releaseResource();
 }

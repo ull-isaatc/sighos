@@ -5,7 +5,9 @@ package es.ull.iis.simulation.model.flow;
 
 import java.util.Set;
 
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
+
 
 /**
  * A flow which creates several instances of the current work thread. It physically
@@ -64,4 +66,32 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow {
 	public int getNInstances() {
 		return nInstances;
 	}
+
+	/* (non-Javadoc)
+	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
+	 */
+	public void request(FlowExecutor wThread) {
+		if (!wThread.wasVisited(this)) {
+			if (wThread.isExecutable()) {
+				if (!beforeRequest(wThread))
+					wThread.cancel(this);
+			} else 
+				wThread.updatePath(this);
+			next(wThread);
+		} else
+			wThread.notifyEnd();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see es.ull.iis.simulation.BasicFlow#next(es.ull.iis.simulation.FlowExecutor)
+	 */
+	@Override
+	public void next(FlowExecutor wThread) {
+		super.next(wThread);
+		for (int i = 0; i < nInstances; i++)
+			wThread.getElement().addRequestEvent(successor, wThread.getInstanceSubsequentFlowExecutor(wThread.isExecutable(), this, wThread.getToken()));
+        wThread.notifyEnd();			
+	}
+
 }

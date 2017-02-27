@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Model;
 
 public class VarViewValueRequestInfo extends SynchronousInfo {
 
@@ -8,8 +8,8 @@ public class VarViewValueRequestInfo extends SynchronousInfo {
 	private final Object requestObject;
 	private Object[] params;
 	
-	public VarViewValueRequestInfo(SimulationEngine simul, String varName, Object requestObject, Object[] params, long ts) {
-		super(simul, ts);
+	public VarViewValueRequestInfo(Model model, String varName, Object requestObject, Object[] params, long ts) {
+		super(model, ts);
 		this.varName = varName;
 		this.requestObject = requestObject;
 		this.params = params;
@@ -34,7 +34,7 @@ public class VarViewValueRequestInfo extends SynchronousInfo {
 	@Override
 	public String toString() {
 		String message = new String();
-		message += simul.long2SimulationTime(ts) + "\tVARVIEWVALUEREQUEST:\t" + varName + "\tREQOBJ: " + requestObject.toString() + "\t" + simul.toString() + "\n";
+		message += model.long2SimulationTime(ts) + "\tVARVIEWVALUEREQUEST:\t" + varName + "\tREQOBJ: " + requestObject.toString() + "\t" + model.toString() + "\n";
 		for (int i = 0; i < params.length; i++)
 			message += "\tPARAM" + (i+1) + ": " + params[i].toString();
 		return message;

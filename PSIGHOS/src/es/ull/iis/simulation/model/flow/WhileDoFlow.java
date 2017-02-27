@@ -1,7 +1,9 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.condition.Condition;
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
+
 
 /**
  * A structured loop flow which resembles a while-do loop. A precondition is
@@ -39,6 +41,43 @@ public class WhileDoFlow extends StructuredLoopFlow {
 	 */
 	public Condition getCondition() {
 		return cond;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
+	 */
+	public void request(FlowExecutor wThread) {
+		if (!wThread.wasVisited(this)) {
+			if (wThread.isExecutable()) {
+				if (beforeRequest(wThread)) {
+					finish(wThread);
+				}
+				else {
+					wThread.cancel(this);
+					next(wThread);				
+				}
+			}
+			else {
+				wThread.updatePath(this);
+				next(wThread);
+			}
+		} else
+			wThread.notifyEnd();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.FlowExecutor)
+	 */
+	public void finish(FlowExecutor wThread) {
+		// The loop condition is checked
+		if (cond.check(wThread)) {
+			wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantFlowExecutor(initialFlow));
+		} else {
+			afterFinalize(wThread);
+			next(wThread);
+		}
 	}
 
 }

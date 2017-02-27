@@ -3,8 +3,11 @@
  */
 package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ModelObject;
+import es.ull.iis.simulation.model.SimulationEngine;
+
 
 /**
  * Basic implementation of a flow. Defines the default behavior of most methods. 
@@ -42,4 +45,15 @@ public abstract class BasicFlow extends ModelObject implements Flow {
 		return true;
 	}
 
+	/**
+	 * Assigns this flow as the last flow visited by the work thread.
+	 * @param wThread Work thread which requested this flow.
+	 */
+	public void next(final FlowExecutor wThread) {
+		wThread.setLastFlow(this);
+	}
+
+	@Override
+	protected void assignSimulation(SimulationEngine simul) {
+	}
 }

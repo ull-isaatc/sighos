@@ -6,7 +6,7 @@ package es.ull.iis.simulation.parallel.flow;
 import java.util.Set;
 
 import es.ull.iis.simulation.parallel.Simulation;
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 /**
  * A flow with a unique successor.
@@ -31,7 +31,7 @@ public abstract class SingleSuccessorFlow extends BasicFlow implements es.ull.ii
 	 * @param wThread  
 	 */
 	@Override
-	public void next(final WorkThread wThread) {
+	public void next(final FlowExecutor wThread) {
 		super.next(wThread);
 		if (successor != null) {
 			wThread.requestFlow(successor);

@@ -5,7 +5,7 @@ import java.util.HashSet;
 import es.ull.iis.simulation.parallel.flow.Flow;
 
 /**
- * The information of the current state of a {@link WorkThread work thread}. Basically indicates if 
+ * The information of the current state of a {@link FlowExecutor work thread}. Basically indicates if 
  * the current work thread is valid or not, and records the visited flows to avoid infinite loops. 
  * @author Yeray Callero
  */

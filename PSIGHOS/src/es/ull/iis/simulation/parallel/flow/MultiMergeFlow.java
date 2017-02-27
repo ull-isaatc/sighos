@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.parallel.flow;
 
 import es.ull.iis.simulation.parallel.Simulation;
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 /**
  * Creates an OR flow which allows all the true incoming branches to pass. 
@@ -25,7 +25,7 @@ public class MultiMergeFlow extends ORJoinFlow implements es.ull.iis.simulation.
 	 * @see es.ull.iis.simulation.MergeFlow#canPass(es.ull.iis.simulation.WorkThread)
 	 */
 	@Override
-	protected boolean canPass(WorkThread wThread) {
+	protected boolean canPass(FlowExecutor wThread) {
 		return wThread.isExecutable();
 	}
 

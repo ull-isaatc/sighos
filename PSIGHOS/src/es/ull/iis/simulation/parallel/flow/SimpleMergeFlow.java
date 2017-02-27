@@ -6,7 +6,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.parallel.Element;
 import es.ull.iis.simulation.parallel.Simulation;
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 
 /**
@@ -30,7 +30,7 @@ public class SimpleMergeFlow extends ORJoinFlow implements es.ull.iis.simulation
 	}
 
 	@Override
-	protected boolean canPass(WorkThread wThread) {
+	protected boolean canPass(FlowExecutor wThread) {
 		if (!lastTs.containsKey(wThread.getElement())) {
 			lastTs.put(wThread.getElement(), (long)-1);
 		}
@@ -42,7 +42,7 @@ public class SimpleMergeFlow extends ORJoinFlow implements es.ull.iis.simulation
 	}
 	
 	@Override
-	protected void reset(WorkThread wThread) {
+	protected void reset(FlowExecutor wThread) {
 		lastTs.remove(wThread.getElement());
 		super.reset(wThread);
 	}

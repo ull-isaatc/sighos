@@ -5,6 +5,7 @@ package es.ull.iis.simulation.model.flow;
 
 import java.util.Set;
 
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Identifiable;
 
 /**
@@ -65,4 +66,18 @@ public interface Flow extends Identifiable {
 	 * @return True if this flow can be requested; false in other case.
 	 */
 	boolean beforeRequest(FlowExecutor fe);
+
+	/**
+	 * Requests this flow. An element, by means of a work thread, requests this flow to
+	 * carry it out.
+	 * @param wThread The work thread requesting this flow.
+	 */
+	void request(FlowExecutor wThread);
+	
+	/**
+	 * Requests this flow successor(s) to continue the execution. This method is invoked 
+	 * after all the tasks associated to this flow has been successfully carried out.
+	 * @param wThread The work thread which requested this flow.
+	 */
+	void next(FlowExecutor wThread);
 }

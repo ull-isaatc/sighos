@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.parallel.flow;
 
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 /**
  * The process an element has to carry out.<p>
@@ -25,12 +25,12 @@ public interface Flow extends es.ull.iis.simulation.core.flow.Flow {
 	 * carry it out.
 	 * @param wThread The work thread requesting this flow.
 	 */
-	void request(WorkThread wThread);
+	void request(FlowExecutor wThread);
 	
 	/**
 	 * Requests this flow successor(s) to continue the execution. This method is invoked 
 	 * after all the tasks associated to this flow has been successfully carried out.
 	 * @param wThread The work thread which requested this flow.
 	 */
-	void next(WorkThread wThread);
+	void next(FlowExecutor wThread);
 }

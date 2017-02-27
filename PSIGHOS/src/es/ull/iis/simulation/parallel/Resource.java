@@ -62,7 +62,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.mode
 	// FIXME: MODEL Can be replaced by the createResourceEvent 
 	@Override
     protected void init() {
-		simul.getInfoHandler().notifyInfo(new ResourceInfo(this.simul, this, this.getCurrentResourceType(), ResourceInfo.Type.START, ts));
+		simul.notifyInfo(null).notifyInfo(new ResourceInfo(this.simul, this, this.getCurrentResourceType(), ResourceInfo.Type.START, ts));
 		for (int i = 0 ; i < timeTable.size(); i++) {
 			TimeTableEntry tte = timeTable.get(i);
 			if (tte.isPermanent()) {
@@ -350,7 +350,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.mode
 	 */
 	protected long catchResource(WorkItem wi) {
 		setTs(wi.getElement().getTs());
-		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, this, currentResourceType, wi, ResourceUsageInfo.Type.CAUGHT, getTs()));
+		simul.notifyInfo(null).notifyInfo(new ResourceUsageInfo(this.simul, this, currentResourceType, wi, ResourceUsageInfo.Type.CAUGHT, getTs()));
 		if (inSeveralManagers()) {
 			waitSemaphore();
 			removeBook(wi);
@@ -372,7 +372,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.mode
     protected boolean releaseResource() {
 		waitSemaphore();
 		setTs(simul.getTs());
-		simul.getInfoHandler().notifyInfo(new ResourceUsageInfo(this.simul, this, this.getCurrentResourceType(), currentWI, ResourceUsageInfo.Type.RELEASED, getTs()));
+		simul.notifyInfo(null).notifyInfo(new ResourceUsageInfo(this.simul, this, this.getCurrentResourceType(), currentWI, ResourceUsageInfo.Type.RELEASED, getTs()));
         currentWI = null;
         currentResourceType = null;        
         if (timeOut) {
@@ -467,7 +467,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.mode
         public void event() {
         	final long waitTime = role.beforeRoleOn();
         	if (waitTime == 0) {
-        		simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLON, ts));
+        		simul.notifyInfo(null).notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLON, ts));
         		debug("Resource available\t" + role);
         		role.incAvailable(Resource.this);
         		addRole(role, ts + duration);
@@ -510,7 +510,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.mode
         public void event() {
         	final long waitTime = role.beforeRoleOff();
         	if (waitTime == 0) {
-        		simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLOFF, ts));
+        		simul.notifyInfo(null).notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, role, ResourceInfo.Type.ROLOFF, ts));
         		role.decAvailable(Resource.this);
         		removeRole(role);
         		debug("Resource unavailable\t" + role);
@@ -555,7 +555,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.mode
 
 		@Override
 		public void event() {
-			simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, currentResourceType, ResourceInfo.Type.CANCELON, ts));
+			simul.notifyInfo(null).notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, currentResourceType, ResourceInfo.Type.CANCELON, ts));
 			// FIXME: Habría que controlar el acceso concurrente a esta variable. Puede dar problemas.
 			setNotCanceled(false);
 			CancelPeriodOffEvent aEvent = new CancelPeriodOffEvent(ts + duration, iter, duration);
@@ -589,7 +589,7 @@ public class Resource extends BasicElement implements es.ull.iis.simulation.mode
 
 		@Override
 		public void event() {
-			simul.getInfoHandler().notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, currentResourceType,ResourceInfo.Type.CANCELOFF, ts));
+			simul.notifyInfo(null).notifyInfo(new ResourceInfo(Resource.this.simul, Resource.this, currentResourceType,ResourceInfo.Type.CANCELOFF, ts));
 			// FIXME: Habría que controlar el acceso concurrente a esta variable. Puede dar problemas.
 			setNotCanceled(true);
 			notifyCurrentManagers();

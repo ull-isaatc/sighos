@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
+
 
 /**
  * A flow with multiple successors. Multiple successors are split nodes, that is,
@@ -69,4 +71,20 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 			newSuccList.add(f);
 		return newSuccList;
 	}
+
+	/* (non-Javadoc)
+	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
+	 */
+	public void request(FlowExecutor wThread) {
+		if (!wThread.wasVisited(this)) {
+			if (wThread.isExecutable()) {
+				if (!beforeRequest(wThread))
+					wThread.cancel(this);
+			} else 
+				wThread.updatePath(this);
+			next(wThread);
+		} else
+			wThread.notifyEnd();
+	}
+
 }

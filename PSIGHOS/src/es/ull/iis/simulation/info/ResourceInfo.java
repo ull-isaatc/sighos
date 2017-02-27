@@ -2,10 +2,9 @@ package es.ull.iis.simulation.info;
 
 import java.util.EnumSet;
 
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.SimulationEngine;
-import es.ull.iis.simulation.info.AsynchronousInfo;
 
 public class ResourceInfo extends AsynchronousInfo {
 
@@ -33,8 +32,8 @@ public class ResourceInfo extends AsynchronousInfo {
 	final private ResourceType rt;
 	final private Type type;
 	
-	public ResourceInfo(SimulationEngine simul, Resource res, ResourceType rt, Type type, long ts) {
-		super(simul, ts);
+	public ResourceInfo(Model model, Resource res, ResourceType rt, Type type, long ts) {
+		super(model, ts);
 		this.res = res;
 		this.rt = rt;
 		this.type = type;
@@ -53,7 +52,7 @@ public class ResourceInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		String message = "" + simul.long2SimulationTime(getTs()) + "\t" + res.toString() + "\t" + type.getDescription() + "\t" + res.getDescription();
+		String message = "" + model.long2SimulationTime(getTs()) + "\t" + res.toString() + "\t" + type.getDescription() + "\t" + res.getDescription();
 		if ((EnumSet.of(type).equals(EnumSet.of(Type.ROLON))) || (EnumSet.of(type).equals(EnumSet.of(Type.ROLOFF)))) {
 			message += "\tRT: " + rt.getDescription(); 
 		}

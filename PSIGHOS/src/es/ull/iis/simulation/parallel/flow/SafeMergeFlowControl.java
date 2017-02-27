@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.parallel.flow;
 
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -21,7 +21,7 @@ public class SafeMergeFlowControl extends MergeFlowControl {
 	 * @see es.ull.iis.simulation.MergeFlowControl#arrive(es.ull.iis.simulation.WorkThread)
 	 */
 	@Override
-	public void arrive(WorkThread wThread) {
+	public void arrive(FlowExecutor wThread) {
 		if (wThread.isExecutable())
 			trueChecked++;
 		else

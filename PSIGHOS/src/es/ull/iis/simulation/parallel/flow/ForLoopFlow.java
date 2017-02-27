@@ -8,7 +8,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.parallel.Simulation;
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 import es.ull.iis.function.TimeFunction;
 
 /**
@@ -22,7 +22,7 @@ public class ForLoopFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	/** Loop iterations */
 	protected final TimeFunction iterations; 
 	/** List used by the control system. */
-	protected final SortedMap<WorkThread, Integer> checkList;
+	protected final SortedMap<FlowExecutor, Integer> checkList;
 
 	/**
 	 * Create a new ForLoopFlow.
@@ -34,7 +34,7 @@ public class ForLoopFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	public ForLoopFlow(Simulation simul, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, TimeFunction iterations) {
 		super(simul, initialSubFlow, finalSubFlow);
 		this.iterations = iterations;
-		checkList = Collections.synchronizedSortedMap(new TreeMap<WorkThread, Integer>());
+		checkList = Collections.synchronizedSortedMap(new TreeMap<FlowExecutor, Integer>());
 	}
 	
 	/**
@@ -50,7 +50,7 @@ public class ForLoopFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
-	public void request(WorkThread wThread) {
+	public void request(FlowExecutor wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				int iter = Math.round((float)iterations.getValue(wThread.getElement()));
@@ -74,7 +74,7 @@ public class ForLoopFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.WorkThread)
 	 */
-	public void finish(WorkThread wThread) {
+	public void finish(FlowExecutor wThread) {
 		int iter = checkList.get(wThread);
 		if (--iter > 0) {
 			wThread.getInstanceDescendantWorkThread().requestFlow(initialFlow);

@@ -57,18 +57,37 @@ public class ResourceType extends ModelObject implements Describable {
      * @param ind Position to start the search.
      * @return The resource's index or -1 if there are not available resources.
      */
-    protected int getNextAvailableResource(int ind) {
+    protected int getNextAvailableResource(int ind, FlowExecutor fe) {
     	final int total = availableResourceList.size();
         for (; ind < total; ind++) {
-            final Resource res = availableResourceList.get(ind);
-            // Checks if the resource is busy (taken by other element or conflict in the same activity)
-            if (res.isAvailable(this) && (res.getCurrentResourceType() == null)) {
+        	if (availableResourceList.get(ind).add2Solution(this, fe)) {
             	return ind;
             }
         }
         return -1;
     }
 
+    /**
+     * Checks if there are enough available resources starting from the ind-th one. 
+     * @param ind Index of the first resource to check
+     * @param need Total amount of available resources required.
+     * @return True if there are more available resources than needed; false in other case.
+     */
+    protected boolean checkNeeded(int ind, int need) {
+    	final int total = availableResourceList.size();
+    	if (ind + need > total)
+    		return false;
+    	int disp = 0;
+    	for (int i = ind; (i < total) && (disp < need); i++) {
+    		final Resource res = availableResourceList.get(i);
+            if ((res.getCurrentFlowExecutor() == null) && (res.getCurrentResourceType() == null))
+                disp++;    		
+    	}
+    	if (disp < need)
+    		return false;
+    	return true;
+    }
+    
     /**
      * Adds a resource as available
      * @param res New available resource.

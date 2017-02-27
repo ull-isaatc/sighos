@@ -1,6 +1,11 @@
 package es.ull.iis.simulation.model.flow;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Element;
+import es.ull.iis.simulation.model.FlowExecutor;
 
 /**
  * A flow which merges several incoming branches into a single outgoing branch. The incoming 
@@ -17,6 +22,8 @@ import es.ull.iis.simulation.model.Model;
 public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow {
 	/** Amount of incoming branches */
 	protected int incomingBranches;
+	/** A structure to control the arrival of incoming branches */
+	protected final Map<Element, MergeFlowControl> control = new TreeMap<Element, MergeFlowControl>();
 	/** Indicates if the node is safe or it has to control several triggers for 
 	 * the same element through the same incoming branch before reset */ 
 	protected final boolean safe;
@@ -60,6 +67,87 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow 
 
 	@Override
 	public void afterFinalize(FlowExecutor fe) {}
+
+	/**
+	 * Controls the arrival of an incoming branch.
+	 * @param wThread The thread of control of the incoming branch
+	 */
+	protected void arrive(FlowExecutor wThread) {
+		if (!control.containsKey(wThread.getElement()))
+			control.put(wThread.getElement(), getNewBranchesControl());
+		control.get(wThread.getElement()).arrive(wThread);
+	}
+
+	/**
+	 * Checks if the last incoming branch can pass.
+	 * @param wThread The thread of control of the incoming branch
+	 * @return True if the incoming branch activates the outgoing branch; false in other case.
+	 */
+	protected abstract boolean canPass(FlowExecutor wThread);
+	
+	/**
+	 * Checks if the last incoming branch can reset the control structure. The structure
+	 * has to be reset when all the incoming branches has been activated once.
+	 * @param wThread The thread of control of the incoming branch
+	 * @return True if all the incoming branches were activated once; false in other case.
+	 */
+	protected boolean canReset(FlowExecutor wThread) {
+		return control.get(wThread.getElement()).canReset(incomingBranches);
+	}
+
+	/**
+	 * Resets the control structure, so the next incoming branch for the same element 
+	 * will use a new control structure. 
+	 * @param wThread The thread of control of the incoming branch
+	 */
+	protected void reset(FlowExecutor wThread) {
+		if (control.get(wThread.getElement()).reset())
+			control.remove(wThread.getElement());
+	}
+	
+	/**
+	 * Checks if the control structure has been activated at least once.
+	 * @param wThread The thread of control of the incoming branch
+	 * @return True if the control structure was activated at least once.
+	 */
+	protected boolean isActivated(FlowExecutor wThread) {
+		return control.get(wThread.getElement()).isActivated();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
+	 */
+	public void request(FlowExecutor wThread) {
+		final Element elem = wThread.getElement();
+		if (!wThread.wasVisited(this)) {
+			if (wThread.isExecutable()) {
+				if (!beforeRequest(wThread))
+					wThread.cancel(this);
+			}
+			// FIXME: Fix when parallel is implemented
+			//elem.waitProtectedFlow(this);
+			arrive(wThread);
+			if (canPass(wThread)) {
+				control.get(elem).setActivated();
+				next(wThread);
+			}
+			else {
+				// If no one of the branches was true, the thread of control must continue anyway
+				if (canReset(wThread) && !isActivated(wThread))
+					next(wThread.getInstanceSubsequentFlowExecutor(false, this, control.get(elem).getOutgoingFalseToken()));
+				wThread.notifyEnd();
+			}
+			if (canReset(wThread))
+				reset(wThread);
+			//elem.signalProtectedFlow(this);
+		} else
+			wThread.notifyEnd();
+	}
+	
+	protected MergeFlowControl getNewBranchesControl() {
+		return (safe)? new SafeMergeFlowControl(this) : new GeneralizedMergeFlowControl(this); 
+	}
 
 }
 

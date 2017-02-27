@@ -1,16 +1,16 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Model;
 
 public abstract class SimulationInfo {
 
-	final protected SimulationEngine simul;
+	final protected Model model;
 	
-	public SimulationInfo(SimulationEngine simul) {
-		this.simul = simul;
+	public SimulationInfo(Model model) {
+		this.model = model;
 	}
 
-	public SimulationEngine getSimul() {
-		return simul;
+	public Model getModel() {
+		return model;
 	}
 }

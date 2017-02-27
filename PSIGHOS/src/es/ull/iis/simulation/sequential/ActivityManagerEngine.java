@@ -1,15 +1,11 @@
 package es.ull.iis.simulation.sequential;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.TreeSet;
 
 import es.ull.iis.simulation.model.ActivityManager;
-import es.ull.iis.simulation.model.Describable;
-import es.ull.iis.simulation.model.flow.FlowExecutor;
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.util.PrioritizedMap;
 
 /**
  * Partition of activities. It serves as a mutual exclusion mechanism to access a set of activities
@@ -31,7 +27,6 @@ public class ActivityManagerEngine extends SimulationObject implements es.ull.ii
     public ActivityManagerEngine(SequentialSimulationEngine simul, ActivityManager modelAM) {
         super(nextid++, simul, "AM");
         this.modelAM = modelAM;
-        simul.add(this);
     }
 
     /**
@@ -62,7 +57,7 @@ public class ActivityManagerEngine extends SimulationObject implements es.ull.ii
             // TODO: Check whether it always works fine
             final RequestResourcesFlow reqResources = (RequestResourcesFlow) wt.getCurrentFlow();
             
-            final int result = wt.availableResource(simul.getRequestResource(reqResources));
+            final int result = wt.availableResource(reqResources);
             if (result == -1) {
         		toRemove.add(wt);
         		uselessSF--;
@@ -73,7 +68,7 @@ public class ActivityManagerEngine extends SimulationObject implements es.ull.ii
 		}
     	// Postponed removal to avoid conflict with the activity manager queue
     	for (FlowExecutor wt : toRemove)
-    		simul.getRequestResource((RequestResourcesFlow) wt.getCurrentFlow()).queueRemove(wt);
+    		((RequestResourcesFlow) wt.getCurrentFlow()).queueRemove(wt);
     } 
 
 }

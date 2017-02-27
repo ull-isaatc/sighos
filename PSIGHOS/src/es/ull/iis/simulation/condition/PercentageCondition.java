@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.condition;
 
-import es.ull.iis.simulation.model.flow.FlowExecutor;
+import es.ull.iis.simulation.model.FlowExecutor;
 
 /**
  * Defines a {@link Condition} which is satisfied according to a specified percentage

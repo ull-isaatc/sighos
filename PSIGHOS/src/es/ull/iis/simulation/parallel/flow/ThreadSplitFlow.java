@@ -6,7 +6,7 @@ package es.ull.iis.simulation.parallel.flow;
 import java.util.Set;
 
 import es.ull.iis.simulation.parallel.Simulation;
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 
 /**
@@ -42,7 +42,7 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow, es.ull.iis.
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
-	public void request(WorkThread wThread) {
+	public void request(FlowExecutor wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (!beforeRequest(wThread.getElement()))
@@ -59,7 +59,7 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow, es.ull.iis.
 	 * @see es.ull.iis.simulation.BasicFlow#next(es.ull.iis.simulation.WorkThread)
 	 */
 	@Override
-	public void next(WorkThread wThread) {
+	public void next(FlowExecutor wThread) {
 		super.next(wThread);
 		for (int i = 0; i < nInstances; i++)
 			wThread.getInstanceSubsequentWorkThread(wThread.isExecutable(), this, wThread.getToken()).requestFlow(successor);

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.sequential.flow;
+package es.ull.iis.simulation.model.flow;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.WorkToken;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.MergeFlow;
-import es.ull.iis.simulation.sequential.WorkThread;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -30,10 +30,10 @@ public class GeneralizedMergeFlowControl extends MergeFlowControl {
 	}
 
 	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.MergeFlowControl#arrive(es.ull.iis.simulation.WorkThread)
+	 * @see es.ull.iis.simulation.MergeFlowControl#arrive(es.ull.iis.simulation.FlowExecutor)
 	 */
 	@Override
-	public void arrive(WorkThread wThread) {
+	public void arrive(FlowExecutor wThread) {
 		// New incoming branch
 		if (!incBranches.containsKey(wThread.getLastFlow())) {
 			incBranches.put(wThread.getLastFlow(), new LinkedList<WorkToken>());

@@ -14,7 +14,7 @@ public class ResourceTypeEngine extends SimulationObject implements es.ull.iis.s
      * @param description A short text describing this resource type.
      */
 	public ResourceTypeEngine(SequentialSimulationEngine simul, es.ull.iis.simulation.model.ResourceType modelRT) {
-		super(simul.getNextResourceTypeId(), simul, "RT");
+		super(modelRT.getIdentifier(), simul, "RT");
         this.modelRT = modelRT;
 	}
 

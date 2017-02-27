@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.model;
 
-import es.ull.iis.simulation.model.flow.FlowExecutor;
-
 /**
  * @author Iván Castilla
  *
@@ -22,9 +20,5 @@ public interface ElementEngine {
 	 */
 	void decInQueue(FlowExecutor fe);
 
-	void next(FlowExecutor fe);
-
-	void request(FlowExecutor fe);
-	
-	void finish(FlowExecutor fe);
+	void notifyAvailableElement();
 }

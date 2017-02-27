@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.FlowExecutor;
+
 /**
  * A {@link Flow} which executes some kind of work. A task flow is both an {@link InitializerFlow}
  * and a {@link FinalizerFlow}. After being requested, it must perform some kind of work, and when 
@@ -11,5 +13,10 @@ package es.ull.iis.simulation.model.flow;
  *
  */
 public interface TaskFlow extends InitializerFlow, FinalizerFlow {
+	/**
+	 * Finishes the associated task.
+	 * @param wThread The work thread which requested this flow.
+	 */
+	void finish(FlowExecutor wThread);
 
 }

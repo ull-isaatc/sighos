@@ -1,13 +1,13 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Model;
 
 public abstract class TimeStampedInfo extends SimulationInfo {
 
 	final protected long ts;
 	
-	TimeStampedInfo(SimulationEngine simul, long ts) {
-		super(simul);
+	TimeStampedInfo(Model model, long ts) {
+		super(model);
 		this.ts = ts;
 	}
 

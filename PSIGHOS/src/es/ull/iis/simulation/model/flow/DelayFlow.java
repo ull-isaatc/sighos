@@ -5,6 +5,8 @@ package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
+import es.ull.iis.simulation.info.ElementActionInfo;
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
 
 /**
@@ -64,6 +66,40 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, Resource
 
 	@Override
 	public void afterFinalize(FlowExecutor fe) {
+	}
+
+	@Override
+	public void request(FlowExecutor wThread) {
+		if (!wThread.wasVisited(this)) {
+			if (wThread.isExecutable()) {
+				if (beforeRequest(wThread)) {
+					model.notifyInfo(new ElementActionInfo(model, wThread, wThread.getElement(), this, wThread.getExecutionWG(), ElementActionInfo.Type.STAACT, model.getSimulationEngine().getTs()));
+					wThread.getElement().debug("Starts\t" + this + "\t" + getDescription());			
+					long finishTs = model.getSimulationEngine().getTs() + getDurationSample(wThread);
+					// TODO: Check if it's needed
+//					timeLeft = 0;
+					wThread.getElement().addFinishEvent(finishTs, this, wThread);
+				}
+				else {
+					wThread.cancel(this);
+					next(wThread);
+				}
+			}
+			else {
+				wThread.updatePath(this);
+				next(wThread);
+			}
+		} else
+			wThread.notifyEnd();
+	}
+
+	@Override
+	public void finish(FlowExecutor wThread) {
+		model.notifyInfo(new ElementActionInfo(model, wThread, wThread.getElement(), this, wThread.getExecutionWG(), ElementActionInfo.Type.ENDACT, model.getSimulationEngine().getTs()));
+		if (wThread.getElement().isDebugEnabled())
+			wThread.getElement().debug("Finishes\t" + this + "\t" + getDescription());
+		afterFinalize(wThread);
+		next(wThread);
 	}
 
 }

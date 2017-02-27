@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.condition;
 
-import es.ull.iis.simulation.model.flow.FlowExecutor;
+import es.ull.iis.simulation.model.FlowExecutor;
 
 /**
  * Condition used to build NOT logical operations. This NotCondition 

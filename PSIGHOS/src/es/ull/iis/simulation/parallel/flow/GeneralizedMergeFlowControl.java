@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 import es.ull.iis.simulation.parallel.WorkToken;
 
 /**
@@ -32,7 +32,7 @@ public class GeneralizedMergeFlowControl extends MergeFlowControl {
 	 * @see es.ull.iis.simulation.MergeFlowControl#arrive(es.ull.iis.simulation.WorkThread)
 	 */
 	@Override
-	public void arrive(WorkThread wThread) {
+	public void arrive(FlowExecutor wThread) {
 		// New incoming branch
 		if (!incBranches.containsKey(wThread.getLastFlow())) {
 			incBranches.put(wThread.getLastFlow(), new LinkedList<WorkToken>());

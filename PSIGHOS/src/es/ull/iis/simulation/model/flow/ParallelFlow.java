@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
 
 /**
@@ -17,5 +18,17 @@ public class ParallelFlow extends MultipleSuccessorFlow {
 	 */
 	public ParallelFlow(Model model) {
 		super(model);
+	}
+
+	/* (non-Javadoc)
+	 * @see es.ull.iis.simulation.BasicFlow#next(es.ull.iis.simulation.FlowExecutor)
+	 */
+	@Override
+	public void next(FlowExecutor wThread) {
+		super.next(wThread);
+		if (successorList.size() > 0)
+			for(Flow succ : successorList)
+				wThread.getElement().addRequestEvent(succ, wThread.getInstanceSubsequentFlowExecutor(wThread.isExecutable(), this, wThread.getToken()));
+        wThread.notifyEnd();
 	}
 }

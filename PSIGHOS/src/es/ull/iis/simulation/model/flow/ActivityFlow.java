@@ -8,9 +8,11 @@ import java.util.TreeMap;
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
+
 import es.ull.iis.util.Prioritizable;
 
 /**
@@ -226,4 +228,20 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 	public String getObjectTypeIdentifier() {
 		return "ACT";
 	}
+
+	@Override
+	public void finish(FlowExecutor wThread) {
+		if (isExclusive()) {
+			wThread.getElement().setCurrent(null);
+		}
+		if (wThread.wasInterrupted(this)) {
+			request(wThread);
+		}
+		else {
+			afterFinalize(wThread);
+			next(wThread);
+		}
+		
+	}
+
 }

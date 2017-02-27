@@ -5,7 +5,7 @@ package es.ull.iis.simulation.parallel.flow;
 
 import es.ull.iis.simulation.parallel.Simulation;
 import es.ull.iis.simulation.parallel.SimulationObject;
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 
 /**
@@ -29,7 +29,7 @@ public abstract class BasicFlow extends SimulationObject implements Flow {
 	 * Assigns this flow as the last flow visited by the work thread.
 	 * @param wThread Work thread which requested this flow.
 	 */
-	public void next(final WorkThread wThread) {
+	public void next(final FlowExecutor wThread) {
 		wThread.setLastFlow(this);
 	}
 

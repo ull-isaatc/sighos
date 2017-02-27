@@ -9,7 +9,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.parallel.Activity;
 import es.ull.iis.simulation.parallel.Simulation;
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 /**
  * A structured flow which contains a set of activities which must be performed according to a
@@ -98,7 +98,7 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.WorkThread)
 	 */
-	public void finish(WorkThread wThread) {
+	public void finish(FlowExecutor wThread) {
 		afterFinalize(wThread.getElement());
 		next(wThread);
 
@@ -107,7 +107,7 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow implements es
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
-	public void request(WorkThread wThread) {
+	public void request(FlowExecutor wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread.getElement()))

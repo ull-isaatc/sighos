@@ -2,7 +2,7 @@ package es.ull.iis.simulation.parallel.flow;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.parallel.Simulation;
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 /**
  * A structured loop flow which resembles a do-while loop. The internal flow
@@ -41,7 +41,7 @@ public class DoWhileFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
-	public void request(WorkThread wThread) {
+	public void request(FlowExecutor wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread.getElement())) {
@@ -65,7 +65,7 @@ public class DoWhileFlow extends StructuredLoopFlow implements es.ull.iis.simula
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.WorkThread)
 	 */
-	public void finish(WorkThread wThread) {
+	public void finish(FlowExecutor wThread) {
 		if (cond.check(wThread.getElement())) {
 			wThread.getInstanceDescendantWorkThread().requestFlow(initialFlow);
 		} else {

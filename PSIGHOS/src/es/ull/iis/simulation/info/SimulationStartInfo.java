@@ -1,13 +1,13 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Model;
 
 public class SimulationStartInfo extends AsynchronousInfo {
 
 	final private long cpuTime;
 	
-	public SimulationStartInfo(SimulationEngine simul, long cpuTime, long ts) {
-		super(simul, ts);
+	public SimulationStartInfo(Model model, long cpuTime, long ts) {
+		super(model, ts);
 		this.cpuTime = cpuTime;
 	}
 	
@@ -16,6 +16,6 @@ public class SimulationStartInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		return simul.long2SimulationTime(getTs()) + "\t[SIM]\tSIMULATION START\t " + simul.getDescription();
+		return model.long2SimulationTime(getTs()) + "\t[SIM]\tSIMULATION START\t " + model.getDescription();
 	}
 }

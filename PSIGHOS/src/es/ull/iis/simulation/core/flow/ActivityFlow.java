@@ -114,9 +114,9 @@ public interface ActivityFlow extends RequestResourcesFlow, TaskFlow {
     FlowDrivenActivityWorkGroup addWorkGroup(InitializerFlow initFlow, FinalizerFlow finalFlow, WorkGroup wg, Condition cond);    	
 	
 	/**
-	 * Allows a user for adding a customized code when the {@link WorkThread} actually starts the
+	 * Allows a user for adding a customized code when the {@link FlowExecutor} actually starts the
 	 * execution of the {@link ActivityFlow}.
-	 * @param WorkThread {@link WorkThread} requesting this {@link ActivityFlow}
+	 * @param FlowExecutor {@link FlowExecutor} requesting this {@link ActivityFlow}
 	 */
 	public void afterStart(WorkThread wThread);
 	

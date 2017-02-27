@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
+
 
 /**
  * A structured flow which contains a set of activities which must be performed according to a
@@ -109,6 +111,15 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow {
 		for (ActivityFlow[] dep : dependencies)
 			temp.add(dep);
 		return temp;
+	}
+
+	/* (non-Javadoc)
+	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.FlowExecutor)
+	 */
+	public void finish(FlowExecutor wThread) {
+		afterFinalize(wThread);
+		next(wThread);
+
 	}
 
 }

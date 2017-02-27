@@ -6,7 +6,9 @@ package es.ull.iis.simulation.model.flow;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
+
 
 /**
  * A {@link MultipleSuccessorFlow} which selects one outgoing branch among a set of them by 
@@ -76,4 +78,21 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow {
 		link(succList, probList);
 	}
 
+	@Override
+	public void next(FlowExecutor wThread) {
+		super.next(wThread);
+		if (wThread.isExecutable()) {
+			double ref = Math.random();
+			double aux = 0.0;
+			for (int i = 0; i < successorList.size(); i++) {
+				boolean res = (ref >= aux) && (ref < (aux + probabilities.get(i)));
+				aux += probabilities.get(i);
+				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getInstanceSubsequentFlowExecutor(res, this, wThread.getToken()));					
+			}			
+		}
+		else
+			for (int i = 0; i < successorList.size(); i++)
+				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getInstanceSubsequentFlowExecutor(false, this, wThread.getToken()));
+		wThread.notifyEnd();
+	}
 }

@@ -8,7 +8,7 @@ import java.util.Collection;
 
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.parallel.Simulation;
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 /**
  * A flow which selects one outgoing branch among a set of them by using a probability value.
@@ -79,7 +79,7 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow implements e
 	}
 
 	@Override
-	public void next(WorkThread wThread) {
+	public void next(FlowExecutor wThread) {
 		super.next(wThread);
 		if (wThread.isExecutable()) {
 			double ref = Math.random() * sum;

@@ -1,14 +1,14 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Model;
 
 public class TimeChangeInfo extends AsynchronousInfo {
 
-	public TimeChangeInfo(SimulationEngine simul, long ts) {
-		super(simul, ts);
+	public TimeChangeInfo(Model model, long ts) {
+		super(model, ts);
 	}
 	
 	public String toString() {
-		return simul.long2SimulationTime(getTs()) + "\t[SIM]\tCLOCK AVANCED";
+		return model.long2SimulationTime(getTs()) + "\t[SIM]\tCLOCK AVANCED";
 	}
 }

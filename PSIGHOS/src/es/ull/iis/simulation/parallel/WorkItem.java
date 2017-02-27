@@ -17,7 +17,7 @@ import es.ull.iis.simulation.parallel.flow.SingleFlow;
  */
 public class WorkItem implements es.ull.iis.simulation.core.WorkThread {
 	/** Work Thread this work item belongs to */
-	final private WorkThread wThread;
+	final private FlowExecutor wThread;
 	/** Element that contains this work item */
 	final private Element elem;
     /** The current flow of this thread */	
@@ -46,9 +46,9 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkThread {
 	
 	/**
 	 * Creates a new work item belonging to work thread wThread.
-	 * @param wThread WorkThread this item belongs to
+	 * @param wThread FlowExecutor this item belongs to
 	 */
-	public WorkItem(WorkThread wThread) {
+	public WorkItem(FlowExecutor wThread) {
 		this.wThread = wThread;
 		elem = wThread.getElement();
 	}
@@ -69,7 +69,7 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkThread {
      * Returns the work thread this work item belongs to.
 	 * @return the work thread this work item belongs to
 	 */
-	public WorkThread getWorkThread() {
+	public FlowExecutor getWorkThread() {
 		return wThread;
 	}
 
@@ -251,7 +251,7 @@ public class WorkItem implements es.ull.iis.simulation.core.WorkThread {
         	if (cancellation > 0) {
 				final long currentTs = elem.getTs();
 				res.setNotCanceled(false);
-				flow.simul.getInfoHandler().notifyInfo(new ResourceInfo(flow.simul, res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, currentTs));
+				flow.simul.notifyInfo(null).notifyInfo(new ResourceInfo(flow.simul, res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, currentTs));
 				res.generateCancelPeriodOffEvent(currentTs, cancellation);
 			}
 			elem.debug("Returned " + res);

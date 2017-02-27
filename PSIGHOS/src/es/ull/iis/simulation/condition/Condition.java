@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.condition;
 
-import es.ull.iis.simulation.model.flow.FlowExecutor;
+import es.ull.iis.simulation.model.FlowExecutor;
 
 /**
  * A logical condition which is used for creating restrictions or

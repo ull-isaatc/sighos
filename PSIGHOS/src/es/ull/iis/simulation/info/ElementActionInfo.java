@@ -2,8 +2,8 @@ package es.ull.iis.simulation.info;
 
 import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.Element;
-import es.ull.iis.simulation.model.SimulationEngine;
-import es.ull.iis.simulation.model.flow.FlowExecutor;
+import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 
 public class ElementActionInfo extends AsynchronousInfo {
@@ -34,8 +34,8 @@ public class ElementActionInfo extends AsynchronousInfo {
 	final private Element elem;
 	final private Type type;
 	
-	public ElementActionInfo(SimulationEngine simul, FlowExecutor fExecutor, Element elem, ResourceHandlerFlow act, ActivityWorkGroup wg, Type type, long ts) {
-		super(simul, ts);
+	public ElementActionInfo(Model model, FlowExecutor fExecutor, Element elem, ResourceHandlerFlow act, ActivityWorkGroup wg, Type type, long ts) {
+		super(model, ts);
 		this.fExecutor = fExecutor;
 		this.act = act;
 		this.wg = wg;
@@ -56,7 +56,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		String message = "" + simul.long2SimulationTime(getTs()) + "\t";
+		String message = "" + model.long2SimulationTime(getTs()) + "\t";
 		message += elem.toString() + " \t" + type.getDescription();
 		message += "\tACT: " + act.getDescription();
 		if (wg != null) {

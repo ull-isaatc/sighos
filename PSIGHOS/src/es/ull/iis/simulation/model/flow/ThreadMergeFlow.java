@@ -4,6 +4,9 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Element;
+import es.ull.iis.simulation.model.FlowExecutor;
+
 
 /**
  * A flow which merges a specified amount of work threads. It should be used with
@@ -42,4 +45,33 @@ public class ThreadMergeFlow extends ANDJoinFlow {
 	public void addPredecessor(Flow predecessor) {
 	}
 
+	/* (non-Javadoc)
+	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
+	 */
+	public void request(FlowExecutor wThread) {
+		final Element elem = wThread.getElement();
+		if (!wThread.wasVisited(this)) {
+			if (wThread.isExecutable()) {
+				if (!beforeRequest(wThread))
+					wThread.cancel(this);
+				/// FIXME: Fix when parallel implementation
+//				elem.waitProtectedFlow(this);
+				arrive(wThread);
+				if (canPass(wThread)) {
+					control.get(elem).setActivated();
+					next(wThread);
+				}
+				else {
+					// If no one of the branches was true, the thread of control must continue anyway
+					if (canReset(wThread) && !isActivated(wThread))
+						next(wThread.getInstanceSubsequentFlowExecutor(false, this, control.get(elem).getOutgoingFalseToken()));
+					wThread.notifyEnd();
+				}
+				if (canReset(wThread))
+					reset(wThread);
+//				elem.signalProtectedFlow(this);
+			}
+		} else
+			wThread.notifyEnd();
+	}
 }

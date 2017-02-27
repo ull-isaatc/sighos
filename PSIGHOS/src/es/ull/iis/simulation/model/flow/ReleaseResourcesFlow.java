@@ -5,6 +5,8 @@ package es.ull.iis.simulation.model.flow;
 
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.info.ElementActionInfo;
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ResourceType;
 
@@ -53,7 +55,10 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 	}
 
 	/**
-	 * @return the cancellationList
+	 * Returns the duration of the cancellation of a resource with the specified
+	 * resource type.
+	 * @param rt Resource Type
+	 * @return The duration of the cancellation
 	 */
 	public long getResourceCancellation(ResourceType rt) {
 		Long duration = cancellationList.get(rt); 
@@ -79,5 +84,44 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 
 	@Override
 	public void afterFinalize(FlowExecutor fe) {}
+
+    /**
+     * Releases the resources caught by this item to perform the activity.
+     * @return A list of activity managers affected by the released resources
+     */
+    public boolean releaseResources(FlowExecutor fe) {
+        if (!fe.releaseCaughtResources())
+        	return false;
+		
+		// TODO Change by more appropriate messages
+		model.notifyInfo(new ElementActionInfo(model, fe, fe.getElement(), this, fe.getExecutionWG(), ElementActionInfo.Type.ENDACT, model.getSimulationEngine().getTs()));
+		if (fe.getElement().isDebugEnabled())
+			fe.getElement().debug("Finishes\t" + this + "\t" + getDescription());
+		afterFinalize(fe);
+		return true;
+
+    }
+
+	/*
+	 * (non-Javadoc)
+	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
+	 */
+	public void request(final FlowExecutor wThread) {
+		if (!wThread.wasVisited(this)) {
+			if (wThread.isExecutable()) {
+				if (beforeRequest(wThread))
+					releaseResources(wThread);
+				else {
+					wThread.cancel(this);
+					next(wThread);
+				}
+			}
+			else {
+				wThread.updatePath(this);
+				next(wThread);
+			}
+		} else
+			wThread.notifyEnd();
+	}
 
 }

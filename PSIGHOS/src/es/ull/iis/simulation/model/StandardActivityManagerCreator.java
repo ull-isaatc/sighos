@@ -8,11 +8,7 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.simulation.sequential.ActivityWorkGroupEngine;
-import es.ull.iis.simulation.sequential.RequestResources;
-import es.ull.iis.simulation.sequential.SequentialSimulationEngine;
 
 /**
  * @author Iván Castilla Rodríguez

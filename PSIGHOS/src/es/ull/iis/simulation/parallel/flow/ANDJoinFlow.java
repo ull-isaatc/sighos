@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.parallel.flow;
 
 import es.ull.iis.simulation.parallel.Simulation;
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 /**
  * A merge flow which allows only one of the incoming branches to pass. Which one
@@ -57,7 +57,7 @@ public abstract class ANDJoinFlow extends MergeFlow implements es.ull.iis.simula
 	 * @see es.ull.iis.simulation.MergeFlow#canPass(es.ull.iis.simulation.WorkThread)
 	 */
 	@Override
-	protected boolean canPass(WorkThread wThread) {
+	protected boolean canPass(FlowExecutor wThread) {
 		return (!control.get(wThread.getElement()).isActivated() 
 				&& (control.get(wThread.getElement()).getTrueChecked() == acceptValue));
 	}

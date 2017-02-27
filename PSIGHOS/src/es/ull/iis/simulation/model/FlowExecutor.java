@@ -1,18 +1,23 @@
 /**
  * 
  */
-package es.ull.iis.simulation.model.flow;
+package es.ull.iis.simulation.model;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import es.ull.iis.function.TimeFunctionParams;
-import es.ull.iis.simulation.model.ActivityWorkGroup;
-import es.ull.iis.simulation.model.Element;
-import es.ull.iis.simulation.model.ElementType;
-import es.ull.iis.simulation.model.Resource;
-import es.ull.iis.simulation.model.WorkToken;
+import es.ull.iis.simulation.info.ElementActionInfo;
+import es.ull.iis.simulation.info.ResourceInfo;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.flow.InitializerFlow;
+import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.model.flow.TaskFlow;
 import es.ull.iis.util.Prioritizable;
 
 /**
@@ -52,7 +57,6 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 	// TODO: Substitute by %work finished
 	/** The time left to finish the activity. Used in interruptible activities. */
 	protected long timeLeft = -1;
-	private long minResourcesAvailability;
 	
     /** 
      * Creates a new work thread. The constructor is private since it must be invoked from the 
@@ -83,7 +87,7 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
     }
 
 	/**
-	 * Sets the flow currently executed by this workthread 
+	 * Sets the flow currently executed by this FlowExecutor 
 	 * @param f The flow to be performed
 	 */
 	public void setCurrentFlow(Flow f) {
@@ -101,6 +105,19 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 		return currentFlow;
 	}
 	    
+	public ActivityWorkGroup getExecutionWG() {
+		return executionWG;
+	}
+
+	/**
+	 * When the single flow can be carried out, sets the workgroup used to
+	 * carry out the activity.
+	 * @param executionWG the workgroup which is used to carry out this flow.
+	 */
+	public void setExecutionWG(ActivityWorkGroup executionWG) {
+		this.executionWG = executionWG;
+	}
+
     /**
      * Notifies the parent this thread has finished.
      */
@@ -108,7 +125,7 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
     	if (parent != null) {
     		parent.removeDescendant(this);
     		if ((parent.descendants.size() == 0) && (parent.currentFlow != null))
-    			elem.getFlowHandler().finish(parent);
+    			((TaskFlow)parent.currentFlow).finish(parent);
     	}
     }
     
@@ -149,8 +166,8 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 	}
 
 	/**
-	 * Returns the last flow visited by this workthread
-	 * @return the last flow visited by this workthread
+	 * Returns the last flow visited by this FlowExecutor
+	 * @return the last flow visited by this FlowExecutor
 	 */
 	public Flow getLastFlow() {
 		return lastFlow;
@@ -317,5 +334,161 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 		this.timeLeft = timeLeft;
 	}
 
+	@Override
+	public double getTime() {
+		return elem.getModel().getSimulationEngine().getTs();
+	}
+
+	/**
+	 * Adds a resource to the list of resources caught by this element.
+	 * @param res A new resource.
+	 */
+	public void pushResource(Resource res) {
+		final int resourcesId = ((RequestResourcesFlow)currentFlow).getResourcesId();
+		if (caughtResources.containsKey(resourcesId)) {
+			caughtResources.get(resourcesId).push(res);
+		}
+		else {
+			final ArrayDeque<Resource> solution = new ArrayDeque<Resource>();
+			solution.push(res);
+			caughtResources.put(resourcesId, solution);
+		}
+	}
+	
+	/**
+	 * Removes the last resource caught by this element.
+	 * @return The resource removed
+	 */
+	public Resource popResource() {
+		final int resourcesId = ((RequestResourcesFlow)currentFlow).getResourcesId();
+		return caughtResources.get(resourcesId).pop();
+	}
+	
+    /**
+     * Catch the resources needed for each resource type to carry out an activity.
+     * @return The minimum availability timestamp of the taken resources 
+     */
+	public void catchResources() {
+		final RequestResourcesFlow reqFlow = (RequestResourcesFlow)currentFlow;
+		final int resourcesId = reqFlow.getResourcesId();
+    	long auxTs = Long.MAX_VALUE;
+    	for (Resource res : caughtResources.get(resourcesId)) {
+    		auxTs = Math.min(auxTs, res.catchResource(this));;
+            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
+    	}
+    	final long ts = elem.getModel().getSimulationEngine().getTs();
+		// The first time the activity is carried out (useful only for interruptible activities)
+		if (timeLeft == -1) {
+			// wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
+			timeLeft = executionWG.getDurationSample(this);
+			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.STAACT, ts));
+			elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());			
+			reqFlow.afterStart(this);
+		}
+		else {
+			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.RESACT, ts));
+			elem.debug("Continues\t" + this + "\t" + reqFlow.getDescription());			
+		}
+		long finishTs = ts + timeLeft;
+		// The required time for finishing the activity is reduced (useful only for interruptible activities)
+		if (reqFlow.partOfInterruptible() && (finishTs - auxTs > 0.0)) {
+			timeLeft = finishTs - auxTs;
+			finishTs = auxTs;
+		}
+		else {
+			timeLeft = 0;
+		}
+		elem.addFinishEvent(finishTs, reqFlow, this);
+	}
+	
+	public boolean releaseCaughtResources() {
+        final TreeSet<ActivityManager> amList = new TreeSet<ActivityManager>();
+		final ReleaseResourcesFlow relFlow = (ReleaseResourcesFlow)currentFlow;
+		final int resourcesId = relFlow.getResourcesId();
+		
+		final Collection<Resource> resources = caughtResources.remove(resourcesId);
+		if (resources == null) {
+			elem.error("Trying to release group of resources not already created. ID:" + resourcesId);
+			return false;
+		}
+        // Generate unavailability periods.
+        for (Resource res : resources) {
+        	final long cancellationDuration = relFlow.getResourceCancellation(res.getCurrentResourceType());
+        	if (cancellationDuration > 0) {
+				final long actualTs = elem.getModel().getSimulationEngine().getTs();
+				res.setNotCanceled(false);
+				elem.getModel().notifyInfo(new ResourceInfo(elem.getModel(), res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
+				res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
+			}
+			elem.debug("Returned " + res);
+        	// The resource is freed
+        	if (res.releaseResource()) {
+        		// The activity managers involved are included in the list
+        		for (ActivityManager am : res.getCurrentManagers()) {
+        			amList.add(am);
+        		}
+        	}
+        }
+        // FIXME: Preparado para hacerlo aleatorio
+//				final int[] order = RandomPermutation.nextPermutation(amList.size());
+//				for (int ind : order) {
+//					ActivityManager am = amList.get(ind);
+//					am.availableResource();
+//				}
+
+		for (ActivityManager am : amList) {
+			am.notifyResource();
+		}
+        return true;
+	}
    
+    public void endDelay(RequestResourcesFlow f) {
+		// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
+		if (timeLeft <= 0.0) {
+			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, f, executionWG, ElementActionInfo.Type.ENDACT, elem.getModel().getSimulationEngine().getTs()));
+			if (elem.isDebugEnabled())
+				elem.debug("Finishes\t" + this + "\t" + f.getDescription());
+			f.afterFinalize(this);
+		}
+		else {
+			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, f, executionWG, ElementActionInfo.Type.INTACT, elem.getModel().getSimulationEngine().getTs()));
+			if (elem.isDebugEnabled())
+				elem.debug("Finishes part of \t" + this + "\t" + f.getDescription() + "\t" + timeLeft);
+			// Notifies the parent workthread that the activity was interrupted
+			parent.setTimeLeft(timeLeft);
+		}
+    }
+    
+    public int availableResource(RequestResourcesFlow reqFlow) {
+		if (!reqFlow.isExclusive() || (elem.getCurrent() == null)) {
+			// There are enough resources to perform the activity
+			if (reqFlow.isFeasible(this)) {
+				if (reqFlow.isExclusive()) 
+					elem.setCurrent(this);
+				catchResources();
+				return -1;
+			}
+			else {
+				return reqFlow.getQueueSize();
+			}
+		}
+		else {
+			return 0;
+		}
+    }
+    
+    public void availableElement(RequestResourcesFlow reqFlow) {
+		if (reqFlow.isFeasible(this)) {
+			if (reqFlow.isExclusive()) 
+				elem.setCurrent(this);
+			catchResources();
+			reqFlow.queueRemove(this);
+		}    	
+    }
+
+    public boolean wasInterrupted(ActivityFlow f) {
+		// It was an interruptible activity and it was interrupted
+		return (timeLeft > 0.0);    	
+    }
+    
 }

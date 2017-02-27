@@ -7,6 +7,7 @@
 package es.ull.iis.simulation.model;
 
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.Output;
 
 /**
@@ -144,6 +145,7 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	public abstract ElementEngine getElementEngineInstance(Element modelElem);
 	public abstract ResourceList getResourceListInstance(ResourceType modelRT);
 	public abstract ActivityManagerEngine getActivityManagerEngineInstance(ActivityManager modelAM);
+	public abstract RequestResourcesEngine getRequestResourcesEngineInstance(RequestResourcesFlow reqFlow);
 	public abstract void addEvent(DiscreteEvent ev); 
 	/**
 	 * Prints the current state of the simulation for debug purposes. Prints the current local 

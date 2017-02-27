@@ -6,7 +6,7 @@ package es.ull.iis.simulation.parallel.flow;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.parallel.Simulation;
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 
 /**
@@ -51,7 +51,7 @@ public abstract class PredefinedStructuredFlow extends StructuredFlow implements
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
-	public void request(WorkThread wThread) {
+	public void request(FlowExecutor wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread.getElement()))
@@ -73,7 +73,7 @@ public abstract class PredefinedStructuredFlow extends StructuredFlow implements
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.WorkThread)
 	 */
-	public void finish(WorkThread wThread) {
+	public void finish(FlowExecutor wThread) {
 		afterFinalize(wThread.getElement());
 		next(wThread);
 	}

@@ -5,7 +5,7 @@ package es.ull.iis.simulation.parallel.flow;
 
 import es.ull.iis.simulation.parallel.Activity;
 import es.ull.iis.simulation.parallel.Simulation;
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 /**
  * A flow which executes a single activity. 
@@ -55,7 +55,7 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
-	public void request(final WorkThread wThread) {
+	public void request(final FlowExecutor wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread.getElement()))
@@ -77,7 +77,7 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.WorkThread)
 	 */
-	public void finish(final WorkThread wThread) {
+	public void finish(final FlowExecutor wThread) {
 		if (act.finish(wThread.getWorkItem())) {
 			afterFinalize(wThread.getElement());
 			next(wThread);

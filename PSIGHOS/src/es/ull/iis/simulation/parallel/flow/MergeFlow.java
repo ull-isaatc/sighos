@@ -6,7 +6,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.parallel.Element;
 import es.ull.iis.simulation.parallel.Simulation;
-import es.ull.iis.simulation.parallel.WorkThread;
+import es.ull.iis.simulation.parallel.FlowExecutor;
 
 /**
  * A flow which merges several incoming branches into a single outgoing branch. The incoming 
@@ -54,7 +54,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow,
 	 * Controls the arrival of an incoming branch.
 	 * @param wThread The thread of control of the incoming branch
 	 */
-	protected void arrive(WorkThread wThread) {
+	protected void arrive(FlowExecutor wThread) {
 		if (!control.containsKey(wThread.getElement()))
 			control.put(wThread.getElement(), getNewBranchesControl());
 		control.get(wThread.getElement()).arrive(wThread);
@@ -65,7 +65,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow,
 	 * @param wThread The thread of control of the incoming branch
 	 * @return True if the incoming branch activates the outgoing branch; false in other case.
 	 */
-	protected abstract boolean canPass(WorkThread wThread);
+	protected abstract boolean canPass(FlowExecutor wThread);
 	
 	/**
 	 * Checks if the last incoming branch can reset the control structure. The structure
@@ -73,7 +73,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow,
 	 * @param wThread The thread of control of the incoming branch
 	 * @return True if all the incoming branches were activated once; false in other case.
 	 */
-	protected boolean canReset(WorkThread wThread) {
+	protected boolean canReset(FlowExecutor wThread) {
 		return control.get(wThread.getElement()).canReset(incomingBranches);
 	}
 
@@ -82,7 +82,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow,
 	 * will use a new control structure. 
 	 * @param wThread The thread of control of the incoming branch
 	 */
-	protected void reset(WorkThread wThread) {
+	protected void reset(FlowExecutor wThread) {
 		if (control.get(wThread.getElement()).reset())
 			control.remove(wThread.getElement());
 	}
@@ -92,7 +92,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow,
 	 * @param wThread The thread of control of the incoming branch
 	 * @return True if the control structure was activated at least once.
 	 */
-	protected boolean isActivated(WorkThread wThread) {
+	protected boolean isActivated(FlowExecutor wThread) {
 		return control.get(wThread.getElement()).isActivated();
 	}
 	
@@ -100,7 +100,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow,
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
-	public void request(WorkThread wThread) {
+	public void request(FlowExecutor wThread) {
 		final Element elem = wThread.getElement();
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {

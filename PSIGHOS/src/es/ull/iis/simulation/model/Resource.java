@@ -184,6 +184,9 @@ public class Resource extends EventSource implements Describable {
         return engine.getCurrentResourceType();
     }
 
+    public FlowExecutor getCurrentFlowExecutor() {
+    	return engine.getCurrentFlowExecutor();
+    }
     /**
      * Returns <code>true</code> if this resource is being used in spite of having finished its availability.
      * @return <code>True</code> if this resource is being used in spite of having finished its availability;
@@ -211,6 +214,49 @@ public class Resource extends EventSource implements Describable {
 		return engine.isAvailable(rt);
 	}
 
+	/**
+	 * Sets the available flag of a resource.
+	 * @param available The availability state of the resource.
+	 */
+	public void setNotCanceled(boolean available) {
+		engine.setNotCanceled(available);
+	}
+	
+	public boolean add2Solution(ResourceType rt, FlowExecutor fe) {
+		return engine.add2Solution(rt, fe);
+	}
+
+	public void removeFromSolution(FlowExecutor fe) {
+		engine.removeFromSolution(fe);
+	}
+
+	/**
+	 * Marks this resource as taken by an element. Sets the current work item, and the
+	 * current resource type; and adds this resource to the item's caught resources list.
+	 * A "taken" element continues being booked. The book is released when the resource itself is
+	 * released. 
+	 * @param wt The work thread in charge of executing the current flow
+	 * @return The availability timestamp of this resource for this resource type 
+	 */
+	public long catchResource(FlowExecutor wt) {
+		return engine.catchResource(wt);
+	}
+	
+    /**
+     * Releases this resource. If the resource has already expired its availability time, 
+     * the timeOut flag is set off. Sets the current work item and the current resource type 
+     * to <code>null</code>. The book of the resource is released too.
+     * @return True if the resource could be correctly released. False if the availability
+     * time of the resource had already expired.
+     */
+    public boolean releaseResource() {
+    	return engine.releaseResource();
+    }
+    
+    public ArrayList<ActivityManager> getCurrentManagers() {
+    	return engine.getCurrentManagers();
+    }
+    
     /**
      * Generates an event which finalizes a period of unavailability.
      * @param ts Actual simulation time.
@@ -229,7 +275,7 @@ public class Resource extends EventSource implements Describable {
     	
 		@Override
 		public void event() {
-			model.getInfoHandler().notifyInfo(new ResourceInfo(model.getSimulationEngine(), Resource.this, null, ResourceInfo.Type.START, getTs()));
+			model.notifyInfo(new ResourceInfo(model, Resource.this, null, ResourceInfo.Type.START, getTs()));
 			for (int i = 0 ; i < timeTable.size(); i++) {
 				TimeTableEntry tte = timeTable.get(i);
 				if (tte.isPermanent()) {
@@ -292,7 +338,7 @@ public class Resource extends EventSource implements Describable {
         public void event() {
         	final long waitTime = role.beforeRoleOn();
         	if (waitTime == 0) {
-        		model.getInfoHandler().notifyInfo(new ResourceInfo(model.getSimulationEngine(), Resource.this, role, ResourceInfo.Type.ROLON, ts));
+        		model.notifyInfo(new ResourceInfo(model, Resource.this, role, ResourceInfo.Type.ROLON, ts));
         		debug("Resource available\t" + role);
         		role.incAvailable(Resource.this);
         		engine.addRole(role, ts + duration);
@@ -343,7 +389,7 @@ public class Resource extends EventSource implements Describable {
         public void event() {
         	final long waitTime = role.beforeRoleOff();
         	if (waitTime == 0) {
-        		model.getInfoHandler().notifyInfo(new ResourceInfo(model.getSimulationEngine(), Resource.this, role, ResourceInfo.Type.ROLOFF, ts));
+        		model.notifyInfo(new ResourceInfo(model, Resource.this, role, ResourceInfo.Type.ROLOFF, ts));
         		role.decAvailable(Resource.this);
         		engine.removeRole(role);
         		debug("Resource unavailable\t" + role);
@@ -395,7 +441,7 @@ public class Resource extends EventSource implements Describable {
 
 		@Override
 		public void event() {
-			model.getInfoHandler().notifyInfo(new ResourceInfo(model.getSimulationEngine(), Resource.this, getCurrentResourceType(), ResourceInfo.Type.CANCELON, ts));
+			model.notifyInfo(new ResourceInfo(model, Resource.this, getCurrentResourceType(), ResourceInfo.Type.CANCELON, ts));
 			engine.setNotCanceled(false);
 			CancelPeriodOffEvent aEvent = new CancelPeriodOffEvent(ts + duration, iter, duration);
 			model.getSimulationEngine().addEvent(aEvent);
@@ -428,7 +474,7 @@ public class Resource extends EventSource implements Describable {
 
 		@Override
 		public void event() {
-			model.getInfoHandler().notifyInfo(new ResourceInfo(model.getSimulationEngine(), Resource.this, getCurrentResourceType(), ResourceInfo.Type.CANCELOFF, ts));
+			model.notifyInfo(new ResourceInfo(model, Resource.this, getCurrentResourceType(), ResourceInfo.Type.CANCELOFF, ts));
 			engine.setNotCanceled(true);
 			engine.notifyCurrentManagers();
 			long nextTs = -1;

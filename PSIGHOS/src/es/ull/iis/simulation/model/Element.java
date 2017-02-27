@@ -3,13 +3,13 @@
  */
 package es.ull.iis.simulation.model;
 
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.model.flow.Flow;
-import es.ull.iis.simulation.model.flow.FlowExecutor;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
+import es.ull.iis.simulation.model.flow.TaskFlow;
 import es.ull.iis.simulation.variable.EnumVariable;
 import es.ull.iis.util.Prioritizable;
 
@@ -22,12 +22,17 @@ public class Element extends EventSource implements Prioritizable {
 	protected ElementType elementType;
 	/** First step of the flow of the element */
 	protected final InitializerFlow initialFlow;
+	/** Presential work thread which the element is currently carrying out */
+	protected FlowExecutor current = null;
+	/** Main execution thread */
+	protected final FlowExecutor mainThread;
 	private ElementEngine engine = null;
 	
 	public Element(Model model, ElementType elementType, InitializerFlow initialFlow) {
 		super(model, model.getNewElementId(), "E");
 		this.elementType = elementType;
 		this.initialFlow = initialFlow;
+		mainThread = FlowExecutor.getInstanceMainFlowExecutor(this);
 	}
 	
 	/**
@@ -52,6 +57,48 @@ public class Element extends EventSource implements Prioritizable {
 	 */
 	public int getPriority() {
 		return elementType.getPriority();
+	}
+
+	/**
+	 * Notifies a new work thread is waiting in an activity queue.
+	 * @param wt Work thread waiting in queue.
+	 */
+	public void incInQueue(FlowExecutor fe) {
+		engine.incInQueue(fe);
+	}
+	
+	/**
+	 * Notifies a work thread has finished waiting in an activity queue.
+	 * @param wt Work thread that was waiting in a queue.
+	 */
+	public void decInQueue(FlowExecutor fe) {
+		engine.decInQueue(fe);
+	}
+	
+	/**
+	 * If the element is currently performing an activity, returns the work
+	 * thread used by the element. If the element is not performing any presential 
+	 * activity, returns null.
+	 * @return The work thread corresponding to the current presential activity being
+	 * performed by this element.
+	 */
+	public FlowExecutor getCurrent() {
+		return current;
+	}
+
+	/**
+	 * Sets the work thread corresponding to the current presential activity 
+	 * being performed by this element.Creates the events to notify the activities that this element is now
+	 * available. All the activities this element is in their queues are notified. 
+	 * @param current The work thread corresponding to the current presential activity 
+	 * being performed by this element. A null value indicates that the element has 
+	 * finished performing the activity.
+	 */
+	public void setCurrent(FlowExecutor current) {
+		this.current = current;
+		if (current == null) {
+			engine.notifyAvailableElement();
+		}
 	}
 
 	public void initializeElementVars(TreeMap<String, Object> varList) {
@@ -81,10 +128,9 @@ public class Element extends EventSource implements Prioritizable {
 	 */
 	@Override
 	public DiscreteEvent onCreate(long ts) {
-		model.getInfoHandler().notifyInfo(new ElementInfo(model.getSimulationEngine(), this, elementType, ElementInfo.Type.START, model.getSimulationEngine().getTs()));
-		simul.addActiveElement(this);
+		model.notifyInfo(new ElementInfo(model, this, elementType, ElementInfo.Type.START, model.getSimulationEngine().getTs()));
 		if (initialFlow != null) {
-			return new RequestFlowEvent(ts, initialFlow, mainThread.getInstanceDescendantWorkThread(initialFlow));
+			return (new RequestFlowEvent(model.getSimulationEngine().getTs(), initialFlow, mainThread.getInstanceDescendantFlowExecutor(initialFlow)));
 		}
 		else
 			return onDestroy();
@@ -92,8 +138,7 @@ public class Element extends EventSource implements Prioritizable {
 
 	@Override
 	public DiscreteEvent onDestroy() {
-		model.getInfoHandler().notifyInfo(new ElementInfo(model.getSimulationEngine(), this, elementType, ElementInfo.Type.FINISH, model.getSimulationEngine().getTs()));
-		simul.removeActiveElement(this);
+		model.notifyInfo(new ElementInfo(model, this, elementType, ElementInfo.Type.FINISH, model.getSimulationEngine().getTs()));
 		return new DefaultFinalizeEvent();
 	}
 
@@ -101,8 +146,8 @@ public class Element extends EventSource implements Prioritizable {
 		model.getSimulationEngine().addEvent(new RequestFlowEvent(model.getSimulationEngine().getTs(), f, fe));
 	}
 	
-	public void addFinishEvent(long ts, FlowExecutor fe) {
-		model.getSimulationEngine().addEvent(new FinishFlowEvent(ts, fe));
+	public void addFinishEvent(long ts, TaskFlow f, FlowExecutor fe) {
+		model.getSimulationEngine().addEvent(new FinishFlowEvent(ts, f, fe));
 	}
 	
 	/**
@@ -124,7 +169,7 @@ public class Element extends EventSource implements Prioritizable {
 		@Override
 		public void event() {
 			fe.setCurrentFlow(f);
-			flowHandler.request(fe);
+			f.request(fe);
 		}
 	}
 	
@@ -135,15 +180,18 @@ public class Element extends EventSource implements Prioritizable {
 	public class FinishFlowEvent extends DiscreteEvent {
 		/** The work thread that executes the finish */
 		private final FlowExecutor fe;
+		/** The flow to be finished */
+		private final TaskFlow f;
 
-		public FinishFlowEvent(long ts, FlowExecutor fe) {
+		public FinishFlowEvent(long ts, TaskFlow f, FlowExecutor fe) {
 			super(ts);
 			this.fe = fe;
+			this.f = f;
 		}		
 
 		@Override
 		public void event() {
-			flowHandler.finish(fe);
+			f.finish(fe);
 		}
 	}
 

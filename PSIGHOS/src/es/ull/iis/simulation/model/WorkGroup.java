@@ -9,23 +9,14 @@ package es.ull.iis.simulation.model;
  * @author Iván Castilla Rodríguez
  */
 public class WorkGroup extends ModelObject {
-	public class Pair {
-		public final ResourceType rt;
-		public final int needed;
+	protected final ResourceType[] resourceTypes;
+	protected final int[] needed;
 		
-		public Pair(ResourceType rt, int needed) {
-			this.rt = rt;
-			this.needed = needed;
-		}
-	}
-
-	protected final Pair[] pairs;
-	
 	/**
 	 * 
 	 */
 	public WorkGroup(Model model) {
-		this(model, new Pair[0]);
+		this(model, new ResourceType[0], new int[0]);
 	}
 
     /**
@@ -46,20 +37,8 @@ public class WorkGroup extends ModelObject {
      */    
     public WorkGroup(Model model, ResourceType[] rts, int []needs) {
     	super(model, model.getWorkGroupList().size(), "WG");
-    	this.pairs = new Pair[rts.length];
-    	for (int i = 0; i < rts.length; i++)
-    		pairs[i] = new Pair(rts[i], needs[i]);
-		model.add(this);
-    }
-
-    /**
-     * Creates a new instance of WorkGroup, initializing the list of pairs
-     * {resource type, #needed resources}.
-     * @param pairs The pairs <resource type, needed resources>.
-     */    
-    public WorkGroup(Model model, Pair[] pairs) {
-    	super(model, model.getWorkGroupList().size(), "WG");
-    	this.pairs = pairs;
+    	this.resourceTypes = rts;
+    	this.needed = needs;
 		model.add(this);
     }
 
@@ -68,20 +47,30 @@ public class WorkGroup extends ModelObject {
      * @return Amount of entries.
      */
     public int size() {
-        return pairs.length;
+        return resourceTypes.length;
     }
     
-	/**
-	 * Returns the {@link Pair}s of this {@link WorkGroup}.
-	 * @return the {@link Pair}s of this {@link WorkGroup}
-	 */
-	public Pair[] getPairs() {
-		return pairs;
-	}
+    /**
+     * Returns the resource type from the position ind of the table.
+     * @param ind Index of the entry
+     * @return The resource type from the position ind. 
+     */
+    public ResourceType getResourceType(int ind) {
+        return resourceTypes[ind];
+    }
 
-	public ResourceType getResourceType(int ind) {
-		return pairs[ind].rt;		
-	}
+    /**
+     * Returns the needed amount of resources from the position ind of the table.
+     * @param ind Index of the entry
+     * @return The needed amount of resources from the position ind. 
+     */
+    public int getNeeded(int ind) {
+        return needed[ind];
+    }
+
+    public int[] getNeeded() {
+    	return needed;    	
+    }
     
 	@Override
 	protected void assignSimulation(SimulationEngine simul) {

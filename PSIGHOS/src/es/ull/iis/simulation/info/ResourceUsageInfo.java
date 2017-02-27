@@ -1,10 +1,10 @@
 package es.ull.iis.simulation.info;
 
 import es.ull.iis.simulation.model.Element;
+import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.SimulationEngine;
-import es.ull.iis.simulation.model.flow.FlowExecutor;
 import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 
 public class ResourceUsageInfo extends AsynchronousInfo {
@@ -33,8 +33,8 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	final private Type type;
 	final private Element elem;
 	
-	public ResourceUsageInfo(SimulationEngine simul, Resource res, ResourceType rt, FlowExecutor fExecutor, Element elem, ResourceHandlerFlow act, Type type, long ts) {
-		super(simul, ts);
+	public ResourceUsageInfo(Model model, Resource res, ResourceType rt, FlowExecutor fExecutor, Element elem, ResourceHandlerFlow act, Type type, long ts) {
+		super(model, ts);
 		this.res = res;
 		this.rt = rt;
 		this.fExecutor =fExecutor;
@@ -60,7 +60,7 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		String message = "" + simul.long2SimulationTime(getTs()) + "\t" + elem.toString() + "\t";
+		String message = "" + model.long2SimulationTime(getTs()) + "\t" + elem.toString() + "\t";
 		message += type.getDescription() + "\t" + res.toString() + "\t" + res.getDescription() + "\t";
 		message += "ROLE: " + rt.getDescription() + "\t";	
 		message += "ACT: " + act.getDescription() + " \t";

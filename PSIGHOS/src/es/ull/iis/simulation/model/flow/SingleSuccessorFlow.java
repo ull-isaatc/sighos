@@ -5,7 +5,9 @@ package es.ull.iis.simulation.model.flow;
 
 import java.util.Set;
 
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
+
 
 /**
  * A flow with a unique successor.
@@ -43,6 +45,23 @@ public abstract class SingleSuccessorFlow extends BasicFlow {
 	 */
 	public Flow getSuccessor() {
 		return successor;
+	}
+	
+	/**
+	 * If this flow has a valid successor, requests this successor passing
+	 * the same work thread. If not, the work thread finishes here, and, 
+	 * if this flow has a valid parent, it's notified that this flow finished.
+	 * @param wThread  
+	 */
+	@Override
+	public void next(final FlowExecutor wThread) {
+		super.next(wThread);
+		if (successor != null) {
+			wThread.getElement().addRequestEvent(successor, wThread);
+		}
+		else {
+			wThread.notifyEnd();
+		}
 	}
 	
 }

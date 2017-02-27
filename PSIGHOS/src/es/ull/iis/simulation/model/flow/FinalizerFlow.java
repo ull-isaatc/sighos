@@ -1,5 +1,7 @@
 package es.ull.iis.simulation.model.flow;
 
+import es.ull.iis.simulation.model.FlowExecutor;
+
 /**
  * A {@link Flow} which finishes an execution branch. Only finalizer flows can be used as the last
  * step in a flow structure. 
