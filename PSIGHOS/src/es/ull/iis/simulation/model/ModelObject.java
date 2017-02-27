@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.model;
 
+import es.ull.iis.simulation.model.engine.SimulationEngine;
+
 /**
  * @author Ivan Castilla Rodriguez
  *
@@ -10,7 +12,7 @@ package es.ull.iis.simulation.model;
 public abstract class ModelObject implements Comparable<ModelObject>, Identifiable, Debuggable {
 	protected final Model model;
 	private final String objectTypeId;
-	private final int id;
+	protected final int id;
     /** String which represents the object */
     private final String idString;
 	
@@ -19,6 +21,9 @@ public abstract class ModelObject implements Comparable<ModelObject>, Identifiab
 		this.objectTypeId = objectTypeId;
 		this.id = id;
 		idString = new String("[" + objectTypeId + id + "]");
+		// In case the object is created after the simulation has started
+		if (model.getSimulationEngine() != null)
+			assignSimulation(model.getSimulationEngine());
 	}
 	
 	/**

@@ -23,7 +23,7 @@ public class WFP07Simulation extends WFPTestSimulationFactory {
     }
     
     protected Model createModel() {
-		model = new Model(SIMUNIT);   	
+		model = new Model(id, description, SIMUNIT, SIMSTART, SIMEND);   	
         ResourceType rt0 = getDefResourceType("Operador");
         ResourceType rt1 = getDefResourceType("Medico");
         

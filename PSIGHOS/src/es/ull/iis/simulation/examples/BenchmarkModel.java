@@ -19,11 +19,11 @@ import es.ull.iis.simulation.core.flow.ForLoopFlow;
 import es.ull.iis.simulation.core.flow.InterleavedRoutingFlow;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ModelTimeFunction;
-import es.ull.iis.simulation.model.ResourceEngine;
-import es.ull.iis.simulation.model.ResourceTypeEngine;
-import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.simulation.model.engine.ResourceEngine;
+import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.function.TimeFunctionFactory;
 
 /**
@@ -190,7 +190,7 @@ public class BenchmarkModel {
 		return sim;
 	}
 	
-	private void stdBuildElementGenerators(SimulationObjectFactory factory, ForLoopFlow[] smfs, ActivityFlow<?,?>[] acts, WorkGroup[] wgs) {
+	private void stdBuildElementGenerators(SimulationObjectFactory factory, ForLoopFlow[] smfs, ActivityFlow[] acts, WorkGroup[] wgs) {
 		ElementType et = factory.getElementTypeInstance("E_TEST");
 		switch(ovType) {
 			case SAMETIME:

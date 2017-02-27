@@ -6,7 +6,7 @@ package es.ull.iis.simulation.model.flow;
 import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ModelObject;
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 
 /**
@@ -54,6 +54,6 @@ public abstract class BasicFlow extends ModelObject implements Flow {
 	}
 
 	@Override
-	protected void assignSimulation(SimulationEngine simul) {
+	public void assignSimulation(SimulationEngine simul) {
 	}
 }

@@ -10,7 +10,7 @@ import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Model;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -22,12 +22,12 @@ public abstract class CheckElementActionsView extends WFPTestView {
 	protected TreeMap<Long, ElementReferenceInfos[]> refEndActs;
 	private boolean ok = true;
 
-	public CheckElementActionsView(SimulationEngine simul, String description) {
-		this(simul, description, true);
+	public CheckElementActionsView(Model model, String description) {
+		this(model, description, true);
 	}
 
-	public CheckElementActionsView(SimulationEngine simul, String description, boolean detailed) {
-		super(simul, description, detailed);
+	public CheckElementActionsView(Model model, String description, boolean detailed) {
+		super(model, description, detailed);
 		refRequests = new TreeMap<Long, ElementReferenceInfos[]>();
 		refStartActs = new TreeMap<Long, ElementReferenceInfos[]>();
 		refEndActs = new TreeMap<Long, ElementReferenceInfos[]>();
@@ -77,7 +77,7 @@ public abstract class CheckElementActionsView extends WFPTestView {
 		}
 		else if (info instanceof SimulationStartInfo) {
 			System.out.println("--------------------------------------------------");
-			System.out.println("Checking " + getSimul().getDescription());
+			System.out.println("Checking " + getModel().getDescription());
 		}
 		else if (info instanceof SimulationEndInfo) {
 			System.out.println();
@@ -96,7 +96,7 @@ public abstract class CheckElementActionsView extends WFPTestView {
 					for (int actId : ref[i].getActivities())
 						if (!ref[i].finalCheck(actId)) {
 							if (detailed)
-								System.out.println(getSimul().long2SimulationTime(ts) + "\t" + "[E" + i + "]\t" + type + " " + actId + "\tERROR!!: Event missed");
+								System.out.println(getModel().long2SimulationTime(ts) + "\t" + "[E" + i + "]\t" + type + " " + actId + "\tERROR!!: Event missed");
 							ok = false;
 						}
 				}

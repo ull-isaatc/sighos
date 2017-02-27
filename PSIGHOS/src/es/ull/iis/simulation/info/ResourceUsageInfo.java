@@ -64,7 +64,6 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 		message += type.getDescription() + "\t" + res.toString() + "\t" + res.getDescription() + "\t";
 		message += "ROLE: " + rt.getDescription() + "\t";	
 		message += "ACT: " + act.getDescription() + " \t";
-		message += fExecutor.toString();
 		return message;
 	}
 

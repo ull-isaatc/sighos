@@ -4,9 +4,22 @@
  * Created on 8 de noviembre de 2005, 18:47
  */
 
-package es.ull.iis.simulation.model;
+package es.ull.iis.simulation.model.engine;
 
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
+import es.ull.iis.simulation.model.ActivityManager;
+import es.ull.iis.simulation.model.Debuggable;
+import es.ull.iis.simulation.model.DiscreteEvent;
+import es.ull.iis.simulation.model.Element;
+import es.ull.iis.simulation.model.ElementType;
+import es.ull.iis.simulation.model.Identifiable;
+import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.ResourceList;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.TimeDrivenGenerator;
+import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.Output;
 
@@ -50,12 +63,6 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	/** Simulation's identifier */
 	protected final int id;
 	
-	/** A value representing the simulation's start timestamp without unit */
-	protected final long internalStartTs;
-
-	/** A value representing the simulation's end timestamp without unit */
-	protected final long internalEndTs;
-	
 	/** Number of worker threads which run the simulation events (if required by the implementation) */
 	protected int nThreads = 1;
 	
@@ -70,11 +77,10 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	 * @param startTs Timestamp of simulation's start expressed in Simulation Time Units
 	 * @param endTs Timestamp of simulation's end expressed in Simulation Time Units
 	 */
-	public SimulationEngine(int id, Model model, long startTs, long endTs) {
+	public SimulationEngine(int id, Model model) {
 		this.id = id;
 		this.model = model;
-		this.internalStartTs = startTs;
-		this.internalEndTs = endTs;
+		model.setSimulationEngine(this);
 	}
 
 	/**
@@ -82,22 +88,6 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	 */
 	public Model getModel() {
 		return model;
-	}
-
-	/**
-	 * Returns a long value representing the simulation's end timestamp without unit.
-	 * @return A long value representing the simulation's end timestamp without unit
-	 */
-	public long getInternalEndTs() {
-		return internalEndTs;
-	}
-
-	/**
-	 * Returns a long value representing the simulation's start timestamp without unit.
-	 * @return A long value representing the simulation's start timestamp without unit
-	 */
-	public long getInternalStartTs() {
-		return internalStartTs;
 	}
 
 	@Override
@@ -136,10 +126,9 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 		return Model.isDebugEnabled();
 	}
 	
-	protected abstract void initializeEngine();
-	protected abstract void launchInitialEvents();
-	protected abstract void simulationLoop();
-	public abstract ActivityWorkGroupEngine getActivityWorkGroupEngineInstance(ActivityWorkGroup modelWG);
+	public abstract void initializeEngine();
+	public abstract void launchInitialEvents();
+	public abstract void simulationLoop();
 	public abstract ResourceTypeEngine getResourceTypeEngineInstance(ResourceType modelRT);
 	public abstract ResourceEngine getResourceEngineInstance(Resource modelRes);
 	public abstract ElementEngine getElementEngineInstance(Element modelElem);
@@ -151,7 +140,7 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	 * Prints the current state of the simulation for debug purposes. Prints the current local 
 	 * time, the contents of the future event list and the execution queue. 
 	 */
-	protected abstract void printState();
+	public abstract void printState();
     /**
      * Returns the current simulation time
      * @return The current simulation time

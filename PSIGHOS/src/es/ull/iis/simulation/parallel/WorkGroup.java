@@ -77,7 +77,7 @@ public class WorkGroup implements es.ull.iis.simulation.core.WorkGroup {
 	}
 
 	@Override
-	public es.ull.iis.simulation.model.ResourceTypeEngine[] getResourceTypes() {
+	public es.ull.iis.simulation.model.engine.ResourceTypeEngine[] getResourceTypes() {
 		return resourceTypes;
 	}
 }

@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.model.engine.ActivityManagerEngine;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.PrioritizedMap;
 
@@ -25,7 +27,7 @@ public class ActivityManager extends ModelObject implements Describable {
     protected final ArrayList<ResourceType> resourceTypeList;
     /** This queue contains the work threads that are waiting for activities of this AM */
     private final WorkThreadQueue wtQueue;
-    private ActivityManagerEngine engine = null;
+    private ActivityManagerEngine engine;
     
    /**
 	* Creates a new instance of ActivityManager.

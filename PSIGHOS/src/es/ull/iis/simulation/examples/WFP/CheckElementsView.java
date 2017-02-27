@@ -6,7 +6,7 @@ package es.ull.iis.simulation.examples.WFP;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Model;
 
 /**
  * Checks the elements created and finished during the simulation
@@ -24,8 +24,8 @@ public class CheckElementsView extends WFPTestView {
 	 * @param elements An array where each position is an element type, and each value is the amount of 
 	 * elements which should be created per type.
 	 */
-	public CheckElementsView(SimulationEngine simul, int []elements) {
-		super(simul, "Element checker");
+	public CheckElementsView(Model model, int []elements) {
+		super(model, "Element checker");
 		this.elements = elements;
 		elemCreated = new int[elements.length];
 		elemFinished = new int[elements.length];
@@ -54,7 +54,7 @@ public class CheckElementsView extends WFPTestView {
 			System.out.println("--------------------------------------------------");
 			System.out.println("Checking elements...");
 			for (int i = 0; i < elements.length; i++) {
-				System.out.print(getSimul().getElementType(i) + " (" + elements[i] + ")\t");
+				System.out.print(getModel().getElementTypeList().get(i) + " (" + elements[i] + ")\t");
 				System.out.print(elemCreated[i] + "\t" + elemFinished[i] + "\t");				
 				if ((elemCreated[i] & elemFinished[i]) == elements[i])
 					System.out.println("PASSED");

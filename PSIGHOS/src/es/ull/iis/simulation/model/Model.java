@@ -7,14 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.Callable;
 
-import es.ull.iis.simulation.core.VariableStore;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
 import es.ull.iis.simulation.inforeceiver.SimulationInfoHandler;
-import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
+import es.ull.iis.simulation.model.flow.BasicFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.sequential.SequentialSimulationEngine;
 import es.ull.iis.simulation.variable.BooleanVariable;
 import es.ull.iis.simulation.variable.ByteVariable;
 import es.ull.iis.simulation.variable.CharacterVariable;
@@ -31,12 +31,13 @@ import es.ull.iis.util.Output;
  * @author Ivan Castilla Rodriguez
  *
  */
-public class Model implements Callable<Integer>, Runnable, Describable, VariableStore {
+public class Model implements Identifiable, Runnable, Describable, VariableStore {
 	/** A short text describing this simulation. */
 	protected final String description;
 	/** Simulation time unit */
 	protected final TimeUnit unit;
-
+	/** Model identifier */
+	protected final int id;
 	private final static TimeUnit defTimeUnit = TimeUnit.MINUTE; 
 	private int elemCounter = 0;
 //	private final ArrayList<EventSource> eventSourceList = new ArrayList<EventSource>();
@@ -44,7 +45,7 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 	private final ArrayList<Resource> resourceList = new ArrayList<Resource>();
 	private final ArrayList<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
 	private final ArrayList<WorkGroup> workGroupList = new ArrayList<WorkGroup>();
-	private final ArrayList<Flow> flowList = new ArrayList<Flow>();
+	private final ArrayList<BasicFlow> flowList = new ArrayList<BasicFlow>();
 	private final ArrayList<RequestResourcesFlow> actList = new ArrayList<RequestResourcesFlow>();
 //	private final ArrayList<Element> elemList = new ArrayList<Element>();
 	private final ArrayList<ElementGenerator> genList = new ArrayList<ElementGenerator>();
@@ -65,17 +66,40 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 	/** The way the activity managers are created */
 	protected ActivityManagerCreator amCreator = null;
 	
+	/** A value representing the simulation's start timestamp without unit */
+	protected final long startTs;
+
+	/** A value representing the simulation's end timestamp without unit */
+	protected final long endTs;
+	
 	/**
 	 * 
 	 */
-	public Model(String description) {
-		this(description, defTimeUnit);
+	public Model(int id, String description, long startTs, long endTs) {
+		this(id, description, defTimeUnit, startTs, endTs);
 	}
 
-	public Model(String description, TimeUnit unit) {
+	/**
+	 * Creates a new instance of a model
+	 *
+	 * @param description A short text describing this simulation.
+	 * @param unit This simulation's time unit
+	 * @param startTs Timestamp of simulation's start expressed in Simulation Time Units
+	 * @param endTs Timestamp of simulation's end expressed in Simulation Time Units
+	 */
+	public Model(int id, String description, TimeUnit unit, long startTs, long endTs) {
+		this.id = id;
 		this.unit = unit;
 		this.description = description;
+		this.startTs = startTs;
+		this.endTs = endTs;
 	}
+	
+	@Override
+	public int getIdentifier() {
+		return id;
+	}
+	
 	/**
 	 * @return the defTimeUnit
 	 */
@@ -97,6 +121,22 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 	}
 
 	/**
+	 * Returns a long value representing the simulation's end timestamp without unit.
+	 * @return A long value representing the simulation's end timestamp without unit
+	 */
+	public long getEndTs() {
+		return endTs;
+	}
+
+	/**
+	 * Returns a long value representing the simulation's start timestamp without unit.
+	 * @return A long value representing the simulation's start timestamp without unit
+	 */
+	public long getStartTs() {
+		return startTs;
+	}
+
+	/**
 	 * Returns the simulation engine that executes this model
 	 * @return The simulation engine that executes this model
 	 */
@@ -110,6 +150,20 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 	 */
 	public void setSimulationEngine(SimulationEngine simulationEngine) {
 		this.simulationEngine = simulationEngine;
+		for (ElementType et : elementTypeList)
+			et.assignSimulation(simulationEngine);
+		for (ResourceType rt : resourceTypeList)
+			rt.assignSimulation(simulationEngine);
+		for (Resource res : resourceList)
+			res.assignSimulation(simulationEngine);
+		for (WorkGroup wg : workGroupList)	
+			wg.assignSimulation(simulationEngine);
+		for (BasicFlow f : flowList)
+			f.assignSimulation(simulationEngine);
+		for (ElementGenerator gen : genList)
+			gen.assignSimulation(simulationEngine);
+		for (ActivityManager am : amList)
+			am.assignSimulation(simulationEngine);
 	}
 
 	/**
@@ -136,11 +190,6 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 		return elemCounter++;
 	}
 	
-	@Override
-	public Integer call() {
-		run();
-		return 0;
-}
 	/**
 	 * Starts the simulation execution in a threaded way. Initializes all the structures, and
 	 * starts the workers. 
@@ -161,36 +210,33 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 	@Override
 	public void run() {
 		debug("SIMULATION MODEL CREATED");
+		// Sets default AM creator
+		if (amCreator == null)
+			amCreator = new StandardActivityManagerCreator(this);
+		amCreator.createActivityManagers();
+		debugPrintActManager();					
+		// Sets default simulation engine
 		if (simulationEngine == null) {
-			out.error("Simulation engine required to execute model. " +
-					"Please use the setSimulationEngine() method before invoking run()"); 
+			simulationEngine = new SequentialSimulationEngine(id, this);
 		}
-		else {
-			// Sets default AM creator
-			if (amCreator == null)
-				amCreator = new StandardActivityManagerCreator(this);
-			amCreator.createActivityManagers();
-			debugPrintActManager();		
-			// FIXME: Falta añadir la inicialización de todos los objetos del modelo
-			simulationEngine.initializeEngine();
-			init();
-	
-			infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationStartInfo(this, System.nanoTime(), simulationEngine.getInternalStartTs()));
-			
-			simulationEngine.launchInitialEvents();
-			simulationEngine.simulationLoop();
+		simulationEngine.initializeEngine();
+		init();
 
-			debug("SIMULATION TIME FINISHES\r\nSimulation time = "
-	            	+ simulationEngine.getTs() + "\r\nPreviewed simulation time = " 
-	    			+ simulationEngine.getInternalEndTs());
-	    	simulationEngine.printState();
-	    	
-	        // The user defined method for finalization is invoked
-			end();
-			
-			infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationEndInfo(this, System.nanoTime(), simulationEngine.getInternalEndTs()));
-			debug("SIMULATION COMPLETELY FINISHED");
-		}
+		infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationStartInfo(this, System.nanoTime(), startTs));
+		
+		simulationEngine.launchInitialEvents();
+		simulationEngine.simulationLoop();
+
+		debug("SIMULATION TIME FINISHES\r\nSimulation time = "
+            	+ simulationEngine.getTs() + "\r\nPreviewed simulation time = " 
+    			+ endTs);
+    	simulationEngine.printState();
+    	
+        // The user defined method for finalization is invoked
+		end();
+		
+		infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationEndInfo(this, System.nanoTime(), endTs));
+		debug("SIMULATION COMPLETELY FINISHED");
 	}
 
 	/**
@@ -215,7 +261,7 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 	public void add(WorkGroup wg) { 
 		workGroupList.add(wg);
 	}
-	public void add(Flow f) { 
+	public void add(BasicFlow f) { 
 		flowList.add(f);
 		if (f instanceof RequestResourcesFlow)
 			actList.add((RequestResourcesFlow)f);
@@ -245,7 +291,7 @@ public class Model implements Callable<Integer>, Runnable, Describable, Variable
 	public List<WorkGroup> getWorkGroupList() { 
 		return workGroupList;
 	}
-	public List<Flow> getFlowList() { 
+	public List<BasicFlow> getFlowList() { 
 		return flowList;
 	}
 	public List<RequestResourcesFlow> getActivityList() { 

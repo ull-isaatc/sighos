@@ -7,6 +7,8 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementInfo;
+import es.ull.iis.simulation.model.engine.ElementEngine;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.TaskFlow;
@@ -26,7 +28,7 @@ public class Element extends EventSource implements Prioritizable {
 	protected FlowExecutor current = null;
 	/** Main execution thread */
 	protected final FlowExecutor mainThread;
-	private ElementEngine engine = null;
+	private ElementEngine engine;
 	
 	public Element(Model model, ElementType elementType, InitializerFlow initialFlow) {
 		super(model, model.getNewElementId(), "E");

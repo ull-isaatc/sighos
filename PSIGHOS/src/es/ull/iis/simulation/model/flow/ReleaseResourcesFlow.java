@@ -109,8 +109,10 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 	public void request(final FlowExecutor wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
-				if (beforeRequest(wThread))
+				if (beforeRequest(wThread)) {
 					releaseResources(wThread);
+					next(wThread);
+				}
 				else {
 					wThread.cancel(this);
 					next(wThread);

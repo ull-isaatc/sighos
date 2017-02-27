@@ -5,6 +5,7 @@ package es.ull.iis.simulation.model;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.util.DiscreteCycleIterator;
 
@@ -93,7 +94,7 @@ public class TimeDrivenGenerator extends ElementGenerator {
 
 	@Override
 	protected void assignSimulation(SimulationEngine simul) {
-		cycleIter = cycle.getCycle().iterator(simul.getInternalStartTs(), simul.getInternalEndTs());
+		cycleIter = cycle.getCycle().iterator(model.getStartTs(), model.getEndTs());
 	}
 
 }

@@ -11,7 +11,7 @@ import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.View;
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Model;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -25,8 +25,8 @@ public class CheckElementActionViewBuilder extends View {
 	/**
 	 * @param simul
 	 */
-	public CheckElementActionViewBuilder(SimulationEngine simul) {
-		super(simul, "Builds the code to check a WFP");
+	public CheckElementActionViewBuilder(Model model) {
+		super(model, "Builds the code to check a WFP");
 		reqEvents = new TreeMap<Long, TreeMap<Integer,ArrayList<Integer>>>();
 		staEvents = new TreeMap<Long, TreeMap<Integer,ArrayList<Integer>>>();
 		endEvents = new TreeMap<Long, TreeMap<Integer,ArrayList<Integer>>>();
@@ -89,13 +89,13 @@ public class CheckElementActionViewBuilder extends View {
 			}
 		}
 		else if (info instanceof SimulationEndInfo) {
-			String className = getSimul().getClass().getSimpleName().substring(0, 5);
+			String className = getModel().getClass().getSimpleName().substring(0, 5);
 			System.out.println("class " + className + "CheckView extends CheckElementActionsView {");
-			System.out.println("\tpublic " + className + "CheckView(" + getSimul().getClass().getSimpleName() + " simul) {");
+			System.out.println("\tpublic " + className + "CheckView(" + getModel().getClass().getSimpleName() + " simul) {");
 			System.out.println("\t\tthis(simul, true);");
 			System.out.println("\t}");
 			System.out.println();
-			System.out.println("\tpublic " + className + "CheckView(" + getSimul().getClass().getSimpleName() + " simul, boolean detailed) {");
+			System.out.println("\tpublic " + className + "CheckView(" + getModel().getClass().getSimpleName() + " simul, boolean detailed) {");
 			System.out.println("\t\tsuper(simul, \"Checking " + className + "...\", detailed);");
 			System.out.println();
 			System.out.println("\t\tElementReferenceInfos [] ref;");

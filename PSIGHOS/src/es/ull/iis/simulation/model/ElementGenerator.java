@@ -102,8 +102,7 @@ public abstract class ElementGenerator extends EventSource implements TimeFuncti
             	if (p <= 0.0){
             		final ElementType et = gt.getElementType();
     	    		elems[i] = new Element(model, et, gt.getFlow());
-    	    		// TODO: Fix when use of variables is clear
-//    	    		elems[i].initializeElementVars(et.getElementValues());
+    	    		elems[i].initializeElementVars(et.getElementValues());
     	            break;
             	}
             }

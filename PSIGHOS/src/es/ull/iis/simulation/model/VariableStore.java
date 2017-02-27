@@ -1,4 +1,4 @@
-package es.ull.iis.simulation.core;
+package es.ull.iis.simulation.model;
 
 import es.ull.iis.simulation.variable.Variable;
 

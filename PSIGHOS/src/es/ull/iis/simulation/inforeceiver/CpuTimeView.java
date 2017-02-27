@@ -6,7 +6,7 @@ package es.ull.iis.simulation.inforeceiver;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Model;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -16,8 +16,8 @@ public class CpuTimeView extends View {
 	protected long iniT;
 	protected long endT;
 	
-	public CpuTimeView(SimulationEngine simul) {
-		super(simul, "CPU Time viewer");
+	public CpuTimeView(Model model) {
+		super(model, "CPU Time viewer");
 		addEntrance(SimulationStartInfo.class);
 		addEntrance(SimulationEndInfo.class);
 	}

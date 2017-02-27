@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.core;
 
 import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.model.ResourceTypeEngine;
+import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
 
 /**
  * A set of pairs &lt{@link ResourceTypeEngine}, {@link Integer}&gt which defines how many resources 

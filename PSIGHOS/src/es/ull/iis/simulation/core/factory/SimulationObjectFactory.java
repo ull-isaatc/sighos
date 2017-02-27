@@ -13,9 +13,9 @@ import es.ull.iis.simulation.core.WorkThread;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.model.ModelCycle;
-import es.ull.iis.simulation.model.ResourceEngine;
-import es.ull.iis.simulation.model.ResourceTypeEngine;
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.engine.ResourceEngine;
+import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 
 /**

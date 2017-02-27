@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.core.flow;
 
-import es.ull.iis.simulation.model.ResourceTypeEngine;
+import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
 
 /**
  * @author Iván Castilla

@@ -12,7 +12,7 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class ElementEngine extends EventSourceEngine<Element> implements es.ull.iis.simulation.model.ElementEngine {
+public class ElementEngine extends EventSourceEngine<Element> implements es.ull.iis.simulation.model.engine.ElementEngine {
 	/** Activity queues in which this element is. This list is used to notify the activities
 	 * when the element becomes available. */
 	protected final ArrayList<FlowExecutor> inQueue = new ArrayList<FlowExecutor>();

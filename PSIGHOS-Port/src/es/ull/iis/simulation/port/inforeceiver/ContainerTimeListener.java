@@ -5,11 +5,11 @@ package es.ull.iis.simulation.port.inforeceiver;
 
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.port.PortModel;
 
 /**
@@ -19,8 +19,8 @@ import es.ull.iis.simulation.port.PortModel;
 public class ContainerTimeListener extends Listener {
 	private final TreeMap<Integer, Long[]> tContainer;
 
-	public ContainerTimeListener(Simulation simul) {
-		super(simul, "Time container");
+	public ContainerTimeListener(Model model) {
+		super(model, "Time container");
 		tContainer = new TreeMap<Integer, Long[]>();
 		addEntrance(ElementActionInfo.class);
 		addEntrance(SimulationEndInfo.class);

@@ -17,7 +17,7 @@ import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
  * A resource finishes its execution when it has no longer valid timetable entries.
  * @author Carlos Martín Galán
  */
-public class ResourceEngine extends EventSourceEngine<Resource> implements es.ull.iis.simulation.model.ResourceEngine {
+public class ResourceEngine extends EventSourceEngine<Resource> implements es.ull.iis.simulation.model.engine.ResourceEngine {
     /** If true, indicates that this resource is being used after its availability time has expired */
     private boolean timeOut = false;
     /** List of currently active roles and the timestamp which marks the end of their availibity time. */

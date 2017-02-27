@@ -3,9 +3,9 @@
  */
 package es.ull.iis.simulation.test;
 
-import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.ElementType;
+import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ResourceType;

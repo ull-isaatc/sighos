@@ -1,6 +1,7 @@
 package es.ull.iis.simulation.sequential;
 
 import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
  * An identifiable object belonging to a simulation which can be compared. The identifier is
@@ -8,11 +9,11 @@ import es.ull.iis.simulation.model.Model;
  * the same identifiers.
  * @author Iván Castilla Rodríguez
  */
-public abstract class SimulationObject implements es.ull.iis.simulation.core.SimulationObject {
+public abstract class EngineObject implements es.ull.iis.simulation.model.EngineObject {
     /** Unique object identifier  */
 	protected final int id;
     /** Simulation this object belongs to */
-    protected final SequentialSimulationEngine simul;
+    protected final SimulationEngine simul;
     /** String which represents the object */
     private final String idString;
     private final String objTypeId;
@@ -23,7 +24,7 @@ public abstract class SimulationObject implements es.ull.iis.simulation.core.Sim
      * @param id Unique identifier of the object
      * @param simul Simulation this object belongs to
      */
-	public SimulationObject(int id, SequentialSimulationEngine simul, String objTypeId) {
+	public EngineObject(int id, SimulationEngine simul, String objTypeId) {
 		this.simul = simul;
 		this.model = simul.getModel();
 		this.id = id;
@@ -44,7 +45,7 @@ public abstract class SimulationObject implements es.ull.iis.simulation.core.Sim
      * Returns the simulation which this object is attached to.
      * @return Simulation this object belongs to
      */
-    public SequentialSimulationEngine getSimulation() {
+    public SimulationEngine getSimulation() {
         return simul;
     }
     
@@ -59,7 +60,7 @@ public abstract class SimulationObject implements es.ull.iis.simulation.core.Sim
 	/* (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(es.ull.iis.simulation.core.SimulationObject o) {
+	public int compareTo(es.ull.iis.simulation.model.EngineObject o) {
 		if (id < o.getIdentifier())
 			return -1;
 		if (id > o.getIdentifier())

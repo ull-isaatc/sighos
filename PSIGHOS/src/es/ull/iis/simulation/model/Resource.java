@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import es.ull.iis.simulation.info.ResourceInfo;
+import es.ull.iis.simulation.model.engine.ResourceEngine;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
@@ -28,7 +30,7 @@ public class Resource extends EventSource implements Describable {
     protected final ArrayList<TimeTableEntry> cancelPeriodTable = new ArrayList<TimeTableEntry>();
     /** If true, indicates that this resource is being used after its availability time has expired */
     private boolean timeOut = false;
-    private ResourceEngine engine = null;
+    private ResourceEngine engine;
 
 	/**
 	 * 
@@ -279,12 +281,12 @@ public class Resource extends EventSource implements Describable {
 			for (int i = 0 ; i < timeTable.size(); i++) {
 				TimeTableEntry tte = timeTable.get(i);
 				if (tte.isPermanent()) {
-		            final RoleOnEvent rEvent = new RoleOnEvent(getTs(), tte.getRole(), null, model.getSimulationEngine().getInternalEndTs());
+		            final RoleOnEvent rEvent = new RoleOnEvent(getTs(), tte.getRole(), null, model.getEndTs());
 		            model.getSimulationEngine().addEvent(rEvent);
 		            engine.incValidTimeTableEntries();
 				}
 				else {
-			        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), model.getSimulationEngine().getInternalEndTs());
+			        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), model.getEndTs());
 			        long nextTs = iter.next();
 			        if (nextTs != -1) {
 			            RoleOnEvent rEvent = new RoleOnEvent(nextTs, tte.getRole(), iter, model.simulationTime2Long(tte.getDuration()));
@@ -295,7 +297,7 @@ public class Resource extends EventSource implements Describable {
 			}
 			for (int i = 0 ; i < cancelPeriodTable.size(); i++) {
 				TimeTableEntry tte = cancelPeriodTable.get(i);
-		        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), model.getSimulationEngine().getInternalEndTs());
+		        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), model.getEndTs());
 		        long nextTs = iter.next();
 		        if (nextTs != -1) {
 		            CancelPeriodOnEvent aEvent = new CancelPeriodOnEvent(nextTs, iter, model.simulationTime2Long(tte.getDuration()));

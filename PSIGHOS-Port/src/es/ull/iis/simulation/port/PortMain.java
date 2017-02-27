@@ -3,12 +3,10 @@
  */
 package es.ull.iis.simulation.port;
 
-import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.sequential.Simulation;
-import es.ull.iis.simulation.model.Model;
-import es.ull.iis.simulation.model.TimeStamp;
-import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
+import es.ull.iis.simulation.model.Experiment;
+import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.port.inforeceiver.ContainerTimeListener;
 
 /**
@@ -23,14 +21,12 @@ public class PortMain extends Experiment {
 	final private static String DESCRIPTION = "Port Simulation";
 	private static final int NSIM = 1;
 	private static final TimeUnit PORT_TIME_UNIT = TimeUnit.MINUTE;
-	private static final TimeStamp START_TS = TimeStamp.getZero();
-	private static final TimeStamp END_TS = TimeStamp.getWeek();
+	private static final long START_TS = 0;
+	private static final long END_TS = 7 * 24 * 60;
 	protected static final String CONS_VAR = "ConstantVariate";
-	private final Model model;
 
 	public PortMain() {
 		super("PORTS", NSIM);
-		model = new PortModel(PORT_TIME_UNIT);
 	}
 	
 	public static void main(String[] args) {
@@ -38,11 +34,10 @@ public class PortMain extends Experiment {
 	}
 
 	@Override
-	public Simulation getSimulation(int ind) {
-		Simulation sim = new Simulation(ind, DESCRIPTION + " " + ind, model, START_TS, END_TS);
-		sim.addInfoReceiver(new StdInfoView(sim));
-		sim.addInfoReceiver(new ContainerTimeListener(sim));
-
-		return sim;
+	public Model getModel(int ind) {
+		final Model model = new PortModel(ind, DESCRIPTION + " " + ind, PORT_TIME_UNIT, START_TS, END_TS);
+		model.addInfoReceiver(new StdInfoView(model));
+		model.addInfoReceiver(new ContainerTimeListener(model));
+		return model;
 	}
 }

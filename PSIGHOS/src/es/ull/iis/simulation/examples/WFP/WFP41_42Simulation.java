@@ -25,7 +25,7 @@ public class WFP41_42Simulation extends WFPTestSimulationFactory {
 
 	@Override
 	protected Model createModel() {
-		Model model = new Model(SIMUNIT);		
+		model = new Model(id, description, SIMUNIT, SIMSTART, SIMEND);		
 		ResourceType rt0 = getDefResourceType("Program Chair"); 
 		ResourceType rt1 = getDefResourceType("Peer Referee");
 		

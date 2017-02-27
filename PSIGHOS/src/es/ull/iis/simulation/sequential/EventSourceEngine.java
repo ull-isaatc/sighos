@@ -1,12 +1,13 @@
 package es.ull.iis.simulation.sequential;
 
 import es.ull.iis.simulation.model.EventSource;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
  * Represents the simulation component that carries out events. 
  * @author Carlos Martin Galan
  */
-public abstract class EventSourceEngine<ES extends EventSource> extends SimulationObject implements es.ull.iis.simulation.model.EventSourceEngine<ES> {
+public class EventSourceEngine<ES extends EventSource> extends EngineObject implements es.ull.iis.simulation.model.engine.EventSourceEngine<ES> {
 	protected final ES modelEv;
 	
     /**
@@ -14,7 +15,7 @@ public abstract class EventSourceEngine<ES extends EventSource> extends Simulati
      * @param id Element's identifier
      * @param simul Attached simulation object
      */
-	public EventSourceEngine(SequentialSimulationEngine simul, ES modelEv, String objTypeId) {
+	public EventSourceEngine(SimulationEngine simul, ES modelEv, String objTypeId) {
 		super(modelEv.getIdentifier(), simul, objTypeId);
 		this.modelEv = modelEv; 
 	}

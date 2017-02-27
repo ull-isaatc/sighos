@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.model;
+package es.ull.iis.simulation.model.engine;
 
 /**
  * The type of a resource. Defines roles or specializations of the resources.<p>

@@ -31,7 +31,7 @@ public class WFP21Simulation_For extends WFPTestSimulationFactory {
 	 */
 	@Override
 	protected Model createModel() {
-		Model model = new Model(SIMUNIT);        
+		model = new Model(id, description, SIMUNIT, SIMSTART, SIMEND);        
 		ResourceType rt0 = getDefResourceType("Maquina revelado");
         
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});

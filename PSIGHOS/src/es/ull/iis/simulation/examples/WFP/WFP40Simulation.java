@@ -25,7 +25,7 @@ public class WFP40Simulation extends WFPTestSimulationFactory {
 
 	@Override
 	protected Model createModel() {
-		Model model = new Model(SIMUNIT);    	
+		model = new Model(id, description, SIMUNIT, SIMSTART, SIMEND);    	
 		ResourceType rt = getDefResourceType("Technician");
     	WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
     	

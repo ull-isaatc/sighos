@@ -12,7 +12,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.DelayFlow;
-import es.ull.iis.simulation.model.flow.FlowExecutor;
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
@@ -49,8 +49,8 @@ public class PortModel extends Model {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public PortModel(TimeUnit unit) {
-		super(unit);
+	public PortModel(int id, String description, TimeUnit unit, long startTs, long endTs) {
+		super(id, description, unit, startTs, endTs);
 		// Creates the main element type representing containers
 		final ElementType et = new ElementType(this, CONTAINER);
 		et.addElementVar("Berth", 0);
@@ -97,7 +97,7 @@ public class PortModel extends Model {
 			aUnload.addWorkGroup(0, wgUnload[i], new Condition() {
 				@Override
 				public boolean check(FlowExecutor fe) {
-					return (((Container)fe.getModelElement()).getBerth() == berthId);
+					return (((Container)fe.getElement()).getBerth() == berthId);
 				}
 			}, TIME_TO_UNLOAD[i]);
 		}
@@ -109,7 +109,7 @@ public class PortModel extends Model {
 					new Condition() {
 				@Override
 				public boolean check(FlowExecutor fe) {
-					return (((Container)fe.getModelElement()).getBlock() == blockId);
+					return (((Container)fe.getElement()).getBlock() == blockId);
 				}
 			}, TIME_TO_PLACE[i]);
 		}
@@ -124,7 +124,7 @@ public class PortModel extends Model {
 		reqTruck.link(aUnload).link(aToYard).link(aPlace).link(aTruckReturn).link(relTruck);
 		
 		// Generate orders for unloading containers
-		final ArrivalPlanning planning = new ArrivalPlanning(0, "C:\\Users\\Iván Castilla\\git\\sighos\\PSIGHOS-Port\\src\\es\\ull\\iis\\simulation\\port\\testStowagePlan1.txt");
+		final ArrivalPlanning planning = new ArrivalPlanning(0, "C:\\Users\\icasrod\\git\\sighos\\PSIGHOS-Port\\src\\es\\ull\\iis\\simulation\\port\\testStowagePlan1.txt");
 		for (int i = 0; i < N_BERTHS; i++) {
 			new ContainerCreator(this, planning, et, reqTruck);
 		}

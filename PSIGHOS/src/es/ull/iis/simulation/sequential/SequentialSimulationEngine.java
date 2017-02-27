@@ -7,14 +7,14 @@ import java.util.concurrent.CountDownLatch;
 
 import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.model.ActivityManager;
-import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Element;
+import es.ull.iis.simulation.model.ElementGenerator;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
 /**
@@ -29,7 +29,7 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class SequentialSimulationEngine extends es.ull.iis.simulation.model.SimulationEngine {
+public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engine.SimulationEngine {
 
 	/** End-of-simulation control */
 	private CountDownLatch endSignal;
@@ -55,8 +55,8 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	 * @param endTs
 	 *            Simulation's end timestamp expresed in Simulation Time Units
 	 */
-	public SequentialSimulationEngine(int id, Model model, long startTs, long endTs) {
-		super(id, model, startTs, endTs);
+	public SequentialSimulationEngine(int id, Model model) {
+		super(id, model);
 	}
 
     /**
@@ -64,7 +64,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
      * @return True if the simulation clock is higher or equal to the simulation end. False in other case.
      */
     public boolean isSimulationEnd() {
-        return(lvt >= internalEndTs);
+        return(lvt >= model.getEndTs());
     }
 
     /**
@@ -91,7 +91,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
             debug("SIMULATION TIME ADVANCING " + lvt);
             // Events with timestamp greater or equal to the maximum simulation time aren't
             // executed
-            if (lvt >= internalEndTs)
+            if (lvt >= model.getEndTs())
                 addWait(e);
             else {
             	addExecution(e);
@@ -193,7 +193,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	 * Prints the current state of the simulation for debug purposes. Prints the current local 
 	 * time, the contents of the future event list and the execution queue. 
 	 */
-	protected void printState() {
+	public void printState() {
 		if (isDebugEnabled()) {
 			StringBuffer strLong = new StringBuffer("------    LP STATE    ------");
 			strLong.append("LVT: " + lvt + "\r\n");
@@ -216,7 +216,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	 * @author Iván Castilla Rodríguez
 	 */
     class SimulationElement extends EventSource {
-
+    	private EventSourceEngine<SimulationElement> engine = null;
     	/**
     	 * Creates a very simple element to control the simulation end.
     	 */
@@ -236,7 +236,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 
 		@Override
 		protected void assignSimulation(SimulationEngine simul) {
-			// TODO
+			engine = new EventSourceEngine<SequentialSimulationEngine.SimulationElement>(simul, this, "SIM");
 		}
     }
 
@@ -245,7 +245,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	}
 
 	@Override
-	public es.ull.iis.simulation.model.ResourceTypeEngine getResourceTypeEngineInstance(ResourceType modelRT) {
+	public es.ull.iis.simulation.model.engine.ResourceTypeEngine getResourceTypeEngineInstance(ResourceType modelRT) {
 		return new ResourceTypeEngine(this, modelRT);
 	}
 
@@ -255,46 +255,41 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.Simu
 	}
 
 	@Override
-	public es.ull.iis.simulation.model.ResourceEngine getResourceEngineInstance(Resource modelRes) {
+	public es.ull.iis.simulation.model.engine.ResourceEngine getResourceEngineInstance(Resource modelRes) {
 		return new ResourceEngine(this, modelRes);
 	}
 
 	@Override
-	public es.ull.iis.simulation.model.ActivityWorkGroupEngine getActivityWorkGroupEngineInstance(ActivityWorkGroup modelWG) {
-		return new ActivityWorkGroupEngine(this, modelWG);
-	}
-
-	@Override
-	public es.ull.iis.simulation.model.ActivityManagerEngine getActivityManagerEngineInstance(ActivityManager modelAM) {
+	public es.ull.iis.simulation.model.engine.ActivityManagerEngine getActivityManagerEngineInstance(ActivityManager modelAM) {
 		return new ActivityManagerEngine(this, modelAM);
 	}
 
 	@Override
-	public es.ull.iis.simulation.model.ElementEngine getElementEngineInstance(Element modelElem) {
+	public es.ull.iis.simulation.model.engine.ElementEngine getElementEngineInstance(Element modelElem) {
 		return new ElementEngine(this, modelElem);
 	}
     
 	@Override
-	public es.ull.iis.simulation.model.RequestResourcesEngine getRequestResourcesEngineInstance(
+	public es.ull.iis.simulation.model.engine.RequestResourcesEngine getRequestResourcesEngineInstance(
 			RequestResourcesFlow reqFlow) {
 		return new RequestResourcesEngine(this, reqFlow);
 	}
 
 	@Override
-	protected void launchInitialEvents() {
+	public void launchInitialEvents() {
 		// Starts all the generators
-		for (EventSource evSource : model.getElementGeneratorList())
-			addWait(evSource.onCreate(internalStartTs));
+		for (ElementGenerator evSource : model.getElementGeneratorList())
+			addWait(evSource.onCreate(model.getStartTs()));
 		// Starts all the resources
 		for (Resource res : model.getResourceList())
-			addWait(res.onCreate(internalStartTs));
+			addWait(res.onCreate(model.getStartTs()));
 
 		// Adds the event to control end of simulation
-		addWait(new SimulationElement().onCreate(internalEndTs));		
+		addWait(new SimulationElement().onCreate(model.getEndTs()));		
 	}
 
 	@Override
-	protected void simulationLoop() {
+	public void simulationLoop() {
 		while (!isSimulationEnd())
             execWaitingElements();		
 	}

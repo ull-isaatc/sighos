@@ -94,7 +94,9 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
     	currentFlow = f;
 		executionWG = null;
 		arrivalTs = -1;
-		timeLeft = -1;    		
+		timeLeft = -1;  
+		if (f instanceof RequestResourcesFlow)
+			caughtResources.put(((RequestResourcesFlow)f).getResourcesId(), new ArrayDeque<Resource>());
 	}
 
     /**
@@ -345,14 +347,7 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 	 */
 	public void pushResource(Resource res) {
 		final int resourcesId = ((RequestResourcesFlow)currentFlow).getResourcesId();
-		if (caughtResources.containsKey(resourcesId)) {
 			caughtResources.get(resourcesId).push(res);
-		}
-		else {
-			final ArrayDeque<Resource> solution = new ArrayDeque<Resource>();
-			solution.push(res);
-			caughtResources.put(resourcesId, solution);
-		}
 	}
 	
 	/**

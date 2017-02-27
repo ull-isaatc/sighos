@@ -5,6 +5,7 @@ package es.ull.iis.simulation.model;
 
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.util.Prioritizable;
 
 /**

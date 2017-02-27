@@ -5,18 +5,18 @@ package es.ull.iis.simulation.test;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
-import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
+import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ModelTimeFunction;
-import es.ull.iis.simulation.model.ResourceEngine;
-import es.ull.iis.simulation.model.ResourceTypeEngine;
-import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.simulation.model.engine.ResourceEngine;
+import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 class TestDynamicGenerationExperiment extends Experiment {
 	SimulationType type;

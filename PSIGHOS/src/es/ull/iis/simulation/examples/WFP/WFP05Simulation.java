@@ -21,7 +21,7 @@ public class WFP05Simulation extends WFPTestSimulationFactory {
     }
     
     protected Model createModel() {
-		model = new Model(SIMUNIT);   	
+		model = new Model(id, description, SIMUNIT, SIMSTART, SIMEND);   	
         ResourceType rt0 = getDefResourceType("Excavadora bobcat");
         ResourceType rt1 = getDefResourceType("Excavadora D9");
         ResourceType rt2 = getDefResourceType("Conductor");

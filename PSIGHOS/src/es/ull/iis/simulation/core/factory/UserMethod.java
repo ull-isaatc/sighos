@@ -10,7 +10,7 @@ import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.FinalizerFlow;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.RequestResourcesFlow;
-import es.ull.iis.simulation.model.ResourceTypeEngine;
+import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
 
 /**
  * @author Iván Castilla Rodríguez

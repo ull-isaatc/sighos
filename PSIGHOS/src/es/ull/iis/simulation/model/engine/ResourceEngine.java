@@ -1,9 +1,14 @@
 /**
  * 
  */
-package es.ull.iis.simulation.model;
+package es.ull.iis.simulation.model.engine;
 
 import java.util.ArrayList;
+
+import es.ull.iis.simulation.model.ActivityManager;
+import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ModelCycle;
+import es.ull.iis.simulation.model.ResourceType;
 
 /**
  * A simulation resource whose availability is controlled by means of timetable entries.

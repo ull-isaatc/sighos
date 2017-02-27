@@ -5,7 +5,7 @@ package es.ull.iis.simulation.sequential;
  * different purposes, and each purpose is a role.
  * @author Carlos Martin Galan
  */
-public class ResourceTypeEngine extends SimulationObject implements es.ull.iis.simulation.model.ResourceTypeEngine {
+public class ResourceTypeEngine extends EngineObject implements es.ull.iis.simulation.model.engine.ResourceTypeEngine {
     private final es.ull.iis.simulation.model.ResourceType modelRT;
 
     /**

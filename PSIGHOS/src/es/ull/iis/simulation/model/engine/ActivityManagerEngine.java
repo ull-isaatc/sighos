@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.model;
+package es.ull.iis.simulation.model.engine;
 
 /**
  * @author Iván Castilla

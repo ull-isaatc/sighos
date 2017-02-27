@@ -19,10 +19,10 @@ import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
 import es.ull.iis.simulation.model.ModelCycle;
-import es.ull.iis.simulation.model.ResourceEngine;
-import es.ull.iis.simulation.model.ResourceTypeEngine;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.simulation.model.engine.ResourceEngine;
+import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
 import es.ull.iis.simulation.parallel.Simulation;
 
 /**
@@ -60,7 +60,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	}
 
 	@Override
-	public es.ull.iis.simulation.model.SimulationEngine getSimulation() {
+	public es.ull.iis.simulation.model.engine.SimulationEngine getSimulation() {
 		return simul;
 	}
 

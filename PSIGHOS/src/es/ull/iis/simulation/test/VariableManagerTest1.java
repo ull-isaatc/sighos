@@ -2,15 +2,15 @@ package es.ull.iis.simulation.test;
 
 import java.util.EnumSet;
 
-import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.simulation.variable.EnumType;
 import es.ull.iis.simulation.variable.EnumVariable;
 import es.ull.iis.simulation.variable.IntVariable;

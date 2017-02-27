@@ -6,8 +6,8 @@ package es.ull.iis.simulation.core.flow;
 import java.util.Set;
 
 import es.ull.iis.simulation.core.Element;
-import es.ull.iis.simulation.core.SimulationObject;
 import es.ull.iis.simulation.core.WorkThread;
+import es.ull.iis.simulation.model.EngineObject;
 
 /**
  * The process an element has to carry out.<p>
@@ -23,7 +23,7 @@ import es.ull.iis.simulation.core.WorkThread;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface Flow extends SimulationObject {
+public interface Flow extends EngineObject {
 	/**
 	 * Adds a flow's successor. This method must invoke <code>successor.addPredecessor</code>
 	 * to build the graph properly. 

@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.Element;
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.simulation.variable.IntVariable;
 import es.ull.iis.simulation.variable.Variable;
 

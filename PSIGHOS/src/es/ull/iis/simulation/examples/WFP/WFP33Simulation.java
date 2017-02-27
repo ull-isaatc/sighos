@@ -22,7 +22,7 @@ public class WFP33Simulation extends WFPTestSimulationFactory {
 
 	@Override
 	protected Model createModel() {
-		Model model = new Model(SIMUNIT);       
+		model = new Model(id, description, SIMUNIT, SIMSTART, SIMEND);       
 		ResourceType rt0 = getDefResourceType("Comercial");
         
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});

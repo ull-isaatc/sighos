@@ -26,8 +26,8 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
 
 	static class WFP19Model extends Model {
 		private boolean pass;
-		public WFP19Model(TimeUnit unit) {
-			super(unit);
+		public WFP19Model(int id, String description, TimeUnit unit, long startTs, long endTs) {
+			super(id, description, unit, startTs, endTs);
 			pass = false;
 		}
 		/**
@@ -49,7 +49,7 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
 	 */
 	@Override
 	protected Model createModel() {
-		model = new WFP19Model(SIMUNIT);        
+		model = new WFP19Model(id, description, SIMUNIT, SIMSTART, SIMEND);        
 		ResourceType rt0 = getDefResourceType("Cajero");
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
         

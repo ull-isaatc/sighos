@@ -9,7 +9,7 @@ import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
 import es.ull.iis.simulation.inforeceiver.View;
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
  * @author Iván Castilla Rodríguez

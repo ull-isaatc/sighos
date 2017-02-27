@@ -5,6 +5,7 @@ package es.ull.iis.simulation.examples.WFP;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
@@ -13,10 +14,11 @@ import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.ParallelFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -24,17 +26,16 @@ import es.ull.iis.simulation.model.flow.ParallelFlow;
  */
 public class CheckFlowsView extends WFPTestView {
 	FlowNode flow;
-	long[] durations;
+	TreeMap<RequestResourcesFlow, Long> durations = new TreeMap<RequestResourcesFlow, Long>();
 	ArrayList<TreeSet<EventToCheck>> futureFlow;
 	private boolean ok = true;
 
-	public CheckFlowsView(SimulationEngine simul, Flow f,
-			long[] durations) {
-		this(simul, f, durations, true);
+	public CheckFlowsView(Model model, Flow f, TreeMap<RequestResourcesFlow, Long> durations) {
+		this(model, f, durations, true);
 	}
 
-	public CheckFlowsView(SimulationEngine simul, Flow f, long[] durations, boolean detailed) {
-		super(simul, "Checking flows...", detailed);
+	public CheckFlowsView(Model model, Flow f, TreeMap<RequestResourcesFlow, Long> durations, boolean detailed) {
+		super(model, "Checking flows...", detailed);
 		addEntrance(ElementInfo.class);
 		addEntrance(ElementActionInfo.class);
 		addEntrance(SimulationEndInfo.class);
@@ -71,7 +72,7 @@ public class CheckFlowsView extends WFPTestView {
 			case STAACT:
 				ev = new EventToCheck(Type.STAACT, eInfo.getActivity().getIdentifier(), eInfo.getTs());
 				printResult(futureFlow.get(eInfo.getElement().getIdentifier()).remove(ev), "unexpected event!"); 
-				long nextTs = eInfo.getTs() + durations[eInfo.getActivity().getIdentifier()];
+				long nextTs = eInfo.getTs() + durations.get(eInfo.getActivity());
 				futureFlow.get(eInfo.getElement().getIdentifier()).add(new EventToCheck(Type.ENDACT, eInfo.getActivity().getIdentifier(), nextTs));
 				break;
 			case ENDACT:
@@ -102,7 +103,7 @@ public class CheckFlowsView extends WFPTestView {
 		}
 		else if (info instanceof SimulationStartInfo) {
 			System.out.println("--------------------------------------------------");
-			System.out.println("Checking " + getSimul().getDescription());
+			System.out.println("Checking " + getModel().getDescription());
 			System.out.println();
 		}
 	}
@@ -125,8 +126,8 @@ public class CheckFlowsView extends WFPTestView {
 			ActivityFlow sf = (ActivityFlow) f;
 			int actId = sf.getIdentifier();
 			if (sf.getSuccessor() == null)
-				return new SingleFlowNode(sf.getIdentifier(), actId, durations[actId], null);
-			return new SingleFlowNode(sf.getIdentifier(), actId, durations[actId], createFlow(sf.getSuccessor()));
+				return new SingleFlowNode(sf.getIdentifier(), actId, durations.get(sf), null);
+			return new SingleFlowNode(sf.getIdentifier(), actId, durations.get(sf), createFlow(sf.getSuccessor()));
 		}
 		if (f instanceof ParallelFlow) {
 			ParallelFlow pf = (ParallelFlow) f;

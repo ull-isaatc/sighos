@@ -3,6 +3,9 @@
  */
 package es.ull.iis.simulation.model;
 
+import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
+
 /**
  * The type of a resource. Defines roles or specializations of the resources.<p>
  * A user can define customized code associated to different events where this class
@@ -18,7 +21,7 @@ public class ResourceType extends ModelObject implements Describable {
     protected ResourceList availableResourceList = null;
     /** A brief description of the resource type */
     protected final String description;
-    protected ResourceTypeEngine engine = null;
+    protected ResourceTypeEngine engine;
     /** Activity manager this resource type belongs to. */
     protected ActivityManager manager;
 

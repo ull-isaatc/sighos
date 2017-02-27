@@ -36,8 +36,8 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
 		private double litrosIntroducidos;
 		private int enviosRealizados;
 		
-		public WFP10Model(TimeUnit unit) {
-			super(unit);
+		public WFP10Model(int id, String description, TimeUnit unit, long startTs, long endTs) {
+			super(id, description, unit, startTs, endTs);
 			litrosIntroducidos = 0.0;
 			enviosRealizados = 0;
 		}
@@ -97,7 +97,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
 	 */
 	@Override
 	protected Model createModel() {
-		model = new WFP10Model(SIMUNIT);        
+		model = new WFP10Model(id, description, SIMUNIT, SIMSTART, SIMEND);        
     	ResourceType rt0 = getDefResourceType("Operario");
     	ResourceType rt1 = getDefResourceType("Operario especial");
     	
@@ -116,8 +116,8 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
         MultiChoiceFlow mul1 = new MultiChoiceFlow(model) {
         	@Override
         	public boolean beforeRequest(FlowExecutor fe) {
-        		System.out.println("Volumen actual es " + ((WFP10Model)model).getLitrosIntroducidos() + " litros");
-        		System.out.println("Capacidad bidon es " + ((WFP10Model)model).getCapacidadBidon() + " litros");
+        		System.out.println(fe.getElement() + "\tVolumen actual es " + ((WFP10Model)model).getLitrosIntroducidos() + " litros");
+        		System.out.println(fe.getElement() + "\tCapacidad bidon es " + ((WFP10Model)model).getCapacidadBidon() + " litros");
          		return true;
         	}
         };
@@ -127,7 +127,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
     		public void afterFinalize(FlowExecutor fe) {
     			final double litros = ((WFP10Model)model).getLitrosIntroducidos(); 
     			if (litros < ((WFP10Model)model).getCapacidadBidon()) {
-    				final double random = Math.random() * 50;
+    				final double random = Math.random() * 5;
     				((WFP10Model)model).setLitrosIntroducidos(litros + random);
     				System.out.println("Introducimos " + random + " litros y nuestro volumen actual es " + ((WFP10Model)model).getLitrosIntroducidos() + " litros");
     			}

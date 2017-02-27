@@ -14,9 +14,9 @@ import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Model;
-import es.ull.iis.simulation.model.RequestResourcesEngine;
-import es.ull.iis.simulation.model.SimulationEngine;
 import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.simulation.model.engine.RequestResourcesEngine;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.util.Prioritizable;
 import es.ull.iis.util.PrioritizedTable;
 
@@ -279,19 +279,19 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * checks if the basic step is not potentially feasible, then goes through the 
      * workgroups looking for an appropriate one. If the basic step cannot be performed with 
      * any of the workgroups it's marked as not potentially feasible. 
-     * @param wt Work thread wanting to perform the basic step 
+     * @param fe Work thread wanting to perform the basic step 
      * @return <code>True</code> if this activity can be carried out with any one of its 
      * WGs. <code>False</code> in other case.
      */
-	public boolean isFeasible(FlowExecutor wt) {
+	public boolean isFeasible(FlowExecutor fe) {
     	if (!stillFeasible)
     		return false;
         Iterator<ActivityWorkGroup> iter = workGroupTable.randomIterator();
         while (iter.hasNext()) {
         	ActivityWorkGroup wg = iter.next();
-            if (wg.isFeasible(wt)) {
-                wt.setExecutionWG(wg);
-        		wt.getElement().debug("Can carry out \t" + this + "\t" + wg);
+            if (engine.checkWorkGroup(wg, fe)) {
+                fe.setExecutionWG(wg);
+        		fe.getElement().debug("Can carry out \t" + this + "\t" + wg);
                 return true;
             }            
         }
@@ -367,7 +367,25 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	}
 	
 	@Override
-	protected void assignSimulation(SimulationEngine simul) {
+	public void assignSimulation(SimulationEngine simul) {
 		engine = simul.getRequestResourcesEngineInstance(this);
+	}
+	
+	static class Trio {
+	    /** Availability condition */
+	    final protected Condition cond;
+	    final protected TimeFunction duration;
+	    final protected WorkGroup wg;
+	    
+		/**
+		 * @param cond
+		 * @param duration
+		 * @param wg
+		 */
+		public Trio(Condition cond, TimeFunction duration, WorkGroup wg) {
+			this.cond = cond;
+			this.duration = duration;
+			this.wg = wg;
+		}
 	}
 }

@@ -1,10 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.core;
-
-import es.ull.iis.simulation.model.Describable;
-import es.ull.iis.simulation.model.SimulationEngine;
+package es.ull.iis.simulation.model;
 
 /**
  * Controls a set of simulation experiments. 
@@ -37,15 +34,15 @@ public abstract class Experiment implements Describable {
 	 * @param ind Number of the experiment
 	 * @return A new simulation object.
 	 */
-	public abstract SimulationEngine getSimulation(int ind);
-
+	public abstract Model getModel(int ind);
+	
 	/**
 	 * Implementations of this method must call {@link #getSimulation(int)} to carry out all the 
 	 * simulations planned in this experiment.
 	 */
 	public void start() {
 		for (int i = 0; i < nExperiments; i++) {
-			getSimulation(i).run();
+			getModel(i).run();
 		}		
 	}
 

@@ -7,11 +7,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.core.Experiment;
-import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Experiment;
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.TimeUnit;
 
 class WFPTestExperiment extends Experiment {
@@ -35,14 +34,15 @@ class WFPTestExperiment extends Experiment {
 		this.nThreads = nThreads;
 	}
 
-	private SimulationEngine class2Simulation(Class<?> cl, int ind) {
-		SimulationEngine sim = null;
+	private Model class2Model(Class<?> cl, int ind) {
+		Model model = null;
 		try {
-			if (cl == null)
-				sim = SimulationFactory.getInstance(type, ind, "No valid simulation", TimeUnit.MINUTE, 0, 0).getSimulation();
+			if (cl == null) {
+				model = new Model(ind, "No valid simulation", TimeUnit.MINUTE, 0, 0);
+			}
 			else {
 				Constructor<?> c = cl.getConstructor(SimulationType.class, int.class, boolean.class);
-				sim = ((WFPTestSimulationFactory)c.newInstance(type, ind, detailed)).getSimulation();
+				model = ((WFPTestSimulationFactory)c.newInstance(type, ind, detailed)).getModel();
 			}
 		} catch (SecurityException e) {
 			e.printStackTrace();
@@ -57,22 +57,23 @@ class WFPTestExperiment extends Experiment {
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		}
-		return sim;
+		return model;
 	}
 	
 	@Override
-	public SimulationEngine getSimulation(int ind) {
-		SimulationEngine sim = null;
+	public Model getModel(int ind) {
+		Model model = null;
 		if (wfp != -1) {
-			sim = class2Simulation(WFPTest.simulations.get(wfp), ind);
+			model = class2Model(WFPTest.simulations.get(wfp), ind);
 		}
 		else {
-			sim = class2Simulation(WFPTest.simulations.pollFirstEntry().getValue(), ind);
+			model = class2Model(WFPTest.simulations.pollFirstEntry().getValue(), ind);
 		}
 //        sim.addInfoReceiver(new CheckElementActionViewBuilder(sim));
-		sim.addInfoReceiver(new StdInfoView(sim));
-		sim.setNThreads(nThreads);
-		return sim;
+		model.addInfoReceiver(new StdInfoView(model));
+		// FIXME: Fix when implementing parallel
+//		model.setNThreads(nThreads);
+		return model;
 	}
 }
 
@@ -109,7 +110,7 @@ public class WFPTest {
 		simulations.put(30, WFP30Simulation.class);
 		simulations.put(40, WFP40Simulation.class);
 
-		new WFPTestExperiment(SimulationType.SEQUENTIAL, 7, 4, false).start();
+		new WFPTestExperiment(SimulationType.SEQUENTIAL, 211, 4, false).start();
 	}
 
 }

@@ -15,7 +15,7 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
  * finishes, the <code>signalSemaphore()</code> method must be invoked.  
  * @author Iván Castilla Rodríguez
  */
-public class ActivityManagerEngine extends SimulationObject implements es.ull.iis.simulation.model.ActivityManagerEngine {
+public class ActivityManagerEngine extends EngineObject implements es.ull.iis.simulation.model.engine.ActivityManagerEngine {
     /** Static counter for assigning each new id */
 	private static int nextid = 0;
     private final ActivityManager modelAM;

@@ -27,7 +27,7 @@ import es.ull.iis.util.Output;
  * {@link EventSourceEngine Basic elements}.
  * @author Iván Castilla Rodríguez
  */
-public class Simulation extends es.ull.iis.simulation.model.SimulationEngine {
+public class Simulation extends es.ull.iis.simulation.model.engine.SimulationEngine {
 	/** The identifier to be assigned to the next resource */ 
 	protected int nextResourceId = 0;
 	/** The identifier to be assigned to the next activity */ 

@@ -2,8 +2,8 @@ package es.ull.iis.simulation.parallel;
 
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.core.VariableStore;
 import es.ull.iis.simulation.info.VarViewValueRequestInfo;
+import es.ull.iis.simulation.model.VariableStore;
 import es.ull.iis.simulation.variable.BooleanVariable;
 import es.ull.iis.simulation.variable.ByteVariable;
 import es.ull.iis.simulation.variable.CharacterVariable;

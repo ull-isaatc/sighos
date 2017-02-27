@@ -7,7 +7,7 @@ package es.ull.iis.simulation.parallel;
  * the same identifiers.
  * @author Iván Castilla Rodríguez
  */
-public abstract class SimulationObject implements es.ull.iis.simulation.core.SimulationObject {
+public abstract class SimulationObject implements es.ull.iis.simulation.model.EngineObject {
     /** Unique object identifier  */
 	protected final int id;
     /** Simulation this object belongs to */
@@ -44,7 +44,7 @@ public abstract class SimulationObject implements es.ull.iis.simulation.core.Sim
 	}
 
     @Override
-	public int compareTo(es.ull.iis.simulation.core.SimulationObject o) {
+	public int compareTo(es.ull.iis.simulation.model.EngineObject o) {
 		if (id < o.getIdentifier())
 			return -1;
 		if (id > o.getIdentifier())

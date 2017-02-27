@@ -20,7 +20,7 @@ public class WFP02Simulation extends WFPTestSimulationFactory {
     }
     
     protected Model createModel() {
-		model = new Model(SIMUNIT);   	
+		model = new Model(id, description, SIMUNIT, SIMSTART, SIMEND);   	
         ResourceType rt = getDefResourceType("Operador");
         
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
@@ -41,7 +41,7 @@ public class WFP02Simulation extends WFPTestSimulationFactory {
          
         getDefGenerator(getDefElementType("Activaciones de alarma"), act0);
 //        addInfoReceiver(new WFP02CheckView(this, detailed));
-        getSimulation().addInfoReceiver(new CheckFlowsView(getSimulation(), act0, new long[] {DEFACTDURATION[0], DEFACTDURATION[0], DEFACTDURATION[0]}, detailed));
+//        getSimulation().addInfoReceiver(new CheckFlowsView(getSimulation(), act0, new long[] {DEFACTDURATION[0], DEFACTDURATION[0], DEFACTDURATION[0]}, detailed));
         return model;
     }
 	

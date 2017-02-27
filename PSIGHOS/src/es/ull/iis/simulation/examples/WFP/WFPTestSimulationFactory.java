@@ -3,26 +3,19 @@
  */
 package es.ull.iis.simulation.examples.WFP;
 
-import java.util.EnumSet;
-
-import es.ull.iis.simulation.model.ElementType;
-import es.ull.iis.simulation.model.Resource;
-import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.SimulationEngine;
-import es.ull.iis.simulation.model.TimeDrivenGenerator;
-import es.ull.iis.simulation.model.WorkGroup;
-import es.ull.iis.simulation.core.factory.SimulationFactory;
-import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
-import es.ull.iis.simulation.core.factory.SimulationUserCode;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.model.flow.ActivityFlow;
-import es.ull.iis.simulation.model.flow.InitializerFlow;
+import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.TimeDrivenGenerator;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.function.TimeFunctionFactory;
+import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.InitializerFlow;
 
 /**
  * The base class to create tests for Workflow patterns.
@@ -45,26 +38,29 @@ public abstract class WFPTestSimulationFactory {
 	public final static TimeStamp GENSTART = TimeStamp.getZero();
 	public final static TimeStamp GENPERIOD = TimeStamp.getDay();
 	public final static long []DEFACTDURATION = new long [] {5, 10, 15, 20, 25, 30, 120};
-	public final static TimeStamp SIMSTART = TimeStamp.getZero();
-	public final static TimeStamp SIMEND = TimeStamp.getDay();
+	public final static long SIMSTART = 0L;
+	public final static long SIMEND = 1440L;
 	public final static TimeUnit SIMUNIT = TimeUnit.MINUTE; 
 	protected boolean detailed;
-	private SimulationEngine simul;
 	protected Model model;
+	protected final int id;
+	protected final String description;
 	
 	public WFPTestSimulationFactory(SimulationType type, int id, String description, boolean detailed) {
+		this.id = id;
+		this.description = description;
 		model = createModel();		
 		this.detailed = detailed;
 		if (SimulationType.SEQUENTIAL.equals(type))
-			simul = new es.ull.iis.simulation.sequential.SequentialSimulationEngine(id, description, model, SIMSTART, SIMEND);
+			new es.ull.iis.simulation.sequential.SequentialSimulationEngine(id, model);
 		else
-			simul = new es.ull.iis.simulation.parallel.Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);
+			new es.ull.iis.simulation.parallel.Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);
 	}
 	
 	protected abstract Model createModel();
 	
-	public SimulationEngine getSimulation() {
-		return simul;
+	public Model getModel() {
+		return model;
 	}
 	
 	public ModelTimeFunction getActivityDefDuration() {

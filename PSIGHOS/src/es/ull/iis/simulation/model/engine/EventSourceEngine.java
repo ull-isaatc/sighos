@@ -1,7 +1,9 @@
 /**
  * 
  */
-package es.ull.iis.simulation.model;
+package es.ull.iis.simulation.model.engine;
+
+import es.ull.iis.simulation.model.EventSource;
 
 /**
  * @author Iván Castilla

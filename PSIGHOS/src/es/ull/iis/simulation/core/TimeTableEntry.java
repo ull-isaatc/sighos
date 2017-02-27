@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.core;
 
 import es.ull.iis.simulation.model.ModelCycle;
-import es.ull.iis.simulation.model.ResourceTypeEngine;
 import es.ull.iis.simulation.model.TimeStamp;
+import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
 
 /**
  * Represents the role that a resource plays at a specific time cycle.

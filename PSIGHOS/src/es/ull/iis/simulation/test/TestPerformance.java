@@ -3,13 +3,13 @@
  */
 package es.ull.iis.simulation.test;
 
-import es.ull.iis.simulation.core.Experiment;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
 import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.model.SimulationEngine;
+import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
  * @author Iván Castilla Rodríguez

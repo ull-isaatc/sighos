@@ -44,8 +44,8 @@ public class BasicHospitalModel extends Model {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public BasicHospitalModel(TimeUnit unit) {
-		super(unit);
+	public BasicHospitalModel(int id, TimeUnit unit, long startTs, long endTs) {
+		super(id, "Hospital", unit, startTs, endTs);
 		// Define the model
 		
 		// The only element type: patients
@@ -104,7 +104,7 @@ public class BasicHospitalModel extends Model {
 		// Create a conditional flow to determine if a patient requires surgery
 		ExclusiveChoiceFlow fRequireSurgery = new ExclusiveChoiceFlow(this);
 		// Define 5% of patients requiring surgery
-		PercentageCondition requiresSurgeryCondition = new PercentageCondition(5.0);
+		PercentageCondition requiresSurgeryCondition = new PercentageCondition(50.0);
 		
 		actAppointment.link(fRequireSurgery);
 		fRequireSurgery.link(actSurgery, requiresSurgeryCondition);
