@@ -5,12 +5,13 @@ import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory;
-import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
+import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ProbabilitySelectionFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
+import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ModelTimeFunction;
 import es.ull.iis.simulation.model.TimeStamp;
@@ -30,15 +31,15 @@ class ExperimentProbSel extends Experiment {
 		super("Banco", NEXP);
 	}
 
-	public SimulationEngine getSimulation(int ind) {
-		SimulationEngine sim = null;
+	public Model getModel(int ind) {
+		Model sim = null;
 		TimeUnit unit = TimeUnit.MINUTE;
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "EjProbabilidades", TimeUnit.MINUTE, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		sim = factory.getSimulationEngine();
 
-    	ActivityFlow<?,?> act0 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "10 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
-    	ActivityFlow<?,?> act1 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "30 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
-    	ActivityFlow<?,?> act2 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "60 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+    	ActivityFlow act0 = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "10 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+    	ActivityFlow act1 = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "30 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+    	ActivityFlow act2 = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "60 %", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
         ResourceTypeEngine rt = factory.getResourceTypeInstance("Empleado");
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rt}, new int[] {1});

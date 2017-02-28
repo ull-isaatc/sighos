@@ -48,9 +48,9 @@ public class TestInterruptibleActivities {
 		        ResourceTypeEngine rt = factory.getResourceTypeInstance("RT0");
 		        WorkGroup wg = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rt}, new int[] {1});
 
-				ActivityFlow<?,?> acts[] = new ActivityFlow[NACT];
+				ActivityFlow acts[] = new ActivityFlow[NACT];
 				for (int i = 0; i < NACT; i++) {
-					acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "ACT" + i, i / 2, EnumSet.of(ActivityFlow.Modifier.INTERRUPTIBLE));
+					acts[i] = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "ACT" + i, i / 2, EnumSet.of(ActivityFlow.Modifier.INTERRUPTIBLE));
 					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 101), 0, wg);
 				}
 				ModelPeriodicCycle c1 = new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", 200), 0);

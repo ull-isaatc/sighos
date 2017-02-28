@@ -47,9 +47,9 @@ class ExpConflict extends Experiment {
 		wgs[0] = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rts[0], rts[1]}, new int[] {1, 1});
 		wgs[1] = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rts[3], rts[2]}, new int[] {1, 1});
 		
-		ActivityFlow<?,?> acts[] = new ActivityFlow[NACTS];
+		ActivityFlow acts[] = new ActivityFlow[NACTS];
 		for (int i = 0; i < NACTS; i++) {
-			acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "ACT" + i);
+			acts[i] = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "ACT" + i);
 			acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 40), 0, wgs[i]);
 		}
 		
@@ -90,9 +90,9 @@ class ExpConflict extends Experiment {
 		wgs[1] = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rts[3], rts[2]}, new int[] {1, 1});
 		wgs[2] = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rts[5]}, new int[] {1});
 
-		ActivityFlow<?,?> acts[] = new ActivityFlow[NACTS];
+		ActivityFlow acts[] = new ActivityFlow[NACTS];
 		for (int i = 0; i < NACTS; i++) {
-			acts[i] = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "ACT" + i);
+			acts[i] = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "ACT" + i);
 			acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 40), 0, wgs[i]);
 		}
 
