@@ -376,7 +376,7 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 		if (timeLeft == -1) {
 			// wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
 			timeLeft = executionWG.getDurationSample(this);
-			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.STAACT, ts));
+			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.START, ts));
 			elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());			
 			reqFlow.afterStart(this);
 		}
@@ -440,7 +440,7 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
     public void endDelay(RequestResourcesFlow f) {
 		// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
 		if (timeLeft <= 0.0) {
-			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, f, executionWG, ElementActionInfo.Type.ENDACT, elem.getModel().getSimulationEngine().getTs()));
+			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, f, executionWG, ElementActionInfo.Type.END, elem.getModel().getSimulationEngine().getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + f.getDescription());
 			f.afterFinalize(this);

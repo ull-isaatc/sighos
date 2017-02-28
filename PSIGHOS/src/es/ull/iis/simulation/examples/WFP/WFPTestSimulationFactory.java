@@ -10,7 +10,7 @@ import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ModelTimeFunction;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.TimeDrivenGenerator;
+import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
@@ -111,11 +111,11 @@ public abstract class WFPTestSimulationFactory {
 		return new ModelPeriodicCycle(SIMUNIT, GENSTART, new ModelTimeFunction(SIMUNIT, "ConstantVariate", GENPERIOD), 0);
 	}
 	
-	public TimeDrivenGenerator getDefGenerator(ElementType et, InitializerFlow flow) {
+	public TimeDrivenElementGenerator getDefGenerator(ElementType et, InitializerFlow flow) {
 		return getDefGenerator(DEFNELEMENTS, et, flow);
 	}
 	
-	public TimeDrivenGenerator getDefGenerator(int elems, ElementType et, InitializerFlow flow) {
-        return new TimeDrivenGenerator(model, elems, et, flow, getGeneratorCycle());
+	public TimeDrivenElementGenerator getDefGenerator(int elems, ElementType et, InitializerFlow flow) {
+        return new TimeDrivenElementGenerator(model, elems, et, flow, getGeneratorCycle());
 	}
 }

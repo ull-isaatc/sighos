@@ -17,7 +17,7 @@ import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
  * A resource finishes its execution when it has no longer valid timetable entries.
  * @author Carlos Martín Galán
  */
-public class ResourceEngine extends EventSourceEngine<Resource> implements es.ull.iis.simulation.model.engine.ResourceEngine {
+public class ResourceEngine extends EngineObject implements es.ull.iis.simulation.model.engine.ResourceEngine {
     /** If true, indicates that this resource is being used after its availability time has expired */
     private boolean timeOut = false;
     /** List of currently active roles and the timestamp which marks the end of their availibity time. */
@@ -30,6 +30,7 @@ public class ResourceEngine extends EventSourceEngine<Resource> implements es.ul
     protected FlowExecutor currentWT = null;
     /** Availability flag */
     protected boolean notCanceled;
+    private final Resource modelRes;
 
     /**
      * Creates a new instance of Resource.
@@ -38,16 +39,17 @@ public class ResourceEngine extends EventSourceEngine<Resource> implements es.ul
      * @param description A short text describing this resource.
      */
 	public ResourceEngine(SequentialSimulationEngine simul, es.ull.iis.simulation.model.Resource modelRes) {
-		super(simul, modelRes, "RES");
+		super(modelRes.getIdentifier(), simul, "RES");
         currentRoles = new TreeMap<ResourceType, Long>();
         notCanceled = true;
+        this.modelRes = modelRes;
 	}
 
     /**
 	 * @return the modelRes
 	 */
 	public Resource getModelRes() {
-		return (Resource)modelEv;
+		return modelRes;
 	}
 
 	/**
@@ -102,7 +104,7 @@ public class ResourceEngine extends EventSourceEngine<Resource> implements es.ul
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
 	public long catchResource(FlowExecutor wt) {
-		simul.getModel().notifyInfo(new ResourceUsageInfo(simul.getModel(), (Resource) modelEv, currentResourceType, wt, wt.getElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
+		simul.getModel().notifyInfo(new ResourceUsageInfo(simul.getModel(), modelRes, currentResourceType, wt, wt.getElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
 		currentWT = wt;
 		return currentRoles.get(currentResourceType);
 	}
@@ -115,7 +117,7 @@ public class ResourceEngine extends EventSourceEngine<Resource> implements es.ul
      * time of the resource had already expired.
      */
     public boolean releaseResource() {
-    	simul.getModel().notifyInfo(new ResourceUsageInfo(simul.getModel(), (Resource) modelEv, currentResourceType, currentWT, currentWT.getElement(), (ResourceHandlerFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
+    	simul.getModel().notifyInfo(new ResourceUsageInfo(simul.getModel(), modelRes, currentResourceType, currentWT, currentWT.getElement(), (ResourceHandlerFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
         currentWT = null;
         currentResourceType = null;        
         if (timeOut) {
@@ -205,7 +207,7 @@ public class ResourceEngine extends EventSourceEngine<Resource> implements es.ul
         if (isAvailable(rt) && (currentResourceType == null)) {
 	        // This resource belongs to the solution...
 	        currentResourceType = rt;
-	        fe.pushResource(modelEv);    	        
+	        fe.pushResource(modelRes);    	        
         	return true;
         }
 		return false;
@@ -217,42 +219,10 @@ public class ResourceEngine extends EventSourceEngine<Resource> implements es.ul
         fe.popResource();    		
 	}
 	
-	class ClockOnEntry {
-		private long init = 0;
-		private long finish = 0;
-		private long avCounter = 0;
-		
-		
-		public ClockOnEntry(long init) {
-			this.init = init;
-			finish = 0;
-			avCounter = 0;
-		}
-
-		public long getFinish() {
-			return finish;
-		}
-
-		public void setFinish(long finish) {
-			this.finish = finish;
-		}
-
-		public long getInit() {
-			return init;
-		}
-
-		public void setInit(long init) {
-			this.init = init;
-		}
-
-		public long getAvCounter() {
-			return avCounter;
-		}
-
-		public void setAvCounter(long avCounter) {
-			this.avCounter = avCounter;
-		}
-
-	}
+	@Override
+    public void notifyEnd() {
+        simul.addEvent(modelRes.onDestroy(simul.getTs()));
+    }
+    
 
 }

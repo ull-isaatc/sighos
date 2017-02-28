@@ -77,13 +77,13 @@ public class CheckElementActionViewBuilder extends View {
 			if (!elements.contains(eInfo.getElement().getIdentifier()))
 				elements.add(eInfo.getElement().getIdentifier());
 			switch(eInfo.getType()) {
-			case REQACT:
+			case REQ:
 				fillEvent(eInfo, reqEvents);
 				break;
-			case STAACT:
+			case START:
 				fillEvent(eInfo, staEvents);
 				break;
-			case ENDACT:
+			case END:
 				fillEvent(eInfo, endEvents);
 				break;
 			}

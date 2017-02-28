@@ -20,7 +20,7 @@ import es.ull.iis.simulation.model.ResourceType;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface ResourceEngine {
+public interface ResourceEngine extends EventSourceEngine {
 	int incValidTimeTableEntries();
 	int decValidTimeTableEntries();
 	int getValidTimeTableEntries();

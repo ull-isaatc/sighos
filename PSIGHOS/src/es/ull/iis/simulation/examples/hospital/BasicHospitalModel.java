@@ -10,7 +10,7 @@ import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.TimeDrivenGenerator;
+import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -110,7 +110,7 @@ public class BasicHospitalModel extends Model {
 		fRequireSurgery.link(actSurgery, requiresSurgeryCondition);
 		actSurgery.link(actAppointment);
 		
-		new TimeDrivenGenerator(this, 1, etPatient, actAppointment, docCycle);
+		new TimeDrivenElementGenerator(this, 1, etPatient, actAppointment, docCycle);
 	}
 
 }

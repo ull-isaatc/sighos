@@ -23,7 +23,7 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  *
  */
 public interface SimulationObjectFactory<F extends Flow<WT>, WT extends WorkThread<F>> {
-	SimulationEngine<WT> getSimulation();
+	SimulationEngine<WT> getSimulationEngine();
 	Condition getCustomizedConditionInstance(String imports, String condition);
 	ElementType getElementTypeInstance(String description) throws ClassCastException;
 	ElementType getElementTypeInstance(String description, int priority) throws ClassCastException;

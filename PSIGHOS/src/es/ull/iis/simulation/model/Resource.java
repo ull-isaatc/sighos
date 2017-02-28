@@ -21,7 +21,7 @@ import es.ull.iis.util.DiscreteCycleIterator;
  * @author Iván Castilla Rodríguez
  *
  */
-public class Resource extends EventSource implements Describable {
+public class Resource extends VariableStoreModelObject implements Describable, EventSource {
     /** A brief description of the resource */
     protected final String description;
 	/** Timetable which defines the availability estructure of the resource. Define RollOn and RollOff events. */
@@ -174,9 +174,17 @@ public class Resource extends EventSource implements Describable {
 	}
 
 	@Override
-	public DiscreteEvent onDestroy() {
-		return new EventSource.DefaultFinalizeEvent();
+	public DiscreteEvent onDestroy(long ts) {
+		return new DiscreteEvent.DefaultFinalizeEvent(this, ts);
 	}
+    
+    /**
+     * Informs the element that it must finish its execution. Thus, a FinalizeEvent is
+     * created.
+     */
+    public void notifyEnd() {
+        engine.notifyEnd();
+    }
     
     /**
      * Getter for property currentResourceType.

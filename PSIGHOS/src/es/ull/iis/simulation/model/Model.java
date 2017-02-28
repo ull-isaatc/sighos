@@ -48,7 +48,8 @@ public class Model implements Identifiable, Runnable, Describable, VariableStore
 	private final ArrayList<BasicFlow> flowList = new ArrayList<BasicFlow>();
 	private final ArrayList<RequestResourcesFlow> actList = new ArrayList<RequestResourcesFlow>();
 //	private final ArrayList<Element> elemList = new ArrayList<Element>();
-	private final ArrayList<ElementGenerator> genList = new ArrayList<ElementGenerator>();
+	private final ArrayList<TimeDrivenGenerator<?>> tGenList = new ArrayList<TimeDrivenGenerator<?>>();
+	private final ArrayList<ConditionDrivenGenerator<?>> cGenList = new ArrayList<ConditionDrivenGenerator<?>>();
 	private final ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
 
 	/** Output for printing debug and error messages */
@@ -160,7 +161,7 @@ public class Model implements Identifiable, Runnable, Describable, VariableStore
 			wg.assignSimulation(simulationEngine);
 		for (BasicFlow f : flowList)
 			f.assignSimulation(simulationEngine);
-		for (ElementGenerator gen : genList)
+		for (Generator<?> gen : tGenList)
 			gen.assignSimulation(simulationEngine);
 		for (ActivityManager am : amList)
 			am.assignSimulation(simulationEngine);
@@ -240,6 +241,17 @@ public class Model implements Identifiable, Runnable, Describable, VariableStore
 	}
 
 	/**
+	 * Checks the conditions stated int he condition-driven generators. If the condition meets, creates the corresponding event sources.
+	 * @param ts Simulation time when the simulations are checked.
+	 */
+	public void checkConditions(long ts) {
+		for (ConditionDrivenGenerator<?> gen : cGenList) {
+			if (gen.getCondition().check(null))
+				gen.create(ts);
+		}
+	}
+	
+	/**
 	 * Resets variables or contents of the model. It should be invoked by the user when the same model is used for multiple replicas
 	 * and contains variables that must be initialized among replicas.
 	 */
@@ -266,8 +278,11 @@ public class Model implements Identifiable, Runnable, Describable, VariableStore
 		if (f instanceof RequestResourcesFlow)
 			actList.add((RequestResourcesFlow)f);
 	}
-	public void add(ElementGenerator gen) {
-		genList.add(gen);
+	public void add(TimeDrivenGenerator<?> gen) {
+		tGenList.add(gen);
+	}
+	public void add(ConditionDrivenGenerator<?> gen) {
+		cGenList.add(gen);
 	}
 	public void add(ActivityManager am) {
 		amList.add(am);
@@ -297,8 +312,11 @@ public class Model implements Identifiable, Runnable, Describable, VariableStore
 	public List<RequestResourcesFlow> getActivityList() { 
 		return actList;
 	}
-	public List<ElementGenerator> getElementGeneratorList() {
-		return genList;
+	public List<TimeDrivenGenerator<?>> getTimeDrivenGeneratorList() {
+		return tGenList;
+	}
+	public List<ConditionDrivenGenerator<?>> getConditionDrivenGeneratorList() {
+		return cGenList;
 	}
 	public List<ActivityManager> getActivityManagerList() {
 		return amList;

@@ -63,20 +63,20 @@ public class CheckFlowsView extends WFPTestView {
 			if (detailed)
 				System.out.print(eInfo + "...\t");
 			switch(eInfo.getType()) {
-			case REQACT:
-				ev = new EventToCheck(Type.REQACT, eInfo.getActivity().getIdentifier(), eInfo.getTs());
+			case REQ:
+				ev = new EventToCheck(Type.REQ, eInfo.getActivity().getIdentifier(), eInfo.getTs());
 				printResult(futureFlow.get(eInfo.getElement().getIdentifier()).remove(ev), "unexpected event!"); 
 				// debería chequear los recursos
-				futureFlow.get(eInfo.getElement().getIdentifier()).add(new EventToCheck(Type.STAACT, eInfo.getActivity().getIdentifier(), eInfo.getTs()));
+				futureFlow.get(eInfo.getElement().getIdentifier()).add(new EventToCheck(Type.START, eInfo.getActivity().getIdentifier(), eInfo.getTs()));
 				break;
-			case STAACT:
-				ev = new EventToCheck(Type.STAACT, eInfo.getActivity().getIdentifier(), eInfo.getTs());
+			case START:
+				ev = new EventToCheck(Type.START, eInfo.getActivity().getIdentifier(), eInfo.getTs());
 				printResult(futureFlow.get(eInfo.getElement().getIdentifier()).remove(ev), "unexpected event!"); 
 				long nextTs = eInfo.getTs() + durations.get(eInfo.getActivity());
-				futureFlow.get(eInfo.getElement().getIdentifier()).add(new EventToCheck(Type.ENDACT, eInfo.getActivity().getIdentifier(), nextTs));
+				futureFlow.get(eInfo.getElement().getIdentifier()).add(new EventToCheck(Type.END, eInfo.getActivity().getIdentifier(), nextTs));
 				break;
-			case ENDACT:
-				ev = new EventToCheck(Type.ENDACT, eInfo.getActivity().getIdentifier(), eInfo.getTs());
+			case END:
+				ev = new EventToCheck(Type.END, eInfo.getActivity().getIdentifier(), eInfo.getTs());
 				printResult(futureFlow.get(eInfo.getElement().getIdentifier()).remove(ev), "unexpected event!"); 
 				SingleFlowNode f = flow.search(eInfo.getActivity().getIdentifier());
 				if (f.next != null)
@@ -166,7 +166,7 @@ public class CheckFlowsView extends WFPTestView {
 		@Override
 		public void add2FutureFlow(int eId, double ts) {
 			futureFlow.get(eId).add(
-					new EventToCheck(ElementActionInfo.Type.REQACT, actId, ts));
+					new EventToCheck(ElementActionInfo.Type.REQ, actId, ts));
 		}
 
 		@Override

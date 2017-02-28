@@ -41,7 +41,7 @@ public class TestPriorityElement {
 			@Override
 			public SimulationEngine getSimulation(int ind) {
 				SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Testing Elements with priority", unit, 0, 200);
-				SimulationEngine sim = factory.getSimulation();
+				SimulationEngine sim = factory.getSimulationEngine();
 				
 		        ResourceTypeEngine rt = factory.getResourceTypeInstance("RT0");
 		        WorkGroup wg = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rt}, new int[] {2});

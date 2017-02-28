@@ -4,65 +4,28 @@
 package es.ull.iis.simulation.model;
 
 import es.ull.iis.function.TimeFunction;
-import es.ull.iis.function.TimeFunctionFactory;
-import es.ull.iis.simulation.model.engine.SimulationEngine;
-import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
- * @author Ivan Castilla Rodriguez
+ * @author Iván Castilla Rodríguez
  *
  */
-public class TimeDrivenGenerator extends ElementGenerator {
+public abstract class TimeDrivenGenerator<INF extends Generator.GenerationInfo> extends Generator<INF> implements EventSource {
     /** Cycle that controls the generation of elements. */
     protected final ModelCycle cycle;
     /** The iterator which moves through the defined cycle */
-    private DiscreteCycleIterator cycleIter;
+    protected DiscreteCycleIterator cycleIter;
 
-	/**
-	 * 
-	 */
-	public TimeDrivenGenerator(Model model, TimeFunction nElem, ModelCycle cycle) {
-		super(model, nElem);
-		this.cycle = cycle;
-	}
-
-	/**
-	 * Creates a creator of a single type of elements.
-	 * @param nElem Number of objects created each time this creator is invoked.
-	 * @param et The type of the elements to be created
-	 * @param flow The description of the flow of the elements to be created.
-	 */
-	public TimeDrivenGenerator(Model model, TimeFunction nElem, ElementType et, InitializerFlow flow, ModelCycle cycle) {
-		super(model, nElem, et, flow);
-		this.cycle = cycle;
-	}
-	
-	/**
-	 * Creates a creator of elements.
-	 * @param sim Simulation this object belongs to.
-	 * @param nElem Number of objects created each time this creator is invoked.
-	 */
 	public TimeDrivenGenerator(Model model, int nElem, ModelCycle cycle) {
-		this(model, TimeFunctionFactory.getInstance("ConstantVariate", nElem), cycle);
+		super(model, model.getTimeDrivenGeneratorList().size(), nElem);
+		this.cycle = cycle;
+		model.add(this);
 	}
-	
-	/**
-	 * Creates a creator of a single type of elements.
-	 * @param nElem Number of objects created each time this creator is invoked.
-	 * @param et The type of the elements to be created
-	 * @param flow The description of the flow of the elements to be created.
-	 */
-	public TimeDrivenGenerator(Model model, int nElem, ElementType et, InitializerFlow flow, ModelCycle cycle) {
-		this(model, TimeFunctionFactory.getInstance("ConstantVariate", nElem), et, flow, cycle);
-	}
-	
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.model.ModelObject#getObjectTypeIdentifier()
-	 */
-	@Override
-	public String getObjectTypeIdentifier() {
-		return "GEN";
+
+	public TimeDrivenGenerator(Model model, TimeFunction nElem, ModelCycle cycle) {
+		super(model, model.getTimeDrivenGeneratorList().size(), nElem);
+		this.cycle = cycle;
+		model.add(this);
 	}
 
 	/**
@@ -72,29 +35,64 @@ public class TimeDrivenGenerator extends ElementGenerator {
 		return cycle;
 	}
 
-	@Override
-	public double getTime() {
-		return model.getSimulationEngine().getTs();
-	}
-
-	@Override
+    /**
+     * Returns the next timestamp when elements have to be generated. 
+     * @return The next timestamp to generate elements. -1 if this generator
+     * don't have to create more elements.
+     */
 	public long nextEvent() {
 		return cycleIter.next();
 	}
 
 	@Override
+	public DiscreteEvent onDestroy(long ts) {
+		return new DiscreteEvent.DefaultFinalizeEvent(this, ts);
+	}
+	
+    public void notifyEnd() {
+        model.getSimulationEngine().addEvent(onDestroy(model.getSimulationEngine().getTs()));
+    }
+    
+	@Override
 	public DiscreteEvent onCreate(long ts) {
+		cycleIter = cycle.getCycle().iterator(model.getStartTs(), model.getEndTs());
     	final long newTs = nextEvent();
     	if (newTs == -1)
-            return onDestroy();
+            return onDestroy(ts);
         else {
             return new GenerateEvent(newTs);
         }
 	}
 
-	@Override
-	protected void assignSimulation(SimulationEngine simul) {
-		cycleIter = cycle.getCycle().iterator(model.getStartTs(), model.getEndTs());
-	}
-
+    /**
+     * This event is invoked every time a new set of elements has to be generated. 
+     * It simply invokes the <code>creator.create</code> method.
+     */
+    public class GenerateEvent extends DiscreteEvent {
+        /**
+         * Creates a new element-generation event.
+         * @param ts Timestamp when this event must be executed.
+         */
+        public GenerateEvent(long ts) {
+            super(ts);
+        }
+        
+        /**
+         * Generates the elements corresponding to this timestamp. After this, 
+         * it checks the following event.
+         */
+        @Override
+		public void event() {
+    		create(ts);
+            final long newTs = nextEvent();
+            if (newTs == -1) {
+    		 	notifyEnd();
+            }
+			else {
+				final GenerateEvent e = new GenerateEvent(newTs);
+				model.getSimulationEngine().addEvent(e);
+			}
+        }
+    }
+    
 }

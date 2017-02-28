@@ -47,7 +47,7 @@ class TestDynamicGenerationExperiment extends Experiment {
 		
 		factory.getElementTypeInstance("ET0");
 		factory.getFlowInstance("SingleFlow", act0);
-		return factory.getSimulation();
+		return factory.getSimulationEngine();
 	}
 }
 

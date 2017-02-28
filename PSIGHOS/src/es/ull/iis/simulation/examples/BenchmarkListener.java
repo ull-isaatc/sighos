@@ -72,11 +72,11 @@ public class BenchmarkListener extends View {
 				concurrentEvents = 0;
 				lastEventTs = ((ElementActionInfo) info).getTs();
 			}
-			if (((ElementActionInfo) info).getType() == ElementActionInfo.Type.REQACT)
+			if (((ElementActionInfo) info).getType() == ElementActionInfo.Type.REQ)
 				reqActEv++;
-			else if (((ElementActionInfo) info).getType() == ElementActionInfo.Type.STAACT)
+			else if (((ElementActionInfo) info).getType() == ElementActionInfo.Type.START)
 				startActEv++;
-			else if (((ElementActionInfo) info).getType() == ElementActionInfo.Type.ENDACT)
+			else if (((ElementActionInfo) info).getType() == ElementActionInfo.Type.END)
 				endActEv++;
 			
 		}

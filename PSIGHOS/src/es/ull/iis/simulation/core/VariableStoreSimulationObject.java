@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.core;
 
-import es.ull.iis.simulation.model.EngineObject;
 import es.ull.iis.simulation.model.VariableStore;
+import es.ull.iis.simulation.model.engine.EngineObject;
 
 /**
  * A simulation's object which can store variables.

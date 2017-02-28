@@ -224,7 +224,7 @@ public class BenchmarkModel {
 		SimulationUserCode code = null;
 		if (workLoad > 0) {
 			code = new SimulationUserCode();
-			factory.getSimulation().putVar("AA", 0);
+			factory.getSimulationEngine().putVar("AA", 0);
 			code.add(UserMethod.BEFORE_REQUEST, "for (int i = 1; i < " + workLoad + "; i++)" +
 					"<%SET(S.AA, <%GET(S.AA)%> + Math.log(i))%>;" + 
 					"return super.beforeRequest(e);");
@@ -261,7 +261,7 @@ public class BenchmarkModel {
 		}
 
 		stdBuildElementGenerators(factory, new ForLoopFlow[] {rootFlow}, acts, wgs);
-		return factory.getSimulation();
+		return factory.getSimulationEngine();
 
 	}
 
@@ -293,7 +293,7 @@ public class BenchmarkModel {
 		}
 		
 		stdBuildElementGenerators(factory, smfs, acts, wgs);
-		return factory.getSimulation();
+		return factory.getSimulationEngine();
 
 	}
 
@@ -319,7 +319,7 @@ public class BenchmarkModel {
 		Arrays.fill(wgs, wg);
 		
 		stdBuildElementGenerators(factory, smfs, acts, wgs);
-		return factory.getSimulation();
+		return factory.getSimulationEngine();
 
 	}
 	
@@ -352,7 +352,7 @@ public class BenchmarkModel {
 //			res[j].addTimeTableEntry(allCycle, endTs, rts[j % acts.length]);
 		
 		stdBuildElementGenerators(factory, smfs, acts, wgs);
-		return factory.getSimulation();
+		return factory.getSimulationEngine();
 	}
 	
 	private SimulationEngine getTestMixConflict() {
@@ -383,7 +383,7 @@ public class BenchmarkModel {
 		
 		stdBuildElementGenerators(factory, smfs, acts, wgs);
 
-		return factory.getSimulation();		
+		return factory.getSimulationEngine();		
 	}
 
 	/**
@@ -447,7 +447,7 @@ public class BenchmarkModel {
 		}
 		
 		stdBuildElementGenerators(factory, smfs, acts, wgs);
-		return factory.getSimulation();
+		return factory.getSimulationEngine();
 
 	}
 }

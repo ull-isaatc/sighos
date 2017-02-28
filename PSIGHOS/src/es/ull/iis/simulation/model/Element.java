@@ -19,7 +19,7 @@ import es.ull.iis.util.Prioritizable;
  * @author Iván Castilla
  *
  */
-public class Element extends EventSource implements Prioritizable {
+public class Element extends VariableStoreModelObject implements Prioritizable, EventSource {
 	/** Element type */
 	protected ElementType elementType;
 	/** First step of the flow of the element */
@@ -123,7 +123,7 @@ public class Element extends EventSource implements Prioritizable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Initializes the element by requesting the <code>initialFlow</code>. If there's no initial flow
 	 * the element finishes immediately.
@@ -135,15 +135,23 @@ public class Element extends EventSource implements Prioritizable {
 			return (new RequestFlowEvent(model.getSimulationEngine().getTs(), initialFlow, mainThread.getInstanceDescendantFlowExecutor(initialFlow)));
 		}
 		else
-			return onDestroy();
+			return onDestroy(ts);
 	}
 
 	@Override
-	public DiscreteEvent onDestroy() {
+	public DiscreteEvent onDestroy(long ts) {
 		model.notifyInfo(new ElementInfo(model, this, elementType, ElementInfo.Type.FINISH, model.getSimulationEngine().getTs()));
-		return new DefaultFinalizeEvent();
+		return new DiscreteEvent.DefaultFinalizeEvent(this, ts);
 	}
 
+    /**
+     * Informs the element that it must finish its execution. Thus, a FinalizeEvent is
+     * created.
+     */
+    public void notifyEnd() {
+    	engine.notifyEnd();
+    }
+    
 	public void addRequestEvent(Flow f, FlowExecutor fe) {
 		model.getSimulationEngine().addEvent(new RequestFlowEvent(model.getSimulationEngine().getTs(), f, fe));
 	}

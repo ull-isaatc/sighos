@@ -319,7 +319,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * Catch the resources needed for each resource type to carry out an activity.
      */
 	public boolean acquireResources(FlowExecutor fe) {
-		model.notifyInfo(new ElementActionInfo(model, fe, fe.getElement(), this, fe.getExecutionWG(), ElementActionInfo.Type.REQACT, model.getSimulationEngine().getTs()));
+		model.notifyInfo(new ElementActionInfo(model, fe, fe.getElement(), this, fe.getExecutionWG(), ElementActionInfo.Type.REQ, model.getSimulationEngine().getTs()));
 		if (fe.getElement().isDebugEnabled())
 			fe.getElement().debug("Requests\t" + this + "\t" + getDescription());
 		if (!isExclusive() || (fe.getElement().getCurrent() == null)) {

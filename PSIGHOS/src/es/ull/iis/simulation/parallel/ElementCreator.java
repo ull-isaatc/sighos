@@ -70,7 +70,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
             	p -= gt.getProp();
             	if (p <= 0.0){
             		final ElementType et = gt.getElementType();
-    	    		final Element elem = new Element(gen.getSimulation(), et, gt.getFlow());
+    	    		final Element elem = new Element(gen.getSimulationEngine(), et, gt.getFlow());
     	    		elem.initializeElementVars(et.getElementValues());
     	            final BasicElement.DiscreteEvent e = elem.getStartEvent(gen.getTs());
     	            elem.addEvent(e);

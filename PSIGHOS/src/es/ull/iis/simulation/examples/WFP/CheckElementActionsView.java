@@ -47,13 +47,13 @@ public abstract class CheckElementActionsView extends WFPTestView {
 			if (detailed)
 				System.out.print(eInfo + "...\t");
 			switch(eInfo.getType()) {
-			case REQACT:
+			case REQ:
 				ref = refRequests.get(eInfo.getTs());
 				break;
-			case STAACT:
+			case START:
 				ref = refStartActs.get(eInfo.getTs());
 				break;
-			case ENDACT:
+			case END:
 				ref = refEndActs.get(eInfo.getTs());
 				break;
 			}

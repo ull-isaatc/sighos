@@ -9,12 +9,10 @@ import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Element;
-import es.ull.iis.simulation.model.ElementGenerator;
-import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.engine.SimulationEngine;
+import es.ull.iis.simulation.model.TimeDrivenGenerator;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
 /**
@@ -75,48 +73,6 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 		return lvt;
 	}
     
-    /**
-     * Executes a simulation clock cycle. Extracts all the events from the waiting queue with 
-     * timestamp equal to the LP timestamp. 
-     */
-    protected void execWaitingElements() {
-        // Extracts the first event
-        if (! waitQueue.isEmpty()) {
-            DiscreteEvent e = removeWait();
-            // Advances the simulation clock
-            model.beforeClockTick();
-            lvt = e.getTs();
-            model.notifyInfo(new TimeChangeInfo(model, lvt));
-            model.afterClockTick();
-            debug("SIMULATION TIME ADVANCING " + lvt);
-            // Events with timestamp greater or equal to the maximum simulation time aren't
-            // executed
-            if (lvt >= model.getEndTs())
-                addWait(e);
-            else {
-            	addExecution(e);
-                // Extracts all the events with the same timestamp
-                boolean flag = false;
-                do {
-                    if (! waitQueue.isEmpty()) {
-                        e = removeWait();
-                        if (e.getTs() == lvt) {
-                        	addExecution(e);
-                            flag = true;
-                        }
-                        else {  
-                            flag = false;
-                            addWait(e);
-                        }
-                    }
-                    else {  // The waiting queue is empty
-                        flag = false;
-                    }
-                } while ( flag );
-            }
-        }        
-    }
-
     /**
      * Sends an event to the waiting queue. An event is added to the waiting queue if 
      * its timestamp is greater than the LP timestamp.
@@ -210,34 +166,22 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 	}
 	
 	/**
-	 * A basic element which facilitates the control of the end of the simulation. It simply
-	 * schedules an event at <code>endTs</code>, so there's always at least one event in 
-	 * the simulation. 
+	 * A basic event which facilitates the control of the end of the simulation. Scheduling this event
+	 * ensures that there's always at least one event in the simulation. 
 	 * @author Iván Castilla Rodríguez
 	 */
-    class SimulationElement extends EventSource {
-    	private EventSourceEngine<SimulationElement> engine = null;
+    class SimulationEndEvent extends DiscreteEvent {
     	/**
     	 * Creates a very simple element to control the simulation end.
     	 */
-		public SimulationElement() {
-			super(SequentialSimulationEngine.this.model, 0, "SE");
+		public SimulationEndEvent() {
+			super(model.getEndTs());
 		}
 
 		@Override
-		public DiscreteEvent onCreate(long ts) {
-			return new EventSource.DefaultStartEvent(ts);
+		public void event() {
 		}
 
-		@Override
-		public DiscreteEvent onDestroy() {
-			return new EventSource.DefaultFinalizeEvent();
-		}
-
-		@Override
-		protected void assignSimulation(SimulationEngine simul) {
-			engine = new EventSourceEngine<SequentialSimulationEngine.SimulationElement>(simul, this, "SIM");
-		}
     }
 
 	@Override
@@ -277,21 +221,81 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 
 	@Override
 	public void launchInitialEvents() {
-		// Starts all the generators
-		for (ElementGenerator evSource : model.getElementGeneratorList())
+		// Starts all the time driven generators
+		for (TimeDrivenGenerator<?> evSource : model.getTimeDrivenGeneratorList())
 			addWait(evSource.onCreate(model.getStartTs()));
 		// Starts all the resources
 		for (Resource res : model.getResourceList())
 			addWait(res.onCreate(model.getStartTs()));
 
 		// Adds the event to control end of simulation
-		addWait(new SimulationElement().onCreate(model.getEndTs()));		
+		addWait(new SimulationEndEvent());		
 	}
 
 	@Override
 	public void simulationLoop() {
-		while (!isSimulationEnd())
-            execWaitingElements();		
+		while (!isSimulationEnd()) {
+            // Executes all the events with timestamps equal to lvt 
+			while (waitQueue.peek().getTs() == lvt) {
+            	addExecution(waitQueue.poll());
+			}
+			// Checks the condition-driven generators and executes the events
+			model.checkConditions(lvt);
+			while (waitQueue.peek().getTs() == lvt) {
+            	addExecution(waitQueue.poll());
+			}
+			// Executes user-specified actions after all the events with the same timestamp have been executed
+            model.afterClockTick();
+			final long newLVT = waitQueue.peek().getTs();
+			// Executes user-specified actions before the clock advances
+            model.beforeClockTick();
+			if (newLVT >= model.getEndTs()) {
+	            // Updates the simulation clock but do not execute further events
+				lvt = model.getEndTs();
+			}
+			else {
+	            // Updates the simulation clock
+	            lvt = newLVT;
+	            model.notifyInfo(new TimeChangeInfo(model, lvt));
+	            debug("SIMULATION TIME ADVANCING " + lvt);
+			}
+		}
+//	        // Extracts the first event
+//	        if (! waitQueue.isEmpty()) {
+//	            DiscreteEvent e = removeWait();
+//	            // Advances the simulation clock
+//	            model.beforeClockTick();
+//	            lvt = e.getTs();
+//	            model.notifyInfo(new TimeChangeInfo(model, lvt));
+//	            model.afterClockTick();
+//	            debug("SIMULATION TIME ADVANCING " + lvt);
+//	            // Events with timestamp greater or equal to the maximum simulation time aren't
+//	            // executed
+//	            if (lvt >= model.getEndTs())
+//	                addWait(e);
+//	            else {
+//	            	addExecution(e);
+//	                // Extracts all the events with the same timestamp
+//	                boolean flag = false;
+//	                do {
+//	                    if (! waitQueue.isEmpty()) {
+//	                        e = removeWait();
+//	                        if (e.getTs() == lvt) {
+//	                        	addExecution(e);
+//	                            flag = true;
+//	                        }
+//	                        else {  
+//	                            flag = false;
+//	                            addWait(e);
+//	                        }
+//	                    }
+//	                    else {  // The waiting queue is empty
+//	                        flag = false;
+//	                    }
+//	                } while ( flag );
+//	            }
+//	        }        
+//		}
 	}
 
 	@Override

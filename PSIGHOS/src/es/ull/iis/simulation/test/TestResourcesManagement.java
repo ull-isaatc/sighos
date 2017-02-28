@@ -9,13 +9,12 @@ import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.ModelPeriodicCycle;
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.TimeDrivenGenerator;
+import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.simulation.sequential.SequentialSimulationEngine;
 
 /**
  * @author Iván Castilla
@@ -26,11 +25,9 @@ public class TestResourcesManagement extends Experiment {
 	final static TimeUnit UNIT = TimeUnit.MINUTE;
 	final static long END_TIME = 100;
 
-	final private Model model;
-	
 	class ModelResourceManagement extends Model {
-		public ModelResourceManagement() {
-			super();
+		public ModelResourceManagement(int ind) {
+			super(ind, "Testing resource management " + ind, UNIT, 0, END_TIME);
 			
 			// The only element type
 			final ElementType et = new ElementType(this, "Package");
@@ -87,7 +84,7 @@ public class TestResourcesManagement extends Experiment {
 			reqLocationA.link(reqOperatorA).link(actWorkAtLocationA).link(relOperatorA).link(reqTransport).link(relLocationA);
 			relLocationA.link(actMoveFromAToB).link(reqLocationB).link(relTransport).link(actWorkAtLocationB).link(relLocationB);
 			ModelPeriodicCycle cycle = ModelPeriodicCycle.newDailyCycle(UNIT, 0);
-			new TimeDrivenGenerator(this, 2, et, reqLocationA, cycle);
+			new TimeDrivenElementGenerator(this, 2, et, reqLocationA, cycle);
 		}
 	}
 	
@@ -96,14 +93,13 @@ public class TestResourcesManagement extends Experiment {
 	 */
 	public TestResourcesManagement(int nExperiments) {
 		super("Testing resource management", nExperiments);
-		this.model = new ModelResourceManagement();
 	}
 
 	@Override
-	public SequentialSimulationEngine getSimulation(int ind) {
-		SequentialSimulationEngine sim = new SequentialSimulationEngine(ind, "Testing resource management " + ind, model, 0, END_TIME);
-		sim.addInfoReceiver(new StdInfoView(sim));
-		return sim;
+	public Model getModel(int ind) {
+		final Model model = new ModelResourceManagement(ind);
+		model.addInfoReceiver(new StdInfoView(model));
+		return model;
 	}
 
 	/**

@@ -123,7 +123,7 @@ class ExpConflict extends Experiment {
 	@Override
 	public SimulationEngine getSimulation(int ind) {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "TestConflicts", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
-		SimulationEngine sim = factory.getSimulation();
+		SimulationEngine sim = factory.getSimulationEngine();
 		createSimulation1(factory);
 		sim.setOutput(new Output(true));
 		return sim;

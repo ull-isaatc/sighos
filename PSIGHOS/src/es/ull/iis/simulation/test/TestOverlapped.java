@@ -37,7 +37,7 @@ class ExpOverlapped extends Experiment {
 
 	public SimulationEngine getSimulation(int ind) {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Sistema de análisis", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
-		SimulationEngine sim = factory.getSimulation();
+		SimulationEngine sim = factory.getSimulationEngine();
 
         // PASO 1: Inicializo las Activityes de las que se compone
 //    	Activity actDummy = factory.getActivityInstance("Dummy");

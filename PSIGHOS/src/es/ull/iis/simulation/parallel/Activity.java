@@ -415,7 +415,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 	 */
 	public void request(WorkItem wItem) {
 		final Element elem = wItem.getElement();
-		simul.notifyInfo(null).notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.REQACT, elem.getTs()));
+		simul.notifyInfo(null).notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.REQ, elem.getTs()));
 		if (elem.isDebugEnabled())
 			elem.debug("Requests\t" + this + "\t" + description);
 
@@ -433,7 +433,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 		long auxTs = wItem.catchResources();
 
 		if (wItem.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
-			simul.notifyInfo(null).notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
+			simul.notifyInfo(null).notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.START, elem.getTs()));
 			elem.debug("Starts\t" + this + "\t" + description);
 			InitializerFlow initialFlow = ((FlowDrivenActivityWorkGroup)wItem.getExecutionWG()).getInitialFlow();
 			// The inner request is scheduled a bit later
@@ -443,7 +443,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 			// The first time the activity is carried out (useful only for interruptible activities)
 			if (wItem.getTimeLeft() == -1) {
 				wItem.setTimeLeft(((TimeDrivenActivityWorkGroup)wItem.getExecutionWG()).getDurationSample(elem));
-				simul.notifyInfo(null).notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.STAACT, elem.getTs()));
+				simul.notifyInfo(null).notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.START, elem.getTs()));
 				elem.debug("Starts\t" + this + "\t" + description);			
 			}
 			else {
@@ -477,7 +477,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 		wItem.releaseCaughtResources();
 		
 		if (wItem.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
-			simul.notifyInfo(null).notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
+			simul.notifyInfo(null).notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.END, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + description);
 	        return true;
@@ -488,7 +488,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 
 			assert wItem.getTimeLeft() >= 0 : "Time left < 0: " + wItem.getTimeLeft();
 			if (wItem.getTimeLeft() == 0) {
-				simul.notifyInfo(null).notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.ENDACT, elem.getTs()));
+				simul.notifyInfo(null).notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.END, elem.getTs()));
 				if (elem.isDebugEnabled())
 					elem.debug("Finishes\t" + this + "\t" + description);
 				// Checks if there are pending activities that haven't noticed the

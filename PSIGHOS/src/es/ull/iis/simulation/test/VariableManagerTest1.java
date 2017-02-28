@@ -31,7 +31,7 @@ class ExperimentTest1 extends Experiment {
 
 	public SimulationEngine getSimulation(int ind) {
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Ej", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
-		SimulationEngine sim = factory.getSimulation();
+		SimulationEngine sim = factory.getSimulationEngine();
 
 		factory.getFlowInstance("ActivityFlow", "Verificar cuenta", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
         

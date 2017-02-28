@@ -9,7 +9,7 @@ import es.ull.iis.simulation.model.FlowExecutor;
  * @author Iván Castilla
  *
  */
-public interface ElementEngine {
+public interface ElementEngine extends EventSourceEngine {
 	/**
 	 * Notifies a new work thread is waiting in an activity queue.
 	 * @param wt Work thread waiting in queue.

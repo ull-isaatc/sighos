@@ -10,10 +10,11 @@ public class ElementActionInfo extends AsynchronousInfo {
 	
 	/** Possible types of element information */
 	public enum Type {
-			REQACT	("REQUEST ACTIVITY"), 
-			STAACT	("START ACTIVITY"), 
-			ENDACT	("END ACTIVITY"), 
-			RESACT	("RESTART ACTIVITY"), 
+			REQ		("REQUEST RESOURCES"), 
+			START	("START DELAY"), 
+			END		("END DELAY"),
+			REL		("RELEASE RESOURCES"),
+			RESACT	("RESUME ACTIVITY"), 
 			INTACT	("INTERRUPT ACTIVITY");
 			
 			private final String description;

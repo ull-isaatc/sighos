@@ -12,12 +12,12 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
  * 
  * @author Iván Castilla Rodríguez
  */
-public class ElementEngine extends EventSourceEngine<Element> implements es.ull.iis.simulation.model.engine.ElementEngine {
+public class ElementEngine extends EngineObject implements es.ull.iis.simulation.model.engine.ElementEngine {
 	/** Activity queues in which this element is. This list is used to notify the activities
 	 * when the element becomes available. */
 	protected final ArrayList<FlowExecutor> inQueue = new ArrayList<FlowExecutor>();
 
-	private final es.ull.iis.simulation.model.Element modelElem;
+	private final Element modelElem;
 	
 	/**
 	 * Creates a new element.
@@ -25,15 +25,15 @@ public class ElementEngine extends EventSourceEngine<Element> implements es.ull.
 	 * @param et Element type this element belongs to
 	 * @param flow First step of this element's flow
 	 */
-	public ElementEngine(SequentialSimulationEngine simul, es.ull.iis.simulation.model.Element modelElem) {
-		super(simul, modelElem, "E");
+	public ElementEngine(SequentialSimulationEngine simul, Element modelElem) {
+		super(modelElem.getIdentifier(), simul, "E");
 		this.modelElem = modelElem;
 	}
 
 	/**
 	 * @return the modelElem
 	 */
-	public es.ull.iis.simulation.model.Element getModelElem() {
+	public Element getModelElem() {
 		return modelElem;
 	}
 
@@ -69,4 +69,10 @@ public class ElementEngine extends EventSourceEngine<Element> implements es.ull.
 		}
 		
 	}
+
+	@Override
+    public void notifyEnd() {
+        simul.addEvent(modelElem.onDestroy(simul.getTs()));
+    }
+    
 }

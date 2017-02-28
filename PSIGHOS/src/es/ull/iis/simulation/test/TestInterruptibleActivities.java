@@ -43,7 +43,7 @@ public class TestInterruptibleActivities {
 			public SimulationEngine<?> getSimulation(int ind) {
 				SimulationEngine<?> sim = null;
 				SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Testing interruptible activities", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.MINUTE, 400));
-				sim = factory.getSimulation();
+				sim = factory.getSimulationEngine();
 				
 		        ResourceTypeEngine rt = factory.getResourceTypeInstance("RT0");
 		        WorkGroup wg = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rt}, new int[] {1});

@@ -74,4 +74,39 @@ public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEven
 		return 0;
 	}
 
+    /**
+     * The last event this element executes. It decrements the total amount of elements of the
+     * simulation.
+     * @author Iván Castilla Rodríguez
+     */
+    public final static class DefaultFinalizeEvent extends DiscreteEvent {
+    	final EventSource source;
+        
+        public DefaultFinalizeEvent(EventSource source, long ts) {
+            super(ts);
+            this.source = source;
+        }
+        
+        public void event() {
+        	source.debug("Ends execution");
+        }
+    }
+
+    /**
+     * The first event this element executes.
+     * @author Iván Castilla Rodríguez
+     *
+     */
+    public final static class DefaultStartEvent extends DiscreteEvent {
+    	final EventSource source;
+
+    	public DefaultStartEvent(EventSource source, long ts) {
+            super(ts);
+            this.source = source;
+        }
+
+        public void event() {
+        	source.debug("Starts Execution");
+        }
+    }
 }

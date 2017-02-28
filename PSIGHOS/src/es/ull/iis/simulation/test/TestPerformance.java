@@ -30,7 +30,7 @@ public class TestPerformance {
 			@Override
 			public SimulationEngine getSimulation(int ind) {
 				SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "SimTest", unit, STARTTS, ENDTS);
-				SimulationEngine sim = factory.getSimulation();
+				SimulationEngine sim = factory.getSimulationEngine();
 				int i = 0;
 				try {
 					for (; ; i++)

@@ -73,7 +73,7 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, Resource
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread)) {
-					model.notifyInfo(new ElementActionInfo(model, wThread, wThread.getElement(), this, wThread.getExecutionWG(), ElementActionInfo.Type.STAACT, model.getSimulationEngine().getTs()));
+					model.notifyInfo(new ElementActionInfo(model, wThread, wThread.getElement(), this, wThread.getExecutionWG(), ElementActionInfo.Type.START, model.getSimulationEngine().getTs()));
 					wThread.getElement().debug("Starts\t" + this + "\t" + getDescription());			
 					long finishTs = model.getSimulationEngine().getTs() + getDurationSample(wThread);
 					// TODO: Check if it's needed
@@ -95,7 +95,7 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, Resource
 
 	@Override
 	public void finish(FlowExecutor wThread) {
-		model.notifyInfo(new ElementActionInfo(model, wThread, wThread.getElement(), this, wThread.getExecutionWG(), ElementActionInfo.Type.ENDACT, model.getSimulationEngine().getTs()));
+		model.notifyInfo(new ElementActionInfo(model, wThread, wThread.getElement(), this, wThread.getExecutionWG(), ElementActionInfo.Type.END, model.getSimulationEngine().getTs()));
 		if (wThread.getElement().isDebugEnabled())
 			wThread.getElement().debug("Finishes\t" + this + "\t" + getDescription());
 		afterFinalize(wThread);

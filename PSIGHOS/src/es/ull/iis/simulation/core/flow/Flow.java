@@ -7,7 +7,7 @@ import java.util.Set;
 
 import es.ull.iis.simulation.core.Element;
 import es.ull.iis.simulation.core.WorkThread;
-import es.ull.iis.simulation.model.EngineObject;
+import es.ull.iis.simulation.model.engine.EngineObject;
 
 /**
  * The process an element has to carry out.<p>

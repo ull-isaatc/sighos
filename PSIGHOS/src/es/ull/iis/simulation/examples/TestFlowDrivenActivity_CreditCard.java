@@ -34,7 +34,7 @@ class ExperimentFDAE1 extends Experiment {
 	public SimulationEngine<?> getSimulation(int ind) {
 		SimulationEngine<?> sim = null;
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "ExCreaditCard", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
-		sim = factory.getSimulation();
+		sim = factory.getSimulationEngine();
 		
     	ActivityFlow<?,?> act0 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "Verify account", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
     	ActivityFlow<?,?> act1 = (ActivityFlow<?,?>)factory.getFlowInstance("ActivityFlow", "Get card details", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));

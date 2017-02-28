@@ -17,7 +17,7 @@ import es.ull.iis.simulation.model.Model;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceList;
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.TimeDrivenGenerator;
+import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
@@ -33,10 +33,10 @@ import es.ull.iis.util.Output;
  * <li>{@link ActivityFlow}</li>
  * <li>{@link ElementType}</li>
  * <li>{@link Flow}</li>
- * <li>{@link TimeDrivenGenerator}</li>
+ * <li>{@link TimeDrivenElementGenerator}</li>
  * </ul>
  * A simulation has an associated clock which starts in <tt>startTs</tt> and advances according 
- * to the events produced by the {@link Element}s, {@link ResourceEngine}s and {@link TimeDrivenGenerator}s. 
+ * to the events produced by the {@link Element}s, {@link ResourceEngine}s and {@link TimeDrivenElementGenerator}s. 
  * A "next-event" technique is used to determine the next timestamp to advance. A minimum 
  * {@link TimeUnit} determines the accuracy of the simulation's clock. The simulation ends when the 
  * simulation clock reaches the <tt>endTs</tt> timestamp or no more events are available.<br>

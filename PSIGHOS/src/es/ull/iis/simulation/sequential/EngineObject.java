@@ -9,7 +9,7 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  * the same identifiers.
  * @author Iván Castilla Rodríguez
  */
-public abstract class EngineObject implements es.ull.iis.simulation.model.EngineObject {
+public abstract class EngineObject implements es.ull.iis.simulation.model.engine.EngineObject {
     /** Unique object identifier  */
 	protected final int id;
     /** Simulation this object belongs to */
@@ -45,7 +45,7 @@ public abstract class EngineObject implements es.ull.iis.simulation.model.Engine
      * Returns the simulation which this object is attached to.
      * @return Simulation this object belongs to
      */
-    public SimulationEngine getSimulation() {
+    public SimulationEngine getSimulationEngine() {
         return simul;
     }
     
@@ -60,7 +60,7 @@ public abstract class EngineObject implements es.ull.iis.simulation.model.Engine
 	/* (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(es.ull.iis.simulation.model.EngineObject o) {
+	public int compareTo(es.ull.iis.simulation.model.engine.EngineObject o) {
 		if (id < o.getIdentifier())
 			return -1;
 		if (id > o.getIdentifier())
