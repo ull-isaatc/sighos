@@ -10,7 +10,8 @@ public class ElementActionInfo extends AsynchronousInfo {
 	
 	/** Possible types of element information */
 	public enum Type {
-			REQ		("REQUEST RESOURCES"), 
+			REQ		("REQUEST RESOURCES"),
+			ACQ		("ACQUIRE RESOURCES"),
 			START	("START DELAY"), 
 			END		("END DELAY"),
 			REL		("RELEASE RESOURCES"),

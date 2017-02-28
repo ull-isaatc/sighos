@@ -3,16 +3,17 @@
  */
 package es.ull.iis.simulation.port;
 
-import es.ull.iis.simulation.model.Element;
+import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.ElementType;
-import es.ull.iis.simulation.model.TimeDrivenGenerator;
+import es.ull.iis.simulation.model.EventSource;
+import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 
 /**
  * @author Iván Castilla
  *
  */
-public class ContainerCreator extends TimeDrivenGenerator {
+public class ContainerCreator extends TimeDrivenElementGenerator {
 	private ArrivalPlanning plan;
 	private ElementType et;
 	private InitializerFlow flow;
@@ -31,12 +32,17 @@ public class ContainerCreator extends TimeDrivenGenerator {
 	}
 	
 	@Override
-	public Element[] createElements(int n, long ts) {
-		final Element[] elems = new Element[n];
+	public EventSource[] create(long ts) {
+		int n = getSampleNElem();
+		n = beforeCreateElements(n);
+		final EventSource[] elems = new EventSource[n];
 		final int[] containers = plan.getDestinationBlocks(ts);
 		for (int i = 0; i < containers.length; i++) {
 			elems[i] = new Container(model, et, flow, plan.getBerth(), containers[i]);
+            final DiscreteEvent e = elems[i].onCreate(model.getSimulationEngine().getTs());
+            model.getSimulationEngine().addEvent(e);
 		}
+        afterCreateElements();
 		return elems;
 	}
 	

@@ -56,11 +56,11 @@ public class ClinicalPresentationDRParam extends Param {
 		// Following years but the last
 		for (int age = 1; age < yearsToDeath; age++) {
 			if (pat.draw(RandomForPatient.ITEM.DR_CLINICAL_PRESENTATION) < yearlyProb)
-				return pat.getTs() + pat.getSimulation().getTimeUnit().convert(age, TimeUnit.YEAR);
+				return pat.getTs() + pat.getSimulationEngine().getTimeUnit().convert(age, TimeUnit.YEAR);
 		}
 		// Last year
 		if (pat.draw(RandomForPatient.ITEM.DR_CLINICAL_PRESENTATION) < yearlyProb)
-			return pat.getTs() + pat.getSimulation().getTimeUnit().convert(yearsToDeath, TimeUnit.YEAR);
+			return pat.getTs() + pat.getSimulationEngine().getTimeUnit().convert(yearsToDeath, TimeUnit.YEAR);
 		return Long.MAX_VALUE;
 	}
 

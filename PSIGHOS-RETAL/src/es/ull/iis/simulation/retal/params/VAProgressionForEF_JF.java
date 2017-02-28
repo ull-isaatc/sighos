@@ -28,8 +28,8 @@ final class VAProgressionForEF_JF extends VAProgressionParam {
 		final ArrayList<VAProgressionPair> array = new ArrayList<VAProgressionPair>();
 		final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
 		final double currentVA = pat.getVA(eyeIndex);
-		final long timeSinceLastEvent = pat.getSimulation().getTs() - pat.getTimeToCNVStage(stage, eyeIndex);
-		final double logDays = Math.log(TimeUnit.DAY.convert(timeSinceLastEvent, pat.getSimulation().getTimeUnit()));
+		final long timeSinceLastEvent = pat.getSimulationEngine().getTs() - pat.getTimeToCNVStage(stage, eyeIndex);
+		final double logDays = Math.log(TimeUnit.DAY.convert(timeSinceLastEvent, pat.getSimulationEngine().getTimeUnit()));
 		// Made to mimic Karnon
 		final int lesion = (stage.getType() == CNVStage.Type.MC) ? 2 : 3;
 		final double newVA = Math.min(VisualAcuity.MAX_LOGMAR, constantCoef + (logDays * logDaysCoef) + (currentVA * baselineVACoef) + (lesion * lesionTypeCoef));

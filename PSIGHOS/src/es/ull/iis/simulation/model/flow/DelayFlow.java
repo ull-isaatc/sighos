@@ -74,11 +74,10 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, Resource
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread)) {
 					model.notifyInfo(new ElementActionInfo(model, wThread, wThread.getElement(), this, wThread.getExecutionWG(), ElementActionInfo.Type.START, model.getSimulationEngine().getTs()));
-					wThread.getElement().debug("Starts\t" + this + "\t" + getDescription());			
-					long finishTs = model.getSimulationEngine().getTs() + getDurationSample(wThread);
+					wThread.getElement().debug("Start delay\t" + this + "\t" + getDescription());	
+					wThread.startDelay(getDurationSample(wThread));
 					// TODO: Check if it's needed
 //					timeLeft = 0;
-					wThread.getElement().addFinishEvent(finishTs, this, wThread);
 				}
 				else {
 					wThread.cancel(this);

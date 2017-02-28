@@ -35,24 +35,24 @@ public class ContainerTimeListener extends Listener {
 			final ElementActionInfo eInfo = (ElementActionInfo)info;
 			final int containerId = eInfo.getElement().getIdentifier(); 
 			switch (eInfo.getType()) {
-			case ENDACT:
+			case REL:
 				if (eInfo.getActivity().getDescription().equals(PortModel.ACT_REL_TRUCK)) {
 					tContainer.get(containerId)[1] = eInfo.getTs();
 				}
 				break;
 			case INTACT:
 				break;
-			case REQACT:
-				break;
-			case RESACT:
-				break;
-			case STAACT:
+			case REQ:
 				if (eInfo.getActivity().getDescription().equals(PortModel.ACT_REQ_TRUCK)) {
 					Long[] time = new Long[2];
 					time[0] = eInfo.getTs();
 					time[1] = (long)-1;
 					tContainer.put(containerId, time);
 				}
+				break;
+			case RESACT:
+				break;
+			case START:
 				break;
 			default:
 				break;			

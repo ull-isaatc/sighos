@@ -32,7 +32,7 @@ public class WeibullTimeToEventParam extends Param {
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
 	public long getTimeToEvent(Patient pat) {
-		final long time = pat.getTs() + pat.getSimulation().getTimeUnit().convert(rnd.generate(), unit);
-		return (time > pat.getSimulation().getInternalEndTs()) ? Long.MAX_VALUE : time;
+		final long time = pat.getTs() + pat.getSimulationEngine().getTimeUnit().convert(rnd.generate(), unit);
+		return (time > pat.getSimulationEngine().getInternalEndTs()) ? Long.MAX_VALUE : time;
 	}
 }

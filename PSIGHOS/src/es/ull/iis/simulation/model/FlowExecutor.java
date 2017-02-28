@@ -55,8 +55,8 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 	/** The simulation timestamp when this work thread was requested. */
 	protected long arrivalTs = -1;
 	// TODO: Substitute by %work finished
-	/** The time left to finish the activity. Used in interruptible activities. */
-	protected long timeLeft = -1;
+	/** The proportion of time left to finish the activity. Used in interruptible activities. */
+	protected double remainingTask = 0.0;
 	
     /** 
      * Creates a new work thread. The constructor is private since it must be invoked from the 
@@ -94,9 +94,17 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
     	currentFlow = f;
 		executionWG = null;
 		arrivalTs = -1;
-		timeLeft = -1;  
-		if (f instanceof RequestResourcesFlow)
+		if (f instanceof RequestResourcesFlow) {
+			remainingTask = 1.0;
+			if (parent.currentFlow instanceof ActivityFlow) {
+				if (parent.remainingTask > 0.0)
+					remainingTask = parent.remainingTask;
+			}
 			caughtResources.put(((RequestResourcesFlow)f).getResourcesId(), new ArrayDeque<Resource>());
+		}
+		else {
+			remainingTask = 0.0;  			
+		}
 	}
 
     /**
@@ -233,12 +241,7 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 	 */
 	public FlowExecutor getInstanceDescendantFlowExecutor(InitializerFlow newFlow) {
 		if (isExecutable()) {
-			final FlowExecutor wt = new FlowExecutor(new WorkToken(true), elem, newFlow, this);
-			// If this thread was interrupted, the descendant thread must take it into account
-			if (timeLeft > 0.0) {
-				wt.setTimeLeft(timeLeft);
-			}
-			return wt;
+			return new FlowExecutor(new WorkToken(true), elem, newFlow, this);
 		}
 		else
 			return new FlowExecutor(new WorkToken(false, newFlow), elem, newFlow, this);
@@ -320,22 +323,6 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 		this.arrivalTs = arrivalTs;
 	}
 
-	/**
-	 * Returns the time required to finish the current single flow (only for interruptible activities) 
-	 * @return the time required to finish the current single flow 
-	 */
-	public long getTimeLeft() {
-		return timeLeft;
-	}
-
-	/**
-	 * Sets the time required to finish the current single flow .
-	 * @param timeLeft the time required to finish the current single flow 
-	 */
-	public void setTimeLeft(long timeLeft) {
-		this.timeLeft = timeLeft;
-	}
-
 	@Override
 	public double getTime() {
 		return elem.getModel().getSimulationEngine().getTs();
@@ -363,7 +350,7 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
      * Catch the resources needed for each resource type to carry out an activity.
      * @return The minimum availability timestamp of the taken resources 
      */
-	public void catchResources() {
+	public long catchResources() {
 		final RequestResourcesFlow reqFlow = (RequestResourcesFlow)currentFlow;
 		final int resourcesId = reqFlow.getResourcesId();
     	long auxTs = Long.MAX_VALUE;
@@ -372,28 +359,37 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
             res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
     	}
     	final long ts = elem.getModel().getSimulationEngine().getTs();
-		// The first time the activity is carried out (useful only for interruptible activities)
-		if (timeLeft == -1) {
-			// wThread.setTimeLeft(wThread.getExecutionWG().getDurationSample(elem));
-			timeLeft = executionWG.getDurationSample(this);
-			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.START, ts));
-			elem.debug("Starts\t" + this + "\t" + reqFlow.getDescription());			
-			reqFlow.afterStart(this);
+		elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.ACQ, ts));
+		elem.debug("Resources acquired\t" + this + "\t" + reqFlow.getDescription());			
+		reqFlow.afterAcquire(this);
+		long delay = Math.round(executionWG.getDurationSample(this) * remainingTask);
+		auxTs -= ts;
+		if (delay > 0) {
+			if (remainingTask == 1.0) {
+				elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.START, ts));
+				elem.debug("Start delay\t" + this + "\t" + reqFlow.getDescription());
+			}
+			else {
+				elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.RESACT, ts));
+				elem.debug("Continues\t" + this + "\t" + reqFlow.getDescription());			
+			}
+			// The required time for finishing the activity is reduced (useful only for interruptible activities)
+			if (reqFlow.partOfInterruptible() && (delay - auxTs > 0.0)) {
+				remainingTask = (delay - auxTs) * remainingTask / (double)delay;
+				delay = auxTs;
+			}
+			else {
+				remainingTask = 0.0;
+			}
 		}
 		else {
-			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.RESACT, ts));
-			elem.debug("Continues\t" + this + "\t" + reqFlow.getDescription());			
+			remainingTask = 0.0;
 		}
-		long finishTs = ts + timeLeft;
-		// The required time for finishing the activity is reduced (useful only for interruptible activities)
-		if (reqFlow.partOfInterruptible() && (finishTs - auxTs > 0.0)) {
-			timeLeft = finishTs - auxTs;
-			finishTs = auxTs;
-		}
-		else {
-			timeLeft = 0;
-		}
-		elem.addFinishEvent(finishTs, reqFlow, this);
+		return delay;
+	}
+	
+	public void startDelay(long delay) {
+		elem.addFinishEvent(delay + elem.getModel().getSimulationEngine().getTs(), (TaskFlow)currentFlow, this);
 	}
 	
 	public boolean releaseCaughtResources() {
@@ -438,8 +434,7 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 	}
    
     public void endDelay(RequestResourcesFlow f) {
-		// FIXME: CUIDADO CON ESTO!!! Nunca debería ser menor
-		if (timeLeft <= 0.0) {
+		if (remainingTask == 0.0) {
 			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, f, executionWG, ElementActionInfo.Type.END, elem.getModel().getSimulationEngine().getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + f.getDescription());
@@ -448,9 +443,9 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 		else {
 			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, f, executionWG, ElementActionInfo.Type.INTACT, elem.getModel().getSimulationEngine().getTs()));
 			if (elem.isDebugEnabled())
-				elem.debug("Finishes part of \t" + this + "\t" + f.getDescription() + "\t" + timeLeft);
+				elem.debug("Finishes part of \t" + this + "\t" + f.getDescription() + "\t" + remainingTask * 100 + "% Left");
 			// Notifies the parent workthread that the activity was interrupted
-			parent.setTimeLeft(timeLeft);
+			parent.remainingTask = remainingTask;
 		}
     }
     
@@ -460,7 +455,11 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 			if (reqFlow.isFeasible(this)) {
 				if (reqFlow.isExclusive()) 
 					elem.setCurrent(this);
-				catchResources();
+				final long delay = catchResources();
+				if (delay > 0)
+					startDelay(delay);
+				else
+					reqFlow.next(this);
 				return -1;
 			}
 			else {
@@ -476,14 +475,18 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 		if (reqFlow.isFeasible(this)) {
 			if (reqFlow.isExclusive()) 
 				elem.setCurrent(this);
-			catchResources();
+			final long delay = catchResources();
 			reqFlow.queueRemove(this);
+			if (delay > 0)
+				startDelay(delay);
+			else
+				reqFlow.next(this);
 		}    	
     }
 
     public boolean wasInterrupted(ActivityFlow f) {
 		// It was an interruptible activity and it was interrupted
-		return (timeLeft > 0.0);    	
+		return (remainingTask > 0.0);    	
     }
     
 }

@@ -173,7 +173,7 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 			final double []rnd = pat.draw(RandomForPatient.ITEM.DIABETES_INCIDENCE, incidenceWomen.length);
 			time = getTimeToEvent(incidenceWomen, pat.getAge(), rnd);						
 		}
-		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, unit);
+		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + pat.getSimulationEngine().getTimeUnit().convert(time, unit);
 	}
 
 	/** 

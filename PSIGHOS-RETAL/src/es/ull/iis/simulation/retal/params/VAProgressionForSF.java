@@ -106,7 +106,7 @@ public class VAProgressionForSF extends VAProgressionParam {
 	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>();
 		final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
-		long daysSinceEvent = TimeUnit.DAY.convert(pat.getSimulation().getTs() - pat.getTimeToCNVStage(stage, eyeIndex), pat.getSimulation().getTimeUnit());
+		long daysSinceEvent = TimeUnit.DAY.convert(pat.getSimulationEngine().getTs() - pat.getTimeToCNVStage(stage, eyeIndex), pat.getSimulationEngine().getTimeUnit());
 		double ageAtSF = pat.getAgeAt(stage, eyeIndex);		
 		double lastFuva = VisualAcuity.getLettersFromLogMAR(pat.getVA(eyeIndex));
 		

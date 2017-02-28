@@ -29,6 +29,6 @@ public class AnnualBasedTimeToEventParam extends Param {
 	public long getTimeToEvent(Patient pat) {
 		final double lifetime = pat.getAgeAtDeath() - pat.getAge();
 		final double time = minusAvgTimeToEvent * Math.log(pat.draw(item));
-		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(CommonParams.MIN_TIME_TO_EVENT,pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
+		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(CommonParams.MIN_TIME_TO_EVENT,pat.getSimulationEngine().getTimeUnit().convert(time, TimeUnit.YEAR));
 	}
 }

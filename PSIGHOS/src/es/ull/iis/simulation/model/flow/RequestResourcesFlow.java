@@ -267,7 +267,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * execution of the {@link ActivityFlow}.
 	 * @param fe {@link FlowExecutor} requesting this {@link ActivityFlow}
 	 */
-	public void afterStart(FlowExecutor fe) {
+	public void afterAcquire(FlowExecutor fe) {
 	}
 
 	@Override
@@ -317,8 +317,10 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
     
     /**
      * Catch the resources needed for each resource type to carry out an activity.
+     * @return -1 if the resources cannot be acquired; 0 if no delay is required;
+     * a delay duration otherwise.
      */
-	public boolean acquireResources(FlowExecutor fe) {
+	public long acquireResources(FlowExecutor fe) {
 		model.notifyInfo(new ElementActionInfo(model, fe, fe.getElement(), this, fe.getExecutionWG(), ElementActionInfo.Type.REQ, model.getSimulationEngine().getTs()));
 		if (fe.getElement().isDebugEnabled())
 			fe.getElement().debug("Requests\t" + this + "\t" + getDescription());
@@ -327,12 +329,11 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 			if (isFeasible(fe)) {
 				if (isExclusive()) 
 					fe.getElement().setCurrent(fe);
-		    	fe.catchResources();
-				return true;
+		    	return fe.catchResources();
 			}
 		}
 		engine.queueAdd(fe); // The element is introduced in the queue
-		return false;
+		return -1L;
 	}
 
 	/*
@@ -342,8 +343,14 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	public void request(final FlowExecutor wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
-				if (beforeRequest(wThread))
-					acquireResources(wThread);
+				if (beforeRequest(wThread)) {
+					final long delay = acquireResources(wThread);
+					// No delay
+					if (delay == 0)
+						next(wThread);
+					else if (delay > 0)
+						wThread.startDelay(delay);
+				}
 				else {
 					wThread.cancel(this);
 					next(wThread);

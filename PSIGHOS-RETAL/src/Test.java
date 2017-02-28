@@ -48,11 +48,11 @@ class SimulTest {
         		factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 10), et, act), 
         		new ModelPeriodicCycle(SIMUNIT, GENSTART, new ModelTimeFunction(SIMUNIT, "ConstantVariate", GENPERIOD), 0));
         
-        factory.getSimulation().addInfoReceiver(new StdInfoView(factory.getSimulation()));
+        factory.getSimulationEngine().addInfoReceiver(new StdInfoView(factory.getSimulationEngine()));
 	}
 	
 	void run() {
-		factory.getSimulation().run();
+		factory.getSimulationEngine().run();
 	}
 }
 

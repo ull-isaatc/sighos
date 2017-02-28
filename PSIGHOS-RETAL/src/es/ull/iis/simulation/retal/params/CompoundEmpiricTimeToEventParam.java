@@ -48,7 +48,7 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 			else {
 				final double []rnd = pat.draw(rngItem, probabilities.length);
 				final double time = CompoundEmpiricTimeToEventParam.getTimeToEvent(probabilities, pat.getAge(), rnd);
-				return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + Math.max(CommonParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, unit));
+				return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + Math.max(CommonParams.MIN_TIME_TO_EVENT, pat.getSimulationEngine().getTimeUnit().convert(time, unit));
 			}
 		}
 		
