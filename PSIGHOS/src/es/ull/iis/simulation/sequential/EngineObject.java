@@ -26,7 +26,7 @@ public abstract class EngineObject implements es.ull.iis.simulation.model.engine
      */
 	public EngineObject(int id, SimulationEngine simul, String objTypeId) {
 		this.simul = simul;
-		this.model = simul.getModel();
+		this.model = simul.getSimulation();
 		this.id = id;
 		this.objTypeId = objTypeId;
 		idString = new String("[" + objTypeId + id + "]");

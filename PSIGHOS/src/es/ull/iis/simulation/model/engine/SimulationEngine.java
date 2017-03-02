@@ -66,7 +66,7 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	/** Number of worker threads which run the simulation events (if required by the implementation) */
 	protected int nThreads = 1;
 	
-	protected final Simulation model;
+	protected final Simulation simul;
 	
 	/**
 	 * Creates a new instance of Simulation
@@ -77,17 +77,17 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	 * @param startTs Timestamp of simulation's start expressed in Simulation Time Units
 	 * @param endTs Timestamp of simulation's end expressed in Simulation Time Units
 	 */
-	public SimulationEngine(int id, Simulation model) {
+	public SimulationEngine(int id, Simulation simul) {
 		this.id = id;
-		this.model = model;
-		model.setSimulationEngine(this);
+		this.simul = simul;
+		simul.setSimulationEngine(this);
 	}
 
 	/**
-	 * @return the model
+	 * @return the simul
 	 */
-	public Simulation getModel() {
-		return model;
+	public Simulation getSimulation() {
+		return simul;
 	}
 
 	@Override

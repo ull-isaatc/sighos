@@ -39,7 +39,7 @@ class BarrelShippingExperiment extends Experiment {
 	}
 	
 	@Override
-	public Simulation getModel(int ind) {
+	public Simulation getSimulation(int ind) {
 		Simulation model = new Simulation(ind, "Barrel shipping", TimeUnit.MINUTE, 0, NDAYS * 24 * 60);
 		
 		// Declares global model variables

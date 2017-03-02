@@ -81,7 +81,7 @@ public class TestConditionalResourceGenerator extends Experiment {
 	 * @see es.ull.iis.simulation.model.Experiment#getModel(int)
 	 */
 	@Override
-	public Simulation getModel(int ind) {
+	public Simulation getSimulation(int ind) {
 		Simulation model = new TestModel(ind);
 		model.addInfoReceiver(new StdInfoView(model));
 		return model;

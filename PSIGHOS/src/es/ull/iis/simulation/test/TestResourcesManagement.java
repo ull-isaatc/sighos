@@ -88,6 +88,42 @@ public class TestResourcesManagement extends Experiment {
 		}
 	}
 	
+	class ModelResourceManagementSimple extends Simulation {
+		public ModelResourceManagementSimple(int ind) {
+			super(ind, "Testing simple resource management " + ind, UNIT, 0, END_TIME);
+			
+			// The only element type
+			final ElementType et = new ElementType(this, "Package");
+			
+			// The three resource types involved in the simulation
+			final ResourceType rtOperatorA = new ResourceType(this, "OperatorA");
+			final ResourceType rtTransport = new ResourceType(this, "Transport");
+
+			// Create the specific resources
+			rtOperatorA.addGenericResources(1);
+			rtTransport.addGenericResources(1);
+			
+			// Define the workgroups
+			final WorkGroup wgOperatorA = new WorkGroup(this, rtOperatorA, 1);
+			final WorkGroup wgTransport = new WorkGroup(this, rtTransport, 1);
+			
+			// Create basic steps of the flow
+			final RequestResourcesFlow reqTransport = new RequestResourcesFlow(this, "Request transport", 1);
+			final ReleaseResourcesFlow relTransport = new ReleaseResourcesFlow(this, "Release transport", 1);
+			
+			final ActivityFlow actWorkAtLocationA = new ActivityFlow(this, "Work at location A");
+			
+			// Assign duration and workgroups to activities
+			reqTransport.addWorkGroup(wgTransport);
+			actWorkAtLocationA.addWorkGroup(0, wgOperatorA, 10L);
+
+			// Create flow
+			reqTransport.link(actWorkAtLocationA).link(relTransport);
+			SimulationPeriodicCycle cycle = SimulationPeriodicCycle.newDailyCycle(UNIT, 0);
+			new TimeDrivenElementGenerator(this, 2, et, reqTransport, cycle);
+		}
+	}
+	
 	/**
 	 * 
 	 */
@@ -96,8 +132,8 @@ public class TestResourcesManagement extends Experiment {
 	}
 
 	@Override
-	public Simulation getModel(int ind) {
-		final Simulation model = new ModelResourceManagement(ind);
+	public Simulation getSimulation(int ind) {
+		final Simulation model = new ModelResourceManagementSimple(ind);
 		model.addInfoReceiver(new StdInfoView(model));
 		return model;
 	}

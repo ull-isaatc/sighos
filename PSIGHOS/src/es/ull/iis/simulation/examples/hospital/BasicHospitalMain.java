@@ -36,7 +36,7 @@ public class BasicHospitalMain extends Experiment {
 	}
 
 	@Override
-	public Simulation getModel(int ind) {
+	public Simulation getSimulation(int ind) {
 		final Simulation model = new BasicHospitalModel(ind, TimeUnit.MINUTE, 0, 7 * 24 * 60);
 		model.addInfoReceiver(new StdInfoView(model));
 		return model;

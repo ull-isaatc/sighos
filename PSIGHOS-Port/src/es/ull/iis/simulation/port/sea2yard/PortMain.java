@@ -1,13 +1,12 @@
 /**
  * 
  */
-package es.ull.iis.simulation.port;
+package es.ull.iis.simulation.port.sea2yard;
 
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.port.inforeceiver.ContainerTimeListener;
 
 /**
  * The main simulation class for a port. A port is divided into three areas: sea, yard and earth. Ships arrive at a 
@@ -22,7 +21,7 @@ public class PortMain extends Experiment {
 	private static final int NSIM = 1;
 	private static final TimeUnit PORT_TIME_UNIT = TimeUnit.MINUTE;
 	private static final long START_TS = 0;
-	private static final long END_TS = 7 * 24 * 60;
+	private static final long END_TS = 24 * 60;
 	protected static final String CONS_VAR = "ConstantVariate";
 
 	public PortMain() {
@@ -30,7 +29,20 @@ public class PortMain extends Experiment {
 	}
 	
 	public static void main(String[] args) {
-		new PortMain().start();
+		final Ship ship = new Ship(10);
+		ship.push(1, 1);
+		ship.push(1, 2);
+		ship.push(1, 3);
+		ship.push(3, 4);
+		ship.push(4, 5);
+		ship.push(4, 6);
+		ship.push(6, 7);
+		ship.push(7, 8);
+		ship.push(8, 9);
+		ship.push(8, 10);
+		System.out.println(ship);
+		
+//		new PortMain().start();
 	}
 
 	@Override
@@ -38,6 +50,7 @@ public class PortMain extends Experiment {
 		final Simulation model = new PortModel(ind, DESCRIPTION + " " + ind, PORT_TIME_UNIT, START_TS, END_TS);
 		model.addInfoReceiver(new StdInfoView(model));
 		model.addInfoReceiver(new ContainerTimeListener(model));
+
 		return model;
 	}
 }

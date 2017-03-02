@@ -31,7 +31,7 @@ class ExperimentProbSel extends Experiment {
 		super("Banco", NEXP);
 	}
 
-	public Simulation getModel(int ind) {
+	public Simulation getSimulation(int ind) {
 		Simulation sim = null;
 		TimeUnit unit = TimeUnit.MINUTE;
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "EjProbabilidades", TimeUnit.MINUTE, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));

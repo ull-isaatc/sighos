@@ -104,7 +104,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
 	public long catchResource(FlowExecutor wt) {
-		simul.getModel().notifyInfo(new ResourceUsageInfo(simul.getModel(), modelRes, currentResourceType, wt, wt.getElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
+		simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, currentResourceType, wt, wt.getElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
 		currentWT = wt;
 		return currentRoles.get(currentResourceType);
 	}
@@ -117,7 +117,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
      * time of the resource had already expired.
      */
     public boolean releaseResource() {
-    	simul.getModel().notifyInfo(new ResourceUsageInfo(simul.getModel(), modelRes, currentResourceType, currentWT, currentWT.getElement(), (ResourceHandlerFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
+    	simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, currentResourceType, currentWT, currentWT.getElement(), (ResourceHandlerFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
         currentWT = null;
         currentResourceType = null;        
         if (timeOut) {

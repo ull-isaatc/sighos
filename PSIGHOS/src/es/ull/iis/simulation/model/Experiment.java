@@ -34,7 +34,7 @@ public abstract class Experiment implements Describable {
 	 * @param ind Number of the experiment
 	 * @return A new simulation object.
 	 */
-	public abstract Simulation getModel(int ind);
+	public abstract Simulation getSimulation(int ind);
 	
 	/**
 	 * Implementations of this method must call {@link #getSimulation(int)} to carry out all the 
@@ -42,7 +42,7 @@ public abstract class Experiment implements Describable {
 	 */
 	public void start() {
 		for (int i = 0; i < nExperiments; i++) {
-			getModel(i).run();
+			getSimulation(i).run();
 		}		
 	}
 

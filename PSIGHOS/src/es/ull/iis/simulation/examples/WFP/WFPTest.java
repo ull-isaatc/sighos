@@ -61,7 +61,7 @@ class WFPTestExperiment extends Experiment {
 	}
 	
 	@Override
-	public Simulation getModel(int ind) {
+	public Simulation getSimulation(int ind) {
 		Simulation model = null;
 		if (wfp != -1) {
 			model = class2Model(WFPTest.simulations.get(wfp), ind);
