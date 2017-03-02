@@ -18,7 +18,7 @@ import es.ull.iis.simulation.core.factory.StandardCompilator;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.Flow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
-import es.ull.iis.simulation.model.ModelCycle;
+import es.ull.iis.simulation.model.SimulationCycle;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.engine.ResourceEngine;
@@ -146,7 +146,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	}
 
 	@Override
-	public TimeDrivenGenerator getTimeDrivenGeneratorInstance(ElementCreator creator, ModelCycle cycle) throws ClassCastException {
+	public TimeDrivenGenerator getTimeDrivenGeneratorInstance(ElementCreator creator, SimulationCycle cycle) throws ClassCastException {
 		return new es.ull.iis.simulation.parallel.TimeDrivenGenerator(simul, (es.ull.iis.simulation.parallel.ElementCreator)creator, cycle);
 	}
 

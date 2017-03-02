@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
@@ -24,8 +24,8 @@ public class WFP40Simulation extends WFPTestSimulationFactory {
 	}
 
 	@Override
-	protected Model createModel() {
-		model = new Model(id, description, SIMUNIT, SIMSTART, SIMEND);    	
+	protected Simulation createModel() {
+		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);    	
 		ResourceType rt = getDefResourceType("Technician");
     	WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
     	

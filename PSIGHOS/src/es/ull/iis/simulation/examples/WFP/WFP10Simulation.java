@@ -6,7 +6,7 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
@@ -31,7 +31,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
 		super(type, id, "WFP10: Arbitrary Cycle. Ej", detailed);
 	}
 
-	static class WFP10Model extends Model {
+	static class WFP10Model extends Simulation {
 		private final double capacidadBidon = 20.0;
 		private double litrosIntroducidos;
 		private int enviosRealizados;
@@ -96,7 +96,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
 	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected Model createModel() {
+	protected Simulation createModel() {
 		model = new WFP10Model(id, description, SIMUNIT, SIMSTART, SIMEND);        
     	ResourceType rt0 = getDefResourceType("Operario");
     	ResourceType rt1 = getDefResourceType("Operario especial");

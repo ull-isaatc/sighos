@@ -14,7 +14,7 @@ import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.ParallelFlow;
@@ -30,11 +30,11 @@ public class CheckFlowsView extends WFPTestView {
 	ArrayList<TreeSet<EventToCheck>> futureFlow;
 	private boolean ok = true;
 
-	public CheckFlowsView(Model model, Flow f, TreeMap<RequestResourcesFlow, Long> durations) {
+	public CheckFlowsView(Simulation model, Flow f, TreeMap<RequestResourcesFlow, Long> durations) {
 		this(model, f, durations, true);
 	}
 
-	public CheckFlowsView(Model model, Flow f, TreeMap<RequestResourcesFlow, Long> durations, boolean detailed) {
+	public CheckFlowsView(Simulation model, Flow f, TreeMap<RequestResourcesFlow, Long> durations, boolean detailed) {
 		super(model, "Checking flows...", detailed);
 		addEntrance(ElementInfo.class);
 		addEntrance(ElementActionInfo.class);

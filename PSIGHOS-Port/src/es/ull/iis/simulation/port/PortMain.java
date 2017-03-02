@@ -5,7 +5,7 @@ package es.ull.iis.simulation.port;
 
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.port.inforeceiver.ContainerTimeListener;
 
@@ -34,8 +34,8 @@ public class PortMain extends Experiment {
 	}
 
 	@Override
-	public Model getModel(int ind) {
-		final Model model = new PortModel(ind, DESCRIPTION + " " + ind, PORT_TIME_UNIT, START_TS, END_TS);
+	public Simulation getModel(int ind) {
+		final Simulation model = new PortModel(ind, DESCRIPTION + " " + ind, PORT_TIME_UNIT, START_TS, END_TS);
 		model.addInfoReceiver(new StdInfoView(model));
 		model.addInfoReceiver(new ContainerTimeListener(model));
 		return model;

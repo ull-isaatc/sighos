@@ -31,7 +31,7 @@ import es.ull.iis.util.Output;
  * @author Ivan Castilla Rodriguez
  *
  */
-public class Model implements Identifiable, Runnable, Describable, VariableStore {
+public class Simulation implements Identifiable, Runnable, Describable, VariableStore {
 	/** A short text describing this simulation. */
 	protected final String description;
 	/** Simulation time unit */
@@ -76,7 +76,7 @@ public class Model implements Identifiable, Runnable, Describable, VariableStore
 	/**
 	 * 
 	 */
-	public Model(int id, String description, long startTs, long endTs) {
+	public Simulation(int id, String description, long startTs, long endTs) {
 		this(id, description, defTimeUnit, startTs, endTs);
 	}
 
@@ -88,7 +88,7 @@ public class Model implements Identifiable, Runnable, Describable, VariableStore
 	 * @param startTs Timestamp of simulation's start expressed in Simulation Time Units
 	 * @param endTs Timestamp of simulation's end expressed in Simulation Time Units
 	 */
-	public Model(int id, String description, TimeUnit unit, long startTs, long endTs) {
+	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
 		this.id = id;
 		this.unit = unit;
 		this.description = description;
@@ -172,7 +172,7 @@ public class Model implements Identifiable, Runnable, Describable, VariableStore
 	 * @param out The new output for debugging and error messages
 	 */
 	public static void setOutput(Output out) {
-		Model.out = out;
+		Simulation.out = out;
 	}
 
 	public static void debug(String description) {

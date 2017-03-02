@@ -3,7 +3,7 @@ package es.ull.iis.simulation.info;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 
 public class ElementActionInfo extends AsynchronousInfo {
@@ -36,7 +36,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 	final private Element elem;
 	final private Type type;
 	
-	public ElementActionInfo(Model model, FlowExecutor fExecutor, Element elem, ResourceHandlerFlow act, ActivityWorkGroup wg, Type type, long ts) {
+	public ElementActionInfo(Simulation model, FlowExecutor fExecutor, Element elem, ResourceHandlerFlow act, ActivityWorkGroup wg, Type type, long ts) {
 		super(model, ts);
 		this.fExecutor = fExecutor;
 		this.act = act;

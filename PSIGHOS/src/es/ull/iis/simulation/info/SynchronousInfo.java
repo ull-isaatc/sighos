@@ -1,10 +1,10 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 public abstract class SynchronousInfo extends TimeStampedInfo {
 
-	public SynchronousInfo(Model model, long ts) {
+	public SynchronousInfo(Simulation model, long ts) {
 		super(model, ts);
 	}
 

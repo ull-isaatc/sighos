@@ -5,7 +5,7 @@ package es.ull.iis.simulation.examples.hospital;
 
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
@@ -36,8 +36,8 @@ public class BasicHospitalMain extends Experiment {
 	}
 
 	@Override
-	public Model getModel(int ind) {
-		final Model model = new BasicHospitalModel(ind, TimeUnit.MINUTE, 0, 7 * 24 * 60);
+	public Simulation getModel(int ind) {
+		final Simulation model = new BasicHospitalModel(ind, TimeUnit.MINUTE, 0, 7 * 24 * 60);
 		model.addInfoReceiver(new StdInfoView(model));
 		return model;
 	}

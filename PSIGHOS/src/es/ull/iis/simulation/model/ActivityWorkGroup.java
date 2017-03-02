@@ -33,7 +33,7 @@ public class ActivityWorkGroup implements Prioritizable, Identifiable, Describab
      * @param cond  Availability condition
      * @param basicStep TODO
      */    
-    public ActivityWorkGroup(Model model, RequestResourcesFlow basicStep, int id, int priority, WorkGroup wg, Condition cond, TimeFunction duration) {
+    public ActivityWorkGroup(Simulation model, RequestResourcesFlow basicStep, int id, int priority, WorkGroup wg, Condition cond, TimeFunction duration) {
 		this.basicStep = basicStep;
         this.priority = priority;
         this.cond = cond;

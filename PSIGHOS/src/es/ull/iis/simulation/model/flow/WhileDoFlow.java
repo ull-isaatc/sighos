@@ -2,7 +2,7 @@ package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 
 /**
@@ -21,7 +21,7 @@ public class WhileDoFlow extends StructuredLoopFlow {
 	 * @param finalSubFlow Last step of the internal subflow
 	 * @param postCondition Break loop condition.
  	 */
-	public WhileDoFlow(Model model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, Condition postCondition) {
+	public WhileDoFlow(Simulation model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, Condition postCondition) {
 		super(model, initialSubFlow, finalSubFlow);
 		cond = postCondition;
 	}
@@ -31,7 +31,7 @@ public class WhileDoFlow extends StructuredLoopFlow {
 	 * @param subFlow A unique flow defining an internal subflow
 	 * @param postCondition Break loop condition.
  	 */
-	public WhileDoFlow(Model model, TaskFlow subFlow, Condition postCondition) {
+	public WhileDoFlow(Simulation model, TaskFlow subFlow, Condition postCondition) {
 		this(model, subFlow, subFlow, postCondition);
 	}
 

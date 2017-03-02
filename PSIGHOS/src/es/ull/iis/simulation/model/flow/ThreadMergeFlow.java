@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.FlowExecutor;
 
@@ -24,7 +24,7 @@ public class ThreadMergeFlow extends ANDJoinFlow {
 	 * Creates a new thread merge flow
 	 * @param nInstances Number of threads this flow waits for merging
 	 */
-	public ThreadMergeFlow(Model model, int nInstances) {
+	public ThreadMergeFlow(Simulation model, int nInstances) {
 		super(model);
 		incomingBranches = nInstances;
 		acceptValue = nInstances;
@@ -35,7 +35,7 @@ public class ThreadMergeFlow extends ANDJoinFlow {
 	 * @param nInstances Number of threads this flow waits for resetting
 	 * @param acceptValue Number of threads this flow waits for passing the control
 	 */
-	public ThreadMergeFlow(Model model, int nInstances, int acceptValue) {
+	public ThreadMergeFlow(Simulation model, int nInstances, int acceptValue) {
 		super(model);
 		this.incomingBranches = nInstances;
 		this.acceptValue = acceptValue;

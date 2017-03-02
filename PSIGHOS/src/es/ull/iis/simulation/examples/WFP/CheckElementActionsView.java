@@ -10,7 +10,7 @@ import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -22,11 +22,11 @@ public abstract class CheckElementActionsView extends WFPTestView {
 	protected TreeMap<Long, ElementReferenceInfos[]> refEndActs;
 	private boolean ok = true;
 
-	public CheckElementActionsView(Model model, String description) {
+	public CheckElementActionsView(Simulation model, String description) {
 		this(model, description, true);
 	}
 
-	public CheckElementActionsView(Model model, String description, boolean detailed) {
+	public CheckElementActionsView(Simulation model, String description, boolean detailed) {
 		super(model, description, detailed);
 		refRequests = new TreeMap<Long, ElementReferenceInfos[]>();
 		refStartActs = new TreeMap<Long, ElementReferenceInfos[]>();

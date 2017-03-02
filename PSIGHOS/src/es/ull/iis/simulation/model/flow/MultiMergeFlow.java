@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 
 /**
@@ -17,7 +17,7 @@ public class MultiMergeFlow extends ORJoinFlow {
 	/**
 	 * Creates a new MultiMergeFlow.
 	 */
-	public MultiMergeFlow(Model model) {
+	public MultiMergeFlow(Simulation model) {
 		super(model);
 	}
 	

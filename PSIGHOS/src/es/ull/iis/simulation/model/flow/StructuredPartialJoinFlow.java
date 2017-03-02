@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * A structured flow whose initial step is a parallel flow and whose final step
@@ -12,7 +12,7 @@ public class StructuredPartialJoinFlow extends PredefinedStructuredFlow {
 	/**
 	 * Creates a new StructuredPartialJoinFlow.
 	 */
-	public StructuredPartialJoinFlow(Model model, int partialValue) {
+	public StructuredPartialJoinFlow(Simulation model, int partialValue) {
 		super(model);
 		initialFlow = new ParallelFlow(model);
 		initialFlow.setParent(this);

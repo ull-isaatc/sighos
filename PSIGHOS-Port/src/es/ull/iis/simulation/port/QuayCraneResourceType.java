@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.port;
 
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * @author Iván Castilla
@@ -18,7 +18,7 @@ public class QuayCraneResourceType extends ResourceType {
 	 * @param model
 	 * @param description
 	 */
-	public QuayCraneResourceType(int id, Model model, int berth) {
+	public QuayCraneResourceType(int id, Simulation model, int berth) {
 		super(model, PortModel.QUAY_CRANE + " " + id);
 		this.berth = berth;
 	}

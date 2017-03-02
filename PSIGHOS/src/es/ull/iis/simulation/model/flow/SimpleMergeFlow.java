@@ -5,7 +5,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 
 /**
@@ -23,7 +23,7 @@ public class SimpleMergeFlow extends ORJoinFlow {
 	 * Creates a new SimpleMergeFlow.
 	 * @param simul Simulation this flow belongs to.
 	 */
-	public SimpleMergeFlow(Model model) {
+	public SimpleMergeFlow(Simulation model) {
 		super(model);
 	}
 

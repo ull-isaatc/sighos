@@ -6,7 +6,7 @@ package es.ull.iis.simulation.model.flow;
 import java.util.Set;
 
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 
 /**
@@ -27,7 +27,7 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow {
 	 * Creates a new thread split flow
 	 * @param nInstances Number of outgoing threads
 	 */
-	public ThreadSplitFlow(Model model, int nInstances) {
+	public ThreadSplitFlow(Simulation model, int nInstances) {
 		super(model);
 		this.nInstances = nInstances;
 	}

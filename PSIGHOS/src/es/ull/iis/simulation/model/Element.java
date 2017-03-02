@@ -30,7 +30,7 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 	protected final FlowExecutor mainThread;
 	private ElementEngine engine;
 	
-	public Element(Model model, ElementType elementType, InitializerFlow initialFlow) {
+	public Element(Simulation model, ElementType elementType, InitializerFlow initialFlow) {
 		super(model, model.getNewElementId(), "E");
 		this.elementType = elementType;
 		this.initialFlow = initialFlow;

@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * A structured flow whose initial step is a parallel flow and whose final step
@@ -11,7 +11,7 @@ public class StructuredDiscriminatorFlow extends PredefinedStructuredFlow {
 	/**
 	 * Create a new StructureDiscriminatorMetaFlow.
 	 */
-	public StructuredDiscriminatorFlow(Model model) {
+	public StructuredDiscriminatorFlow(Simulation model) {
 		super(model);
 		initialFlow = new ParallelFlow(model);
 		initialFlow.setParent(this);

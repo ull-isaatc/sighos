@@ -13,13 +13,13 @@ import es.ull.iis.simulation.condition.Condition;
 public abstract class ConditionDrivenGenerator<INF extends Generator.GenerationInfo> extends Generator<INF> {
 	protected final Condition cond;
 
-	public ConditionDrivenGenerator(Model model, TimeFunction nElem, Condition cond) {
+	public ConditionDrivenGenerator(Simulation model, TimeFunction nElem, Condition cond) {
 		super(model, model.getConditionDrivenGeneratorList().size(), nElem);
 		this.cond = cond;
 		model.add(this);
 	}
 
-	public ConditionDrivenGenerator(Model model, int nElem, Condition cond) {
+	public ConditionDrivenGenerator(Simulation model, int nElem, Condition cond) {
 		super(model, model.getConditionDrivenGeneratorList().size(), nElem);
 		this.cond = cond;
 		model.add(this);

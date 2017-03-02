@@ -18,7 +18,7 @@ import es.ull.iis.util.PrioritizedMap;
  * finishes, the <code>signalSemaphore()</code> method must be invoked.  
  * @author Iván Castilla Rodríguez
  */
-public class ActivityManager extends ModelObject implements Describable {
+public class ActivityManager extends SimulationObject implements Describable {
     /** Static counter for assigning each new id */
 	private static int nextid = 0;
 	/** A prioritized table of activities */
@@ -33,7 +33,7 @@ public class ActivityManager extends ModelObject implements Describable {
 	* Creates a new instance of ActivityManager.
 	* @param simul Simulation this activity manager belongs to
     */
-    public ActivityManager(Model model) {
+    public ActivityManager(Simulation model) {
         super(model, nextid++, "AM");
         resourceTypeList = new ArrayList<ResourceType>();
         activityList = new ArrayList<RequestResourcesFlow>();

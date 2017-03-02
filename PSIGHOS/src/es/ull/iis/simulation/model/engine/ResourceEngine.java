@@ -7,12 +7,12 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.ModelCycle;
+import es.ull.iis.simulation.model.SimulationCycle;
 import es.ull.iis.simulation.model.ResourceType;
 
 /**
  * A simulation resource whose availability is controlled by means of timetable entries.
- * A timetable entry us a trio &lt{@link ResourceTypeEngine}, {@link ModelCycle}, long&gt which defines a 
+ * A timetable entry us a trio &lt{@link ResourceTypeEngine}, {@link SimulationCycle}, long&gt which defines a 
  * resource type, an availability cycle, and the duration of each availability period. Timetable entries 
  * can be overlapped in time, thus allowing the resource for being potentially available for
  * different resource types simultaneously.

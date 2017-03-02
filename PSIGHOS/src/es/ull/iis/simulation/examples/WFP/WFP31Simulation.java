@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
@@ -21,8 +21,8 @@ public class WFP31Simulation extends WFPTestSimulationFactory {
 	}
 
 	@Override
-	protected Model createModel() {
-		model = new Model(id, description, SIMUNIT, SIMSTART, SIMEND);        
+	protected Simulation createModel() {
+		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);        
 		ResourceType rt0 = getDefResourceType("Director");
 	   	
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});

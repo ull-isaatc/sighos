@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
 
 class WFPTestExperiment extends Experiment {
@@ -34,11 +34,11 @@ class WFPTestExperiment extends Experiment {
 		this.nThreads = nThreads;
 	}
 
-	private Model class2Model(Class<?> cl, int ind) {
-		Model model = null;
+	private Simulation class2Model(Class<?> cl, int ind) {
+		Simulation model = null;
 		try {
 			if (cl == null) {
-				model = new Model(ind, "No valid simulation", TimeUnit.MINUTE, 0, 0);
+				model = new Simulation(ind, "No valid simulation", TimeUnit.MINUTE, 0, 0);
 			}
 			else {
 				Constructor<?> c = cl.getConstructor(SimulationType.class, int.class, boolean.class);
@@ -61,8 +61,8 @@ class WFPTestExperiment extends Experiment {
 	}
 	
 	@Override
-	public Model getModel(int ind) {
-		Model model = null;
+	public Simulation getModel(int ind) {
+		Simulation model = null;
 		if (wfp != -1) {
 			model = class2Model(WFPTest.simulations.get(wfp), ind);
 		}

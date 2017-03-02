@@ -9,14 +9,14 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  * @author Ivan Castilla Rodriguez
  *
  */
-public abstract class ModelObject implements Comparable<ModelObject>, Identifiable, Debuggable {
-	protected final Model model;
+public abstract class SimulationObject implements Comparable<SimulationObject>, Identifiable, Debuggable {
+	protected final Simulation model;
 	private final String objectTypeId;
 	protected final int id;
     /** String which represents the object */
     private final String idString;
 	
-	public ModelObject(Model model, int id, String objectTypeId) {
+	public SimulationObject(Simulation model, int id, String objectTypeId) {
 		this.model = model;
 		this.objectTypeId = objectTypeId;
 		this.id = id;
@@ -29,7 +29,7 @@ public abstract class ModelObject implements Comparable<ModelObject>, Identifiab
 	/**
 	 * @return the model
 	 */
-	public Model getModel() {
+	public Simulation getModel() {
 		return model;
 	}
 
@@ -43,7 +43,7 @@ public abstract class ModelObject implements Comparable<ModelObject>, Identifiab
 	}
 
 	@Override
-	public int compareTo(ModelObject o) {
+	public int compareTo(SimulationObject o) {
 		if (id < o.id)
 			return -1;
 		if (id > o.id)
@@ -66,8 +66,8 @@ public abstract class ModelObject implements Comparable<ModelObject>, Identifiab
 	 * @see es.ull.iis.simulation.Debuggable#debug(java.lang.String)
 	 */
     public void debug(String message) {
-    	if (Model.isDebugEnabled())
-    		Model.debug(this.toString() + "\t" + model.getSimulationEngine().getTs() + "\t" + message);
+    	if (Simulation.isDebugEnabled())
+    		Simulation.debug(this.toString() + "\t" + model.getSimulationEngine().getTs() + "\t" + message);
 	}
 	
     /*
@@ -75,7 +75,7 @@ public abstract class ModelObject implements Comparable<ModelObject>, Identifiab
      * @see es.ull.iis.simulation.Debuggable#error(java.lang.String)
      */
 	public void error(String description) {
-		Model.error(this.toString() + "\t" + model.getSimulationEngine().getTs() + "\t" + description);
+		Simulation.error(this.toString() + "\t" + model.getSimulationEngine().getTs() + "\t" + description);
 	}
     
 	/*
@@ -83,7 +83,7 @@ public abstract class ModelObject implements Comparable<ModelObject>, Identifiab
 	 * @see es.ull.iis.simulation.Debuggable#isDebugEnabled()
 	 */
 	public boolean isDebugEnabled() {
-		return Model.isDebugEnabled();
+		return Simulation.isDebugEnabled();
 	}
 
 	protected abstract void assignSimulation(SimulationEngine simul);

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 
 /**
@@ -24,7 +24,7 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow {
 	/**
 	 * Creates a new Probability Selection flow associated to the specified simulation
 	 */
-	public ProbabilitySelectionFlow(Model model) {
+	public ProbabilitySelectionFlow(Simulation model) {
 		super(model);
 		probabilities = new ArrayList<Double>();
 	}

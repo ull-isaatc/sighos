@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import es.ull.iis.function.ConstantFunction;
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 
 /**
@@ -31,7 +31,7 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	 * @param finalSubFlow Last step of the internal subflow
 	 * @param iterations Loop iterations.
  	 */
-	public ForLoopFlow(Model model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, TimeFunction iterations) {
+	public ForLoopFlow(Simulation model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, TimeFunction iterations) {
 		super(model, initialSubFlow, finalSubFlow);
 		this.iterations = iterations;
 	}
@@ -41,7 +41,7 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	 * @param subFlow A unique flow defining an internal subflow
 	 * @param iterations Loop iterations.
  	 */
-	public ForLoopFlow(Model model, TaskFlow subFlow, TimeFunction iterations) {
+	public ForLoopFlow(Simulation model, TaskFlow subFlow, TimeFunction iterations) {
 		this(model, subFlow, subFlow, iterations);
 	}
 	
@@ -51,7 +51,7 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	 * @param finalSubFlow Last step of the internal subflow
 	 * @param iterations Loop iterations.
  	 */
-	public ForLoopFlow(Model model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, int iterations) {
+	public ForLoopFlow(Simulation model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, int iterations) {
 		this(model, initialSubFlow, finalSubFlow, new ConstantFunction(iterations));
 	}
 	
@@ -60,7 +60,7 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	 * @param subFlow A unique flow defining an internal subflow
 	 * @param iterations Loop iterations.
  	 */
-	public ForLoopFlow(Model model, TaskFlow subFlow, int iterations) {
+	public ForLoopFlow(Simulation model, TaskFlow subFlow, int iterations) {
 		this(model, subFlow, subFlow, new ConstantFunction(iterations));
 	}
 	

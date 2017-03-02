@@ -12,7 +12,7 @@ import es.ull.iis.util.TableCycle;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ModelTableCycle implements ModelCycle {
+public class SimulationTableCycle implements SimulationCycle {
 	/** Inner {@link es.ull.iis.util.TableCycle TableCycle} */ 
 	private final TableCycle cycle;
 	
@@ -21,7 +21,7 @@ public class ModelTableCycle implements ModelCycle {
 	 * @param unit Simulation time unit 
 	 * @param timestamps Set of timestamps to indicate the activations of this cycle
 	 */
-	public ModelTableCycle(TimeUnit unit, TimeStamp[] timestamps) {
+	public SimulationTableCycle(TimeUnit unit, TimeStamp[] timestamps) {
 		cycle = new TableCycle(simulationTime2Double(unit, timestamps));
 	}
 
@@ -31,7 +31,7 @@ public class ModelTableCycle implements ModelCycle {
 	 * @param timestamps Set of timestamps to indicate the activations of this cycle
 	 * @param subCycle Subcycle contained in this cycle
 	 */
-	public ModelTableCycle(TimeUnit unit, TimeStamp[] timestamps, ModelCycle subCycle) {
+	public SimulationTableCycle(TimeUnit unit, TimeStamp[] timestamps, SimulationCycle subCycle) {
 		cycle = new TableCycle(simulationTime2Double(unit, timestamps), subCycle.getCycle());
 	}
 

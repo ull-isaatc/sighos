@@ -14,8 +14,8 @@ import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
-import es.ull.iis.simulation.model.ModelPeriodicCycle;
-import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.SimulationPeriodicCycle;
+import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
@@ -48,10 +48,10 @@ public class TestPriorityElement {
 				ActivityFlow acts[] = new ActivityFlow[NACT];
 				for (int i = 0; i < NACT; i++) {
 					acts[i] = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "ACT" + i, i / 2, EnumSet.noneOf(ActivityFlow.Modifier.class));
-					acts[i].addWorkGroup(new ModelTimeFunction(unit, "ConstantVariate", 10), 0, wg);
+					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 10), 0, wg);
 				}
-				ModelPeriodicCycle c1 = new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", 200), 0);
-				ModelPeriodicCycle c2 = new ModelPeriodicCycle(unit, 20, new ModelTimeFunction(unit, "ConstantVariate", 100), 0);
+				SimulationPeriodicCycle c1 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 200), 0);
+				SimulationPeriodicCycle c2 = new SimulationPeriodicCycle(unit, 20, new SimulationTimeFunction(unit, "ConstantVariate", 100), 0);
 				for (int i = 0; i < NRES; i++)
 					factory.getResourceInstance("RES" + i).addTimeTableEntry(c2, 40, rt);
 

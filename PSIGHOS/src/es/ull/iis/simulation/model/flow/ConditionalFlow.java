@@ -6,7 +6,7 @@ import java.util.Collections;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
 /**
@@ -23,7 +23,7 @@ public abstract class ConditionalFlow extends MultipleSuccessorFlow {
 	/**
 	 * Creates a new ConditionalFlow.
 	 */
-	public ConditionalFlow(Model model) {
+	public ConditionalFlow(Simulation model) {
 		super(model);
 		conditionList = new ArrayList<Condition>();
 	}

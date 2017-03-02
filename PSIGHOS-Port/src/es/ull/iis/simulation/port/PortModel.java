@@ -5,7 +5,7 @@ package es.ull.iis.simulation.port;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.model.ElementType;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -20,7 +20,7 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
  * @author Iván Castilla
  *
  */
-public class PortModel extends Model {
+public class PortModel extends Simulation {
 	private static final int N_BERTHS = 1;
 	private static final int[] N_QUAYS_PER_BERTH = {2};
 	private static final int N_BLOCKS = 3;
@@ -124,7 +124,7 @@ public class PortModel extends Model {
 		reqTruck.link(aUnload).link(aToYard).link(aPlace).link(aTruckReturn).link(relTruck);
 		
 		// Generate orders for unloading containers
-		final ArrivalPlanning planning = new ArrivalPlanning(0, "C:\\Users\\masbe_000\\git\\sighos\\PSIGHOS-Port\\src\\es\\ull\\iis\\simulation\\port\\testStowagePlan1.txt");
+		final ArrivalPlanning planning = new ArrivalPlanning(0, "C:\\Users\\Iván Castilla\\git\\sighos\\PSIGHOS-Port\\src\\es\\ull\\iis\\simulation\\port\\testStowagePlan1.txt");
 		for (int i = 0; i < N_BERTHS; i++) {
 			new ContainerCreator(this, planning, et, reqTruck);
 		}

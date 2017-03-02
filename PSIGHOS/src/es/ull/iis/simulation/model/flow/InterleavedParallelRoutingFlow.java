@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 
 /**
@@ -30,7 +30,7 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow {
 	 * @param dependencies A set of activity arrays, so that each array indicates precedence relations
 	 * among the activities.
 	 */
-	public InterleavedParallelRoutingFlow(Model model, Collection<ActivityFlow> acts, Collection<ActivityFlow[]> dependencies) {
+	public InterleavedParallelRoutingFlow(Simulation model, Collection<ActivityFlow> acts, Collection<ActivityFlow[]> dependencies) {
 		super(model);
 		initialFlow = new ParallelFlow(model);
 		initialFlow.setParent(this);

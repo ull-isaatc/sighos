@@ -13,7 +13,7 @@ import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.engine.RequestResourcesEngine;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
@@ -45,7 +45,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * @param simul
 	 * @param description
 	 */
-	public RequestResourcesFlow(Model model, String description, int resourcesId) {
+	public RequestResourcesFlow(Simulation model, String description, int resourcesId) {
 		this(model, description, resourcesId, 0, false);
 	}
 
@@ -53,7 +53,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * @param simul
 	 * @param description
 	 */
-	public RequestResourcesFlow(Model model, String description, int resourcesId, int priority) {
+	public RequestResourcesFlow(Simulation model, String description, int resourcesId, int priority) {
 		this(model, description, resourcesId, priority, false);
 	}
 
@@ -62,7 +62,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * @param description
 	 * @param priority
 	 */
-	public RequestResourcesFlow(Model model, String description, int resourcesId, int priority, boolean exclusive) {
+	public RequestResourcesFlow(Simulation model, String description, int resourcesId, int priority, boolean exclusive) {
 		super(model);
         this.description = description;
         this.priority = priority;

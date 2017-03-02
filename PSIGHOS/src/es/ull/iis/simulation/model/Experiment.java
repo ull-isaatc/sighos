@@ -34,7 +34,7 @@ public abstract class Experiment implements Describable {
 	 * @param ind Number of the experiment
 	 * @return A new simulation object.
 	 */
-	public abstract Model getModel(int ind);
+	public abstract Simulation getModel(int ind);
 	
 	/**
 	 * Implementations of this method must call {@link #getSimulation(int)} to carry out all the 

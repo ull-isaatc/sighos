@@ -16,7 +16,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	/**
 	 * 
 	 */
-	public TimeDrivenElementGenerator(Model model, TimeFunction nElem, ModelCycle cycle) {
+	public TimeDrivenElementGenerator(Simulation model, TimeFunction nElem, SimulationCycle cycle) {
 		super(model, nElem, cycle);
 	}
 
@@ -26,7 +26,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	 * @param et The type of the elements to be created
 	 * @param flow The description of the flow of the elements to be created.
 	 */
-	public TimeDrivenElementGenerator(Model model, TimeFunction nElem, ElementType et, InitializerFlow flow, ModelCycle cycle) {
+	public TimeDrivenElementGenerator(Simulation model, TimeFunction nElem, ElementType et, InitializerFlow flow, SimulationCycle cycle) {
 		super(model, nElem, cycle);
 		add(new GenerationTrio(et, flow, 1.0));
 	}
@@ -36,7 +36,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	 * @param sim Simulation this object belongs to.
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 */
-	public TimeDrivenElementGenerator(Model model, int nElem, ModelCycle cycle) {
+	public TimeDrivenElementGenerator(Simulation model, int nElem, SimulationCycle cycle) {
 		super(model, nElem, cycle);
 	}
 	
@@ -46,7 +46,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	 * @param et The type of the elements to be created
 	 * @param flow The description of the flow of the elements to be created.
 	 */
-	public TimeDrivenElementGenerator(Model model, int nElem, ElementType et, InitializerFlow flow, ModelCycle cycle) {
+	public TimeDrivenElementGenerator(Simulation model, int nElem, ElementType et, InitializerFlow flow, SimulationCycle cycle) {
 		super(model, nElem, cycle);
 		add(new GenerationTrio(et, flow, 1.0));
 	}

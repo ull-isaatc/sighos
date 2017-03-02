@@ -5,9 +5,9 @@ package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.model.ElementType;
-import es.ull.iis.simulation.model.Model;
-import es.ull.iis.simulation.model.ModelPeriodicCycle;
-import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.SimulationPeriodicCycle;
+import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
@@ -42,7 +42,7 @@ public abstract class WFPTestSimulationFactory {
 	public final static long SIMEND = 1440L;
 	public final static TimeUnit SIMUNIT = TimeUnit.MINUTE; 
 	protected boolean detailed;
-	protected Model model;
+	protected Simulation model;
 	protected final int id;
 	protected final String description;
 	
@@ -57,22 +57,22 @@ public abstract class WFPTestSimulationFactory {
 			new es.ull.iis.simulation.parallel.Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);
 	}
 	
-	protected abstract Model createModel();
+	protected abstract Simulation createModel();
 	
-	public Model getModel() {
+	public Simulation getModel() {
 		return model;
 	}
 	
-	public ModelTimeFunction getActivityDefDuration() {
+	public SimulationTimeFunction getActivityDefDuration() {
 		return getActivityDefDuration(0);
 	}
 
-	public ModelTimeFunction getActivityDefDuration(int nAct) {
-		return new ModelTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[nAct]);		
+	public SimulationTimeFunction getActivityDefDuration(int nAct) {
+		return new SimulationTimeFunction(SIMUNIT, "ConstantVariate", DEFACTDURATION[nAct]);		
 	}
 
-	public ModelPeriodicCycle getResourceCycle() {
-		return new ModelPeriodicCycle(SIMUNIT, RESSTART, new ModelTimeFunction(SIMUNIT, "ConstantVariate", RESPERIOD), 0);
+	public SimulationPeriodicCycle getResourceCycle() {
+		return new SimulationPeriodicCycle(SIMUNIT, RESSTART, new SimulationTimeFunction(SIMUNIT, "ConstantVariate", RESPERIOD), 0);
 	}
 	
 	public Resource getDefResource(String description, ResourceType rt) {
@@ -107,8 +107,8 @@ public abstract class WFPTestSimulationFactory {
 		return new ElementType(model, description);
 	}
 	
-	public ModelPeriodicCycle getGeneratorCycle() {
-		return new ModelPeriodicCycle(SIMUNIT, GENSTART, new ModelTimeFunction(SIMUNIT, "ConstantVariate", GENPERIOD), 0);
+	public SimulationPeriodicCycle getGeneratorCycle() {
+		return new SimulationPeriodicCycle(SIMUNIT, GENSTART, new SimulationTimeFunction(SIMUNIT, "ConstantVariate", GENPERIOD), 0);
 	}
 	
 	public TimeDrivenElementGenerator getDefGenerator(ElementType et, InitializerFlow flow) {

@@ -7,7 +7,7 @@ import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * @author Iván Castilla
@@ -22,7 +22,7 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, Resource
 	/**
 	 * 
 	 */
-	public DelayFlow(Model model, String description, TimeFunction duration) {
+	public DelayFlow(Simulation model, String description, TimeFunction duration) {
 		super(model);
 		this.description = description;
 		this.duration = duration;
@@ -31,7 +31,7 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, Resource
 	/**
 	 * 
 	 */
-	public DelayFlow(Model model, String description, long duration) {
+	public DelayFlow(Simulation model, String description, long duration) {
 		this(model, description, TimeFunctionFactory.getInstance("ConstantVariate", duration));
 	}
 

@@ -4,7 +4,7 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -43,8 +43,8 @@ public class WFP21Simulation_DoWhile extends WFPTestSimulationFactory {
 	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected Model createModel() {
-		model = new Model(id, description, SIMUNIT, SIMSTART, SIMEND);        
+	protected Simulation createModel() {
+		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);        
 		ResourceType rt0 = getDefResourceType("Maquina revelado");
         
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});

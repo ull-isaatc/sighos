@@ -13,7 +13,7 @@ import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
  * A simulation resource whose availability is controlled by means of timetable entries.
- * A timetable entry us a trio &lt{@link ResourceType}, {@link ModelCycle}, long&gt which defines a 
+ * A timetable entry us a trio &lt{@link ResourceType}, {@link SimulationCycle}, long&gt which defines a 
  * resource type, an availability cycle, and the duration of each availability period. Timetable entries 
  * can be overlapped in time, thus allowing the resource for being potentially available for
  * different resource types simultaneously.
@@ -35,7 +35,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 	/**
 	 * 
 	 */
-	public Resource(Model model, String description) {
+	public Resource(Simulation model, String description) {
 		super(model, model.getResourceList().size(), "RES");
 		this.description = description;
 		model.add(this);
@@ -90,7 +90,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 	 * @param dur How long the resource is active
 	 * @param role The type of this resource during every activation 
 	 */
-	public void addTimeTableEntry(ModelCycle cycle, TimeStamp dur, ResourceType role) {
+	public void addTimeTableEntry(SimulationCycle cycle, TimeStamp dur, ResourceType role) {
         timeTable.add(new TimeTableEntry(cycle, dur, role));
     }
     
@@ -100,7 +100,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 	 * @param dur How long the resource is active
 	 * @param roleList The types of this resource during every activation 
 	 */
-	public void addTimeTableEntry(ModelCycle cycle, TimeStamp dur, ArrayList<ResourceType> roleList) {
+	public void addTimeTableEntry(SimulationCycle cycle, TimeStamp dur, ArrayList<ResourceType> roleList) {
     	for (int i = 0; i < roleList.size(); i++)
             addTimeTableEntry(cycle, dur, roleList.get(i));
     }  
@@ -111,7 +111,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 	 * @param dur How long the resource is active using the default model time unit
 	 * @param role The type of this resource during every activation 
 	 */
-	public void addTimeTableEntry(ModelCycle cycle, long dur, ResourceType role) {
+	public void addTimeTableEntry(SimulationCycle cycle, long dur, ResourceType role) {
     	addTimeTableEntry(cycle, new TimeStamp(model.getTimeUnit(), dur), role);
     }  
     
@@ -121,7 +121,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 	 * @param dur How long the resource is active using the default model time unit
 	 * @param roleList The types of this resource during every activation 
 	 */
-	public void addTimeTableEntry(ModelCycle cycle, long dur, ArrayList<ResourceType> roleList) {
+	public void addTimeTableEntry(SimulationCycle cycle, long dur, ArrayList<ResourceType> roleList) {
     	addTimeTableEntry(cycle, new TimeStamp(model.getTimeUnit(), dur), roleList);
     }  
     
@@ -131,7 +131,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
      * @param dur The long this resource plays this role every cycle
      * @param role Role that the resource plays during this cycle
      */
-	public void addCancelTableEntry(ModelCycle cycle, TimeStamp dur, ResourceType role) {
+	public void addCancelTableEntry(SimulationCycle cycle, TimeStamp dur, ResourceType role) {
         cancelPeriodTable.add(new TimeTableEntry(cycle, dur, role));
     }  
 
@@ -141,7 +141,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
      * @param dur The long this resource plays this role every cycle
      * @param roleList Roles that the resource play during this cycle
      */
-	public void addCancelTableEntry(ModelCycle cycle, TimeStamp dur, ArrayList<ResourceType> roleList) {
+	public void addCancelTableEntry(SimulationCycle cycle, TimeStamp dur, ArrayList<ResourceType> roleList) {
     	for (int i = 0; i < roleList.size(); i++)
             addCancelTableEntry(cycle, dur, roleList.get(i));
     }  
@@ -153,7 +153,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
      * default model time unit
      * @param role Role that the resource plays during this cycle
      */
-	public void addCancelTableEntry(ModelCycle cycle, long dur, ResourceType role) {
+	public void addCancelTableEntry(SimulationCycle cycle, long dur, ResourceType role) {
     	addCancelTableEntry(cycle, new TimeStamp(model.getTimeUnit(), dur), role);
     }  
 
@@ -164,7 +164,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
      * default model time unit
      * @param roleList Roles that the resource play during this cycle
      */
-	public void addCancelTableEntry(ModelCycle cycle, long dur, ArrayList<ResourceType> roleList) {
+	public void addCancelTableEntry(SimulationCycle cycle, long dur, ArrayList<ResourceType> roleList) {
     	addCancelTableEntry(cycle, new TimeStamp(model.getTimeUnit(), dur), roleList);
     }
 

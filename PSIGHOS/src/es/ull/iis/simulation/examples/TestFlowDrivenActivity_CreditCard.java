@@ -10,8 +10,8 @@ import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
-import es.ull.iis.simulation.model.ModelPeriodicCycle;
-import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.SimulationPeriodicCycle;
+import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
@@ -45,10 +45,10 @@ class ExperimentFDAE1 extends Experiment {
         WorkGroup wg0 = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rt0}, new int[] {1});
         WorkGroup wg1 = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rt1}, new int[] {1});
 
-        act0.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15, 2), 0, wg0);
-        act1.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15, 2), 0, wg0);
+        act0.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), 0, wg0);
+        act1.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), 0, wg0);
    
-        ModelPeriodicCycle c2 = ModelPeriodicCycle.newDailyCycle(unit);
+        SimulationPeriodicCycle c2 = SimulationPeriodicCycle.newDailyCycle(unit);
 
         factory.getResourceInstance("Cashier1").addTimeTableEntry(c2, 420, rt0);
         factory.getResourceInstance("Cashier2").addTimeTableEntry(c2, 420, rt0);
@@ -60,7 +60,7 @@ class ExperimentFDAE1 extends Experiment {
         act2.addWorkGroup(act0, act1, wg1);
          
         ElementType et = factory.getElementTypeInstance("Cliente");
-        ModelPeriodicCycle cGen = ModelPeriodicCycle.newDailyCycle(unit);
+        SimulationPeriodicCycle cGen = SimulationPeriodicCycle.newDailyCycle(unit);
         factory.getTimeDrivenGeneratorInstance(factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 3), et, act2), cGen);        
 		
 		sim.addInfoReceiver(new StdInfoView(sim));

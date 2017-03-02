@@ -6,7 +6,7 @@ package es.ull.iis.simulation.model.flow;
 import java.util.Set;
 
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 
 /**
@@ -20,7 +20,7 @@ public abstract class SingleSuccessorFlow extends BasicFlow {
 	/**
 	 * Creates a new unique successor flow.
 	 */
-	public SingleSuccessorFlow(Model model) {
+	public SingleSuccessorFlow(Simulation model) {
 		super(model);
 	}
 	

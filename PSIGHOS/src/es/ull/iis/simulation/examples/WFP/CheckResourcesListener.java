@@ -7,7 +7,7 @@ import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.View;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -18,7 +18,7 @@ public class CheckResourcesListener extends View {
 	private int[] resCreated;
 	private int[] resFinished;
 
-	public CheckResourcesListener(Model model, int []resources) {
+	public CheckResourcesListener(Simulation model, int []resources) {
 		super(model, "Element checker");
 		this.resources = resources;
 		resCreated = new int[resources.length];

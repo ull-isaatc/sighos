@@ -19,7 +19,7 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 	/**
 	 * @param simul
 	 */
-	public StandardActivityManagerCreator(Model model) {
+	public StandardActivityManagerCreator(Simulation model) {
 		super(model);
 	}
 
@@ -140,7 +140,7 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 		 * the links.
 		 */
 		void debug() {
-			if (Model.isDebugEnabled()) {
+			if (Simulation.isDebugEnabled()) {
 				StringBuffer str = new StringBuffer();
 				// Pinto el graph para chequeo
 				for (ResourceType rt : keySet()) {
@@ -151,7 +151,7 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 						str.append(nodo + "\t");
 					str.append("\r\n");
 				}
-				Model.debug("Graph created\r\n" + str.toString());
+				Simulation.debug("Graph created\r\n" + str.toString());
 			}
 		}
 	}

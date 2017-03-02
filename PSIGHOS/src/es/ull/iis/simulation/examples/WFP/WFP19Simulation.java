@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.examples.WFP;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
@@ -24,7 +24,7 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
 		super(type, id, "WFP19: Cancel Task. EjTarjetaCredito", detailed);
 	}
 
-	static class WFP19Model extends Model {
+	static class WFP19Model extends Simulation {
 		private boolean pass;
 		public WFP19Model(int id, String description, TimeUnit unit, long startTs, long endTs) {
 			super(id, description, unit, startTs, endTs);
@@ -48,7 +48,7 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
 	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected Model createModel() {
+	protected Simulation createModel() {
 		model = new WFP19Model(id, description, SIMUNIT, SIMSTART, SIMEND);        
 		ResourceType rt0 = getDefResourceType("Cajero");
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});

@@ -11,9 +11,9 @@ import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ProbabilitySelectionFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
-import es.ull.iis.simulation.model.Model;
-import es.ull.iis.simulation.model.ModelPeriodicCycle;
-import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.SimulationPeriodicCycle;
+import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
@@ -31,8 +31,8 @@ class ExperimentProbSel extends Experiment {
 		super("Banco", NEXP);
 	}
 
-	public Model getModel(int ind) {
-		Model sim = null;
+	public Simulation getModel(int ind) {
+		Simulation sim = null;
 		TimeUnit unit = TimeUnit.MINUTE;
 		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "EjProbabilidades", TimeUnit.MINUTE, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
 		sim = factory.getSimulationEngine();
@@ -44,12 +44,12 @@ class ExperimentProbSel extends Experiment {
         
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rt}, new int[] {1});
 
-        act0.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15, 2), 0, wg);
-        act1.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15, 2), 0, wg);
-        act2.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 15, 2), 0, wg);
+        act0.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), 0, wg);
+        act1.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), 0, wg);
+        act2.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 15, 2), 0, wg);
    
-        ModelPeriodicCycle subc2 = new ModelPeriodicCycle(unit, 480, new ModelTimeFunction(unit, "ConstantVariate", 1040), 5);
-        ModelPeriodicCycle c2 = new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", 1040 * 7), 0, subc2);
+        SimulationPeriodicCycle subc2 = new SimulationPeriodicCycle(unit, 480, new SimulationTimeFunction(unit, "ConstantVariate", 1040), 5);
+        SimulationPeriodicCycle c2 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 1040 * 7), 0, subc2);
 
         factory.getResourceInstance("Empleado1").addTimeTableEntry(c2, 420, rt);
         factory.getResourceInstance("Empleado2").addTimeTableEntry(c2, 420, rt);
@@ -63,7 +63,7 @@ class ExperimentProbSel extends Experiment {
         root.link(act2, 0.6);
         
         ElementType et = factory.getElementTypeInstance("Cliente");
-        ModelPeriodicCycle cGen = new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", 1040), NDAYS);
+        SimulationPeriodicCycle cGen = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 1040), NDAYS);
         factory.getTimeDrivenGeneratorInstance(factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 100), et, root), cGen);        
 		
 		StdInfoView debugView = new StdInfoView(sim);

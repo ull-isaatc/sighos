@@ -2,7 +2,7 @@ package es.ull.iis.simulation.model.flow;
 
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * A structured flow which defines a repetitive subflow. Different subclasses
@@ -19,7 +19,7 @@ public abstract class StructuredLoopFlow extends StructuredFlow {
 	 * @param initialSubFlow First step of the internal subflow
 	 * @param finalSubFlow Last step of the internal subflow
 	 */
-	public StructuredLoopFlow(Model model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow) {
+	public StructuredLoopFlow(Simulation model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow) {
 		super(model);
 		initialFlow = initialSubFlow;
 		finalFlow = finalSubFlow;
@@ -31,7 +31,7 @@ public abstract class StructuredLoopFlow extends StructuredFlow {
 	 * Create a new StructuredLoopFlow consisting of a unique flow.
 	 * @param subFlow A unique flow defining an internal subflow
 	 */
-	public StructuredLoopFlow(Model model, TaskFlow subFlow) {
+	public StructuredLoopFlow(Simulation model, TaskFlow subFlow) {
 		this(model, subFlow, subFlow);
 	}
 }

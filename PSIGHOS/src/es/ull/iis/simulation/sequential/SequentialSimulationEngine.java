@@ -9,7 +9,7 @@ import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Element;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.TimeDrivenGenerator;
@@ -53,7 +53,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 	 * @param endTs
 	 *            Simulation's end timestamp expresed in Simulation Time Units
 	 */
-	public SequentialSimulationEngine(int id, Model model) {
+	public SequentialSimulationEngine(int id, Simulation model) {
 		super(id, model);
 	}
 

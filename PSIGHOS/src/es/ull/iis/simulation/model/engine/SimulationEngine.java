@@ -13,7 +13,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Identifiable;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceList;
 import es.ull.iis.simulation.model.ResourceType;
@@ -66,7 +66,7 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	/** Number of worker threads which run the simulation events (if required by the implementation) */
 	protected int nThreads = 1;
 	
-	protected final Model model;
+	protected final Simulation model;
 	
 	/**
 	 * Creates a new instance of Simulation
@@ -77,7 +77,7 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	 * @param startTs Timestamp of simulation's start expressed in Simulation Time Units
 	 * @param endTs Timestamp of simulation's end expressed in Simulation Time Units
 	 */
-	public SimulationEngine(int id, Model model) {
+	public SimulationEngine(int id, Simulation model) {
 		this.id = id;
 		this.model = model;
 		model.setSimulationEngine(this);
@@ -86,7 +86,7 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	/**
 	 * @return the model
 	 */
-	public Model getModel() {
+	public Simulation getModel() {
 		return model;
 	}
 
@@ -113,17 +113,17 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 
 	@Override
 	public void debug(String description) {
-		Model.debug(description);
+		Simulation.debug(description);
 	}
 
 	@Override
 	public void error(String description) {
-		Model.error(description);
+		Simulation.error(description);
 	}
 
 	@Override
 	public boolean isDebugEnabled() {
-		return Model.isDebugEnabled();
+		return Simulation.isDebugEnabled();
 	}
 	
 	public abstract void initializeEngine();

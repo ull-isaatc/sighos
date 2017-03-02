@@ -10,7 +10,7 @@ import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
 import es.ull.iis.simulation.info.TimeChangeInfo;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 public class StdInfoView extends View {
 
@@ -19,7 +19,7 @@ public class StdInfoView extends View {
 	
 	private final PrintStream out = System.out;
 
-	public StdInfoView(Model model) {
+	public StdInfoView(Simulation model) {
 		super(model, "STANDARD INFO VIEW");
 		addEntrance(SimulationStartInfo.class);
 		addEntrance(SimulationEndInfo.class);

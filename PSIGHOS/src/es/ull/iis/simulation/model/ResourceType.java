@@ -16,7 +16,7 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  * </ul>
  * @author Iván Castilla Rodríguez
  */
-public class ResourceType extends ModelObject implements Describable {
+public class ResourceType extends SimulationObject implements Describable {
     /** A list of the currently available resources. */
     protected ResourceList availableResourceList = null;
     /** A brief description of the resource type */
@@ -28,7 +28,7 @@ public class ResourceType extends ModelObject implements Describable {
 	/**
 	 * 
 	 */
-	public ResourceType(Model model, String description) {
+	public ResourceType(Simulation model, String description) {
 		super(model, model.getResourceTypeList().size(), "RT");
 		this.description = description;
 		model.add(this);

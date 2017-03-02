@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * An AND join flow which allows only the n-st true incoming branch to pass. It is
@@ -14,7 +14,7 @@ public class PartialJoinFlow extends ANDJoinFlow {
 	 * Creates a new PartialJoinFlow.
 	 * @param acceptValue Number of incoming branches which activate the flow
 	 */
-	public PartialJoinFlow(Model model, int acceptValue) {
+	public PartialJoinFlow(Simulation model, int acceptValue) {
 		super(model, acceptValue);
 	}
 
@@ -23,7 +23,7 @@ public class PartialJoinFlow extends ANDJoinFlow {
 	 * @param safe True for safe context; false in other case
 	 * @param acceptValue Number of incoming branches which activate the flow
 	 */
-	public PartialJoinFlow(Model model, boolean safe, int acceptValue) {
+	public PartialJoinFlow(Simulation model, boolean safe, int acceptValue) {
 		super(model, safe, acceptValue);
 	}
 	

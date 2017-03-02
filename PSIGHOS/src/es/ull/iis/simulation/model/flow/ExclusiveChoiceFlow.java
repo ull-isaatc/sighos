@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 
 /**
@@ -18,7 +18,7 @@ public class ExclusiveChoiceFlow extends ConditionalFlow {
 	/**
 	 * Creates a new ExclusiveChoiceFlow.
 	 */
-	public ExclusiveChoiceFlow(Model model) {
+	public ExclusiveChoiceFlow(Simulation model) {
 		super(model);
 	}
 

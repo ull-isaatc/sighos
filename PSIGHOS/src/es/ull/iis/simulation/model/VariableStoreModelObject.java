@@ -20,7 +20,7 @@ import es.ull.iis.simulation.variable.Variable;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class VariableStoreModelObject extends ModelObject implements VariableStore {
+public abstract class VariableStoreModelObject extends SimulationObject implements VariableStore {
     /** Variable warehouse */
 	protected final TreeMap<String, Variable> varCollection = new TreeMap<String, Variable>();
 
@@ -29,7 +29,7 @@ public abstract class VariableStoreModelObject extends ModelObject implements Va
 	 * @param id
 	 * @param objectTypeId
 	 */
-	public VariableStoreModelObject(Model model, int id, String objectTypeId) {
+	public VariableStoreModelObject(Simulation model, int id, String objectTypeId) {
 		super(model, id, objectTypeId);
 	}
 

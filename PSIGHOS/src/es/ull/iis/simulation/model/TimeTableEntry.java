@@ -9,7 +9,7 @@ package es.ull.iis.simulation.model;
  */
 public class TimeTableEntry {
 	/** Cycle that characterizes this entry */
-	private final ModelCycle cycle;
+	private final SimulationCycle cycle;
     /** The long this resource plays this role every cycle */
 	private final TimeStamp duration;
     /** Role that the resource plays during this cycle */
@@ -20,7 +20,7 @@ public class TimeTableEntry {
      * @param dur How long this resource plays this role every cycle
      * @param role Role that the resource plays during this cycle
      */
-	public TimeTableEntry(ModelCycle cycle, TimeStamp dur, ResourceType role) {
+	public TimeTableEntry(SimulationCycle cycle, TimeStamp dur, ResourceType role) {
 		this.cycle = cycle;
 		this.duration = dur;
 		this.role = role;
@@ -51,7 +51,7 @@ public class TimeTableEntry {
      * Returns the cycle that characterizes this entry.
 	 * @return the cycle that characterizes this entry
 	 */
-	public ModelCycle getCycle() {
+	public SimulationCycle getCycle() {
 		return cycle;
 	}
 

@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.examples.WFP;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -17,8 +17,8 @@ public class WFP01Simulation extends WFPTestSimulationFactory {
 		super(type, id, "WFP1: Sequence. EjTarjetaCredito", detailed);
     }
     
-    protected Model createModel() {
-		model = new Model(id, description, SIMUNIT, SIMSTART, SIMEND);    	
+    protected Simulation createModel() {
+		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);    	
         ResourceType rt = getDefResourceType("Cajero");
     	
         WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});

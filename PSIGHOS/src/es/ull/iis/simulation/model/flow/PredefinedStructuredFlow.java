@@ -6,7 +6,7 @@ package es.ull.iis.simulation.model.flow;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 
 /**
@@ -19,7 +19,7 @@ public abstract class PredefinedStructuredFlow extends StructuredFlow {
 	/**
 	 * Creates a new structured flow with predefined entry and exit points.
 	 */
-	public PredefinedStructuredFlow(Model model) {
+	public PredefinedStructuredFlow(Simulation model) {
 		super(model);
 	}
 	

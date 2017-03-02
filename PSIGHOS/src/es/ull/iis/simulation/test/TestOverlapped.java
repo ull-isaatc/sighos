@@ -11,8 +11,8 @@ import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
-import es.ull.iis.simulation.model.ModelPeriodicCycle;
-import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.SimulationPeriodicCycle;
+import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.engine.ResourceEngine;
@@ -51,10 +51,10 @@ class ExpOverlapped extends Experiment {
 
         // PASO 3: Creo las tablas de clases de recursos
         WorkGroup wg1 = factory.getWorkGroupInstance(new ResourceTypeEngine[] {crSangre}, new int[] {NEEDED});
-        actSangre.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 20, 5), 0, wg1);
+        actSangre.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 20, 5), 0, wg1);
 //        wg1.add(crOrina, 1);
         WorkGroup wg2 = factory.getWorkGroupInstance(new ResourceTypeEngine[] {crOrina}, new int[] {1});
-        actOrina.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 20, 5), 0, wg2);
+        actOrina.addWorkGroup(new SimulationTimeFunction(unit, "NormalVariate", 20, 5), 0, wg2);
 //        WorkGroup wg3 = factory.getWorkGroupInstance(new ResourceType[] {crDummy}, new int[] {1});
 //        actDummy.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 10, 2), wg3);
 
@@ -76,7 +76,7 @@ class ExpOverlapped extends Experiment {
 		al2.add(crSangre);
         for (int i = 0; i < NRESOURCES; i++) {
 			ResourceEngine poli1 = factory.getResourceInstance("Máquina Polivalente 1");
-			poli1.addTimeTableEntry(new ModelPeriodicCycle(unit, 480, new ModelTimeFunction(unit, "ConstantVariate", 1440), 0), 480, al2);
+			poli1.addTimeTableEntry(new SimulationPeriodicCycle(unit, 480, new SimulationTimeFunction(unit, "ConstantVariate", 1440), 0), 480, al2);
         }
         
 		ParallelFlow metaFlow = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
@@ -84,7 +84,7 @@ class ExpOverlapped extends Experiment {
 		metaFlow.link(actSangre);
 		
 //		SingleFlow metaFlow = (SingleFlow)factory.getFlowInstance(RandomVariateFactory.getInstance("ConstantVariate", 1), actDummy);     
-		ModelPeriodicCycle c = new ModelPeriodicCycle(unit, 0, new ModelTimeFunction(unit, "ConstantVariate", 1440), NDAYS);
+		SimulationPeriodicCycle c = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 1440), NDAYS);
 		factory.getTimeDrivenGeneratorInstance(
 				factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
 						factory.getElementTypeInstance("ET0"), metaFlow), c);

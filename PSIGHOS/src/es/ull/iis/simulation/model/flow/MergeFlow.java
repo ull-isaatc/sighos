@@ -3,7 +3,7 @@ package es.ull.iis.simulation.model.flow;
 import java.util.Map;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.FlowExecutor;
 
@@ -31,7 +31,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow 
 	/**
 	 * Create a new MergeFlow intended to be used in a safe context.
 	 */
-	public MergeFlow(Model model) {
+	public MergeFlow(Simulation model) {
 		this(model, true);
 	}
 
@@ -39,7 +39,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow 
 	 * Create a new MergeFlow which can be used in a safe context or a general one.
 	 * @param safe True for safe context; false in other case
 	 */
-	public MergeFlow(Model model, boolean safe) {
+	public MergeFlow(Simulation model, boolean safe) {
 		super(model);
 		this.safe = safe;
 	}

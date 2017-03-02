@@ -3,15 +3,15 @@ package es.ull.iis.simulation.inforeceiver;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 public abstract class InfoReceiver {
 
 	private final ArrayList<Class<?>> entrance = new ArrayList<Class<?>>();
-	protected final Model model;
+	protected final Simulation model;
 	private final String description;
 	
-	public InfoReceiver (Model model, String description) {
+	public InfoReceiver (Simulation model, String description) {
 		this.model = model;
 		this.description = description;
 	}
@@ -30,12 +30,12 @@ public abstract class InfoReceiver {
 		return entrance;
 	}
 
-	public Model getModel() {
+	public Simulation getModel() {
 		return model;
 	}
 
     public boolean isDebugMode() {
-    	return (Model.isDebugEnabled());
+    	return (Simulation.isDebugEnabled());
 	}
     
     public void debug (String message) {

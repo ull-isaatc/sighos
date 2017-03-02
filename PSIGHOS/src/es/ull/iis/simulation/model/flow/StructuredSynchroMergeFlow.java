@@ -4,7 +4,7 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * A {@link StructuredFlow} whose initial step is a {@link MultiChoiceFlow} and whose final step
@@ -16,7 +16,7 @@ public class StructuredSynchroMergeFlow extends PredefinedStructuredFlow {
 	/**
 	 * Create a new StructuredSynchroMergeMetaFlow.
 	 */
-	public StructuredSynchroMergeFlow(Model model) {
+	public StructuredSynchroMergeFlow(Simulation model) {
 		super(model);
 		initialFlow = new MultiChoiceFlow(model);
 		initialFlow.setParent(this);

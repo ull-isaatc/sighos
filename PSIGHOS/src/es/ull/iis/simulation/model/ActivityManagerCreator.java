@@ -9,12 +9,12 @@ package es.ull.iis.simulation.model;
  *
  */
 public abstract class ActivityManagerCreator {
-	protected final Model model;
+	protected final Simulation model;
 
 	/**
 	 * @param simul
 	 */
-	public ActivityManagerCreator(Model model) {
+	public ActivityManagerCreator(Simulation model) {
 		this.model = model;
 	}
 

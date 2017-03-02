@@ -11,7 +11,7 @@ import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.View;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -25,7 +25,7 @@ public class CheckElementActionViewBuilder extends View {
 	/**
 	 * @param simul
 	 */
-	public CheckElementActionViewBuilder(Model model) {
+	public CheckElementActionViewBuilder(Simulation model) {
 		super(model, "Builds the code to check a WFP");
 		reqEvents = new TreeMap<Long, TreeMap<Integer,ArrayList<Integer>>>();
 		staEvents = new TreeMap<Long, TreeMap<Integer,ArrayList<Integer>>>();

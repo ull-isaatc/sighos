@@ -2,7 +2,7 @@ package es.ull.iis.simulation.info;
 
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementType;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 public class ElementInfo extends AsynchronousInfo {
 
@@ -27,7 +27,7 @@ public class ElementInfo extends AsynchronousInfo {
 	final private Type type;
 	final private ElementType et;
 	
-	public ElementInfo(Model model, Element elem, ElementType et, Type type, long ts) {
+	public ElementInfo(Simulation model, Element elem, ElementType et, Type type, long ts) {
 		super(model, ts);
 		this.elem = elem;
 		this.type = type;

@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 
 /**
@@ -24,7 +24,7 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	 * Creates a flow with multiple successors.
 	 * @param simul The simulation this flow belongs to.
 	 */
-	public MultipleSuccessorFlow(Model model) {
+	public MultipleSuccessorFlow(Simulation model) {
 		super(model);
 		successorList = new ArrayList<Flow>();
 	}

@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.port;
 
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * @author Iván Castilla
@@ -18,7 +18,7 @@ public class YardCraneResourceType extends ResourceType {
 	 * @param model
 	 * @param description
 	 */
-	public YardCraneResourceType(int id, Model model, int block) {
+	public YardCraneResourceType(int id, Simulation model, int block) {
 		super(model, PortModel.YARD_CRANE + " " + id);
 		this.block = block;
 	}

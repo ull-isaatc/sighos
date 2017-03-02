@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.parallel;
 
-import es.ull.iis.simulation.model.ModelCycle;
+import es.ull.iis.simulation.model.SimulationCycle;
 import es.ull.iis.util.Cycle;
 import es.ull.iis.util.DiscreteCycleIterator;
 
@@ -23,7 +23,7 @@ public class TimeDrivenGenerator extends Generator implements es.ull.iis.simulat
      * @param creator The way the elements are created every "tic" of the cycle 
      * @param cycle Control of the time between generations 
      */
-	public TimeDrivenGenerator(Simulation simul, BasicElementCreator creator, ModelCycle cycle) {
+	public TimeDrivenGenerator(Simulation simul, BasicElementCreator creator, SimulationCycle cycle) {
 		super(simul, creator);
 		this.cycle = cycle.getCycle();
 	}

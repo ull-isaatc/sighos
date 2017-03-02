@@ -11,7 +11,7 @@ import es.ull.iis.util.Cycle;
  * @author Iván Castilla Rodríguez
  *
  */
-public interface ModelCycle {
+public interface SimulationCycle {
 	/**
 	 * Returns the inner {@link es.ull.iis.util.Cycle Cycle}.
 	 * @return the inner {@link es.ull.iis.util.Cycle Cycle}

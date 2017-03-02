@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * A multiple successor flow which creates a new work thread per outgoing branch.
@@ -16,7 +16,7 @@ public class ParallelFlow extends MultipleSuccessorFlow {
 	/**
 	 * Creates a new ParallelFlow
 	 */
-	public ParallelFlow(Model model) {
+	public ParallelFlow(Simulation model) {
 		super(model);
 	}
 

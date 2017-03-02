@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
-import es.ull.iis.simulation.model.ModelObject;
+import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.SimulationObject;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 
@@ -13,7 +13,7 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  * Basic implementation of a flow. Defines the default behavior of most methods. 
  * @author Iván Castilla Rodríguez
  */
-public abstract class BasicFlow extends ModelObject implements Flow {
+public abstract class BasicFlow extends SimulationObject implements Flow {
 	/** The structured flow containing this flow. */
 	protected StructuredFlow parent = null;
 	
@@ -21,7 +21,7 @@ public abstract class BasicFlow extends ModelObject implements Flow {
 	 * Create a new basic flow.
 	 * @param simul The simulation this flow belongs to.
 	 */
-	public BasicFlow(Model model) {
+	public BasicFlow(Simulation model) {
 		super(model, model.getFlowList().size(), "F");
 		model.add(this);
 	}

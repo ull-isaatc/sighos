@@ -1,10 +1,10 @@
 package es.ull.iis.simulation.info;
 
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 public class TimeChangeInfo extends AsynchronousInfo {
 
-	public TimeChangeInfo(Model model, long ts) {
+	public TimeChangeInfo(Simulation model, long ts) {
 		super(model, ts);
 	}
 	

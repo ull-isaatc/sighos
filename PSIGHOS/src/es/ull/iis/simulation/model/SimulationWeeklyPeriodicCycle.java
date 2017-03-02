@@ -13,7 +13,7 @@ import es.ull.iis.util.WeeklyPeriodicCycle.WeekDays;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ModelWeeklyPeriodicCycle implements ModelCycle {
+public class SimulationWeeklyPeriodicCycle implements SimulationCycle {
 	/**
 	 * 
 	 */
@@ -27,7 +27,7 @@ public class ModelWeeklyPeriodicCycle implements ModelCycle {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public ModelWeeklyPeriodicCycle(TimeUnit unit, EnumSet<WeekDays> daySet, TimeStamp startTs, TimeStamp endTs) {
+	public SimulationWeeklyPeriodicCycle(TimeUnit unit, EnumSet<WeekDays> daySet, TimeStamp startTs, TimeStamp endTs) {
 		cycle = new WeeklyPeriodicCycle(daySet, unit.convert(TimeStamp.getDay()), unit.convert(startTs), unit.convert(endTs));
 	}
 
@@ -38,7 +38,7 @@ public class ModelWeeklyPeriodicCycle implements ModelCycle {
 	 * @param startTs
 	 * @param iterations
 	 */
-	public ModelWeeklyPeriodicCycle(TimeUnit unit, EnumSet<WeekDays> daySet, TimeStamp startTs, int iterations) {
+	public SimulationWeeklyPeriodicCycle(TimeUnit unit, EnumSet<WeekDays> daySet, TimeStamp startTs, int iterations) {
 		cycle = new WeeklyPeriodicCycle(daySet, unit.convert(TimeStamp.getDay()), unit.convert(startTs), iterations);
 	}
 
@@ -49,7 +49,7 @@ public class ModelWeeklyPeriodicCycle implements ModelCycle {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public ModelWeeklyPeriodicCycle(TimeUnit unit, EnumSet<WeekDays> daySet, long startTs, long endTs) {
+	public SimulationWeeklyPeriodicCycle(TimeUnit unit, EnumSet<WeekDays> daySet, long startTs, long endTs) {
 		this(unit, daySet, new TimeStamp(unit, startTs), new TimeStamp(unit, endTs));
 	}
 
@@ -60,7 +60,7 @@ public class ModelWeeklyPeriodicCycle implements ModelCycle {
 	 * @param startTs
 	 * @param iterations
 	 */
-	public ModelWeeklyPeriodicCycle(TimeUnit unit, EnumSet<WeekDays> daySet, long startTs, int iterations) {
+	public SimulationWeeklyPeriodicCycle(TimeUnit unit, EnumSet<WeekDays> daySet, long startTs, int iterations) {
 		this(unit, daySet, new TimeStamp(unit, startTs), iterations);
 	}
 

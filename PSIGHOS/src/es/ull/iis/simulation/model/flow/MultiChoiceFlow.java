@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 
 /**
@@ -16,7 +16,7 @@ public class MultiChoiceFlow extends ConditionalFlow {
 	/**
 	 * Creates a new MultiChoiceFlow.
 	 */
-	public MultiChoiceFlow(Model model) {
+	public MultiChoiceFlow(Simulation model) {
 		super(model);
 	}
 

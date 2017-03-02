@@ -7,8 +7,8 @@ import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
-import es.ull.iis.simulation.model.ModelPeriodicCycle;
+import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
@@ -29,7 +29,7 @@ public class TestConditionalResourceGenerator extends Experiment {
 		final private ResourceType[] rts;
 		final private int specialId;
 		
-		public SpecialActivityFlow(Model model, String description, int specialId, ResourceType[] rts) {
+		public SpecialActivityFlow(Simulation model, String description, int specialId, ResourceType[] rts) {
 			super(model, description, 0);
 			this.specialId = specialId;
 			this.rts = rts;
@@ -44,7 +44,7 @@ public class TestConditionalResourceGenerator extends Experiment {
 			}
 		}
 	}
-	class TestModel extends Model {
+	class TestModel extends Simulation {
 		final ResourceType[] rts;
 		
 		public TestModel(int id) {
@@ -65,7 +65,7 @@ public class TestConditionalResourceGenerator extends Experiment {
 			final Resource res0 = new Resource(this, "Container " + 0);
 			res0.addTimeTableEntry(rts[0]);
 			
-			new TimeDrivenElementGenerator(this, 1, et, pf, ModelPeriodicCycle.newDailyCycle(getTimeUnit()));
+			new TimeDrivenElementGenerator(this, 1, et, pf, SimulationPeriodicCycle.newDailyCycle(getTimeUnit()));
 		}
 		
 	}
@@ -81,8 +81,8 @@ public class TestConditionalResourceGenerator extends Experiment {
 	 * @see es.ull.iis.simulation.model.Experiment#getModel(int)
 	 */
 	@Override
-	public Model getModel(int ind) {
-		Model model = new TestModel(ind);
+	public Simulation getModel(int ind) {
+		Simulation model = new TestModel(ind);
 		model.addInfoReceiver(new StdInfoView(model));
 		return model;
 	}

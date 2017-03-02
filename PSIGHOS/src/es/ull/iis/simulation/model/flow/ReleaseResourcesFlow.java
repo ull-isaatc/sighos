@@ -7,7 +7,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 
 /**
@@ -26,7 +26,7 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 	 * @param simul
 	 * @param description
 	 */
-	public ReleaseResourcesFlow(Model model, String description, int resourcesId) {
+	public ReleaseResourcesFlow(Simulation model, String description, int resourcesId) {
 		super(model);
         this.description = description;
 		this.resourcesId = resourcesId;

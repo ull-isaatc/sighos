@@ -9,7 +9,7 @@ import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
 import es.ull.iis.simulation.inforeceiver.View;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -20,7 +20,7 @@ public class FileCPUTimeView extends View {
 	protected long iniT;
 	protected long endT;
 	
-	public FileCPUTimeView(Model model, PrintWriter buf) {
+	public FileCPUTimeView(Simulation model, PrintWriter buf) {
 		super(model, "CPU Time viewer");
 		this.buf = buf;
 		addEntrance(SimulationStartInfo.class);

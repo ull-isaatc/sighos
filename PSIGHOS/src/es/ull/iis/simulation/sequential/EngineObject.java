@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.sequential;
 
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
@@ -17,7 +17,7 @@ public abstract class EngineObject implements es.ull.iis.simulation.model.engine
     /** String which represents the object */
     private final String idString;
     private final String objTypeId;
-    protected final Model model;
+    protected final Simulation model;
     
 	/**
      * Creates a new simulation object.

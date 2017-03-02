@@ -12,17 +12,17 @@ import es.ull.iis.util.DiscreteCycleIterator;
  */
 public abstract class TimeDrivenGenerator<INF extends Generator.GenerationInfo> extends Generator<INF> implements EventSource {
     /** Cycle that controls the generation of elements. */
-    protected final ModelCycle cycle;
+    protected final SimulationCycle cycle;
     /** The iterator which moves through the defined cycle */
     protected DiscreteCycleIterator cycleIter;
 
-	public TimeDrivenGenerator(Model model, int nElem, ModelCycle cycle) {
+	public TimeDrivenGenerator(Simulation model, int nElem, SimulationCycle cycle) {
 		super(model, model.getTimeDrivenGeneratorList().size(), nElem);
 		this.cycle = cycle;
 		model.add(this);
 	}
 
-	public TimeDrivenGenerator(Model model, TimeFunction nElem, ModelCycle cycle) {
+	public TimeDrivenGenerator(Simulation model, TimeFunction nElem, SimulationCycle cycle) {
 		super(model, model.getTimeDrivenGeneratorList().size(), nElem);
 		this.cycle = cycle;
 		model.add(this);
@@ -31,7 +31,7 @@ public abstract class TimeDrivenGenerator<INF extends Generator.GenerationInfo> 
 	/**
 	 * @return the cycle
 	 */
-	public ModelCycle getCycle() {
+	public SimulationCycle getCycle() {
 		return cycle;
 	}
 

@@ -6,8 +6,8 @@ package es.ull.iis.simulation.test;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Experiment;
-import es.ull.iis.simulation.model.Model;
-import es.ull.iis.simulation.model.ModelPeriodicCycle;
+import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -25,7 +25,7 @@ public class TestResourcesManagement extends Experiment {
 	final static TimeUnit UNIT = TimeUnit.MINUTE;
 	final static long END_TIME = 100;
 
-	class ModelResourceManagement extends Model {
+	class ModelResourceManagement extends Simulation {
 		public ModelResourceManagement(int ind) {
 			super(ind, "Testing resource management " + ind, UNIT, 0, END_TIME);
 			
@@ -83,7 +83,7 @@ public class TestResourcesManagement extends Experiment {
 			// Create flow
 			reqLocationA.link(reqOperatorA).link(actWorkAtLocationA).link(relOperatorA).link(reqTransport).link(relLocationA);
 			relLocationA.link(actMoveFromAToB).link(reqLocationB).link(relTransport).link(actWorkAtLocationB).link(relLocationB);
-			ModelPeriodicCycle cycle = ModelPeriodicCycle.newDailyCycle(UNIT, 0);
+			SimulationPeriodicCycle cycle = SimulationPeriodicCycle.newDailyCycle(UNIT, 0);
 			new TimeDrivenElementGenerator(this, 2, et, reqLocationA, cycle);
 		}
 	}
@@ -96,8 +96,8 @@ public class TestResourcesManagement extends Experiment {
 	}
 
 	@Override
-	public Model getModel(int ind) {
-		final Model model = new ModelResourceManagement(ind);
+	public Simulation getModel(int ind) {
+		final Simulation model = new ModelResourceManagement(ind);
 		model.addInfoReceiver(new StdInfoView(model));
 		return model;
 	}

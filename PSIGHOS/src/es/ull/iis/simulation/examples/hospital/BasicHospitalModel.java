@@ -6,8 +6,8 @@ package es.ull.iis.simulation.examples.hospital;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.PercentageCondition;
 import es.ull.iis.simulation.model.ElementType;
-import es.ull.iis.simulation.model.Model;
-import es.ull.iis.simulation.model.ModelPeriodicCycle;
+import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
@@ -35,7 +35,7 @@ import es.ull.iis.simulation.model.flow.ExclusiveChoiceFlow;
  * @author Iván Castilla Rodríguez
  *
  */
-public class BasicHospitalModel extends Model {
+public class BasicHospitalModel extends Simulation {
 
 	/**
 	 * @param id
@@ -69,9 +69,9 @@ public class BasicHospitalModel extends Model {
 		
 		// Define the work timetables
 		// ... for doctors and nurses (starting at 8:00)
-		ModelPeriodicCycle docCycle = ModelPeriodicCycle.newDailyCycle(unit, 8 * 60);
+		SimulationPeriodicCycle docCycle = SimulationPeriodicCycle.newDailyCycle(unit, 8 * 60);
 		// .. for surgeons (starting at 11:00)
-		ModelPeriodicCycle surgeonCycle = ModelPeriodicCycle.newDailyCycle(unit, 11 * 60);
+		SimulationPeriodicCycle surgeonCycle = SimulationPeriodicCycle.newDailyCycle(unit, 11 * 60);
 		
 		// Define the roles of the resources
 		resDoctor1.addTimeTableEntry(docCycle, 7 * 60, rtDoctor);

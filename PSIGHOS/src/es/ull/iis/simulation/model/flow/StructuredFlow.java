@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * A flow which can contain other flows. This kind of flows have a single entry point
@@ -19,7 +19,7 @@ public abstract class StructuredFlow extends SingleSuccessorFlow implements Task
 	/**
 	 * Creates a new structured flow with no initial nor final step.
 	 */
-	public StructuredFlow(Model model) {
+	public StructuredFlow(Simulation model) {
 		super(model);
 	}
 

@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 
 /**
@@ -19,7 +19,7 @@ public abstract class ANDJoinFlow extends MergeFlow {
 	/**
 	 * Creates a new AND flow.
 	 */
-	public ANDJoinFlow(Model model) {
+	public ANDJoinFlow(Simulation model) {
 		this(model, true, 0);
 	}
 	
@@ -27,7 +27,7 @@ public abstract class ANDJoinFlow extends MergeFlow {
 	 * Creates a new AND flow
 	 * @param acceptValue The number of branches which have to arrive to pass the control thread
 	 */
-	public ANDJoinFlow(Model model, int acceptValue) {
+	public ANDJoinFlow(Simulation model, int acceptValue) {
 		this(model, true, acceptValue);
 	}
 	
@@ -35,7 +35,7 @@ public abstract class ANDJoinFlow extends MergeFlow {
 	 * Create a new AND Flow which can be used in a safe context or a general one.
 	 * @param safe True for safe context; false in other case
 	 */
-	public ANDJoinFlow(Model model, boolean safe) {
+	public ANDJoinFlow(Simulation model, boolean safe) {
 		this(model, safe, 0);
 	}
 	
@@ -44,7 +44,7 @@ public abstract class ANDJoinFlow extends MergeFlow {
 	 * @param safe True for safe context; false in other case
 	 * @param acceptValue The number of branches which have to arrive to pass the control thread
 	 */
-	public ANDJoinFlow(Model model, boolean safe, int acceptValue) {
+	public ANDJoinFlow(Simulation model, boolean safe, int acceptValue) {
 		super(model, safe);
 		this.acceptValue = acceptValue;
 	}

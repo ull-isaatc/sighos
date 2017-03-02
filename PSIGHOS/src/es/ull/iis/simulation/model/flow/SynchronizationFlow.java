@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * An AND join flow which passes only when all the incoming branches have been activated once. 
@@ -13,7 +13,7 @@ public class SynchronizationFlow extends ANDJoinFlow {
 	/**
 	 * Create a new SynchronizationFlow.
 	 */
-	public SynchronizationFlow(Model model) {
+	public SynchronizationFlow(Simulation model) {
 		super(model);
 	}
 	
@@ -21,7 +21,7 @@ public class SynchronizationFlow extends ANDJoinFlow {
 	 * Create a new Synchronization Flow which can be used in a safe context or a general one.
 	 * @param safe True for safe context; false in other case
 	 */
-	public SynchronizationFlow(Model model, boolean safe) {
+	public SynchronizationFlow(Simulation model, boolean safe) {
 		super(model, safe);
 	}
 	

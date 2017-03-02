@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * Meets the Static Partial Join for Multiple Instances pattern (WFP34) if 
@@ -25,7 +25,7 @@ public class StaticPartialJoinMultipleInstancesFlow extends PredefinedStructured
 	 * @param nInstances The number of thread instances this flow creates
 	 * @param acceptValue The number of threads which must finish to pass the control
 	 */
-	public StaticPartialJoinMultipleInstancesFlow(Model model, int nInstances, int acceptValue) {
+	public StaticPartialJoinMultipleInstancesFlow(Simulation model, int nInstances, int acceptValue) {
 		super(model);
 		initialFlow = new ThreadSplitFlow(model, nInstances);
 		initialFlow.setParent(this);

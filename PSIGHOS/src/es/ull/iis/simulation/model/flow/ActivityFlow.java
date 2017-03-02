@@ -9,7 +9,7 @@ import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.FlowExecutor;
-import es.ull.iis.simulation.model.Model;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 
@@ -64,7 +64,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      * Creates a new activity with 0 priority.
      * @param description A short text describing this Activity.
      */
-    public ActivityFlow(Model model, String description) {
+    public ActivityFlow(Simulation model, String description) {
         this(model, description, 0, true, false);
     }
 
@@ -73,7 +73,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      * @param description A short text describing this Activity.
      * @param priority Activity's priority.
      */
-    public ActivityFlow(Model model, String description, int priority) {
+    public ActivityFlow(Simulation model, String description, int priority) {
         this(model, description, priority, true, false);
     }
 
@@ -82,7 +82,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      * @param description A short text describing this Activity.
      * @param modifiers Indicates if the activity has special characteristics. 
      */
-    public ActivityFlow(Model model, String description, boolean exclusive, boolean interruptible) {
+    public ActivityFlow(Simulation model, String description, boolean exclusive, boolean interruptible) {
         this(model, description, 0, exclusive, interruptible);
     }
 
@@ -92,7 +92,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      * @param priority Activity's priority.
      * @param modifiers Indicates if the activity has special characteristics. 
      */
-    public ActivityFlow(Model model, String description, int priority, boolean exclusive, boolean interruptible) {
+    public ActivityFlow(Simulation model, String description, int priority, boolean exclusive, boolean interruptible) {
     	super(model);
     	this.priority = priority;
     	this.description = description;
