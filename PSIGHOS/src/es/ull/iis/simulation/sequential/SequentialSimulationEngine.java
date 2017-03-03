@@ -62,7 +62,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
      * @return True if the simulation clock is higher or equal to the simulation end. False in other case.
      */
     public boolean isSimulationEnd() {
-        return(lvt >= model.getEndTs());
+        return(lvt >= simul.getEndTs());
     }
 
     /**
@@ -175,7 +175,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
     	 * Creates a very simple element to control the simulation end.
     	 */
 		public SimulationEndEvent() {
-			super(model.getEndTs());
+			super(simul.getEndTs());
 		}
 
 		@Override
@@ -222,11 +222,11 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 	@Override
 	public void launchInitialEvents() {
 		// Starts all the time driven generators
-		for (TimeDrivenGenerator<?> evSource : model.getTimeDrivenGeneratorList())
-			addWait(evSource.onCreate(model.getStartTs()));
+		for (TimeDrivenGenerator<?> evSource : simul.getTimeDrivenGeneratorList())
+			addWait(evSource.onCreate(simul.getStartTs()));
 		// Starts all the resources
-		for (Resource res : model.getResourceList())
-			addWait(res.onCreate(model.getStartTs()));
+		for (Resource res : simul.getResourceList())
+			addWait(res.onCreate(simul.getStartTs()));
 
 		// Adds the event to control end of simulation
 		addWait(new SimulationEndEvent());		
@@ -240,23 +240,23 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
             	addExecution(waitQueue.poll());
 			}
 			// Checks the condition-driven generators and executes the events
-			model.checkConditions(lvt);
+			simul.checkConditions(lvt);
 			while (waitQueue.peek().getTs() == lvt) {
             	addExecution(waitQueue.poll());
 			}
 			// Executes user-specified actions after all the events with the same timestamp have been executed
-            model.afterClockTick();
+            simul.afterClockTick();
 			final long newLVT = waitQueue.peek().getTs();
 			// Executes user-specified actions before the clock advances
-            model.beforeClockTick();
-			if (newLVT >= model.getEndTs()) {
+            simul.beforeClockTick();
+			if (newLVT >= simul.getEndTs()) {
 	            // Updates the simulation clock but do not execute further events
-				lvt = model.getEndTs();
+				lvt = simul.getEndTs();
 			}
 			else {
 	            // Updates the simulation clock
 	            lvt = newLVT;
-	            model.notifyInfo(new TimeChangeInfo(model, lvt));
+	            simul.notifyInfo(new TimeChangeInfo(simul, lvt));
 	            debug("SIMULATION TIME ADVANCING " + lvt);
 			}
 		}
@@ -264,14 +264,14 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 //	        if (! waitQueue.isEmpty()) {
 //	            DiscreteEvent e = removeWait();
 //	            // Advances the simulation clock
-//	            model.beforeClockTick();
+//	            simul.beforeClockTick();
 //	            lvt = e.getTs();
-//	            model.notifyInfo(new TimeChangeInfo(model, lvt));
-//	            model.afterClockTick();
+//	            simul.notifyInfo(new TimeChangeInfo(simul, lvt));
+//	            simul.afterClockTick();
 //	            debug("SIMULATION TIME ADVANCING " + lvt);
 //	            // Events with timestamp greater or equal to the maximum simulation time aren't
 //	            // executed
-//	            if (lvt >= model.getEndTs())
+//	            if (lvt >= simul.getEndTs())
 //	                addWait(e);
 //	            else {
 //	            	addExecution(e);

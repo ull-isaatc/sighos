@@ -29,20 +29,7 @@ public class PortMain extends Experiment {
 	}
 	
 	public static void main(String[] args) {
-		final Ship ship = new Ship(10);
-		ship.push(1, 1);
-		ship.push(1, 2);
-		ship.push(1, 3);
-		ship.push(3, 4);
-		ship.push(4, 5);
-		ship.push(4, 6);
-		ship.push(6, 7);
-		ship.push(7, 8);
-		ship.push(8, 9);
-		ship.push(8, 10);
-		System.out.println(ship);
-		
-//		new PortMain().start();
+		new PortMain().start();
 	}
 
 	@Override

@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.port.sea2yard;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.TreeMap;
 
 /**
  * @author Iván Castilla
@@ -13,6 +13,7 @@ import java.util.Collection;
 public class Ship {
 	/** Bays of the ship */
 	final private ArrayList<Integer>[] bays;
+	final private TreeMap<Integer, Integer> containerBay;
 	private int maxDeep;
 	
 	/**
@@ -21,6 +22,7 @@ public class Ship {
 	@SuppressWarnings("unchecked")
 	public Ship(int nBays) {
 		bays = (ArrayList<Integer>[]) new ArrayList<?>[nBays];
+		containerBay = new TreeMap<Integer, Integer>();
 		for (int i = 0; i < nBays; i++)
 			bays[i] = new ArrayList<Integer>();
 		maxDeep = 0;
@@ -33,6 +35,7 @@ public class Ship {
 	 * @return The position in the bay of the allocated container 
 	 */
 	public int push(int bayId, int containerId) {
+		containerBay.put(containerId, bayId);
 		bays[bayId].add(containerId);
 		maxDeep = Math.max(maxDeep, bays[bayId].size());
 		return bays[bayId].size();
@@ -69,10 +72,18 @@ public class Ship {
 	 * @param bayId Specified bay
 	 * @return the containers at a specified bay
 	 */
-	public Collection<Integer> getBay(int bayId) {
+	public ArrayList<Integer> getBay(int bayId) {
 		return bays[bayId];
 	}
 	
+	/**
+	 * Returns the bay where this container is stored
+	 * @param containerId Specified container
+	 * @return the bay where this container is stored
+	 */
+	public int getContainerBay(int containerId) {
+		return containerBay.get(containerId);
+	}
 	private String printContainerId(int contId) {
 		if (contId < 10)
 			return "    " + contId + "   ";
