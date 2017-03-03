@@ -28,4 +28,17 @@ public class StowagePlan {
 	public ArrayList<Integer> get(int craneId) {
 		return plan[craneId];
 	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder str = new StringBuilder();
+		for (int i = 0; i < plan.length; i++) {
+			str.append("Crane " + i + ":");
+			for (int containerId : plan[i]) {
+				str.append("\t" + containerId);
+			}
+			str.append("\n");
+		}
+		return str.toString();
+	}
 }

@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.port.sea2yard;
 
-import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -22,7 +21,7 @@ public class PortMain extends Experiment {
 	private static final TimeUnit PORT_TIME_UNIT = TimeUnit.MINUTE;
 	private static final long START_TS = 0;
 	private static final long END_TS = 24 * 60;
-	protected static final String CONS_VAR = "ConstantVariate";
+	private static final int EXAMPLE = 0; 
 
 	public PortMain() {
 		super("PORTS", NSIM);
@@ -34,8 +33,8 @@ public class PortMain extends Experiment {
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		final Simulation model = new PortModel(ind, DESCRIPTION + " " + ind, PORT_TIME_UNIT, START_TS, END_TS);
-		model.addInfoReceiver(new StdInfoView(model));
+		final Simulation model = new PortModel(EXAMPLE, ind, DESCRIPTION + " " + ind, PORT_TIME_UNIT, START_TS, END_TS);
+//		model.addInfoReceiver(new StdInfoView(model));
 		model.addInfoReceiver(new ContainerTimeListener(model));
 
 		return model;

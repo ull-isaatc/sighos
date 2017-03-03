@@ -346,6 +346,11 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 		return caughtResources.get(resourcesId).pop();
 	}
 	
+	public ArrayDeque<Resource> getCaughtResources() {
+		final int resourcesId = ((RequestResourcesFlow)currentFlow).getResourcesId();
+		return caughtResources.get(resourcesId);
+	}
+	
     /**
      * Catch the resources needed for each resource type to carry out an activity.
      * @return The minimum availability timestamp of the taken resources 
