@@ -10,11 +10,13 @@ import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.model.SimulationPeriodicCycle;
-import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.flow.InitializerFlow;
+import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
 /**
  * @author Iván Castilla
@@ -28,9 +30,16 @@ public class PortModel extends Simulation {
 	private static final String TRUCK = "Truck";
 	protected static final String CONTAINER = "Container";
 	private static final String ACT_UNLOAD = "Unload";
+	private static final String ACT_GET_TO_BAY = "Get to bay";
+	private static final String ACT_LEAVE_BAY = "Leave bay";
+	private static final String POSITION = "Position";
 	private final ResourceType[] rtContainers;
+	private final ActivityFlow[] actUnloads;
+	private final RequestResourcesFlow[] reqBays;
+	private final ReleaseResourcesFlow[] relBays;
 	private static final long T_UNLOAD = 3L;
 	private static final long T_TRANSPORT = 10L;
+	private static final long T_MOVE = 1L;
 	private final Ship ship;
 	private final StowagePlan plan;
 	
@@ -45,6 +54,23 @@ public class PortModel extends Simulation {
 		super(id, description, unit, startTs, endTs);
 		
 		ship = (config == 0) ? fillTestShip1() : fillTestShip2();
+		final int nBays = ship.getNBays();
+		
+		// Creates the "positions" of the cranes in front of the bays and the activities to move among bays 
+		final ResourceType[] rtPositions = new ResourceType[nBays];
+		final WorkGroup[] wgPositions = new WorkGroup[nBays];
+		reqBays = new RequestResourcesFlow[nBays];
+		relBays = new ReleaseResourcesFlow[nBays];
+		for (int i = 0; i < nBays; i++) {
+			rtPositions[i] = new ResourceType(this, POSITION + i);
+			rtPositions[i].addGenericResources(1);
+			wgPositions[i] = new WorkGroup(this, rtPositions[i], 1);
+			reqBays[i] = new RequestResourcesFlow(this, ACT_GET_TO_BAY + i, i+1);
+			reqBays[i].addWorkGroup(0, wgPositions[i], T_MOVE);
+			relBays[i] = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + i, i+1);
+		}
+		
+		// Creates the rest of resources
 		final ResourceType rtTrucks = new ResourceType(this, TRUCK);
 		rtTrucks.addGenericResources(N_TRUCKS);
 		rtContainers = new ResourceType[N_CONTAINERS[config]];
@@ -56,8 +82,8 @@ public class PortModel extends Simulation {
 		}
 		
 		// Set the containers which are available from the beginning and creates the activities
-		final ActivityFlow[] actUnloads = new ActivityFlow[N_CONTAINERS[config]];
-		for (int bayId = 0; bayId < ship.getNBays(); bayId++) {
+		actUnloads = new ActivityFlow[N_CONTAINERS[config]];
+		for (int bayId = 0; bayId < nBays; bayId++) {
 			final ArrayList<Integer> bay = ship.getBay(bayId);
 			if (!bay.isEmpty()) {
 				// Creates the container on top of the bay
@@ -87,22 +113,49 @@ public class PortModel extends Simulation {
 			}
 		}
 		
+		// Sets the tasks that the cranes have to perform
 		plan = (config == 0) ? fillTestPlan1() : fillTestPlan2();
-		for (int craneId = 0; craneId < N_CRANES; craneId++) {
-			final ArrayList<Integer> cranePlan = plan.get(craneId);
-			ActivityFlow lastAct = actUnloads[cranePlan.get(0)];
-			for (int i = 1; i < cranePlan.size(); i++) {
-				lastAct.link(actUnloads[cranePlan.get(i)]);
-				lastAct = actUnloads[cranePlan.get(i)];
-			}
-		}
+//		for (int craneId = 0; craneId < N_CRANES; craneId++) {
+//			final ArrayList<Integer> cranePlan = plan.get(craneId);
+//			ActivityFlow lastAct = actUnloads[cranePlan.get(0)];
+//			for (int i = 1; i < cranePlan.size(); i++) {
+//				lastAct.link(actUnloads[cranePlan.get(i)]);
+//				lastAct = actUnloads[cranePlan.get(i)];
+//			}
+//		}
 
 		// Creates the main element type representing quay cranes
 		final ElementType[] ets = new ElementType[N_CRANES]; 
-		for (int i = 0; i < N_CRANES; i++) {
-			ets[i] = new ElementType(this, QUAY_CRANE + i);
-			new TimeDrivenElementGenerator(this, 1, ets[i], actUnloads[plan.get(i).get(0)], SimulationPeriodicCycle.newDailyCycle(unit));
+		for (int craneId = 0; craneId < N_CRANES; craneId++) {
+			ets[craneId] = new ElementType(this, QUAY_CRANE + craneId);
+			new QuayCraneGenerator(this, ets[craneId], createFlowFromPlan(plan, ship, craneId), plan.getInitialPosition(craneId));
 		}
+	}
+	
+	private InitializerFlow createFlowFromPlan(StowagePlan plan, Ship ship, int craneId) {
+		int craneBay = plan.getInitialPosition(craneId);
+		// First place the crane in the initial position
+		final InitializerFlow firstFlow = reqBays[craneBay];
+		Flow flow = firstFlow;
+		// Analyze the plan and move if needed
+		final ArrayList<Integer> cranePlan = plan.get(craneId);
+		for (int i = 0; i < cranePlan.size(); i++) {
+			final int containerId = cranePlan.get(i);
+			final int containerBay = ship.getContainerBay(containerId);
+			while (craneBay < containerBay) {
+				flow.link(reqBays[craneBay + 1]).link(relBays[craneBay]);
+				flow = relBays[craneBay];
+				craneBay++;
+			}
+			while (craneBay > containerBay) {
+				flow.link(reqBays[craneBay - 1]).link(relBays[craneBay]);
+				flow = relBays[craneBay];
+				craneBay--;								
+			}
+			flow.link(actUnloads[containerId]);
+			flow = actUnloads[containerId];
+		}
+		return firstFlow;
 	}
 	
 	/**
@@ -159,6 +212,8 @@ public class PortModel extends Simulation {
 		final StowagePlan plan = new StowagePlan(2);
 		plan.addAll(0, new int[]{0, 1, 2, 5, 7});
 		plan.addAll(1, new int[]{3, 4, 6, 8, 9});
+		plan.setInitialPosition(0, 2);
+		plan.setInitialPosition(1, 6);
 		return plan;
 	}
 

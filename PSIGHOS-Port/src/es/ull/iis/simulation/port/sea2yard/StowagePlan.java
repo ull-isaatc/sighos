@@ -11,12 +11,15 @@ import java.util.ArrayList;
  */
 public class StowagePlan {
 	private final ArrayList<Integer>[] plan;
+	private final int[] initPosition;
+	
 	/**
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
 	public StowagePlan(int nCranes) {
 		plan = (ArrayList<Integer>[]) new ArrayList<?>[nCranes];
+		initPosition = new int[nCranes];
 	}
 
 	public void addAll(int craneId, int[] containers) {
@@ -27,6 +30,14 @@ public class StowagePlan {
 	
 	public ArrayList<Integer> get(int craneId) {
 		return plan[craneId];
+	}
+	
+	public void setInitialPosition(int craneId, int initPos) {
+		initPosition[craneId] = initPos;
+	}
+	
+	public int getInitialPosition(int craneId) {
+		return initPosition[craneId];
 	}
 	
 	@Override
