@@ -4,7 +4,7 @@ import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
+import es.ull.iis.simulation.model.flow.ActionFlow;
 
 public class ElementActionInfo extends AsynchronousInfo {
 	
@@ -31,12 +31,12 @@ public class ElementActionInfo extends AsynchronousInfo {
 		};
 	
 	final private FlowExecutor fExecutor;
-	final private ResourceHandlerFlow act;
+	final private ActionFlow act;
 	final private ActivityWorkGroup wg;
 	final private Element elem;
 	final private Type type;
 	
-	public ElementActionInfo(Simulation model, FlowExecutor fExecutor, Element elem, ResourceHandlerFlow act, ActivityWorkGroup wg, Type type, long ts) {
+	public ElementActionInfo(Simulation model, FlowExecutor fExecutor, Element elem, ActionFlow act, ActivityWorkGroup wg, Type type, long ts) {
 		super(model, ts);
 		this.fExecutor = fExecutor;
 		this.act = act;
@@ -67,7 +67,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 		return message;
 	}
 
-	public ResourceHandlerFlow getActivity() {
+	public ActionFlow getActivity() {
 		return act;
 	}
 

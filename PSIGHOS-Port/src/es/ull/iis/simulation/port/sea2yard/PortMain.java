@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.port.sea2yard;
 
+import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -21,7 +22,7 @@ public class PortMain extends Experiment {
 	private static final TimeUnit PORT_TIME_UNIT = TimeUnit.MINUTE;
 	private static final long START_TS = 0;
 	private static final long END_TS = 24 * 60;
-	private static final int EXAMPLE = 0; 
+	private static final int EXAMPLE = 1; 
 
 	public PortMain() {
 		super("PORTS", NSIM);

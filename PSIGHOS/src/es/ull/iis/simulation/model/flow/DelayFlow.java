@@ -13,7 +13,7 @@ import es.ull.iis.simulation.model.Simulation;
  * @author Iván Castilla
  *
  */
-public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ResourceHandlerFlow {
+public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ActionFlow {
     /** A brief description of the delay */
     private final String description;
 	/** Duration of the delay */

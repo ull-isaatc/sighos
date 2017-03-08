@@ -26,7 +26,7 @@ public class QuayCraneGenerator extends TimeDrivenElementGenerator {
 	 * @param cycle
 	 */
 	public QuayCraneGenerator(Simulation model, ElementType et, InitializerFlow flow, int initPosition) {
-		super(model, 1, et, flow, new SimulationPeriodicCycle(model.getTimeUnit(), 0L, new SimulationTimeFunction(model.getTimeUnit(), "Constant", model.getEndTs()), 1));
+		super(model, 1, et, flow, new SimulationPeriodicCycle(model.getTimeUnit(), 0L, new SimulationTimeFunction(model.getTimeUnit(), "ConstantVariate", model.getEndTs()), 1));
 		this.initPosition = initPosition;
 	}
 

@@ -13,7 +13,8 @@ import java.util.TreeMap;
 public class Ship {
 	/** Bays of the ship */
 	final private ArrayList<Integer>[] bays;
-	final private TreeMap<Integer, Integer> containerBay;
+	final private TreeMap<Integer, Integer> bayPosition;
+	final private TreeMap<Integer, Integer> processingTime;
 	private int maxDeep;
 	
 	/**
@@ -22,7 +23,8 @@ public class Ship {
 	@SuppressWarnings("unchecked")
 	public Ship(int nBays) {
 		bays = (ArrayList<Integer>[]) new ArrayList<?>[nBays];
-		containerBay = new TreeMap<Integer, Integer>();
+		bayPosition = new TreeMap<Integer, Integer>();
+		processingTime = new TreeMap<Integer, Integer>();
 		for (int i = 0; i < nBays; i++)
 			bays[i] = new ArrayList<Integer>();
 		maxDeep = 0;
@@ -30,12 +32,14 @@ public class Ship {
 
 	/**
 	 * Allocates a container to the specified bay
-	 * @param bayId
 	 * @param containerId
+	 * @param bayId
+	 * @param procTime
 	 * @return The position in the bay of the allocated container 
 	 */
-	public int push(int bayId, int containerId) {
-		containerBay.put(containerId, bayId);
+	public int push(int containerId, int bayId, int procTime) {
+		bayPosition.put(containerId, bayId);
+		processingTime.put(containerId, procTime);
 		bays[bayId].add(containerId);
 		maxDeep = Math.max(maxDeep, bays[bayId].size());
 		return bays[bayId].size();
@@ -82,8 +86,14 @@ public class Ship {
 	 * @return the bay where this container is stored
 	 */
 	public int getContainerBay(int containerId) {
-		return containerBay.get(containerId);
+		return bayPosition.get(containerId);
 	}
+	
+	
+	public int getContainerProcessingTime(int containerId) {
+		return processingTime.get(containerId);
+	}
+	
 	private String printContainerId(int contId) {
 		if (contId < 10)
 			return "    " + contId + "   ";

@@ -17,6 +17,7 @@ import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 import es.ull.iis.simulation.model.flow.TaskFlow;
 import es.ull.iis.util.Prioritizable;
 
@@ -342,12 +343,12 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 	 * @return The resource removed
 	 */
 	public Resource popResource() {
-		final int resourcesId = ((RequestResourcesFlow)currentFlow).getResourcesId();
+		final int resourcesId = ((ResourceHandlerFlow)currentFlow).getResourcesId();
 		return caughtResources.get(resourcesId).pop();
 	}
 	
 	public ArrayDeque<Resource> getCaughtResources() {
-		final int resourcesId = ((RequestResourcesFlow)currentFlow).getResourcesId();
+		final int resourcesId = ((ResourceHandlerFlow)currentFlow).getResourcesId();
 		return caughtResources.get(resourcesId);
 	}
 	

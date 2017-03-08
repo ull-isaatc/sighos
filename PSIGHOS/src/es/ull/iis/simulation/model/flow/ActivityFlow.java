@@ -58,7 +58,10 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
     protected final String description;
 	/** The set of modifiers of this activity. */
     private boolean interruptible;
+    /** A unique identifier that serves to tell a ReleaseResourcesFlow which resources to release */
+	private final int resourcesId;
     private boolean exclusive;
+    
 
 	/**
      * Creates a new activity with 0 priority.
@@ -96,10 +99,10 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
     	super(model);
     	this.priority = priority;
     	this.description = description;
-    	final int resId = resourcesIdCounter--;
-        initialFlow = new RequestResourcesFlow(model, "REQ " + description, resId , priority, exclusive);
+    	resourcesId = resourcesIdCounter--;
+        initialFlow = new RequestResourcesFlow(model, "REQ " + description, resourcesId , priority, exclusive);
         initialFlow.setParent(this);
-        finalFlow = new ReleaseResourcesFlow(model, "REL " + description, resId);
+        finalFlow = new ReleaseResourcesFlow(model, "REL " + description, resourcesId);
         finalFlow.setParent(this);
         initialFlow.link(finalFlow);
         this.exclusive = exclusive;
@@ -242,6 +245,11 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 			next(wThread);
 		}
 		
+	}
+
+	@Override
+	public int getResourcesId() {
+		return resourcesId;
 	}
 
 }
