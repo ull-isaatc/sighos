@@ -22,9 +22,6 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
  *
  */
 public class PortModel extends Simulation {
-	private static final int N_TRUCKS = 4;
-	private static final int[] N_CONTAINERS = new int[] {10, 16};
-	private static final int N_CRANES = 2;
 	protected static final String QUAY_CRANE = "Quay Crane";
 	private static final String TRUCK = "Truck";
 	protected static final String CONTAINER = "Container";
@@ -40,6 +37,7 @@ public class PortModel extends Simulation {
 	protected static final long T_TRANSPORT = 10L;
 	private static final long T_MOVE = 1L;
 	private final StowagePlan plan;
+	private final int nTrucks;
 	
 	/**
 	 * @param id
@@ -48,13 +46,14 @@ public class PortModel extends Simulation {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public PortModel(int config, int id, String description, TimeUnit unit, long startTs, long endTs) {
+	public PortModel(StowagePlan plan, int id, String description, TimeUnit unit, long startTs, long endTs, int nTrucks) {
 		super(id, description, unit, startTs, endTs);
-		
-		// Sets the tasks that the cranes have to perform
-		plan = (config == 0) ? fillTestPlan1() : fillTestPlan2();
+		this.nTrucks = nTrucks;
+
+		this.plan = plan;
 		final Ship ship = plan.getShip();
 		final int nBays = ship.getNBays();
+		final int nContainers = plan.getNContainers();
 		
 		// Creates the "positions" of the cranes in front of the bays and the activities to move among bays 
 		final ResourceType[] rtPositions = new ResourceType[nBays];
@@ -67,17 +66,17 @@ public class PortModel extends Simulation {
 		
 		// Creates the rest of resources
 		rtTrucks = new ResourceType(this, TRUCK);
-		rtTrucks.addGenericResources(N_TRUCKS);
-		rtContainers = new ResourceType[N_CONTAINERS[config]];
-		final Resource[] resContainers = new Resource[N_CONTAINERS[config]];
-		wgContainers = new WorkGroup[N_CONTAINERS[config]];
-		for (int i = 0; i < N_CONTAINERS[config]; i++) {
+		rtTrucks.addGenericResources(nTrucks);
+		rtContainers = new ResourceType[nContainers];
+		final Resource[] resContainers = new Resource[nContainers];
+		wgContainers = new WorkGroup[nContainers];
+		for (int i = 0; i < nContainers; i++) {
 			rtContainers[i] = new ResourceType(this, CONTAINER + i);
 			wgContainers[i] = new WorkGroup(this, new ResourceType[] {rtTrucks, rtContainers[i]}, new int[] {1, 1});
 		}
 		
 		// Set the containers which are available from the beginning and creates the activities
-		actUnloads = new ActivityFlow[N_CONTAINERS[config]];
+		actUnloads = new ActivityFlow[nContainers];
 		for (int bayId = 0; bayId < nBays; bayId++) {
 			final ArrayList<Integer> bay = ship.getBay(bayId);
 			if (!bay.isEmpty()) {
@@ -98,8 +97,8 @@ public class PortModel extends Simulation {
 		}
 		
 		// Creates the main element type representing quay cranes
-		final ElementType[] ets = new ElementType[N_CRANES]; 
-		for (int craneId = 0; craneId < N_CRANES; craneId++) {
+		final ElementType[] ets = new ElementType[plan.getNCranes()]; 
+		for (int craneId = 0; craneId < plan.getNCranes(); craneId++) {
 			ets[craneId] = new ElementType(this, QUAY_CRANE + craneId);
 			new QuayCraneGenerator(this, ets[craneId], createFlowFromPlan(plan, ship, craneId), plan.getInitialPosition(craneId));
 		}
@@ -164,66 +163,16 @@ public class PortModel extends Simulation {
 	}
 	
 	/**
-	 * Creates a ship with 10 bays
-	 * 		0
-	 * 		1			4				8
-	 * 		2		3	5		6	7	9
-	 * ---------------------------------------
-	 * 	0	1	2	3	4	5	6	7	8	9
-	 * Creates a stowage plan for two cranes:
-	 * - Crane 0 unloads 0, 1, 2, 5, 7
-	 * - Crane 1 unloads 3, 4, 6, 8, 9
-	 * @return A stowage plane for two cranes
-	 */
-	StowagePlan fillTestPlan1() {
-		final Ship ship = new Ship(10);
-		ship.push(2, 1, 6);
-		ship.push(1, 1, 18);
-		ship.push(0, 1, 14);
-		ship.push(3, 3, 10);
-		ship.push(5, 4, 17);
-		ship.push(4, 4, 21);
-		ship.push(6, 6, 10);
-		ship.push(7, 7, 9);
-		ship.push(9, 8, 19);
-		ship.push(8, 8, 7);
-		final StowagePlan plan = new StowagePlan(ship, 2);
-		plan.addAll(0, new int[]{0, 1, 2, 5, 7});
-		plan.addAll(1, new int[]{3, 4, 6, 8, 9});
-		plan.setInitialPosition(0, 2);
-		plan.setInitialPosition(1, 6);
-		return plan;
-	}
-
-	StowagePlan fillTestPlan2() {
-		final Ship ship = new Ship(16);
-		ship.push(0, 1, 33);
-		ship.push(1, 2, 2);
-		ship.push(3, 4, 59);
-		ship.push(2, 4, 44);
-		ship.push(5, 9, 6);
-		ship.push(4, 9, 60);
-		ship.push(7, 10, 52);
-		ship.push(6, 10, 60);
-		ship.push(9, 11, 41);
-		ship.push(8, 11, 56);
-		ship.push(11, 14, 22);
-		ship.push(10, 14, 38);
-		ship.push(14, 15, 34);
-		ship.push(13, 15, 16);
-		ship.push(12, 15, 54);
-		final StowagePlan plan = new StowagePlan(ship, 2);
-		plan.addAll(0, new int[]{0, 1, 2, 3, 7, 8, 9});
-		plan.addAll(1, new int[]{4, 5, 6, 10, 11, 12, 13, 14});
-		plan.setInitialPosition(0, 1);
-		plan.setInitialPosition(1, 8);
-		return plan;
-	}
-
-	/**
 	 * @return the plan
 	 */
 	public StowagePlan getPlan() {
 		return plan;
+	}
+
+	/**
+	 * @return the nTrucks
+	 */
+	public int getNTrucks() {
+		return nTrucks;
 	}
 }

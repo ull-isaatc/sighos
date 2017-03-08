@@ -13,6 +13,8 @@ public class StowagePlan {
 	private final ArrayList<Integer>[] plan;
 	private final int[] initPosition;
 	private final Ship ship;
+	private int nContainers;
+	private final int nCranes;
 	
 	/**
 	 * 
@@ -22,10 +24,13 @@ public class StowagePlan {
 		plan = (ArrayList<Integer>[]) new ArrayList<?>[nCranes];
 		initPosition = new int[nCranes];
 		this.ship = ship;
+		this.nCranes = nCranes;
+		nContainers = 0;
 	}
 
 	public void addAll(int craneId, int[] containers) {
 		plan[craneId] = new ArrayList<Integer>();
+		nContainers += containers.length;
 		for (int c : containers)			
 			plan[craneId].add(c);
 	}
@@ -42,6 +47,20 @@ public class StowagePlan {
 		return initPosition[craneId];
 	}
 	
+	/**
+	 * @return the nContainers
+	 */
+	public int getNContainers() {
+		return nContainers;
+	}
+
+	/**
+	 * @return the nCranes
+	 */
+	public int getNCranes() {
+		return nCranes;
+	}
+
 	/**
 	 * @return the ship
 	 */
