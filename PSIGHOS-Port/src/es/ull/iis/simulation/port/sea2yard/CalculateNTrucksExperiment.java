@@ -18,11 +18,11 @@ import es.ull.iis.simulation.model.TimeUnit;
  */
 public class CalculateNTrucksExperiment extends Experiment {
 	final private static String DESCRIPTION = "Port Simulation";
-	private static final int NSIM = 5;
+	private static final int NSIM = 1;
 	private static final TimeUnit PORT_TIME_UNIT = TimeUnit.MINUTE;
 	private static final long START_TS = 0;
 	private static final long END_TS = 24 * 60;
-	private static final int EXAMPLE = 1; 
+	private static final int EXAMPLE = 0; 
 	private final int example; 
 
 	public CalculateNTrucksExperiment(int example) {
@@ -54,7 +54,7 @@ public class CalculateNTrucksExperiment extends Experiment {
 		ship.push(7, 7, 9);
 		ship.push(9, 8, 19);
 		ship.push(8, 8, 7);
-		final StowagePlan plan = new StowagePlan(ship, 2);
+		final StowagePlan plan = new StowagePlan(ship, 2, 1);
 		plan.addAll(0, new int[]{0, 1, 2, 5, 7});
 		plan.addAll(1, new int[]{3, 4, 6, 8, 9});
 		plan.setInitialPosition(0, 2);
@@ -79,7 +79,7 @@ public class CalculateNTrucksExperiment extends Experiment {
 		ship.push(14, 15, 34);
 		ship.push(13, 15, 16);
 		ship.push(12, 15, 54);
-		final StowagePlan plan = new StowagePlan(ship, 2);
+		final StowagePlan plan = new StowagePlan(ship, 2, 0);
 		plan.addAll(0, new int[]{0, 1, 2, 3, 7, 8, 9});
 		plan.addAll(1, new int[]{4, 5, 6, 10, 11, 12, 13, 14});
 		plan.setInitialPosition(0, 1);
@@ -90,10 +90,10 @@ public class CalculateNTrucksExperiment extends Experiment {
 	@Override
 	public Simulation getSimulation(int ind) {
 		final Simulation model = new PortModel((example == 0) ? fillTestPlan1() : fillTestPlan2(), ind, DESCRIPTION + " " + ind, PORT_TIME_UNIT, START_TS, END_TS, ind + 1);
-//		model.addInfoReceiver(new StdInfoView(model));
+		model.addInfoReceiver(new StdInfoView(model));
 		model.addInfoReceiver(new Sea2YardGeneralListener(model));
 //		model.addInfoReceiver(new ContainerTraceListener(model));
-//		model.addInfoReceiver(new ContainerTimeLineListener(model));
+		model.addInfoReceiver(new ContainerTimeLineListener(model));
 		return model;
 	}
 

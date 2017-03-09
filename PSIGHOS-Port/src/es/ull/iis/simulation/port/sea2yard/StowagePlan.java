@@ -15,16 +15,18 @@ public class StowagePlan {
 	private final Ship ship;
 	private int nContainers;
 	private final int nCranes;
+	private final int safetyDistance;
 	
 	/**
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	public StowagePlan(Ship ship, int nCranes) {
+	public StowagePlan(Ship ship, int nCranes, int safetyDistance) {
 		plan = (ArrayList<Integer>[]) new ArrayList<?>[nCranes];
 		initPosition = new int[nCranes];
 		this.ship = ship;
 		this.nCranes = nCranes;
+		this.safetyDistance = safetyDistance;
 		nContainers = 0;
 	}
 
@@ -62,6 +64,13 @@ public class StowagePlan {
 	}
 
 	/**
+	 * @return the safetyDistance
+	 */
+	public int getSafetyDistance() {
+		return safetyDistance;
+	}
+
+	/**
 	 * @return the ship
 	 */
 	public Ship getShip() {
@@ -72,7 +81,7 @@ public class StowagePlan {
 	public String toString() {
 		final StringBuilder str = new StringBuilder();
 		for (int i = 0; i < plan.length; i++) {
-			str.append("Crane " + i + ":");
+			str.append("Crane " + i + " (INIT:" + initPosition[i] + "):");
 			for (int containerId : plan[i]) {
 				str.append("\t" + containerId);
 			}

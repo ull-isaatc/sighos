@@ -26,6 +26,7 @@ public class PortModel extends Simulation {
 	private static final String TRUCK = "Truck";
 	protected static final String CONTAINER = "Container";
 	protected static final String ACT_UNLOAD = "Unload";
+	protected static final String ACT_PLACE = "Place at";
 	protected static final String ACT_GET_TO_BAY = "Get to bay";
 	protected static final String ACT_LEAVE_BAY = "Leave bay";
 	private static final String POSITION = "Position";
@@ -54,6 +55,7 @@ public class PortModel extends Simulation {
 		final Ship ship = plan.getShip();
 		final int nBays = ship.getNBays();
 		final int nContainers = plan.getNContainers();
+		final int nCranes = plan.getNCranes();
 		
 		// Creates the "positions" of the cranes in front of the bays and the activities to move among bays 
 		final ResourceType[] rtPositions = new ResourceType[nBays];
@@ -97,8 +99,8 @@ public class PortModel extends Simulation {
 		}
 		
 		// Creates the main element type representing quay cranes
-		final ElementType[] ets = new ElementType[plan.getNCranes()]; 
-		for (int craneId = 0; craneId < plan.getNCranes(); craneId++) {
+		final ElementType[] ets = new ElementType[nCranes]; 
+		for (int craneId = 0; craneId < nCranes; craneId++) {
 			ets[craneId] = new ElementType(this, QUAY_CRANE + craneId);
 			new QuayCraneGenerator(this, ets[craneId], createFlowFromPlan(plan, ship, craneId), plan.getInitialPosition(craneId));
 		}
@@ -135,24 +137,35 @@ public class PortModel extends Simulation {
 
 	private InitializerFlow createFlowFromPlan(StowagePlan plan, Ship ship, int craneId) {
 		int craneBay = plan.getInitialPosition(craneId);
-		// First place the crane in the initial position
-		final RequestResourcesFlow firstFlow =  new RequestResourcesFlow(this, ACT_GET_TO_BAY + craneBay, craneBay+1);
-		firstFlow.addWorkGroup(0, wgPositions[craneBay]);
+		final int safetyDistance = plan.getSafetyDistance();
+		// First place the crane in the initial position, taking into account the safety distance
+		final RequestResourcesFlow firstFlow =  new RequestResourcesFlow(this, ACT_PLACE + Math.max(craneBay - safetyDistance, 0), Math.max(craneBay - safetyDistance, 0)+1);
+		firstFlow.addWorkGroup(0, wgPositions[Math.max(craneBay - safetyDistance, 0)]);
 		Flow flow = firstFlow;
+		
+		for (int i = Math.max(craneBay - safetyDistance, 0) + 1; i < Math.min(craneBay + safetyDistance + 1, ship.getNBays()); i++) {
+			final RequestResourcesFlow nextFlow =  new RequestResourcesFlow(this, ACT_PLACE + i, i+1);
+			nextFlow.addWorkGroup(0, wgPositions[i]);
+			flow.link(nextFlow);
+			flow = nextFlow;
+		}
+		
 		// Analyze the plan and move if needed
 		final ArrayList<Integer> cranePlan = plan.get(craneId);
 		for (int i = 0; i < cranePlan.size(); i++) {
 			final int containerId = cranePlan.get(i);
 			final int containerBay = ship.getContainerBay(containerId);
+			// When moving to the right, release the (craneBay - safetyDistance)th container and acquire the (craneBay + safetyDistance + 1)th container  
 			while (craneBay < containerBay) {
-				final ReleaseResourcesFlow relBay = getLeaveBayFlow(craneBay);
-				flow.link(getGetToBayFlow(craneBay + 1)).link(relBay);
+				final ReleaseResourcesFlow relBay = getLeaveBayFlow(craneBay - safetyDistance);
+				flow.link(getGetToBayFlow(craneBay + safetyDistance + 1)).link(relBay);
 				flow = relBay;
 				craneBay++;
 			}
+			// When moving to the left, release the (craneBay + safetyDistance)th container and acquire the (craneBay - safetyDistance - 1)th container  
 			while (craneBay > containerBay) {
-				final ReleaseResourcesFlow relBay = getLeaveBayFlow(craneBay);
-				flow.link(getGetToBayFlow(craneBay - 1)).link(relBay);
+				final ReleaseResourcesFlow relBay = getLeaveBayFlow(craneBay + safetyDistance);
+				flow.link(getGetToBayFlow(craneBay - safetyDistance - 1)).link(relBay);
 				flow = relBay;
 				craneBay--;								
 			}
