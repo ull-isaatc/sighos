@@ -52,8 +52,7 @@ public class DoWhileFlow extends StructuredLoopFlow {
 		if (cond.check(wThread)) {
 			wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantFlowExecutor(initialFlow));
 		} else {
-			afterFinalize(wThread);
-			next(wThread);
+			super.finish(wThread);
 		}
 	}
 

@@ -61,4 +61,12 @@ public abstract class StructuredFlow extends SingleSuccessorFlow implements Task
 			wThread.notifyEnd();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.FlowExecutor)
+	 */
+	public void finish(FlowExecutor wThread) {
+		afterFinalize(wThread);
+		next(wThread);
+	}
 }

@@ -398,34 +398,71 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 		elem.addFinishEvent(delay + elem.getModel().getSimulationEngine().getTs(), (TaskFlow)currentFlow, this);
 	}
 	
-	public boolean releaseCaughtResources() {
+	public boolean releaseCaughtResources(WorkGroup wg) {
         final TreeSet<ActivityManager> amList = new TreeSet<ActivityManager>();
 		final ReleaseResourcesFlow relFlow = (ReleaseResourcesFlow)currentFlow;
 		final int resourcesId = relFlow.getResourcesId();
 		
-		final Collection<Resource> resources = caughtResources.remove(resourcesId);
-		if (resources == null) {
-			elem.error("Trying to release group of resources not already created. ID:" + resourcesId);
-			return false;
-		}
-        // Generate unavailability periods.
-        for (Resource res : resources) {
-        	final long cancellationDuration = relFlow.getResourceCancellation(res.getCurrentResourceType());
-        	if (cancellationDuration > 0) {
-				final long actualTs = elem.getModel().getSimulationEngine().getTs();
-				res.setNotCanceled(false);
-				elem.getModel().notifyInfo(new ResourceInfo(elem.getModel(), res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
-				res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
+		if (wg == null) {
+			final Collection<Resource> resources = caughtResources.remove(resourcesId);
+			if (resources == null) {
+				elem.error("Trying to release group of resources not already created. ID:" + resourcesId);
+				return false;
 			}
-			elem.debug("Returned " + res);
-        	// The resource is freed
-        	if (res.releaseResource()) {
-        		// The activity managers involved are included in the list
-        		for (ActivityManager am : res.getCurrentManagers()) {
-        			amList.add(am);
-        		}
-        	}
-        }
+	        // Generate unavailability periods.
+	        for (Resource res : resources) {
+	        	final long cancellationDuration = relFlow.getResourceCancellation(res.getCurrentResourceType());
+	        	if (cancellationDuration > 0) {
+					final long actualTs = elem.getModel().getSimulationEngine().getTs();
+					res.setNotCanceled(false);
+					elem.getModel().notifyInfo(new ResourceInfo(elem.getModel(), res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
+					res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
+				}
+				elem.debug("Returned " + res);
+	        	// The resource is freed
+	        	if (res.releaseResource()) {
+	        		// The activity managers involved are included in the list
+	        		for (ActivityManager am : res.getCurrentManagers()) {
+	        			amList.add(am);
+	        		}
+	        	}
+	        }
+		}
+		else {
+			final ArrayDeque<Resource> resources = caughtResources.get(resourcesId);
+			if (resources == null) {
+				elem.error("Trying to release group of resources not already created. ID:" + resourcesId);
+				return false;
+			}
+			final int[] toRemove = wg.getNeeded();
+			for (int i = 0; (i < toRemove.length) && !resources.isEmpty(); i++) {
+				for (int j = 0; j < toRemove[i]; j++) {
+			        // Generate unavailability periods.
+			        for (Resource res : resources) {
+			        	final ResourceType currentRT = res.getCurrentResourceType();
+		        		if (wg.getResourceType(i).equals(currentRT)) {
+		        			resources.remove(res);
+		    	        	final long cancellationDuration = relFlow.getResourceCancellation(currentRT);
+		    	        	if (cancellationDuration > 0) {
+		    					final long actualTs = elem.getModel().getSimulationEngine().getTs();
+		    					res.setNotCanceled(false);
+		    					elem.getModel().notifyInfo(new ResourceInfo(elem.getModel(), res, currentRT, ResourceInfo.Type.CANCELON, actualTs));
+		    					res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
+		    				}
+		    				elem.debug("Returned " + res);
+		    	        	// The resource is freed
+		    	        	if (res.releaseResource()) {
+		    	        		// The activity managers involved are included in the list
+		    	        		for (ActivityManager am : res.getCurrentManagers()) {
+		    	        			amList.add(am);
+		    	        		}
+		    	        	}
+		    	        	break;
+		        		}
+					}
+				}
+			}
+		}
         // FIXME: Preparado para hacerlo aleatorio
 //				final int[] order = RandomPermutation.nextPermutation(amList.size());
 //				for (int ind : order) {

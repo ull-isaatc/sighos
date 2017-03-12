@@ -89,7 +89,7 @@ public class CalculateNTrucksExperiment extends Experiment {
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		final Simulation model = new PortModel((example == 0) ? fillTestPlan1() : fillTestPlan2(), ind, DESCRIPTION + " " + ind, PORT_TIME_UNIT, START_TS, END_TS, ind + 1);
+		final Simulation model = new PortModel((example == 0) ? fillTestPlan1() : fillTestPlan2(), ind, DESCRIPTION + " " + ind, PORT_TIME_UNIT, START_TS, END_TS, 4);
 		model.addInfoReceiver(new StdInfoView(model));
 		model.addInfoReceiver(new Sea2YardGeneralListener(model));
 //		model.addInfoReceiver(new ContainerTraceListener(model));

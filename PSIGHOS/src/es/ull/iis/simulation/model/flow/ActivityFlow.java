@@ -241,8 +241,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 			request(wThread);
 		}
 		else {
-			afterFinalize(wThread);
-			next(wThread);
+			super.finish(wThread);
 		}
 		
 	}

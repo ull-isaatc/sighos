@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.ResourceType;
 
 /**
@@ -17,6 +18,8 @@ import es.ull.iis.simulation.model.ResourceType;
 public class ReleaseResourcesFlow extends SingleSuccessorFlow implements ResourceHandlerFlow, FinalizerFlow {
     /** A brief description of the activity */
     protected final String description;
+    /** A workgroup of resources to release */
+    protected final WorkGroup wg;
     /** A unique identifier that sets which resources to release */
 	protected final int resourcesId;
     /** Resources cancellation table */
@@ -27,10 +30,19 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 	 * @param description
 	 */
 	public ReleaseResourcesFlow(Simulation model, String description, int resourcesId) {
+		this(model, description, resourcesId, null);
+	}
+	
+	/**
+	 * @param simul
+	 * @param description
+	 */
+	public ReleaseResourcesFlow(Simulation model, String description, int resourcesId, WorkGroup wg) {
 		super(model);
         this.description = description;
 		this.resourcesId = resourcesId;
 		cancellationList = new TreeMap<ResourceType, Long>();
+		this.wg = wg;
 	}
 	
 	/**
@@ -45,6 +57,13 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 		return description;
 	}
     
+	/**
+	 * @return the wg
+	 */
+	public WorkGroup getWorkGroup() {
+		return wg;
+	}
+
 	/**
 	 * Adds a new ResouceType to the cancellation list.
 	 * @param rt Resource type
@@ -90,7 +109,7 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
      * @return A list of activity managers affected by the released resources
      */
     public boolean releaseResources(FlowExecutor fe) {
-        if (!fe.releaseCaughtResources())
+        if (!fe.releaseCaughtResources(wg))
         	return false;
 		model.notifyInfo(new ElementActionInfo(model, fe, fe.getElement(), this, fe.getExecutionWG(), ElementActionInfo.Type.REL, model.getSimulationEngine().getTs()));
 		if (fe.getElement().isDebugEnabled())

@@ -11,7 +11,6 @@ import es.ull.iis.simulation.info.SimulationStartInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
 /**
  * @author Rosi1
@@ -44,22 +43,20 @@ public class ContainerTraceListener extends Listener {
 			final long ts = eInfo.getTs();
 			switch(eInfo.getType()) {
 			case ACQ:
-				if (eInfo.getActivity() instanceof RequestResourcesFlow) { 
-					if (eInfo.getActivity().getParent() instanceof ActivityUnload) {
-						final int containerId = ((ActivityUnload)eInfo.getActivity().getParent()).getContainerId();
-						System.out.println(ts + "\t" + crane + "\t" + "START UNLOAD\t" + containerId + "[" + printCaughtResources(eInfo.getFlowExecutor().getCaughtResources()) + "]");
-					}
-					else if (act.contains(PortModel.ACT_GET_TO_BAY)) {
-						System.out.println(ts + "\t" + crane + "\t" + "MOVING TO BAY\t" + act.substring(PortModel.ACT_GET_TO_BAY.length()));
-					}
+				if (act.contains(UnloadActivity.FIRST_FLOW_NAME)) {
+					final int containerId = ((UnloadActivity)eInfo.getActivity().getParent()).getContainerId();
+					System.out.println(ts + "\t" + crane + "\t" + "START UNLOAD\t" + containerId + "[" + printCaughtResources(eInfo.getFlowExecutor().getCaughtResources()) + "]");
+				}
+				else if (act.contains(PortModel.ACT_GET_TO_BAY)) {
+					System.out.println(ts + "\t" + crane + "\t" + "MOVING TO BAY\t" + act.substring(PortModel.ACT_GET_TO_BAY.length()));
 				}
 			case END:
 				break;
 			case INTACT:
 				break;
 			case REL:
-				if (eInfo.getActivity().getParent() instanceof ActivityUnload) {
-					final int containerId = ((ActivityUnload)eInfo.getActivity().getParent()).getContainerId();
+				if (eInfo.getActivity().getDescription().contains(UnloadActivity.LAST_FLOW_NAME)) {
+					final int containerId = ((UnloadActivity)eInfo.getActivity().getParent()).getContainerId();
 					System.out.println(ts + "\t" + crane + "\t" + "END UNLOAD\t" + containerId);
 				}
 				else if (act.contains(PortModel.ACT_LEAVE_BAY)) {

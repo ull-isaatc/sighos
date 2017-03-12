@@ -12,17 +12,18 @@ import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
 /**
- * A port model where quay cranes cannot operate when there is another crane OPERATING inside the safety distance
+ * A port model where quay cranes cannot operate when there is another crane inside the safety distance
  * @author Iván Castilla
  *
  */
-public class PortModel extends Simulation {
+public class PortModel2 extends Simulation {
 	protected static final String QUAY_CRANE = "Quay Crane";
 	private static final String TRUCK = "Truck";
 	protected static final String CONTAINER = "Container";
@@ -31,12 +32,10 @@ public class PortModel extends Simulation {
 	protected static final String ACT_GET_TO_BAY = "Get to bay";
 	protected static final String ACT_LEAVE_BAY = "Leave bay";
 	private static final String POSITION = "Position";
-	private static final String OPERATE = "Operate";
 	private final ResourceType[] rtContainers;
 	private final ResourceType rtTrucks;
-	private final UnloadActivity[] actUnloads;
+	private final ActivityFlow[] actUnloads;
 	private final WorkGroup[] wgPositions;
-	private final WorkGroup[] wgOpPositionsSides;
 	private final WorkGroup[] wgContainers;
 	protected static final long T_TRANSPORT = 10L;
 	private static final long T_MOVE = 1L;
@@ -50,7 +49,7 @@ public class PortModel extends Simulation {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public PortModel(StowagePlan plan, int id, String description, TimeUnit unit, long startTs, long endTs, int nTrucks) {
+	public PortModel2(StowagePlan plan, int id, String description, TimeUnit unit, long startTs, long endTs, int nTrucks) {
 		super(id, description, unit, startTs, endTs);
 		this.nTrucks = nTrucks;
 
@@ -63,28 +62,11 @@ public class PortModel extends Simulation {
 		
 		// Creates the "positions" of the cranes in front of the bays and the activities to move among bays 
 		final ResourceType[] rtPositions = new ResourceType[nBays];
-		final ResourceType[] rtOpPositions = new ResourceType[nBays];
 		wgPositions = new WorkGroup[nBays];
-		for (int bayId = 0; bayId < nBays; bayId++) {
-			rtPositions[bayId] = new ResourceType(this, POSITION + bayId);
-			rtPositions[bayId].addGenericResources(1);
-			wgPositions[bayId] = new WorkGroup(this, rtPositions[bayId], 1);
-			rtOpPositions[bayId] = new ResourceType(this, OPERATE + bayId);
-			rtOpPositions[bayId].addGenericResources(1);
-		}
-		wgOpPositionsSides = new WorkGroup[nBays];
-		for (int bayId = 0; bayId < nBays; bayId++) {
-			final ResourceType rtSidePositions[] = new ResourceType[Math.min(bayId, safetyDistance) + Math.min(nBays - bayId - 1, safetyDistance)];
-			int rtIndex = 0;
-			for (int bayId2 = Math.max(bayId - safetyDistance, 0); bayId2 < bayId; bayId2++) {
-				rtSidePositions[rtIndex++] = rtOpPositions[bayId2]; 
-			}
-			for (int bayId2 = bayId + 1; bayId2 < Math.min(nBays, bayId + safetyDistance + 1); bayId2++) {
-				rtSidePositions[rtIndex++] = rtOpPositions[bayId2]; 
-			}
-			final int[] needed = new int[rtSidePositions.length];
-			Arrays.fill(needed, 1);
-			wgOpPositionsSides[bayId] = new WorkGroup(this, rtSidePositions, needed);
+		for (int i = 0; i < nBays; i++) {
+			rtPositions[i] = new ResourceType(this, POSITION + i);
+			rtPositions[i].addGenericResources(1);
+			wgPositions[i] = new WorkGroup(this, rtPositions[i], 1);
 		}
 		
 		// Creates the rest of resources
@@ -96,12 +78,15 @@ public class PortModel extends Simulation {
 		for (int containerId = 0; containerId < nContainers; containerId++) {
 			rtContainers[containerId] = new ResourceType(this, CONTAINER + containerId);
 			final int containerBay = ship.getContainerBay(containerId);
-			final ResourceType rtUnload[] = new ResourceType[3 + Math.min(containerBay, safetyDistance) + Math.min(nBays - containerBay - 1, safetyDistance)];
+			final ResourceType rtUnload[] = new ResourceType[2 + Math.min(containerBay, safetyDistance) + Math.min(nBays - containerBay - 1, safetyDistance)];
 			rtUnload[0] = rtTrucks;
 			rtUnload[1] = rtContainers[containerId];
 			int rtIndex = 2;
-			for (int bayId = Math.max(containerBay - safetyDistance, 0); bayId < Math.min(nBays, containerBay + safetyDistance + 1); bayId++) {
-				rtUnload[rtIndex++] = rtOpPositions[bayId]; 
+			for (int bayId = Math.max(containerBay - safetyDistance, 0); bayId < containerBay; bayId++) {
+				rtUnload[rtIndex++] = rtPositions[bayId]; 
+			}
+			for (int bayId = containerBay + 1; bayId < Math.min(nBays, containerBay + safetyDistance + 1); bayId++) {
+				rtUnload[rtIndex++] = rtPositions[bayId]; 
 			}
 			final int[] needed = new int[rtUnload.length];
 			Arrays.fill(needed, 1);
@@ -109,7 +94,7 @@ public class PortModel extends Simulation {
 		}
 		
 		// Set the containers which are available from the beginning and creates the activities
-		actUnloads = new UnloadActivity[nContainers];
+		actUnloads = new ActivityFlow[nContainers];
 		for (int bayId = 0; bayId < nBays; bayId++) {
 			final ArrayList<Integer> bay = ship.getBay(bayId);
 			if (!bay.isEmpty()) {
@@ -121,11 +106,11 @@ public class PortModel extends Simulation {
 				for (int i = bay.size() - 1; i > 0; i--) {
 					containerId1 = bay.get(i);
 					final int containerId2 = bay.get(i-1);
-					actUnloads[containerId1] = new UnloadActivity(this, containerId1, containerId2);
+					actUnloads[containerId1] = new ActivityUnload(this, containerId1, ship.getContainerProcessingTime(containerId1), containerId2);
 				}
 				// Creates the activity corresponding to the bottom container
 				containerId1 = bay.get(0);
-				actUnloads[containerId1] = new UnloadActivity(this, containerId1);
+				actUnloads[containerId1] = new ActivityUnload(this, containerId1, ship.getContainerProcessingTime(containerId1));
 			}
 		}
 		
@@ -164,13 +149,6 @@ public class PortModel extends Simulation {
 	 */
 	public ResourceType getTruckResourceType() {
 		return rtTrucks;
-	}
-
-	/**
-	 * @return the wgOpPositionsSides
-	 */
-	public WorkGroup getWgOpPositionsSides(int bayId) {
-		return wgOpPositionsSides[bayId];
 	}
 
 	private InitializerFlow createFlowFromPlan(StowagePlan plan, Ship ship, int craneId) {

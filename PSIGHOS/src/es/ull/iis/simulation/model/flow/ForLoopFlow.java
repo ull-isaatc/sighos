@@ -107,8 +107,7 @@ public class ForLoopFlow extends StructuredLoopFlow {
 		}
 		else {
 			checkList.remove(wThread);
-			afterFinalize(wThread);
-			next(wThread);
+			super.finish(wThread);
 		}
 	}
 

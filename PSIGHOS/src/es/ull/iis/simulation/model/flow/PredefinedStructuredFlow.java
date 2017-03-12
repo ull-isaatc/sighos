@@ -5,7 +5,6 @@ package es.ull.iis.simulation.model.flow;
 
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Simulation;
 
 
@@ -46,12 +45,4 @@ public abstract class PredefinedStructuredFlow extends StructuredFlow {
 		addBranch(branch, branch);		
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.FlowExecutor)
-	 */
-	public void finish(FlowExecutor wThread) {
-		afterFinalize(wThread);
-		next(wThread);
-	}
 }
