@@ -8,11 +8,9 @@ import es.ull.iis.simulation.model.Simulation;
 public abstract class InfoReceiver {
 
 	private final ArrayList<Class<?>> entrance = new ArrayList<Class<?>>();
-	protected final Simulation model;
 	private final String description;
 	
-	public InfoReceiver (Simulation model, String description) {
-		this.model = model;
+	public InfoReceiver (String description) {
 		this.description = description;
 	}
 	
@@ -28,10 +26,6 @@ public abstract class InfoReceiver {
 
 	public ArrayList<Class<?>> getEntrance() {
 		return entrance;
-	}
-
-	public Simulation getModel() {
-		return model;
 	}
 
     public boolean isDebugMode() {

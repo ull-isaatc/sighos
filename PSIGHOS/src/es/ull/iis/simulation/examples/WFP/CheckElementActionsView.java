@@ -10,7 +10,6 @@ import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
-import es.ull.iis.simulation.model.Simulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -22,12 +21,12 @@ public abstract class CheckElementActionsView extends WFPTestView {
 	protected TreeMap<Long, ElementReferenceInfos[]> refEndActs;
 	private boolean ok = true;
 
-	public CheckElementActionsView(Simulation model, String description) {
-		this(model, description, true);
+	public CheckElementActionsView(String description) {
+		this(description, true);
 	}
 
-	public CheckElementActionsView(Simulation model, String description, boolean detailed) {
-		super(model, description, detailed);
+	public CheckElementActionsView(String description, boolean detailed) {
+		super(description, detailed);
 		refRequests = new TreeMap<Long, ElementReferenceInfos[]>();
 		refStartActs = new TreeMap<Long, ElementReferenceInfos[]>();
 		refEndActs = new TreeMap<Long, ElementReferenceInfos[]>();
@@ -77,18 +76,18 @@ public abstract class CheckElementActionsView extends WFPTestView {
 		}
 		else if (info instanceof SimulationStartInfo) {
 			System.out.println("--------------------------------------------------");
-			System.out.println("Checking " + getModel().getDescription());
+			System.out.println("Checking " + info.getModel().getDescription());
 		}
 		else if (info instanceof SimulationEndInfo) {
 			System.out.println();
-			checkMissed(refRequests, "REQUEST ACTIVITY");
-			checkMissed(refStartActs, "START ACTIVITY");
-			checkMissed(refEndActs, "END ACTIVITY");
+			checkMissed(info, refRequests, "REQUEST ACTIVITY");
+			checkMissed(info, refStartActs, "START ACTIVITY");
+			checkMissed(info, refEndActs, "END ACTIVITY");
 			notifyResult(ok);
 		}
 	}
 
-	private void checkMissed(TreeMap<Long, ElementReferenceInfos[]> references, String type) {
+	private void checkMissed(SimulationInfo info, TreeMap<Long, ElementReferenceInfos[]> references, String type) {
 		for (long ts : references.keySet()) {
 			ElementReferenceInfos[] ref = references.get(ts);
 			for (int i = 0; i < ref.length; i++) {
@@ -96,7 +95,7 @@ public abstract class CheckElementActionsView extends WFPTestView {
 					for (int actId : ref[i].getActivities())
 						if (!ref[i].finalCheck(actId)) {
 							if (detailed)
-								System.out.println(getModel().long2SimulationTime(ts) + "\t" + "[E" + i + "]\t" + type + " " + actId + "\tERROR!!: Event missed");
+								System.out.println(info.getModel().long2SimulationTime(ts) + "\t" + "[E" + i + "]\t" + type + " " + actId + "\tERROR!!: Event missed");
 							ok = false;
 						}
 				}

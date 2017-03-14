@@ -8,10 +8,9 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationStartInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.Element;
-import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * @author Rosi1
@@ -19,12 +18,17 @@ import es.ull.iis.simulation.model.Simulation;
  */
 public class Sea2YardGeneralListener extends Listener {
 	private final TreeMap<Element, Long[]> tUnload;
+	private final int experiment;
+	private final StowagePlan plan;
+	private final TimeUnit unit;
 
-	public Sea2YardGeneralListener(Simulation model) {
-		super(model, "Time container");
+	public Sea2YardGeneralListener(StowagePlan plan, int experiment, TimeUnit unit) {
+		super("Time container");
 		tUnload = new TreeMap<Element, Long[]>();
+		this.experiment = experiment;
+		this.plan = plan;
+		this.unit = unit;
 		addEntrance(ElementInfo.class);
-		addEntrance(SimulationStartInfo.class);
 		addEntrance(SimulationEndInfo.class);
 	}
 
@@ -47,28 +51,33 @@ public class Sea2YardGeneralListener extends Listener {
 			}
 			
 		}
-		else if (info instanceof SimulationStartInfo) {
-			System.out.println("Ship: ");
-			System.out.println(((PortModel)info.getModel()).getPlan().getShip());
-			System.out.println();
-			System.out.println("Stowage plan:");
-			System.out.println(((PortModel)info.getModel()).getPlan());
-		}
 		else if (info instanceof SimulationEndInfo) {
-			System.out.println();
-			System.out.println("CRANE\tT1\tT2\tDiff");
+			if (experiment == 0) {
+				System.out.print("EXP\tMAX");
+				for (int i = 1; i <= plan.getNCranes(); i++) {
+					System.out.print("\tCRANE " + i);
+				}
+				System.out.println();
+			}
+			System.out.print("" + experiment);
 			long maxTs = 0L;
+			long []ts = new long[plan.getNCranes()];
 			for (Element containerId : tUnload.keySet()) {
 				if (tUnload.get(containerId)[1] == -1) {
-					System.out.println(containerId.getIdentifier() + "\t" + tUnload.get(containerId)[0] + "\tNO END\t" + (((SimulationEndInfo) info).getTs() - tUnload.get(containerId)[0]));
+					ts[containerId.getIdentifier()] = -1;
 					maxTs = ((SimulationEndInfo) info).getTs();
 				}
 				else {
-					System.out.println(containerId.getIdentifier() + "\t" + tUnload.get(containerId)[0] + "\t" + tUnload.get(containerId)[1] + "\t" + (tUnload.get(containerId)[1] - tUnload.get(containerId)[0]));
-					maxTs = Math.max(maxTs, tUnload.get(containerId)[1]);
+					ts[containerId.getIdentifier()] = tUnload.get(containerId)[1] - tUnload.get(containerId)[0];
+					maxTs = Math.max(maxTs, ts[containerId.getIdentifier()]);
 				}
 			}
-			System.out.println("MAX\t\t\t" + maxTs);
+			final TimeUnit modelUnit = info.getModel().getTimeUnit();
+			System.out.print("\t" + unit.convert(maxTs, modelUnit));
+			for (int i = 0; i < plan.getNCranes(); i++) {
+				System.out.print("\t" + unit.convert(ts[i], modelUnit));
+			}
+			System.out.println();
 		}
 	}
 

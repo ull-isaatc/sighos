@@ -11,7 +11,6 @@ import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
-import es.ull.iis.simulation.model.Simulation;
 
 /**
  * @author Rosi1
@@ -20,9 +19,11 @@ import es.ull.iis.simulation.model.Simulation;
 public class ContainerTimeLineListener extends Listener {
 	private final TreeMap<Integer, Integer[]> tUnloadContainer;
 	private long maxTs;
+	private final StowagePlan plan;
 
-	public ContainerTimeLineListener(Simulation model) {
-		super(model, "Time container");
+	public ContainerTimeLineListener(StowagePlan plan) {
+		super("Time container");
+		this.plan = plan;
 		tUnloadContainer = new TreeMap<Integer, Integer[]>();
 		maxTs = 0;
 		addEntrance(ElementInfo.class);
@@ -30,7 +31,7 @@ public class ContainerTimeLineListener extends Listener {
 		addEntrance(SimulationEndInfo.class);
 	}
 
-	private String printPlan(int maxTs, StowagePlan plan) {
+	private String printPlan(int maxTs) {
 		final Ship ship = plan.getShip();
 		final int[][] timeline = new int[ship.getNBays()][maxTs];
 		for (int bayId = 0; bayId < ship.getNBays(); bayId++) {
@@ -87,7 +88,7 @@ public class ContainerTimeLineListener extends Listener {
 			}
 		}
 		else if (info instanceof SimulationEndInfo) {
-			System.out.println(printPlan((int)maxTs, ((PortModel)model).getPlan()));
+			System.out.println(printPlan((int)maxTs));
 		}
 	}
 

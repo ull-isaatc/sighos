@@ -70,7 +70,7 @@ class WFPTestExperiment extends Experiment {
 			model = class2Model(WFPTest.simulations.pollFirstEntry().getValue(), ind);
 		}
 //        sim.addInfoReceiver(new CheckElementActionViewBuilder(sim));
-		model.addInfoReceiver(new StdInfoView(model));
+		model.addInfoReceiver(new StdInfoView());
 		// FIXME: Fix when implementing parallel
 //		model.setNThreads(nThreads);
 		return model;

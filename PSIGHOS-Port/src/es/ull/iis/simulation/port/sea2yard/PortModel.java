@@ -16,6 +16,8 @@ import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import simkit.random.RandomNumber;
+import simkit.random.RandomNumberFactory;
 
 /**
  * A port model where quay cranes cannot operate when there is another crane OPERATING inside the safety distance
@@ -23,6 +25,9 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
  *
  */
 public class PortModel extends Simulation {
+	private static final TimeUnit PORT_TIME_UNIT = TimeUnit.SECOND;
+	private static final long START_TS = 0;
+	private static final long END_TS = 24 * 60 * 60;
 	protected static final String QUAY_CRANE = "Quay Crane";
 	private static final String TRUCK = "Truck";
 	protected static final String CONTAINER = "Container";
@@ -38,11 +43,13 @@ public class PortModel extends Simulation {
 	private final WorkGroup[] wgPositions;
 	private final WorkGroup[] wgOpPositionsSides;
 	private final WorkGroup[] wgContainers;
-	protected static final long T_TRANSPORT = 10L;
-	private static final long T_MOVE = 1L;
+	protected static final long T_TRANSPORT = 10L * 60;
+	private static final long T_MOVE = 1L * 60;
 	private final StowagePlan plan;
 	private final int nTrucks;
-	
+	private final double pError;
+	private static final RandomNumber rng = RandomNumberFactory.getInstance();
+
 	/**
 	 * @param id
 	 * @param description
@@ -50,10 +57,11 @@ public class PortModel extends Simulation {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public PortModel(StowagePlan plan, int id, String description, TimeUnit unit, long startTs, long endTs, int nTrucks) {
-		super(id, description, unit, startTs, endTs);
+	public PortModel(StowagePlan plan, int id, String description, int nTrucks, double pError) {
+		super(id, description, PORT_TIME_UNIT, START_TS, END_TS);
 		this.nTrucks = nTrucks;
-
+		this.pError = pError;
+		
 		this.plan = plan;
 		final Ship ship = plan.getShip();
 		final int nBays = ship.getNBays();
@@ -139,7 +147,7 @@ public class PortModel extends Simulation {
 	
 	private RequestResourcesFlow getGetToBayFlow(int id) {
 		final RequestResourcesFlow reqBay = new RequestResourcesFlow(this, ACT_GET_TO_BAY + id, id+1);
-		reqBay.addWorkGroup(0, wgPositions[id], T_MOVE);		
+		reqBay.addWorkGroup(0, wgPositions[id], getTimeWithError(T_MOVE));		
 		return reqBay;
 	}
 	
@@ -231,5 +239,15 @@ public class PortModel extends Simulation {
 	 */
 	public int getNTrucks() {
 		return nTrucks;
+	}
+	
+	public long getTimeWithError(long constantTime) {
+		if (pError == 0) {
+			return constantTime;
+		}
+		else {
+			double rnd = (rng.draw() - 0.5) * 2.0;
+			return (long)(constantTime * (1 + rnd * pError));
+		}
 	}
 }

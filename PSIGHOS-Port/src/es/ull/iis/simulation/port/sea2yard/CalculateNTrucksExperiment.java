@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.port.sea2yard;
 
+import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
@@ -18,16 +19,19 @@ import es.ull.iis.simulation.model.TimeUnit;
  */
 public class CalculateNTrucksExperiment extends Experiment {
 	final private static String DESCRIPTION = "Port Simulation";
-	private static final int NSIM = 1;
-	private static final TimeUnit PORT_TIME_UNIT = TimeUnit.MINUTE;
-	private static final long START_TS = 0;
-	private static final long END_TS = 24 * 60;
+	private static final int NEXP = 5;
+	private static final double P_ERROR = 0.5; 
+	private static final int NSIM = (P_ERROR == 0.0) ? 1 : 100;
 	private static final int EXAMPLE = 0; 
-	private final int example; 
+	private final StowagePlan plan; 
+	private int nTrucks;
+	private final Listener[] experimentListeners;
 
-	public CalculateNTrucksExperiment(int example) {
-		super("PORTS", NSIM);
-		this.example = example;
+	public CalculateNTrucksExperiment(StowagePlan plan) {
+		super("PORTS", NEXP * NSIM);
+		this.plan = plan;
+		experimentListeners = new Listener[NEXP * NSIM];
+		nTrucks = 0;
 	}
 	
 	/**
@@ -42,14 +46,14 @@ public class CalculateNTrucksExperiment extends Experiment {
 	 * - Crane 1 unloads 3, 4, 6, 8, 9
 	 * @return A stowage plane for two cranes
 	 */
-	StowagePlan fillTestPlan1() {
-		final Ship ship = new Ship(10);
+	static StowagePlan fillTestPlan1() {
+		final Ship ship = new Ship(10, TimeUnit.MINUTE);
 		ship.push(2, 1, 6);
 		ship.push(1, 1, 18);
 		ship.push(0, 1, 14);
 		ship.push(3, 3, 10);
-		ship.push(5, 4, 17);
-		ship.push(4, 4, 21);
+		ship.push(5, 4, 21);
+		ship.push(4, 4, 17);
 		ship.push(6, 6, 10);
 		ship.push(7, 7, 9);
 		ship.push(9, 8, 19);
@@ -62,8 +66,8 @@ public class CalculateNTrucksExperiment extends Experiment {
 		return plan;
 	}
 
-	StowagePlan fillTestPlan2() {
-		final Ship ship = new Ship(16);
+	static StowagePlan fillTestPlan2() {
+		final Ship ship = new Ship(16, TimeUnit.MINUTE);
 		ship.push(0, 1, 33);
 		ship.push(1, 2, 2);
 		ship.push(3, 4, 59);
@@ -89,16 +93,25 @@ public class CalculateNTrucksExperiment extends Experiment {
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		final Simulation model = new PortModel((example == 0) ? fillTestPlan1() : fillTestPlan2(), ind, DESCRIPTION + " " + ind, PORT_TIME_UNIT, START_TS, END_TS, 4);
-		model.addInfoReceiver(new StdInfoView(model));
-		model.addInfoReceiver(new Sea2YardGeneralListener(model));
-//		model.addInfoReceiver(new ContainerTraceListener(model));
-		model.addInfoReceiver(new ContainerTimeLineListener(model));
+		if (ind % NSIM == 0)
+			nTrucks++;
+		final Simulation model = new PortModel(plan, ind, DESCRIPTION + " " + ind, nTrucks, P_ERROR);
+		experimentListeners[ind] = new Sea2YardGeneralListener(plan, ind, TimeUnit.MINUTE);
+//		model.addInfoReceiver(new StdInfoView());
+		model.addInfoReceiver(experimentListeners[ind]);
+//		model.addInfoReceiver(new ContainerTraceListener(model.getTimeUnit()));
+//		model.addInfoReceiver(new ContainerTimeLineListener(plan));
 		return model;
 	}
 
 	public static void main(String[] args) {
-		new CalculateNTrucksExperiment(EXAMPLE).start();
+		final StowagePlan plan = (EXAMPLE == 0) ? fillTestPlan1() : fillTestPlan2();
+		System.out.println("Ship: ");
+		System.out.println(plan.getShip());
+		System.out.println();
+		System.out.println("Stowage plan:");
+		System.out.println(plan);
+		new CalculateNTrucksExperiment(plan).start();
 	}
 
 }

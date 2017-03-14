@@ -43,14 +43,15 @@ public abstract class Experiment implements Describable {
 	public void start() {
 		for (int i = 0; i < nExperiments; i++) {
 			getSimulation(i).run();
-		}		
+		}
+		end();
 	}
 
 	/**
 	 * Makes the postprocess of the experiments. The user should place here the actions that must be
 	 * performed when all the experiments have finished: close files, DB access...
 	 */
-	protected void end() {		
+	protected void end() {	
 	}
 
 	/*

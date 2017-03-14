@@ -6,6 +6,8 @@ package es.ull.iis.simulation.port.sea2yard;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.model.TimeUnit;
+
 /**
  * @author Iván Castilla
  *
@@ -15,19 +17,21 @@ public class Ship {
 	final private ArrayList<Integer>[] bays;
 	final private TreeMap<Integer, Integer> bayPosition;
 	final private TreeMap<Integer, Integer> processingTime;
+	final private TimeUnit unit;
 	private int maxDeep;
 	
 	/**
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	public Ship(int nBays) {
+	public Ship(int nBays, TimeUnit unit) {
 		bays = (ArrayList<Integer>[]) new ArrayList<?>[nBays];
 		bayPosition = new TreeMap<Integer, Integer>();
 		processingTime = new TreeMap<Integer, Integer>();
 		for (int i = 0; i < nBays; i++)
 			bays[i] = new ArrayList<Integer>();
 		maxDeep = 0;
+		this.unit = unit;
 	}
 
 	/**
@@ -94,6 +98,13 @@ public class Ship {
 		return processingTime.get(containerId);
 	}
 	
+	/**
+	 * @return the unit
+	 */
+	public TimeUnit getUnit() {
+		return unit;
+	}
+
 	private String printContainerId(int contId) {
 		if (contId < 10)
 			return "    " + contId + "   ";

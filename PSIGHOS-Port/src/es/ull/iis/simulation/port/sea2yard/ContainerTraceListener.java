@@ -10,16 +10,18 @@ import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.Resource;
-import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * @author Rosi1
  *
  */
 public class ContainerTraceListener extends Listener {
+	final private TimeUnit unit;
 
-	public ContainerTraceListener(Simulation model) {
-		super(model, "Time container");
+	public ContainerTraceListener(TimeUnit unit) {
+		super("Time container");
+		this.unit = unit;
 		addEntrance(ElementActionInfo.class);
 		addEntrance(SimulationStartInfo.class);
 	}
@@ -40,7 +42,7 @@ public class ContainerTraceListener extends Listener {
 			final ElementActionInfo eInfo = (ElementActionInfo) info;
 			final String crane = eInfo.getElement().getType().getDescription();
 			final String act = eInfo.getActivity().getDescription();
-			final long ts = eInfo.getTs();
+			final long ts = unit.convert(eInfo.getTs(), eInfo.getModel().getTimeUnit());
 			switch(eInfo.getType()) {
 			case ACQ:
 				if (act.contains(UnloadActivity.FIRST_FLOW_NAME)) {

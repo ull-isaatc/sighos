@@ -7,7 +7,6 @@ import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.View;
-import es.ull.iis.simulation.model.Simulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -18,8 +17,8 @@ public class CheckResourcesListener extends View {
 	private int[] resCreated;
 	private int[] resFinished;
 
-	public CheckResourcesListener(Simulation model, int []resources) {
-		super(model, "Element checker");
+	public CheckResourcesListener(int []resources) {
+		super("Element checker");
 		this.resources = resources;
 		resCreated = new int[resources.length];
 		resFinished = new int[resources.length];
@@ -48,7 +47,7 @@ public class CheckResourcesListener extends View {
 			System.out.println("--------------------------------------------------");
 			System.out.println("Checking elements...");
 			for (int i = 0; i < resources.length; i++) {
-				System.out.print(getModel().getElementTypeList().get(i) + " (" + resources[i] + ")\t");
+				System.out.print(info.getModel().getElementTypeList().get(i) + " (" + resources[i] + ")\t");
 				System.out.print(resCreated[i] + "\t" + resFinished[i] + "\t");				
 				if ((resCreated[i] & resFinished[i]) == resources[i])
 					System.out.println("PASSED");
