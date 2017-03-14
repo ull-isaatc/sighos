@@ -21,9 +21,14 @@ public class Sea2YardGeneralListener extends Listener {
 	private final int experiment;
 	private final StowagePlan plan;
 	private final TimeUnit unit;
+	private boolean printSeeds;
 
 	public Sea2YardGeneralListener(StowagePlan plan, int experiment, TimeUnit unit) {
+		this(plan, experiment, unit, false);
+	}
+	public Sea2YardGeneralListener(StowagePlan plan, int experiment, TimeUnit unit, boolean printSeeds) {
 		super("Time container");
+		this.printSeeds = printSeeds;
 		tUnload = new TreeMap<Element, Long[]>();
 		this.experiment = experiment;
 		this.plan = plan;
@@ -53,11 +58,11 @@ public class Sea2YardGeneralListener extends Listener {
 		}
 		else if (info instanceof SimulationEndInfo) {
 			if (experiment == 0) {
-				System.out.print("EXP\tMAX");
+				System.out.print("EXP\tTRUCKS\tMAX");
 				for (int i = 1; i <= plan.getNCranes(); i++) {
 					System.out.print("\tCRANE " + i);
 				}
-				System.out.println();
+				System.out.println(printSeeds ? "\tSEED" : "");
 			}
 			System.out.print("" + experiment);
 			long maxTs = 0L;
@@ -73,11 +78,11 @@ public class Sea2YardGeneralListener extends Listener {
 				}
 			}
 			final TimeUnit modelUnit = info.getModel().getTimeUnit();
-			System.out.print("\t" + unit.convert(maxTs, modelUnit));
+			System.out.print("\t" + ((PortModel)info.getModel()).getNTrucks() + "\t" + unit.convert(maxTs, modelUnit));
 			for (int i = 0; i < plan.getNCranes(); i++) {
 				System.out.print("\t" + unit.convert(ts[i], modelUnit));
 			}
-			System.out.println();
+			System.out.println(printSeeds ? ("\t" + ((PortModel)info.getModel()).getCurrentSeed()) : "");
 		}
 	}
 

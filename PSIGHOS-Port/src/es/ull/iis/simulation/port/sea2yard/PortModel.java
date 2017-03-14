@@ -49,7 +49,11 @@ public class PortModel extends Simulation {
 	private final int nTrucks;
 	private final double pError;
 	private static final RandomNumber rng = RandomNumberFactory.getInstance();
+	private final long currentSeed;
 
+	public PortModel(StowagePlan plan, int id, String description, int nTrucks, double pError) {
+		this(plan, id, description, nTrucks, pError, rng.getSeed());
+	}
 	/**
 	 * @param id
 	 * @param description
@@ -57,11 +61,12 @@ public class PortModel extends Simulation {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public PortModel(StowagePlan plan, int id, String description, int nTrucks, double pError) {
+	public PortModel(StowagePlan plan, int id, String description, int nTrucks, double pError, long seed) {
 		super(id, description, PORT_TIME_UNIT, START_TS, END_TS);
+		currentSeed = seed;
+		rng.setSeed(seed);
 		this.nTrucks = nTrucks;
 		this.pError = pError;
-		
 		this.plan = plan;
 		final Ship ship = plan.getShip();
 		final int nBays = ship.getNBays();
@@ -249,5 +254,9 @@ public class PortModel extends Simulation {
 			double rnd = (rng.draw() - 0.5) * 2.0;
 			return (long)(constantTime * (1 + rnd * pError));
 		}
+	}
+	
+	public long getCurrentSeed() {
+		return currentSeed;
 	}
 }

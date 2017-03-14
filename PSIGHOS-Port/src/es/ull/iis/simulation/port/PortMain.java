@@ -36,8 +36,8 @@ public class PortMain extends Experiment {
 	@Override
 	public Simulation getSimulation(int ind) {
 		final Simulation model = new PortModel(ind, DESCRIPTION + " " + ind, PORT_TIME_UNIT, START_TS, END_TS);
-		model.addInfoReceiver(new StdInfoView(model));
-		model.addInfoReceiver(new ContainerTimeListener(model));
+		model.addInfoReceiver(new StdInfoView());
+		model.addInfoReceiver(new ContainerTimeListener());
 		return model;
 	}
 }

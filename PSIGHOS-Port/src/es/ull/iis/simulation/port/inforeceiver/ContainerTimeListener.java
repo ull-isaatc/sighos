@@ -9,7 +9,6 @@ import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
-import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.port.PortModel;
 
 /**
@@ -19,8 +18,8 @@ import es.ull.iis.simulation.port.PortModel;
 public class ContainerTimeListener extends Listener {
 	private final TreeMap<Integer, Long[]> tContainer;
 
-	public ContainerTimeListener(Simulation model) {
-		super(model, "Time container");
+	public ContainerTimeListener() {
+		super("Time container");
 		tContainer = new TreeMap<Integer, Long[]>();
 		addEntrance(ElementActionInfo.class);
 		addEntrance(SimulationEndInfo.class);

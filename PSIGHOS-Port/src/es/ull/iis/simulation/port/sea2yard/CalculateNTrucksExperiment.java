@@ -3,11 +3,15 @@
  */
 package es.ull.iis.simulation.port.sea2yard;
 
+import java.util.Random;
+
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
+import simkit.random.RandomNumber;
+import simkit.random.RandomNumberFactory;
 
 /**
  * The main simulation class for a port. A port is divided into three areas: sea, yard and earth. Ships arrive at a 
@@ -20,9 +24,9 @@ import es.ull.iis.simulation.model.TimeUnit;
 public class CalculateNTrucksExperiment extends Experiment {
 	final private static String DESCRIPTION = "Port Simulation";
 	private static final int NEXP = 5;
-	private static final double P_ERROR = 0.5; 
+	private static final double P_ERROR = 0.2; 
 	private static final int NSIM = (P_ERROR == 0.0) ? 1 : 100;
-	private static final int EXAMPLE = 0; 
+	private static final int EXAMPLE = 1; 
 	private final StowagePlan plan; 
 	private int nTrucks;
 	private final Listener[] experimentListeners;
@@ -112,6 +116,27 @@ public class CalculateNTrucksExperiment extends Experiment {
 		System.out.println("Stowage plan:");
 		System.out.println(plan);
 		new CalculateNTrucksExperiment(plan).start();
+
+//		Simulation model = new PortModel(plan, 0, DESCRIPTION + " " + 0, 5, P_ERROR, -792807212L); // 288 - 309
+//		Simulation model = new PortModel(plan, 0, DESCRIPTION + " " + 0, 5, P_ERROR, 1601344126L);// 297 - 308
+//		model.addInfoReceiver(new Sea2YardGeneralListener(plan, 0, TimeUnit.MINUTE));
+//		model.start();
+//		
+//		RandomNumber rng = RandomNumberFactory.getInstance();
+//		long seed = rng.getSeed();
+//		rng.setSeed(seed);
+//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
+//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
+//		rng = RandomNumberFactory.getInstance();
+//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
+//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
+//		rng.setSeed(seed);
+//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
+//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
+//		rng = RandomNumberFactory.getInstance(seed);
+//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
+//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
+				
 	}
 
 }
