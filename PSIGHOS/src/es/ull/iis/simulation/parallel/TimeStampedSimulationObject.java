@@ -15,15 +15,15 @@ public abstract class TimeStampedSimulationObject extends VariableStoreSimulatio
 	 * Creates a new simulation object with an identifier and having knowledge of the 
 	 * simulation time 
 	 * @param id Object's identifier
-	 * @param simul Simulation this object belongs to
+	 * @param simul ParallelSimulationEngine this object belongs to
 	 */
-	public TimeStampedSimulationObject(int id, Simulation simul) {
+	public TimeStampedSimulationObject(int id, ParallelSimulationEngine simul) {
 		super(id, simul);
 	}
 
 	/**
 	 * Returns the simulation timestamp of this object.
-	 * @return Simulation timestamp of the object.
+	 * @return ParallelSimulationEngine timestamp of the object.
 	 */
 	public abstract long getTs();
 

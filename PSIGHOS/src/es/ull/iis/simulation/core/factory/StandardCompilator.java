@@ -183,7 +183,7 @@ public class StandardCompilator {
 	 * @param workingPkg The working package of the instanced class
 	 * @param objectType The simple name of the class
 	 * @param id A unique identifier for this instance among the other class instances 
-	 * @param constructorStr How the constructor is defined, starting with the parameters, e.g. "(Simulation simul){super(simul);}" 
+	 * @param constructorStr How the constructor is defined, starting with the parameters, e.g. "(ParallelSimulationEngine simul){super(simul);}" 
 	 * @param userMethods User code and imports to be included in the new instance
 	 * @param initargs Arguments passed to the constructor when creating the instance 
 	 * @return An instance of a simulation object

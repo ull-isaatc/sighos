@@ -30,6 +30,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
     protected final ArrayList<TimeTableEntry> cancelPeriodTable = new ArrayList<TimeTableEntry>();
     /** If true, indicates that this resource is being used after its availability time has expired */
     private boolean timeOut = false;
+    /** The engine in charge of executing specific actions */
     private ResourceEngine engine;
 
 	/**
@@ -86,7 +87,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 	
     /**
 	 * Adds a timetable entry
-	 * @param cycle Simulation cycle to define activation time
+	 * @param cycle ParallelSimulationEngine cycle to define activation time
 	 * @param dur How long the resource is active
 	 * @param role The type of this resource during every activation 
 	 */
@@ -96,7 +97,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
     
 	/**
 	 * Adds a timetable entry with overlapped resource types
-	 * @param cycle Simulation cycle to define activation time
+	 * @param cycle ParallelSimulationEngine cycle to define activation time
 	 * @param dur How long the resource is active
 	 * @param roleList The types of this resource during every activation 
 	 */
@@ -107,7 +108,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
     
 	/**
 	 * Adds a timetable entry
-	 * @param cycle Simulation cycle to define activation time
+	 * @param cycle ParallelSimulationEngine cycle to define activation time
 	 * @param dur How long the resource is active using the default model time unit
 	 * @param role The type of this resource during every activation 
 	 */
@@ -117,7 +118,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
     
 	/**
 	 * Adds a timetable entry with overlapped resource types
-	 * @param cycle Simulation cycle to define activation time
+	 * @param cycle ParallelSimulationEngine cycle to define activation time
 	 * @param dur How long the resource is active using the default model time unit
 	 * @param roleList The types of this resource during every activation 
 	 */
@@ -277,6 +278,11 @@ public class Resource extends VariableStoreModelObject implements Describable, E
         model.getSimulationEngine().addEvent(aEvent);
     }
     
+    /**
+     * The event in charge of initializing the resource
+     * @author Iván Castilla Rodríguez
+     *
+     */
     public class CreateResourceEvent extends DiscreteEvent {
 
     	public CreateResourceEvent(long ts) {
@@ -295,7 +301,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 				}
 				else {
 			        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), model.getEndTs());
-			        long nextTs = iter.next();
+			        final long nextTs = iter.next();
 			        if (nextTs != -1) {
 			            RoleOnEvent rEvent = new RoleOnEvent(nextTs, tte.getRole(), iter, model.simulationTime2Long(tte.getDuration()));
 			            model.getSimulationEngine().addEvent(rEvent);
@@ -304,11 +310,11 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 				}
 			}
 			for (int i = 0 ; i < cancelPeriodTable.size(); i++) {
-				TimeTableEntry tte = cancelPeriodTable.get(i);
-		        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), model.getEndTs());
+				final TimeTableEntry tte = cancelPeriodTable.get(i);
+		        final DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), model.getEndTs());
 		        long nextTs = iter.next();
 		        if (nextTs != -1) {
-		            CancelPeriodOnEvent aEvent = new CancelPeriodOnEvent(nextTs, iter, model.simulationTime2Long(tte.getDuration()));
+		            final CancelPeriodOnEvent aEvent = new CancelPeriodOnEvent(nextTs, iter, model.simulationTime2Long(tte.getDuration()));
 		            model.getSimulationEngine().addEvent(aEvent);
 		            engine.incValidTimeTableEntries();
 		        }

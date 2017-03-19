@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.parallel.flow;
 
 import es.ull.iis.simulation.parallel.Element;
-import es.ull.iis.simulation.parallel.Simulation;
+import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
 import es.ull.iis.simulation.parallel.FlowExecutor;
 
 
@@ -22,10 +22,10 @@ public class ThreadMergeFlow extends ANDJoinFlow implements es.ull.iis.simulatio
 	
 	/**
 	 * Creates a new thread merge flow
-	 * @param simul Simulation this flow belongs to
+	 * @param simul ParallelSimulationEngine this flow belongs to
 	 * @param nInstances Number of threads this flow waits for merging
 	 */
-	public ThreadMergeFlow(Simulation simul, int nInstances) {
+	public ThreadMergeFlow(ParallelSimulationEngine simul, int nInstances) {
 		super(simul);
 		incomingBranches = nInstances;
 		acceptValue = nInstances;
@@ -33,11 +33,11 @@ public class ThreadMergeFlow extends ANDJoinFlow implements es.ull.iis.simulatio
 	
 	/**
 	 * Creates a new thread merge flow
-	 * @param simul Simulation this flow belongs to
+	 * @param simul ParallelSimulationEngine this flow belongs to
 	 * @param nInstances Number of threads this flow waits for resetting
 	 * @param acceptValue Number of threads this flow waits for passing the control
 	 */
-	public ThreadMergeFlow(Simulation simul, int nInstances, int acceptValue) {
+	public ThreadMergeFlow(ParallelSimulationEngine simul, int nInstances, int acceptValue) {
 		super(simul);
 		this.incomingBranches = nInstances;
 		this.acceptValue = acceptValue;

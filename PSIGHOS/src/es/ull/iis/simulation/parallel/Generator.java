@@ -14,10 +14,10 @@ public abstract class Generator extends BasicElement {
     
     /**
      * Creates an element generator. 
-     * @param simul Simulation object.
+     * @param simul ParallelSimulationEngine object.
      * @param creator The way the elements are created.
      */
-    public Generator(Simulation simul, BasicElementCreator creator) {
+    public Generator(ParallelSimulationEngine simul, BasicElementCreator creator) {
         super(counter++, simul);
         simul.add(this);
         this.creator = creator;

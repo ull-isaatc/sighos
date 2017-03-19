@@ -109,7 +109,7 @@ public class BenchmarkModel {
 			case CONFLICT:
 			default: this.endTs = new TimeStamp(TimeUnit.MINUTE, nElem * (nIter + 1) + 1); break;
 		}
-		String auxHead = "Simulation Type\tModel Type\tOverlapping Type\tThreads\tIterations";
+		String auxHead = "ParallelSimulationEngine Type\tModel Type\tOverlapping Type\tThreads\tIterations";
 		if (modType == ModelType.CONFLICT)
 			auxHead += "\tRTxACT\tRTxRES";
 		if (workLoad > 0)

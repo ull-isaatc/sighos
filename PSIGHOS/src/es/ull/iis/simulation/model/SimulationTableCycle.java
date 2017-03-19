@@ -18,7 +18,7 @@ public class SimulationTableCycle implements SimulationCycle {
 	
 	/**
 	 * Creates a new cycle which activates according to the timestamps indicated.
-	 * @param unit Simulation time unit 
+	 * @param unit ParallelSimulationEngine time unit 
 	 * @param timestamps Set of timestamps to indicate the activations of this cycle
 	 */
 	public SimulationTableCycle(TimeUnit unit, TimeStamp[] timestamps) {
@@ -27,7 +27,7 @@ public class SimulationTableCycle implements SimulationCycle {
 
 	/**
 	 * Creates a new cycle containing a subcycle which activates according to the timestamps indicated.
-	 * @param unit Simulation time unit 
+	 * @param unit ParallelSimulationEngine time unit 
 	 * @param timestamps Set of timestamps to indicate the activations of this cycle
 	 * @param subCycle Subcycle contained in this cycle
 	 */
@@ -38,7 +38,7 @@ public class SimulationTableCycle implements SimulationCycle {
 	/**
 	 * Converts a set of timestamps to an array of double values. Values are double for backwards
 	 * compatibility.
-	 * @param unit Simulation time unit
+	 * @param unit ParallelSimulationEngine time unit
 	 * @param timestamps A set of timestamps
 	 * @return an array of double values with the activation times of this cycle expressed in the
 	 * indicated <tt>unit</tt>

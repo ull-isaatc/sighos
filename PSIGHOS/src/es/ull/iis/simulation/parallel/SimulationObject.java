@@ -10,17 +10,17 @@ package es.ull.iis.simulation.parallel;
 public abstract class SimulationObject implements es.ull.iis.simulation.model.engine.EngineObject {
     /** Unique object identifier  */
 	protected final int id;
-    /** Simulation this object belongs to */
-    protected final Simulation simul;
+    /** ParallelSimulationEngine this object belongs to */
+    protected final ParallelSimulationEngine simul;
     /** String which represents the object */
     private final String idString;
     
 	/**
      * Creates a new simulation object.
      * @param id Unique identifier of the object
-     * @param simul Simulation this object belongs to
+     * @param simul ParallelSimulationEngine this object belongs to
      */
-	public SimulationObject(int id, Simulation simul) {
+	public SimulationObject(int id, ParallelSimulationEngine simul) {
 		this.simul = simul;
 		this.id = id;
 		idString = new String("[" + getObjectTypeIdentifier() + id + "]"); 
@@ -34,7 +34,7 @@ public abstract class SimulationObject implements es.ull.iis.simulation.model.en
 	public abstract String getObjectTypeIdentifier();
 
 	@Override
-    public Simulation getSimulationEngine() {
+    public ParallelSimulationEngine getSimulationEngine() {
         return simul;
     }
 

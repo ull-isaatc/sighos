@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import edu.bonn.cs.net.jbarrier.barrier.AbstractBarrier;
 import edu.bonn.cs.net.jbarrier.barrier.TournamentBarrier;
 import es.ull.iis.simulation.info.TimeChangeInfo;
+import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.ActivityManagerCreator;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -19,7 +20,7 @@ import es.ull.iis.util.Output;
 
 /**
  * Main parallel discrete event simulation class. A simulation uses all kind of 
- * {@link SimulationObject Simulation Objects} to define a model which will be executed.<p>
+ * {@link SimulationObject ParallelSimulationEngine Objects} to define a model which will be executed.<p>
  * Two important simulation objects are {@link Activity activities} and {@link ResourceType 
  * resource types}. Both are grouped in different {@link ActivityManager activity managers}, 
  * which serve as an initial partition for parallelism.<p>
@@ -27,7 +28,7 @@ import es.ull.iis.util.Output;
  * {@link EventSourceEngine Basic elements}.
  * @author Iván Castilla Rodríguez
  */
-public class Simulation extends es.ull.iis.simulation.model.engine.SimulationEngine {
+public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine.SimulationEngine {
 	/** The identifier to be assigned to the next resource */ 
 	protected int nextResourceId = 0;
 	/** The identifier to be assigned to the next activity */ 
@@ -72,28 +73,28 @@ public class Simulation extends es.ull.iis.simulation.model.engine.SimulationEng
     /** The barrier to control the phases of simulation */
 	private AbstractBarrier barrier;
 	/**
-	 * Creates a new Simulation which starts at <code>startTs</code> and finishes at <code>endTs</code>.
+	 * Creates a new ParallelSimulationEngine which starts at <code>startTs</code> and finishes at <code>endTs</code>.
 	 * @param id This simulation's identifier
 	 * @param description A short text describing this simulation
 	 * @param unit Time unit used to define the simulation time
 	 * @param startTs Timestamp of simulation's start
 	 * @param endTs Timestamp of simulation's end
 	 */
-	public Simulation(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
+	public ParallelSimulationEngine(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		super(id, description, unit, startTs, endTs);
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
 	}
 	
 	/**
-	 * Creates a new Simulation which starts at <code>startTs</code> and finishes at <code>endTs</code>.
+	 * Creates a new ParallelSimulationEngine which starts at <code>startTs</code> and finishes at <code>endTs</code>.
 	 * @param id This simulation's identifier
 	 * @param description A short text describing this simulation
 	 * @param unit Time unit used to define the simulation time
-	 * @param startTs Simulation's start timestamp expresed in Simulation Time Units
-	 * @param endTs Simulation's end timestamp expresed in Simulation Time Units
+	 * @param startTs ParallelSimulationEngine's start timestamp expresed in ParallelSimulationEngine Time Units
+	 * @param endTs ParallelSimulationEngine's end timestamp expresed in ParallelSimulationEngine Time Units
 	 */
-	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
+	public ParallelSimulationEngine(int id, String description, TimeUnit unit, long startTs, long endTs) {
 		super(id, description, unit, startTs, endTs);
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = internalStartTs - 1;
@@ -157,7 +158,7 @@ public class Simulation extends es.ull.iis.simulation.model.engine.SimulationEng
 			e.printStackTrace();
 		}
 		
-		// Simulation has finished
+		// ParallelSimulationEngine has finished
     	debug("SIMULATION TIME FINISHES\r\nSimulation time = " +
             	lvt + "\r\nPreviewed simulation time = " + internalEndTs);
     	printState();
@@ -303,7 +304,7 @@ public class Simulation extends es.ull.iis.simulation.model.engine.SimulationEng
     	 * Creates a very simple element to control the simulation end.
     	 */
 		public SimulationElement() {
-			super(0, Simulation.this);
+			super(0, ParallelSimulationEngine.this);
 		}
 
 		@Override

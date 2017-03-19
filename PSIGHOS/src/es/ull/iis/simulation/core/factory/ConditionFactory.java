@@ -51,7 +51,7 @@ public class ConditionFactory {
 		
 		// Constructor
 		finalCode += "public CompiledCondition" + id + 
-					"(Simulation simul) {super(simul);}";
+					"(ParallelSimulationEngine simul) {super(simul);}";
 		
 		finalCode += "public boolean check(Element e){" + "return(" + StandardCompilator.getCode(condition, "logicExp") + ");" + "}";
 		

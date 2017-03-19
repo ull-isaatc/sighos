@@ -9,7 +9,7 @@ import java.util.WeakHashMap;
 
 import es.ull.iis.simulation.core.factory.SimulationUserCode;
 import es.ull.iis.simulation.core.factory.StandardCompilator;
-import es.ull.iis.simulation.parallel.Simulation;
+import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
 import es.ull.iis.simulation.parallel.flow.Flow;
 
 /**
@@ -87,7 +87,7 @@ public class FlowFactory {
 	}
 	
 	static private String createConstructor(String flowType, Integer id, Class<?>... params) {
-		String code = "(Simulation simul";
+		String code = "(ParallelSimulationEngine simul";
 		String strParam = ") {super(simul";
 		for (int i = 0; i < params.length; i++) {
 			code += ", " + params[i].getSimpleName() + " arg" + i;
@@ -104,7 +104,7 @@ public class FlowFactory {
 	 * @param initargs Rest of the params.
 	 * @return A Flow's instance.
 	 */
-	static public Flow getInstance(int id, String flowType, Simulation simul, Object... initargs) {
+	static public Flow getInstance(int id, String flowType, ParallelSimulationEngine simul, Object... initargs) {
 		Class<?> cl = findFullyQualifiedNameFor(flowType);
 		Constructor<?>[] consList = cl.getConstructors();
 		Object [] newParams = new Object[initargs.length + 1];
@@ -130,8 +130,8 @@ public class FlowFactory {
 		return null;	
 	}
 
-	static public Flow getInstance(int id, String flowType, SimulationUserCode userMethods, Simulation simul, Object... initargs) {
-		userMethods.addImports("import " + Simulation.class.getPackage().getName() + ".*;");
+	static public Flow getInstance(int id, String flowType, SimulationUserCode userMethods, ParallelSimulationEngine simul, Object... initargs) {
+		userMethods.addImports("import " + ParallelSimulationEngine.class.getPackage().getName() + ".*;");
 		Class<?>[] parameterTypes = StandardCompilator.param2Classes(initargs);
 		String cons = createConstructor(flowType, id, parameterTypes);
 		Object [] newParams = new Object[initargs.length + 1];

@@ -34,7 +34,7 @@ import es.ull.iis.util.Output;
 public class Simulation implements Identifiable, Runnable, Describable, VariableStore {
 	/** A short text describing this simulation. */
 	protected final String description;
-	/** Simulation time unit */
+	/** ParallelSimulationEngine time unit */
 	protected final TimeUnit unit;
 	/** Model identifier */
 	protected final int id;
@@ -85,8 +85,8 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 *
 	 * @param description A short text describing this simulation.
 	 * @param unit This simulation's time unit
-	 * @param startTs Timestamp of simulation's start expressed in Simulation Time Units
-	 * @param endTs Timestamp of simulation's end expressed in Simulation Time Units
+	 * @param startTs Timestamp of simulation's start expressed in ParallelSimulationEngine Time Units
+	 * @param endTs Timestamp of simulation's end expressed in ParallelSimulationEngine Time Units
 	 */
 	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
 		this.id = id;
@@ -242,7 +242,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 
 	/**
 	 * Checks the conditions stated int he condition-driven generators. If the condition meets, creates the corresponding event sources.
-	 * @param ts Simulation time when the simulations are checked.
+	 * @param ts ParallelSimulationEngine time when the simulations are checked.
 	 */
 	public void checkConditions(long ts) {
 		for (ConditionDrivenGenerator<?> gen : cGenList) {

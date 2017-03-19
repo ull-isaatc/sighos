@@ -19,11 +19,11 @@ public class TimeDrivenGenerator extends Generator implements es.ull.iis.simulat
 
     /**
      * Creates a generator driven by a time cycle.
-     * @param simul Simulation which uses this generator
+     * @param simul ParallelSimulationEngine which uses this generator
      * @param creator The way the elements are created every "tic" of the cycle 
      * @param cycle Control of the time between generations 
      */
-	public TimeDrivenGenerator(Simulation simul, BasicElementCreator creator, SimulationCycle cycle) {
+	public TimeDrivenGenerator(ParallelSimulationEngine simul, BasicElementCreator creator, SimulationCycle cycle) {
 		super(simul, creator);
 		this.cycle = cycle.getCycle();
 	}

@@ -16,10 +16,10 @@ public abstract class ConditionDrivenGenerator extends Generator {
 
 	/**
 	 * Creates a generator driven by simulation events.
-	 * @param simul Simulation which uses this generator
+	 * @param simul ParallelSimulationEngine which uses this generator
 	 * @param creator The way the elements are created every time the condition is triggered
 	 */
-	public ConditionDrivenGenerator(Simulation simul,
+	public ConditionDrivenGenerator(ParallelSimulationEngine simul,
 			BasicElementCreator creator) {
 		super(simul, creator);
 	}

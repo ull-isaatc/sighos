@@ -13,7 +13,7 @@ import java.util.TreeMap;
  * located in the same level of the structure.
  * @author Iván Castilla Rodríguez
  */
-public abstract class PrioritizedMap<T extends Collection<E>, E extends Prioritizable> {
+public abstract class PrioritizedMap<T extends Collection<E>, E extends Prioritizable> implements Iterable<E> {
     /** Array of priority levels. */
 	protected final Map<Integer, T> levels;
     /** Number of objects which this table contains. This value is updated when an object
@@ -38,8 +38,13 @@ public abstract class PrioritizedMap<T extends Collection<E>, E extends Prioriti
 		nObj++;
 	}
 	
+	public void clear() {
+		levels.clear();
+		nObj = 0;
+	}
+	
 	public void remove(E obj) {
-		T level = levels.get(obj.getPriority());
+		final T level = levels.get(obj.getPriority());
 		if (level == null)
 			System.err.println(obj);
 		level.remove(obj);

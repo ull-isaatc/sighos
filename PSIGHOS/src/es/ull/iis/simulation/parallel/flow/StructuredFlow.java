@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.parallel.flow;
 
-import es.ull.iis.simulation.parallel.Simulation;
+import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
 
 
 
@@ -19,9 +19,9 @@ public abstract class StructuredFlow extends SingleSuccessorFlow implements Task
 	
 	/**
 	 * Creates a new structured flow with no initial nor final step.
-	 * @param simul Simulation this flow belongs to.
+	 * @param simul ParallelSimulationEngine this flow belongs to.
 	 */
-	public StructuredFlow(Simulation simul) {
+	public StructuredFlow(ParallelSimulationEngine simul) {
 		super(simul);
 	}
 	

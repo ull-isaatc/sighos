@@ -20,7 +20,7 @@ public abstract class BasicElement extends TimeStampedSimulationObject implement
      * @param id Element's identifier
      * @param simul Attached simulation object
      */
-	public BasicElement(int id, Simulation simul) {
+	public BasicElement(int id, ParallelSimulationEngine simul) {
 		super(id, simul);
 	}
 

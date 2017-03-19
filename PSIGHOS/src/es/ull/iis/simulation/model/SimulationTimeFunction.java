@@ -20,7 +20,7 @@ public class SimulationTimeFunction extends TimeFunction {
 
 	/**
 	 * Creates a time function to be used in a simulation.
-	 * @param unit Simulation time unit
+	 * @param unit ParallelSimulationEngine time unit
 	 * @param className Name of the time function (must be a class accepted by 
 	 * {@link es.ull.iis.function.TimeFunctionFactory TimeFunctionFactory} 
 	 * @param parameters Parameters of the time function to be created

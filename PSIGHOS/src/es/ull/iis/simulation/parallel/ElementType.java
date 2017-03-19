@@ -19,20 +19,20 @@ public class ElementType extends VariableStoreSimulationObject implements es.ull
 	
 	/**
 	 * Creates a new element type.
-	 * @param simul Simulation this element type belongs to.
+	 * @param simul ParallelSimulationEngine this element type belongs to.
 	 * @param description A short text describing this element type.
 	 */
-	public ElementType(Simulation simul, String description) {
+	public ElementType(ParallelSimulationEngine simul, String description) {
 		this(simul, description, 0);
 	}
 
 	/**
 	 * Creates a new element type.
-	 * @param simul Simulation this element type belongs to.
+	 * @param simul ParallelSimulationEngine this element type belongs to.
 	 * @param description A short text describing this element type.
 	 * @param priority The priority to set.
 	 */
-	public ElementType(Simulation simul, String description, int priority) {
+	public ElementType(ParallelSimulationEngine simul, String description, int priority) {
 		super(simul.getNextElementTypeId(), simul);
 		this.priority = priority;
 		this.description = description;

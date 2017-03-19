@@ -18,14 +18,14 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
 	/** Each flow that will be generated */
 	protected final ArrayList<GenerationTrio> genTrio;
 	/** Associated simulation */
-	protected final Simulation simul;
+	protected final ParallelSimulationEngine simul;
 
 	/**
 	 * Creates a creator of elements.
-	 * @param sim Simulation this object belongs to.
+	 * @param sim ParallelSimulationEngine this object belongs to.
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 */
-	public ElementCreator(Simulation sim, TimeFunction nElem) {
+	public ElementCreator(ParallelSimulationEngine sim, TimeFunction nElem) {
 		genTrio = new ArrayList<GenerationTrio>();
 		this.nElem = nElem;
 		simul = sim;
@@ -33,12 +33,12 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
 	
 	/**
 	 * Creates a creator of a single type of elements.
-	 * @param sim Simulation this object belongs to.
+	 * @param sim ParallelSimulationEngine this object belongs to.
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 * @param et The type of the elements to be created
 	 * @param flow The description of the flow of the elements to be created.
 	 */
-	public ElementCreator(Simulation sim, TimeFunction nElem, ElementType et, InitializerFlow flow) {
+	public ElementCreator(ParallelSimulationEngine sim, TimeFunction nElem, ElementType et, InitializerFlow flow) {
 		this(sim, nElem);
 		genTrio.add(new GenerationTrio(et, flow, 1.0));
 	}
@@ -102,7 +102,7 @@ public class ElementCreator implements BasicElementCreator, es.ull.iis.simulatio
 	 * Gets the simulation this object belongs to. 
 	 * @return The simulation this object belongs to.
 	 */
-	public Simulation getSimul() { 
+	public ParallelSimulationEngine getSimul() { 
 		return simul; 
 	};
 	

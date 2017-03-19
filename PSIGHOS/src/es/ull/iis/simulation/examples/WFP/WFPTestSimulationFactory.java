@@ -21,7 +21,7 @@ import es.ull.iis.simulation.model.flow.InitializerFlow;
  * The base class to create tests for Workflow patterns.
  * Since the checking needs to be automated, the models defined in the tests must adhere to the following restrictions:
  * - The simulation must be restricted to 1 day
- * - Simulation Time Unit must be MINUTE 
+ * - ParallelSimulationEngine Time Unit must be MINUTE 
  * - All the model objects (resources, resource types, activities, element types) defined must have consecutive 
  * identifiers starting in 0. There can not be missing indexes.
  * - No random number generators should be used. 
@@ -54,7 +54,7 @@ public abstract class WFPTestSimulationFactory {
 		if (SimulationType.SEQUENTIAL.equals(type))
 			new es.ull.iis.simulation.sequential.SequentialSimulationEngine(id, model);
 		else
-			new es.ull.iis.simulation.parallel.Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);
+			new es.ull.iis.simulation.parallel.ParallelSimulationEngine(id, description, SIMUNIT, SIMSTART, SIMEND);
 	}
 	
 	protected abstract Simulation createModel();

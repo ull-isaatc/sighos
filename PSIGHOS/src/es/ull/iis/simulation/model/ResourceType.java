@@ -15,6 +15,7 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  * <li>When a resource is deactivated for this type: {@link #beforeRoleOff()}, {@link #afterRoleOff()}</li>
  * </ul>
  * @author Iván Castilla Rodríguez
+ * @author Carlos Martin Galan
  */
 public class ResourceType extends SimulationObject implements Describable {
     /** A list of the currently available resources. */
@@ -104,6 +105,17 @@ public class ResourceType extends SimulationObject implements Describable {
         	res.setTimeOut(false);
     }
     
+    /**
+     * Removes a resource from the available list. 
+     * @param res New unavailable resource.
+     */
+    protected void decAvailable(Resource res) {
+    	debug("Resource removed\t" + res);
+        // If the resource is being used for this resource type, it's marked as "timeOut"
+        if (availableResourceList.remove(res) && (res.getCurrentResourceType() == this))
+        	res.setTimeOut(true);
+    }
+
     public void notifyResource() {
     	manager.notifyResource();    	
     }
@@ -124,17 +136,6 @@ public class ResourceType extends SimulationObject implements Describable {
     public void setManager(ActivityManager manager) {
         this.manager = manager;
         manager.add(this);
-    }
-
-    /**
-     * Removes a resource from the available list. 
-     * @param res New unavailable resource.
-     */
-    protected void decAvailable(Resource res) {
-    	debug("Resource removed\t" + res);
-        // If the resource is being used for this resource type, it's marked as "timeOut"
-        if (availableResourceList.remove(res) && (res.getCurrentResourceType() == this))
-        	res.setTimeOut(true);
     }
 
 	/**

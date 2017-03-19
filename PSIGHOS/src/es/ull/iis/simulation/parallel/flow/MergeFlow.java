@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.parallel.Element;
-import es.ull.iis.simulation.parallel.Simulation;
+import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
 import es.ull.iis.simulation.parallel.FlowExecutor;
 
 /**
@@ -33,18 +33,18 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow,
 	
 	/**
 	 * Create a new MergeFlow intended to be used in a safe context.
-	 * @param simul Simulation this flow belongs to
+	 * @param simul ParallelSimulationEngine this flow belongs to
 	 */
-	public MergeFlow(Simulation simul) {
+	public MergeFlow(ParallelSimulationEngine simul) {
 		this(simul, true);
 	}
 
 	/**
 	 * Create a new MergeFlow which can be used in a safe context or a general one.
-	 * @param simul Simulation this flow belongs to
+	 * @param simul ParallelSimulationEngine this flow belongs to
 	 * @param safe True for safe context; false in other case
 	 */
-	public MergeFlow(Simulation simul, boolean safe) {
+	public MergeFlow(ParallelSimulationEngine simul, boolean safe) {
 		super(simul);
 		control = Collections.synchronizedSortedMap(new TreeMap<Element, MergeFlowControl>());
 		this.safe = safe;

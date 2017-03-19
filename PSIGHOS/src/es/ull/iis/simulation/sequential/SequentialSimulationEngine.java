@@ -240,9 +240,13 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
             	addExecution(waitQueue.poll());
 			}
 			// Checks the condition-driven generators and executes the events
+			// FIXME: Not sure whether it would work 
 			simul.checkConditions(lvt);
 			while (waitQueue.peek().getTs() == lvt) {
             	addExecution(waitQueue.poll());
+			}
+			for (ActivityManager am : simul.getActivityManagerList()) {
+				am.executeWork();
 			}
 			// Executes user-specified actions after all the events with the same timestamp have been executed
             simul.afterClockTick();

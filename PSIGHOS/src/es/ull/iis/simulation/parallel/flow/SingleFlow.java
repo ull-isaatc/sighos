@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.parallel.flow;
 
 import es.ull.iis.simulation.parallel.Activity;
-import es.ull.iis.simulation.parallel.Simulation;
+import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
 import es.ull.iis.simulation.parallel.FlowExecutor;
 
 /**
@@ -20,7 +20,7 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 	 * @param simul The simulation this flow belongs to
 	 * @param act Activity to be performed
 	 */
-	public SingleFlow(Simulation simul, Activity act) {
+	public SingleFlow(ParallelSimulationEngine simul, Activity act) {
 		super(simul);
 		this.act = act;
 	}

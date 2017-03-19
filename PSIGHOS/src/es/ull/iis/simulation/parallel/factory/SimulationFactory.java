@@ -23,15 +23,15 @@ import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.engine.ResourceEngine;
 import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
-import es.ull.iis.simulation.parallel.Simulation;
+import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
 public class SimulationFactory implements SimulationObjectFactory {
-	private final static String workingPkg = Simulation.class.getPackage().getName();
-	private Simulation simul;
+	private final static String workingPkg = ParallelSimulationEngine.class.getPackage().getName();
+	private ParallelSimulationEngine simul;
 	private int rtId;
 	private int flowId;
 	private int creId;
@@ -45,7 +45,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	 * @param endTs
 	 */
 	public SimulationFactory(int id, String description, TimeUnit unit,	TimeStamp startTs, TimeStamp endTs) {
-		simul = new Simulation(id, description, unit, startTs, endTs);
+		simul = new ParallelSimulationEngine(id, description, unit, startTs, endTs);
 	}
 
 	/**
@@ -56,7 +56,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	 * @param endTs
 	 */
 	public SimulationFactory(int id, String description, TimeUnit unit,	long startTs, long endTs) {
-		simul = new Simulation(id, description, unit, startTs, endTs);
+		simul = new ParallelSimulationEngine(id, description, unit, startTs, endTs);
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	@Override
 	public ElementCreator getElementCreatorInstance(TimeFunction elem, SimulationUserCode userMethods) throws ClassCastException {
 		// Prepare the constructor call
-		String constructorStr = "(Simulation sim, TimeFunction nElem) {super(sim, nElem);}";
+		String constructorStr = "(ParallelSimulationEngine sim, TimeFunction nElem) {super(sim, nElem);}";
 		// Prepare the new params.
 		Object obj = StandardCompilator.getInstance(workingPkg, "ElementCreator", creId++, constructorStr, userMethods, simul, elem);
 		if (obj != null)
@@ -90,7 +90,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	@Override
 	public ElementCreator getElementCreatorInstance(TimeFunction elem, ElementType et, InitializerFlow flow, SimulationUserCode userMethods) throws ClassCastException {
 		// Prepare the constructor call
-		String constructorStr = "(Simulation sim, TimeFunction nElem, ElementType et, InitializerFlow flow) {super(sim, nElem, et, flow);}";
+		String constructorStr = "(ParallelSimulationEngine sim, TimeFunction nElem, ElementType et, InitializerFlow flow) {super(sim, nElem, et, flow);}";
 		// Prepare the new params.
 		Object obj = StandardCompilator.getInstance(workingPkg, "ElementCreator", creId++, constructorStr, userMethods, simul, elem, et, flow);
 		if (obj != null)
@@ -121,7 +121,7 @@ public class SimulationFactory implements SimulationObjectFactory {
 	@Override
 	public ResourceTypeEngine getResourceTypeInstance(String description, SimulationUserCode userMethods) throws ClassCastException {
 		// Prepare the constructor call
-		String constructorStr = "(Simulation simul, String description) {super(simul, description);}";
+		String constructorStr = "(ParallelSimulationEngine simul, String description) {super(simul, description);}";
 		// Prepare the new params.
 		Object obj = StandardCompilator.getInstance(workingPkg, "ResourceType", rtId++, constructorStr, userMethods, simul, description);
 		if (obj != null)

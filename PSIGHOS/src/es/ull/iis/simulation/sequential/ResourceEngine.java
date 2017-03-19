@@ -8,6 +8,7 @@ import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.engine.EngineObject;
 import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 
 /**
@@ -30,12 +31,13 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
     protected FlowExecutor currentWT = null;
     /** Availability flag */
     protected boolean notCanceled;
+    /** The associated {@link Resource} */
     private final Resource modelRes;
 
     /**
      * Creates a new instance of Resource.
      * @param id This resource's identifier.
-     * @param simul Simulation this resource is attached to.
+     * @param simul ParallelSimulationEngine this resource is attached to.
      * @param description A short text describing this resource.
      */
 	public ResourceEngine(SequentialSimulationEngine simul, es.ull.iis.simulation.model.Resource modelRes) {
@@ -46,7 +48,8 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	}
 
     /**
-	 * @return the modelRes
+     * Returns the associated {@link Resource}
+	 * @return the associated {@link Resource}
 	 */
 	public Resource getModelRes() {
 		return modelRes;

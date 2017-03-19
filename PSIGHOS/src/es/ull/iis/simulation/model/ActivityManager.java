@@ -1,14 +1,10 @@
 package es.ull.iis.simulation.model;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.TreeSet;
 
 import es.ull.iis.simulation.model.engine.ActivityManagerEngine;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.util.PrioritizedMap;
 
 /**
  * Partition of activities. It serves as a mutual exclusion mechanism to access a set of activities
@@ -25,19 +21,17 @@ public class ActivityManager extends SimulationObject implements Describable {
 	protected final ArrayList<RequestResourcesFlow> activityList;
     /** A list of resorce types */
     protected final ArrayList<ResourceType> resourceTypeList;
-    /** This queue contains the work threads that are waiting for activities of this AM */
-    private final WorkThreadQueue wtQueue;
+    /** The specific implementation of the behavior of the activity manager */
     private ActivityManagerEngine engine;
     
    /**
 	* Creates a new instance of ActivityManager.
-	* @param simul Simulation this activity manager belongs to
+	* @param simul ParallelSimulationEngine this activity manager belongs to
     */
     public ActivityManager(Simulation model) {
         super(model, nextid++, "AM");
         resourceTypeList = new ArrayList<ResourceType>();
         activityList = new ArrayList<RequestResourcesFlow>();
-        wtQueue = new WorkThreadQueue();
         model.add(this);
     }
 
@@ -59,53 +53,29 @@ public class ActivityManager extends SimulationObject implements Describable {
 
     /**
      * Adds a work thread to the waiting queue.
-     * @param wt Work thread which is added to the waiting queue.
+     * @param fe Work thread which is added to the waiting queue.
      */
-    public void queueAdd(FlowExecutor wt) {
-    	wtQueue.add(wt);
+    public void queueAdd(FlowExecutor fe) {
+    	engine.queueAdd(fe);
     }
     
     /**
      * Removes a work thread from the waiting queue.
-     * @param wt work thread which is removed from the waiting queue.
+     * @param fe work thread which is removed from the waiting queue.
      */
-    public void queueRemove(FlowExecutor wt) {
-    	wtQueue.remove(wt);
-    }
-    
-    public int queueSize() {
-    	return wtQueue.size();
+    public void queueRemove(FlowExecutor fe) {
+    	engine.queueRemove(fe);
     }
     
     /**
-     * Informs the activities of new available resources. Reviews the queue of waiting work items 
-     * looking for those which can be executed with the new available resources. The work items 
-     * used are removed from the waiting queue.<p>
-     * In order not to traverse the whole list of work items, this method determines the
-     * amount of "useless" ones, that is, the amount of work items belonging to an activity 
-     * which can't be performed with the current resources. If this amount is equal to the size
-     * of waiting work items, this method stops. 
+     * Informs this activity manager that a resource has become available. 
      */
     public void notifyResource() {
-    	// First marks all the activities as "potentially feasible"
-    	for (RequestResourcesFlow act : activityList)
-        	act.resetFeasible();
-    	engine.notifyResource();
+    	engine.setAvailableResource(true);
     }
 
-    /**
-     * Returns an iterator over the array containing the work threads which have requested
-     * activities belonging to this activity manager.<p>
-     * The order followed is: <ol>
-     * <li>the work thread's priority (its element type's priority)</li>
-     * <li>the activity's priority</li>
-     * <li>the arrival order</li>
-     * </ol>
-     * @return an iterator over the array containing the work threads which have requested
-     * activities belonging to this activity manager.
-     */
-    public Iterator<FlowExecutor> getQueueIterator() {
-    	return wtQueue.iterator();
+    public void notifyAvailableElement(FlowExecutor fe) {
+    	engine.notifyAvailableElement(fe);
     }
     
 	/**
@@ -125,63 +95,21 @@ public class ActivityManager extends SimulationObject implements Describable {
 	}
 
 	/**
-	 * A queue which stores the activity requests of the elements. The work items are
-	 * stored by following this order: <ol>
-     * <li>the work item's priority (its element type's priority)</li>
-     * <li>the activity's priority</li>
-     * <li>the arrival order</li>
-     * </ol> 
-	 * @author Iván Castilla Rodríguez
-	 *
+	 * Checks if there are new resources or elements available and executes the corresponding actions.
+	 * This method centralizes the execution of this code to preserve all the elements and activities priorities.
 	 */
-	private static final class WorkThreadQueue extends PrioritizedMap<TreeSet<FlowExecutor>, FlowExecutor>{		
-		/** A counter for the arrival order of the single flows */
-		private int arrivalOrder = 0;
-		/** A comparator to properly order the single flows. */
-		private Comparator<FlowExecutor> comp = new Comparator<FlowExecutor>() {
-			public int compare(FlowExecutor o1, FlowExecutor o2) {
-				if (o1.equals(o2))
-					return 0;
-				if (((RequestResourcesFlow) o1.getCurrentFlow()).getPriority() > ((RequestResourcesFlow) o2.getCurrentFlow()).getPriority())
-					return 1;
-				if (((RequestResourcesFlow) o1.getCurrentFlow()).getPriority() < ((RequestResourcesFlow) o2.getCurrentFlow()).getPriority())
-					return -1;
-				if (o1.getArrivalOrder() > o2.getArrivalOrder())
-					return 1;
-				return -1;
-			}			
-		};
-		
-		/**
-		 * Creates a new queue.
-		 */
-		public WorkThreadQueue() {
-			super();
+	public void executeWork() {
+		if (engine.getAvailableResource()) {
+	    	// First marks all the activities as "potentially feasible"
+	    	for (RequestResourcesFlow act : activityList)
+	        	act.resetFeasible();
+	    	engine.processAvailableResources();
 		}
-
-		/**
-		 * Adds a work thread to the queue. The arrival order and timestamp of the 
-		 * work thread are set here. 
-		 * @param wt The work thread to be added.
-		 */
-		@Override
-		public void add(FlowExecutor wt) {
-			// The arrival order and timestamp are only assigned if the single flow 
-			// has never been added to the queue (interruptible activities)
-			if (wt.getArrivalTs() == -1) {
-				wt.setArrivalOrder(arrivalOrder++);
-				wt.setArrivalTs(wt.getElement().getModel().getSimulationEngine().getTs());
-			}
-			super.add(wt);
+		else {
+			engine.processAvailableElements();
 		}
-
-		@Override
-		public TreeSet<FlowExecutor> createLevel(Integer priority) {
-			return new TreeSet<FlowExecutor>(comp);
-		}
-		
 	}
-
+	
 	@Override
 	protected void assignSimulation(SimulationEngine simul) {
 		engine = simul.getActivityManagerEngineInstance(this);

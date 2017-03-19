@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.engine.EngineObject;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
 /**
@@ -21,7 +22,7 @@ public class ElementEngine extends EngineObject implements es.ull.iis.simulation
 	
 	/**
 	 * Creates a new element.
-	 * @param simul Simulation object
+	 * @param simul ParallelSimulationEngine object
 	 * @param et Element type this element belongs to
 	 * @param flow First step of this element's flow
 	 */
@@ -57,17 +58,10 @@ public class ElementEngine extends EngineObject implements es.ull.iis.simulation
 
 	@Override
 	public void notifyAvailableElement() {
-		// Checks if there are pending activities that haven't noticed the
-		// element availability
-		for (int i = 0; (modelElem.getCurrent() == null) && (i < inQueue.size()); i++) {
-			final FlowExecutor fe = inQueue.get(i);
+		for (final FlowExecutor fe : inQueue) {
             final RequestResourcesFlow act = (RequestResourcesFlow) fe.getCurrentFlow();
-
-			if (modelElem.isDebugEnabled())
-				modelElem.debug("Calling availableElement()\t" + act + "\t" + act.getDescription());
-			fe.availableElement(act);
+            act.getManager().notifyAvailableElement(fe);
 		}
-		
 	}
 
 	@Override

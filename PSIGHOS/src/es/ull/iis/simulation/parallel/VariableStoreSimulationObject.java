@@ -29,9 +29,9 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 	/**
      * Creates a new simulation object which can store variables.
      * @param id Unique identifier of the object
-     * @param simul Simulation this object belongs to
+     * @param simul ParallelSimulationEngine this object belongs to
      */
-	public VariableStoreSimulationObject(int id, Simulation simul) {
+	public VariableStoreSimulationObject(int id, ParallelSimulationEngine simul) {
 		super(id, simul);
 	}
 
