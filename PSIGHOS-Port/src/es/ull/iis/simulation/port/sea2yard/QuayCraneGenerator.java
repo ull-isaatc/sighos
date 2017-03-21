@@ -32,6 +32,6 @@ public class QuayCraneGenerator extends TimeDrivenElementGenerator {
 
 	@Override
 	public EventSource createEventSource(int ind, GenerationTrio info) {
-		return new QuayCrane(model, info.getElementType(), info.getFlow(), initPosition);
+		return new QuayCrane(simul, info.getElementType(), info.getFlow(), initPosition);
 	}
 }

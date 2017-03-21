@@ -38,9 +38,9 @@ public class ContainerCreator extends TimeDrivenElementGenerator {
 		final EventSource[] elems = new EventSource[n];
 		final int[] containers = plan.getDestinationBlocks(ts);
 		for (int i = 0; i < containers.length; i++) {
-			elems[i] = new Container(model, et, flow, plan.getBerth(), containers[i]);
-            final DiscreteEvent e = elems[i].onCreate(model.getSimulationEngine().getTs());
-            model.getSimulationEngine().addEvent(e);
+			elems[i] = new Container(simul, et, flow, plan.getBerth(), containers[i]);
+            final DiscreteEvent e = elems[i].onCreate(simul.getSimulationEngine().getTs());
+            simul.addEvent(e);
 		}
         afterCreateElements();
 		return elems;

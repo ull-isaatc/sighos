@@ -64,9 +64,9 @@ public class UnloadActivity extends StructuredFlow {
 	@Override
 	public void afterFinalize(FlowExecutor fe) {
 		if (nextContainerId != -1) {
-			final Resource res = new Resource(model, PortModel.CONTAINER + nextContainerId);
-			res.addTimeTableEntry(((PortModel)model).getContainerResourceType(nextContainerId));
-			model.getSimulationEngine().addEvent(res.onCreate(model.getSimulationEngine().getTs()));			
+			final Resource res = new Resource(simul, PortModel.CONTAINER + nextContainerId);
+			res.addTimeTableEntry(((PortModel)simul).getContainerResourceType(nextContainerId));
+			simul.addEvent(res.onCreate(simul.getSimulationEngine().getTs()));			
 		}
 	}
 }

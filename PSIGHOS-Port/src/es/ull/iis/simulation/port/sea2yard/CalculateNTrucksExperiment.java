@@ -23,8 +23,8 @@ import simkit.random.RandomNumberFactory;
  */
 public class CalculateNTrucksExperiment extends Experiment {
 	final private static String DESCRIPTION = "Port Simulation";
-	private static final int NEXP = 5;
-	private static final double P_ERROR = 0.2; 
+	private static final int NEXP = 6;
+	private static final double P_ERROR = 0.1; 
 	private static final int NSIM = (P_ERROR == 0.0) ? 1 : 100;
 	private static final int EXAMPLE = 1; 
 	private final StowagePlan plan; 
