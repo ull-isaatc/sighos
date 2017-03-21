@@ -54,7 +54,7 @@ public abstract class WFPTestSimulationFactory {
 		if (SimulationType.SEQUENTIAL.equals(type))
 			new es.ull.iis.simulation.sequential.SequentialSimulationEngine(id, model);
 		else
-			new es.ull.iis.simulation.parallel.ParallelSimulationEngine(id, description, SIMUNIT, SIMSTART, SIMEND);
+			new es.ull.iis.simulation.parallel.ParallelSimulationEngine(id, model);
 	}
 	
 	protected abstract Simulation createModel();

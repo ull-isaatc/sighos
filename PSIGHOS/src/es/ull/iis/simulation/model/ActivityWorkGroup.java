@@ -22,6 +22,7 @@ public class ActivityWorkGroup implements Prioritizable, Identifiable, Describab
     final protected Condition cond;
     final protected TimeFunction duration;
     final protected WorkGroup wg;
+    /** Precomputed string which identifies this WG */
     private final String idString; 
 	
     /**

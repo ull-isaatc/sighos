@@ -10,11 +10,11 @@ import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.core.flow.Flow;
-import es.ull.iis.simulation.core.flow.StructuredFlow;
+import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.flow.StructuredFlow;
 import es.ull.iis.simulation.info.ElementActionInfo;
-import es.ull.iis.simulation.parallel.flow.BasicFlow;
-import es.ull.iis.simulation.parallel.flow.InitializerFlow;
+import es.ull.iis.simulation.model.flow.BasicFlow;
+import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.util.PrioritizedTable;
 
 /**
@@ -414,7 +414,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 	 * @param wItem Work Item requesting this activity.
 	 */
 	public void request(WorkItem wItem) {
-		final Element elem = wItem.getElement();
+		final ElementEngine elem = wItem.getElement();
 		simul.notifyInfo(null).notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.REQ, elem.getTs()));
 		if (elem.isDebugEnabled())
 			elem.debug("Requests\t" + this + "\t" + description);
@@ -428,7 +428,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 	 * @param wItem Work item requesting this activity
 	 */
 	public void carryOut(WorkItem wItem) {
-		final Element elem = wItem.getElement();
+		final ElementEngine elem = wItem.getElement();
 		wItem.getCurrentFlow().afterStart(elem);
 		long auxTs = wItem.catchResources();
 
@@ -472,7 +472,7 @@ public class Activity extends TimeStampedSimulationObject implements es.ull.iis.
 	 * @return True if this activity was actually finished; false in other case
 	 */
 	public boolean finish(WorkItem wItem) {
-		final Element elem = wItem.getElement();
+		final ElementEngine elem = wItem.getElement();
 
 		wItem.releaseCaughtResources();
 		

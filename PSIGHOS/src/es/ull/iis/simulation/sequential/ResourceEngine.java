@@ -25,10 +25,8 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
     protected final TreeMap<ResourceType, Long> currentRoles;
     /** A counter of the valid timetable entries which this resource is following. */
     private int validTTEs = 0;
-    /** The resource type which this resource is being booked for */
-    protected ResourceType currentResourceType = null;
     /** Work thread which currently holds this resource */
-    protected FlowExecutor currentWT = null;
+    protected FlowExecutor currentFE = null;
     /** Availability flag */
     protected boolean notCanceled;
     /** The associated {@link Resource} */
@@ -107,9 +105,9 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
 	public long catchResource(FlowExecutor wt) {
-		simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, currentResourceType, wt, wt.getElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
-		currentWT = wt;
-		return currentRoles.get(currentResourceType);
+		simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, modelRes.getCurrentResourceType(), wt, wt.getElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
+		currentFE = wt;
+		return currentRoles.get(modelRes.getCurrentResourceType());
 	}
 	
     /**
@@ -120,9 +118,9 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
      * time of the resource had already expired.
      */
     public boolean releaseResource() {
-    	simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, currentResourceType, currentWT, currentWT.getElement(), (ResourceHandlerFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
-        currentWT = null;
-        currentResourceType = null;        
+    	simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, modelRes.getCurrentResourceType(), currentFE, currentFE.getElement(), (ResourceHandlerFlow) currentFE.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
+        currentFE = null;
+        modelRes.setCurrentResourceType(null);        
         if (timeOut) {
         	timeOut = false;
         	return false;
@@ -130,23 +128,11 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
         return true;
     }
     
-    /**
-     * Returns the work item of the element which currently owns this resource.
-     * @return The current work item.
-     */
  	@Override
 	public FlowExecutor getCurrentFlowExecutor() {
-		return currentWT;
+		return currentFE;
 	}
-    /**
-     * Getter for property currentResourceType.
-     * @return Value of property currentResourceType.
-     */
-    @Override
-    public ResourceType getCurrentResourceType() {
-        return currentResourceType;
-    }
-    
+ 	
 	@Override
 	public void notifyCurrentManagers() {
 		for (ActivityManager am : getCurrentManagers()) {
@@ -191,7 +177,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 */
 	@Override
 	public boolean isAvailable(ResourceType rt) {
-		return ((currentWT == null) && (notCanceled) && (getAvailability(rt) > simul.getTs()));
+		return ((currentFE == null) && (notCanceled) && (getAvailability(rt) > simul.getTs()));
 	}
 	
 	/**
@@ -207,9 +193,9 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	public boolean add2Solution(ResourceType rt, FlowExecutor fe) {
         // Checks if the resource is busy (taken by other element or conflict in the same activity)
 		// TODO: Check if "isAvailable" is required in this condition
-        if (isAvailable(rt) && (currentResourceType == null)) {
+        if (isAvailable(rt) && (modelRes.getCurrentResourceType() == null)) {
 	        // This resource belongs to the solution...
-	        currentResourceType = rt;
+        	modelRes.setCurrentResourceType(rt);
 	        fe.pushResource(modelRes);    	        
         	return true;
         }
@@ -218,7 +204,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 
 	@Override
 	public void removeFromSolution(FlowExecutor fe) {
-        currentResourceType = null;
+		modelRes.setCurrentResourceType(null);
         fe.popResource();    		
 	}
 	

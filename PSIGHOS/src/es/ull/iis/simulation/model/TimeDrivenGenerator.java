@@ -50,12 +50,12 @@ public abstract class TimeDrivenGenerator<INF extends Generator.GenerationInfo> 
 	}
 	
     public void notifyEnd() {
-        model.getSimulationEngine().addEvent(onDestroy(model.getSimulationEngine().getTs()));
+        simul.addEvent(onDestroy(simul.getSimulationEngine().getTs()));
     }
     
 	@Override
 	public DiscreteEvent onCreate(long ts) {
-		cycleIter = cycle.getCycle().iterator(model.getStartTs(), model.getEndTs());
+		cycleIter = cycle.getCycle().iterator(simul.getStartTs(), simul.getEndTs());
     	final long newTs = nextEvent();
     	if (newTs == -1)
             return onDestroy(ts);
@@ -90,7 +90,7 @@ public abstract class TimeDrivenGenerator<INF extends Generator.GenerationInfo> 
             }
 			else {
 				final GenerateEvent e = new GenerateEvent(newTs);
-				model.getSimulationEngine().addEvent(e);
+				simul.addEvent(e);
 			}
         }
     }

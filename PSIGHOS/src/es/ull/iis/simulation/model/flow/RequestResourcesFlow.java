@@ -173,7 +173,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      */
     public int addWorkGroup(int priority, WorkGroup wg, Condition cond, TimeFunction duration) {
     	final int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(model, this, wgId, priority, wg, cond, duration));
+        workGroupTable.add(new ActivityWorkGroup(simul, this, wgId, priority, wg, cond, duration));
         return wgId;
     }
     
@@ -321,7 +321,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * a delay duration otherwise.
      */
 	public long acquireResources(FlowExecutor fe) {
-		model.notifyInfo(new ElementActionInfo(model, fe, fe.getElement(), this, fe.getExecutionWG(), ElementActionInfo.Type.REQ, model.getSimulationEngine().getTs()));
+		simul.notifyInfo(new ElementActionInfo(simul, fe, fe.getElement(), this, fe.getExecutionWG(), ElementActionInfo.Type.REQ, simul.getSimulationEngine().getTs()));
 		if (fe.getElement().isDebugEnabled())
 			fe.getElement().debug("Requests\t" + this + "\t" + getDescription());
 		if (!isExclusive() || (fe.getElement().getCurrent() == null)) {

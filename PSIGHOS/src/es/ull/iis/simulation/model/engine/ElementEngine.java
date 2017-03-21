@@ -11,14 +11,14 @@ import es.ull.iis.simulation.model.FlowExecutor;
  */
 public interface ElementEngine extends EventSourceEngine {
 	/**
-	 * Notifies a new work thread is waiting in an activity queue.
-	 * @param wt Work thread waiting in queue.
+	 * Notifies a new flow executor is waiting in an activity queue.
+	 * @param fe Flow executor waiting in queue.
 	 */
 	void incInQueue(FlowExecutor fe);
 
 	/**
-	 * Notifies a work thread has finished waiting in an activity queue.
-	 * @param wt Work thread that was waiting in a queue.
+	 * Notifies a flow executor has finished waiting in an activity queue.
+	 * @param fe Flow executor that was waiting in a queue.
 	 */
 	void decInQueue(FlowExecutor fe);
 

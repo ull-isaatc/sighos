@@ -10,27 +10,27 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  *
  */
 public abstract class SimulationObject implements Comparable<SimulationObject>, Identifiable, Debuggable {
-	protected final Simulation model;
+	protected final Simulation simul;
 	private final String objectTypeId;
 	protected final int id;
     /** String which represents the object */
     private final String idString;
 	
-	public SimulationObject(Simulation model, int id, String objectTypeId) {
-		this.model = model;
+	public SimulationObject(Simulation simul, int id, String objectTypeId) {
+		this.simul = simul;
 		this.objectTypeId = objectTypeId;
 		this.id = id;
 		idString = new String("[" + objectTypeId + id + "]");
 		// In case the object is created after the simulation has started
-		if (model.getSimulationEngine() != null)
-			assignSimulation(model.getSimulationEngine());
+		if (simul.getSimulationEngine() != null)
+			assignSimulation(simul.getSimulationEngine());
 	}
 	
 	/**
 	 * @return the model
 	 */
 	public Simulation getModel() {
-		return model;
+		return simul;
 	}
 
 	/**
@@ -67,7 +67,7 @@ public abstract class SimulationObject implements Comparable<SimulationObject>, 
 	 */
     public void debug(String message) {
     	if (Simulation.isDebugEnabled())
-    		Simulation.debug(this.toString() + "\t" + model.getSimulationEngine().getTs() + "\t" + message);
+    		Simulation.debug(this.toString() + "\t" + simul.getSimulationEngine().getTs() + "\t" + message);
 	}
 	
     /*
@@ -75,7 +75,7 @@ public abstract class SimulationObject implements Comparable<SimulationObject>, 
      * @see es.ull.iis.simulation.Debuggable#error(java.lang.String)
      */
 	public void error(String description) {
-		Simulation.error(this.toString() + "\t" + model.getSimulationEngine().getTs() + "\t" + description);
+		Simulation.error(this.toString() + "\t" + simul.getSimulationEngine().getTs() + "\t" + description);
 	}
     
 	/*

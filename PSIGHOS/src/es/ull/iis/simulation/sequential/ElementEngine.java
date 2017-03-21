@@ -17,7 +17,7 @@ public class ElementEngine extends EngineObject implements es.ull.iis.simulation
 	/** Activity queues in which this element is. This list is used to notify the activities
 	 * when the element becomes available. */
 	protected final ArrayList<FlowExecutor> inQueue = new ArrayList<FlowExecutor>();
-
+	/** The associated {@link Element} */
 	private final Element modelElem;
 	
 	/**
@@ -32,25 +32,18 @@ public class ElementEngine extends EngineObject implements es.ull.iis.simulation
 	}
 
 	/**
-	 * @return the modelElem
+	 * Returns the associated {@link Element}
+	 * @return the associated {@link Element}
 	 */
 	public Element getModelElem() {
 		return modelElem;
 	}
 
-	/**
-	 * Notifies a new work thread is waiting in an activity queue.
-	 * @param wt Work thread waiting in queue.
-	 */
 	@Override
 	public void incInQueue(FlowExecutor fe) {
 		inQueue.add(fe);
 	}
 
-	/**
-	 * Notifies a work thread has finished waiting in an activity queue.
-	 * @param wt Work thread that was waiting in a queue.
-	 */
 	@Override
 	public void decInQueue(FlowExecutor fe) {
 		inQueue.remove(fe);
@@ -60,7 +53,9 @@ public class ElementEngine extends EngineObject implements es.ull.iis.simulation
 	public void notifyAvailableElement() {
 		for (final FlowExecutor fe : inQueue) {
             final RequestResourcesFlow act = (RequestResourcesFlow) fe.getCurrentFlow();
-            act.getManager().notifyAvailableElement(fe);
+			if (act.isExclusive()) {
+	            act.getManager().notifyAvailableElement(fe);
+			}
 		}
 	}
 

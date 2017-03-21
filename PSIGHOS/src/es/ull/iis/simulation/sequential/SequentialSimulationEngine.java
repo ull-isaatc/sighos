@@ -9,10 +9,8 @@ import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Element;
-import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.Resource;
-import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.TimeDrivenGenerator;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
 /**
@@ -53,8 +51,8 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 	 * @param endTs
 	 *            Simulation's end timestamp expresed in Simulation Time Units
 	 */
-	public SequentialSimulationEngine(int id, Simulation model) {
-		super(id, model);
+	public SequentialSimulationEngine(int id, Simulation simul) {
+		super(id, simul);
 	}
 
     /**
@@ -165,36 +163,12 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 		return activeElementList;
 	}
 	
-	/**
-	 * A basic event which facilitates the control of the end of the simulation. Scheduling this event
-	 * ensures that there's always at least one event in the simulation. 
-	 * @author Iván Castilla Rodríguez
-	 */
-    class SimulationEndEvent extends DiscreteEvent {
-    	/**
-    	 * Creates a very simple element to control the simulation end.
-    	 */
-		public SimulationEndEvent() {
-			super(simul.getEndTs());
-		}
-
-		@Override
-		public void event() {
-		}
-
-    }
-
 	@Override
 	public void initializeEngine() {
 	}
 
 	@Override
-	public es.ull.iis.simulation.model.engine.ResourceTypeEngine getResourceTypeEngineInstance(ResourceType modelRT) {
-		return new ResourceTypeEngine(this, modelRT);
-	}
-
-	@Override
-	public es.ull.iis.simulation.model.ResourceList getResourceListInstance(ResourceType modelRT) {
+	public es.ull.iis.simulation.model.ResourceList getResourceListInstance() {
 		return new ResourceList();
 	}
 
@@ -217,19 +191,6 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 	public es.ull.iis.simulation.model.engine.RequestResourcesEngine getRequestResourcesEngineInstance(
 			RequestResourcesFlow reqFlow) {
 		return new RequestResourcesEngine(this, reqFlow);
-	}
-
-	@Override
-	public void launchInitialEvents() {
-		// Starts all the time driven generators
-		for (TimeDrivenGenerator<?> evSource : simul.getTimeDrivenGeneratorList())
-			addWait(evSource.onCreate(simul.getStartTs()));
-		// Starts all the resources
-		for (Resource res : simul.getResourceList())
-			addWait(res.onCreate(simul.getStartTs()));
-
-		// Adds the event to control end of simulation
-		addWait(new SimulationEndEvent());		
 	}
 
 	@Override

@@ -30,6 +30,8 @@ public class Resource extends VariableStoreModelObject implements Describable, E
     protected final ArrayList<TimeTableEntry> cancelPeriodTable = new ArrayList<TimeTableEntry>();
     /** If true, indicates that this resource is being used after its availability time has expired */
     private boolean timeOut = false;
+    /** The resource type which this resource is being booked for */
+    protected ResourceType currentResourceType = null;
     /** The engine in charge of executing specific actions */
     private ResourceEngine engine;
 
@@ -113,7 +115,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 	 * @param role The type of this resource during every activation 
 	 */
 	public void addTimeTableEntry(SimulationCycle cycle, long dur, ResourceType role) {
-    	addTimeTableEntry(cycle, new TimeStamp(model.getTimeUnit(), dur), role);
+    	addTimeTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), role);
     }  
     
 	/**
@@ -123,7 +125,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 	 * @param roleList The types of this resource during every activation 
 	 */
 	public void addTimeTableEntry(SimulationCycle cycle, long dur, ArrayList<ResourceType> roleList) {
-    	addTimeTableEntry(cycle, new TimeStamp(model.getTimeUnit(), dur), roleList);
+    	addTimeTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), roleList);
     }  
     
     /**
@@ -155,7 +157,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
      * @param role Role that the resource plays during this cycle
      */
 	public void addCancelTableEntry(SimulationCycle cycle, long dur, ResourceType role) {
-    	addCancelTableEntry(cycle, new TimeStamp(model.getTimeUnit(), dur), role);
+    	addCancelTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), role);
     }  
 
     /**
@@ -166,7 +168,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
      * @param roleList Roles that the resource play during this cycle
      */
 	public void addCancelTableEntry(SimulationCycle cycle, long dur, ArrayList<ResourceType> roleList) {
-    	addCancelTableEntry(cycle, new TimeStamp(model.getTimeUnit(), dur), roleList);
+    	addCancelTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), roleList);
     }
 
 	@Override
@@ -192,9 +194,17 @@ public class Resource extends VariableStoreModelObject implements Describable, E
      * @return Value of property currentResourceType.
      */
     public ResourceType getCurrentResourceType() {
-        return engine.getCurrentResourceType();
+        return currentResourceType;
     }
 
+    /**
+     * Setter for property currentResourceType.
+     * @param rt Value of property currentResourceType.
+     */
+    public void setCurrentResourceType(ResourceType rt) {
+    	currentResourceType = rt;
+    }
+    
     public FlowExecutor getCurrentFlowExecutor() {
     	return engine.getCurrentFlowExecutor();
     }
@@ -275,7 +285,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
      */
     public void generateCancelPeriodOffEvent(long ts, long duration) {
     	CancelPeriodOffEvent aEvent = new CancelPeriodOffEvent(ts + duration, null, 0);
-        model.getSimulationEngine().addEvent(aEvent);
+        simul.addEvent(aEvent);
     }
     
     /**
@@ -291,31 +301,31 @@ public class Resource extends VariableStoreModelObject implements Describable, E
     	
 		@Override
 		public void event() {
-			model.notifyInfo(new ResourceInfo(model, Resource.this, null, ResourceInfo.Type.START, getTs()));
+			simul.notifyInfo(new ResourceInfo(simul, Resource.this, null, ResourceInfo.Type.START, getTs()));
 			for (int i = 0 ; i < timeTable.size(); i++) {
 				TimeTableEntry tte = timeTable.get(i);
 				if (tte.isPermanent()) {
-		            final RoleOnEvent rEvent = new RoleOnEvent(getTs(), tte.getRole(), null, model.getEndTs());
-		            model.getSimulationEngine().addEvent(rEvent);
+		            final RoleOnEvent rEvent = new RoleOnEvent(getTs(), tte.getRole(), null, simul.getEndTs());
+		            simul.addEvent(rEvent);
 		            engine.incValidTimeTableEntries();
 				}
 				else {
-			        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), model.getEndTs());
+			        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getEndTs());
 			        final long nextTs = iter.next();
 			        if (nextTs != -1) {
-			            RoleOnEvent rEvent = new RoleOnEvent(nextTs, tte.getRole(), iter, model.simulationTime2Long(tte.getDuration()));
-			            model.getSimulationEngine().addEvent(rEvent);
+			            RoleOnEvent rEvent = new RoleOnEvent(nextTs, tte.getRole(), iter, simul.simulationTime2Long(tte.getDuration()));
+			            simul.addEvent(rEvent);
 			            engine.incValidTimeTableEntries();
 			        }
 				}
 			}
 			for (int i = 0 ; i < cancelPeriodTable.size(); i++) {
 				final TimeTableEntry tte = cancelPeriodTable.get(i);
-		        final DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), model.getEndTs());
+		        final DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getEndTs());
 		        long nextTs = iter.next();
 		        if (nextTs != -1) {
-		            final CancelPeriodOnEvent aEvent = new CancelPeriodOnEvent(nextTs, iter, model.simulationTime2Long(tte.getDuration()));
-		            model.getSimulationEngine().addEvent(aEvent);
+		            final CancelPeriodOnEvent aEvent = new CancelPeriodOnEvent(nextTs, iter, simul.simulationTime2Long(tte.getDuration()));
+		            simul.addEvent(aEvent);
 		            engine.incValidTimeTableEntries();
 		        }
 			}
@@ -354,16 +364,16 @@ public class Resource extends VariableStoreModelObject implements Describable, E
         public void event() {
         	final long waitTime = role.beforeRoleOn();
         	if (waitTime == 0) {
-        		model.notifyInfo(new ResourceInfo(model, Resource.this, role, ResourceInfo.Type.ROLON, ts));
+        		simul.notifyInfo(new ResourceInfo(simul, Resource.this, role, ResourceInfo.Type.ROLON, ts));
         		debug("Resource available\t" + role);
         		role.incAvailable(Resource.this);
         		engine.addRole(role, ts + duration);
         		role.afterRoleOn();
         		RoleOffEvent rEvent = new RoleOffEvent(ts + duration, role, iter, duration);
-        		model.getSimulationEngine().addEvent(rEvent);
+        		simul.addEvent(rEvent);
         	} else {
         		RoleOnEvent rEvent = new RoleOnEvent(ts + waitTime, role, iter, duration);
-        		model.getSimulationEngine().addEvent(rEvent);
+        		simul.addEvent(rEvent);
         	}
         }
 
@@ -405,14 +415,14 @@ public class Resource extends VariableStoreModelObject implements Describable, E
         public void event() {
         	final long waitTime = role.beforeRoleOff();
         	if (waitTime == 0) {
-        		model.notifyInfo(new ResourceInfo(model, Resource.this, role, ResourceInfo.Type.ROLOFF, ts));
+        		simul.notifyInfo(new ResourceInfo(simul, Resource.this, role, ResourceInfo.Type.ROLOFF, ts));
         		role.decAvailable(Resource.this);
         		engine.removeRole(role);
         		debug("Resource unavailable\t" + role);
         		final long nextTs = (iter == null) ? -1 : iter.next();
         		if (nextTs != -1) {
         			RoleOnEvent rEvent = new RoleOnEvent(nextTs, role, iter, duration);
-        			model.getSimulationEngine().addEvent(rEvent);            	
+        			simul.addEvent(rEvent);            	
         		}
         		else if (engine.decValidTimeTableEntries() == 0) {
         			role.afterRoleOff();
@@ -420,7 +430,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
         		}
         	} else {
         		RoleOffEvent rEvent = new RoleOffEvent(ts + waitTime, role, iter, duration);
-        		model.getSimulationEngine().addEvent(rEvent);
+        		simul.addEvent(rEvent);
         	}
         }
 
@@ -457,10 +467,10 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 
 		@Override
 		public void event() {
-			model.notifyInfo(new ResourceInfo(model, Resource.this, getCurrentResourceType(), ResourceInfo.Type.CANCELON, ts));
+			simul.notifyInfo(new ResourceInfo(simul, Resource.this, getCurrentResourceType(), ResourceInfo.Type.CANCELON, ts));
 			engine.setNotCanceled(false);
 			CancelPeriodOffEvent aEvent = new CancelPeriodOffEvent(ts + duration, iter, duration);
-			model.getSimulationEngine().addEvent(aEvent);
+			simul.addEvent(aEvent);
 		}
 
 	}
@@ -490,7 +500,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 
 		@Override
 		public void event() {
-			model.notifyInfo(new ResourceInfo(model, Resource.this, getCurrentResourceType(), ResourceInfo.Type.CANCELOFF, ts));
+			simul.notifyInfo(new ResourceInfo(simul, Resource.this, getCurrentResourceType(), ResourceInfo.Type.CANCELOFF, ts));
 			engine.setNotCanceled(true);
 			engine.notifyCurrentManagers();
 			long nextTs = -1;
@@ -498,7 +508,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 				nextTs = iter.next();
 			if (nextTs != -1) {
 				CancelPeriodOnEvent aEvent = new CancelPeriodOnEvent(nextTs, iter, duration);
-				model.getSimulationEngine().addEvent(aEvent);            	
+				simul.addEvent(aEvent);            	
 			}
 		}
 	}

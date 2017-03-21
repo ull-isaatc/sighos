@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.parallel.flow;
 
-import es.ull.iis.simulation.parallel.Element;
+import es.ull.iis.simulation.parallel.ElementEngine;
 import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
 import es.ull.iis.simulation.parallel.FlowExecutor;
 
@@ -53,7 +53,7 @@ public class ThreadMergeFlow extends ANDJoinFlow implements es.ull.iis.simulatio
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
 	public void request(FlowExecutor wThread) {
-		final Element elem = wThread.getElement();
+		final ElementEngine elem = wThread.getElement();
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (!beforeRequest(elem))

@@ -53,7 +53,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	
 	@Override
 	public EventSource createEventSource(int ind, GenerationTrio info) {
-		Element elem = new Element(model, info.getElementType(), info.getFlow());
+		Element elem = new Element(simul, info.getElementType(), info.getFlow());
 		elem.initializeElementVars(info.getElementType().getElementValues());
 		return elem;
 	}

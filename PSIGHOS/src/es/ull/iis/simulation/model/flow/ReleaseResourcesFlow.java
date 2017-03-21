@@ -111,7 +111,7 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
     public boolean releaseResources(FlowExecutor fe) {
         if (!fe.releaseCaughtResources(wg))
         	return false;
-		model.notifyInfo(new ElementActionInfo(model, fe, fe.getElement(), this, fe.getExecutionWG(), ElementActionInfo.Type.REL, model.getSimulationEngine().getTs()));
+		simul.notifyInfo(new ElementActionInfo(simul, fe, fe.getElement(), this, fe.getExecutionWG(), ElementActionInfo.Type.REL, simul.getSimulationEngine().getTs()));
 		if (fe.getElement().isDebugEnabled())
 			fe.getElement().debug("Finishes\t" + this + "\t" + getDescription());
 		afterFinalize(fe);

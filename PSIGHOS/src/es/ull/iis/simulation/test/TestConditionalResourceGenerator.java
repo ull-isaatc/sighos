@@ -38,9 +38,9 @@ public class TestConditionalResourceGenerator extends Experiment {
 		@Override
 		public void afterFinalize(FlowExecutor fe) {
 			if (specialId < NRT - 1) {
-				final Resource res = new Resource(model, "Container " + (specialId + 1));
+				final Resource res = new Resource(simul, "Container " + (specialId + 1));
 				res.addTimeTableEntry(rts[specialId + 1]);
-				model.getSimulationEngine().addEvent(res.onCreate(model.getSimulationEngine().getTs()));
+				simul.addEvent(res.onCreate(simul.getSimulationEngine().getTs()));
 			}
 		}
 	}

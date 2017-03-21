@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.parallel;
 
+import es.ull.iis.simulation.model.DiscreteEvent;
 
 /**
  * A class capable to run events. A class implementing this interface must include two local
@@ -19,6 +20,6 @@ public interface EventExecutor {
 	 * the future event local buffer. 
 	 * @param event New event to be added.
 	 */
-	void addEvent(BasicElement.DiscreteEvent event);
+	void addEvent(DiscreteEvent event);
 
 }

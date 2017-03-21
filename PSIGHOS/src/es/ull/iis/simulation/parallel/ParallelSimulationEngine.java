@@ -12,11 +12,15 @@ import edu.bonn.cs.net.jbarrier.barrier.AbstractBarrier;
 import edu.bonn.cs.net.jbarrier.barrier.TournamentBarrier;
 import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.model.ActivityManager;
-import es.ull.iis.simulation.model.ActivityManagerCreator;
-import es.ull.iis.simulation.model.TimeStamp;
-import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.parallel.flow.Flow;
-import es.ull.iis.util.Output;
+import es.ull.iis.simulation.model.DiscreteEvent;
+import es.ull.iis.simulation.model.Element;
+import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.SimulationObject;
+import es.ull.iis.simulation.model.engine.EventSourceEngine;
+import es.ull.iis.simulation.model.engine.RequestResourcesEngine;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
 /**
  * Main parallel discrete event simulation class. A simulation uses all kind of 
@@ -29,49 +33,21 @@ import es.ull.iis.util.Output;
  * @author Iván Castilla Rodríguez
  */
 public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine.SimulationEngine {
-	/** The identifier to be assigned to the next resource */ 
-	protected int nextResourceId = 0;
-	/** The identifier to be assigned to the next activity */ 
-	protected int nextActivityId = 0;
-	/** The identifier to be assigned to the next resource type */ 
-	protected int nextResourceTypeId = 0;
-	/** The identifier to be assigned to the next element type */ 
-	protected int nextElementTypeId = 0;
-	/** The identifier to be assigned to the next flow */ 
-	protected AtomicInteger nextFlowId = new AtomicInteger(0);
-	/** The identifier to be assigned to the next element */ 
-	protected AtomicInteger nextElementId = new AtomicInteger(0);
-
-	/** List of resources present in the simulation. */
-	protected final TreeMap<Integer, Resource> resourceList = new TreeMap<Integer, Resource>();
-	/** List of element generators of the simulation. */
-	protected final ArrayList<Generator> generatorList = new ArrayList<Generator>();
-	/** List of activities present in the simulation. */
-	protected final TreeMap<Integer, Activity> activityList = new TreeMap<Integer, Activity>();
-	/** List of resource types present in the simulation. */
-	protected final TreeMap<Integer, ResourceType> resourceTypeList = new TreeMap<Integer, ResourceType>();
-	/** List of resource types present in the simulation. */
-	protected final TreeMap<Integer, ElementType> elementTypeList = new TreeMap<Integer, ElementType>();
-	/** List of activity managers that partition the simulation. */
-	protected final ArrayList<ActivityManager> activityManagerList = new ArrayList<ActivityManager>();	
-	/** List of flows present in the simulation */
-	protected final TreeMap<Integer, Flow> flowList = new TreeMap<Integer, Flow>();
 	/** List of active elements */
-	private final Map<Integer, Element> activeElementList = Collections.synchronizedMap(new TreeMap<Integer, Element>());
-	/** A definition of how to create the AMs */
-	private ActivityManagerCreator amCreator = null;
+	private final Map<Integer, ElementEngine> activeElementList = Collections.synchronizedMap(new TreeMap<Integer, ElementEngine>());
 	/** Local virtual time. Represents the current simulation time */
 	private volatile long lvt;
     /** A counter to know how many events are in execution */
     private AtomicInteger executingEvents = new AtomicInteger(0);
 	/** A timestamp-ordered list of events whose timestamp is in the future. Events are grouped according 
 	 * to their timestamps. */
-	private final TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>> futureEventList  = new TreeMap<Long, ArrayList<BasicElement.DiscreteEvent>>();
-	private ArrayList<BasicElement.DiscreteEvent> currentEvents;
+	private final TreeMap<Long, ArrayList<DiscreteEvent>> futureEventList  = new TreeMap<Long, ArrayList<DiscreteEvent>>();
+	private ArrayList<DiscreteEvent> currentEvents;
 	/** The slave event executors */
     private SlaveEventExecutor [] executor;
     /** The barrier to control the phases of simulation */
 	private AbstractBarrier barrier;
+	
 	/**
 	 * Creates a new ParallelSimulationEngine which starts at <code>startTs</code> and finishes at <code>endTs</code>.
 	 * @param id This simulation's identifier
@@ -80,102 +56,18 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 	 * @param startTs Timestamp of simulation's start
 	 * @param endTs Timestamp of simulation's end
 	 */
-	public ParallelSimulationEngine(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
-		super(id, description, unit, startTs, endTs);
+	public ParallelSimulationEngine(int id, Simulation simul) {
+		super(id, simul);
         // The Local virtual time is set to the immediately previous instant to the simulation start time
-        lvt = internalStartTs - 1;
+        lvt = simul.getStartTs() - 1;
 	}
 	
-	/**
-	 * Creates a new ParallelSimulationEngine which starts at <code>startTs</code> and finishes at <code>endTs</code>.
-	 * @param id This simulation's identifier
-	 * @param description A short text describing this simulation
-	 * @param unit Time unit used to define the simulation time
-	 * @param startTs ParallelSimulationEngine's start timestamp expresed in ParallelSimulationEngine Time Units
-	 * @param endTs ParallelSimulationEngine's end timestamp expresed in ParallelSimulationEngine Time Units
-	 */
-	public ParallelSimulationEngine(int id, String description, TimeUnit unit, long startTs, long endTs) {
-		super(id, description, unit, startTs, endTs);
-        // The Local virtual time is set to the immediately previous instant to the simulation start time
-        lvt = internalStartTs - 1;
-	}
-	
-	/**
-	 * Starts the execution of the simulation. It creates and initializes all the necessary 
-	 * structures.<p> The following checks and initializations are performed within this method:
-	 * <ol>
-	 * <li>If no customized {@link Output debug output} has been defined, the default one is 
-	 * used.</li>
-	 * <li>If no customized {@link ActivityManagerCreator AM creator} has been defined, the 
-	 * {@link StandardActivityManagerCreator default one} is used.</li>
-	 * <li>As many SlaveEventExecutor event executors as threads set by using 
-	 * {@link #setNThreads(int)} are created.</li>
-	 * <li>The AMs are equally distributed among the available executors</li> 
-	 * <li>The user defined method {@link #init()} is invoked.</li>
-	 * <li>{@link Resource Resources} and {@link Generator generators} are started.</li>
-	 * <li>The main simulation loop is run</li>
-	 * <li>The user defined method {@link #end()} is invoked.</li>
-	 * </ol>
-	 * The execution loop consists on waiting for the elements which are in execution, then the 
-	 * waiting events are executed (@see #execWaitingElements()} 
-     * advanced and a new set of events is executed.<br> 
-	 * Also checks if a valid output for debug messages has been declared. Note that no 
-	 * debug messages can be printed before this method is declared unless <code>setOutput</code>
-	 * had been invoked. 
-	 */
-	public void run() {
-		if (out == null)
-			out = new Output();
-		debug("SIMULATION MODEL CREATED");
-		
-		initializeEngine();
-        // The user defined method for initialization is invoked
-		init();
-
-		infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationStartInfo(this, System.nanoTime(), this.internalStartTs));
-		
-		// Starts all the generators
-		for (Generator gen : generatorList)
-			addWait(gen.getStartEvent(internalStartTs));
-		// Starts all the resources
-		for (Resource res : resourceList.values())
-			addWait(res.getStartEvent(internalStartTs));		
-
-		// Adds the event to control end of simulation
-		addWait(new SimulationElement().getStartEvent(internalEndTs));
-
-		advanceSimulationClock();
-
-        for (int i = 0; i < nThreads; i++) {
-			executor[i].start();
-		}
-
-		try {
-			for (int i = 0; i < nThreads; i++) {
-				executor[i].join();
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		// ParallelSimulationEngine has finished
-    	debug("SIMULATION TIME FINISHES\r\nSimulation time = " +
-            	lvt + "\r\nPreviewed simulation time = " + internalEndTs);
-    	printState();
-		
-        // The user defined method for finalization is invoked
-		end();
-		
-		infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationEndInfo(this, System.nanoTime(), this.internalEndTs));
-		debug("SIMULATION COMPLETELY FINISHED");
-	}
-
     /**
      * Indicates if the simulation clock has reached the simulation end.
      * @return True if the simulation clock is higher or equal to the simulation end. False in other case.
      */
     public boolean isSimulationEnd() {
-        return(lvt >= internalEndTs);
+        return(lvt >= simul.getEndTs());
     }
 
     /**
@@ -191,10 +83,10 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
      * its timestamp is higher than the simulation time.
      * @param e Event to be added
      */
-	public void addWait(BasicElement.DiscreteEvent e) {
-		ArrayList<BasicElement.DiscreteEvent> list = futureEventList.get(e.getTs());
+	public void addWait(DiscreteEvent e) {
+		ArrayList<DiscreteEvent> list = futureEventList.get(e.getTs());
 		if (list == null) {
-			list = new ArrayList<BasicElement.DiscreteEvent>();
+			list = new ArrayList<DiscreteEvent>();
 			list.add(e);
 			futureEventList.put(e.getTs(), list);
 		}
@@ -208,65 +100,18 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
      * @param e Event to be removed
      * @return True if the queue contained the event; false otherwise
      */
-    protected boolean removeWait(BasicElement.DiscreteEvent e) {
+    protected boolean removeWait(DiscreteEvent e) {
         return (futureEventList.remove(e) != null);
     }
     
-	/**
-	 * @return the nextResourceId
-	 */
-	protected int getNextResourceId() {
-		return nextResourceId++;
-	}
-
-
-	/**
-	 * @return the nextActivityId
-	 */
-	protected int getNextActivityId() {
-		return nextActivityId++;
-	}
-
-
-	/**
-	 * @return the nextResourceTypeId
-	 */
-	protected int getNextResourceTypeId() {
-		return nextResourceTypeId++;
-	}
-
-
-	/**
-	 * @return the nextElementTypeId
-	 */
-	protected int getNextElementTypeId() {
-		return nextElementTypeId++;
-	}
-
-
-	/**
-	 * @return the nextFlowId
-	 */
-	public int getNextFlowId() {
-		return nextFlowId.getAndIncrement();
-	}
-
-
-	/**
-	 * @return the nextElementId
-	 */
-	protected int getNextElementId() {
-		return nextElementId.getAndIncrement();
-	}
-
 	private class BarrierAction implements Runnable {
 		@Override
 		public void run() {
 			// Updates the future event list with the events produced by the executor threads
 	    	for (SlaveEventExecutor ee : executor) {
-	    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
+	    		ArrayDeque<DiscreteEvent> list = ee.getWaitingEvents();
 	    		while (!list.isEmpty()) {
-	    			BasicElement.DiscreteEvent e = list.pop();
+	    			DiscreteEvent e = list.pop();
 	    			addWait(e);
 	    		}    		
 	    	}
@@ -276,12 +121,12 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 	}
 	
 	private void advanceSimulationClock() {
-        beforeClockTick();
+        simul.beforeClockTick();
 
         // Advances the simulation clock
         lvt = futureEventList.firstKey();
-        infoHandler.notifyInfo(new TimeChangeInfo(this, lvt));
-        afterClockTick();
+        simul.notifyInfo(new TimeChangeInfo(simul, lvt));
+        simul.afterClockTick();
         debug("SIMULATION TIME ADVANCING " + lvt);
 
         if (!isSimulationEnd()) {
@@ -293,40 +138,16 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 	}
 	
 	/**
-	 * A basic element which facilitates the control of the end of the simulation. It simply
-	 * schedules an event at <code>endTs</code>, so there's always at least one event in 
-	 * the simulation. 
-	 * @author Iván Castilla Rodríguez
-	 */
-    class SimulationElement extends BasicElement {
-
-    	/**
-    	 * Creates a very simple element to control the simulation end.
-    	 */
-		public SimulationElement() {
-			super(0, ParallelSimulationEngine.this);
-		}
-
-		@Override
-		protected void init() {
-		}
-		
-		@Override
-		protected void end() {
-		}
-    }
-    
-	/**
 	 * Prints the current state of the simulation for debug purposes. Prints the current local 
 	 * time, the contents of the future event list and the execution queue. 
 	 */
-	protected void printState() {
+	public void printState() {
 		if (isDebugEnabled()) {
 			StringBuffer strLong = new StringBuffer("------    LP STATE    ------");
 			strLong.append("LVT: " + lvt + "\r\n");
 	        strLong.append(futureEventList.size() + " waiting elements: ");
-	        for (ArrayList<BasicElement.DiscreteEvent> ad : futureEventList.values())
-	        	for (BasicElement.DiscreteEvent e : ad)
+	        for (ArrayList<DiscreteEvent> ad : futureEventList.values())
+	        	for (DiscreteEvent e : ad)
 	        		strLong.append(e + " ");
 	        strLong.append("\r\n" + executingEvents + " executing elements:");
 	        strLong.append("\r\n");
@@ -348,9 +169,9 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 	final class SlaveEventExecutor extends Thread implements EventExecutor {
 		private final int threadId;
 		/** Execution local buffer */
-		private final ArrayDeque<BasicElement.DiscreteEvent> extraEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+		private final ArrayDeque<DiscreteEvent> extraEvents = new ArrayDeque<DiscreteEvent>();
 		/** Future event local buffer */
-		private final ArrayDeque<BasicElement.DiscreteEvent> extraWaitingEvents = new ArrayDeque<BasicElement.DiscreteEvent>();
+		private final ArrayDeque<DiscreteEvent> extraWaitingEvents = new ArrayDeque<DiscreteEvent>();
 		/** The list of AMs tackled by this executor */
 		private final ArrayDeque<ActivityManager> amList = new ArrayDeque<ActivityManager>();
 		
@@ -372,7 +193,7 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 		}
 		
 		@Override
-		public void addEvent(BasicElement.DiscreteEvent event) {
+		public void addEvent(DiscreteEvent event) {
 	    	final long evTs = event.getTs();
 	        if (evTs == lvt) {
 				executingEvents.incrementAndGet();
@@ -389,13 +210,13 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 		 * Returns the contents of the local future event buffer.
 		 * @return The contents of the local future event buffer
 		 */
-		public ArrayDeque<BasicElement.DiscreteEvent> getWaitingEvents() {
+		public ArrayDeque<DiscreteEvent> getWaitingEvents() {
 			return extraWaitingEvents;
 		}
 		
 		@Override
 		public void run() {
-			while (lvt < internalEndTs) {
+			while (lvt < simul.getEndTs()) {
 	    		// Executes its events
 	    		final int totalEvents = currentEvents.size();
 	    		int myEventsCount = 0;
@@ -430,9 +251,9 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 				else {
 					// Updates the future event list with the events produced by the executor threads
 			    	for (SlaveEventExecutor ee : executor) {
-			    		ArrayDeque<BasicElement.DiscreteEvent> list = ee.getWaitingEvents();
+			    		ArrayDeque<DiscreteEvent> list = ee.getWaitingEvents();
 			    		while (!list.isEmpty()) {
-			    			BasicElement.DiscreteEvent e = list.pop();
+			    			DiscreteEvent e = list.pop();
 			    			addWait(e);
 			    		}    		
 			    	}
@@ -442,139 +263,12 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 			
 		}
 	}
-	
-	/**
-	 * Adds an {@link Activity} to the model. This method is invoked from the object's constructor.
-	 * @param act Activity that's added to the model.
-	 * @return previous value associated with the key of specified object, or <code>null</code>
-	 *  if there was no previous mapping for key.
-	 */
-	protected Activity add(Activity act) {
-		return activityList.put(act.getIdentifier(), act);
-	}
-	
-	/**
-	 * Adds an {@link ElementType} to the model. This method is invoked from the object's constructor.
-	 * @param et Element Type that's added to the model.
-	 * @return previous value associated with the key of specified object, or <code>null</code>
-	 *  if there was no previous mapping for key.
-	 */
-	protected ElementType add(ElementType et) {
-		return elementTypeList.put(et.getIdentifier(), et);
-	}
-	
-	/**
-	 * Adds an {@link ResourceType} to the model. This method is invoked from the object's constructor.
-	 * @param rt Resource Type that's added to the model.
-	 * @return previous value associated with the key of specified object, or <code>null</code>
-	 *  if there was no previous mapping for key.
-	 */
-	protected ResourceType add(ResourceType rt) {
-		return resourceTypeList.put(rt.getIdentifier(), rt);
-	}
-	
-	/**
-	 * Adds an {@link Flow} to the model. This method is invoked from the object's constructor.
-	 * @param f Flow that's added to the model.
-	 * @return previous value associated with the key of specified object, or <code>null</code>
-	 *  if there was no previous mapping for key.
-	 */
-	public Flow add(Flow f) {
-		return flowList.put(f.getIdentifier(), f);
-		
-	}
-	
-	/**
-	 * Adds a {@link Resource} to the simulation. This method is invoked from the object's constructor.
-	 * @param res Resource that's added to the model.
-	 * @return previous value associated with the key of specified object, or <code>null</code>
-	 *  if there was no previous mapping for key.
-	 */
-	protected Resource add(Resource res) {
-		return resourceList.put(res.getIdentifier(), res);
-	}
-	
-	/**
-	 * Adds an {@link ActivityManager} to the simulation. The activity managers are
-	 * automatically added from their constructor.
-	 * @param am Activity manager.
-	 */
-	protected void add(ActivityManager am) {
-		activityManagerList.add(am);
-	}
-
-	/**
-	 * Adds a {@link Generator} to the simulation. The generators are automatically
-	 * added from their constructor.
-	 * @param gen Generator.
-	 */
-	protected void add(Generator gen) {
-		generatorList.add(gen);
-	}
-	
-	@Override
-	public Map<Integer, Resource> getResourceList() {
-		return resourceList;
-	}
-
-	@Override
-	public Map<Integer, Activity> getActivityList() {
-		return activityList;
-	}
-
-	@Override
-	public Map<Integer, ResourceType> getResourceTypeList() {
-		return resourceTypeList;
-	}
-	
-	@Override
-	public Map<Integer, ElementType> getElementTypeList() {
-		return elementTypeList;
-	}
-
-	@Override
-	public Map<Integer, Flow> getFlowList() {
-		return flowList;
-	}
-
-	/**
-	 * Returns a list of the activity managers of the model.
-	 * @return Work activity managers of the model.
-	 */
-	public ArrayList<ActivityManager> getActivityManagerList() {
-		return activityManagerList;
-	}
-
-	@Override
-	public Activity getActivity(int id) {
-		return activityList.get(id);
-	}
-
-	@Override
-	public ResourceType getResourceType(int id) {
-		return resourceTypeList.get(id);
-	}
-
-	@Override
-	public Resource getResource(int id) {
-		return resourceList.get(id);
-	}
-
-	@Override
-	public ElementType getElementType(int id) {
-		return elementTypeList.get(id);
-	}
-
-	@Override
-	public Flow getFlow(int id) {
-		return flowList.get(id);
-	}
 
 	/**
 	 * Adds an element when it starts its execution.
 	 * @param elem An element that starts its execution.
 	 */
-	public void addActiveElement(Element elem) {
+	public void addActiveElement(ElementEngine elem) {
 		activeElementList.put(elem.getIdentifier(), elem);
 	}
 
@@ -582,7 +276,7 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 	 * Removes an element when it finishes its execution.
 	 * @param elem An element that finishes its execution.
 	 */
-	public void removeActiveElement(Element elem) {
+	public void removeActiveElement(ElementEngine elem) {
 		activeElementList.remove(elem.getIdentifier());
 	}
 
@@ -591,7 +285,7 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 	 * @param id The element's identifier.
 	 * @return The element with the specified identifier.
 	 */
-	public Element getActiveElement(int id) {
+	public ElementEngine getActiveElement(int id) {
 		return activeElementList.get(id);
 	}
 
@@ -599,29 +293,17 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 	 * Returns the current list of active elements.
 	 * @return The current list of active elements
 	 */
-	public Map<Integer, Element> getActiveElementList() {
+	public Map<Integer, ElementEngine> getActiveElementList() {
 		return activeElementList;
 	}
 	
-	/**
-	 * Prints the contents of the activity managers created.
-	 */
-	protected void debugPrintActManager() {
-		if (isDebugEnabled()) {
-			StringBuffer str1 = new StringBuffer("Activity Managers:\r\n");
-			for (ActivityManager am : activityManagerList)
-				str1.append(am.getDescription() + "\r\n");
-			debug(str1.toString());
-		}
-	}
-
 	@Override
+	/**
+	 * As many SlaveEventExecutor event executors as threads set by using 
+	 * {@link #setNThreads(int)} are created.
+	 * The AMs are equally distributed among the available executors.
+	 */ 
 	public void initializeEngine() {
-		// Sets default AM creator
-		if (amCreator == null)
-			amCreator = new StandardActivityManagerCreator(this);
-		amCreator.createActivityManagers();
-		debugPrintActManager();		
 		// Creates the event executors
         executor = new SlaveEventExecutor[nThreads];
         for (int i = 0; i < nThreads; i++) {
@@ -631,8 +313,56 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
         	barrier = new TournamentBarrier(executor.length, new BarrierAction());
         
         // Distributes the AMs among the executors
-        for (int i = 0; i < activityManagerList.size(); i++)
-        	executor[i % nThreads].assignActivityManager(activityManagerList.get(i));
+        final List<ActivityManager> amList = simul.getActivityManagerList();
+        for (int i = 0; i < amList.size(); i++)
+        	executor[i % nThreads].assignActivityManager(amList.get(i));
+	}
 
+	@Override
+	public void simulationLoop() {
+		advanceSimulationClock();
+
+        for (int i = 0; i < nThreads; i++) {
+			executor[i].start();
+		}
+
+		try {
+			for (int i = 0; i < nThreads; i++) {
+				executor[i].join();
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public ResourceEngine getResourceEngineInstance(Resource modelRes) {
+		return new ResourceEngine(this, modelRes);
+	}
+
+	@Override
+	public ElementEngine getElementEngineInstance(Element modelElem) {
+		return new ElementEngine(this, modelElem);
+	}
+
+	@Override
+	public ResourceList getResourceListInstance() {
+		return new ResourceList();
+	}
+
+	@Override
+	public ActivityManagerEngine getActivityManagerEngineInstance(ActivityManager modelAM) {
+		return new ActivityManagerEngine(this, modelAM);
+	}
+
+	@Override
+	public RequestResourcesEngine getRequestResourcesEngineInstance(RequestResourcesFlow reqFlow) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void addEvent(DiscreteEvent ev) {
+   		((EventExecutor)Thread.currentThread()).addEvent(ev);
 	}
 }

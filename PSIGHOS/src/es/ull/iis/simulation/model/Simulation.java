@@ -39,17 +39,26 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	/** Model identifier */
 	protected final int id;
 	private final static TimeUnit defTimeUnit = TimeUnit.MINUTE; 
+	/** The identifier to be assigned to the next element */ 
 	private int elemCounter = 0;
 //	private final ArrayList<EventSource> eventSourceList = new ArrayList<EventSource>();
+	/** List of element types present in the simulation. */
 	private final ArrayList<ElementType> elementTypeList = new ArrayList<ElementType>();
+	/** List of resources present in the simulation. */
 	private final ArrayList<Resource> resourceList = new ArrayList<Resource>();
+	/** List of resource types present in the simulation. */
 	private final ArrayList<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
+	/** List of workgroups present in the simulation */
 	private final ArrayList<WorkGroup> workGroupList = new ArrayList<WorkGroup>();
+	/** List of flows present in the simulation */
 	private final ArrayList<BasicFlow> flowList = new ArrayList<BasicFlow>();
+	/** List of activities present in the simulation. */
 	private final ArrayList<RequestResourcesFlow> actList = new ArrayList<RequestResourcesFlow>();
 //	private final ArrayList<Element> elemList = new ArrayList<Element>();
+	/** List of element generators of the simulation. */
 	private final ArrayList<TimeDrivenGenerator<?>> tGenList = new ArrayList<TimeDrivenGenerator<?>>();
 	private final ArrayList<ConditionDrivenGenerator<?>> cGenList = new ArrayList<ConditionDrivenGenerator<?>>();
+	/** List of activity managers that partition the simulation. */
 	private final ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
 
 	/** Output for printing debug and error messages */
@@ -200,14 +209,28 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	}
 	
 	/**
-	 * Starts the simulation execution. It creates and starts all the necessary 
-	 * structures. This method blocks until all the logical processes have finished 
-	 * their execution.<p>
-	 * If a state is indicated, sets the state of this simulation.<p>
-	 * Checks if a valid output for debug messages has been declared. Note that no 
-	 * debug messages can be printed before this method is declared unless <code>setOutput</code>
-	 * had been invoked. 
+	 * Adds a new event to the simulation
+	 * @param ev New event
 	 */
+	public void addEvent(DiscreteEvent ev) {
+		simulationEngine.addEvent(ev);
+	}
+	
+	/**
+	 * Starts the execution of the simulation. It creates and initializes all the necessary 
+	 * structures.<p> The following checks and initializations are performed within this method:
+	 * <ol>
+	 * <li>If no customized {@link ActivityManagerCreator AM creator} has been defined, the 
+	 * {@link StandardActivityManagerCreator default one} is used.</li>
+	 * <li>The user defined method {@link #init()} is invoked.</li>
+	 * <li>{@link Resource Resources} and {@link Generator generators} are started.</li>
+	 * <li>The main simulation loop is run</li>
+	 * <li>The user defined method {@link #end()} is invoked.</li>
+	 * </ol>
+	 * The execution loop consists on waiting for the elements which are in execution, then the 
+	 * waiting events are executed (@see #execWaitingElements()} 
+     * advanced and a new set of events is executed.<br>
+     */ 
 	@Override
 	public void run() {
 		debug("SIMULATION MODEL CREATED");
@@ -225,7 +248,16 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 
 		infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationStartInfo(this, System.nanoTime(), startTs));
 		
-		simulationEngine.launchInitialEvents();
+		// Starts all the time driven generators
+		for (TimeDrivenGenerator<?> evSource : tGenList)
+			simulationEngine.addEvent(evSource.onCreate(startTs));
+		// Starts all the resources
+		for (Resource res : resourceList)
+			simulationEngine.addEvent(res.onCreate(startTs));
+
+		// Adds the event to control end of simulation
+		simulationEngine.addEvent(new SimulationEndEvent());
+		
 		simulationEngine.simulationLoop();
 
 		debug("SIMULATION TIME FINISHES\r\nSimulation time = "
@@ -261,18 +293,34 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 //	public void add(EventSource ev) { 
 //		eventSourceList.add(ev);
 //	}
+	/**
+	 * Adds an {@link ElementType} to the model. This method is invoked from the object's constructor.
+	 * @param et Element Type that's added to the model.
+	 */
 	public void add(ElementType et) { 
 		elementTypeList.add(et);
 	}
+	/**
+	 * Adds a {@link Resource} to the simulation. This method is invoked from the object's constructor.
+	 * @param res Resource that's added to the model.
+	 */
 	public void add(Resource res) { 
 		resourceList.add(res);
 	}
+	/**
+	 * Adds an {@link ResourceType} to the model. This method is invoked from the object's constructor.
+	 * @param rt Resource Type that's added to the model.
+	 */
 	public void add(ResourceType rt) { 
 		resourceTypeList.add(rt);
 	}
 	public void add(WorkGroup wg) { 
 		workGroupList.add(wg);
 	}
+	/**
+	 * Adds an {@link BasicFlow} to the model. This method is invoked from the object's constructor.
+	 * @param f Flow that's added to the model.
+	 */
 	public void add(BasicFlow f) { 
 		flowList.add(f);
 		if (f instanceof RequestResourcesFlow)
@@ -284,6 +332,12 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	public void add(ConditionDrivenGenerator<?> gen) {
 		cGenList.add(gen);
 	}
+	
+	/**
+	 * Adds an {@link ActivityManager} to the simulation. The activity managers are
+	 * automatically added from their constructor.
+	 * @param am Activity manager.
+	 */
 	public void add(ActivityManager am) {
 		amList.add(am);
 	}
@@ -506,5 +560,23 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 
 	// End of user methods
 	
+	/**
+	 * A basic event which facilitates the control of the end of the simulation. Scheduling this event
+	 * ensures that there's always at least one event in the simulation. 
+	 * @author Iván Castilla Rodríguez
+	 */
+    class SimulationEndEvent extends DiscreteEvent {
+    	/**
+    	 * Creates a very simple element to control the simulation end.
+    	 */
+		public SimulationEndEvent() {
+			super(endTs);
+		}
+
+		@Override
+		public void event() {
+		}
+
+    }
 	
 }

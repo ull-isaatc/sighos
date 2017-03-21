@@ -1,13 +1,14 @@
 package es.ull.iis.simulation.parallel;
 
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.model.Identifiable;
-import es.ull.iis.simulation.parallel.flow.BasicFlow;
-import es.ull.iis.simulation.parallel.flow.Flow;
-import es.ull.iis.simulation.parallel.flow.SingleFlow;
-import es.ull.iis.simulation.parallel.flow.TaskFlow;
+import es.ull.iis.simulation.model.WorkToken;
+import es.ull.iis.simulation.model.flow.BasicFlow;
+import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.util.Prioritizable;
 
 /**
@@ -16,7 +17,7 @@ import es.ull.iis.util.Prioritizable;
  * There are three types of Work threads which require a different method to be created:
  * <ol>
  * <li>Main thread. Is the element's main thread. Must be created by invoking the static method
- * {@link #getInstanceMainWorkThread(Element)}</li>
+ * {@link #getInstanceMainWorkThread(ElementEngine)}</li>
  * <li>Descendant thread</li>A thread created to carry out the inner flows of a structured flow.
  * To invoke, use: {@link #getInstanceDescendantWorkThread()}</li>
  * <li>Subsequent thread</li>A thread created to carry out a new flow after a split.
@@ -29,22 +30,13 @@ import es.ull.iis.util.Prioritizable;
 public class FlowExecutor implements Identifiable, Prioritizable, Comparable<FlowExecutor> {
 	/** Thread's Counter. Useful for identifying each single flow */
 	private static AtomicInteger counter = new AtomicInteger();
-	/** Thread's internal identifier */
-	private final int id;
-    /** Element owner of this thread. */    
-    private final Element elem; 
-    /** The parent element thread */
-    private final FlowExecutor parent;
-    /** The descendant work threads */
-	private final ArrayList<FlowExecutor> descendants = new ArrayList<FlowExecutor>();
-	/** Thread's current Work Item */
-	private final WorkItem wItem;
-	/** A flag to indicate if the thread executes the flow or not */
-	private WorkToken token;
-	/** The current flow the thread is in */
-	protected BasicFlow currentFlow = null;
-	/** The last flow the thread was in */
-	private Flow lastFlow = null;
+    // Avoiding deadlocks (time-overlapped resources)
+    /** List of conflictive elements */
+    private ConflictZone conflicts;
+    /** Amount of possible conflictive resources in the solution */
+    private int conflictiveResources = 0;
+    /** Stack of nested semaphores */
+	private ArrayList<Semaphore> semStack;
     
     /** 
      * Creates a new work thread. The constructor is private since it must be invoked from the 
@@ -54,121 +46,8 @@ public class FlowExecutor implements Identifiable, Prioritizable, Comparable<Flo
      * @param initialFlow The first flow to be executed by this thread
      * @param parent The parent thread, if this thread is included within a structured flow
      */
-    private FlowExecutor(WorkToken token, Element elem, FlowExecutor parent) {
-    	this.token = token;
-        this.elem = elem;
-        this.parent = parent;
-        if (parent != null)
-        	parent.addDescendant(this);
-        this.id = counter.getAndIncrement();
-        wItem = new WorkItem(this);
+    private FlowExecutor(WorkToken token, ElementEngine elem, FlowExecutor parent) {
     }
-
-    public void requestFlow(Flow f) {
-    	currentFlow = (BasicFlow)f;
-    	currentFlow.request(this);
-    }
-    
-    /**
-     * Notifies the parent this thread has finished.
-     */
-    public void notifyEnd() {
-    	if (parent != null) {
-    		parent.removeDescendant(this);
-    		if ((parent.descendants.size() == 0) && (parent.currentFlow != null))
-    			((TaskFlow)parent.currentFlow).finish(parent);
-    	}
-    }
-
-    /**
-     * Adds a thread to the list of descendants.
-     * @param wThread Descendant thread
-     */
-	public void addDescendant(FlowExecutor wThread) {
-		descendants.add(wThread);
-	}
-
-	/**
-	 * Removes a thread from the list of descendants. If it's the last thread of an element,
-	 * the element has to be notified and finished.
-	 * @param wThread Descendant thread
-	 */
-	public void removeDescendant(FlowExecutor wThread) {
-		descendants.remove(wThread);
-		if (parent == null && descendants.size() == 0)
-			elem.notifyEnd();
-	}
-
-	/**
-	 * Returns <code>true</code> if this thread is valid.
-	 * @return <code>True</code> if this thread is valid; false otherwise.
-	 */
-	public boolean isExecutable() {
-		return token.isExecutable();
-	}
-
-	/**
-	 * Changes the state of this thread to not valid and restarts the path of visited flows.
-	 * @param startPoint The initial flow to control infinite loops with not valid threads. 
-	 */
-	public void cancel(Flow startPoint) {
-		token.reset();
-		token.addFlow(startPoint);
-	}
-
-	/**
-	 * Returns the last flow visited by this thread.
-	 * @return The last flow visited by this thread
-	 */
-	public Flow getLastFlow() {
-		return lastFlow;
-	}
-
-	/**
-	 * Sets the last flow visited by this thread.
-	 * @param lastFlow The lastFlow visited by this thread
-	 */
-	public void setLastFlow(Flow lastFlow) {
-		this.lastFlow = lastFlow;
-	}
-
-	/**
-     * Returns the element owner of this thread.
-     * @return The element owner of this thread
-     */
-    public Element getElement() {
-        return elem;
-    }
-    
-    /**
-     * Returns the parent thread.
-     * @return The parent thread.
-     */
-	public FlowExecutor getParent() {
-		return parent;
-	}
-
-	/**
-	 * Gets a new work item to carry out a single flow. 
-	 * @return The new work item
-	 */
-	public WorkItem getNewWorkItem(SingleFlow sf) {
-		wItem.reset(sf);
-		return wItem;
-	}
-
-	/**
-	 * Returns the current work item.
-	 * @return The current work item
-	 */
-	public WorkItem getWorkItem() {
-		return wItem;
-	}
-
-	@Override
-	public int getIdentifier() {
-		return id;
-	}
 
 	/**
 	 * Sets the counter used to generate work threads' identifiers. 
@@ -186,93 +65,153 @@ public class FlowExecutor implements Identifiable, Prioritizable, Comparable<Flo
 		return counter.get();
 	}
 
+	/**
+	 * Checks if the list of resources selected to carry out an activity are still valid.
+	 * @return True if none of the selected resources is being used by a different element;
+	 * false in other case. 
+	 */
+	public boolean checkCaughtResources() {
+		for (Resource res : caughtResources)
+			if (!res.checkSolution(this))
+				return false;
+		return true;
+	}
+	
+	/**
+	 * Adds a resource to the list of resources caught by this element.
+	 * @param res A new resource.
+	 */
+	protected void pushResource(Resource res, boolean conflictive) {
+		caughtResources.push(res);
+		if (conflictive)
+			conflictiveResources++;
+	}
+	
+	/**
+	 * Removes the last resource caught by this element.
+	 * @return The resource removed
+	 */
+	protected Resource popResource(boolean conflictive) {
+		if (conflictive)
+			conflictiveResources--;
+		return caughtResources.pop();
+	}
+	
+	/**
+	 * Returns true if any one of the resources taken to carry out an activity is active in more 
+	 * than one AM
+	 * @return True if any one of the resources taken to carry out an activity is active in more 
+	 * than one AM; false in other case.
+	 */
+	protected boolean isConflictive() {
+		return (conflictiveResources > 0);
+	}
+	
     /**
-     * Returns the priority of the element owner of this thread.
-     * @return The priority of the element owner of this thread
+     * Catch the resources needed for each resource type to carry out an activity.
+     * @return The minimum availability timestamp of the taken resources 
      */
-	@Override
-    public int getPriority() {
-    	return elem.getPriority();
+	protected long catchResources() {
+    	long auxTs = Long.MAX_VALUE;
+    	for (Resource res : caughtResources) {
+    		auxTs = Math.min(auxTs, res.catchResource(this));;
+            res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
+    	}
+    	// When this point is reached, that means that the resources have been completely taken
+    	signalConflictSemaphore();
+		return auxTs;
+	}
+	
+    /**
+     * Releases the resources caught by this item to perform the activity.
+     */
+    protected void releaseCaughtResources() {
+        // Generate unavailability periods.
+        for (Resource res : caughtResources) {
+        	final long cancellation = act.getResourceCancelation(res.currentResourceType);
+        	if (cancellation > 0) {
+				final long currentTs = elem.getTs();
+				res.setNotCanceled(false);
+				flow.simul.notifyInfo(null).notifyInfo(new ResourceInfo(flow.simul, res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, currentTs));
+				res.generateCancelPeriodOffEvent(currentTs, cancellation);
+			}
+			elem.debug("Returned " + res);
+        	// The resource is freed and the AMs are notified
+        	if (res.releaseResource())
+        		res.notifyCurrentManagers();
+        }
+        caughtResources.clear();
     }
 
-	@Override
-	public String toString() {
-		return "WT" + id + "(" + elem + ")";
-	}
-	
-	@Override
-	public int compareTo(FlowExecutor o) {
-		final int id1 = id;
-		final int id2 = o.id;
-		if (id1 > id2)
-			return 1;
-		if (id1 < id2)
-			return -1;
-		return 0;
+    /**
+     * Creates a new conflict zone. This method should be invoked previously to
+     * any activity request.
+     */
+	protected void resetConflictZone() {
+        conflicts = new ConflictZone(this);
 	}
 	
 	/**
-	 * Returns a new instance of the element's main work thread. The element's main work thread is
-	 * valid and has no parent.
-	 * @param elem Element owner of this thread
-	 * @return A new instance of the element's main work thread
+	 * Establish a different conflict zone for this work item.
+	 * @param zone The new conflict zone for this work item.
 	 */
-	public static FlowExecutor getInstanceMainWorkThread(Element elem) {
-		return new FlowExecutor(new WorkToken(true), elem, null);
+	protected void setConflictZone(ConflictZone zone) {
+		conflicts = zone;
 	}
 	
 	/**
-	 * Returns a new instance of a work thread created to carry out the inner subflow of a structured flow. 
-	 * The current thread is the parent of the newly created child thread. has the same state than the c
-	 * @return A new instance of a work thread created to carry out the inner subflow of a structured flow
+	 * Removes this single flow from its conflict list. This method is invoked in case
+	 * the work item detects that it can not carry out an activity.
 	 */
-	public FlowExecutor getInstanceDescendantWorkThread() {
-		assert isExecutable() : "Invalid parent to create descendant work thread"; 
-		return new FlowExecutor(new WorkToken(true), elem, this);
-	}
-
-	/**
-	 * Returns a new instance of a work thread created to carry out a new flow after a split
-	 * @param executable Indicates if the thread to be created has to be valid or not
-	 * @param prevFlow The previously visited flow
-	 * @param token The token to be cloned in case this work thread is not valid and the token is also not valid. 
-	 * @return A new instance of a work thread created to carry out a new flow after a split
-	 */
-	public FlowExecutor getInstanceSubsequentWorkThread(boolean executable, Flow prevFlow, WorkToken token) {
-		final WorkToken newToken;
-		if (!executable)
-			if (!token.isExecutable())
-				newToken = new WorkToken(token);
-			else
-				newToken = new WorkToken(false, prevFlow);
-		else
-			newToken = new WorkToken(true);
-		return new FlowExecutor(newToken, elem, parent);
-	}
-
-	/**
-	 * Adds a new visited flow to the list.
-	 * @param flow New visited flow
-	 */
-	public void updatePath(Flow flow) {
-		token.addFlow(flow);
-	}
-
-	/**
-	 * Returns this thread's current token.
-	 * @return This thread's current token
-	 */
-	public WorkToken getToken() {
-		return token;
+	protected void removeFromConflictZone() {
+		conflicts.remove(this);
 	}
 	
 	/**
-	 * Returns true if the specified flow was already visited from this thread.
-	 * @param flow Flow to be checked.
-	 * @return True if the specified flow was already visited from this thread; false otherwise.
+	 * Returns the conflict zone of this work item.
+	 * @return The conflict zone of this work item.
 	 */
-	public boolean wasVisited (Flow flow) {
-		return token.wasVisited(flow);
+	protected ConflictZone getConflictZone() {
+		return conflicts;
+	}
+	
+	/**
+	 * Merges the conflict list of this work item and other one. Since one conflict zone must
+	 * be merged into the other, the election of the work item which "receives" the merging 
+	 * operation depends on the id of the work item: the item with lower id "receives" 
+	 * the merging, and the other one "produces" the operation.
+	 * @param wi The work item whose conflict zone must be merged. 
+	 */
+	protected void mergeConflictList(WorkItem wi) {
+		final int result = conflicts.compareTo(wi.getConflictZone());
+		if (result != 0) {
+			if (result < 0)
+				conflicts.safeMerge(elem, wi.getConflictZone());
+			else if (result > 0) 
+				wi.getConflictZone().safeMerge(elem, conflicts);
+		}
+	}
+	
+	/**
+	 * Obtains the stack of semaphores from the conflict zone and goes through
+	 * this stack performing a wait operation on each semaphore.
+	 */
+	protected void waitConflictSemaphore() {
+		semStack = conflicts.getSemaphores(this);
+		try {
+			for (Semaphore sem : semStack)
+				sem.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/** 
+	 * Goes through the stack of semaphores performing a signal operation on each semaphore.
+	 */
+	protected void signalConflictSemaphore() {
+		for (Semaphore sem : semStack)
+			sem.release();
 	}
 
 }

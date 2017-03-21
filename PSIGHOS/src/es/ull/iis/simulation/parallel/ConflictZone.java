@@ -19,7 +19,7 @@ import java.util.concurrent.Semaphore;
  */
 final class ConflictZone implements Comparable<ConflictZone> {
 	/** List of element work items which have a conflict. */
-	private final TreeSet<WorkItem> list = new TreeSet<WorkItem>();
+	private final TreeSet<FlowExecutor> list = new TreeSet<FlowExecutor>();
 	/** Stack of semaphores which control a MUTEX region. */
 	private final ArrayList<Semaphore> semStack = new ArrayList<Semaphore>();
 	/** A semaphore for accesing this zone. */
@@ -29,13 +29,13 @@ final class ConflictZone implements Comparable<ConflictZone> {
 	
 	/**
 	 * Creates a new conflict zone containing only one object.
-	 * @param wi The current work item using this conflict zone
+	 * @param fe The current flow executor using this conflict zone
 	 */
-	protected ConflictZone(WorkItem wi) {
-		list.add(wi);
+	protected ConflictZone(FlowExecutor fe) {
+		list.add(fe);
 	}
 	
-	private void acquire(Element elem) {
+	private void acquire(ElementEngine elem) {
 		try {
 			semBook.acquire();
 		} catch (InterruptedException e) {
@@ -43,11 +43,11 @@ final class ConflictZone implements Comparable<ConflictZone> {
 		}		
 	}
 	
-	private void release(Element elem) {
+	private void release(ElementEngine elem) {
 		semBook.release();
 	}
 
-	protected void safeMerge(Element elem, ConflictZone mergingCZ) {
+	protected void safeMerge(ElementEngine elem, ConflictZone mergingCZ) {
 		// I acquire this CZ
 		acquire(elem);
 		// While we were waiting for the merged CZ, it was substituted by other one 
@@ -70,7 +70,7 @@ final class ConflictZone implements Comparable<ConflictZone> {
 		}
 	}
 
-	protected void safeMerge2(Element elem, ConflictZone mergingCZ) {
+	protected void safeMerge2(ElementEngine elem, ConflictZone mergingCZ) {
 		// I continue the merge acquiring the merging CZ
 		mergingCZ.acquire(elem);
 		// If the merging CZ is valid, I can carry out the merge
@@ -113,8 +113,8 @@ final class ConflictZone implements Comparable<ConflictZone> {
 		list.addAll(other.list);
 		semStack.addAll(other.semStack);
 		// Updates the conflict lists of any implied element
-		for (WorkItem wi : other.list)
-			wi.setConflictZone(this);
+		for (FlowExecutor fe : other.list)
+			fe.setConflictZone(this);
 		other.substitute = this;
 	}
 	
@@ -129,15 +129,15 @@ final class ConflictZone implements Comparable<ConflictZone> {
 	/**
 	 * Removes an item from this conflict zone, thus indicating that this item is
 	 * no longer in conflict. 
-	 * @param wi Work item to be removed
+	 * @param fe Work item to be removed
 	 * @return True if the item existed in the list; false in other case.
 	 */
-	protected boolean remove(WorkItem wi) {
-		final Element elem = wi.getElement();
+	protected boolean remove(FlowExecutor fe) {
+		final ElementEngine elem = fe.getElement();
 		boolean result = false; 
-		elem.debug("Removing\t" + wi + "(" + this + ")");
+		elem.getModelElem().debug("Removing\t" + fe + "(" + this + ")");
 		acquire(elem);
-		result = list.remove(wi);
+		result = list.remove(fe);
 		release(elem);
 		return result;
 	}
@@ -149,13 +149,13 @@ final class ConflictZone implements Comparable<ConflictZone> {
 	 * is empty.
 	 * @return The stack of semaphores.
 	 */
-	protected ArrayList<Semaphore> getSemaphores(WorkItem wi) {
-		final Element elem = wi.getElement();
+	protected ArrayList<Semaphore> getSemaphores(FlowExecutor fe) {
+		final ElementEngine elem = fe.getElement();
 		acquire(elem);
 		// Once acquired we need to check the validity of this CZ
 		if (substitute != null) {
 			release(elem);
-			return substitute.getSemaphores(wi);
+			return substitute.getSemaphores(fe);
 		}			
 		if (semStack.isEmpty())
 			semStack.add(new Semaphore(1));

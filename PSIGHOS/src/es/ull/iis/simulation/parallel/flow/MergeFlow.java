@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.parallel.Element;
+import es.ull.iis.simulation.parallel.ElementEngine;
 import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
 import es.ull.iis.simulation.parallel.FlowExecutor;
 
@@ -24,7 +24,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow,
 	/** Amount of incoming branches */
 	protected int incomingBranches;
 	/** A structure to control the arrival of incoming branches */
-	protected final Map<Element, MergeFlowControl> control;
+	protected final Map<ElementEngine, MergeFlowControl> control;
 	// FIXME Una posible mejora es hacer que haya factorías de los MergeFlowControl, de forma
 	// que sólo se pregunte por el safe una vez.
 	/** Indicates if the node is safe or it has to control several triggers for 
@@ -46,7 +46,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow,
 	 */
 	public MergeFlow(ParallelSimulationEngine simul, boolean safe) {
 		super(simul);
-		control = Collections.synchronizedSortedMap(new TreeMap<Element, MergeFlowControl>());
+		control = Collections.synchronizedSortedMap(new TreeMap<ElementEngine, MergeFlowControl>());
 		this.safe = safe;
 	}
 
@@ -101,7 +101,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow,
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.WorkThread)
 	 */
 	public void request(FlowExecutor wThread) {
-		final Element elem = wThread.getElement();
+		final ElementEngine elem = wThread.getElement();
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (!beforeRequest(elem))

@@ -28,10 +28,11 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 	protected FlowExecutor current = null;
 	/** Main execution thread */
 	protected final FlowExecutor mainThread;
+	/** The engine that executes specific behavior of the element */
 	private ElementEngine engine;
 	
-	public Element(Simulation model, ElementType elementType, InitializerFlow initialFlow) {
-		super(model, model.getNewElementId(), "E");
+	public Element(Simulation simul, ElementType elementType, InitializerFlow initialFlow) {
+		super(simul, simul.getNewElementId(), "E");
 		this.elementType = elementType;
 		this.initialFlow = initialFlow;
 		mainThread = FlowExecutor.getInstanceMainFlowExecutor(this);
@@ -130,9 +131,9 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 	 */
 	@Override
 	public DiscreteEvent onCreate(long ts) {
-		model.notifyInfo(new ElementInfo(model, this, elementType, ElementInfo.Type.START, model.getSimulationEngine().getTs()));
+		simul.notifyInfo(new ElementInfo(simul, this, elementType, ElementInfo.Type.START, simul.getSimulationEngine().getTs()));
 		if (initialFlow != null) {
-			return (new RequestFlowEvent(model.getSimulationEngine().getTs(), initialFlow, mainThread.getInstanceDescendantFlowExecutor(initialFlow)));
+			return (new RequestFlowEvent(simul.getSimulationEngine().getTs(), initialFlow, mainThread.getInstanceDescendantFlowExecutor(initialFlow)));
 		}
 		else
 			return onDestroy(ts);
@@ -140,8 +141,10 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 
 	@Override
 	public DiscreteEvent onDestroy(long ts) {
-		model.notifyInfo(new ElementInfo(model, this, elementType, ElementInfo.Type.FINISH, model.getSimulationEngine().getTs()));
+		simul.notifyInfo(new ElementInfo(simul, this, elementType, ElementInfo.Type.FINISH, simul.getSimulationEngine().getTs()));
 		return new DiscreteEvent.DefaultFinalizeEvent(this, ts);
+		// TODO: Check if the following action should be performed within the event
+		// simul.removeActiveElement(this);
 	}
 
     /**
@@ -153,11 +156,11 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
     }
     
 	public void addRequestEvent(Flow f, FlowExecutor fe) {
-		model.getSimulationEngine().addEvent(new RequestFlowEvent(model.getSimulationEngine().getTs(), f, fe));
+		simul.addEvent(new RequestFlowEvent(simul.getSimulationEngine().getTs(), f, fe));
 	}
 	
 	public void addFinishEvent(long ts, TaskFlow f, FlowExecutor fe) {
-		model.getSimulationEngine().addEvent(new FinishFlowEvent(ts, f, fe));
+		simul.addEvent(new FinishFlowEvent(ts, f, fe));
 	}
 	
 	/**

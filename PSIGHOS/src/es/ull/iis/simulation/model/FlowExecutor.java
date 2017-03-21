@@ -218,9 +218,11 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 
 	@Override
 	public int compareTo(FlowExecutor fe) {
-		if (id > fe.getIdentifier())
+		final int id1 = id;
+		final int id2 = fe.id;
+		if (id1 > id2)
 			return 1;
-		if (id < fe.getIdentifier())
+		if (id1 < id2)
 			return -1;
 		return 0;
 	}
@@ -241,11 +243,8 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 	 * @return A new instance of a work thread created to carry out the inner subflow of a structured flow
 	 */
 	public FlowExecutor getInstanceDescendantFlowExecutor(InitializerFlow newFlow) {
-		if (isExecutable()) {
-			return new FlowExecutor(new WorkToken(true), elem, newFlow, this);
-		}
-		else
-			return new FlowExecutor(new WorkToken(false, newFlow), elem, newFlow, this);
+		assert isExecutable() : "Invalid parent to create descendant work thread"; 
+		return new FlowExecutor(new WorkToken(true), elem, newFlow, this);
 	}
 
 	/**
@@ -256,7 +255,7 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 	 * @return A new instance of a work thread created to carry out a new flow after a split
 	 */
 	public FlowExecutor getInstanceSubsequentFlowExecutor(boolean executable, Flow newFlow, WorkToken token) {
-		WorkToken newToken;
+		final WorkToken newToken;
 		if (!executable)
 			if (!token.isExecutable())
 				newToken = new WorkToken(token);

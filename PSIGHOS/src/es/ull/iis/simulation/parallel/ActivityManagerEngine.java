@@ -55,13 +55,11 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
     	int uselessSF = 0;
     	// A postponed removal list
     	final ArrayList<FlowExecutor> toRemove = new ArrayList<FlowExecutor>();
-    	Iterator<WorkItem> iter = waitingQueue.iterator();
+    	Iterator<FlowExecutor> iter = waitingQueue.iterator();
     	while (iter.hasNext() && (uselessSF < waitingQueue.size())) {
-    		WorkItem wi = iter.next();
-            Element e = wi.getElement();
+    		FlowExecutor wi = iter.next();
+            ElementEngine e = wi.getElement();
             Activity act = wi.getBasicStep();
-    		// The element's timestamp is updated. That's only useful to print messages
-            e.setTs(getTs());
             if (act.mainElementActivity()) {
             	e.waitSemaphore();
                 if (e.getCurrent() == null) {
@@ -122,8 +120,8 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
 	@Override
 	public void processAvailableElements() {
 		while (!currentQueue.isEmpty()) {
-			final WorkItem wi = requestingElements.poll();
-			final Element elem = wi.getElement();
+			final FlowExecutor wi = requestingElements.poll();
+			final ElementEngine elem = wi.getElement();
 			final Activity act = wi.getBasicStep();
 			if (elem.isDebugEnabled())
 				elem.debug("Calling availableElement()\t" + act);

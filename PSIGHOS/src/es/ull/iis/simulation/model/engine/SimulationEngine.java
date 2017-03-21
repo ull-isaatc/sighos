@@ -13,13 +13,14 @@ import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Identifiable;
-import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceList;
-import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.Output;
 
@@ -127,12 +128,10 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	}
 	
 	public abstract void initializeEngine();
-	public abstract void launchInitialEvents();
 	public abstract void simulationLoop();
-	public abstract ResourceTypeEngine getResourceTypeEngineInstance(ResourceType modelRT);
 	public abstract ResourceEngine getResourceEngineInstance(Resource modelRes);
 	public abstract ElementEngine getElementEngineInstance(Element modelElem);
-	public abstract ResourceList getResourceListInstance(ResourceType modelRT);
+	public abstract ResourceList getResourceListInstance();
 	public abstract ActivityManagerEngine getActivityManagerEngineInstance(ActivityManager modelAM);
 	public abstract RequestResourcesEngine getRequestResourcesEngineInstance(RequestResourcesFlow reqFlow);
 	public abstract void addEvent(DiscreteEvent ev); 

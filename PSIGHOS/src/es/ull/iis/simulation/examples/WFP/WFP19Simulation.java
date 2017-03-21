@@ -61,8 +61,8 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
     	ActivityFlow act0 = new ActivityFlow(model, "Verificar cuenta", false, false) {
     		@Override
     		public boolean beforeRequest(FlowExecutor fe) {
-    			((WFP19Model)model).switchPass();
-    			return ((WFP19Model)model).isPass() && super.beforeRequest(fe);
+    			((WFP19Model)simul).switchPass();
+    			return ((WFP19Model)simul).isPass() && super.beforeRequest(fe);
     		}
     	};
     	act0.addWorkGroup(0, wg, DEFACTDURATION[0]);

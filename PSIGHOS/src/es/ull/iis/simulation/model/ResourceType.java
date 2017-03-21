@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.model;
 
-import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
@@ -22,7 +21,6 @@ public class ResourceType extends SimulationObject implements Describable {
     protected ResourceList availableResourceList = null;
     /** A brief description of the resource type */
     protected final String description;
-    protected ResourceTypeEngine engine;
     /** Activity manager this resource type belongs to. */
     protected ActivityManager manager;
 
@@ -37,8 +35,7 @@ public class ResourceType extends SimulationObject implements Describable {
 
 	@Override
 	protected void assignSimulation(SimulationEngine simul) {
-		availableResourceList = simul.getResourceListInstance(this);
-		engine = simul.getResourceTypeEngineInstance(this);
+		availableResourceList = simul.getResourceListInstance();
 	}
 	
 	@Override
@@ -194,7 +191,7 @@ public class ResourceType extends SimulationObject implements Describable {
 	public Resource[] addGenericResources(int n) {
 		final Resource[] res = new Resource[n];
 		for (int i = 0; i < n; i++) {
-			res[i] = new Resource(model, description + " " + i);
+			res[i] = new Resource(simul, description + " " + i);
 			res[i].addTimeTableEntry(this);
 		}
 		return res;

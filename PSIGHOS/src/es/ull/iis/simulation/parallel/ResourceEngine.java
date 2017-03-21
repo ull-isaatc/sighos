@@ -6,15 +6,17 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import es.ull.iis.simulation.core.TimeTableEntry;
+import es.ull.iis.simulation.model.TimeTableEntry;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.model.ActivityManager;
+import es.ull.iis.simulation.model.FlowExecutor;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.SimulationCycle;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.engine.EngineObject;
+import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
@@ -30,12 +32,10 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
     protected final TreeMap<ResourceType, Long> currentRoles;
     /** A counter of the valid timetable entries which this resource is following */
     private final AtomicInteger validTTEs = new AtomicInteger();
-    /** The resource type which this resource is being booked for */
-    protected ResourceType currentResourceType = null;
     /** Work item which currently holds this resource */
-    protected WorkItem currentWI = null;
+    protected FlowExecutor currentFE = null;
     /** List of elements trying to book this resource */
-    protected final TreeMap<WorkItem, ResourceType> bookList = new TreeMap<WorkItem, ResourceType>();
+    protected final TreeMap<FlowExecutor, ResourceType> bookList = new TreeMap<FlowExecutor, ResourceType>();
     /** Availability flag */
     protected volatile boolean notCanceled = true;
     /** List of current activity managers which contain a resource type using this resource */
@@ -164,18 +164,18 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 * @param wi Work item trying to catch this resource
 	 * @return <code>True</code> if this resource can be used in the solution; <code>false</code> otherwise.
 	 */
-	protected boolean add2Solution(ResourceType rt, WorkItem wi) {
+	public boolean add2Solution(ResourceType rt, FlowExecutor wi) {
 		if (notCanceled) {
 	    	if (inSeveralManagers()) {
 	            // Checks if the resource is busy (taken by other element or conflict in the same activity)
 	    		waitSemaphore();
 	    		// First checks if this resource was previously booked by this element 
-	        	if ((currentWI == null) && !isBooked(wi)) {
+	        	if ((currentFE == null) && !isBooked(wi)) {
 	            	addBook(wi, rt);
 	    	        wi.pushResource(this, true);
 		        	// No other element has tried to book this resource
-		        	if (currentResourceType == null)
-		    	        currentResourceType = rt;
+		        	if (modelRes.getCurrentResourceType() == null)
+		        		modelRes.setCurrentResourceType(rt);
 	        		signalSemaphore();
 	        		return true;
 	        	}
@@ -183,9 +183,9 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	    	}
 	    	else {
 	    		// Simply checks if the resource is available and has not been used in another RT of the same activity yet.
-	            if (currentResourceType == null) {
+	            if (modelRes.getCurrentResourceType() == null) {
 	    	        // This resource belongs to the solution...
-	    	        currentResourceType = rt;
+	            	modelRes.setCurrentResourceType(rt);
 	    	        wi.pushResource(this, false);    	        
 	            	return true;
 	            }
@@ -198,23 +198,23 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 * Removes this resource from a solution it was tentatively added to. 
 	 * @param wi Work item which won't use this resource to carry out an activity.
 	 */
-	protected void removeFromSolution(WorkItem wi) {
+	public void removeFromSolution(FlowExecutor fe) {
     	if (inSeveralManagers()) {
     		waitSemaphore();
-	        wi.popResource(true);
-	        final ResourceType rt = bookList.get(wi);
-	        removeBook(wi);
-    		if (currentResourceType == rt) {
+	        fe.popResource(true);
+	        final ResourceType rt = bookList.get(fe);
+	        removeBook(fe);
+    		if (modelRes.getCurrentResourceType() == rt) {
     			if (bookList.isEmpty())
-        			currentResourceType = null;
+    				modelRes.setCurrentResourceType(null);
     			else
-    				currentResourceType = bookList.firstEntry().getValue();
+    				modelRes.setCurrentResourceType(bookList.firstEntry().getValue());
     		}
     		signalSemaphore();    		
     	}
     	else {
-	        currentResourceType = null;
-	        wi.popResource(false);    		
+    		modelRes.setCurrentResourceType(null);
+	        fe.popResource(false);    		
     	}
 	}
 	
@@ -224,11 +224,11 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 * @param wi Work item trying to catch this resource
 	 * @return <code>True</code> if this resource is still valid for a solution; <code>false</code> otherwise.
 	 */
-	protected boolean checkSolution(WorkItem wi) {
+	protected boolean checkSolution(FlowExecutor wi) {
 		if (inSeveralManagers()) {
 			waitSemaphore();
-			if (currentWI == null) {
-		        currentResourceType = bookList.get(wi);
+			if (currentFE == null) {
+				modelRes.setCurrentResourceType(bookList.get(wi));
 			}
 			else {
 				signalSemaphore();
@@ -245,7 +245,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 * @param wi The work item booking this resource
 	 * @param rt The resource type to be assigned to this resource.
 	 */
-	protected void addBook(WorkItem wi, ResourceType rt) {
+	protected void addBook(FlowExecutor wi, ResourceType rt) {
 		// First I complete the conflicts list
 		if (bookList.size() > 0)
 			wi.mergeConflictList(bookList.firstKey());
@@ -258,7 +258,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 * from several activity managers.
 	 * @param wi The work item releasing the book over this resource.
 	 */
-	protected void removeBook(WorkItem wi) {
+	protected void removeBook(FlowExecutor wi) {
 		bookList.remove(wi); 
 		modelRes.debug("unbooked\t" + wi.getElement());
 	}
@@ -268,7 +268,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 * @param wi Work item which may have booked this resource
 	 * @return <code>True</code> if this resource is currently booked by the specified work item 
 	 */
-	protected boolean isBooked(WorkItem wi) {
+	protected boolean isBooked(FlowExecutor wi) {
 		return bookList.containsKey(wi);
 	}
 
@@ -278,18 +278,18 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 * @param wi The work item which an element is executing
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
-	protected long catchResource(WorkItem wi) {
-		setTs(wi.getElement().getTs());
-		simul.notifyInfo(null).notifyInfo(new ResourceUsageInfo(this.simul, this, currentResourceType, wi, ResourceUsageInfo.Type.CAUGHT, getTs()));
+	public long catchResource(FlowExecutor wt) {
+		setTs(wt.getElement().getTs());
+		simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, modelRes.getCurrentResourceType(), wt, wt.getElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
 		if (inSeveralManagers()) {
 			waitSemaphore();
-			removeBook(wi);
-			currentWI = wi;
+			removeBook(wt);
+			currentFE = wt;
 			signalSemaphore();
 		}
 		else
-			currentWI = wi;
-		return currentRoles.get(currentResourceType);
+			currentFE = wt;
+		return currentRoles.get(modelRes.getCurrentResourceType());
 	}
 	
     /**
@@ -299,12 +299,12 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
      * @return True if the resource could be correctly released. False if the availability
      * time of the resource had already expired.
      */
-    protected boolean releaseResource() {
+    public boolean releaseResource() {
 		waitSemaphore();
 		setTs(simul.getTs());
-		simul.notifyInfo(new ResourceUsageInfo(this.simul, this, this.getCurrentResourceType(), currentWI, ResourceUsageInfo.Type.RELEASED, getTs()));
-        currentWI = null;
-        currentResourceType = null;        
+    	simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, modelRes.getCurrentResourceType(), currentWT, currentWT.getElement(), (ResourceHandlerFlow) currentWT.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
+        currentFE = null;
+        modelRes.setCurrentResourceType(null);        
         if (timeOut) {
         	timeOut = false;
     		signalSemaphore();
@@ -314,22 +314,11 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
         return true;
     }
     
-    /**
-     * Returns the work item of the element which currently owns this resource.
-     * @return The current work item.
-     */
-    protected WorkItem getCurrentWI() {
-        return currentWI;
-    }
-    
-    /**
-     * Returns the current resource type this resource is being used for.
-     * @return Current resource type of this resource
-     */
-    public ResourceType getCurrentResourceType() {
-        return currentResourceType;
-    }
-    
+ 	@Override
+	public FlowExecutor getCurrentFlowExecutor() {
+		return currentFE;
+	}
+ 	
     /**
      * Returns the availability of this resource for the specified resource type.
      * @param rt ResourceEngine type

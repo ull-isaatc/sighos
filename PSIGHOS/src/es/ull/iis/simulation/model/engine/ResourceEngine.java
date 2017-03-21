@@ -26,7 +26,10 @@ public interface ResourceEngine extends EventSourceEngine {
 	int getValidTimeTableEntries();
 	void notifyCurrentManagers();
 	ArrayList<ActivityManager> getCurrentManagers();
-	ResourceType getCurrentResourceType();
+    /**
+     * Returns the flow executor of the element which currently owns this resource.
+     * @return The current flow executor .
+     */
 	FlowExecutor getCurrentFlowExecutor();
 	boolean isAvailable(ResourceType rt);
 	void addRole(ResourceType role, long ts);
