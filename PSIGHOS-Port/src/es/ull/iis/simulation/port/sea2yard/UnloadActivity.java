@@ -5,7 +5,7 @@ package es.ull.iis.simulation.port.sea2yard;
 
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.flow.DelayFlow;
 import es.ull.iis.simulation.model.flow.Flow;
@@ -62,7 +62,7 @@ public class UnloadActivity extends StructuredFlow {
 	}
 
 	@Override
-	public void afterFinalize(FlowExecutor fe) {
+	public void afterFinalize(ElementInstance fe) {
 		if (nextContainerId != -1) {
 			final Resource res = new Resource(simul, PortModel.CONTAINER + nextContainerId);
 			res.addTimeTableEntry(((PortModel)simul).getContainerResourceType(nextContainerId));

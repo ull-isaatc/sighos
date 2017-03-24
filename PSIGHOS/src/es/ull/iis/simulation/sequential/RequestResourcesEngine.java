@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.sequential;
 
 import es.ull.iis.simulation.model.ActivityWorkGroup;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.engine.EngineObject;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
@@ -15,8 +15,9 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 public class RequestResourcesEngine extends EngineObject implements es.ull.iis.simulation.model.engine.RequestResourcesEngine {
     /** Total of work items waiting for carrying out this activity */
     protected int queueSize = 0;
-
+    /** The associated {@link RequestResourcesFlow} */
     final protected RequestResourcesFlow modelReq;
+    
 	/**
 	 * @param simul
 	 * @param description
@@ -31,7 +32,7 @@ public class RequestResourcesEngine extends EngineObject implements es.ull.iis.s
 	}
 	
 	@Override
-	public void queueAdd(FlowExecutor fe) {
+	public void queueAdd(ElementInstance fe) {
         modelReq.getManager().queueAdd(fe);
     	queueSize++;
 		fe.getElement().incInQueue(fe);
@@ -39,14 +40,14 @@ public class RequestResourcesEngine extends EngineObject implements es.ull.iis.s
     }
     
 	@Override
-    public void queueRemove(FlowExecutor fe) {
+    public void queueRemove(ElementInstance fe) {
 		modelReq.getManager().queueRemove(fe);
     	queueSize--;
 		fe.getElement().decInQueue(fe);
     }
 
     /**
-     * Returns the size of this activity's queue 
+     * Returns how many element instances are waiting to carry out this activity. 
      * @return the size of this activity's queue
      */
     public int getQueueSize() {
@@ -54,7 +55,7 @@ public class RequestResourcesEngine extends EngineObject implements es.ull.iis.s
     }
 
 	@Override
-	public boolean checkWorkGroup(ActivityWorkGroup wg, FlowExecutor fe) {
+	public boolean checkWorkGroup(ActivityWorkGroup wg, ElementInstance fe) {
     	if (!wg.getCondition().check(fe))
     		return false;
         return wg.findSolution(fe);

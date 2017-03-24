@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 
@@ -75,7 +75,7 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void request(FlowExecutor wThread) {
+	public void request(ElementInstance wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (!beforeRequest(wThread))

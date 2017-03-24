@@ -58,7 +58,7 @@ public class ResourceType extends SimulationObject implements Describable {
      * @param ind Position to start the search.
      * @return The resource's index or -1 if there are not available resources.
      */
-    protected int getNextAvailableResource(int ind, FlowExecutor fe) {
+    protected int getNextAvailableResource(int ind, ElementInstance fe) {
     	final int total = availableResourceList.size();
         for (; ind < total; ind++) {
         	if (availableResourceList.get(ind).add2Solution(this, fe)) {

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.WorkToken;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.MergeFlow;
@@ -33,7 +33,7 @@ public class GeneralizedMergeFlowControl extends MergeFlowControl {
 	 * @see es.ull.iis.simulation.MergeFlowControl#arrive(es.ull.iis.simulation.FlowExecutor)
 	 */
 	@Override
-	public void arrive(FlowExecutor wThread) {
+	public void arrive(ElementInstance wThread) {
 		// New incoming branch
 		if (!incBranches.containsKey(wThread.getLastFlow())) {
 			incBranches.put(wThread.getLastFlow(), new LinkedList<WorkToken>());

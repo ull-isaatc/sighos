@@ -5,7 +5,7 @@ package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.Element;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 
 
 /**
@@ -48,7 +48,7 @@ public class ThreadMergeFlow extends ANDJoinFlow {
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void request(FlowExecutor wThread) {
+	public void request(ElementInstance wThread) {
 		final Element elem = wThread.getElement();
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
@@ -64,7 +64,7 @@ public class ThreadMergeFlow extends ANDJoinFlow {
 				else {
 					// If no one of the branches was true, the thread of control must continue anyway
 					if (canReset(wThread) && !isActivated(wThread))
-						next(wThread.getInstanceSubsequentFlowExecutor(false, this, control.get(elem).getOutgoingFalseToken()));
+						next(wThread.getSubsequentElementInstance(false, this, control.get(elem).getOutgoingFalseToken()));
 					wThread.notifyEnd();
 				}
 				if (canReset(wThread))

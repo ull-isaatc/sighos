@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -87,7 +87,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
 		}
 		
     	@Override
-    	public boolean check(FlowExecutor fe) {
+    	public boolean check(ElementInstance fe) {
     		return (model.getLitrosIntroducidos() < model.getCapacidadBidon());
     	}
 	}
@@ -115,7 +115,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
 
         MultiChoiceFlow mul1 = new MultiChoiceFlow(model) {
         	@Override
-        	public boolean beforeRequest(FlowExecutor fe) {
+        	public boolean beforeRequest(ElementInstance fe) {
         		System.out.println(fe.getElement() + "\tVolumen actual es " + ((WFP10Model)simul).getLitrosIntroducidos() + " litros");
         		System.out.println(fe.getElement() + "\tCapacidad bidon es " + ((WFP10Model)simul).getCapacidadBidon() + " litros");
          		return true;
@@ -124,7 +124,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
         
     	ActivityFlow act0 = new ActivityFlow(model, "Rellenar bidon", false, false) {
     		@Override
-    		public void afterFinalize(FlowExecutor fe) {
+    		public void afterFinalize(ElementInstance fe) {
     			final double litros = ((WFP10Model)simul).getLitrosIntroducidos(); 
     			if (litros < ((WFP10Model)simul).getCapacidadBidon()) {
     				final double random = Math.random() * 5;
@@ -137,7 +137,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
     	
     	ActivityFlow act1 = new ActivityFlow(model, "Realizar envío de bidon", false, false) {
     		@Override
-    		public boolean beforeRequest(FlowExecutor fe) {
+    		public boolean beforeRequest(ElementInstance fe) {
     			((WFP10Model)simul).setLitrosIntroducidos(0);
     			((WFP10Model)simul).incEnviosRealizados();
     			System.out.println("Nuevo envio realizado");

@@ -5,7 +5,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.model.ActivityManager;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.engine.EngineObject;
@@ -26,7 +26,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
     /** A counter of the valid timetable entries which this resource is following. */
     private int validTTEs = 0;
     /** Work thread which currently holds this resource */
-    protected FlowExecutor currentFE = null;
+    protected ElementInstance currentFE = null;
     /** Availability flag */
     protected boolean notCanceled;
     /** The associated {@link Resource} */
@@ -104,7 +104,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 * @param wt The work thread in charge of executing the current flow
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
-	public long catchResource(FlowExecutor wt) {
+	public long catchResource(ElementInstance wt) {
 		simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, modelRes.getCurrentResourceType(), wt, wt.getElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
 		currentFE = wt;
 		return currentRoles.get(modelRes.getCurrentResourceType());
@@ -129,7 +129,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
     }
     
  	@Override
-	public FlowExecutor getCurrentFlowExecutor() {
+	public ElementInstance getCurrentElementInstance() {
 		return currentFE;
 	}
  	
@@ -190,22 +190,22 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	}
 
 	@Override
-	public boolean add2Solution(ResourceType rt, FlowExecutor fe) {
+	public boolean add2Solution(ResourceType rt, ElementInstance ei) {
         // Checks if the resource is busy (taken by other element or conflict in the same activity)
 		// TODO: Check if "isAvailable" is required in this condition
         if (isAvailable(rt) && (modelRes.getCurrentResourceType() == null)) {
 	        // This resource belongs to the solution...
         	modelRes.setCurrentResourceType(rt);
-	        fe.pushResource(modelRes);    	        
+	        ei.pushResource(modelRes);    	        
         	return true;
         }
 		return false;
 	}
 
 	@Override
-	public void removeFromSolution(FlowExecutor fe) {
+	public void removeFromSolution(ElementInstance ei) {
 		modelRes.setCurrentResourceType(null);
-        fe.popResource();    		
+        ei.popResource();    		
 	}
 	
 	@Override

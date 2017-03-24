@@ -205,15 +205,15 @@ public class Resource extends VariableStoreModelObject implements Describable, E
     	currentResourceType = rt;
     }
     
-    public FlowExecutor getCurrentFlowExecutor() {
-    	return engine.getCurrentFlowExecutor();
+    public ElementInstance getCurrentFlowExecutor() {
+    	return engine.getCurrentElementInstance();
     }
     /**
      * Returns <code>true</code> if this resource is being used in spite of having finished its availability.
      * @return <code>True</code> if this resource is being used in spite of having finished its availability;
      * <code>false</code> otherwise.
      */
-    protected boolean isTimeOut() {
+    public boolean isTimeOut() {
         return timeOut;
     }
     
@@ -222,7 +222,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
      * @param timeOut <code>True</code> if this resource is being used beyond its availability; 
      * <code>false</code> otherwise.
      */
-    protected void setTimeOut(boolean timeOut) {
+    public void setTimeOut(boolean timeOut) {
         this.timeOut = timeOut;
     }
     
@@ -243,11 +243,11 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 		engine.setNotCanceled(available);
 	}
 	
-	public boolean add2Solution(ResourceType rt, FlowExecutor fe) {
+	public boolean add2Solution(ResourceType rt, ElementInstance fe) {
 		return engine.add2Solution(rt, fe);
 	}
 
-	public void removeFromSolution(FlowExecutor fe) {
+	public void removeFromSolution(ElementInstance fe) {
 		engine.removeFromSolution(fe);
 	}
 
@@ -259,7 +259,7 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 	 * @param wt The work thread in charge of executing the current flow
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
-	public long catchResource(FlowExecutor wt) {
+	public long catchResource(ElementInstance wt) {
 		return engine.catchResource(wt);
 	}
 	

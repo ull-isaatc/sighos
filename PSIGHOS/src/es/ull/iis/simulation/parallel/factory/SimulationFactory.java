@@ -131,18 +131,18 @@ public class SimulationFactory implements SimulationObjectFactory {
 
 	@Override
 	public ActivityFlow getActivityInstance(String description) throws ClassCastException {
-		return new es.ull.iis.simulation.parallel.Activity(simul, description);
+		return new es.ull.iis.simulation.parallel.RequestResourcesEngine(simul, description);
 	}
 
 	@Override
 	public ActivityFlow getActivityInstance(String description, int priority,
 			EnumSet<es.ull.iis.simulation.core.flow.ActivityFlow.Modifier> modifiers) throws ClassCastException {
-		return new es.ull.iis.simulation.parallel.Activity(simul, description, priority, modifiers);
+		return new es.ull.iis.simulation.parallel.RequestResourcesEngine(simul, description, priority, modifiers);
 	}
 
 	@Override
 	public ActivityFlow getActivityInstance(String description, int priority) throws ClassCastException {
-		return new es.ull.iis.simulation.parallel.Activity(simul, description, priority);
+		return new es.ull.iis.simulation.parallel.RequestResourcesEngine(simul, description, priority);
 	}
 
 	@Override

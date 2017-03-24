@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.info;
 
 import es.ull.iis.simulation.model.Element;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
@@ -28,16 +28,16 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	
 	final private Resource res;
 	final private ResourceType rt;
-	final private FlowExecutor fExecutor;
+	final private ElementInstance instance;
 	final private ResourceHandlerFlow act;
 	final private Type type;
 	final private Element elem;
 	
-	public ResourceUsageInfo(Simulation model, Resource res, ResourceType rt, FlowExecutor fExecutor, Element elem, ResourceHandlerFlow act, Type type, long ts) {
+	public ResourceUsageInfo(Simulation model, Resource res, ResourceType rt, ElementInstance instance, Element elem, ResourceHandlerFlow act, Type type, long ts) {
 		super(model, ts);
 		this.res = res;
 		this.rt = rt;
-		this.fExecutor =fExecutor;
+		this.instance = instance;
 		this.elem = elem;
 		this.act = act;
 		this.type = type;
@@ -51,8 +51,8 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 		return rt;
 	}
 	
-	public FlowExecutor getFlowExecutor() {
-		return fExecutor;
+	public ElementInstance getElementInstance() {
+		return instance;
 	}
 	
 	public Type getType() {

@@ -6,7 +6,7 @@ package es.ull.iis.simulation.model.flow;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 
@@ -79,7 +79,7 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow {
 	}
 
 	@Override
-	public void next(FlowExecutor wThread) {
+	public void next(ElementInstance wThread) {
 		super.next(wThread);
 		if (wThread.isExecutable()) {
 			double ref = Math.random();
@@ -87,12 +87,12 @@ public class ProbabilitySelectionFlow extends MultipleSuccessorFlow {
 			for (int i = 0; i < successorList.size(); i++) {
 				boolean res = (ref >= aux) && (ref < (aux + probabilities.get(i)));
 				aux += probabilities.get(i);
-				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getInstanceSubsequentFlowExecutor(res, this, wThread.getToken()));					
+				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getSubsequentElementInstance(res, this, wThread.getToken()));					
 			}			
 		}
 		else
 			for (int i = 0; i < successorList.size(); i++)
-				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getInstanceSubsequentFlowExecutor(false, this, wThread.getToken()));
+				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getSubsequentElementInstance(false, this, wThread.getToken()));
 		wThread.notifyEnd();
 	}
 }

@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 
@@ -27,7 +27,7 @@ public class ExclusiveChoiceFlow extends ConditionalFlow {
 	 * @see es.ull.iis.simulation.BasicFlow#next(es.ull.iis.simulation.FlowExecutor)
 	 */
 	@Override
-	public void next(FlowExecutor wThread) {
+	public void next(ElementInstance wThread) {
 		super.next(wThread);
 		boolean res = false;
 		if (wThread.isExecutable())
@@ -35,15 +35,15 @@ public class ExclusiveChoiceFlow extends ConditionalFlow {
 				if (!res) {
 					// Check the succesor's conditions.
 					res = conditionList.get(i).check(wThread);
-					wThread.getElement().addRequestEvent(successorList.get(i), wThread.getInstanceSubsequentFlowExecutor(res, this, wThread.getToken()));
+					wThread.getElement().addRequestEvent(successorList.get(i), wThread.getSubsequentElementInstance(res, this, wThread.getToken()));
 				}
 				// As soon as there is one true outgoing branch, the rest of branches are false
 				else
-					wThread.getElement().addRequestEvent(successorList.get(i), wThread.getInstanceSubsequentFlowExecutor(false, this, wThread.getToken()));
+					wThread.getElement().addRequestEvent(successorList.get(i), wThread.getSubsequentElementInstance(false, this, wThread.getToken()));
 			}
 		else
 			for (int i = 0; i < successorList.size(); i++)
-				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getInstanceSubsequentFlowExecutor(false, this, wThread.getToken()));
+				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getSubsequentElementInstance(false, this, wThread.getToken()));
 		wThread.notifyEnd();
 	}
 }

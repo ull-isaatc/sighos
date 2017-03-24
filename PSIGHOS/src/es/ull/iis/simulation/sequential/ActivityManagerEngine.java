@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.Element;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.engine.EngineObject;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
@@ -49,9 +49,9 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
         // A count of the useless single flows 
     	int uselessSF = 0;
     	// A postponed removal list
-    	final ArrayList<FlowExecutor> toRemove = new ArrayList<FlowExecutor>();
+    	final ArrayList<ElementInstance> toRemove = new ArrayList<ElementInstance>();
     	final int queueSize = waitingQueue.size();
-    	for (final FlowExecutor fe : waitingQueue) {
+    	for (final ElementInstance fe : waitingQueue) {
             // TODO: Check whether it always works fine
             final RequestResourcesFlow reqResources = (RequestResourcesFlow) fe.getCurrentFlow();
             
@@ -68,7 +68,7 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
             	break;
     	}
     	// Postponed removal to avoid conflict with the activity manager queue
-    	for (FlowExecutor fe : toRemove)
+    	for (ElementInstance fe : toRemove)
     		((RequestResourcesFlow) fe.getCurrentFlow()).queueRemove(fe);
 		// After executing the work there are no more available resources
     	availableResource = false;
@@ -80,7 +80,7 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
 	public void processAvailableElements() {
 		// Checks if there are pending activities that haven't noticed the
 		// element availability
-		for (final FlowExecutor fe : currentQueue) {
+		for (final ElementInstance fe : currentQueue) {
 			final Element elem = fe.getElement();
 			if (elem.getCurrent() == null) {
 				final RequestResourcesFlow reqResources = (RequestResourcesFlow) fe.getCurrentFlow();
@@ -104,17 +104,17 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
 	}
 
     @Override
-    public void queueAdd(FlowExecutor fe) {
+    public void queueAdd(ElementInstance fe) {
     	waitingQueue.add(fe);
     }
 
     @Override
-    public void queueRemove(FlowExecutor fe) {
+    public void queueRemove(ElementInstance fe) {
     	waitingQueue.remove(fe);
     }
     
     @Override
-    public void notifyAvailableElement(FlowExecutor fe) {
+    public void notifyAvailableElement(ElementInstance fe) {
     	currentQueue.add(fe);
     }
     

@@ -12,6 +12,7 @@ import java.util.TreeSet;
 import es.ull.iis.function.TimeFunctionParams;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
+import es.ull.iis.simulation.model.engine.ElementInstanceEngine;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
@@ -22,21 +23,29 @@ import es.ull.iis.simulation.model.flow.TaskFlow;
 import es.ull.iis.util.Prioritizable;
 
 /**
- * A class that executes a flow
+ * Represents an instance of an element, so multiple instances of the same element can be active at
+ * the same time.
+ * There are three types of element instances, each one requiring a different method to be created:
+ * <ol>
+ * <li>Main instance. The element's main instance. Must be created by invoking the static method
+ * {@link #getMainElementInstance(Element)}</li>
+ * <li>Descendant thread</li>A thread created to carry out the inner flows of a structured flow.
+ * To invoke, use: {@link #getDescendantElementInstance(InitializerFlow)}</li>
+ * <li>Subsequent thread</li>A thread created to carry out a new flow after a split.
+ * To invoke, use: {@link #getSubsequentElementInstance(boolean, Flow, WorkToken)}</li>
+ * </ol><p>
+ *  An instance has an associated token, which can be true or false. A false token is used
+ *  only for synchronization purposes and doesn't execute task flows. 
  * @author Ivan Castilla Rodriguez
  *
  */
-public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparable<FlowExecutor> {
-	/** Thread's Counter. Useful for identifying each single flow */
-	private static int counter = 0;
-	/** Thread's internal identifier */
-	protected final int id;
+public class ElementInstance implements TimeFunctionParams, Prioritizable {
     /** Element which carries out this flow. */    
     private final Element elem; 
     /** The parent element thread */
-    protected final FlowExecutor parent;
+    protected final ElementInstance parent;
     /** The descendant work threads */
-	protected final ArrayList<FlowExecutor> descendants;
+	protected final ArrayList<ElementInstance> descendants;
     /** Thread's initial flow */
     protected final Flow initialFlow;
 	/** A flag to indicate if the thread executes the flow or not */
@@ -49,15 +58,15 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
      * the flow has not been carried out. */
     protected ActivityWorkGroup executionWG = null;
     /** List of caught resources */
-    final protected TreeMap<Integer, ArrayDeque<Resource>> caughtResources = new TreeMap<Integer, ArrayDeque<Resource>>();
+    final protected TreeMap<Integer, ArrayDeque<Resource>> caughtResources;
 	/** The arrival order of this work thread relatively to the rest of work threads 
 	 * in the same activity manager. */
 	protected int arrivalOrder;
 	/** The simulation timestamp when this work thread was requested. */
 	protected long arrivalTs = -1;
-	// TODO: Substitute by %work finished
 	/** The proportion of time left to finish the activity. Used in interruptible activities. */
 	protected double remainingTask = 0.0;
+	private ElementInstanceEngine engine;
 	
     /** 
      * Creates a new work thread. The constructor is private since it must be invoked from the 
@@ -67,18 +76,25 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
      * @param initialFlow The first flow to be executed by this thread
      * @param parent The parent thread, if this thread is included within a structured flow
      */
-    private FlowExecutor(WorkToken token, Element elem, Flow initialFlow, FlowExecutor parent) {
+    private ElementInstance(WorkToken token, Element elem, Flow initialFlow, ElementInstance parent) {
     	this.token = token;
         this.elem = elem;
         this.parent = parent;
-        descendants = new ArrayList<FlowExecutor>();
+        descendants = new ArrayList<ElementInstance>();
         if (parent != null)
         	parent.addDescendant(this);
         this.initialFlow = initialFlow;
-        this.id = counter++;
+        this.caughtResources = new TreeMap<Integer, ArrayDeque<Resource>>();
     }
 
     /**
+	 * @return the engine
+	 */
+	public ElementInstanceEngine getEngine() {
+		return engine;
+	}
+
+	/**
      * Returns the priority of the element owner of this flow
      * @return The priority of the associated element.
      */
@@ -144,7 +160,7 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
      * Adds a thread to the list of descendants.
      * @param wThread Descendant thread
      */
-	public void addDescendant(FlowExecutor wThread) {
+	public void addDescendant(ElementInstance wThread) {
 		descendants.add(wThread);
 	}
 
@@ -153,7 +169,7 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 	 * the element has to be notified and finished.
 	 * @param wThread Descendant thread
 	 */
-	public void removeDescendant(FlowExecutor wThread) {
+	public void removeDescendant(ElementInstance wThread) {
 		descendants.remove(wThread);
 		if (parent == null && descendants.size() == 0)
 			elem.notifyEnd();
@@ -204,57 +220,37 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
      * Gets the parent element thread.
      * @return The parent element thread.
      */
-	public FlowExecutor getParent() {
+	public ElementInstance getParent() {
 		return parent;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.iis.simulation.Identifiable#getIdentifier()
-	 */
-	public int getIdentifier() {
-		return id;
-	}
-
-	@Override
-	public int compareTo(FlowExecutor fe) {
-		final int id1 = id;
-		final int id2 = fe.id;
-		if (id1 > id2)
-			return 1;
-		if (id1 < id2)
-			return -1;
-		return 0;
-	}
-	
 	/**
-	 * Returns a new instance of the element's main work thread. The element's main work thread is
-	 * valid and has no parent.
-	 * @param elem Element owner of this thread
-	 * @return A new instance of the element's main work thread
+	 * Returns the main instance of the element. This is a "valid" instance and has no parent.
+	 * @param elem Element owner of this instance
+	 * @return the main instance of the element
 	 */
-	public static FlowExecutor getInstanceMainFlowExecutor(Element elem) {
-		return new FlowExecutor(new WorkToken(true), elem, elem.getFlow(), null);
+	public static ElementInstance getMainElementInstance(Element elem) {
+		return new ElementInstance(new WorkToken(true), elem, elem.getFlow(), null);
 	}
 
 	/**
-	 * Returns a new instance of a work thread created to carry out the inner subflow of a structured flow. 
-	 * The current thread is the parent of the newly created child thread. has the same state than the c
-	 * @return A new instance of a work thread created to carry out the inner subflow of a structured flow
+	 * Returns a new instance of an element which carries out the inner subflow of a structured flow. 
+	 * The current instance is the parent of the newly created child instance. 
+	 * @return A new instance of an element created to carry out the inner subflow of a structured flow
 	 */
-	public FlowExecutor getInstanceDescendantFlowExecutor(InitializerFlow newFlow) {
+	public ElementInstance getDescendantElementInstance(InitializerFlow newFlow) {
 		assert isExecutable() : "Invalid parent to create descendant work thread"; 
-		return new FlowExecutor(new WorkToken(true), elem, newFlow, this);
+		return new ElementInstance(new WorkToken(true), elem, newFlow, this);
 	}
 
 	/**
-	 * Returns a new instance of a work thread created to carry out a new flow after a split
-	 * @param executable Indicates if the thread to be created has to be valid or not
-	 * @param prevFlow The previously visited flow
-	 * @param token The token to be cloned in case this work thread is not valid and the token is also not valid. 
-	 * @return A new instance of a work thread created to carry out a new flow after a split
+	 * Returns a new instance of an element which carries out a new flow after a split flow
+	 * @param executable Indicates if the instance to be created has to be valid or not
+	 * @param newFlow The flow associated to the new instance 
+	 * @param token The token to be cloned in case the current instance is not valid and the token is also not valid. 
+	 * @return A new instance of an element created to carry out a new flow after a split flow
 	 */
-	public FlowExecutor getInstanceSubsequentFlowExecutor(boolean executable, Flow newFlow, WorkToken token) {
+	public ElementInstance getSubsequentElementInstance(boolean executable, Flow newFlow, WorkToken token) {
 		final WorkToken newToken;
 		if (!executable)
 			if (!token.isExecutable())
@@ -263,7 +259,7 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 				newToken = new WorkToken(false, newFlow);
 		else
 			newToken = new WorkToken(true);
-		return new FlowExecutor(newToken, elem, newFlow, parent);
+		return new ElementInstance(newToken, elem, newFlow, parent);
 	}
 
 	/**
@@ -334,7 +330,7 @@ public class FlowExecutor implements TimeFunctionParams, Prioritizable, Comparab
 	 */
 	public void pushResource(Resource res) {
 		final int resourcesId = ((RequestResourcesFlow)currentFlow).getResourcesId();
-			caughtResources.get(resourcesId).push(res);
+		caughtResources.get(resourcesId).push(res);
 	}
 	
 	/**

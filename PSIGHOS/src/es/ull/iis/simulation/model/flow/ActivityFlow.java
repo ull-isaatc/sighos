@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
@@ -121,7 +121,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 
 	/** 
 	 * Returns <tt>true</tt> if the activity is exclusive, i.e., an element cannot perform other 
-	 * activities at the same time. 
+	 * exclusive activities at the same time. 
 	 * @return <tt>True</tt> if the activity is exclusive, <tt>false</tt> in other case.
 	 */
     public boolean isExclusive() {
@@ -233,7 +233,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 	}
 
 	@Override
-	public void finish(FlowExecutor wThread) {
+	public void finish(ElementInstance wThread) {
 		if (isExclusive()) {
 			wThread.getElement().setCurrent(null);
 		}

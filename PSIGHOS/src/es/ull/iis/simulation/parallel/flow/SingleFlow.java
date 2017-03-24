@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.parallel.flow;
 
-import es.ull.iis.simulation.parallel.Activity;
+import es.ull.iis.simulation.parallel.RequestResourcesEngine;
 import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
 import es.ull.iis.simulation.parallel.FlowExecutor;
 
@@ -13,14 +13,14 @@ import es.ull.iis.simulation.parallel.FlowExecutor;
  */
 public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.iis.simulation.core.flow.SingleFlow {
     /** The activity to be performed */
-    protected final Activity act;
+    protected final RequestResourcesEngine act;
     
 	/**
 	 * Creates a new single flow..
 	 * @param simul The simulation this flow belongs to
 	 * @param act Activity to be performed
 	 */
-	public SingleFlow(ParallelSimulationEngine simul, Activity act) {
+	public SingleFlow(ParallelSimulationEngine simul, RequestResourcesEngine act) {
 		super(simul);
 		this.act = act;
 	}
@@ -29,7 +29,7 @@ public class SingleFlow extends SingleSuccessorFlow implements TaskFlow, es.ull.
 	 * Obtain the Activity associated to the SingleFlow.
 	 * @return The associated Activity.
 	 */
-	public Activity getBasicStep() {
+	public RequestResourcesEngine getBasicStep() {
 		return act;
 	}
 

@@ -16,7 +16,7 @@ public class ActivityWorkGroup extends es.ull.iis.simulation.parallel.WorkGroup 
     /**
 	 * 
 	 */
-	private final Activity activity;
+	private final RequestResourcesEngine activity;
 	/** The identifier of this WG */
 	protected final int id;
 	/** Priority of this WG */
@@ -34,7 +34,7 @@ public class ActivityWorkGroup extends es.ull.iis.simulation.parallel.WorkGroup 
      * @param wg The original WG
      * @param activity TODO
      */    
-    protected ActivityWorkGroup(Activity activity, int id, int priority, es.ull.iis.simulation.parallel.WorkGroup wg) {
+    protected ActivityWorkGroup(RequestResourcesEngine activity, int id, int priority, es.ull.iis.simulation.parallel.WorkGroup wg) {
         this(activity, id, priority, wg, new TrueCondition());
     }
     
@@ -49,7 +49,7 @@ public class ActivityWorkGroup extends es.ull.iis.simulation.parallel.WorkGroup 
      * @return <tt>True</tt> if there are more "potential" available resources than needed resources for
      * this workgroup. <tt>False</tt> otherwise.
      */
-    protected boolean isFeasible(WorkItem wi) {
+    protected boolean isFeasible(ElementInstanceEngine wi) {
     	final ElementEngine elem = wi.getElement();
 
     	wi.resetConflictZone();
@@ -96,12 +96,4 @@ public class ActivityWorkGroup extends es.ull.iis.simulation.parallel.WorkGroup 
         return false;
     }
     
-    @Override
-	public int compareTo(ActivityWorkGroup arg0) {
-		if (id < arg0.id)
-			return -1;
-		if (id > arg0.id)
-			return 1;
-		return 0;
-	}
 }

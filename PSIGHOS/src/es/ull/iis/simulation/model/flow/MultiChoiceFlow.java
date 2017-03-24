@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 
@@ -25,16 +25,16 @@ public class MultiChoiceFlow extends ConditionalFlow {
 	 * @see es.ull.iis.simulation.BasicFlow#next(es.ull.iis.simulation.FlowExecutor)
 	 */
 	@Override
-	public void next(FlowExecutor wThread) {
+	public void next(ElementInstance wThread) {
 		super.next(wThread);
 		if (wThread.isExecutable())
 			for (int i = 0; i < successorList.size(); i++) {
 				boolean res = conditionList.get(i).check(wThread);
-				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getInstanceSubsequentFlowExecutor(res, this, wThread.getToken()));
+				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getSubsequentElementInstance(res, this, wThread.getToken()));
 			}
 		else
 			for (int i = 0; i < successorList.size(); i++)
-				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getInstanceSubsequentFlowExecutor(false, this, wThread.getToken()));
+				wThread.getElement().addRequestEvent(successorList.get(i), wThread.getSubsequentElementInstance(false, this, wThread.getToken()));
 		wThread.notifyEnd();
 	}
 }

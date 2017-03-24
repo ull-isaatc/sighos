@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.examples.WFP;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -60,7 +60,7 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
         // FIXME: NO FUNCIONABA!!!
     	ActivityFlow act0 = new ActivityFlow(model, "Verificar cuenta", false, false) {
     		@Override
-    		public boolean beforeRequest(FlowExecutor fe) {
+    		public boolean beforeRequest(ElementInstance fe) {
     			((WFP19Model)simul).switchPass();
     			return ((WFP19Model)simul).isPass() && super.beforeRequest(fe);
     		}

@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 
@@ -25,7 +25,7 @@ public class MultiMergeFlow extends ORJoinFlow {
 	 * @see es.ull.iis.simulation.MergeFlow#canPass(es.ull.iis.simulation.FlowExecutor)
 	 */
 	@Override
-	protected boolean canPass(FlowExecutor wThread) {
+	protected boolean canPass(ElementInstance wThread) {
 		return wThread.isExecutable();
 	}
 }

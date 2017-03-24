@@ -5,7 +5,7 @@ package es.ull.iis.simulation.model.flow;
 
 import java.util.Set;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 
@@ -54,7 +54,7 @@ public abstract class SingleSuccessorFlow extends BasicFlow {
 	 * @param wThread  
 	 */
 	@Override
-	public void next(final FlowExecutor wThread) {
+	public void next(final ElementInstance wThread) {
 		super.next(wThread);
 		if (successor != null) {
 			wThread.getElement().addRequestEvent(successor, wThread);

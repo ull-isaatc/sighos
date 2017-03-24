@@ -3,7 +3,7 @@ package es.ull.iis.simulation.sequential;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.model.Element;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.engine.EngineObject;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
@@ -16,7 +16,7 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 public class ElementEngine extends EngineObject implements es.ull.iis.simulation.model.engine.ElementEngine {
 	/** Activity queues in which this element is. This list is used to notify the activities
 	 * when the element becomes available. */
-	protected final ArrayList<FlowExecutor> inQueue = new ArrayList<FlowExecutor>();
+	protected final ArrayList<ElementInstance> inQueue = new ArrayList<ElementInstance>();
 	/** The associated {@link Element} */
 	private final Element modelElem;
 	
@@ -40,18 +40,18 @@ public class ElementEngine extends EngineObject implements es.ull.iis.simulation
 	}
 
 	@Override
-	public void incInQueue(FlowExecutor fe) {
+	public void incInQueue(ElementInstance fe) {
 		inQueue.add(fe);
 	}
 
 	@Override
-	public void decInQueue(FlowExecutor fe) {
+	public void decInQueue(ElementInstance fe) {
 		inQueue.remove(fe);
 	}
 
 	@Override
 	public void notifyAvailableElement() {
-		for (final FlowExecutor fe : inQueue) {
+		for (final ElementInstance fe : inQueue) {
             final RequestResourcesFlow act = (RequestResourcesFlow) fe.getCurrentFlow();
 			if (act.isExclusive()) {
 	            act.getManager().notifyAvailableElement(fe);

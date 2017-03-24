@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.WorkToken;
 import es.ull.iis.simulation.model.flow.MergeFlow;
 
@@ -28,7 +28,7 @@ public abstract class MergeFlowControl {
 		this.flow = flow;
 	}
 	
-	public abstract void arrive(FlowExecutor wThread);
+	public abstract void arrive(ElementInstance wThread);
 
 	public abstract boolean canReset(int checkValue);
 	

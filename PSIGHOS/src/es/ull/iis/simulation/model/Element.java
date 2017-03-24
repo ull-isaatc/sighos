@@ -24,10 +24,10 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 	protected ElementType elementType;
 	/** First step of the flow of the element */
 	protected final InitializerFlow initialFlow;
-	/** Presential work thread which the element is currently carrying out */
-	protected FlowExecutor current = null;
-	/** Main execution thread */
-	protected final FlowExecutor mainThread;
+	/** Exclusive instance which the element is currently carrying out */
+	protected ElementInstance current = null;
+	/** Main element instance */
+	protected ElementInstance mainInstance = null;
 	/** The engine that executes specific behavior of the element */
 	private ElementEngine engine;
 	
@@ -35,7 +35,6 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 		super(simul, simul.getNewElementId(), "E");
 		this.elementType = elementType;
 		this.initialFlow = initialFlow;
-		mainThread = FlowExecutor.getInstanceMainFlowExecutor(this);
 	}
 	
 	/**
@@ -66,7 +65,7 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 	 * Notifies a new work thread is waiting in an activity queue.
 	 * @param wt Work thread waiting in queue.
 	 */
-	public void incInQueue(FlowExecutor fe) {
+	public void incInQueue(ElementInstance fe) {
 		engine.incInQueue(fe);
 	}
 	
@@ -74,7 +73,7 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 	 * Notifies a work thread has finished waiting in an activity queue.
 	 * @param wt Work thread that was waiting in a queue.
 	 */
-	public void decInQueue(FlowExecutor fe) {
+	public void decInQueue(ElementInstance fe) {
 		engine.decInQueue(fe);
 	}
 	
@@ -85,7 +84,7 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 	 * @return The work thread corresponding to the current presential activity being
 	 * performed by this element.
 	 */
-	public FlowExecutor getCurrent() {
+	public ElementInstance getCurrent() {
 		return current;
 	}
 
@@ -97,7 +96,7 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 	 * being performed by this element. A null value indicates that the element has 
 	 * finished performing the activity.
 	 */
-	public void setCurrent(FlowExecutor current) {
+	public void setCurrent(ElementInstance current) {
 		this.current = current;
 		if (current == null) {
 			engine.notifyAvailableElement();
@@ -133,7 +132,8 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 	public DiscreteEvent onCreate(long ts) {
 		simul.notifyInfo(new ElementInfo(simul, this, elementType, ElementInfo.Type.START, simul.getSimulationEngine().getTs()));
 		if (initialFlow != null) {
-			return (new RequestFlowEvent(simul.getSimulationEngine().getTs(), initialFlow, mainThread.getInstanceDescendantFlowExecutor(initialFlow)));
+			mainInstance = ElementInstance.getMainElementInstance(this);
+			return (new RequestFlowEvent(simul.getSimulationEngine().getTs(), initialFlow, mainInstance));
 		}
 		else
 			return onDestroy(ts);
@@ -155,11 +155,11 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
     	engine.notifyEnd();
     }
     
-	public void addRequestEvent(Flow f, FlowExecutor fe) {
+	public void addRequestEvent(Flow f, ElementInstance fe) {
 		simul.addEvent(new RequestFlowEvent(simul.getSimulationEngine().getTs(), f, fe));
 	}
 	
-	public void addFinishEvent(long ts, TaskFlow f, FlowExecutor fe) {
+	public void addFinishEvent(long ts, TaskFlow f, ElementInstance fe) {
 		simul.addEvent(new FinishFlowEvent(ts, f, fe));
 	}
 	
@@ -169,11 +169,11 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 	 */
 	public class RequestFlowEvent extends DiscreteEvent {
 		/** The work thread that executes the request */
-		private final FlowExecutor fe;
+		private final ElementInstance fe;
 		/** The flow to be requested */
 		private final Flow f;
 
-		public RequestFlowEvent(long ts, Flow f, FlowExecutor fe) {
+		public RequestFlowEvent(long ts, Flow f, ElementInstance fe) {
 			super(ts);
 			this.fe = fe;
 			this.f = f;
@@ -192,11 +192,11 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 	 */
 	public class FinishFlowEvent extends DiscreteEvent {
 		/** The work thread that executes the finish */
-		private final FlowExecutor fe;
+		private final ElementInstance fe;
 		/** The flow to be finished */
 		private final TaskFlow f;
 
-		public FinishFlowEvent(long ts, TaskFlow f, FlowExecutor fe) {
+		public FinishFlowEvent(long ts, TaskFlow f, ElementInstance fe) {
 			super(ts);
 			this.fe = fe;
 			this.f = f;

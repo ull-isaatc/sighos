@@ -12,7 +12,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.DelayFlow;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
@@ -96,7 +96,7 @@ public class PortModel extends Simulation {
 			final int berthId = i;
 			aUnload.addWorkGroup(0, wgUnload[i], new Condition() {
 				@Override
-				public boolean check(FlowExecutor fe) {
+				public boolean check(ElementInstance fe) {
 					return (((Container)fe.getElement()).getBerth() == berthId);
 				}
 			}, TIME_TO_UNLOAD[i]);
@@ -108,7 +108,7 @@ public class PortModel extends Simulation {
 			aPlace.addWorkGroup(0, wgPlace[i],
 					new Condition() {
 				@Override
-				public boolean check(FlowExecutor fe) {
+				public boolean check(ElementInstance fe) {
 					return (((Container)fe.getElement()).getBlock() == blockId);
 				}
 			}, TIME_TO_PLACE[i]);

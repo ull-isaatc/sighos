@@ -6,7 +6,7 @@ package es.ull.iis.simulation.model.engine;
 import java.util.Comparator;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.PrioritizedMap;
 
@@ -39,15 +39,15 @@ public interface ActivityManagerEngine {
      * Adds a work thread to the waiting queue.
      * @param fe Work thread which is added to the waiting queue.
      */
-    void queueAdd(FlowExecutor fe);
+    void queueAdd(ElementInstance fe);
     
     /**
      * Removes a work thread from the waiting queue.
      * @param fe work thread which is removed from the waiting queue.
      */
-    void queueRemove(FlowExecutor fe);
+    void queueRemove(ElementInstance fe);
     
-    void notifyAvailableElement(FlowExecutor fe);
+    void notifyAvailableElement(ElementInstance fe);
 
 	/**
 	 * A queue which stores the activity requests of the elements. The flow executors are
@@ -59,12 +59,12 @@ public interface ActivityManagerEngine {
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	public static final class FlowExecutorQueue extends PrioritizedMap<TreeSet<FlowExecutor>, FlowExecutor>{		
+	public static final class FlowExecutorQueue extends PrioritizedMap<TreeSet<ElementInstance>, ElementInstance>{		
 		/** A counter for the arrival order of the single flows */
 		private int arrivalOrder = 0;
 		/** A comparator to properly order the single flows. */
-		private Comparator<FlowExecutor> comp = new Comparator<FlowExecutor>() {
-			public int compare(FlowExecutor o1, FlowExecutor o2) {
+		private Comparator<ElementInstance> comp = new Comparator<ElementInstance>() {
+			public int compare(ElementInstance o1, ElementInstance o2) {
 				if (o1.equals(o2))
 					return 0;
 				if (((RequestResourcesFlow) o1.getCurrentFlow()).getPriority() > ((RequestResourcesFlow) o2.getCurrentFlow()).getPriority())
@@ -90,7 +90,7 @@ public interface ActivityManagerEngine {
 		 * @param wt The work thread to be added.
 		 */
 		@Override
-		public void add(FlowExecutor wt) {
+		public void add(ElementInstance wt) {
 			// The arrival order and timestamp are only assigned if the single flow 
 			// has never been added to the queue (interruptible activities)
 			if (wt.getArrivalTs() == -1) {
@@ -101,8 +101,8 @@ public interface ActivityManagerEngine {
 		}
 
 		@Override
-		public TreeSet<FlowExecutor> createLevel(Integer priority) {
-			return new TreeSet<FlowExecutor>(comp);
+		public TreeSet<ElementInstance> createLevel(Integer priority) {
+			return new TreeSet<ElementInstance>(comp);
 		}
 		
 	}

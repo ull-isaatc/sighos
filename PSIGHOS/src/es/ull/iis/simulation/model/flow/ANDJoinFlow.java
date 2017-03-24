@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 
@@ -53,7 +53,7 @@ public abstract class ANDJoinFlow extends MergeFlow {
 	 * @see es.ull.iis.simulation.MergeFlow#canPass(es.ull.iis.simulation.FlowExecutor)
 	 */
 	@Override
-	protected boolean canPass(FlowExecutor wThread) {
+	protected boolean canPass(ElementInstance wThread) {
 		return (!control.get(wThread.getElement()).isActivated() 
 				&& (control.get(wThread.getElement()).getTrueChecked() == acceptValue));
 	}

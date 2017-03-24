@@ -2,7 +2,7 @@ package es.ull.iis.simulation.condition;
 
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementType;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 
 /**
  * Condition used to check if an {@link Element} belongs to a specified {@link ElementType}.
@@ -28,7 +28,7 @@ public final class ElementTypeCondition extends Condition{
 	 * @param e {@link Element} to be checked with the condition.
 	 * @return The result of the logical condition.
 	 */
-	public boolean check(FlowExecutor fe) {
+	public boolean check(ElementInstance fe) {
 		if (type == fe.getElement().getType())
 			return true;
 		return false;

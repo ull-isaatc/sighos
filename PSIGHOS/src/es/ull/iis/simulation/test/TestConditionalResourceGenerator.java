@@ -6,7 +6,7 @@ package es.ull.iis.simulation.test;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Experiment;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.Resource;
@@ -36,7 +36,7 @@ public class TestConditionalResourceGenerator extends Experiment {
 		}
 		
 		@Override
-		public void afterFinalize(FlowExecutor fe) {
+		public void afterFinalize(ElementInstance fe) {
 			if (specialId < NRT - 1) {
 				final Resource res = new Resource(simul, "Container " + (specialId + 1));
 				res.addTimeTableEntry(rts[specialId + 1]);

@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.model.Element;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 
@@ -28,7 +28,7 @@ public class SimpleMergeFlow extends ORJoinFlow {
 	}
 
 	@Override
-	protected boolean canPass(FlowExecutor wThread) {
+	protected boolean canPass(ElementInstance wThread) {
 		if (!lastTs.containsKey(wThread.getElement())) {
 			lastTs.put(wThread.getElement(), (long)-1);
 		}
@@ -40,7 +40,7 @@ public class SimpleMergeFlow extends ORJoinFlow {
 	}
 	
 	@Override
-	protected void reset(FlowExecutor wThread) {
+	protected void reset(ElementInstance wThread) {
 		lastTs.remove(wThread.getElement());
 		super.reset(wThread);
 	}

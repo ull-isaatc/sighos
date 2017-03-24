@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.function.ConstantFunction;
 import es.ull.iis.function.TimeFunction;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 
@@ -23,7 +23,7 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	/** Loop iterations */
 	protected final TimeFunction iterations; 
 	/** List used by the control system. */
-	protected final SortedMap<FlowExecutor, Integer> checkList = new TreeMap<FlowExecutor, Integer>();
+	protected final SortedMap<ElementInstance, Integer> checkList = new TreeMap<ElementInstance, Integer>();
 
 	/**
 	 * Create a new ForLoopFlow.
@@ -75,13 +75,13 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void request(FlowExecutor wThread) {
+	public void request(ElementInstance wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				int iter = Math.round((float)iterations.getValue(wThread));
 				if (beforeRequest(wThread) && (iter > 0)) {
 					checkList.put(wThread, iter);
-					wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantFlowExecutor(initialFlow));
+					wThread.getElement().addRequestEvent(initialFlow, wThread.getDescendantElementInstance(initialFlow));
 				}
 				else {
 					wThread.cancel(this);
@@ -99,10 +99,10 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void finish(FlowExecutor wThread) {
+	public void finish(ElementInstance wThread) {
 		int iter = checkList.get(wThread);
 		if (--iter > 0) {
-			wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantFlowExecutor(initialFlow));
+			wThread.getElement().addRequestEvent(initialFlow, wThread.getDescendantElementInstance(initialFlow));
 			checkList.put(wThread, iter);
 		}
 		else {

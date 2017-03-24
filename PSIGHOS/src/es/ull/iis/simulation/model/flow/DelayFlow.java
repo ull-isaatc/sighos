@@ -6,7 +6,7 @@ package es.ull.iis.simulation.model.flow;
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.info.ElementActionInfo;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 /**
@@ -53,7 +53,7 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ActionFl
      * In this case, it returns 0.
      * @return The activity duration.
      */
-    public long getDurationSample(FlowExecutor fe) {
+    public long getDurationSample(ElementInstance fe) {
     	return Math.round(getDuration().getValue(fe));
     }
 
@@ -65,11 +65,11 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ActionFl
 	}
 
 	@Override
-	public void afterFinalize(FlowExecutor fe) {
+	public void afterFinalize(ElementInstance fe) {
 	}
 
 	@Override
-	public void request(FlowExecutor wThread) {
+	public void request(ElementInstance wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread)) {
@@ -93,7 +93,7 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ActionFl
 	}
 
 	@Override
-	public void finish(FlowExecutor wThread) {
+	public void finish(ElementInstance wThread) {
 		simul.notifyInfo(new ElementActionInfo(simul, wThread, wThread.getElement(), this, wThread.getExecutionWG(), ElementActionInfo.Type.END, simul.getSimulationEngine().getTs()));
 		if (wThread.getElement().isDebugEnabled())
 			wThread.getElement().debug("Finishes\t" + this + "\t" + getDescription());

@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 /**
@@ -28,7 +28,7 @@ public abstract class StructuredFlow extends SingleSuccessorFlow implements Task
 	}
 
 	@Override
-	public void afterFinalize(FlowExecutor fe) {
+	public void afterFinalize(ElementInstance fe) {
 	}
 
 	public FinalizerFlow getFinalFlow() {
@@ -43,11 +43,11 @@ public abstract class StructuredFlow extends SingleSuccessorFlow implements Task
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void request(FlowExecutor wThread) {
+	public void request(ElementInstance wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread))
-					wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantFlowExecutor(initialFlow));
+					wThread.getElement().addRequestEvent(initialFlow, wThread.getDescendantElementInstance(initialFlow));
 				else {
 					wThread.cancel(this);
 					next(wThread);				
@@ -65,7 +65,7 @@ public abstract class StructuredFlow extends SingleSuccessorFlow implements Task
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void finish(FlowExecutor wThread) {
+	public void finish(ElementInstance wThread) {
 		afterFinalize(wThread);
 		next(wThread);
 	}

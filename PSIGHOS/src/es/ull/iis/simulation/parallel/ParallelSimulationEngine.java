@@ -25,7 +25,7 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 /**
  * Main parallel discrete event simulation class. A simulation uses all kind of 
  * {@link SimulationObject ParallelSimulationEngine Objects} to define a model which will be executed.<p>
- * Two important simulation objects are {@link Activity activities} and {@link ResourceType 
+ * Two important simulation objects are {@link RequestResourcesEngine activities} and {@link ResourceType 
  * resource types}. Both are grouped in different {@link ActivityManager activity managers}, 
  * which serve as an initial partition for parallelism.<p>
  * The simulation is feed with {@link EventSourceEngine.DiscreteEvent discrete events} produced by 

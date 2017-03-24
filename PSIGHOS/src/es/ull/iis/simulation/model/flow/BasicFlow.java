@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationObject;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
@@ -41,7 +41,7 @@ public abstract class BasicFlow extends SimulationObject implements Flow {
 	 * @return True by default.
 	 */
 	@Override
-	public boolean beforeRequest(FlowExecutor fe) {
+	public boolean beforeRequest(ElementInstance fe) {
 		return true;
 	}
 
@@ -49,7 +49,7 @@ public abstract class BasicFlow extends SimulationObject implements Flow {
 	 * Assigns this flow as the last flow visited by the work thread.
 	 * @param wThread Work thread which requested this flow.
 	 */
-	public void next(final FlowExecutor wThread) {
+	public void next(final ElementInstance wThread) {
 		wThread.setLastFlow(this);
 	}
 

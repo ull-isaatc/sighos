@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 
@@ -47,7 +47,7 @@ public class WhileDoFlow extends StructuredLoopFlow {
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void request(FlowExecutor wThread) {
+	public void request(ElementInstance wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread)) {
@@ -70,10 +70,10 @@ public class WhileDoFlow extends StructuredLoopFlow {
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void finish(FlowExecutor wThread) {
+	public void finish(ElementInstance wThread) {
 		// The loop condition is checked
 		if (cond.check(wThread)) {
-			wThread.getElement().addRequestEvent(initialFlow, wThread.getInstanceDescendantFlowExecutor(initialFlow));
+			wThread.getElement().addRequestEvent(initialFlow, wThread.getDescendantElementInstance(initialFlow));
 		} else {
 			super.finish(wThread);
 		}

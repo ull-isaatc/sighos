@@ -82,7 +82,7 @@ public class ActivityWorkGroup implements Prioritizable, Identifiable, Describab
      * In this case, it returns 0.
      * @return The activity duration.
      */
-    public long getDurationSample(FlowExecutor fe) {
+    public long getDurationSample(ElementInstance fe) {
     	return Math.round(duration.getValue(fe));
     }
 
@@ -113,7 +113,7 @@ public class ActivityWorkGroup implements Prioritizable, Identifiable, Describab
      * @return The set of resources which compound the solution. Null if there are not enough
      * resources to carry out the basicStep by using this workgroup.
      */
-	public boolean findSolution(FlowExecutor fe) {
+	public boolean findSolution(ElementInstance fe) {
     	int ned[] = wg.getNeeded().clone();
     	if (ned.length == 0) // Infinite resources
     		return true; 

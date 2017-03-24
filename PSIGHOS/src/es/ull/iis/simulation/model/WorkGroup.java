@@ -81,7 +81,7 @@ public class WorkGroup extends SimulationObject implements Describable {
      * @param nec Resources needed.
      * @return True if there is a reachable solution. False in other case.
      */
-    protected boolean hasSolution(int []pos, int []nec, FlowExecutor fe) {
+    protected boolean hasSolution(int []pos, int []nec, ElementInstance fe) {
     	// Checks the current RT
         if (!resourceTypes[pos[0]].checkNeeded(pos[1], nec[pos[0]]))
         	return false;
@@ -101,7 +101,7 @@ public class WorkGroup extends SimulationObject implements Describable {
      * @return [ResourceType, Resource] where the next valid solution can be found; or
      * <code>null</code> if no solution was found. 
      */
-    private int []searchNext(int[] pos, int []nec, FlowExecutor fe) {
+    private int []searchNext(int[] pos, int []nec, ElementInstance fe) {
         final int []aux = new int[2];
         aux[0] = pos[0];
         aux[1] = pos[1];
@@ -130,7 +130,7 @@ public class WorkGroup extends SimulationObject implements Describable {
      * @param ned Resources needed
      * @return True if a valid solution exists. False in other case.
      */
-    public boolean findSolution(int []pos, int []ned, FlowExecutor fe) {
+    public boolean findSolution(int []pos, int []ned, ElementInstance fe) {
         pos = searchNext(pos, ned, fe);
         // No solution
         if (pos == null)

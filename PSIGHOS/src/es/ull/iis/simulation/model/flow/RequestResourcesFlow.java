@@ -12,7 +12,7 @@ import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.engine.RequestResourcesEngine;
@@ -81,8 +81,10 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
         return priority;
     }
 	
-	/**
-	 * @return the exclusive
+	/** 
+	 * Returns <tt>true</tt> if the activity is exclusive, i.e., an element cannot perform other 
+	 * exclusive activities at the same time. 
+	 * @return <tt>True</tt> if the activity is exclusive, <tt>false</tt> in other case.
 	 */
 	public boolean isExclusive() {
 		return exclusive;
@@ -114,11 +116,11 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	}
 
 	/**
-	 * Allows a user for adding a customized code when a {@link es.ull.iis.simulation.model.FlowExecutor} from an {@link es.ull.iis.simulation.model.Element}
+	 * Allows a user for adding a customized code when a {@link es.ull.iis.simulation.model.ElementInstance} from an {@link es.ull.iis.simulation.model.Element}
 	 * is enqueued, waiting for available {@link es.ull.iis.simulation.model.Resource}. 
-	 * @param wt {@link es.ull.iis.simulation.model.FlowExecutor} requesting resources
+	 * @param wt {@link es.ull.iis.simulation.model.ElementInstance} requesting resources
 	 */
-	public void inqueue(FlowExecutor fe) {}
+	public void inqueue(ElementInstance fe) {}
 	
 	
 	/**
@@ -263,15 +265,15 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	}
 	
 	/**
-	 * Allows a user for adding a customized code when the {@link FlowExecutor} actually starts the
+	 * Allows a user for adding a customized code when the {@link ElementInstance} actually starts the
 	 * execution of the {@link ActivityFlow}.
-	 * @param fe {@link FlowExecutor} requesting this {@link ActivityFlow}
+	 * @param fe {@link ElementInstance} requesting this {@link ActivityFlow}
 	 */
-	public void afterAcquire(FlowExecutor fe) {
+	public void afterAcquire(ElementInstance fe) {
 	}
 
 	@Override
-	public void afterFinalize(FlowExecutor fe) {
+	public void afterFinalize(ElementInstance fe) {
 	}
 
 	/**
@@ -283,7 +285,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * @return <code>True</code> if this activity can be carried out with any one of its 
      * WGs. <code>False</code> in other case.
      */
-	public boolean isFeasible(FlowExecutor fe) {
+	public boolean isFeasible(ElementInstance fe) {
     	if (!stillFeasible)
     		return false;
         Iterator<ActivityWorkGroup> iter = workGroupTable.randomIterator();
@@ -311,7 +313,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
     	return engine.getQueueSize();
     }
     
-    public void queueRemove(FlowExecutor fe) {
+    public void queueRemove(ElementInstance fe) {
     	engine.queueRemove(fe);
     }
     
@@ -320,7 +322,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * @return -1 if the resources cannot be acquired; 0 if no delay is required;
      * a delay duration otherwise.
      */
-	public long acquireResources(FlowExecutor fe) {
+	public long acquireResources(ElementInstance fe) {
 		simul.notifyInfo(new ElementActionInfo(simul, fe, fe.getElement(), this, fe.getExecutionWG(), ElementActionInfo.Type.REQ, simul.getSimulationEngine().getTs()));
 		if (fe.getElement().isDebugEnabled())
 			fe.getElement().debug("Requests\t" + this + "\t" + getDescription());
@@ -340,7 +342,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void request(final FlowExecutor wThread) {
+	public void request(final ElementInstance wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread)) {
@@ -368,7 +370,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void finish(final FlowExecutor wThread) {
+	public void finish(final ElementInstance wThread) {
 		wThread.endDelay(this);
 		next(wThread);
 	}

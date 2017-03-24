@@ -55,7 +55,7 @@ public class ActivityManager extends SimulationObject implements Describable {
      * Adds a work thread to the waiting queue.
      * @param fe Work thread which is added to the waiting queue.
      */
-    public void queueAdd(FlowExecutor fe) {
+    public void queueAdd(ElementInstance fe) {
     	engine.queueAdd(fe);
     }
     
@@ -63,7 +63,7 @@ public class ActivityManager extends SimulationObject implements Describable {
      * Removes a work thread from the waiting queue.
      * @param fe work thread which is removed from the waiting queue.
      */
-    public void queueRemove(FlowExecutor fe) {
+    public void queueRemove(ElementInstance fe) {
     	engine.queueRemove(fe);
     }
     
@@ -74,7 +74,7 @@ public class ActivityManager extends SimulationObject implements Describable {
     	engine.setAvailableResource(true);
     }
 
-    public void notifyAvailableElement(FlowExecutor fe) {
+    public void notifyAvailableElement(ElementInstance fe) {
     	engine.notifyAvailableElement(fe);
     }
     

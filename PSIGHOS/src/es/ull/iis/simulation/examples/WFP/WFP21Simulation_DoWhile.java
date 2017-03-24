@@ -3,7 +3,7 @@ package es.ull.iis.simulation.examples.WFP;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.model.ElementType;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
@@ -34,7 +34,7 @@ public class WFP21Simulation_DoWhile extends WFPTestSimulationFactory {
 		}
 		
     	@Override
-    	public boolean check(FlowExecutor fe) {
+    	public boolean check(ElementInstance fe) {
     		return (fe.getElement().getVar("fotosReveladas").getValue(fe).intValue() < 10);
     	}
 		
@@ -56,7 +56,7 @@ public class WFP21Simulation_DoWhile extends WFPTestSimulationFactory {
         
     	ActivityFlow act0 = new ActivityFlow(model, "Revelar foto", false, false) {
     		@Override
-    		public void afterFinalize(FlowExecutor fe) {
+    		public void afterFinalize(ElementInstance fe) {
     			fe.getElement().putVar("fotosReveladas", fe.getElement().getVar("fotosReveladas").getValue(fe).intValue() + 1);
     			System.out.println(fe.getElement() + ": " + fe.getElement().getVar("fotosReveladas").getValue(fe) + " fotos reveladas.");
     		}

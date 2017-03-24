@@ -6,7 +6,7 @@ package es.ull.iis.simulation.model.flow;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.ResourceType;
@@ -102,13 +102,13 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 	public void addPredecessor(Flow newFlow) {}
 
 	@Override
-	public void afterFinalize(FlowExecutor fe) {}
+	public void afterFinalize(ElementInstance fe) {}
 
     /**
      * Releases the resources caught by this item to perform the activity.
      * @return A list of activity managers affected by the released resources
      */
-    public boolean releaseResources(FlowExecutor fe) {
+    public boolean releaseResources(ElementInstance fe) {
         if (!fe.releaseCaughtResources(wg))
         	return false;
 		simul.notifyInfo(new ElementActionInfo(simul, fe, fe.getElement(), this, fe.getExecutionWG(), ElementActionInfo.Type.REL, simul.getSimulationEngine().getTs()));
@@ -123,7 +123,7 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void request(final FlowExecutor wThread) {
+	public void request(final ElementInstance wThread) {
 		if (!wThread.wasVisited(this)) {
 			if (wThread.isExecutable()) {
 				if (beforeRequest(wThread)) {

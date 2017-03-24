@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.flow.MergeFlow;
 
 /**
@@ -22,7 +22,7 @@ public class SafeMergeFlowControl extends MergeFlowControl {
 	 * @see es.ull.iis.simulation.MergeFlowControl#arrive(es.ull.iis.simulation.FlowExecutor)
 	 */
 	@Override
-	public void arrive(FlowExecutor wThread) {
+	public void arrive(ElementInstance wThread) {
 		if (wThread.isExecutable())
 			trueChecked++;
 		else

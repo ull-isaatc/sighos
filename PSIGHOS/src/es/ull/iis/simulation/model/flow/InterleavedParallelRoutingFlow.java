@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 
@@ -116,7 +116,7 @@ public class InterleavedParallelRoutingFlow extends StructuredFlow {
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void finish(FlowExecutor wThread) {
+	public void finish(ElementInstance wThread) {
 		afterFinalize(wThread);
 		next(wThread);
 

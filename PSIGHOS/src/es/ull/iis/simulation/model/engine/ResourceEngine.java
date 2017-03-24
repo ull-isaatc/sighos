@@ -6,7 +6,7 @@ package es.ull.iis.simulation.model.engine;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.model.ActivityManager;
-import es.ull.iis.simulation.model.FlowExecutor;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.SimulationCycle;
 import es.ull.iis.simulation.model.ResourceType;
 
@@ -27,16 +27,16 @@ public interface ResourceEngine extends EventSourceEngine {
 	void notifyCurrentManagers();
 	ArrayList<ActivityManager> getCurrentManagers();
     /**
-     * Returns the flow executor of the element which currently owns this resource.
-     * @return The current flow executor .
+     * Returns the instance of the element which currently owns this resource.
+     * @return The current instance of the element .
      */
-	FlowExecutor getCurrentFlowExecutor();
+	ElementInstance getCurrentElementInstance();
 	boolean isAvailable(ResourceType rt);
 	void addRole(ResourceType role, long ts);
 	void removeRole(ResourceType role);
 	void setNotCanceled(boolean available);
-	boolean add2Solution(ResourceType rt, FlowExecutor fe);
-	void removeFromSolution(FlowExecutor fe);
-	long catchResource(FlowExecutor wt);
+	boolean add2Solution(ResourceType rt, ElementInstance ei);
+	void removeFromSolution(ElementInstance ei);
+	long catchResource(ElementInstance ei);
 	boolean releaseResource();
 }
