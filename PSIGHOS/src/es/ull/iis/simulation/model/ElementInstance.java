@@ -487,28 +487,6 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable {
 		}
     }
     
-    public int availableResource(RequestResourcesFlow reqFlow) {
-		if (!reqFlow.isExclusive() || (elem.getCurrent() == null)) {
-			// There are enough resources to perform the activity
-			if (reqFlow.isFeasible(this)) {
-				if (reqFlow.isExclusive()) 
-					elem.setCurrent(this);
-				final long delay = catchResources();
-				if (delay > 0)
-					startDelay(delay);
-				else
-					reqFlow.next(this);
-				return -1;
-			}
-			else {
-				return reqFlow.getQueueSize();
-			}
-		}
-		else {
-			return 0;
-		}
-    }
-    
     public void availableElement(RequestResourcesFlow reqFlow) {
 		if (reqFlow.isFeasible(this)) {
 			if (reqFlow.isExclusive()) 

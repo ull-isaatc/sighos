@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.model.ActivityManager;
+import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.engine.EngineObject;
@@ -55,45 +56,60 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
     	int uselessSF = 0;
     	// A postponed removal list
     	final ArrayList<ElementInstance> toRemove = new ArrayList<ElementInstance>();
-    	Iterator<ElementInstance> iter = waitingQueue.iterator();
-    	while (iter.hasNext() && (uselessSF < waitingQueue.size())) {
-    		ElementInstance wi = iter.next();
-            ElementEngine e = wi.getElement();
-            RequestResourcesEngine act = wi.getBasicStep();
-            if (act.mainElementActivity()) {
-            	e.waitSemaphore();
+    	final int queueSize = waitingQueue.size();
+    	for (final ElementInstance ei : waitingQueue) {
+            final RequestResourcesFlow reqFlow = (RequestResourcesFlow) ei.getCurrentFlow();
+            final Element e = ei.getElement();
+            final ElementEngine engine = (ElementEngine)e.getEngine();
+            if (reqFlow.isExclusive()) {
+            	engine.waitSemaphore();
                 if (e.getCurrent() == null) {
-                	if (act.isFeasible(wi)) {	// The activity can be performed
-                		e.setCurrent(wi);
-                    	e.signalSemaphore();
-                        act.carryOut(wi);
-                		toRemove.add(wi);
+                	if (reqFlow.isFeasible(ei)) {	// The activity can be performed
+                		e.setCurrent(ei);
+                    	engine.signalSemaphore();
+        				final long delay = ei.catchResources();
+        				if (delay > 0)
+        					ei.startDelay(delay);
+        				else
+        					reqFlow.next(ei);
+                		toRemove.add(ei);
                 		uselessSF--;
                 	}
                 	else {	// The activity can't be performed with the current resources
-                    	e.signalSemaphore();
-                    	uselessSF += act.getQueueSize();
+                    	engine.signalSemaphore();
+                    	uselessSF += reqFlow.getQueueSize();
                 	}
                 }
                 else {
-                	e.signalSemaphore();
+                	engine.signalSemaphore();
                 }
             }   
             // The activity can be freely accessed by the element
             else {
-            	if (act.isFeasible(wi)) {	// The activity can be performed
-                    act.carryOut(wi);
-            		toRemove.add(wi);
+            	if (reqFlow.isFeasible(ei)) {	// The activity can be performed
+    				final long delay = ei.catchResources();
+    				if (delay > 0)
+    					ei.startDelay(delay);
+    				else
+    					reqFlow.next(ei);
+            		toRemove.add(ei);
             		uselessSF--;
             	}
             	else {	// The activity can't be performed with the current resources
-                	uselessSF += act.getQueueSize();
+                	uselessSF += reqFlow.getQueueSize();
             	}
             }
+            // A little optimization to stop if it is detected that no more activities can be performed
+            if (uselessSF == queueSize)
+            	break;
 		}
     	// Postponed removal
     	for (ElementInstance fe : toRemove)
     		((RequestResourcesFlow) fe.getCurrentFlow()).queueRemove(fe);
+		// After executing the work there are no more available resources
+    	avResource = false;
+		// In any case, remove all the pending elements
+		currentQueue.clear();
 	}
 	
     @Override
@@ -153,8 +169,8 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
 	}
 
 	@Override
-	public void setAvailableResource(boolean available) {
-		avResource = available;		
+	public void notifyAvailableResource() {
+		avResource = true;		
 	}
 
 	@Override

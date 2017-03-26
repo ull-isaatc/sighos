@@ -51,18 +51,28 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
     	// A postponed removal list
     	final ArrayList<ElementInstance> toRemove = new ArrayList<ElementInstance>();
     	final int queueSize = waitingQueue.size();
-    	for (final ElementInstance fe : waitingQueue) {
+    	for (final ElementInstance ei : waitingQueue) {
+            final Element e = ei.getElement();
             // TODO: Check whether it always works fine
-            final RequestResourcesFlow reqResources = (RequestResourcesFlow) fe.getCurrentFlow();
+            final RequestResourcesFlow reqFlow = (RequestResourcesFlow) ei.getCurrentFlow();
             
-            final int result = fe.availableResource(reqResources);
-            if (result == -1) {
-        		toRemove.add(fe);
-        		uselessSF--;
-        	}
-        	else if (result > 0) {	// The activity can't be performed with the current resources
-            	uselessSF += result;
-        	}
+    		if (!reqFlow.isExclusive() || (e.getCurrent() == null)) {
+    			// There are enough resources to perform the activity
+    			if (reqFlow.isFeasible(ei)) {
+    				if (reqFlow.isExclusive()) 
+    					e.setCurrent(ei);
+    				final long delay = ei.catchResources();
+    				if (delay > 0)
+    					ei.startDelay(delay);
+    				else
+    					reqFlow.next(ei);
+            		toRemove.add(ei);
+            		uselessSF--;
+    			}
+    			else { // The activity can't be performed with the current resources
+                	uselessSF += reqFlow.getQueueSize();
+    			}
+    		}
             // A little optimization to stop if it is detected that no more activities can be performed
             if (uselessSF == queueSize)
             	break;
@@ -94,8 +104,8 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
 	}
 
 	@Override
-	public void setAvailableResource(boolean available) {
-		availableResource = available;
+	public void notifyAvailableResource() {
+		availableResource = true;
 	}
 
 	@Override

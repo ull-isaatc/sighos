@@ -212,5 +212,12 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 	protected void assignSimulation(SimulationEngine simul) {
 		engine = simul.getElementEngineInstance(this);
 	}
+
+	/**
+	 * @return the engine
+	 */
+	public ElementEngine getEngine() {
+		return engine;
+	}
 	
 }

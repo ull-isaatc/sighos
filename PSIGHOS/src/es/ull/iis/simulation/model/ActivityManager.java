@@ -71,7 +71,7 @@ public class ActivityManager extends SimulationObject implements Describable {
      * Informs this activity manager that a resource has become available. 
      */
     public void notifyResource() {
-    	engine.setAvailableResource(true);
+    	engine.notifyAvailableResource();
     }
 
     public void notifyAvailableElement(ElementInstance fe) {

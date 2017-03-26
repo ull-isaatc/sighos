@@ -31,7 +31,7 @@ public interface ActivityManagerEngine {
 	 */
 	void processAvailableElements();
 	
-	void setAvailableResource(boolean available);
+	void notifyAvailableResource();
 	
 	boolean getAvailableResource();
 
