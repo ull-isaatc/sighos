@@ -316,54 +316,32 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
     public void queueRemove(ElementInstance fe) {
     	engine.queueRemove(fe);
     }
-    
-    /**
-     * Catch the resources needed for each resource type to carry out an activity.
-     * @return -1 if the resources cannot be acquired; 0 if no delay is required;
-     * a delay duration otherwise.
-     */
-	public long acquireResources(ElementInstance fe) {
-		simul.notifyInfo(new ElementActionInfo(simul, fe, fe.getElement(), this, fe.getExecutionWG(), ElementActionInfo.Type.REQ, simul.getSimulationEngine().getTs()));
-		if (fe.getElement().isDebugEnabled())
-			fe.getElement().debug("Requests\t" + this + "\t" + getDescription());
-		if (!isExclusive() || (fe.getElement().getCurrent() == null)) {
-			// There are enough resources to perform the activity
-			if (isFeasible(fe)) {
-				if (isExclusive()) 
-					fe.getElement().setCurrent(fe);
-		    	return fe.catchResources();
-			}
-		}
-		engine.queueAdd(fe); // The element is introduced in the queue
-		return -1L;
-	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void request(final ElementInstance wThread) {
-		if (!wThread.wasVisited(this)) {
-			if (wThread.isExecutable()) {
-				if (beforeRequest(wThread)) {
-					final long delay = acquireResources(wThread);
-					// No delay
-					if (delay == 0)
-						next(wThread);
-					else if (delay > 0)
-						wThread.startDelay(delay);
+	public void request(final ElementInstance ei) {
+		if (!ei.wasVisited(this)) {
+			if (ei.isExecutable()) {
+				if (beforeRequest(ei)) {
+					simul.notifyInfo(new ElementActionInfo(simul, ei, ei.getElement(), this, ei.getExecutionWG(), ElementActionInfo.Type.REQ, simul.getSimulationEngine().getTs()));
+					if (ei.getElement().isDebugEnabled())
+						ei.getElement().debug("Requests\t" + this + "\t" + getDescription());
+					engine.queueAdd(ei); // The element is introduced in the queue
+					manager.notifyAvailableElement(ei);
 				}
 				else {
-					wThread.cancel(this);
-					next(wThread);
+					ei.cancel(this);
+					next(ei);
 				}
 			}
 			else {
-				wThread.updatePath(this);
-				next(wThread);
+				ei.updatePath(this);
+				next(ei);
 			}
 		} else
-			wThread.notifyEnd();
+			ei.notifyEnd();
 	}
 
 	/*
@@ -372,6 +350,9 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 */
 	public void finish(final ElementInstance wThread) {
 		wThread.endDelay(this);
+		if (isExclusive()) {
+			wThread.getElement().setCurrent(null);
+		}
 		next(wThread);
 	}
 	

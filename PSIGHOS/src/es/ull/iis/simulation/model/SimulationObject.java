@@ -29,7 +29,7 @@ public abstract class SimulationObject implements Comparable<SimulationObject>, 
 	/**
 	 * @return the model
 	 */
-	public Simulation getModel() {
+	public Simulation getSimulation() {
 		return simul;
 	}
 

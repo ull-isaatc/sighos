@@ -19,6 +19,7 @@ import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationObject;
 import es.ull.iis.simulation.model.engine.EventSourceEngine;
+import es.ull.iis.simulation.model.flow.MergeFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
 /**
@@ -360,7 +361,13 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 	}
 
 	@Override
+	public MergeFlowEngine getMergeFlowEngineInstance(MergeFlow modelFlow) {
+		return new MergeFlowEngine(this, modelFlow);
+	}
+
+	@Override
 	public void addEvent(DiscreteEvent ev) {
    		((EventExecutor)Thread.currentThread()).addEvent(ev);
 	}
+
 }

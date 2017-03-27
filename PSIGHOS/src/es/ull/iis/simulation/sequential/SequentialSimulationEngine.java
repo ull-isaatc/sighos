@@ -11,6 +11,7 @@ import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.flow.MergeFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
 /**
@@ -168,29 +169,34 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 	}
 
 	@Override
-	public es.ull.iis.simulation.model.ResourceList getResourceListInstance() {
+	public ResourceList getResourceListInstance() {
 		return new ResourceList();
 	}
 
 	@Override
-	public es.ull.iis.simulation.model.engine.ResourceEngine getResourceEngineInstance(Resource modelRes) {
+	public ResourceEngine getResourceEngineInstance(Resource modelRes) {
 		return new ResourceEngine(this, modelRes);
 	}
 
 	@Override
-	public es.ull.iis.simulation.model.engine.ActivityManagerEngine getActivityManagerEngineInstance(ActivityManager modelAM) {
+	public ActivityManagerEngine getActivityManagerEngineInstance(ActivityManager modelAM) {
 		return new ActivityManagerEngine(this, modelAM);
 	}
 
 	@Override
-	public es.ull.iis.simulation.model.engine.ElementEngine getElementEngineInstance(Element modelElem) {
+	public ElementEngine getElementEngineInstance(Element modelElem) {
 		return new ElementEngine(this, modelElem);
 	}
     
 	@Override
-	public es.ull.iis.simulation.model.engine.RequestResourcesEngine getRequestResourcesEngineInstance(
+	public RequestResourcesEngine getRequestResourcesEngineInstance(
 			RequestResourcesFlow reqFlow) {
 		return new RequestResourcesEngine(this, reqFlow);
+	}
+
+	@Override
+	public MergeFlowEngine getMergeFlowEngineInstance(MergeFlow modelFlow) {
+		return new MergeFlowEngine(this, modelFlow);
 	}
 
 	@Override

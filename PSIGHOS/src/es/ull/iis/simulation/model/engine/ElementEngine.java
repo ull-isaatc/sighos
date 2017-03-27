@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.model.engine;
 
 import es.ull.iis.simulation.model.ElementInstance;
+import es.ull.iis.simulation.model.flow.Flow;
 
 /**
  * @author Iván Castilla
@@ -23,4 +24,20 @@ public interface ElementEngine extends EventSourceEngine {
 	void decInQueue(ElementInstance fe);
 
 	void notifyAvailableElement();
+	
+	/**
+	 * Acquires a semaphore associated to a specific flow. 
+	 * Useful only for parallel implementations
+	 * @param flow The flow to be requested
+	 */
+	void waitProtectedFlow(Flow flow);
+	
+	/**
+	 * Releases a semaphore associated to a specific flow
+	 * Useful only for parallel implementations
+	 * @param flow The flow to be requested
+	 */
+	void signalProtectedFlow(Flow flow);
+	
+	ElementInstanceEngine getElementInstance(ElementInstance ei);
 }

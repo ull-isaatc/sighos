@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.engine.EngineObject;
@@ -16,8 +15,7 @@ import es.ull.iis.simulation.model.engine.EngineObject;
  * @author Iván Castilla
  *
  */
-public class ElementInstanceEngine extends EngineObject
-		implements es.ull.iis.simulation.model.engine.ElementInstanceEngine {
+public class ElementInstanceEngine extends EngineObject	implements es.ull.iis.simulation.model.engine.ElementInstanceEngine {
 	/** Element instance's counter. Useful for identifying each instance */
 	private static final AtomicInteger counter = new AtomicInteger();
     // Avoiding deadlocks (time-overlapped resources)
@@ -53,8 +51,8 @@ public class ElementInstanceEngine extends EngineObject
 	 * false in other case. 
 	 */
 	public boolean checkCaughtResources() {
-		for (Resource res : caughtResources)
-			if (!res.checkSolution(this))
+		for (Resource res : modelInstance.getCaughtResources())
+			if (!((ResourceEngine)res.getEngine()).checkSolution(this))
 				return false;
 		return true;
 	}

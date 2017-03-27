@@ -66,7 +66,7 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable {
 	protected long arrivalTs = -1;
 	/** The proportion of time left to finish the activity. Used in interruptible activities. */
 	protected double remainingTask = 0.0;
-	private ElementInstanceEngine engine;
+	final private ElementInstanceEngine engine;
 	
     /** 
      * Creates a new work thread. The constructor is private since it must be invoked from the 
@@ -85,6 +85,7 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable {
         	parent.addDescendant(this);
         this.initialFlow = initialFlow;
         this.caughtResources = new TreeMap<Integer, ArrayDeque<Resource>>();
+        this.engine = elem.getEngine().getElementInstance(this);
     }
 
     /**
@@ -321,7 +322,7 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable {
 
 	@Override
 	public double getTime() {
-		return elem.getModel().getSimulationEngine().getTs();
+		return elem.getSimulation().getSimulationEngine().getTs();
 	}
 
 	/**
@@ -359,19 +360,20 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable {
     		auxTs = Math.min(auxTs, res.catchResource(this));;
             res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
     	}
-    	final long ts = elem.getModel().getSimulationEngine().getTs();
-		elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.ACQ, ts));
+    	engine.notifyResourcesAcquired();
+    	final long ts = elem.getSimulation().getSimulationEngine().getTs();
+		elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.ACQ, ts));
 		elem.debug("Resources acquired\t" + this + "\t" + reqFlow.getDescription());			
 		reqFlow.afterAcquire(this);
 		long delay = Math.round(executionWG.getDurationSample(this) * remainingTask);
 		auxTs -= ts;
 		if (delay > 0) {
 			if (remainingTask == 1.0) {
-				elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.START, ts));
+				elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.START, ts));
 				elem.debug("Start delay\t" + this + "\t" + reqFlow.getDescription());
 			}
 			else {
-				elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.RESACT, ts));
+				elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.RESACT, ts));
 				elem.debug("Continues\t" + this + "\t" + reqFlow.getDescription());			
 			}
 			// The required time for finishing the activity is reduced (useful only for interruptible activities)
@@ -390,7 +392,7 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable {
 	}
 	
 	public void startDelay(long delay) {
-		elem.addFinishEvent(delay + elem.getModel().getSimulationEngine().getTs(), (TaskFlow)currentFlow, this);
+		elem.addFinishEvent(delay + elem.getSimulation().getSimulationEngine().getTs(), (TaskFlow)currentFlow, this);
 	}
 	
 	public boolean releaseCaughtResources(WorkGroup wg) {
@@ -408,9 +410,9 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable {
 	        for (Resource res : resources) {
 	        	final long cancellationDuration = relFlow.getResourceCancellation(res.getCurrentResourceType());
 	        	if (cancellationDuration > 0) {
-					final long actualTs = elem.getModel().getSimulationEngine().getTs();
+					final long actualTs = elem.getSimulation().getSimulationEngine().getTs();
 					res.setNotCanceled(false);
-					elem.getModel().notifyInfo(new ResourceInfo(elem.getModel(), res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
+					elem.getSimulation().notifyInfo(new ResourceInfo(elem.getSimulation(), res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
 					res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
 				}
 				elem.debug("Returned " + res);
@@ -439,9 +441,9 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable {
 		        			resources.remove(res);
 		    	        	final long cancellationDuration = relFlow.getResourceCancellation(currentRT);
 		    	        	if (cancellationDuration > 0) {
-		    					final long actualTs = elem.getModel().getSimulationEngine().getTs();
+		    					final long actualTs = elem.getSimulation().getSimulationEngine().getTs();
 		    					res.setNotCanceled(false);
-		    					elem.getModel().notifyInfo(new ResourceInfo(elem.getModel(), res, currentRT, ResourceInfo.Type.CANCELON, actualTs));
+		    					elem.getSimulation().notifyInfo(new ResourceInfo(elem.getSimulation(), res, currentRT, ResourceInfo.Type.CANCELON, actualTs));
 		    					res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
 		    				}
 		    				elem.debug("Returned " + res);
@@ -473,31 +475,18 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable {
    
     public void endDelay(RequestResourcesFlow f) {
 		if (remainingTask == 0.0) {
-			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, f, executionWG, ElementActionInfo.Type.END, elem.getModel().getSimulationEngine().getTs()));
+			elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, f, executionWG, ElementActionInfo.Type.END, elem.getSimulation().getSimulationEngine().getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + f.getDescription());
 			f.afterFinalize(this);
 		}
 		else {
-			elem.getModel().notifyInfo(new ElementActionInfo(elem.getModel(), this, elem, f, executionWG, ElementActionInfo.Type.INTACT, elem.getModel().getSimulationEngine().getTs()));
+			elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, f, executionWG, ElementActionInfo.Type.INTACT, elem.getSimulation().getSimulationEngine().getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes part of \t" + this + "\t" + f.getDescription() + "\t" + remainingTask * 100 + "% Left");
 			// Notifies the parent workthread that the activity was interrupted
 			parent.remainingTask = remainingTask;
 		}
-    }
-    
-    public void availableElement(RequestResourcesFlow reqFlow) {
-		if (reqFlow.isFeasible(this)) {
-			if (reqFlow.isExclusive()) 
-				elem.setCurrent(this);
-			final long delay = catchResources();
-			reqFlow.queueRemove(this);
-			if (delay > 0)
-				startDelay(delay);
-			else
-				reqFlow.next(this);
-		}    	
     }
 
     public boolean wasInterrupted(ActivityFlow f) {

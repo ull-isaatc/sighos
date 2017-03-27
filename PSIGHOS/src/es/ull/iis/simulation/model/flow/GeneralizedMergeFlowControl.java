@@ -6,27 +6,23 @@ package es.ull.iis.simulation.model.flow;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.WorkToken;
-import es.ull.iis.simulation.model.flow.Flow;
-import es.ull.iis.simulation.model.flow.MergeFlow;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
 public class GeneralizedMergeFlowControl extends MergeFlowControl {
-	protected SortedMap<Flow, LinkedList<WorkToken>> incBranches;
+	protected Map<Flow, LinkedList<WorkToken>> incBranches;
 
 	/**
 	 * @param flow
 	 */
-	public GeneralizedMergeFlowControl(MergeFlow flow) {
+	public GeneralizedMergeFlowControl(MergeFlow flow, Map<Flow, LinkedList<WorkToken>> control) {
 		super(flow);
-		incBranches = new TreeMap<Flow, LinkedList<WorkToken>>();
+		incBranches = control;
 	}
 
 	/* (non-Javadoc)

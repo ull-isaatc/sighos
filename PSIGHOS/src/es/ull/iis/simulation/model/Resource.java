@@ -49,6 +49,13 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 		engine = simul.getResourceEngineInstance(this);
 	}      
 	
+	/**
+	 * @return the engine
+	 */
+	public ResourceEngine getEngine() {
+		return engine;
+	}
+
 	@Override
 	public String getDescription() {
 		return description;

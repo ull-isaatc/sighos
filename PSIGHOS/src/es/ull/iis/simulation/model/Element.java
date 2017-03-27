@@ -133,7 +133,7 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 		simul.notifyInfo(new ElementInfo(simul, this, elementType, ElementInfo.Type.START, simul.getSimulationEngine().getTs()));
 		if (initialFlow != null) {
 			mainInstance = ElementInstance.getMainElementInstance(this);
-			return (new RequestFlowEvent(simul.getSimulationEngine().getTs(), initialFlow, mainInstance));
+			return (new RequestFlowEvent(simul.getSimulationEngine().getTs(), initialFlow, mainInstance.getDescendantElementInstance(initialFlow)));
 		}
 		else
 			return onDestroy(ts);

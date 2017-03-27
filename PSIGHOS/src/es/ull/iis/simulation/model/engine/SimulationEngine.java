@@ -21,6 +21,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.Flow;
+import es.ull.iis.simulation.model.flow.MergeFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.Output;
 
@@ -134,6 +135,7 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	public abstract ResourceList getResourceListInstance();
 	public abstract ActivityManagerEngine getActivityManagerEngineInstance(ActivityManager modelAM);
 	public abstract RequestResourcesEngine getRequestResourcesEngineInstance(RequestResourcesFlow reqFlow);
+	public abstract MergeFlowEngine getMergeFlowEngineInstance(MergeFlow modelFlow);
 	public abstract void addEvent(DiscreteEvent ev); 
 	/**
 	 * Prints the current state of the simulation for debug purposes. Prints the current local 

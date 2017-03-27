@@ -54,8 +54,7 @@ public class ThreadMergeFlow extends ANDJoinFlow {
 			if (wThread.isExecutable()) {
 				if (!beforeRequest(wThread))
 					wThread.cancel(this);
-				/// FIXME: Fix when parallel implementation
-//				elem.waitProtectedFlow(this);
+				elem.getEngine().waitProtectedFlow(this);
 				arrive(wThread);
 				if (canPass(wThread)) {
 					control.get(elem).setActivated();
@@ -69,7 +68,7 @@ public class ThreadMergeFlow extends ANDJoinFlow {
 				}
 				if (canReset(wThread))
 					reset(wThread);
-//				elem.signalProtectedFlow(this);
+				elem.getEngine().signalProtectedFlow(this);
 			}
 		} else
 			wThread.notifyEnd();

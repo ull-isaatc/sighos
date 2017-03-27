@@ -125,5 +125,10 @@ public class ElementEngine extends EngineObject implements es.ull.iis.simulation
 	public void signalProtectedFlow(Flow flow) {
 		protectedFlows.get(flow).set(false);
 	}
+
+	@Override
+	public ElementInstanceEngine getElementInstance(ElementInstance ei) {
+		return new ElementInstanceEngine((ParallelSimulationEngine) simul, ei);
+	}
 	
 }

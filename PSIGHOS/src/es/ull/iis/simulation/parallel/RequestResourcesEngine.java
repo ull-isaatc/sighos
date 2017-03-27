@@ -1,24 +1,15 @@
 package es.ull.iis.simulation.parallel;
 
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.ArrayDeque;
 
-import es.ull.iis.function.TimeFunction;
-import es.ull.iis.function.TimeFunctionFactory;
-import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.model.flow.Flow;
-import es.ull.iis.simulation.model.flow.StructuredFlow;
-import es.ull.iis.simulation.info.ElementActionInfo;
+import es.ull.iis.simulation.model.ActivityManager;
+import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.ElementInstance;
+import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.engine.EngineObject;
-import es.ull.iis.simulation.model.flow.BasicFlow;
-import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.util.PrioritizedTable;
 
 /**
  * A task which could be carried out by a {@link WorkItem} and requires certain amount and 
@@ -85,127 +76,49 @@ public class RequestResourcesEngine extends EngineObject implements es.ull.iis.s
     public int getQueueSize() {
     	return queueSize;    	
     }
-    
-	/**
-	 * Returns true if this activity is the main activity that an element can do.
-	 * @return True if the activity requires an element MUTEX.
-	 */
-	public boolean mainElementActivity() {
-		return !isNonPresential();		
-	}
-	
-	/**
-	 * Requests this activity. Checks if this activity is feasible by the
-	 * specified work item. If the activity is feasible, {@link #carryOut(WorkItem)}
-	 * is invoked; in other case, the work item is added to this activity's queue.
-	 * @param wItem Work Item requesting this activity.
-	 */
-	public void request(WorkItem wItem) {
-		final ElementEngine elem = wItem.getElement();
-		simul.notifyInfo(null).notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.REQ, elem.getTs()));
-		if (elem.isDebugEnabled())
-			elem.debug("Requests\t" + this + "\t" + description);
 
-		queueAdd(wItem); // The element is introduced in the queue
-		manager.notifyElement(wItem);
-	}
-
-	/**
-	 * Catches the resources required to carry out this activity.
-	 * @param wItem Work item requesting this activity
-	 */
-	public void carryOut(WorkItem wItem) {
-		final ElementEngine elem = wItem.getElement();
-		wItem.getCurrentFlow().afterStart(elem);
-		long auxTs = wItem.catchResources();
-
-		if (wItem.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
-			simul.notifyInfo(null).notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.START, elem.getTs()));
-			elem.debug("Starts\t" + this + "\t" + description);
-			InitializerFlow initialFlow = ((FlowDrivenActivityWorkGroup)wItem.getExecutionWG()).getInitialFlow();
-			// The inner request is scheduled a bit later
-			elem.addDelayedRequestEvent(initialFlow, wItem.getWorkThread().getInstanceDescendantWorkThread());
-		}
-		else if (wItem.getExecutionWG() instanceof TimeDrivenActivityWorkGroup) {
-			// The first time the activity is carried out (useful only for interruptible activities)
-			if (wItem.getTimeLeft() == -1) {
-				wItem.setTimeLeft(((TimeDrivenActivityWorkGroup)wItem.getExecutionWG()).getDurationSample(elem));
-				simul.notifyInfo(null).notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.START, elem.getTs()));
-				elem.debug("Starts\t" + this + "\t" + description);			
-			}
-			else {
-				simul.notifyInfo(null).notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.RESACT, elem.getTs()));
-				elem.debug("Continues\t" + this + "\t" + description);						
-			}
-			final long finishTs = elem.getTs() + wItem.getTimeLeft();
-			// The required time for finishing the activity is reduced (useful only for interruptible activities)
-			if (isInterruptible() && (finishTs - auxTs > 0))
-				wItem.setTimeLeft(finishTs - auxTs);				
-			else {
-				auxTs = finishTs;
-				wItem.setTimeLeft(0);
-			}
-			elem.addEvent(elem.new FinishFlowEvent(auxTs, wItem.getCurrentFlow(), wItem.getWorkThread()));
-		} 
-		else {
-			elem.error("Trying to carry out unexpected type of workgroup");
-		}
-
-	}
-
-	/**
-	 * Releases the resources required to carry out this activity.
-	 * @param wItem Work item which requested this activity
-	 * @return True if this activity was actually finished; false in other case
-	 */
-	public boolean finish(WorkItem wItem) {
-		final ElementEngine elem = wItem.getElement();
-
-		wItem.releaseCaughtResources();
-		
-		if (wItem.getExecutionWG() instanceof FlowDrivenActivityWorkGroup) {
-			simul.notifyInfo(null).notifyInfo(new ElementActionInfo(simul, wItem, elem, ElementActionInfo.Type.END, elem.getTs()));
-			if (elem.isDebugEnabled())
-				elem.debug("Finishes\t" + this + "\t" + description);
-	        return true;
-		}
-		else if (wItem.getExecutionWG() instanceof TimeDrivenActivityWorkGroup) {
-			if (!isNonPresential())
-				elem.setCurrent(null);
-
-			assert wItem.getTimeLeft() >= 0 : "Time left < 0: " + wItem.getTimeLeft();
-			if (wItem.getTimeLeft() == 0) {
-				simul.notifyInfo(null).notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.END, elem.getTs()));
-				if (elem.isDebugEnabled())
-					elem.debug("Finishes\t" + this + "\t" + description);
-				// Checks if there are pending activities that haven't noticed the
-				// element availability
-				if (!isNonPresential())
-					elem.addAvailableElementEvents();
-				return true;
-			}
-			else {
-				simul.notifyInfo(null).notifyInfo(new ElementActionInfo(this.simul, wItem, elem, ElementActionInfo.Type.INTACT, elem.getTs()));
-				if (elem.isDebugEnabled())
-					elem.debug("Finishes part of \t" + this + "\t" + description + "\t" + wItem.getTimeLeft());				
-				// The element is introduced in the queue
-				queueAdd(wItem); 
-				// FIXME: ¿No debería hacer un availableElements también?
-			}
-		}
-		return false;		
-	}
-	
 	@Override
-	public int getWorkGroupSize() {
-		return workGroupTable.size();
+	public boolean checkWorkGroup(ActivityWorkGroup wg, ElementInstance ei) {
+		final ElementInstanceEngine engine = (ElementInstanceEngine)ei.getEngine();
+    	engine.resetConflictZone();
+    	if (!wg.getCondition().check(ei))
+    		return false;
+    	
+    	int ned[] = wg.getNeeded().clone();
+    	if (ned.length == 0) { // Infinite resources
+    		engine.waitConflictSemaphore();	// FIXME: unneeded, but fails if removed
+    		return true; 
+    	}
+        final int []pos = {0, -1}; // "Start" position
+        
+        // B&B algorithm for finding a solution
+        while (wg.findSolution(pos, ned, ei)) {
+    		engine.waitConflictSemaphore();
+    		// All the resources taken for the solution only appears in this AM 
+        	if (!engine.isConflictive()) 
+	            return true;
+        	// Any one of the resources taken for the solution also appears in a different AM 
+        	else {
+	        	modelReq.debug("Possible conflict. Recheck is needed " + ei.getElement());
+        		// A recheck is needed
+        		if (engine.checkCaughtResources()) {
+        			return true;
+        		}
+        		else {
+        			// Resets the solution
+        			engine.signalConflictSemaphore();
+        			final ArrayDeque<Resource> oldSolution = ei.getCaughtResources(); 
+        			while (!oldSolution.isEmpty()) {
+        				final Resource res = oldSolution.peek();
+        				res.removeFromSolution(ei);
+        			}
+        			ned = wg.getNeeded().clone();
+        			pos[0] = 0;
+        			pos[1] = -1;
+        		}
+        	}
+        }
+        return false;
 	}
-	
-	/**
-	 * @return the virtualFinalFlow
-	 */
-	protected BasicFlow getVirtualFinalFlow() {
-		return virtualFinalFlow;
-	}
-
+    
 }

@@ -90,13 +90,23 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
 	public void processAvailableElements() {
 		// Checks if there are pending activities that haven't noticed the
 		// element availability
-		for (final ElementInstance fe : currentQueue) {
-			final Element elem = fe.getElement();
+		for (final ElementInstance ei : currentQueue) {
+			final Element elem = ei.getElement();
+			final RequestResourcesFlow reqFlow = (RequestResourcesFlow) ei.getCurrentFlow();
+			if (elem.isDebugEnabled())
+				elem.debug("Calling availableElement()\t" + reqFlow + "\t" + reqFlow.getDescription());
 			if (elem.getCurrent() == null) {
-				final RequestResourcesFlow reqResources = (RequestResourcesFlow) fe.getCurrentFlow();
-				if (elem.isDebugEnabled())
-					elem.debug("Calling availableElement()\t" + reqResources + "\t" + reqResources.getDescription());
-				fe.availableElement(reqResources);
+				if (reqFlow.isFeasible(ei)) {
+					if (reqFlow.isExclusive()) {
+						elem.setCurrent(ei);
+					}
+					final long delay = ei.catchResources();
+					reqFlow.queueRemove(ei);
+					if (delay > 0)
+						ei.startDelay(delay);
+					else
+						reqFlow.next(ei);
+				}    	
 			}			
 		}
 		// In any case, remove all the pending elements

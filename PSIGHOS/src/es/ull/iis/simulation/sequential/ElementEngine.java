@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.engine.EngineObject;
+import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
 /**
@@ -63,5 +64,20 @@ public class ElementEngine extends EngineObject implements es.ull.iis.simulation
     public void notifyEnd() {
         simul.addEvent(modelElem.onDestroy(simul.getTs()));
     }
+
+	@Override
+	public void waitProtectedFlow(Flow flow) {
+		// Nothing to do		
+	}
+
+	@Override
+	public void signalProtectedFlow(Flow flow) {
+		// Nothing to do		
+	}
+
+	@Override
+	public ElementInstanceEngine getElementInstance(ElementInstance ei) {
+		return new ElementInstanceEngine((SequentialSimulationEngine) simul, ei);
+	}
     
 }

@@ -1,11 +1,12 @@
 package es.ull.iis.simulation.model.flow;
 
 import java.util.Map;
-import java.util.TreeMap;
 
-import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
+import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.engine.MergeFlowEngine;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
  * A flow which merges several incoming branches into a single outgoing branch. The incoming 
@@ -23,7 +24,10 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow 
 	/** Amount of incoming branches */
 	protected int incomingBranches;
 	/** A structure to control the arrival of incoming branches */
-	protected final Map<Element, MergeFlowControl> control = new TreeMap<Element, MergeFlowControl>();
+	protected Map<Element, MergeFlowControl> control;
+	private MergeFlowEngine engine;
+	// FIXME Una posible mejora es hacer que haya factorías de los MergeFlowControl, de forma
+	// que sólo se pregunte por el safe una vez.
 	/** Indicates if the node is safe or it has to control several triggers for 
 	 * the same element through the same incoming branch before reset */ 
 	protected final boolean safe;
@@ -125,8 +129,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow 
 				if (!beforeRequest(wThread))
 					wThread.cancel(this);
 			}
-			// FIXME: Fix when parallel is implemented
-			//elem.waitProtectedFlow(this);
+			elem.getEngine().waitProtectedFlow(this);
 			arrive(wThread);
 			if (canPass(wThread)) {
 				control.get(elem).setActivated();
@@ -140,15 +143,21 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow 
 			}
 			if (canReset(wThread))
 				reset(wThread);
-			//elem.signalProtectedFlow(this);
+			elem.getEngine().signalProtectedFlow(this);
 		} else
 			wThread.notifyEnd();
 	}
 	
 	protected MergeFlowControl getNewBranchesControl() {
-		return (safe)? new SafeMergeFlowControl(this) : new GeneralizedMergeFlowControl(this); 
+		return (safe)? new SafeMergeFlowControl(this) : new GeneralizedMergeFlowControl(this, engine.getGeneralizedBranchesControlInstance()); 
 	}
 
+	@Override
+	public void assignSimulation(SimulationEngine simul) {
+		super.assignSimulation(simul);
+		engine = simul.getMergeFlowEngineInstance(this);
+		control = engine.getControlStructureInstance();
+	}
 }
 
 

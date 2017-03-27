@@ -55,10 +55,16 @@ public class RequestResourcesEngine extends EngineObject implements es.ull.iis.s
     }
 
 	@Override
-	public boolean checkWorkGroup(ActivityWorkGroup wg, ElementInstance fe) {
-    	if (!wg.getCondition().check(fe))
+	public boolean checkWorkGroup(ActivityWorkGroup wg, ElementInstance ei) {
+    	if (!wg.getCondition().check(ei))
     		return false;
-        return wg.findSolution(fe);
+    	int ned[] = wg.getNeeded().clone();
+    	if (ned.length == 0) // Infinite resources
+    		return true; 
+        int []pos = {0, -1}; // "Start" position
+        
+        // B&B algorithm for finding a solution
+        return wg.findSolution(pos, ned, ei);
 	}
 
 }

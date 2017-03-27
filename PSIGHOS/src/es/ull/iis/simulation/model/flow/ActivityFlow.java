@@ -234,9 +234,6 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 
 	@Override
 	public void finish(ElementInstance wThread) {
-		if (isExclusive()) {
-			wThread.getElement().setCurrent(null);
-		}
 		if (wThread.wasInterrupted(this)) {
 			request(wThread);
 		}

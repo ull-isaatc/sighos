@@ -90,6 +90,10 @@ public class ActivityWorkGroup implements Prioritizable, Identifiable, Describab
     	return wg.getResourceType(ind);
     }
     
+    public int[] getNeeded() {
+    	return wg.getNeeded();
+    }
+    
     public int size() {
     	return wg.size();
     }
@@ -113,14 +117,8 @@ public class ActivityWorkGroup implements Prioritizable, Identifiable, Describab
      * @return The set of resources which compound the solution. Null if there are not enough
      * resources to carry out the basicStep by using this workgroup.
      */
-	public boolean findSolution(ElementInstance fe) {
-    	int ned[] = wg.getNeeded().clone();
-    	if (ned.length == 0) // Infinite resources
-    		return true; 
-        int []pos = {0, -1}; // "Start" position
-        
-        // B&B algorithm for finding a solution
-        return wg.findSolution(pos, ned, fe);
+	public boolean findSolution(int []pos, int []ned, ElementInstance ei) {
+        return wg.findSolution(pos, ned, ei);
 	}
 
 }

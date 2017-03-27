@@ -1,19 +1,12 @@
 package es.ull.iis.simulation.parallel;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.TreeSet;
 
 import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
-import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.engine.EngineObject;
-import es.ull.iis.simulation.model.engine.ActivityManagerEngine.FlowExecutorQueue;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.util.PrioritizedMap;
 
 /**
  * Partition of activities. It serves as a mutual exclusion mechanism to access a set of activities
@@ -135,37 +128,47 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
 
 	@Override
 	public void processAvailableElements() {
-		while (!currentQueue.isEmpty()) {
-			final ElementInstance wi = requestingElements.poll();
-			final ElementEngine elem = wi.getElement();
-			final RequestResourcesEngine act = wi.getBasicStep();
+		for (final ElementInstance ei : currentQueue) {
+			final Element elem = ei.getElement();			
+            final ElementEngine engine = (ElementEngine)elem.getEngine();
+			final RequestResourcesFlow reqFlow = (RequestResourcesFlow) ei.getCurrentFlow();
 			if (elem.isDebugEnabled())
-				elem.debug("Calling availableElement()\t" + act);
-			if (act.mainElementActivity()) {
-	            elem.waitSemaphore();
+				elem.debug("Calling availableElement()\t" + reqFlow + "\t" + reqFlow.getDescription());
+			if (reqFlow.isExclusive()) {
+	            engine.waitSemaphore();
 				// If the element is not performing a presential activity yet
 				if (elem.getCurrent() == null) {
-					if (act.isFeasible(wi)) {
-						elem.setCurrent(wi);
-			        	elem.signalSemaphore();
-						act.carryOut(wi);
-						act.queueRemove(wi);
+					if (reqFlow.isFeasible(ei)) {
+						elem.setCurrent(ei);
+			        	engine.signalSemaphore();
+						final long delay = ei.catchResources();
+						reqFlow.queueRemove(ei);
+						if (delay > 0)
+							ei.startDelay(delay);
+						else
+							reqFlow.next(ei);
 					}
 					else {
-			        	elem.signalSemaphore();
-					}
+			        	engine.signalSemaphore();					
+					}				
 				}
 				else {
-		        	elem.signalSemaphore();
-				}						
+		        	engine.signalSemaphore();					
+				}
 			}
 			else {
-				if (act.isFeasible(wi)) {
-					act.carryOut(wi);
-					act.queueRemove(wi);
+				if (reqFlow.isFeasible(ei)) {
+					final long delay = ei.catchResources();
+					reqFlow.queueRemove(ei);
+					if (delay > 0)
+						ei.startDelay(delay);
+					else
+						reqFlow.next(ei);
 				}
 			}
 		}
+		// In any case, remove all the pending elements
+		currentQueue.clear();
 	}
 
 	@Override
