@@ -7,11 +7,11 @@ import java.util.EnumSet;
 
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.factory.SimulationFactory;
-import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
-import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
+import es.ull.iis.simulation.factory.SimulationFactory;
+import es.ull.iis.simulation.factory.SimulationObjectFactory;
+import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
@@ -27,7 +27,7 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  */
 public class TestInterruptibleActivities {
 	static final TimeUnit unit = TimeUnit.MINUTE;
-	static SimulationFactory.SimulationType simType = SimulationType.SEQUENTIAL;
+	static SimulationType simType = SimulationType.SEQUENTIAL;
 	static final int NACT = 1;
 	static final int NELEMT = 1;
 	static final int NELEM = 2;

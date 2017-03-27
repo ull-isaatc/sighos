@@ -1,11 +1,10 @@
-package es.ull.iis.simulation.core.factory;
+package es.ull.iis.simulation.factory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.core.Element;
-import es.ull.iis.simulation.model.engine.SimulationEngine;
+import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.variable.IntVariable;
 import es.ull.iis.simulation.variable.Variable;
 
@@ -17,8 +16,7 @@ import es.ull.iis.simulation.variable.Variable;
  *
  */
 public class ConditionFactory {
-	// TODO: Change to get package automatically
-	private final static String workingPkg = "es.ull.iis.simulation.common.condition";
+	private final static String workingPkg = Condition.class.getPackage().getName();
 	
 	/**
 	 * Generate a new condition through a logic expression. Parse the
@@ -38,8 +36,7 @@ public class ConditionFactory {
 
 		// Include imports
 		finalCode += "import " + Condition.class.getName() + ";";	
-		finalCode += "import " + SimulationEngine.class.getName() + ";";
-		finalCode += "import " + Element.class.getName() + ";";
+		finalCode += "import " + ElementInstance.class.getName() + ";";
 		finalCode += "import " + IntVariable.class.getName() + ";";
 		finalCode += "import " + Variable.class.getName() + ";";
 		
@@ -51,9 +48,9 @@ public class ConditionFactory {
 		
 		// Constructor
 		finalCode += "public CompiledCondition" + id + 
-					"(ParallelSimulationEngine simul) {super(simul);}";
+					"() {super();}";
 		
-		finalCode += "public boolean check(Element e){" + "return(" + StandardCompilator.getCode(condition, "logicExp") + ");" + "}";
+		finalCode += "public boolean check(ElementInstance ei){" + "return(" + StandardCompilator.getCode(condition, "logicExp") + ");" + "}";
 		
 		// Class close
 		finalCode += "}";
@@ -76,7 +73,7 @@ public class ConditionFactory {
 				StandardCompilator.getBytecodeCache().remove(workingPkg + "." + src.getClassName());
 			StandardCompilator.compileCode(src);
 			cl = loader.loadClass(workingPkg + "." + src.getClassName());
-			Constructor<?> cons = cl.getConstructor(SimulationEngine.class);
+			Constructor<?> cons = cl.getConstructor();
 			return cons;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -96,7 +93,7 @@ public class ConditionFactory {
 	 * @param condition Condition code.
 	 * @return A Condition's instance.
 	 */
-	static public Condition getInstance(SimulationEngine<?> sim, int id, String imports, String condition){
+	static public Condition getInstance(int id, String imports, String condition){
 		String classCode = generateClass(id, imports, condition);
 		StringJFO src = null;
 		try {
@@ -108,9 +105,8 @@ public class ConditionFactory {
 		
 		// Obtain the Class's constructors.
 		Constructor<?> cons = getConstructor(src);
-		Object[] newParams = new Object[] {sim};
 		try {
-			return (Condition) cons.newInstance(newParams);
+			return (Condition) cons.newInstance();
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {

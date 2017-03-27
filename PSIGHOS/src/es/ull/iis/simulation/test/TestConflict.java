@@ -2,11 +2,11 @@ package es.ull.iis.simulation.test;
 
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.factory.SimulationFactory;
-import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
-import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.InitializerFlow;
+import es.ull.iis.simulation.factory.SimulationFactory;
+import es.ull.iis.simulation.factory.SimulationObjectFactory;
+import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.SimulationCycle;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
@@ -21,7 +21,7 @@ import es.ull.iis.util.Output;
 class ExpConflict extends Experiment {
     static final int NDAYS = 1;
     static final int NTESTS = 1;
-	static SimulationFactory.SimulationType simType = SimulationType.PARALLEL;
+	static SimulationType simType = SimulationType.PARALLEL;
 	static final TimeUnit unit = TimeUnit.MINUTE;
     
     ExpConflict() {

@@ -4,11 +4,11 @@ import java.util.EnumSet;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.ElementType;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.factory.SimulationFactory;
-import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ProbabilitySelectionFlow;
+import es.ull.iis.simulation.factory.SimulationFactory;
+import es.ull.iis.simulation.factory.SimulationObjectFactory;
+import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
@@ -25,7 +25,7 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
 class ExperimentProbSel extends Experiment {
 	static final int NEXP = 1;
     static final int NDAYS = 1;
-	static SimulationFactory.SimulationType simType = SimulationType.SEQUENTIAL;
+	static SimulationType simType = SimulationType.SEQUENTIAL;
 	
 	public ExperimentProbSel() {
 		super("Banco", NEXP);

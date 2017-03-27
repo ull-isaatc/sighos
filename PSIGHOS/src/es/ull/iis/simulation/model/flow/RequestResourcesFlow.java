@@ -116,14 +116,6 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	}
 
 	/**
-	 * Allows a user for adding a customized code when a {@link es.ull.iis.simulation.model.ElementInstance} from an {@link es.ull.iis.simulation.model.Element}
-	 * is enqueued, waiting for available {@link es.ull.iis.simulation.model.Resource}. 
-	 * @param wt {@link es.ull.iis.simulation.model.ElementInstance} requesting resources
-	 */
-	public void inqueue(ElementInstance fe) {}
-	
-	
-	/**
      * Creates a new workgroup for this activity using the specified wg.
      * @param priority Priority of the workgroup
      * @param wg The set of pairs <ResurceType, amount> which will perform the activity
@@ -266,15 +258,20 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	
 	/**
 	 * Allows a user for adding a customized code when the {@link ElementInstance} actually starts the
-	 * execution of the {@link ActivityFlow}.
-	 * @param fe {@link ElementInstance} requesting this {@link ActivityFlow}
+	 * execution of the {@link RequestResourcesFlow}.
+	 * @param ei {@link ElementInstance} requesting this {@link RequestResourcesFlow}
 	 */
-	public void afterAcquire(ElementInstance fe) {
-	}
+	public void afterAcquire(ElementInstance ei) {}
 
+	/**
+	 * Allows a user for adding a customized code when a {@link es.ull.iis.simulation.model.ElementInstance} from an {@link es.ull.iis.simulation.model.Element}
+	 * is enqueued, waiting for available {@link es.ull.iis.simulation.model.Resource}. 
+	 * @param ei {@link es.ull.iis.simulation.model.ElementInstance} requesting resources
+	 */
+	public void inqueue(ElementInstance ei) {}
+	
 	@Override
-	public void afterFinalize(ElementInstance fe) {
-	}
+	public void afterFinalize(ElementInstance ei) {}
 
 	/**
      * Checks if this basic step can be performed with any of its workgroups. Firstly 

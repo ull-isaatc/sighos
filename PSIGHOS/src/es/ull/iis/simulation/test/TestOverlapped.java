@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.factory.SimulationFactory;
-import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
-import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
+import es.ull.iis.simulation.factory.SimulationFactory;
+import es.ull.iis.simulation.factory.SimulationObjectFactory;
+import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
@@ -23,7 +23,7 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  * 
  */
 class ExpOverlapped extends Experiment {
-	final static SimulationFactory.SimulationType simType = SimulationType.SEQUENTIAL;
+	final static SimulationType simType = SimulationType.SEQUENTIAL;
 	final static TimeUnit unit = TimeUnit.MINUTE;
     static final int NDAYS = 1;
     static final int NTESTS = 2;

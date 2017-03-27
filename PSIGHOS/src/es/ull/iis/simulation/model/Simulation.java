@@ -241,7 +241,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 		debugPrintActManager();					
 		// Sets default simulation engine
 		if (simulationEngine == null) {
-			simulationEngine = new SequentialSimulationEngine(id, this);
+			setSimulationEngine(new SequentialSimulationEngine(id, this));
 		}
 		simulationEngine.initializeEngine();
 		init();

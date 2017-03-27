@@ -82,7 +82,6 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	public SimulationEngine(int id, Simulation simul) {
 		this.id = id;
 		this.simul = simul;
-		simul.setSimulationEngine(this);
 	}
 
 	/**

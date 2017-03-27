@@ -5,8 +5,7 @@ package es.ull.iis.simulation.examples;
 
 import java.io.PrintStream;
 
-import es.ull.iis.simulation.core.factory.SimulationFactory;
-import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
+import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
 
@@ -29,7 +28,7 @@ public class BenchmarkTest {
 	static BenchmarkModel.ModelType modType = BenchmarkModel.ModelType.CONFLICT;
 	static boolean debug = true;
 	static PrintStream out = System.out;
-	static SimulationFactory.SimulationType simType = SimulationType.SEQUENTIAL;
+	static SimulationType simType = SimulationType.SEQUENTIAL;
 
 	/**
 	 * @param args

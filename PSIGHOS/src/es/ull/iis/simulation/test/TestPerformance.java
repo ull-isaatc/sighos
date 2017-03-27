@@ -3,9 +3,9 @@
  */
 package es.ull.iis.simulation.test;
 
-import es.ull.iis.simulation.core.factory.SimulationFactory;
-import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
-import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
+import es.ull.iis.simulation.factory.SimulationFactory;
+import es.ull.iis.simulation.factory.SimulationObjectFactory;
+import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -16,7 +16,7 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  *
  */
 public class TestPerformance {
-	final static SimulationFactory.SimulationType simType = SimulationType.PARALLEL;
+	final static SimulationType simType = SimulationType.PARALLEL;
 	final static TimeUnit unit = TimeUnit.MINUTE;
 	final static TimeStamp STARTTS = TimeStamp.getZero();
 	final static TimeStamp ENDTS = TimeStamp.getZero();

@@ -1,4 +1,4 @@
-package es.ull.iis.simulation.core.factory;
+package es.ull.iis.simulation.factory;
 
 import java.util.Set;
 import java.util.TreeMap;

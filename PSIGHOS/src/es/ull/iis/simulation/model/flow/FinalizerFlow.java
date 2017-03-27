@@ -12,8 +12,8 @@ import es.ull.iis.simulation.model.ElementInstance;
 public interface FinalizerFlow extends Flow {
 	/**
 	 * Allows a user for adding customized code carried out after the flow has finished. 
-	 * @param fe {@link ElementInstance} requesting this flow
+	 * @param ei {@link ElementInstance} requesting this flow
 	 */
-	void afterFinalize(ElementInstance fe);
+	void afterFinalize(ElementInstance ei);
 
 }

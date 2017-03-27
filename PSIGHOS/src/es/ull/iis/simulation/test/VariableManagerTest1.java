@@ -2,10 +2,10 @@ package es.ull.iis.simulation.test;
 
 import java.util.EnumSet;
 
-import es.ull.iis.simulation.core.factory.SimulationFactory;
-import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
-import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
+import es.ull.iis.simulation.factory.SimulationFactory;
+import es.ull.iis.simulation.factory.SimulationObjectFactory;
+import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.TimeStamp;
@@ -19,7 +19,7 @@ import es.ull.iis.simulation.variable.IntVariable;
  * 
  */
 class ExperimentTest1 extends Experiment {
-	final static SimulationFactory.SimulationType simType = SimulationType.PARALLEL;
+	final static SimulationType simType = SimulationType.PARALLEL;
 	final static TimeUnit unit = TimeUnit.MINUTE;
 	static final int NEXP = 1;
     static final int NDAYS = 1;

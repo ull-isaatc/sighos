@@ -62,22 +62,22 @@ public interface Flow extends Identifiable {
 	/**
 	 * Allows a user to add conditions which the element requesting this flow must meet
 	 * before request this flow.
-	 * @param fe The element trying to request this flow.
+	 * @param ei The element trying to request this flow.
 	 * @return True if this flow can be requested; false in other case.
 	 */
-	boolean beforeRequest(ElementInstance fe);
+	boolean beforeRequest(ElementInstance ei);
 
 	/**
 	 * Requests this flow. An element, by means of a work thread, requests this flow to
 	 * carry it out.
-	 * @param wThread The work thread requesting this flow.
+	 * @param ei The work thread requesting this flow.
 	 */
-	void request(ElementInstance wThread);
+	void request(ElementInstance ei);
 	
 	/**
 	 * Requests this flow successor(s) to continue the execution. This method is invoked 
 	 * after all the tasks associated to this flow has been successfully carried out.
-	 * @param wThread The work thread which requested this flow.
+	 * @param ei The work thread which requested this flow.
 	 */
-	void next(ElementInstance wThread);
+	void next(ElementInstance ei);
 }

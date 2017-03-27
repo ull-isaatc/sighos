@@ -4,7 +4,7 @@
  * This class is a simple example lexer.
  */
 
-package es.ull.iis.simulation.core.factory;
+package es.ull.iis.simulation.factory;
  
 import java_cup.runtime.Symbol;
  

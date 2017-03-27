@@ -4,7 +4,7 @@
 //Tue Aug 05 16:27:19 BST 2008
 //----------------------------------------------------
 
-package es.ull.iis.simulation.core.factory;
+package es.ull.iis.simulation.factory;
 
 
 /** CUP v0.10j generated parser.

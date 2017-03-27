@@ -7,11 +7,11 @@ import java.util.EnumSet;
 
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.factory.SimulationFactory;
-import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
-import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
 import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.core.flow.ParallelFlow;
+import es.ull.iis.simulation.factory.SimulationFactory;
+import es.ull.iis.simulation.factory.SimulationObjectFactory;
+import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
@@ -29,7 +29,7 @@ public class TestPriorityElement {
 	static final int NELEMT = 4;
 	static final int NELEM = 100;
 	static final int NRES = 20;
-	static SimulationFactory.SimulationType simType = SimulationType.PARALLEL;
+	static SimulationType simType = SimulationType.PARALLEL;
 	static final TimeUnit unit = TimeUnit.MINUTE;
 
 	/**
