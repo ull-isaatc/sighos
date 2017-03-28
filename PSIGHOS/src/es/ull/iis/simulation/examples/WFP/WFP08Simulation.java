@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.factory.SimulationType;
+
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -14,8 +14,8 @@ import es.ull.iis.simulation.model.flow.ParallelFlow;
  * @author Iván Castilla
  */
 public class WFP08Simulation extends WFPTestSimulationFactory {
-	public WFP08Simulation(SimulationType type, int id, boolean detailed) {
-		super(type, id, "WFP8: Multi-Merge. EjControlCalidad", detailed);
+	public WFP08Simulation(int id, boolean detailed) {
+		super(id, "WFP8: Multi-Merge. EjControlCalidad", detailed);
 	}
 
 	/* (non-Javadoc)
@@ -23,12 +23,12 @@ public class WFP08Simulation extends WFPTestSimulationFactory {
 	 */
 	@Override
 	protected Simulation createModel() {
-		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);    	
+		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);    	
 		ResourceType rt0 = getDefResourceType("Maquina productora");
     	ResourceType rt1 = getDefResourceType("Empleados");
         
-        WorkGroup wgMa = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
-        WorkGroup wgEm = new WorkGroup(model, new ResourceType[] {rt1}, new int[] {1});
+        WorkGroup wgMa = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wgEm = new WorkGroup(simul, new ResourceType[] {rt1}, new int[] {1});
 	   	
 		ActivityFlow act0 = getDefActivity("Crear destornilladores", 2, wgMa, false);
 		ActivityFlow act1 = getDefActivity("Crear llaves", 2, wgMa, false);
@@ -39,8 +39,8 @@ public class WFP08Simulation extends WFPTestSimulationFactory {
 		getDefResource("Maquina2", rt0);
 		getDefResource("Empleado1", rt1);
         
-        ParallelFlow root = new ParallelFlow(model);
-        MultiMergeFlow mulmer1 = new MultiMergeFlow(model);
+        ParallelFlow root = new ParallelFlow(simul);
+        MultiMergeFlow mulmer1 = new MultiMergeFlow(simul);
         
         root.link(act0);
         root.link(act1);
@@ -51,7 +51,7 @@ public class WFP08Simulation extends WFPTestSimulationFactory {
         mulmer1.link(act3);
 
         getDefGenerator(getDefElementType("Remesa productos"), root);
-        return model;
+        return simul;
 
 	}
 	

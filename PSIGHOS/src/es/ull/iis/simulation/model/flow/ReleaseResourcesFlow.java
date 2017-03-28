@@ -5,6 +5,7 @@ package es.ull.iis.simulation.model.flow;
 
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
@@ -24,6 +25,8 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 	protected final int resourcesId;
     /** Resources cancellation table */
     protected final TreeMap<ResourceType, Long> cancellationList;
+    /** Conditions associated to resource cancellations */
+    protected final TreeMap<ResourceType, Condition> cancellationConditionList;
 	
 	/**
 	 * @param simul
@@ -42,6 +45,7 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
         this.description = description;
 		this.resourcesId = resourcesId;
 		cancellationList = new TreeMap<ResourceType, Long>();
+		cancellationConditionList = new TreeMap<ResourceType, Condition>();
 		this.wg = wg;
 	}
 	
@@ -74,25 +78,36 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 	}
 
 	/**
+	 * Adds a new ResouceType to the cancellation list.
+	 * @param rt Resource type
+	 * @param duration Duration of the cancellation.
+	 * @param cond Condition that must be fulfilled to apply the cancellation 
+	 */
+	public void addResourceCancellation(ResourceType rt, long duration, Condition cond) {
+		cancellationList.put(rt, duration);	
+		cancellationConditionList.put(rt, cond);
+	}
+
+	/**
 	 * Returns the duration of the cancellation of a resource with the specified
 	 * resource type.
 	 * @param rt Resource Type
 	 * @return The duration of the cancellation
 	 */
-	public long getResourceCancellation(ResourceType rt) {
-		Long duration = cancellationList.get(rt); 
-		if (duration == null)
-			return 0;
-		return duration;
+	public long getResourceCancellation(ResourceType rt, ElementInstance ei) {
+		final Long duration = cancellationList.get(rt);
+		if (duration != null) {
+			final Condition cond = cancellationConditionList.get(rt);
+			if (cond == null) {
+				return duration;
+			}
+			else if (cond.check(ei)) {
+				return duration;
+			}
+		}
+		return 0;
 	}
 	
-	/**
-	 * @return the cancellationList
-	 */
-	public TreeMap<ResourceType, Long> getCancellationList() {
-		return cancellationList;
-	}
-
 	@Override
 	public String getObjectTypeIdentifier() {
 		return "REL";

@@ -4,12 +4,11 @@
 package es.ull.iis.simulation.test;
 
 import es.ull.iis.simulation.factory.SimulationFactory;
-import es.ull.iis.simulation.factory.SimulationObjectFactory;
 import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.model.Experiment;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -28,9 +27,9 @@ public class TestPerformance {
 		new Experiment("EXP", 1) {
 
 			@Override
-			public SimulationEngine getSimulation(int ind) {
-				SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "SimTest", unit, STARTTS, ENDTS);
-				SimulationEngine sim = factory.getSimulationEngine();
+			public Simulation getSimulation(int ind) {
+				SimulationFactory factory = new SimulationFactory(ind, "SimTest", unit, STARTTS, ENDTS);
+				Simulation sim = factory.getSimulation();
 				int i = 0;
 				try {
 					for (; ; i++)

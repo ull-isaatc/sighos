@@ -97,6 +97,18 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * @param startTs Timestamp of simulation's start expressed in ParallelSimulationEngine Time Units
 	 * @param endTs Timestamp of simulation's end expressed in ParallelSimulationEngine Time Units
 	 */
+	public Simulation(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
+		this(id, description, unit, unit.convert(startTs), unit.convert(endTs));
+	}
+	
+	/**
+	 * Creates a new instance of a model
+	 *
+	 * @param description A short text describing this simulation.
+	 * @param unit This simulation's time unit
+	 * @param startTs Timestamp of simulation's start expressed in ParallelSimulationEngine Time Units
+	 * @param endTs Timestamp of simulation's end expressed in ParallelSimulationEngine Time Units
+	 */
 	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
 		this.id = id;
 		this.unit = unit;
@@ -250,13 +262,13 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 		
 		// Starts all the time driven generators
 		for (TimeDrivenGenerator<?> evSource : tGenList)
-			simulationEngine.addEvent(evSource.onCreate(startTs));
+			simulationEngine.addWait(evSource.onCreate(startTs));
 		// Starts all the resources
 		for (Resource res : resourceList)
-			simulationEngine.addEvent(res.onCreate(startTs));
+			simulationEngine.addWait(res.onCreate(startTs));
 
 		// Adds the event to control end of simulation
-		simulationEngine.addEvent(new SimulationEndEvent());
+		simulationEngine.addWait(new SimulationEndEvent());
 		
 		simulationEngine.simulationLoop();
 

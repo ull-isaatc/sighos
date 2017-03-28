@@ -1,5 +1,5 @@
 package es.ull.iis.simulation.examples.WFP;
-import es.ull.iis.simulation.factory.SimulationType;
+
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
@@ -20,8 +20,8 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
 	 * @param id
 	 * @param detailed
 	 */
-	public WFP19Simulation(SimulationType type, int id, boolean detailed) {
-		super(type, id, "WFP19: Cancel Task. EjTarjetaCredito", detailed);
+	public WFP19Simulation(int id, boolean detailed) {
+		super(id, "WFP19: Cancel Task. EjTarjetaCredito", detailed);
 	}
 
 	static class WFP19Model extends Simulation {
@@ -49,16 +49,16 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
 	 */
 	@Override
 	protected Simulation createModel() {
-		model = new WFP19Model(id, description, SIMUNIT, SIMSTART, SIMEND);        
+		simul = new WFP19Model(id, description, SIMUNIT, SIMSTART, SIMEND);        
 		ResourceType rt0 = getDefResourceType("Cajero");
-        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
         
         getDefResource("Cajero1", rt0);
         getDefResource("Cajero2", rt0);
         getDefResource("Cajero3", rt0);
 
         // FIXME: NO FUNCIONABA!!!
-    	ActivityFlow act0 = new ActivityFlow(model, "Verificar cuenta", false, false) {
+    	ActivityFlow act0 = new ActivityFlow(simul, "Verificar cuenta", false, false) {
     		@Override
     		public boolean beforeRequest(ElementInstance fe) {
     			((WFP19Model)simul).switchPass();
@@ -72,6 +72,6 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
         act0.link(act1);
 
         getDefGenerator(getDefElementType("Cliente"), act0);
-    	return model;
+    	return simul;
 	}
 }

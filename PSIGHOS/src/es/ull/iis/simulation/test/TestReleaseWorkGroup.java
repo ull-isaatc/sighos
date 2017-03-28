@@ -71,7 +71,7 @@ public class TestReleaseWorkGroup extends Experiment {
 	@Override
 	public Simulation getSimulation(int ind) {
 		final Simulation model = new ModelReleaseManagement(ind);
-		model.addInfoReceiver(new StdInfoView(model));
+		model.addInfoReceiver(new StdInfoView());
 		return model;
 	}
 

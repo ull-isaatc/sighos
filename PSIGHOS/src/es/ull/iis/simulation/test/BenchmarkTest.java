@@ -1,13 +1,13 @@
 /**
  * 
  */
-package es.ull.iis.simulation.examples;
+package es.ull.iis.simulation.test;
 
 import java.io.PrintStream;
 
 import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.model.Experiment;
-import es.ull.iis.simulation.model.engine.SimulationEngine;
+import es.ull.iis.simulation.model.Simulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -74,15 +74,15 @@ public class BenchmarkTest {
 			}
 			
 			@Override
-			public SimulationEngine getSimulation(int ind) {
+			public Simulation getSimulation(int ind) {
 				BenchmarkModel config = new BenchmarkModel(ind, simType, modType, ovType, nThreads, nIter, nElem, nAct, mixFactor, workLoad);
 				config.setRtXact(rtXact);
 				config.setRtXres(rtXres);
 				System.out.println(config);
-				SimulationEngine sim = config.getTestModel(); 
+				Simulation sim = config.getTestModel(); 
 				
 				if (debug)
-					sim.addInfoReceiver(new BenchmarkListener(sim, System.out));
+					sim.addInfoReceiver(new BenchmarkListener(System.out));
 				return sim;
 			}
 			

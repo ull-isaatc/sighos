@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.examples;
+package es.ull.iis.simulation.test;
 
 import java.io.PrintStream;
 
@@ -12,7 +12,6 @@ import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
 import es.ull.iis.simulation.inforeceiver.View;
-import es.ull.iis.simulation.model.Simulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -34,8 +33,8 @@ public class BenchmarkListener extends View {
 	long cpuTime;
 	PrintStream out;
 
-	public BenchmarkListener(Simulation model, PrintStream out) {
-		super(model, "Bench");
+	public BenchmarkListener(PrintStream out) {
+		super("Bench");
 		this.out = out;
 		addEntrance(SimulationStartInfo.class);
 		addEntrance(SimulationEndInfo.class);

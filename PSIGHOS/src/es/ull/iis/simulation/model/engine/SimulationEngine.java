@@ -64,10 +64,7 @@ import es.ull.iis.util.Output;
 public abstract class SimulationEngine implements Identifiable, Debuggable {
 	/** Simulation's identifier */
 	protected final int id;
-	
-	/** Number of worker threads which run the simulation events (if required by the implementation) */
-	protected int nThreads = 1;
-	
+	/** The associated {@link Simulation} */
 	protected final Simulation simul;
 	
 	/**
@@ -96,22 +93,6 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 		return id;
 	}
 
-	/**
-	 * Returns the number of workers to execute events defined in this simulation.
-	 * @return the number of workers to execute events defined in this simulation
-	 */
-	public int getNThreads() {
-		return nThreads;
-	}
-
-	/**
-	 * Sets the number of workers to execute events defined in this simulation.
-	 * @param threads the number of workers to execute events defined in this simulation
-	 */
-	public void setNThreads(int threads) {
-		nThreads = threads;
-	}
-
 	@Override
 	public void debug(String description) {
 		Simulation.debug(description);
@@ -136,6 +117,7 @@ public abstract class SimulationEngine implements Identifiable, Debuggable {
 	public abstract RequestResourcesEngine getRequestResourcesEngineInstance(RequestResourcesFlow reqFlow);
 	public abstract MergeFlowEngine getMergeFlowEngineInstance(MergeFlow modelFlow);
 	public abstract void addEvent(DiscreteEvent ev); 
+	public abstract void addWait(DiscreteEvent ev); 
 	/**
 	 * Prints the current state of the simulation for debug purposes. Prints the current local 
 	 * time, the contents of the future event list and the execution queue. 

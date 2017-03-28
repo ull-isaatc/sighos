@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.factory.SimulationType;
+
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -19,15 +19,15 @@ import es.ull.iis.simulation.model.flow.StaticPartialJoinMultipleInstancesFlow;
 public class WFP34Simulation extends WFPTestSimulationFactory {
 	final static int RES = 6;
 
-	public WFP34Simulation(SimulationType type, int id, boolean detailed) {
-		super(type, id, "WFP34: Static Partial Join for Multiple Instances", detailed);
+	public WFP34Simulation(int id, boolean detailed) {
+		super(id, "WFP34: Static Partial Join for Multiple Instances", detailed);
 	}
 
 	@Override
 	protected Simulation createModel() {
-		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);    	
+		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);    	
 		ResourceType rt = getDefResourceType("Director");
-    	WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
+    	WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt}, new int[] {1});
     	
     	ActivityFlow act0 = getDefActivity("Sign Annual Report", wg);
     	ActivityFlow act1 = getDefActivity("Check acceptance", wg);
@@ -35,12 +35,12 @@ public class WFP34Simulation extends WFPTestSimulationFactory {
     	for (int i = 0; i < RES; i++)
     		getDefResource("Director" + i, rt);
 
-    	StaticPartialJoinMultipleInstancesFlow root = new StaticPartialJoinMultipleInstancesFlow(model, 6, 4);
+    	StaticPartialJoinMultipleInstancesFlow root = new StaticPartialJoinMultipleInstancesFlow(simul, 6, 4);
     	root.addBranch(act0);
     	root.link(act1);
     	
         getDefGenerator(getDefElementType("ET0"), root);
-    	return model;
+    	return simul;
 		
 	}
 }

@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.factory.SimulationType;
+
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
@@ -22,8 +22,8 @@ public class WFP21Simulation_For extends WFPTestSimulationFactory {
 	 * @param id
 	 * @param detailed
 	 */
-	public WFP21Simulation_For(SimulationType type, int id, boolean detailed) {
-		super(type, id, "WFP21: Structured Loop. EjReveladoFotografico", detailed);
+	public WFP21Simulation_For(int id, boolean detailed) {
+		super(id, "WFP21: Structured Loop. EjReveladoFotografico", detailed);
 	}
 
 	/* (non-Javadoc)
@@ -31,20 +31,20 @@ public class WFP21Simulation_For extends WFPTestSimulationFactory {
 	 */
 	@Override
 	protected Simulation createModel() {
-		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);        
+		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);        
 		ResourceType rt0 = getDefResourceType("Maquina revelado");
         
-        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
     	
     	ActivityFlow act0 = getDefActivity("Revelar foto", wg, false);
 
         getDefResource("Maquina 1", rt0);        
         getDefResource("Maquina 2", rt0);
         
-        ForLoopFlow root = new ForLoopFlow(model, act0, TimeFunctionFactory.getInstance("ConstantVariate", 2));
+        ForLoopFlow root = new ForLoopFlow(simul, act0, TimeFunctionFactory.getInstance("ConstantVariate", 2));
 
         ElementType et = getDefElementType("Cliente");
         getDefGenerator(et, root);
-    	return model;
+    	return simul;
 	}
 }

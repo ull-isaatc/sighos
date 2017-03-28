@@ -11,6 +11,7 @@ import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationCycle;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
+import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.Flow;
@@ -21,7 +22,7 @@ import es.ull.iis.simulation.model.flow.InitializerFlow;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SimulationObjectFactory {
+public class SimulationFactory {
 	private final static String workingPkg = Simulation.class.getPackage().getName();
 	private final Simulation simul;
 	private int rtId;
@@ -35,7 +36,7 @@ public class SimulationObjectFactory {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public SimulationObjectFactory(int id, String description, long startTs, long endTs) {
+	public SimulationFactory(int id, String description, long startTs, long endTs) {
 		simul = new Simulation(id, description, startTs, endTs);
 	}
 
@@ -46,7 +47,18 @@ public class SimulationObjectFactory {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public SimulationObjectFactory(int id, String description, TimeUnit unit, long startTs, long endTs) {
+	public SimulationFactory(int id, String description, TimeUnit unit, long startTs, long endTs) {
+		simul = new Simulation(id, description, unit, startTs, endTs);
+	}
+
+	/**
+	 * @param id
+	 * @param description
+	 * @param unit
+	 * @param startTs
+	 * @param endTs
+	 */
+	public SimulationFactory(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		simul = new Simulation(id, description, unit, startTs, endTs);
 	}
 

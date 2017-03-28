@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.factory.SimulationType;
+
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -16,16 +16,16 @@ import es.ull.iis.simulation.model.flow.SynchronizationFlow;
  */
 public class WFP33Simulation extends WFPTestSimulationFactory {
 
-	public WFP33Simulation(SimulationType type, int id, boolean detailed) {
-		super(type, id, "WFP33: Generalized AND-Join. EjEnvioMercacias", detailed);
+	public WFP33Simulation(int id, boolean detailed) {
+		super(id, "WFP33: Generalized AND-Join. EjEnvioMercacias", detailed);
 	}
 
 	@Override
 	protected Simulation createModel() {
-		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);       
+		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);       
 		ResourceType rt0 = getDefResourceType("Comercial");
         
-        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
 	   	
         ActivityFlow act0 = getDefActivity("Generacion de factura", wg, false);
         ActivityFlow act1 = getDefActivity("Comprobacion de factura", wg, false);
@@ -35,9 +35,9 @@ public class WFP33Simulation extends WFPTestSimulationFactory {
         getDefResource("Comercial 2", rt0);        
         getDefResource("Comercial 3", rt0);        
         
-        ParallelFlow root = new ParallelFlow(model);
+        ParallelFlow root = new ParallelFlow(simul);
 
-        SynchronizationFlow synchro1 = new SynchronizationFlow(model, false);
+        SynchronizationFlow synchro1 = new SynchronizationFlow(simul, false);
         
         root.link(act0);
         root.link(act1);
@@ -46,6 +46,6 @@ public class WFP33Simulation extends WFPTestSimulationFactory {
         synchro1.link(act2);
         
         getDefGenerator(getDefElementType("Cliente"), root);
-    	return model;
+    	return simul;
 	}
 }

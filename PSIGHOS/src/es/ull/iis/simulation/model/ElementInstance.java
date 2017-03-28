@@ -39,7 +39,7 @@ import es.ull.iis.util.Prioritizable;
  * @author Ivan Castilla Rodriguez
  *
  */
-public class ElementInstance implements TimeFunctionParams, Prioritizable {
+public class ElementInstance implements TimeFunctionParams, Prioritizable, Comparable<ElementInstance> {
     /** Element which carries out this flow. */    
     private final Element elem; 
     /** The parent element thread */
@@ -408,7 +408,7 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable {
 			}
 	        // Generate unavailability periods.
 	        for (Resource res : resources) {
-	        	final long cancellationDuration = relFlow.getResourceCancellation(res.getCurrentResourceType());
+	        	final long cancellationDuration = relFlow.getResourceCancellation(res.getCurrentResourceType(), this);
 	        	if (cancellationDuration > 0) {
 					final long actualTs = elem.getSimulation().getSimulationEngine().getTs();
 					res.setNotCanceled(false);
@@ -439,7 +439,7 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable {
 			        	final ResourceType currentRT = res.getCurrentResourceType();
 		        		if (wg.getResourceType(i).equals(currentRT)) {
 		        			resources.remove(res);
-		    	        	final long cancellationDuration = relFlow.getResourceCancellation(currentRT);
+		    	        	final long cancellationDuration = relFlow.getResourceCancellation(currentRT, this);
 		    	        	if (cancellationDuration > 0) {
 		    					final long actualTs = elem.getSimulation().getSimulationEngine().getTs();
 		    					res.setNotCanceled(false);
@@ -493,5 +493,16 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable {
 		// It was an interruptible activity and it was interrupted
 		return (remainingTask > 0.0);    	
     }
+
+	@Override
+	public int compareTo(ElementInstance o) {
+		final int id1 = engine.getIdentifier();
+		final int id2 = o.engine.getIdentifier();
+		if (id1 > id2)
+			return 1;
+		if (id2 < id1)
+			return -1;
+		return 0;
+	}
     
 }

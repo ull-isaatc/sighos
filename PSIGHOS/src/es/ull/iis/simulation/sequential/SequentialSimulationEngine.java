@@ -77,6 +77,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
      * its timestamp is greater than the LP timestamp.
      * @param e Event to be added
      */
+	@Override
 	public void addWait(DiscreteEvent e) {
 		waitQueue.add(e);
 	}

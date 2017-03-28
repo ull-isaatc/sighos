@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
-import es.ull.iis.simulation.factory.SimulationType;
+
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
@@ -27,8 +27,8 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
 	 * @param id
 	 * @param detailed
 	 */
-	public WFP10Simulation(SimulationType type, int id, boolean detailed) {
-		super(type, id, "WFP10: Arbitrary Cycle. Ej", detailed);
+	public WFP10Simulation(int id, boolean detailed) {
+		super(id, "WFP10: Arbitrary Cycle. Ej", detailed);
 	}
 
 	static class WFP10Model extends Simulation {
@@ -97,23 +97,23 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
 	 */
 	@Override
 	protected Simulation createModel() {
-		model = new WFP10Model(id, description, SIMUNIT, SIMSTART, SIMEND);        
+		simul = new WFP10Model(id, description, SIMUNIT, SIMSTART, SIMEND);        
     	ResourceType rt0 = getDefResourceType("Operario");
     	ResourceType rt1 = getDefResourceType("Operario especial");
     	
-        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
 	   	
 
         getDefResource("Operario1", rt0);
         getDefResource("Operario1", rt0);
         getDefResource("Operario_especial1", rt1);
         
-        Condition cond = new WFP10Condition((WFP10Model)model);
+        Condition cond = new WFP10Condition((WFP10Model)simul);
         
         Condition notCond = new NotCondition(cond);
 
 
-        MultiChoiceFlow mul1 = new MultiChoiceFlow(model) {
+        MultiChoiceFlow mul1 = new MultiChoiceFlow(simul) {
         	@Override
         	public boolean beforeRequest(ElementInstance fe) {
         		System.out.println(fe.getElement() + "\tVolumen actual es " + ((WFP10Model)simul).getLitrosIntroducidos() + " litros");
@@ -122,7 +122,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
         	}
         };
         
-    	ActivityFlow act0 = new ActivityFlow(model, "Rellenar bidon", false, false) {
+    	ActivityFlow act0 = new ActivityFlow(simul, "Rellenar bidon", false, false) {
     		@Override
     		public void afterFinalize(ElementInstance fe) {
     			final double litros = ((WFP10Model)simul).getLitrosIntroducidos(); 
@@ -135,7 +135,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
     	};
     	act0.addWorkGroup(0, wg, DEFACTDURATION[0]);
     	
-    	ActivityFlow act1 = new ActivityFlow(model, "Realizar envío de bidon", false, false) {
+    	ActivityFlow act1 = new ActivityFlow(simul, "Realizar envío de bidon", false, false) {
     		@Override
     		public boolean beforeRequest(ElementInstance fe) {
     			((WFP10Model)simul).setLitrosIntroducidos(0);
@@ -156,7 +156,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
         mul1.link(succList, condList);
         
         getDefGenerator(getDefElementType("Cliente"), act0);
-    	return model;
+    	return simul;
 	}
 
 }

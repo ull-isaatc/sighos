@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.factory.SimulationType;
+
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -21,8 +21,8 @@ public class WFP28Simulation extends WFPTestSimulationFactory {
 	 * @param id
 	 * @param detailed
 	 */
-	public WFP28Simulation(SimulationType type, int id, boolean detailed) {
-		super(type, id, "WFP28: Blocking Discriminator. EjComprobacionCredenciales", detailed);
+	public WFP28Simulation(int id, boolean detailed) {
+		super(id, "WFP28: Blocking Discriminator. EjComprobacionCredenciales", detailed);
 	}
 
 	/* (non-Javadoc)
@@ -30,12 +30,12 @@ public class WFP28Simulation extends WFPTestSimulationFactory {
 	 */
 	@Override
 	protected Simulation createModel() {
-		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);        
+		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);        
 		ResourceType rt0 = getDefResourceType("Asistente");
         ResourceType rt1 = getDefResourceType("Personal Seguridad");
         
-        WorkGroup wg0 = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
-        WorkGroup wg1 = new WorkGroup(model, new ResourceType[] {rt1}, new int[] {1});
+        WorkGroup wg0 = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg1 = new WorkGroup(simul, new ResourceType[] {rt1}, new int[] {1});
 	   	
         ActivityFlow act0 = getDefActivity("Confirmar llegada delegacion", 2, wg0, false);
         ActivityFlow act1 = getDefActivity("Chequeo de seguridad", 3, wg1, false);
@@ -46,8 +46,8 @@ public class WFP28Simulation extends WFPTestSimulationFactory {
         getDefResource("Segurita 1", rt1);
         getDefResource("Segurita 2", rt1);
         
-        ParallelFlow root = new ParallelFlow(model);
-        DiscriminatorFlow dis1 = new DiscriminatorFlow(model);
+        ParallelFlow root = new ParallelFlow(simul);
+        DiscriminatorFlow dis1 = new DiscriminatorFlow(simul);
         
         root.link(act0);
         root.link(act1);
@@ -56,6 +56,6 @@ public class WFP28Simulation extends WFPTestSimulationFactory {
         dis1.link(act2);
         
         getDefGenerator(getDefElementType("Asistente"), root);
-    	return model;
+    	return simul;
 	}
 }

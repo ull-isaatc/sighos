@@ -3,7 +3,7 @@ package es.ull.iis.simulation.examples.WFP;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.factory.SimulationType;
+
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
@@ -18,14 +18,14 @@ import es.ull.iis.simulation.model.flow.MultiChoiceFlow;
  */
 public class WFP06Simulation extends WFPTestSimulationFactory {
 	
-	public WFP06Simulation(SimulationType type, int id, boolean detailed) {
-		super(type, id, "WFP6: Multichoice. EjLamadasEmergencia", detailed);
+	public WFP06Simulation(int id, boolean detailed) {
+		super(id, "WFP6: Multichoice. EjLamadasEmergencia", detailed);
     }
     
     protected Simulation createModel() {
-		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);   	
+		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);   	
         ResourceType rt = getDefResourceType("Operador");
-        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
+        WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt}, new int[] {1});
 
         ActivityFlow act0 = getDefActivity("Recepcion de llamada", wg, false);
         ActivityFlow act1 = getDefActivity("Envio policias", wg, false);
@@ -35,7 +35,7 @@ public class WFP06Simulation extends WFPTestSimulationFactory {
         getDefResource("Operador1", rt);
         getDefResource("Operador2", rt);
         
-        MultiChoiceFlow mulcho1 = new MultiChoiceFlow(model);
+        MultiChoiceFlow mulcho1 = new MultiChoiceFlow(simul);
         
         act0.link(mulcho1);
         Condition falseCond = new NotCondition(new TrueCondition());
@@ -45,7 +45,7 @@ public class WFP06Simulation extends WFPTestSimulationFactory {
 
         getDefGenerator(getDefElementType("Emergencia"), act0);
 //        getSimulation().addInfoReceiver(new WFP06CheckView(getSimulation(), detailed));
-        return model;
+        return simul;
     }
 	
 }

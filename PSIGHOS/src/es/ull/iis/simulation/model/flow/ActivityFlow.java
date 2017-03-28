@@ -3,16 +3,13 @@
  */
 package es.ull.iis.simulation.model.flow;
 
-import java.util.TreeMap;
-
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.ElementInstance;
-import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.WorkGroup;
-
 import es.ull.iis.util.Prioritizable;
 
 /**
@@ -214,19 +211,15 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 	}
 	
 	/**
-	 * @return the cancellationList
+	 * Adds a new ResouceType to the cancellation list.
+	 * @param rt Resource type
+	 * @param duration Duration of the cancellation.
+	 * @param cond Condition that must be fulfilled to apply the cancellation 
 	 */
-	public long getResourceCancellation(ResourceType rt) {
-		return ((ReleaseResourcesFlow)finalFlow).getResourceCancellation(rt);
+	public void addResourceCancellation(ResourceType rt, long duration, Condition cond) {
+		((ReleaseResourcesFlow)finalFlow).addResourceCancellation(rt, duration, cond);
 	}
 	
-	/**
-	 * @return the cancellationList
-	 */
-	public TreeMap<ResourceType, Long> getCancellationList() {
-		return ((ReleaseResourcesFlow)finalFlow).getCancellationList();
-	}
-
 	@Override
 	public String getObjectTypeIdentifier() {
 		return "ACT";

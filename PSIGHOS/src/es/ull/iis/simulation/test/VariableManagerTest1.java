@@ -1,16 +1,12 @@
 package es.ull.iis.simulation.test;
 
-import java.util.EnumSet;
-
-import es.ull.iis.simulation.core.flow.ActivityFlow;
 import es.ull.iis.simulation.factory.SimulationFactory;
-import es.ull.iis.simulation.factory.SimulationObjectFactory;
-import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.model.engine.SimulationEngine;
+import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
 import es.ull.iis.simulation.variable.EnumType;
 import es.ull.iis.simulation.variable.EnumVariable;
 import es.ull.iis.simulation.variable.IntVariable;
@@ -19,7 +15,7 @@ import es.ull.iis.simulation.variable.IntVariable;
  * 
  */
 class ExperimentTest1 extends Experiment {
-	final static SimulationType simType = SimulationType.PARALLEL;
+	final static int NTHREADS = 2;
 	final static TimeUnit unit = TimeUnit.MINUTE;
 	static final int NEXP = 1;
     static final int NDAYS = 1;
@@ -29,11 +25,11 @@ class ExperimentTest1 extends Experiment {
 		super("Banco", NEXP);
 	}
 
-	public SimulationEngine getSimulation(int ind) {
-		SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Ej", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
-		SimulationEngine sim = factory.getSimulationEngine();
+	public Simulation getSimulation(int ind) {
+		SimulationFactory factory = new SimulationFactory(ind, "Ej", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.DAY, NDAYS));
+		Simulation sim = factory.getSimulation();
 
-		factory.getFlowInstance("ActivityFlow", "Verificar cuenta", 0, EnumSet.of(ActivityFlow.Modifier.NONPRESENTIAL));
+		factory.getFlowInstance("ActivityFlow", "Verificar cuenta", 0, false, false);
         
     	sim.putVar("Coste total", new IntVariable(0));
     	sim.putVar("Coste", new IntVariable(200));
@@ -52,7 +48,10 @@ class ExperimentTest1 extends Experiment {
     	((EnumVariable)sim.getVar("tipoCoche")).setValue("Deportivo");
     	System.out.println("Valor del enumerado: " + sim.getVar("tipoCoche").toString());
 
-		sim.addInfoReceiver(new StdInfoView(sim));
+		sim.addInfoReceiver(new StdInfoView());
+		if (NTHREADS > 1) {
+			sim.setSimulationEngine(new ParallelSimulationEngine(ind, sim, NTHREADS));
+		}
 		return sim;
 	}
 	

@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.factory.SimulationType;
+
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -19,15 +19,15 @@ import es.ull.iis.simulation.model.flow.InterleavedRoutingFlow;
 public class WFP40Simulation extends WFPTestSimulationFactory {
 	static final int RES = 4;
 
-	public WFP40Simulation(SimulationType type, int id, boolean detailed) {
-		super(type, id, "WFP40: Interleaved Routing", detailed);
+	public WFP40Simulation(int id, boolean detailed) {
+		super(id, "WFP40: Interleaved Routing", detailed);
 	}
 
 	@Override
 	protected Simulation createModel() {
-		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);    	
+		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);    	
 		ResourceType rt = getDefResourceType("Technician");
-    	WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
+    	WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt}, new int[] {1});
     	
     	ActivityFlow act0 = getDefActivity("check oil", wg);
     	ActivityFlow act1 = getDefActivity("examine main unit", wg);
@@ -37,14 +37,14 @@ public class WFP40Simulation extends WFPTestSimulationFactory {
     	for (int i = 0; i < RES; i++)
     		getDefResource("RES" + i, rt);
     	
-    	InterleavedRoutingFlow root = new InterleavedRoutingFlow(model);
+    	InterleavedRoutingFlow root = new InterleavedRoutingFlow(simul);
     	root.addBranch(act0);
     	root.addBranch(act1);
     	root.addBranch(act2);
     	root.link(act3);
 
         getDefGenerator(getDefElementType("ET0"), root);
-    	return model;
+    	return simul;
 		
 	}
 }

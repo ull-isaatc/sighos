@@ -3,23 +3,19 @@
  */
 package es.ull.iis.simulation.test;
 
-import java.util.EnumSet;
-
 import es.ull.iis.function.TimeFunctionFactory;
-import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
-import es.ull.iis.simulation.core.flow.ParallelFlow;
 import es.ull.iis.simulation.factory.SimulationFactory;
-import es.ull.iis.simulation.factory.SimulationObjectFactory;
-import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.model.engine.ResourceTypeEngine;
-import es.ull.iis.simulation.model.engine.SimulationEngine;
+import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.ParallelFlow;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -27,7 +23,6 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  */
 public class TestInterruptibleActivities {
 	static final TimeUnit unit = TimeUnit.MINUTE;
-	static SimulationType simType = SimulationType.SEQUENTIAL;
 	static final int NACT = 1;
 	static final int NELEMT = 1;
 	static final int NELEM = 2;
@@ -40,18 +35,18 @@ public class TestInterruptibleActivities {
 		new Experiment("Testing interruptible activities", 1) {
 
 			@Override
-			public SimulationEngine<?> getSimulation(int ind) {
-				SimulationEngine<?> sim = null;
-				SimulationObjectFactory factory = SimulationFactory.getInstance(simType, ind, "Testing interruptible activities", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.MINUTE, 400));
-				sim = factory.getSimulationEngine();
+			public Simulation getSimulation(int ind) {
+				Simulation sim = null;
+				SimulationFactory factory = new SimulationFactory(ind, "Testing interruptible activities", unit, TimeStamp.getZero(), new TimeStamp(TimeUnit.MINUTE, 400));
+				sim = factory.getSimulation();
 				
-		        ResourceTypeEngine rt = factory.getResourceTypeInstance("RT0");
-		        WorkGroup wg = factory.getWorkGroupInstance(new ResourceTypeEngine[] {rt}, new int[] {1});
+		        ResourceType rt = factory.getResourceTypeInstance("RT0");
+		        WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
 
 				ActivityFlow acts[] = new ActivityFlow[NACT];
 				for (int i = 0; i < NACT; i++) {
-					acts[i] = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "ACT" + i, i / 2, EnumSet.of(ActivityFlow.Modifier.INTERRUPTIBLE));
-					acts[i].addWorkGroup(new SimulationTimeFunction(unit, "ConstantVariate", 101), 0, wg);
+					acts[i] = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "ACT" + i, i / 2, false, true);
+					acts[i].addWorkGroup(0, wg, new SimulationTimeFunction(unit, "ConstantVariate", 101));
 				}
 				SimulationPeriodicCycle c1 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 200), 0);
 				SimulationPeriodicCycle c2 = new SimulationPeriodicCycle(unit, 20, new SimulationTimeFunction(unit, "ConstantVariate", 100), 0);
@@ -62,11 +57,10 @@ public class TestInterruptibleActivities {
 					meta.link(acts[i]);
 				}
 				for (int i = 0; i < NELEMT; i++)
-					factory.getTimeDrivenGeneratorInstance(
-							factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
-									factory.getElementTypeInstance("ET" + i, i), meta), c1);
+					factory.getTimeDrivenElementGeneratorInstance(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
+									factory.getElementTypeInstance("ET" + i, i), meta, c1);
 				
-				sim.addInfoReceiver(new StdInfoView(sim));
+				sim.addInfoReceiver(new StdInfoView());
 				return sim;
 			}
 			

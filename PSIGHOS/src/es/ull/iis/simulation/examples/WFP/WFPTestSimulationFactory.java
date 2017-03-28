@@ -3,13 +3,12 @@
  */
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.model.ElementType;
+import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
-import es.ull.iis.simulation.model.Resource;
-import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -42,25 +41,25 @@ public abstract class WFPTestSimulationFactory {
 	public final static long SIMEND = 1440L;
 	public final static TimeUnit SIMUNIT = TimeUnit.MINUTE; 
 	protected boolean detailed;
-	protected Simulation model;
+	protected Simulation simul;
 	protected final int id;
 	protected final String description;
 	
-	public WFPTestSimulationFactory(SimulationType type, int id, String description, boolean detailed) {
+	public WFPTestSimulationFactory(int id, String description, boolean detailed, int nThreads) {
 		this.id = id;
 		this.description = description;
-		model = createModel();		
 		this.detailed = detailed;
-		if (SimulationType.SEQUENTIAL.equals(type))
-			new es.ull.iis.simulation.sequential.SequentialSimulationEngine(id, model);
-		else
-			new es.ull.iis.simulation.parallel.ParallelSimulationEngine(id, model);
+		simul = createModel();
+	}
+	
+	public WFPTestSimulationFactory(int id, String description, boolean detailed) {
+		this (id, description, detailed, 1);
 	}
 	
 	protected abstract Simulation createModel();
 	
 	public Simulation getModel() {
-		return model;
+		return simul;
 	}
 	
 	public SimulationTimeFunction getActivityDefDuration() {
@@ -76,13 +75,13 @@ public abstract class WFPTestSimulationFactory {
 	}
 	
 	public Resource getDefResource(String description, ResourceType rt) {
-		final Resource res = new Resource(model, description);
+		final Resource res = new Resource(simul, description);
 		res.addTimeTableEntry(getResourceCycle(), RESAVAILABLE, rt);
 		return res;
 	}
 	
 	public ResourceType getDefResourceType(String description) {
-		return new ResourceType(model, description);
+		return new ResourceType(simul, description);
 	}
 	
 	public ActivityFlow getDefActivity(String description, WorkGroup wg) {
@@ -98,13 +97,13 @@ public abstract class WFPTestSimulationFactory {
 	}
 	
 	public ActivityFlow getDefActivity(String description, int dur, WorkGroup wg, boolean presential) {
-		ActivityFlow act = new ActivityFlow(model, description, presential, false);
+		ActivityFlow act = new ActivityFlow(simul, description, presential, false);
     	act.addWorkGroup(0, wg, DEFACTDURATION[dur]);
 		return act;
 	}
 	
 	public ElementType getDefElementType(String description) {
-		return new ElementType(model, description);
+		return new ElementType(simul, description);
 	}
 	
 	public SimulationPeriodicCycle getGeneratorCycle() {
@@ -116,6 +115,6 @@ public abstract class WFPTestSimulationFactory {
 	}
 	
 	public TimeDrivenElementGenerator getDefGenerator(int elems, ElementType et, InitializerFlow flow) {
-        return new TimeDrivenElementGenerator(model, elems, et, flow, getGeneratorCycle());
+        return new TimeDrivenElementGenerator(simul, elems, et, flow, getGeneratorCycle());
 	}
 }

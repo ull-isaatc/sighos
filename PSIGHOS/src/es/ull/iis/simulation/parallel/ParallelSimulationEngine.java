@@ -47,6 +47,9 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
     private SlaveEventExecutor [] executor;
     /** The barrier to control the phases of simulation */
 	private AbstractBarrier barrier;
+	/** Number of worker threads which run the simulation events */
+	private final int nThreads;
+	
 	
 	/**
 	 * Creates a new ParallelSimulationEngine which starts at <code>startTs</code> and finishes at <code>endTs</code>.
@@ -56,12 +59,21 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 	 * @param startTs Timestamp of simulation's start
 	 * @param endTs Timestamp of simulation's end
 	 */
-	public ParallelSimulationEngine(int id, Simulation simul) {
+	public ParallelSimulationEngine(int id, Simulation simul, int nThreads) {
 		super(id, simul);
         // The Local virtual time is set to the immediately previous instant to the simulation start time
         lvt = simul.getStartTs() - 1;
+        this.nThreads = nThreads;
 	}
 	
+	/**
+	 * Returns the number of workers to execute events defined in this simulation.
+	 * @return the number of workers to execute events defined in this simulation
+	 */
+	public int getNThreads() {
+		return nThreads;
+	}
+
     /**
      * Indicates if the simulation clock has reached the simulation end.
      * @return True if the simulation clock is higher or equal to the simulation end. False in other case.
@@ -83,6 +95,7 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
      * its timestamp is higher than the simulation time.
      * @param e Event to be added
      */
+	@Override
 	public void addWait(DiscreteEvent e) {
 		ArrayList<DiscreteEvent> list = futureEventList.get(e.getTs());
 		if (list == null) {

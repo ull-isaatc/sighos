@@ -83,7 +83,7 @@ public class TestConditionalResourceGenerator extends Experiment {
 	@Override
 	public Simulation getSimulation(int ind) {
 		Simulation model = new TestModel(ind);
-		model.addInfoReceiver(new StdInfoView(model));
+		model.addInfoReceiver(new StdInfoView());
 		return model;
 	}
 

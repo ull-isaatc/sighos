@@ -3,7 +3,7 @@ package es.ull.iis.simulation.examples.WFP;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.condition.TrueCondition;
-import es.ull.iis.simulation.factory.SimulationType;
+
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
@@ -18,17 +18,17 @@ import es.ull.iis.simulation.model.flow.StructuredSynchroMergeFlow;
  */
 public class WFP07Simulation extends WFPTestSimulationFactory {
 	
-	public WFP07Simulation(SimulationType type, int id, boolean detailed) {
-		super(type, id, "WFP7: Structured Synchronizing Merge. EjTransferenciaPacientes", detailed);
+	public WFP07Simulation(int id, boolean detailed) {
+		super(id, "WFP7: Structured Synchronizing Merge. EjTransferenciaPacientes", detailed);
     }
     
     protected Simulation createModel() {
-		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);   	
+		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);   	
         ResourceType rt0 = getDefResourceType("Operador");
         ResourceType rt1 = getDefResourceType("Medico");
         
-        WorkGroup wgOp = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
-        WorkGroup wgMe = new WorkGroup(model, new ResourceType[] {rt1}, new int[] {1});
+        WorkGroup wgOp = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wgMe = new WorkGroup(simul, new ResourceType[] {rt1}, new int[] {1});
 
         ActivityFlow act0 = getDefActivity("Envio policias", wgOp, false);
         ActivityFlow act1 = getDefActivity("Envio ambulancias", wgOp, false);
@@ -40,7 +40,7 @@ public class WFP07Simulation extends WFPTestSimulationFactory {
         getDefResource("Operador 3", rt0);
         getDefResource("Medico 1", rt1);
         
-        StructuredSynchroMergeFlow root = new StructuredSynchroMergeFlow(model);
+        StructuredSynchroMergeFlow root = new StructuredSynchroMergeFlow(simul);
         
         Condition falseCond = new NotCondition(new TrueCondition());
         
@@ -54,7 +54,7 @@ public class WFP07Simulation extends WFPTestSimulationFactory {
         getDefGenerator(getDefElementType("Emergencia"), root);
 
 //        getSimulation().addInfoReceiver(new WFP07CheckView(getSimulation(), detailed));
-        return model;
+        return simul;
     }
 	
 }

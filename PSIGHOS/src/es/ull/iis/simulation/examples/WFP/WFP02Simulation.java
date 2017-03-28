@@ -1,7 +1,6 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.factory.SimulationType;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -15,15 +14,15 @@ import es.ull.iis.simulation.model.flow.ParallelFlow;
  */
 public class WFP02Simulation extends WFPTestSimulationFactory {
 	
-	public WFP02Simulation(SimulationType type, int id, boolean detailed) {
-		super(type, id, "WFP2: Parallel Split. EjAlarma", detailed);
+	public WFP02Simulation(int id, boolean detailed) {
+		super(id, "WFP2: Parallel Split. EjAlarma", detailed);
     }
     
     protected Simulation createModel() {
-		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);   	
+		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);   	
         ResourceType rt = getDefResourceType("Operador");
         
-        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt}, new int[] {1});
+        WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt}, new int[] {1});
     	ActivityFlow act0 = getDefActivity("Detección alarma", wg);
     	ActivityFlow act1 = getDefActivity("Mandar patrulla", wg, false);
     	ActivityFlow act2 = getDefActivity("Generar informe", wg, false);
@@ -33,7 +32,7 @@ public class WFP02Simulation extends WFPTestSimulationFactory {
         getDefResource("Operador3", rt);
         getDefResource("Operador4", rt);
         
-        ParallelFlow par1 = new ParallelFlow(model);
+        ParallelFlow par1 = new ParallelFlow(simul);
         
         act0.link(par1);
         par1.link(act1);
@@ -42,7 +41,7 @@ public class WFP02Simulation extends WFPTestSimulationFactory {
         getDefGenerator(getDefElementType("Activaciones de alarma"), act0);
 //        addInfoReceiver(new WFP02CheckView(this, detailed));
 //        getSimulation().addInfoReceiver(new CheckFlowsView(getSimulation(), act0, new long[] {DEFACTDURATION[0], DEFACTDURATION[0], DEFACTDURATION[0]}, detailed));
-        return model;
+        return simul;
     }
 	
 }

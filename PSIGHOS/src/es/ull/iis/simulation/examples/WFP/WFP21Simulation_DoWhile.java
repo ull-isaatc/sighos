@@ -1,7 +1,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.factory.SimulationType;
+
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
@@ -23,8 +23,8 @@ public class WFP21Simulation_DoWhile extends WFPTestSimulationFactory {
 	 * @param id
 	 * @param detailed
 	 */
-	public WFP21Simulation_DoWhile(SimulationType type, int id, boolean detailed) {
-		super(type, id, "WFP21: Structured Loop. EjReveladoFotografico", detailed);
+	public WFP21Simulation_DoWhile(int id, boolean detailed) {
+		super(id, "WFP21: Structured Loop. EjReveladoFotografico", detailed);
 	}
 
 	class WFP21Condition extends Condition {
@@ -44,17 +44,17 @@ public class WFP21Simulation_DoWhile extends WFPTestSimulationFactory {
 	 */
 	@Override
 	protected Simulation createModel() {
-		model = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);        
+		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);        
 		ResourceType rt0 = getDefResourceType("Maquina revelado");
         
-        WorkGroup wg = new WorkGroup(model, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
     	
         getDefResource("Maquina 1", rt0);        
         getDefResource("Maquina 2", rt0);
         
         Condition cond = new WFP21Condition();
         
-    	ActivityFlow act0 = new ActivityFlow(model, "Revelar foto", false, false) {
+    	ActivityFlow act0 = new ActivityFlow(simul, "Revelar foto", false, false) {
     		@Override
     		public void afterFinalize(ElementInstance fe) {
     			fe.getElement().putVar("fotosReveladas", fe.getElement().getVar("fotosReveladas").getValue(fe).intValue() + 1);
@@ -63,12 +63,12 @@ public class WFP21Simulation_DoWhile extends WFPTestSimulationFactory {
     	};
     	act0.addWorkGroup(0, wg, DEFACTDURATION[0]);
 
-        DoWhileFlow root = new DoWhileFlow(model, act0, cond);
+        DoWhileFlow root = new DoWhileFlow(simul, act0, cond);
 
         ElementType et = getDefElementType("Cliente");
         et.addElementVar("fotosReveladas", 0);
         getDefGenerator(et, root);
-    	return model;
+    	return simul;
  	}
 
 }
