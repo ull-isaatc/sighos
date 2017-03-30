@@ -61,13 +61,21 @@ public abstract class SimulationObject implements Comparable<SimulationObject>, 
     	return idString;
     }
 	
+    /**
+     * Returns the current simulation time
+     * @return The current simulation time
+     */
+	public long getTs() {
+		return simul.getTs();
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Debuggable#debug(java.lang.String)
 	 */
     public void debug(String message) {
     	if (Simulation.isDebugEnabled())
-    		Simulation.debug(this.toString() + "\t" + simul.getSimulationEngine().getTs() + "\t" + message);
+    		Simulation.debug(this.toString() + "\t" + getTs() + "\t" + message);
 	}
 	
     /*
@@ -75,7 +83,7 @@ public abstract class SimulationObject implements Comparable<SimulationObject>, 
      * @see es.ull.iis.simulation.Debuggable#error(java.lang.String)
      */
 	public void error(String description) {
-		Simulation.error(this.toString() + "\t" + simul.getSimulationEngine().getTs() + "\t" + description);
+		Simulation.error(this.toString() + "\t" + getTs() + "\t" + description);
 	}
     
 	/*

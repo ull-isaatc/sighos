@@ -61,7 +61,7 @@ public class VAProgressionForCNV extends VAProgressionParam {
 			long timeToChange = 0;
 			// More than a year since last va change
 			if (timeInYear2Progression >= 1.0) {
-				final long yearConstant = pat.getSimulationEngine().getTimeUnit().convert(1, TimeUnit.YEAR);
+				final long yearConstant = pat.getSimulation().getTimeUnit().convert(1, TimeUnit.YEAR);
 				int i = 0;
 				for (; (i < exactYearsSinceEvent) && (va < VisualAcuity.MAX_LOGMAR); i++) {
 					timeToChange += yearConstant;
@@ -78,7 +78,7 @@ public class VAProgressionForCNV extends VAProgressionParam {
 				}		
 			}
 			// Sees if there is an additional change in the remaining time (less than a year)
-			timeToChange += pat.getSimulationEngine().getTimeUnit().convert(timeInYear2Progression - exactYearsSinceEvent, TimeUnit.YEAR);
+			timeToChange += pat.getSimulation().getTimeUnit().convert(timeInYear2Progression - exactYearsSinceEvent, TimeUnit.YEAR);
 			if (timeToChange > 0) {
 				// Calculate the proportional VA loss/gain
 				va = Math.min(VisualAcuity.MAX_LOGMAR, Math.max(expectedVA, va + getVAChange(pat, progression[1]) * (timeInYear2Progression - exactYearsSinceEvent)));
@@ -100,8 +100,8 @@ public class VAProgressionForCNV extends VAProgressionParam {
 		double va = pat.getVA(eyeIndex);
 		final long startTs = pat.getLastVAChangeTs(eyeIndex); 
 		final long startStageTs = pat.getTimeToCNVStage(pat.getCurrentCNVStage(eyeIndex), eyeIndex);
-		final long endTs = pat.getSimulationEngine().getTs();
-		final TimeUnit simUnit = pat.getSimulationEngine().getTimeUnit();
+		final long endTs = pat.getSimulation().getTs();
+		final TimeUnit simUnit = pat.getSimulation().getTimeUnit();
 		// TODO: Check that making treatment effective only first two years is working fine
 		final ArrayList<VAProgressionPair> changes;
 		if (pat.isDiagnosed()) {

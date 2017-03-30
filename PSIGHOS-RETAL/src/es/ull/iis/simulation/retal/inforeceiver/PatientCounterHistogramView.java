@@ -7,7 +7,6 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -41,8 +40,8 @@ public class PatientCounterHistogramView extends Listener {
 	 * @param maxAge
 	 * @param length
 	 */
-	public PatientCounterHistogramView(Simulation simul, int minAge, int maxAge, int length, EnumSet<RETALSimulation.DISEASES> diseases) {
-		this(simul, minAge, maxAge, length, diseases, false, false);
+	public PatientCounterHistogramView(int minAge, int maxAge, int length, EnumSet<RETALSimulation.DISEASES> diseases) {
+		this(minAge, maxAge, length, diseases, false, false);
 	}
 
 	/**
@@ -53,8 +52,8 @@ public class PatientCounterHistogramView extends Listener {
 	 * @param length
 	 * @param detailDeaths
 	 */
-	public PatientCounterHistogramView(Simulation simul, int minAge, int maxAge, int length, EnumSet<RETALSimulation.DISEASES> diseases, boolean detailDeaths, boolean detailCNV) {
-		super(simul, "Counter of patients");
+	public PatientCounterHistogramView(int minAge, int maxAge, int length, EnumSet<RETALSimulation.DISEASES> diseases, boolean detailDeaths, boolean detailCNV) {
+		super("Counter of patients");
 		this.diseases = diseases;
 		this.length = length;
 		this.nIntervals = ((maxAge - minAge) / length) + 1;

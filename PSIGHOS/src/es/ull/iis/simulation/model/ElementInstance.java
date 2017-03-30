@@ -322,7 +322,7 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
 
 	@Override
 	public double getTime() {
-		return elem.getSimulation().getSimulationEngine().getTs();
+		return elem.getTs();
 	}
 
 	/**
@@ -361,7 +361,7 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
             res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
     	}
     	engine.notifyResourcesAcquired();
-    	final long ts = elem.getSimulation().getSimulationEngine().getTs();
+    	final long ts = elem.getTs();
 		elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.ACQ, ts));
 		elem.debug("Resources acquired\t" + this + "\t" + reqFlow.getDescription());			
 		reqFlow.afterAcquire(this);
@@ -392,7 +392,7 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
 	}
 	
 	public void startDelay(long delay) {
-		elem.addFinishEvent(delay + elem.getSimulation().getSimulationEngine().getTs(), (TaskFlow)currentFlow, this);
+		elem.addFinishEvent(delay + elem.getTs(), (TaskFlow)currentFlow, this);
 	}
 	
 	public boolean releaseCaughtResources(WorkGroup wg) {
@@ -410,7 +410,7 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
 	        for (Resource res : resources) {
 	        	final long cancellationDuration = relFlow.getResourceCancellation(res.getCurrentResourceType(), this);
 	        	if (cancellationDuration > 0) {
-					final long actualTs = elem.getSimulation().getSimulationEngine().getTs();
+					final long actualTs = elem.getTs();
 					res.setNotCanceled(false);
 					elem.getSimulation().notifyInfo(new ResourceInfo(elem.getSimulation(), res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
 					res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
@@ -441,7 +441,7 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
 		        			resources.remove(res);
 		    	        	final long cancellationDuration = relFlow.getResourceCancellation(currentRT, this);
 		    	        	if (cancellationDuration > 0) {
-		    					final long actualTs = elem.getSimulation().getSimulationEngine().getTs();
+		    					final long actualTs = elem.getTs();
 		    					res.setNotCanceled(false);
 		    					elem.getSimulation().notifyInfo(new ResourceInfo(elem.getSimulation(), res, currentRT, ResourceInfo.Type.CANCELON, actualTs));
 		    					res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
@@ -475,13 +475,13 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
    
     public void endDelay(RequestResourcesFlow f) {
 		if (remainingTask == 0.0) {
-			elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, f, executionWG, ElementActionInfo.Type.END, elem.getSimulation().getSimulationEngine().getTs()));
+			elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, f, executionWG, ElementActionInfo.Type.END, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + f.getDescription());
 			f.afterFinalize(this);
 		}
 		else {
-			elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, f, executionWG, ElementActionInfo.Type.INTACT, elem.getSimulation().getSimulationEngine().getTs()));
+			elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, f, executionWG, ElementActionInfo.Type.INTACT, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes part of \t" + this + "\t" + f.getDescription() + "\t" + remainingTask * 100 + "% Left");
 			// Notifies the parent workthread that the activity was interrupted

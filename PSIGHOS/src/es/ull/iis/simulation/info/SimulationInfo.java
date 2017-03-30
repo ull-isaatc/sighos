@@ -4,13 +4,13 @@ import es.ull.iis.simulation.model.Simulation;
 
 public abstract class SimulationInfo {
 
-	final protected Simulation model;
+	final protected Simulation simul;
 	
-	public SimulationInfo(Simulation model) {
-		this.model = model;
+	public SimulationInfo(Simulation simul) {
+		this.simul = simul;
 	}
 
-	public Simulation getModel() {
-		return model;
+	public Simulation getSimul() {
+		return simul;
 	}
 }

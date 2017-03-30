@@ -47,7 +47,7 @@ public class VAProgressionForGA extends VAProgressionParam {
 		final double rnd = pat.draw(RandomForPatient.ITEM.ARMD_PROG_GA);
 		final long startTs = pat.getLastVAChangeTs(eyeIndex); 
 		final long startGATs = pat.getTimeToEyeState(EyeState.AMD_GA, eyeIndex);
-		final long endTs = pat.getSimulationEngine().getTs();
+		final long endTs = pat.getSimulation().getTs();
 		final long daysSinceGA = startTs - startGATs;
 		final long fourYearsInDays = yearlyProgression.length * 365;
 		final long period = endTs - startTs;
@@ -101,7 +101,7 @@ public class VAProgressionForGA extends VAProgressionParam {
 					changes.add(new VAProgressionPair(period, Math.max(expectedVA, Math.min(VisualAcuity.MAX_LOGMAR, va + incVA * (endTs - startGATs) / (year * 365)))));
 				}
 				else {
-					final long timeToChange = pat.getSimulationEngine().getTimeUnit().convert(year + 1, TimeUnit.YEAR) - startTs + startGATs;
+					final long timeToChange = pat.getSimulation().getTimeUnit().convert(year + 1, TimeUnit.YEAR) - startTs + startGATs;
 					if (period > timeToChange) {
 						va = Math.min(VisualAcuity.MAX_LOGMAR, va + incVA);
 						changes.add(new VAProgressionPair(timeToChange, va));

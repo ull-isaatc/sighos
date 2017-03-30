@@ -39,7 +39,7 @@ public abstract class Generator<INF extends Generator.GenerationInfo> extends Si
 	
 	@Override
 	public double getTime() {
-		return simul.getSimulationEngine().getTs();
+		return getTs();
 	}
 	
 	/**
@@ -80,7 +80,7 @@ public abstract class Generator<INF extends Generator.GenerationInfo> extends Si
             	p -= gt.getProp();
             	if (p <= 0.0){
             		elems[i] = createEventSource(i, gt);
-    	            final DiscreteEvent e = elems[i].onCreate(simul.getSimulationEngine().getTs());
+    	            final DiscreteEvent e = elems[i].onCreate(getTs());
     	            simul.addEvent(e);
     	            break;
             	}

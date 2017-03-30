@@ -158,6 +158,14 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 		return startTs;
 	}
 
+    /**
+     * Returns the current simulation time
+     * @return The current simulation time
+     */
+	public long getTs() {
+		return simulationEngine.getTs();
+	}
+	
 	/**
 	 * Returns the simulation engine that executes this model
 	 * @return The simulation engine that executes this model
@@ -273,7 +281,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 		simulationEngine.simulationLoop();
 
 		debug("SIMULATION TIME FINISHES\r\nSimulation time = "
-            	+ simulationEngine.getTs() + "\r\nPreviewed simulation time = " 
+            	+ getTs() + "\r\nPreviewed simulation time = " 
     			+ endTs);
     	simulationEngine.printState();
     	

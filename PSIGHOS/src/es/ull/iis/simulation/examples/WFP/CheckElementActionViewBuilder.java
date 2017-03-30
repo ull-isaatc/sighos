@@ -88,13 +88,13 @@ public class CheckElementActionViewBuilder extends View {
 			}
 		}
 		else if (info instanceof SimulationEndInfo) {
-			String className = info.getModel().getClass().getSimpleName().substring(0, 5);
+			String className = info.getSimul().getClass().getSimpleName().substring(0, 5);
 			System.out.println("class " + className + "CheckView extends CheckElementActionsView {");
-			System.out.println("\tpublic " + className + "CheckView(" + info.getModel().getClass().getSimpleName() + " simul) {");
+			System.out.println("\tpublic " + className + "CheckView(" + info.getSimul().getClass().getSimpleName() + " simul) {");
 			System.out.println("\t\tthis(simul, true);");
 			System.out.println("\t}");
 			System.out.println();
-			System.out.println("\tpublic " + className + "CheckView(" + info.getModel().getClass().getSimpleName() + " simul, boolean detailed) {");
+			System.out.println("\tpublic " + className + "CheckView(" + info.getSimul().getClass().getSimpleName() + " simul, boolean detailed) {");
 			System.out.println("\t\tsuper(simul, \"Checking " + className + "...\", detailed);");
 			System.out.println();
 			System.out.println("\t\tElementReferenceInfos [] ref;");

@@ -57,7 +57,7 @@ public class CommonParams extends ModelParams {
 	 */
 	private long getTimeToDeath(Patient pat, double addRisk) {
 		final double time = Math.min(generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), pat.draw(RandomForPatient.ITEM.DEATH) / addRisk), MAX_AGE - pat.getAge());
-		return pat.getTs() + pat.getSimulationEngine().getTimeUnit().convert(time, TimeUnit.YEAR);
+		return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
 	}
 	
 	/**

@@ -105,7 +105,7 @@ public class SimulationInfoHandler implements InfoHandler {
 	public Number synchronousInfoProcessing(SynchronousInfo info) {
 		if (info instanceof VarViewValueRequestInfo) {
 			VarViewValueRequestInfo reqInfo = (VarViewValueRequestInfo) info;
-			Number value = reqInfo.getModel().getVar(reqInfo.getVarName()).getValue(reqInfo.getParams());
+			Number value = reqInfo.getSimul().getVar(reqInfo.getVarName()).getValue(reqInfo.getParams());
 			if (value != null)
 				return value.doubleValue();
 		}

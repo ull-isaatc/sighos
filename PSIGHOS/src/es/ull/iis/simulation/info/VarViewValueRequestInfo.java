@@ -34,7 +34,7 @@ public class VarViewValueRequestInfo extends SynchronousInfo {
 	@Override
 	public String toString() {
 		String message = new String();
-		message += model.long2SimulationTime(ts) + "\tVARVIEWVALUEREQUEST:\t" + varName + "\tREQOBJ: " + requestObject.toString() + "\t" + model.toString() + "\n";
+		message += simul.long2SimulationTime(ts) + "\tVARVIEWVALUEREQUEST:\t" + varName + "\tREQOBJ: " + requestObject.toString() + "\t" + simul.toString() + "\n";
 		for (int i = 0; i < params.length; i++)
 			message += "\tPARAM" + (i+1) + ": " + params[i].toString();
 		return message;

@@ -191,7 +191,7 @@ public class VAParam extends Param {
 		// If the patient had the worst VA, it remains the same
 		if (vaAtStart == VisualAcuity.MAX_LOGMAR) {
 			changes = new ArrayList<VAProgressionPair>();
-			changes.add(new VAProgressionPair(pat.getSimulationEngine().getTs() - pat.getLastVAChangeTs(eyeIndex), vaAtStart));
+			changes.add(new VAProgressionPair(pat.getSimulation().getTs() - pat.getLastVAChangeTs(eyeIndex), vaAtStart));
 		}
 		else {				
 			// Computes the new VA expected for the new eye state; if no new state is expected (death), uses the current VA 
@@ -201,7 +201,7 @@ public class VAParam extends Param {
 			// No progression but the incident VA is expected if the eye is healthy
 			if (affectedEye.contains(EyeState.HEALTHY)) {
 				changes = new ArrayList<VAProgressionPair>();
-				changes.add(new VAProgressionPair(pat.getSimulationEngine().getTs() - pat.getLastVAChangeTs(eyeIndex), incidentVA));
+				changes.add(new VAProgressionPair(pat.getSimulation().getTs() - pat.getLastVAChangeTs(eyeIndex), incidentVA));
 			}
 			else {
 				if (affectedEye.contains(EyeState.AMD_CNV)) {
@@ -222,16 +222,16 @@ public class VAParam extends Param {
 				else {
 					// No progression but the incident VA is expected if the eye has EARM
 					changes = new ArrayList<VAProgressionPair>();
-					changes.add(new VAProgressionPair(pat.getSimulationEngine().getTs() - pat.getLastVAChangeTs(eyeIndex), incidentVA));
+					changes.add(new VAProgressionPair(pat.getSimulation().getTs() - pat.getLastVAChangeTs(eyeIndex), incidentVA));
 				}
 				if (affectedEye.contains(EyeState.CSME) || affectedEye.contains(EyeState.NPDR) || affectedEye.contains(EyeState.NON_HR_PDR)
 						|| affectedEye.contains(EyeState.HR_PDR)) {
 					ArrayList<VAProgressionPair> changesDR = progDR.getVAProgression(pat, eyeIndex, incidentVA);
 					// If the patient was already affected by ARMD, both progressions have to be merged
 					if (changes != null) {
-						if (!checkChanges(changes, pat.getSimulationEngine().getTs() - pat.getLastVAChangeTs(eyeIndex)))
+						if (!checkChanges(changes, pat.getSimulation().getTs() - pat.getLastVAChangeTs(eyeIndex)))
 							pat.error("Wrongly computed VA progression in an ARMD eye");
-						if (!checkChanges(changesDR, pat.getSimulationEngine().getTs() - pat.getLastVAChangeTs(eyeIndex)))
+						if (!checkChanges(changesDR, pat.getSimulation().getTs() - pat.getLastVAChangeTs(eyeIndex)))
 							pat.error("Wrongly computed VA progression in an DR eye");
 						changes = mergeVAProgressions(pat, vaAtStart, changes, changesDR);
 					}

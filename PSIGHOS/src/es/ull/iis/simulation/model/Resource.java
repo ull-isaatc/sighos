@@ -12,16 +12,14 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.util.DiscreteCycleIterator;
 
 /**
- * A simulation resource whose availability is controlled by means of timetable entries.
- * A timetable entry us a trio &lt{@link ResourceType}, {@link SimulationCycle}, long&gt which defines a 
- * resource type, an availability cycle, and the duration of each availability period. Timetable entries 
- * can be overlapped in time, thus allowing the resource for being potentially available for
+ * A simulation resource whose availability is controlled by means of {@link TimeTableEntry timetable entries}.
+ * Timetable entries can overlap in time, thus allowing the resource for being potentially available for
  * different resource types simultaneously.
  * A resource finishes its execution when it has no longer valid timetable entries.
  * @author Iván Castilla Rodríguez
  *
  */
-public class Resource extends VariableStoreModelObject implements Describable, EventSource {
+public class Resource extends VariableStoreSimulationObject implements Describable, EventSource {
     /** A brief description of the resource */
     protected final String description;
 	/** Timetable which defines the availability estructure of the resource. Define RollOn and RollOff events. */
@@ -50,7 +48,8 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 	}      
 	
 	/**
-	 * @return the engine
+	 * Returns the associated {@link ResourceEngine}
+	 * @return the associated {@link ResourceEngine}
 	 */
 	public ResourceEngine getEngine() {
 		return engine;
@@ -189,15 +188,14 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 	}
     
     /**
-     * Informs the element that it must finish its execution. Thus, a FinalizeEvent is
-     * created.
+     * Informs the resource that it must finish its execution. 
      */
     public void notifyEnd() {
         engine.notifyEnd();
     }
     
     /**
-     * Getter for property currentResourceType.
+     * Returns the {@link ResourceType resource type} currently assigned to this resource, in case it is in use. Returns null otherwise.
      * @return Value of property currentResourceType.
      */
     public ResourceType getCurrentResourceType() {
@@ -205,16 +203,21 @@ public class Resource extends VariableStoreModelObject implements Describable, E
     }
 
     /**
-     * Setter for property currentResourceType.
+     * Assigns a {@link ResourceType resource type} for this resource, whenever it is going to be used by an {@link Element}.
      * @param rt Value of property currentResourceType.
      */
     public void setCurrentResourceType(ResourceType rt) {
     	currentResourceType = rt;
     }
     
-    public ElementInstance getCurrentFlowExecutor() {
+    /**
+     * Returns the {@link ElementInstance element instance} currently using this resource; null otherwise. 
+     * @return The {@link ElementInstance element instance} currently using this resource; null otherwise.
+     */
+    public ElementInstance getCurrentElementInstance() {
     	return engine.getCurrentElementInstance();
     }
+    
     /**
      * Returns <code>true</code> if this resource is being used in spite of having finished its availability.
      * @return <code>True</code> if this resource is being used in spite of having finished its availability;
@@ -234,8 +237,9 @@ public class Resource extends VariableStoreModelObject implements Describable, E
     }
     
 	/**
-	 * Checks if a resource is available for a specific Resource Type. The resource type is used to prevent 
+	 * Checks if a resource is available for a specific {@link ResourceType resource type}. The resource type is used to prevent 
 	 * using a resource when it's becoming unavailable right at this timestamp. 
+	 * @param rt Resource type
 	 * @return True if the resource is available.
 	 */
 	public boolean isAvailable(ResourceType rt) {
@@ -250,8 +254,14 @@ public class Resource extends VariableStoreModelObject implements Describable, E
 		engine.setNotCanceled(available);
 	}
 	
-	public boolean add2Solution(ResourceType rt, ElementInstance fe) {
-		return engine.add2Solution(rt, fe);
+	/**
+	 * Adds a resource to the set of resources requested by an {@link Element}. 
+	 * @param rt Resource type
+	 * @param ei Element instance corresponding to an Element
+	 * @return <code>true</code> if the resource can be used within the proposed solution; <code>false</code> otherwise.
+	 */
+	public boolean add2Solution(ResourceType rt, ElementInstance ei) {
+		return engine.add2Solution(rt, ei);
 	}
 
 	public void removeFromSolution(ElementInstance fe) {

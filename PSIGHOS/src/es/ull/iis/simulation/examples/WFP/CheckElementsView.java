@@ -53,7 +53,7 @@ public class CheckElementsView extends WFPTestView {
 			System.out.println("--------------------------------------------------");
 			System.out.println("Checking elements...");
 			for (int i = 0; i < elements.length; i++) {
-				System.out.print(info.getModel().getElementTypeList().get(i) + " (" + elements[i] + ")\t");
+				System.out.print(info.getSimul().getElementTypeList().get(i) + " (" + elements[i] + ")\t");
 				System.out.print(elemCreated[i] + "\t" + elemFinished[i] + "\t");				
 				if ((elemCreated[i] & elemFinished[i]) == elements[i])
 					System.out.println("PASSED");

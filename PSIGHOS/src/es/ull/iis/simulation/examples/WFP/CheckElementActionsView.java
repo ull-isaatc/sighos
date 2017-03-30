@@ -76,7 +76,7 @@ public abstract class CheckElementActionsView extends WFPTestView {
 		}
 		else if (info instanceof SimulationStartInfo) {
 			System.out.println("--------------------------------------------------");
-			System.out.println("Checking " + info.getModel().getDescription());
+			System.out.println("Checking " + info.getSimul().getDescription());
 		}
 		else if (info instanceof SimulationEndInfo) {
 			System.out.println();
@@ -95,7 +95,7 @@ public abstract class CheckElementActionsView extends WFPTestView {
 					for (int actId : ref[i].getActivities())
 						if (!ref[i].finalCheck(actId)) {
 							if (detailed)
-								System.out.println(info.getModel().long2SimulationTime(ts) + "\t" + "[E" + i + "]\t" + type + " " + actId + "\tERROR!!: Event missed");
+								System.out.println(info.getSimul().long2SimulationTime(ts) + "\t" + "[E" + i + "]\t" + type + " " + actId + "\tERROR!!: Event missed");
 							ok = false;
 						}
 				}

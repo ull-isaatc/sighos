@@ -16,6 +16,6 @@ public class SimulationEndInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		return  model.long2SimulationTime(getTs()) + "\t[SIM]\tSIMULATION END INFO";
+		return  simul.long2SimulationTime(getTs()) + "\t[SIM]\tSIMULATION END INFO";
 	}
 }

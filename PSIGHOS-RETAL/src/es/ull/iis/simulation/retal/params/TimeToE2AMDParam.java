@@ -191,7 +191,7 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 				}
 				if (ageAtEvent == Double.MAX_VALUE) 
 					return null;				
-				return new EyeStateAndValue(stateAtEvent, pat.getTs() + Math.max(CommonParams.MIN_TIME_TO_EVENT, pat.getSimulationEngine().getTimeUnit().convert(ageAtEvent, unit)));
+				return new EyeStateAndValue(stateAtEvent, pat.getTs() + Math.max(CommonParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(ageAtEvent, unit)));
 			}
 		}
 

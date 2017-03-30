@@ -19,7 +19,7 @@ import es.ull.iis.util.Prioritizable;
  * @author Iván Castilla
  *
  */
-public class Element extends VariableStoreModelObject implements Prioritizable, EventSource {
+public class Element extends VariableStoreSimulationObject implements Prioritizable, EventSource {
 	/** Element type */
 	protected ElementType elementType;
 	/** First step of the flow of the element */
@@ -130,10 +130,10 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 	 */
 	@Override
 	public DiscreteEvent onCreate(long ts) {
-		simul.notifyInfo(new ElementInfo(simul, this, elementType, ElementInfo.Type.START, simul.getSimulationEngine().getTs()));
+		simul.notifyInfo(new ElementInfo(simul, this, elementType, ElementInfo.Type.START, getTs()));
 		if (initialFlow != null) {
 			mainInstance = ElementInstance.getMainElementInstance(this);
-			return (new RequestFlowEvent(simul.getSimulationEngine().getTs(), initialFlow, mainInstance.getDescendantElementInstance(initialFlow)));
+			return (new RequestFlowEvent(getTs(), initialFlow, mainInstance.getDescendantElementInstance(initialFlow)));
 		}
 		else
 			return onDestroy(ts);
@@ -141,7 +141,7 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
 
 	@Override
 	public DiscreteEvent onDestroy(long ts) {
-		simul.notifyInfo(new ElementInfo(simul, this, elementType, ElementInfo.Type.FINISH, simul.getSimulationEngine().getTs()));
+		simul.notifyInfo(new ElementInfo(simul, this, elementType, ElementInfo.Type.FINISH, getTs()));
 		return new DiscreteEvent.DefaultFinalizeEvent(this, ts);
 		// TODO: Check if the following action should be performed within the event
 		// simul.removeActiveElement(this);
@@ -156,7 +156,7 @@ public class Element extends VariableStoreModelObject implements Prioritizable, 
     }
     
 	public void addRequestEvent(Flow f, ElementInstance fe) {
-		simul.addEvent(new RequestFlowEvent(simul.getSimulationEngine().getTs(), f, fe));
+		simul.addEvent(new RequestFlowEvent(getTs(), f, fe));
 	}
 	
 	public void addFinishEvent(long ts, TaskFlow f, ElementInstance fe) {

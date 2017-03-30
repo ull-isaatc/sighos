@@ -322,7 +322,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 		if (!ei.wasVisited(this)) {
 			if (ei.isExecutable()) {
 				if (beforeRequest(ei)) {
-					simul.notifyInfo(new ElementActionInfo(simul, ei, ei.getElement(), this, ei.getExecutionWG(), ElementActionInfo.Type.REQ, simul.getSimulationEngine().getTs()));
+					simul.notifyInfo(new ElementActionInfo(simul, ei, ei.getElement(), this, ei.getExecutionWG(), ElementActionInfo.Type.REQ, simul.getTs()));
 					if (ei.getElement().isDebugEnabled())
 						ei.getElement().debug("Requests\t" + this + "\t" + getDescription());
 					engine.queueAdd(ei); // The element is introduced in the queue

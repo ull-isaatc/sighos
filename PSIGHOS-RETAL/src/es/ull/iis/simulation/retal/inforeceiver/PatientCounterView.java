@@ -6,7 +6,6 @@ package es.ull.iis.simulation.retal.inforeceiver;
 import java.util.EnumSet;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -36,8 +35,8 @@ public class PatientCounterView extends Listener {
 	/**
 	 * @param simul
 	 */
-	public PatientCounterView(Simulation simul, EnumSet<RETALSimulation.DISEASES> diseases, boolean detailed) {
-		super(simul, "Counter of patients");
+	public PatientCounterView(EnumSet<RETALSimulation.DISEASES> diseases, boolean detailed) {
+		super("Counter of patients");
 		this.diseases = EnumSet.copyOf(diseases);
 		this.detailed = detailed;
 		if (detailed && diseases.contains(RETALSimulation.DISEASES.ARMD)) {
@@ -59,8 +58,8 @@ public class PatientCounterView extends Listener {
 	/**
 	 * @param simul
 	 */
-	public PatientCounterView(Simulation simul, EnumSet<RETALSimulation.DISEASES> diseases) {
-		this(simul, diseases, false);		
+	public PatientCounterView(EnumSet<RETALSimulation.DISEASES> diseases) {
+		this(diseases, false);		
 	}
 
 	/* (non-Javadoc)

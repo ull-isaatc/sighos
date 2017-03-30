@@ -4,18 +4,17 @@
 package es.ull.iis.simulation.retal;
 
 import es.ull.iis.function.TimeFunction;
-import es.ull.iis.simulation.sequential.EventSource;
-import es.ull.iis.simulation.sequential.EventSource;
-import es.ull.iis.simulation.sequential.ElementGenerator;
+import es.ull.iis.simulation.model.EventSource;
+import es.ull.iis.simulation.model.SimulationCycle;
+import es.ull.iis.simulation.model.TimeDrivenGenerator;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
  * A class to create patients, either from scratch or mimicking a previous set of patients created in a different simulation.
  * @author Iván Castilla
  *
  */
-public class PatientCreator implements BasicElementCreator {
-	/** Number of objects created each time this creator is invoked. */
-	private final int nPatients;
+public class PatientCreator extends TimeDrivenGenerator<es.ull.iis.simulation.model.Generator.GenerationInfo> {
 	/** Associated simulation */
 	private final RETALSimulation simul;
 	/** A distribution to characterize the initial age of each generated patient */
@@ -28,8 +27,8 @@ public class PatientCreator implements BasicElementCreator {
 	 * @param nPatients
 	 * @param pMen
 	 */
-	public PatientCreator(RETALSimulation simul, int nPatients, TimeFunction initialAges, Intervention intervention) {
-		this.nPatients = nPatients;
+	public PatientCreator(RETALSimulation simul, int nPatients, TimeFunction initialAges, Intervention intervention, SimulationCycle cycle) {
+		super(simul, nPatients, cycle);
 		this.simul = simul;
 		this.initialAges = initialAges;
 		this.copyOf = null;
@@ -43,35 +42,30 @@ public class PatientCreator implements BasicElementCreator {
 	 * @param copyOf An original set of patients created for a previous simulation (and already simulated)
 	 * @param intervention Numerical identifier of the intervention
 	 */
-	public PatientCreator(RETALSimulation simul, Patient[] copyOf, Intervention intervention) {
-		this.nPatients = copyOf.length;
+	public PatientCreator(RETALSimulation simul, Patient[] copyOf, Intervention intervention, SimulationCycle cycle) {
+		super(simul, copyOf.length, cycle);
 		this.simul = simul;
 		this.initialAges = null;
 		this.copyOf = copyOf;
 		this.intervention = intervention;
 	}
-	
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.sequential.BasicElementCreator#create(es.ull.iis.simulation.sequential.Generator)
-	 */
+
 	@Override
-	public void create(ElementGenerator gen) {
+	public EventSource createEventSource(int ind, es.ull.iis.simulation.model.Generator.GenerationInfo info) {
+		Patient p = null;
 		if (copyOf == null) {
-			for (int i = 0; i < nPatients; i++) {
-				final double age = initialAges.getValue(null);
-				Patient p = new Patient(simul, age, intervention);
-				simul.addGeneratedPatient(p, i);
-				final EventSource.DiscreteEvent ev = p.getStartEvent(simul.getTs());
-				p.addEvent(ev);
-			}
+			final double age = initialAges.getValue(null);
+			p = new Patient(simul, age, intervention);
 		}
 		else {
-			for (int i = 0; i < nPatients; i++) {
-				Patient p = new Patient(simul, copyOf[i], intervention);
-				simul.addGeneratedPatient(p, i);
-				final EventSource.DiscreteEvent ev = p.getStartEvent(simul.getTs());
-				p.addEvent(ev);
-			}			
+			p = new Patient(simul, copyOf[ind], intervention);
 		}
+		simul.addGeneratedPatient(p, ind);
+		return p;
+	}
+
+	@Override
+	protected void assignSimulation(SimulationEngine simul) {
+		// Nothing to do		
 	}	
 }

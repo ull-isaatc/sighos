@@ -5,6 +5,8 @@ package es.ull.iis.simulation.model;
 
 /**
  * Represents the role that a resource plays at a specific time cycle.
+ * A timetable entry uses a trio &lt{@link ResourceType}, {@link SimulationCycle}, long&gt which defines a 
+ * resource type, an availability cycle, and the duration of each availability period. 
  * @author Iván Castilla Rodríguez
  */
 public class TimeTableEntry {

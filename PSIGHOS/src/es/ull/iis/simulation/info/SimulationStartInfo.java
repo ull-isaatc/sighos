@@ -16,6 +16,6 @@ public class SimulationStartInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		return model.long2SimulationTime(getTs()) + "\t[SIM]\tSIMULATION START\t " + model.getDescription();
+		return simul.long2SimulationTime(getTs()) + "\t[SIM]\tSIMULATION START\t " + simul.getDescription();
 	}
 }

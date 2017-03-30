@@ -1,17 +1,15 @@
 import es.ull.iis.function.TimeFunctionFactory;
-import es.ull.iis.simulation.core.ElementType;
-import es.ull.iis.simulation.core.Resource;
-import es.ull.iis.simulation.core.ResourceType;
-import es.ull.iis.simulation.core.WorkGroup;
-import es.ull.iis.simulation.core.factory.SimulationFactory;
-import es.ull.iis.simulation.core.factory.SimulationObjectFactory;
-import es.ull.iis.simulation.core.factory.SimulationFactory.SimulationType;
-import es.ull.iis.simulation.core.flow.ActivityFlow;
+import es.ull.iis.simulation.factory.SimulationFactory;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
-import es.ull.iis.simulation.model.ModelPeriodicCycle;
-import es.ull.iis.simulation.model.ModelTimeFunction;
+import es.ull.iis.simulation.model.ElementType;
+import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.SimulationPeriodicCycle;
+import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.simulation.model.flow.ActivityFlow;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -20,7 +18,7 @@ import simkit.random.RandomVariateFactory;
  */
 
 class SimulTest {
-	protected SimulationObjectFactory factory;
+	protected SimulationFactory factory;
 	public final static TimeStamp SIMSTART = TimeStamp.getZero();
 	public final static TimeStamp SIMEND = TimeStamp.getDay();
 	public final static TimeUnit SIMUNIT = TimeUnit.MINUTE; 
@@ -31,28 +29,27 @@ class SimulTest {
 	public final static TimeStamp GENPERIOD = TimeStamp.getDay();
 	
 	SimulTest() {
-		factory = SimulationFactory.getInstance(SimulationType.SEQUENTIAL, 1, "test", SIMUNIT, SIMSTART, SIMEND);
+		factory = new SimulationFactory(1, "test", SIMUNIT, SIMSTART, SIMEND);
 		ResourceType rt = factory.getResourceTypeInstance("Médico");
 		Resource res = factory.getResourceInstance("Médico 1");
-		res.addTimeTableEntry(new ModelPeriodicCycle(SIMUNIT, RESSTART, new ModelTimeFunction(SIMUNIT, "ConstantVariate", RESPERIOD), 0), RESAVAILABLE, rt);
+		res.addTimeTableEntry(new SimulationPeriodicCycle(SIMUNIT, RESSTART, new SimulationTimeFunction(SIMUNIT, "ConstantVariate", RESPERIOD), 0), RESAVAILABLE, rt);
 
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
-		ActivityFlow<?,?> act = null;
-		act = factory.getActivityInstance("Consulta");
-    	act.addWorkGroup(new ModelTimeFunction(SIMUNIT, "ConstantVariate", new TimeStamp(TimeUnit.MINUTE, 10)), 0, wg);
+		ActivityFlow act = null;
+		act = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "Consulta");
+    	act.addWorkGroup(0, wg, 10);
 		
         ElementType et = factory.getElementTypeInstance("Paciente");
         et.putVar("coste", 0);
         
-        factory.getTimeDrivenGeneratorInstance(
-        		factory.getElementCreatorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 10), et, act), 
-        		new ModelPeriodicCycle(SIMUNIT, GENSTART, new ModelTimeFunction(SIMUNIT, "ConstantVariate", GENPERIOD), 0));
+        factory.getTimeDrivenElementGeneratorInstance(TimeFunctionFactory.getInstance("ConstantVariate", 10), et, act, 
+        		new SimulationPeriodicCycle(SIMUNIT, GENSTART, new SimulationTimeFunction(SIMUNIT, "ConstantVariate", GENPERIOD), 0));
         
-        factory.getSimulationEngine().addInfoReceiver(new StdInfoView(factory.getSimulationEngine()));
+        factory.getSimulation().addInfoReceiver(new StdInfoView());
 	}
 	
 	void run() {
-		factory.getSimulationEngine().run();
+		factory.getSimulation().run();
 	}
 }
 

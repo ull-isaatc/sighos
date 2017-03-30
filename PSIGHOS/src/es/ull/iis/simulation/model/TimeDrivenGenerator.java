@@ -50,7 +50,7 @@ public abstract class TimeDrivenGenerator<INF extends Generator.GenerationInfo> 
 	}
 	
     public void notifyEnd() {
-        simul.addEvent(onDestroy(simul.getSimulationEngine().getTs()));
+        simul.addEvent(onDestroy(getTs()));
     }
     
 	@Override

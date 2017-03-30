@@ -6,7 +6,6 @@ package es.ull.iis.simulation.retal.inforeceiver;
 import java.io.PrintStream;
 import java.util.EnumSet;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
@@ -24,8 +23,8 @@ public class AffectedPatientHistoryVAView extends FilteredListener {
 	/**
 	 * @param simul
 	 */
-	public AffectedPatientHistoryVAView(Simulation simul, EnumSet<RETALSimulation.DISEASES> diseases, boolean includeDiabetes, EyeState filterARMDByState, EyeState filterDRByState) {
-		super(simul, "Standard patient viewer", diseases, includeDiabetes, filterARMDByState, filterDRByState);
+	public AffectedPatientHistoryVAView(EnumSet<RETALSimulation.DISEASES> diseases, boolean includeDiabetes, EyeState filterARMDByState, EyeState filterDRByState) {
+		super("Standard patient viewer", diseases, includeDiabetes, filterARMDByState, filterDRByState);
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
 	}
@@ -33,8 +32,8 @@ public class AffectedPatientHistoryVAView extends FilteredListener {
 	/**
 	 * @param simul
 	 */
-	public AffectedPatientHistoryVAView(Simulation simul, EnumSet<RETALSimulation.DISEASES> diseases, boolean includeDiabetes) {
-		this(simul, diseases, includeDiabetes, EyeState.EARM, EyeState.NPDR);
+	public AffectedPatientHistoryVAView(EnumSet<RETALSimulation.DISEASES> diseases, boolean includeDiabetes) {
+		this(diseases, includeDiabetes, EyeState.EARM, EyeState.NPDR);
 	}
 
 	@Override

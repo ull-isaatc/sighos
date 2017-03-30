@@ -40,7 +40,7 @@ public class TestConditionalResourceGenerator extends Experiment {
 			if (specialId < NRT - 1) {
 				final Resource res = new Resource(simul, "Container " + (specialId + 1));
 				res.addTimeTableEntry(rts[specialId + 1]);
-				simul.addEvent(res.onCreate(simul.getSimulationEngine().getTs()));
+				simul.addEvent(res.onCreate(simul.getTs()));
 			}
 		}
 	}

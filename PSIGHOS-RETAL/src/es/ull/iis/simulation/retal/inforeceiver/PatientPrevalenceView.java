@@ -6,7 +6,6 @@ package es.ull.iis.simulation.retal.inforeceiver;
 import java.io.PrintStream;
 import java.util.EnumSet;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -40,8 +39,8 @@ public class PatientPrevalenceView extends Listener {
 	/**
 	 * @param simul
 	 */
-	public PatientPrevalenceView(Simulation simul, EnumSet<RETALSimulation.DISEASES> diseases) {
-		super(simul, "Standard patient viewer");
+	public PatientPrevalenceView(EnumSet<RETALSimulation.DISEASES> diseases) {
+		super("Standard patient viewer");
 		this.diseases = EnumSet.copyOf(diseases);
 		nPatients = new int[N_INTERVALS+1];
 		if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {

@@ -5,7 +5,6 @@ package es.ull.iis.simulation.retal.inforeceiver;
 
 import java.io.PrintStream;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
@@ -30,8 +29,8 @@ public class PatientInfoView extends Listener {
 	/**
 	 * @param simul
 	 */
-	public PatientInfoView(Simulation simul) {
-		super(simul, "Standard patient viewer");
+	public PatientInfoView() {
+		super("Standard patient viewer");
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
 		addEntrance(SimulationStartInfo.class);

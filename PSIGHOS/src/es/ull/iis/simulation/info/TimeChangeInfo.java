@@ -9,6 +9,6 @@ public class TimeChangeInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		return model.long2SimulationTime(getTs()) + "\t[SIM]\tCLOCK AVANCED";
+		return simul.long2SimulationTime(getTs()) + "\t[SIM]\tCLOCK AVANCED";
 	}
 }

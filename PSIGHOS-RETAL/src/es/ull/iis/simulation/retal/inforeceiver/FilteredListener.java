@@ -5,7 +5,6 @@ package es.ull.iis.simulation.retal.inforeceiver;
 
 import java.util.EnumSet;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
@@ -31,8 +30,8 @@ public abstract class FilteredListener extends Listener {
 	 * @param filterARMDByState
 	 * @param filterDRByState
 	 */
-	public FilteredListener(Simulation simul, String description, EnumSet<RETALSimulation.DISEASES> diseases, boolean includeDiabetes, EyeState filterARMDByState, EyeState filterDRByState) {
-		super(simul, description);
+	public FilteredListener(String description, EnumSet<RETALSimulation.DISEASES> diseases, boolean includeDiabetes, EyeState filterARMDByState, EyeState filterDRByState) {
+		super(description);
 		this.diseases = diseases;
 		this.includeDiabetes = includeDiabetes;
 		this.filterARMDByState = filterARMDByState;		

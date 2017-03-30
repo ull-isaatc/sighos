@@ -52,7 +52,7 @@ public class ResourceInfo extends AsynchronousInfo {
 	}
 	
 	public String toString() {
-		String message = "" + model.long2SimulationTime(getTs()) + "\t" + res.toString() + "\t" + type.getDescription() + "\t" + res.getDescription();
+		String message = "" + simul.long2SimulationTime(getTs()) + "\t" + res.toString() + "\t" + type.getDescription() + "\t" + res.getDescription();
 		if ((EnumSet.of(type).equals(EnumSet.of(Type.ROLON))) || (EnumSet.of(type).equals(EnumSet.of(Type.ROLOFF)))) {
 			message += "\tRT: " + rt.getDescription(); 
 		}

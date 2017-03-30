@@ -47,7 +47,7 @@ public class CheckResourcesListener extends View {
 			System.out.println("--------------------------------------------------");
 			System.out.println("Checking elements...");
 			for (int i = 0; i < resources.length; i++) {
-				System.out.print(info.getModel().getElementTypeList().get(i) + " (" + resources[i] + ")\t");
+				System.out.print(info.getSimul().getElementTypeList().get(i) + " (" + resources[i] + ")\t");
 				System.out.print(resCreated[i] + "\t" + resFinished[i] + "\t");				
 				if ((resCreated[i] & resFinished[i]) == resources[i])
 					System.out.println("PASSED");

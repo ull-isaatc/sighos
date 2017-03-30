@@ -102,7 +102,7 @@ public class CheckFlowsView extends WFPTestView {
 		}
 		else if (info instanceof SimulationStartInfo) {
 			System.out.println("--------------------------------------------------");
-			System.out.println("Checking " + info.getModel().getDescription());
+			System.out.println("Checking " + info.getSimul().getDescription());
 			System.out.println();
 		}
 	}

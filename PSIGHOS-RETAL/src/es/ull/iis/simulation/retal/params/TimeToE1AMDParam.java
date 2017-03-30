@@ -79,7 +79,7 @@ public class TimeToE1AMDParam extends EmpiricTimeToEventParam {
 	public long getTimeToEvent(Patient pat) {
 		final double []rnd = pat.draw(RandomForPatient.ITEM.TIME_TO_E1AMD, probabilities.length);
 		final double time = getTimeToEvent(probabilities, pat.getAge(), rnd);
-		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + Math.max(CommonParams.MIN_TIME_TO_EVENT, pat.getSimulationEngine().getTimeUnit().convert(time, unit));
+		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + Math.max(CommonParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, unit));
 	}
 
 	public EyeStateAndValue getValidatedTimeToEventAndState(Patient pat) {

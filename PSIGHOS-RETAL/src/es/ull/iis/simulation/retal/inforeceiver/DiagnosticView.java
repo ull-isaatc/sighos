@@ -5,7 +5,6 @@ package es.ull.iis.simulation.retal.inforeceiver;
 
 import java.io.PrintStream;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -31,8 +30,8 @@ public class DiagnosticView extends Listener {
 	 * @param simul
 	 * @param description
 	 */
-	public DiagnosticView(Simulation simul) {
-		super(simul, "Counter of diagnosis and screening results");
+	public DiagnosticView() {
+		super("Counter of diagnosis and screening results");
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
 		addEntrance(SimulationEndInfo.class);

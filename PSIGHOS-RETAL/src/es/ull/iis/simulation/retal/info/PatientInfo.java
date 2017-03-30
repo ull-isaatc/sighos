@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.retal.info;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.AsynchronousInfo;
+import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.retal.EyeState;
 import es.ull.iis.simulation.retal.Patient;
 import es.ull.iis.simulation.retal.params.CNVStage;

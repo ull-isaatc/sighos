@@ -5,7 +5,6 @@ package es.ull.iis.simulation.retal.inforeceiver;
 
 import java.io.PrintStream;
 
-import es.ull.iis.simulation.core.Simulation;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -32,8 +31,8 @@ public class ICERView extends Listener {
 	 * @param showCI
 	 * @param precentileCI
 	 */
-	public ICERView(Simulation simul, boolean singleUse, boolean showSD, boolean showCI, boolean percentileCI) {
-		super(simul, "Cost, qaly and ICER viewer");
+	public ICERView(boolean singleUse, boolean showSD, boolean showCI, boolean percentileCI) {
+		super("Cost, qaly and ICER viewer");
 		this.singleUse = singleUse;
 		this.showSD = showSD;
 		this.showCI = showCI;

@@ -95,7 +95,7 @@ public interface ActivityManagerEngine {
 			// has never been added to the queue (interruptible activities)
 			if (wt.getArrivalTs() == -1) {
 				wt.setArrivalOrder(arrivalOrder++);
-				wt.setArrivalTs(wt.getElement().getSimulation().getSimulationEngine().getTs());
+				wt.setArrivalTs(wt.getElement().getTs());
 			}
 			super.add(wt);
 		}

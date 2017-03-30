@@ -119,26 +119,26 @@ public final class ResourceUsageParam extends Param {
 				// If affected by both severe states, check which treatment started later
 				if (pat.getEyeState(eyeIndex).contains(EyeState.CSME)) {
 					if (pat.getOnAntiVEGFCNV(eyeIndex) > pat.getOnAntiVEGFCSME(eyeIndex)) {
-						return computeAntiVEGFCost(N_ANTIVEGF_CNV, TimeUnit.DAY.convert(pat.getOnAntiVEGFCNV(eyeIndex), pat.getSimulationEngine().getTimeUnit()) / 365.0, initAge, endAge);					
+						return computeAntiVEGFCost(N_ANTIVEGF_CNV, TimeUnit.DAY.convert(pat.getOnAntiVEGFCNV(eyeIndex), pat.getSimulation().getTimeUnit()) / 365.0, initAge, endAge);					
 					}
 					else {
-						return computeAntiVEGFCost(N_ANTIVEGF_CSME, TimeUnit.DAY.convert(pat.getOnAntiVEGFCSME(eyeIndex), pat.getSimulationEngine().getTimeUnit()) / 365.0, initAge, endAge);									
+						return computeAntiVEGFCost(N_ANTIVEGF_CSME, TimeUnit.DAY.convert(pat.getOnAntiVEGFCSME(eyeIndex), pat.getSimulation().getTimeUnit()) / 365.0, initAge, endAge);									
 					}
 				}
 				else {
-					return computeAntiVEGFCost(N_ANTIVEGF_CNV, TimeUnit.DAY.convert(pat.getOnAntiVEGFCNV(eyeIndex), pat.getSimulationEngine().getTimeUnit()) / 365.0, initAge, endAge);				
+					return computeAntiVEGFCost(N_ANTIVEGF_CNV, TimeUnit.DAY.convert(pat.getOnAntiVEGFCNV(eyeIndex), pat.getSimulation().getTimeUnit()) / 365.0, initAge, endAge);				
 				}
 				
 			}
 			else {
 				if (pat.getEyeState(eyeIndex).contains(EyeState.CSME)) {
-					return computeAntiVEGFCost(N_ANTIVEGF_CSME, TimeUnit.DAY.convert(pat.getOnAntiVEGFCSME(eyeIndex), pat.getSimulationEngine().getTimeUnit()) / 365.0, initAge, endAge);									
+					return computeAntiVEGFCost(N_ANTIVEGF_CSME, TimeUnit.DAY.convert(pat.getOnAntiVEGFCSME(eyeIndex), pat.getSimulation().getTimeUnit()) / 365.0, initAge, endAge);									
 				}
 			}
 		}
 		// Affected solely by CSME
 		else if (pat.getEyeState(eyeIndex).contains(EyeState.CSME)) {
-			return computeAntiVEGFCost(N_ANTIVEGF_CSME, TimeUnit.DAY.convert(pat.getOnAntiVEGFCSME(eyeIndex), pat.getSimulationEngine().getTimeUnit()) / 365.0, initAge, endAge);			
+			return computeAntiVEGFCost(N_ANTIVEGF_CSME, TimeUnit.DAY.convert(pat.getOnAntiVEGFCSME(eyeIndex), pat.getSimulation().getTimeUnit()) / 365.0, initAge, endAge);			
 		}
 		return 0.0;
 	}

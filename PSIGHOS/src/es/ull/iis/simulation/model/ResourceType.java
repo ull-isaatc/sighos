@@ -81,7 +81,7 @@ public class ResourceType extends SimulationObject implements Describable {
     	int disp = 0;
     	for (int i = ind; (i < total) && (disp < need); i++) {
     		final Resource res = availableResourceList.get(i);
-            if ((res.getCurrentFlowExecutor() == null) && (res.getCurrentResourceType() == null))
+            if ((res.getCurrentElementInstance() == null) && (res.getCurrentResourceType() == null))
                 disp++;    		
     	}
     	if (disp < need)
