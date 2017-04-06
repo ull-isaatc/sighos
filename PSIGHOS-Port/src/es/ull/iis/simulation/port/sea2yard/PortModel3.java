@@ -53,7 +53,7 @@ public class PortModel3 extends Simulation {
 		this.nTrucks = nTrucks;
 
 		this.plan = plan;
-		final Ship ship = plan.getShip();
+		final Vessel ship = plan.getVessel();
 		final int nBays = ship.getNBays();
 		final int nContainers = plan.getNContainers();
 		final int nCranes = plan.getNCranes();
@@ -136,7 +136,7 @@ public class PortModel3 extends Simulation {
 		return rtTrucks;
 	}
 
-	private InitializerFlow createFlowFromPlan(StowagePlan plan, Ship ship, int craneId) {
+	private InitializerFlow createFlowFromPlan(StowagePlan plan, Vessel ship, int craneId) {
 		int craneBay = plan.getInitialPosition(craneId);
 		final int safetyDistance = plan.getSafetyDistance();
 		// First place the crane in the initial position, taking into account the safety distance

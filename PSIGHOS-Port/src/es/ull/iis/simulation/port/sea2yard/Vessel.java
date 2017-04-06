@@ -12,11 +12,11 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author Iván Castilla
  *
  */
-public class Ship {
+public class Vessel {
 	/** Bays of the ship */
 	final private ArrayList<Integer>[] bays;
 	final private TreeMap<Integer, Integer> bayPosition;
-	final private TreeMap<Integer, Integer> processingTime;
+	final private TreeMap<Integer, Long> processingTime;
 	final private TimeUnit unit;
 	private int maxDeep;
 	
@@ -24,10 +24,10 @@ public class Ship {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	public Ship(int nBays, TimeUnit unit) {
+	public Vessel(int nBays, TimeUnit unit) {
 		bays = (ArrayList<Integer>[]) new ArrayList<?>[nBays];
 		bayPosition = new TreeMap<Integer, Integer>();
-		processingTime = new TreeMap<Integer, Integer>();
+		processingTime = new TreeMap<Integer, Long>();
 		for (int i = 0; i < nBays; i++)
 			bays[i] = new ArrayList<Integer>();
 		maxDeep = 0;
@@ -41,10 +41,10 @@ public class Ship {
 	 * @param procTime
 	 * @return The position in the bay of the allocated container 
 	 */
-	public int push(int containerId, int bayId, int procTime) {
+	public int add(int containerId, int bayId, long procTime) {
 		bayPosition.put(containerId, bayId);
 		processingTime.put(containerId, procTime);
-		bays[bayId].add(containerId);
+		bays[bayId].add(0, containerId);
 		maxDeep = Math.max(maxDeep, bays[bayId].size());
 		return bays[bayId].size();
 	}
@@ -94,7 +94,7 @@ public class Ship {
 	}
 	
 	
-	public int getContainerProcessingTime(int containerId) {
+	public long getContainerProcessingTime(int containerId) {
 		return processingTime.get(containerId);
 	}
 	

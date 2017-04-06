@@ -11,6 +11,7 @@ import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
+import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * @author Rosi1
@@ -20,24 +21,28 @@ public class ContainerTimeLineListener extends Listener {
 	private final TreeMap<Integer, Integer[]> tUnloadContainer;
 	private long maxTs;
 	private final StowagePlan plan;
+	private final TimeUnit unit;
 
-	public ContainerTimeLineListener(StowagePlan plan) {
+	public ContainerTimeLineListener(StowagePlan plan, TimeUnit unit) {
 		super("Time container");
 		this.plan = plan;
 		tUnloadContainer = new TreeMap<Integer, Integer[]>();
 		maxTs = 0;
+		this.unit = unit;
 		addEntrance(ElementInfo.class);
 		addEntrance(ElementActionInfo.class);
 		addEntrance(SimulationEndInfo.class);
 	}
 
-	private String printPlan(int maxTs) {
-		final Ship ship = plan.getShip();
+	private String printPlan(int maxTs, TimeUnit simulUnit) {
+		final Vessel ship = plan.getVessel();
 		final int[][] timeline = new int[ship.getNBays()][maxTs];
 		for (int bayId = 0; bayId < ship.getNBays(); bayId++) {
 			Arrays.fill(timeline[bayId], -1);
 			for (int containerId : ship.getBay(bayId)) {
-				for (int ts = tUnloadContainer.get(containerId)[0]; ts < tUnloadContainer.get(containerId)[1]; ts++) {
+				final int start = (int)unit.convert(tUnloadContainer.get(containerId)[0], simulUnit);
+				final int end = (int)unit.convert(tUnloadContainer.get(containerId)[1], simulUnit);
+				for (int ts = start; ts < end; ts++) {
 					timeline[bayId][ts] = containerId;
 				}
 			}
@@ -88,7 +93,7 @@ public class ContainerTimeLineListener extends Listener {
 			}
 		}
 		else if (info instanceof SimulationEndInfo) {
-			System.out.println(printPlan((int)maxTs));
+			System.out.println(printPlan((int)maxTs, info.getSimul().getTimeUnit()));
 		}
 	}
 

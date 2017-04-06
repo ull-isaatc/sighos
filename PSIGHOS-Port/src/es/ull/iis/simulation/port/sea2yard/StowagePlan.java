@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class StowagePlan {
 	private final ArrayList<Integer>[] plan;
 	private final int[] initPosition;
-	private final Ship ship;
+	private final Vessel vessel;
 	private int nContainers;
 	private final int nCranes;
 	private final int safetyDistance;
@@ -21,14 +21,19 @@ public class StowagePlan {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	public StowagePlan(Ship ship, int nCranes, int safetyDistance) {
+	public StowagePlan(Vessel vessel, int nCranes, int safetyDistance) {
 		plan = (ArrayList<Integer>[]) new ArrayList<?>[nCranes];
 		initPosition = new int[nCranes];
-		this.ship = ship;
+		this.vessel = vessel;
 		this.nCranes = nCranes;
 		this.safetyDistance = safetyDistance;
 		nContainers = 0;
 	}
+
+    public void addAll(int craneId, ArrayList<Integer> containers) {
+        plan[craneId] = containers;
+        nContainers += containers.size();
+    }
 
 	public void addAll(int craneId, int[] containers) {
 		plan[craneId] = new ArrayList<Integer>();
@@ -73,8 +78,8 @@ public class StowagePlan {
 	/**
 	 * @return the ship
 	 */
-	public Ship getShip() {
-		return ship;
+	public Vessel getVessel() {
+		return vessel;
 	}
 
 	@Override

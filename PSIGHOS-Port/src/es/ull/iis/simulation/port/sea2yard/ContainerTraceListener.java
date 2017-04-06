@@ -42,12 +42,12 @@ public class ContainerTraceListener extends Listener {
 			final ElementActionInfo eInfo = (ElementActionInfo) info;
 			final String crane = eInfo.getElement().getType().getDescription();
 			final String act = eInfo.getActivity().getDescription();
-			final long ts = unit.convert(eInfo.getTs(), eInfo.getModel().getTimeUnit());
+			final long ts = unit.convert(eInfo.getTs(), eInfo.getSimul().getTimeUnit());
 			switch(eInfo.getType()) {
 			case ACQ:
 				if (act.contains(UnloadActivity.FIRST_FLOW_NAME)) {
 					final int containerId = ((UnloadActivity)eInfo.getActivity().getParent()).getContainerId();
-					System.out.println(ts + "\t" + crane + "\t" + "START UNLOAD\t" + containerId + "[" + printCaughtResources(eInfo.getElementInstance().getCaughtResources()) + "]");
+					System.out.println(ts + "\t" + crane + "\t" + "START UNLOAD\t" + containerId + "\t[" + printCaughtResources(eInfo.getElementInstance().getCaughtResources()) + "]");
 				}
 				else if (act.contains(PortModel.ACT_GET_TO_BAY)) {
 					System.out.println(ts + "\t" + crane + "\t" + "MOVING TO BAY\t" + act.substring(PortModel.ACT_GET_TO_BAY.length()));

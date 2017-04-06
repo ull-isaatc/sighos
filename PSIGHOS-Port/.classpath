@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/utils"/>
 	<classpathentry kind="lib" path="C:/Program Files/Java/jdk1.8.0_102/lib/tools.jar"/>
 	<classpathentry kind="lib" path="jar/simkit.jar"/>
+	<classpathentry kind="lib" path="jar/sp-qcsp-1.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

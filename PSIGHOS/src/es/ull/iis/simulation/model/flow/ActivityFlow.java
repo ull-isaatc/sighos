@@ -97,9 +97,9 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
     	this.priority = priority;
     	this.description = description;
     	resourcesId = resourcesIdCounter--;
-        initialFlow = new RequestResourcesFlow(model, "REQ " + description, resourcesId , priority, exclusive);
+        initialFlow = new RequestResourcesFlow(model, description, resourcesId , priority, exclusive);
         initialFlow.setParent(this);
-        finalFlow = new ReleaseResourcesFlow(model, "REL " + description, resourcesId);
+        finalFlow = new ReleaseResourcesFlow(model, description, resourcesId);
         finalFlow.setParent(this);
         initialFlow.link(finalFlow);
         this.exclusive = exclusive;

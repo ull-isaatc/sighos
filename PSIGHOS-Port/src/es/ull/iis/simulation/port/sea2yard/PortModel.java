@@ -10,7 +10,6 @@ import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
@@ -25,9 +24,8 @@ import simkit.random.RandomNumberFactory;
  *
  */
 public class PortModel extends Simulation {
-	private static final TimeUnit PORT_TIME_UNIT = TimeUnit.SECOND;
+	final private static String DESCRIPTION = "Port Simulation";
 	private static final long START_TS = 0;
-	private static final long END_TS = 24 * 60 * 60;
 	protected static final String QUAY_CRANE = "Quay Crane";
 	private static final String TRUCK = "Truck";
 	protected static final String CONTAINER = "Container";
@@ -40,19 +38,18 @@ public class PortModel extends Simulation {
 	private final ResourceType[] rtContainers;
 	private final ResourceType rtTrucks;
 	private final UnloadActivity[] actUnloads;
+	private final InitializerFlow[] cranePlan;
 	private final WorkGroup[] wgPositions;
 	private final WorkGroup[] wgOpPositionsSides;
 	private final WorkGroup[] wgContainers;
-	protected static final long T_TRANSPORT = 10L * 60;
-	private static final long T_MOVE = 1L * 60;
 	private final StowagePlan plan;
 	private final int nTrucks;
 	private final double pError;
 	private static final RandomNumber rng = RandomNumberFactory.getInstance();
 	private final long currentSeed;
 
-	public PortModel(StowagePlan plan, int id, String description, int nTrucks, double pError) {
-		this(plan, id, description, nTrucks, pError, rng.getSeed());
+	public PortModel(StowagePlan plan, int id, int nTrucks, double pError) {
+		this(plan, id, nTrucks, pError, rng.getSeed());
 	}
 	/**
 	 * @param id
@@ -61,15 +58,15 @@ public class PortModel extends Simulation {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public PortModel(StowagePlan plan, int id, String description, int nTrucks, double pError, long seed) {
-		super(id, description, PORT_TIME_UNIT, START_TS, END_TS);
+	public PortModel(StowagePlan plan, int id, int nTrucks, double pError, long seed) {
+		super(id, DESCRIPTION + " " + id, CalculateNTrucksExperiment.PORT_TIME_UNIT, START_TS, CalculateNTrucksExperiment.END_TS);
 		currentSeed = seed;
 		rng.setSeed(seed);
 		this.nTrucks = nTrucks;
 		this.pError = pError;
 		this.plan = plan;
-		final Ship ship = plan.getShip();
-		final int nBays = ship.getNBays();
+		final Vessel vessel = plan.getVessel();
+		final int nBays = vessel.getNBays();
 		final int nContainers = plan.getNContainers();
 		final int nCranes = plan.getNCranes();
 		final int safetyDistance = plan.getSafetyDistance();
@@ -108,7 +105,7 @@ public class PortModel extends Simulation {
 		wgContainers = new WorkGroup[nContainers];
 		for (int containerId = 0; containerId < nContainers; containerId++) {
 			rtContainers[containerId] = new ResourceType(this, CONTAINER + containerId);
-			final int containerBay = ship.getContainerBay(containerId);
+			final int containerBay = vessel.getContainerBay(containerId);
 			final ResourceType rtUnload[] = new ResourceType[3 + Math.min(containerBay, safetyDistance) + Math.min(nBays - containerBay - 1, safetyDistance)];
 			rtUnload[0] = rtTrucks;
 			rtUnload[1] = rtContainers[containerId];
@@ -124,10 +121,10 @@ public class PortModel extends Simulation {
 		// Set the containers which are available from the beginning and creates the activities
 		actUnloads = new UnloadActivity[nContainers];
 		for (int bayId = 0; bayId < nBays; bayId++) {
-			final ArrayList<Integer> bay = ship.getBay(bayId);
+			final ArrayList<Integer> bay = vessel.getBay(bayId);
 			if (!bay.isEmpty()) {
 				// Creates the container on top of the bay
-				int containerId1 = ship.peek(bayId);
+				int containerId1 = vessel.peek(bayId);
 				resContainers[containerId1] = new Resource(this, CONTAINER + containerId1);
 				resContainers[containerId1].addTimeTableEntry(rtContainers[containerId1]);
 				// Creates the activities for the top and intermediate containers. These activities create new containers.
@@ -144,15 +141,17 @@ public class PortModel extends Simulation {
 		
 		// Creates the main element type representing quay cranes
 		final ElementType[] ets = new ElementType[nCranes]; 
+		cranePlan = new InitializerFlow[nCranes];
 		for (int craneId = 0; craneId < nCranes; craneId++) {
 			ets[craneId] = new ElementType(this, QUAY_CRANE + craneId);
-			new QuayCraneGenerator(this, ets[craneId], createFlowFromPlan(plan, ship, craneId), plan.getInitialPosition(craneId));
+			cranePlan[craneId] = createFlowFromPlan(plan, vessel, craneId);
+			new QuayCraneGenerator(this, ets[craneId], cranePlan[craneId], plan.getInitialPosition(craneId));
 		}
 	}
 	
 	private RequestResourcesFlow getGetToBayFlow(int id) {
 		final RequestResourcesFlow reqBay = new RequestResourcesFlow(this, ACT_GET_TO_BAY + id, id+1);
-		reqBay.addWorkGroup(0, wgPositions[id], getTimeWithError(T_MOVE));		
+		reqBay.addWorkGroup(0, wgPositions[id], getTimeWithError(CalculateNTrucksExperiment.T_MOVE));		
 		return reqBay;
 	}
 	
@@ -186,7 +185,7 @@ public class PortModel extends Simulation {
 		return wgOpPositionsSides[bayId];
 	}
 
-	private InitializerFlow createFlowFromPlan(StowagePlan plan, Ship ship, int craneId) {
+	private InitializerFlow createFlowFromPlan(StowagePlan plan, Vessel ship, int craneId) {
 		int craneBay = plan.getInitialPosition(craneId);
 		// First place the crane in the initial position, taking into account the safety distance
 		final RequestResourcesFlow firstFlow =  new RequestResourcesFlow(this, ACT_PLACE + craneBay, craneBay+1);
