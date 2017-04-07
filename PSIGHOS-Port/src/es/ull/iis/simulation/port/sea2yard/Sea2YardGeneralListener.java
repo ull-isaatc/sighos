@@ -18,8 +18,9 @@ import es.ull.iis.simulation.model.TimeUnit;
  *
  */
 public class Sea2YardGeneralListener extends Listener {
-	private final TreeMap<Element, Long[]> tUnload;
-	private final TreeMap<Element, Long[]> tWorking;
+	private final TreeMap<Element, Long[]> totalTime;
+	private final TreeMap<Element, Long[]> usageTime;
+	private final TreeMap<Element, Long[]> movingTime;
 	private final int experiment;
 	private final StowagePlan plan;
 	private final TimeUnit unit;
@@ -31,8 +32,9 @@ public class Sea2YardGeneralListener extends Listener {
 	public Sea2YardGeneralListener(StowagePlan plan, int experiment, TimeUnit unit, boolean printSeeds) {
 		super("Time container");
 		this.printSeeds = printSeeds;
-		tUnload = new TreeMap<Element, Long[]>();
-		tWorking = new TreeMap<Element, Long[]>();
+		totalTime = new TreeMap<Element, Long[]>();
+		movingTime = new TreeMap<Element, Long[]>();
+		usageTime = new TreeMap<Element, Long[]>();
 		this.experiment = experiment;
 		this.plan = plan;
 		this.unit = unit;
@@ -50,11 +52,12 @@ public class Sea2YardGeneralListener extends Listener {
 			final ElementInfo eInfo = (ElementInfo)info;
 			switch (eInfo.getType()) {
 			case FINISH:
-				tUnload.get(eInfo.getElement())[1] = eInfo.getTs();
+				totalTime.get(eInfo.getElement())[1] = eInfo.getTs();
 				break;
 			case START:
-				tUnload.put(eInfo.getElement(), new Long[] {eInfo.getTs(), -1L});
-				tWorking.put(eInfo.getElement(), new Long[] {-1L, -1L});
+				totalTime.put(eInfo.getElement(), new Long[] {eInfo.getTs(), -1L});
+				movingTime.put(eInfo.getElement(),  new Long[] {-1L, 0L});
+				usageTime.put(eInfo.getElement(), new Long[] {-1L, 0L});
 				break;
 			default:
 				break;			
@@ -62,54 +65,72 @@ public class Sea2YardGeneralListener extends Listener {
 		}
 		else if (info instanceof ElementActionInfo) {
 			final ElementActionInfo eInfo = (ElementActionInfo)info;
-			if (eInfo.getActivity().getDescription().contains(PortModel.ACT_UNLOAD)) {
-				switch (eInfo.getType()) {
-				case REQ:
-					break;
-				case ACQ:
-					break;
-				case REL:
-					break;
-				case START:
-//					tWorking.get(eInfo.getElement(), new Long[] {eInfo.getTs(), -1L});
-					break;
-				case END:
-					break;
-				case INTACT:
-					break;
-				case RESACT:
-					break;
-				default:
-					break;
-				
-				}
+			switch (eInfo.getType()) {
+			case REQ:
+				break;
+			case ACQ:
+				break;
+			case REL:
+				break;
+			case START:
+				usageTime.get(eInfo.getElement())[0] = eInfo.getTs();
+				break;
+			case END:
+				final long duration = eInfo.getTs() - usageTime.get(eInfo.getElement())[0];
+				usageTime.get(eInfo.getElement())[1] += duration;
+				usageTime.get(eInfo.getElement())[0] = -1L;
+				if (!eInfo.getActivity().getDescription().contains(PortModel.ACT_UNLOAD)) {
+					movingTime.get(eInfo.getElement())[1] += duration;
+					movingTime.get(eInfo.getElement())[0] = -1L;
+				}				
+				break;
+			case INTACT:
+				break;
+			case RESACT:
+				break;
+			default:
+				break;
+			
 			}
 		}
 		else if (info instanceof SimulationEndInfo) {
 			if (experiment == 0) {
-				System.out.print("EXP\tTRUCKS\tMAX");
+				System.out.print("EXP\tTRUCKS\tOBJ");
 				for (int i = 1; i <= plan.getNCranes(); i++) {
-					System.out.print("\tCRANE " + i);
+					System.out.print("\tT_TOT" + i + "\tT_USE" + i + "\tT_OP" + i + "\tT_MOV" + i);
 				}
 				System.out.println(printSeeds ? "\tSEED" : "");
 			}
 			System.out.print("" + experiment);
 			long maxTs = 0L;
-			long []ts = new long[plan.getNCranes()];
-			for (Element containerId : tUnload.keySet()) {
-				if (tUnload.get(containerId)[1] == -1) {
-					ts[containerId.getIdentifier()] = -1;
-					maxTs = ((SimulationEndInfo) info).getTs();
+			final long []ts = new long[plan.getNCranes()];
+			final long []useTime = new long[plan.getNCranes()];
+			final long []opTime = new long[plan.getNCranes()];
+			final long []movTime = new long[plan.getNCranes()];
+			final long currentTs = ((SimulationEndInfo) info).getTs();
+			for (Element craneId : totalTime.keySet()) {
+				if (totalTime.get(craneId)[1] == -1) {
+					ts[craneId.getIdentifier()] = currentTs;
+					maxTs = currentTs;
 				}
 				else {
-					ts[containerId.getIdentifier()] = tUnload.get(containerId)[1] - tUnload.get(containerId)[0];
-					maxTs = Math.max(maxTs, ts[containerId.getIdentifier()]);
+					ts[craneId.getIdentifier()] = totalTime.get(craneId)[1] - totalTime.get(craneId)[0];
+					maxTs = Math.max(maxTs, ts[craneId.getIdentifier()]);
 				}
+				useTime[craneId.getIdentifier()] = usageTime.get(craneId)[1];
+				movTime[craneId.getIdentifier()] = movingTime.get(craneId)[1];
+				if (usageTime.get(craneId)[0] != -1) {
+					useTime[craneId.getIdentifier()] += (currentTs - usageTime.get(craneId)[0]);
+				}
+				if (movingTime.get(craneId)[0] != -1) {
+					movTime[craneId.getIdentifier()] += (currentTs - movingTime.get(craneId)[0]);
+				}
+				opTime[craneId.getIdentifier()] = useTime[craneId.getIdentifier()] - movTime[craneId.getIdentifier()];
 			}
 			final TimeUnit modelUnit = info.getSimul().getTimeUnit();
 			System.out.print("\t" + ((PortModel)info.getSimul()).getNTrucks() + "\t" + unit.convert(maxTs, modelUnit));
 			for (int i = 0; i < plan.getNCranes(); i++) {
-				System.out.print("\t" + unit.convert(ts[i], modelUnit));
+				System.out.print("\t" + unit.convert(ts[i], modelUnit) + "\t" + unit.convert(useTime[i], modelUnit) + "\t" + unit.convert(opTime[i], modelUnit) + "\t" + unit.convert(movTime[i], modelUnit));
 			}
 			System.out.println(printSeeds ? ("\t" + ((PortModel)info.getSimul()).getCurrentSeed()) : "");
 		}

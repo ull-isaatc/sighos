@@ -35,9 +35,9 @@ public class CalculateNTrucksExperiment extends Experiment {
 	protected static final long T_TRANSPORT = 3 * T_OPERATION;
 	protected static final long T_MOVE = T_OPERATION;
 	private static final int SAFETY_DISTANCE = 0;
-	private static final int NEXP = 16;
-	private static final double P_ERROR = 0.0; 
-	private static final int NSIM = (P_ERROR == 0.0) ? 1 : 200;
+	private static final int NEXP = 1;
+	private static final double P_ERROR = 0.25; 
+	private static final int NSIM = (P_ERROR == 0.0) ? 1 : 100;
 	private static final String INSTANCE = "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\instances\\k40.txt";
 	private final StowagePlan plan; 
 	private int nTrucks;
@@ -111,7 +111,7 @@ public class CalculateNTrucksExperiment extends Experiment {
 	public Simulation getSimulation(int ind) {
 		if (ind % NSIM == 0)
 			nTrucks++;
-		final Simulation model = new PortModel(plan, ind, nTrucks, P_ERROR);
+		final Simulation model = new PortModel(plan, ind, 8, P_ERROR);
 //		experimentListeners[ind] = new Sea2YardGeneralListener(plan, ind, TimeUnit.MINUTE);
 //		model.addInfoReceiver(experimentListeners[ind]);
 //		model.addInfoReceiver(new StdInfoView());
@@ -135,22 +135,48 @@ public class CalculateNTrucksExperiment extends Experiment {
             System.out.println("Solution " + i + ":");
             System.out.println(solution);
         }
+        // Obtain best solution
         QCSPSolution bestSolution = population.get(0);
-        int[] solution = new int[problem.getNumRealTasks()];
         System.out.println("Best Solution:");
         System.out.println(bestSolution);
+        
+        // Create aux structures
+        final int[] craneDoTask = new int[problem.getNumRealTasks()];
+        final int[][] tasksDoneByCrane = new int[problem.getQuayCranes()][]; 
+        for (int qc = 0; qc < problem.getQuayCranes(); qc++) {
+        	tasksDoneByCrane[qc] = new int[bestSolution.getTasksDoneByQC(qc).size() - 2];
+            for (int i = 1; i < bestSolution.getTasksDoneByQC(qc).size() - 1; i++) {
+            	final int task = bestSolution.getTasksDoneByQC(qc).get(i);
+                tasksDoneByCrane[qc][i-1] = task;
+            }
+        }
         for (int i = 1; i <= problem.getNumRealTasks(); i++) {
             int time = problem.getTaskProcessingTime(i);
             System.out.println("Task " + i + ": " + time);
-            solution[i-1] = bestSolution.getQuayCraneDoTask(i);
+            craneDoTask[i-1] = bestSolution.getQuayCraneDoTask(i);
         }
-        System.out.print("new int[] {" + solution[0]);
+        // Print for reuse        
+        System.out.print("new int[] {" + craneDoTask[0]);
         for (int i = 1; i < problem.getNumRealTasks(); i++) {
-        	System.out.print(", " + solution[i]);
+        	System.out.print(", " + craneDoTask[i]);
         }
-        System.out.println("}");
+        System.out.println("};");
+
+        System.out.print("new int[][] {");
+        for (int qc = 0; qc < tasksDoneByCrane.length - 1; qc++) {
+        	System.out.print("{" + tasksDoneByCrane[qc][0]);
+            for (int i = 1; i < tasksDoneByCrane[qc].length; i++) {
+            	System.out.print(", " + tasksDoneByCrane[qc][i]);
+            }
+            System.out.print("},");
+        }
+    	System.out.print("{" + tasksDoneByCrane[tasksDoneByCrane.length - 1][0]);
+        for (int i = 1; i < tasksDoneByCrane[tasksDoneByCrane.length - 1].length; i++) {
+        	System.out.print(", " + tasksDoneByCrane[tasksDoneByCrane.length - 1][i]);
+        }
+        System.out.println("}};");
         
-        return readPlanFromFile(problem, solution);
+        return readPlanFromFile(problem, craneDoTask, tasksDoneByCrane);
 	}
 
 	/**
@@ -158,7 +184,7 @@ public class CalculateNTrucksExperiment extends Experiment {
 	 * @param instance Path to the instance file
 	 * @return A stowage plan based on the specified instance
 	 */
-	public static StowagePlan readPlanFromFile(QCSProblem problem, int[] bestSolution) {
+	public static StowagePlan readPlanFromFile(QCSProblem problem, int[] craneDoTask, int[][] tasksDoneByCrane) {
         // Computing the number of bays
         int bays = problem.getMaximumBay() + 1;
         System.out.println("Bays: " + bays);
@@ -166,35 +192,49 @@ public class CalculateNTrucksExperiment extends Experiment {
         int quayCranes = problem.getQuayCranes();
         int containerId = 0;
         Vessel vessel = new Vessel(bays, TimeUnit.SECOND);
-        HashMap<Integer, ArrayList<Integer>> tasksByQuayCranes = new HashMap<>();
-        for (int i = 1; i <= problem.getNumRealTasks(); i++) {
-            int bay = problem.getTaskBay(i);
-            int time = problem.getTaskProcessingTime(i);
-            int quayCrane = bestSolution[i-1];
-//            System.out.println(i + "\t" + bay + "\t" + quayCrane + "\t" + time);
-            System.out.println("Task " + i + " with time " + time + " in bay " + bay + " is processed by " + quayCrane);
+
+        HashMap<Integer, ArrayList<Integer>> tasksByOriginalTask = new HashMap<>();
+        for (int task = 1; task <= problem.getNumRealTasks(); task++) {
+            int bay = problem.getTaskBay(task);
+            int time = problem.getTaskProcessingTime(task);
             for (int j = 0; j < time; j++) {
                 vessel.add(containerId, bay, T_OPERATION);
-                ArrayList<Integer> tasksByQuayCrane = tasksByQuayCranes.get(quayCrane);
-                if (tasksByQuayCrane == null) {
-                    tasksByQuayCrane = new ArrayList<>();
-                    tasksByQuayCranes.put(quayCrane, tasksByQuayCrane);
+                ArrayList<Integer> tasks = tasksByOriginalTask.get(task);
+                if (tasks == null) {
+                    tasks = new ArrayList<>();
+                    tasksByOriginalTask.put(task, tasks);
                 }
-                tasksByQuayCrane.add(containerId);
+                tasks.add(containerId);
                 containerId++;
             }
         }
         // Creating stowage plan
         StowagePlan stowagePlan = new StowagePlan(vessel, quayCranes, SAFETY_DISTANCE);
-        for (int i = 0; i < quayCranes; i++) {
-            stowagePlan.addAll(i, tasksByQuayCranes.get(i));
-            stowagePlan.setInitialPosition(i, problem.getQuayCraneStartingPosition(i));
+        for (int qc = 0; qc < quayCranes; qc++) {
+            stowagePlan.setInitialPosition(qc, problem.getQuayCraneStartingPosition(qc));
+            for (int task : tasksDoneByCrane[qc]) {
+                int bay = problem.getTaskBay(task);
+                int time = problem.getTaskProcessingTime(task);
+                int quayCrane = craneDoTask[task-1];
+                System.out.println("Task " + task + " with time " + time + " in bay " + bay + " is processed by " + quayCrane);
+                stowagePlan.addAll(qc, tasksByOriginalTask.get(task));
+            }
         }
 		return stowagePlan;
 	}
 	
 	public static void main(String[] args) {
-        final StowagePlan plan = readPlanFromFile(new QCSProblem(INSTANCE));
+		// For k40.txt
+        final StowagePlan plan = readPlanFromFile(new QCSProblem(INSTANCE),
+        		new int[] {0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 2, 2, 2, 1, 1, 2, 2, 2},
+        		new int[][] {{1, 2, 3, 5, 6, 7, 9},{4, 8, 10, 11, 12, 16, 17},{13, 14, 15, 18, 19, 20}});
+		
+		// For k43.txt
+//      final StowagePlan plan = readPlanFromFile(new QCSProblem(INSTANCE),
+//    		  new int[] {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 1, 0, 0, 2, 1, 1, 1, 2, 2, 2, 2},
+//    		  new int[][] {{1, 2, 3, 4, 5, 6, 7, 16, 17},{8, 9, 10, 11, 12, 15, 19, 20, 21},{13, 14, 18, 22, 23, 24, 25}});
+		
+//        final StowagePlan plan = readPlanFromFile(new QCSProblem(INSTANCE));
         
 		System.out.println("Vessel: ");
 		System.out.println(plan.getVessel());
@@ -207,21 +247,7 @@ public class CalculateNTrucksExperiment extends Experiment {
 //		Simulation model = new PortModel(plan, 0, DESCRIPTION + " " + 0, 5, P_ERROR, 1601344126L);// 297 - 308
 //		model.addInfoReceiver(new Sea2YardGeneralListener(plan, 0, TimeUnit.MINUTE));
 //		model.start();
-//		
-//		RandomNumber rng = RandomNumberFactory.getInstance();
-//		long seed = rng.getSeed();
-//		rng.setSeed(seed);
-//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
-//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
-//		rng = RandomNumberFactory.getInstance();
-//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
-//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
-//		rng.setSeed(seed);
-//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
-//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
-//		rng = RandomNumberFactory.getInstance(seed);
-//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
-//		System.out.println("SEED: " + rng.getSeed() + "\tDRAW: " + rng.draw());
+
 	}
 
 }

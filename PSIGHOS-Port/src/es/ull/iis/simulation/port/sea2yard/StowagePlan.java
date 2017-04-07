@@ -23,6 +23,8 @@ public class StowagePlan {
 	@SuppressWarnings("unchecked")
 	public StowagePlan(Vessel vessel, int nCranes, int safetyDistance) {
 		plan = (ArrayList<Integer>[]) new ArrayList<?>[nCranes];
+		for (int i = 0; i < nCranes; i++)
+			plan[i] = new ArrayList<Integer>();
 		initPosition = new int[nCranes];
 		this.vessel = vessel;
 		this.nCranes = nCranes;
@@ -31,12 +33,11 @@ public class StowagePlan {
 	}
 
     public void addAll(int craneId, ArrayList<Integer> containers) {
-        plan[craneId] = containers;
+        plan[craneId].addAll(containers);
         nContainers += containers.size();
     }
 
 	public void addAll(int craneId, int[] containers) {
-		plan[craneId] = new ArrayList<Integer>();
 		nContainers += containers.length;
 		for (int c : containers)			
 			plan[craneId].add(c);
