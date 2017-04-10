@@ -30,24 +30,25 @@ import simkit.random.RandomNumberFactory;
  */
 public class CalculateNTrucksExperiment extends Experiment {
 	protected static final TimeUnit PORT_TIME_UNIT = TimeUnit.SECOND;
-	protected static final long END_TS = 24 * 60 * 60;
+	protected static final long END_TS = 480 * 60 * 60;
 	protected static final long T_OPERATION = 1L * 60;
 	protected static final long T_TRANSPORT = 3 * T_OPERATION;
 	protected static final long T_MOVE = T_OPERATION;
 	private static final int SAFETY_DISTANCE = 0;
-	private static final int NEXP = 1;
+	private static final int MIN_N_TRUCKS = 1; 
+	private static final int MAX_N_TRUCKS = 20;
 	private static final double P_ERROR = 0.25; 
 	private static final int NSIM = (P_ERROR == 0.0) ? 1 : 100;
-	private static final String INSTANCE = "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\instances\\k40.txt";
+//	private static final String INSTANCE = "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\instances\\k40.txt";
+	private static final String INSTANCE = "C:\\Users\\masbe_000\\Dropbox\\SimulationPorts\\instances\\k40.txt";
 	private final StowagePlan plan; 
-	private int nTrucks;
-	private final Listener[] experimentListeners;
+	private long currentSeed;
+//	private final Listener[] experimentListeners;
 
 	public CalculateNTrucksExperiment(StowagePlan plan) {
-		super("PORTS", NEXP * NSIM);
+		super("PORTS", NSIM * (MAX_N_TRUCKS - MIN_N_TRUCKS + 1));
 		this.plan = plan;
-		experimentListeners = new Listener[NEXP * NSIM];
-		nTrucks = 0;
+//		experimentListeners = new Listener[(MAX_N_TRUCKS == MIN_N_TRUCKS) ? NSIM : (NSIM * (MAX_N_TRUCKS - MIN_N_TRUCKS + 1))];
 	}
 	
 	/**
@@ -109,14 +110,25 @@ public class CalculateNTrucksExperiment extends Experiment {
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		if (ind % NSIM == 0)
-			nTrucks++;
-		final Simulation model = new PortModel(plan, ind, 8, P_ERROR);
+		PortModel model = null;
+		if (MAX_N_TRUCKS != MIN_N_TRUCKS) {
+			int mod = (ind % (MAX_N_TRUCKS - MIN_N_TRUCKS + 1));
+			if (mod == 0) {
+				model = new PortModel(plan, ind, MIN_N_TRUCKS + mod, P_ERROR);
+				currentSeed = model.getCurrentSeed();
+			}
+			else {
+				model = new PortModel(plan, ind, MIN_N_TRUCKS + mod, P_ERROR, currentSeed);
+			}
+		}
+		else {
+			model = new PortModel(plan, ind, MIN_N_TRUCKS, P_ERROR);
+		}
 //		experimentListeners[ind] = new Sea2YardGeneralListener(plan, ind, TimeUnit.MINUTE);
 //		model.addInfoReceiver(experimentListeners[ind]);
 //		model.addInfoReceiver(new StdInfoView());
-		model.addInfoReceiver(new Sea2YardGeneralListener(plan, ind, TimeUnit.MINUTE));
-//		model.addInfoReceiver(new ContainerTraceListener(TimeUnit.MINUTE));
+		model.addInfoReceiver(new Sea2YardGeneralListener(plan, ind, TimeUnit.SECOND));
+//		model.addInfoReceiver(new ContainerTraceListener(TimeUnit.SECOND));
 //		model.addInfoReceiver(new ContainerTimeLineListener(plan, TimeUnit.MINUTE));
 		return model;
 	}
@@ -233,7 +245,11 @@ public class CalculateNTrucksExperiment extends Experiment {
 //      final StowagePlan plan = readPlanFromFile(new QCSProblem(INSTANCE),
 //    		  new int[] {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 1, 0, 0, 2, 1, 1, 1, 2, 2, 2, 2},
 //    		  new int[][] {{1, 2, 3, 4, 5, 6, 7, 16, 17},{8, 9, 10, 11, 12, 15, 19, 20, 21},{13, 14, 18, 22, 23, 24, 25}});
-		
+
+		// for k101.txt
+//      final StowagePlan plan = readPlanFromFile(new QCSProblem(INSTANCE),
+//		new int[] {0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 2, 2, 1, 2, 2, 1, 3, 2, 3, 2, 4, 2, 1, 3, 1, 4, 3, 5, 2, 5, 2, 2, 4, 3, 3, 4, 5, 5, 4, 4, 3, 5, 3, 5, 4, 4, 5},
+//		new int[][] {{1, 2, 3, 4, 5, 7, 8, 9, 13},{6, 10, 11, 12, 16, 19, 26, 28},{14, 15, 17, 18, 21, 23, 25, 32, 34, 35},{20, 22, 27, 30, 37, 38, 44, 46},{24, 29, 36, 39, 42, 43, 48, 49},{31, 33, 40, 41, 45, 47, 50}});
 //        final StowagePlan plan = readPlanFromFile(new QCSProblem(INSTANCE));
         
 		System.out.println("Vessel: ");

@@ -45,7 +45,7 @@ public class PortModel extends Simulation {
 	private final StowagePlan plan;
 	private final int nTrucks;
 	private final double pError;
-	private static final RandomNumber rng = RandomNumberFactory.getInstance();
+	private static final RandomNumber rng = RandomNumberFactory.getInstance(/*1261467313L*/);
 	private final long currentSeed;
 
 	public PortModel(StowagePlan plan, int id, int nTrucks, double pError) {
