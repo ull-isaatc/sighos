@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.port.sea2yard;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
@@ -12,7 +13,11 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author Iván Castilla
  *
  */
-public class Vessel {
+public class Vessel implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 76987236887987432L;
 	/** Bays of the ship */
 	final private ArrayList<Integer>[] bays;
 	final private TreeMap<Integer, Integer> bayPosition;

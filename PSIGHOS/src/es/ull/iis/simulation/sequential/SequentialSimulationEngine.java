@@ -57,14 +57,6 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 	}
 
     /**
-     * Indicates if the simulation clock has reached the simulation end.
-     * @return True if the simulation clock is higher or equal to the simulation end. False in other case.
-     */
-    public boolean isSimulationEnd() {
-        return(lvt >= simul.getEndTs());
-    }
-
-    /**
      * Returns the current simulation time
      * @return The current simulation time
      */
@@ -202,7 +194,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 
 	@Override
 	public void simulationLoop() {
-		while (!isSimulationEnd()) {
+		while ((lvt < simul.getEndTs()) && !simul.isSimulationEnd()) {
             // Executes all the events with timestamps equal to lvt 
 			while (waitQueue.peek().getTs() == lvt) {
             	addExecution(waitQueue.poll());

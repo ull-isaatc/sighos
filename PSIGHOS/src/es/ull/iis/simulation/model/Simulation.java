@@ -578,6 +578,15 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	public void afterClockTick() {
 	}
 
+    /**
+     * Allows a user for setting a termination condition for the simulation. This condition prevails over the 
+     * simulation end timestamp.
+     * @return True if the simulation must finished; false otherwise.
+     */
+    public boolean isSimulationEnd() {
+    	return false;
+    }
+    
 	// End of user methods
 	
 	/**

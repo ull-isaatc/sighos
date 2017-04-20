@@ -10,6 +10,7 @@ import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
@@ -24,8 +25,13 @@ import simkit.random.RandomNumberFactory;
  *
  */
 public class PortModel extends Simulation {
-	final private static String DESCRIPTION = "Port Simulation";
+	protected final static TimeUnit PORT_TIME_UNIT = TimeUnit.SECOND;
+	private final static String DESCRIPTION = "Port Simulation";
+	protected static final long T_OPERATION = 1L * 60;
+	protected static final long T_TRANSPORT = 3 * T_OPERATION;
+	protected static final long T_MOVE = T_OPERATION;
 	private static final long START_TS = 0;
+	private static final long END_TS = 10000 * 60 * 60;
 	protected static final String QUAY_CRANE = "Quay Crane";
 	private static final String TRUCK = "Truck";
 	protected static final String CONTAINER = "Container";
@@ -43,26 +49,48 @@ public class PortModel extends Simulation {
 	private final WorkGroup[] wgOpPositionsSides;
 	private final WorkGroup[] wgContainers;
 	private final StowagePlan plan;
-	private final int nTrucks;
+	private final int nVehicles;
 	private final double pError;
 	private static final RandomNumber rng = RandomNumberFactory.getInstance(/*1261467313L*/);
 	private final long currentSeed;
 
-	public PortModel(StowagePlan plan, int id, int nTrucks, double pError) {
-		this(plan, id, nTrucks, pError, rng.getSeed());
-	}
 	/**
-	 * @param id
-	 * @param description
-	 * @param unit
-	 * @param startTs
-	 * @param endTs
+	 * Creates a deterministic port simulation
+	 * @param plan The stowage plan that defines the tasks to perform
+	 * @param id The simulation identifier
+	 * @param nVehicles Number of delivery vehicles to be used
 	 */
-	public PortModel(StowagePlan plan, int id, int nTrucks, double pError, long seed) {
-		super(id, DESCRIPTION + " " + id, CalculateNTrucksExperiment.PORT_TIME_UNIT, START_TS, CalculateNTrucksExperiment.END_TS);
+	public PortModel(StowagePlan plan, int id, int nVehicles) {
+		this(plan, id, nVehicles, 0.0, rng.getSeed());
+	}
+	
+	/**
+	 * Creates a probabilistic port simulation
+	 * @param plan The stowage plan that defines the tasks to perform
+	 * @param id The simulation identifier
+	 * @param nVehicles Number of delivery vehicles to be used
+	 * @param pError Percentage error for each time parameter of the simulation. If T is the constant duration of any activity 
+	 * within the simulation, the effective time will be uniformly distributed in the interval (T-T*pError, T+T*pError)
+	 */
+	public PortModel(StowagePlan plan, int id, int nVehicles, double pError) {
+		this(plan, id, nVehicles, pError, rng.getSeed());
+	}
+	
+	/**
+	 * Creates a port simulation
+	 * @param plan The stowage plan that defines the tasks to perform
+	 * @param id The simulation identifier
+	 * @param nVehicles Number of delivery vehicles to be used
+	 * @param pError Percentage error for each time parameter of the simulation. If T is the constant duration of any activity 
+	 * within the simulation, the effective time will be uniformly distributed in the interval (T-T*pError, T+T*pError). 
+	 * If pError == 0.0, creates a deterministic simulation
+	 * @param seed Random seed used to ensure that the random parameters of the simulation replicate those from a former simulation 
+	 */
+	public PortModel(StowagePlan plan, int id, int nVehicles, double pError, long seed) {
+		super(id, DESCRIPTION + " " + id, PORT_TIME_UNIT, START_TS, END_TS);
 		currentSeed = seed;
 		rng.setSeed(seed);
-		this.nTrucks = nTrucks;
+		this.nVehicles = nVehicles;
 		this.pError = pError;
 		this.plan = plan;
 		final Vessel vessel = plan.getVessel();
@@ -99,7 +127,7 @@ public class PortModel extends Simulation {
 		
 		// Creates the rest of resources
 		rtTrucks = new ResourceType(this, TRUCK);
-		rtTrucks.addGenericResources(nTrucks);
+		rtTrucks.addGenericResources(nVehicles);
 		rtContainers = new ResourceType[nContainers];
 		final Resource[] resContainers = new Resource[nContainers];
 		wgContainers = new WorkGroup[nContainers];
@@ -149,24 +177,41 @@ public class PortModel extends Simulation {
 		}
 	}
 	
+	/**
+	 * Returns the flow of a crane that must arrive at a specific bay
+	 * @param id Bay identifier
+	 * @return A {@link RequestResourcesFlow} representing the flow of a crane that must arrive at a specific bay 
+	 */
 	private RequestResourcesFlow getGetToBayFlow(int id) {
 		final RequestResourcesFlow reqBay = new RequestResourcesFlow(this, ACT_GET_TO_BAY + id, id+1);
-		reqBay.addWorkGroup(0, wgPositions[id], getTimeWithError(CalculateNTrucksExperiment.T_MOVE));		
+		reqBay.addWorkGroup(0, wgPositions[id], getTimeWithError(T_MOVE));		
 		return reqBay;
 	}
 	
+	/**
+	 * Returns the flow of a crane that must leave a specific bay
+	 * @param id Bay identifier
+	 * @return A {@link ReleaseResourcesFlow} representing the flow of a crane that must leave a specific bay
+	 */
 	private ReleaseResourcesFlow getLeaveBayFlow(int id) {
 		final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + id, id+1);
 		return relBay;
 	}
 	
 	/**
-	 * @return the rtContainers
+	 * Returns the {@link ResourceType Resource Type} representing a specific container
+	 * @param containerId Container identifier
+	 * @return the {@link ResourceType Resource Type} representing a specific container
 	 */
 	public ResourceType getContainerResourceType(int containerId) {
 		return rtContainers[containerId];
 	}
 
+	/**
+	 * Returns the {@link WorkGroup} representing a specific container
+	 * @param containerId Container identifier
+	 * @return the {@link WorkGroup} representing a specific container
+	 */
 	public WorkGroup getContainerWorkGroup(int containerId) {
 		return wgContainers[containerId];
 	}
@@ -185,7 +230,14 @@ public class PortModel extends Simulation {
 		return wgOpPositionsSides[bayId];
 	}
 
-	private InitializerFlow createFlowFromPlan(StowagePlan plan, Vessel ship, int craneId) {
+	/**
+	 * Creates the work flow associated to a specific stowage plan for a specific crane
+	 * @param plan The stowage plan
+	 * @param vessel The vessel which is being operated 
+	 * @param craneId Crane identifier
+	 * @return The first step of the work flow that the specified crane must follow to fulfill its stowage plan.
+	 */
+	private InitializerFlow createFlowFromPlan(StowagePlan plan, Vessel vessel, int craneId) {
 		int craneBay = plan.getInitialPosition(craneId);
 		// First place the crane in the initial position, taking into account the safety distance
 		final RequestResourcesFlow firstFlow =  new RequestResourcesFlow(this, ACT_PLACE + craneBay, craneBay+1);
@@ -196,7 +248,7 @@ public class PortModel extends Simulation {
 		final ArrayList<Integer> cranePlan = plan.get(craneId);
 		for (int i = 0; i < cranePlan.size(); i++) {
 			final int containerId = cranePlan.get(i);
-			final int containerBay = ship.getContainerBay(containerId);
+			final int containerBay = vessel.getContainerBay(containerId);
 			// When moving to the right, release the (craneBay - safetyDistance)th container and acquire the (craneBay + safetyDistance + 1)th container  
 			while (craneBay < containerBay) {
 				final ReleaseResourcesFlow relBay = getLeaveBayFlow(craneBay);
@@ -232,7 +284,8 @@ public class PortModel extends Simulation {
 	}
 	
 	/**
-	 * @return the plan
+	 * Returns the stowage plan being modelled
+	 * @return the stowage plan being modelled
 	 */
 	public StowagePlan getPlan() {
 		return plan;
@@ -241,10 +294,15 @@ public class PortModel extends Simulation {
 	/**
 	 * @return the nTrucks
 	 */
-	public int getNTrucks() {
-		return nTrucks;
+	public int getNVehicles() {
+		return nVehicles;
 	}
 	
+	/**
+	 * Computes a time parameter by adding a uniform error. The error is specified as {@link #pError}
+	 * @param constantTime
+	 * @return
+	 */
 	public long getTimeWithError(long constantTime) {
 		if (pError == 0) {
 			return constantTime;
@@ -258,4 +316,5 @@ public class PortModel extends Simulation {
 	public long getCurrentSeed() {
 		return currentSeed;
 	}
+	
 }

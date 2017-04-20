@@ -44,7 +44,7 @@ public class UnloadActivity extends StructuredFlow {
 		final DelayFlow delUnload = new DelayFlow(model, "Delay " + PortModel.ACT_UNLOAD, newTime);
 		final ReleaseResourcesFlow relAll = new ReleaseResourcesFlow(model, LAST_FLOW_NAME + containerId, resourcesId);
 		reqUnload.addWorkGroup(0, model.getContainerWorkGroup(containerId));
-		relAll.addResourceCancellation(model.getTruckResourceType(), model.getTimeWithError(CalculateNTrucksExperiment.T_TRANSPORT));
+		relAll.addResourceCancellation(model.getTruckResourceType(), model.getTimeWithError(PortModel.T_TRANSPORT));
 		reqUnload.link(relSide).link(delUnload).link(relAll);
 		this.initialFlow = reqUnload;
 		this.finalFlow = relAll;

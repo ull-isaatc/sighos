@@ -75,14 +75,6 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 	}
 
     /**
-     * Indicates if the simulation clock has reached the simulation end.
-     * @return True if the simulation clock is higher or equal to the simulation end. False in other case.
-     */
-    public boolean isSimulationEnd() {
-        return(lvt >= simul.getEndTs());
-    }
-
-    /**
      * Returns the current simulation time
      * @return The current simulation time
      */
@@ -142,7 +134,7 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
         simul.afterClockTick();
         debug("SIMULATION TIME ADVANCING " + lvt);
 
-        if (!isSimulationEnd()) {
+        if ((lvt < simul.getEndTs()) && !simul.isSimulationEnd()) {
         	currentEvents = futureEventList.pollFirstEntry().getValue();
         	// Distributes the events with the same timestamp among the executors
     		executingEvents.addAndGet(currentEvents.size());
@@ -229,7 +221,7 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 		
 		@Override
 		public void run() {
-			while (lvt < simul.getEndTs()) {
+			while ((lvt < simul.getEndTs()) && !simul.isSimulationEnd()) {
 	    		// Executes its events
 	    		final int totalEvents = currentEvents.size();
 	    		int myEventsCount = 0;
