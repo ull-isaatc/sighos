@@ -27,7 +27,7 @@ public class ActivityUnload extends ActivityFlow {
 		this.containerId = containerId;
 		this.nextContainerId = nextContainerId;
 		addWorkGroup(0, model.getContainerWorkGroup(containerId), processingTime);
-		addResourceCancellation(model.getTruckResourceType(), PortModel.T_TRANSPORT);
+		addResourceCancellation(model.getGenericVehicleResourceType(), PortModel.T_TRANSPORT);
 	}
 
 	public ActivityUnload(PortModel model, int containerId, int processingTime) {

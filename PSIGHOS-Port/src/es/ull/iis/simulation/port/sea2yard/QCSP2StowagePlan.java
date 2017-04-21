@@ -32,14 +32,16 @@ public class QCSP2StowagePlan {
 	final int maxGenerations;
 	final int populationSize;
 	final String outputFileName;
+	final boolean keepOriginalDuration;
 	final boolean debug;
 	
-	public QCSP2StowagePlan(QCSProblem problem, int safetyDistance, int maxGenerations, int populationSize, String outputFileName, boolean debug) {
+	public QCSP2StowagePlan(QCSProblem problem, int safetyDistance, int maxGenerations, int populationSize, String outputFileName, boolean keepOriginalDuration, boolean debug) {
 		this.problem = problem;
 		this.safetyDistance = safetyDistance;
 		this.maxGenerations = maxGenerations;
 		this.populationSize = populationSize;
 		this.outputFileName = outputFileName;
+		this.keepOriginalDuration = keepOriginalDuration;
 		this.debug = debug;
 	}
 	
@@ -70,35 +72,51 @@ public class QCSP2StowagePlan {
 	 */
 	public StowagePlan getStowagePlanFromQCSP(QCSPSolution solution) {
         // Computing the number of bays
-        int bays = problem.getMaximumBay() + 1;
+        final int bays = problem.getMaximumBay() + 1;
         // Creating vessel 
-        int quayCranes = problem.getQuayCranes();
-        int containerId = 0;
-        Vessel vessel = new Vessel(bays, TimeUnit.SECOND);
-
-        HashMap<Integer, ArrayList<Integer>> tasksByOriginalTask = new HashMap<>();
-        for (int task = 1; task <= problem.getNumRealTasks(); task++) {
-            int bay = problem.getTaskBay(task);
-            int time = problem.getTaskProcessingTime(task);
-            for (int j = 0; j < time; j++) {
-                vessel.add(containerId, bay, PortModel.T_OPERATION);
-                ArrayList<Integer> tasks = tasksByOriginalTask.get(task);
-                if (tasks == null) {
-                    tasks = new ArrayList<>();
-                    tasksByOriginalTask.put(task, tasks);
+        final int quayCranes = problem.getQuayCranes();
+        final Vessel vessel = new Vessel(bays, TimeUnit.SECOND);
+        // Creating stowage plan
+        final StowagePlan stowagePlan = new StowagePlan(vessel, quayCranes, safetyDistance, (long)solution.getObjectiveFunctionValue() / 3);
+        
+        if (keepOriginalDuration) {
+            for (int task = 1; task <= problem.getNumRealTasks(); task++) {
+                int bay = problem.getTaskBay(task);
+                vessel.add(task - 1, bay, problem.getTaskProcessingTime(task));
+            }
+            for (int qc = 0; qc < quayCranes; qc++) {
+                stowagePlan.setInitialPosition(qc, problem.getQuayCraneStartingPosition(qc));
+                final ArrayList<Integer> tasks = new ArrayList<Integer>();
+                for (int i = 1; i < solution.getTasksDoneByQC(qc).size() - 1; i++) {
+                	tasks.add(solution.getTasksDoneByQC(qc).get(i) - 1);
                 }
-                tasks.add(containerId);
-                containerId++;
+                stowagePlan.addAll(qc, tasks);
             }
         }
-        // Creating stowage plan
-        StowagePlan stowagePlan = new StowagePlan(vessel, quayCranes, safetyDistance, (long)solution.getObjectiveFunctionValue() / 3);
-        for (int qc = 0; qc < quayCranes; qc++) {
-            stowagePlan.setInitialPosition(qc, problem.getQuayCraneStartingPosition(qc));
-            for (int i = 1; i < solution.getTasksDoneByQC(qc).size() - 1; i++) {
-            	final int task = solution.getTasksDoneByQC(qc).get(i);
-                stowagePlan.addAll(qc, tasksByOriginalTask.get(task));
+        else {
+            HashMap<Integer, ArrayList<Integer>> tasksByOriginalTask = new HashMap<>();
+            int containerId = 0;
+            for (int task = 1; task <= problem.getNumRealTasks(); task++) {
+                int bay = problem.getTaskBay(task);
+                int time = problem.getTaskProcessingTime(task);
+                for (int j = 0; j < time; j++) {
+                    vessel.add(containerId, bay, PortModel.T_OPERATION);
+                    ArrayList<Integer> tasks = tasksByOriginalTask.get(task);
+                    if (tasks == null) {
+                        tasks = new ArrayList<>();
+                        tasksByOriginalTask.put(task, tasks);
+                    }
+                    tasks.add(containerId);
+                    containerId++;
+                }
             }
+            for (int qc = 0; qc < quayCranes; qc++) {
+                stowagePlan.setInitialPosition(qc, problem.getQuayCraneStartingPosition(qc));
+                for (int i = 1; i < solution.getTasksDoneByQC(qc).size() - 1; i++) {
+                	final int task = solution.getTasksDoneByQC(qc).get(i);
+                    stowagePlan.addAll(qc, tasksByOriginalTask.get(task));
+                }
+            }        	
         }
 		return stowagePlan;
 	}
@@ -191,14 +209,26 @@ public class QCSP2StowagePlan {
 				System.err.println("Wrong argument format: maxGeneration (" + maxGen + ") must be >= than populationSize (" + popSize + ")");
 				System.exit(-1);
 			}
+			boolean keep = false; 
 			boolean debug = false;
 			if (args.length > 4) {
 				if ((args[4].equalsIgnoreCase("--debug")) || (args[4].equalsIgnoreCase("-d"))){
 					debug = true;
 				}
+				if ((args[4].equalsIgnoreCase("--keep")) || (args[4].equalsIgnoreCase("-k"))){
+					keep = true;
+				}
+				if (args.length > 5) {				
+					if ((args[5].equalsIgnoreCase("--debug")) || (args[5].equalsIgnoreCase("-d"))){
+						debug = true;
+					}
+					if ((args[5].equalsIgnoreCase("--keep")) || (args[5].equalsIgnoreCase("-k"))){
+						keep = true;
+					}
+				}
 			}
 			// FIXME: Be careful: null safety distance by now!!
-			final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(new QCSProblem(inputFile), 0, maxGen, popSize, outputFile, debug);
+			final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(new QCSProblem(inputFile), 0, maxGen, popSize, outputFile, keep, debug);
 			final Population population = planBuilder.getSolutions();
 			final StowagePlan[] plans = new StowagePlan[population.getSize()];
 			for (int i = 0; i < plans.length; i++) {

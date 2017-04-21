@@ -33,7 +33,7 @@ public class PortModel extends Simulation {
 	private static final long START_TS = 0;
 	private static final long END_TS = 10000 * 60 * 60;
 	protected static final String QUAY_CRANE = "Quay Crane";
-	private static final String TRUCK = "Truck";
+	private static final String DELIVERY_VEHICLE = "Vehicle";
 	protected static final String CONTAINER = "Container";
 	protected static final String ACT_UNLOAD = "Unload";
 	protected static final String ACT_PLACE = "Place at";
@@ -42,37 +42,53 @@ public class PortModel extends Simulation {
 	private static final String POSITION = "Position";
 	private static final String OPERATE = "Operate";
 	private final ResourceType[] rtContainers;
-	private final ResourceType rtTrucks;
+	private final ResourceType rtGenericVehicle;
+	private final ResourceType[] rtSpecificVehicle;
 	private final UnloadActivity[] actUnloads;
 	private final InitializerFlow[] cranePlan;
 	private final WorkGroup[] wgPositions;
 	private final WorkGroup[] wgOpPositionsSides;
 	private final WorkGroup[] wgContainers;
+	private final WorkGroup[] wgSpecificContainers;
 	private final StowagePlan plan;
-	private final int nVehicles;
+	private final int []nVehicles;
 	private final double pError;
-	private static final RandomNumber rng = RandomNumberFactory.getInstance(/*1261467313L*/);
+	private static final RandomNumber rng = RandomNumberFactory.getInstance();
 	private final long currentSeed;
 
 	/**
-	 * Creates a deterministic port simulation
+	 * Creates a port simulation with only generic delivery vehicles
 	 * @param plan The stowage plan that defines the tasks to perform
 	 * @param id The simulation identifier
-	 * @param nVehicles Number of delivery vehicles to be used
+	 * @param nGenericVehicles Number of delivery vehicles to be used
+	 * @param pError Percentage error for each time parameter of the simulation. If 0.0, deterministic simulation 
 	 */
-	public PortModel(StowagePlan plan, int id, int nVehicles) {
-		this(plan, id, nVehicles, 0.0, rng.getSeed());
+	public PortModel(StowagePlan plan, int id, int nGenericVehicles, double pError) {
+		this(plan, id, new int[] {nGenericVehicles}, pError, rng.getSeed());
+	}
+	
+	/**
+	 * Creates a port simulation with only generic delivery vehicles, initialized with the specified random seed
+	 * @param plan The stowage plan that defines the tasks to perform
+	 * @param id The simulation identifier
+	 * @param nGenericVehicles Number of delivery vehicles to be used
+	 * @param pError Percentage error for each time parameter of the simulation. If 0.0, deterministic simulation
+	 * @param seed Random seed used to ensure that the random parameters of the simulation replicate those from a former simulation 
+	 */
+	public PortModel(StowagePlan plan, int id, int nGenericVehicles, double pError, long seed) {
+		this(plan, id, new int[] {nGenericVehicles}, pError, seed);
 	}
 	
 	/**
 	 * Creates a probabilistic port simulation
 	 * @param plan The stowage plan that defines the tasks to perform
 	 * @param id The simulation identifier
-	 * @param nVehicles Number of delivery vehicles to be used
+	 * @param nVehicles Number of delivery vehicles to be used, distributed per crane. The last position of the array contains the
+	 * number of generic delivery vehicles
 	 * @param pError Percentage error for each time parameter of the simulation. If T is the constant duration of any activity 
 	 * within the simulation, the effective time will be uniformly distributed in the interval (T-T*pError, T+T*pError)
 	 */
-	public PortModel(StowagePlan plan, int id, int nVehicles, double pError) {
+	public PortModel(StowagePlan plan, int id, int[] nVehicles, double pError) {
 		this(plan, id, nVehicles, pError, rng.getSeed());
 	}
 	
@@ -80,13 +96,14 @@ public class PortModel extends Simulation {
 	 * Creates a port simulation
 	 * @param plan The stowage plan that defines the tasks to perform
 	 * @param id The simulation identifier
-	 * @param nVehicles Number of delivery vehicles to be used
+	 * @param nVehicles Number of delivery vehicles to be used, distributed per crane. The last position of the array contains the
+	 * number of generic delivery vehicles
 	 * @param pError Percentage error for each time parameter of the simulation. If T is the constant duration of any activity 
 	 * within the simulation, the effective time will be uniformly distributed in the interval (T-T*pError, T+T*pError). 
 	 * If pError == 0.0, creates a deterministic simulation
 	 * @param seed Random seed used to ensure that the random parameters of the simulation replicate those from a former simulation 
 	 */
-	public PortModel(StowagePlan plan, int id, int nVehicles, double pError, long seed) {
+	public PortModel(StowagePlan plan, int id, int[] nVehicles, double pError, long seed) {
 		super(id, DESCRIPTION + " " + id, PORT_TIME_UNIT, START_TS, END_TS);
 		currentSeed = seed;
 		rng.setSeed(seed);
@@ -126,24 +143,36 @@ public class PortModel extends Simulation {
 		}
 		
 		// Creates the rest of resources
-		rtTrucks = new ResourceType(this, TRUCK);
-		rtTrucks.addGenericResources(nVehicles);
 		rtContainers = new ResourceType[nContainers];
-		final Resource[] resContainers = new Resource[nContainers];
-		wgContainers = new WorkGroup[nContainers];
 		for (int containerId = 0; containerId < nContainers; containerId++) {
 			rtContainers[containerId] = new ResourceType(this, CONTAINER + containerId);
-			final int containerBay = vessel.getContainerBay(containerId);
-			final ResourceType rtUnload[] = new ResourceType[3 + Math.min(containerBay, safetyDistance) + Math.min(nBays - containerBay - 1, safetyDistance)];
-			rtUnload[0] = rtTrucks;
-			rtUnload[1] = rtContainers[containerId];
-			int rtIndex = 2;
-			for (int bayId = Math.max(containerBay - safetyDistance, 0); bayId < Math.min(nBays, containerBay + safetyDistance + 1); bayId++) {
-				rtUnload[rtIndex++] = rtOpPositions[bayId]; 
+		}
+		if (hasGenericVehicles()) {
+			rtGenericVehicle = new ResourceType(this, DELIVERY_VEHICLE);
+			rtGenericVehicle.addGenericResources(getNGenericVehicles());
+			wgContainers = new WorkGroup[nContainers];
+			for (int containerId = 0; containerId < nContainers; containerId++) {
+				wgContainers[containerId] = createUnloadWorkGroup(vessel.getContainerBay(containerId), safetyDistance, nBays, rtContainers[containerId], rtGenericVehicle, rtOpPositions);
 			}
-			final int[] needed = new int[rtUnload.length];
-			Arrays.fill(needed, 1);
-			wgContainers[containerId] = new WorkGroup(this, rtUnload, needed);
+		}
+		else {
+			rtGenericVehicle = null;
+			wgContainers = null;
+		}
+		if (hasSpecificVehicles()) {
+			rtSpecificVehicle = new ResourceType[nCranes];
+			wgSpecificContainers = new WorkGroup[nContainers];
+			for (int craneId = 0; craneId < nCranes; craneId++) {
+				rtSpecificVehicle[craneId] = new ResourceType(this, DELIVERY_VEHICLE + craneId);
+				rtSpecificVehicle[craneId].addGenericResources(getNSpecificVehiclesXCrane(craneId));
+				for (int containerId : plan.get(craneId)) {
+					wgSpecificContainers[containerId] = createUnloadWorkGroup(vessel.getContainerBay(containerId), safetyDistance, nBays, rtContainers[containerId], rtSpecificVehicle[craneId], rtOpPositions);
+				}
+			}
+		}
+		else {
+			rtSpecificVehicle = null;
+			wgSpecificContainers = null;
 		}
 		
 		// Set the containers which are available from the beginning and creates the activities
@@ -153,12 +182,13 @@ public class PortModel extends Simulation {
 			if (!bay.isEmpty()) {
 				// Creates the container on top of the bay
 				int containerId1 = vessel.peek(bayId);
-				resContainers[containerId1] = new Resource(this, CONTAINER + containerId1);
-				resContainers[containerId1].addTimeTableEntry(rtContainers[containerId1]);
+				final Resource resContainer = new Resource(this, CONTAINER + containerId1);
+				resContainer.addTimeTableEntry(rtContainers[containerId1]);
 				// Creates the activities for the top and intermediate containers. These activities create new containers.
 				for (int i = bay.size() - 1; i > 0; i--) {
 					containerId1 = bay.get(i);
 					final int containerId2 = bay.get(i-1);
+					// FIXME: Add crane identifier
 					actUnloads[containerId1] = new UnloadActivity(this, containerId1, containerId2);
 				}
 				// Creates the activity corresponding to the bottom container
@@ -177,6 +207,18 @@ public class PortModel extends Simulation {
 		}
 	}
 	
+	private WorkGroup createUnloadWorkGroup(int containerBay, int safetyDistance, int nBays, ResourceType rtContainer, ResourceType rtVehicle, ResourceType[] rtOpPositions) {
+		final ResourceType rtUnload[] = new ResourceType[3 + Math.min(containerBay, safetyDistance) + Math.min(nBays - containerBay - 1, safetyDistance)];
+		rtUnload[0] = rtVehicle;
+		rtUnload[1] = rtContainer;
+		int rtIndex = 2;
+		for (int bayId = Math.max(containerBay - safetyDistance, 0); bayId < Math.min(nBays, containerBay + safetyDistance + 1); bayId++) {
+			rtUnload[rtIndex++] = rtOpPositions[bayId]; 
+		}
+		final int[] needed = new int[rtUnload.length];
+		Arrays.fill(needed, 1);
+		return new WorkGroup(this, rtUnload, needed);
+	}
 	/**
 	 * Returns the flow of a crane that must arrive at a specific bay
 	 * @param id Bay identifier
@@ -217,10 +259,28 @@ public class PortModel extends Simulation {
 	}
 
 	/**
+	 * Returns the {@link WorkGroup} representing a specific container
+	 * @param containerId Container identifier
+	 * @return the {@link WorkGroup} representing a specific container
+	 */
+	public WorkGroup getSpecificContainerWorkGroup(int containerId) {
+		if (wgSpecificContainers != null)
+			return wgSpecificContainers[containerId];
+		return null;
+	}
+
+	/**
 	 * @return the rtTrucks
 	 */
-	public ResourceType getTruckResourceType() {
-		return rtTrucks;
+	public ResourceType getGenericVehicleResourceType() {
+		return rtGenericVehicle;
+	}
+
+	/**
+	 * @return the rtTrucks
+	 */
+	public ResourceType getSpecificVehicleResourceType(int id) {
+		return rtSpecificVehicle[id];
 	}
 
 	/**
@@ -294,10 +354,25 @@ public class PortModel extends Simulation {
 	/**
 	 * @return the nTrucks
 	 */
-	public int getNVehicles() {
-		return nVehicles;
+	public int getNGenericVehicles() {
+		return nVehicles[nVehicles.length - 1];
+	}
+
+	public boolean hasSpecificVehicles() {
+		return nVehicles.length > 1;
 	}
 	
+	public boolean hasGenericVehicles() {
+		return nVehicles[nVehicles.length - 1] > 0;
+	}
+	
+	/**
+	 * @return the nSpecificVehiclesXCrane
+	 */
+	public int getNSpecificVehiclesXCrane(int craneId) {
+		return nVehicles[craneId];
+	}
+
 	/**
 	 * Computes a time parameter by adding a uniform error. The error is specified as {@link #pError}
 	 * @param constantTime

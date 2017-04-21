@@ -43,8 +43,15 @@ public class UnloadActivity extends StructuredFlow {
 //		System.out.println(containerId + "\t" + newTime);
 		final DelayFlow delUnload = new DelayFlow(model, "Delay " + PortModel.ACT_UNLOAD, newTime);
 		final ReleaseResourcesFlow relAll = new ReleaseResourcesFlow(model, LAST_FLOW_NAME + containerId, resourcesId);
-		reqUnload.addWorkGroup(0, model.getContainerWorkGroup(containerId));
-		relAll.addResourceCancellation(model.getTruckResourceType(), model.getTimeWithError(PortModel.T_TRANSPORT));
+		if (model.hasGenericVehicles()) {
+			reqUnload.addWorkGroup(model.getContainerWorkGroup(containerId));
+			relAll.addResourceCancellation(model.getGenericVehicleResourceType(), model.getTimeWithError(PortModel.T_TRANSPORT));
+		}
+		if (model.hasSpecificVehicles()) {
+			reqUnload.addWorkGroup(model.getSpecificContainerWorkGroup(containerId));
+			// FIXME: Add crane identifier
+//			relAll.addResourceCancellation(model.getSpecificVehicleResourceType(craneId), model.getTimeWithError(PortModel.T_TRANSPORT));
+		}
 		reqUnload.link(relSide).link(delUnload).link(relAll);
 		this.initialFlow = reqUnload;
 		this.finalFlow = relAll;

@@ -37,7 +37,7 @@ public class CalculateOptimumVehiclesExperiment {
 			final long objValue = plan.getObjectiveValue() * 60;
 			int nVehicles = minVehicles;
 			do {
-				model = new PortModel(plan, simCounter, nVehicles);
+				model = new PortModel(plan, simCounter, nVehicles, 0.0);
 				final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, simCounter, TimeUnit.SECOND); 
 				model.addInfoReceiver(listener);
 				model.run();
