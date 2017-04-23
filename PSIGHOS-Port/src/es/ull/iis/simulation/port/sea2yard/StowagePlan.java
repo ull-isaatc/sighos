@@ -25,6 +25,7 @@ public class StowagePlan implements Serializable {
 	 */
 	private static final long serialVersionUID = -3247224781219705052L;
 	private final ArrayList<Integer>[] plan;
+	private final int[] craneDoTask;
 	private final int[] initPosition;
 	private final Vessel vessel;
 	private int nContainers;
@@ -45,18 +46,23 @@ public class StowagePlan implements Serializable {
 		this.nCranes = nCranes;
 		this.safetyDistance = safetyDistance;
 		this.objectiveValue = objectiveValue;
+		this.craneDoTask = new int[vessel.getNContainers()];
 		nContainers = 0;
 	}
 
     public void addAll(int craneId, ArrayList<Integer> containers) {
         plan[craneId].addAll(containers);
         nContainers += containers.size();
+        for (int contId : containers)
+        	craneDoTask[contId] = craneId;
     }
 
 	public void addAll(int craneId, int[] containers) {
 		nContainers += containers.length;
-		for (int c : containers)			
-			plan[craneId].add(c);
+		for (int contId : containers) {
+			plan[craneId].add(contId);
+			craneDoTask[contId] = craneId;
+		}
 	}
 	
 	public ArrayList<Integer> get(int craneId) {
@@ -100,12 +106,22 @@ public class StowagePlan implements Serializable {
 	}
 
 	/**
-	 * @return the ship
+	 * Returns the structure of the vessel
+	 * @return the vessel
 	 */
 	public Vessel getVessel() {
 		return vessel;
 	}
 
+	/**
+	 * Returns the crane that unloads the specified container
+	 * @param containerId Container identifier
+	 * @return The identifier of the crane that unloads a specified container
+	 */
+	public int getCraneDoTask(int containerId) {
+		return craneDoTask[containerId];
+	}
+	
 	@Override
 	public String toString() {
 		final StringBuilder str = new StringBuilder();

@@ -19,13 +19,17 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 	private final int minVehicles;
 	private final int maxVehicles;
 	private final int nSolutions;
-	private final StowagePlan[] plans; 
+	private final StowagePlan[] plans;
+	private final boolean simulateAll;
+	private int simCounter;
 
-	public CalculateOptimumSpecificVehiclesExperiment(StowagePlan[] plans, int nSolutions, int minVehicles, int maxVehicles) {
+	public CalculateOptimumSpecificVehiclesExperiment(StowagePlan[] plans, int nSolutions, int minVehicles, int maxVehicles, boolean simulateAll) {
 		this.minVehicles = minVehicles;
 		this.maxVehicles = maxVehicles;
 		this.nSolutions = nSolutions;
 		this.plans = plans;
+		this.simulateAll = simulateAll;
+		simCounter = 0;
 	}
 	
 	private int[] computeNVehicles(int nCranes, int nVehicles, int nSpecificVehicles) {
@@ -40,26 +44,76 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 		}
 		return null;
 	}
+
+	private void simulate(int solution, int[]nVehicles) {
+		System.out.print(simCounter);
+		for (int i = 0; i < nVehicles.length; i++)
+			System.out.print("\t" + nVehicles[i]);
+		System.out.println();
+//		final StowagePlan plan = plans[solution];
+//		final PortModel model = new PortModel(plan, simCounter, nVehicles, 0.0);
+//		final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, simCounter, TimeUnit.SECOND); 
+//		model.addInfoReceiver(listener);
+//		model.run();
+//		printResults(simCounter, solution, listener, nVehicles);
+		simCounter++;		
+	}
+
+	public void simulateNVehicles(int solution, int[]nVehicles, int level, int leftVehicles) {
+		if (level == 0) {
+			nVehicles[level] = leftVehicles;
+			simulate(solution, nVehicles);
+		}
+		else {
+			nVehicles[level] = leftVehicles;
+			Arrays.fill(nVehicles, 0, level, 0);
+			simulate(solution, nVehicles);
+			for (int n = leftVehicles - 1; n >= 0; n--) {
+				nVehicles[level] = n;
+				simulateNVehicles(solution, nVehicles, level - 1, leftVehicles - n);
+			}
+		}
+	}
+	
+	public void simulateNVehiclesAll(int solution, int[]nVehicles, int level, int leftVehicles) {
+		final int maxLevel = nVehicles.length - 1;
+		if (level == maxLevel) {
+			nVehicles[level] = leftVehicles;
+			simulate(solution, nVehicles);
+		}
+		else {
+			nVehicles[level] = leftVehicles;
+			Arrays.fill(nVehicles, level+1, maxLevel+1, 0);
+			simulate(solution, nVehicles);
+			for (int n = leftVehicles - 1; n >= 0; n--) {
+				nVehicles[level] = n;
+				simulateNVehicles(solution, nVehicles, level + 1, leftVehicles - n);
+			}
+		}
+	}
 	
 	public void start() {
-		PortModel model = null;
-		int simCounter = 0;
 		// Print header
 		printHeader();
-		for (int i = 0; i < nSolutions; i++) {
-			final StowagePlan plan = plans[i];
-			for (int nVehicles = minVehicles; nVehicles <= maxVehicles; nVehicles++) {
-				int nSpecificVehicles = 0;
-				int [] arrayVehicles = computeNVehicles(plan.getNCranes(), nVehicles, nSpecificVehicles++);
-				do {
-					model = new PortModel(plan, simCounter, arrayVehicles, 0.0);
-					final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, simCounter, TimeUnit.SECOND); 
-					model.addInfoReceiver(listener);
-					model.run();
-					printResults(simCounter, i, listener, arrayVehicles);
-					simCounter++;					
-					arrayVehicles = computeNVehicles(plan.getNCranes(), nVehicles, nSpecificVehicles++);
-				} while (arrayVehicles != null);
+		if (simulateAll) {
+			for (int i = 0; i < nSolutions; i++) {
+				final StowagePlan plan = plans[i];
+				for (int nVehicles = minVehicles; nVehicles <= maxVehicles; nVehicles++) {
+					simulateNVehicles(i, new int[plan.getNCranes() + 1], plan.getNCranes(), nVehicles);					
+				}
+			}
+		}
+		else {
+			for (int i = 0; i < nSolutions; i++) {
+				final StowagePlan plan = plans[i];
+				for (int nVehicles = minVehicles; nVehicles <= maxVehicles; nVehicles++) {
+					int nSpecificVehicles = 0;
+					int [] arrayVehicles = computeNVehicles(plan.getNCranes(), nVehicles, nSpecificVehicles++);
+					do {
+						simulate(i, arrayVehicles);
+						arrayVehicles = computeNVehicles(plan.getNCranes(), nVehicles, nSpecificVehicles++);
+					} while (arrayVehicles != null);
+				}
 			}
 		}
 	}
@@ -103,6 +157,7 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 //		model.addInfoReceiver(listener);
 //		model.run();
 //		printResults(0, 0, listener, nVehicles);
+//		simulateNVehicles(0, new int[4], 0, 10);
 		if (args.length < 4) {
 			System.err.println("Wrong argument number");
 			System.exit(-1);
@@ -112,6 +167,12 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 			int nSolutions = Integer.parseInt(args[1]);
 			final int minVehicles = Integer.parseInt(args[2]);
 			final int maxVehicles = Integer.parseInt(args[3]);
+			boolean all = false;
+			if (args.length > 4) {
+				if (args[4].equalsIgnoreCase("-a") || args[4].equalsIgnoreCase("--all")) {
+					all = true;
+				}
+			}
 			if (minVehicles > maxVehicles) {
 				System.err.println("Wrong argument format: maxVehicles (" + maxVehicles + ") must be >= than minVehicles (" + minVehicles + ")");
 				System.exit(-1);
@@ -119,7 +180,7 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 	        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(inputFile);
 	        if (plans.length < nSolutions)
 	        	nSolutions = plans.length;
-	       	new CalculateOptimumSpecificVehiclesExperiment(plans, nSolutions, minVehicles, maxVehicles).start();
+	       	new CalculateOptimumSpecificVehiclesExperiment(plans, nSolutions, minVehicles, maxVehicles, all).start();
 		}
 	}
 

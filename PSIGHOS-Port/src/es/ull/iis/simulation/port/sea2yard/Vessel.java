@@ -102,6 +102,10 @@ public class Vessel implements Serializable {
 	public long getContainerProcessingTime(int containerId) {
 		return processingTime.get(containerId);
 	}
+
+	public int getNContainers() {
+		return bayPosition.size();
+	}
 	
 	/**
 	 * @return the unit

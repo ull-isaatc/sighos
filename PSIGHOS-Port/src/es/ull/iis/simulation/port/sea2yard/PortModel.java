@@ -188,7 +188,6 @@ public class PortModel extends Simulation {
 				for (int i = bay.size() - 1; i > 0; i--) {
 					containerId1 = bay.get(i);
 					final int containerId2 = bay.get(i-1);
-					// FIXME: Add crane identifier
 					actUnloads[containerId1] = new UnloadActivity(this, containerId1, containerId2);
 				}
 				// Creates the activity corresponding to the bottom container

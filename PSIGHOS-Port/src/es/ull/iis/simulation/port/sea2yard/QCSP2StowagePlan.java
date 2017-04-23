@@ -77,13 +77,14 @@ public class QCSP2StowagePlan {
         final int quayCranes = problem.getQuayCranes();
         final Vessel vessel = new Vessel(bays, TimeUnit.SECOND);
         // Creating stowage plan
-        final StowagePlan stowagePlan = new StowagePlan(vessel, quayCranes, safetyDistance, (long)solution.getObjectiveFunctionValue() / 3);
+        StowagePlan stowagePlan = null;
         
         if (keepOriginalDuration) {
             for (int task = 1; task <= problem.getNumRealTasks(); task++) {
                 int bay = problem.getTaskBay(task);
                 vessel.add(task - 1, bay, problem.getTaskProcessingTime(task));
             }
+            stowagePlan = new StowagePlan(vessel, quayCranes, safetyDistance, (long)solution.getObjectiveFunctionValue() / 3);
             for (int qc = 0; qc < quayCranes; qc++) {
                 stowagePlan.setInitialPosition(qc, problem.getQuayCraneStartingPosition(qc));
                 final ArrayList<Integer> tasks = new ArrayList<Integer>();
@@ -110,6 +111,7 @@ public class QCSP2StowagePlan {
                     containerId++;
                 }
             }
+            stowagePlan = new StowagePlan(vessel, quayCranes, safetyDistance, (long)solution.getObjectiveFunctionValue() / 3);
             for (int qc = 0; qc < quayCranes; qc++) {
                 stowagePlan.setInitialPosition(qc, problem.getQuayCraneStartingPosition(qc));
                 for (int i = 1; i < solution.getTasksDoneByQC(qc).size() - 1; i++) {

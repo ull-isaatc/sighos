@@ -49,8 +49,7 @@ public class UnloadActivity extends StructuredFlow {
 		}
 		if (model.hasSpecificVehicles()) {
 			reqUnload.addWorkGroup(model.getSpecificContainerWorkGroup(containerId));
-			// FIXME: Add crane identifier
-//			relAll.addResourceCancellation(model.getSpecificVehicleResourceType(craneId), model.getTimeWithError(PortModel.T_TRANSPORT));
+			relAll.addResourceCancellation(model.getSpecificVehicleResourceType(model.getPlan().getCraneDoTask(containerId)), model.getTimeWithError(PortModel.T_TRANSPORT));
 		}
 		reqUnload.link(relSide).link(delUnload).link(relAll);
 		this.initialFlow = reqUnload;
