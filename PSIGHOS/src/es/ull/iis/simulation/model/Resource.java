@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.model;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -211,11 +212,11 @@ public class Resource extends VariableStoreSimulationObject implements Describab
     }
     
     /**
-     * Returns the {@link ElementInstance element instance} currently using this resource; null otherwise. 
-     * @return The {@link ElementInstance element instance} currently using this resource; null otherwise.
+     * Returns true if the resource is currently seized by an {@link Element element}; false otherwise 
+     * @return true if the resource is currently seized by an {@link Element element}; false otherwise
      */
-    public ElementInstance getCurrentElementInstance() {
-    	return engine.getCurrentElementInstance();
+    public boolean isSeized() {
+    	return (engine.getCurrentElement() != null);
     }
     
     /**
@@ -256,16 +257,17 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 	
 	/**
 	 * Adds a resource to the set of resources requested by an {@link Element}. 
+	 * @param solution Tentative solution with booked resources
 	 * @param rt Resource type
 	 * @param ei Element instance corresponding to an Element
 	 * @return <code>true</code> if the resource can be used within the proposed solution; <code>false</code> otherwise.
 	 */
-	public boolean add2Solution(ResourceType rt, ElementInstance ei) {
-		return engine.add2Solution(rt, ei);
+	public boolean add2Solution(ArrayDeque<Resource> solution, ResourceType rt, ElementInstance ei) {
+		return engine.add2Solution(solution, rt, ei);
 	}
 
-	public void removeFromSolution(ElementInstance fe) {
-		engine.removeFromSolution(fe);
+	public void removeFromSolution(ArrayDeque<Resource> solution, ElementInstance fe) {
+		engine.removeFromSolution(solution, fe);
 	}
 
 	/**
@@ -287,8 +289,8 @@ public class Resource extends VariableStoreSimulationObject implements Describab
      * @return True if the resource could be correctly released. False if the availability
      * time of the resource had already expired.
      */
-    public boolean releaseResource() {
-    	return engine.releaseResource();
+    public boolean releaseResource(ElementInstance ei) {
+    	return engine.releaseResource(ei);
     }
     
     public ArrayList<ActivityManager> getCurrentManagers() {

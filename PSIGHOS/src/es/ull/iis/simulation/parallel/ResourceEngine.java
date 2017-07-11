@@ -1,5 +1,6 @@
 package es.ull.iis.simulation.parallel;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -7,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.model.ActivityManager;
+import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
@@ -26,8 +28,8 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
     protected final TreeMap<ResourceType, Long> currentRoles;
     /** A counter of the valid timetable entries which this resource is following */
     private final AtomicInteger validTTEs = new AtomicInteger();
-    /** Work item which currently holds this resource */
-    protected ElementInstance currentFE = null;
+    /** Element which currently holds this resource */
+    protected Element currentElem = null;
     /** List of elements trying to book this resource */
     protected final TreeMap<ElementInstanceEngine, ResourceType> bookList;
     /** Availability flag */
@@ -163,16 +165,16 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 * @param ei Work item trying to catch this resource
 	 * @return <code>True</code> if this resource can be used in the solution; <code>false</code> otherwise.
 	 */
-	public boolean add2Solution(ResourceType rt, ElementInstance ei) {
+	public boolean add2Solution(ArrayDeque<Resource> solution, ResourceType rt, ElementInstance ei) {
 		if (notCanceled) {
 	    	if (inSeveralManagers()) {
 	            // Checks if the resource is busy (taken by other element or conflict in the same activity)
 	    		waitSemaphore();
 	    		final ElementInstanceEngine engine = ((ElementInstanceEngine)ei.getEngine());
 	    		// First checks if this resource was previously booked by this element 
-	        	if ((currentFE == null) && !isBooked(ei)) {
+	        	if ((currentElem == null) && !isBooked(ei)) {
 	            	addBook(engine, rt);
-	    	        ei.pushResource(modelRes);
+	            	solution.push(modelRes);
 	    	        engine.addConflict();
 		        	// No other element has tried to book this resource
 		        	if (modelRes.getCurrentResourceType() == null)
@@ -188,7 +190,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	            if (isAvailable(rt) && (modelRes.getCurrentResourceType() == null)) {
 	    	        // This resource belongs to the solution...
 	            	modelRes.setCurrentResourceType(rt);
-	    	        ei.pushResource(modelRes); 	        
+	            	solution.push(modelRes); 	        
 	            	return true;
 	            }
 	    	}
@@ -200,10 +202,10 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 * Removes this resource from a solution it was tentatively added to. 
 	 * @param wi Work item which won't use this resource to carry out an activity.
 	 */
-	public void removeFromSolution(ElementInstance ei) {
+	public void removeFromSolution(ArrayDeque<Resource> solution, ElementInstance ei) {
     	if (inSeveralManagers()) {
     		waitSemaphore();
-	        ei.popResource();
+    		solution.remove(modelRes);
     		final ElementInstanceEngine engine = ((ElementInstanceEngine)ei.getEngine());
 	        engine.removeConflict();
 	        final ResourceType rt = bookList.get(ei.getEngine());
@@ -218,7 +220,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
     	}
     	else {
     		modelRes.setCurrentResourceType(null);
-	        ei.popResource();    		
+    		solution.remove(modelRes);
     	}
 	}
 	
@@ -231,7 +233,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	protected boolean checkSolution(ElementInstanceEngine ei) {
 		if (inSeveralManagers()) {
 			waitSemaphore();
-			if (currentFE == null) {
+			if (currentElem == null) {
 				modelRes.setCurrentResourceType(bookList.get(ei));
 			}
 			else {
@@ -279,19 +281,19 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	/**
 	 * Definitely takes this resource by setting its current work item. If the resource was booked, the 
 	 * reservation is released. 
-	 * @param wi The work item which an element is executing
+	 * @param ei The element instance which an element is executing
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
-	public long catchResource(ElementInstance wt) {
-		simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, modelRes.getCurrentResourceType(), wt, wt.getElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
+	public long catchResource(ElementInstance ei) {
+		simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, modelRes.getCurrentResourceType(), ei, ei.getElement(), (ResourceHandlerFlow) ei.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
 		if (inSeveralManagers()) {
 			waitSemaphore();
-			removeBook((ElementInstanceEngine) wt.getEngine());
-			currentFE = wt;
+			removeBook((ElementInstanceEngine) ei.getEngine());
+			currentElem = ei.getElement();
 			signalSemaphore();
 		}
 		else
-			currentFE = wt;
+			currentElem = ei.getElement();
 		return currentRoles.get(modelRes.getCurrentResourceType());
 	}
 	
@@ -302,10 +304,10 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
      * @return True if the resource could be correctly released. False if the availability
      * time of the resource had already expired.
      */
-    public boolean releaseResource() {
+    public boolean releaseResource(ElementInstance ei) {
 		waitSemaphore();
-    	simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, modelRes.getCurrentResourceType(), currentFE, currentFE.getElement(), (ResourceHandlerFlow) currentFE.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
-        currentFE = null;
+    	simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, modelRes.getCurrentResourceType(), ei, currentElem, (ResourceHandlerFlow) ei.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
+        currentElem = null;
         modelRes.setCurrentResourceType(null);        
         if (modelRes.isTimeOut()) {
         	modelRes.setTimeOut(false);
@@ -317,8 +319,8 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
     }
     
  	@Override
-	public ElementInstance getCurrentElementInstance() {
-		return currentFE;
+	public Element getCurrentElement() {
+		return currentElem;
 	}
  	
     /**
@@ -364,7 +366,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 
 	@Override
 	public boolean isAvailable(ResourceType rt) {
-		return ((currentFE == null) && (notCanceled) && (getAvailability(rt) > simul.getTs()));
+		return ((currentElem == null) && (notCanceled) && (getAvailability(rt) > simul.getTs()));
 	}
     
 }

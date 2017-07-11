@@ -4,6 +4,11 @@
 package es.ull.iis.simulation.port.sea2yard;
 
 import java.util.Arrays;
+import java.util.List;
+
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -21,14 +26,16 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 	private final int nSolutions;
 	private final StowagePlan[] plans;
 	private final boolean simulateAll;
+	private final boolean test;
 	private int simCounter;
 
-	public CalculateOptimumSpecificVehiclesExperiment(StowagePlan[] plans, int nSolutions, int minVehicles, int maxVehicles, boolean simulateAll) {
+	public CalculateOptimumSpecificVehiclesExperiment(StowagePlan[] plans, int nSolutions, int minVehicles, int maxVehicles, boolean simulateAll, boolean test) {
 		this.minVehicles = minVehicles;
 		this.maxVehicles = maxVehicles;
 		this.nSolutions = nSolutions;
 		this.plans = plans;
 		this.simulateAll = simulateAll;
+		this.test = test;
 		simCounter = 0;
 	}
 	
@@ -46,16 +53,20 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 	}
 
 	private void simulate(int solution, int[]nVehicles) {
-		System.out.print(simCounter);
-		for (int i = 0; i < nVehicles.length; i++)
-			System.out.print("\t" + nVehicles[i]);
-		System.out.println();
-//		final StowagePlan plan = plans[solution];
-//		final PortModel model = new PortModel(plan, simCounter, nVehicles, 0.0);
-//		final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, simCounter, TimeUnit.SECOND); 
-//		model.addInfoReceiver(listener);
-//		model.run();
-//		printResults(simCounter, solution, listener, nVehicles);
+		if (test) {
+			System.out.print(simCounter);
+			for (int i = 0; i < nVehicles.length; i++)
+				System.out.print("\t" + nVehicles[i]);
+			System.out.println();
+		}
+		else {
+			final StowagePlan plan = plans[solution];
+			final PortModel model = new PortModel(plan, simCounter, nVehicles, 0.0);
+			final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, simCounter, TimeUnit.SECOND); 
+			model.addInfoReceiver(listener);
+			model.run();
+			printResults(simCounter, solution, listener, nVehicles);
+		}
 		simCounter++;		
 	}
 
@@ -75,19 +86,18 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 		}
 	}
 	
-	public void simulateNVehiclesAll(int solution, int[]nVehicles, int level, int leftVehicles) {
-		final int maxLevel = nVehicles.length - 1;
-		if (level == maxLevel) {
+	public void simulateNVehiclesNonZero(int solution, int[]nVehicles, int level, int leftVehicles) {
+		if (level == 0) {
 			nVehicles[level] = leftVehicles;
 			simulate(solution, nVehicles);
 		}
 		else {
-			nVehicles[level] = leftVehicles;
-			Arrays.fill(nVehicles, level+1, maxLevel+1, 0);
+			nVehicles[level] = leftVehicles - level;
+			Arrays.fill(nVehicles, 0, level, 1);
 			simulate(solution, nVehicles);
-			for (int n = leftVehicles - 1; n >= 0; n--) {
+			for (int n = leftVehicles - level - 1; n >= 1; n--) {
 				nVehicles[level] = n;
-				simulateNVehicles(solution, nVehicles, level + 1, leftVehicles - n);
+				simulateNVehiclesNonZero(solution, nVehicles, level - 1, leftVehicles - n);
 			}
 		}
 	}
@@ -99,7 +109,12 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 			for (int i = 0; i < nSolutions; i++) {
 				final StowagePlan plan = plans[i];
 				for (int nVehicles = minVehicles; nVehicles <= maxVehicles; nVehicles++) {
-					simulateNVehicles(i, new int[plan.getNCranes() + 1], plan.getNCranes(), nVehicles);					
+					for (int n = nVehicles; n > 0; n--) {
+						final int[] arrayVehicles = new int[plan.getNCranes() + 1];
+						arrayVehicles[plan.getNCranes()] = n;
+						simulateNVehicles(i, arrayVehicles, plan.getNCranes() - 1, nVehicles - n);					
+					}
+					simulateNVehiclesNonZero(i, new int[plan.getNCranes() + 1], plan.getNCranes() - 1, nVehicles);					
 				}
 			}
 		}
@@ -158,30 +173,41 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 //		model.run();
 //		printResults(0, 0, listener, nVehicles);
 //		simulateNVehicles(0, new int[4], 0, 10);
-		if (args.length < 4) {
-			System.err.println("Wrong argument number");
-			System.exit(-1);
-		}
-		else {
-			final String inputFile = args[0];
-			int nSolutions = Integer.parseInt(args[1]);
-			final int minVehicles = Integer.parseInt(args[2]);
-			final int maxVehicles = Integer.parseInt(args[3]);
-			boolean all = false;
-			if (args.length > 4) {
-				if (args[4].equalsIgnoreCase("-a") || args[4].equalsIgnoreCase("--all")) {
-					all = true;
-				}
-			}
+		final Arguments args1 = new Arguments();
+		try {
+			JCommander jc = JCommander.newBuilder()
+			  .addObject(args1)
+			  .build();
+			jc.parse(args);
+			final int minVehicles = args1.minMax.get(0);
+			final int maxVehicles = args1.minMax.get(1);
 			if (minVehicles > maxVehicles) {
-				System.err.println("Wrong argument format: maxVehicles (" + maxVehicles + ") must be >= than minVehicles (" + minVehicles + ")");
-				System.exit(-1);
+				ParameterException ex = new ParameterException("Wrong argument format: maxVehicles (" + maxVehicles + ") must be >= than minVehicles (" + minVehicles + ")");
+				ex.setJCommander(jc);
+				throw ex;
 			}
-	        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(inputFile);
-	        if (plans.length < nSolutions)
-	        	nSolutions = plans.length;
-	       	new CalculateOptimumSpecificVehiclesExperiment(plans, nSolutions, minVehicles, maxVehicles, all).start();
-		}
+	        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(args1.fileName);
+	        if (plans.length < args1.nSolutions)
+	        	args1.nSolutions = plans.length;
+	       	new CalculateOptimumSpecificVehiclesExperiment(plans, args1.nSolutions, minVehicles, maxVehicles, args1.all, args1.test).start();
+		} catch (ParameterException ex) {
+			System.out.println(ex.getMessage());
+			ex.usage();
+			System.exit(-1);
+		}		
 	}
 
+	private static class Arguments {
+		@Parameter(names ={"--input", "-i"}, description = "Input \"sol\" file with QCSP solutions", required = true, order = 0)
+		private String fileName;
+		
+		@Parameter(names ={"--solutions", "-s"}, description = "Number of QCSP solutions to process", order = 2)
+		private int nSolutions = 1;
+		@Parameter(names ={"--minmax", "-mm"}, arity = 2, description = "Min and max number of delivery vehicles", required=true, order = 1)
+		private List<Integer> minMax;
+		@Parameter(names={"--all", "-a"}, description = "Tests all the possible combinations of delivery vehicles")
+		private boolean all = false;
+		@Parameter(names ={"--test", "-t"}, description = "No simulation: just check")
+		private boolean test;
+	}
 }

@@ -10,23 +10,31 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
- * @author Iván Castilla
+ * A vessel that carries containers to be unloaded at the port. The vessel is divided into bays, and
+ * each bay contains several containers piled in a specified order. The bottom containers in a bay cannot be 
+ * unloaded until the corresponding top containers have been unloaded.
+ * 
+ * @author Iván Castilla Rodríguez
  *
  */
 public class Vessel implements Serializable {
-	/**
-	 * 
-	 */
+	/** Constant for serializing this class */
 	private static final long serialVersionUID = 76987236887987432L;
-	/** Bays of the ship */
+	/** Content of the bays of the ship */
 	final private ArrayList<Integer>[] bays;
+	/** The bay where a specified container is */
 	final private TreeMap<Integer, Integer> bayPosition;
+	/** A precomputed time that represents how long does it take to unload each container */
 	final private TreeMap<Integer, Long> processingTime;
+	/** The time unit for processing times */
 	final private TimeUnit unit;
+	/** The maximum number of containers in a bay */
 	private int maxDeep;
 	
 	/**
-	 * 
+	 * Creates a vessel
+	 * @param nBays Number of bays that divide the vessel
+	 * @param unit Time unit to express the duration of processes in the vessel
 	 */
 	@SuppressWarnings("unchecked")
 	public Vessel(int nBays, TimeUnit unit) {
@@ -41,9 +49,9 @@ public class Vessel implements Serializable {
 
 	/**
 	 * Allocates a container to the specified bay
-	 * @param containerId
-	 * @param bayId
-	 * @param procTime
+	 * @param containerId Container identifier
+	 * @param bayId Bay identifier
+	 * @param procTime Precomputed duration of the container's unloading process  
 	 * @return The position in the bay of the allocated container 
 	 */
 	public int add(int containerId, int bayId, long procTime) {
@@ -98,22 +106,37 @@ public class Vessel implements Serializable {
 		return bayPosition.get(containerId);
 	}
 	
-	
+	/**
+	 * Returns the time spent in unloading a specified container
+	 * @param containerId Specified container
+	 * @return the time spent in unloading a specified container
+	 */
 	public long getContainerProcessingTime(int containerId) {
 		return processingTime.get(containerId);
 	}
 
+	/**
+	 * Returns the total amount of containers in this vessel
+	 * @return the total amount of containers in this vessel
+	 */
 	public int getNContainers() {
 		return bayPosition.size();
 	}
 	
 	/**
-	 * @return the unit
+	 * Returns the time unit used to express the duration of processes in the vessel
+	 * @return the time unit used to express the duration of processes in the vessel
 	 */
 	public TimeUnit getUnit() {
 		return unit;
 	}
 
+	/**
+	 * A convenient method to print a container. Creates a string that adds blanks before and after the container identifier
+	 * to properly align the container. Works fine up to 9999 containers. 
+	 * @param contId Container identifier
+	 * @return An aligned string representing the container.
+	 */
 	private String printContainerId(int contId) {
 		if (contId < 10)
 			return "    " + contId + "   ";
@@ -121,6 +144,8 @@ public class Vessel implements Serializable {
 			return "   " + contId + "   ";
 		else if (contId < 1000)
 			return "  " + contId + "   ";
+		else if (contId < 10000)
+			return "  " + contId + "  ";
 		else
 			return "" + contId;
 	}

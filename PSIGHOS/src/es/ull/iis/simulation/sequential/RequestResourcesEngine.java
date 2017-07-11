@@ -3,8 +3,11 @@
  */
 package es.ull.iis.simulation.sequential;
 
+import java.util.ArrayDeque;
+
 import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.ElementInstance;
+import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.engine.EngineObject;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
@@ -55,7 +58,7 @@ public class RequestResourcesEngine extends EngineObject implements es.ull.iis.s
     }
 
 	@Override
-	public boolean checkWorkGroup(ActivityWorkGroup wg, ElementInstance ei) {
+	public boolean checkWorkGroup(ArrayDeque<Resource> solution, ActivityWorkGroup wg, ElementInstance ei) {
     	if (!wg.getCondition().check(ei))
     		return false;
     	int ned[] = wg.getNeeded().clone();
@@ -64,7 +67,7 @@ public class RequestResourcesEngine extends EngineObject implements es.ull.iis.s
         int []pos = {0, -1}; // "Start" position
         
         // B&B algorithm for finding a solution
-        return wg.findSolution(pos, ned, ei);
+        return wg.findSolution(solution, pos, ned, ei);
 	}
 
 }

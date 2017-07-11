@@ -28,20 +28,26 @@ import es.ull.iis.simulation.variable.Variable;
 import es.ull.iis.util.Output;
 
 /**
+ * The main simulation class. Defines all the components of the model and the logical structures required to simulate them.
+ * 
  * @author Ivan Castilla Rodriguez
  *
  */
 public class Simulation implements Identifiable, Runnable, Describable, VariableStore {
+	/** The default time unit used by the simulation */
+	private final static TimeUnit DEF_TIME_UNIT = TimeUnit.MINUTE; 
+	/** If true, notifies Activity Managers that an element is available randomly; otherwise, the notification is purely sequential */
+	private final static boolean RANDOM_NOTIFY_AMS = false;
+	
 	/** A short text describing this simulation. */
 	protected final String description;
-	/** ParallelSimulationEngine time unit */
+	/** Time unit of the simulation */
 	protected final TimeUnit unit;
-	/** Model identifier */
+	/** A unique simulation identifier */
 	protected final int id;
-	private final static TimeUnit defTimeUnit = TimeUnit.MINUTE; 
 	/** The identifier to be assigned to the next element */ 
 	private int elemCounter = 0;
-//	private final ArrayList<EventSource> eventSourceList = new ArrayList<EventSource>();
+	
 	/** List of element types present in the simulation. */
 	private final ArrayList<ElementType> elementTypeList = new ArrayList<ElementType>();
 	/** List of resources present in the simulation. */
@@ -54,9 +60,9 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	private final ArrayList<BasicFlow> flowList = new ArrayList<BasicFlow>();
 	/** List of activities present in the simulation. */
 	private final ArrayList<RequestResourcesFlow> actList = new ArrayList<RequestResourcesFlow>();
-//	private final ArrayList<Element> elemList = new ArrayList<Element>();
-	/** List of element generators of the simulation. */
+	/** List of time-driven element generators of the simulation. */
 	private final ArrayList<TimeDrivenGenerator<?>> tGenList = new ArrayList<TimeDrivenGenerator<?>>();
+	/** List of condition-driven element generators of the simulation. */
 	private final ArrayList<ConditionDrivenGenerator<?>> cGenList = new ArrayList<ConditionDrivenGenerator<?>>();
 	/** List of activity managers that partition the simulation. */
 	private final ArrayList<ActivityManager> amList = new ArrayList<ActivityManager>();
@@ -81,33 +87,40 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 
 	/** A value representing the simulation's end timestamp without unit */
 	protected final long endTs;
-	
+
 	/**
+	 * Creates a new instance of a simulation using the default time unit.
 	 * 
+	 * @param id Simulation identifier
+	 * @param description A short text describing this simulation.
+	 * @param startTs Simulation start expressed in simulation time units
+	 * @param endTs Simulation end expressed in simulation time units
 	 */
 	public Simulation(int id, String description, long startTs, long endTs) {
-		this(id, description, defTimeUnit, startTs, endTs);
+		this(id, description, DEF_TIME_UNIT, startTs, endTs);
 	}
 
 	/**
-	 * Creates a new instance of a model
+	 * Creates a new instance of a simulation 
 	 *
+	 * @param id Simulation identifier
 	 * @param description A short text describing this simulation.
 	 * @param unit This simulation's time unit
-	 * @param startTs Timestamp of simulation's start expressed in ParallelSimulationEngine Time Units
-	 * @param endTs Timestamp of simulation's end expressed in ParallelSimulationEngine Time Units
+	 * @param startTs Simulation start timestamp
+	 * @param endTs Simulation end timestamp
 	 */
 	public Simulation(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
 		this(id, description, unit, unit.convert(startTs), unit.convert(endTs));
 	}
 	
 	/**
-	 * Creates a new instance of a model
+	 * Creates a new instance of a simulation
 	 *
+	 * @param id Simulation identifier
 	 * @param description A short text describing this simulation.
 	 * @param unit This simulation's time unit
-	 * @param startTs Timestamp of simulation's start expressed in ParallelSimulationEngine Time Units
-	 * @param endTs Timestamp of simulation's end expressed in ParallelSimulationEngine Time Units
+	 * @param startTs Simulation start expressed in simulation time units
+	 * @param endTs Simulation end expressed in simulation time units
 	 */
 	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
 		this.id = id;
@@ -123,10 +136,11 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	}
 	
 	/**
-	 * @return the defTimeUnit
+	 * Returns the default simulation time unit 
+	 * @return the default simulation time unit
 	 */
 	public static TimeUnit getDefTimeUnit() {
-		return defTimeUnit;
+		return DEF_TIME_UNIT;
 	}
 
 	/**
@@ -197,6 +211,14 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	}
 
 	/**
+	 * Returns whether {@link ActivityManager Activity managers} are notified randomly when an element is available
+	 * @return True is activity managers are notified randomly; false otherwise.
+	 */
+	public static boolean isRandomNotifyAMs() {
+		return RANDOM_NOTIFY_AMS;
+	}
+	
+	/**
 	 * Sets an output for debugging and error messages.
 	 * @param out The new output for debugging and error messages
 	 */
@@ -204,18 +226,34 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 		Simulation.out = out;
 	}
 
+	/**
+	 * Prints a debug message
+	 * @param description Debug message
+	 */
 	public static void debug(String description) {
 		out.debug(description);
 	}
 
+	/**
+	 * Prints an error message
+	 * @param description Error message
+	 */
 	public static void error(String description) {
 		out.error(description);
 	}
 
+	/**
+	 * Returns true if debug is enable; false otherwise
+	 * @return true if debug is enable; false otherwise
+	 */
 	public static boolean isDebugEnabled() {
 		return out.isDebugEnabled();
 	}
 	
+	/**
+	 * Returns a unique identifier for a newly created element. 
+	 * @return a unique identifier for a newly created element.
+	 */
 	public int getNewElementId() {
 		return elemCounter++;
 	}
@@ -242,14 +280,13 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * <ol>
 	 * <li>If no customized {@link ActivityManagerCreator AM creator} has been defined, the 
 	 * {@link StandardActivityManagerCreator default one} is used.</li>
+	 * <li>If no customized {@link SimulationEngine simulation engine} has been defined, a
+	 * {@link SequentialSimulationEngine sequential engine} is used.</li>
 	 * <li>The user defined method {@link #init()} is invoked.</li>
 	 * <li>{@link Resource Resources} and {@link Generator generators} are started.</li>
 	 * <li>The main simulation loop is run</li>
 	 * <li>The user defined method {@link #end()} is invoked.</li>
 	 * </ol>
-	 * The execution loop consists on waiting for the elements which are in execution, then the 
-	 * waiting events are executed (@see #execWaitingElements()} 
-     * advanced and a new set of events is executed.<br>
      */ 
 	@Override
 	public void run() {
@@ -293,8 +330,8 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	}
 
 	/**
-	 * Checks the conditions stated int he condition-driven generators. If the condition meets, creates the corresponding event sources.
-	 * @param ts ParallelSimulationEngine time when the simulations are checked.
+	 * Checks the conditions stated in the condition-driven generators. If the condition meets, creates the corresponding event sources.
+	 * @param ts simulation time when the simulations are checked.
 	 */
 	public void checkConditions(long ts) {
 		for (ConditionDrivenGenerator<?> gen : cGenList) {
@@ -310,9 +347,6 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	public void reset() {		
 	}
 	
-//	public void add(EventSource ev) { 
-//		eventSourceList.add(ev);
-//	}
 	/**
 	 * Adds an {@link ElementType} to the model. This method is invoked from the object's constructor.
 	 * @param et Element Type that's added to the model.
@@ -320,6 +354,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	public void add(ElementType et) { 
 		elementTypeList.add(et);
 	}
+	
 	/**
 	 * Adds a {@link Resource} to the simulation. This method is invoked from the object's constructor.
 	 * @param res Resource that's added to the model.
@@ -327,6 +362,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	public void add(Resource res) { 
 		resourceList.add(res);
 	}
+	
 	/**
 	 * Adds an {@link ResourceType} to the model. This method is invoked from the object's constructor.
 	 * @param rt Resource Type that's added to the model.
@@ -334,6 +370,11 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	public void add(ResourceType rt) { 
 		resourceTypeList.add(rt);
 	}
+
+	/**
+	 * Adds an {@link WorkGroup} to the model. This method is invoked from the object's constructor.
+	 * @param wg Workgroup that's added to the model.
+	 */
 	public void add(WorkGroup wg) { 
 		workGroupList.add(wg);
 	}
@@ -346,58 +387,102 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 		if (f instanceof RequestResourcesFlow)
 			actList.add((RequestResourcesFlow)f);
 	}
+	
+	/**
+	 * Adds an {@link TimeDrivenGenerator} to the model. This method is invoked from the object's constructor.
+	 * @param gen Time-driven generator that's added to the model.
+	 */
 	public void add(TimeDrivenGenerator<?> gen) {
 		tGenList.add(gen);
 	}
+	
+	/**
+	 * Adds an {@link ConditionDrivenGenerator} to the model. This method is invoked from the object's constructor.
+	 * @param gen Condition-driven generator that's added to the model.
+	 */
 	public void add(ConditionDrivenGenerator<?> gen) {
 		cGenList.add(gen);
 	}
 	
 	/**
-	 * Adds an {@link ActivityManager} to the simulation. The activity managers are
-	 * automatically added from their constructor.
+	 * Adds an {@link ActivityManager} to the simulation. The activity managers are  automatically added from their constructor.
 	 * @param am Activity manager.
 	 */
 	public void add(ActivityManager am) {
 		amList.add(am);
 	}
-//	public void add(Element elem) {
-//		elemList.add(elem);
-//	}
 
-//	public List<EventSource> getEventSourceList() { 
-//		return eventSourceList;
-//	}
+	/**
+	 * Returns the list of {@link ElementType element types} defined within this simulation
+	 * @return the list of {@link ElementType element types} defined within this simulation
+	 */
 	public List<ElementType> getElementTypeList() { 
 		return elementTypeList;
 	}
+	
+	/**
+	 * Returns the list of {@link Resource resources} defined within this simulation
+	 * @return the list of {@link Resource resources} defined within this simulation
+	 */
 	public List<Resource> getResourceList() { 
 		return resourceList;
 	}
+	
+	/**
+	 * Returns the list of {@link ResourceType resource types} defined within this simulation
+	 * @return the list of {@link ResourceType resource types} defined within this simulation
+	 */
 	public List<ResourceType> getResourceTypeList() { 
 		return resourceTypeList;
 	}
+	
+	/**
+	 * Returns the list of {@link WorkGroup workgroups} defined within this simulation
+	 * @return the list of {@link WorkGroup workgroups} defined within this simulation
+	 */
 	public List<WorkGroup> getWorkGroupList() { 
 		return workGroupList;
 	}
+	
+	/**
+	 * Returns the list of {@link BasicFlow flows} defined within this simulation
+	 * @return the list of {@link BasicFlow flows} defined within this simulation
+	 */
 	public List<BasicFlow> getFlowList() { 
 		return flowList;
 	}
+	
+	/**
+	 * Returns the list of {@link RequestResourcesFlow flows requesting resources} defined within this simulation
+	 * @return the list of {@link RequestResourcesFlow flows requesting resources} defined within this simulation
+	 */
 	public List<RequestResourcesFlow> getActivityList() { 
 		return actList;
 	}
+
+	/**
+	 * Returns the list of {@link TimeDrivenGenerator time-driven generators} defined within this simulation
+	 * @return the list of {@link TimeDrivenGenerator time-driven generators} defined within this simulation
+	 */
 	public List<TimeDrivenGenerator<?>> getTimeDrivenGeneratorList() {
 		return tGenList;
 	}
+
+	/**
+	 * Returns the list of {@link ConditionDrivenGenerator condition-driven generators} defined within this simulation
+	 * @return the list of {@link ConditionDrivenGenerator condition-driven generators} defined within this simulation
+	 */
 	public List<ConditionDrivenGenerator<?>> getConditionDrivenGeneratorList() {
 		return cGenList;
 	}
+
+	/**
+	 * Returns the list of {@link ActivityManager activity managers} defined within this simulation
+	 * @return the list of {@link ActivityManager activity managers} defined within this simulation
+	 */
 	public List<ActivityManager> getActivityManagerList() {
 		return amList;
 	}
-//	public List<Element> getElementList() {
-//	return elemList;
-//}
 	
 	/**
 	 * A convenience method for converting a timestamp to a long value expressed in the
@@ -546,7 +631,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 
 	/**
 	 * Returns the handler for the information produced by the execution of this simulation.
-	 * @param info TODO
+	 * @param info A piece of information produced by the simulation
 	 */
 	public Number notifyInfo(SimulationInfo info) {
 		return infoHandler.notifyInfo(info);
@@ -607,5 +692,5 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 		}
 
     }
-	
+
 }

@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.model;
 
+import java.util.ArrayDeque;
+
 import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
@@ -55,13 +57,14 @@ public class ResourceType extends SimulationObject implements Describable {
     /**
      * Searches the first available resource (a resource which is not being used yet) with 
      * this role. The search starts at position <code>ind</code>.   
+	 * @param solution Tentative solution with booked resources
      * @param ind Position to start the search.
      * @return The resource's index or -1 if there are not available resources.
      */
-    protected int getNextAvailableResource(int ind, ElementInstance fe) {
+    protected int getNextAvailableResource(ArrayDeque<Resource> solution, int ind, ElementInstance fe) {
     	final int total = availableResourceList.size();
         for (; ind < total; ind++) {
-        	if (availableResourceList.get(ind).add2Solution(this, fe)) {
+        	if (availableResourceList.get(ind).add2Solution(solution, this, fe)) {
             	return ind;
             }
         }
@@ -81,7 +84,7 @@ public class ResourceType extends SimulationObject implements Describable {
     	int disp = 0;
     	for (int i = ind; (i < total) && (disp < need); i++) {
     		final Resource res = availableResourceList.get(i);
-            if ((res.getCurrentElementInstance() == null) && (res.getCurrentResourceType() == null))
+            if ((!res.isSeized()) && (res.getCurrentResourceType() == null))
                 disp++;    		
     	}
     	if (disp < need)

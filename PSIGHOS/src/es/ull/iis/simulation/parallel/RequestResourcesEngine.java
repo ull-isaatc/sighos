@@ -78,7 +78,7 @@ public class RequestResourcesEngine extends EngineObject implements es.ull.iis.s
     }
 
 	@Override
-	public boolean checkWorkGroup(ActivityWorkGroup wg, ElementInstance ei) {
+	public boolean checkWorkGroup(ArrayDeque<Resource> solution, ActivityWorkGroup wg, ElementInstance ei) {
 		final ElementInstanceEngine engine = (ElementInstanceEngine)ei.getEngine();
     	engine.resetConflictZone();
     	if (!wg.getCondition().check(ei))
@@ -92,7 +92,7 @@ public class RequestResourcesEngine extends EngineObject implements es.ull.iis.s
         final int []pos = {0, -1}; // "Start" position
         
         // B&B algorithm for finding a solution
-        while (wg.findSolution(pos, ned, ei)) {
+        while (wg.findSolution(solution, pos, ned, ei)) {
     		engine.waitConflictSemaphore();
     		// All the resources taken for the solution only appears in this AM 
         	if (!engine.isConflictive()) 
@@ -101,16 +101,20 @@ public class RequestResourcesEngine extends EngineObject implements es.ull.iis.s
         	else {
 	        	modelReq.debug("Possible conflict. Recheck is needed " + ei.getElement());
         		// A recheck is needed
-        		if (engine.checkCaughtResources()) {
+	        	boolean checked = true; 
+	    		for (Resource res : solution)
+	    			if (!((ResourceEngine)res.getEngine()).checkSolution(engine)) {
+	    				checked = false;
+	    			}
+        		if (checked) {
         			return true;
         		}
         		else {
         			// Resets the solution
         			engine.signalConflictSemaphore();
-        			final ArrayDeque<Resource> oldSolution = ei.getCaughtResources(); 
-        			while (!oldSolution.isEmpty()) {
-        				final Resource res = oldSolution.peek();
-        				res.removeFromSolution(ei);
+        			while (!solution.isEmpty()) {
+        				final Resource res = solution.peek();
+        				res.removeFromSolution(solution, ei);
         			}
         			ned = wg.getNeeded().clone();
         			pos[0] = 0;

@@ -16,31 +16,44 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * @author Iván Castilla
+ * A stowage plan that defines how a set of cranes will unload the containers from a vessel. Defines both the crane and the order 
+ * of the unload operations.
+ * 
+ * @author Iván Castilla Rodríguez
  *
  */
 public class StowagePlan implements Serializable {
-	/**
-	 * 
-	 */
+	/** Constant for serializing this class */
 	private static final long serialVersionUID = -3247224781219705052L;
-	private final ArrayList<Integer>[] plan;
+	/** An ordered list of containers per each crane */
+	private final ArrayList<Integer>[] schedule;
+	/** Which crane unloads each container */
 	private final int[] craneDoTask;
+	/** Initial position of each crane */
 	private final int[] initPosition;
+	/** The corresponding vessel */
 	private final Vessel vessel;
+	/** Number of containers to unload */ 
 	private int nContainers;
+	/** Number of available quay cranes */
 	private final int nCranes;
+	/** Safety distance, i.e., how far (in bays) must be a pair of cranes in order to operate or move */
 	private final int safetyDistance;
+	/** The theoretical optimum time to fulfill the stowage plan, precomputed by the QCSP solver  */
 	private final long objectiveValue;
-	
+
 	/**
-	 * 
+	 * Creates a new stowage plan
+	 * @param vessel Associated vessel
+	 * @param nCranes Number of available quay cranes
+	 * @param safetyDistance How far (in bays) must be a pair of cranes in order to operate or move
+	 * @param objectiveValue The theoretical optimum time to fulfill the stowage plan
 	 */
 	@SuppressWarnings("unchecked")
 	public StowagePlan(Vessel vessel, int nCranes, int safetyDistance, long objectiveValue) {
-		plan = (ArrayList<Integer>[]) new ArrayList<?>[nCranes];
+		schedule = (ArrayList<Integer>[]) new ArrayList<?>[nCranes];
 		for (int i = 0; i < nCranes; i++)
-			plan[i] = new ArrayList<Integer>();
+			schedule[i] = new ArrayList<Integer>();
 		initPosition = new int[nCranes];
 		this.vessel = vessel;
 		this.nCranes = nCranes;
@@ -50,56 +63,85 @@ public class StowagePlan implements Serializable {
 		nContainers = 0;
 	}
 
+	/**
+	 * Adds a set of containers to the list of tasks of a crane
+	 * @param craneId Crane identifier
+	 * @param containers List of containers
+	 */
     public void addAll(int craneId, ArrayList<Integer> containers) {
-        plan[craneId].addAll(containers);
+        schedule[craneId].addAll(containers);
         nContainers += containers.size();
         for (int contId : containers)
         	craneDoTask[contId] = craneId;
     }
 
+	/**
+	 * Adds a set of containers to the list of tasks of a crane
+	 * @param craneId Crane identifier
+	 * @param containers Array of containers
+	 */
 	public void addAll(int craneId, int[] containers) {
 		nContainers += containers.length;
 		for (int contId : containers) {
-			plan[craneId].add(contId);
+			schedule[craneId].add(contId);
 			craneDoTask[contId] = craneId;
 		}
 	}
 	
-	public ArrayList<Integer> get(int craneId) {
-		return plan[craneId];
+	/**
+	 * Returns the schedule for a specific crane
+	 * @param craneId Crane identifier
+	 * @return the schedule for a specific crane
+	 */
+	public ArrayList<Integer> getSchedule(int craneId) {
+		return schedule[craneId];
 	}
 	
+	/**
+	 * Sets the cranes' initial positions (expressed as a bay)
+	 * @param craneId Crane identifier
+	 * @param initPos The bay where a crane starts
+	 */
 	public void setInitialPosition(int craneId, int initPos) {
 		initPosition[craneId] = initPos;
 	}
 	
+	/**
+	 * Returns the initial position (bay) of a specified crane
+	 * @param craneId Crane identifier
+	 * @return the initial position (bay) of a specified crane
+	 */
 	public int getInitialPosition(int craneId) {
 		return initPosition[craneId];
 	}
 	
 	/**
-	 * @return the nContainers
+	 * Returns the number of containers to unload
+	 * @return the number of containers to unload
 	 */
 	public int getNContainers() {
 		return nContainers;
 	}
 
 	/**
-	 * @return the nCranes
+	 * Returns the number of avaiable quay cranes
+	 * @return the number of avaiable quay cranes
 	 */
 	public int getNCranes() {
 		return nCranes;
 	}
 
 	/**
-	 * @return the safetyDistance
+	 * Returns how far (in bays) must be a pair of cranes in order to operate or move
+	 * @return how far (in bays) must be a pair of cranes in order to operate or move
 	 */
 	public int getSafetyDistance() {
 		return safetyDistance;
 	}
 
 	/**
-	 * @return the objectiveValue
+	 * Returns the theoretical optimum time to fulfill the stowage plan
+	 * @return the theoretical optimum time to fulfill the stowage plan
 	 */
 	public long getObjectiveValue() {
 		return objectiveValue;
@@ -107,7 +149,7 @@ public class StowagePlan implements Serializable {
 
 	/**
 	 * Returns the structure of the vessel
-	 * @return the vessel
+	 * @return the structure of the vessel
 	 */
 	public Vessel getVessel() {
 		return vessel;
@@ -125,9 +167,9 @@ public class StowagePlan implements Serializable {
 	@Override
 	public String toString() {
 		final StringBuilder str = new StringBuilder();
-		for (int i = 0; i < plan.length; i++) {
+		for (int i = 0; i < schedule.length; i++) {
 			str.append("Crane " + i + " (INIT:" + initPosition[i] + "):");
-			for (int containerId : plan[i]) {
+			for (int containerId : schedule[i]) {
 				str.append("\t" + containerId);
 			}
 			str.append("\n");
@@ -135,6 +177,10 @@ public class StowagePlan implements Serializable {
 		return str.toString();
 	}
 	
+	/**
+	 * Saves this stowage plan to a file
+	 * @param fileName File name to save this stowage plan
+	 */
 	public void saveToFile(String fileName) {
 		ObjectOutput output = null;
 		try {
@@ -155,6 +201,11 @@ public class StowagePlan implements Serializable {
 		}
 	}
 	
+	/**
+	 * Loads a stowage plan from a file 
+	 * @param fileName File name that stores the stowage plan
+	 * @return A new stowage plan as stored in a file
+	 */
 	public static StowagePlan loadFromFile(String fileName) {
 		ObjectInput input = null;
 		StowagePlan plan = null;

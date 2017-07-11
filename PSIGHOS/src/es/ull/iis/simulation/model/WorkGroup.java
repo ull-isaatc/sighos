@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.model;
 
+import java.util.ArrayDeque;
+
 import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
@@ -74,6 +76,10 @@ public class WorkGroup extends SimulationObject implements Describable {
     	return needed;    	
     }
     
+    public ResourceType[] getResourceTypes() {
+    	return resourceTypes;
+    }
+    
     /**
      * Checks if a valid solution can be reached from the current situation. This method 
      * is used to bound the search tree.
@@ -96,12 +102,13 @@ public class WorkGroup extends SimulationObject implements Describable {
     /**
      * Returns the position [{@link ResourceType}, {@link Resource}] of the next valid 
      * solution. The initial position <code>pos</code> is supposed to be correct.
+	 * @param solution Tentative solution with booked resources
      * @param pos Initial position [ResourceType, Resource].
      * @param nec Resources needed.
      * @return [ResourceType, Resource] where the next valid solution can be found; or
      * <code>null</code> if no solution was found. 
      */
-    private int []searchNext(int[] pos, int []nec, ElementInstance fe) {
+    private int []searchNext(ArrayDeque<Resource> solution, int[] pos, int []nec, ElementInstance fe) {
         final int []aux = new int[2];
         aux[0] = pos[0];
         aux[1] = pos[1];
@@ -116,7 +123,7 @@ public class WorkGroup extends SimulationObject implements Describable {
             }
         }
         // Takes the first resource type and searches the NEXT available resource
-        aux[1] = resourceTypes[aux[0]].getNextAvailableResource(aux[1] + 1, fe);
+        aux[1] = resourceTypes[aux[0]].getNextAvailableResource(solution, aux[1] + 1, fe);
         // This resource type don't have enough available resources
         if (aux[1] == -1)
         	return null;
@@ -126,12 +133,13 @@ public class WorkGroup extends SimulationObject implements Describable {
 
     /**
      * Makes a depth first search looking for a solution.
+	 * @param solution Tentative solution with booked resources
      * @param pos Position to look for a solution [ResourceType, Resource] 
      * @param ned Resources needed
      * @return True if a valid solution exists. False in other case.
      */
-    public boolean findSolution(int []pos, int []ned, ElementInstance fe) {
-        pos = searchNext(pos, ned, fe);
+    public boolean findSolution(ArrayDeque<Resource> solution, int []pos, int []ned, ElementInstance fe) {
+        pos = searchNext(solution, pos, ned, fe);
         // No solution
         if (pos == null)
             return false;
@@ -142,14 +150,14 @@ public class WorkGroup extends SimulationObject implements Describable {
         // Bound
         if (hasSolution(pos, ned, fe))
         // ... the search continues
-            if (findSolution(pos, ned, fe))
+            if (findSolution(solution, pos, ned, fe))
                 return true;
         // There's no solution with this resource. Try without it
         final Resource res = resourceTypes[pos[0]].getResource(pos[1]);
-        res.removeFromSolution(fe);
+        res.removeFromSolution(solution, fe);
         ned[pos[0]]++;
         // ... and the search continues
-        return findSolution(pos, ned, fe);        
+        return findSolution(solution, pos, ned, fe);        
     }
 
 	public String getDescription() {

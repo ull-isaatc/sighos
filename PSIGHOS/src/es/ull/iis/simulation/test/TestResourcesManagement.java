@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.test;
 
+import es.ull.iis.simulation.condition.ResourceTypeAcquiredCondition;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Experiment;
@@ -13,6 +14,7 @@ import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.simulation.model.flow.ExclusiveChoiceFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
@@ -124,6 +126,55 @@ public class TestResourcesManagement extends Experiment {
 		}
 	}
 	
+	class ModelResourceManagementCheckingRTs extends Simulation {
+		public ModelResourceManagementCheckingRTs(int ind) {
+			super(ind, "Testing simple resource management with several different resource types" + ind, UNIT, 0, END_TIME);
+			
+			// The only element type
+			final ElementType et = new ElementType(this, "Package");
+			
+			// The three resource types involved in the simulation
+			final ResourceType rtOperatorA = new ResourceType(this, "OperatorA");
+			final ResourceType rtOperatorB = new ResourceType(this, "OperatorB");
+			final ResourceType rtTransportA = new ResourceType(this, "TransportA");
+			final ResourceType rtTransportB = new ResourceType(this, "TransportB");
+
+			// Create the specific resources
+			rtOperatorA.addGenericResources(1);
+			rtOperatorB.addGenericResources(1);
+			rtTransportA.addGenericResources(1);
+			rtTransportB.addGenericResources(1);
+			
+			// Define the workgroups
+			final WorkGroup wgOperatorA = new WorkGroup(this, rtOperatorA, 1);
+			final WorkGroup wgOperatorB = new WorkGroup(this, rtOperatorB, 1);
+			final WorkGroup wgTransportA = new WorkGroup(this, rtTransportA, 1);
+			final WorkGroup wgTransportB = new WorkGroup(this, rtTransportB, 1);
+			
+			// Create basic steps of the flow
+			final RequestResourcesFlow reqTransport = new RequestResourcesFlow(this, "Request transport", 1);
+			final ReleaseResourcesFlow relTransport = new ReleaseResourcesFlow(this, "Release transport", 1);
+			
+			final ActivityFlow actWorkAtLocationA = new ActivityFlow(this, "Work at location A");
+			final ActivityFlow actWorkAtLocationB = new ActivityFlow(this, "Work at location B");
+			
+			// Assign duration and workgroups to activities
+			reqTransport.addWorkGroup(wgTransportA);
+			reqTransport.addWorkGroup(wgTransportB);
+			actWorkAtLocationA.addWorkGroup(0, wgOperatorA, 10L);
+			actWorkAtLocationB.addWorkGroup(0, wgOperatorB, 10L);
+
+			ExclusiveChoiceFlow condFlow = new ExclusiveChoiceFlow(this);
+			condFlow.link(actWorkAtLocationB, new ResourceTypeAcquiredCondition(rtTransportB));
+			condFlow.link(relTransport);
+			// Create flow
+			reqTransport.link(actWorkAtLocationA).link(condFlow);
+			actWorkAtLocationB.link(relTransport);
+			SimulationPeriodicCycle cycle = SimulationPeriodicCycle.newDailyCycle(UNIT, 0);
+			new TimeDrivenElementGenerator(this, 2, et, reqTransport, cycle);
+		}
+	}
+	
 	/**
 	 * 
 	 */
@@ -133,7 +184,7 @@ public class TestResourcesManagement extends Experiment {
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		final Simulation model = new ModelResourceManagementSimple(ind);
+		final Simulation model = new ModelResourceManagementCheckingRTs(ind);
 		model.addInfoReceiver(new StdInfoView());
 		return model;
 	}

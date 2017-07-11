@@ -159,7 +159,7 @@ public class PortModel2 extends Simulation {
 		Flow flow = firstFlow;
 		
 		// Analyze the plan and move if needed
-		final ArrayList<Integer> cranePlan = plan.get(craneId);
+		final ArrayList<Integer> cranePlan = plan.getSchedule(craneId);
 		for (int i = 0; i < cranePlan.size(); i++) {
 			final int containerId = cranePlan.get(i);
 			final int containerBay = ship.getContainerBay(containerId);

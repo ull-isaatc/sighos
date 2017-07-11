@@ -123,13 +123,13 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
      * Releases the resources caught by this item to perform the activity.
      * @return A list of activity managers affected by the released resources
      */
-    public boolean releaseResources(ElementInstance fe) {
-        if (!fe.releaseCaughtResources(wg))
+    public boolean releaseResources(ElementInstance ei) {
+        if (!ei.releaseCaughtResources(wg))
         	return false;
-		simul.notifyInfo(new ElementActionInfo(simul, fe, fe.getElement(), this, fe.getExecutionWG(), ElementActionInfo.Type.REL, simul.getTs()));
-		if (fe.getElement().isDebugEnabled())
-			fe.getElement().debug("Finishes\t" + this + "\t" + getDescription());
-		afterFinalize(fe);
+		simul.notifyInfo(new ElementActionInfo(simul, ei, ei.getElement(), this, ei.getExecutionWG(), ElementActionInfo.Type.REL, simul.getTs()));
+		if (ei.getElement().isDebugEnabled())
+			ei.getElement().debug("Finishes\t" + this + "\t" + getDescription());
+		afterFinalize(ei);
 		return true;
 
     }

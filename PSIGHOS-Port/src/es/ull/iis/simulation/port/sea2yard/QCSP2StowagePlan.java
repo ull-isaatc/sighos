@@ -15,6 +15,9 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import com.kaizten.simulation.ports.qcsp.data.QCSPSolution;
 import com.kaizten.simulation.ports.qcsp.data.QCSProblem;
 import com.kaizten.simulation.ports.qcsp.population.Population;
@@ -31,16 +34,14 @@ public class QCSP2StowagePlan {
 	final int safetyDistance;
 	final int maxGenerations;
 	final int populationSize;
-	final String outputFileName;
 	final boolean keepOriginalDuration;
 	final boolean debug;
 	
-	public QCSP2StowagePlan(QCSProblem problem, int safetyDistance, int maxGenerations, int populationSize, String outputFileName, boolean keepOriginalDuration, boolean debug) {
+	public QCSP2StowagePlan(QCSProblem problem, int safetyDistance, int maxGenerations, int populationSize, boolean keepOriginalDuration, boolean debug) {
 		this.problem = problem;
 		this.safetyDistance = safetyDistance;
 		this.maxGenerations = maxGenerations;
 		this.populationSize = populationSize;
-		this.outputFileName = outputFileName;
 		this.keepOriginalDuration = keepOriginalDuration;
 		this.debug = debug;
 	}
@@ -147,7 +148,7 @@ public class QCSP2StowagePlan {
         System.out.println("}};");		
 	}
 	
-	public void saveToFile(StowagePlan[] plans) {
+	public void saveToFile(StowagePlan[] plans, final String outputFileName) {
 		ObjectOutput output = null;
 		try {
 			output = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(outputFileName)));
@@ -198,46 +199,26 @@ public class QCSP2StowagePlan {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		if (args.length < 4) {
-			System.err.println("Wrong argument number");
-			System.exit(-1);
-		}
-		else {
-			final String inputFile = args[0];
-			final String outputFile = args[1];
-			final int maxGen = Integer.parseInt(args[2]);
-			final int popSize = Integer.parseInt(args[3]);
-			if (popSize > maxGen) {
-				System.err.println("Wrong argument format: maxGeneration (" + maxGen + ") must be >= than populationSize (" + popSize + ")");
-				System.exit(-1);
-			}
-			boolean keep = false; 
-			boolean debug = false;
-			if (args.length > 4) {
-				if ((args[4].equalsIgnoreCase("--debug")) || (args[4].equalsIgnoreCase("-d"))){
-					debug = true;
-				}
-				if ((args[4].equalsIgnoreCase("--keep")) || (args[4].equalsIgnoreCase("-k"))){
-					keep = true;
-				}
-				if (args.length > 5) {				
-					if ((args[5].equalsIgnoreCase("--debug")) || (args[5].equalsIgnoreCase("-d"))){
-						debug = true;
-					}
-					if ((args[5].equalsIgnoreCase("--keep")) || (args[5].equalsIgnoreCase("-k"))){
-						keep = true;
-					}
-				}
+		final Arguments arguments = new Arguments();
+		try {
+			JCommander jc = JCommander.newBuilder()
+			  .addObject(arguments)
+			  .build();
+			jc.parse(args);
+			if (arguments.popSize > arguments.maxGen) {
+				ParameterException ex = new ParameterException("Wrong argument format: maxGeneration (" + arguments.maxGen + ") must be >= than populationSize (" + arguments.popSize + ")");
+				ex.setJCommander(jc);
+				throw ex;
 			}
 			// FIXME: Be careful: null safety distance by now!!
-			final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(new QCSProblem(inputFile), 0, maxGen, popSize, outputFile, keep, debug);
+			final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(new QCSProblem(arguments.inputFileName), 0, arguments.maxGen, arguments.popSize, arguments.keep, arguments.debug);
 			final Population population = planBuilder.getSolutions();
 			final StowagePlan[] plans = new StowagePlan[population.getSize()];
 			for (int i = 0; i < plans.length; i++) {
 				plans[i] = planBuilder.getStowagePlanFromQCSP(population.get(i));	
 			}
 			
-			if (debug) {				
+			if (arguments.debug) {				
 				System.out.println("Saved " + plans.length + " solutions");
 				System.out.println("Vessel for best solution: ");
 				System.out.println(plans[0].getVessel());
@@ -245,17 +226,28 @@ public class QCSP2StowagePlan {
 				System.out.println("Stowage plan for best solution:");
 				System.out.println(plans[0]);
 			}
-			planBuilder.saveToFile(plans);
-//			if (debug) {
-//				StowagePlan[] loadedPlans = loadFromFile(outputFile);
-//				System.out.println("Checked " + plans.length + " solutions");
-//				System.out.println("Checking vessel for best solution: ");
-//				System.out.println(loadedPlans[0].getVessel());
-//				System.out.println();
-//				System.out.println("Checcking Stowage plan for best solution:");
-//				System.out.println(loadedPlans[0]);				
-//			}
-		}
+			if (arguments.outputFileName != null)
+				planBuilder.saveToFile(plans, arguments.outputFileName);
+		} catch (ParameterException ex) {
+			System.out.println(ex.getMessage());
+			ex.usage();
+			System.exit(-1);
+		}		
+	}
+	
+	final private static class Arguments {
+		@Parameter(names ={"--input", "-i"}, description = "Input instance file", required = true, order = 0)
+		private String inputFileName;
+		@Parameter(names ={"--output", "-o"}, description = "Output \"sol\" file with QCSP solutions", order = 1)
+		private String outputFileName = null;		
+		@Parameter(names ={"--maxgen", "-m"}, description = "MaxGeneration parameter for QCSP", order = 2)
+		private int maxGen = 100;
+		@Parameter(names ={"--popsize", "-p"}, description = "PopulationSize parameter for QCSP", order = 3)
+		private int popSize = 100;
+		@Parameter(names ={"--debug", "-d"}, description = "Print debug messages", order = 5)
+		private boolean debug;
+		@Parameter(names ={"--keep", "-k"}, description = "Keep original duration of tasks", order = 4)
+		private boolean keep;
 	}
 
 }

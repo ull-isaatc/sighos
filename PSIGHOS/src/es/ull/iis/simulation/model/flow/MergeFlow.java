@@ -26,8 +26,6 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow 
 	/** A structure to control the arrival of incoming branches */
 	protected Map<Element, MergeFlowControl> control;
 	private MergeFlowEngine engine;
-	// FIXME Una posible mejora es hacer que haya factorías de los MergeFlowControl, de forma
-	// que sólo se pregunte por el safe una vez.
 	/** Indicates if the node is safe or it has to control several triggers for 
 	 * the same element through the same incoming branch before reset */ 
 	protected final boolean safe;

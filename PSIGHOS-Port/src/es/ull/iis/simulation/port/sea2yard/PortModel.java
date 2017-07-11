@@ -22,7 +22,16 @@ import simkit.random.RandomNumberFactory;
 /**
  * A port model where quay cranes cannot operate when there is another crane OPERATING inside the safety distance
  * @author Iván Castilla
+ * 
+ * TODO
+ *   Distancia de seguridad
+ *   Si se mueven de izq a der., si la primera tarea de la grúa 2 (más a la derecha) comienza más a la izq. que donde está la grúa 1, 
+ *   desplazar grúa 1 hacia la izq. respetando distancia de seguridad (mirar tareas ficiticias christopher)
+ *   Crear tarea fictica para grúa 1 de tiempo 0 y que dependa de un recurso que sólo se activa cuando la grúa 2
+ *   ha terminado las tareas conflictivas (Christopher intentará dármelo). 
  *
+ *	Al terminar su última tarea, hacer que la grúa se desplace lo más que pueda en la dirección en que estaba trabajando (no contabilizar estos
+ *tiempos en el valor objetivo).
  */
 public class PortModel extends Simulation {
 	protected final static TimeUnit PORT_TIME_UNIT = TimeUnit.SECOND;
@@ -80,7 +89,7 @@ public class PortModel extends Simulation {
 	}
 	
 	/**
-	 * Creates a probabilistic port simulation
+	 * Creates a port simulation
 	 * @param plan The stowage plan that defines the tasks to perform
 	 * @param id The simulation identifier
 	 * @param nVehicles Number of delivery vehicles to be used, distributed per crane. The last position of the array contains the
@@ -165,7 +174,7 @@ public class PortModel extends Simulation {
 			for (int craneId = 0; craneId < nCranes; craneId++) {
 				rtSpecificVehicle[craneId] = new ResourceType(this, DELIVERY_VEHICLE + craneId);
 				rtSpecificVehicle[craneId].addGenericResources(getNSpecificVehiclesXCrane(craneId));
-				for (int containerId : plan.get(craneId)) {
+				for (int containerId : plan.getSchedule(craneId)) {
 					wgSpecificContainers[containerId] = createUnloadWorkGroup(vessel.getContainerBay(containerId), safetyDistance, nBays, rtContainers[containerId], rtSpecificVehicle[craneId], rtOpPositions);
 				}
 			}
@@ -304,7 +313,7 @@ public class PortModel extends Simulation {
 		Flow flow = firstFlow;
 		
 		// Analyze the plan and move if needed
-		final ArrayList<Integer> cranePlan = plan.get(craneId);
+		final ArrayList<Integer> cranePlan = plan.getSchedule(craneId);
 		for (int i = 0; i < cranePlan.size(); i++) {
 			final int containerId = cranePlan.get(i);
 			final int containerBay = vessel.getContainerBay(containerId);

@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.model;
 
+import java.util.ArrayDeque;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -11,6 +12,8 @@ import es.ull.iis.simulation.model.engine.ElementEngine;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
+import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.model.flow.TaskFlow;
 import es.ull.iis.simulation.variable.EnumVariable;
 import es.ull.iis.util.Prioritizable;
@@ -28,6 +31,8 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	protected ElementInstance current = null;
 	/** Main element instance */
 	protected ElementInstance mainInstance = null;
+    /** List of seized resources indexed as groups by an identifier */
+    final protected SeizedResourcesCollection seizedResources;
 	/** The engine that executes specific behavior of the element */
 	private ElementEngine engine;
 	
@@ -35,6 +40,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 		super(simul, simul.getNewElementId(), "E");
 		this.elementType = elementType;
 		this.initialFlow = initialFlow;
+        this.seizedResources = new SeizedResourcesCollection();
 	}
 	
 	/**
@@ -103,6 +109,55 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 		}
 	}
 
+	/**
+	 * TODO
+	 * @param reqFlow
+	 * @param ei
+	 * @param newResources
+	 */
+    public void seizeResources(RequestResourcesFlow reqFlow, ElementInstance ei, ArrayDeque<Resource> newResources) {
+    	seizedResources.addResources(reqFlow, ei, newResources);
+    }
+
+    /**
+     * TODO
+     * @param relFlow
+     * @param ei
+     * @param wg
+     * @return
+     */
+    public ArrayDeque<Resource> releaseResources(ReleaseResourcesFlow relFlow, ElementInstance ei, WorkGroup wg) {
+    	return seizedResources.removeResources(relFlow, ei, wg);
+    	
+    }
+
+    /**
+     * TODO
+     * @return
+     */
+	public ArrayDeque<Resource> getCaughtResources() {
+		return seizedResources.getAll();
+	}
+
+	/**
+	 * TODO
+	 * @param reqFlow
+	 * @param ei
+	 * @return
+	 */
+	public ArrayDeque<Resource> getCaughtResources(RequestResourcesFlow reqFlow, ElementInstance ei) {
+		return seizedResources.get(reqFlow, ei);
+	}
+
+	/**
+	 * Returns <code>true</code> if the element has currently acquired any resource of type <code>rt</code>; <code>false</code> otherwise. 
+	 * @param rt ResourceType been searched
+	 * @return <code>true</code> if the element has currently acquired any resource of type <code>rt</code>
+	 */
+	public boolean isAcquiredResourceType(ResourceType rt) {
+		return seizedResources.containsResourceType(rt);
+	}
+	
 	public void initializeElementVars(TreeMap<String, Object> varList) {
 		for (Entry<String, Object> entry : varList.entrySet()) {
 			final String name = entry.getKey();
@@ -220,4 +275,116 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 		return engine;
 	}
 	
+	/**
+	 * A collection of resources that have been seized by this element. They are arranged in two levels: the
+	 * first level represents resource groups, as logically defined by the modeler; the second level represents
+	 * resource types.
+	 * @author Iván Castilla
+	 *
+	 */
+	protected final class SeizedResourcesCollection {
+	    /** List of seized resources indexed as groups by an identifier */
+	    final protected TreeMap<Integer, TreeMap<ResourceType, ArrayDeque<Resource>>> resources;
+		
+	    /**
+	     * Creates an empty collection of seized resources.
+	     */
+	    public SeizedResourcesCollection() {
+	    	resources = new TreeMap<Integer, TreeMap<ResourceType,ArrayDeque<Resource>>>();
+	    	resources.put(0, new TreeMap<ResourceType, ArrayDeque<Resource>>());
+		}
+	    
+	    public boolean containsResourceType(ResourceType rt) {
+	    	for (TreeMap<ResourceType, ArrayDeque<Resource>> item1 : resources.values()) {
+	    		if (item1.containsKey(rt))
+	    			return true;
+	    	}
+	    	return false;
+	    }
+	    
+	    public ArrayDeque<Resource> getAll() {
+	    	final ArrayDeque<Resource> list = new ArrayDeque<Resource>();
+	    	
+	    	for (TreeMap<ResourceType, ArrayDeque<Resource>> item1 : resources.values()) {
+	    		for (ArrayDeque<Resource> item2 : item1.values()) {
+	    			list.addAll(item2);
+	    		}
+	    	}
+	    	return list;
+	    }
+	    
+	    public ArrayDeque<Resource> get(RequestResourcesFlow reqFlow, ElementInstance ei) {
+	    	final ArrayDeque<Resource> list = new ArrayDeque<Resource>();
+	    	final int resId = (reqFlow.getResourcesId() < 0) ? -ei.getIdentifier() : reqFlow.getResourcesId();
+	    	
+	    	final TreeMap<ResourceType, ArrayDeque<Resource>> item1 = resources.get(resId);
+	    		for (ArrayDeque<Resource> item2 : item1.values()) {
+	    			list.addAll(item2);
+	    		}
+	    	return list;
+	    }
+	    
+	    public void addResources(RequestResourcesFlow reqFlow, ElementInstance ei, ArrayDeque<Resource> newResources) {
+	    	// If it's a request flow inside an activity, use minus the element instance identifier
+	    	final int resId = (reqFlow.getResourcesId() < 0) ? -ei.getIdentifier() : reqFlow.getResourcesId();
+	    	TreeMap<ResourceType, ArrayDeque<Resource>> collection = resources.get(resId);
+	    	// Not already created
+	    	if (collection == null) {
+	    		collection = new TreeMap<ResourceType, ArrayDeque<Resource>>();
+				resources.put(resId, collection);
+	    	}
+	    	for (final Resource res : newResources) {
+	    		final ResourceType currentRT = res.getCurrentResourceType();
+	    		if (!collection.containsKey(currentRT))
+	    			collection.put(currentRT, new ArrayDeque<Resource>());
+	    		collection.get(currentRT).push(res);
+	    	}
+	    }
+	    
+	    public ArrayDeque<Resource> removeResources(ReleaseResourcesFlow relFlow, ElementInstance ei, WorkGroup wg) {
+	    	final int resId = (relFlow.getResourcesId() < 0) ? -ei.getIdentifier() : relFlow.getResourcesId();
+	    	final TreeMap<ResourceType, ArrayDeque<Resource>> collection = resources.get(resId);
+	    	// Not already created
+	    	if (collection == null) {
+				error("Trying to release group of resources not already created. ID:" + resId);
+				return null;	    		
+	    	}
+	    	final ArrayDeque<Resource> toRemove = new ArrayDeque<Resource>();
+	    	// Remove all resources from group
+	    	if (wg == null) {
+	    		for (ArrayDeque<Resource> list : collection.values()) {
+	    			toRemove.addAll(list);
+	    		}
+	    		collection.clear();
+	    	}
+	    	else {
+	    		final ResourceType[] rts = wg.getResourceTypes();
+	    		for (int i = 0; i < rts.length; i++) {
+	    			final ArrayDeque<Resource> list = collection.get(rts[i]);
+	    			if (list == null) {
+	    				error("Trying to release non-seized resource of type " + rts[i] + " from group with ID " + resId);
+	    			}
+	    			else {
+	    				int max = wg.getNeeded(i);
+	    				// More resources to remove than available
+	    				if (wg.getNeeded(i) > collection.get(rts[i]).size()) {
+	    					max = collection.get(rts[i]).size();
+		    				error("Trying to release " + wg.getNeeded(i) + " resources of type " + rts[i] + " from group with ID " + resId + ". Available: " + collection.get(rts[i]).size());
+	    					list.addAll(collection.remove(rts[i]));
+	    				}
+	    				// Remove all resources from that type
+	    				else if (wg.getNeeded(i) == collection.get(rts[i]).size()) {
+	    					list.addAll(collection.remove(rts[i]));
+	    				}
+	    				else {
+			    			for (int j = 0; j < max; j++) {
+			    				toRemove.add(list.pop());
+			    			}
+		    			}
+	    			}
+	    		}
+	    	}
+	    	return toRemove;
+	    }
+	}
 }

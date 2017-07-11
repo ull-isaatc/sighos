@@ -1,10 +1,12 @@
 package es.ull.iis.simulation.sequential;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.model.ActivityManager;
+import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
@@ -25,8 +27,8 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
     protected final TreeMap<ResourceType, Long> currentRoles;
     /** A counter of the valid timetable entries which this resource is following. */
     private int validTTEs = 0;
-    /** Work thread which currently holds this resource */
-    protected ElementInstance currentFE = null;
+    /** Element which currently holds this resource */
+    protected Element currentElem = null;
     /** Availability flag */
     protected boolean notCanceled;
     /** The associated {@link Resource} */
@@ -101,12 +103,12 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 * current resource type; and adds this resource to the item's caught resources list.
 	 * A "taken" element continues being booked. The book is released when the resource itself is
 	 * released. 
-	 * @param wt The work thread in charge of executing the current flow
+	 * @param ei The element instance in charge of executing the current flow
 	 * @return The availability timestamp of this resource for this resource type 
 	 */
-	public long catchResource(ElementInstance wt) {
-		simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, modelRes.getCurrentResourceType(), wt, wt.getElement(), (ResourceHandlerFlow) wt.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
-		currentFE = wt;
+	public long catchResource(ElementInstance ei) {
+		simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, modelRes.getCurrentResourceType(), ei, ei.getElement(), (ResourceHandlerFlow) ei.getCurrentFlow(), ResourceUsageInfo.Type.CAUGHT, simul.getTs()));
+		currentElem = ei.getElement();
 		return currentRoles.get(modelRes.getCurrentResourceType());
 	}
 	
@@ -117,9 +119,9 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
      * @return True if the resource could be correctly released. False if the availability
      * time of the resource had already expired.
      */
-    public boolean releaseResource() {
-    	simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, modelRes.getCurrentResourceType(), currentFE, currentFE.getElement(), (ResourceHandlerFlow) currentFE.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
-        currentFE = null;
+    public boolean releaseResource(ElementInstance ei) {
+    	simul.getSimulation().notifyInfo(new ResourceUsageInfo(simul.getSimulation(), modelRes, modelRes.getCurrentResourceType(), ei, currentElem, (ResourceHandlerFlow) ei.getCurrentFlow(), ResourceUsageInfo.Type.RELEASED, simul.getTs()));
+        currentElem = null;
         modelRes.setCurrentResourceType(null);        
         if (timeOut) {
         	timeOut = false;
@@ -129,8 +131,8 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
     }
     
  	@Override
-	public ElementInstance getCurrentElementInstance() {
-		return currentFE;
+	public Element getCurrentElement() {
+		return currentElem;
 	}
  	
 	@Override
@@ -177,7 +179,7 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	 */
 	@Override
 	public boolean isAvailable(ResourceType rt) {
-		return ((currentFE == null) && (notCanceled) && (getAvailability(rt) > simul.getTs()));
+		return ((currentElem == null) && (notCanceled) && (getAvailability(rt) > simul.getTs()));
 	}
 	
 	/**
@@ -190,22 +192,22 @@ public class ResourceEngine extends EngineObject implements es.ull.iis.simulatio
 	}
 
 	@Override
-	public boolean add2Solution(ResourceType rt, ElementInstance ei) {
+	public boolean add2Solution(ArrayDeque<Resource> solution, ResourceType rt, ElementInstance ei) {
         // Checks if the resource is busy (taken by other element or conflict in the same activity)
 		// TODO: Check if "isAvailable" is required in this condition
         if (isAvailable(rt) && (modelRes.getCurrentResourceType() == null)) {
 	        // This resource belongs to the solution...
         	modelRes.setCurrentResourceType(rt);
-	        ei.pushResource(modelRes);    	        
+        	solution.push(modelRes);
         	return true;
         }
 		return false;
 	}
 
 	@Override
-	public void removeFromSolution(ElementInstance ei) {
+	public void removeFromSolution(ArrayDeque<Resource> solution, ElementInstance ei) {
 		modelRes.setCurrentResourceType(null);
-        ei.popResource();    		
+		solution.remove(modelRes);
 	}
 	
 	@Override

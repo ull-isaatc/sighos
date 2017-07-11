@@ -1,10 +1,12 @@
 package es.ull.iis.simulation.parallel;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
+import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.engine.EngineObject;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 
@@ -57,10 +59,12 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
             if (reqFlow.isExclusive()) {
             	engine.waitSemaphore();
                 if (e.getCurrent() == null) {
-                	if (reqFlow.isFeasible(ei)) {	// The activity can be performed
+    				final ArrayDeque<Resource> solution = reqFlow.isFeasible(ei);
+        			// There are enough resources to perform the activity
+        			if (solution != null) {
                 		e.setCurrent(ei);
                     	engine.signalSemaphore();
-        				final long delay = ei.catchResources();
+        				final long delay = ei.catchResources(solution);
         				if (delay > 0)
         					ei.startDelay(delay);
         				else
@@ -79,8 +83,10 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
             }   
             // The activity can be freely accessed by the element
             else {
-            	if (reqFlow.isFeasible(ei)) {	// The activity can be performed
-    				final long delay = ei.catchResources();
+				final ArrayDeque<Resource> solution = reqFlow.isFeasible(ei);
+    			// There are enough resources to perform the activity
+    			if (solution != null) {
+    				final long delay = ei.catchResources(solution);
     				if (delay > 0)
     					ei.startDelay(delay);
     				else
@@ -138,10 +144,12 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
 	            engine.waitSemaphore();
 				// If the element is not performing a presential activity yet
 				if (elem.getCurrent() == null) {
-					if (reqFlow.isFeasible(ei)) {
+					final ArrayDeque<Resource> solution = reqFlow.isFeasible(ei);
+	    			// There are enough resources to perform the activity
+	    			if (solution != null) {
 						elem.setCurrent(ei);
 			        	engine.signalSemaphore();
-						final long delay = ei.catchResources();
+						final long delay = ei.catchResources(solution);
 						reqFlow.queueRemove(ei);
 						if (delay > 0)
 							ei.startDelay(delay);
@@ -157,8 +165,10 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
 				}
 			}
 			else {
-				if (reqFlow.isFeasible(ei)) {
-					final long delay = ei.catchResources();
+				final ArrayDeque<Resource> solution = reqFlow.isFeasible(ei);
+    			// There are enough resources to perform the activity
+    			if (solution != null) {
+					final long delay = ei.catchResources(solution);
 					reqFlow.queueRemove(ei);
 					if (delay > 0)
 						ei.startDelay(delay);

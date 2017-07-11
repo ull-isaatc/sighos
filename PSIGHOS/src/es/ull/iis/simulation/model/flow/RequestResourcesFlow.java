@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.model.flow;
 
+import java.util.ArrayDeque;
 import java.util.Iterator;
 
 import es.ull.iis.function.TimeFunction;
@@ -13,6 +14,7 @@ import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.ElementInstance;
+import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.engine.RequestResourcesEngine;
@@ -279,24 +281,24 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * workgroups looking for an appropriate one. If the basic step cannot be performed with 
      * any of the workgroups it's marked as not potentially feasible. 
      * @param fe Work thread wanting to perform the basic step 
-     * @return <code>True</code> if this activity can be carried out with any one of its 
-     * WGs. <code>False</code> in other case.
+     * @return A set of resources that makes a valid solution for this request flow; null otherwise. 
      */
-	public boolean isFeasible(ElementInstance fe) {
+	public ArrayDeque<Resource> isFeasible(ElementInstance fe) {
     	if (!stillFeasible)
-    		return false;
+    		return null;
         Iterator<ActivityWorkGroup> iter = workGroupTable.randomIterator();
         while (iter.hasNext()) {
         	ActivityWorkGroup wg = iter.next();
-            if (engine.checkWorkGroup(wg, fe)) {
+        	final ArrayDeque<Resource> solution = new ArrayDeque<Resource>(); 
+            if (engine.checkWorkGroup(solution, wg, fe)) {
                 fe.setExecutionWG(wg);
         		fe.getElement().debug("Can carry out \t" + this + "\t" + wg);
-                return true;
+                return solution;
             }            
         }
         // No valid WG was found
         stillFeasible = false;
-        return false;
+        return null;
 	}
 
     /**

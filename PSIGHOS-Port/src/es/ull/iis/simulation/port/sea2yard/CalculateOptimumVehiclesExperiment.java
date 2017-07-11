@@ -3,6 +3,12 @@
  */
 package es.ull.iis.simulation.port.sea2yard;
 
+import java.util.List;
+
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
+
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
@@ -66,24 +72,37 @@ public class CalculateOptimumVehiclesExperiment {
 	}
 	
 	public static void main(String[] args) {
-		if (args.length < 4) {
-			System.err.println("Wrong argument number");
-			System.exit(-1);
-		}
-		else {
-			final String inputFile = args[0];
-			int nSolutions = Integer.parseInt(args[1]);
-			final int minVehicles = Integer.parseInt(args[2]);
-			final int maxVehicles = Integer.parseInt(args[3]);
+		final Arguments args1 = new Arguments();
+		try {
+			JCommander jc = JCommander.newBuilder()
+			  .addObject(args1)
+			  .build();
+			jc.parse(args);
+			final int minVehicles = args1.minMax.get(0);
+			final int maxVehicles = args1.minMax.get(1);
 			if (minVehicles > maxVehicles) {
-				System.err.println("Wrong argument format: maxVehicles (" + maxVehicles + ") must be >= than minVehicles (" + minVehicles + ")");
-				System.exit(-1);
+				ParameterException ex = new ParameterException("Wrong argument format: maxVehicles (" + maxVehicles + ") must be >= than minVehicles (" + minVehicles + ")");
+				ex.setJCommander(jc);
+				throw ex;
 			}
-	        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(inputFile);
-	        if (plans.length < nSolutions)
-	        	nSolutions = plans.length;
-	       	new CalculateOptimumVehiclesExperiment(plans, nSolutions, minVehicles, maxVehicles).start();
-		}
+	        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(args1.fileName);
+	        if (plans.length < args1.nSolutions)
+	        	args1.nSolutions = plans.length;
+	       	new CalculateOptimumVehiclesExperiment(plans, args1.nSolutions, minVehicles, maxVehicles).start();
+		} catch (ParameterException ex) {
+			System.out.println(ex.getMessage());
+			ex.usage();
+			System.exit(-1);
+		}		
 	}
 
+	private static class Arguments {
+		@Parameter(names ={"--input", "-i"}, description = "Input \"sol\" file with QCSP solutions", required = true, order = 0)
+		private String fileName;
+		
+		@Parameter(names ={"--solutions", "-s"}, description = "Number of QCSP solutions to process", order = 2)
+		private int nSolutions = 1;
+		@Parameter(names ={"--minmax", "-mm"}, arity = 2, description = "Min and max number of delivery vehicles", required=true, order = 1)
+		private List<Integer> minMax;
+	}
 }

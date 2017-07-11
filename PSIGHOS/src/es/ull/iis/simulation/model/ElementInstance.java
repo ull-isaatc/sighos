@@ -5,8 +5,6 @@ package es.ull.iis.simulation.model;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import es.ull.iis.function.TimeFunctionParams;
@@ -18,9 +16,9 @@ import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
-import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 import es.ull.iis.simulation.model.flow.TaskFlow;
 import es.ull.iis.util.Prioritizable;
+import es.ull.iis.util.RandomPermutation;
 
 /**
  * Represents an instance of an element, so multiple instances of the same element can be active at
@@ -39,7 +37,7 @@ import es.ull.iis.util.Prioritizable;
  * @author Ivan Castilla Rodriguez
  *
  */
-public class ElementInstance implements TimeFunctionParams, Prioritizable, Comparable<ElementInstance> {
+public class ElementInstance implements TimeFunctionParams, Prioritizable, Comparable<ElementInstance>, Identifiable {
     /** Element which carries out this flow. */    
     private final Element elem; 
     /** The parent element thread */
@@ -57,8 +55,6 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
     /** The workgroup which is used to carry out this flow. If <code>null</code>, 
      * the flow has not been carried out. */
     protected ActivityWorkGroup executionWG = null;
-    /** List of caught resources */
-    final protected TreeMap<Integer, ArrayDeque<Resource>> caughtResources;
 	/** The arrival order of this work thread relatively to the rest of work threads 
 	 * in the same activity manager. */
 	protected int arrivalOrder;
@@ -84,7 +80,6 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
         if (parent != null)
         	parent.addDescendant(this);
         this.initialFlow = initialFlow;
-        this.caughtResources = new TreeMap<Integer, ArrayDeque<Resource>>();
         this.engine = elem.getEngine().getElementInstance(this);
     }
 
@@ -95,6 +90,11 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
 		return engine;
 	}
 
+	@Override
+	public int getIdentifier() {
+		return engine.getIdentifier();
+	}
+	
 	/**
      * Returns the priority of the element owner of this flow
      * @return The priority of the associated element.
@@ -118,7 +118,6 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
 				if (parent.remainingTask > 0.0)
 					remainingTask = parent.remainingTask;
 			}
-			caughtResources.put(((RequestResourcesFlow)f).getResourcesId(), new ArrayDeque<Resource>());
 		}
 		else {
 			remainingTask = 0.0;  			
@@ -325,38 +324,17 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
 		return elem.getTs();
 	}
 
-	/**
-	 * Adds a resource to the list of resources caught by this element.
-	 * @param res A new resource.
-	 */
-	public void pushResource(Resource res) {
-		final int resourcesId = ((RequestResourcesFlow)currentFlow).getResourcesId();
-		caughtResources.get(resourcesId).push(res);
-	}
-	
-	/**
-	 * Removes the last resource caught by this element.
-	 * @return The resource removed
-	 */
-	public Resource popResource() {
-		final int resourcesId = ((ResourceHandlerFlow)currentFlow).getResourcesId();
-		return caughtResources.get(resourcesId).pop();
-	}
-	
-	public ArrayDeque<Resource> getCaughtResources() {
-		final int resourcesId = ((ResourceHandlerFlow)currentFlow).getResourcesId();
-		return caughtResources.get(resourcesId);
-	}
-	
     /**
      * Catch the resources needed for each resource type to carry out an activity.
+	 * @param solution Tentative solution with booked resources
      * @return The minimum availability timestamp of the taken resources 
      */
-	public long catchResources() {
+	public long catchResources(ArrayDeque<Resource> solution) {
 		final RequestResourcesFlow reqFlow = (RequestResourcesFlow)currentFlow;
-		final int resourcesId = reqFlow.getResourcesId();
+		// Add booked resources to the element
+		elem.seizeResources(reqFlow, this, solution);
     	long auxTs = Long.MAX_VALUE;
-    	for (Resource res : caughtResources.get(resourcesId)) {
+    	for (Resource res : solution) {
     		auxTs = Math.min(auxTs, res.catchResource(this));;
             res.getCurrentResourceType().debug("Resource taken\t" + res + "\t" + getElement());
     	}
@@ -398,77 +376,39 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
 	public boolean releaseCaughtResources(WorkGroup wg) {
         final TreeSet<ActivityManager> amList = new TreeSet<ActivityManager>();
 		final ReleaseResourcesFlow relFlow = (ReleaseResourcesFlow)currentFlow;
-		final int resourcesId = relFlow.getResourcesId();
 		
-		if (wg == null) {
-			final Collection<Resource> resources = caughtResources.remove(resourcesId);
-			if (resources == null) {
-				elem.error("Trying to release group of resources not already created. ID:" + resourcesId);
-				return false;
+		final ArrayDeque<Resource> resources = elem.releaseResources(relFlow, this, wg);
+        // Generate unavailability periods.
+        for (Resource res : resources) {
+        	final long cancellationDuration = relFlow.getResourceCancellation(res.getCurrentResourceType(), this);
+        	if (cancellationDuration > 0) {
+				final long actualTs = elem.getTs();
+				res.setNotCanceled(false);
+				elem.getSimulation().notifyInfo(new ResourceInfo(elem.getSimulation(), res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
+				res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
 			}
-	        // Generate unavailability periods.
-	        for (Resource res : resources) {
-	        	final long cancellationDuration = relFlow.getResourceCancellation(res.getCurrentResourceType(), this);
-	        	if (cancellationDuration > 0) {
-					final long actualTs = elem.getTs();
-					res.setNotCanceled(false);
-					elem.getSimulation().notifyInfo(new ResourceInfo(elem.getSimulation(), res, res.getCurrentResourceType(), ResourceInfo.Type.CANCELON, actualTs));
-					res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
-				}
-				elem.debug("Returned " + res);
-	        	// The resource is freed
-	        	if (res.releaseResource()) {
-	        		// The activity managers involved are included in the list
-	        		for (ActivityManager am : res.getCurrentManagers()) {
-	        			amList.add(am);
-	        		}
-	        	}
-	        }
+			elem.debug("Returned " + res);
+        	// The resource is freed
+        	if (res.releaseResource(this)) {
+        		// The activity managers involved are included in the list
+        		for (ActivityManager am : res.getCurrentManagers()) {
+        			amList.add(am);
+        		}
+        	}
+        }
+		if (Simulation.isRandomNotifyAMs()) {
+			final int[] order = RandomPermutation.nextPermutation(amList.size());
+			ActivityManager[] ams = new ActivityManager[amList.size()];
+			ams = (ActivityManager[]) amList.toArray(ams);
+			for (int ind : order) {
+				ActivityManager am = ams[ind];
+				am.notifyResource();
+			}
 		}
 		else {
-			final ArrayDeque<Resource> resources = caughtResources.get(resourcesId);
-			if (resources == null) {
-				elem.error("Trying to release group of resources not already created. ID:" + resourcesId);
-				return false;
+			for (ActivityManager am : amList) {
+				am.notifyResource();
 			}
-			final int[] toRemove = wg.getNeeded();
-			for (int i = 0; (i < toRemove.length) && !resources.isEmpty(); i++) {
-				for (int j = 0; j < toRemove[i]; j++) {
-			        // Generate unavailability periods.
-			        for (Resource res : resources) {
-			        	final ResourceType currentRT = res.getCurrentResourceType();
-		        		if (wg.getResourceType(i).equals(currentRT)) {
-		        			resources.remove(res);
-		    	        	final long cancellationDuration = relFlow.getResourceCancellation(currentRT, this);
-		    	        	if (cancellationDuration > 0) {
-		    					final long actualTs = elem.getTs();
-		    					res.setNotCanceled(false);
-		    					elem.getSimulation().notifyInfo(new ResourceInfo(elem.getSimulation(), res, currentRT, ResourceInfo.Type.CANCELON, actualTs));
-		    					res.generateCancelPeriodOffEvent(actualTs, cancellationDuration);
-		    				}
-		    				elem.debug("Returned " + res);
-		    	        	// The resource is freed
-		    	        	if (res.releaseResource()) {
-		    	        		// The activity managers involved are included in the list
-		    	        		for (ActivityManager am : res.getCurrentManagers()) {
-		    	        			amList.add(am);
-		    	        		}
-		    	        	}
-		    	        	break;
-		        		}
-					}
-				}
-			}
-		}
-        // FIXME: Preparado para hacerlo aleatorio
-//				final int[] order = RandomPermutation.nextPermutation(amList.size());
-//				for (int ind : order) {
-//					ActivityManager am = amList.get(ind);
-//					am.availableResource();
-//				}
-
-		for (ActivityManager am : amList) {
-			am.notifyResource();
 		}
         return true;
 	}

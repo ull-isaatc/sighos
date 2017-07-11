@@ -3,12 +3,15 @@
  */
 package es.ull.iis.simulation.model.engine;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.model.ActivityManager;
+import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
-import es.ull.iis.simulation.model.SimulationCycle;
+import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
+import es.ull.iis.simulation.model.SimulationCycle;
 
 /**
  * A simulation resource whose availability is controlled by means of timetable entries.
@@ -27,16 +30,16 @@ public interface ResourceEngine extends EventSourceEngine {
 	void notifyCurrentManagers();
 	ArrayList<ActivityManager> getCurrentManagers();
     /**
-     * Returns the instance of the element which currently owns this resource.
-     * @return The current instance of the element .
+     * Returns the element which currently owns this resource.
+     * @return The current element .
      */
-	ElementInstance getCurrentElementInstance();
+	Element getCurrentElement();
 	boolean isAvailable(ResourceType rt);
 	void addRole(ResourceType role, long ts);
 	void removeRole(ResourceType role);
 	void setNotCanceled(boolean available);
-	boolean add2Solution(ResourceType rt, ElementInstance ei);
-	void removeFromSolution(ElementInstance ei);
+	boolean add2Solution(ArrayDeque<Resource> solution, ResourceType rt, ElementInstance ei);
+	void removeFromSolution(ArrayDeque<Resource> solution, ElementInstance ei);
 	long catchResource(ElementInstance ei);
-	boolean releaseResource();
+	boolean releaseResource(ElementInstance ei);
 }

@@ -44,7 +44,7 @@ public class ActivityUnload extends ActivityFlow {
 	@Override
 	public void afterFinalize(ElementInstance fe) {
 		if (nextContainerId != -1) {
-			Resource res = new Resource(simul, PortModel.CONTAINER + nextContainerId);
+			final Resource res = new Resource(simul, PortModel.CONTAINER + nextContainerId);
 			res.addTimeTableEntry(((PortModel)simul).getContainerResourceType(nextContainerId));
 			simul.addEvent(res.onCreate(simul.getSimulationEngine().getTs()));			
 		}

@@ -13,7 +13,8 @@ import es.ull.iis.simulation.model.engine.EngineObject;
 public class ElementInstanceEngine extends EngineObject
 		implements es.ull.iis.simulation.model.engine.ElementInstanceEngine {
 	/** Element instance's counter. Useful for identifying each instance */
-	private static int counter = 0;
+	// Must start in 1 to avoid problems with internal control of request flows
+	private static int counter = 1;
 	/** Associated {@link ElementInstance} */
 	private final ElementInstance modelInstance;
 

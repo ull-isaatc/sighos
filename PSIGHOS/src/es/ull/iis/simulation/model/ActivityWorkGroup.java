@@ -1,5 +1,7 @@
 package es.ull.iis.simulation.model;
 
+import java.util.ArrayDeque;
+
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
@@ -113,12 +115,13 @@ public class ActivityWorkGroup implements Prioritizable, Identifiable, Describab
      * basicStep can not be carried out, and all the "books" are removed.
      * Possible conflicts between resources inside the basicStep are solved by invoking a
      * branch-and-bound resource distribution algorithm. 
+	 * @param solution Tentative solution with booked resources
      * @param wThread Work thread trying to carry out the basicStep with this workgroup 
      * @return The set of resources which compound the solution. Null if there are not enough
      * resources to carry out the basicStep by using this workgroup.
      */
-	public boolean findSolution(int []pos, int []ned, ElementInstance ei) {
-        return wg.findSolution(pos, ned, ei);
+	public boolean findSolution(ArrayDeque<Resource> solution, int []pos, int []ned, ElementInstance ei) {
+        return wg.findSolution(solution, pos, ned, ei);
 	}
 
 }

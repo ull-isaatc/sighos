@@ -61,10 +61,10 @@ public class PortModel3 extends Simulation {
 		// Creates the "positions" of the cranes in front of the bays and the activities to move among bays 
 		final ResourceType[] rtPositions = new ResourceType[nBays];
 		wgPositions = new WorkGroup[nBays];
-		for (int i = 0; i < nBays; i++) {
-			rtPositions[i] = new ResourceType(this, POSITION + i);
-			rtPositions[i].addGenericResources(1);
-			wgPositions[i] = new WorkGroup(this, rtPositions[i], 1);
+		for (int bayId = 0; bayId < nBays; bayId++) {
+			rtPositions[bayId] = new ResourceType(this, POSITION + bayId);
+			rtPositions[bayId].addGenericResources(1);
+			wgPositions[bayId] = new WorkGroup(this, rtPositions[bayId], 1);
 		}
 		
 		// Creates the rest of resources
@@ -152,7 +152,7 @@ public class PortModel3 extends Simulation {
 		}
 		
 		// Analyze the plan and move if needed
-		final ArrayList<Integer> cranePlan = plan.get(craneId);
+		final ArrayList<Integer> cranePlan = plan.getSchedule(craneId);
 		for (int i = 0; i < cranePlan.size(); i++) {
 			final int containerId = cranePlan.get(i);
 			final int containerBay = ship.getContainerBay(containerId);

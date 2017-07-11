@@ -8,7 +8,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import es.ull.iis.simulation.model.ElementInstance;
-import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.engine.EngineObject;
 
 /**
@@ -17,7 +16,8 @@ import es.ull.iis.simulation.model.engine.EngineObject;
  */
 public class ElementInstanceEngine extends EngineObject	implements es.ull.iis.simulation.model.engine.ElementInstanceEngine {
 	/** Element instance's counter. Useful for identifying each instance */
-	private static final AtomicInteger counter = new AtomicInteger();
+	// Must start in 1 to avoid problems with internal control of request flows
+	private static final AtomicInteger counter = new AtomicInteger(1);
     // Avoiding deadlocks (time-overlapped resources)
     /** List of conflictive elements */
     private ConflictZone conflicts;
@@ -45,18 +45,6 @@ public class ElementInstanceEngine extends EngineObject	implements es.ull.iis.si
 		return modelInstance;
 	}
 	
-	/**
-	 * Checks if the list of resources selected to carry out an activity are still valid.
-	 * @return True if none of the selected resources is being used by a different element;
-	 * false in other case. 
-	 */
-	public boolean checkCaughtResources() {
-		for (Resource res : modelInstance.getCaughtResources())
-			if (!((ResourceEngine)res.getEngine()).checkSolution(this))
-				return false;
-		return true;
-	}
-
 	/**
 	 * Adds a new conflict to this element instance, that is, increments the
 	 * counter for conflictive resources while booking.
