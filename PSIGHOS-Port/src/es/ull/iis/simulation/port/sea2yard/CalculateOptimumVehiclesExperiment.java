@@ -23,13 +23,15 @@ public class CalculateOptimumVehiclesExperiment {
 	private final int minVehicles;
 	private final int maxVehicles;
 	private final int nSolutions;
-	private final StowagePlan[] plans; 
+	private final StowagePlan[] plans;
+	private final PortModel.SafetyType safety;
 
-	public CalculateOptimumVehiclesExperiment(StowagePlan[] plans, int nSolutions, int minVehicles, int maxVehicles) {
+	public CalculateOptimumVehiclesExperiment(StowagePlan[] plans, int nSolutions, int minVehicles, int maxVehicles, PortModel.SafetyType safety) {
 		this.minVehicles = minVehicles;
 		this.maxVehicles = maxVehicles;
 		this.nSolutions = nSolutions;
 		this.plans = plans;
+		this.safety = safety;
 	}
 	
 	public void start() {
@@ -43,7 +45,7 @@ public class CalculateOptimumVehiclesExperiment {
 			final long objValue = plan.getObjectiveValue() * 60;
 			int nVehicles = minVehicles;
 			do {
-				model = new PortModel(plan, simCounter, nVehicles, 0.0);
+				model = new PortModel(safety, plan, simCounter, nVehicles, 0.0);
 				final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, simCounter, TimeUnit.SECOND); 
 				model.addInfoReceiver(listener);
 				model.run();
@@ -88,7 +90,8 @@ public class CalculateOptimumVehiclesExperiment {
 	        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(args1.fileName);
 	        if (plans.length < args1.nSolutions)
 	        	args1.nSolutions = plans.length;
-	       	new CalculateOptimumVehiclesExperiment(plans, args1.nSolutions, minVehicles, maxVehicles).start();
+	        final PortModel.SafetyType safety = (args1.safety == 'f') ? PortModel.SafetyType.FULL : PortModel.SafetyType.OPERATION_ONLY;
+	       	new CalculateOptimumVehiclesExperiment(plans, args1.nSolutions, minVehicles, maxVehicles, safety).start();
 		} catch (ParameterException ex) {
 			System.out.println(ex.getMessage());
 			ex.usage();
@@ -99,6 +102,8 @@ public class CalculateOptimumVehiclesExperiment {
 	private static class Arguments {
 		@Parameter(names ={"--input", "-i"}, description = "Input \"sol\" file with QCSP solutions", required = true, order = 0)
 		private String fileName;
+		@Parameter(names ={"--safety", "-f"}, description = "Way of applying safety distance: f for full (default); o for operation only", order = 3)
+		private char safety = 'f';
 		
 		@Parameter(names ={"--solutions", "-s"}, description = "Number of QCSP solutions to process", order = 2)
 		private int nSolutions = 1;

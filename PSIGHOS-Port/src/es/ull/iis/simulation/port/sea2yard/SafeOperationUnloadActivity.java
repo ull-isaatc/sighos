@@ -14,10 +14,12 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.model.flow.StructuredFlow;
 
 /**
- * @author Iván Castilla
+ * A flow representing the unload operation in a berth where cranes within the safety distance
+ * cannot operate simultaneously. 
+ * @author Iván Castilla Rodríguez
  *
  */
-public class UnloadActivity extends StructuredFlow {
+public class SafeOperationUnloadActivity extends StructuredFlow implements UnloadTask {
 	final private int containerId;
 	final private int nextContainerId;
 	final private int resourcesId;
@@ -31,7 +33,7 @@ public class UnloadActivity extends StructuredFlow {
 	 * @param exclusive
 	 * @param interruptible
 	 */
-	public UnloadActivity(PortModel model, int containerId, int nextContainerId) {
+	public SafeOperationUnloadActivity(PortModel model, int containerId, int nextContainerId) {
 		super(model);
 		this.containerId = containerId;
 		this.nextContainerId = nextContainerId;
@@ -39,7 +41,7 @@ public class UnloadActivity extends StructuredFlow {
 		this.resourcesId = ship.getNBays() + containerId + 1;
 		final RequestResourcesFlow reqUnload = new RequestResourcesFlow(model, FIRST_FLOW_NAME + containerId, resourcesId);
 		final ReleaseResourcesFlow relSide = new ReleaseResourcesFlow(model, "Release side positions" + containerId, resourcesId, model.getWgOpPositionsSides(ship.getContainerBay(containerId)));
-		final long newTime = model.getTimeWithError(model.getTimeUnit().convert(ship.getContainerProcessingTime(containerId), ship.getUnit()));
+		final long newTime = model.getTimeWithError(ship.getContainerProcessingTime(containerId) * PortModel.T_OPERATION);
 //		System.out.println(containerId + "\t" + newTime);
 		final DelayFlow delUnload = new DelayFlow(model, "Delay " + PortModel.ACT_UNLOAD, newTime);
 		final ReleaseResourcesFlow relAll = new ReleaseResourcesFlow(model, LAST_FLOW_NAME + containerId, resourcesId);
@@ -58,7 +60,7 @@ public class UnloadActivity extends StructuredFlow {
 		initialFlow.setRecursiveStructureLink(this, visited);
 	}
 
-	public UnloadActivity(PortModel model, int containerId) {
+	public SafeOperationUnloadActivity(PortModel model, int containerId) {
 		this(model, containerId, -1);
 	}
 

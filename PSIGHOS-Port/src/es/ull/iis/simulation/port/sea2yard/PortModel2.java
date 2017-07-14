@@ -56,7 +56,7 @@ public class PortModel2 extends Simulation {
 		this.plan = plan;
 		final Vessel ship = plan.getVessel();
 		final int nBays = ship.getNBays();
-		final int nContainers = plan.getNContainers();
+		final int nContainers = plan.getNTasks();
 		final int nCranes = plan.getNCranes();
 		final int safetyDistance = plan.getSafetyDistance();
 		
@@ -106,11 +106,11 @@ public class PortModel2 extends Simulation {
 				for (int i = bay.size() - 1; i > 0; i--) {
 					containerId1 = bay.get(i);
 					final int containerId2 = bay.get(i-1);
-					actUnloads[containerId1] = new ActivityUnload(this, containerId1, ship.getContainerProcessingTime(containerId1), containerId2);
+					actUnloads[containerId1] = new FullSafeUnloadActivity(this, containerId1, ship.getContainerProcessingTime(containerId1), containerId2);
 				}
 				// Creates the activity corresponding to the bottom container
 				containerId1 = bay.get(0);
-				actUnloads[containerId1] = new ActivityUnload(this, containerId1, ship.getContainerProcessingTime(containerId1));
+				actUnloads[containerId1] = new FullSafeUnloadActivity(this, containerId1, ship.getContainerProcessingTime(containerId1));
 			}
 		}
 		

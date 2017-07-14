@@ -25,15 +25,15 @@ import java.util.ArrayList;
 public class StowagePlan implements Serializable {
 	/** Constant for serializing this class */
 	private static final long serialVersionUID = -3247224781219705052L;
-	/** An ordered list of containers per each crane */
+	/** An ordered list of tasks per each crane */
 	private final ArrayList<Integer>[] schedule;
-	/** Which crane unloads each container */
+	/** Which crane performs each task */
 	private final int[] craneDoTask;
 	/** Initial position of each crane */
 	private final int[] initPosition;
 	/** The corresponding vessel */
 	private final Vessel vessel;
-	/** Number of containers to unload */ 
+	/** Number of tasks */ 
 	private int nContainers;
 	/** Number of available quay cranes */
 	private final int nCranes;
@@ -41,6 +41,15 @@ public class StowagePlan implements Serializable {
 	private final int safetyDistance;
 	/** The theoretical optimum time to fulfill the stowage plan, precomputed by the QCSP solver  */
 	private final long objectiveValue;
+	/** A measure of the overlapping degree of the solution, precomputed by the QCSP solver */
+	private final double overlap;
+	private final double lowerBoundOverlapping;
+	private final double upperBoundOverlapping;
+	/** For each crane, a pair of <position, task>, where position represents a bay where the crane has to move at start to avoid a conflict,
+	 * and task is the last task another crane has to finish before this crane can start moving again */
+	private final int[][] dependenciesAtStart;
+	/** True if the solution goes left to right; false otherwise */
+	private final boolean leftToRight;
 
 	/**
 	 * Creates a new stowage plan
@@ -50,7 +59,7 @@ public class StowagePlan implements Serializable {
 	 * @param objectiveValue The theoretical optimum time to fulfill the stowage plan
 	 */
 	@SuppressWarnings("unchecked")
-	public StowagePlan(Vessel vessel, int nCranes, int safetyDistance, long objectiveValue) {
+	public StowagePlan(Vessel vessel, int nCranes, int safetyDistance, long objectiveValue, double overlap, double lowerBoundOverlapping, double upperBoundOverlapping, boolean leftToRight, int[][] dependenciesAtStart) {
 		schedule = (ArrayList<Integer>[]) new ArrayList<?>[nCranes];
 		for (int i = 0; i < nCranes; i++)
 			schedule[i] = new ArrayList<Integer>();
@@ -59,7 +68,12 @@ public class StowagePlan implements Serializable {
 		this.nCranes = nCranes;
 		this.safetyDistance = safetyDistance;
 		this.objectiveValue = objectiveValue;
+		this.overlap = overlap;
+		this.lowerBoundOverlapping = lowerBoundOverlapping;
+		this.upperBoundOverlapping = upperBoundOverlapping;
+		this.dependenciesAtStart = dependenciesAtStart;
 		this.craneDoTask = new int[vessel.getNContainers()];
+		this.leftToRight = leftToRight;
 		nContainers = 0;
 	}
 
@@ -119,10 +133,19 @@ public class StowagePlan implements Serializable {
 	 * Returns the number of containers to unload
 	 * @return the number of containers to unload
 	 */
-	public int getNContainers() {
+	public int getNTasks() {
 		return nContainers;
 	}
 
+	/**
+	 * Returns the optimum start time for task <code>taskId</code> according to the QCSP solver
+	 * @param taskId Identifier of the task
+	 * @return The optimum start time for task <code>taskId</code> according to the QCSP solver
+	 */
+	public long getOptStartTime(int taskId) {
+		return vessel.getContainerOptStartTime(taskId);
+	}
+	
 	/**
 	 * Returns the number of avaiable quay cranes
 	 * @return the number of avaiable quay cranes
@@ -145,6 +168,61 @@ public class StowagePlan implements Serializable {
 	 */
 	public long getObjectiveValue() {
 		return objectiveValue;
+	}
+
+	/**
+	 * Returns a measure of the overlapping degree of the solution
+	 * @return A measure of the overlapping degree of the solution
+	 */
+	public double getOverlap() {
+		return overlap;
+	}
+
+	/**
+	 * @return the lowerBoundOverlapping
+	 */
+	public double getLowerBoundOverlapping() {
+		return lowerBoundOverlapping;
+	}
+
+	/**
+	 * @return the upperBoundOverlapping
+	 */
+	public double getUpperBoundOverlapping() {
+		return upperBoundOverlapping;
+	}
+
+	/**
+	 * @return the dependenciesAtStart
+	 */
+	public int[] getDependenciesAtStart(int craneId) {
+		return dependenciesAtStart[craneId];
+	}
+
+	/**
+	 * A crane creates a conflict at start when its first task is most to the left than its left-neighbor's first task.  
+	 * @param craneId Crane identifier
+	 * @return True if the crane creates a conflict at start
+	 */
+	public boolean createsConflictAtStart(int craneId) {
+		if (leftToRight && (craneId > 0)) {
+			if (dependenciesAtStart[craneId - 1][1] != -1) {
+				return true;
+			}
+		}
+		else if (!leftToRight && (craneId < nCranes - 1)) {
+			if (dependenciesAtStart[craneId + 1][1] != -1) {
+				return true;
+			}
+		}
+		return false;
+	}
+	/**
+	 * Returns true if the solution goes left to right; false otherwise
+	 * @return true if the solution goes left to right; false otherwise
+	 */
+	public boolean isLeftToRight() {
+		return leftToRight;
 	}
 
 	/**

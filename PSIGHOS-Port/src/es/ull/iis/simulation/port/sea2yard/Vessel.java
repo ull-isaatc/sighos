@@ -7,8 +7,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.model.TimeUnit;
-
 /**
  * A vessel that carries containers to be unloaded at the port. The vessel is divided into bays, and
  * each bay contains several containers piled in a specified order. The bottom containers in a bay cannot be 
@@ -26,37 +24,38 @@ public class Vessel implements Serializable {
 	final private TreeMap<Integer, Integer> bayPosition;
 	/** A precomputed time that represents how long does it take to unload each container */
 	final private TreeMap<Integer, Long> processingTime;
-	/** The time unit for processing times */
-	final private TimeUnit unit;
+	/** The optimum start time for each task according to the QCSP solver */
+	final private TreeMap<Integer, Long> optStartTime;
 	/** The maximum number of containers in a bay */
 	private int maxDeep;
 	
 	/**
 	 * Creates a vessel
 	 * @param nBays Number of bays that divide the vessel
-	 * @param unit Time unit to express the duration of processes in the vessel
 	 */
 	@SuppressWarnings("unchecked")
-	public Vessel(int nBays, TimeUnit unit) {
+	public Vessel(int nBays) {
 		bays = (ArrayList<Integer>[]) new ArrayList<?>[nBays];
 		bayPosition = new TreeMap<Integer, Integer>();
 		processingTime = new TreeMap<Integer, Long>();
+		optStartTime = new TreeMap<Integer, Long>();
 		for (int i = 0; i < nBays; i++)
 			bays[i] = new ArrayList<Integer>();
 		maxDeep = 0;
-		this.unit = unit;
 	}
 
 	/**
 	 * Allocates a container to the specified bay
 	 * @param containerId Container identifier
 	 * @param bayId Bay identifier
+	 * @param startTime Precomputed expected starting time
 	 * @param procTime Precomputed duration of the container's unloading process  
 	 * @return The position in the bay of the allocated container 
 	 */
-	public int add(int containerId, int bayId, long procTime) {
+	public int add(int containerId, int bayId, long startTime, long procTime) {
 		bayPosition.put(containerId, bayId);
 		processingTime.put(containerId, procTime);
+		optStartTime.put(containerId, startTime);
 		bays[bayId].add(0, containerId);
 		maxDeep = Math.max(maxDeep, bays[bayId].size());
 		return bays[bayId].size();
@@ -116,6 +115,15 @@ public class Vessel implements Serializable {
 	}
 
 	/**
+	 * Returns the optimum starting time for an unload task according to the QCSP solver
+	 * @param containerId Specified container
+	 * @return the optimum starting time for an unload task according to the QCSP solver
+	 */
+	public long getContainerOptStartTime(int containerId) {
+		return optStartTime.get(containerId);
+	}
+
+	/**
 	 * Returns the total amount of containers in this vessel
 	 * @return the total amount of containers in this vessel
 	 */
@@ -123,14 +131,6 @@ public class Vessel implements Serializable {
 		return bayPosition.size();
 	}
 	
-	/**
-	 * Returns the time unit used to express the duration of processes in the vessel
-	 * @return the time unit used to express the duration of processes in the vessel
-	 */
-	public TimeUnit getUnit() {
-		return unit;
-	}
-
 	/**
 	 * A convenient method to print a container. Creates a string that adds blanks before and after the container identifier
 	 * to properly align the container. Works fine up to 9999 containers. 

@@ -46,8 +46,8 @@ public class ContainerTraceListener extends Listener {
 			final long ts = unit.convert(eInfo.getTs(), eInfo.getSimul().getTimeUnit());
 			switch(eInfo.getType()) {
 			case ACQ:
-				if (act.contains(UnloadActivity.FIRST_FLOW_NAME)) {
-					final int containerId = ((UnloadActivity)eInfo.getActivity().getParent()).getContainerId();
+				if (act.contains(PortModel.ACT_UNLOAD)) {
+					final int containerId = ((UnloadTask)eInfo.getActivity().getParent()).getContainerId();
 					System.out.println(ts + "\t" + crane + "\t" + "START UNLOAD\t" + containerId + "\t[" + printCaughtResources(eInfo.getElement().getCaughtResources((RequestResourcesFlow) eInfo.getActivity(), eInfo.getElementInstance())) + "]");
 				}
 				else if (act.contains(PortModel.ACT_GET_TO_BAY)) {
@@ -58,8 +58,8 @@ public class ContainerTraceListener extends Listener {
 			case INTACT:
 				break;
 			case REL:
-				if (eInfo.getActivity().getDescription().contains(UnloadActivity.LAST_FLOW_NAME)) {
-					final int containerId = ((UnloadActivity)eInfo.getActivity().getParent()).getContainerId();
+				if (eInfo.getActivity().getDescription().contains(PortModel.ACT_UNLOAD)) {
+					final int containerId = ((UnloadTask)eInfo.getActivity().getParent()).getContainerId();
 					System.out.println(ts + "\t" + crane + "\t" + "END UNLOAD\t" + containerId);
 				}
 				else if (act.contains(PortModel.ACT_LEAVE_BAY)) {
