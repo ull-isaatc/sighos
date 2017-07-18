@@ -21,23 +21,24 @@ public class AdHocExperiment {
 	private final int nVehicles;
 	private final int nSolutions;
 	private final StowagePlan[] plans;
-	private final PortModel.SafetyType safety;
 	private final boolean debug; 
 
-	public AdHocExperiment(StowagePlan[] plans, int nSolutions, int nVehicles, PortModel.SafetyType safety, boolean debug) {
+	public AdHocExperiment(StowagePlan[] plans, int nSolutions, int nVehicles, boolean debug) {
 		this.nVehicles = nVehicles;
 		this.nSolutions = nSolutions;
 		this.plans = plans;
-		this.safety = safety;
 		this.debug = debug;
 	}
 	
 	public void start() {
 		for (int i = 0; i < nSolutions; i++) {
 			final StowagePlan plan = plans[i];
-			PortModel model = new PortModel(safety, plan, i, nVehicles, 0.0);
+			PortModel model = new PortModel(plan, i, nVehicles, 0.0);
 			model.addInfoReceiver(new CheckSolutionListener(plan));
 			if (debug) {
+//				model.addInfoReceiver(new StdInfoView());
+				
+//				model.addInfoReceiver(new ContainerTimeLineListener(plan, TimeUnit.MINUTE));
 				model.addInfoReceiver(new ContainerTraceListener(TimeUnit.SECOND));
 			}
 			model.run();
@@ -55,8 +56,7 @@ public class AdHocExperiment {
 	        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(args1.fileName);
 	        if (plans.length < args1.nSolutions)
 	        	args1.nSolutions = plans.length;
-	        final PortModel.SafetyType safety = (args1.safety == 'f') ? PortModel.SafetyType.FULL : PortModel.SafetyType.OPERATION_ONLY;
-	       	new AdHocExperiment(plans, args1.nSolutions, nVehicles, safety, args1.debug).start();
+	       	new AdHocExperiment(plans, args1.nSolutions, nVehicles, args1.debug).start();
 		} catch (ParameterException ex) {
 			System.out.println(ex.getMessage());
 			ex.usage();
@@ -67,8 +67,6 @@ public class AdHocExperiment {
 	private static class Arguments {
 		@Parameter(names ={"--input", "-i"}, description = "Input \"sol\" file with QCSP solutions", required = true, order = 0)
 		private String fileName;
-		@Parameter(names ={"--safety", "-f"}, description = "Way of applying safety distance: f for full (default); o for operation only", order = 3)
-		private char safety = 'f';
 		@Parameter(names ={"--debug", "-d"}, description = "Print debug messages", order = 4)
 		private boolean debug;		
 		@Parameter(names ={"--solutions", "-s"}, description = "Number of QCSP solutions to process", order = 2)

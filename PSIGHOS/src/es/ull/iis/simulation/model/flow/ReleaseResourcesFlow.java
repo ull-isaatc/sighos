@@ -32,6 +32,22 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 	 * @param simul
 	 * @param description
 	 */
+	public ReleaseResourcesFlow(Simulation model, String description) {
+		this(model, description, 0, null);
+	}
+	
+	/**
+	 * @param simul
+	 * @param description
+	 */
+	public ReleaseResourcesFlow(Simulation model, String description, WorkGroup wg) {
+		this(model, description, 0, wg);
+	}
+	
+	/**
+	 * @param simul
+	 * @param description
+	 */
 	public ReleaseResourcesFlow(Simulation model, String description, int resourcesId) {
 		this(model, description, resourcesId, null);
 	}

@@ -1,8 +1,11 @@
 package es.ull.iis.simulation.info;
 
+//import java.util.ArrayDeque;
+
 import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
+//import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.flow.ActionFlow;
 
@@ -35,14 +38,17 @@ public class ElementActionInfo extends AsynchronousInfo {
 	final private ActivityWorkGroup wg;
 	final private Element elem;
 	final private Type type;
+	// TODO: Pass list of taken resources
+//	final private ArrayDeque<Resource> resources;
 	
-	public ElementActionInfo(Simulation model, ElementInstance instance, Element elem, ActionFlow act, ActivityWorkGroup wg, Type type, long ts) {
+	public ElementActionInfo(Simulation model, ElementInstance instance, Element elem, ActionFlow act, ActivityWorkGroup wg, /*ArrayDeque<Resource> resources, */Type type, long ts) {
 		super(model, ts);
 		this.instance = instance;
 		this.act = act;
 		this.wg = wg;
 		this.elem = elem;
 		this.type = type;
+//		this.resources = resources;
 	}
 	
 	public Element getElement() {

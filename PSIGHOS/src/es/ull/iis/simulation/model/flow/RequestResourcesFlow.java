@@ -47,6 +47,23 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * @param simul
 	 * @param description
 	 */
+	public RequestResourcesFlow(Simulation model, String description) {
+		this(model, description, 0, 0, false);
+	}
+
+	/**
+	 * @param simul
+	 * @param description
+	 * @param priority
+	 */
+	public RequestResourcesFlow(Simulation model, String description, int priority, boolean exclusive) {
+		this(model, description, 0, priority, exclusive);
+	}
+
+	/**
+	 * @param simul
+	 * @param description
+	 */
 	public RequestResourcesFlow(Simulation model, String description, int resourcesId) {
 		this(model, description, resourcesId, 0, false);
 	}

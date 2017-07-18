@@ -66,8 +66,8 @@ public class ContainerTimeLineListener extends Listener {
 			final long ts = eInfo.getTs();
 			switch(eInfo.getType()) {
 			case ACQ:
-				if (eInfo.getActivity().getDescription().contains(SafeOperationUnloadActivity.FIRST_FLOW_NAME)) {
-					final int containerId = ((SafeOperationUnloadActivity)eInfo.getActivity().getParent()).getContainerId();
+				if (eInfo.getActivity().getDescription().contains(PortModel.ACT_UNLOAD)) {
+					final int containerId = ((UnloadTask)eInfo.getActivity().getParent()).getContainerId();
 					tUnloadContainer.put(containerId, new Integer[] {(int) ts, -1});					
 				}
 			case END:
@@ -75,8 +75,8 @@ public class ContainerTimeLineListener extends Listener {
 			case INTACT:
 				break;
 			case REL:
-				if (eInfo.getActivity().getDescription().contains(SafeOperationUnloadActivity.LAST_FLOW_NAME)) {
-					final int containerId = ((SafeOperationUnloadActivity)eInfo.getActivity().getParent()).getContainerId();
+				if (eInfo.getActivity().getDescription().contains(PortModel.ACT_UNLOAD)) {
+					final int containerId = ((UnloadTask)eInfo.getActivity().getParent()).getContainerId();
 					tUnloadContainer.get(containerId)[1] = (int) ts;
 					maxTs = Math.max(ts, maxTs);
 				}

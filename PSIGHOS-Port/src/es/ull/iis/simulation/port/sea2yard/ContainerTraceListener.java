@@ -48,10 +48,13 @@ public class ContainerTraceListener extends Listener {
 			case ACQ:
 				if (act.contains(PortModel.ACT_UNLOAD)) {
 					final int containerId = ((UnloadTask)eInfo.getActivity().getParent()).getContainerId();
-					System.out.println(ts + "\t" + crane + "\t" + "START UNLOAD\t" + containerId + "\t[" + printCaughtResources(eInfo.getElement().getCaughtResources((RequestResourcesFlow) eInfo.getActivity(), eInfo.getElementInstance())) + "]");
+					System.out.println(ts + "\t" + crane + "\t" + "START UNLOAD\t" + containerId + printCaughtResources(eInfo.getElement().getCaughtResources((RequestResourcesFlow) eInfo.getActivity(), eInfo.getElementInstance())));
 				}
 				else if (act.contains(PortModel.ACT_GET_TO_BAY)) {
-					System.out.println(ts + "\t" + crane + "\t" + "MOVING TO BAY\t" + act.substring(PortModel.ACT_GET_TO_BAY.length()));
+					System.out.println(ts + "\t" + crane + "\t" + "MOVING TO BAY\t" + act.substring(PortModel.ACT_GET_TO_BAY.length()) + printCaughtResources(eInfo.getElement().getCaughtResources((RequestResourcesFlow) eInfo.getActivity(), eInfo.getElementInstance())));
+				}
+				else if (act.contains(PortModel.ACT_PLACE)) {
+					System.out.println(ts + "\t" + crane + "\t" + "PLACE AT BAY\t" + act.substring(PortModel.ACT_PLACE.length()) + printCaughtResources(eInfo.getElement().getCaughtResources((RequestResourcesFlow) eInfo.getActivity(), eInfo.getElementInstance())));					
 				}
 			case END:
 				break;

@@ -255,46 +255,46 @@ public class QCSP2StowagePlan {
         for (int i = 0; i < problem.getQuayCranes(); i++) {
         	System.out.println("\tQC " + i + " -> pos=" + plan.getDependenciesAtStart(i)[0] + ", dep=" + plan.getDependenciesAtStart(i)[1]);
         }
-		planBuilder.saveToFile(new StowagePlan[] {plan}, "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\for_simulation\\k45_adhoc.sol");
+//		planBuilder.saveToFile(new StowagePlan[] {plan}, "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\for_simulation\\k45_adhoc.sol");
 	}
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		testDependenciesAtStart();
-//		final Arguments arguments = new Arguments();
-//		try {
-//			JCommander jc = JCommander.newBuilder()
-//			  .addObject(arguments)
-//			  .build();
-//			jc.parse(args);
-//			if (arguments.popSize > arguments.maxGen) {
-//				ParameterException ex = new ParameterException("Wrong argument format: maxGeneration (" + arguments.maxGen + ") must be >= than populationSize (" + arguments.popSize + ")");
-//				ex.setJCommander(jc);
-//				throw ex;
-//			}
-//			final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(new QCSProblem(arguments.inputFileName), SAFETY_DISTANCE, arguments.overlapLambda, arguments.keep, arguments.debug);
-//			final Population population = planBuilder.getSolutions(arguments.maxGen, arguments.popSize);
-//			final StowagePlan[] plans = new StowagePlan[population.getSize()];
-//			for (int i = 0; i < plans.length; i++) {
-//				plans[i] = planBuilder.getStowagePlanFromQCSP(population.get(i));	
-//			}
-//			
-//			if (arguments.debug) {				
-//				System.out.println("Saved " + plans.length + " solutions");
-//				System.out.println("Vessel for best solution: ");
-//				System.out.println(plans[0].getVessel());
-//				System.out.println();
-//				System.out.println("Stowage plan for best solution:");
-//				System.out.println(plans[0]);
-//			}
-//			if (arguments.outputFileName != null)
-//				planBuilder.saveToFile(plans, arguments.outputFileName);
-//		} catch (ParameterException ex) {
-//			System.out.println(ex.getMessage());
-//			ex.usage();
-//			System.exit(-1);
-//		}		
+//		testDependenciesAtStart();
+		final Arguments arguments = new Arguments();
+		try {
+			JCommander jc = JCommander.newBuilder()
+			  .addObject(arguments)
+			  .build();
+			jc.parse(args);
+			if (arguments.popSize > arguments.maxGen) {
+				ParameterException ex = new ParameterException("Wrong argument format: maxGeneration (" + arguments.maxGen + ") must be >= than populationSize (" + arguments.popSize + ")");
+				ex.setJCommander(jc);
+				throw ex;
+			}
+			final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(new QCSProblem(arguments.inputFileName), SAFETY_DISTANCE, arguments.overlapLambda, arguments.keep, arguments.debug);
+			final Population population = planBuilder.getSolutions(arguments.maxGen, arguments.popSize);
+			final StowagePlan[] plans = new StowagePlan[population.getSize()];
+			for (int i = 0; i < plans.length; i++) {
+				plans[i] = planBuilder.getStowagePlanFromQCSP(population.get(i));	
+			}
+			
+			if (arguments.debug) {				
+				System.out.println("Saved " + plans.length + " solutions");
+				System.out.println("Vessel for best solution: ");
+				System.out.println(plans[0].getVessel());
+				System.out.println();
+				System.out.println("Stowage plan for best solution:");
+				System.out.println(plans[0]);
+			}
+			if (arguments.outputFileName != null)
+				planBuilder.saveToFile(plans, arguments.outputFileName);
+		} catch (ParameterException ex) {
+			System.out.println(ex.getMessage());
+			ex.usage();
+			System.exit(-1);
+		}		
 	}
 	
 	final private static class Arguments {

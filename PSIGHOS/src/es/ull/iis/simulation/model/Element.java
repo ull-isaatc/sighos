@@ -367,14 +367,14 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	    			else {
 	    				int max = wg.getNeeded(i);
 	    				// More resources to remove than available
-	    				if (wg.getNeeded(i) > collection.get(rts[i]).size()) {
+	    				if (wg.getNeeded(i) > list.size()) {
 	    					max = collection.get(rts[i]).size();
-		    				error("Trying to release " + wg.getNeeded(i) + " resources of type " + rts[i] + " from group with ID " + resId + ". Available: " + collection.get(rts[i]).size());
-	    					list.addAll(collection.remove(rts[i]));
+		    				error("Trying to release " + wg.getNeeded(i) + " resources of type " + rts[i] + " from group with ID " + resId + ". Available: " + list.size());
+	    					toRemove.addAll(collection.remove(rts[i]));
 	    				}
 	    				// Remove all resources from that type
 	    				else if (wg.getNeeded(i) == collection.get(rts[i]).size()) {
-	    					list.addAll(collection.remove(rts[i]));
+	    					toRemove.addAll(collection.remove(rts[i]));
 	    				}
 	    				else {
 			    			for (int j = 0; j < max; j++) {

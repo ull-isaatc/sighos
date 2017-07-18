@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.port.sea2yard;
 
+import java.util.HashMap;
+
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
@@ -13,12 +15,16 @@ import es.ull.iis.simulation.inforeceiver.Listener;
  *
  */
 public class CheckSolutionListener extends Listener {
-	final private StowagePlan plan;
-	private boolean error = false; 
+	final private HashMap<Integer, long[]> expectedSolution;
+	final private HashMap<Integer, long[]> obtainedSolution;
 
 	public CheckSolutionListener(StowagePlan plan) {
 		super("Time container");
-		this.plan = plan;
+		this.expectedSolution = new HashMap<Integer, long[]>();
+		this.obtainedSolution = new HashMap<Integer, long[]>();
+		for (int task = 0; task < plan.getNTasks(); task++) {
+			expectedSolution.put(task, new long[] {plan.getOptStartTime(task), plan.getOptStartTime(task) + plan.getVessel().getContainerProcessingTime(task)});
+		}
 		addEntrance(ElementActionInfo.class);
 		addEntrance(SimulationEndInfo.class);
 	}
@@ -36,10 +42,7 @@ public class CheckSolutionListener extends Listener {
 			case ACQ:
 				if (act.contains(PortModel.ACT_UNLOAD)) {
 					final int containerId = ((UnloadTask)eInfo.getActivity().getParent()).getContainerId();
-					if (ts != plan.getOptStartTime(containerId)) {
-						System.out.println("ERROR: task " + containerId + " scheduled at " + ts + "; expected at " + plan.getOptStartTime(containerId));
-						error = true;
-					}
+					obtainedSolution.put(containerId, new long[] {ts, -1});
 				}
 				break;
 			case END:
@@ -49,10 +52,9 @@ public class CheckSolutionListener extends Listener {
 			case REL:
 				if (act.contains(PortModel.ACT_UNLOAD)) {
 					final int containerId = ((UnloadTask)eInfo.getActivity().getParent()).getContainerId();
-					if ((ts - plan.getVessel().getContainerProcessingTime(containerId)) != plan.getOptStartTime(containerId)) {
-						System.out.println("ERROR: task " + containerId + " finished at " + ts + "; expected at " + (plan.getOptStartTime(containerId) + plan.getVessel().getContainerProcessingTime(containerId)));
-						error = true;
-					}
+					long[] sol = obtainedSolution.get(containerId);
+					sol[1] = ts;
+					obtainedSolution.put(containerId, sol);
 				}
 				break;
 			case REQ:
@@ -67,6 +69,29 @@ public class CheckSolutionListener extends Listener {
 			}
 		}
 		else if (info instanceof SimulationEndInfo) {
+			boolean error = false;
+			for (int containerId : expectedSolution.keySet()) {
+				long[] expected = expectedSolution.get(containerId);
+				long[] obtained = obtainedSolution.get(containerId);
+				if (obtained == null) {
+					System.out.println("ERROR: task " + containerId + " never scheduled; expected at " + expected[0]);
+					error = true;										
+				}
+				else {
+					if (expected[0] != obtained[0]) {
+						System.out.println("ERROR: task " + containerId + " scheduled at " + obtained[0] + "; expected at " + expected[0]);
+						error = true;					
+					}
+					if (obtained[1] == -1) {
+						System.out.println("ERROR: task " + containerId + " never finished; expected at " + expected[1]);
+						error = true;					
+					}
+					else if (expected[1] != obtained[1]) {
+						System.out.println("ERROR: task " + containerId + " finished at " + obtained[1] + "; expected at " + expected[1]);
+						error = true;					
+					}
+				}
+			}
 			if (error) {
 				System.out.println("ERRORS DETECTED IN SCHEDULE!");
 			}

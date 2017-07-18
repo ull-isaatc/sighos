@@ -12,6 +12,7 @@ import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.simulation.model.flow.DelayFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
@@ -42,10 +43,6 @@ import simkit.random.RandomNumberFactory;
  *
  */
 public class PortModel extends Simulation {
-	public enum SafetyType {
-		FULL,
-		OPERATION_ONLY
-	}
 	protected final static TimeUnit PORT_TIME_UNIT = TimeUnit.SECOND;
 	private final static String DESCRIPTION = "Port Simulation";
 	protected static final long T_OPERATION = 1L * 60;
@@ -61,8 +58,11 @@ public class PortModel extends Simulation {
 	protected static final String ACT_PLACE = "Place at";
 	protected static final String ACT_GET_TO_BAY = "Get to bay";
 	protected static final String ACT_LEAVE_BAY = "Leave bay";
+	protected static final String ACT_MOVING = "Moving";
 	protected static final String POSITION = "Position";
 	protected static final String SECURITY_TOKEN = "Security token";
+	protected static final String FIRST_HALF = "(First half)";
+	protected static final String SECOND_HALF = "(Second half)";
 	private static final RandomNumber rng = RandomNumberFactory.getInstance();
 	private final double pError;
 	private final long currentSeed;
@@ -70,16 +70,14 @@ public class PortModel extends Simulation {
 	private final int []nVehicles;
 	private final ResourceType rtGenericVehicle;
 	private final ResourceType[] rtSpecificVehicle;
-	private final ResourceType[] rtOpPositions;
-	private final WorkGroup[] wgPositions;
-	private final WorkGroup[] wgOpPositionsSides;
+	private final WorkGroup[][] wgPositions;
+	private final WorkGroup[] wgInitPositions;
 	private final ResourceType[] rtContainers;
 	private final WorkGroup[] wgContainers;
 	private final WorkGroup[] wgSpecificContainers;
 	private final WorkGroup[] wgSecurityToken;
 	private final Flow[][] cranePlan;
 	private final TaskFlow[] actUnloads;
-	private final SafetyType safetyType;
 
 	/**
 	 * Creates a port simulation with only generic delivery vehicles
@@ -88,8 +86,8 @@ public class PortModel extends Simulation {
 	 * @param nGenericVehicles Number of delivery vehicles to be used
 	 * @param pError Percentage error for each time parameter of the simulation. If 0.0, deterministic simulation 
 	 */
-	public PortModel(SafetyType safety, StowagePlan plan, int id, int nGenericVehicles, double pError) {
-		this(safety, plan, id, new int[] {nGenericVehicles}, pError, rng.getSeed());
+	public PortModel(StowagePlan plan, int id, int nGenericVehicles, double pError) {
+		this(plan, id, new int[] {nGenericVehicles}, pError, rng.getSeed());
 	}
 	
 	/**
@@ -100,8 +98,8 @@ public class PortModel extends Simulation {
 	 * @param pError Percentage error for each time parameter of the simulation. If 0.0, deterministic simulation
 	 * @param seed Random seed used to ensure that the random parameters of the simulation replicate those from a former simulation 
 	 */
-	public PortModel(SafetyType safety, StowagePlan plan, int id, int nGenericVehicles, double pError, long seed) {
-		this(safety, plan, id, new int[] {nGenericVehicles}, pError, seed);
+	public PortModel(StowagePlan plan, int id, int nGenericVehicles, double pError, long seed) {
+		this(plan, id, new int[] {nGenericVehicles}, pError, seed);
 	}
 	
 	/**
@@ -113,8 +111,8 @@ public class PortModel extends Simulation {
 	 * @param pError Percentage error for each time parameter of the simulation. If T is the constant duration of any activity 
 	 * within the simulation, the effective time will be uniformly distributed in the interval (T-T*pError, T+T*pError)
 	 */
-	public PortModel(SafetyType safety, StowagePlan plan, int id, int[] nVehicles, double pError) {
-		this(safety, plan, id, nVehicles, pError, rng.getSeed());
+	public PortModel(StowagePlan plan, int id, int[] nVehicles, double pError) {
+		this(plan, id, nVehicles, pError, rng.getSeed());
 	}
 	
 	/**
@@ -128,9 +126,8 @@ public class PortModel extends Simulation {
 	 * If pError == 0.0, creates a deterministic simulation
 	 * @param seed Random seed used to ensure that the random parameters of the simulation replicate those from a former simulation 
 	 */
-	public PortModel(SafetyType safety, StowagePlan plan, int id, int[] nVehicles, double pError, long seed) {
+	public PortModel(StowagePlan plan, int id, int[] nVehicles, double pError, long seed) {
 		super(id, DESCRIPTION + " " + id, PORT_TIME_UNIT, START_TS, END_TS);
-		this.safetyType = safety;
 		currentSeed = seed;
 		rng.setSeed(seed);
 		this.nVehicles = nVehicles;
@@ -141,23 +138,11 @@ public class PortModel extends Simulation {
 		final int nContainers = plan.getNTasks();
 		final int nCranes = plan.getNCranes();
 		
-		wgPositions = new WorkGroup[nBays];
+		wgPositions = new WorkGroup[nBays][2];
+		wgInitPositions = new WorkGroup[nBays];
 		rtContainers = new ResourceType[nContainers];
-		switch(safety) {
-		case OPERATION_ONLY:
-			rtOpPositions = new ResourceType[nBays];
-			wgOpPositionsSides = new WorkGroup[nBays];
-			actUnloads = new SafeOperationUnloadActivity[nContainers];
-			wgSecurityToken = null;
-			break;
-		case FULL:
-		default:
-			rtOpPositions = null;
-			wgOpPositionsSides = null;
-			actUnloads = new FullSafeUnloadActivity[nContainers];
-			wgSecurityToken = new WorkGroup[nCranes];
-			break;
-		}
+		actUnloads = new FullSafeUnloadActivity[nContainers];
+		wgSecurityToken = new WorkGroup[nCranes];
 		if (hasGenericVehicles()) {
 			rtGenericVehicle = new ResourceType(this, DELIVERY_VEHICLE);
 			wgContainers = new WorkGroup[nContainers];
@@ -175,7 +160,7 @@ public class PortModel extends Simulation {
 			wgSpecificContainers = null;
 		}		
 		
-		createResources(vessel, nBays, nCranes, nContainers);
+		createResources(nBays, nCranes, nContainers);
 		
 		// Set the containers which are available from the beginning and creates the activities
 		for (int bayId = 0; bayId < nBays; bayId++) {
@@ -185,77 +170,75 @@ public class PortModel extends Simulation {
 				int containerId1 = vessel.peek(bayId);
 				final Resource resContainer = new Resource(this, CONTAINER + containerId1);
 				resContainer.addTimeTableEntry(rtContainers[containerId1]);
-				switch(safety) {
-				case OPERATION_ONLY:
-					// Creates the activities for the top and intermediate containers. These activities create new containers.
-					for (int i = bay.size() - 1; i > 0; i--) {
-						containerId1 = bay.get(i);
-						actUnloads[containerId1] = new SafeOperationUnloadActivity(this, containerId1, bay.get(i-1));
-					}
-					// Creates the activity corresponding to the bottom container
-					containerId1 = bay.get(0);
-					actUnloads[containerId1] = new SafeOperationUnloadActivity(this, containerId1);
-					break;
-				case FULL:
-				default:
-					// Creates the activities for the top and intermediate containers. These activities create new containers.
-					for (int i = bay.size() - 1; i > 0; i--) {
-						containerId1 = bay.get(i);
-						actUnloads[containerId1] = new FullSafeUnloadActivity(this, containerId1, bay.get(i-1));
-					}
-					// Creates the activity corresponding to the bottom container
-					containerId1 = bay.get(0);
-					actUnloads[containerId1] = new FullSafeUnloadActivity(this, containerId1);
-					break;
+				// Creates the activities for the top and intermediate containers. These activities create new containers.
+				for (int i = bay.size() - 1; i > 0; i--) {
+					containerId1 = bay.get(i);
+					actUnloads[containerId1] = new FullSafeUnloadActivity(this, containerId1, bay.get(i-1));
 				}
+				// Creates the activity corresponding to the bottom container
+				containerId1 = bay.get(0);
+				actUnloads[containerId1] = new FullSafeUnloadActivity(this, containerId1);
 			}
 		}
 		
 		// Creates the main element type representing quay cranes
 		final ElementType[] ets = new ElementType[nCranes]; 
-		cranePlan = createFlowFromPlan(plan, vessel);
+		cranePlan = createFlowFromPlan();
 		for (int craneId = 0; craneId < nCranes; craneId++) {
 			ets[craneId] = new ElementType(this, QUAY_CRANE + craneId);
 			new QuayCraneGenerator(this, ets[craneId], (InitializerFlow)cranePlan[craneId][0], plan.getInitialPosition(craneId));
 		}
 	}
 	
-	private void createResources(Vessel vessel, int nBays, int nCranes, int nContainers) {
+	/**
+	 * 
+	 * @param vessel
+	 * @param nBays
+	 * @param nCranes
+	 * @param nContainers
+	 */
+	private void createResources(int nBays, int nCranes, int nContainers) {
 		final int safetyDistance = plan.getSafetyDistance();
+		
 		// Creates the "positions" of the cranes in front of the bays and the activities to move among bays 
 		final ResourceType[] rtPositions = new ResourceType[nBays];
+		
+		for (int craneId = 0; craneId < nCranes; craneId++) {
+			final ResourceType rtSecurityToken = new ResourceType(this, SECURITY_TOKEN + craneId);
+			rtSecurityToken.addGenericResources(1);
+			wgSecurityToken[craneId] = new WorkGroup(this, rtSecurityToken, 1);
+		}
 		for (int bayId = 0; bayId < nBays; bayId++) {
 			rtPositions[bayId] = new ResourceType(this, POSITION + bayId);
-			rtPositions[bayId].addGenericResources(1);
-			wgPositions[bayId] = new WorkGroup(this, rtPositions[bayId], 1);
+			rtPositions[bayId].addGenericResources(2);
 		}
-		
-		switch(safetyType) {
-		case OPERATION_ONLY:
-			for (int bayId = 0; bayId < nBays; bayId++) {
-				rtOpPositions[bayId] = new ResourceType(this, OPERATE + bayId);
-				rtOpPositions[bayId].addGenericResources(1);
+		// Creates  the workgroups to take the initial positions of the cranes
+		for (int bayId = 0; bayId < nBays; bayId++) {
+			final ResourceType[] rtInitPlace = new ResourceType[1 + (bayId < safetyDistance ? bayId : safetyDistance) + (bayId + safetyDistance >= nBays ? nBays - bayId - 1 : safetyDistance)];
+			int i = 0;
+			for (int bayLeft = Math.max(0, bayId - safetyDistance); bayLeft < bayId; bayLeft++)
+				rtInitPlace[i++] = rtPositions[bayLeft];
+			for (int bayRight = bayId + 1; bayRight <= Math.min(nBays - 1, bayId + safetyDistance); bayRight++)
+				rtInitPlace[i++] = rtPositions[bayRight];
+			rtInitPlace[rtInitPlace.length - 1] = rtPositions[bayId];
+			final int[] needed = new int[rtInitPlace.length];
+			Arrays.fill(needed, 1);
+			needed[needed.length - 1] = 2;
+			wgInitPositions[bayId] = new WorkGroup(this, rtInitPlace, needed);
+		}
+		// Creates the workgroups to deal with movements
+		for (int bayId = 0; bayId < nBays; bayId++) {
+			if (bayId < safetyDistance) {
+				wgPositions[bayId][0] = new WorkGroup(this, rtPositions[bayId], 1);
 			}
-			for (int bayId = 0; bayId < nBays; bayId++) {
-				final ResourceType rtSidePositions[] = new ResourceType[Math.min(bayId, safetyDistance) + Math.min(nBays - bayId - 1, safetyDistance)];
-				int rtIndex = 0;
-				for (int bayId2 = Math.max(bayId - safetyDistance, 0); bayId2 < bayId; bayId2++) {
-					rtSidePositions[rtIndex++] = rtOpPositions[bayId2]; 
-				}
-				for (int bayId2 = bayId + 1; bayId2 < Math.min(nBays, bayId + safetyDistance + 1); bayId2++) {
-					rtSidePositions[rtIndex++] = rtOpPositions[bayId2]; 
-				}
-				final int[] needed = new int[rtSidePositions.length];
-				Arrays.fill(needed, 1);
-				wgOpPositionsSides[bayId] = new WorkGroup(this, rtSidePositions, needed);
+			else {
+				wgPositions[bayId][0] = new WorkGroup(this, new ResourceType[] {rtPositions[bayId], rtPositions[bayId - safetyDistance]}, new int[] {1, 1});
 			}
-			break;
-		case FULL:
-		default:
-			for (int craneId = 0; craneId < nCranes; craneId++) {
-				final ResourceType rtSecurityToken = new ResourceType(this, SECURITY_TOKEN + craneId);
-				rtSecurityToken.addGenericResources(1);
-				wgSecurityToken[craneId] = new WorkGroup(this, rtSecurityToken, 1);
+			if (bayId + safetyDistance >= nBays) {
+				wgPositions[bayId][1] = new WorkGroup(this, rtPositions[bayId], 1);				
+			}
+			else {
+				wgPositions[bayId][1] = new WorkGroup(this, new ResourceType[] {rtPositions[bayId], rtPositions[bayId + safetyDistance]}, new int[] {1, 1});
 			}
 		}
 
@@ -264,52 +247,19 @@ public class PortModel extends Simulation {
 		}
 		if (hasGenericVehicles()) {
 			rtGenericVehicle.addGenericResources(getNGenericVehicles());
-			switch(safetyType) {
-			case OPERATION_ONLY:
-				for (int containerId = 0; containerId < nContainers; containerId++) {
-					wgContainers[containerId] = createUnloadWorkGroup(vessel.getContainerBay(containerId), safetyDistance, nBays, rtContainers[containerId], rtGenericVehicle);
-				}
-				break;
-			case FULL:
-			default:
-				for (int containerId = 0; containerId < nContainers; containerId++) {
-					wgContainers[containerId] = new WorkGroup(this, new ResourceType[] {rtGenericVehicle, rtContainers[containerId]}, new int[] {1, 1});
-				}
-				break;
+			for (int containerId = 0; containerId < nContainers; containerId++) {
+				wgContainers[containerId] = new WorkGroup(this, new ResourceType[] {rtGenericVehicle, rtContainers[containerId]}, new int[] {1, 1});
 			}
 		}
 		if (hasSpecificVehicles()) {
 			for (int craneId = 0; craneId < nCranes; craneId++) {
 				rtSpecificVehicle[craneId] = new ResourceType(this, DELIVERY_VEHICLE + craneId);
 				rtSpecificVehicle[craneId].addGenericResources(getNSpecificVehiclesXCrane(craneId));
-				switch(safetyType) {
-				case OPERATION_ONLY:
-					for (int containerId : plan.getSchedule(craneId)) {
-						wgSpecificContainers[containerId] = createUnloadWorkGroup(vessel.getContainerBay(containerId), safetyDistance, nBays, rtContainers[containerId], rtSpecificVehicle[craneId]);
-					}
-					break;
-				case FULL:
-				default:
-					for (int containerId = 0; containerId < nContainers; containerId++) {
-						wgSpecificContainers[containerId] = new WorkGroup(this, new ResourceType[] {rtSpecificVehicle[craneId], rtContainers[containerId]}, new int[] {1, 1});
-					}
-					break;
+				for (int containerId = 0; containerId < nContainers; containerId++) {
+					wgSpecificContainers[containerId] = new WorkGroup(this, new ResourceType[] {rtSpecificVehicle[craneId], rtContainers[containerId]}, new int[] {1, 1});
 				}
 			}
 		}
-	}
-	
-	private WorkGroup createUnloadWorkGroup(int containerBay, int safetyDistance, int nBays, ResourceType rtContainer, ResourceType rtVehicle) {
-		final ResourceType rtUnload[] = new ResourceType[3 + Math.min(containerBay, safetyDistance) + Math.min(nBays - containerBay - 1, safetyDistance)];
-		rtUnload[0] = rtVehicle;
-		rtUnload[1] = rtContainer;
-		int rtIndex = 2;
-		for (int bayId = Math.max(containerBay - safetyDistance, 0); bayId < Math.min(nBays, containerBay + safetyDistance + 1); bayId++) {
-			rtUnload[rtIndex++] = rtOpPositions[bayId]; 
-		}
-		final int[] needed = new int[rtUnload.length];
-		Arrays.fill(needed, 1);
-		return new WorkGroup(this, rtUnload, needed);
 	}
 	
 	/**
@@ -387,15 +337,6 @@ public class PortModel extends Simulation {
 	}
 
 	/**
-	 * @return the wgOpPositionsSides
-	 */
-	public WorkGroup getWgOpPositionsSides(int bayId) {
-		if (SafetyType.OPERATION_ONLY == safetyType)
-			return wgOpPositionsSides[bayId];
-		return null;
-	}
-
-	/**
 	 * Computes a time parameter by adding a uniform error. The error is specified as {@link #pError}
 	 * @param constantTime
 	 * @return
@@ -416,111 +357,68 @@ public class PortModel extends Simulation {
 
 	/**
 	 * 
-	 * @param leftToRight
 	 * @param craneId
 	 * @param craneBay
-	 * @param offset The safety distance if "full safety" applies; 0 if "operation only" safety distance applies. 
-	 * @param nBays
+	 * @param nCranes
+	 * @param needToken
 	 * @return
 	 */
-	private Flow[] initCrane(boolean leftToRight, int craneId, int craneBay, int offset, int nBays, int nCranes, boolean needToken) {
+	private Flow[] initCrane(int craneId, int craneBay, int nCranes, boolean needToken) {
 		final Flow[] initEndFlow = new Flow[2];
-		if (leftToRight) {
-			// Acquires the leftmost position 
-			final RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, ACT_PLACE + Math.max(craneBay - offset, 0), Math.max(craneBay - offset, 0)+1);
-			reqFlow.addWorkGroup(wgPositions[Math.max(craneBay - offset, 0)]);
-			initEndFlow[1] = reqFlow;
-			if (needToken) {
-				// Starts by acquiring the security token
-				initEndFlow[0] = new RequestResourcesFlow(this, "Req " + SECURITY_TOKEN, nBays + craneId, nCranes - craneId);
-				((RequestResourcesFlow)initEndFlow[0]).addWorkGroup(wgSecurityToken[craneId]);
-				initEndFlow[0].link(reqFlow);
-			}
-			else {
-				initEndFlow[0] = reqFlow;
-			}
-
-			// Then acquires the rest of positions within the safety distance (none if "operation only" safety distance applies)
-			for (int i = Math.max(craneBay - offset, 0) + 1; i < Math.min(craneBay + offset + 1, nBays); i++) {
-				final RequestResourcesFlow nextFlow =  new RequestResourcesFlow(this, ACT_PLACE + i, i+1);
-				nextFlow.addWorkGroup(wgPositions[i]);
-				initEndFlow[1].link(nextFlow);
-				initEndFlow[1] = nextFlow;
-			}
+		// Acquires the "actual" position of the crane, first the left, then the right
+		RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, ACT_PLACE + craneBay);
+		reqFlow.addWorkGroup(wgInitPositions[craneBay]);
+		initEndFlow[1] = reqFlow;
+		
+		if (needToken) {
+			// Starts by acquiring the security token
+			reqFlow = new RequestResourcesFlow(this, "Req " + SECURITY_TOKEN, nCranes - craneId, false);
+			reqFlow.addWorkGroup(wgSecurityToken[craneId]);
+			reqFlow.link(initEndFlow[1]);
 		}
-		else {
-			// Acquires the rightmost position 
-			final RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, ACT_PLACE + Math.min(craneBay + offset, nBays - 1), Math.min(craneBay + offset, nBays - 1)-1);
-			reqFlow.addWorkGroup(wgPositions[Math.min(craneBay + offset, nBays - 1)]);
-			initEndFlow[1] = reqFlow;
-			if (needToken) {
-				// Starts by acquiring the security token
-				initEndFlow[0] = new RequestResourcesFlow(this, "Req " + SECURITY_TOKEN, nBays + craneId, craneId);
-				((RequestResourcesFlow)initEndFlow[0]).addWorkGroup(wgSecurityToken[craneId]);
-				initEndFlow[0].link(reqFlow);
-			}
-			else {
-				initEndFlow[0] = reqFlow;
-			}
-			
-			// Then acquires the rest of positions within the safety distance (none if "operation only" safety distance applies)
-			for (int i = Math.min(craneBay + offset, nBays - 1) - 1; i >= Math.max(craneBay - offset, 0); i--) {
-				final RequestResourcesFlow nextFlow =  new RequestResourcesFlow(this, ACT_PLACE + i, i-1);
-				nextFlow.addWorkGroup(wgPositions[i]);
-				initEndFlow[1].link(nextFlow);
-				initEndFlow[1] = nextFlow;
-			}			
-		}
+		initEndFlow[0] = reqFlow;
 		return initEndFlow;		
 	}
-	
+
 	/**
 	 * 
-	 * @param plan
-	 * @param vessel
-	 * @param offset
+	 * @param leftToRight
+	 * @param nCranes
 	 * @return
 	 */
-	private Flow[][] moveCranesToInitPosition(StowagePlan plan, Vessel vessel, int offset) {
-		final boolean leftToRight = plan.isLeftToRight();
-		final int nCranes = plan.getNCranes();
-		final int nBays = vessel.getNBays();
+	private Flow[][] moveCranesToInitPosition(boolean leftToRight, int nCranes) {
 		// Saves first and last flow for each crane
 		final Flow[][] flows = new Flow[nCranes][2];
 		for (int craneId = 0; craneId < nCranes; craneId++) {
 			// First place the crane in the initial position
-			flows[craneId] = initCrane(leftToRight, craneId, plan.getInitialPosition(craneId), offset, nBays, nCranes, plan.createsConflictAtStart(craneId));
+			flows[craneId] = initCrane(craneId, plan.getInitialPosition(craneId), nCranes, plan.createsConflictAtStart(craneId));
 		}
-		// Check conflicts only if full safety applies
-		if (SafetyType.FULL == safetyType) {
-			if (leftToRight) {
-				for (int craneId = 0; craneId < nCranes - 1; craneId++) {
-					// Checks the dependencies with the next crane
-					final int[] dep = plan.getDependenciesAtStart(craneId);
-					if (dep[1] != -1) {
-						// Creates the route to the fictitious task
-						flows[craneId][1] = createMoveFlow(flows[craneId][1], plan.getInitialPosition(craneId), dep[0], offset);
-						// Once in the fictitious task, try to acquire the corresponding "security token", applying different priority depending on the direction of the schedule
-						final RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, "Req " + SECURITY_TOKEN + craneId, nBays + craneId, nCranes - craneId);
-						reqFlow.addWorkGroup(wgSecurityToken[craneId]);
-						flows[craneId][1].link(reqFlow);
-						flows[craneId][1] = reqFlow;
-					}
+		// Check conflicts 
+		if (leftToRight) {
+			for (int craneId = 0; craneId < nCranes - 1; craneId++) {
+				// Checks the dependencies with the next crane
+				final int[] dep = plan.getDependenciesAtStart(craneId);
+				if (dep[1] != -1) {
+					// Creates the route to the fictitious task
+					flows[craneId][1] = moveCrane(flows[craneId][1], plan.getInitialPosition(craneId), dep[0]);
+					// Once in the fictitious task, try to acquire the corresponding "security token", applying different priority depending on the direction of the schedule
+					final RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, "Req " + SECURITY_TOKEN + (craneId + 1), nCranes - craneId, false);
+					reqFlow.addWorkGroup(wgSecurityToken[craneId + 1]);
+					flows[craneId][1] = flows[craneId][1].link(reqFlow);
 				}
 			}
-			else {
-				for (int craneId = 1; craneId < nCranes; craneId++) {
-					// Checks the dependencies with the next crane
-					final int[] dep = plan.getDependenciesAtStart(craneId);
-					if (dep[1] != -1) {
-						// Creates the route to the fictitious task
-						flows[craneId][1] = createMoveFlow(flows[craneId][1], plan.getInitialPosition(craneId), dep[0], offset);
-						// Once in the fictitious task, try to acquire the corresponding "security token", applying different priority depending on the direction of the schedule
-						final RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, "Req " + SECURITY_TOKEN + craneId, nBays + craneId, craneId);
-						reqFlow.addWorkGroup(wgSecurityToken[craneId]);
-						flows[craneId][1].link(reqFlow);
-						flows[craneId][1] = reqFlow;
-					}
+		}
+		else {
+			for (int craneId = 1; craneId < nCranes; craneId++) {
+				// Checks the dependencies with the next crane
+				final int[] dep = plan.getDependenciesAtStart(craneId);
+				if (dep[1] != -1) {
+					// Creates the route to the fictitious task
+					flows[craneId][1] = moveCrane(flows[craneId][1], plan.getInitialPosition(craneId), dep[0]);
+					// Once in the fictitious task, try to acquire the corresponding "security token", applying different priority depending on the direction of the schedule
+					final RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, "Req " + SECURITY_TOKEN + (craneId - 1), craneId, false);
+					reqFlow.addWorkGroup(wgSecurityToken[craneId - 1]);
+					flows[craneId][1] = flows[craneId][1].link(reqFlow);
 				}
 			}
 		}
@@ -528,49 +426,32 @@ public class PortModel extends Simulation {
 	}
 	
 	/**
-	 * Returns the flow of a crane that must arrive at a specific bay
-	 * @param id Bay identifier
-	 * @return A {@link RequestResourcesFlow} representing the flow of a crane that must arrive at a specific bay 
-	 */
-	private RequestResourcesFlow getGetToBayFlow(int id) {
-		final RequestResourcesFlow reqBay = new RequestResourcesFlow(this, ACT_GET_TO_BAY + id, id+1);
-		reqBay.addWorkGroup(0, wgPositions[id], getTimeWithError(T_MOVE));		
-		return reqBay;
-	}
-	
-	/**
-	 * Returns the flow of a crane that must leave a specific bay
-	 * @param id Bay identifier
-	 * @return A {@link ReleaseResourcesFlow} representing the flow of a crane that must leave a specific bay
-	 */
-	private ReleaseResourcesFlow getLeaveBayFlow(int id) {
-		final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + id, id+1);
-		return relBay;
-	}
-	
-	/**
 	 * Creates the flows required to represent a crane moving from one bay to other.
 	 * @param previousFlow A non-null flow representing the last step of the crane
 	 * @param originBay The current position of the crane
 	 * @param destinationBay The destination of the crane
-	 * @param offset A modifier to take into account safety distance
 	 * @return The last flow created
 	 */
-	private Flow createMoveFlow(Flow previousFlow, int originBay, int destinationBay, int offset) {
+	private Flow moveCrane(Flow previousFlow, int originBay, int destinationBay) {
 		Flow flow = previousFlow;
+		int currentBay = originBay;
 		// When moving to the right, release the (craneBay - safetyDistance)th container and acquire the (craneBay + safetyDistance + 1)th container  
-		while (originBay < destinationBay) {
-			final ReleaseResourcesFlow relBay = getLeaveBayFlow(originBay - offset);
-			flow.link(getGetToBayFlow(originBay + offset + 1)).link(relBay);
-			flow = relBay;
-			originBay++;
+		while (currentBay < destinationBay) {
+			final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + currentBay, wgPositions[currentBay][0]);
+			final RequestResourcesFlow reqBay =  new RequestResourcesFlow(this, ACT_GET_TO_BAY + (currentBay + 1));
+			reqBay.addWorkGroup(0, wgPositions[currentBay + 1][1]);	
+			final DelayFlow delayBay = new DelayFlow(this, ACT_MOVING, getTimeWithError(T_MOVE));
+			flow = flow.link(reqBay).link(relBay).link(delayBay);
+			currentBay++;
 		}
 		// When moving to the left, release the (craneBay + safetyDistance)th container and acquire the (craneBay - safetyDistance - 1)th container  
-		while (originBay > destinationBay) {
-			final ReleaseResourcesFlow relBay = getLeaveBayFlow(originBay + offset);
-			flow.link(getGetToBayFlow(originBay - offset - 1)).link(relBay);
-			flow = relBay;
-			originBay--;								
+		while (currentBay > destinationBay) {
+			final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + currentBay, wgPositions[currentBay][1]);
+			final RequestResourcesFlow reqBay =  new RequestResourcesFlow(this, ACT_GET_TO_BAY + (currentBay - 1));
+			reqBay.addWorkGroup(0, wgPositions[currentBay - 1][0]);	
+			final DelayFlow delayBay = new DelayFlow(this, ACT_MOVING, getTimeWithError(T_MOVE));
+			flow = flow.link(reqBay).link(relBay).link(delayBay);
+			currentBay--;
 		}
 		return flow;
 	}
@@ -579,14 +460,14 @@ public class PortModel extends Simulation {
 	 * @param plan The stowage plan
 	 * @param vessel The vessel which is being operated 
 	 * @param craneId Crane identifier
-	 * @return The first step of the work flow that the specified crane must follow to fulfill its stowage plan.
+	 * @return The first and last steps of the work flow that the specified crane must follow to fulfill its stowage plan.
 	 */
-	private Flow[][] createFlowFromPlan(StowagePlan plan, Vessel vessel) {
+	private Flow[][] createFlowFromPlan() {
 		final boolean leftToRight = plan.isLeftToRight();
-		final int nBays = vessel.getNBays();
-		final int offset = (SafetyType.FULL == safetyType) ? plan.getSafetyDistance() : 0;
-		final Flow[][] flows = moveCranesToInitPosition(plan, vessel, offset);
+		final int nBays = plan.getVessel().getNBays();
+		final int safetyDistance = plan.getSafetyDistance();
 		final int nCranes = plan.getNCranes();
+		final Flow[][] flows = moveCranesToInitPosition(leftToRight, nCranes);
 		// Now reproduces the schedule
 		for (int craneId = 0; craneId < nCranes; craneId++) {
 			// ... but first takes care of possible conflicts
@@ -597,19 +478,19 @@ public class PortModel extends Simulation {
 			else if (!leftToRight && craneId < nCranes - 1) {
 				freeConflictOn = plan.getDependenciesAtStart(craneId + 1)[1];
 			}
-			int craneBay = plan.getInitialPosition(craneId);
+			int craneBay = (plan.getDependenciesAtStart(craneId)[1] == -1) ? plan.getInitialPosition(craneId) : plan.getDependenciesAtStart(craneId)[0];
 			Flow flow = flows[craneId][1];
 			
 			// Analyze the plan and move if needed
 			final ArrayList<Integer> cranePlan = plan.getSchedule(craneId);
 			for (int i = 0; i < cranePlan.size(); i++) {
 				final int containerId = cranePlan.get(i);
-				final int destinationBay = vessel.getContainerBay(containerId);
-				flow = createMoveFlow(flow, craneBay, destinationBay, offset);
+				final int destinationBay = plan.getVessel().getContainerBay(containerId);
+				flow = moveCrane(flow, craneBay, destinationBay);
 				flow.link(actUnloads[containerId]);
 				// Checks whether this was the task creating a conflict
 				if (containerId == freeConflictOn) {
-					final ReleaseResourcesFlow relFlow = new ReleaseResourcesFlow(this, "Rel" + SECURITY_TOKEN + craneId, nBays + craneId, wgSecurityToken[craneId]);
+					final ReleaseResourcesFlow relFlow = new ReleaseResourcesFlow(this, "Rel" + SECURITY_TOKEN + craneId, wgSecurityToken[craneId]);
 					actUnloads[containerId].link(relFlow);
 					flow = relFlow;
 				}
@@ -620,10 +501,10 @@ public class PortModel extends Simulation {
 			}
 			// When finish, move to try not to disturb
 			if (leftToRight) {
-				createMoveFlow(flow, craneBay, nBays - 1 - (nCranes - craneId - 1) * (offset + 1), offset);
+				moveCrane(flow, craneBay, nBays - 1 - (nCranes - craneId - 1) * (safetyDistance + 1));
 			}
 			else {
-				createMoveFlow(flow, craneBay, craneId * (offset + 1), offset);
+				moveCrane(flow, craneBay, craneId * (safetyDistance + 1));
 			}
 		}
 		

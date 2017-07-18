@@ -40,7 +40,7 @@ public class SafeOperationUnloadActivity extends StructuredFlow implements Unloa
 		final Vessel ship = model.getPlan().getVessel();
 		this.resourcesId = ship.getNBays() + containerId + 1;
 		final RequestResourcesFlow reqUnload = new RequestResourcesFlow(model, FIRST_FLOW_NAME + containerId, resourcesId);
-		final ReleaseResourcesFlow relSide = new ReleaseResourcesFlow(model, "Release side positions" + containerId, resourcesId, model.getWgOpPositionsSides(ship.getContainerBay(containerId)));
+		final ReleaseResourcesFlow relSide = new ReleaseResourcesFlow(model, "Release side positions" + containerId, resourcesId, model.getWgSidePositions(ship.getContainerBay(containerId)));
 		final long newTime = model.getTimeWithError(ship.getContainerProcessingTime(containerId) * PortModel.T_OPERATION);
 //		System.out.println(containerId + "\t" + newTime);
 		final DelayFlow delUnload = new DelayFlow(model, "Delay " + PortModel.ACT_UNLOAD, newTime);
