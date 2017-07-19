@@ -3,11 +3,13 @@
  */
 package es.ull.iis.simulation.model.flow;
 
+import java.util.ArrayDeque;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.model.ElementInstance;
+import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.ResourceType;
@@ -137,17 +139,13 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
 
     /**
      * Releases the resources caught by this item to perform the activity.
-     * @return A list of activity managers affected by the released resources
      */
-    public boolean releaseResources(ElementInstance ei) {
-        if (!ei.releaseCaughtResources(wg))
-        	return false;
-		simul.notifyInfo(new ElementActionInfo(simul, ei, ei.getElement(), this, ei.getExecutionWG(), ElementActionInfo.Type.REL, simul.getTs()));
+    public void releaseResources(ElementInstance ei) {
+    	final ArrayDeque<Resource> resources = ei.releaseCaughtResources(wg);
+		simul.notifyInfo(new ElementActionInfo(simul, ei, ei.getElement(), this, ei.getExecutionWG(), resources, ElementActionInfo.Type.REL, simul.getTs()));
 		if (ei.getElement().isDebugEnabled())
 			ei.getElement().debug("Finishes\t" + this + "\t" + getDescription());
 		afterFinalize(ei);
-		return true;
-
     }
 
 	/*

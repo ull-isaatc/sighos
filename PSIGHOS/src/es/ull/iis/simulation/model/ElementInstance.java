@@ -340,18 +340,18 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
     	}
     	engine.notifyResourcesAcquired();
     	final long ts = elem.getTs();
-		elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.ACQ, ts));
+		elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, reqFlow, executionWG, solution, ElementActionInfo.Type.ACQ, ts));
 		elem.debug("Resources acquired\t" + this + "\t" + reqFlow.getDescription());			
 		reqFlow.afterAcquire(this);
 		long delay = Math.round(executionWG.getDurationSample(this) * remainingTask);
 		auxTs -= ts;
 		if (delay > 0) {
 			if (remainingTask == 1.0) {
-				elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.START, ts));
+				elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, reqFlow, executionWG, null, ElementActionInfo.Type.START, ts));
 				elem.debug("Start delay\t" + this + "\t" + reqFlow.getDescription());
 			}
 			else {
-				elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, reqFlow, executionWG, ElementActionInfo.Type.RESACT, ts));
+				elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, reqFlow, executionWG, null, ElementActionInfo.Type.RESACT, ts));
 				elem.debug("Continues\t" + this + "\t" + reqFlow.getDescription());			
 			}
 			// The required time for finishing the activity is reduced (useful only for interruptible activities)
@@ -373,7 +373,12 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
 		elem.addFinishEvent(delay + elem.getTs(), (TaskFlow)currentFlow, this);
 	}
 	
-	public boolean releaseCaughtResources(WorkGroup wg) {
+	/**
+	 * Releases the previously seized resources
+	 * @param wg Workgroup of resources to release
+	 * @return The released resources
+	 */
+	public ArrayDeque<Resource> releaseCaughtResources(WorkGroup wg) {
         final TreeSet<ActivityManager> amList = new TreeSet<ActivityManager>();
 		final ReleaseResourcesFlow relFlow = (ReleaseResourcesFlow)currentFlow;
 		
@@ -410,18 +415,18 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
 				am.notifyResource();
 			}
 		}
-        return true;
+        return resources;
 	}
    
     public void endDelay(RequestResourcesFlow f) {
 		if (remainingTask == 0.0) {
-			elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, f, executionWG, ElementActionInfo.Type.END, elem.getTs()));
+			elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, f, executionWG, null, ElementActionInfo.Type.END, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes\t" + this + "\t" + f.getDescription());
 			f.afterFinalize(this);
 		}
 		else {
-			elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, f, executionWG, ElementActionInfo.Type.INTACT, elem.getTs()));
+			elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, f, executionWG, null, ElementActionInfo.Type.INTACT, elem.getTs()));
 			if (elem.isDebugEnabled())
 				elem.debug("Finishes part of \t" + this + "\t" + f.getDescription() + "\t" + remainingTask * 100 + "% Left");
 			// Notifies the parent workthread that the activity was interrupted
