@@ -30,21 +30,36 @@ public class AdHocExperiment {
 		this.debug = debug;
 	}
 	
+	public AdHocExperiment(StowagePlan plan, int nVehicles, boolean debug) {
+		this.nVehicles = nVehicles;
+		this.nSolutions = 1;
+		this.plans = new StowagePlan[] {plan};
+		this.debug = debug;
+	}
+	
 	public void start() {
 		for (int i = 0; i < nSolutions; i++) {
 			final StowagePlan plan = plans[i];
 			PortModel model = new PortModel(plan, i, nVehicles, 0.0);
+			System.out.println("Testing solution " + i);
 			model.addInfoReceiver(new CheckSolutionListener(plan));
 			if (debug) {
-//				model.addInfoReceiver(new StdInfoView());
-				
-//				model.addInfoReceiver(new ContainerTimeLineListener(plan, TimeUnit.MINUTE));
+				System.out.println(plan.getOriginalSolution());
+				System.out.println(plan);
+				System.out.println(plan.getVessel());
+				printSchedule(plan.getVessel());
 				model.addInfoReceiver(new ContainerTraceListener(TimeUnit.SECOND));
 			}
 			model.run();
 		}
 	}
 	
+	private void printSchedule(Vessel vessel) {
+		System.out.println("Task\tStart\tProc");
+		for (int i = 0; i < vessel.getNContainers(); i++) {
+			System.out.println(i + "\t" + vessel.getContainerOptStartTime(i) + "\t" + vessel.getContainerProcessingTime(i));
+		}
+	}
 	public static void main(String[] args) {
 		final Arguments args1 = new Arguments();
 		try {
@@ -54,9 +69,17 @@ public class AdHocExperiment {
 			jc.parse(args);
 			final int nVehicles = args1.nVehicles;
 	        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(args1.fileName);
-	        if (plans.length < args1.nSolutions)
-	        	args1.nSolutions = plans.length;
-	       	new AdHocExperiment(plans, args1.nSolutions, nVehicles, args1.debug).start();
+	        if (args1.specific) {
+		        if (plans.length < args1.nSolution)
+		        	args1.nSolution = plans.length - 1;
+		       	new AdHocExperiment(plans[args1.nSolution], nVehicles, args1.debug).start();
+	        	
+	        }
+	        else {
+		        if (plans.length < args1.nSolution)
+		        	args1.nSolution = plans.length;
+		       	new AdHocExperiment(plans, args1.nSolution, nVehicles, args1.debug).start();
+	        }
 		} catch (ParameterException ex) {
 			System.out.println(ex.getMessage());
 			ex.usage();
@@ -69,8 +92,10 @@ public class AdHocExperiment {
 		private String fileName;
 		@Parameter(names ={"--debug", "-d"}, description = "Print debug messages", order = 4)
 		private boolean debug;		
-		@Parameter(names ={"--solutions", "-s"}, description = "Number of QCSP solutions to process", order = 2)
-		private int nSolutions = 1;
+		@Parameter(names ={"--solution", "-s"}, description = "Number of QCSP solutions to process", order = 2)
+		private int nSolution = 1;
+		@Parameter(names ={"--specific", "-e"}, description = "Specific QCSP solution to process", order = 3)
+		private boolean specific = false;
 		@Parameter(names ={"--vehicles", "-v"}, description = "Number of delivery vehicles", required=true, order = 1)
 		private int nVehicles;
 	}

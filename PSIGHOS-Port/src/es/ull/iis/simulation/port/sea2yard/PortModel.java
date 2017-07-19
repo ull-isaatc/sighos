@@ -22,25 +22,19 @@ import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
 
 /**
- * A port model where quay cranes cannot operate when there is another crane OPERATING inside the safety distance
- * @author Iván Castilla
+ * A port model for sea to yard operations. The sea-side is divided into bays. There are N quay cranes (qc), each one starting at a specific bay.
+ * QCs can move from one bay to another, by always keeping certain safety distance among them to avoid interferences. 
+ * QCs has an ordered list of tasks associated (the "schedule"). Each task represent either a container load or unload (aka. transshipment operation).
+ * Each task requires a delivery vehicle to be performed. Every time a vehicle is used, it has to go  
  * 
- * TODO
- *   Distancia de seguridad
- *   Si se mueven de izq a der., si la primera tarea de la grúa 2 (más a la derecha) comienza más a la izq. que donde está la grúa 1, 
- *   desplazar grúa 1 hacia la izq. respetando distancia de seguridad (mirar tareas ficiticias christopher)
- *   Crear tarea fictica para grúa 1 de tiempo 0 y que dependa de un recurso que sólo se activa cuando la grúa 2
- *   ha terminado las tareas conflictivas (Christopher intentará dármelo). 
- *
- *  It is possible for quay cranes to start a task that conflict with another crane. To avoid this situation, each pair of quay cranes share a "security token". 
- *  If schedule is left to right, the rightmost crane acquires this token at start. If there is no initial conflict, the crane releases the token immediately. 
+ *  When the first task of a crane is It is possible for quay cranes to start a task that creates a conflict with another crane, because the task is . To avoid this situation, each pair of quay cranes share a "security token". 
+ *  schedule is left to right, the rightmost crane acquires this token at start. If there is no initial conflict, the crane releases the token immediately. 
  *  Otherwise, it keeps the token until the conflicting task finishes. The leftmost crane moves to avoid the conflict (according to a predefined fictitious task) and
  *  then tries to acquire the token. Increasing higher priority is assigned to each crane, so to ensure that, even when the leftmost crane do not have to move, 
  *  the rightmost crane acquires the token first. 
  *
- *	Al terminar su última tarea, hacer que la grúa se desplace lo más que pueda en la dirección en que estaba trabajando (no contabilizar estos
- *tiempos en el valor objetivo).
- *
+ * When a QC finishes its last task, it moves "out" of the bays to avoid conflicting with the rest of cranes. 
+ * @author Iván Castilla
  */
 public class PortModel extends Simulation {
 	protected final static TimeUnit PORT_TIME_UNIT = TimeUnit.SECOND;
@@ -59,6 +53,7 @@ public class PortModel extends Simulation {
 	protected static final String ACT_GET_TO_BAY = "Get to bay";
 	protected static final String ACT_LEAVE_BAY = "Leave bay";
 	protected static final String ACT_MOVING = "Moving";
+	protected static final String END = "End";
 	protected static final String POSITION = "Position";
 	protected static final String SECURITY_TOKEN = "Security token";
 	protected static final String FIRST_HALF = "(First half)";
@@ -78,6 +73,7 @@ public class PortModel extends Simulation {
 	private final WorkGroup[] wgSecurityToken;
 	private final Flow[][] cranePlan;
 	private final TaskFlow[] actUnloads;
+	private final int extraBays;
 
 	/**
 	 * Creates a port simulation with only generic delivery vehicles
@@ -137,8 +133,9 @@ public class PortModel extends Simulation {
 		final int nBays = vessel.getNBays();
 		final int nContainers = plan.getNTasks();
 		final int nCranes = plan.getNCranes();
+		extraBays = (1 + plan.getSafetyDistance());
 		
-		wgPositions = new WorkGroup[nBays][2];
+		wgPositions = new WorkGroup[nBays + extraBays * 2][2];
 		wgInitPositions = new WorkGroup[nBays];
 		rtContainers = new ResourceType[nContainers];
 		actUnloads = new FullSafeUnloadActivity[nContainers];
@@ -201,7 +198,7 @@ public class PortModel extends Simulation {
 		final int safetyDistance = plan.getSafetyDistance();
 		
 		// Creates the "positions" of the cranes in front of the bays and the activities to move among bays 
-		final ResourceType[] rtPositions = new ResourceType[nBays];
+		final ResourceType[] rtPositions = new ResourceType[nBays + extraBays * 2];
 		
 		for (int craneId = 0; craneId < nCranes; craneId++) {
 			final ResourceType rtSecurityToken = new ResourceType(this, SECURITY_TOKEN + craneId);
@@ -209,32 +206,38 @@ public class PortModel extends Simulation {
 			wgSecurityToken[craneId] = new WorkGroup(this, rtSecurityToken, 1);
 		}
 		for (int bayId = 0; bayId < nBays; bayId++) {
-			rtPositions[bayId] = new ResourceType(this, POSITION + bayId);
+			rtPositions[bayId + extraBays] = new ResourceType(this, POSITION + bayId);
+			rtPositions[bayId + extraBays].addGenericResources(2);
+		}
+		for (int bayId = 0; bayId < extraBays; bayId++) {
+			rtPositions[bayId] = new ResourceType(this, POSITION + (-bayId -1));
 			rtPositions[bayId].addGenericResources(2);
+			rtPositions[nBays + extraBays + bayId] = new ResourceType(this, POSITION + (nBays + bayId));
+			rtPositions[nBays + extraBays + bayId].addGenericResources(2);
 		}
 		// Creates  the workgroups to take the initial positions of the cranes
 		for (int bayId = 0; bayId < nBays; bayId++) {
 			final ResourceType[] rtInitPlace = new ResourceType[1 + (bayId < safetyDistance ? bayId : safetyDistance) + (bayId + safetyDistance >= nBays ? nBays - bayId - 1 : safetyDistance)];
 			int i = 0;
 			for (int bayLeft = Math.max(0, bayId - safetyDistance); bayLeft < bayId; bayLeft++)
-				rtInitPlace[i++] = rtPositions[bayLeft];
+				rtInitPlace[i++] = rtPositions[bayLeft + extraBays];
 			for (int bayRight = bayId + 1; bayRight <= Math.min(nBays - 1, bayId + safetyDistance); bayRight++)
-				rtInitPlace[i++] = rtPositions[bayRight];
-			rtInitPlace[rtInitPlace.length - 1] = rtPositions[bayId];
+				rtInitPlace[i++] = rtPositions[bayRight + extraBays];
+			rtInitPlace[rtInitPlace.length - 1] = rtPositions[bayId + extraBays];
 			final int[] needed = new int[rtInitPlace.length];
 			Arrays.fill(needed, 1);
 			needed[needed.length - 1] = 2;
 			wgInitPositions[bayId] = new WorkGroup(this, rtInitPlace, needed);
 		}
 		// Creates the workgroups to deal with movements
-		for (int bayId = 0; bayId < nBays; bayId++) {
+		for (int bayId = 0; bayId < nBays + 2 * extraBays; bayId++) {
 			if (bayId < safetyDistance) {
 				wgPositions[bayId][0] = new WorkGroup(this, rtPositions[bayId], 1);
 			}
 			else {
 				wgPositions[bayId][0] = new WorkGroup(this, new ResourceType[] {rtPositions[bayId], rtPositions[bayId - safetyDistance]}, new int[] {1, 1});
 			}
-			if (bayId + safetyDistance >= nBays) {
+			if (bayId + safetyDistance >= (nBays + extraBays * 2)) {
 				wgPositions[bayId][1] = new WorkGroup(this, rtPositions[bayId], 1);				
 			}
 			else {
@@ -437,18 +440,18 @@ public class PortModel extends Simulation {
 		int currentBay = originBay;
 		// When moving to the right, release the (craneBay - safetyDistance)th container and acquire the (craneBay + safetyDistance + 1)th container  
 		while (currentBay < destinationBay) {
-			final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + currentBay, wgPositions[currentBay][0]);
+			final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + currentBay, wgPositions[currentBay + extraBays][0]);
 			final RequestResourcesFlow reqBay =  new RequestResourcesFlow(this, ACT_GET_TO_BAY + (currentBay + 1));
-			reqBay.addWorkGroup(0, wgPositions[currentBay + 1][1]);	
+			reqBay.addWorkGroup(0, wgPositions[currentBay + 1 + extraBays][1]);	
 			final DelayFlow delayBay = new DelayFlow(this, ACT_MOVING, getTimeWithError(T_MOVE));
 			flow = flow.link(reqBay).link(relBay).link(delayBay);
 			currentBay++;
 		}
 		// When moving to the left, release the (craneBay + safetyDistance)th container and acquire the (craneBay - safetyDistance - 1)th container  
 		while (currentBay > destinationBay) {
-			final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + currentBay, wgPositions[currentBay][1]);
+			final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + currentBay, wgPositions[currentBay + extraBays][1]);
 			final RequestResourcesFlow reqBay =  new RequestResourcesFlow(this, ACT_GET_TO_BAY + (currentBay - 1));
-			reqBay.addWorkGroup(0, wgPositions[currentBay - 1][0]);	
+			reqBay.addWorkGroup(0, wgPositions[currentBay - 1 + extraBays][0]);	
 			final DelayFlow delayBay = new DelayFlow(this, ACT_MOVING, getTimeWithError(T_MOVE));
 			flow = flow.link(reqBay).link(relBay).link(delayBay);
 			currentBay--;
@@ -499,13 +502,14 @@ public class PortModel extends Simulation {
 				}
 				craneBay = destinationBay;
 			}
-			// When finish, move to try not to disturb
+			// When finish, move to try not to disturb and releases all resources
 			if (leftToRight) {
-				moveCrane(flow, craneBay, nBays - 1 - (nCranes - craneId - 1) * (safetyDistance + 1));
+				flow = moveCrane(flow, craneBay, nBays - 1 - (nCranes - craneId - 1) * (safetyDistance + 1));
 			}
 			else {
-				moveCrane(flow, craneBay, craneId * (safetyDistance + 1));
+				flow = moveCrane(flow, craneBay, craneId * (safetyDistance + 1));
 			}
+			flows[craneId][1] = flow.link(new ReleaseResourcesFlow(this, END));
 		}
 		
 		return flows;

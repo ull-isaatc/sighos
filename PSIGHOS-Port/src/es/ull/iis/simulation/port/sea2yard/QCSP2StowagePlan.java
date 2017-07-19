@@ -14,6 +14,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -79,27 +80,22 @@ public class QCSP2StowagePlan {
         StowagePlan stowagePlan = null;
         final int planningHorizon = (int)(solution.getObjectiveFunctionValue() * 2 / 3);
         final int[][]dependenciesAtStart = new int[quayCranes][2];
+		@SuppressWarnings("unchecked")
+		final TreeMap<Integer, Integer>[] orderedTasks = (TreeMap<Integer, Integer>[])new TreeMap<?, ?>[quayCranes];
+        for (int qc = 0; qc < quayCranes; qc++) {
+            orderedTasks[qc]= new TreeMap<Integer, Integer>();
+        }
         
         if (keepOriginalDuration) {
             for (int task = 1; task <= problem.getNumRealTasks(); task++) {
                 int bay = problem.getTaskBay(task);
                 vessel.add(task - 1, bay, solution.times[task] - problem.getTaskProcessingTime(task) + 1, problem.getTaskProcessingTime(task));
+                orderedTasks[solution.getQuayCraneDoTask(task)].put(solution.times[task], task - 1);
             }
             for (int qc = 0; qc < quayCranes; qc++) {
             	dependenciesAtStart[qc][0] = solution.getFicticiousTasks()[qc][0];
             	final int originalTask = solution.getFicticiousTasks()[qc][2];
             	dependenciesAtStart[qc][1] = (originalTask == -1) ? -1 : originalTask - 1;
-            }
-            stowagePlan = new StowagePlan(vessel, quayCranes, safetyDistance, (long)solution.getObjectiveFunctionValue() / 3, solution.getOverlap(overlapLambda), 
-            		problem.getLowerBoundOverlapping(planningHorizon, overlapLambda), problem.getUpperBoundOverlapping(safetyDistance, overlapLambda), 
-            		solution.leftToRight, dependenciesAtStart);
-            for (int qc = 0; qc < quayCranes; qc++) {
-                stowagePlan.setInitialPosition(qc, problem.getQuayCraneStartingPosition(qc));
-                final ArrayList<Integer> tasks = new ArrayList<Integer>();
-                for (int i = 1; i < solution.getTasksDoneByQC(qc).size() - 1; i++) {
-                	tasks.add(solution.getTasksDoneByQC(qc).get(i) - 1);
-                }
-                stowagePlan.addAll(qc, tasks);
             }
         }
         else {
@@ -110,6 +106,7 @@ public class QCSP2StowagePlan {
                 final int time = problem.getTaskProcessingTime(task);
                 int startTime = solution.times[task] - problem.getTaskProcessingTime(task) + 1;
                 for (int j = 0; j < time; j++) {
+                    orderedTasks[solution.getQuayCraneDoTask(task)].put(startTime, containerId);                    
                     vessel.add(containerId, bay, startTime++, 1);
                     ArrayList<Integer> tasks = tasksByOriginalTask.get(task);
                     if (tasks == null) {
@@ -126,17 +123,14 @@ public class QCSP2StowagePlan {
             	// Takes the last "new" task associated to the original task
             	dependenciesAtStart[qc][1] = (originalTask == -1) ? -1 : tasksByOriginalTask.get(originalTask).get(tasksByOriginalTask.get(originalTask).size() - 1);
             }
-            stowagePlan = new StowagePlan(vessel, quayCranes, safetyDistance, (long)solution.getObjectiveFunctionValue() / 3, solution.getOverlap(overlapLambda), 
-            		problem.getLowerBoundOverlapping(planningHorizon, overlapLambda), problem.getUpperBoundOverlapping(safetyDistance, overlapLambda), 
-            		solution.leftToRight, dependenciesAtStart);
-            for (int qc = 0; qc < quayCranes; qc++) {
-                stowagePlan.setInitialPosition(qc, problem.getQuayCraneStartingPosition(qc));
-                for (int i = 1; i < solution.getTasksDoneByQC(qc).size() - 1; i++) {
-                	final int task = solution.getTasksDoneByQC(qc).get(i);
-                    stowagePlan.addAll(qc, tasksByOriginalTask.get(task));
-                }
-            }        	
         }
+        stowagePlan = new StowagePlan(solution, vessel, quayCranes, safetyDistance, (long)solution.getObjectiveFunctionValue() / 3, solution.getOverlap(overlapLambda), 
+        		problem.getLowerBoundOverlapping(planningHorizon, overlapLambda), problem.getUpperBoundOverlapping(safetyDistance, overlapLambda), 
+        		solution.leftToRight, dependenciesAtStart);
+        for (int qc = 0; qc < quayCranes; qc++) {
+            stowagePlan.setInitialPosition(qc, problem.getQuayCraneStartingPosition(qc));
+            stowagePlan.addAll(qc, orderedTasks[qc].values());
+        }        	
 		return stowagePlan;
 	}
 	
@@ -219,13 +213,49 @@ public class QCSP2StowagePlan {
         solution.assignTaskToQuayCrane(new int[]{1, 2, 3, 4, 5, 6, 7, 9, 12}, 0);
         solution.assignTaskToQuayCrane(new int[]{11, 13, 15, 17, 18, 19}, 1);
         solution.assignTaskToQuayCrane(new int[]{8, 10, 14, 16, 20, 21, 22, 23, 24, 25}, 2);
+		test(solution, "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\for_simulation\\k45_adhoc_long.sol", true, false);
+	}
+	
+	public static void testRightToLeft() {
+        final String instance = "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\instances\\k30.txt";
+        QCSProblem problem = new QCSProblem(instance);
+        QCSPSolution solution = new QCSPSolution(problem, true);
         //
+        solution.assignTaskToQuayCrane(new int[]{1, 2, 3, 4, 5, 9, 10}, 0);
+        solution.assignTaskToQuayCrane(new int[]{6, 7, 8, 11, 12, 13, 14, 15}, 1);
+        //
+        solution.setLeftToRight(false);
+        test(solution, null/*"C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\for_simulation\\k30_adhoc_long.sol"*/, false, false);
+	}
+	
+	public static void testRightToLeftDependent() {
+        final String instance = "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\instances\\k30.txt";
+        QCSProblem problem = new QCSProblem(instance);
+        QCSPSolution solution = new QCSPSolution(problem, true);
+        //
+        solution.assignTaskToQuayCrane(new int[]{1, 2, 3, 4, 5, 6, 7, 11}, 0);
+        solution.assignTaskToQuayCrane(new int[]{8, 9, 10, 12, 13, 14, 15}, 1);
+        //
+        solution.setLeftToRight(false);
+        test(solution, null/*"C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\for_simulation\\k30_dep.sol"*/, true, false);
+	}
+	
+	public static void testDependent() {
+        final String instance = "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\instances\\k30.txt";
+        QCSProblem problem = new QCSProblem(instance);
+        QCSPSolution solution = new QCSPSolution(problem, true);
+        //
+        solution.assignTaskToQuayCrane(new int[]{3, 4, 5, 6, 7, 8}, 0);
+        solution.assignTaskToQuayCrane(new int[]{1, 2, 9, 10, 11, 12, 13, 14, 15}, 1);
+        //
+        test(solution, "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\for_simulation\\k30_dep.sol", true, false);
+	}
+	
+	public static void test(QCSPSolution solution, String outputFile, boolean keep, boolean debug) {
         solution.evaluator = new EvaluatorMeisel();
         solution.getObjectiveFunctionValue();
+		QCSProblem problem = solution.getDataProblem();
         System.out.println(solution);
-        /**
-         *
-         */
         final int planningHorizon = 1000;
         final int securityDistance = 1;
         final double lambda = 1.0;
@@ -244,7 +274,7 @@ public class QCSP2StowagePlan {
             int last = initialPositions[i][4];
             System.out.println("\tQC " + i + " -> id=" + id + ", pos=" + position + ", dep=" + dependent + ", last=" + last);
         }
-		final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(problem, SAFETY_DISTANCE, lambda, true, false);
+		final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(problem, SAFETY_DISTANCE, lambda, keep, debug);
 		final StowagePlan plan = planBuilder.getStowagePlanFromQCSP(solution);
 		System.out.println("Vessel for best solution: ");
 		System.out.println(plan.getVessel());
@@ -255,46 +285,50 @@ public class QCSP2StowagePlan {
         for (int i = 0; i < problem.getQuayCranes(); i++) {
         	System.out.println("\tQC " + i + " -> pos=" + plan.getDependenciesAtStart(i)[0] + ", dep=" + plan.getDependenciesAtStart(i)[1]);
         }
-//		planBuilder.saveToFile(new StowagePlan[] {plan}, "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\for_simulation\\k45_adhoc.sol");
+        if (outputFile != null) {
+        	planBuilder.saveToFile(new StowagePlan[] {plan}, outputFile);
+        }
 	}
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		testRightToLeftDependent();
 //		testDependenciesAtStart();
-		final Arguments arguments = new Arguments();
-		try {
-			JCommander jc = JCommander.newBuilder()
-			  .addObject(arguments)
-			  .build();
-			jc.parse(args);
-			if (arguments.popSize > arguments.maxGen) {
-				ParameterException ex = new ParameterException("Wrong argument format: maxGeneration (" + arguments.maxGen + ") must be >= than populationSize (" + arguments.popSize + ")");
-				ex.setJCommander(jc);
-				throw ex;
-			}
-			final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(new QCSProblem(arguments.inputFileName), SAFETY_DISTANCE, arguments.overlapLambda, arguments.keep, arguments.debug);
-			final Population population = planBuilder.getSolutions(arguments.maxGen, arguments.popSize);
-			final StowagePlan[] plans = new StowagePlan[population.getSize()];
-			for (int i = 0; i < plans.length; i++) {
-				plans[i] = planBuilder.getStowagePlanFromQCSP(population.get(i));	
-			}
-			
-			if (arguments.debug) {				
-				System.out.println("Saved " + plans.length + " solutions");
-				System.out.println("Vessel for best solution: ");
-				System.out.println(plans[0].getVessel());
-				System.out.println();
-				System.out.println("Stowage plan for best solution:");
-				System.out.println(plans[0]);
-			}
-			if (arguments.outputFileName != null)
-				planBuilder.saveToFile(plans, arguments.outputFileName);
-		} catch (ParameterException ex) {
-			System.out.println(ex.getMessage());
-			ex.usage();
-			System.exit(-1);
-		}		
+//		final Arguments arguments = new Arguments();
+//		try {
+//			JCommander jc = JCommander.newBuilder()
+//			  .addObject(arguments)
+//			  .build();
+//			jc.parse(args);
+//			if (arguments.popSize > arguments.maxGen) {
+//				ParameterException ex = new ParameterException("Wrong argument format: maxGeneration (" + arguments.maxGen + ") must be >= than populationSize (" + arguments.popSize + ")");
+//				ex.setJCommander(jc);
+//				throw ex;
+//			}
+//			final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(new QCSProblem(arguments.inputFileName), SAFETY_DISTANCE, arguments.overlapLambda, arguments.keep, arguments.debug);
+//			final Population population = planBuilder.getSolutions(arguments.maxGen, arguments.popSize);
+//			final StowagePlan[] plans = new StowagePlan[population.getSize()];
+//			for (int i = 0; i < plans.length; i++) {
+//				plans[i] = planBuilder.getStowagePlanFromQCSP(population.get(i));	
+//			}
+//			
+//			if (arguments.debug) {				
+//				System.out.println("Saved " + plans.length + " solutions");
+//				System.out.println("Vessel for best solution: ");
+//				System.out.println(plans[0].getVessel());
+//				System.out.println();
+//				System.out.println("Stowage plan for best solution:");
+//				System.out.println(plans[0]);
+//			}
+//			if (arguments.outputFileName != null)
+//				planBuilder.saveToFile(plans, arguments.outputFileName);
+//		} catch (ParameterException ex) {
+//			System.out.println(ex.getMessage());
+//			ex.usage();
+//			System.exit(-1);
+//		}		
 	}
 	
 	final private static class Arguments {

@@ -14,6 +14,9 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+
+import com.kaizten.simulation.ports.qcsp.data.QCSPSolution;
 
 /**
  * A stowage plan that defines how a set of cranes will unload the containers from a vessel. Defines both the crane and the order 
@@ -50,6 +53,7 @@ public class StowagePlan implements Serializable {
 	private final int[][] dependenciesAtStart;
 	/** True if the solution goes left to right; false otherwise */
 	private final boolean leftToRight;
+	private final QCSPSolution originalSolution;
 
 	/**
 	 * Creates a new stowage plan
@@ -59,7 +63,7 @@ public class StowagePlan implements Serializable {
 	 * @param objectiveValue The theoretical optimum time to fulfill the stowage plan
 	 */
 	@SuppressWarnings("unchecked")
-	public StowagePlan(Vessel vessel, int nCranes, int safetyDistance, long objectiveValue, double overlap, double lowerBoundOverlapping, double upperBoundOverlapping, boolean leftToRight, int[][] dependenciesAtStart) {
+	public StowagePlan(QCSPSolution originalSolution, Vessel vessel, int nCranes, int safetyDistance, long objectiveValue, double overlap, double lowerBoundOverlapping, double upperBoundOverlapping, boolean leftToRight, int[][] dependenciesAtStart) {
 		schedule = (ArrayList<Integer>[]) new ArrayList<?>[nCranes];
 		for (int i = 0; i < nCranes; i++)
 			schedule[i] = new ArrayList<Integer>();
@@ -75,6 +79,7 @@ public class StowagePlan implements Serializable {
 		this.craneDoTask = new int[vessel.getNContainers()];
 		this.leftToRight = leftToRight;
 		nContainers = 0;
+		this.originalSolution = originalSolution;
 	}
 
 	/**
@@ -82,7 +87,7 @@ public class StowagePlan implements Serializable {
 	 * @param craneId Crane identifier
 	 * @param containers List of containers
 	 */
-    public void addAll(int craneId, ArrayList<Integer> containers) {
+    public void addAll(int craneId, Collection<Integer> containers) {
         schedule[craneId].addAll(containers);
         nContainers += containers.size();
         for (int contId : containers)
@@ -197,6 +202,13 @@ public class StowagePlan implements Serializable {
 	 */
 	public int[] getDependenciesAtStart(int craneId) {
 		return dependenciesAtStart[craneId];
+	}
+
+	/**
+	 * @return the originalSolution
+	 */
+	public QCSPSolution getOriginalSolution() {
+		return originalSolution;
 	}
 
 	/**
