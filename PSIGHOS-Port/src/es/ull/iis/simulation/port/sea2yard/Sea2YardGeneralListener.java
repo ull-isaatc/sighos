@@ -28,7 +28,7 @@ public class Sea2YardGeneralListener extends Listener {
 	private final long []opTime;
 	private final long []movTime;
 
-	public Sea2YardGeneralListener(StowagePlan plan, int experiment, TimeUnit unit) {
+	public Sea2YardGeneralListener(StowagePlan plan, TimeUnit unit) {
 		super("Time container");
 		totalTime = new TreeMap<Element, Long[]>();
 		movingTime = new TreeMap<Element, Long[]>();
@@ -82,7 +82,13 @@ public class Sea2YardGeneralListener extends Listener {
 				if (!eInfo.getActivity().getDescription().contains(PortModel.ACT_UNLOAD)) {
 					movingTime.get(eInfo.getElement())[1] += duration;
 					movingTime.get(eInfo.getElement())[0] = -1L;
-				}				
+				}
+				else {
+					final int containerId = ((UnloadTask)eInfo.getActivity().getParent()).getContainerId();
+					if (((QuayCrane)eInfo.getElement()).getLastTask() == containerId) {
+						objTime[eInfo.getElement().getIdentifier()] = eInfo.getTs();
+					}
+				}
 				break;
 			case INTACT:
 				break;
@@ -103,7 +109,7 @@ public class Sea2YardGeneralListener extends Listener {
 					objectiveValue = currentTs;
 				}
 				else {
-					objTime[craneId] = totalTime.get(crane)[1] - totalTime.get(crane)[0];
+//					objTime[craneId] = totalTime.get(crane)[1] - totalTime.get(crane)[0];
 					objectiveValue = Math.max(objectiveValue, objTime[craneId]);
 				}
 				useTime[craneId] = usageTime.get(crane)[1];

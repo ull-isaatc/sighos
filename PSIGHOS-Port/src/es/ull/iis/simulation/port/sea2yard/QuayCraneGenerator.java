@@ -17,6 +17,7 @@ import es.ull.iis.simulation.model.flow.InitializerFlow;
  */
 public class QuayCraneGenerator extends TimeDrivenElementGenerator {
 	final int initPosition;
+	final int lastTask;
 
 	/**
 	 * @param model
@@ -25,13 +26,14 @@ public class QuayCraneGenerator extends TimeDrivenElementGenerator {
 	 * @param flow
 	 * @param cycle
 	 */
-	public QuayCraneGenerator(Simulation model, ElementType et, InitializerFlow flow, int initPosition) {
+	public QuayCraneGenerator(Simulation model, ElementType et, InitializerFlow flow, int initPosition, int lastTask) {
 		super(model, 1, et, flow, new SimulationPeriodicCycle(model.getTimeUnit(), 0L, new SimulationTimeFunction(model.getTimeUnit(), "ConstantVariate", model.getEndTs()), 1));
 		this.initPosition = initPosition;
+		this.lastTask = lastTask;
 	}
 
 	@Override
 	public EventSource createEventSource(int ind, GenerationTrio info) {
-		return new QuayCrane(simul, info.getElementType(), info.getFlow(), initPosition);
+		return new QuayCrane(simul, info.getElementType(), info.getFlow(), initPosition, lastTask);
 	}
 }

@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.port.sea2yard;
 
-import java.util.List;
-
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
@@ -12,47 +10,122 @@ import com.beust.jcommander.ParameterException;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
- * The main simulation class for a port. A port is divided into three areas: sea, yard and earth. Ships arrive at a 
- * specific berth, which counts on a fixed number of quay cranes to unload the charge. Each ship carries M containers, 
- * and quay cranes unload a container at a time. To unload a container, a truck must be available. Trucks lead the 
- * container to a specific block in the yard area. At his block, a yard crane puts the container in a free space. 
+ * An experiment to compute the optimum number of vehicles to fulfill a stowage plan schedule. 
  * @author Iván Castilla
  *
  */
 public class CalculateOptimumVehiclesExperiment {
-	private final int minVehicles;
-	private final int maxVehicles;
+	private static final int LIMIT_VEHICLES = 100;
+	private static final int NUMBER = 5;
 	private final int nSolutions;
 	private final StowagePlan[] plans;
+	private final boolean debug;
+	private final int limitVehicles;
+	private final int plusMinus;
 
-	public CalculateOptimumVehiclesExperiment(StowagePlan[] plans, int nSolutions, int minVehicles, int maxVehicles) {
-		this.minVehicles = minVehicles;
-		this.maxVehicles = maxVehicles;
+	public CalculateOptimumVehiclesExperiment(StowagePlan[] plans, int nSolutions, int limitVehicles, int plusMinus, boolean debug) {
+		this.limitVehicles = limitVehicles;
 		this.nSolutions = nSolutions;
+		this.plusMinus = plusMinus;
 		this.plans = plans;
+		this.debug = debug;
 	}
 	
-	public void start() {
+	private int getOptimum(int id, StowagePlan plan) {
 		PortModel model = null;
 		int simCounter = 0;
 		long lastObjValue = Long.MAX_VALUE;
+		if (debug) {
+			System.out.println("Searching optimum for solution " + id + "...");
+			// Print header
+			printHeader();
+		}
+		final long objValue = plan.getObjectiveValue() * PortModel.T_OPERATION;
+		int nVehicles = (int) (plan.getNCranes() * ((PortModel.T_OPERATION + PortModel.T_TRANSPORT) / PortModel.T_OPERATION));
+		int minVehicles = plan.getNCranes();
+		int maxVehicles = limitVehicles;
+		boolean found = false;
+		boolean desist = false;
+		final TimeRepository times = new TimeRepository(plan, 0.0);
+		while (!found && !desist) {
+			model = new PortModel(plan, simCounter, nVehicles, times);
+			final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, TimeUnit.SECOND); 
+			model.addInfoReceiver(listener);
+			model.run();
+			if (debug)
+				printResults(simCounter, simCounter, listener, nVehicles);
+			lastObjValue = listener.getObjectiveValue();
+			simCounter++;
+			if (lastObjValue > objValue) {
+				if (nVehicles == limitVehicles) {
+					desist = true;
+				}
+				else {
+					if (nVehicles + 1 == maxVehicles) {
+						nVehicles = maxVehicles;
+						minVehicles = nVehicles;
+					}
+					else {
+						minVehicles = nVehicles;
+						nVehicles = (minVehicles + maxVehicles) / 2;
+					}
+				}
+			}
+			else if (lastObjValue == objValue) {
+				if (nVehicles == minVehicles) {
+					found = true;
+				}
+				else {
+					maxVehicles = nVehicles;
+					nVehicles = (nVehicles + minVehicles) / 2;
+				}
+			}
+			else {
+				System.out.println("WTF?? Best than optimum with " + nVehicles + "vehicles?? " + lastObjValue);
+			}
+		}
+		return nVehicles * (desist ? -1:1);
+	}
+	
+	public void start() {
 		// Print header
 		printHeader();
 		for (int i = 0; i < nSolutions; i++) {
 			final StowagePlan plan = plans[i];
-			final long objValue = plan.getObjectiveValue() * 60;
-			int nVehicles = minVehicles;
-			do {
-				model = new PortModel(plan, simCounter, nVehicles, 0.0);
-				final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, simCounter, TimeUnit.SECOND); 
+			final TimeRepository times = new TimeRepository(plan, 0.0);
+			int opt = getOptimum(i, plan);
+			if (debug)
+				System.out.println("Solution " + i + ". OPT: " + opt);
+			int simCounter = 0;
+			for (int nVehicles = Math.max(0, opt - plusMinus); nVehicles <= opt; nVehicles++) {
+				PortModel model = new PortModel(plan, simCounter, nVehicles, times);
+				final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, TimeUnit.SECOND); 
 				model.addInfoReceiver(listener);
 				model.run();
 				printResults(simCounter, i, listener, nVehicles);
-				lastObjValue = listener.getObjectiveValue();
-				nVehicles++;
-				simCounter++;
-			} while ((nVehicles <= maxVehicles) && (objValue != lastObjValue));
+				simCounter++;				
+			}
 		}
+//		PortModel model = null;
+//		int simCounter = 0;
+//		long lastObjValue = Long.MAX_VALUE;
+//		// Print header
+//		printHeader();
+//		for (int i = 0; i < nSolutions; i++) {
+//			final StowagePlan plan = plans[i];
+//			final long objValue = plan.getObjectiveValue() * 60;
+//			int nVehicles = minVehicles;
+//			do {
+//				model = new PortModel(plan, simCounter, nVehicles, 0.0);
+//				final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, simCounter, TimeUnit.SECOND); 
+//				model.addInfoReceiver(listener);
+//				model.run();
+//				printResults(simCounter, i, listener, nVehicles);
+//				lastObjValue = listener.getObjectiveValue();
+//				nVehicles++;
+//				simCounter++;
+//			} while ((nVehicles <= maxVehicles) && (objValue != lastObjValue));
+//		}
 	}
 
 	private void printHeader() {
@@ -78,17 +151,10 @@ public class CalculateOptimumVehiclesExperiment {
 			  .addObject(args1)
 			  .build();
 			jc.parse(args);
-			final int minVehicles = args1.minMax.get(0);
-			final int maxVehicles = args1.minMax.get(1);
-			if (minVehicles > maxVehicles) {
-				ParameterException ex = new ParameterException("Wrong argument format: maxVehicles (" + maxVehicles + ") must be >= than minVehicles (" + minVehicles + ")");
-				ex.setJCommander(jc);
-				throw ex;
-			}
 	        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(args1.fileName);
 	        if (plans.length < args1.nSolutions)
 	        	args1.nSolutions = plans.length;
-	       	new CalculateOptimumVehiclesExperiment(plans, args1.nSolutions, minVehicles, maxVehicles).start();
+	       	new CalculateOptimumVehiclesExperiment(plans, args1.nSolutions, args1.limit, args1.number, args1.debug).start();
 		} catch (ParameterException ex) {
 			System.out.println(ex.getMessage());
 			ex.usage();
@@ -100,9 +166,13 @@ public class CalculateOptimumVehiclesExperiment {
 		@Parameter(names ={"--input", "-i"}, description = "Input \"sol\" file with QCSP solutions", required = true, order = 0)
 		private String fileName;
 		
-		@Parameter(names ={"--solutions", "-s"}, description = "Number of QCSP solutions to process", order = 2)
+		@Parameter(names ={"--solutions", "-s"}, description = "Number of QCSP solutions to process", order = 1)
 		private int nSolutions = 1;
-		@Parameter(names ={"--minmax", "-mm"}, arity = 2, description = "Min and max number of delivery vehicles", required=true, order = 1)
-		private List<Integer> minMax;
+		@Parameter(names ={"--limit", "-l"}, description = "Maximum number of vehicles to test with", order = 2)
+		private int limit = LIMIT_VEHICLES;
+		@Parameter(names ={"--number", "-n"}, description = "Number of configurations to test when optimum is found", order = 3)
+		private int number = NUMBER;
+		@Parameter(names ={"--debug", "-d"}, description = "Enables debug mode", order = 4)
+		private boolean debug = false;
 	}
 }

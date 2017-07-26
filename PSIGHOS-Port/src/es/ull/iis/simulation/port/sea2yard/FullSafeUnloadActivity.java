@@ -30,15 +30,14 @@ public class FullSafeUnloadActivity extends ActivityFlow implements UnloadTask {
 		super(model, PortModel.ACT_UNLOAD + containerId, 0, true, false);
 		this.containerId = containerId;
 		this.nextContainerId = nextContainerId;
-		final Vessel ship = model.getPlan().getVessel();
-		final long newTime = model.getTimeWithError(ship.getContainerProcessingTime(containerId) * PortModel.T_OPERATION);
+		final long newTime = model.getTimes().getOperationTime(containerId);
 		if (model.hasGenericVehicles()) {
 			addWorkGroup(0, model.getContainerWorkGroup(containerId), newTime);
-			addResourceCancellation(model.getGenericVehicleResourceType(), model.getTimeWithError(PortModel.T_TRANSPORT));
+			addResourceCancellation(model.getGenericVehicleResourceType(), model.getTimes().getTransportTime(containerId));
 		}
 		if (model.hasSpecificVehicles()) {
 			addWorkGroup(0, model.getSpecificContainerWorkGroup(containerId), newTime);
-			addResourceCancellation(model.getSpecificVehicleResourceType(model.getPlan().getCraneDoTask(containerId)), model.getTimeWithError(PortModel.T_TRANSPORT));
+			addResourceCancellation(model.getSpecificVehicleResourceType(model.getPlan().getCraneDoTask(containerId)), model.getTimes().getTransportTime(containerId));
 		}
 	}
 

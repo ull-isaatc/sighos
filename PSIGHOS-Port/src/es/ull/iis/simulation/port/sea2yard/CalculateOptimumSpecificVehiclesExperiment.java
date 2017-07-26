@@ -61,8 +61,9 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 		}
 		else {
 			final StowagePlan plan = plans[solution];
-			final PortModel model = new PortModel(plan, simCounter, nVehicles, 0.0);
-			final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, simCounter, TimeUnit.SECOND); 
+			final TimeRepository times = new TimeRepository(plans[solution], 0.0);
+			final PortModel model = new PortModel(plan, simCounter, nVehicles, times);
+			final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, TimeUnit.SECOND); 
 			model.addInfoReceiver(listener);
 			model.run();
 			printResults(simCounter, solution, listener, nVehicles);

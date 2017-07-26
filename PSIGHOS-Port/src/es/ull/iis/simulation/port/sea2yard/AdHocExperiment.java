@@ -38,9 +38,10 @@ public class AdHocExperiment {
 	}
 	
 	public void start() {
+		final TimeRepository times = new TimeRepository(plans[0], 0.0);
 		for (int i = 0; i < nSolutions; i++) {
 			final StowagePlan plan = plans[i];
-			PortModel model = new PortModel(plan, i, nVehicles, 0.0);
+			PortModel model = new PortModel(plan, i, nVehicles, times);
 			System.out.println("Testing solution " + i);
 			model.addInfoReceiver(new CheckSolutionListener(plan));
 			if (debug) {

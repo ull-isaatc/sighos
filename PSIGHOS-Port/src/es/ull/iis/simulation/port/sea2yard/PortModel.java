@@ -18,8 +18,6 @@ import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.model.flow.TaskFlow;
-import simkit.random.RandomNumber;
-import simkit.random.RandomNumberFactory;
 
 /**
  * A port model for sea to yard operations. The sea-side is divided into bays. There are N quay cranes (qc), each one starting at a specific bay.
@@ -53,14 +51,11 @@ public class PortModel extends Simulation {
 	protected static final String ACT_GET_TO_BAY = "Get to bay";
 	protected static final String ACT_LEAVE_BAY = "Leave bay";
 	protected static final String ACT_MOVING = "Moving";
-	protected static final String END = "End";
+	protected static final String END_WORK = "End work";
 	protected static final String POSITION = "Position";
 	protected static final String SECURITY_TOKEN = "Security token";
 	protected static final String FIRST_HALF = "(First half)";
 	protected static final String SECOND_HALF = "(Second half)";
-	private static final RandomNumber rng = RandomNumberFactory.getInstance();
-	private final double pError;
-	private final long currentSeed;
 	private final StowagePlan plan;
 	private final int []nVehicles;
 	private final ResourceType rtGenericVehicle;
@@ -74,28 +69,16 @@ public class PortModel extends Simulation {
 	private final Flow[][] cranePlan;
 	private final TaskFlow[] actUnloads;
 	private final int extraBays;
+	private final TimeRepository times;
 
-	/**
-	 * Creates a port simulation with only generic delivery vehicles
-	 * @param plan The stowage plan that defines the tasks to perform
-	 * @param id The simulation identifier
-	 * @param nGenericVehicles Number of delivery vehicles to be used
-	 * @param pError Percentage error for each time parameter of the simulation. If 0.0, deterministic simulation 
-	 */
-	public PortModel(StowagePlan plan, int id, int nGenericVehicles, double pError) {
-		this(plan, id, new int[] {nGenericVehicles}, pError, rng.getSeed());
-	}
-	
 	/**
 	 * Creates a port simulation with only generic delivery vehicles, initialized with the specified random seed
 	 * @param plan The stowage plan that defines the tasks to perform
 	 * @param id The simulation identifier
 	 * @param nGenericVehicles Number of delivery vehicles to be used
-	 * @param pError Percentage error for each time parameter of the simulation. If 0.0, deterministic simulation
-	 * @param seed Random seed used to ensure that the random parameters of the simulation replicate those from a former simulation 
 	 */
-	public PortModel(StowagePlan plan, int id, int nGenericVehicles, double pError, long seed) {
-		this(plan, id, new int[] {nGenericVehicles}, pError, seed);
+	public PortModel(StowagePlan plan, int id, int nGenericVehicles, TimeRepository times) {
+		this(plan, id, new int[] {nGenericVehicles}, times);
 	}
 	
 	/**
@@ -104,30 +87,11 @@ public class PortModel extends Simulation {
 	 * @param id The simulation identifier
 	 * @param nVehicles Number of delivery vehicles to be used, distributed per crane. The last position of the array contains the
 	 * number of generic delivery vehicles
-	 * @param pError Percentage error for each time parameter of the simulation. If T is the constant duration of any activity 
-	 * within the simulation, the effective time will be uniformly distributed in the interval (T-T*pError, T+T*pError)
 	 */
-	public PortModel(StowagePlan plan, int id, int[] nVehicles, double pError) {
-		this(plan, id, nVehicles, pError, rng.getSeed());
-	}
-	
-	/**
-	 * Creates a port simulation
-	 * @param plan The stowage plan that defines the tasks to perform
-	 * @param id The simulation identifier
-	 * @param nVehicles Number of delivery vehicles to be used, distributed per crane. The last position of the array contains the
-	 * number of generic delivery vehicles
-	 * @param pError Percentage error for each time parameter of the simulation. If T is the constant duration of any activity 
-	 * within the simulation, the effective time will be uniformly distributed in the interval (T-T*pError, T+T*pError). 
-	 * If pError == 0.0, creates a deterministic simulation
-	 * @param seed Random seed used to ensure that the random parameters of the simulation replicate those from a former simulation 
-	 */
-	public PortModel(StowagePlan plan, int id, int[] nVehicles, double pError, long seed) {
+	public PortModel(StowagePlan plan, int id, int[] nVehicles, TimeRepository times) {
 		super(id, DESCRIPTION + " " + id, PORT_TIME_UNIT, START_TS, END_TS);
-		currentSeed = seed;
-		rng.setSeed(seed);
+		this.times = times;
 		this.nVehicles = nVehicles;
-		this.pError = pError;
 		this.plan = plan;
 		final Vessel vessel = plan.getVessel();
 		final int nBays = vessel.getNBays();
@@ -183,7 +147,7 @@ public class PortModel extends Simulation {
 		cranePlan = createFlowFromPlan();
 		for (int craneId = 0; craneId < nCranes; craneId++) {
 			ets[craneId] = new ElementType(this, QUAY_CRANE + craneId);
-			new QuayCraneGenerator(this, ets[craneId], (InitializerFlow)cranePlan[craneId][0], plan.getInitialPosition(craneId));
+			new QuayCraneGenerator(this, ets[craneId], (InitializerFlow)cranePlan[craneId][0], plan.getInitialPosition(craneId), plan.getSchedule(craneId).get(plan.getSchedule(craneId).size()-1));
 		}
 	}
 	
@@ -340,22 +304,10 @@ public class PortModel extends Simulation {
 	}
 
 	/**
-	 * Computes a time parameter by adding a uniform error. The error is specified as {@link #pError}
-	 * @param constantTime
-	 * @return
+	 * @return the times
 	 */
-	public long getTimeWithError(long constantTime) {
-		if (pError == 0) {
-			return constantTime;
-		}
-		else {
-			double rnd = (rng.draw() - 0.5) * 2.0;
-			return (long)(constantTime * (1 + rnd * pError));
-		}
-	}
-	
-	public long getCurrentSeed() {
-		return currentSeed;
+	public TimeRepository getTimes() {
+		return times;
 	}
 
 	/**
@@ -403,7 +355,7 @@ public class PortModel extends Simulation {
 				final int[] dep = plan.getDependenciesAtStart(craneId);
 				if (dep[1] != -1) {
 					// Creates the route to the fictitious task
-					flows[craneId][1] = moveCrane(flows[craneId][1], plan.getInitialPosition(craneId), dep[0]);
+					flows[craneId][1] = moveCrane(craneId, flows[craneId][1], plan.getInitialPosition(craneId), dep[0]);
 					// Once in the fictitious task, try to acquire the corresponding "security token", applying different priority depending on the direction of the schedule
 					final RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, "Req " + SECURITY_TOKEN + (craneId + 1), nCranes - craneId, false);
 					reqFlow.addWorkGroup(wgSecurityToken[craneId + 1]);
@@ -417,7 +369,7 @@ public class PortModel extends Simulation {
 				final int[] dep = plan.getDependenciesAtStart(craneId);
 				if (dep[1] != -1) {
 					// Creates the route to the fictitious task
-					flows[craneId][1] = moveCrane(flows[craneId][1], plan.getInitialPosition(craneId), dep[0]);
+					flows[craneId][1] = moveCrane(craneId, flows[craneId][1], plan.getInitialPosition(craneId), dep[0]);
 					// Once in the fictitious task, try to acquire the corresponding "security token", applying different priority depending on the direction of the schedule
 					final RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, "Req " + SECURITY_TOKEN + (craneId - 1), craneId, false);
 					reqFlow.addWorkGroup(wgSecurityToken[craneId - 1]);
@@ -430,12 +382,13 @@ public class PortModel extends Simulation {
 	
 	/**
 	 * Creates the flows required to represent a crane moving from one bay to other.
+	 * @param craneId Crane identifier
 	 * @param previousFlow A non-null flow representing the last step of the crane
 	 * @param originBay The current position of the crane
 	 * @param destinationBay The destination of the crane
 	 * @return The last flow created
 	 */
-	private Flow moveCrane(Flow previousFlow, int originBay, int destinationBay) {
+	private Flow moveCrane(int craneId, Flow previousFlow, int originBay, int destinationBay) {
 		Flow flow = previousFlow;
 		int currentBay = originBay;
 		// When moving to the right, release the (craneBay - safetyDistance)th container and acquire the (craneBay + safetyDistance + 1)th container  
@@ -443,7 +396,7 @@ public class PortModel extends Simulation {
 			final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + currentBay, wgPositions[currentBay + extraBays][0]);
 			final RequestResourcesFlow reqBay =  new RequestResourcesFlow(this, ACT_GET_TO_BAY + (currentBay + 1));
 			reqBay.addWorkGroup(0, wgPositions[currentBay + 1 + extraBays][1]);	
-			final DelayFlow delayBay = new DelayFlow(this, ACT_MOVING, getTimeWithError(T_MOVE));
+			final DelayFlow delayBay = new DelayFlow(this, ACT_MOVING, times.getMoveTime(craneId, currentBay));
 			flow = flow.link(reqBay).link(relBay).link(delayBay);
 			currentBay++;
 		}
@@ -452,7 +405,7 @@ public class PortModel extends Simulation {
 			final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + currentBay, wgPositions[currentBay + extraBays][1]);
 			final RequestResourcesFlow reqBay =  new RequestResourcesFlow(this, ACT_GET_TO_BAY + (currentBay - 1));
 			reqBay.addWorkGroup(0, wgPositions[currentBay - 1 + extraBays][0]);	
-			final DelayFlow delayBay = new DelayFlow(this, ACT_MOVING, getTimeWithError(T_MOVE));
+			final DelayFlow delayBay = new DelayFlow(this, ACT_MOVING, times.getMoveTime(craneId, currentBay));
 			flow = flow.link(reqBay).link(relBay).link(delayBay);
 			currentBay--;
 		}
@@ -489,7 +442,7 @@ public class PortModel extends Simulation {
 			for (int i = 0; i < cranePlan.size(); i++) {
 				final int containerId = cranePlan.get(i);
 				final int destinationBay = plan.getVessel().getContainerBay(containerId);
-				flow = moveCrane(flow, craneBay, destinationBay);
+				flow = moveCrane(craneId, flow, craneBay, destinationBay);
 				flow.link(actUnloads[containerId]);
 				// Checks whether this was the task creating a conflict
 				if (containerId == freeConflictOn) {
@@ -504,12 +457,12 @@ public class PortModel extends Simulation {
 			}
 			// When finish, move to try not to disturb and releases all resources
 			if (leftToRight) {
-				flow = moveCrane(flow, craneBay, nBays - 1 - (nCranes - craneId - 1) * (safetyDistance + 1));
+				flow = moveCrane(craneId, flow, craneBay, nBays - 1 - (nCranes - craneId - 1) * (safetyDistance + 1));
 			}
 			else {
-				flow = moveCrane(flow, craneBay, craneId * (safetyDistance + 1));
+				flow = moveCrane(craneId, flow, craneBay, craneId * (safetyDistance + 1));
 			}
-			flows[craneId][1] = flow.link(new ReleaseResourcesFlow(this, END));
+			flows[craneId][1] = flow.link(new ReleaseResourcesFlow(this, END_WORK));
 		}
 		
 		return flows;

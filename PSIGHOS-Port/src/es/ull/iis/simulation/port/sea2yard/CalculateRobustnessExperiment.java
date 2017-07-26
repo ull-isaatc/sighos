@@ -26,7 +26,6 @@ public class CalculateRobustnessExperiment {
 	private final int nSims;
 	private final double pError;
 	private final StowagePlan[] plans; 
-	private long currentSeed;
 
 	public CalculateRobustnessExperiment(StowagePlan[] plans, int nSolutions, int nSims, double pError, int minVehicles, int maxVehicles) {
 		this.minVehicles = minVehicles;
@@ -44,18 +43,18 @@ public class CalculateRobustnessExperiment {
 		printHeader();
 		for (int sol = 0; sol < nSolutions; sol++) {
 			final StowagePlan plan = plans[sol];
+			final TimeRepository times = new TimeRepository(plan, pError);
 			for (int i = 0; i < nSims; i++) {
-				model = new PortModel(plan, simCounter, minVehicles, pError);
-				currentSeed = model.getCurrentSeed();
-				Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, simCounter, TimeUnit.SECOND); 
+				model = new PortModel(plan, simCounter, minVehicles, times);
+				Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, TimeUnit.SECOND); 
 				model.addInfoReceiver(listener);
 				model.run();
 				printResults(simCounter, sol, listener, minVehicles);
 				simCounter++;
 				long lastObjValue = listener.getObjectiveValue();
 				for (int nVehicles = minVehicles + 1; nVehicles <= maxVehicles; nVehicles++) {
-					model = new PortModel(plan, simCounter, nVehicles, pError, currentSeed);
-					listener = new Sea2YardGeneralListener(plan, simCounter, TimeUnit.SECOND); 
+					model = new PortModel(plan, simCounter, nVehicles, times);
+					listener = new Sea2YardGeneralListener(plan, TimeUnit.SECOND); 
 					model.addInfoReceiver(listener);
 					model.run();
 					printResults(simCounter, sol, listener, nVehicles);

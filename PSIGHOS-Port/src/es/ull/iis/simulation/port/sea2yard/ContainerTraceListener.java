@@ -67,7 +67,7 @@ public class ContainerTraceListener extends Listener {
 				else if (act.contains(PortModel.ACT_LEAVE_BAY)) {
 					System.out.println(ts + "\t" + crane + "\t" + "LEFT BAY\t" + act.substring(PortModel.ACT_LEAVE_BAY.length()) + printCaughtResources(eInfo.getResources()));					
 				}
-				else if (act.contains(PortModel.END)) {
+				else if (act.contains(PortModel.END_WORK)) {
 					System.out.println(ts + "\t" + crane + "\t" + "END SCHEDULE\t" + printCaughtResources(eInfo.getResources()));					
 				}
 				break;
