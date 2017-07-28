@@ -242,14 +242,19 @@ public class CompleteVehiclesExperiment {
 					final StowagePlan plan = plans[sol];
 					int minVehicles = Math.max(0, optimumVehicles[sol] - number);
 					int simCounter = 0;
+					Sea2YardGeneralListener listener = null;
 					for (int nVehicles = minVehicles; nVehicles <= optimumVehicles[sol]; nVehicles++) {
 						final PortModel model = new PortModel(plan, simCounter, nVehicles, deterministicTimes);
-						final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, TimeUnit.SECOND); 
+						listener = new Sea2YardGeneralListener(plan, TimeUnit.SECOND); 
 						model.addInfoReceiver(listener);
 						model.run();
 						printResults(0, sol, listener, nVehicles, 0.0, plan.getOverlap());
 						simCounter++;				
 						System.out.print(".");
+					}
+					// Fill the results up to max vehicles
+					for (int nVehicles = optimumVehicles[sol] + 1; nVehicles <= optimumVehicles[sol] + number; nVehicles++) {
+						printResults(0, sol, listener, nVehicles, 0.0, plan.getOverlap());
 					}
 				}				
 				System.out.println();
@@ -268,7 +273,8 @@ public class CompleteVehiclesExperiment {
 					model.run();
 					printResults(sim + 1, sol, listener, minVehicles, pError, plan.getOverlap());
 					long lastObjValue = listener.getObjectiveValue();
-					for (int nVehicles = minVehicles + 1; nVehicles <= maxVehicles; nVehicles++) {
+					int nVehicles = minVehicles + 1;
+					for (; nVehicles <= maxVehicles; nVehicles++) {
 						model = new PortModel(plan, sim + 1, nVehicles, times);
 						listener = new Sea2YardGeneralListener(plan, TimeUnit.SECOND); 
 						model.addInfoReceiver(listener);
@@ -279,6 +285,11 @@ public class CompleteVehiclesExperiment {
 							break;
 						lastObjValue = listener.getObjectiveValue();
 						System.out.print(".");
+					}
+					nVehicles++;
+					// Fill the results up to max vehicles
+					for (; nVehicles <= maxVehicles; nVehicles++) {
+						printResults(sim + 1, sol, listener, nVehicles, pError, plan.getOverlap());
 					}
 				}
 			}

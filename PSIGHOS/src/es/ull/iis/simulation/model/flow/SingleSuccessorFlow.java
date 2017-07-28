@@ -15,7 +15,7 @@ import es.ull.iis.simulation.model.Simulation;
  */
 public abstract class SingleSuccessorFlow extends BasicFlow {
 	/** The unique successor of this flow */
-	protected Flow successor;
+	protected Flow successor = null;
 
 	/**
 	 * Creates a new unique successor flow.
@@ -35,8 +35,13 @@ public abstract class SingleSuccessorFlow extends BasicFlow {
 
 	@Override
 	public Flow link(Flow succ) {
-		successor = (Flow) succ;
-		succ.addPredecessor(this);
+		if (successor != null) {
+			Simulation.error("Trying to link already linked flow " + this.getClass() + " " + this);
+		}
+		else {
+			successor = (Flow) succ;
+			succ.addPredecessor(this);
+		}
 		return succ;
 	}
 
