@@ -16,6 +16,12 @@ public abstract class SimulationObject implements Comparable<SimulationObject>, 
     /** String which represents the object */
     private final String idString;
 	
+    /**
+     * Creates a simulation object that belongs to a simulation.
+     * @param simul Simulation this object belongs to
+     * @param id Object identifier
+     * @param objectTypeId a String that identifies the type of simulation object
+     */
 	public SimulationObject(Simulation simul, int id, String objectTypeId) {
 		this.simul = simul;
 		this.objectTypeId = objectTypeId;
@@ -27,16 +33,17 @@ public abstract class SimulationObject implements Comparable<SimulationObject>, 
 	}
 	
 	/**
-	 * @return the model
+	 * Returns the simulation this object belongs to
+	 * @return the simulation this object belongs to
 	 */
 	public Simulation getSimulation() {
 		return simul;
 	}
 
 	/**
-	 * Returns a String that identifies the type of model object.
+	 * Returns a String that identifies the type of simulation object.
 	 * This should be a 3-or-less character description.
-	 * @return A short string describing the type of the model object.
+	 * @return A short string describing the type of the simulation object.
 	 */
 	public String getObjectTypeIdentifier() {
 		return objectTypeId;
@@ -94,5 +101,10 @@ public abstract class SimulationObject implements Comparable<SimulationObject>, 
 		return Simulation.isDebugEnabled();
 	}
 
-	protected abstract void assignSimulation(SimulationEngine simul);
+	/**
+	 * Assigns a simulation engine to this object. Useful when different behavior is
+	 * expected depending on the engine chosen  
+	 * @param engine A simulation engine
+	 */
+	protected abstract void assignSimulation(SimulationEngine engine);
 }

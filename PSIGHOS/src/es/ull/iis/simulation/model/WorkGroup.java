@@ -10,21 +10,26 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
 /**
  * A set of pairs &lt{@link ResourceType}, {@link Integer}&gt which defines how many resources 
  * from each type are required to do something (typically an {@link ActivityFlow}).
+ * Contains several methods to help the simulation find a suitable solution with the currently available
+ * resources.
  * @author Iván Castilla Rodríguez
  */
 public class WorkGroup extends SimulationObject implements Describable {
+	/** List of resource types required to do something */
 	protected final ResourceType[] resourceTypes;
+	/** Amount of resource types required to do something */
 	protected final int[] needed;
 		
 	/**
-	 * 
+	 * Creates an empty work group
+	 * @param simul The simulation this work group belongs to
 	 */
-	public WorkGroup(Simulation model) {
-		this(model, new ResourceType[0], new int[0]);
+	public WorkGroup(Simulation simul) {
+		this(simul, new ResourceType[0], new int[0]);
 	}
 
     /**
-     * Creates a new instance of WorkGroup initializing the list of pairs
+     * Creates a new instance of work group initializing the list of pairs
      * <resource type, needed resources> with one pair. 
      * @param rt Resource Type
      * @param needed Resources needed
@@ -34,10 +39,10 @@ public class WorkGroup extends SimulationObject implements Describable {
     }
 
     /**
-     * Creates a new instance of WorkGroup, initializing the list of pairs
+     * Creates a new instance of work group, initializing the list of pairs
      * <resource type, needed resources>.
-     * @param rts The resource types which compounds this WG.
-     * @param needs The amounts of resource types required by this WG.
+     * @param rts The resource types which compounds this work group.
+     * @param needs The amounts of resource types required by this work group.
      */    
     public WorkGroup(Simulation model, ResourceType[] rts, int []needs) {
     	super(model, model.getWorkGroupList().size(), "WG");
@@ -55,7 +60,7 @@ public class WorkGroup extends SimulationObject implements Describable {
     }
     
     /**
-     * Returns the resource type from the position ind of the table.
+     * Returns the {@link ResourceType resource type} from the position ind of the table.
      * @param ind Index of the entry
      * @return The resource type from the position ind. 
      */
@@ -72,10 +77,18 @@ public class WorkGroup extends SimulationObject implements Describable {
         return needed[ind];
     }
 
+    /**
+     * Returns an array with the needs of resources for each {@link ResourceType resource type}
+     * @return an array with the needs of resources for each {@link ResourceType resource type}
+     */
     public int[] getNeeded() {
     	return needed;    	
     }
     
+    /**
+     * Returns an array with the {@link ResourceType resource types} required by this work group
+     * @return an array with the {@link ResourceType resource types} required by this work group
+     */
     public ResourceType[] getResourceTypes() {
     	return resourceTypes;
     }
@@ -160,6 +173,7 @@ public class WorkGroup extends SimulationObject implements Describable {
         return findSolution(solution, pos, ned, fe);        
     }
 
+    @Override
 	public String getDescription() {
 		StringBuilder str = new StringBuilder("WG" + id);
 		for (int i = 0; i < resourceTypes.length; i++)
@@ -168,8 +182,7 @@ public class WorkGroup extends SimulationObject implements Describable {
 	}
     
 	@Override
-	protected void assignSimulation(SimulationEngine simul) {
-		// TODO Auto-generated method stub
-		
+	protected void assignSimulation(SimulationEngine engine) {
+		// Nothing to do
 	}
 }

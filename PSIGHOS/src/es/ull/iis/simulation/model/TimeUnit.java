@@ -31,10 +31,18 @@ public enum TimeUnit {
 	
 	/** The name of the unit */
 	private String name;
+	/**
+	 * Creates a time unit
+	 * @param name Name of the time unit
+	 */
 	private TimeUnit(String name) {
 		this.name = name;
 	}
-	
+
+	/**
+	 * Returns the name of the time unit
+	 * @return the name of the time unit
+	 */
 	public String getName() { 
 		return name; 
 	}

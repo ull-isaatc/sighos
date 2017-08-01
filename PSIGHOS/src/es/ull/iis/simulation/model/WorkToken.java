@@ -5,15 +5,14 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.model.flow.Flow;
 
 /**
- * The information of the current state of a {@link ElementInstance work thread}. Basically indicates if 
- * the current work thread is valid or not, and records the visited flows to avoid infinite loops. 
+ * The information of the current state of an {@link ElementInstance element instance}. In short, it indicates whether 
+ * the current element instance is valid or not, and records the visited flows to avoid infinite loops. 
  * @author Yeray Callero
  */
 public class WorkToken {
-	
 	/** The list of flows already visited during the current timestamp */ 
 	private final TreeSet<Flow> path = new TreeSet<Flow>();
-	/** Validity of the work thread containing this token */
+	/** Validity of the element instance containing this token */
 	private boolean state;
 	
 	/**
@@ -54,7 +53,7 @@ public class WorkToken {
 	
 	/**
 	 * Adds a flow to the list of visited ones.
-	 * @param visited New flow visited by the work thread containing this token
+	 * @param visited New flow visited by the element instance containing this token
 	 */
 	public void addFlow(Flow visited) {
 		path.add(visited);
@@ -62,16 +61,16 @@ public class WorkToken {
 	
 	/**
 	 * Adds a collection of flows to the list of visited ones.
-	 * @param path Collection of new flow visited by the work thread containing this token
+	 * @param path Collection of new flow visited by the element instance containing this token
 	 */
 	public void addFlow(TreeSet<Flow> path) {
 		this.path.addAll(path);
 	}
 	
 	/**
-	 * Returns true of the specified flow was already visited by the work thread containing this token.
+	 * Returns true if the specified flow was already visited by the element instance containing this token.
 	 * @param flow Flow that has to be checked
-	 * @return True of the specified flow was already visited by the work thread containing this token;
+	 * @return True of the specified flow was already visited by the element instance containing this token;
 	 * false in other case.
 	 */
 	public boolean wasVisited(Flow flow) {
@@ -79,8 +78,8 @@ public class WorkToken {
 	}
 	
 	/**
-	 * Returns true if the work thread containing this token is valid; false in other case.
-	 * @return True if the work thread containing this token is valid; false in other case.
+	 * Returns true if the element instance containing this token is valid; false in other case.
+	 * @return True if the element instance containing this token is valid; false in other case.
 	 */
 	public boolean isExecutable() {
 		return state;
@@ -95,8 +94,8 @@ public class WorkToken {
 	}
 
 	/**
-	 * Returns the list of flows already visited by the work thread containing this token.
-	 * @return The list of flows already visited by the work thread containing this token
+	 * Returns the list of flows already visited by the element instance containing this token.
+	 * @return The list of flows already visited by the element instance containing this token
 	 */
 	public TreeSet<Flow> getPath() {
 		return path;

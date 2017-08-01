@@ -28,8 +28,9 @@ public class TimeTableEntry {
 		this.role = role;
 	}
     
-    /** Creates a new instance of TimeTableEntry that represents a permanent resource
-     * @param role Role that the resource plays during this cycle
+    /** Creates a new instance of TimeTableEntry that represents a permanent resource, i.e. 
+     * a resource always available.
+     * @param role Role that the resource plays during the whole simulation
      */
 	public TimeTableEntry(ResourceType role) {
 		this.cycle = null;
@@ -37,6 +38,10 @@ public class TimeTableEntry {
 		this.role = role;
 	}
     
+	/**
+	 * Returns true if the current timetable entry represents a resource that is always available.
+	 * @return true if the current timetable entry represents a resource that is always available; false otherwise.
+	 */
 	public boolean isPermanent() {
 		return (cycle == null);
 	}
@@ -72,6 +77,4 @@ public class TimeTableEntry {
             + " | " + cycle + "\r\n");
         return str.toString();
     }
-    
-
 }
