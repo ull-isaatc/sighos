@@ -251,6 +251,17 @@ public class QCSP2StowagePlan {
         test(solution, "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\for_simulation\\k30_dep.sol", true, false);
 	}
 	
+	public static void testMore() {
+        final String instance = "C:\\Users\\icasrod\\Dropbox\\SimulationPorts\\instances\\k16.txt";
+        QCSProblem problem = new QCSProblem(instance);
+        QCSPSolution solution = new QCSPSolution(problem, true);
+        //
+        solution.assignTaskToQuayCrane(new int[]{2, 3, 4, 6}, 0);
+        solution.assignTaskToQuayCrane(new int[]{1, 5, 7, 8, 9, 10}, 1);
+        //
+        test(solution, "C:\\Users\\icasrod\\Dropbox\\SimulationPorts\\for_simulation\\k16_dep.sol", true, true);
+	}
+	
 	public static void test(QCSPSolution solution, String outputFile, boolean keep, boolean debug) {
         solution.evaluator = new EvaluatorMeisel();
         solution.getObjectiveFunctionValue();
@@ -295,7 +306,8 @@ public class QCSP2StowagePlan {
 	 */
 	public static void main(String[] args) {
 //		testRightToLeftDependent();
-		testDependenciesAtStart();
+//		testDependenciesAtStart();
+//		testMore();
 		final Arguments arguments = new Arguments();
 		try {
 			JCommander jc = JCommander.newBuilder()
