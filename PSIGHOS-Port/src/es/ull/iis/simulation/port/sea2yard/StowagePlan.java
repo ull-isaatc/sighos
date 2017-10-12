@@ -13,8 +13,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.kaizten.simulation.ports.qcsp.data.QCSPSolution;
 
@@ -32,8 +35,8 @@ public class StowagePlan implements Serializable {
 	private final ArrayList<Integer>[] schedule;
 	/** Which crane performs each task */
 	private final int[] craneDoTask;
-	/** Initial position of each crane */
-	private final int[] initPosition;
+	/** Starting position of each crane */
+	private final int[] startingPositions;
 	/** The corresponding vessel */
 	private final Vessel vessel;
 	/** Number of tasks */ 
@@ -46,11 +49,10 @@ public class StowagePlan implements Serializable {
 	private final long objectiveValue;
 	/** A measure of the overlapping degree of the solution, precomputed by the QCSP solver */
 	private final double overlap;
-	private final double lowerBoundOverlapping;
-	private final double upperBoundOverlapping;
-	/** For each crane, a pair of <position, task>, where position represents a bay where the crane has to move at start to avoid a conflict,
-	 * and task is the last task another crane has to finish before this crane can start moving again */
-	private final int[][] dependenciesAtStart;
+	/** For each crane, a collection of trios <previous_container, bay, dependent_container> that indicate that after performing task "previous_container" the crane has
+	 * to move to "bay" and wait until the task for "dependent_container" is finished. Trios must be in ascending order by "previous_container". */
+	private final ArrayList<ArrayDeque<int []>> waits;
+	private final ArrayList<TreeSet<Integer>> dependanceTasks;
 	/** True if the solution goes left to right; false otherwise */
 	private final boolean leftToRight;
 	private final QCSPSolution originalSolution;
@@ -63,23 +65,36 @@ public class StowagePlan implements Serializable {
 	 * @param objectiveValue The theoretical optimum time to fulfill the stowage plan
 	 */
 	@SuppressWarnings("unchecked")
-	public StowagePlan(QCSPSolution originalSolution, Vessel vessel, int nCranes, int safetyDistance, long objectiveValue, double overlap, double lowerBoundOverlapping, double upperBoundOverlapping, boolean leftToRight, int[][] dependenciesAtStart) {
+	public StowagePlan(QCSPSolution originalSolution, Vessel vessel, int nCranes, int safetyDistance, long objectiveValue, double overlap, boolean leftToRight, 
+			int []startingPositions, TreeMap<Integer, Integer>[] orderedTasks, ArrayList<ArrayDeque<int []>> waits) {
 		schedule = (ArrayList<Integer>[]) new ArrayList<?>[nCranes];
 		for (int i = 0; i < nCranes; i++)
 			schedule[i] = new ArrayList<Integer>();
-		initPosition = new int[nCranes];
+		this.startingPositions = startingPositions;
 		this.vessel = vessel;
 		this.nCranes = nCranes;
 		this.safetyDistance = safetyDistance;
 		this.objectiveValue = objectiveValue;
 		this.overlap = overlap;
-		this.lowerBoundOverlapping = lowerBoundOverlapping;
-		this.upperBoundOverlapping = upperBoundOverlapping;
-		this.dependenciesAtStart = dependenciesAtStart;
 		this.craneDoTask = new int[vessel.getNContainers()];
 		this.leftToRight = leftToRight;
 		nContainers = 0;
 		this.originalSolution = originalSolution;
+		this.waits = waits;
+		this.dependanceTasks = new ArrayList<>(nCranes);
+		for (int qc = 0; qc < nCranes; qc++) {
+			addAll(qc, orderedTasks[qc].values());
+			dependanceTasks.add(new TreeSet<>());
+		}
+		// Creates a list of tasks that a crane has to perform and that creates a dependency in another crane
+		for (int qc = 0; qc < nCranes; qc++) {
+			for (int[] dummyWait : waits.get(qc)) {
+				// FIXME: terminar
+				final int depTask = dummyWait[2];
+				final int depCrane = getCraneDoTask(depTask);
+				dependanceTasks.get(depCrane).add(dummyWait[2]);
+			}
+		}
 	}
 
 	/**
@@ -87,26 +102,13 @@ public class StowagePlan implements Serializable {
 	 * @param craneId Crane identifier
 	 * @param containers List of containers
 	 */
-    public void addAll(int craneId, Collection<Integer> containers) {
+    private void addAll(int craneId, Collection<Integer> containers) {
         schedule[craneId].addAll(containers);
         nContainers += containers.size();
         for (int contId : containers)
         	craneDoTask[contId] = craneId;
     }
 
-	/**
-	 * Adds a set of containers to the list of tasks of a crane
-	 * @param craneId Crane identifier
-	 * @param containers Array of containers
-	 */
-	public void addAll(int craneId, int[] containers) {
-		nContainers += containers.length;
-		for (int contId : containers) {
-			schedule[craneId].add(contId);
-			craneDoTask[contId] = craneId;
-		}
-	}
-	
 	/**
 	 * Returns the schedule for a specific crane
 	 * @param craneId Crane identifier
@@ -117,23 +119,21 @@ public class StowagePlan implements Serializable {
 	}
 	
 	/**
-	 * Sets the cranes' initial positions (expressed as a bay)
-	 * @param craneId Crane identifier
-	 * @param initPos The bay where a crane starts
-	 */
-	public void setInitialPosition(int craneId, int initPos) {
-		initPosition[craneId] = initPos;
-	}
-	
-	/**
 	 * Returns the initial position (bay) of a specified crane
 	 * @param craneId Crane identifier
 	 * @return the initial position (bay) of a specified crane
 	 */
-	public int getInitialPosition(int craneId) {
-		return initPosition[craneId];
+	public int getStartingPosition(int craneId) {
+		return startingPositions[craneId];
 	}
 	
+	/**
+	 * @return the dependanceTasks
+	 */
+	public ArrayList<TreeSet<Integer>> getDependanceTasks() {
+		return dependanceTasks;
+	}
+
 	/**
 	 * Returns the number of containers to unload
 	 * @return the number of containers to unload
@@ -184,27 +184,6 @@ public class StowagePlan implements Serializable {
 	}
 
 	/**
-	 * @return the lowerBoundOverlapping
-	 */
-	public double getLowerBoundOverlapping() {
-		return lowerBoundOverlapping;
-	}
-
-	/**
-	 * @return the upperBoundOverlapping
-	 */
-	public double getUpperBoundOverlapping() {
-		return upperBoundOverlapping;
-	}
-
-	/**
-	 * @return the dependenciesAtStart
-	 */
-	public int[] getDependenciesAtStart(int craneId) {
-		return dependenciesAtStart[craneId];
-	}
-
-	/**
 	 * @return the originalSolution
 	 */
 	public QCSPSolution getOriginalSolution() {
@@ -212,23 +191,20 @@ public class StowagePlan implements Serializable {
 	}
 
 	/**
-	 * A crane creates a conflict at start when its first task is most to the left than its left-neighbor's first task.  
-	 * @param craneId Crane identifier
-	 * @return True if the crane creates a conflict at start
+	 * @return the dependenciesAtStart
 	 */
-	public boolean createsConflictAtStart(int craneId) {
-		if (leftToRight && (craneId > 0)) {
-			if (dependenciesAtStart[craneId - 1][1] != -1) {
-				return true;
-			}
-		}
-		else if (!leftToRight && (craneId < nCranes - 1)) {
-			if (dependenciesAtStart[craneId + 1][1] != -1) {
-				return true;
-			}
-		}
-		return false;
+	public ArrayDeque<int[]> getWaits(int craneId) {
+		return waits.get(craneId);
 	}
+
+	public int[] getNextWaitIfNeeded(int craneId, int containerId) {
+		if (waits.get(craneId).size() == 0)
+			return null;
+		if (waits.get(craneId).getFirst()[0] == containerId)
+			return waits.get(craneId).pop();
+		return null;
+	}
+	
 	/**
 	 * Returns true if the solution goes left to right; false otherwise
 	 * @return true if the solution goes left to right; false otherwise
@@ -258,7 +234,7 @@ public class StowagePlan implements Serializable {
 	public String toString() {
 		final StringBuilder str = new StringBuilder();
 		for (int i = 0; i < schedule.length; i++) {
-			str.append("Crane " + i + " (INIT:" + initPosition[i] + "):");
+			str.append("Crane " + i + " (INIT:" + startingPositions[i] + "):");
 			for (int containerId : schedule[i]) {
 				str.append("\t" + containerId);
 			}

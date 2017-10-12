@@ -55,6 +55,9 @@ public class ContainerTraceListener extends Listener {
 				else if (act.contains(PortModel.ACT_PLACE)) {
 					System.out.println(ts + "\t" + crane + "\t" + "PLACE AT BAY\t" + act.substring(PortModel.ACT_PLACE.length()) + printCaughtResources(eInfo.getResources()));					
 				}
+				else if (act.contains(PortModel.SECURITY_TOKEN)) {
+					System.out.println(ts + "\t" + crane + "\t" + "PROCEED WITH\t" + act.substring(PortModel.SECURITY_TOKEN.length() + 4));										
+				}
 			case END:
 				break;
 			case INTACT:
@@ -70,8 +73,14 @@ public class ContainerTraceListener extends Listener {
 				else if (act.contains(PortModel.END_WORK)) {
 					System.out.println(ts + "\t" + crane + "\t" + "END SCHEDULE\t" + printCaughtResources(eInfo.getResources()));					
 				}
+				else if (act.contains(PortModel.SECURITY_TOKEN)) {
+					System.out.println(ts + "\t" + crane + "\t" + "CONTINUE AFTER\t" + act.substring(PortModel.SECURITY_TOKEN.length() + 4));										
+				}
 				break;
 			case REQ:
+				if (act.contains(PortModel.SECURITY_TOKEN)) {
+					System.out.println(ts + "\t" + crane + "\t" + "WAIT FOR\t" + act.substring(PortModel.SECURITY_TOKEN.length() + 4));										
+				}
 				break;
 			case RESACT:
 				break;

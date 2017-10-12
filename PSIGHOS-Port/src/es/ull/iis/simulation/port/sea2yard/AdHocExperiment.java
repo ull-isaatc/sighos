@@ -49,6 +49,12 @@ public class AdHocExperiment {
 				System.out.println(plan);
 				System.out.println(plan.getVessel());
 				printSchedule(plan.getVessel());
+				System.out.println("Dependencies:");
+				for (int craneId = 0; craneId < plan.getNCranes(); craneId++) {
+					for (int[] dep : plan.getWaits(craneId)) {
+						System.out.println("Crane: " + craneId + "; Prev: " + dep[0] + "; Bay: " + dep[1] + "; Waitfor: " + dep[2]);
+					}
+				}
 				model.addInfoReceiver(new ContainerTraceListener(TimeUnit.SECOND));
 			}
 			model.run();

@@ -12,13 +12,16 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import com.kaizten.simulation.ports.qcsp.data.DummyTask;
 import com.kaizten.simulation.ports.qcsp.data.QCSPSolution;
 import com.kaizten.simulation.ports.qcsp.data.QCSProblem;
 import com.kaizten.simulation.ports.qcsp.evaluator.EvaluatorMeisel;
@@ -31,6 +34,7 @@ import com.kaizten.simulation.ports.qcsp.solver.eda.EDA;
  */
 public class QCSP2StowagePlan {
 	final private static int SAFETY_DISTANCE = 1;
+	final private static String HOME = System.getProperty("user.home");
 	final private QCSProblem problem;
 	final int safetyDistance;
 	final double overlapLambda;
@@ -45,9 +49,20 @@ public class QCSP2StowagePlan {
 		this.debug = debug;
 	}
 	
-	public Population getSolutions(int maxGenerations, int populationSize) {
+	/**
+	 * Rescales a value between 0 and 1
+	 * @param value Value to change scale
+	 * @param min Min value of the original scale
+	 * @param max Max value of the original scale
+	 * @return The rescaled value
+	 */
+    public static double normalize(double value, double min, double max) {
+        return (value - min) / (max - min);
+    }
+    
+	public Population getSolutions(int populationSize) {
         // Configuring optimization technique
-        final EDA solver = new EDA(problem, maxGenerations, populationSize, 20.0, 0.01);
+        final EDA solver = new EDA(problem, 100, populationSize, 20.0, 0.01);
         // Solving the instance
         solver.solve();
         // Showing results
@@ -79,7 +94,9 @@ public class QCSP2StowagePlan {
         // Creating stowage plan
         StowagePlan stowagePlan = null;
         final int planningHorizon = (int)(solution.getObjectiveFunctionValue() * 2 / 3);
-        final int[][]dependenciesAtStart = new int[quayCranes][2];
+        final ArrayList<ArrayDeque<int []>> waits = new ArrayList<>(quayCranes);
+        for (int craneId = 0; craneId < quayCranes; craneId++)
+        	waits.add(new ArrayDeque<>());
 		@SuppressWarnings("unchecked")
 		final TreeMap<Integer, Integer>[] orderedTasks = (TreeMap<Integer, Integer>[])new TreeMap<?, ?>[quayCranes];
         for (int qc = 0; qc < quayCranes; qc++) {
@@ -92,10 +109,10 @@ public class QCSP2StowagePlan {
                 vessel.add(task - 1, bay, solution.times[task] - problem.getTaskProcessingTime(task) + 1, problem.getTaskProcessingTime(task));
                 orderedTasks[solution.getQuayCraneDoTask(task)].put(solution.times[task], task - 1);
             }
-            for (int qc = 0; qc < quayCranes; qc++) {
-            	dependenciesAtStart[qc][0] = solution.getFicticiousTasks()[qc][0];
-            	final int originalTask = solution.getFicticiousTasks()[qc][2];
-            	dependenciesAtStart[qc][1] = (originalTask == -1) ? -1 : originalTask - 1;
+            final List<DummyTask> dummyTasks = solution.getDummyTasks();
+            for (DummyTask dummyTask : dummyTasks) {
+            	final int lastTask = (dummyTask.getLastTask() == -1) ? -1 : dummyTask.getLastTask() - 1;
+            	waits.get(dummyTask.getQC()).add(new int[] {lastTask, dummyTask.getBay(), dummyTask.getOtherTask() - 1});
             }
         }
         else {
@@ -117,20 +134,16 @@ public class QCSP2StowagePlan {
                     containerId++;
                 }
             }
-            for (int qc = 0; qc < quayCranes; qc++) {
-            	dependenciesAtStart[qc][0] = solution.getFicticiousTasks()[qc][0];
-            	final int originalTask = solution.getFicticiousTasks()[qc][2];
-            	// Takes the last "new" task associated to the original task
-            	dependenciesAtStart[qc][1] = (originalTask == -1) ? -1 : tasksByOriginalTask.get(originalTask).get(tasksByOriginalTask.get(originalTask).size() - 1);
+            final List<DummyTask> dummyTasks = solution.getDummyTasks();
+            for (DummyTask dummyTask : dummyTasks) {
+            	final int lastTask = (dummyTask.getLastTask() == -1) ? -1 : tasksByOriginalTask.get(dummyTask.getLastTask()).get(tasksByOriginalTask.get(dummyTask.getLastTask()).size() - 1);
+            	final int otherTask = tasksByOriginalTask.get(dummyTask.getOtherTask()).get(tasksByOriginalTask.get(dummyTask.getOtherTask()).size() - 1);
+            	waits.get(dummyTask.getQC()).add(new int[] {lastTask, dummyTask.getBay(), otherTask});
             }
         }
-        stowagePlan = new StowagePlan(solution, vessel, quayCranes, safetyDistance, (long)solution.getObjectiveFunctionValue() / 3, solution.getOverlap(overlapLambda), 
-        		problem.getLowerBoundOverlapping(planningHorizon, overlapLambda), problem.getUpperBoundOverlapping(safetyDistance, overlapLambda), 
-        		solution.leftToRight, dependenciesAtStart);
-        for (int qc = 0; qc < quayCranes; qc++) {
-            stowagePlan.setInitialPosition(qc, problem.getQuayCraneStartingPosition(qc));
-            stowagePlan.addAll(qc, orderedTasks[qc].values());
-        }        	
+        stowagePlan = new StowagePlan(solution, vessel, quayCranes, safetyDistance, (long)solution.getObjectiveFunctionValue() / 3, 
+        		normalize(solution.getOverlap(overlapLambda), problem.getLowerBoundOverlapping(planningHorizon, overlapLambda), problem.getUpperBoundOverlapping(safetyDistance, overlapLambda)),
+        		solution.leftToRight, problem.getQuayCranesStartingPositions(), orderedTasks, waits);
 		return stowagePlan;
 	}
 	
@@ -206,18 +219,18 @@ public class QCSP2StowagePlan {
 	}
 
 	public static void testDependenciesAtStart() {
-        final String instance = "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\instances\\k45.txt";
+        final String instance = HOME + "/Dropbox/SimulationPorts/instances/k45.txt";
         QCSProblem problem = new QCSProblem(instance);
         QCSPSolution solution = new QCSPSolution(problem, true);
         //
         solution.assignTaskToQuayCrane(new int[]{1, 2, 3, 4, 5, 6, 7, 9, 12}, 0);
         solution.assignTaskToQuayCrane(new int[]{11, 13, 15, 17, 18, 19}, 1);
         solution.assignTaskToQuayCrane(new int[]{8, 10, 14, 16, 20, 21, 22, 23, 24, 25}, 2);
-		test(solution, "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\for_simulation\\k45_adhoc_long.sol", true, false);
+		test(solution, HOME + "/Dropbox/SimulationPorts/for_simulation/k45_adhoc_long.sol", false, false);
 	}
 	
 	public static void testRightToLeft() {
-        final String instance = "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\instances\\k30.txt";
+        final String instance = HOME + "/Dropbox/SimulationPorts/instances/k30.txt";
         QCSProblem problem = new QCSProblem(instance);
         QCSPSolution solution = new QCSPSolution(problem, true);
         //
@@ -225,11 +238,12 @@ public class QCSP2StowagePlan {
         solution.assignTaskToQuayCrane(new int[]{6, 7, 8, 11, 12, 13, 14, 15}, 1);
         //
         solution.setLeftToRight(false);
-        test(solution, null/*"C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\for_simulation\\k30_adhoc_long.sol"*/, false, false);
+        test(solution, HOME + "/Dropbox/SimulationPorts/for_simulation/k30_adhoc_long.sol", false, false);
 	}
 	
+	// FIXME: Simulation fails!!!
 	public static void testRightToLeftDependent() {
-        final String instance = "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\instances\\k30.txt";
+        final String instance = HOME + "/Dropbox/SimulationPorts/instances/k30.txt";
         QCSProblem problem = new QCSProblem(instance);
         QCSPSolution solution = new QCSPSolution(problem, true);
         //
@@ -237,29 +251,41 @@ public class QCSP2StowagePlan {
         solution.assignTaskToQuayCrane(new int[]{8, 9, 10, 12, 13, 14, 15}, 1);
         //
         solution.setLeftToRight(false);
-        test(solution, null/*"C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\for_simulation\\k30_dep.sol"*/, true, false);
+        test(solution, HOME + "/Dropbox/SimulationPorts/for_simulation/k30_dep_rl.sol", true, false);
 	}
 	
+	// FIXME: Do not work!!!
 	public static void testDependent() {
-        final String instance = "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\instances\\k30.txt";
+        final String instance = HOME + "/Dropbox/SimulationPorts/instances/k30.txt";
         QCSProblem problem = new QCSProblem(instance);
         QCSPSolution solution = new QCSPSolution(problem, true);
         //
         solution.assignTaskToQuayCrane(new int[]{3, 4, 5, 6, 7, 8}, 0);
         solution.assignTaskToQuayCrane(new int[]{1, 2, 9, 10, 11, 12, 13, 14, 15}, 1);
         //
-        test(solution, "C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\for_simulation\\k30_dep.sol", true, false);
+        test(solution, HOME + "/Dropbox/SimulationPorts/for_simulation/k30_dep.sol", true, false);
 	}
 	
 	public static void testMore() {
-        final String instance = "C:\\Users\\icasrod\\Dropbox\\SimulationPorts\\instances\\k16.txt";
+        final String instance = HOME + "/Dropbox/SimulationPorts/instances/k16.txt";
         QCSProblem problem = new QCSProblem(instance);
         QCSPSolution solution = new QCSPSolution(problem, true);
         //
         solution.assignTaskToQuayCrane(new int[]{2, 3, 4, 6}, 0);
         solution.assignTaskToQuayCrane(new int[]{1, 5, 7, 8, 9, 10}, 1);
         //
-        test(solution, "C:\\Users\\icasrod\\Dropbox\\SimulationPorts\\for_simulation\\k16_dep.sol", true, true);
+        test(solution, HOME + "/Dropbox/SimulationPorts/for_simulation/k16_dep1.sol", false, true);
+	}
+	
+	public static void testMore2() {
+        final String instance = HOME + "/Dropbox/SimulationPorts/instances/k16.txt";
+        QCSProblem problem = new QCSProblem(instance);
+        QCSPSolution solution = new QCSPSolution(problem, true);
+        //
+        solution.assignTaskToQuayCrane(new int[]{1, 2, 3, 5, 6}, 0);
+        solution.assignTaskToQuayCrane(new int[]{4, 7, 8, 9, 10}, 1);
+        //
+        test(solution, HOME + "/Dropbox/SimulationPorts/for_simulation/k16_dep.sol", true, true);
 	}
 	
 	public static void test(QCSPSolution solution, String outputFile, boolean keep, boolean debug) {
@@ -292,9 +318,10 @@ public class QCSP2StowagePlan {
 		System.out.println();
 		System.out.println("Stowage plan for best solution:");
 		System.out.println(plan);
-		System.out.println("Fictitious tasks");
-        for (int i = 0; i < problem.getQuayCranes(); i++) {
-        	System.out.println("\tQC " + i + " -> pos=" + plan.getDependenciesAtStart(i)[0] + ", dep=" + plan.getDependenciesAtStart(i)[1]);
+		System.out.println("Fictitious waits");
+        List<DummyTask> dummyTasks = solution.getDummyTasks();
+        for (DummyTask dummyTask : dummyTasks) {
+            System.out.println(dummyTask);
         }
         if (outputFile != null) {
         	planBuilder.saveToFile(new StowagePlan[] {plan}, outputFile);
@@ -306,21 +333,18 @@ public class QCSP2StowagePlan {
 	 */
 	public static void main(String[] args) {
 //		testRightToLeftDependent();
+//		testDependent();
+//		testRightToLeft();
 //		testDependenciesAtStart();
-//		testMore();
+//		testMore2();
 		final Arguments arguments = new Arguments();
 		try {
 			JCommander jc = JCommander.newBuilder()
 			  .addObject(arguments)
 			  .build();
 			jc.parse(args);
-			if (arguments.popSize > arguments.maxGen) {
-				ParameterException ex = new ParameterException("Wrong argument format: maxGeneration (" + arguments.maxGen + ") must be >= than populationSize (" + arguments.popSize + ")");
-				ex.setJCommander(jc);
-				throw ex;
-			}
 			final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(new QCSProblem(arguments.inputFileName), SAFETY_DISTANCE, arguments.overlapLambda, arguments.keep, arguments.debug);
-			final Population population = planBuilder.getSolutions(arguments.maxGen, arguments.popSize);
+			final Population population = planBuilder.getSolutions(arguments.popSize);
 			final StowagePlan[] plans = new StowagePlan[population.getSize()];
 			for (int i = 0; i < plans.length; i++) {
 				plans[i] = planBuilder.getStowagePlanFromQCSP(population.get(i));	
@@ -348,8 +372,6 @@ public class QCSP2StowagePlan {
 		private String inputFileName;
 		@Parameter(names ={"--output", "-o"}, description = "Output \"sol\" file with QCSP solutions", order = 1)
 		private String outputFileName = null;		
-		@Parameter(names ={"--maxgen", "-m"}, description = "MaxGeneration parameter for QCSP", order = 2)
-		private int maxGen = 100;
 		@Parameter(names ={"--popsize", "-p"}, description = "PopulationSize parameter for QCSP", order = 3)
 		private int popSize = 100;
 		@Parameter(names ={"--lambda", "-l"}, description = "Overlap lambda for QCSP", order = 4)

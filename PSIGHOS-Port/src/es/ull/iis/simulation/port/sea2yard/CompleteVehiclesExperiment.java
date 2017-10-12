@@ -3,10 +3,14 @@
  */
 package es.ull.iis.simulation.port.sea2yard;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -22,6 +26,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 public class CompleteVehiclesExperiment {
 	private static final int LIMIT_VEHICLES = 100;
 	private static final int NUMBER = 5;
+	private static final int GAP = 50;
 	private final int nSolutions;
 	private final StowagePlan[] plans;
 	private final boolean debug;
@@ -33,7 +38,12 @@ public class CompleteVehiclesExperiment {
 	private final String outputFileName;
 	private final TimeRepository deterministicTimes;
 	private final int[] optimumVehicles;
+	private final PrintProgress progress;
 
+	public CompleteVehiclesExperiment(StowagePlan plan, String outputFileName, int limitVehicles, int number, int nSims, double pError, boolean parallel, boolean debug) {
+		this(new StowagePlan[] {plan}, outputFileName, 1, limitVehicles, number, nSims, pError, parallel, debug);
+	}
+	
 	public CompleteVehiclesExperiment(StowagePlan[] plans, String outputFileName, int nSolutions, int limitVehicles, int number, int nSims, double pError, boolean parallel, boolean debug) {
 		this.limitVehicles = limitVehicles;
 		this.nSolutions = nSolutions;
@@ -46,6 +56,7 @@ public class CompleteVehiclesExperiment {
 		this.outputFileName = outputFileName;
 		this.deterministicTimes = new TimeRepository(plans[0], 0.0);
 		this.optimumVehicles = new int[nSolutions];
+		this.progress = new PrintProgress(GAP);
 	}
 	
 	private int getOptimum(int id, StowagePlan plan) {
@@ -186,10 +197,57 @@ public class CompleteVehiclesExperiment {
 			  .addObject(args1)
 			  .build();
 			jc.parse(args);
-	        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(args1.fileName);
-	        if (plans.length < args1.nSolutions)
-	        	args1.nSolutions = plans.length;
-	       	new CompleteVehiclesExperiment(plans, args1.outputFileName, args1.nSolutions, args1.limit, args1.number, args1.nSims, args1.pError, args1.parallel, args1.debug).start();
+			// If we have to process input files in batch mode...
+			if (args1.batch) {
+			    BufferedReader br = null;
+			    String solFile = null;
+				try {
+					br = new BufferedReader(new InputStreamReader(new FileInputStream(args1.fileName)));
+					solFile = br.readLine();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				if (br != null) {
+					while (solFile != null) {
+					    try {
+							System.out.println("PROCESSING: " + solFile);
+						    final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(solFile);
+						    if (plans.length < args1.nSolutions)
+						    	args1.nSolutions = plans.length;
+							final int pos = solFile.lastIndexOf('.');
+						   	new CompleteVehiclesExperiment(plans, solFile.substring(0, pos) + ".out", args1.nSolutions, args1.limit, args1.number, args1.nSims, args1.pError, args1.parallel, args1.debug).start();
+						} catch (Exception e) {
+							System.err.println("Error processing experiment: " + solFile);
+						}
+					    // Read next solutions file
+						try {
+							solFile = br.readLine();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+			else {
+		        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(args1.fileName);
+		        if (args1.outputFileName == null) {
+					final int pos = args1.fileName.lastIndexOf('.');
+					args1.outputFileName = args1.fileName.substring(0, pos) + ".out";
+		        }
+		        if (args1.specific) {
+		        	if (plans.length < args1.nSolutions) {
+		        		throw new ParameterException("Trying to simulate solution #" + args1.nSolutions + " when only " + plans.length + " solutions available");
+		        	}
+		        	else {
+				       	new CompleteVehiclesExperiment(plans[args1.nSolutions], args1.outputFileName, args1.limit, args1.number, args1.nSims, args1.pError, args1.parallel, args1.debug).start();
+		        	}
+		        }
+		        else {
+			        if (plans.length < args1.nSolutions)
+			        	args1.nSolutions = plans.length;
+			       	new CompleteVehiclesExperiment(plans, args1.outputFileName, args1.nSolutions, args1.limit, args1.number, args1.nSims, args1.pError, args1.parallel, args1.debug).start();
+		        }
+			}
 		} catch (ParameterException ex) {
 			System.out.println(ex.getMessage());
 			ex.usage();
@@ -215,8 +273,13 @@ public class CompleteVehiclesExperiment {
 		private int nSims = 2;
 		@Parameter(names ={"--debug", "-d"}, description = "Enables debug mode", order = 8)
 		private boolean debug = false;
+		@Parameter(names ={"--specific", "-f"}, description = "Changes the way the 'solutions' parameter in interpreted. Now indicates the specific #solution to execute", order = 10)
+		private boolean specific = false;
 		@Parameter(names ={"--parallel", "-p"}, description = "Enables parallel execution using the maximum available processors", order = 7)
 		private boolean parallel = false;
+		@Parameter(names ={"--batch", "-b"}, description = "A plain text file with file names must be provided as input file. Each file name is a set of QSCP solutions"
+				+ " and they are processed in batch mode.", order = 9)
+		private boolean batch = false;
 	}
 	
 	private class ProblemExecutor implements Runnable {
@@ -237,7 +300,7 @@ public class CompleteVehiclesExperiment {
 			printHeader();
 			// Main executor launches deterministic simulations
 			if (id == 0) {
-				System.out.print("Computing deterministic solutions");
+				System.out.println("Computing deterministic solutions");
 				for (int sol = 0; sol < nSolutions; sol ++) {
 					final StowagePlan plan = plans[sol];
 					int minVehicles = Math.max(0, optimumVehicles[sol] - number);
@@ -260,7 +323,7 @@ public class CompleteVehiclesExperiment {
 				System.out.println();
 				System.out.println("FINISHED: Computing deterministic solutions");
 			}
-			System.out.print("Computing probabilistic solutions");
+			System.out.println("Computing probabilistic solutions");
 			for (int sim = id; sim < nSims; sim += maxThreads) {
 				final TimeRepository times = new TimeRepository(plans[0], pError);
 				for (int sol = 0; sol < nSolutions; sol ++) {
@@ -284,13 +347,13 @@ public class CompleteVehiclesExperiment {
 						if (lastObjValue == listener.getObjectiveValue())
 							break;
 						lastObjValue = listener.getObjectiveValue();
-						System.out.print(".");
 					}
 					nVehicles++;
 					// Fill the results up to max vehicles
 					for (; nVehicles <= maxVehicles; nVehicles++) {
 						printResults(sim + 1, sol, listener, nVehicles, pError, plan.getOverlap());
 					}
+					progress.print();
 				}
 			}
 			System.out.println();
@@ -313,6 +376,23 @@ public class CompleteVehiclesExperiment {
 				out.print("\t" + listener.getObjTime()[i] + "\t" + listener.getUseTime()[i] + "\t" + listener.getOpTime()[i] + "\t" + listener.getMovTime()[i]);
 			}
 			out.println();		
+		}
+	}
+	
+	private class PrintProgress {
+		final private int totalSim;
+		final private int gap;
+		private AtomicInteger counter;
+		
+		public PrintProgress(int gap) {
+			this.totalSim = nSolutions * nSims;
+			this.gap = gap;
+			this.counter = new AtomicInteger();
+		}
+		
+		public void print() {
+			if (counter.incrementAndGet() % gap == 0)
+				System.out.println("" + (counter.get() * 100 / totalSim) + "% finished");
 		}
 	}
 }
