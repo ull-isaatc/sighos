@@ -78,6 +78,7 @@ public class PortModel extends Simulation {
 	private final TaskFlow[] actUnloads;
 	private final int extraBays;
 	private final TimeRepository times;
+	private final int[] waitIndex;
 	
 	/**
 	 * Creates a port simulation with only generic delivery vehicles, initialized with the specified random seed
@@ -105,7 +106,8 @@ public class PortModel extends Simulation {
 		final int nBays = vessel.getNBays();
 		final int nContainers = plan.getNTasks();
 		final int nCranes = plan.getNCranes();
-		extraBays = (1 + plan.getSafetyDistance());
+		this.waitIndex = new int[nCranes];
+		this.extraBays = (1 + plan.getSafetyDistance()) * nCranes;
 		
 		wgPositions = new WorkGroup[nBays + extraBays * 2][2];
 		wgInitPositions = new WorkGroup[nBays];
@@ -326,7 +328,7 @@ public class PortModel extends Simulation {
 
 	private Flow checkDependencies(int craneId, int containerId, int priority, Flow currentFlow, int[] currentBays) {
 		// Checks the dependencies with the next cranes
-		int[] dep = plan.getNextWaitIfNeeded(craneId, containerId);
+		int[] dep = plan.getNextWaitIfNeeded(craneId, waitIndex[craneId], containerId);
 		while (dep != null) {
 			// Creates the route to the fictitious task
 			currentFlow = moveCrane(craneId, currentFlow, currentBays[craneId], dep[1]);
@@ -340,7 +342,8 @@ public class PortModel extends Simulation {
 			// Updates position
 			currentBays[craneId] = dep[1];
 			// Checks whether there are more dependencies
-			dep = plan.getNextWaitIfNeeded(craneId, containerId);
+			waitIndex[craneId]++;
+			dep = plan.getNextWaitIfNeeded(craneId, waitIndex[craneId], containerId);
 		}		
 		return currentFlow;
 	}
@@ -471,7 +474,8 @@ public class PortModel extends Simulation {
 			}
 			// When finish, move to try not to disturb and releases all resources
 			if (leftToRight) {
-				flow = moveCrane(craneId, flow, currentBays[craneId], nBays - 1 - (nCranes - craneId - 1) * (safetyDistance + 1));
+				//flow = moveCrane(craneId, flow, currentBays[craneId], nBays + extraBays * 2 - 1 - (nCranes - craneId - 1) * (safetyDistance + 1));
+				flow = moveCrane(craneId, flow, currentBays[craneId], nBays + craneId * (safetyDistance + 1));
 			}
 			else {
 				flow = moveCrane(craneId, flow, currentBays[craneId], craneId * (safetyDistance + 1));

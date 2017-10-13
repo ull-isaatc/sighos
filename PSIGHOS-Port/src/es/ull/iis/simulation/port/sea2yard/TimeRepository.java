@@ -19,6 +19,7 @@ public class TimeRepository {
 	final private long[][] moveTime;
 	final private long currentSeed;
 	final private int safetyDistance;
+	final private int extraBays;
 
 	/**
 	 * 
@@ -40,7 +41,8 @@ public class TimeRepository {
 		operationTime = new long[plan.getNTasks()];
 		transportTime = new long[plan.getNTasks()];
 		safetyDistance = plan.getSafetyDistance();
-		final int nActualBays = (1 + safetyDistance) * 2 + plan.getVessel().getNBays(); 
+		extraBays = (safetyDistance + 1) * plan.getNCranes() * 2;
+		final int nActualBays = extraBays + plan.getVessel().getNBays(); 
 		moveTime = new long[plan.getNCranes()][nActualBays];
 		if (pError == 0.0) {
 			for (int taskId = 0; taskId < plan.getNTasks(); taskId++) {
@@ -98,7 +100,7 @@ public class TimeRepository {
 	 * @return the moveTime
 	 */
 	public long getMoveTime(int craneId, int bayId) {
-		return moveTime[craneId][bayId + safetyDistance + 1];
+		return moveTime[craneId][bayId + extraBays / 2];
 	}
 
 	public long getCurrentSeed() {

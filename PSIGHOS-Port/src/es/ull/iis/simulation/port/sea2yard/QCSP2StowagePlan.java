@@ -12,7 +12,6 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,9 +93,9 @@ public class QCSP2StowagePlan {
         // Creating stowage plan
         StowagePlan stowagePlan = null;
         final int planningHorizon = (int)(solution.getObjectiveFunctionValue() * 2 / 3);
-        final ArrayList<ArrayDeque<int []>> waits = new ArrayList<>(quayCranes);
+        final ArrayList<ArrayList<int []>> waits = new ArrayList<>(quayCranes);
         for (int craneId = 0; craneId < quayCranes; craneId++)
-        	waits.add(new ArrayDeque<>());
+        	waits.add(new ArrayList<>());
 		@SuppressWarnings("unchecked")
 		final TreeMap<Integer, Integer>[] orderedTasks = (TreeMap<Integer, Integer>[])new TreeMap<?, ?>[quayCranes];
         for (int qc = 0; qc < quayCranes; qc++) {
@@ -254,7 +253,6 @@ public class QCSP2StowagePlan {
         test(solution, HOME + "/Dropbox/SimulationPorts/for_simulation/k30_dep_rl.sol", true, false);
 	}
 	
-	// FIXME: Do not work!!!
 	public static void testDependent() {
         final String instance = HOME + "/Dropbox/SimulationPorts/instances/k30.txt";
         QCSProblem problem = new QCSProblem(instance);
@@ -278,14 +276,19 @@ public class QCSP2StowagePlan {
 	}
 	
 	public static void testMore2() {
-        final String instance = HOME + "/Dropbox/SimulationPorts/instances/k16.txt";
+        final String instance = HOME + "/Dropbox/SimulationPorts/instances/k100.txt";
         QCSProblem problem = new QCSProblem(instance);
         QCSPSolution solution = new QCSPSolution(problem, true);
         //
-        solution.assignTaskToQuayCrane(new int[]{1, 2, 3, 5, 6}, 0);
-        solution.assignTaskToQuayCrane(new int[]{4, 7, 8, 9, 10}, 1);
+        solution.assignTaskToQuayCrane(new int[]{1, 2, 3, 5, 8, 9, 18, 25, 33, 42}, 0);
+        solution.assignTaskToQuayCrane(new int[]{4, 6, 13, 15, 23, 28, 30, 32, 36, 44}, 1);
+        solution.assignTaskToQuayCrane(new int[]{7, 10, 11, 16, 17, 20, 29, 39, 49}, 2);
+        solution.assignTaskToQuayCrane(new int[]{12, 14, 19, 22, 24, 34, 38}, 3);
+        solution.assignTaskToQuayCrane(new int[]{21, 26, 27, 37, 40, 41, 46, 50}, 4);
+        solution.assignTaskToQuayCrane(new int[]{31, 35, 43, 45, 47, 48}, 5);
         //
-        test(solution, HOME + "/Dropbox/SimulationPorts/for_simulation/k16_dep.sol", true, true);
+//        solution.setLeftToRight(false);
+        test(solution, HOME + "/Dropbox/SimulationPorts/for_simulation/k100_dep.sol", true, true);
 	}
 	
 	public static void test(QCSPSolution solution, String outputFile, boolean keep, boolean debug) {

@@ -13,7 +13,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
@@ -51,7 +50,7 @@ public class StowagePlan implements Serializable {
 	private final double overlap;
 	/** For each crane, a collection of trios <previous_container, bay, dependent_container> that indicate that after performing task "previous_container" the crane has
 	 * to move to "bay" and wait until the task for "dependent_container" is finished. Trios must be in ascending order by "previous_container". */
-	private final ArrayList<ArrayDeque<int []>> waits;
+	private final ArrayList<ArrayList<int []>> waits;
 	private final ArrayList<TreeSet<Integer>> dependanceTasks;
 	/** True if the solution goes left to right; false otherwise */
 	private final boolean leftToRight;
@@ -66,7 +65,7 @@ public class StowagePlan implements Serializable {
 	 */
 	@SuppressWarnings("unchecked")
 	public StowagePlan(QCSPSolution originalSolution, Vessel vessel, int nCranes, int safetyDistance, long objectiveValue, double overlap, boolean leftToRight, 
-			int []startingPositions, TreeMap<Integer, Integer>[] orderedTasks, ArrayList<ArrayDeque<int []>> waits) {
+			int []startingPositions, TreeMap<Integer, Integer>[] orderedTasks, ArrayList<ArrayList<int []>> waits) {
 		schedule = (ArrayList<Integer>[]) new ArrayList<?>[nCranes];
 		for (int i = 0; i < nCranes; i++)
 			schedule[i] = new ArrayList<Integer>();
@@ -193,15 +192,15 @@ public class StowagePlan implements Serializable {
 	/**
 	 * @return the dependenciesAtStart
 	 */
-	public ArrayDeque<int[]> getWaits(int craneId) {
+	public ArrayList<int[]> getWaits(int craneId) {
 		return waits.get(craneId);
 	}
 
-	public int[] getNextWaitIfNeeded(int craneId, int containerId) {
-		if (waits.get(craneId).size() == 0)
+	public int[] getNextWaitIfNeeded(int craneId, int waitIndex, int containerId) {
+		if (waits.get(craneId).size() <= waitIndex)
 			return null;
-		if (waits.get(craneId).getFirst()[0] == containerId)
-			return waits.get(craneId).pop();
+		if (waits.get(craneId).get(waitIndex)[0] == containerId)
+			return waits.get(craneId).get(waitIndex);
 		return null;
 	}
 	
