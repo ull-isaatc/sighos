@@ -21,6 +21,8 @@ public class BasicHUNSCmain extends Experiment {
 	final static private int DEF_MINUTES_BETWEEN_ARRIVALS = 30;
 	final static private int N_EXPERIMENTS = 100;
 	final static private BasicHUNSCsimulation.Density[] DEF_DENSITY = {Density.HIGH, Density.HIGH, Density.HIGH};
+	static int maxAutoChairs;
+	static int maxManualChairs; 
 	private final boolean debug; 
 	private final int nJanitors;
 	private final int nDoctors;
@@ -51,10 +53,8 @@ public class BasicHUNSCmain extends Experiment {
 		Simulation sim = new BasicHUNSCsimulation(ind, density, nJanitors, nDoctors, nAutoChairs, nManualChairs, patientsPerArrival, minutesBetweenArrivals);
 //		if (debug)
 //			sim.addInfoReceiver(new StdInfoView());
-		final WheelchairListener listener = new WheelchairListener(TimeUnit.MINUTE, nJanitors, nDoctors, nAutoChairs, nManualChairs, patientsPerArrival, minutesBetweenArrivals, density, debug);
+		final WheelchairListener listener = new WheelchairListener(TimeUnit.MINUTE, nJanitors, nDoctors, nAutoChairs, nManualChairs, nJanitors, nDoctors, maxAutoChairs, maxManualChairs, patientsPerArrival, minutesBetweenArrivals, density, debug);
 		sim.addInfoReceiver(listener);
-		if (ind == 0)
-			WheelchairListener.printHeader(density, nJanitors, nDoctors, nAutoChairs, nManualChairs);
 		return sim;
 	}
 	
@@ -97,16 +97,25 @@ public class BasicHUNSCmain extends Experiment {
 			switch(args1.nChairs.size()) {
 			case 2:
 				// Runs a single experiment			
+				WheelchairListener.printHeader(density, args1.nJanitors, args1.nDoctors, args1.nChairs.get(0), args1.nChairs.get(1));
+				maxAutoChairs = args1.nChairs.get(0);
+				maxManualChairs = args1.nChairs.get(1);
 				new BasicHUNSCmain(args1.nSims, args1.nJanitors, args1.nDoctors, args1.nChairs.get(0), args1.nChairs.get(1), args1.nPatients, args1.minutesBetweenArrivals, density, args1.debug).start();
 				WheelchairListener.printLegend();
 				break;
 			case 1:
+				WheelchairListener.printHeader(density, args1.nJanitors, args1.nDoctors, args1.nChairs.get(0), args1.nChairs.get(0));
+				maxAutoChairs = args1.nChairs.get(0);
+				maxManualChairs = args1.nChairs.get(0);
 				for (int i = 0; i <= args1.nChairs.get(0); i++) {
 					new BasicHUNSCmain(args1.nSims, args1.nJanitors, args1.nDoctors, i, args1.nChairs.get(0) - i, args1.nPatients, args1.minutesBetweenArrivals, density, args1.debug).start();
 				}
 				WheelchairListener.printLegend();
 				break;
 			case 0:
+				WheelchairListener.printHeader(density, args1.nJanitors, args1.nDoctors, DEF_N_CHAIRS, DEF_N_CHAIRS);
+				maxAutoChairs = DEF_N_CHAIRS;
+				maxManualChairs = DEF_N_CHAIRS;
 				for (int i = 0; i <= DEF_N_CHAIRS; i++) {
 					new BasicHUNSCmain(args1.nSims, args1.nJanitors, args1.nDoctors, i, DEF_N_CHAIRS - i, args1.nPatients, args1.minutesBetweenArrivals, density, args1.debug).start();
 				}

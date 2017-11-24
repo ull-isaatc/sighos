@@ -18,7 +18,8 @@ import es.ull.iis.simulation.whellChairs.listener.WheelchairListener;
 public class CompleteExperiment extends Experiment {
 	private enum HospitalSize {
 		SMALL(new int[] {1,2}, new int[] {4,5,6,7}, new int[] {2}, new int[] {4,5,6}),
-		MEDIUM(new int[] {3,4,5}, new int[] {10,11,12,13,14}, new int[] {4}, new int[] {8,10,12}),
+//		MEDIUM(new int[] {3,4,5}, new int[] {10,11,12,13,14}, new int[] {4}, new int[] {8,10,12}),
+		MEDIUM(new int[] {3,4}, new int[] {8,9,10,11,12}, new int[] {4}, new int[] {8,9,10}),
 		BIG(new int[] {6,8,10}, new int[] {18,20,22,24,26}, new int[] {8}, new int[] {16,20,24});
 		
 		int []nJanitors;
@@ -45,7 +46,7 @@ public class CompleteExperiment extends Experiment {
 	}
 	final static private int DEF_MINUTES_BETWEEN_ARRIVALS = 30;
 	final static private int N_EXPERIMENTS = 100;
-	final static private char DEF_SIZE = 'a';
+	final static private String DEF_SIZE = "a";
 	final static private BasicHUNSCsimulation.Density[] DEF_DENSITY = {Density.HIGH, Density.HIGH, Density.HIGH};
 	private final boolean debug; 
 	private final int minutesBetweenArrivals;
@@ -149,16 +150,16 @@ public class CompleteExperiment extends Experiment {
 				WheelchairListener.setOut(out);
 			}
 			switch(args1.size) {
-			case 'a':
+			case "a":
 				new CompleteExperiment(EnumSet.allOf(HospitalSize.class), args1.nSims, args1.minutesBetweenArrivals, density, args1.debug).start();
 				break;
-			case 'b':
+			case "b":
 				new CompleteExperiment(EnumSet.of(HospitalSize.BIG), args1.nSims, args1.minutesBetweenArrivals, density, args1.debug).start();
 				break;
-			case 'm':
+			case "m":
 				new CompleteExperiment(EnumSet.of(HospitalSize.MEDIUM), args1.nSims, args1.minutesBetweenArrivals, density, args1.debug).start();
 				break;
-			case 's':
+			case "s":
 				new CompleteExperiment(EnumSet.of(HospitalSize.SMALL), args1.nSims, args1.minutesBetweenArrivals, density, args1.debug).start();
 				break;
 			default:
@@ -180,7 +181,7 @@ public class CompleteExperiment extends Experiment {
 
 	private static class Arguments {
 		@Parameter(names ={"--size", "-s"}, description = "Hospital size to test (s: small, m: medium, b: big, a: all)", order = 1)
-		private char size = DEF_SIZE;
+		private String size = DEF_SIZE;
 		@Parameter(names ={"--output", "-o"}, description = "Output file (default: stdout)", order = 2)
 		private String fileName = null;
 		@Parameter(names ={"--minutes", "-m"}, description = "Minutes between arrival of patients", order = 8)

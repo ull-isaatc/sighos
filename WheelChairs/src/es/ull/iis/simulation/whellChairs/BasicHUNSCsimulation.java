@@ -31,6 +31,8 @@ public class BasicHUNSCsimulation extends Simulation {
 	final public static String STR_PATIENT = "Paciente";
 	final public static String STR_M_APPOINTMENT = "Consulta con silla manual";
 	final public static String STR_A_APPOINTMENT = "Consulta con silla automática";
+	final public static String STR_M_STAND = "Levantarse de una silla manual";
+	final public static String STR_A_STAND = "Levantarse de una silla automática";
 	public static enum Density {
 		LOW,
 		MEDIUM_LOW,
@@ -48,6 +50,20 @@ public class BasicHUNSCsimulation extends Simulation {
 		{TimeFunctionFactory.getInstance("NormalVariate", 0.82 * 60, 0.018 * 60), TimeFunctionFactory.getInstance("NormalVariate", 1.86 * 60, 0.063 * 60), TimeFunctionFactory.getInstance("NormalVariate", 0.77 * 60, 0.012 * 60 )},
 		{TimeFunctionFactory.getInstance("NormalVariate", 0.896 * 60, 0.054 * 60), TimeFunctionFactory.getInstance("NormalVariate", 2.038 * 60, 0.075 * 60), TimeFunctionFactory.getInstance("NormalVariate", 0.895 * 60, 0.019 * 60 )}};
 	final private static TimeFunction T_APPOINTMENT = TimeFunctionFactory.getInstance("UniformVariate", 10*60, 15*60);
+	final private static TimeFunction T_M_SEAT = TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60);
+	final private static TimeFunction T_A_SEAT = TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60);
+	final private static TimeFunction T_M_STAND = TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60);
+	final private static TimeFunction T_A_STAND = TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60);
+//	final private static ElementReplicableTimeFunction[][] T_SECTIONS = 
+//		{{new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.75 * 60, 0.01653 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 1.60 * 60, 0.011 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.73 * 60, 0.011 * 60))},
+//		{new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.79 * 60, 0.017 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 1.79 * 60, 0.056 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.61 * 60, 0.054 * 60))},
+//		{new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.82 * 60, 0.018 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 1.86 * 60, 0.063 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.77 * 60, 0.012 * 60 ))},
+//		{new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.896 * 60, 0.054 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 2.038 * 60, 0.075 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.895 * 60, 0.019 * 60 ))}};
+//	final private static ElementReplicableTimeFunction T_APPOINTMENT = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 10*60, 15*60));
+//	final private static ElementReplicableTimeFunction T_M_SEAT = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
+//	final private static ElementReplicableTimeFunction T_A_SEAT = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
+//	final private static ElementReplicableTimeFunction T_M_STAND = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
+//	final private static ElementReplicableTimeFunction T_A_STAND = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
 	
 	/**
 	 * Creates a simulation based on minutes, which lasts for a week (7 days X 24 hours X 60 minutes X 60 seconds)
@@ -55,58 +71,50 @@ public class BasicHUNSCsimulation extends Simulation {
 	 */
 	public BasicHUNSCsimulation(int id, Density[] sections, int nJanitors, int nDoctors, int nAutoChairs, int nManualChairs, int patientsPerArrival, int minutesBetweenArrivals) {
 		super(id, "HUNSC" + id, unit, 0, END_TIME);
-		
+//		restartTimeFunctions();
 		// El paciente es el elemento del modelo
 		
-		ElementType etPatient = new ElementType(this, STR_PATIENT);
+		final ElementType etPatient = new ElementType(this, STR_PATIENT);
 		
 		// Los recursos son: Doctores y Silla
 		
-		ResourceType rtJanitor = new ResourceType(this, STR_JANITOR);
+		final ResourceType rtJanitor = new ResourceType(this, STR_JANITOR);
 		// Simplificando
 		rtJanitor.addGenericResources(nJanitors);
 		
-		ResourceType rtAChair = new ResourceType(this, STR_AUTO_CHAIR);
+		final ResourceType rtAChair = new ResourceType(this, STR_AUTO_CHAIR);
 		rtAChair.addGenericResources(nAutoChairs);
-		ResourceType rtMChair = new ResourceType(this, STR_MANUAL_CHAIR);
+		final ResourceType rtMChair = new ResourceType(this, STR_MANUAL_CHAIR);
 		rtMChair.addGenericResources(nManualChairs);
 		
-		ResourceType rtDoctor = new ResourceType(this, STR_DOCTOR);
+		final ResourceType rtDoctor = new ResourceType(this, STR_DOCTOR);
 		rtDoctor.addGenericResources(nDoctors);
-		
-		// Distinguimos dos actividades: consulta y desplazamiento
-		
-		ActivityFlow actMAppointment = new ActivityFlow(this, STR_M_APPOINTMENT);
-		ActivityFlow actAAppointment = new ActivityFlow(this, STR_A_APPOINTMENT);
-		
-		//Caso Ruta Corta
-		
-		DelayFlow[] actSections;
-		actSections = new DelayFlow [N_SECTIONS];
-		
-		DelayFlow[] actSectionsBack;
-		actSectionsBack = new DelayFlow [N_SECTIONS];
 		
 		//Definición de los flujos de trabajo
 		
-		WorkGroup wgJanitorChair = new WorkGroup(this, new ResourceType[] {rtJanitor, rtMChair}, new int[] {1,1});
-		WorkGroup wgJanitor = new WorkGroup(this, rtJanitor, 1);
-		WorkGroup wgAChair = new WorkGroup(this, rtAChair, 1);
-		WorkGroup wgAppointment = new WorkGroup(this, new ResourceType[] {rtDoctor} , new int [] {1});
+		final WorkGroup wgJanitorChair = new WorkGroup(this, new ResourceType[] {rtJanitor, rtMChair}, new int[] {1,1});
+		final WorkGroup wgJanitor = new WorkGroup(this, rtJanitor, 1);
+		final WorkGroup wgAChair = new WorkGroup(this, rtAChair, 1);
+		final WorkGroup wgAppointment = new WorkGroup(this, new ResourceType[] {rtDoctor} , new int [] {1});
 
-		// Assign duration and workgroups to activities
+		// Creamos todos los pasos del proceso
+		final DelayFlow[] actSections = new DelayFlow [N_SECTIONS];
+		final DelayFlow[] actSectionsBack = new DelayFlow [N_SECTIONS];
+		
+		final RequestResourcesFlow reqChair = new RequestResourcesFlow(this, "Pedir Silla", 1, 2);
+		reqChair.addWorkGroup(0, wgAChair, T_A_SEAT);        
+		reqChair.addWorkGroup(1, wgJanitorChair, T_M_SEAT);
 
-		RequestResourcesFlow reqChair = new RequestResourcesFlow(this, "Pedir Silla", 1, 2);
-		reqChair.addWorkGroup(0, wgAChair);       //Definir prioridad 
-		reqChair.addWorkGroup(1, wgJanitorChair);
-
-		ReleaseResourcesFlow relJanitor = new ReleaseResourcesFlow(this, "Soltar Bedel", 1, wgJanitor);
-		RequestResourcesFlow reqJanitor = new RequestResourcesFlow(this, "Pedir Bedel", 1, 1);
+		final ReleaseResourcesFlow relJanitor = new ReleaseResourcesFlow(this, "Soltar Bedel", 1, wgJanitor);
+		final RequestResourcesFlow reqJanitor = new RequestResourcesFlow(this, "Pedir Bedel", 1, 1);
 		reqJanitor.addWorkGroup(wgJanitor);
 		
-		ReleaseResourcesFlow relChair = new ReleaseResourcesFlow(this, "Soltar Silla", 1);
+		final ReleaseResourcesFlow relChair = new ReleaseResourcesFlow(this, "Soltar Silla", 1);
 		
+		// Creamos una actividad de consulta por cada tipo de silla
+		final ActivityFlow actMAppointment = new ActivityFlow(this, STR_M_APPOINTMENT);
 		actMAppointment.addWorkGroup(0, wgAppointment, T_APPOINTMENT);
+		final ActivityFlow actAAppointment = new ActivityFlow(this, STR_A_APPOINTMENT);
 		actAAppointment.addWorkGroup(0, wgAppointment, T_APPOINTMENT);
 		
 		// Creamos los tramos de la ruta que siguen las sillas
@@ -120,22 +128,54 @@ public class BasicHUNSCsimulation extends Simulation {
 			actSections[i-1].link(actSections[i]);
 			actSectionsBack[i - 1].link(actSectionsBack[i]);
 		}
-
+		
 		reqChair.link(actSections[0]);
 
-		ExclusiveChoiceFlow condFlow = new ExclusiveChoiceFlow(this);
+		final ExclusiveChoiceFlow condFlow1 = new ExclusiveChoiceFlow(this);
 		
-		actSections[N_SECTIONS - 1].link(condFlow);
+		actSections[N_SECTIONS - 1].link(condFlow1);
+		condFlow1.link(relJanitor, new ResourceTypeAcquiredCondition(rtMChair)).link(actMAppointment).link(reqJanitor).link(actSectionsBack[0]);
+		condFlow1.link(actAAppointment).link(actSectionsBack[0]);
 		
-		condFlow.link(relJanitor, new ResourceTypeAcquiredCondition(rtMChair)).link(actMAppointment).link(reqJanitor).link(actSectionsBack[0]);
-		condFlow.link(actAAppointment).link(actSectionsBack[0]);
-		
-		actSectionsBack[N_SECTIONS - 1].link(relChair);
+		final ExclusiveChoiceFlow condFlow2 = new ExclusiveChoiceFlow(this);
+		// Creamos una actividad para levantarse de cada tipo de silla
+		final DelayFlow delMStand = new DelayFlow(this, STR_M_STAND, T_M_STAND);
+		final ActivityFlow actAStand = new ActivityFlow(this, STR_A_STAND);
+		// En el caso de las sillas automáticas, requiere un bedel
+		actAStand.addWorkGroup(0, wgJanitor, T_A_STAND);
+		actSectionsBack[N_SECTIONS - 1].link(condFlow2);
+		condFlow2.link(delMStand, new ResourceTypeAcquiredCondition(rtMChair)).link(relChair);
+		condFlow2.link(actAStand).link(relChair);
 		
 		//Horario de llegada de pacientes
-		SimulationPeriodicCycle arrivalCycle = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", minutesBetweenArrivals * 60), (int)(END_TIME / (minutesBetweenArrivals * 60)));
+		final SimulationPeriodicCycle arrivalCycle = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", minutesBetweenArrivals * 60), (int)(END_TIME / (minutesBetweenArrivals * 60)));
 		new TimeDrivenElementGenerator(this, patientsPerArrival, etPatient, reqChair, arrivalCycle);
 	}
-
+	
+//	private static void restartTimeFunctions() {
+//		T_APPOINTMENT.restart();
+//		T_A_SEAT.restart();
+//		T_M_SEAT.restart();
+//		T_A_STAND.restart();
+//		T_M_STAND.restart();
+//		for (ElementReplicableTimeFunction []functions : T_SECTIONS) {
+//			for (ElementReplicableTimeFunction f : functions) {
+//				f.restart();
+//			}
+//		}
+//	}
+//	
+//	public static void resetTimeFunctions() {
+//		T_APPOINTMENT.reset();
+//		T_A_SEAT.reset();
+//		T_M_SEAT.reset();
+//		T_A_STAND.reset();
+//		T_M_STAND.reset();
+//		for (ElementReplicableTimeFunction []functions : T_SECTIONS) {
+//			for (ElementReplicableTimeFunction f : functions) {
+//				f.reset();
+//			}
+//		}
+//	}
 }
 
