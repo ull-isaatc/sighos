@@ -89,12 +89,12 @@ public class CompleteExperiment extends Experiment {
 		WheelchairListener.printHeader(density, maxJanitors, maxDoctors, maxChairs, maxChairs);
 		for (HospitalSize size : sizes) {
 			System.out.println("Testing " + size);
-			for (int patientsPerArrival : size.patientsXArrival) {
-				for (int nDoctors : size.nDoctors) {
-					for (int nJanitors : size.nJanitors) {
-						for (int nChairs : size.nChairs) {
-							for (int nAutoChairs = 0; nAutoChairs <= nChairs; nAutoChairs++) {
-								for (int n = 0; n < nExperiments; n++) {
+			for (int n = 0; n < nExperiments; n++) {
+				for (int patientsPerArrival : size.patientsXArrival) {
+					for (int nDoctors : size.nDoctors) {
+						for (int nJanitors : size.nJanitors) {
+							for (int nChairs : size.nChairs) {
+								for (int nAutoChairs = 0; nAutoChairs <= nChairs; nAutoChairs++) {
 									final Simulation sim = new BasicHUNSCsimulation(ind++, density, nJanitors, nDoctors, nAutoChairs, nChairs - nAutoChairs, patientsPerArrival, minutesBetweenArrivals);
 									final WheelchairListener listener = new WheelchairListener(TimeUnit.MINUTE, nJanitors, nDoctors, nAutoChairs, nChairs - nAutoChairs, maxJanitors, maxDoctors, maxChairs, maxChairs, patientsPerArrival, minutesBetweenArrivals, density, debug);
 									sim.addInfoReceiver(listener);
@@ -103,8 +103,8 @@ public class CompleteExperiment extends Experiment {
 							}
 						}
 					}
-					
 				}
+				BasicHUNSCsimulation.resetTimeFunctions();
 			}
 		}
 	}

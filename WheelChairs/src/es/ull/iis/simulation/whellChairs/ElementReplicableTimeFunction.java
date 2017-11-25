@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.whellChairs;
 
 import java.util.ArrayList;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import es.ull.iis.function.TimeFunction;
@@ -37,7 +38,8 @@ public class ElementReplicableTimeFunction extends TimeFunction {
 	 * Restarts all the counters
 	 */
 	public void restart() {
-		counters.clear();
+		for (Entry<Integer, Integer> entry : counters.entrySet())
+			entry.setValue(0);
 	}
 
 	public void reset() {

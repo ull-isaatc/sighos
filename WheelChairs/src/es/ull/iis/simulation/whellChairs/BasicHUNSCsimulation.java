@@ -44,26 +44,26 @@ public class BasicHUNSCsimulation extends Simulation {
 	final public static TimeUnit unit = TimeUnit.SECOND;
 	/** Simulation length: 8 hours (in seconds) */
 	final private static long END_TIME = 8 * 60 * 60;
-	final private static TimeFunction[][] T_SECTIONS = 
-		{{TimeFunctionFactory.getInstance("NormalVariate", 0.75 * 60, 0.01653 * 60), TimeFunctionFactory.getInstance("NormalVariate", 1.60 * 60, 0.011 * 60), TimeFunctionFactory.getInstance("NormalVariate", 0.73 * 60, 0.011 * 60)},
-		{TimeFunctionFactory.getInstance("NormalVariate", 0.79 * 60, 0.017 * 60), TimeFunctionFactory.getInstance("NormalVariate", 1.79 * 60, 0.056 * 60), TimeFunctionFactory.getInstance("NormalVariate", 0.61 * 60, 0.054 * 60)},
-		{TimeFunctionFactory.getInstance("NormalVariate", 0.82 * 60, 0.018 * 60), TimeFunctionFactory.getInstance("NormalVariate", 1.86 * 60, 0.063 * 60), TimeFunctionFactory.getInstance("NormalVariate", 0.77 * 60, 0.012 * 60 )},
-		{TimeFunctionFactory.getInstance("NormalVariate", 0.896 * 60, 0.054 * 60), TimeFunctionFactory.getInstance("NormalVariate", 2.038 * 60, 0.075 * 60), TimeFunctionFactory.getInstance("NormalVariate", 0.895 * 60, 0.019 * 60 )}};
-	final private static TimeFunction T_APPOINTMENT = TimeFunctionFactory.getInstance("UniformVariate", 10*60, 15*60);
-	final private static TimeFunction T_M_SEAT = TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60);
-	final private static TimeFunction T_A_SEAT = TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60);
-	final private static TimeFunction T_M_STAND = TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60);
-	final private static TimeFunction T_A_STAND = TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60);
-//	final private static ElementReplicableTimeFunction[][] T_SECTIONS = 
-//		{{new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.75 * 60, 0.01653 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 1.60 * 60, 0.011 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.73 * 60, 0.011 * 60))},
-//		{new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.79 * 60, 0.017 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 1.79 * 60, 0.056 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.61 * 60, 0.054 * 60))},
-//		{new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.82 * 60, 0.018 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 1.86 * 60, 0.063 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.77 * 60, 0.012 * 60 ))},
-//		{new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.896 * 60, 0.054 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 2.038 * 60, 0.075 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.895 * 60, 0.019 * 60 ))}};
-//	final private static ElementReplicableTimeFunction T_APPOINTMENT = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 10*60, 15*60));
-//	final private static ElementReplicableTimeFunction T_M_SEAT = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
-//	final private static ElementReplicableTimeFunction T_A_SEAT = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
-//	final private static ElementReplicableTimeFunction T_M_STAND = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
-//	final private static ElementReplicableTimeFunction T_A_STAND = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
+//	final private static TimeFunction[][] T_SECTIONS = 
+//		{{TimeFunctionFactory.getInstance("NormalVariate", 0.75 * 60, 0.01653 * 60), TimeFunctionFactory.getInstance("NormalVariate", 1.60 * 60, 0.011 * 60), TimeFunctionFactory.getInstance("NormalVariate", 0.73 * 60, 0.011 * 60)},
+//		{TimeFunctionFactory.getInstance("NormalVariate", 0.79 * 60, 0.017 * 60), TimeFunctionFactory.getInstance("NormalVariate", 1.79 * 60, 0.056 * 60), TimeFunctionFactory.getInstance("NormalVariate", 0.61 * 60, 0.054 * 60)},
+//		{TimeFunctionFactory.getInstance("NormalVariate", 0.82 * 60, 0.018 * 60), TimeFunctionFactory.getInstance("NormalVariate", 1.86 * 60, 0.063 * 60), TimeFunctionFactory.getInstance("NormalVariate", 0.77 * 60, 0.012 * 60 )},
+//		{TimeFunctionFactory.getInstance("NormalVariate", 0.896 * 60, 0.054 * 60), TimeFunctionFactory.getInstance("NormalVariate", 2.038 * 60, 0.075 * 60), TimeFunctionFactory.getInstance("NormalVariate", 0.895 * 60, 0.019 * 60 )}};
+//	final private static TimeFunction T_APPOINTMENT = TimeFunctionFactory.getInstance("UniformVariate", 10*60, 15*60);
+//	final private static TimeFunction T_M_SEAT = TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60);
+//	final private static TimeFunction T_A_SEAT = TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60);
+//	final private static TimeFunction T_M_STAND = TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60);
+//	final private static TimeFunction T_A_STAND = TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60);
+	final private static ElementReplicableTimeFunction[][] T_SECTIONS = 
+		{{new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.75 * 60, 0.01653 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 1.60 * 60, 0.011 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.73 * 60, 0.011 * 60))},
+		{new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.79 * 60, 0.017 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 1.79 * 60, 0.056 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.61 * 60, 0.054 * 60))},
+		{new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.82 * 60, 0.018 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 1.86 * 60, 0.063 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.77 * 60, 0.012 * 60 ))},
+		{new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.896 * 60, 0.054 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 2.038 * 60, 0.075 * 60)), new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("NormalVariate", 0.895 * 60, 0.019 * 60 ))}};
+	final private static ElementReplicableTimeFunction T_APPOINTMENT = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 10*60, 15*60));
+	final private static ElementReplicableTimeFunction T_M_SEAT = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
+	final private static ElementReplicableTimeFunction T_A_SEAT = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
+	final private static ElementReplicableTimeFunction T_M_STAND = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
+	final private static ElementReplicableTimeFunction T_A_STAND = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
 	
 	/**
 	 * Creates a simulation based on minutes, which lasts for a week (7 days X 24 hours X 60 minutes X 60 seconds)
@@ -71,7 +71,7 @@ public class BasicHUNSCsimulation extends Simulation {
 	 */
 	public BasicHUNSCsimulation(int id, Density[] sections, int nJanitors, int nDoctors, int nAutoChairs, int nManualChairs, int patientsPerArrival, int minutesBetweenArrivals) {
 		super(id, "HUNSC" + id, unit, 0, END_TIME);
-//		restartTimeFunctions();
+		restartTimeFunctions();
 		// El paciente es el elemento del modelo
 		
 		final ElementType etPatient = new ElementType(this, STR_PATIENT);
@@ -152,30 +152,30 @@ public class BasicHUNSCsimulation extends Simulation {
 		new TimeDrivenElementGenerator(this, patientsPerArrival, etPatient, reqChair, arrivalCycle);
 	}
 	
-//	private static void restartTimeFunctions() {
-//		T_APPOINTMENT.restart();
-//		T_A_SEAT.restart();
-//		T_M_SEAT.restart();
-//		T_A_STAND.restart();
-//		T_M_STAND.restart();
-//		for (ElementReplicableTimeFunction []functions : T_SECTIONS) {
-//			for (ElementReplicableTimeFunction f : functions) {
-//				f.restart();
-//			}
-//		}
-//	}
-//	
-//	public static void resetTimeFunctions() {
-//		T_APPOINTMENT.reset();
-//		T_A_SEAT.reset();
-//		T_M_SEAT.reset();
-//		T_A_STAND.reset();
-//		T_M_STAND.reset();
-//		for (ElementReplicableTimeFunction []functions : T_SECTIONS) {
-//			for (ElementReplicableTimeFunction f : functions) {
-//				f.reset();
-//			}
-//		}
-//	}
+	private static void restartTimeFunctions() {
+		T_APPOINTMENT.restart();
+		T_A_SEAT.restart();
+		T_M_SEAT.restart();
+		T_A_STAND.restart();
+		T_M_STAND.restart();
+		for (ElementReplicableTimeFunction []functions : T_SECTIONS) {
+			for (ElementReplicableTimeFunction f : functions) {
+				f.restart();
+			}
+		}
+	}
+	
+	public static void resetTimeFunctions() {
+		T_APPOINTMENT.reset();
+		T_A_SEAT.reset();
+		T_M_SEAT.reset();
+		T_A_STAND.reset();
+		T_M_STAND.reset();
+		for (ElementReplicableTimeFunction []functions : T_SECTIONS) {
+			for (ElementReplicableTimeFunction f : functions) {
+				f.reset();
+			}
+		}
+	}
 }
 
