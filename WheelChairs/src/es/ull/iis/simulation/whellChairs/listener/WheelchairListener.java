@@ -28,11 +28,13 @@ import es.ull.iis.util.Statistics;
 public class WheelchairListener extends View {
 	private final static String MISSING_VALUE = ".";
 	private final TreeMap<Element, Long> times = new TreeMap<Element, Long>();
-	private final TreeMap<Element, Long> cummWaitForChairTimes = new TreeMap<Element, Long>();
-	private final TreeMap<Element, Long> waitForChairTimes = new TreeMap<Element, Long>();
+	private final TreeMap<Element, Long> cummWaitForJanitorTimes = new TreeMap<Element, Long>();
+	private final TreeMap<Element, Long> waitForJanitorTimes = new TreeMap<Element, Long>();
 	private final TreeMap<Element, Long> cummWaitForDoctorTimes = new TreeMap<Element, Long>();
 	private final TreeMap<Element, Long> waitForDoctorTimes = new TreeMap<Element, Long>();
 	private final TreeMap<Element, Long> appointmentTimes = new TreeMap<Element, Long>();
+	private final TreeMap<Element, Long> routeTimes = new TreeMap<Element, Long>();
+	private final TreeMap<Element, Long> accomodationTimes = new TreeMap<Element, Long>();
 	private final TreeMap<Resource, Long> rTimes = new TreeMap<Resource, Long>();
 	private final TreeMap<Resource, Long> janitorUsage = new TreeMap<Resource, Long>();
 	private final TreeMap<Resource, Long> doctorUsage = new TreeMap<Resource, Long>();
@@ -43,6 +45,8 @@ public class WheelchairListener extends View {
 	private int mChairCounter;
 	private int doctorCounter;
 	private int janitorCounter;
+	private int nPatientsWaitForDoctor;
+	private int nPatientsWaitForJanitor;
 	private final boolean detailed;
 	private final int nJanitors;
 	private final int nDoctors;
@@ -67,6 +71,8 @@ public class WheelchairListener extends View {
 		mChairCounter = 0;
 		doctorCounter = 0;
 		janitorCounter = 0;
+		nPatientsWaitForDoctor = 0;
+		nPatientsWaitForJanitor = 0;
 		this.nJanitors = nJanitors;
 		this.nDoctors = nDoctors;
 		this.nAutoChairs = nAutoChairs;
@@ -117,29 +123,37 @@ public class WheelchairListener extends View {
 				if (eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_A_APPOINTMENT) | eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_M_APPOINTMENT)) {
 					final long t = eInfo.getTs() - waitForDoctorTimes.get(eInfo.getElement());
 					if (t > 0) {
-						if (cummWaitForDoctorTimes.containsKey(eInfo.getElement())) {
-							cummWaitForDoctorTimes.put(eInfo.getElement(), cummWaitForDoctorTimes.get(eInfo.getElement()) + t);
-						}
-						else {
-							cummWaitForDoctorTimes.put(eInfo.getElement(), t);
-						}
+						nPatientsWaitForDoctor++;
+					}
+					if (cummWaitForDoctorTimes.containsKey(eInfo.getElement())) {
+						cummWaitForDoctorTimes.put(eInfo.getElement(), cummWaitForDoctorTimes.get(eInfo.getElement()) + t);
+					}
+					else {
+						cummWaitForDoctorTimes.put(eInfo.getElement(), t);
 					}
 				}
 				else {
-					final long t = eInfo.getTs() - waitForChairTimes.get(eInfo.getElement());
-					if (t > 0) {
-						if (cummWaitForChairTimes.containsKey(eInfo.getElement())) {
-							cummWaitForChairTimes.put(eInfo.getElement(), cummWaitForChairTimes.get(eInfo.getElement()) + t);
+					final long t = eInfo.getTs() - waitForJanitorTimes.get(eInfo.getElement());
+					if (!cummWaitForJanitorTimes.containsKey(eInfo.getElement())) {
+						cummWaitForJanitorTimes.put(eInfo.getElement(), t);
+						if (t > 0) {
+							nPatientsWaitForJanitor++;
 						}
-						else {
-							cummWaitForChairTimes.put(eInfo.getElement(), t);
-						}
-					}		
+					}
+					else if (t > 0) {
+						cummWaitForJanitorTimes.put(eInfo.getElement(), cummWaitForJanitorTimes.get(eInfo.getElement()) + t);
+					}
 				}
 				break;
 			case END:
 				if (eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_A_APPOINTMENT) | eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_M_APPOINTMENT)) {
 					appointmentTimes.put(eInfo.getElement(), eInfo.getTs() + appointmentTimes.get(eInfo.getElement()));
+				}
+				else if (eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_REQ_CHAIR) | eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_A_STAND) | eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_M_STAND)) {
+					accomodationTimes.put(eInfo.getElement(), eInfo.getTs() + accomodationTimes.get(eInfo.getElement()));					
+				}
+				else if (eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_SECTION)) {
+					routeTimes.put(eInfo.getElement(), eInfo.getTs() + routeTimes.get(eInfo.getElement()));					
 				}
 				break;
 			case INTACT:
@@ -151,7 +165,7 @@ public class WheelchairListener extends View {
 					waitForDoctorTimes.put(eInfo.getElement(), eInfo.getTs());
 				}
 				else {
-					waitForChairTimes.put(eInfo.getElement(), eInfo.getTs());
+					waitForJanitorTimes.put(eInfo.getElement(), eInfo.getTs());
 				}
 				break;
 			case RESACT:
@@ -159,6 +173,18 @@ public class WheelchairListener extends View {
 			case START:
 				if (eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_A_APPOINTMENT) | eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_M_APPOINTMENT)) {
 					appointmentTimes.put(eInfo.getElement(), -eInfo.getTs());					
+				}
+				else if (eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_REQ_CHAIR)) {
+					accomodationTimes.put(eInfo.getElement(), -eInfo.getTs());					
+				}
+				else if (eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_A_STAND) | eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_M_STAND)) {
+					accomodationTimes.put(eInfo.getElement(), accomodationTimes.get(eInfo.getElement()) - eInfo.getTs());										
+				}
+				else if (eInfo.getActivity().getDescription().contains(BasicHUNSCsimulation.STR_SECTION)) {
+					if (!routeTimes.containsKey(eInfo.getElement()))
+						routeTimes.put(eInfo.getElement(), -eInfo.getTs());
+					else
+						routeTimes.put(eInfo.getElement(), routeTimes.get(eInfo.getElement()) - eInfo.getTs());					
 				}
 				break;
 			default:
@@ -238,14 +264,20 @@ public class WheelchairListener extends View {
 			out.print("\t" + nDoctors + "\t" + nJanitors +"\t" + nAutoChairs + "\t" + nManualChairs + "\t" + patientEndCounter);
 			printGeneralTimeStats(times);
 			printGeneralTimeStats(appointmentTimes);
-			printGeneralTimeStats(cummWaitForChairTimes);
-			printGeneralTimeStats(cummWaitForDoctorTimes);
+			printGeneralTimeStats(accomodationTimes);
+			printGeneralTimeStats(routeTimes);
+			printGeneralTimeStats(cummWaitForJanitorTimes, nPatientsWaitForJanitor);
+			printGeneralTimeStats(cummWaitForDoctorTimes, nPatientsWaitForDoctor);
 			printAllResourcesUsage(endTs);
 			out.println();
 		}
 	}
 
 	private void printGeneralTimeStats(TreeMap<Element, Long> time) {
+		printGeneralTimeStats(time, time.size());
+	}
+
+	private void printGeneralTimeStats(TreeMap<Element, Long> time, int n) {
 		double []arrayTimes = new double[time.size()];
 		int cont = 0;
 		long minimo = Long.MAX_VALUE;
@@ -258,7 +290,7 @@ public class WheelchairListener extends View {
 				minimo = tt;
 			cont++;
 		}
-		out.print("\t" + arrayTimes.length + "\t" + minimo/unitConversion + "\t" + maximo/unitConversion + "\t" + Statistics.average(arrayTimes)/unitConversion + "\t" + Statistics.stdDev(arrayTimes)/unitConversion);	
+		out.print("\t" + n + "\t" + minimo/unitConversion + "\t" + maximo/unitConversion + "\t" + Statistics.average(arrayTimes)/unitConversion + "\t" + Statistics.stdDev(arrayTimes)/unitConversion);	
 	}
 	
 	private void printAllResourcesUsage(long endTs) {
@@ -311,8 +343,12 @@ public class WheelchairListener extends View {
 				 "\t" + Legend.TAVG.shortName + "\t" + Legend.TSD.shortName);
 		out.print("\t" + Legend.NAPP.shortName + "\t" + Legend.AMIN.shortName + "\t" + Legend.AMAX.shortName + "\t" + Legend.AAVG.shortName + 
 				"\t" + Legend.ASD.shortName);
-		out.print("\t" + Legend.NWAITW.shortName + "\t" + Legend.WMINW.shortName + "\t" + Legend.WMAXW.shortName + "\t" + Legend.WAVGW.shortName +
-				 "\t" + Legend.WSDW.shortName);
+		out.print("\t" + Legend.NACC.shortName + "\t" + Legend.ACMIN.shortName + "\t" + Legend.ACMAX.shortName + "\t" + Legend.ACAVG.shortName + 
+				"\t" + Legend.ACSD.shortName);
+		out.print("\t" + Legend.NROU.shortName + "\t" + Legend.RMIN.shortName + "\t" + Legend.RMAX.shortName + "\t" + Legend.RAVG.shortName + 
+				"\t" + Legend.RSD.shortName);
+		out.print("\t" + Legend.NWAITJ.shortName + "\t" + Legend.WMINJ.shortName + "\t" + Legend.WMAXJ.shortName + "\t" + Legend.WAVGJ.shortName +
+				 "\t" + Legend.WSDJ.shortName);
 		out.print("\t" + Legend.NWAITD.shortName + "\t" + Legend.WMIND.shortName + "\t" + Legend.WMAXD.shortName + "\t" + Legend.WAVGD.shortName +
 				 "\t" + Legend.WSDD.shortName);
 		out.print("\t" + Legend.UAW.shortName);
@@ -361,11 +397,21 @@ public class WheelchairListener extends View {
 		AMAX("A_MAX", "Maximum time spent by a patient in an appointment"),
 		AAVG("A_AVG", "Average time spent by a patient in an appointment"),
 		ASD("A_SD", "Standard deviation of the time spent by a patient in an appointment"),
-		NWAITW("WAIT_W", "Patients who had to wait for a chair"),
-		WMINW("W_MIN_W", "Minimum waiting time for a chair"),
-		WMAXW("W_MAX_W", "Maximum waiting time for a chair"),
-		WAVGW("W_AVG_W", "Average waiting time for a chair"),
-		WSDW("W_SD_W", "Standard deviation of the waiting time for a chair"),
+		NACC("N_ACC", "Number of patient seats/leaves"),
+		ACMIN("AC_MIN", "Minimum time spent by a patient by seating/leaving from a wheelchair"),
+		ACMAX("AC_MAX", "Maximum time spent by a patient by seating/leaving from a wheelchair"),
+		ACAVG("AC_AVG", "Average time spent by a patient by seating/leaving from a wheelchair"),
+		ACSD("AC_SD", "Standard deviation of the time spent by a patient by seating/leaving from a wheelchair"),
+		NROU("N_ROU", "Number of patient routes"),
+		RMIN("R_MIN", "Minimum time spent by a patient in route"),
+		RMAX("R_MAX", "Maximum time spent by a patient in route"),
+		RAVG("R_AVG", "Average time spent by a patient in route"),
+		RSD("R_SD", "Standard deviation of the time spent by a patient in route"),
+		NWAITJ("WAIT_J", "Patients who had to wait for a janitor"),
+		WMINJ("W_MIN_J", "Minimum waiting time for a janitor"),
+		WMAXJ("W_MAX_J", "Maximum waiting time for a janitor"),
+		WAVGJ("W_AVG_J", "Average waiting time for a janitor"),
+		WSDJ("W_SD_J", "Standard deviation of the waiting time for a janitor"),
 		NWAITD("WAIT_D", "Patients who had to wait for a doctor"),
 		WMIND("W_MIN_D", "Minimum waiting time for a doctor"),
 		WMAXD("W_MAX_D", "Maximum waiting time for a doctor"),

@@ -19,7 +19,8 @@ public class CompleteExperiment extends Experiment {
 	private enum HospitalSize {
 		SMALL(new int[] {1,2}, new int[] {4,5,6,7}, new int[] {2}, new int[] {4,5,6}),
 //		MEDIUM(new int[] {3,4,5}, new int[] {10,11,12,13,14}, new int[] {4}, new int[] {8,10,12}),
-		MEDIUM(new int[] {3,4}, new int[] {8,9,10,11,12}, new int[] {4}, new int[] {8,9,10}),
+//		MEDIUM(new int[] {3,4}, new int[] {8,9,10,11,12}, new int[] {4}, new int[] {8,9,10}),
+		MEDIUM(new int[] {4}, new int[] {8,9,10,11,12}, new int[] {4}, new int[] {8,9,10}),
 		BIG(new int[] {6,8,10}, new int[] {18,20,22,24,26}, new int[] {8}, new int[] {16,20,24});
 		
 		int []nJanitors;
