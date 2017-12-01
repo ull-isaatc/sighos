@@ -19,7 +19,7 @@ public class BasicHUNSCmain extends Experiment {
 	final static private int DEF_N_DOCTORS = 2;
 	final static private int DEF_N_CHAIRS = 6;
 	final static private int DEF_N_PATIENTS_PER_ARRIVAL = 2;
-	final static private int DEF_MINUTES_BETWEEN_ARRIVALS = 1030;
+	final static private int DEF_MINUTES_BETWEEN_ARRIVALS = 30;
 	final static private int N_EXPERIMENTS = 1;
 	final static private BasicHUNSCsimulation.Density[] DEF_DENSITY = {Density.HIGH, Density.HIGH, Density.HIGH};
 	static int maxAutoChairs;

@@ -16,6 +16,7 @@ import es.ull.iis.simulation.model.flow.DelayFlow;
 import es.ull.iis.simulation.model.flow.ExclusiveChoiceFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.whellChairs.listener.EveryoneOutListener;
 
 /**
  * Ejemplo de implementación de recursos, elementos y actividades. 
@@ -71,6 +72,7 @@ public class BasicHUNSCsimulation extends Simulation {
 	final private static ElementReplicableTimeFunction T_A_SEAT = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
 	final private static ElementReplicableTimeFunction T_M_STAND = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
 	final private static ElementReplicableTimeFunction T_A_STAND = new ElementReplicableTimeFunction(TimeFunctionFactory.getInstance("UniformVariate", 1*60, 3*60));
+	final private EveryoneOutListener endCondition;
 	
 	/**
 	 * Creates a simulation based on minutes, which lasts for a week (7 days X 24 hours X 60 minutes X 60 seconds)
@@ -163,11 +165,15 @@ public class BasicHUNSCsimulation extends Simulation {
 		//Horario de llegada de pacientes
 		final SimulationPeriodicCycle arrivalCycle = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", minutesBetweenArrivals * 60), (int)(LAST_ARRIVAL / (minutesBetweenArrivals * 60)));
 		new TimeDrivenElementGenerator(this, patientsPerArrival, etPatient, reqChair, arrivalCycle);
+		endCondition = new EveryoneOutListener();
+		addInfoReceiver(endCondition);
 	}
-	
-//	@Override
-//	public boolean isSimulationEnd() {
-//	}
+
+	//FIXME: Doesn't work
+	@Override
+	public boolean isSimulationEnd(long currentTs) {
+		return super.isSimulationEnd(currentTs) && endCondition.isEveryoneOut();
+	}
 	
 	private static void restartTimeFunctions() {
 		T_APPOINTMENT.restart();
