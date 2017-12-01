@@ -55,7 +55,7 @@ public abstract class TimeDrivenGenerator<INF extends Generator.GenerationInfo> 
     
 	@Override
 	public DiscreteEvent onCreate(long ts) {
-		cycleIter = cycle.getCycle().iterator(simul.getStartTs(), simul.getEndTs());
+		cycleIter = cycle.getCycle().iterator(simul.getStartTs(), Long.MAX_VALUE);
     	final long newTs = nextEvent();
     	if (newTs == -1)
             return onDestroy(ts);

@@ -324,12 +324,13 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 			for (int i = 0 ; i < timeTable.size(); i++) {
 				TimeTableEntry tte = timeTable.get(i);
 				if (tte.isPermanent()) {
-		            final RoleOnEvent rEvent = new RoleOnEvent(getTs(), tte.getRole(), null, simul.getEndTs());
+		            final RoleOnEvent rEvent = new RoleOnEvent(getTs(), tte.getRole(), null, Long.MAX_VALUE);
 		            simul.addEvent(rEvent);
 		            engine.incValidTimeTableEntries();
 				}
 				else {
-			        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getEndTs());
+					// FIXME: Check whether it works when using a condition to end simulation: should I use simul.getEndTs() instead of Long.MAX_VALUE?
+			        DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), Long.MAX_VALUE);
 			        final long nextTs = iter.next();
 			        if (nextTs != -1) {
 			            RoleOnEvent rEvent = new RoleOnEvent(nextTs, tte.getRole(), iter, simul.simulationTime2Long(tte.getDuration()));
@@ -340,7 +341,8 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 			}
 			for (int i = 0 ; i < cancelPeriodTable.size(); i++) {
 				final TimeTableEntry tte = cancelPeriodTable.get(i);
-		        final DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), simul.getEndTs());
+				// FIXME: Check whether it works when using a condition to end simulation: should I use simul.getEndTs() instead of Long.MAX_VALUE?
+		        final DiscreteCycleIterator iter = tte.getCycle().getCycle().iterator(getTs(), Long.MAX_VALUE);
 		        long nextTs = iter.next();
 		        if (nextTs != -1) {
 		            final CancelPeriodOnEvent aEvent = new CancelPeriodOnEvent(nextTs, iter, simul.simulationTime2Long(tte.getDuration()));

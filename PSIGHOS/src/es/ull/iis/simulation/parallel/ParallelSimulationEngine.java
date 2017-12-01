@@ -134,7 +134,7 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
         simul.afterClockTick();
         debug("SIMULATION TIME ADVANCING " + lvt);
 
-        if ((lvt < simul.getEndTs()) && !simul.isSimulationEnd()) {
+        if (!simul.isSimulationEnd(lvt)) {
         	currentEvents = futureEventList.pollFirstEntry().getValue();
         	// Distributes the events with the same timestamp among the executors
     		executingEvents.addAndGet(currentEvents.size());
@@ -221,7 +221,7 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 		
 		@Override
 		public void run() {
-			while ((lvt < simul.getEndTs()) && !simul.isSimulationEnd()) {
+			while (!simul.isSimulationEnd(lvt)) {
 	    		// Executes its events
 	    		final int totalEvents = currentEvents.size();
 	    		int myEventsCount = 0;

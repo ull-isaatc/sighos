@@ -317,7 +317,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 		
 		simulationEngine.simulationLoop();
 
-		debug("SIMULATION TIME FINISHES\r\nSimulation time = "
+		debug("SIMULATION FINISHES\r\nSimulation time = "
             	+ getTs() + "\r\nPreviewed simulation time = " 
     			+ endTs);
     	simulationEngine.printState();
@@ -325,7 +325,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
         // The user defined method for finalization is invoked
 		end();
 		
-		infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationEndInfo(this, System.nanoTime(), endTs));
+		infoHandler.notifyInfo(new es.ull.iis.simulation.info.SimulationEndInfo(this, System.nanoTime(), getTs()));
 		debug("SIMULATION COMPLETELY FINISHED");
 	}
 
@@ -664,12 +664,12 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	}
 
     /**
-     * Allows a user for setting a termination condition for the simulation. This condition prevails over the 
-     * simulation end timestamp.
-     * @return True if the simulation must finished; false otherwise.
+     * Allows a user for setting a termination condition for the simulation. The default condition will be that
+     * the simulation time is equal or higher than the expected simulation end time.
+     * @return True if the simulation must finish; false otherwise.
      */
-    public boolean isSimulationEnd() {
-    	return false;
+    public boolean isSimulationEnd(long currentTs) {
+    	return (currentTs >= endTs);
     }
     
 	// End of user methods
@@ -684,7 +684,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
     	 * Creates a very simple element to control the simulation end.
     	 */
 		public SimulationEndEvent() {
-			super(endTs);
+			super(Long.MAX_VALUE);
 		}
 
 		@Override

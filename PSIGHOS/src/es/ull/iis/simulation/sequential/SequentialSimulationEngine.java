@@ -194,7 +194,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 
 	@Override
 	public void simulationLoop() {
-		while ((lvt < simul.getEndTs()) && !simul.isSimulationEnd()) {
+		while (!simul.isSimulationEnd(lvt)) {
             // Executes all the events with timestamps equal to lvt 
 			while (waitQueue.peek().getTs() == lvt) {
             	addExecution(waitQueue.poll());
@@ -213,9 +213,9 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 			final long newLVT = waitQueue.peek().getTs();
 			// Executes user-specified actions before the clock advances
             simul.beforeClockTick();
-			if (newLVT >= simul.getEndTs()) {
+			if (simul.isSimulationEnd(newLVT)) {
 	            // Updates the simulation clock but do not execute further events
-				lvt = simul.getEndTs();
+				lvt = (lvt > simul.getEndTs()) ? lvt : simul.getEndTs();
 			}
 			else {
 	            // Updates the simulation clock
