@@ -43,6 +43,7 @@ public class CompleteExperiment extends Experiment {
 			return nDoctors[nDoctors.length - 1];
 		}
 	}
+	final static private double DEF_MANUAL_FACTOR = 1.0;
 	final static private int DEF_MINUTES_BETWEEN_ARRIVALS = 30;
 	final static private int N_EXPERIMENTS = 100;
 	final static private String DEF_SIZE = "a";
@@ -94,7 +95,7 @@ public class CompleteExperiment extends Experiment {
 						for (int nJanitors : size.nJanitors) {
 							for (int nChairs : size.nChairs) {
 								for (int nAutoChairs = 0; nAutoChairs <= nChairs; nAutoChairs++) {
-									final Simulation sim = new BasicHUNSCsimulation(ind++, density, nJanitors, nDoctors, nAutoChairs, nChairs - nAutoChairs, patientsPerArrival, minutesBetweenArrivals);
+									final Simulation sim = new BasicHUNSCsimulation(ind++, density, nJanitors, nDoctors, nAutoChairs, nChairs - nAutoChairs, patientsPerArrival, minutesBetweenArrivals, DEF_MANUAL_FACTOR);
 									final WheelchairListener listener = new WheelchairListener(TimeUnit.MINUTE, nJanitors, nDoctors, nAutoChairs, nChairs - nAutoChairs, maxJanitors, maxDoctors, maxChairs, maxChairs, patientsPerArrival, minutesBetweenArrivals, density, debug);
 									sim.addInfoReceiver(listener);
 									sim.run();

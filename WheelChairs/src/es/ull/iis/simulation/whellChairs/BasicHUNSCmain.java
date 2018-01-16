@@ -20,6 +20,7 @@ public class BasicHUNSCmain extends Experiment {
 	final static private int DEF_N_CHAIRS = 6;
 	final static private int DEF_N_PATIENTS_PER_ARRIVAL = 2;
 	final static private int DEF_MINUTES_BETWEEN_ARRIVALS = 30;
+	final static private double DEF_MANUAL_FACTOR = 1.0;
 	final static private int N_EXPERIMENTS = 1;
 	final static private BasicHUNSCsimulation.Density[] DEF_DENSITY = {Density.HIGH, Density.HIGH, Density.HIGH};
 	static int maxAutoChairs;
@@ -32,12 +33,13 @@ public class BasicHUNSCmain extends Experiment {
 	private final int patientsPerArrival;
 	private final int minutesBetweenArrivals;
 	private final BasicHUNSCsimulation.Density[] density;
-
+	private final double manualFactor;
+	
 	/**
 	 * Crea un experimento en modo batch que lanzará nExperiments réplicas de la simulación
 	 * @param nExperiments
 	 */
-	public BasicHUNSCmain(int nExperiments, int nJanitors, int nDoctors, int nAutoChairs, int nManualChairs, int patientsPerArrival, int minutesBetweenArrivals, Density[] density, boolean debug) {
+	public BasicHUNSCmain(int nExperiments, int nJanitors, int nDoctors, int nAutoChairs, int nManualChairs, int patientsPerArrival, int minutesBetweenArrivals, Density[] density, double manualFactor, boolean debug) {
 		super("Basic HUNSC Experiment", nExperiments);
 		this.debug = debug;
 		this.nJanitors = nJanitors;
@@ -47,12 +49,13 @@ public class BasicHUNSCmain extends Experiment {
 		this.patientsPerArrival = patientsPerArrival;
 		this.minutesBetweenArrivals = minutesBetweenArrivals;
 		this.density = density;
+		this.manualFactor = manualFactor;
 	}
 
 	@Override
 	public Simulation getSimulation(int ind) {
-		Simulation sim = new BasicHUNSCsimulation(ind, density, nJanitors, nDoctors, nAutoChairs, nManualChairs, patientsPerArrival, minutesBetweenArrivals);
-//		if (debug)
+		Simulation sim = new BasicHUNSCsimulation(ind, density, nJanitors, nDoctors, nAutoChairs, nManualChairs, patientsPerArrival, minutesBetweenArrivals, manualFactor);
+		if (debug)
 			sim.addInfoReceiver(new StdInfoView());
 		final WheelchairListener listener = new WheelchairListener(TimeUnit.MINUTE, nJanitors, nDoctors, nAutoChairs, nManualChairs, nJanitors, nDoctors, maxAutoChairs, maxManualChairs, patientsPerArrival, minutesBetweenArrivals, density, debug);
 		sim.addInfoReceiver(listener);
@@ -101,7 +104,7 @@ public class BasicHUNSCmain extends Experiment {
 				WheelchairListener.printHeader(density, args1.nJanitors, args1.nDoctors, args1.nChairs.get(0), args1.nChairs.get(1));
 				maxAutoChairs = args1.nChairs.get(0);
 				maxManualChairs = args1.nChairs.get(1);
-				new BasicHUNSCmain(args1.nSims, args1.nJanitors, args1.nDoctors, args1.nChairs.get(0), args1.nChairs.get(1), args1.nPatients, args1.minutesBetweenArrivals, density, args1.debug).start();
+				new BasicHUNSCmain(args1.nSims, args1.nJanitors, args1.nDoctors, args1.nChairs.get(0), args1.nChairs.get(1), args1.nPatients, args1.minutesBetweenArrivals, density, args1.manualFactor, args1.debug).start();
 				WheelchairListener.printLegend();
 				break;
 			case 1:
@@ -109,7 +112,7 @@ public class BasicHUNSCmain extends Experiment {
 				maxAutoChairs = args1.nChairs.get(0);
 				maxManualChairs = args1.nChairs.get(0);
 				for (int i = 0; i <= args1.nChairs.get(0); i++) {
-					new BasicHUNSCmain(args1.nSims, args1.nJanitors, args1.nDoctors, i, args1.nChairs.get(0) - i, args1.nPatients, args1.minutesBetweenArrivals, density, args1.debug).start();
+					new BasicHUNSCmain(args1.nSims, args1.nJanitors, args1.nDoctors, i, args1.nChairs.get(0) - i, args1.nPatients, args1.minutesBetweenArrivals, density, args1.manualFactor, args1.debug).start();
 				}
 				WheelchairListener.printLegend();
 				break;
@@ -118,7 +121,7 @@ public class BasicHUNSCmain extends Experiment {
 				maxAutoChairs = DEF_N_CHAIRS;
 				maxManualChairs = DEF_N_CHAIRS;
 				for (int i = 0; i <= DEF_N_CHAIRS; i++) {
-					new BasicHUNSCmain(args1.nSims, args1.nJanitors, args1.nDoctors, i, DEF_N_CHAIRS - i, args1.nPatients, args1.minutesBetweenArrivals, density, args1.debug).start();
+					new BasicHUNSCmain(args1.nSims, args1.nJanitors, args1.nDoctors, i, DEF_N_CHAIRS - i, args1.nPatients, args1.minutesBetweenArrivals, density, args1.manualFactor, args1.debug).start();
 				}
 				WheelchairListener.printLegend();
 				break;
@@ -137,16 +140,18 @@ public class BasicHUNSCmain extends Experiment {
 		private int nJanitors = DEF_N_JANITORS;
 		@Parameter(names ={"--doctors", "-nd"}, description = "Number of doctors", order = 3)
 		private int nDoctors = DEF_N_DOCTORS;
-		@Parameter(names ={"--wheelchairs", "-nw"}, variableArity = true, description = "Number of wheelchairs. Can be two numbers (automated, manual), or only one (it tests from 0 to N automated wheelchairs, keeping the rest manual)", order = 6)
+		@Parameter(names ={"--wheelchairs", "-nw"}, variableArity = true, description = "Number of wheelchairs. Can be two numbers (automated, manual), or only one (it tests from 0 to N automated wheelchairs, keeping the rest manual)", order = 4)
 		private List<Integer> nChairs = new ArrayList<>();;
-		@Parameter(names ={"--patients", "-np"}, description = "Patiens per arrival (as defined by the -t parameter)", order = 7)
+		@Parameter(names ={"--patients", "-np"}, description = "Patiens per arrival (as defined by the -t parameter)", order = 5)
 		private int nPatients = DEF_N_PATIENTS_PER_ARRIVAL;
-		@Parameter(names ={"--minutes", "-m"}, description = "Minutes between arrival of patients", order = 8)
+		@Parameter(names ={"--minutes", "-m"}, description = "Minutes between arrival of patients", order = 6)
 		private int minutesBetweenArrivals = DEF_MINUTES_BETWEEN_ARRIVALS;
-		@Parameter(names ={"--density", "-sd"}, description = "Density of each of the 3 sections: can be any of {h,m,n,l}, e.g. \"hhh\", \"lmh\", etc., where h=high, m=medium-high, n=medium-low, and l=low", order = 9)
+		@Parameter(names ={"--density", "-sd"}, description = "Density of each of the 3 sections: can be any of {h,m,n,l}, e.g. \"hhh\", \"lmh\", etc., where h=high, m=medium-high, n=medium-low, and l=low", order = 7)
 		private String density = null;
-		@Parameter(names ={"--replications", "-r"}, description = "Number of replications", order = 10)
+		@Parameter(names ={"--replications", "-r"}, description = "Number of replications", order = 8)
 		private int nSims = N_EXPERIMENTS;
+		@Parameter(names ={"--manualFactor", "-f"}, description = "Manual factor (multiplies the time of moving manual wheelchairs)", order = 9)
+		private double manualFactor = DEF_MANUAL_FACTOR;
 		@Parameter(names ={"--debug", "-d"}, description = "Enables debug mode", order = 11)
 		private boolean debug = false;
 

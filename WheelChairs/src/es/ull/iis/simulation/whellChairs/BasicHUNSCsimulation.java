@@ -2,6 +2,7 @@ package es.ull.iis.simulation.whellChairs;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
+import es.ull.iis.function.TimeFunctionParams;
 import es.ull.iis.simulation.condition.ResourceTypeAcquiredCondition;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.ResourceType;
@@ -78,7 +79,7 @@ public class BasicHUNSCsimulation extends Simulation {
 	 * Creates a simulation based on minutes, which lasts for a week (7 days X 24 hours X 60 minutes X 60 seconds)
 	 * @param id
 	 */
-	public BasicHUNSCsimulation(int id, Density[] sections, int nJanitors, int nDoctors, int nAutoChairs, int nManualChairs, int patientsPerArrival, int minutesBetweenArrivals) {
+	public BasicHUNSCsimulation(int id, Density[] sections, int nJanitors, int nDoctors, int nAutoChairs, int nManualChairs, int patientsPerArrival, int minutesBetweenArrivals, double manualFactor) {
 		super(id, "HUNSC" + id, unit, 0, END_TIME);
 		restartTimeFunctions();
 		// El paciente es el elemento del modelo
@@ -107,8 +108,10 @@ public class BasicHUNSCsimulation extends Simulation {
 		final WorkGroup wgAppointment = new WorkGroup(this, new ResourceType[] {rtDoctor} , new int [] {1});
 
 		// Creamos todos los pasos del proceso
-		final DelayFlow[] actSections = new DelayFlow [N_SECTIONS];
-		final DelayFlow[] actSectionsBack = new DelayFlow [N_SECTIONS];
+		final DelayFlow[] actASections = new DelayFlow [N_SECTIONS];
+		final DelayFlow[] actASectionsBack = new DelayFlow [N_SECTIONS];
+		final DelayFlow[] actMSections = new DelayFlow [N_SECTIONS];
+		final DelayFlow[] actMSectionsBack = new DelayFlow [N_SECTIONS];
 		
 		final RequestResourcesFlow reqChair = new RequestResourcesFlow(this, STR_REQ_CHAIR, 1, 2);
 		reqChair.addWorkGroup(0, wgJanitorAChair, T_A_SEAT);        
@@ -129,38 +132,37 @@ public class BasicHUNSCsimulation extends Simulation {
 		
 		// Creamos los tramos de la ruta que siguen las sillas
 		for (int i = 0; i < N_SECTIONS; i++) {
-			actSections[i] = new DelayFlow(this, STR_SECTION + i, T_SECTIONS[sections[i].ordinal()][i]);
-			actSectionsBack[N_SECTIONS - i - 1] = new DelayFlow(this, STR_SECTION + " (back)" + (N_SECTIONS - i - 1), T_SECTIONS[sections[i].ordinal()][i]);
+			actASections[i] = new DelayFlow(this, STR_SECTION + i, T_SECTIONS[sections[i].ordinal()][i]);
+			actASectionsBack[N_SECTIONS - i - 1] = new DelayFlow(this, STR_SECTION + " (back)" + (N_SECTIONS - i - 1), T_SECTIONS[sections[i].ordinal()][i]);
+			actMSections[i] = new DelayFlow(this, STR_SECTION + i, new ModifiedFunction(T_SECTIONS[sections[i].ordinal()][i], manualFactor, 0.0));
+			actMSectionsBack[N_SECTIONS - i - 1] = new DelayFlow(this, STR_SECTION + " (back)" + (N_SECTIONS - i - 1), new ModifiedFunction(T_SECTIONS[sections[i].ordinal()][i], manualFactor, 0.0));
 		}
 		
 		// Conectamos los tramos de la ruta que siguen las sillas
 		for (int i = 1; i < N_SECTIONS; i++) {
-			actSections[i-1].link(actSections[i]);
-			actSectionsBack[i - 1].link(actSectionsBack[i]);
+			actASections[i-1].link(actASections[i]);
+			actASectionsBack[i - 1].link(actASectionsBack[i]);
+			actMSections[i-1].link(actMSections[i]);
+			actMSectionsBack[i - 1].link(actMSectionsBack[i]);
 		}
 
 		final ExclusiveChoiceFlow condFlow0 = new ExclusiveChoiceFlow(this);
 		
 		// If the chair is automated, release the janitor after being seated 
 		reqChair.link(condFlow0);
-		condFlow0.link(relJanitorAfterSeat, new ResourceTypeAcquiredCondition(rtAChair)).link(actSections[0]);
-		condFlow0.link(actSections[0]);
+		condFlow0.link(relJanitorAfterSeat, new ResourceTypeAcquiredCondition(rtAChair)).link(actASections[0]);
+		condFlow0.link(actMSections[0]);
 
-		final ExclusiveChoiceFlow condFlow1 = new ExclusiveChoiceFlow(this);
+		actMSections[N_SECTIONS - 1].link(relJanitorBeforeAppointment).link(actMAppointment).link(reqJanitor).link(actMSectionsBack[0]);
+		actASections[N_SECTIONS - 1].link(actAAppointment).link(actASectionsBack[0]);
 		
-		actSections[N_SECTIONS - 1].link(condFlow1);
-		condFlow1.link(relJanitorBeforeAppointment, new ResourceTypeAcquiredCondition(rtMChair)).link(actMAppointment).link(reqJanitor).link(actSectionsBack[0]);
-		condFlow1.link(actAAppointment).link(actSectionsBack[0]);
-		
-		final ExclusiveChoiceFlow condFlow2 = new ExclusiveChoiceFlow(this);
 		// Creamos una actividad para levantarse de cada tipo de silla
 		final DelayFlow delMStand = new DelayFlow(this, STR_M_STAND, T_M_STAND);
 		final ActivityFlow actAStand = new ActivityFlow(this, STR_A_STAND);
 		// En el caso de las sillas automáticas, requiere un bedel
 		actAStand.addWorkGroup(0, wgJanitor, T_A_STAND);
-		actSectionsBack[N_SECTIONS - 1].link(condFlow2);
-		condFlow2.link(delMStand, new ResourceTypeAcquiredCondition(rtMChair)).link(relChair);
-		condFlow2.link(actAStand).link(relChair);
+		actMSectionsBack[N_SECTIONS - 1].link(delMStand).link(relChair);
+		actASectionsBack[N_SECTIONS - 1].link(actAStand).link(relChair);
 		
 		//Horario de llegada de pacientes
 		final SimulationPeriodicCycle arrivalCycle = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", minutesBetweenArrivals * 60), (int)(LAST_ARRIVAL / (minutesBetweenArrivals * 60)));
@@ -199,6 +201,34 @@ public class BasicHUNSCsimulation extends Simulation {
 				f.reset();
 			}
 		}
+	}
+	
+	private static class ModifiedFunction extends TimeFunction {
+		private double scale;
+		private double offset;
+		private TimeFunction function;
+		
+		/**
+		 * @param scale
+		 * @param offset
+		 */
+		public ModifiedFunction(TimeFunction function, double scale, double offset) {
+			this.scale = scale;
+			this.offset = offset;
+			this.function = function;
+		}
+
+		@Override
+		public double getValue(TimeFunctionParams params) {
+			return scale * function.getValue(params) + offset;
+		}
+
+		@Override
+		public void setParameters(Object... params) {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 }
 
