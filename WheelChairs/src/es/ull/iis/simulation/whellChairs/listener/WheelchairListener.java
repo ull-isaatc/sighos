@@ -58,12 +58,13 @@ public class WheelchairListener extends View {
 	private final int maxManualChairs;
 	private final int patientsPerArrival;
 	private final int minutesBetweenArrivals;
+	private final double manualFactor;
 	private final BasicHUNSCsimulation.Density[] density;
 	private final double unitConversion;
 	private static PrintStream out = System.out;
 			
 	public WheelchairListener(TimeUnit unit, int nJanitors, int nDoctors, int nAutoChairs, int nManualChairs, 
-			int maxJanitors, int maxDoctors, int maxAutoChairs, int maxManualChairs, int patientsPerArrival, int minutesBetweenArrivals, Density[] density, boolean detailed) {
+			int maxJanitors, int maxDoctors, int maxAutoChairs, int maxManualChairs, int patientsPerArrival, int minutesBetweenArrivals, Density[] density, double manualFactor, boolean detailed) {
 		super("Listener completo de las sillas");
 		this.detailed = detailed;
 		patientEndCounter = 0;
@@ -83,6 +84,7 @@ public class WheelchairListener extends View {
 		this.maxManualChairs = maxManualChairs;
 		this.patientsPerArrival = patientsPerArrival;
 		this.minutesBetweenArrivals = minutesBetweenArrivals;
+		this.manualFactor = manualFactor;
 		this.density = density;
 		this.unitConversion = BasicHUNSCsimulation.unit.convert(1.0, unit);
 		addEntrance(ResourceUsageInfo.class);
@@ -90,8 +92,8 @@ public class WheelchairListener extends View {
 		addEntrance(ElementActionInfo.class);
 		addEntrance(SimulationEndInfo.class);
 	}
-	public WheelchairListener(TimeUnit unit, int nJanitors, int nDoctors, int nAutoChairs, int nManualChairs, int patientsPerArrival, int minutesBetweenArrivals, Density[] density, boolean detailed) {
-		this(unit, nJanitors, nDoctors, nAutoChairs, nManualChairs, nJanitors, nDoctors, nAutoChairs, nManualChairs, patientsPerArrival, minutesBetweenArrivals, density, detailed);
+	public WheelchairListener(TimeUnit unit, int nJanitors, int nDoctors, int nAutoChairs, int nManualChairs, int patientsPerArrival, int minutesBetweenArrivals, Density[] density, double manualFactor, boolean detailed) {
+		this(unit, nJanitors, nDoctors, nAutoChairs, nManualChairs, nJanitors, nDoctors, nAutoChairs, nManualChairs, patientsPerArrival, minutesBetweenArrivals, density, manualFactor, detailed);
 	}
 	
 	/* (non-Javadoc)
@@ -258,7 +260,7 @@ public class WheelchairListener extends View {
 					entry.setValue(endTs + entry.getValue());
 				}
 			}
-			out.print(endTs/unitConversion + "\t" + patientsPerArrival + "\t" + minutesBetweenArrivals);
+			out.print(endTs/unitConversion + "\t" + patientsPerArrival + "\t" + minutesBetweenArrivals + "\t" + manualFactor);
 			for (int i = 0; i < density.length; i++)
 				out.print("\t" + density[i]);
 			out.print("\t" + nDoctors + "\t" + nJanitors +"\t" + nAutoChairs + "\t" + nManualChairs + "\t" + patientEndCounter);
@@ -335,7 +337,7 @@ public class WheelchairListener extends View {
 	}
 	
 	public static void printHeader(BasicHUNSCsimulation.Density[] density, int nJanitors, int nDoctors, int nAutoChairs, int nManualChairs) {
-		out.print(Legend.TIME.shortName + "\t" + Legend.PXA.shortName + "\t" + Legend.TBA.shortName);
+		out.print(Legend.TIME.shortName + "\t" + Legend.PXA.shortName + "\t" + Legend.TBA.shortName + "\t" + Legend.MF.shortName);
 		for (int i = 0; i < density.length; i++)
 			out.print("\t" + Legend.D.shortName + i);
 		out.print("\t" + Legend.ND.shortName + "\t" + Legend.NJ.shortName + "\t" + Legend.NAW.shortName + "\t" + Legend.NMW.shortName);
@@ -381,6 +383,7 @@ public class WheelchairListener extends View {
 		TIME("TIME", "Simulated time"),
 		PXA("PxA", "Patients per arrival"),
 		TBA("TbA", "Time between arrivals"),
+		MF("MF", "Manual factor"),
 		D("D", "Density of section i"),
 		ND("N_D", "#Doctors"),
 		NJ("N_J", "#Janitors"),

@@ -30,7 +30,7 @@ public class BasicHUNSCTest {
 				Simulation sim = new BasicHUNSCsimulation(i, DEF_DENSITY, DEF_N_JANITORS, DEF_N_DOCTORS, DEF_N_CHAIRS + j, 0, DEF_N_PATIENTS_PER_ARRIVAL, DEF_MINUTES_BETWEEN_ARRIVALS, DEF_MANUAL_FACTOR);
 	//			if (debug)
 	//				sim.addInfoReceiver(new StdInfoView());
-				final WheelchairListener listener = new WheelchairListener(TimeUnit.MINUTE, DEF_N_JANITORS, DEF_N_DOCTORS, DEF_N_CHAIRS + j, 0, DEF_N_JANITORS, DEF_N_DOCTORS, DEF_N_CHAIRS + j, 0, DEF_N_PATIENTS_PER_ARRIVAL, DEF_MINUTES_BETWEEN_ARRIVALS, DEF_DENSITY, false);
+				final WheelchairListener listener = new WheelchairListener(TimeUnit.MINUTE, DEF_N_JANITORS, DEF_N_DOCTORS, DEF_N_CHAIRS + j, 0, DEF_N_JANITORS, DEF_N_DOCTORS, DEF_N_CHAIRS + j, 0, DEF_N_PATIENTS_PER_ARRIVAL, DEF_MINUTES_BETWEEN_ARRIVALS, DEF_DENSITY, DEF_MANUAL_FACTOR, false);
 				sim.addInfoReceiver(listener);
 				sim.run();
 			}

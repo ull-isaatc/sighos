@@ -57,7 +57,7 @@ public class BasicHUNSCmain extends Experiment {
 		Simulation sim = new BasicHUNSCsimulation(ind, density, nJanitors, nDoctors, nAutoChairs, nManualChairs, patientsPerArrival, minutesBetweenArrivals, manualFactor);
 		if (debug)
 			sim.addInfoReceiver(new StdInfoView());
-		final WheelchairListener listener = new WheelchairListener(TimeUnit.MINUTE, nJanitors, nDoctors, nAutoChairs, nManualChairs, nJanitors, nDoctors, maxAutoChairs, maxManualChairs, patientsPerArrival, minutesBetweenArrivals, density, debug);
+		final WheelchairListener listener = new WheelchairListener(TimeUnit.MINUTE, nJanitors, nDoctors, nAutoChairs, nManualChairs, nJanitors, nDoctors, maxAutoChairs, maxManualChairs, patientsPerArrival, minutesBetweenArrivals, density, manualFactor, debug);
 		sim.addInfoReceiver(listener);
 		return sim;
 	}
