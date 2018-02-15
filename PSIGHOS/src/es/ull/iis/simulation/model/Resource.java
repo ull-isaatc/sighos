@@ -324,7 +324,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 			for (int i = 0 ; i < timeTable.size(); i++) {
 				TimeTableEntry tte = timeTable.get(i);
 				if (tte.isPermanent()) {
-		            final RoleOnEvent rEvent = new RoleOnEvent(getTs(), tte.getRole(), null, Long.MAX_VALUE);
+		            final RoleOnEvent rEvent = new RoleOnEvent(getTs(), tte.getRole(), null, Long.MAX_VALUE - getTs());
 		            simul.addEvent(rEvent);
 		            engine.incValidTimeTableEntries();
 				}
