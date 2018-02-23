@@ -11,18 +11,43 @@ import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * An experiment to compute the optimum number of vehicles to fulfill a stowage plan schedule. 
- * @author Iván Castilla
- *
+ * @author Iván Castilla Rodríguez
  */
 public class CalculateOptimumVehiclesExperiment {
+	/** Default maximum number of vehicles to test with */
 	private static final int LIMIT_VEHICLES = 100;
+	/** Default number of vehicle configurations to test when optimum is found. Optimum +- this value configurations are tested */ 
 	private static final int NUMBER = 5;
+	/** Number of solutions to find optimum for */
 	private final int nSolutions;
+	/** Set of available solutions */
 	private final StowagePlan[] plans;
+	/** Enables debug */
 	private final boolean debug;
+	/** Maximum number of vehicles to test with */
 	private final int limitVehicles;
+	/** Number of vehicle configurations to test when optimum is found. Optimum +- this value configurations are tested */ 
 	private final int plusMinus;
 
+	/**
+	 * Creates an experiment to test a single solution
+	 * @param plan Solution to test
+	 * @param limitVehicles Maximum number of vehicles to test with
+	 * @param plusMinus Number of vehicle configurations to test when optimum is found. Optimum +- this value configurations are tested
+	 * @param debug Enables debug
+	 */
+	public CalculateOptimumVehiclesExperiment(StowagePlan plan, int limitVehicles, int plusMinus, boolean debug) {
+		this(new StowagePlan[] {plan}, 1, limitVehicles, plusMinus, debug);
+	}
+	
+	/**
+	 * Creates an experiment to test nSolutions from plans.
+	 * @param plans Set of available solutions
+	 * @param nSolutions Set of available solutions
+	 * @param limitVehicles Maximum number of vehicles to test with
+	 * @param plusMinus Number of vehicle configurations to test when optimum is found. Optimum +- this value configurations are tested
+	 * @param debug Enables debug
+	 */
 	public CalculateOptimumVehiclesExperiment(StowagePlan[] plans, int nSolutions, int limitVehicles, int plusMinus, boolean debug) {
 		this.limitVehicles = limitVehicles;
 		this.nSolutions = nSolutions;
@@ -31,6 +56,12 @@ public class CalculateOptimumVehiclesExperiment {
 		this.debug = debug;
 	}
 	
+	/**
+	 * Searches the optimum number of vehicles required for a specific plan
+	 * @param id Solution id
+	 * @param plan Stowage plan
+	 * @return the optimum number of vehicles required for a specific plan
+	 */
 	private int getOptimum(int id, StowagePlan plan) {
 		PortModel model = null;
 		int simCounter = 0;
@@ -53,7 +84,7 @@ public class CalculateOptimumVehiclesExperiment {
 			model.addInfoReceiver(listener);
 			model.run();
 			if (debug)
-				printResults(simCounter, simCounter, listener, nVehicles);
+				printResults(simCounter, id, listener, nVehicles);
 			lastObjValue = listener.getObjectiveValue();
 			simCounter++;
 			if (lastObjValue > objValue) {
@@ -87,6 +118,9 @@ public class CalculateOptimumVehiclesExperiment {
 		return nVehicles * (desist ? -1:1);
 	}
 	
+	/**
+	 * Launches this experiment.
+	 */
 	public void start() {
 		// Print header
 		printHeader();
@@ -154,7 +188,17 @@ public class CalculateOptimumVehiclesExperiment {
 	        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(args1.fileName);
 	        if (plans.length < args1.nSolutions)
 	        	args1.nSolutions = plans.length;
-	       	new CalculateOptimumVehiclesExperiment(plans, args1.nSolutions, args1.limit, args1.number, args1.debug).start();
+	        if (args1.specific) {
+	        	if (plans.length < args1.nSolutions) {
+	        		throw new ParameterException("Trying to simulate solution #" + args1.nSolutions + " when only " + plans.length + " solutions available");
+	        	}
+	        	else {
+	    	       	new CalculateOptimumVehiclesExperiment(plans[args1.nSolutions], args1.limit, args1.number, args1.debug).start();	        		
+	        	}
+	        }
+	        else {
+	        	new CalculateOptimumVehiclesExperiment(plans, args1.nSolutions, args1.limit, args1.number, args1.debug).start();
+	        }
 		} catch (ParameterException ex) {
 			System.out.println(ex.getMessage());
 			ex.usage();
@@ -172,7 +216,9 @@ public class CalculateOptimumVehiclesExperiment {
 		private int limit = LIMIT_VEHICLES;
 		@Parameter(names ={"--number", "-n"}, description = "Number of configurations to test when optimum is found", order = 3)
 		private int number = NUMBER;
-		@Parameter(names ={"--debug", "-d"}, description = "Enables debug mode", order = 4)
+		@Parameter(names ={"--specific", "-f"}, description = "Changes the way the 'solutions' parameter in interpreted. Now indicates the specific #solution to execute", order = 4)
+		private boolean specific = false;
+		@Parameter(names ={"--debug", "-d"}, description = "Enables debug mode", order = 5)
 		private boolean debug = false;
 	}
 }

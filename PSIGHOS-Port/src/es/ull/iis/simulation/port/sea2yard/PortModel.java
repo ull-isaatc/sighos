@@ -29,7 +29,7 @@ import es.ull.iis.simulation.model.flow.TaskFlow;
  * QCs has an ordered list of tasks associated (the "schedule"). Each task represent either a container load or unload (aka. transshipment operation).
  * Each task requires a delivery vehicle to be performed. Every time a vehicle is used, it has to go  
  * 
- *  When the first task of a crane is It is possible for quay cranes to start a task that creates a conflict with another crane, because the task is . To avoid this situation, each pair of quay cranes share a "security token". 
+ *  It is possible for quay cranes to start a task that creates a conflict with another crane. To avoid this situation, each pair of quay cranes share a "security token". 
  *  schedule is left to right, the rightmost crane acquires this token at start. If there is no initial conflict, the crane releases the token immediately. 
  *  Otherwise, it keeps the token until the conflicting task finishes. The leftmost crane moves to avoid the conflict (according to a predefined fictitious task) and
  *  then tries to acquire the token. Increasing higher priority is assigned to each crane, so to ensure that, even when the leftmost crane do not have to move, 

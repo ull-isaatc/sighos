@@ -19,11 +19,11 @@ public class QCSPSolutionWriter {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String fileName = System.getProperty("user.home") + "/Dropbox/SimulationPorts/for_simulation/k30_dep.sol";
+		String fileName = System.getProperty("user.home") + "/Dropbox/SimulationPorts/for_validation/more/k21.sol";
         final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(fileName);
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 25; i++) {
 			try {
-				Utilities.writeFile(System.getProperty("user.home") +"/Dropbox/SimulationPorts/QCSPViewer/k30_dep" + i + ".qcsp", plans[i].getOriginalSolution().toString());
+				Utilities.writeFile(System.getProperty("user.home") +"/Dropbox/SimulationPorts/QCSPViewer/k21_" + i + ".qcsp", plans[i].getOriginalSolution().toString());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

@@ -10,19 +10,28 @@ import com.beust.jcommander.ParameterException;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
- * The main simulation class for a port. A port is divided into three areas: sea, yard and earth. Ships arrive at a 
- * specific berth, which counts on a fixed number of quay cranes to unload the charge. Each ship carries M containers, 
- * and quay cranes unload a container at a time. To unload a container, a truck must be available. Trucks lead the 
- * container to a specific block in the yard area. At his block, a yard crane puts the container in a free space. 
- * @author Iván Castilla
+ * An experiment intended to check whether the simulation is able to reproduce a set of solutions. The user sets the number of vehicles and how 
+ * many solutions to test.  
+ * @author Iván Castilla Rodríguez
  *
  */
 public class AdHocExperiment {
+	/** Number of vehicles to check with */
 	private final int nVehicles;
+	/** Number of solutions to check */
 	private final int nSolutions;
+	/** Set of available solutions */
 	private final StowagePlan[] plans;
+	/** Enables debug */
 	private final boolean debug; 
 
+	/**
+	 * Creates an experiment to test nSolutions solutions with nVehicles vehicles
+	 * @param plans Set of available solutions
+	 * @param nSolutions Number of solutions to check
+	 * @param nVehicles Number of vehicles to check with
+	 * @param debug Enables debug
+	 */
 	public AdHocExperiment(StowagePlan[] plans, int nSolutions, int nVehicles, boolean debug) {
 		this.nVehicles = nVehicles;
 		this.nSolutions = nSolutions;
@@ -30,13 +39,19 @@ public class AdHocExperiment {
 		this.debug = debug;
 	}
 	
+	/**
+	 * Creates an experiment to test a single solution with nVehicles vehicles
+	 * @param plan Solution to test
+	 * @param nVehicles Number of vehicles to check with
+	 * @param debug Enables debug
+	 */
 	public AdHocExperiment(StowagePlan plan, int nVehicles, boolean debug) {
-		this.nVehicles = nVehicles;
-		this.nSolutions = 1;
-		this.plans = new StowagePlan[] {plan};
-		this.debug = debug;
+		this(new StowagePlan[] {plan}, 1, nVehicles, debug);
 	}
-	
+
+	/**
+	 * Launches the experiment
+	 */
 	public void start() {
 		final TimeRepository times = new TimeRepository(plans[0], 0.0);
 		for (int i = 0; i < nSolutions; i++) {
@@ -61,12 +76,17 @@ public class AdHocExperiment {
 		}
 	}
 	
+	/**
+	 * Prints the schedule
+	 * @param vessel Information about the vessel
+	 */
 	private void printSchedule(Vessel vessel) {
 		System.out.println("Task\tStart\tProc");
 		for (int i = 0; i < vessel.getNContainers(); i++) {
 			System.out.println(i + "\t" + vessel.getContainerOptStartTime(i) + "\t" + vessel.getContainerProcessingTime(i));
 		}
 	}
+	
 	public static void main(String[] args) {
 		final Arguments args1 = new Arguments();
 		try {

@@ -11,13 +11,21 @@ import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
- * @author Rosi1
+ * A way to check that the simulation is able to reproduce a schedule. Takes the schedule as stated in the QCSP solution and 
+ * checks whether the simulation faithfully reproduces each step. 
+ * @author Iván Castilla Rodríguez
  *
  */
 public class CheckSolutionListener extends Listener {
+	/** The expected order of tasks */
 	final private HashMap<Integer, long[]> expectedSolution;
+	/** The simulated order of tasks */
 	final private HashMap<Integer, long[]> obtainedSolution;
 
+	/**
+	 * Creates the listener
+	 * @param plan Schedule
+	 */
 	public CheckSolutionListener(StowagePlan plan) {
 		super("Time container");
 		this.expectedSolution = new HashMap<Integer, long[]>();

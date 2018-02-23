@@ -242,17 +242,27 @@ public class QCSP2StowagePlan {
 	
 	// FIXME: Simulation fails!!!
 	public static void testRightToLeftDependent() {
-        final String instance = HOME + "/Dropbox/SimulationPorts/instances/k30.txt";
+//        final String instance = HOME + "/Dropbox/SimulationPorts/instances/k30.txt";
+//        QCSProblem problem = new QCSProblem(instance);
+//        QCSPSolution solution = new QCSPSolution(problem, true);
+//        //
+//        solution.assignTaskToQuayCrane(new int[]{1, 2, 3, 4, 5, 6, 7, 11}, 0);
+//        solution.assignTaskToQuayCrane(new int[]{8, 9, 10, 12, 13, 14, 15}, 1);
+//        //
+//        solution.setLeftToRight(false);
+//        test(solution, HOME + "/Dropbox/SimulationPorts/for_simulation/k30_dep_rl.sol", true, false);
+        final String instance = HOME + "/Dropbox/SimulationPorts/instances/k21.txt";
         QCSProblem problem = new QCSProblem(instance);
         QCSPSolution solution = new QCSPSolution(problem, true);
         //
-        solution.assignTaskToQuayCrane(new int[]{1, 2, 3, 4, 5, 6, 7, 11}, 0);
-        solution.assignTaskToQuayCrane(new int[]{8, 9, 10, 12, 13, 14, 15}, 1);
+        solution.assignTaskToQuayCrane(new int[]{1, 2, 3, 5, 10}, 0);
+        solution.assignTaskToQuayCrane(new int[]{4, 6, 7, 8, 9}, 1);
         //
         solution.setLeftToRight(false);
-        test(solution, HOME + "/Dropbox/SimulationPorts/for_simulation/k30_dep_rl.sol", true, false);
+        test(solution, HOME + "/Dropbox/SimulationPorts/for_validation/more/k21_dep_rl.sol", true, true);
 	}
 	
+
 	public static void testDependent() {
         final String instance = HOME + "/Dropbox/SimulationPorts/instances/k30.txt";
         QCSProblem problem = new QCSProblem(instance);
@@ -335,39 +345,40 @@ public class QCSP2StowagePlan {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-//		testRightToLeftDependent();
+		testRightToLeftDependent();
 //		testDependent();
 //		testRightToLeft();
 //		testDependenciesAtStart();
 //		testMore2();
-		final Arguments arguments = new Arguments();
-		try {
-			JCommander jc = JCommander.newBuilder()
-			  .addObject(arguments)
-			  .build();
-			jc.parse(args);
-			final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(new QCSProblem(arguments.inputFileName), SAFETY_DISTANCE, arguments.overlapLambda, arguments.keep, arguments.debug);
-			final Population population = planBuilder.getSolutions(arguments.popSize);
-			final StowagePlan[] plans = new StowagePlan[population.getSize()];
-			for (int i = 0; i < plans.length; i++) {
-				plans[i] = planBuilder.getStowagePlanFromQCSP(population.get(i));	
-			}
-			
-			if (arguments.debug) {				
-				System.out.println("Saved " + plans.length + " solutions");
-				System.out.println("Vessel for best solution: ");
-				System.out.println(plans[0].getVessel());
-				System.out.println();
-				System.out.println("Stowage plan for best solution:");
-				System.out.println(plans[0]);
-			}
-			if (arguments.outputFileName != null)
-				planBuilder.saveToFile(plans, arguments.outputFileName);
-		} catch (ParameterException ex) {
-			System.out.println(ex.getMessage());
-			ex.usage();
-			System.exit(-1);
-		}		
+
+//		final Arguments arguments = new Arguments();
+//		try {
+//			JCommander jc = JCommander.newBuilder()
+//			  .addObject(arguments)
+//			  .build();
+//			jc.parse(args);
+//			final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(new QCSProblem(arguments.inputFileName), SAFETY_DISTANCE, arguments.overlapLambda, arguments.keep, arguments.debug);
+//			final Population population = planBuilder.getSolutions(arguments.popSize);
+//			final StowagePlan[] plans = new StowagePlan[population.getSize()];
+//			for (int i = 0; i < plans.length; i++) {
+//				plans[i] = planBuilder.getStowagePlanFromQCSP(population.get(i));	
+//			}
+//			
+//			if (arguments.debug) {				
+//				System.out.println("Saved " + plans.length + " solutions");
+//				System.out.println("Vessel for best solution: ");
+//				System.out.println(plans[0].getVessel());
+//				System.out.println();
+//				System.out.println("Stowage plan for best solution:");
+//				System.out.println(plans[0]);
+//			}
+//			if (arguments.outputFileName != null)
+//				planBuilder.saveToFile(plans, arguments.outputFileName);
+//		} catch (ParameterException ex) {
+//			System.out.println(ex.getMessage());
+//			ex.usage();
+//			System.exit(-1);
+//		}		
 	}
 	
 	final private static class Arguments {
