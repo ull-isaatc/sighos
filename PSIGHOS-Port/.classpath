@@ -16,6 +16,8 @@
 	<classpathentry kind="lib" path="C:/Program Files/Java/jdk1.8.0_102/lib/tools.jar"/>
 	<classpathentry kind="lib" path="jar/simkit.jar"/>
 	<classpathentry kind="lib" path="jar/jcommander-1.69.jar"/>
+	<classpathentry kind="lib" path="jar/jcommon-1.0.23.jar"/>
+	<classpathentry kind="lib" path="jar/jfreechart-1.0.19.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sp-qcsp"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -13,6 +13,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -301,6 +302,27 @@ public class QCSP2StowagePlan {
         test(solution, HOME + "/Dropbox/SimulationPorts/for_simulation/k100_dep.sol", true, true);
 	}
 	
+	public static void testInstancesOverlap() {
+		final String instanceName = "qc6";
+        final String instance = System.getProperty("user.home") + "/Dropbox/SimulationPorts/instances-overlap-analysis/" + instanceName + ".txt";
+        for (int index = 0; index < 10; index++) {
+            QCSProblem problem = new QCSProblem(instance);
+            for (int qc = 0; qc < problem.getQuayCranes(); qc++) {
+                problem.getQuayCranesStartingPositions()[problem.getQuayCranes() - qc - 1] = 100 - (qc * (2 + index));
+            }
+            QCSPSolution solution = new QCSPSolution(problem, true);
+            int tasksPerQc = problem.getNumRealTasks() / problem.getQuayCranes();
+            for (int qc = 0; qc < problem.getQuayCranes(); qc++) {
+                int[] tasks = new int[tasksPerQc];
+                for (int i = 0; i < tasksPerQc; i++) {
+                    tasks[i] = 1 + (i * problem.getQuayCranes() + qc);
+                }
+                solution.assignTaskToQuayCrane(tasks, problem.getQuayCranes() - qc - 1);
+            }
+            test(solution, HOME + "/Dropbox/SimulationPorts/instances-overlap-analysis/" + instanceName + "_" + index + ".sol", true, true);
+        }
+		
+	}
 	public static void test(QCSPSolution solution, String outputFile, boolean keep, boolean debug) {
         solution.evaluator = new EvaluatorMeisel();
         solution.getObjectiveFunctionValue();
@@ -342,10 +364,60 @@ public class QCSP2StowagePlan {
 	}
 	
 	/**
+	 * Tests several solutions for the same problem
+	 * @param problem
+	 * @param solutions
+	 * @param outputFile
+	 * @param keep If true, keeps the original lenght of tasks; otherwise, creates a task per unit
+	 * @param debug
+	 */
+	public static void test(QCSProblem problem, QCSPSolution[] solutions, String outputFile, boolean keep, boolean debug) {
+        final int planningHorizon = 1000;
+        final int securityDistance = 1;
+        final double lambda = 1.0;
+		final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(problem, SAFETY_DISTANCE, lambda, keep, debug);
+		final StowagePlan[] plans = new StowagePlan[solutions.length];
+		for (int index = 0; index < solutions.length; index++) {
+			QCSPSolution solution = solutions[index];
+	        solution.evaluator = new EvaluatorMeisel();
+	        solution.getObjectiveFunctionValue();
+	        System.out.println(solution);
+	        System.out.println("Bays:              " + problem.getBays());
+	        System.out.println("Security Distance: " + securityDistance);
+	        System.out.println("Overlap:           " + solution.getOverlap(lambda));
+	        System.out.println("Lower Bound:       " + problem.getLowerBoundOverlapping(planningHorizon, lambda));
+	        System.out.println("Upper Bound:       " + problem.getUpperBoundOverlapping(securityDistance, lambda));
+	        System.out.println("Ficticious Tasks:  ");
+	        int[][] initialPositions = solution.getFicticiousTasks();
+	        for (int i = 0; i < problem.getQuayCranes(); i++) {
+	            int position = initialPositions[i][0];
+	            //int duration = initialPositions[i][1];
+	            int dependent = initialPositions[i][2];
+	            int id = initialPositions[i][3];
+	            int last = initialPositions[i][4];
+	            System.out.println("\tQC " + i + " -> id=" + id + ", pos=" + position + ", dep=" + dependent + ", last=" + last);
+	        }
+			plans[index] = planBuilder.getStowagePlanFromQCSP(solution);
+			System.out.println("Vessel for best solution: ");
+			System.out.println(plans[index].getVessel());
+			System.out.println();
+			System.out.println("Stowage plan for best solution:");
+			System.out.println(plans[index]);
+			System.out.println("Fictitious waits");
+	        List<DummyTask> dummyTasks = solution.getDummyTasks();
+	        for (DummyTask dummyTask : dummyTasks) {
+	            System.out.println(dummyTask);
+	        }
+		}
+        if (outputFile != null) {
+        	planBuilder.saveToFile(plans, outputFile);
+        }
+	}
+	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		testRightToLeftDependent();
+		testInstancesOverlap();
 //		testDependent();
 //		testRightToLeft();
 //		testDependenciesAtStart();

@@ -35,12 +35,11 @@ import es.ull.iis.util.Statistics;
  */
 public class ResultPreprocessor {
 	final static private int N_SIM = 200;
-	final static private int N_SOL = 25;
-	final static private int N_VEHIC = 11;
-	final static private String OUTPUT_FILE = "output3.txt";
+	final static private int N_SOL = 1;
+	final static private int N_VEHIC = 7;
+	final static private String OUTPUT_FILE = "output.txt";
 	final private static String INPUT_EXT = ".out"; 
-	final static private String INPUT_DIR = System.getProperty("user.home") + "/Dropbox/SimulationPorts/for_validation/more/";
-	final static private boolean NORMAL_VEHICLE = true;
+	final static private String INPUT_DIR = System.getProperty("user.home") + "/Dropbox/SimulationPorts/instances-overlap-analysis/";
 	final static private int FIRST_CRANE_FIELD = 6;
 	final static private int N_CRANE_FIELDS = 4;
 
@@ -69,10 +68,6 @@ public class ResultPreprocessor {
 							System.err.println("Error leyendo línea " + lineNumber + " del fichero " + file.getName() + ". Se esperaba solución determinista.");
 							System.exit(-1);
 						}
-						int nVehic = Integer.parseInt(fields[3]);
-						if (NORMAL_VEHICLE) {
-							nVehic = j - (N_VEHIC / 2);
-						}
 						final int[] totalTime = new int[nCranes];
 						final int[] useTime = new int[nCranes];
 						final int[] moveTime = new int[nCranes];
@@ -83,7 +78,7 @@ public class ResultPreprocessor {
 							opTime[crane] = Integer.parseInt(fields[FIRST_CRANE_FIELD + crane * N_CRANE_FIELDS] + 2);
 							moveTime[crane] = Integer.parseInt(fields[FIRST_CRANE_FIELD + crane * N_CRANE_FIELDS + 3]);
 						}
-						experiments[i*N_VEHIC + j] = new Experiment(file.getName(), Integer.parseInt(fields[1]), nVehic, Integer.parseInt(fields[5]), nCranes, 
+						experiments[i*N_VEHIC + j] = new Experiment(file.getName(), Integer.parseInt(fields[1]), Integer.parseInt(fields[3]), j - (N_VEHIC / 2), Integer.parseInt(fields[5]), nCranes, 
 								totalTime, useTime, moveTime, opTime, Double.parseDouble(fields[2]));
 					}
 				}
@@ -135,8 +130,10 @@ public class ResultPreprocessor {
 			for (File file : files) {
 				System.out.println("Preprocesando " + file.getName());
 				final Experiment[] experiments = preProcessFile(file);
+				final int minObj = getMinObj(experiments);
+				final int minSum = getMinSum(experiments);
 				for (Experiment exp : experiments) {
-					out.println(exp2String(exp));
+					out.println(exp2String(exp, minObj, minSum));
 				}
 			}
 		
@@ -148,16 +145,37 @@ public class ResultPreprocessor {
 
 	}
 	
-	public static String expHeader() {
-		return "INSTANCE\tSOL\tVEHIC\tCRANES\tOVER\tOBJ\tSUM\tAVG_OBJ\tSD_OBJ\tAVG_SUM\tSD_SUM\tROB0\tROB05\tROB1\tROB5";
+	private static int getMinObj(Experiment[] experiments) {
+		int minObj = Integer.MAX_VALUE;
+		for (Experiment exp : experiments) {
+			if (exp.getObj() < minObj)
+				minObj = exp.getObj(); 
+		}
+		return minObj;
 	}
-	public static String exp2String(Experiment exp) {
+	
+	private static int getMinSum(Experiment[] experiments) {
+		int minSum = Integer.MAX_VALUE;
+		for (Experiment exp : experiments) {
+			if (exp.getSumTotalTime() < minSum)
+				minSum = exp.getSumTotalTime(); 
+		}
+		return minSum;
+	}
+	
+	public static String expHeader() {
+		return "INSTANCE\tSOL\tVEHIC\tVEHIC2\tCRANES\tOVER\tOBJ\tNORM_OBJ\tAVG_OBJ\tSD_OBJ\tAVG_N_OBJ\tSD_N_OBJ\tSUM\tNORM_SUM\tAVG_SUM\tSD_SUM\tAVG_N_SUM\tSD_N_SUM\tROB0\tROB05\tROB1\tROB5";
+	}
+	
+	public static String exp2String(Experiment exp, int minObj, int minSum) {
 		final double[] avgSDObj = exp.getAvgSDObj();
 		final double[] avgSDSumTotal = exp.getAvgSDSumTotalTime();
-		return exp.getInstance() + "\t" + exp.getSolution() + "\t" + exp.getnVehic() + "\t" + exp.getnCranes() + "\t" + exp.getOverlap() 
-			+ "\t" + exp.getObj() + "\t" + exp.getSumTotalTime() + "\t" + avgSDObj[0] + "\t" + avgSDObj[1] + "\t" + avgSDSumTotal[0] 
-			+ "\t" + avgSDSumTotal[1] + "\t" + exp.getRobustness(0.0) + "\t" + exp.getRobustness(0.005) + "\t" + exp.getRobustness(0.01) 
-			+ "\t" + exp.getRobustness(0.05);
+		final int obj = exp.getObj();
+		final int sum = exp.getSumTotalTime();
+		return exp.getInstance() + "\t" + exp.getSolution() + "\t" + exp.getnVehic() + "\t" + exp.getNormalVehic() + "\t" + exp.getnCranes() + "\t" + exp.getOverlap() 
+			+ "\t" + obj + "\t" + (obj / (double)minObj) + "\t" + avgSDObj[0] + "\t" + avgSDObj[1] + "\t" + (avgSDObj[0] / (double)minObj) + "\t" + (avgSDObj[1] / (double)minObj) + "\t" 
+			+ sum + "\t" + (sum / (double)minSum) + "\t" + avgSDSumTotal[0] + "\t" + avgSDSumTotal[1] + "\t" + (avgSDSumTotal[0] / (double)minSum) + "\t" + (avgSDSumTotal[1] / (double)minSum)
+			+ "\t" + exp.getRobustness(0.0) + "\t" + exp.getRobustness(0.005) + "\t" + exp.getRobustness(0.01) + "\t" + exp.getRobustness(0.05);
 	}
 	/**
 	 * @param args
@@ -170,6 +188,7 @@ public class ResultPreprocessor {
 		private final String instance;
 		private final int solution;
 		private final int nVehic;
+		private final int normalVehic;
 		private final int obj;
 		private final int[] totalTimeBase;
 		private final int[] useTimeBase;
@@ -191,11 +210,12 @@ public class ResultPreprocessor {
 		 * @param obj
 		 * @param overlap
 		 */
-		public Experiment(String instance, int solution, int nVehic, int obj, int nCranes, int[] totalTimeBase, int[] useTimeBase, int[] moveTimeBase,
+		public Experiment(String instance, int solution, int nVehic, int normalVehic, int obj, int nCranes, int[] totalTimeBase, int[] useTimeBase, int[] moveTimeBase,
 				int[] opTimeBase, double overlap) {
 			this.instance = instance;
 			this.solution = solution;
 			this.nVehic = nVehic;
+			this.normalVehic = normalVehic;
 			this.obj = obj;
 			this.nCranes = nCranes;
 			this.overlap = overlap;
@@ -289,6 +309,13 @@ public class ResultPreprocessor {
 		 */
 		public int getnVehic() {
 			return nVehic;
+		}
+
+		/**
+		 * @return the normalVehic
+		 */
+		public int getNormalVehic() {
+			return normalVehic;
 		}
 
 		/**
