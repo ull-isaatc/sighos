@@ -4,12 +4,12 @@
 package es.ull.iis.test;
 
 import es.ull.iis.function.TimeFunctionFactory;
-import es.ull.iis.util.Cycle;
-import es.ull.iis.util.CycleIterator;
-import es.ull.iis.util.PeriodicCycle;
-import es.ull.iis.util.RoundedPeriodicCycle;
-import es.ull.iis.util.TableCycle;
-import es.ull.iis.util.WeeklyPeriodicCycle;
+import es.ull.iis.util.cycle.Cycle;
+import es.ull.iis.util.cycle.CycleIterator;
+import es.ull.iis.util.cycle.PeriodicCycle;
+import es.ull.iis.util.cycle.RoundedPeriodicCycle;
+import es.ull.iis.util.cycle.TableCycle;
+import es.ull.iis.util.cycle.WeeklyPeriodicCycle;
 
 /**
  * Base model for testing

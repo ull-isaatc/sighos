@@ -22,7 +22,7 @@ import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.MultiChoiceFlow;
 import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
-import es.ull.iis.util.WeeklyPeriodicCycle;
+import es.ull.iis.util.cycle.WeeklyPeriodicCycle;
 
 class BarrelShippingExperiment extends Experiment {
 

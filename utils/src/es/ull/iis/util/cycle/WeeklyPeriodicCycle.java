@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.util;
+package es.ull.iis.util.cycle;
 
 import java.util.EnumSet;
 

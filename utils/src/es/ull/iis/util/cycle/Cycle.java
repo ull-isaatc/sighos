@@ -1,4 +1,4 @@
-package es.ull.iis.util;
+package es.ull.iis.util.cycle;
 
 /**
  * Defines a repeated sequence of events. <p>

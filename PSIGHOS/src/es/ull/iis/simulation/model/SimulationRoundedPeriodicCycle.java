@@ -4,9 +4,9 @@
 package es.ull.iis.simulation.model;
 
 import es.ull.iis.function.TimeFunction;
-import es.ull.iis.util.Cycle;
-import es.ull.iis.util.RoundedPeriodicCycle;
-import es.ull.iis.util.RoundedPeriodicCycle.Type;
+import es.ull.iis.util.cycle.Cycle;
+import es.ull.iis.util.cycle.RoundedPeriodicCycle;
+import es.ull.iis.util.cycle.RoundedPeriodicCycle.Type;
 
 /**
  * @author Iván Castilla Rodríguez

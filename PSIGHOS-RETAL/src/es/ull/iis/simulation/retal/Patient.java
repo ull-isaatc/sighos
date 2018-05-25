@@ -23,7 +23,7 @@ import es.ull.iis.simulation.retal.params.CommonParams;
 import es.ull.iis.simulation.retal.params.DRParams;
 import es.ull.iis.simulation.retal.params.EyeStateAndValue;
 import es.ull.iis.simulation.retal.params.VAProgressionPair;
-import es.ull.iis.util.DiscreteCycleIterator;
+import es.ull.iis.util.cycle.DiscreteCycleIterator;
 
 /**
  * Within all the class, eye1 is always indexed as 0, while eye2 is indexed as 1  

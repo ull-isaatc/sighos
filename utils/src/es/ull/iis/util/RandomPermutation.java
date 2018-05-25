@@ -7,6 +7,7 @@ import java.util.Random;
 
 /**
  * This class provides a method to generate permutations.
+ * @author Iván Castilla
  */
 public class RandomPermutation {
 	private static Random generator = null;

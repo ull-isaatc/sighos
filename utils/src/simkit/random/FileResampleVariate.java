@@ -9,7 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 /**
- * @author Iván
+ * @author Iván Castilla Rodríguez
  *
  */
 public class FileResampleVariate extends RandomVariateBase {

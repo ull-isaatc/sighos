@@ -1,4 +1,4 @@
-package es.ull.iis.util;
+package es.ull.iis.util.concurrent;
 
 import java.util.ArrayDeque;
 import java.util.concurrent.Semaphore;

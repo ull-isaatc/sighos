@@ -10,7 +10,7 @@ import java.util.Collection;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.model.engine.ResourceEngine;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
-import es.ull.iis.util.DiscreteCycleIterator;
+import es.ull.iis.util.cycle.DiscreteCycleIterator;
 
 /**
  * A simulation resource whose availability is controlled by means of {@link TimeTableEntry timetable entries}.

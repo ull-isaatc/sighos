@@ -12,8 +12,8 @@ import java.util.TreeMap;
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionParams;
 import es.ull.iis.simulation.model.SimulationCycle;
-import es.ull.iis.util.Cycle;
-import es.ull.iis.util.TableCycle;
+import es.ull.iis.util.cycle.Cycle;
+import es.ull.iis.util.cycle.TableCycle;
 
 /**
  * @author Iván Castilla
@@ -21,7 +21,7 @@ import es.ull.iis.util.TableCycle;
  */
 public class ArrivalPlanning extends TimeFunction implements SimulationCycle {
 	private static final String COMMENT_MARK = "//";
-	/** Inner {@link es.ull.iis.util.TableCycle TableCycle} */ 
+	/** Inner {@link es.ull.iis.util.cycle.TableCycle TableCycle} */ 
 	private final TableCycle cycle;
 	private final TreeMap<Double, int[]>arrivals;
 	private final int berth;

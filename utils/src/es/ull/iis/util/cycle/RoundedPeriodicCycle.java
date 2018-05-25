@@ -1,9 +1,10 @@
 /**
  * 
  */
-package es.ull.iis.util;
+package es.ull.iis.util.cycle;
 
 import es.ull.iis.function.TimeFunction;
+import es.ull.iis.util.ExtendedMath;
 
 /**
  * An special periodic cycle which rounds (or trunks) the incidence of events.

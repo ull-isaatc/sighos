@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.model;
 
 import es.ull.iis.function.TimeFunction;
-import es.ull.iis.util.DiscreteCycleIterator;
+import es.ull.iis.util.cycle.DiscreteCycleIterator;
 
 /**
  * @author Iván Castilla Rodríguez

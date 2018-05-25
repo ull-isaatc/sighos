@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.util;
+package es.ull.iis.util.cycle;
 
 /**
  * Allows to iterate over a cycle definition. The start and end timestamp of
@@ -15,38 +15,38 @@ package es.ull.iis.util;
  * now considered as absolute. 
  * @author Iván Castilla Rodríguez
  */
-public class DiscreteCycleIterator {
+public class CycleIterator {
 	/** Subcycles traversed by this iterator */ 
-	protected Cycle.DiscreteIteratorLevel []cycleTable;
+	protected Cycle.IteratorLevel []cycleTable;
 	/** The current timestamp */
-	protected long ts = -1;
+	protected double ts = Double.NaN;
 
 	/**
 	 * @param cycle Cycle followed by this iterator. 
 	 * @param absStartTs Absolute start timestamp.
 	 * @param absEndTs Absolute end timestamp.
 	 */
-	public DiscreteCycleIterator(Cycle cycle, long absStartTs, long absEndTs) {
+	public CycleIterator(Cycle cycle, double absStartTs, double absEndTs) {
 		Cycle c;
 		int levels = 1;
 		for (c = cycle; c.getSubCycle() != null; c = c.getSubCycle())
 			levels++;
-		cycleTable = new Cycle.DiscreteIteratorLevel[levels];
+		cycleTable = new Cycle.IteratorLevel[levels];
 
 		// First entry of the table is created
 		// CHANGE 13/12/06: Instead of using absStartTs, using 0 for initial timestamp.
-		cycleTable[0] = cycle.getDiscreteIteratorLevel(0, absEndTs);
+		cycleTable[0] = cycle.getIteratorLevel(0, absEndTs);
 		ts = cycleTable[0].getCurrentTs();
 		// The rest of entries are created		
 		c = cycle.getSubCycle();
 		for (int i = 1; i < levels; i++, c = c.getSubCycle()) {
-			cycleTable[i] = c.getDiscreteIteratorLevel(ts, Math.min(cycleTable[i - 1].getNextTs(), cycleTable[i - 1].getEndTs()));
+			cycleTable[i] = c.getIteratorLevel(ts, Math.min(cycleTable[i - 1].getNextTs(), cycleTable[i - 1].getEndTs()));
 			ts = cycleTable[i].getCurrentTs();
 		}
 		// CHANGE 13/12/06 If the start timestamp is not zero, the real start timestamp
 		// has to be recomputed.
 		boolean found = false;
-		while ((ts != -1) && !found) {
+		while (!Double.isNaN(ts) && !found) {
 			if (ts >= absStartTs)
 				found = true;
 			else
@@ -60,18 +60,18 @@ public class DiscreteCycleIterator {
 	 * @return The next timestamp. Double.NaN if the next timestamp is not 
 	 * a valid one.
 	 */
-	public long next() {
-		long auxTs = ts;
-		if (ts != -1) {
+	public double next() {
+		double auxTs = ts;
+		if (!Double.isNaN(ts)) {
 			int i = cycleTable.length;
 			do {
 				if (cycleTable[--i].hasNext())
 					ts = cycleTable[i].next();
 				else
-					ts = -1;
-			} while ((i > 0) && (ts == -1));
+					ts = Double.NaN;
+			} while ((i > 0) && (Double.isNaN(ts)));
 			// This condition is skipped when the whole cycle is finished 
-			if (ts != -1) {
+			if (!Double.isNaN(ts)) {
 				for (; i < cycleTable.length - 1; i++) {
 					ts = cycleTable[i + 1].reset(ts, Math.min(cycleTable[i].getNextTs(), cycleTable[i].getEndTs()));
 				}
