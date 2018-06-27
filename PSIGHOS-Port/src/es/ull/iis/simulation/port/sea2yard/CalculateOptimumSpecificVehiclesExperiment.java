@@ -14,7 +14,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
@@ -90,13 +89,15 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 		}
 		else {
 			final StowagePlan plan = plans[solution];
-			final PortModel model = new PortModel(plan, simCounter, nVehicles, times);
+			final PortModel model = (stopAtFirst ?
+					new PortModel(plan, simCounter, nVehicles, times, (plan.getObjectiveValue() + 1) * PortModel.T_OPERATION) :
+					new PortModel(plan, simCounter, nVehicles, times));
 			final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plan, TimeUnit.SECOND); 
 			model.addInfoReceiver(listener);
 			model.run();
 			printResults(system_out, sim, solution, listener, nVehicles, pError);
 			if (stopAtFirst) {
-				if (listener.getObjectiveValue() == plan.getObjectiveValue() * PortModel.T_OPERATION) {
+				if (listener.isScheduleCompleted()) {
 					printResults(out, sim, solution, listener, nVehicles, pError);					
 					out.flush();
 					return true;
@@ -222,6 +223,8 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 		for (int i = 1; i <= plans[0].getNCranes(); i++) {
 			out.print("\tT_TOT" + i + "\tT_USE" + i + "\tT_OP" + i + "\tT_MOV" + i);
 		}
+		if (stopAtFirst)
+			out.print("\tLEFT");
 		out.println();
 	}
 
@@ -241,17 +244,23 @@ public class CalculateOptimumSpecificVehiclesExperiment {
 		for (int i = 0; i < plans[nPlan].getNCranes(); i++) {
 			out.print("\t" + listener.getObjTime()[i] + "\t" + listener.getUseTime()[i] + "\t" + listener.getOpTime()[i] + "\t" + listener.getMovTime()[i]);
 		}
+		if (stopAtFirst)
+			out.print("\t" + listener.tasksLeft());
 		out.println();		
 	}
 	
 	public static void main(String[] args) {
-//        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile("C:\\Users\\Iván Castilla\\Dropbox\\SimulationPorts\\for_validation\\k41.sol");
-//        int[] nVehicles = new int[] {0,0,6,1};
+//        final StowagePlan[] plans = QCSP2StowagePlan.loadFromFile(System.getProperty("user.home") + "/Dropbox/SimulationPorts/for_validation/k41.sol");
+//        int[] nVehicles = new int[] {0,0,0,12};
 //		final TimeRepository times = new TimeRepository(plans[0], 0.0);        
-//		PortModel model = new PortModel(plans[0], 0, nVehicles, times);
-//		//model.addInfoReceiver(new ContainerTraceListener(TimeUnit.SECOND));
-//		model.addInfoReceiver(new StdInfoView());
+//		PortModel model = new PortModel(plans[0], 0, nVehicles, times, 11760);
+//		model.addInfoReceiver(new ContainerTraceListener(TimeUnit.SECOND));
+//		final Sea2YardGeneralListener listener = new Sea2YardGeneralListener(plans[0], TimeUnit.SECOND); 
+//		model.addInfoReceiver(listener);
+////		model.addInfoReceiver(new StdInfoView());
 //		model.run();
+//		System.out.println("OPT: " + plans[0].getObjectiveValue() * PortModel.T_OPERATION + "\tGET: " + listener.getObjectiveValue()); 
+//		System.out.println(listener.isScheduleCompleted() ? "FINISHED" : "NOT FINISHED");
 //		simulateNVehicles(0, new int[4], 0, 10);
 		final Arguments args1 = new Arguments();
 		try {

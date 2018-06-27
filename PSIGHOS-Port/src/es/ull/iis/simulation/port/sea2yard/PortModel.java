@@ -80,6 +80,10 @@ public class PortModel extends Simulation {
 	private final TimeRepository times;
 	private final int[] waitIndex;
 	
+	public PortModel(StowagePlan plan, int id, int[] nVehicles, TimeRepository times) {
+		this(plan, id, nVehicles, times, END_TS);		
+	}
+
 	/**
 	 * Creates a port simulation with only generic delivery vehicles, initialized with the specified random seed
 	 * @param plan The stowage plan that defines the tasks to perform
@@ -87,6 +91,10 @@ public class PortModel extends Simulation {
 	 * @param nGenericVehicles Number of delivery vehicles to be used
 	 */
 	public PortModel(StowagePlan plan, int id, int nGenericVehicles, TimeRepository times) {
+		this(plan, id, new int[] {nGenericVehicles}, times, END_TS);
+	}
+	
+	public PortModel(StowagePlan plan, int id, int nGenericVehicles, TimeRepository times, long endTs) {
 		this(plan, id, new int[] {nGenericVehicles}, times);
 	}
 	
@@ -97,8 +105,8 @@ public class PortModel extends Simulation {
 	 * @param nVehicles Number of delivery vehicles to be used, distributed per crane. The last position of the array contains the
 	 * number of generic delivery vehicles
 	 */
-	public PortModel(StowagePlan plan, int id, int[] nVehicles, TimeRepository times) {
-		super(id, DESCRIPTION + " " + id, PORT_TIME_UNIT, START_TS, END_TS);
+	public PortModel(StowagePlan plan, int id, int[] nVehicles, TimeRepository times, long endTs) {
+		super(id, DESCRIPTION + " " + id, PORT_TIME_UNIT, START_TS, endTs);
 		this.times = times;
 		this.nVehicles = nVehicles;
 		this.plan = plan;

@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.port.sea2yard;
 
+import java.util.Arrays;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
@@ -23,10 +24,16 @@ public class Sea2YardGeneralListener extends Listener {
 	private final TreeMap<Element, Long[]> movingTime;
 	private final TimeUnit unit;
 	private long objectiveValue = -1;
+	/** Time to perform the last task (per quay crane) */
 	private final long []objTime;
+	/** Time devoted to perform tasks or move (per quay crane) */	
 	private final long []useTime;
+	/** Time devoted to perform tasks (per quay crane) */	
 	private final long []opTime;
+	/** Time devoted to move (per quay crane) */	
 	private final long []movTime;
+	/** Counts how many tasks are left to finish */
+	private int nContainersToFinish;
 
 	public Sea2YardGeneralListener(StowagePlan plan, TimeUnit unit) {
 		super("Time container");
@@ -34,10 +41,12 @@ public class Sea2YardGeneralListener extends Listener {
 		movingTime = new TreeMap<Element, Long[]>();
 		usageTime = new TreeMap<Element, Long[]>();
 		objTime = new long[plan.getNCranes()];
+		Arrays.fill(objTime, -1);
 		useTime = new long[plan.getNCranes()];
 		opTime = new long[plan.getNCranes()];
 		movTime = new long[plan.getNCranes()];
 		this.unit = unit;
+		nContainersToFinish = plan.getNTasks();
 		addEntrance(ElementInfo.class);
 		addEntrance(SimulationEndInfo.class);
 		addEntrance(ElementActionInfo.class);
@@ -84,6 +93,7 @@ public class Sea2YardGeneralListener extends Listener {
 					movingTime.get(eInfo.getElement())[0] = -1L;
 				}
 				else {
+					nContainersToFinish--;
 					final int containerId = ((UnloadTask)eInfo.getActivity().getParent()).getContainerId();
 					if (((QuayCrane)eInfo.getElement()).getLastTask() == containerId) {
 						objTime[eInfo.getElement().getIdentifier()] = eInfo.getTs();
@@ -103,13 +113,13 @@ public class Sea2YardGeneralListener extends Listener {
 			final long currentTs = ((SimulationEndInfo) info).getTs();
 			final TimeUnit modelUnit = info.getSimul().getTimeUnit();
 			for (Element crane : totalTime.keySet()) {
-				final int craneId = crane.getIdentifier(); 
-				if (totalTime.get(crane)[1] == -1) {
+				final int craneId = crane.getIdentifier();
+				// The simulation finished before all the tasks were complete
+				if (objTime[craneId] == -1) {
 					objTime[craneId] = currentTs;
 					objectiveValue = currentTs;
 				}
 				else {
-//					objTime[craneId] = totalTime.get(crane)[1] - totalTime.get(crane)[0];
 					objectiveValue = Math.max(objectiveValue, objTime[craneId]);
 				}
 				useTime[craneId] = usageTime.get(crane)[1];
@@ -156,5 +166,21 @@ public class Sea2YardGeneralListener extends Listener {
 	 */
 	public long[] getMovTime() {
 		return movTime;
+	}
+	
+	/**
+	 * Returns true if all the tasks finished; false otherwise
+	 * @return true if all the tasks finished; false otherwise
+	 */
+	public boolean isScheduleCompleted() {
+		return nContainersToFinish == 0;
+	}
+	
+	/**
+	 * Returns how many are left to be finished
+	 * @return The number of tasks not finished yet
+	 */
+	public int tasksLeft() {
+		return nContainersToFinish;
 	}
 }
