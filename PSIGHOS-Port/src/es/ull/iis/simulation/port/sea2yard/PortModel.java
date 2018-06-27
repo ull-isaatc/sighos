@@ -238,9 +238,9 @@ public class PortModel extends Simulation {
 			for (int craneId = 0; craneId < nCranes; craneId++) {
 				rtSpecificVehicle[craneId] = new ResourceType(this, DELIVERY_VEHICLE + craneId);
 				rtSpecificVehicle[craneId].addGenericResources(getNSpecificVehiclesXCrane(craneId));
-				for (int containerId = 0; containerId < nContainers; containerId++) {
-					wgSpecificContainers[containerId] = new WorkGroup(this, new ResourceType[] {rtSpecificVehicle[craneId], rtContainers[containerId]}, new int[] {1, 1});
-				}
+			}
+			for (int containerId = 0; containerId < nContainers; containerId++) {
+				wgSpecificContainers[containerId] = new WorkGroup(this, new ResourceType[] {rtSpecificVehicle[plan.getCraneDoTask(containerId)], rtContainers[containerId]}, new int[] {1, 1});
 			}
 		}
 	}

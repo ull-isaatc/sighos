@@ -13,7 +13,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -417,40 +416,40 @@ public class QCSP2StowagePlan {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		testInstancesOverlap();
+//		testInstancesOverlap();
 //		testDependent();
 //		testRightToLeft();
 //		testDependenciesAtStart();
 //		testMore2();
 
-//		final Arguments arguments = new Arguments();
-//		try {
-//			JCommander jc = JCommander.newBuilder()
-//			  .addObject(arguments)
-//			  .build();
-//			jc.parse(args);
-//			final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(new QCSProblem(arguments.inputFileName), SAFETY_DISTANCE, arguments.overlapLambda, arguments.keep, arguments.debug);
-//			final Population population = planBuilder.getSolutions(arguments.popSize);
-//			final StowagePlan[] plans = new StowagePlan[population.getSize()];
-//			for (int i = 0; i < plans.length; i++) {
-//				plans[i] = planBuilder.getStowagePlanFromQCSP(population.get(i));	
-//			}
-//			
-//			if (arguments.debug) {				
-//				System.out.println("Saved " + plans.length + " solutions");
-//				System.out.println("Vessel for best solution: ");
-//				System.out.println(plans[0].getVessel());
-//				System.out.println();
-//				System.out.println("Stowage plan for best solution:");
-//				System.out.println(plans[0]);
-//			}
-//			if (arguments.outputFileName != null)
-//				planBuilder.saveToFile(plans, arguments.outputFileName);
-//		} catch (ParameterException ex) {
-//			System.out.println(ex.getMessage());
-//			ex.usage();
-//			System.exit(-1);
-//		}		
+		final Arguments arguments = new Arguments();
+		try {
+			JCommander jc = JCommander.newBuilder()
+			  .addObject(arguments)
+			  .build();
+			jc.parse(args);
+			final QCSP2StowagePlan planBuilder = new QCSP2StowagePlan(new QCSProblem(arguments.inputFileName), SAFETY_DISTANCE, arguments.overlapLambda, arguments.keep, arguments.debug);
+			final Population population = planBuilder.getSolutions(arguments.popSize);
+			final StowagePlan[] plans = new StowagePlan[population.getSize()];
+			for (int i = 0; i < plans.length; i++) {
+				plans[i] = planBuilder.getStowagePlanFromQCSP(population.get(i));	
+			}
+			
+			if (arguments.debug) {				
+				System.out.println("Saved " + plans.length + " solutions");
+				System.out.println("Vessel for best solution: ");
+				System.out.println(plans[0].getVessel());
+				System.out.println();
+				System.out.println("Stowage plan for best solution:");
+				System.out.println(plans[0]);
+			}
+			if (arguments.outputFileName != null)
+				planBuilder.saveToFile(plans, arguments.outputFileName);
+		} catch (ParameterException ex) {
+			System.out.println(ex.getMessage());
+			ex.usage();
+			System.exit(-1);
+		}		
 	}
 	
 	final private static class Arguments {
