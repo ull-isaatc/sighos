@@ -7,7 +7,7 @@ import es.ull.iis.function.ConstantFunction;
 import es.ull.iis.simulation.hta.HTASimulation;
 import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
-import es.ull.iis.simulation.hta.T1DM.params.DeathParams;
+import es.ull.iis.simulation.hta.T1DM.params.ResourceUsageParams;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityParams;
 import es.ull.iis.simulation.hta.outcome.Cost;
 import es.ull.iis.simulation.hta.outcome.LifeExpectancy;
@@ -27,7 +27,7 @@ public class T1DMSimulation extends HTASimulation {
 	private final static String DESCRIPTION = "T1DM Simulation";
 
 	private final CommonParams commonParams;
-	private final DeathParams deathParams;
+	private final ResourceUsageParams resUsageParams;
 	private final UtilityParams utilParams;
 
 	/**
@@ -36,16 +36,16 @@ public class T1DMSimulation extends HTASimulation {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public T1DMSimulation(int id, boolean baseCase, Intervention intervention, CommonParams commonParams, DeathParams deathParams, UtilityParams utilParams) {
+	public T1DMSimulation(int id, boolean baseCase, Intervention intervention, CommonParams commonParams, ResourceUsageParams resUsageParams, UtilityParams utilParams) {
 		super(id, DESCRIPTION, CommonParams.SIMUNIT, baseCase, intervention, new TimeStamp(TimeUnit.YEAR, (long) (CommonParams.MAX_AGE - commonParams.getInitAge() + 1)), NINTERVENTIONS, CommonParams.NPATIENTS);
 		this.commonParams = commonParams;
-		this.deathParams = deathParams;
 		this.utilParams = utilParams;
+		this.resUsageParams = resUsageParams;
 		new T1DMPatientGenerator(this, nPatients, new ConstantFunction(commonParams.getInitAge()), intervention, 
 				new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
-		cost = new Cost(this, CommonParams.DEF_DISCOUNT_RATE);
-		qaly = new QualityAdjustedLifeExpectancy(this, CommonParams.DEF_DISCOUNT_RATE);		
-		ly = new LifeExpectancy(this, CommonParams.DEF_DISCOUNT_RATE);
+		cost = new Cost(this, commonParams.getDiscountRate());
+		qaly = new QualityAdjustedLifeExpectancy(this, commonParams.getDiscountRate());		
+		ly = new LifeExpectancy(this, commonParams.getDiscountRate());
 	}
 
 	/**
@@ -59,8 +59,8 @@ public class T1DMSimulation extends HTASimulation {
 		super(original, intervention);
 		this.commonParams = original.commonParams;
 		commonParams.reset();
-		this.deathParams = original.deathParams;
 		this.utilParams = original.utilParams;
+		this.resUsageParams = original.resUsageParams;
 		new T1DMPatientGenerator(this, original.generatedPatients, intervention, 
 				new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
 		cost = original.cost;
@@ -73,17 +73,17 @@ public class T1DMSimulation extends HTASimulation {
 	}
 
 	/**
-	 * @return the deathParams
-	 */
-	public DeathParams getDeathParams() {
-		return deathParams;
-	}
-
-	/**
 	 * @return the utilParams
 	 */
 	public UtilityParams getUtilParams() {
 		return utilParams;
+	}
+
+	/**
+	 * @return the resUsageParams
+	 */
+	public ResourceUsageParams getResUsageParams() {
+		return resUsageParams;
 	}
 
 }

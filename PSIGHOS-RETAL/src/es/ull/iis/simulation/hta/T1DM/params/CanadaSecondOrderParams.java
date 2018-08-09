@@ -16,6 +16,7 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 	private static final double P_MAN = 0.5;
 	/** Duration of effect of the intervention */
 	private static final double YEARS_OF_EFFECT = 1.0;
+	private static final double DISCOUNT_RATE = 0.015; 
 	
 	private static final double P_DNC_RET = 0.0764;
 	private static final double P_DNC_NEU = 0.0235;
@@ -40,6 +41,7 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 	 */
 	public CanadaSecondOrderParams(boolean baseCase) {
 		super(baseCase);
+		setCanadaValidation();
 		interventions = new Intervention[] {
 				new T1DMMonitoringIntervention(0, "SMBG+MDI", "SMBG+MDI"),
 				new T1DMMonitoringIntervention(1, "SAP", "SAP")				
@@ -64,6 +66,7 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		probabilityParams.put(STR_P_MAN, new DoubleParam(STR_P_MAN, "Probability of havig sex = male", "Assumption", P_MAN));
 		otherParams.put(STR_INIT_AGE, new DoubleParam(STR_INIT_AGE, "Initial age", "", INIT_AGE));
 		otherParams.put(STR_YEARS_OF_EFFECT, new DoubleParam(STR_YEARS_OF_EFFECT, "Duration of effect in years", "", YEARS_OF_EFFECT));
+		otherParams.put(STR_DISCOUNT_RATE, new DoubleParam(STR_DISCOUNT_RATE, "Discount rate", "Spanish guidelines", DISCOUNT_RATE));
 	}
 
 }

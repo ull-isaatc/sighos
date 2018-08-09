@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.Complication;
-import es.ull.iis.simulation.hta.T1DM.params.DeathParams;
+import es.ull.iis.simulation.hta.T1DM.params.ResourceUsageParams;
 import es.ull.iis.simulation.hta.T1DM.params.SevereHypoglycemicEventParam;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityParams;
 import es.ull.iis.simulation.model.DiscreteEvent;
@@ -32,7 +32,7 @@ public class T1DMPatient extends Patient {
 	private final int sex;
 	
 	private final CommonParams commonParams;
-	private final DeathParams deathParams;
+	private final ResourceUsageParams resUsageParams;
 	private final UtilityParams utilParams;
 	
 	private final ComplicationEvent[] complicationEvents;
@@ -46,8 +46,8 @@ public class T1DMPatient extends Patient {
 	public T1DMPatient(T1DMSimulation simul, double initAge, Intervention intervention) {
 		super(simul, intervention);
 		this.commonParams = simul.getCommonParams();
-		this.deathParams = simul.getDeathParams();
 		this.utilParams = simul.getUtilParams();
+		this.resUsageParams = simul.getResUsageParams();
 
 		this.initAge = CommonParams.YEAR_CONVERSION*initAge;
 		this.sex = commonParams.getSex(this);
@@ -59,8 +59,8 @@ public class T1DMPatient extends Patient {
 	public T1DMPatient(T1DMSimulation simul, T1DMPatient original, Intervention intervention) {
 		super(simul, original, intervention);
 		this.commonParams = original.commonParams;
-		this.deathParams = original.deathParams;
 		this.utilParams = original.utilParams;
+		this.resUsageParams = original.resUsageParams;
 
 		this.initAge = original.initAge;
 		this.sex = original.sex;
@@ -170,7 +170,7 @@ public class T1DMPatient extends Patient {
 				final double endAge = TimeUnit.DAY.convert(ts, simul.getTimeUnit()) / CommonParams.YEAR_CONVERSION;
 				lastTs = this.ts;
 				if (ts > 0) {
-					final double periodCost = commonParams.getCostForState(T1DMPatient.this, initAge, endAge);
+					final double periodCost = resUsageParams.getResourceAnnualCostWithinPeriod(T1DMPatient.this, initAge, endAge);
 					cost.update(T1DMPatient.this, periodCost, initAge, endAge);
 					ly.update(T1DMPatient.this, 1.0, initAge, endAge);
 					qaly.update(T1DMPatient.this, utilParams.getUtilityValue(T1DMPatient.this), initAge, endAge);
@@ -193,7 +193,7 @@ public class T1DMPatient extends Patient {
 			simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, T1DMPatientInfo.Type.START, this.getTs()));
 
 			// Assign death event
-			final long timeToDeath = deathParams.getTimeToDeath(T1DMPatient.this);
+			final long timeToDeath = commonParams.getTimeToDeath(T1DMPatient.this);
 			deathEvent = new DeathEvent(timeToDeath);
 			simul.addEvent(deathEvent);
 			
@@ -259,7 +259,7 @@ public class T1DMPatient extends Patient {
 				T1DMPatient.this.state.add(complication);
 				
 				// Recompute time to death in case the risk increases
-				final long newTimeToDeath = deathParams.getTimeToDeath(T1DMPatient.this);
+				final long newTimeToDeath = commonParams.getTimeToDeath(T1DMPatient.this);
 				if (newTimeToDeath < deathEvent.getTs()) {
 					deathEvent.cancel();
 					deathEvent = new DeathEvent(newTimeToDeath);
@@ -267,7 +267,7 @@ public class T1DMPatient extends Patient {
 				}
 				// Check whether new complications may appear
 				EnumSet<Complication> toCheck;
-				if (CommonParams.CANADA) {
+				if (commonParams.isCanadaValidation()) {
 					if (state.contains(Complication.ESRD) || state.contains(Complication.LEA) || state.contains(Complication.BLI)) {
 						toCheck = EnumSet.noneOf(Complication.class);
 					}

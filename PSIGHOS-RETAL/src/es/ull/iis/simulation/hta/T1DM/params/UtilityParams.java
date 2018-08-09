@@ -28,10 +28,13 @@ public class UtilityParams extends ModelParams {
 	private final static double HYPO_EVENT_DISUTILITY = 0.0206;
 	
 	private final CombinationMethod method;
+
+	private final SecondOrderParams secParams;
 	/**
 	 */
-	public UtilityParams(CombinationMethod method) {
+	public UtilityParams(SecondOrderParams secParams, CombinationMethod method) {
 		super();
+		this.secParams = secParams;
 		this.dDNC = DET_DNC_DISUTILITY;
 		this.dComplications = DET_COMPLICATION_DISUTILITIES;
 		this.method = method;
@@ -40,8 +43,8 @@ public class UtilityParams extends ModelParams {
 
 	/**
 	 */
-	public UtilityParams() {
-		this(CombinationMethod.ADD);
+	public UtilityParams(SecondOrderParams secParams) {
+		this(secParams, CombinationMethod.ADD);
 	}
 	
 	public double getHypoEventDisutilityValue() {
@@ -51,7 +54,7 @@ public class UtilityParams extends ModelParams {
 	public double getUtilityValue(T1DMPatient pat) {
 		final EnumSet<Complication> state = pat.getState();
 		double u = baseUtility;
-		if (CommonParams.CANADA) {
+		if (secParams.isCanadaValidation()) {
 			if (state.contains(Complication.ESRD)) {
 				u = state.contains(Complication.CHD) ? 0.447 : 0.490;
 			}

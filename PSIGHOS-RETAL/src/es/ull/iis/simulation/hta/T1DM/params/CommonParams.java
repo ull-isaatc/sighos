@@ -21,8 +21,6 @@ import simkit.random.RandomNumberFactory;
  *
  */
 public class CommonParams extends ModelParams {
-	public final static boolean CANADA = false; 
-	public final static double DEF_DISCOUNT_RATE = CANADA ? 0.015 : 0.03; 
 	public final static TimeUnit SIMUNIT = TimeUnit.DAY;
 	public final static double YEAR_CONVERSION = SIMUNIT.convert(TimeStamp.getYear());
 
@@ -36,7 +34,6 @@ public class CommonParams extends ModelParams {
 	// FIXME: Should be related to simulation time unit 
 	public final static long MIN_TIME_TO_EVENT = 30;
 
-	private final ResourceUsageParam resourceUsage;
 	private final SevereHypoglycemicEventParam hypoParam;
 	private final RandomNumber rngSex;
 	private final RandomNumber rngComplications;
@@ -62,6 +59,16 @@ public class CommonParams extends ModelParams {
 	private final double pMan;
 	private final double initAge;
 	private final long[] durationOfEffect;
+	private final double discountRate;
+	
+	private final AllCausesDeathParam allCausesDeath;
+	/** Incremented mortality risk due to complications */
+	private final double[] complicationsIMR;
+	private final AnnualBasedTimeToEventParam canadaTimeToDeathESRD;
+	private final AnnualBasedTimeToEventParam canadaTimeToDeathNPH;
+	private final AnnualBasedTimeToEventParam canadaTimeToDeathLEA;
+	private final CanadaOtherCausesDeathParam canadaTimeToDeathOther;
+	private final CVDCanadaDeathParam canadaTimeToDeathCHD;
 
 	final private SecondOrderParams secParams;
 	/**
@@ -76,7 +83,6 @@ public class CommonParams extends ModelParams {
 		for (int i = 0; i < N_COMPLICATIONS; i++)
 			for (int j = 0; j < NPATIENTS; j++)
 				rndComplications[i][j] = rngComplications.draw();
-		resourceUsage = new ResourceUsageParam();
 		hypoParam = new SevereHypoglycemicEventParam(NPATIENTS);
 		invDNC_RET = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_RET);
 		invDNC_NEU = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_NEU);
@@ -98,8 +104,37 @@ public class CommonParams extends ModelParams {
 		pMan = secParams.getProbability(SecondOrderParams.STR_P_MAN);
 		initAge = secParams.getInitAge();
 		durationOfEffect = secParams.getDurationOfEffect(SIMUNIT);
+		discountRate = secParams.getDiscountRate();
+
+		allCausesDeath = new AllCausesDeathParam(CommonParams.NPATIENTS);
+		if (secParams.isCanadaValidation()) {
+			canadaTimeToDeathESRD = new AnnualBasedTimeToEventParam(CommonParams.NPATIENTS, 0.164, SecondOrderParams.NO_RR);
+			canadaTimeToDeathNPH = new AnnualBasedTimeToEventParam(CommonParams.NPATIENTS, 0.0036, SecondOrderParams.NO_RR);
+			canadaTimeToDeathLEA = new AnnualBasedTimeToEventParam(CommonParams.NPATIENTS, 0.093, SecondOrderParams.NO_RR);
+			canadaTimeToDeathOther = new CanadaOtherCausesDeathParam(CommonParams.NPATIENTS);
+			canadaTimeToDeathCHD = new CVDCanadaDeathParam(CommonParams.NPATIENTS);
+			complicationsIMR = null;
+		}
+		else {
+			canadaTimeToDeathESRD = null;
+			canadaTimeToDeathNPH = null;
+			canadaTimeToDeathLEA = null;
+			canadaTimeToDeathOther = null;
+			canadaTimeToDeathCHD = null;
+			complicationsIMR = new double[CommonParams.N_COMPLICATIONS];
+			for (Complication comp : Complication.values())
+				complicationsIMR[comp.ordinal()] = secParams.getIMR(comp);
+		}
 	}
 
+	/**
+	 * True if the modifications for the canadian model should be activated
+	 * @return True if the modifications for the canadian model should be activated
+	 */
+	public boolean isCanadaValidation() {
+		return secParams.isCanadaValidation();
+	}
+	
 	public int getSex(T1DMPatient pat) {
 		return (rngSex.draw() < pMan) ? 0 : 1;
 	}
@@ -112,10 +147,10 @@ public class CommonParams extends ModelParams {
 		return durationOfEffect[intervention.getId()];
 	}
 	
-	public double getCostForState(T1DMPatient pat, double initAge, double endAge) {
-		return resourceUsage.getResourceUsageCost(pat, initAge, endAge);
+	public double getDiscountRate() {
+		return discountRate;
 	}
-
+	
 	public SevereHypoglycemicEventParam.ReturnValue getTimeToSevereHypoglycemicEvent(T1DMPatient pat) {
 		return hypoParam.getValue(pat);
 	}
@@ -202,6 +237,42 @@ public class CommonParams extends ModelParams {
 		return time;
 	}
 
+	public long getTimeToDeath(T1DMPatient pat) {
+		if (secParams.isCanadaValidation()) {
+			long timeToDeath = canadaTimeToDeathOther.getValue(pat);
+			final EnumSet<Complication> state = pat.getState();
+			if (state.contains(Complication.ESRD)) {
+				final long deathESRD = canadaTimeToDeathESRD.getValue(pat);
+				if (deathESRD < timeToDeath)
+					timeToDeath = deathESRD;
+			}
+			if (state.contains(Complication.NPH)) {
+				final long deathNPH = canadaTimeToDeathNPH.getValue(pat);
+				if (deathNPH < timeToDeath)
+					timeToDeath = deathNPH;
+			}
+			if (state.contains(Complication.LEA)) {
+				final long deathLEA = canadaTimeToDeathLEA.getValue(pat);
+				if (deathLEA < timeToDeath)
+					timeToDeath = deathLEA;
+			}
+			if (state.contains(Complication.CHD)) {
+				final long deathCHD = canadaTimeToDeathCHD.getValue(pat);
+				if (deathCHD < timeToDeath)
+					timeToDeath = deathCHD;				
+			}
+			return timeToDeath;
+		}
+		else {
+			double maxIMR = 1.0;
+			for (Complication comp : pat.getState()) {
+				if (complicationsIMR[comp.ordinal()] > maxIMR) {
+					maxIMR = complicationsIMR[comp.ordinal()];
+				}
+			}
+			return allCausesDeath.getValue(pat, maxIMR);
+		}
+	}
 	/**
 	 * Generates a time to event based on annual risk. The time to event is absolute, i.e., can be used directly to schedule a new event. 
 	 * @param pat A patient

@@ -16,7 +16,6 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public abstract class SecondOrderParams {
-	protected Intervention[] interventions = null;
 	// Descriptors for probabilities
 	public static final String STR_PROBABILITY_PREFIX = "P_";
 	public static final String STR_P_DNC_RET = "P_DNC_RET";
@@ -51,7 +50,9 @@ public abstract class SecondOrderParams {
 	// Descriptors for age parameters
 	public static final String STR_INIT_AGE = "INIT_AGE";
 	public static final String STR_YEARS_OF_EFFECT = "YEARS_OF_EFFECT";
-
+	// Descriptors for misc parameters
+	public static final String STR_DISCOUNT_RATE = "DISCOUNT_RATE";
+	
 	/** Not incremented relative risk for any intervention */
 	public static final double[] NO_RR = {1.0, 1.0};
 	
@@ -117,37 +118,11 @@ public abstract class SecondOrderParams {
 		}
 	}
 	
-	public class LongParam extends Param {
-		private final long detValue;
-		private final RandomVariate rnd;
-		private long lastGeneratedValue;
-
-		public LongParam(String name, String description, String source, long detValue, RandomVariate rnd) {
-			super(name, description, source);
-			this.detValue = detValue;
-			this.rnd = rnd;
-			lastGeneratedValue = Long.MAX_VALUE;
-		}
-		
-		public LongParam(String name, String description, String source, long detValue) {
-			this(name, description, source, detValue, RandomVariateFactory.getInstance("ConstantVariate", detValue));
-		}
-		
-		public long getValue() {
-			lastGeneratedValue = baseCase ? detValue : (long)Math.round(rnd.generate());
-			return lastGeneratedValue;
-		}
-
-		/**
-		 * @return the generatedValues
-		 */
-		public long getLastGeneratedValue() {
-			return lastGeneratedValue;
-		}
-	}
-	
 	final protected TreeMap<String, DoubleParam> probabilityParams;
 	final protected TreeMap<String, Param> otherParams;
+	protected Intervention[] interventions = null;
+	private boolean canadaValidation = false;
+	
 	/**
 	 * True if base case parameters (expected values) should be used. False for second order simulations.
 	 */
@@ -224,6 +199,10 @@ public abstract class SecondOrderParams {
 		return (param == null) ? Double.NaN : param.getValue(); 				
 	}
 	
+	public double getDiscountRate() {
+		final DoubleParam param = (DoubleParam) otherParams.get(STR_DISCOUNT_RATE);
+		return (param == null) ? 0.0 : param.getValue(); 						
+	}
 	/**
 	 * Returns the duration of the effect for each intervention. By default, sets the base intervention duration to lifetime.
 	 * TODO: Currently only supports two interventions. If further interventions are used, fills all the 
@@ -257,6 +236,21 @@ public abstract class SecondOrderParams {
 		return (ci[1] - ci[0])/(1.96*2);
 	}
 	
+	/**
+	 * True if the modifications for the canadian model should be activated
+	 * @return True if the modifications for the canadian model should be activated
+	 */
+	public boolean isCanadaValidation() {
+		return canadaValidation;
+	}
+	
+	/**
+	 * Sets this set of second order parameters to activate the Canada model variations
+	 */
+	public void setCanadaValidation() {
+		this.canadaValidation = true;
+	}
+
 	/**
 	 * Computes the alfa and beta parameters for a beta distribution from an average and
 	 * a standard deviation.
