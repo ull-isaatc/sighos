@@ -112,4 +112,20 @@ public class TimeStamp {
 		return new TimeStamp(TimeUnit.WEEK, 1);		
 	}
 
+	/**
+	 * Returns a "1 MONTH" timestamp.
+	 * @return A "1 MONTH" timestamp
+	 */
+	public static TimeStamp getMonth() {
+		return new TimeStamp(TimeUnit.MONTH, 1);		
+	}
+
+	/**
+	 * Returns a "1 YEAR" timestamp.
+	 * @return A "1 YEAR" timestamp
+	 */
+	public static TimeStamp getYear() {
+		return new TimeStamp(TimeUnit.YEAR, 1);		
+	}
+
 }

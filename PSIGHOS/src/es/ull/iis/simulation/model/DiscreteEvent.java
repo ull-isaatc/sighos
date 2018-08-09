@@ -25,7 +25,8 @@ public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEven
      * queue. It also updates the element's timestamp.
      */        
     public void run() {
-        event();
+    	if (!cancelled)
+    		event();
     }
     
     /**
