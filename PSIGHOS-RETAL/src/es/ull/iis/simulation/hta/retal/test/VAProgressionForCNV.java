@@ -1,13 +1,13 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.test;
+package es.ull.iis.simulation.hta.retal.test;
 
 import java.util.ArrayList;
 import java.util.Random;
 
+import es.ull.iis.simulation.hta.retal.params.CommonParams;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.params.CommonParams;
 
 /**
  * @author Iván Castilla
@@ -25,7 +25,7 @@ public class VAProgressionForCNV {
 	private final double[] logMARChanges = {-LOGMAR_MINUS_15_LETTERS, LOGMAR_MINUS_15_LETTERS, 2*LOGMAR_MINUS_15_LETTERS};
 
 	/**
-	 * @param baseCase
+	 * @param secondOrder
 	 */
 	public VAProgressionForCNV() {
 	}

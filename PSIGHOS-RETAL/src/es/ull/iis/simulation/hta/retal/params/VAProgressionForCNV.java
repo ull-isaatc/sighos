@@ -1,13 +1,13 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla
@@ -25,13 +25,13 @@ public class VAProgressionForCNV extends VAProgressionParam {
 	private final double[] logMARChanges = {-LOGMAR_MINUS_15_LETTERS, LOGMAR_MINUS_15_LETTERS, 2*LOGMAR_MINUS_15_LETTERS};
 
 	/**
-	 * @param baseCase
+	 * @param secondOrder
 	 */
-	public VAProgressionForCNV(boolean baseCase) {
-		super(baseCase);
+	public VAProgressionForCNV() {
+		super();
 	}
 
-	private double getVAChange(Patient pat, double[] probabilities) {
+	private double getVAChange(RetalPatient pat, double[] probabilities) {
 		final double rnd = pat.draw(RandomForPatient.ITEM.ARMD_PROG_CNV);
 		for (int i = 0; i < logMARChanges.length; i++) {
 			if (rnd <= probabilities[i])
@@ -41,7 +41,7 @@ public class VAProgressionForCNV extends VAProgressionParam {
 		return 0.0;
 	}
 
-	private ArrayList<VAProgressionPair> modelProgression(Patient pat, double[][] progression, long startStageTs, long startTs, long endTs, double currentVA, double expectedVA) {
+	private ArrayList<VAProgressionPair> modelProgression(RetalPatient pat, double[][] progression, long startStageTs, long startTs, long endTs, double currentVA, double expectedVA) {
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>();
 		// Computes how long of the evaluated period is the patient affected by first year progression rates
 		final long timeInYear1Progression = (startTs - startStageTs >= 365) ? 0 : (Math.min(startStageTs + 365, endTs) - startTs);
@@ -93,10 +93,10 @@ public class VAProgressionForCNV extends VAProgressionParam {
 	}
 	
 	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.retal.params.VAProgressionParam#getVAProgression(es.ull.iis.simulation.retal.Patient, int, double)
+	 * @see es.ull.iis.simulation.hta.retal.params.VAProgressionParam#getVAProgression(es.ull.iis.simulation.hta.retal.RetalPatient, int, double)
 	 */
 	@Override
-	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
+	public ArrayList<VAProgressionPair> getVAProgression(RetalPatient pat, int eyeIndex, double expectedVA) {
 		double va = pat.getVA(eyeIndex);
 		final long startTs = pat.getLastVAChangeTs(eyeIndex); 
 		final long startStageTs = pat.getTimeToCNVStage(pat.getCurrentCNVStage(eyeIndex), eyeIndex);

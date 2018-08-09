@@ -1,12 +1,12 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal;
+package es.ull.iis.simulation.hta.retal;
 
+import es.ull.iis.simulation.hta.retal.params.ScreeningParam;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.params.ScreeningParam;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -18,7 +18,7 @@ public class RETALMain {
 	public static void main(String[] args) {
 		final boolean baseCase = true;
 		final Screening interv1 = new Screening(new SimulationPeriodicCycle(TimeUnit.YEAR, (long)(ScreeningParam.START_YEAR * 365), 
-				new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", ScreeningParam.PERIODICITY_YEARS*365), 0), new ScreeningParam(baseCase));
+				new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", ScreeningParam.PERIODICITY_YEARS*365), 0), new ScreeningParam());
 		for (int i = 0; i < NSIM; i++) {
 			final RETALSimulation simul = new RETALSimulation(i, baseCase, new NullIntervention());
 			simul.run();

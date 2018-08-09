@@ -5,4 +5,4 @@
  * @author Iván Castilla Rodríguez
  *
  */
-package es.ull.iis.simulation.retal.inforeceiver;
+package es.ull.iis.simulation.hta.retal.inforeceiver;

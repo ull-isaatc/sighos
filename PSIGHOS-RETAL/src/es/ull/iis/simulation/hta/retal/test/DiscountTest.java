@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.test;
+package es.ull.iis.simulation.hta.retal.test;
 
 /**
  * @author Ivan Castilla Rodriguez

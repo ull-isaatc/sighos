@@ -1,14 +1,14 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.inforeceiver;
+package es.ull.iis.simulation.hta.retal.inforeceiver;
 
 import java.util.EnumSet;
 
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RETALSimulation;
 import es.ull.iis.simulation.inforeceiver.Listener;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
 
 /**
  * A listener prepared to filter by different criteria related to the patient's condition.
@@ -43,7 +43,7 @@ public abstract class FilteredListener extends Listener {
 	 * @param pat A patient
 	 * @return True if the filter meets the condition set; false otherwise.
 	 */
-	protected boolean checkFilter(Patient pat) {
+	protected boolean checkFilter(RetalPatient pat) {
 		boolean condition = false;
 		if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
 			if (filterARMDByState == EyeState.AMD_CNV) {

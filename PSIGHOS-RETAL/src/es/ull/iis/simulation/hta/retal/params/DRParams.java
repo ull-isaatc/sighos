@@ -1,13 +1,14 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.EnumSet;
 
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
+import es.ull.iis.simulation.hta.params.ModelParams;
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 
 /**
  * Parameters related to diabetic retinopathy and diabetic macular edema
@@ -77,20 +78,20 @@ public class DRParams extends ModelParams {
 	
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param 
 	 */
-	public DRParams(boolean baseCase) {
-		super(baseCase);
-		this.timeToNPDR = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_NPDR, RandomForPatient.ITEM.TIME_TO_NPDR);
-		this.timeToPDR = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_PDR, RandomForPatient.ITEM.TIME_TO_PDR);
-		this.timeToCSME = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_CSME, RandomForPatient.ITEM.TIME_TO_CSME);
-		this.timeToCSMEAndNonHRPDRFromCSME = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_CSME_AND_NONHR_PDR_FROM_CSME, RandomForPatient.ITEM.TIME_TO_CSME_AND_NONHR_PDR_FROM_CSME);
-		this.timeToCSMEAndHRPDRFromCSME = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_CSME_AND_HR_PDR_FROM_CSME, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_CSME);
-		this.timeToCSMEAndNonHRPDRFromNonHRPDR = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_CSME_AND_NONHR_PDR_FROM_NONHR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_NONHR_PDR_FROM_NONHR_PDR);
-		this.timeToHRPDRFromNonHRPDR = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_HR_PDR_FROM_NONHR_PDR, RandomForPatient.ITEM.TIME_TO_HR_PDR_FROM_NONHR_PDR);
-		this.timeToCSMEAndHRPDRFromCSMEAndNonHRPDR = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_CSME_AND_HR_PDR_FROM_CSME_AND_NON_HR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_CSME_AND_NON_HR_PDR);
-		this.timeToCSMEAndHRPDRFromHRPDR = new AnnualBasedTimeToEventParam(baseCase, ANNUAL_PROB_CSME_AND_HR_PDR_FROM_HR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_HR_PDR);
-		this.clinicalPresentation = new ClinicalPresentationDRParam(baseCase);
+	public DRParams() {
+		super();
+		this.timeToNPDR = new AnnualBasedTimeToEventParam(ANNUAL_PROB_NPDR, RandomForPatient.ITEM.TIME_TO_NPDR);
+		this.timeToPDR = new AnnualBasedTimeToEventParam(ANNUAL_PROB_PDR, RandomForPatient.ITEM.TIME_TO_PDR);
+		this.timeToCSME = new AnnualBasedTimeToEventParam(ANNUAL_PROB_CSME, RandomForPatient.ITEM.TIME_TO_CSME);
+		this.timeToCSMEAndNonHRPDRFromCSME = new AnnualBasedTimeToEventParam(ANNUAL_PROB_CSME_AND_NONHR_PDR_FROM_CSME, RandomForPatient.ITEM.TIME_TO_CSME_AND_NONHR_PDR_FROM_CSME);
+		this.timeToCSMEAndHRPDRFromCSME = new AnnualBasedTimeToEventParam(ANNUAL_PROB_CSME_AND_HR_PDR_FROM_CSME, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_CSME);
+		this.timeToCSMEAndNonHRPDRFromNonHRPDR = new AnnualBasedTimeToEventParam(ANNUAL_PROB_CSME_AND_NONHR_PDR_FROM_NONHR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_NONHR_PDR_FROM_NONHR_PDR);
+		this.timeToHRPDRFromNonHRPDR = new AnnualBasedTimeToEventParam(ANNUAL_PROB_HR_PDR_FROM_NONHR_PDR, RandomForPatient.ITEM.TIME_TO_HR_PDR_FROM_NONHR_PDR);
+		this.timeToCSMEAndHRPDRFromCSMEAndNonHRPDR = new AnnualBasedTimeToEventParam(ANNUAL_PROB_CSME_AND_HR_PDR_FROM_CSME_AND_NON_HR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_CSME_AND_NON_HR_PDR);
+		this.timeToCSMEAndHRPDRFromHRPDR = new AnnualBasedTimeToEventParam(ANNUAL_PROB_CSME_AND_HR_PDR_FROM_HR_PDR, RandomForPatient.ITEM.TIME_TO_CSME_AND_HR_PDR_FROM_HR_PDR);
+		this.clinicalPresentation = new ClinicalPresentationDRParam();
 		double acum = 0.0;
 		for (int i = 0; i < prevalenceDM1.length;i++) {
 			acum += DM1_PREVALENCE[i+1] / DM1_PREVALENCE[0];
@@ -109,7 +110,7 @@ public class DRParams extends ModelParams {
 	 * @param pat A patient
 	 * @return the state of the patient
 	 */
-	public EnumSet<EyeState>[] startsWith(Patient pat) {
+	public EnumSet<EyeState>[] startsWith(RetalPatient pat) {
 		@SuppressWarnings("unchecked")
 		final EnumSet<EyeState>[] states = new EnumSet[] {EnumSet.noneOf(EyeState.class), EnumSet.noneOf(EyeState.class)};
 		final int typeDM = pat.getDiabetesType() - 1;
@@ -181,46 +182,46 @@ public class DRParams extends ModelParams {
 		return states;
 	}
 	
-	public long getTimeToNPDR(Patient pat) {
+	public long getTimeToNPDR(RetalPatient pat) {
 		return timeToNPDR.getTimeToEvent(pat);
 	}
 
-	public long getTimeToPDR(Patient pat) {
+	public long getTimeToPDR(RetalPatient pat) {
 		return timeToPDR.getTimeToEvent(pat);
 	}
 
-	public long getTimeToCSME(Patient pat) {
+	public long getTimeToCSME(RetalPatient pat) {
 		return timeToCSME.getTimeToEvent(pat);
 	}
 
-	public long getTimeToCSMEAndNonHRPDRFromCSME(Patient pat) {
+	public long getTimeToCSMEAndNonHRPDRFromCSME(RetalPatient pat) {
 		return timeToCSMEAndNonHRPDRFromCSME.getTimeToEvent(pat);
 	}
 	
-	public long getTimeToCSMEAndHRPDRFromCSME(Patient pat) {
+	public long getTimeToCSMEAndHRPDRFromCSME(RetalPatient pat) {
 		return timeToCSMEAndHRPDRFromCSME.getTimeToEvent(pat);
 	}
 	
-	public long getTimeToCSMEAndNonHRPDRFromNonHRPDR(Patient pat) {
+	public long getTimeToCSMEAndNonHRPDRFromNonHRPDR(RetalPatient pat) {
 		return timeToCSMEAndNonHRPDRFromNonHRPDR.getTimeToEvent(pat);
 	}
 	
-	public long getTimeToHRPDRFromNonHRPDR(Patient pat) {
+	public long getTimeToHRPDRFromNonHRPDR(RetalPatient pat) {
 		return timeToHRPDRFromNonHRPDR.getTimeToEvent(pat);
 	}
-	public long getTimeToCSMEAndHRPDRFromCSMEAndNonHRPDR(Patient pat) {
+	public long getTimeToCSMEAndHRPDRFromCSMEAndNonHRPDR(RetalPatient pat) {
 		return timeToCSMEAndHRPDRFromCSMEAndNonHRPDR.getTimeToEvent(pat);
 	}
 	
-	public long getTimeToCSMEAndHRPDRFromHRPDR(Patient pat) {
+	public long getTimeToCSMEAndHRPDRFromHRPDR(RetalPatient pat) {
 		return timeToCSMEAndHRPDRFromHRPDR.getTimeToEvent(pat);
 	}
 
-	public double getProbabilityClinicalPresentation(Patient pat) {
+	public double getProbabilityClinicalPresentation(RetalPatient pat) {
 		return clinicalPresentation.getProbability(pat);
 	}
 	
-	public long getTimeToClinicalPresentation(Patient pat) {
+	public long getTimeToClinicalPresentation(RetalPatient pat) {
 		return clinicalPresentation.getValidatedTimeToEvent(pat);
 	}
 }

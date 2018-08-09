@@ -1,18 +1,18 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.inforeceiver;
+package es.ull.iis.simulation.hta.retal.inforeceiver;
 
 import java.io.PrintStream;
 import java.util.EnumSet;
 
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RETALSimulation;
+import es.ull.iis.simulation.hta.retal.info.PatientInfo;
+import es.ull.iis.simulation.hta.retal.params.CNVStage;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
-import es.ull.iis.simulation.retal.info.PatientInfo;
-import es.ull.iis.simulation.retal.params.CNVStage;
 
 /**
  * @author Iván Castilla
@@ -50,12 +50,12 @@ public class AffectedPatientHistoryView extends FilteredListener {
 		this(diseases, false, includeDiabetes, EyeState.EARM, EyeState.NPDR);
 	}
 
-	private String getAgeAt(Patient pat, EyeState state, int eye) {
+	private String getAgeAt(RetalPatient pat, EyeState state, int eye) {
 		final double ageAt = pat.getAgeAt(state, eye);
 		return (ageAt == Double.MAX_VALUE) ? "INF" : ("" + ageAt); 
 	}
 	
-	private String getAgeAt(Patient pat, CNVStage stage, int eye) {
+	private String getAgeAt(RetalPatient pat, CNVStage stage, int eye) {
 		final double ageAt = pat.getAgeAt(stage, eye);
 		return (ageAt == Double.MAX_VALUE) ? "INF" : ("" + ageAt); 
 	}
@@ -63,7 +63,7 @@ public class AffectedPatientHistoryView extends FilteredListener {
 	@Override
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof SimulationStartInfo) {
-			final StringBuilder str = new StringBuilder("Patient\tINIT_AGE\tDIABETES\t");
+			final StringBuilder str = new StringBuilder("RetalPatient\tINIT_AGE\tDIABETES\t");
 			if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
 				for (int i = 0; i < STATES_ARMD.length; i++)
 					str.append(STATES_ARMD[i]).append("_E1\t").append(STATES_ARMD[i]).append("_E2\t");
@@ -82,7 +82,7 @@ public class AffectedPatientHistoryView extends FilteredListener {
 		}
 		else {
 			PatientInfo pInfo = (PatientInfo) info;
-			Patient pat = (Patient) pInfo.getPatient();
+			RetalPatient pat = (RetalPatient) pInfo.getPatient();
 			if (pInfo.getType() == PatientInfo.Type.FINISH) {
 				if (checkFilter(pat)) {
 					final StringBuilder str = new StringBuilder(pat.toString()).append("\t").append(pat.getInitAge()).append("\t").append(pat.getAgeAtDiabetes()).append("\t");

@@ -1,13 +1,13 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.info;
+package es.ull.iis.simulation.hta.retal.info;
 
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.params.CNVStage;
 import es.ull.iis.simulation.info.AsynchronousInfo;
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.params.CNVStage;
 
 /**
  * @author Iván Castilla
@@ -45,7 +45,7 @@ public class PatientInfo extends AsynchronousInfo {
 		NA		// Not attending
 	}
 	
-	final private Patient patient;
+	final private RetalPatient patient;
 	final private Type type;
 	final private int eyeIndex;
 	final private EyeState toState;
@@ -57,7 +57,7 @@ public class PatientInfo extends AsynchronousInfo {
 	 * @param patient
 	 * @param ts
 	 */
-	public PatientInfo(Simulation simul, Patient patient, Type type, int eyeIndex, long ts) {
+	public PatientInfo(Simulation simul, RetalPatient patient, Type type, int eyeIndex, long ts) {
 		super(simul, ts);
 		this.patient = patient;
 		this.type = type;
@@ -72,7 +72,7 @@ public class PatientInfo extends AsynchronousInfo {
 	 * @param patient
 	 * @param ts
 	 */
-	public PatientInfo(Simulation simul, Patient patient, Type type, long ts) {
+	public PatientInfo(Simulation simul, RetalPatient patient, Type type, long ts) {
 		this(simul, patient, type, -1, ts);
 	}
 
@@ -81,7 +81,7 @@ public class PatientInfo extends AsynchronousInfo {
 	 * @param patient
 	 * @param ts
 	 */
-	public PatientInfo(Simulation simul, Patient patient, ScreeningResult result, long ts) {
+	public PatientInfo(Simulation simul, RetalPatient patient, ScreeningResult result, long ts) {
 		super(simul, ts);
 		this.patient = patient;
 		this.type = Type.SCREENED;
@@ -99,7 +99,7 @@ public class PatientInfo extends AsynchronousInfo {
 	 * @param eyeIndex
 	 * @param ts
 	 */
-	public PatientInfo(Simulation simul, Patient patient, EyeState toState, int eyeIndex, long ts) {
+	public PatientInfo(Simulation simul, RetalPatient patient, EyeState toState, int eyeIndex, long ts) {
 		super(simul, ts);
 		this.patient = patient;
 		this.type = Type.CHANGE_EYE_STATE;
@@ -117,7 +117,7 @@ public class PatientInfo extends AsynchronousInfo {
 	 * @param eyeIndex
 	 * @param ts
 	 */
-	public PatientInfo(Simulation simul, Patient patient, CNVStage toCNVStage, int eyeIndex, long ts) {
+	public PatientInfo(Simulation simul, RetalPatient patient, CNVStage toCNVStage, int eyeIndex, long ts) {
 		super(simul, ts);
 		this.patient = patient;
 		this.type = Type.CHANGE_CNV_STAGE;
@@ -130,7 +130,7 @@ public class PatientInfo extends AsynchronousInfo {
 	/**
 	 * @return the patient
 	 */
-	public Patient getPatient() {
+	public RetalPatient getPatient() {
 		return patient;
 	}
 

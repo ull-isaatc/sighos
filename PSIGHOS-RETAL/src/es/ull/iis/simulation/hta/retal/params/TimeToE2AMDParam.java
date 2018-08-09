@@ -1,17 +1,18 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import es.ull.iis.simulation.hta.params.EmpiricTimeToEventParam;
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -55,9 +56,9 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 	/**
 	 * 
 	 */
-	public TimeToE2AMDParam(boolean baseCase) {
-		super(baseCase, TimeUnit.YEAR);
-		// TODO: should work differently when baseCase = false
+	public TimeToE2AMDParam() {
+		super(TimeUnit.YEAR);
+		// TODO: should work differently when  = false
 		
 		// Initialize probability of fellow-eye developing CNV given EARM in first eye
 		tuples.put(EyeState.EARM, new StructuredInfo(P_E2AMD_E1EARM, RandomForPatient.ITEM.TIME_TO_E2AMD_E1EARM));
@@ -71,7 +72,7 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 
 	}
 
-	public EyeStateAndValue getTimeToEventAndState(Patient pat) {
+	public EyeStateAndValue getTimeToEventAndState(RetalPatient pat) {
 		final EnumSet<EyeState> otherEye = pat.getEyeState(0);
 		final EyeStateAndValue timeAndState;
 		
@@ -96,7 +97,7 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 		return timeAndState;		
 	}
 	
-	public EyeStateAndValue getValidatedTimeToEventAndState(Patient pat) {
+	public EyeStateAndValue getValidatedTimeToEventAndState(RetalPatient pat) {
 		final EnumSet<EyeState> otherEye = pat.getEyeState(0);
 		final StructuredInfo info;
 		
@@ -145,7 +146,7 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 		 * @param pat
 		 * @return
 		 */
-		public EyeStateAndValue getTimeToEvent(Patient pat) {
+		public EyeStateAndValue getTimeToEvent(RetalPatient pat) {
 			if (probabilities == null) {
 				return null;
 			}
@@ -195,7 +196,7 @@ public class TimeToE2AMDParam extends EmpiricTimeToEventParam {
 			}
 		}
 
-		public EyeStateAndValue getValidatedTimeToEventAndState(Patient pat) {
+		public EyeStateAndValue getValidatedTimeToEventAndState(RetalPatient pat) {
 			final long timeToDeath = pat.getTimeToDeath();
 			final long currentTime = pat.getTs();
 			EyeStateAndValue timeAndState;

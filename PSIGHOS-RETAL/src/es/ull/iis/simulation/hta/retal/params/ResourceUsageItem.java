@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import es.ull.iis.function.ConstantFunction;
 import es.ull.iis.function.TimeFunction;

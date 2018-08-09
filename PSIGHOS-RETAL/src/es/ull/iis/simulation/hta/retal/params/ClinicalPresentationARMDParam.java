@@ -1,15 +1,16 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
 
+import es.ull.iis.simulation.hta.params.Param;
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -43,13 +44,13 @@ public class ClinicalPresentationARMDParam extends Param {
 
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param 
 	 */
-	public ClinicalPresentationARMDParam(boolean baseCase) {
-		super(baseCase);
+	public ClinicalPresentationARMDParam() {
+		super();
 	}
 
-	private int getOrder(Patient pat, int eyeIndex) {
+	private int getOrder(RetalPatient pat, int eyeIndex) {
 		final EnumSet<EyeState> eye = pat.getEyeState(eyeIndex);
 		if (eye.contains(EyeState.HEALTHY))
 			return order.get(EyeState.HEALTHY);
@@ -65,11 +66,11 @@ public class ClinicalPresentationARMDParam extends Param {
 			return 0;
 	}
 	
-	public double getProbability(Patient pat) {
+	public double getProbability(RetalPatient pat) {
 		return probabilities[getOrder(pat, 0)][getOrder(pat, 1)];
 	}
 	
-	public long getValidatedTimeToEvent(Patient pat) {
+	public long getValidatedTimeToEvent(RetalPatient pat) {
 		final double yearlyProb = getProbability(pat);
 		final int currentAge = (int) pat.getAge();
 		final int yearsToDeath = (int)pat.getAgeAtDeath() - currentAge;

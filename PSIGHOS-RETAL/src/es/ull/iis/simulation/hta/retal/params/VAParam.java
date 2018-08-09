@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -9,8 +9,9 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
+import es.ull.iis.simulation.hta.params.Param;
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -52,15 +53,15 @@ public class VAParam extends Param {
 	
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param secondOrder
 	 */
-	public VAParam(boolean baseCase) {
-		super(baseCase);
-		progGA = new VAProgressionForGA(baseCase);
-		progCNV = new VAProgressionForCNV(baseCase);
-//		progEF_JF = new VAProgressionForEF_JF(baseCase);
-//		progSF = new VAProgressionForSF(baseCase);
-		progDR = new VAProgressionForDR(baseCase);
+	public VAParam() {
+		super();
+		progGA = new VAProgressionForGA();
+		progCNV = new VAProgressionForCNV();
+//		progEF_JF = new VAProgressionForEF_JF(secondOrder);
+//		progSF = new VAProgressionForSF(secondOrder);
+		progDR = new VAProgressionForDR();
 	}
 
 	/**
@@ -70,7 +71,7 @@ public class VAParam extends Param {
 	 * @param eyeIndex Index of the affected eye (0 for first eye, 1 for second eye)
 	 * @return
 	 */
-	public double getInitialVA(Patient pat, int eyeIndex) {
+	public double getInitialVA(RetalPatient pat, int eyeIndex) {
 		return progDR.getInitialVA(pat, eyeIndex);
 	}
 	
@@ -103,7 +104,7 @@ public class VAParam extends Param {
 	 * @param changes2 Changes due to eye disease 2
 	 * @return The worst possible list of changes in visual acuity for a patient affected by two different problems.
 	 */
-	protected ArrayList<VAProgressionPair> mergeVAProgressions(Patient pat, double vaAtStart, AbstractList<VAProgressionPair> changes1, AbstractList<VAProgressionPair> changes2) {
+	protected ArrayList<VAProgressionPair> mergeVAProgressions(RetalPatient pat, double vaAtStart, AbstractList<VAProgressionPair> changes1, AbstractList<VAProgressionPair> changes2) {
 		final Iterator<VAProgressionPair> iter1 = changes1.iterator();
 		final Iterator<VAProgressionPair> iter2 = changes2.iterator();
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>(changes1.size() + changes2.size() - 1);
@@ -185,7 +186,7 @@ public class VAParam extends Param {
 	 * @return
 	 */
 	// FIXME: All progressions must be reviewed to start from last change in VA
-	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, EyeState incidentState, CNVStage incidentCNVStage) {
+	public ArrayList<VAProgressionPair> getVAProgression(RetalPatient pat, int eyeIndex, EyeState incidentState, CNVStage incidentCNVStage) {
 		ArrayList<VAProgressionPair> changes = null;
 		final double vaAtStart = pat.getVA(eyeIndex);
 		// If the patient had the worst VA, it remains the same

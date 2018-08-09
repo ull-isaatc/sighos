@@ -1,37 +1,43 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.outcome;
+package es.ull.iis.simulation.hta.outcome;
 
 import java.util.Arrays;
 
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
+import es.ull.iis.simulation.hta.HTASimulation;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.util.Statistics;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Outcome {
+public class Outcome {
 	/** The simulation this outcome is used in */
-	protected final RETALSimulation simul;
+	protected final HTASimulation simul;
 	/** A textual description of the outcome */
 	private final String description;
 	/** The unit used to measure the outcome */
 	protected final String unit;
 	protected final double discountRate;
-	protected final double[]aggregated = new double[RETALSimulation.NINTERVENTIONS];
-	protected final double[][]values = new double[RETALSimulation.NINTERVENTIONS][RETALSimulation.NPATIENTS];
+	protected final int nInterventions;
+	protected final int nPatients;
+	protected final double[]aggregated;
+	protected final double[][]values;
 	
 	/**
 	 * 
 	 */
-	public Outcome(RETALSimulation simul, String description, String unit, double discountRate) {
+	public Outcome(HTASimulation simul, String description, String unit, double discountRate) {
 		this.simul = simul;
 		this.description = description;
 		this.unit = unit;
 		this.discountRate = discountRate;
+		this.nInterventions = simul.getnInterventions();
+		this.nPatients = simul.getnPatients();
+		this.aggregated = new double[nInterventions];
+		this.values = new double[nInterventions][nPatients];
 	}
 
 	/**
@@ -62,17 +68,17 @@ public abstract class Outcome {
 	
 	public void print(boolean detailed, boolean units) {
 		if (detailed) {
-			for (int i = 0; i < RETALSimulation.NPATIENTS; i++) {
+			for (int i = 0; i < nPatients; i++) {
 				System.out.print("[" + i + "]\t");
-				for (int j = 0; j < RETALSimulation.NINTERVENTIONS; j++) {
+				for (int j = 0; j < nInterventions; j++) {
 					System.out.print(values[j][i] + (units ? (" " + unit) : "") + "\t");
 				}
 				System.out.println();
 			}
 		}
 		System.out.println(this + " summary:");
-		for (int j = 0; j < RETALSimulation.NINTERVENTIONS; j++) {
-			System.out.print(aggregated[j] / RETALSimulation.NPATIENTS + (units ? (" " + unit) : "") + "\t");
+		for (int j = 0; j < nInterventions; j++) {
+			System.out.print(aggregated[j] / nPatients + (units ? (" " + unit) : "") + "\t");
 		}
 		System.out.println();
 	}
@@ -102,15 +108,16 @@ public abstract class Outcome {
 		return value / Math.pow(1 + discountRate, time);
 	}
 	/**
-	 * Returns average, SD, lower 95%CI, upper 95%CI, percentile 2.5%, percentile 97.5% for each intervention
-	 * @return
+	 * Returns average, standard deviation, lower 95%CI, upper 95%CI, percentile 2.5%, percentile 97.5% for each intervention
+	 * @return An array with n t-uples {average, standard deviation, lower 95%CI, upper 95%CI, percentile 2.5%, percentile 97.5%}, 
+	 * with n the number of interventions.  
 	 */
 	public double[][] getResults() {
 		final double[][] results = new double[aggregated.length][6];
 		for (int i = 0; i < results.length; i++) {
 			final double avg = getAverage(i);
 			final double sd = Statistics.stdDev(values[i], avg);
-			final double[] ci = Statistics.normal95CI(avg, sd, RETALSimulation.NPATIENTS);
+			final double[] ci = Statistics.normal95CI(avg, sd, nPatients);
 			final double[] cip = get95CI(i, true);
 			results[i] = new double[] {avg, sd, ci[0], ci[1], cip[0], cip[1]};
 		}
@@ -118,7 +125,7 @@ public abstract class Outcome {
 	}
 	
 	public double getAverage(int intervention) {
-		return aggregated[intervention] / RETALSimulation.NPATIENTS;		
+		return aggregated[intervention] / nPatients;		
 	}
 	
 	public double getSD(int intervention) {
@@ -127,11 +134,11 @@ public abstract class Outcome {
 	
 	public double[] get95CI(int intervention, boolean percentile) {
 		if (!percentile)
-			return Statistics.normal95CI(getAverage(intervention), getSD(intervention), RETALSimulation.NPATIENTS);
-		final double[] ordered = Arrays.copyOf(values[intervention], RETALSimulation.NPATIENTS);
+			return Statistics.normal95CI(getAverage(intervention), getSD(intervention), nPatients);
+		final double[] ordered = Arrays.copyOf(values[intervention], nPatients);
 		Arrays.sort(ordered);
-		final int index = (int)Math.ceil(RETALSimulation.NPATIENTS * 0.025);
-		return new double[] {ordered[index - 1], ordered[RETALSimulation.NPATIENTS - index]}; 
+		final int index = (int)Math.ceil(nPatients * 0.025);
+		return new double[] {ordered[index - 1], ordered[nPatients - index]}; 
 	}
 	
 	/**

@@ -1,3 +1,4 @@
+package es.ull.iis.simulation.hta;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.GompertzVariate;
 

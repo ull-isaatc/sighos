@@ -1,19 +1,19 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.inforeceiver;
+package es.ull.iis.simulation.hta.retal.inforeceiver;
 
 import java.io.PrintStream;
 import java.util.EnumSet;
 
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RETALSimulation;
+import es.ull.iis.simulation.hta.retal.info.PatientInfo;
+import es.ull.iis.simulation.hta.retal.params.CommonParams;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
-import es.ull.iis.simulation.retal.info.PatientInfo;
-import es.ull.iis.simulation.retal.params.CommonParams;
 
 /**
  * @author Iván Castilla
@@ -104,7 +104,7 @@ public class PatientPrevalenceView extends Listener {
 		}
 		else {
 			PatientInfo pInfo = (PatientInfo) info;
-			Patient pat = pInfo.getPatient();
+			RetalPatient pat = pInfo.getPatient();
 			if (pInfo.getType() == PatientInfo.Type.FINISH) {
 				final double initAge = pat.getInitAge(); 
 				final double ageAtDeath = pat.getAge();

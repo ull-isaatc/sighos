@@ -1,9 +1,10 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
-import es.ull.iis.simulation.retal.Patient;
+import es.ull.iis.simulation.hta.params.ModelParams;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -23,49 +24,49 @@ public class ARMDParams extends ModelParams {
 	/**
 	 * 
 	 */
-	public ARMDParams(boolean baseCase) {
-		super(baseCase);
-		timeToEARM = new TimeToEARMParam(baseCase);
-		timeToE1AMD = new TimeToE1AMDParam(baseCase);
-		timeToE2AMD = new TimeToE2AMDParam(baseCase);
-		timeToAMDFromEARM = new TimeToAMDFromEARMParam(baseCase);		
-		timeToCNVFromGA = new TimeToCNVFromGAParam(baseCase);
-		timeToCNVStage = new CNVStageParam(baseCase);
-		clinicalPresentation = new ClinicalPresentationARMDParam(baseCase);
+	public ARMDParams() {
+		super();
+		timeToEARM = new TimeToEARMParam();
+		timeToE1AMD = new TimeToE1AMDParam();
+		timeToE2AMD = new TimeToE2AMDParam();
+		timeToAMDFromEARM = new TimeToAMDFromEARMParam();		
+		timeToCNVFromGA = new TimeToCNVFromGAParam();
+		timeToCNVStage = new CNVStageParam();
+		clinicalPresentation = new ClinicalPresentationARMDParam();
 	}
 
 	/**
 	 * @return the timeToEARM
 	 */
-	public long getTimeToEARM(Patient pat) {
+	public long getTimeToEARM(RetalPatient pat) {
 		return timeToEARM.getValidatedTimeToEvent(pat);
 	}
 
 	/**
 	 * @return the timeToE1AMD
 	 */
-	public EyeStateAndValue getTimeToE1AMD(Patient pat) {
+	public EyeStateAndValue getTimeToE1AMD(RetalPatient pat) {
 		return timeToE1AMD.getValidatedTimeToEventAndState(pat);
 	}
 
 	/**
 	 * @return the timeToE2AMD
 	 */
-	public EyeStateAndValue getTimeToE2AMD(Patient pat) {
+	public EyeStateAndValue getTimeToE2AMD(RetalPatient pat) {
 		return timeToE2AMD.getValidatedTimeToEventAndState(pat);
 	}
 
 	/**
 	 * @return the timeToAMDFromEARM
 	 */
-	public EyeStateAndValue getTimeToAMDFromEARM(Patient pat, int eyeIndex) {
+	public EyeStateAndValue getTimeToAMDFromEARM(RetalPatient pat, int eyeIndex) {
 		return timeToAMDFromEARM.getValidatedTimeToEventAndState(pat, eyeIndex);
 	}
 
 	/**
 	 * @return the timeToCNVFromGA
 	 */
-	public long getTimeToCNVFromGA(Patient pat, int eyeIndex) {
+	public long getTimeToCNVFromGA(RetalPatient pat, int eyeIndex) {
 		return timeToCNVFromGA.getValidatedTimeToEvent(pat, eyeIndex);
 	}
 
@@ -73,19 +74,19 @@ public class ARMDParams extends ModelParams {
 	 * Return the 
 	 * @return
 	 */
-	public CNVStage getInitialCNVStage(Patient pat, int eyeIndex) {
+	public CNVStage getInitialCNVStage(RetalPatient pat, int eyeIndex) {
 		return timeToCNVStage.getInitialTypeAndPosition(pat, eyeIndex);
 	}
 
-	public CNVStageAndValue getTimeToNextCNVStage(Patient pat, int eyeIndex) {
+	public CNVStageAndValue getTimeToNextCNVStage(RetalPatient pat, int eyeIndex) {
 		return timeToCNVStage.getValidatedTimeToEvent(pat, eyeIndex);
 	}
 	
-	public double getProbabilityClinicalPresentation(Patient pat) {
+	public double getProbabilityClinicalPresentation(RetalPatient pat) {
 		return clinicalPresentation.getProbability(pat);
 	}
 	
-	public long getTimeToClinicalPresentation(Patient pat) {
+	public long getTimeToClinicalPresentation(RetalPatient pat) {
 		return clinicalPresentation.getValidatedTimeToEvent(pat);
 	}
 }

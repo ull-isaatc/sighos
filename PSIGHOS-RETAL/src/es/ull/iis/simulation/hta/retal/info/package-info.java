@@ -5,4 +5,4 @@
  * @author Iván Castilla Rodríguez
  *
  */
-package es.ull.iis.simulation.retal.info;
+package es.ull.iis.simulation.hta.retal.info;

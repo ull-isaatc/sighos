@@ -1,14 +1,15 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.params.EmpiricTimeToEventParam;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Ivan Castilla Rodriguez
@@ -99,10 +100,10 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 	
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param 
 	 */
-	public DiabetesParam(boolean baseCase) {
-		super(baseCase, TimeUnit.YEAR);
+	public DiabetesParam() {
+		super(TimeUnit.YEAR);
 		pDM1 = P_DM1;
 		addMortalityRisk = ADDITIONAL_MORTALITY_RISK;
 		incidenceMen = new double[DM2_MEN_INCIDENCE.length][3];
@@ -122,7 +123,7 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 	 * @param pat A patient
 	 * @return True if the patient is diabetic; false else
 	 */
-	public boolean isDiabetic(Patient pat) {
+	public boolean isDiabetic(RetalPatient pat) {
 		final int age = (int)pat.getAge();
 		final double prob = (pat.getSex() == CommonParams.MAN) ? prevalenceMen[age - MIN_AGE_PREVALENCE] : prevalenceWomen[age - MIN_AGE_PREVALENCE];
 		return (pat.draw(RandomForPatient.ITEM.DIABETIC) < prob);
@@ -148,7 +149,7 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 	 * @param pat A patient
 	 * @return the duration of the diabetes in a patient
 	 */
-	public double getDurationOfDM(Patient pat) {
+	public double getDurationOfDM(RetalPatient pat) {
 		final int age = (int)pat.getAge();
 		final int type = pat.getDiabetesType();
 		if (type == 1) {
@@ -163,7 +164,7 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 		return -1.0;
 	}
 	
-	private long getTimeToEvent(Patient pat) {
+	private long getTimeToEvent(RetalPatient pat) {
 		final double time;
 		if (pat.getSex() == CommonParams.MAN) {
 			final double []rnd = pat.draw(RandomForPatient.ITEM.DIABETES_INCIDENCE, incidenceMen.length);
@@ -181,7 +182,7 @@ public class DiabetesParam extends EmpiricTimeToEventParam {
 	 * @param pat A patient
 	 * @return
 	 */
-	public long getValidatedTimeToEvent(Patient pat) {
+	public long getValidatedTimeToEvent(RetalPatient pat) {
 		long timeToDiabetes;
 		final long timeToDeath = pat.getTimeToDeath();
 		final long currentTime = pat.getTs();

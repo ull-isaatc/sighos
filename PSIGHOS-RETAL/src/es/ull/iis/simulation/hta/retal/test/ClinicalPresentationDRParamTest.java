@@ -1,14 +1,14 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.test;
+package es.ull.iis.simulation.hta.retal.test;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Random;
 
+import es.ull.iis.simulation.hta.retal.EyeState;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
 
 /**
  * @author Iván Castilla Rodríguez

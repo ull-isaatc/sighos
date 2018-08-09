@@ -1,4 +1,4 @@
-package es.ull.iis.simulation.retal.test;
+package es.ull.iis.simulation.hta.retal.test;
 
 public final class CNVStage implements Comparable<CNVStage> {
 	/**

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.params;
 
 import java.util.Random;
 
@@ -18,8 +18,8 @@ public abstract class EmpiricTimeToEventParam extends Param {
 	/**
 	 * 
 	 */
-	public EmpiricTimeToEventParam(boolean baseCase, TimeUnit unit) {
-		super (baseCase);
+	public EmpiricTimeToEventParam(TimeUnit unit) {
+		super ();
 		this.unit = unit;
 	}
 

@@ -1,13 +1,13 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -53,10 +53,10 @@ public class VAProgressionForSF extends VAProgressionParam {
 
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param secondOrder
 	 */
-	public VAProgressionForSF(boolean baseCase) {
-		super(baseCase);
+	public VAProgressionForSF() {
+		super();
 		ageCoef = AGE_COEF[0];
 		fubasevaCoef = FUBASEVA_COEF[0];
 		occultCoef = OCCULT_COEF[0];
@@ -103,7 +103,7 @@ public class VAProgressionForSF extends VAProgressionParam {
 	}
 	
 	@Override
-	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
+	public ArrayList<VAProgressionPair> getVAProgression(RetalPatient pat, int eyeIndex, double expectedVA) {
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>();
 		final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
 		long daysSinceEvent = TimeUnit.DAY.convert(pat.getSimulation().getTs() - pat.getTimeToCNVStage(stage, eyeIndex), pat.getSimulation().getTimeUnit());

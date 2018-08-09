@@ -1,17 +1,17 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.inforeceiver;
+package es.ull.iis.simulation.hta.retal.inforeceiver;
 
 import java.io.PrintStream;
 import java.util.EnumSet;
 
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RETALSimulation;
+import es.ull.iis.simulation.hta.retal.info.PatientInfo;
+import es.ull.iis.simulation.hta.retal.params.VAProgressionPair;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
-import es.ull.iis.simulation.retal.info.PatientInfo;
-import es.ull.iis.simulation.retal.params.VAProgressionPair;
 
 /**
  * @author Iván Castilla
@@ -40,7 +40,7 @@ public class AffectedPatientHistoryVAView extends FilteredListener {
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof PatientInfo) {
 			PatientInfo pInfo = (PatientInfo) info;
-			Patient pat = (Patient) pInfo.getPatient();
+			RetalPatient pat = (RetalPatient) pInfo.getPatient();
 			if (pInfo.getType() == PatientInfo.Type.FINISH) {
 				if (checkFilter(pat)) {
 					final double startAge = pat.getInitAge();

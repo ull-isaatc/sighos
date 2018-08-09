@@ -1,10 +1,10 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.test;
+package es.ull.iis.simulation.hta.retal.test;
 
-import es.ull.iis.simulation.retal.params.OphthalmologicResource;
-import es.ull.iis.simulation.retal.params.ResourceUsageItem;
+import es.ull.iis.simulation.hta.retal.params.OphthalmologicResource;
+import es.ull.iis.simulation.hta.retal.params.ResourceUsageItem;
 
 /**
  * @author Iván Castilla

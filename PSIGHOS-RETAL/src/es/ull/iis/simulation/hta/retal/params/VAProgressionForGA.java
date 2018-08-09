@@ -1,14 +1,14 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -33,16 +33,16 @@ public class VAProgressionForGA extends VAProgressionParam {
 
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param secondOrder
 	 */
-	public VAProgressionForGA(boolean baseCase) {
-		super(baseCase);
+	public VAProgressionForGA() {
+		super();
 		for (int i = 0; i < VA_PROGRESSION.length; i++)
 			yearlyProgression[i] = VA_PROGRESSION[i][0];
 	}
 
 	@Override
-	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
+	public ArrayList<VAProgressionPair> getVAProgression(RetalPatient pat, int eyeIndex, double expectedVA) {
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>();
 		final double rnd = pat.draw(RandomForPatient.ITEM.ARMD_PROG_GA);
 		final long startTs = pat.getLastVAChangeTs(eyeIndex); 

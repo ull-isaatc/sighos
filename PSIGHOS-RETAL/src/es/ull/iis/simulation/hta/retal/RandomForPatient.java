@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal;
+package es.ull.iis.simulation.hta.retal;
 
 import java.util.ArrayList;
 import java.util.EnumMap;

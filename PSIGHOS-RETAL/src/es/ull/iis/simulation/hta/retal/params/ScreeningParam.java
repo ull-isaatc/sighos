@@ -1,13 +1,14 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.EnumSet;
 
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
+import es.ull.iis.simulation.hta.params.Param;
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla
@@ -29,13 +30,13 @@ public class ScreeningParam extends Param {
 	
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param secondOrder
 	 */
-	public ScreeningParam(boolean baseCase) {
-		super(baseCase);
+	public ScreeningParam() {
+		super();
 	}
 	
-	public double getSensitivity(Patient pat) {
+	public double getSensitivity(RetalPatient pat) {
 		final EnumSet<EyeState> eye1 = pat.getEyeState(0);
 		final EnumSet<EyeState> eye2 = pat.getEyeState(1);
 		if (eye1.contains(EyeState.AMD_CNV) || eye2.contains(EyeState.AMD_CNV)) {
@@ -57,11 +58,11 @@ public class ScreeningParam extends Param {
 		return 0.0;
 	}
 	
-	public double getSpecificity(Patient pat) {
+	public double getSpecificity(RetalPatient pat) {
 		return SPECIFICITY;		
 	}
 	
-	public boolean isAttending(Patient pat) {
+	public boolean isAttending(RetalPatient pat) {
 		return (pat.draw(RandomForPatient.ITEM.ATTENDING_SCREENING) < P_ATTENDING[pat.isDiabetic() ? 1 : 0]);
 	}
 }

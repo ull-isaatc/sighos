@@ -1,10 +1,11 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.inforeceiver;
+package es.ull.iis.simulation.hta.retal.inforeceiver;
 
 import java.io.PrintStream;
 
+import es.ull.iis.simulation.hta.retal.info.PatientInfo;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
@@ -14,7 +15,6 @@ import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
 import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
-import es.ull.iis.simulation.retal.info.PatientInfo;
 
 /**
  * @author Iván Castilla

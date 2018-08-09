@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.test;
+package es.ull.iis.simulation.hta.retal.test;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -32,7 +32,7 @@ class VAProgressionForGA {
 
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param secondOrder
 	 */
 	protected VAProgressionForGA() {
 		for (int i = 0; i < VA_PROGRESSION.length; i++)

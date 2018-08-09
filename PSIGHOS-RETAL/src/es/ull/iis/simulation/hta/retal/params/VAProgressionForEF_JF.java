@@ -1,9 +1,9 @@
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.Patient;
 
 final class VAProgressionForEF_JF extends VAProgressionParam {
 	private static final double[] CONSTANT = {0.07, 0.188};
@@ -15,8 +15,8 @@ final class VAProgressionForEF_JF extends VAProgressionParam {
 	private final double logDaysCoef;
 	private final double lesionTypeCoef;
 	
-	public VAProgressionForEF_JF(boolean baseCase) {
-		super(baseCase);
+	public VAProgressionForEF_JF() {
+		super();
 		constantCoef = CONSTANT[0];
 		baselineVACoef = BASELINE_VA[0];
 		logDaysCoef = LOG_DAYS[0];
@@ -24,7 +24,7 @@ final class VAProgressionForEF_JF extends VAProgressionParam {
 	}
 	
 	@Override
-	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
+	public ArrayList<VAProgressionPair> getVAProgression(RetalPatient pat, int eyeIndex, double expectedVA) {
 		final ArrayList<VAProgressionPair> array = new ArrayList<VAProgressionPair>();
 		final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
 		final double currentVA = pat.getVA(eyeIndex);

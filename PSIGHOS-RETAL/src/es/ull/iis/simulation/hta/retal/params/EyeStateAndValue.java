@@ -1,6 +1,6 @@
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
-import es.ull.iis.simulation.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.EyeState;
 
 /**
  * 

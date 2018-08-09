@@ -1,14 +1,14 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.test;
+package es.ull.iis.simulation.hta.retal.test;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Random;
 
+import es.ull.iis.simulation.hta.retal.EyeState;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -37,7 +37,7 @@ public class VAProgressionForDR {
 
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param secondOrder
 	 */
 	public VAProgressionForDR() {
 		initialDR = RandomVariateFactory.getInstance("NormalVariate", MEAN_SD_VA_DR[0], MEAN_SD_VA_DR[1]);
@@ -57,7 +57,7 @@ public class VAProgressionForDR {
 	
 	
 	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.retal.params.VAProgressionParam#getVAProgression(es.ull.iis.simulation.retal.Patient, int, double)
+	 * @see es.ull.iis.simulation.hta.retal.params.VAProgressionParam#getVAProgression(es.ull.iis.simulation.hta.retal.RetalPatient, int, double)
 	 */
 	public ArrayList<VAProgressionPair> getVAProgression(long currentTs, long lastChangeTs, EnumSet<EyeState> eyeState, double currentVA, double expectedVA) {
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>();

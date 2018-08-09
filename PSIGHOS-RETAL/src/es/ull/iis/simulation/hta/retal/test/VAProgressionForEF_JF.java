@@ -1,4 +1,4 @@
-package es.ull.iis.simulation.retal.test;
+package es.ull.iis.simulation.hta.retal.test;
 
 final class VAProgressionForEF_JF {
 	private static final double[] CONSTANT = {0.07, 0.188};

@@ -1,14 +1,15 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.params.EmpiricTimeToEventParam;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * A class to generate ages at which EARM appears. 
@@ -47,12 +48,12 @@ public class TimeToEARMParam extends EmpiricTimeToEventParam {
 	final protected double [][] probabilities;	
 
 	/**
-	 * @param baseCase
+	 * @param 
 	 */
-	public TimeToEARMParam(boolean baseCase) {
-		super(baseCase, TimeUnit.YEAR);
+	public TimeToEARMParam() {
+		super(TimeUnit.YEAR);
 		this.probabilities = new double[P_EARM.length][3];
-		// TODO: should work differently when baseCase = false
+		// TODO: should work differently when  = false
 		
 		// Initialize first-eye incidence of EARM
 		initProbabilities(P_EARM, probabilities);		
@@ -63,7 +64,7 @@ public class TimeToEARMParam extends EmpiricTimeToEventParam {
 	 * @param pat A patient
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
-	public long getTimeToEvent(Patient pat) {
+	public long getTimeToEvent(RetalPatient pat) {
 		final double []rnd = pat.draw(RandomForPatient.ITEM.TIME_TO_EARM, probabilities.length);
 		final double time = getTimeToEvent(probabilities, pat.getAge(), rnd);
 		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + Math.max(CommonParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, unit));
@@ -75,7 +76,7 @@ public class TimeToEARMParam extends EmpiricTimeToEventParam {
 	 * @param timeToDeath The expected time to death of the patient
 	 * @return A time to EARM that is lower than time to death or INFINITE
 	 */
-	public long getValidatedTimeToEvent(Patient pat) {
+	public long getValidatedTimeToEvent(RetalPatient pat) {
 		long timeToEARM;
 		final long timeToDeath = pat.getTimeToDeath();
 		final long currentTime = pat.getTs();

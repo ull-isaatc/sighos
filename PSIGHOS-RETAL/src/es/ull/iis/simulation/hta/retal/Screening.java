@@ -1,10 +1,11 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal;
+package es.ull.iis.simulation.hta.retal;
 
+import es.ull.iis.simulation.hta.Intervention;
+import es.ull.iis.simulation.hta.retal.params.ScreeningParam;
 import es.ull.iis.simulation.model.SimulationCycle;
-import es.ull.iis.simulation.retal.params.ScreeningParam;
 
 /**
  * @author icasrod
@@ -35,24 +36,34 @@ public class Screening implements Intervention {
 	/**
 	 * @return the specificity
 	 */
-	public double getSpecificity(Patient pat) {
+	public double getSpecificity(RetalPatient pat) {
 		return param.getSpecificity(pat);
 	}
 
 	/**
 	 * @return the sensitivity
 	 */
-	public double getSensitivity(Patient pat) {
+	public double getSensitivity(RetalPatient pat) {
 		return param.getSensitivity(pat);
 	}
 
-	public boolean isAttending(Patient pat) {
+	public boolean isAttending(RetalPatient pat) {
 		return param.isAttending(pat);
 	}
 	
 	@Override
 	public int getId() {
 		return 1;
+	}
+
+	@Override
+	public String getDescription() {
+		return "Screening";
+	}
+
+	@Override
+	public String getShortName() {
+		return "SCR";
 	}
 
 }

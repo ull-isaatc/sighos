@@ -1,3 +1,7 @@
+package es.ull.iis.simulation.hta;
+import java.util.EnumSet;
+import java.util.TreeMap;
+
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.factory.SimulationFactory;
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
@@ -125,6 +129,7 @@ public class Test {
 //		SimulTest sim = new SimulTest();
 //		sim.run();
 		new WeibullTest(5000, 1.999174026, 478.7268718).test();
+		
 	}
 
 }

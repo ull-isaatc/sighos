@@ -1,14 +1,14 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.test;
+package es.ull.iis.simulation.hta.retal.test;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.EyeState;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -48,7 +48,7 @@ public class VAParam {
 	private static final VAProgressionForCNV progCNV = new VAProgressionForCNV();
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param secondOrder
 	 */
 	public VAParam() {
 	}

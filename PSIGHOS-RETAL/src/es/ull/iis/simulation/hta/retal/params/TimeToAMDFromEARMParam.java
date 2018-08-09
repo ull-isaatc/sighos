@@ -1,16 +1,16 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * A class to generate time to AMD in an eye with EARM. 
@@ -84,11 +84,11 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 	private final TreeMap<Integer, Double> pCNV_E2_CNV = new TreeMap<Integer, Double>();
 	
 	/**
-	 * @param baseCase
+	 * @param secondOrder
 	 */
-	public TimeToAMDFromEARMParam(boolean baseCase) {
-		super(baseCase, TimeUnit.YEAR);
-		// TODO: should work diferently when baseCase = false
+	public TimeToAMDFromEARMParam() {
+		super(TimeUnit.YEAR);
+		// TODO: should work diferently when secondOrder = false
 		
 		// Initialize probability of first-eye developing AMD from EARM
 		StructuredInfo info = new StructuredInfo(P_AMD_E2_NOARM.length, RandomForPatient.ITEM.TIME_TO_AMD_E2_NOARM);
@@ -122,7 +122,7 @@ public class TimeToAMDFromEARMParam extends CompoundEmpiricTimeToEventParam {
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
 	 * the time is coherent with the state and future/past events of the patient
 	 */
-	public EyeStateAndValue getValidatedTimeToEventAndState(Patient pat, int eye) {		
+	public EyeStateAndValue getValidatedTimeToEventAndState(RetalPatient pat, int eye) {		
 		final EnumSet<EyeState> otherEye = pat.getEyeState(1 - eye);
 		final StructuredInfo info;
 		// Other eye has CNV

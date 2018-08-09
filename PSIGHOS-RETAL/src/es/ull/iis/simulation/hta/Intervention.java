@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal;
+package es.ull.iis.simulation.hta;
 
 /**
  * Any intervention that can be performed in a patient
@@ -10,5 +10,7 @@ package es.ull.iis.simulation.retal;
  */
 public interface Intervention {
 
+	public String getShortName();
+	public String getDescription();
 	public int getId();
 }

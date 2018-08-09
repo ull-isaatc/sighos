@@ -1,12 +1,13 @@
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
 
+import es.ull.iis.simulation.hta.params.Param;
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * 
@@ -28,11 +29,11 @@ public class ClinicalPresentationDRParam extends Param {
 		order.put(EyeState.CSME, cont++);		
 	}
 
-	public ClinicalPresentationDRParam(boolean baseCase) {
-		super(baseCase);
+	public ClinicalPresentationDRParam() {
+		super();
 	}
 
-	public double getProbability(Patient pat) {
+	public double getProbability(RetalPatient pat) {
 		final EnumSet<EyeState> eye1 = pat.getEyeState(0);
 		final EnumSet<EyeState> eye2 = pat.getEyeState(1);
 		if (eye1.contains(EyeState.CSME) || eye2.contains(EyeState.CSME))
@@ -46,7 +47,7 @@ public class ClinicalPresentationDRParam extends Param {
 		return 0.0;
 	}
 
-	public long getValidatedTimeToEvent(Patient pat) {
+	public long getValidatedTimeToEvent(RetalPatient pat) {
 		final double yearlyProb = getProbability(pat);
 		final int currentAge = (int) pat.getAge();
 		final int yearsToDeath = (int)pat.getAgeAtDeath() - currentAge;

@@ -1,17 +1,18 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.params.EmpiricTimeToEventParam;
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * A class to generate time to first eye incidence of AMD. Either CNV or GA can appear.
@@ -58,10 +59,10 @@ public class TimeToE1AMDParam extends EmpiricTimeToEventParam {
 	/**
 	 * 
 	 */
-	public TimeToE1AMDParam(boolean baseCase) {
-		super(baseCase, TimeUnit.YEAR);
+	public TimeToE1AMDParam() {
+		super(TimeUnit.YEAR);
 		this.probabilities = new double[P_AMD.length][3];
-		// TODO: should work diferently when baseCase = false
+		// TODO: should work diferently when  = false
 
 		// Initialize first-eye incidence of AMD
 		initProbabilities(P_AMD, probabilities);		
@@ -76,13 +77,13 @@ public class TimeToE1AMDParam extends EmpiricTimeToEventParam {
 	 * @param pat A patient
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
-	public long getTimeToEvent(Patient pat) {
+	public long getTimeToEvent(RetalPatient pat) {
 		final double []rnd = pat.draw(RandomForPatient.ITEM.TIME_TO_E1AMD, probabilities.length);
 		final double time = getTimeToEvent(probabilities, pat.getAge(), rnd);
 		return (time == Double.MAX_VALUE) ? Long.MAX_VALUE : pat.getTs() + Math.max(CommonParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, unit));
 	}
 
-	public EyeStateAndValue getValidatedTimeToEventAndState(Patient pat) {
+	public EyeStateAndValue getValidatedTimeToEventAndState(RetalPatient pat) {
 		long timeToAMD;
 		
 		final long timeToEARM = pat.getTimeToEyeState(EyeState.EARM, 0);

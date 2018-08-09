@@ -1,9 +1,11 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal;
+package es.ull.iis.simulation.hta.retal;
 
 import es.ull.iis.function.TimeFunction;
+import es.ull.iis.simulation.hta.Intervention;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.SimulationCycle;
 import es.ull.iis.simulation.model.TimeDrivenGenerator;
@@ -52,13 +54,13 @@ public class PatientCreator extends TimeDrivenGenerator<es.ull.iis.simulation.mo
 
 	@Override
 	public EventSource createEventSource(int ind, es.ull.iis.simulation.model.Generator.GenerationInfo info) {
-		Patient p = null;
+		RetalPatient p = null;
 		if (copyOf == null) {
 			final double age = initialAges.getValue(null);
-			p = new Patient(simul, age, intervention);
+			p = new RetalPatient(simul, age, intervention);
 		}
 		else {
-			p = new Patient(simul, copyOf[ind], intervention);
+			p = new RetalPatient(simul, (RetalPatient)copyOf[ind], intervention);
 		}
 		simul.addGeneratedPatient(p, ind);
 		return p;

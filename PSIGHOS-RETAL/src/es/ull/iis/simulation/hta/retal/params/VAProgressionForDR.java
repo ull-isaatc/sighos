@@ -1,14 +1,14 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -42,10 +42,10 @@ public class VAProgressionForDR extends VAProgressionParam {
 
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param secondOrder
 	 */
-	public VAProgressionForDR(boolean baseCase) {
-		super(baseCase);
+	public VAProgressionForDR() {
+		super();
 		initialDR = RandomVariateFactory.getInstance("NormalVariate", RandomForPatient.getRandomNumber(RandomForPatient.ITEM.DR_INITIAL_VA), MEAN_SD_VA_DR[0], MEAN_SD_VA_DR[1]);
 	}
 
@@ -56,17 +56,17 @@ public class VAProgressionForDR extends VAProgressionParam {
 	 * @param eyeIndex Index of the affected eye (0 for first eye, 1 for second eye)
 	 * @return
 	 */
-	public double getInitialVA(Patient pat, int eyeIndex) {
+	public double getInitialVA(RetalPatient pat, int eyeIndex) {
 		final double value = initialDR.generate();
 		return (value < 0.0) ? 0.0 : value;
 	}
 	
 	
 	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.retal.params.VAProgressionParam#getVAProgression(es.ull.iis.simulation.retal.Patient, int, double)
+	 * @see es.ull.iis.simulation.hta.retal.params.VAProgressionParam#getVAProgression(es.ull.iis.simulation.hta.retal.RetalPatient, int, double)
 	 */
 	@Override
-	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA) {
+	public ArrayList<VAProgressionPair> getVAProgression(RetalPatient pat, int eyeIndex, double expectedVA) {
 		final ArrayList<VAProgressionPair> changes = new ArrayList<VAProgressionPair>();
 		final long timeSinceLastChange = pat.getSimulation().getTs() - pat.getLastVAChangeTs(eyeIndex);
 		if (pat.getEyeState(eyeIndex).contains(EyeState.NPDR)) {

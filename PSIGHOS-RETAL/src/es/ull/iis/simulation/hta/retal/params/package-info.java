@@ -5,4 +5,4 @@
  * @author Iván Castilla
  *
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;

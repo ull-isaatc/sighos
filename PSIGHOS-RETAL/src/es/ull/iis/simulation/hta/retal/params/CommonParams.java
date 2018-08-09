@@ -1,15 +1,16 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import es.ull.iis.simulation.hta.params.ModelParams;
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -40,12 +41,12 @@ public class CommonParams extends ModelParams {
 	/**
 	 * 
 	 */
-	public CommonParams(boolean baseCase) {
-		super(baseCase);
-		diabetes = new DiabetesParam(baseCase);
-		vaParam = new VAParam(baseCase);
-		vaToUtility = new VAtoUtilityParam(baseCase);
-		resourceUsage = new ResourceUsageParam(baseCase);
+	public CommonParams() {
+		super();
+		diabetes = new DiabetesParam();
+		vaParam = new VAParam();
+		vaToUtility = new VAtoUtilityParam();
+		resourceUsage = new ResourceUsageParam();
 	}
 
 	/**
@@ -55,7 +56,7 @@ public class CommonParams extends ModelParams {
 	 * @param addRisk Additional risk of death, expressed as a factor 
 	 * @return Simulation time to death of the patient or to MAX_AGE 
 	 */
-	private long getTimeToDeath(Patient pat, double addRisk) {
+	private long getTimeToDeath(RetalPatient pat, double addRisk) {
 		final double time = Math.min(generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), pat.draw(RandomForPatient.ITEM.DEATH) / addRisk), MAX_AGE - pat.getAge());
 		return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
 	}
@@ -65,7 +66,7 @@ public class CommonParams extends ModelParams {
 	 * @param pat A patient
 	 * @return Simulation time to death of the patient or to MAX_AGE 
 	 */
-	public long getTimeToDeath(Patient pat) {
+	public long getTimeToDeath(RetalPatient pat) {
 		return getTimeToDeath(pat, 1.0);
 	}
 	
@@ -75,11 +76,11 @@ public class CommonParams extends ModelParams {
 	 * @param pat A patient
 	 * @return Simulation time to death of the patient or to MAX_AGE 
 	 */
-	public long getTimeToDeathDiabetic(Patient pat) {
+	public long getTimeToDeathDiabetic(RetalPatient pat) {
 		return getTimeToDeath(pat, diabetes.getAdditionalMortalityRisk());
 	}
 	
-	public int getSex(Patient pat) {
+	public int getSex(RetalPatient pat) {
 		return (pat.draw(RandomForPatient.ITEM.SEX) < P_MEN) ? 0 : 1;
 	}
 	
@@ -88,39 +89,39 @@ public class CommonParams extends ModelParams {
 	}
 
 	/** Returns true if a patient is diabetic at a specified age. Only valid for initializing a patient. */
-	public boolean isDiabetic(Patient pat) {
+	public boolean isDiabetic(RetalPatient pat) {
 		return diabetes.isDiabetic(pat);
 	}
 	
-	public int getDiabetesType(Patient pat) {
+	public int getDiabetesType(RetalPatient pat) {
 		return (pat.draw(RandomForPatient.ITEM.DIABETES_TYPE) < diabetes.getProbabilityDM1()) ? 1 : 2; 
 	}
 	
-	public double getDurationOfDM(Patient pat) {
+	public double getDurationOfDM(RetalPatient pat) {
 		return diabetes.getDurationOfDM(pat);
 	}
 	
-	public long getTimeToDiabetes(Patient pat) {
+	public long getTimeToDiabetes(RetalPatient pat) {
 		return diabetes.getValidatedTimeToEvent(pat);
 	}
 
-	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, EyeState incidentState) {
+	public ArrayList<VAProgressionPair> getVAProgression(RetalPatient pat, int eyeIndex, EyeState incidentState) {
 		return vaParam.getVAProgression(pat, eyeIndex, incidentState, null);
 	}
 
-	public ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, CNVStage incidentCNVStage) {
+	public ArrayList<VAProgressionPair> getVAProgression(RetalPatient pat, int eyeIndex, CNVStage incidentCNVStage) {
 		return vaParam.getVAProgression(pat, eyeIndex, EyeState.AMD_CNV, incidentCNVStage);
 	}
 
-	public ArrayList<VAProgressionPair> getVAProgressionToDeath(Patient pat, int eyeIndex) {
+	public ArrayList<VAProgressionPair> getVAProgressionToDeath(RetalPatient pat, int eyeIndex) {
 		return vaParam.getVAProgression(pat, eyeIndex, null, null);
 	}
 	
-	public double getInitialVA(Patient pat, int eyeIndex) {
+	public double getInitialVA(RetalPatient pat, int eyeIndex) {
 		return vaParam.getInitialVA(pat, eyeIndex);
 	}
 	
-	public LinkedList<VAProgressionPair> getUtilityFromVA(Patient pat) {
+	public LinkedList<VAProgressionPair> getUtilityFromVA(RetalPatient pat) {
 		double age = MIN_AGE;
 		ArrayList<VAProgressionPair> progression = vaParam.mergeVAProgressions(pat, 0.0, pat.getVaProgression(0), pat.getVaProgression(1));
 		LinkedList<VAProgressionPair> utilities = new LinkedList<VAProgressionPair>();
@@ -131,15 +132,15 @@ public class CommonParams extends ModelParams {
 		return utilities;		
 	}
 	
-	public double getCostForState(Patient pat, double initAge, double endAge) {
+	public double getCostForState(RetalPatient pat, double initAge, double endAge) {
 		return resourceUsage.getResourceUsageCost(pat, initAge, endAge);
 	}
 	
-	public double getDiagnosisCost(Patient pat) {
+	public double getDiagnosisCost(RetalPatient pat) {
 		return resourceUsage.getDiagnosisCost(pat);
 	}
 	
-	public double getScreeningCost(Patient pat) {
+	public double getScreeningCost(RetalPatient pat) {
 		return resourceUsage.getScreeningCost(pat);
 	}
 }

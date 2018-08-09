@@ -1,7 +1,9 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
+
+import es.ull.iis.simulation.hta.params.Param;
 
 /**
  * Based on Sheffield utilities
@@ -16,10 +18,10 @@ public class VAtoUtilityParam extends Param {
 	
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param 
 	 */
-	public VAtoUtilityParam(boolean baseCase) {
-		super(baseCase);
+	public VAtoUtilityParam() {
+		super();
 	}
 
 	public double getUtility(double age, double va) {

@@ -1,7 +1,9 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal;
+package es.ull.iis.simulation.hta.retal;
+
+import es.ull.iis.simulation.hta.Intervention;
 
 /**
  * @author icasrod
@@ -18,6 +20,16 @@ public class NullIntervention implements Intervention {
 	@Override
 	public int getId() {
 		return 0;
+	}
+
+	@Override
+	public String getDescription() {
+		return "Clinical detection";
+	}
+
+	@Override
+	public String getShortName() {
+		return "CLI";
 	}
 
 }

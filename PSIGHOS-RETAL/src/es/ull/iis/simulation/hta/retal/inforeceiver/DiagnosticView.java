@@ -1,16 +1,16 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.inforeceiver;
+package es.ull.iis.simulation.hta.retal.inforeceiver;
 
 import java.io.PrintStream;
 
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RETALSimulation;
+import es.ull.iis.simulation.hta.retal.info.PatientInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
-import es.ull.iis.simulation.retal.info.PatientInfo;
 
 /**
  * @author Iván Castilla
@@ -62,7 +62,7 @@ public class DiagnosticView extends Listener {
 		}
 		else if (info instanceof PatientInfo) {
 			final PatientInfo p = (PatientInfo) info;
-			final Patient pat = p.getPatient();
+			final RetalPatient pat = p.getPatient();
 			if (p.getType() == PatientInfo.Type.DIAGNOSED) {
 				for (int i = 0; i < DISEASES.length; i++) {
 					if (pat.getAffectedBy().contains(DISEASES[i])) {

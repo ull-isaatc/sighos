@@ -1,14 +1,14 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.EnumSet;
 
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -50,11 +50,11 @@ public class TimeToCNVFromGAParam extends CompoundEmpiricTimeToEventParam {
 			{75, CommonParams.MAX_AGE, 0.128501303}};
 	
 	/**
-	 * @param baseCase
+	 * @param secondOrder
 	 */
-	public TimeToCNVFromGAParam(boolean baseCase) {
-		super(baseCase, TimeUnit.YEAR);
-		// TODO: should work diferently when baseCase = false
+	public TimeToCNVFromGAParam() {
+		super(TimeUnit.YEAR);
+		// TODO: should work diferently when secondOrder = false
 		
 		// Initialize probability of first-eye developing AMD from EARM
 		StructuredInfo info = new StructuredInfo(P_CNV_E2_NOARM.length, RandomForPatient.ITEM.TIME_TO_CNV_E2_NOARM);
@@ -79,7 +79,7 @@ public class TimeToCNVFromGAParam extends CompoundEmpiricTimeToEventParam {
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units), and adjusted so 
 	 * the time is coherent with the state and future/past events of the patient
 	 */
-	public long getValidatedTimeToEvent(Patient pat, int eye) {
+	public long getValidatedTimeToEvent(RetalPatient pat, int eye) {
 		
 		final EnumSet<EyeState> otherEye = pat.getEyeState(1 - eye);
 		final StructuredInfo info;

@@ -1,17 +1,17 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.inforeceiver;
+package es.ull.iis.simulation.hta.retal.inforeceiver;
 
 import java.util.EnumSet;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.retal.RETALSimulation;
+import es.ull.iis.simulation.hta.retal.info.PatientInfo;
+import es.ull.iis.simulation.hta.retal.params.CNVStage;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
-import es.ull.iis.simulation.retal.RETALSimulation;
-import es.ull.iis.simulation.retal.info.PatientInfo;
-import es.ull.iis.simulation.retal.params.CNVStage;
 
 /**
  * @author Iván Castilla
@@ -103,7 +103,7 @@ public class PatientCounterView extends Listener {
 				System.out.println("DEVELOP CSME IN FELLOW EYE: " + nCSME[1]);
 				
 			}
-			System.out.println("DEAD: " + nDeaths);
+			System.out.println("S_DEAD: " + nDeaths);
 		}
 		else if (info instanceof PatientInfo) {
 			final PatientInfo p = (PatientInfo) info;

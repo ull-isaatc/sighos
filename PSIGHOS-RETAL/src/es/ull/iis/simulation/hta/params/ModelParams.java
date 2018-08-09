@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.params;
 
 import java.util.Random;
 
@@ -10,17 +10,11 @@ import java.util.Random;
  *
  */
 public abstract class ModelParams {
-	/**
-	 * True if base case parameters (expected values) should be used. False for second order simulations.
-	 */
-	protected final boolean baseCase;
 
 	/**
 	 * 
-	 * @param baseCase True if base case parameters (expected values) should be used. False for second order simulations.
 	 */
-	public ModelParams(boolean baseCase) {
-		this.baseCase = baseCase;
+	public ModelParams() {
 	}
 
 	public static double generateGompertz(double alpha, double beta, double currentAge, double initProb) {

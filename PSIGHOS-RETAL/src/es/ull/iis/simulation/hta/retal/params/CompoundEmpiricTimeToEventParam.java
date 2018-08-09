@@ -1,17 +1,18 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import es.ull.iis.simulation.hta.params.EmpiricTimeToEventParam;
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -41,7 +42,7 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 			this.queue = null;
 		}
 		
-		public long getTimeToEvent(Patient pat) {
+		public long getTimeToEvent(RetalPatient pat) {
 			if (probabilities == null) {
 				return Long.MAX_VALUE;
 			}
@@ -52,7 +53,7 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 			}
 		}
 		
-		public long getValidatedTimeToEvent(Patient pat) {
+		public long getValidatedTimeToEvent(RetalPatient pat) {
 			final long timeToDeath = pat.getTimeToDeath();
 			final long currentTime = pat.getTs();
 			long timeToEvent;
@@ -86,8 +87,8 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 	/**
 	 * 
 	 */
-	public CompoundEmpiricTimeToEventParam(boolean baseCase, TimeUnit unit) {
-		super(baseCase, unit);
+	public CompoundEmpiricTimeToEventParam(TimeUnit unit) {
+		super(unit);
 	}
 
 	/**
@@ -96,7 +97,7 @@ public abstract class CompoundEmpiricTimeToEventParam extends EmpiricTimeToEvent
 	 * @param firstEye True if the event applies to the first eye; false if the event applies to the fellow eye
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
-	protected long getTimeToEvent(Patient pat, int eye) {
+	protected long getTimeToEvent(RetalPatient pat, int eye) {
 		final EnumSet<EyeState> otherEye = pat.getEyeState(1 - eye);
 		final long time;
 		

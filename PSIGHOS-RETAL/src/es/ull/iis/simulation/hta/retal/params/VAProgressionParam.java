@@ -1,11 +1,12 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.retal.Patient;
+import es.ull.iis.simulation.hta.params.Param;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -15,10 +16,10 @@ public abstract class VAProgressionParam extends Param {
 
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param 
 	 */
-	public VAProgressionParam(boolean baseCase) {
-		super(baseCase);
+	public VAProgressionParam() {
+		super();
 	}
 
 	/**
@@ -32,5 +33,5 @@ public abstract class VAProgressionParam extends Param {
 	 * @param expectedVA The expected visual acuity if no changes are derived from this progression
 	 * @return The progression of the visual acuity according to the current state of the specified eye
 	 */
-	public abstract ArrayList<VAProgressionPair> getVAProgression(Patient pat, int eyeIndex, double expectedVA);
+	public abstract ArrayList<VAProgressionPair> getVAProgression(RetalPatient pat, int eyeIndex, double expectedVA);
 }

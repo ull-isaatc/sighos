@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.test;
+package es.ull.iis.simulation.hta.retal.test;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -52,7 +52,7 @@ class VAProgressionForSF {
 
 	/**
 	 * @param simul
-	 * @param baseCase
+	 * @param secondOrder
 	 */
 	protected VAProgressionForSF() {
 		ageCoef = AGE_COEF[0];

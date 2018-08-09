@@ -1,15 +1,16 @@
 /**
  * 
  */
-package es.ull.iis.simulation.retal.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.params.Param;
+import es.ull.iis.simulation.hta.retal.EyeState;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
+import es.ull.iis.simulation.hta.retal.RETALSimulation;
+import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
-import es.ull.iis.simulation.retal.EyeState;
-import es.ull.iis.simulation.retal.Patient;
-import es.ull.iis.simulation.retal.RETALSimulation;
-import es.ull.iis.simulation.retal.RandomForPatient;
 
 /**
  * @author Iván Castilla
@@ -36,8 +37,8 @@ public final class ResourceUsageParam extends Param {
 	/** Min and max use of PFC in NON_HR_PDR and HR_PDR, respectively */
 	final private static int[][] MIN_MAX_USE_PFC = {{17, 26}, {8, 13}};
 	
-	public ResourceUsageParam(boolean baseCase) {
-		super(baseCase);
+	public ResourceUsageParam() {
+		super();
 		diagResources = new ArrayList<ResourceUsageItem>();
 		diagResources.add(new ResourceUsageItem(OphthalmologicResource.OCT, 1));
 		diagResources.add(new ResourceUsageItem(OphthalmologicResource.RETINO, 1));
@@ -54,7 +55,7 @@ public final class ResourceUsageParam extends Param {
 	 * @param pat A patient
 	 * @return The number of outpatient appointments with the ophthalmologist for a patient according to his/her health state
 	 */
-	private double getAnnualOutpatientAppointments(Patient pat) {
+	private double getAnnualOutpatientAppointments(RetalPatient pat) {
 		double annualVisits = 0.0;
 		// If affected by ARMD
 		if (pat.getAffectedBy().contains(RETALSimulation.DISEASES.ARMD)) {
@@ -111,7 +112,7 @@ public final class ResourceUsageParam extends Param {
 	 * @param eyeIndex
 	 * @return
 	 */
-	private double getAntiVEGFCost(Patient pat, double initAge, double endAge, int eyeIndex) {
+	private double getAntiVEGFCost(RetalPatient pat, double initAge, double endAge, int eyeIndex) {
 		// Affected at least by CNV
 		if (pat.getEyeState(eyeIndex).contains(EyeState.AMD_CNV)) {
 			final CNVStage stage = pat.getCurrentCNVStage(eyeIndex);
@@ -143,7 +144,7 @@ public final class ResourceUsageParam extends Param {
 		return 0.0;
 	}
 	
-	private double photocoagulationCost(Patient pat, double initAge, double endAge, int eyeIndex) {
+	private double photocoagulationCost(RetalPatient pat, double initAge, double endAge, int eyeIndex) {
 		if (pat.getEyeState(eyeIndex).contains(EyeState.NON_HR_PDR)){
 			return new ResourceUsageItem(OphthalmologicResource.PHOTOCOAGULATION, pat.draw(RandomForPatient.ITEM.PFC_USE) * (MIN_MAX_USE_PFC[0][1] - MIN_MAX_USE_PFC[0][0])).computeCost(initAge, endAge);
 		}
@@ -153,7 +154,7 @@ public final class ResourceUsageParam extends Param {
 		return 0.0;
 	}
 	
-	public double getResourceUsageCost(Patient pat, double initAge, double endAge) {
+	public double getResourceUsageCost(RetalPatient pat, double initAge, double endAge) {
 		if (!pat.isDiagnosed()) {
 			return 0.0;
 		}
@@ -191,7 +192,7 @@ public final class ResourceUsageParam extends Param {
 		}
 	}
 	
-	public double getDiagnosisCost(Patient pat) {
+	public double getDiagnosisCost(RetalPatient pat) {
 		double cost = 0.0;
 		for (ResourceUsageItem usage : diagResources) {
 			cost += usage.getUnitCost();
@@ -201,7 +202,7 @@ public final class ResourceUsageParam extends Param {
 		return cost;
 	}
 	
-	public double getScreeningCost(Patient pat) {
+	public double getScreeningCost(RetalPatient pat) {
 		double cost = 0.0;
 		for (ResourceUsageItem usage : screenResources) {
 			cost += usage.getUnitCost();
