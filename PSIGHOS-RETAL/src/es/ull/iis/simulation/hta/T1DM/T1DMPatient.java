@@ -35,8 +35,10 @@ public class T1DMPatient extends Patient {
 	private final ResourceUsageParams resUsageParams;
 	private final UtilityParams utilParams;
 	
+	// Events
 	private final ComplicationEvent[] complicationEvents;
 	private final ArrayList<SevereHypoglycemicEvent> hypoEvents;
+	protected DeathEvent deathEvent = null;
 
 	/**
 	 * @param simul
@@ -114,38 +116,19 @@ public class T1DMPatient extends Patient {
 	}
 	
 	/**
+	 * @return the timeToDeath
+	 */
+	public long getTimeToDeath() {
+		return (deathEvent == null) ? Long.MAX_VALUE : deathEvent.getTs();
+	}
+
+	/**
 	 * Return the timestamp when certain complication started (or is planned to start)  
 	 * @param comp Complication
 	 * @return the timestamp when certain complication started (or is planned to start)
 	 */
 	public long getTimeToComplication(Complication comp) {
 		return (complicationEvents[comp.ordinal()] == null) ? Long.MAX_VALUE : complicationEvents[comp.ordinal()].getTs(); 
-	}
-	
-	@Override
-	protected void death() {
-		// Cancel all events that cannot happen now
-		for (int i = 0; i < complicationEvents.length; i++) {
-			if (complicationEvents[i] != null) {
-				if (complicationEvents[i].getTs() >= getTs()) {
-					complicationEvents[i].cancel();
-					complicationEvents[i] = null;
-				}
-			}
-		}
-		int counter = hypoEvents.size();
-		while (counter != 0) {
-			counter--;
-			if (hypoEvents.get(counter).getTs() >= getTs()) {
-				hypoEvents.get(counter).cancel();
-				hypoEvents.remove(counter);
-			}
-			else {
-				counter = 0;
-			}
-		}
-
-		simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, T1DMPatientInfo.Type.DEATH, this.getTs()));
 	}
 
 	/**
@@ -390,6 +373,54 @@ public class T1DMPatient extends Patient {
 					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * The event of the death of the patient.  
+	 * @author Ivan Castilla Rodriguez
+	 *
+	 */
+	public final class DeathEvent extends T1DMPatientEvent {
+		
+		public DeathEvent(long ts) {
+			super(ts);
+		}
+
+		@Override
+		public void event() {
+			// Cancel all events that cannot happen now
+			for (int i = 0; i < complicationEvents.length; i++) {
+				if (complicationEvents[i] != null) {
+					if (complicationEvents[i].getTs() >= getTs()) {
+						complicationEvents[i].cancel();
+						complicationEvents[i] = null;
+					}
+				}
+			}
+			int counter = hypoEvents.size();
+			while (counter != 0) {
+				counter--;
+				if (hypoEvents.get(counter).getTs() >= getTs()) {
+					hypoEvents.get(counter).cancel();
+					hypoEvents.remove(counter);
+				}
+				else {
+					counter = 0;
+				}
+			}
+
+			simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, T1DMPatientInfo.Type.DEATH, this.getTs()));
+			notifyEnd();
+		}
+	
+		@Override
+		public boolean cancel() {
+			if (super.cancel()) {
+				deathEvent = null;
+				return true;
+			}
+			return false;
 		}
 	}
 }

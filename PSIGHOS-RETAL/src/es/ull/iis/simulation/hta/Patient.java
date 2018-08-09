@@ -6,7 +6,6 @@ package es.ull.iis.simulation.hta;
 import es.ull.iis.simulation.hta.outcome.Cost;
 import es.ull.iis.simulation.hta.outcome.LifeExpectancy;
 import es.ull.iis.simulation.hta.outcome.QualityAdjustedLifeExpectancy;
-import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.VariableStoreSimulationObject;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
@@ -34,8 +33,6 @@ public abstract class Patient extends VariableStoreSimulationObject implements E
 	/** The LYs for this patient */
 	protected final LifeExpectancy ly; 
 
-	// Events
-	protected DeathEvent deathEvent = null;
 
 	/**
 	 * 
@@ -100,45 +97,5 @@ public abstract class Patient extends VariableStoreSimulationObject implements E
 	public long getStartTs() {
 		return startTs;
 	}
-	
-	/**
-	 * @return the timeToDeath
-	 */
-	public long getTimeToDeath() {
-		return (deathEvent == null) ? Long.MAX_VALUE : deathEvent.getTs();
-	}
-
-	/**
-	 * Last things to do when the patient is death, and before the {@link FinalizeEvent} event is launched.
-	 */
-	protected abstract void death();
-
-	/**
-	 * The event of the death of the patient.  
-	 * @author Ivan Castilla Rodriguez
-	 *
-	 */
-	public final class DeathEvent extends DiscreteEvent {
-		
-		public DeathEvent(long ts) {
-			super(ts);
-		}
-
-		@Override
-		public void event() {
-			death();
-			notifyEnd();
-		}
-	
-		@Override
-		public boolean cancel() {
-			if (super.cancel()) {
-				deathEvent = null;
-				return true;
-			}
-			return false;
-		}
-	}
-
 	
 }

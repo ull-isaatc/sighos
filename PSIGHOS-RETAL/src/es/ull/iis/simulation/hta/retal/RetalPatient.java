@@ -45,6 +45,7 @@ public class RetalPatient extends Patient {
 	/** Random number generators for initial risks to be compared with specific probabilities */
 	private final RandomForPatient rng;
 	// Events
+	protected DeathEvent deathEvent = null;
 	private DiabetesEvent diabetesEvent = null;
 	private final EARMEvent[] eARMEvent = {null, null};
 	private final GAEvent[] gAEvent = {null, null};
@@ -288,6 +289,13 @@ public class RetalPatient extends Patient {
 		return (timeToDeath == Long.MAX_VALUE) ? Double.MAX_VALUE : ((initAge + timeToDeath) / 365.0);
 	}
 	
+	/**
+	 * @return the timeToDeath
+	 */
+	public long getTimeToDeath() {
+		return (deathEvent == null) ? Long.MAX_VALUE : deathEvent.getTs();
+	}
+
 	public long getTimeToDiabetes() {
 		return (diabetesEvent == null) ? Long.MAX_VALUE : diabetesEvent.getTs();
 	}
@@ -1326,5 +1334,31 @@ public class RetalPatient extends Patient {
 		}		
 	}
 	
+	/**
+	 * The event of the death of the patient.  
+	 * @author Ivan Castilla Rodriguez
+	 *
+	 */
+	public final class DeathEvent extends PatientEvent {
+		
+		public DeathEvent(long ts) {
+			super(ts);
+		}
+
+		@Override
+		public void event() {
+			death();
+			notifyEnd();
+		}
+	
+		@Override
+		public boolean cancel() {
+			if (super.cancel()) {
+				deathEvent = null;
+				return true;
+			}
+			return false;
+		}
+	}
 }
 
