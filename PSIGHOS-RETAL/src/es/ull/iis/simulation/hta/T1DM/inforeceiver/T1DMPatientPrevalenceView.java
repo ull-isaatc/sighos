@@ -7,8 +7,9 @@ import java.io.PrintStream;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
-import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.Complication;
+import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParams;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -32,7 +33,7 @@ public class T1DMPatientPrevalenceView extends Listener {
 	public T1DMPatientPrevalenceView(TimeUnit simUnit, double[][] ageIntervals) {
 		super("Standard patient viewer");
 		nPatients = new int[ageIntervals.length+1];
-		nComplications = new int[CommonParams.N_COMPLICATIONS][ageIntervals.length+1];
+		nComplications = new int[SecondOrderParams.N_COMPLICATIONS][ageIntervals.length+1];
 		nDeaths = new int[ageIntervals.length+1];
 		this.ageIntervals = ageIntervals;
 		addGenerated(T1DMPatientInfo.class);
@@ -50,7 +51,7 @@ public class T1DMPatientPrevalenceView extends Listener {
 			ageIntervals[i][1] = minAge + gap * (i + 1);
 		}
 		if (fillToLifetime)
-			ageIntervals[nGroups - 1][1] = CommonParams.MAX_AGE;
+			ageIntervals[nGroups - 1][1] = BasicConfigParams.MAX_AGE;
 		return ageIntervals;
 	}
 	
@@ -101,7 +102,7 @@ public class T1DMPatientPrevalenceView extends Listener {
 					// Check all the complications
 					for (Complication comp : Complication.values()) {
 						final long time = pat.getTimeToComplication(comp);
-						final double ageAtComp = (time == Long.MAX_VALUE) ? Double.MAX_VALUE : (initAge + time / CommonParams.YEAR_CONVERSION);
+						final double ageAtComp = (time == Long.MAX_VALUE) ? Double.MAX_VALUE : (initAge + time / BasicConfigParams.YEAR_CONVERSION);
 						if (ageAtComp != Double.MAX_VALUE) {
 							for (int i = 0; (i < ageIntervals.length) && (ageAtDeath > ageIntervals[i][0]); i++) {
 								if (ageAtComp < ageIntervals[i][1]) {

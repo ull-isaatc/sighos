@@ -6,12 +6,14 @@ package es.ull.iis.simulation.hta.T1DM;
 import java.io.PrintStream;
 
 import es.ull.iis.simulation.hta.Intervention;
+import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMPatientInfoView;
 import es.ull.iis.simulation.hta.T1DM.params.BaseSecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.params.CanadaSecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.ResourceUsageParams;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityParams;
+import es.ull.iis.simulation.hta.inforeceiver.ICERView;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -20,8 +22,8 @@ import es.ull.iis.simulation.hta.T1DM.params.UtilityParams;
 public class T1DMMain {
 	private static final PrintStream out = System.out;
 	private static final int N_RUNS = 10;
-//	private static final SecondOrderParams secParams = new BaseSecondOrderParams(true);
-	private static final SecondOrderParams secParams = new CanadaSecondOrderParams(true);
+	private static final boolean CHECK_CANADA = false;
+	private static final SecondOrderParams secParams = CHECK_CANADA ? new CanadaSecondOrderParams(true) : new BaseSecondOrderParams(true);
 
 	public T1DMMain() {
 		super();
@@ -77,7 +79,7 @@ public class T1DMMain {
 		printHeader();
 		final Intervention[] interventions = secParams.getInterventions();
 		// First the deterministic simulation
-		T1DMSimulation simul = new T1DMSimulation(0, true, interventions[0], new CommonParams(secParams), new ResourceUsageParams(), new UtilityParams(secParams));
+		T1DMSimulation simul = new T1DMSimulation(0, true, interventions[0], new CommonParams(secParams), new ResourceUsageParams(secParams), new UtilityParams(secParams));
 		addListeners(simul);
 		simul.run();
 		simul = new T1DMSimulation(simul, interventions[1]);
@@ -87,7 +89,7 @@ public class T1DMMain {
 		// Now probabilistic
 		secParams.setBaseCase(false);
 		for (int i = 1; i <= N_RUNS; i++) {
-			simul = new T1DMSimulation(i, false, interventions[0], new CommonParams(secParams), new ResourceUsageParams(), new UtilityParams(secParams));
+			simul = new T1DMSimulation(i, false, interventions[0], new CommonParams(secParams), new ResourceUsageParams(secParams), new UtilityParams(secParams));
 			addListeners(simul);
 			simul.run();
 			simul = new T1DMSimulation(simul, interventions[1]);

@@ -5,8 +5,8 @@ package es.ull.iis.simulation.hta.T1DM.inforeceiver;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
-import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.Complication;
+import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParams;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -38,7 +38,7 @@ public class PatientCounterHistogramView extends Listener {
 		this.minAge = minAge;
 		nPatients = new int[nIntervals];
 		nDeaths = new int[nIntervals];
-		nComplications = new int[CommonParams.N_COMPLICATIONS][nIntervals];
+		nComplications = new int[SecondOrderParams.N_COMPLICATIONS][nIntervals];
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
 		addEntrance(SimulationEndInfo.class);

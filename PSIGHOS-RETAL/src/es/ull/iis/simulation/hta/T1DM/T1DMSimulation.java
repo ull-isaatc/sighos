@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.T1DM;
 import es.ull.iis.function.ConstantFunction;
 import es.ull.iis.simulation.hta.HTASimulation;
 import es.ull.iis.simulation.hta.Intervention;
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.ResourceUsageParams;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityParams;
@@ -37,7 +38,7 @@ public class T1DMSimulation extends HTASimulation {
 	 * @param endTs
 	 */
 	public T1DMSimulation(int id, boolean baseCase, Intervention intervention, CommonParams commonParams, ResourceUsageParams resUsageParams, UtilityParams utilParams) {
-		super(id, DESCRIPTION, CommonParams.SIMUNIT, baseCase, intervention, new TimeStamp(TimeUnit.YEAR, (long) (CommonParams.MAX_AGE - commonParams.getInitAge() + 1)), NINTERVENTIONS, CommonParams.NPATIENTS);
+		super(id, DESCRIPTION, BasicConfigParams.SIMUNIT, baseCase, intervention, new TimeStamp(TimeUnit.YEAR, (long) (BasicConfigParams.MAX_AGE - commonParams.getInitAge() + 1)), NINTERVENTIONS, BasicConfigParams.NPATIENTS);
 		this.commonParams = commonParams;
 		this.utilParams = utilParams;
 		this.resUsageParams = resUsageParams;

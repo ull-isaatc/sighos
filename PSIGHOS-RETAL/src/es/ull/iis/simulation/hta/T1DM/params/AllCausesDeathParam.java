@@ -41,7 +41,7 @@ public class AllCausesDeathParam extends UniqueEventParam<Long> implements Param
 	 * @return Simulation time to death of the patient or to MAX_AGE 
 	 */
 	public Long getValue(T1DMPatient pat, double additionalRisk) {
-		final double time = Math.min(ModelParams.generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), draw(pat) / additionalRisk), CommonParams.MAX_AGE - pat.getAge());
+		final double time = Math.min(ModelParams.generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), draw(pat) / additionalRisk), BasicConfigParams.MAX_AGE - pat.getAge());
 		return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
 	}
 

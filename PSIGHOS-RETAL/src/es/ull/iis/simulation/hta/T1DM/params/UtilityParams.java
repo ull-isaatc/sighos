@@ -19,42 +19,35 @@ public class UtilityParams extends ModelParams {
 		MULT
 	}
 
-	private final static double DET_DNC_DISUTILITY = 0.0351;
-	private final static double[] DET_COMPLICATION_DISUTILITIES = {(0.0409 + 0.0412) / 2, 0.0244, 0.0527, 0.0156, (0.0379 + 0.0244) / 2, 0.0603, 0.0498};
-	private final static double BASE_UTILITY = 0.911400915;
-	private final double[] dComplications;
-	private final double dDNC;
-	private final double baseUtility;
-	private final static double HYPO_EVENT_DISUTILITY = 0.0206;
+	private final double[] duComplications;
+	private final double duDNC;
+	private final double genPopUtility;
+	private final double duHypoEvent;
 	
 	private final CombinationMethod method;
 
 	private final SecondOrderParams secParams;
 	/**
 	 */
-	public UtilityParams(SecondOrderParams secParams, CombinationMethod method) {
+	public UtilityParams(SecondOrderParams secParams) {
 		super();
 		this.secParams = secParams;
-		this.dDNC = DET_DNC_DISUTILITY;
-		this.dComplications = DET_COMPLICATION_DISUTILITIES;
-		this.method = method;
-		this.baseUtility = BASE_UTILITY;
+		this.duDNC = secParams.getNoComplicationDisutility();
+		this.duComplications = secParams.getComplicationDisutilities();
+		this.method = secParams.getUtilityCombinationMethod();
+		this.genPopUtility = secParams.getGeneralPopulationUtility();
+		this.duHypoEvent = secParams.getHypoEventDisutility();
 	}
 
-	/**
-	 */
-	public UtilityParams(SecondOrderParams secParams) {
-		this(secParams, CombinationMethod.ADD);
-	}
-	
 	public double getHypoEventDisutilityValue() {
-		return HYPO_EVENT_DISUTILITY;
+		return duHypoEvent;
 	}
 	
 	public double getUtilityValue(T1DMPatient pat) {
 		final EnumSet<Complication> state = pat.getState();
-		double u = baseUtility;
+		double u = genPopUtility;
 		if (secParams.isCanadaValidation()) {
+			u -= duDNC;
 			if (state.contains(Complication.ESRD)) {
 				u = state.contains(Complication.CHD) ? 0.447 : 0.490;
 			}
@@ -87,27 +80,26 @@ public class UtilityParams extends ModelParams {
 			}			
 		}
 		else {
-			u = baseUtility;
 			switch(method) {
 			case ADD:
-				u -= dDNC;
+				u -= duDNC;
 				for (Complication comp : state) {
-					u -= dComplications[comp.ordinal()];
+					u -= duComplications[comp.ordinal()];
 				}
 				break;
 			case MIN:
-				double du = dDNC;
+				double du = duDNC;
 				for (Complication comp : state) {
-					if (dComplications[comp.ordinal()] > du) {
-						du = dComplications[comp.ordinal()];
+					if (duComplications[comp.ordinal()] > du) {
+						du = duComplications[comp.ordinal()];
 					}
 				}
 				u -= du;
 				break;
 			case MULT:
-				u -= dDNC;
+				u -= duDNC;
 				for (Complication comp : state) {
-					u *= (baseUtility - dComplications[comp.ordinal()]);
+					u *= (genPopUtility - duComplications[comp.ordinal()]);
 				}
 				break;
 			}

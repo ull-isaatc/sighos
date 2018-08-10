@@ -14,28 +14,44 @@ import es.ull.iis.simulation.hta.params.ModelParams;
  */
 public class ResourceUsageParams extends ModelParams {
 
-	private final static double[] COST_PER_COMPLICATION = {1112.24, 3108.86, 5180.26, 3651.31, 9305.74, 34259.48, 469.22};
-	private final static double[] TRANS_COST_TO_COMPLICATION = {12082.36, 0.0, 33183.74, 0.0, 11966.18, 3250.73, 0.0};
-	private final static double COST_NO_COMPLICATION = 2174.11;
+	private final double[] annualComplicationCosts;
+	private final double[] transitionComplicationCosts;
+	private final double costNoComplication;
+	private final double costHypoglycemicEvent;
+	private final double[] annualInterventionCosts;
 	/**
 	 * @param secondOrder
 	 */
-	public ResourceUsageParams() {
+	public ResourceUsageParams(SecondOrderParams secParams) {
 		super();
+		costHypoglycemicEvent = secParams.getCostForSevereHypoglycemicEpisode();
+		costNoComplication = secParams.getAnnualNoComplicationCost();
+		annualComplicationCosts = secParams.getAnnualComplicationCost();
+		transitionComplicationCosts = secParams.getTransitionComplicationCost();
+		annualInterventionCosts = secParams.getAnnualInterventionCost();
 	}
 
-	public double getResourceAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
-		double cost = 0.0;
+	public double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
+		double cost = annualInterventionCosts[pat.getnIntervention()];
 		final EnumSet<Complication> state = pat.getState();
 		// No complications
 		if (state.isEmpty()) {
-			cost = COST_NO_COMPLICATION;
+			cost = costNoComplication;
 		}
 		else {
 			for (Complication comp : state) {
-				cost += COST_PER_COMPLICATION[comp.ordinal()];
+				cost += annualComplicationCosts[comp.ordinal()];
 			}
 		}
 		return cost;
 	}
+	
+	public double getCostOfComplication(T1DMPatient pat, Complication comp) {
+		return transitionComplicationCosts[comp.ordinal()];
+	}
+	
+	public double getCostForSevereHypoglycemicEpisode(T1DMPatient pat) {
+		return costHypoglycemicEvent;
+	}
+
 }

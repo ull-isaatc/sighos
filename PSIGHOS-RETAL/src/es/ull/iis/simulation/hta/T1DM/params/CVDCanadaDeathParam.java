@@ -10,7 +10,7 @@ import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
  *
  */
 public class CVDCanadaDeathParam extends UniqueEventParam<Long> {
-	final static double[] UPPER_AGE = {60, 70, 80, CommonParams.MAX_AGE}; 
+	final static double[] UPPER_AGE = {60, 70, 80, BasicConfigParams.MAX_AGE}; 
 
 	final static double[][] PROBS_PER_YEAR = {
 	{0.14, 0.245, 0.2, 0.44}, 
@@ -25,8 +25,10 @@ public class CVDCanadaDeathParam extends UniqueEventParam<Long> {
 	{0.16, 0.135, 0.245, 0.57}
 	};
 	
-	public CVDCanadaDeathParam(int nPatients) {
+	private final double[] rr;
+	public CVDCanadaDeathParam(int nPatients, double[] rr) {
 		super(nPatients);
+		this.rr = rr;
 	}
 
 	@Override
@@ -39,8 +41,8 @@ public class CVDCanadaDeathParam extends UniqueEventParam<Long> {
 			interval = 2;
 		else if (age > 60)
 			interval = 1;
-		final int yearsFromCHD = Math.min(9, (int)((pat.getTs() - pat.getTimeToComplication(Complication.CHD)) / CommonParams.YEAR_CONVERSION));
-		return CommonParams.getAnnualBasedTimeToEvent(pat, -1 / PROBS_PER_YEAR[yearsFromCHD][interval], draw(pat), SecondOrderParams.NO_RR);
+		final int yearsFromCHD = Math.min(9, (int)((pat.getTs() - pat.getTimeToComplication(Complication.CHD)) / BasicConfigParams.YEAR_CONVERSION));
+		return CommonParams.getAnnualBasedTimeToEvent(pat, -1 / PROBS_PER_YEAR[yearsFromCHD][interval], draw(pat), rr);
 	}
 
 }

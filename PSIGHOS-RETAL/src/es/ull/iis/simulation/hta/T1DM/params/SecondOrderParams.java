@@ -7,15 +7,22 @@ import java.util.Arrays;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.Intervention;
+import es.ull.iis.simulation.hta.T1DM.params.UtilityParams.CombinationMethod;
+import es.ull.iis.simulation.hta.params.SpanishIPCUpdate;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 /**
+ * To add a parameter:
+ * 1. Create a constant name
+ * 2. Create a method to return the parameter (or ensure that the parameter is added to one of the already accessible repositories, e.g., "probabilityParams")
+ * 3. Remember to add the value of the parameter in the corresponding subclasses 
  * @author Iván Castilla Rodríguez
  *
  */
 public abstract class SecondOrderParams {
+	public static final int N_COMPLICATIONS = Complication.values().length;
 	// Descriptors for probabilities
 	public static final String STR_PROBABILITY_PREFIX = "P_";
 	public static final String STR_P_DNC_RET = "P_DNC_RET";
@@ -33,10 +40,18 @@ public abstract class SecondOrderParams {
 	public static final String STR_P_MAN = "P_MAN";
 	// Descriptors for RRs
 	public static final String STR_RR_PREFIX = "RR_";
+	public static final String STR_ORR_PREFIX = "ORR_";
 	public static final String STR_RR_CHD = STR_RR_PREFIX + Complication.CHD.name(); 
 	public static final String STR_RR_NEU = STR_RR_PREFIX + Complication.NEU.name(); 
 	public static final String STR_RR_NPH = STR_RR_PREFIX + Complication.NPH.name(); 
 	public static final String STR_RR_RET = STR_RR_PREFIX + Complication.RET.name(); 
+	public static final String STR_ORR_CHD = STR_ORR_PREFIX + Complication.CHD.name(); 
+	public static final String STR_ORR_NEU = STR_ORR_PREFIX + Complication.NEU.name(); 
+	public static final String STR_ORR_NPH = STR_ORR_PREFIX + Complication.NPH.name(); 
+	public static final String STR_ORR_RET = STR_ORR_PREFIX + Complication.RET.name(); 
+	public static final String STR_EFF_PREFIX = "EFF_";
+	public static final String STR_PERCENT_POINT_REDUCTION = "%POINT_REDUCTION";
+
 	// Descriptors for Increased Mortality Rates
 	public static final String STR_IMR_PREFIX = "IMR_";
 	public static final String STR_IMR_DNC = STR_IMR_PREFIX + "DNC";
@@ -52,74 +67,45 @@ public abstract class SecondOrderParams {
 	public static final String STR_YEARS_OF_EFFECT = "YEARS_OF_EFFECT";
 	// Descriptors for misc parameters
 	public static final String STR_DISCOUNT_RATE = "DISCOUNT_RATE";
+	// Descriptors for cost parameters
+	public static final String STR_COST_PREFIX = "C_";
+	public static final String STR_COST_HYPO_EPISODE = STR_COST_PREFIX+ "SEVERE_HYPO_EPISODE";
+	public static final String STR_COST_DNC = STR_COST_PREFIX + "DNC"; 
+	public static final String STR_COST_CHD = STR_COST_PREFIX + Complication.CHD.name();
+	public static final String STR_COST_NEU = STR_COST_PREFIX + Complication.NEU.name();
+	public static final String STR_COST_NPH = STR_COST_PREFIX + Complication.NPH.name();
+	public static final String STR_COST_RET = STR_COST_PREFIX + Complication.RET.name();
+	public static final String STR_COST_LEA = STR_COST_PREFIX + Complication.LEA.name();
+	public static final String STR_COST_ESRD = STR_COST_PREFIX + Complication.ESRD.name();
+	public static final String STR_COST_BLI = STR_COST_PREFIX + Complication.BLI.name();
+	public static final String STR_TRANS_PREFIX = "TC_";
+	public static final String STR_TRANS_COST_CHD = STR_TRANS_PREFIX + Complication.CHD.name();
+	public static final String STR_TRANS_COST_NEU = STR_TRANS_PREFIX + Complication.NEU.name();
+	public static final String STR_TRANS_COST_NPH = STR_TRANS_PREFIX + Complication.NPH.name();
+	public static final String STR_TRANS_COST_RET = STR_TRANS_PREFIX + Complication.RET.name();
+	public static final String STR_TRANS_COST_LEA = STR_TRANS_PREFIX + Complication.LEA.name();
+	public static final String STR_TRANS_COST_ESRD = STR_TRANS_PREFIX + Complication.ESRD.name();
+	public static final String STR_TRANS_COST_BLI = STR_TRANS_PREFIX + Complication.BLI.name();
+
+	// Descriptors for utilities
+	public static final String STR_UTILITY_PREFIX = "U_";
+	public static final String STR_DISUTILITY_PREFIX = "DU_";
+	public static final String STR_U_GENERAL_POPULATION = STR_UTILITY_PREFIX + "GENERAL_POP";
+	public static final String STR_DU_HYPO_EVENT = STR_DISUTILITY_PREFIX+ "SEVERE_HYPO_EPISODE";
+	public static final String STR_DU_DNC = STR_DISUTILITY_PREFIX + "DNC";	
+	public static final String STR_DU_CHD = STR_DISUTILITY_PREFIX + Complication.CHD.name();
+	public static final String STR_DU_NEU = STR_DISUTILITY_PREFIX + Complication.NEU.name();
+	public static final String STR_DU_NPH = STR_DISUTILITY_PREFIX + Complication.NPH.name();
+	public static final String STR_DU_RET = STR_DISUTILITY_PREFIX + Complication.RET.name();
+	public static final String STR_DU_LEA = STR_DISUTILITY_PREFIX + Complication.LEA.name();
+	public static final String STR_DU_ESRD = STR_DISUTILITY_PREFIX + Complication.ESRD.name();
+	public static final String STR_DU_BLI = STR_DISUTILITY_PREFIX + Complication.BLI.name();
 	
-	/** Not incremented relative risk for any intervention */
-	public static final double[] NO_RR = {1.0, 1.0};
-	
-	public abstract class Param {
-		protected final String name;
-		protected final String description;
-		protected final String source;
-		
-		public Param(String name, String description, String source) {
-			this.name = name;
-			this.description = description;
-			this.source = source;
-		}
-
-		/**
-		 * @return the name
-		 */
-		public String getName() {
-			return name;
-		}
-
-		/**
-		 * @return the description
-		 */
-		public String getDescription() {
-			return description;
-		}
-
-		/**
-		 * @return the source
-		 */
-		public String getSource() {
-			return source;
-		}
-	}
-	
-	public class DoubleParam extends Param {
-		private final double detValue;
-		private final RandomVariate rnd;
-		private double lastGeneratedValue;
-
-		public DoubleParam(String name, String description, String source, double detValue, RandomVariate rnd) {
-			super(name, description, source);
-			this.detValue = detValue;
-			this.rnd = rnd;
-			lastGeneratedValue = Double.NaN;
-		}
-		
-		public DoubleParam(String name, String description, String source, double detValue) {
-			this(name, description, source, detValue, RandomVariateFactory.getInstance("ConstantVariate", detValue));
-		}
-		
-		public double getValue() {
-			lastGeneratedValue = baseCase ? detValue : rnd.generate();
-			return lastGeneratedValue;
-		}
-
-		/**
-		 * @return the generatedValues
-		 */
-		public double getLastGeneratedValue() {
-			return lastGeneratedValue;
-		}
-	}
-	
-	final protected TreeMap<String, DoubleParam> probabilityParams;
-	final protected TreeMap<String, Param> otherParams;
+	final protected TreeMap<String, SecondOrderParam> probabilityParams;
+	final protected TreeMap<String, SecondOrderCostParam> costParams;
+	final protected TreeMap<String, SecondOrderParam> utilParams;
+	final protected TreeMap<String, SecondOrderParam> otherParams;
+	protected CombinationMethod utilityCombinationMethod = CombinationMethod.ADD;
 	protected Intervention[] interventions = null;
 	private boolean canadaValidation = false;
 	
@@ -134,7 +120,9 @@ public abstract class SecondOrderParams {
 	protected SecondOrderParams(boolean baseCase) {
 		this.baseCase = baseCase;
 		probabilityParams = new TreeMap<>();
+		costParams = new TreeMap<>();
 		otherParams = new TreeMap<>();
+		utilParams = new TreeMap<>();
 	}
 
 	/**
@@ -151,8 +139,24 @@ public abstract class SecondOrderParams {
 		return interventions.length;
 	}
 
+	public void addProbParam(SecondOrderParam param) {
+		probabilityParams.put(param.getName(), param);
+	}
+	
+	public void addCostParam(SecondOrderCostParam param) {
+		costParams.put(param.getName(), param);
+	}
+	
+	public void addUtilParam(SecondOrderParam param) {
+		utilParams.put(param.getName(), param);
+	}
+	
+	public void addOtherParam(SecondOrderParam param) {
+		otherParams.put(param.getName(), param);
+	}
+	
 	public double getProbability(String prob) {
-		final DoubleParam param = probabilityParams.get(prob);
+		final SecondOrderParam param = probabilityParams.get(prob);
 		return (param == null) ? Double.NaN : param.getValue(); 
 	}
 
@@ -164,13 +168,31 @@ public abstract class SecondOrderParams {
 	 * @return Returns an array with the relative risk for each intervention
 	 */
 	public double[] getRR(Complication comp) {
-		final DoubleParam param = probabilityParams.get(STR_RR_PREFIX + comp.name());
-		if (param == null)
-			return null;
 		final double[] rrValues = new double[interventions.length];
 		rrValues[0] = 1.0;
-		for (int i = 1; i < interventions.length; i++) {
-			rrValues[i] = param.getValue();
+		final SecondOrderParam param = probabilityParams.get(STR_RR_PREFIX + comp.name());
+		// Try computing the value from other parameters
+		if (param == null) {
+			final SecondOrderParam paramORR = probabilityParams.get(STR_ORR_PREFIX + comp.name());
+			final SecondOrderParam paramEff = probabilityParams.get(STR_EFF_PREFIX + interventions[1].getShortName());
+			final SecondOrderParam paramPPR = probabilityParams.get(STR_PERCENT_POINT_REDUCTION);
+			if (paramORR == null || paramEff == null || paramPPR == null) {
+				for (int i = 1; i < interventions.length; i++) {
+					rrValues[i] = 1.0;
+				}
+			}
+			else {
+				final double rr = 1 - (paramORR.getValue() * paramEff.getValue() / paramPPR.getValue());
+				for (int i = 1; i < interventions.length; i++) {
+					rrValues[i] = rr;
+				}
+			}
+		}
+		else {
+			final double rr = param.getValue();
+			for (int i = 1; i < interventions.length; i++) {
+				rrValues[i] = rr;
+			}
 		}
 		return rrValues;
 	}
@@ -184,23 +206,27 @@ public abstract class SecondOrderParams {
 		return baseCase;
 	}
 	
-	public double getIMR(Complication comp) {
-		final DoubleParam param = probabilityParams.get(STR_IMR_PREFIX + comp.name());
-		return (param == null) ? Double.NaN : param.getValue(); 
+	public double[] getIMRs() {
+		final double[] complicationsIMR = new double[N_COMPLICATIONS];
+		for (Complication comp : Complication.values()) {
+			final SecondOrderParam param = probabilityParams.get(STR_IMR_PREFIX + comp.name());
+			complicationsIMR[comp.ordinal()] = (param == null) ? Double.NaN : param.getValue();
+		}
+		return complicationsIMR; 
 	}
 
-	public double getIMRForDNC() {
-		final DoubleParam param = probabilityParams.get(STR_IMR_DNC);
+	public double getNoComplicationIMR() {
+		final SecondOrderParam param = probabilityParams.get(STR_IMR_DNC);
 		return (param == null) ? Double.NaN : param.getValue(); 		
 	}
 	
 	public double getInitAge() {
-		final DoubleParam param = (DoubleParam) otherParams.get(STR_INIT_AGE);
+		final SecondOrderParam param = (SecondOrderParam) otherParams.get(STR_INIT_AGE);
 		return (param == null) ? Double.NaN : param.getValue(); 				
 	}
 	
 	public double getDiscountRate() {
-		final DoubleParam param = (DoubleParam) otherParams.get(STR_DISCOUNT_RATE);
+		final SecondOrderParam param = (SecondOrderParam) otherParams.get(STR_DISCOUNT_RATE);
 		return (param == null) ? 0.0 : param.getValue(); 						
 	}
 	/**
@@ -211,7 +237,7 @@ public abstract class SecondOrderParams {
 	 * @return Returns an array with the duration of the effect of each intervention, expressed in simulation units.
 	 */
 	public long [] getDurationOfEffect(TimeUnit unit) {
-		final DoubleParam param = (DoubleParam) otherParams.get(STR_YEARS_OF_EFFECT);
+		final SecondOrderParam param = (SecondOrderParam) otherParams.get(STR_YEARS_OF_EFFECT);
 		final long[] duration = new long[interventions.length];
 		duration[0] = Long.MAX_VALUE;
 		for (int i = 1; i < interventions.length; i++) {
@@ -219,6 +245,72 @@ public abstract class SecondOrderParams {
 		}
 		return duration;
 	}
+	
+	public double getCostForSevereHypoglycemicEpisode() {
+		final SecondOrderParam param = (SecondOrderParam) costParams.get(STR_COST_HYPO_EPISODE);
+		return (param == null) ? 0.0 : param.getValue(); 						
+	}
+	
+	public double[] getAnnualComplicationCost() {
+		double[] annualComplicationCosts = new double[N_COMPLICATIONS];
+		for (Complication comp : Complication.values()) {
+			final SecondOrderParam param = costParams.get(STR_COST_PREFIX + comp.name());
+			annualComplicationCosts[comp.ordinal()] = (param == null) ? 0.0 : param.getValue();
+		}
+		return annualComplicationCosts;
+	}
+	
+	public double[] getTransitionComplicationCost() {
+		double[] costs = new double[N_COMPLICATIONS];
+		for (Complication comp : Complication.values()) {
+			final SecondOrderParam param = costParams.get(STR_TRANS_PREFIX + comp.name());
+			costs[comp.ordinal()] = (param == null) ? 0.0 : param.getValue();
+		}
+		return costs;
+	}
+	
+	public double getAnnualNoComplicationCost() {
+		final SecondOrderParam param = costParams.get(STR_COST_DNC);
+		return (param == null) ? 0.0 : param.getValue(); 		
+	}
+	
+	public double[] getAnnualInterventionCost() {
+		final double[] costs = new double[interventions.length];
+		for (int i = 0; i < interventions.length; i++) {
+			final SecondOrderParam param = costParams.get(STR_COST_PREFIX + interventions[i].getShortName());
+			costs[i] = (param == null) ? 0.0 : param.getValue();
+		}
+		return costs;
+	}
+	
+	public double getGeneralPopulationUtility() {
+		final SecondOrderParam param = utilParams.get(STR_U_GENERAL_POPULATION);
+		return (param == null) ? 1.0 : param.getValue(); 		
+	}
+	
+	public double getNoComplicationDisutility() {
+		final SecondOrderParam param = utilParams.get(STR_DU_DNC);
+		return (param == null) ? 0.0 : param.getValue(); 		
+	}
+	
+	public double getHypoEventDisutility() {
+		final SecondOrderParam param = utilParams.get(STR_DU_HYPO_EVENT);
+		return (param == null) ? 0.0 : param.getValue(); 		
+	}
+	
+	public double[] getComplicationDisutilities() {
+		final double[] du = new double[N_COMPLICATIONS];
+		for (Complication comp : Complication.values()) {
+			final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + comp.name());
+			du[comp.ordinal()] = (param == null) ? 0.0 : param.getValue();
+		}
+		return du;
+	}
+	
+	public CombinationMethod getUtilityCombinationMethod() {
+		return utilityCombinationMethod;
+	}
+	
 	/**
 	 * @param baseCase the baseCase to set
 	 */
@@ -265,9 +357,13 @@ public abstract class SecondOrderParams {
 	
 	public String getStrHeader() {
 		StringBuilder str = new StringBuilder();
-		for (DoubleParam param : probabilityParams.values())
+		for (SecondOrderParam param : probabilityParams.values())
 			str.append(param.getName()).append("\t");
-		for (Param param : otherParams.values())
+		for (SecondOrderParam param : costParams.values())
+			str.append(param.getName()).append("\t");
+		for (SecondOrderParam param : utilParams.values())
+			str.append(param.getName()).append("\t");
+		for (SecondOrderParam param : otherParams.values())
 			str.append(param.getName()).append("\t");
 		return str.toString();
 	}
@@ -275,10 +371,14 @@ public abstract class SecondOrderParams {
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		for (DoubleParam param : probabilityParams.values())
+		for (SecondOrderParam param : probabilityParams.values())
 			str.append(param.getLastGeneratedValue()).append("\t");
-		for (Param param : otherParams.values())
-			str.append(((DoubleParam)param).getValue()).append("\t");
+		for (SecondOrderParam param : costParams.values())
+			str.append(param.getValue()).append("\t");
+		for (SecondOrderParam param : utilParams.values())
+			str.append(param.getValue()).append("\t");
+		for (SecondOrderParam param : otherParams.values())
+			str.append(param.getValue()).append("\t");
 		return str.toString();
 	}
 	// For testing only
@@ -297,4 +397,90 @@ public abstract class SecondOrderParams {
 //			System.out.print(test1.getPDNC_CHD() + "\t");
 //		System.out.println();
 //	}
+	public class SecondOrderParam {
+		private final String name;
+		private final String description;
+		private final String source;
+		private final double detValue;
+		private final RandomVariate rnd;
+		private double lastGeneratedValue;
+
+		public SecondOrderParam(String name, String description, String source, double detValue, RandomVariate rnd) {
+			this.name = name;
+			this.description = description;
+			this.source = source;
+			this.detValue = detValue;
+			this.rnd = rnd;
+			lastGeneratedValue = Double.NaN;
+		}
+		
+		public SecondOrderParam(String name, String description, String source, double detValue) {
+			this(name, description, source, detValue, RandomVariateFactory.getInstance("ConstantVariate", detValue));
+		}
+		
+		public double getValue() {
+			lastGeneratedValue = baseCase ? detValue : rnd.generate();
+			return lastGeneratedValue;
+		}
+
+		/**
+		 * @return the name
+		 */
+		public String getName() {
+			return name;
+		}
+
+		/**
+		 * @return the description
+		 */
+		public String getDescription() {
+			return description;
+		}
+
+		/**
+		 * @return the source
+		 */
+		public String getSource() {
+			return source;
+		}
+
+		/**
+		 * @return the generatedValues
+		 */
+		public double getLastGeneratedValue() {
+			return lastGeneratedValue;
+		}
+	}
+	
+	/**
+	 * A special kind of second order parameter that updates the values according to the Spanish IPC.
+	 * @author Iván Castilla Rodríguez
+	 *
+	 */
+	public class SecondOrderCostParam extends SecondOrderParam {
+		/** Year of the cost */
+		final private int year;
+
+		public SecondOrderCostParam(String name, String description, String source, int year, double detValue) {
+			super(name, description, source, detValue);
+			this.year = year;
+		}
+		
+		public SecondOrderCostParam(String name, String description, String source, int year, double detValue, RandomVariate rnd) {
+			super(name, description, source, detValue, rnd);
+			this.year = year;
+		}
+
+		@Override
+		public double getValue() {
+			return SpanishIPCUpdate.updateCost(super.getValue(), year, BasicConfigParams.STUDY_YEAR);
+		}
+		/**
+		 * @return the year
+		 */
+		public int getYear() {
+			return year;
+		}
+	}
+	
 }

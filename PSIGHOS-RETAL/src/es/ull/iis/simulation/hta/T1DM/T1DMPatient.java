@@ -10,9 +10,11 @@ import java.util.EnumSet;
 import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.Complication;
 import es.ull.iis.simulation.hta.T1DM.params.ResourceUsageParams;
+import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.params.SevereHypoglycemicEventParam;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityParams;
 import es.ull.iis.simulation.model.DiscreteEvent;
@@ -51,9 +53,9 @@ public class T1DMPatient extends Patient {
 		this.utilParams = simul.getUtilParams();
 		this.resUsageParams = simul.getResUsageParams();
 
-		this.initAge = CommonParams.YEAR_CONVERSION*initAge;
+		this.initAge = BasicConfigParams.YEAR_CONVERSION*initAge;
 		this.sex = commonParams.getSex(this);
-		complicationEvents = new ComplicationEvent[CommonParams.N_COMPLICATIONS];
+		complicationEvents = new ComplicationEvent[SecondOrderParams.N_COMPLICATIONS];
 		Arrays.fill(complicationEvents, null);
 		hypoEvents = new ArrayList<>();
 	}
@@ -66,7 +68,7 @@ public class T1DMPatient extends Patient {
 
 		this.initAge = original.initAge;
 		this.sex = original.sex;
-		complicationEvents = new ComplicationEvent[CommonParams.N_COMPLICATIONS];
+		complicationEvents = new ComplicationEvent[SecondOrderParams.N_COMPLICATIONS];
 		Arrays.fill(complicationEvents, null);
 		hypoEvents = new ArrayList<>();
 	}
@@ -92,7 +94,7 @@ public class T1DMPatient extends Patient {
 	 * @return the initAge
 	 */
 	public double getInitAge() {
-		return initAge / CommonParams.YEAR_CONVERSION;
+		return initAge / BasicConfigParams.YEAR_CONVERSION;
 	}
 
 	/**
@@ -100,7 +102,7 @@ public class T1DMPatient extends Patient {
 	 * @return the current age of the patient
 	 */
 	public double getAge() {
-		return (initAge + simul.getSimulationEngine().getTs() - startTs) / CommonParams.YEAR_CONVERSION;
+		return (initAge + simul.getSimulationEngine().getTs() - startTs) / BasicConfigParams.YEAR_CONVERSION;
 	}
 	
 	/**
@@ -112,7 +114,7 @@ public class T1DMPatient extends Patient {
 	
 	public double getAgeAtDeath() {
 		final long timeToDeath = getTimeToDeath();
-		return (timeToDeath == Long.MAX_VALUE) ? Double.MAX_VALUE : ((initAge + timeToDeath) / CommonParams.YEAR_CONVERSION);
+		return (timeToDeath == Long.MAX_VALUE) ? Double.MAX_VALUE : ((initAge + timeToDeath) / BasicConfigParams.YEAR_CONVERSION);
 	}
 	
 	/**
@@ -149,11 +151,11 @@ public class T1DMPatient extends Patient {
 		@Override
 		public void event() {
 			if (lastTs != ts) {
-				final double initAge = TimeUnit.DAY.convert(lastTs, simul.getTimeUnit()) / CommonParams.YEAR_CONVERSION; 
-				final double endAge = TimeUnit.DAY.convert(ts, simul.getTimeUnit()) / CommonParams.YEAR_CONVERSION;
+				final double initAge = TimeUnit.DAY.convert(lastTs, simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION; 
+				final double endAge = TimeUnit.DAY.convert(ts, simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
 				lastTs = this.ts;
 				if (ts > 0) {
-					final double periodCost = resUsageParams.getResourceAnnualCostWithinPeriod(T1DMPatient.this, initAge, endAge);
+					final double periodCost = resUsageParams.getAnnualCostWithinPeriod(T1DMPatient.this, initAge, endAge);
 					cost.update(T1DMPatient.this, periodCost, initAge, endAge);
 					ly.update(T1DMPatient.this, 1.0, initAge, endAge);
 					qaly.update(T1DMPatient.this, utilParams.getUtilityValue(T1DMPatient.this), initAge, endAge);
@@ -238,6 +240,9 @@ public class T1DMPatient extends Patient {
 				error("Complication already assigned!! " + complication);
 			}
 			else {
+				final double age = TimeUnit.DAY.convert(ts, simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
+				cost.update(T1DMPatient.this, resUsageParams.getCostOfComplication(T1DMPatient.this, complication), age);
+				
 				simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, complication, this.getTs()));
 				T1DMPatient.this.state.add(complication);
 				
@@ -326,6 +331,10 @@ public class T1DMPatient extends Patient {
 		@Override
 		public void event() {
 			super.event();
+			final double age = TimeUnit.DAY.convert(ts, simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
+			qaly.update(T1DMPatient.this, utilParams.getHypoEventDisutilityValue(), age);
+			cost.update(T1DMPatient.this, resUsageParams.getCostForSevereHypoglycemicEpisode(T1DMPatient.this), age);
+
 			simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, T1DMPatientInfo.Type.HYPO_EVENT, this.getTs()));
 			// If the hypoglycemic event causes the death of the patient
 			if (causesDeath) {

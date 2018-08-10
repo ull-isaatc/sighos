@@ -7,8 +7,9 @@ import java.io.PrintStream;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
-import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.Complication;
+import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParams;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -27,7 +28,7 @@ public class T1DMTimeFreeOfComplicationsView extends Listener {
 	 */
 	public T1DMTimeFreeOfComplicationsView(int nPatients) {
 		super("Standard patient viewer");
-		timeToComplications = new double[CommonParams.N_COMPLICATIONS][nPatients];
+		timeToComplications = new double[SecondOrderParams.N_COMPLICATIONS][nPatients];
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
 		addEntrance(SimulationEndInfo.class);
@@ -43,7 +44,7 @@ public class T1DMTimeFreeOfComplicationsView extends Listener {
 			for (double[] values : timeToComplications) {
 				final double avg = Statistics.average(values);
 				final double[] ci = Statistics.normal95CI(avg, Statistics.stdDev(values, avg), values.length);
-				out.print("\t" + (avg /CommonParams.YEAR_CONVERSION) + " [" + (ci[0] /CommonParams.YEAR_CONVERSION) + ", " + (ci[1]/CommonParams.YEAR_CONVERSION) + "]");
+				out.print("\t" + (avg /BasicConfigParams.YEAR_CONVERSION) + " [" + (ci[0] /BasicConfigParams.YEAR_CONVERSION) + ", " + (ci[1]/BasicConfigParams.YEAR_CONVERSION) + "]");
 			}
 			out.println();
 		}

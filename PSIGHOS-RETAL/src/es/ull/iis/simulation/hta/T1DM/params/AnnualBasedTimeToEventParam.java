@@ -32,6 +32,6 @@ public class AnnualBasedTimeToEventParam extends UniqueEventParam<Long> {
 	public Long getValue(T1DMPatient pat) {
 		final double lifetime = pat.getAgeAtDeath() - pat.getAge();
 		final double time = (minusAvgTimeToEvent / interventionRR[pat.getnIntervention()]) * Math.log(draw(pat));
-		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(CommonParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
+		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 	}
 }

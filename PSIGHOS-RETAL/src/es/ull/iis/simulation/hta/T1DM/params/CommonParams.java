@@ -8,7 +8,6 @@ import java.util.EnumSet;
 import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.params.ModelParams;
-import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
@@ -21,19 +20,6 @@ import simkit.random.RandomNumberFactory;
  *
  */
 public class CommonParams extends ModelParams {
-	public final static TimeUnit SIMUNIT = TimeUnit.DAY;
-	public final static double YEAR_CONVERSION = SIMUNIT.convert(TimeStamp.getYear());
-
-	public final static int NPATIENTS = 10000;
-
-	public static final int N_COMPLICATIONS = Complication.values().length;
-
-	public final static int MAX_AGE = 100;
-	public final static int MAN = 0;
-	public final static int WOMAN = 1;
-	// FIXME: Should be related to simulation time unit 
-	public final static long MIN_TIME_TO_EVENT = 30;
-
 	private final SevereHypoglycemicEventParam hypoParam;
 	private final RandomNumber rngSex;
 	private final RandomNumber rngComplications;
@@ -55,6 +41,7 @@ public class CommonParams extends ModelParams {
 	private final double[] rrNPH;
 	private final double[] rrNEU;
 	private final double[] rrRET;
+	private final double[] noRR;
 	
 	private final double pMan;
 	private final double initAge;
@@ -62,6 +49,7 @@ public class CommonParams extends ModelParams {
 	private final double discountRate;
 	
 	private final AllCausesDeathParam allCausesDeath;
+	private final double noComplicationsIMR;
 	/** Incremented mortality risk due to complications */
 	private final double[] complicationsIMR;
 	private final AnnualBasedTimeToEventParam canadaTimeToDeathESRD;
@@ -79,11 +67,11 @@ public class CommonParams extends ModelParams {
 		this.secParams = secParams;
 		rngSex = RandomNumberFactory.getInstance();
 		rngComplications = RandomNumberFactory.getInstance();
-		rndComplications = new double[N_COMPLICATIONS][NPATIENTS];
-		for (int i = 0; i < N_COMPLICATIONS; i++)
-			for (int j = 0; j < NPATIENTS; j++)
+		rndComplications = new double[SecondOrderParams.N_COMPLICATIONS][BasicConfigParams.NPATIENTS];
+		for (int i = 0; i < SecondOrderParams.N_COMPLICATIONS; i++)
+			for (int j = 0; j < BasicConfigParams.NPATIENTS; j++)
 				rndComplications[i][j] = rngComplications.draw();
-		hypoParam = new SevereHypoglycemicEventParam(NPATIENTS);
+		hypoParam = new SevereHypoglycemicEventParam(BasicConfigParams.NPATIENTS);
 		invDNC_RET = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_RET);
 		invDNC_NEU = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_NEU);
 		invDNC_NPH = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_NPH);
@@ -100,20 +88,22 @@ public class CommonParams extends ModelParams {
 		rrNPH =  secParams.getRR(Complication.NPH);
 		rrNEU =  secParams.getRR(Complication.NEU);
 		rrRET =  secParams.getRR(Complication.RET);
+		noRR = secParams.getNoRR();
 
 		pMan = secParams.getProbability(SecondOrderParams.STR_P_MAN);
 		initAge = secParams.getInitAge();
-		durationOfEffect = secParams.getDurationOfEffect(SIMUNIT);
+		durationOfEffect = secParams.getDurationOfEffect(BasicConfigParams.SIMUNIT);
 		discountRate = secParams.getDiscountRate();
 
-		allCausesDeath = new AllCausesDeathParam(CommonParams.NPATIENTS);
+		allCausesDeath = new AllCausesDeathParam(BasicConfigParams.NPATIENTS);
 		if (secParams.isCanadaValidation()) {
-			canadaTimeToDeathESRD = new AnnualBasedTimeToEventParam(CommonParams.NPATIENTS, 0.164, SecondOrderParams.NO_RR);
-			canadaTimeToDeathNPH = new AnnualBasedTimeToEventParam(CommonParams.NPATIENTS, 0.0036, SecondOrderParams.NO_RR);
-			canadaTimeToDeathLEA = new AnnualBasedTimeToEventParam(CommonParams.NPATIENTS, 0.093, SecondOrderParams.NO_RR);
-			canadaTimeToDeathOther = new CanadaOtherCausesDeathParam(CommonParams.NPATIENTS);
-			canadaTimeToDeathCHD = new CVDCanadaDeathParam(CommonParams.NPATIENTS);
+			canadaTimeToDeathESRD = new AnnualBasedTimeToEventParam(BasicConfigParams.NPATIENTS, 0.164, noRR);
+			canadaTimeToDeathNPH = new AnnualBasedTimeToEventParam(BasicConfigParams.NPATIENTS, 0.0036, noRR);
+			canadaTimeToDeathLEA = new AnnualBasedTimeToEventParam(BasicConfigParams.NPATIENTS, 0.093, noRR);
+			canadaTimeToDeathOther = new CanadaOtherCausesDeathParam(BasicConfigParams.NPATIENTS);
+			canadaTimeToDeathCHD = new CVDCanadaDeathParam(BasicConfigParams.NPATIENTS, noRR);
 			complicationsIMR = null;
+			noComplicationsIMR = 1.0;
 		}
 		else {
 			canadaTimeToDeathESRD = null;
@@ -121,9 +111,8 @@ public class CommonParams extends ModelParams {
 			canadaTimeToDeathLEA = null;
 			canadaTimeToDeathOther = null;
 			canadaTimeToDeathCHD = null;
-			complicationsIMR = new double[CommonParams.N_COMPLICATIONS];
-			for (Complication comp : Complication.values())
-				complicationsIMR[comp.ordinal()] = secParams.getIMR(comp);
+			noComplicationsIMR = secParams.getNoComplicationIMR();
+			complicationsIMR = secParams.getIMRs();
 		}
 	}
 
@@ -165,7 +154,7 @@ public class CommonParams extends ModelParams {
 		case BLI:
 			// Already at retinopathy
 			if (state.contains(Complication.RET)) {
-				final long time2BLI = getAnnualBasedTimeToEvent(pat, invRET_BLI, rnd, SecondOrderParams.NO_RR);
+				final long time2BLI = getAnnualBasedTimeToEvent(pat, invRET_BLI, rnd, noRR);
 				if (time2BLI < time2Death)
 					time = time2BLI;
 			}
@@ -188,14 +177,14 @@ public class CommonParams extends ModelParams {
 				}
 			}
 
-			final long time2CHD = getAnnualBasedTimeToEvent(pat, minInv, rnd, applyRiskReduction ? rrCHD : SecondOrderParams.NO_RR);
+			final long time2CHD = getAnnualBasedTimeToEvent(pat, minInv, rnd, applyRiskReduction ? rrCHD : noRR);
 			if (time2CHD < time2Death)
 				time = time2CHD;				
 			break;
 		case ESRD:
 			// Already at nephropathy
 			if (state.contains(Complication.NPH)) {
-				final long time2ESRD = getAnnualBasedTimeToEvent(pat, invNPH_ESRD, rnd, SecondOrderParams.NO_RR);
+				final long time2ESRD = getAnnualBasedTimeToEvent(pat, invNPH_ESRD, rnd, noRR);
 				if (time2ESRD < time2Death)
 					time = time2ESRD;
 			}
@@ -203,31 +192,31 @@ public class CommonParams extends ModelParams {
 		case LEA:
 			// Already at neuropathy
 			if (state.contains(Complication.NEU)) {
-				final long time2LEA = getAnnualBasedTimeToEvent(pat, invNEU_LEA, rnd, SecondOrderParams.NO_RR);
+				final long time2LEA = getAnnualBasedTimeToEvent(pat, invNEU_LEA, rnd, noRR);
 				if (time2LEA < time2Death)
 					time = time2LEA;
 			}
 			break;
 		case NEU:
-			final long time2NEU = getAnnualBasedTimeToEvent(pat, invDNC_NEU, rnd, applyRiskReduction ? rrNEU : SecondOrderParams.NO_RR);
+			final long time2NEU = getAnnualBasedTimeToEvent(pat, invDNC_NEU, rnd, applyRiskReduction ? rrNEU : noRR);
 			if (time2NEU < time2Death)
 				time = time2NEU;
 			break;
 		case NPH:
 			// Already at neuropathy: we're assuming that the risk from neuropathy is higher than from no complications
 			if (state.contains(Complication.NEU)) {
-				final long time2NPH = getAnnualBasedTimeToEvent(pat, invNEU_NPH, rnd, applyRiskReduction ? rrNPH : SecondOrderParams.NO_RR);
+				final long time2NPH = getAnnualBasedTimeToEvent(pat, invNEU_NPH, rnd, applyRiskReduction ? rrNPH : noRR);
 				if (time2NPH < time2Death)
 					time = time2NPH;
 			}
 			else {
-				final long time2NPH = getAnnualBasedTimeToEvent(pat, invDNC_NPH, rnd, applyRiskReduction ? rrNPH : SecondOrderParams.NO_RR);
+				final long time2NPH = getAnnualBasedTimeToEvent(pat, invDNC_NPH, rnd, applyRiskReduction ? rrNPH : noRR);
 				if (time2NPH < time2Death)
 					time = time2NPH;				
 			}
 			break;
 		case RET:
-			final long time2RET = getAnnualBasedTimeToEvent(pat, invDNC_RET, rnd, applyRiskReduction ? rrRET : SecondOrderParams.NO_RR);
+			final long time2RET = getAnnualBasedTimeToEvent(pat, invDNC_RET, rnd, applyRiskReduction ? rrRET : noRR);
 			if (time2RET < time2Death)
 				time = time2RET;
 			break;
@@ -264,7 +253,7 @@ public class CommonParams extends ModelParams {
 			return timeToDeath;
 		}
 		else {
-			double maxIMR = 1.0;
+			double maxIMR = noComplicationsIMR;
 			for (Complication comp : pat.getState()) {
 				if (complicationsIMR[comp.ordinal()] > maxIMR) {
 					maxIMR = complicationsIMR[comp.ordinal()];
@@ -284,7 +273,7 @@ public class CommonParams extends ModelParams {
 	public static long getAnnualBasedTimeToEvent(T1DMPatient pat, double minusAvgTimeToEvent, double rnd, double[] interventionRR) {
 		final double lifetime = pat.getAgeAtDeath() - pat.getAge();
 		final double time = (minusAvgTimeToEvent / interventionRR[pat.getnIntervention()]) * Math.log(rnd);
-		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
+		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 	}
 	
 	public void reset() {

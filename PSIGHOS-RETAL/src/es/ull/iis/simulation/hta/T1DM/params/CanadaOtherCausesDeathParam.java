@@ -38,7 +38,8 @@ public class CanadaOtherCausesDeathParam extends UniqueEventParam<Long> implemen
 		// If the expected time to death is higher than the max age to apply the initial risk, we assume that the patient will
 		// survive up to that age and compute the time to death according to the general population equations. 
 		if (age + time > MAX_AGE)
-			time = Math.min(MAX_AGE - age + ModelParams.generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], MAX_AGE, draw(pat)), CommonParams.MAX_AGE - pat.getAge());
+//			time = Math.min(MAX_AGE - age + ModelParams.generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], MAX_AGE, draw(pat)), BasicConfigParams.MAX_AGE - pat.getAge());
+			time = BasicConfigParams.MAX_AGE - pat.getAge();
 		return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
 	}
 
