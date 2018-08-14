@@ -89,10 +89,17 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		addProbParam(new SecondOrderParam(STR_P_RET_BLI, STR_P_RET_BLI, "", P_RET_BLI, RandomVariateFactory.getInstance("ConstantVariate", P_RET_BLI)));
 		addProbParam(new SecondOrderParam(STR_P_RET_CHD, STR_P_RET_CHD, "", P_RET_CHD, RandomVariateFactory.getInstance("ConstantVariate", P_RET_CHD)));
 		
-		addProbParam(new SecondOrderParam(STR_RR_CHD, STR_RR_CHD, "", RR_CHD, RandomVariateFactory.getInstance("ConstantVariate", RR_CHD)));
-		addProbParam(new SecondOrderParam(STR_RR_NPH, STR_RR_NPH, "", RR_NPH, RandomVariateFactory.getInstance("ConstantVariate", RR_NPH)));
-		addProbParam(new SecondOrderParam(STR_RR_NEU, STR_RR_NEU, "", RR_NEU, RandomVariateFactory.getInstance("ConstantVariate", RR_NEU)));
-		addProbParam(new SecondOrderParam(STR_RR_RET, STR_RR_RET, "", RR_RET, RandomVariateFactory.getInstance("ConstantVariate", RR_RET)));
+		// Severe hypoglycemic episodes
+		final double[] paramsHypo = betaParametersFromNormal(0.0982, sdFrom95CI(new double[]{0.0526, 0.1513}));
+		final double[] paramsDeathHypo = betaParametersFromNormal(0.0063, sdFrom95CI(new double[]{0.0058, 0.0068}));
+		addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode", "Canada", 0.0982, RandomVariateFactory.getInstance("BetaVariate", paramsHypo[0], paramsHypo[1])));
+		addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", "Canada", 0.0063, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
+		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic event in intervention branch", "Canada", 0.869, RandomVariateFactory.getInstance("RRFromLnCIVariate", 0.869, 0.476, 1.586, 1)));
+
+		addOtherParam(new SecondOrderParam(STR_RR_CHD, STR_RR_CHD, "", RR_CHD, RandomVariateFactory.getInstance("ConstantVariate", RR_CHD)));
+		addOtherParam(new SecondOrderParam(STR_RR_NPH, STR_RR_NPH, "", RR_NPH, RandomVariateFactory.getInstance("ConstantVariate", RR_NPH)));
+		addOtherParam(new SecondOrderParam(STR_RR_NEU, STR_RR_NEU, "", RR_NEU, RandomVariateFactory.getInstance("ConstantVariate", RR_NEU)));
+		addOtherParam(new SecondOrderParam(STR_RR_RET, STR_RR_RET, "", RR_RET, RandomVariateFactory.getInstance("ConstantVariate", RR_RET)));
 
 		addCostParam(new SecondOrderCostParam(STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", "HTA Canada", 2018, C_HYPO_EPISODE));
 		addCostParam(new SecondOrderCostParam(STR_COST_DNC, "Cost of DNC", "HTA Canada", 2018, C_DNC));
@@ -124,7 +131,7 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		addUtilParam(new SecondOrderParam(STR_DU_ESRD, "Disutility of ESRD", "", DU_ESRD));
 		addUtilParam(new SecondOrderParam(STR_DU_BLI, "Disutility of BLI", "", DU_BLI));
 
-		addProbParam(new SecondOrderParam(STR_P_MAN, "Probability of havig sex = male", "Assumption", P_MAN));
+		addOtherParam(new SecondOrderParam(STR_P_MAN, "Probability of havig sex = male", "Assumption", P_MAN));
 		addOtherParam(new SecondOrderParam(STR_INIT_AGE, "Initial age", "", INIT_AGE));
 		addOtherParam(new SecondOrderParam(STR_YEARS_OF_EFFECT, "Duration of effect in years", "", YEARS_OF_EFFECT));
 		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "Spanish guidelines", DISCOUNT_RATE));

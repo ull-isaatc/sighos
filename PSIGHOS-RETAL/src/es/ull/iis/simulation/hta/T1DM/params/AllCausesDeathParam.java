@@ -12,12 +12,12 @@ import es.ull.iis.simulation.model.TimeUnit;
  *
  */
 public class AllCausesDeathParam extends UniqueEventParam<Long> implements Param<Long> {
-	// Parameters for death. Source: Spanish 2014 Mortality risk. INE
-	// Adjusted using a Gompertz distribution with logs or the yearly mortality risks from age 40 to 100.
+	// Parameters for death. Source: Spanish 2016 Mortality risk. INE
+	// Adjusted using a Gompertz distribution with logs or the yearly mortality risks from age 18 to 100.
 	/** Alpha parameter for a Gompertz distribution on the mortality risk for men and women */
-	private final static double ALPHA_DEATH[] = new double[] {Math.exp(-10.72495061), Math.exp(-12.03468863)};
+	private final static double ALPHA_DEATH[] = new double[] {Math.exp(-10.43996654), Math.exp(-11.43877681)};
 	/** Beta parameter for a Gompertz distribution on the mortality risk for men and women */
-	private final static double BETA_DEATH[] = new double[] {0.097793214, 0.108276765};
+	private final static double BETA_DEATH[] = new double[] {0.093286762, 0.099683525};
 
 	public AllCausesDeathParam(int nPatients) {
 		super(nPatients);

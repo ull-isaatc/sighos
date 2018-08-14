@@ -19,6 +19,9 @@ public class ResourceUsageParams extends ModelParams {
 	private final double costNoComplication;
 	private final double costHypoglycemicEvent;
 	private final double[] annualInterventionCosts;
+	private final boolean isDetailedCHD; 
+	private final double[] annualCHDComplicationCosts;
+	private final double[] transitionCHDComplicationCosts;
 	/**
 	 * @param secondOrder
 	 */
@@ -29,6 +32,9 @@ public class ResourceUsageParams extends ModelParams {
 		annualComplicationCosts = secParams.getAnnualComplicationCost();
 		transitionComplicationCosts = secParams.getTransitionComplicationCost();
 		annualInterventionCosts = secParams.getAnnualInterventionCost();
+		isDetailedCHD = secParams.isDetailedCHD();
+		annualCHDComplicationCosts = secParams.getAnnualCHDComplicationCost(); 
+		transitionCHDComplicationCosts = secParams.getTransitionCHDComplicationCost();
 	}
 
 	public double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
@@ -39,14 +45,28 @@ public class ResourceUsageParams extends ModelParams {
 			cost = costNoComplication;
 		}
 		else {
-			for (Complication comp : state) {
-				cost += annualComplicationCosts[comp.ordinal()];
+			if (isDetailedCHD && state.contains(Complication.CHD)) {
+				for (Complication comp : state) {
+					if (Complication.CHD.equals(comp)) {
+						cost += annualCHDComplicationCosts[pat.getCHDComplication().ordinal()];
+					}
+					else {
+						cost += annualComplicationCosts[comp.ordinal()];
+					}
+				}				
+			}
+			else {
+				for (Complication comp : state) {
+					cost += annualComplicationCosts[comp.ordinal()];
+				}
 			}
 		}
 		return cost;
 	}
 	
 	public double getCostOfComplication(T1DMPatient pat, Complication comp) {
+		if (isDetailedCHD && Complication.CHD.equals(comp)) 
+			return transitionCHDComplicationCosts[pat.getCHDComplication().ordinal()];
 		return transitionComplicationCosts[comp.ordinal()];
 	}
 	

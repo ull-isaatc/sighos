@@ -9,6 +9,7 @@ import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.params.ModelParams;
 import es.ull.iis.simulation.model.TimeUnit;
+import simkit.random.DiscreteSelectorVariate;
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
 
@@ -57,6 +58,7 @@ public class CommonParams extends ModelParams {
 	private final AnnualBasedTimeToEventParam canadaTimeToDeathLEA;
 	private final CanadaOtherCausesDeathParam canadaTimeToDeathOther;
 	private final CVDCanadaDeathParam canadaTimeToDeathCHD;
+	private final DiscreteSelectorVariate pCHDComplication;
 
 	final private SecondOrderParams secParams;
 	/**
@@ -68,10 +70,12 @@ public class CommonParams extends ModelParams {
 		rngSex = RandomNumberFactory.getInstance();
 		rngComplications = RandomNumberFactory.getInstance();
 		rndComplications = new double[SecondOrderParams.N_COMPLICATIONS][BasicConfigParams.NPATIENTS];
+		pCHDComplication = secParams.getRandomVariateForCHDComplications();
+
 		for (int i = 0; i < SecondOrderParams.N_COMPLICATIONS; i++)
 			for (int j = 0; j < BasicConfigParams.NPATIENTS; j++)
 				rndComplications[i][j] = rngComplications.draw();
-		hypoParam = new SevereHypoglycemicEventParam(BasicConfigParams.NPATIENTS);
+		hypoParam = new SevereHypoglycemicEventParam(BasicConfigParams.NPATIENTS, secParams.getProbability(SecondOrderParams.STR_P_HYPO), secParams.getHypoRR(), secParams.getProbability(SecondOrderParams.STR_P_DEATH_HYPO));
 		invDNC_RET = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_RET);
 		invDNC_NEU = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_NEU);
 		invDNC_NPH = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_NPH);
@@ -90,7 +94,7 @@ public class CommonParams extends ModelParams {
 		rrRET =  secParams.getRR(Complication.RET);
 		noRR = secParams.getNoRR();
 
-		pMan = secParams.getProbability(SecondOrderParams.STR_P_MAN);
+		pMan = secParams.getPMan();
 		initAge = secParams.getInitAge();
 		durationOfEffect = secParams.getDurationOfEffect(BasicConfigParams.SIMUNIT);
 		discountRate = secParams.getDiscountRate();
@@ -261,6 +265,20 @@ public class CommonParams extends ModelParams {
 			}
 			return allCausesDeath.getValue(pat, maxIMR);
 		}
+	}
+
+	/**
+	 * Returns true if the CHD complications are detailed; false otherwise
+	 * @return True if the CHD complications are detailed; false otherwise
+	 */
+	public boolean isDetailedCHD() {
+		return pCHDComplication != null;
+	}
+	
+	public CHDComplication getCHDComplication(T1DMPatient pat) {
+		if (!isDetailedCHD())
+			return null;
+		return CHDComplication.values()[pCHDComplication.generateInt()];
 	}
 	/**
 	 * Generates a time to event based on annual risk. The time to event is absolute, i.e., can be used directly to schedule a new event. 

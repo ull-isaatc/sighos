@@ -12,9 +12,11 @@ import es.ull.iis.simulation.model.TimeUnit;
  *
  */
 public class BasicConfigParams {
+	public final static boolean BASIC_TEST_ONE_PATIENT = false;
+	public final static boolean CHECK_CANADA = false;
 
 	/** Number of patients to simulate */
-	public final static int NPATIENTS = 5000;
+	public final static int NPATIENTS = BASIC_TEST_ONE_PATIENT ? 1 : 5000;
 	/** Simulation time unit: defines the finest grain */
 	public final static TimeUnit SIMUNIT = TimeUnit.DAY;
 	/** The factor to expressed a simulation timestamp in years */ 

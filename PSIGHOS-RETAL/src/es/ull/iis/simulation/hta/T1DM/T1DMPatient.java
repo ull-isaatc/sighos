@@ -11,6 +11,7 @@ import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.T1DM.params.CHDComplication;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.Complication;
 import es.ull.iis.simulation.hta.T1DM.params.ResourceUsageParams;
@@ -28,6 +29,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 public class T1DMPatient extends Patient {
 	/** The state of the patient, initialized with no complications */
 	private final EnumSet<Complication> state = EnumSet.noneOf(Complication.class);
+	private final CHDComplication chdComplication;
 	/** Initial age of the patient (stored in days) */
 	private final double initAge;
 	/** Sex of the patient: 0 for men, 1 for women */
@@ -58,6 +60,7 @@ public class T1DMPatient extends Patient {
 		complicationEvents = new ComplicationEvent[SecondOrderParams.N_COMPLICATIONS];
 		Arrays.fill(complicationEvents, null);
 		hypoEvents = new ArrayList<>();
+		chdComplication = commonParams.getCHDComplication(this);
 	}
 
 	public T1DMPatient(T1DMSimulation simul, T1DMPatient original, Intervention intervention) {
@@ -71,6 +74,7 @@ public class T1DMPatient extends Patient {
 		complicationEvents = new ComplicationEvent[SecondOrderParams.N_COMPLICATIONS];
 		Arrays.fill(complicationEvents, null);
 		hypoEvents = new ArrayList<>();
+		chdComplication = original.chdComplication;
 	}
 
 	/**
@@ -78,6 +82,13 @@ public class T1DMPatient extends Patient {
 	 */
 	public EnumSet<Complication> getState() {
 		return state;
+	}
+
+	/**
+	 * @return the chdComplication
+	 */
+	public CHDComplication getCHDComplication() {
+		return chdComplication;
 	}
 
 	@Override
