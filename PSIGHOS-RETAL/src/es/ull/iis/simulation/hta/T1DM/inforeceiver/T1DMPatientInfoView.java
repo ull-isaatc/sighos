@@ -18,31 +18,40 @@ import es.ull.iis.simulation.inforeceiver.Listener;
 public class T1DMPatientInfoView extends Listener {
 	private final PrintStream out = System.out;
 	long simulationInit = 0;
+	private final int specificPatient;
 	
 
 	/**
 	 * @param simul
 	 */
-	public T1DMPatientInfoView() {
+	public T1DMPatientInfoView(int specificPatient) {
 		super("Standard patient viewer");
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
 		addEntrance(SimulationStartInfo.class);
 		addEntrance(SimulationEndInfo.class);
+		this.specificPatient = specificPatient;
+	}
+
+	public T1DMPatientInfoView() {
+		this(-1);
 	}
 
 	@Override
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof SimulationEndInfo) { 
 			final SimulationEndInfo endInfo = (SimulationEndInfo) info;
-			out.println(info.toString() + ": CPU Time = " 
+			if (specificPatient == -1)
+				out.println(info.toString() + ": CPU Time = " 
 					+ ((endInfo.getCpuTime() - simulationInit) / 1000000) + " miliseconds.");
 		} else if (info instanceof SimulationStartInfo) {
 			final SimulationStartInfo startInfo = (SimulationStartInfo) info;
 			simulationInit = startInfo.getCpuTime();
-			out.println(info.toString());
-		} else if (info instanceof T1DMPatientInfo){
-			out.println(info.toString());
+			if (specificPatient == -1)
+				out.println(info.toString());
+		} else if (info instanceof T1DMPatientInfo) {
+			if (specificPatient == -1 || specificPatient == ((T1DMPatientInfo)info).getPatient().getIdentifier())
+				out.println(info.toString());
 		}
 		
 	}

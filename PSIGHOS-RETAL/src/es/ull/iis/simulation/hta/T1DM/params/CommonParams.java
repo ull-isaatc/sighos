@@ -64,18 +64,18 @@ public class CommonParams extends ModelParams {
 	/**
 	 * @param secondOrder
 	 */
-	public CommonParams(SecondOrderParams secParams) {
+	public CommonParams(SecondOrderParams secParams, int nPatients) {
 		super();
 		this.secParams = secParams;
 		rngSex = RandomNumberFactory.getInstance();
 		rngComplications = RandomNumberFactory.getInstance();
-		rndComplications = new double[SecondOrderParams.N_COMPLICATIONS][BasicConfigParams.NPATIENTS];
+		rndComplications = new double[SecondOrderParams.N_COMPLICATIONS][nPatients];
 		pCHDComplication = secParams.getRandomVariateForCHDComplications();
 
 		for (int i = 0; i < SecondOrderParams.N_COMPLICATIONS; i++)
-			for (int j = 0; j < BasicConfigParams.NPATIENTS; j++)
+			for (int j = 0; j < nPatients; j++)
 				rndComplications[i][j] = rngComplications.draw();
-		hypoParam = new SevereHypoglycemicEventParam(BasicConfigParams.NPATIENTS, secParams.getProbability(SecondOrderParams.STR_P_HYPO), secParams.getHypoRR(), secParams.getProbability(SecondOrderParams.STR_P_DEATH_HYPO));
+		hypoParam = new SevereHypoglycemicEventParam(nPatients, secParams.getProbability(SecondOrderParams.STR_P_HYPO), secParams.getHypoRR(), secParams.getProbability(SecondOrderParams.STR_P_DEATH_HYPO));
 		invDNC_RET = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_RET);
 		invDNC_NEU = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_NEU);
 		invDNC_NPH = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_NPH);
@@ -99,13 +99,13 @@ public class CommonParams extends ModelParams {
 		durationOfEffect = secParams.getDurationOfEffect(BasicConfigParams.SIMUNIT);
 		discountRate = secParams.getDiscountRate();
 
-		allCausesDeath = new AllCausesDeathParam(BasicConfigParams.NPATIENTS);
+		allCausesDeath = new AllCausesDeathParam(nPatients);
 		if (secParams.isCanadaValidation()) {
-			canadaTimeToDeathESRD = new AnnualBasedTimeToEventParam(BasicConfigParams.NPATIENTS, 0.164, noRR);
-			canadaTimeToDeathNPH = new AnnualBasedTimeToEventParam(BasicConfigParams.NPATIENTS, 0.0036, noRR);
-			canadaTimeToDeathLEA = new AnnualBasedTimeToEventParam(BasicConfigParams.NPATIENTS, 0.093, noRR);
-			canadaTimeToDeathOther = new CanadaOtherCausesDeathParam(BasicConfigParams.NPATIENTS);
-			canadaTimeToDeathCHD = new CVDCanadaDeathParam(BasicConfigParams.NPATIENTS, noRR);
+			canadaTimeToDeathESRD = new AnnualBasedTimeToEventParam(nPatients, 0.164, noRR);
+			canadaTimeToDeathNPH = new AnnualBasedTimeToEventParam(nPatients, 0.0036, noRR);
+			canadaTimeToDeathLEA = new AnnualBasedTimeToEventParam(nPatients, 0.093, noRR);
+			canadaTimeToDeathOther = new CanadaOtherCausesDeathParam(nPatients);
+			canadaTimeToDeathCHD = new CVDCanadaDeathParam(nPatients, noRR);
 			complicationsIMR = null;
 			noComplicationsIMR = 1.0;
 		}

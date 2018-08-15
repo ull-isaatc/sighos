@@ -54,11 +54,19 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 		return str.toString();
 	}
 
-//	public boolean checkPaired() {
-//		for (int i = 0; i < SecondOrderParams.N_COMPLICATIONS; i++) {
-//			for (int j = 0)
-//		}
-//	}
+	public boolean checkPaired() {
+		boolean checked = false;
+		for (int i = 0; i < SecondOrderParams.N_COMPLICATIONS; i++) {
+			for (int j = 0; j < timeToComplications[0][i].length; j++) {
+				if (timeToComplications[0][i][j] > timeToComplications[1][i][j]) {
+					checked = true;
+					System.out.println("Paciente " + j + " Comp " + Complication.values()[i] + "\t" + timeToComplications[0][i][j] + ":" + timeToComplications[1][i][j]);
+				}
+			}
+		}
+		return checked;
+	}
+	
 	@Override
 	public String toString() {
 		final StringBuilder str = new StringBuilder();
@@ -85,7 +93,7 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 			// Check all the complications
 			for (Complication comp : Complication.values()) {
 				final long time = pat.getTimeToComplication(comp);
-				timeToComplications[nIntervention][comp.ordinal()][pat.getIdentifier()] = (time == Long.MAX_VALUE) ? BasicConfigParams.MAX_AGE : time;
+				timeToComplications[nIntervention][comp.ordinal()][pat.getIdentifier()] = (time == Long.MAX_VALUE) ? BasicConfigParams.MAX_AGE * BasicConfigParams.YEAR_CONVERSION : time;
 			}
 		}
 	}

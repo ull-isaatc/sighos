@@ -8,7 +8,8 @@
 	<classpathentry kind="lib" path="jar/simkit.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/Java/jdk1.8.0_102/lib/tools.jar"/>
 	<classpathentry kind="lib" path="jar/poi-3.13-20150929.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/utils"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/PSIGHOS"/>
+	<classpathentry kind="lib" path="jar/jcommander-1.69.jar"/>
+	<classpathentry kind="lib" path="jar/PSIGHOS.jar"/>
+	<classpathentry kind="lib" path="jar/utils.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

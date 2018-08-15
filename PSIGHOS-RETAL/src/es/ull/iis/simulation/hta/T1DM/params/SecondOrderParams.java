@@ -118,6 +118,7 @@ public abstract class SecondOrderParams {
 	protected CombinationMethod utilityCombinationMethod = CombinationMethod.ADD;
 	protected Intervention[] interventions = null;
 	private boolean canadaValidation = false;
+	private boolean discountZero = false;
 	
 	/**
 	 * True if base case parameters (expected values) should be used. False for second order simulations.
@@ -258,7 +259,7 @@ public abstract class SecondOrderParams {
 	}
 	
 	public double getDiscountRate() {
-		if (BasicConfigParams.BASIC_TEST_ONE_PATIENT)
+		if (discountZero)
 			return 0.0;
 		final SecondOrderParam param = (SecondOrderParam) otherParams.get(STR_DISCOUNT_RATE);
 		return (param == null) ? 0.0 : param.getValue(); 						
@@ -423,6 +424,14 @@ public abstract class SecondOrderParams {
 	 */
 	public void setCanadaValidation() {
 		this.canadaValidation = true;
+	}
+
+	public boolean isDiscountZero() {
+		return discountZero;
+	}
+
+	public void setDiscountZero(boolean discountZero) {
+		this.discountZero = discountZero;
 	}
 
 	/**
