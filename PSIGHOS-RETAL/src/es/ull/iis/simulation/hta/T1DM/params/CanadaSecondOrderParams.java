@@ -107,10 +107,10 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", "Canada", 0.0063, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
 		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic event in intervention branch", "Canada", 0.869, RandomVariateFactory.getInstance("RRFromLnCIVariate", 0.869, 0.476, 1.586, 1)));
 
-		addOtherParam(new SecondOrderParam(STR_RR_CHD, STR_RR_CHD, "", RR_CHD, RandomVariateFactory.getInstance("ConstantVariate", RR_CHD)));
-		addOtherParam(new SecondOrderParam(STR_RR_NPH, STR_RR_NPH, "", RR_NPH, RandomVariateFactory.getInstance("ConstantVariate", RR_NPH)));
-		addOtherParam(new SecondOrderParam(STR_RR_NEU, STR_RR_NEU, "", RR_NEU, RandomVariateFactory.getInstance("ConstantVariate", RR_NEU)));
-		addOtherParam(new SecondOrderParam(STR_RR_RET, STR_RR_RET, "", RR_RET, RandomVariateFactory.getInstance("ConstantVariate", RR_RET)));
+		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.CHD.name(), STR_RR_PREFIX + Complication.CHD.name(), "", RR_CHD, RandomVariateFactory.getInstance("ConstantVariate", RR_CHD)));
+		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.NPH.name(), STR_RR_PREFIX + Complication.NPH.name(), "", RR_NPH, RandomVariateFactory.getInstance("ConstantVariate", RR_NPH)));
+		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.NEU.name(), STR_RR_PREFIX + Complication.NEU.name(), "", RR_NEU, RandomVariateFactory.getInstance("ConstantVariate", RR_NEU)));
+		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.RET.name(), STR_RR_PREFIX + Complication.RET.name(), "", RR_RET, RandomVariateFactory.getInstance("ConstantVariate", RR_RET)));
 
 		addCostParam(new SecondOrderCostParam(STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", "HTA Canada", 2018, C_HYPO_EPISODE));
 		addCostParam(new SecondOrderCostParam(STR_COST_DNC, "Cost of DNC", "HTA Canada", 2018, C_DNC));

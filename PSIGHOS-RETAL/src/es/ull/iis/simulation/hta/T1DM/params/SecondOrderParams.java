@@ -50,10 +50,6 @@ public abstract class SecondOrderParams {
 	// Descriptors for RRs
 	public static final String STR_RR_PREFIX = "RR_";
 	public static final String STR_RR10_PREFIX = "RR10_";
-	public static final String STR_RR_CHD = STR_RR_PREFIX + Complication.CHD.name(); 
-	public static final String STR_RR_NEU = STR_RR_PREFIX + Complication.NEU.name(); 
-	public static final String STR_RR_NPH = STR_RR_PREFIX + Complication.NPH.name(); 
-	public static final String STR_RR_RET = STR_RR_PREFIX + Complication.RET.name(); 
 	public static final String STR_EFF_PREFIX = "EFF_";
 	public static final String STR_RR_HYPO = STR_RR_PREFIX + "SEVERE_HYPO"; 
 	public static final String STR_REF_HBA1C = "AVG REFERENCE HBA1C";
@@ -173,7 +169,8 @@ public abstract class SecondOrderParams {
 	 * @return the HbA1c level in the reference studies for the transition probabilities
 	 */
 	public double getReferenceHbA1c() {
-		return otherParams.get(STR_REF_HBA1C).getValue();
+		final SecondOrderParam param = otherParams.get(STR_REF_HBA1C); 
+		return (param == null) ? Double.NaN : param.getValue();
 	}
 	
 	/**
@@ -190,48 +187,24 @@ public abstract class SecondOrderParams {
 	}
 
 	/**
-	 * Returns the relative risk for each intervention. By default, sets the base intervention RR = 1.0.
+	 * Returns the relative risk for each complication. By default, sets the base intervention RR = 1.0.
 	 * TODO: Currently only supports two interventions. If further interventions are used, fills all the 
 	 * RRs with the parameter. To solve this, the RRParam class should be created.
-	 * @param rr Text descriptor of the RR.
-	 * @return Returns an array with the relative risk for each intervention
+	 * @return Returns an array with the relative risk for each intervention; or null if no RR were defined
 	 */
-	public double[] getRR(Complication comp) {
-		final double[] rrValues = new double[interventions.length];
-		rrValues[0] = 1.0;
-		final SecondOrderParam param = otherParams.get(STR_RR_PREFIX + comp.name());
-		// Try computing the value from other parameters
-		if (param == null) {
-			final SecondOrderParam paramORR = otherParams.get(STR_RR10_PREFIX + comp.name());
-			final SecondOrderParam paramEff = otherParams.get(STR_EFF_PREFIX + interventions[1].getShortName());
-			final SecondOrderParam paramBaselineHbA1c = otherParams.get(STR_AVG_BASELINE_HBA1C);
-			if (paramORR == null || paramEff == null || paramBaselineHbA1c == null) {
-				for (int i = 1; i < interventions.length; i++) {
-					rrValues[i] = 1.0;
-				}
+	public double[] getRRComplications() {
+		boolean valid = false;
+		final double[] rr = new double[N_COMPLICATIONS];
+		for (Complication comp : Complication.values()) {
+			final SecondOrderParam param = otherParams.get(STR_RR_PREFIX + comp.name());
+			if (param != null) {
+				rr[comp.ordinal()] = param.getValue();
+				valid = true;
 			}
-			else {
-				// Compute the RR according to the DCCT, 1996 paper. There, they associated a risk reduction to a 10% HbA1c reduction
-				// They also consider a log-log linear relationship among these two parameters
-				
-				// First compute the slope of the linear relationship
-				final double beta = Math.log(-paramORR.getValue()+1)/Math.log(0.9);
-				final double baseHbA1c = paramBaselineHbA1c.getValue();
-				final double rr = Math.exp(beta * (Math.log(baseHbA1c-paramEff.getValue())-Math.log(baseHbA1c)));
-				
-//				final double rr = 1 - (paramORR.getValue() * paramEff.getValue() / (paramBaselineHbA1c.getValue() * 0.1));
-				for (int i = 1; i < interventions.length; i++) {
-					rrValues[i] = rr;
-				}
-			}
+			else 
+				rr[comp.ordinal()] = 1.0;
 		}
-		else {
-			final double rr = param.getValue();
-			for (int i = 1; i < interventions.length; i++) {
-				rrValues[i] = rr;
-			}
-		}
-		return rrValues;
+		return valid ? rr : null;
 	}
 	
 	public double[] getNoRR() {

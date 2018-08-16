@@ -44,6 +44,8 @@ public class CommonParams extends ModelParams {
 	private final double lnReferenceHbA1c;
 	/** Risk reduction of complications associated to a 10% reduction in the HbA1c level */
 	private final double[] rr10Complications;
+	/** In case risks are directly specified */
+	private final double[] rrComplications;
 	private final double[] noRR;
 	
 	private final double pMan;
@@ -93,7 +95,13 @@ public class CommonParams extends ModelParams {
 		
 		referenceHbA1c = secParams.getReferenceHbA1c();
 		lnReferenceHbA1c = Math.log(referenceHbA1c);
-		rr10Complications = secParams.getRR10Complications();
+		rrComplications = secParams.getRRComplications();
+		if (rrComplications == null) {
+			rr10Complications = secParams.getRR10Complications();
+		}
+		else {
+			rr10Complications = null;			
+		}
 		noRR = secParams.getNoRR();
 
 		pMan = secParams.getPMan();
@@ -169,8 +177,20 @@ public class CommonParams extends ModelParams {
 		// FIXME: Esto no será válido una vez que calcule el RR a partir del HbA1c actual del patiente. En ese momento, debería gestionar esto desde el mismo paciente.
 //		final boolean applyRiskReduction = (pat.getTs() < durationOfEffect[pat.getnIntervention()]);
 		
-		final double beta = Math.log(-rr10Complications[complication.ordinal()]+1)/LN09;
-		final double rr = Math.exp(beta * (Math.log(pat.getHba1c())-lnReferenceHbA1c));
+		double rr = 1.0;
+		if (rrComplications != null) {
+			if (pat.getnIntervention() > 0) {
+				rr = rrComplications[complication.ordinal()];
+			}
+		}
+		else {
+			// Compute the RR according to the DCCT, 1996 paper. There, they associated a risk reduction to a 10% HbA1c reduction
+			// They also consider a log-log linear relationship among these two parameters
+			
+			// First compute the slope of the linear relationship
+			final double beta = Math.log(-rr10Complications[complication.ordinal()]+1)/LN09;
+			rr = Math.exp(beta * (Math.log(pat.getHba1c())-lnReferenceHbA1c));
+		}
 		switch(complication) {
 		case BLI:
 			// Already at retinopathy
