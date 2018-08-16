@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.T1DM.params;
 import java.util.Arrays;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.Intervention;
+import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityParams.CombinationMethod;
 import es.ull.iis.simulation.hta.params.SpanishIPCUpdate;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -49,18 +49,14 @@ public abstract class SecondOrderParams {
 	public static final String STR_P_HF = STR_PROBABILITY_PREFIX + CHDComplication.HF;
 	// Descriptors for RRs
 	public static final String STR_RR_PREFIX = "RR_";
-	public static final String STR_ORR_PREFIX = "ORR_";
+	public static final String STR_RR10_PREFIX = "RR10_";
 	public static final String STR_RR_CHD = STR_RR_PREFIX + Complication.CHD.name(); 
 	public static final String STR_RR_NEU = STR_RR_PREFIX + Complication.NEU.name(); 
 	public static final String STR_RR_NPH = STR_RR_PREFIX + Complication.NPH.name(); 
 	public static final String STR_RR_RET = STR_RR_PREFIX + Complication.RET.name(); 
-	public static final String STR_ORR_CHD = STR_ORR_PREFIX + Complication.CHD.name(); 
-	public static final String STR_ORR_NEU = STR_ORR_PREFIX + Complication.NEU.name(); 
-	public static final String STR_ORR_NPH = STR_ORR_PREFIX + Complication.NPH.name(); 
-	public static final String STR_ORR_RET = STR_ORR_PREFIX + Complication.RET.name(); 
 	public static final String STR_EFF_PREFIX = "EFF_";
-	public static final String STR_PERCENT_POINT_REDUCTION = "%POINT_REDUCTION";
 	public static final String STR_RR_HYPO = STR_RR_PREFIX + "SEVERE_HYPO"; 
+	public static final String STR_REF_HBA1C = "AVG REFERENCE HBA1C";
 
 	// Descriptors for Increased Mortality Rates
 	public static final String STR_IMR_PREFIX = "IMR_";
@@ -73,7 +69,8 @@ public abstract class SecondOrderParams {
 	public static final String STR_IMR_BLI = STR_IMR_PREFIX + Complication.BLI.name();
 	public static final String STR_IMR_LEA = STR_IMR_PREFIX + Complication.LEA.name();
 	// Descriptors for age parameters
-	public static final String STR_INIT_AGE = "INIT_AGE";
+	public static final String STR_AVG_BASELINE_AGE = "AVG BASELINE AGE";
+	public static final String STR_AVG_BASELINE_HBA1C = "AVG BASELINE HBA1C";
 	public static final String STR_YEARS_OF_EFFECT = "YEARS_OF_EFFECT";
 	// Descriptors for misc parameters
 	public static final String STR_DISCOUNT_RATE = "DISCOUNT_RATE";
@@ -116,7 +113,7 @@ public abstract class SecondOrderParams {
 	final protected TreeMap<String, SecondOrderParam> utilParams;
 	final protected TreeMap<String, SecondOrderParam> otherParams;
 	protected CombinationMethod utilityCombinationMethod = CombinationMethod.ADD;
-	protected Intervention[] interventions = null;
+	protected T1DMMonitoringIntervention[] interventions = null;
 	private boolean canadaValidation = false;
 	private boolean discountZero = false;
 	
@@ -139,7 +136,7 @@ public abstract class SecondOrderParams {
 	/**
 	 * @return the interventions
 	 */
-	public Intervention[] getInterventions() {
+	public T1DMMonitoringIntervention[] getInterventions() {
 		return interventions;
 	}
 
@@ -172,6 +169,27 @@ public abstract class SecondOrderParams {
 	}
 
 	/**
+	 * Returns the HbA1c level in the reference studies for the transition probabilities.
+	 * @return the HbA1c level in the reference studies for the transition probabilities
+	 */
+	public double getReferenceHbA1c() {
+		return otherParams.get(STR_REF_HBA1C).getValue();
+	}
+	
+	/**
+	 * Returns the risk reduction for each complication associated to a 10% reduction in the reference HbA1c level
+	 * @return the risk reduction for each complication associated to a 10% reduction in the reference HbA1c level
+	 */
+	public double[] getRR10Complications() {
+		final double[] rr = new double[N_COMPLICATIONS];
+		for (Complication comp : Complication.values()) {
+			final SecondOrderParam param = otherParams.get(STR_RR10_PREFIX + comp.name());
+			rr[comp.ordinal()] = (param == null) ? 0.0 : param.getValue();
+		}
+		return rr;
+	}
+
+	/**
 	 * Returns the relative risk for each intervention. By default, sets the base intervention RR = 1.0.
 	 * TODO: Currently only supports two interventions. If further interventions are used, fills all the 
 	 * RRs with the parameter. To solve this, the RRParam class should be created.
@@ -184,16 +202,24 @@ public abstract class SecondOrderParams {
 		final SecondOrderParam param = otherParams.get(STR_RR_PREFIX + comp.name());
 		// Try computing the value from other parameters
 		if (param == null) {
-			final SecondOrderParam paramORR = otherParams.get(STR_ORR_PREFIX + comp.name());
+			final SecondOrderParam paramORR = otherParams.get(STR_RR10_PREFIX + comp.name());
 			final SecondOrderParam paramEff = otherParams.get(STR_EFF_PREFIX + interventions[1].getShortName());
-			final SecondOrderParam paramPPR = otherParams.get(STR_PERCENT_POINT_REDUCTION);
-			if (paramORR == null || paramEff == null || paramPPR == null) {
+			final SecondOrderParam paramBaselineHbA1c = otherParams.get(STR_AVG_BASELINE_HBA1C);
+			if (paramORR == null || paramEff == null || paramBaselineHbA1c == null) {
 				for (int i = 1; i < interventions.length; i++) {
 					rrValues[i] = 1.0;
 				}
 			}
 			else {
-				final double rr = 1 - (paramORR.getValue() * paramEff.getValue() / paramPPR.getValue());
+				// Compute the RR according to the DCCT, 1996 paper. There, they associated a risk reduction to a 10% HbA1c reduction
+				// They also consider a log-log linear relationship among these two parameters
+				
+				// First compute the slope of the linear relationship
+				final double beta = Math.log(-paramORR.getValue()+1)/Math.log(0.9);
+				final double baseHbA1c = paramBaselineHbA1c.getValue();
+				final double rr = Math.exp(beta * (Math.log(baseHbA1c-paramEff.getValue())-Math.log(baseHbA1c)));
+				
+//				final double rr = 1 - (paramORR.getValue() * paramEff.getValue() / (paramBaselineHbA1c.getValue() * 0.1));
 				for (int i = 1; i < interventions.length; i++) {
 					rrValues[i] = rr;
 				}
@@ -251,11 +277,6 @@ public abstract class SecondOrderParams {
 	public double getPMan() {
 		final SecondOrderParam param = (SecondOrderParam) otherParams.get(STR_P_MAN);
 		return (param == null) ? 0.5 : param.getValue(); 				
-	}
-	
-	public double getInitAge() {
-		final SecondOrderParam param = (SecondOrderParam) otherParams.get(STR_INIT_AGE);
-		return (param == null) ? Double.NaN : param.getValue(); 				
 	}
 	
 	public double getDiscountRate() {
@@ -434,6 +455,10 @@ public abstract class SecondOrderParams {
 		this.discountZero = discountZero;
 	}
 
+	public abstract RandomVariate getBaselineHBA1c();
+	public abstract RandomVariate getBaselineAge();
+	public abstract RandomVariate getWeeklySensorUsage();
+	
 	/**
 	 * Computes the alfa and beta parameters for a beta distribution from an average and
 	 * a standard deviation.

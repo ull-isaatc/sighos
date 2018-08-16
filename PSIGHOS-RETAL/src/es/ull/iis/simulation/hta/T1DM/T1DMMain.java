@@ -32,7 +32,7 @@ public class T1DMMain {
 	private static final int DEF_N_RUNS = 100;
 	private static final int DEF_N_PATIENTS = 5000;
 	private final PrintWriter out;
-	private final Intervention[] interventions;
+	private final T1DMMonitoringIntervention[] interventions;
 	private final int nRuns;
 	private final int nPatients;
 	private final SecondOrderParams secParams;

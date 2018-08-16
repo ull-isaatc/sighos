@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 
-import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
@@ -29,11 +28,18 @@ import es.ull.iis.simulation.model.TimeUnit;
 public class T1DMPatient extends Patient {
 	/** The state of the patient, initialized with no complications */
 	private final EnumSet<Complication> state = EnumSet.noneOf(Complication.class);
+	/** Type of CHD complication that the patient develops (in case he/she develops any) */ 
 	private final CHDComplication chdComplication;
 	/** Initial age of the patient (stored in days) */
 	private final double initAge;
 	/** Sex of the patient: 0 for men, 1 for women */
 	private final int sex;
+	/** Initial level of HBA1c */
+	private final double baselineHBA1c;
+	/** Current level of HBA1c */
+	private double hba1c;
+	/** Days a week usage of the sensor (for continuous glucose monitoring) */
+	final private double weeklySensorUsage;
 	
 	private final CommonParams commonParams;
 	private final ResourceUsageParams resUsageParams;
@@ -49,21 +55,23 @@ public class T1DMPatient extends Patient {
 	 * @param elementType
 	 * @param initialFlow
 	 */
-	public T1DMPatient(T1DMSimulation simul, double initAge, Intervention intervention) {
+	public T1DMPatient(T1DMSimulation simul, T1DMMonitoringIntervention intervention) {
 		super(simul, intervention);
 		this.commonParams = simul.getCommonParams();
 		this.utilParams = simul.getUtilParams();
 		this.resUsageParams = simul.getResUsageParams();
 
-		this.initAge = BasicConfigParams.YEAR_CONVERSION*initAge;
+		this.initAge = BasicConfigParams.YEAR_CONVERSION*commonParams.getBaselineAge();
 		this.sex = commonParams.getSex(this);
+		this.baselineHBA1c = commonParams.getBaselineHBA1c();
+		this.weeklySensorUsage = commonParams.getWeeklySensorUsage();
 		complicationEvents = new ComplicationEvent[SecondOrderParams.N_COMPLICATIONS];
 		Arrays.fill(complicationEvents, null);
 		hypoEvents = new ArrayList<>();
 		chdComplication = commonParams.getCHDComplication(this);
 	}
 
-	public T1DMPatient(T1DMSimulation simul, T1DMPatient original, Intervention intervention) {
+	public T1DMPatient(T1DMSimulation simul, T1DMPatient original, T1DMMonitoringIntervention intervention) {
 		super(simul, original, intervention);
 		this.commonParams = original.commonParams;
 		this.utilParams = original.utilParams;
@@ -71,6 +79,8 @@ public class T1DMPatient extends Patient {
 
 		this.initAge = original.initAge;
 		this.sex = original.sex;
+		this.baselineHBA1c = original.baselineHBA1c;
+		this.weeklySensorUsage = original.weeklySensorUsage;
 		complicationEvents = new ComplicationEvent[SecondOrderParams.N_COMPLICATIONS];
 		Arrays.fill(complicationEvents, null);
 		hypoEvents = new ArrayList<>();
@@ -123,6 +133,27 @@ public class T1DMPatient extends Patient {
 		return sex;
 	}
 	
+	/**
+	 * @return the baselineHBA1c
+	 */
+	public double getBaselineHBA1c() {
+		return baselineHBA1c;
+	}
+
+	/**
+	 * @return the hba1c
+	 */
+	public double getHba1c() {
+		return hba1c;
+	}
+
+	/**
+	 * @return the weeklySensorUsage
+	 */
+	public double getWeeklySensorUsage() {
+		return weeklySensorUsage;
+	}
+
 	public double getAgeAtDeath() {
 		final long timeToDeath = getTimeToDeath();
 		return (timeToDeath == Long.MAX_VALUE) ? Double.MAX_VALUE : ((initAge + timeToDeath) / BasicConfigParams.YEAR_CONVERSION);
@@ -186,6 +217,8 @@ public class T1DMPatient extends Patient {
 			super.event();
 			startTs = this.getTs();
 			lastTs = startTs;
+			// Assign level of HBA1c expected after the intervention (we assume that the effect is immediate).
+			hba1c = ((T1DMMonitoringIntervention)intervention).getHBA1cLevel(T1DMPatient.this);
 			simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, T1DMPatientInfo.Type.START, this.getTs()));
 
 			// Assign death event

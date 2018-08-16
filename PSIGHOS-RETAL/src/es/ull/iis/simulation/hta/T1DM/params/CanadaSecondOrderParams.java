@@ -3,9 +3,10 @@
  */
 package es.ull.iis.simulation.hta.T1DM.params;
 
-import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
+import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityParams.CombinationMethod;
+import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -13,7 +14,6 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class CanadaSecondOrderParams extends SecondOrderParams {
-	public static final int INIT_AGE = 27;
 	private static final double P_MAN = 0.5;
 	/** Duration of effect of the intervention */
 	private static final double YEARS_OF_EFFECT = 1.0;
@@ -73,9 +73,20 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		super(baseCase);
 		setCanadaValidation();
 		utilityCombinationMethod = CombinationMethod.MIN;
-		interventions = new Intervention[] {
-				new T1DMMonitoringIntervention(0, "SMBG+MDI", "SMBG+MDI"),
-				new T1DMMonitoringIntervention(1, "SAP", "SAP")				
+		interventions = new T1DMMonitoringIntervention[] {
+				new T1DMMonitoringIntervention(0, "SMBG+MDI", "SMBG+MDI") {
+					@Override
+					public double getHBA1cLevel(T1DMPatient pat) {
+						return 2.206 + (0.744*pat.getBaselineHBA1c()) - (0.003*pat.getAge());
+					}
+				},
+				new T1DMMonitoringIntervention(1, "SAP", "SAP")	{
+					private final static int MIN_WEEKLY_USAGE = 5;
+					@Override
+					public double getHBA1cLevel(T1DMPatient pat) {						
+						return 2.206 + 1.491 + (0.618*pat.getBaselineHBA1c()) - (0.150 * Math.max(0, pat.getWeeklySensorUsage() - MIN_WEEKLY_USAGE)) - (0.005*pat.getAge());
+					}
+				}			
 		};
 		addProbParam(new SecondOrderParam(STR_P_DNC_RET, STR_P_DNC_RET, "", P_DNC_RET, RandomVariateFactory.getInstance("ConstantVariate", P_DNC_RET)));
 		addProbParam(new SecondOrderParam(STR_P_DNC_NEU, STR_P_DNC_NEU, "", P_DNC_NEU, RandomVariateFactory.getInstance("ConstantVariate", P_DNC_NEU)));
@@ -132,9 +143,27 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		addUtilParam(new SecondOrderParam(STR_DU_BLI, "Disutility of BLI", "", DU_BLI));
 
 		addOtherParam(new SecondOrderParam(STR_P_MAN, "Probability of havig sex = male", "Assumption", P_MAN));
-		addOtherParam(new SecondOrderParam(STR_INIT_AGE, "Initial age", "", INIT_AGE));
 		addOtherParam(new SecondOrderParam(STR_YEARS_OF_EFFECT, "Duration of effect in years", "", YEARS_OF_EFFECT));
 		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "Spanish guidelines", DISCOUNT_RATE));
+		
+		addOtherParam(new SecondOrderParam(STR_AVG_BASELINE_AGE, "Average baseline age", "", 27));
+		addOtherParam(new SecondOrderParam(STR_AVG_BASELINE_HBA1C, "Average baseline level of HBA1c", "", 8.8));
+
+	}
+
+	@Override
+	public RandomVariate getBaselineHBA1c() {
+		return RandomVariateFactory.getInstance("ConstantVariate", otherParams.get(STR_AVG_BASELINE_HBA1C).getValue());
+	}
+
+	@Override
+	public RandomVariate getBaselineAge() {
+		return RandomVariateFactory.getInstance("ConstantVariate", otherParams.get(STR_AVG_BASELINE_AGE).getValue());
+	}
+
+	@Override
+	public RandomVariate getWeeklySensorUsage() {
+		return RandomVariateFactory.getInstance("ConstantVariate", 7);
 	}
 
 }

@@ -42,7 +42,7 @@ public class CVDCanadaDeathParam extends UniqueEventParam<Long> {
 		else if (age > 60)
 			interval = 1;
 		final int yearsFromCHD = Math.min(9, (int)((pat.getTs() - pat.getTimeToComplication(Complication.CHD)) / BasicConfigParams.YEAR_CONVERSION));
-		return CommonParams.getAnnualBasedTimeToEvent(pat, -1 / PROBS_PER_YEAR[yearsFromCHD][interval], draw(pat), rr);
+		return CommonParams.getAnnualBasedTimeToEvent(pat, -1 / PROBS_PER_YEAR[yearsFromCHD][interval], draw(pat), rr[pat.getnIntervention()]);
 	}
 
 }

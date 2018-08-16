@@ -42,7 +42,7 @@ public class ResourceUsageParams extends ModelParams {
 		final EnumSet<Complication> state = pat.getState();
 		// No complications
 		if (state.isEmpty()) {
-			cost = costNoComplication;
+			cost += costNoComplication;
 		}
 		else {
 			if (isDetailedCHD && state.contains(Complication.CHD)) {

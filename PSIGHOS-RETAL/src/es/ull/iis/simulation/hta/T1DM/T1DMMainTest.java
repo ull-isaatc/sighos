@@ -89,7 +89,7 @@ public class T1DMMainTest {
 	
 	public static void main(String[] args) {
 		out.println(getStrHeader());
-		final Intervention[] interventions = secParams.getInterventions();
+		final T1DMMonitoringIntervention[] interventions = secParams.getInterventions();
 		T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(NPATIENTS, interventions.length, false);
 		// First the deterministic simulation
 		T1DMSimulation simul = new T1DMSimulation(0, true, interventions[0], NPATIENTS, new CommonParams(secParams, NPATIENTS), new ResourceUsageParams(secParams), new UtilityParams(secParams));

@@ -59,7 +59,7 @@ public class SevereHypoglycemicEventParam implements ReseteableParam<SevereHypog
 		}
 		final double[] rnd = generated[pat.getIdentifier()].get(eventCounter[pat.getIdentifier()]++);
 		final long timeToDeath = pat.getTimeToDeath();
-		final long timeToHypo = CommonParams.getAnnualBasedTimeToEvent(pat, -1 / annualProb, rnd[0], rr);
+		final long timeToHypo = CommonParams.getAnnualBasedTimeToEvent(pat, -1 / annualProb, rnd[0], rr[pat.getnIntervention()]);
 		if (timeToHypo >= timeToDeath)
 			return new ReturnValue(Long.MAX_VALUE, false);
 		return new ReturnValue(timeToHypo, rnd[1] < pDeath);

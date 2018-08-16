@@ -3,9 +3,7 @@
  */
 package es.ull.iis.simulation.hta.T1DM;
 
-import es.ull.iis.function.ConstantFunction;
 import es.ull.iis.simulation.hta.HTASimulation;
-import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.ResourceUsageParams;
@@ -37,12 +35,12 @@ public class T1DMSimulation extends HTASimulation {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public T1DMSimulation(int id, boolean baseCase, Intervention intervention, int nPatients, CommonParams commonParams, ResourceUsageParams resUsageParams, UtilityParams utilParams) {
-		super(id, DESCRIPTION, BasicConfigParams.SIMUNIT, baseCase, intervention, new TimeStamp(TimeUnit.YEAR, (long) (BasicConfigParams.MAX_AGE - commonParams.getInitAge() + 1)), NINTERVENTIONS, nPatients);
+	public T1DMSimulation(int id, boolean baseCase, T1DMMonitoringIntervention intervention, int nPatients, CommonParams commonParams, ResourceUsageParams resUsageParams, UtilityParams utilParams) {
+		super(id, DESCRIPTION, BasicConfigParams.SIMUNIT, baseCase, intervention, new TimeStamp(TimeUnit.YEAR, (long) (BasicConfigParams.MAX_AGE - commonParams.getBaselineAge() + 1)), NINTERVENTIONS, nPatients);
 		this.commonParams = commonParams;
 		this.utilParams = utilParams;
 		this.resUsageParams = resUsageParams;
-		new T1DMPatientGenerator(this, nPatients, new ConstantFunction(commonParams.getInitAge()), intervention, 
+		new T1DMPatientGenerator(this, nPatients, intervention, 
 				new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
 		cost = new Cost(this, commonParams.getDiscountRate());
 		qaly = new QualityAdjustedLifeExpectancy(this, commonParams.getDiscountRate());		
@@ -56,7 +54,7 @@ public class T1DMSimulation extends HTASimulation {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public T1DMSimulation(T1DMSimulation original, Intervention intervention) {
+	public T1DMSimulation(T1DMSimulation original, T1DMMonitoringIntervention intervention) {
 		super(original, intervention);
 		this.commonParams = original.commonParams;
 		commonParams.reset();

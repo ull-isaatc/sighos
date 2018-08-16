@@ -88,6 +88,9 @@ public class T1DMPatientInfo extends AsynchronousInfo {
 			if (chdComplication != null)
 				description = description + "\t" + chdComplication;
 		}
+		else if (Type.START.equals(type)) {
+			description += "\t" + patient.getHba1c();
+		}
 		return "" + simul.long2SimulationTime(getTs()) + "\t" + patient.toString() + " \t" + description;
 	}
 }

@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.hta.T1DM;
 
-import es.ull.iis.function.TimeFunction;
-import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.SimulationCycle;
@@ -19,10 +17,8 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
 public class T1DMPatientGenerator extends TimeDrivenGenerator<T1DMPatientGenerator.T1DMPatientGenerationInfo> {
 	/** Associated simulation */
 	private final T1DMSimulation simul;
-	/** A distribution to characterize the initial age of each generated patient */
-	private final TimeFunction initialAges;
 	private final Patient[] copyOf;
-	private final Intervention intervention;
+	private final T1DMMonitoringIntervention intervention;
 
 	/**
 	 * 
@@ -32,10 +28,9 @@ public class T1DMPatientGenerator extends TimeDrivenGenerator<T1DMPatientGenerat
 	 * @param intervention
 	 * @param cycle
 	 */
-	public T1DMPatientGenerator(T1DMSimulation simul, int nPatients, TimeFunction initialAges, Intervention intervention, SimulationCycle cycle) {
+	public T1DMPatientGenerator(T1DMSimulation simul, int nPatients, T1DMMonitoringIntervention intervention, SimulationCycle cycle) {
 		super(simul, nPatients, cycle);
 		this.simul = simul;
-		this.initialAges = initialAges;
 		this.copyOf = null;
 		this.intervention = intervention;
 		add(new T1DMPatientGenerationInfo());
@@ -48,10 +43,9 @@ public class T1DMPatientGenerator extends TimeDrivenGenerator<T1DMPatientGenerat
 	 * @param copyOf An original set of patients created for a previous simulation (and already simulated)
 	 * @param intervention Numerical identifier of the intervention
 	 */
-	public T1DMPatientGenerator(T1DMSimulation simul, Patient[] copyOf, Intervention intervention, SimulationCycle cycle) {
+	public T1DMPatientGenerator(T1DMSimulation simul, Patient[] copyOf, T1DMMonitoringIntervention intervention, SimulationCycle cycle) {
 		super(simul, copyOf.length, cycle);
 		this.simul = simul;
-		this.initialAges = null;
 		this.copyOf = copyOf;
 		this.intervention = intervention;
 		add(new T1DMPatientGenerationInfo());
@@ -61,8 +55,7 @@ public class T1DMPatientGenerator extends TimeDrivenGenerator<T1DMPatientGenerat
 	public EventSource createEventSource(int ind, T1DMPatientGenerationInfo info) {
 		T1DMPatient p = null;
 		if (copyOf == null) {
-			final double age = initialAges.getValue(null);
-			p = new T1DMPatient(simul, age, intervention);
+			p = new T1DMPatient(simul, intervention);
 		}
 		else {
 			p = new T1DMPatient(simul, (T1DMPatient)copyOf[ind], intervention);

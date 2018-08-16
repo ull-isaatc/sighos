@@ -3,8 +3,9 @@
  */
 package es.ull.iis.simulation.hta.T1DM.params;
 
-import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
+import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -12,6 +13,8 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class BaseSecondOrderParams extends SecondOrderParams {
+	private static final String STR_SENSOR_ADHERENCE_LOWER_LIMIT = "SENSOR_ADHERENCE LOWER LIMIT";
+	private static final String STR_SENSOR_ADHERENCE_UPPER_LIMIT = "SENSOR_ADHERENCE UPPER LIMIT";
 
 	private static final double P_DNC_RET = 0.0013;
 	private static final double P_DNC_NEU = 0.0354; // Klein et al. 2004. También usado en Sheffield (DCCT, Moss et al)
@@ -37,8 +40,6 @@ public class BaseSecondOrderParams extends SecondOrderParams {
 	private static final double[] CI_RET_BLI = {0.00304, 0.00456};
 	private static final double[] CI_RET_CHD = {0.016, 0.043};
 	
-	private static final double PERCENT_POINT_REDUCTION = 0.887480916;
-
 	private static final double C_DNC = 2174.11;
 	private static final double C_CHD = 1112.24;
 	private static final double C_NEU = 3108.86;
@@ -71,9 +72,20 @@ public class BaseSecondOrderParams extends SecondOrderParams {
 	 */
 	public BaseSecondOrderParams(boolean baseCase) {
 		super(baseCase);
-		interventions = new Intervention[] {
-				new T1DMMonitoringIntervention(0, "CSII", "CSII"),
-				new T1DMMonitoringIntervention(1, "SAP", "SAP")				
+		interventions = new T1DMMonitoringIntervention[] {
+				new T1DMMonitoringIntervention(0, "CSII", "CSII") {
+					@Override
+					public double getHBA1cLevel(T1DMPatient pat) {
+						return 2.206 + (0.744*pat.getBaselineHBA1c()) - (0.003*pat.getAge()); // https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3131116/
+					}
+				},
+				new T1DMMonitoringIntervention(1, "SAP", "SAP")	{
+					@Override
+					public double getHBA1cLevel(T1DMPatient pat) {						
+						// https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3131116/
+						return 2.206 + 1.491 + (0.618*pat.getBaselineHBA1c()) - (0.150 * pat.getWeeklySensorUsage()) - (0.005*pat.getAge());
+					}
+				}			
 		};
 		final double[] paramsDNC_RET = betaParametersFromNormal(P_DNC_RET, sdFrom95CI(CI_DNC_RET));
 		final double[] paramsDNC_NEU = betaParametersFromNormal(P_DNC_NEU, sdFrom95CI(CI_DNC_NEU));
@@ -106,12 +118,12 @@ public class BaseSecondOrderParams extends SecondOrderParams {
 		addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", "Canada", 0.0063, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
 		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic event in intervention branch", "Canada", 0.869, RandomVariateFactory.getInstance("RRFromLnCIVariate", 0.869, 0.476, 1.586, 1)));
 
-		addOtherParam(new SecondOrderParam(STR_ORR_CHD, STR_ORR_CHD, "", 0.15/*, RandomVariateFactory.getInstance("NormalVariate", 0.15, 0.13010)*/));
-		addOtherParam(new SecondOrderParam(STR_ORR_NPH, STR_ORR_NPH, "", 0.25/*, RandomVariateFactory.getInstance("NormalVariate", 0.25, 0.03316)*/));
-		addOtherParam(new SecondOrderParam(STR_ORR_NEU, STR_ORR_NEU, "", 0.3/*, RandomVariateFactory.getInstance("NormalVariate", 0.3, 0.07398)*/));
-		addOtherParam(new SecondOrderParam(STR_ORR_RET, STR_ORR_RET, "", 0.35/*, RandomVariateFactory.getInstance("NormalVariate", 0.35, 0.03571)*/));
+		addOtherParam(new SecondOrderParam(STR_RR10_PREFIX + Complication.CHD.name(), STR_RR10_PREFIX + Complication.CHD.name(), "", 0.15/*, RandomVariateFactory.getInstance("NormalVariate", 0.15, 0.13010)*/));
+		addOtherParam(new SecondOrderParam(STR_RR10_PREFIX + Complication.NPH.name(), STR_RR10_PREFIX + Complication.NPH.name(), "", 0.25/*, RandomVariateFactory.getInstance("NormalVariate", 0.25, 0.03316)*/));
+		addOtherParam(new SecondOrderParam(STR_RR10_PREFIX + Complication.NEU.name(), STR_RR10_PREFIX + Complication.NEU.name(), "", 0.3/*, RandomVariateFactory.getInstance("NormalVariate", 0.3, 0.07398)*/));
+		addOtherParam(new SecondOrderParam(STR_RR10_PREFIX + Complication.RET.name(), STR_RR10_PREFIX + Complication.RET.name(), "", 0.35/*, RandomVariateFactory.getInstance("NormalVariate", 0.35, 0.03571)*/));
 		addOtherParam(new SecondOrderParam(STR_EFF_PREFIX + interventions[1].getShortName(), STR_EFF_PREFIX + interventions[1].getShortName(), "", 0.23, RandomVariateFactory.getInstance("NormalVariate", 0.23, 0.12244898)));
-		addOtherParam(new SecondOrderParam(STR_PERCENT_POINT_REDUCTION, STR_PERCENT_POINT_REDUCTION, "", PERCENT_POINT_REDUCTION));
+		addOtherParam(new SecondOrderParam(STR_REF_HBA1C, STR_REF_HBA1C, "", 8.87480916));
 		
 		addOtherParam(new SecondOrderParam(STR_IMR_DNC, "Increased mortaility risk due to T1 DM with no complications", "Assumption", 1.0));
 		addOtherParam(new SecondOrderParam(STR_IMR_RET, "Increased mortality risk due to retinopathy", "Assumption", 1.0));
@@ -167,9 +179,27 @@ public class BaseSecondOrderParams extends SecondOrderParams {
 		addUtilParam(new SecondOrderParam(STR_DU_BLI, "Disutility of BLI", "", DU_BLI));
 		
 		addOtherParam(new SecondOrderParam(STR_P_MAN, "Probability of sex = male", "https://doi.org/10.1016/j.endinu.2018.03.008", 0.5));
-		addOtherParam(new SecondOrderParam(STR_INIT_AGE, "Initial age", "https://doi.org/10.1016/j.endinu.2018.03.008", 18.6));
 		addOtherParam(new SecondOrderParam(STR_YEARS_OF_EFFECT, "Duration of effect in years", "Assumption (as in the Canada model)", 1.0));
 		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "Spanish guidelines", 0.03));
+		addOtherParam(new SecondOrderParam(STR_AVG_BASELINE_AGE, "Average baseline age", "https://doi.org/10.1016/j.endinu.2018.03.008", 18.6));
+		addOtherParam(new SecondOrderParam(STR_AVG_BASELINE_HBA1C, "Average baseline level of HBA1c", "https://doi.org/10.1016/j.endinu.2018.03.008", 7.5));
+		addOtherParam(new SecondOrderParam(STR_SENSOR_ADHERENCE_LOWER_LIMIT, "Lower limit for weekly sensor adherence", "", 5));
+		addOtherParam(new SecondOrderParam(STR_SENSOR_ADHERENCE_UPPER_LIMIT, "Upper limit for weekly sensor adherence", "", 7));
+	}
+
+	@Override
+	public RandomVariate getBaselineHBA1c() {
+		return RandomVariateFactory.getInstance("ConstantVariate", otherParams.get(STR_AVG_BASELINE_HBA1C).getValue());
+	}
+
+	@Override
+	public RandomVariate getBaselineAge() {
+		return RandomVariateFactory.getInstance("ConstantVariate", otherParams.get(STR_AVG_BASELINE_AGE).getValue());
+	}
+
+	@Override
+	public RandomVariate getWeeklySensorUsage() {
+		return RandomVariateFactory.getInstance("UniformVariate", otherParams.get(STR_SENSOR_ADHERENCE_LOWER_LIMIT).getValue(), otherParams.get(STR_SENSOR_ADHERENCE_UPPER_LIMIT).getValue());
 	}
 
 }

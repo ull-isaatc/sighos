@@ -9,7 +9,7 @@ import es.ull.iis.simulation.hta.Intervention;
  * @author Iván Castilla Rodríguez
  *
  */
-public class T1DMMonitoringIntervention implements Intervention {
+public abstract class T1DMMonitoringIntervention implements Intervention {
 	final private String shortName;
 	final private String description;
 	final private int id;
@@ -43,4 +43,6 @@ public class T1DMMonitoringIntervention implements Intervention {
 		return shortName;
 	}
 
+	public abstract double getHBA1cLevel(T1DMPatient pat);
+	
 }
