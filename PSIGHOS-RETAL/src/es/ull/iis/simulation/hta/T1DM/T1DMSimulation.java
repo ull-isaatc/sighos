@@ -21,8 +21,6 @@ import es.ull.iis.simulation.model.TimeUnit;
  *
  */
 public class T1DMSimulation extends HTASimulation {
-	/** Number of interventions that will be compared for a patient. This value is also used to determine the id of the patient */ 
-	public final static int NINTERVENTIONS = 2;
 	private final static String DESCRIPTION = "T1DM Simulation";
 
 	private final CommonParams commonParams;
@@ -36,7 +34,7 @@ public class T1DMSimulation extends HTASimulation {
 	 * @param endTs
 	 */
 	public T1DMSimulation(int id, boolean baseCase, T1DMMonitoringIntervention intervention, int nPatients, CommonParams commonParams, ResourceUsageParams resUsageParams, UtilityParams utilParams) {
-		super(id, DESCRIPTION, BasicConfigParams.SIMUNIT, baseCase, intervention, new TimeStamp(TimeUnit.YEAR, (long) (BasicConfigParams.MAX_AGE - commonParams.getBaselineAge() + 1)), NINTERVENTIONS, nPatients);
+		super(id, DESCRIPTION, BasicConfigParams.SIMUNIT, baseCase, intervention, new TimeStamp(TimeUnit.YEAR, (long) (BasicConfigParams.MAX_AGE - commonParams.getBaselineAge() + 1)), commonParams.getInterventions().length, nPatients);
 		this.commonParams = commonParams;
 		this.utilParams = utilParams;
 		this.resUsageParams = resUsageParams;

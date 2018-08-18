@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.T1DM.params;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
-import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -72,21 +71,6 @@ public class BaseSecondOrderParams extends SecondOrderParams {
 	 */
 	public BaseSecondOrderParams(boolean baseCase) {
 		super(baseCase);
-		interventions = new T1DMMonitoringIntervention[] {
-				new T1DMMonitoringIntervention(0, "CSII", "CSII") {
-					@Override
-					public double getHBA1cLevel(T1DMPatient pat) {
-						return 2.206 + (0.744*pat.getBaselineHBA1c()) - (0.003*pat.getAge()); // https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3131116/
-					}
-				},
-				new T1DMMonitoringIntervention(1, "SAP", "SAP")	{
-					@Override
-					public double getHBA1cLevel(T1DMPatient pat) {						
-						// https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3131116/
-						return 2.206 + 1.491 + (0.618*pat.getBaselineHBA1c()) - (0.150 * pat.getWeeklySensorUsage()) - (0.005*pat.getAge());
-					}
-				}			
-		};
 		final double[] paramsDNC_RET = betaParametersFromNormal(P_DNC_RET, sdFrom95CI(CI_DNC_RET));
 		final double[] paramsDNC_NEU = betaParametersFromNormal(P_DNC_NEU, sdFrom95CI(CI_DNC_NEU));
 		final double[] paramsDNC_NPH = betaParametersFromNormal(P_DNC_NPH, sdFrom95CI(CI_DNC_NPH));
@@ -112,17 +96,15 @@ public class BaseSecondOrderParams extends SecondOrderParams {
 		addProbParam(new SecondOrderParam(STR_P_RET_CHD, STR_P_RET_CHD, "", P_RET_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsRET_CHD[0], paramsRET_CHD[1])));
 
 		// Severe hypoglycemic episodes
-		final double[] paramsHypo = betaParametersFromNormal(0.0982, sdFrom95CI(new double[]{0.0526, 0.1513}));
 		final double[] paramsDeathHypo = betaParametersFromNormal(0.0063, sdFrom95CI(new double[]{0.0058, 0.0068}));
-		addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode", "Canada", 0.0982, RandomVariateFactory.getInstance("BetaVariate", paramsHypo[0], paramsHypo[1])));
+		addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode", "Ly et al.", 0.234286582, RandomVariateFactory.getInstance("BetaVariate", 23.19437163, 75.80562837)));
 		addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", "Canada", 0.0063, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
-		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic event in intervention branch", "Canada", 0.869, RandomVariateFactory.getInstance("RRFromLnCIVariate", 0.869, 0.476, 1.586, 1)));
+		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic event in intervention branch", "Ly et al.", 0.020895447, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", -3.868224010, 1.421931924))));
 
 		addOtherParam(new SecondOrderParam(STR_RR10_PREFIX + Complication.CHD.name(), STR_RR10_PREFIX + Complication.CHD.name(), "", 0.15/*, RandomVariateFactory.getInstance("NormalVariate", 0.15, 0.13010)*/));
 		addOtherParam(new SecondOrderParam(STR_RR10_PREFIX + Complication.NPH.name(), STR_RR10_PREFIX + Complication.NPH.name(), "", 0.25/*, RandomVariateFactory.getInstance("NormalVariate", 0.25, 0.03316)*/));
 		addOtherParam(new SecondOrderParam(STR_RR10_PREFIX + Complication.NEU.name(), STR_RR10_PREFIX + Complication.NEU.name(), "", 0.3/*, RandomVariateFactory.getInstance("NormalVariate", 0.3, 0.07398)*/));
 		addOtherParam(new SecondOrderParam(STR_RR10_PREFIX + Complication.RET.name(), STR_RR10_PREFIX + Complication.RET.name(), "", 0.35/*, RandomVariateFactory.getInstance("NormalVariate", 0.35, 0.03571)*/));
-		addOtherParam(new SecondOrderParam(STR_EFF_PREFIX + interventions[1].getShortName(), STR_EFF_PREFIX + interventions[1].getShortName(), "", 0.23, RandomVariateFactory.getInstance("NormalVariate", 0.23, 0.12244898)));
 		addOtherParam(new SecondOrderParam(STR_REF_HBA1C, STR_REF_HBA1C, "", 8.87480916));
 		
 		addOtherParam(new SecondOrderParam(STR_IMR_DNC, "Increased mortaility risk due to T1 DM with no complications", "Assumption", 1.0));
@@ -164,8 +146,8 @@ public class BaseSecondOrderParams extends SecondOrderParams {
 		addOtherParam(new SecondOrderParam(STR_P_ANGINA, "Probability of a CHD complication being Angina", "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 0.28, RandomVariateFactory.getInstance("GammaVariate", 1.0, 0.28)));
 		addOtherParam(new SecondOrderParam(STR_P_HF, "Probability of a CHD complication being Heart Failure", "https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 0.12, RandomVariateFactory.getInstance("GammaVariate", 1.0, 0.12)));
 		// FIXME: Costes de Canada (en dolares canadienses)
-		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + interventions[0].getShortName(), "Cost of " + interventions[0].getDescription(), "HTA Canada", 2018, 3677));
-		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + interventions[1].getShortName(), "Cost of " + interventions[1].getDescription(), "HTA Canada", 2018, 11811));
+		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + CSIIIntervention.NAME, "Cost of " + CSIIIntervention.NAME, "HTA Canada", 2018, 6817));
+		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX +SAPIntervention.NAME, "Cost of " + SAPIntervention.NAME, "HTA Canada", 2018, 9211));
 
 		addUtilParam(new SecondOrderParam(STR_U_GENERAL_POPULATION, "Utility of general population", "", U_GENERAL_POP));
 		addUtilParam(new SecondOrderParam(STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "", DU_HYPO_EPISODE));
@@ -200,6 +182,17 @@ public class BaseSecondOrderParams extends SecondOrderParams {
 	@Override
 	public RandomVariate getWeeklySensorUsage() {
 		return RandomVariateFactory.getInstance("UniformVariate", otherParams.get(STR_SENSOR_ADHERENCE_LOWER_LIMIT).getValue(), otherParams.get(STR_SENSOR_ADHERENCE_UPPER_LIMIT).getValue());
+	}
+
+	@Override
+	public T1DMMonitoringIntervention[] getInterventions() {
+		return new T1DMMonitoringIntervention[] {new CSIIIntervention(0, costParams.get(STR_COST_PREFIX + CSIIIntervention.NAME).getValue()),
+				new SAPIntervention(1, costParams.get(STR_COST_PREFIX + SAPIntervention.NAME).getValue())};
+	}
+
+	@Override
+	public int getNInterventions() {
+		return 2;
 	}
 
 }

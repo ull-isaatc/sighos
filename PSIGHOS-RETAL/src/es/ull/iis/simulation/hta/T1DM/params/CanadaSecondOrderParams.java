@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.T1DM.params;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
-import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityParams.CombinationMethod;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -73,21 +72,6 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		super(baseCase);
 		setCanadaValidation();
 		utilityCombinationMethod = CombinationMethod.MIN;
-		interventions = new T1DMMonitoringIntervention[] {
-				new T1DMMonitoringIntervention(0, "SMBG+MDI", "SMBG+MDI") {
-					@Override
-					public double getHBA1cLevel(T1DMPatient pat) {
-						return 2.206 + (0.744*pat.getBaselineHBA1c()) - (0.003*pat.getAge());
-					}
-				},
-				new T1DMMonitoringIntervention(1, "SAP", "SAP")	{
-					private final static int MIN_WEEKLY_USAGE = 5;
-					@Override
-					public double getHBA1cLevel(T1DMPatient pat) {						
-						return 2.206 + 1.491 + (0.618*pat.getBaselineHBA1c()) - (0.150 * Math.max(0, pat.getWeeklySensorUsage() - MIN_WEEKLY_USAGE)) - (0.005*pat.getAge());
-					}
-				}			
-		};
 		addProbParam(new SecondOrderParam(STR_P_DNC_RET, STR_P_DNC_RET, "", P_DNC_RET, RandomVariateFactory.getInstance("ConstantVariate", P_DNC_RET)));
 		addProbParam(new SecondOrderParam(STR_P_DNC_NEU, STR_P_DNC_NEU, "", P_DNC_NEU, RandomVariateFactory.getInstance("ConstantVariate", P_DNC_NEU)));
 		addProbParam(new SecondOrderParam(STR_P_DNC_NPH, STR_P_DNC_NPH, "", P_DNC_NPH, RandomVariateFactory.getInstance("ConstantVariate", P_DNC_NPH)));
@@ -128,8 +112,8 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		addCostParam(new SecondOrderCostParam(STR_TRANS_COST_LEA, "Transition cost to LEA", "HTA Canada", 2018, TC_LEA));
 		addCostParam(new SecondOrderCostParam(STR_TRANS_COST_ESRD, "Transition cost to ESRD", "HTA Canada", 2018, TC_ESRD));
 		addCostParam(new SecondOrderCostParam(STR_TRANS_COST_BLI, "Transition cost to BLI", "HTA Canada", 2018, TC_BLI));
-		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + interventions[0].getShortName(), "Cost of " + interventions[0].getDescription(), "HTA Canada", 2018, 3677));
-		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + interventions[1].getShortName(), "Cost of " + interventions[1].getDescription(), "HTA Canada", 2018, 11811));
+		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + CSIIIntervention.NAME, "Cost of " + CSIIIntervention.NAME, "HTA Canada", 2018, 6817));
+		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX +SAPIntervention.NAME, "Cost of " + SAPIntervention.NAME, "HTA Canada", 2018, 9211));
 
 		addUtilParam(new SecondOrderParam(STR_U_GENERAL_POPULATION, "Utility of general population", "", U_GENERAL_POP));
 		addUtilParam(new SecondOrderParam(STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "", DU_HYPO_EPISODE));
@@ -164,6 +148,17 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 	@Override
 	public RandomVariate getWeeklySensorUsage() {
 		return RandomVariateFactory.getInstance("ConstantVariate", 7);
+	}
+
+	@Override
+	public T1DMMonitoringIntervention[] getInterventions() {
+		return new T1DMMonitoringIntervention[] {new CSIIIntervention(0, costParams.get(STR_COST_PREFIX + CSIIIntervention.NAME).getValue()),
+				new SAPIntervention(1, costParams.get(STR_COST_PREFIX + SAPIntervention.NAME).getValue())};
+	}
+
+	@Override
+	public int getNInterventions() {
+		return 2;
 	}
 
 }

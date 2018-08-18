@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.T1DM.params;
 
-import java.util.Arrays;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
@@ -50,7 +49,6 @@ public abstract class SecondOrderParams {
 	// Descriptors for RRs
 	public static final String STR_RR_PREFIX = "RR_";
 	public static final String STR_RR10_PREFIX = "RR10_";
-	public static final String STR_EFF_PREFIX = "EFF_";
 	public static final String STR_RR_HYPO = STR_RR_PREFIX + "SEVERE_HYPO"; 
 	public static final String STR_REF_HBA1C = "AVG REFERENCE HBA1C";
 
@@ -109,7 +107,6 @@ public abstract class SecondOrderParams {
 	final protected TreeMap<String, SecondOrderParam> utilParams;
 	final protected TreeMap<String, SecondOrderParam> otherParams;
 	protected CombinationMethod utilityCombinationMethod = CombinationMethod.ADD;
-	protected T1DMMonitoringIntervention[] interventions = null;
 	private boolean canadaValidation = false;
 	private boolean discountZero = false;
 	
@@ -130,18 +127,15 @@ public abstract class SecondOrderParams {
 	}
 
 	/**
+	 * Return the interventions to be used in the simulation
 	 * @return the interventions
 	 */
-	public T1DMMonitoringIntervention[] getInterventions() {
-		return interventions;
-	}
+	public abstract T1DMMonitoringIntervention[] getInterventions();
 
 	/**
 	 * @return the interventions
 	 */
-	public int getNInterventions() {
-		return interventions.length;
-	}
+	public abstract int getNInterventions();
 
 	public void addProbParam(SecondOrderParam param) {
 		probabilityParams.put(param.getName(), param);
@@ -207,18 +201,12 @@ public abstract class SecondOrderParams {
 		return valid ? rr : null;
 	}
 	
-	public double[] getNoRR() {
-		final double[] rrValues = new double[interventions.length];
-		Arrays.fill(rrValues, 1.0);
-		return rrValues;
-	}
-	
 	public double[] getHypoRR() {
-		final double[] rrValues = new double[interventions.length];
+		final double[] rrValues = new double[getNInterventions()];
 		rrValues[0] = 1.0;
 		final SecondOrderParam param = otherParams.get(STR_RR_HYPO);
 		final double rr = (param == null) ? 1.0 : param.getValue();
-		for (int i = 1; i < interventions.length; i++) {
+		for (int i = 1; i < getNInterventions(); i++) {
 			rrValues[i] = rr;
 		}
 		return rrValues;
@@ -267,9 +255,9 @@ public abstract class SecondOrderParams {
 	 */
 	public long [] getDurationOfEffect(TimeUnit unit) {
 		final SecondOrderParam param = (SecondOrderParam) otherParams.get(STR_YEARS_OF_EFFECT);
-		final long[] duration = new long[interventions.length];
+		final long[] duration = new long[getNInterventions()];
 		duration[0] = Long.MAX_VALUE;
-		for (int i = 1; i < interventions.length; i++) {
+		for (int i = 1; i < getNInterventions(); i++) {
 			duration[i] = unit.convert(param.getValue(), TimeUnit.YEAR);
 		}
 		return duration;
@@ -301,15 +289,6 @@ public abstract class SecondOrderParams {
 	public double getAnnualNoComplicationCost() {
 		final SecondOrderParam param = costParams.get(STR_COST_DNC);
 		return (param == null) ? 0.0 : param.getValue(); 		
-	}
-	
-	public double[] getAnnualInterventionCost() {
-		final double[] costs = new double[interventions.length];
-		for (int i = 0; i < interventions.length; i++) {
-			final SecondOrderParam param = costParams.get(STR_COST_PREFIX + interventions[i].getShortName());
-			costs[i] = (param == null) ? 0.0 : param.getValue();
-		}
-		return costs;
 	}
 	
 	/**

@@ -40,6 +40,7 @@ public class T1DMPatient extends Patient {
 	private double hba1c;
 	/** Days a week usage of the sensor (for continuous glucose monitoring) */
 	final private double weeklySensorUsage;
+	final private long durationOfEffect;
 	
 	private final CommonParams commonParams;
 	private final ResourceUsageParams resUsageParams;
@@ -49,6 +50,7 @@ public class T1DMPatient extends Patient {
 	private final ComplicationEvent[] complicationEvents;
 	private final ArrayList<SevereHypoglycemicEvent> hypoEvents;
 	protected DeathEvent deathEvent = null;
+	private LostTreatmentEffectEvent lostEffectEvent = null;
 
 	/**
 	 * @param simul
@@ -69,6 +71,7 @@ public class T1DMPatient extends Patient {
 		Arrays.fill(complicationEvents, null);
 		hypoEvents = new ArrayList<>();
 		chdComplication = commonParams.getCHDComplication(this);
+		this.durationOfEffect = commonParams.getDurationOfEffect(intervention);
 	}
 
 	public T1DMPatient(T1DMSimulation simul, T1DMPatient original, T1DMMonitoringIntervention intervention) {
@@ -85,6 +88,7 @@ public class T1DMPatient extends Patient {
 		Arrays.fill(complicationEvents, null);
 		hypoEvents = new ArrayList<>();
 		chdComplication = original.chdComplication;
+		this.durationOfEffect = commonParams.getDurationOfEffect(intervention);
 	}
 
 	/**
@@ -152,6 +156,13 @@ public class T1DMPatient extends Patient {
 	 */
 	public double getWeeklySensorUsage() {
 		return weeklySensorUsage;
+	}
+
+	/**
+	 * @return the durationOfEffect
+	 */
+	public long getDurationOfEffect() {
+		return durationOfEffect;
 	}
 
 	public double getAgeAtDeath() {
@@ -238,7 +249,7 @@ public class T1DMPatient extends Patient {
 			}
 			
 			// Assign severe hypoglycemic events
-			final SevereHypoglycemicEventParam.ReturnValue hypoEvent = commonParams.getTimeToSevereHypoglycemicEvent(T1DMPatient.this);
+			final SevereHypoglycemicEventParam.ReturnValue hypoEvent = commonParams.getTimeToSevereHypoglycemicEvent(T1DMPatient.this, false);
 			if (hypoEvent.timeToEvent < timeToDeath) {
 				final SevereHypoglycemicEvent ev = new SevereHypoglycemicEvent(hypoEvent.timeToEvent, hypoEvent.causesDeath);
 				hypoEvents.add(ev);
@@ -246,10 +257,9 @@ public class T1DMPatient extends Patient {
 			}
 			
 			// Assign lost of treatment effect depending on the intervention
-			final long durationOfEffect = commonParams.getDurationOfEffect(intervention);
 			if (durationOfEffect < timeToDeath) {
-				final LostTreatmentEffectEvent ev = new LostTreatmentEffectEvent(durationOfEffect);
-				simul.addEvent(ev);
+				lostEffectEvent = new LostTreatmentEffectEvent(durationOfEffect);
+				simul.addEvent(lostEffectEvent);
 			}
 		}
 		
@@ -388,7 +398,7 @@ public class T1DMPatient extends Patient {
 			}
 			else {
 				// Schedule new event (if required)
-				final SevereHypoglycemicEventParam.ReturnValue hypoEvent = commonParams.getTimeToSevereHypoglycemicEvent(T1DMPatient.this);
+				final SevereHypoglycemicEventParam.ReturnValue hypoEvent = commonParams.getTimeToSevereHypoglycemicEvent(T1DMPatient.this, false);
 				if (hypoEvent.timeToEvent < deathEvent.getTs()) {
 					final SevereHypoglycemicEvent ev = new SevereHypoglycemicEvent(hypoEvent.timeToEvent, hypoEvent.causesDeath);
 					hypoEvents.add(ev);
@@ -403,7 +413,7 @@ public class T1DMPatient extends Patient {
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	private class LostTreatmentEffectEvent extends T1DMPatientEvent {
+	private class LostTreatmentEffectEvent extends DiscreteEvent {
 
 		public LostTreatmentEffectEvent(long ts) {
 			super(ts);
@@ -411,7 +421,20 @@ public class T1DMPatient extends Patient {
 		
 		@Override
 		public void event() {
-			super.event();
+			// Check last hypoglycemic event
+			if (!hypoEvents.isEmpty()) {
+				SevereHypoglycemicEvent hypoEv = hypoEvents.get(hypoEvents.size() - 1);
+				if (hypoEv.getTs() > ts) {
+					hypoEv.cancel();
+					hypoEvents.remove(hypoEv);
+					final SevereHypoglycemicEventParam.ReturnValue hypoEvent = commonParams.getTimeToSevereHypoglycemicEvent(T1DMPatient.this, true);
+					hypoEv = new SevereHypoglycemicEvent(hypoEvent.timeToEvent, hypoEvent.causesDeath);
+					hypoEvents.add(hypoEv);
+					simul.addEvent(hypoEv);
+				}
+				
+			}
+
 			// Check all scheduled complication events
 			for (int i = 0; i < complicationEvents.length; i++) {
 				if (complicationEvents[i] != null) {
@@ -462,7 +485,13 @@ public class T1DMPatient extends Patient {
 					counter = 0;
 				}
 			}
-
+			if (lostEffectEvent != null) {
+				if (lostEffectEvent.getTs() >= getTs()) {
+					lostEffectEvent.cancel();
+					lostEffectEvent = null;					
+				}
+			}
+			
 			simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, T1DMPatientInfo.Type.DEATH, this.getTs()));
 			notifyEnd();
 		}

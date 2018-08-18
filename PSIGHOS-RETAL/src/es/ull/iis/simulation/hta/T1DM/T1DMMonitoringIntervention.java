@@ -45,4 +45,6 @@ public abstract class T1DMMonitoringIntervention implements Intervention {
 
 	public abstract double getHBA1cLevel(T1DMPatient pat);
 	
+	public abstract double getAnnualCost(T1DMPatient pat);
+	
 }

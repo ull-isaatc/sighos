@@ -59,12 +59,20 @@ public class SevereHypoglycemicEventParam implements ReseteableParam<SevereHypog
 		}
 		final double[] rnd = generated[pat.getIdentifier()].get(eventCounter[pat.getIdentifier()]++);
 		final long timeToDeath = pat.getTimeToDeath();
-		final long timeToHypo = CommonParams.getAnnualBasedTimeToEvent(pat, -1 / annualProb, rnd[0], rr[pat.getnIntervention()]);
+		final double usedRR = (pat.getTs() >= pat.getDurationOfEffect()) ? 1.0 : rr[pat.getnIntervention()];
+		final long timeToHypo = CommonParams.getAnnualBasedTimeToEvent(pat, -1 / annualProb, rnd[0], usedRR);
 		if (timeToHypo >= timeToDeath)
 			return new ReturnValue(Long.MAX_VALUE, false);
 		return new ReturnValue(timeToHypo, rnd[1] < pDeath);
 	}
 
+	/**
+	 * Tells the param to reuse the last values generated 
+	 * @param pat A patient
+	 */
+	public void cancelLast(T1DMPatient pat) {		
+		eventCounter[pat.getIdentifier()]--;
+	}
 	@Override
 	public void reset() {
 		Arrays.fill(eventCounter, 0);

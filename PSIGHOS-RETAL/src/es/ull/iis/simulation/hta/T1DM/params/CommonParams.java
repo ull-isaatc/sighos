@@ -3,9 +3,11 @@
  */
 package es.ull.iis.simulation.hta.T1DM.params;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 
 import es.ull.iis.simulation.hta.Intervention;
+import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.params.ModelParams;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -22,6 +24,7 @@ import simkit.random.RandomVariate;
  *
  */
 public class CommonParams extends ModelParams {
+	protected T1DMMonitoringIntervention[] interventions = null;
 	private static double LN09 = Math.log(0.9);
 	private final SevereHypoglycemicEventParam hypoParam;
 	private final RandomNumber rng;
@@ -74,6 +77,7 @@ public class CommonParams extends ModelParams {
 		super();
 		this.secParams = secParams;
 		rng = RandomNumberFactory.getInstance();
+		interventions = secParams.getInterventions();
 		rndComplications = new double[SecondOrderParams.N_COMPLICATIONS][nPatients];
 		pCHDComplication = secParams.getRandomVariateForCHDComplications();
 
@@ -102,7 +106,9 @@ public class CommonParams extends ModelParams {
 		else {
 			rr10Complications = null;			
 		}
-		noRR = secParams.getNoRR();
+		
+		noRR = new double[interventions.length];
+		Arrays.fill(noRR, 1.0);
 
 		pMan = secParams.getPMan();
 		baselineAge = secParams.getBaselineAge();
@@ -130,6 +136,13 @@ public class CommonParams extends ModelParams {
 			noComplicationsIMR = secParams.getNoComplicationIMR();
 			complicationsIMR = secParams.getIMRs();
 		}
+	}
+
+	/**
+	 * @return the interventions
+	 */
+	public T1DMMonitoringIntervention[] getInterventions() {
+		return interventions;
 	}
 
 	/**
@@ -164,7 +177,9 @@ public class CommonParams extends ModelParams {
 		return discountRate;
 	}
 	
-	public SevereHypoglycemicEventParam.ReturnValue getTimeToSevereHypoglycemicEvent(T1DMPatient pat) {
+	public SevereHypoglycemicEventParam.ReturnValue getTimeToSevereHypoglycemicEvent(T1DMPatient pat, boolean cancelLast) {
+		if (cancelLast)
+			hypoParam.cancelLast(pat);
 		return hypoParam.getValue(pat);
 	}
 
@@ -173,9 +188,6 @@ public class CommonParams extends ModelParams {
 		long time = Long.MAX_VALUE;
 		final long time2Death = pat.getTimeToDeath();
 		final double rnd = rndComplications[complication.ordinal()][pat.getIdentifier()];
-		
-		// FIXME: Esto no será válido una vez que calcule el RR a partir del HbA1c actual del patiente. En ese momento, debería gestionar esto desde el mismo paciente.
-//		final boolean applyRiskReduction = (pat.getTs() < durationOfEffect[pat.getnIntervention()]);
 		
 		double rr = 1.0;
 		if (rrComplications != null) {

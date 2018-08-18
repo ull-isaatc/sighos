@@ -36,23 +36,24 @@ public class T1DMMain {
 	private final int nRuns;
 	private final int nPatients;
 	private final SecondOrderParams secParams;
-	private final boolean singlePatientTest;
 	private final T1DMPatientInfoView patientListener;
 	private final PrintProgress progress;
 	private final boolean parallel;
 	private final boolean quiet;
 	
-	public T1DMMain(PrintWriter out, int nRuns, int nPatients, SecondOrderParams secParams, boolean parallel, boolean quiet, boolean singlePatientTest) {
+	public T1DMMain(PrintWriter out, int nRuns, int nPatients, SecondOrderParams secParams, boolean parallel, boolean quiet, int singlePatientOutput) {
 		super();
 		this.out = out;
 		this.interventions = secParams.getInterventions();
 		this.nRuns = nRuns;
 		this.nPatients = nPatients;
 		this.secParams = secParams;
-		this.singlePatientTest = singlePatientTest;
 		this.parallel = parallel;
 		this.quiet = quiet;
-		patientListener = new T1DMPatientInfoView();
+		if (singlePatientOutput != -1)
+			patientListener = new T1DMPatientInfoView(singlePatientOutput);
+		else
+			patientListener = null;
 		progress = new PrintProgress(GAP, nRuns + 1);
 	}
 
@@ -107,19 +108,19 @@ public class T1DMMain {
 		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(nPatients, interventions.length, false);
 		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], nPatients, new CommonParams(secParams, nPatients), new ResourceUsageParams(secParams), new UtilityParams(secParams));
 		simul.addInfoReceiver(timeFreeListener);
-		if (singlePatientTest)
+		if (patientListener != null)
 			simul.addInfoReceiver(patientListener);
 		addListeners(simul);
 		simul.run();
 		for (int i = 1; i < interventions.length; i++) {
 			simul = new T1DMSimulation(simul, interventions[i]);
 			simul.addInfoReceiver(timeFreeListener);
-			if (singlePatientTest)
+			if (patientListener != null)
 				simul.addInfoReceiver(patientListener);
 			addListeners(simul);
 			simul.run();				
 		}
-		out.println(print(simul, timeFreeListener));		
+		out.println(print(simul, timeFreeListener));	
 	}
 	
 	public void run() {
@@ -130,38 +131,10 @@ public class T1DMMain {
 		secParams.setBaseCase(false);
 		if (parallel) {
 			final int maxThreads = Runtime.getRuntime().availableProcessors();
-//			final PrintWriter []files = new PrintWriter[maxThreads]; 
-//			if (outputFileName == null) {
-//				for (int i = 0; i < maxThreads; i++) {
-//					files[i] = new PrintWriter(System.out);
-//				}
-//			}
-//			else {
-//				final int pos = outputFileName.lastIndexOf('.');
-//				final String nameAux;
-//				final String ext; 
-//				if (pos > 0) {
-//					nameAux = outputFileName.substring(0, pos);
-//					ext = outputFileName.substring(pos);
-//				}
-//				else {
-//					nameAux = outputFileName;
-//					ext = "";
-//				}
-//				for (int i = 0; i < maxThreads; i++) {
-//					try {
-//						files[i] = new PrintWriter(new BufferedWriter(new FileWriter(nameAux + "_" + i + ext)));
-//					} catch (IOException e) {
-//						e.printStackTrace();
-//						files[i] = new PrintWriter(System.out);
-//					}
-//				}
-//			}
 			try {
 				final Thread[] workers = new Thread[maxThreads];
 				for (int i = 0; i < maxThreads; i++) {
 					workers[i] = new Thread(new ProblemExecutor(out, i + 1, maxThreads));
-//					workers[i] = new Thread(new ProblemExecutor(files[i], i, maxThreads));
 					workers[i].start();
 				}
 				for (int i = 0; i < maxThreads; i++) {
@@ -172,18 +145,6 @@ public class T1DMMain {
 			}
 		}
 		else {
-//			PrintWriter out;
-//			if (outputFileName == null) {
-//				out = new PrintWriter(System.out);
-//			}
-//			else {
-//				try {
-//					out = new PrintWriter(new BufferedWriter(new FileWriter(outputFileName)));
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//					out = new PrintWriter(System.out);
-//				}
-//			}
 			new ProblemExecutor(out, 1, 1).run();
 		}
 		
@@ -214,19 +175,13 @@ public class T1DMMain {
 
 	        }
 	    	final SecondOrderParams secParams = args1.canada ? new CanadaSecondOrderParams(true) : new BaseSecondOrderParams(true);
-	        final boolean singlePatientTest = args1.singlePatientTest;
-	        final int nPatients;
-	        if (singlePatientTest) {
-	        	nPatients = 1;
-	        }
-	        else {
-	        	nPatients = args1.nPatients;
-	        }
+	        final int singlePatientOutput = args1.singlePatientOutput;
+	        final int nPatients = args1.nPatients;
 	        final int nRuns = args1.nRuns;
 	    	if (args1.noDiscount)
 	    		secParams.setDiscountZero(true);
 	        
-	        final T1DMMain experiment = new T1DMMain(out, nRuns, nPatients, secParams, args1.parallel, args1.quiet, singlePatientTest);
+	        final T1DMMain experiment = new T1DMMain(out, nRuns, nPatients, secParams, args1.parallel, args1.quiet, singlePatientOutput);
 	        experiment.run();
 		} catch (ParameterException ex) {
 			System.out.println(ex.getMessage());
@@ -239,19 +194,19 @@ public class T1DMMain {
 	private static class Arguments {
 		@Parameter(names ={"--output", "-o"}, description = "Output file name", order = 1)
 		private String outputFileName = null;
-		@Parameter(names ={"--patients", "-n"}, description = "Number of patients to test", order = 4)
+		@Parameter(names ={"--patients", "-n"}, description = "Number of patients to test", order = 2)
 		private int nPatients = DEF_N_PATIENTS;
-		@Parameter(names ={"--runs", "-r"}, description = "Number of probabilistic runs", order = 4)
+		@Parameter(names ={"--runs", "-r"}, description = "Number of probabilistic runs", order = 3)
 		private int nRuns = DEF_N_RUNS;
 		@Parameter(names ={"--canada", "-c"}, description = "Enables Canada validation", order = 8)
 		private boolean canada = false;
-		@Parameter(names ={"--single_patient_test", "-sp"}, description = "Enables single patient test", order = 8)
-		private boolean singlePatientTest = false;
-		@Parameter(names ={"--nodiscount", "-nd"}, description = "Uses rate discount = 0%", order = 8)
+		@Parameter(names ={"--enable_patient_output", "-po"}, description = "Enables single patient output", order = 4)
+		private int singlePatientOutput = -1;
+		@Parameter(names ={"--nodiscount", "-nd"}, description = "Uses rate discount = 0%", order = 7)
 		private boolean noDiscount = false;
-		@Parameter(names ={"--parallel", "-p"}, description = "Enables parallel execution", order = 8)
+		@Parameter(names ={"--parallel", "-p"}, description = "Enables parallel execution", order = 5)
 		private boolean parallel = false;
-		@Parameter(names ={"--quiet", "-q"}, description = "Quiet execution (does not print progress info)", order = 8)
+		@Parameter(names ={"--quiet", "-q"}, description = "Quiet execution (does not print progress info)", order = 6)
 		private boolean quiet = false;
 	}
 	

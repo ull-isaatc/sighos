@@ -78,6 +78,13 @@ public abstract class Patient extends VariableStoreSimulationObject implements E
 	}
 
 	/**
+	 * @return the intervention
+	 */
+	public Intervention getIntervention() {
+		return intervention;
+	}
+
+	/**
 	 * @return the clonedFrom
 	 */
 	public Patient getClonedFrom() {
