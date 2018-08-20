@@ -93,7 +93,7 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 			// Check all the complications
 			for (Complication comp : Complication.values()) {
 				final long time = pat.getTimeToComplication(comp);
-				timeToComplications[nIntervention][comp.ordinal()][pat.getIdentifier()] = (time == Long.MAX_VALUE) ? BasicConfigParams.MAX_AGE * BasicConfigParams.YEAR_CONVERSION : time;
+				timeToComplications[nIntervention][comp.ordinal()][pat.getIdentifier()] = (time == Long.MAX_VALUE) ? deathTs : time;
 			}
 		}
 	}

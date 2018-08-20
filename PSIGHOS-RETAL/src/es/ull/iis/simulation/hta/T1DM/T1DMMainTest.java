@@ -8,7 +8,7 @@ import java.io.PrintStream;
 import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMPatientInfoView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMTimeFreeOfComplicationsView;
-import es.ull.iis.simulation.hta.T1DM.params.BaseSecondOrderParams;
+import es.ull.iis.simulation.hta.T1DM.params.UnconsciousSecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CanadaSecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
@@ -30,7 +30,7 @@ public class T1DMMainTest {
 
 	private static final PrintStream out = System.out;
 	private static final int N_RUNS = BASIC_TEST_ONE_PATIENT ? 0 : 100;
-	private static final SecondOrderParams secParams = CHECK_CANADA ? new CanadaSecondOrderParams(true) : new BaseSecondOrderParams(true);
+	private static final SecondOrderParams secParams = CHECK_CANADA ? new CanadaSecondOrderParams(true) : new UnconsciousSecondOrderParams(true);
 
 	public T1DMMainTest() {
 		super();

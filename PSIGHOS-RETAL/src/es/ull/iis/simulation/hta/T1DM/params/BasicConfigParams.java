@@ -18,6 +18,8 @@ public class BasicConfigParams {
 	public final static double YEAR_CONVERSION = SIMUNIT.convert(TimeStamp.getYear());
 	/** Maximum age reachable by patients */
 	public final static int MAX_AGE = 100;
+	/** Minimum age of patients */
+	public final static int MIN_AGE = 18;
 	/** Identifier code for men */
 	public final static int MAN = 0;
 	/** Identifier code for women */

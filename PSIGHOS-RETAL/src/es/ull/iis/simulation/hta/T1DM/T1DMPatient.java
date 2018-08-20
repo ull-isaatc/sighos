@@ -71,7 +71,7 @@ public class T1DMPatient extends Patient {
 		Arrays.fill(complicationEvents, null);
 		hypoEvents = new ArrayList<>();
 		chdComplication = commonParams.getCHDComplication(this);
-		this.durationOfEffect = commonParams.getDurationOfEffect(intervention);
+		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
 
 	public T1DMPatient(T1DMSimulation simul, T1DMPatient original, T1DMMonitoringIntervention intervention) {
@@ -88,7 +88,7 @@ public class T1DMPatient extends Patient {
 		Arrays.fill(complicationEvents, null);
 		hypoEvents = new ArrayList<>();
 		chdComplication = original.chdComplication;
-		this.durationOfEffect = commonParams.getDurationOfEffect(intervention);
+		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
 
 	/**
@@ -159,10 +159,11 @@ public class T1DMPatient extends Patient {
 	}
 
 	/**
-	 * @return the durationOfEffect
+	 * Returns true if the effect of the intervention is still active; false otherwise
+	 * @return true if the effect of the intervention is still active; false otherwise
 	 */
-	public long getDurationOfEffect() {
-		return durationOfEffect;
+	public boolean isEffectActive() {
+		return durationOfEffect > getTs();
 	}
 
 	public double getAgeAtDeath() {
@@ -206,7 +207,11 @@ public class T1DMPatient extends Patient {
 			if (lastTs != ts) {
 				final double initAge = TimeUnit.DAY.convert(lastTs, simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION; 
 				final double endAge = TimeUnit.DAY.convert(ts, simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
+				
+				// Update lastTs
 				lastTs = this.ts;
+				
+				// Update outcomes
 				if (ts > 0) {
 					final double periodCost = resUsageParams.getAnnualCostWithinPeriod(T1DMPatient.this, initAge, endAge);
 					cost.update(T1DMPatient.this, periodCost, initAge, endAge);
@@ -421,6 +426,8 @@ public class T1DMPatient extends Patient {
 		
 		@Override
 		public void event() {
+			// Update HbA1c level
+			hba1c = ((T1DMMonitoringIntervention)intervention).getHBA1cLevel(T1DMPatient.this);
 			// Check last hypoglycemic event
 			if (!hypoEvents.isEmpty()) {
 				SevereHypoglycemicEvent hypoEv = hypoEvents.get(hypoEvents.size() - 1);
@@ -436,6 +443,7 @@ public class T1DMPatient extends Patient {
 			}
 
 			// Check all scheduled complication events
+			// FIXME: Shouldn't check ALL the complications????
 			for (int i = 0; i < complicationEvents.length; i++) {
 				if (complicationEvents[i] != null) {
 					final Complication comp = complicationEvents[i].complication;

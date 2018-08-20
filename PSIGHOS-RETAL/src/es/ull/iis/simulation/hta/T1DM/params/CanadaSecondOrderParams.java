@@ -3,7 +3,10 @@
  */
 package es.ull.iis.simulation.hta.T1DM.params;
 
+import java.util.EnumSet;
+
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
+import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityParams.CombinationMethod;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -35,9 +38,8 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 	private static final double RR_NEU = 0.624;
 	private static final double RR_RET = 0.661;
 
-	// FIXME: Nos on los datos canadienses de costes
 	private static final double C_HYPO_EPISODE = 3755;
-	private static final double C_DNC = 2174.11;
+	private static final double C_DNC = 2262;
 	private static final double C_CHD = 4072;
 	private static final double C_NEU = 192;
 	private static final double C_NPH = 13;
@@ -91,11 +93,18 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", "Canada", 0.0063, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
 		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic event in intervention branch", "Canada", 0.869, RandomVariateFactory.getInstance("RRFromLnCIVariate", 0.869, 0.476, 1.586, 1)));
 
-		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.CHD.name(), STR_RR_PREFIX + Complication.CHD.name(), "", RR_CHD, RandomVariateFactory.getInstance("ConstantVariate", RR_CHD)));
-		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.NPH.name(), STR_RR_PREFIX + Complication.NPH.name(), "", RR_NPH, RandomVariateFactory.getInstance("ConstantVariate", RR_NPH)));
-		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.NEU.name(), STR_RR_PREFIX + Complication.NEU.name(), "", RR_NEU, RandomVariateFactory.getInstance("ConstantVariate", RR_NEU)));
-		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.RET.name(), STR_RR_PREFIX + Complication.RET.name(), "", RR_RET, RandomVariateFactory.getInstance("ConstantVariate", RR_RET)));
+//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.CHD.name(), STR_RR_PREFIX + Complication.CHD.name(), "", RR_CHD, RandomVariateFactory.getInstance("ConstantVariate", RR_CHD)));
+//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.NPH.name(), STR_RR_PREFIX + Complication.NPH.name(), "", RR_NPH, RandomVariateFactory.getInstance("ConstantVariate", RR_NPH)));
+//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.NEU.name(), STR_RR_PREFIX + Complication.NEU.name(), "", RR_NEU, RandomVariateFactory.getInstance("ConstantVariate", RR_NEU)));
+//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.RET.name(), STR_RR_PREFIX + Complication.RET.name(), "", RR_RET, RandomVariateFactory.getInstance("ConstantVariate", RR_RET)));
 
+		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.CHD.name(), STR_RR_PREFIX + Complication.CHD.name(), "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007", 1.15, RandomVariateFactory.getInstance("RRFromLnCIVariate", 1.15, 0.92, 1.43, 1)));
+		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.NPH.name(), "%risk reducion for combined groups for microalbuminuria (>= 40 mg/24 h)", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 0.25, RandomVariateFactory.getInstance("NormalVariate", 0.25, sdFrom95CI(new double[] {0.19, 0.32}))));
+		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.NEU.name(), "%risk reducion for combined groups for confirmed clinical neuropathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 0.3, RandomVariateFactory.getInstance("NormalVariate", 0.3, sdFrom95CI(new double[] {0.18, 0.40}))));
+		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.RET.name(), "%risk reducion for combined groups for sustained onset of retinopathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 0.35, RandomVariateFactory.getInstance("NormalVariate", 0.35, sdFrom95CI(new double[] {0.29, 0.41}))));
+		addOtherParam(new SecondOrderParam(STR_REF_HBA1C, STR_REF_HBA1C, "", 8.87480916));
+		
+		
 		addCostParam(new SecondOrderCostParam(STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", "HTA Canada", 2018, C_HYPO_EPISODE));
 		addCostParam(new SecondOrderCostParam(STR_COST_DNC, "Cost of DNC", "HTA Canada", 2018, C_DNC));
 		addCostParam(new SecondOrderCostParam(STR_COST_CHD, "Cost of CHD", "HTA Canada", 2018, C_CHD));
@@ -112,8 +121,6 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		addCostParam(new SecondOrderCostParam(STR_TRANS_COST_LEA, "Transition cost to LEA", "HTA Canada", 2018, TC_LEA));
 		addCostParam(new SecondOrderCostParam(STR_TRANS_COST_ESRD, "Transition cost to ESRD", "HTA Canada", 2018, TC_ESRD));
 		addCostParam(new SecondOrderCostParam(STR_TRANS_COST_BLI, "Transition cost to BLI", "HTA Canada", 2018, TC_BLI));
-		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + CSIIIntervention.NAME, "Cost of " + CSIIIntervention.NAME, "HTA Canada", 2018, 6817));
-		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX +SAPIntervention.NAME, "Cost of " + SAPIntervention.NAME, "HTA Canada", 2018, 9211));
 
 		addUtilParam(new SecondOrderParam(STR_U_GENERAL_POPULATION, "Utility of general population", "", U_GENERAL_POP));
 		addUtilParam(new SecondOrderParam(STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "", DU_HYPO_EPISODE));
@@ -127,7 +134,6 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		addUtilParam(new SecondOrderParam(STR_DU_BLI, "Disutility of BLI", "", DU_BLI));
 
 		addOtherParam(new SecondOrderParam(STR_P_MAN, "Probability of havig sex = male", "Assumption", P_MAN));
-		addOtherParam(new SecondOrderParam(STR_YEARS_OF_EFFECT, "Duration of effect in years", "", YEARS_OF_EFFECT));
 		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "Spanish guidelines", DISCOUNT_RATE));
 		
 		addOtherParam(new SecondOrderParam(STR_AVG_BASELINE_AGE, "Average baseline age", "", 27));
@@ -152,8 +158,7 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 
 	@Override
 	public T1DMMonitoringIntervention[] getInterventions() {
-		return new T1DMMonitoringIntervention[] {new CSIIIntervention(0, costParams.get(STR_COST_PREFIX + CSIIIntervention.NAME).getValue()),
-				new SAPIntervention(1, costParams.get(STR_COST_PREFIX + SAPIntervention.NAME).getValue())};
+		return new T1DMMonitoringIntervention[] {new CanadaIntervention1(0), new CanadaIntervention2(1)};
 	}
 
 	@Override
@@ -161,4 +166,101 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		return 2;
 	}
 
+	@Override
+	public ComplicationRR[] getComplicationRRs() {
+//		final ComplicationRR[] rr = new ComplicationRR[N_COMPLICATIONS];
+//		for (Complication comp : Complication.values()) {
+//			final double[] values = new double[2]; 
+//			values[0] = 1.0;
+//			final SecondOrderParam param = otherParams.get(STR_RR_PREFIX + comp.name());
+//			if (param != null) {
+//				values[1] = param.getValue();
+//			}
+//			else { 
+//				values[1] = 1.0;
+//			}
+//			rr[comp.ordinal()] = new InterventionSpecificComplicationRR(values);
+//		}
+		final double referenceHbA1c = otherParams.get(STR_REF_HBA1C).getValue();
+		final ComplicationRR[] rr = new ComplicationRR[N_COMPLICATIONS];
+		// First computes the relative risks for all the complications but CHD
+		final EnumSet<Complication> allButCHD = EnumSet.complementOf(EnumSet.of(Complication.CHD));
+		for (Complication comp : allButCHD) {
+			final SecondOrderParam param = otherParams.get(STR_RR_PREFIX + comp.name());
+			rr[comp.ordinal()] = (param == null) ? new StdComplicationRR(1.0) : new HbA1c10ReductionComplicationRR(param.getValue(), referenceHbA1c);
+		}
+		// Now CHD
+		final SecondOrderParam param = otherParams.get(STR_RR_PREFIX + Complication.CHD.name());
+		rr[Complication.CHD.ordinal()] = new HbA1c1PPComplicationRR((param == null) ? 1.0 : param.getValue(), referenceHbA1c);
+		return rr;
+	}
+
+	@Override
+	public ComplicationRR getHypoRR() {
+		final double[] rrValues = new double[getNInterventions()];
+		rrValues[0] = 1.0;
+		final SecondOrderParam param = otherParams.get(STR_RR_HYPO);
+		final double rr = (param == null) ? 1.0 : param.getValue();
+		for (int i = 1; i < getNInterventions(); i++) {
+			rrValues[i] = rr;
+		}
+		return new InterventionSpecificComplicationRR(rrValues);
+	}
+	
+	public class CanadaIntervention1 extends T1DMMonitoringIntervention {
+		public final static String NAME = "SMBG plus multiple daily injections";
+		/**
+		 * @param id
+		 * @param shortName
+		 * @param description
+		 */
+		public CanadaIntervention1(int id) {
+			super(id, NAME, NAME, BasicConfigParams.MAX_AGE);
+		}
+
+		/* (non-Javadoc)
+		 * @see es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention#getHBA1cLevel(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
+		 */
+		@Override
+		public double getHBA1cLevel(T1DMPatient pat) {
+			return 8.3;
+		}
+
+		/* (non-Javadoc)
+		 * @see es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention#getAnnualCost(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
+		 */
+		@Override
+		public double getAnnualCost(T1DMPatient pat) {
+			return 3677;
+		}
+	}
+
+	public class CanadaIntervention2 extends T1DMMonitoringIntervention {
+		public final static String NAME = "Sensor-augmented pump";
+		/**
+		 * @param id
+		 * @param shortName
+		 * @param description
+		 */
+		public CanadaIntervention2(int id) {
+			super(id, NAME, NAME, YEARS_OF_EFFECT);
+		}
+
+		/* (non-Javadoc)
+		 * @see es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention#getHBA1cLevel(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
+		 */
+		@Override
+		public double getHBA1cLevel(T1DMPatient pat) {
+			return pat.isEffectActive() ? 7.3 : 8.3;
+		}
+
+		/* (non-Javadoc)
+		 * @see es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention#getAnnualCost(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
+		 */
+		@Override
+		public double getAnnualCost(T1DMPatient pat) {
+			return 11811;
+		}
+	}
+	
 }

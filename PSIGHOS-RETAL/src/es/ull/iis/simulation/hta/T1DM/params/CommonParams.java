@@ -6,7 +6,6 @@ package es.ull.iis.simulation.hta.T1DM.params;
 import java.util.Arrays;
 import java.util.EnumSet;
 
-import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.params.ModelParams;
@@ -25,7 +24,6 @@ import simkit.random.RandomVariate;
  */
 public class CommonParams extends ModelParams {
 	protected T1DMMonitoringIntervention[] interventions = null;
-	private static double LN09 = Math.log(0.9);
 	private final SevereHypoglycemicEventParam hypoParam;
 	private final RandomNumber rng;
 	private final double[][] rndComplications;
@@ -42,20 +40,14 @@ public class CommonParams extends ModelParams {
 	private final double invRET_BLI;
 	private final double invRET_CHD;
 	
-	/** Reference HbA1c level for the risk reductions */
-	private final double referenceHbA1c;
-	private final double lnReferenceHbA1c;
-	/** Risk reduction of complications associated to a 10% reduction in the HbA1c level */
-	private final double[] rr10Complications;
-	/** In case risks are directly specified */
-	private final double[] rrComplications;
+	/** Relative risks of complications */
+	private final ComplicationRR[] rrComplications;
 	private final double[] noRR;
 	
 	private final double pMan;
 	private final RandomVariate baselineAge;
 	private final RandomVariate baselineHBA1c;
 	private final RandomVariate weeklySensorUsage;
-	private final long[] durationOfEffect;
 	private final double discountRate;
 	
 	private final AllCausesDeathParam allCausesDeath;
@@ -97,15 +89,7 @@ public class CommonParams extends ModelParams {
 		invRET_BLI = -1 / secParams.getProbability(SecondOrderParams.STR_P_RET_BLI);
 		invRET_CHD = -1 / secParams.getProbability(SecondOrderParams.STR_P_RET_CHD);
 		
-		referenceHbA1c = secParams.getReferenceHbA1c();
-		lnReferenceHbA1c = Math.log(referenceHbA1c);
-		rrComplications = secParams.getRRComplications();
-		if (rrComplications == null) {
-			rr10Complications = secParams.getRR10Complications();
-		}
-		else {
-			rr10Complications = null;			
-		}
+		rrComplications = secParams.getComplicationRRs();
 		
 		noRR = new double[interventions.length];
 		Arrays.fill(noRR, 1.0);
@@ -114,7 +98,6 @@ public class CommonParams extends ModelParams {
 		baselineAge = secParams.getBaselineAge();
 		baselineHBA1c = secParams.getBaselineHBA1c();
 		weeklySensorUsage = secParams.getWeeklySensorUsage();
-		durationOfEffect = secParams.getDurationOfEffect(BasicConfigParams.SIMUNIT);
 		discountRate = secParams.getDiscountRate();
 
 		allCausesDeath = new AllCausesDeathParam(nPatients);
@@ -158,7 +141,7 @@ public class CommonParams extends ModelParams {
 	}
 	
 	public double getBaselineAge() {
-		return baselineAge.generate();		
+		return Math.max(baselineAge.generate(), BasicConfigParams.MIN_AGE);		
 	}
 
 	public double getBaselineHBA1c() {
@@ -169,10 +152,6 @@ public class CommonParams extends ModelParams {
 		return weeklySensorUsage.generate();		
 	}
 
-	public long getDurationOfEffect(Intervention intervention) {
-		return durationOfEffect[intervention.getId()];
-	}
-	
 	public double getDiscountRate() {
 		return discountRate;
 	}
@@ -189,20 +168,8 @@ public class CommonParams extends ModelParams {
 		final long time2Death = pat.getTimeToDeath();
 		final double rnd = rndComplications[complication.ordinal()][pat.getIdentifier()];
 		
-		double rr = 1.0;
-		if (rrComplications != null) {
-			if (pat.getnIntervention() > 0) {
-				rr = rrComplications[complication.ordinal()];
-			}
-		}
-		else {
-			// Compute the RR according to the DCCT, 1996 paper. There, they associated a risk reduction to a 10% HbA1c reduction
-			// They also consider a log-log linear relationship among these two parameters
-			
-			// First compute the slope of the linear relationship
-			final double beta = Math.log(-rr10Complications[complication.ordinal()]+1)/LN09;
-			rr = Math.exp(beta * (Math.log(pat.getHba1c())-lnReferenceHbA1c));
-		}
+		final double rr = rrComplications[complication.ordinal()].getRR(pat);
+		
 		switch(complication) {
 		case BLI:
 			// Already at retinopathy

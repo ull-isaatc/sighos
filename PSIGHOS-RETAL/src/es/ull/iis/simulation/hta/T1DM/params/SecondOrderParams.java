@@ -8,7 +8,6 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityParams.CombinationMethod;
 import es.ull.iis.simulation.hta.params.SpanishIPCUpdate;
-import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.DiscreteSelectorVariate;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -48,7 +47,6 @@ public abstract class SecondOrderParams {
 	public static final String STR_P_HF = STR_PROBABILITY_PREFIX + CHDComplication.HF;
 	// Descriptors for RRs
 	public static final String STR_RR_PREFIX = "RR_";
-	public static final String STR_RR10_PREFIX = "RR10_";
 	public static final String STR_RR_HYPO = STR_RR_PREFIX + "SEVERE_HYPO"; 
 	public static final String STR_REF_HBA1C = "AVG REFERENCE HBA1C";
 
@@ -65,7 +63,6 @@ public abstract class SecondOrderParams {
 	// Descriptors for age parameters
 	public static final String STR_AVG_BASELINE_AGE = "AVG BASELINE AGE";
 	public static final String STR_AVG_BASELINE_HBA1C = "AVG BASELINE HBA1C";
-	public static final String STR_YEARS_OF_EFFECT = "YEARS_OF_EFFECT";
 	// Descriptors for misc parameters
 	public static final String STR_DISCOUNT_RATE = "DISCOUNT_RATE";
 	// Descriptors for cost parameters
@@ -158,61 +155,6 @@ public abstract class SecondOrderParams {
 		return (param == null) ? Double.NaN : param.getValue(); 
 	}
 
-	/**
-	 * Returns the HbA1c level in the reference studies for the transition probabilities.
-	 * @return the HbA1c level in the reference studies for the transition probabilities
-	 */
-	public double getReferenceHbA1c() {
-		final SecondOrderParam param = otherParams.get(STR_REF_HBA1C); 
-		return (param == null) ? Double.NaN : param.getValue();
-	}
-	
-	/**
-	 * Returns the risk reduction for each complication associated to a 10% reduction in the reference HbA1c level
-	 * @return the risk reduction for each complication associated to a 10% reduction in the reference HbA1c level
-	 */
-	public double[] getRR10Complications() {
-		final double[] rr = new double[N_COMPLICATIONS];
-		for (Complication comp : Complication.values()) {
-			final SecondOrderParam param = otherParams.get(STR_RR10_PREFIX + comp.name());
-			rr[comp.ordinal()] = (param == null) ? 0.0 : param.getValue();
-		}
-		return rr;
-	}
-
-	/**
-	 * Returns the relative risk for each complication. By default, sets the base intervention RR = 1.0.
-	 * TODO: Currently only supports two interventions. If further interventions are used, fills all the 
-	 * RRs with the parameter. To solve this, the RRParam class should be created.
-	 * @return Returns an array with the relative risk for each intervention; or null if no RR were defined
-	 */
-	public double[] getRRComplications() {
-		boolean valid = false;
-		final double[] rr = new double[N_COMPLICATIONS];
-		for (Complication comp : Complication.values()) {
-			final SecondOrderParam param = otherParams.get(STR_RR_PREFIX + comp.name());
-			if (param != null) {
-				rr[comp.ordinal()] = param.getValue();
-				valid = true;
-			}
-			else 
-				rr[comp.ordinal()] = 1.0;
-		}
-		return valid ? rr : null;
-	}
-	
-	public double[] getHypoRR() {
-		final double[] rrValues = new double[getNInterventions()];
-		rrValues[0] = 1.0;
-		final SecondOrderParam param = otherParams.get(STR_RR_HYPO);
-		final double rr = (param == null) ? 1.0 : param.getValue();
-		for (int i = 1; i < getNInterventions(); i++) {
-			rrValues[i] = rr;
-		}
-		return rrValues;
-		
-	}
-	
 	public boolean isBaseCase() {
 		return baseCase;
 	}
@@ -245,22 +187,6 @@ public abstract class SecondOrderParams {
 			return 0.0;
 		final SecondOrderParam param = (SecondOrderParam) otherParams.get(STR_DISCOUNT_RATE);
 		return (param == null) ? 0.0 : param.getValue(); 						
-	}
-	/**
-	 * Returns the duration of the effect for each intervention. By default, sets the base intervention duration to lifetime.
-	 * TODO: Currently only supports two interventions. If further interventions are used, fills all the 
-	 * durations with the parameter. To solve this, a new param class should be created.
-	 * @param unit Simulation time unit
-	 * @return Returns an array with the duration of the effect of each intervention, expressed in simulation units.
-	 */
-	public long [] getDurationOfEffect(TimeUnit unit) {
-		final SecondOrderParam param = (SecondOrderParam) otherParams.get(STR_YEARS_OF_EFFECT);
-		final long[] duration = new long[getNInterventions()];
-		duration[0] = Long.MAX_VALUE;
-		for (int i = 1; i < getNInterventions(); i++) {
-			duration[i] = unit.convert(param.getValue(), TimeUnit.YEAR);
-		}
-		return duration;
 	}
 	
 	public double getCostForSevereHypoglycemicEpisode() {
@@ -410,6 +336,9 @@ public abstract class SecondOrderParams {
 	public abstract RandomVariate getBaselineHBA1c();
 	public abstract RandomVariate getBaselineAge();
 	public abstract RandomVariate getWeeklySensorUsage();
+	public abstract ComplicationRR[] getComplicationRRs();
+	public abstract ComplicationRR getHypoRR();
+	
 	
 	/**
 	 * Computes the alfa and beta parameters for a beta distribution from an average and

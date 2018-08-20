@@ -10,13 +10,15 @@ import es.ull.iis.simulation.hta.Intervention;
  *
  */
 public abstract class T1DMMonitoringIntervention implements Intervention {
+	final private double yearsOfEffect;
 	final private String shortName;
 	final private String description;
 	final private int id;
 	/**
 	 * 
 	 */
-	public T1DMMonitoringIntervention(int id, String shortName, String description) {
+	public T1DMMonitoringIntervention(int id, String shortName, String description, double yearsOfEffect) {
+		this.yearsOfEffect = yearsOfEffect;
 		this.shortName = shortName;
 		this.description = description;
 		this.id = id;
@@ -42,9 +44,17 @@ public abstract class T1DMMonitoringIntervention implements Intervention {
 	public String getShortName() {
 		return shortName;
 	}
-
+	
+	/**
+	 * @return the yearsOfEffect
+	 */
+	public double getYearsOfEffect() {
+		return yearsOfEffect;
+	}
+	
 	public abstract double getHBA1cLevel(T1DMPatient pat);
 	
 	public abstract double getAnnualCost(T1DMPatient pat);
+
 	
 }

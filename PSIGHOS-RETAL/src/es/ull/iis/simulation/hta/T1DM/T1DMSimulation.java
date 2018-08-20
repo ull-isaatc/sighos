@@ -34,7 +34,7 @@ public class T1DMSimulation extends HTASimulation {
 	 * @param endTs
 	 */
 	public T1DMSimulation(int id, boolean baseCase, T1DMMonitoringIntervention intervention, int nPatients, CommonParams commonParams, ResourceUsageParams resUsageParams, UtilityParams utilParams) {
-		super(id, DESCRIPTION, BasicConfigParams.SIMUNIT, baseCase, intervention, new TimeStamp(TimeUnit.YEAR, (long) (BasicConfigParams.MAX_AGE - commonParams.getBaselineAge() + 1)), commonParams.getInterventions().length, nPatients);
+		super(id, DESCRIPTION, BasicConfigParams.SIMUNIT, baseCase, intervention, new TimeStamp(TimeUnit.YEAR, (long) (BasicConfigParams.MAX_AGE - BasicConfigParams.MIN_AGE + 1)), commonParams.getInterventions().length, nPatients);
 		this.commonParams = commonParams;
 		this.utilParams = utilParams;
 		this.resUsageParams = resUsageParams;

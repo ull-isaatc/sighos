@@ -27,13 +27,13 @@ public class SevereHypoglycemicEventParam implements ReseteableParam<SevereHypog
 	private final ArrayList<double[]>[] generated;
 
 	private final double annualProb;
-	private final double[] rr;
+	private final ComplicationRR rr;
 	private final double pDeath;
 	/** Which event is trying to use each patient */
 	private final int[] eventCounter;
 
 	@SuppressWarnings("unchecked")
-	public SevereHypoglycemicEventParam(int nPatients, double annualProb, double[] rr, double pDeath) {
+	public SevereHypoglycemicEventParam(int nPatients, double annualProb, ComplicationRR rr, double pDeath) {
 		this.rng = RandomNumberFactory.getInstance();
 		generated = (ArrayList<double[]>[])new ArrayList[nPatients];
 		for (int i = 0; i < nPatients; i++) {
@@ -59,7 +59,7 @@ public class SevereHypoglycemicEventParam implements ReseteableParam<SevereHypog
 		}
 		final double[] rnd = generated[pat.getIdentifier()].get(eventCounter[pat.getIdentifier()]++);
 		final long timeToDeath = pat.getTimeToDeath();
-		final double usedRR = (pat.getTs() >= pat.getDurationOfEffect()) ? 1.0 : rr[pat.getnIntervention()];
+		final double usedRR = rr.getRR(pat);
 		final long timeToHypo = CommonParams.getAnnualBasedTimeToEvent(pat, -1 / annualProb, rnd[0], usedRR);
 		if (timeToHypo >= timeToDeath)
 			return new ReturnValue(Long.MAX_VALUE, false);
