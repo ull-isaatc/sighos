@@ -22,6 +22,7 @@ public class PatientCounterHistogramView extends Listener {
 	private final int [] nPatients;
 	private final int [] nDeaths;
 	private final int [][] nComplications;
+	private final int [] nSevereHypo;
 
 	/**
 	 * 
@@ -39,6 +40,7 @@ public class PatientCounterHistogramView extends Listener {
 		nPatients = new int[nIntervals];
 		nDeaths = new int[nIntervals];
 		nComplications = new int[SecondOrderParams.N_COMPLICATIONS][nIntervals];
+		nSevereHypo = new int[nIntervals];
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
 		addEntrance(SimulationEndInfo.class);
@@ -54,12 +56,14 @@ public class PatientCounterHistogramView extends Listener {
 			for (Complication comp : Complication.values()) {
 				strHead.append("\t").append(comp.name());
 			}
+			strHead.append("\t").append("HYPOG");
 			System.out.println(strHead);
 			for (int i = 0; i < nIntervals; i++) {
 				final StringBuilder str = new StringBuilder((minAge + i * length) + "\t" + nPatients[i] + "\t" + nDeaths[i]);
 				for (int[] val : nComplications) {
 					str.append("\t").append(val[i]);
 				}
+				str.append("\t").append(nSevereHypo[i]);
 				System.out.println(str);
 			}
 		}
@@ -73,6 +77,9 @@ public class PatientCounterHistogramView extends Listener {
 					break;
 				case COMPLICATION:
 					nComplications[pInfo.getComplication().ordinal()][interval]++;
+					break;
+				case HYPO_EVENT:
+					nSevereHypo[interval]++;
 					break;
 				case DEATH:
 					nDeaths[interval]++;
