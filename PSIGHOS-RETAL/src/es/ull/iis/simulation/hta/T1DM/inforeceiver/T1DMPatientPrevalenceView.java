@@ -4,12 +4,13 @@
 package es.ull.iis.simulation.hta.T1DM.inforeceiver;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.T1DM.params.Complication;
-import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParams;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -24,15 +25,17 @@ public class T1DMPatientPrevalenceView extends Listener {
 	private final int [][] nComplications;
 	private final int [] nDeaths;
 	private final double[][] ageIntervals;
+	private final ArrayList<T1DMHealthState> availableStates;
 	private final PrintStream out = System.out;
 
 	/**
 	 * @param simUnit The time unit used within the simulation
 	 */
-	public T1DMPatientPrevalenceView(TimeUnit simUnit, double[][] ageIntervals) {
+	public T1DMPatientPrevalenceView(TimeUnit simUnit, double[][] ageIntervals, ArrayList<T1DMHealthState> availableStates) {
 		super("Standard patient viewer");
+		this.availableStates = availableStates;
 		nPatients = new int[ageIntervals.length+1];
-		nComplications = new int[SecondOrderParams.N_COMPLICATIONS][ageIntervals.length+1];
+		nComplications = new int[availableStates.size()][ageIntervals.length+1];
 		nDeaths = new int[ageIntervals.length+1];
 		this.ageIntervals = ageIntervals;
 		addGenerated(T1DMPatientInfo.class);
@@ -58,7 +61,7 @@ public class T1DMPatientPrevalenceView extends Listener {
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof SimulationEndInfo) {
 			out.print("Age1\tAge2\tPatients");
-			for (Complication comp : Complication.values()) {
+			for (T1DMHealthState comp : availableStates) {
 				out.print("\t" + comp.name());
 			}
 			out.println("\tDeaths");
@@ -99,7 +102,7 @@ public class T1DMPatientPrevalenceView extends Listener {
 					nDeaths[ageIntervals.length]++;
 
 					// Check all the complications
-					for (Complication comp : Complication.values()) {
+					for (T1DMHealthState comp : availableStates) {
 						final long time = pat.getTimeToComplication(comp);
 						final double ageAtComp = (time == Long.MAX_VALUE) ? Double.MAX_VALUE : (initAge + time / BasicConfigParams.YEAR_CONVERSION);
 						if (ageAtComp != Double.MAX_VALUE) {

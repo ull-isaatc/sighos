@@ -6,8 +6,6 @@ package es.ull.iis.simulation.hta.T1DM;
 import es.ull.iis.simulation.hta.HTASimulation;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
-import es.ull.iis.simulation.hta.T1DM.params.ResourceUsageParams;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityParams;
 import es.ull.iis.simulation.hta.outcome.Cost;
 import es.ull.iis.simulation.hta.outcome.LifeExpectancy;
 import es.ull.iis.simulation.hta.outcome.QualityAdjustedLifeExpectancy;
@@ -24,8 +22,6 @@ public class T1DMSimulation extends HTASimulation {
 	private final static String DESCRIPTION = "T1DM Simulation";
 
 	private final CommonParams commonParams;
-	private final ResourceUsageParams resUsageParams;
-	private final UtilityParams utilParams;
 
 	/**
 	 * @param id
@@ -33,11 +29,9 @@ public class T1DMSimulation extends HTASimulation {
 	 * @param startTs
 	 * @param endTs
 	 */
-	public T1DMSimulation(int id, boolean baseCase, T1DMMonitoringIntervention intervention, int nPatients, CommonParams commonParams, ResourceUsageParams resUsageParams, UtilityParams utilParams) {
+	public T1DMSimulation(int id, boolean baseCase, T1DMMonitoringIntervention intervention, int nPatients, CommonParams commonParams) {
 		super(id, DESCRIPTION, BasicConfigParams.SIMUNIT, baseCase, intervention, new TimeStamp(TimeUnit.YEAR, (long) (BasicConfigParams.MAX_AGE - BasicConfigParams.MIN_AGE + 1)), commonParams.getInterventions().length, nPatients);
 		this.commonParams = commonParams;
-		this.utilParams = utilParams;
-		this.resUsageParams = resUsageParams;
 		new T1DMPatientGenerator(this, nPatients, intervention, 
 				new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
 		cost = new Cost(this, commonParams.getDiscountRate());
@@ -56,8 +50,6 @@ public class T1DMSimulation extends HTASimulation {
 		super(original, intervention);
 		this.commonParams = original.commonParams;
 		commonParams.reset();
-		this.utilParams = original.utilParams;
-		this.resUsageParams = original.resUsageParams;
 		new T1DMPatientGenerator(this, original.generatedPatients, intervention, 
 				new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
 		cost = original.cost;
@@ -67,20 +59,6 @@ public class T1DMSimulation extends HTASimulation {
 
 	public CommonParams getCommonParams() {
 		return commonParams;
-	}
-
-	/**
-	 * @return the utilParams
-	 */
-	public UtilityParams getUtilParams() {
-		return utilParams;
-	}
-
-	/**
-	 * @return the resUsageParams
-	 */
-	public ResourceUsageParams getResUsageParams() {
-		return resUsageParams;
 	}
 
 }

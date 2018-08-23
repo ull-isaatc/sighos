@@ -3,12 +3,14 @@
  */
 package es.ull.iis.simulation.hta.T1DM.inforeceiver;
 
+import java.util.ArrayList;
+
 import es.ull.iis.simulation.hta.Intervention;
+import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.T1DM.params.Complication;
-import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParams;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.util.Statistics;
@@ -21,24 +23,26 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 	private final double [][][] timeToComplications;
 	private final boolean printFirstOrderVariance;
 	private final int nInterventions;
+	private final ArrayList<T1DMHealthState> availableHealthStates;
 
 	/**
 	 * @param simUnit The time unit used within the simulation
 	 */
-	public T1DMTimeFreeOfComplicationsView(int nPatients, int nInterventions, boolean printFirstOrderVariance) {
+	public T1DMTimeFreeOfComplicationsView(int nPatients, int nInterventions, boolean printFirstOrderVariance, ArrayList<T1DMHealthState> availableHealthStates) {
 		super("Standard patient viewer");
-		timeToComplications = new double[nInterventions][SecondOrderParams.N_COMPLICATIONS][nPatients];
+		this.availableHealthStates = availableHealthStates;
+		timeToComplications = new double[nInterventions][availableHealthStates.size()][nPatients];
 		this.printFirstOrderVariance = printFirstOrderVariance;
 		this.nInterventions = nInterventions;
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
 	}
 	
-	public static String getStrHeader(boolean printFirstOrderVariance, Intervention[] interventions) {
+	public static String getStrHeader(boolean printFirstOrderVariance, Intervention[] interventions, ArrayList<T1DMHealthState> availableHealthStates) {
 		final StringBuilder str = new StringBuilder();
 		if (printFirstOrderVariance) {
 			for (Intervention inter : interventions) {
-				for (Complication comp : Complication.values()) {
+				for (T1DMHealthState comp : availableHealthStates) {
 					final String suf = comp.name() + "_" + inter.getShortName() + "\t";
 					str.append("AVG_TIME_TO_").append(suf).append("\tL95CI_TIME_TO_").append(suf).append("\tU95CI_TIME_TO_").append(suf);
 				}			
@@ -46,7 +50,7 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 		}
 		else {
 			for (Intervention inter : interventions) {
-				for (Complication comp : Complication.values()) {
+				for (T1DMHealthState comp : availableHealthStates) {
 					str.append("AVG_TIME_TO_").append(comp.name()).append("_").append(inter.getShortName()).append("\t");
 				}
 			}
@@ -56,11 +60,11 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 
 	public boolean checkPaired() {
 		boolean checked = false;
-		for (int i = 0; i < SecondOrderParams.N_COMPLICATIONS; i++) {
+		for (int i = 0; i < availableHealthStates.size(); i++) {
 			for (int j = 0; j < timeToComplications[0][i].length; j++) {
 				if (timeToComplications[0][i][j] > timeToComplications[1][i][j]) {
 					checked = true;
-					System.out.println("Paciente " + j + " Comp " + Complication.values()[i] + "\t" + timeToComplications[0][i][j] + ":" + timeToComplications[1][i][j]);
+					System.out.println("Paciente " + j + " Comp " + MainComplications.values()[i] + "\t" + timeToComplications[0][i][j] + ":" + timeToComplications[1][i][j]);
 				}
 			}
 		}
@@ -91,7 +95,7 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 		if (pInfo.getType() == T1DMPatientInfo.Type.DEATH) {
 			final long deathTs = pInfo.getTs();
 			// Check all the complications
-			for (Complication comp : Complication.values()) {
+			for (T1DMHealthState comp : availableHealthStates) {
 				final long time = pat.getTimeToComplication(comp);
 				timeToComplications[nIntervention][comp.ordinal()][pat.getIdentifier()] = (time == Long.MAX_VALUE) ? deathTs : time;
 			}

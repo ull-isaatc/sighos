@@ -5,18 +5,15 @@ package es.ull.iis.simulation.hta.T1DM;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.T1DM.params.CHDComplication;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
-import es.ull.iis.simulation.hta.T1DM.params.Complication;
-import es.ull.iis.simulation.hta.T1DM.params.ResourceUsageParams;
-import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.params.SevereHypoglycemicEventParam;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityParams;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -26,10 +23,10 @@ import es.ull.iis.simulation.model.TimeUnit;
  *
  */
 public class T1DMPatient extends Patient {
-	/** The state of the patient, initialized with no complications */
-	private final EnumSet<Complication> state = EnumSet.noneOf(Complication.class);
-	/** Type of CHD complication that the patient develops (in case he/she develops any) */ 
-	private final CHDComplication chdComplication;
+	/** The state of the patient */
+	private final EnumSet<MainComplications> state;
+	/** The detailed state of the patient */
+	private final TreeSet<T1DMHealthState> detailedState;
 	/** Initial age of the patient (stored in days) */
 	private final double initAge;
 	/** Sex of the patient: 0 for men, 1 for women */
@@ -43,11 +40,9 @@ public class T1DMPatient extends Patient {
 	final private long durationOfEffect;
 	
 	private final CommonParams commonParams;
-	private final ResourceUsageParams resUsageParams;
-	private final UtilityParams utilParams;
 	
 	// Events
-	private final ComplicationEvent[] complicationEvents;
+	private final ChronicComplicationEvent[] complicationEvents;
 	private final ArrayList<SevereHypoglycemicEvent> hypoEvents;
 	protected DeathEvent deathEvent = null;
 	private LostTreatmentEffectEvent lostEffectEvent = null;
@@ -60,51 +55,50 @@ public class T1DMPatient extends Patient {
 	public T1DMPatient(T1DMSimulation simul, T1DMMonitoringIntervention intervention) {
 		super(simul, intervention);
 		this.commonParams = simul.getCommonParams();
-		this.utilParams = simul.getUtilParams();
-		this.resUsageParams = simul.getResUsageParams();
+		this.detailedState = new TreeSet<>();
+		this.state = EnumSet.noneOf(MainComplications.class);
 
 		this.initAge = BasicConfigParams.YEAR_CONVERSION*commonParams.getBaselineAge();
 		this.sex = commonParams.getSex(this);
 		this.baselineHBA1c = commonParams.getBaselineHBA1c();
 		this.weeklySensorUsage = commonParams.getWeeklySensorUsage();
-		complicationEvents = new ComplicationEvent[SecondOrderParams.N_COMPLICATIONS];
+		complicationEvents = new ChronicComplicationEvent[commonParams.getAvailableHealthStates().size()];
 		Arrays.fill(complicationEvents, null);
 		hypoEvents = new ArrayList<>();
-		chdComplication = commonParams.getCHDComplication(this);
 		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
 
 	public T1DMPatient(T1DMSimulation simul, T1DMPatient original, T1DMMonitoringIntervention intervention) {
 		super(simul, original, intervention);
 		this.commonParams = original.commonParams;
-		this.utilParams = original.utilParams;
-		this.resUsageParams = original.resUsageParams;
+		this.detailedState = new TreeSet<>();
+		this.state = EnumSet.noneOf(MainComplications.class);
 
 		this.initAge = original.initAge;
 		this.sex = original.sex;
 		this.baselineHBA1c = original.baselineHBA1c;
 		this.weeklySensorUsage = original.weeklySensorUsage;
-		complicationEvents = new ComplicationEvent[SecondOrderParams.N_COMPLICATIONS];
+		complicationEvents = new ChronicComplicationEvent[commonParams.getAvailableHealthStates().size()];
 		Arrays.fill(complicationEvents, null);
 		hypoEvents = new ArrayList<>();
-		chdComplication = original.chdComplication;
 		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
 
 	/**
 	 * @return the state
 	 */
-	public EnumSet<Complication> getState() {
+	public EnumSet<MainComplications> getState() {
 		return state;
 	}
 
-	/**
-	 * @return the chdComplication
-	 */
-	public CHDComplication getCHDComplication() {
-		return chdComplication;
+	public boolean hasComplication(MainComplications comp) {
+		return state.contains(comp);
 	}
 
+	public Collection<T1DMHealthState> getDetailedState() {
+		return detailedState;
+	}
+	
 	@Override
 	public DiscreteEvent onCreate(long ts) {
 		return new StartEvent(this, ts);
@@ -179,11 +173,11 @@ public class T1DMPatient extends Patient {
 	}
 
 	/**
-	 * Return the timestamp when certain complication started (or is planned to start)  
-	 * @param comp Complication
-	 * @return the timestamp when certain complication started (or is planned to start)
+	 * Return the timestamp when certain chronic complication started (or is planned to start)  
+	 * @param comp Health state
+	 * @return the timestamp when certain chronic complication started (or is planned to start)
 	 */
-	public long getTimeToComplication(Complication comp) {
+	public long getTimeToComplication(T1DMHealthState comp) {
 		return (complicationEvents[comp.ordinal()] == null) ? Long.MAX_VALUE : complicationEvents[comp.ordinal()].getTs(); 
 	}
 
@@ -213,10 +207,10 @@ public class T1DMPatient extends Patient {
 				
 				// Update outcomes
 				if (ts > 0) {
-					final double periodCost = resUsageParams.getAnnualCostWithinPeriod(T1DMPatient.this, initAge, endAge);
+					final double periodCost = commonParams.getAnnualCostWithinPeriod(T1DMPatient.this, initAge, endAge);
 					cost.update(T1DMPatient.this, periodCost, initAge, endAge);
 					ly.update(T1DMPatient.this, 1.0, initAge, endAge);
-					qaly.update(T1DMPatient.this, utilParams.getUtilityValue(T1DMPatient.this), initAge, endAge);
+					qaly.update(T1DMPatient.this, commonParams.getUtilityValue(T1DMPatient.this), initAge, endAge);
 				}
 			}
 		}
@@ -242,14 +236,15 @@ public class T1DMPatient extends Patient {
 			deathEvent = new DeathEvent(timeToDeath);
 			simul.addEvent(deathEvent);
 			
-			// Assign complication events
-			EnumSet<Complication> initComplications = EnumSet.of(Complication.CHD, Complication.RET, Complication.NEU, Complication.NPH);
-			for (Complication comp : initComplications) {
-				final long timeToComplication = commonParams.getTimeToComplication(T1DMPatient.this, comp);
-				if (timeToComplication < Long.MAX_VALUE) {
-					final ComplicationEvent ev = new ComplicationEvent(timeToComplication, comp);
-					complicationEvents[comp.ordinal()] = ev;
-					simul.addEvent(ev);
+			// Assign chronic complication events
+			for (MainComplications comp : MainComplications.values()) {
+				final T1DMProgression[] progs = commonParams.getNextComplication(T1DMPatient.this, comp);
+				if (progs != null) {
+					for (T1DMProgression pr : progs) {
+						final ChronicComplicationEvent ev = new ChronicComplicationEvent(pr);
+						complicationEvents[pr.getState().ordinal()] = ev;
+						simul.addEvent(ev);						
+					}
 				}
 			}
 			
@@ -284,26 +279,28 @@ public class T1DMPatient extends Patient {
 		}
 	}
 
-	private class ComplicationEvent extends T1DMPatientEvent {
-		private final Complication complication;
+	private class ChronicComplicationEvent extends T1DMPatientEvent {
+		private final T1DMProgression progress;
 
-		public ComplicationEvent(long ts, Complication complication) {
-			super(ts);
-			this.complication = complication;
+		public ChronicComplicationEvent(T1DMProgression progress) {
+			super(progress.getTimeToEvent());
+			this.progress = progress;
 		}
 
 		@Override
 		public void event() {
 			super.event();
-			if (T1DMPatient.this.state.contains(complication)) {
-				error("Complication already assigned!! " + complication);
+			T1DMHealthState complication = progress.getState();
+			if (T1DMPatient.this.detailedState.contains(complication)) {
+				error("Health state already assigned!! " + complication.name());
 			}
 			else {
 				final double age = TimeUnit.DAY.convert(ts, simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
-				cost.update(T1DMPatient.this, resUsageParams.getCostOfComplication(T1DMPatient.this, complication), age);
+				cost.update(T1DMPatient.this, commonParams.getCostOfComplication(T1DMPatient.this, complication), age);
 				
 				simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, complication, this.getTs()));
-				T1DMPatient.this.state.add(complication);
+				T1DMPatient.this.detailedState.add(complication);
+				T1DMPatient.this.state.add(complication.getComplication());
 				
 				// Recompute time to death in case the risk increases
 				final long newTimeToDeath = commonParams.getTimeToDeath(T1DMPatient.this);
@@ -312,69 +309,32 @@ public class T1DMPatient extends Patient {
 					deathEvent = new DeathEvent(newTimeToDeath);
 					simul.addEvent(deathEvent);
 				}
-				// Check whether new complications may appear
-				EnumSet<Complication> toCheck;
-				if (commonParams.isCanadaValidation()) {
-					if (state.contains(Complication.ESRD) || state.contains(Complication.LEA) || state.contains(Complication.BLI)) {
-						toCheck = EnumSet.noneOf(Complication.class);
-					}
-					else if (state.containsAll(EnumSet.of(Complication.NEU, Complication.NPH))) {
-						toCheck = EnumSet.of(Complication.ESRD, Complication.LEA);
-					}
-					else {
-						toCheck = EnumSet.noneOf(Complication.class);
-						if (state.contains(Complication.NEU)) {
-							toCheck.add(Complication.LEA);							
-						}
-						if (state.contains(Complication.NPH)) {
-							toCheck.add(Complication.ESRD);							
-						}
-						if (state.contains(Complication.RET)) {
-							toCheck.add(Complication.BLI);							
-						}
-						if (!state.contains(Complication.CHD)) {
-							toCheck.add(Complication.CHD);							
-						}						
-					}
-				}
-				else {
-					toCheck = EnumSet.complementOf(state);
-					if (toCheck.contains(Complication.ESRD) && !state.contains(Complication.NPH))
-						toCheck.remove(Complication.ESRD);
-					if (toCheck.contains(Complication.BLI) && !state.contains(Complication.RET))
-						toCheck.remove(Complication.BLI);
-					// FIXME Válido sólo para los canadienses
-					if (toCheck.contains(Complication.LEA) && !state.contains(Complication.NEU))
-						toCheck.remove(Complication.LEA);
-				}
-				for (Complication comp : toCheck) {
-					final long timeToComplication = commonParams.getTimeToComplication(T1DMPatient.this, comp);
-					if (timeToComplication < Long.MAX_VALUE) {
-						// If the event was not previously created
-						if (complicationEvents[comp.ordinal()] == null) {
-							final ComplicationEvent ev = new ComplicationEvent(timeToComplication, comp);
-							complicationEvents[comp.ordinal()] = ev;
-							simul.addEvent(ev);
-						}
-						else {
-							// If the old event was scheduled to happen later than the new timestamp, we have to cancel it
-							if (complicationEvents[comp.ordinal()].getTs() > timeToComplication) {
-								complicationEvents[comp.ordinal()].cancel();
-								final ComplicationEvent ev = new ComplicationEvent(timeToComplication, comp);
-								complicationEvents[comp.ordinal()] = ev;
-								simul.addEvent(ev);
+				
+				// Tell the complication to be updated
+				commonParams.progressToComplication(T1DMPatient.this, progress);
+				
+				for (MainComplications comp : MainComplications.values()) {
+					final T1DMProgression[] progs = commonParams.getNextComplication(T1DMPatient.this, comp);
+					if (progs != null) {
+						for (T1DMProgression pr : progs) {
+							// If the event was not previously created
+							final ChronicComplicationEvent previousEvent = complicationEvents[pr.getState().ordinal()];
+							if (previousEvent == null) {
+								final ChronicComplicationEvent ev = new ChronicComplicationEvent(pr);
+								complicationEvents[pr.getState().ordinal()] = ev;
+								simul.addEvent(ev);				
 							}
-						}							
+							// Reschedule the event if needed 
+							else if (previousEvent.getTs() > pr.getTimeToEvent()) {
+								previousEvent.cancel();
+								final ChronicComplicationEvent ev = new ChronicComplicationEvent(pr);
+								complicationEvents[pr.getState().ordinal()] = ev;
+								simul.addEvent(ev);				
+							}
+						}
 					}
 				}
 			}
-		}
-		
-		/**
-		 * @return the complication
-		 */
-		public Complication getComplication() {
-			return complication;
 		}
 		
 	}
@@ -391,8 +351,8 @@ public class T1DMPatient extends Patient {
 		public void event() {
 			super.event();
 			final double age = TimeUnit.DAY.convert(ts, simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
-			qaly.update(T1DMPatient.this, utilParams.getHypoEventDisutilityValue(), age);
-			cost.update(T1DMPatient.this, resUsageParams.getCostForSevereHypoglycemicEpisode(T1DMPatient.this), age);
+			qaly.update(T1DMPatient.this, commonParams.getHypoEventDisutilityValue(), age);
+			cost.update(T1DMPatient.this, commonParams.getCostForSevereHypoglycemicEpisode(T1DMPatient.this), age);
 
 			simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, T1DMPatientInfo.Type.HYPO_EVENT, this.getTs()));
 			// If the hypoglycemic event causes the death of the patient
@@ -442,18 +402,25 @@ public class T1DMPatient extends Patient {
 				
 			}
 
-			// Check all scheduled complication events
-			// FIXME: Shouldn't check ALL the complications????
-			for (int i = 0; i < complicationEvents.length; i++) {
-				if (complicationEvents[i] != null) {
-					final Complication comp = complicationEvents[i].complication;
-					final long newTimeToComplication = commonParams.getTimeToComplication(T1DMPatient.this, comp);
-					// Since the treatment effect has been lost, the complication may appear earlier 
-					if (newTimeToComplication < complicationEvents[i].getTs()) {
-						complicationEvents[i].cancel();
-						final ComplicationEvent ev = new ComplicationEvent(newTimeToComplication, comp);
-						complicationEvents[comp.ordinal()] = ev;
-						simul.addEvent(ev);
+			// Check all the complications in case the loss of treatment affects the time to events 
+			for (MainComplications comp : MainComplications.values()) {
+				final T1DMProgression[] progs = commonParams.getNextComplication(T1DMPatient.this, comp);
+				if (progs != null) {
+					for (T1DMProgression pr : progs) {
+						// If the event was not previously created
+						final ChronicComplicationEvent previousEvent = complicationEvents[pr.getState().ordinal()];
+						if (previousEvent == null) {
+							final ChronicComplicationEvent ev = new ChronicComplicationEvent(pr);
+							complicationEvents[pr.getState().ordinal()] = ev;
+							simul.addEvent(ev);				
+						}
+						// Reschedule the event if needed 
+						else if (previousEvent.getTs() > pr.getTimeToEvent()) {
+							previousEvent.cancel();
+							final ChronicComplicationEvent ev = new ChronicComplicationEvent(pr);
+							complicationEvents[pr.getState().ordinal()] = ev;
+							simul.addEvent(ev);				
+						}
 					}
 				}
 			}

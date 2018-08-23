@@ -3,9 +3,8 @@
  */
 package es.ull.iis.simulation.hta.T1DM.info;
 
+import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
-import es.ull.iis.simulation.hta.T1DM.params.CHDComplication;
-import es.ull.iis.simulation.hta.T1DM.params.Complication;
 import es.ull.iis.simulation.info.AsynchronousInfo;
 import es.ull.iis.simulation.model.Simulation;
 
@@ -36,28 +35,26 @@ public class T1DMPatientInfo extends AsynchronousInfo {
 	
 	final private T1DMPatient patient;
 	final private Type type;
-	final private Complication complication; 
-	final private CHDComplication chdComplication; 
+	final private T1DMHealthState complication; 
 
 	/**
 	 * @param simul
 	 * @param patient
 	 * @param ts
 	 */
-	public T1DMPatientInfo(Simulation simul, T1DMPatient patient, Type type, Complication complication, CHDComplication chdComplication, long ts) {
+	public T1DMPatientInfo(Simulation simul, T1DMPatient patient, Type type, T1DMHealthState complication, long ts) {
 		super(simul, ts);
 		this.patient = patient;
 		this.type = type;
 		this.complication = complication;
-		this.chdComplication = chdComplication;
 	}
 
 	public T1DMPatientInfo(Simulation simul, T1DMPatient patient, Type type, long ts) {
-		this(simul, patient, type, null, null, ts);
+		this(simul, patient, type, null, ts);
 	}
 
-	public T1DMPatientInfo(Simulation simul, T1DMPatient patient, Complication complication, long ts) {
-		this(simul, patient, Type.COMPLICATION, complication, Complication.CHD.equals(complication) ? patient.getCHDComplication() : null, ts);
+	public T1DMPatientInfo(Simulation simul, T1DMPatient patient, T1DMHealthState complication, long ts) {
+		this(simul, patient, Type.COMPLICATION, complication, ts);
 	}
 
 	/**
@@ -77,16 +74,14 @@ public class T1DMPatientInfo extends AsynchronousInfo {
 	/**
 	 * @return the complication
 	 */
-	public Complication getComplication() {
+	public T1DMHealthState getComplication() {
 		return complication;
 	}
 
 	public String toString() {
 		String description = type.getDescription();
 		if (Type.COMPLICATION.equals(type)) {
-			description = description + "\t" + complication;
-			if (chdComplication != null)
-				description = description + "\t" + chdComplication;
+			description = description + "\t" + complication.name();
 		}
 		else if (Type.START.equals(type)) {
 			description += "\t" + patient.getHba1c();

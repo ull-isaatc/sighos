@@ -3,10 +3,12 @@
  */
 package es.ull.iis.simulation.hta.T1DM.inforeceiver;
 
+import java.util.ArrayList;
+import java.util.TreeMap;
+
+import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
-import es.ull.iis.simulation.hta.T1DM.params.Complication;
-import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParams;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -21,7 +23,7 @@ public class PatientCounterHistogramView extends Listener {
 	private final int minAge;
 	private final int [] nPatients;
 	private final int [] nDeaths;
-	private final int [][] nComplications;
+	private final TreeMap<T1DMHealthState, int[]> nComplications;
 	private final int [] nSevereHypo;
 
 	/**
@@ -32,14 +34,16 @@ public class PatientCounterHistogramView extends Listener {
 	 * @param length
 	 * @param detailDeaths
 	 */
-	public PatientCounterHistogramView(int minAge, int maxAge, int length) {
+	public PatientCounterHistogramView(int minAge, int maxAge, int length, ArrayList<T1DMHealthState> availableStates) {
 		super("Counter of patients");
 		this.length = length;
 		this.nIntervals = ((maxAge - minAge) / length) + 1;
 		this.minAge = minAge;
 		nPatients = new int[nIntervals];
 		nDeaths = new int[nIntervals];
-		nComplications = new int[SecondOrderParams.N_COMPLICATIONS][nIntervals];
+		nComplications = new TreeMap<>();
+		for (T1DMHealthState st : availableStates)
+			nComplications.put(st, new int[nIntervals]);
 		nSevereHypo = new int[nIntervals];
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
@@ -53,14 +57,14 @@ public class PatientCounterHistogramView extends Listener {
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof SimulationEndInfo) {
 			final StringBuilder strHead = new StringBuilder("AGE\tBASE\tDEATH");
-			for (Complication comp : Complication.values()) {
+			for (T1DMHealthState comp : nComplications.keySet()) {
 				strHead.append("\t").append(comp.name());
 			}
 			strHead.append("\t").append("HYPOG");
 			System.out.println(strHead);
 			for (int i = 0; i < nIntervals; i++) {
 				final StringBuilder str = new StringBuilder((minAge + i * length) + "\t" + nPatients[i] + "\t" + nDeaths[i]);
-				for (int[] val : nComplications) {
+				for (int[] val : nComplications.values()) {
 					str.append("\t").append(val[i]);
 				}
 				str.append("\t").append(nSevereHypo[i]);
@@ -76,7 +80,7 @@ public class PatientCounterHistogramView extends Listener {
 					nPatients[interval]++; 
 					break;
 				case COMPLICATION:
-					nComplications[pInfo.getComplication().ordinal()][interval]++;
+					nComplications.get(pInfo.getComplication())[interval]++;
 					break;
 				case HYPO_EVENT:
 					nSevereHypo[interval]++;

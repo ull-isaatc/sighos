@@ -3,14 +3,17 @@
  */
 package es.ull.iis.simulation.hta.T1DM.params;
 
-import java.util.Arrays;
-import java.util.EnumSet;
+import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel;
+import es.ull.iis.simulation.hta.T1DM.DeathSubmodel;
+import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
 import es.ull.iis.simulation.hta.params.ModelParams;
 import es.ull.iis.simulation.model.TimeUnit;
-import simkit.random.DiscreteSelectorVariate;
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
 import simkit.random.RandomVariate;
@@ -26,99 +29,48 @@ public class CommonParams extends ModelParams {
 	protected T1DMMonitoringIntervention[] interventions = null;
 	private final SevereHypoglycemicEventParam hypoParam;
 	private final RandomNumber rng;
-	private final double[][] rndComplications;
 
-	private final double invDNC_RET;
-	private final double invDNC_NEU;
-	private final double invDNC_NPH;
-	private final double invDNC_CHD;
-	private final double invNEU_CHD;
-	private final double invNEU_LEA;
-	private final double invNEU_NPH;
-	private final double invNPH_CHD;
-	private final double invNPH_ESRD;
-	private final double invRET_BLI;
-	private final double invRET_CHD;
-	
-	/** Relative risks of complications */
-	private final ComplicationRR[] rrComplications;
-	private final double[] noRR;
-	
 	private final double pMan;
 	private final RandomVariate baselineAge;
 	private final RandomVariate baselineHBA1c;
 	private final RandomVariate weeklySensorUsage;
 	private final double discountRate;
 	
-	private final AllCausesDeathParam allCausesDeath;
-	private final double noComplicationsIMR;
-	/** Incremented mortality risk due to complications */
-	private final double[] complicationsIMR;
-	private final AnnualBasedTimeToEventParam canadaTimeToDeathESRD;
-	private final AnnualBasedTimeToEventParam canadaTimeToDeathNPH;
-	private final AnnualBasedTimeToEventParam canadaTimeToDeathLEA;
-	private final CanadaOtherCausesDeathParam canadaTimeToDeathOther;
-	private final CVDCanadaDeathParam canadaTimeToDeathCHD;
-	private final DiscreteSelectorVariate pCHDComplication;
-
-	final private SecondOrderParams secParams;
+	private final ComplicationSubmodel[] compSubmodels;
+	private final DeathSubmodel deathSubmodel; 
+	private final ArrayList<T1DMHealthState> availableHealthStates;
+	private final CostCalculator costCalc;
+	private final UtilityCalculator utilCalc;
+	
 	/**
 	 * @param secondOrder
 	 */
-	public CommonParams(SecondOrderParams secParams, int nPatients) {
+	public CommonParams(SecondOrderParams secParams) {
 		super();
-		this.secParams = secParams;
+		compSubmodels = secParams.getComplicationSubmodels();
+		deathSubmodel = secParams.getDeathSubmodel();
+		costCalc = secParams.getCostCalculator();
+		utilCalc = secParams.getUtilityCalculator();
+		// Add the health availableHealthStates defined in the submodels
+		availableHealthStates = secParams.getAvailableHealthStates();
 		rng = RandomNumberFactory.getInstance();
 		interventions = secParams.getInterventions();
-		rndComplications = new double[SecondOrderParams.N_COMPLICATIONS][nPatients];
-		pCHDComplication = secParams.getRandomVariateForCHDComplications();
 
-		for (int i = 0; i < SecondOrderParams.N_COMPLICATIONS; i++)
-			for (int j = 0; j < nPatients; j++)
-				rndComplications[i][j] = rng.draw();
-		hypoParam = new SevereHypoglycemicEventParam(nPatients, secParams.getProbability(SecondOrderParams.STR_P_HYPO), secParams.getHypoRR(), secParams.getProbability(SecondOrderParams.STR_P_DEATH_HYPO));
-		invDNC_RET = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_RET);
-		invDNC_NEU = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_NEU);
-		invDNC_NPH = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_NPH);
-		invDNC_CHD = -1 / secParams.getProbability(SecondOrderParams.STR_P_DNC_CHD);
-		invNEU_CHD = -1 / secParams.getProbability(SecondOrderParams.STR_P_NEU_CHD);
-		invNEU_LEA = -1 / secParams.getProbability(SecondOrderParams.STR_P_NEU_LEA);
-		invNEU_NPH = -1 / secParams.getProbability(SecondOrderParams.STR_P_NEU_NPH);
-		invNPH_CHD = -1 / secParams.getProbability(SecondOrderParams.STR_P_NPH_CHD);
-		invNPH_ESRD = -1 / secParams.getProbability(SecondOrderParams.STR_P_NPH_ESRD);
-		invRET_BLI = -1 / secParams.getProbability(SecondOrderParams.STR_P_RET_BLI);
-		invRET_CHD = -1 / secParams.getProbability(SecondOrderParams.STR_P_RET_CHD);
+		hypoParam = new SevereHypoglycemicEventParam(secParams.getnPatients(), secParams.getProbability(SecondOrderParams.STR_P_HYPO), secParams.getHypoRR(), secParams.getProbability(SecondOrderParams.STR_P_DEATH_HYPO));
 		
-		rrComplications = secParams.getComplicationRRs();
-		
-		noRR = new double[interventions.length];
-		Arrays.fill(noRR, 1.0);
-
 		pMan = secParams.getPMan();
 		baselineAge = secParams.getBaselineAge();
 		baselineHBA1c = secParams.getBaselineHBA1c();
 		weeklySensorUsage = secParams.getWeeklySensorUsage();
 		discountRate = secParams.getDiscountRate();
 
-		allCausesDeath = new AllCausesDeathParam(nPatients);
-		if (secParams.isCanadaValidation()) {
-			canadaTimeToDeathESRD = new AnnualBasedTimeToEventParam(nPatients, 0.164, noRR);
-			canadaTimeToDeathNPH = new AnnualBasedTimeToEventParam(nPatients, 0.0036, noRR);
-			canadaTimeToDeathLEA = new AnnualBasedTimeToEventParam(nPatients, 0.093, noRR);
-			canadaTimeToDeathOther = new CanadaOtherCausesDeathParam(nPatients);
-			canadaTimeToDeathCHD = new CVDCanadaDeathParam(nPatients, noRR);
-			complicationsIMR = null;
-			noComplicationsIMR = 1.0;
-		}
-		else {
-			canadaTimeToDeathESRD = null;
-			canadaTimeToDeathNPH = null;
-			canadaTimeToDeathLEA = null;
-			canadaTimeToDeathOther = null;
-			canadaTimeToDeathCHD = null;
-			noComplicationsIMR = secParams.getNoComplicationIMR();
-			complicationsIMR = secParams.getIMRs();
-		}
+	}
+
+	/**
+	 * @return the availableHealthStates
+	 */
+	public ArrayList<T1DMHealthState> getAvailableHealthStates() {
+		return availableHealthStates;
 	}
 
 	/**
@@ -126,14 +78,6 @@ public class CommonParams extends ModelParams {
 	 */
 	public T1DMMonitoringIntervention[] getInterventions() {
 		return interventions;
-	}
-
-	/**
-	 * True if the modifications for the canadian model should be activated
-	 * @return True if the modifications for the canadian model should be activated
-	 */
-	public boolean isCanadaValidation() {
-		return secParams.isCanadaValidation();
 	}
 	
 	public int getSex(T1DMPatient pat) {
@@ -162,141 +106,17 @@ public class CommonParams extends ModelParams {
 		return hypoParam.getValue(pat);
 	}
 
-	public long getTimeToComplication(T1DMPatient pat, Complication complication) {
-		final EnumSet<Complication> state = pat.getState();
-		long time = Long.MAX_VALUE;
-		final long time2Death = pat.getTimeToDeath();
-		final double rnd = rndComplications[complication.ordinal()][pat.getIdentifier()];
-		
-		final double rr = rrComplications[complication.ordinal()].getRR(pat);
-		
-		switch(complication) {
-		case BLI:
-			// Already at retinopathy
-			if (state.contains(Complication.RET)) {
-				final long time2BLI = getAnnualBasedTimeToEvent(pat, invRET_BLI, rnd, rr);
-				if (time2BLI < time2Death)
-					time = time2BLI;
-			}
-			break;
-		case CHD:
-			double minInv = invDNC_CHD;
-			if (state.contains(Complication.NEU)) {
-				if (minInv < invNEU_CHD) {
-					minInv = invNEU_CHD;
-				}
-			}
-			if (state.contains(Complication.NPH)) {
-				if (minInv < invNPH_CHD) {
-					minInv = invNPH_CHD;
-				}
-			}
-			if (state.contains(Complication.RET)) {
-				if (minInv < invRET_CHD) {
-					minInv = invRET_CHD;
-				}
-			}
-
-			final long time2CHD = getAnnualBasedTimeToEvent(pat, minInv, rnd, rr);
-			if (time2CHD < time2Death)
-				time = time2CHD;				
-			break;
-		case ESRD:
-			// Already at nephropathy
-			if (state.contains(Complication.NPH)) {
-				final long time2ESRD = getAnnualBasedTimeToEvent(pat, invNPH_ESRD, rnd, rr);
-				if (time2ESRD < time2Death)
-					time = time2ESRD;
-			}
-			break;
-		case LEA:
-			// Already at neuropathy
-			if (state.contains(Complication.NEU)) {
-				final long time2LEA = getAnnualBasedTimeToEvent(pat, invNEU_LEA, rnd, rr);
-				if (time2LEA < time2Death)
-					time = time2LEA;
-			}
-			break;
-		case NEU:
-			final long time2NEU = getAnnualBasedTimeToEvent(pat, invDNC_NEU, rnd, rr);
-			if (time2NEU < time2Death)
-				time = time2NEU;
-			break;
-		case NPH:
-			// Already at neuropathy: we're assuming that the risk from neuropathy is higher than from no complications
-			if (state.contains(Complication.NEU)) {
-				final long time2NPH = getAnnualBasedTimeToEvent(pat, invNEU_NPH, rnd, rr);
-				if (time2NPH < time2Death)
-					time = time2NPH;
-			}
-			else {
-				final long time2NPH = getAnnualBasedTimeToEvent(pat, invDNC_NPH, rnd, rr);
-				if (time2NPH < time2Death)
-					time = time2NPH;				
-			}
-			break;
-		case RET:
-			final long time2RET = getAnnualBasedTimeToEvent(pat, invDNC_RET, rnd, rr);
-			if (time2RET < time2Death)
-				time = time2RET;
-			break;
-		default:
-			break;		
-		}
-		return time;
+	public T1DMProgression[] getNextComplication(T1DMPatient pat, MainComplications complication) {
+		return compSubmodels[complication.ordinal()].getNextComplication(pat);
 	}
-
+	public void progressToComplication(T1DMPatient pat, T1DMProgression prog) {
+		compSubmodels[prog.getState().getComplication().ordinal()].progress(pat, prog);
+	}
+	
 	public long getTimeToDeath(T1DMPatient pat) {
-		if (secParams.isCanadaValidation()) {
-			long timeToDeath = canadaTimeToDeathOther.getValue(pat);
-			final EnumSet<Complication> state = pat.getState();
-			if (state.contains(Complication.ESRD)) {
-				final long deathESRD = canadaTimeToDeathESRD.getValue(pat);
-				if (deathESRD < timeToDeath)
-					timeToDeath = deathESRD;
-			}
-			if (state.contains(Complication.NPH)) {
-				final long deathNPH = canadaTimeToDeathNPH.getValue(pat);
-				if (deathNPH < timeToDeath)
-					timeToDeath = deathNPH;
-			}
-			if (state.contains(Complication.LEA)) {
-				final long deathLEA = canadaTimeToDeathLEA.getValue(pat);
-				if (deathLEA < timeToDeath)
-					timeToDeath = deathLEA;
-			}
-			if (state.contains(Complication.CHD)) {
-				final long deathCHD = canadaTimeToDeathCHD.getValue(pat);
-				if (deathCHD < timeToDeath)
-					timeToDeath = deathCHD;				
-			}
-			return timeToDeath;
-		}
-		else {
-			double maxIMR = noComplicationsIMR;
-			for (Complication comp : pat.getState()) {
-				if (complicationsIMR[comp.ordinal()] > maxIMR) {
-					maxIMR = complicationsIMR[comp.ordinal()];
-				}
-			}
-			return allCausesDeath.getValue(pat, maxIMR);
-		}
+		return deathSubmodel.getTimeToDeath(pat);
 	}
 
-	/**
-	 * Returns true if the CHD complications are detailed; false otherwise
-	 * @return True if the CHD complications are detailed; false otherwise
-	 */
-	public boolean isDetailedCHD() {
-		return pCHDComplication != null;
-	}
-	
-	public CHDComplication getCHDComplication(T1DMPatient pat) {
-		if (!isDetailedCHD())
-			return null;
-		return CHDComplication.values()[pCHDComplication.generateInt()];
-	}
-	
 	/**
 	 * Generates a time to event based on annual risk. The time to event is absolute, i.e., can be used directly to schedule a new event. 
 	 * @param pat A patient
@@ -310,9 +130,50 @@ public class CommonParams extends ModelParams {
 		final double time = (minusAvgTimeToEvent / rr) * Math.log(rnd);
 		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 	}
-	
+
+	/**
+	 * Return the annual cost for the specified patient during a period of time. The initAge and endAge parameters
+	 * can be used to select different frequency of treatments according to the age of the patient 
+	 * @param pat A patient
+	 * @param initAge The age of the patient at the beginning of the period
+	 * @param endAge The age of the patient at the end of the period
+	 * @return the annual cost for the specified patient during a period of time.
+	 */
+	public double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
+		return costCalc.getAnnualCostWithinPeriod(pat, initAge, endAge);
+	}
+
+	/**
+	 * Returns the cost of a complication upon incidence.
+	 * @param pat A patient
+	 * @param newEvent A new complication for the patient
+	 * @return the cost of a complication upon incidence
+	 */
+	public double getCostOfComplication(T1DMPatient pat, T1DMHealthState newEvent) {
+		return costCalc.getCostOfComplication(pat, newEvent);
+	}
+
+	/**
+	 * Returns the cost of a severe hypoglycemic episode
+	 * @param pat A patient
+	 * @return the cost of a severe hypoglycemic episode
+	 */
+	public double getCostForSevereHypoglycemicEpisode(T1DMPatient pat) {
+		return costCalc.getCostForSevereHypoglycemicEpisode(pat);
+	}
+
+	public double getHypoEventDisutilityValue() {
+		return utilCalc.getHypoEventDisutilityValue();
+	}
+	public double getUtilityValue(T1DMPatient pat) {
+		return utilCalc.getUtilityValue(pat);
+	}
+
 	public void reset() {
 		hypoParam.reset();
+		for (ComplicationSubmodel submodel : compSubmodels) {
+			submodel.reset();
+		}
 	}
 	
 	public double getRandomNumber() {

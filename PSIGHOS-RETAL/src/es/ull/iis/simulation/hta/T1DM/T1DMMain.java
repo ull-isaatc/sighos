@@ -18,15 +18,13 @@ import es.ull.iis.simulation.hta.T1DM.inforeceiver.PatientCounterHistogramView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMPatientInfoView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMPatientPrevalenceView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMTimeFreeOfComplicationsView;
-import es.ull.iis.simulation.hta.T1DM.params.UnconsciousSecondOrderParams;
-import es.ull.iis.simulation.hta.T1DM.params.UncontrolledSecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CanadaSecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.DCCTSecondOrderParams;
-import es.ull.iis.simulation.hta.T1DM.params.ResourceUsageParams;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParams;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityParams;
+import es.ull.iis.simulation.hta.T1DM.params.UnconsciousSecondOrderParams;
+import es.ull.iis.simulation.hta.T1DM.params.UncontrolledSecondOrderParams;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -68,9 +66,11 @@ public class T1DMMain {
 
 	private void addListeners(T1DMSimulation simul) {
 		if (printIncidence)
-			simul.addInfoReceiver(new PatientCounterHistogramView(BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE, 1));
+			simul.addInfoReceiver(new PatientCounterHistogramView(BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE, 1, secParams.getAvailableHealthStates()));
 		if (printPrevalence)
-			simul.addInfoReceiver(new T1DMPatientPrevalenceView(simul.getTimeUnit(), T1DMPatientPrevalenceView.buildAgesInterval(BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE, 1, true)));
+			simul.addInfoReceiver(new T1DMPatientPrevalenceView(simul.getTimeUnit(), 
+					T1DMPatientPrevalenceView.buildAgesInterval(BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE, 1, true),
+					secParams.getAvailableHealthStates()));
 	}
 	
 	private String getStrHeader() {
@@ -88,7 +88,7 @@ public class T1DMMain {
 			str.append("LC95I_QALY_" + interventions[i].getShortName() + "\t");
 			str.append("UC95I_QALY_" + interventions[i].getShortName() + "\t");
 		}
-		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions));
+		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getAvailableHealthStates()));
 		str.append(secParams.getStrHeader());
 		return str.toString();
 	}
@@ -116,8 +116,8 @@ public class T1DMMain {
 	}
 
 	private void simulateInterventions(int id, boolean baseCase) {
-		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(nPatients, interventions.length, false);
-		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], nPatients, new CommonParams(secParams, nPatients), new ResourceUsageParams(secParams), new UtilityParams(secParams));
+		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(nPatients, interventions.length, false, secParams.getAvailableHealthStates());
+		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], nPatients, new CommonParams(secParams));
 		simul.addInfoReceiver(timeFreeListener);
 		if (patientListener != null)
 			simul.addInfoReceiver(patientListener);
@@ -185,21 +185,21 @@ public class T1DMMain {
 				}
 
 	        }
+	        final int nPatients = args1.nPatients;
 	        SecondOrderParams secParams;
 	        if (args1.validation == 1) {
-	        	secParams = new CanadaSecondOrderParams(true);
+	        	secParams = new CanadaSecondOrderParams(true, nPatients);
 	        }
 	        else if (args1.validation == 2) {
-	        	secParams = new DCCTSecondOrderParams(true);
+	        	secParams = new DCCTSecondOrderParams(true, nPatients);
 	        }
 	        else if (args1.population == 2) {
-	        	secParams = new UncontrolledSecondOrderParams(true);
+	        	secParams = new UncontrolledSecondOrderParams(true, nPatients);
 	        }
 	        else {
-	        	secParams = new UnconsciousSecondOrderParams(true);
+	        	secParams = new UnconsciousSecondOrderParams(true, nPatients);
 	        }
 	        final int singlePatientOutput = args1.singlePatientOutput;
-	        final int nPatients = args1.nPatients;
 	        final int nRuns = args1.nRuns;
 	    	if (args1.noDiscount)
 	    		secParams.setDiscountZero(true);

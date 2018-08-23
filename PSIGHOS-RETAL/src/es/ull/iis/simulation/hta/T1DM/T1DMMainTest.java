@@ -8,14 +8,10 @@ import java.io.PrintStream;
 import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMPatientInfoView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMTimeFreeOfComplicationsView;
-import es.ull.iis.simulation.hta.T1DM.params.UnconsciousSecondOrderParams;
-import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CanadaSecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
-import es.ull.iis.simulation.hta.T1DM.params.ResourceUsageParams;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParams;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityParams;
-import es.ull.iis.simulation.hta.inforeceiver.ICERView;
+import es.ull.iis.simulation.hta.T1DM.params.UnconsciousSecondOrderParams;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -30,7 +26,7 @@ public class T1DMMainTest {
 
 	private static final PrintStream out = System.out;
 	private static final int N_RUNS = BASIC_TEST_ONE_PATIENT ? 0 : 100;
-	private static final SecondOrderParams secParams = CHECK_CANADA ? new CanadaSecondOrderParams(true) : new UnconsciousSecondOrderParams(true);
+	private static final SecondOrderParams secParams = CHECK_CANADA ? new CanadaSecondOrderParams(true, NPATIENTS) : new UnconsciousSecondOrderParams(true, NPATIENTS);
 
 	public T1DMMainTest() {
 		super();
@@ -60,7 +56,7 @@ public class T1DMMainTest {
 			str.append("LC95I_QALY_" + interventions[i].getShortName() + "\t");
 			str.append("UC95I_QALY_" + interventions[i].getShortName() + "\t");
 		}
-		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions));
+		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getAvailableHealthStates()));
 		str.append(secParams.getStrHeader());
 		return str.toString();
 	}
@@ -90,9 +86,9 @@ public class T1DMMainTest {
 	public static void main(String[] args) {
 		out.println(getStrHeader());
 		final T1DMMonitoringIntervention[] interventions = secParams.getInterventions();
-		T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(NPATIENTS, interventions.length, false);
+		T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(NPATIENTS, interventions.length, false, secParams.getAvailableHealthStates());
 		// First the deterministic simulation
-		T1DMSimulation simul = new T1DMSimulation(0, true, interventions[0], NPATIENTS, new CommonParams(secParams, NPATIENTS), new ResourceUsageParams(secParams), new UtilityParams(secParams));
+		T1DMSimulation simul = new T1DMSimulation(0, true, interventions[0], NPATIENTS, new CommonParams(secParams));
 		simul.addInfoReceiver(timeFreeListener);
 		addListeners(simul);
 		simul.run();
@@ -104,8 +100,8 @@ public class T1DMMainTest {
 		// Now probabilistic
 		secParams.setBaseCase(false);
 		for (int i = 1; i <= N_RUNS; i++) {
-			timeFreeListener = new T1DMTimeFreeOfComplicationsView(NPATIENTS, interventions.length, false);
-			simul = new T1DMSimulation(i, false, interventions[0], NPATIENTS, new CommonParams(secParams, NPATIENTS), new ResourceUsageParams(secParams), new UtilityParams(secParams));
+			timeFreeListener = new T1DMTimeFreeOfComplicationsView(NPATIENTS, interventions.length, false, secParams.getAvailableHealthStates());
+			simul = new T1DMSimulation(i, false, interventions[0], NPATIENTS, new CommonParams(secParams));
 			simul.addInfoReceiver(timeFreeListener);
 			addListeners(simul);
 			simul.run();

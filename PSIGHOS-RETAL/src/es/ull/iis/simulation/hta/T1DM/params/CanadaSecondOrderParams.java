@@ -5,9 +5,10 @@ package es.ull.iis.simulation.hta.T1DM.params;
 
 import java.util.EnumSet;
 
+import es.ull.iis.simulation.hta.T1DM.MainComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityParams.CombinationMethod;
+import es.ull.iis.simulation.hta.T1DM.params.StdUtilityCalculator.CombinationMethod;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -70,8 +71,8 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 	/**
 	 * @param baseCase
 	 */
-	public CanadaSecondOrderParams(boolean baseCase) {
-		super(baseCase);
+	public CanadaSecondOrderParams(boolean baseCase, int nPatients) {
+		super(baseCase, nPatients);
 		setCanadaValidation();
 		utilityCombinationMethod = CombinationMethod.MIN;
 		addProbParam(new SecondOrderParam(STR_P_DNC_RET, STR_P_DNC_RET, "", P_DNC_RET, RandomVariateFactory.getInstance("ConstantVariate", P_DNC_RET)));
@@ -93,15 +94,15 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", "Canada", 0.0063, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
 		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic event in intervention branch", "Canada", 0.869, RandomVariateFactory.getInstance("RRFromLnCIVariate", 0.869, 0.476, 1.586, 1)));
 
-//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.CHD.name(), STR_RR_PREFIX + Complication.CHD.name(), "", RR_CHD, RandomVariateFactory.getInstance("ConstantVariate", RR_CHD)));
-//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.NPH.name(), STR_RR_PREFIX + Complication.NPH.name(), "", RR_NPH, RandomVariateFactory.getInstance("ConstantVariate", RR_NPH)));
-//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.NEU.name(), STR_RR_PREFIX + Complication.NEU.name(), "", RR_NEU, RandomVariateFactory.getInstance("ConstantVariate", RR_NEU)));
-//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.RET.name(), STR_RR_PREFIX + Complication.RET.name(), "", RR_RET, RandomVariateFactory.getInstance("ConstantVariate", RR_RET)));
+//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + MainComplications.CHD.name(), STR_RR_PREFIX + MainComplications.CHD.name(), "", RR_CHD, RandomVariateFactory.getInstance("ConstantVariate", RR_CHD)));
+//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + MainComplications.NPH.name(), STR_RR_PREFIX + MainComplications.NPH.name(), "", RR_NPH, RandomVariateFactory.getInstance("ConstantVariate", RR_NPH)));
+//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + MainComplications.NEU.name(), STR_RR_PREFIX + MainComplications.NEU.name(), "", RR_NEU, RandomVariateFactory.getInstance("ConstantVariate", RR_NEU)));
+//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + MainComplications.RET.name(), STR_RR_PREFIX + MainComplications.RET.name(), "", RR_RET, RandomVariateFactory.getInstance("ConstantVariate", RR_RET)));
 
-		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.CHD.name(), STR_RR_PREFIX + Complication.CHD.name(), "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007", 1.15, RandomVariateFactory.getInstance("RRFromLnCIVariate", 1.15, 0.92, 1.43, 1)));
-		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.NPH.name(), "%risk reducion for combined groups for microalbuminuria (>= 40 mg/24 h)", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 0.25, RandomVariateFactory.getInstance("NormalVariate", 0.25, sdFrom95CI(new double[] {0.19, 0.32}))));
-		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.NEU.name(), "%risk reducion for combined groups for confirmed clinical neuropathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 0.3, RandomVariateFactory.getInstance("NormalVariate", 0.3, sdFrom95CI(new double[] {0.18, 0.40}))));
-		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + Complication.RET.name(), "%risk reducion for combined groups for sustained onset of retinopathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 0.35, RandomVariateFactory.getInstance("NormalVariate", 0.35, sdFrom95CI(new double[] {0.29, 0.41}))));
+		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + MainComplications.CHD.name(), STR_RR_PREFIX + MainComplications.CHD.name(), "Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007", 1.15, RandomVariateFactory.getInstance("RRFromLnCIVariate", 1.15, 0.92, 1.43, 1)));
+		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + MainComplications.NPH.name(), "%risk reducion for combined groups for microalbuminuria (>= 40 mg/24 h)", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 0.25, RandomVariateFactory.getInstance("NormalVariate", 0.25, sdFrom95CI(new double[] {0.19, 0.32}))));
+		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + MainComplications.NEU.name(), "%risk reducion for combined groups for confirmed clinical neuropathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 0.3, RandomVariateFactory.getInstance("NormalVariate", 0.3, sdFrom95CI(new double[] {0.18, 0.40}))));
+		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + MainComplications.RET.name(), "%risk reducion for combined groups for sustained onset of retinopathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 0.35, RandomVariateFactory.getInstance("NormalVariate", 0.35, sdFrom95CI(new double[] {0.29, 0.41}))));
 		addOtherParam(new SecondOrderParam(STR_REF_HBA1C, STR_REF_HBA1C, "", 8.87480916));
 		
 		
@@ -169,7 +170,7 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 	@Override
 	public ComplicationRR[] getComplicationRRs() {
 //		final ComplicationRR[] rr = new ComplicationRR[N_COMPLICATIONS];
-//		for (Complication comp : Complication.values()) {
+//		for (MainComplications comp : MainComplications.values()) {
 //			final double[] values = new double[2]; 
 //			values[0] = 1.0;
 //			final SecondOrderParam param = otherParams.get(STR_RR_PREFIX + comp.name());
@@ -184,14 +185,14 @@ public class CanadaSecondOrderParams extends SecondOrderParams {
 		final double referenceHbA1c = otherParams.get(STR_REF_HBA1C).getValue();
 		final ComplicationRR[] rr = new ComplicationRR[N_COMPLICATIONS];
 		// First computes the relative risks for all the complications but CHD
-		final EnumSet<Complication> allButCHD = EnumSet.complementOf(EnumSet.of(Complication.CHD));
-		for (Complication comp : allButCHD) {
+		final EnumSet<MainComplications> allButCHD = EnumSet.complementOf(EnumSet.of(MainComplications.CHD));
+		for (MainComplications comp : allButCHD) {
 			final SecondOrderParam param = otherParams.get(STR_RR_PREFIX + comp.name());
 			rr[comp.ordinal()] = (param == null) ? new StdComplicationRR(1.0) : new HbA1c10ReductionComplicationRR(param.getValue(), referenceHbA1c);
 		}
 		// Now CHD
-		final SecondOrderParam param = otherParams.get(STR_RR_PREFIX + Complication.CHD.name());
-		rr[Complication.CHD.ordinal()] = new HbA1c1PPComplicationRR((param == null) ? 1.0 : param.getValue(), referenceHbA1c);
+		final SecondOrderParam param = otherParams.get(STR_RR_PREFIX + MainComplications.CHD.name());
+		rr[MainComplications.CHD.ordinal()] = new HbA1c1PPComplicationRR((param == null) ? 1.0 : param.getValue(), referenceHbA1c);
 		return rr;
 	}
 

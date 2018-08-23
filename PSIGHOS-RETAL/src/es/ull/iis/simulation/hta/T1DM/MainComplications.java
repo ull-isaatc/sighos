@@ -1,17 +1,14 @@
-package es.ull.iis.simulation.hta.T1DM.params;
+package es.ull.iis.simulation.hta.T1DM;
 
-public enum Complication {
+public enum MainComplications implements Named {
 	CHD("Coronary Heart Disease"),
 	NEU("Neuropathy"),
 	NPH("Nephropathy"),
-	RET("Retinopathy"),
-	LEA("Lower Extremity Amputation"),
-	ESRD("End-Stage Renal Disease"),
-	BLI("Blindness");
+	RET("Retinopathy");
 	
 	private final String description;
 	
-	private Complication(String description) {
+	private MainComplications(String description) {
 		this.description = description;
 	}
 
@@ -21,4 +18,5 @@ public enum Complication {
 	public String getDescription() {
 		return description;
 	}
+
 }

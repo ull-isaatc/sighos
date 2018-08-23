@@ -3,12 +3,18 @@
  */
 package es.ull.iis.simulation.hta.T1DM.params;
 
+import java.util.ArrayList;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel;
+import es.ull.iis.simulation.hta.T1DM.DeathSubmodel;
+import es.ull.iis.simulation.hta.T1DM.Named;
+import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityParams.CombinationMethod;
+import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.CombinationMethod;
 import es.ull.iis.simulation.hta.params.SpanishIPCUpdate;
-import simkit.random.DiscreteSelectorVariate;
+import simkit.random.RandomNumber;
+import simkit.random.RandomNumberFactory;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -23,28 +29,14 @@ import simkit.random.RandomVariateFactory;
 public abstract class SecondOrderParams {
 	/** Default percentage for cost variations */
 	private static final double DEF_PERCENT_COST_VARIATION = 0.2;
-	public static final int N_COMPLICATIONS = Complication.values().length;
 	// Descriptors for probabilities
 	public static final String STR_PROBABILITY_PREFIX = "P_";
-	public static final String STR_P_DNC_RET = "P_DNC_RET";
-	public static final String STR_P_DNC_NEU = "P_DNC_NEU";
-	public static final String STR_P_DNC_NPH = "P_DNC_NPH";
-	public static final String STR_P_DNC_CHD = "P_DNC_CHD";
-	public static final String STR_P_NEU_CHD = "P_NEU_CHD";
-	public static final String STR_P_NEU_LEA = "P_NEU_LEA";
-	public static final String STR_P_NEU_NPH = "P_NEU_NPH";
-	public static final String STR_P_NPH_CHD = "P_NPH_CHD";
-	public static final String STR_P_NPH_ESRD = "P_NPH_ESRD";
-	public static final String STR_P_RET_BLI = "P_RET_BLI";
-	public static final String STR_P_RET_CHD = "P_RET_CHD";
+	public static final String STR_NO_COMPLICATIONS = "DNC";
+	
 	public static final String STR_P_HYPO = STR_PROBABILITY_PREFIX + "SEVERE_HYPO";
 	public static final String STR_P_DEATH_HYPO = STR_PROBABILITY_PREFIX + "DEATH_SEVERE_HYPO";
 	// Descriptors for other probabilities
 	public static final String STR_P_MAN = STR_PROBABILITY_PREFIX + "MAN";
-	public static final String STR_P_MI = STR_PROBABILITY_PREFIX + CHDComplication.MI;
-	public static final String STR_P_ANGINA = STR_PROBABILITY_PREFIX + CHDComplication.ANGINA;
-	public static final String STR_P_STROKE = STR_PROBABILITY_PREFIX + CHDComplication.STROKE;
-	public static final String STR_P_HF = STR_PROBABILITY_PREFIX + CHDComplication.HF;
 	// Descriptors for RRs
 	public static final String STR_RR_PREFIX = "RR_";
 	public static final String STR_RR_HYPO = STR_RR_PREFIX + "SEVERE_HYPO"; 
@@ -52,14 +44,6 @@ public abstract class SecondOrderParams {
 
 	// Descriptors for Increased Mortality Rates
 	public static final String STR_IMR_PREFIX = "IMR_";
-	public static final String STR_IMR_DNC = STR_IMR_PREFIX + "DNC";
-	public static final String STR_IMR_RET = STR_IMR_PREFIX + Complication.RET.name();
-	public static final String STR_IMR_NEU = STR_IMR_PREFIX + Complication.NEU.name();
-	public static final String STR_IMR_NPH = STR_IMR_PREFIX + Complication.NPH.name();
-	public static final String STR_IMR_CHD = STR_IMR_PREFIX + Complication.CHD.name();
-	public static final String STR_IMR_ESRD = STR_IMR_PREFIX + Complication.ESRD.name();
-	public static final String STR_IMR_BLI = STR_IMR_PREFIX + Complication.BLI.name();
-	public static final String STR_IMR_LEA = STR_IMR_PREFIX + Complication.LEA.name();
 	// Descriptors for age parameters
 	public static final String STR_AVG_BASELINE_AGE = "AVG BASELINE AGE";
 	public static final String STR_AVG_BASELINE_HBA1C = "AVG BASELINE HBA1C";
@@ -68,36 +52,13 @@ public abstract class SecondOrderParams {
 	// Descriptors for cost parameters
 	public static final String STR_COST_PREFIX = "C_";
 	public static final String STR_COST_HYPO_EPISODE = STR_COST_PREFIX+ "SEVERE_HYPO_EPISODE";
-	public static final String STR_COST_DNC = STR_COST_PREFIX + "DNC"; 
-	public static final String STR_COST_CHD = STR_COST_PREFIX + Complication.CHD.name();
-	public static final String STR_COST_NEU = STR_COST_PREFIX + Complication.NEU.name();
-	public static final String STR_COST_NPH = STR_COST_PREFIX + Complication.NPH.name();
-	public static final String STR_COST_RET = STR_COST_PREFIX + Complication.RET.name();
-	public static final String STR_COST_LEA = STR_COST_PREFIX + Complication.LEA.name();
-	public static final String STR_COST_ESRD = STR_COST_PREFIX + Complication.ESRD.name();
-	public static final String STR_COST_BLI = STR_COST_PREFIX + Complication.BLI.name();
 	public static final String STR_TRANS_PREFIX = "TC_";
-	public static final String STR_TRANS_COST_CHD = STR_TRANS_PREFIX + Complication.CHD.name();
-	public static final String STR_TRANS_COST_NEU = STR_TRANS_PREFIX + Complication.NEU.name();
-	public static final String STR_TRANS_COST_NPH = STR_TRANS_PREFIX + Complication.NPH.name();
-	public static final String STR_TRANS_COST_RET = STR_TRANS_PREFIX + Complication.RET.name();
-	public static final String STR_TRANS_COST_LEA = STR_TRANS_PREFIX + Complication.LEA.name();
-	public static final String STR_TRANS_COST_ESRD = STR_TRANS_PREFIX + Complication.ESRD.name();
-	public static final String STR_TRANS_COST_BLI = STR_TRANS_PREFIX + Complication.BLI.name();
 
 	// Descriptors for utilities
 	public static final String STR_UTILITY_PREFIX = "U_";
 	public static final String STR_DISUTILITY_PREFIX = "DU_";
 	public static final String STR_U_GENERAL_POPULATION = STR_UTILITY_PREFIX + "GENERAL_POP";
 	public static final String STR_DU_HYPO_EVENT = STR_DISUTILITY_PREFIX+ "SEVERE_HYPO_EPISODE";
-	public static final String STR_DU_DNC = STR_DISUTILITY_PREFIX + "DNC";	
-	public static final String STR_DU_CHD = STR_DISUTILITY_PREFIX + Complication.CHD.name();
-	public static final String STR_DU_NEU = STR_DISUTILITY_PREFIX + Complication.NEU.name();
-	public static final String STR_DU_NPH = STR_DISUTILITY_PREFIX + Complication.NPH.name();
-	public static final String STR_DU_RET = STR_DISUTILITY_PREFIX + Complication.RET.name();
-	public static final String STR_DU_LEA = STR_DISUTILITY_PREFIX + Complication.LEA.name();
-	public static final String STR_DU_ESRD = STR_DISUTILITY_PREFIX + Complication.ESRD.name();
-	public static final String STR_DU_BLI = STR_DISUTILITY_PREFIX + Complication.BLI.name();
 	
 	final protected TreeMap<String, SecondOrderParam> probabilityParams;
 	final protected TreeMap<String, SecondOrderCostParam> costParams;
@@ -106,21 +67,42 @@ public abstract class SecondOrderParams {
 	protected CombinationMethod utilityCombinationMethod = CombinationMethod.ADD;
 	private boolean canadaValidation = false;
 	private boolean discountZero = false;
+	final protected RandomNumber rngFirstOrder;
+	final protected ArrayList<T1DMHealthState> availableHealthStates;
+
 	
 	/**
 	 * True if base case parameters (expected values) should be used. False for second order simulations.
 	 */
 	private boolean baseCase = true;
+	final protected int nPatients;
 	
 	/**
 	 * @param baseCase True if base case parameters (expected values) should be used. False for second order simulations.
 	 */
-	protected SecondOrderParams(boolean baseCase) {
+	protected SecondOrderParams(boolean baseCase, int nPatients) {
 		this.baseCase = baseCase;
 		probabilityParams = new TreeMap<>();
 		costParams = new TreeMap<>();
 		otherParams = new TreeMap<>();
 		utilParams = new TreeMap<>();
+		this.rngFirstOrder = RandomNumberFactory.getInstance();
+		this.nPatients = nPatients;
+		this.availableHealthStates = new ArrayList<>();
+	}
+
+	public void registerHealthStates(T1DMHealthState[] newStates) {
+		for (T1DMHealthState st : newStates) {
+			st.setOrder(availableHealthStates.size());
+			availableHealthStates.add(st);
+		}
+	}
+	
+	/**
+	 * @return the available health states
+	 */
+	public ArrayList<T1DMHealthState> getAvailableHealthStates() {
+		return availableHealthStates;
 	}
 
 	/**
@@ -150,30 +132,74 @@ public abstract class SecondOrderParams {
 		otherParams.put(param.getName(), param);
 	}
 	
-	public double getProbability(String prob) {
-		final SecondOrderParam param = probabilityParams.get(prob);
-		return (param == null) ? Double.NaN : param.getValue(); 
+	/**
+	 * Returns the probability from healthy to the specified state; 0.0 if not defined
+	 * @param state The destination health state
+	 * @return the probability from healthy to the specified state; 0.0 if not defined
+	 */
+	public double getProbability(Named state) {
+		return getProbability(null, state); 
 	}
 
+	/**
+	 * Returns the probability from a state to another; 0.0 if not defined
+	 * @param state The destination health state
+	 * @return the probability from a state to another; 0.0 if not defined
+	 */
+	public double getProbability(Named fromState, Named toState) {
+		return getProbability(getProbString(fromState, toState));
+	}
+	
+	public double getProbability(String prob) {
+		final SecondOrderParam param = probabilityParams.get(prob);
+		return (param == null) ? 0.0 : param.getValue(); 
+	}
+
+	/**
+	 * Returns the increase mortality rate associated to a health state; 1.0 if no additional risk is associated
+	 * @param state Helath state
+	 * @return the increase mortality rate associated to a health state; 1.0 if no additional risk is associated
+	 */
+	public double getIMR(Named state) {
+		final SecondOrderParam param = otherParams.get(STR_IMR_PREFIX + state.name());
+		return (param == null) ? 1.0 : Math.max(1.0, param.getValue());		
+	}
+	
+	/**
+	 * Returns the cost for a health state <annual cost, cost at incidence>
+	 * @param state Health state
+	 * @return the cost for a health state <annual cost, cost at incidence>
+	 */
+	public double[] getCostsForHealthState(Named state) {
+		final double[] costs = new double[2];
+		final SecondOrderParam annualCost = costParams.get(STR_COST_PREFIX + state.name());
+		final SecondOrderParam transCost = costParams.get(STR_TRANS_PREFIX + state.name());
+		costs[0] = (annualCost == null) ? 0.0 : annualCost.getValue();
+		costs[1] = (transCost == null) ? 0.0 : transCost.getValue();
+		return costs;
+	}
+	
+	public double getDisutilityForHealthState(Named state) {
+		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + state.name());
+		return (param == null) ? 0.0 : param.getValue();		
+	}
+	/**
+	 * Returns true if the base case is active; false if the probabilistic analysis is active
+	 * @return true if the base case is active; false if the probabilistic analysis is active
+	 */
 	public boolean isBaseCase() {
 		return baseCase;
 	}
 	
 	/**
-	 * Return the increased mortality risks (IMRs) for each complication. IMRs must be, at least, 1.0. 
-	 * @return
+	 * @return the nPatients
 	 */
-	public double[] getIMRs() {
-		final double[] complicationsIMR = new double[N_COMPLICATIONS];
-		for (Complication comp : Complication.values()) {
-			final SecondOrderParam param = otherParams.get(STR_IMR_PREFIX + comp.name());
-			complicationsIMR[comp.ordinal()] = (param == null) ? 1.0 : Math.max(1.0, param.getValue());
-		}
-		return complicationsIMR; 
+	public int getnPatients() {
+		return nPatients;
 	}
 
 	public double getNoComplicationIMR() {
-		final SecondOrderParam param = otherParams.get(STR_IMR_DNC);
+		final SecondOrderParam param = otherParams.get(STR_IMR_PREFIX + STR_NO_COMPLICATIONS);
 		return (param == null) ? Double.NaN : param.getValue(); 		
 	}
 	
@@ -194,75 +220,9 @@ public abstract class SecondOrderParams {
 		return (param == null) ? 0.0 : param.getValue(); 						
 	}
 	
-	public double[] getAnnualComplicationCost() {
-		double[] annualComplicationCosts = new double[N_COMPLICATIONS];
-		for (Complication comp : Complication.values()) {
-			final SecondOrderParam param = costParams.get(STR_COST_PREFIX + comp.name());
-			annualComplicationCosts[comp.ordinal()] = (param == null) ? 0.0 : param.getValue();
-		}
-		return annualComplicationCosts;
-	}
-	
-	public double[] getTransitionComplicationCost() {
-		double[] costs = new double[N_COMPLICATIONS];
-		for (Complication comp : Complication.values()) {
-			final SecondOrderParam param = costParams.get(STR_TRANS_PREFIX + comp.name());
-			costs[comp.ordinal()] = (param == null) ? 0.0 : param.getValue();
-		}
-		return costs;
-	}
-	
 	public double getAnnualNoComplicationCost() {
-		final SecondOrderParam param = costParams.get(STR_COST_DNC);
+		final SecondOrderParam param = costParams.get(STR_COST_PREFIX + STR_NO_COMPLICATIONS);
 		return (param == null) ? 0.0 : param.getValue(); 		
-	}
-	
-	/**
-	 * Returns true if the CHD complications are detailed; false otherwise
-	 * @return True if the CHD complications are detailed; false otherwise
-	 */
-	public boolean isDetailedCHD() {
-		for (CHDComplication comp : CHDComplication.values()) {
-			if (otherParams.get(STR_PROBABILITY_PREFIX + comp.name()) == null)
-				return false;
-		}
-		return true;
-	}
-	
-	public DiscreteSelectorVariate getRandomVariateForCHDComplications() {
-		if (isDetailedCHD()) {
-			final double [] coef = new double[CHDComplication.values().length];
-			for (CHDComplication comp : CHDComplication.values()) {
-				final SecondOrderParam param = otherParams.get(STR_PROBABILITY_PREFIX + comp.name());
-				coef[comp.ordinal()] = param.getValue();
-			}
-			return (DiscreteSelectorVariate)RandomVariateFactory.getInstance("DiscreteSelectorVariate", coef);
-		}
-		return null;
-	}
-	
-	public double[] getAnnualCHDComplicationCost() {
-		if (isDetailedCHD()) {
-			double[] annualComplicationCosts = new double[CHDComplication.values().length];
-			for (CHDComplication comp : CHDComplication.values()) {
-				final SecondOrderParam param = costParams.get(STR_COST_PREFIX + comp.name());
-				annualComplicationCosts[comp.ordinal()] = (param == null) ? 0.0 : param.getValue();
-			}
-			return annualComplicationCosts;
-		}
-		return null;
-	}
-	
-	public double[] getTransitionCHDComplicationCost() {
-		if (isDetailedCHD()) {
-			double[] costs = new double[CHDComplication.values().length];
-			for (CHDComplication comp : CHDComplication.values()) {
-				final SecondOrderParam param = costParams.get(STR_TRANS_PREFIX + comp.name());
-				costs[comp.ordinal()] = (param == null) ? 0.0 : param.getValue();
-			}
-			return costs;
-		}
-		return null;
 	}
 	
 	public double getGeneralPopulationUtility() {
@@ -271,22 +231,13 @@ public abstract class SecondOrderParams {
 	}
 	
 	public double getNoComplicationDisutility() {
-		final SecondOrderParam param = utilParams.get(STR_DU_DNC);
+		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS);
 		return (param == null) ? 0.0 : param.getValue(); 		
 	}
 	
 	public double getHypoEventDisutility() {
 		final SecondOrderParam param = utilParams.get(STR_DU_HYPO_EVENT);
 		return (param == null) ? 0.0 : param.getValue(); 		
-	}
-	
-	public double[] getComplicationDisutilities() {
-		final double[] du = new double[N_COMPLICATIONS];
-		for (Complication comp : Complication.values()) {
-			final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + comp.name());
-			du[comp.ordinal()] = (param == null) ? 0.0 : param.getValue();
-		}
-		return du;
 	}
 	
 	public CombinationMethod getUtilityCombinationMethod() {
@@ -336,9 +287,18 @@ public abstract class SecondOrderParams {
 	public abstract RandomVariate getBaselineHBA1c();
 	public abstract RandomVariate getBaselineAge();
 	public abstract RandomVariate getWeeklySensorUsage();
-	public abstract ComplicationRR[] getComplicationRRs();
 	public abstract ComplicationRR getHypoRR();
+	public abstract ComplicationSubmodel[] getComplicationSubmodels();
+	public abstract DeathSubmodel getDeathSubmodel();
+	public abstract CostCalculator getCostCalculator();
+	public abstract UtilityCalculator getUtilityCalculator();
 	
+	
+	public String getProbString(Named from, Named to) {
+		final String fromName = (from == null) ? STR_NO_COMPLICATIONS : from.name();
+		final String toName = "_" + to.name();
+		return STR_PROBABILITY_PREFIX + fromName + toName;
+	}
 	
 	/**
 	 * Computes the alfa and beta parameters for a beta distribution from an average and
@@ -479,5 +439,5 @@ public abstract class SecondOrderParams {
 			return year;
 		}
 	}
-	
+
 }
