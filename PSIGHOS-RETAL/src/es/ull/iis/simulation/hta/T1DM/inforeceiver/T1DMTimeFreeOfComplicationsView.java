@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.T1DM.MainComplications;
-import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
@@ -23,12 +23,12 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 	private final double [][][] timeToComplications;
 	private final boolean printFirstOrderVariance;
 	private final int nInterventions;
-	private final ArrayList<T1DMHealthState> availableHealthStates;
+	private final ArrayList<T1DMComorbidity> availableHealthStates;
 
 	/**
 	 * @param simUnit The time unit used within the simulation
 	 */
-	public T1DMTimeFreeOfComplicationsView(int nPatients, int nInterventions, boolean printFirstOrderVariance, ArrayList<T1DMHealthState> availableHealthStates) {
+	public T1DMTimeFreeOfComplicationsView(int nPatients, int nInterventions, boolean printFirstOrderVariance, ArrayList<T1DMComorbidity> availableHealthStates) {
 		super("Standard patient viewer");
 		this.availableHealthStates = availableHealthStates;
 		timeToComplications = new double[nInterventions][availableHealthStates.size()][nPatients];
@@ -38,11 +38,11 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 		addEntrance(T1DMPatientInfo.class);
 	}
 	
-	public static String getStrHeader(boolean printFirstOrderVariance, Intervention[] interventions, ArrayList<T1DMHealthState> availableHealthStates) {
+	public static String getStrHeader(boolean printFirstOrderVariance, Intervention[] interventions, ArrayList<T1DMComorbidity> availableHealthStates) {
 		final StringBuilder str = new StringBuilder();
 		if (printFirstOrderVariance) {
 			for (Intervention inter : interventions) {
-				for (T1DMHealthState comp : availableHealthStates) {
+				for (T1DMComorbidity comp : availableHealthStates) {
 					final String suf = comp.name() + "_" + inter.getShortName() + "\t";
 					str.append("AVG_TIME_TO_").append(suf).append("\tL95CI_TIME_TO_").append(suf).append("\tU95CI_TIME_TO_").append(suf);
 				}			
@@ -50,7 +50,7 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 		}
 		else {
 			for (Intervention inter : interventions) {
-				for (T1DMHealthState comp : availableHealthStates) {
+				for (T1DMComorbidity comp : availableHealthStates) {
 					str.append("AVG_TIME_TO_").append(comp.name()).append("_").append(inter.getShortName()).append("\t");
 				}
 			}
@@ -95,8 +95,8 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 		if (pInfo.getType() == T1DMPatientInfo.Type.DEATH) {
 			final long deathTs = pInfo.getTs();
 			// Check all the complications
-			for (T1DMHealthState comp : availableHealthStates) {
-				final long time = pat.getTimeToComplication(comp);
+			for (T1DMComorbidity comp : availableHealthStates) {
+				final long time = pat.getTimeToChronicComorbidity(comp);
 				timeToComplications[nIntervention][comp.ordinal()][pat.getIdentifier()] = (time == Long.MAX_VALUE) ? deathTs : time;
 			}
 		}

@@ -14,15 +14,15 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 import es.ull.iis.simulation.hta.Intervention;
+import es.ull.iis.simulation.hta.T1DM.canada.CanadaSecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.PatientCounterHistogramView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMPatientInfoView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMPatientPrevalenceView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMTimeFreeOfComplicationsView;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.T1DM.params.CanadaSecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.DCCTSecondOrderParams;
-import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParams;
+import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.T1DM.params.UnconsciousSecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.params.UncontrolledSecondOrderParams;
 
@@ -38,7 +38,7 @@ public class T1DMMain {
 	private final T1DMMonitoringIntervention[] interventions;
 	private final int nRuns;
 	private final int nPatients;
-	private final SecondOrderParams secParams;
+	private final SecondOrderParamsRepository secParams;
 	private final T1DMPatientInfoView patientListener;
 	private final PrintProgress progress;
 	private final boolean parallel;
@@ -46,7 +46,7 @@ public class T1DMMain {
 	private final boolean printIncidence;
 	private final boolean printPrevalence;
 	
-	public T1DMMain(PrintWriter out, int nRuns, int nPatients, SecondOrderParams secParams, boolean parallel, boolean quiet, int singlePatientOutput, boolean printIncidence, boolean printPrevalence) {
+	public T1DMMain(PrintWriter out, int nRuns, int nPatients, SecondOrderParamsRepository secParams, boolean parallel, boolean quiet, int singlePatientOutput, boolean printIncidence, boolean printPrevalence) {
 		super();
 		this.out = out;
 		this.interventions = secParams.getInterventions();
@@ -186,18 +186,18 @@ public class T1DMMain {
 
 	        }
 	        final int nPatients = args1.nPatients;
-	        SecondOrderParams secParams;
+	        SecondOrderParamsRepository secParams;
 	        if (args1.validation == 1) {
 	        	secParams = new CanadaSecondOrderParams(true, nPatients);
 	        }
 	        else if (args1.validation == 2) {
-	        	secParams = new DCCTSecondOrderParams(true, nPatients);
+	        	secParams = new DCCTSecondOrderParams(true, nPatients, args1.basic);
 	        }
 	        else if (args1.population == 2) {
-	        	secParams = new UncontrolledSecondOrderParams(true, nPatients);
+	        	secParams = new UncontrolledSecondOrderParams(true, nPatients, args1.basic);
 	        }
 	        else {
-	        	secParams = new UnconsciousSecondOrderParams(true, nPatients);
+	        	secParams = new UnconsciousSecondOrderParams(true, nPatients, args1.basic);
 	        }
 	        final int singlePatientOutput = args1.singlePatientOutput;
 	        final int nRuns = args1.nRuns;
@@ -237,6 +237,8 @@ public class T1DMMain {
 		private boolean parallel = false;
 		@Parameter(names ={"--quiet", "-q"}, description = "Quiet execution (does not print progress info)", order = 6)
 		private boolean quiet = false;
+		@Parameter(names ={"--basic", "-b"}, description = "Use basic progression models, instead of complex (only some complications has complex models)", order = 10)
+		private boolean basic = false;
 	}
 	
 	private class ProblemExecutor implements Runnable {

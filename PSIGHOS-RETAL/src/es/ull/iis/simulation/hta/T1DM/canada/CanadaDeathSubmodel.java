@@ -1,13 +1,14 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM;
+package es.ull.iis.simulation.hta.T1DM.canada;
 
 import java.util.EnumSet;
 
+import es.ull.iis.simulation.hta.T1DM.DeathSubmodel;
+import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.AnnualBasedTimeToEventParam;
-import es.ull.iis.simulation.hta.T1DM.params.CVDCanadaDeathParam;
-import es.ull.iis.simulation.hta.T1DM.params.CanadaOtherCausesDeathParam;
 
 /**
  * @author Iván Castilla Rodríguez

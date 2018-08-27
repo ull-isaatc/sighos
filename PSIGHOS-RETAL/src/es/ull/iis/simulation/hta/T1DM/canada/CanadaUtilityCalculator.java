@@ -1,14 +1,15 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM.params;
+package es.ull.iis.simulation.hta.T1DM.canada;
 
 import java.util.EnumSet;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.T1DM.MainComplications;
-import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator;
 import es.ull.iis.simulation.hta.params.ModelParams;
 
 /**

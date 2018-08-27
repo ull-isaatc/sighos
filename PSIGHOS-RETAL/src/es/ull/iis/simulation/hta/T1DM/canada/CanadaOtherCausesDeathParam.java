@@ -1,9 +1,12 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM.params;
+package es.ull.iis.simulation.hta.T1DM.canada;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.T1DM.params.Param;
+import es.ull.iis.simulation.hta.T1DM.params.UniqueEventParam;
 import es.ull.iis.simulation.hta.params.ModelParams;
 import es.ull.iis.simulation.model.TimeUnit;
 

@@ -4,11 +4,12 @@
 package es.ull.iis.simulation.hta.T1DM.params;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.DeathSubmodel;
 import es.ull.iis.simulation.hta.T1DM.MainComplications;
-import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
@@ -38,14 +39,14 @@ public class CommonParams extends ModelParams {
 	
 	private final ComplicationSubmodel[] compSubmodels;
 	private final DeathSubmodel deathSubmodel; 
-	private final ArrayList<T1DMHealthState> availableHealthStates;
+	private final ArrayList<T1DMComorbidity> availableHealthStates;
 	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
 	
 	/**
 	 * @param secondOrder
 	 */
-	public CommonParams(SecondOrderParams secParams) {
+	public CommonParams(SecondOrderParamsRepository secParams) {
 		super();
 		compSubmodels = secParams.getComplicationSubmodels();
 		deathSubmodel = secParams.getDeathSubmodel();
@@ -56,7 +57,7 @@ public class CommonParams extends ModelParams {
 		rng = RandomNumberFactory.getInstance();
 		interventions = secParams.getInterventions();
 
-		hypoParam = new SevereHypoglycemicEventParam(secParams.getnPatients(), secParams.getProbability(SecondOrderParams.STR_P_HYPO), secParams.getHypoRR(), secParams.getProbability(SecondOrderParams.STR_P_DEATH_HYPO));
+		hypoParam = new SevereHypoglycemicEventParam(secParams.getnPatients(), secParams.getProbability(SecondOrderParamsRepository.STR_P_HYPO), secParams.getHypoRR(), secParams.getProbability(SecondOrderParamsRepository.STR_P_DEATH_HYPO));
 		
 		pMan = secParams.getPMan();
 		baselineAge = secParams.getBaselineAge();
@@ -69,7 +70,7 @@ public class CommonParams extends ModelParams {
 	/**
 	 * @return the availableHealthStates
 	 */
-	public ArrayList<T1DMHealthState> getAvailableHealthStates() {
+	public ArrayList<T1DMComorbidity> getAvailableHealthStates() {
 		return availableHealthStates;
 	}
 
@@ -106,13 +107,17 @@ public class CommonParams extends ModelParams {
 		return hypoParam.getValue(pat);
 	}
 
-	public T1DMProgression[] getNextComplication(T1DMPatient pat, MainComplications complication) {
-		return compSubmodels[complication.ordinal()].getNextComplication(pat);
-	}
-	public void progressToComplication(T1DMPatient pat, T1DMProgression prog) {
-		compSubmodels[prog.getState().getComplication().ordinal()].progress(pat, prog);
+	public TreeSet<T1DMComorbidity> getInitialState(T1DMPatient pat) {
+		TreeSet<T1DMComorbidity> initial = new TreeSet<>();
+		for (ComplicationSubmodel submodel : compSubmodels) {
+			initial.addAll(submodel.getInitialState(pat));
+		}
+		return initial;
 	}
 	
+	public T1DMProgression getNextComplication(T1DMPatient pat, MainComplications complication) {
+		return compSubmodels[complication.ordinal()].getNextComplication(pat);
+	}
 	public long getTimeToDeath(T1DMPatient pat) {
 		return deathSubmodel.getTimeToDeath(pat);
 	}
@@ -149,7 +154,7 @@ public class CommonParams extends ModelParams {
 	 * @param newEvent A new complication for the patient
 	 * @return the cost of a complication upon incidence
 	 */
-	public double getCostOfComplication(T1DMPatient pat, T1DMHealthState newEvent) {
+	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent) {
 		return costCalc.getCostOfComplication(pat, newEvent);
 	}
 
@@ -171,9 +176,6 @@ public class CommonParams extends ModelParams {
 
 	public void reset() {
 		hypoParam.reset();
-		for (ComplicationSubmodel submodel : compSubmodels) {
-			submodel.reset();
-		}
 	}
 	
 	public double getRandomNumber() {

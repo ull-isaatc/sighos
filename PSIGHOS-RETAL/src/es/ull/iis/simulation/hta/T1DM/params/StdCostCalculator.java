@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.T1DM.params;
 import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 
@@ -19,9 +19,9 @@ import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 public class StdCostCalculator implements CostCalculator {
 
 	/** Annual and incident cost of complications */
-	private final TreeMap<T1DMHealthState, double[]> costs;
+	protected final TreeMap<T1DMComorbidity, double[]> costs;
 	/** Cost of diabetes with no complications */ 
-	private final double costNoComplication;
+	protected final double costNoComplication;
 	/** Cost of a severe hypoglycemic event */
 	private final double costHypoglycemicEvent;
 	
@@ -45,13 +45,13 @@ public class StdCostCalculator implements CostCalculator {
 	 */
 	public double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
 		double cost = ((T1DMMonitoringIntervention)pat.getIntervention()).getAnnualCost(pat);
-		final Collection<T1DMHealthState> state = pat.getDetailedState();
+		final Collection<T1DMComorbidity> state = pat.getDetailedState();
 		// No complications
 		if (state.isEmpty()) {
 			cost += costNoComplication;
 		}
 		else {
-			for (T1DMHealthState st : state) {
+			for (T1DMComorbidity st : state) {
 				if (costs.containsKey(st)) {
 					cost += costs.get(st)[0];
 				}
@@ -70,14 +70,14 @@ public class StdCostCalculator implements CostCalculator {
 	}
 
 	@Override
-	public double getCostOfComplication(T1DMPatient pat, T1DMHealthState newEvent) {
+	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent) {
 		if (costs.containsKey(newEvent))
 			return costs.get(newEvent)[1];
 		return 0;
 	}
 
 	@Override
-	public void addCostForHealthState(T1DMHealthState state, double[] costs) {
+	public void addCostForHealthState(T1DMComorbidity state, double[] costs) {
 		this.costs.put(state, costs);
 	}
 

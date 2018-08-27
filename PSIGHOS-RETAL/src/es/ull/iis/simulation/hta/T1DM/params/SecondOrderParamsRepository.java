@@ -5,14 +5,15 @@ package es.ull.iis.simulation.hta.T1DM.params;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.DeathSubmodel;
+import es.ull.iis.simulation.hta.T1DM.MainComplications;
 import es.ull.iis.simulation.hta.T1DM.Named;
-import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.CombinationMethod;
-import es.ull.iis.simulation.hta.params.SpanishIPCUpdate;
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
 import simkit.random.RandomVariate;
@@ -26,7 +27,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class SecondOrderParams {
+public abstract class SecondOrderParamsRepository {
 	/** Default percentage for cost variations */
 	private static final double DEF_PERCENT_COST_VARIATION = 0.2;
 	// Descriptors for probabilities
@@ -40,7 +41,6 @@ public abstract class SecondOrderParams {
 	// Descriptors for RRs
 	public static final String STR_RR_PREFIX = "RR_";
 	public static final String STR_RR_HYPO = STR_RR_PREFIX + "SEVERE_HYPO"; 
-	public static final String STR_REF_HBA1C = "AVG REFERENCE HBA1C";
 
 	// Descriptors for Increased Mortality Rates
 	public static final String STR_IMR_PREFIX = "IMR_";
@@ -60,27 +60,29 @@ public abstract class SecondOrderParams {
 	public static final String STR_U_GENERAL_POPULATION = STR_UTILITY_PREFIX + "GENERAL_POP";
 	public static final String STR_DU_HYPO_EVENT = STR_DISUTILITY_PREFIX+ "SEVERE_HYPO_EPISODE";
 	
+	public static final ComplicationRR NO_RR = new StdComplicationRR(1.0);
+	
 	final protected TreeMap<String, SecondOrderParam> probabilityParams;
 	final protected TreeMap<String, SecondOrderCostParam> costParams;
 	final protected TreeMap<String, SecondOrderParam> utilParams;
 	final protected TreeMap<String, SecondOrderParam> otherParams;
 	protected CombinationMethod utilityCombinationMethod = CombinationMethod.ADD;
-	private boolean canadaValidation = false;
 	private boolean discountZero = false;
-	final protected RandomNumber rngFirstOrder;
-	final protected ArrayList<T1DMHealthState> availableHealthStates;
+	final private RandomNumber rngFirstOrder;
+	final protected ArrayList<T1DMComorbidity> availableHealthStates;
+	final protected TreeSet<MainComplications> complicationRegistered;
 
 	
 	/**
 	 * True if base case parameters (expected values) should be used. False for second order simulations.
 	 */
-	private boolean baseCase = true;
+	protected boolean baseCase = true;
 	final protected int nPatients;
 	
 	/**
 	 * @param baseCase True if base case parameters (expected values) should be used. False for second order simulations.
 	 */
-	protected SecondOrderParams(boolean baseCase, int nPatients) {
+	protected SecondOrderParamsRepository(boolean baseCase, int nPatients) {
 		this.baseCase = baseCase;
 		probabilityParams = new TreeMap<>();
 		costParams = new TreeMap<>();
@@ -89,19 +91,27 @@ public abstract class SecondOrderParams {
 		this.rngFirstOrder = RandomNumberFactory.getInstance();
 		this.nPatients = nPatients;
 		this.availableHealthStates = new ArrayList<>();
+		this.complicationRegistered = new TreeSet<>();
 	}
 
-	public void registerHealthStates(T1DMHealthState[] newStates) {
-		for (T1DMHealthState st : newStates) {
+	public void registerHealthStates(T1DMComorbidity[] newStates) {
+		for (T1DMComorbidity st : newStates) {
 			st.setOrder(availableHealthStates.size());
 			availableHealthStates.add(st);
 		}
 	}
 	
+	public void registerComplication(MainComplications comp) {
+		complicationRegistered.add(comp);
+	}
+	
+	public boolean isRegistered(MainComplications comp) {
+		return (complicationRegistered.contains(comp));
+	}
 	/**
 	 * @return the available health states
 	 */
-	public ArrayList<T1DMHealthState> getAvailableHealthStates() {
+	public ArrayList<T1DMComorbidity> getAvailableHealthStates() {
 		return availableHealthStates;
 	}
 
@@ -132,6 +142,11 @@ public abstract class SecondOrderParams {
 		otherParams.put(param.getName(), param);
 	}
 	
+	public double getOtherParam(String name) {
+		final SecondOrderParam param = otherParams.get(name);
+		return (param == null) ? Double.NaN : param.getValue(baseCase); 
+	}
+	
 	/**
 	 * Returns the probability from healthy to the specified state; 0.0 if not defined
 	 * @param state The destination health state
@@ -152,7 +167,7 @@ public abstract class SecondOrderParams {
 	
 	public double getProbability(String prob) {
 		final SecondOrderParam param = probabilityParams.get(prob);
-		return (param == null) ? 0.0 : param.getValue(); 
+		return (param == null) ? 0.0 : param.getValue(baseCase); 
 	}
 
 	/**
@@ -162,7 +177,7 @@ public abstract class SecondOrderParams {
 	 */
 	public double getIMR(Named state) {
 		final SecondOrderParam param = otherParams.get(STR_IMR_PREFIX + state.name());
-		return (param == null) ? 1.0 : Math.max(1.0, param.getValue());		
+		return (param == null) ? 1.0 : Math.max(1.0, param.getValue(baseCase));		
 	}
 	
 	/**
@@ -174,14 +189,14 @@ public abstract class SecondOrderParams {
 		final double[] costs = new double[2];
 		final SecondOrderParam annualCost = costParams.get(STR_COST_PREFIX + state.name());
 		final SecondOrderParam transCost = costParams.get(STR_TRANS_PREFIX + state.name());
-		costs[0] = (annualCost == null) ? 0.0 : annualCost.getValue();
-		costs[1] = (transCost == null) ? 0.0 : transCost.getValue();
+		costs[0] = (annualCost == null) ? 0.0 : annualCost.getValue(baseCase);
+		costs[1] = (transCost == null) ? 0.0 : transCost.getValue(baseCase);
 		return costs;
 	}
 	
 	public double getDisutilityForHealthState(Named state) {
 		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + state.name());
-		return (param == null) ? 0.0 : param.getValue();		
+		return (param == null) ? 0.0 : param.getValue(baseCase);		
 	}
 	/**
 	 * Returns true if the base case is active; false if the probabilistic analysis is active
@@ -192,6 +207,13 @@ public abstract class SecondOrderParams {
 	}
 	
 	/**
+	 * @return the rngFirstOrder
+	 */
+	public RandomNumber getRngFirstOrder() {
+		return rngFirstOrder;
+	}
+
+	/**
 	 * @return the nPatients
 	 */
 	public int getnPatients() {
@@ -200,44 +222,44 @@ public abstract class SecondOrderParams {
 
 	public double getNoComplicationIMR() {
 		final SecondOrderParam param = otherParams.get(STR_IMR_PREFIX + STR_NO_COMPLICATIONS);
-		return (param == null) ? Double.NaN : param.getValue(); 		
+		return (param == null) ? 1.0 : param.getValue(baseCase); 		
 	}
 	
 	public double getPMan() {
 		final SecondOrderParam param = (SecondOrderParam) otherParams.get(STR_P_MAN);
-		return (param == null) ? 0.5 : param.getValue(); 				
+		return (param == null) ? 0.5 : param.getValue(baseCase); 				
 	}
 	
 	public double getDiscountRate() {
 		if (discountZero)
 			return 0.0;
 		final SecondOrderParam param = (SecondOrderParam) otherParams.get(STR_DISCOUNT_RATE);
-		return (param == null) ? 0.0 : param.getValue(); 						
+		return (param == null) ? 0.0 : param.getValue(baseCase); 						
 	}
 	
 	public double getCostForSevereHypoglycemicEpisode() {
 		final SecondOrderParam param = (SecondOrderParam) costParams.get(STR_COST_HYPO_EPISODE);
-		return (param == null) ? 0.0 : param.getValue(); 						
+		return (param == null) ? 0.0 : param.getValue(baseCase); 						
 	}
 	
 	public double getAnnualNoComplicationCost() {
 		final SecondOrderParam param = costParams.get(STR_COST_PREFIX + STR_NO_COMPLICATIONS);
-		return (param == null) ? 0.0 : param.getValue(); 		
+		return (param == null) ? 0.0 : param.getValue(baseCase); 		
 	}
 	
 	public double getGeneralPopulationUtility() {
 		final SecondOrderParam param = utilParams.get(STR_U_GENERAL_POPULATION);
-		return (param == null) ? 1.0 : param.getValue(); 		
+		return (param == null) ? 1.0 : param.getValue(baseCase); 		
 	}
 	
 	public double getNoComplicationDisutility() {
 		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS);
-		return (param == null) ? 0.0 : param.getValue(); 		
+		return (param == null) ? 0.0 : param.getValue(baseCase); 		
 	}
 	
 	public double getHypoEventDisutility() {
 		final SecondOrderParam param = utilParams.get(STR_DU_HYPO_EVENT);
-		return (param == null) ? 0.0 : param.getValue(); 		
+		return (param == null) ? 0.0 : param.getValue(baseCase); 		
 	}
 	
 	public CombinationMethod getUtilityCombinationMethod() {
@@ -261,21 +283,6 @@ public abstract class SecondOrderParams {
 		return (ci[1] - ci[0])/(1.96*2);
 	}
 	
-	/**
-	 * True if the modifications for the canadian model should be activated
-	 * @return True if the modifications for the canadian model should be activated
-	 */
-	public boolean isCanadaValidation() {
-		return canadaValidation;
-	}
-	
-	/**
-	 * Sets this set of second order parameters to activate the Canada model variations
-	 */
-	public void setCanadaValidation() {
-		this.canadaValidation = true;
-	}
-
 	public boolean isDiscountZero() {
 		return discountZero;
 	}
@@ -340,104 +347,12 @@ public abstract class SecondOrderParams {
 		for (SecondOrderParam param : probabilityParams.values())
 			str.append(param.getLastGeneratedValue()).append("\t");
 		for (SecondOrderParam param : costParams.values())
-			str.append(param.getValue()).append("\t");
+			str.append(param.getLastGeneratedValue()).append("\t");
 		for (SecondOrderParam param : utilParams.values())
-			str.append(param.getValue()).append("\t");
+			str.append(param.getLastGeneratedValue()).append("\t");
 		for (SecondOrderParam param : otherParams.values())
-			str.append(param.getValue()).append("\t");
+			str.append(param.getLastGeneratedValue()).append("\t");
 		return str.toString();
-	}
-	// For testing only
-//	public static void main(String[] args) {
-//		SecondOrderParams par = new SecondOrderParams(true) {
-//		};
-//		SecondOrderCostParam cost = par.new SecondOrderCostParam("MI", "MI", "", 2003, 19277.0); 
-//		System.out.println(cost.getValue());
-//	}
-	public class SecondOrderParam {
-		private final String name;
-		private final String description;
-		private final String source;
-		private final double detValue;
-		private final RandomVariate rnd;
-		private double lastGeneratedValue;
-
-		public SecondOrderParam(String name, String description, String source, double detValue, RandomVariate rnd) {
-			this.name = name;
-			this.description = description;
-			this.source = source;
-			this.detValue = detValue;
-			this.rnd = rnd;
-			lastGeneratedValue = Double.NaN;
-		}
-		
-		public SecondOrderParam(String name, String description, String source, double detValue) {
-			this(name, description, source, detValue, RandomVariateFactory.getInstance("ConstantVariate", detValue));
-		}
-		
-		public double getValue() {
-			lastGeneratedValue = baseCase ? detValue : rnd.generate();
-			return lastGeneratedValue;
-		}
-
-		/**
-		 * @return the name
-		 */
-		public String getName() {
-			return name;
-		}
-
-		/**
-		 * @return the description
-		 */
-		public String getDescription() {
-			return description;
-		}
-
-		/**
-		 * @return the source
-		 */
-		public String getSource() {
-			return source;
-		}
-
-		/**
-		 * @return the generatedValues
-		 */
-		public double getLastGeneratedValue() {
-			return lastGeneratedValue;
-		}
-	}
-	
-	/**
-	 * A special kind of second order parameter that updates the values according to the Spanish IPC.
-	 * @author Iván Castilla Rodríguez
-	 *
-	 */
-	public class SecondOrderCostParam extends SecondOrderParam {
-		/** Year of the cost */
-		final private int year;
-
-		public SecondOrderCostParam(String name, String description, String source, int year, double detValue) {
-			super(name, description, source, detValue);
-			this.year = year;
-		}
-		
-		public SecondOrderCostParam(String name, String description, String source, int year, double detValue, RandomVariate rnd) {
-			super(name, description, source, detValue, rnd);
-			this.year = year;
-		}
-
-		@Override
-		public double getValue() {
-			return SpanishIPCUpdate.updateCost(super.getValue(), year, BasicConfigParams.STUDY_YEAR);
-		}
-		/**
-		 * @return the year
-		 */
-		public int getYear() {
-			return year;
-		}
 	}
 
 }

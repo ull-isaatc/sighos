@@ -4,17 +4,17 @@
 package es.ull.iis.simulation.hta.T1DM;
 
 /**
- *
+ * A chronic comorbidity for a patient. 
  * @author Iván Castilla Rodríguez
  *
  */
-public class T1DMHealthState implements Named, Comparable<T1DMHealthState> {
+public class T1DMComorbidity implements Named, Comparable<T1DMComorbidity> {
 	private final String name;
 	private final String description;
 	private final MainComplications mainComp;
 	private int ord = -1;
 	
-	public T1DMHealthState(String name, String description, MainComplications mainComp) {
+	public T1DMComorbidity(String name, String description, MainComplications mainComp) {
 		this.name = name;
 		this.description = description;
 		this.mainComp = mainComp;
@@ -42,11 +42,16 @@ public class T1DMHealthState implements Named, Comparable<T1DMHealthState> {
 	}
 
 	@Override
-	public int compareTo(T1DMHealthState o) {
+	public int compareTo(T1DMComorbidity o) {
 		if (ord > o.ord)
 			return 1;
 		if (ord < o.ord)
 			return -1;
 		return 0;
+	}
+	
+	@Override
+	public String toString() {
+		return name;
 	}
 }

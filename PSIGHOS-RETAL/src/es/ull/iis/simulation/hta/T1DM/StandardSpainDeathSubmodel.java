@@ -22,7 +22,7 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 	/** Beta parameter for a Gompertz distribution on the mortality risk for men and women */
 	private final static double BETA_DEATH[] = new double[] {0.093286762, 0.099683525};
 	private final double[] rnd;
-	private final TreeMap<T1DMHealthState, Double> imrs;
+	private final TreeMap<T1DMComorbidity, Double> imrs;
 
 	/**
 	 * 
@@ -36,7 +36,7 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 		imrs = new TreeMap<>();
 	}
 
-	public void addIMR(T1DMHealthState state, double imr) {
+	public void addIMR(T1DMComorbidity state, double imr) {
 		imrs.put(state, imr);
 	}
 	
@@ -52,7 +52,7 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 	@Override
 	public long getTimeToDeath(T1DMPatient pat) {
 		double imr = 1.0;
-		for (final T1DMHealthState state : pat.getDetailedState()) {
+		for (final T1DMComorbidity state : pat.getDetailedState()) {
 			if (imrs.containsKey(state)) {
 				final double newIMR = imrs.get(state);
 				if (newIMR > imr) {

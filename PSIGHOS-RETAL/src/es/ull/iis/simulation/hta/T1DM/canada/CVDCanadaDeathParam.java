@@ -1,10 +1,13 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM.params;
+package es.ull.iis.simulation.hta.T1DM.canada;
 
 import es.ull.iis.simulation.hta.T1DM.MainComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
+import es.ull.iis.simulation.hta.T1DM.params.UniqueEventParam;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -42,7 +45,7 @@ public class CVDCanadaDeathParam extends UniqueEventParam<Long> {
 			interval = 2;
 		else if (age > 60)
 			interval = 1;
-		final int yearsFromCHD = Math.min(9, (int)((pat.getTs() - pat.getTimeToComplication(MainComplications.CHD)) / BasicConfigParams.YEAR_CONVERSION));
+		final int yearsFromCHD = Math.min(9, (int)((pat.getTs() - pat.getTimeToChronicComorbidity(MainComplications.CHD)) / BasicConfigParams.YEAR_CONVERSION));
 		return CommonParams.getAnnualBasedTimeToEvent(pat, -1 / PROBS_PER_YEAR[yearsFromCHD][interval], draw(pat), rr[pat.getnIntervention()]);
 	}
 

@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.hta.T1DM.info;
 
-import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.info.AsynchronousInfo;
 import es.ull.iis.simulation.model.Simulation;
@@ -35,14 +35,14 @@ public class T1DMPatientInfo extends AsynchronousInfo {
 	
 	final private T1DMPatient patient;
 	final private Type type;
-	final private T1DMHealthState complication; 
+	final private T1DMComorbidity complication; 
 
 	/**
 	 * @param simul
 	 * @param patient
 	 * @param ts
 	 */
-	public T1DMPatientInfo(Simulation simul, T1DMPatient patient, Type type, T1DMHealthState complication, long ts) {
+	public T1DMPatientInfo(Simulation simul, T1DMPatient patient, Type type, T1DMComorbidity complication, long ts) {
 		super(simul, ts);
 		this.patient = patient;
 		this.type = type;
@@ -53,7 +53,7 @@ public class T1DMPatientInfo extends AsynchronousInfo {
 		this(simul, patient, type, null, ts);
 	}
 
-	public T1DMPatientInfo(Simulation simul, T1DMPatient patient, T1DMHealthState complication, long ts) {
+	public T1DMPatientInfo(Simulation simul, T1DMPatient patient, T1DMComorbidity complication, long ts) {
 		this(simul, patient, Type.COMPLICATION, complication, ts);
 	}
 
@@ -74,7 +74,7 @@ public class T1DMPatientInfo extends AsynchronousInfo {
 	/**
 	 * @return the complication
 	 */
-	public T1DMHealthState getComplication() {
+	public T1DMComorbidity getComplication() {
 		return complication;
 	}
 

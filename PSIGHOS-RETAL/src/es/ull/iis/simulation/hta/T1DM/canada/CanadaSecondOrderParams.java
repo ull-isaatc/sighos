@@ -1,13 +1,22 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM.params;
+package es.ull.iis.simulation.hta.T1DM.canada;
 
 import java.util.EnumSet;
 
 import es.ull.iis.simulation.hta.T1DM.MainComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
+import es.ull.iis.simulation.hta.T1DM.params.HbA1c10ReductionComplicationRR;
+import es.ull.iis.simulation.hta.T1DM.params.HbA1c1PPComplicationRR;
+import es.ull.iis.simulation.hta.T1DM.params.InterventionSpecificComplicationRR;
+import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
+import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
+import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.T1DM.params.StdComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.StdUtilityCalculator.CombinationMethod;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -16,7 +25,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class CanadaSecondOrderParams extends SecondOrderParams {
+public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 	private static final double P_MAN = 0.5;
 	/** Duration of effect of the intervention */
 	private static final double YEARS_OF_EFFECT = 1.0;

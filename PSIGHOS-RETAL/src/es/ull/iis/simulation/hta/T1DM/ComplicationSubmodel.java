@@ -3,6 +3,11 @@
  */
 package es.ull.iis.simulation.hta.T1DM;
 
+import java.util.TreeSet;
+
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
+import es.ull.iis.simulation.model.TimeUnit;
+
 /**
  * @author Iván Castilla Rodríguez
  *
@@ -16,25 +21,39 @@ public abstract class ComplicationSubmodel {
 		enable = true;
 	}
 
-	public abstract T1DMProgression[] getNextComplication(T1DMPatient pat);
-	public abstract void progress(T1DMPatient pat, T1DMProgression prog);
+	public abstract T1DMProgression getNextComplication(T1DMPatient pat);
 	public abstract int getNSubstates();
-	public abstract T1DMHealthState[] getSubstates();
-	public abstract void reset();
-	
-	/**
-	 * Returns the health states that this patient has within this complication; null if the patient does not have the complication
-	 * @param pat A patient
-	 * @return the health states that this patient has within this complication; null if the patient does not have the complication
-	 */
-	public abstract T1DMHealthState[] hasComplication(T1DMPatient pat);
+	public abstract T1DMComorbidity[] getSubstates();
+	public abstract TreeSet<T1DMComorbidity> getInitialState(T1DMPatient pat);
 	
 	public void disable() {
 		enable = false;
 	}
-	public interface PatientComplicationState {
-		public void progress(T1DMProgression prog);
-		public void reset();
-	}
 	
+	/**
+	 * Generates a time to event based on annual risk. The time to event is absolute, i.e., can be used directly to schedule a new event. The time
+	 * generated cannot exceed a limit (generally, death time or a previously computed time to event).  
+	 * @param pat A patient
+	 * @param minusAvgTimeToEvent -1/(annual risk of the event)
+	 * @param rnd A random number
+	 * @param rr Relative risk for the patient
+	 * @param limit The maximum timestamp when this event may happen
+	 * @return a time to event based on annual risk
+	 */
+	public static long getAnnualBasedTimeToEvent(T1DMPatient pat, double minusAvgTimeToEvent, double rnd, double rr, long limit) {
+		// In case the probability of transition was 0
+		if (Double.isInfinite(minusAvgTimeToEvent))
+			return Long.MAX_VALUE;
+		final double time = (minusAvgTimeToEvent / rr) * Math.log(rnd);
+		final long absTime = pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
+		return (absTime >= limit) ? Long.MAX_VALUE : absTime;
+	}
+
+	public static long min(long limit, long... args) {
+		for (long value : args) {
+			if (value < limit)
+				limit = value;
+		}
+		return limit;
+	}
 }

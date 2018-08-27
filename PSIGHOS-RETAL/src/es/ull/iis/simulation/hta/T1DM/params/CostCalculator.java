@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.hta.T1DM.params;
 
-import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 
 /**
@@ -27,14 +27,14 @@ public interface CostCalculator {
 	 * @param newEvent A new complication for the patient
 	 * @return the cost of a complication upon incidence
 	 */
-	public double getCostOfComplication(T1DMPatient pat, T1DMHealthState newEvent);
+	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent);
 	
 	/**
 	 * Adds annual and transition costs for a health state
 	 * @param state A health state
 	 * @param costs The annual cost (costs[0]) of being in this health state, and the cost of starting this health state (costs[1])
 	 */
-	public void addCostForHealthState(T1DMHealthState state, double[] costs);
+	public void addCostForHealthState(T1DMComorbidity state, double[] costs);
 	
 	/**
 	 * Returns the cost of a severe hypoglycemic episode

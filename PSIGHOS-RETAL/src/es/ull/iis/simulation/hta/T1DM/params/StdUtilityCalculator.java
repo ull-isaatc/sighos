@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.T1DM.params;
 import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.T1DM.T1DMHealthState;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 
 /**
@@ -14,7 +14,7 @@ import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
  *
  */
 public class StdUtilityCalculator implements UtilityCalculator {
-	private final TreeMap<T1DMHealthState, Double> disutilities;
+	private final TreeMap<T1DMComorbidity, Double> disutilities;
 	private final double duDNC;
 	private final double genPopUtility;
 	private final double duHypoEvent;
@@ -31,7 +31,7 @@ public class StdUtilityCalculator implements UtilityCalculator {
 		this.duHypoEvent = duHypoEvent;
 	}
 
-	public void addDisutilityForHealthState(T1DMHealthState state, double disutility) {
+	public void addDisutilityForHealthState(T1DMComorbidity state, double disutility) {
 		disutilities.put(state, disutility);
 	}
 	
@@ -40,19 +40,19 @@ public class StdUtilityCalculator implements UtilityCalculator {
 	}
 	
 	public double getUtilityValue(T1DMPatient pat) {
-		final Collection<T1DMHealthState> state = pat.getDetailedState();
+		final Collection<T1DMComorbidity> state = pat.getDetailedState();
 		double u = genPopUtility;
 		switch(method) {
 		case ADD:
 			u -= duDNC;
-			for (T1DMHealthState comp : state) {
+			for (T1DMComorbidity comp : state) {
 				if (disutilities.containsKey(comp))
 					u -= disutilities.get(comp);
 			}
 			break;
 		case MIN:
 			double du = duDNC;
-			for (T1DMHealthState comp : state) {
+			for (T1DMComorbidity comp : state) {
 				if (disutilities.containsKey(comp)) {
 					final double newDu = disutilities.get(comp);
 					if (newDu > du) {
@@ -64,7 +64,7 @@ public class StdUtilityCalculator implements UtilityCalculator {
 			break;
 		case MULT:
 			u -= duDNC;
-			for (T1DMHealthState comp : state) {
+			for (T1DMComorbidity comp : state) {
 				if (disutilities.containsKey(comp))
 					u *= (genPopUtility - disutilities.get(comp));
 			}
