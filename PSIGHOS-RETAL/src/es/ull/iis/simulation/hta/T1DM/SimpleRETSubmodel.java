@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.T1DM;
 
+import java.util.Collection;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
@@ -11,6 +12,7 @@ import es.ull.iis.simulation.hta.T1DM.params.HbA1c10ReductionComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -43,7 +45,11 @@ public class SimpleRETSubmodel extends ComplicationSubmodel {
 	private final double[] invProb;
 	private final ComplicationRR[] rr;
 	private final double [][] rnd;
-
+	private final double[] costRET;
+	private final double[] costBLI;
+	
+	private final double duRET;
+	private final double duBLI;
 	/**
 	 * 
 	 */
@@ -69,6 +75,12 @@ public class SimpleRETSubmodel extends ComplicationSubmodel {
 				rnd[i][j] = rng.draw();
 			}
 		}
+		
+		costRET = secParams.getCostsForHealthState(RET);
+		costBLI = secParams.getCostsForHealthState(BLI);
+
+		duRET = secParams.getDisutilityForHealthState(RET);
+		duBLI = secParams.getDisutilityForHealthState(BLI);
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -164,5 +176,28 @@ public class SimpleRETSubmodel extends ComplicationSubmodel {
 	@Override
 	public TreeSet<T1DMComorbidity> getInitialState(T1DMPatient pat) {
 		return new TreeSet<>();
+	}
+
+	@Override
+	public double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
+		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+		if (state.contains(BLI))
+			return costBLI[0];
+		return costRET[0];
+	}
+
+	@Override
+	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent) {
+		if (BLI.equals(newEvent))
+			return costBLI[1];
+		return costRET[1];
+	}
+
+	@Override
+	public double getDisutility(T1DMPatient pat, DisutilityCombinationMethod method) {
+		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+		if (state.contains(BLI))
+			return duBLI;
+		return duRET;
 	}
 }

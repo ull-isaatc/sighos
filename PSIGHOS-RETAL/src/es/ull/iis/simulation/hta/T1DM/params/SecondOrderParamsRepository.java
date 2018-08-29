@@ -145,6 +145,11 @@ public abstract class SecondOrderParamsRepository {
 		return (param == null) ? Double.NaN : param.getValue(baseCase); 
 	}
 	
+	public double getCostParam(String name) {
+		final SecondOrderParam param = costParams.get(name);
+		return (param == null) ? Double.NaN : param.getValue(baseCase); 
+	}
+	
 	/**
 	 * Returns the probability from healthy to the specified state; 0.0 if not defined
 	 * @param state The destination health state
@@ -160,11 +165,11 @@ public abstract class SecondOrderParamsRepository {
 	 * @return the probability from a state to another; 0.0 if not defined
 	 */
 	public double getProbability(Named fromState, Named toState) {
-		return getProbability(getProbString(fromState, toState));
+		return getProbParam(getProbString(fromState, toState));
 	}
 	
-	public double getProbability(String prob) {
-		final SecondOrderParam param = probabilityParams.get(prob);
+	public double getProbParam(String name) {
+		final SecondOrderParam param = probabilityParams.get(name);
 		return (param == null) ? 0.0 : param.getValue(baseCase); 
 	}
 
@@ -291,11 +296,11 @@ public abstract class SecondOrderParamsRepository {
 	public abstract ComplicationRR getHypoRR();
 	public abstract ComplicationSubmodel[] getComplicationSubmodels();
 	public abstract DeathSubmodel getDeathSubmodel();
-	public abstract CostCalculator getCostCalculator();
-	public abstract UtilityCalculator getUtilityCalculator();
+	public abstract CostCalculator getCostCalculator(ComplicationSubmodel[] submodels);
+	public abstract UtilityCalculator getUtilityCalculator(ComplicationSubmodel[] submodels);
 	
 	
-	public String getProbString(Named from, Named to) {
+	public static String getProbString(Named from, Named to) {
 		final String fromName = (from == null) ? STR_NO_COMPLICATIONS : from.name();
 		final String toName = "_" + to.name();
 		return STR_PROBABILITY_PREFIX + fromName + toName;

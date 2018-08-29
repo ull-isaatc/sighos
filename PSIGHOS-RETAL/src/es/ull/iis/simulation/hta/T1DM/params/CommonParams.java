@@ -50,14 +50,14 @@ public class CommonParams extends ModelParams {
 		super();
 		compSubmodels = secParams.getComplicationSubmodels();
 		deathSubmodel = secParams.getDeathSubmodel();
-		costCalc = secParams.getCostCalculator();
-		utilCalc = secParams.getUtilityCalculator();
+		costCalc = secParams.getCostCalculator(compSubmodels);
+		utilCalc = secParams.getUtilityCalculator(compSubmodels);
 		// Add the health availableHealthStates defined in the submodels
 		availableHealthStates = secParams.getAvailableHealthStates();
 		rng = RandomNumberFactory.getInstance();
 		interventions = secParams.getInterventions();
 
-		hypoParam = new SevereHypoglycemicEventParam(secParams.getnPatients(), secParams.getProbability(SecondOrderParamsRepository.STR_P_HYPO), secParams.getHypoRR(), secParams.getProbability(SecondOrderParamsRepository.STR_P_DEATH_HYPO));
+		hypoParam = new SevereHypoglycemicEventParam(secParams.getnPatients(), secParams.getProbParam(SecondOrderParamsRepository.STR_P_HYPO), secParams.getHypoRR(), secParams.getProbParam(SecondOrderParamsRepository.STR_P_DEATH_HYPO));
 		
 		pMan = secParams.getPMan();
 		baselineAge = secParams.getBaselineAge();
@@ -81,6 +81,10 @@ public class CommonParams extends ModelParams {
 		return interventions;
 	}
 	
+	public ComplicationSubmodel[] getCompSubmodels() {
+		return compSubmodels;
+	}
+
 	public int getSex(T1DMPatient pat) {
 		return (rng.draw() < pMan) ? 0 : 1;
 	}

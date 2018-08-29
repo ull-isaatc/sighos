@@ -19,11 +19,11 @@ public class StdUtilityCalculator implements UtilityCalculator {
 	private final double genPopUtility;
 	private final double duHypoEvent;
 	
-	private final CombinationMethod method;
+	private final DisutilityCombinationMethod method;
 
 	/**
 	 */
-	public StdUtilityCalculator(CombinationMethod method, double duDNC, double genPopUtility, double duHypoEvent) {
+	public StdUtilityCalculator(DisutilityCombinationMethod method, double duDNC, double genPopUtility, double duHypoEvent) {
 		this.duDNC = duDNC;
 		this.disutilities = new TreeMap<>();
 		this.method = method;
@@ -41,35 +41,11 @@ public class StdUtilityCalculator implements UtilityCalculator {
 	
 	public double getUtilityValue(T1DMPatient pat) {
 		final Collection<T1DMComorbidity> state = pat.getDetailedState();
-		double u = genPopUtility;
-		switch(method) {
-		case ADD:
-			u -= duDNC;
-			for (T1DMComorbidity comp : state) {
-				if (disutilities.containsKey(comp))
-					u -= disutilities.get(comp);
-			}
-			break;
-		case MIN:
-			double du = duDNC;
-			for (T1DMComorbidity comp : state) {
-				if (disutilities.containsKey(comp)) {
-					final double newDu = disutilities.get(comp);
-					if (newDu > du) {
-						du = newDu;
-					}					
-				}
-			}
-			u -= du;
-			break;
-		case MULT:
-			u -= duDNC;
-			for (T1DMComorbidity comp : state) {
-				if (disutilities.containsKey(comp))
-					u *= (genPopUtility - disutilities.get(comp));
-			}
-			break;
+		double du = duDNC;
+		for (T1DMComorbidity comp : state) {
+			if (disutilities.containsKey(comp))
+				du = method.combine(du, disutilities.get(comp));
 		}
-		return u;
+		return genPopUtility - du;
 	}
 }

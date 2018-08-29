@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.T1DM;
 
+import java.util.Collection;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
@@ -11,6 +12,7 @@ import es.ull.iis.simulation.hta.T1DM.params.HbA1c10ReductionComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -45,6 +47,11 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 	private final ComplicationRR[] rr;
 	private final double [][] rnd;
 
+	private final double[] costNPH;
+	private final double[] costESRD;
+	private final double duNPH;
+	private final double duESRD;
+
 	/**
 	 * 
 	 */
@@ -56,6 +63,7 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 		invProb[NPHTransitions.HEALTHY_ESRD.ordinal()] = -1 / secParams.getProbability(ESRD);
 		invProb[NPHTransitions.NPH_ESRD.ordinal()] = -1 / secParams.getProbability(NPH, ESRD);
 		invProb[NPHTransitions.NEU_NPH.ordinal()] = -1 / secParams.getProbability(MainComplications.NEU, NPH);
+		
 		rr = new ComplicationRR[NPHTransitions.values().length];
 		final ComplicationRR rrToNPH = new HbA1c10ReductionComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + NPH.name()), REF_HBA1C); 
 		rr[NPHTransitions.HEALTHY_NPH.ordinal()] = rrToNPH;
@@ -63,6 +71,7 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 		rr[NPHTransitions.NPH_ESRD.ordinal()] = SecondOrderParamsRepository.NO_RR;
 		// Assume the same RR from healthy to NPH than from NEU to NPH
 		rr[NPHTransitions.NEU_NPH.ordinal()] = rrToNPH;
+		
 		final int nPatients = secParams.getnPatients();
 		final RandomNumber rng = secParams.getRngFirstOrder();
 		rnd = new double[nPatients][NPHSubstates.length];
@@ -71,6 +80,12 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 				rnd[i][j] = rng.draw();
 			}
 		}
+		
+		costNPH = secParams.getCostsForHealthState(NPH);
+		costESRD = secParams.getCostsForHealthState(ESRD);
+		
+		duNPH = secParams.getDisutilityForHealthState(NPH);
+		duESRD = secParams.getDisutilityForHealthState(ESRD);
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -200,5 +215,28 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 	@Override
 	public TreeSet<T1DMComorbidity> getInitialState(T1DMPatient pat) {
 		return new TreeSet<>();
+	}
+
+	@Override
+	public double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
+		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+		if (state.contains(ESRD))
+			return costESRD[0];
+		return costNPH[0];
+	}
+
+	@Override
+	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent) {
+		if (ESRD.equals(newEvent))
+			return costESRD[1];
+		return costNPH[1];
+	}
+
+	@Override
+	public double getDisutility(T1DMPatient pat, DisutilityCombinationMethod method) {
+		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+		if (state.contains(ESRD))
+			return duESRD;
+		return duNPH;
 	}
 }

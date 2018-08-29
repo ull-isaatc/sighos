@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.T1DM;
 
+import java.util.Collection;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
@@ -10,8 +11,8 @@ import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.T1DM.params.SheffieldComplicationRR;
+import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import simkit.random.RandomNumber;
-import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -31,7 +32,12 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 	private static final double DU_PRET = 0.04;
 	private static final double DU_ME = 0.04;
 	private static final double DU_BLI = 0.07;
+	private static final double C_BGRET = 327.6;
+	private static final double C_PRET = 4801.05;
+	private static final double C_ME = 11255.79;
 	private static final double C_BLI = 2405.35;
+	// The combined cost for PRET and ME requires substracting the cost of appointments in PRET to avoid double counting
+	private static final double C_PRET_ME = C_PRET + C_ME - 280.8;
 	
 	public enum RETTransitions {
 		HEALTHY_BGRET(null, BGRET),
@@ -71,7 +77,16 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 	private final ComplicationRR[] rr;
 	private final double[][] rnd;
 	private final double[] rndBGRETAtStart;
-
+	private final double[] costBGRET;
+	private final double[] costPRET;
+	private final double[] costME;
+	private final double[] costBLI;
+	private final double costPRET_ME;
+	private final double duBGRET;
+	private final double duPRET;
+	private final double duME;
+	private final double duBLI;
+	
 	/**
 	 * 
 	 */
@@ -113,6 +128,17 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 				rnd[i][j] = rng.draw();
 			}
 		}
+		
+		costBGRET = secParams.getCostsForHealthState(BGRET);
+		costPRET = secParams.getCostsForHealthState(PRET);
+		costME = secParams.getCostsForHealthState(ME);
+		costBLI = secParams.getCostsForHealthState(BLI);
+		costPRET_ME = secParams.getCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + PRET + ME);
+		
+		duBGRET = secParams.getDisutilityForHealthState(BGRET);
+		duPRET = secParams.getDisutilityForHealthState(PRET);
+		duME = secParams.getDisutilityForHealthState(ME);
+		duBLI = secParams.getDisutilityForHealthState(BLI);
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -147,6 +173,10 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + ME, "Beta for macular edema", 
 				"WESDR XXII, as adapted by Sheffield", BETA_ME));
 
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + BGRET, "Cost of BGRET", "Original analysis", 2018, C_BGRET, SecondOrderParamsRepository.getRandomVariateForCost(C_BGRET)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + PRET, "Cost of PRET", "Original analysis", 2018, C_PRET, SecondOrderParamsRepository.getRandomVariateForCost(C_PRET)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ME, "Cost of ME", "Original analysis", 2018, C_ME, SecondOrderParamsRepository.getRandomVariateForCost(C_ME)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + PRET + ME, "Cost of PRET+ME", "Original analysis", 2018, C_PRET_ME, SecondOrderParamsRepository.getRandomVariateForCost(C_PRET_ME)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + BLI, "Cost of BLI", "Conget et al.", 2016, C_BLI, SecondOrderParamsRepository.getRandomVariateForCost(C_BLI)));
 		
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BGRET, "Disutility of BGRET", "", DU_BGRET));
@@ -287,5 +317,53 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 //		if (rndBGRETAtStart[pat.getIdentifier()] < 0.496183206) // (715 / 1441)
 //			init.add(BGRET);
 		return init;
+	}
+
+	@Override
+	public double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
+		double cost = 0.0;
+		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+
+		if (state.contains(SheffieldRETSubmodel.BLI))
+			cost += costBLI[0];
+		else if (state.contains(SheffieldRETSubmodel.ME)) {
+			if (state.contains(SheffieldRETSubmodel.PRET))
+				cost += costPRET_ME;
+			else 
+				cost += costME[0];
+		}
+		else if (state.contains(SheffieldRETSubmodel.PRET))
+			cost += costPRET[0];
+		else if (state.contains(SheffieldRETSubmodel.BGRET))
+			cost += costBGRET[0];				
+		return cost;
+	}
+
+	@Override
+	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent) {
+		return 0.0;
+	}
+
+	@Override
+	public double getDisutility(T1DMPatient pat, DisutilityCombinationMethod method) {
+		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+		
+		if (state.contains(BLI))
+			return duBLI;
+		if (state.contains(ME)) {
+			if (state.contains(PRET)) {
+				return method.combine(duME, duPRET);
+			}
+			else if (state.contains(BGRET)) {
+				return method.combine(duME, duBGRET);				
+			}
+		}
+		if (state.contains(PRET)) {
+			return duPRET;
+		}
+		else if (state.contains(BGRET)) {
+			return duBGRET;				
+		}
+		return 0.0;
 	}
 }

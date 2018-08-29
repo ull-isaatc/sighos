@@ -74,20 +74,21 @@ public class T1DMMainTest {
 	}
 
 	private static void simulateInterventions(int id, boolean baseCase, T1DMMonitoringIntervention[] interventions) {
+		final CommonParams common = new CommonParams(secParams);
 		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(NPATIENTS, interventions.length, false, secParams.getAvailableHealthStates());
 		final CostListener[] costListeners = new CostListener[interventions.length];
 		final LYListener[] lyListeners = new LYListener[interventions.length];
 		final QALYListener[] qalyListeners = new QALYListener[interventions.length];
 		for (int i = 0; i < interventions.length; i++) {
-			costListeners[i] = new CostListener(secParams.getCostCalculator(), secParams.getDiscountRate(), NPATIENTS);
-			lyListeners[i] = new LYListener(secParams.getDiscountRate(), NPATIENTS);
-			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(), secParams.getDiscountRate(), NPATIENTS);
+			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getCompSubmodels()), common.getDiscountRate(), NPATIENTS);
+			lyListeners[i] = new LYListener(common.getDiscountRate(), NPATIENTS);
+			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getCompSubmodels()), common.getDiscountRate(), NPATIENTS);
 		}
-		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], NPATIENTS, new CommonParams(secParams));
+		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], NPATIENTS, common);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
-		simul.addInfoReceiver(new AnnualCostView(secParams.getCostCalculator(), NPATIENTS, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE));
+		simul.addInfoReceiver(new AnnualCostView(secParams.getCostCalculator(common.getCompSubmodels()), NPATIENTS, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE));
 		simul.addInfoReceiver(timeFreeListener);
 		addListeners(simul);
 		simul.run();
@@ -96,7 +97,7 @@ public class T1DMMainTest {
 			simul.addInfoReceiver(costListeners[i]);
 			simul.addInfoReceiver(lyListeners[i]);
 			simul.addInfoReceiver(qalyListeners[i]);
-			simul.addInfoReceiver(new AnnualCostView(secParams.getCostCalculator(), NPATIENTS, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE));
+			simul.addInfoReceiver(new AnnualCostView(secParams.getCostCalculator(common.getCompSubmodels()), NPATIENTS, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE));
 			simul.addInfoReceiver(timeFreeListener);
 			addListeners(simul);
 			simul.run();				

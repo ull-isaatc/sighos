@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.T1DM;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
@@ -25,6 +26,9 @@ public abstract class ComplicationSubmodel {
 	public abstract int getNSubstates();
 	public abstract T1DMComorbidity[] getSubstates();
 	public abstract TreeSet<T1DMComorbidity> getInitialState(T1DMPatient pat);
+	public abstract double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge);
+	public abstract double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent);
+	public abstract double getDisutility(T1DMPatient pat, DisutilityCombinationMethod method);
 	
 	public void disable() {
 		enable = false;

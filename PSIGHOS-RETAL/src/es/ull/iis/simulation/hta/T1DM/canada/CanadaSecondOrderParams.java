@@ -6,7 +6,6 @@ package es.ull.iis.simulation.hta.T1DM.canada;
 import es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.DeathSubmodel;
 import es.ull.iis.simulation.hta.T1DM.MainComplications;
-import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
@@ -16,6 +15,7 @@ import es.ull.iis.simulation.hta.T1DM.params.InterventionSpecificComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.T1DM.params.SubmodelCostCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -138,17 +138,12 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 	}
 
 	@Override
-	public CostCalculator getCostCalculator() {
-		CanadaCostCalculator calc = new CanadaCostCalculator(getAnnualNoComplicationCost(), getCostForSevereHypoglycemicEpisode());
-		for (final T1DMComorbidity subst : availableHealthStates) {
-			final double[] costs = getCostsForHealthState(subst);
-			calc.addCostForHealthState(subst, costs);
-		}
-		return calc;
+	public CostCalculator getCostCalculator(ComplicationSubmodel[] submodels) {
+		return new SubmodelCostCalculator(getAnnualNoComplicationCost(), getCostForSevereHypoglycemicEpisode(), submodels);
 	}
 
 	@Override
-	public UtilityCalculator getUtilityCalculator() {
+	public UtilityCalculator getUtilityCalculator(ComplicationSubmodel[] submodels) {
 		return new CanadaUtilityCalculator(getNoComplicationDisutility(), getGeneralPopulationUtility(), getHypoEventDisutility());
 	}
 	

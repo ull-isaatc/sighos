@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.T1DM;
 
+import java.util.Collection;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
@@ -12,6 +13,7 @@ import es.ull.iis.simulation.hta.T1DM.params.HbA1c1PPComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import simkit.random.DiscreteSelectorVariate;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
@@ -48,7 +50,15 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 	private final ComplicationRR[] rr;
 	private final double [] rnd;
 	private final DiscreteSelectorVariate pCHDComplication;
+	private final double[] costMI;
+	private final double[] costHF;
+	private final double[] costStroke;
+	private final double[] costAngina;
 
+	private final double duMI;
+	private final double duHF;
+	private final double duStroke;
+	private final double duAngina;
 	/**
 	 * 
 	 */
@@ -73,6 +83,16 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 			rnd[i] = rng.draw();
 		}
 		this.pCHDComplication = getRandomVariateForCHDComplications(secParams);
+		
+		costAngina = secParams.getCostsForHealthState(ANGINA);
+		costStroke = secParams.getCostsForHealthState(STROKE);
+		costMI = secParams.getCostsForHealthState(MI);
+		costHF = secParams.getCostsForHealthState(HF);		
+
+		duAngina = secParams.getDisutilityForHealthState(ANGINA);
+		duStroke = secParams.getDisutilityForHealthState(STROKE);
+		duMI = secParams.getDisutilityForHealthState(MI);
+		duHF = secParams.getDisutilityForHealthState(HF);		
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -217,4 +237,48 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 	public TreeSet<T1DMComorbidity> getInitialState(T1DMPatient pat) {
 		return new TreeSet<>();
 	}
+
+	@Override
+	public double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
+		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+
+		if (state.contains(ANGINA))
+			return costAngina[0];
+		else if (state.contains(STROKE))
+			return costStroke[0];
+		else if (state.contains(HF))
+			return costHF[0];
+		else if (state.contains(MI))
+			return costMI[0];				
+		return 0.0;
+	}
+
+	@Override
+	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent) {
+		if (HF.equals(newEvent))
+			return costHF[1];
+		if (MI.equals(newEvent))
+			return costMI[1];
+		if (STROKE.equals(newEvent))
+			return costStroke[1];
+		if (ANGINA.equals(newEvent))
+			return costAngina[1];
+		return 0.0;
+	}
+
+	@Override
+	public double getDisutility(T1DMPatient pat, DisutilityCombinationMethod method) {
+		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+
+		if (state.contains(ANGINA))
+			return duAngina;
+		else if (state.contains(STROKE))
+			return duStroke;
+		else if (state.contains(HF))
+			return duHF;
+		else if (state.contains(MI))
+			return duMI;				
+		return 0.0;
+	}
+
 }

@@ -76,7 +76,11 @@ public class StdCostCalculator implements CostCalculator {
 		return 0;
 	}
 
-	@Override
+	/**
+	 * Adds annual and transition costs for a health state
+	 * @param state A health state
+	 * @param costs The annual cost (costs[0]) of being in this health state, and the cost of starting this health state (costs[1])
+	 */
 	public void addCostForHealthState(T1DMComorbidity state, double[] costs) {
 		this.costs.put(state, costs);
 	}

@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.T1DM.canada;
 
+import java.util.Collection;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel;
@@ -15,6 +16,7 @@ import es.ull.iis.simulation.hta.T1DM.params.HbA1c10ReductionComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -48,6 +50,12 @@ public class CanadaNEUSubmodel extends ComplicationSubmodel {
 	private final ComplicationRR[] rr;
 	private final double [][] rnd;
 
+	private final double[] costNEU;
+	private final double[] costLEA;
+	
+	private final double duNEU;
+	private final double duLEA;
+
 	/**
 	 * 
 	 */
@@ -62,6 +70,7 @@ public class CanadaNEUSubmodel extends ComplicationSubmodel {
 		rr[NEUTransitions.HEALTHY_NEU.ordinal()] = new HbA1c10ReductionComplicationRR(
 				secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + NEU.name()), REF_HBA1C);
 		rr[NEUTransitions.NEU_LEA.ordinal()] = SecondOrderParamsRepository.NO_RR;
+
 		final int nPatients = secParams.getnPatients();
 		final RandomNumber rng = secParams.getRngFirstOrder();
 		rnd = new double[nPatients][NEUSubstates.length];
@@ -70,6 +79,12 @@ public class CanadaNEUSubmodel extends ComplicationSubmodel {
 				rnd[i][j] = rng.draw();
 			}
 		}
+		
+		costNEU = secParams.getCostsForHealthState(NEU);
+		costLEA = secParams.getCostsForHealthState(LEA);
+
+		duNEU = secParams.getDisutilityForHealthState(NEU);
+		duLEA = secParams.getDisutilityForHealthState(LEA);		
 	}
 	
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -160,5 +175,28 @@ public class CanadaNEUSubmodel extends ComplicationSubmodel {
 	@Override
 	public TreeSet<T1DMComorbidity> getInitialState(T1DMPatient pat) {
 		return new TreeSet<>();
+	}
+
+	@Override
+	public double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
+		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+		if (state.contains(LEA))
+			return costLEA[0];
+		return costNEU[0];
+	}
+
+	@Override
+	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent) {
+		if (LEA.equals(newEvent))
+			return costLEA[1];
+		return costNEU[1];
+	}
+
+	@Override
+	public double getDisutility(T1DMPatient pat, DisutilityCombinationMethod method) {
+		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+		if (state.contains(LEA))
+			return duLEA;
+		return duNEU;
 	}
 }

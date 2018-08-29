@@ -12,10 +12,9 @@ import es.ull.iis.simulation.hta.T1DM.SimpleNEUSubmodel;
 import es.ull.iis.simulation.hta.T1DM.SimpleNPHSubmodel;
 import es.ull.iis.simulation.hta.T1DM.SimpleRETSubmodel;
 import es.ull.iis.simulation.hta.T1DM.StandardSpainDeathSubmodel;
-import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.CombinationMethod;
+import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -136,22 +135,13 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 	}
 	
 	@Override
-	public CostCalculator getCostCalculator() {
-		final StdCostCalculator calc = new StdCostCalculator(getAnnualNoComplicationCost(), getCostForSevereHypoglycemicEpisode());
-		for (final T1DMComorbidity subst : availableHealthStates) {
-			final double[] costs = getCostsForHealthState(subst);
-			calc.addCostForHealthState(subst, costs);
-		}
-		return calc;
+	public CostCalculator getCostCalculator(ComplicationSubmodel[] submodels) {
+		return new SubmodelCostCalculator(getAnnualNoComplicationCost(), getCostForSevereHypoglycemicEpisode(), submodels);
 	}
 	
 	@Override
-	public UtilityCalculator getUtilityCalculator() {
-		final StdUtilityCalculator calc = new StdUtilityCalculator(CombinationMethod.ADD, getNoComplicationDisutility(), getGeneralPopulationUtility(), getHypoEventDisutility());
-		for (final T1DMComorbidity subst : availableHealthStates) {
-			calc.addDisutilityForHealthState(subst, getDisutilityForHealthState(subst));
-		}
-		return calc;
+	public UtilityCalculator getUtilityCalculator(ComplicationSubmodel[] submodels) {
+		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, getNoComplicationDisutility(), getGeneralPopulationUtility(), getHypoEventDisutility(), submodels);
 	}
 	
 	public class DCCTIntervention1 extends T1DMMonitoringIntervention {

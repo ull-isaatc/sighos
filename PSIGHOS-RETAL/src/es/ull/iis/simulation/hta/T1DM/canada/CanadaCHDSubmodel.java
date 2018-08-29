@@ -16,6 +16,7 @@ import es.ull.iis.simulation.hta.T1DM.params.HbA1c1PPComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import simkit.random.DiscreteSelectorVariate;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
@@ -49,6 +50,9 @@ public class CanadaCHDSubmodel extends ComplicationSubmodel {
 	private final ComplicationRR[] rr;
 	private final double [] rnd;
 
+	private final double[] costCHD;
+	private final double duCHD;
+	
 	/**
 	 * 
 	 */
@@ -60,18 +64,23 @@ public class CanadaCHDSubmodel extends ComplicationSubmodel {
 		invProb[CHDTransitions.NEU_CHD.ordinal()] = -1 / secParams.getProbability(MainComplications.NEU, MainComplications.CHD);
 		invProb[CHDTransitions.NPH_CHD.ordinal()] = -1 / secParams.getProbability(MainComplications.NPH, MainComplications.CHD);
 		invProb[CHDTransitions.RET_CHD.ordinal()] = -1 / secParams.getProbability(MainComplications.RET, MainComplications.CHD);
+		
 		this.rr = new ComplicationRR[CHDTransitions.values().length];
 		final ComplicationRR rrToCHD = new HbA1c1PPComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainComplications.CHD.name()), REF_HBA1C);
 		rr[CHDTransitions.HEALTHY_CHD.ordinal()] = rrToCHD;
 		rr[CHDTransitions.NEU_CHD.ordinal()] = rrToCHD;
 		rr[CHDTransitions.NPH_CHD.ordinal()] = rrToCHD;
 		rr[CHDTransitions.RET_CHD.ordinal()] = rrToCHD;
+	
 		final int nPatients = secParams.getnPatients();
 		final RandomNumber rng = secParams.getRngFirstOrder();
 		rnd = new double[nPatients];
 		for (int i = 0; i < nPatients; i++) {
 			rnd[i] = rng.draw();
 		}
+		
+		costCHD = secParams.getCostsForHealthState(CHD);
+		duCHD = secParams.getDisutilityForHealthState(CHD);
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -166,5 +175,20 @@ public class CanadaCHDSubmodel extends ComplicationSubmodel {
 	@Override
 	public TreeSet<T1DMComorbidity> getInitialState(T1DMPatient pat) {
 		return new TreeSet<>();
+	}
+
+	@Override
+	public double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
+		return pat.getDetailedState().contains(CHD) ? costCHD[0] : 0.0;
+	}
+
+	@Override
+	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent) {
+		return costCHD[1];
+	}
+
+	@Override
+	public double getDisutility(T1DMPatient pat, DisutilityCombinationMethod method) {
+		return pat.getDetailedState().contains(CHD) ? duCHD : 0.0;
 	}
 }

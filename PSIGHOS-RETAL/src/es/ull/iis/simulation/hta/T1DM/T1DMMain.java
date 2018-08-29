@@ -107,6 +107,7 @@ public class T1DMMain {
 	}
 
 	private void simulateInterventions(int id, boolean baseCase) {
+		final CommonParams common = new CommonParams(secParams);
 		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(nPatients, interventions.length, false, secParams.getAvailableHealthStates());
 		final CostListener[] costListeners = new CostListener[interventions.length];
 		final LYListener[] lyListeners = new LYListener[interventions.length];
@@ -115,13 +116,13 @@ public class T1DMMain {
 		if (printBI)
 			budgetImpactListener = new AnnualCostView[interventions.length];
 		for (int i = 0; i < interventions.length; i++) {
-			costListeners[i] = new CostListener(secParams.getCostCalculator(), secParams.getDiscountRate(), nPatients);
-			lyListeners[i] = new LYListener(secParams.getDiscountRate(), nPatients);
-			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(), secParams.getDiscountRate(), nPatients);
+			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getCompSubmodels()), common.getDiscountRate(), nPatients);
+			lyListeners[i] = new LYListener(common.getDiscountRate(), nPatients);
+			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getCompSubmodels()), common.getDiscountRate(), nPatients);
 			if (printBI)
-				budgetImpactListener[i] = new AnnualCostView(secParams.getCostCalculator(), nPatients, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE);
+				budgetImpactListener[i] = new AnnualCostView(secParams.getCostCalculator(common.getCompSubmodels()), nPatients, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE);
 		}
-		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], nPatients, new CommonParams(secParams));
+		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], nPatients, common);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
