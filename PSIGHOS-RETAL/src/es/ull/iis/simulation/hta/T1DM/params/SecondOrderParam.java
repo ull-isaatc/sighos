@@ -16,7 +16,7 @@ import simkit.random.RandomVariateFactory;
 		private final String source;
 		private final double detValue;
 		private final RandomVariate rnd;
-		private double lastGeneratedValue;
+		protected double lastGeneratedValue;
 
 		public SecondOrderParam(String name, String description, String source, double detValue, RandomVariate rnd) {
 			this.name = name;

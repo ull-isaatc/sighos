@@ -10,7 +10,9 @@ import java.util.LinkedList;
 
 import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.retal.outcome.QualityAdjustedLifeExpectancy;
 import es.ull.iis.simulation.hta.retal.info.PatientInfo;
+import es.ull.iis.simulation.hta.retal.outcome.Cost;
 import es.ull.iis.simulation.hta.retal.params.ARMDParams;
 import es.ull.iis.simulation.hta.retal.params.CNVStage;
 import es.ull.iis.simulation.hta.retal.params.CNVStageAndValue;
@@ -72,6 +74,10 @@ public class RetalPatient extends Patient {
 	private final CommonParams commonParams;
 	private final ARMDParams armdParams;
 	private final DRParams drParams;
+	/** The cost measured for this patient */
+	protected final Cost cost;
+	/** The QALYs for this patient */
+	protected final QualityAdjustedLifeExpectancy qaly; 
 
 	/**
 	 * Creates a patient and initializes the default events
@@ -82,6 +88,8 @@ public class RetalPatient extends Patient {
 	@SuppressWarnings("unchecked")
 	public RetalPatient(RETALSimulation simul, double initAge, Intervention intervention) {
 		super(simul, intervention);
+		this.cost = simul.getCost();
+		this.qaly = simul.getQALY();
 		this.rng = new RandomForPatient();
 		this.commonParams = simul.getCommonParams();
 		this.armdParams = simul.getArmdParams();
@@ -110,6 +118,8 @@ public class RetalPatient extends Patient {
 	@SuppressWarnings("unchecked")
 	public RetalPatient(RETALSimulation simul, RetalPatient original, Intervention intervention) {
 		super(simul, original, intervention);
+		this.cost = original.cost;
+		this.qaly = original.qaly;
 		this.rng = new RandomForPatient(original.rng); 
 		this.commonParams = original.commonParams;
 		this.armdParams = original.armdParams;

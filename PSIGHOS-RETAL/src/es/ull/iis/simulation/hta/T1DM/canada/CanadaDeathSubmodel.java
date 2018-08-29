@@ -3,12 +3,12 @@
  */
 package es.ull.iis.simulation.hta.T1DM.canada;
 
-import java.util.EnumSet;
+import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.T1DM.DeathSubmodel;
-import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
-import es.ull.iis.simulation.hta.T1DM.params.AnnualBasedTimeToEventParam;
+import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -25,12 +25,12 @@ public class CanadaDeathSubmodel extends DeathSubmodel {
 	/**
 	 * 
 	 */
-	public CanadaDeathSubmodel() {
-		canadaTimeToDeathESRD = new AnnualBasedTimeToEventParam(nPatients, 0.164, noRR);
-		canadaTimeToDeathNPH = new AnnualBasedTimeToEventParam(nPatients, 0.0036, noRR);
-		canadaTimeToDeathLEA = new AnnualBasedTimeToEventParam(nPatients, 0.093, noRR);
+	public CanadaDeathSubmodel(int nPatients) {
+		canadaTimeToDeathESRD = new AnnualBasedTimeToEventParam(nPatients, 0.164, SecondOrderParamsRepository.NO_RR);
+		canadaTimeToDeathNPH = new AnnualBasedTimeToEventParam(nPatients, 0.0036, SecondOrderParamsRepository.NO_RR);
+		canadaTimeToDeathLEA = new AnnualBasedTimeToEventParam(nPatients, 0.093, SecondOrderParamsRepository.NO_RR);
 		canadaTimeToDeathOther = new CanadaOtherCausesDeathParam(nPatients);
-		canadaTimeToDeathCHD = new CVDCanadaDeathParam(nPatients, noRR);
+		canadaTimeToDeathCHD = new CVDCanadaDeathParam(nPatients, SecondOrderParamsRepository.NO_RR);
 	}
 
 	/* (non-Javadoc)
@@ -39,23 +39,23 @@ public class CanadaDeathSubmodel extends DeathSubmodel {
 	@Override
 	public long getTimeToDeath(T1DMPatient pat) {
 		long timeToDeath = canadaTimeToDeathOther.getValue(pat);
-		final EnumSet<MainComplications> state = pat.getState();
-		if (state.contains(MainComplications.ESRD)) {
+		final TreeSet<T1DMComorbidity> state = pat.getDetailedState();
+		if (state.contains(CanadaNPHSubmodel.ESRD)) {
 			final long deathESRD = canadaTimeToDeathESRD.getValue(pat);
 			if (deathESRD < timeToDeath)
 				timeToDeath = deathESRD;
 		}
-		if (state.contains(MainComplications.NPH)) {
+		if (state.contains(CanadaNPHSubmodel.NPH)) {
 			final long deathNPH = canadaTimeToDeathNPH.getValue(pat);
 			if (deathNPH < timeToDeath)
 				timeToDeath = deathNPH;
 		}
-		if (state.contains(MainComplications.LEA)) {
+		if (state.contains(CanadaNEUSubmodel.LEA)) {
 			final long deathLEA = canadaTimeToDeathLEA.getValue(pat);
 			if (deathLEA < timeToDeath)
 				timeToDeath = deathLEA;
 		}
-		if (state.contains(MainComplications.CHD)) {
+		if (state.contains(CanadaCHDSubmodel.CHD)) {
 			final long deathCHD = canadaTimeToDeathCHD.getValue(pat);
 			if (deathCHD < timeToDeath)
 				timeToDeath = deathCHD;				

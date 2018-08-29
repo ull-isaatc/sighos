@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.outcome;
+package es.ull.iis.simulation.hta.retal.outcome;
 
 import java.util.Arrays;
 

@@ -83,9 +83,9 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 		invProb[RETTransitions.ME_BLI.ordinal()] = -1 / secParams.getProbability(ME, BLI);
 		
 		this.rr = new ComplicationRR[RETTransitions.values().length];
-		final ComplicationRR rrBGRET = new SheffieldComplicationRR(BETA_BGRET);
-		final ComplicationRR rrPRET = new SheffieldComplicationRR(BETA_PRET);
-		final ComplicationRR rrME = new SheffieldComplicationRR(BETA_ME);
+		final ComplicationRR rrBGRET = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + BGRET));
+		final ComplicationRR rrPRET = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + PRET));
+		final ComplicationRR rrME = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + ME));
 		rr[RETTransitions.HEALTHY_BGRET.ordinal()] = rrBGRET;
 		rr[RETTransitions.HEALTHY_PRET.ordinal()] = rrPRET;
 		rr[RETTransitions.HEALTHY_ME.ordinal()] = rrME;

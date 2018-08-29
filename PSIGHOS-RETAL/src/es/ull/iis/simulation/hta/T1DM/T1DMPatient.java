@@ -180,41 +180,6 @@ public class T1DMPatient extends Patient {
 		return (comorbidityEvents[comp.ordinal()] == null) ? Long.MAX_VALUE : comorbidityEvents[comp.ordinal()].getTs(); 
 	}
 
-	/**
-	 * The basic class for patient's events.
-	 * @author Iván Castilla Rodríguez
-	 *
-	 */
-	private class T1DMPatientEvent extends DiscreteEvent {
-
-		public T1DMPatientEvent(long ts) {
-			super(ts);
-		}
-
-		/**
-		 * Sets the current timestamp for this patient, saves the previous timestamp in @link(lastTs), and updates costs.
-		 * @param ts New timestamp to be assigned
-		 */
-		@Override
-		public void event() {
-			if (lastTs != ts) {
-				final double initAge = TimeUnit.DAY.convert(lastTs, simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION; 
-				final double endAge = TimeUnit.DAY.convert(ts, simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
-				
-				// Update lastTs
-				lastTs = this.ts;
-				
-				// Update outcomes
-				if (ts > 0) {
-					final double periodCost = commonParams.getAnnualCostWithinPeriod(T1DMPatient.this, initAge, endAge);
-					cost.update(T1DMPatient.this, periodCost, initAge, endAge);
-					ly.update(T1DMPatient.this, 1.0, initAge, endAge);
-					qaly.update(T1DMPatient.this, commonParams.getUtilityValue(T1DMPatient.this), initAge, endAge);
-				}
-			}
-		}
-	}
-	
 	private class StartEvent extends DiscreteEvent.DefaultStartEvent {
 
 		public StartEvent(EventSource source, long ts) {
@@ -225,7 +190,6 @@ public class T1DMPatient extends Patient {
 		public void event() {
 			super.event();
 			startTs = this.getTs();
-			lastTs = startTs;
 			// Assign level of HBA1c expected after the intervention (we assume that the effect is immediate).
 			hba1c = ((T1DMMonitoringIntervention)intervention).getHBA1cLevel(T1DMPatient.this);
 			simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, T1DMPatientInfo.Type.START, this.getTs()));
@@ -268,7 +232,7 @@ public class T1DMPatient extends Patient {
 		
 	}
 	
-	private class FinalizeEvent extends T1DMPatientEvent {
+	private class FinalizeEvent extends DiscreteEvent {
 
 		public FinalizeEvent(long ts) {
 			super(ts);
@@ -276,13 +240,12 @@ public class T1DMPatient extends Patient {
 		
 		@Override
 		public void event() {
-			super.event();
         	debug("Ends execution");
 			simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, T1DMPatientInfo.Type.FINISH, this.getTs()));
 		}
 	}
 
-	private class ChronicComorbidityEvent extends T1DMPatientEvent {
+	private class ChronicComorbidityEvent extends DiscreteEvent {
 		private final T1DMProgressionPair progress;
 
 		public ChronicComorbidityEvent(T1DMProgressionPair progress) {
@@ -292,15 +255,11 @@ public class T1DMPatient extends Patient {
 
 		@Override
 		public void event() {
-			super.event();
 			T1DMComorbidity complication = progress.getState();
 			if (T1DMPatient.this.detailedState.contains(complication)) {
 				error("Health state already assigned!! " + complication.name());
 			}
 			else {
-				final double age = TimeUnit.DAY.convert(ts, simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
-				cost.update(T1DMPatient.this, commonParams.getCostOfComplication(T1DMPatient.this, complication), age);
-				
 				simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, complication, this.getTs()));
 				T1DMPatient.this.detailedState.add(complication);
 				T1DMPatient.this.state.add(complication.getComplication());
@@ -334,7 +293,7 @@ public class T1DMPatient extends Patient {
 		}
 	}
 	
-	private class SevereHypoglycemicEvent extends T1DMPatientEvent {
+	private class SevereHypoglycemicEvent extends DiscreteEvent {
 		private final boolean causesDeath;
 
 		public SevereHypoglycemicEvent(long ts, boolean causesDeath) {
@@ -344,11 +303,6 @@ public class T1DMPatient extends Patient {
 		
 		@Override
 		public void event() {
-			super.event();
-			final double age = TimeUnit.DAY.convert(ts, simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
-			qaly.update(T1DMPatient.this, commonParams.getHypoEventDisutilityValue(), age);
-			cost.update(T1DMPatient.this, commonParams.getCostForSevereHypoglycemicEpisode(T1DMPatient.this), age);
-
 			simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, T1DMPatientInfo.Type.HYPO_EVENT, this.getTs()));
 			// If the hypoglycemic event causes the death of the patient
 			if (causesDeath) {
@@ -418,7 +372,7 @@ public class T1DMPatient extends Patient {
 	 * @author Ivan Castilla Rodriguez
 	 *
 	 */
-	public final class DeathEvent extends T1DMPatientEvent {
+	public final class DeathEvent extends DiscreteEvent {
 		
 		public DeathEvent(long ts) {
 			super(ts);

@@ -1,9 +1,12 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM.params;
+package es.ull.iis.simulation.hta.T1DM.canada;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
+import es.ull.iis.simulation.hta.T1DM.params.UniqueEventParam;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
@@ -15,23 +18,23 @@ import es.ull.iis.simulation.model.TimeUnit;
  */
 public class AnnualBasedTimeToEventParam extends UniqueEventParam<Long> {
 	private final double minusAvgTimeToEvent;
-	private final double[] interventionRR;
+	private final ComplicationRR rr;
 
 	/**
 	 * 
 	 * @param nPatients
 	 * @param annualProbability
-	 * @param interventionRR
+	 * @param rr
 	 */
-	public AnnualBasedTimeToEventParam(int nPatients, double annualProbability, double[] interventionRR) {
+	public AnnualBasedTimeToEventParam(int nPatients, double annualProbability, ComplicationRR rr) {
 		super(nPatients);
-		this.interventionRR = interventionRR;
+		this.rr = rr;
 		this.minusAvgTimeToEvent = -(1/annualProbability);
 	}
 
 	public Long getValue(T1DMPatient pat) {
 		final double lifetime = pat.getAgeAtDeath() - pat.getAge();
-		final double time = (minusAvgTimeToEvent / interventionRR[pat.getnIntervention()]) * Math.log(draw(pat));
+		final double time = (minusAvgTimeToEvent / rr.getRR(pat)) * Math.log(draw(pat));
 		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 	}
 }

@@ -3,9 +3,6 @@
  */
 package es.ull.iis.simulation.hta;
 
-import es.ull.iis.simulation.hta.outcome.Cost;
-import es.ull.iis.simulation.hta.outcome.LifeExpectancy;
-import es.ull.iis.simulation.hta.outcome.QualityAdjustedLifeExpectancy;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -23,9 +20,6 @@ public class HTASimulation extends Simulation {
 	protected final Intervention intervention;
 	protected final int nInterventions;
 	protected final int nPatients;
-	protected Cost cost;
-	protected QualityAdjustedLifeExpectancy qaly;
-	protected LifeExpectancy ly;
 	
 	/** True if this is a clone of an original simulation; false otherwise */
 	protected final boolean cloned;
@@ -87,27 +81,6 @@ public class HTASimulation extends Simulation {
 	 */
 	public int getPatientCounter() {
 		return patientCounter++;
-	}
-
-	/**
-	 * @return the cost for this simulation
-	 */
-	public Cost getCost() {
-		return cost;
-	}
-
-	/**
-	 * @return the Qality-adjusted life expectancy for this simulation
-	 */
-	public QualityAdjustedLifeExpectancy getQALY() {
-		return qaly;
-	}
-
-	/**
-	 * @return the life expectancy for this simulation
-	 */
-	public LifeExpectancy getLY() {
-		return ly;
 	}
 
 	/**

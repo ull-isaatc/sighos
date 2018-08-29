@@ -24,7 +24,8 @@ public class SecondOrderCostParam extends SecondOrderParam {
 
 	@Override
 	public double getValue(boolean baseCase) {
-		return SpanishIPCUpdate.updateCost(super.getValue(baseCase), year, BasicConfigParams.STUDY_YEAR);
+		lastGeneratedValue = SpanishIPCUpdate.updateCost(super.getValue(baseCase), year, BasicConfigParams.STUDY_YEAR);
+		return lastGeneratedValue;
 	}
 	/**
 	 * @return the year

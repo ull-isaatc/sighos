@@ -17,7 +17,7 @@ public class T1DMPatientInfo extends AsynchronousInfo {
 	public enum Type {
 			START ("PATIENT STARTS"),
 			COMPLICATION ("COMPLICATION"),
-			HYPO_EVENT ("HYPOVGLYCEMIC EVENT"),
+			HYPO_EVENT ("HYPOGLYCEMIC EVENT"),
 			DEATH ("PATIENT DIES"),
 			FINISH ("PATIENT FINISHES");
 			

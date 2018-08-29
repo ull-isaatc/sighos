@@ -8,8 +8,8 @@ import java.util.EnumSet;
 import es.ull.iis.function.ConstantFunction;
 import es.ull.iis.simulation.hta.HTASimulation;
 import es.ull.iis.simulation.hta.Intervention;
-import es.ull.iis.simulation.hta.outcome.Cost;
 import es.ull.iis.simulation.hta.retal.inforeceiver.PatientPrevalenceView;
+import es.ull.iis.simulation.hta.retal.outcome.Cost;
 import es.ull.iis.simulation.hta.retal.outcome.QualityAdjustedLifeExpectancy;
 import es.ull.iis.simulation.hta.retal.params.ARMDParams;
 import es.ull.iis.simulation.hta.retal.params.CommonParams;
@@ -39,6 +39,8 @@ public class RETALSimulation extends HTASimulation {
 	private final CommonParams commonParams;
 	private final ARMDParams armdParams;
 	private final DRParams drParams;
+	protected Cost cost;
+	protected QualityAdjustedLifeExpectancy qaly;
 
 	/**
 	 * @param id
@@ -93,4 +95,19 @@ public class RETALSimulation extends HTASimulation {
 	public DRParams getDrParams() {
 		return drParams;
 	}
+
+	/**
+	 * @return the cost for this simulation
+	 */
+	public Cost getCost() {
+		return cost;
+	}
+
+	/**
+	 * @return the Qality-adjusted life expectancy for this simulation
+	 */
+	public QualityAdjustedLifeExpectancy getQALY() {
+		return qaly;
+	}
+
 }

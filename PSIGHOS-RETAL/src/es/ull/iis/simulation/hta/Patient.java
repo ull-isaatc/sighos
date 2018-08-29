@@ -3,9 +3,6 @@
  */
 package es.ull.iis.simulation.hta;
 
-import es.ull.iis.simulation.hta.outcome.Cost;
-import es.ull.iis.simulation.hta.outcome.LifeExpectancy;
-import es.ull.iis.simulation.hta.outcome.QualityAdjustedLifeExpectancy;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.VariableStoreSimulationObject;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
@@ -22,16 +19,8 @@ public abstract class Patient extends VariableStoreSimulationObject implements E
 	protected final int nIntervention;
 	/** The specific intervention assigned to the patient */
 	protected final Intervention intervention;
-	/** The timestamp of the last event executed (but the current one) */
-	protected long lastTs = -1;
 	/** The timestamp when this patient enters the simulation */
 	protected long startTs;
-	/** The cost measured for this patient */
-	protected final Cost cost;
-	/** The QALYs for this patient */
-	protected final QualityAdjustedLifeExpectancy qaly; 
-	/** The LYs for this patient */
-	protected final LifeExpectancy ly; 
 
 
 	/**
@@ -45,9 +34,6 @@ public abstract class Patient extends VariableStoreSimulationObject implements E
 		this.intervention = intervention;
 		this.nIntervention = intervention.getId();
 		this.clonedFrom = null;
-		this.cost = simul.getCost();
-		this.qaly = simul.getQALY();
-		this.ly = simul.getLY();
 	}
 
 	public Patient(HTASimulation simul, Patient original, Intervention intervention) {
@@ -55,9 +41,6 @@ public abstract class Patient extends VariableStoreSimulationObject implements E
 		this.intervention = intervention;
 		this.nIntervention = intervention.getId();
 		this.clonedFrom = original;		
-		this.cost = original.cost;
-		this.qaly = original.qaly;
-		this.ly = simul.getLY();
 	}
 
 	@Override
@@ -89,13 +72,6 @@ public abstract class Patient extends VariableStoreSimulationObject implements E
 	 */
 	public Patient getClonedFrom() {
 		return clonedFrom;
-	}
-
-	/**
-	 * @return the lastTs
-	 */
-	public long getLastTs() {
-		return lastTs;
 	}
 
 	/**

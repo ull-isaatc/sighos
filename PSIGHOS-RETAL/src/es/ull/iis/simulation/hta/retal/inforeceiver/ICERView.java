@@ -1,13 +1,13 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.inforeceiver;
+package es.ull.iis.simulation.hta.retal.inforeceiver;
 
 import java.io.PrintStream;
 
-import es.ull.iis.simulation.hta.HTASimulation;
-import es.ull.iis.simulation.hta.outcome.Cost;
-import es.ull.iis.simulation.hta.outcome.QualityAdjustedLifeExpectancy;
+import es.ull.iis.simulation.hta.retal.outcome.QualityAdjustedLifeExpectancy;
+import es.ull.iis.simulation.hta.retal.RETALSimulation;
+import es.ull.iis.simulation.hta.retal.outcome.Cost;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -71,7 +71,7 @@ public class ICERView extends Listener {
 	@Override
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof SimulationEndInfo) {
-			HTASimulation simul = (HTASimulation)info.getSimul();
+			RETALSimulation simul = (RETALSimulation)info.getSimul();
 			final Cost cost = simul.getCost();
 			final QualityAdjustedLifeExpectancy qaly = simul.getQALY();
 			final double[][] costResults = cost.getResults();

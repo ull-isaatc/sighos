@@ -15,7 +15,11 @@ import com.beust.jcommander.ParameterException;
 
 import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.T1DM.canada.CanadaSecondOrderParams;
+import es.ull.iis.simulation.hta.T1DM.inforeceiver.AnnualCostView;
+import es.ull.iis.simulation.hta.T1DM.inforeceiver.CostListener;
+import es.ull.iis.simulation.hta.T1DM.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.PatientCounterHistogramView;
+import es.ull.iis.simulation.hta.T1DM.inforeceiver.QALYListener;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMPatientInfoView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMPatientPrevalenceView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMTimeFreeOfComplicationsView;
@@ -45,8 +49,9 @@ public class T1DMMain {
 	private final boolean quiet;
 	private final boolean printIncidence;
 	private final boolean printPrevalence;
+	private final boolean printBI;
 	
-	public T1DMMain(PrintWriter out, int nRuns, int nPatients, SecondOrderParamsRepository secParams, boolean parallel, boolean quiet, int singlePatientOutput, boolean printIncidence, boolean printPrevalence) {
+	public T1DMMain(PrintWriter out, int nRuns, int nPatients, SecondOrderParamsRepository secParams, boolean parallel, boolean quiet, int singlePatientOutput, boolean printIncidence, boolean printPrevalence, boolean printBI) {
 		super();
 		this.out = out;
 		this.interventions = secParams.getInterventions();
@@ -61,6 +66,7 @@ public class T1DMMain {
 			patientListener = null;
 		this.printIncidence = printIncidence;
 		this.printPrevalence = printPrevalence;
+		this.printBI = printBI;
 		progress = new PrintProgress(GAP, nRuns + 1);
 	}
 
@@ -76,40 +82,25 @@ public class T1DMMain {
 	private String getStrHeader() {
 		final StringBuilder str = new StringBuilder();
 		final Intervention[] interventions = secParams.getInterventions();
-		str.append("SIM\t");
+		str.append("SIM\tNPATIENTS\t");
 		for (int i = 0; i < interventions.length; i++) {
-			str.append("AVG_C_" + interventions[i].getShortName() + "\t");
-			str.append("L95CI_C_" + interventions[i].getShortName() + "\t");
-			str.append("U95CI_C_" + interventions[i].getShortName() + "\t");
-			str.append("AVG_LY_" + interventions[i].getShortName() + "\t");
-			str.append("L95CI_LY_" + interventions[i].getShortName() + "\t");
-			str.append("U95CI_LY_" + interventions[i].getShortName() + "\t");
-			str.append("AVG_QALY_" + interventions[i].getShortName() + "\t");
-			str.append("LC95I_QALY_" + interventions[i].getShortName() + "\t");
-			str.append("UC95I_QALY_" + interventions[i].getShortName() + "\t");
+			str.append(CostListener.getStrHeader(interventions[i].getShortName()));
+			str.append(LYListener.getStrHeader(interventions[i].getShortName()));
+			str.append(QALYListener.getStrHeader(interventions[i].getShortName()));
 		}
 		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getAvailableHealthStates()));
 		str.append(secParams.getStrHeader());
 		return str.toString();
 	}
 	
-	private String print(T1DMSimulation simul, T1DMTimeFreeOfComplicationsView timeFreeListener) {
+	private String print(T1DMSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, T1DMTimeFreeOfComplicationsView timeFreeListener) {
 		final StringBuilder str = new StringBuilder();
 		final Intervention[] interventions = secParams.getInterventions();
-		str.append("" +  simul.getIdentifier() + "\t");
+		str.append("" +  simul.getIdentifier() + "\t" + nPatients + "\t");
 		for (int i = 0; i < interventions.length; i++) {
-			str.append(simul.getCost().getAverage(i) +  "\t");
-			double[] ci = simul.getCost().get95CI(i, true); 
-			str.append(ci[0] + "\t");
-			str.append(ci[1] + "\t");
-			str.append(simul.getLY().getAverage(i) +  "\t");
-			ci = simul.getLY().get95CI(i, true); 
-			str.append(ci[0] + "\t");
-			str.append(ci[1] + "\t");
-			str.append(simul.getQALY().getAverage(i) +  "\t");
-			ci = simul.getQALY().get95CI(i, true); 
-			str.append(ci[0] + "\t");
-			str.append(ci[1] + "\t");
+			str.append(costListeners[i]);
+			str.append(lyListeners[i]);
+			str.append(qalyListeners[i]);
 		}
 		str.append(timeFreeListener).append(secParams);
 		return str.toString();
@@ -117,21 +108,59 @@ public class T1DMMain {
 
 	private void simulateInterventions(int id, boolean baseCase) {
 		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(nPatients, interventions.length, false, secParams.getAvailableHealthStates());
+		final CostListener[] costListeners = new CostListener[interventions.length];
+		final LYListener[] lyListeners = new LYListener[interventions.length];
+		final QALYListener[] qalyListeners = new QALYListener[interventions.length];
+		AnnualCostView[] budgetImpactListener = null;
+		if (printBI)
+			budgetImpactListener = new AnnualCostView[interventions.length];
+		for (int i = 0; i < interventions.length; i++) {
+			costListeners[i] = new CostListener(secParams.getCostCalculator(), secParams.getDiscountRate(), nPatients);
+			lyListeners[i] = new LYListener(secParams.getDiscountRate(), nPatients);
+			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(), secParams.getDiscountRate(), nPatients);
+			if (printBI)
+				budgetImpactListener[i] = new AnnualCostView(secParams.getCostCalculator(), nPatients, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE);
+		}
 		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], nPatients, new CommonParams(secParams));
+		simul.addInfoReceiver(costListeners[0]);
+		simul.addInfoReceiver(lyListeners[0]);
+		simul.addInfoReceiver(qalyListeners[0]);
 		simul.addInfoReceiver(timeFreeListener);
 		if (patientListener != null)
 			simul.addInfoReceiver(patientListener);
+		if (printBI)
+			simul.addInfoReceiver(budgetImpactListener[0]);
 		addListeners(simul);
 		simul.run();
 		for (int i = 1; i < interventions.length; i++) {
 			simul = new T1DMSimulation(simul, interventions[i]);
+			simul.addInfoReceiver(costListeners[i]);
+			simul.addInfoReceiver(lyListeners[i]);
+			simul.addInfoReceiver(qalyListeners[i]);
 			simul.addInfoReceiver(timeFreeListener);
 			if (patientListener != null)
 				simul.addInfoReceiver(patientListener);
+			if (printBI)
+				simul.addInfoReceiver(budgetImpactListener[i]);
 			addListeners(simul);
 			simul.run();				
 		}
-		out.println(print(simul, timeFreeListener));	
+		if (printBI) {
+			System.out.println("Annual costs (for budget impact)");
+			final double[][] costs = new double[interventions.length][];
+			for (int i = 0; i < interventions.length; i++) {
+				System.out.print(interventions[i].getShortName() + "\t");
+				costs[i] = budgetImpactListener[i].getAnnualCosts(); 
+			}
+			System.out.println();
+			for (int i = 0; i < BasicConfigParams.MAX_AGE - BasicConfigParams.MIN_AGE; i++) {
+				for (int j = 0; j < interventions.length; j++) {
+					System.out.print(costs[j][i] + "\t");
+				}
+				System.out.println();
+			}
+		}
+		out.println(print(simul, costListeners, lyListeners, qalyListeners, timeFreeListener));	
 	}
 	
 	public void run() {
@@ -204,7 +233,7 @@ public class T1DMMain {
 	    	if (args1.noDiscount)
 	    		secParams.setDiscountZero(true);
 	        
-	        final T1DMMain experiment = new T1DMMain(out, nRuns, nPatients, secParams, args1.parallel, args1.quiet, singlePatientOutput, args1.incidence, args1.prevalence);
+	        final T1DMMain experiment = new T1DMMain(out, nRuns, nPatients, secParams, args1.parallel, args1.quiet, singlePatientOutput, args1.incidence, args1.prevalence, args1.bi);
 	        experiment.run();
 		} catch (ParameterException ex) {
 			System.out.println(ex.getMessage());
@@ -233,6 +262,9 @@ public class T1DMMain {
 		private boolean prevalence = false;
 		@Parameter(names ={"--incidence", "-ei"}, description = "Enables printing incidence of complications by age group ", order = 9)
 		private boolean incidence = false;
+		@Parameter(names ={"--budget", "-ebi"}, description = "Enables printing budget impact", order = 9)
+		private boolean bi = false;
+		
 		@Parameter(names ={"--parallel", "-p"}, description = "Enables parallel execution", order = 5)
 		private boolean parallel = false;
 		@Parameter(names ={"--quiet", "-q"}, description = "Quiet execution (does not print progress info)", order = 6)

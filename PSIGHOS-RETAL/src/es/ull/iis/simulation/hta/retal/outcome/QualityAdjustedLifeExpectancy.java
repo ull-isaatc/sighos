@@ -5,8 +5,8 @@ package es.ull.iis.simulation.hta.retal.outcome;
 
 import java.util.LinkedList;
 
+import es.ull.iis.simulation.hta.HTASimulation;
 import es.ull.iis.simulation.hta.retal.RetalPatient;
-import es.ull.iis.simulation.hta.retal.RETALSimulation;
 import es.ull.iis.simulation.hta.retal.params.VAProgressionPair;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -14,15 +14,14 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author Iván Castilla Rodríguez
  *
  */
-public class QualityAdjustedLifeExpectancy extends es.ull.iis.simulation.hta.outcome.QualityAdjustedLifeExpectancy {
+public class QualityAdjustedLifeExpectancy extends Outcome {
 
 	/**
 	 * @param simul
 	 * @param discountRate
 	 */
-	public QualityAdjustedLifeExpectancy(RETALSimulation simul, double discountRate) {
-		super(simul, discountRate);
-		// TODO Auto-generated constructor stub
+	public QualityAdjustedLifeExpectancy(HTASimulation simul, double discountRate) {
+		super(simul, "Quality Adjusted Life Expectancy", "QALY", discountRate);
 	}
 
 	public void update(RetalPatient pat, LinkedList<VAProgressionPair> progression) { 

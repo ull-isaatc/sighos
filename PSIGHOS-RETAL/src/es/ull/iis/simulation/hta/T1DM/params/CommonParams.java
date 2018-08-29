@@ -27,7 +27,7 @@ import simkit.random.RandomVariate;
  *
  */
 public class CommonParams extends ModelParams {
-	protected T1DMMonitoringIntervention[] interventions = null;
+	private final T1DMMonitoringIntervention[] interventions;
 	private final SevereHypoglycemicEventParam hypoParam;
 	private final RandomNumber rng;
 

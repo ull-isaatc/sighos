@@ -7,8 +7,13 @@ import java.io.PrintStream;
 
 import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.T1DM.canada.CanadaSecondOrderParams;
+import es.ull.iis.simulation.hta.T1DM.inforeceiver.AnnualCostView;
+import es.ull.iis.simulation.hta.T1DM.inforeceiver.CostListener;
+import es.ull.iis.simulation.hta.T1DM.inforeceiver.LYListener;
+import es.ull.iis.simulation.hta.T1DM.inforeceiver.QALYListener;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMPatientInfoView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMTimeFreeOfComplicationsView;
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.T1DM.params.UnconsciousSecondOrderParams;
@@ -20,7 +25,7 @@ import es.ull.iis.simulation.hta.T1DM.params.UnconsciousSecondOrderParams;
 public class T1DMMainTest {
 	public final static boolean CHECK_CANADA = false;
 
-	public final static boolean BASIC_TEST_ONE_PATIENT = false;
+	public final static boolean BASIC_TEST_ONE_PATIENT = true;
 	/** Number of patients to simulate */
 	public final static int NPATIENTS = BASIC_TEST_ONE_PATIENT ? 1 : 5000;
 
@@ -46,70 +51,70 @@ public class T1DMMainTest {
 		final Intervention[] interventions = secParams.getInterventions();
 		str.append("SIM\t");
 		for (int i = 0; i < interventions.length; i++) {
-			str.append("AVG_C_" + interventions[i].getShortName() + "\t");
-			str.append("L95CI_C_" + interventions[i].getShortName() + "\t");
-			str.append("U95CI_C_" + interventions[i].getShortName() + "\t");
-			str.append("AVG_LY_" + interventions[i].getShortName() + "\t");
-			str.append("L95CI_LY_" + interventions[i].getShortName() + "\t");
-			str.append("U95CI_LY_" + interventions[i].getShortName() + "\t");
-			str.append("AVG_QALY_" + interventions[i].getShortName() + "\t");
-			str.append("LC95I_QALY_" + interventions[i].getShortName() + "\t");
-			str.append("UC95I_QALY_" + interventions[i].getShortName() + "\t");
+			str.append(CostListener.getStrHeader(interventions[i].getShortName()));
+			str.append(LYListener.getStrHeader(interventions[i].getShortName()));
+			str.append(QALYListener.getStrHeader(interventions[i].getShortName()));
 		}
 		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getAvailableHealthStates()));
 		str.append(secParams.getStrHeader());
 		return str.toString();
 	}
 	
-	private static String print(T1DMSimulation simul, T1DMTimeFreeOfComplicationsView timeFreeListener) {
+	private static String print(T1DMSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, T1DMTimeFreeOfComplicationsView timeFreeListener) {
 		final StringBuilder str = new StringBuilder();
 		final Intervention[] interventions = secParams.getInterventions();
 		str.append("" +  simul.getIdentifier() + "\t");
 		for (int i = 0; i < interventions.length; i++) {
-			str.append(simul.getCost().getAverage(i) +  "\t");
-			double[] ci = simul.getCost().get95CI(i, true); 
-			str.append(ci[0] + "\t");
-			str.append(ci[1] + "\t");
-			str.append(simul.getLY().getAverage(i) +  "\t");
-			ci = simul.getLY().get95CI(i, true); 
-			str.append(ci[0] + "\t");
-			str.append(ci[1] + "\t");
-			str.append(simul.getQALY().getAverage(i) +  "\t");
-			ci = simul.getQALY().get95CI(i, true); 
-			str.append(ci[0] + "\t");
-			str.append(ci[1] + "\t");
+			str.append(costListeners[i]);
+			str.append(lyListeners[i]);
+			str.append(qalyListeners[i]);
 		}
 		str.append(timeFreeListener).append(secParams);
 		return str.toString();
 	}
-	
-	public static void main(String[] args) {
-		out.println(getStrHeader());
-		final T1DMMonitoringIntervention[] interventions = secParams.getInterventions();
-		T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(NPATIENTS, interventions.length, false, secParams.getAvailableHealthStates());
-		// First the deterministic simulation
-		T1DMSimulation simul = new T1DMSimulation(0, true, interventions[0], NPATIENTS, new CommonParams(secParams));
-		simul.addInfoReceiver(timeFreeListener);
-		addListeners(simul);
-		simul.run();
-		simul = new T1DMSimulation(simul, interventions[1]);
-		simul.addInfoReceiver(timeFreeListener);
-		addListeners(simul);
-		simul.run();
-		out.println(print(simul, timeFreeListener));
-		// Now probabilistic
-		secParams.setBaseCase(false);
-		for (int i = 1; i <= N_RUNS; i++) {
-			timeFreeListener = new T1DMTimeFreeOfComplicationsView(NPATIENTS, interventions.length, false, secParams.getAvailableHealthStates());
-			simul = new T1DMSimulation(i, false, interventions[0], NPATIENTS, new CommonParams(secParams));
-			simul.addInfoReceiver(timeFreeListener);
-			addListeners(simul);
-			simul.run();
-			simul = new T1DMSimulation(simul, interventions[1]);
-			simul.addInfoReceiver(timeFreeListener);
-			addListeners(simul);
-			simul.run();
-			out.println(print(simul, timeFreeListener));
+
+	private static void simulateInterventions(int id, boolean baseCase, T1DMMonitoringIntervention[] interventions) {
+		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(NPATIENTS, interventions.length, false, secParams.getAvailableHealthStates());
+		final CostListener[] costListeners = new CostListener[interventions.length];
+		final LYListener[] lyListeners = new LYListener[interventions.length];
+		final QALYListener[] qalyListeners = new QALYListener[interventions.length];
+		for (int i = 0; i < interventions.length; i++) {
+			costListeners[i] = new CostListener(secParams.getCostCalculator(), secParams.getDiscountRate(), NPATIENTS);
+			lyListeners[i] = new LYListener(secParams.getDiscountRate(), NPATIENTS);
+			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(), secParams.getDiscountRate(), NPATIENTS);
 		}
+		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], NPATIENTS, new CommonParams(secParams));
+		simul.addInfoReceiver(costListeners[0]);
+		simul.addInfoReceiver(lyListeners[0]);
+		simul.addInfoReceiver(qalyListeners[0]);
+		simul.addInfoReceiver(new AnnualCostView(secParams.getCostCalculator(), NPATIENTS, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE));
+		simul.addInfoReceiver(timeFreeListener);
+		addListeners(simul);
+		simul.run();
+		for (int i = 1; i < interventions.length; i++) {
+			simul = new T1DMSimulation(simul, interventions[i]);
+			simul.addInfoReceiver(costListeners[i]);
+			simul.addInfoReceiver(lyListeners[i]);
+			simul.addInfoReceiver(qalyListeners[i]);
+			simul.addInfoReceiver(new AnnualCostView(secParams.getCostCalculator(), NPATIENTS, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE));
+			simul.addInfoReceiver(timeFreeListener);
+			addListeners(simul);
+			simul.run();				
+		}
+		out.println(print(simul, costListeners, lyListeners, qalyListeners, timeFreeListener));	
+	}
+
+	public static void main(String[] args) {
+		final T1DMMonitoringIntervention[] interventions = secParams.getInterventions();
+		secParams.setDiscountZero(true);
+
+		out.println(getStrHeader());
+		simulateInterventions(0, true, interventions);
+		secParams.setBaseCase(false);
+		// Now probabilistic
+//		secParams.setBaseCase(false);
+//		for (int i = 1; i <= N_RUNS; i++) {
+//			simulateInterventions(i, false, interventions);
+//		}
 	}
 }

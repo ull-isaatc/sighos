@@ -6,9 +6,6 @@ package es.ull.iis.simulation.hta.T1DM;
 import es.ull.iis.simulation.hta.HTASimulation;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
-import es.ull.iis.simulation.hta.outcome.Cost;
-import es.ull.iis.simulation.hta.outcome.LifeExpectancy;
-import es.ull.iis.simulation.hta.outcome.QualityAdjustedLifeExpectancy;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeStamp;
@@ -34,9 +31,6 @@ public class T1DMSimulation extends HTASimulation {
 		this.commonParams = commonParams;
 		new T1DMPatientGenerator(this, nPatients, intervention, 
 				new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
-		cost = new Cost(this, commonParams.getDiscountRate());
-		qaly = new QualityAdjustedLifeExpectancy(this, commonParams.getDiscountRate());		
-		ly = new LifeExpectancy(this, commonParams.getDiscountRate());
 	}
 
 	/**
@@ -52,9 +46,6 @@ public class T1DMSimulation extends HTASimulation {
 		commonParams.reset();
 		new T1DMPatientGenerator(this, original.generatedPatients, intervention, 
 				new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
-		cost = original.cost;
-		qaly = original.qaly;
-		ly = original.ly;
 	}
 
 	public CommonParams getCommonParams() {

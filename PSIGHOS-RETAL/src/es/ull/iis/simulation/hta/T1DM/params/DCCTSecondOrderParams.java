@@ -15,6 +15,7 @@ import es.ull.iis.simulation.hta.T1DM.StandardSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.CombinationMethod;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -146,7 +147,7 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 	
 	@Override
 	public UtilityCalculator getUtilityCalculator() {
-		final StdUtilityCalculator calc = new StdUtilityCalculator(getUtilityCombinationMethod(), getNoComplicationDisutility(), getGeneralPopulationUtility(), getHypoEventDisutility());
+		final StdUtilityCalculator calc = new StdUtilityCalculator(CombinationMethod.ADD, getNoComplicationDisutility(), getGeneralPopulationUtility(), getHypoEventDisutility());
 		for (final T1DMComorbidity subst : availableHealthStates) {
 			calc.addDisutilityForHealthState(subst, getDisutilityForHealthState(subst));
 		}

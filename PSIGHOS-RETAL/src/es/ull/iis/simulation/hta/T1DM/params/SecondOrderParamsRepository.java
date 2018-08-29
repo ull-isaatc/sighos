@@ -13,7 +13,6 @@ import es.ull.iis.simulation.hta.T1DM.MainComplications;
 import es.ull.iis.simulation.hta.T1DM.Named;
 import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.CombinationMethod;
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
 import simkit.random.RandomVariate;
@@ -66,7 +65,6 @@ public abstract class SecondOrderParamsRepository {
 	final protected TreeMap<String, SecondOrderCostParam> costParams;
 	final protected TreeMap<String, SecondOrderParam> utilParams;
 	final protected TreeMap<String, SecondOrderParam> otherParams;
-	protected CombinationMethod utilityCombinationMethod = CombinationMethod.ADD;
 	private boolean discountZero = false;
 	final private RandomNumber rngFirstOrder;
 	final protected ArrayList<T1DMComorbidity> availableHealthStates;
@@ -260,10 +258,6 @@ public abstract class SecondOrderParamsRepository {
 	public double getHypoEventDisutility() {
 		final SecondOrderParam param = utilParams.get(STR_DU_HYPO_EVENT);
 		return (param == null) ? 0.0 : param.getValue(baseCase); 		
-	}
-	
-	public CombinationMethod getUtilityCombinationMethod() {
-		return utilityCombinationMethod;
 	}
 	
 	/**
