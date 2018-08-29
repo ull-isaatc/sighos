@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.T1DM;
 
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.HbA1c10ReductionComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
@@ -31,8 +32,8 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 	private static final double C_ESRD = 34259.48;
 	private static final double TC_NPH = 33183.74;
 	private static final double TC_ESRD = 3250.73;
-	private static final double DU_NPH = 0.0527;
-	private static final double DU_ESRD = 0.0603;
+	private static final double DU_NPH = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.048 : 0.0527;
+	private static final double DU_ESRD = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.204 : 0.0603;
 
 	public enum NPHTransitions {
 		HEALTHY_NPH,

@@ -39,8 +39,8 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 
 	private static final double C_DNC = 2174.11;
 	private static final double U_GENERAL_POP = 0.911400915;
-	private static final double DU_HYPO_EPISODE = 0.0206; // From Canada
-	private static final double DU_DNC = 0.0351;
+	private static final double DU_HYPO_EPISODE = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.047 : 0.0206; // From Canada
+	private static final double DU_DNC = BasicConfigParams.USE_REVIEW_UTILITIES ? (U_GENERAL_POP - 0.785) : 0.0351;
 
 	private final boolean useSimpleModels;
 	

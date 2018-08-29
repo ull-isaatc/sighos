@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.T1DM;
 
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.HbA1c10ReductionComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
@@ -29,8 +30,8 @@ public class SimpleNEUSubmodel extends ComplicationSubmodel {
 	private static final double C_LEA = 9305.74;
 	private static final double TC_NEU = 0.0;
 	private static final double TC_LEA = 11966.18;
-	private static final double DU_NEU = 0.0244;
-	private static final double DU_LEA = (0.0379 + 0.0244) / 2;
+	private static final double DU_NEU = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.084 : 0.0244;
+	private static final double DU_LEA = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.28 : (0.0379 + 0.0244) / 2;
 
 	public enum NEUTransitions {
 		HEALTHY_NEU,

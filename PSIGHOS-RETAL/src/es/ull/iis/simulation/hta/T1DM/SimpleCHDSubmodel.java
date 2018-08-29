@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.T1DM;
 
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.HbA1c1PPComplicationRR;
@@ -125,11 +126,15 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + STROKE, "Cost of episode of Stroke", "https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 6120.32-2485.66, SecondOrderParamsRepository.getRandomVariateForCost(6120.32-2485.66)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + HF, "Cost of episode of Heart Failure", "https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 5557.66-1054.42, SecondOrderParamsRepository.getRandomVariateForCost(5557.66-1054.42)));
 
-		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.ANGINA, "Disutility of CHD", "", 0.0412));
-		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.MI, "Disutility of CHD", "", 0.0409));
-		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.HF, "Disutility of CHD", "", 0.0409)); // Assumed equal to MI
-		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.STROKE, "Disutility of stroke. Average of autonomous and dependant stroke disutilities", 
-				"Mar et al. 2010", U_GENERAL_POP - (0.4013+0.736)/2));
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.ANGINA, 
+				"Disutility of angina", "Sullivan et al 2006", BasicConfigParams.USE_REVIEW_UTILITIES ? 0.09 : 0.0412));
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.MI, 
+				"Disutility of MI", "Sullivan et al 2006", BasicConfigParams.USE_REVIEW_UTILITIES ? 0.055 : 0.0409));
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.HF, 
+				"Disutility of heart failure", "Sullivan et al 2006", BasicConfigParams.USE_REVIEW_UTILITIES ? 0.108 : 0.0409)); // Assumed equal to MI
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.STROKE, 
+				"Disutility of stroke. Average of autonomous and dependant stroke disutilities", 
+				"Mar et al. 2010", BasicConfigParams.USE_REVIEW_UTILITIES ? 0.164 : (U_GENERAL_POP - (0.4013+0.736)/2)));
 
 		secParams.registerComplication(MainComplications.CHD);
 		secParams.registerHealthStates(CHDSubstates);

@@ -30,6 +30,7 @@ public class BasicConfigParams {
 	/** Year of the assessment: useful for updating costs */
 	public final static int STUDY_YEAR = 2018;
 	
+	public final static boolean USE_REVIEW_UTILITIES = false;
 	/**
 	 * This constructor should not be needed.
 	 */

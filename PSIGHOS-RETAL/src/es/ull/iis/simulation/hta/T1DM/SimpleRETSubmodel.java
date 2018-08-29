@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.T1DM;
 
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.HbA1c10ReductionComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
@@ -31,8 +32,8 @@ public class SimpleRETSubmodel extends ComplicationSubmodel {
 	private static final double C_BLI = 469.22;
 	private static final double TC_RET = 0.0;
 	private static final double TC_BLI = 0.0;
-	private static final double DU_RET = 0.0156;
-	private static final double DU_BLI = 0.0498;
+	private static final double DU_RET = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.04 : 0.0156;
+	private static final double DU_BLI = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.074 : 0.0498;
 	
 	public enum RETTransitions {
 		HEALTHY_RET,

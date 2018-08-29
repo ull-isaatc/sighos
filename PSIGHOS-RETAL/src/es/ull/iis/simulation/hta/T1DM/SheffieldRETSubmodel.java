@@ -6,10 +6,12 @@ package es.ull.iis.simulation.hta.T1DM;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
+import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.T1DM.params.SheffieldComplicationRR;
 import simkit.random.RandomNumber;
+import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -25,6 +27,11 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 	private static final double BETA_BGRET = 10.10;
 	private static final double BETA_PRET = 6.30;
 	private static final double BETA_ME = 1.20;
+	private static final double DU_BGRET = 0.04;
+	private static final double DU_PRET = 0.04;
+	private static final double DU_ME = 0.04;
+	private static final double DU_BLI = 0.07;
+	private static final double C_BLI = 2405.35;
 	
 	public enum RETTransitions {
 		HEALTHY_BGRET(null, BGRET),
@@ -139,7 +146,13 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 				"WESDR XXII, as adapted by Sheffield", BETA_PRET));
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + ME, "Beta for macular edema", 
 				"WESDR XXII, as adapted by Sheffield", BETA_ME));
+
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + BLI, "Cost of BLI", "Conget et al.", 2016, C_BLI, SecondOrderParamsRepository.getRandomVariateForCost(C_BLI)));
 		
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BGRET, "Disutility of BGRET", "", DU_BGRET));
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + PRET, "Disutility of PRET", "", DU_PRET));
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + ME, "Disutility of RET", "", DU_ME));
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BLI, "Disutility of BLI", "", DU_BLI));
 		
 		secParams.registerComplication(MainComplications.RET);
 		secParams.registerHealthStates(RETSubstates);		
