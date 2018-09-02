@@ -25,15 +25,21 @@ import simkit.random.RandomVariateFactory;
 public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 	/** Duration of effect of the intervention (assumption) */
 	private static final double YEARS_OF_EFFECT = 20.0;
+	private static final double BASELINE_HBA1C_MIN = 6.6; // Design of DCCT: http://diabetes.diabetesjournals.org/content/35/5/530
+	private static final double BASELINE_HBA1C_AVG = 8.9; // DCCT: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2866072/
+	private static final double BASELINE_HBA1C_SD = 1.6; // DCCT: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2866072/
+	private static final int BASELINE_AGE_MIN = 13; // Design of DCCT: http://diabetes.diabetesjournals.org/content/35/5/530
+	private static final int BASELINE_AGE_MAX = 40; // Design of DCCT: http://diabetes.diabetesjournals.org/content/35/5/530
+	private static final int BASELINE_AGE_AVG = 27; // DCCT: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2866072/
 	
-	private final boolean useSimpleModels;
+	
 	/**
 	 * @param baseCase
 	 */
-	public DCCTSecondOrderParams(boolean baseCase, int nPatients, boolean useSimpleModels) {
-		super(baseCase, nPatients);
-		this.useSimpleModels = useSimpleModels; 
-		if (useSimpleModels) {
+	public DCCTSecondOrderParams() {
+		super();
+		BasicConfigParams.MIN_AGE = BASELINE_AGE_MIN;
+		if (BasicConfigParams.USE_SIMPLE_MODELS) {
 			SimpleRETSubmodel.registerSecondOrder(this);;
 		}
 		else {
@@ -45,27 +51,38 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 
 		// Severe hypoglycemic episodes
 		final double[] paramsDeathHypo = betaParametersFromNormal(0.0063, sdFrom95CI(new double[]{0.0058, 0.0068}));
-		addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode (adjusted from rate/100 patient-month)", "Ly et al.", 0.234286582, 
-				RandomVariateFactory.getInstance("BetaVariate", 23.19437163, 75.80562837)));
+		addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode (adjusted from rate/100 patient-month)", 
+				"DCCT: https://www.ncbi.nlm.nih.gov/pubmed/9000705", 
+				0.187, RandomVariateFactory.getInstance("BetaVariate", 18.513, 80.487)));
 		addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", "Canada", 0.0063, 
 				RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
-		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic event in intervention branch (adjusted from rate/100 patient-month)", "Ly et al.", 
-				0.020895447, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", -3.868224010, 1.421931924))));
+		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic event in intervention branch (adjusted from rate/100 patient-month)", 
+				"DCCT: https://www.ncbi.nlm.nih.gov/pubmed/9000705", 
+				3.27272727, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", 1.1856237, 0.22319455))));
 
 		addOtherParam(new SecondOrderParam(STR_P_MAN, "Probability of sex = male", "https://doi.org/10.1056/NEJMoa052187", 0.525));
 		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "No discount", 0.0));
-		addOtherParam(new SecondOrderParam(STR_AVG_BASELINE_AGE, "Average baseline age", "https://doi.org/10.1056/NEJMoa052187", 27));
-		addOtherParam(new SecondOrderParam(STR_AVG_BASELINE_HBA1C, "Average baseline level of HBA1c", "https://doi.org/10.1056/NEJMoa052187", 9.1));
 	}
 
 	@Override
 	public RandomVariate getBaselineHBA1c() {
-		return RandomVariateFactory.getInstance("ConstantVariate", otherParams.get(STR_AVG_BASELINE_HBA1C).getValue(baseCase));
+		if (BasicConfigParams.USE_FIXED_BASELINE_HBA1C)
+			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_HBA1C_AVG);
+			
+		final double alfa = ((BASELINE_HBA1C_AVG - BASELINE_HBA1C_MIN) / BASELINE_HBA1C_SD) * ((BASELINE_HBA1C_AVG - BASELINE_HBA1C_MIN) / BASELINE_HBA1C_SD);
+		final double beta = (BASELINE_HBA1C_SD * BASELINE_HBA1C_SD) / (BASELINE_HBA1C_AVG - BASELINE_HBA1C_MIN);
+		final RandomVariate rnd = RandomVariateFactory.getInstance("GammaVariate", alfa, beta);
+		return RandomVariateFactory.getInstance("ScaledVariate", rnd, 1.0, BASELINE_HBA1C_MIN);
 	}
-
+	
 	@Override
 	public RandomVariate getBaselineAge() {
-		return RandomVariateFactory.getInstance("ConstantVariate", otherParams.get(STR_AVG_BASELINE_AGE).getValue(baseCase));
+		if (BasicConfigParams.USE_FIXED_BASELINE_AGE)
+			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_AGE_AVG);
+		// 28.4 has been established empirically to get a sd of 7.
+		final double[] betaParams = betaParametersFromEmpiricData(BASELINE_AGE_AVG, 28.4, BASELINE_AGE_MIN, BASELINE_AGE_MAX);
+		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]); 
+		return RandomVariateFactory.getInstance("ScaledVariate", rnd, BASELINE_AGE_MAX - BASELINE_AGE_MIN, BASELINE_AGE_MIN);
 	}
 
 	@Override
@@ -75,7 +92,7 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 
 	@Override
 	public T1DMMonitoringIntervention[] getInterventions() {
-		return new T1DMMonitoringIntervention[] {new DCCTIntervention1(0), new DCCTIntervention2(1)};
+		return new T1DMMonitoringIntervention[] {new ConventionalTherapy(0), new IntensiveTherapy(1)};
 	}
 
 	@Override
@@ -121,7 +138,7 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 		comps[MainComplications.NEU.ordinal()] = new SimpleNEUSubmodel(this);
 		
 		// Adds retinopathy submodel
-		if (useSimpleModels) {
+		if (BasicConfigParams.USE_SIMPLE_MODELS) {
 			comps[MainComplications.RET.ordinal()] = new SimpleRETSubmodel(this);
 		}
 		else {
@@ -144,14 +161,14 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, getNoComplicationDisutility(), getGeneralPopulationUtility(), getHypoEventDisutility(), submodels);
 	}
 	
-	public class DCCTIntervention1 extends T1DMMonitoringIntervention {
+	public class ConventionalTherapy extends T1DMMonitoringIntervention {
 		public final static String NAME = "Normal";
 		/**
 		 * @param id
 		 * @param shortName
 		 * @param description
 		 */
-		public DCCTIntervention1(int id) {
+		public ConventionalTherapy(int id) {
 			super(id, NAME, NAME, BasicConfigParams.MAX_AGE);
 		}
 
@@ -172,15 +189,17 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 		}
 	}
 
-	public class DCCTIntervention2 extends T1DMMonitoringIntervention {
+	public class IntensiveTherapy extends T1DMMonitoringIntervention {
 		public final static String NAME = "Intensive";
+		private final RandomVariate rnd; 
 		/**
 		 * @param id
 		 * @param shortName
 		 * @param description
 		 */
-		public DCCTIntervention2(int id) {
+		public IntensiveTherapy(int id) {
 			super(id, NAME, NAME, YEARS_OF_EFFECT);
+			rnd = RandomVariateFactory.getInstance("NormalVariate", 1.5, 1.1);
 		}
 
 		/* (non-Javadoc)
@@ -188,7 +207,11 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 		 */
 		@Override
 		public double getHBA1cLevel(T1DMPatient pat) {
-			return pat.getBaselineHBA1c() - (pat.isEffectActive() ? 1.9 : 0.0);
+			if (pat.isEffectActive()) {
+				return pat.getBaselineHBA1c() - Math.max(0.0, rnd.generate());
+				
+			}
+			return pat.getBaselineHBA1c();
 		}
 
 		/* (non-Javadoc)

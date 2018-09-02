@@ -86,13 +86,13 @@ public class SimpleNEUSubmodel extends ComplicationSubmodel {
 		// From Sheffield
 		final double pDNC_NEU = 0.0354 * Math.pow(coefHbA1c, 5.3);
 		final double[] paramsNEU_LEA = SecondOrderParamsRepository.betaParametersFromNormal(P_NEU_LEA, SecondOrderParamsRepository.sdFrom95CI(CI_NEU_LEA));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(null, NEU), 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, NEU), 
 				"Probability of healthy to clinically confirmed neuropathy, as processed in Sheffield Type 1 model", 
 				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", pDNC_NEU));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(null, LEA), 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, LEA), 
 				"Probability of healthy to PAD with amputation, as processed in Sheffield Type 1 model", 
 				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 0.0003));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(NEU, LEA), 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(NEU, LEA), 
 				"Probability of clinically confirmed neuropathy to PAD with amputation", 
 				"Klein et al. 2004 (also Sheffield)", 
 				P_NEU_LEA, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_LEA[0], paramsNEU_LEA[1])));

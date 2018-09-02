@@ -86,11 +86,11 @@ public class SimpleRETSubmodel extends ComplicationSubmodel {
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
 		final double[] paramsDNC_RET = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_RET, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_RET));
 		final double[] paramsRET_BLI = SecondOrderParamsRepository.betaParametersFromNormal(P_RET_BLI, SecondOrderParamsRepository.sdFrom95CI(CI_RET_BLI));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(null, SimpleRETSubmodel.RET), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, SimpleRETSubmodel.RET), "", 
 				"", P_DNC_RET, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_RET[0], paramsDNC_RET[1])));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(SimpleRETSubmodel.RET, SimpleRETSubmodel.BLI), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(SimpleRETSubmodel.RET, SimpleRETSubmodel.BLI), "", 
 				"", P_RET_BLI, RandomVariateFactory.getInstance("BetaVariate", paramsRET_BLI[0], paramsRET_BLI[1])));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(null, SimpleRETSubmodel.BLI), "Probability of healthy to blindness", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, SimpleRETSubmodel.BLI), "Probability of healthy to blindness", 
 				"Sheffield (WESDR XXII)", 1.9e-6));
 
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainComplications.RET.name(), "%risk reducion for combined groups for sustained onset of retinopathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 

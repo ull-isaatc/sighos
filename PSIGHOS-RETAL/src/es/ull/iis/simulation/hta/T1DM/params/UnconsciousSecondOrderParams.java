@@ -41,15 +41,19 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 	private static final double DU_HYPO_EPISODE = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.047 : 0.0206; // From Canada
 	private static final double DU_DNC = BasicConfigParams.USE_REVIEW_UTILITIES ? (U_GENERAL_POP - 0.785) : 0.0351;
 
-	private final boolean useSimpleModels;
+	private static final double BASELINE_HBA1C_MIN = 7; // Assumption
+	private static final double BASELINE_HBA1C_MAX = 8; // Assumption
+	private static final double BASELINE_HBA1C_AVG = 7.5; // https://doi.org/10.1016/j.endinu.2018.03.008
+	private static final double[] BASELINE_AGE_RANGES = {4.0, 7.0, 12.0, 18.0, 50.0};// https://doi.org/10.1016/j.endinu.2018.03.008
+	private static final double[] BASELINE_AGE_PROPORTIONS = {4.0/95.0, 27.0/95.0, 34.0/95.0, 30.0/95.0};// https://doi.org/10.1016/j.endinu.2018.03.008
+	private static final double BASELINE_AGE_AVG = 18.6; // https://doi.org/10.1016/j.endinu.2018.03.008
 	
 	/**
 	 * @param baseCase
 	 */
-	public UnconsciousSecondOrderParams(boolean baseCase, int nPatients, boolean useSimpleModels) {
-		super(baseCase, nPatients);
-		this.useSimpleModels = useSimpleModels; 
-		if (useSimpleModels) {
+	public UnconsciousSecondOrderParams() {
+		super();
+		if (BasicConfigParams.USE_SIMPLE_MODELS) {
 			SimpleRETSubmodel.registerSecondOrder(this);;
 		}
 		else {
@@ -79,8 +83,6 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 		
 		addOtherParam(new SecondOrderParam(STR_P_MAN, "Probability of sex = male", "https://doi.org/10.1016/j.endinu.2018.03.008", 0.5));
 		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "Spanish guidelines", 0.03));
-		addOtherParam(new SecondOrderParam(STR_AVG_BASELINE_AGE, "Average baseline age", "https://doi.org/10.1016/j.endinu.2018.03.008",18.6));
-		addOtherParam(new SecondOrderParam(STR_AVG_BASELINE_HBA1C, "Average baseline level of HBA1c", "https://doi.org/10.1016/j.endinu.2018.03.008", 7.5));
 		addOtherParam(new SecondOrderParam(STR_AVG_HBA1C_AFTER + SAPIntervention.NAME, "Average level of HBA1c after " + SAPIntervention.NAME, "https://doi.org/10.1016/j.endinu.2018.03.008", 7.5));
 		addOtherParam(new SecondOrderParam(STR_SENSOR_ADHERENCE_LOWER_LIMIT, "Lower limit for weekly sensor adherence", "", 5));
 		addOtherParam(new SecondOrderParam(STR_SENSOR_ADHERENCE_UPPER_LIMIT, "Upper limit for weekly sensor adherence", "", 7));
@@ -88,12 +90,16 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 
 	@Override
 	public RandomVariate getBaselineHBA1c() {
-		return RandomVariateFactory.getInstance("ConstantVariate", otherParams.get(STR_AVG_BASELINE_HBA1C).getValue(baseCase));
+		if (BasicConfigParams.USE_FIXED_BASELINE_HBA1C)
+			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_HBA1C_AVG);
+		return RandomVariateFactory.getInstance("UniformVariate", BASELINE_HBA1C_MIN, BASELINE_HBA1C_MAX);
 	}
 
 	@Override
 	public RandomVariate getBaselineAge() {
-		return RandomVariateFactory.getInstance("ConstantVariate", otherParams.get(STR_AVG_BASELINE_AGE).getValue(baseCase));
+		if (BasicConfigParams.USE_FIXED_BASELINE_AGE)
+			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_AGE_AVG);
+		return RandomVariateFactory.getInstance("ContinuousSelectorVariate", BASELINE_AGE_PROPORTIONS, BASELINE_AGE_RANGES);
 	}
 
 	@Override
@@ -150,7 +156,7 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 		comps[MainComplications.NEU.ordinal()] = new SimpleNEUSubmodel(this);
 		
 		// Adds retinopathy submodel
-		if (useSimpleModels) {
+		if (BasicConfigParams.USE_SIMPLE_MODELS) {
 			comps[MainComplications.RET.ordinal()] = new SimpleRETSubmodel(this);
 		}
 		else {

@@ -30,14 +30,22 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 	public static T1DMComorbidity[] CHDSubstates = new T1DMComorbidity[] {ANGINA, STROKE, MI, HF}; 
 	
 	private static final double REF_HBA1C = 9.1; 
-	private static final double P_DNC_CHD = 0.031;
-	private static final double P_NEU_CHD = 0.029;
-	private static final double P_NPH_CHD = 0.022;
-	private static final double P_RET_CHD = 0.028;
-	private static final double[] CI_DNC_CHD = {0.018, 0.048};
+	private static final double P_DNC_CHD = 0.0045;
+	private static final double P_NEU_CHD = 0.02;
+	private static final double P_NPH_CHD = 0.0224;
+	private static final double P_RET_CHD = 0.0155;
+	private static final double[] CI_DNC_CHD = {0.001, 0.0084};
 	private static final double[] CI_NEU_CHD = {0.016, 0.044};
 	private static final double[] CI_NPH_CHD = {0.013, 0.034};
-	private static final double[] CI_RET_CHD = {0.016, 0.043};
+	private static final double[] CI_RET_CHD = {0.01, 0.043};
+//	private static final double P_DNC_CHD = 0.031;
+//	private static final double P_NEU_CHD = 0.029;
+//	private static final double P_NPH_CHD = 0.022;
+//	private static final double P_RET_CHD = 0.028;
+//	private static final double[] CI_DNC_CHD = {0.018, 0.048};
+//	private static final double[] CI_NEU_CHD = {0.016, 0.044};
+//	private static final double[] CI_NPH_CHD = {0.013, 0.034};
+//	private static final double[] CI_RET_CHD = {0.016, 0.043};
 	private static final double U_GENERAL_POP = 0.911400915;
 	
 	public enum CHDTransitions {
@@ -101,13 +109,13 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 		final double[] paramsNPH_CHD = SecondOrderParamsRepository.betaParametersFromNormal(P_NPH_CHD, SecondOrderParamsRepository.sdFrom95CI(CI_NPH_CHD));
 		final double[] paramsRET_CHD = SecondOrderParamsRepository.betaParametersFromNormal(P_RET_CHD, SecondOrderParamsRepository.sdFrom95CI(CI_RET_CHD));		
 
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(null, MainComplications.CHD), "Probability of healthy to CHD", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, MainComplications.CHD), "Probability of healthy to CHD", 
 				"", P_DNC_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_CHD[0], paramsDNC_CHD[1])));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(MainComplications.NEU, MainComplications.CHD), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.NEU, MainComplications.CHD), "", 
 				"", P_NEU_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_CHD[0], paramsNEU_CHD[1])));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(MainComplications.NPH, MainComplications.CHD), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.NPH, MainComplications.CHD), "", 
 				"", P_NPH_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNPH_CHD[0], paramsNPH_CHD[1])));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(MainComplications.RET, MainComplications.CHD), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.RET, MainComplications.CHD), "", 
 				"", P_RET_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsRET_CHD[0], paramsRET_CHD[1])));
 		
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainComplications.CHD.name(), 

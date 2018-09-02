@@ -25,9 +25,16 @@ import simkit.random.RandomVariateFactory;
 public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	/** Duration of effect of the intervention (the same duration of Bergenstal et al 2010) */
 	private static final double YEARS_OF_EFFECT = 1.5;
-	private static final String STR_SENSOR_ADHERENCE_LOWER_LIMIT = "SENSOR_ADHERENCE LOWER LIMIT";
-	private static final String STR_SENSOR_ADHERENCE_UPPER_LIMIT = "SENSOR_ADHERENCE UPPER LIMIT";
 	private static final String STR_AVG_HBA1C_AFTER = "AVG_HBA1C_AFTER_";
+	
+	private static final double BASELINE_HBA1C_MIN = 7.5; // Battelino 2012
+	private static final double BASELINE_HBA1C_MAX = 9.5; // Battelino 2012
+	private static final double BASELINE_HBA1C_AVG = 8.5; // Battelino 2012
+//	private static final double BASELINE_HBA1C_SD = 0.6; // Battelino 2012: Not used because it leads to a BETA(1,1), which, in fact, is like using a uniform
+	private static final int BASELINE_AGE_MIN = 6; // Battelino 2012
+	private static final int BASELINE_AGE_MAX = 70; // Battelino 2012
+	private static final int BASELINE_AGE_AVG = 28; // Battelino 2012
+	private static final int BASELINE_AGE_SD = 17; // Battelino 2012
 
 	private static final double C_DNC = 2174.11;
 
@@ -35,15 +42,14 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	private static final double DU_HYPO_EPISODE = 0.0206; // From Canada
 	private static final double DU_DNC = 0.0351;
 	
-	private final boolean useSimpleModels;
-
 	/**
 	 * @param baseCase
 	 */
-	public UncontrolledSecondOrderParams(boolean baseCase, int nPatients, boolean useSimpleModels) {
-		super(baseCase, nPatients);
-		this.useSimpleModels = useSimpleModels; 
-		if (useSimpleModels) {
+	public UncontrolledSecondOrderParams() {
+		super();
+		BasicConfigParams.MIN_AGE = BASELINE_AGE_MIN;
+		
+		if (BasicConfigParams.USE_SIMPLE_MODELS) {
 			SimpleRETSubmodel.registerSecondOrder(this);;
 		}
 		else {
@@ -56,9 +62,11 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 
 		// Severe hypoglycemic episodes
 		final double[] paramsDeathHypo = betaParametersFromNormal(0.0063, sdFrom95CI(new double[]{0.0058, 0.0068}));
-		addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode (adjusted from rate/100 patient-month)", "Ly et al.", 0.234286582, RandomVariateFactory.getInstance("BetaVariate", 23.19437163, 75.80562837)));
+		addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode (adjusted from rate/100 patient-month of both arms; only events from injection therapy in probabilistic)", 
+				"Bergenstal 2010", 0.1638398, RandomVariateFactory.getInstance("BetaVariate", 17.4438, 81.5562)));
 		addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", "Canada", 0.0063, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
-		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic event in intervention branch (adjusted from rate/100 patient-month)", "Ly et al.", 0.020895447, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", -3.868224010, 1.421931924))));
+		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic events (adjusted from rate/100 patient-month). Assumed 1 at base case; using difference at probabilistic", 
+				"Bergenstal 2010", 1.0, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", -0.1405284, 0.3194847))));
 
 		addCostParam(new SecondOrderCostParam(STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", "https://doi.org/10.1007/s13300-017-0285-0", 2017, 716.82, getRandomVariateForCost(716.82)));
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of DNC", "", 2015, C_DNC, getRandomVariateForCost(C_DNC)));
@@ -73,27 +81,37 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 		
 		addOtherParam(new SecondOrderParam(STR_P_MAN, "Probability of sex = male", "https://doi.org/10.1016/j.endinu.2018.03.008", 0.5));
 		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "Spanish guidelines", 0.03));
-		addOtherParam(new SecondOrderParam(STR_AVG_BASELINE_AGE, "Average baseline age", "https://doi.org/10.1056/NEJMoa1002853",27));
-		addOtherParam(new SecondOrderParam(STR_AVG_BASELINE_HBA1C, "Average baseline level of HBA1c", "https://doi.org/10.1056/NEJMoa1002853", 8.3));
 		addOtherParam(new SecondOrderParam(STR_AVG_HBA1C_AFTER + SAPIntervention.NAME, "Average level of HBA1c after " + SAPIntervention.NAME, "https://doi.org/10.1056/NEJMoa1002853", 7.5));
 		addOtherParam(new SecondOrderParam(STR_AVG_HBA1C_AFTER + CSIIIntervention.NAME, "Average level of HBA1c after " + CSIIIntervention.NAME, "https://doi.org/10.1056/NEJMoa1002853", 8.1));
-		addOtherParam(new SecondOrderParam(STR_SENSOR_ADHERENCE_LOWER_LIMIT, "Lower limit for weekly sensor adherence", "", 5));
-		addOtherParam(new SecondOrderParam(STR_SENSOR_ADHERENCE_UPPER_LIMIT, "Upper limit for weekly sensor adherence", "", 7));
+		// Añadir variables de segundo orden para porcentaje de pacientes con uso del sensor de más o menos del 70%, como explican en Battelino
+		// Los de <70%, tienen disminución de HbA1c de -0.24 +- 1.11%; el resto, de -0.51 +- 0.07%
 	}
 
 	@Override
 	public RandomVariate getBaselineHBA1c() {
-		return RandomVariateFactory.getInstance("ConstantVariate", otherParams.get(STR_AVG_BASELINE_HBA1C).getValue(baseCase));
+		if (BasicConfigParams.USE_FIXED_BASELINE_HBA1C)
+			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_HBA1C_AVG);
+		return RandomVariateFactory.getInstance("UniformVariate", BASELINE_HBA1C_MIN, BASELINE_HBA1C_MAX);
 	}
 
 	@Override
 	public RandomVariate getBaselineAge() {
-		return RandomVariateFactory.getInstance("ConstantVariate", otherParams.get(STR_AVG_BASELINE_AGE).getValue(baseCase));
+		if (BasicConfigParams.USE_FIXED_BASELINE_AGE)
+			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_AGE_AVG);
+		final double[] initBetaParams = betaParametersFromNormal(BASELINE_AGE_AVG, BASELINE_AGE_SD);
+		// k is used to simplify the operations
+		final double k = ((initBetaParams[0] + initBetaParams[1])*(initBetaParams[0] + initBetaParams[1]))/initBetaParams[1];
+		final double variance = BASELINE_AGE_SD * BASELINE_AGE_SD;
+		final double mode = variance * k * (initBetaParams[0] - 1) / (initBetaParams[0] - 3 * variance * k);
+		final double[] betaParams = betaParametersFromEmpiricData(BASELINE_AGE_AVG, mode, BASELINE_AGE_MIN, BASELINE_AGE_MAX);
+		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]); 
+		return RandomVariateFactory.getInstance("ScaledVariate", rnd, BASELINE_AGE_MAX - BASELINE_AGE_MIN, BASELINE_AGE_MIN);
 	}
 
+	// TODO: Quitar esto en general.
 	@Override
 	public RandomVariate getWeeklySensorUsage() {
-		return RandomVariateFactory.getInstance("UniformVariate", otherParams.get(STR_SENSOR_ADHERENCE_LOWER_LIMIT).getValue(baseCase), otherParams.get(STR_SENSOR_ADHERENCE_UPPER_LIMIT).getValue(baseCase));
+		return RandomVariateFactory.getInstance("UniformVariate", 5, 7);
 	}
 
 	@Override
@@ -147,7 +165,7 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 		comps[MainComplications.NEU.ordinal()] = new SimpleNEUSubmodel(this);
 		
 		// Adds retinopathy submodel
-		if (useSimpleModels) {
+		if (BasicConfigParams.USE_SIMPLE_MODELS) {
 			comps[MainComplications.RET.ordinal()] = new SimpleRETSubmodel(this);
 		}
 		else {

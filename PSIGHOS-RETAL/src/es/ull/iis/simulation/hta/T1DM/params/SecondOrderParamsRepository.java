@@ -43,9 +43,6 @@ public abstract class SecondOrderParamsRepository {
 
 	// Descriptors for Increased Mortality Rates
 	public static final String STR_IMR_PREFIX = "IMR_";
-	// Descriptors for age parameters
-	public static final String STR_AVG_BASELINE_AGE = "AVG BASELINE AGE";
-	public static final String STR_AVG_BASELINE_HBA1C = "AVG BASELINE HBA1C";
 	// Descriptors for misc parameters
 	public static final String STR_DISCOUNT_RATE = "DISCOUNT_RATE";
 	// Descriptors for cost parameters
@@ -78,16 +75,15 @@ public abstract class SecondOrderParamsRepository {
 	final protected int nPatients;
 	
 	/**
-	 * @param baseCase True if base case parameters (expected values) should be used. False for second order simulations.
+	 * Creates a repository of second order parameters. By default, generates the base case values.
 	 */
-	protected SecondOrderParamsRepository(boolean baseCase, int nPatients) {
-		this.baseCase = baseCase;
+	protected SecondOrderParamsRepository() {
 		probabilityParams = new TreeMap<>();
 		costParams = new TreeMap<>();
 		otherParams = new TreeMap<>();
 		utilParams = new TreeMap<>();
 		this.rngFirstOrder = RandomNumberFactory.getInstance();
-		this.nPatients = nPatients;
+		this.nPatients = BasicConfigParams.N_PATIENTS;
 		this.availableHealthStates = new ArrayList<>();
 		this.complicationRegistered = new TreeSet<>();
 	}
@@ -314,8 +310,30 @@ public abstract class SecondOrderParamsRepository {
 	 * @return the alfa and beta parameters for a beta distribution
 	 */
 	public static double[] betaParametersFromNormal(double avg, double sd) {
-		double alfa = (((1 - avg) / (sd*sd)) - (1 / avg)) *avg*avg;
+		final double alfa = (((1 - avg) / (sd*sd)) - (1 / avg)) *avg*avg;
 		return new double[] {alfa, alfa * (1 / avg - 1)};
+	}
+	
+//	public static void main(String[] args) {
+//		double avg = 27;
+//		double sd = 7;
+//		System.out.println(betaParametersFromNormal(avg, sd)[0] + "\t" + betaParametersFromNormal(avg, sd)[1]);
+//	}
+	/**
+	 * Computes the alfa and beta parameters for a beta distribution from an average,
+	 * a mode, and a maximum and minimum values.
+	 * Important note: let's the output be [ALFA, BETA]. To use with RandomVariate: 
+	 * final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", ALFA, BETA); 
+	 * return RandomVariateFactory.getInstance("ScaledVariate", rnd, max - min, min);
+	 * @param avg Original average of data 
+	 * @param mode Most probable value within the interval (must be different from average)
+	 * @param min Minimum value of the generated values
+	 * @param max Maximum value of the generated values
+	 * @return the alfa and beta parameters for a beta distribution
+	 */
+	public static double[] betaParametersFromEmpiricData(double avg, double mode, double min, double max) {
+		final double alfa = ((avg-min)*(2*mode-min-max))/((mode-avg)*(max-min));
+		return new double[] {alfa, ((max-avg)*alfa)/(avg-min)};
 	}
 	
 	public static RandomVariate getRandomVariateForCost(double detCost) {

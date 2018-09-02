@@ -26,12 +26,9 @@ public class T1DMMainTest {
 	public final static boolean CHECK_CANADA = false;
 
 	public final static boolean BASIC_TEST_ONE_PATIENT = true;
-	/** Number of patients to simulate */
-	public final static int NPATIENTS = BASIC_TEST_ONE_PATIENT ? 1 : 5000;
 
 	private static final PrintStream out = System.out;
-	private static final int N_RUNS = BASIC_TEST_ONE_PATIENT ? 0 : 100;
-	private static final SecondOrderParamsRepository secParams = CHECK_CANADA ? new CanadaSecondOrderParams(true, NPATIENTS) : new UnconsciousSecondOrderParams(true, NPATIENTS, true);
+	private static final SecondOrderParamsRepository secParams = CHECK_CANADA ? new CanadaSecondOrderParams() : new UnconsciousSecondOrderParams();
 
 	public T1DMMainTest() {
 		super();
@@ -75,20 +72,20 @@ public class T1DMMainTest {
 
 	private static void simulateInterventions(int id, boolean baseCase, T1DMMonitoringIntervention[] interventions) {
 		final CommonParams common = new CommonParams(secParams);
-		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(NPATIENTS, interventions.length, false, secParams.getAvailableHealthStates());
+		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(BasicConfigParams.N_PATIENTS, interventions.length, false, secParams.getAvailableHealthStates());
 		final CostListener[] costListeners = new CostListener[interventions.length];
 		final LYListener[] lyListeners = new LYListener[interventions.length];
 		final QALYListener[] qalyListeners = new QALYListener[interventions.length];
 		for (int i = 0; i < interventions.length; i++) {
-			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getCompSubmodels()), common.getDiscountRate(), NPATIENTS);
-			lyListeners[i] = new LYListener(common.getDiscountRate(), NPATIENTS);
-			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getCompSubmodels()), common.getDiscountRate(), NPATIENTS);
+			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getCompSubmodels()), common.getDiscountRate(), BasicConfigParams.N_PATIENTS);
+			lyListeners[i] = new LYListener(common.getDiscountRate(), BasicConfigParams.N_PATIENTS);
+			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getCompSubmodels()), common.getDiscountRate(), BasicConfigParams.N_PATIENTS);
 		}
-		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], NPATIENTS, common);
+		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], BasicConfigParams.N_PATIENTS, common);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
-		simul.addInfoReceiver(new AnnualCostView(secParams.getCostCalculator(common.getCompSubmodels()), NPATIENTS, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE));
+		simul.addInfoReceiver(new AnnualCostView(secParams.getCostCalculator(common.getCompSubmodels()), BasicConfigParams.N_PATIENTS, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE));
 		simul.addInfoReceiver(timeFreeListener);
 		addListeners(simul);
 		simul.run();
@@ -97,7 +94,7 @@ public class T1DMMainTest {
 			simul.addInfoReceiver(costListeners[i]);
 			simul.addInfoReceiver(lyListeners[i]);
 			simul.addInfoReceiver(qalyListeners[i]);
-			simul.addInfoReceiver(new AnnualCostView(secParams.getCostCalculator(common.getCompSubmodels()), NPATIENTS, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE));
+			simul.addInfoReceiver(new AnnualCostView(secParams.getCostCalculator(common.getCompSubmodels()), BasicConfigParams.N_PATIENTS, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE));
 			simul.addInfoReceiver(timeFreeListener);
 			addListeners(simul);
 			simul.run();				
@@ -106,6 +103,9 @@ public class T1DMMainTest {
 	}
 
 	public static void main(String[] args) {
+		BasicConfigParams.N_RUNS = BASIC_TEST_ONE_PATIENT ? 0 : 100;
+		BasicConfigParams.N_PATIENTS = BASIC_TEST_ONE_PATIENT ? 1 : 5000;
+
 		final T1DMMonitoringIntervention[] interventions = secParams.getInterventions();
 		secParams.setDiscountZero(true);
 

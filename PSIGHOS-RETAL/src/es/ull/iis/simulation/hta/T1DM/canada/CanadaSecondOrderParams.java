@@ -41,8 +41,8 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 	/**
 	 * @param baseCase
 	 */
-	public CanadaSecondOrderParams(boolean baseCase, int nPatients) {
-		super(baseCase, nPatients);
+	public CanadaSecondOrderParams() {
+		super();
 		
 		CanadaRETSubmodel.registerSecondOrder(this);
 		CanadaCHDSubmodel.registerSecondOrder(this);
@@ -71,19 +71,16 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 		addOtherParam(new SecondOrderParam(STR_P_MAN, "Probability of havig sex = male", "Assumption", P_MAN));
 		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "Spanish guidelines", DISCOUNT_RATE));
 		
-		addOtherParam(new SecondOrderParam(STR_AVG_BASELINE_AGE, "Average baseline age", "", 27));
-		addOtherParam(new SecondOrderParam(STR_AVG_BASELINE_HBA1C, "Average baseline level of HBA1c", "", 8.8));
-
 	}
 
 	@Override
 	public RandomVariate getBaselineHBA1c() {
-		return RandomVariateFactory.getInstance("ConstantVariate", otherParams.get(STR_AVG_BASELINE_HBA1C).getValue(baseCase));
+		return RandomVariateFactory.getInstance("ConstantVariate", 8.8);
 	}
 
 	@Override
 	public RandomVariate getBaselineAge() {
-		return RandomVariateFactory.getInstance("ConstantVariate", otherParams.get(STR_AVG_BASELINE_AGE).getValue(baseCase));
+		return RandomVariateFactory.getInstance("ConstantVariate", 27);
 	}
 
 	@Override

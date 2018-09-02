@@ -96,19 +96,19 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 		final double[] paramsNEU_NPH = SecondOrderParamsRepository.betaParametersFromNormal(P_NEU_NPH, SecondOrderParamsRepository.sdFrom95CI(CI_NEU_NPH));
 		final double[] paramsNPH_ESRD = SecondOrderParamsRepository.betaParametersFromNormal(P_NPH_ESRD, SecondOrderParamsRepository.sdFrom95CI(CI_NPH_ESRD));
 
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(null, NPH), 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, NPH), 
 				"Probability of healthy to microalbuminutia, as processed in Sheffield Type 1 model", 
 				"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
 				pDNC_NPH));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(NPH, ESRD), 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(NPH, ESRD), 
 				"Probability of microalbuminuria to ESRD", 
 				"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
 				P_NPH_ESRD, RandomVariateFactory.getInstance("BetaVariate", paramsNPH_ESRD[0], paramsNPH_ESRD[1])));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(null, ESRD), 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ESRD), 
 				"Probability of healthy to ESRD, as processed in Sheffield Type 1 model", 
 				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
 				0.0002));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(MainComplications.NEU, MainComplications.NPH), 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.NEU, MainComplications.NPH), 
 				"", 
 				"", 
 				P_NEU_NPH, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_NPH[0], paramsNEU_NPH[1])));		

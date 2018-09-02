@@ -147,23 +147,23 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 		final double pDNC_ME = 0.0012;
 		final double pBGRET_PRET = 0.0595;
 		final double pBGRET_ME = 0.0512;
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(null, BGRET), "Probability of healthy to background retinopathy", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, BGRET), "Probability of healthy to background retinopathy", 
 				"Sheffield (WESDR XXII)", pDNC_BGRET));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(null, PRET), "Probability of healthy to proliferative retinopathy", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, PRET), "Probability of healthy to proliferative retinopathy", 
 				"Sheffield (WESDR XXII)", pDNC_PRET));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(null, ME),	"Probability of healthy to macular edema", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ME),	"Probability of healthy to macular edema", 
 				"Sheffield (WESDR XXII)", pDNC_ME));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(BGRET, PRET),	"Probability of BG ret to proliferative retinopathy", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(BGRET, PRET),	"Probability of BG ret to proliferative retinopathy", 
 				"Sheffield (WESDR XXII)", pBGRET_PRET));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(BGRET, ME),	"Probability of BG ret to ME", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(BGRET, ME),	"Probability of BG ret to ME", 
 				"Sheffield (WESDR XXII)", pBGRET_ME));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(BGRET, BLI),	"Probability of BG ret to blindness", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(BGRET, BLI),	"Probability of BG ret to blindness", 
 				"Sheffield (WESDR XXII)", 0.0001));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(PRET, BLI),	"Probability of Proliferative ret to blindness", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(PRET, BLI),	"Probability of Proliferative ret to blindness", 
 				"Sheffield (WESDR XXII)", 0.0038));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(ME, BLI),	"Probability of macular edema to blindness", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(ME, BLI),	"Probability of macular edema to blindness", 
 				"Sheffield (WESDR XXII)", 0.0016));			
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(null, BLI),	"Probability of healthy to blindness", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, BLI),	"Probability of healthy to blindness", 
 				"Sheffield (WESDR XXII)", 1.9e-6));			
 
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + BGRET, "Beta for background retinopathy", 

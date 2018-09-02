@@ -7,6 +7,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.beust.jcommander.JCommander;
@@ -20,6 +22,7 @@ import es.ull.iis.simulation.hta.T1DM.inforeceiver.CostListener;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.PatientCounterHistogramView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.QALYListener;
+import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMCummulatedIncidenceView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMPatientInfoView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMPatientPrevalenceView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMTimeFreeOfComplicationsView;
@@ -35,9 +38,7 @@ import es.ull.iis.simulation.hta.T1DM.params.UncontrolledSecondOrderParams;
  *
  */
 public class T1DMMain {
-	private static final int GAP = 50;
-	private static final int DEF_N_RUNS = 100;
-	private static final int DEF_N_PATIENTS = 5000;
+	private static final int N_PROGRESS = 20;
 	private final PrintWriter out;
 	private final T1DMMonitoringIntervention[] interventions;
 	private final int nRuns;
@@ -49,14 +50,15 @@ public class T1DMMain {
 	private final boolean quiet;
 	private final boolean printIncidence;
 	private final boolean printPrevalence;
+	private final boolean printCummIncidence;
 	private final boolean printBI;
 	
-	public T1DMMain(PrintWriter out, int nRuns, int nPatients, SecondOrderParamsRepository secParams, boolean parallel, boolean quiet, int singlePatientOutput, boolean printIncidence, boolean printPrevalence, boolean printBI) {
+	public T1DMMain(PrintWriter out, SecondOrderParamsRepository secParams, boolean parallel, boolean quiet, int singlePatientOutput, boolean printIncidence, boolean printPrevalence, boolean printCummIncidence, boolean printBI) {
 		super();
 		this.out = out;
 		this.interventions = secParams.getInterventions();
-		this.nRuns = nRuns;
-		this.nPatients = nPatients;
+		this.nRuns = BasicConfigParams.N_RUNS;
+		this.nPatients = BasicConfigParams.N_PATIENTS;
 		this.secParams = secParams;
 		this.parallel = parallel;
 		this.quiet = quiet;
@@ -66,11 +68,14 @@ public class T1DMMain {
 			patientListener = null;
 		this.printIncidence = printIncidence;
 		this.printPrevalence = printPrevalence;
+		this.printCummIncidence = printCummIncidence;
 		this.printBI = printBI;
-		progress = new PrintProgress(GAP, nRuns + 1);
+		progress = new PrintProgress((nRuns > 0) ? nRuns/N_PROGRESS : 1, nRuns + 1);
 	}
 
 	private void addListeners(T1DMSimulation simul) {
+		if (printCummIncidence)
+			simul.addInfoReceiver(new T1DMCummulatedIncidenceView(BasicConfigParams.MAX_AGE - BasicConfigParams.MIN_AGE + 1, nPatients, secParams.getAvailableHealthStates()));
 		if (printIncidence)
 			simul.addInfoReceiver(new PatientCounterHistogramView(BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE, 1, secParams.getAvailableHealthStates()));
 		if (printPrevalence)
@@ -82,7 +87,7 @@ public class T1DMMain {
 	private String getStrHeader() {
 		final StringBuilder str = new StringBuilder();
 		final Intervention[] interventions = secParams.getInterventions();
-		str.append("SIM\tNPATIENTS\t");
+		str.append("SIM\t");
 		for (int i = 0; i < interventions.length; i++) {
 			str.append(CostListener.getStrHeader(interventions[i].getShortName()));
 			str.append(LYListener.getStrHeader(interventions[i].getShortName()));
@@ -96,7 +101,7 @@ public class T1DMMain {
 	private String print(T1DMSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, T1DMTimeFreeOfComplicationsView timeFreeListener) {
 		final StringBuilder str = new StringBuilder();
 		final Intervention[] interventions = secParams.getInterventions();
-		str.append("" +  simul.getIdentifier() + "\t" + nPatients + "\t");
+		str.append("" +  simul.getIdentifier() + "\t");
 		for (int i = 0; i < interventions.length; i++) {
 			str.append(costListeners[i]);
 			str.append(lyListeners[i]);
@@ -166,6 +171,8 @@ public class T1DMMain {
 	
 	public void run() {
 		long t = System.currentTimeMillis(); 
+		if (!quiet)
+			out.println(BasicConfigParams.printOptions());
 		out.println(getStrHeader());
 		simulateInterventions(0, true);
 		progress.print();
@@ -215,26 +222,31 @@ public class T1DMMain {
 				}
 
 	        }
-	        final int nPatients = args1.nPatients;
+	        BasicConfigParams.N_PATIENTS = args1.nPatients;
+	        BasicConfigParams.USE_SIMPLE_MODELS = args1.basic;
+	        BasicConfigParams.USE_REVIEW_UTILITIES = args1.altUtils;
+	        BasicConfigParams.MIN_AGE = args1.ageLimits.get(0);
+	        BasicConfigParams.MAX_AGE = args1.ageLimits.get(1);
+	        BasicConfigParams.STUDY_YEAR = args1.year;
+	        
 	        SecondOrderParamsRepository secParams;
 	        if (args1.validation == 1) {
-	        	secParams = new CanadaSecondOrderParams(true, nPatients);
+	        	secParams = new CanadaSecondOrderParams();
 	        }
 	        else if (args1.validation == 2) {
-	        	secParams = new DCCTSecondOrderParams(true, nPatients, args1.basic);
+	        	secParams = new DCCTSecondOrderParams();
 	        }
 	        else if (args1.population == 2) {
-	        	secParams = new UncontrolledSecondOrderParams(true, nPatients, args1.basic);
+	        	secParams = new UncontrolledSecondOrderParams();
 	        }
 	        else {
-	        	secParams = new UnconsciousSecondOrderParams(true, nPatients, args1.basic);
+	        	secParams = new UnconsciousSecondOrderParams();
 	        }
-	        final int singlePatientOutput = args1.singlePatientOutput;
-	        final int nRuns = args1.nRuns;
+	        BasicConfigParams.N_RUNS = args1.nRuns;
 	    	if (args1.noDiscount)
 	    		secParams.setDiscountZero(true);
 	        
-	        final T1DMMain experiment = new T1DMMain(out, nRuns, nPatients, secParams, args1.parallel, args1.quiet, singlePatientOutput, args1.incidence, args1.prevalence, args1.bi);
+	        final T1DMMain experiment = new T1DMMain(out, secParams, args1.parallel, args1.quiet, args1.singlePatientOutput, args1.incidence, args1.prevalence, args1.cumm, args1.bi);
 	        experiment.run();
 		} catch (ParameterException ex) {
 			System.out.println(ex.getMessage());
@@ -245,33 +257,47 @@ public class T1DMMain {
 	}
 	
 	private static class Arguments {
-		@Parameter(names ={"--output", "-o"}, description = "Output file name", order = 1)
+		@Parameter(names ={"--output", "-o"}, description = "Name of the output file name", order = 1)
 		private String outputFileName = null;
 		@Parameter(names ={"--patients", "-n"}, description = "Number of patients to test", order = 2)
-		private int nPatients = DEF_N_PATIENTS;
+		private int nPatients = BasicConfigParams.N_PATIENTS;
 		@Parameter(names ={"--runs", "-r"}, description = "Number of probabilistic runs", order = 3)
-		private int nRuns = DEF_N_RUNS;
+		private int nRuns = BasicConfigParams.N_RUNS;
 		@Parameter(names ={"--validation", "-v"}, description = "Enables validation scenarios (1 for Canada, 2 for DCCT)", order = 8)
 		private int validation = 0;
 		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative population (1 for unconscious, 2 for uncontrolled)", order = 8)
 		private int population = 1;
-		@Parameter(names ={"--single_patient_output", "-es"}, description = "Enables single patient output", order = 4)
+		@Parameter(names ={"--single_patient_output", "-es"}, description = "Enables printing the specified patient's output", order = 4)
 		private int singlePatientOutput = -1;
-		@Parameter(names ={"--nodiscount", "-nd"}, description = "Uses rate discount = 0%", order = 7)
+		@Parameter(names ={"--nodiscount", "-nd"}, description = "Uses discount rate = 0%", order = 7)
 		private boolean noDiscount = false;
 		@Parameter(names ={"--prevalence", "-ep"}, description = "Enables printing prevalence of complications by age group ", order = 9)
 		private boolean prevalence = false;
 		@Parameter(names ={"--incidence", "-ei"}, description = "Enables printing incidence of complications by age group ", order = 9)
 		private boolean incidence = false;
+		@Parameter(names ={"--cumincidence", "-ec"}, description = "Enables printing cummulated incidence of complications by time from start", order = 9)
+		private boolean cumm = false;
 		@Parameter(names ={"--budget", "-ebi"}, description = "Enables printing budget impact", order = 9)
 		private boolean bi = false;
-		
 		@Parameter(names ={"--parallel", "-p"}, description = "Enables parallel execution", order = 5)
 		private boolean parallel = false;
 		@Parameter(names ={"--quiet", "-q"}, description = "Quiet execution (does not print progress info)", order = 6)
 		private boolean quiet = false;
 		@Parameter(names ={"--basic", "-b"}, description = "Use basic progression models, instead of complex (only some complications has complex models)", order = 10)
-		private boolean basic = false;
+		private boolean basic = BasicConfigParams.USE_SIMPLE_MODELS;
+		@Parameter(names ={"--alt_utilities", "-au"}, description = "Enables using alternative utilities from the revision of Beaudet et al. 2014", order = 10)
+		private boolean altUtils = BasicConfigParams.USE_REVIEW_UTILITIES;
+		@Parameter(names = {"--agelimits", "-al"}, description = "Modify age limits [min, max]", arity = 2)
+		private List<Integer> ageLimits = getAgeLimits();
+		@Parameter(names ={"--year", "-y"}, description = "Modifies the year of the study (for cost updating))", order = 8)
+		private int year = BasicConfigParams.STUDY_YEAR;
+	}
+
+	private static List<Integer> getAgeLimits() {
+		final List<Integer> ageLimits = new ArrayList<>();
+		ageLimits.add(BasicConfigParams.MIN_AGE);
+		ageLimits.add(BasicConfigParams.MAX_AGE);
+		return ageLimits;
 	}
 	
 	private class ProblemExecutor implements Runnable {

@@ -85,13 +85,13 @@ public class CanadaCHDSubmodel extends ComplicationSubmodel {
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
 
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(null, MainComplications.CHD), "Probability of healthy to CHD", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, MainComplications.CHD), "Probability of healthy to CHD", 
 				"", P_DNC_CHD));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(MainComplications.NEU, MainComplications.CHD), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.NEU, MainComplications.CHD), "", 
 				"", P_NEU_CHD));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(MainComplications.NPH, MainComplications.CHD), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.NPH, MainComplications.CHD), "", 
 				"", P_NPH_CHD));
-		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(MainComplications.RET, MainComplications.CHD), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.RET, MainComplications.CHD), "", 
 				"", P_RET_CHD));
 		
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainComplications.CHD.name(), 
