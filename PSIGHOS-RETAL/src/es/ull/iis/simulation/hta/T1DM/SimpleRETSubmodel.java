@@ -34,8 +34,10 @@ public class SimpleRETSubmodel extends ComplicationSubmodel {
 	private static final double C_BLI = 469.22;
 	private static final double TC_RET = 0.0;
 	private static final double TC_BLI = 0.0;
-	private static final double DU_RET = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.04 : 0.0156;
-	private static final double DU_BLI = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.074 : 0.0498;
+	// Utility (avg, SD) from either Fenwick et al.; or Sullivan
+	private static final double[] DU_RET = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[] {0.04, (0.066 - 0.014) / 3.92} : new double[] {0.0156, 0.0002};
+	// Utility (avg, SD) from either Clarke et al.; or Sullivan
+	private static final double[] DU_BLI = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[] {0.074, (0.124 - 0.025) / 3.92} : new double[] {0.0498, 0.0002};
 	
 	public enum RETTransitions {
 		HEALTHY_RET,
@@ -101,8 +103,12 @@ public class SimpleRETSubmodel extends ComplicationSubmodel {
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + RET, "Transition cost to RET", "", 2015, TC_RET, SecondOrderParamsRepository.getRandomVariateForCost(TC_RET)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + BLI, "Transition cost to BLI", "", 2015, TC_BLI, SecondOrderParamsRepository.getRandomVariateForCost(TC_BLI)));
 		
-		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + RET, "Disutility of RET", "", DU_RET));
-		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BLI, "Disutility of BLI", "", DU_BLI));
+		final double[] paramsDuRET = SecondOrderParamsRepository.betaParametersFromNormal(DU_RET[0], DU_RET[1]);
+		final double[] paramsDuBLI = SecondOrderParamsRepository.betaParametersFromNormal(DU_BLI[0], DU_BLI[1]);
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + RET, "Disutility of RET", 
+				"", DU_RET[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuRET[0], paramsDuRET[1])));
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BLI, "Disutility of BLI", 
+				"", DU_BLI[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuBLI[0], paramsDuBLI[1])));
 		
 		secParams.registerComplication(MainComplications.RET);
 		secParams.registerHealthStates(RETSubstates);		

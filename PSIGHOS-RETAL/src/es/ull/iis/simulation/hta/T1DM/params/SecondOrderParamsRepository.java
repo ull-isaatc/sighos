@@ -288,7 +288,6 @@ public abstract class SecondOrderParamsRepository {
 
 	public abstract RandomVariate getBaselineHBA1c();
 	public abstract RandomVariate getBaselineAge();
-	public abstract RandomVariate getWeeklySensorUsage();
 	public abstract ComplicationRR getHypoRR();
 	public abstract ComplicationSubmodel[] getComplicationSubmodels();
 	public abstract DeathSubmodel getDeathSubmodel();

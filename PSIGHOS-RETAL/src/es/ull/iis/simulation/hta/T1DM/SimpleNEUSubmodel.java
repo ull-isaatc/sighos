@@ -32,8 +32,10 @@ public class SimpleNEUSubmodel extends ComplicationSubmodel {
 	private static final double C_LEA = 9305.74;
 	private static final double TC_NEU = 0.0;
 	private static final double TC_LEA = 11966.18;
-	private static final double DU_NEU = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.084 : 0.0244;
-	private static final double DU_LEA = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.28 : (0.0379 + 0.0244) / 2;
+	// Utility (avg, SD) from either Bagust and Beale; or Sullivan
+	private static final double[] DU_NEU = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.084, (0.111 - 0.057) / 3.92} : new double[]{0.0244, 0.00012};
+	// Utility (avg, SD) from either Clarke et al.; or Sullivan
+	private static final double[] DU_LEA = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.28, (0.389 - 0.17) / 3.92} : new double[]{(0.0379 + 0.0244) / 2, 0.0002};
 
 	public enum NEUTransitions {
 		HEALTHY_NEU,
@@ -118,8 +120,12 @@ public class SimpleNEUSubmodel extends ComplicationSubmodel {
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + NEU, "Transition cost to NEU", "", 2015, TC_NEU, SecondOrderParamsRepository.getRandomVariateForCost(TC_NEU)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + LEA, "Transition cost to LEA", "", 2015, TC_LEA, SecondOrderParamsRepository.getRandomVariateForCost(TC_LEA)));
 
-		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + NEU, "Disutility of NEU", "", DU_NEU));
-		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + LEA, "Disutility of LEA", "", DU_LEA));
+		final double[] paramsDuNEU = SecondOrderParamsRepository.betaParametersFromNormal(DU_NEU[0], DU_NEU[1]);
+		final double[] paramsDuLEA = SecondOrderParamsRepository.betaParametersFromNormal(DU_LEA[0], DU_LEA[1]);
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + NEU, "Disutility of NEU", 
+				"", DU_NEU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuNEU[0], paramsDuNEU[1])));
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + LEA, "Disutility of LEA", 
+				"", DU_LEA[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuLEA[0], paramsDuLEA[1])));
 		
 		secParams.registerComplication(MainComplications.NEU);
 		secParams.registerHealthStates(NEUSubstates);

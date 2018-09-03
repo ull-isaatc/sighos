@@ -47,6 +47,14 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 //	private static final double[] CI_NPH_CHD = {0.013, 0.034};
 //	private static final double[] CI_RET_CHD = {0.016, 0.043};
 	private static final double U_GENERAL_POP = 0.911400915;
+	// Utility (avg, SD) from either Bagust and Beale; or Sullivan
+	private static final double[] DU_ANGINA = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.09, (0.126 - 0.054) / 3.92} : new double[]{0.0412, 0.0002};
+	// Utility (avg, SD) from either Clarke et al.; or Mar et al. In the latter, the SD has been manually adjusted to generate utilities between 0.4 and 0.7
+	private static final double[] DU_STROKE = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.164, (0.222 - 0.105) / 3.92} : new double[]{(U_GENERAL_POP - (0.4013+0.736)/2), 0.045};
+	// Utility (avg, SD) from either Clarke et al; or Sullivan
+	private static final double[] DU_MI = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.055, (0.067 - 0.042) / 3.92} : new double[]{0.0409, 0.0002};
+	// Utility (avg, SD) from either Clarke et al.; or Sullivan (assumed equal to MI)
+	private static final double[] DU_HF = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.108, (0.169 - 0.048) / 3.92} : new double[]{0.0409, 0.0002};
 	
 	public enum CHDTransitions {
 		HEALTHY_CHD,
@@ -154,15 +162,22 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + STROKE, "Cost of episode of Stroke", "https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 6120.32-2485.66, SecondOrderParamsRepository.getRandomVariateForCost(6120.32-2485.66)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + HF, "Cost of episode of Heart Failure", "https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 5557.66-1054.42, SecondOrderParamsRepository.getRandomVariateForCost(5557.66-1054.42)));
 
+		final double[] paramsDuANGINA = SecondOrderParamsRepository.betaParametersFromNormal(DU_ANGINA[0], DU_ANGINA[1]);
+		final double[] paramsDuMI = SecondOrderParamsRepository.betaParametersFromNormal(DU_MI[0], DU_MI[1]);
+		final double[] paramsDuSTROKE = SecondOrderParamsRepository.betaParametersFromNormal(DU_STROKE[0], DU_STROKE[1]);
+		final double[] paramsDuHF = SecondOrderParamsRepository.betaParametersFromNormal(DU_HF[0], DU_HF[1]);		
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.ANGINA, 
-				"Disutility of angina", "Sullivan et al 2006", BasicConfigParams.USE_REVIEW_UTILITIES ? 0.09 : 0.0412));
+				"Disutility of angina", 
+				"", DU_ANGINA[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuANGINA[0], paramsDuANGINA[1])));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.MI, 
-				"Disutility of MI", "Sullivan et al 2006", BasicConfigParams.USE_REVIEW_UTILITIES ? 0.055 : 0.0409));
+				"Disutility of MI", 
+				"", DU_MI[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuMI[0], paramsDuMI[1])));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.HF, 
-				"Disutility of heart failure", "Sullivan et al 2006", BasicConfigParams.USE_REVIEW_UTILITIES ? 0.108 : 0.0409)); // Assumed equal to MI
+				"Disutility of heart failure", 
+				"", DU_HF[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuHF[0], paramsDuHF[1])));				
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.STROKE, 
 				"Disutility of stroke. Average of autonomous and dependant stroke disutilities", 
-				"Mar et al. 2010", BasicConfigParams.USE_REVIEW_UTILITIES ? 0.164 : (U_GENERAL_POP - (0.4013+0.736)/2)));
+				"", DU_STROKE[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuSTROKE[0], paramsDuSTROKE[1])));
 
 		secParams.registerComplication(MainComplications.CHD);
 		secParams.registerHealthStates(CHDSubstates);

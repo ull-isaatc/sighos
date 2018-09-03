@@ -34,7 +34,6 @@ public class CommonParams extends ModelParams {
 	private final double pMan;
 	private final RandomVariate baselineAge;
 	private final RandomVariate baselineHBA1c;
-	private final RandomVariate weeklySensorUsage;
 	private final double discountRate;
 	
 	private final ComplicationSubmodel[] compSubmodels;
@@ -62,7 +61,6 @@ public class CommonParams extends ModelParams {
 		pMan = secParams.getPMan();
 		baselineAge = secParams.getBaselineAge();
 		baselineHBA1c = secParams.getBaselineHBA1c();
-		weeklySensorUsage = secParams.getWeeklySensorUsage();
 		discountRate = secParams.getDiscountRate();
 
 	}
@@ -95,10 +93,6 @@ public class CommonParams extends ModelParams {
 
 	public double getBaselineHBA1c() {
 		return baselineHBA1c.generate();		
-	}
-
-	public double getWeeklySensorUsage() {
-		return weeklySensorUsage.generate();		
 	}
 
 	public double getDiscountRate() {

@@ -15,6 +15,7 @@ import es.ull.iis.simulation.hta.T1DM.StandardSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
+import simkit.random.RandomNumber;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -23,10 +24,11 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
-	/** Duration of effect of the intervention (the same duration of Bergenstal et al 2010) */
-	private static final double YEARS_OF_EFFECT = 1.5;
-	private static final String STR_AVG_HBA1C_AFTER = "AVG_HBA1C_AFTER_";
+	/** Duration of effect of the intervention (the same duration of Battelino 2012) */
+	private static final double YEARS_OF_EFFECT = 0.5;
+	private static final String STR_LOW_USE_PERCENTAGE = "LOW_USE_PERCENTAGE";
 	
+	// Parameters from Battelino 2012
 	private static final double BASELINE_HBA1C_MIN = 7.5; // Battelino 2012
 	private static final double BASELINE_HBA1C_MAX = 9.5; // Battelino 2012
 	private static final double BASELINE_HBA1C_AVG = 8.5; // Battelino 2012
@@ -35,8 +37,18 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	private static final int BASELINE_AGE_MAX = 70; // Battelino 2012
 	private static final int BASELINE_AGE_AVG = 28; // Battelino 2012
 	private static final int BASELINE_AGE_SD = 17; // Battelino 2012
-
+	private static final double LOW_USAGE_PERCENTAGE_AVG = 0.8; // Battelino 2012
+	/** Number of patients with < 70% [0] and >= 70% [1] usage of the sensor */
+	private static final double[] LOW_USAGE_PERCENTAGE_N = new double[] {43, 110};  
+	/** Average HbA1c reduction after 6 months for patients with < 70% [0] and >= 70% [1] usage of the sensor */
+	private static final double[] HBA1C_REDUCTION_AVG = {0.24, 0.51};
+	// TODO: Incorporate first order variability in the reduction
+//	/** Variability in the HbA1c reduction after 6 months for patients with < 70% [0] and >= 70% [1] usage of the sensor, expresed as +- average */
+//	private static final double[] HBA1C_REDUCTION_PLUS_MINUS = {1.11, 0.07};
+	
 	private static final double C_DNC = 2174.11;
+	private static final double C_SAP = 7662.205833;
+	private static final double C_CSII = 3013.335;
 
 	private static final double U_GENERAL_POP = 0.911400915;
 	private static final double DU_HYPO_EPISODE = 0.0206; // From Canada
@@ -71,9 +83,11 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 		addCostParam(new SecondOrderCostParam(STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", "https://doi.org/10.1007/s13300-017-0285-0", 2017, 716.82, getRandomVariateForCost(716.82)));
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of DNC", "", 2015, C_DNC, getRandomVariateForCost(C_DNC)));
 		
-		// FIXME: Costes de Canada (en dolares canadienses)
-		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + CSIIIntervention.NAME, "Cost of " + CSIIIntervention.NAME, "HTA Canada", 2018, 6817));
-		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX +SAPIntervention.NAME, "Cost of " + SAPIntervention.NAME, "HTA Canada", 2018, 9211));
+		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + CSIIIntervention.NAME, "Annual cost of CSII", 
+				"Own calculations from data provided by medtronic (see Parametros.xls", 2018, C_CSII, SecondOrderParamsRepository.getRandomVariateForCost(C_CSII)));
+		// REVISAR: Asumimos coste completo, incluso aunque no haya adherencia, ya que el SNS se los seguiría facilitando igualmente
+		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX +SAPIntervention.NAME, "Annual cost of SAP",  
+				"Own calculations from data provided by medtronic (see Parametros.xls", 2018, C_SAP, SecondOrderParamsRepository.getRandomVariateForCost(C_SAP)));
 
 		addUtilParam(new SecondOrderParam(STR_U_GENERAL_POPULATION, "Utility of general population", "", U_GENERAL_POP));
 		addUtilParam(new SecondOrderParam(STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "", DU_HYPO_EPISODE));
@@ -81,10 +95,8 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 		
 		addOtherParam(new SecondOrderParam(STR_P_MAN, "Probability of sex = male", "https://doi.org/10.1016/j.endinu.2018.03.008", 0.5));
 		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "Spanish guidelines", 0.03));
-		addOtherParam(new SecondOrderParam(STR_AVG_HBA1C_AFTER + SAPIntervention.NAME, "Average level of HBA1c after " + SAPIntervention.NAME, "https://doi.org/10.1056/NEJMoa1002853", 7.5));
-		addOtherParam(new SecondOrderParam(STR_AVG_HBA1C_AFTER + CSIIIntervention.NAME, "Average level of HBA1c after " + CSIIIntervention.NAME, "https://doi.org/10.1056/NEJMoa1002853", 8.1));
-		// Añadir variables de segundo orden para porcentaje de pacientes con uso del sensor de más o menos del 70%, como explican en Battelino
-		// Los de <70%, tienen disminución de HbA1c de -0.24 +- 1.11%; el resto, de -0.51 +- 0.07%
+		addOtherParam(new SecondOrderParam(STR_LOW_USE_PERCENTAGE, "Percentage of patients with low use of the sensor", 
+				"Battelino 2012", LOW_USAGE_PERCENTAGE_AVG, RandomVariateFactory.getInstance("BetaVariate", LOW_USAGE_PERCENTAGE_N[0], LOW_USAGE_PERCENTAGE_N[1]) ));
 	}
 
 	@Override
@@ -108,18 +120,11 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 		return RandomVariateFactory.getInstance("ScaledVariate", rnd, BASELINE_AGE_MAX - BASELINE_AGE_MIN, BASELINE_AGE_MIN);
 	}
 
-	// TODO: Quitar esto en general.
-	@Override
-	public RandomVariate getWeeklySensorUsage() {
-		return RandomVariateFactory.getInstance("UniformVariate", 5, 7);
-	}
-
 	@Override
 	public T1DMMonitoringIntervention[] getInterventions() {
-		return new T1DMMonitoringIntervention[] {new CSIIIntervention(0, costParams.get(STR_COST_PREFIX + CSIIIntervention.NAME).getValue(baseCase),
-				otherParams.get(STR_AVG_HBA1C_AFTER + CSIIIntervention.NAME).getValue(baseCase)),
+		return new T1DMMonitoringIntervention[] {new CSIIIntervention(0, costParams.get(STR_COST_PREFIX + CSIIIntervention.NAME).getValue(baseCase)),
 				new SAPIntervention(1, costParams.get(STR_COST_PREFIX + SAPIntervention.NAME).getValue(baseCase), 
-						otherParams.get(STR_AVG_HBA1C_AFTER + SAPIntervention.NAME).getValue(baseCase), YEARS_OF_EFFECT)};
+						otherParams.get(STR_LOW_USE_PERCENTAGE).getValue(baseCase), YEARS_OF_EFFECT)};
 	}
 
 	@Override
@@ -191,22 +196,19 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	public class CSIIIntervention extends T1DMMonitoringIntervention {
 		public final static String NAME = "CSII";
 		private final double annualCost;
-		private final double hba1cAfterIntervention;
 		/**
 		 * @param id
 		 * @param shortName
 		 * @param description
 		 */
-		public CSIIIntervention(int id, double annualCost, double hba1cAfterIntervention) {
+		public CSIIIntervention(int id, double annualCost) {
 			super(id, NAME, NAME, BasicConfigParams.MAX_AGE);
 			this.annualCost = annualCost;
-			this.hba1cAfterIntervention = hba1cAfterIntervention;
 		}
 
 		@Override
 		public double getHBA1cLevel(T1DMPatient pat) {
-			return pat.isEffectActive() ? hba1cAfterIntervention : pat.getBaselineHBA1c();
-//			return 2.206 + (0.744*pat.getBaselineHBA1c()) - (0.003*pat.getAge()); // https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3131116/
+			return pat.getBaselineHBA1c();
 		}
 
 		@Override
@@ -219,22 +221,25 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	public class SAPIntervention extends T1DMMonitoringIntervention {
 		public final static String NAME = "SAP";
 		private final double annualCost;
-		private final double hba1cAfterIntervention;
+		private final double[] hba1cReduction;
 		/**
 		 * @param id
 		 * @param shortName
 		 * @param description
 		 */
-		public SAPIntervention(int id, double annualCost, double hba1cAfterIntervention, double yearsOfEffect) {
+		public SAPIntervention(int id, double annualCost, double lowUsePercentage, double yearsOfEffect) {
 			super(id, NAME, NAME, yearsOfEffect);
 			this.annualCost = annualCost;
-			this.hba1cAfterIntervention = hba1cAfterIntervention;
+			this.hba1cReduction = new double[nPatients];
+			final RandomNumber rnd = getRngFirstOrder();
+			for (int i = 0; i < nPatients; i++) {
+				hba1cReduction[i] = (rnd.draw() < lowUsePercentage) ? HBA1C_REDUCTION_AVG[0] : HBA1C_REDUCTION_AVG[1]; 
+			}
 		}
 
 		@Override
 		public double getHBA1cLevel(T1DMPatient pat) {
-			return pat.isEffectActive() ? hba1cAfterIntervention : pat.getBaselineHBA1c();
-//			return 2.206 + 1.491 + (0.618*pat.getBaselineHBA1c()) - (0.150 * Math.max(0, pat.getWeeklySensorUsage() - MIN_WEEKLY_USAGE)) - (0.005*pat.getAge());
+			return pat.getBaselineHBA1c() - (pat.isEffectActive() ? hba1cReduction[pat.getIdentifier()] : 0);
 		}
 
 		@Override

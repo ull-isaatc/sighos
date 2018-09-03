@@ -34,8 +34,6 @@ public class T1DMPatient extends Patient {
 	private final double baselineHBA1c;
 	/** Current level of HBA1c */
 	private double hba1c;
-	/** Days a week usage of the sensor (for continuous glucose monitoring) */
-	final private double weeklySensorUsage;
 	final private long durationOfEffect;
 	
 	private final CommonParams commonParams;
@@ -60,7 +58,6 @@ public class T1DMPatient extends Patient {
 		this.initAge = BasicConfigParams.YEAR_CONVERSION*commonParams.getBaselineAge();
 		this.sex = commonParams.getSex(this);
 		this.baselineHBA1c = commonParams.getBaselineHBA1c();
-		this.weeklySensorUsage = commonParams.getWeeklySensorUsage();
 		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getAvailableHealthStates().size()];
 		Arrays.fill(comorbidityEvents, null);
 		hypoEvents = new ArrayList<>();
@@ -76,7 +73,6 @@ public class T1DMPatient extends Patient {
 		this.initAge = original.initAge;
 		this.sex = original.sex;
 		this.baselineHBA1c = original.baselineHBA1c;
-		this.weeklySensorUsage = original.weeklySensorUsage;
 		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getAvailableHealthStates().size()];
 		Arrays.fill(comorbidityEvents, null);
 		hypoEvents = new ArrayList<>();
@@ -142,13 +138,6 @@ public class T1DMPatient extends Patient {
 	 */
 	public double getHba1c() {
 		return hba1c;
-	}
-
-	/**
-	 * @return the weeklySensorUsage
-	 */
-	public double getWeeklySensorUsage() {
-		return weeklySensorUsage;
 	}
 
 	/**

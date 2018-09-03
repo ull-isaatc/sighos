@@ -32,7 +32,7 @@ public class BasicConfigParams {
 	/** Maximum age reachable by patients */
 	public static int MAX_AGE = 100;
 	/** If true, uses the utilities from the revision of Beaudet et al. 2014 */
-	public static boolean USE_REVIEW_UTILITIES = false;
+	public static boolean USE_REVIEW_UTILITIES = true;
 	/** If true, uses the simplest models for diseases */
 	public static boolean USE_SIMPLE_MODELS = false;
 	/** If true, all the patients start with the same age; otherwise, uses a probability distribution to assign ages */ 

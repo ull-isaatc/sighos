@@ -84,11 +84,6 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 	}
 
 	@Override
-	public RandomVariate getWeeklySensorUsage() {
-		return RandomVariateFactory.getInstance("ConstantVariate", 7);
-	}
-
-	@Override
 	public T1DMMonitoringIntervention[] getInterventions() {
 		return new T1DMMonitoringIntervention[] {new CanadaIntervention1(0), new CanadaIntervention2(1)};
 	}

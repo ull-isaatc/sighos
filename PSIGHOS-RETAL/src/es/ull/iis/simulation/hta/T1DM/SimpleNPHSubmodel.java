@@ -34,8 +34,10 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 	private static final double C_ESRD = 34259.48;
 	private static final double TC_NPH = 33183.74;
 	private static final double TC_ESRD = 3250.73;
-	private static final double DU_NPH = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.048 : 0.0527;
-	private static final double DU_ESRD = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.204 : 0.0603;
+	// Utility (avg, SD) from either Bagust and Beale; or Sullivan
+	private static final double[] DU_NPH = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[] {0.048, (0.091 - 0.005) / 3.92}: new double[] {0.0527, 0.0001};
+	// Utility (avg, SD) from either Wasserfallen et al.; or Sullivan
+	private static final double[] DU_ESRD = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[] {0.204, (0.342 - 0.066) / 3.92} : new double[] {0.0603, 0.0002};
 
 	public enum NPHTransitions {
 		HEALTHY_NPH,
@@ -132,8 +134,12 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + NPH, "Transition cost to NPH", "", 2015, TC_NPH, SecondOrderParamsRepository.getRandomVariateForCost(TC_NPH)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + ESRD, "Transition cost to ESRD", "", 2015, TC_ESRD, SecondOrderParamsRepository.getRandomVariateForCost(TC_ESRD)));
 		
-		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + NPH, "Disutility of NPH", "", DU_NPH));
-		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + ESRD, "Disutility of ESRD", "", DU_ESRD));
+		final double[] paramsDuNPH = SecondOrderParamsRepository.betaParametersFromNormal(DU_NPH[0], DU_NPH[1]);
+		final double[] paramsDuESRD = SecondOrderParamsRepository.betaParametersFromNormal(DU_ESRD[0], DU_ESRD[1]);
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + NPH, "Disutility of NPH", 
+				"", DU_NPH[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuNPH[0], paramsDuNPH[1])));
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + ESRD, "Disutility of ESRD", 
+				"", DU_ESRD[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuESRD[0], paramsDuESRD[1])));
 		
 		secParams.registerComplication(MainComplications.NPH);
 		secParams.registerHealthStates(NPHSubstates);

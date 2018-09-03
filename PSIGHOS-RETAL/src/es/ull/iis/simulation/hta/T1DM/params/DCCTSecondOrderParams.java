@@ -86,11 +86,6 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 	}
 
 	@Override
-	public RandomVariate getWeeklySensorUsage() {
-		return RandomVariateFactory.getInstance("ConstantVariate", 7);
-	}
-
-	@Override
 	public T1DMMonitoringIntervention[] getInterventions() {
 		return new T1DMMonitoringIntervention[] {new ConventionalTherapy(0), new IntensiveTherapy(1)};
 	}

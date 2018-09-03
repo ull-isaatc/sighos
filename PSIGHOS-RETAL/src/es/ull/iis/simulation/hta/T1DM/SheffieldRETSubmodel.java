@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.T1DM;
 import java.util.Collection;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
@@ -13,6 +14,7 @@ import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.T1DM.params.SheffieldComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import simkit.random.RandomNumber;
+import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -25,19 +27,22 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 	public static T1DMComorbidity BLI = new T1DMComorbidity("BLI", "Blindness", MainComplications.RET);
 	public static T1DMComorbidity[] RETSubstates = new T1DMComorbidity[] {BGRET, PRET, ME, BLI};
 	
+	private static final double CALIBRATION_COEF_BGRET = 1.0;
 	private static final double BETA_BGRET = 10.10;
 	private static final double BETA_PRET = 6.30;
 	private static final double BETA_ME = 1.20;
-	private static final double DU_BGRET = 0.04;
-	private static final double DU_PRET = 0.04;
-	private static final double DU_ME = 0.04;
-	private static final double DU_BLI = 0.07;
-	private static final double C_BGRET = 327.6;
-	private static final double C_PRET = 4801.05;
-	private static final double C_ME = 11255.79;
+	// Assumption
+	private static final double DU_BGRET = 0.0;
+	// Utility (avg, SD) from either Fenwick et al.; or Sullivan
+	private static final double[] DU_PRET = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[] {0.04, (0.066 - 0.014) / 3.92} : new double[] {0.0156, 0.0002};
+	// Utility (avg, SD) from either Fenwick et al.; or Sullivan
+	private static final double[] DU_ME = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[] {0.04, (0.066 - 0.014) / 3.92} : new double[] {0.0156, 0.0002};
+	// Utility (avg, SD) from either Clarke et al.; or Sullivan
+	private static final double[] DU_BLI = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[] {0.074, (0.124 - 0.025) / 3.92} : new double[] {0.0498, 0.0002};
+	private static final double C_BGRET = 146.4525; // Detail: Parametros.xls
+	private static final double C_PRET = 6394.62; // Detail: Parametros.xls
+	private static final double C_ME = 6785.16; // Detail: Parametros.xls
 	private static final double C_BLI = 2405.35;
-	// The combined cost for PRET and ME requires substracting the cost of appointments in PRET to avoid double counting
-	private static final double C_PRET_ME = C_PRET + C_ME - 280.8;
 	
 	public enum RETTransitions {
 		HEALTHY_BGRET(null, BGRET),
@@ -81,7 +86,6 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 	private final double[] costPRET;
 	private final double[] costME;
 	private final double[] costBLI;
-	private final double costPRET_ME;
 	private final double duBGRET;
 	private final double duPRET;
 	private final double duME;
@@ -133,7 +137,6 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 		costPRET = secParams.getCostsForHealthState(PRET);
 		costME = secParams.getCostsForHealthState(ME);
 		costBLI = secParams.getCostsForHealthState(BLI);
-		costPRET_ME = secParams.getCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + PRET + ME);
 		
 		duBGRET = secParams.getDisutilityForHealthState(BGRET);
 		duPRET = secParams.getDisutilityForHealthState(PRET);
@@ -142,7 +145,7 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
-		final double pDNC_BGRET = 0.0454;
+		final double pDNC_BGRET = 0.0454 * CALIBRATION_COEF_BGRET;
 		final double pDNC_PRET = 0.0013;
 		final double pDNC_ME = 0.0012;
 		final double pBGRET_PRET = 0.0595;
@@ -176,13 +179,18 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + BGRET, "Cost of BGRET", "Original analysis", 2018, C_BGRET, SecondOrderParamsRepository.getRandomVariateForCost(C_BGRET)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + PRET, "Cost of PRET", "Original analysis", 2018, C_PRET, SecondOrderParamsRepository.getRandomVariateForCost(C_PRET)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ME, "Cost of ME", "Original analysis", 2018, C_ME, SecondOrderParamsRepository.getRandomVariateForCost(C_ME)));
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + PRET + ME, "Cost of PRET+ME", "Original analysis", 2018, C_PRET_ME, SecondOrderParamsRepository.getRandomVariateForCost(C_PRET_ME)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + BLI, "Cost of BLI", "Conget et al.", 2016, C_BLI, SecondOrderParamsRepository.getRandomVariateForCost(C_BLI)));
 		
+		final double[] paramsDuPRET = SecondOrderParamsRepository.betaParametersFromNormal(DU_PRET[0], DU_PRET[1]);
+		final double[] paramsDuME = SecondOrderParamsRepository.betaParametersFromNormal(DU_ME[0], DU_ME[1]);
+		final double[] paramsDuBLI = SecondOrderParamsRepository.betaParametersFromNormal(DU_BLI[0], DU_BLI[1]);
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BGRET, "Disutility of BGRET", "", DU_BGRET));
-		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + PRET, "Disutility of PRET", "", DU_PRET));
-		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + ME, "Disutility of RET", "", DU_ME));
-		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BLI, "Disutility of BLI", "", DU_BLI));
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + PRET, "Disutility of PRET", 
+				"", DU_PRET[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuPRET[0], paramsDuPRET[1])));
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + ME, "Disutility of RET", 
+				"", DU_ME[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuME[0], paramsDuME[1])));
+		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BLI, "Disutility of BLI", 
+				"", DU_BLI[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuBLI[0], paramsDuBLI[1])));
 		
 		secParams.registerComplication(MainComplications.RET);
 		secParams.registerHealthStates(RETSubstates);		
@@ -326,12 +334,8 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 
 		if (state.contains(SheffieldRETSubmodel.BLI))
 			cost += costBLI[0];
-		else if (state.contains(SheffieldRETSubmodel.ME)) {
-			if (state.contains(SheffieldRETSubmodel.PRET))
-				cost += costPRET_ME;
-			else 
-				cost += costME[0];
-		}
+		else if (state.contains(SheffieldRETSubmodel.ME))
+			cost += costME[0];
 		else if (state.contains(SheffieldRETSubmodel.PRET))
 			cost += costPRET[0];
 		else if (state.contains(SheffieldRETSubmodel.BGRET))

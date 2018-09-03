@@ -23,20 +23,13 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
-//	public enum Population {
-//		UNCONTROLLED(27, 8.3, 1.0, "https://doi.org/10.1056/NEJMoa1002853"),
-//		UNCONSCIOUS(18.6, 7.5, 0.0, "https://doi.org/10.1016/j.endinu.2018.03.008");
-//		
-//		private Population(double baselineAge, double baselineHbA1c, double hba1cAfterIntervention, String source) {
-//		}
-//	}
 	/** Duration of effect of the intervention (supposed as in Canada) */
 	private static final double YEARS_OF_EFFECT = 1.0;
-	private static final String STR_SENSOR_ADHERENCE_LOWER_LIMIT = "SENSOR_ADHERENCE LOWER LIMIT";
-	private static final String STR_SENSOR_ADHERENCE_UPPER_LIMIT = "SENSOR_ADHERENCE UPPER LIMIT";
-	private static final String STR_AVG_HBA1C_AFTER = "AVG_HBA1C_AFTER_";
 
 	private static final double C_DNC = 2174.11;
+	private static final double C_SAP = 7662.205833;
+	private static final double C_CSII = 3013.335;
+	
 	private static final double U_GENERAL_POP = 0.911400915;
 	private static final double DU_HYPO_EPISODE = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.047 : 0.0206; // From Canada
 	private static final double DU_DNC = BasicConfigParams.USE_REVIEW_UTILITIES ? (U_GENERAL_POP - 0.785) : 0.0351;
@@ -73,9 +66,11 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 		addCostParam(new SecondOrderCostParam(STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", "https://doi.org/10.1007/s13300-017-0285-0", 2017, 716.82, getRandomVariateForCost(716.82)));
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of DNC", "", 2015, C_DNC, getRandomVariateForCost(C_DNC)));
 		
-		// FIXME: Costes de Canada (en dolares canadienses)
-		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + CSIIIntervention.NAME, "Cost of " + CSIIIntervention.NAME, "HTA Canada", 2018, 6817));
-		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX +SAPIntervention.NAME, "Cost of " + SAPIntervention.NAME, "HTA Canada", 2018, 9211));
+		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + CSIIIntervention.NAME, "Annual cost of CSII", 
+				"Own calculations from data provided by medtronic (see Parametros.xls)", 2018, C_CSII, SecondOrderParamsRepository.getRandomVariateForCost(C_CSII)));
+		// REVISAR: Asumimos coste completo, incluso aunque no haya adherencia, ya que el SNS se los seguiría facilitando igualmente
+		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX +SAPIntervention.NAME, "Annual cost of SAP",  
+				"Own calculations from data provided by medtronic (see Parametros.xls", 2018, C_SAP, SecondOrderParamsRepository.getRandomVariateForCost(C_SAP)));
 
 		addUtilParam(new SecondOrderParam(STR_U_GENERAL_POPULATION, "Utility of general population", "", U_GENERAL_POP));
 		addUtilParam(new SecondOrderParam(STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "", DU_HYPO_EPISODE));
@@ -83,9 +78,6 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 		
 		addOtherParam(new SecondOrderParam(STR_P_MAN, "Probability of sex = male", "https://doi.org/10.1016/j.endinu.2018.03.008", 0.5));
 		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "Spanish guidelines", 0.03));
-		addOtherParam(new SecondOrderParam(STR_AVG_HBA1C_AFTER + SAPIntervention.NAME, "Average level of HBA1c after " + SAPIntervention.NAME, "https://doi.org/10.1016/j.endinu.2018.03.008", 7.5));
-		addOtherParam(new SecondOrderParam(STR_SENSOR_ADHERENCE_LOWER_LIMIT, "Lower limit for weekly sensor adherence", "", 5));
-		addOtherParam(new SecondOrderParam(STR_SENSOR_ADHERENCE_UPPER_LIMIT, "Upper limit for weekly sensor adherence", "", 7));
 	}
 
 	@Override
@@ -103,15 +95,10 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 	}
 
 	@Override
-	public RandomVariate getWeeklySensorUsage() {
-		return RandomVariateFactory.getInstance("UniformVariate", otherParams.get(STR_SENSOR_ADHERENCE_LOWER_LIMIT).getValue(baseCase), otherParams.get(STR_SENSOR_ADHERENCE_UPPER_LIMIT).getValue(baseCase));
-	}
-
-	@Override
 	public T1DMMonitoringIntervention[] getInterventions() {
-		return new T1DMMonitoringIntervention[] {new CSIIIntervention(0, costParams.get(STR_COST_PREFIX + CSIIIntervention.NAME).getValue(baseCase)),
-				new SAPIntervention(1, costParams.get(STR_COST_PREFIX + SAPIntervention.NAME).getValue(baseCase), 
-						otherParams.get(STR_AVG_HBA1C_AFTER + SAPIntervention.NAME).getValue(baseCase), YEARS_OF_EFFECT)};
+		return new T1DMMonitoringIntervention[] {
+				new CSIIIntervention(0, costParams.get(STR_COST_PREFIX + CSIIIntervention.NAME).getValue(baseCase)),
+				new SAPIntervention(1, costParams.get(STR_COST_PREFIX + SAPIntervention.NAME).getValue(baseCase), YEARS_OF_EFFECT)};
 	}
 
 	@Override
@@ -208,21 +195,19 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 	public class SAPIntervention extends T1DMMonitoringIntervention {
 		public final static String NAME = "SAP";
 		private final double annualCost;
-		private final double hba1cAfterIntervention;
 		/**
 		 * @param id
 		 * @param shortName
 		 * @param description
 		 */
-		public SAPIntervention(int id, double annualCost, double hba1cAfterIntervention, double yearsOfEffect) {
+		public SAPIntervention(int id, double annualCost, double yearsOfEffect) {
 			super(id, NAME, NAME, yearsOfEffect);
 			this.annualCost = annualCost;
-			this.hba1cAfterIntervention = hba1cAfterIntervention;
 		}
 
 		@Override
 		public double getHBA1cLevel(T1DMPatient pat) {
-			return pat.isEffectActive() ? hba1cAfterIntervention : pat.getBaselineHBA1c();
+			return pat.getBaselineHBA1c();
 //			return 2.206 + 1.491 + (0.618*pat.getBaselineHBA1c()) - (0.150 * Math.max(0, pat.getWeeklySensorUsage() - MIN_WEEKLY_USAGE)) - (0.005*pat.getAge());
 		}
 
