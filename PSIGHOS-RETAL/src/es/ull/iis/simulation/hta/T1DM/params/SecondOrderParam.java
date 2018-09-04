@@ -27,6 +27,10 @@ import simkit.random.RandomVariateFactory;
 			lastGeneratedValue = Double.NaN;
 		}
 		
+		public SecondOrderParam(String name, String description, String source, double detValue, String rndFunction, Object... params) {
+			this(name, description, source, detValue, RandomVariateFactory.getInstance(rndFunction, params));
+		}
+		
 		public SecondOrderParam(String name, String description, String source, double detValue) {
 			this(name, description, source, detValue, RandomVariateFactory.getInstance("ConstantVariate", detValue));
 		}

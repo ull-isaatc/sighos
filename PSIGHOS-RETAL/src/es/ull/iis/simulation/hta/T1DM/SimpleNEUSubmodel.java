@@ -8,10 +8,10 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
-import es.ull.iis.simulation.hta.T1DM.params.HbA1c10ReductionComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.T1DM.params.SheffieldComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
@@ -25,9 +25,13 @@ public class SimpleNEUSubmodel extends ComplicationSubmodel {
 	public static T1DMComorbidity LEA = new T1DMComorbidity("LEA", "Low extremity amputation", MainComplications.NEU);
 	public static T1DMComorbidity[] NEUSubstates = new T1DMComorbidity[] {NEU, LEA};
 	
-	private static final double REF_HBA1C = 9.1; 
+	private static final double P_DNC_NEU = 0.0354;
 	private static final double P_NEU_LEA = 0.0154; // Klein et al. 2004. También usado en Sheffield (DCCT, Moss et al)
+	private static final double P_DNC_LEA = 0.0003;
+	private static final double[] CI_DNC_NEU = {0.020, 0.055}; // McQueen
+	private static final double[] LIMITS_DNC_LEA = {0.0, 0.0006}; // Assumption
 	private static final double[] CI_NEU_LEA = {0.01232, 0.01848};
+	private static final double BETA_NEU = 5.3;
 	private static final double C_NEU = 3108.86;
 	private static final double C_LEA = 9305.74;
 	private static final double TC_NEU = 0.0;
@@ -63,8 +67,7 @@ public class SimpleNEUSubmodel extends ComplicationSubmodel {
 		invProb[NEUTransitions.NEU_LEA.ordinal()] = -1 / secParams.getProbability(SimpleNEUSubmodel.NEU, SimpleNEUSubmodel.LEA);
 
 		rr = new ComplicationRR[NEUTransitions.values().length];
-		rr[NEUTransitions.HEALTHY_NEU.ordinal()] = new HbA1c10ReductionComplicationRR(
-				secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + SimpleNEUSubmodel.NEU.name()), REF_HBA1C);
+		rr[NEUTransitions.HEALTHY_NEU.ordinal()] = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + NEU)); 
 		rr[NEUTransitions.HEALTHY_LEA.ordinal()] = SecondOrderParamsRepository.NO_RR;
 		rr[NEUTransitions.NEU_LEA.ordinal()] = SecondOrderParamsRepository.NO_RR;
 		final int nPatients = secParams.getnPatients();
@@ -84,27 +87,24 @@ public class SimpleNEUSubmodel extends ComplicationSubmodel {
 	}
 	
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
-		final double coefHbA1c = REF_HBA1C/10;
 		// From Sheffield
-		final double pDNC_NEU = 0.0354 * Math.pow(coefHbA1c, 5.3);
-		final double[] paramsNEU_LEA = SecondOrderParamsRepository.betaParametersFromNormal(P_NEU_LEA, SecondOrderParamsRepository.sdFrom95CI(CI_NEU_LEA));
+		final double[] paramsDNC_NEU = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_NEU, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_NEU));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, NEU), 
 				"Probability of healthy to clinically confirmed neuropathy, as processed in Sheffield Type 1 model", 
-				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", pDNC_NEU));
+				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
+				P_DNC_NEU, "BetaVariate", paramsDNC_NEU[0], paramsDNC_NEU[1]));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, LEA), 
 				"Probability of healthy to PAD with amputation, as processed in Sheffield Type 1 model", 
-				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 0.0003));
+				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
+				P_DNC_LEA, "UniformVariate", LIMITS_DNC_LEA[0], LIMITS_DNC_LEA[1]));
+		final double[] paramsNEU_LEA = SecondOrderParamsRepository.betaParametersFromNormal(P_NEU_LEA, SecondOrderParamsRepository.sdFrom95CI(CI_NEU_LEA));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(NEU, LEA), 
 				"Probability of clinically confirmed neuropathy to PAD with amputation", 
 				"Klein et al. 2004 (also Sheffield)", 
-				P_NEU_LEA, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_LEA[0], paramsNEU_LEA[1])));
+				P_NEU_LEA, "BetaVariate", paramsNEU_LEA[0], paramsNEU_LEA[1]));
 
-//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + MainComplications.NEU.name(), "Beta for confirmed clinical neuropathy", 
-//		"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield", 5.3));
-		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + NEU.name(), 
-				"%risk reducion for combined groups for confirmed clinical neuropathy", 
-				"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 
-				0.3, RandomVariateFactory.getInstance("NormalVariate", 0.3, SecondOrderParamsRepository.sdFrom95CI(new double[] {0.18, 0.40}))));
+		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + NEU, "Beta for confirmed clinical neuropathy", 
+		"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield", BETA_NEU));
 
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_IMR_PREFIX + NEU.name(), 
 				"Increased mortality risk due to peripheral neuropathy (vibratory sense diminished)", 

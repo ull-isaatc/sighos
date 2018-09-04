@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.T1DM.params;
 import es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.DeathSubmodel;
 import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.SheffieldNPHSubmodel;
 import es.ull.iis.simulation.hta.T1DM.SheffieldRETSubmodel;
 import es.ull.iis.simulation.hta.T1DM.SimpleCHDSubmodel;
 import es.ull.iis.simulation.hta.T1DM.SimpleNEUSubmodel;
@@ -41,12 +42,13 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 		BasicConfigParams.MIN_AGE = BASELINE_AGE_MIN;
 		if (BasicConfigParams.USE_SIMPLE_MODELS) {
 			SimpleRETSubmodel.registerSecondOrder(this);;
+			SimpleNPHSubmodel.registerSecondOrder(this);
 		}
 		else {
 			SheffieldRETSubmodel.registerSecondOrder(this);;
+			SheffieldNPHSubmodel.registerSecondOrder(this);
 		}
 		SimpleCHDSubmodel.registerSecondOrder(this);
-		SimpleNPHSubmodel.registerSecondOrder(this);
 		SimpleNEUSubmodel.registerSecondOrder(this);
 
 		// Severe hypoglycemic episodes
@@ -111,10 +113,16 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 	public DeathSubmodel getDeathSubmodel() {
 		final StandardSpainDeathSubmodel dModel = new StandardSpainDeathSubmodel(getRngFirstOrder(), nPatients);
 
+		if (BasicConfigParams.USE_SIMPLE_MODELS) {
+			dModel.addIMR(SimpleNPHSubmodel.NPH, getIMR(SimpleNPHSubmodel.NPH));
+			dModel.addIMR(SimpleNPHSubmodel.ESRD, getIMR(SimpleNPHSubmodel.ESRD));
+		}
+		else {
+			dModel.addIMR(SheffieldNPHSubmodel.ALB2, getIMR(SheffieldNPHSubmodel.ALB2));
+			dModel.addIMR(SheffieldNPHSubmodel.ESRD, getIMR(SheffieldNPHSubmodel.ESRD));			
+		}
 		dModel.addIMR(SimpleNEUSubmodel.NEU, getIMR(SimpleNEUSubmodel.NEU));
 		dModel.addIMR(SimpleNEUSubmodel.LEA, getIMR(SimpleNEUSubmodel.LEA));
-		dModel.addIMR(SimpleNPHSubmodel.NPH, getIMR(SimpleNPHSubmodel.NPH));
-		dModel.addIMR(SimpleNPHSubmodel.ESRD, getIMR(SimpleNPHSubmodel.ESRD));
 		dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(MainComplications.CHD));
 		dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(MainComplications.CHD));
 		dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(MainComplications.CHD));
@@ -126,17 +134,16 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 	public ComplicationSubmodel[] getComplicationSubmodels() {
 		final ComplicationSubmodel[] comps = new ComplicationSubmodel[MainComplications.values().length];
 		
-		// Adds nephropathy submodel
-		comps[MainComplications.NPH.ordinal()] = new SimpleNPHSubmodel(this);
-		
 		// Adds neuropathy submodel
 		comps[MainComplications.NEU.ordinal()] = new SimpleNEUSubmodel(this);
 		
-		// Adds retinopathy submodel
+		// Adds nephropathy and retinopathy submodels
 		if (BasicConfigParams.USE_SIMPLE_MODELS) {
+			comps[MainComplications.NPH.ordinal()] = new SimpleNPHSubmodel(this);
 			comps[MainComplications.RET.ordinal()] = new SimpleRETSubmodel(this);
 		}
 		else {
+			comps[MainComplications.NPH.ordinal()] = new SheffieldNPHSubmodel(this);
 			comps[MainComplications.RET.ordinal()] = new SheffieldRETSubmodel(this);
 		}
 		

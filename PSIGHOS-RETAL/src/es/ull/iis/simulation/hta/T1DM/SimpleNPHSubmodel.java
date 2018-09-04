@@ -8,10 +8,10 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
-import es.ull.iis.simulation.hta.T1DM.params.HbA1c10ReductionComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.T1DM.params.SheffieldComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
@@ -25,9 +25,13 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 	public static T1DMComorbidity ESRD = new T1DMComorbidity("ESRD", "End-Stage Renal Disease", MainComplications.NPH);
 	public static T1DMComorbidity[] NPHSubstates = new T1DMComorbidity[] {NPH, ESRD};
 
-	private static final double REF_HBA1C = 9.1; 
+	private static final double BETA_NPH = 3.25;
+	private static final double P_DNC_NPH = 0.0436;
 	private static final double P_NEU_NPH = 0.097;
 	private static final double P_NPH_ESRD = 0.0133;
+	private static final double P_DNC_ESRD = 0.0002;
+	private static final double[] LIMITS_DNC_ESRD = {0.0, 0.0004}; // Assumption
+	private static final double[] CI_DNC_NPH = {0.0136, 0.0736}; // Assumption
 	private static final double[] CI_NEU_NPH = {0.055, 0.149};
 	private static final double[] CI_NPH_ESRD = {0.01064, 0.01596};
 	private static final double C_NPH = 5180.26;
@@ -67,7 +71,7 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 		invProb[NPHTransitions.NEU_NPH.ordinal()] = -1 / secParams.getProbability(MainComplications.NEU, NPH);
 		
 		rr = new ComplicationRR[NPHTransitions.values().length];
-		final ComplicationRR rrToNPH = new HbA1c10ReductionComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + NPH.name()), REF_HBA1C); 
+		final ComplicationRR rrToNPH = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + NPH)); 
 		rr[NPHTransitions.HEALTHY_NPH.ordinal()] = rrToNPH;
 		rr[NPHTransitions.HEALTHY_ESRD.ordinal()] = SecondOrderParamsRepository.NO_RR;
 		rr[NPHTransitions.NPH_ESRD.ordinal()] = SecondOrderParamsRepository.NO_RR;
@@ -91,34 +95,31 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
-		final double coefHbA1c = REF_HBA1C/10;
-		// From Sheffield
-		final double pDNC_NPH = 0.0436 * Math.pow(coefHbA1c, 3.25);
-		
+		final double[] paramsDNC_NPH = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_NPH, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_NPH));
 		final double[] paramsNEU_NPH = SecondOrderParamsRepository.betaParametersFromNormal(P_NEU_NPH, SecondOrderParamsRepository.sdFrom95CI(CI_NEU_NPH));
 		final double[] paramsNPH_ESRD = SecondOrderParamsRepository.betaParametersFromNormal(P_NPH_ESRD, SecondOrderParamsRepository.sdFrom95CI(CI_NPH_ESRD));
 
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, NPH), 
 				"Probability of healthy to microalbuminutia, as processed in Sheffield Type 1 model", 
 				"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-				pDNC_NPH));
+				P_DNC_NPH, "BetaVariate", paramsDNC_NPH[0], paramsDNC_NPH[1]));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(NPH, ESRD), 
 				"Probability of microalbuminuria to ESRD", 
 				"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-				P_NPH_ESRD, RandomVariateFactory.getInstance("BetaVariate", paramsNPH_ESRD[0], paramsNPH_ESRD[1])));
+				P_NPH_ESRD, "BetaVariate", paramsNPH_ESRD[0], paramsNPH_ESRD[1]));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ESRD), 
 				"Probability of healthy to ESRD, as processed in Sheffield Type 1 model", 
 				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
-				0.0002));
+				P_DNC_ESRD, "UniformVariate", LIMITS_DNC_ESRD[0], LIMITS_DNC_ESRD[1]));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.NEU, MainComplications.NPH), 
 				"", 
 				"", 
-				P_NEU_NPH, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_NPH[0], paramsNEU_NPH[1])));		
+				P_NEU_NPH, "BetaVariate", paramsNEU_NPH[0], paramsNEU_NPH[1]));		
 		
-		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainComplications.NPH.name(), 
+		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + NPH, 
 				"%risk reducion for combined groups for microalbuminuria (>= 40 mg/24 h)", 
 				"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 
-				0.25, RandomVariateFactory.getInstance("NormalVariate", 0.25, SecondOrderParamsRepository.sdFrom95CI(new double[] {0.19, 0.32}))));
+				BETA_NPH)); 
 
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_IMR_PREFIX + NPH.name(), 
 				"Increased mortality risk due to severe proteinuria", 

@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.hta.params;
 
 /**
- * A class to update costs according to the Spanish IPC. Uses the values of IPC in January for each year.
- * FIXME: REVISAR MÉTODO!!!!
+ * A class to update costs according to the Spanish IPC. Uses the values of IPC in January for each year. 
+ * Currently updated up to the 2018 IPC. Future uses require adding extra values to both GENERAL_INDEX and HEALTHCARE_INDEX
  * @author Iván Castilla Rodríguez
  *
  */
@@ -21,7 +21,6 @@ public class SpanishIPCUpdate {
 	 * 
 	 */
 	public SpanishIPCUpdate() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public static double updateCost(double cost, int originalYear, int newYear) {
@@ -41,12 +40,13 @@ public class SpanishIPCUpdate {
 		final double[] ipc = useGeneralIndex ? GENERAL_INDEX : HEALTHCARE_INDEX;
 		final double original_ipc = ipc[originalYear - FIRST_YEAR];
 		final double new_ipc = ipc[newYear - FIRST_YEAR];
-		return cost * (2 * new_ipc - original_ipc) / new_ipc;
+//		return cost * (2 * new_ipc - original_ipc) / new_ipc;
+		return cost * Math.round(1000 * new_ipc / original_ipc) / 1000d;
 	}
 	
-//	public static void main(String[] args) {
-//		double cost = 100;
-//		for (int i = 2014; i < 2018; i++)
-//			System.out.println(cost + " -->(" + i + ") " + updateCost(cost, i, 2018));
-//	}
+	public static void main(String[] args) {
+		double cost = 100;
+		for (int i = 2014; i < 2018; i++)
+			System.out.println(cost + " -->(" + i + ") " + updateCost(cost, i, 2018));
+	}
 }
