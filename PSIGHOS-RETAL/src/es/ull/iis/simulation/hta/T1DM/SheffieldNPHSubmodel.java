@@ -91,7 +91,7 @@ public class SheffieldNPHSubmodel extends ComplicationSubmodel {
 		rr[NPHTransitions.ALB2_ESRD.ordinal()] = SecondOrderParamsRepository.NO_RR;
 		rr[NPHTransitions.ALB1_ALB2.ordinal()] = rrToALB2;
 		// Assume the same RR from healthy to ALB1 than from NEU to ALB1
-		rr[NPHTransitions.NEU_ALB1.ordinal()] = rrToALB1;
+		rr[NPHTransitions.NEU_ALB1.ordinal()] = SecondOrderParamsRepository.NO_RR;
 		
 		final int nPatients = secParams.getnPatients();
 		final RandomNumber rng = secParams.getRngFirstOrder();

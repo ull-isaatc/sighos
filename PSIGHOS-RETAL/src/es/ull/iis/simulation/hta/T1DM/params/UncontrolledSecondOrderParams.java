@@ -50,6 +50,8 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	private static final double C_SAP = 7662.205833;
 	private static final double C_CSII = 3013.335;
 
+	/** [Events, no events] of severe hypoglycemia in the Battelino et al. study */
+	private static final int[] EVENTS_HYPO = {6, 141};
 	private static final double U_GENERAL_POP = 0.911400915;
 	private static final double DU_HYPO_EPISODE = 0.0206; // From Canada
 	private static final double DU_DNC = 0.0351;
@@ -74,11 +76,9 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 
 		// Severe hypoglycemic episodes
 		final double[] paramsDeathHypo = betaParametersFromNormal(0.0063, sdFrom95CI(new double[]{0.0058, 0.0068}));
-		addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode (adjusted from rate/100 patient-month of both arms; only events from injection therapy in probabilistic)", 
-				"Bergenstal 2010", 0.1638398, RandomVariateFactory.getInstance("BetaVariate", 17.4438, 81.5562)));
+		addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode", 
+				"Battelino 2012", (double) EVENTS_HYPO[0] / (double) (EVENTS_HYPO[0] + EVENTS_HYPO[1]), RandomVariateFactory.getInstance("BetaVariate", EVENTS_HYPO[0], EVENTS_HYPO[1])));
 		addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", "Canada", 0.0063, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
-		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic events (adjusted from rate/100 patient-month). Assumed 1 at base case; using difference at probabilistic", 
-				"Bergenstal 2010", 1.0, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", -0.1405284, 0.3194847))));
 
 		addCostParam(new SecondOrderCostParam(STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", "https://doi.org/10.1007/s13300-017-0285-0", 2017, 716.82, getRandomVariateForCost(716.82)));
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of DNC", "", 2015, C_DNC, getRandomVariateForCost(C_DNC)));
@@ -134,14 +134,7 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 
 	@Override
 	public ComplicationRR getHypoRR() {
-		final double[] rrValues = new double[getNInterventions()];
-		rrValues[0] = 1.0;
-		final SecondOrderParam param = otherParams.get(STR_RR_HYPO);
-		final double rr = (param == null) ? 1.0 : param.getValue(baseCase);
-		for (int i = 1; i < getNInterventions(); i++) {
-			rrValues[i] = rr;
-		}
-		return new InterventionSpecificComplicationRR(rrValues);
+		return NO_RR;
 	}
 
 	@Override
