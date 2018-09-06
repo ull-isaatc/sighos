@@ -38,7 +38,7 @@ public class CanadaCHDSubmodel extends ComplicationSubmodel {
 	private static final double RR_CHD = 0.761;
 	private static final double C_CHD = 4072;
 	private static final double TC_CHD = 18682 - C_CHD;
-	private static final double DU_CHD = CanadaSecondOrderParams.U_GENERAL_POP - CanadaSecondOrderParams.DU_DNC - 0.685;
+	private static final double DU_CHD = CanadaSecondOrderParams.U_DNC - 0.685;
 	
 	public enum CHDTransitions {
 		HEALTHY_CHD,

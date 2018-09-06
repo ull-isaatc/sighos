@@ -39,6 +39,7 @@ public class BasicConfigParams {
 	public static boolean USE_FIXED_BASELINE_AGE = false;
 	/** If true, all the patients start with the same level of HbA1c; otherwise, uses a probability distribution to assign the level */ 
 	public static boolean USE_FIXED_BASELINE_HBA1C = false;
+	public static double U_GENERAL_POP = 0.911400915;
 	
 	/**
 	 * This constructor should not be needed.
@@ -59,6 +60,7 @@ public class BasicConfigParams {
 		str.append("USE_SIMPLE_MODELS:\t").append(USE_SIMPLE_MODELS).append(System.lineSeparator());
 		str.append("USE_FIXED_BASELINE_AGE:\t").append(USE_FIXED_BASELINE_AGE).append(System.lineSeparator());
 		str.append("USE_FIXED_BASELINE_HBA1C:\t").append(USE_FIXED_BASELINE_HBA1C).append(System.lineSeparator());
+		str.append("U_GENERAL_POP:\t").append(U_GENERAL_POP).append(System.lineSeparator());
 		return str.toString();
 	}
 

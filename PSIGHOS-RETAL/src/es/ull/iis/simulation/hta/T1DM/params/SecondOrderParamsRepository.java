@@ -53,7 +53,6 @@ public abstract class SecondOrderParamsRepository {
 	// Descriptors for utilities
 	public static final String STR_UTILITY_PREFIX = "U_";
 	public static final String STR_DISUTILITY_PREFIX = "DU_";
-	public static final String STR_U_GENERAL_POPULATION = STR_UTILITY_PREFIX + "GENERAL_POP";
 	public static final String STR_DU_HYPO_EVENT = STR_DISUTILITY_PREFIX+ "SEVERE_HYPO_EPISODE";
 	
 	public static final ComplicationRR NO_RR = new StdComplicationRR(1.0);
@@ -244,11 +243,6 @@ public abstract class SecondOrderParamsRepository {
 	public double getAnnualNoComplicationCost() {
 		final SecondOrderParam param = costParams.get(STR_COST_PREFIX + STR_NO_COMPLICATIONS);
 		return (param == null) ? 0.0 : param.getValue(baseCase); 		
-	}
-	
-	public double getGeneralPopulationUtility() {
-		final SecondOrderParam param = utilParams.get(STR_U_GENERAL_POPULATION);
-		return (param == null) ? 1.0 : param.getValue(baseCase); 		
 	}
 	
 	public double getNoComplicationDisutility() {

@@ -50,9 +50,9 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	private static final double C_SAP = 7662.205833;
 	private static final double C_CSII = 3013.335;
 
-	/** [Events, no events] of severe hypoglycemia in the Battelino et al. study */
-	private static final int[] EVENTS_HYPO = {6, 141};
-	private static final double U_GENERAL_POP = 0.911400915;
+	private static final double P_HYPO = 0.0408163;
+	private static final double[] P_HYPO_BETA = {3.94576334, 142.05423666};
+	private static final double[] RR_HYPO_BETA = {0.68627430, 0.60401244};
 	private static final double DU_HYPO_EPISODE = 0.0206; // From Canada
 	private static final double DU_DNC = 0.0351;
 	
@@ -76,9 +76,11 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 
 		// Severe hypoglycemic episodes
 		final double[] paramsDeathHypo = betaParametersFromNormal(0.0063, sdFrom95CI(new double[]{0.0058, 0.0068}));
-		addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode", 
-				"Battelino 2012", (double) EVENTS_HYPO[0] / (double) (EVENTS_HYPO[0] + EVENTS_HYPO[1]), RandomVariateFactory.getInstance("BetaVariate", EVENTS_HYPO[0], EVENTS_HYPO[1])));
+		addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode (adjusted from n events of both arms; only events from injection therapy in probabilistic)", 
+				"Battelino 2012", P_HYPO, RandomVariateFactory.getInstance("BetaVariate", P_HYPO_BETA[0], P_HYPO_BETA[1])));
 		addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", "Canada", 0.0063, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
+		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic events (adjusted from rate/100 patient-month). Assumed 1 at base case; using difference at probabilistic", 
+				"Battelino 2012", 1.0, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", RR_HYPO_BETA[0], RR_HYPO_BETA[1]))));
 
 		addCostParam(new SecondOrderCostParam(STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", "https://doi.org/10.1007/s13300-017-0285-0", 2017, 716.82, getRandomVariateForCost(716.82)));
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of DNC", "", 2015, C_DNC, getRandomVariateForCost(C_DNC)));
@@ -89,7 +91,6 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX +SAPIntervention.NAME, "Annual cost of SAP",  
 				"Own calculations from data provided by medtronic (see Parametros.xls", 2018, C_SAP, SecondOrderParamsRepository.getRandomVariateForCost(C_SAP)));
 
-		addUtilParam(new SecondOrderParam(STR_U_GENERAL_POPULATION, "Utility of general population", "", U_GENERAL_POP));
 		addUtilParam(new SecondOrderParam(STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "", DU_HYPO_EPISODE));
 		addUtilParam(new SecondOrderParam(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS, "Disutility of DNC", "", DU_DNC));
 		
@@ -134,7 +135,14 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 
 	@Override
 	public ComplicationRR getHypoRR() {
-		return NO_RR;
+		final double[] rrValues = new double[getNInterventions()];
+		rrValues[0] = 1.0;
+		final SecondOrderParam param = otherParams.get(STR_RR_HYPO);
+		final double rr = (param == null) ? 1.0 : param.getValue(baseCase);
+		for (int i = 1; i < getNInterventions(); i++) {
+			rrValues[i] = rr;
+		}
+		return new InterventionSpecificComplicationRR(rrValues);
 	}
 
 	@Override
@@ -183,7 +191,7 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	
 	@Override
 	public UtilityCalculator getUtilityCalculator(ComplicationSubmodel[] submodels) {
-		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, getNoComplicationDisutility(), getGeneralPopulationUtility(), getHypoEventDisutility(), submodels);
+		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, getNoComplicationDisutility(), BasicConfigParams.U_GENERAL_POP, getHypoEventDisutility(), submodels);
 	}
 		
 	public class CSIIIntervention extends T1DMMonitoringIntervention {

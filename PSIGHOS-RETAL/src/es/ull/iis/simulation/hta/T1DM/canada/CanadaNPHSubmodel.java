@@ -37,8 +37,8 @@ public class CanadaNPHSubmodel extends ComplicationSubmodel {
 	private static final double C_ESRD = 12808;
 	private static final double TC_NPH = 80 - C_NPH;
 	private static final double TC_ESRD = 28221 - C_ESRD;
-	private static final double DU_NPH = CanadaSecondOrderParams.U_GENERAL_POP - CanadaSecondOrderParams.DU_DNC - 0.575;
-	private static final double DU_ESRD = CanadaSecondOrderParams.U_GENERAL_POP - CanadaSecondOrderParams.DU_DNC - 0.49;
+	private static final double DU_NPH = CanadaSecondOrderParams.U_DNC - 0.575;
+	private static final double DU_ESRD = CanadaSecondOrderParams.U_DNC - 0.49;
 	
 //	addOtherParam(new SecondOrderParam(STR_REF_HBA1C, STR_REF_HBA1C, "", 8.87480916));
 	private static final double REF_HBA1C = 9.1; 

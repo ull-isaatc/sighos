@@ -31,9 +31,8 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 	private static final double C_SAP = 7662.205833;
 	private static final double C_CSII = 3013.335;
 	
-	private static final double U_GENERAL_POP = 0.911400915;
 	private static final double DU_HYPO_EPISODE = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.047 : 0.0206; // From Canada
-	private static final double DU_DNC = BasicConfigParams.USE_REVIEW_UTILITIES ? (U_GENERAL_POP - 0.785) : 0.0351;
+	private static final double DU_DNC = BasicConfigParams.USE_REVIEW_UTILITIES ? (BasicConfigParams.U_GENERAL_POP - 0.785) : 0.0351;
 
 	private static final double BASELINE_HBA1C_MIN = 7; // Assumption
 	private static final double BASELINE_HBA1C_MAX = 8; // Assumption
@@ -74,7 +73,6 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX +SAPIntervention.NAME, "Annual cost of SAP",  
 				"Own calculations from data provided by medtronic (see Parametros.xls", 2018, C_SAP, SecondOrderParamsRepository.getRandomVariateForCost(C_SAP)));
 
-		addUtilParam(new SecondOrderParam(STR_U_GENERAL_POPULATION, "Utility of general population", "", U_GENERAL_POP));
 		addUtilParam(new SecondOrderParam(STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "", DU_HYPO_EPISODE));
 		addUtilParam(new SecondOrderParam(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS, "Disutility of DNC", "", DU_DNC));
 		
@@ -171,7 +169,7 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 	
 	@Override
 	public UtilityCalculator getUtilityCalculator(ComplicationSubmodel[] submodels) {
-		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, getNoComplicationDisutility(), getGeneralPopulationUtility(), getHypoEventDisutility(), submodels);
+		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, getNoComplicationDisutility(), BasicConfigParams.U_GENERAL_POP, getHypoEventDisutility(), submodels);
 	}
 	
 	public class CSIIIntervention extends T1DMMonitoringIntervention {

@@ -39,8 +39,8 @@ public class CanadaRETSubmodel extends ComplicationSubmodel {
 	private static final double C_BLI = 2482;
 	private static final double TC_RET = 492 - C_RET;
 	private static final double TC_BLI = 3483 - C_BLI;
-	private static final double DU_RET = CanadaSecondOrderParams.U_GENERAL_POP - CanadaSecondOrderParams.DU_DNC - 0.612;
-	private static final double DU_BLI = CanadaSecondOrderParams.U_GENERAL_POP - CanadaSecondOrderParams.DU_DNC - 0.569;
+	private static final double DU_RET = CanadaSecondOrderParams.U_DNC - 0.612;
+	private static final double DU_BLI = CanadaSecondOrderParams.U_DNC - 0.569;
 	
 	public enum RETTransitions {
 		HEALTHY_RET,

@@ -160,7 +160,7 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 	
 	@Override
 	public UtilityCalculator getUtilityCalculator(ComplicationSubmodel[] submodels) {
-		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, getNoComplicationDisutility(), getGeneralPopulationUtility(), getHypoEventDisutility(), submodels);
+		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, getNoComplicationDisutility(), BasicConfigParams.U_GENERAL_POP, getHypoEventDisutility(), submodels);
 	}
 	
 	public class ConventionalTherapy extends T1DMMonitoringIntervention {

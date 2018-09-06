@@ -38,11 +38,10 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 	private static final double[] CI_NEU_CHD = {0.016, 0.044};
 	private static final double[] CI_NPH_CHD = {0.013, 0.034};
 	private static final double[] CI_RET_CHD = {0.01, 0.043};
-	private static final double U_GENERAL_POP = 0.911400915;
 	// Utility (avg, SD) from either Bagust and Beale; or Sullivan
 	private static final double[] DU_ANGINA = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.09, (0.126 - 0.054) / 3.92} : new double[]{0.0412, 0.0002};
 	// Utility (avg, SD) from either Clarke et al.; or Mar et al. In the latter, the SD has been manually adjusted to generate utilities between 0.4 and 0.7
-	private static final double[] DU_STROKE = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.164, (0.222 - 0.105) / 3.92} : new double[]{(U_GENERAL_POP - (0.4013+0.736)/2), 0.045};
+	private static final double[] DU_STROKE = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.164, (0.222 - 0.105) / 3.92} : new double[]{(BasicConfigParams.U_GENERAL_POP - (0.4013+0.736)/2), 0.045};
 	// Utility (avg, SD) from either Clarke et al; or Sullivan
 	private static final double[] DU_MI = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.055, (0.067 - 0.042) / 3.92} : new double[]{0.0409, 0.0002};
 	// Utility (avg, SD) from either Clarke et al.; or Sullivan (assumed equal to MI)

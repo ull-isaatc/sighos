@@ -33,9 +33,8 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 	private static final double C_HYPO_EPISODE = 3755;
 	private static final double C_DNC = 2262;
 
-	public static final double U_GENERAL_POP = 1.0;
 	private static final double DU_HYPO_EPISODE = 0.0206; // From Canada
-	public static final double DU_DNC = U_GENERAL_POP - 0.814;
+	protected static final double U_DNC = 0.814;
 
 
 	/**
@@ -43,6 +42,7 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 	 */
 	public CanadaSecondOrderParams() {
 		super();
+		BasicConfigParams.U_GENERAL_POP = 1.0;
 		
 		CanadaRETSubmodel.registerSecondOrder(this);
 		CanadaCHDSubmodel.registerSecondOrder(this);
@@ -64,9 +64,8 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 		addCostParam(new SecondOrderCostParam(STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", "HTA Canada", 2018, C_HYPO_EPISODE));
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of DNC", "HTA Canada", 2018, C_DNC));
 
-		addUtilParam(new SecondOrderParam(STR_U_GENERAL_POPULATION, "Utility of general population", "", U_GENERAL_POP));
 		addUtilParam(new SecondOrderParam(STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "", DU_HYPO_EPISODE));
-		addUtilParam(new SecondOrderParam(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS, "Disutility of DNC", "", DU_DNC));
+		addUtilParam(new SecondOrderParam(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS, "Disutility of DNC", "", BasicConfigParams.U_GENERAL_POP - U_DNC));
 
 		addOtherParam(new SecondOrderParam(STR_P_MAN, "Probability of havig sex = male", "Assumption", P_MAN));
 		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "Spanish guidelines", DISCOUNT_RATE));
@@ -136,7 +135,7 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 
 	@Override
 	public UtilityCalculator getUtilityCalculator(ComplicationSubmodel[] submodels) {
-		return new CanadaUtilityCalculator(getNoComplicationDisutility(), getGeneralPopulationUtility(), getHypoEventDisutility());
+		return new CanadaUtilityCalculator(getNoComplicationDisutility(), BasicConfigParams.U_GENERAL_POP, getHypoEventDisutility());
 	}
 	
 	public class CanadaIntervention1 extends T1DMMonitoringIntervention {

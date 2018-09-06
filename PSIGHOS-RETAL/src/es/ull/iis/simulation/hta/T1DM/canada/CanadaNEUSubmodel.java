@@ -39,8 +39,8 @@ public class CanadaNEUSubmodel extends ComplicationSubmodel {
 	private static final double TC_NEU = 192 - C_NEU;
 	private static final double TC_LEA = 43984 - C_LEA;
 
-	private static final double DU_NEU = CanadaSecondOrderParams.U_GENERAL_POP - CanadaSecondOrderParams.DU_DNC - 0.624;
-	private static final double DU_LEA = CanadaSecondOrderParams.U_GENERAL_POP - CanadaSecondOrderParams.DU_DNC - 0.534;
+	private static final double DU_NEU = CanadaSecondOrderParams.U_DNC - 0.624;
+	private static final double DU_LEA = CanadaSecondOrderParams.U_DNC - 0.534;
 
 	public enum NEUTransitions {
 		HEALTHY_NEU,
