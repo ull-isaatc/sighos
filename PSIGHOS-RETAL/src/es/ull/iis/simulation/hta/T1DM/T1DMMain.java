@@ -19,6 +19,7 @@ import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.T1DM.canada.CanadaSecondOrderParams;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.CostListener;
+import es.ull.iis.simulation.hta.T1DM.inforeceiver.HbA1cListener;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.PatientCounterHistogramView;
 import es.ull.iis.simulation.hta.T1DM.inforeceiver.QALYListener;
@@ -89,6 +90,7 @@ public class T1DMMain {
 		final Intervention[] interventions = secParams.getInterventions();
 		str.append("SIM\t");
 		for (int i = 0; i < interventions.length; i++) {
+			str.append(HbA1cListener.getStrHeader(interventions[i].getShortName()));
 			str.append(CostListener.getStrHeader(interventions[i].getShortName()));
 			str.append(LYListener.getStrHeader(interventions[i].getShortName()));
 			str.append(QALYListener.getStrHeader(interventions[i].getShortName()));
@@ -98,11 +100,12 @@ public class T1DMMain {
 		return str.toString();
 	}
 	
-	private String print(T1DMSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, T1DMTimeFreeOfComplicationsView timeFreeListener) {
+	private String print(T1DMSimulation simul, HbA1cListener[] hba1cListeners, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, T1DMTimeFreeOfComplicationsView timeFreeListener) {
 		final StringBuilder str = new StringBuilder();
 		final Intervention[] interventions = secParams.getInterventions();
 		str.append("" +  simul.getIdentifier() + "\t");
 		for (int i = 0; i < interventions.length; i++) {
+			str.append(hba1cListeners[i]);
 			str.append(costListeners[i]);
 			str.append(lyListeners[i]);
 			str.append(qalyListeners[i]);
@@ -114,6 +117,7 @@ public class T1DMMain {
 	private void simulateInterventions(int id, boolean baseCase) {
 		final CommonParams common = new CommonParams(secParams);
 		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(nPatients, interventions.length, false, secParams.getAvailableHealthStates());
+		final HbA1cListener[] hba1cListeners = new HbA1cListener[interventions.length];
 		final CostListener[] costListeners = new CostListener[interventions.length];
 		final LYListener[] lyListeners = new LYListener[interventions.length];
 		final QALYListener[] qalyListeners = new QALYListener[interventions.length];
@@ -121,6 +125,7 @@ public class T1DMMain {
 		if (printBI)
 			budgetImpactListener = new AnnualCostView[interventions.length];
 		for (int i = 0; i < interventions.length; i++) {
+			hba1cListeners[i] = new HbA1cListener(nPatients);
 			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getCompSubmodels()), common.getDiscountRate(), nPatients);
 			lyListeners[i] = new LYListener(common.getDiscountRate(), nPatients);
 			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getCompSubmodels()), common.getDiscountRate(), nPatients);
@@ -128,6 +133,7 @@ public class T1DMMain {
 				budgetImpactListener[i] = new AnnualCostView(secParams.getCostCalculator(common.getCompSubmodels()), nPatients, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE);
 		}
 		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], nPatients, common);
+		simul.addInfoReceiver(hba1cListeners[0]);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
@@ -140,6 +146,7 @@ public class T1DMMain {
 		simul.run();
 		for (int i = 1; i < interventions.length; i++) {
 			simul = new T1DMSimulation(simul, interventions[i]);
+			simul.addInfoReceiver(hba1cListeners[i]);
 			simul.addInfoReceiver(costListeners[i]);
 			simul.addInfoReceiver(lyListeners[i]);
 			simul.addInfoReceiver(qalyListeners[i]);
@@ -166,7 +173,7 @@ public class T1DMMain {
 				System.out.println();
 			}
 		}
-		out.println(print(simul, costListeners, lyListeners, qalyListeners, timeFreeListener));	
+		out.println(print(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, timeFreeListener));	
 	}
 	
 	public void run() {

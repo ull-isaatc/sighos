@@ -102,10 +102,10 @@ public class SheffieldNPHSubmodel extends ComplicationSubmodel {
 			}
 		}
 		
-		costALB2 = secParams.getCostsForHealthState(ALB1);
+		costALB2 = secParams.getCostsForHealthState(ALB2);
 		costESRD = secParams.getCostsForHealthState(ESRD);
 		
-		duALB2 = secParams.getDisutilityForHealthState(ALB1);
+		duALB2 = secParams.getDisutilityForHealthState(ALB2);
 		duESRD = secParams.getDisutilityForHealthState(ESRD);
 	}
 
