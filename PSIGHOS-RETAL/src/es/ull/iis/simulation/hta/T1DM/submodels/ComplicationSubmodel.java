@@ -1,12 +1,10 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM;
+package es.ull.iis.simulation.hta.T1DM.submodels;
 
-import java.util.TreeSet;
-
+import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
@@ -22,14 +20,6 @@ public abstract class ComplicationSubmodel {
 		enable = true;
 	}
 
-	public abstract T1DMProgression getNextComplication(T1DMPatient pat);
-	public abstract int getNSubstates();
-	public abstract T1DMComorbidity[] getSubstates();
-	public abstract TreeSet<T1DMComorbidity> getInitialState(T1DMPatient pat);
-	public abstract double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge);
-	public abstract double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent);
-	public abstract double getDisutility(T1DMPatient pat, DisutilityCombinationMethod method);
-	
 	public void disable() {
 		enable = false;
 	}
@@ -52,7 +42,7 @@ public abstract class ComplicationSubmodel {
 		final long absTime = pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 		return (absTime >= limit) ? Long.MAX_VALUE : absTime;
 	}
-
+	
 	public static long min(long limit, long... args) {
 		for (long value : args) {
 			if (value < limit)

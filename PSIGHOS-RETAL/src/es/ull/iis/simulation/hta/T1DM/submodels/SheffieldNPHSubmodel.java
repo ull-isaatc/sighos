@@ -1,11 +1,15 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM;
+package es.ull.iis.simulation.hta.T1DM.submodels;
 
 import java.util.Collection;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
@@ -20,10 +24,10 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SheffieldNPHSubmodel extends ComplicationSubmodel {
-	public static T1DMComorbidity ALB1 = new T1DMComorbidity("ALB1", "Microalbuminuria", MainComplications.NPH);
-	public static T1DMComorbidity ALB2 = new T1DMComorbidity("ALB2", "Macroalbuminuria", MainComplications.NPH);
-	public static T1DMComorbidity ESRD = new T1DMComorbidity("ESRD", "End-Stage Renal Disease", MainComplications.NPH);
+public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
+	public static T1DMComorbidity ALB1 = new T1DMComorbidity("ALB1", "Microalbuminuria", MainChronicComplications.NPH);
+	public static T1DMComorbidity ALB2 = new T1DMComorbidity("ALB2", "Macroalbuminuria", MainChronicComplications.NPH);
+	public static T1DMComorbidity ESRD = new T1DMComorbidity("ESRD", "End-Stage Renal Disease", MainChronicComplications.NPH);
 	public static T1DMComorbidity[] NPHSubstates = new T1DMComorbidity[] {ALB1, ALB2, ESRD};
 
 	private static final double BETA_ALB1 = 3.25;
@@ -35,13 +39,11 @@ public class SheffieldNPHSubmodel extends ComplicationSubmodel {
 	private static final double P_ALB2_ESRD = 0.1579;
 	private static final double P_ALB1_ALB2 = 0.1565;
 	private static final double P_DNC_ESRD = 0.0002;
-	private static final double[] LIMITS_DNC_ESRD = {0.0, 0.0004}; // Assumption
-	private static final double[] CI_DNC_NPH = {0.0136, 0.0736}; // Assumption
+	private static final double[] CI_DNC_ALB1 = {0.0136, 0.0736}; // Assumption
 	private static final double[] CI_NEU_NPH = {0.055, 0.149};
-	private static final double[] CI_NPH_ESRD = {0.01064, 0.01596};
+	private static final double[] CI_ALB1_ESRD = {0.01064, 0.01596};
 	private static final double C_ALB2 = 5180.26;
 	private static final double C_ESRD = 34259.48;
-	private static final double TC_ALB2 = 33183.74;
 	private static final double TC_ESRD = 3250.73;
 	// Utility (avg, SD) from either Bagust and Beale; or Sullivan
 	private static final double[] DU_ALB2 = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[] {0.048, (0.091 - 0.005) / 3.92}: new double[] {0.0527, 0.0001};
@@ -79,7 +81,7 @@ public class SheffieldNPHSubmodel extends ComplicationSubmodel {
 		invProb[NPHTransitions.ALB1_ESRD.ordinal()] = -1 / secParams.getProbability(ALB1, ESRD);
 		invProb[NPHTransitions.ALB2_ESRD.ordinal()] = -1 / secParams.getProbability(ALB2, ESRD);
 		invProb[NPHTransitions.ALB1_ALB2.ordinal()] = -1 / secParams.getProbability(ALB1, ALB2);
-		invProb[NPHTransitions.NEU_ALB1.ordinal()] = -1 / secParams.getProbability(MainComplications.NEU, ALB1);
+		invProb[NPHTransitions.NEU_ALB1.ordinal()] = -1 / secParams.getProbability(MainChronicComplications.NEU, ALB1);
 		
 		rr = new ComplicationRR[NPHTransitions.values().length];
 		final ComplicationRR rrToALB1 = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB1)); 
@@ -110,35 +112,35 @@ public class SheffieldNPHSubmodel extends ComplicationSubmodel {
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
-		final double[] paramsDNC_NPH = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_ALB1, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_NPH));
+		final double[] paramsDNC_ALB1 = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_ALB1, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_ALB1));
 		final double[] paramsNEU_NPH = SecondOrderParamsRepository.betaParametersFromNormal(P_NEU_ALB1, SecondOrderParamsRepository.sdFrom95CI(CI_NEU_NPH));
-		final double[] paramsNPH_ESRD = SecondOrderParamsRepository.betaParametersFromNormal(P_ALB1_ESRD, SecondOrderParamsRepository.sdFrom95CI(CI_NPH_ESRD));
+		final double[] paramsALB1_ESRD = SecondOrderParamsRepository.betaParametersFromNormal(P_ALB1_ESRD, SecondOrderParamsRepository.sdFrom95CI(CI_ALB1_ESRD));
 
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ALB1), 
 				"Probability of healthy to microalbuminutia, as processed in Sheffield Type 1 model", 
 				"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-				P_DNC_ALB1, "BetaVariate", paramsDNC_NPH[0], paramsDNC_NPH[1]));
+				P_DNC_ALB1, "BetaVariate", paramsDNC_ALB1[0], paramsDNC_ALB1[1]));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ALB2), 
 				"Probability of healthy to macroalbuminutia, as processed in Sheffield Type 1 model", 
 				"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-				P_DNC_ALB2));
+				P_DNC_ALB2, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_ALB2)));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(ALB1, ESRD), 
 				"Probability of microalbuminuria to ESRD", 
 				"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-				P_ALB1_ESRD, "BetaVariate", paramsNPH_ESRD[0], paramsNPH_ESRD[1]));
+				P_ALB1_ESRD, "BetaVariate", paramsALB1_ESRD[0], paramsALB1_ESRD[1]));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(ALB2, ESRD), 
 				"Probability of macroalbuminuria to ESRD", 
 				"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-				P_ALB2_ESRD));
+				P_ALB2_ESRD, SecondOrderParamsRepository.getRandomVariateForProbability(P_ALB2_ESRD)));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(ALB1, ALB2), 
 				"Probability of microalbuminuria to macroalbuminuria", 
 				"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-				P_ALB1_ALB2));
+				P_ALB1_ALB2, SecondOrderParamsRepository.getRandomVariateForProbability(P_ALB1_ALB2)));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ESRD), 
 				"Probability of healthy to ESRD, as processed in Sheffield Type 1 model", 
 				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
-				P_DNC_ESRD, "UniformVariate", LIMITS_DNC_ESRD[0], LIMITS_DNC_ESRD[1]));
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.NEU, ALB1), 
+				P_DNC_ESRD, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_ESRD)));
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainChronicComplications.NEU, ALB1), 
 				"", 
 				"", 
 				P_NEU_ALB1, "BetaVariate", paramsNEU_NPH[0], paramsNEU_NPH[1]));		
@@ -164,7 +166,6 @@ public class SheffieldNPHSubmodel extends ComplicationSubmodel {
 		
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ALB2, "Cost of ALB2", "", 2015, C_ALB2, SecondOrderParamsRepository.getRandomVariateForCost(C_ALB2)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ESRD, "Cost of ESRD", "", 2015, C_ESRD, SecondOrderParamsRepository.getRandomVariateForCost(C_ESRD)));
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + ALB2, "Transition cost to ALB2", "", 2015, TC_ALB2, SecondOrderParamsRepository.getRandomVariateForCost(TC_ALB2)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + ESRD, "Transition cost to ESRD", "", 2015, TC_ESRD, SecondOrderParamsRepository.getRandomVariateForCost(TC_ESRD)));
 		
 		final double[] paramsDuNPH = SecondOrderParamsRepository.betaParametersFromNormal(DU_ALB2[0], DU_ALB2[1]);
@@ -174,7 +175,7 @@ public class SheffieldNPHSubmodel extends ComplicationSubmodel {
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + ESRD, "Disutility of ESRD", 
 				"", DU_ESRD[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuESRD[0], paramsDuESRD[1])));
 		
-		secParams.registerComplication(MainComplications.NPH);
+		secParams.registerComplication(MainChronicComplications.NPH);
 		secParams.registerHealthStates(NPHSubstates);
 		
 	}
@@ -220,7 +221,7 @@ public class SheffieldNPHSubmodel extends ComplicationSubmodel {
 						limit = previousTimeToALB1;
 					// RR from healthy to ALB1 (must be previous to ESRD and a (potential) formerly scheduled ALB1 event)
 					timeToALB1 = getAnnualBasedTimeToEvent(pat, NPHTransitions.HEALTHY_ALB1, limit);
-					if (pat.hasComplication(MainComplications.NEU)) {
+					if (pat.hasComplication(MainChronicComplications.NEU)) {
 						// RR from NEU to ALB1 (must be previous to the former transition)
 						if (limit > timeToALB1)
 							limit = timeToALB1;

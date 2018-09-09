@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.T1DM.params;
 
+import es.ull.iis.simulation.hta.T1DM.MainAcuteComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 
 /**
@@ -29,7 +30,7 @@ public interface UtilityCalculator {
 		
 	}
 
-	public double getHypoEventDisutilityValue();
+	public double getAcuteEventDisutilityValue(T1DMPatient pat, MainAcuteComplications comp);
 	public double getUtilityValue(T1DMPatient pat);
 
 }

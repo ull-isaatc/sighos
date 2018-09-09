@@ -1,14 +1,18 @@
+/**
+ * 
+ */
 package es.ull.iis.simulation.hta.T1DM;
 
-public enum MainComplications implements Named {
-	CHD("Coronary Heart Disease"),
-	NEU("Neuropathy"),
-	NPH("Nephropathy"),
-	RET("Retinopathy");
+/**
+ * @author Iván Castilla Rodríguez
+ *
+ */
+public enum MainAcuteComplications implements Named {
+	SEVERE_HYPO("Severe hypoglycemic event");
 	
 	private final String description;
 	
-	private MainComplications(String description) {
+	private MainAcuteComplications(String description) {
 		this.description = description;
 	}
 
@@ -19,4 +23,5 @@ public enum MainComplications implements Named {
 		return description;
 	}
 
+	
 }

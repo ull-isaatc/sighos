@@ -8,16 +8,16 @@ import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
 
 /**
- * A class to compute all the severe hypoglycemic events of a patient
+ * A class to compute all the acute events of a patient
  * @author Iván Castilla Rodríguez
  *
  */
-public class SevereHypoglycemicEventParam implements ReseteableParam<SevereHypoglycemicEventParam.ReturnValue> {
-	public static class ReturnValue {
+public class AcuteEventParam implements ReseteableParam<AcuteEventParam.Progression> {
+	public static class Progression {
 		public final long timeToEvent;
 		public final boolean causesDeath;
 		
-		public ReturnValue(long timeToEvent, boolean causesDeath) {
+		public Progression(long timeToEvent, boolean causesDeath) {
 			this.timeToEvent = timeToEvent;
 			this.causesDeath = causesDeath;
 		}
@@ -33,7 +33,7 @@ public class SevereHypoglycemicEventParam implements ReseteableParam<SevereHypog
 	private final int[] eventCounter;
 
 	@SuppressWarnings("unchecked")
-	public SevereHypoglycemicEventParam(int nPatients, double annualProb, ComplicationRR rr, double pDeath) {
+	public AcuteEventParam(int nPatients, double annualProb, ComplicationRR rr, double pDeath) {
 		this.rng = RandomNumberFactory.getInstance();
 		generated = (ArrayList<double[]>[])new ArrayList[nPatients];
 		for (int i = 0; i < nPatients; i++) {
@@ -47,12 +47,12 @@ public class SevereHypoglycemicEventParam implements ReseteableParam<SevereHypog
 	}
 
 	/**
-	 * Returns the time to a new severe hypoglycemic event and whether it causes causes the death of the patient.
+	 * Returns the time to a new acute event and whether it causes causes the death of the patient.
 	 * @param pat A patient 
-	 * @return the time to a new severe hypoglycemic event and whether it causes causes the death of the patient.
+	 * @return the time to a new acute event and whether it causes causes the death of the patient.
 	 */
 	@Override
-	public ReturnValue getValue(T1DMPatient pat) {
+	public Progression getValue(T1DMPatient pat) {
 		// New event for the patient
 		if (eventCounter[pat.getIdentifier()] == generated[pat.getIdentifier()].size()) {
 			generated[pat.getIdentifier()].add(new double[] {rng.draw(), rng.draw()});
@@ -62,8 +62,8 @@ public class SevereHypoglycemicEventParam implements ReseteableParam<SevereHypog
 		final double usedRR = rr.getRR(pat);
 		final long timeToHypo = CommonParams.getAnnualBasedTimeToEvent(pat, -1 / annualProb, rnd[0], usedRR);
 		if (timeToHypo >= timeToDeath)
-			return new ReturnValue(Long.MAX_VALUE, false);
-		return new ReturnValue(timeToHypo, rnd[1] < pDeath);
+			return new Progression(Long.MAX_VALUE, false);
+		return new Progression(timeToHypo, rnd[1] < pDeath);
 	}
 
 	/**

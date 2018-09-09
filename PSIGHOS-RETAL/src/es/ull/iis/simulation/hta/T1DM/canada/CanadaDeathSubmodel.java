@@ -5,10 +5,10 @@ package es.ull.iis.simulation.hta.T1DM.canada;
 
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.T1DM.DeathSubmodel;
 import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
 
 /**
  * @author Iván Castilla Rodríguez

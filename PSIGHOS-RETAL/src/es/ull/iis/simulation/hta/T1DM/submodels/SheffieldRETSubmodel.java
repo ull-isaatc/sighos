@@ -1,11 +1,15 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM;
+package es.ull.iis.simulation.hta.T1DM.submodels;
 
 import java.util.Collection;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
@@ -20,11 +24,11 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SheffieldRETSubmodel extends ComplicationSubmodel {
-	public static T1DMComorbidity BGRET = new T1DMComorbidity("BGRET", "Background Retinopathy", MainComplications.RET);
-	public static T1DMComorbidity PRET = new T1DMComorbidity("PRET", "Proliferative Retinopathy", MainComplications.RET);
-	public static T1DMComorbidity ME = new T1DMComorbidity("ME", "Macular edema", MainComplications.RET);
-	public static T1DMComorbidity BLI = new T1DMComorbidity("BLI", "Blindness", MainComplications.RET);
+public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
+	public static T1DMComorbidity BGRET = new T1DMComorbidity("BGRET", "Background Retinopathy", MainChronicComplications.RET);
+	public static T1DMComorbidity PRET = new T1DMComorbidity("PRET", "Proliferative Retinopathy", MainChronicComplications.RET);
+	public static T1DMComorbidity ME = new T1DMComorbidity("ME", "Macular edema", MainChronicComplications.RET);
+	public static T1DMComorbidity BLI = new T1DMComorbidity("BLI", "Blindness", MainChronicComplications.RET);
 	public static T1DMComorbidity[] RETSubstates = new T1DMComorbidity[] {BGRET, PRET, ME, BLI};
 	
 	private static final double CALIBRATION_COEF_BGRET = 1.0;
@@ -33,6 +37,10 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 	private static final double P_DNC_ME = 0.0012;
 	private static final double P_BGRET_PRET = 0.0595;
 	private static final double P_BGRET_ME = 0.0512;
+	private static final double P_BGRET_BLI = 0.0001;
+	private static final double P_PRET_BLI = 0.0038;
+	private static final double P_ME_BLI = 0.0016;
+	private static final double P_DNC_BLI = 1.9e-6;
 	private static final double BETA_BGRET = 10.10;
 	private static final double BETA_PRET = 6.30;
 	private static final double BETA_ME = 1.20;
@@ -151,23 +159,23 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, BGRET), "Probability of healthy to background retinopathy", 
-				"Sheffield (WESDR XXII)", P_DNC_BGRET));
+				"Sheffield (WESDR XXII)", P_DNC_BGRET, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_BGRET)));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, PRET), "Probability of healthy to proliferative retinopathy", 
-				"Sheffield (WESDR XXII)", P_DNC_PRET));
+				"Sheffield (WESDR XXII)", P_DNC_PRET, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_PRET)));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ME),	"Probability of healthy to macular edema", 
-				"Sheffield (WESDR XXII)", P_DNC_ME));
+				"Sheffield (WESDR XXII)", P_DNC_ME, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_ME)));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(BGRET, PRET),	"Probability of BG ret to proliferative retinopathy", 
-				"Sheffield (WESDR XXII)", P_BGRET_PRET));
+				"Sheffield (WESDR XXII)", P_BGRET_PRET, SecondOrderParamsRepository.getRandomVariateForProbability(P_BGRET_PRET)));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(BGRET, ME),	"Probability of BG ret to ME", 
-				"Sheffield (WESDR XXII)", P_BGRET_ME));
+				"Sheffield (WESDR XXII)", P_BGRET_ME, SecondOrderParamsRepository.getRandomVariateForProbability(P_BGRET_ME)));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(BGRET, BLI),	"Probability of BG ret to blindness", 
-				"Sheffield (WESDR XXII)", 0.0001));
+				"Sheffield (WESDR XXII)", P_BGRET_BLI, SecondOrderParamsRepository.getRandomVariateForProbability(P_BGRET_BLI)));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(PRET, BLI),	"Probability of Proliferative ret to blindness", 
-				"Sheffield (WESDR XXII)", 0.0038));
+				"Sheffield (WESDR XXII)", P_PRET_BLI, SecondOrderParamsRepository.getRandomVariateForProbability(P_PRET_BLI)));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(ME, BLI),	"Probability of macular edema to blindness", 
-				"Sheffield (WESDR XXII)", 0.0016));			
+				"Sheffield (WESDR XXII)", P_ME_BLI, SecondOrderParamsRepository.getRandomVariateForProbability(P_ME_BLI)));			
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, BLI),	"Probability of healthy to blindness", 
-				"Sheffield (WESDR XXII)", 1.9e-6));			
+				"Sheffield (WESDR XXII)", P_DNC_BLI, SecondOrderParamsRepository.getRandomVariateForProbability(P_DNC_BLI)));			
 
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + BGRET, "Beta for background retinopathy", 
 				"WESDR XXII, as adapted by Sheffield", BETA_BGRET));
@@ -192,7 +200,7 @@ public class SheffieldRETSubmodel extends ComplicationSubmodel {
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BLI, "Disutility of BLI", 
 				"", DU_BLI[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuBLI[0], paramsDuBLI[1])));
 		
-		secParams.registerComplication(MainComplications.RET);
+		secParams.registerComplication(MainChronicComplications.RET);
 		secParams.registerHealthStates(RETSubstates);		
 	}
 	

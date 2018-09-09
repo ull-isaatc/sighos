@@ -39,7 +39,26 @@ public class BasicConfigParams {
 	public static boolean USE_FIXED_BASELINE_AGE = false;
 	/** If true, all the patients start with the same level of HbA1c; otherwise, uses a probability distribution to assign the level */ 
 	public static boolean USE_FIXED_BASELINE_HBA1C = false;
-	public static double U_GENERAL_POP = 0.911400915;
+	/** Default utility for general population: From adult Spanish population but those with DM */ 
+	public static double DEF_U_GENERAL_POP = 0.911400915;
+	/** Default cost for diabetes with no complications. From Crespo et al. 2013 */
+	public static class DEF_C_DNC {
+		/** Value computed by substracting the burden of complications from the global burden of DM1 in Spain; 
+		 * finally divided by the prevalent DM1 population */
+		public final static double VALUE = (5809000000d - 2143000000d) / 3282790d;
+		/** The year of the default cost for diabetes with no complications: for updating with IPC */
+		public final static int YEAR = 2012; 
+		/** Description of the source */
+		public final static String SOURCE = "Crespo et al. 2012: http://dx.doi.org/10.1016/j.avdiab.2013.07.007";
+	}
+	/** Default second order variation for different parameter types */
+	public static class DEF_SECOND_ORDER_VARIATION {
+		public final static double COST = 0.2;
+		public final static double UTILITY = 0.2;
+		public final static double PROBABILITY = 0.5;
+	}
+	public static final double[] DEF_DU_DNC = {USE_REVIEW_UTILITIES ? (DEF_U_GENERAL_POP - 0.785) : 0.0351, USE_REVIEW_UTILITIES ? ((0.889 - 0.681) / 3.92) : 0.0001};
+
 	
 	/**
 	 * This constructor should not be needed.
@@ -60,7 +79,9 @@ public class BasicConfigParams {
 		str.append("USE_SIMPLE_MODELS:\t").append(USE_SIMPLE_MODELS).append(System.lineSeparator());
 		str.append("USE_FIXED_BASELINE_AGE:\t").append(USE_FIXED_BASELINE_AGE).append(System.lineSeparator());
 		str.append("USE_FIXED_BASELINE_HBA1C:\t").append(USE_FIXED_BASELINE_HBA1C).append(System.lineSeparator());
-		str.append("U_GENERAL_POP:\t").append(U_GENERAL_POP).append(System.lineSeparator());
+		str.append("DEF_U_GENERAL_POP:\t").append(DEF_U_GENERAL_POP).append(System.lineSeparator());
+		str.append("DEF_C_DNC:\t").append(DEF_C_DNC.VALUE + " (" + DEF_C_DNC.YEAR + ")").append(System.lineSeparator());
+		str.append("DEF_SECOND_ORDER_VARIATION (COST, UTIL, PROB):\t").append(DEF_SECOND_ORDER_VARIATION.COST+"\t").append(DEF_SECOND_ORDER_VARIATION.UTILITY+"\t").append(DEF_SECOND_ORDER_VARIATION.PROBABILITY).append(System.lineSeparator());
 		return str.toString();
 	}
 

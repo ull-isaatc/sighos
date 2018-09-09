@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
-import es.ull.iis.simulation.hta.T1DM.params.SevereHypoglycemicEventParam;
+import es.ull.iis.simulation.hta.T1DM.params.AcuteEventParam;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -23,7 +23,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  */
 public class T1DMPatient extends Patient {
 	/** The state of the patient */
-	private final EnumSet<MainComplications> state;
+	private final EnumSet<MainChronicComplications> state;
 	/** The detailed state of the patient */
 	private final TreeSet<T1DMComorbidity> detailedState;
 	/** Initial age of the patient (stored in days) */
@@ -40,7 +40,7 @@ public class T1DMPatient extends Patient {
 	
 	// Events
 	private final ChronicComorbidityEvent[] comorbidityEvents;
-	private final ArrayList<SevereHypoglycemicEvent> hypoEvents;
+	private final ArrayList<AcuteEvent>[] acuteEvents;
 	protected DeathEvent deathEvent = null;
 	private LostTreatmentEffectEvent lostEffectEvent = null;
 
@@ -53,14 +53,16 @@ public class T1DMPatient extends Patient {
 		super(simul, intervention);
 		this.commonParams = simul.getCommonParams();
 		this.detailedState = new TreeSet<>();
-		this.state = EnumSet.noneOf(MainComplications.class);
+		this.state = EnumSet.noneOf(MainChronicComplications.class);
 
 		this.initAge = BasicConfigParams.YEAR_CONVERSION*commonParams.getBaselineAge();
 		this.sex = commonParams.getSex(this);
 		this.baselineHBA1c = commonParams.getBaselineHBA1c();
 		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getAvailableHealthStates().size()];
 		Arrays.fill(comorbidityEvents, null);
-		hypoEvents = new ArrayList<>();
+		acuteEvents = new ArrayList[MainAcuteComplications.values().length];
+		for (int i = 0; i < acuteEvents.length; i++)
+			acuteEvents[i] = new ArrayList<>();
 		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
 
@@ -68,25 +70,27 @@ public class T1DMPatient extends Patient {
 		super(simul, original, intervention);
 		this.commonParams = original.commonParams;
 		this.detailedState = new TreeSet<>();
-		this.state = EnumSet.noneOf(MainComplications.class);
+		this.state = EnumSet.noneOf(MainChronicComplications.class);
 
 		this.initAge = original.initAge;
 		this.sex = original.sex;
 		this.baselineHBA1c = original.baselineHBA1c;
 		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getAvailableHealthStates().size()];
 		Arrays.fill(comorbidityEvents, null);
-		hypoEvents = new ArrayList<>();
+		acuteEvents = new ArrayList[MainAcuteComplications.values().length];
+		for (int i = 0; i < acuteEvents.length; i++)
+			acuteEvents[i] = new ArrayList<>();
 		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
 
 	/**
 	 * @return the state
 	 */
-	public EnumSet<MainComplications> getState() {
+	public EnumSet<MainChronicComplications> getState() {
 		return state;
 	}
 
-	public boolean hasComplication(MainComplications comp) {
+	public boolean hasComplication(MainChronicComplications comp) {
 		return state.contains(comp);
 	}
 
@@ -193,7 +197,7 @@ public class T1DMPatient extends Patient {
 				comorbidityEvents[st.ordinal()] = new ChronicComorbidityEvent(new T1DMProgressionPair(st, 0));
 			}
 			// Assign chronic complication events
-			for (MainComplications comp : MainComplications.values()) {
+			for (MainChronicComplications comp : MainChronicComplications.values()) {
 				final T1DMProgression progs = commonParams.getNextComplication(T1DMPatient.this, comp);
 				if (progs.getCancelEvents().size() > 0)
 					error("Cancel complications at start?");
@@ -204,12 +208,14 @@ public class T1DMPatient extends Patient {
 				}
 			}
 			
-			// Assign severe hypoglycemic events
-			final SevereHypoglycemicEventParam.ReturnValue hypoEvent = commonParams.getTimeToSevereHypoglycemicEvent(T1DMPatient.this, false);
-			if (hypoEvent.timeToEvent < timeToDeath) {
-				final SevereHypoglycemicEvent ev = new SevereHypoglycemicEvent(hypoEvent.timeToEvent, hypoEvent.causesDeath);
-				hypoEvents.add(ev);
-				simul.addEvent(ev);
+			for (MainAcuteComplications comp : MainAcuteComplications.values()) {
+				// Assign severe hypoglycemic events
+				final AcuteEventParam.Progression acuteEvent = commonParams.getTimeToAcuteEvent(T1DMPatient.this, comp, false);
+				if (acuteEvent.timeToEvent < timeToDeath) {
+					final AcuteEvent ev = new AcuteEvent(comp, acuteEvent);
+					acuteEvents[comp.ordinal()].add(ev);
+					simul.addEvent(ev);
+				}				
 			}
 			
 			// Assign lost of treatment effect depending on the intervention
@@ -261,7 +267,7 @@ public class T1DMPatient extends Patient {
 					simul.addEvent(deathEvent);
 				}
 				// Update complications
-				for (MainComplications comp : MainComplications.values()) {
+				for (MainChronicComplications comp : MainChronicComplications.values()) {
 					final T1DMProgression progs = commonParams.getNextComplication(T1DMPatient.this, comp);
 					for (T1DMComorbidity st: progs.getCancelEvents()) {
 						comorbidityEvents[st.ordinal()].cancel();
@@ -282,17 +288,19 @@ public class T1DMPatient extends Patient {
 		}
 	}
 	
-	private class SevereHypoglycemicEvent extends DiscreteEvent {
+	private class AcuteEvent extends DiscreteEvent {
 		private final boolean causesDeath;
+		private final MainAcuteComplications comp;
 
-		public SevereHypoglycemicEvent(long ts, boolean causesDeath) {
-			super(ts);
-			this.causesDeath = causesDeath;
+		public AcuteEvent(MainAcuteComplications comp, AcuteEventParam.Progression prog) {
+			super(prog.timeToEvent);
+			this.comp = comp;
+			this.causesDeath = prog.causesDeath;
 		}
 		
 		@Override
 		public void event() {
-			simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, T1DMPatientInfo.Type.HYPO_EVENT, this.getTs()));
+			simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, comp, this.getTs()));
 			// If the hypoglycemic event causes the death of the patient
 			if (causesDeath) {
 				deathEvent.cancel();
@@ -301,10 +309,10 @@ public class T1DMPatient extends Patient {
 			}
 			else {
 				// Schedule new event (if required)
-				final SevereHypoglycemicEventParam.ReturnValue hypoEvent = commonParams.getTimeToSevereHypoglycemicEvent(T1DMPatient.this, false);
-				if (hypoEvent.timeToEvent < deathEvent.getTs()) {
-					final SevereHypoglycemicEvent ev = new SevereHypoglycemicEvent(hypoEvent.timeToEvent, hypoEvent.causesDeath);
-					hypoEvents.add(ev);
+				final AcuteEventParam.Progression acuteEvent = commonParams.getTimeToAcuteEvent(T1DMPatient.this, comp, false);
+				if (acuteEvent.timeToEvent < deathEvent.getTs()) {
+					final AcuteEvent ev = new AcuteEvent(comp, acuteEvent);
+					acuteEvents[comp.ordinal()].add(ev);
 					simul.addEvent(ev);
 				}
 			}
@@ -326,22 +334,24 @@ public class T1DMPatient extends Patient {
 		public void event() {
 			// Update HbA1c level
 			hba1c = ((T1DMMonitoringIntervention)intervention).getHBA1cLevel(T1DMPatient.this);
-			// Check last hypoglycemic event
-			if (!hypoEvents.isEmpty()) {
-				SevereHypoglycemicEvent hypoEv = hypoEvents.get(hypoEvents.size() - 1);
-				if (hypoEv.getTs() > ts) {
-					hypoEv.cancel();
-					hypoEvents.remove(hypoEv);
-					final SevereHypoglycemicEventParam.ReturnValue hypoEvent = commonParams.getTimeToSevereHypoglycemicEvent(T1DMPatient.this, true);
-					hypoEv = new SevereHypoglycemicEvent(hypoEvent.timeToEvent, hypoEvent.causesDeath);
-					hypoEvents.add(hypoEv);
-					simul.addEvent(hypoEv);
+			for (MainAcuteComplications comp : MainAcuteComplications.values()) {
+				// Check last acute event
+				if (!acuteEvents[comp.ordinal()].isEmpty()) {
+					AcuteEvent acuteEv = acuteEvents[comp.ordinal()].get(acuteEvents[comp.ordinal()].size() - 1);
+					if (acuteEv.getTs() > ts) {
+						acuteEv.cancel();
+						acuteEvents[comp.ordinal()].remove(acuteEv);
+						final AcuteEventParam.Progression prog = commonParams.getTimeToAcuteEvent(T1DMPatient.this, comp, true);
+						acuteEv = new AcuteEvent(comp, prog);
+						acuteEvents[comp.ordinal()].add(acuteEv);
+						simul.addEvent(acuteEv);
+					}
+					
 				}
-				
 			}
 
 			// Check all the complications in case the loss of treatment affects the time to events
-			for (MainComplications comp : MainComplications.values()) {
+			for (MainChronicComplications comp : MainChronicComplications.values()) {
 				final T1DMProgression progs = commonParams.getNextComplication(T1DMPatient.this, comp);
 				for (T1DMComorbidity st: progs.getCancelEvents()) {
 					comorbidityEvents[st.ordinal()].cancel();
@@ -378,15 +388,17 @@ public class T1DMPatient extends Patient {
 					}
 				}
 			}
-			int counter = hypoEvents.size();
-			while (counter != 0) {
-				counter--;
-				if (hypoEvents.get(counter).getTs() >= getTs()) {
-					hypoEvents.get(counter).cancel();
-					hypoEvents.remove(counter);
-				}
-				else {
-					counter = 0;
+			for (int i = 0; i < acuteEvents.length; i++) {
+				int counter = acuteEvents[i].size();
+				while (counter != 0) {
+					counter--;
+					if (acuteEvents[i].get(counter).getTs() >= getTs()) {
+						acuteEvents[i].get(counter).cancel();
+						acuteEvents[i].remove(counter);
+					}
+					else {
+						counter = 0;
+					}
 				}
 			}
 			if (lostEffectEvent != null) {

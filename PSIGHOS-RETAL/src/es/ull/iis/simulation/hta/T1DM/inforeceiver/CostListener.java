@@ -67,8 +67,8 @@ public class CostListener extends Listener implements StructuredOutputListener {
 					update(pat, periodCost, initAge, endAge);
 				}
 				break;
-			case HYPO_EVENT:
-				update(pat, calc.getCostForSevereHypoglycemicEpisode(pat), endAge);
+			case ACUTE_EVENT:
+				update(pat, calc.getCostForAcuteEvent(pat, pInfo.getAcuteEvent()), endAge);
 				// Update outcomes
 				if (endAge > initAge) {
 					final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);

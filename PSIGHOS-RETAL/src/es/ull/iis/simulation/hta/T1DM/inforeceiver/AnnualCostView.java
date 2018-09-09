@@ -67,8 +67,8 @@ public class AnnualCostView extends Listener {
 				update(pat, periodCost, initAge, endAge);
 			}
 			break;
-		case HYPO_EVENT:
-			update(calc.getCostForSevereHypoglycemicEpisode(pat), endAge);
+		case ACUTE_EVENT:
+			update(calc.getCostForAcuteEvent(pat, pInfo.getAcuteEvent()), endAge);
 			// Update outcomes
 			if (endAge > initAge) {
 				final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);

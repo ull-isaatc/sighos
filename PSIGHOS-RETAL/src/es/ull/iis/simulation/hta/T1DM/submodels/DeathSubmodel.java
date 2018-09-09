@@ -1,7 +1,9 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM;
+package es.ull.iis.simulation.hta.T1DM.submodels;
+
+import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 
 /**
  * @author Iván Castilla Rodríguez

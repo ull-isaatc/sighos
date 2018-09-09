@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.T1DM.canada;
 
 import java.util.Collection;
 
-import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
@@ -21,7 +21,7 @@ public class CanadaCostCalculator extends StdCostCalculator {
 	 * @param costHypoglycemicEvent
 	 */
 	public CanadaCostCalculator(double costNoComplication, double costHypoglycemicEvent) {
-		super(costNoComplication, costHypoglycemicEvent);
+		super(costNoComplication, new double[] {costHypoglycemicEvent});
 	}
 
 	@Override
@@ -36,26 +36,26 @@ public class CanadaCostCalculator extends StdCostCalculator {
 			// Check each complication
 			
 			// NPH
-			if (pat.hasComplication(MainComplications.NPH)) {
+			if (pat.hasComplication(MainChronicComplications.NPH)) {
 				if (state.contains(CanadaNPHSubmodel.ESRD) && costs.containsKey(CanadaNPHSubmodel.ESRD))
 					cost += costs.get(CanadaNPHSubmodel.ESRD)[0];
 				else if (state.contains(CanadaNPHSubmodel.NPH) && costs.containsKey(CanadaNPHSubmodel.NPH))
 					cost += costs.get(CanadaNPHSubmodel.NPH)[0];
 			}		
 			// NEU
-			if (pat.hasComplication(MainComplications.NEU)) {
+			if (pat.hasComplication(MainChronicComplications.NEU)) {
 				if (state.contains(CanadaNEUSubmodel.LEA) && costs.containsKey(CanadaNEUSubmodel.LEA))
 					cost += costs.get(CanadaNEUSubmodel.LEA)[0];
 				else if (state.contains(CanadaNEUSubmodel.NEU) && costs.containsKey(CanadaNEUSubmodel.NEU))
 					cost += costs.get(CanadaNEUSubmodel.NEU)[0];
 			}		
 			// CHD
-			if (pat.hasComplication(MainComplications.CHD)) {
+			if (pat.hasComplication(MainChronicComplications.CHD)) {
 				if (state.contains(CanadaCHDSubmodel.CHD) && costs.containsKey(CanadaCHDSubmodel.CHD))
 					cost += costs.get(CanadaCHDSubmodel.CHD)[0];
 			}
 			// RET
-			if (pat.hasComplication(MainComplications.RET)) {
+			if (pat.hasComplication(MainChronicComplications.RET)) {
 				if (state.contains(CanadaRETSubmodel.BLI) && costs.containsKey(CanadaRETSubmodel.BLI))
 					cost += costs.get(CanadaRETSubmodel.BLI)[0];
 				else if (state.contains(CanadaRETSubmodel.RET) && costs.containsKey(CanadaRETSubmodel.RET))

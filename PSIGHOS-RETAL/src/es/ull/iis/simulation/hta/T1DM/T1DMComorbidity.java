@@ -11,10 +11,10 @@ package es.ull.iis.simulation.hta.T1DM;
 public class T1DMComorbidity implements Named, Comparable<T1DMComorbidity> {
 	private final String name;
 	private final String description;
-	private final MainComplications mainComp;
+	private final MainChronicComplications mainComp;
 	private int ord = -1;
 	
-	public T1DMComorbidity(String name, String description, MainComplications mainComp) {
+	public T1DMComorbidity(String name, String description, MainChronicComplications mainComp) {
 		this.name = name;
 		this.description = description;
 		this.mainComp = mainComp;
@@ -23,7 +23,7 @@ public class T1DMComorbidity implements Named, Comparable<T1DMComorbidity> {
 	public String getDescription() {
 		return description;
 	}
-	public MainComplications getComplication() {
+	public MainChronicComplications getComplication() {
 		return mainComp;
 	}
 	

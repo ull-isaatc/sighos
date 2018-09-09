@@ -57,8 +57,8 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 			// Update lastTs
 			lastTs[pat.getIdentifier()] = ts;
 			switch(pInfo.getType()) {
-			case HYPO_EVENT:
-				update(pat, calc.getHypoEventDisutilityValue(), endAge);
+			case ACUTE_EVENT:
+				update(pat, -calc.getAcuteEventDisutilityValue(pat, pInfo.getAcuteEvent()), endAge);
 			case COMPLICATION:
 			case DEATH:
 			case FINISH:

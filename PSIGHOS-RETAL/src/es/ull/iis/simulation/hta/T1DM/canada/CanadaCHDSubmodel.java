@@ -5,8 +5,7 @@ package es.ull.iis.simulation.hta.T1DM.canada;
 
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel;
-import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
@@ -17,6 +16,7 @@ import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
 import simkit.random.DiscreteSelectorVariate;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
@@ -25,8 +25,8 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class CanadaCHDSubmodel extends ComplicationSubmodel {
-	public static T1DMComorbidity CHD = new T1DMComorbidity("CHD", "Cardiac heart disease", MainComplications.CHD);
+public class CanadaCHDSubmodel extends ChronicComplicationSubmodel {
+	public static T1DMComorbidity CHD = new T1DMComorbidity("CHD", "Cardiac heart disease", MainChronicComplications.CHD);
 	public static T1DMComorbidity[] CHDSubstates = new T1DMComorbidity[] {CHD}; 
 	
 //	addOtherParam(new SecondOrderParam(STR_REF_HBA1C, STR_REF_HBA1C, "", 8.87480916));
@@ -60,13 +60,13 @@ public class CanadaCHDSubmodel extends ComplicationSubmodel {
 		super();
 		
 		invProb = new double[CHDTransitions.values().length];
-		invProb[CHDTransitions.HEALTHY_CHD.ordinal()] = -1 / secParams.getProbability(MainComplications.CHD);
-		invProb[CHDTransitions.NEU_CHD.ordinal()] = -1 / secParams.getProbability(MainComplications.NEU, MainComplications.CHD);
-		invProb[CHDTransitions.NPH_CHD.ordinal()] = -1 / secParams.getProbability(MainComplications.NPH, MainComplications.CHD);
-		invProb[CHDTransitions.RET_CHD.ordinal()] = -1 / secParams.getProbability(MainComplications.RET, MainComplications.CHD);
+		invProb[CHDTransitions.HEALTHY_CHD.ordinal()] = -1 / secParams.getProbability(MainChronicComplications.CHD);
+		invProb[CHDTransitions.NEU_CHD.ordinal()] = -1 / secParams.getProbability(MainChronicComplications.NEU, MainChronicComplications.CHD);
+		invProb[CHDTransitions.NPH_CHD.ordinal()] = -1 / secParams.getProbability(MainChronicComplications.NPH, MainChronicComplications.CHD);
+		invProb[CHDTransitions.RET_CHD.ordinal()] = -1 / secParams.getProbability(MainChronicComplications.RET, MainChronicComplications.CHD);
 		
 		this.rr = new ComplicationRR[CHDTransitions.values().length];
-		final ComplicationRR rrToCHD = new HbA1c1PPComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainComplications.CHD.name()), REF_HBA1C);
+		final ComplicationRR rrToCHD = new HbA1c1PPComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainChronicComplications.CHD.name()), REF_HBA1C);
 		rr[CHDTransitions.HEALTHY_CHD.ordinal()] = rrToCHD;
 		rr[CHDTransitions.NEU_CHD.ordinal()] = rrToCHD;
 		rr[CHDTransitions.NPH_CHD.ordinal()] = rrToCHD;
@@ -85,17 +85,17 @@ public class CanadaCHDSubmodel extends ComplicationSubmodel {
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
 
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, MainComplications.CHD), "Probability of healthy to CHD", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, MainChronicComplications.CHD), "Probability of healthy to CHD", 
 				"", P_DNC_CHD));
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.NEU, MainComplications.CHD), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainChronicComplications.NEU, MainChronicComplications.CHD), "", 
 				"", P_NEU_CHD));
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.NPH, MainComplications.CHD), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainChronicComplications.NPH, MainChronicComplications.CHD), "", 
 				"", P_NPH_CHD));
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.RET, MainComplications.CHD), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainChronicComplications.RET, MainChronicComplications.CHD), "", 
 				"", P_RET_CHD));
 		
-		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainComplications.CHD.name(), 
-				SecondOrderParamsRepository.STR_RR_PREFIX + MainComplications.CHD.name(), 
+		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainChronicComplications.CHD.name(), 
+				SecondOrderParamsRepository.STR_RR_PREFIX + MainChronicComplications.CHD.name(), 
 				"Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007", 
 				1.15, RandomVariateFactory.getInstance("RRFromLnCIVariate", 1.15, 0.92, 1.43, 1)));
 
@@ -104,7 +104,7 @@ public class CanadaCHDSubmodel extends ComplicationSubmodel {
 
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + CHD, "Disutility of CHD", "", DU_CHD));
 
-		secParams.registerComplication(MainComplications.CHD);
+		secParams.registerComplication(MainChronicComplications.CHD);
 		secParams.registerHealthStates(CHDSubstates);
 	}
 
@@ -123,19 +123,19 @@ public class CanadaCHDSubmodel extends ComplicationSubmodel {
 		final T1DMProgression prog = new T1DMProgression();
 		if (enable) {
 			// If already has CHD, then nothing else to progress to
-			if (!pat.hasComplication(MainComplications.CHD)) {
+			if (!pat.hasComplication(MainChronicComplications.CHD)) {
 				long timeToCHD = pat.getTimeToDeath();
-				if (pat.hasComplication(MainComplications.NEU)) {
+				if (pat.hasComplication(MainChronicComplications.NEU)) {
 					final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.NEU_CHD);
 					if (newTimeToCHD < timeToCHD)
 						timeToCHD = newTimeToCHD;
 				}
-				if (pat.hasComplication(MainComplications.NPH)) {
+				if (pat.hasComplication(MainChronicComplications.NPH)) {
 					final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.NPH_CHD);
 					if (newTimeToCHD < timeToCHD)
 						timeToCHD = newTimeToCHD;
 				}
-				if (pat.hasComplication(MainComplications.RET)) {
+				if (pat.hasComplication(MainChronicComplications.RET)) {
 					final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.RET_CHD);
 					if (newTimeToCHD < timeToCHD)
 						timeToCHD = newTimeToCHD;

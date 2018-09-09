@@ -1,11 +1,15 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM;
+package es.ull.iis.simulation.hta.T1DM.submodels;
 
 import java.util.Collection;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
@@ -22,11 +26,11 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SimpleCHDSubmodel extends ComplicationSubmodel {
-	public static T1DMComorbidity ANGINA = new T1DMComorbidity("ANGINA", "Angina", MainComplications.CHD);
-	public static T1DMComorbidity STROKE = new T1DMComorbidity("STROKE", "Stroke", MainComplications.CHD);
-	public static T1DMComorbidity MI = new T1DMComorbidity("MI", "Myocardial Infarction", MainComplications.CHD);
-	public static T1DMComorbidity HF = new T1DMComorbidity("HF", "Heart Failure", MainComplications.CHD);
+public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
+	public static T1DMComorbidity ANGINA = new T1DMComorbidity("ANGINA", "Angina", MainChronicComplications.CHD);
+	public static T1DMComorbidity STROKE = new T1DMComorbidity("STROKE", "Stroke", MainChronicComplications.CHD);
+	public static T1DMComorbidity MI = new T1DMComorbidity("MI", "Myocardial Infarction", MainChronicComplications.CHD);
+	public static T1DMComorbidity HF = new T1DMComorbidity("HF", "Heart Failure", MainChronicComplications.CHD);
 	public static T1DMComorbidity[] CHDSubstates = new T1DMComorbidity[] {ANGINA, STROKE, MI, HF}; 
 	
 	private static final double REF_HBA1C = 9.1; 
@@ -41,7 +45,7 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 	// Utility (avg, SD) from either Bagust and Beale; or Sullivan
 	private static final double[] DU_ANGINA = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.09, (0.126 - 0.054) / 3.92} : new double[]{0.0412, 0.0002};
 	// Utility (avg, SD) from either Clarke et al.; or Mar et al. In the latter, the SD has been manually adjusted to generate utilities between 0.4 and 0.7
-	private static final double[] DU_STROKE = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.164, (0.222 - 0.105) / 3.92} : new double[]{(BasicConfigParams.U_GENERAL_POP - (0.4013+0.736)/2), 0.045};
+	private static final double[] DU_STROKE = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.164, (0.222 - 0.105) / 3.92} : new double[]{(BasicConfigParams.DEF_U_GENERAL_POP - (0.4013+0.736)/2), 0.045};
 	// Utility (avg, SD) from either Clarke et al; or Sullivan
 	private static final double[] DU_MI = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.055, (0.067 - 0.042) / 3.92} : new double[]{0.0409, 0.0002};
 	// Utility (avg, SD) from either Clarke et al.; or Sullivan (assumed equal to MI)
@@ -73,12 +77,12 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 		super();
 		
 		invProb = new double[CHDTransitions.values().length];
-		invProb[CHDTransitions.HEALTHY_CHD.ordinal()] = -1 / secParams.getProbability(MainComplications.CHD);
-		invProb[CHDTransitions.NEU_CHD.ordinal()] = -1 / secParams.getProbability(MainComplications.NEU, MainComplications.CHD);
-		invProb[CHDTransitions.NPH_CHD.ordinal()] = -1 / secParams.getProbability(MainComplications.NPH, MainComplications.CHD);
-		invProb[CHDTransitions.RET_CHD.ordinal()] = -1 / secParams.getProbability(MainComplications.RET, MainComplications.CHD);
+		invProb[CHDTransitions.HEALTHY_CHD.ordinal()] = -1 / secParams.getProbability(MainChronicComplications.CHD);
+		invProb[CHDTransitions.NEU_CHD.ordinal()] = -1 / secParams.getProbability(MainChronicComplications.NEU, MainChronicComplications.CHD);
+		invProb[CHDTransitions.NPH_CHD.ordinal()] = -1 / secParams.getProbability(MainChronicComplications.NPH, MainChronicComplications.CHD);
+		invProb[CHDTransitions.RET_CHD.ordinal()] = -1 / secParams.getProbability(MainChronicComplications.RET, MainChronicComplications.CHD);
 		this.rr = new ComplicationRR[CHDTransitions.values().length];
-		final ComplicationRR rrToCHD = new HbA1c1PPComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainComplications.CHD.name()), REF_HBA1C);
+		final ComplicationRR rrToCHD = new HbA1c1PPComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainChronicComplications.CHD.name()), REF_HBA1C);
 		rr[CHDTransitions.HEALTHY_CHD.ordinal()] = rrToCHD;
 		rr[CHDTransitions.NEU_CHD.ordinal()] = rrToCHD;
 		rr[CHDTransitions.NPH_CHD.ordinal()] = rrToCHD;
@@ -108,17 +112,17 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 		final double[] paramsNPH_CHD = SecondOrderParamsRepository.betaParametersFromNormal(P_NPH_CHD, SecondOrderParamsRepository.sdFrom95CI(CI_NPH_CHD));
 		final double[] paramsRET_CHD = SecondOrderParamsRepository.betaParametersFromNormal(P_RET_CHD, SecondOrderParamsRepository.sdFrom95CI(CI_RET_CHD));		
 
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, MainComplications.CHD), "Probability of healthy to CHD", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, MainChronicComplications.CHD), "Probability of healthy to CHD", 
 				"", P_DNC_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_CHD[0], paramsDNC_CHD[1])));
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.NEU, MainComplications.CHD), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainChronicComplications.NEU, MainChronicComplications.CHD), "", 
 				"", P_NEU_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_CHD[0], paramsNEU_CHD[1])));
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.NPH, MainComplications.CHD), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainChronicComplications.NPH, MainChronicComplications.CHD), "", 
 				"", P_NPH_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNPH_CHD[0], paramsNPH_CHD[1])));
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.RET, MainComplications.CHD), "", 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainChronicComplications.RET, MainChronicComplications.CHD), "", 
 				"", P_RET_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsRET_CHD[0], paramsRET_CHD[1])));
 		
-		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainComplications.CHD.name(), 
-				SecondOrderParamsRepository.STR_RR_PREFIX + MainComplications.CHD.name(), 
+		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainChronicComplications.CHD.name(), 
+				SecondOrderParamsRepository.STR_RR_PREFIX + MainChronicComplications.CHD.name(), 
 				"Selvin et al. https://doi.org/2004 10.7326/0003-4819-141-6-200409210-00007", 
 				1.15, RandomVariateFactory.getInstance("RRFromLnCIVariate", 1.15, 0.92, 1.43, 1)));
 
@@ -139,7 +143,7 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 				"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
 				0.12, RandomVariateFactory.getInstance("GammaVariate", 1.0, 0.12)));
 
-		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_IMR_PREFIX + MainComplications.CHD.name(), 
+		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_IMR_PREFIX + MainChronicComplications.CHD.name(), 
 				"Increased mortality risk due to macrovascular disease", 
 				"https://doi.org/10.2337/diacare.28.3.617", 
 				1.96, RandomVariateFactory.getInstance("RRFromLnCIVariate", 1.96, 1.33, 2.89, 1)));
@@ -170,7 +174,7 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 				"Disutility of stroke. Average of autonomous and dependant stroke disutilities", 
 				"", DU_STROKE[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuSTROKE[0], paramsDuSTROKE[1])));
 
-		secParams.registerComplication(MainComplications.CHD);
+		secParams.registerComplication(MainChronicComplications.CHD);
 		secParams.registerHealthStates(CHDSubstates);
 	}
 
@@ -189,19 +193,19 @@ public class SimpleCHDSubmodel extends ComplicationSubmodel {
 		final T1DMProgression prog = new T1DMProgression();
 		if (enable) {
 			// If already has CHD, then nothing else to progress to
-			if (!pat.hasComplication(MainComplications.CHD)) {
+			if (!pat.hasComplication(MainChronicComplications.CHD)) {
 				long timeToCHD = pat.getTimeToDeath();
-				if (pat.hasComplication(MainComplications.NEU)) {
+				if (pat.hasComplication(MainChronicComplications.NEU)) {
 					final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.NEU_CHD);
 					if (newTimeToCHD < timeToCHD)
 						timeToCHD = newTimeToCHD;
 				}
-				if (pat.hasComplication(MainComplications.NPH)) {
+				if (pat.hasComplication(MainChronicComplications.NPH)) {
 					final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.NPH_CHD);
 					if (newTimeToCHD < timeToCHD)
 						timeToCHD = newTimeToCHD;
 				}
-				if (pat.hasComplication(MainComplications.RET)) {
+				if (pat.hasComplication(MainChronicComplications.RET)) {
 					final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.RET_CHD);
 					if (newTimeToCHD < timeToCHD)
 						timeToCHD = newTimeToCHD;

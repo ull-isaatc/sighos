@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.T1DM.inforeceiver;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;

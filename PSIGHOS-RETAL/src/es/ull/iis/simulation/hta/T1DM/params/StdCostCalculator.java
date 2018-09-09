@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.T1DM.params;
 import java.util.Collection;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.T1DM.MainAcuteComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
@@ -23,14 +24,14 @@ public class StdCostCalculator implements CostCalculator {
 	/** Cost of diabetes with no complications */ 
 	protected final double costNoComplication;
 	/** Cost of a severe hypoglycemic event */
-	private final double costHypoglycemicEvent;
+	private final double[] costAcuteEvent;
 	
 	/**
 	 * Creates an instance of the model parameters related to costs.
 	 * @param secParams Second order parameters to be used
 	 */
-	public StdCostCalculator(double costNoComplication, double costHypoglycemicEvent) {
-		this.costHypoglycemicEvent = costHypoglycemicEvent;
+	public StdCostCalculator(double costNoComplication, double[] costAcuteEvent) {
+		this.costAcuteEvent = costAcuteEvent;
 		this.costNoComplication = costNoComplication;
 		costs = new TreeMap<>();
 	}
@@ -65,8 +66,8 @@ public class StdCostCalculator implements CostCalculator {
 	 * @param pat A patient
 	 * @return the cost of a severe hypoglycemic episode
 	 */
-	public double getCostForSevereHypoglycemicEpisode(T1DMPatient pat) {
-		return costHypoglycemicEvent;
+	public double getCostForAcuteEvent(T1DMPatient pat, MainAcuteComplications comp) {
+		return costAcuteEvent[comp.ordinal()];
 	}
 
 	@Override

@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.T1DM.inforeceiver;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.hta.Intervention;
-import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
@@ -64,7 +64,7 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 			for (int j = 0; j < timeToComplications[0][i].length; j++) {
 				if (timeToComplications[0][i][j] > timeToComplications[1][i][j]) {
 					checked = true;
-					System.out.println("Paciente " + j + " Comp " + MainComplications.values()[i] + "\t" + timeToComplications[0][i][j] + ":" + timeToComplications[1][i][j]);
+					System.out.println("Paciente " + j + " Comp " + MainChronicComplications.values()[i] + "\t" + timeToComplications[0][i][j] + ":" + timeToComplications[1][i][j]);
 				}
 			}
 		}

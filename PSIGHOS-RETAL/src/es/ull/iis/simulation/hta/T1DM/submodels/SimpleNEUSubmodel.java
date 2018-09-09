@@ -1,11 +1,15 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM;
+package es.ull.iis.simulation.hta.T1DM.submodels;
 
 import java.util.Collection;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
@@ -20,9 +24,9 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SimpleNEUSubmodel extends ComplicationSubmodel {
-	public static T1DMComorbidity NEU = new T1DMComorbidity("NEU", "Neuropathy", MainComplications.NEU);
-	public static T1DMComorbidity LEA = new T1DMComorbidity("LEA", "Low extremity amputation", MainComplications.NEU);
+public class SimpleNEUSubmodel extends ChronicComplicationSubmodel {
+	public static T1DMComorbidity NEU = new T1DMComorbidity("NEU", "Neuropathy", MainChronicComplications.NEU);
+	public static T1DMComorbidity LEA = new T1DMComorbidity("LEA", "Low extremity amputation", MainChronicComplications.NEU);
 	public static T1DMComorbidity[] NEUSubstates = new T1DMComorbidity[] {NEU, LEA};
 	
 	private static final double P_DNC_NEU = 0.0354;
@@ -33,9 +37,10 @@ public class SimpleNEUSubmodel extends ComplicationSubmodel {
 	private static final double[] CI_NEU_LEA = {0.01232, 0.01848};
 	private static final double BETA_NEU = 5.3;
 	private static final double C_NEU = 3108.86;
-	private static final double C_LEA = 9305.74;
+	private static final double C_LEA = 918.01;
 	private static final double TC_NEU = 0.0;
-	private static final double TC_LEA = 11966.18;
+	/** [Avg, SD] cost of amputation, from Spanish national tariffs */
+	private static final double[] TC_LEA = {11333.04, 1674.37};
 	// Utility (avg, SD) from either Bagust and Beale; or Sullivan
 	private static final double[] DU_NEU = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.084, (0.111 - 0.057) / 3.92} : new double[]{0.0244, 0.00012};
 	// Utility (avg, SD) from either Clarke et al.; or Sullivan
@@ -116,9 +121,12 @@ public class SimpleNEUSubmodel extends ComplicationSubmodel {
 				3.98, RandomVariateFactory.getInstance("RRFromLnCIVariate", 3.98, 1.84, 8.59, 1)));
 
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + NEU, "Cost of NEU", "", 2015, C_NEU, SecondOrderParamsRepository.getRandomVariateForCost(C_NEU)));
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + LEA, "Cost of LEA", "", 2015, C_LEA, SecondOrderParamsRepository.getRandomVariateForCost(C_LEA)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + LEA, "Cost of LEA", "del Pino et al", 2017, C_LEA, SecondOrderParamsRepository.getRandomVariateForCost(C_LEA)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + NEU, "Transition cost to NEU", "", 2015, TC_NEU, SecondOrderParamsRepository.getRandomVariateForCost(TC_NEU)));
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + LEA, "Transition cost to LEA", "", 2015, TC_LEA, SecondOrderParamsRepository.getRandomVariateForCost(TC_LEA)));
+		final double[] tcLEAParams = SecondOrderParamsRepository.gammaParametersFromNormal(TC_LEA[0], TC_LEA[1]); 
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + LEA, "Transition cost to LEA", 
+				"Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco", 2017, 
+				TC_LEA[0], RandomVariateFactory.getInstance("GammaVariate", tcLEAParams[0], tcLEAParams[1])));
 
 		final double[] paramsDuNEU = SecondOrderParamsRepository.betaParametersFromNormal(DU_NEU[0], DU_NEU[1]);
 		final double[] paramsDuLEA = SecondOrderParamsRepository.betaParametersFromNormal(DU_LEA[0], DU_LEA[1]);
@@ -127,7 +135,7 @@ public class SimpleNEUSubmodel extends ComplicationSubmodel {
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + LEA, "Disutility of LEA", 
 				"", DU_LEA[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuLEA[0], paramsDuLEA[1])));
 		
-		secParams.registerComplication(MainComplications.NEU);
+		secParams.registerComplication(MainChronicComplications.NEU);
 		secParams.registerHealthStates(NEUSubstates);
 	}
 	

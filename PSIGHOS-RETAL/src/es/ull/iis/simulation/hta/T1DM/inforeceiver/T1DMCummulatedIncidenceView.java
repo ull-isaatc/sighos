@@ -85,7 +85,7 @@ public class T1DMCummulatedIncidenceView extends Listener {
 				case COMPLICATION:
 					nComplications.get(pInfo.getComplication())[interval]++;
 					break;
-				case HYPO_EVENT:
+				case ACUTE_EVENT:
 					nSevereHypo[interval]++;
 					break;
 				case DEATH:

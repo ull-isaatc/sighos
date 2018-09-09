@@ -1,11 +1,15 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM;
+package es.ull.iis.simulation.hta.T1DM.submodels;
 
 import java.util.Collection;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
@@ -20,9 +24,9 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SimpleNPHSubmodel extends ComplicationSubmodel {
-	public static T1DMComorbidity NPH = new T1DMComorbidity("NPH", "Neuropathy", MainComplications.NPH);
-	public static T1DMComorbidity ESRD = new T1DMComorbidity("ESRD", "End-Stage Renal Disease", MainComplications.NPH);
+public class SimpleNPHSubmodel extends ChronicComplicationSubmodel {
+	public static T1DMComorbidity NPH = new T1DMComorbidity("NPH", "Neuropathy", MainChronicComplications.NPH);
+	public static T1DMComorbidity ESRD = new T1DMComorbidity("ESRD", "End-Stage Renal Disease", MainChronicComplications.NPH);
 	public static T1DMComorbidity[] NPHSubstates = new T1DMComorbidity[] {NPH, ESRD};
 
 	private static final double BETA_NPH = 3.25;
@@ -68,7 +72,7 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 		invProb[NPHTransitions.HEALTHY_NPH.ordinal()] = -1 / secParams.getProbability(NPH);
 		invProb[NPHTransitions.HEALTHY_ESRD.ordinal()] = -1 / secParams.getProbability(ESRD);
 		invProb[NPHTransitions.NPH_ESRD.ordinal()] = -1 / secParams.getProbability(NPH, ESRD);
-		invProb[NPHTransitions.NEU_NPH.ordinal()] = -1 / secParams.getProbability(MainComplications.NEU, NPH);
+		invProb[NPHTransitions.NEU_NPH.ordinal()] = -1 / secParams.getProbability(MainChronicComplications.NEU, NPH);
 		
 		rr = new ComplicationRR[NPHTransitions.values().length];
 		final ComplicationRR rrToNPH = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + NPH)); 
@@ -111,7 +115,7 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 				"Probability of healthy to ESRD, as processed in Sheffield Type 1 model", 
 				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
 				P_DNC_ESRD, "UniformVariate", LIMITS_DNC_ESRD[0], LIMITS_DNC_ESRD[1]));
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainComplications.NEU, MainComplications.NPH), 
+		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(MainChronicComplications.NEU, MainChronicComplications.NPH), 
 				"", 
 				"", 
 				P_NEU_NPH, "BetaVariate", paramsNEU_NPH[0], paramsNEU_NPH[1]));		
@@ -142,7 +146,7 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + ESRD, "Disutility of ESRD", 
 				"", DU_ESRD[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuESRD[0], paramsDuESRD[1])));
 		
-		secParams.registerComplication(MainComplications.NPH);
+		secParams.registerComplication(MainChronicComplications.NPH);
 		secParams.registerHealthStates(NPHSubstates);
 		
 	}
@@ -174,7 +178,7 @@ public class SimpleNPHSubmodel extends ComplicationSubmodel {
 						limit = previousTimeToNPH;
 					// RR from healthy to NPH (must be previous to ESRD and a (potential) formerly scheduled NPH event)
 					timeToNPH = getAnnualBasedTimeToEvent(pat, NPHTransitions.HEALTHY_NPH, limit);
-					if (pat.hasComplication(MainComplications.NEU)) {
+					if (pat.hasComplication(MainChronicComplications.NEU)) {
 						// RR from NEU to NPH (must be previous to the former transition)
 						if (limit > timeToNPH)
 							limit = timeToNPH;

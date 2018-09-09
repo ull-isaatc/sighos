@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.T1DM.params;
 
+import es.ull.iis.simulation.hta.T1DM.MainAcuteComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 
@@ -30,9 +31,10 @@ public interface CostCalculator {
 	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent);
 	
 	/**
-	 * Returns the cost of a severe hypoglycemic episode
+	 * Returns the cost of an acute event
 	 * @param pat A patient
-	 * @return the cost of a severe hypoglycemic episode
+	 * @param comp The acute event
+	 * @return the cost of an acute event
 	 */
-	public double getCostForSevereHypoglycemicEpisode(T1DMPatient pat);
+	public double getCostForAcuteEvent(T1DMPatient pat, MainAcuteComplications comp);
 }

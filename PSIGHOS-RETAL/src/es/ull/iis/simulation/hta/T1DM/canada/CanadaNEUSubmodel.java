@@ -6,8 +6,7 @@ package es.ull.iis.simulation.hta.T1DM.canada;
 import java.util.Collection;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel;
-import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
@@ -17,6 +16,7 @@ import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -24,9 +24,9 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class CanadaNEUSubmodel extends ComplicationSubmodel {
-	public static T1DMComorbidity NEU = new T1DMComorbidity("NEU", "Neuropathy", MainComplications.NEU);
-	public static T1DMComorbidity LEA = new T1DMComorbidity("LEA", "Low extremity amputation", MainComplications.NEU);
+public class CanadaNEUSubmodel extends ChronicComplicationSubmodel {
+	public static T1DMComorbidity NEU = new T1DMComorbidity("NEU", "Neuropathy", MainChronicComplications.NEU);
+	public static T1DMComorbidity LEA = new T1DMComorbidity("LEA", "Low extremity amputation", MainChronicComplications.NEU);
 	public static T1DMComorbidity[] NEUSubstates = new T1DMComorbidity[] {NEU, LEA};
 
 //	addOtherParam(new SecondOrderParam(STR_REF_HBA1C, STR_REF_HBA1C, "", 8.87480916));
@@ -93,7 +93,7 @@ public class CanadaNEUSubmodel extends ComplicationSubmodel {
 		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(NEU, LEA), 
 				"",	"",	P_NEU_LEA));
 
-//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + MainComplications.NEU.name(), "Beta for confirmed clinical neuropathy", 
+//		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + MainChronicComplications.NEU.name(), "Beta for confirmed clinical neuropathy", 
 //		"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289, as adapted by Sheffield", 5.3));
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + NEU.name(), 
 				"%risk reducion for combined groups for confirmed clinical neuropathy", 
@@ -108,7 +108,7 @@ public class CanadaNEUSubmodel extends ComplicationSubmodel {
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + NEU, "Disutility of NEU", "", DU_NEU));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + LEA, "Disutility of LEA", "", DU_LEA));
 		
-		secParams.registerComplication(MainComplications.NEU);
+		secParams.registerComplication(MainChronicComplications.NEU);
 		secParams.registerHealthStates(NEUSubstates);
 	}
 	

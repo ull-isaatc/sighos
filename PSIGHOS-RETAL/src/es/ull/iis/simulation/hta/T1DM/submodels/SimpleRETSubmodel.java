@@ -1,11 +1,15 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM;
+package es.ull.iis.simulation.hta.T1DM.submodels;
 
 import java.util.Collection;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.HbA1c10ReductionComplicationRR;
@@ -20,9 +24,9 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SimpleRETSubmodel extends ComplicationSubmodel {
-	public static T1DMComorbidity RET = new T1DMComorbidity("RET", "Retinopathy", MainComplications.RET);
-	public static T1DMComorbidity BLI = new T1DMComorbidity("BLI", "Blindness", MainComplications.RET);
+public class SimpleRETSubmodel extends ChronicComplicationSubmodel {
+	public static T1DMComorbidity RET = new T1DMComorbidity("RET", "Retinopathy", MainChronicComplications.RET);
+	public static T1DMComorbidity BLI = new T1DMComorbidity("BLI", "Blindness", MainChronicComplications.RET);
 	public static T1DMComorbidity[] RETSubstates = new T1DMComorbidity[] {RET, BLI};
 	
 	private static final double REF_HBA1C = 9.1; 
@@ -95,7 +99,7 @@ public class SimpleRETSubmodel extends ComplicationSubmodel {
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, SimpleRETSubmodel.BLI), "Probability of healthy to blindness", 
 				"Sheffield (WESDR XXII)", 1.9e-6));
 
-		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainComplications.RET.name(), "%risk reducion for combined groups for sustained onset of retinopathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 
+		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainChronicComplications.RET.name(), "%risk reducion for combined groups for sustained onset of retinopathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 
 				0.35, RandomVariateFactory.getInstance("NormalVariate", 0.35, SecondOrderParamsRepository.sdFrom95CI(new double[] {0.29, 0.41}))));
 
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + RET, "Cost of RET", "", 2015, C_RET, SecondOrderParamsRepository.getRandomVariateForCost(C_RET)));
@@ -110,7 +114,7 @@ public class SimpleRETSubmodel extends ComplicationSubmodel {
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BLI, "Disutility of BLI", 
 				"", DU_BLI[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuBLI[0], paramsDuBLI[1])));
 		
-		secParams.registerComplication(MainComplications.RET);
+		secParams.registerComplication(MainChronicComplications.RET);
 		secParams.registerHealthStates(RETSubstates);		
 	}
 

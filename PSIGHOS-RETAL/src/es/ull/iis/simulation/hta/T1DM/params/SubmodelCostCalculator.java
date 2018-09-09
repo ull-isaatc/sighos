@@ -5,31 +5,32 @@ package es.ull.iis.simulation.hta.T1DM.params;
 
 import java.util.Collection;
 
-import es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel;
-import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.MainAcuteComplications;
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.submodels.AcuteComplicationSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
 public class SubmodelCostCalculator implements CostCalculator {
-	private final ComplicationSubmodel[] submodels;
+	private final ChronicComplicationSubmodel[] submodels;
+	private final AcuteComplicationSubmodel[] acuteSubmodels;
 	/** Cost of diabetes with no complications */ 
 	protected final double costNoComplication;
-	/** Cost of a severe hypoglycemic event */
-	private final double costHypoglycemicEvent;
 	
 	/**
 	 * @param costNoComplication
 	 * @param costHypoglycemicEvent
 	 */
-	public SubmodelCostCalculator(double costNoComplication, double costHypoglycemicEvent, ComplicationSubmodel[] submodels) {
-		this.costHypoglycemicEvent = costHypoglycemicEvent;
+	public SubmodelCostCalculator(double costNoComplication, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels) {
 		this.costNoComplication = costNoComplication;
 		this.submodels = submodels;
+		this.acuteSubmodels = acuteSubmodels;
 	}
 
 	@Override
@@ -42,7 +43,7 @@ public class SubmodelCostCalculator implements CostCalculator {
 		}
 		else {
 			// Check each complication
-			for (MainComplications comp : MainComplications.values()) {
+			for (MainChronicComplications comp : MainChronicComplications.values()) {
 				if (pat.hasComplication(comp)) {
 					cost += submodels[comp.ordinal()].getAnnualCostWithinPeriod(pat, initAge, endAge);
 				}		
@@ -57,8 +58,8 @@ public class SubmodelCostCalculator implements CostCalculator {
 	 * @param pat A patient
 	 * @return the cost of a severe hypoglycemic episode
 	 */
-	public double getCostForSevereHypoglycemicEpisode(T1DMPatient pat) {
-		return costHypoglycemicEvent;
+	public double getCostForAcuteEvent(T1DMPatient pat, MainAcuteComplications comp) {
+		return acuteSubmodels[comp.ordinal()].getCostOfComplication(pat);
 	}
 
 	@Override

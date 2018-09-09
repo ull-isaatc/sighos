@@ -3,19 +3,21 @@
  */
 package es.ull.iis.simulation.hta.T1DM.params;
 
-import es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel;
-import es.ull.iis.simulation.hta.T1DM.DeathSubmodel;
-import es.ull.iis.simulation.hta.T1DM.MainComplications;
-import es.ull.iis.simulation.hta.T1DM.SheffieldNPHSubmodel;
-import es.ull.iis.simulation.hta.T1DM.SheffieldRETSubmodel;
-import es.ull.iis.simulation.hta.T1DM.SimpleCHDSubmodel;
-import es.ull.iis.simulation.hta.T1DM.SimpleNEUSubmodel;
-import es.ull.iis.simulation.hta.T1DM.SimpleNPHSubmodel;
-import es.ull.iis.simulation.hta.T1DM.SimpleRETSubmodel;
-import es.ull.iis.simulation.hta.T1DM.StandardSpainDeathSubmodel;
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.T1DM.submodels.AcuteComplicationSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.BattelinoSevereHypoglycemiaEvent;
+import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.SheffieldNPHSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.SheffieldRETSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.SimpleCHDSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.SimpleNEUSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.SimpleNPHSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.SimpleRETSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.StandardSpainDeathSubmodel;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -47,16 +49,9 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 //	/** Variability in the HbA1c reduction after 6 months for patients with < 70% [0] and >= 70% [1] usage of the sensor, expresed as +- average */
 //	private static final double[] HBA1C_REDUCTION_PLUS_MINUS = {1.11, 0.07};
 	
-	private static final double C_DNC = 2174.11;
 	private static final double C_SAP = 7662.205833;
 	private static final double C_CSII = 3013.335;
 
-	private static final double P_HYPO = 0.0408163;
-	private static final double[] P_HYPO_BETA = {3.94576334, 142.05423666};
-	private static final double[] RR_HYPO_BETA = {0.68627430, 0.60401244};
-	private static final double DU_HYPO_EPISODE = 0.0206; // From Canada
-	private static final double DU_DNC = 0.0351;
-	
 	/**
 	 * @param baseCase
 	 */
@@ -75,17 +70,12 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 		SimpleCHDSubmodel.registerSecondOrder(this);
 		SimpleNEUSubmodel.registerSecondOrder(this);
 
+		BattelinoSevereHypoglycemiaEvent.registerSecondOrder(this);
 
 		// Severe hypoglycemic episodes
-		final double[] paramsDeathHypo = betaParametersFromNormal(0.0063, sdFrom95CI(new double[]{0.0058, 0.0068}));
-		addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode (adjusted from n events of both arms; only events from injection therapy in probabilistic)", 
-				"Battelino 2012", P_HYPO, RandomVariateFactory.getInstance("BetaVariate", P_HYPO_BETA[0], P_HYPO_BETA[1])));
-		addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", "Canada", 0.0063, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
-		addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic events (adjusted from rate/100 patient-month). Assumed 1 at base case; using difference at probabilistic", 
-				"Battelino 2012", 1.0, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", RR_HYPO_BETA[0], RR_HYPO_BETA[1]))));
-
-		addCostParam(new SecondOrderCostParam(STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", "https://doi.org/10.1007/s13300-017-0285-0", 2017, 716.82, getRandomVariateForCost(716.82)));
-		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of DNC", "", 2015, C_DNC, getRandomVariateForCost(C_DNC)));
+		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of Diabetes with no complications", 
+				BasicConfigParams.DEF_C_DNC.SOURCE, BasicConfigParams.DEF_C_DNC.YEAR, 
+				BasicConfigParams.DEF_C_DNC.VALUE, getRandomVariateForCost(BasicConfigParams.DEF_C_DNC.VALUE)));
 		
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + CSIIIntervention.NAME, "Annual cost of CSII", 
 				"Own calculations from data provided by medtronic (see Parametros.xls", 2018, C_CSII, SecondOrderParamsRepository.getRandomVariateForCost(C_CSII)));
@@ -93,8 +83,10 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX +SAPIntervention.NAME, "Annual cost of SAP",  
 				"Own calculations from data provided by medtronic (see Parametros.xls", 2018, C_SAP, SecondOrderParamsRepository.getRandomVariateForCost(C_SAP)));
 
-		addUtilParam(new SecondOrderParam(STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "", DU_HYPO_EPISODE));
-		addUtilParam(new SecondOrderParam(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS, "Disutility of DNC", "", DU_DNC));
+		final double[] paramsDuDNC = SecondOrderParamsRepository.betaParametersFromNormal(BasicConfigParams.DEF_DU_DNC[0], BasicConfigParams.DEF_DU_DNC[1]);
+		addUtilParam(new SecondOrderParam(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS, "Disutility of DNC", "", 
+				BasicConfigParams.DEF_DU_DNC[0], "BetaVariate", paramsDuDNC[0], paramsDuDNC[1]));
+		
 		
 		addOtherParam(new SecondOrderParam(STR_P_MAN, "Probability of sex = male", "https://doi.org/10.1016/j.endinu.2018.03.008", 0.5));
 		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "Spanish guidelines", 0.03));
@@ -136,18 +128,6 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	}
 
 	@Override
-	public ComplicationRR getHypoRR() {
-		final double[] rrValues = new double[getNInterventions()];
-		rrValues[0] = 1.0;
-		final SecondOrderParam param = otherParams.get(STR_RR_HYPO);
-		final double rr = (param == null) ? 1.0 : param.getValue(baseCase);
-		for (int i = 1; i < getNInterventions(); i++) {
-			rrValues[i] = rr;
-		}
-		return new InterventionSpecificComplicationRR(rrValues);
-	}
-
-	@Override
 	public DeathSubmodel getDeathSubmodel() {
 		final StandardSpainDeathSubmodel dModel = new StandardSpainDeathSubmodel(getRngFirstOrder(), nPatients);
 
@@ -161,46 +141,51 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 		}
 		dModel.addIMR(SimpleNEUSubmodel.NEU, getIMR(SimpleNEUSubmodel.NEU));
 		dModel.addIMR(SimpleNEUSubmodel.LEA, getIMR(SimpleNEUSubmodel.LEA));
-		dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(MainComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(MainComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(MainComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(MainComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(MainChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(MainChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(MainChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(MainChronicComplications.CHD));
 		return dModel;
 	}
 	
 	@Override
-	public ComplicationSubmodel[] getComplicationSubmodels() {
-		final ComplicationSubmodel[] comps = new ComplicationSubmodel[MainComplications.values().length];
+	public ChronicComplicationSubmodel[] getComplicationSubmodels() {
+		final ChronicComplicationSubmodel[] comps = new ChronicComplicationSubmodel[MainChronicComplications.values().length];
 		
 		// Adds neuropathy submodel
-		comps[MainComplications.NEU.ordinal()] = new SimpleNEUSubmodel(this);
+		comps[MainChronicComplications.NEU.ordinal()] = new SimpleNEUSubmodel(this);
 		
 		// Adds nephropathy and retinopathy submodels
 		if (BasicConfigParams.USE_SIMPLE_MODELS) {
-			comps[MainComplications.NPH.ordinal()] = new SimpleNPHSubmodel(this);
-			comps[MainComplications.RET.ordinal()] = new SimpleRETSubmodel(this);
+			comps[MainChronicComplications.NPH.ordinal()] = new SimpleNPHSubmodel(this);
+			comps[MainChronicComplications.RET.ordinal()] = new SimpleRETSubmodel(this);
 		}
 		else {
-			comps[MainComplications.NPH.ordinal()] = new SheffieldNPHSubmodel(this);
-			comps[MainComplications.RET.ordinal()] = new SheffieldRETSubmodel(this);
+			comps[MainChronicComplications.NPH.ordinal()] = new SheffieldNPHSubmodel(this);
+			comps[MainChronicComplications.RET.ordinal()] = new SheffieldRETSubmodel(this);
 		}
 		
 		// Adds major Cardiovascular disease submodel
-		comps[MainComplications.CHD.ordinal()] = new SimpleCHDSubmodel(this);
+		comps[MainChronicComplications.CHD.ordinal()] = new SimpleCHDSubmodel(this);
 		
 		return comps;
 	}
 	
 	@Override
-	public CostCalculator getCostCalculator(ComplicationSubmodel[] submodels) {
-		return new SubmodelCostCalculator(getAnnualNoComplicationCost(), getCostForSevereHypoglycemicEpisode(), submodels);
+	public AcuteComplicationSubmodel[] getAcuteComplicationSubmodels() {
+		return new AcuteComplicationSubmodel[] {new BattelinoSevereHypoglycemiaEvent(this)};
 	}
 	
 	@Override
-	public UtilityCalculator getUtilityCalculator(ComplicationSubmodel[] submodels) {
-		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, getNoComplicationDisutility(), BasicConfigParams.U_GENERAL_POP, getHypoEventDisutility(), submodels);
+	public CostCalculator getCostCalculator(double cDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels) {
+		return new SubmodelCostCalculator(cDNC, submodels, acuteSubmodels);
 	}
-		
+	
+	@Override
+	public UtilityCalculator getUtilityCalculator(double duDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels) {
+		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, duDNC, BasicConfigParams.DEF_U_GENERAL_POP, submodels, acuteSubmodels);
+	}
+	
 	public class CSIIIntervention extends T1DMMonitoringIntervention {
 		public final static String NAME = "CSII";
 		private final double annualCost;

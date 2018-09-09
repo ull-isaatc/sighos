@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel;
-import es.ull.iis.simulation.hta.T1DM.DeathSubmodel;
-import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.MainAcuteComplications;
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.Named;
 import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
+import es.ull.iis.simulation.hta.T1DM.submodels.AcuteComplicationSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
 import simkit.random.RandomVariate;
@@ -27,19 +29,13 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public abstract class SecondOrderParamsRepository {
-	/** Default percentage for cost variations */
-	private static final double DEF_PERCENT_COST_VARIATION = 0.2;
 	// Descriptors for probabilities
 	public static final String STR_PROBABILITY_PREFIX = "P_";
 	public static final String STR_NO_COMPLICATIONS = "DNC";
-	
-	public static final String STR_P_HYPO = STR_PROBABILITY_PREFIX + "SEVERE_HYPO";
-	public static final String STR_P_DEATH_HYPO = STR_PROBABILITY_PREFIX + "DEATH_SEVERE_HYPO";
 	// Descriptors for other probabilities
 	public static final String STR_P_MAN = STR_PROBABILITY_PREFIX + "MAN";
 	// Descriptors for RRs
 	public static final String STR_RR_PREFIX = "RR_";
-	public static final String STR_RR_HYPO = STR_RR_PREFIX + "SEVERE_HYPO"; 
 
 	// Descriptors for Increased Mortality Rates
 	public static final String STR_IMR_PREFIX = "IMR_";
@@ -47,13 +43,11 @@ public abstract class SecondOrderParamsRepository {
 	public static final String STR_DISCOUNT_RATE = "DISCOUNT_RATE";
 	// Descriptors for cost parameters
 	public static final String STR_COST_PREFIX = "C_";
-	public static final String STR_COST_HYPO_EPISODE = STR_COST_PREFIX+ "SEVERE_HYPO_EPISODE";
 	public static final String STR_TRANS_PREFIX = "TC_";
 
 	// Descriptors for utilities
 	public static final String STR_UTILITY_PREFIX = "U_";
 	public static final String STR_DISUTILITY_PREFIX = "DU_";
-	public static final String STR_DU_HYPO_EVENT = STR_DISUTILITY_PREFIX+ "SEVERE_HYPO_EPISODE";
 	
 	public static final ComplicationRR NO_RR = new StdComplicationRR(1.0);
 	
@@ -64,7 +58,8 @@ public abstract class SecondOrderParamsRepository {
 	private boolean discountZero = false;
 	final private RandomNumber rngFirstOrder;
 	final protected ArrayList<T1DMComorbidity> availableHealthStates;
-	final protected TreeSet<MainComplications> complicationRegistered;
+	final protected TreeSet<MainChronicComplications> complicationRegistered;
+	final protected TreeSet<MainAcuteComplications> acuteComplicationRegistered;
 
 	
 	/**
@@ -85,6 +80,7 @@ public abstract class SecondOrderParamsRepository {
 		this.nPatients = BasicConfigParams.N_PATIENTS;
 		this.availableHealthStates = new ArrayList<>();
 		this.complicationRegistered = new TreeSet<>();
+		this.acuteComplicationRegistered = new TreeSet<>();
 	}
 
 	public void registerHealthStates(T1DMComorbidity[] newStates) {
@@ -94,13 +90,22 @@ public abstract class SecondOrderParamsRepository {
 		}
 	}
 	
-	public void registerComplication(MainComplications comp) {
+	public void registerComplication(MainChronicComplications comp) {
 		complicationRegistered.add(comp);
 	}
 	
-	public boolean isRegistered(MainComplications comp) {
+	public void registerComplication(MainAcuteComplications comp) {
+		acuteComplicationRegistered.add(comp);
+	}
+	
+	public boolean isRegistered(MainChronicComplications comp) {
 		return (complicationRegistered.contains(comp));
 	}
+
+	public boolean isRegistered(MainAcuteComplications comp) {
+		return (acuteComplicationRegistered.contains(comp));
+	}
+	
 	/**
 	 * @return the available health states
 	 */
@@ -192,10 +197,21 @@ public abstract class SecondOrderParamsRepository {
 		return costs;
 	}
 	
+	public double getCostForAcuteComplication(MainAcuteComplications comp) {
+		final SecondOrderParam param = costParams.get(STR_COST_PREFIX + comp.name());
+		return (param == null) ? 0.0 : param.getValue(baseCase); 						
+	}
+	
 	public double getDisutilityForHealthState(Named state) {
 		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + state.name());
 		return (param == null) ? 0.0 : param.getValue(baseCase);		
 	}
+	
+	public double getDisutilityForAcuteComplication(MainAcuteComplications comp) {
+		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + comp.name());
+		return (param == null) ? 0.0 : param.getValue(baseCase); 		
+	}
+	
 	/**
 	 * Returns true if the base case is active; false if the probabilistic analysis is active
 	 * @return true if the base case is active; false if the probabilistic analysis is active
@@ -235,11 +251,6 @@ public abstract class SecondOrderParamsRepository {
 		return (param == null) ? 0.0 : param.getValue(baseCase); 						
 	}
 	
-	public double getCostForSevereHypoglycemicEpisode() {
-		final SecondOrderParam param = (SecondOrderParam) costParams.get(STR_COST_HYPO_EPISODE);
-		return (param == null) ? 0.0 : param.getValue(baseCase); 						
-	}
-	
 	public double getAnnualNoComplicationCost() {
 		final SecondOrderParam param = costParams.get(STR_COST_PREFIX + STR_NO_COMPLICATIONS);
 		return (param == null) ? 0.0 : param.getValue(baseCase); 		
@@ -247,11 +258,6 @@ public abstract class SecondOrderParamsRepository {
 	
 	public double getNoComplicationDisutility() {
 		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS);
-		return (param == null) ? 0.0 : param.getValue(baseCase); 		
-	}
-	
-	public double getHypoEventDisutility() {
-		final SecondOrderParam param = utilParams.get(STR_DU_HYPO_EVENT);
 		return (param == null) ? 0.0 : param.getValue(baseCase); 		
 	}
 	
@@ -282,11 +288,11 @@ public abstract class SecondOrderParamsRepository {
 
 	public abstract RandomVariate getBaselineHBA1c();
 	public abstract RandomVariate getBaselineAge();
-	public abstract ComplicationRR getHypoRR();
-	public abstract ComplicationSubmodel[] getComplicationSubmodels();
+	public abstract ChronicComplicationSubmodel[] getComplicationSubmodels();
+	public abstract AcuteComplicationSubmodel[] getAcuteComplicationSubmodels();
 	public abstract DeathSubmodel getDeathSubmodel();
-	public abstract CostCalculator getCostCalculator(ComplicationSubmodel[] submodels);
-	public abstract UtilityCalculator getUtilityCalculator(ComplicationSubmodel[] submodels);
+	public abstract CostCalculator getCostCalculator(double cDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
+	public abstract UtilityCalculator getUtilityCalculator(double duDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
 	
 	
 	public static String getProbString(Named from, Named to) {
@@ -305,6 +311,17 @@ public abstract class SecondOrderParamsRepository {
 	public static double[] betaParametersFromNormal(double avg, double sd) {
 		final double alfa = (((1 - avg) / (sd*sd)) - (1 / avg)) *avg*avg;
 		return new double[] {alfa, alfa * (1 / avg - 1)};
+	}
+	
+	/**
+	 * Computes the alfa and beta parameters for a gamma distribution from an average and
+	 * a standard deviation.
+	 * @param avg Original average of data 
+	 * @param sd Original standard deviation of data
+	 * @return the alfa and beta parameters for a beta distribution
+	 */
+	public static double[] gammaParametersFromNormal(double avg, double sd) {
+		return new double[] {(avg / sd) * (avg / sd), sd * sd / avg};
 	}
 	
 //	public static void main(String[] args) {
@@ -333,9 +350,16 @@ public abstract class SecondOrderParamsRepository {
 		if (detCost == 0.0) {
 			return RandomVariateFactory.getInstance("ConstantVariate", detCost);
 		}
-		final double costVariance2 = DEF_PERCENT_COST_VARIATION * DEF_PERCENT_COST_VARIATION;
+		final double costVariance2 = BasicConfigParams.DEF_SECOND_ORDER_VARIATION.COST * BasicConfigParams.DEF_SECOND_ORDER_VARIATION.COST;
 		final double invCostVariance2 = 1 / costVariance2;
 		return RandomVariateFactory.getInstance("GammaVariate", invCostVariance2, costVariance2 * detCost);
+	}
+
+	public static RandomVariate getRandomVariateForProbability(double detProb) {
+		if (detProb == 0.0) {
+			return RandomVariateFactory.getInstance("ConstantVariate", detProb);
+		}
+		return RandomVariateFactory.getInstance("UniformVariate", detProb * (1-BasicConfigParams.DEF_SECOND_ORDER_VARIATION.PROBABILITY), detProb * (1+BasicConfigParams.DEF_SECOND_ORDER_VARIATION.PROBABILITY));
 	}
 	
 	public String getStrHeader() {

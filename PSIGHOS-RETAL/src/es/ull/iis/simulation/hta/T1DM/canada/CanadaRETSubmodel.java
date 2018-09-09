@@ -6,8 +6,7 @@ package es.ull.iis.simulation.hta.T1DM.canada;
 import java.util.Collection;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel;
-import es.ull.iis.simulation.hta.T1DM.MainComplications;
+import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
@@ -17,6 +16,7 @@ import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -24,9 +24,9 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class CanadaRETSubmodel extends ComplicationSubmodel {
-	public static T1DMComorbidity RET = new T1DMComorbidity("RET", "Retinopathy", MainComplications.RET);
-	public static T1DMComorbidity BLI = new T1DMComorbidity("BLI", "Blindness", MainComplications.RET);
+public class CanadaRETSubmodel extends ChronicComplicationSubmodel {
+	public static T1DMComorbidity RET = new T1DMComorbidity("RET", "Retinopathy", MainChronicComplications.RET);
+	public static T1DMComorbidity BLI = new T1DMComorbidity("BLI", "Blindness", MainChronicComplications.RET);
 	public static T1DMComorbidity[] RETSubstates = new T1DMComorbidity[] {RET, BLI};
 	
 //	addOtherParam(new SecondOrderParam(STR_REF_HBA1C, STR_REF_HBA1C, "", 8.87480916));
@@ -93,7 +93,7 @@ public class CanadaRETSubmodel extends ComplicationSubmodel {
 		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(CanadaRETSubmodel.RET, CanadaRETSubmodel.BLI), "", 
 				"", P_RET_BLI));
 
-		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainComplications.RET.name(), "%risk reducion for combined groups for sustained onset of retinopathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 
+		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainChronicComplications.RET.name(), "%risk reducion for combined groups for sustained onset of retinopathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 
 				0.35, RandomVariateFactory.getInstance("NormalVariate", 0.35, SecondOrderParamsRepository.sdFrom95CI(new double[] {0.29, 0.41}))));
 
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + RET, "Cost of RET", "", 2018, C_RET, SecondOrderParamsRepository.getRandomVariateForCost(C_RET)));
@@ -104,7 +104,7 @@ public class CanadaRETSubmodel extends ComplicationSubmodel {
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + RET, "Disutility of RET", "", DU_RET));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BLI, "Disutility of BLI", "", DU_BLI));
 		
-		secParams.registerComplication(MainComplications.RET);
+		secParams.registerComplication(MainChronicComplications.RET);
 		secParams.registerHealthStates(RETSubstates);		
 	}
 
