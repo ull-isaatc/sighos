@@ -21,6 +21,7 @@ public class AnnualCostView extends Listener {
 	private final double[] cost;
 	private final CostCalculator calc;
 	private final double[]lastAge;
+	private final int nPatients;
 
 	/**
 	 * @param simUnit The time unit used within the simulation
@@ -28,9 +29,10 @@ public class AnnualCostView extends Listener {
 	public AnnualCostView(CostCalculator calc, int nPatients, int minAge, int maxAge) {
 		super("Standard patient viewer");
 		this.calc = calc;
+		this.nPatients = nPatients;
 		this.lastAge = new double[nPatients];
 		Arrays.fill(lastAge, 0.0);
-		cost = new double[maxAge-minAge];
+		cost = new double[maxAge-minAge+1];
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
 	}
@@ -43,7 +45,7 @@ public class AnnualCostView extends Listener {
 	public String toString() {
 		final StringBuilder str = new StringBuilder();
 		for (int i = 0; i < cost.length; i++) {
-			str.append(cost[i]).append(System.lineSeparator());
+			str.append(cost[i] / nPatients).append(System.lineSeparator());
 		}
 		return str.toString();
 	}

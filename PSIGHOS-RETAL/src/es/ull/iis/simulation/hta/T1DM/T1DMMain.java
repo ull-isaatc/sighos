@@ -169,14 +169,16 @@ public class T1DMMain {
 		if (printBI) {
 			System.out.println("Annual costs (for budget impact)");
 			final double[][] costs = new double[interventions.length][];
+			System.out.print("YEAR\t");
 			for (int i = 0; i < interventions.length; i++) {
 				System.out.print(interventions[i].getShortName() + "\t");
 				costs[i] = budgetImpactListener[i].getAnnualCosts(); 
 			}
 			System.out.println();
 			for (int i = 0; i < BasicConfigParams.MAX_AGE - BasicConfigParams.MIN_AGE; i++) {
+				System.out.print("" + i + "\t");
 				for (int j = 0; j < interventions.length; j++) {
-					System.out.print(costs[j][i] + "\t");
+					System.out.print((costs[j][i] /nPatients) + "\t");
 				}
 				System.out.println();
 			}

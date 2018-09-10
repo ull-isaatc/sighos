@@ -28,7 +28,7 @@ import simkit.random.RandomVariateFactory;
  */
 public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	/** Duration of effect of the intervention (the same duration of Battelino 2012) */
-	private static final double YEARS_OF_EFFECT = 0.5;
+	private static final double YEARS_OF_EFFECT = BasicConfigParams.MAX_AGE;
 	private static final String STR_LOW_USE_PERCENTAGE = "LOW_USE_PERCENTAGE";
 	
 	// Parameters from Battelino 2012
