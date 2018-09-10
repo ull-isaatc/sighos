@@ -30,6 +30,7 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 	public static T1DMComorbidity ESRD = new T1DMComorbidity("ESRD", "End-Stage Renal Disease", MainChronicComplications.NPH);
 	public static T1DMComorbidity[] NPHSubstates = new T1DMComorbidity[] {ALB1, ALB2, ESRD};
 
+	private static final String STR_COEF_ALB2 = "Coef_" + SecondOrderParamsRepository.STR_COST_PREFIX + ALB2;
 	private static final double BETA_ALB1 = 3.25;
 	private static final double BETA_ALB2 = 7.95;
 	private static final double P_DNC_ALB1 = 0.0436;
@@ -42,9 +43,11 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 	private static final double[] CI_DNC_ALB1 = {0.0136, 0.0736}; // Assumption
 	private static final double[] CI_NEU_NPH = {0.055, 0.149};
 	private static final double[] CI_ALB1_ESRD = {0.01064, 0.01596};
-	private static final double C_ALB2 = 5180.26;
+	private static final double C_ALB1 = 0.0;
 	private static final double C_ESRD = 34259.48;
 	private static final double TC_ESRD = 3250.73;
+	private static final double[] LIMITS_C_ALB1 = {0.0, 500.0}; // Assumption
+	private static final double[] COEF_C_ALB2 = {1.0, 2.0}; // Assumption
 	// Utility (avg, SD) from either Bagust and Beale; or Sullivan
 	private static final double[] DU_ALB2 = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[] {0.048, (0.091 - 0.005) / 3.92}: new double[] {0.0527, 0.0001};
 	// Utility (avg, SD) from either Wasserfallen et al.; or Sullivan
@@ -63,6 +66,7 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 	private final ComplicationRR[] rr;
 	private final double [][] rnd;
 
+	private final double[] costALB1;
 	private final double[] costALB2;
 	private final double[] costESRD;
 	private final double duALB2;
@@ -104,7 +108,9 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 			}
 		}
 		
-		costALB2 = secParams.getCostsForHealthState(ALB2);
+		costALB1 = secParams.getCostsForHealthState(ALB1);
+		final double coefALB2 = secParams.getOtherParam(STR_COEF_ALB2);
+		costALB2 = new double[] {costALB1[0] * coefALB2, costALB1[1] * coefALB2}; 
 		costESRD = secParams.getCostsForHealthState(ESRD);
 		
 		duALB2 = secParams.getDisutilityForHealthState(ALB2);
@@ -164,7 +170,10 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 				"https://doi.org/10.2337/diacare.28.3.617", 
 				4.53, RandomVariateFactory.getInstance("RRFromLnCIVariate", 4.53, 2.64, 7.77, 1)));
 		
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ALB2, "Cost of ALB2", "", 2015, C_ALB2, SecondOrderParamsRepository.getRandomVariateForCost(C_ALB2)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ALB1, "Cost of ALB1", "Assumption", 2018, 
+				C_ALB1, RandomVariateFactory.getInstance("UniformVariate", LIMITS_C_ALB1[0], LIMITS_C_ALB1[1])));
+		secParams.addOtherParam(new SecondOrderParam(STR_COEF_ALB2, "Coefficient cost of ALB2", "Assumption", 
+				COEF_C_ALB2[0], RandomVariateFactory.getInstance("UniformVariate", COEF_C_ALB2[0], COEF_C_ALB2[1])));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ESRD, "Cost of ESRD", "", 2015, C_ESRD, SecondOrderParamsRepository.getRandomVariateForCost(C_ESRD)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + ESRD, "Transition cost to ESRD", "", 2015, TC_ESRD, SecondOrderParamsRepository.getRandomVariateForCost(TC_ESRD)));
 		
@@ -289,6 +298,8 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 			return costESRD[0];
 		if (state.contains(ALB2))
 			return costALB2[0];		
+		if (state.contains(ALB1))
+			return costALB1[0];		
 		return 0.0;
 	}
 
@@ -298,6 +309,8 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 			return costESRD[1];
 		if (ALB2.equals(newEvent))
 			return costALB2[1];
+		if (ALB1.equals(newEvent))
+			return costALB1[1];
 		return 0.0;
 	}
 

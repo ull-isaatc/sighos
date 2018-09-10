@@ -38,9 +38,9 @@ public class SimpleNPHSubmodel extends ChronicComplicationSubmodel {
 	private static final double[] CI_DNC_NPH = {0.0136, 0.0736}; // Assumption
 	private static final double[] CI_NEU_NPH = {0.055, 0.149};
 	private static final double[] CI_NPH_ESRD = {0.01064, 0.01596};
-	private static final double C_NPH = 5180.26;
+	private static final double C_NPH = 0.0;
+	private static final double[] LIMITS_C_NPH = {0.0, 500.0}; // Assumption
 	private static final double C_ESRD = 34259.48;
-	private static final double TC_NPH = 33183.74;
 	private static final double TC_ESRD = 3250.73;
 	// Utility (avg, SD) from either Bagust and Beale; or Sullivan
 	private static final double[] DU_NPH = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[] {0.048, (0.091 - 0.005) / 3.92}: new double[] {0.0527, 0.0001};
@@ -134,9 +134,8 @@ public class SimpleNPHSubmodel extends ChronicComplicationSubmodel {
 				"https://doi.org/10.2337/diacare.28.3.617", 
 				4.53, RandomVariateFactory.getInstance("RRFromLnCIVariate", 4.53, 2.64, 7.77, 1)));
 		
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + NPH, "Cost of NPH", "", 2015, C_NPH, SecondOrderParamsRepository.getRandomVariateForCost(C_NPH)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + NPH, "Cost of NPH", "", 2015, C_NPH, RandomVariateFactory.getInstance("UniformVariate", LIMITS_C_NPH[0], LIMITS_C_NPH[1])));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ESRD, "Cost of ESRD", "", 2015, C_ESRD, SecondOrderParamsRepository.getRandomVariateForCost(C_ESRD)));
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + NPH, "Transition cost to NPH", "", 2015, TC_NPH, SecondOrderParamsRepository.getRandomVariateForCost(TC_NPH)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + ESRD, "Transition cost to ESRD", "", 2015, TC_ESRD, SecondOrderParamsRepository.getRandomVariateForCost(TC_ESRD)));
 		
 		final double[] paramsDuNPH = SecondOrderParamsRepository.betaParametersFromNormal(DU_NPH[0], DU_NPH[1]);
