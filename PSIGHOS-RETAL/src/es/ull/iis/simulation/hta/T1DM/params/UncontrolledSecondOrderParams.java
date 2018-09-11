@@ -43,14 +43,14 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	private static final int BASELINE_AGE_MAX = 70; // Battelino 2012
 	private static final int BASELINE_AGE_AVG = 28; // Battelino 2012
 	private static final int BASELINE_AGE_SD = 17; // Battelino 2012
-	private static final double LOW_USAGE_PERCENTAGE_AVG = 110 / 153; // Battelino 2012
+	private static final double LOW_USAGE_PERCENTAGE_AVG = 0.0;//43d / 153d; // Battelino 2012
 	/** Number of patients with < 70% [0] and >= 70% [1] usage of the sensor */
 	private static final double[] LOW_USAGE_PERCENTAGE_N = new double[] {43, 110};  
 	/** Average HbA1c reduction after 6 months for patients with < 70% [0] and >= 70% [1] usage of the sensor */
 	private static final double[] HBA1C_REDUCTION_AVG = {0.24, 0.51};
-	// TODO: Incorporate first order variability in the reduction
-//	/** Variability in the HbA1c reduction after 6 months for patients with < 70% [0] and >= 70% [1] usage of the sensor, expresed as +- average */
-//	private static final double[] HBA1C_REDUCTION_PLUS_MINUS = {1.11, 0.07};
+	/** Variability in the HbA1c reduction after 6 months for patients with < 70% [0] and >= 70% [1] usage of the sensor */
+	private static final double[] HBA1C_REDUCTION_SD = {1.11, 0.07};
+	private static final double HBA1C_AFTER_REDUCTION_MIN = 6.0; // Assumption
 	
 	private static final double C_SAP = 7662.205833 * C_SAP_REDUCTION;
 	private static final double C_CSII = 3013.335;
@@ -228,14 +228,26 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 			this.annualCost = annualCost;
 			this.hba1cReduction = new double[nPatients];
 			final RandomNumber rnd = getRngFirstOrder();
-			for (int i = 0; i < nPatients; i++) {
-				hba1cReduction[i] = (rnd.draw() < lowUsePercentage) ? HBA1C_REDUCTION_AVG[0] : HBA1C_REDUCTION_AVG[1]; 
+			if (BasicConfigParams.USE_FIXED_HBA1C_CHANGE) {
+				for (int i = 0; i < nPatients; i++) {
+					hba1cReduction[i] = (rnd.draw() < lowUsePercentage) ? HBA1C_REDUCTION_AVG[0] : HBA1C_REDUCTION_AVG[1]; 
+				}
+			}
+			else {
+				final RandomVariate[]rndReduction = new RandomVariate[2];
+				final double [] lowParams = gammaParametersFromNormal(HBA1C_REDUCTION_AVG[0], HBA1C_REDUCTION_SD[0]);
+				final double [] highParams = gammaParametersFromNormal(HBA1C_REDUCTION_AVG[1], HBA1C_REDUCTION_SD[1]);
+				rndReduction[0] = RandomVariateFactory.getInstance("GammaVariate", lowParams[0], lowParams[1]);
+				rndReduction[1] = RandomVariateFactory.getInstance("GammaVariate", highParams[0], highParams[1]);
+				for (int i = 0; i < nPatients; i++) {
+					hba1cReduction[i] = (rnd.draw() < lowUsePercentage) ? rndReduction[0].generate() : rndReduction[1].generate(); 
+				}
 			}
 		}
 
 		@Override
 		public double getHBA1cLevel(T1DMPatient pat) {
-			return pat.getBaselineHBA1c() - (pat.isEffectActive() ? hba1cReduction[pat.getIdentifier()] : 0);
+			return Math.max(HBA1C_AFTER_REDUCTION_MIN, pat.getBaselineHBA1c() - (pat.isEffectActive() ? hba1cReduction[pat.getIdentifier()] : 0));
 		}
 
 		@Override

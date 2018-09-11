@@ -21,7 +21,6 @@ public class WeibullTimeToEventParam extends Param {
 	 */
 	public WeibullTimeToEventParam(TimeUnit unit, RandomNumber rng, double alpha, double beta) {
 		super();
-		// TODO Prepare the param for 2nd order analysis
 		rnd = RandomVariateFactory.getInstance("WeibullVariate", rng, alpha, beta);
 		this.unit = unit;
 	}

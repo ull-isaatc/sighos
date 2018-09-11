@@ -39,6 +39,14 @@ public class BasicConfigParams {
 	public static boolean USE_FIXED_BASELINE_AGE = false;
 	/** If true, all the patients start with the same level of HbA1c; otherwise, uses a probability distribution to assign the level */ 
 	public static boolean USE_FIXED_BASELINE_HBA1C = false;
+	/** If true, the change in HbA1c for all the patients is fixed; otherwise, uses a probability distribution to assign the level */ 
+	public static boolean USE_FIXED_HBA1C_CHANGE = false;
+	/** If true, uses the calibrated progression to BGRET equations in the Sheffield submodel; otherwise, uses the original values */
+	public static boolean USE_CALIBRATED_SHEFFIELD_RET_SUBMODEL = false;
+	public static double CALIBRATION_COEF_BGRET = BasicConfigParams.USE_CALIBRATED_SHEFFIELD_RET_SUBMODEL ? 7.0 : 1.0;
+	public static double CALIBRATION_COEF_BETA_BGRET = BasicConfigParams.USE_CALIBRATED_SHEFFIELD_RET_SUBMODEL ? 1.5 : 1.0;
+	/** Uses the arm-specific probabilities of severe hypoglycemic event in the base case; otherwise, uses the aggregated value */
+	public static boolean ENABLE_BATTELINO_HYPO_SCENARIO_1 = false;
 	/** Default utility for general population: From adult Spanish population but those with DM */ 
 	public static double DEF_U_GENERAL_POP = 0.911400915;
 	/** Default cost for diabetes with no complications. From Crespo et al. 2013 */
@@ -79,8 +87,13 @@ public class BasicConfigParams {
 		str.append("USE_SIMPLE_MODELS:\t").append(USE_SIMPLE_MODELS).append(System.lineSeparator());
 		str.append("USE_FIXED_BASELINE_AGE:\t").append(USE_FIXED_BASELINE_AGE).append(System.lineSeparator());
 		str.append("USE_FIXED_BASELINE_HBA1C:\t").append(USE_FIXED_BASELINE_HBA1C).append(System.lineSeparator());
+		str.append("USE_FIXED_HBA1C_CHANGE:\t").append(USE_FIXED_HBA1C_CHANGE).append(System.lineSeparator());
+		str.append("USE_CALIBRATED_SHEFFIELD_RET_SUBMODEL:\t").append(USE_CALIBRATED_SHEFFIELD_RET_SUBMODEL).append(System.lineSeparator());
+		str.append("CALIBRATION_COEF_BGRET:\t").append(CALIBRATION_COEF_BGRET).append(System.lineSeparator());
+		str.append("CALIBRATION_COEF_BETA_BGRET:\t").append(CALIBRATION_COEF_BETA_BGRET).append(System.lineSeparator());
 		str.append("DEF_U_GENERAL_POP:\t").append(DEF_U_GENERAL_POP).append(System.lineSeparator());
 		str.append("DEF_C_DNC:\t").append(DEF_C_DNC.VALUE + " (" + DEF_C_DNC.YEAR + ")").append(System.lineSeparator());
+		str.append("DEF_DU_DNC:\t").append(DEF_DU_DNC[0] + " (SD:" + DEF_DU_DNC[1] + ")").append(System.lineSeparator());
 		str.append("DEF_SECOND_ORDER_VARIATION (COST, UTIL, PROB):\t").append(DEF_SECOND_ORDER_VARIATION.COST+"\t").append(DEF_SECOND_ORDER_VARIATION.UTILITY+"\t").append(DEF_SECOND_ORDER_VARIATION.PROBABILITY).append(System.lineSeparator());
 		return str.toString();
 	}

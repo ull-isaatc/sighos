@@ -18,16 +18,14 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class BattelinoSevereHypoglycemiaEvent extends AcuteComplicationSubmodel {
-	/** Uses the arm-specific probabilities of severe hypoglycemic event in the base case; otherwise, uses the aggregated value */
-	public static final boolean ENABLE_HYPO_SCENARIO_1 = false;
 	public static final String STR_P_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + MainAcuteComplications.SEVERE_HYPO.name();
 	public static final String STR_P_DEATH_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "DEATH_" + MainAcuteComplications.SEVERE_HYPO.name();
 	public static final String STR_RR_HYPO = SecondOrderParamsRepository.STR_RR_PREFIX + MainAcuteComplications.SEVERE_HYPO.name(); 
 	public static final String STR_COST_HYPO_EPISODE = SecondOrderParamsRepository.STR_COST_PREFIX + MainAcuteComplications.SEVERE_HYPO.name();
 	public static final String STR_DU_HYPO_EVENT = SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + MainAcuteComplications.SEVERE_HYPO.name();
 	
-	private static final double P_HYPO = ENABLE_HYPO_SCENARIO_1 ? 0.027025776 : 0.0408163;
-	private static final double RR_HYPO = ENABLE_HYPO_SCENARIO_1 ? 1.98630137 : 1.0;
+	private static final double P_HYPO = BasicConfigParams.ENABLE_BATTELINO_HYPO_SCENARIO_1 ? 0.027025776 : 0.0408163;
+	private static final double RR_HYPO = BasicConfigParams.ENABLE_BATTELINO_HYPO_SCENARIO_1 ? 1.98630137 : 1.0;
 	private static final double[] P_HYPO_BETA = {3.94576334, 142.05423666};
 	private static final double[] RR_HYPO_BETA = {0.68627430, 0.60401244};
 	

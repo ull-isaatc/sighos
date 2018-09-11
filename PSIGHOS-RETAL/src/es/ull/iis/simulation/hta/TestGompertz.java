@@ -5,7 +5,6 @@ import simkit.random.GompertzVariate;
 public class TestGompertz {
 
 	public TestGompertz() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public static void main(String[] args) {

@@ -31,9 +31,7 @@ public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
 	public static T1DMComorbidity BLI = new T1DMComorbidity("BLI", "Blindness", MainChronicComplications.RET);
 	public static T1DMComorbidity[] RETSubstates = new T1DMComorbidity[] {BGRET, PRET, ME, BLI};
 	
-	private static final double CALIBRATION_COEF_BGRET = 1.0;
-	private static final double CALIBRATION_COEF_BETA_BGRET = 1.0;
-	private static final double P_DNC_BGRET = 0.0454 * CALIBRATION_COEF_BGRET;
+	private static final double P_DNC_BGRET = 0.0454 * BasicConfigParams.CALIBRATION_COEF_BGRET;
 	private static final double P_DNC_PRET = 0.0013;
 	private static final double P_DNC_ME = 0.0012;
 	private static final double P_BGRET_PRET = 0.0595;
@@ -42,7 +40,7 @@ public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
 	private static final double P_PRET_BLI = 0.0038;
 	private static final double P_ME_BLI = 0.0016;
 	private static final double P_DNC_BLI = 1.9e-6;
-	private static final double BETA_BGRET = 10.10 * CALIBRATION_COEF_BETA_BGRET;
+	private static final double BETA_BGRET = 10.10 * BasicConfigParams.CALIBRATION_COEF_BETA_BGRET;
 	private static final double BETA_PRET = 6.30;
 	private static final double BETA_ME = 1.20;
 	// Assumption
