@@ -38,7 +38,8 @@ public abstract class ComplicationSubmodel {
 		// In case the probability of transition was 0
 		if (Double.isInfinite(minusAvgTimeToEvent))
 			return Long.MAX_VALUE;
-		final double time = (minusAvgTimeToEvent / rr) * Math.log(rnd);
+		final double newMinus = -1 / (1-Math.exp(Math.log(1+1/minusAvgTimeToEvent)*rr));
+		final double time = (newMinus) * Math.log(rnd);
 		final long absTime = pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 		return (absTime >= limit) ? Long.MAX_VALUE : absTime;
 	}

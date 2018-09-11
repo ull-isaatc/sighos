@@ -18,13 +18,16 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class BattelinoSevereHypoglycemiaEvent extends AcuteComplicationSubmodel {
+	/** Uses the arm-specific probabilities of severe hypoglycemic event in the base case; otherwise, uses the aggregated value */
+	public static final boolean ENABLE_HYPO_SCENARIO_1 = false;
 	public static final String STR_P_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + MainAcuteComplications.SEVERE_HYPO.name();
 	public static final String STR_P_DEATH_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "DEATH_" + MainAcuteComplications.SEVERE_HYPO.name();
 	public static final String STR_RR_HYPO = SecondOrderParamsRepository.STR_RR_PREFIX + MainAcuteComplications.SEVERE_HYPO.name(); 
 	public static final String STR_COST_HYPO_EPISODE = SecondOrderParamsRepository.STR_COST_PREFIX + MainAcuteComplications.SEVERE_HYPO.name();
 	public static final String STR_DU_HYPO_EVENT = SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + MainAcuteComplications.SEVERE_HYPO.name();
 	
-	private static final double P_HYPO = 0.0408163;
+	private static final double P_HYPO = ENABLE_HYPO_SCENARIO_1 ? 0.027025776 : 0.0408163;
+	private static final double RR_HYPO = ENABLE_HYPO_SCENARIO_1 ? 1.98630137 : 1.0;
 	private static final double[] P_HYPO_BETA = {3.94576334, 142.05423666};
 	private static final double[] RR_HYPO_BETA = {0.68627430, 0.60401244};
 	
@@ -60,7 +63,7 @@ public class BattelinoSevereHypoglycemiaEvent extends AcuteComplicationSubmodel 
 		secParams.addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", 
 				"Canada", 0.0063, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
 		secParams.addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic events (adjusted from rate/100 patient-month). Assumed 1 at base case; using difference at probabilistic", 
-				DEF_SOURCE, 1.0, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", RR_HYPO_BETA[0], RR_HYPO_BETA[1]))));
+				DEF_SOURCE, RR_HYPO, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", RR_HYPO_BETA[0], RR_HYPO_BETA[1]))));
 
 		secParams.addCostParam(new SecondOrderCostParam(STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", 
 				"https://doi.org/10.1007/s13300-017-0285-0", 2017, 716.82, SecondOrderParamsRepository.getRandomVariateForCost(716.82)));

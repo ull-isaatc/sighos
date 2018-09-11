@@ -202,7 +202,7 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 		@Override
 		public double getHBA1cLevel(T1DMPatient pat) {
 			if (pat.isEffectActive()) {
-				return pat.getBaselineHBA1c() - Math.max(0.0, rnd.generate());
+				return pat.getBaselineHBA1c() - rnd.generate();
 				
 			}
 			return pat.getBaselineHBA1c();

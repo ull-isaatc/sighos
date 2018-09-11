@@ -29,6 +29,9 @@ import simkit.random.RandomVariateFactory;
 public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	/** Duration of effect of the intervention (the same duration of Battelino 2012) */
 	private static final double YEARS_OF_EFFECT = BasicConfigParams.MAX_AGE;
+	/** A factor to reduce the cost of SAP in sensitivity analysis */
+	private static final double C_SAP_REDUCTION = 1.0;
+
 	private static final String STR_LOW_USE_PERCENTAGE = "LOW_USE_PERCENTAGE";
 	
 	// Parameters from Battelino 2012
@@ -40,7 +43,7 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	private static final int BASELINE_AGE_MAX = 70; // Battelino 2012
 	private static final int BASELINE_AGE_AVG = 28; // Battelino 2012
 	private static final int BASELINE_AGE_SD = 17; // Battelino 2012
-	private static final double LOW_USAGE_PERCENTAGE_AVG = 0.8; // Battelino 2012
+	private static final double LOW_USAGE_PERCENTAGE_AVG = 110 / 153; // Battelino 2012
 	/** Number of patients with < 70% [0] and >= 70% [1] usage of the sensor */
 	private static final double[] LOW_USAGE_PERCENTAGE_N = new double[] {43, 110};  
 	/** Average HbA1c reduction after 6 months for patients with < 70% [0] and >= 70% [1] usage of the sensor */
@@ -49,7 +52,7 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 //	/** Variability in the HbA1c reduction after 6 months for patients with < 70% [0] and >= 70% [1] usage of the sensor, expresed as +- average */
 //	private static final double[] HBA1C_REDUCTION_PLUS_MINUS = {1.11, 0.07};
 	
-	private static final double C_SAP = 7662.205833;
+	private static final double C_SAP = 7662.205833 * C_SAP_REDUCTION;
 	private static final double C_CSII = 3013.335;
 
 	/**

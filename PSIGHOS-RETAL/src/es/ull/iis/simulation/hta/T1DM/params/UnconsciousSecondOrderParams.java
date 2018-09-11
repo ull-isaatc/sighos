@@ -29,7 +29,10 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 	/** Duration of effect of the intervention (supposed as in Canada) */
 	private static final double YEARS_OF_EFFECT = BasicConfigParams.MAX_AGE;
 
-	private static final double C_SAP = 7662.205833;
+	/** A factor to reduce the cost of SAP in sensitivity analysis */
+	private static final double C_SAP_REDUCTION = 1.0;
+	
+	private static final double C_SAP = 7662.205833 * C_SAP_REDUCTION;
 	private static final double C_CSII = 3013.335;
 	
 	private static final double BASELINE_HBA1C_MIN = 7; // Assumption
