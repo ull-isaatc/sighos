@@ -81,7 +81,7 @@ public class T1DMMainTest {
 			lyListeners[i] = new LYListener(common.getDiscountRate(), BasicConfigParams.N_PATIENTS);
 			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), common.getDiscountRate(), BasicConfigParams.N_PATIENTS);
 		}
-		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], BasicConfigParams.N_PATIENTS, common);
+		T1DMSimulation simul = new T1DMSimulation(id, interventions[0], BasicConfigParams.N_PATIENTS, common);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);

@@ -138,7 +138,7 @@ public class T1DMMain {
 			if (printBI)
 				budgetImpactListener[i] = new AnnualCostView(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), nPatients, BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE);
 		}
-		T1DMSimulation simul = new T1DMSimulation(id, baseCase, interventions[0], nPatients, common);
+		T1DMSimulation simul = new T1DMSimulation(id, interventions[0], nPatients, common);
 		simul.addInfoReceiver(hba1cListeners[0]);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);

@@ -113,11 +113,10 @@ public class CommonParams extends ModelParams {
 		return discountRate;
 	}
 	
-	public AcuteEventParam.Progression getTimeToAcuteEvent(T1DMPatient pat, MainAcuteComplications complication, boolean cancelLast) {
-		AcuteEventParam param = acuteCompSubmodels[complication.ordinal()].getParam();
+	public AcuteComplicationSubmodel.Progression getTimeToAcuteEvent(T1DMPatient pat, MainAcuteComplications complication, boolean cancelLast) {
 		if (cancelLast)
-			param.cancelLast(pat);
-		return param.getValue(pat);
+			acuteCompSubmodels[complication.ordinal()].cancelLast(pat);
+		return acuteCompSubmodels[complication.ordinal()].getValue(pat);
 	}
 
 	public TreeSet<T1DMComorbidity> getInitialState(T1DMPatient pat) {
@@ -152,7 +151,7 @@ public class CommonParams extends ModelParams {
 
 	public void reset() {
 		for (AcuteComplicationSubmodel acuteSubmodel : acuteCompSubmodels)
-			acuteSubmodel.getParam().reset();
+			acuteSubmodel.reset();
 	}
 	
 	public double getRandomNumber() {

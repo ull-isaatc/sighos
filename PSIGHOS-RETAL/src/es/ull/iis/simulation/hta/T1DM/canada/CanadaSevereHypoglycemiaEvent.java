@@ -5,7 +5,6 @@ package es.ull.iis.simulation.hta.T1DM.canada;
 
 import es.ull.iis.simulation.hta.T1DM.MainAcuteComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
-import es.ull.iis.simulation.hta.T1DM.params.AcuteEventParam;
 import es.ull.iis.simulation.hta.T1DM.params.InterventionSpecificComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
@@ -30,23 +29,15 @@ public class CanadaSevereHypoglycemiaEvent extends AcuteComplicationSubmodel {
 
 	private final double cost;
 	private final double du;
-	private final AcuteEventParam param;
 
 	/**
 	 * 
 	 */
 	public CanadaSevereHypoglycemiaEvent(SecondOrderParamsRepository secParams) {
-		super();
+		super(secParams.getnPatients(), secParams.getProbParam(STR_P_HYPO), new InterventionSpecificComplicationRR(new double[]{1.0, secParams.getOtherParam(STR_RR_HYPO)}), secParams.getProbParam(STR_P_DEATH_HYPO));
 		
 		cost = secParams.getCostForAcuteComplication(MainAcuteComplications.SEVERE_HYPO);
 		du = secParams.getDisutilityForAcuteComplication(MainAcuteComplications.SEVERE_HYPO);
-		final double[] rrValues = new double[secParams.getNInterventions()];
-		rrValues[0] = 1.0;
-		final double rr = secParams.getOtherParam(STR_RR_HYPO);
-		for (int i = 1; i < secParams.getNInterventions(); i++) {
-			rrValues[i] = rr;
-		}
-		this.param = new AcuteEventParam(secParams.getnPatients(), secParams.getProbParam(STR_P_HYPO), new InterventionSpecificComplicationRR(rrValues), secParams.getProbParam(STR_P_DEATH_HYPO));
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -77,10 +68,4 @@ public class CanadaSevereHypoglycemiaEvent extends AcuteComplicationSubmodel {
 	public double getDisutility(T1DMPatient pat) {
 		return du;
 	}
-
-	@Override
-	public AcuteEventParam getParam() {
-		return param;
-	}
-
 }

@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.T1DM;
 
 /**
+ * Main acute complications modelled
  * @author Iván Castilla Rodríguez
  *
  */

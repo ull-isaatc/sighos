@@ -16,7 +16,6 @@ public class HTASimulation extends Simulation {
 	private int patientCounter = 0;
 	public final static int DEF_NPATIENTS = 1000;
 
-	protected final boolean baseCase;
 	protected final Intervention intervention;
 	protected final int nInterventions;
 	protected final int nPatients;
@@ -36,10 +35,9 @@ public class HTASimulation extends Simulation {
 	 * @param nInterventions
 	 * @param nPatients
 	 */
-	public HTASimulation(int id, String description, TimeUnit unit, boolean baseCase, Intervention intervention, TimeStamp endTs, int nInterventions, int nPatients) {
+	public HTASimulation(int id, String description, TimeUnit unit, Intervention intervention, TimeStamp endTs, int nInterventions, int nPatients) {
 		super(id, description + " " + intervention.getDescription(), unit, TimeStamp.getZero(), endTs);
 		this.cloned = false;
-		this.baseCase = baseCase;
 		this.intervention = intervention;
 		this.nInterventions = nInterventions;
 		this.nPatients = nPatients;
@@ -55,7 +53,6 @@ public class HTASimulation extends Simulation {
 		super(original.id, original.description + " " + intervention.getDescription(), original.getTimeUnit(), original.getStartTs(), original.getEndTs());
 		this.cloned = true;
 		this.intervention = intervention;
-		this.baseCase = original.baseCase;
 		this.nInterventions = original.nInterventions;
 		this.nPatients = original.nPatients;
 		this.generatedPatients = new Patient[nPatients];

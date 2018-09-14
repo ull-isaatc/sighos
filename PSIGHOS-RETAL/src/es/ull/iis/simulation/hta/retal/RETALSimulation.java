@@ -46,8 +46,8 @@ public class RETALSimulation extends HTASimulation {
 	 * @param id
 	 * @param secondOrder
 	 */
-	public RETALSimulation(int id, boolean baseCase, Intervention intervention) {
-		super(id, DESCRIPTION, SIMUNIT, baseCase, intervention, new TimeStamp(TimeUnit.YEAR, (long) (CommonParams.MAX_AGE - CommonParams.MIN_AGE + 1)), NINTERVENTIONS, NPATIENTS);
+	public RETALSimulation(int id, Intervention intervention) {
+		super(id, DESCRIPTION, SIMUNIT, intervention, new TimeStamp(TimeUnit.YEAR, (long) (CommonParams.MAX_AGE - CommonParams.MIN_AGE + 1)), NINTERVENTIONS, NPATIENTS);
 		this.commonParams = new CommonParams();
 		this.armdParams = new ARMDParams();
 		this.drParams = new DRParams();

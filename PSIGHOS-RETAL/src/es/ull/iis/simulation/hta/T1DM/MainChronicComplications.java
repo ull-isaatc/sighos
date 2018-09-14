@@ -1,5 +1,10 @@
 package es.ull.iis.simulation.hta.T1DM;
 
+/**
+ * Main chronic complications modelled
+ * @author Iván Castilla Rodríguez
+ *
+ */
 public enum MainChronicComplications implements Named {
 	CHD("Coronary Heart Disease"),
 	NEU("Neuropathy"),

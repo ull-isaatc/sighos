@@ -43,7 +43,7 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	private static final int BASELINE_AGE_MAX = 70; // Battelino 2012
 	private static final int BASELINE_AGE_AVG = 28; // Battelino 2012
 	private static final int BASELINE_AGE_SD = 17; // Battelino 2012
-	private static final double LOW_USAGE_PERCENTAGE_AVG = 0.0;//43d / 153d; // Battelino 2012
+	private static final double LOW_USAGE_PERCENTAGE_AVG = 43d / 153d; // Battelino 2012
 	/** Number of patients with < 70% [0] and >= 70% [1] usage of the sensor */
 	private static final double[] LOW_USAGE_PERCENTAGE_N = new double[] {43, 110};  
 	/** Average HbA1c reduction after 6 months for patients with < 70% [0] and >= 70% [1] usage of the sensor */
