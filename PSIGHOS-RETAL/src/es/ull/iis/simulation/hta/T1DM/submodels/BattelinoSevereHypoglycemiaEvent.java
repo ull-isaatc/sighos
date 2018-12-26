@@ -13,6 +13,7 @@ import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
 import simkit.random.RandomVariateFactory;
 
 /**
+ * An hypoglycemic event, according to the study of Battelino et al.
  * @author Iván Castilla Rodríguez
  *
  */

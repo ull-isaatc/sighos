@@ -11,6 +11,7 @@ import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 
 /**
+ * A class representing the evolution of a chronic complication.  
  * @author Iván Castilla Rodríguez
  *
  */
