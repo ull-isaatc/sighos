@@ -4,20 +4,21 @@
 package es.ull.iis.simulation.hta.T1DM;
 
 /**
- * Main acute complications modelled
+ * Main acute complications included in the model
  * @author Iván Castilla Rodríguez
  *
  */
-public enum MainAcuteComplications implements Named {
+public enum T1DMAcuteComplications implements Named {
 	SEVERE_HYPO("Severe hypoglycemic event");
 	
 	private final String description;
 	
-	private MainAcuteComplications(String description) {
+	private T1DMAcuteComplications(String description) {
 		this.description = description;
 	}
 
 	/**
+	 * Returns the description of the complication
 	 * @return the description
 	 */
 	public String getDescription() {

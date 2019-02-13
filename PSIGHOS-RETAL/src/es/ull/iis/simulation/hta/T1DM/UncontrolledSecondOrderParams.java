@@ -1,11 +1,16 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.T1DM.params;
+package es.ull.iis.simulation.hta.T1DM;
 
-import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
-import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
-import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.T1DM.params.CostCalculator;
+import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
+import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
+import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.T1DM.params.SubmodelCostCalculator;
+import es.ull.iis.simulation.hta.T1DM.params.SubmodelUtilityCalculator;
+import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.T1DM.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.BattelinoSevereHypoglycemiaEvent;
@@ -23,37 +28,74 @@ import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 /**
+ * A repository with data used to parameterize a model where:
+ * <ul>
+ * <li>Population: Spanish T1DM patients with inadequate glycemic control (based on Battelino et al. https://doi.org/10.1007/s00125-012-2708-9)
+ * <ul>
+ * <li>Age at start is defined constant (value = {@link #BASELINE_AGE_AVG}) if {@link BasicConfigParams#USE_FIXED_BASELINE_AGE} is set to <code>true</code>. 
+ * Otherwise, is based on a beta distribution between {@link #BASELINE_AGE_MIN} and {@link #BASELINE_AGE_MAX}, and with average = {@link #BASELINE_AGE_AVG}
+ * and SD = {@link #BASELINE_AGE_SD}</li>
+ * <li>HbA1c level at start is defined constant (value = {@link #BASELINE_HBA1C_AVG}) if {@link BasicConfigParams#USE_FIXED_BASELINE_HBA1C} is set to <code>true</code>. Otherwise, it is set following
+ *  a uniform distribution between {@link #BASELINE_HBA1C_MIN} and {@link #BASELINE_HBA1C_MAX}</li>
+ * </ul>
+ * </li>
+ * 
+ * <li>Interventions: SAP with predictive low-glucose management vs the standard insulin pump</li>
+ * <li>Discount rate: 3%</li>
+ * <li>Complications included in the model: Depending on the value of {@link BasicConfigParams#USE_SIMPLE_MODELS}, the model uses
+ * the following submodels
+ * <ul>
+ * <li>Retinopathy: {@link SimpleRETSubmodel}, if {@link BasicConfigParams#USE_SIMPLE_MODELS USE_SIMPLE_MODELS} = true; {@link SheffieldRETSubmodel} otherwise.</li>
+ * <li>Nephropathy: {@link SimpleNPHSubmodel}, if {@link BasicConfigParams#USE_SIMPLE_MODELS USE_SIMPLE_MODELS} = true; {@link SheffieldNPHSubmodel} otherwise.</li>
+ * <li>Neuropathy: {@link SimpleNEUSubmodel}</li>
+ * <li>Coronary heart disease: {@link SimpleCHDSubmodel}</li>
+ * <li>Episode of severe hypoglycemia (acute event): {@link BattelinoSevereHypoglycemiaEvent}</li>
+ * </ul></li>
+ * <li>Costs calculated by using {@link SubmodelCostCalculator}</li>
+ * <li>Utilities calculated by using {@link SubmodelUtilityCalculator}</li>
+ * </ul>
  * @author Iván Castilla Rodríguez
  *
  */
 public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
-	/** Duration of effect of the intervention (the same duration of Battelino 2012) */
+	/** Duration of effect of the intervention (supposed lifetime) */
 	private static final double YEARS_OF_EFFECT = BasicConfigParams.MAX_AGE;
 	/** A factor to reduce the cost of SAP in sensitivity analysis */
 	private static final double C_SAP_REDUCTION = 1.0;
+	
+	/** Annual cost of the treatment with SAP. Based on microcosts from Medtronic. */
+	private static final double C_SAP = 7662.205833 * C_SAP_REDUCTION;
+	/** Annual cost of the treatment with CSII. Based on microcosts from Medtronic */
+	private static final double C_CSII = 3013.335;
 
+	/** A string to define the percentage of low use of the new pump */
 	private static final String STR_LOW_USE_PERCENTAGE = "LOW_USE_PERCENTAGE";
 	
-	// Parameters from Battelino 2012
-	private static final double BASELINE_HBA1C_MIN = 7.5; // Battelino 2012
-	private static final double BASELINE_HBA1C_MAX = 9.5; // Battelino 2012
-	private static final double BASELINE_HBA1C_AVG = 8.5; // Battelino 2012
+	/** Minimum HbA1c in the population at baseline. From Battelno 2012 */
+	private static final double BASELINE_HBA1C_MIN = 7.5; 
+	/** Maximum HbA1c in the population at baseline. From Battelno 2012 */
+	private static final double BASELINE_HBA1C_MAX = 9.5; 
+	/** Average HbA1c in the population at baseline. From Battelno 2012 */
+	private static final double BASELINE_HBA1C_AVG = 8.5; 
 //	private static final double BASELINE_HBA1C_SD = 0.6; // Battelino 2012: Not used because it leads to a BETA(1,1), which, in fact, is like using a uniform
-	private static final int BASELINE_AGE_MIN = 6; // Battelino 2012
-	private static final int BASELINE_AGE_MAX = 70; // Battelino 2012
-	private static final int BASELINE_AGE_AVG = 28; // Battelino 2012
-	private static final int BASELINE_AGE_SD = 17; // Battelino 2012
-	private static final double LOW_USAGE_PERCENTAGE_AVG = 43d / 153d; // Battelino 2012
+	/** Minimum age in the population at baseline. From Battelno 2012 */
+	private static final int BASELINE_AGE_MIN = 6; 
+	/** Maximum HbA1c in the population at baseline. From Battelno 2012 */
+	private static final int BASELINE_AGE_MAX = 70; 
+	/** Average age in the population at baseline. From Battelno 2012 */
+	private static final int BASELINE_AGE_AVG = 28; 
+	/** SD for age in the population at baseline. From Battelno 2012 */
+	private static final int BASELINE_AGE_SD = 17; 
+	/** Average proportion of patients with < 70% usage of the sensor. From Battelno 2012 */
+	private static final double LOW_USAGE_PERCENTAGE_AVG = 43d / 153d; 
 	/** Number of patients with < 70% [0] and >= 70% [1] usage of the sensor */
 	private static final double[] LOW_USAGE_PERCENTAGE_N = new double[] {43, 110};  
 	/** Average HbA1c reduction after 6 months for patients with < 70% [0] and >= 70% [1] usage of the sensor */
 	private static final double[] HBA1C_REDUCTION_AVG = {0.24, 0.51};
 	/** Variability in the HbA1c reduction after 6 months for patients with < 70% [0] and >= 70% [1] usage of the sensor */
 	private static final double[] HBA1C_REDUCTION_SD = {1.11, 0.07};
-	private static final double HBA1C_AFTER_REDUCTION_MIN = 6.0; // Assumption
-	
-	private static final double C_SAP = 7662.205833 * C_SAP_REDUCTION;
-	private static final double C_CSII = 3013.335;
+	/** Minimum HbA1c level after the intervention has effect. Assumption */
+	private static final double HBA1C_AFTER_REDUCTION_MIN = 6.0; 
 
 	/**
 	 * @param baseCase
@@ -144,32 +186,32 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 		}
 		dModel.addIMR(SimpleNEUSubmodel.NEU, getIMR(SimpleNEUSubmodel.NEU));
 		dModel.addIMR(SimpleNEUSubmodel.LEA, getIMR(SimpleNEUSubmodel.LEA));
-		dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(MainChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(MainChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(MainChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(MainChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(T1DMChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(T1DMChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(T1DMChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(T1DMChronicComplications.CHD));
 		return dModel;
 	}
 	
 	@Override
 	public ChronicComplicationSubmodel[] getComplicationSubmodels() {
-		final ChronicComplicationSubmodel[] comps = new ChronicComplicationSubmodel[MainChronicComplications.values().length];
+		final ChronicComplicationSubmodel[] comps = new ChronicComplicationSubmodel[T1DMChronicComplications.values().length];
 		
 		// Adds neuropathy submodel
-		comps[MainChronicComplications.NEU.ordinal()] = new SimpleNEUSubmodel(this);
+		comps[T1DMChronicComplications.NEU.ordinal()] = new SimpleNEUSubmodel(this);
 		
 		// Adds nephropathy and retinopathy submodels
 		if (BasicConfigParams.USE_SIMPLE_MODELS) {
-			comps[MainChronicComplications.NPH.ordinal()] = new SimpleNPHSubmodel(this);
-			comps[MainChronicComplications.RET.ordinal()] = new SimpleRETSubmodel(this);
+			comps[T1DMChronicComplications.NPH.ordinal()] = new SimpleNPHSubmodel(this);
+			comps[T1DMChronicComplications.RET.ordinal()] = new SimpleRETSubmodel(this);
 		}
 		else {
-			comps[MainChronicComplications.NPH.ordinal()] = new SheffieldNPHSubmodel(this);
-			comps[MainChronicComplications.RET.ordinal()] = new SheffieldRETSubmodel(this);
+			comps[T1DMChronicComplications.NPH.ordinal()] = new SheffieldNPHSubmodel(this);
+			comps[T1DMChronicComplications.RET.ordinal()] = new SheffieldRETSubmodel(this);
 		}
 		
 		// Adds major Cardiovascular disease submodel
-		comps[MainChronicComplications.CHD.ordinal()] = new SimpleCHDSubmodel(this);
+		comps[T1DMChronicComplications.CHD.ordinal()] = new SimpleCHDSubmodel(this);
 		
 		return comps;
 	}
@@ -189,13 +231,21 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 		return new SubmodelUtilityCalculator(DisutilityCombinationMethod.ADD, duDNC, BasicConfigParams.DEF_U_GENERAL_POP, submodels, acuteSubmodels);
 	}
 	
+	/**
+	 * An intervention that represents the usual pump treatment used in Spain. Assumes no changes in the HbA1c level of the 
+	 * patient during the simulation
+	 * @author Iván Castilla Rodríguez
+	 *
+	 */
 	public class CSIIIntervention extends T1DMMonitoringIntervention {
 		public final static String NAME = "CSII";
+		/** Annual cost of the intervention */
 		private final double annualCost;
+
 		/**
-		 * @param id
-		 * @param shortName
-		 * @param description
+		 * Creates the intervention
+		 * @param id Unique identifier of the intervention
+		 * @param annualCost Annual cost assigned to the intervention
 		 */
 		public CSIIIntervention(int id, double annualCost) {
 			super(id, NAME, NAME, BasicConfigParams.MAX_AGE);
@@ -214,14 +264,28 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 
 	}
 
+	/**
+	 * An intervention with SAP with predictive low-glucose management. Applies an immediate reduction in HbA1c. The reduction
+	 * depends on whether the patient has low use of the device or not. If {@link BasicConfigParams#USE_FIXED_HBA1C_CHANGE} is <code>true</code>
+	 * applies a constant reduction of {@link UncontrolledSecondOrderParams#HBA1C_REDUCTION_AVG} to every patient; otherwise, the reduction is sampled from a
+	 * Gamma distribution with average {@link UncontrolledSecondOrderParams#HBA1C_REDUCTION_AVG} and standard deviation 
+	 * {@link UncontrolledSecondOrderParams#HBA1C_REDUCTION_SD}
+	 * @author Iván Castilla Rodríguez
+	 *
+	 */
 	public class SAPIntervention extends T1DMMonitoringIntervention {
 		public final static String NAME = "SAP";
+		/** Annual cost of the intervention */
 		private final double annualCost;
+		/** HbA1c reduction applied to each patient */
 		private final double[] hba1cReduction;
+
 		/**
-		 * @param id
-		 * @param shortName
-		 * @param description
+		 * Creates the intervention
+		 * @param id Unique identifier of the intervention
+		 * @param annualCost Annual cost assigned to the intervention
+		 * @param lowUsePercentage Proportion of patients with low use of the intervention
+		 * @param yearsOfEffect Years of effect of the intervention
 		 */
 		public SAPIntervention(int id, double annualCost, double lowUsePercentage, double yearsOfEffect) {
 			super(id, NAME, NAME, yearsOfEffect);

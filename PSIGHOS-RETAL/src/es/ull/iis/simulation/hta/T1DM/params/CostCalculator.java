@@ -3,11 +3,12 @@
  */
 package es.ull.iis.simulation.hta.T1DM.params;
 
-import es.ull.iis.simulation.hta.T1DM.MainAcuteComplications;
-import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMAcuteComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 
 /**
+ * A class implementing this interface can calculate the disease-related costs 
  * @author Iván Castilla Rodríguez
  *
  */
@@ -28,7 +29,7 @@ public interface CostCalculator {
 	 * @param newEvent A new complication for the patient
 	 * @return the cost of a complication upon incidence
 	 */
-	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent);
+	public double getCostOfComplication(T1DMPatient pat, T1DMComplicationStage newEvent);
 	
 	/**
 	 * Returns the cost of an acute event
@@ -36,5 +37,5 @@ public interface CostCalculator {
 	 * @param comp The acute event
 	 * @return the cost of an acute event
 	 */
-	public double getCostForAcuteEvent(T1DMPatient pat, MainAcuteComplications comp);
+	public double getCostForAcuteEvent(T1DMPatient pat, T1DMAcuteComplications comp);
 }

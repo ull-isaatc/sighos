@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.hta.T1DM.DCCT;
 
-import es.ull.iis.simulation.hta.T1DM.MainAcuteComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMAcuteComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.InterventionSpecificComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
@@ -16,11 +16,11 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class DCCTSevereHypoglycemiaEvent extends AcuteComplicationSubmodel {
-	public static final String STR_P_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + MainAcuteComplications.SEVERE_HYPO.name();
-	public static final String STR_P_DEATH_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "DEATH_" + MainAcuteComplications.SEVERE_HYPO.name();
-	public static final String STR_RR_HYPO = SecondOrderParamsRepository.STR_RR_PREFIX + MainAcuteComplications.SEVERE_HYPO.name(); 
-	public static final String STR_COST_HYPO_EPISODE = SecondOrderParamsRepository.STR_COST_PREFIX + MainAcuteComplications.SEVERE_HYPO.name();
-	public static final String STR_DU_HYPO_EVENT = SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + MainAcuteComplications.SEVERE_HYPO.name();
+	public static final String STR_P_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + T1DMAcuteComplications.SEVERE_HYPO.name();
+	public static final String STR_P_DEATH_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "DEATH_" + T1DMAcuteComplications.SEVERE_HYPO.name();
+	public static final String STR_RR_HYPO = SecondOrderParamsRepository.STR_RR_PREFIX + T1DMAcuteComplications.SEVERE_HYPO.name(); 
+	public static final String STR_COST_HYPO_EPISODE = SecondOrderParamsRepository.STR_COST_PREFIX + T1DMAcuteComplications.SEVERE_HYPO.name();
+	public static final String STR_DU_HYPO_EVENT = SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + T1DMAcuteComplications.SEVERE_HYPO.name();
 	
 	private static final String DEF_SOURCE = "DCCT: https://www.ncbi.nlm.nih.gov/pubmed/90007053";
 
@@ -33,8 +33,8 @@ public class DCCTSevereHypoglycemiaEvent extends AcuteComplicationSubmodel {
 	public DCCTSevereHypoglycemiaEvent(SecondOrderParamsRepository secParams) {
 		super(secParams.getnPatients(), secParams.getProbParam(STR_P_HYPO), new InterventionSpecificComplicationRR(new double[]{1.0, secParams.getOtherParam(STR_RR_HYPO)}), secParams.getProbParam(STR_P_DEATH_HYPO));
 		
-		cost = secParams.getCostForAcuteComplication(MainAcuteComplications.SEVERE_HYPO);
-		du = secParams.getDisutilityForAcuteComplication(MainAcuteComplications.SEVERE_HYPO);
+		cost = secParams.getCostForAcuteComplication(T1DMAcuteComplications.SEVERE_HYPO);
+		du = secParams.getDisutilityForAcuteComplication(T1DMAcuteComplications.SEVERE_HYPO);
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -48,7 +48,7 @@ public class DCCTSevereHypoglycemiaEvent extends AcuteComplicationSubmodel {
 				DEF_SOURCE, 
 				3.27272727, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", 1.1856237, 0.22319455))));
 
-		secParams.registerComplication(MainAcuteComplications.SEVERE_HYPO);
+		secParams.registerComplication(T1DMAcuteComplications.SEVERE_HYPO);
 	}
 	
 	/* (non-Javadoc)

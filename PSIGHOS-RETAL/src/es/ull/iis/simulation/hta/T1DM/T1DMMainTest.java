@@ -16,7 +16,6 @@ import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMTimeFreeOfComplicationsVi
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.T1DM.params.UnconsciousSecondOrderParams;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -52,7 +51,7 @@ public class T1DMMainTest {
 			str.append(LYListener.getStrHeader(interventions[i].getShortName()));
 			str.append(QALYListener.getStrHeader(interventions[i].getShortName()));
 		}
-		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getAvailableHealthStates()));
+		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredComplicationStages()));
 		str.append(secParams.getStrHeader());
 		return str.toString();
 	}
@@ -72,7 +71,7 @@ public class T1DMMainTest {
 
 	private static void simulateInterventions(int id, boolean baseCase, T1DMMonitoringIntervention[] interventions) {
 		final CommonParams common = new CommonParams(secParams);
-		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(BasicConfigParams.N_PATIENTS, interventions.length, false, secParams.getAvailableHealthStates());
+		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(BasicConfigParams.N_PATIENTS, interventions.length, false, secParams.getRegisteredComplicationStages());
 		final CostListener[] costListeners = new CostListener[interventions.length];
 		final LYListener[] lyListeners = new LYListener[interventions.length];
 		final QALYListener[] qalyListeners = new QALYListener[interventions.length];

@@ -15,7 +15,7 @@ public class T1DMProgression {
 	/** New complications to progress to */
 	private final ArrayList<T1DMProgressionPair> newEvents;
 	/** Already assigned complications that must be cancelled */
-	private final TreeSet<T1DMComorbidity> cancelEvents;
+	private final TreeSet<T1DMComplicationStage> cancelEvents;
 
 	/**
 	 * Creates a progression instance for T1DM
@@ -27,19 +27,19 @@ public class T1DMProgression {
 
 	/**
 	 * Adds the progression to a new complication
-	 * @param state Spscific complication to progress to
+	 * @param stage Stage of the complication to progress to
 	 * @param timeToEvent Timestamp when this complication is predicted to appear
 	 */
-	public void addNewEvent(T1DMComorbidity state, long timeToEvent) {
-		newEvents.add(new T1DMProgressionPair(state, timeToEvent));
+	public void addNewEvent(T1DMComplicationStage stage, long timeToEvent) {
+		newEvents.add(new T1DMProgressionPair(stage, timeToEvent));
 	}
 	
 	/**
 	 * Adds the cancellation of an already scheduled complication
-	 * @param state Specific complication to cancel
+	 * @param stage Specific complication to cancel
 	 */
-	public void addCancelEvent(T1DMComorbidity state) {
-		cancelEvents.add(state);
+	public void addCancelEvent(T1DMComplicationStage stage) {
+		cancelEvents.add(stage);
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class T1DMProgression {
 	 * Returns the list of already scheduled complications to be cancelled 
 	 * @return the list of already scheduled complications to be cancelled
 	 */
-	public TreeSet<T1DMComorbidity> getCancelEvents() {
+	public TreeSet<T1DMComplicationStage> getCancelEvents() {
 		return cancelEvents;
 	}
 	

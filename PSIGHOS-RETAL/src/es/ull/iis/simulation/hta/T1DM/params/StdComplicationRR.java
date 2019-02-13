@@ -11,10 +11,13 @@ import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
  * @author Iván Castilla Rodríguez
  *
  */
-public class StdComplicationRR extends ComplicationRR {
+public class StdComplicationRR implements RRCalculator {
+	/** A fixed value for the relative risk */
 	final private double rr; 
+	
 	/**
-	 * 
+	 * Creates a simple relative risk, which always applies the same value
+	 * @param rr A fixed value for the relative risk 
 	 */
 	public StdComplicationRR(double rr) {
 		this.rr = rr;

@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.T1DM.inforeceiver;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
@@ -23,7 +23,7 @@ public class PatientCounterHistogramView extends Listener {
 	private final int minAge;
 	private final int [] nPatients;
 	private final int [] nDeaths;
-	private final TreeMap<T1DMComorbidity, int[]> nComplications;
+	private final TreeMap<T1DMComplicationStage, int[]> nComplications;
 	private final int [] nSevereHypo;
 
 	/**
@@ -34,7 +34,7 @@ public class PatientCounterHistogramView extends Listener {
 	 * @param length
 	 * @param detailDeaths
 	 */
-	public PatientCounterHistogramView(int minAge, int maxAge, int length, ArrayList<T1DMComorbidity> availableStates) {
+	public PatientCounterHistogramView(int minAge, int maxAge, int length, ArrayList<T1DMComplicationStage> availableStates) {
 		super("Counter of patients");
 		this.length = length;
 		this.nIntervals = ((maxAge - minAge) / length) + 1;
@@ -42,7 +42,7 @@ public class PatientCounterHistogramView extends Listener {
 		nPatients = new int[nIntervals];
 		nDeaths = new int[nIntervals];
 		nComplications = new TreeMap<>();
-		for (T1DMComorbidity st : availableStates)
+		for (T1DMComplicationStage st : availableStates)
 			nComplications.put(st, new int[nIntervals]);
 		nSevereHypo = new int[nIntervals];
 		addGenerated(T1DMPatientInfo.class);
@@ -57,7 +57,7 @@ public class PatientCounterHistogramView extends Listener {
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof SimulationEndInfo) {
 			final StringBuilder strHead = new StringBuilder("AGE\tBASE\tDEATH");
-			for (T1DMComorbidity comp : nComplications.keySet()) {
+			for (T1DMComplicationStage comp : nComplications.keySet()) {
 				strHead.append("\t").append(comp.name());
 			}
 			strHead.append("\t").append("HYPOG");

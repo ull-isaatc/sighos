@@ -6,11 +6,11 @@ package es.ull.iis.simulation.hta.T1DM.canada;
 import java.util.Collection;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
-import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMChronicComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
-import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
+import es.ull.iis.simulation.hta.T1DM.params.RRCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.HbA1c10ReductionComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
@@ -25,9 +25,9 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class CanadaRETSubmodel extends ChronicComplicationSubmodel {
-	public static T1DMComorbidity RET = new T1DMComorbidity("RET", "Retinopathy", MainChronicComplications.RET);
-	public static T1DMComorbidity BLI = new T1DMComorbidity("BLI", "Blindness", MainChronicComplications.RET);
-	public static T1DMComorbidity[] RETSubstates = new T1DMComorbidity[] {RET, BLI};
+	public static T1DMComplicationStage RET = new T1DMComplicationStage("RET", "Retinopathy", T1DMChronicComplications.RET);
+	public static T1DMComplicationStage BLI = new T1DMComplicationStage("BLI", "Blindness", T1DMChronicComplications.RET);
+	public static T1DMComplicationStage[] RETSubstates = new T1DMComplicationStage[] {RET, BLI};
 	
 //	addOtherParam(new SecondOrderParam(STR_REF_HBA1C, STR_REF_HBA1C, "", 8.87480916));
 	private static final double REF_HBA1C = 9.1; 
@@ -47,7 +47,7 @@ public class CanadaRETSubmodel extends ChronicComplicationSubmodel {
 		RET_BLI,
 	}
 	private final double[] invProb;
-	private final ComplicationRR[] rr;
+	private final RRCalculator[] rr;
 	private final double [][] rnd;
 
 	private final double[] costRET;
@@ -66,7 +66,7 @@ public class CanadaRETSubmodel extends ChronicComplicationSubmodel {
 		invProb[CanadaRETSubmodel.RETTransitions.HEALTHY_RET.ordinal()] = -1 / secParams.getProbability(RET);
 		invProb[CanadaRETSubmodel.RETTransitions.RET_BLI.ordinal()] = -1 / secParams.getProbability(RET, BLI);
 		
-		this.rr = new ComplicationRR[RETTransitions.values().length];;
+		this.rr = new RRCalculator[RETTransitions.values().length];;
 		rr[RETTransitions.HEALTHY_RET.ordinal()] = new HbA1c10ReductionComplicationRR(
 				secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + RET.name()), REF_HBA1C);
 		rr[RETTransitions.RET_BLI.ordinal()] = SecondOrderParamsRepository.NO_RR;
@@ -80,11 +80,11 @@ public class CanadaRETSubmodel extends ChronicComplicationSubmodel {
 			}
 		}
 		
-		costRET = secParams.getCostsForHealthState(RET);
-		costBLI = secParams.getCostsForHealthState(BLI);
+		costRET = secParams.getCostsForChronicComplication(RET);
+		costBLI = secParams.getCostsForChronicComplication(BLI);
 
-		duRET = secParams.getDisutilityForHealthState(RET);
-		duBLI = secParams.getDisutilityForHealthState(BLI);
+		duRET = secParams.getDisutilityForChronicComplication(RET);
+		duBLI = secParams.getDisutilityForChronicComplication(BLI);
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -93,7 +93,7 @@ public class CanadaRETSubmodel extends ChronicComplicationSubmodel {
 		secParams.addProbParam(new SecondOrderParam(secParams.getProbString(CanadaRETSubmodel.RET, CanadaRETSubmodel.BLI), "", 
 				"", P_RET_BLI));
 
-		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + MainChronicComplications.RET.name(), "%risk reducion for combined groups for sustained onset of retinopathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 
+		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + T1DMChronicComplications.RET.name(), "%risk reducion for combined groups for sustained onset of retinopathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 
 				0.35, RandomVariateFactory.getInstance("NormalVariate", 0.35, SecondOrderParamsRepository.sdFrom95CI(new double[] {0.29, 0.41}))));
 
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + RET, "Cost of RET", "", 2018, C_RET, SecondOrderParamsRepository.getRandomVariateForCost(C_RET)));
@@ -104,15 +104,15 @@ public class CanadaRETSubmodel extends ChronicComplicationSubmodel {
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + RET, "Disutility of RET", "", DU_RET));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BLI, "Disutility of BLI", "", DU_BLI));
 		
-		secParams.registerComplication(MainChronicComplications.RET);
-		secParams.registerHealthStates(RETSubstates);		
+		secParams.registerComplication(T1DMChronicComplications.RET);
+		secParams.registerComplicationStages(RETSubstates);		
 	}
 
 	@Override
-	public T1DMProgression getNextComplication(T1DMPatient pat) {
+	public T1DMProgression getProgression(T1DMPatient pat) {
 		final T1DMProgression prog = new T1DMProgression();
 		if (enable) {
-			final TreeSet<T1DMComorbidity> state = pat.getDetailedState();
+			final TreeSet<T1DMComplicationStage> state = pat.getDetailedState();
 			// Checks whether there is somewhere to transit to
 			if (!state.contains(BLI)) {
 				long timeToBLI = Long.MAX_VALUE;
@@ -160,30 +160,30 @@ public class CanadaRETSubmodel extends ChronicComplicationSubmodel {
 	}
 
 	@Override
-	public int getNSubstates() {
+	public int getNStages() {
 		return RETSubstates.length;
 	}
 
 	@Override
-	public T1DMComorbidity[] getSubstates() {
+	public T1DMComplicationStage[] getStages() {
 		return RETSubstates;
 	}
 	
 	@Override
-	public TreeSet<T1DMComorbidity> getInitialState(T1DMPatient pat) {
+	public TreeSet<T1DMComplicationStage> getInitialStage(T1DMPatient pat) {
 		return new TreeSet<>();
 	}
 
 	@Override
 	public double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
-		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+		final Collection<T1DMComplicationStage> state = pat.getDetailedState();
 		if (state.contains(BLI))
 			return costBLI[0];
 		return costRET[0];
 	}
 
 	@Override
-	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent) {
+	public double getCostOfComplication(T1DMPatient pat, T1DMComplicationStage newEvent) {
 		if (BLI.equals(newEvent))
 			return costBLI[1];
 		return costRET[1];
@@ -191,7 +191,7 @@ public class CanadaRETSubmodel extends ChronicComplicationSubmodel {
 
 	@Override
 	public double getDisutility(T1DMPatient pat, DisutilityCombinationMethod method) {
-		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+		final Collection<T1DMComplicationStage> state = pat.getDetailedState();
 		if (state.contains(BLI))
 			return duBLI;
 		return duRET;

@@ -14,12 +14,13 @@ import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SheffieldComplicationRR extends ComplicationRR {
+public class SheffieldComplicationRR implements RRCalculator {
 	/** The beta of the complication */
 	private final double beta;
 
 	/**
-	 * 
+	 * Creates a relative risk computed as described in the Sheffield's T1DM model
+	 * @param beta The beta of the complication
 	 */
 	public SheffieldComplicationRR(double beta) {
 		this.beta = beta;

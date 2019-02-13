@@ -6,8 +6,8 @@ package es.ull.iis.simulation.hta.T1DM.inforeceiver;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
-import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMChronicComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
@@ -25,13 +25,13 @@ public class T1DMPatientPrevalenceView extends Listener {
 	private final int [][] nComplications;
 	private final int [] nDeaths;
 	private final double[][] ageIntervals;
-	private final ArrayList<T1DMComorbidity> availableStates;
+	private final ArrayList<T1DMComplicationStage> availableStates;
 	private final PrintStream out = System.out;
 
 	/**
 	 * @param simUnit The time unit used within the simulation
 	 */
-	public T1DMPatientPrevalenceView(TimeUnit simUnit, double[][] ageIntervals, ArrayList<T1DMComorbidity> availableStates) {
+	public T1DMPatientPrevalenceView(TimeUnit simUnit, double[][] ageIntervals, ArrayList<T1DMComplicationStage> availableStates) {
 		super("Standard patient viewer");
 		this.availableStates = availableStates;
 		nPatients = new int[ageIntervals.length+1];
@@ -61,7 +61,7 @@ public class T1DMPatientPrevalenceView extends Listener {
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof SimulationEndInfo) {
 			out.print("Age1\tAge2\tPatients");
-			for (T1DMComorbidity comp : availableStates) {
+			for (T1DMComplicationStage comp : availableStates) {
 				out.print("\t" + comp.name());
 			}
 			out.println("\tDeaths");
@@ -102,7 +102,7 @@ public class T1DMPatientPrevalenceView extends Listener {
 					nDeaths[ageIntervals.length]++;
 
 					// Check all the complications
-					for (T1DMComorbidity comp : availableStates) {
+					for (T1DMComplicationStage comp : availableStates) {
 						final long time = pat.getTimeToChronicComorbidity(comp);
 						final double ageAtComp = (time == Long.MAX_VALUE) ? Double.MAX_VALUE : (initAge + time / BasicConfigParams.YEAR_CONVERSION);
 						if (ageAtComp != Double.MAX_VALUE) {

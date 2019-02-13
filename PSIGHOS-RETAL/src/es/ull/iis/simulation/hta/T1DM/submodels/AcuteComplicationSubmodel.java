@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
-import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
+import es.ull.iis.simulation.hta.T1DM.params.RRCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.ReseteableParam;
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
@@ -46,7 +46,7 @@ public abstract class AcuteComplicationSubmodel extends ComplicationSubmodel imp
 	/** Annual probability of developing the acute complication */
 	private final double annualProb;
 	/** Relative risk of developing the acute complication, depending on characteristics of the patient or the intervention */
-	private final ComplicationRR rr;
+	private final RRCalculator rr;
 	/** Probability of dying when an acute event appears */
 	private final double pDeath;
 	/** Which event is trying to use each patient */
@@ -59,7 +59,7 @@ public abstract class AcuteComplicationSubmodel extends ComplicationSubmodel imp
 	 * @param rr Relative risk of developing the acute complication, depending on characteristics of the patient or the intervention
 	 * @param pDeath Probability of dying when an acute event appears
 	 */
-	public AcuteComplicationSubmodel(int nPatients, double annualProb, ComplicationRR rr, double pDeath) {
+	public AcuteComplicationSubmodel(int nPatients, double annualProb, RRCalculator rr, double pDeath) {
 		this.rng = RandomNumberFactory.getInstance();
 		generated = new ArrayList<>(nPatients);
 		for (int i = 0; i < nPatients; i++) {

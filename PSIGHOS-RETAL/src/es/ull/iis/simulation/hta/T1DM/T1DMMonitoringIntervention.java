@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.T1DM;
 import es.ull.iis.simulation.hta.Intervention;
 
 /**
+ * An intervention aimed at monitoring the HbA1c level.
  * @author Iván Castilla Rodríguez
  *
  */

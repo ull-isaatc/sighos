@@ -32,27 +32,35 @@ import es.ull.iis.simulation.hta.T1DM.inforeceiver.T1DMTimeFreeOfComplicationsVi
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.T1DM.params.UnconsciousSecondOrderParams;
-import es.ull.iis.simulation.hta.T1DM.params.UncontrolledSecondOrderParams;
 
 /**
+ * Main class to launch simulation experiments
  * @author Iván Castilla Rodríguez
  *
  */
 public class T1DMMain {
+	/** How many replications have to be run to show a new progression percentage message */
 	private static final int N_PROGRESS = 20;
 	private final PrintWriter out;
 	private final T1DMMonitoringIntervention[] interventions;
+	/** Number of simulations to run */
 	private final int nRuns;
+	/** Number of patients to be generated during each simulation */
 	private final int nPatients;
 	private final SecondOrderParamsRepository secParams;
 	private final T1DMPatientInfoView patientListener;
 	private final PrintProgress progress;
+	/** Enables parallel execution of simulations */
 	private final boolean parallel;
+	/** Disables most messages */
 	private final boolean quiet;
+	/** Enables printing incidence of complications by age group */
 	private final boolean printIncidence;
+	/** Enables printing prevalence of complications by age group */
 	private final boolean printPrevalence;
+	/** Enables printing cummulated incidence of complications by time from start */
 	private final boolean printCummIncidence;
+	/** Enables printing the budget impact */
 	private final boolean printBI;
 	
 	public T1DMMain(PrintWriter out, SecondOrderParamsRepository secParams, boolean parallel, boolean quiet, int singlePatientOutput, boolean printIncidence, boolean printPrevalence, boolean printCummIncidence, boolean printBI) {
@@ -77,13 +85,13 @@ public class T1DMMain {
 
 	private void addListeners(T1DMSimulation simul) {
 		if (printCummIncidence)
-			simul.addInfoReceiver(new T1DMCummulatedIncidenceView(BasicConfigParams.MAX_AGE - BasicConfigParams.MIN_AGE + 1, nPatients, secParams.getAvailableHealthStates()));
+			simul.addInfoReceiver(new T1DMCummulatedIncidenceView(BasicConfigParams.MAX_AGE - BasicConfigParams.MIN_AGE + 1, nPatients, secParams.getRegisteredComplicationStages()));
 		if (printIncidence)
-			simul.addInfoReceiver(new PatientCounterHistogramView(BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE, 1, secParams.getAvailableHealthStates()));
+			simul.addInfoReceiver(new PatientCounterHistogramView(BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE, 1, secParams.getRegisteredComplicationStages()));
 		if (printPrevalence)
 			simul.addInfoReceiver(new T1DMPatientPrevalenceView(simul.getTimeUnit(), 
 					T1DMPatientPrevalenceView.buildAgesInterval(BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE, 1, true),
-					secParams.getAvailableHealthStates()));
+					secParams.getRegisteredComplicationStages()));
 	}
 	
 	private String getStrHeader() {
@@ -97,7 +105,7 @@ public class T1DMMain {
 			str.append(QALYListener.getStrHeader(interventions[i].getShortName()));
 			str.append(T1DMAcuteComplicationCounterListener.getStrHeader(interventions[i].getShortName()));
 		}
-		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getAvailableHealthStates()));
+		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredComplicationStages()));
 		str.append(secParams.getStrHeader());
 		return str.toString();
 	}
@@ -117,9 +125,14 @@ public class T1DMMain {
 		return str.toString();
 	}
 
+	/**
+	 * Runs the simulations for each intervention
+	 * @param id Simulation identifier
+	 * @param baseCase True if we are running the base case
+	 */
 	private void simulateInterventions(int id, boolean baseCase) {
 		final CommonParams common = new CommonParams(secParams);
-		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(nPatients, interventions.length, false, secParams.getAvailableHealthStates());
+		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(nPatients, interventions.length, false, secParams.getRegisteredComplicationStages());
 		final HbA1cListener[] hba1cListeners = new HbA1cListener[interventions.length];
 		final CostListener[] costListeners = new CostListener[interventions.length];
 		final LYListener[] lyListeners = new LYListener[interventions.length];
@@ -186,6 +199,9 @@ public class T1DMMain {
 		out.println(print(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, acuteListeners, timeFreeListener));	
 	}
 	
+	/**
+	 * Launches the simulations
+	 */
 	public void run() {
 		long t = System.currentTimeMillis(); 
 		if (!quiet)
@@ -317,6 +333,10 @@ public class T1DMMain {
 		return ageLimits;
 	}
 	
+	/**
+	 * The executor of simulations. Each problem executor launches a set of simulation experiments
+	 * @author Iván Castilla Rodríguez
+	 */
 	private class ProblemExecutor implements Runnable {
 		final private PrintWriter out;
 		final private int id;
@@ -338,6 +358,11 @@ public class T1DMMain {
 		}
 	}
 	
+	/**
+	 * A class to print the progression of the simulations
+	 * @author Iván Castilla Rodríguez
+	 *
+	 */
 	private class PrintProgress {
 		final private int totalSim;
 		final private int gap;

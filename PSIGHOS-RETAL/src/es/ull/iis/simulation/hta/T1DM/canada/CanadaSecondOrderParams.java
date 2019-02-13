@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.hta.T1DM.canada;
 
-import es.ull.iis.simulation.hta.T1DM.MainAcuteComplications;
-import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMAcuteComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
@@ -84,19 +84,19 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 
 	@Override
 	public ChronicComplicationSubmodel[] getComplicationSubmodels() {
-		final ChronicComplicationSubmodel[] comps = new ChronicComplicationSubmodel[MainChronicComplications.values().length];
+		final ChronicComplicationSubmodel[] comps = new ChronicComplicationSubmodel[T1DMChronicComplications.values().length];
 		
 		// Adds nephropathy submodel
-		comps[MainChronicComplications.NPH.ordinal()] = new CanadaNPHSubmodel(this);
+		comps[T1DMChronicComplications.NPH.ordinal()] = new CanadaNPHSubmodel(this);
 		
 		// Adds neuropathy submodel
-		comps[MainChronicComplications.NEU.ordinal()] = new CanadaNEUSubmodel(this);
+		comps[T1DMChronicComplications.NEU.ordinal()] = new CanadaNEUSubmodel(this);
 		
 		// Adds retinopathy submodel
-		comps[MainChronicComplications.RET.ordinal()] = new CanadaRETSubmodel(this);
+		comps[T1DMChronicComplications.RET.ordinal()] = new CanadaRETSubmodel(this);
 		
 		// Adds major Cardiovascular disease submodel
-		comps[MainChronicComplications.CHD.ordinal()] = new CanadaCHDSubmodel(this);
+		comps[T1DMChronicComplications.CHD.ordinal()] = new CanadaCHDSubmodel(this);
 		
 		return comps;
 	}
@@ -118,7 +118,7 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 	
 	@Override
 	public UtilityCalculator getUtilityCalculator(double duDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels) {
-		return new CanadaUtilityCalculator(duDNC, BasicConfigParams.DEF_U_GENERAL_POP, acuteSubmodels[MainAcuteComplications.SEVERE_HYPO.ordinal()].getDisutility(null));
+		return new CanadaUtilityCalculator(duDNC, BasicConfigParams.DEF_U_GENERAL_POP, acuteSubmodels[T1DMAcuteComplications.SEVERE_HYPO.ordinal()].getDisutility(null));
 	}
 	
 	

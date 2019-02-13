@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.T1DM.canada;
 
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
@@ -39,7 +39,7 @@ public class CanadaDeathSubmodel extends DeathSubmodel {
 	@Override
 	public long getTimeToDeath(T1DMPatient pat) {
 		long timeToDeath = canadaTimeToDeathOther.getValue(pat);
-		final TreeSet<T1DMComorbidity> state = pat.getDetailedState();
+		final TreeSet<T1DMComplicationStage> state = pat.getDetailedState();
 		if (state.contains(CanadaNPHSubmodel.ESRD)) {
 			final long deathESRD = canadaTimeToDeathESRD.getValue(pat);
 			if (deathESRD < timeToDeath)

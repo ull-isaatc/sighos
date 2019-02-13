@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.T1DM.inforeceiver;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.info.SimulationEndInfo;
@@ -20,7 +20,7 @@ import es.ull.iis.simulation.inforeceiver.Listener;
 public class T1DMCummulatedIncidenceView extends Listener {
 	private final int nIntervals;
 	private final int [] nDeaths;
-	private final TreeMap<T1DMComorbidity, int[]> nComplications;
+	private final TreeMap<T1DMComplicationStage, int[]> nComplications;
 	private final int [] nSevereHypo;
 	private final int nPatients;
 
@@ -32,13 +32,13 @@ public class T1DMCummulatedIncidenceView extends Listener {
 	 * @param length
 	 * @param detailDeaths
 	 */
-	public T1DMCummulatedIncidenceView(int nIntervals, int nPatients, ArrayList<T1DMComorbidity> availableStates) {
+	public T1DMCummulatedIncidenceView(int nIntervals, int nPatients, ArrayList<T1DMComplicationStage> availableStates) {
 		super("Counter of patients");
 		this.nIntervals = nIntervals;
 		this.nPatients = nPatients;
 		nDeaths = new int[nIntervals];
 		nComplications = new TreeMap<>();
-		for (T1DMComorbidity st : availableStates)
+		for (T1DMComplicationStage st : availableStates)
 			nComplications.put(st, new int[nIntervals]);
 		nSevereHypo = new int[nIntervals];
 		addGenerated(T1DMPatientInfo.class);
@@ -53,21 +53,21 @@ public class T1DMCummulatedIncidenceView extends Listener {
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof SimulationEndInfo) {
 			final StringBuilder strHead = new StringBuilder("AGE\tDEATH");
-			for (T1DMComorbidity comp : nComplications.keySet()) {
+			for (T1DMComplicationStage comp : nComplications.keySet()) {
 				strHead.append("\t").append(comp.name());
 			}
 			strHead.append("\t").append("HYPOG");
 			System.out.println(strHead);
 			double accDeaths = 0.0;
 			double accHypos = 0.0;
-			final TreeMap<T1DMComorbidity, Integer> accComplications = new TreeMap<>();
-			for (T1DMComorbidity comp : nComplications.keySet())
+			final TreeMap<T1DMComplicationStage, Integer> accComplications = new TreeMap<>();
+			for (T1DMComplicationStage comp : nComplications.keySet())
 				accComplications.put(comp,  0);
 			for (int i = 0; i < nIntervals; i++) {
 				accDeaths += nDeaths[i];
 				accHypos += nSevereHypo[i];
 				final StringBuilder str = new StringBuilder("" + i + "\t").append(accDeaths  / nPatients);
-				for (T1DMComorbidity comp : nComplications.keySet()) {
+				for (T1DMComplicationStage comp : nComplications.keySet()) {
 					int accValue = accComplications.get(comp) + nComplications.get(comp)[i];
 					accComplications.put(comp, accValue);
 					str.append("\t").append((double)accValue / nPatients);					

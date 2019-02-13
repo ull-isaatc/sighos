@@ -8,18 +8,23 @@ import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
+ * A complication submodel
  * @author Iván Castilla Rodríguez
- *
  */
 public abstract class ComplicationSubmodel {
+	/** A flag to enable or disable this complication during the simulation run */
 	protected boolean enable;
+	
 	/**
-	 * 
+	 * Creates a new complication submodel 
 	 */
 	public ComplicationSubmodel() {
 		enable = true;
 	}
 
+	/**
+	 * Disables this complication
+	 */
 	public void disable() {
 		enable = false;
 	}
@@ -44,6 +49,12 @@ public abstract class ComplicationSubmodel {
 		return (absTime >= limit) ? Long.MAX_VALUE : absTime;
 	}
 	
+	/**
+	 * Returns the minimum among a set of values
+	 * @param limit Reference value
+	 * @param args Rest of values to compare
+	 * @return the minimum among a set of values
+	 */
 	public static long min(long limit, long... args) {
 		for (long value : args) {
 			if (value < limit)

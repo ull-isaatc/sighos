@@ -17,14 +17,16 @@ import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
  * @author Iván Castilla Rodríguez
  *
  */
-public class HbA1c1PPComplicationRR extends ComplicationRR {
+public class HbA1c1PPComplicationRR implements RRCalculator {
 	/** The relative risk of the complication, associated to a 1 PP increment of HbA1c*/
 	private final double referenceRR;
 	/** The reference HbA1c from which the relative risk is applied */
 	private final double referenceHbA1c;
 
 	/**
-	 * 
+	 * Creates a relative risk associated  to a 1 percentage point increment of HbA1c
+	 * @param referenceRR The relative risk of the complication, associated to a 1 PP increment of HbA1c
+	 * @param referenceHbA1c The reference HbA1c from which the relative risk is applied
 	 */
 	public HbA1c1PPComplicationRR(double referenceRR, double referenceHbA1c) {
 		this.referenceRR = referenceRR;

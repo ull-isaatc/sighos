@@ -5,8 +5,8 @@ package es.ull.iis.simulation.hta.T1DM.canada;
 
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.T1DM.MainAcuteComplications;
-import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMAcuteComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator;
 
@@ -28,12 +28,12 @@ public class CanadaUtilityCalculator implements UtilityCalculator {
 	}
 
 	@Override
-	public double getAcuteEventDisutilityValue(T1DMPatient pat, MainAcuteComplications comp) {
+	public double getAcuteEventDisutilityValue(T1DMPatient pat, T1DMAcuteComplications comp) {
 		return duHypoEvent;
 	}
 
 	public double getUtilityValue(T1DMPatient pat) {
-		final TreeSet<T1DMComorbidity> state = pat.getDetailedState();
+		final TreeSet<T1DMComplicationStage> state = pat.getDetailedState();
 		double u = genPopUtility;
 		u -= duDNC;
 		if (state.contains(CanadaNPHSubmodel.ESRD)) {

@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.T1DM.canada;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
+import es.ull.iis.simulation.hta.T1DM.params.RRCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.UniqueEventParam;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -18,7 +18,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  */
 public class AnnualBasedTimeToEventParam extends UniqueEventParam<Long> {
 	private final double minusAvgTimeToEvent;
-	private final ComplicationRR rr;
+	private final RRCalculator rr;
 
 	/**
 	 * 
@@ -26,7 +26,7 @@ public class AnnualBasedTimeToEventParam extends UniqueEventParam<Long> {
 	 * @param annualProbability
 	 * @param rr
 	 */
-	public AnnualBasedTimeToEventParam(int nPatients, double annualProbability, ComplicationRR rr) {
+	public AnnualBasedTimeToEventParam(int nPatients, double annualProbability, RRCalculator rr) {
 		super(nPatients);
 		this.rr = rr;
 		this.minusAvgTimeToEvent = -(1/annualProbability);

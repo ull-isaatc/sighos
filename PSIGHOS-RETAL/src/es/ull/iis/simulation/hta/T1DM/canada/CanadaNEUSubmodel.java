@@ -6,11 +6,11 @@ package es.ull.iis.simulation.hta.T1DM.canada;
 import java.util.Collection;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
-import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMChronicComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
-import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
+import es.ull.iis.simulation.hta.T1DM.params.RRCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.HbA1c10ReductionComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
@@ -25,9 +25,9 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class CanadaNEUSubmodel extends ChronicComplicationSubmodel {
-	public static T1DMComorbidity NEU = new T1DMComorbidity("NEU", "Neuropathy", MainChronicComplications.NEU);
-	public static T1DMComorbidity LEA = new T1DMComorbidity("LEA", "Low extremity amputation", MainChronicComplications.NEU);
-	public static T1DMComorbidity[] NEUSubstates = new T1DMComorbidity[] {NEU, LEA};
+	public static T1DMComplicationStage NEU = new T1DMComplicationStage("NEU", "Neuropathy", T1DMChronicComplications.NEU);
+	public static T1DMComplicationStage LEA = new T1DMComplicationStage("LEA", "Low extremity amputation", T1DMChronicComplications.NEU);
+	public static T1DMComplicationStage[] NEUSubstates = new T1DMComplicationStage[] {NEU, LEA};
 
 //	addOtherParam(new SecondOrderParam(STR_REF_HBA1C, STR_REF_HBA1C, "", 8.87480916));
 	private static final double REF_HBA1C = 9.1; 
@@ -47,7 +47,7 @@ public class CanadaNEUSubmodel extends ChronicComplicationSubmodel {
 		NEU_LEA,
 	}
 	private final double[] invProb;
-	private final ComplicationRR[] rr;
+	private final RRCalculator[] rr;
 	private final double [][] rnd;
 
 	private final double[] costNEU;
@@ -66,7 +66,7 @@ public class CanadaNEUSubmodel extends ChronicComplicationSubmodel {
 		invProb[NEUTransitions.HEALTHY_NEU.ordinal()] = -1 / secParams.getProbability(NEU);
 		invProb[NEUTransitions.NEU_LEA.ordinal()] = -1 / secParams.getProbability(NEU, LEA);
 
-		rr = new ComplicationRR[NEUTransitions.values().length];
+		rr = new RRCalculator[NEUTransitions.values().length];
 		rr[NEUTransitions.HEALTHY_NEU.ordinal()] = new HbA1c10ReductionComplicationRR(
 				secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + NEU.name()), REF_HBA1C);
 		rr[NEUTransitions.NEU_LEA.ordinal()] = SecondOrderParamsRepository.NO_RR;
@@ -80,11 +80,11 @@ public class CanadaNEUSubmodel extends ChronicComplicationSubmodel {
 			}
 		}
 		
-		costNEU = secParams.getCostsForHealthState(NEU);
-		costLEA = secParams.getCostsForHealthState(LEA);
+		costNEU = secParams.getCostsForChronicComplication(NEU);
+		costLEA = secParams.getCostsForChronicComplication(LEA);
 
-		duNEU = secParams.getDisutilityForHealthState(NEU);
-		duLEA = secParams.getDisutilityForHealthState(LEA);		
+		duNEU = secParams.getDisutilityForChronicComplication(NEU);
+		duLEA = secParams.getDisutilityForChronicComplication(LEA);		
 	}
 	
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -108,15 +108,15 @@ public class CanadaNEUSubmodel extends ChronicComplicationSubmodel {
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + NEU, "Disutility of NEU", "", DU_NEU));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + LEA, "Disutility of LEA", "", DU_LEA));
 		
-		secParams.registerComplication(MainChronicComplications.NEU);
-		secParams.registerHealthStates(NEUSubstates);
+		secParams.registerComplication(T1DMChronicComplications.NEU);
+		secParams.registerComplicationStages(NEUSubstates);
 	}
 	
 	@Override
-	public T1DMProgression getNextComplication(T1DMPatient pat) {
+	public T1DMProgression getProgression(T1DMPatient pat) {
 		final T1DMProgression prog = new T1DMProgression();
 		if (enable) {
-			final TreeSet<T1DMComorbidity> state = pat.getDetailedState();
+			final TreeSet<T1DMComplicationStage> state = pat.getDetailedState();
 			// Checks whether there is somewhere to transit to
 			if (!state.contains(LEA)) {
 				long timeToLEA = Long.MAX_VALUE;
@@ -163,30 +163,30 @@ public class CanadaNEUSubmodel extends ChronicComplicationSubmodel {
 	}
 
 	@Override
-	public int getNSubstates() {
+	public int getNStages() {
 		return NEUSubstates.length;
 	}
 
 	@Override
-	public T1DMComorbidity[] getSubstates() {
+	public T1DMComplicationStage[] getStages() {
 		return NEUSubstates;
 	}
 
 	@Override
-	public TreeSet<T1DMComorbidity> getInitialState(T1DMPatient pat) {
+	public TreeSet<T1DMComplicationStage> getInitialStage(T1DMPatient pat) {
 		return new TreeSet<>();
 	}
 
 	@Override
 	public double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
-		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+		final Collection<T1DMComplicationStage> state = pat.getDetailedState();
 		if (state.contains(LEA))
 			return costLEA[0];
 		return costNEU[0];
 	}
 
 	@Override
-	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent) {
+	public double getCostOfComplication(T1DMPatient pat, T1DMComplicationStage newEvent) {
 		if (LEA.equals(newEvent))
 			return costLEA[1];
 		return costNEU[1];
@@ -194,7 +194,7 @@ public class CanadaNEUSubmodel extends ChronicComplicationSubmodel {
 
 	@Override
 	public double getDisutility(T1DMPatient pat, DisutilityCombinationMethod method) {
-		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+		final Collection<T1DMComplicationStage> state = pat.getDetailedState();
 		if (state.contains(LEA))
 			return duLEA;
 		return duNEU;

@@ -6,12 +6,12 @@ package es.ull.iis.simulation.hta.T1DM.submodels;
 import java.util.Collection;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
-import es.ull.iis.simulation.hta.T1DM.T1DMComorbidity;
+import es.ull.iis.simulation.hta.T1DM.T1DMChronicComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
+import es.ull.iis.simulation.hta.T1DM.params.RRCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
@@ -25,11 +25,11 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
-	public static T1DMComorbidity BGRET = new T1DMComorbidity("BGRET", "Background Retinopathy", MainChronicComplications.RET);
-	public static T1DMComorbidity PRET = new T1DMComorbidity("PRET", "Proliferative Retinopathy", MainChronicComplications.RET);
-	public static T1DMComorbidity ME = new T1DMComorbidity("ME", "Macular edema", MainChronicComplications.RET);
-	public static T1DMComorbidity BLI = new T1DMComorbidity("BLI", "Blindness", MainChronicComplications.RET);
-	public static T1DMComorbidity[] RETSubstates = new T1DMComorbidity[] {BGRET, PRET, ME, BLI};
+	public static T1DMComplicationStage BGRET = new T1DMComplicationStage("BGRET", "Background Retinopathy", T1DMChronicComplications.RET);
+	public static T1DMComplicationStage PRET = new T1DMComplicationStage("PRET", "Proliferative Retinopathy", T1DMChronicComplications.RET);
+	public static T1DMComplicationStage ME = new T1DMComplicationStage("ME", "Macular edema", T1DMChronicComplications.RET);
+	public static T1DMComplicationStage BLI = new T1DMComplicationStage("BLI", "Blindness", T1DMChronicComplications.RET);
+	public static T1DMComplicationStage[] RETSubstates = new T1DMComplicationStage[] {BGRET, PRET, ME, BLI};
 	
 	private static final double P_DNC_BGRET = 0.0454 * BasicConfigParams.CALIBRATION_COEF_BGRET;
 	private static final double P_DNC_PRET = 0.0013;
@@ -67,10 +67,10 @@ public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
 		ME_BLI(ME, BLI),
 		HEALTHY_BLI(null, BLI);
 		
-		final private T1DMComorbidity from;
-		final private T1DMComorbidity to;
+		final private T1DMComplicationStage from;
+		final private T1DMComplicationStage to;
 		
-		private RETTransitions(T1DMComorbidity from, T1DMComorbidity to) {
+		private RETTransitions(T1DMComplicationStage from, T1DMComplicationStage to) {
 			this.from = from;
 			this.to = to;
 		}
@@ -78,20 +78,20 @@ public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
 		/**
 		 * @return the from
 		 */
-		public T1DMComorbidity getFrom() {
+		public T1DMComplicationStage getFrom() {
 			return from;
 		}
 
 		/**
 		 * @return the to
 		 */
-		public T1DMComorbidity getTo() {
+		public T1DMComplicationStage getTo() {
 			return to;
 		}
 	}
 	
 	private final double[] invProb;
-	private final ComplicationRR[] rr;
+	private final RRCalculator[] rr;
 	private final double[][] rnd;
 	private final double[] rndBGRETAtStart;
 	private final double[] costBGRET;
@@ -120,10 +120,10 @@ public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
 		invProb[RETTransitions.PRET_BLI.ordinal()] = -1 / secParams.getProbability(PRET, BLI);
 		invProb[RETTransitions.ME_BLI.ordinal()] = -1 / secParams.getProbability(ME, BLI);
 		
-		this.rr = new ComplicationRR[RETTransitions.values().length];
-		final ComplicationRR rrBGRET = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + BGRET));
-		final ComplicationRR rrPRET = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + PRET));
-		final ComplicationRR rrME = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + ME));
+		this.rr = new RRCalculator[RETTransitions.values().length];
+		final RRCalculator rrBGRET = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + BGRET));
+		final RRCalculator rrPRET = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + PRET));
+		final RRCalculator rrME = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + ME));
 		rr[RETTransitions.HEALTHY_BGRET.ordinal()] = rrBGRET;
 		rr[RETTransitions.HEALTHY_PRET.ordinal()] = rrPRET;
 		rr[RETTransitions.HEALTHY_ME.ordinal()] = rrME;
@@ -145,15 +145,15 @@ public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
 			}
 		}
 		
-		costBGRET = secParams.getCostsForHealthState(BGRET);
-		costPRET = secParams.getCostsForHealthState(PRET);
-		costME = secParams.getCostsForHealthState(ME);
-		costBLI = secParams.getCostsForHealthState(BLI);
+		costBGRET = secParams.getCostsForChronicComplication(BGRET);
+		costPRET = secParams.getCostsForChronicComplication(PRET);
+		costME = secParams.getCostsForChronicComplication(ME);
+		costBLI = secParams.getCostsForChronicComplication(BLI);
 		
-		duBGRET = secParams.getDisutilityForHealthState(BGRET);
-		duPRET = secParams.getDisutilityForHealthState(PRET);
-		duME = secParams.getDisutilityForHealthState(ME);
-		duBLI = secParams.getDisutilityForHealthState(BLI);
+		duBGRET = secParams.getDisutilityForChronicComplication(BGRET);
+		duPRET = secParams.getDisutilityForChronicComplication(PRET);
+		duME = secParams.getDisutilityForChronicComplication(ME);
+		duBLI = secParams.getDisutilityForChronicComplication(BLI);
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -199,17 +199,17 @@ public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BLI, "Disutility of BLI", 
 				"", DU_BLI[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuBLI[0], paramsDuBLI[1])));
 		
-		secParams.registerComplication(MainChronicComplications.RET);
-		secParams.registerHealthStates(RETSubstates);		
+		secParams.registerComplication(T1DMChronicComplications.RET);
+		secParams.registerComplicationStages(RETSubstates);		
 	}
 	
 	@Override
-	public T1DMProgression getNextComplication(T1DMPatient pat) {
+	public T1DMProgression getProgression(T1DMPatient pat) {
 		// Only schedules new events if the the patient has not suffered the complication yet, and the time of the event is lower
 		// than the expected time to death and the previously computed (if any) time to the event
 		final T1DMProgression prog = new T1DMProgression();
 		if (enable) {
-			final TreeSet<T1DMComorbidity> state = pat.getDetailedState();
+			final TreeSet<T1DMComplicationStage> state = pat.getDetailedState();
 			// Checks whether there is somewhere to transit to
 			if (!state.contains(BLI)) {
 				long timeToBLI = Long.MAX_VALUE;
@@ -317,18 +317,18 @@ public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
 	}
 
 	@Override
-	public int getNSubstates() {
+	public int getNStages() {
 		return RETSubstates.length;
 	}
 
 	@Override
-	public T1DMComorbidity[] getSubstates() {
+	public T1DMComplicationStage[] getStages() {
 		return RETSubstates;
 	}
 
 	@Override
-	public TreeSet<T1DMComorbidity> getInitialState(T1DMPatient pat) {
-		TreeSet<T1DMComorbidity> init = new TreeSet<>();
+	public TreeSet<T1DMComplicationStage> getInitialStage(T1DMPatient pat) {
+		TreeSet<T1DMComplicationStage> init = new TreeSet<>();
 //		if (rndBGRETAtStart[pat.getIdentifier()] < 0.496183206) // (715 / 1441)
 //			init.add(BGRET);
 		return init;
@@ -337,7 +337,7 @@ public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
 	@Override
 	public double getAnnualCostWithinPeriod(T1DMPatient pat, double initAge, double endAge) {
 		double cost = 0.0;
-		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+		final Collection<T1DMComplicationStage> state = pat.getDetailedState();
 
 		if (state.contains(SheffieldRETSubmodel.BLI))
 			cost += costBLI[0];
@@ -351,13 +351,13 @@ public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
 	}
 
 	@Override
-	public double getCostOfComplication(T1DMPatient pat, T1DMComorbidity newEvent) {
+	public double getCostOfComplication(T1DMPatient pat, T1DMComplicationStage newEvent) {
 		return 0.0;
 	}
 
 	@Override
 	public double getDisutility(T1DMPatient pat, DisutilityCombinationMethod method) {
-		final Collection<T1DMComorbidity> state = pat.getDetailedState();
+		final Collection<T1DMComplicationStage> state = pat.getDetailedState();
 		
 		if (state.contains(BLI))
 			return duBLI;

@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.T1DM.inforeceiver;
 
 import java.util.Arrays;
 
-import es.ull.iis.simulation.hta.T1DM.MainAcuteComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMAcuteComplications;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -28,7 +28,7 @@ public class T1DMAcuteComplicationCounterListener extends Listener implements St
 	 */
 	public T1DMAcuteComplicationCounterListener(int nPatients) {
 		super("Counter of acute complications");
-		nComplications = new int[MainAcuteComplications.values().length][nPatients+1];
+		nComplications = new int[T1DMAcuteComplications.values().length][nPatients+1];
 		this.nPatients = nPatients;
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
@@ -48,7 +48,7 @@ public class T1DMAcuteComplicationCounterListener extends Listener implements St
 
 	public static String getStrHeader(String intervention) {
 		final StringBuilder str = new StringBuilder();
-		for (MainAcuteComplications comp : MainAcuteComplications.values()) {
+		for (T1DMAcuteComplications comp : T1DMAcuteComplications.values()) {
 			str.append("AVG_" + comp.name() + "_" + intervention + "\t");
 			str.append("L95CI_" + comp.name() + "_" + intervention + "\t");
 			str.append("U95CI_" + comp.name() + "_" + intervention + "\t");
@@ -59,14 +59,14 @@ public class T1DMAcuteComplicationCounterListener extends Listener implements St
 	@Override
 	public String toString() {
 		final StringBuilder str = new StringBuilder();
-		for (MainAcuteComplications comp : MainAcuteComplications.values()) {
+		for (T1DMAcuteComplications comp : T1DMAcuteComplications.values()) {
 			final int[] cip = getPercentile95CI(comp);
 			str.append(((double)nComplications[comp.ordinal()][nPatients] / nPatients) + "\t" + cip[0] + "\t" + cip[1] + "\t");
 		}
 		return str.toString();
 	}
 	
-	private int[] getPercentile95CI(MainAcuteComplications comp) {
+	private int[] getPercentile95CI(T1DMAcuteComplications comp) {
 		final int[] ordered = Arrays.copyOf(nComplications[comp.ordinal()], nPatients);
 		Arrays.sort(ordered);
 		final int index = (int)Math.ceil(nPatients * 0.025);

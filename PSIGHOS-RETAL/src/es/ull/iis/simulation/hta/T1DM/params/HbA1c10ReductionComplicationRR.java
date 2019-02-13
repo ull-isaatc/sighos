@@ -6,12 +6,12 @@ package es.ull.iis.simulation.hta.T1DM.params;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 
 /**
- * Computes the RR according to the DCCT, 1996 paper. There, they associated a risk reduction to a 10% HbA1c reduction
+ * Computes the RR according to the DCCT, 1996 paper. There, they associated a risk reduction to a 10% HbA1c reduction.
  * They also consider a log-log linear relationship among these two parameters
  * @author Iván Castilla Rodríguez
  *
  */
-public class HbA1c10ReductionComplicationRR extends ComplicationRR {
+public class HbA1c10ReductionComplicationRR implements RRCalculator {
 	/** A constant for the log of the 10% HbA1c reduction */ 
 	private static double LN09 = Math.log(0.9);
 
@@ -21,7 +21,9 @@ public class HbA1c10ReductionComplicationRR extends ComplicationRR {
 	private final double lnReferenceHbA1c;
 
 	/**
-	 * 
+	 * Creates a relative risk that associates a risk reduction to a 10% HbA1c reduction
+	 * @param rr10 Risk reduction associated to a 10% HbA1c reduction
+	 * @param referenceHbA1c Reference HbA1c the reduction was estimated from
 	 */
 	public HbA1c10ReductionComplicationRR(double rr10, double referenceHbA1c) {
 		this.rr10 = rr10;

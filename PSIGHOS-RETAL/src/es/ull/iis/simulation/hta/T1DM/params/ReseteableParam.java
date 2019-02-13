@@ -10,5 +10,8 @@ package es.ull.iis.simulation.hta.T1DM.params;
  *
  */
 public interface ReseteableParam<T> extends Param<T> {
+	/**
+	 * Resets the parameter so it can be reused in a new simulation (probably for a new intervention
+	 */
 	void reset();
 }

@@ -21,16 +21,16 @@ import es.ull.iis.simulation.model.TimeUnit;
  * A patient with Type 1 Diabetes Mellitus. The patient is initially characterized with an age, sex, HbA1c level, and an intervention.
  * Depending on the effect of the intervention, HbA1c level may change. The effect of the intervention itself can be lifelong or restricted 
  * to a time period.
- * The patient may progress to several chronic complications (see {@link MainChronicComplications}), or may develop acute complications 
- * (see {@link MainAcuteComplications}).
+ * The patient may progress to several chronic complications (see {@link T1DMChronicComplications}), or may develop acute complications 
+ * (see {@link T1DMAcuteComplications}).
  * @author Iván Castilla Rodríguez
  *
  */
 public class T1DMPatient extends Patient {
 	/** The state of the patient */
-	private final EnumSet<MainChronicComplications> state;
+	private final EnumSet<T1DMChronicComplications> state;
 	/** The detailed state of the patient */
-	private final TreeSet<T1DMComorbidity> detailedState;
+	private final TreeSet<T1DMComplicationStage> detailedState;
 	/** Initial age of the patient (stored in days) */
 	private final double initAge;
 	/** Sex of the patient: 0 for men, 1 for women */
@@ -63,15 +63,15 @@ public class T1DMPatient extends Patient {
 		super(simul, intervention);
 		this.commonParams = simul.getCommonParams();
 		this.detailedState = new TreeSet<>();
-		this.state = EnumSet.noneOf(MainChronicComplications.class);
+		this.state = EnumSet.noneOf(T1DMChronicComplications.class);
 
 		this.initAge = BasicConfigParams.YEAR_CONVERSION*commonParams.getBaselineAge();
 		this.sex = commonParams.getSex(this);
 		this.baselineHBA1c = commonParams.getBaselineHBA1c();
-		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getAvailableHealthStates().size()];
+		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getRegisteredComplicationStages().size()];
 		Arrays.fill(comorbidityEvents, null);
-		acuteEvents = new ArrayList<>(MainAcuteComplications.values().length);
-		for (int i = 0; i < MainAcuteComplications.values().length; i++)
+		acuteEvents = new ArrayList<>(T1DMAcuteComplications.values().length);
+		for (int i = 0; i < T1DMAcuteComplications.values().length; i++)
 			acuteEvents.add(new ArrayList<>());
 		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
@@ -86,15 +86,15 @@ public class T1DMPatient extends Patient {
 		super(simul, original, intervention);
 		this.commonParams = original.commonParams;
 		this.detailedState = new TreeSet<>();
-		this.state = EnumSet.noneOf(MainChronicComplications.class);
+		this.state = EnumSet.noneOf(T1DMChronicComplications.class);
 
 		this.initAge = original.initAge;
 		this.sex = original.sex;
 		this.baselineHBA1c = original.baselineHBA1c;
-		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getAvailableHealthStates().size()];
+		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getRegisteredComplicationStages().size()];
 		Arrays.fill(comorbidityEvents, null);
-		acuteEvents = new ArrayList<>(MainAcuteComplications.values().length);
-		for (int i = 0; i < MainAcuteComplications.values().length; i++)
+		acuteEvents = new ArrayList<>(T1DMAcuteComplications.values().length);
+		for (int i = 0; i < T1DMAcuteComplications.values().length; i++)
 			acuteEvents.add(new ArrayList<>());
 		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
@@ -103,16 +103,16 @@ public class T1DMPatient extends Patient {
 	 * Returns the state of the patient as regards to main chronic complications
 	 * @return the state of the patient as regards to main chronic complications
 	 */
-	public EnumSet<MainChronicComplications> getState() {
+	public EnumSet<T1DMChronicComplications> getState() {
 		return state;
 	}
 
 	/**
 	 * Returns true if the patient currently has a specified complication; false otherwise
-	 * @param comp One of the {@link MainChronicComplications}
+	 * @param comp One of the {@link T1DMChronicComplications}
 	 * @return True if the patient currently has a specified complication; false otherwise
 	 */
-	public boolean hasComplication(MainChronicComplications comp) {
+	public boolean hasComplication(T1DMChronicComplications comp) {
 		return state.contains(comp);
 	}
 
@@ -120,7 +120,7 @@ public class T1DMPatient extends Patient {
 	 * Returns the state of the patient as regards to the detailed progression of main chronic complications
 	 * @return the state of the patient as regards to the detailed progression of main chronic complications
 	 */
-	public TreeSet<T1DMComorbidity> getDetailedState() {
+	public TreeSet<T1DMComplicationStage> getDetailedState() {
 		return detailedState;
 	}
 	
@@ -205,7 +205,7 @@ public class T1DMPatient extends Patient {
 	 * @param comp A chronic complication
 	 * @return the timestamp when certain chronic complication started (or is planned to start)
 	 */
-	public long getTimeToChronicComorbidity(T1DMComorbidity comp) {
+	public long getTimeToChronicComorbidity(T1DMComplicationStage comp) {
 		return (comorbidityEvents[comp.ordinal()] == null) ? Long.MAX_VALUE : comorbidityEvents[comp.ordinal()].getTs(); 
 	}
 
@@ -233,13 +233,13 @@ public class T1DMPatient extends Patient {
 			deathEvent = new DeathEvent(timeToDeath);
 			simul.addEvent(deathEvent);
 			
-			for (T1DMComorbidity st : commonParams.getInitialState(T1DMPatient.this)) {
+			for (T1DMComplicationStage st : commonParams.getInitialState(T1DMPatient.this)) {
 				detailedState.add(st);				
 				comorbidityEvents[st.ordinal()] = new ChronicComorbidityEvent(new T1DMProgressionPair(st, 0));
 			}
 			// Assign chronic complication events
-			for (MainChronicComplications comp : MainChronicComplications.values()) {
-				final T1DMProgression progs = commonParams.getNextComplication(T1DMPatient.this, comp);
+			for (T1DMChronicComplications comp : T1DMChronicComplications.values()) {
+				final T1DMProgression progs = commonParams.getProgression(T1DMPatient.this, comp);
 				if (progs.getCancelEvents().size() > 0)
 					error("Cancel complications at start?");
 				for (T1DMProgressionPair pr : progs.getNewEvents()) {
@@ -249,7 +249,7 @@ public class T1DMPatient extends Patient {
 				}
 			}
 			
-			for (MainAcuteComplications comp : MainAcuteComplications.values()) {
+			for (T1DMAcuteComplications comp : T1DMAcuteComplications.values()) {
 				// Assign severe hypoglycemic events
 				final AcuteComplicationSubmodel.Progression acuteEvent = commonParams.getTimeToAcuteEvent(T1DMPatient.this, comp, false);
 				if (acuteEvent.timeToEvent < timeToDeath) {
@@ -302,7 +302,7 @@ public class T1DMPatient extends Patient {
 
 		@Override
 		public void event() {
-			T1DMComorbidity complication = progress.getState();
+			T1DMComplicationStage complication = progress.getState();
 			if (T1DMPatient.this.detailedState.contains(complication)) {
 				error("Health state already assigned!! " + complication.name());
 			}
@@ -319,9 +319,9 @@ public class T1DMPatient extends Patient {
 					simul.addEvent(deathEvent);
 				}
 				// Update complications
-				for (MainChronicComplications comp : MainChronicComplications.values()) {
-					final T1DMProgression progs = commonParams.getNextComplication(T1DMPatient.this, comp);
-					for (T1DMComorbidity st: progs.getCancelEvents()) {
+				for (T1DMChronicComplications comp : T1DMChronicComplications.values()) {
+					final T1DMProgression progs = commonParams.getProgression(T1DMPatient.this, comp);
+					for (T1DMComplicationStage st: progs.getCancelEvents()) {
 						comorbidityEvents[st.ordinal()].cancel();
 					}
 					for (T1DMProgressionPair pr : progs.getNewEvents()) {
@@ -357,9 +357,9 @@ public class T1DMPatient extends Patient {
 	 */
 	private class AcuteEvent extends DiscreteEvent {
 		private final boolean causesDeath;
-		private final MainAcuteComplications comp;
+		private final T1DMAcuteComplications comp;
 
-		public AcuteEvent(MainAcuteComplications comp, AcuteComplicationSubmodel.Progression prog) {
+		public AcuteEvent(T1DMAcuteComplications comp, AcuteComplicationSubmodel.Progression prog) {
 			super(prog.timeToEvent);
 			this.comp = comp;
 			this.causesDeath = prog.causesDeath;
@@ -401,7 +401,7 @@ public class T1DMPatient extends Patient {
 		public void event() {
 			// Update HbA1c level
 			hba1c = ((T1DMMonitoringIntervention)intervention).getHBA1cLevel(T1DMPatient.this);
-			for (MainAcuteComplications comp : MainAcuteComplications.values()) {
+			for (T1DMAcuteComplications comp : T1DMAcuteComplications.values()) {
 				// Check last acute event
 				final ArrayList<AcuteEvent> acuteEventList = acuteEvents.get(comp.ordinal());
 				if (!acuteEventList.isEmpty()) {
@@ -419,9 +419,9 @@ public class T1DMPatient extends Patient {
 			}
 
 			// Check all the complications in case the loss of treatment affects the time to events
-			for (MainChronicComplications comp : MainChronicComplications.values()) {
-				final T1DMProgression progs = commonParams.getNextComplication(T1DMPatient.this, comp);
-				for (T1DMComorbidity st: progs.getCancelEvents()) {
+			for (T1DMChronicComplications comp : T1DMChronicComplications.values()) {
+				final T1DMProgression progs = commonParams.getProgression(T1DMPatient.this, comp);
+				for (T1DMComplicationStage st: progs.getCancelEvents()) {
 					comorbidityEvents[st.ordinal()].cancel();
 				}
 				for (T1DMProgressionPair pr : progs.getNewEvents()) {

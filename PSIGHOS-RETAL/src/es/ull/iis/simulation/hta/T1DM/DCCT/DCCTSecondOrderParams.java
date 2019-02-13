@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.hta.T1DM.DCCT;
 
-import es.ull.iis.simulation.hta.T1DM.MainChronicComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
@@ -110,32 +110,32 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 		}
 		dModel.addIMR(SimpleNEUSubmodel.NEU, getIMR(SimpleNEUSubmodel.NEU));
 		dModel.addIMR(SimpleNEUSubmodel.LEA, getIMR(SimpleNEUSubmodel.LEA));
-		dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(MainChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(MainChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(MainChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(MainChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(T1DMChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(T1DMChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(T1DMChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(T1DMChronicComplications.CHD));
 		return dModel;
 	}
 	
 	@Override
 	public ChronicComplicationSubmodel[] getComplicationSubmodels() {
-		final ChronicComplicationSubmodel[] comps = new ChronicComplicationSubmodel[MainChronicComplications.values().length];
+		final ChronicComplicationSubmodel[] comps = new ChronicComplicationSubmodel[T1DMChronicComplications.values().length];
 		
 		// Adds neuropathy submodel
-		comps[MainChronicComplications.NEU.ordinal()] = new SimpleNEUSubmodel(this);
+		comps[T1DMChronicComplications.NEU.ordinal()] = new SimpleNEUSubmodel(this);
 		
 		// Adds nephropathy and retinopathy submodels
 		if (BasicConfigParams.USE_SIMPLE_MODELS) {
-			comps[MainChronicComplications.NPH.ordinal()] = new SimpleNPHSubmodel(this);
-			comps[MainChronicComplications.RET.ordinal()] = new SimpleRETSubmodel(this);
+			comps[T1DMChronicComplications.NPH.ordinal()] = new SimpleNPHSubmodel(this);
+			comps[T1DMChronicComplications.RET.ordinal()] = new SimpleRETSubmodel(this);
 		}
 		else {
-			comps[MainChronicComplications.NPH.ordinal()] = new SheffieldNPHSubmodel(this);
-			comps[MainChronicComplications.RET.ordinal()] = new SheffieldRETSubmodel(this);
+			comps[T1DMChronicComplications.NPH.ordinal()] = new SheffieldNPHSubmodel(this);
+			comps[T1DMChronicComplications.RET.ordinal()] = new SheffieldRETSubmodel(this);
 		}
 		
 		// Adds major Cardiovascular disease submodel
-		comps[MainChronicComplications.CHD.ordinal()] = new SimpleCHDSubmodel(this);
+		comps[T1DMChronicComplications.CHD.ordinal()] = new SimpleCHDSubmodel(this);
 		
 		return comps;
 	}

@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.T1DM.canada;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CommonParams;
-import es.ull.iis.simulation.hta.T1DM.params.ComplicationRR;
+import es.ull.iis.simulation.hta.T1DM.params.RRCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.UniqueEventParam;
 
 /**
@@ -29,8 +29,8 @@ public class CVDCanadaDeathParam extends UniqueEventParam<Long> {
 	{0.16, 0.135, 0.245, 0.57}
 	};
 	
-	private final ComplicationRR rr;
-	public CVDCanadaDeathParam(int nPatients, ComplicationRR rr) {
+	private final RRCalculator rr;
+	public CVDCanadaDeathParam(int nPatients, RRCalculator rr) {
 		super(nPatients);
 		this.rr = rr;
 	}

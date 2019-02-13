@@ -23,7 +23,9 @@ public class BasicConfigParams {
 	/** Minimum time among consecutive events. */  
 	public final static long MIN_TIME_TO_EVENT = SIMUNIT.convert(TimeStamp.getMonth());
 
+	/** Default number of runs for each simulation experiment */
 	public static int N_RUNS = 100;
+	/** Default number of patients that will be created during a simulation */
 	public static int N_PATIENTS = 5000;
 	/** Year of the assessment: useful for updating costs */
 	public static int STUDY_YEAR = 2018;
@@ -43,7 +45,9 @@ public class BasicConfigParams {
 	public static boolean USE_FIXED_HBA1C_CHANGE = false;
 	/** If true, uses the calibrated progression to BGRET equations in the Sheffield submodel; otherwise, uses the original values */
 	public static boolean USE_CALIBRATED_SHEFFIELD_RET_SUBMODEL = false;
+	/** The first calibration coefficient to BGRET equations in the Sheffield submodel */
 	public static double CALIBRATION_COEF_BGRET = BasicConfigParams.USE_CALIBRATED_SHEFFIELD_RET_SUBMODEL ? 7.0 : 1.0;
+	/** The second calibration coefficient to BGRET equations in the Sheffield submodel */
 	public static double CALIBRATION_COEF_BETA_BGRET = BasicConfigParams.USE_CALIBRATED_SHEFFIELD_RET_SUBMODEL ? 1.5 : 1.0;
 	/** Uses the arm-specific probabilities of severe hypoglycemic event in the base case; otherwise, uses the aggregated value */
 	public static boolean ENABLE_BATTELINO_HYPO_SCENARIO_1 = false;
@@ -69,11 +73,17 @@ public class BasicConfigParams {
 
 	
 	/**
-	 * This constructor should not be needed.
+	 * This constructor should not be needed ever.
 	 */
 	private BasicConfigParams() {
 	}
 	
+	/**
+	 * Creates a string with the list of parameters included in this configuration class, and the corresponding value
+	 * for each parameter
+	 * @return a string with the list of parameters included in this configuration class, and the corresponding value
+	 * for each parameter
+	 */
 	public static String printOptions() {
 		final StringBuilder str = new StringBuilder("Basic Configuration Options:");
 		str.append(System.lineSeparator()).append("SIMUNIT:\t").append(SIMUNIT).append(System.lineSeparator());
