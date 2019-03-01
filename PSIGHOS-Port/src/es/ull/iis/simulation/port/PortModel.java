@@ -94,30 +94,29 @@ public class PortModel extends Simulation {
 		final ActivityFlow aUnload = new ActivityFlow(this, ACT_UNLOAD); 
 		for (int i = 0; i < N_BERTHS; i++) {
 			final int berthId = i;
-			aUnload.addWorkGroup(0, wgUnload[i], new Condition() {
+			aUnload.newWorkGroupAdder(wgUnload[i]).withCondition(new Condition() {
 				@Override
 				public boolean check(ElementInstance fe) {
 					return (((Container)fe.getElement()).getBerth() == berthId);
 				}
-			}, TIME_TO_UNLOAD[i]);
+			}).withDelay(TIME_TO_UNLOAD[i]).addWorkGroup();
 		}
 		final DelayFlow aToYard = new DelayFlow(this, ACT_TO_YARD, new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK));
 		final ActivityFlow aPlace = new ActivityFlow(this, ACT_PLACE);
 		for (int i = 0; i < N_BLOCKS; i++) {
 			final int blockId = i;
-			aPlace.addWorkGroup(0, wgPlace[i],
-					new Condition() {
+			aPlace.newWorkGroupAdder(wgPlace[i]).withCondition(new Condition() {
 				@Override
 				public boolean check(ElementInstance fe) {
 					return (((Container)fe.getElement()).getBlock() == blockId);
 				}
-			}, TIME_TO_PLACE[i]);
+			}).withDelay(TIME_TO_PLACE[i]).addWorkGroup();
 		}
 		final ActivityFlow aTruckReturn = new ActivityFlow(this, ACT_TRUCK_RETURN);
-		aTruckReturn.addWorkGroup(0, wgEmpty, new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK));
+		aTruckReturn.newWorkGroupAdder(wgEmpty).withDelay(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK)).addWorkGroup();
 
 		final RequestResourcesFlow reqTruck = new RequestResourcesFlow(this, ACT_REQ_TRUCK, 1);
-		reqTruck.addWorkGroup(wgTruck);
+		reqTruck.newWorkGroupAdder(wgTruck).addWorkGroup();
 		final ReleaseResourcesFlow relTruck = new ReleaseResourcesFlow(this, ACT_REL_TRUCK, 1);
 		
 		// Defines the flow for the former activities

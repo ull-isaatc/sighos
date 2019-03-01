@@ -32,11 +32,11 @@ public class FullSafeUnloadActivity extends ActivityFlow implements UnloadTask {
 		this.nextContainerId = nextContainerId;
 		final long newTime = model.getTimes().getOperationTime(containerId);
 		if (model.hasGenericVehicles()) {
-			addWorkGroup(0, model.getContainerWorkGroup(containerId), newTime);
+			newWorkGroupAdder(model.getContainerWorkGroup(containerId)).withDelay(newTime).addWorkGroup();
 			addResourceCancellation(model.getGenericVehicleResourceType(), model.getTimes().getTransportTime(containerId));
 		}
 		if (model.hasSpecificVehicles()) {
-			addWorkGroup(0, model.getSpecificContainerWorkGroup(containerId), newTime);
+			newWorkGroupAdder(model.getSpecificContainerWorkGroup(containerId)).withDelay(newTime).addWorkGroup();
 			addResourceCancellation(model.getSpecificVehicleResourceType(model.getPlan().getCraneDoTask(containerId)), model.getTimes().getTransportTime(containerId));
 		}
 	}

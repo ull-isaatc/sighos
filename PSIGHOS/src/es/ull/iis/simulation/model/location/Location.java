@@ -10,122 +10,154 @@ import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.model.ElementInstance;
 
 /**
+ * A physical place where one or more entities can be at any time. Locations have a capacity, that determines how many entities fit in.
+ * Entities leaving a location can suffer a delay. Such delay can also represents the time that the entity takes to go through the location.
+ * Entities can move from one location to another linked location. Such connections are defined by using {@link #linkTo(Location)}, and have a direction,
+ * i.e. an entity can move from a location to another, but not back, unless a explicit link is created in the opposite way.
  * @author Iván Castilla Rodríguez
  *
  */
 public abstract class Location implements Located {
+	/** An array of the locations that this location is linked to */
 	private final ArrayList<Location> linkedTo; 
+	/** An array of the locations that this location is linked from */
 	private final ArrayList<Location> linkedFrom; 
-	private final int size;
+	/** Total capacity of the location */
+	private final int capacity;
+	/** How much of the capacity is currently occupied */
 	private int occupied;
-	private Router router = null;
+	/** A list of the entities currently at this location */
 	private final ArrayList<Movable> entitiesIn;
 	// TODO: Change by a customizable queue
+	/** A simple FIFO queue for entities waiting to enter into the location */
 	private final ArrayList<ElementInstance> entitiesWaiting;
+	/** The time that it takes to exit (or go through) the location */ 
 	private final TimeFunction delayAtExit;
+	/** An internal unique identifier */
 	private final int id;
+	/** A counter to create unique identifiers */
 	private static int counter = 0;
+	/** A brief description of the location */
 	private final String description;
 
 	/**
-	 * 
+	 * Creates a location with a specific capacity. Entities in this location have to wait a time before exiting it.
+	 * @param description A brief description of the location
+	 * @param delayAtExit The time that it takes to exit (or go through) the location
+	 * @param capacity Total capacity of the location
 	 */
-	public Location(String description, TimeFunction delayAtExit, int size) {
+	public Location(String description, TimeFunction delayAtExit, int capacity) {
 		id = counter++;
 		this.description = description;
 		linkedTo = new ArrayList<Location>();
 		linkedFrom = new ArrayList<Location>();
 		entitiesIn = new ArrayList<Movable>();
 		entitiesWaiting = new ArrayList<ElementInstance>();
-		this.size = size;
+		this.capacity = capacity;
 		this.occupied = 0;
 		this.delayAtExit = delayAtExit;
 	}
 
 	/**
-	 * A new location with no capacity constrains.
+	 * Creates a location with no capacity constrains. Entities in this location have to wait a time before exiting it.
+	 * @param description A brief description of the location
+	 * @param delayAtExit The time that it takes to exit (or go through) the location
 	 */
 	public Location(String description, TimeFunction delayAtExit) {
 		this(description, delayAtExit, Integer.MAX_VALUE);
 	}
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.model.location.Located#getSize()
-	 */
+
 	@Override
-	public int getSize() {
-		return size;
+	public int getCapacity() {
+		return capacity;
 	}
 
 	/**
-	 * @return the router
+	 * Returns the available capacity left in the location
+	 * @return the available capacity left in the location
 	 */
-	public Router getRouter() {
-		return router;
+	public int getAvailableCapacity() {
+		return capacity - occupied;
 	}
 
 	/**
-	 * @param router the router to set
+	 * Connects this location to another
+	 * @param location Another location
+	 * @return The other location (useful for concatenate calls to this method) 
 	 */
-	public void setRouter(Router router) {
-		this.router = router;
-	}
-
 	public Location linkTo(Location location) {
 		linkedTo.add(location);
 		location.linkFrom(this);
 		return location;
 	}
 
+	/**
+	 * Creates the link back to the other location. Useful for created a double linked graph of connections
+	 * @param location Another location
+	 */
 	private void linkFrom(Location location) {
 		linkedFrom.add(location);
 	}
 
 	/**
-	 * @return the delayAtExit
+	 * Returns the time that it takes an element to exit (or go through) the location
+	 * @return the time that it takes an element to exit (or go through) the location
 	 */
 	public long getDelayAtExit(Movable entity) {
 		return Math.round(delayAtExit.getValue(entity));
 	}
 
 	/**
-	 * @return the linkedTo
+	 * Returns a list of the locations this location is linked to
+	 * @return a list of the locations this location is linked to
 	 */
 	public ArrayList<Location> getLinkedTo() {
 		return linkedTo;
 	}
 
 	/**
-	 * @return the linkedFrom
+	 * Returns a list of the locations this location is linked from
+	 * @return a list of the locations this location is linked from
 	 */
 	public ArrayList<Location> getLinkedFrom() {
 		return linkedFrom;
 	}
 
-	public boolean fitsIn(Movable entity) {
-		return (occupied + entity.getSize() <= size);
+	/**
+	 * Puts the entity into a waiting queue until the location has enough available capacity
+	 * @param ei Element instance currently executing the flow of the element
+	 */
+	public void waitFor(ElementInstance ei) {
+		entitiesWaiting.add(ei);
 	}
 	
-	public boolean tryMove(ElementInstance wThread) {
-		final Movable entity = (Movable)wThread.getElement();
-		if (fitsIn(entity)) {
-			occupied += entity.getSize();
-			entitiesIn.add(entity);
-			entity.setLocation(this);
-			return true;
-		}
-		entitiesWaiting.add(wThread);
-		return false;
+	/**
+	 * Moves an entity into the location and updates the available capacity
+	 * @param entity Entity moving into the location
+	 */
+	public void move(Movable entity) {
+		occupied += entity.getCapacity();
+		entitiesIn.add(entity);
+		entity.setLocation(this);		
 	}
 	
+	/**
+	 * Moves an entity out of the location and checks whether there are waiting entities. If there is any that fits into the available capacity,
+	 * the entity moves into the location.
+	 * @param entity Entity leaving the location
+	 */
 	public void leave(Movable entity) {
-		occupied -= entity.getSize();
+		occupied -= entity.getCapacity();
+		entitiesIn.remove(entity);
+		// Goes through the waiting queue
 		Iterator<ElementInstance> iter = entitiesWaiting.iterator();
 		while (iter.hasNext()) {
 			ElementInstance wThread = iter.next();
 			final RouteFlow flow = (RouteFlow)wThread.getCurrentFlow();
 			final MovableElement elem = (MovableElement) wThread.getElement();
 			final Location currentLocation = elem.getLocation();
-			if (tryMove(wThread)) {
+			if (getAvailableCapacity() >= elem.getCapacity()) {
+				move(elem);
 				currentLocation.leave(elem);
 				iter.remove();
 				if (equals(flow.getDestination())) {
@@ -137,8 +169,6 @@ public abstract class Location implements Located {
 					flow.request(wThread);
 				}
 			}
-
-			flow.finish(wThread);
 		}
 	}
 	

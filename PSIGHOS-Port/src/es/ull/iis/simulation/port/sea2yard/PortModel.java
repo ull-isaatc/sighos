@@ -344,7 +344,7 @@ public class PortModel extends Simulation {
 			final int craneDoingTask = plan.getCraneDoTask(dep[2]);
 			final WorkGroup wgSec = wgSecurityToken.get(craneDoingTask).get(dep[2]);
 			final RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, "Req " + SECURITY_TOKEN + dep[2], priority, false);
-			reqFlow.addWorkGroup(wgSec);
+			reqFlow.newWorkGroupAdder(wgSec).addWorkGroup();
 			final ReleaseResourcesFlow relFlow = new ReleaseResourcesFlow(this, "Rel " + SECURITY_TOKEN + dep[2], wgSec);
 			currentFlow = currentFlow.link(reqFlow).link(relFlow);					
 			// Updates position
@@ -373,7 +373,7 @@ public class PortModel extends Simulation {
 			// Starts by acquiring all the security token
 			for (Entry<Integer,WorkGroup> entry : wgSecurityToken.get(craneId).entrySet()) {
 				RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, "Req " + SECURITY_TOKEN + entry.getKey(), nCranes - craneId, false);
-				reqFlow.addWorkGroup(entry.getValue());
+				reqFlow.newWorkGroupAdder(entry.getValue()).addWorkGroup();
 				if (lastFlow == null) {
 					flows[craneId][0] = reqFlow;
 					lastFlow = reqFlow;
@@ -385,7 +385,7 @@ public class PortModel extends Simulation {
 
 			// Acquires the initial position of the crane
 			RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, ACT_PLACE + currentBays[craneId]);
-			reqFlow.addWorkGroup(wgInitPositions[currentBays[craneId]]);
+			reqFlow.newWorkGroupAdder(wgInitPositions[currentBays[craneId]]).addWorkGroup();
 			// No need to use security tokens
 			if (lastFlow == null) {
 				flows[craneId][0] = reqFlow;
@@ -424,7 +424,7 @@ public class PortModel extends Simulation {
 		while (currentBay < destinationBay) {
 			final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + currentBay, wgPositions[currentBay + extraBays][0]);
 			final RequestResourcesFlow reqBay =  new RequestResourcesFlow(this, ACT_GET_TO_BAY + (currentBay + 1));
-			reqBay.addWorkGroup(0, wgPositions[currentBay + 1 + extraBays][1]);	
+			reqBay.newWorkGroupAdder(wgPositions[currentBay + 1 + extraBays][1]).addWorkGroup();	
 			final DelayFlow delayBay = new DelayFlow(this, ACT_MOVING, times.getMoveTime(craneId, currentBay));
 			flow = flow.link(reqBay).link(relBay).link(delayBay);
 			currentBay++;
@@ -433,7 +433,7 @@ public class PortModel extends Simulation {
 		while (currentBay > destinationBay) {
 			final ReleaseResourcesFlow relBay = new ReleaseResourcesFlow(this, ACT_LEAVE_BAY + currentBay, wgPositions[currentBay + extraBays][1]);
 			final RequestResourcesFlow reqBay =  new RequestResourcesFlow(this, ACT_GET_TO_BAY + (currentBay - 1));
-			reqBay.addWorkGroup(0, wgPositions[currentBay - 1 + extraBays][0]);	
+			reqBay.newWorkGroupAdder(wgPositions[currentBay - 1 + extraBays][0]).addWorkGroup();	
 			final DelayFlow delayBay = new DelayFlow(this, ACT_MOVING, times.getMoveTime(craneId, currentBay));
 			flow = flow.link(reqBay).link(relBay).link(delayBay);
 			currentBay--;

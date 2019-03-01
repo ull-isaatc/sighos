@@ -65,7 +65,7 @@ public class WFP19Simulation extends WFPTestSimulationFactory {
     			return ((WFP19Model)simul).isPass() && super.beforeRequest(fe);
     		}
     	};
-    	act0.addWorkGroup(0, wg, DEFACTDURATION[0]);
+    	act0.newWorkGroupAdder(wg).withDelay(DEFACTDURATION[0]).addWorkGroup();
     	ActivityFlow act1 = getDefActivity("Obtener detalles tarjeta", wg, false);
         
         

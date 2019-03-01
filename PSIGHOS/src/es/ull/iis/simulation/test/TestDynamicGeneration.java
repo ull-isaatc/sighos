@@ -11,7 +11,6 @@ import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
-import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -39,7 +38,7 @@ class TestDynamicGenerationExperiment extends Experiment {
 		
 		Condition cond = factory.getCustomizedConditionInstance(null, "false");
 		ActivityFlow act0 = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "ACT0");
-		act0.addWorkGroup(0, wg0, new NotCondition(cond), new SimulationTimeFunction(unit, "ConstantVariate", 10.0));
+    	act0.newWorkGroupAdder(wg0).withDelay(10).withCondition(new NotCondition(cond)).addWorkGroup();
 		
 		factory.getElementTypeInstance("ET0");
 		factory.getFlowInstance("SingleFlow", act0);

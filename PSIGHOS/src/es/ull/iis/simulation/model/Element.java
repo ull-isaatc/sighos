@@ -19,6 +19,8 @@ import es.ull.iis.simulation.variable.EnumVariable;
 import es.ull.iis.util.Prioritizable;
 
 /**
+ * An entity capable of following a {@link Flow workflow}. Elements have a {@link ElementType type} and interact with {@link Resource resources}
+ * by means of {@link es.ull.iis.simulation.model.flow.ResourceHandlerFlow resource handler flows}  
  * @author Iván Castilla
  *
  */
@@ -36,6 +38,12 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	/** The engine that executes specific behavior of the element */
 	private ElementEngine engine;
 	
+	/**
+	 * Creates an element with a type and initial flow
+	 * @param simul Simulation model this element belongs to
+	 * @param elementType Element type
+	 * @param initialFlow First step of the flow of the element
+	 */
 	public Element(Simulation simul, ElementType elementType, InitializerFlow initialFlow) {
 		super(simul, simul.getNewElementId(), "E");
 		this.elementType = elementType;
@@ -68,39 +76,34 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	}
 
 	/**
-	 * Notifies a new work thread is waiting in an activity queue.
-	 * @param wt Work thread waiting in queue.
+	 * Notifies an instance of the element is waiting in an activity queue.
+	 * @param ei Element instance waiting in queue.
 	 */
-	public void incInQueue(ElementInstance fe) {
-		engine.incInQueue(fe);
+	public void incInQueue(ElementInstance ei) {
+		engine.incInQueue(ei);
 	}
 	
 	/**
-	 * Notifies a work thread has finished waiting in an activity queue.
-	 * @param wt Work thread that was waiting in a queue.
+	 * Notifies an instance of the element has finished waiting in an activity queue.
+	 * @param ei Element instance that was waiting in a queue.
 	 */
-	public void decInQueue(ElementInstance fe) {
-		engine.decInQueue(fe);
+	public void decInQueue(ElementInstance ei) {
+		engine.decInQueue(ei);
 	}
 	
 	/**
-	 * If the element is currently performing an activity, returns the work
-	 * thread used by the element. If the element is not performing any presential 
+	 * If the element is currently performing an activity, returns the element instance used by the element. If the element is not performing any exclusive 
 	 * activity, returns null.
-	 * @return The work thread corresponding to the current presential activity being
-	 * performed by this element.
+	 * @return The element instance performing the current exclusive activity
 	 */
 	public ElementInstance getCurrent() {
 		return current;
 	}
 
 	/**
-	 * Sets the work thread corresponding to the current presential activity 
-	 * being performed by this element.Creates the events to notify the activities that this element is now
-	 * available. All the activities this element is in their queues are notified. 
-	 * @param current The work thread corresponding to the current presential activity 
-	 * being performed by this element. A null value indicates that the element has 
-	 * finished performing the activity.
+	 * Sets the element instance performing the current exclusive activity. If such instance is null, it means that the element is available to 
+	 * perform other exclusive activity. Hence, creates the events to notify the activities that this element is now available. 
+	 * @param current The element instance performing the current exclusive activity; null if the element has finished performing the activity
 	 */
 	public void setCurrent(ElementInstance current) {
 		this.current = current;
@@ -110,21 +113,21 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	}
 
 	/**
-	 * TODO
-	 * @param reqFlow
-	 * @param ei
-	 * @param newResources
+	 * Adds the specified resources to the list of seized resources
+	 * @param reqFlow The flow that seized the resources
+	 * @param ei Element instance performing the seizing
+	 * @param newResources New resources seized by the element
 	 */
     public void seizeResources(RequestResourcesFlow reqFlow, ElementInstance ei, ArrayDeque<Resource> newResources) {
     	seizedResources.addResources(reqFlow, ei, newResources);
     }
 
     /**
-     * TODO
-     * @param relFlow
-     * @param ei
-     * @param wg
-     * @return
+     * Removes the resources specified in the workgroup from the list of seized resources
+     * @param relFlow The flow that released the resources
+     * @param ei Element instance performing the releasing
+     * @param wg Set of resources to release
+     * @return The released resources
      */
     public ArrayDeque<Resource> releaseResources(ReleaseResourcesFlow relFlow, ElementInstance ei, WorkGroup wg) {
     	return seizedResources.removeResources(relFlow, ei, wg);
@@ -132,18 +135,18 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
     }
 
     /**
-     * TODO
-     * @return
+     * Returns the list of resources currently seized by the element
+     * @return the list of resources currently seized by the element
      */
 	public ArrayDeque<Resource> getCaughtResources() {
 		return seizedResources.getAll();
 	}
 
 	/**
-	 * TODO
-	 * @param reqFlow
-	 * @param ei
-	 * @return
+	 * Returns the list of resources caught by the specified element instance when performing the specified flow
+	 * @param reqFlow The flow that seized the resources
+	 * @param ei Element instance that performed the seizing
+	 * @return the list of resources caught by the specified element instance when performing the specified flow
 	 */
 	public ArrayDeque<Resource> getCaughtResources(RequestResourcesFlow reqFlow, ElementInstance ei) {
 		return seizedResources.get(reqFlow, ei);
@@ -158,6 +161,10 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 		return seizedResources.containsResourceType(rt);
 	}
 	
+	/**
+	 * Initializes the variables of the element as indicated by a generator
+	 * @param varList List of variables and values
+	 */
 	public void initializeElementVars(TreeMap<String, Object> varList) {
 		for (Entry<String, Object> entry : varList.entrySet()) {
 			final String name = entry.getKey();
@@ -210,56 +217,67 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
     	engine.notifyEnd();
     }
     
-	public void addRequestEvent(Flow f, ElementInstance fe) {
-		simul.addEvent(new RequestFlowEvent(getTs(), f, fe));
-	}
-	
-	public void addFinishEvent(long ts, TaskFlow f, ElementInstance fe) {
-		simul.addEvent(new FinishFlowEvent(ts, f, fe));
+    /**
+     * Creates and adds an event to request a flow at the current simulation time
+     * @param f Flow to be requested
+     * @param ei Element instance that will perform the flow
+     */
+	public void addRequestEvent(Flow f, ElementInstance ei) {
+		simul.addEvent(new RequestFlowEvent(getTs(), f, ei));
 	}
 	
 	/**
-	 * Requests a flow.
+     * Creates and adds an event to finish a flow at the specified simulation time
+	 * @param ts Timestamp when the finalization of the flow is scheduled to happen
+	 * @param f Flow to be finished
+	 * @param ei Element instance that will finish the flow
+	 */
+	public void addFinishEvent(long ts, TaskFlow f, ElementInstance ei) {
+		simul.addEvent(new FinishFlowEvent(ts, f, ei));
+	}
+	
+	/**
+	 * An event to request a flow.
 	 * @author Iván Castilla Rodríguez
 	 */
 	public class RequestFlowEvent extends DiscreteEvent {
-		/** The work thread that executes the request */
-		private final ElementInstance fe;
+		/** The element instance that executes the request */
+		private final ElementInstance ei;
 		/** The flow to be requested */
 		private final Flow f;
 
-		public RequestFlowEvent(long ts, Flow f, ElementInstance fe) {
+		public RequestFlowEvent(long ts, Flow f, ElementInstance ei) {
 			super(ts);
-			this.fe = fe;
+			this.ei = ei;
 			this.f = f;
 		}		
 
 		@Override
 		public void event() {
-			fe.setCurrentFlow(f);
-			f.request(fe);
+			ei.setCurrentFlow(f);
+			f.request(ei);
 		}
 	}
 	
 	/**
-	 * Finishes a flow. 
+	 * An event to finish a flow. 
 	 * @author Iván Castilla Rodríguez
 	 */
 	public class FinishFlowEvent extends DiscreteEvent {
-		/** The work thread that executes the finish */
-		private final ElementInstance fe;
+		/** The element instance that executes the finish */
+		private final ElementInstance ei;
 		/** The flow to be finished */
 		private final TaskFlow f;
 
-		public FinishFlowEvent(long ts, TaskFlow f, ElementInstance fe) {
+		public FinishFlowEvent(long ts, TaskFlow f, ElementInstance ei) {
 			super(ts);
-			this.fe = fe;
+			this.ei = ei;
 			this.f = f;
 		}		
 
 		@Override
 		public void event() {
-			f.finish(fe);
+			f.finish(ei);
 		}
 	}
 
@@ -269,6 +287,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	}
 
 	/**
+	 * Returns the engine that helps the simulation processing the element actions
 	 * @return the engine
 	 */
 	public ElementEngine getEngine() {
@@ -294,6 +313,11 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	    	resources.put(0, new TreeMap<ResourceType, ArrayDeque<Resource>>());
 		}
 	    
+	    /**
+	     * Returns true if the collection contains any resource of the specified resource type; false otherwise
+	     * @param rt Searched resource type 
+	     * @return true if the collection contains any resource of the specified resource type; false otherwise
+	     */
 	    public boolean containsResourceType(ResourceType rt) {
 	    	for (TreeMap<ResourceType, ArrayDeque<Resource>> item1 : resources.values()) {
 	    		if (item1.containsKey(rt))
@@ -302,6 +326,10 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	    	return false;
 	    }
 	    
+	    /**
+	     * Returns the whole list of resources seized by the element
+	     * @return the whole list of resources seized by the element
+	     */
 	    public ArrayDeque<Resource> getAll() {
 	    	final ArrayDeque<Resource> list = new ArrayDeque<Resource>();
 	    	
@@ -313,6 +341,12 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	    	return list;
 	    }
 	    
+	    /**
+	     * Returns the list of resources caught by the specified element instance when performing the specified flow
+	     * @param reqFlow The flow that seized the resources
+	     * @param ei Element instance that performed the seizing
+	     * @return the list of resources caught by the specified element instance when performing the specified flow
+	     */
 	    public ArrayDeque<Resource> get(RequestResourcesFlow reqFlow, ElementInstance ei) {
 	    	final ArrayDeque<Resource> list = new ArrayDeque<Resource>();
 	    	final int resId = (reqFlow.getResourcesId() < 0) ? -ei.getIdentifier() : reqFlow.getResourcesId();
@@ -324,6 +358,12 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	    	return list;
 	    }
 	    
+		/**
+		 * Adds the specified resources to the list of seized resources
+		 * @param reqFlow The flow that seized the resources
+		 * @param ei Element instance performing the seizing
+		 * @param newResources New resources seized by the element
+		 */
 	    public void addResources(RequestResourcesFlow reqFlow, ElementInstance ei, ArrayDeque<Resource> newResources) {
 	    	// If it's a request flow inside an activity, use minus the element instance identifier
 	    	final int resId = (reqFlow.getResourcesId() < 0) ? -ei.getIdentifier() : reqFlow.getResourcesId();
@@ -341,6 +381,13 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	    	}
 	    }
 	    
+	    /**
+	     * Removes the resources specified in the workgroup from the list of seized resources
+	     * @param relFlow The flow that released the resources
+	     * @param ei Element instance performing the releasing
+	     * @param wg Set of resources to release
+	     * @return The released resources
+	     */
 	    public ArrayDeque<Resource> removeResources(ReleaseResourcesFlow relFlow, ElementInstance ei, WorkGroup wg) {
 	    	final int resId = (relFlow.getResourcesId() < 0) ? -ei.getIdentifier() : relFlow.getResourcesId();
 	    	final TreeMap<ResourceType, ArrayDeque<Resource>> collection = resources.get(resId);

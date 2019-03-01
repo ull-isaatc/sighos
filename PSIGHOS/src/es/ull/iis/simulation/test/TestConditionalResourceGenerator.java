@@ -58,7 +58,7 @@ public class TestConditionalResourceGenerator extends Experiment {
 				rts[i] = new ResourceType(this, "Container type " + i);
 				wgs[i] = new WorkGroup(this, rts[i], 1);
 				reqs[i] = new SpecialActivityFlow(this, "Req " + i, i, rts);
-				reqs[i].addWorkGroup(0, wgs[i], DURATIONS[i]);
+				reqs[i].newWorkGroupAdder(wgs[i]).withDelay(DURATIONS[i]).addWorkGroup();
 				pf.link(reqs[i]);
 			}
 			// Only the first resource is available from the beginning

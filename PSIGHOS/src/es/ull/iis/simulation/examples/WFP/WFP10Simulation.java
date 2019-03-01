@@ -133,7 +133,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
     			}
     		}
     	};
-    	act0.addWorkGroup(0, wg, DEFACTDURATION[0]);
+    	act0.newWorkGroupAdder(wg).withDelay(DEFACTDURATION[0]).addWorkGroup();
     	
     	ActivityFlow act1 = new ActivityFlow(simul, "Realizar envío de bidon", false, false) {
     		@Override
@@ -144,7 +144,7 @@ public class WFP10Simulation extends WFPTestSimulationFactory {
     			return true;
     		}
     	};
-    	act1.addWorkGroup(0, wg, DEFACTDURATION[0]);
+    	act1.newWorkGroupAdder(wg).withDelay(DEFACTDURATION[0]).addWorkGroup();
         
         act0.link(mul1);
         ArrayList<Flow> succList = new ArrayList<Flow>();

@@ -15,6 +15,10 @@ import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.ResourceType;
 
 /**
+ * TODO: From activity-->check
+ * An activity can also define cancellation periods for each one of the resource types it uses. 
+ * If an element takes a resource belonging to one of the cancellation periods of the activity, this
+ * resource can't be used during a period of time after the activity finishes.
  * @author Iván Castilla
  *
  */

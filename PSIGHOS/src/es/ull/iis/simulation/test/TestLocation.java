@@ -10,19 +10,17 @@ import es.ull.iis.simulation.info.ElementLocationInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.ElementType;
-import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
-import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
-import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.location.Location;
-import es.ull.iis.simulation.model.location.MovableElement;
+import es.ull.iis.simulation.model.location.Movable;
 import es.ull.iis.simulation.model.location.Node;
 import es.ull.iis.simulation.model.location.Path;
 import es.ull.iis.simulation.model.location.RouteFlow;
 import es.ull.iis.simulation.model.location.Router;
+import es.ull.iis.simulation.model.location.TimeDrivenMovableElementGenerator;
 
 class ExpLocation extends Experiment {
 	private final long endTs;
@@ -51,7 +49,7 @@ class MyRouter implements Router {
 		home = new Node("Home", TimeFunctionFactory.getInstance("ConstantVariate", 5), nElems);
 		paths = new Path[NPATHS];
 		for (int i = 0; i < NPATHS; i++) {
-			paths[i] = new Path("Path " + i, TimeFunctionFactory.getInstance("ConstantVariate", 10), 1, 1);
+			paths[i] = new Path("Path " + i, TimeFunctionFactory.getInstance("ConstantVariate", 10), 1, 2);
 		}
 		destination = new Node("Destination", TimeFunctionFactory.getInstance("ConstantVariate", 0), nElems);
 
@@ -78,10 +76,9 @@ class MyRouter implements Router {
 		return destination;
 	}
 
-
 	@Override
-	public Location getNextLocationTo(Location currentLocation, Location finalLocation) {
-		ArrayList<Location> links = currentLocation.getLinkedTo();
+	public Location getNextLocationTo(Movable entity, Location finalLocation) {
+		ArrayList<Location> links = entity.getLocation().getLinkedTo();
 		if (links.size() > 0)
 			return links.get(0);
 		return null;
@@ -128,8 +125,8 @@ class MyNoSizeRouter implements Router {
 
 
 	@Override
-	public Location getNextLocationTo(Location currentLocation, Location finalLocation) {
-		ArrayList<Location> links = currentLocation.getLinkedTo();
+	public Location getNextLocationTo(Movable entity, Location finalLocation) {
+		ArrayList<Location> links = entity.getLocation().getLinkedTo();
 		if (links.size() > 0)
 			return links.get(0);
 		return null;
@@ -143,25 +140,13 @@ class SimulLocation extends Simulation {
 	
 	public SimulLocation(int id, long endTs) {
 		super(id, "Simulating locations " + id, 0, endTs);
-		final MyNoSizeRouter router = new MyNoSizeRouter(NELEM); 
+//		final MyNoSizeRouter router = new MyNoSizeRouter(NELEM); 
+		final MyRouter router = new MyRouter(NELEM); 
 		final RouteFlow initFlow = new RouteFlow(this, "From home to destination", router.getDestination(), router);
-		new CarGenerator(this, NELEM, initFlow, router.getHome());
+		final ElementType et = new ElementType(this, "Car");
+		new TimeDrivenMovableElementGenerator(this, NELEM, et, initFlow, 1, router.getHome(), new SimulationPeriodicCycle(getTimeUnit(), 0L, new SimulationTimeFunction(getTimeUnit(), "ConstantVariate", getEndTs()), 1));
 	}
 	
-}
-
-class CarGenerator extends TimeDrivenElementGenerator {
-	private final Location initLocation;
-
-	public CarGenerator(SimulLocation model, int nElem, InitializerFlow flow, Location initLocation) {
-		super(model, nElem, new ElementType(model, "Car"), flow, new SimulationPeriodicCycle(model.getTimeUnit(), 0L, new SimulationTimeFunction(model.getTimeUnit(), "ConstantVariate", model.getEndTs()), 1));
-		this.initLocation = initLocation;
-	}
-	
-	@Override
-	public EventSource createEventSource(int ind, GenerationTrio info) {
-		return new MovableElement(simul, info.getElementType(), info.getFlow(), initLocation);
-	}
 }
 
 class LocationListener extends Listener {

@@ -46,7 +46,7 @@ public class TestInterruptibleActivities {
 				ActivityFlow acts[] = new ActivityFlow[NACT];
 				for (int i = 0; i < NACT; i++) {
 					acts[i] = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "ACT" + i, i / 2, false, true);
-					acts[i].addWorkGroup(0, wg, new SimulationTimeFunction(unit, "ConstantVariate", 101));
+			    	acts[i].newWorkGroupAdder(wg).withDelay(101).addWorkGroup();
 				}
 				SimulationPeriodicCycle c1 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 200), 0);
 				SimulationPeriodicCycle c2 = new SimulationPeriodicCycle(unit, 20, new SimulationTimeFunction(unit, "ConstantVariate", 100), 0);

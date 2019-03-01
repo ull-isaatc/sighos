@@ -126,31 +126,31 @@ public class PortSimulation extends Simulation {
 // DEFINIMOS TODAS LAS ACCIONES QUE LLEVARA A CABO NUESTRO PROCESO
 // TODO ELLO ESTA DEFINIDO EN PAPEL MEDIANTE UN ESQUEMA
 		RequestResourcesFlow reqCamion = new RequestResourcesFlow(this, LLEGADA);
-		reqCamion.addWorkGroup(wgParkingA);
+		reqCamion.newWorkGroupAdder(wgParkingA).addWorkGroup();
 		ReleaseResourcesFlow relCamion = new ReleaseResourcesFlow(this, FINAL, wgParkingA);
 		
 		RequestResourcesFlow reqGrua = new RequestResourcesFlow(this, GRUAIN);
-		reqGrua.addWorkGroup(wgGrua);
+		reqGrua.newWorkGroupAdder(wgGrua).addWorkGroup();
 		ReleaseResourcesFlow relGrua = new ReleaseResourcesFlow(this,GRUAOFF,wgGrua);
 		
 		RequestResourcesFlow reqTramoPatio1 = new RequestResourcesFlow(this, ON_TRAMO1);
-		reqTramoPatio1.addWorkGroup(wgTramoA1);
+		reqTramoPatio1.newWorkGroupAdder(wgTramoA1).addWorkGroup();
 		ReleaseResourcesFlow relTramoPatio1 = new ReleaseResourcesFlow(this,OFF_TRAMO1,wgTramoA1);
 		
 		RequestResourcesFlow reqTramoCentro1 = new RequestResourcesFlow(this, ON_TRAMO2);
-		reqTramoCentro1.addWorkGroup(wgTramoA2);
+		reqTramoCentro1.newWorkGroupAdder(wgTramoA2).addWorkGroup();
 		ReleaseResourcesFlow relTramoCentro1 = new ReleaseResourcesFlow(this,OFF_TRAMO2,wgTramoA2);
 		
 		RequestResourcesFlow reqtramotierra1 = new RequestResourcesFlow(this, ON_TRAMO3);
-		reqtramotierra1.addWorkGroup(wgTramoA3);
+		reqtramotierra1.newWorkGroupAdder(wgTramoA3).addWorkGroup();
 		ReleaseResourcesFlow reltramotierra1 = new ReleaseResourcesFlow(this,OFF_TRAMO3,wgTramoA3);
 		
 		RequestResourcesFlow reqtramocentro2 = new RequestResourcesFlow(this, ON_TRAMO4);
-		reqtramocentro2.addWorkGroup(wgTramoA4);
+		reqtramocentro2.newWorkGroupAdder(wgTramoA4).addWorkGroup();
 		ReleaseResourcesFlow reltramocentro2 = new ReleaseResourcesFlow(this,OFF_TRAMO4,wgTramoA4);
 		
 		RequestResourcesFlow reqtramopatio1vuelta = new RequestResourcesFlow(this, ON_TRAMO1VUELTA);
-		reqtramopatio1vuelta.addWorkGroup(wgVacio);
+		reqtramopatio1vuelta.newWorkGroupAdder(wgVacio).addWorkGroup();
 		ReleaseResourcesFlow reltramopatio1vuelta = new ReleaseResourcesFlow(this,OFF_TRAMO1VUELTA,wgVacio);
 		
 // SE DEFINEN LOS TIEMPOS QUE TARDARA EL PROCESO EN PASAR POR LOS TRAMOS DEL PATIO Y EN REALIZAR

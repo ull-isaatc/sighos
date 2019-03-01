@@ -14,7 +14,6 @@ import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.SimulationWeeklyPeriodicCycle;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
@@ -80,8 +79,8 @@ class BarrelShippingExperiment extends Experiment {
 		simul.putVar("barrelCapacity", 100);
 
 		// Defines duration of activities
-		actFilling.addWorkGroup(0, wgOperator, new SimulationTimeFunction(simul.getTimeUnit(), "ConstantVariate", 15.0));
-		actShipping.addWorkGroup(0, wgOperator, new SimulationTimeFunction(simul.getTimeUnit(), "ConstantVariate", 20.0));
+		actFilling.newWorkGroupAdder(wgOperator).withDelay(15).addWorkGroup();
+		actShipping.newWorkGroupAdder(wgOperator).withDelay(20).addWorkGroup();
 
 		// Defines loop conditions	
 		Condition cond = factory.getCustomizedConditionInstance("", "<%GET(S.totalLiters)%> < <%GET(S.barrelCapacity)%>");

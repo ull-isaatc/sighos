@@ -52,7 +52,7 @@ public class TestReleaseWorkGroup extends Experiment {
 			final ReleaseResourcesFlow relLocationA2 = new ReleaseResourcesFlow(this, "Release location A 2", 0, wgRelLocationA2);
 			
 			// Assign duration and workgroups to activities
-			reqLocationA.addWorkGroup(wgLocationA);
+			reqLocationA.newWorkGroupAdder(wgLocationA).addWorkGroup();
 
 			// Create flow
 			reqLocationA.link(relLocationA1).link(relLocationA2);

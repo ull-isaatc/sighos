@@ -23,6 +23,16 @@ import es.ull.iis.util.Prioritizable;
 import es.ull.iis.util.PrioritizedTable;
 
 /**
+ * A flow to request a set of resources, defined as {@link WorkGroup workgroups}. If all the resources from a workgroup are available, the element seizes 
+ * them until a {@link ReleaseResourcesFlow} is used. The flow can use an identifier, so all the resources grouped under such identifier can be
+ * released together later on. By default, all resources are grouped with a 0 identifier.<p> 
+ * 
+ * After seizing the resources, the element can suffer a delay.<p>
+ * 
+ * Each request flow is associated to an {@link ActivityManager}, which handles the way the resources are accessed.<p>
+ * The flow is potentially feasible if there is no proof that none of the workgroups are available. The flow is feasible if it's potentially feasible 
+ * and there is at least one workgroup with enough available resources.<p>
+ * An element requesting a request flow which is not feasible is added to a queue until new resources are available.
  * @author Iván Castilla
  *
  */
@@ -41,45 +51,57 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
     protected ActivityManager manager;
     /** Indicates that the basic step is potentially feasible. */
     protected boolean stillFeasible = true;
+    /** An engine to perform the simulation tasks associated to this flow */
     private RequestResourcesEngine engine;
 
 	/**
-	 * @param simul
-	 * @param description
+	 * Creates a flow to seize a group of resources non-exclusively, with the highest priority, and default identifier 
+	 * @param model The simulation model this flow belongs to
+	 * @param description A brief description of the flow
 	 */
 	public RequestResourcesFlow(Simulation model, String description) {
 		this(model, description, 0, 0, false);
 	}
 
 	/**
-	 * @param simul
-	 * @param description
-	 * @param priority
-	 */
-	public RequestResourcesFlow(Simulation model, String description, int priority, boolean exclusive) {
-		this(model, description, 0, priority, exclusive);
-	}
-
-	/**
-	 * @param simul
-	 * @param description
+	 * Creates a flow to seize a group of resources non-exclusively, with the highest priority, and the specified identifier
+	 * @param model The simulation model this flow belongs to
+	 * @param description A brief description of the flow
+	 * @param resourcesId Identifier of the group of resources
 	 */
 	public RequestResourcesFlow(Simulation model, String description, int resourcesId) {
 		this(model, description, resourcesId, 0, false);
 	}
 
 	/**
-	 * @param simul
-	 * @param description
+	 * Creates a flow to seize a group of resources, with the specified priority, default identifier, and which could be accessed exclusively or not 
+	 * @param model The simulation model this flow belongs to
+	 * @param description A brief description of the flow
+	 * @param priority Priority. The lowest the value, the highest the priority
+	 * @param exclusive Only one exclusive set of resources can be acquired by an element at the same time
+	 */
+	public RequestResourcesFlow(Simulation model, String description, int priority, boolean exclusive) {
+		this(model, description, 0, priority, exclusive);
+	}
+
+	/**
+	 * Creates a flow to seize a group of resources non-exclusively, with the specified priority and identifier 
+	 * @param model The simulation model this flow belongs to
+	 * @param description A brief description of the flow
+	 * @param resourcesId Identifier of the group of resources
+	 * @param priority Priority. The lowest the value, the highest the priority
 	 */
 	public RequestResourcesFlow(Simulation model, String description, int resourcesId, int priority) {
 		this(model, description, resourcesId, priority, false);
 	}
 
 	/**
-	 * @param simul
-	 * @param description
-	 * @param priority
+	 * Creates a flow to seize a group of resources, with the specified priority and identifier, and which could be accessed exclusively or not 
+	 * @param model The simulation model this flow belongs to
+	 * @param description A brief description of the flow
+	 * @param resourcesId Identifier of the group of resources
+	 * @param priority Priority. The lowest the value, the highest the priority
+	 * @param exclusive Only one exclusive set of resources can be acquired by an element at the same time
 	 */
 	public RequestResourcesFlow(Simulation model, String description, int resourcesId, int priority, boolean exclusive) {
 		super(model);
@@ -119,8 +141,8 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
     
     /**
      * Sets the activity manager this flow belongs to. It also
-     * adds this resource type to the manager.
-     * @param manager New value of property manager.
+     * adds this flow to the manager.
+     * @param manager New value of manager.
      */
     public void setManager(ActivityManager manager) {
         this.manager = manager;
@@ -128,107 +150,17 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
     }
 
 	/**
-	 * @return the resourcesId
+	 * Returns an identifier for the group of resources seized within this flow 
+	 * @return an identifier for the group of resources seized within this flow
 	 */
 	public int getResourcesId() {
 		return resourcesId;
 	}
-
-	/**
-     * Creates a new workgroup for this activity using the specified wg.
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(int priority, WorkGroup wg) {
-    	return addWorkGroup(priority, wg, new TrueCondition(), 0L);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity using the specified wg. This workgroup
-     * is only available if cond is true.
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(int priority, WorkGroup wg, Condition cond) {
-    	return addWorkGroup(priority, wg, cond, 0L);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity with the highest level of priority using 
-     * the specified wg.
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(WorkGroup wg) {    	
-    	return addWorkGroup(0, wg, new TrueCondition(), 0L);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity with the highest level of priority using 
-     * the specified wg. This workgroup is only available if cond is true.
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(WorkGroup wg, Condition cond) {    	
-    	return addWorkGroup(0, wg, cond, 0L);
-    }
 	
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(int priority, WorkGroup wg, Condition cond, TimeFunction duration) {
-    	final int wgId = workGroupTable.size();
-        workGroupTable.add(new ActivityWorkGroup(simul, this, wgId, priority, wg, cond, duration));
-        return wgId;
-    }
-    
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */    
-    public int addWorkGroup(int priority, WorkGroup wg, TimeFunction duration) {
-		return addWorkGroup(priority, (WorkGroup)wg, new TrueCondition(), duration);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(int priority, WorkGroup wg, long duration) {
-        return addWorkGroup(priority, wg, TimeFunctionFactory.getInstance("ConstantVariate", duration));
-    }
-    
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */    
-    public int addWorkGroup(int priority, WorkGroup wg, Condition cond, long duration) {    	
-        return addWorkGroup(priority, wg, cond, TimeFunctionFactory.getInstance("ConstantVariate", duration));
-    }
-
     /**
      * Searches and returns a workgroup with the specified id.
      * @param wgId The id of the workgroup searched
-     * @return A workgroup contained in this activity with the specified id
+     * @return A workgroup contained in this flow with the specified id
      */
     public ActivityWorkGroup getWorkGroup(int wgId) {
         Iterator<ActivityWorkGroup> iter = workGroupTable.iterator();
@@ -241,8 +173,8 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
     }
 	
 	/**
-	 * Returns the amount of WGs associated to this activity
-	 * @return the amount of WGs associated to this activity
+	 * Returns the amount of WGs associated to this flow
+	 * @return the amount of WGs associated to this flow
 	 */
 	public int getWorkGroupSize() {
 		return workGroupTable.size();
@@ -297,19 +229,19 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * checks if the basic step is not potentially feasible, then goes through the 
      * workgroups looking for an appropriate one. If the basic step cannot be performed with 
      * any of the workgroups it's marked as not potentially feasible. 
-     * @param fe Work thread wanting to perform the basic step 
+     * @param ei Element instance wanting to perform the basic step 
      * @return A set of resources that makes a valid solution for this request flow; null otherwise. 
      */
-	public ArrayDeque<Resource> isFeasible(ElementInstance fe) {
+	public ArrayDeque<Resource> isFeasible(ElementInstance ei) {
     	if (!stillFeasible)
     		return null;
         Iterator<ActivityWorkGroup> iter = workGroupTable.randomIterator();
         while (iter.hasNext()) {
         	ActivityWorkGroup wg = iter.next();
         	final ArrayDeque<Resource> solution = new ArrayDeque<Resource>(); 
-            if (engine.checkWorkGroup(solution, wg, fe)) {
-                fe.setExecutionWG(wg);
-        		fe.getElement().debug("Can carry out \t" + this + "\t" + wg);
+            if (engine.checkWorkGroup(solution, wg, ei)) {
+                ei.setExecutionWG(wg);
+        		ei.getElement().debug("Can carry out \t" + this + "\t" + wg);
                 return solution;
             }            
         }
@@ -325,12 +257,20 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
     	stillFeasible = true;
     }
     
+    /**
+     * Returns how many elements are waiting to seize resources with this flow
+     * @return how many elements are waiting to seize resources with this flow
+     */
     public int getQueueSize() {
     	return engine.getQueueSize();
     }
     
-    public void queueRemove(ElementInstance fe) {
-    	engine.queueRemove(fe);
+    /**
+     * Removes an element instance from the queue
+     * @param ei Element instance
+     */
+    public void queueRemove(ElementInstance ei) {
+    	engine.queueRemove(ei);
     }
 
 	/*
@@ -376,22 +316,68 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	public void assignSimulation(SimulationEngine simul) {
 		engine = simul.getRequestResourcesEngineInstance(this);
 	}
+
+	/**
+	 * Creates a builder object for adding workgroups to this flow. 
+	 * @param wg The set of pairs <ResurceType, amount> which will be seized
+	 * @return The builder object for adding workgroups to this flow
+	 */
+	public WorkGroupAdder newWorkGroupAdder(WorkGroup wg) {
+		return new WorkGroupAdder(wg);
+	}
 	
-	static class Trio {
-	    /** Availability condition */
-	    final protected Condition cond;
-	    final protected TimeFunction duration;
-	    final protected WorkGroup wg;
-	    
-		/**
-		 * @param cond
-		 * @param duration
-		 * @param wg
-		 */
-		public Trio(Condition cond, TimeFunction duration, WorkGroup wg) {
-			this.cond = cond;
-			this.duration = duration;
+	/**
+	 * A builder for adding workgroups. By default, workgroups have the highest priority, unconditionally available and have not delay.
+	 * The priority, condition and delay can be modified by using the "with..." methods.
+	 * @author Iván Castilla
+	 *
+	 */
+	public final class WorkGroupAdder {
+		/** The set of pairs <ResurceType, amount> which will be seized */
+		final private WorkGroup wg;
+		/** Priority of the workgroup */
+		private int priority = 0;
+		/** Availability condition */
+		private Condition cond = null;
+		/** Delay applied after seizing the resources */
+		private TimeFunction delay = null;
+		
+		private WorkGroupAdder(WorkGroup wg) {
 			this.wg = wg;
+		}
+		
+		public WorkGroupAdder withPriority(int priority) {
+			this.priority = priority;
+			return this;
+		}
+		
+		public WorkGroupAdder withCondition(Condition cond) {
+			this.cond = cond;
+			return this;
+		}
+
+		public WorkGroupAdder withDelay(TimeFunction delay) {
+			this.delay = delay;
+			return this;
+		}
+
+		public WorkGroupAdder withDelay(long delay) {
+			this.delay = TimeFunctionFactory.getInstance("ConstantVariate", delay);
+			return this;
+		}
+		
+	    /**
+	     * Creates a new workgroup for this flow. 
+	     * @return The new workgroup's identifier.
+	     */
+		public int addWorkGroup() {
+			if (cond == null)
+				cond = new TrueCondition();
+			if (delay == null)
+				delay = TimeFunctionFactory.getInstance("ConstantVariate", 0L);			
+	    	final int wgId = workGroupTable.size();
+	        workGroupTable.add(new ActivityWorkGroup(simul, RequestResourcesFlow.this, wgId, priority, wg, cond, delay));
+	        return wgId;
 		}
 	}
 }

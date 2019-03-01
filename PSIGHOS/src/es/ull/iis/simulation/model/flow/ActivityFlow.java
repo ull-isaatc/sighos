@@ -3,47 +3,30 @@
  */
 package es.ull.iis.simulation.model.flow;
 
-import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow.WorkGroupAdder;
 import es.ull.iis.util.Prioritizable;
 
 /**
- * A flow which executes a single activity.
+ * A flow which executes a single activity. An activity is characterized by a priority and a set of {@link WorkGroup workgropus}. 
+ * Each workgroup represents a combination of resource types required for carrying out the activity, and also defines different workgroup-specific
+ * durations of the activity.<p>
  * 
- *  TODO: Fix documentation... From here on belongs to the old "activity" class
- * A task which could be carried out by an element. An activity is characterized by its priority
- * and a set of workgropus. Each workgroup represents a combination of resource types required 
- * for carrying out the activity.<p>
- * Each activity belongs to an Activity Manager, which handles the way the activity is accessed.<p>
- * An activity is potentially feasible if there is no proof that there are not enough resources
- * to perform it. An activity is feasible if it's potentially feasible and there is at least one
- * workgroup with enough available resources to perform the activity.<p>
- * An activity can be requested by a valid element, that is, check if the activity is feasible. 
- * If the activity is not feasible, the element is added to a queue until new resources are 
- * available. If the activity is feasible, the element "carries out" the activity, that is, 
- * catches the resources needed to perform the activity. Whenever it is determined that the 
- * activity has finished, the element releases the resources previously caught.<p>
- * An activity can also define cancellation periods for each one of the resource types it uses. 
- * If an element takes a resource belonging to one of the cancellation periods of the activity, this
- * resource can't be used during a period of time after the activity finishes.
- * FIXME: Complete and rewrite (original description for TimeDrivenActivities)
- *  A task which could be carried out by an element in a specified time. This kind of activities
- * can be characterized by a priority value, presentiality, interruptibility, and a set of 
- * workgropus. Each workgroup represents a combination of resource types required for carrying out 
- * the activity, and the duration of the activity when performed with this workgroup.<p>
- * By default, time-driven activities are presential, that is, an element carrying out this 
- * activity can't perform simultaneously any other presential activity; and ininterruptible, i.e., 
- * once started, the activity keeps its resources until it's finished, even if the resources become 
- * unavailable while the activity is being performed. This two characteristics are customizable by 
- * means of the <code>Modifier</code> enum type. An activity can be <code>NONPRESENTIAL</code>, when 
- * the element can perform other activities while it's performing this one; and <code>INTERRUPTIBLE</code>, 
- * when the activity can be interrupted, and later continued, if the resources become unavailable 
- * while the activity is being performed.
+ * By default, activities are exclusive, that is, an element carrying out this activity can't perform simultaneously any other exclusive
+ * activity; and ininterruptible, i.e., once started, the activity keeps its resources until it's finished, even if the resources become 
+ * unavailable while the activity is being performed. These characteristics can be modified by means of different constructors.<p>
+ * 
+ * When an element requests an activity, it checks whether there is a least one workgroup with enough available resources to perform the activity. 
+ * The condition for the workgroup has to be met too.<p>
+ * 
+ * After performing the activity, some resources can be "cancelled", i.e., can become unavailable during certain amount of time. The cancellation can 
+ * be condition-driven. 
+ * 
  * @author Iván Castilla Rodríguez
  */
 public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow, Prioritizable {
@@ -53,24 +36,27 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
     protected final int priority;
     /** A brief description of the activity */
     protected final String description;
-	/** The set of modifiers of this activity. */
+	/** If true, the activity is interrupted when any resource in use becomes unavailable */
     private boolean interruptible;
     /** A unique identifier that serves to tell a ReleaseResourcesFlow which resources to release */
 	private final int resourcesId;
+	/** If true, an element cannot perform any other exclusive activity concurrently with this one */
     private boolean exclusive;
     
 
 	/**
-     * Creates a new activity with 0 priority.
-     * @param description A short text describing this Activity.
+     * Creates a new exclusive and non-interruptible activity with the highest priority.
+     * @param model The simulation model this activity belongs to
+     * @param description A short text describing this activity.
      */
     public ActivityFlow(Simulation model, String description) {
         this(model, description, 0, true, false);
     }
 
     /**
-     * Creates a new activity.
-     * @param description A short text describing this Activity.
+     * Creates a new exclusive and non-interruptible activity with the specified priority.
+     * @param model The simulation model this activity belongs to
+     * @param description A short text describing this activity.
      * @param priority Activity's priority.
      */
     public ActivityFlow(Simulation model, String description, int priority) {
@@ -79,8 +65,10 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 
     /**
      * Creates a new activity with the highest priority and customized behavior.
-     * @param description A short text describing this Activity.
-     * @param modifiers Indicates if the activity has special characteristics. 
+     * @param model The simulation model this activity belongs to
+     * @param description A short text describing this activity.
+     * @param exclusive If true, this activity cannot be performed concurrently with any other exclusive activity
+     * @param interruptible If true, this activity is interrupted when the involved resources become unavailable
      */
     public ActivityFlow(Simulation model, String description, boolean exclusive, boolean interruptible) {
         this(model, description, 0, exclusive, interruptible);
@@ -88,9 +76,11 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 
     /**
      * Creates a new activity with the specified priority and customized behavior.
+     * @param model The simulation model this activity belongs to
      * @param description A short text describing this Activity.
      * @param priority Activity's priority.
-     * @param modifiers Indicates if the activity has special characteristics. 
+     * @param exclusive If true, this activity cannot be performed concurrently with any other exclusive activity
+     * @param interruptible If true, this activity is interrupted when the involved resources become unavailable
      */
     public ActivityFlow(Simulation model, String description, int priority, boolean exclusive, boolean interruptible) {
     	super(model);
@@ -138,52 +128,15 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 		return interruptible;
 	}
 
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(int priority, WorkGroup wg, Condition cond, TimeFunction duration) {
-		return ((RequestResourcesFlow)initialFlow).addWorkGroup(priority, wg, cond, duration);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */    
-    public int addWorkGroup(int priority, WorkGroup wg, TimeFunction duration) {
-		return ((RequestResourcesFlow)initialFlow).addWorkGroup(priority, wg, duration);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @return The new workgroup's identifier.
-     */
-    public int addWorkGroup(int priority, WorkGroup wg, long duration) {
-        return ((RequestResourcesFlow)initialFlow).addWorkGroup(priority, wg, duration);
-    }
-    
-    /**
-     * Creates a new workgroup for this activity. 
-     * @param duration Duration of the activity when performed with the new workgroup
-     * @param priority Priority of the workgroup
-     * @param wg The set of pairs <ResurceType, amount> which will perform the activity
-     * @param cond Availability condition
-     * @return The new workgroup's identifier.
-     */    
-    public int addWorkGroup(int priority, WorkGroup wg, Condition cond, long duration) {    	
-        return ((RequestResourcesFlow)initialFlow).addWorkGroup(priority, wg, cond, duration);
-    }
-
+	/**
+	 * Creates a builder object for adding workgroups to this flow. 
+	 * @param wg The set of pairs <ResurceType, amount> which will be seized
+	 * @return The builder object for adding workgroups to this flow
+	 */
+	public WorkGroupAdder newWorkGroupAdder(WorkGroup wg) {
+		return ((RequestResourcesFlow)initialFlow).newWorkGroupAdder(wg);
+	}
+	
     /**
      * Searches and returns a workgroup with the specified id.
      * @param wgId The id of the workgroup searched
@@ -202,7 +155,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 	}
 
 	/**
-	 * Adds a new ResouceType to the cancellation list.
+	 * Adds a ResourceType to the cancellation list.
 	 * @param rt Resource type
 	 * @param duration Duration of the cancellation.
 	 */
@@ -211,7 +164,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 	}
 	
 	/**
-	 * Adds a new ResouceType to the cancellation list.
+	 * Adds a ResourceType to the cancellation list.
 	 * @param rt Resource type
 	 * @param duration Duration of the cancellation.
 	 * @param cond Condition that must be fulfilled to apply the cancellation 

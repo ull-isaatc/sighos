@@ -98,7 +98,7 @@ public abstract class WFPTestSimulationFactory {
 	
 	public ActivityFlow getDefActivity(String description, int dur, WorkGroup wg, boolean presential) {
 		ActivityFlow act = new ActivityFlow(simul, description, presential, false);
-    	act.addWorkGroup(0, wg, DEFACTDURATION[dur]);
+    	act.newWorkGroupAdder(wg).withDelay(DEFACTDURATION[dur]).addWorkGroup();
 		return act;
 	}
 	
