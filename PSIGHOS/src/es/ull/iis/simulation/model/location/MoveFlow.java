@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.model.location;
 
+import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.flow.ActionFlow;
@@ -11,13 +12,13 @@ import es.ull.iis.simulation.model.flow.SingleSuccessorFlow;
 import es.ull.iis.simulation.model.flow.TaskFlow;
 
 /**
- * A workflow step that allows {@link MovableElement Movable elements} to move from one {@link Location} to another.
+ * A workflow step that allows {@link Element elements} to move from one {@link Location} to another.
  * The route flow uses a {@link Router} to define the path of the element, ensures that the destination is reachable, and moves the 
  * element from one location to another until reaching the destination.
  * @author Iván Castilla
  *
  */
-public class RouteFlow extends SingleSuccessorFlow implements TaskFlow, ActionFlow {
+public class MoveFlow extends SingleSuccessorFlow implements TaskFlow, ActionFlow {
     /** A brief description of the route */
     private final String description;
     /** Final destination of the element */ 
@@ -26,13 +27,13 @@ public class RouteFlow extends SingleSuccessorFlow implements TaskFlow, ActionFl
     private final Router router;
 
     /**
-     * Creates a route flow
+     * Creates a flow to move an element
      * @param model Model this flow belongs to
      * @param description A brief description of the route
      * @param destination Final destination of the element
      * @param router Instance that returns the path for the element
      */
-	public RouteFlow(Simulation model, String description, Location destination, Router router) {
+	public MoveFlow(Simulation model, String description, Location destination, Router router) {
 		super(model);
 		this.description = description;
 		this.destination = destination;
@@ -63,31 +64,7 @@ public class RouteFlow extends SingleSuccessorFlow implements TaskFlow, ActionFl
 		if (!ei.wasVisited(this)) {
 			if (ei.isExecutable()) {
 				if (beforeRequest(ei)) {
-					if (ei.getElement() instanceof MovableElement) {
-						final MovableElement elem = (MovableElement) ei.getElement(); 
-						elem.debug("Start route\t" + this + "\t" + getDescription());
-						final Location loc = elem.getLocation();
-						final Location nextLoc = router.getNextLocationTo(elem, destination);
-						if (nextLoc == null) {
-							elem.error("Destination unreachable. Current: " + loc + "; destination: " + destination);
-							ei.cancel(this);
-							next(ei);
-						}
-						else {								
-							elem.setNextLocation(nextLoc);
-							final long delay = loc.getDelayAtExit(elem); 
-							if (delay > 0L) {
-								ei.startDelay(delay);
-							}
-							else {
-								finish(ei);
-							}
-						}
-					}
-					else {
-						ei.getElement().error("Only Movable Elements can use route flows");
-						next(ei);
-					}
+					ei.getElement().startMove(ei);
 				}
 				else {
 					ei.cancel(this);
@@ -110,24 +87,9 @@ public class RouteFlow extends SingleSuccessorFlow implements TaskFlow, ActionFl
 	 * otherwise, it waits. 
 	 */
 	public void finish(final ElementInstance ei) {
-		final MovableElement elem = (MovableElement) ei.getElement();
-		final Location currentLocation = elem.getLocation();
-		final Location nextLocation = elem.getNextLocation();
-		if (nextLocation.getAvailableCapacity() >= elem.getCapacity()) {
-			nextLocation.move(elem);
-			currentLocation.leave(elem);
-			if (nextLocation.equals(destination)) {
-				elem.debug("Finishes route\t" + this + "\t" + getDescription());
-				afterFinalize(ei);
-				next(ei);
-			}
-			else {
-				request(ei);
-			}
-		}
-		else {
-			nextLocation.waitFor(ei);
-		}
+		ei.getElement().endMove(ei);
+		afterFinalize(ei);
+		next(ei);
 	}
 
 
@@ -137,6 +99,14 @@ public class RouteFlow extends SingleSuccessorFlow implements TaskFlow, ActionFl
 	 */
 	public Location getDestination() {
 		return destination;
+	}
+
+
+	/**
+	 * @return the router
+	 */
+	public Router getRouter() {
+		return router;
 	}
 
 }

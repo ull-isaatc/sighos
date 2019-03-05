@@ -87,7 +87,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
     	this.priority = priority;
     	this.description = description;
     	resourcesId = resourcesIdCounter--;
-        initialFlow = new RequestResourcesFlow(model, description, resourcesId , priority, exclusive);
+        initialFlow = new RequestResourcesFlow(model, description, resourcesId , priority);
         initialFlow.setParent(this);
         finalFlow = new ReleaseResourcesFlow(model, description, resourcesId);
         finalFlow.setParent(this);
@@ -179,12 +179,15 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 	}
 
 	@Override
-	public void finish(ElementInstance wThread) {
-		if (wThread.wasInterrupted(this)) {
-			request(wThread);
+	public void finish(ElementInstance ei) {
+		if (ei.wasInterrupted(this)) {
+			request(ei);
 		}
 		else {
-			super.finish(wThread);
+			if (isExclusive()) {
+				ei.getElement().setExclusive(false);
+			}			
+			super.finish(ei);
 		}
 		
 	}

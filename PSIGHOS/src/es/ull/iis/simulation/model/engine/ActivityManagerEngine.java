@@ -6,53 +6,67 @@ package es.ull.iis.simulation.model.engine;
 import java.util.Comparator;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.util.PrioritizedMap;
 
 /**
+ * The engine of an {@link ActivityManager activity manager}. Useful for implementing different strategies, such as parallel and sequential.
  * @author Iván Castilla
  *
  */
 public interface ActivityManagerEngine {
 	/**
-     * Informs the activities of new available resources. Reviews the queue of waiting work items 
-     * looking for those which can be executed with the new available resources. The work items 
+     * Informs the activities of new available resources. Reviews the queue of waiting element instances 
+     * looking for those which can be executed with the new available resources. The element instances 
      * used are removed from the waiting queue.<p>
-     * In order not to traverse the whole list of work items, this method determines the
-     * amount of "useless" ones, that is, the amount of work items belonging to an activity 
+     * In order not to traverse the whole list of element instances, this method determines the
+     * amount of "useless" ones, that is, the amount of element instances belonging to an activity 
      * which can't be performed with the current resources. If this amount is equal to the size
-     * of waiting work items, this method stops. 
+     * of waiting element instances, this method stops. 
      */
 	void processAvailableResources();
+	
 	/**
 	 * Checks if there are new elements available and executes the corresponding actions.
 	 * This method centralizes the execution of this code to preserve all the elements and activities priorities.
 	 */
 	void processAvailableElements();
 	
+	/**
+	 * Notifies the engine that there are new resources available
+	 */
 	void notifyAvailableResource();
 	
+	/**
+	 * Returns true if there is at least one new resource available the current timestamp
+	 * @return true if there is at least one new resource available the current timestamp
+	 */
 	boolean getAvailableResource();
 
     /**
-     * Adds a work thread to the waiting queue.
-     * @param fe Work thread which is added to the waiting queue.
+     * Adds an element instance to the waiting queue.
+     * @param ei Element instance which is added to the waiting queue.
      */
-    void queueAdd(ElementInstance fe);
+    void queueAdd(ElementInstance ei);
     
     /**
-     * Removes a work thread from the waiting queue.
-     * @param fe work thread which is removed from the waiting queue.
+     * Removes an element instance from the waiting queue.
+     * @param ei Element instance which is removed from the waiting queue.
      */
-    void queueRemove(ElementInstance fe);
+    void queueRemove(ElementInstance ei);
     
-    void notifyAvailableElement(ElementInstance fe);
+    /**
+     * Notifies the engine that an element is now available to perform activities
+     * @param ei Element instance 
+     */
+    void notifyAvailableElement(ElementInstance ei);
 
 	/**
-	 * A queue which stores the activity requests of the elements. The flow executors are
+	 * A queue which stores the activity requests of the elements. The element instances are
 	 * stored by following this order: <ol>
-     * <li>the flow executor's priority (its element type's priority)</li>
+     * <li>the element instance's priority (its element type's priority)</li>
      * <li>the activity's priority</li>
      * <li>the arrival order</li>
      * </ol> 
@@ -85,19 +99,19 @@ public interface ActivityManagerEngine {
 		}
 
 		/**
-		 * Adds a work thread to the queue. The arrival order and timestamp of the 
-		 * work thread are set here. 
-		 * @param wt The work thread to be added.
+		 * Adds an element instance to the queue. The arrival order and timestamp of the 
+		 * element instance are set here. 
+		 * @param ei The element instance to be added.
 		 */
 		@Override
-		public void add(ElementInstance wt) {
+		public void add(ElementInstance ei) {
 			// The arrival order and timestamp are only assigned if the single flow 
 			// has never been added to the queue (interruptible activities)
-			if (wt.getArrivalTs() == -1) {
-				wt.setArrivalOrder(arrivalOrder++);
-				wt.setArrivalTs(wt.getElement().getTs());
+			if (ei.getArrivalTs() == -1) {
+				ei.setArrivalOrder(arrivalOrder++);
+				ei.setArrivalTs(ei.getElement().getTs());
 			}
-			super.add(wt);
+			super.add(ei);
 		}
 
 		@Override

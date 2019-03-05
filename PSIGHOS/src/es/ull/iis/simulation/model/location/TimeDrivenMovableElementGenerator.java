@@ -5,6 +5,7 @@ package es.ull.iis.simulation.model.location;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
+import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.Generator;
@@ -97,7 +98,7 @@ public class TimeDrivenMovableElementGenerator extends TimeDrivenGenerator<TimeD
 		final int size = (int)info.getSize().getValue(this);
 		final Location initLocation = info.getInitLocation();
 		if (initLocation.getAvailableCapacity() >= size) {
-			final MovableElement elem = new MovableElement(simul, info.getElementType(), info.getFlow(), size);
+			final Element elem = new Element(simul, info.getElementType(), info.getFlow(), size);
 			initLocation.move(elem);
 			elem.initializeElementVars(info.getElementType().getElementValues());
 			return elem;			

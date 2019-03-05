@@ -54,7 +54,7 @@ public class ElementEngine extends EngineObject implements es.ull.iis.simulation
 	public void notifyAvailableElement() {
 		for (final ElementInstance fe : inQueue) {
             final RequestResourcesFlow act = (RequestResourcesFlow) fe.getCurrentFlow();
-			if (act.isExclusive()) {
+			if (act.isInExclusiveActivity()) {
 	            act.getManager().notifyAvailableElement(fe);
 			}
 		}

@@ -145,7 +145,7 @@ public class ReleaseResourcesFlow extends SingleSuccessorFlow implements Resourc
      * Releases the resources caught by this item to perform the activity.
      */
     public void releaseResources(ElementInstance ei) {
-    	final ArrayDeque<Resource> resources = ei.releaseCaughtResources(wg);
+    	final ArrayDeque<Resource> resources = ei.releaseCaughtResources();
 		simul.notifyInfo(new ElementActionInfo(simul, ei, ei.getElement(), this, ei.getExecutionWG(), resources, ElementActionInfo.Type.REL, simul.getTs()));
 		if (ei.getElement().isDebugEnabled())
 			ei.getElement().debug("Finishes\t" + this + "\t" + getDescription());

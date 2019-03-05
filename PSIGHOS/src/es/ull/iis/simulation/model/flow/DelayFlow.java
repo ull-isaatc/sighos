@@ -6,6 +6,7 @@ package es.ull.iis.simulation.model.flow;
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.info.ElementActionInfo;
+import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
@@ -51,10 +52,11 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ActionFl
      * Returns the duration of the activity where this workgroup is used. 
      * The value returned by the random number function could be negative. 
      * In this case, it returns 0.
+     * @param elem The element delaying
      * @return The activity duration.
      */
-    public long getDurationSample(ElementInstance fe) {
-    	return Math.round(getDuration().getValue(fe));
+    public long getDurationSample(Element elem) {
+    	return Math.round(getDuration().getValue(elem));
     }
 
 	/* (non-Javadoc)
@@ -69,27 +71,28 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ActionFl
 	}
 
 	@Override
-	public void request(ElementInstance wThread) {
-		if (!wThread.wasVisited(this)) {
-			if (wThread.isExecutable()) {
-				if (beforeRequest(wThread)) {
-					simul.notifyInfo(new ElementActionInfo(simul, wThread, wThread.getElement(), this, wThread.getExecutionWG(), null, ElementActionInfo.Type.START, simul.getTs()));
-					wThread.getElement().debug("Start delay\t" + this + "\t" + getDescription());	
-					wThread.startDelay(getDurationSample(wThread));
+	public void request(ElementInstance ei) {
+		if (!ei.wasVisited(this)) {
+			if (ei.isExecutable()) {
+				if (beforeRequest(ei)) {
+					final Element elem = ei.getElement();
+					simul.notifyInfo(new ElementActionInfo(simul, ei, elem, this, ei.getExecutionWG(), null, ElementActionInfo.Type.START, simul.getTs()));
+					elem.debug("Start delay\t" + this + "\t" + getDescription());	
+					ei.startDelay(getDurationSample(elem));
 					// TODO: Check if it's needed
 //					timeLeft = 0;
 				}
 				else {
-					wThread.cancel(this);
-					next(wThread);
+					ei.cancel(this);
+					next(ei);
 				}
 			}
 			else {
-				wThread.updatePath(this);
-				next(wThread);
+				ei.updatePath(this);
+				next(ei);
 			}
 		} else
-			wThread.notifyEnd();
+			ei.notifyEnd();
 	}
 
 	@Override

@@ -6,7 +6,7 @@ package es.ull.iis.simulation.test;
 import java.util.ArrayList;
 
 import es.ull.iis.function.TimeFunctionFactory;
-import es.ull.iis.simulation.info.ElementLocationInfo;
+import es.ull.iis.simulation.info.EntityLocationInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.ElementType;
@@ -18,7 +18,7 @@ import es.ull.iis.simulation.model.location.Location;
 import es.ull.iis.simulation.model.location.Movable;
 import es.ull.iis.simulation.model.location.Node;
 import es.ull.iis.simulation.model.location.Path;
-import es.ull.iis.simulation.model.location.RouteFlow;
+import es.ull.iis.simulation.model.location.MoveFlow;
 import es.ull.iis.simulation.model.location.Router;
 import es.ull.iis.simulation.model.location.TimeDrivenMovableElementGenerator;
 
@@ -142,7 +142,7 @@ class SimulLocation extends Simulation {
 		super(id, "Simulating locations " + id, 0, endTs);
 //		final MyNoSizeRouter router = new MyNoSizeRouter(NELEM); 
 		final MyRouter router = new MyRouter(NELEM); 
-		final RouteFlow initFlow = new RouteFlow(this, "From home to destination", router.getDestination(), router);
+		final MoveFlow initFlow = new MoveFlow(this, "From home to destination", router.getDestination(), router);
 		final ElementType et = new ElementType(this, "Car");
 		new TimeDrivenMovableElementGenerator(this, NELEM, et, initFlow, 1, router.getHome(), new SimulationPeriodicCycle(getTimeUnit(), 0L, new SimulationTimeFunction(getTimeUnit(), "ConstantVariate", getEndTs()), 1));
 	}
@@ -153,13 +153,13 @@ class LocationListener extends Listener {
 
 	public LocationListener() {
 		super("Location listener");
-		addGenerated(ElementLocationInfo.class);
-		addEntrance(ElementLocationInfo.class);
+		addGenerated(EntityLocationInfo.class);
+		addEntrance(EntityLocationInfo.class);
 	}
 
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		final ElementLocationInfo eInfo = (ElementLocationInfo)info;
+		final EntityLocationInfo eInfo = (EntityLocationInfo)info;
 		System.out.println(eInfo);
 	}
 	

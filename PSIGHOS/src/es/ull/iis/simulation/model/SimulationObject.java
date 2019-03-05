@@ -3,13 +3,14 @@
  */
 package es.ull.iis.simulation.model;
 
+import es.ull.iis.function.TimeFunctionParams;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
  * @author Ivan Castilla Rodriguez
  *
  */
-public abstract class SimulationObject implements Comparable<SimulationObject>, Identifiable, Debuggable {
+public abstract class SimulationObject implements Comparable<SimulationObject>, Identifiable, Debuggable, TimeFunctionParams {
 	protected final Simulation simul;
 	private final String objectTypeId;
 	protected final int id;
@@ -75,7 +76,12 @@ public abstract class SimulationObject implements Comparable<SimulationObject>, 
 	public long getTs() {
 		return simul.getTs();
 	}
-	
+
+	@Override
+	public double getTime() {
+		return simul.getTs();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see es.ull.iis.simulation.Debuggable#debug(java.lang.String)

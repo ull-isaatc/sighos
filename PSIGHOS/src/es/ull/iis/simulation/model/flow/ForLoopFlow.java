@@ -75,25 +75,25 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
 	 */
-	public void request(ElementInstance wThread) {
-		if (!wThread.wasVisited(this)) {
-			if (wThread.isExecutable()) {
-				int iter = Math.round((float)iterations.getValue(wThread));
-				if (beforeRequest(wThread) && (iter > 0)) {
-					checkList.put(wThread, iter);
-					wThread.getElement().addRequestEvent(initialFlow, wThread.getDescendantElementInstance(initialFlow));
+	public void request(ElementInstance ei) {
+		if (!ei.wasVisited(this)) {
+			if (ei.isExecutable()) {
+				int iter = Math.round((float)iterations.getValue(ei.getElement()));
+				if (beforeRequest(ei) && (iter > 0)) {
+					checkList.put(ei, iter);
+					ei.getElement().addRequestEvent(initialFlow, ei.getDescendantElementInstance(initialFlow));
 				}
 				else {
-					wThread.cancel(this);
-					next(wThread);				
+					ei.cancel(this);
+					next(ei);				
 				}
 			}
 			else {
-				wThread.updatePath(this);
-				next(wThread);
+				ei.updatePath(this);
+				next(ei);
 			}
 		} else
-			wThread.notifyEnd();
+			ei.notifyEnd();
 	}
 
 	/* (non-Javadoc)

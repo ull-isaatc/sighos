@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementInfo;
+import es.ull.iis.simulation.info.EntityLocationInfo;
 import es.ull.iis.simulation.model.engine.ElementEngine;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.simulation.model.flow.Flow;
@@ -15,22 +16,33 @@ import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.model.flow.TaskFlow;
+import es.ull.iis.simulation.model.location.Location;
+import es.ull.iis.simulation.model.location.Movable;
+import es.ull.iis.simulation.model.location.MoveFlow;
+import es.ull.iis.simulation.model.location.Router;
 import es.ull.iis.simulation.variable.EnumVariable;
 import es.ull.iis.util.Prioritizable;
 
 /**
  * An entity capable of following a {@link Flow workflow}. Elements have a {@link ElementType type} and interact with {@link Resource resources}
- * by means of {@link es.ull.iis.simulation.model.flow.ResourceHandlerFlow resource handler flows}  
+ * by means of {@link es.ull.iis.simulation.model.flow.ResourceHandlerFlow resource handler flows}
+ * Elements can move from a {@link Location} to another.   
  * @author Iván Castilla
  *
  */
-public class Element extends VariableStoreSimulationObject implements Prioritizable, EventSource {
+public class Element extends VariableStoreSimulationObject implements Prioritizable, EventSource, Movable {
 	/** Element type */
 	protected ElementType elementType;
 	/** First step of the flow of the element */
 	protected final InitializerFlow initialFlow;
-	/** Exclusive instance which the element is currently carrying out */
-	protected ElementInstance current = null;
+	/** If true, the element is in exclusive mode, and cannot perform other exclusive tasks concurrently */ 
+	protected boolean exclusive = false;
+	/** The current location of the element */
+	private Location currentLocation;
+	/** The current element instance that drives the movement of the element */
+	private ElementInstance movingInstance = null;
+	/** The size of the element */
+	private final int size;
 	/** Main element instance */
 	protected ElementInstance mainInstance = null;
     /** List of seized resources indexed as groups by an identifier */
@@ -39,16 +51,28 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	private ElementEngine engine;
 	
 	/**
-	 * Creates an element with a type and initial flow
+	 * Creates an element with a type and initial flow; and 0 size.
 	 * @param simul Simulation model this element belongs to
 	 * @param elementType Element type
 	 * @param initialFlow First step of the flow of the element
 	 */
-	public Element(Simulation simul, ElementType elementType, InitializerFlow initialFlow) {
+	public Element(final Simulation simul, final ElementType elementType, final InitializerFlow initialFlow) {
+		this(simul, elementType, initialFlow, 0);
+	}
+	
+	/**
+	 * Creates an element with a type and initial flow
+	 * @param simul Simulation model this element belongs to
+	 * @param elementType Element type
+	 * @param initialFlow First step of the flow of the element
+	 * @param size The size of the element
+	 */
+	public Element(final Simulation simul, final ElementType elementType, final InitializerFlow initialFlow, final int size) {
 		super(simul, simul.getNewElementId(), "E");
 		this.elementType = elementType;
 		this.initialFlow = initialFlow;
         this.seizedResources = new SeizedResourcesCollection();
+        this.size = size;
 	}
 	
 	/**
@@ -79,7 +103,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * Notifies an instance of the element is waiting in an activity queue.
 	 * @param ei Element instance waiting in queue.
 	 */
-	public void incInQueue(ElementInstance ei) {
+	public void incInQueue(final ElementInstance ei) {
 		engine.incInQueue(ei);
 	}
 	
@@ -87,17 +111,16 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * Notifies an instance of the element has finished waiting in an activity queue.
 	 * @param ei Element instance that was waiting in a queue.
 	 */
-	public void decInQueue(ElementInstance ei) {
+	public void decInQueue(final ElementInstance ei) {
 		engine.decInQueue(ei);
 	}
 	
 	/**
-	 * If the element is currently performing an activity, returns the element instance used by the element. If the element is not performing any exclusive 
-	 * activity, returns null.
-	 * @return The element instance performing the current exclusive activity
+	 * Returns true if the element is currently performing an exclusive activity; returns false otherwise 
+	 * @return true if the element is currently performing an exclusive activity; returns false otherwise
 	 */
-	public ElementInstance getCurrent() {
-		return current;
+	public boolean isExclusive() {
+		return exclusive;
 	}
 
 	/**
@@ -105,9 +128,9 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * perform other exclusive activity. Hence, creates the events to notify the activities that this element is now available. 
 	 * @param current The element instance performing the current exclusive activity; null if the element has finished performing the activity
 	 */
-	public void setCurrent(ElementInstance current) {
-		this.current = current;
-		if (current == null) {
+	public void setExclusive(final boolean exclusive) {
+		this.exclusive = exclusive;
+		if (!exclusive) {
 			engine.notifyAvailableElement();
 		}
 	}
@@ -118,19 +141,21 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * @param ei Element instance performing the seizing
 	 * @param newResources New resources seized by the element
 	 */
-    public void seizeResources(RequestResourcesFlow reqFlow, ElementInstance ei, ArrayDeque<Resource> newResources) {
-    	seizedResources.addResources(reqFlow, ei, newResources);
+    public void seizeResources(final RequestResourcesFlow reqFlow, final ElementInstance ei, final ArrayDeque<Resource> newResources) {
+    	final int resId = (reqFlow.getResourcesId() < 0) ? -ei.getIdentifier() : reqFlow.getResourcesId();
+    	seizedResources.addResources(resId, newResources);
     }
 
     /**
      * Removes the resources specified in the workgroup from the list of seized resources
      * @param relFlow The flow that released the resources
      * @param ei Element instance performing the releasing
-     * @param wg Set of resources to release
      * @return The released resources
      */
-    public ArrayDeque<Resource> releaseResources(ReleaseResourcesFlow relFlow, ElementInstance ei, WorkGroup wg) {
-    	return seizedResources.removeResources(relFlow, ei, wg);
+    public ArrayDeque<Resource> releaseResources(final ReleaseResourcesFlow relFlow, final ElementInstance ei) {
+    	final int resId = (relFlow.getResourcesId() < 0) ? -ei.getIdentifier() : relFlow.getResourcesId();
+    	final WorkGroup wg = relFlow.getWorkGroup();
+    	return seizedResources.removeResources(resId, wg);
     	
     }
 
@@ -148,8 +173,19 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * @param ei Element instance that performed the seizing
 	 * @return the list of resources caught by the specified element instance when performing the specified flow
 	 */
-	public ArrayDeque<Resource> getCaughtResources(RequestResourcesFlow reqFlow, ElementInstance ei) {
-		return seizedResources.get(reqFlow, ei);
+	public ArrayDeque<Resource> getCaughtResources(final RequestResourcesFlow reqFlow, final ElementInstance ei) {
+    	final int resId = (reqFlow.getResourcesId() < 0) ? -ei.getIdentifier() : reqFlow.getResourcesId();
+		return seizedResources.get(resId);
+	}
+
+    /**
+     * Returns the list of resources identifier by the resourcesId and belonging to the specified workgroup
+     * @param resourcesId Identifier of the group of resources
+     * @param wg Resource types 
+     * @return the list of resources caught by the specified element instance when performing the specified flow
+     */
+	public ArrayDeque<Resource> getCaughtResources(final int resourcesId, final WorkGroup wg) {
+		return seizedResources.get(resourcesId, wg);
 	}
 
 	/**
@@ -157,7 +193,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * @param rt ResourceType been searched
 	 * @return <code>true</code> if the element has currently acquired any resource of type <code>rt</code>
 	 */
-	public boolean isAcquiredResourceType(ResourceType rt) {
+	public boolean isAcquiredResourceType(final ResourceType rt) {
 		return seizedResources.containsResourceType(rt);
 	}
 	
@@ -165,7 +201,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * Initializes the variables of the element as indicated by a generator
 	 * @param varList List of variables and values
 	 */
-	public void initializeElementVars(TreeMap<String, Object> varList) {
+	public void initializeElementVars(final TreeMap<String, Object> varList) {
 		for (Entry<String, Object> entry : varList.entrySet()) {
 			final String name = entry.getKey();
 			final Object value = entry.getValue();
@@ -191,7 +227,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * the element finishes immediately.
 	 */
 	@Override
-	public DiscreteEvent onCreate(long ts) {
+	public DiscreteEvent onCreate(final long ts) {
 		simul.notifyInfo(new ElementInfo(simul, this, elementType, ElementInfo.Type.START, getTs()));
 		if (initialFlow != null) {
 			mainInstance = ElementInstance.getMainElementInstance(this);
@@ -222,7 +258,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
      * @param f Flow to be requested
      * @param ei Element instance that will perform the flow
      */
-	public void addRequestEvent(Flow f, ElementInstance ei) {
+	public void addRequestEvent(final Flow f, final ElementInstance ei) {
 		simul.addEvent(new RequestFlowEvent(getTs(), f, ei));
 	}
 	
@@ -232,7 +268,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * @param f Flow to be finished
 	 * @param ei Element instance that will finish the flow
 	 */
-	public void addFinishEvent(long ts, TaskFlow f, ElementInstance ei) {
+	public void addFinishEvent(final long ts, final TaskFlow f, final ElementInstance ei) {
 		simul.addEvent(new FinishFlowEvent(ts, f, ei));
 	}
 	
@@ -294,6 +330,148 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 		return engine;
 	}
 	
+
+	@Override
+	public int getCapacity() {
+		return size;
+	}
+
+	@Override
+	public Location getLocation() {
+		return currentLocation;
+	}
+
+	@Override
+	public void setLocation(Location location) {
+		if (currentLocation == null) {
+			simul.notifyInfo(new EntityLocationInfo(simul, this, location, EntityLocationInfo.Type.START, getTs()));
+			currentLocation = location;
+		}
+		else {
+			simul.notifyInfo(new EntityLocationInfo(simul, this, currentLocation, EntityLocationInfo.Type.LEAVE, getTs()));
+			currentLocation = location;
+			simul.notifyInfo(new EntityLocationInfo(simul, this, currentLocation, EntityLocationInfo.Type.ARRIVE, getTs()));
+		}
+	}
+
+	/**
+	 * Returns the next location for this element
+	 * @return the next location for this element
+	 */
+	public ElementInstance getMovingInstance() {
+		return movingInstance;
+	}
+
+	@Override
+	public void notifyLocationAvailable(Location location) {
+		location.move(this);
+		currentLocation.leave(this);
+
+    	final MoveFlow flow = (MoveFlow)movingInstance.getCurrentFlow();
+    	final Location destination = flow.getDestination();
+    	final Router router = flow.getRouter();
+		
+		if (currentLocation.equals(destination)) {
+			debug("Finishes route\t" + this + "\t" + destination);
+			flow.finish(movingInstance);
+		}
+		else {
+			final Location nextLoc = router.getNextLocationTo(Element.this, destination);
+			if (nextLoc == null) {
+				error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
+				movingInstance.cancel(flow);
+				flow.next(movingInstance);
+			}
+			else {
+				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(Element.this), nextLoc, destination, router);
+		    	simul.addEvent(mEvent);						
+			}
+		}
+	}
+	
+    /**
+     * Creates a move event to move to destination using the specified router.
+     * @param ei Element instance that initiates the move
+     * @param destination Destination location
+     * @param router Instance that returns the path for the element
+     */
+    public void startMove(final ElementInstance ei) {
+    	final MoveFlow flow = (MoveFlow)ei.getCurrentFlow();
+    	final Location destination = flow.getDestination();
+    	final Router router = flow.getRouter();
+		debug("Start route\t" + this + "\t" + destination);
+    	movingInstance = ei;
+    	// No need to move
+    	if (currentLocation.equals(destination)) {
+    		flow.finish(movingInstance);
+    	}
+    	else {
+			final Location nextLoc = router.getNextLocationTo(this, destination);
+			if (nextLoc == null) {
+				error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
+				movingInstance.cancel(flow);
+				flow.next(movingInstance);
+
+			}
+			else {
+				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
+		    	simul.addEvent(mEvent);
+			}
+    	}
+    }
+    
+    public void endMove(final ElementInstance ei) {
+    	movingInstance = null;
+    }
+
+	public class MoveEvent extends DiscreteEvent {
+		final private Location destination;
+		final private Location nextLocation;
+		final private Router router;
+		
+		/**
+		 * Creates a move event that makes an intermediate step in the way to destination
+		 * @param ts Timestamp when the resource will arrive at the intermediate location
+		 * @param nextLocation Intermediate location 
+		 * @param destination Final destination
+		 * @param router Instance that returns the path for the resource
+		 */
+		public MoveEvent(final long ts, final Location nextLocation, final Location destination, final Router router) {
+			super(ts);
+			this.destination = destination;
+			this.nextLocation = nextLocation;
+			this.router = router;
+		}
+
+		@Override
+		public void event() {
+			if (nextLocation.getAvailableCapacity() >= getCapacity()) {
+				MoveFlow flow = ((MoveFlow)movingInstance.getCurrentFlow());
+				nextLocation.move(Element.this);
+				currentLocation.leave(Element.this);
+				if (nextLocation.equals(destination)) {
+					debug("Finishes route\t" + this + "\t" + destination);
+					flow.finish(movingInstance);
+				}
+				else {
+					final Location nextLoc = router.getNextLocationTo(Element.this, destination);
+					if (nextLoc == null) {
+						error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
+						movingInstance.cancel(flow);
+						flow.next(movingInstance);
+					}
+					else {
+						final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(Element.this), nextLoc, destination, router);
+				    	simul.addEvent(mEvent);						
+					}
+				}
+			}
+			else {
+				nextLocation.waitFor(Element.this);
+			}
+		}
+	}
+
 	/**
 	 * A collection of resources that have been seized by this element. They are arranged in two levels: the
 	 * first level represents resource groups, as logically defined by the modeler; the second level represents
@@ -343,35 +521,46 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	    
 	    /**
 	     * Returns the list of resources caught by the specified element instance when performing the specified flow
-	     * @param reqFlow The flow that seized the resources
-	     * @param ei Element instance that performed the seizing
+	     * @param resourcesId Identifier of the group of resources
 	     * @return the list of resources caught by the specified element instance when performing the specified flow
 	     */
-	    public ArrayDeque<Resource> get(RequestResourcesFlow reqFlow, ElementInstance ei) {
+	    public ArrayDeque<Resource> get(final int resourcesId) {
 	    	final ArrayDeque<Resource> list = new ArrayDeque<Resource>();
-	    	final int resId = (reqFlow.getResourcesId() < 0) ? -ei.getIdentifier() : reqFlow.getResourcesId();
-	    	
-	    	final TreeMap<ResourceType, ArrayDeque<Resource>> item1 = resources.get(resId);
-	    		for (ArrayDeque<Resource> item2 : item1.values()) {
-	    			list.addAll(item2);
-	    		}
+	    	final TreeMap<ResourceType, ArrayDeque<Resource>> item1 = resources.get(resourcesId);
+    		for (ArrayDeque<Resource> item2 : item1.values()) {
+    			list.addAll(item2);
+    		}
+	    	return list;
+	    }
+	    
+	    /**
+	     * Returns the list of resources identifier by the resourcesId and belonging to the specified workgroup
+	     * @param resourcesId Identifier of the group of resources
+	     * @param wg Resource types 
+	     * @return the list of resources caught by the specified element instance when performing the specified flow
+	     */
+	    public ArrayDeque<Resource> get(final int resourcesId, final WorkGroup wg) {
+	    	final ArrayDeque<Resource> list = new ArrayDeque<Resource>();
+	    	final TreeMap<ResourceType, ArrayDeque<Resource>> item1 = resources.get(resourcesId);
+    		final ResourceType[] rts = wg.getResourceTypes();
+    		for (int i = 0; i < rts.length; i++) {
+    			list.addAll(item1.get(rts[i]));
+    		}
 	    	return list;
 	    }
 	    
 		/**
 		 * Adds the specified resources to the list of seized resources
-		 * @param reqFlow The flow that seized the resources
-		 * @param ei Element instance performing the seizing
+		 * @param resourcesId Identifier of the group of resources
 		 * @param newResources New resources seized by the element
 		 */
-	    public void addResources(RequestResourcesFlow reqFlow, ElementInstance ei, ArrayDeque<Resource> newResources) {
+	    public void addResources(final int resourcesId, final ArrayDeque<Resource> newResources) {
 	    	// If it's a request flow inside an activity, use minus the element instance identifier
-	    	final int resId = (reqFlow.getResourcesId() < 0) ? -ei.getIdentifier() : reqFlow.getResourcesId();
-	    	TreeMap<ResourceType, ArrayDeque<Resource>> collection = resources.get(resId);
+	    	TreeMap<ResourceType, ArrayDeque<Resource>> collection = resources.get(resourcesId);
 	    	// Not already created
 	    	if (collection == null) {
 	    		collection = new TreeMap<ResourceType, ArrayDeque<Resource>>();
-				resources.put(resId, collection);
+				resources.put(resourcesId, collection);
 	    	}
 	    	for (final Resource res : newResources) {
 	    		final ResourceType currentRT = res.getCurrentResourceType();
@@ -383,17 +572,15 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	    
 	    /**
 	     * Removes the resources specified in the workgroup from the list of seized resources
-	     * @param relFlow The flow that released the resources
-	     * @param ei Element instance performing the releasing
-	     * @param wg Set of resources to release
+		 * @param resourcesId Identifier of the group of resources
+		 * @param wg Workgroup
 	     * @return The released resources
 	     */
-	    public ArrayDeque<Resource> removeResources(ReleaseResourcesFlow relFlow, ElementInstance ei, WorkGroup wg) {
-	    	final int resId = (relFlow.getResourcesId() < 0) ? -ei.getIdentifier() : relFlow.getResourcesId();
-	    	final TreeMap<ResourceType, ArrayDeque<Resource>> collection = resources.get(resId);
+	    public ArrayDeque<Resource> removeResources(final int resourcesId, final WorkGroup wg) {
+	    	final TreeMap<ResourceType, ArrayDeque<Resource>> collection = resources.get(resourcesId);
 	    	// Not already created
 	    	if (collection == null) {
-				error("Trying to release group of resources not already created. ID:" + resId);
+				error("Trying to release group of resources not already created. ID:" + resourcesId);
 				return null;	    		
 	    	}
 	    	final ArrayDeque<Resource> toRemove = new ArrayDeque<Resource>();
@@ -409,14 +596,14 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	    		for (int i = 0; i < rts.length; i++) {
 	    			final ArrayDeque<Resource> list = collection.get(rts[i]);
 	    			if (list == null) {
-	    				error("Trying to release non-seized resource of type " + rts[i] + " from group with ID " + resId);
+	    				error("Trying to release non-seized resource of type " + rts[i] + " from group with ID " + resourcesId);
 	    			}
 	    			else {
 	    				int max = wg.getNeeded(i);
 	    				// More resources to remove than available
 	    				if (wg.getNeeded(i) > list.size()) {
 	    					max = collection.get(rts[i]).size();
-		    				error("Trying to release " + wg.getNeeded(i) + " resources of type " + rts[i] + " from group with ID " + resId + ". Available: " + list.size());
+		    				error("Trying to release " + wg.getNeeded(i) + " resources of type " + rts[i] + " from group with ID " + resourcesId + ". Available: " + list.size());
 	    					toRemove.addAll(collection.remove(rts[i]));
 	    				}
 	    				// Remove all resources from that type

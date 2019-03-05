@@ -28,12 +28,13 @@ public class SimpleMergeFlow extends ORJoinFlow {
 	}
 
 	@Override
-	protected boolean canPass(ElementInstance wThread) {
-		if (!lastTs.containsKey(wThread.getElement())) {
-			lastTs.put(wThread.getElement(), (long)-1);
+	protected boolean canPass(ElementInstance ei) {
+		final Element elem = ei.getElement();
+		if (!lastTs.containsKey(elem)) {
+			lastTs.put(elem, (long)-1);
 		}
-		if (wThread.isExecutable() && (wThread.getTime() > lastTs.get(wThread.getElement()))) {
-			lastTs.put(wThread.getElement(), (long)wThread.getTime());
+		if (ei.isExecutable() && (elem.getTs() > lastTs.get(elem))) {
+			lastTs.put(elem, elem.getTs());
 			return true;
 		}
 		return false;

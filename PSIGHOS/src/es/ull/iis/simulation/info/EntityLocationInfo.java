@@ -5,13 +5,13 @@ package es.ull.iis.simulation.info;
 
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.location.Location;
-import es.ull.iis.simulation.model.location.MovableElement;
+import es.ull.iis.simulation.model.location.Movable;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class ElementLocationInfo extends AsynchronousInfo {
+public class EntityLocationInfo extends AsynchronousInfo {
 	/** Possible types of element information */
 	public enum Type {
 			ARRIVE	("ARRIVE AT LOCATION"),
@@ -30,7 +30,7 @@ public class ElementLocationInfo extends AsynchronousInfo {
 			
 		};
 	
-	final private MovableElement elem;
+	final private Movable entity;
 	final private Type type;
 	final private Location location;
 	
@@ -39,9 +39,9 @@ public class ElementLocationInfo extends AsynchronousInfo {
 	 * @param model
 	 * @param ts
 	 */
-	public ElementLocationInfo(Simulation model, MovableElement elem, Location location, Type type, long ts) {
+	public EntityLocationInfo(Simulation model, Movable entity, Location location, Type type, long ts) {
 		super(model, ts);
-		this.elem = elem;
+		this.entity = entity;
 		this.location = location;
 		this.type = type;
 	}
@@ -49,10 +49,10 @@ public class ElementLocationInfo extends AsynchronousInfo {
 
 
 	/**
-	 * @return the elem
+	 * @return the entity
 	 */
-	public MovableElement getElem() {
-		return elem;
+	public Movable getEntity() {
+		return entity;
 	}
 
 
@@ -72,6 +72,6 @@ public class ElementLocationInfo extends AsynchronousInfo {
 	}
 
 	public String toString() {
-		return "" + simul.long2SimulationTime(getTs()) + "\t" + elem.toString() + "\t" + type.getDescription() + "\t" + location; 
+		return "" + simul.long2SimulationTime(getTs()) + "\t" + entity.toString() + "\t" + type.getDescription() + "\t" + location; 
 	}
 }

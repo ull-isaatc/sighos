@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import es.ull.iis.function.TimeFunction;
-import es.ull.iis.simulation.model.ElementInstance;
+import es.ull.iis.simulation.model.SimulationObject;
 
 /**
  * A physical place where one or more entities can be at any time. Locations have a capacity, that determines how many entities fit in.
@@ -30,7 +30,7 @@ public abstract class Location implements Located {
 	private final ArrayList<Movable> entitiesIn;
 	// TODO: Change by a customizable queue
 	/** A simple FIFO queue for entities waiting to enter into the location */
-	private final ArrayList<ElementInstance> entitiesWaiting;
+	private final ArrayList<Movable> entitiesWaiting;
 	/** The time that it takes to exit (or go through) the location */ 
 	private final TimeFunction delayAtExit;
 	/** An internal unique identifier */
@@ -52,7 +52,7 @@ public abstract class Location implements Located {
 		linkedTo = new ArrayList<Location>();
 		linkedFrom = new ArrayList<Location>();
 		entitiesIn = new ArrayList<Movable>();
-		entitiesWaiting = new ArrayList<ElementInstance>();
+		entitiesWaiting = new ArrayList<Movable>();
 		this.capacity = capacity;
 		this.occupied = 0;
 		this.delayAtExit = delayAtExit;
@@ -101,10 +101,11 @@ public abstract class Location implements Located {
 
 	/**
 	 * Returns the time that it takes an element to exit (or go through) the location
+	 * @param obj The simulation object requesting the delay
 	 * @return the time that it takes an element to exit (or go through) the location
 	 */
-	public long getDelayAtExit(Movable entity) {
-		return Math.round(delayAtExit.getValue(entity));
+	public long getDelayAtExit(SimulationObject obj) {
+		return Math.round(delayAtExit.getValue(obj));
 	}
 
 	/**
@@ -125,10 +126,10 @@ public abstract class Location implements Located {
 
 	/**
 	 * Puts the entity into a waiting queue until the location has enough available capacity
-	 * @param ei Element instance currently executing the flow of the element
+	 * @param entity Entity currently trying to arrive at the location
 	 */
-	public void waitFor(ElementInstance ei) {
-		entitiesWaiting.add(ei);
+	public void waitFor(Movable entity) {
+		entitiesWaiting.add(entity);
 	}
 	
 	/**
@@ -150,24 +151,12 @@ public abstract class Location implements Located {
 		occupied -= entity.getCapacity();
 		entitiesIn.remove(entity);
 		// Goes through the waiting queue
-		Iterator<ElementInstance> iter = entitiesWaiting.iterator();
+		Iterator<Movable> iter = entitiesWaiting.iterator();
 		while (iter.hasNext()) {
-			ElementInstance wThread = iter.next();
-			final RouteFlow flow = (RouteFlow)wThread.getCurrentFlow();
-			final MovableElement elem = (MovableElement) wThread.getElement();
-			final Location currentLocation = elem.getLocation();
-			if (getAvailableCapacity() >= elem.getCapacity()) {
-				move(elem);
-				currentLocation.leave(elem);
+			final Movable waitingEntity = iter.next();
+			if (getAvailableCapacity() >= waitingEntity.getCapacity()) {
+				waitingEntity.notifyLocationAvailable(this);
 				iter.remove();
-				if (equals(flow.getDestination())) {
-					elem.debug("Finishes route\t" + this + "\t" + flow.getDescription());
-					flow.afterFinalize(wThread);
-					flow.next(wThread);
-				}
-				else {
-					flow.request(wThread);
-				}
 			}
 		}
 	}

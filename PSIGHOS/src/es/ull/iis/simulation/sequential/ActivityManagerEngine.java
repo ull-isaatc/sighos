@@ -57,13 +57,12 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
             final Element e = ei.getElement();
             // TODO: Check whether it always works fine
             final RequestResourcesFlow reqFlow = (RequestResourcesFlow) ei.getCurrentFlow();
-            
-    		if (!reqFlow.isExclusive() || (e.getCurrent() == null)) {
+            if (!e.isExclusive() || !reqFlow.isInExclusiveActivity()) {
 				final ArrayDeque<Resource> solution = reqFlow.isFeasible(ei);
     			// There are enough resources to perform the activity
     			if (solution != null) {
-    				if (reqFlow.isExclusive()) 
-    					e.setCurrent(ei);
+    				if (reqFlow.isInExclusiveActivity()) 
+    					e.setExclusive(true);
     				final long delay = ei.catchResources(solution);
     				if (delay > 0)
     					ei.startDelay(delay);
@@ -98,11 +97,11 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
 			final RequestResourcesFlow reqFlow = (RequestResourcesFlow) ei.getCurrentFlow();
 			if (elem.isDebugEnabled())
 				elem.debug("Calling availableElement()\t" + reqFlow + "\t" + reqFlow.getDescription());
-			if (elem.getCurrent() == null) {
+			if (!elem.isExclusive()) {
 				final ArrayDeque<Resource> solution = reqFlow.isFeasible(ei);
 				if (solution != null) {
-					if (reqFlow.isExclusive()) {
-						elem.setCurrent(ei);
+					if (reqFlow.isInExclusiveActivity()) {
+						elem.setExclusive(true);
 					}
 					final long delay = ei.catchResources(solution);
 					reqFlow.queueRemove(ei);

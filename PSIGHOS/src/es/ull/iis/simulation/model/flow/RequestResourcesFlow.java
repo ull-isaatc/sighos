@@ -45,43 +45,32 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
     private final PrioritizedTable<ActivityWorkGroup> workGroupTable;
     /** A unique identifier that serves to tell a ReleaseResourcesFlow which resources to release */
 	private final int resourcesId;
-	/** Only one exclusive set of resources can be acquired by an element at the same time */
-	private final boolean exclusive;
     /** Activity manager this request flow belongs to. */
     protected ActivityManager manager;
     /** Indicates that the basic step is potentially feasible. */
     protected boolean stillFeasible = true;
+    /** Indicates whether the flow is the first step of an exclusive activity */
+    private boolean inExclusiveActivity = false; 
     /** An engine to perform the simulation tasks associated to this flow */
     private RequestResourcesEngine engine;
 
 	/**
-	 * Creates a flow to seize a group of resources non-exclusively, with the highest priority, and default identifier 
+	 * Creates a flow to seize a group of resources with the highest priority, and default identifier 
 	 * @param model The simulation model this flow belongs to
 	 * @param description A brief description of the flow
 	 */
 	public RequestResourcesFlow(Simulation model, String description) {
-		this(model, description, 0, 0, false);
+		this(model, description, 0, 0);
 	}
 
 	/**
-	 * Creates a flow to seize a group of resources non-exclusively, with the highest priority, and the specified identifier
-	 * @param model The simulation model this flow belongs to
-	 * @param description A brief description of the flow
-	 * @param resourcesId Identifier of the group of resources
-	 */
-	public RequestResourcesFlow(Simulation model, String description, int resourcesId) {
-		this(model, description, resourcesId, 0, false);
-	}
-
-	/**
-	 * Creates a flow to seize a group of resources, with the specified priority, default identifier, and which could be accessed exclusively or not 
+	 * Creates a flow to seize a group of resources, with the specified priority, default identifier 
 	 * @param model The simulation model this flow belongs to
 	 * @param description A brief description of the flow
 	 * @param priority Priority. The lowest the value, the highest the priority
-	 * @param exclusive Only one exclusive set of resources can be acquired by an element at the same time
 	 */
-	public RequestResourcesFlow(Simulation model, String description, int priority, boolean exclusive) {
-		this(model, description, 0, priority, exclusive);
+	public RequestResourcesFlow(Simulation model, String description, int priority) {
+		this(model, description, 0, priority);
 	}
 
 	/**
@@ -92,24 +81,26 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * @param priority Priority. The lowest the value, the highest the priority
 	 */
 	public RequestResourcesFlow(Simulation model, String description, int resourcesId, int priority) {
-		this(model, description, resourcesId, priority, false);
-	}
-
-	/**
-	 * Creates a flow to seize a group of resources, with the specified priority and identifier, and which could be accessed exclusively or not 
-	 * @param model The simulation model this flow belongs to
-	 * @param description A brief description of the flow
-	 * @param resourcesId Identifier of the group of resources
-	 * @param priority Priority. The lowest the value, the highest the priority
-	 * @param exclusive Only one exclusive set of resources can be acquired by an element at the same time
-	 */
-	public RequestResourcesFlow(Simulation model, String description, int resourcesId, int priority, boolean exclusive) {
 		super(model);
         this.description = description;
         this.priority = priority;
 		this.resourcesId = resourcesId;
-		this.exclusive = exclusive;
         workGroupTable = new PrioritizedTable<ActivityWorkGroup>();
+	}
+
+	@Override
+	public void setParent(StructuredFlow parent) {
+		super.setParent(parent);
+		if (parent instanceof ActivityFlow)
+			inExclusiveActivity = ((ActivityFlow)parent).isExclusive();
+	}
+	
+	/**
+	 * Returns true if the flow is descendant of an exclusive activity; false otherwise 
+	 * @return True if the flow is descendant of an exclusive activity; false otherwise
+	 */
+	public boolean isInExclusiveActivity() {
+		return inExclusiveActivity;
 	}
 
 	@Override
@@ -122,15 +113,6 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
         return priority;
     }
 	
-	/** 
-	 * Returns <tt>true</tt> if the activity is exclusive, i.e., an element cannot perform other 
-	 * exclusive activities at the same time. 
-	 * @return <tt>True</tt> if the activity is exclusive, <tt>false</tt> in other case.
-	 */
-	public boolean isExclusive() {
-		return exclusive;
-	}
-
     /**
      * Returns the activity manager this flow belongs to.
      * @return Value of property manager.
@@ -306,9 +288,6 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 */
 	public void finish(final ElementInstance wThread) {
 		wThread.endDelay(this);
-		if (isExclusive()) {
-			wThread.getElement().setCurrent(null);
-		}
 		next(wThread);
 	}
 	

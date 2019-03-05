@@ -56,13 +56,13 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
             final RequestResourcesFlow reqFlow = (RequestResourcesFlow) ei.getCurrentFlow();
             final Element e = ei.getElement();
             final ElementEngine engine = (ElementEngine)e.getEngine();
-            if (reqFlow.isExclusive()) {
+            if (reqFlow.isInExclusiveActivity()) {
             	engine.waitSemaphore();
-                if (e.getCurrent() == null) {
+                if (!e.isExclusive()) {
     				final ArrayDeque<Resource> solution = reqFlow.isFeasible(ei);
         			// There are enough resources to perform the activity
         			if (solution != null) {
-                		e.setCurrent(ei);
+                		e.setExclusive(true);
                     	engine.signalSemaphore();
         				final long delay = ei.catchResources(solution);
         				if (delay > 0)
@@ -140,14 +140,14 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
 			final RequestResourcesFlow reqFlow = (RequestResourcesFlow) ei.getCurrentFlow();
 			if (elem.isDebugEnabled())
 				elem.debug("Calling availableElement()\t" + reqFlow + "\t" + reqFlow.getDescription());
-			if (reqFlow.isExclusive()) {
+			if (reqFlow.isInExclusiveActivity()) {
 	            engine.waitSemaphore();
 				// If the element is not performing a presential activity yet
-				if (elem.getCurrent() == null) {
+				if (!elem.isExclusive()) {
 					final ArrayDeque<Resource> solution = reqFlow.isFeasible(ei);
 	    			// There are enough resources to perform the activity
 	    			if (solution != null) {
-						elem.setCurrent(ei);
+						elem.setExclusive(true);
 			        	engine.signalSemaphore();
 						final long delay = ei.catchResources(solution);
 						reqFlow.queueRemove(ei);

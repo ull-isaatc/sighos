@@ -7,7 +7,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
-import es.ull.iis.function.TimeFunctionParams;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.model.engine.ElementInstanceEngine;
@@ -37,7 +36,7 @@ import es.ull.iis.util.RandomPermutation;
  * @author Ivan Castilla Rodriguez
  *
  */
-public class ElementInstance implements TimeFunctionParams, Prioritizable, Comparable<ElementInstance>, Identifiable {
+public class ElementInstance implements Prioritizable, Comparable<ElementInstance>, Identifiable {
     /** Element which carries out this flow. */    
     private final Element elem; 
     /** The parent element thread */
@@ -319,11 +318,6 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
 		this.arrivalTs = arrivalTs;
 	}
 
-	@Override
-	public double getTime() {
-		return elem.getTs();
-	}
-
     /**
      * Catch the resources needed for each resource type to carry out an activity.
 	 * @param solution Tentative solution with booked resources
@@ -343,7 +337,7 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
 		elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, reqFlow, executionWG, solution, ElementActionInfo.Type.ACQ, ts));
 		elem.debug("Resources acquired\t" + this + "\t" + reqFlow.getDescription());			
 		reqFlow.afterAcquire(this);
-		long delay = Math.round(executionWG.getDurationSample(this) * remainingTask);
+		long delay = Math.round(executionWG.getDurationSample(elem) * remainingTask);
 		auxTs -= ts;
 		if (delay > 0) {
 			if (remainingTask == 1.0) {
@@ -375,14 +369,13 @@ public class ElementInstance implements TimeFunctionParams, Prioritizable, Compa
 	
 	/**
 	 * Releases the previously seized resources
-	 * @param wg Workgroup of resources to release
 	 * @return The released resources
 	 */
-	public ArrayDeque<Resource> releaseCaughtResources(WorkGroup wg) {
+	public ArrayDeque<Resource> releaseCaughtResources() {
         final TreeSet<ActivityManager> amList = new TreeSet<ActivityManager>();
 		final ReleaseResourcesFlow relFlow = (ReleaseResourcesFlow)currentFlow;
 		
-		final ArrayDeque<Resource> resources = elem.releaseResources(relFlow, this, wg);
+		final ArrayDeque<Resource> resources = elem.releaseResources(relFlow, this);
         // Generate unavailability periods.
         for (Resource res : resources) {
         	final long cancellationDuration = relFlow.getResourceCancellation(res.getCurrentResourceType(), this);

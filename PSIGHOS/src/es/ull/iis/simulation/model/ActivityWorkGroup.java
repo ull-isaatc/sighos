@@ -82,10 +82,11 @@ public class ActivityWorkGroup implements Prioritizable, Identifiable, Describab
      * Returns the duration of the activity where this workgroup is used. 
      * The value returned by the random number function could be negative. 
      * In this case, it returns 0.
+     * @param elem The element performing the activity
      * @return The activity duration.
      */
-    public long getDurationSample(ElementInstance fe) {
-    	return Math.round(duration.getValue(fe));
+    public long getDurationSample(Element elem) {
+    	return Math.round(duration.getValue(elem));
     }
 
     public ResourceType getResourceType(int ind) {
