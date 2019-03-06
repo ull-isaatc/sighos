@@ -5,13 +5,11 @@ package es.ull.iis.simulation.port.sea2yard;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import java.util.Map.Entry;
-
 import es.ull.iis.simulation.model.ElementType;
-import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -150,8 +148,7 @@ public class PortModel extends Simulation {
 			if (!bay.isEmpty()) {
 				// Creates the container on top of the bay
 				int containerId1 = vessel.peek(bayId);
-				final Resource resContainer = new Resource(this, CONTAINER + containerId1);
-				resContainer.addTimeTableEntry(rtContainers[containerId1]);
+				rtContainers[containerId1].addGenericResources(1);
 				// Creates the activities for the top and intermediate containers. These activities create new containers.
 				for (int i = bay.size() - 1; i > 0; i--) {
 					containerId1 = bay.get(i);

@@ -61,21 +61,18 @@ public class PortModel extends Simulation {
 			rtQuayCranes[i] = new QuayCraneResourceType(qCraneIdCounter++, this, i);
 			for (int j = 0; j < N_QUAYS_PER_BERTH[i]; j++) {
 				final Resource res = new Resource(this, QUAY_CRANE + " " + i + "." + j);
-				res.addTimeTableEntry(rtQuayCranes[i]);
+				res.newTimeTableOrCancelEntriesAdder(rtQuayCranes[i]).addTimeTableEntry();
 			}
 		}
 		final ResourceType rtTrucks = new ResourceType(this, TRUCK);
-		for (int i = 0; i < N_TRUCKS; i++) {
-			final Resource res = new Resource(this, TRUCK + " " + i);
-			res.addTimeTableEntry(rtTrucks);
-		}
+		rtTrucks.addGenericResources(N_TRUCKS);
 		
 		final ResourceType[] rtYardCranes = new ResourceType[N_BLOCKS];
 		for (int i = 0; i < N_BLOCKS; i++) {
 			rtYardCranes[i] = new YardCraneResourceType(yCraneIdCounter++, this, i);
 			for (int j = 0; j < N_QUAYS_PER_BLOCK[i]; j++) {
 				final Resource res = new Resource(this, YARD_CRANE + " " + i + "." + j);
-				res.addTimeTableEntry(rtYardCranes[i]);
+				res.newTimeTableOrCancelEntriesAdder(rtYardCranes[i]).addTimeTableEntry();
 			}
 		}
 		// Defines the needs of the activities in terms of resources
