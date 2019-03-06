@@ -255,7 +255,7 @@ public class BenchmarkModel {
 
 		for (int i = 0; i < nElem * nAct; i++) {
 			res[i] = factory.getResourceInstance("RES_TEST" + i);
-			res[i].addTimeTableEntry(allCycle, endTs, rts[i % nAct]);
+			res[i].newTimeTableOrCancelEntriesAdder(rts[i % nAct]).withDuration(allCycle, endTs).addTimeTableEntry();
 		}
 
 		stdBuildElementGenerators(factory, new ForLoopFlow[] {rootFlow}, acts, wgs);
@@ -287,7 +287,7 @@ public class BenchmarkModel {
 
 		for (int i = 0; i < nElem; i++) {
 			res[i] = factory.getResourceInstance("RES_TEST" + i);
-			res[i].addTimeTableEntry(allCycle, endTs, rts[i % nAct]);
+			res[i].newTimeTableOrCancelEntriesAdder(rts[i % nAct]).withDuration(allCycle, endTs).addTimeTableEntry();
 		}
 		
 		stdBuildElementGenerators(factory, smfs, acts, wgs);
@@ -345,7 +345,8 @@ public class BenchmarkModel {
 		}
 		ArrayList<ResourceType> list = new ArrayList<ResourceType>(Arrays.asList(rts));
 		for (int j = 0; j < nElem; j++)
-			res[j].addTimeTableEntry(allCycle, endTs, list);
+			res[j].newTimeTableOrCancelEntriesAdder(list).withDuration(allCycle, endTs).addTimeTableEntry();
+
 //		for (int j = 0; j < nElem; j++)
 //			res[j].addTimeTableEntry(allCycle, endTs, rts[j % acts.length]);
 		
@@ -377,7 +378,7 @@ public class BenchmarkModel {
 		}
 		ArrayList<ResourceType> list = new ArrayList<ResourceType>(Arrays.asList(rts));
 		for (int j = 0; j < nElem / 2; j++)
-			res[j].addTimeTableEntry(allCycle, endTs, list);
+			res[j].newTimeTableOrCancelEntriesAdder(list).withDuration(allCycle, endTs).addTimeTableEntry();
 		
 		stdBuildElementGenerators(factory, smfs, acts, wgs);
 
@@ -441,7 +442,7 @@ public class BenchmarkModel {
 			ArrayList<ResourceType> roles = new ArrayList<ResourceType>();
 			for (int j = 0; j < rtXres; j++)
 				roles.add(rts[(i + (int) (j * (rts.length / rtXres) * resAvailabilityFactor)) % rts.length]);
-			res[i].addTimeTableEntry(allCycle, endTs, roles);
+			res[i].newTimeTableOrCancelEntriesAdder(roles).withDuration(allCycle, endTs).addTimeTableEntry();
 		}
 		
 		stdBuildElementGenerators(factory, smfs, acts, wgs);

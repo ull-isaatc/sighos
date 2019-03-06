@@ -196,7 +196,7 @@ public class ResourceType extends SimulationObject implements Describable {
 		final Resource[] res = new Resource[n];
 		for (int i = 0; i < n; i++) {
 			res[i] = new Resource(simul, description + " " + i);
-			res[i].addTimeTableEntry(this);
+			res[i].newTimeTableOrCancelEntriesAdder(this).addTimeTableEntry();
 		}
 		return res;
 	}
@@ -211,7 +211,7 @@ public class ResourceType extends SimulationObject implements Describable {
 		final Resource[] res = new Resource[n];
 		for (int i = 0; i < n; i++) {
 			res[i] = new Resource(simul, description + " " + i, size, initLocation);
-			res[i].addTimeTableEntry(this);
+			res[i].newTimeTableOrCancelEntriesAdder(this).addTimeTableEntry();
 		}
 		return res;
 	}

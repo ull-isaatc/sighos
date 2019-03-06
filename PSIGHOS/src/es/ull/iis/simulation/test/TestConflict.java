@@ -56,10 +56,11 @@ class ExpConflict extends Experiment {
 		
 		Resource r0 = factory.getResourceInstance("Res0");
 		Resource r1 = factory.getResourceInstance("Res1");
-		r0.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[0]);
-		r0.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[2]);
-		r1.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[3]);
-		r1.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[1]);
+		r0.newTimeTableOrCancelEntriesAdder(rts[0]).withDuration(c, 480).addTimeTableEntry();
+		r0.newTimeTableOrCancelEntriesAdder(rts[2]).withDuration(c, 480).addTimeTableEntry();
+		r1.newTimeTableOrCancelEntriesAdder(rts[3]).withDuration(c, 480).addTimeTableEntry();
+		r1.newTimeTableOrCancelEntriesAdder(rts[1]).withDuration(c, 480).addTimeTableEntry();
+
 
 		SimulationCycle c1 = new SimulationPeriodicCycle(unit, new TimeStamp(TimeUnit.MINUTE, 1), new SimulationTimeFunction(unit, "ConstantVariate", 1440), new TimeStamp(TimeUnit.MINUTE, 480));
 		factory.getTimeDrivenElementGeneratorInstance(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 
@@ -99,12 +100,12 @@ class ExpConflict extends Experiment {
 		Resource r0 = factory.getResourceInstance("Res0");
 		Resource r1 = factory.getResourceInstance("Res1");
 		Resource r2 = factory.getResourceInstance("Res1");
-		r0.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[0]);
-		r0.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[2]);
-		r1.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[3]);
-		r1.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[1]);
-		r2.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[4]);
-		r2.addTimeTableEntry(c, new TimeStamp(TimeUnit.MINUTE, 480), rts[5]);
+		r0.newTimeTableOrCancelEntriesAdder(rts[0]).withDuration(c, 480).addTimeTableEntry();
+		r0.newTimeTableOrCancelEntriesAdder(rts[2]).withDuration(c, 480).addTimeTableEntry();
+		r1.newTimeTableOrCancelEntriesAdder(rts[3]).withDuration(c, 480).addTimeTableEntry();
+		r1.newTimeTableOrCancelEntriesAdder(rts[1]).withDuration(c, 480).addTimeTableEntry();
+		r2.newTimeTableOrCancelEntriesAdder(rts[4]).withDuration(c, 480).addTimeTableEntry();
+		r2.newTimeTableOrCancelEntriesAdder(rts[5]).withDuration(c, 480).addTimeTableEntry();
 
 		SimulationCycle c1 = new SimulationPeriodicCycle(unit, new TimeStamp(TimeUnit.MINUTE, 1), new SimulationTimeFunction(unit, "ConstantVariate", 1440), new TimeStamp(TimeUnit.MINUTE, 480));
 		factory.getTimeDrivenElementGeneratorInstance(TimeFunctionFactory.getInstance("ConstantVariate", NELEM), 

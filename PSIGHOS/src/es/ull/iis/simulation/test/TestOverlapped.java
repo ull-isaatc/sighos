@@ -75,7 +75,7 @@ class ExpOverlapped extends Experiment {
 		al2.add(crSangre);
         for (int i = 0; i < NRESOURCES; i++) {
 			Resource poli1 = factory.getResourceInstance("Máquina Polivalente 1");
-			poli1.addTimeTableEntry(new SimulationPeriodicCycle(unit, 480, new SimulationTimeFunction(unit, "ConstantVariate", 1440), 0), 480, al2);
+			poli1.newTimeTableOrCancelEntriesAdder(al2).withDuration(new SimulationPeriodicCycle(unit, 480, new SimulationTimeFunction(unit, "ConstantVariate", 1440), 0), 480).addTimeTableEntry();
         }
         
 		ParallelFlow metaFlow = (ParallelFlow)factory.getFlowInstance("ParallelFlow");

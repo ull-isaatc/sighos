@@ -76,7 +76,7 @@ public abstract class WFPTestSimulationFactory {
 	
 	public Resource getDefResource(String description, ResourceType rt) {
 		final Resource res = new Resource(simul, description);
-		res.addTimeTableEntry(getResourceCycle(), RESAVAILABLE, rt);
+		res.newTimeTableOrCancelEntriesAdder(rt).withDuration(getResourceCycle(), RESAVAILABLE).addTimeTableEntry();
 		return res;
 	}
 	

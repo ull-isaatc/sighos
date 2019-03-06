@@ -128,25 +128,61 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 		return cancelPeriodTable;
 	}
 	
-	public final class TimeTableEntriesAdder {
+	/**
+	 * A builder class to build time table or cancellation entries. With one builder you can create several entries with the same cycle and duration for
+	 * one or more resource types. If you don't use the {@link #withDuration(SimulationCycle, TimeStamp)} method, the entries are assumed to last for
+	 * the whole duration of the simulation. You can also use the same builder for time table or cancellation entries, by invoking, respectively, 
+	 * {@link #addTimeTableEntry()} or {@link #addCancelEntry()}
+	 * @author Iván Castilla
+	 *
+	 */
+	public final class TimeTableOrCancelEntriesAdder {
 		private final ArrayList<ResourceType> roleList = new ArrayList<ResourceType>();
 		private SimulationCycle cycle = null;
 		private TimeStamp dur = null;
 		
-		public TimeTableEntriesAdder(final ResourceType role) {
+		/**
+		 * Creates an entry adder with a single role
+		 * @param role The type of this resource during every activation/to be cancelled
+		 */
+		public TimeTableOrCancelEntriesAdder(final ResourceType role) {
 			roleList.add(role);
 		}
 
-		public TimeTableEntriesAdder(final ArrayList<ResourceType> roleList) {
+		/**
+		 * Creates an entry adder with multiple concurrent roles
+		 * @param roleList The types of this resource during every activation /to be cancelled
+		 */
+		public TimeTableOrCancelEntriesAdder(final ArrayList<ResourceType> roleList) {
 			this.roleList.addAll(roleList);
 		}
 		
-		public void withDuration(final SimulationCycle cycle, final TimeStamp dur) {
+		/**
+		 * Adds a duration and activation/cancellation cycle
+		 * @param cycle Simulation cycle to define activation/deactivation time
+		 * @param dur How long the resource is active/will remain inactive
+		 */
+		public TimeTableOrCancelEntriesAdder withDuration(final SimulationCycle cycle, final TimeStamp dur) {
 			this.cycle = cycle;
 			this.dur = dur;
+			return this;
 		}
 		
-		public void add() {
+		/**
+		 * Adds a duration and activation/cancellation cycle
+		 * @param cycle Simulation cycle to define activation/deactivation time
+		 * @param dur How long the resource is active/will remain inactive
+		 */
+		public TimeTableOrCancelEntriesAdder withDuration(final SimulationCycle cycle, final long dur) {
+			this.cycle = cycle;
+			this.dur = new TimeStamp(simul.getTimeUnit(), dur);
+			return this;
+		}
+		
+		/**
+		 * Creates the time table entry/ies with the specified characteristics
+		 */
+		public void addTimeTableEntry() {
 			if (cycle == null) {
 		    	for (final ResourceType role : roleList)
 		    		timeTable.add(new TimeTableEntry(role));
@@ -156,109 +192,40 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 		    		timeTable.add(new TimeTableEntry(cycle, dur, role));
 			}
 		}
+		
+		/**
+		 * Creates the cancellation entry/ies with the specified characteristics
+		 */
+		public void addCancelEntry() {
+			if (cycle == null) {
+		    	for (final ResourceType role : roleList)
+		    		cancelPeriodTable.add(new TimeTableEntry(role));
+			}
+			else {
+		    	for (final ResourceType role : roleList)
+		    		cancelPeriodTable.add(new TimeTableEntry(cycle, dur, role));
+			}
+		}
 	}
 	
 	/**
-	 * Adds a timetable entry for the whole duration of the simulation
-	 * @param role The type of this resource during every activation 
+	 * Returns a builder class for adding time table or cancellation entries
+	 * @param role The type of this resource during every activation/to be cancelled 
+	 * @return a builder class for adding time table or cancellation entries
 	 */
-	public void addTimeTableEntry(final ResourceType role) {
-		timeTable.add(new TimeTableEntry(role));
-    }
-    
-	/**
-	 * Adds a timetable entry for the whole duration of the simulation with overlapped resource types
-	 * @param roleList The types of this resource during every activation 
-	 */
-	public void addTimeTableEntry(final ArrayList<ResourceType> roleList) {
-    	for (int i = 0; i < roleList.size(); i++)
-            addTimeTableEntry(roleList.get(i));
-    }
+	public TimeTableOrCancelEntriesAdder newTimeTableOrCancelEntriesAdder(final ResourceType role) {
+		return new TimeTableOrCancelEntriesAdder(role);
+	}
 	
-    /**
-	 * Adds a timetable entry
-	 * @param cycle Simulation cycle to define activation time
-	 * @param dur How long the resource is active
-	 * @param role The type of this resource during every activation 
-	 */
-	public void addTimeTableEntry(final SimulationCycle cycle, final TimeStamp dur, final ResourceType role) {
-        timeTable.add(new TimeTableEntry(cycle, dur, role));
-    }
-    
 	/**
-	 * Adds a timetable entry with overlapped resource types
-	 * @param cycle Simulation cycle to define activation time
-	 * @param dur How long the resource is active
-	 * @param roleList The types of this resource during every activation 
+	 * Returns a builder class for adding time table or cancellation entries
+	 * @param roleList The types of this resource during every activation /to be cancelled
+	 * @return a builder class for adding time table or cancellation entries
 	 */
-	public void addTimeTableEntry(SimulationCycle cycle, TimeStamp dur, ArrayList<ResourceType> roleList) {
-    	for (int i = 0; i < roleList.size(); i++)
-            addTimeTableEntry(cycle, dur, roleList.get(i));
-    }  
-    
-	/**
-	 * Adds a timetable entry
-	 * @param cycle ParallelSimulationEngine cycle to define activation time
-	 * @param dur How long the resource is active using the default model time unit
-	 * @param role The type of this resource during every activation 
-	 */
-	public void addTimeTableEntry(SimulationCycle cycle, long dur, ResourceType role) {
-    	addTimeTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), role);
-    }  
-    
-	/**
-	 * Adds a timetable entry with overlapped resource types
-	 * @param cycle ParallelSimulationEngine cycle to define activation time
-	 * @param dur How long the resource is active using the default model time unit
-	 * @param roleList The types of this resource during every activation 
-	 */
-	public void addTimeTableEntry(SimulationCycle cycle, long dur, ArrayList<ResourceType> roleList) {
-    	addTimeTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), roleList);
-    }  
-    
-    /**
-     * Adds a new entry with a single role.
-     * @param cycle Cycle that characterizes this entry
-     * @param dur The long this resource plays this role every cycle
-     * @param role Role that the resource plays during this cycle
-     */
-	public void addCancelTableEntry(SimulationCycle cycle, TimeStamp dur, ResourceType role) {
-        cancelPeriodTable.add(new TimeTableEntry(cycle, dur, role));
-    }  
-
-    /**
-     * Adds a new entry with a several roles.
-     * @param cycle Cycle that characterizes this entry
-     * @param dur The long this resource plays this role every cycle
-     * @param roleList Roles that the resource play during this cycle
-     */
-	public void addCancelTableEntry(SimulationCycle cycle, TimeStamp dur, ArrayList<ResourceType> roleList) {
-    	for (int i = 0; i < roleList.size(); i++)
-            addCancelTableEntry(cycle, dur, roleList.get(i));
-    }  
-    
-    /**
-     * Adds a new entry with a single role.
-     * @param cycle Cycle that characterizes this entry
-     * @param dur The long this resource plays this role every cycle expressed in the 
-     * default model time unit
-     * @param role Role that the resource plays during this cycle
-     */
-	public void addCancelTableEntry(SimulationCycle cycle, long dur, ResourceType role) {
-    	addCancelTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), role);
-    }  
-
-    /**
-     * Adds a new entry with a several roles.
-     * @param cycle Cycle that characterizes this entry
-     * @param dur The long this resource plays this role every cycle cycle expressed in the 
-     * default model time unit
-     * @param roleList Roles that the resource play during this cycle
-     */
-	public void addCancelTableEntry(SimulationCycle cycle, long dur, ArrayList<ResourceType> roleList) {
-    	addCancelTableEntry(cycle, new TimeStamp(simul.getTimeUnit(), dur), roleList);
-    }
-
+	public TimeTableOrCancelEntriesAdder newTimeTableOrCancelEntriesAdder(final ArrayList<ResourceType> roleList) {
+		return new TimeTableOrCancelEntriesAdder(roleList);
+	}
+	
 	@Override
 	public DiscreteEvent onCreate(long ts) {
 		if (initLocation != null) {

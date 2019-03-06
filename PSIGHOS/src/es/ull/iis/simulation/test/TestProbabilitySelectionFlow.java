@@ -45,9 +45,9 @@ class ExperimentProbSel extends Experiment {
         SimulationPeriodicCycle subc2 = new SimulationPeriodicCycle(unit, 480, new SimulationTimeFunction(unit, "ConstantVariate", 1040), 5);
         SimulationPeriodicCycle c2 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 1040 * 7), 0, subc2);
 
-        factory.getResourceInstance("Empleado1").addTimeTableEntry(c2, 420, rt);
-        factory.getResourceInstance("Empleado2").addTimeTableEntry(c2, 420, rt);
-        factory.getResourceInstance("Empleado3").addTimeTableEntry(c2, 420, rt);
+        factory.getResourceInstance("Empleado1").newTimeTableOrCancelEntriesAdder(rt).withDuration(c2, 420).addTimeTableEntry();
+        factory.getResourceInstance("Empleado2").newTimeTableOrCancelEntriesAdder(rt).withDuration(c2, 420).addTimeTableEntry();
+        factory.getResourceInstance("Empleado3").newTimeTableOrCancelEntriesAdder(rt).withDuration(c2, 420).addTimeTableEntry();
         
 
         ProbabilitySelectionFlow root = (ProbabilitySelectionFlow)factory.getFlowInstance("ProbabilitySelectionFlow");

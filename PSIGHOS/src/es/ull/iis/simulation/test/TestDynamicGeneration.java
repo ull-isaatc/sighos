@@ -30,9 +30,9 @@ class TestDynamicGenerationExperiment extends Experiment {
 		ResourceType rt1 = factory.getResourceTypeInstance("RT1");
 		
 		Resource r0 =  factory.getResourceInstance("Res0");
-		r0.addTimeTableEntry(SimulationPeriodicCycle.newDailyCycle(unit), 1, rt0);
+		r0.newTimeTableOrCancelEntriesAdder(rt0).withDuration(SimulationPeriodicCycle.newDailyCycle(unit), 1).addTimeTableEntry();
 		Resource r1 = factory.getResourceInstance("Res1");
-		r1.addTimeTableEntry(SimulationPeriodicCycle.newDailyCycle(unit), 1, rt1);
+		r1.newTimeTableOrCancelEntriesAdder(rt1).withDuration(SimulationPeriodicCycle.newDailyCycle(unit), 1).addTimeTableEntry();
 		
 		WorkGroup wg0 = factory.getWorkGroupInstance(new ResourceType [] {rt0, rt1}, new int[] {1,1});
 		

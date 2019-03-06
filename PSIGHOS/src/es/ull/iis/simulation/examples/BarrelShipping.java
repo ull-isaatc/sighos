@@ -50,9 +50,10 @@ class BarrelShippingExperiment extends Experiment {
 
 		// Declares two operators who work 8 hours a day
 		Resource operator1 = factory.getResourceInstance("Operator1");
-		operator1.addTimeTableEntry(resCycle, 480, rtOperator);
+		operator1.newTimeTableOrCancelEntriesAdder(rtOperator).withDuration(resCycle, 480).addTimeTableEntry();
 		Resource operator2 = factory.getResourceInstance("Operator2");
-		operator2.addTimeTableEntry(resCycle, 480, rtOperator);
+		operator2.newTimeTableOrCancelEntriesAdder(rtOperator).withDuration(resCycle, 480).addTimeTableEntry();
+
 		
 		// Defines the needs of the activities in terms of resources
 		WorkGroup wgOperator = factory.getWorkGroupInstance(new ResourceType [] {rtOperator}, new int[] {1});	

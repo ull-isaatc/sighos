@@ -51,7 +51,7 @@ public class TestInterruptibleActivities {
 				SimulationPeriodicCycle c1 = new SimulationPeriodicCycle(unit, 0, new SimulationTimeFunction(unit, "ConstantVariate", 200), 0);
 				SimulationPeriodicCycle c2 = new SimulationPeriodicCycle(unit, 20, new SimulationTimeFunction(unit, "ConstantVariate", 100), 0);
 				for (int i = 0; i < NRES; i++)
-					factory.getResourceInstance("RES" + i).addTimeTableEntry(c2, 40, rt);
+					factory.getResourceInstance("RES" + i).newTimeTableOrCancelEntriesAdder(rt).withDuration(c2, 40).addTimeTableEntry();;
 				ParallelFlow meta = (ParallelFlow)factory.getFlowInstance("ParallelFlow");
 				for (int i = 0; i < NACT; i++) {
 					meta.link(acts[i]);

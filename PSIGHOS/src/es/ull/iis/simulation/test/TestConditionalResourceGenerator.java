@@ -39,7 +39,7 @@ public class TestConditionalResourceGenerator extends Experiment {
 		public void afterFinalize(ElementInstance fe) {
 			if (specialId < NRT - 1) {
 				final Resource res = new Resource(simul, "Container " + (specialId + 1));
-				res.addTimeTableEntry(rts[specialId + 1]);
+				res.newTimeTableOrCancelEntriesAdder(rts[specialId + 1]).addTimeTableEntry();
 				simul.addEvent(res.onCreate(simul.getTs()));
 			}
 		}
@@ -63,7 +63,7 @@ public class TestConditionalResourceGenerator extends Experiment {
 			}
 			// Only the first resource is available from the beginning
 			final Resource res0 = new Resource(this, "Container " + 0);
-			res0.addTimeTableEntry(rts[0]);
+			res0.newTimeTableOrCancelEntriesAdder(rts[0]).addTimeTableEntry();
 			
 			new TimeDrivenElementGenerator(this, 1, et, pf, SimulationPeriodicCycle.newDailyCycle(getTimeUnit()));
 		}

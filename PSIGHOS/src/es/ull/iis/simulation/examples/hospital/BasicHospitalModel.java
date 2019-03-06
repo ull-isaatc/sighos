@@ -74,18 +74,19 @@ public class BasicHospitalModel extends Simulation {
 		SimulationPeriodicCycle surgeonCycle = SimulationPeriodicCycle.newDailyCycle(unit, 11 * 60);
 		
 		// Define the roles of the resources
-		resDoctor1.addTimeTableEntry(docCycle, 7 * 60, rtDoctor);
-		resDoctor2.addTimeTableEntry(docCycle, 7 * 60, rtDoctor);
-		resDoctor3.addTimeTableEntry(docCycle, 7 * 60, rtDoctor);
-		resDoctor4.addTimeTableEntry(docCycle, 7 * 60, rtDoctor);
-		resDoctor5.addTimeTableEntry(docCycle, 7 * 60, rtDoctor);
-		resDoctor6.addTimeTableEntry(docCycle, 7 * 60, rtDoctor);
-		resNurse1.addTimeTableEntry(docCycle, 7 * 60, rtNurse);
-		resNurse2.addTimeTableEntry(docCycle, 7 * 60, rtNurse);
-		resNurse3.addTimeTableEntry(docCycle, 7 * 60, rtNurse);
-		resDoctor1.addTimeTableEntry(surgeonCycle, 3 * 60, rtSurgeon);
-		resDoctor2.addTimeTableEntry(surgeonCycle, 3 * 60, rtSurgeon);
-		resDoctor3.addTimeTableEntry(surgeonCycle, 3 * 60, rtSurgeon);
+		resDoctor1.newTimeTableOrCancelEntriesAdder(rtDoctor).withDuration(docCycle, 7 * 60).addTimeTableEntry();
+		resDoctor2.newTimeTableOrCancelEntriesAdder(rtDoctor).withDuration(docCycle, 7 * 60).addTimeTableEntry();
+		resDoctor3.newTimeTableOrCancelEntriesAdder(rtDoctor).withDuration(docCycle, 7 * 60).addTimeTableEntry();
+		resDoctor4.newTimeTableOrCancelEntriesAdder(rtDoctor).withDuration(docCycle, 7 * 60).addTimeTableEntry();
+		resDoctor5.newTimeTableOrCancelEntriesAdder(rtDoctor).withDuration(docCycle, 7 * 60).addTimeTableEntry();
+		resDoctor6.newTimeTableOrCancelEntriesAdder(rtDoctor).withDuration(docCycle, 7 * 60).addTimeTableEntry();
+		resNurse1.newTimeTableOrCancelEntriesAdder(rtNurse).withDuration(docCycle, 7 * 60).addTimeTableEntry();
+		resNurse2.newTimeTableOrCancelEntriesAdder(rtNurse).withDuration(docCycle, 7 * 60).addTimeTableEntry();
+		resNurse3.newTimeTableOrCancelEntriesAdder(rtNurse).withDuration(docCycle, 7 * 60).addTimeTableEntry();
+		resDoctor1.newTimeTableOrCancelEntriesAdder(rtSurgeon).withDuration(surgeonCycle, 3 * 60).addTimeTableEntry();
+		resDoctor2.newTimeTableOrCancelEntriesAdder(rtSurgeon).withDuration(surgeonCycle, 3 * 60).addTimeTableEntry();
+		resDoctor3.newTimeTableOrCancelEntriesAdder(rtSurgeon).withDuration(surgeonCycle, 3 * 60).addTimeTableEntry();
+
 		
 		// Create the activities
 		ActivityFlow actAppointment = new ActivityFlow(this, "Appointment");
