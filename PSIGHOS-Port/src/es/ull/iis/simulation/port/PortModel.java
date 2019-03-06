@@ -99,7 +99,7 @@ public class PortModel extends Simulation {
 				public boolean check(ElementInstance fe) {
 					return (((Container)fe.getElement()).getBerth() == berthId);
 				}
-			}).withDelay(TIME_TO_UNLOAD[i]).addWorkGroup();
+			}).withDelay(TIME_TO_UNLOAD[i]).add();
 		}
 		final DelayFlow aToYard = new DelayFlow(this, ACT_TO_YARD, new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK));
 		final ActivityFlow aPlace = new ActivityFlow(this, ACT_PLACE);
@@ -110,13 +110,13 @@ public class PortModel extends Simulation {
 				public boolean check(ElementInstance fe) {
 					return (((Container)fe.getElement()).getBlock() == blockId);
 				}
-			}).withDelay(TIME_TO_PLACE[i]).addWorkGroup();
+			}).withDelay(TIME_TO_PLACE[i]).add();
 		}
 		final ActivityFlow aTruckReturn = new ActivityFlow(this, ACT_TRUCK_RETURN);
-		aTruckReturn.newWorkGroupAdder(wgEmpty).withDelay(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK)).addWorkGroup();
+		aTruckReturn.newWorkGroupAdder(wgEmpty).withDelay(new DistanceTimeFunction(TIME_FROM_BERTH_TO_BLOCK)).add();
 
 		final RequestResourcesFlow reqTruck = new RequestResourcesFlow(this, ACT_REQ_TRUCK, 1);
-		reqTruck.newWorkGroupAdder(wgTruck).addWorkGroup();
+		reqTruck.newWorkGroupAdder(wgTruck).add();
 		final ReleaseResourcesFlow relTruck = new ReleaseResourcesFlow(this, ACT_REL_TRUCK, 1);
 		
 		// Defines the flow for the former activities

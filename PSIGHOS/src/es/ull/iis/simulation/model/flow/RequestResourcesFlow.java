@@ -349,7 +349,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	     * Creates a new workgroup for this flow. 
 	     * @return The new workgroup's identifier.
 	     */
-		public int addWorkGroup() {
+		public int add() {
 			if (cond == null)
 				cond = new TrueCondition();
 			if (delay == null)

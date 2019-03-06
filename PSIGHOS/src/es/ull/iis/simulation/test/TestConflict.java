@@ -49,7 +49,7 @@ class ExpConflict extends Experiment {
 		ActivityFlow acts[] = new ActivityFlow[NACTS];
 		for (int i = 0; i < NACTS; i++) {
 			acts[i] = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "ACT" + i);
-	    	acts[i].newWorkGroupAdder(wgs[i]).withDelay(40).addWorkGroup();
+	    	acts[i].newWorkGroupAdder(wgs[i]).withDelay(40).add();
 		}
 		
 		SimulationCycle c = SimulationPeriodicCycle.newDailyCycle(unit);
@@ -91,7 +91,7 @@ class ExpConflict extends Experiment {
 		ActivityFlow acts[] = new ActivityFlow[NACTS];
 		for (int i = 0; i < NACTS; i++) {
 			acts[i] = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "ACT" + i);
-	    	acts[i].newWorkGroupAdder(wgs[i]).withDelay(40).addWorkGroup();
+	    	acts[i].newWorkGroupAdder(wgs[i]).withDelay(40).add();
 		}
 
 		SimulationCycle c = SimulationPeriodicCycle.newDailyCycle(unit);

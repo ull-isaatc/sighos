@@ -6,6 +6,7 @@ package es.ull.iis.simulation.model;
 import java.util.ArrayDeque;
 
 import es.ull.iis.simulation.model.engine.SimulationEngine;
+import es.ull.iis.simulation.model.location.Location;
 
 /**
  * The type of a resource. Defines roles or specializations of the resources.<p>
@@ -195,6 +196,21 @@ public class ResourceType extends SimulationObject implements Describable {
 		final Resource[] res = new Resource[n];
 		for (int i = 0; i < n; i++) {
 			res[i] = new Resource(simul, description + " " + i);
+			res[i].addTimeTableEntry(this);
+		}
+		return res;
+	}
+
+	/**
+	 * Adds n resources of type {@link ResourceType}. This method is useful when you simply want to create a
+	 * set of resources that are available all the time as {@link ResourceType}.
+	 * @param n Number of generic resources to create.
+	 * @return The set of resources created.
+	 */
+	public Resource[] addGenericResources(int n, int size, Location initLocation) {
+		final Resource[] res = new Resource[n];
+		for (int i = 0; i < n; i++) {
+			res[i] = new Resource(simul, description + " " + i, size, initLocation);
 			res[i].addTimeTableEntry(this);
 		}
 		return res;

@@ -26,7 +26,7 @@ import es.ull.iis.util.Prioritizable;
 /**
  * An entity capable of following a {@link Flow workflow}. Elements have a {@link ElementType type} and interact with {@link Resource resources}
  * by means of {@link es.ull.iis.simulation.model.flow.ResourceHandlerFlow resource handler flows}
- * Elements can move from a {@link Location} to another.   
+ * Elements can also move from a {@link Location} to another.   
  * @author Iván Castilla
  *
  */
@@ -39,6 +39,8 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	protected boolean exclusive = false;
 	/** The current location of the element */
 	private Location currentLocation;
+	/** The initial location of the element */
+	private final Location initLocation;
 	/** The current element instance that drives the movement of the element */
 	private ElementInstance movingInstance = null;
 	/** The size of the element */
@@ -57,7 +59,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * @param initialFlow First step of the flow of the element
 	 */
 	public Element(final Simulation simul, final ElementType elementType, final InitializerFlow initialFlow) {
-		this(simul, elementType, initialFlow, 0);
+		this(simul, elementType, initialFlow, 0, null);
 	}
 	
 	/**
@@ -66,13 +68,15 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * @param elementType Element type
 	 * @param initialFlow First step of the flow of the element
 	 * @param size The size of the element
+     * @param initLocation The initial location of the element
 	 */
-	public Element(final Simulation simul, final ElementType elementType, final InitializerFlow initialFlow, final int size) {
+	public Element(final Simulation simul, final ElementType elementType, final InitializerFlow initialFlow, final int size, final Location initLocation) {
 		super(simul, simul.getNewElementId(), "E");
 		this.elementType = elementType;
 		this.initialFlow = initialFlow;
         this.seizedResources = new SeizedResourcesCollection();
         this.size = size;
+        this.initLocation = initLocation;
 	}
 	
 	/**
@@ -223,12 +227,21 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	}
 
 	/**
-	 * Initializes the element by requesting the <code>initialFlow</code>. If there's no initial flow
-	 * the element finishes immediately.
+	 * Initializes the element by requesting the <code>initialFlow</code>, and placing the element in its initial location. If there's no initial flow 
+	 * or the element does not fit into the initial location, the element finishes immediately.
 	 */
 	@Override
 	public DiscreteEvent onCreate(final long ts) {
 		simul.notifyInfo(new ElementInfo(simul, this, elementType, ElementInfo.Type.START, getTs()));
+		if (initLocation != null) {
+			if (initLocation.getAvailableCapacity() >= size) {
+				initLocation.move(this);
+			}
+			else {
+				error("Unable to initialize element. Not enough space in location " + initLocation + " (available: " + initLocation.getAvailableCapacity() + " - required: " + size + ")");				
+				return onDestroy(ts);
+			}
+		}
 		if (initialFlow != null) {
 			mainInstance = ElementInstance.getMainElementInstance(this);
 			return (new RequestFlowEvent(getTs(), initialFlow, mainInstance.getDescendantElementInstance(initialFlow)));
@@ -241,8 +254,6 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	public DiscreteEvent onDestroy(long ts) {
 		simul.notifyInfo(new ElementInfo(simul, this, elementType, ElementInfo.Type.FINISH, getTs()));
 		return new DiscreteEvent.DefaultFinalizeEvent(this, ts);
-		// TODO: Check if the following action should be performed within the event
-		// simul.removeActiveElement(this);
 	}
 
     /**
@@ -282,7 +293,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 		/** The flow to be requested */
 		private final Flow f;
 
-		public RequestFlowEvent(long ts, Flow f, ElementInstance ei) {
+		public RequestFlowEvent(final long ts, final Flow f, final ElementInstance ei) {
 			super(ts);
 			this.ei = ei;
 			this.f = f;
@@ -305,7 +316,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 		/** The flow to be finished */
 		private final TaskFlow f;
 
-		public FinishFlowEvent(long ts, TaskFlow f, ElementInstance ei) {
+		public FinishFlowEvent(final long ts, final TaskFlow f, final ElementInstance ei) {
 			super(ts);
 			this.ei = ei;
 			this.f = f;
@@ -342,7 +353,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	}
 
 	@Override
-	public void setLocation(Location location) {
+	public void setLocation(final Location location) {
 		if (currentLocation == null) {
 			simul.notifyInfo(new EntityLocationInfo(simul, this, location, EntityLocationInfo.Type.START, getTs()));
 			currentLocation = location;
@@ -354,18 +365,9 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 		}
 	}
 
-	/**
-	 * Returns the next location for this element
-	 * @return the next location for this element
-	 */
-	public ElementInstance getMovingInstance() {
-		return movingInstance;
-	}
-
 	@Override
-	public void notifyLocationAvailable(Location location) {
+	public void notifyLocationAvailable(final Location location) {
 		location.move(this);
-		currentLocation.leave(this);
 
     	final MoveFlow flow = (MoveFlow)movingInstance.getCurrentFlow();
     	final Location destination = flow.getDestination();
@@ -376,21 +378,23 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 			flow.finish(movingInstance);
 		}
 		else {
-			final Location nextLoc = router.getNextLocationTo(Element.this, destination);
+			final Location nextLoc = router.getNextLocationTo(this, destination);
 			if (nextLoc == null) {
 				error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
 				movingInstance.cancel(flow);
 				flow.next(movingInstance);
 			}
 			else {
-				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(Element.this), nextLoc, destination, router);
+				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
 		    	simul.addEvent(mEvent);						
 			}
 		}
 	}
 	
     /**
-     * Creates a move event to move to destination using the specified router.
+     * Creates a move event to move to destination using the specified router. The element uses the router to select the next step in the path 
+     * for the destination. If the destination is unreachable, the flow is cancelled. Otherwise, the element starts a delay as defined in the 
+     * current location's {@link Location#getDelayAtExit(Movable)} 
      * @param ei Element instance that initiates the move
      * @param destination Destination location
      * @param router Instance that returns the path for the element
@@ -419,14 +423,27 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 			}
     	}
     }
-    
+
+    /**
+     * Notifies the element that it has arrived at destination
+     * @param ei Element instance that was moving
+     */
     public void endMove(final ElementInstance ei) {
     	movingInstance = null;
     }
 
+    /**
+     * An event to perform a move. The element try to move to the next location in its path to its final destination. The element only leaves 
+     * its current location if there is enough free space for the element in the new location; otherwise, it waits. 
+     * @author Iván Castilla
+     *
+     */
 	public class MoveEvent extends DiscreteEvent {
+		/** Final destination of the move */
 		final private Location destination;
+		/** Next location in the way to the final destination */
 		final private Location nextLocation;
+		/** The instance that computes the path to the final destination */
 		final private Router router;
 		
 		/**
@@ -446,9 +463,8 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 		@Override
 		public void event() {
 			if (nextLocation.getAvailableCapacity() >= getCapacity()) {
-				MoveFlow flow = ((MoveFlow)movingInstance.getCurrentFlow());
+				final MoveFlow flow = ((MoveFlow)movingInstance.getCurrentFlow());
 				nextLocation.move(Element.this);
-				currentLocation.leave(Element.this);
 				if (nextLocation.equals(destination)) {
 					debug("Finishes route\t" + this + "\t" + destination);
 					flow.finish(movingInstance);
@@ -496,7 +512,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	     * @param rt Searched resource type 
 	     * @return true if the collection contains any resource of the specified resource type; false otherwise
 	     */
-	    public boolean containsResourceType(ResourceType rt) {
+	    public boolean containsResourceType(final ResourceType rt) {
 	    	for (TreeMap<ResourceType, ArrayDeque<Resource>> item1 : resources.values()) {
 	    		if (item1.containsKey(rt))
 	    			return true;

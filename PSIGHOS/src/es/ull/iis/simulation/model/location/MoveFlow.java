@@ -54,12 +54,7 @@ public class MoveFlow extends SingleSuccessorFlow implements TaskFlow, ActionFlo
 	public void afterFinalize(final ElementInstance fe) {
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * The element uses the router to select the next step in the path for the destination. If the destination is unreachable, the flow is 
-	 * cancelled. Otherwise, the element starts a delay as defined in the current location's {@link Location#getDelayAtExit(Movable)} 
-	 */
+	@Override
 	public void request(final ElementInstance ei) {
 		if (!ei.wasVisited(this)) {
 			if (ei.isExecutable()) {
@@ -79,13 +74,7 @@ public class MoveFlow extends SingleSuccessorFlow implements TaskFlow, ActionFlo
 			ei.notifyEnd();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * This method is invoked after finishing the delay to abandon the element's current location. The element try to move to the next location in its
-	 * path to its final destination. The element only leaves its current location if there is enough free space for the element in the new location; 
-	 * otherwise, it waits. 
-	 */
+	@Override
 	public void finish(final ElementInstance ei) {
 		ei.getElement().endMove(ei);
 		afterFinalize(ei);

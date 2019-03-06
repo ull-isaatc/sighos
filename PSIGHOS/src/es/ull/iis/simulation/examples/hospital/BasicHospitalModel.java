@@ -97,9 +97,9 @@ public class BasicHospitalModel extends Simulation {
 		WorkGroup wgSurgery2 = new WorkGroup(this, new ResourceType[] {rtSurgeon, rtNurse}, new int[] {1, 1});
 		
 		// Assign duration and workgroups to activities
-		actAppointment.newWorkGroupAdder(wgAppointment).withDelay(TimeFunctionFactory.getInstance("UniformVariate", 7, 10)).addWorkGroup();
-		actSurgery.newWorkGroupAdder(wgSurgery1).withDelay(40L).addWorkGroup();
-		actSurgery.newWorkGroupAdder(wgSurgery2).withDelay(60L).addWorkGroup();
+		actAppointment.newWorkGroupAdder(wgAppointment).withDelay(TimeFunctionFactory.getInstance("UniformVariate", 7, 10)).add();
+		actSurgery.newWorkGroupAdder(wgSurgery1).withDelay(40L).add();
+		actSurgery.newWorkGroupAdder(wgSurgery2).withDelay(60L).add();
 		
 		// Create a conditional flow to determine if a patient requires surgery
 		ExclusiveChoiceFlow fRequireSurgery = new ExclusiveChoiceFlow(this);

@@ -114,21 +114,21 @@ public class BasicHUNSCsimulation extends Simulation {
 		final DelayFlow[] actMSectionsBack = new DelayFlow [N_SECTIONS];
 		
 		final RequestResourcesFlow reqChair = new RequestResourcesFlow(this, STR_REQ_CHAIR, 1, 2);
-		reqChair.newWorkGroupAdder(wgJanitorAChair).withDelay(T_A_SEAT).addWorkGroup();        
-		reqChair.newWorkGroupAdder(wgJanitorMChair).withDelay(T_M_SEAT).withPriority(1).addWorkGroup();
+		reqChair.newWorkGroupAdder(wgJanitorAChair).withDelay(T_A_SEAT).add();        
+		reqChair.newWorkGroupAdder(wgJanitorMChair).withDelay(T_M_SEAT).withPriority(1).add();
 
 		final ReleaseResourcesFlow relJanitorBeforeAppointment = new ReleaseResourcesFlow(this, STR_REL_JANITOR, 1, wgJanitor);
 		final ReleaseResourcesFlow relJanitorAfterSeat = new ReleaseResourcesFlow(this, STR_REL_JANITOR, 1, wgJanitor);
 		final RequestResourcesFlow reqJanitor = new RequestResourcesFlow(this, STR_REQ_JANITOR, 1, 1);
-		reqJanitor.newWorkGroupAdder(wgJanitor).addWorkGroup();
+		reqJanitor.newWorkGroupAdder(wgJanitor).add();
 		
 		final ReleaseResourcesFlow relChair = new ReleaseResourcesFlow(this, STR_REL_CHAIR, 1);
 		
 		// Creamos una actividad de consulta por cada tipo de silla
 		final ActivityFlow actMAppointment = new ActivityFlow(this, STR_M_APPOINTMENT);
-		actMAppointment.newWorkGroupAdder(wgAppointment).withDelay(T_APPOINTMENT).addWorkGroup();
+		actMAppointment.newWorkGroupAdder(wgAppointment).withDelay(T_APPOINTMENT).add();
 		final ActivityFlow actAAppointment = new ActivityFlow(this, STR_A_APPOINTMENT);
-		actAAppointment.newWorkGroupAdder(wgAppointment).withDelay(T_APPOINTMENT).addWorkGroup();
+		actAAppointment.newWorkGroupAdder(wgAppointment).withDelay(T_APPOINTMENT).add();
 		
 		// Creamos los tramos de la ruta que siguen las sillas
 		for (int i = 0; i < N_SECTIONS; i++) {
@@ -160,7 +160,7 @@ public class BasicHUNSCsimulation extends Simulation {
 		final DelayFlow delMStand = new DelayFlow(this, STR_M_STAND, T_M_STAND);
 		final ActivityFlow actAStand = new ActivityFlow(this, STR_A_STAND);
 		// En el caso de las sillas automáticas, requiere un bedel
-		actAStand.newWorkGroupAdder(wgJanitor).withDelay(T_A_STAND).addWorkGroup();
+		actAStand.newWorkGroupAdder(wgJanitor).withDelay(T_A_STAND).add();
 		actMSectionsBack[N_SECTIONS - 1].link(delMStand).link(relChair);
 		actASectionsBack[N_SECTIONS - 1].link(actAStand).link(relChair);
 		

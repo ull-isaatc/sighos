@@ -61,7 +61,7 @@ public class WFP21Simulation_DoWhile extends WFPTestSimulationFactory {
     			System.out.println(fe.getElement() + ": " + fe.getElement().getVar("fotosReveladas").getValue(fe) + " fotos reveladas.");
     		}
     	};
-    	act0.newWorkGroupAdder(wg).withDelay(DEFACTDURATION[0]).addWorkGroup();
+    	act0.newWorkGroupAdder(wg).withDelay(DEFACTDURATION[0]).add();
 
         DoWhileFlow root = new DoWhileFlow(simul, act0, cond);
 

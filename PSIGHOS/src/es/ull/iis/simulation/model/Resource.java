@@ -30,8 +30,12 @@ public class Resource extends VariableStoreSimulationObject implements Describab
     protected final String description;
 	/** The current location of the resource*/
 	private Location currentLocation;
+	/** The initial location of the resource*/
+	private Location initLocation;
 	/** The size of the resource */
 	private final int size;
+	/** The current element instance that drives the movement of the resource */
+	private ElementInstance movingInstance = null;	
 	/** Timetable which defines the availability estructure of the resource. Define RollOn and RollOff events. */
     protected final ArrayList<TimeTableEntry> timeTable = new ArrayList<TimeTableEntry>();
     /** Availability time table. Define CancelPeriodOn and CancelPeriodOff events */
@@ -48,8 +52,8 @@ public class Resource extends VariableStoreSimulationObject implements Describab
      * @param model The simulation model this resource belongs to 
      * @param description A brief description of the resource
      */
-	public Resource(Simulation model, String description) {
-		this(model, description, 0);
+	public Resource(final Simulation model, final String description) {
+		this(model, description, 0, null);
 	}
 
     /**
@@ -57,11 +61,13 @@ public class Resource extends VariableStoreSimulationObject implements Describab
      * @param model The simulation model this resource belongs to 
      * @param description A brief description of the resource
      * @param size The size of the resource
+     * @param initLocation The initial location of the resource
      */
-	public Resource(Simulation model, String description, int size) {
+	public Resource(final Simulation model, final String description, final int size, final Location initLocation) {
 		super(model, model.getResourceList().size(), "RES");
 		this.description = description;
 		this.size = size;
+		this.initLocation = initLocation;
 		model.add(this);
 	}
 
@@ -94,7 +100,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 	}
 
 	@Override
-	public void setLocation(Location location) {
+	public void setLocation(final Location location) {
 		if (currentLocation == null) {
 			simul.notifyInfo(new EntityLocationInfo(simul, this, location, EntityLocationInfo.Type.START, getTs()));
 			currentLocation = location;
@@ -122,11 +128,41 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 		return cancelPeriodTable;
 	}
 	
+	public final class TimeTableEntriesAdder {
+		private final ArrayList<ResourceType> roleList = new ArrayList<ResourceType>();
+		private SimulationCycle cycle = null;
+		private TimeStamp dur = null;
+		
+		public TimeTableEntriesAdder(final ResourceType role) {
+			roleList.add(role);
+		}
+
+		public TimeTableEntriesAdder(final ArrayList<ResourceType> roleList) {
+			this.roleList.addAll(roleList);
+		}
+		
+		public void withDuration(final SimulationCycle cycle, final TimeStamp dur) {
+			this.cycle = cycle;
+			this.dur = dur;
+		}
+		
+		public void add() {
+			if (cycle == null) {
+		    	for (final ResourceType role : roleList)
+		    		timeTable.add(new TimeTableEntry(role));
+			}
+			else {
+		    	for (final ResourceType role : roleList)
+		    		timeTable.add(new TimeTableEntry(cycle, dur, role));
+			}
+		}
+	}
+	
 	/**
 	 * Adds a timetable entry for the whole duration of the simulation
 	 * @param role The type of this resource during every activation 
 	 */
-	public void addTimeTableEntry(ResourceType role) {
+	public void addTimeTableEntry(final ResourceType role) {
 		timeTable.add(new TimeTableEntry(role));
     }
     
@@ -134,24 +170,24 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 	 * Adds a timetable entry for the whole duration of the simulation with overlapped resource types
 	 * @param roleList The types of this resource during every activation 
 	 */
-	public void addTimeTableEntry(ArrayList<ResourceType> roleList) {
+	public void addTimeTableEntry(final ArrayList<ResourceType> roleList) {
     	for (int i = 0; i < roleList.size(); i++)
             addTimeTableEntry(roleList.get(i));
     }
 	
     /**
 	 * Adds a timetable entry
-	 * @param cycle ParallelSimulationEngine cycle to define activation time
+	 * @param cycle Simulation cycle to define activation time
 	 * @param dur How long the resource is active
 	 * @param role The type of this resource during every activation 
 	 */
-	public void addTimeTableEntry(SimulationCycle cycle, TimeStamp dur, ResourceType role) {
+	public void addTimeTableEntry(final SimulationCycle cycle, final TimeStamp dur, final ResourceType role) {
         timeTable.add(new TimeTableEntry(cycle, dur, role));
     }
     
 	/**
 	 * Adds a timetable entry with overlapped resource types
-	 * @param cycle ParallelSimulationEngine cycle to define activation time
+	 * @param cycle Simulation cycle to define activation time
 	 * @param dur How long the resource is active
 	 * @param roleList The types of this resource during every activation 
 	 */
@@ -225,6 +261,15 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 
 	@Override
 	public DiscreteEvent onCreate(long ts) {
+		if (initLocation != null) {
+			if (initLocation.getAvailableCapacity() >= size) {
+				initLocation.move(this);
+			}
+			else {
+				error("Unable to initialize resource. Not enough space in location " + initLocation + " (available: " + initLocation.getAvailableCapacity() + " - required: " + size + ")");				
+				return onDestroy(ts);
+			}
+		}
 		return new CreateResourceEvent(ts);
 	}
 
@@ -353,16 +398,63 @@ public class Resource extends VariableStoreSimulationObject implements Describab
     }
     
     /**
-     * Creates a move event to move to destination using the specified router. The move starts at the current timestamp
-     * @param ei Element instance that made the resources move
+     * Creates a move event to move to destination using the specified router.
+     * @param ei Element instance that initiates the move
      * @param destination Destination location
-     * @param router Instance that returns the path for the resource
+     * @param router Instance that returns the path for the element
      */
-    public void addMoveEvent(final ElementInstance ei, final Location destination, final Router router) {
-    	final MoveEvent mEvent = new MoveEvent(getTs(), ei, destination, router);
-    	simul.addEvent(mEvent);
+    public void startMove(final ElementInstance ei) {
+    	final MoveResourcesFlow flow = (MoveResourcesFlow)ei.getCurrentFlow();
+    	final Location destination = flow.getDestination();
+    	final Router router = flow.getRouter();
+		debug("Start route\t" + this + "\t" + destination);
+    	movingInstance = ei;
+    	// No need to move
+    	if (currentLocation.equals(destination)) {
+    		flow.notifyArrival(movingInstance, true);
+    	}
+    	else {
+			final Location nextLoc = router.getNextLocationTo(this, destination);
+			if (nextLoc == null) {
+				error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
+				flow.notifyArrival(movingInstance, false);
+			}
+			else {
+				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
+		    	simul.addEvent(mEvent);
+			}
+    	}
     }
     
+    public void endMove(final ElementInstance ei) {
+    	movingInstance = null;
+    }
+
+	@Override
+	public void notifyLocationAvailable(Location location) {
+		location.move(this);
+
+    	final MoveResourcesFlow flow = (MoveResourcesFlow)movingInstance.getCurrentFlow();
+    	final Location destination = flow.getDestination();
+    	final Router router = flow.getRouter();
+		
+		if (currentLocation.equals(destination)) {
+			debug("Finishes route\t" + this + "\t" + destination);
+    		flow.notifyArrival(movingInstance, true);
+		}
+		else {
+			final Location nextLoc = router.getNextLocationTo(this, destination);
+			if (nextLoc == null) {
+				error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
+				flow.notifyArrival(movingInstance, false);
+			}
+			else {
+				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
+		    	simul.addEvent(mEvent);						
+			}
+		}
+	}
+	    
     /**
      * The event in charge of initializing the resource
      * @author Iván Castilla Rodríguez
@@ -594,7 +686,6 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 		final private Location destination;
 		final private Location nextLocation;
 		final private Router router;
-		final private ElementInstance ei;
 		
 		/**
 		 * Creates a move event that starts a move from the resource's current location
@@ -602,8 +693,8 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 		 * @param destination Destination location
 		 * @param router Instance that returns the path for the resource
 		 */
-		public MoveEvent(final long ts, final ElementInstance ei, final Location destination, final Router router) {
-			this(ts, ei, currentLocation, destination, router);
+		public MoveEvent(final long ts, final Location destination, final Router router) {
+			this(ts, currentLocation, destination, router);
 		}
 
 		/**
@@ -613,50 +704,37 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 		 * @param destination Final destination
 		 * @param router Instance that returns the path for the resource
 		 */
-		public MoveEvent(final long ts, final ElementInstance ei, final Location nextLocation, final Location destination, final Router router) {
+		public MoveEvent(final long ts, final Location nextLocation, final Location destination, final Router router) {
 			super(ts);
 			this.destination = destination;
 			this.nextLocation = nextLocation;
 			this.router = router;
-			this.ei = ei;
 		}
 
 		@Override
 		public void event() {
-			// If the move has already started
-			if (!nextLocation.equals(currentLocation)) {
-				if (nextLocation.getAvailableCapacity() >= getCapacity()) {
-					nextLocation.move(Resource.this);
-					currentLocation.leave(Resource.this);
-					if (nextLocation.equals(destination)) {
-						debug("Finishes route\t" + this + "\t" + getDescription());
-						((MoveResourcesFlow)ei.getCurrentFlow()).notifyArrival(ei, true);
+			if (nextLocation.getAvailableCapacity() >= getCapacity()) {
+				final MoveResourcesFlow flow = ((MoveResourcesFlow)movingInstance.getCurrentFlow());
+				nextLocation.move(Resource.this);
+				if (nextLocation.equals(destination)) {
+					debug("Finishes route\t" + this + "\t" + destination);
+					flow.notifyArrival(movingInstance, true);
+				}
+				else {
+					final Location nextLoc = router.getNextLocationTo(Resource.this, destination);
+					if (nextLoc == null) {
+						error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
+						flow.notifyArrival(movingInstance, false);
 					}
-				}
-				else {
-					nextLocation.waitFor(ei);
-				}
-			}
-			// If has not arrived at destination yet
-			if (!currentLocation.equals(destination)) {
-				final Location nextLoc = router.getNextLocationTo(Resource.this, destination);
-				if (nextLoc == null) {
-					error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
-					((MoveResourcesFlow)ei.getCurrentFlow()).notifyArrival(ei, false);
-				}
-				else {
-					new MoveEvent(getTs() + currentLocation.getDelayAtExit(Resource.this), ei, nextLoc, destination, router);
+					else {
+						final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(Resource.this), nextLoc, destination, router);
+				    	simul.addEvent(mEvent);						
+					}
 				}
 			}
 			else {
+				nextLocation.waitFor(Resource.this);
 			}
 		}
-		
-	}
-
-	@Override
-	public void notifyLocationAvailable(Location location) {
-		// TODO Auto-generated method stub
-		
 	}
 }

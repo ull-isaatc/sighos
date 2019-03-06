@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import es.ull.iis.function.TimeFunction;
+import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.simulation.model.SimulationObject;
 
 /**
@@ -65,6 +66,23 @@ public abstract class Location implements Located {
 	 */
 	public Location(String description, TimeFunction delayAtExit) {
 		this(description, delayAtExit, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Creates a location with a specific capacity. Entities in this location do not have to wait a time before exiting it.
+	 * @param description A brief description of the location
+	 * @param capacity Total capacity of the location
+	 */
+	public Location(String description, int capacity) {
+		this(description, TimeFunctionFactory.getInstance("ConstantVariate", 0), capacity);
+	}
+
+	/**
+	 * Creates a location with no capacity constrains. Entities in this location do not have to wait a time before exiting it.
+	 * @param description A brief description of the location
+	 */
+	public Location(String description) {
+		this(description, TimeFunctionFactory.getInstance("ConstantVariate", 0), Integer.MAX_VALUE);
 	}
 
 	@Override
@@ -139,7 +157,11 @@ public abstract class Location implements Located {
 	public void move(Movable entity) {
 		occupied += entity.getCapacity();
 		entitiesIn.add(entity);
-		entity.setLocation(this);		
+		final Location currentLocation = entity.getLocation();
+		entity.setLocation(this);
+		if (currentLocation != null) {
+			currentLocation.leave(entity);
+		}
 	}
 	
 	/**
@@ -147,7 +169,7 @@ public abstract class Location implements Located {
 	 * the entity moves into the location.
 	 * @param entity Entity leaving the location
 	 */
-	public void leave(Movable entity) {
+	private void leave(Movable entity) {
 		occupied -= entity.getCapacity();
 		entitiesIn.remove(entity);
 		// Goes through the waiting queue

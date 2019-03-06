@@ -50,10 +50,10 @@ class ExpOverlapped extends Experiment {
 
         // PASO 3: Creo las tablas de clases de recursos
         WorkGroup wg1 = factory.getWorkGroupInstance(new ResourceType[] {crSangre}, new int[] {NEEDED});
-    	actSangre.newWorkGroupAdder(wg1).withDelay(new SimulationTimeFunction(unit, "NormalVariate", 20, 5)).addWorkGroup();
+    	actSangre.newWorkGroupAdder(wg1).withDelay(new SimulationTimeFunction(unit, "NormalVariate", 20, 5)).add();
 //        wg1.add(crOrina, 1);
         WorkGroup wg2 = factory.getWorkGroupInstance(new ResourceType[] {crOrina}, new int[] {1});
-    	actOrina.newWorkGroupAdder(wg2).withDelay(new SimulationTimeFunction(unit, "NormalVariate", 20, 5)).addWorkGroup();
+    	actOrina.newWorkGroupAdder(wg2).withDelay(new SimulationTimeFunction(unit, "NormalVariate", 20, 5)).add();
 //        WorkGroup wg3 = factory.getWorkGroupInstance(new ResourceType[] {crDummy}, new int[] {1});
 //        actDummy.addWorkGroup(new ModelTimeFunction(unit, "NormalVariate", 10, 2), wg3);
 

@@ -74,13 +74,13 @@ public class TestResourcesManagement extends Experiment {
 			final ActivityFlow actMoveFromAToB = new ActivityFlow(this, "Move from A to B");
 			
 			// Assign duration and workgroups to activities
-			reqLocationA.newWorkGroupAdder(wgLocationA).addWorkGroup();
-			reqLocationB.newWorkGroupAdder(wgLocationB).addWorkGroup();
-			reqOperatorA.newWorkGroupAdder(wgOperatorA).addWorkGroup();
-			reqTransport.newWorkGroupAdder(wgTransport).addWorkGroup();
-			actWorkAtLocationA.newWorkGroupAdder(wgMachine).withDelay(10L).addWorkGroup();
-			actWorkAtLocationB.newWorkGroupAdder(wgOperatorB).withDelay(10L).addWorkGroup();
-			actMoveFromAToB.newWorkGroupAdder(wgEmpty).withDelay(5L).addWorkGroup();
+			reqLocationA.newWorkGroupAdder(wgLocationA).add();
+			reqLocationB.newWorkGroupAdder(wgLocationB).add();
+			reqOperatorA.newWorkGroupAdder(wgOperatorA).add();
+			reqTransport.newWorkGroupAdder(wgTransport).add();
+			actWorkAtLocationA.newWorkGroupAdder(wgMachine).withDelay(10L).add();
+			actWorkAtLocationB.newWorkGroupAdder(wgOperatorB).withDelay(10L).add();
+			actMoveFromAToB.newWorkGroupAdder(wgEmpty).withDelay(5L).add();
 
 			// Create flow
 			reqLocationA.link(reqOperatorA).link(actWorkAtLocationA).link(relOperatorA).link(reqTransport).link(relLocationA);
@@ -137,13 +137,13 @@ public class TestResourcesManagement extends Experiment {
 			final ActivityFlow actMoveFromAToB = new ActivityFlow(this, "Move from A to B");
 			
 			// Assign duration and workgroups to activities
-			reqLocationA.newWorkGroupAdder(wgLocationA).addWorkGroup();
-			reqLocationB.newWorkGroupAdder(wgLocationB).addWorkGroup();
-			reqOperatorA.newWorkGroupAdder(wgOperatorA).addWorkGroup();
-			reqTransport.newWorkGroupAdder(wgTransport).addWorkGroup();
-			actWorkAtLocationA.newWorkGroupAdder(wgMachine).withDelay(10L).addWorkGroup();
-			actWorkAtLocationB.newWorkGroupAdder(wgOperatorB).withDelay(10L).addWorkGroup();
-			actMoveFromAToB.newWorkGroupAdder(wgEmpty).withDelay(5L).addWorkGroup();
+			reqLocationA.newWorkGroupAdder(wgLocationA).add();
+			reqLocationB.newWorkGroupAdder(wgLocationB).add();
+			reqOperatorA.newWorkGroupAdder(wgOperatorA).add();
+			reqTransport.newWorkGroupAdder(wgTransport).add();
+			actWorkAtLocationA.newWorkGroupAdder(wgMachine).withDelay(10L).add();
+			actWorkAtLocationB.newWorkGroupAdder(wgOperatorB).withDelay(10L).add();
+			actMoveFromAToB.newWorkGroupAdder(wgEmpty).withDelay(5L).add();
 
 			// Create flow
 			reqLocationA.link(reqOperatorA).link(actWorkAtLocationA).link(relOperatorA).link(reqTransport).link(relLocationA);
@@ -179,8 +179,8 @@ public class TestResourcesManagement extends Experiment {
 			final ActivityFlow actWorkAtLocationA = new ActivityFlow(this, "Work at location A");
 			
 			// Assign duration and workgroups to activities
-			reqTransport.newWorkGroupAdder(wgTransport).addWorkGroup();
-			actWorkAtLocationA.newWorkGroupAdder(wgOperatorA).withDelay(10L).addWorkGroup();
+			reqTransport.newWorkGroupAdder(wgTransport).add();
+			actWorkAtLocationA.newWorkGroupAdder(wgOperatorA).withDelay(10L).add();
 
 			// Create flow
 			reqTransport.link(actWorkAtLocationA).link(relTransport);
@@ -222,10 +222,10 @@ public class TestResourcesManagement extends Experiment {
 			final ActivityFlow actWorkAtLocationB = new ActivityFlow(this, "Work at location B");
 			
 			// Assign duration and workgroups to activities
-			reqTransport.newWorkGroupAdder(wgTransportA).addWorkGroup();
-			reqTransport.newWorkGroupAdder(wgTransportB).addWorkGroup();
-			actWorkAtLocationA.newWorkGroupAdder(wgOperatorA).withDelay(10L).addWorkGroup();
-			actWorkAtLocationB.newWorkGroupAdder(wgOperatorB).withDelay(10L).addWorkGroup();
+			reqTransport.newWorkGroupAdder(wgTransportA).add();
+			reqTransport.newWorkGroupAdder(wgTransportB).add();
+			actWorkAtLocationA.newWorkGroupAdder(wgOperatorA).withDelay(10L).add();
+			actWorkAtLocationB.newWorkGroupAdder(wgOperatorB).withDelay(10L).add();
 
 			ExclusiveChoiceFlow condFlow = new ExclusiveChoiceFlow(this);
 			condFlow.link(actWorkAtLocationB, new ResourceTypeAcquiredCondition(rtTransportB));

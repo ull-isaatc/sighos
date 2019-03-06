@@ -38,7 +38,7 @@ class TestDynamicGenerationExperiment extends Experiment {
 		
 		Condition cond = factory.getCustomizedConditionInstance(null, "false");
 		ActivityFlow act0 = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "ACT0");
-    	act0.newWorkGroupAdder(wg0).withDelay(10).withCondition(new NotCondition(cond)).addWorkGroup();
+    	act0.newWorkGroupAdder(wg0).withDelay(10).withCondition(new NotCondition(cond)).add();
 		
 		factory.getElementTypeInstance("ET0");
 		factory.getFlowInstance("SingleFlow", act0);

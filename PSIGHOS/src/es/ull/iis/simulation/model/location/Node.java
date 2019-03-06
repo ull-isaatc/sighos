@@ -31,6 +31,23 @@ public class Node extends Location {
 		super(description, delayAtExit);
 	}
 	
+	/**
+	 * Creates a node with capacity constrains and no time to exit.
+	 * @param description A brief description of the location
+	 * @param capacity Total capacity of the location
+	 */
+	public Node(String description, int capacity) {
+		super(description, capacity);
+	}
+	
+	/**
+	 * Creates a node with no capacity constrains and no time to exit.
+	 * @param description A brief description of the location
+	 */
+	public Node(String description) {
+		super(description);
+	}
+	
 	@Override
 	public Location getLocation() {
 		return this;

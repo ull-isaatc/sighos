@@ -61,7 +61,7 @@ public class WFP21Simulation_WhileDo extends WFPTestSimulationFactory {
     			System.out.println(fe.getElement() + ": " + fe.getElement().getVar("fotosReveladas").getValue(fe) + " fotos reveladas.");
     		}
     	};
-    	act0.newWorkGroupAdder(wg).withDelay(DEFACTDURATION[0]).addWorkGroup();
+    	act0.newWorkGroupAdder(wg).withDelay(DEFACTDURATION[0]).add();
         WhileDoFlow root = new WhileDoFlow(simul, act0, cond);
 
         ElementType et = getDefElementType("Cliente");

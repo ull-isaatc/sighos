@@ -38,6 +38,26 @@ public class Path extends Location {
 	}
 
 	/**
+	 * Creates a path with capacity constrains and no time to exit.
+	 * @param description A brief description of the location
+	 * @param capacityPerLane Total capacity of each lane
+	 * @param nLanes Number of lanes of the path
+	 */
+	public Path(String description, int capacityPerLane, int nLanes) {
+		super(description, capacityPerLane * nLanes);
+		this.nLanes = nLanes; 
+	}
+	
+	/**
+	 * Creates a path with no capacity constrains and no time to exit
+	 * @param description A brief description of the location
+	 */
+	public Path(String description) {
+		super(description);
+		this.nLanes = Integer.MAX_VALUE; 
+	}
+
+	/**
 	 * Returns the total capacity of each lane of the path
 	 * @return the total capacity of each lane of the path
 	 */

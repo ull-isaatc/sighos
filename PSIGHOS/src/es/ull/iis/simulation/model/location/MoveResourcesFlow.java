@@ -36,7 +36,7 @@ public class MoveResourcesFlow extends SingleSuccessorFlow implements TaskFlow, 
     /** A unique identifier that sets which resources to move */
 	protected final int resourcesId;
 	/** Counter of resources left to arrive to destination */
-	protected TreeMap<ElementInstance, Integer> resourcesLeft;
+	protected final TreeMap<ElementInstance, Integer> resourcesLeft;
 
     /**
      * Creates a flow to move all the resources under the specified identifier
@@ -78,6 +78,7 @@ public class MoveResourcesFlow extends SingleSuccessorFlow implements TaskFlow, 
 		this.router = router;
 		this.resourcesId = resourcesId;
 		this.wg = wg;
+		this.resourcesLeft = new TreeMap<ElementInstance, Integer>();
 	}
 
 	@Override
@@ -102,12 +103,10 @@ public class MoveResourcesFlow extends SingleSuccessorFlow implements TaskFlow, 
 		if (!ei.wasVisited(this)) {
 			if (ei.isExecutable()) {
 				if (beforeRequest(ei)) {
-					final Element elem = ei.getElement(); 
-					final ArrayDeque<Resource> list = elem.getCaughtResources(resourcesId, wg); 
+					final ArrayDeque<Resource> list = ei.getElement().getCaughtResources(resourcesId, wg); 
 					resourcesLeft.put(ei, list.size());
 					for (final Resource res : list) {
-						res.debug("Start route\t" + this + "\t" + getDescription());
-						res.addMoveEvent(ei, destination, router);
+						res.startMove(ei);
 					}
 				}
 				else {
@@ -124,18 +123,14 @@ public class MoveResourcesFlow extends SingleSuccessorFlow implements TaskFlow, 
 	}
 
 	public void notifyArrival(final ElementInstance ei, boolean success) {
-		if (!success) {
+		if (!success)
 			ei.cancel(this);
-			next(ei);
+		final int left = resourcesLeft.get(ei);
+		if (left > 1) {
+			resourcesLeft.put(ei, left - 1);
 		}
 		else {
-			final int left = resourcesLeft.get(ei);
-			if (left > 1) {
-				resourcesLeft.put(ei, left - 1);
-			}
-			else {
-				finish(ei);
-			}
+			finish(ei);
 		}
 	}
 	/**
@@ -146,8 +141,10 @@ public class MoveResourcesFlow extends SingleSuccessorFlow implements TaskFlow, 
 	 * otherwise, it waits. 
 	 */
 	public void finish(final ElementInstance ei) {
-		ei.getElement().debug("All resources arrived at destination\t" + this + "\t" + getDescription());
-		afterFinalize(ei);
+		if (ei.isExecutable()) {
+			ei.getElement().debug("All resources arrived at destination\t" + this + "\t" + getDescription());
+			afterFinalize(ei);			
+		}
 		next(ei);
 	}
 
@@ -158,6 +155,13 @@ public class MoveResourcesFlow extends SingleSuccessorFlow implements TaskFlow, 
 	 */
 	public Location getDestination() {
 		return destination;
+	}
+
+	/**
+	 * @return the router
+	 */
+	public Router getRouter() {
+		return router;
 	}
 
 }
