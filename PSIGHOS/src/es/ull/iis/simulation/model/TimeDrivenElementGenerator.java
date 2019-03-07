@@ -22,7 +22,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 * @param cycle A function to determine when are created the elements
 	 */
-	public TimeDrivenElementGenerator(Simulation model, int nElem, SimulationCycle cycle) {
+	public TimeDrivenElementGenerator(final Simulation model, final int nElem, final SimulationCycle cycle) {
 		super(model, nElem, cycle);
 	}
 
@@ -32,7 +32,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	 * @param nElem Number of objects created each time this generator is invoked
 	 * @param cycle A function to determine when are created the elements
 	 */
-	public TimeDrivenElementGenerator(Simulation model, TimeFunction nElem, SimulationCycle cycle) {
+	public TimeDrivenElementGenerator(final Simulation model, final TimeFunction nElem, final SimulationCycle cycle) {
 		super(model, nElem, cycle);
 	}
 
@@ -44,7 +44,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	 * @param flow The description of the flow of the elements to be created.
 	 * @param cycle A function to determine when are created the elements
 	 */
-	public TimeDrivenElementGenerator(Simulation model, int nElem, ElementType et, InitializerFlow flow, SimulationCycle cycle) {
+	public TimeDrivenElementGenerator(final Simulation model, final int nElem, final ElementType et, final InitializerFlow flow, final SimulationCycle cycle) {
 		super(model, nElem, cycle);
 		add(new GenerationInfo(et, flow, 0, null, 1.0));
 	}
@@ -57,7 +57,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	 * @param flow The description of the flow of the elements to be created.
 	 * @param cycle A function to determine when are created the elements
 	 */
-	public TimeDrivenElementGenerator(Simulation model, TimeFunction nElem, ElementType et, InitializerFlow flow, SimulationCycle cycle) {
+	public TimeDrivenElementGenerator(final Simulation model, final TimeFunction nElem, final ElementType et, final InitializerFlow flow, final SimulationCycle cycle) {
 		super(model, nElem, cycle);
 		add(new GenerationInfo(et, flow, 0, null, 1.0));
 	}
@@ -72,7 +72,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	 * @param initLocation The initial {@link Location} where the elements appear
 	 * @param cycle A function to determine when are created the elements
 	 */
-	public TimeDrivenElementGenerator(Simulation model, TimeFunction nElem, ElementType et, InitializerFlow flow, TimeFunction size, Location initLocation, SimulationCycle cycle) {
+	public TimeDrivenElementGenerator(final Simulation model, final TimeFunction nElem, final ElementType et, final InitializerFlow flow, final TimeFunction size, final Location initLocation, final SimulationCycle cycle) {
 		super(model, nElem, cycle);
 		add(new GenerationInfo(et, flow, size, initLocation, 1.0));
 	}
@@ -87,7 +87,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	 * @param initLocation The initial {@link Location} where the elements appear
 	 * @param cycle A function to determine when are created the elements
 	 */
-	public TimeDrivenElementGenerator(Simulation model, int nElem, ElementType et, InitializerFlow flow, TimeFunction size, Location initLocation, SimulationCycle cycle) {
+	public TimeDrivenElementGenerator(final Simulation model, final int nElem, final ElementType et, final InitializerFlow flow, final TimeFunction size, final Location initLocation, final SimulationCycle cycle) {
 		super(model, nElem, cycle);
 		add(new GenerationInfo(et, flow, size, initLocation, 1.0));
 	}
@@ -102,7 +102,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	 * @param initLocation The initial {@link Location} where the elements appear
 	 * @param cycle A function to determine when are created the elements
 	 */
-	public TimeDrivenElementGenerator(Simulation model, int nElem, ElementType et, InitializerFlow flow, int size, Location initLocation, SimulationCycle cycle) {
+	public TimeDrivenElementGenerator(final Simulation model, final int nElem, final ElementType et, final InitializerFlow flow, final int size, final Location initLocation, final SimulationCycle cycle) {
 		super(model, nElem, cycle);
 		add(new GenerationInfo(et, flow, size, initLocation, 1.0));
 	}
@@ -114,7 +114,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 	 * @param ind Index of the element created
 	 * @param info Information required to create the element  
 	 */
-	public EventSource createEventSource(int ind, GenerationInfo info) {
+	public EventSource createEventSource(final int ind, final GenerationInfo info) {
 		final int size = (int)info.getSize().getValue(this);
 		final Location initLocation = info.getInitLocation();
 		Element elem = (initLocation == null) ? new Element(simul, info.getElementType(), info.getFlow()) : 
@@ -125,7 +125,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 
 	
 	@Override
-	protected void assignSimulation(SimulationEngine simul) {
+	protected void assignSimulation(final SimulationEngine simul) {
 	}
 
 	/**
@@ -150,7 +150,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 		 * @param initLocation The initial {@link Location} where the elements appear
 		 * @param prop Proportion of elements corresponding to this flow.
 		 */
-		protected GenerationInfo(ElementType et, InitializerFlow flow, int size, Location initLocation, double prop) {
+		protected GenerationInfo(final ElementType et, final InitializerFlow flow, final int size, final Location initLocation, final double prop) {
 			this(et, flow, TimeFunctionFactory.getInstance("ConstantVariate", size), initLocation, prop);
 		}
 		
@@ -162,7 +162,7 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 		 * @param initLocation The initial {@link Location} where the elements appear
 		 * @param prop Proportion of elements corresponding to this flow.
 		 */
-		protected GenerationInfo(ElementType et, InitializerFlow flow, TimeFunction size, Location initLocation, double prop) {
+		protected GenerationInfo(final ElementType et, final InitializerFlow flow, final TimeFunction size, final Location initLocation, final double prop) {
 			super(prop);
 			this.et = et;
 			this.flow = flow;

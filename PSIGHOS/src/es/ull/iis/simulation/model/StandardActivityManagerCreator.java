@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow.ActivityWorkGroup;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -42,7 +43,7 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 			new ActivityManager(model);
 		// The activities are associated to the activity managers
 		for (RequestResourcesFlow f : model.getActivityList()) {
-			Iterator<ActivityWorkGroup> iter = (f).iterator();
+			Iterator<ActivityWorkGroup> iter = f.iterator();
 			// This step is for non-resource-types activities
 			boolean found = false;
 			while (iter.hasNext() && !found) {

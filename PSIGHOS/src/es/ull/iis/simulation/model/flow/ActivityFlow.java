@@ -4,11 +4,11 @@
 package es.ull.iis.simulation.model.flow;
 
 import es.ull.iis.simulation.condition.Condition;
-import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow.ActivityWorkGroup;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow.WorkGroupAdder;
 import es.ull.iis.util.Prioritizable;
 
@@ -49,7 +49,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      * @param model The simulation model this activity belongs to
      * @param description A short text describing this activity.
      */
-    public ActivityFlow(Simulation model, String description) {
+    public ActivityFlow(final Simulation model, final String description) {
         this(model, description, 0, true, false);
     }
 
@@ -59,7 +59,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      * @param description A short text describing this activity.
      * @param priority Activity's priority.
      */
-    public ActivityFlow(Simulation model, String description, int priority) {
+    public ActivityFlow(final Simulation model, final String description, final int priority) {
         this(model, description, priority, true, false);
     }
 
@@ -70,7 +70,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      * @param exclusive If true, this activity cannot be performed concurrently with any other exclusive activity
      * @param interruptible If true, this activity is interrupted when the involved resources become unavailable
      */
-    public ActivityFlow(Simulation model, String description, boolean exclusive, boolean interruptible) {
+    public ActivityFlow(final Simulation model, final String description, final boolean exclusive, final boolean interruptible) {
         this(model, description, 0, exclusive, interruptible);
     }
 
@@ -82,7 +82,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      * @param exclusive If true, this activity cannot be performed concurrently with any other exclusive activity
      * @param interruptible If true, this activity is interrupted when the involved resources become unavailable
      */
-    public ActivityFlow(Simulation model, String description, int priority, boolean exclusive, boolean interruptible) {
+    public ActivityFlow(final Simulation model, final String description, final int priority, final boolean exclusive, final boolean interruptible) {
     	super(model);
     	this.priority = priority;
     	this.description = description;
@@ -133,7 +133,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 	 * @param wg The set of pairs <ResurceType, amount> which will be seized
 	 * @return The builder object for adding workgroups to this flow
 	 */
-	public WorkGroupAdder newWorkGroupAdder(WorkGroup wg) {
+	public WorkGroupAdder newWorkGroupAdder(final WorkGroup wg) {
 		return ((RequestResourcesFlow)initialFlow).newWorkGroupAdder(wg);
 	}
 	
@@ -142,7 +142,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
      * @param wgId The id of the workgroup searched
      * @return A workgroup contained in this activity with the specified id
      */
-    public ActivityWorkGroup getWorkGroup(int wgId) {
+    public ActivityWorkGroup getWorkGroup(final int wgId) {
         return ((RequestResourcesFlow)initialFlow).getWorkGroup(wgId);
     }
 	
@@ -159,7 +159,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 	 * @param rt Resource type
 	 * @param duration Duration of the cancellation.
 	 */
-	public void addResourceCancellation(ResourceType rt, long duration) {
+	public void addResourceCancellation(final ResourceType rt, final long duration) {
 		((ReleaseResourcesFlow)finalFlow).addResourceCancellation(rt, duration);
 	}
 	
@@ -169,7 +169,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 	 * @param duration Duration of the cancellation.
 	 * @param cond Condition that must be fulfilled to apply the cancellation 
 	 */
-	public void addResourceCancellation(ResourceType rt, long duration, Condition cond) {
+	public void addResourceCancellation(final ResourceType rt, final long duration, final Condition cond) {
 		((ReleaseResourcesFlow)finalFlow).addResourceCancellation(rt, duration, cond);
 	}
 	
@@ -179,7 +179,7 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
 	}
 
 	@Override
-	public void finish(ElementInstance ei) {
+	public void finish(final ElementInstance ei) {
 		if (ei.wasInterrupted(this)) {
 			request(ei);
 		}

@@ -11,6 +11,7 @@ import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
 
 /**
+ * A flow that makes an element be delayed for a certain time
  * @author Iván Castilla
  *
  */
@@ -20,19 +21,25 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ActionFl
 	/** Duration of the delay */
     private final TimeFunction duration;
 
-	/**
-	 * 
-	 */
-	public DelayFlow(Simulation model, String description, TimeFunction duration) {
+    /**
+     * Creates a delay flow
+     * @param model The simulation model this flow belongs to
+     * @param description A short text describing this flow
+     * @param duration The duration of the delay
+     */
+	public DelayFlow(final Simulation model, final String description, final TimeFunction duration) {
 		super(model);
 		this.description = description;
 		this.duration = duration;
 	}
 
-	/**
-	 * 
-	 */
-	public DelayFlow(Simulation model, String description, long duration) {
+    /**
+     * Creates a delay flow
+     * @param model The simulation model this flow belongs to
+     * @param description A short text describing this flow
+     * @param duration The duration of the delay
+     */
+	public DelayFlow(final Simulation model, final String description, final long duration) {
 		this(model, description, TimeFunctionFactory.getInstance("ConstantVariate", duration));
 	}
 
@@ -42,36 +49,33 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ActionFl
 	}
     
 	/**
-	 * @return the duration
+	 * Returns the time function that characterizes the duration of the delay
+	 * @return the time function that characterizes the duration of the delay
 	 */
 	public TimeFunction getDuration() {
 		return duration;
 	}
 
     /**
-     * Returns the duration of the activity where this workgroup is used. 
-     * The value returned by the random number function could be negative. 
-     * In this case, it returns 0.
+     * Returns the duration of the delay
+     * The value returned by the random number function could be negative. In this case, it returns 0.
      * @param elem The element delaying
-     * @return The activity duration.
+     * @return The duration of the delay
      */
-    public long getDurationSample(Element elem) {
-    	return Math.round(getDuration().getValue(elem));
+    public long getDurationSample(final Element elem) {
+    	return Math.max(0, Math.round(getDuration().getValue(elem)));
     }
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.model.flow.Flow#addPredecessor(es.ull.iis.simulation.model.flow.Flow)
-	 */
 	@Override
-	public void addPredecessor(Flow predecessor) {
+	public void addPredecessor(final Flow predecessor) {
 	}
 
 	@Override
-	public void afterFinalize(ElementInstance fe) {
+	public void afterFinalize(final ElementInstance ei) {
 	}
 
 	@Override
-	public void request(ElementInstance ei) {
+	public void request(final ElementInstance ei) {
 		if (!ei.wasVisited(this)) {
 			if (ei.isExecutable()) {
 				if (beforeRequest(ei)) {
@@ -79,8 +83,6 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ActionFl
 					simul.notifyInfo(new ElementActionInfo(simul, ei, elem, this, ei.getExecutionWG(), null, ElementActionInfo.Type.START, simul.getTs()));
 					elem.debug("Start delay\t" + this + "\t" + getDescription());	
 					ei.startDelay(getDurationSample(elem));
-					// TODO: Check if it's needed
-//					timeLeft = 0;
 				}
 				else {
 					ei.cancel(this);
@@ -96,12 +98,12 @@ public class DelayFlow extends SingleSuccessorFlow implements TaskFlow, ActionFl
 	}
 
 	@Override
-	public void finish(ElementInstance wThread) {
-		simul.notifyInfo(new ElementActionInfo(simul, wThread, wThread.getElement(), this, wThread.getExecutionWG(), null, ElementActionInfo.Type.END, simul.getTs()));
-		if (wThread.getElement().isDebugEnabled())
-			wThread.getElement().debug("Finishes\t" + this + "\t" + getDescription());
-		afterFinalize(wThread);
-		next(wThread);
+	public void finish(final ElementInstance ei) {
+		simul.notifyInfo(new ElementActionInfo(simul, ei, ei.getElement(), this, ei.getExecutionWG(), null, ElementActionInfo.Type.END, simul.getTs()));
+		if (ei.getElement().isDebugEnabled())
+			ei.getElement().debug("Finishes\t" + this + "\t" + getDescription());
+		afterFinalize(ei);
+		next(ei);
 	}
 
 }

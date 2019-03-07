@@ -15,6 +15,7 @@ import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow.ActivityWorkGroup;
 import es.ull.iis.simulation.model.flow.TaskFlow;
 import es.ull.iis.util.Prioritizable;
 import es.ull.iis.util.RandomPermutation;
@@ -61,6 +62,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	protected long arrivalTs = -1;
 	/** The proportion of time left to finish the activity. Used in interruptible activities. */
 	protected double remainingTask = 0.0;
+	/** The engine with the specific functioning of the element instance */
 	final private ElementInstanceEngine engine;
 	
     /** 
@@ -71,7 +73,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
      * @param initialFlow The first flow to be executed by this thread
      * @param parent The parent thread, if this thread is included within a structured flow
      */
-    private ElementInstance(WorkToken token, Element elem, Flow initialFlow, ElementInstance parent) {
+    private ElementInstance(final WorkToken token, final Element elem, final Flow initialFlow, final ElementInstance parent) {
     	this.token = token;
         this.elem = elem;
         this.parent = parent;
@@ -107,7 +109,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * Sets the flow currently executed by this FlowExecutor 
 	 * @param f The flow to be performed
 	 */
-	public void setCurrentFlow(Flow f) {
+	public void setCurrentFlow(final Flow f) {
     	currentFlow = f;
 		executionWG = null;
 		arrivalTs = -1;
@@ -130,7 +132,11 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	public Flow getCurrentFlow() {
 		return currentFlow;
 	}
-	    
+
+	/**
+	 * Returns the workgroup that the element instance is using to execute a resource handler flow
+	 * @return the workgroup that the element instance is using to execute a resource handler flow
+	 */
 	public ActivityWorkGroup getExecutionWG() {
 		return executionWG;
 	}
@@ -140,7 +146,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * carry out the activity.
 	 * @param executionWG the workgroup which is used to carry out this flow.
 	 */
-	public void setExecutionWG(ActivityWorkGroup executionWG) {
+	public void setExecutionWG(final ActivityWorkGroup executionWG) {
 		this.executionWG = executionWG;
 	}
 
@@ -159,7 +165,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
      * Adds a thread to the list of descendants.
      * @param wThread Descendant thread
      */
-	public void addDescendant(ElementInstance wThread) {
+	private void addDescendant(final ElementInstance wThread) {
 		descendants.add(wThread);
 	}
 
@@ -168,7 +174,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * the element has to be notified and finished.
 	 * @param wThread Descendant thread
 	 */
-	public void removeDescendant(ElementInstance wThread) {
+	private void removeDescendant(final ElementInstance wThread) {
 		descendants.remove(wThread);
 		if (parent == null && descendants.size() == 0)
 			elem.notifyEnd();
@@ -186,7 +192,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * Changes the state of this thread to not valid and restarts the path of visited flows.
 	 * @param startPoint The initial flow to control infinite loops with not valid threads. 
 	 */
-	public void cancel(Flow startPoint) {
+	public void cancel(final Flow startPoint) {
 		token.reset();
 		token.addFlow(startPoint);
 	}
@@ -203,7 +209,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * Sets the last flow visited by this thread.
 	 * @param lastFlow The lastFlow visited by this thread
 	 */
-	public void setLastFlow(Flow lastFlow) {
+	public void setLastFlow(final Flow lastFlow) {
 		this.lastFlow = lastFlow;
 	}
 
@@ -228,7 +234,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * @param elem Element owner of this instance
 	 * @return the main instance of the element
 	 */
-	public static ElementInstance getMainElementInstance(Element elem) {
+	public static ElementInstance getMainElementInstance(final Element elem) {
 		return new ElementInstance(new WorkToken(true), elem, elem.getFlow(), null);
 	}
 
@@ -237,7 +243,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * The current instance is the parent of the newly created child instance. 
 	 * @return A new instance of an element created to carry out the inner subflow of a structured flow
 	 */
-	public ElementInstance getDescendantElementInstance(InitializerFlow newFlow) {
+	public ElementInstance getDescendantElementInstance(final InitializerFlow newFlow) {
 		assert isExecutable() : "Invalid parent to create descendant work thread"; 
 		return new ElementInstance(new WorkToken(true), elem, newFlow, this);
 	}
@@ -249,7 +255,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * @param token The token to be cloned in case the current instance is not valid and the token is also not valid. 
 	 * @return A new instance of an element created to carry out a new flow after a split flow
 	 */
-	public ElementInstance getSubsequentElementInstance(boolean executable, Flow newFlow, WorkToken token) {
+	public ElementInstance getSubsequentElementInstance(final boolean executable, final Flow newFlow, final WorkToken token) {
 		final WorkToken newToken;
 		if (!executable)
 			if (!token.isExecutable())
@@ -265,7 +271,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * Adds a new visited flow to the list.
 	 * @param flow New visited flow
 	 */
-	public void updatePath(Flow flow) {
+	public void updatePath(final Flow flow) {
 		token.addFlow(flow);
 	}
 
@@ -282,7 +288,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * @param flow Flow to be checked.
 	 * @return True if the specified flow was already visited from this thread; false otherwise.
 	 */
-	public boolean wasVisited (Flow flow) {
+	public boolean wasVisited (final Flow flow) {
 		return token.wasVisited(flow);
 	}
 
@@ -298,7 +304,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * Sets the order this thread occupies among the rest of work threads.
 	 * @param arrivalOrder the order of arrival of this work thread to request the activity
 	 */
-	public void setArrivalOrder(int arrivalOrder) {
+	public void setArrivalOrder(final int arrivalOrder) {
 		this.arrivalOrder = arrivalOrder;
 	}
 
@@ -314,7 +320,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * Sets the timestamp when this work thread arrives to request the current single flow.
 	 * @param arrivalTs the timestamp when this work thread arrives to request the current single flow
 	 */
-	public void setArrivalTs(long arrivalTs) {
+	public void setArrivalTs(final long arrivalTs) {
 		this.arrivalTs = arrivalTs;
 	}
 
@@ -323,7 +329,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * @param solution Tentative solution with booked resources
      * @return The minimum availability timestamp of the taken resources 
      */
-	public long catchResources(ArrayDeque<Resource> solution) {
+	public long catchResources(final ArrayDeque<Resource> solution) {
 		final RequestResourcesFlow reqFlow = (RequestResourcesFlow)currentFlow;
 		// Add booked resources to the element
 		elem.seizeResources(reqFlow, this, solution);
@@ -363,7 +369,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 		return delay;
 	}
 	
-	public void startDelay(long delay) {
+	public void startDelay(final long delay) {
 		elem.addFinishEvent(delay + elem.getTs(), (TaskFlow)currentFlow, this);
 	}
 	
@@ -411,7 +417,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
         return resources;
 	}
    
-    public void endDelay(RequestResourcesFlow f) {
+    public void endDelay(final RequestResourcesFlow f) {
 		if (remainingTask == 0.0) {
 			elem.getSimulation().notifyInfo(new ElementActionInfo(elem.getSimulation(), this, elem, f, executionWG, null, ElementActionInfo.Type.END, elem.getTs()));
 			if (elem.isDebugEnabled())
@@ -427,13 +433,13 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 		}
     }
 
-    public boolean wasInterrupted(ActivityFlow f) {
+    public boolean wasInterrupted(final ActivityFlow f) {
 		// It was an interruptible activity and it was interrupted
 		return (remainingTask > 0.0);    	
     }
 
 	@Override
-	public int compareTo(ElementInstance o) {
+	public int compareTo(final ElementInstance o) {
 		final int id1 = engine.getIdentifier();
 		final int id2 = o.engine.getIdentifier();
 		if (id1 > id2)

@@ -23,7 +23,7 @@ public abstract class Generator<INF extends Generator.GenerationInfo> extends Si
 	 * Creates a creator of elements.
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 */
-	public Generator(Simulation model, int id, TimeFunction nElem) {
+	public Generator(final Simulation model, final int id, final TimeFunction nElem) {
 		super(model, id, "GEN");
 		this.nElem = nElem;
 	}
@@ -33,7 +33,7 @@ public abstract class Generator<INF extends Generator.GenerationInfo> extends Si
 	 * @param sim Simulation this object belongs to.
 	 * @param nElem Number of objects created each time this creator is invoked.
 	 */
-	public Generator(Simulation model, int id, int nElem) {
+	public Generator(final Simulation model, final int id, final int nElem) {
 		this(model, id, TimeFunctionFactory.getInstance("ConstantVariate", nElem));
 	}
 	
@@ -43,11 +43,10 @@ public abstract class Generator<INF extends Generator.GenerationInfo> extends Si
 	}
 	
 	/**
-	 * Adds a [element type, proportion] generation info.
-	 * @param et Element type
-	 * @param prop Proportion of elements corresponding to this metaflow.
+	 * Adds a generation info.
+	 * @param info Generaion info
 	 */
-	public void add(INF info) {
+	public void add(final INF info) {
 		genInfo.add(info);
 	}
 
@@ -58,19 +57,34 @@ public abstract class Generator<INF extends Generator.GenerationInfo> extends Si
 	 * @param n Computed number of elements to create.
 	 * @return New number of elements to create.
 	 */
-	public int beforeCreateElements(int n) {
+	public int beforeCreateElements(final int n) {
 		return n; 
 	}
 	
+	// User methods
 	/**
 	 * Allows a user to define actions to be executed after the elements are created.
 	 * This method is invoked inside <code>create</code>. By default, does nothing.
 	 */
 	public void afterCreateElements() {}
-
-	public abstract EventSource createEventSource(int ind, INF info);
 	
-	public EventSource[] create(long ts) {
+	// End of user methods
+
+	/**
+	 * Creates a single event source. Every class extending this one must fill in this method to describe how new event sources, such as
+	 * {@link Element}, or {@link Resource} are created. 
+	 * @param ind The index of the new event source to be created
+	 * @param info The information used to create the event source
+	 * @return The newly created event source 
+	 */
+	public abstract EventSource createEventSource(final int ind, final INF info);
+	
+	/**
+	 * Creates all the event sources. It uses the specified proportions and the total number to create event sources.
+	 * @param ts Simulation time when this creation is invoked
+	 * @return The event sources created
+	 */
+	public EventSource[] create(final long ts) {
 		int n = getSampleNElem();
 		n = beforeCreateElements(n);
 		final EventSource[] elems = new EventSource[n];
@@ -93,15 +107,25 @@ public abstract class Generator<INF extends Generator.GenerationInfo> extends Si
 		return elems;
 	}
 	
+	/**
+	 * Returns the function that characterizes the total number of entities to be created each time the {@link #create(long)} method is invoked
+	 * @return the function that characterizes the total number of entities to be created each time the {@link #create(long)} method is invoked
+	 */
 	public TimeFunction getNElem() {
 		return nElem;
 	}
 
+	/**
+	 * Returns the total number of entities to be created each time the {@link #create(long)} method is invoked
+	 * @return the total number of entities to be created each time the {@link #create(long)} method is invoked
+	 */	
 	public int getSampleNElem() {
 		return (int) nElem.getValue(this);
 	}
+	
 	/**
-	 * @return the genInfo
+	 * Returns an array with the generation informations used to create event sources
+	 * @return an array with the generation informations used to create event sources
 	 */
 	public ArrayList<INF> getGenerationInfos() {
 		return genInfo;
@@ -119,7 +143,7 @@ public abstract class Generator<INF extends Generator.GenerationInfo> extends Si
 		 * Creates a new kind of elements to generate.
 		 * @param prop Proportion of elements corresponding to this flow.
 		 */
-		protected GenerationInfo(double prop) {
+		protected GenerationInfo(final double prop) {
 			this.prop = prop;
 		}
 		

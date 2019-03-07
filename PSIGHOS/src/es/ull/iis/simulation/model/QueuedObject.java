@@ -14,13 +14,13 @@ public interface QueuedObject<T> {
      * Add an object to the queue.
      * @param obj Object added
      */
-    public void queueAdd(T obj);
+    public void queueAdd(final T obj);
     
     /**
      * Remove a specific object from the queue.
      * @param obj Object that must be removed from the queue
      */
-    public void queueRemove(T obj);
+    public void queueRemove(final T obj);
 
     /**
      * Returns the size of the queue 

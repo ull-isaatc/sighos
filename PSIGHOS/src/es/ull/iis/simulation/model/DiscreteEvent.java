@@ -4,19 +4,21 @@
 package es.ull.iis.simulation.model;
 
 /**
+ * A generic class for discrete events. Discrete events are instantaneous occurrences that execute one or more actions.
  * @author Ivan Castilla Rodriguez
  *
  */
 public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEvent> {
     /** Timestamp when this event will be executed */
     final protected long ts;
+    /** If true, the event will not be executed */
     protected boolean cancelled = false;
 
     /**
      * Creates a new basic event.
      * @param ts Timestamp when the event will be executed.
      */
-    public DiscreteEvent(long ts) {
+    public DiscreteEvent(final long ts) {
         this.ts = ts;
     }
     
@@ -46,7 +48,7 @@ public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEven
     
     /**
      * String representation of the event
-     * @return A character string "E[#]".
+     * @return A character string "Ev()[#]".
      */
     public String toString() {
         return "Ev(" + getClass().getName() + ")[" + ts + "]";
@@ -66,7 +68,7 @@ public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEven
      * @return 1, -1 or 0 if the current timestamp is greater than, less than, or equal to
      * the timestamp of the event passed by parameters.
      */    
-	public int compareTo(DiscreteEvent e) {
+	public int compareTo(final DiscreteEvent e) {
 		final long evTs = e.getTs();
 		if (ts > evTs)
 			return 1;
@@ -83,7 +85,7 @@ public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEven
     public static class DefaultFinalizeEvent extends DiscreteEvent {
     	final protected EventSource source;
         
-        public DefaultFinalizeEvent(EventSource source, long ts) {
+        public DefaultFinalizeEvent(final EventSource source, final long ts) {
             super(ts);
             this.source = source;
         }
@@ -101,7 +103,7 @@ public abstract class DiscreteEvent implements Runnable, Comparable<DiscreteEven
     public static class DefaultStartEvent extends DiscreteEvent {
     	final protected EventSource source;
 
-    	public DefaultStartEvent(EventSource source, long ts) {
+    	public DefaultStartEvent(final EventSource source, final long ts) {
             super(ts);
             this.source = source;
         }

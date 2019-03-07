@@ -128,6 +128,231 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 		return cancelPeriodTable;
 	}
 	
+	@Override
+	public DiscreteEvent onCreate(final long ts) {
+		if (initLocation != null) {
+			if (initLocation.getAvailableCapacity() >= size) {
+				initLocation.move(this);
+			}
+			else {
+				error("Unable to initialize resource. Not enough space in location " + initLocation + " (available: " + initLocation.getAvailableCapacity() + " - required: " + size + ")");				
+				return onDestroy(ts);
+			}
+		}
+		return new CreateResourceEvent(ts);
+	}
+
+	@Override
+	public DiscreteEvent onDestroy(final long ts) {
+		return new DiscreteEvent.DefaultFinalizeEvent(this, ts);
+	}
+    
+    /**
+     * Informs the resource that it must finish its execution. 
+     */
+    public void notifyEnd() {
+        engine.notifyEnd();
+    }
+    
+    /**
+     * Returns the {@link ResourceType resource type} currently assigned to this resource, in case it is in use. Returns null otherwise.
+     * @return Value of property currentResourceType.
+     */
+    public ResourceType getCurrentResourceType() {
+        return currentResourceType;
+    }
+
+    /**
+     * Assigns a {@link ResourceType resource type} for this resource, whenever it is going to be used by an {@link Element}.
+     * @param rt Value of property currentResourceType.
+     */
+    public void setCurrentResourceType(final ResourceType rt) {
+    	currentResourceType = rt;
+    }
+    
+    /**
+     * Returns true if the resource is currently seized by an {@link Element element}; false otherwise 
+     * @return true if the resource is currently seized by an {@link Element element}; false otherwise
+     */
+    public boolean isSeized() {
+    	return (engine.getCurrentElement() != null);
+    }
+    
+    /**
+     * Returns <code>true</code> if this resource is being used in spite of having finished its availability.
+     * @return <code>True</code> if this resource is being used in spite of having finished its availability;
+     * <code>false</code> otherwise.
+     */
+    public boolean isTimeOut() {
+        return timeOut;
+    }
+    
+    /**
+     * Sets the state of this resource as being used in spite of having finished its availability. 
+     * @param timeOut <code>True</code> if this resource is being used beyond its availability; 
+     * <code>false</code> otherwise.
+     */
+    public void setTimeOut(final boolean timeOut) {
+        this.timeOut = timeOut;
+    }
+    
+	/**
+	 * Checks if a resource is available for a specific {@link ResourceType resource type}. The resource type is used to prevent 
+	 * using a resource when it's becoming unavailable right at this timestamp. 
+	 * @param rt Resource type
+	 * @return True if the resource is available.
+	 */
+	public boolean isAvailable(final ResourceType rt) {
+		return engine.isAvailable(rt);
+	}
+
+	/**
+	 * Sets the available flag of a resource.
+	 * @param available The availability state of the resource.
+	 */
+	protected void setNotCanceled(final boolean available) {
+		engine.setNotCanceled(available);
+	}
+	
+	/**
+	 * Adds a resource to the set of resources requested by an {@link Element}. 
+	 * @param solution Tentative solution with booked resources
+	 * @param rt Resource type
+	 * @param ei Element instance corresponding to an Element
+	 * @return <code>true</code> if the resource can be used within the proposed solution; <code>false</code> otherwise.
+	 */
+	public boolean add2Solution(final ArrayDeque<Resource> solution, final ResourceType rt, final ElementInstance ei) {
+		return engine.add2Solution(solution, rt, ei);
+	}
+
+	/**
+	 * Removes a resource from the set of resourcs requested by an {@link Element}
+	 * @param solution Tentative solution with booked resources
+	 * @param ei Element instance corresponding to an Element
+	 */
+	public void removeFromSolution(final ArrayDeque<Resource> solution, final ElementInstance ei) {
+		engine.removeFromSolution(solution, ei);
+	}
+
+	/**
+	 * Marks this resource as taken by an {@link Element}
+	 * @param ei The element instance in charge of executing the current flow
+	 * @return The availability timestamp of this resource for this resource type 
+	 */
+	protected long catchResource(final ElementInstance ei) {
+		return engine.catchResource(ei);
+	}
+	
+    /**
+     * Releases this resource
+	 * @param ei The element instance in charge of executing the current flow
+     * @return True if the resource could be correctly released. False if the availability time of the resource had already expired.
+     */
+    protected boolean releaseResource(final ElementInstance ei) {
+    	return engine.releaseResource(ei);
+    }
+    
+	/**
+	 * Builds a list of activity managers referenced by the roles of the resource. 
+	 * @return Returns the list of activity managers referenced by the roles of the resource.
+	 */
+    public ArrayList<ActivityManager> getCurrentManagers() {
+    	return engine.getCurrentManagers();
+    }
+    
+    /**
+     * Generates an event which finalizes a period of unavailability.
+     * @param ts Current simulation time.
+     * @param duration Duration of the unavailability period.
+     */
+    public void generateCancelPeriodOffEvent(final long ts, final long duration) {
+    	final CancelPeriodOffEvent aEvent = new CancelPeriodOffEvent(ts + duration, null, 0);
+        simul.addEvent(aEvent);
+    }
+    
+    /**
+     * Creates a move event to move to destination using the specified router.
+     * @param ei Element instance that initiates the move
+     * @param destination Destination location
+     * @param router Instance that returns the path for the element
+     */
+    public void startMove(final ElementInstance ei) {
+    	final MoveResourcesFlow flow = (MoveResourcesFlow)ei.getCurrentFlow();
+    	final Location destination = flow.getDestination();
+    	final Router router = flow.getRouter();
+		debug("Start route\t" + this + "\t" + destination);
+    	movingInstance = ei;
+    	// No need to move
+    	if (currentLocation.equals(destination)) {
+    		endMove(flow, true);
+    	}
+    	else {
+			final Location nextLoc = router.getNextLocationTo(this, destination);
+			if (nextLoc == null) {
+	    		endMove(flow, false);
+			}
+			else {
+				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
+		    	simul.addEvent(mEvent);
+			}
+    	}
+    }
+    
+    /**
+     * Notifies the flow that the move has finished
+     * @param ei Flow driving the movement
+     * @param success True if the resource arrived at destination; false if the destination was unreachable
+     */
+    private void endMove(final MoveResourcesFlow flow, final boolean success) {
+		flow.notifyArrival(movingInstance, success);
+    	movingInstance = null;
+    	if (success)
+			debug("Finishes route\t" + this + "\t" + flow.getDestination());
+    	else
+			error("Destination unreachable. Current: " + currentLocation + "; destination: " + flow.getDestination());
+    }
+
+	@Override
+	public void notifyLocationAvailable(final Location location) {
+		location.move(this);
+
+    	final MoveResourcesFlow flow = (MoveResourcesFlow)movingInstance.getCurrentFlow();
+    	final Location destination = flow.getDestination();
+    	final Router router = flow.getRouter();
+		
+		if (currentLocation.equals(destination)) {
+			endMove(flow, true);
+		}
+		else {
+			final Location nextLoc = router.getNextLocationTo(this, destination);
+			if (nextLoc == null) {
+				endMove(flow, false);
+			}
+			else {
+				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
+		    	simul.addEvent(mEvent);						
+			}
+		}
+	}
+	
+	/**
+	 * Returns a builder class for adding time table or cancellation entries
+	 * @param roleList The types of this resource during every activation /to be cancelled
+	 * @return a builder class for adding time table or cancellation entries
+	 */
+	public TimeTableOrCancelEntriesAdder newTimeTableOrCancelEntriesAdder(final ArrayList<ResourceType> roleList) {
+		return new TimeTableOrCancelEntriesAdder(roleList);
+	}
+	
+	/**
+	 * Returns a builder class for adding time table or cancellation entries
+	 * @param role The type of this resource during every activation/to be cancelled 
+	 * @return a builder class for adding time table or cancellation entries
+	 */
+	public TimeTableOrCancelEntriesAdder newTimeTableOrCancelEntriesAdder(final ResourceType role) {
+		return new TimeTableOrCancelEntriesAdder(role);
+	}
+	
 	/**
 	 * A builder class to build time table or cancellation entries. With one builder you can create several entries with the same cycle and duration for
 	 * one or more resource types. If you don't use the {@link #withDuration(SimulationCycle, TimeStamp)} method, the entries are assumed to last for
@@ -174,9 +399,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 		 * @param dur How long the resource is active/will remain inactive
 		 */
 		public TimeTableOrCancelEntriesAdder withDuration(final SimulationCycle cycle, final long dur) {
-			this.cycle = cycle;
-			this.dur = new TimeStamp(simul.getTimeUnit(), dur);
-			return this;
+			return this.withDuration(cycle, new TimeStamp(simul.getTimeUnit(), dur));
 		}
 		
 		/**
@@ -207,227 +430,13 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 			}
 		}
 	}
-	
-	/**
-	 * Returns a builder class for adding time table or cancellation entries
-	 * @param role The type of this resource during every activation/to be cancelled 
-	 * @return a builder class for adding time table or cancellation entries
-	 */
-	public TimeTableOrCancelEntriesAdder newTimeTableOrCancelEntriesAdder(final ResourceType role) {
-		return new TimeTableOrCancelEntriesAdder(role);
-	}
-	
-	/**
-	 * Returns a builder class for adding time table or cancellation entries
-	 * @param roleList The types of this resource during every activation /to be cancelled
-	 * @return a builder class for adding time table or cancellation entries
-	 */
-	public TimeTableOrCancelEntriesAdder newTimeTableOrCancelEntriesAdder(final ArrayList<ResourceType> roleList) {
-		return new TimeTableOrCancelEntriesAdder(roleList);
-	}
-	
-	@Override
-	public DiscreteEvent onCreate(long ts) {
-		if (initLocation != null) {
-			if (initLocation.getAvailableCapacity() >= size) {
-				initLocation.move(this);
-			}
-			else {
-				error("Unable to initialize resource. Not enough space in location " + initLocation + " (available: " + initLocation.getAvailableCapacity() + " - required: " + size + ")");				
-				return onDestroy(ts);
-			}
-		}
-		return new CreateResourceEvent(ts);
-	}
-
-	@Override
-	public DiscreteEvent onDestroy(long ts) {
-		return new DiscreteEvent.DefaultFinalizeEvent(this, ts);
-	}
-    
-    /**
-     * Informs the resource that it must finish its execution. 
-     */
-    public void notifyEnd() {
-        engine.notifyEnd();
-    }
-    
-    /**
-     * Returns the {@link ResourceType resource type} currently assigned to this resource, in case it is in use. Returns null otherwise.
-     * @return Value of property currentResourceType.
-     */
-    public ResourceType getCurrentResourceType() {
-        return currentResourceType;
-    }
-
-    /**
-     * Assigns a {@link ResourceType resource type} for this resource, whenever it is going to be used by an {@link Element}.
-     * @param rt Value of property currentResourceType.
-     */
-    public void setCurrentResourceType(ResourceType rt) {
-    	currentResourceType = rt;
-    }
-    
-    /**
-     * Returns true if the resource is currently seized by an {@link Element element}; false otherwise 
-     * @return true if the resource is currently seized by an {@link Element element}; false otherwise
-     */
-    public boolean isSeized() {
-    	return (engine.getCurrentElement() != null);
-    }
-    
-    /**
-     * Returns <code>true</code> if this resource is being used in spite of having finished its availability.
-     * @return <code>True</code> if this resource is being used in spite of having finished its availability;
-     * <code>false</code> otherwise.
-     */
-    public boolean isTimeOut() {
-        return timeOut;
-    }
-    
-    /**
-     * Sets the state of this resource as being used in spite of having finished its availability. 
-     * @param timeOut <code>True</code> if this resource is being used beyond its availability; 
-     * <code>false</code> otherwise.
-     */
-    public void setTimeOut(boolean timeOut) {
-        this.timeOut = timeOut;
-    }
-    
-	/**
-	 * Checks if a resource is available for a specific {@link ResourceType resource type}. The resource type is used to prevent 
-	 * using a resource when it's becoming unavailable right at this timestamp. 
-	 * @param rt Resource type
-	 * @return True if the resource is available.
-	 */
-	public boolean isAvailable(ResourceType rt) {
-		return engine.isAvailable(rt);
-	}
-
-	/**
-	 * Sets the available flag of a resource.
-	 * @param available The availability state of the resource.
-	 */
-	public void setNotCanceled(boolean available) {
-		engine.setNotCanceled(available);
-	}
-	
-	/**
-	 * Adds a resource to the set of resources requested by an {@link Element}. 
-	 * @param solution Tentative solution with booked resources
-	 * @param rt Resource type
-	 * @param ei Element instance corresponding to an Element
-	 * @return <code>true</code> if the resource can be used within the proposed solution; <code>false</code> otherwise.
-	 */
-	public boolean add2Solution(ArrayDeque<Resource> solution, ResourceType rt, ElementInstance ei) {
-		return engine.add2Solution(solution, rt, ei);
-	}
-
-	public void removeFromSolution(ArrayDeque<Resource> solution, ElementInstance fe) {
-		engine.removeFromSolution(solution, fe);
-	}
-
-	/**
-	 * Marks this resource as taken by an element. Sets the current work item, and the
-	 * current resource type; and adds this resource to the item's caught resources list.
-	 * A "taken" element continues being booked. The book is released when the resource itself is
-	 * released. 
-	 * @param wt The work thread in charge of executing the current flow
-	 * @return The availability timestamp of this resource for this resource type 
-	 */
-	public long catchResource(ElementInstance wt) {
-		return engine.catchResource(wt);
-	}
-	
-    /**
-     * Releases this resource. If the resource has already expired its availability time, 
-     * the timeOut flag is set off. Sets the current work item and the current resource type 
-     * to <code>null</code>. The book of the resource is released too.
-     * @return True if the resource could be correctly released. False if the availability
-     * time of the resource had already expired.
-     */
-    public boolean releaseResource(ElementInstance ei) {
-    	return engine.releaseResource(ei);
-    }
-    
-    public ArrayList<ActivityManager> getCurrentManagers() {
-    	return engine.getCurrentManagers();
-    }
-    
-    /**
-     * Generates an event which finalizes a period of unavailability.
-     * @param ts Actual simulation time.
-     * @param duration Duration of the unavailability period.
-     */
-    public void generateCancelPeriodOffEvent(final long ts, final long duration) {
-    	final CancelPeriodOffEvent aEvent = new CancelPeriodOffEvent(ts + duration, null, 0);
-        simul.addEvent(aEvent);
-    }
-    
-    /**
-     * Creates a move event to move to destination using the specified router.
-     * @param ei Element instance that initiates the move
-     * @param destination Destination location
-     * @param router Instance that returns the path for the element
-     */
-    public void startMove(final ElementInstance ei) {
-    	final MoveResourcesFlow flow = (MoveResourcesFlow)ei.getCurrentFlow();
-    	final Location destination = flow.getDestination();
-    	final Router router = flow.getRouter();
-		debug("Start route\t" + this + "\t" + destination);
-    	movingInstance = ei;
-    	// No need to move
-    	if (currentLocation.equals(destination)) {
-    		flow.notifyArrival(movingInstance, true);
-    	}
-    	else {
-			final Location nextLoc = router.getNextLocationTo(this, destination);
-			if (nextLoc == null) {
-				error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
-				flow.notifyArrival(movingInstance, false);
-			}
-			else {
-				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
-		    	simul.addEvent(mEvent);
-			}
-    	}
-    }
-    
-    public void endMove(final ElementInstance ei) {
-    	movingInstance = null;
-    }
-
-	@Override
-	public void notifyLocationAvailable(Location location) {
-		location.move(this);
-
-    	final MoveResourcesFlow flow = (MoveResourcesFlow)movingInstance.getCurrentFlow();
-    	final Location destination = flow.getDestination();
-    	final Router router = flow.getRouter();
-		
-		if (currentLocation.equals(destination)) {
-			debug("Finishes route\t" + this + "\t" + destination);
-    		flow.notifyArrival(movingInstance, true);
-		}
-		else {
-			final Location nextLoc = router.getNextLocationTo(this, destination);
-			if (nextLoc == null) {
-				error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
-				flow.notifyArrival(movingInstance, false);
-			}
-			else {
-				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
-		    	simul.addEvent(mEvent);						
-			}
-		}
-	}
 	    
     /**
      * The event in charge of initializing the resource
      * @author Iván Castilla Rodríguez
      *
      */
-    public class CreateResourceEvent extends DiscreteEvent {
+    protected class CreateResourceEvent extends DiscreteEvent {
 
     	public CreateResourceEvent(long ts) {
     		super(ts);
@@ -474,7 +483,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
     /**
      * Makes available a resource with a specific role. 
      */
-    public class RoleOnEvent extends DiscreteEvent {
+    protected class RoleOnEvent extends DiscreteEvent {
         /** Available role */
         private final ResourceType role;
         /** Cycle iterator */
@@ -489,7 +498,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
          * @param iter The cycle iterator that handles the availability of this resource
          * @param duration The duration of the availability.
          */        
-        public RoleOnEvent(long ts, ResourceType role, DiscreteCycleIterator iter, long duration) {
+        public RoleOnEvent(final long ts, final ResourceType role, final DiscreteCycleIterator iter, final long duration) {
             super(ts);
             this.iter = iter;
             this.role = role;
@@ -513,8 +522,8 @@ public class Resource extends VariableStoreSimulationObject implements Describab
         	}
         }
 
-
 		/**
+		 * Returns the resource type
 		 * @return Returns the role.
 		 */
 		public ResourceType getRole() {
@@ -525,7 +534,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
     /**
      * Makes unavailable a resource with a specific role. 
      */
-    public class RoleOffEvent extends DiscreteEvent {
+    protected class RoleOffEvent extends DiscreteEvent {
         /** Unavailable role */
         private final ResourceType role;
         /** Cycle iterator */
@@ -540,7 +549,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
          * @param iter The cycle iterator that handles the availability of this resource
          * @param duration The duration of the availability.
          */        
-        public RoleOffEvent(long ts, ResourceType role, DiscreteCycleIterator iter, long duration) {
+        public RoleOffEvent(final long ts, final ResourceType role, final DiscreteCycleIterator iter, final long duration) {
             super(ts);
             this.role = role;
             this.iter = iter;
@@ -571,6 +580,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
         }
 
 		/**
+		 * Returns the resource type
 		 * @return Returns the role.
 		 */
 		public ResourceType getRole() {
@@ -579,11 +589,11 @@ public class Resource extends VariableStoreSimulationObject implements Describab
     }
     
 	/**
-	 * Event which opens a cancellation period for this resource
+	 * Event which starts a cancellation period for this resource
 	 * @author ycallero
 	 *
 	 */
-	public class CancelPeriodOnEvent extends DiscreteEvent {
+	protected class CancelPeriodOnEvent extends DiscreteEvent {
 		/** Cycle iterator */
 		private final DiscreteCycleIterator iter;
 		/** Duration of the availability */
@@ -595,7 +605,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 		 * @param iter Cycle iterator.
 		 * @param duration Event duration.
 		 */
-		public CancelPeriodOnEvent(long ts, DiscreteCycleIterator iter, long duration) {
+		public CancelPeriodOnEvent(final long ts, final DiscreteCycleIterator iter, final long duration) {
 			super(ts);
 			this.iter = iter;
 			this.duration = duration;
@@ -612,11 +622,11 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 	}
 
 	/**
-	 * Event which closes a cancellation period for this resource
+	 * Event which ends a cancellation period for this resource
 	 * @author ycallero
 	 *
 	 */
-	public class CancelPeriodOffEvent extends DiscreteEvent {
+	protected class CancelPeriodOffEvent extends DiscreteEvent {
 		/** Cycle iterator */
 		private final DiscreteCycleIterator iter;
 		/** Duration of the availability */
@@ -628,7 +638,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 		 * @param iter Cycle iterator.
 		 * @param duration The event duration.
 		 */   
-		public CancelPeriodOffEvent(long ts, DiscreteCycleIterator iter, long duration) {
+		public CancelPeriodOffEvent(final long ts, final DiscreteCycleIterator iter, final long duration) {
 			super(ts);
 			this.iter = iter;
 			this.duration = duration;
@@ -649,9 +659,17 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 		}
 	}
 
-	public class MoveEvent extends DiscreteEvent {
+	/**
+	 * Event to move the resource to a different location
+	 * @author Iván Castilla Rodríguez
+	 *
+	 */
+	protected class MoveEvent extends DiscreteEvent {
+		/** Final destination of the move */
 		final private Location destination;
+		/** Next location in the way to the final destination */
 		final private Location nextLocation;
+		/** The instance that computes the path to the final destination */
 		final private Router router;
 		
 		/**
@@ -684,14 +702,12 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 				final MoveResourcesFlow flow = ((MoveResourcesFlow)movingInstance.getCurrentFlow());
 				nextLocation.move(Resource.this);
 				if (nextLocation.equals(destination)) {
-					debug("Finishes route\t" + this + "\t" + destination);
-					flow.notifyArrival(movingInstance, true);
+					endMove(flow, true);
 				}
 				else {
 					final Location nextLoc = router.getNextLocationTo(Resource.this, destination);
 					if (nextLoc == null) {
-						error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
-						flow.notifyArrival(movingInstance, false);
+						endMove(flow, false);
 					}
 					else {
 						final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(Resource.this), nextLoc, destination, router);

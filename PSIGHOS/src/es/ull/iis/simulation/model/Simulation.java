@@ -96,7 +96,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * @param startTs Simulation start expressed in simulation time units
 	 * @param endTs Simulation end expressed in simulation time units
 	 */
-	public Simulation(int id, String description, long startTs, long endTs) {
+	public Simulation(final int id, final String description, final long startTs, final long endTs) {
 		this(id, description, DEF_TIME_UNIT, startTs, endTs);
 	}
 
@@ -109,7 +109,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * @param startTs Simulation start timestamp
 	 * @param endTs Simulation end timestamp
 	 */
-	public Simulation(int id, String description, TimeUnit unit, TimeStamp startTs, TimeStamp endTs) {
+	public Simulation(final int id, final String description, final TimeUnit unit, final TimeStamp startTs, final TimeStamp endTs) {
 		this(id, description, unit, unit.convert(startTs), unit.convert(endTs));
 	}
 	
@@ -122,7 +122,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * @param startTs Simulation start expressed in simulation time units
 	 * @param endTs Simulation end expressed in simulation time units
 	 */
-	public Simulation(int id, String description, TimeUnit unit, long startTs, long endTs) {
+	public Simulation(final int id, final String description, final TimeUnit unit, final long startTs, final long endTs) {
 		this.id = id;
 		this.unit = unit;
 		this.description = description;
@@ -192,7 +192,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Sets the simulation engine that executes this model
 	 * @param simulationEngine the simulation engine to set
 	 */
-	public void setSimulationEngine(SimulationEngine simulationEngine) {
+	public void setSimulationEngine(final SimulationEngine simulationEngine) {
 		this.simulationEngine = simulationEngine;
 		for (ElementType et : elementTypeList)
 			et.assignSimulation(simulationEngine);
@@ -222,7 +222,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Sets an output for debugging and error messages.
 	 * @param out The new output for debugging and error messages
 	 */
-	public static void setOutput(Output out) {
+	public static void setOutput(final Output out) {
 		Simulation.out = out;
 	}
 
@@ -230,7 +230,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Prints a debug message
 	 * @param description Debug message
 	 */
-	public static void debug(String description) {
+	public static void debug(final String description) {
 		out.debug(description);
 	}
 
@@ -238,7 +238,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Prints an error message
 	 * @param description Error message
 	 */
-	public static void error(String description) {
+	public static void error(final String description) {
 		out.error(description);
 	}
 
@@ -270,7 +270,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Adds a new event to the simulation
 	 * @param ev New event
 	 */
-	public void addEvent(DiscreteEvent ev) {
+	public void addEvent(final DiscreteEvent ev) {
 		simulationEngine.addEvent(ev);
 	}
 	
@@ -333,7 +333,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Checks the conditions stated in the condition-driven generators. If the condition meets, creates the corresponding event sources.
 	 * @param ts simulation time when the simulations are checked.
 	 */
-	public void checkConditions(long ts) {
+	public void checkConditions(final long ts) {
 		for (ConditionDrivenGenerator<?> gen : cGenList) {
 			if (gen.getCondition().check(null))
 				gen.create(ts);
@@ -351,7 +351,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Adds an {@link ElementType} to the model. This method is invoked from the object's constructor.
 	 * @param et Element Type that's added to the model.
 	 */
-	public void add(ElementType et) { 
+	public void add(final ElementType et) { 
 		elementTypeList.add(et);
 	}
 	
@@ -359,7 +359,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Adds a {@link Resource} to the simulation. This method is invoked from the object's constructor.
 	 * @param res Resource that's added to the model.
 	 */
-	public void add(Resource res) { 
+	public void add(final Resource res) { 
 		resourceList.add(res);
 	}
 	
@@ -367,7 +367,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Adds an {@link ResourceType} to the model. This method is invoked from the object's constructor.
 	 * @param rt Resource Type that's added to the model.
 	 */
-	public void add(ResourceType rt) { 
+	public void add(final ResourceType rt) { 
 		resourceTypeList.add(rt);
 	}
 
@@ -375,14 +375,14 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Adds an {@link WorkGroup} to the model. This method is invoked from the object's constructor.
 	 * @param wg Workgroup that's added to the model.
 	 */
-	public void add(WorkGroup wg) { 
+	public void add(final WorkGroup wg) { 
 		workGroupList.add(wg);
 	}
 	/**
 	 * Adds an {@link BasicFlow} to the model. This method is invoked from the object's constructor.
 	 * @param f Flow that's added to the model.
 	 */
-	public void add(BasicFlow f) { 
+	public void add(final BasicFlow f) { 
 		flowList.add(f);
 		if (f instanceof RequestResourcesFlow)
 			actList.add((RequestResourcesFlow)f);
@@ -392,7 +392,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Adds an {@link TimeDrivenGenerator} to the model. This method is invoked from the object's constructor.
 	 * @param gen Time-driven generator that's added to the model.
 	 */
-	public void add(TimeDrivenGenerator<?> gen) {
+	public void add(final TimeDrivenGenerator<?> gen) {
 		tGenList.add(gen);
 	}
 	
@@ -400,7 +400,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Adds an {@link ConditionDrivenGenerator} to the model. This method is invoked from the object's constructor.
 	 * @param gen Condition-driven generator that's added to the model.
 	 */
-	public void add(ConditionDrivenGenerator<?> gen) {
+	public void add(final ConditionDrivenGenerator<?> gen) {
 		cGenList.add(gen);
 	}
 	
@@ -408,7 +408,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Adds an {@link ActivityManager} to the simulation. The activity managers are  automatically added from their constructor.
 	 * @param am Activity manager.
 	 */
-	public void add(ActivityManager am) {
+	public void add(final ActivityManager am) {
 		amList.add(am);
 	}
 
@@ -490,7 +490,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * @param source A timestamp
 	 * @return A long value representing the received timestamp in the simulation's time unit 
 	 */
-	public long simulationTime2Long(TimeStamp source) {
+	public long simulationTime2Long(final TimeStamp source) {
 		return unit.convert(source);
 	}
 	
@@ -500,7 +500,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * @param sourceValue A long value expressed in the simulation's time unit
 	 * @return A timestamp representing the received long value in the simulation's time unit 
 	 */
-	public TimeStamp long2SimulationTime(long sourceValue) {
+	public TimeStamp long2SimulationTime(final long sourceValue) {
 		return new TimeStamp(unit, sourceValue);
 	}
 
@@ -510,17 +510,17 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	}
 
 	@Override
-	public Variable getVar(String varName) {
+	public Variable getVar(final String varName) {
 		return varCollection.get(varName);
 	}
 	
 	@Override
-	public void putVar(String varName, Variable value) {
+	public void putVar(final String varName, final Variable value) {
 		varCollection.put(varName, value);
 	}
 	
 	@Override
-	public void putVar(String varName, double value) {
+	public void putVar(final String varName, final double value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -530,7 +530,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	}
 	
 	@Override
-	public void putVar(String varName, int value) {
+	public void putVar(final String varName, final int value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -540,7 +540,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	}
 
 	@Override
-	public void putVar(String varName, boolean value) {
+	public void putVar(final String varName, final boolean value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -550,7 +550,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	}
 
 	@Override
-	public void putVar(String varName, char value) {
+	public void putVar(final String varName, final char value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -560,7 +560,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	}
 	
 	@Override
-	public void putVar(String varName, byte value) {
+	public void putVar(final String varName, final byte value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -570,7 +570,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	}
 
 	@Override
-	public void putVar(String varName, float value) {
+	public void putVar(final String varName, final float value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -580,7 +580,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	}
 	
 	@Override
-	public void putVar(String varName, long value) {
+	public void putVar(final String varName, final long value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -590,7 +590,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	}
 	
 	@Override
-	public void putVar(String varName, short value) {
+	public void putVar(final String varName, final short value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -599,7 +599,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 			varCollection.put(varName, new ShortVariable(value));
 	}
 	
-	public double getVarViewValue(Object...params) {
+	public double getVarViewValue(final Object...params) {
 		String varName = (String) params[0];
 		params[0] = this;
 		Number value = getVar(varName).getValue(params);
@@ -625,7 +625,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Adds an information receiver which processes information produced by this simulation.
 	 * @param receiver A processor for the information produced by this simulation
 	 */
-	public void addInfoReceiver(InfoReceiver receiver) {
+	public void addInfoReceiver(final InfoReceiver receiver) {
 		infoHandler.registerReceivers(receiver);
 	}
 
@@ -633,7 +633,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Returns the handler for the information produced by the execution of this simulation.
 	 * @param info A piece of information produced by the simulation
 	 */
-	public Number notifyInfo(SimulationInfo info) {
+	public Number notifyInfo(final SimulationInfo info) {
 		return infoHandler.notifyInfo(info);
 	}
 	
@@ -668,7 +668,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
      * the simulation time is equal or higher than the expected simulation end time.
      * @return True if the simulation must finish; false otherwise.
      */
-    public boolean isSimulationEnd(long currentTs) {
+    public boolean isSimulationEnd(final long currentTs) {
     	return (currentTs >= endTs);
     }
     

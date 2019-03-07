@@ -19,7 +19,7 @@ public class WorkToken {
 	 * Creates a work token.
 	 * @param state The initial state of the work token
 	 */
-	public WorkToken (boolean state) {
+	public WorkToken (final boolean state) {
 		this.state = state;
 	}
 
@@ -28,7 +28,7 @@ public class WorkToken {
 	 * @param state The initial state of the work token
 	 * @param startPoint The first flow that this token passes by
 	 */
-	public WorkToken(boolean state, Flow startPoint) {
+	public WorkToken(final boolean state, final Flow startPoint) {
 		this(state);
 		path.add(startPoint);
 	}
@@ -37,7 +37,7 @@ public class WorkToken {
 	 * Creates a work token copy of a previously created one.
 	 * @param token Previously created token
 	 */
-	public WorkToken(WorkToken token) {
+	public WorkToken(final WorkToken token) {
 		this(token.isExecutable());
 		path.addAll(token.getPath());
 	}
@@ -55,7 +55,7 @@ public class WorkToken {
 	 * Adds a flow to the list of visited ones.
 	 * @param visited New flow visited by the element instance containing this token
 	 */
-	public void addFlow(Flow visited) {
+	public void addFlow(final Flow visited) {
 		path.add(visited);
 	}
 	
@@ -63,7 +63,7 @@ public class WorkToken {
 	 * Adds a collection of flows to the list of visited ones.
 	 * @param path Collection of new flow visited by the element instance containing this token
 	 */
-	public void addFlow(TreeSet<Flow> path) {
+	public void addFlow(final TreeSet<Flow> path) {
 		this.path.addAll(path);
 	}
 	
@@ -73,7 +73,7 @@ public class WorkToken {
 	 * @return True of the specified flow was already visited by the element instance containing this token;
 	 * false in other case.
 	 */
-	public boolean wasVisited(Flow flow) {
+	public boolean wasVisited(final Flow flow) {
 		return path.contains(flow);
 	}
 	
@@ -89,7 +89,7 @@ public class WorkToken {
 	 * Sets the state of this work token.
 	 * @param state New state of this work token
 	 */
-	public void setState(boolean state) {
+	public void setState(final boolean state) {
 		this.state = state;
 	}
 

@@ -145,7 +145,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * @param ei Element instance performing the seizing
 	 * @param newResources New resources seized by the element
 	 */
-    public void seizeResources(final RequestResourcesFlow reqFlow, final ElementInstance ei, final ArrayDeque<Resource> newResources) {
+    protected void seizeResources(final RequestResourcesFlow reqFlow, final ElementInstance ei, final ArrayDeque<Resource> newResources) {
     	final int resId = (reqFlow.getResourcesId() < 0) ? -ei.getIdentifier() : reqFlow.getResourcesId();
     	seizedResources.addResources(resId, newResources);
     }
@@ -156,7 +156,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
      * @param ei Element instance performing the releasing
      * @return The released resources
      */
-    public ArrayDeque<Resource> releaseResources(final ReleaseResourcesFlow relFlow, final ElementInstance ei) {
+    protected ArrayDeque<Resource> releaseResources(final ReleaseResourcesFlow relFlow, final ElementInstance ei) {
     	final int resId = (relFlow.getResourcesId() < 0) ? -ei.getIdentifier() : relFlow.getResourcesId();
     	final WorkGroup wg = relFlow.getWorkGroup();
     	return seizedResources.removeResources(resId, wg);
@@ -205,7 +205,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	 * Initializes the variables of the element as indicated by a generator
 	 * @param varList List of variables and values
 	 */
-	public void initializeElementVars(final TreeMap<String, Object> varList) {
+	protected void initializeElementVars(final TreeMap<String, Object> varList) {
 		for (Entry<String, Object> entry : varList.entrySet()) {
 			final String name = entry.getKey();
 			final Object value = entry.getValue();
@@ -282,51 +282,6 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	public void addFinishEvent(final long ts, final TaskFlow f, final ElementInstance ei) {
 		simul.addEvent(new FinishFlowEvent(ts, f, ei));
 	}
-	
-	/**
-	 * An event to request a flow.
-	 * @author Iván Castilla Rodríguez
-	 */
-	public class RequestFlowEvent extends DiscreteEvent {
-		/** The element instance that executes the request */
-		private final ElementInstance ei;
-		/** The flow to be requested */
-		private final Flow f;
-
-		public RequestFlowEvent(final long ts, final Flow f, final ElementInstance ei) {
-			super(ts);
-			this.ei = ei;
-			this.f = f;
-		}		
-
-		@Override
-		public void event() {
-			ei.setCurrentFlow(f);
-			f.request(ei);
-		}
-	}
-	
-	/**
-	 * An event to finish a flow. 
-	 * @author Iván Castilla Rodríguez
-	 */
-	public class FinishFlowEvent extends DiscreteEvent {
-		/** The element instance that executes the finish */
-		private final ElementInstance ei;
-		/** The flow to be finished */
-		private final TaskFlow f;
-
-		public FinishFlowEvent(final long ts, final TaskFlow f, final ElementInstance ei) {
-			super(ts);
-			this.ei = ei;
-			this.f = f;
-		}		
-
-		@Override
-		public void event() {
-			f.finish(ei);
-		}
-	}
 
 	@Override
 	protected void assignSimulation(SimulationEngine simul) {
@@ -374,15 +329,12 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
     	final Router router = flow.getRouter();
 		
 		if (currentLocation.equals(destination)) {
-			debug("Finishes route\t" + this + "\t" + destination);
-			flow.finish(movingInstance);
+			endMove(flow, true);
 		}
 		else {
 			final Location nextLoc = router.getNextLocationTo(this, destination);
 			if (nextLoc == null) {
-				error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
-				movingInstance.cancel(flow);
-				flow.next(movingInstance);
+				endMove(flow, false);
 			}
 			else {
 				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
@@ -407,15 +359,12 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
     	movingInstance = ei;
     	// No need to move
     	if (currentLocation.equals(destination)) {
-    		flow.finish(movingInstance);
+    		endMove(flow, true);
     	}
     	else {
 			final Location nextLoc = router.getNextLocationTo(this, destination);
 			if (nextLoc == null) {
-				error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
-				movingInstance.cancel(flow);
-				flow.next(movingInstance);
-
+				endMove(flow, false);
 			}
 			else {
 				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
@@ -425,12 +374,68 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
     }
 
     /**
-     * Notifies the element that it has arrived at destination
-     * @param ei Element instance that was moving
+     * Notifies the flow that the move has finished
+     * @param flow Flow driving the movement
+     * @param success True if the element arrived at destination; false if the destination was unreachable
      */
-    public void endMove(final ElementInstance ei) {
-    	movingInstance = null;
+    private void endMove(final MoveFlow flow, boolean success) {
+    	if (success) {
+    		flow.finish(movingInstance);
+    		movingInstance = null;
+    		debug("Finishes route\t" + this + "\t" + flow.getDestination());
+    	}
+    	else {
+			movingInstance.cancel(flow);
+			flow.next(movingInstance);
+	    	movingInstance = null;
+    		error("Destination unreachable. Current: " + currentLocation + "; destination: " + flow.getDestination());
+    	}
     }
+	
+	/**
+	 * An event to request a flow.
+	 * @author Iván Castilla Rodríguez
+	 */
+	protected class RequestFlowEvent extends DiscreteEvent {
+		/** The element instance that executes the request */
+		private final ElementInstance ei;
+		/** The flow to be requested */
+		private final Flow f;
+
+		public RequestFlowEvent(final long ts, final Flow f, final ElementInstance ei) {
+			super(ts);
+			this.ei = ei;
+			this.f = f;
+		}		
+
+		@Override
+		public void event() {
+			ei.setCurrentFlow(f);
+			f.request(ei);
+		}
+	}
+	
+	/**
+	 * An event to finish a flow. 
+	 * @author Iván Castilla Rodríguez
+	 */
+	protected class FinishFlowEvent extends DiscreteEvent {
+		/** The element instance that executes the finish */
+		private final ElementInstance ei;
+		/** The flow to be finished */
+		private final TaskFlow f;
+
+		public FinishFlowEvent(final long ts, final TaskFlow f, final ElementInstance ei) {
+			super(ts);
+			this.ei = ei;
+			this.f = f;
+		}		
+
+		@Override
+		public void event() {
+			f.finish(ei);
+		}
+	}
 
     /**
      * An event to perform a move. The element try to move to the next location in its path to its final destination. The element only leaves 
@@ -438,7 +443,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
      * @author Iván Castilla
      *
      */
-	public class MoveEvent extends DiscreteEvent {
+	protected class MoveEvent extends DiscreteEvent {
 		/** Final destination of the move */
 		final private Location destination;
 		/** Next location in the way to the final destination */
@@ -466,15 +471,12 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 				final MoveFlow flow = ((MoveFlow)movingInstance.getCurrentFlow());
 				nextLocation.move(Element.this);
 				if (nextLocation.equals(destination)) {
-					debug("Finishes route\t" + this + "\t" + destination);
-					flow.finish(movingInstance);
+					endMove(flow, true);
 				}
 				else {
 					final Location nextLoc = router.getNextLocationTo(Element.this, destination);
 					if (nextLoc == null) {
-						error("Destination unreachable. Current: " + currentLocation + "; destination: " + destination);
-						movingInstance.cancel(flow);
-						flow.next(movingInstance);
+						endMove(flow, false);
 					}
 					else {
 						final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(Element.this), nextLoc, destination, router);

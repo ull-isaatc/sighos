@@ -24,27 +24,29 @@ public class WorkGroup extends SimulationObject implements Describable {
 	 * Creates an empty work group
 	 * @param simul The simulation this work group belongs to
 	 */
-	public WorkGroup(Simulation simul) {
+	public WorkGroup(final Simulation simul) {
 		this(simul, new ResourceType[0], new int[0]);
 	}
 
     /**
      * Creates a new instance of work group initializing the list of pairs
      * <resource type, needed resources> with one pair. 
+	 * @param simul The simulation this work group belongs to
      * @param rt Resource Type
      * @param needed Resources needed
      */    
-    public WorkGroup(Simulation model, ResourceType rt, int needed) {
+    public WorkGroup(final Simulation model, final ResourceType rt, final int needed) {
         this(model, new ResourceType[] {rt}, new int[] {needed});
     }
 
     /**
      * Creates a new instance of work group, initializing the list of pairs
      * <resource type, needed resources>.
+	 * @param simul The simulation this work group belongs to
      * @param rts The resource types which compounds this work group.
      * @param needs The amounts of resource types required by this work group.
      */    
-    public WorkGroup(Simulation model, ResourceType[] rts, int []needs) {
+    public WorkGroup(final Simulation model, final ResourceType[] rts, final int []needs) {
     	super(model, model.getWorkGroupList().size(), "WG");
     	this.resourceTypes = rts;
     	this.needed = needs;
@@ -64,7 +66,7 @@ public class WorkGroup extends SimulationObject implements Describable {
      * @param ind Index of the entry
      * @return The resource type from the position ind. 
      */
-    public ResourceType getResourceType(int ind) {
+    public ResourceType getResourceType(final int ind) {
         return resourceTypes[ind];
     }
 
@@ -73,7 +75,7 @@ public class WorkGroup extends SimulationObject implements Describable {
      * @param ind Index of the entry
      * @return The needed amount of resources from the position ind. 
      */
-    public int getNeeded(int ind) {
+    protected int getNeeded(final int ind) {
         return needed[ind];
     }
 
@@ -100,7 +102,7 @@ public class WorkGroup extends SimulationObject implements Describable {
      * @param nec Resources needed.
      * @return True if there is a reachable solution. False in other case.
      */
-    protected boolean hasSolution(int []pos, int []nec, ElementInstance fe) {
+    protected boolean hasSolution(final int []pos, final int []nec) {
     	// Checks the current RT
         if (!resourceTypes[pos[0]].checkNeeded(pos[1], nec[pos[0]]))
         	return false;
@@ -118,10 +120,11 @@ public class WorkGroup extends SimulationObject implements Describable {
 	 * @param solution Tentative solution with booked resources
      * @param pos Initial position [ResourceType, Resource].
      * @param nec Resources needed.
+     * @param ei The element instance trying to seize the resources
      * @return [ResourceType, Resource] where the next valid solution can be found; or
      * <code>null</code> if no solution was found. 
      */
-    private int []searchNext(ArrayDeque<Resource> solution, int[] pos, int []nec, ElementInstance fe) {
+    private int []searchNext(final ArrayDeque<Resource> solution, final int[] pos, final int []nec, final ElementInstance ei) {
         final int []aux = new int[2];
         aux[0] = pos[0];
         aux[1] = pos[1];
@@ -136,7 +139,7 @@ public class WorkGroup extends SimulationObject implements Describable {
             }
         }
         // Takes the first resource type and searches the NEXT available resource
-        aux[1] = resourceTypes[aux[0]].getNextAvailableResource(solution, aux[1] + 1, fe);
+        aux[1] = resourceTypes[aux[0]].getNextAvailableResource(solution, aux[1] + 1, ei);
         // This resource type don't have enough available resources
         if (aux[1] == -1)
         	return null;
@@ -149,10 +152,11 @@ public class WorkGroup extends SimulationObject implements Describable {
 	 * @param solution Tentative solution with booked resources
      * @param pos Position to look for a solution [ResourceType, Resource] 
      * @param ned Resources needed
+     * @param ei The element instance trying to seize the resources
      * @return True if a valid solution exists. False in other case.
      */
-    public boolean findSolution(ArrayDeque<Resource> solution, int []pos, int []ned, ElementInstance fe) {
-        pos = searchNext(solution, pos, ned, fe);
+    public boolean findSolution(final ArrayDeque<Resource> solution, int []pos, final int []ned, final ElementInstance ei) {
+        pos = searchNext(solution, pos, ned, ei);
         // No solution
         if (pos == null)
             return false;
@@ -161,16 +165,16 @@ public class WorkGroup extends SimulationObject implements Describable {
             return true;
         ned[pos[0]]--;
         // Bound
-        if (hasSolution(pos, ned, fe))
+        if (hasSolution(pos, ned))
         // ... the search continues
-            if (findSolution(solution, pos, ned, fe))
+            if (findSolution(solution, pos, ned, ei))
                 return true;
         // There's no solution with this resource. Try without it
         final Resource res = resourceTypes[pos[0]].getResource(pos[1]);
-        res.removeFromSolution(solution, fe);
+        res.removeFromSolution(solution, ei);
         ned[pos[0]]++;
         // ... and the search continues
-        return findSolution(solution, pos, ned, fe);        
+        return findSolution(solution, pos, ned, ei);        
     }
 
     @Override
@@ -182,7 +186,7 @@ public class WorkGroup extends SimulationObject implements Describable {
 	}
     
 	@Override
-	protected void assignSimulation(SimulationEngine engine) {
+	protected void assignSimulation(final SimulationEngine engine) {
 		// Nothing to do
 	}
 }

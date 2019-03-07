@@ -35,7 +35,7 @@ public enum TimeUnit {
 	 * Creates a time unit
 	 * @param name Name of the time unit
 	 */
-	private TimeUnit(String name) {
+	private TimeUnit(final String name) {
 		this.name = name;
 	}
 
@@ -53,7 +53,7 @@ public enum TimeUnit {
 	 * @param sourceUnit Source time unit
 	 * @return The value of the source when expressed as this time unit.
 	 */
-	public long convert(double sourceValue, TimeUnit sourceUnit) {
+	public long convert(final double sourceValue, final TimeUnit sourceUnit) {
 		return Math.round(sourceValue * conversion[sourceUnit.ordinal()][ordinal()]);
 	}
 	
@@ -62,7 +62,7 @@ public enum TimeUnit {
 	 * @param sourceValue Source timestamp
 	 * @return The value of the source when expressed as this time unit.
 	 */
-	public long convert(TimeStamp sourceValue) {
+	public long convert(final TimeStamp sourceValue) {
 		return Math.round(sourceValue.getValue() * conversion[sourceValue.getUnit().ordinal()][ordinal()]);
 	}
 

@@ -2,12 +2,12 @@ package es.ull.iis.simulation.info;
 
 import java.util.ArrayDeque;
 
-import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.flow.ActionFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow.ActivityWorkGroup;
 
 public class ElementActionInfo extends AsynchronousInfo {
 	

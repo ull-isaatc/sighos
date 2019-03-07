@@ -76,7 +76,6 @@ public class MoveFlow extends SingleSuccessorFlow implements TaskFlow, ActionFlo
 
 	@Override
 	public void finish(final ElementInstance ei) {
-		ei.getElement().endMove(ei);
 		afterFinalize(ei);
 		next(ei);
 	}

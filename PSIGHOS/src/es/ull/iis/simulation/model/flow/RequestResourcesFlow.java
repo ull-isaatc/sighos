@@ -12,8 +12,10 @@ import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.TrueCondition;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.model.ActivityManager;
-import es.ull.iis.simulation.model.ActivityWorkGroup;
+import es.ull.iis.simulation.model.Describable;
+import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
+import es.ull.iis.simulation.model.Identifiable;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.WorkGroup;
@@ -59,7 +61,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * @param model The simulation model this flow belongs to
 	 * @param description A brief description of the flow
 	 */
-	public RequestResourcesFlow(Simulation model, String description) {
+	public RequestResourcesFlow(final Simulation model, final String description) {
 		this(model, description, 0, 0);
 	}
 
@@ -69,7 +71,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * @param description A brief description of the flow
 	 * @param priority Priority. The lowest the value, the highest the priority
 	 */
-	public RequestResourcesFlow(Simulation model, String description, int priority) {
+	public RequestResourcesFlow(final Simulation model, final String description, final int priority) {
 		this(model, description, 0, priority);
 	}
 
@@ -80,7 +82,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * @param resourcesId Identifier of the group of resources
 	 * @param priority Priority. The lowest the value, the highest the priority
 	 */
-	public RequestResourcesFlow(Simulation model, String description, int resourcesId, int priority) {
+	public RequestResourcesFlow(final Simulation model, final String description, final int resourcesId, final int priority) {
 		super(model);
         this.description = description;
         this.priority = priority;
@@ -89,7 +91,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	}
 
 	@Override
-	public void setParent(StructuredFlow parent) {
+	public void setParent(final StructuredFlow parent) {
 		super.setParent(parent);
 		if (parent instanceof ActivityFlow)
 			inExclusiveActivity = ((ActivityFlow)parent).isExclusive();
@@ -126,7 +128,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * adds this flow to the manager.
      * @param manager New value of manager.
      */
-    public void setManager(ActivityManager manager) {
+    public void setManager(final ActivityManager manager) {
         this.manager = manager;
         manager.add(this);
     }
@@ -144,7 +146,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * @param wgId The id of the workgroup searched
      * @return A workgroup contained in this flow with the specified id
      */
-    public ActivityWorkGroup getWorkGroup(int wgId) {
+    public ActivityWorkGroup getWorkGroup(final int wgId) {
         Iterator<ActivityWorkGroup> iter = workGroupTable.iterator();
         while (iter.hasNext()) {
         	ActivityWorkGroup opc = iter.next();
@@ -171,7 +173,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
     }
 
 	@Override
-	public void addPredecessor(Flow newFlow) {}
+	public void addPredecessor(final Flow newFlow) {}
     
 	/**
 	 * Returns true if this delay flow is being used as part of an interruptible activity
@@ -189,22 +191,25 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 		return "ACQ";
 	}
 	
+	// User methods
 	/**
 	 * Allows a user for adding a customized code when the {@link ElementInstance} actually starts the
 	 * execution of the {@link RequestResourcesFlow}.
 	 * @param ei {@link ElementInstance} requesting this {@link RequestResourcesFlow}
 	 */
-	public void afterAcquire(ElementInstance ei) {}
+	public void afterAcquire(final ElementInstance ei) {}
 
 	/**
 	 * Allows a user for adding a customized code when a {@link es.ull.iis.simulation.model.ElementInstance} from an {@link es.ull.iis.simulation.model.Element}
 	 * is enqueued, waiting for available {@link es.ull.iis.simulation.model.Resource}. 
 	 * @param ei {@link es.ull.iis.simulation.model.ElementInstance} requesting resources
 	 */
-	public void inqueue(ElementInstance ei) {}
+	public void inqueue(final ElementInstance ei) {}
 	
 	@Override
-	public void afterFinalize(ElementInstance ei) {}
+	public void afterFinalize(final ElementInstance ei) {}
+
+	// End of user methods
 
 	/**
      * Checks if this basic step can be performed with any of its workgroups. Firstly 
@@ -214,7 +219,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * @param ei Element instance wanting to perform the basic step 
      * @return A set of resources that makes a valid solution for this request flow; null otherwise. 
      */
-	public ArrayDeque<Resource> isFeasible(ElementInstance ei) {
+	public ArrayDeque<Resource> isFeasible(final ElementInstance ei) {
     	if (!stillFeasible)
     		return null;
         Iterator<ActivityWorkGroup> iter = workGroupTable.randomIterator();
@@ -251,7 +256,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
      * Removes an element instance from the queue
      * @param ei Element instance
      */
-    public void queueRemove(ElementInstance ei) {
+    public void queueRemove(final ElementInstance ei) {
     	engine.queueRemove(ei);
     }
 
@@ -292,7 +297,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	}
 	
 	@Override
-	public void assignSimulation(SimulationEngine simul) {
+	public void assignSimulation(final SimulationEngine simul) {
 		engine = simul.getRequestResourcesEngineInstance(this);
 	}
 
@@ -301,7 +306,7 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 	 * @param wg The set of pairs <ResurceType, amount> which will be seized
 	 * @return The builder object for adding workgroups to this flow
 	 */
-	public WorkGroupAdder newWorkGroupAdder(WorkGroup wg) {
+	public WorkGroupAdder newWorkGroupAdder(final WorkGroup wg) {
 		return new WorkGroupAdder(wg);
 	}
 	
@@ -321,26 +326,26 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 		/** Delay applied after seizing the resources */
 		private TimeFunction delay = null;
 		
-		private WorkGroupAdder(WorkGroup wg) {
+		private WorkGroupAdder(final WorkGroup wg) {
 			this.wg = wg;
 		}
 		
-		public WorkGroupAdder withPriority(int priority) {
+		public WorkGroupAdder withPriority(final int priority) {
 			this.priority = priority;
 			return this;
 		}
 		
-		public WorkGroupAdder withCondition(Condition cond) {
+		public WorkGroupAdder withCondition(final Condition cond) {
 			this.cond = cond;
 			return this;
 		}
 
-		public WorkGroupAdder withDelay(TimeFunction delay) {
+		public WorkGroupAdder withDelay(final TimeFunction delay) {
 			this.delay = delay;
 			return this;
 		}
 
-		public WorkGroupAdder withDelay(long delay) {
+		public WorkGroupAdder withDelay(final long delay) {
 			this.delay = TimeFunctionFactory.getInstance("ConstantVariate", delay);
 			return this;
 		}
@@ -355,8 +360,81 @@ public class RequestResourcesFlow extends SingleSuccessorFlow implements TaskFlo
 			if (delay == null)
 				delay = TimeFunctionFactory.getInstance("ConstantVariate", 0L);			
 	    	final int wgId = workGroupTable.size();
-	        workGroupTable.add(new ActivityWorkGroup(simul, RequestResourcesFlow.this, wgId, priority, wg, cond, delay));
+	        workGroupTable.add(new ActivityWorkGroup(simul, wgId, priority, wg, cond, delay));
 	        return wgId;
+		}
+	}
+
+	/**
+	 * A set of resources needed for carrying out an activity. A workgroup (WG) consists on a 
+	 * set of (resource type, #needed resources) pairs, a condition which determines if the 
+	 * workgroup can be used or not, and the priority of the workgroup inside the basicStep.
+	 * @author Iván Castilla Rodríguez
+	 */
+	public class ActivityWorkGroup extends WorkGroup implements Prioritizable, Identifiable, Describable {
+		/** Priority of the workgroup */
+	    final private int priority;
+	    /** Availability condition */
+	    final private Condition cond;
+	    /** A function to characterize the duration of the delay */
+	    final private TimeFunction duration;
+	    /** Precomputed string which identifies this WG */
+	    final private String idString; 
+		
+	    /**
+	     * Creates a new instance of WorkGroup which contains the same resource types
+	     * than an already existing one.
+	     * @param id Identifier of this workgroup.
+	     * @param priority Priority of the workgroup.
+	     * @param wg The original workgroup
+	     * @param cond  Availability condition
+	     */    
+	    public ActivityWorkGroup(final Simulation model, final int id, final int priority, final WorkGroup wg, final Condition cond, final TimeFunction duration) {
+	    	super(model, wg.getResourceTypes(), wg.getNeeded());
+	        this.priority = priority;
+	        this.cond = cond;
+	        this.duration = duration;
+	        this.idString = new String("(" + RequestResourcesFlow.this + ")" + wg.getDescription());
+	    }
+	    
+	    /**
+	     * Getter for property priority.
+	     * @return Value of property priority.
+	     */
+	    public int getPriority() {
+	        return priority;
+	    }
+
+	    /**
+	     * Returns a function to characterize the duration of the delay
+		 * @return A function to characterize the duration of the delay
+		 */
+		public TimeFunction getDuration() {
+			return duration;
+		}
+
+	    /**
+	     * Returns the duration of the activity where this workgroup is used. 
+	     * The value returned by the random number function could be negative. 
+	     * In this case, it returns 0.
+	     * @param elem The element performing the activity
+	     * @return The activity duration.
+	     */
+	    public long getDurationSample(final Element elem) {
+	    	return Math.round(duration.getValue(elem));
+	    }
+	    
+	    @Override
+	    public String toString() {
+	    	return idString;
+	    }
+
+	    /**
+	     * Returns a condition to set the availability of the workgroup
+	     * @return a condition to set the availability of the workgroup
+	     */
+		public Condition getCondition() {
+			return cond;
 		}
 	}
 }

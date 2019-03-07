@@ -18,22 +18,25 @@ public class ElementType extends VariableStoreSimulationObject implements Descri
 	private int priority = 0;
     /** A brief description of the element type */
     private final String description;
+    /** The initial values for the variables of the elements */
     protected final TreeMap<String, Object> elementValues = new TreeMap<String, Object>();
     
 	/**
 	 * Creates a new element type with the highest priority.
+	 * @param model The simulation model this element type belongs to 
 	 * @param description A short text describing this element type.
 	 */
-	public ElementType(Simulation model, String description) {
+	public ElementType(final Simulation model, final String description) {
 		this(model, description, 0);
 	}
 
 	/**
 	 * Creates a new element type.
+	 * @param model The simulation model this element type belongs to 
 	 * @param description A short text describing this element type.
 	 * @param priority The priority to set.
 	 */
-	public ElementType(Simulation model, String description, int priority) {
+	public ElementType(final Simulation model, final String description, final int priority) {
 		super(model, model.getElementTypeList().size(), "ET");
 		this.priority = priority;
 		this.description = description;
@@ -54,7 +57,7 @@ public class ElementType extends VariableStoreSimulationObject implements Descri
 	 * Sets a value for the priority of the element type
 	 * @param priority The priority to set.
 	 */
-	public void setPriority(int priority) {
+	public void setPriority(final int priority) {
 		this.priority = priority;
 	}
 	
@@ -64,7 +67,7 @@ public class ElementType extends VariableStoreSimulationObject implements Descri
 	 * @param name Variable name
 	 * @param value Initial value of the variable.
 	 */
-	public void addElementVar(String name, Object value) {
+	public void addElementVar(final String name, final Object value) {
 		elementValues.put(name, value);
 	}
 	
@@ -73,6 +76,6 @@ public class ElementType extends VariableStoreSimulationObject implements Descri
 	}
 
 	@Override
-	protected void assignSimulation(SimulationEngine simul) {
+	protected void assignSimulation(final SimulationEngine simul) {
 	}
 }

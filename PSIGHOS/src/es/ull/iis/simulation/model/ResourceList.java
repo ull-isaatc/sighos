@@ -6,13 +6,14 @@ package es.ull.iis.simulation.model;
 import java.util.Collection;
 
 /**
+ * A list of resources
  * @author Iván Castilla
  *
  */
 public abstract class ResourceList {
 
 	/**
-	 * 
+	 * Creates a resource list
 	 */
 	public ResourceList() {
 	}
@@ -22,27 +23,27 @@ public abstract class ResourceList {
      * If the resource exists already, the count is increased.
      * @param res The resource added
      */
-	protected abstract void add(Resource res);
+	protected abstract void add(final Resource res);
     /**
      * Removes a resource. The resource can have more than one appearance in the list. In 
      * this case, it's no t really removed.
      * @param res The resource removed.
      * @return True if the resource is completely removed from the list. False in other case.
      */
-	protected abstract boolean remove(Resource res);
+	protected abstract boolean remove(final Resource res);
     /**
      * Returns the resource at the specified position 
      * @param index The position of the resource
      * @return The resource at the specified position.
      */
-    protected abstract Resource get(int index);
+    protected abstract Resource get(final int index);
     
     /**
      * Returns the count at the specified position
      * @param index The position of the count.
      * @return the count at the specified position
      */
-    protected abstract int getCounter(int index);
+    protected abstract int getCounter(final int index);
     
     /**
      * Returns the number of resources in this list. 

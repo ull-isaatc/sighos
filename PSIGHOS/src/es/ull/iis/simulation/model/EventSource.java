@@ -16,13 +16,13 @@ public interface EventSource extends Debuggable {
 	 * @param ts Timestamp when the simulation creates the object
 	 * @return an event for the moment the simulation creates this object
 	 */
-	DiscreteEvent onCreate(long ts);
+	DiscreteEvent onCreate(final long ts);
 	/**
 	 * Creates an event for the moment this object is destroyed
 	 * @param ts Timestamp when the simulation destroys the object
 	 * @return an event for the moment this object is destroyed
 	 */
-	DiscreteEvent onDestroy(long ts);
+	DiscreteEvent onDestroy(final long ts);
 
     /**
      * Informs the element that it must finish its execution and launch the destroy event. 

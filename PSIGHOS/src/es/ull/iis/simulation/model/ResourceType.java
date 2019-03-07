@@ -17,7 +17,7 @@ import es.ull.iis.simulation.model.location.Location;
  * <li>When a resource is deactivated for this type: {@link #beforeRoleOff()}, {@link #afterRoleOff()}</li>
  * </ul>
  * @author Iván Castilla Rodríguez
- * @author Carlos Martin Galan
+ * @author Carlos Martín Galán
  */
 public class ResourceType extends SimulationObject implements Describable {
     /** A list of the currently available resources. */
@@ -28,7 +28,9 @@ public class ResourceType extends SimulationObject implements Describable {
     protected ActivityManager manager;
 
 	/**
-	 * 
+	 * Creates a resource type
+	 * @param model The simulation model this resource type belongs to
+	 * @param description A brief description of the resource type
 	 */
 	public ResourceType(Simulation model, String description) {
 		super(model, model.getResourceTypeList().size(), "RT");
@@ -60,12 +62,13 @@ public class ResourceType extends SimulationObject implements Describable {
      * this role. The search starts at position <code>ind</code>.   
 	 * @param solution Tentative solution with booked resources
      * @param ind Position to start the search.
+     * @param ei Element instance requesting the resources
      * @return The resource's index or -1 if there are not available resources.
      */
-    protected int getNextAvailableResource(ArrayDeque<Resource> solution, int ind, ElementInstance fe) {
+    protected int getNextAvailableResource(ArrayDeque<Resource> solution, int ind, ElementInstance ei) {
     	final int total = availableResourceList.size();
         for (; ind < total; ind++) {
-        	if (availableResourceList.get(ind).add2Solution(solution, this, fe)) {
+        	if (availableResourceList.get(ind).add2Solution(solution, this, ei)) {
             	return ind;
             }
         }
@@ -117,6 +120,9 @@ public class ResourceType extends SimulationObject implements Describable {
         	res.setTimeOut(true);
     }
 
+    /**
+     * Notifies the activity managers that a resource is available for this resource type
+     */
     public void notifyResource() {
     	manager.notifyResource();    	
     }
@@ -203,8 +209,11 @@ public class ResourceType extends SimulationObject implements Describable {
 
 	/**
 	 * Adds n resources of type {@link ResourceType}. This method is useful when you simply want to create a
-	 * set of resources that are available all the time as {@link ResourceType}.
+	 * set of resources that are available all the time as {@link ResourceType}. It also initializes the location of the 
+	 * resources
 	 * @param n Number of generic resources to create.
+	 * @param size Size of the created resources
+	 * @param initLocation Initial location of the created resources
 	 * @return The set of resources created.
 	 */
 	public Resource[] addGenericResources(int n, int size, Location initLocation) {

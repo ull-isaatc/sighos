@@ -31,22 +31,22 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 	 * @param id Object identifier
      * @param objectTypeId a String that identifies the type of simulation object
 	 */
-	public VariableStoreSimulationObject(Simulation simul, int id, String objectTypeId) {
+	public VariableStoreSimulationObject(final Simulation simul, final int id, final String objectTypeId) {
 		super(simul, id, objectTypeId);
 	}
 
 	@Override
-	public Variable getVar(String varName) {
+	public Variable getVar(final String varName) {
 		return varCollection.get(varName);
 	}
 	
 	@Override
-	public void putVar(String varName, Variable value) {
+	public void putVar(final String varName, final Variable value) {
 		varCollection.put(varName, value);
 	}
 	
 	@Override
-	public void putVar(String varName, double value) {
+	public void putVar(final String varName, final double value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -56,7 +56,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 	}
 	
 	@Override
-	public void putVar(String varName, int value) {
+	public void putVar(final String varName, final int value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -66,7 +66,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 	}
 
 	@Override
-	public void putVar(String varName, boolean value) {
+	public void putVar(final String varName, final boolean value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -76,7 +76,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 	}
 
 	@Override
-	public void putVar(String varName, char value) {
+	public void putVar(final String varName, final char value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -86,7 +86,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 	}
 	
 	@Override
-	public void putVar(String varName, byte value) {
+	public void putVar(final String varName, final byte value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -96,7 +96,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 	}
 
 	@Override
-	public void putVar(String varName, float value) {
+	public void putVar(final String varName, final float value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -106,7 +106,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 	}
 	
 	@Override
-	public void putVar(String varName, long value) {
+	public void putVar(final String varName, final long value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);
@@ -116,7 +116,7 @@ public abstract class VariableStoreSimulationObject extends SimulationObject imp
 	}
 	
 	@Override
-	public void putVar(String varName, short value) {
+	public void putVar(final String varName, final short value) {
 		UserVariable v = (UserVariable) varCollection.get(varName);
 		if (v != null) {
 			v.setValue(value);

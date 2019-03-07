@@ -16,20 +16,21 @@ public abstract class TimeDrivenGenerator<INF extends Generator.GenerationInfo> 
     /** The iterator which moves through the defined cycle */
     protected DiscreteCycleIterator cycleIter;
 
-	public TimeDrivenGenerator(Simulation model, int nElem, SimulationCycle cycle) {
+	public TimeDrivenGenerator(final Simulation model, final int nElem, final SimulationCycle cycle) {
 		super(model, model.getTimeDrivenGeneratorList().size(), nElem);
 		this.cycle = cycle;
 		model.add(this);
 	}
 
-	public TimeDrivenGenerator(Simulation model, TimeFunction nElem, SimulationCycle cycle) {
+	public TimeDrivenGenerator(final Simulation model, final TimeFunction nElem, final SimulationCycle cycle) {
 		super(model, model.getTimeDrivenGeneratorList().size(), nElem);
 		this.cycle = cycle;
 		model.add(this);
 	}
 
 	/**
-	 * @return the cycle
+	 * Returns the cycle that drives the generation
+	 * @return the cycle that drives the generation
 	 */
 	public SimulationCycle getCycle() {
 		return cycle;
@@ -40,21 +41,22 @@ public abstract class TimeDrivenGenerator<INF extends Generator.GenerationInfo> 
      * @return The next timestamp to generate elements. -1 if this generator
      * don't have to create more elements.
      */
-	public long nextEvent() {
+	protected long nextEvent() {
 		return cycleIter.next();
 	}
 
 	@Override
-	public DiscreteEvent onDestroy(long ts) {
+	public DiscreteEvent onDestroy(final long ts) {
 		return new DiscreteEvent.DefaultFinalizeEvent(this, ts);
 	}
 	
+	@Override
     public void notifyEnd() {
         simul.addEvent(onDestroy(getTs()));
     }
     
 	@Override
-	public DiscreteEvent onCreate(long ts) {
+	public DiscreteEvent onCreate(final long ts) {
 		cycleIter = cycle.getCycle().iterator(simul.getStartTs(), Long.MAX_VALUE);
     	final long newTs = nextEvent();
     	if (newTs == -1)
@@ -66,14 +68,14 @@ public abstract class TimeDrivenGenerator<INF extends Generator.GenerationInfo> 
 
     /**
      * This event is invoked every time a new set of elements has to be generated. 
-     * It simply invokes the <code>creator.create</code> method.
+     * It simply invokes the {@link Generator#create(long)} method.
      */
     public class GenerateEvent extends DiscreteEvent {
         /**
          * Creates a new element-generation event.
          * @param ts Timestamp when this event must be executed.
          */
-        public GenerateEvent(long ts) {
+        public GenerateEvent(final long ts) {
             super(ts);
         }
         

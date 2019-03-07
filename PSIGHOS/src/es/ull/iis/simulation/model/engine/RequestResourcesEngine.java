@@ -5,10 +5,10 @@ package es.ull.iis.simulation.model.engine;
 
 import java.util.ArrayDeque;
 
-import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.QueuedObject;
 import es.ull.iis.simulation.model.Resource;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow.ActivityWorkGroup;
 
 /**
  * @author Iván Castilla Rodríguez

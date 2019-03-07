@@ -9,7 +9,6 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Resource;
-import es.ull.iis.simulation.model.Resource.MoveEvent;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActionFlow;

@@ -28,7 +28,7 @@ public class ActivityManager extends SimulationObject implements Describable {
 	* Creates a new instance of ActivityManager.
 	* @param simul ParallelSimulationEngine this activity manager belongs to
     */
-    public ActivityManager(Simulation model) {
+    public ActivityManager(final Simulation model) {
         super(model, nextid++, "AM");
         resourceTypeList = new ArrayList<ResourceType>();
         activityList = new ArrayList<RequestResourcesFlow>();
@@ -36,35 +36,35 @@ public class ActivityManager extends SimulationObject implements Describable {
     }
 
     /**
-     * Adds an activity to this activity manager.
-     * @param a Activity added
+     * Adds a request resources flows to this activity manager.
+     * @param flow request resources flow
      */
-    public void add(RequestResourcesFlow a) {
-        activityList.add(a);
+    public void add(final RequestResourcesFlow flow) {
+        activityList.add(flow);
     }
     
     /**
      * Adds a resource type to this activity manager.
      * @param rt Resource type added
      */
-    public void add(ResourceType rt) {
+    public void add(final ResourceType rt) {
         resourceTypeList.add(rt);
     }
 
     /**
-     * Adds a work thread to the waiting queue.
-     * @param fe Work thread which is added to the waiting queue.
+     * Adds an element instance to the waiting queue.
+     * @param ei Element instance which is added to the waiting queue.
      */
-    public void queueAdd(ElementInstance fe) {
-    	engine.queueAdd(fe);
+    public void queueAdd(final ElementInstance ei) {
+    	engine.queueAdd(ei);
     }
     
     /**
-     * Removes a work thread from the waiting queue.
-     * @param fe work thread which is removed from the waiting queue.
+     * Removes an element instance from the waiting queue.
+     * @param ei Element instance which is removed from the waiting queue.
      */
-    public void queueRemove(ElementInstance fe) {
-    	engine.queueRemove(fe);
+    public void queueRemove(final ElementInstance ei) {
+    	engine.queueRemove(ei);
     }
     
     /**
@@ -74,8 +74,12 @@ public class ActivityManager extends SimulationObject implements Describable {
     	engine.notifyAvailableResource();
     }
 
-    public void notifyAvailableElement(ElementInstance fe) {
-    	engine.notifyAvailableElement(fe);
+    /**
+     * Notifies the activity manager that an element is now available to request resources handled within the manager
+     * @param ei Element instance now available
+     */
+    public void notifyAvailableElement(final ElementInstance ei) {
+    	engine.notifyAvailableElement(ei);
     }
     
 	/**

@@ -3,13 +3,13 @@ package es.ull.iis.simulation.parallel;
 import java.util.ArrayDeque;
 
 import es.ull.iis.simulation.model.ActivityManager;
-import es.ull.iis.simulation.model.ActivityWorkGroup;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.engine.EngineObject;
 import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow.ActivityWorkGroup;
 
 /**
  * A task which could be carried out by a {@link WorkItem} and requires certain amount and 

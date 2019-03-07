@@ -22,7 +22,7 @@ public class TimeTableEntry {
      * @param dur How long this resource plays this role every cycle
      * @param role Role that the resource plays during this cycle
      */
-	public TimeTableEntry(SimulationCycle cycle, TimeStamp dur, ResourceType role) {
+	public TimeTableEntry(final SimulationCycle cycle, final TimeStamp dur, final ResourceType role) {
 		this.cycle = cycle;
 		this.duration = dur;
 		this.role = role;
@@ -32,7 +32,7 @@ public class TimeTableEntry {
      * a resource always available.
      * @param role Role that the resource plays during the whole simulation
      */
-	public TimeTableEntry(ResourceType role) {
+	public TimeTableEntry(final ResourceType role) {
 		this.cycle = null;
 		this.duration = null;
 		this.role = role;

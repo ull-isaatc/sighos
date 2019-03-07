@@ -8,7 +8,7 @@ package es.ull.iis.simulation.model;
  * @author Iván Castilla Rodríguez
  *
  */
-public class TimeStamp {
+public final class TimeStamp {
 	/** The time unit of the value */ 
 	private final TimeUnit unit;
 	/** A time value expressed in the corresponding unit */ 
@@ -19,7 +19,7 @@ public class TimeStamp {
 	 * @param unit The time unit of the value
 	 * @param value A time value expressed in the corresponding unit
 	 */
-	public TimeStamp(TimeUnit unit, long value) {
+	public TimeStamp(final TimeUnit unit, final long value) {
 		this.unit = unit;
 		this.value = value;
 	}
@@ -45,7 +45,7 @@ public class TimeStamp {
 	 * @param unit The unit of the new timestamp
 	 * @return A new timestamp which represents the same value than this one but in a different unit
 	 */
-	public TimeStamp convert(TimeUnit unit) {
+	public TimeStamp convert(final TimeUnit unit) {
 		return new TimeStamp(unit, unit.convert(this.value, this.unit));
 	}
 
@@ -54,7 +54,7 @@ public class TimeStamp {
 	 * @param op The adding timestamp
 	 * @return A new timestamp whose value is the sum of this timestamp and the received one.
 	 */
-	public TimeStamp add(TimeStamp op) {
+	public TimeStamp add(final TimeStamp op) {
 		return new TimeStamp(unit, value + op.convert(unit).value);
 	}
 	
@@ -63,7 +63,7 @@ public class TimeStamp {
 	 * @param factor The multiplying timestamp
 	 * @return A new timestamp whose value is the product of this timestamp and the received factor.
 	 */
-	public TimeStamp multiply(double factor) {
+	public TimeStamp multiply(final double factor) {
 		return new TimeStamp(unit, Math.round(value * factor));		
 	}
 	

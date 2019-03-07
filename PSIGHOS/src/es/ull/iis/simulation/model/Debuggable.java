@@ -13,13 +13,13 @@ public interface Debuggable {
 	 * Prints a debug message.
 	 * @param message Message to be printed
 	 */
-    void debug(String message);
+    void debug(final String message);
 
 	/**
 	 * Prints an error message.
 	 * @param message Message to be printed
 	 */
-    void error(String message);
+    void error(final String message);
     
     /**
      * Checks if debug mode is enabled.
