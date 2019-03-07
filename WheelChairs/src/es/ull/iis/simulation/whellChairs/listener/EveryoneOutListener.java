@@ -5,14 +5,14 @@ package es.ull.iis.simulation.whellChairs.listener;
 
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
  * A listener to determine if every patient/entity created has finished
  * @author Iván Castilla
  *
  */
-public class EveryoneOutListener extends View {
+public class EveryoneOutListener extends Listener {
 	private int counter;
 
 	/**

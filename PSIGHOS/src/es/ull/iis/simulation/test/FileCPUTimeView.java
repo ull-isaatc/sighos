@@ -8,13 +8,13 @@ import java.io.PrintWriter;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
-import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class FileCPUTimeView extends View {
+public class FileCPUTimeView extends Listener {
 	PrintWriter buf;
 	protected long iniT;
 	protected long endT;

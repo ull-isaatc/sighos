@@ -9,7 +9,7 @@ import es.ull.iis.simulation.model.ElementInstance;
 
 
 /**
- * A flow which merges a specified amount of work threads. It should be used with
+ * A flow which merges a specified amount of element instances. It should be used with
  * its counterpart, the Thread Split pattern (WFP 42).
  * Meets the Thread Merge pattern (WFP 41), but has also extra features. Works as
  * a thread discriminator, if <code>acceptValue</code> is set to 1; or as a thread 
@@ -22,9 +22,10 @@ public class ThreadMergeFlow extends ANDJoinFlow {
 	
 	/**
 	 * Creates a new thread merge flow
+	 * @param model The simulation model this flow belongs to
 	 * @param nInstances Number of threads this flow waits for merging
 	 */
-	public ThreadMergeFlow(Simulation model, int nInstances) {
+	public ThreadMergeFlow(final Simulation model, final int nInstances) {
 		super(model);
 		incomingBranches = nInstances;
 		acceptValue = nInstances;
@@ -35,42 +36,40 @@ public class ThreadMergeFlow extends ANDJoinFlow {
 	 * @param nInstances Number of threads this flow waits for resetting
 	 * @param acceptValue Number of threads this flow waits for passing the control
 	 */
-	public ThreadMergeFlow(Simulation model, int nInstances, int acceptValue) {
+	public ThreadMergeFlow(final Simulation model, final int nInstances, final int acceptValue) {
 		super(model);
 		this.incomingBranches = nInstances;
 		this.acceptValue = acceptValue;
 	}
 
 	@Override
-	public void addPredecessor(Flow predecessor) {
+	public void addPredecessor(final Flow predecessor) {
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
-	 */
-	public void request(ElementInstance wThread) {
-		final Element elem = wThread.getElement();
-		if (!wThread.wasVisited(this)) {
-			if (wThread.isExecutable()) {
-				if (!beforeRequest(wThread))
-					wThread.cancel(this);
+	@Override
+	public void request(final ElementInstance ei) {
+		final Element elem = ei.getElement();
+		if (!ei.wasVisited(this)) {
+			if (ei.isExecutable()) {
+				if (!beforeRequest(ei))
+					ei.cancel(this);
 				elem.getEngine().waitProtectedFlow(this);
-				arrive(wThread);
-				if (canPass(wThread)) {
+				arrive(ei);
+				if (canPass(ei)) {
 					control.get(elem).setActivated();
-					next(wThread);
+					next(ei);
 				}
 				else {
 					// If no one of the branches was true, the thread of control must continue anyway
-					if (canReset(wThread) && !isActivated(wThread))
-						next(wThread.getSubsequentElementInstance(false, this, control.get(elem).getOutgoingFalseToken()));
-					wThread.notifyEnd();
+					if (canReset(ei) && !isActivated(ei))
+						next(ei.getSubsequentElementInstance(false, this, control.get(elem).getOutgoingFalseToken()));
+					ei.notifyEnd();
 				}
-				if (canReset(wThread))
-					reset(wThread);
+				if (canReset(ei))
+					reset(ei);
 				elem.getEngine().signalProtectedFlow(this);
 			}
 		} else
-			wThread.notifyEnd();
+			ei.notifyEnd();
 	}
 }

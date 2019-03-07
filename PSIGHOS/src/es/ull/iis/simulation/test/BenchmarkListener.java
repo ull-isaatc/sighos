@@ -11,13 +11,13 @@ import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
-import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class BenchmarkListener extends View {
+public class BenchmarkListener extends Listener {
 
 	long elemEvents = 0;
 	long startEv = 0;

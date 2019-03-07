@@ -19,13 +19,14 @@ public abstract class SingleSuccessorFlow extends BasicFlow {
 
 	/**
 	 * Creates a new unique successor flow.
+	 * @param model The simulation model this flow belongs to
 	 */
-	public SingleSuccessorFlow(Simulation model) {
+	public SingleSuccessorFlow(final Simulation model) {
 		super(model);
 	}
 	
 	@Override
-	public void setRecursiveStructureLink(StructuredFlow parent, Set<Flow> visited) {
+	public void setRecursiveStructureLink(final StructuredFlow parent, final Set<Flow> visited) {
 		setParent(parent);
 		visited.add(this);
 		if (successor != null)
@@ -34,7 +35,7 @@ public abstract class SingleSuccessorFlow extends BasicFlow {
 	}	
 
 	@Override
-	public Flow link(Flow succ) {
+	public Flow link(final Flow succ) {
 		if (successor != null) {
 			Simulation.error("Trying to link already linked flow " + this.getClass() + " " + this);
 		}
@@ -46,26 +47,27 @@ public abstract class SingleSuccessorFlow extends BasicFlow {
 	}
 
 	/**
-	 * @return the successor
+	 * Returns the successor of the flow
+	 * @return the successor of the flow
 	 */
 	public Flow getSuccessor() {
 		return successor;
 	}
 	
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * If this flow has a valid successor, requests this successor passing
-	 * the same work thread. If not, the work thread finishes here, and, 
+	 * the same element instance. If not, the element instance finishes here, and, 
 	 * if this flow has a valid parent, it's notified that this flow finished.
-	 * @param wThread  
 	 */
-	@Override
-	public void next(final ElementInstance wThread) {
-		super.next(wThread);
+	public void next(final ElementInstance ei) {
+		super.next(ei);
 		if (successor != null) {
-			wThread.getElement().addRequestEvent(successor, wThread);
+			ei.getElement().addRequestEvent(successor, ei);
 		}
 		else {
-			wThread.notifyEnd();
+			ei.notifyEnd();
 		}
 	}
 	

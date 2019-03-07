@@ -10,13 +10,13 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class CheckElementActionViewBuilder extends View {
+public class CheckElementActionViewBuilder extends Listener {
 	TreeMap<Long, TreeMap<Integer, ArrayList<Integer>>> reqEvents; 
 	TreeMap<Long, TreeMap<Integer, ArrayList<Integer>>> staEvents; 
 	TreeMap<Long, TreeMap<Integer, ArrayList<Integer>>> endEvents; 
@@ -84,6 +84,8 @@ public class CheckElementActionViewBuilder extends View {
 				break;
 			case END:
 				fillEvent(eInfo, endEvents);
+				break;
+			default:
 				break;
 			}
 		}

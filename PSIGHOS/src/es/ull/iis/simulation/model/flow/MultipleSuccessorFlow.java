@@ -13,7 +13,7 @@ import es.ull.iis.simulation.model.Simulation;
 
 /**
  * A flow with multiple successors. Multiple successors are split nodes, that is,
- * new work threads are created from this flow on, when it's requested.
+ * new element instances are created from this flow on, when it's requested.
  * @author Iván Castilla Rodríguez
  */
 public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFlow {
@@ -22,19 +22,19 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 
 	/**
 	 * Creates a flow with multiple successors.
-	 * @param simul The simulation this flow belongs to.
+	 * @param model The simulation this flow belongs to.
 	 */
-	public MultipleSuccessorFlow(Simulation model) {
+	public MultipleSuccessorFlow(final Simulation model) {
 		super(model);
 		successorList = new ArrayList<Flow>();
 	}
 
 	@Override
-	public void addPredecessor(Flow newFlow) {
+	public void addPredecessor(final Flow newFlow) {
 	}
 
 	@Override
-	public Flow link(Flow successor) {
+	public Flow link(final Flow successor) {
 		successorList.add(successor);
     	successor.addPredecessor(this);
     	return successor;
@@ -45,7 +45,7 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	 * <code>successor.addPredecessor</code> to build the graph properly. 
 	 * @param succList This flow's successors.
 	 */
-	public void link(Collection<Flow> succList) {
+	public void link(final Collection<Flow> succList) {
         for (Flow succ : succList) {
         	successorList.add(succ);
         	succ.addPredecessor(this);
@@ -53,7 +53,7 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 	}
 
 	@Override
-	public void setRecursiveStructureLink(StructuredFlow parent, Set<Flow> visited) {
+	public void setRecursiveStructureLink(final StructuredFlow parent, final Set<Flow> visited) {
 		 setParent(parent);
 		 visited.add(this);
 		 for (Flow f : successorList)
@@ -72,19 +72,17 @@ public abstract class MultipleSuccessorFlow extends BasicFlow implements SplitFl
 		return newSuccList;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
-	 */
-	public void request(ElementInstance wThread) {
-		if (!wThread.wasVisited(this)) {
-			if (wThread.isExecutable()) {
-				if (!beforeRequest(wThread))
-					wThread.cancel(this);
+	@Override
+	public void request(ElementInstance ei) {
+		if (!ei.wasVisited(this)) {
+			if (ei.isExecutable()) {
+				if (!beforeRequest(ei))
+					ei.cancel(this);
 			} else 
-				wThread.updatePath(this);
-			next(wThread);
+				ei.updatePath(this);
+			next(ei);
 		} else
-			wThread.notifyEnd();
+			ei.notifyEnd();
 	}
 
 }

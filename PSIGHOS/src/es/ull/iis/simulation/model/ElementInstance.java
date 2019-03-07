@@ -42,7 +42,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
     private final Element elem; 
     /** The parent element thread */
     protected final ElementInstance parent;
-    /** The descendant work threads */
+    /** The descendant element instances */
 	protected final ArrayList<ElementInstance> descendants;
     /** Thread's initial flow */
     protected final Flow initialFlow;
@@ -55,10 +55,10 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
     /** The workgroup which is used to carry out this flow. If <code>null</code>, 
      * the flow has not been carried out. */
     protected ActivityWorkGroup executionWG = null;
-	/** The arrival order of this work thread relatively to the rest of work threads 
+	/** The arrival order of this element instance relatively to the rest of element instances 
 	 * in the same activity manager. */
 	protected int arrivalOrder;
-	/** The simulation timestamp when this work thread was requested. */
+	/** The simulation timestamp when this element instance was requested. */
 	protected long arrivalTs = -1;
 	/** The proportion of time left to finish the activity. Used in interruptible activities. */
 	protected double remainingTask = 0.0;
@@ -66,7 +66,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	final private ElementInstanceEngine engine;
 	
     /** 
-     * Creates a new work thread. The constructor is private since it must be invoked from the 
+     * Creates a new element instance. The constructor is private since it must be invoked from the 
      * <code>getInstance...</code> methods.
      * @param token An object containing the state of the thread  
      * @param elem Element owner of this thread
@@ -244,7 +244,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	 * @return A new instance of an element created to carry out the inner subflow of a structured flow
 	 */
 	public ElementInstance getDescendantElementInstance(final InitializerFlow newFlow) {
-		assert isExecutable() : "Invalid parent to create descendant work thread"; 
+		assert isExecutable() : "Invalid parent to create descendant element instance"; 
 		return new ElementInstance(new WorkToken(true), elem, newFlow, this);
 	}
 
@@ -293,32 +293,32 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 	}
 
 	/**
-	 * Returns the order this thread occupies among the rest of work threads.
-	 * @return the order of arrival of this work thread to request the activity
+	 * Returns the order this thread occupies among the rest of element instances.
+	 * @return the order of arrival of this element instance to request the activity
 	 */
 	public int getArrivalOrder() {
 		return arrivalOrder;
 	}
 
 	/**
-	 * Sets the order this thread occupies among the rest of work threads.
-	 * @param arrivalOrder the order of arrival of this work thread to request the activity
+	 * Sets the order this thread occupies among the rest of element instances.
+	 * @param arrivalOrder the order of arrival of this element instance to request the activity
 	 */
 	public void setArrivalOrder(final int arrivalOrder) {
 		this.arrivalOrder = arrivalOrder;
 	}
 
 	/**
-	 * Returns the timestamp when this work thread arrives to request the current single flow.
-	 * @return the timestamp when this work thread arrives to request the current single flow
+	 * Returns the timestamp when this element instance arrives to request the current single flow.
+	 * @return the timestamp when this element instance arrives to request the current single flow
 	 */
 	public long getArrivalTs() {
 		return arrivalTs;
 	}
 
 	/**
-	 * Sets the timestamp when this work thread arrives to request the current single flow.
-	 * @param arrivalTs the timestamp when this work thread arrives to request the current single flow
+	 * Sets the timestamp when this element instance arrives to request the current single flow.
+	 * @param arrivalTs the timestamp when this element instance arrives to request the current single flow
 	 */
 	public void setArrivalTs(final long arrivalTs) {
 		this.arrivalTs = arrivalTs;

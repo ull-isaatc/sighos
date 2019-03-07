@@ -22,7 +22,7 @@ public class ActivityManagerEngine extends EngineObject implements es.ull.iis.si
     private volatile boolean avResource = false;
     /** This queue contains the flow executors that are waiting for activities of this AM */
     private final FlowExecutorQueue waitingQueue;
-    /** This queue contains the work threads that have become available the current timestamp */
+    /** This queue contains the element instances that have become available the current timestamp */
     private final FlowExecutorQueue currentQueue;
     /** The associated {@link ActivityManager} */
     private final ActivityManager modelAM;

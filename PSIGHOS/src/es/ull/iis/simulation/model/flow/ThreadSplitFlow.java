@@ -10,7 +10,7 @@ import es.ull.iis.simulation.model.Simulation;
 
 
 /**
- * A flow which creates several instances of the current work thread. It physically
+ * A flow which creates several instances of the current element instance. It physically
  * works as a single successor flow, but functionally as a parallel flow. It should
  * be use with its counterpart Thread Merge pattern (WFP 41).
  * Meets the Thread Split pattern (WFP 42).
@@ -25,33 +25,35 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow {
 
 	/**
 	 * Creates a new thread split flow
+	 * @param model The simulation model this flow belongs to
 	 * @param nInstances Number of outgoing threads
 	 */
-	public ThreadSplitFlow(Simulation model, int nInstances) {
+	public ThreadSplitFlow(final Simulation model, final int nInstances) {
 		super(model);
 		this.nInstances = nInstances;
 	}
 
 	/**
-	 * @return the successor
+	 * Returns the successor of the flow
+	 * @return the successor of the flow
 	 */
 	public Flow getSuccessor() {
 		return successor;
 	}
 
 	@Override
-	public void addPredecessor(Flow predecessor) {
+	public void addPredecessor(final Flow predecessor) {
 	}
 
 	@Override
-	public Flow link(Flow successor) {
+	public Flow link(final Flow successor) {
 		this.successor = (Flow)successor;
 		successor.addPredecessor(this);
 		return successor;
 	}
 
 	@Override
-	public void setRecursiveStructureLink(StructuredFlow parent, Set<Flow> visited) {
+	public void setRecursiveStructureLink(final StructuredFlow parent, final Set<Flow> visited) {
 		setParent(parent);
 		visited.add(this);
 		if (successor != null)
@@ -67,31 +69,25 @@ public class ThreadSplitFlow extends BasicFlow implements SplitFlow {
 		return nInstances;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
-	 */
-	public void request(ElementInstance wThread) {
-		if (!wThread.wasVisited(this)) {
-			if (wThread.isExecutable()) {
-				if (!beforeRequest(wThread))
-					wThread.cancel(this);
+	@Override
+	public void request(ElementInstance ei) {
+		if (!ei.wasVisited(this)) {
+			if (ei.isExecutable()) {
+				if (!beforeRequest(ei))
+					ei.cancel(this);
 			} else 
-				wThread.updatePath(this);
-			next(wThread);
+				ei.updatePath(this);
+			next(ei);
 		} else
-			wThread.notifyEnd();
+			ei.notifyEnd();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.iis.simulation.BasicFlow#next(es.ull.iis.simulation.FlowExecutor)
-	 */
 	@Override
-	public void next(ElementInstance wThread) {
-		super.next(wThread);
+	public void next(ElementInstance ei) {
+		super.next(ei);
 		for (int i = 0; i < nInstances; i++)
-			wThread.getElement().addRequestEvent(successor, wThread.getSubsequentElementInstance(wThread.isExecutable(), this, wThread.getToken()));
-        wThread.notifyEnd();			
+			ei.getElement().addRequestEvent(successor, ei.getSubsequentElementInstance(ei.isExecutable(), this, ei.getToken()));
+        ei.notifyEnd();			
 	}
 
 }

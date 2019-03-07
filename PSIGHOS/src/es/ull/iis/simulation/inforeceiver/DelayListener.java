@@ -12,7 +12,7 @@ import es.ull.iis.simulation.info.TimeChangeInfo;
  * When used within a simulation, creates a delay each time the simulation clock is updated. The delay lasts {@link DelayListener#timeout} seconds.
  * @author Iván Castilla Rodríguez
  */
-public class DelayListener extends View {
+public class DelayListener extends Listener {
 	private final long timeout;
 	
 	/**

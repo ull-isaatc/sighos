@@ -3,13 +3,13 @@
  */
 package es.ull.iis.simulation.examples.WFP;
 
-import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
  * A series of classes to automatically check the correct behavior of the different WF patterns.
  * @author Iván Castilla Rodríguez
  */
-public abstract class WFPTestView extends View {
+public abstract class WFPTestView extends Listener {
 	boolean detailed = true;
 	
 	public WFPTestView(String description) {

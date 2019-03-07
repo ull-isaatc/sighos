@@ -3,14 +3,13 @@ package es.ull.iis.simulation.port.portYardEarth;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
+import es.ull.iis.simulation.info.SimulationEndInfo;
+import es.ull.iis.simulation.info.SimulationInfo;
+import es.ull.iis.simulation.info.SimulationStartInfo;
+import es.ull.iis.simulation.inforeceiver.Listener;
 
-import es.ull.iis.simulation.info.SimulationEndInfo; 
-import es.ull.iis.simulation.info.SimulationInfo; 
-import es.ull.iis.simulation.info.SimulationStartInfo; 
-import es.ull.iis.simulation.inforeceiver.View;
 
-
-public class ConflictoListener extends View {
+public class ConflictoListener extends Listener {
 	
 	// Esta variable se procesa igual que promedioGlobal en TiempoEstanciaListener
 	protected static double contadorEsperaInicioGlobal = 0.0;
@@ -157,6 +156,8 @@ public class ConflictoListener extends View {
 					InicioGrua.put(conflictoId, eInfo.getTs());
 				}
 				
+				break;
+			default:
 				break;
 			}
 		}

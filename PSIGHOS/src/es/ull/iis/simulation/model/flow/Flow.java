@@ -29,14 +29,14 @@ public interface Flow extends Identifiable {
 	 * @param successor This flow's successor.
 	 * @return The successor (useful for chained links)
 	 */
-	Flow link(Flow successor);	
+	Flow link(final Flow successor);	
 	
 	/**
 	 * Notifies this flow that it has been linked (i.e. added as a successor) to
 	 * another flow.
 	 * @param predecessor This flow's predecessor.
 	 */
-	void addPredecessor(Flow predecessor);
+	void addPredecessor(final Flow predecessor);
 	
 	/**
 	 * Returns the structured flow which contains this flow.
@@ -48,7 +48,7 @@ public interface Flow extends Identifiable {
 	 * Sets the structured flow which contains this flow. 
 	 * @param parent the structured flow which contains this flow.
 	 */
-	void setParent(StructuredFlow parent);
+	void setParent(final StructuredFlow parent);
 	
 	/**
 	 * Sets the structured flow which contains this flow and does the same for the
@@ -57,7 +57,7 @@ public interface Flow extends Identifiable {
 	 * @param visited list of already visited flows (to prevent infinite recursion when 
 	 * arbitrary loops are present)
 	 */
-	void setRecursiveStructureLink(StructuredFlow parent, Set<Flow> visited);
+	void setRecursiveStructureLink(final StructuredFlow parent, final Set<Flow> visited);
 	
 	/**
 	 * Allows a user to add conditions which the element requesting this flow must meet
@@ -68,16 +68,16 @@ public interface Flow extends Identifiable {
 	boolean beforeRequest(ElementInstance ei);
 
 	/**
-	 * Requests this flow. An element, by means of a work thread, requests this flow to
+	 * Requests this flow. An element, by means of a element instance, requests this flow to
 	 * carry it out.
-	 * @param ei The work thread requesting this flow.
+	 * @param ei The element instance requesting this flow.
 	 */
-	void request(ElementInstance ei);
+	void request(final ElementInstance ei);
 	
 	/**
 	 * Requests this flow successor(s) to continue the execution. This method is invoked 
 	 * after all the tasks associated to this flow has been successfully carried out.
-	 * @param ei The work thread which requested this flow.
+	 * @param ei The element instance which requested this flow.
 	 */
-	void next(ElementInstance ei);
+	void next(final ElementInstance ei);
 }

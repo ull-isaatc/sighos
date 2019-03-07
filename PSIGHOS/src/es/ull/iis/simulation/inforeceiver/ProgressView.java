@@ -11,7 +11,7 @@ import es.ull.iis.simulation.info.TimeChangeInfo;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ProgressView extends View {
+public class ProgressView extends Listener {
 	long nextMsg = 0;
 	final long gap;
 	int percentage = 0;

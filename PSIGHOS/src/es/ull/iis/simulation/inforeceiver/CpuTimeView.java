@@ -11,7 +11,7 @@ import es.ull.iis.simulation.info.SimulationStartInfo;
  * @author Iván Castilla Rodríguez
  *
  */
-public class CpuTimeView extends View {
+public class CpuTimeView extends Listener {
 	protected long iniT;
 	protected long endT;
 	

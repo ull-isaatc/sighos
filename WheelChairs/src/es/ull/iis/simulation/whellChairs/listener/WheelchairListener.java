@@ -13,7 +13,7 @@ import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -25,7 +25,7 @@ import es.ull.iis.util.Statistics;
  * @author usuario
  *
  */
-public class WheelchairListener extends View {
+public class WheelchairListener extends Listener {
 	private final static String MISSING_VALUE = ".";
 	private final TreeMap<Element, Long> times = new TreeMap<Element, Long>();
 	private final TreeMap<Element, Long> cummWaitForJanitorTimes = new TreeMap<Element, Long>();

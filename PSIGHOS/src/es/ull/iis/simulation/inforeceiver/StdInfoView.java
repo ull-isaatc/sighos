@@ -11,7 +11,7 @@ import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartInfo;
 import es.ull.iis.simulation.info.TimeChangeInfo;
 
-public class StdInfoView extends View {
+public class StdInfoView extends Listener {
 
 	long simulationInit = 0;
 	double lastTimeChange = 0;

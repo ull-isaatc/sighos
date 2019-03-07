@@ -8,6 +8,7 @@ import java.util.HashSet;
 import es.ull.iis.simulation.info.AsynchronousInfo;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
+import es.ull.iis.simulation.info.EntityLocationInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
@@ -42,6 +43,7 @@ public class SimulationInfoHandler implements InfoHandler {
 		definedInfos.add(ResourceInfo.class);
 		definedInfos.add(ResourceUsageInfo.class);
 		definedInfos.add(TimeChangeInfo.class);
+		definedInfos.add(EntityLocationInfo.class);
 	}
 		
 	private boolean isUserInfo(Type type) {

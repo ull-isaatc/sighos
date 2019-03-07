@@ -19,9 +19,9 @@ public abstract class BasicFlow extends SimulationObject implements Flow {
 	
 	/**
 	 * Create a new basic flow.
-	 * @param simul The simulation this flow belongs to.
+	 * @param model The simulation this flow belongs to.
 	 */
-	public BasicFlow(Simulation model) {
+	public BasicFlow(final Simulation model) {
 		super(model, model.getFlowList().size(), "F");
 		model.add(this);
 	}
@@ -32,28 +32,29 @@ public abstract class BasicFlow extends SimulationObject implements Flow {
 	}
 	
 	@Override
-	public void setParent(StructuredFlow parent) {
+	public void setParent(final StructuredFlow parent) {
 		this.parent = (StructuredFlow)parent;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * By default, returns true.
 	 * @return True by default.
 	 */
-	@Override
-	public boolean beforeRequest(ElementInstance fe) {
+	public boolean beforeRequest(final ElementInstance ei) {
 		return true;
 	}
 
 	/**
-	 * Assigns this flow as the last flow visited by the work thread.
-	 * @param wThread Work thread which requested this flow.
+	 * Assigns this flow as the last flow visited by the element instance.
+	 * @param ei Element instance which requested this flow.
 	 */
-	public void next(final ElementInstance wThread) {
-		wThread.setLastFlow(this);
+	public void next(final ElementInstance ei) {
+		ei.setLastFlow(this);
 	}
 
 	@Override
-	public void assignSimulation(SimulationEngine simul) {
+	public void assignSimulation(final SimulationEngine simul) {
 	}
 }

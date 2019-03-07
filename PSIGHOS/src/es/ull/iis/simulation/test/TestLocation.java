@@ -105,7 +105,6 @@ public class TestLocation extends Experiment {
 
 		public LocationListener() {
 			super("Location listener");
-			addGenerated(EntityLocationInfo.class);
 			addEntrance(EntityLocationInfo.class);
 		}
 

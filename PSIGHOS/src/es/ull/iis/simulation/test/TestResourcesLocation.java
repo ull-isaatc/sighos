@@ -127,7 +127,6 @@ public class TestResourcesLocation extends Experiment {
 
 		public LocationListener() {
 			super("Location listener");
-			addGenerated(EntityLocationInfo.class);
 			addEntrance(EntityLocationInfo.class);
 			addEntrance(ElementActionInfo.class);
 		}

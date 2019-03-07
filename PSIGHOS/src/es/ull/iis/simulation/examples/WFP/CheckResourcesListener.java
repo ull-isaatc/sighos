@@ -6,13 +6,13 @@ package es.ull.iis.simulation.examples.WFP;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class CheckResourcesListener extends View {
+public class CheckResourcesListener extends Listener {
 	private int[] resources;
 	private int[] resCreated;
 	private int[] resFinished;
@@ -39,6 +39,8 @@ public class CheckResourcesListener extends View {
 			case ROLOFF:
 				rt = rInfo.getResourceType().getIdentifier();
 				resFinished[rt]++;
+				break;
+			default:
 				break;
 			}
 		}

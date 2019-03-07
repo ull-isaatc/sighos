@@ -11,12 +11,12 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
 /**
  * A flow which merges several incoming branches into a single outgoing branch. The incoming 
  * branches are handled in an internal structure and managed per element.<p> When an incoming 
- * branch arrives, the <code>arrive</code> is invoked. Both, true and false work threads 
+ * branch arrives, the <code>arrive</code> is invoked. Both, true and false element instances 
  * are computed. Then, the flow checks (depending on the implementation) if this branch 
  * <code>canPass</code> or not. If it can pass, the outgoing flow is activated. Next, 
  * the flow checks if the branch <code>canReset</code> the structure, if so, it's reset.
- * Only true work threads can pass, but both true and false threads can reset the structure.
- * In case the structure has to be reset and it has not been activated, a new false work thread
+ * Only true element instances can pass, but both true and false threads can reset the structure.
+ * In case the structure has to be reset and it has not been activated, a new false element instance
  * continues the execution.
  * @author ycallero
  */
@@ -25,6 +25,7 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow 
 	protected int incomingBranches;
 	/** A structure to control the arrival of incoming branches */
 	protected Map<Element, MergeFlowControl> control;
+	/** The engine that implements the functioning of the flow */
 	private MergeFlowEngine engine;
 	/** Indicates if the node is safe or it has to control several triggers for 
 	 * the same element through the same incoming branch before reset */ 
@@ -32,8 +33,9 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow 
 	
 	/**
 	 * Create a new MergeFlow intended to be used in a safe context.
+	 * @param model The simulation model this flow belongs to
 	 */
-	public MergeFlow(Simulation model) {
+	public MergeFlow(final Simulation model) {
 		this(model, true);
 	}
 
@@ -41,13 +43,13 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow 
 	 * Create a new MergeFlow which can be used in a safe context or a general one.
 	 * @param safe True for safe context; false in other case
 	 */
-	public MergeFlow(Simulation model, boolean safe) {
+	public MergeFlow(final Simulation model, final boolean safe) {
 		super(model);
 		this.safe = safe;
 	}
 
 	@Override
-	public void addPredecessor(Flow newFlow) {
+	public void addPredecessor(final Flow newFlow) {
 		incomingBranches++;
 	}
 
@@ -68,90 +70,91 @@ public abstract class MergeFlow extends SingleSuccessorFlow implements JoinFlow 
 	}
 
 	@Override
-	public void afterFinalize(ElementInstance fe) {}
+	public void afterFinalize(final ElementInstance ei) {}
 
 	/**
 	 * Controls the arrival of an incoming branch.
-	 * @param wThread The thread of control of the incoming branch
+	 * @param ei The thread of control of the incoming branch
 	 */
-	protected void arrive(ElementInstance wThread) {
-		if (!control.containsKey(wThread.getElement()))
-			control.put(wThread.getElement(), getNewBranchesControl());
-		control.get(wThread.getElement()).arrive(wThread);
+	protected void arrive(final ElementInstance ei) {
+		if (!control.containsKey(ei.getElement()))
+			control.put(ei.getElement(), getNewBranchesControl());
+		control.get(ei.getElement()).arrive(ei);
 	}
 
 	/**
 	 * Checks if the last incoming branch can pass.
-	 * @param wThread The thread of control of the incoming branch
+	 * @param ei The thread of control of the incoming branch
 	 * @return True if the incoming branch activates the outgoing branch; false in other case.
 	 */
-	protected abstract boolean canPass(ElementInstance wThread);
+	protected abstract boolean canPass(final ElementInstance ei);
 	
 	/**
 	 * Checks if the last incoming branch can reset the control structure. The structure
 	 * has to be reset when all the incoming branches has been activated once.
-	 * @param wThread The thread of control of the incoming branch
+	 * @param ei The thread of control of the incoming branch
 	 * @return True if all the incoming branches were activated once; false in other case.
 	 */
-	protected boolean canReset(ElementInstance wThread) {
-		return control.get(wThread.getElement()).canReset(incomingBranches);
+	protected boolean canReset(final ElementInstance ei) {
+		return control.get(ei.getElement()).canReset(incomingBranches);
 	}
 
 	/**
 	 * Resets the control structure, so the next incoming branch for the same element 
 	 * will use a new control structure. 
-	 * @param wThread The thread of control of the incoming branch
+	 * @param ei The thread of control of the incoming branch
 	 */
-	protected void reset(ElementInstance wThread) {
-		if (control.get(wThread.getElement()).reset())
-			control.remove(wThread.getElement());
+	protected void reset(final ElementInstance ei) {
+		if (control.get(ei.getElement()).reset())
+			control.remove(ei.getElement());
 	}
 	
 	/**
 	 * Checks if the control structure has been activated at least once.
-	 * @param wThread The thread of control of the incoming branch
+	 * @param ei The thread of control of the incoming branch
 	 * @return True if the control structure was activated at least once.
 	 */
-	protected boolean isActivated(ElementInstance wThread) {
-		return control.get(wThread.getElement()).isActivated();
+	protected boolean isActivated(final ElementInstance ei) {
+		return control.get(ei.getElement()).isActivated();
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
-	 */
-	public void request(ElementInstance wThread) {
-		final Element elem = wThread.getElement();
-		if (!wThread.wasVisited(this)) {
-			if (wThread.isExecutable()) {
-				if (!beforeRequest(wThread))
-					wThread.cancel(this);
+
+	@Override
+	public void request(final ElementInstance ei) {
+		final Element elem = ei.getElement();
+		if (!ei.wasVisited(this)) {
+			if (ei.isExecutable()) {
+				if (!beforeRequest(ei))
+					ei.cancel(this);
 			}
 			elem.getEngine().waitProtectedFlow(this);
-			arrive(wThread);
-			if (canPass(wThread)) {
+			arrive(ei);
+			if (canPass(ei)) {
 				control.get(elem).setActivated();
-				next(wThread);
+				next(ei);
 			}
 			else {
 				// If no one of the branches was true, the thread of control must continue anyway
-				if (canReset(wThread) && !isActivated(wThread))
-					next(wThread.getSubsequentElementInstance(false, this, control.get(elem).getOutgoingFalseToken()));
-				wThread.notifyEnd();
+				if (canReset(ei) && !isActivated(ei))
+					next(ei.getSubsequentElementInstance(false, this, control.get(elem).getOutgoingFalseToken()));
+				ei.notifyEnd();
 			}
-			if (canReset(wThread))
-				reset(wThread);
+			if (canReset(ei))
+				reset(ei);
 			elem.getEngine().signalProtectedFlow(this);
 		} else
-			wThread.notifyEnd();
+			ei.notifyEnd();
 	}
 	
+	/**
+	 * Returns a {@link MergeFlowControl} instance to control the behaviour of the flow
+	 * @return a {@link MergeFlowControl} instance to control the behaviour of the flow
+	 */
 	protected MergeFlowControl getNewBranchesControl() {
 		return (safe)? new SafeMergeFlowControl(this) : new GeneralizedMergeFlowControl(this, engine.getGeneralizedBranchesControlInstance()); 
 	}
 
 	@Override
-	public void assignSimulation(SimulationEngine simul) {
+	public void assignSimulation(final SimulationEngine simul) {
 		super.assignSimulation(simul);
 		engine = simul.getMergeFlowEngineInstance(this);
 		control = engine.getControlStructureInstance();

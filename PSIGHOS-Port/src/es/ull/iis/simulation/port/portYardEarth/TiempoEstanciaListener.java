@@ -4,17 +4,18 @@
 package es.ull.iis.simulation.port.portYardEarth;
 
 import java.util.TreeMap;
+
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.inforeceiver.View;
+import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.util.Statistics;
 /**
  * @author Daniel
  *
  */
-public class TiempoEstanciaListener extends View {
+public class TiempoEstanciaListener extends Listener {
 	//Esto sirve para recoger el valor de las N simulaciones que se hagan
 	protected static int nSim = 1;
 	protected static double[] maxGlobal; 
