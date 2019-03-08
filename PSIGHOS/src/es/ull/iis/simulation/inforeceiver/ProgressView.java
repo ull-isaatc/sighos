@@ -4,8 +4,7 @@
 package es.ull.iis.simulation.inforeceiver;
 
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationStartInfo;
-import es.ull.iis.simulation.info.TimeChangeInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -17,19 +16,20 @@ public class ProgressView extends Listener {
 	int percentage = 0;
 	public ProgressView(long endTs) {
 		super("Progress");
-		addEntrance(TimeChangeInfo.class);
-		addEntrance(SimulationStartInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 		gap = endTs / 100;
 		nextMsg = gap;
 	}
 
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationStartInfo) {
+		final SimulationTimeInfo tInfo = (SimulationTimeInfo)info;
+		
+		if (SimulationTimeInfo.Type.START.equals(tInfo.getType())) {
 			System.out.println("Starting!!");
 		}
-		else if (info instanceof TimeChangeInfo) {
-			if (((TimeChangeInfo) info).getTs() >= nextMsg) {
+		else if (SimulationTimeInfo.Type.TICK.equals(tInfo.getType())) {
+			if (tInfo.getTs() >= nextMsg) {
 				System.out.println("" + (++percentage) + "%");
 				nextMsg += gap;
 			}

@@ -8,7 +8,7 @@ public class VarViewValueRequestInfo extends SynchronousInfo {
 	private final Object requestObject;
 	private Object[] params;
 	
-	public VarViewValueRequestInfo(Simulation model, String varName, Object requestObject, Object[] params, long ts) {
+	public VarViewValueRequestInfo(final Simulation model, final String varName, final Object requestObject, final Object[] params, final long ts) {
 		super(model, ts);
 		this.varName = varName;
 		this.requestObject = requestObject;
@@ -19,7 +19,7 @@ public class VarViewValueRequestInfo extends SynchronousInfo {
 		return params;
 	}
 
-	public void setParams(Object[] params) {
+	public void setParams(final Object[] params) {
 		this.params = params;
 	}
 

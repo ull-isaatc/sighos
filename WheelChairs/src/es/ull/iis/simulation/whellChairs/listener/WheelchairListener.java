@@ -11,7 +11,7 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.Element;
@@ -90,7 +90,7 @@ public class WheelchairListener extends Listener {
 		addEntrance(ResourceUsageInfo.class);
 		addEntrance(ElementInfo.class);
 		addEntrance(ElementActionInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 	public WheelchairListener(TimeUnit unit, int nJanitors, int nDoctors, int nAutoChairs, int nManualChairs, int patientsPerArrival, int minutesBetweenArrivals, Density[] density, double manualFactor, boolean detailed) {
 		this(unit, nJanitors, nDoctors, nAutoChairs, nManualChairs, nJanitors, nDoctors, nAutoChairs, nManualChairs, patientsPerArrival, minutesBetweenArrivals, density, manualFactor, detailed);
@@ -246,32 +246,35 @@ public class WheelchairListener extends Listener {
 			
 			}
 		}
-		else if (info instanceof SimulationEndInfo) {
-			final long endTs = ((SimulationEndInfo) info).getTs();
-			// con esto contaríamos el tiemp de las tareas que no hubiesen terminado como
-			//"Tiempo fin de simulación" - "tiempo de comienzo de tarea"
-			for (Entry<Element, Long> entry : times.entrySet()) {
-				if (entry.getValue() < 0) {
-					entry.setValue(endTs + entry.getValue());
+		else if (info instanceof SimulationTimeInfo) {
+			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
+			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+				final long endTs = ((SimulationTimeInfo) info).getTs();
+				// con esto contaríamos el tiemp de las tareas que no hubiesen terminado como
+				//"Tiempo fin de simulación" - "tiempo de comienzo de tarea"
+				for (Entry<Element, Long> entry : times.entrySet()) {
+					if (entry.getValue() < 0) {
+						entry.setValue(endTs + entry.getValue());
+					}
 				}
-			}
-			for (Entry<Element, Long> entry : appointmentTimes.entrySet()) {
-				if (entry.getValue() < 0) {
-					entry.setValue(endTs + entry.getValue());
+				for (Entry<Element, Long> entry : appointmentTimes.entrySet()) {
+					if (entry.getValue() < 0) {
+						entry.setValue(endTs + entry.getValue());
+					}
 				}
+				out.print(endTs/unitConversion + "\t" + patientsPerArrival + "\t" + minutesBetweenArrivals + "\t" + manualFactor);
+				for (int i = 0; i < density.length; i++)
+					out.print("\t" + density[i]);
+				out.print("\t" + nDoctors + "\t" + nJanitors +"\t" + nAutoChairs + "\t" + nManualChairs + "\t" + patientEndCounter);
+				printGeneralTimeStats(times);
+				printGeneralTimeStats(appointmentTimes);
+				printGeneralTimeStats(accomodationTimes);
+				printGeneralTimeStats(routeTimes);
+				printGeneralTimeStats(cummWaitForJanitorTimes, nPatientsWaitForJanitor);
+				printGeneralTimeStats(cummWaitForDoctorTimes, nPatientsWaitForDoctor);
+				printAllResourcesUsage(endTs);
+				out.println();
 			}
-			out.print(endTs/unitConversion + "\t" + patientsPerArrival + "\t" + minutesBetweenArrivals + "\t" + manualFactor);
-			for (int i = 0; i < density.length; i++)
-				out.print("\t" + density[i]);
-			out.print("\t" + nDoctors + "\t" + nJanitors +"\t" + nAutoChairs + "\t" + nManualChairs + "\t" + patientEndCounter);
-			printGeneralTimeStats(times);
-			printGeneralTimeStats(appointmentTimes);
-			printGeneralTimeStats(accomodationTimes);
-			printGeneralTimeStats(routeTimes);
-			printGeneralTimeStats(cummWaitForJanitorTimes, nPatientsWaitForJanitor);
-			printGeneralTimeStats(cummWaitForDoctorTimes, nPatientsWaitForDoctor);
-			printAllResourcesUsage(endTs);
-			out.println();
 		}
 	}
 

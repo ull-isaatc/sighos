@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
@@ -31,7 +31,7 @@ public class CheckElementActionViewBuilder extends Listener {
 		endEvents = new TreeMap<Long, TreeMap<Integer,ArrayList<Integer>>>();
 		elements = new TreeSet<Integer>();
 		addEntrance(ElementActionInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	private void fillEvent(ElementActionInfo eInfo, TreeMap<Long, TreeMap<Integer, ArrayList<Integer>>> events) {
@@ -89,22 +89,25 @@ public class CheckElementActionViewBuilder extends Listener {
 				break;
 			}
 		}
-		else if (info instanceof SimulationEndInfo) {
-			String className = info.getSimul().getClass().getSimpleName().substring(0, 5);
-			System.out.println("class " + className + "CheckView extends CheckElementActionsView {");
-			System.out.println("\tpublic " + className + "CheckView(" + info.getSimul().getClass().getSimpleName() + " simul) {");
-			System.out.println("\t\tthis(simul, true);");
-			System.out.println("\t}");
-			System.out.println();
-			System.out.println("\tpublic " + className + "CheckView(" + info.getSimul().getClass().getSimpleName() + " simul, boolean detailed) {");
-			System.out.println("\t\tsuper(simul, \"Checking " + className + "...\", detailed);");
-			System.out.println();
-			System.out.println("\t\tElementReferenceInfos [] ref;");
-			printEvent(reqEvents, "refRequests");
-			printEvent(staEvents, "refStartActs");
-			printEvent(endEvents, "refEndActs");
-			System.out.println("\t}");
-			System.out.println("}");
+		else if (info instanceof SimulationTimeInfo) {
+			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
+			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+				String className = info.getSimul().getClass().getSimpleName().substring(0, 5);
+				System.out.println("class " + className + "CheckView extends CheckElementActionsView {");
+				System.out.println("\tpublic " + className + "CheckView(" + info.getSimul().getClass().getSimpleName() + " simul) {");
+				System.out.println("\t\tthis(simul, true);");
+				System.out.println("\t}");
+				System.out.println();
+				System.out.println("\tpublic " + className + "CheckView(" + info.getSimul().getClass().getSimpleName() + " simul, boolean detailed) {");
+				System.out.println("\t\tsuper(simul, \"Checking " + className + "...\", detailed);");
+				System.out.println();
+				System.out.println("\t\tElementReferenceInfos [] ref;");
+				printEvent(reqEvents, "refRequests");
+				printEvent(staEvents, "refStartActs");
+				printEvent(endEvents, "refEndActs");
+				System.out.println("\t}");
+				System.out.println("}");
+			}
 		}
 
 	}

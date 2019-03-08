@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.info.ElementInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 
 /**
@@ -29,7 +29,7 @@ public class CheckElementsView extends WFPTestView {
 		elemCreated = new int[elements.length];
 		elemFinished = new int[elements.length];
 		addEntrance(ElementInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	@Override
@@ -48,21 +48,24 @@ public class CheckElementsView extends WFPTestView {
 				break;
 			}
 		}
-		else if (info instanceof SimulationEndInfo) {
-			boolean ok = true;
-			System.out.println("--------------------------------------------------");
-			System.out.println("Checking elements...");
-			for (int i = 0; i < elements.length; i++) {
-				System.out.print(info.getSimul().getElementTypeList().get(i) + " (" + elements[i] + ")\t");
-				System.out.print(elemCreated[i] + "\t" + elemFinished[i] + "\t");				
-				if ((elemCreated[i] & elemFinished[i]) == elements[i])
-					System.out.println("PASSED");
-				else {
-					ok = false;
-					System.out.println("ERROR!!!");
+		else if (info instanceof SimulationTimeInfo) {
+			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
+			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+				boolean ok = true;
+				System.out.println("--------------------------------------------------");
+				System.out.println("Checking elements...");
+				for (int i = 0; i < elements.length; i++) {
+					System.out.print(info.getSimul().getElementTypeList().get(i) + " (" + elements[i] + ")\t");
+					System.out.print(elemCreated[i] + "\t" + elemFinished[i] + "\t");				
+					if ((elemCreated[i] & elemFinished[i]) == elements[i])
+						System.out.println("PASSED");
+					else {
+						ok = false;
+						System.out.println("ERROR!!!");
+					}
 				}
+				notifyResult(ok);
 			}
-			notifyResult(ok);
 		}
 		
 	}

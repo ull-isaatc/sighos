@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.Element;
@@ -48,7 +48,7 @@ public class Sea2YardGeneralListener extends Listener {
 		this.unit = unit;
 		nContainersToFinish = plan.getNTasks();
 		addEntrance(ElementInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 		addEntrance(ElementActionInfo.class);
 	}
 
@@ -109,32 +109,35 @@ public class Sea2YardGeneralListener extends Listener {
 			
 			}
 		}
-		else if (info instanceof SimulationEndInfo) {
-			final long currentTs = ((SimulationEndInfo) info).getTs();
-			final TimeUnit modelUnit = info.getSimul().getTimeUnit();
-			for (Element crane : totalTime.keySet()) {
-				final int craneId = crane.getIdentifier();
-				// The simulation finished before all the tasks were complete
-				if (objTime[craneId] == -1) {
-					objTime[craneId] = currentTs;
-					objectiveValue = currentTs;
+		else if (info instanceof SimulationTimeInfo) {
+			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
+			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+				final long currentTs = ((SimulationTimeInfo) info).getTs();
+				final TimeUnit modelUnit = info.getSimul().getTimeUnit();
+				for (Element crane : totalTime.keySet()) {
+					final int craneId = crane.getIdentifier();
+					// The simulation finished before all the tasks were complete
+					if (objTime[craneId] == -1) {
+						objTime[craneId] = currentTs;
+						objectiveValue = currentTs;
+					}
+					else {
+						objectiveValue = Math.max(objectiveValue, objTime[craneId]);
+					}
+					useTime[craneId] = usageTime.get(crane)[1];
+					movTime[craneId] = movingTime.get(crane)[1];
+					if (usageTime.get(crane)[0] != -1) {
+						useTime[craneId] += (currentTs - usageTime.get(crane)[0]);
+					}
+					if (movingTime.get(crane)[0] != -1) {
+						movTime[craneId] += (currentTs - movingTime.get(crane)[0]);
+					}
+					opTime[craneId] = useTime[craneId] - movTime[craneId];
+					objTime[craneId] = unit.convert(objTime[craneId], modelUnit);
+					useTime[craneId] = unit.convert(useTime[craneId], modelUnit);
+					movTime[craneId] = unit.convert(movTime[craneId], modelUnit);
+					opTime[craneId] = unit.convert(opTime[craneId], modelUnit);
 				}
-				else {
-					objectiveValue = Math.max(objectiveValue, objTime[craneId]);
-				}
-				useTime[craneId] = usageTime.get(crane)[1];
-				movTime[craneId] = movingTime.get(crane)[1];
-				if (usageTime.get(crane)[0] != -1) {
-					useTime[craneId] += (currentTs - usageTime.get(crane)[0]);
-				}
-				if (movingTime.get(crane)[0] != -1) {
-					movTime[craneId] += (currentTs - movingTime.get(crane)[0]);
-				}
-				opTime[craneId] = useTime[craneId] - movTime[craneId];
-				objTime[craneId] = unit.convert(objTime[craneId], modelUnit);
-				useTime[craneId] = unit.convert(useTime[craneId], modelUnit);
-				movTime[craneId] = unit.convert(movTime[craneId], modelUnit);
-				opTime[craneId] = unit.convert(opTime[craneId], modelUnit);
 			}
 		}
 	}

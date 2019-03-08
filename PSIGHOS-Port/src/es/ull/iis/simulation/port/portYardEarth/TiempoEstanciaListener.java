@@ -6,7 +6,7 @@ package es.ull.iis.simulation.port.portYardEarth;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.Element;
@@ -35,7 +35,7 @@ public class TiempoEstanciaListener extends Listener {
 		super("");
 		tEstancia = new TreeMap<Element, Long>();
 		addEntrance(ElementInfo.class);
-		addEntrance(SimulationEndInfo.class);	
+		addEntrance(SimulationTimeInfo.class);	
 	}
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof ElementInfo) {
@@ -54,21 +54,23 @@ public class TiempoEstanciaListener extends Listener {
 				break;
 			}
 		}
-		else if (info instanceof SimulationEndInfo) {
-		
-			System.out.println("\tPetición\tNo acabadas\t");
-		long endTs = ((SimulationEndInfo) info).getTs();
-			for(Element elem : tEstancia.keySet()){
-				if(tEstancia.get(elem) < 0){	
-					if(-tEstancia.get(elem) < endTs){
-						tEstancia.put(elem, endTs + tEstancia.get(elem));
-						System.out.println("\t"+ elem + "\t\tNo acabó");	
-						contador = contador + 1;
+		else if (info instanceof SimulationTimeInfo) {
+			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
+			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+				System.out.println("\tPetición\tNo acabadas\t");
+				long endTs = ((SimulationTimeInfo) info).getTs();
+				for(Element elem : tEstancia.keySet()){
+					if(tEstancia.get(elem) < 0){	
+						if(-tEstancia.get(elem) < endTs){
+							tEstancia.put(elem, endTs + tEstancia.get(elem));
+							System.out.println("\t"+ elem + "\t\tNo acabó");	
+							contador = contador + 1;
+						}
+						else{
+							tEstancia.remove(elem);		
 					}
-					else{
-						tEstancia.remove(elem);		
 				}
-			}	
+			}
 		}			
 			System.out.println("\tPetición\tTiempo extracción");
 			for (Element elem : tEstancia.keySet()) {

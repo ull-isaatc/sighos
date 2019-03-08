@@ -11,16 +11,11 @@ import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.EntityLocationInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationStartInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.info.SynchronousInfo;
-import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.info.UserInfo;
 import es.ull.iis.simulation.info.VarViewValueRequestInfo;
-import es.ull.iis.simulation.inforeceiver.InfoHandler;
-import es.ull.iis.simulation.inforeceiver.InfoReceiver;
-import es.ull.iis.simulation.inforeceiver.Listener;
 
 public class SimulationInfoHandler implements InfoHandler {
 
@@ -36,13 +31,11 @@ public class SimulationInfoHandler implements InfoHandler {
 	}
 	
 	private void initEntranceList() {
-		definedInfos.add(SimulationStartInfo.class);
-		definedInfos.add(SimulationEndInfo.class);
+		definedInfos.add(SimulationTimeInfo.class);
 		definedInfos.add(ElementActionInfo.class);
 		definedInfos.add(ElementInfo.class);
 		definedInfos.add(ResourceInfo.class);
 		definedInfos.add(ResourceUsageInfo.class);
-		definedInfos.add(TimeChangeInfo.class);
 		definedInfos.add(EntityLocationInfo.class);
 	}
 		

@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.examples.WFP;
 
 import es.ull.iis.simulation.info.ResourceInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
@@ -23,7 +23,7 @@ public class CheckResourcesListener extends Listener {
 		resCreated = new int[resources.length];
 		resFinished = new int[resources.length];
 		addEntrance(ResourceInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	@Override
@@ -44,21 +44,24 @@ public class CheckResourcesListener extends Listener {
 				break;
 			}
 		}
-		else if (info instanceof SimulationEndInfo) {
-			boolean ok = true;
-			System.out.println("--------------------------------------------------");
-			System.out.println("Checking elements...");
-			for (int i = 0; i < resources.length; i++) {
-				System.out.print(info.getSimul().getElementTypeList().get(i) + " (" + resources[i] + ")\t");
-				System.out.print(resCreated[i] + "\t" + resFinished[i] + "\t");				
-				if ((resCreated[i] & resFinished[i]) == resources[i])
-					System.out.println("PASSED");
-				else {
-					ok = false;
-					System.out.println("ERROR!!!");
+		else if (info instanceof SimulationTimeInfo) {
+			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
+			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+				boolean ok = true;
+				System.out.println("--------------------------------------------------");
+				System.out.println("Checking elements...");
+				for (int i = 0; i < resources.length; i++) {
+					System.out.print(info.getSimul().getElementTypeList().get(i) + " (" + resources[i] + ")\t");
+					System.out.print(resCreated[i] + "\t" + resFinished[i] + "\t");				
+					if ((resCreated[i] & resFinished[i]) == resources[i])
+						System.out.println("PASSED");
+					else {
+						ok = false;
+						System.out.println("ERROR!!!");
+					}
+					if (!ok)
+						System.out.println("There are error... Please review your model.");
 				}
-				if (!ok)
-					System.out.println("There are error... Please review your model.");
 			}
 		}
 		

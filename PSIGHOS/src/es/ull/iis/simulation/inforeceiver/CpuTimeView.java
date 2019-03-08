@@ -3,36 +3,57 @@
  */
 package es.ull.iis.simulation.inforeceiver;
 
-import es.ull.iis.simulation.info.SimulationEndInfo;
+import java.io.PrintStream;
+
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationStartInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 
 /**
+ * A listener to compute the CPU time of the simulation 
  * @author Iván Castilla Rodríguez
  *
  */
 public class CpuTimeView extends Listener {
-	protected long iniT;
-	protected long endT;
+	protected long iniT = Long.MAX_VALUE;
+	protected long endT = Long.MAX_VALUE;
+	private final boolean print;
+	private final PrintStream out;
 	
-	public CpuTimeView() {
+	public CpuTimeView(final PrintStream out, final boolean print) {
 		super("CPU Time viewer");
-		addEntrance(SimulationStartInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
+		this.print = print;
+		this.out = out;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.inforeceiver.InfoReceiver#infoEmited(es.ull.iis.simulation.info.SimulationInfo)
-	 */
 	@Override
-	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationStartInfo) {
-			iniT = ((SimulationStartInfo)info).getCpuTime();
+	public void infoEmited(final SimulationInfo info) {
+		final SimulationTimeInfo tInfo = (SimulationTimeInfo)info;
+		
+		if (SimulationTimeInfo.Type.START.equals(tInfo.getType())) {
+			iniT = tInfo.getCpuTime();
 		}
-		else if (info instanceof SimulationEndInfo) {
-			endT = ((SimulationEndInfo)info).getCpuTime();
-			System.out.println("" + ((endT - iniT) / 1000000) + "ms");
+		else if (SimulationTimeInfo.Type.END.equals(tInfo.getType())) {
+			endT = tInfo.getCpuTime();
+			if (print)
+				out.println(this);
 		}
 	}
 
+	@Override
+	public String toString() {
+		if (endT == Long.MAX_VALUE)
+			return "CPU time not available (simulation not finished)";
+		return "" + getCPUTime() + "ms";
+	}
+	
+	/**
+	 * Returns the CPU time that took the simulation; -1 in case the simulation has not finished 
+	 * @return the CPU time that took the simulation; -1 in case the simulation has not finished
+	 */
+	public long getCPUTime() {
+		if (endT == Long.MAX_VALUE)
+			return -1L;
+		return ((endT - iniT) / 1000000);
+	}
 }

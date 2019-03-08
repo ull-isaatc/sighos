@@ -7,7 +7,6 @@ import java.util.ArrayDeque;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationStartInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.Resource;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -23,7 +22,6 @@ public class ContainerTraceListener extends Listener {
 		super("Time container");
 		this.unit = unit;
 		addEntrance(ElementActionInfo.class);
-		addEntrance(SimulationStartInfo.class);
 	}
 
 	private String printCaughtResources(ArrayDeque<Resource> caughtResources) {

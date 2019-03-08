@@ -67,7 +67,7 @@ class WFPTestExperiment extends Experiment {
 		else {
 			simul = class2Model(WFPTest.simulations.pollFirstEntry().getValue(), ind);
 		}
-//        sim.addInfoReceiver(new CheckElementActionViewBuilder(sim));
+//        simul.addInfoReceiver(new CheckElementActionViewBuilder());
 		simul.addInfoReceiver(new StdInfoView());
 		if (nThreads > 1) {
 			simul.setSimulationEngine(new ParallelSimulationEngine(ind, simul, nThreads));
@@ -109,7 +109,7 @@ public class WFPTest {
 		simulations.put(30, WFP30Simulation.class);
 		simulations.put(40, WFP40Simulation.class);
 
-		new WFPTestExperiment(211, 1, false).start();
+		new WFPTestExperiment(1, false).start();
 	}
 
 }

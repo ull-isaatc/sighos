@@ -13,7 +13,7 @@ import es.ull.iis.simulation.model.location.Movable;
  */
 public class EntityLocationInfo extends AsynchronousInfo {
 	/** Possible types of element information */
-	public enum Type {
+	public enum Type implements InfoType {
 			ARRIVE	("ARRIVE AT LOCATION"),
 			LEAVE	("LEAVE FROM LOCATION"),
 			START	("START AT LOCATION");
@@ -39,7 +39,7 @@ public class EntityLocationInfo extends AsynchronousInfo {
 	 * @param model
 	 * @param ts
 	 */
-	public EntityLocationInfo(Simulation model, Movable entity, Location location, Type type, long ts) {
+	public EntityLocationInfo(final Simulation model, final Movable entity, final Location location, final Type type, final long ts) {
 		super(model, ts);
 		this.entity = entity;
 		this.location = location;

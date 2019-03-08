@@ -9,7 +9,7 @@ import es.ull.iis.simulation.model.ResourceType;
 public class ResourceInfo extends AsynchronousInfo {
 
 	/** Possible types of resource information */
-	public enum Type {
+	public enum Type implements InfoType {
 			START	("RESOURCE START"), 
 			FINISH	("RESOURCE FINISH"), 
 			ROLON	("ROLE ON"), 
@@ -32,7 +32,7 @@ public class ResourceInfo extends AsynchronousInfo {
 	final private ResourceType rt;
 	final private Type type;
 	
-	public ResourceInfo(Simulation model, Resource res, ResourceType rt, Type type, long ts) {
+	public ResourceInfo(final Simulation model, final Resource res, final ResourceType rt, final Type type, final long ts) {
 		super(model, ts);
 		this.res = res;
 		this.rt = rt;

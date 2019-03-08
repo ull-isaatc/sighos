@@ -12,7 +12,7 @@ import es.ull.iis.simulation.model.flow.RequestResourcesFlow.ActivityWorkGroup;
 public class ElementActionInfo extends AsynchronousInfo {
 	
 	/** Possible types of element information */
-	public enum Type {
+	public enum Type implements InfoType {
 			REQ		("REQUEST RESOURCES"),
 			ACQ		("ACQUIRE RESOURCES"),
 			START	("START DELAY"), 
@@ -40,7 +40,7 @@ public class ElementActionInfo extends AsynchronousInfo {
 	final private Type type;
 	final private ArrayDeque<Resource> resources;
 	
-	public ElementActionInfo(Simulation model, ElementInstance instance, Element elem, ActionFlow act, ActivityWorkGroup wg, ArrayDeque<Resource> resources, Type type, long ts) {
+	public ElementActionInfo(final Simulation model, final ElementInstance instance, final Element elem, final ActionFlow act, final ActivityWorkGroup wg, final ArrayDeque<Resource> resources, final Type type, final long ts) {
 		super(model, ts);
 		this.instance = instance;
 		this.act = act;

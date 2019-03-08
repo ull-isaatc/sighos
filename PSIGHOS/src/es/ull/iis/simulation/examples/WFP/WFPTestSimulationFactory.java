@@ -45,15 +45,11 @@ public abstract class WFPTestSimulationFactory {
 	protected final int id;
 	protected final String description;
 	
-	public WFPTestSimulationFactory(int id, String description, boolean detailed, int nThreads) {
+	public WFPTestSimulationFactory(int id, String description, boolean detailed) {
 		this.id = id;
 		this.description = description;
 		this.detailed = detailed;
 		simul = createModel();
-	}
-	
-	public WFPTestSimulationFactory(int id, String description, boolean detailed) {
-		this (id, description, detailed, 1);
 	}
 	
 	protected abstract Simulation createModel();

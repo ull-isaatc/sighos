@@ -7,7 +7,7 @@ import es.ull.iis.simulation.model.Simulation;
 public class ElementInfo extends AsynchronousInfo {
 
 	/** Possible types of element information */
-	public enum Type {
+	public enum Type implements InfoType {
 			START ("ELEMENT START"), 
 			FINISH ("ELEMENT FINISH");
 			
@@ -27,7 +27,7 @@ public class ElementInfo extends AsynchronousInfo {
 	final private Type type;
 	final private ElementType et;
 	
-	public ElementInfo(Simulation model, Element elem, ElementType et, Type type, long ts) {
+	public ElementInfo(final Simulation model, final Element elem, final ElementType et, final Type type, final long ts) {
 		super(model, ts);
 		this.elem = elem;
 		this.type = type;

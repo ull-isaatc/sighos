@@ -6,7 +6,7 @@ package es.ull.iis.simulation.port.inforeceiver;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.port.PortModel;
@@ -22,7 +22,7 @@ public class ContainerTimeListener extends Listener {
 		super("Time container");
 		tContainer = new TreeMap<Integer, Long[]>();
 		addEntrance(ElementActionInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	/* (non-Javadoc)
@@ -58,10 +58,13 @@ public class ContainerTimeListener extends Listener {
 			}
 			
 		}
-		else if (info instanceof SimulationEndInfo) {
-			System.out.println("CONTAINER\tT1\t\tT2");
-			for (Integer containerId : tContainer.keySet()) {
-				System.out.println(containerId + "\t" + tContainer.get(containerId)[0] + "\t" + tContainer.get(containerId)[1]);
+		else if (info instanceof SimulationTimeInfo) {
+			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
+			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+				System.out.println("CONTAINER\tT1\t\tT2");
+				for (Integer containerId : tContainer.keySet()) {
+					System.out.println(containerId + "\t" + tContainer.get(containerId)[0] + "\t" + tContainer.get(containerId)[1]);
+				}
 			}
 		}
 	}

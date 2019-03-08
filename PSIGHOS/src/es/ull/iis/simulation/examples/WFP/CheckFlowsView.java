@@ -11,9 +11,8 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementActionInfo.Type;
 import es.ull.iis.simulation.info.ElementInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationStartInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.Flow;
 import es.ull.iis.simulation.model.flow.ParallelFlow;
@@ -37,8 +36,7 @@ public class CheckFlowsView extends WFPTestView {
 		super("Checking flows...", detailed);
 		addEntrance(ElementInfo.class);
 		addEntrance(ElementActionInfo.class);
-		addEntrance(SimulationEndInfo.class);
-		addEntrance(SimulationStartInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 		this.durations = durations;
 		this.flow = createFlow(f);
 		futureFlow = new ArrayList<TreeSet<EventToCheck>>(
@@ -81,6 +79,8 @@ public class CheckFlowsView extends WFPTestView {
 				if (f.next != null)
 					f.next.add2FutureFlow(eInfo.getElement().getIdentifier(), eInfo.getTs());
 				break;
+			default:
+				break;
 			}
 		}
 		else if (info instanceof ElementInfo) {
@@ -96,14 +96,17 @@ public class CheckFlowsView extends WFPTestView {
 				break;
 			}
 		}
-		else if (info instanceof SimulationEndInfo) {
-			System.out.println();
-			notifyResult(ok);			
-		}
-		else if (info instanceof SimulationStartInfo) {
-			System.out.println("--------------------------------------------------");
-			System.out.println("Checking " + info.getSimul().getDescription());
-			System.out.println();
+		else if (info instanceof SimulationTimeInfo) {
+			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
+			if (SimulationTimeInfo.Type.START.equals(tInfo.getType()))  {
+				System.out.println("--------------------------------------------------");
+				System.out.println("Checking " + info.getSimul().getDescription());
+				System.out.println();
+			}
+			else if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+				System.out.println();
+				notifyResult(ok);			
+			}
 		}
 	}
 

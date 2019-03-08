@@ -8,9 +8,8 @@ import java.io.PrintStream;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationStartInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -31,19 +30,18 @@ public class BenchmarkListener extends Listener {
 	double lastEventTs = -1.0;
 	long maxConcurrentEvents = 0;
 	long cpuTime;
-	PrintStream out;
+	final PrintStream out;
 
-	public BenchmarkListener(PrintStream out) {
+	public BenchmarkListener(final PrintStream out) {
 		super("Bench");
 		this.out = out;
-		addEntrance(SimulationStartInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 		addEntrance(ElementInfo.class);
 		addEntrance(ElementActionInfo.class);
 		addEntrance(ResourceInfo.class);
 	}
 
-	public synchronized void infoEmited(SimulationInfo info) {
+	public synchronized void infoEmited(final SimulationInfo info) {
 		if (info instanceof ElementInfo) {
 			elemEvents++;
 			if (((ElementInfo) info).getTs() == lastEventTs) {
@@ -91,13 +89,16 @@ public class BenchmarkListener extends Listener {
 				lastEventTs = ((ResourceInfo) info).getTs();
 			}
 		}
-		else if (info instanceof SimulationStartInfo) {
-			cpuTime = ((SimulationStartInfo)info).getCpuTime();
-		}
-		else if (info instanceof SimulationEndInfo) {
-			cpuTime = (((SimulationEndInfo)info).getCpuTime() - cpuTime) / 1000000;
-			out.println("T:\t" + cpuTime + " ms\tElem Events:\t" + elemEvents + "\tRes Events:\t" + resEvents + "\nMax. concurrent Events:\t" + maxConcurrentEvents);
-			out.println("STA:\t" + startEv + "\tEND:\t" + endEv + "\tREQ:\t" + reqActEv + "\tSAC\t" + startActEv + "\tEAC\t" + endActEv);
+		else if (info instanceof SimulationTimeInfo) {
+			final SimulationTimeInfo tInfo = (SimulationTimeInfo)info;
+			if (SimulationTimeInfo.Type.START.equals(tInfo.getType())) {
+				cpuTime = tInfo.getCpuTime();
+			}
+			else if (SimulationTimeInfo.Type.END.equals(tInfo.getType())) {
+				cpuTime = (tInfo.getCpuTime() - cpuTime) / 1000000;
+				out.println("T:\t" + cpuTime + " ms\tElem Events:\t" + elemEvents + "\tRes Events:\t" + resEvents + "\nMax. concurrent Events:\t" + maxConcurrentEvents);
+				out.println("STA:\t" + startEv + "\tEND:\t" + endEv + "\tREQ:\t" + reqActEv + "\tSAC\t" + startActEv + "\tEAC\t" + endActEv);
+			}
 		}
 	}
 }

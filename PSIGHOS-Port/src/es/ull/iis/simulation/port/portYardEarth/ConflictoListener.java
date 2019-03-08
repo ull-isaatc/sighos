@@ -3,9 +3,8 @@ package es.ull.iis.simulation.port.portYardEarth;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationStartInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 
@@ -45,8 +44,7 @@ public class ConflictoListener extends Listener {
 	public ConflictoListener(int nSim){
 		super("");
 		addEntrance(ElementActionInfo.class);
-		addEntrance(SimulationStartInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 		this.nSim = nSim;
 	}
 	
@@ -161,32 +159,34 @@ public class ConflictoListener extends Listener {
 				break;
 			}
 		}
-		else if (info instanceof SimulationEndInfo) {
-			long endTs = ((SimulationEndInfo) info).getTs();
-			
-			contadorEsperaInicioGlobal = contadorEsperaInicioGlobal + esperaInicio.size() / (double) nSim;
-			contadorReservaGruaGlobal = contadorReservaGruaGlobal + reservaGrua.size() / (double) nSim;
-			contadorTramo1Global = contadorTramo1Global + tramo1.size() / (double) nSim;
-			contadorTramo2Global = contadorTramo2Global + tramo2.size() / (double) nSim;
-			contadorTramo3Global = contadorTramo3Global + tramo3.size() / (double) nSim;
-			contadorTramo4Global = contadorTramo4Global + tramo4.size() / (double) nSim;
-			
-			System.out.println("\tTipo conflicto\tNúmero de conflictos");
-			System.out.println("\tAparcamiento "+"\t\t" + String.format("%.2f",contadorEsperaInicioGlobal));
-			System.out.println("\tGrúa " + "\t\t\t" + String.format("%.2f",contadorReservaGruaGlobal));
-			System.out.println("\tTramo 1 " + "\t\t" + String.format("%.2f",contadorTramo1Global));
-			System.out.println("\tTramo 2 " + "\t\t" + String.format("%.2f",contadorTramo2Global));
-			System.out.println("\tTramo 3 " + "\t\t" + String.format("%.2f",contadorTramo3Global));
-			System.out.println("\tTramo 4 " + "\t\t" + String.format("%.2f",contadorTramo4Global));
-			
-	
-			System.out.println("\tConflicto\tPetición\tTiempo de espera");
-			promedioEsperaInicioGlobal = promedioEsperaInicioGlobal + (limpiaYCalculaConflictos(esperaInicio, "Aparcamiento", endTs) / (double)esperaInicio.size()) / (double)nSim;
-			promedioReservaGruaGlobal = promedioReservaGruaGlobal + (limpiaYCalculaConflictos(reservaGrua, "Grúa", endTs) / (double)reservaGrua.size()) / (double)nSim;
-			promedioTramo1Global = promedioTramo1Global + (limpiaYCalculaConflictos(tramo1, "Tramo 1", endTs) / (double) tramo1.size()) / (double)nSim;
-			promedioTramo2Global = promedioTramo2Global + (limpiaYCalculaConflictos(tramo2, "Tramo 2", endTs) / (double) tramo2.size()) / (double)nSim;
-			promedioTramo3Global = promedioTramo3Global + (limpiaYCalculaConflictos(tramo3, "Tramo 3", endTs) / (double) tramo3.size()) / (double)nSim;
-			promedioTramo4Global = promedioTramo4Global + (limpiaYCalculaConflictos(tramo4, "Tramo 4", endTs) / (double) tramo4.size()) / (double)nSim;
+		else if (info instanceof SimulationTimeInfo) {
+			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo)info).getType())) {
+				long endTs = ((SimulationTimeInfo) info).getTs();
+				
+				contadorEsperaInicioGlobal = contadorEsperaInicioGlobal + esperaInicio.size() / (double) nSim;
+				contadorReservaGruaGlobal = contadorReservaGruaGlobal + reservaGrua.size() / (double) nSim;
+				contadorTramo1Global = contadorTramo1Global + tramo1.size() / (double) nSim;
+				contadorTramo2Global = contadorTramo2Global + tramo2.size() / (double) nSim;
+				contadorTramo3Global = contadorTramo3Global + tramo3.size() / (double) nSim;
+				contadorTramo4Global = contadorTramo4Global + tramo4.size() / (double) nSim;
+				
+				System.out.println("\tTipo conflicto\tNúmero de conflictos");
+				System.out.println("\tAparcamiento "+"\t\t" + String.format("%.2f",contadorEsperaInicioGlobal));
+				System.out.println("\tGrúa " + "\t\t\t" + String.format("%.2f",contadorReservaGruaGlobal));
+				System.out.println("\tTramo 1 " + "\t\t" + String.format("%.2f",contadorTramo1Global));
+				System.out.println("\tTramo 2 " + "\t\t" + String.format("%.2f",contadorTramo2Global));
+				System.out.println("\tTramo 3 " + "\t\t" + String.format("%.2f",contadorTramo3Global));
+				System.out.println("\tTramo 4 " + "\t\t" + String.format("%.2f",contadorTramo4Global));
+				
+		
+				System.out.println("\tConflicto\tPetición\tTiempo de espera");
+				promedioEsperaInicioGlobal = promedioEsperaInicioGlobal + (limpiaYCalculaConflictos(esperaInicio, "Aparcamiento", endTs) / (double)esperaInicio.size()) / (double)nSim;
+				promedioReservaGruaGlobal = promedioReservaGruaGlobal + (limpiaYCalculaConflictos(reservaGrua, "Grúa", endTs) / (double)reservaGrua.size()) / (double)nSim;
+				promedioTramo1Global = promedioTramo1Global + (limpiaYCalculaConflictos(tramo1, "Tramo 1", endTs) / (double) tramo1.size()) / (double)nSim;
+				promedioTramo2Global = promedioTramo2Global + (limpiaYCalculaConflictos(tramo2, "Tramo 2", endTs) / (double) tramo2.size()) / (double)nSim;
+				promedioTramo3Global = promedioTramo3Global + (limpiaYCalculaConflictos(tramo3, "Tramo 3", endTs) / (double) tramo3.size()) / (double)nSim;
+				promedioTramo4Global = promedioTramo4Global + (limpiaYCalculaConflictos(tramo4, "Tramo 4", endTs) / (double) tramo4.size()) / (double)nSim;
+			}
 		}
 	}
 

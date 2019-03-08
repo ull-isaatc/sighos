@@ -5,7 +5,7 @@ import java.util.PriorityQueue;
 import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 
-import es.ull.iis.simulation.info.TimeChangeInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Element;
@@ -220,7 +220,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 			else {
 	            // Updates the simulation clock
 	            lvt = newLVT;
-	            simul.notifyInfo(new TimeChangeInfo(simul, lvt));
+	    		simul.notifyInfo(new SimulationTimeInfo(simul, SimulationTimeInfo.Type.TICK, lvt));
 	            debug("SIMULATION TIME ADVANCING " + lvt);
 			}
 		}

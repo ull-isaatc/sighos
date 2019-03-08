@@ -6,7 +6,7 @@ package es.ull.iis.simulation.port.sea2yard;
 import java.util.HashMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
@@ -34,7 +34,7 @@ public class CheckSolutionListener extends Listener {
 			expectedSolution.put(task, new long[] {plan.getOptStartTime(task), plan.getOptStartTime(task) + plan.getVessel().getContainerProcessingTime(task)});
 		}
 		addEntrance(ElementActionInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	/* (non-Javadoc)
@@ -76,35 +76,39 @@ public class CheckSolutionListener extends Listener {
 			
 			}
 		}
-		else if (info instanceof SimulationEndInfo) {
-			boolean error = false;
-			for (int containerId : expectedSolution.keySet()) {
-				long[] expected = expectedSolution.get(containerId);
-				long[] obtained = obtainedSolution.get(containerId);
-				if (obtained == null) {
-					System.out.println("ERROR: task " + containerId + " never scheduled; expected at " + expected[0]);
-					error = true;										
+		else if (info instanceof SimulationTimeInfo) {
+			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
+			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+				boolean error = false;
+				for (int containerId : expectedSolution.keySet()) {
+					long[] expected = expectedSolution.get(containerId);
+					long[] obtained = obtainedSolution.get(containerId);
+					if (obtained == null) {
+						System.out.println("ERROR: task " + containerId + " never scheduled; expected at " + expected[0]);
+						error = true;										
+					}
+					else {
+						if (expected[0] != obtained[0]) {
+							System.out.println("ERROR: task " + containerId + " scheduled at " + obtained[0] + "; expected at " + expected[0]);
+							error = true;					
+						}
+						if (obtained[1] == -1) {
+							System.out.println("ERROR: task " + containerId + " never finished; expected at " + expected[1]);
+							error = true;					
+						}
+						else if (expected[1] != obtained[1]) {
+							System.out.println("ERROR: task " + containerId + " finished at " + obtained[1] + "; expected at " + expected[1]);
+							error = true;					
+						}
+					}
+					
+				}
+				if (error) {
+					System.out.println("ERRORS DETECTED IN SCHEDULE!");
 				}
 				else {
-					if (expected[0] != obtained[0]) {
-						System.out.println("ERROR: task " + containerId + " scheduled at " + obtained[0] + "; expected at " + expected[0]);
-						error = true;					
-					}
-					if (obtained[1] == -1) {
-						System.out.println("ERROR: task " + containerId + " never finished; expected at " + expected[1]);
-						error = true;					
-					}
-					else if (expected[1] != obtained[1]) {
-						System.out.println("ERROR: task " + containerId + " finished at " + obtained[1] + "; expected at " + expected[1]);
-						error = true;					
-					}
+					System.out.println("CHECKED WITH NO ERRORS");				
 				}
-			}
-			if (error) {
-				System.out.println("ERRORS DETECTED IN SCHEDULE!");
-			}
-			else {
-				System.out.println("CHECKED WITH NO ERRORS");				
 			}
 		}
 	}

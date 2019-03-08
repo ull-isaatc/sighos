@@ -7,9 +7,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationStartInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -31,8 +30,7 @@ public abstract class CheckElementActionsView extends WFPTestView {
 		refStartActs = new TreeMap<Long, ElementReferenceInfos[]>();
 		refEndActs = new TreeMap<Long, ElementReferenceInfos[]>();
 		addEntrance(ElementActionInfo.class);
-		addEntrance(SimulationEndInfo.class);
-		addEntrance(SimulationStartInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 	
 	/* (non-Javadoc)
@@ -55,6 +53,8 @@ public abstract class CheckElementActionsView extends WFPTestView {
 			case END:
 				ref = refEndActs.get(eInfo.getTs());
 				break;
+			default:
+				break;
 			}
 			if (ref == null) {
 				if (detailed)
@@ -74,16 +74,19 @@ public abstract class CheckElementActionsView extends WFPTestView {
 			else if (detailed)
 				System.out.println("PASSED");
 		}
-		else if (info instanceof SimulationStartInfo) {
-			System.out.println("--------------------------------------------------");
-			System.out.println("Checking " + info.getSimul().getDescription());
-		}
-		else if (info instanceof SimulationEndInfo) {
-			System.out.println();
-			checkMissed(info, refRequests, "REQUEST ACTIVITY");
-			checkMissed(info, refStartActs, "START ACTIVITY");
-			checkMissed(info, refEndActs, "END ACTIVITY");
-			notifyResult(ok);
+		else if (info instanceof SimulationTimeInfo) {
+			SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
+			if (SimulationTimeInfo.Type.START.equals(tInfo.getType()))  {
+				System.out.println("--------------------------------------------------");
+				System.out.println("Checking " + info.getSimul().getDescription());
+			}
+			else if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+				System.out.println();
+				checkMissed(info, refRequests, "REQUEST ACTIVITY");
+				checkMissed(info, refStartActs, "START ACTIVITY");
+				checkMissed(info, refEndActs, "END ACTIVITY");
+				notifyResult(ok);
+			}
 		}
 	}
 

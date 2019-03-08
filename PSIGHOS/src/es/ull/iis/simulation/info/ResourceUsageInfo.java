@@ -10,7 +10,7 @@ import es.ull.iis.simulation.model.flow.ResourceHandlerFlow;
 public class ResourceUsageInfo extends AsynchronousInfo {
 
 	/** Possible types of resource information */
-	public enum Type {
+	public enum Type implements InfoType {
 			CAUGHT	("CAUGHT RESOURCE"), 
 			RELEASED	("RELEASED RESOURCE");
 			
@@ -33,7 +33,7 @@ public class ResourceUsageInfo extends AsynchronousInfo {
 	final private Type type;
 	final private Element elem;
 	
-	public ResourceUsageInfo(Simulation model, Resource res, ResourceType rt, ElementInstance instance, Element elem, ResourceHandlerFlow act, Type type, long ts) {
+	public ResourceUsageInfo(final Simulation model, final Resource res, final ResourceType rt, final ElementInstance instance, final Element elem, final ResourceHandlerFlow act, final Type type, final long ts) {
 		super(model, ts);
 		this.res = res;
 		this.rt = rt;
