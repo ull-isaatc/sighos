@@ -3,8 +3,6 @@ package es.ull.iis.simulation.test.WFP;
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
 import es.ull.iis.simulation.condition.TrueCondition;
-
-import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -18,17 +16,16 @@ import es.ull.iis.simulation.model.flow.StructuredSynchroMergeFlow;
  */
 public class WFP07Simulation extends WFPTestSimulation {
 	
-	public WFP07Simulation(int id, boolean detailed) {
-		super(id, "WFP7: Structured Synchronizing Merge. EjTransferenciaPacientes", detailed);
+	public WFP07Simulation(int id) {
+		super(id, "WFP7: Structured Synchronizing Merge. EjTransferenciaPacientes");
     }
     
-    protected Simulation createModel() {
-		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);   	
+    protected void createModel() {
         ResourceType rt0 = getDefResourceType("Operador");
         ResourceType rt1 = getDefResourceType("Medico");
         
-        WorkGroup wgOp = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
-        WorkGroup wgMe = new WorkGroup(simul, new ResourceType[] {rt1}, new int[] {1});
+        WorkGroup wgOp = new WorkGroup(this, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wgMe = new WorkGroup(this, new ResourceType[] {rt1}, new int[] {1});
 
         ActivityFlow act0 = getDefActivity("Envio policias", wgOp, false);
         ActivityFlow act1 = getDefActivity("Envio ambulancias", wgOp, false);
@@ -40,7 +37,7 @@ public class WFP07Simulation extends WFPTestSimulation {
         getDefResource("Operador 3", rt0);
         getDefResource("Medico 1", rt1);
         
-        StructuredSynchroMergeFlow root = new StructuredSynchroMergeFlow(simul);
+        StructuredSynchroMergeFlow root = new StructuredSynchroMergeFlow(this);
         
         Condition falseCond = new NotCondition(new TrueCondition());
         
@@ -54,7 +51,6 @@ public class WFP07Simulation extends WFPTestSimulation {
         getDefGenerator(getDefElementType("Emergencia"), root);
 
 //        getSimulation().addInfoReceiver(new WFP07CheckView(getSimulation(), detailed));
-        return simul;
     }
 	
 }

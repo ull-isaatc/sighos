@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.test.WFP;
 
-import es.ull.iis.simulation.model.Simulation;
-
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -24,8 +22,8 @@ public class WFP13Simulation extends WFPTestSimulation {
 	 * @param id
 	 * @param detailed
 	 */
-	public WFP13Simulation(int id, boolean detailed) {
-		super(id, "WFP13: Multiple Instances with a priori design-time knowledge", detailed);
+	public WFP13Simulation(int id) {
+		super(id, "WFP13: Multiple Instances with a priori design-time knowledge");
 		// TODO Auto-generated constructor stub
 	}
 
@@ -33,10 +31,9 @@ public class WFP13Simulation extends WFPTestSimulation {
 	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected Simulation createModel() {
-		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);    	
+	protected void createModel() {
 		ResourceType rt0 = getDefResourceType("Director");
-    	WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
+    	WorkGroup wg = new WorkGroup(this, new ResourceType[] {rt0}, new int[] {1});
     	
     	ActivityFlow act0 = getDefActivity("Sign Annual Report", wg);
     	ActivityFlow act1 = getDefActivity("Check acceptance", wg);
@@ -44,12 +41,11 @@ public class WFP13Simulation extends WFPTestSimulation {
     	for (int i = 0; i < RES; i++)
     		getDefResource("Director" + i, rt0);
 
-		SynchronizedMultipleInstanceFlow root = new SynchronizedMultipleInstanceFlow(simul, 6);
+		SynchronizedMultipleInstanceFlow root = new SynchronizedMultipleInstanceFlow(this, 6);
     	root.addBranch(act0);
     	root.link(act1);
 
     	getDefGenerator(getDefElementType("ET0"), root);
-    	return simul;
 	}
 
 }

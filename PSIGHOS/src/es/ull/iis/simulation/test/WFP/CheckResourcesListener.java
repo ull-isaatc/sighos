@@ -3,7 +3,10 @@
  */
 package es.ull.iis.simulation.test.WFP;
 
+import java.util.Arrays;
+
 import es.ull.iis.simulation.info.ResourceInfo;
+import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationTimeInfo;
 
@@ -12,24 +15,27 @@ import es.ull.iis.simulation.info.SimulationTimeInfo;
  *
  */
 public class CheckResourcesListener extends CheckerListener {
-	private final static String ROLONERROR = "\tWrong activation time of resource role";
-	private final static String ROLOFFERROR = "\tWrong deactivation time of resource role";
-	private final static String RESCREATEDERROR = "\tNot all the resources were created";
-	private final static String RESFINISHEDERROR = "\tNot all the resources were finished";
+	private final static String ERROR_ROLON = "Wrong activation time of resource role";
+	private final static String ERROR_ROLOFF = "Wrong deactivation time of resource role";
+	private final static String ERROR_RESCREATED = "Not all the resources were created";
+	private final static String ERROR_RESFINISHED = "Not all the resources were finished";
+	private final static String ERROR_SEIZE = "Resource already seized";
+	private final static String ERROR_RELEASE = "Resource not previously seized";
 	private final int resources;
 	private int resCreated;
 	private int resFinished;
-	private final StringBuilder problems;
+	private boolean []inUse;
 
 	public CheckResourcesListener(final int resources) {
 		super("Resource checker");
 		this.resources = resources;
 		this.resCreated = 0;
 		this.resFinished = 0;
-		this.problems = new StringBuilder();
+		this.inUse = new boolean[resources];
+		Arrays.fill(inUse, false);
 		
 		addEntrance(ResourceInfo.class);
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(ResourceUsageInfo.class);
 	}
 
 	@Override
@@ -39,13 +45,13 @@ public class CheckResourcesListener extends CheckerListener {
 			switch(rInfo.getType()) {
 			case ROLON:
 				if (rInfo.getTs() != WFPTestSimulation.RESSTART) {
-					problems.append(rInfo.getResource() + "\t" + rInfo.getTs() + "\t" + ROLONERROR + System.lineSeparator());
+					addProblem(rInfo.getResource().toString(), rInfo.getTs(), ERROR_ROLON);
 				}
 				resCreated++;
 				break;
 			case ROLOFF:
 				if (rInfo.getTs() != WFPTestSimulation.RESSTART + WFPTestSimulation.RESAVAILABLE) {
-					problems.append(rInfo.getResource() + "\t" + rInfo.getTs() + "\t" + ROLOFFERROR + System.lineSeparator());
+					addProblem(rInfo.getResource().toString(), rInfo.getTs(), ERROR_ROLOFF);
 				}
 				resFinished++;
 				break;
@@ -53,28 +59,37 @@ public class CheckResourcesListener extends CheckerListener {
 				break;
 			}
 		}
+		else if (info instanceof ResourceUsageInfo) {
+			final ResourceUsageInfo rInfo = (ResourceUsageInfo)info;
+			final int resId = rInfo.getResource().getIdentifier();
+			switch(rInfo.getType()) {
+				case CAUGHT:
+					if (inUse[resId]) {
+						addProblem(rInfo.getResource().toString(), rInfo.getTs(), ERROR_SEIZE);
+					}
+					inUse[resId] = true;
+					break;
+				case RELEASED:
+					if (!inUse[resId]) {
+						addProblem(rInfo.getResource().toString(), rInfo.getTs(), ERROR_RELEASE);
+					}
+					inUse[resId] = false;
+					break;
+				default:
+					break;			
+			}
+		}
 		else if (info instanceof SimulationTimeInfo) {
 			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
 			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
 				if (resCreated != resources) {
-					problems.append("GENERAL\t" + tInfo.getTs() + "\t" + RESCREATEDERROR + System.lineSeparator());
+					addProblem("GENERAL", tInfo.getTs(), ERROR_RESCREATED);
 				}
 				if (resFinished != resources) {
-					problems.append("GENERAL\t" + tInfo.getTs() + "\t" + RESFINISHEDERROR + System.lineSeparator());
+					addProblem("GENERAL", tInfo.getTs(), ERROR_RESFINISHED);
 				}
 			}
 		}
 		
 	}
-
-	@Override
-	public boolean testPassed() {
-		return problems.length() == 0;
-	}
-
-	@Override
-	public String testProblems() {
-		return problems.toString();
-	}
-
 }

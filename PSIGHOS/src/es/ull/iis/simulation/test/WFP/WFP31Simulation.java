@@ -1,7 +1,5 @@
 package es.ull.iis.simulation.test.WFP;
 
-import es.ull.iis.simulation.model.Simulation;
-
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -16,16 +14,15 @@ import es.ull.iis.simulation.model.flow.PartialJoinFlow;
  */
 public class WFP31Simulation extends WFPTestSimulation {
 
-	public WFP31Simulation(int id, boolean detailed) {
-		super(id, "WFP31: Blocking Partial Join. EjBanco", detailed);
+	public WFP31Simulation(int id) {
+		super(id, "WFP31: Blocking Partial Join. EjBanco");
 	}
 
 	@Override
-	protected Simulation createModel() {
-		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);        
+	protected void createModel() {
 		ResourceType rt0 = getDefResourceType("Director");
 	   	
-        WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = new WorkGroup(this, new ResourceType[] {rt0}, new int[] {1});
 
         ActivityFlow act0_0 = getDefActivity("AprobarCuenta", wg, false);
         ActivityFlow act0_1 = getDefActivity("AprobarCuenta", wg, false);
@@ -35,9 +32,9 @@ public class WFP31Simulation extends WFPTestSimulation {
         getDefResource("Director 1", rt0);        
         getDefResource("Director 2", rt0);       
         
-        ParallelFlow root = new ParallelFlow(simul);
+        ParallelFlow root = new ParallelFlow(this);
 
-        PartialJoinFlow part1 = new PartialJoinFlow(simul, 2);
+        PartialJoinFlow part1 = new PartialJoinFlow(this, 2);
         
         root.link(act0_0);
         root.link(act0_1);
@@ -48,7 +45,6 @@ public class WFP31Simulation extends WFPTestSimulation {
         part1.link(act1);
         
         getDefGenerator(getDefElementType("Cliente"), root);
-    	return simul;
 	}
 
 }

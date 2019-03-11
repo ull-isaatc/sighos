@@ -5,8 +5,6 @@ package es.ull.iis.simulation.test.WFP;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.model.Simulation;
-
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -28,18 +26,17 @@ public class WFP17Simulation extends WFPTestSimulation {
 	 * @param id
 	 * @param detailed
 	 */
-	public WFP17Simulation(int id, boolean detailed) {
-		super(id, "WFP17: Interleaved Parallel Routing", detailed);
+	public WFP17Simulation(int id) {
+		super(id, "WFP17: Interleaved Parallel Routing");
 	}
 
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected Simulation createModel() {
-		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);    	
+	protected void createModel() {
 		ResourceType rt = getDefResourceType("RT");
-    	WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt}, new int[] {1});
+    	WorkGroup wg = new WorkGroup(this, new ResourceType[] {rt}, new int[] {1});
 
     	ArrayList<ActivityFlow> acts = new ArrayList<ActivityFlow>();
     	acts.add(getDefActivity("A", wg));
@@ -60,10 +57,9 @@ public class WFP17Simulation extends WFPTestSimulation {
     	dep.add(new ActivityFlow[] {acts.get(2), acts.get(3), acts.get(4)});
     	dep.add(new ActivityFlow[] {acts.get(1), acts.get(4)});
     	
-    	InterleavedParallelRoutingFlow root = new InterleavedParallelRoutingFlow(simul, acts, dep);
+    	InterleavedParallelRoutingFlow root = new InterleavedParallelRoutingFlow(this, acts, dep);
     	root.link(finalAct);
 
     	getDefGenerator(getDefElementType("ET0"), root);
-    	return simul;
 	}
 }

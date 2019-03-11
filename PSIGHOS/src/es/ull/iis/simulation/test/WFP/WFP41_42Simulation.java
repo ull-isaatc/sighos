@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.test.WFP;
 
-import es.ull.iis.simulation.model.Simulation;
-
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -19,18 +17,17 @@ import es.ull.iis.simulation.model.flow.ThreadSplitFlow;
  */
 public class WFP41_42Simulation extends WFPTestSimulation {
 
-	public WFP41_42Simulation(int id, boolean detailed) {
-		super(id, "WFP41_42: Thread Split-Merge", detailed);
+	public WFP41_42Simulation(int id) {
+		super(id, "WFP41_42: Thread Split-Merge");
 	}
 
 	@Override
-	protected Simulation createModel() {
-		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);		
+	protected void createModel() {
 		ResourceType rt0 = getDefResourceType("Program Chair"); 
 		ResourceType rt1 = getDefResourceType("Peer Referee");
 		
-		WorkGroup wg0 = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
-		WorkGroup wg1 = new WorkGroup(simul, new ResourceType[] {rt1}, new int[] {1});
+		WorkGroup wg0 = new WorkGroup(this, new ResourceType[] {rt0}, new int[] {1});
+		WorkGroup wg1 = new WorkGroup(this, new ResourceType[] {rt1}, new int[] {1});
 
     	getDefResource("PC1", rt0);
     	getDefResource("Ref0", rt1);
@@ -41,14 +38,13 @@ public class WFP41_42Simulation extends WFPTestSimulation {
     	ActivityFlow act1 = getDefActivity("Independent Peer review", 6, wg1, false);
     	ActivityFlow act2 = getDefActivity("Notify authors", 0, wg0, false);
 		
-        ThreadSplitFlow split = new ThreadSplitFlow(simul, 3);
+        ThreadSplitFlow split = new ThreadSplitFlow(this, 3);
 		act0.link(split);
 		split.link(act1);
-        ThreadMergeFlow merge = new ThreadMergeFlow(simul, 3);
+        ThreadMergeFlow merge = new ThreadMergeFlow(this, 3);
         act1.link(merge);
 		merge.link(act2);
 
         getDefGenerator(getDefElementType("ET0"), act0);
-    	return simul;
 	}
 }

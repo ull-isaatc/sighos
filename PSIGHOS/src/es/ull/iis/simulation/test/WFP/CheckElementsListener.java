@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.test.WFP;
 
+import java.util.ArrayList;
+
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
@@ -12,8 +14,10 @@ import es.ull.iis.simulation.info.SimulationInfo;
  * @author Iván Castilla Rodríguez
  *
  */
-public class CheckElementsView extends WFPTestView {
-	private int[] elements;
+public class CheckElementsListener extends CheckerListener {
+	private final static String ERROR_FINISHED = "Wrong number of elements finished";
+	private final static String ERROR_CREATED = "Wrong number of elements created";
+	private ArrayList<Integer> elements;
 	private int[] elemCreated;
 	private int[] elemFinished;
 
@@ -23,13 +27,12 @@ public class CheckElementsView extends WFPTestView {
 	 * @param elements An array where each position is an element type, and each value is the amount of 
 	 * elements which should be created per type.
 	 */
-	public CheckElementsView(int []elements) {
-		super("Element checker");
+	public CheckElementsListener(final ArrayList<Integer> elements) {
+		super("Element checker ");
 		this.elements = elements;
-		elemCreated = new int[elements.length];
-		elemFinished = new int[elements.length];
+		elemCreated = new int[elements.size()];
+		elemFinished = new int[elements.size()];
 		addEntrance(ElementInfo.class);
-		addEntrance(SimulationTimeInfo.class);
 	}
 
 	@Override
@@ -51,20 +54,14 @@ public class CheckElementsView extends WFPTestView {
 		else if (info instanceof SimulationTimeInfo) {
 			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
 			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
-				boolean ok = true;
-				System.out.println("--------------------------------------------------");
-				System.out.println("Checking elements...");
-				for (int i = 0; i < elements.length; i++) {
-					System.out.print(info.getSimul().getElementTypeList().get(i) + " (" + elements[i] + ")\t");
-					System.out.print(elemCreated[i] + "\t" + elemFinished[i] + "\t");				
-					if ((elemCreated[i] & elemFinished[i]) == elements[i])
-						System.out.println("PASSED");
-					else {
-						ok = false;
-						System.out.println("ERROR!!!");
+				for (int i = 0; i < elements.size(); i++) {
+					if (elemFinished[i] != elemCreated[i]) {
+						addProblem("GENERAL", tInfo.getTs(), ERROR_FINISHED + "\tType:" + i);
+					}
+					if (elemCreated[i] != elements.get(i)) {
+						addProblem("GENERAL", tInfo.getTs(), ERROR_CREATED + "\tType:" + i);						
 					}
 				}
-				notifyResult(ok);
 			}
 		}
 		

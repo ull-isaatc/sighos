@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.test.WFP;
 
-import es.ull.iis.simulation.model.Simulation;
-
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -25,18 +23,17 @@ public class WFP12Simulation extends WFPTestSimulation {
 	 * @param id
 	 * @param detailed
 	 */
-	public WFP12Simulation(int id, boolean detailed) {
-		super(id, "WFP12: Multiple Instances without Synchronization", detailed);
+	public WFP12Simulation(int id) {
+		super(id, "WFP12: Multiple Instances without Synchronization");
 	}
 
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected Simulation createModel() {
-		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);    	
+	protected void createModel() {
 		ResourceType rt0 = getDefResourceType("Policeman");
-    	WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
+    	WorkGroup wg = new WorkGroup(this, new ResourceType[] {rt0}, new int[] {1});
     	
     	ActivityFlow act0 = getDefActivity("Receive Infringment", 1, wg);
     	ActivityFlow act1 = getDefActivity("Issue-Infringment-Notice", 5, wg, false);
@@ -45,15 +42,14 @@ public class WFP12Simulation extends WFPTestSimulation {
     	for (int i = 0; i < RES; i++)
     		getDefResource("RES" + i, rt0);
     	
-        ParallelFlow pf = new ParallelFlow(simul);
+        ParallelFlow pf = new ParallelFlow(this);
     	act0.link(pf);
-    	ThreadSplitFlow tsf = new ThreadSplitFlow(simul, 3);
+    	ThreadSplitFlow tsf = new ThreadSplitFlow(this, 3);
     	tsf.link(act1);
     	pf.link(tsf);
     	pf.link(act2).link(act0);
     	
         getDefGenerator(getDefElementType("ET0"), act0);    	
-        return simul;
 	}
 
 }

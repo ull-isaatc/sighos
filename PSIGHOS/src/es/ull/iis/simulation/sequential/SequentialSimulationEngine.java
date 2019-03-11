@@ -224,42 +224,6 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 	            debug("SIMULATION TIME ADVANCING " + lvt);
 			}
 		}
-//	        // Extracts the first event
-//	        if (! waitQueue.isEmpty()) {
-//	            DiscreteEvent e = removeWait();
-//	            // Advances the simulation clock
-//	            simul.beforeClockTick();
-//	            lvt = e.getTs();
-//	            simul.notifyInfo(new TimeChangeInfo(simul, lvt));
-//	            simul.afterClockTick();
-//	            debug("SIMULATION TIME ADVANCING " + lvt);
-//	            // Events with timestamp greater or equal to the maximum simulation time aren't
-//	            // executed
-//	            if (lvt >= simul.getEndTs())
-//	                addWait(e);
-//	            else {
-//	            	addExecution(e);
-//	                // Extracts all the events with the same timestamp
-//	                boolean flag = false;
-//	                do {
-//	                    if (! waitQueue.isEmpty()) {
-//	                        e = removeWait();
-//	                        if (e.getTs() == lvt) {
-//	                        	addExecution(e);
-//	                            flag = true;
-//	                        }
-//	                        else {  
-//	                            flag = false;
-//	                            addWait(e);
-//	                        }
-//	                    }
-//	                    else {  // The waiting queue is empty
-//	                        flag = false;
-//	                    }
-//	                } while ( flag );
-//	            }
-//	        }        
-//		}
 	}
 
 	@Override

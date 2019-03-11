@@ -7,7 +7,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.inforeceiver.StdInfoView;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -18,22 +17,23 @@ import es.ull.iis.simulation.parallel.ParallelSimulationEngine;
  *
  */
 public class WFPTestMain extends Experiment {
+	public static boolean ENABLE_STD_OUTPUT = false;
+	public static boolean ENABLE_CHECKRESOURCES = true;
+	public static boolean ENABLE_CHECKELEMENTS = true;
+	
 	static public TreeMap <Integer, Class<?>> simulations = new TreeMap<Integer, Class<?>>();
 
 	int wfp = -1;
-	boolean detailed;
 	int nThreads = 1;
 	
-	public WFPTestMain(int nThreads, boolean detailed) {
+	public WFPTestMain(int nThreads) {
 		super("Testing WFPs...", WFPTestMain.simulations.size());
-		this.detailed = detailed;
 		this.nThreads = nThreads;
 	}
 	
-	public WFPTestMain(int wfp, int nThreads, boolean detailed) {
+	public WFPTestMain(int wfp, int nThreads) {
 		super("Testing WFPs...", 1);
 		this.wfp = wfp;
-		this.detailed = detailed;
 		this.nThreads = nThreads;
 	}
 
@@ -44,11 +44,9 @@ public class WFPTestMain extends Experiment {
 				model = new Simulation(ind, "No valid simulation", TimeUnit.MINUTE, 0, 0);
 			}
 			else {
-				Constructor<?> c = cl.getConstructor(int.class, boolean.class);
-				model = ((WFPTestSimulation)c.newInstance(ind, detailed));
+				Constructor<?> c = cl.getConstructor(int.class);
+				model = ((WFPTestSimulation)c.newInstance(ind));
 			}
-		} catch (SecurityException e) {
-			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
@@ -72,8 +70,6 @@ public class WFPTestMain extends Experiment {
 		else {
 			simul = class2Model(WFPTestMain.simulations.pollFirstEntry().getValue(), ind);
 		}
-//        simul.addInfoReceiver(new CheckElementActionViewBuilder());
-		simul.addInfoReceiver(new StdInfoView());
 		if (nThreads > 1) {
 			simul.setSimulationEngine(new ParallelSimulationEngine(ind, simul, nThreads));
 		}
@@ -105,7 +101,7 @@ public class WFPTestMain extends Experiment {
 		simulations.put(30, WFP30Simulation.class);
 		simulations.put(40, WFP40Simulation.class);
 
-		new WFPTestMain(1, false).start();
+		new WFPTestMain(1).start();
 	}
 
 }

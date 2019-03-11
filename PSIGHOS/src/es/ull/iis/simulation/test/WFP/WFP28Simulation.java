@@ -1,7 +1,5 @@
 package es.ull.iis.simulation.test.WFP;
 
-import es.ull.iis.simulation.model.Simulation;
-
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -21,21 +19,20 @@ public class WFP28Simulation extends WFPTestSimulation {
 	 * @param id
 	 * @param detailed
 	 */
-	public WFP28Simulation(int id, boolean detailed) {
-		super(id, "WFP28: Blocking Discriminator. EjComprobacionCredenciales", detailed);
+	public WFP28Simulation(int id) {
+		super(id, "WFP28: Blocking Discriminator. EjComprobacionCredenciales");
 	}
 
 	/* (non-Javadoc)
 	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected Simulation createModel() {
-		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);        
+	protected void createModel() {
 		ResourceType rt0 = getDefResourceType("Asistente");
         ResourceType rt1 = getDefResourceType("Personal Seguridad");
         
-        WorkGroup wg0 = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
-        WorkGroup wg1 = new WorkGroup(simul, new ResourceType[] {rt1}, new int[] {1});
+        WorkGroup wg0 = new WorkGroup(this, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg1 = new WorkGroup(this, new ResourceType[] {rt1}, new int[] {1});
 	   	
         ActivityFlow act0 = getDefActivity("Confirmar llegada delegacion", 2, wg0, false);
         ActivityFlow act1 = getDefActivity("Chequeo de seguridad", 3, wg1, false);
@@ -46,8 +43,8 @@ public class WFP28Simulation extends WFPTestSimulation {
         getDefResource("Segurita 1", rt1);
         getDefResource("Segurita 2", rt1);
         
-        ParallelFlow root = new ParallelFlow(simul);
-        DiscriminatorFlow dis1 = new DiscriminatorFlow(simul);
+        ParallelFlow root = new ParallelFlow(this);
+        DiscriminatorFlow dis1 = new DiscriminatorFlow(this);
         
         root.link(act0);
         root.link(act1);
@@ -56,6 +53,5 @@ public class WFP28Simulation extends WFPTestSimulation {
         dis1.link(act2);
         
         getDefGenerator(getDefElementType("Asistente"), root);
-    	return simul;
 	}
 }

@@ -1,6 +1,5 @@
 package es.ull.iis.simulation.test.WFP;
 
-import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -14,15 +13,14 @@ import es.ull.iis.simulation.model.flow.ParallelFlow;
  */
 public class WFP02Simulation extends WFPTestSimulation {
 	
-	public WFP02Simulation(int id, boolean detailed) {
-		super(id, "WFP2: Parallel Split. EjAlarma", detailed);
+	public WFP02Simulation(int id) {
+		super(id, "WFP2: Parallel Split. EjAlarma");
     }
     
-    protected Simulation createModel() {
-		simul = new Simulation(id, description, SIMUNIT, SIMSTART, SIMEND);   	
+    protected void createModel() {
         ResourceType rt = getDefResourceType("Operador");
         
-        WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt}, new int[] {1});
+        WorkGroup wg = new WorkGroup(this, new ResourceType[] {rt}, new int[] {1});
     	ActivityFlow act0 = getDefActivity("Detección alarma", wg);
     	ActivityFlow act1 = getDefActivity("Mandar patrulla", wg, false);
     	ActivityFlow act2 = getDefActivity("Generar informe", wg, false);
@@ -32,7 +30,7 @@ public class WFP02Simulation extends WFPTestSimulation {
         getDefResource("Operador3", rt);
         getDefResource("Operador4", rt);
         
-        ParallelFlow par1 = new ParallelFlow(simul);
+        ParallelFlow par1 = new ParallelFlow(this);
         
         act0.link(par1);
         par1.link(act1);
@@ -41,7 +39,6 @@ public class WFP02Simulation extends WFPTestSimulation {
         getDefGenerator(getDefElementType("Activaciones de alarma"), act0);
 //        addInfoReceiver(new WFP02CheckView(this, detailed));
 //        getSimulation().addInfoReceiver(new CheckFlowsView(getSimulation(), act0, new long[] {DEFACTDURATION[0], DEFACTDURATION[0], DEFACTDURATION[0]}, detailed));
-        return simul;
     }
 	
 }

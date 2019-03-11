@@ -4,11 +4,8 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.condition.Condition;
 import es.ull.iis.simulation.condition.NotCondition;
-
 import es.ull.iis.simulation.model.ElementInstance;
-import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.ResourceType;
-import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 import es.ull.iis.simulation.model.flow.Flow;
@@ -21,74 +18,65 @@ import es.ull.iis.simulation.model.flow.MultiChoiceFlow;
  *
  */
 public class WFP10Simulation extends WFPTestSimulation {
+	private final double capacidadBidon = 20.0;
+	private double litrosIntroducidos;
+	private int enviosRealizados;
 
 	/**
 	 * @param type
 	 * @param id
 	 * @param detailed
 	 */
-	public WFP10Simulation(int id, boolean detailed) {
-		super(id, "WFP10: Arbitrary Cycle. Ej", detailed);
+	public WFP10Simulation(int id) {
+		super(id, "WFP10: Arbitrary Cycle. Ej");
+		litrosIntroducidos = 0.0;
+		enviosRealizados = 0;
 	}
 
-	static class WFP10Model extends Simulation {
-		private final double capacidadBidon = 20.0;
-		private double litrosIntroducidos;
-		private int enviosRealizados;
-		
-		public WFP10Model(int id, String description, TimeUnit unit, long startTs, long endTs) {
-			super(id, description, unit, startTs, endTs);
-			litrosIntroducidos = 0.0;
-			enviosRealizados = 0;
-		}
+	/**
+	 * @return the litrosIntroducidos
+	 */
+	public double getLitrosIntroducidos() {
+		return litrosIntroducidos;
+	}
 
-		/**
-		 * @return the litrosIntroducidos
-		 */
-		public double getLitrosIntroducidos() {
-			return litrosIntroducidos;
-		}
+	/**
+	 * @param litrosIntroducidos the litrosIntroducidos to set
+	 */
+	public void setLitrosIntroducidos(double litrosIntroducidos) {
+		this.litrosIntroducidos = litrosIntroducidos;
+	}
 
-		/**
-		 * @param litrosIntroducidos the litrosIntroducidos to set
-		 */
-		public void setLitrosIntroducidos(double litrosIntroducidos) {
-			this.litrosIntroducidos = litrosIntroducidos;
-		}
+	/**
+	 * @return the enviosRealizados
+	 */
+	public int getEnviosRealizados() {
+		return enviosRealizados;
+	}
 
-		/**
-		 * @return the enviosRealizados
-		 */
-		public int getEnviosRealizados() {
-			return enviosRealizados;
-		}
+	/**
+	 * 
+	 */
+	public void incEnviosRealizados() {
+		this.enviosRealizados++;
+	}
 
-		/**
-		 * 
-		 */
-		public void incEnviosRealizados() {
-			this.enviosRealizados++;
-		}
-
-		/**
-		 * @return the capacidadBidon
-		 */
-		public double getCapacidadBidon() {
-			return capacidadBidon;
-		}
+	/**
+	 * @return the capacidadBidon
+	 */
+	public double getCapacidadBidon() {
+		return capacidadBidon;
 	}
 	
-	static class WFP10Condition extends Condition {
-		private final WFP10Model model;
+	class WFP10Condition extends Condition {
 		
-		public WFP10Condition(WFP10Model model) {
+		public WFP10Condition() {
 			super();
-			this.model = model;
 		}
 		
     	@Override
     	public boolean check(ElementInstance fe) {
-    		return (model.getLitrosIntroducidos() < model.getCapacidadBidon());
+    		return (getLitrosIntroducidos() < getCapacidadBidon());
     	}
 	}
 	
@@ -96,50 +84,49 @@ public class WFP10Simulation extends WFPTestSimulation {
 	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
 	 */
 	@Override
-	protected Simulation createModel() {
-		simul = new WFP10Model(id, description, SIMUNIT, SIMSTART, SIMEND);        
+	protected void createModel() {
     	ResourceType rt0 = getDefResourceType("Operario");
     	ResourceType rt1 = getDefResourceType("Operario especial");
     	
-        WorkGroup wg = new WorkGroup(simul, new ResourceType[] {rt0}, new int[] {1});
+        WorkGroup wg = new WorkGroup(this, new ResourceType[] {rt0}, new int[] {1});
 	   	
 
         getDefResource("Operario1", rt0);
         getDefResource("Operario1", rt0);
         getDefResource("Operario_especial1", rt1);
         
-        Condition cond = new WFP10Condition((WFP10Model)simul);
+        Condition cond = new WFP10Condition();
         
         Condition notCond = new NotCondition(cond);
 
 
-        MultiChoiceFlow mul1 = new MultiChoiceFlow(simul) {
+        MultiChoiceFlow mul1 = new MultiChoiceFlow(this) {
         	@Override
         	public boolean beforeRequest(ElementInstance fe) {
-        		System.out.println(fe.getElement() + "\tVolumen actual es " + ((WFP10Model)simul).getLitrosIntroducidos() + " litros");
-        		System.out.println(fe.getElement() + "\tCapacidad bidon es " + ((WFP10Model)simul).getCapacidadBidon() + " litros");
+        		System.out.println(fe.getElement() + "\tVolumen actual es " + getLitrosIntroducidos() + " litros");
+        		System.out.println(fe.getElement() + "\tCapacidad bidon es " + getCapacidadBidon() + " litros");
          		return true;
         	}
         };
         
-    	ActivityFlow act0 = new ActivityFlow(simul, "Rellenar bidon", false, false) {
+    	ActivityFlow act0 = new ActivityFlow(this, "Rellenar bidon", false, false) {
     		@Override
     		public void afterFinalize(ElementInstance fe) {
-    			final double litros = ((WFP10Model)simul).getLitrosIntroducidos(); 
-    			if (litros < ((WFP10Model)simul).getCapacidadBidon()) {
+    			final double litros = getLitrosIntroducidos(); 
+    			if (litros < getCapacidadBidon()) {
     				final double random = Math.random() * 5;
-    				((WFP10Model)simul).setLitrosIntroducidos(litros + random);
-    				System.out.println("Introducimos " + random + " litros y nuestro volumen actual es " + ((WFP10Model)simul).getLitrosIntroducidos() + " litros");
+    				setLitrosIntroducidos(litros + random);
+    				System.out.println("Introducimos " + random + " litros y nuestro volumen actual es " + getLitrosIntroducidos() + " litros");
     			}
     		}
     	};
     	act0.newWorkGroupAdder(wg).withDelay(DEFACTDURATION[0]).add();
     	
-    	ActivityFlow act1 = new ActivityFlow(simul, "Realizar envío de bidon", false, false) {
+    	ActivityFlow act1 = new ActivityFlow(this, "Realizar envío de bidon", false, false) {
     		@Override
     		public boolean beforeRequest(ElementInstance fe) {
-    			((WFP10Model)simul).setLitrosIntroducidos(0);
-    			((WFP10Model)simul).incEnviosRealizados();
+    			setLitrosIntroducidos(0);
+    			incEnviosRealizados();
     			System.out.println("Nuevo envio realizado");
     			return true;
     		}
@@ -156,7 +143,6 @@ public class WFP10Simulation extends WFPTestSimulation {
         mul1.link(succList, condList);
         
         getDefGenerator(getDefElementType("Cliente"), act0);
-    	return simul;
 	}
 
 }

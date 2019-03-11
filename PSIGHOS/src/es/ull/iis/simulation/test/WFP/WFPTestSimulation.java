@@ -41,13 +41,13 @@ public abstract class WFPTestSimulation extends Simulation {
 	public final static long []DEFACTDURATION = new long [] {5, 10, 15, 20, 25, 30, 120};
 	public final static long SIMSTART = 0L;
 	public final static long SIMEND = 1440L;
-	public static boolean ENABLE_STD_OUTPUT = false;
-	public static boolean ENABLE_CHECKRESOURCES = true;
 	private final ArrayList<CheckerListener> listeners;
+	private final ArrayList<Integer> nElems;
 	
 	public WFPTestSimulation(int id, String description) {
 		super(id, description, SIMSTART, SIMEND);
 		listeners = new ArrayList<CheckerListener>();
+		nElems = new ArrayList<Integer>();
 		createModel();
 		addCheckers();
 	}
@@ -55,13 +55,36 @@ public abstract class WFPTestSimulation extends Simulation {
 	protected abstract void createModel();
 	
 	private void addCheckers() {
-		if (ENABLE_STD_OUTPUT)
+		if (WFPTestMain.ENABLE_STD_OUTPUT)
 			addInfoReceiver(new StdInfoView());
-		if (ENABLE_CHECKRESOURCES) {
+		if (WFPTestMain.ENABLE_CHECKRESOURCES) {
 			listeners.add(new CheckResourcesListener(this.getResourceList().size()));
 		}
-		for (CheckerListener l : listeners) {
+		if (WFPTestMain.ENABLE_CHECKELEMENTS) {
+			listeners.add(new CheckElementsListener(nElems));
+		}
+		for (final CheckerListener l : listeners) {
 			addInfoReceiver(l);
+		}
+	}
+	
+	@Override
+	public void init() {
+		super.init();
+		System.out.println("Testing " + description + "...");
+	}
+	
+	@Override
+	public void end() {
+		super.end();
+		for (final CheckerListener l : listeners) {
+			if (l.testPassed()) {
+				System.out.println(l + "\tPassed");
+			}
+			else {
+				System.out.println(l + "\tErrors");
+				System.out.println(l.testProblems());
+			}
 		}
 	}
 	
@@ -106,6 +129,8 @@ public abstract class WFPTestSimulation extends Simulation {
 	}
 	
 	public ElementType getDefElementType(String description) {
+		// Adds a new element type but, until not used within a generator, it will create 0 elements
+		nElems.add(0);
 		return new ElementType(this, description);
 	}
 	
@@ -118,6 +143,7 @@ public abstract class WFPTestSimulation extends Simulation {
 	}
 	
 	public TimeDrivenElementGenerator getDefGenerator(int elems, ElementType et, InitializerFlow flow) {
+		nElems.set(et.getIdentifier(), nElems.get(et.getIdentifier()) + elems);
         return new TimeDrivenElementGenerator(this, elems, et, flow, getGeneratorCycle());
 	}
 }

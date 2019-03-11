@@ -322,12 +322,12 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
             	+ getTs() + "\r\nPreviewed simulation time = " 
     			+ endTs);
     	simulationEngine.printState();
+		
+		infoHandler.notifyInfo(new SimulationTimeInfo(this, SimulationTimeInfo.Type.END, endTs));
+		debug("SIMULATION COMPLETELY FINISHED");
     	
         // The user defined method for finalization is invoked
 		end();
-		
-		infoHandler.notifyInfo(new SimulationTimeInfo(this, SimulationTimeInfo.Type.END, startTs));
-		debug("SIMULATION COMPLETELY FINISHED");
 	}
 
 	/**
