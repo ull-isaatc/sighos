@@ -20,6 +20,7 @@ public class WFPTestMain extends Experiment {
 	public static boolean ENABLE_STD_OUTPUT = false;
 	public static boolean ENABLE_CHECKRESOURCES = true;
 	public static boolean ENABLE_CHECKELEMENTS = true;
+	public static boolean ENABLE_CHECKACTIVITIES = true;
 	
 	static public TreeMap <Integer, Class<?>> simulations = new TreeMap<Integer, Class<?>>();
 

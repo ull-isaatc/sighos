@@ -24,12 +24,8 @@ public class WFP13Simulation extends WFPTestSimulation {
 	 */
 	public WFP13Simulation(int id) {
 		super(id, "WFP13: Multiple Instances with a priori design-time knowledge");
-		// TODO Auto-generated constructor stub
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
-	 */
 	@Override
 	protected void createModel() {
 		ResourceType rt0 = getDefResourceType("Director");

@@ -37,32 +37,28 @@ public class WFP19Simulation extends WFPTestSimulation {
 		pass = !pass;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.test.WFP.WFPTestSimulationFactory#createModel(Model model)
-	 */
 	@Override
 	protected void createModel() {
-		ResourceType rt0 = getDefResourceType("Cajero");
+		ResourceType rt0 = getDefResourceType("Bank teller");
         WorkGroup wg = new WorkGroup(this, new ResourceType[] {rt0}, new int[] {1});
         
-        getDefResource("Cajero1", rt0);
-        getDefResource("Cajero2", rt0);
-        getDefResource("Cajero3", rt0);
+        getDefResource("BankTeller1", rt0);
+        getDefResource("BankTeller2", rt0);
+        getDefResource("BankTeller3", rt0);
 
         // FIXME: NO FUNCIONABA!!!
-    	ActivityFlow act0 = new ActivityFlow(this, "Verificar cuenta", false, false) {
+    	final ActivityFlow act0 = new TestActivityFlow("Verify account", 0, wg, false) {
     		@Override
     		public boolean beforeRequest(ElementInstance fe) {
     			switchPass();
     			return isPass() && super.beforeRequest(fe);
     		}
     	};
-    	act0.newWorkGroupAdder(wg).withDelay(DEFACTDURATION[0]).add();
-    	ActivityFlow act1 = getDefActivity("Obtener detalles tarjeta", wg, false);
+    	final ActivityFlow act1 = getDefActivity("Obtain card details", wg, false);
         
         
         act0.link(act1);
 
-        getDefGenerator(getDefElementType("Cliente"), act0);
+        getDefGenerator(getDefElementType("Client"), act0);
 	}
 }

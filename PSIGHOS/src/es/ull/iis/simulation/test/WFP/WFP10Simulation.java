@@ -18,9 +18,9 @@ import es.ull.iis.simulation.model.flow.MultiChoiceFlow;
  *
  */
 public class WFP10Simulation extends WFPTestSimulation {
-	private final double capacidadBidon = 20.0;
-	private double litrosIntroducidos;
-	private int enviosRealizados;
+	private static final double MAX_CAPACITY = 20.0;
+	private double capacity;
+	private int deliveries;
 
 	/**
 	 * @param type
@@ -29,46 +29,35 @@ public class WFP10Simulation extends WFPTestSimulation {
 	 */
 	public WFP10Simulation(int id) {
 		super(id, "WFP10: Arbitrary Cycle. Ej");
-		litrosIntroducidos = 0.0;
-		enviosRealizados = 0;
+		capacity = 0.0;
+		deliveries = 0;
 	}
 
 	/**
 	 * @return the litrosIntroducidos
 	 */
-	public double getLitrosIntroducidos() {
-		return litrosIntroducidos;
-	}
-
-	/**
-	 * @param litrosIntroducidos the litrosIntroducidos to set
-	 */
-	public void setLitrosIntroducidos(double litrosIntroducidos) {
-		this.litrosIntroducidos = litrosIntroducidos;
-	}
-
-	/**
-	 * @return the enviosRealizados
-	 */
-	public int getEnviosRealizados() {
-		return enviosRealizados;
+	private double getCapacity() {
+		return capacity;
 	}
 
 	/**
 	 * 
 	 */
-	public void incEnviosRealizados() {
-		this.enviosRealizados++;
+	private double fillBin() {
+		final double filling = Math.min(Math.random() * 5, MAX_CAPACITY - capacity);
+		capacity += filling;
+		return filling;
 	}
 
 	/**
-	 * @return the capacidadBidon
+	 * 
 	 */
-	public double getCapacidadBidon() {
-		return capacidadBidon;
+	private void incDeliveries() {
+		this.capacity = 0.0;
+		this.deliveries++;
 	}
 	
-	class WFP10Condition extends Condition {
+	private class WFP10Condition extends Condition {
 		
 		public WFP10Condition() {
 			super();
@@ -76,7 +65,7 @@ public class WFP10Simulation extends WFPTestSimulation {
 		
     	@Override
     	public boolean check(ElementInstance fe) {
-    		return (getLitrosIntroducidos() < getCapacidadBidon());
+    		return (getCapacity() < MAX_CAPACITY);
     	}
 	}
 	
@@ -85,53 +74,42 @@ public class WFP10Simulation extends WFPTestSimulation {
 	 */
 	@Override
 	protected void createModel() {
-    	ResourceType rt0 = getDefResourceType("Operario");
-    	ResourceType rt1 = getDefResourceType("Operario especial");
+    	final ResourceType rt0 = getDefResourceType("Operator");
+    	final ResourceType rt1 = getDefResourceType("Special operator");
     	
-        WorkGroup wg = new WorkGroup(this, new ResourceType[] {rt0}, new int[] {1});
+        final WorkGroup wg = new WorkGroup(this, new ResourceType[] {rt0}, new int[] {1});
 	   	
 
-        getDefResource("Operario1", rt0);
-        getDefResource("Operario1", rt0);
-        getDefResource("Operario_especial1", rt1);
+        getDefResource("Operator1", rt0);
+        getDefResource("Operator1", rt0);
+        getDefResource("Special_operator1", rt1);
         
-        Condition cond = new WFP10Condition();
+        final Condition cond = new WFP10Condition();
         
-        Condition notCond = new NotCondition(cond);
-
-
-        MultiChoiceFlow mul1 = new MultiChoiceFlow(this) {
+        final MultiChoiceFlow mul1 = new MultiChoiceFlow(this) {
         	@Override
-        	public boolean beforeRequest(ElementInstance fe) {
-        		System.out.println(fe.getElement() + "\tVolumen actual es " + getLitrosIntroducidos() + " litros");
-        		System.out.println(fe.getElement() + "\tCapacidad bidon es " + getCapacidadBidon() + " litros");
+        	public boolean beforeRequest(ElementInstance ei) {
+        		ei.getElement().debug("Current volume: " + getCapacity());
          		return true;
         	}
         };
         
-    	ActivityFlow act0 = new ActivityFlow(this, "Rellenar bidon", false, false) {
+    	final ActivityFlow act0 = new TestActivityFlow("Fill bin", 0, wg, false) {
     		@Override
-    		public void afterFinalize(ElementInstance fe) {
-    			final double litros = getLitrosIntroducidos(); 
-    			if (litros < getCapacidadBidon()) {
-    				final double random = Math.random() * 5;
-    				setLitrosIntroducidos(litros + random);
-    				System.out.println("Introducimos " + random + " litros y nuestro volumen actual es " + getLitrosIntroducidos() + " litros");
-    			}
+    		public void afterFinalize(ElementInstance ei) {
+    			final double filling = fillBin();
+    			ei.getElement().debug("Added: "+ filling + " / Current volume: " + getCapacity());
     		}
     	};
-    	act0.newWorkGroupAdder(wg).withDelay(DEFACTDURATION[0]).add();
     	
-    	ActivityFlow act1 = new ActivityFlow(this, "Realizar envío de bidon", false, false) {
+    	final ActivityFlow act1 = new TestActivityFlow("Sent bin", 0, wg, false) {
     		@Override
-    		public boolean beforeRequest(ElementInstance fe) {
-    			setLitrosIntroducidos(0);
-    			incEnviosRealizados();
-    			System.out.println("Nuevo envio realizado");
+    		public boolean beforeRequest(ElementInstance ei) {
+    			incDeliveries();
+    			ei.getElement().debug("Sent: " + deliveries);
     			return true;
     		}
     	};
-    	act1.newWorkGroupAdder(wg).withDelay(DEFACTDURATION[0]).add();
         
         act0.link(mul1);
         ArrayList<Flow> succList = new ArrayList<Flow>();
@@ -139,10 +117,10 @@ public class WFP10Simulation extends WFPTestSimulation {
         succList.add(act1);
         ArrayList<Condition> condList = new ArrayList<Condition>();
         condList.add(cond);
-        condList.add(notCond);
+        condList.add(new NotCondition(cond));
         mul1.link(succList, condList);
         
-        getDefGenerator(getDefElementType("Cliente"), act0);
+        getDefGenerator(getDefElementType("Client"), act0);
 	}
 
 }

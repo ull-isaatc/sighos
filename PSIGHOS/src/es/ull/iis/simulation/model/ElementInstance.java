@@ -38,6 +38,8 @@ import es.ull.iis.util.RandomPermutation;
  *
  */
 public class ElementInstance implements Prioritizable, Comparable<ElementInstance>, Identifiable {
+	/** A string that identifies the instance */
+	private final String description; 
     /** Element which carries out this flow. */    
     private final Element elem; 
     /** The parent element thread */
@@ -82,6 +84,7 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
         	parent.addDescendant(this);
         this.initialFlow = initialFlow;
         this.engine = elem.getEngine().getElementInstance(this);
+        this.description = elem.toString() + "-" + engine.getIdentifier();
     }
 
     /**
@@ -443,10 +446,14 @@ public class ElementInstance implements Prioritizable, Comparable<ElementInstanc
 		final int id1 = engine.getIdentifier();
 		final int id2 = o.engine.getIdentifier();
 		if (id1 > id2)
-			return 1;
-		if (id2 < id1)
 			return -1;
+		if (id2 < id1)
+			return 1;
 		return 0;
 	}
     
+	@Override
+	public String toString() {
+		return description;
+	}
 }

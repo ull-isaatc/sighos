@@ -42,7 +42,7 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 		for (int i = 0; i < nManagers; i++)
 			new ActivityManager(model);
 		// The activities are associated to the activity managers
-		for (RequestResourcesFlow f : model.getActivityList()) {
+		for (RequestResourcesFlow f : model.getRequestFlowList()) {
 			Iterator<ActivityWorkGroup> iter = f.iterator();
 			// This step is for non-resource-types activities
 			boolean found = false;
@@ -82,7 +82,7 @@ public class StandardActivityManagerCreator extends ActivityManagerCreator {
 			for (ResourceType rt : model.getResourceTypeList())
 				put(rt, new TreeSet<ResourceType>());
 			// Goes through the activity list to built the adyacent list 
-			for (RequestResourcesFlow f : model.getActivityList()) {
+			for (RequestResourcesFlow f : model.getRequestFlowList()) {
 				Iterator<ActivityWorkGroup> iter = f.iterator();
 				// Looks for the first WorkGroup that contains at least one resource type
 				int firstWG = 1;

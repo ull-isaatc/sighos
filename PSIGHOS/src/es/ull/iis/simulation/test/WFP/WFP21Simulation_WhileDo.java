@@ -42,26 +42,25 @@ public class WFP21Simulation_WhileDo extends WFPTestSimulation {
 	 */
 	@Override
 	protected void createModel() {
-		ResourceType rt0 = getDefResourceType("Maquina revelado");
+		final ResourceType rt0 = getDefResourceType("Maquina revelado");
         
-        WorkGroup wg = new WorkGroup(this, new ResourceType[] {rt0}, new int[] {1});
+        final WorkGroup wg = new WorkGroup(this, new ResourceType[] {rt0}, new int[] {1});
     	
         getDefResource("Maquina 1", rt0);        
         getDefResource("Maquina 2", rt0);
         
-        Condition cond = new WFP21Condition();
+        final Condition cond = new WFP21Condition();
         
-    	ActivityFlow act0 = new ActivityFlow(this, "Revelar foto", false, false) {
+    	final ActivityFlow act0 = new TestActivityFlow("Revelar foto", 0, wg, false) {
     		@Override
     		public void afterFinalize(ElementInstance fe) {
     			fe.getElement().putVar("fotosReveladas", fe.getElement().getVar("fotosReveladas").getValue(fe).intValue() + 1);
-    			System.out.println(fe.getElement() + ": " + fe.getElement().getVar("fotosReveladas").getValue(fe) + " fotos reveladas.");
+//    			System.out.println(fe.getElement() + ": " + fe.getElement().getVar("fotosReveladas").getValue(fe) + " fotos reveladas.");
     		}
     	};
-    	act0.newWorkGroupAdder(wg).withDelay(DEFACTDURATION[0]).add();
-        WhileDoFlow root = new WhileDoFlow(this, act0, cond);
+        final WhileDoFlow root = new WhileDoFlow(this, act0, cond);
 
-        ElementType et = getDefElementType("Cliente");
+        final ElementType et = getDefElementType("Cliente");
         et.addElementVar("fotosReveladas", 0);
         getDefGenerator(et, root);
 	}

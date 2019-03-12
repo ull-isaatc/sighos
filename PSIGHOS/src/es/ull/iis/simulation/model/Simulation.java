@@ -59,8 +59,8 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	private final ArrayList<WorkGroup> workGroupList = new ArrayList<WorkGroup>();
 	/** List of flows present in the simulation */
 	private final ArrayList<BasicFlow> flowList = new ArrayList<BasicFlow>();
-	/** List of activities present in the simulation. */
-	private final ArrayList<RequestResourcesFlow> actList = new ArrayList<RequestResourcesFlow>();
+	/** List of request flows present in the simulation. */
+	private final ArrayList<RequestResourcesFlow> reqFlowList = new ArrayList<RequestResourcesFlow>();
 	/** List of time-driven element generators of the simulation. */
 	private final ArrayList<TimeDrivenGenerator<?>> tGenList = new ArrayList<TimeDrivenGenerator<?>>();
 	/** List of condition-driven element generators of the simulation. */
@@ -386,7 +386,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	public void add(final BasicFlow f) { 
 		flowList.add(f);
 		if (f instanceof RequestResourcesFlow)
-			actList.add((RequestResourcesFlow)f);
+			reqFlowList.add((RequestResourcesFlow)f);
 	}
 	
 	/**
@@ -457,8 +457,8 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 	 * Returns the list of {@link RequestResourcesFlow flows requesting resources} defined within this simulation
 	 * @return the list of {@link RequestResourcesFlow flows requesting resources} defined within this simulation
 	 */
-	public List<RequestResourcesFlow> getActivityList() { 
-		return actList;
+	public List<RequestResourcesFlow> getRequestFlowList() { 
+		return reqFlowList;
 	}
 
 	/**

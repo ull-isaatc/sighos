@@ -47,9 +47,9 @@ public class WFP12Simulation extends WFPTestSimulation {
     	ThreadSplitFlow tsf = new ThreadSplitFlow(this, 3);
     	tsf.link(act1);
     	pf.link(tsf);
-    	pf.link(act2).link(act0);
+    	pf.link(act2);
     	
-        getDefGenerator(getDefElementType("ET0"), act0);    	
+        getDefGenerator(getDefElementType("Infringement"), act0);    	
 	}
 
 }

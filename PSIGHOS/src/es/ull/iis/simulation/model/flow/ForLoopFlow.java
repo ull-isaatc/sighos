@@ -31,7 +31,7 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	 * @param finalSubFlow Last step of the internal subflow
 	 * @param iterations Loop iterations.
  	 */
-	public ForLoopFlow(Simulation model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, TimeFunction iterations) {
+	public ForLoopFlow(final Simulation model, final InitializerFlow initialSubFlow, final FinalizerFlow finalSubFlow, final TimeFunction iterations) {
 		super(model, initialSubFlow, finalSubFlow);
 		this.iterations = iterations;
 	}
@@ -41,7 +41,7 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	 * @param subFlow A unique flow defining an internal subflow
 	 * @param iterations Loop iterations.
  	 */
-	public ForLoopFlow(Simulation model, TaskFlow subFlow, TimeFunction iterations) {
+	public ForLoopFlow(final Simulation model, final TaskFlow subFlow, final TimeFunction iterations) {
 		this(model, subFlow, subFlow, iterations);
 	}
 	
@@ -51,7 +51,7 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	 * @param finalSubFlow Last step of the internal subflow
 	 * @param iterations Loop iterations.
  	 */
-	public ForLoopFlow(Simulation model, InitializerFlow initialSubFlow, FinalizerFlow finalSubFlow, int iterations) {
+	public ForLoopFlow(final Simulation model, final InitializerFlow initialSubFlow, final FinalizerFlow finalSubFlow, final int iterations) {
 		this(model, initialSubFlow, finalSubFlow, new ConstantFunction(iterations));
 	}
 	
@@ -60,7 +60,7 @@ public class ForLoopFlow extends StructuredLoopFlow {
 	 * @param subFlow A unique flow defining an internal subflow
 	 * @param iterations Loop iterations.
  	 */
-	public ForLoopFlow(Simulation model, TaskFlow subFlow, int iterations) {
+	public ForLoopFlow(final Simulation model, final TaskFlow subFlow, final int iterations) {
 		this(model, subFlow, subFlow, new ConstantFunction(iterations));
 	}
 	
@@ -72,10 +72,8 @@ public class ForLoopFlow extends StructuredLoopFlow {
 		return iterations;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.Flow#request(es.ull.iis.simulation.FlowExecutor)
-	 */
-	public void request(ElementInstance ei) {
+	@Override
+	public void request(final ElementInstance ei) {
 		if (!ei.wasVisited(this)) {
 			if (ei.isExecutable()) {
 				int iter = Math.round((float)iterations.getValue(ei.getElement()));
@@ -96,18 +94,16 @@ public class ForLoopFlow extends StructuredLoopFlow {
 			ei.notifyEnd();
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.TaskFlow#finish(es.ull.iis.simulation.FlowExecutor)
-	 */
-	public void finish(ElementInstance wThread) {
-		int iter = checkList.get(wThread);
+	@Override
+	public void finish(final ElementInstance ei) {
+		int iter = checkList.get(ei);
 		if (--iter > 0) {
-			wThread.getElement().addRequestEvent(initialFlow, wThread.getDescendantElementInstance(initialFlow));
-			checkList.put(wThread, iter);
+			ei.getElement().addRequestEvent(initialFlow, ei.getDescendantElementInstance(initialFlow));
+			checkList.put(ei, iter);
 		}
 		else {
-			checkList.remove(wThread);
-			super.finish(wThread);
+			checkList.remove(ei);
+			super.finish(ei);
 		}
 	}
 

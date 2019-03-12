@@ -86,14 +86,14 @@ public class ActivityFlow extends StructuredFlow implements ResourceHandlerFlow,
     	super(model);
     	this.priority = priority;
     	this.description = description;
+        this.exclusive = exclusive;
+        this.interruptible = interruptible;
     	resourcesId = resourcesIdCounter--;
         initialFlow = new RequestResourcesFlow(model, description, resourcesId , priority);
         initialFlow.setParent(this);
         finalFlow = new ReleaseResourcesFlow(model, description, resourcesId);
         finalFlow.setParent(this);
         initialFlow.link(finalFlow);
-        this.exclusive = exclusive;
-        this.interruptible = interruptible;
     }
 
 	@Override
