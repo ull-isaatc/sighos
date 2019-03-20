@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.test;
+package es.ull.iis.simulation.test.location;
 
 import java.util.ArrayList;
 
@@ -26,16 +26,17 @@ import es.ull.iis.simulation.model.location.MoveResourcesFlow;
 import es.ull.iis.simulation.model.location.Node;
 import es.ull.iis.simulation.model.location.Path;
 import es.ull.iis.simulation.model.location.Router;
+import es.ull.iis.simulation.model.location.TransportFlow;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
-public class TestResourcesLocation extends Experiment {
+public class TestTransport extends Experiment {
 	private static final long ENDTS = 200;
 	private static final int NELEM = 3;
-	private static final int NTRUCKS = 2;
-	private static final int TRUCKSIZE = 1;
+	private static final int NMOTOS = 2;
+	private static final int MOTOSIZE = 1;
 	private static final int NEXP = 1;
 	private static final int NPATHS = 3;
 	private static final long DELAY_HOME = 5;
@@ -43,7 +44,7 @@ public class TestResourcesLocation extends Experiment {
 	private static final boolean NOSIZE = false;
 	private static final boolean UNREACHABLE = false;
 
-	public TestResourcesLocation() {
+	public TestTransport() {
 		super("Experiment with locations", NEXP);
 	}
 
@@ -53,15 +54,15 @@ public class TestResourcesLocation extends Experiment {
 		final private Path[] paths;
 		
 		public MyRouter() {
-			home = NOSIZE ? new Node("Home", TimeFunctionFactory.getInstance("ConstantVariate", DELAY_HOME)) :
-				new Node("Home", TimeFunctionFactory.getInstance("ConstantVariate", DELAY_HOME), NELEM);
+			home = NOSIZE ? new Node("Pizzeria", TimeFunctionFactory.getInstance("ConstantVariate", DELAY_HOME)) :
+				new Node("Pizzeria", TimeFunctionFactory.getInstance("ConstantVariate", DELAY_HOME), NELEM);
 			paths = new Path[NPATHS];
 			for (int i = 0; i < NPATHS; i++) {
 				paths[i] = NOSIZE ? new Path("Path " + i, TimeFunctionFactory.getInstance("ConstantVariate", DELAY_PATH)) :
 					new Path("Path " + i, TimeFunctionFactory.getInstance("ConstantVariate", DELAY_PATH), 1, 1);
 			}
-			destination = NOSIZE ? new Node("Destination", TimeFunctionFactory.getInstance("ConstantVariate", 0)) :
-				new Node("Destination", NELEM);
+			destination = NOSIZE ? new Node("Client", TimeFunctionFactory.getInstance("ConstantVariate", 0)) :
+				new Node("Client", NELEM);
 
 			home.linkTo(paths[0]);
 			for (int i = 0; i < NPATHS - 1; i++) {
@@ -107,18 +108,18 @@ public class TestResourcesLocation extends Experiment {
 		public SimulLocation(int id, long endTs) {
 			super(id, "Simulating locations " + id, 0, endTs);
 			final MyRouter router = new MyRouter(); 
-			final ElementType et = new ElementType(this, "Delivery request from home");
-			final ResourceType rtTruck = new ResourceType(this, "Delivery truck");
-			rtTruck.addGenericResources(NTRUCKS, NOSIZE ? 0 : TRUCKSIZE, router.getHome());
-			final WorkGroup wgTruck = new WorkGroup(this, rtTruck, 1);
-			final RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, "Request truck");
-			reqFlow.newWorkGroupAdder(wgTruck).add();
-			final MoveResourcesFlow moveFlow1 = new MoveResourcesFlow(this, "Move truck to home", router.getHome(), router, wgTruck);
-			final MoveResourcesFlow moveFlow2 = new MoveResourcesFlow(this, "Move truck to destination", router.getDestination(), router, wgTruck);
-			final ReleaseResourcesFlow relFlow = new ReleaseResourcesFlow(this, "Release truck", wgTruck);
+			final ElementType et = new ElementType(this, "Pizza request from client");
+			final ResourceType rtMoto = new ResourceType(this, "Delivery moto");
+			rtMoto.addGenericResources(NMOTOS, NOSIZE ? 0 : MOTOSIZE, router.getHome());
+			final WorkGroup wgMoto = new WorkGroup(this, rtMoto, 1);
+			final RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, "Request moto");
+			reqFlow.newWorkGroupAdder(wgMoto).add();
+			final MoveResourcesFlow moveFlow1 = new MoveResourcesFlow(this, "Move moto to pizzeria", router.getHome(), router, wgMoto);
+			final TransportFlow moveFlow2 = new TransportFlow(this, "Take pizza to destination", router.getDestination(), router, rtMoto);
+			final ReleaseResourcesFlow relFlow = new ReleaseResourcesFlow(this, "Release pizza", wgMoto);
 			reqFlow.link(moveFlow1).link(moveFlow2).link(relFlow);
 			
-			new TimeDrivenElementGenerator(this, NELEM, et, reqFlow, new SimulationPeriodicCycle(getTimeUnit(), 0L, new SimulationTimeFunction(getTimeUnit(), "ConstantVariate", getEndTs()), 1));
+			new TimeDrivenElementGenerator(this, NELEM, et, reqFlow, 0, router.getHome(), new SimulationPeriodicCycle(getTimeUnit(), 0L, new SimulationTimeFunction(getTimeUnit(), "ConstantVariate", getEndTs()), 1));
 		}
 		
 	}
@@ -149,7 +150,7 @@ public class TestResourcesLocation extends Experiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new TestResourcesLocation().start();;
+		new TestTransport().start();;
 
 	}
 

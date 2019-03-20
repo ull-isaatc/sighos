@@ -15,6 +15,7 @@ import es.ull.iis.simulation.model.location.Location;
 import es.ull.iis.simulation.model.location.Movable;
 import es.ull.iis.simulation.model.location.MoveResourcesFlow;
 import es.ull.iis.simulation.model.location.Router;
+import es.ull.iis.simulation.model.location.TransportFlow;
 import es.ull.iis.util.cycle.DiscreteCycleIterator;
 
 /**
@@ -292,8 +293,34 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 	    		endMove(flow, false);
 			}
 			else {
-				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
-		    	simul.addEvent(mEvent);
+		    	simul.addEvent(new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router));
+			}
+    	}
+    }
+    
+    /**
+     * Creates a transport event to move to destination using the specified router.
+     * @param ei Element instance that initiates the move
+     * @param destination Destination location
+     * @param router Instance that returns the path for the element
+     */
+    public void startTransport(final ElementInstance ei) {
+    	final TransportFlow flow = (TransportFlow)ei.getCurrentFlow();
+    	final Location destination = flow.getDestination();
+    	final Router router = flow.getRouter();
+		debug("Start transport\t" + this + "\t" + destination);
+    	movingInstance = ei;
+    	// No need to move
+    	if (currentLocation.equals(destination)) {
+    		endTransport(flow, true);
+    	}
+    	else {
+			final Location nextLoc = router.getNextLocationTo(this, destination);
+			if (nextLoc == null) {
+	    		endTransport(flow, false);
+			}
+			else {
+		    	simul.addEvent(new TransportEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router));
 			}
     	}
     }
@@ -312,26 +339,66 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 			error("Destination unreachable. Current: " + currentLocation + "; destination: " + flow.getDestination());
     }
 
+    /**
+     * Notifies the flow that the transport has finished
+     * @param ei Flow driving the movement
+     * @param success True if the resource arrived at destination; false if the destination was unreachable
+     */
+    private void endTransport(final TransportFlow flow, final boolean success) {
+    	if (success) {
+    		flow.finish(movingInstance);
+    		movingInstance = null;
+    		debug("Finishes transport\t" + this + "\t" + flow.getDestination());
+    	}
+    	else {
+			movingInstance.cancel(flow);
+			flow.next(movingInstance);
+	    	movingInstance = null;
+    		error("Destination unreachable. Current: " + currentLocation + "; destination: " + flow.getDestination());
+    	}
+    }
+
 	@Override
 	public void notifyLocationAvailable(final Location location) {
 		location.move(this);
 
-    	final MoveResourcesFlow flow = (MoveResourcesFlow)movingInstance.getCurrentFlow();
-    	final Location destination = flow.getDestination();
-    	final Router router = flow.getRouter();
-		
-		if (currentLocation.equals(destination)) {
-			endMove(flow, true);
-		}
-		else {
-			final Location nextLoc = router.getNextLocationTo(this, destination);
-			if (nextLoc == null) {
-				endMove(flow, false);
+		if (movingInstance.getCurrentFlow() instanceof MoveResourcesFlow) {
+	    	final MoveResourcesFlow flow = (MoveResourcesFlow)movingInstance.getCurrentFlow();
+	    	final Location destination = flow.getDestination();
+	    	final Router router = flow.getRouter();
+			
+			if (currentLocation.equals(destination)) {
+				endMove(flow, true);
 			}
 			else {
-				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
-		    	simul.addEvent(mEvent);						
+				final Location nextLoc = router.getNextLocationTo(this, destination);
+				if (nextLoc == null) {
+					endMove(flow, false);
+				}
+				else {
+			    	simul.addEvent(new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router));						
+				}
+			}			
+		}
+		else if (movingInstance.getCurrentFlow() instanceof TransportFlow) {
+	    	final TransportFlow flow = (TransportFlow)movingInstance.getCurrentFlow();
+			// Move the element without checking anything else
+			movingInstance.getElement().setLocation(location);
+	    	final Location destination = flow.getDestination();
+	    	final Router router = flow.getRouter();
+			
+			if (currentLocation.equals(destination)) {
+				endTransport(flow, true);
 			}
+			else {
+				final Location nextLoc = router.getNextLocationTo(this, destination);
+				if (nextLoc == null) {
+					endTransport(flow, false);
+				}
+				else {
+			    	simul.addEvent(new TransportEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router));						
+				}
+			}			
 		}
 	}
 	
@@ -711,6 +778,70 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 					}
 					else {
 						final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(Resource.this), nextLoc, destination, router);
+				    	simul.addEvent(mEvent);						
+					}
+				}
+			}
+			else {
+				nextLocation.waitFor(Resource.this);
+			}
+		}
+	}
+
+	/**
+	 * Event to move the resource to a different location
+	 * @author Iván Castilla Rodríguez
+	 *
+	 */
+	protected class TransportEvent extends DiscreteEvent {
+		/** Final destination of the move */
+		final private Location destination;
+		/** Next location in the way to the final destination */
+		final private Location nextLocation;
+		/** The instance that computes the path to the final destination */
+		final private Router router;
+		
+		/**
+		 * Creates a transport event that starts a move from the resource's current location
+		 * @param ts Current timestamp
+		 * @param destination Destination location
+		 * @param router Instance that returns the path for the resource
+		 */
+		public TransportEvent(final long ts, final Location destination, final Router router) {
+			this(ts, currentLocation, destination, router);
+		}
+
+		/**
+		 * Creates a transport event that makes an intermediate step in the way to destination
+		 * @param ts Timestamp when the resource will arrive at the intermediate location
+		 * @param nextLocation Intermediate location 
+		 * @param destination Final destination
+		 * @param router Instance that returns the path for the resource
+		 */
+		public TransportEvent(final long ts, final Location nextLocation, final Location destination, final Router router) {
+			super(ts);
+			this.destination = destination;
+			this.nextLocation = nextLocation;
+			this.router = router;
+		}
+
+		@Override
+		public void event() {
+			if (nextLocation.getAvailableCapacity() >= getCapacity()) {
+				final TransportFlow flow = ((TransportFlow)movingInstance.getCurrentFlow());
+				nextLocation.move(Resource.this);
+				// Move the element without checking anything else
+				movingInstance.getElement().setLocation(nextLocation);
+				if (nextLocation.equals(destination)) {
+					endTransport(flow, true);
+				}
+				else {
+					final Location nextLoc = router.getNextLocationTo(Resource.this, destination);
+					if (nextLoc == null) {
+						endTransport(flow, false);
+					}
+					else {
+						final TransportEvent mEvent = new TransportEvent(getTs() + currentLocation.getDelayAtExit(Resource.this), nextLoc, destination, router);
 				    	simul.addEvent(mEvent);						
 					}
 				}

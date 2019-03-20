@@ -1,23 +1,28 @@
 /**
  * 
  */
-package es.ull.iis.simulation.test;
+package es.ull.iis.simulation.test.location;
 
 import java.util.ArrayList;
 
 import es.ull.iis.function.TimeFunctionFactory;
+import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.EntityLocationInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.ElementType;
 import es.ull.iis.simulation.model.Experiment;
+import es.ull.iis.simulation.model.ResourceType;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
 import es.ull.iis.simulation.model.TimeDrivenElementGenerator;
+import es.ull.iis.simulation.model.WorkGroup;
+import es.ull.iis.simulation.model.flow.ReleaseResourcesFlow;
+import es.ull.iis.simulation.model.flow.RequestResourcesFlow;
 import es.ull.iis.simulation.model.location.Location;
 import es.ull.iis.simulation.model.location.Movable;
-import es.ull.iis.simulation.model.location.MoveFlow;
+import es.ull.iis.simulation.model.location.MoveResourcesFlow;
 import es.ull.iis.simulation.model.location.Node;
 import es.ull.iis.simulation.model.location.Path;
 import es.ull.iis.simulation.model.location.Router;
@@ -26,10 +31,11 @@ import es.ull.iis.simulation.model.location.Router;
  * @author Iván Castilla Rodríguez
  *
  */
-public class TestLocation extends Experiment {
-	private static final long ENDTS = 100;
+public class TestResourcesLocation extends Experiment {
+	private static final long ENDTS = 200;
 	private static final int NELEM = 3;
-	private static final int ELEMSIZE = 1;	
+	private static final int NTRUCKS = 2;
+	private static final int TRUCKSIZE = 1;
 	private static final int NEXP = 1;
 	private static final int NPATHS = 3;
 	private static final long DELAY_HOME = 5;
@@ -37,7 +43,7 @@ public class TestLocation extends Experiment {
 	private static final boolean NOSIZE = false;
 	private static final boolean UNREACHABLE = false;
 
-	public TestLocation() {
+	public TestResourcesLocation() {
 		super("Experiment with locations", NEXP);
 	}
 
@@ -82,9 +88,16 @@ public class TestLocation extends Experiment {
 
 		@Override
 		public Location getNextLocationTo(Movable entity, Location finalLocation) {
-			ArrayList<Location> links = entity.getLocation().getLinkedTo();
-			if (links.size() > 0)
-				return links.get(0);
+			if (destination.equals(finalLocation)) {
+				final ArrayList<Location> links = entity.getLocation().getLinkedTo();
+				if (links.size() > 0)
+					return links.get(0);
+			}
+			else if (home.equals(finalLocation)) {
+				final ArrayList<Location> links = entity.getLocation().getLinkedFrom();
+				if (links.size() > 0)
+					return links.get(0);
+			}
 			return null;
 		}
 		
@@ -94,9 +107,18 @@ public class TestLocation extends Experiment {
 		public SimulLocation(int id, long endTs) {
 			super(id, "Simulating locations " + id, 0, endTs);
 			final MyRouter router = new MyRouter(); 
-			final MoveFlow initFlow = new MoveFlow(this, "From home to destination", router.getDestination(), router);
-			final ElementType et = new ElementType(this, "Car");
-			new TimeDrivenElementGenerator(this, NELEM, et, initFlow, NOSIZE ? 0 : ELEMSIZE, router.getHome(), new SimulationPeriodicCycle(getTimeUnit(), 0L, new SimulationTimeFunction(getTimeUnit(), "ConstantVariate", getEndTs()), 1));
+			final ElementType et = new ElementType(this, "Delivery request from home");
+			final ResourceType rtTruck = new ResourceType(this, "Delivery truck");
+			rtTruck.addGenericResources(NTRUCKS, NOSIZE ? 0 : TRUCKSIZE, router.getHome());
+			final WorkGroup wgTruck = new WorkGroup(this, rtTruck, 1);
+			final RequestResourcesFlow reqFlow = new RequestResourcesFlow(this, "Request truck");
+			reqFlow.newWorkGroupAdder(wgTruck).add();
+			final MoveResourcesFlow moveFlow1 = new MoveResourcesFlow(this, "Move truck to home", router.getHome(), router, wgTruck);
+			final MoveResourcesFlow moveFlow2 = new MoveResourcesFlow(this, "Move truck to destination", router.getDestination(), router, wgTruck);
+			final ReleaseResourcesFlow relFlow = new ReleaseResourcesFlow(this, "Release truck", wgTruck);
+			reqFlow.link(moveFlow1).link(moveFlow2).link(relFlow);
+			
+			new TimeDrivenElementGenerator(this, NELEM, et, reqFlow, new SimulationPeriodicCycle(getTimeUnit(), 0L, new SimulationTimeFunction(getTimeUnit(), "ConstantVariate", getEndTs()), 1));
 		}
 		
 	}
@@ -106,12 +128,12 @@ public class TestLocation extends Experiment {
 		public LocationListener() {
 			super("Location listener");
 			addEntrance(EntityLocationInfo.class);
+			addEntrance(ElementActionInfo.class);
 		}
 
 		@Override
 		public void infoEmited(SimulationInfo info) {
-			final EntityLocationInfo eInfo = (EntityLocationInfo)info;
-			System.out.println(eInfo);
+			System.out.println(info);
 		}
 		
 	}
@@ -127,7 +149,7 @@ public class TestLocation extends Experiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new TestLocation().start();;
+		new TestResourcesLocation().start();;
 
 	}
 
