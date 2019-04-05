@@ -77,5 +77,12 @@ public abstract class T1DMMonitoringIntervention implements Intervention {
 	 */
 	public abstract double getAnnualCost(T1DMPatient pat);
 
-	
+	/**
+	 * Returns a disutility value inherent to the intervention. A negative value represents an intervention that improves the utility
+	 * @param pat A patient
+	 * @return a disutility value inherent to the intervention. A negative value represents an intervention that improves the utility
+	 */
+	public double getDisutility(T1DMPatient pat) {
+		return 0.0;
+	}
 }

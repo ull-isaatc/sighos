@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.T1DM.params;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMAcuteComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMChronicComplications;
+import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
@@ -58,6 +59,6 @@ public class SubmodelUtilityCalculator implements UtilityCalculator {
 				du = method.combine(du, chronicSubmodels[comp.ordinal()].getDisutility(pat, method));
 			}
 		}
-		return genPopUtility - du;
+		return genPopUtility - du - ((T1DMMonitoringIntervention)pat.getIntervention()).getDisutility(pat);
 	}
 }

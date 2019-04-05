@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMAcuteComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
+import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 
 /**
@@ -69,6 +70,6 @@ public class StdUtilityCalculator implements UtilityCalculator {
 			if (disutilities.containsKey(comp))
 				du = method.combine(du, disutilities.get(comp));
 		}
-		return genPopUtility - du;
+		return genPopUtility - du - ((T1DMMonitoringIntervention)pat.getIntervention()).getDisutility(pat);
 	}
 }

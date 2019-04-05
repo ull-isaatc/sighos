@@ -14,7 +14,6 @@ import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.T1DM.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
-import es.ull.iis.simulation.hta.T1DM.submodels.DeathSimpleCHDSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.LySevereHypoglycemiaEvent;
@@ -24,7 +23,6 @@ import es.ull.iis.simulation.hta.T1DM.submodels.SimpleCHDSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.SimpleNEUSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.SimpleNPHSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.SimpleRETSubmodel;
-import es.ull.iis.simulation.hta.T1DM.submodels.StandardSpainDeathSubmodel;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -88,10 +86,7 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 			SheffieldRETSubmodel.registerSecondOrder(this);;
 			SheffieldNPHSubmodel.registerSecondOrder(this);
 		}
-		if (BasicConfigParams.USE_CHD_DEATH_MODEL)
-			DeathSimpleCHDSubmodel.registerSecondOrder(this);
-		else
-			SimpleCHDSubmodel.registerSecondOrder(this);
+		SimpleCHDSubmodel.registerSecondOrder(this);
 		SimpleNEUSubmodel.registerSecondOrder(this);
 
 		// Acute complication submodels
@@ -155,18 +150,10 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 		}
 		dModel.addIMR(SimpleNEUSubmodel.NEU, getIMR(SimpleNEUSubmodel.NEU));
 		dModel.addIMR(SimpleNEUSubmodel.LEA, getIMR(SimpleNEUSubmodel.LEA));
-		if (BasicConfigParams.USE_CHD_DEATH_MODEL) {
-			dModel.addIMR(DeathSimpleCHDSubmodel.ANGINA, getIMR(T1DMChronicComplications.CHD));
-			dModel.addIMR(DeathSimpleCHDSubmodel.STROKE, getIMR(T1DMChronicComplications.CHD));
-			dModel.addIMR(DeathSimpleCHDSubmodel.HF, getIMR(T1DMChronicComplications.CHD));
-			dModel.addIMR(DeathSimpleCHDSubmodel.MI, getIMR(T1DMChronicComplications.CHD));
-		}
-		else {
-			dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(T1DMChronicComplications.CHD));
-			dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(T1DMChronicComplications.CHD));
-			dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(T1DMChronicComplications.CHD));
-			dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(T1DMChronicComplications.CHD));
-		}
+		dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(T1DMChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(T1DMChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(T1DMChronicComplications.CHD));
+		dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(T1DMChronicComplications.CHD));
 		return dModel;
 	}
 	
@@ -188,10 +175,7 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 		}
 		
 		// Adds major Cardiovascular disease submodel
-		if (BasicConfigParams.USE_CHD_DEATH_MODEL)
-			comps[T1DMChronicComplications.CHD.ordinal()] = new DeathSimpleCHDSubmodel(this);
-		else
-			comps[T1DMChronicComplications.CHD.ordinal()] = new SimpleCHDSubmodel(this);
+		comps[T1DMChronicComplications.CHD.ordinal()] = new SimpleCHDSubmodel(this);
 		
 		return comps;
 	}
@@ -243,6 +227,10 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 			return annualCost;
 		}
 
+		@Override
+		public double getDisutility(T1DMPatient pat) {
+			return 0.035;
+		}
 	}
 
 	/**
@@ -278,6 +266,10 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 			return annualCost;
 		}
 
+		@Override
+		public double getDisutility(T1DMPatient pat) {
+			return -0.038;
+		}
 	}
 
 }

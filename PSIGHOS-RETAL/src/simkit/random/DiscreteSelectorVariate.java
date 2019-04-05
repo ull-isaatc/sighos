@@ -103,7 +103,6 @@ public class DiscreteSelectorVariate extends RandomVariateBase implements Discre
     
     public void setFrequencies(double[] frequencies) {
         this.frequencies = frequencies;
-        this.normalize();
         this.toCDF();
     }
 }

@@ -12,7 +12,6 @@ import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.ModelParams;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
-import simkit.random.RandomNumberFactory;
 
 /**
  * A death submodel based on the Spanish 2017 Mortality risk from the Instituto Nacional de Estadística (INE). The
@@ -30,6 +29,8 @@ public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {
 	/** The increased mortality risk associated to each chronic complication stage */
 	private final TreeMap<T1DMComplicationStage, Double> imrs;
 
+	/** Survival for men and women, in inverse order (the first value is the survival at 100 years old). Survival is computed by
+	 * iteratively applying the mortality risk from the INE table to a hypotethical population of 10000 individuals */
 	private static double[][] INV_SURVIVAL = {
 		{180.5886298, 247.9029831, 334.1752564, 451.284885, 606.540786, 805.0895261, 1041.719246, 1324.501104, 
 			1639.465451, 1981.322166, 2355.794297, 2755.146762, 3163.844415, 3575.603855, 3977.671332, 4369.295139, 
@@ -123,61 +124,4 @@ public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {
 		return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
 	}
 
-	private static double TEST_IMR = 1.0;
-	private static double getTimeToDeathTest(int sex, double age, double rnd) {
-		final double reference = INV_SURVIVAL[sex][100 - (int)age];
-		final double index = rnd * reference / TEST_IMR;
-		final int ageToDeath = 101 - Math.abs(Arrays.binarySearch(INV_SURVIVAL[sex], index));
-		return Math.min((ageToDeath > age) ? ageToDeath - age + rnd : rnd, BasicConfigParams.MAX_AGE - age);
-	}
-	
-	private static double gompertzGetTimeToDeathTest(int sex, double age, double rnd) {
-		final double time = Math.min(ModelParams.generateGompertz(ALPHA_DEATH[sex], BETA_DEATH[sex], age, rnd / TEST_IMR), BasicConfigParams.MAX_AGE - age);
-		return time;
-	}
-
-	public static void testOne() {
-		final int sex = 1;
-		final double age = 18;
-		final double rnd = 1 - 0.0000001;
-		System.out.println("Pat\tSex\tAge\tRnd\tGompertz\tEmpirical");
-		System.out.println(0 + "\t" + sex + "\t" + age + "\t" + rnd + "\t" + gompertzGetTimeToDeathTest(sex, age, rnd) + "\t" + getTimeToDeathTest(sex, age, rnd));
-		
-	}
-	public static void testMany() {
-		final int npatients = 100000;
-		final int MIN_AGE = 18;
-		final RandomNumber rng = RandomNumberFactory.getInstance();
-		final double rnd[] = new double[npatients];
-		final int sex[] = new int[npatients];
-		final double age[] = new double[npatients];
-		final double time2Death[][] = new double[npatients][2];
-		for (int i = 0; i < npatients; i++) {
-			rnd[i] = rng.draw();
-			sex[i] = (rng.draw() > 0.5) ? 1 : 0;
-			age[i] = MIN_AGE;// + (MAX_AGE - MIN_AGE) * rng.draw();
-		}
-		// Test Gompertz
-		System.out.println("Testing Gompertz...");
-		long cputime = System.nanoTime();
-		for (int i = 0; i < npatients; i++) {
-			time2Death[i][0] = gompertzGetTimeToDeathTest(sex[i], age[i], rnd[i]);
-		}
-		System.out.println("Time: " + (System.nanoTime() - cputime) / 1000);
-		// Test empirical
-		System.out.println("Testing Empirical...");
-		cputime = System.nanoTime();
-		for (int i = 0; i < npatients; i++) {
-			time2Death[i][1] = getTimeToDeathTest(sex[i], age[i], 1 - rnd[i]);
-		}
-		System.out.println("Time: " + (System.nanoTime() - cputime) / 1000);
-		System.out.println("Pat\tSex\tAge\tRnd\tGompertz\tEmpirical");
-		for (int i = 0; i < npatients; i++) {
-			System.out.println(i + "\t" + sex[i] + "\t" + age[i] + "\t" + rnd[i] + "\t" + time2Death[i][0] + "\t" + time2Death[i][1]);
-		}
-	}
-	public static void main(String[] args) {
-		testMany();
-//		testOne();
-	}
 }

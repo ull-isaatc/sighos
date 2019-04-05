@@ -346,9 +346,9 @@ public class T1DMMain {
 		@Parameter(names ={"--incidence", "-ei"}, description = "Enables printing incidence of complications by age group ", order = 9)
 		private boolean incidence = false;
 		@Parameter(names ={"--cumincidence", "-ec"}, description = "Enables printing cummulated incidence of complications by time from start", order = 9)
-		private boolean individualOutcomes = false;
-		@Parameter(names ={"--outcomes", "-eo"}, description = "Enables printing individual outcomes", order = 9)
 		private boolean cumm = false;
+		@Parameter(names ={"--outcomes", "-eo"}, description = "Enables printing individual outcomes", order = 9)
+		private boolean individualOutcomes = false;
 		@Parameter(names ={"--budget", "-ebi"}, description = "Enables printing budget impact", order = 9)
 		private boolean bi = false;
 		@Parameter(names ={"--parallel", "-p"}, description = "Enables parallel execution", order = 5)

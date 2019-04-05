@@ -18,7 +18,6 @@ import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
-import simkit.random.DiscreteSelectorVariate;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -32,6 +31,10 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 	public static T1DMComplicationStage MI = new T1DMComplicationStage("MI", "Myocardial Infarction", T1DMChronicComplications.CHD);
 	public static T1DMComplicationStage HF = new T1DMComplicationStage("HF", "Heart Failure", T1DMChronicComplications.CHD);
 	public static T1DMComplicationStage[] CHDSubstates = new T1DMComplicationStage[] {ANGINA, STROKE, MI, HF}; 
+
+	private static final String STR_DEATH_MI_MAN = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + SecondOrderParamsRepository.STR_DEATH_PREFIX + "Men_" + MI.name();
+	private static final String STR_DEATH_MI_WOMAN = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + SecondOrderParamsRepository.STR_DEATH_PREFIX + "Women_" + MI.name();
+	private static final String STR_DEATH_STROKE = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + SecondOrderParamsRepository.STR_DEATH_PREFIX + STROKE.name();
 	
 	private static final double REF_HBA1C = 9.1; 
 	private static final double P_DNC_CHD = 0.0045;
@@ -51,6 +54,11 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 	// Utility (avg, SD) from either Clarke et al.; or Sullivan (assumed equal to MI)
 	private static final double[] DU_HF = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[]{0.108, (0.169 - 0.048) / 3.92} : new double[]{0.0409, 0.0002};
 	
+	/** Probability of sudden death after MI for {men, women} */ 
+	private static final double[] P_DEATH_MI = {0.393, 0.364};
+	/** Probability of 30-day death after stroke */ 
+	private static final double P_DEATH_STROKE = 0.124;
+	
 	public enum CHDTransitions {
 		HEALTHY_CHD,
 		NPH_CHD,
@@ -59,13 +67,18 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 	}
 	private final double[] invProb;
 	private final RRCalculator[] rr;
-	private final double [] rnd;
-	private final DiscreteSelectorVariate pCHDComplication;
+	/** Random value for predicting time to event [0] and type of event [1]*/
+	private final double [][] rnd;
+	/** Random value for predicting CHD-related death */ 
+	private final double [] rndDeath;
+	private final CHDComplicationSelector pCHDComplication;
 	private final double[] costMI;
 	private final double[] costHF;
 	private final double[] costStroke;
 	private final double[] costAngina;
 
+	private final double[]pDeathMI;
+	private final double pDeathStroke;
 	private final double duMI;
 	private final double duHF;
 	private final double duStroke;
@@ -89,9 +102,13 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 		rr[CHDTransitions.RET_CHD.ordinal()] = rrToCHD;
 		final int nPatients = secParams.getnPatients();
 		final RandomNumber rng = secParams.getRngFirstOrder();
-		rnd = new double[nPatients];
+		rnd = new double[nPatients][2];
+		rndDeath = new double[nPatients];
+		
 		for (int i = 0; i < nPatients; i++) {
-			rnd[i] = rng.draw();
+			rnd[i][0] = rng.draw();
+			rnd[i][1] = rng.draw();
+			rndDeath[i] = rng.draw();
 		}
 		this.pCHDComplication = getRandomVariateForCHDComplications(secParams);
 		
@@ -104,6 +121,9 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 		duStroke = secParams.getDisutilityForChronicComplication(STROKE);
 		duMI = secParams.getDisutilityForChronicComplication(MI);
 		duHF = secParams.getDisutilityForChronicComplication(HF);		
+		
+		pDeathMI = new double[] {secParams.getOtherParam(STR_DEATH_MI_MAN), secParams.getOtherParam(STR_DEATH_MI_WOMAN)};
+		pDeathStroke = secParams.getOtherParam(STR_DEATH_STROKE);
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -143,19 +163,45 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 				"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
 				0.12, RandomVariateFactory.getInstance("GammaVariate", 1.0, 0.12)));
 
+		secParams.addOtherParam(new SecondOrderParam(STR_DEATH_MI_MAN, 
+				"Probability of sudden death after MI for men",	"Core Model", 
+				P_DEATH_MI[BasicConfigParams.MAN]));
+		secParams.addOtherParam(new SecondOrderParam(STR_DEATH_MI_WOMAN, 
+				"Probability of sudden death after MI for women", "Core Model", 
+				P_DEATH_MI[BasicConfigParams.WOMAN]));
+		secParams.addOtherParam(new SecondOrderParam(STR_DEATH_STROKE, 
+				"Probability of death after stroke", "Core Model", 
+				P_DEATH_STROKE));
+
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_IMR_PREFIX + T1DMChronicComplications.CHD.name(), 
 				"Increased mortality risk due to macrovascular disease", 
 				"https://doi.org/10.2337/diacare.28.3.617", 
 				1.96, RandomVariateFactory.getInstance("RRFromLnCIVariate", 1.96, 1.33, 2.89, 1)));
 		
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + MI, "Cost of year 2+ Myocardial Infarction", "https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 948, SecondOrderParamsRepository.getRandomVariateForCost(948)));
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ANGINA, "Cost of year 2+ of Angina", "https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 532.01, SecondOrderParamsRepository.getRandomVariateForCost(532.01)));
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + STROKE, "Cost of year 2+ of Stroke", "https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 2485.66, SecondOrderParamsRepository.getRandomVariateForCost(2485.66)));
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + HF, "Cost of year 2+ of Heart Failure", "https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 1054.42, SecondOrderParamsRepository.getRandomVariateForCost(1054.42)));
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + MI, "Cost of episode of Myocardial Infarction", "https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 23536-948, SecondOrderParamsRepository.getRandomVariateForCost(23536-948)));
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + ANGINA, "Cost of episode of Angina", "https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 2517.97-532.01, SecondOrderParamsRepository.getRandomVariateForCost(2517.97-532.01)));
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + STROKE, "Cost of episode of Stroke", "https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 6120.32-2485.66, SecondOrderParamsRepository.getRandomVariateForCost(6120.32-2485.66)));
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + HF, "Cost of episode of Heart Failure", "https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 5557.66-1054.42, SecondOrderParamsRepository.getRandomVariateForCost(5557.66-1054.42)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + MI, 
+				"Cost of year 2+ Myocardial Infarction", "https://doi.org/10.1016/j.endinu.2018.03.008", 
+				2016, 948, SecondOrderParamsRepository.getRandomVariateForCost(948)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ANGINA, 
+				"Cost of year 2+ of Angina", "https://doi.org/10.1016/j.endinu.2018.03.008", 
+				2016, 532.01, SecondOrderParamsRepository.getRandomVariateForCost(532.01)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + STROKE, 
+				"Cost of year 2+ of Stroke", "https://doi.org/10.1016/j.endinu.2018.03.008", 
+				2016, 2485.66, SecondOrderParamsRepository.getRandomVariateForCost(2485.66)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + HF, 
+				"Cost of year 2+ of Heart Failure", "https://doi.org/10.1016/j.endinu.2018.03.008", 
+				2016, 1054.42, SecondOrderParamsRepository.getRandomVariateForCost(1054.42)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + MI, 
+				"Cost of episode of Myocardial Infarction", "https://doi.org/10.1016/j.endinu.2018.03.008", 
+				2016, 23536-948, SecondOrderParamsRepository.getRandomVariateForCost(23536-948)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + ANGINA, 
+				"Cost of episode of Angina", "https://doi.org/10.1016/j.endinu.2018.03.008", 
+				2016, 2517.97-532.01, SecondOrderParamsRepository.getRandomVariateForCost(2517.97-532.01)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + STROKE, 
+				"Cost of episode of Stroke", "https://doi.org/10.1016/j.endinu.2018.03.008", 
+				2016, 6120.32-2485.66, SecondOrderParamsRepository.getRandomVariateForCost(6120.32-2485.66)));
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + HF, 
+				"Cost of episode of Heart Failure", "https://doi.org/10.1016/j.endinu.2018.03.008", 
+				2016, 5557.66-1054.42, SecondOrderParamsRepository.getRandomVariateForCost(5557.66-1054.42)));
 
 		final double[] paramsDuANGINA = SecondOrderParamsRepository.betaParametersFromNormal(DU_ANGINA[0], DU_ANGINA[1]);
 		final double[] paramsDuMI = SecondOrderParamsRepository.betaParametersFromNormal(DU_MI[0], DU_MI[1]);
@@ -178,13 +224,13 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 		secParams.registerComplicationStages(CHDSubstates);
 	}
 
-	public DiscreteSelectorVariate getRandomVariateForCHDComplications(SecondOrderParamsRepository secParams) {
+	public CHDComplicationSelector getRandomVariateForCHDComplications(SecondOrderParamsRepository secParams) {
 		final double [] coef = new double[CHDSubstates.length];
 		for (int i = 0; i < CHDSubstates.length; i++) {
 			final T1DMComplicationStage comp = CHDSubstates[i];
 			coef[i] = secParams.getOtherParam(SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + comp.name());
 		}
-		return (DiscreteSelectorVariate)RandomVariateFactory.getInstance("DiscreteSelectorVariate", coef);
+		return new CHDComplicationSelector(coef);
 	}
 
 	
@@ -228,8 +274,26 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 							prog.addCancelEvent(stCHD);
 						}
 					}
-					if (!foundPrevious)
-						prog.addNewEvent(CHDSubstates[pCHDComplication.generateInt()], timeToCHD);
+					if (!foundPrevious) {
+						final int id = pat.getIdentifier();
+						// Choose CHD substate
+						final T1DMComplicationStage stCHD = CHDSubstates[pCHDComplication.generate(rnd[id][1])];
+						if (BasicConfigParams.USE_CHD_DEATH_MODEL) {
+							if (MI.equals(stCHD)) {
+								prog.addNewEvent(stCHD, timeToCHD, (rndDeath[id] <= pDeathMI[pat.getSex()]));
+							}
+							else if (STROKE.equals(stCHD)) {
+								prog.addNewEvent(stCHD, timeToCHD, (rndDeath[id] <= pDeathStroke));							
+							}
+							else {
+								prog.addNewEvent(stCHD, timeToCHD);														
+							}
+						}
+						else {
+							// No deaths
+							prog.addNewEvent(stCHD, timeToCHD);														
+						}
+					}
 				}
 			}
 			
@@ -248,7 +312,7 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 	}
 
 	private long getAnnualBasedTimeToEvent(T1DMPatient pat, CHDTransitions transition) {
-		return CommonParams.getAnnualBasedTimeToEvent(pat, invProb[transition.ordinal()], rnd[pat.getIdentifier()], rr[transition.ordinal()].getRR(pat));
+		return CommonParams.getAnnualBasedTimeToEvent(pat, invProb[transition.ordinal()], rnd[pat.getIdentifier()][0], rr[transition.ordinal()].getRR(pat));
 	}
 
 	@Override
@@ -297,6 +361,54 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 		else if (state.contains(MI))
 			return duMI;				
 		return 0.0;
+	}
+
+	/**
+	 * A class to select among different options. Returns the index of the option selected according to a set of initial frequencies.
+	 * Adapted from "simkit.random.DiscreteIntegerVariate" (https://github.com/kastork/simkit-mirror/blob/master/src/simkit/random/DiscreteIntegerVariate.java)
+	 * @author Iván Castilla Rodríguez
+	 *
+	 */
+	private final class CHDComplicationSelector {
+		private final double[] frequencies;
+		private final double[] cdf;
+		/**
+		 * 
+		 */
+		public CHDComplicationSelector(double[] frequencies) {
+	        this.frequencies = frequencies;
+	        this.normalize();
+	        cdf = new double[frequencies.length];
+	        cdf[0] = frequencies[0];
+	        for (int i = 1; i < frequencies.length; i++) {
+	                cdf[i] += cdf[i - 1] + frequencies[i];
+	        }
+		}
+
+		public int generate(double uniform) {
+			int index;
+			for (index = 0; (uniform > cdf[index]) && (index < cdf.length - 1); index++) ;
+			return index;
+		}
+
+	    private void normalize() {
+	        double sum = 0.0;
+	        for (int i = 0; i < frequencies.length; ++i) {
+	            if (frequencies[i] < 0.0) {
+	                throw new IllegalArgumentException(
+	                        String.format("Bad frequency value at index %d (value = %.3f)", i, frequencies[i]));
+	            }
+	            sum += frequencies[i];
+	        }
+	        if (sum > 0.0) {
+	            for (int i = 0; i < frequencies.length; ++i) {
+	                frequencies[i] /= sum;
+	            }
+	        } else {
+	            throw new IllegalArgumentException(
+	                    String.format("Frequency sum not positive: %.3f", sum));
+	        }
+	    }
 	}
 
 }
