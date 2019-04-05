@@ -7,12 +7,12 @@ import java.io.PrintStream;
 import java.util.EnumSet;
 
 import es.ull.iis.simulation.hta.retal.EyeState;
-import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.RETALSimulation;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.info.PatientInfo;
 import es.ull.iis.simulation.hta.retal.params.CNVStage;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationStartInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 
 /**
  * @author Iván Castilla
@@ -33,7 +33,7 @@ public class AffectedPatientHistoryView extends FilteredListener {
 		this.detailed = detailed;
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
-		addEntrance(SimulationStartInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 	
 	/**
@@ -62,24 +62,26 @@ public class AffectedPatientHistoryView extends FilteredListener {
 	
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationStartInfo) {
-			final StringBuilder str = new StringBuilder("RetalPatient\tINIT_AGE\tDIABETES\t");
-			if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
-				for (int i = 0; i < STATES_ARMD.length; i++)
-					str.append(STATES_ARMD[i]).append("_E1\t").append(STATES_ARMD[i]).append("_E2\t");
-				if (detailed) {
-					for (CNVStage stage : CNVStage.ALL_STAGES) { 
-						str.append(stage.getType()).append("_").append(stage.getPosition()).append("_E1\t");
-						str.append(stage.getType()).append("_").append(stage.getPosition()).append("_E2\t");
+		if (info instanceof SimulationTimeInfo) {
+			if (SimulationTimeInfo.Type.START.equals(((SimulationTimeInfo) info).getType())) {
+				final StringBuilder str = new StringBuilder("RetalPatient\tINIT_AGE\tDIABETES\t");
+				if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
+					for (int i = 0; i < STATES_ARMD.length; i++)
+						str.append(STATES_ARMD[i]).append("_E1\t").append(STATES_ARMD[i]).append("_E2\t");
+					if (detailed) {
+						for (CNVStage stage : CNVStage.ALL_STAGES) { 
+							str.append(stage.getType()).append("_").append(stage.getPosition()).append("_E1\t");
+							str.append(stage.getType()).append("_").append(stage.getPosition()).append("_E2\t");
+						}
 					}
 				}
+				if (diseases.contains(RETALSimulation.DISEASES.DR)) {
+					for (int i = 0; i < STATES_DR.length; i++)
+						str.append(STATES_DR[i]).append("_E1\t").append(STATES_DR[i]).append("_E2\t");
+				}
+				out.println(str.append("DEATH"));				
 			}
-			if (diseases.contains(RETALSimulation.DISEASES.DR)) {
-				for (int i = 0; i < STATES_DR.length; i++)
-					str.append(STATES_DR[i]).append("_E1\t").append(STATES_DR[i]).append("_E2\t");
-			}
-			out.println(str.append("DEATH"));
-		}
+		} 
 		else {
 			PatientInfo pInfo = (PatientInfo) info;
 			RetalPatient pat = (RetalPatient) pInfo.getPatient();

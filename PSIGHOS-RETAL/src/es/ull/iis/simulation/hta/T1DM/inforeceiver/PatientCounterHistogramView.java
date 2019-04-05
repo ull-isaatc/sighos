@@ -9,8 +9,8 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -47,7 +47,7 @@ public class PatientCounterHistogramView extends Listener {
 		nSevereHypo = new int[nIntervals];
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	/* (non-Javadoc)
@@ -55,20 +55,22 @@ public class PatientCounterHistogramView extends Listener {
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationEndInfo) {
-			final StringBuilder strHead = new StringBuilder("AGE\tBASE\tDEATH");
-			for (T1DMComplicationStage comp : nComplications.keySet()) {
-				strHead.append("\t").append(comp.name());
-			}
-			strHead.append("\t").append("HYPOG");
-			System.out.println(strHead);
-			for (int i = 0; i < nIntervals; i++) {
-				final StringBuilder str = new StringBuilder((minAge + i * length) + "\t" + nPatients[i] + "\t" + nDeaths[i]);
-				for (int[] val : nComplications.values()) {
-					str.append("\t").append(val[i]);
+		if (info instanceof SimulationTimeInfo) {
+			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo) info).getType())) {
+				final StringBuilder strHead = new StringBuilder("AGE\tBASE\tDEATH");
+				for (T1DMComplicationStage comp : nComplications.keySet()) {
+					strHead.append("\t").append(comp.name());
 				}
-				str.append("\t").append(nSevereHypo[i]);
-				System.out.println(str);
+				strHead.append("\t").append("HYPOG");
+				System.out.println(strHead);
+				for (int i = 0; i < nIntervals; i++) {
+					final StringBuilder str = new StringBuilder((minAge + i * length) + "\t" + nPatients[i] + "\t" + nDeaths[i]);
+					for (int[] val : nComplications.values()) {
+						str.append("\t").append(val[i]);
+					}
+					str.append("\t").append(nSevereHypo[i]);
+					System.out.println(str);
+				}				
 			}
 		}
 		else if (info instanceof T1DMPatientInfo) {

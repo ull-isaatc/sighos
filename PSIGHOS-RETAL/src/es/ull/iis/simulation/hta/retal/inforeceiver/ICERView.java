@@ -5,11 +5,11 @@ package es.ull.iis.simulation.hta.retal.inforeceiver;
 
 import java.io.PrintStream;
 
-import es.ull.iis.simulation.hta.retal.outcome.QualityAdjustedLifeExpectancy;
 import es.ull.iis.simulation.hta.retal.RETALSimulation;
 import es.ull.iis.simulation.hta.retal.outcome.Cost;
-import es.ull.iis.simulation.info.SimulationEndInfo;
+import es.ull.iis.simulation.hta.retal.outcome.QualityAdjustedLifeExpectancy;
 import es.ull.iis.simulation.info.SimulationInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -37,7 +37,7 @@ public class ICERView extends Listener {
 		this.showSD = showSD;
 		this.showCI = showCI;
 		this.percentileCI = percentileCI;
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	private String ICER2String(double icer, double cost1, double cost2, String unit) {
@@ -70,37 +70,39 @@ public class ICERView extends Listener {
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationEndInfo) {
-			RETALSimulation simul = (RETALSimulation)info.getSimul();
-			final Cost cost = simul.getCost();
-			final QualityAdjustedLifeExpectancy qaly = simul.getQALY();
-			final double[][] costResults = cost.getResults();
-			final double[][] qalyResults = qaly.getResults();
-			if (singleUse) {
-				if (simul.isCloned()) {
-					cost.print(false, false);
-					qaly.print(false, false);
-					final double icer = (costResults[1][0] - costResults[0][0]) / (qalyResults[1][0] - qalyResults[0][0]);
-					System.out.println("ICER = " + ICER2String(icer, costResults[0][0], costResults[1][0], cost.getUnit() + "/" + qaly.getUnit()));
-				}				
-			}
-			else {
-				if (simul.isCloned()) {
-					final double icer = (costResults[1][0] - costResults[0][0]) / (qalyResults[1][0] - qalyResults[0][0]);
-					out.print(simul.getIdentifier() + "\t");
-					printOutcome(costResults[0]);
-					printOutcome(costResults[1]);
-					printOutcome(qalyResults[0]);
-					printOutcome(qalyResults[1]);
-					out.println(ICER2String(icer, costResults[0][0], costResults[1][0], ""));
+		if (info instanceof SimulationTimeInfo) {
+			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo) info).getType())) {
+				RETALSimulation simul = (RETALSimulation)info.getSimul();
+				final Cost cost = simul.getCost();
+				final QualityAdjustedLifeExpectancy qaly = simul.getQALY();
+				final double[][] costResults = cost.getResults();
+				final double[][] qalyResults = qaly.getResults();
+				if (singleUse) {
+					if (simul.isCloned()) {
+						cost.print(false, false);
+						qaly.print(false, false);
+						final double icer = (costResults[1][0] - costResults[0][0]) / (qalyResults[1][0] - qalyResults[0][0]);
+						System.out.println("ICER = " + ICER2String(icer, costResults[0][0], costResults[1][0], cost.getUnit() + "/" + qaly.getUnit()));
+					}				
 				}
-				else if (simul.getIdentifier() == 0) {
-					out.print("SIMID\t");
-					printHeaderforOutcome("C1");
-					printHeaderforOutcome("C2");
-					printHeaderforOutcome("E1");
-					printHeaderforOutcome("E2");
-					out.println("ICER");
+				else {
+					if (simul.isCloned()) {
+						final double icer = (costResults[1][0] - costResults[0][0]) / (qalyResults[1][0] - qalyResults[0][0]);
+						out.print(simul.getIdentifier() + "\t");
+						printOutcome(costResults[0]);
+						printOutcome(costResults[1]);
+						printOutcome(qalyResults[0]);
+						printOutcome(qalyResults[1]);
+						out.println(ICER2String(icer, costResults[0][0], costResults[1][0], ""));
+					}
+					else if (simul.getIdentifier() == 0) {
+						out.print("SIMID\t");
+						printHeaderforOutcome("C1");
+						printHeaderforOutcome("C2");
+						printHeaderforOutcome("E1");
+						printHeaderforOutcome("E2");
+						out.println("ICER");
+					}
 				}
 			}
 		}

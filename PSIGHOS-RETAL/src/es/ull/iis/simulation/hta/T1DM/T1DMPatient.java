@@ -131,7 +131,7 @@ public class T1DMPatient extends Patient {
 
 	@Override
 	public DiscreteEvent onDestroy(long ts) {
-		return new FinalizeEvent(ts);
+		return new DiscreteEvent.DefaultFinalizeEvent(this, ts);
 	}
 
 	/**
@@ -268,24 +268,6 @@ public class T1DMPatient extends Patient {
 		
 	}
 	
-	/** 
-	 * The last event of the patient, executed when he/she dies or if the simulation finishes.
-	 * @author Iván Castilla Rodríguez
-	 *
-	 */
-	private class FinalizeEvent extends DiscreteEvent {
-
-		public FinalizeEvent(long ts) {
-			super(ts);
-		}
-		
-		@Override
-		public void event() {
-        	debug("Ends execution");
-			simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, T1DMPatientInfo.Type.FINISH, this.getTs()));
-		}
-	}
-
 	/**
 	 * An event related to the progression to a new chronic complication. Updates the state of the patient and recomputes 
 	 * time to develop other complications in case the risks change.
@@ -302,7 +284,7 @@ public class T1DMPatient extends Patient {
 
 		@Override
 		public void event() {
-			T1DMComplicationStage complication = progress.getState();
+			final T1DMComplicationStage complication = progress.getState();
 			if (T1DMPatient.this.detailedState.contains(complication)) {
 				error("Health state already assigned!! " + complication.name());
 			}
@@ -311,23 +293,30 @@ public class T1DMPatient extends Patient {
 				T1DMPatient.this.detailedState.add(complication);
 				T1DMPatient.this.state.add(complication.getComplication());
 				
-				// Recompute time to death in case the risk increases
-				final long newTimeToDeath = commonParams.getTimeToDeath(T1DMPatient.this);
-				if (newTimeToDeath < deathEvent.getTs()) {
+				if (progress.causesDeath()) {
 					deathEvent.cancel();
-					deathEvent = new DeathEvent(newTimeToDeath);
+					deathEvent = new DeathEvent(ts, complication);
 					simul.addEvent(deathEvent);
 				}
-				// Update complications
-				for (T1DMChronicComplications comp : T1DMChronicComplications.values()) {
-					final T1DMProgression progs = commonParams.getProgression(T1DMPatient.this, comp);
-					for (T1DMComplicationStage st: progs.getCancelEvents()) {
-						comorbidityEvents[st.ordinal()].cancel();
+				else {
+					// Recompute time to death in case the risk increases
+					final long newTimeToDeath = commonParams.getTimeToDeath(T1DMPatient.this);
+					if (newTimeToDeath < deathEvent.getTs()) {
+						deathEvent.cancel();
+						deathEvent = new DeathEvent(newTimeToDeath, complication);
+						simul.addEvent(deathEvent);
 					}
-					for (T1DMProgressionPair pr : progs.getNewEvents()) {
-						final ChronicComorbidityEvent ev = new ChronicComorbidityEvent(pr);
-						comorbidityEvents[pr.getState().ordinal()] = ev;
-						simul.addEvent(ev);		
+					// Update complications
+					for (T1DMChronicComplications comp : T1DMChronicComplications.values()) {
+						final T1DMProgression progs = commonParams.getProgression(T1DMPatient.this, comp);
+						for (T1DMComplicationStage st: progs.getCancelEvents()) {
+							comorbidityEvents[st.ordinal()].cancel();
+						}
+						for (T1DMProgressionPair pr : progs.getNewEvents()) {
+							final ChronicComorbidityEvent ev = new ChronicComorbidityEvent(pr);
+							comorbidityEvents[pr.getState().ordinal()] = ev;
+							simul.addEvent(ev);		
+						}
 					}
 				}
 			}
@@ -371,7 +360,7 @@ public class T1DMPatient extends Patient {
 			// If the hypoglycemic event causes the death of the patient
 			if (causesDeath) {
 				deathEvent.cancel();
-				deathEvent = new DeathEvent(ts);
+				deathEvent = new DeathEvent(ts, comp);
 				simul.addEvent(deathEvent);
 			}
 			else {
@@ -448,9 +437,16 @@ public class T1DMPatient extends Patient {
 	 *
 	 */
 	public final class DeathEvent extends DiscreteEvent {
+		/** Cause of the death; null if non-specific */
+		final Named cause;
 		
 		public DeathEvent(long ts) {
+			this(ts, null);
+		}
+
+		public DeathEvent(long ts, Named cause) {
 			super(ts);
+			this.cause = cause;
 		}
 
 		@Override
@@ -481,7 +477,7 @@ public class T1DMPatient extends Patient {
 					lostEffectEvent.cancel();
 				}
 			}
-			
+			setDead();
 			simul.notifyInfo(new T1DMPatientInfo(simul, T1DMPatient.this, T1DMPatientInfo.Type.DEATH, this.getTs()));
 			notifyEnd();
 		}

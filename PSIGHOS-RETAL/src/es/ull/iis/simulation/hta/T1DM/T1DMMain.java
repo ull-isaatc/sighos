@@ -9,8 +9,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
@@ -62,8 +65,10 @@ public class T1DMMain {
 	private final boolean printCummIncidence;
 	/** Enables printing the budget impact */
 	private final boolean printBI;
+	/** Enables printing the outcomes per patient */
+	private final boolean printIndividualOutcomes;
 	
-	public T1DMMain(PrintWriter out, SecondOrderParamsRepository secParams, boolean parallel, boolean quiet, int singlePatientOutput, boolean printIncidence, boolean printPrevalence, boolean printCummIncidence, boolean printBI) {
+	public T1DMMain(PrintWriter out, SecondOrderParamsRepository secParams, boolean parallel, boolean quiet, int singlePatientOutput, boolean printIncidence, boolean printPrevalence, boolean printCummIncidence, boolean printBI, boolean printIndividualOutcomes) {
 		super();
 		this.out = out;
 		this.interventions = secParams.getInterventions();
@@ -80,12 +85,13 @@ public class T1DMMain {
 		this.printPrevalence = printPrevalence;
 		this.printCummIncidence = printCummIncidence;
 		this.printBI = printBI;
+		this.printIndividualOutcomes = printIndividualOutcomes;
 		progress = new PrintProgress((nRuns > N_PROGRESS) ? nRuns/N_PROGRESS : 1, nRuns + 1);
 	}
 
 	private void addListeners(T1DMSimulation simul) {
 		if (printCummIncidence)
-			simul.addInfoReceiver(new T1DMCummulatedIncidenceView(BasicConfigParams.MAX_AGE - BasicConfigParams.MIN_AGE + 1, nPatients, secParams.getRegisteredComplicationStages()));
+			simul.addInfoReceiver(new T1DMCummulatedIncidenceView(BasicConfigParams.SIMLENGTH, nPatients, secParams.getRegisteredComplicationStages()));
 		if (printIncidence)
 			simul.addInfoReceiver(new PatientCounterHistogramView(BasicConfigParams.MIN_AGE, BasicConfigParams.MAX_AGE, 1, secParams.getRegisteredComplicationStages()));
 		if (printPrevalence)
@@ -196,6 +202,20 @@ public class T1DMMain {
 				System.out.println();
 			}
 		}
+		if (printIndividualOutcomes) {
+			System.out.print("Patient");
+			for (int i = 0; i < interventions.length; i++) {
+				System.out.print("\tCost_" + interventions[i].getShortName() + "\tLE_" + interventions[i].getShortName() + "\tQALE_" + interventions[i].getShortName());
+			}
+			System.out.println();
+			for (int i = 0; i < nPatients; i++) {
+				System.out.print(i);
+				for (int j = 0; j < interventions.length; j++) {
+					System.out.print("\t" + costListeners[j].getValues()[i] + "\t" + lyListeners[j].getValues()[i] + "\t" + qalyListeners[j].getValues()[i]);					
+				}
+				System.out.println();
+			}
+		}
 		out.println(print(simul, hba1cListeners, costListeners, lyListeners, qalyListeners, acuteListeners, timeFreeListener));	
 	}
 	
@@ -257,35 +277,52 @@ public class T1DMMain {
 	        }
 	        BasicConfigParams.N_PATIENTS = args1.nPatients;
 	        BasicConfigParams.USE_SIMPLE_MODELS = args1.basic;
+	        BasicConfigParams.USE_CHD_DEATH_MODEL = args1.dCHD;
 	        BasicConfigParams.USE_REVIEW_UTILITIES = args1.altUtils;
 	        BasicConfigParams.MIN_AGE = args1.ageLimits.get(0);
 	        BasicConfigParams.MAX_AGE = args1.ageLimits.get(1);
 	        BasicConfigParams.STUDY_YEAR = args1.year;
-	        
+	        BasicConfigParams.SIMLENGTH = (args1.length == -1) ? BasicConfigParams.MAX_AGE - BasicConfigParams.MIN_AGE + 1 : args1.length;
+
+	        for (final Map.Entry<String, String> pInit : args1.initProportions.entrySet()) {
+	        	BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
+	        }
 	        SecondOrderParamsRepository secParams;
-	        if (args1.validation == 1) {
-	        	secParams = new CanadaSecondOrderParams();
-	        }
-	        else if (args1.validation == 2) {
-	        	secParams = new DCCTSecondOrderParams();
-	        }
-	        else if (args1.population == 2) {
-	        	secParams = new UncontrolledSecondOrderParams();
-	        }
-	        else {
-	        	secParams = new UnconsciousSecondOrderParams();
+	        switch(args1.population) {
+	        	case 1: 
+	        		secParams = new UnconsciousSecondOrderParams();
+	        		break;
+	        	case 2:
+	        		secParams = new UncontrolledSecondOrderParams();
+	        		break;
+	        	case 3:
+	        		secParams = new CanadaSecondOrderParams();
+	        		break;
+	        	case 4:
+	        		secParams = new DCCTSecondOrderParams();
+	        		break;
+	        	case 5:
+	        		secParams =new LySecondOrderParams();
+	        		break;
+	        	default:
+	        		secParams = new UnconsciousSecondOrderParams();
+	        		break;
 	        }
 	        BasicConfigParams.N_RUNS = args1.nRuns;
 	    	if (args1.noDiscount)
 	    		secParams.setDiscountZero(true);
 	        
-	        final T1DMMain experiment = new T1DMMain(out, secParams, args1.parallel, args1.quiet, args1.singlePatientOutput, args1.incidence, args1.prevalence, args1.cumm, args1.bi);
+	        final T1DMMain experiment = new T1DMMain(out, secParams, args1.parallel, args1.quiet, args1.singlePatientOutput, args1.incidence, args1.prevalence, args1.cumm, args1.bi, args1.individualOutcomes);
 	        experiment.run();
 		} catch (ParameterException ex) {
 			System.out.println(ex.getMessage());
 			ex.usage();
 			System.exit(-1);
+		} catch (NumberFormatException ex) {
+			System.out.println(ex.getMessage());
+			System.exit(-1);
 		}
+		
 
 	}
 	
@@ -296,9 +333,9 @@ public class T1DMMain {
 		private int nPatients = BasicConfigParams.N_PATIENTS;
 		@Parameter(names ={"--runs", "-r"}, description = "Number of probabilistic runs", order = 3)
 		private int nRuns = BasicConfigParams.N_RUNS;
-		@Parameter(names ={"--validation", "-v"}, description = "Enables validation scenarios (1 for Canada, 2 for DCCT)", order = 8)
-		private int validation = 0;
-		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative population (1 for unconscious, 2 for uncontrolled)", order = 8)
+		@Parameter(names ={"--length", "-l"}, description = "Replication length (years)", order = 3)
+		private int length = -1;
+		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (1 for unconscious, 2 for uncontrolled, 3 for Canada, 4 for DCCT, 5 for Ly)", order = 8)
 		private int population = 1;
 		@Parameter(names ={"--single_patient_output", "-es"}, description = "Enables printing the specified patient's output", order = 4)
 		private int singlePatientOutput = -1;
@@ -309,6 +346,8 @@ public class T1DMMain {
 		@Parameter(names ={"--incidence", "-ei"}, description = "Enables printing incidence of complications by age group ", order = 9)
 		private boolean incidence = false;
 		@Parameter(names ={"--cumincidence", "-ec"}, description = "Enables printing cummulated incidence of complications by time from start", order = 9)
+		private boolean individualOutcomes = false;
+		@Parameter(names ={"--outcomes", "-eo"}, description = "Enables printing individual outcomes", order = 9)
 		private boolean cumm = false;
 		@Parameter(names ={"--budget", "-ebi"}, description = "Enables printing budget impact", order = 9)
 		private boolean bi = false;
@@ -318,12 +357,16 @@ public class T1DMMain {
 		private boolean quiet = false;
 		@Parameter(names ={"--basic", "-b"}, description = "Use basic progression models, instead of complex (only some complications has complex models)", order = 10)
 		private boolean basic = BasicConfigParams.USE_SIMPLE_MODELS;
+		@Parameter(names ={"--deathCHD", "-dchd"}, description = "Use basic progression models, instead of complex (only some complications has complex models)", order = 10)
+		private boolean dCHD = BasicConfigParams.USE_CHD_DEATH_MODEL;
 		@Parameter(names ={"--alt_utilities", "-au"}, description = "Enables using alternative utilities from the revision of Beaudet et al. 2014", order = 10)
 		private boolean altUtils = BasicConfigParams.USE_REVIEW_UTILITIES;
 		@Parameter(names = {"--agelimits", "-al"}, description = "Modify age limits [min, max]", arity = 2)
 		private List<Integer> ageLimits = getAgeLimits();
 		@Parameter(names ={"--year", "-y"}, description = "Modifies the year of the study (for cost updating))", order = 8)
 		private int year = BasicConfigParams.STUDY_YEAR;
+		@DynamicParameter(names = {"--iniprop", "-I"}, description = "Initial proportion for complication stages")
+		private Map<String, String> initProportions = new TreeMap<String, String>();
 	}
 
 	private static List<Integer> getAgeLimits() {

@@ -95,10 +95,24 @@ public class HTASimulation extends Simulation {
 		return intervention;
 	}
 	
-	public void addGeneratedPatient(Patient pat, int order) {
-		generatedPatients[order] = pat;
+	/**
+	 * Adds a new patient
+	 * @param pat A patient
+	 * @param index Order of the patient
+	 */
+	public void addGeneratedPatient(Patient pat, int index) {
+		generatedPatients[index] = pat;
 	}
 
+	/**
+	 * Returns the specified generated patient
+	 * @param index Order of the patient
+	 * @return the specified generated patient; null if the index is not valid
+	 */
+	public Patient getGeneratedPatient(int index) {
+		return (index < 0 || index >= nPatients) ? null : generatedPatients[index];
+	}
+	
 	@Override
 	public void end() {
 		super.end();

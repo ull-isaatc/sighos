@@ -18,7 +18,7 @@ import simkit.random.RandomVariateFactory;
  */
 public class LySevereHypoglycemiaEvent extends AcuteComplicationSubmodel {
 	public static final String STR_P_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + T1DMAcuteComplications.SEVERE_HYPO.name();
-	public static final String STR_P_DEATH_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + "DEATH_" + T1DMAcuteComplications.SEVERE_HYPO.name();
+	public static final String STR_P_DEATH_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + SecondOrderParamsRepository.STR_DEATH_PREFIX + T1DMAcuteComplications.SEVERE_HYPO.name();
 	public static final String STR_RR_HYPO = SecondOrderParamsRepository.STR_RR_PREFIX + T1DMAcuteComplications.SEVERE_HYPO.name(); 
 	public static final String STR_COST_HYPO_EPISODE = SecondOrderParamsRepository.STR_COST_PREFIX + T1DMAcuteComplications.SEVERE_HYPO.name();
 	public static final String STR_DU_HYPO_EVENT = SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + T1DMAcuteComplications.SEVERE_HYPO.name();

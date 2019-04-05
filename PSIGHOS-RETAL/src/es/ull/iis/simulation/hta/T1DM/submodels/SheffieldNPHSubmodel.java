@@ -62,9 +62,11 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 		HEALTHY_ESRD,
 		NEU_ALB1		
 	}
+	private final double pInitALB1;
 	private final double[] invProb;
 	private final RRCalculator[] rr;
 	private final double [][] rnd;
+	private final double[] rndALB1AtStart;
 
 	private final double[] costALB1;
 	private final double[] costALB2;
@@ -102,7 +104,9 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 		final int nPatients = secParams.getnPatients();
 		final RandomNumber rng = secParams.getRngFirstOrder();
 		rnd = new double[nPatients][NPHSubstates.length];
+		rndALB1AtStart = new double[nPatients];
 		for (int i = 0; i < nPatients; i++) {
+			rndALB1AtStart[i] = rng.draw();
 			for (int j = 0; j < NPHSubstates.length; j++) {
 				rnd[i][j] = rng.draw();
 			}
@@ -115,6 +119,13 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 		
 		duALB2 = secParams.getDisutilityForChronicComplication(ALB2);
 		duESRD = secParams.getDisutilityForChronicComplication(ESRD);
+		
+		if (BasicConfigParams.INIT_PROP.containsKey(ALB1.name())) {
+			pInitALB1 = BasicConfigParams.INIT_PROP.get(ALB1.name());
+		}
+		else {
+			pInitALB1 = 0.0;
+		}		
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -288,7 +299,10 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 
 	@Override
 	public TreeSet<T1DMComplicationStage> getInitialStage(T1DMPatient pat) {
-		return new TreeSet<>();
+		TreeSet<T1DMComplicationStage> init = new TreeSet<>();
+		if (rndALB1AtStart[pat.getIdentifier()] < pInitALB1)
+			init.add(ALB1);
+		return init;
 	}
 
 	@Override

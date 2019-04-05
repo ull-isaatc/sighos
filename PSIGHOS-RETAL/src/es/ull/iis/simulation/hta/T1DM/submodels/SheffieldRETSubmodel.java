@@ -90,6 +90,7 @@ public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
 		}
 	}
 	
+	private final double pInitBGRET;
 	private final double[] invProb;
 	private final RRCalculator[] rr;
 	private final double[][] rnd;
@@ -154,6 +155,14 @@ public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
 		duPRET = secParams.getDisutilityForChronicComplication(PRET);
 		duME = secParams.getDisutilityForChronicComplication(ME);
 		duBLI = secParams.getDisutilityForChronicComplication(BLI);
+		
+		if (BasicConfigParams.INIT_PROP.containsKey(BGRET.name())) {
+			pInitBGRET = BasicConfigParams.INIT_PROP.get(BGRET.name());
+		}
+		else {
+			pInitBGRET = 0.0;
+		}
+
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
@@ -329,8 +338,8 @@ public class SheffieldRETSubmodel extends ChronicComplicationSubmodel {
 	@Override
 	public TreeSet<T1DMComplicationStage> getInitialStage(T1DMPatient pat) {
 		TreeSet<T1DMComplicationStage> init = new TreeSet<>();
-//		if (rndBGRETAtStart[pat.getIdentifier()] < 0.496183206) // (715 / 1441)
-//			init.add(BGRET);
+		if (rndBGRETAtStart[pat.getIdentifier()] < pInitBGRET)
+			init.add(BGRET);
 		return init;
 	}
 

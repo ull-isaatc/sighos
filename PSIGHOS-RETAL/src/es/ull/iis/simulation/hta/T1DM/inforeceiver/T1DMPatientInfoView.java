@@ -6,9 +6,8 @@ package es.ull.iis.simulation.hta.T1DM.inforeceiver;
 import java.io.PrintStream;
 
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationStartInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -28,8 +27,7 @@ public class T1DMPatientInfoView extends Listener {
 		super("Standard patient viewer");
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
-		addEntrance(SimulationStartInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 		this.specificPatient = specificPatient;
 	}
 
@@ -39,16 +37,17 @@ public class T1DMPatientInfoView extends Listener {
 
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationEndInfo) { 
-			final SimulationEndInfo endInfo = (SimulationEndInfo) info;
-			if (specificPatient == -1)
-				out.println(info.toString() + ": CPU Time = " 
-					+ ((endInfo.getCpuTime() - simulationInit) / 1000000) + " miliseconds.");
-		} else if (info instanceof SimulationStartInfo) {
-			final SimulationStartInfo startInfo = (SimulationStartInfo) info;
-			simulationInit = startInfo.getCpuTime();
-			if (specificPatient == -1)
-				out.println(info.toString());
+		if (info instanceof SimulationTimeInfo) {
+			SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
+			if (SimulationTimeInfo.Type.END.equals(tInfo.getType())) { 
+				if (specificPatient == -1)
+					out.println(info.toString() + ": CPU Time = " 
+						+ ((tInfo.getCpuTime() - simulationInit) / 1000000) + " miliseconds.");
+			} else if (SimulationTimeInfo.Type.START.equals(tInfo.getType())) {
+				simulationInit = tInfo.getCpuTime();
+				if (specificPatient == -1)
+					out.println(info.toString());
+			} 			
 		} else if (info instanceof T1DMPatientInfo) {
 			if (specificPatient == -1 || specificPatient == ((T1DMPatientInfo)info).getPatient().getIdentifier())
 				out.println(info.toString());

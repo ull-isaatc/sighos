@@ -6,13 +6,12 @@ package es.ull.iis.simulation.hta.T1DM.inforeceiver;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.hta.T1DM.T1DMChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -40,7 +39,7 @@ public class T1DMPatientPrevalenceView extends Listener {
 		this.ageIntervals = ageIntervals;
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	public static double[][] buildAgesInterval(int minAge, int maxAge, int gap, boolean fillToLifetime) {
@@ -59,29 +58,31 @@ public class T1DMPatientPrevalenceView extends Listener {
 	
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationEndInfo) {
-			out.print("Age1\tAge2\tPatients");
-			for (T1DMComplicationStage comp : availableStates) {
-				out.print("\t" + comp.name());
-			}
-			out.println("\tDeaths");
-			out.print(ageIntervals[0][0] + "\t" + ageIntervals[ageIntervals.length - 1][1] + "\t" + nPatients[ageIntervals.length]);
-			for (int[] values : nComplications) {
-				out.print("\t" + values[ageIntervals.length]);
-			}
-			out.println("\t" + nDeaths[ageIntervals.length]);
-			for (int i = 0; i < ageIntervals.length; i++) {
-				out.print(ageIntervals[i][0] + "\t" + ageIntervals[i][1] + "\t" + nPatients[i]);
-				for (int[] values : nComplications) {
-					out.print("\t" + values[i]);
+		if (info instanceof SimulationTimeInfo) {
+			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo) info).getType())) {
+				out.print("Age1\tAge2\tPatients");
+				for (T1DMComplicationStage comp : availableStates) {
+					out.print("\t" + comp.name());
 				}
-				out.println("\t" + nDeaths[i]);
+				out.println("\tDeaths");
+				out.print(ageIntervals[0][0] + "\t" + ageIntervals[ageIntervals.length - 1][1] + "\t" + nPatients[ageIntervals.length]);
+				for (int[] values : nComplications) {
+					out.print("\t" + values[ageIntervals.length]);
+				}
+				out.println("\t" + nDeaths[ageIntervals.length]);
+				for (int i = 0; i < ageIntervals.length; i++) {
+					out.print(ageIntervals[i][0] + "\t" + ageIntervals[i][1] + "\t" + nPatients[i]);
+					for (int[] values : nComplications) {
+						out.print("\t" + values[i]);
+					}
+					out.println("\t" + nDeaths[i]);
+				}
 			}
 		}
 		else {
 			T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
 			T1DMPatient pat = pInfo.getPatient();
-			if (pInfo.getType() == T1DMPatientInfo.Type.FINISH) {
+			if (pInfo.getType() == T1DMPatientInfo.Type.DEATH) {
 				final double initAge = pat.getInitAge(); 
 				final double ageAtDeath = pat.getAge();
 				// First check if the patient died before the lowest interval

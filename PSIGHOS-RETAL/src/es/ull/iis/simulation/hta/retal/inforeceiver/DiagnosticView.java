@@ -5,11 +5,11 @@ package es.ull.iis.simulation.hta.retal.inforeceiver;
 
 import java.io.PrintStream;
 
-import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.RETALSimulation;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.info.PatientInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -34,7 +34,7 @@ public class DiagnosticView extends Listener {
 		super("Counter of diagnosis and screening results");
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	/* (non-Javadoc)
@@ -42,23 +42,25 @@ public class DiagnosticView extends Listener {
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationEndInfo) {
-			out.println("TOTAL DIAGNOSED: " + diagnosed[DISEASES.length]);
-			for (int i = 0; i < DISEASES.length; i++) {
-				out.println("\t" + DISEASES[i] + ": " + diagnosed[i]);
+		if (info instanceof SimulationTimeInfo) {
+			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo) info).getType())) {
+				out.println("TOTAL DIAGNOSED: " + diagnosed[DISEASES.length]);
+				for (int i = 0; i < DISEASES.length; i++) {
+					out.println("\t" + DISEASES[i] + ": " + diagnosed[i]);
+				}
+				out.println("TOTAL TP: " + tp[DISEASES.length]);
+				for (int i = 0; i < DISEASES.length; i++) {
+					out.println("\t" + DISEASES[i] + ": " + tp[i]);
+				}
+				out.println("TOTAL FN: " + fn[DISEASES.length]);
+				for (int i = 0; i < DISEASES.length; i++) {
+					out.println("\t" + DISEASES[i] + ": " + fn[i]);
+				}
+				out.println("TOTAL TN: " + tn);
+				out.println("TOTAL FP: " + fp);
+				out.println("TOTAL NA: " + na);
+				out.println("TOTAL SCREENING: " + (na + tn + fp + tp[DISEASES.length] + fn[DISEASES.length]));							
 			}
-			out.println("TOTAL TP: " + tp[DISEASES.length]);
-			for (int i = 0; i < DISEASES.length; i++) {
-				out.println("\t" + DISEASES[i] + ": " + tp[i]);
-			}
-			out.println("TOTAL FN: " + fn[DISEASES.length]);
-			for (int i = 0; i < DISEASES.length; i++) {
-				out.println("\t" + DISEASES[i] + ": " + fn[i]);
-			}
-			out.println("TOTAL TN: " + tn);
-			out.println("TOTAL FP: " + fp);
-			out.println("TOTAL NA: " + na);
-			out.println("TOTAL SCREENING: " + (na + tn + fp + tp[DISEASES.length] + fn[DISEASES.length]));			
 		}
 		else if (info instanceof PatientInfo) {
 			final PatientInfo p = (PatientInfo) info;

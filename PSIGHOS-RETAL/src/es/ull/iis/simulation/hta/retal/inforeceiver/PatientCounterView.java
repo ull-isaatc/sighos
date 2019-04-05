@@ -9,8 +9,8 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.hta.retal.RETALSimulation;
 import es.ull.iis.simulation.hta.retal.info.PatientInfo;
 import es.ull.iis.simulation.hta.retal.params.CNVStage;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -52,7 +52,7 @@ public class PatientCounterView extends Listener {
 		}
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	/**
@@ -67,43 +67,45 @@ public class PatientCounterView extends Listener {
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationEndInfo) {
-			System.out.println("CREATED: " + nPatients);
-			if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
-				System.out.println("DEVELOP EARM IN FIRST EYE: " + nEARM[0]);
-				System.out.println("DEVELOP EARM IN FELLOW EYE: " + nEARM[1]);
-				System.out.println("DEVELOP GA IN FIRST EYE: " + nGA[0]);
-				System.out.println("DEVELOP GA IN FELLOW EYE: " + nGA[1]);
-				System.out.println("DEVELOP CNV IN FIRST EYE: " + nCNV[0]);
-				System.out.println("DEVELOP CNV IN FELLOW EYE: " + nCNV[1]);
-				if (detailed) {
-					int count1 = 0;
-					int count2 = 0;
-					for (CNVStage stage : CNVStage.ALL_STAGES) { 
-						System.out.println("DEVELOP CNV (" + stage.getType() + ", " + stage.getPosition() + ") IN FIRST EYE: " + nCNVStage.get(stage)[0]);
-						System.out.println("DEVELOP CNV (" + stage.getType() + ", " + stage.getPosition() + ") IN FELLOW EYE: " + nCNVStage.get(stage)[1]);
-						count1 += nCNVStage.get(stage)[0];
-						count2 += nCNVStage.get(stage)[1];
-					}
-					if (isDebugMode()) {
-						System.out.println("TOTAL CHANGES CNV IN FIRST EYE: " + count1);
-						System.out.println("TOTAL CHANGES CNV IN FELLOW EYE: " + count2);
+		if (info instanceof SimulationTimeInfo) {
+			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo) info).getType())) {
+				System.out.println("CREATED: " + nPatients);
+				if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
+					System.out.println("DEVELOP EARM IN FIRST EYE: " + nEARM[0]);
+					System.out.println("DEVELOP EARM IN FELLOW EYE: " + nEARM[1]);
+					System.out.println("DEVELOP GA IN FIRST EYE: " + nGA[0]);
+					System.out.println("DEVELOP GA IN FELLOW EYE: " + nGA[1]);
+					System.out.println("DEVELOP CNV IN FIRST EYE: " + nCNV[0]);
+					System.out.println("DEVELOP CNV IN FELLOW EYE: " + nCNV[1]);
+					if (detailed) {
+						int count1 = 0;
+						int count2 = 0;
+						for (CNVStage stage : CNVStage.ALL_STAGES) { 
+							System.out.println("DEVELOP CNV (" + stage.getType() + ", " + stage.getPosition() + ") IN FIRST EYE: " + nCNVStage.get(stage)[0]);
+							System.out.println("DEVELOP CNV (" + stage.getType() + ", " + stage.getPosition() + ") IN FELLOW EYE: " + nCNVStage.get(stage)[1]);
+							count1 += nCNVStage.get(stage)[0];
+							count2 += nCNVStage.get(stage)[1];
+						}
+						if (isDebugMode()) {
+							System.out.println("TOTAL CHANGES CNV IN FIRST EYE: " + count1);
+							System.out.println("TOTAL CHANGES CNV IN FELLOW EYE: " + count2);
+						}
 					}
 				}
+				if (diseases.contains(RETALSimulation.DISEASES.DR)) {
+					System.out.println("DEVELOP DIABETES: " + nDiabetes);
+					System.out.println("DEVELOP NPDR IN FIRST EYE: " + nNPDR[0]);
+					System.out.println("DEVELOP NPDR IN FELLOW EYE: " + nNPDR[1]);
+					System.out.println("DEVELOP NON HR PDR IN FIRST EYE: " + nNonHRPDR[0]);
+					System.out.println("DEVELOP NON HR PDR IN FELLOW EYE: " + nNonHRPDR[1]);
+					System.out.println("DEVELOP HR PDR IN FIRST EYE: " + nHRPDR[0]);
+					System.out.println("DEVELOP HR PDR IN FELLOW EYE: " + nHRPDR[1]);
+					System.out.println("DEVELOP CSME IN FIRST EYE: " + nCSME[0]);
+					System.out.println("DEVELOP CSME IN FELLOW EYE: " + nCSME[1]);
+					
+				}
+				System.out.println("S_DEAD: " + nDeaths);
 			}
-			if (diseases.contains(RETALSimulation.DISEASES.DR)) {
-				System.out.println("DEVELOP DIABETES: " + nDiabetes);
-				System.out.println("DEVELOP NPDR IN FIRST EYE: " + nNPDR[0]);
-				System.out.println("DEVELOP NPDR IN FELLOW EYE: " + nNPDR[1]);
-				System.out.println("DEVELOP NON HR PDR IN FIRST EYE: " + nNonHRPDR[0]);
-				System.out.println("DEVELOP NON HR PDR IN FELLOW EYE: " + nNonHRPDR[1]);
-				System.out.println("DEVELOP HR PDR IN FIRST EYE: " + nHRPDR[0]);
-				System.out.println("DEVELOP HR PDR IN FELLOW EYE: " + nHRPDR[1]);
-				System.out.println("DEVELOP CSME IN FIRST EYE: " + nCSME[0]);
-				System.out.println("DEVELOP CSME IN FELLOW EYE: " + nCSME[1]);
-				
-			}
-			System.out.println("S_DEAD: " + nDeaths);
 		}
 		else if (info instanceof PatientInfo) {
 			final PatientInfo p = (PatientInfo) info;

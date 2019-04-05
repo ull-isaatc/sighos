@@ -7,12 +7,12 @@ import java.io.PrintStream;
 import java.util.EnumSet;
 
 import es.ull.iis.simulation.hta.retal.EyeState;
-import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.RETALSimulation;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.info.PatientInfo;
 import es.ull.iis.simulation.hta.retal.params.CommonParams;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -69,37 +69,39 @@ public class PatientPrevalenceView extends Listener {
 		nDeaths = new int[N_INTERVALS+1];
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationEndInfo) {
-			out.print("Age\tPatients\tDiabetes");
-			if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
-				out.print("\tEARM\tGA\tCNV");
-			}
-			if (diseases.contains(RETALSimulation.DISEASES.DR)) {
-				out.print("\tNPDR\tNonHRPDR\tHRPDR\tCSME");
-			}
-			out.println("\tDeaths");
-			out.print("TOTAL\t" + nPatients[N_INTERVALS] + "\t" + nDiabetes[N_INTERVALS]);
-			if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
-				out.print("\t" + nEARM[N_INTERVALS] + "\t" + nGA[N_INTERVALS]	+ "\t" + nCNV[N_INTERVALS]);
-			}
-			if (diseases.contains(RETALSimulation.DISEASES.DR)) {
-				out.print("\t" + nNPDR[N_INTERVALS] + "\t" + nNonHRPDR[N_INTERVALS] + "\t" + nHRPDR[N_INTERVALS] + "\t" + nCSME[N_INTERVALS]);
-			}
-			out.println("\t" + nDeaths[N_INTERVALS]);
-			for (int i = 0; i < N_INTERVALS; i++) {
-				out.print(AGES[i][0] + "\t" + nPatients[i] + "\t" + nDiabetes[i]);
+		if (info instanceof SimulationTimeInfo) {
+			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo) info).getType())) {
+				out.print("Age\tPatients\tDiabetes");
 				if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
-					out.print("\t" + nEARM[i] + "\t" + nGA[i] + "\t" + nCNV[i]);
+					out.print("\tEARM\tGA\tCNV");
 				}
 				if (diseases.contains(RETALSimulation.DISEASES.DR)) {
-					out.print("\t" + nNPDR[i] + "\t" + nNonHRPDR[i] + "\t" + nHRPDR[i] + "\t" + nCSME[i]);
+					out.print("\tNPDR\tNonHRPDR\tHRPDR\tCSME");
 				}
-				out.println("\t" + nDeaths[i]);
+				out.println("\tDeaths");
+				out.print("TOTAL\t" + nPatients[N_INTERVALS] + "\t" + nDiabetes[N_INTERVALS]);
+				if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
+					out.print("\t" + nEARM[N_INTERVALS] + "\t" + nGA[N_INTERVALS]	+ "\t" + nCNV[N_INTERVALS]);
+				}
+				if (diseases.contains(RETALSimulation.DISEASES.DR)) {
+					out.print("\t" + nNPDR[N_INTERVALS] + "\t" + nNonHRPDR[N_INTERVALS] + "\t" + nHRPDR[N_INTERVALS] + "\t" + nCSME[N_INTERVALS]);
+				}
+				out.println("\t" + nDeaths[N_INTERVALS]);
+				for (int i = 0; i < N_INTERVALS; i++) {
+					out.print(AGES[i][0] + "\t" + nPatients[i] + "\t" + nDiabetes[i]);
+					if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
+						out.print("\t" + nEARM[i] + "\t" + nGA[i] + "\t" + nCNV[i]);
+					}
+					if (diseases.contains(RETALSimulation.DISEASES.DR)) {
+						out.print("\t" + nNPDR[i] + "\t" + nNonHRPDR[i] + "\t" + nHRPDR[i] + "\t" + nCSME[i]);
+					}
+					out.println("\t" + nDeaths[i]);
+				}
 			}
 		}
 		else {

@@ -27,7 +27,7 @@ public class T1DMSimulation extends HTASimulation {
 	 * @param commonParams Common parameters
 	 */
 	public T1DMSimulation(int id, T1DMMonitoringIntervention intervention, int nPatients, CommonParams commonParams) {
-		super(id, DESCRIPTION, BasicConfigParams.SIMUNIT, intervention, new TimeStamp(TimeUnit.YEAR, (long) (BasicConfigParams.MAX_AGE - BasicConfigParams.MIN_AGE + 1)), commonParams.getInterventions().length, nPatients);
+		super(id, DESCRIPTION, BasicConfigParams.SIMUNIT, intervention, new TimeStamp(TimeUnit.YEAR, BasicConfigParams.SIMLENGTH), commonParams.getInterventions().length, nPatients);
 		this.commonParams = commonParams;
 		new T1DMPatientGenerator(this, nPatients, intervention);
 	}

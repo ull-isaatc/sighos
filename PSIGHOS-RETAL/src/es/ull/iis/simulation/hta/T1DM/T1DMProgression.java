@@ -35,6 +35,15 @@ public class T1DMProgression {
 	}
 	
 	/**
+	 * Adds the progression to a new complication
+	 * @param stage Stage of the complication to progress to
+	 * @param timeToEvent Timestamp when this complication is predicted to appear
+	 */
+	public void addNewEvent(T1DMComplicationStage stage, long timeToEvent, boolean causesDeath) {
+		newEvents.add(new T1DMProgressionPair(stage, timeToEvent, causesDeath));
+	}
+	
+	/**
 	 * Adds the cancellation of an already scheduled complication
 	 * @param stage Specific complication to cancel
 	 */

@@ -21,6 +21,8 @@ public abstract class Patient extends VariableStoreSimulationObject implements E
 	protected final Intervention intervention;
 	/** The timestamp when this patient enters the simulation */
 	protected long startTs;
+	/** True if the patient is dead */
+	private boolean dead; 
 
 
 	/**
@@ -34,6 +36,7 @@ public abstract class Patient extends VariableStoreSimulationObject implements E
 		this.intervention = intervention;
 		this.nIntervention = intervention.getId();
 		this.clonedFrom = null;
+		this.dead = false;
 	}
 
 	public Patient(HTASimulation simul, Patient original, Intervention intervention) {
@@ -41,6 +44,7 @@ public abstract class Patient extends VariableStoreSimulationObject implements E
 		this.intervention = intervention;
 		this.nIntervention = intervention.getId();
 		this.clonedFrom = original;		
+		this.dead = false;
 	}
 
 	@Override
@@ -80,5 +84,20 @@ public abstract class Patient extends VariableStoreSimulationObject implements E
 	public long getStartTs() {
 		return startTs;
 	}
-	
+
+	/**
+	 * Returns true if the patient is dead; false otherwise
+	 * @return true if the patient is dead; false otherwise
+	 */
+	public boolean isDead() {
+		return dead;
+	}
+
+	/**
+	 * Sets the patient as dead
+	 */
+	public void setDead() {
+		this.dead = true;
+	}
+
 }

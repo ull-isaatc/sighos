@@ -14,6 +14,7 @@ import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.T1DM.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.DeathSimpleCHDSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.LySevereHypoglycemiaEvent;
 import es.ull.iis.simulation.hta.T1DM.submodels.SheffieldNPHSubmodel;
@@ -95,7 +96,10 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 			SheffieldRETSubmodel.registerSecondOrder(this);;
 			SheffieldNPHSubmodel.registerSecondOrder(this);
 		}
-		SimpleCHDSubmodel.registerSecondOrder(this);
+		if (BasicConfigParams.USE_CHD_DEATH_MODEL)
+			DeathSimpleCHDSubmodel.registerSecondOrder(this);
+		else
+			SimpleCHDSubmodel.registerSecondOrder(this);
 		SimpleNEUSubmodel.registerSecondOrder(this);
 
 		// Acute complication submodels
@@ -158,10 +162,19 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 		}
 		dModel.addIMR(SimpleNEUSubmodel.NEU, getIMR(SimpleNEUSubmodel.NEU));
 		dModel.addIMR(SimpleNEUSubmodel.LEA, getIMR(SimpleNEUSubmodel.LEA));
-		dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(T1DMChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(T1DMChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(T1DMChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(T1DMChronicComplications.CHD));
+		if (BasicConfigParams.USE_CHD_DEATH_MODEL) {
+			dModel.addIMR(DeathSimpleCHDSubmodel.ANGINA, getIMR(T1DMChronicComplications.CHD));
+			dModel.addIMR(DeathSimpleCHDSubmodel.STROKE, getIMR(T1DMChronicComplications.CHD));
+			dModel.addIMR(DeathSimpleCHDSubmodel.HF, getIMR(T1DMChronicComplications.CHD));
+			dModel.addIMR(DeathSimpleCHDSubmodel.MI, getIMR(T1DMChronicComplications.CHD));
+		}
+		else {
+			dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(T1DMChronicComplications.CHD));
+			dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(T1DMChronicComplications.CHD));
+			dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(T1DMChronicComplications.CHD));
+			dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(T1DMChronicComplications.CHD));
+		}
+
 		return dModel;
 	}
 	
@@ -181,10 +194,11 @@ public class UnconsciousSecondOrderParams extends SecondOrderParamsRepository {
 			comps[T1DMChronicComplications.NPH.ordinal()] = new SheffieldNPHSubmodel(this);
 			comps[T1DMChronicComplications.RET.ordinal()] = new SheffieldRETSubmodel(this);
 		}
-		
 		// Adds major Cardiovascular disease submodel
-		comps[T1DMChronicComplications.CHD.ordinal()] = new SimpleCHDSubmodel(this);
-		
+		if (BasicConfigParams.USE_CHD_DEATH_MODEL)
+			comps[T1DMChronicComplications.CHD.ordinal()] = new DeathSimpleCHDSubmodel(this);
+		else
+			comps[T1DMChronicComplications.CHD.ordinal()] = new SimpleCHDSubmodel(this);
 		return comps;
 	}
 	

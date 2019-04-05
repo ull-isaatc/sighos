@@ -8,12 +8,12 @@ import java.util.EnumSet;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.retal.EyeState;
-import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.RETALSimulation;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.info.PatientInfo;
 import es.ull.iis.simulation.hta.retal.params.CNVStage;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -87,7 +87,7 @@ public class PatientCounterHistogramView extends Listener {
 		}
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	/* (non-Javadoc)
@@ -95,39 +95,41 @@ public class PatientCounterHistogramView extends Listener {
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationEndInfo) {
-			final StringBuilder strHead = new StringBuilder("AGE\tBASE\tDIABETES");
-			for (EyeState state : nEyeState.keySet())
-				strHead.append("\t").append(state.toString()).append("_1E\t").append(state.toString()).append("_2E");
-			if (detailCNV && diseases.contains(RETALSimulation.DISEASES.ARMD)) {
-				for (CNVStage stage : CNVStage.ALL_STAGES) { 
-					strHead.append("\t").append(stage.getType()).append("_").append(stage.getPosition()).append("_1E\t");
-					strHead.append(stage.getType()).append("_").append(stage.getPosition()).append("_2E");
-				}
-			}
-			if (detailDeaths) {
-				strHead.append("\tDEATH[NO_ARM]\tDEATH[EARM]\tDEATH[GA]\tDEATH[CNV]");
-			}
-			else {
-				strHead.append("\tDEATH");
-			}
-			System.out.println(strHead);
-			for (int i = 0; i < nIntervals; i++) {
-				final StringBuilder str = new StringBuilder((minAge + i * length) + "\t" + nPatients[i] + "\t" + nDiabetes[i]); 
+		if (info instanceof SimulationTimeInfo) {
+			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo) info).getType())) {
+				final StringBuilder strHead = new StringBuilder("AGE\tBASE\tDIABETES");
 				for (EyeState state : nEyeState.keySet())
-					str.append("\t").append(nEyeState.get(state)[i][0]).append("\t").append(nEyeState.get(state)[i][1]);
+					strHead.append("\t").append(state.toString()).append("_1E\t").append(state.toString()).append("_2E");
 				if (detailCNV && diseases.contains(RETALSimulation.DISEASES.ARMD)) {
-					for (CNVStage stage : CNVStage.ALL_STAGES) 
-						str.append("\t").append(nCNVStage.get(stage)[i][0]).append("\t").append(nCNVStage.get(stage)[i][1]);
+					for (CNVStage stage : CNVStage.ALL_STAGES) { 
+						strHead.append("\t").append(stage.getType()).append("_").append(stage.getPosition()).append("_1E\t");
+						strHead.append(stage.getType()).append("_").append(stage.getPosition()).append("_2E");
+					}
 				}
 				if (detailDeaths) {
-					for (int j = 0; j < nDeaths.length; j++)
-						str.append("\t").append(nDeaths[j][i]);
+					strHead.append("\tDEATH[NO_ARM]\tDEATH[EARM]\tDEATH[GA]\tDEATH[CNV]");
 				}
 				else {
-					str.append("\t").append(nDeaths[0][i]);
+					strHead.append("\tDEATH");
 				}
-				System.out.println(str);
+				System.out.println(strHead);
+				for (int i = 0; i < nIntervals; i++) {
+					final StringBuilder str = new StringBuilder((minAge + i * length) + "\t" + nPatients[i] + "\t" + nDiabetes[i]); 
+					for (EyeState state : nEyeState.keySet())
+						str.append("\t").append(nEyeState.get(state)[i][0]).append("\t").append(nEyeState.get(state)[i][1]);
+					if (detailCNV && diseases.contains(RETALSimulation.DISEASES.ARMD)) {
+						for (CNVStage stage : CNVStage.ALL_STAGES) 
+							str.append("\t").append(nCNVStage.get(stage)[i][0]).append("\t").append(nCNVStage.get(stage)[i][1]);
+					}
+					if (detailDeaths) {
+						for (int j = 0; j < nDeaths.length; j++)
+							str.append("\t").append(nDeaths[j][i]);
+					}
+					else {
+						str.append("\t").append(nDeaths[0][i]);
+					}
+					System.out.println(str);
+				}
 			}
 		}
 		else if (info instanceof PatientInfo) {

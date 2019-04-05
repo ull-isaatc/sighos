@@ -6,10 +6,12 @@ package es.ull.iis.simulation.hta.T1DM.inforeceiver;
 import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.T1DMSimulation;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CostCalculator;
 import es.ull.iis.simulation.info.SimulationInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -35,6 +37,7 @@ public class AnnualCostView extends Listener {
 		cost = new double[maxAge-minAge+1];
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	public double[] getAnnualCosts() {
@@ -52,39 +55,59 @@ public class AnnualCostView extends Listener {
 	
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		final T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
-		final T1DMPatient pat = pInfo.getPatient();
-		final long ts = pInfo.getTs();
-		final TimeUnit simUnit = pat.getSimulation().getTimeUnit();
-		final double initAge = lastAge[pat.getIdentifier()]; 
-		final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
-		switch(pInfo.getType()) {
-		case COMPLICATION:
-			update(calc.getCostOfComplication(pat, pInfo.getComplication()), endAge);
-		case DEATH:
-		case FINISH:
-			// Update outcomes
-			if (endAge > initAge) {
-				final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
-				update(pat, periodCost, initAge, endAge);
+		if (info instanceof SimulationTimeInfo) {
+			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
+			if (SimulationTimeInfo.Type.END.equals(tInfo.getType())) {
+				final long ts = tInfo.getTs();
+				final T1DMSimulation simul = (T1DMSimulation)tInfo.getSimul();
+				final TimeUnit simUnit = simul.getTimeUnit();
+				for (int i = 0; i < lastAge.length; i++) {
+					final T1DMPatient pat = (T1DMPatient)simul.getGeneratedPatient(i);
+					if (!pat.isDead()) {
+						final double initAge = lastAge[pat.getIdentifier()]; 
+						final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
+						if (endAge > initAge) {
+							final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
+							update(pat, periodCost, initAge, endAge);							
+						}						
+					}
+				}
 			}
-			break;
-		case ACUTE_EVENT:
-			update(calc.getCostForAcuteEvent(pat, pInfo.getAcuteEvent()), endAge);
-			// Update outcomes
-			if (endAge > initAge) {
-				final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
-				update(pat, periodCost, initAge, endAge);
-			}
-			break;
-		case START:
-			break;
-		default:
-			break;
-		
 		}
-		// Update lastTs
-		lastAge[pat.getIdentifier()] = endAge;
+		else if (info instanceof T1DMPatientInfo) {
+			final T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
+			final T1DMPatient pat = pInfo.getPatient();
+			final long ts = pInfo.getTs();
+			final TimeUnit simUnit = pat.getSimulation().getTimeUnit();
+			final double initAge = lastAge[pat.getIdentifier()]; 
+			final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
+			switch(pInfo.getType()) {
+			case COMPLICATION:
+				update(calc.getCostOfComplication(pat, pInfo.getComplication()), endAge);
+			case DEATH:
+				// Update outcomes
+				if (endAge > initAge) {
+					final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
+					update(pat, periodCost, initAge, endAge);
+				}
+				break;
+			case ACUTE_EVENT:
+				update(calc.getCostForAcuteEvent(pat, pInfo.getAcuteEvent()), endAge);
+				// Update outcomes
+				if (endAge > initAge) {
+					final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
+					update(pat, periodCost, initAge, endAge);
+				}
+				break;
+			case START:
+				break;
+			default:
+				break;
+			
+			}
+			// Update lastTs
+			lastAge[pat.getIdentifier()] = endAge;
+		}
 	}
 
 	/**

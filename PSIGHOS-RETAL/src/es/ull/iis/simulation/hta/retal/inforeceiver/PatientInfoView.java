@@ -10,10 +10,8 @@ import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationStartInfo;
-import es.ull.iis.simulation.info.TimeChangeInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -33,29 +31,30 @@ public class PatientInfoView extends Listener {
 		super("Standard patient viewer");
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
-		addEntrance(SimulationStartInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 		addEntrance(ElementActionInfo.class);
 		addEntrance(ElementInfo.class);
 		addEntrance(ResourceInfo.class);
 		addEntrance(ResourceUsageInfo.class);
-		addEntrance(TimeChangeInfo.class);
 	}
 
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationEndInfo) { 
-			SimulationEndInfo endInfo = (SimulationEndInfo) info;
-			out.println(info.toString() + ": CPU Time = " 
-					+ ((endInfo.getCpuTime() - simulationInit) / 1000000) + " miliseconds.");
-		} else {
-			if (info instanceof SimulationStartInfo) {
-				SimulationStartInfo startInfo = (SimulationStartInfo) info;
-				simulationInit = startInfo.getCpuTime();
-				out.println(info.toString());
-			} else {
+		if (info instanceof SimulationTimeInfo) {
+			final SimulationTimeInfo tInfo = (SimulationTimeInfo)info;
+			if (SimulationTimeInfo.Type.END.equals(tInfo.getType())) {
+				out.println(info.toString() + ": CPU Time = " 
+						+ ((tInfo.getCpuTime() - simulationInit) / 1000000) + " miliseconds.");				
+			}
+			else if (SimulationTimeInfo.Type.START.equals(tInfo.getType())) {
+				simulationInit = tInfo.getCpuTime();
 				out.println(info.toString());
 			}
+			else {
+				out.println(info.toString());				
+			}
+		} else {
+			out.println(info.toString());
 		}
 	}
 }

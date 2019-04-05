@@ -36,12 +36,12 @@ class SimulTest {
 		factory = new SimulationFactory(1, "test", SIMUNIT, SIMSTART, SIMEND);
 		ResourceType rt = factory.getResourceTypeInstance("Médico");
 		Resource res = factory.getResourceInstance("Médico 1");
-		res.addTimeTableEntry(new SimulationPeriodicCycle(SIMUNIT, RESSTART, new SimulationTimeFunction(SIMUNIT, "ConstantVariate", RESPERIOD), 0), RESAVAILABLE, rt);
+		res.newTimeTableOrCancelEntriesAdder(rt).withDuration(new SimulationPeriodicCycle(SIMUNIT, RESSTART, new SimulationTimeFunction(SIMUNIT, "ConstantVariate", RESPERIOD), 0), RESAVAILABLE);
 
         WorkGroup wg = factory.getWorkGroupInstance(new ResourceType[] {rt}, new int[] {1});
 		ActivityFlow act = null;
 		act = (ActivityFlow)factory.getFlowInstance("ActivityFlow", "Consulta");
-    	act.addWorkGroup(0, wg, 10);
+		act.newWorkGroupAdder(wg).withDelay(10);
 		
         ElementType et = factory.getElementTypeInstance("Paciente");
         et.putVar("coste", 0);

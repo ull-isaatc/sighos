@@ -7,11 +7,12 @@ import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.T1DMSimulation;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.T1DM.params.CostCalculator;
-import es.ull.iis.simulation.info.SimulationEndInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
+import es.ull.iis.simulation.info.SimulationTimeInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
@@ -39,7 +40,7 @@ public class CostListener extends Listener implements StructuredOutputListener {
 		this.lastTs = new long[nPatients];
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
-		addEntrance(SimulationEndInfo.class);
+		addEntrance(SimulationTimeInfo.class);
 	}
 
 	/* (non-Javadoc)
@@ -47,7 +48,26 @@ public class CostListener extends Listener implements StructuredOutputListener {
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof T1DMPatientInfo) {
+		if (info instanceof SimulationTimeInfo) {
+			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
+			if (SimulationTimeInfo.Type.END.equals(tInfo.getType())) {
+				final long ts = tInfo.getTs();
+				final T1DMSimulation simul = (T1DMSimulation)tInfo.getSimul();
+				final TimeUnit simUnit = simul.getTimeUnit();
+				for (int i = 0; i < lastTs.length; i++) {
+					final T1DMPatient pat = (T1DMPatient)simul.getGeneratedPatient(i);
+					if (!pat.isDead()) {
+						final double initAge = TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit) / BasicConfigParams.YEAR_CONVERSION; 
+						final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
+						if (endAge > initAge) {
+							final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
+							update(pat, periodCost, initAge, endAge);							
+						}						
+					}
+				}
+			}
+		}
+		else if (info instanceof T1DMPatientInfo) {
 			final T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
 			final T1DMPatient pat = pInfo.getPatient();
 			final long ts = pInfo.getTs();
@@ -60,7 +80,6 @@ public class CostListener extends Listener implements StructuredOutputListener {
 			case COMPLICATION:
 				update(pat, calc.getCostOfComplication(pat, pInfo.getComplication()), endAge);
 			case DEATH:
-			case FINISH:
 				// Update outcomes
 				if (endAge > initAge) {
 					final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
@@ -163,5 +182,12 @@ public class CostListener extends Listener implements StructuredOutputListener {
 		Arrays.sort(ordered);
 		final int index = (int)Math.ceil(nPatients * 0.025);
 		return new double[] {ordered[index - 1], ordered[nPatients - index]}; 
+	}
+
+	/**
+	 * @return the values
+	 */
+	public double[] getValues() {
+		return values;
 	}
 }

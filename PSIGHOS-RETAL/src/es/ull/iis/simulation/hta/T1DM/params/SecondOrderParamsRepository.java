@@ -55,6 +55,8 @@ public abstract class SecondOrderParamsRepository {
 	public static final String STR_UTILITY_PREFIX = "U_";
 	/** String prefix for disutility parameters */
 	public static final String STR_DISUTILITY_PREFIX = "DU_";
+	/** String prefix for death parameters */
+	public static final String STR_DEATH_PREFIX = "DEATH_";
 	
 	/** String descriptor for diabetes with no complications */
 	public static final String STR_NO_COMPLICATIONS = "DNC";

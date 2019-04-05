@@ -3,6 +3,9 @@
  */
 package es.ull.iis.simulation.hta.T1DM.params;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -33,10 +36,14 @@ public class BasicConfigParams {
 	public static int MIN_AGE = 18;
 	/** Maximum age reachable by patients */
 	public static int MAX_AGE = 100;
+	/** Simulation length (years) */
+	public static int SIMLENGTH = BasicConfigParams.MAX_AGE - BasicConfigParams.MIN_AGE + 1;
 	/** If true, uses the utilities from the revision of Beaudet et al. 2014 */
 	public static boolean USE_REVIEW_UTILITIES = true;
 	/** If true, uses the simplest models for diseases */
 	public static boolean USE_SIMPLE_MODELS = false;
+	/** If true, uses the CHD submodel that includes death by the acute events */
+	public static boolean USE_CHD_DEATH_MODEL = false;
 	/** If true, all the patients start with the same age; otherwise, uses a probability distribution to assign ages */ 
 	public static boolean USE_FIXED_BASELINE_AGE = false;
 	/** If true, all the patients start with the same level of HbA1c; otherwise, uses a probability distribution to assign the level */ 
@@ -49,6 +56,8 @@ public class BasicConfigParams {
 	public static double CALIBRATION_COEF_BGRET = BasicConfigParams.USE_CALIBRATED_SHEFFIELD_RET_SUBMODEL ? 7.0 : 1.0;
 	/** The second calibration coefficient to BGRET equations in the Sheffield submodel */
 	public static double CALIBRATION_COEF_BETA_BGRET = BasicConfigParams.USE_CALIBRATED_SHEFFIELD_RET_SUBMODEL ? 1.5 : 1.0;
+	/** Initial proportions for complication stages */
+	public static Map<String, Double> INIT_PROP = new TreeMap<>();
 	/** Uses the arm-specific probabilities of severe hypoglycemic event in the base case; otherwise, uses the aggregated value */
 	public static boolean ENABLE_BATTELINO_HYPO_SCENARIO_1 = false;
 	/** Default utility for general population: From adult Spanish population but those with DM */ 
@@ -95,12 +104,16 @@ public class BasicConfigParams {
 		str.append("MAX_AGE:\t").append(MAX_AGE).append(System.lineSeparator());
 		str.append("USE_REVIEW_UTILITIES:\t").append(USE_REVIEW_UTILITIES).append(System.lineSeparator());
 		str.append("USE_SIMPLE_MODELS:\t").append(USE_SIMPLE_MODELS).append(System.lineSeparator());
+		str.append("USE_CHD_DEATH_MODEL:\t").append(USE_CHD_DEATH_MODEL).append(System.lineSeparator());
 		str.append("USE_FIXED_BASELINE_AGE:\t").append(USE_FIXED_BASELINE_AGE).append(System.lineSeparator());
 		str.append("USE_FIXED_BASELINE_HBA1C:\t").append(USE_FIXED_BASELINE_HBA1C).append(System.lineSeparator());
 		str.append("USE_FIXED_HBA1C_CHANGE:\t").append(USE_FIXED_HBA1C_CHANGE).append(System.lineSeparator());
 		str.append("USE_CALIBRATED_SHEFFIELD_RET_SUBMODEL:\t").append(USE_CALIBRATED_SHEFFIELD_RET_SUBMODEL).append(System.lineSeparator());
 		str.append("CALIBRATION_COEF_BGRET:\t").append(CALIBRATION_COEF_BGRET).append(System.lineSeparator());
 		str.append("CALIBRATION_COEF_BETA_BGRET:\t").append(CALIBRATION_COEF_BETA_BGRET).append(System.lineSeparator());
+		for (Map.Entry<String, Double> initP : INIT_PROP.entrySet()) {
+			str.append("P_INIT_").append(initP.getKey()).append("\t").append(initP.getValue()).append(System.lineSeparator());
+		}
 		str.append("DEF_U_GENERAL_POP:\t").append(DEF_U_GENERAL_POP).append(System.lineSeparator());
 		str.append("DEF_C_DNC:\t").append(DEF_C_DNC.VALUE + " (" + DEF_C_DNC.YEAR + ")").append(System.lineSeparator());
 		str.append("DEF_DU_DNC:\t").append(DEF_DU_DNC[0] + " (SD:" + DEF_DU_DNC[1] + ")").append(System.lineSeparator());
