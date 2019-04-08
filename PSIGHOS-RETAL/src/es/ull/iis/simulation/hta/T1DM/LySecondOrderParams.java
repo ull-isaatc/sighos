@@ -16,13 +16,11 @@ import es.ull.iis.simulation.hta.T1DM.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.EmpiricalSpainDeathSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.LyNPHSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.LySevereHypoglycemiaEvent;
-import es.ull.iis.simulation.hta.T1DM.submodels.SheffieldNPHSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.SheffieldRETSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.SimpleCHDSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.SimpleNEUSubmodel;
-import es.ull.iis.simulation.hta.T1DM.submodels.SimpleNPHSubmodel;
-import es.ull.iis.simulation.hta.T1DM.submodels.SimpleRETSubmodel;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -43,8 +41,8 @@ import simkit.random.RandomVariateFactory;
  * <li>Complications included in the model: Depending on the value of {@link BasicConfigParams#USE_SIMPLE_MODELS}, the model uses
  * the following submodels
  * <ul>
- * <li>Retinopathy: {@link SimpleRETSubmodel}, if {@link BasicConfigParams#USE_SIMPLE_MODELS USE_SIMPLE_MODELS} = true; {@link SheffieldRETSubmodel} otherwise.</li>
- * <li>Nephropathy: {@link SimpleNPHSubmodel}, if {@link BasicConfigParams#USE_SIMPLE_MODELS USE_SIMPLE_MODELS} = true; {@link SheffieldNPHSubmodel} otherwise.</li>
+ * <li>Retinopathy: {@link SheffieldRETSubmodel}.</li>
+ * <li>Nephropathy: {@link LyNPHSubmodel}.</li>
  * <li>Neuropathy: {@link SimpleNEUSubmodel}</li>
  * <li>Coronary heart disease: {@link SimpleCHDSubmodel}</li>
  * <li>Episode of severe hypoglycemia (acute event): {@link LySevereHypoglycemiaEvent}</li>
@@ -78,14 +76,8 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 	 */
 	public LySecondOrderParams() {
 		super();
-		if (BasicConfigParams.USE_SIMPLE_MODELS) {
-			SimpleRETSubmodel.registerSecondOrder(this);;
-			SimpleNPHSubmodel.registerSecondOrder(this);
-		}
-		else {
-			SheffieldRETSubmodel.registerSecondOrder(this);;
-			SheffieldNPHSubmodel.registerSecondOrder(this);
-		}
+		SheffieldRETSubmodel.registerSecondOrder(this);;
+		LyNPHSubmodel.registerSecondOrder(this);
 		SimpleCHDSubmodel.registerSecondOrder(this);
 		SimpleNEUSubmodel.registerSecondOrder(this);
 
@@ -147,14 +139,8 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 		final EmpiricalSpainDeathSubmodel dModel = new EmpiricalSpainDeathSubmodel(getRngFirstOrder(), nPatients);
 //		final StandardSpainDeathSubmodel dModel = new StandardSpainDeathSubmodel(getRngFirstOrder(), nPatients);
 
-		if (BasicConfigParams.USE_SIMPLE_MODELS) {
-			dModel.addIMR(SimpleNPHSubmodel.NPH, getIMR(SimpleNPHSubmodel.NPH));
-			dModel.addIMR(SimpleNPHSubmodel.ESRD, getIMR(SimpleNPHSubmodel.ESRD));
-		}
-		else {
-			dModel.addIMR(SheffieldNPHSubmodel.ALB2, getIMR(SheffieldNPHSubmodel.ALB2));
-			dModel.addIMR(SheffieldNPHSubmodel.ESRD, getIMR(SheffieldNPHSubmodel.ESRD));			
-		}
+		dModel.addIMR(LyNPHSubmodel.ALB2, getIMR(LyNPHSubmodel.ALB2));
+		dModel.addIMR(LyNPHSubmodel.ESRD, getIMR(LyNPHSubmodel.ESRD));			
 		dModel.addIMR(SimpleNEUSubmodel.NEU, getIMR(SimpleNEUSubmodel.NEU));
 		dModel.addIMR(SimpleNEUSubmodel.LEA, getIMR(SimpleNEUSubmodel.LEA));
 		dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(T1DMChronicComplications.CHD));
@@ -172,14 +158,8 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 		comps[T1DMChronicComplications.NEU.ordinal()] = new SimpleNEUSubmodel(this);
 		
 		// Adds nephropathy and retinopathy submodels
-		if (BasicConfigParams.USE_SIMPLE_MODELS) {
-			comps[T1DMChronicComplications.NPH.ordinal()] = new SimpleNPHSubmodel(this);
-			comps[T1DMChronicComplications.RET.ordinal()] = new SimpleRETSubmodel(this);
-		}
-		else {
-			comps[T1DMChronicComplications.NPH.ordinal()] = new SheffieldNPHSubmodel(this);
-			comps[T1DMChronicComplications.RET.ordinal()] = new SheffieldRETSubmodel(this);
-		}
+		comps[T1DMChronicComplications.NPH.ordinal()] = new LyNPHSubmodel(this);
+		comps[T1DMChronicComplications.RET.ordinal()] = new SheffieldRETSubmodel(this);
 		
 		// Adds major Cardiovascular disease submodel
 		comps[T1DMChronicComplications.CHD.ordinal()] = new SimpleCHDSubmodel(this);

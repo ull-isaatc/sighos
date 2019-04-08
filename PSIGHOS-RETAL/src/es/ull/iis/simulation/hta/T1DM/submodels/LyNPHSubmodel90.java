@@ -25,7 +25,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class LyNPHSubmodel extends ChronicComplicationSubmodel {
+public class LyNPHSubmodel90 extends ChronicComplicationSubmodel {
 	public static T1DMComplicationStage ALB1 = new T1DMComplicationStage("ALB1", "Microalbuminuria", T1DMChronicComplications.NPH);
 	public static T1DMComplicationStage ALB2 = new T1DMComplicationStage("ALB2", "Macroalbuminuria", T1DMChronicComplications.NPH);
 	public static T1DMComplicationStage ESRD = new T1DMComplicationStage("ESRD", "End-Stage Renal Disease", T1DMChronicComplications.NPH);
@@ -34,17 +34,18 @@ public class LyNPHSubmodel extends ChronicComplicationSubmodel {
 	private static final String STR_COEF_ALB2 = "Coef_" + SecondOrderParamsRepository.STR_COST_PREFIX + ALB2;
 	private static final double REF_DCCT_HBA1C = 9.1;
 	/** Risk reduction for a relative 10% lower HbA1c versus comparator in EDIC */
-	private static final double RR_ALB1 = 0.24;
+	private static final double RR_ALB1 = 0.502;
 	/** Probability of onset of microalbuminuria depending on duration of diabetes */
-	private static final double[] P_DNC_ALB1 = {0.022, 0.036}; 
-	private static final int DURATION_ALB1 = 9; 
+	private static final double[] P_DNC_ALB1 = {0.00629, 0.01032};
+	private static final int DURATION_ALB1 = 6;
+
 	/** Hazard ratio for an absolute 1% higher HbA1c versus comparator in EDIC */
-	private static final double RR_ALB2 = 1/0.53;
-	/** Probability of onset of macroalbuminuria depending on duration of diabetes */
-	private static final double P_ALB1_ALB2 = 0.016966;
-	private static final int DURATION_ALB2 = 9;
+	private static final double RR_ALB2 = 1.25;
+	/** Probability of onset of macroalbuminuria depending on time from microalbuminuria */
+	private static final double[] P_ALB1_ALB2 = {0.04195, 0.02367, 0.02679};
+	private static final int[] DURATION_ALB2 = {6, 11};
 	private static final double P_NEU_ALB1 = 0.097;
-	private static final double P_ALB2_ESRD = 0.058;
+	private static final double P_ALB2_ESRD = 0.0255;
 	private static final double[] CI_NEU_NPH = {0.055, 0.149};
 	private static final double C_ALB1 = 0.0;
 	private static final double C_ESRD = 34259.48;
@@ -58,8 +59,10 @@ public class LyNPHSubmodel extends ChronicComplicationSubmodel {
 
 	public enum NPHTransitions {
 		HEALTHY_ALB1_d0,
-		HEALTHY_ALB1_d9,
-		ALB1_ALB2,
+		HEALTHY_ALB1_d6,
+		ALB1_ALB2_d0,
+		ALB1_ALB2_d6,
+		ALB1_ALB2_d11,
 		ALB2_ESRD,
 		NEU_ALB1		
 	}
@@ -78,13 +81,15 @@ public class LyNPHSubmodel extends ChronicComplicationSubmodel {
 	/**
 	 * 
 	 */
-	public LyNPHSubmodel(SecondOrderParamsRepository secParams) {
+	public LyNPHSubmodel90(SecondOrderParamsRepository secParams) {
 		super();
 		
 		invProb = new double[NPHTransitions.values().length];
 		invProb[NPHTransitions.HEALTHY_ALB1_d0.ordinal()] = -1 / P_DNC_ALB1[0];
-		invProb[NPHTransitions.HEALTHY_ALB1_d9.ordinal()] = -1 / P_DNC_ALB1[1];
-		invProb[NPHTransitions.ALB1_ALB2.ordinal()] = -1 / P_ALB1_ALB2;
+		invProb[NPHTransitions.HEALTHY_ALB1_d6.ordinal()] = -1 / P_DNC_ALB1[1];
+		invProb[NPHTransitions.ALB1_ALB2_d0.ordinal()] = -1 / P_ALB1_ALB2[0];
+		invProb[NPHTransitions.ALB1_ALB2_d6.ordinal()] = -1 / P_ALB1_ALB2[1];
+		invProb[NPHTransitions.ALB1_ALB2_d11.ordinal()] = -1 / P_ALB1_ALB2[2];
 		invProb[NPHTransitions.ALB2_ESRD.ordinal()] = -1 / secParams.getProbability(ALB2, ESRD);
 		invProb[NPHTransitions.NEU_ALB1.ordinal()] = -1 / secParams.getProbability(T1DMChronicComplications.NEU, ALB1);
 		
@@ -92,8 +97,10 @@ public class LyNPHSubmodel extends ChronicComplicationSubmodel {
 		final RRCalculator rrToALB1 = new HbA1c10ReductionComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB1), REF_DCCT_HBA1C); 
 		final RRCalculator rrToALB2 = new HbA1c1PPComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB2), REF_DCCT_HBA1C); 
 		rr[NPHTransitions.HEALTHY_ALB1_d0.ordinal()] = rrToALB1;
-		rr[NPHTransitions.HEALTHY_ALB1_d9.ordinal()] = rrToALB1;
-		rr[NPHTransitions.ALB1_ALB2.ordinal()] = rrToALB2;
+		rr[NPHTransitions.HEALTHY_ALB1_d6.ordinal()] = rrToALB1;
+		rr[NPHTransitions.ALB1_ALB2_d0.ordinal()] = rrToALB2;
+		rr[NPHTransitions.ALB1_ALB2_d6.ordinal()] = rrToALB2;
+		rr[NPHTransitions.ALB1_ALB2_d11.ordinal()] = rrToALB2;
 		rr[NPHTransitions.ALB2_ESRD.ordinal()] = SecondOrderParamsRepository.NO_RR;
 		// Assume the same RR from healthy to ALB1 than from NEU to ALB1
 		rr[NPHTransitions.NEU_ALB1.ordinal()] = SecondOrderParamsRepository.NO_RR;
@@ -196,15 +203,20 @@ public class LyNPHSubmodel extends ChronicComplicationSubmodel {
 					timeToESRD = getAnnualBasedTimeToEvent(pat, NPHTransitions.ALB2_ESRD, limit);
 				}
 				else if (state.contains(ALB1)) {
-					if (pat.getDurationOfDiabetes() >= DURATION_ALB2)
-						timeToALB2 = getAnnualBasedTimeToEvent(pat, NPHTransitions.ALB1_ALB2, limit);
+					final double yearsFromALB1 = (pat.getTs() - previousTimeToALB1) / BasicConfigParams.YEAR_CONVERSION;
+					if (yearsFromALB1 < DURATION_ALB2[0])
+						timeToALB2 = getAnnualBasedTimeToEvent(pat, NPHTransitions.ALB1_ALB2_d0, limit);
+					else if (yearsFromALB1 < DURATION_ALB2[1])
+						timeToALB2 = getAnnualBasedTimeToEvent(pat, NPHTransitions.ALB1_ALB2_d6, limit);					
+					else
+						timeToALB2 = getAnnualBasedTimeToEvent(pat, NPHTransitions.ALB1_ALB2_d11, limit);
 				}
 				else {
 					if (limit > previousTimeToALB1)
 						limit = previousTimeToALB1;
 					// RR from healthy to ALB1 (must be previous to ESRD and a (potential) formerly scheduled ALB1 event)
 					timeToALB1 = getAnnualBasedTimeToEvent(pat, 
-							(pat.getDurationOfDiabetes() >= DURATION_ALB1) ? NPHTransitions.HEALTHY_ALB1_d9 : NPHTransitions.HEALTHY_ALB1_d0, limit);
+							(pat.getDurationOfDiabetes() >= DURATION_ALB1) ? NPHTransitions.HEALTHY_ALB1_d6 : NPHTransitions.HEALTHY_ALB1_d0, limit);
 					if (pat.hasComplication(T1DMChronicComplications.NEU)) {
 						// RR from NEU to ALB1 (must be previous to the former transition)
 						if (limit > timeToALB1)
@@ -247,7 +259,7 @@ public class LyNPHSubmodel extends ChronicComplicationSubmodel {
 	}
 
 	private long getAnnualBasedTimeToEvent(T1DMPatient pat, NPHTransitions transition, long limit) {
-		final int ord = (NPHTransitions.HEALTHY_ALB1_d0.equals(transition) || NPHTransitions.HEALTHY_ALB1_d9.equals(transition) || NPHTransitions.NEU_ALB1.equals(transition)) ? 0 : 1;
+		final int ord = (NPHTransitions.HEALTHY_ALB1_d0.equals(transition) || NPHTransitions.HEALTHY_ALB1_d6.equals(transition) || NPHTransitions.NEU_ALB1.equals(transition)) ? 0 : 1;
 		return getAnnualBasedTimeToEvent(pat, invProb[transition.ordinal()], rnd[pat.getIdentifier()][ord], rr[transition.ordinal()].getRR(pat), limit);
 	}
 

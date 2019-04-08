@@ -40,6 +40,8 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 	private static final int BASELINE_AGE_MIN = 13; // Design of DCCT: http://diabetes.diabetesjournals.org/content/35/5/530
 	private static final int BASELINE_AGE_MAX = 40; // Design of DCCT: http://diabetes.diabetesjournals.org/content/35/5/530
 	private static final int BASELINE_AGE_AVG = 27; // DCCT: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2866072/
+	private static final double BASELINE_DURATION_AVG = 5.6; // DCCT: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2866072/
+	private static final double BASELINE_DURATION_SD = 4.2; // DCCT: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2866072/
 	
 	
 	/**
@@ -48,6 +50,7 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 	public DCCTSecondOrderParams() {
 		super();
 		BasicConfigParams.MIN_AGE = BASELINE_AGE_MIN;
+		BasicConfigParams.SIMLENGTH = BasicConfigParams.MAX_AGE - BasicConfigParams.MIN_AGE + 1;  
 		if (BasicConfigParams.USE_SIMPLE_MODELS) {
 			SimpleRETSubmodel.registerSecondOrder(this);;
 			SimpleNPHSubmodel.registerSecondOrder(this);
@@ -88,8 +91,9 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 
 	@Override
 	public RandomVariate getBaselineDurationOfDiabetes() {
-		// FIXME: Currently not using this, but probably should
-		return RandomVariateFactory.getInstance("ConstantVariate", 0.0);
+		if (BasicConfigParams.USE_FIXED_BASELINE_DURATION_OF_DIABETES)
+			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_DURATION_AVG);
+		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION_AVG, BASELINE_DURATION_SD);
 	}
 	
 	@Override

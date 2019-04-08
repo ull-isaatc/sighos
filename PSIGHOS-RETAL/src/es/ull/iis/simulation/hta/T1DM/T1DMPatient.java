@@ -254,8 +254,8 @@ public class T1DMPatient extends Patient {
 			simul.addEvent(deathEvent);
 			
 			for (T1DMComplicationStage st : commonParams.getInitialState(T1DMPatient.this)) {
-				detailedState.add(st);				
 				comorbidityEvents[st.ordinal()] = new ChronicComorbidityEvent(new T1DMProgressionPair(st, 0));
+				simul.addEvent(comorbidityEvents[st.ordinal()]);
 			}
 			// Assign chronic complication events
 			for (T1DMChronicComplications comp : T1DMChronicComplications.values()) {
