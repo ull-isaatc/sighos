@@ -6,14 +6,14 @@ package es.ull.iis.simulation.hta.T1DM.DCCT;
 import es.ull.iis.simulation.hta.T1DM.T1DMChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.outcomes.CostCalculator;
+import es.ull.iis.simulation.hta.T1DM.outcomes.SubmodelCostCalculator;
+import es.ull.iis.simulation.hta.T1DM.outcomes.SubmodelUtilityCalculator;
+import es.ull.iis.simulation.hta.T1DM.outcomes.UtilityCalculator;
+import es.ull.iis.simulation.hta.T1DM.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.T1DM.params.CostCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.T1DM.params.SubmodelCostCalculator;
-import es.ull.iis.simulation.hta.T1DM.params.SubmodelUtilityCalculator;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.T1DM.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
@@ -86,6 +86,12 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 		return RandomVariateFactory.getInstance("ScaledVariate", rnd, BASELINE_AGE_MAX - BASELINE_AGE_MIN, BASELINE_AGE_MIN);
 	}
 
+	@Override
+	public RandomVariate getBaselineDurationOfDiabetes() {
+		// FIXME: Currently not using this, but probably should
+		return RandomVariateFactory.getInstance("ConstantVariate", 0.0);
+	}
+	
 	@Override
 	public T1DMMonitoringIntervention[] getInterventions() {
 		return new T1DMMonitoringIntervention[] {new ConventionalTherapy(0), new IntensiveTherapy(1)};

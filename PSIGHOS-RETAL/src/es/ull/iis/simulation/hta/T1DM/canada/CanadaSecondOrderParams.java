@@ -7,13 +7,13 @@ import es.ull.iis.simulation.hta.T1DM.T1DMAcuteComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.outcomes.CostCalculator;
+import es.ull.iis.simulation.hta.T1DM.outcomes.SubmodelCostCalculator;
+import es.ull.iis.simulation.hta.T1DM.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.T1DM.params.CostCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.T1DM.params.SubmodelCostCalculator;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator;
 import es.ull.iis.simulation.hta.T1DM.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
@@ -71,6 +71,12 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 	public RandomVariate getBaselineAge() {
 		return RandomVariateFactory.getInstance("ConstantVariate", 27);
 	}
+
+	@Override
+	public RandomVariate getBaselineDurationOfDiabetes() {
+		return RandomVariateFactory.getInstance("ConstantVariate", 0.0);
+	}
+	
 
 	@Override
 	public T1DMMonitoringIntervention[] getInterventions() {

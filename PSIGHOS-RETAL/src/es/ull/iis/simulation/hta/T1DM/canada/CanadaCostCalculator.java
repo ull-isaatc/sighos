@@ -9,7 +9,7 @@ import es.ull.iis.simulation.hta.T1DM.T1DMChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
-import es.ull.iis.simulation.hta.T1DM.params.StdCostCalculator;
+import es.ull.iis.simulation.hta.T1DM.outcomes.StdCostCalculator;
 
 /**
  * @author Iván Castilla Rodríguez

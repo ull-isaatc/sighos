@@ -40,7 +40,9 @@ public class T1DMPatient extends Patient {
 	/** Current level of HBA1c */
 	private double hba1c;
 	/** How long is the effect of the intervention active. When finished, time to events must be updated */
-	final private long durationOfEffect;
+	private final long durationOfEffect;
+	/** Duration of diabetes at the creation of the patient (in years) */
+	private final double baseDurationOfDiabetes; 
 	/** Common parameters to characterize progression, time to events... */
 	private final CommonParams commonParams;
 	
@@ -65,9 +67,10 @@ public class T1DMPatient extends Patient {
 		this.detailedState = new TreeSet<>();
 		this.state = EnumSet.noneOf(T1DMChronicComplications.class);
 
-		this.initAge = BasicConfigParams.YEAR_CONVERSION*commonParams.getBaselineAge();
+		this.initAge = BasicConfigParams.YEAR_CONVERSION * commonParams.getBaselineAge();
 		this.sex = commonParams.getSex(this);
 		this.baselineHBA1c = commonParams.getBaselineHBA1c();
+		this.baseDurationOfDiabetes = BasicConfigParams.YEAR_CONVERSION * commonParams.getBaselineDurationOfDiabetes();
 		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getRegisteredComplicationStages().size()];
 		Arrays.fill(comorbidityEvents, null);
 		acuteEvents = new ArrayList<>(T1DMAcuteComplications.values().length);
@@ -91,6 +94,7 @@ public class T1DMPatient extends Patient {
 		this.initAge = original.initAge;
 		this.sex = original.sex;
 		this.baselineHBA1c = original.baselineHBA1c;
+		this.baseDurationOfDiabetes = original.baseDurationOfDiabetes;
 		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getRegisteredComplicationStages().size()];
 		Arrays.fill(comorbidityEvents, null);
 		acuteEvents = new ArrayList<>(T1DMAcuteComplications.values().length);
@@ -148,6 +152,22 @@ public class T1DMPatient extends Patient {
 	 */
 	public double getAge() {
 		return (initAge + simul.getSimulationEngine().getTs() - startTs) / BasicConfigParams.YEAR_CONVERSION;
+	}
+	
+	/**
+	 * Returns the duration of the diabetes at the creation of the patient
+	 * @return the duration of the diabetes at the creation of the patient
+	 */
+	public double getBaseDurationOfDiabetes() {
+		return baseDurationOfDiabetes / BasicConfigParams.YEAR_CONVERSION;
+	}
+	
+	/**
+	 * Returns the current duration of diabetes of the patient
+	 * @return the current duration of diabetes of the patient
+	 */
+	public double getDurationOfDiabetes() {
+		return (baseDurationOfDiabetes + simul.getSimulationEngine().getTs() - startTs) / BasicConfigParams.YEAR_CONVERSION;		
 	}
 	
 	/**

@@ -12,6 +12,8 @@ import es.ull.iis.simulation.hta.T1DM.T1DMChronicComplications;
 import es.ull.iis.simulation.hta.T1DM.Named;
 import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMMonitoringIntervention;
+import es.ull.iis.simulation.hta.T1DM.outcomes.CostCalculator;
+import es.ull.iis.simulation.hta.T1DM.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.T1DM.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
@@ -406,6 +408,7 @@ public abstract class SecondOrderParamsRepository {
 
 	public abstract RandomVariate getBaselineHBA1c();
 	public abstract RandomVariate getBaselineAge();
+	public abstract RandomVariate getBaselineDurationOfDiabetes();
 	public abstract ChronicComplicationSubmodel[] getComplicationSubmodels();
 	public abstract AcuteComplicationSubmodel[] getAcuteComplicationSubmodels();
 	public abstract DeathSubmodel getDeathSubmodel();

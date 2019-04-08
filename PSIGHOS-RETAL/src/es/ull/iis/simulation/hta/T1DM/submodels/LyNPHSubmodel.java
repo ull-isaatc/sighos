@@ -12,6 +12,7 @@ import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import es.ull.iis.simulation.hta.T1DM.T1DMProgression;
 import es.ull.iis.simulation.hta.T1DM.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.T1DM.params.HbA1c10ReductionComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.RRCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
@@ -24,23 +25,26 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
+public class LyNPHSubmodel extends ChronicComplicationSubmodel {
 	public static T1DMComplicationStage ALB1 = new T1DMComplicationStage("ALB1", "Microalbuminuria", T1DMChronicComplications.NPH);
 	public static T1DMComplicationStage ALB2 = new T1DMComplicationStage("ALB2", "Macroalbuminuria", T1DMChronicComplications.NPH);
 	public static T1DMComplicationStage ESRD = new T1DMComplicationStage("ESRD", "End-Stage Renal Disease", T1DMChronicComplications.NPH);
 	public static T1DMComplicationStage[] NPHSubstates = new T1DMComplicationStage[] {ALB1, ALB2, ESRD};
 
 	private static final String STR_COEF_ALB2 = "Coef_" + SecondOrderParamsRepository.STR_COST_PREFIX + ALB2;
-	private static final double BETA_ALB1 = 3.25;
 	private static final double BETA_ALB2 = 7.95;
-	private static final double P_DNC_ALB1 = 0.0436;
+	private static final double REF_DCCT_HBA1C = 9.1;
+	/** Risk reduction for a relative 10% lower HbA1c versus comparator in EDIC */
+	private static final double RR_ALB1 = 0.502;
+	/** Probability of onset of microalbuminuria depending on duration of diabetes */
+	private static final double[] P_DNC_ALB1 = {0.00629, 0.01032};
+	private static final int DURATION_ALB1 = 6;
 	private static final double P_DNC_ALB2 = 0.0037;
 	private static final double P_NEU_ALB1 = 0.097;
 	private static final double P_ALB1_ESRD = 0.0133;
 	private static final double P_ALB2_ESRD = 0.1579;
 	private static final double P_ALB1_ALB2 = 0.1565;
 	private static final double P_DNC_ESRD = 0.0002;
-	private static final double[] CI_DNC_ALB1 = {0.0136, 0.0736}; // Assumption
 	private static final double[] CI_NEU_NPH = {0.055, 0.149};
 	private static final double[] CI_ALB1_ESRD = {0.01064, 0.01596};
 	private static final double C_ALB1 = 0.0;
@@ -54,7 +58,8 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 	private static final double[] DU_ESRD = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[] {0.204, (0.342 - 0.066) / 3.92} : new double[] {0.0603, 0.0002};
 
 	public enum NPHTransitions {
-		HEALTHY_ALB1,
+		HEALTHY_ALB1_d0,
+		HEALTHY_ALB1_d6,
 		HEALTHY_ALB2,
 		ALB1_ESRD,
 		ALB2_ESRD,
@@ -77,11 +82,12 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 	/**
 	 * 
 	 */
-	public SheffieldNPHSubmodel(SecondOrderParamsRepository secParams) {
+	public LyNPHSubmodel(SecondOrderParamsRepository secParams) {
 		super();
 		
 		invProb = new double[NPHTransitions.values().length];
-		invProb[NPHTransitions.HEALTHY_ALB1.ordinal()] = -1 / secParams.getProbability(ALB1);
+		invProb[NPHTransitions.HEALTHY_ALB1_d0.ordinal()] = -1 / P_DNC_ALB1[0];
+		invProb[NPHTransitions.HEALTHY_ALB1_d6.ordinal()] = -1 / P_DNC_ALB1[1];
 		invProb[NPHTransitions.HEALTHY_ALB2.ordinal()] = -1 / secParams.getProbability(ALB2);
 		invProb[NPHTransitions.HEALTHY_ESRD.ordinal()] = -1 / secParams.getProbability(ESRD);
 		invProb[NPHTransitions.ALB1_ESRD.ordinal()] = -1 / secParams.getProbability(ALB1, ESRD);
@@ -90,9 +96,10 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 		invProb[NPHTransitions.NEU_ALB1.ordinal()] = -1 / secParams.getProbability(T1DMChronicComplications.NEU, ALB1);
 		
 		rr = new RRCalculator[NPHTransitions.values().length];
-		final RRCalculator rrToALB1 = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB1)); 
+		final RRCalculator rrToALB1 = new HbA1c10ReductionComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB1), REF_DCCT_HBA1C); 
 		final RRCalculator rrToALB2 = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB2)); 
-		rr[NPHTransitions.HEALTHY_ALB1.ordinal()] = rrToALB1;
+		rr[NPHTransitions.HEALTHY_ALB1_d0.ordinal()] = rrToALB1;
+		rr[NPHTransitions.HEALTHY_ALB1_d6.ordinal()] = rrToALB1;
 		rr[NPHTransitions.HEALTHY_ALB2.ordinal()] = rrToALB2;
 		rr[NPHTransitions.HEALTHY_ESRD.ordinal()] = SecondOrderParamsRepository.NO_RR;
 		rr[NPHTransitions.ALB1_ESRD.ordinal()] = SecondOrderParamsRepository.NO_RR;
@@ -129,14 +136,9 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 	}
 
 	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
-		final double[] paramsDNC_ALB1 = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_ALB1, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_ALB1));
 		final double[] paramsNEU_NPH = SecondOrderParamsRepository.betaParametersFromNormal(P_NEU_ALB1, SecondOrderParamsRepository.sdFrom95CI(CI_NEU_NPH));
 		final double[] paramsALB1_ESRD = SecondOrderParamsRepository.betaParametersFromNormal(P_ALB1_ESRD, SecondOrderParamsRepository.sdFrom95CI(CI_ALB1_ESRD));
 
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ALB1), 
-				"Probability of healthy to microalbuminutia, as processed in Sheffield Type 1 model", 
-				"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
-				P_DNC_ALB1, "BetaVariate", paramsDNC_ALB1[0], paramsDNC_ALB1[1]));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ALB2), 
 				"Probability of healthy to macroalbuminutia, as processed in Sheffield Type 1 model", 
 				"https://www.sheffield.ac.uk/polopoly_fs/1.258754!/file/13.05.pdf", 
@@ -163,9 +165,9 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 				P_NEU_ALB1, "BetaVariate", paramsNEU_NPH[0], paramsNEU_NPH[1]));		
 		
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB1, 
-				"%risk reducion for combined groups for microalbuminuria (>= 40 mg/24 h)", 
-				"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 
-				BETA_ALB1)); 
+				"Risk reduction for a relative 10% lower HbA1c versus comparator in EDIC", 
+				"EDIC adapted from 10.2337/dc13-2113", 
+				RR_ALB1)); 
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB2, 
 				"%risk reduction for combined groups for macroalbuminuria", 
 				"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 
@@ -240,7 +242,8 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 					if (limit > previousTimeToALB1)
 						limit = previousTimeToALB1;
 					// RR from healthy to ALB1 (must be previous to ESRD and a (potential) formerly scheduled ALB1 event)
-					timeToALB1 = getAnnualBasedTimeToEvent(pat, NPHTransitions.HEALTHY_ALB1, limit);
+					timeToALB1 = getAnnualBasedTimeToEvent(pat, 
+							(pat.getDurationOfDiabetes() >= DURATION_ALB1) ? NPHTransitions.HEALTHY_ALB1_d6 : NPHTransitions.HEALTHY_ALB1_d0, limit);
 					if (pat.hasComplication(T1DMChronicComplications.NEU)) {
 						// RR from NEU to ALB1 (must be previous to the former transition)
 						if (limit > timeToALB1)
@@ -283,7 +286,7 @@ public class SheffieldNPHSubmodel extends ChronicComplicationSubmodel {
 	}
 
 	private long getAnnualBasedTimeToEvent(T1DMPatient pat, NPHTransitions transition, long limit) {
-		final int ord = (NPHTransitions.HEALTHY_ALB1.equals(transition) || NPHTransitions.NEU_ALB1.equals(transition)) ? 0 : 1;
+		final int ord = (NPHTransitions.HEALTHY_ALB1_d0.equals(transition) || NPHTransitions.HEALTHY_ALB1_d6.equals(transition) || NPHTransitions.NEU_ALB1.equals(transition)) ? 0 : 1;
 		return getAnnualBasedTimeToEvent(pat, invProb[transition.ordinal()], rnd[pat.getIdentifier()][ord], rr[transition.ordinal()].getRR(pat), limit);
 	}
 

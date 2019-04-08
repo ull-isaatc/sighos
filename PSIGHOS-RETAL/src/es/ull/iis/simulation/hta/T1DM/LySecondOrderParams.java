@@ -3,15 +3,15 @@
  */
 package es.ull.iis.simulation.hta.T1DM;
 
+import es.ull.iis.simulation.hta.T1DM.outcomes.CostCalculator;
+import es.ull.iis.simulation.hta.T1DM.outcomes.SubmodelCostCalculator;
+import es.ull.iis.simulation.hta.T1DM.outcomes.SubmodelUtilityCalculator;
+import es.ull.iis.simulation.hta.T1DM.outcomes.UtilityCalculator;
+import es.ull.iis.simulation.hta.T1DM.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.T1DM.params.CostCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.T1DM.params.SubmodelCostCalculator;
-import es.ull.iis.simulation.hta.T1DM.params.SubmodelUtilityCalculator;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.T1DM.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
@@ -69,7 +69,7 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 	/** The average age at baseline, according to https://doi.org/10.1016/j.endinu.2018.03.008 */
 	private static final double[] BASELINE_AGE = {18.6, 11.79}; 
 	/** Duration of diabetes at baseline, according to https://doi.org/10.1016/j.endinu.2018.03.008 */
-	private static final double[] BASELINE_DURATION = {12, 8.74}; 
+	private static final double[] BASELINE_DURATION = {12.0, 8.74}; 
 	
 	/**
 	 * Initializes the parameters for the population defined in this class. With respect to the cost of the treatments,
@@ -123,6 +123,13 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_AGE[0], BASELINE_AGE[1]);
 	}
 
+	@Override
+	public RandomVariate getBaselineDurationOfDiabetes() {
+		if (BasicConfigParams.USE_FIXED_BASELINE_DURATION_OF_DIABETES)
+			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_DURATION[0]);
+		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION[0], BASELINE_DURATION[1]);
+	}
+	
 	@Override
 	public T1DMMonitoringIntervention[] getInterventions() {
 		return new T1DMMonitoringIntervention[] {

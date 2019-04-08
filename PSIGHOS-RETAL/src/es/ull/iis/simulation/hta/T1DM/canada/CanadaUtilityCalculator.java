@@ -8,7 +8,7 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.hta.T1DM.T1DMAcuteComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
-import es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator;
+import es.ull.iis.simulation.hta.T1DM.outcomes.UtilityCalculator;
 
 /**
  * @author Iván Castilla Rodríguez

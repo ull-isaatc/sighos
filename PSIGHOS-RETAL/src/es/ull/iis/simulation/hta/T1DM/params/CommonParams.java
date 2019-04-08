@@ -40,6 +40,8 @@ public class CommonParams {
 	private final RandomVariate baselineAge;
 	/** Distribution to set the HbA1c level of the patients when created */
 	private final RandomVariate baselineHBA1c;
+	/** Distribution to set the duration of diabetes of the patients when created */
+	private final RandomVariate baselineDurationOfDiabetes;
 	/** Discount rate applied to costs and effects */
 	private final double discountRate;
 	
@@ -74,6 +76,7 @@ public class CommonParams {
 		pMan = secParams.getPMan();
 		baselineAge = secParams.getBaselineAge();
 		baselineHBA1c = secParams.getBaselineHBA1c();
+		baselineDurationOfDiabetes = secParams.getBaselineDurationOfDiabetes();
 		discountRate = secParams.getDiscountRate();
 
 		cDNC = secParams.getNoComplicationAnnualCost();
@@ -123,19 +126,27 @@ public class CommonParams {
 	}
 	
 	/**
-	 * Returns the age that is assigned to a patient when the simulation starts
-	 * @return the age that is assigned to a patient when the simulation starts
+	 * Returns the age that is assigned to a patient when he/she is created
+	 * @return the age that is assigned to a patient when he/she is created
 	 */
 	public double getBaselineAge() {
 		return Math.max(baselineAge.generate(), BasicConfigParams.MIN_AGE);		
 	}
 
 	/**
-	 * Returns the HbA1c level that is assigned to a patient when the simulation starts
-	 * @return the HbA1c level that is assigned to a patient when the simulation starts
+	 * Returns the HbA1c level that is assigned to a patient when he/she is created
+	 * @return the HbA1c level that is assigned to a patient when he/she is created
 	 */
 	public double getBaselineHBA1c() {
 		return baselineHBA1c.generate();		
+	}
+	
+	/**
+	 * Returns the duration of diabetes assigned to a patient when he/she is created
+	 * @return the duration of diabetes assigned to a patient when he/she is created
+	 */
+	public double getBaselineDurationOfDiabetes() {
+		return baselineDurationOfDiabetes.generate();
 	}
 	
 	/**

@@ -46,6 +46,8 @@ public class BasicConfigParams {
 	public static boolean USE_CHD_DEATH_MODEL = false;
 	/** If true, all the patients start with the same age; otherwise, uses a probability distribution to assign ages */ 
 	public static boolean USE_FIXED_BASELINE_AGE = false;
+	/** If true, all the patients start with the same duration of diabetes; otherwise, uses a probability distribution to assign the duration */ 
+	public static boolean USE_FIXED_BASELINE_DURATION_OF_DIABETES = false;
 	/** If true, all the patients start with the same level of HbA1c; otherwise, uses a probability distribution to assign the level */ 
 	public static boolean USE_FIXED_BASELINE_HBA1C = false;
 	/** If true, the change in HbA1c for all the patients is fixed; otherwise, uses a probability distribution to assign the level */ 
