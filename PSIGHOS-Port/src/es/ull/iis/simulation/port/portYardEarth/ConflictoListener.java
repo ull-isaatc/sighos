@@ -4,7 +4,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 
@@ -44,7 +44,7 @@ public class ConflictoListener extends Listener {
 	public ConflictoListener(int nSim){
 		super("");
 		addEntrance(ElementActionInfo.class);
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 		this.nSim = nSim;
 	}
 	
@@ -159,9 +159,9 @@ public class ConflictoListener extends Listener {
 				break;
 			}
 		}
-		else if (info instanceof SimulationTimeInfo) {
-			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo)info).getType())) {
-				long endTs = ((SimulationTimeInfo) info).getTs();
+		else if (info instanceof SimulationStartStopInfo) {
+			if (SimulationStartStopInfo.Type.END.equals(((SimulationStartStopInfo)info).getType())) {
+				long endTs = ((SimulationStartStopInfo) info).getTs();
 				
 				contadorEsperaInicioGlobal = contadorEsperaInicioGlobal + esperaInicio.size() / (double) nSim;
 				contadorReservaGruaGlobal = contadorReservaGruaGlobal + reservaGrua.size() / (double) nSim;

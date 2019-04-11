@@ -13,7 +13,7 @@ import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.info.PatientInfo;
 import es.ull.iis.simulation.hta.retal.params.CNVStage;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -87,7 +87,7 @@ public class PatientCounterHistogramView extends Listener {
 		}
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 	}
 
 	/* (non-Javadoc)
@@ -95,8 +95,8 @@ public class PatientCounterHistogramView extends Listener {
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationTimeInfo) {
-			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo) info).getType())) {
+		if (info instanceof SimulationStartStopInfo) {
+			if (SimulationStartStopInfo.Type.END.equals(((SimulationStartStopInfo) info).getType())) {
 				final StringBuilder strHead = new StringBuilder("AGE\tBASE\tDIABETES");
 				for (EyeState state : nEyeState.keySet())
 					strHead.append("\t").append(state.toString()).append("_1E\t").append(state.toString()).append("_2E");

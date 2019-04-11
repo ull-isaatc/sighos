@@ -6,7 +6,7 @@ package es.ull.iis.simulation.port.portYardEarth;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.Element;
@@ -35,7 +35,7 @@ public class TiempoEstanciaListener extends Listener {
 		super("");
 		tEstancia = new TreeMap<Element, Long>();
 		addEntrance(ElementInfo.class);
-		addEntrance(SimulationTimeInfo.class);	
+		addEntrance(SimulationStartStopInfo.class);	
 	}
 	public void infoEmited(SimulationInfo info) {
 		if (info instanceof ElementInfo) {
@@ -54,11 +54,11 @@ public class TiempoEstanciaListener extends Listener {
 				break;
 			}
 		}
-		else if (info instanceof SimulationTimeInfo) {
-			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
-			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+		else if (info instanceof SimulationStartStopInfo) {
+			final SimulationStartStopInfo tInfo = (SimulationStartStopInfo) info;
+			if (SimulationStartStopInfo.Type.END.equals(tInfo.getType()))  {
 				System.out.println("\tPetición\tNo acabadas\t");
-				long endTs = ((SimulationTimeInfo) info).getTs();
+				long endTs = ((SimulationStartStopInfo) info).getTs();
 				for(Element elem : tEstancia.keySet()){
 					if(tEstancia.get(elem) < 0){	
 						if(-tEstancia.get(elem) < endTs){

@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
 
 /**
@@ -130,9 +130,9 @@ public class CheckActivitiesListener extends CheckerListener {
 			
 			}
 		}
-		else if (info instanceof SimulationTimeInfo) {
-			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
-			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+		else if (info instanceof SimulationStartStopInfo) {
+			final SimulationStartStopInfo tInfo = (SimulationStartStopInfo) info;
+			if (SimulationStartStopInfo.Type.END.equals(tInfo.getType()))  {
 				for (int actId = 0; actId < request.length; actId++) {
 					if (request[actId].size() > 0)
 						addProblem("[ACT" + actId + "]", tInfo.getTs(), ERROR_FINISHED);

@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -31,7 +31,7 @@ public class ContainerTimeLineListener extends Listener {
 		this.unit = unit;
 		addEntrance(ElementInfo.class);
 		addEntrance(ElementActionInfo.class);
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 	}
 
 	private String printPlan(int maxTs, TimeUnit simulUnit) {
@@ -92,9 +92,9 @@ public class ContainerTimeLineListener extends Listener {
 			
 			}
 		}
-		else if (info instanceof SimulationTimeInfo) {
-			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
-			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+		else if (info instanceof SimulationStartStopInfo) {
+			final SimulationStartStopInfo tInfo = (SimulationStartStopInfo) info;
+			if (SimulationStartStopInfo.Type.END.equals(tInfo.getType()))  {
 				System.out.println(printPlan((int)maxTs, info.getSimul().getTimeUnit()));
 			}
 		}

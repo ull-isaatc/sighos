@@ -9,7 +9,7 @@ import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -35,7 +35,7 @@ public class BenchmarkListener extends Listener {
 	public BenchmarkListener(final PrintStream out) {
 		super("Bench");
 		this.out = out;
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 		addEntrance(ElementInfo.class);
 		addEntrance(ElementActionInfo.class);
 		addEntrance(ResourceInfo.class);
@@ -89,12 +89,12 @@ public class BenchmarkListener extends Listener {
 				lastEventTs = ((ResourceInfo) info).getTs();
 			}
 		}
-		else if (info instanceof SimulationTimeInfo) {
-			final SimulationTimeInfo tInfo = (SimulationTimeInfo)info;
-			if (SimulationTimeInfo.Type.START.equals(tInfo.getType())) {
+		else if (info instanceof SimulationStartStopInfo) {
+			final SimulationStartStopInfo tInfo = (SimulationStartStopInfo)info;
+			if (SimulationStartStopInfo.Type.START.equals(tInfo.getType())) {
 				cpuTime = tInfo.getCpuTime();
 			}
-			else if (SimulationTimeInfo.Type.END.equals(tInfo.getType())) {
+			else if (SimulationStartStopInfo.Type.END.equals(tInfo.getType())) {
 				cpuTime = (tInfo.getCpuTime() - cpuTime) / 1000000;
 				out.println("T:\t" + cpuTime + " ms\tElem Events:\t" + elemEvents + "\tRes Events:\t" + resEvents + "\nMax. concurrent Events:\t" + maxConcurrentEvents);
 				out.println("STA:\t" + startEv + "\tEND:\t" + endEv + "\tREQ:\t" + reqActEv + "\tSAC\t" + startActEv + "\tEAC\t" + endActEv);

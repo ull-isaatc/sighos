@@ -7,7 +7,7 @@ import java.io.PrintStream;
 
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -27,7 +27,7 @@ public class T1DMPatientInfoView extends Listener {
 		super("Standard patient viewer");
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 		this.specificPatient = specificPatient;
 	}
 
@@ -37,13 +37,13 @@ public class T1DMPatientInfoView extends Listener {
 
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationTimeInfo) {
-			SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
-			if (SimulationTimeInfo.Type.END.equals(tInfo.getType())) { 
+		if (info instanceof SimulationStartStopInfo) {
+			SimulationStartStopInfo tInfo = (SimulationStartStopInfo) info;
+			if (SimulationStartStopInfo.Type.END.equals(tInfo.getType())) { 
 				if (specificPatient == -1)
 					out.println(info.toString() + ": CPU Time = " 
 						+ ((tInfo.getCpuTime() - simulationInit) / 1000000) + " miliseconds.");
-			} else if (SimulationTimeInfo.Type.START.equals(tInfo.getType())) {
+			} else if (SimulationStartStopInfo.Type.START.equals(tInfo.getType())) {
 				simulationInit = tInfo.getCpuTime();
 				if (specificPatient == -1)
 					out.println(info.toString());

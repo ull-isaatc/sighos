@@ -12,7 +12,7 @@ import es.ull.iis.simulation.info.EntityLocationInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.info.SynchronousInfo;
 import es.ull.iis.simulation.info.UserInfo;
 import es.ull.iis.simulation.info.VarViewValueRequestInfo;
@@ -31,7 +31,7 @@ public class SimulationInfoHandler implements InfoHandler {
 	}
 	
 	private void initEntranceList() {
-		definedInfos.add(SimulationTimeInfo.class);
+		definedInfos.add(SimulationStartStopInfo.class);
 		definedInfos.add(ElementActionInfo.class);
 		definedInfos.add(ElementInfo.class);
 		definedInfos.add(ResourceInfo.class);

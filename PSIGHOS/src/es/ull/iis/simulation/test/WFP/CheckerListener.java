@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.test.WFP;
 
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -19,7 +19,7 @@ public abstract class CheckerListener extends Listener {
 	public CheckerListener(String description) {
 		super(description);
 		this.problems = new StringBuilder();
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 	}
 
 	public boolean testPassed() {

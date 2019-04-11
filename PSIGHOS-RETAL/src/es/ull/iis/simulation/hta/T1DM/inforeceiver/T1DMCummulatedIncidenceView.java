@@ -10,7 +10,7 @@ import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -43,7 +43,7 @@ public class T1DMCummulatedIncidenceView extends Listener {
 		nSevereHypo = new int[nIntervals];
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 	}
 
 	/* (non-Javadoc)
@@ -51,8 +51,8 @@ public class T1DMCummulatedIncidenceView extends Listener {
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationTimeInfo) {
-			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo) info).getType())) {
+		if (info instanceof SimulationStartStopInfo) {
+			if (SimulationStartStopInfo.Type.END.equals(((SimulationStartStopInfo) info).getType())) {
 				final StringBuilder strHead = new StringBuilder("AGE\tDEATH");
 				for (T1DMComplicationStage comp : nComplications.keySet()) {
 					strHead.append("\t").append(comp.name());

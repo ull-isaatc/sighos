@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.bonn.cs.net.jbarrier.barrier.AbstractBarrier;
 import edu.bonn.cs.net.jbarrier.barrier.TournamentBarrier;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.TimeChangeInfo;
 import es.ull.iis.simulation.model.ActivityManager;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Element;
@@ -130,7 +130,7 @@ public class ParallelSimulationEngine extends es.ull.iis.simulation.model.engine
 
         // Advances the simulation clock
         lvt = futureEventList.firstKey();
-		simul.notifyInfo(new SimulationTimeInfo(simul, SimulationTimeInfo.Type.TICK, lvt));
+		simul.notifyInfo(new TimeChangeInfo(simul, lvt));
         simul.afterClockTick();
         debug("SIMULATION TIME ADVANCING " + lvt);
 

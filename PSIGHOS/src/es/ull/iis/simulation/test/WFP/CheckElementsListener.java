@@ -6,7 +6,7 @@ package es.ull.iis.simulation.test.WFP;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.info.ElementInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 
 /**
@@ -51,9 +51,9 @@ public class CheckElementsListener extends CheckerListener {
 				break;
 			}
 		}
-		else if (info instanceof SimulationTimeInfo) {
-			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
-			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+		else if (info instanceof SimulationStartStopInfo) {
+			final SimulationStartStopInfo tInfo = (SimulationStartStopInfo) info;
+			if (SimulationStartStopInfo.Type.END.equals(tInfo.getType()))  {
 				for (int i = 0; i < elements.size(); i++) {
 					if (elemFinished[i] != elemCreated[i]) {
 						addProblem("GENERAL", tInfo.getTs(), ERROR_FINISHED + "\tType:" + i);

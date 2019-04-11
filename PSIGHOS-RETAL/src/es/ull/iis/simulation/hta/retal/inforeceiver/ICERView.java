@@ -9,7 +9,7 @@ import es.ull.iis.simulation.hta.retal.RETALSimulation;
 import es.ull.iis.simulation.hta.retal.outcome.Cost;
 import es.ull.iis.simulation.hta.retal.outcome.QualityAdjustedLifeExpectancy;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -37,7 +37,7 @@ public class ICERView extends Listener {
 		this.showSD = showSD;
 		this.showCI = showCI;
 		this.percentileCI = percentileCI;
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 	}
 
 	private String ICER2String(double icer, double cost1, double cost2, String unit) {
@@ -70,8 +70,8 @@ public class ICERView extends Listener {
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationTimeInfo) {
-			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo) info).getType())) {
+		if (info instanceof SimulationStartStopInfo) {
+			if (SimulationStartStopInfo.Type.END.equals(((SimulationStartStopInfo) info).getType())) {
 				RETALSimulation simul = (RETALSimulation)info.getSimul();
 				final Cost cost = simul.getCost();
 				final QualityAdjustedLifeExpectancy qaly = simul.getQALY();

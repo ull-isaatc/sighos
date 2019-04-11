@@ -8,7 +8,7 @@ import java.util.Arrays;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -79,9 +79,9 @@ public class CheckResourcesListener extends CheckerListener {
 					break;			
 			}
 		}
-		else if (info instanceof SimulationTimeInfo) {
-			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
-			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+		else if (info instanceof SimulationStartStopInfo) {
+			final SimulationStartStopInfo tInfo = (SimulationStartStopInfo) info;
+			if (SimulationStartStopInfo.Type.END.equals(tInfo.getType()))  {
 				if (resCreated != resources) {
 					addProblem("GENERAL", tInfo.getTs(), ERROR_RESCREATED);
 				}

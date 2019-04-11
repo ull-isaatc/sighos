@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.info.PatientInfo;
 import es.ull.iis.simulation.hta.retal.params.CommonParams;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -69,13 +69,13 @@ public class PatientPrevalenceView extends Listener {
 		nDeaths = new int[N_INTERVALS+1];
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 	}
 
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationTimeInfo) {
-			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo) info).getType())) {
+		if (info instanceof SimulationStartStopInfo) {
+			if (SimulationStartStopInfo.Type.END.equals(((SimulationStartStopInfo) info).getType())) {
 				out.print("Age\tPatients\tDiabetes");
 				if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
 					out.print("\tEARM\tGA\tCNV");

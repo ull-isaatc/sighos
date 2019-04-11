@@ -8,12 +8,11 @@ import es.ull.iis.simulation.model.Simulation;
  * @author Iván Castilla
  *
  */
-public class SimulationTimeInfo extends AsynchronousInfo {
+public class SimulationStartStopInfo extends AsynchronousInfo {
 	/** The types of information related to simulation time */
 	public enum Type implements InfoType {
 		START	("SIMULATION STARTS"), 
-		END		("SIMULATION ENDS"),
-		TICK	("CLOCK ADVANCED");
+		END		("SIMULATION ENDS");
 		
 		private final String description;
 		
@@ -37,13 +36,10 @@ public class SimulationTimeInfo extends AsynchronousInfo {
 	 * @param type Type of information
 	 * @param ts Current simulation timestamp
 	 */
-	public SimulationTimeInfo(final Simulation model, final Type type, final long ts) {
+	public SimulationStartStopInfo(final Simulation model, final Type type, final long ts) {
 		super(model, ts);
 		this.type = type;
-		if (!Type.TICK.equals(type))
-			this.cpuTime = System.nanoTime();
-		else
-			this.cpuTime = 0L;
+		this.cpuTime = System.nanoTime();
 	}
 
 	public long getCpuTime() {

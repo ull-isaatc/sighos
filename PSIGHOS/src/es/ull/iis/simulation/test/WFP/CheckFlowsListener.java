@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.flow.ActionFlow;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
@@ -41,6 +41,7 @@ public class CheckFlowsListener extends CheckerListener {
 	private static final NodeInfo buildCheckStructure(InitializerFlow initFlow) {
 		if (initFlow instanceof SingleSuccessorFlow) {
 		}
+		return null;
 	}
 	
 	private static final NodeInfo createNode(Flow flow, boolean optional, int minIterations, int maxIterations) {
@@ -187,9 +188,9 @@ public class CheckFlowsListener extends CheckerListener {
 			
 			}
 		}
-		else if (info instanceof SimulationTimeInfo) {
-			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
-			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+		else if (info instanceof SimulationStartStopInfo) {
+			final SimulationStartStopInfo tInfo = (SimulationStartStopInfo) info;
+			if (SimulationStartStopInfo.Type.END.equals(tInfo.getType()))  {
 			}
 		}
 		

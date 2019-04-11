@@ -6,7 +6,7 @@ package es.ull.iis.simulation.port.sea2yard;
 import java.util.HashMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
@@ -34,7 +34,7 @@ public class CheckSolutionListener extends Listener {
 			expectedSolution.put(task, new long[] {plan.getOptStartTime(task), plan.getOptStartTime(task) + plan.getVessel().getContainerProcessingTime(task)});
 		}
 		addEntrance(ElementActionInfo.class);
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 	}
 
 	/* (non-Javadoc)
@@ -76,9 +76,9 @@ public class CheckSolutionListener extends Listener {
 			
 			}
 		}
-		else if (info instanceof SimulationTimeInfo) {
-			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
-			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
+		else if (info instanceof SimulationStartStopInfo) {
+			final SimulationStartStopInfo tInfo = (SimulationStartStopInfo) info;
+			if (SimulationStartStopInfo.Type.END.equals(tInfo.getType()))  {
 				boolean error = false;
 				for (int containerId : expectedSolution.keySet()) {
 					long[] expected = expectedSolution.get(containerId);

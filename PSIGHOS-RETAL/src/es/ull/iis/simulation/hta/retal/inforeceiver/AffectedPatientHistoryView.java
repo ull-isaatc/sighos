@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.info.PatientInfo;
 import es.ull.iis.simulation.hta.retal.params.CNVStage;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 
 /**
  * @author Iván Castilla
@@ -33,7 +33,7 @@ public class AffectedPatientHistoryView extends FilteredListener {
 		this.detailed = detailed;
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 	}
 	
 	/**
@@ -62,8 +62,8 @@ public class AffectedPatientHistoryView extends FilteredListener {
 	
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationTimeInfo) {
-			if (SimulationTimeInfo.Type.START.equals(((SimulationTimeInfo) info).getType())) {
+		if (info instanceof SimulationStartStopInfo) {
+			if (SimulationStartStopInfo.Type.START.equals(((SimulationStartStopInfo) info).getType())) {
 				final StringBuilder str = new StringBuilder("RetalPatient\tINIT_AGE\tDIABETES\t");
 				if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
 					for (int i = 0; i < STATES_ARMD.length; i++)

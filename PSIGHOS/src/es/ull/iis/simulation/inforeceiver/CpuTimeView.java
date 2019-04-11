@@ -6,7 +6,7 @@ package es.ull.iis.simulation.inforeceiver;
 import java.io.PrintStream;
 
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 
 /**
  * A listener to compute the CPU time of the simulation 
@@ -21,19 +21,19 @@ public class CpuTimeView extends Listener {
 	
 	public CpuTimeView(final PrintStream out, final boolean print) {
 		super("CPU Time viewer");
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 		this.print = print;
 		this.out = out;
 	}
 
 	@Override
 	public void infoEmited(final SimulationInfo info) {
-		final SimulationTimeInfo tInfo = (SimulationTimeInfo)info;
+		final SimulationStartStopInfo tInfo = (SimulationStartStopInfo)info;
 		
-		if (SimulationTimeInfo.Type.START.equals(tInfo.getType())) {
+		if (SimulationStartStopInfo.Type.START.equals(tInfo.getType())) {
 			iniT = tInfo.getCpuTime();
 		}
-		else if (SimulationTimeInfo.Type.END.equals(tInfo.getType())) {
+		else if (SimulationStartStopInfo.Type.END.equals(tInfo.getType())) {
 			endT = tInfo.getCpuTime();
 			if (print)
 				out.println(this);

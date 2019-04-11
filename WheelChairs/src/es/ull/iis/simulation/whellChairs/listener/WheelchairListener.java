@@ -11,7 +11,7 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.Element;
@@ -90,7 +90,7 @@ public class WheelchairListener extends Listener {
 		addEntrance(ResourceUsageInfo.class);
 		addEntrance(ElementInfo.class);
 		addEntrance(ElementActionInfo.class);
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 	}
 	public WheelchairListener(TimeUnit unit, int nJanitors, int nDoctors, int nAutoChairs, int nManualChairs, int patientsPerArrival, int minutesBetweenArrivals, Density[] density, double manualFactor, boolean detailed) {
 		this(unit, nJanitors, nDoctors, nAutoChairs, nManualChairs, nJanitors, nDoctors, nAutoChairs, nManualChairs, patientsPerArrival, minutesBetweenArrivals, density, manualFactor, detailed);
@@ -246,10 +246,10 @@ public class WheelchairListener extends Listener {
 			
 			}
 		}
-		else if (info instanceof SimulationTimeInfo) {
-			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
-			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
-				final long endTs = ((SimulationTimeInfo) info).getTs();
+		else if (info instanceof SimulationStartStopInfo) {
+			final SimulationStartStopInfo tInfo = (SimulationStartStopInfo) info;
+			if (SimulationStartStopInfo.Type.END.equals(tInfo.getType()))  {
+				final long endTs = ((SimulationStartStopInfo) info).getTs();
 				// con esto contaríamos el tiemp de las tareas que no hubiesen terminado como
 				//"Tiempo fin de simulación" - "tiempo de comienzo de tarea"
 				for (Entry<Element, Long> entry : times.entrySet()) {

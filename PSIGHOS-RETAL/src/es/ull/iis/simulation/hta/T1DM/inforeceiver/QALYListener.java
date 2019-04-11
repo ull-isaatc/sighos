@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.T1DM.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.T1DM.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
@@ -40,7 +40,7 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 		this.lastTs = new long[nPatients];
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 	}
 
 	/* (non-Javadoc)
@@ -48,9 +48,9 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationTimeInfo) {
-			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
-			if (SimulationTimeInfo.Type.END.equals(tInfo.getType())) {
+		if (info instanceof SimulationStartStopInfo) {
+			final SimulationStartStopInfo tInfo = (SimulationStartStopInfo) info;
+			if (SimulationStartStopInfo.Type.END.equals(tInfo.getType())) {
 				final long ts = tInfo.getTs();
 				final T1DMSimulation simul = (T1DMSimulation)tInfo.getSimul();
 				final TimeUnit simUnit = simul.getTimeUnit();

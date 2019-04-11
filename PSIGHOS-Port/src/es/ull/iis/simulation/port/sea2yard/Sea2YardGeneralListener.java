@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.model.Element;
@@ -48,7 +48,7 @@ public class Sea2YardGeneralListener extends Listener {
 		this.unit = unit;
 		nContainersToFinish = plan.getNTasks();
 		addEntrance(ElementInfo.class);
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 		addEntrance(ElementActionInfo.class);
 	}
 
@@ -109,10 +109,10 @@ public class Sea2YardGeneralListener extends Listener {
 			
 			}
 		}
-		else if (info instanceof SimulationTimeInfo) {
-			final SimulationTimeInfo tInfo = (SimulationTimeInfo) info;
-			if (SimulationTimeInfo.Type.END.equals(tInfo.getType()))  {
-				final long currentTs = ((SimulationTimeInfo) info).getTs();
+		else if (info instanceof SimulationStartStopInfo) {
+			final SimulationStartStopInfo tInfo = (SimulationStartStopInfo) info;
+			if (SimulationStartStopInfo.Type.END.equals(tInfo.getType()))  {
+				final long currentTs = ((SimulationStartStopInfo) info).getTs();
 				final TimeUnit modelUnit = info.getSimul().getTimeUnit();
 				for (Element crane : totalTime.keySet()) {
 					final int craneId = crane.getIdentifier();

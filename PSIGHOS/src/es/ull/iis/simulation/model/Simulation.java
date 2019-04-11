@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
 import es.ull.iis.simulation.inforeceiver.SimulationInfoHandler;
 import es.ull.iis.simulation.model.engine.SimulationEngine;
@@ -304,7 +304,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 		simulationEngine.initializeEngine();
 		init();
 
-		infoHandler.notifyInfo(new SimulationTimeInfo(this, SimulationTimeInfo.Type.START, startTs));
+		infoHandler.notifyInfo(new SimulationStartStopInfo(this, SimulationStartStopInfo.Type.START, startTs));
 		
 		// Starts all the time driven generators
 		for (TimeDrivenGenerator<?> evSource : tGenList)
@@ -323,7 +323,7 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
     			+ endTs);
     	simulationEngine.printState();
 		
-		infoHandler.notifyInfo(new SimulationTimeInfo(this, SimulationTimeInfo.Type.END, endTs));
+		infoHandler.notifyInfo(new SimulationStartStopInfo(this, SimulationStartStopInfo.Type.END, endTs));
 		debug("SIMULATION COMPLETELY FINISHED");
     	
         // The user defined method for finalization is invoked

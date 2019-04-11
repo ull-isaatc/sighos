@@ -10,7 +10,7 @@ import es.ull.iis.simulation.hta.retal.RETALSimulation;
 import es.ull.iis.simulation.hta.retal.info.PatientInfo;
 import es.ull.iis.simulation.hta.retal.params.CNVStage;
 import es.ull.iis.simulation.info.SimulationInfo;
-import es.ull.iis.simulation.info.SimulationTimeInfo;
+import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
 /**
@@ -52,7 +52,7 @@ public class PatientCounterView extends Listener {
 		}
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
-		addEntrance(SimulationTimeInfo.class);
+		addEntrance(SimulationStartStopInfo.class);
 	}
 
 	/**
@@ -67,8 +67,8 @@ public class PatientCounterView extends Listener {
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof SimulationTimeInfo) {
-			if (SimulationTimeInfo.Type.END.equals(((SimulationTimeInfo) info).getType())) {
+		if (info instanceof SimulationStartStopInfo) {
+			if (SimulationStartStopInfo.Type.END.equals(((SimulationStartStopInfo) info).getType())) {
 				System.out.println("CREATED: " + nPatients);
 				if (diseases.contains(RETALSimulation.DISEASES.ARMD)) {
 					System.out.println("DEVELOP EARM IN FIRST EYE: " + nEARM[0]);
