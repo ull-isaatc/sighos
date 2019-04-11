@@ -5,6 +5,8 @@ package es.ull.iis.simulation.hta.T1DM.DCCT;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMAcuteComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.params.AnnualRiskBasedTimeToMultipleEventParam;
+import es.ull.iis.simulation.hta.T1DM.params.DeathWithEventParam;
 import es.ull.iis.simulation.hta.T1DM.params.InterventionSpecificComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
@@ -31,7 +33,15 @@ public class DCCTSevereHypoglycemiaEvent extends AcuteComplicationSubmodel {
 	 * 
 	 */
 	public DCCTSevereHypoglycemiaEvent(SecondOrderParamsRepository secParams) {
-		super(secParams.getnPatients(), secParams.getProbParam(STR_P_HYPO), new InterventionSpecificComplicationRR(new double[]{1.0, secParams.getOtherParam(STR_RR_HYPO)}), secParams.getProbParam(STR_P_DEATH_HYPO));
+		super(new AnnualRiskBasedTimeToMultipleEventParam(
+				secParams.getRngFirstOrder(), 
+				secParams.getnPatients(), 
+				secParams.getProbParam(STR_P_HYPO), 
+				new InterventionSpecificComplicationRR(new double[]{1.0, secParams.getOtherParam(STR_RR_HYPO)})), 
+			new DeathWithEventParam(
+					secParams.getRngFirstOrder(), 
+					secParams.getnPatients(), 
+					secParams.getProbParam(STR_P_DEATH_HYPO)));
 		
 		cost = secParams.getCostForAcuteComplication(T1DMAcuteComplications.SEVERE_HYPO);
 		du = secParams.getDisutilityForAcuteComplication(T1DMAcuteComplications.SEVERE_HYPO);

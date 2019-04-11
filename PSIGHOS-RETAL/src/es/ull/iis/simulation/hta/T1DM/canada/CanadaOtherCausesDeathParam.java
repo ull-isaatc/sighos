@@ -25,8 +25,8 @@ public class CanadaOtherCausesDeathParam extends UniqueEventParam<Long> implemen
 	private final static double MAX_AGE = 54.0;
 	
 
-	public CanadaOtherCausesDeathParam(int nPatients) {
-		super(nPatients);
+	public CanadaOtherCausesDeathParam(CanadaSecondOrderParams secParams) {
+		super(secParams.getRngFirstOrder(), secParams.getnPatients());
 	}
 
 	/**

@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
 import simkit.random.RandomNumber;
-import simkit.random.RandomNumberFactory;
 
 /**
  * A class to generate unique events for patients, i.e., an event that happens only once during the lifetime of the patient.
@@ -16,7 +15,7 @@ import simkit.random.RandomNumberFactory;
  */
 public abstract class UniqueEventParam<T> implements Param<T> {
 	/** Random number generator */
-	private static final RandomNumber rng = RandomNumberFactory.getInstance();
+	private final RandomNumber rng;
 	/** The value generated for this parameter for each patient */
 	private final double[] generated;
 
@@ -24,8 +23,9 @@ public abstract class UniqueEventParam<T> implements Param<T> {
 	 * Creates a parameter that represents a one-time event for a patient
 	 * @param nPatients Number of patients simulated
 	 */
-	public UniqueEventParam(int nPatients) {
+	public UniqueEventParam(RandomNumber rng, int nPatients) {
 		this.generated = new double[nPatients];
+		this.rng = rng;
 		Arrays.fill(generated, Double.NaN);
 	}
 

@@ -229,7 +229,12 @@ public class CommonParams {
 	 */
 	public static long getAnnualBasedTimeToEvent(T1DMPatient pat, double minusAvgTimeToEvent, double rnd, double rr) {
 		final double lifetime = pat.getAgeAtDeath() - pat.getAge();
-		final double time = (minusAvgTimeToEvent / rr) * Math.log(rnd);
+		if (Double.isInfinite(minusAvgTimeToEvent))
+			return Long.MAX_VALUE;
+		final double newMinus = -1 / (1-Math.exp(Math.log(1+1/minusAvgTimeToEvent)*rr));
+		final double time = newMinus * Math.log(rnd);
+		
+//		final double time = (minusAvgTimeToEvent / rr) * Math.log(rnd);
 		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 	}
 

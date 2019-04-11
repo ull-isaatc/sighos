@@ -7,6 +7,7 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMComplicationStage;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.params.AnnualRiskBasedTimeToEventParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
 
@@ -15,9 +16,9 @@ import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
  *
  */
 public class CanadaDeathSubmodel extends DeathSubmodel {
-	private final AnnualBasedTimeToEventParam canadaTimeToDeathESRD;
-	private final AnnualBasedTimeToEventParam canadaTimeToDeathNPH;
-	private final AnnualBasedTimeToEventParam canadaTimeToDeathLEA;
+	private final AnnualRiskBasedTimeToEventParam canadaTimeToDeathESRD;
+	private final AnnualRiskBasedTimeToEventParam canadaTimeToDeathNPH;
+	private final AnnualRiskBasedTimeToEventParam canadaTimeToDeathLEA;
 	private final CanadaOtherCausesDeathParam canadaTimeToDeathOther;
 	private final CVDCanadaDeathParam canadaTimeToDeathCHD;
 
@@ -25,12 +26,13 @@ public class CanadaDeathSubmodel extends DeathSubmodel {
 	/**
 	 * 
 	 */
-	public CanadaDeathSubmodel(int nPatients) {
-		canadaTimeToDeathESRD = new AnnualBasedTimeToEventParam(nPatients, 0.164, SecondOrderParamsRepository.NO_RR);
-		canadaTimeToDeathNPH = new AnnualBasedTimeToEventParam(nPatients, 0.0036, SecondOrderParamsRepository.NO_RR);
-		canadaTimeToDeathLEA = new AnnualBasedTimeToEventParam(nPatients, 0.093, SecondOrderParamsRepository.NO_RR);
-		canadaTimeToDeathOther = new CanadaOtherCausesDeathParam(nPatients);
-		canadaTimeToDeathCHD = new CVDCanadaDeathParam(nPatients, SecondOrderParamsRepository.NO_RR);
+	public CanadaDeathSubmodel(CanadaSecondOrderParams secParams) {
+		int nPatients = secParams.getnPatients();
+		canadaTimeToDeathESRD = new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), nPatients, 0.164, SecondOrderParamsRepository.NO_RR);
+		canadaTimeToDeathNPH = new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), nPatients, 0.0036, SecondOrderParamsRepository.NO_RR);
+		canadaTimeToDeathLEA = new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), nPatients, 0.093, SecondOrderParamsRepository.NO_RR);
+		canadaTimeToDeathOther = new CanadaOtherCausesDeathParam(secParams);
+		canadaTimeToDeathCHD = new CVDCanadaDeathParam(secParams, SecondOrderParamsRepository.NO_RR);
 	}
 
 	/* (non-Javadoc)

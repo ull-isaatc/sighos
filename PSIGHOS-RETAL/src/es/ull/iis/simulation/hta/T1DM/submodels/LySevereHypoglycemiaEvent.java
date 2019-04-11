@@ -5,7 +5,9 @@ package es.ull.iis.simulation.hta.T1DM.submodels;
 
 import es.ull.iis.simulation.hta.T1DM.T1DMAcuteComplications;
 import es.ull.iis.simulation.hta.T1DM.T1DMPatient;
+import es.ull.iis.simulation.hta.T1DM.params.AnnualRiskBasedTimeToMultipleEventParam;
 import es.ull.iis.simulation.hta.T1DM.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.T1DM.params.DeathWithEventParam;
 import es.ull.iis.simulation.hta.T1DM.params.InterventionSpecificComplicationRR;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.T1DM.params.SecondOrderParam;
@@ -23,10 +25,10 @@ public class LySevereHypoglycemiaEvent extends AcuteComplicationSubmodel {
 	public static final String STR_COST_HYPO_EPISODE = SecondOrderParamsRepository.STR_COST_PREFIX + T1DMAcuteComplications.SEVERE_HYPO.name();
 	public static final String STR_DU_HYPO_EVENT = SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + T1DMAcuteComplications.SEVERE_HYPO.name();
 
-	private static final double P_HYPO = 0.234286582;
-	private static final double RR_HYPO = 0.020895447;
-	private static final double[] P_HYPO_BETA = {23.19437163, 75.80562837};
-	private static final double[] RR_HYPO_BETA = {-3.868224010, 1.421931924};
+	private static final double P_HYPO = /*0.264;/*/0.234286582;
+	private static final double RR_HYPO = /*0.018587361;/*/0.020895447;
+	private static final double[] P_HYPO_BETA = /*{26.136, 72.864}; /*/ {23.19437163, 75.80562837};
+	private static final double[] RR_HYPO_BETA = /*{-3.985273467, 1.420307792}; /*/ {-3.868224010, 1.421931924};
 	
 	private static final double DU_HYPO_EPISODE = BasicConfigParams.USE_REVIEW_UTILITIES ? 0.047 : 0.0206; // From Canada
 	private static final double[] LIMITS_DU_HYPO_EPISODE = {BasicConfigParams.USE_REVIEW_UTILITIES ? 0.035 : 0.01, BasicConfigParams.USE_REVIEW_UTILITIES ? 0.059 : 0.122}; // From Canada
@@ -39,7 +41,15 @@ public class LySevereHypoglycemiaEvent extends AcuteComplicationSubmodel {
 	 * 
 	 */
 	public LySevereHypoglycemiaEvent(SecondOrderParamsRepository secParams) {
-		super(secParams.getnPatients(), secParams.getProbParam(STR_P_HYPO), new InterventionSpecificComplicationRR(new double[]{1.0, secParams.getOtherParam(STR_RR_HYPO)}), secParams.getProbParam(STR_P_DEATH_HYPO));
+		super(new AnnualRiskBasedTimeToMultipleEventParam(
+				secParams.getRngFirstOrder(), 
+				secParams.getnPatients(), 
+				secParams.getProbParam(STR_P_HYPO), 
+				new InterventionSpecificComplicationRR(new double[]{1.0, secParams.getOtherParam(STR_RR_HYPO)})), 
+			new DeathWithEventParam(
+				secParams.getRngFirstOrder(), 
+				secParams.getnPatients(), 
+				secParams.getProbParam(STR_P_DEATH_HYPO)));
 		
 		cost = secParams.getCostForAcuteComplication(T1DMAcuteComplications.SEVERE_HYPO);
 		du = secParams.getDisutilityForAcuteComplication(T1DMAcuteComplications.SEVERE_HYPO);

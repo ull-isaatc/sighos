@@ -17,8 +17,8 @@ import es.ull.iis.simulation.hta.T1DM.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.DeathSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.LyNPHSubmodel;
+import es.ull.iis.simulation.hta.T1DM.submodels.LyRETSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.LySevereHypoglycemiaEvent;
-import es.ull.iis.simulation.hta.T1DM.submodels.SheffieldRETSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.SimpleCHDSubmodel;
 import es.ull.iis.simulation.hta.T1DM.submodels.SimpleNEUSubmodel;
 import simkit.random.RandomVariate;
@@ -76,7 +76,7 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 	 */
 	public LySecondOrderParams() {
 		super();
-		SheffieldRETSubmodel.registerSecondOrder(this);;
+		LyRETSubmodel.registerSecondOrder(this);;
 		LyNPHSubmodel.registerSecondOrder(this);
 		SimpleCHDSubmodel.registerSecondOrder(this);
 		SimpleNEUSubmodel.registerSecondOrder(this);
@@ -159,7 +159,7 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 		
 		// Adds nephropathy and retinopathy submodels
 		comps[T1DMChronicComplications.NPH.ordinal()] = new LyNPHSubmodel(this);
-		comps[T1DMChronicComplications.RET.ordinal()] = new SheffieldRETSubmodel(this);
+		comps[T1DMChronicComplications.RET.ordinal()] = new LyRETSubmodel(this);
 		
 		// Adds major Cardiovascular disease submodel
 		comps[T1DMChronicComplications.CHD.ordinal()] = new SimpleCHDSubmodel(this);

@@ -30,8 +30,8 @@ public class CVDCanadaDeathParam extends UniqueEventParam<Long> {
 	};
 	
 	private final RRCalculator rr;
-	public CVDCanadaDeathParam(int nPatients, RRCalculator rr) {
-		super(nPatients);
+	public CVDCanadaDeathParam(CanadaSecondOrderParams secParams, RRCalculator rr) {
+		super(secParams.getRngFirstOrder(), secParams.getnPatients());
 		this.rr = rr;
 	}
 

@@ -114,7 +114,7 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 
 	@Override
 	public DeathSubmodel getDeathSubmodel() {
-		return new CanadaDeathSubmodel(nPatients);
+		return new CanadaDeathSubmodel(this);
 	}
 
 	@Override

@@ -70,7 +70,7 @@ public class T1DMPatient extends Patient {
 		this.initAge = BasicConfigParams.YEAR_CONVERSION * commonParams.getBaselineAge();
 		this.sex = commonParams.getSex(this);
 		this.baselineHBA1c = commonParams.getBaselineHBA1c();
-		this.baseDurationOfDiabetes = BasicConfigParams.YEAR_CONVERSION * commonParams.getBaselineDurationOfDiabetes();
+		this.baseDurationOfDiabetes = Math.min(Math.max(BasicConfigParams.YEAR_CONVERSION * commonParams.getBaselineDurationOfDiabetes(), 0), initAge);
 		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getRegisteredComplicationStages().size()];
 		Arrays.fill(comorbidityEvents, null);
 		acuteEvents = new ArrayList<>(T1DMAcuteComplications.values().length);
