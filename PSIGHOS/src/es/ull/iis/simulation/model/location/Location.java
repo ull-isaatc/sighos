@@ -62,9 +62,18 @@ public abstract class Location implements Located {
 	/**
 	 * Creates a location with no capacity constrains. Entities in this location have to wait a time before exiting it.
 	 * @param description A brief description of the location
-	 * @param delayAtExit The time that it takes to exit (or go through) the location
+-	 * @param delayAtExit The time that it takes to exit (or go through) the location
 	 */
 	public Location(String description, TimeFunction delayAtExit) {
+		this(description, delayAtExit, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Creates a location with no capacity constrains. Entities in this location have to wait a time before exiting it.
+	 * @param description A brief description of the location
+-	 * @param delayAtExit The time that it takes to exit (or go through) the location
+	 */
+	public Location(String description, long delayAtExit) {
 		this(description, delayAtExit, Integer.MAX_VALUE);
 	}
 
@@ -75,6 +84,16 @@ public abstract class Location implements Located {
 	 */
 	public Location(String description, int capacity) {
 		this(description, TimeFunctionFactory.getInstance("ConstantVariate", 0), capacity);
+	}
+
+	/**
+	 * Creates a location with a specific capacity. Entities in this location do not have to wait a time before exiting it.
+	 * @param description A brief description of the location
+	 * @param delayAtExit The time that it takes to exit (or go through) the location
+	 * @param capacity Total capacity of the location
+	 */
+	public Location(String description, long delayAtExit, int capacity) {
+		this(description, TimeFunctionFactory.getInstance("ConstantVariate", delayAtExit), capacity);
 	}
 
 	/**

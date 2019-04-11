@@ -4,6 +4,7 @@ import java.io.PrintStream;
 
 import es.ull.iis.simulation.info.ElementActionInfo;
 import es.ull.iis.simulation.info.ElementInfo;
+import es.ull.iis.simulation.info.EntityLocationInfo;
 import es.ull.iis.simulation.info.ResourceInfo;
 import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
@@ -23,6 +24,7 @@ public class StdInfoView extends Listener {
 		addEntrance(ElementInfo.class);
 		addEntrance(ResourceInfo.class);
 		addEntrance(ResourceUsageInfo.class);
+		addEntrance(EntityLocationInfo.class);
 	}
 	
 	@Override
