@@ -8,6 +8,7 @@ import java.util.Iterator;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
+import es.ull.iis.simulation.model.Identifiable;
 import es.ull.iis.simulation.model.SimulationObject;
 
 /**
@@ -18,7 +19,7 @@ import es.ull.iis.simulation.model.SimulationObject;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Location implements Located {
+public abstract class Location implements Located, Identifiable, Comparable<Location> {
 	/** An array of the locations that this location is linked to */
 	private final ArrayList<Location> linkedTo; 
 	/** An array of the locations that this location is linked from */
@@ -201,7 +202,21 @@ public abstract class Location implements Located {
 			}
 		}
 	}
-	
+
+	@Override
+	public int compareTo(Location o) {
+		if (id < o.id)
+			return -1;
+		if (id > o.id)
+			return 1;
+		return 0;
+	}
+
+	@Override
+	public int getIdentifier() {
+		return id;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		return ((Location)obj).id == id;

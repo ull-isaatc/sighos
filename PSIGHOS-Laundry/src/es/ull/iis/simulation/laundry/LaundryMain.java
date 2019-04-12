@@ -12,6 +12,7 @@ import es.ull.iis.simulation.model.Simulation;
  *
  */
 public class LaundryMain extends Experiment {
+	private final static long TIME_GAP = 3; 
 
 	/**
 	 * @param description
@@ -27,8 +28,9 @@ public class LaundryMain extends Experiment {
 	 */
 	@Override
 	public Simulation getSimulation(int ind) {
-		final Simulation sim = new LaundrySimulation(ind);
+		final LaundrySimulation sim = new LaundrySimulation(ind);
 		sim.addInfoReceiver(new StdInfoView());
+		sim.addInfoReceiver(new WashingUsageListener(sim, TIME_GAP));
 		return sim;
 	}
 

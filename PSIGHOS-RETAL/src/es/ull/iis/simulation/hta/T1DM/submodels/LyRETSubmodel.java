@@ -50,8 +50,8 @@ public class LyRETSubmodel extends ChronicComplicationSubmodel {
 	/** Risk reduction for a relative 10% lower HbA1c versus comparator in EDIC */
 	private static final double RR_ME = 0.13;
 	
-	private static final double P_BGRET_BLI = 0.0001;
-	private static final double P_PRET_BLI = 0.0284;
+	private static final double P_BGRET_BLI = 0.2 * 0.0148; //0.0001;
+	private static final double P_PRET_BLI = 0.0798; // 0.0284;
 	private static final double P_ME_BLI = 0.0016;
 	
 	private static final double[][] RR_ADOLESCENCE = {{12, 1.0}, {18, 1.7}, {Double.MAX_VALUE, 1.0}};
