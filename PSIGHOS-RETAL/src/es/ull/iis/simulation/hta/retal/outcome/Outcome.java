@@ -29,12 +29,12 @@ public class Outcome {
 	/**
 	 * 
 	 */
-	public Outcome(HTASimulation simul, String description, String unit, double discountRate) {
+	public Outcome(int nInterventions, HTASimulation simul, String description, String unit, double discountRate) {
 		this.simul = simul;
 		this.description = description;
 		this.unit = unit;
 		this.discountRate = discountRate;
-		this.nInterventions = simul.getnInterventions();
+		this.nInterventions = nInterventions;
 		this.nPatients = simul.getnPatients();
 		this.aggregated = new double[nInterventions];
 		this.values = new double[nInterventions][nPatients];

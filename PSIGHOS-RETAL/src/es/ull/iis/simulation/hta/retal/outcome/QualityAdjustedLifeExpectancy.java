@@ -20,8 +20,8 @@ public class QualityAdjustedLifeExpectancy extends Outcome {
 	 * @param simul
 	 * @param discountRate
 	 */
-	public QualityAdjustedLifeExpectancy(HTASimulation simul, double discountRate) {
-		super(simul, "Quality Adjusted Life Expectancy", "QALY", discountRate);
+	public QualityAdjustedLifeExpectancy(int nInterventions, HTASimulation simul, double discountRate) {
+		super(nInterventions, simul, "Quality Adjusted Life Expectancy", "QALY", discountRate);
 	}
 
 	public void update(RetalPatient pat, LinkedList<VAProgressionPair> progression) { 

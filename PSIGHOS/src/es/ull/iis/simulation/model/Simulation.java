@@ -332,12 +332,11 @@ public class Simulation implements Identifiable, Runnable, Describable, Variable
 
 	/**
 	 * Checks the conditions stated in the condition-driven generators. If the condition meets, creates the corresponding event sources.
-	 * @param ts simulation time when the simulations are checked.
 	 */
-	public void checkConditions(final long ts) {
+	public void checkConditions() {
 		for (ConditionDrivenGenerator<?> gen : cGenList) {
 			if (gen.getCondition().check(null))
-				gen.create(ts);
+				gen.create();
 		}
 	}
 	

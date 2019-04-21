@@ -201,7 +201,7 @@ public class SequentialSimulationEngine extends es.ull.iis.simulation.model.engi
 			}
 			// Checks the condition-driven generators and executes the events
 			// FIXME: Not sure whether it would work 
-			simul.checkConditions(lvt);
+			simul.checkConditions();
 			while (waitQueue.peek().getTs() == lvt) {
             	addExecution(waitQueue.poll());
 			}

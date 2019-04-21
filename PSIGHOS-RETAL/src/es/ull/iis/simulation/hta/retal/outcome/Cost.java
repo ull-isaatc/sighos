@@ -11,8 +11,8 @@ import es.ull.iis.simulation.hta.HTASimulation;
  */
 public class Cost extends Outcome {
 	
-	public Cost(HTASimulation simul, double discountRate) {
-		super(simul, "Cost", "€", discountRate);
+	public Cost(int nInterventions, HTASimulation simul, double discountRate) {
+		super(nInterventions, simul, "Cost", "€", discountRate);
 	}
 
 }

@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta;
 
 import es.ull.iis.simulation.model.Simulation;
-import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
@@ -17,7 +16,6 @@ public class HTASimulation extends Simulation {
 	public final static int DEF_NPATIENTS = 1000;
 
 	protected final Intervention intervention;
-	protected final int nInterventions;
 	protected final int nPatients;
 	
 	/** True if this is a clone of an original simulation; false otherwise */
@@ -35,11 +33,10 @@ public class HTASimulation extends Simulation {
 	 * @param nInterventions
 	 * @param nPatients
 	 */
-	public HTASimulation(int id, String description, TimeUnit unit, Intervention intervention, TimeStamp endTs, int nInterventions, int nPatients) {
-		super(id, description + " " + intervention.getDescription(), unit, TimeStamp.getZero(), endTs);
+	public HTASimulation(int id, String description, TimeUnit unit, Intervention intervention, long endTs, int nPatients) {
+		super(id, description + " " + intervention.getDescription(), unit, 0L, endTs);
 		this.cloned = false;
 		this.intervention = intervention;
-		this.nInterventions = nInterventions;
 		this.nPatients = nPatients;
 		this.generatedPatients = new Patient[nPatients];
 	}
@@ -53,18 +50,10 @@ public class HTASimulation extends Simulation {
 		super(original.id, original.description + " " + intervention.getDescription(), original.getTimeUnit(), original.getStartTs(), original.getEndTs());
 		this.cloned = true;
 		this.intervention = intervention;
-		this.nInterventions = original.nInterventions;
 		this.nPatients = original.nPatients;
 		this.generatedPatients = new Patient[nPatients];
 	}
 	
-	/**
-	 * @return the nInterventions
-	 */
-	public int getnInterventions() {
-		return nInterventions;
-	}
-
 	/**
 	 * @return the nPatients
 	 */

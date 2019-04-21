@@ -81,10 +81,9 @@ public abstract class Generator<INF extends Generator.GenerationInfo> extends Si
 	
 	/**
 	 * Creates all the event sources. It uses the specified proportions and the total number to create event sources.
-	 * @param ts Simulation time when this creation is invoked
 	 * @return The event sources created
 	 */
-	public EventSource[] create(final long ts) {
+	public EventSource[] create() {
 		int n = getSampleNElem();
 		n = beforeCreateElements(n);
 		final EventSource[] elems = new EventSource[n];

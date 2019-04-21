@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.model;
 
 import es.ull.iis.function.TimeFunction;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.util.cycle.DiscreteCycleIterator;
 
 /**
@@ -66,6 +67,11 @@ public abstract class TimeDrivenGenerator<INF extends Generator.GenerationInfo> 
         }
 	}
 
+	@Override
+	protected void assignSimulation(final SimulationEngine simul) {
+		// Nothing to do
+	}
+	
     /**
      * This event is invoked every time a new set of elements has to be generated. 
      * It simply invokes the {@link Generator#create(long)} method.
@@ -85,7 +91,7 @@ public abstract class TimeDrivenGenerator<INF extends Generator.GenerationInfo> 
          */
         @Override
 		public void event() {
-    		create(ts);
+    		create();
             final long newTs = nextEvent();
             if (newTs == -1) {
     		 	notifyEnd();

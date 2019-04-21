@@ -16,7 +16,6 @@ import es.ull.iis.simulation.hta.retal.params.CommonParams;
 import es.ull.iis.simulation.hta.retal.params.DRParams;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
 import es.ull.iis.simulation.model.SimulationTimeFunction;
-import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 
 /**
@@ -47,14 +46,14 @@ public class RETALSimulation extends HTASimulation {
 	 * @param secondOrder
 	 */
 	public RETALSimulation(int id, Intervention intervention) {
-		super(id, DESCRIPTION, SIMUNIT, intervention, new TimeStamp(TimeUnit.YEAR, (long) (CommonParams.MAX_AGE - CommonParams.MIN_AGE + 1)), NINTERVENTIONS, NPATIENTS);
+		super(id, DESCRIPTION, SIMUNIT, intervention, SIMUNIT.convert((CommonParams.MAX_AGE - CommonParams.MIN_AGE + 1), TimeUnit.YEAR), NPATIENTS);
 		this.commonParams = new CommonParams();
 		this.armdParams = new ARMDParams();
 		this.drParams = new DRParams();
 		new PatientCreator(this, NPATIENTS, new ConstantFunction(commonParams.getInitAge()), intervention, 
 				new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
-		cost = new Cost(this, DISCOUNT_RATE);
-		qaly = new QualityAdjustedLifeExpectancy(this, DISCOUNT_RATE);
+		cost = new Cost(NINTERVENTIONS, this, DISCOUNT_RATE);
+		qaly = new QualityAdjustedLifeExpectancy(NINTERVENTIONS, this, DISCOUNT_RATE);
 		addInfoReceivers();
 	}
 

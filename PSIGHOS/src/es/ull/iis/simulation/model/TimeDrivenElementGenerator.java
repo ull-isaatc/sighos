@@ -5,7 +5,6 @@ package es.ull.iis.simulation.model;
 
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
-import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.location.Location;
 
@@ -121,11 +120,6 @@ public class TimeDrivenElementGenerator extends TimeDrivenGenerator<TimeDrivenEl
 			new Element(simul, info.getElementType(), info.getFlow(), size, initLocation);
 		elem.initializeElementVars(info.getElementType().getElementValues());
 		return elem;			
-	}
-
-	
-	@Override
-	protected void assignSimulation(final SimulationEngine simul) {
 	}
 
 	/**

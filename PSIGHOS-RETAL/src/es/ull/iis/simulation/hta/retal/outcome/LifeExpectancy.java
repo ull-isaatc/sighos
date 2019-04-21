@@ -17,8 +17,8 @@ public class LifeExpectancy extends Outcome {
 	 * @param unit
 	 * @param discountRate
 	 */
-	public LifeExpectancy(HTASimulation simul, double discountRate) {
-		super(simul, "Life Expectancy", "LY", discountRate);
+	public LifeExpectancy(int nInterventions, HTASimulation simul, double discountRate) {
+		super(nInterventions, simul, "Life Expectancy", "LY", discountRate);
 	}
 
 }
