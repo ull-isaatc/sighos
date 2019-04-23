@@ -4,20 +4,23 @@
 package es.ull.iis.simulation.hta.diabetes.params;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatientGenerator;
-import es.ull.iis.simulation.hta.diabetes.Named;
 import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
-import es.ull.iis.simulation.hta.diabetes.interventions.DiabetesIntervention;
+import es.ull.iis.simulation.hta.diabetes.DiabetesPatientGenerator;
+import es.ull.iis.simulation.hta.diabetes.Named;
+import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
+import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
+import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderAcuteComplicationSubmodel;
+import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicationSubmodel;
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
 import simkit.random.RandomVariate;
@@ -84,15 +87,18 @@ public abstract class SecondOrderParamsRepository {
 	/** The collection of defined chronic complication stages */
 	final protected ArrayList<DiabetesComplicationStage> registeredComplicationStages;
 	/** The collection of defined chronic complications */
-	final protected TreeSet<DiabetesChronicComplications> registeredChronicComplication;
+	final protected SecondOrderChronicComplicationSubmodel[] registeredChronicComplication;
 	/** The collection of defined acute complications */
-	final protected TreeSet<DiabetesAcuteComplications> registeredAcuteComplication;	
+	final protected SecondOrderAcuteComplicationSubmodel[] registeredAcuteComplication;
+	/** The collection of interventions */
+	final protected ArrayList<SecondOrderDiabetesIntervention> registeredInterventions;
 	/** True if base case parameters (expected values) should be used. False for second order simulations */
 	protected boolean baseCase = true;
 	/** Number of patients that should be generated */
 	final protected int nPatients;
 	/** Minimum age for patients within this repository */
 	private int minAge = BasicConfigParams.DEF_MIN_AGE;
+	/** The collection of populations */
 	final private ArrayList<DiabetesPatientGenerator.DiabetesPatientGenerationInfo> populations;
 	
 	/**
@@ -108,35 +114,58 @@ public abstract class SecondOrderParamsRepository {
 		this.rngFirstOrder = RandomNumberFactory.getInstance();
 		this.nPatients = nPatients;
 		this.registeredComplicationStages = new ArrayList<>();
-		this.registeredChronicComplication = new TreeSet<>();
-		this.registeredAcuteComplication = new TreeSet<>();
+		this.registeredChronicComplication = new SecondOrderChronicComplicationSubmodel[DiabetesChronicComplications.values().length];
+		Arrays.fill(this.registeredChronicComplication, null);
+		this.registeredAcuteComplication = new SecondOrderAcuteComplicationSubmodel[DiabetesAcuteComplications.values().length];
+		Arrays.fill(this.registeredAcuteComplication, null);
+		this.registeredInterventions = new ArrayList<>();
 	}
 
 	/**
-	 * Registers a collection of new chronic complication stages
-	 * @param newStages Chronic complication stages
+	 * Checks the model validity and returns a string with the missing components.
+	 * TODO: Check consistency between populations and submodels for the type of diabetes
+	 * @return null if everything is ok; a string with the missing components otherwise
 	 */
-	public void registerComplicationStages(DiabetesComplicationStage[] newStages) {
-		for (DiabetesComplicationStage st : newStages) {
-			st.setOrder(registeredComplicationStages.size());
-			registeredComplicationStages.add(st);
+	public String checkValidity() {
+		final StringBuilder str = new StringBuilder();
+		for (int i = 0; i < registeredAcuteComplication.length; i++) {
+			if (registeredAcuteComplication[i] == null) {
+				str.append("Submodel for acute complication not found:\t").append(DiabetesAcuteComplications.values()[i].getDescription()).append(System.lineSeparator());
+			}
 		}
+		for (int i = 0; i < registeredChronicComplication.length; i++) {
+			if (registeredChronicComplication[i] == null) {
+				str.append("Submodel for chronic complication not found:\t").append(DiabetesChronicComplications.values()[i].getDescription()).append(System.lineSeparator());
+			}
+		}
+		if (populations.size() == 0) {
+			str.append("At least one population must be defined").append(System.lineSeparator());
+		}
+		if (registeredInterventions.size() == 0) {
+			str.append("At least one intervention must be defined").append(System.lineSeparator());
+		}
+		return (str.length() > 0) ? str.toString() : null;
 	}
 	
 	/**
-	 * Registers a new chronic complication 
+	 * Registers a new chronic complication and its stages
 	 * @param comp Chronic complication
 	 */
-	public void registerComplication(DiabetesChronicComplications comp) {
-		registeredChronicComplication.add(comp);
+	public void registerComplication(SecondOrderChronicComplicationSubmodel comp) {
+		registeredChronicComplication[comp.getComplicationType().ordinal()] = comp;
+		for (DiabetesComplicationStage st : comp.getStages()) {
+			st.setOrder(registeredComplicationStages.size());
+			registeredComplicationStages.add(st);
+		}
+		comp.addSecondOrderParams(this);
 	}
 	
 	/**
 	 * Registers a new acute complication 
 	 * @param comp Acute complication
 	 */
-	public void registerComplication(DiabetesAcuteComplications comp) {
-		registeredAcuteComplication.add(comp);
+	public void registerComplication(SecondOrderAcuteComplicationSubmodel comp) {
+		registeredAcuteComplication[comp.getComplicationType().ordinal()] = comp;
 	}
 	
 	/**
@@ -145,7 +174,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @return True if the specified chronic complication is already registered
 	 */
 	public boolean isRegistered(DiabetesChronicComplications comp) {
-		return (registeredChronicComplication.contains(comp));
+		return (registeredChronicComplication[comp.ordinal()] != null);
 	}
 
 	/**
@@ -154,7 +183,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @return True if the specified acute complication is already registered
 	 */
 	public boolean isRegistered(DiabetesAcuteComplications comp) {
-		return (registeredAcuteComplication.contains(comp));
+		return (registeredAcuteComplication[comp.ordinal()] != null);
 	}
 	
 	/**
@@ -166,30 +195,38 @@ public abstract class SecondOrderParamsRepository {
 	}
 
 	/**
+	 * Registers a new intervention 
+	 * @param intervention The description of an intervention
+	 */
+	public void registerIntervention(SecondOrderDiabetesIntervention intervention) {
+		registeredInterventions.add(intervention);
+	}
+	
+	public ArrayList<SecondOrderDiabetesIntervention> getRegisteredInterventions() {
+		return registeredInterventions;
+	}
+
+	/**
 	 * Returns the minimum age for patients within this repository
 	 * @return the minimum age for patients within this repository
 	 */
 	public int getMinAge() {
 		return minAge;
 	}
-	
-	/**
-	 * Returns the interventions to be compared within the simulation
-	 * @return The interventions to be compared within the simulation
-	 */
-	public abstract DiabetesIntervention[] getInterventions();
 
 	/**
 	 * Returns the number of interventions included in the simulation
 	 * @return The number of interventions included in the simulation
 	 */
-	public abstract int getNInterventions();
+	public final int getNInterventions() {
+		return registeredInterventions.size();
+	}
 
 	public DiabetesPatientGenerator.DiabetesPatientGenerationInfo[] getPopulations() {
 		return populations.toArray(new DiabetesPatientGenerator.DiabetesPatientGenerationInfo[populations.size()]);
 	}
 	
-	protected void addPopulation(DiabetesPatientGenerator.DiabetesPatientGenerationInfo pop) {
+	protected void registerPopulation(DiabetesPatientGenerator.DiabetesPatientGenerationInfo pop) {
 		populations.add(pop);
 		if (pop.getPopulation().getMinAge() < minAge)
 			minAge = pop.getPopulation().getMinAge();
@@ -417,9 +454,37 @@ public abstract class SecondOrderParamsRepository {
 	public void setDiscountZero(boolean discountZero) {
 		this.discountZero = discountZero;
 	}
+	
+	/**
+	 * Returns the interventions to be compared within the simulation
+	 * @return The interventions to be compared within the simulation
+	 */
+	public final DiabetesIntervention[] getInterventions() {
+		final DiabetesIntervention[] interventions = new DiabetesIntervention[registeredInterventions.size()];
+		for (int i = 0; i < registeredInterventions.size(); i++) {
+			interventions[i] = registeredInterventions.get(i).getInstance(i, this);
+		}
+		return interventions;
+	}
 
-	public abstract ChronicComplicationSubmodel[] getComplicationSubmodels();
-	public abstract AcuteComplicationSubmodel[] getAcuteComplicationSubmodels();
+	public final ChronicComplicationSubmodel[] getComplicationSubmodels() {
+		final ChronicComplicationSubmodel[] comps = new ChronicComplicationSubmodel[DiabetesChronicComplications.values().length];
+		
+		for (int i = 0; i < comps.length; i++) {
+			comps[i] = (ChronicComplicationSubmodel) registeredChronicComplication[i].getInstance(this);
+		}
+		return comps;
+	}
+
+	public final AcuteComplicationSubmodel[] getAcuteComplicationSubmodels() {
+		final AcuteComplicationSubmodel[] comps = new AcuteComplicationSubmodel[DiabetesAcuteComplications.values().length];
+		
+		for (int i = 0; i < comps.length; i++) {
+			comps[i] = (AcuteComplicationSubmodel) registeredAcuteComplication[i].getInstance(this);
+		}
+		return comps;
+	}
+	
 	public abstract DeathSubmodel getDeathSubmodel();
 	public abstract CostCalculator getCostCalculator(double cDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
 	public abstract UtilityCalculator getUtilityCalculator(double duDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
@@ -470,11 +535,6 @@ public abstract class SecondOrderParamsRepository {
 		return new double[] {(avg / sd) * (avg / sd), sd * sd / avg};
 	}
 	
-//	public static void main(String[] args) {
-//		double avg = 27;
-//		double sd = 7;
-//		System.out.println(betaParametersFromNormal(avg, sd)[0] + "\t" + betaParametersFromNormal(avg, sd)[1]);
-//	}
 	/**
 	 * Computes the alfa and beta parameters for a beta distribution from an average,
 	 * a mode, and a maximum and minimum values.

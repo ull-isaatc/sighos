@@ -5,11 +5,11 @@ package es.ull.iis.simulation.hta.diabetes.inforeceiver;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.hta.Intervention;
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
+import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
+import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -38,10 +38,10 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 		addEntrance(T1DMPatientInfo.class);
 	}
 	
-	public static String getStrHeader(boolean printFirstOrderVariance, Intervention[] interventions, ArrayList<DiabetesComplicationStage> availableHealthStates) {
+	public static String getStrHeader(boolean printFirstOrderVariance, ArrayList<SecondOrderDiabetesIntervention> interventions, ArrayList<DiabetesComplicationStage> availableHealthStates) {
 		final StringBuilder str = new StringBuilder();
 		if (printFirstOrderVariance) {
-			for (Intervention inter : interventions) {
+			for (SecondOrderDiabetesIntervention inter : interventions) {
 				for (DiabetesComplicationStage comp : availableHealthStates) {
 					final String suf = comp.name() + "_" + inter.getShortName() + "\t";
 					str.append("AVG_TIME_TO_").append(suf).append("\tL95CI_TIME_TO_").append(suf).append("\tU95CI_TIME_TO_").append(suf);
@@ -49,7 +49,7 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 			}
 		}
 		else {
-			for (Intervention inter : interventions) {
+			for (SecondOrderDiabetesIntervention inter : interventions) {
 				for (DiabetesComplicationStage comp : availableHealthStates) {
 					str.append("AVG_TIME_TO_").append(comp.name()).append("_").append(inter.getShortName()).append("\t");
 				}

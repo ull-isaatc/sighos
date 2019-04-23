@@ -11,10 +11,11 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
  * @author Iván Castilla Rodríguez
  *
  */
-public class CSIIIntervention extends SecondOrderDiabetesIntervention {
+public class LyCSIIIntervention extends SecondOrderDiabetesIntervention {
 	public final static String NAME = "CSII";
 	/** Annual cost of the treatment with CSII. Based on microcosts from Medtronic */
-	private static final double C_CSII = 3013.335;
+	private static final double C_CSII = 377.38;
+	private static final double DU_CSII = 0.035;
 	/** The duration (in years) of the effect of the intervention */
 	final private double yearsOfEffect;
 
@@ -22,7 +23,7 @@ public class CSIIIntervention extends SecondOrderDiabetesIntervention {
 	 * Creates the intervention
 	 * @param yearsOfEffect Years of effect of the intervention
 	 */
-	public CSIIIntervention(final double yearsOfEffect) {
+	public LyCSIIIntervention(final double yearsOfEffect) {
 		super(NAME, NAME);
 		this.yearsOfEffect = yearsOfEffect;
 	}
@@ -30,13 +31,13 @@ public class CSIIIntervention extends SecondOrderDiabetesIntervention {
 	/**
 	 * Creates the intervention, and supposes lifetime effect.
 	 */
-	public CSIIIntervention() {
+	public LyCSIIIntervention() {
 		this(BasicConfigParams.DEF_MAX_AGE);
 	}
 
 	@Override
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
-		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + CSIIIntervention.NAME, "Annual cost of CSII", 
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + LyCSIIIntervention.NAME, "Annual cost of CSII", 
 				"Own calculations from data provided by medtronic (see Parametros.xls)", 2018, C_CSII, SecondOrderParamsRepository.getRandomVariateForCost(C_CSII)));
 	}
 	
@@ -54,7 +55,7 @@ public class CSIIIntervention extends SecondOrderDiabetesIntervention {
 		 */
 		public Instance(int id, SecondOrderParamsRepository secParams) {
 			super(id, yearsOfEffect);
-			final double auxCost = secParams.getCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + CSIIIntervention.NAME);
+			final double auxCost = secParams.getCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + LyCSIIIntervention.NAME);
 			annualCost = Double.isNaN(auxCost) ? 0.0 : auxCost;
 		}
 		
@@ -67,6 +68,11 @@ public class CSIIIntervention extends SecondOrderDiabetesIntervention {
 		@Override
 		public double getAnnualCost(DiabetesPatient pat) {
 			return annualCost;
+		}
+		
+		@Override
+		public double getDisutility(DiabetesPatient pat) {
+			return DU_CSII;
 		}
 	}
 

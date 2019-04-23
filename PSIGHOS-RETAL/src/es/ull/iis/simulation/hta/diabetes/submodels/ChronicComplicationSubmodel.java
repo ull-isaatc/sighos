@@ -34,16 +34,6 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 	 * chronic complication
 	 */
 	public abstract DiabetesProgression getProgression(DiabetesPatient pat);
-	/** 
-	 * Returns the number of stages used to model this complication
-	 * @return the number of stages used to model this complication
-	 */
-	public abstract int getNStages();
-	/**
-	 * Returns the stages used to model this chronic complication
-	 * @return An array containing the stages used to model this chronic complication 
-	 */
-	public abstract DiabetesComplicationStage[] getStages();
 	/**
 	 * Returns the initial set of stages (one or more) that the patient will start with when this complication appears. 
 	 * @param pat A patient

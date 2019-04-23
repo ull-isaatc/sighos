@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import es.ull.iis.simulation.hta.retal.RetalPatient;
-import es.ull.iis.simulation.hta.params.EmpiricTimeToEventParam;
 import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
 

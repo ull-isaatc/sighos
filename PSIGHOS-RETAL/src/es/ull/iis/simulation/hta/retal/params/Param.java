@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 /**
  * @author Iván Castilla Rodríguez

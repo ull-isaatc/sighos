@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.hta.retal;
 
-import es.ull.iis.simulation.hta.Intervention;
-
 /**
  * @author icasrod
  *

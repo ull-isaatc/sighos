@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.retal.outcome;
 
 import java.util.LinkedList;
 
-import es.ull.iis.simulation.hta.HTASimulation;
+import es.ull.iis.simulation.hta.retal.RETALSimulation;
 import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.params.VAProgressionPair;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -20,7 +20,7 @@ public class QualityAdjustedLifeExpectancy extends Outcome {
 	 * @param simul
 	 * @param discountRate
 	 */
-	public QualityAdjustedLifeExpectancy(int nInterventions, HTASimulation simul, double discountRate) {
+	public QualityAdjustedLifeExpectancy(int nInterventions, RETALSimulation simul, double discountRate) {
 		super(nInterventions, simul, "Quality Adjusted Life Expectancy", "QALY", discountRate);
 	}
 

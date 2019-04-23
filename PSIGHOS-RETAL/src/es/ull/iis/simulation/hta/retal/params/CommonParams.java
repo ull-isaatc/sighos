@@ -6,7 +6,6 @@ package es.ull.iis.simulation.hta.retal.params;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import es.ull.iis.simulation.hta.params.ModelParams;
 import es.ull.iis.simulation.hta.retal.EyeState;
 import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.RandomForPatient;

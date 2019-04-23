@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta;
+package es.ull.iis.simulation.hta.retal;
 
 /**
  * Any intervention that can be performed in a patient

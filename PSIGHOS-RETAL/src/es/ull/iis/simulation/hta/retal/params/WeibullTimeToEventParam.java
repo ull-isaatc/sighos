@@ -1,9 +1,9 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.params;
+package es.ull.iis.simulation.hta.retal.params;
 
-import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariate;
@@ -30,7 +30,7 @@ public class WeibullTimeToEventParam extends Param {
 	 * @param pat A patient
 	 * @return the simulation time when a specific event will happen (expressed in simulation time units)
 	 */
-	public long getTimeToEvent(Patient pat) {
+	public long getTimeToEvent(RetalPatient pat) {
 		final long time = pat.getTs() + pat.getSimulation().getTimeUnit().convert(rnd.generate(), unit);
 		return (time > pat.getSimulation().getEndTs()) ? Long.MAX_VALUE : time;
 	}

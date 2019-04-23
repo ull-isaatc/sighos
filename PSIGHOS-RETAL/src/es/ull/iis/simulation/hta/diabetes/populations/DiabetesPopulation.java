@@ -4,18 +4,15 @@
 package es.ull.iis.simulation.hta.diabetes.populations;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatientProfile;
+import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 
 /**
  * @author icasrod
  *
  */
 public interface DiabetesPopulation {
-	public enum Type {
-		T1,
-		T2
-	}
 	public DiabetesPatientProfile getPatientProfile();
-	public Type getType();
+	public DiabetesType getType();
 	/**
 	 * Returns the minimum age for the patients
 	 * @return the minimum age for the patients

@@ -6,10 +6,9 @@ package es.ull.iis.simulation.hta.diabetes.outcomes;
 import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
-import es.ull.iis.simulation.hta.diabetes.interventions.DiabetesIntervention;
+import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 
 /**
  * A standard cost calculator that assigns a constant cost to each complication, and then computes the final cost by 
@@ -42,7 +41,7 @@ public class StdCostCalculator implements CostCalculator {
 
 	@Override
 	public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
-		double cost = ((DiabetesIntervention)pat.getIntervention()).getAnnualCost(pat);
+		double cost = pat.getIntervention().getAnnualCost(pat);
 		final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 		// No complications
 		if (state.isEmpty()) {

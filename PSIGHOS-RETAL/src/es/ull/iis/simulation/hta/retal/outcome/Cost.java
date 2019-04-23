@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.hta.retal.outcome;
 
-import es.ull.iis.simulation.hta.HTASimulation;
+import es.ull.iis.simulation.hta.retal.RETALSimulation;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -11,7 +11,7 @@ import es.ull.iis.simulation.hta.HTASimulation;
  */
 public class Cost extends Outcome {
 	
-	public Cost(int nInterventions, HTASimulation simul, double discountRate) {
+	public Cost(int nInterventions, RETALSimulation simul, double discountRate) {
 		super(nInterventions, simul, "Cost", "€", discountRate);
 	}
 

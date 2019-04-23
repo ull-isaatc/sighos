@@ -3,8 +3,7 @@
  */
 package es.ull.iis.simulation.hta.diabetes;
 
-import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.interventions.DiabetesIntervention;
+import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.SimulationPeriodicCycle;
@@ -22,7 +21,7 @@ public class DiabetesPatientGenerator extends TimeDrivenGenerator<DiabetesPatien
 	/** Associated simulation */
 	private final DiabetesSimulation simul;
 	/** Original patients that this generator reproduces */
-	private final Patient[] copyOf;
+	private final DiabetesPatient[] copyOf;
 	/** Intervention assigned to all the patients created */
 	private final DiabetesIntervention intervention;
 
@@ -48,7 +47,7 @@ public class DiabetesPatientGenerator extends TimeDrivenGenerator<DiabetesPatien
 	 * @param copyOf An original set of patients created for a previous simulation (and already simulated)
 	 * @param intervention Numerical identifier of the intervention
 	 */
-	public DiabetesPatientGenerator(DiabetesSimulation simul, Patient[] copyOf, DiabetesIntervention intervention) {
+	public DiabetesPatientGenerator(DiabetesSimulation simul, DiabetesPatient[] copyOf, DiabetesIntervention intervention) {
 		super(simul, copyOf.length, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
 		this.simul = simul;
 		this.copyOf = copyOf;
@@ -63,7 +62,7 @@ public class DiabetesPatientGenerator extends TimeDrivenGenerator<DiabetesPatien
 			p = new DiabetesPatient(simul, intervention, info.getPopulation().getPatientProfile());
 		}
 		else {
-			p = new DiabetesPatient(simul, (DiabetesPatient)copyOf[ind], intervention);
+			p = new DiabetesPatient(simul, copyOf[ind], intervention);
 		}
 		simul.addGeneratedPatient(p, ind);
 		return p;

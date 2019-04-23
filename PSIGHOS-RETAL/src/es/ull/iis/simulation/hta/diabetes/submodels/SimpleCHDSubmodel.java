@@ -4,12 +4,14 @@
 package es.ull.iis.simulation.hta.diabetes.submodels;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.DiabetesProgression;
+import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
@@ -25,7 +27,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
+public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 	public static DiabetesComplicationStage ANGINA = new DiabetesComplicationStage("ANGINA", "Angina", DiabetesChronicComplications.CHD);
 	public static DiabetesComplicationStage STROKE = new DiabetesComplicationStage("STROKE", "Stroke", DiabetesChronicComplications.CHD);
 	public static DiabetesComplicationStage MI = new DiabetesComplicationStage("MI", "Myocardial Infarction", DiabetesChronicComplications.CHD);
@@ -65,68 +67,16 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 		RET_CHD,
 		NEU_CHD		
 	}
-	private final double[] invProb;
-	private final RRCalculator[] rr;
-	/** Random value for predicting time to event [0] and type of event [1]*/
-	private final double [][] rnd;
-	/** Random value for predicting CHD-related death */ 
-	private final double [] rndDeath;
-	private final CHDComplicationSelector pCHDComplication;
-	private final double[] costMI;
-	private final double[] costHF;
-	private final double[] costStroke;
-	private final double[] costAngina;
 
-	private final double[]pDeathMI;
-	private final double pDeathStroke;
-	private final double duMI;
-	private final double duHF;
-	private final double duStroke;
-	private final double duAngina;
 	/**
 	 * 
 	 */
-	public SimpleCHDSubmodel(SecondOrderParamsRepository secParams) {
-		super();
-		
-		invProb = new double[CHDTransitions.values().length];
-		invProb[CHDTransitions.HEALTHY_CHD.ordinal()] = -1 / secParams.getProbability(DiabetesChronicComplications.CHD);
-		invProb[CHDTransitions.NEU_CHD.ordinal()] = -1 / secParams.getProbability(DiabetesChronicComplications.NEU, DiabetesChronicComplications.CHD);
-		invProb[CHDTransitions.NPH_CHD.ordinal()] = -1 / secParams.getProbability(DiabetesChronicComplications.NPH, DiabetesChronicComplications.CHD);
-		invProb[CHDTransitions.RET_CHD.ordinal()] = -1 / secParams.getProbability(DiabetesChronicComplications.RET, DiabetesChronicComplications.CHD);
-		this.rr = new RRCalculator[CHDTransitions.values().length];
-		final RRCalculator rrToCHD = new HbA1c1PPComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + DiabetesChronicComplications.CHD.name()), REF_HBA1C);
-		rr[CHDTransitions.HEALTHY_CHD.ordinal()] = rrToCHD;
-		rr[CHDTransitions.NEU_CHD.ordinal()] = rrToCHD;
-		rr[CHDTransitions.NPH_CHD.ordinal()] = rrToCHD;
-		rr[CHDTransitions.RET_CHD.ordinal()] = rrToCHD;
-		final int nPatients = secParams.getnPatients();
-		final RandomNumber rng = secParams.getRngFirstOrder();
-		rnd = new double[nPatients][2];
-		rndDeath = new double[nPatients];
-		
-		for (int i = 0; i < nPatients; i++) {
-			rnd[i][0] = rng.draw();
-			rnd[i][1] = rng.draw();
-			rndDeath[i] = rng.draw();
-		}
-		this.pCHDComplication = getRandomVariateForCHDComplications(secParams);
-		
-		costAngina = secParams.getCostsForChronicComplication(ANGINA);
-		costStroke = secParams.getCostsForChronicComplication(STROKE);
-		costMI = secParams.getCostsForChronicComplication(MI);
-		costHF = secParams.getCostsForChronicComplication(HF);		
-
-		duAngina = secParams.getDisutilityForChronicComplication(ANGINA);
-		duStroke = secParams.getDisutilityForChronicComplication(STROKE);
-		duMI = secParams.getDisutilityForChronicComplication(MI);
-		duHF = secParams.getDisutilityForChronicComplication(HF);		
-		
-		pDeathMI = new double[] {secParams.getOtherParam(STR_DEATH_MI_MAN), secParams.getOtherParam(STR_DEATH_MI_WOMAN)};
-		pDeathStroke = secParams.getOtherParam(STR_DEATH_STROKE);
+	public SimpleCHDSubmodel() {
+		super(DiabetesChronicComplications.CHD, EnumSet.of(DiabetesType.T1));
 	}
 
-	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
+	@Override
+	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
 		final double[] paramsDNC_CHD = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_CHD, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_CHD));
 		final double[] paramsNEU_CHD = SecondOrderParamsRepository.betaParametersFromNormal(P_NEU_CHD, SecondOrderParamsRepository.sdFrom95CI(CI_NEU_CHD));
 		final double[] paramsNPH_CHD = SecondOrderParamsRepository.betaParametersFromNormal(P_NPH_CHD, SecondOrderParamsRepository.sdFrom95CI(CI_NPH_CHD));
@@ -219,9 +169,6 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.STROKE, 
 				"Disutility of stroke. Average of autonomous and dependant stroke disutilities", 
 				"", DU_STROKE[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuSTROKE[0], paramsDuSTROKE[1])));
-
-		secParams.registerComplication(DiabetesChronicComplications.CHD);
-		secParams.registerComplicationStages(CHDSubstates);
 	}
 
 	public CHDComplicationSelector getRandomVariateForCHDComplications(SecondOrderParamsRepository secParams) {
@@ -231,74 +178,6 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 			coef[i] = secParams.getOtherParam(SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + comp.name());
 		}
 		return new CHDComplicationSelector(coef);
-	}
-
-	
-	@Override
-	public DiabetesProgression getProgression(DiabetesPatient pat) {
-		final DiabetesProgression prog = new DiabetesProgression();
-		if (enable) {
-			// If already has CHD, then nothing else to progress to
-			if (!pat.hasComplication(DiabetesChronicComplications.CHD)) {
-				long timeToCHD = pat.getTimeToDeath();
-				if (pat.hasComplication(DiabetesChronicComplications.NEU)) {
-					final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.NEU_CHD);
-					if (newTimeToCHD < timeToCHD)
-						timeToCHD = newTimeToCHD;
-				}
-				if (pat.hasComplication(DiabetesChronicComplications.NPH)) {
-					final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.NPH_CHD);
-					if (newTimeToCHD < timeToCHD)
-						timeToCHD = newTimeToCHD;
-				}
-				if (pat.hasComplication(DiabetesChronicComplications.RET)) {
-					final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.RET_CHD);
-					if (newTimeToCHD < timeToCHD)
-						timeToCHD = newTimeToCHD;
-				}
-				long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.HEALTHY_CHD);
-				if (newTimeToCHD < timeToCHD)
-					timeToCHD = newTimeToCHD;
-				if (timeToCHD < pat.getTimeToDeath()) {
-					// First try with previously scheduled events
-					boolean foundPrevious = false;
-					for (int i = 0; i < CHDSubstates.length && !foundPrevious; i++) {
-						final DiabetesComplicationStage stCHD = CHDSubstates[i];
-						final long previousTime = pat.getTimeToChronicComorbidity(stCHD);
-						// Found a previous event with lower or equal timestamp --> Do nothing
-						if (previousTime <= timeToCHD) {
-							foundPrevious = true;
-						}
-						// Found a previous VALID timestamp > new time --> modify the event 
-						else if (previousTime < Long.MAX_VALUE) {
-							prog.addCancelEvent(stCHD);
-						}
-					}
-					if (!foundPrevious) {
-						final int id = pat.getIdentifier();
-						// Choose CHD substate
-						final DiabetesComplicationStage stCHD = CHDSubstates[pCHDComplication.generate(rnd[id][1])];
-						if (BasicConfigParams.USE_CHD_DEATH_MODEL) {
-							if (MI.equals(stCHD)) {
-								prog.addNewEvent(stCHD, timeToCHD, (rndDeath[id] <= pDeathMI[pat.getSex()]));
-							}
-							else if (STROKE.equals(stCHD)) {
-								prog.addNewEvent(stCHD, timeToCHD, (rndDeath[id] <= pDeathStroke));							
-							}
-							else {
-								prog.addNewEvent(stCHD, timeToCHD);														
-							}
-						}
-						else {
-							// No deaths
-							prog.addNewEvent(stCHD, timeToCHD);														
-						}
-					}
-				}
-			}
-			
-		}
-		return prog;
 	}
 
 	@Override
@@ -311,56 +190,193 @@ public class SimpleCHDSubmodel extends ChronicComplicationSubmodel {
 		return CHDSubstates;
 	}
 
-	private long getAnnualBasedTimeToEvent(DiabetesPatient pat, CHDTransitions transition) {
-		return CommonParams.getAnnualBasedTimeToEvent(pat, invProb[transition.ordinal()], rnd[pat.getIdentifier()][0], rr[transition.ordinal()].getRR(pat));
+	@Override
+	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
+		return new SimpleCHDSubmodelInstance(secParams);
 	}
 
-	@Override
-	public TreeSet<DiabetesComplicationStage> getInitialStage(DiabetesPatient pat) {
-		return new TreeSet<>();
-	}
+	public class SimpleCHDSubmodelInstance extends ChronicComplicationSubmodel {
+		private final double[] invProb;
+		private final RRCalculator[] rr;
+		/** Random value for predicting time to event [0] and type of event [1]*/
+		private final double [][] rnd;
+		/** Random value for predicting CHD-related death */ 
+		private final double [] rndDeath;
+		private final CHDComplicationSelector pCHDComplication;
+		private final double[] costMI;
+		private final double[] costHF;
+		private final double[] costStroke;
+		private final double[] costAngina;
 
-	@Override
-	public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
-		final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
+		private final double[]pDeathMI;
+		private final double pDeathStroke;
+		private final double duMI;
+		private final double duHF;
+		private final double duStroke;
+		private final double duAngina;
+		
+		/**
+		 * 
+		 */
+		public SimpleCHDSubmodelInstance(SecondOrderParamsRepository secParams) {
+			super();
+			
+			invProb = new double[CHDTransitions.values().length];
+			invProb[CHDTransitions.HEALTHY_CHD.ordinal()] = -1 / secParams.getProbability(DiabetesChronicComplications.CHD);
+			invProb[CHDTransitions.NEU_CHD.ordinal()] = -1 / secParams.getProbability(DiabetesChronicComplications.NEU, DiabetesChronicComplications.CHD);
+			invProb[CHDTransitions.NPH_CHD.ordinal()] = -1 / secParams.getProbability(DiabetesChronicComplications.NPH, DiabetesChronicComplications.CHD);
+			invProb[CHDTransitions.RET_CHD.ordinal()] = -1 / secParams.getProbability(DiabetesChronicComplications.RET, DiabetesChronicComplications.CHD);
+			this.rr = new RRCalculator[CHDTransitions.values().length];
+			final RRCalculator rrToCHD = new HbA1c1PPComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + DiabetesChronicComplications.CHD.name()), REF_HBA1C);
+			rr[CHDTransitions.HEALTHY_CHD.ordinal()] = rrToCHD;
+			rr[CHDTransitions.NEU_CHD.ordinal()] = rrToCHD;
+			rr[CHDTransitions.NPH_CHD.ordinal()] = rrToCHD;
+			rr[CHDTransitions.RET_CHD.ordinal()] = rrToCHD;
+			final int nPatients = secParams.getnPatients();
+			final RandomNumber rng = secParams.getRngFirstOrder();
+			rnd = new double[nPatients][2];
+			rndDeath = new double[nPatients];
+			
+			for (int i = 0; i < nPatients; i++) {
+				rnd[i][0] = rng.draw();
+				rnd[i][1] = rng.draw();
+				rndDeath[i] = rng.draw();
+			}
+			this.pCHDComplication = getRandomVariateForCHDComplications(secParams);
+			
+			costAngina = secParams.getCostsForChronicComplication(ANGINA);
+			costStroke = secParams.getCostsForChronicComplication(STROKE);
+			costMI = secParams.getCostsForChronicComplication(MI);
+			costHF = secParams.getCostsForChronicComplication(HF);		
 
-		if (state.contains(ANGINA))
-			return costAngina[0];
-		else if (state.contains(STROKE))
-			return costStroke[0];
-		else if (state.contains(HF))
-			return costHF[0];
-		else if (state.contains(MI))
-			return costMI[0];				
-		return 0.0;
-	}
+			duAngina = secParams.getDisutilityForChronicComplication(ANGINA);
+			duStroke = secParams.getDisutilityForChronicComplication(STROKE);
+			duMI = secParams.getDisutilityForChronicComplication(MI);
+			duHF = secParams.getDisutilityForChronicComplication(HF);		
+			
+			pDeathMI = new double[] {secParams.getOtherParam(STR_DEATH_MI_MAN), secParams.getOtherParam(STR_DEATH_MI_WOMAN)};
+			pDeathStroke = secParams.getOtherParam(STR_DEATH_STROKE);
+		}
 
-	@Override
-	public double getCostOfComplication(DiabetesPatient pat, DiabetesComplicationStage newEvent) {
-		if (HF.equals(newEvent))
-			return costHF[1];
-		if (MI.equals(newEvent))
-			return costMI[1];
-		if (STROKE.equals(newEvent))
-			return costStroke[1];
-		if (ANGINA.equals(newEvent))
-			return costAngina[1];
-		return 0.0;
-	}
+		
+		@Override
+		public DiabetesProgression getProgression(DiabetesPatient pat) {
+			final DiabetesProgression prog = new DiabetesProgression();
+			if (isEnabled()) {
+				// If already has CHD, then nothing else to progress to
+				if (!pat.hasComplication(DiabetesChronicComplications.CHD)) {
+					long timeToCHD = pat.getTimeToDeath();
+					if (pat.hasComplication(DiabetesChronicComplications.NEU)) {
+						final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.NEU_CHD);
+						if (newTimeToCHD < timeToCHD)
+							timeToCHD = newTimeToCHD;
+					}
+					if (pat.hasComplication(DiabetesChronicComplications.NPH)) {
+						final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.NPH_CHD);
+						if (newTimeToCHD < timeToCHD)
+							timeToCHD = newTimeToCHD;
+					}
+					if (pat.hasComplication(DiabetesChronicComplications.RET)) {
+						final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.RET_CHD);
+						if (newTimeToCHD < timeToCHD)
+							timeToCHD = newTimeToCHD;
+					}
+					long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.HEALTHY_CHD);
+					if (newTimeToCHD < timeToCHD)
+						timeToCHD = newTimeToCHD;
+					if (timeToCHD < pat.getTimeToDeath()) {
+						// First try with previously scheduled events
+						boolean foundPrevious = false;
+						for (int i = 0; i < CHDSubstates.length && !foundPrevious; i++) {
+							final DiabetesComplicationStage stCHD = CHDSubstates[i];
+							final long previousTime = pat.getTimeToChronicComorbidity(stCHD);
+							// Found a previous event with lower or equal timestamp --> Do nothing
+							if (previousTime <= timeToCHD) {
+								foundPrevious = true;
+							}
+							// Found a previous VALID timestamp > new time --> modify the event 
+							else if (previousTime < Long.MAX_VALUE) {
+								prog.addCancelEvent(stCHD);
+							}
+						}
+						if (!foundPrevious) {
+							final int id = pat.getIdentifier();
+							// Choose CHD substate
+							final DiabetesComplicationStage stCHD = CHDSubstates[pCHDComplication.generate(rnd[id][1])];
+							if (BasicConfigParams.USE_CHD_DEATH_MODEL) {
+								if (MI.equals(stCHD)) {
+									prog.addNewEvent(stCHD, timeToCHD, (rndDeath[id] <= pDeathMI[pat.getSex()]));
+								}
+								else if (STROKE.equals(stCHD)) {
+									prog.addNewEvent(stCHD, timeToCHD, (rndDeath[id] <= pDeathStroke));							
+								}
+								else {
+									prog.addNewEvent(stCHD, timeToCHD);														
+								}
+							}
+							else {
+								// No deaths
+								prog.addNewEvent(stCHD, timeToCHD);														
+							}
+						}
+					}
+				}
+				
+			}
+			return prog;
+		}
 
-	@Override
-	public double getDisutility(DiabetesPatient pat, DisutilityCombinationMethod method) {
-		final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
+		private long getAnnualBasedTimeToEvent(DiabetesPatient pat, CHDTransitions transition) {
+			return CommonParams.getAnnualBasedTimeToEvent(pat, invProb[transition.ordinal()], rnd[pat.getIdentifier()][0], rr[transition.ordinal()].getRR(pat));
+		}
 
-		if (state.contains(ANGINA))
-			return duAngina;
-		else if (state.contains(STROKE))
-			return duStroke;
-		else if (state.contains(HF))
-			return duHF;
-		else if (state.contains(MI))
-			return duMI;				
-		return 0.0;
+		@Override
+		public TreeSet<DiabetesComplicationStage> getInitialStage(DiabetesPatient pat) {
+			return new TreeSet<>();
+		}
+
+		@Override
+		public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
+			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
+
+			if (state.contains(ANGINA))
+				return costAngina[0];
+			else if (state.contains(STROKE))
+				return costStroke[0];
+			else if (state.contains(HF))
+				return costHF[0];
+			else if (state.contains(MI))
+				return costMI[0];				
+			return 0.0;
+		}
+
+		@Override
+		public double getCostOfComplication(DiabetesPatient pat, DiabetesComplicationStage newEvent) {
+			if (HF.equals(newEvent))
+				return costHF[1];
+			if (MI.equals(newEvent))
+				return costMI[1];
+			if (STROKE.equals(newEvent))
+				return costStroke[1];
+			if (ANGINA.equals(newEvent))
+				return costAngina[1];
+			return 0.0;
+		}
+
+		@Override
+		public double getDisutility(DiabetesPatient pat, DisutilityCombinationMethod method) {
+			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
+
+			if (state.contains(ANGINA))
+				return duAngina;
+			else if (state.contains(STROKE))
+				return duStroke;
+			else if (state.contains(HF))
+				return duHF;
+			else if (state.contains(MI))
+				return duMI;				
+			return 0.0;
+		}
 	}
 
 	/**

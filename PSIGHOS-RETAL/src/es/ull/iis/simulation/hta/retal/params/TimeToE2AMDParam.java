@@ -8,7 +8,6 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import es.ull.iis.simulation.hta.params.EmpiricTimeToEventParam;
 import es.ull.iis.simulation.hta.retal.EyeState;
 import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.RandomForPatient;

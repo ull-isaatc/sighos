@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.retal;
 
-import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.retal.params.ScreeningParam;
 import es.ull.iis.simulation.model.SimulationCycle;
 

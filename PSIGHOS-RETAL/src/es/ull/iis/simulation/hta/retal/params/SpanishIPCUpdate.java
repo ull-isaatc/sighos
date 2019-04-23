@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.params;
+package es.ull.iis.simulation.hta.retal.params;
 
 /**
  * A class to update costs according to the Spanish IPC. Uses the values of IPC in January for each year. 

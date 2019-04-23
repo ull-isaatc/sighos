@@ -6,10 +6,9 @@ package es.ull.iis.simulation.hta.diabetes.outcomes;
 import java.util.Collection;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
-import es.ull.iis.simulation.hta.diabetes.interventions.DiabetesIntervention;
+import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 
 /**
  * A standard utility calculator that simply collects constant disutility values for each complication and then 
@@ -70,6 +69,6 @@ public class StdUtilityCalculator implements UtilityCalculator {
 			if (disutilities.containsKey(comp))
 				du = method.combine(du, disutilities.get(comp));
 		}
-		return genPopUtility - du - ((DiabetesIntervention)pat.getIntervention()).getDisutility(pat);
+		return genPopUtility - du - pat.getIntervention().getDisutility(pat);
 	}
 }

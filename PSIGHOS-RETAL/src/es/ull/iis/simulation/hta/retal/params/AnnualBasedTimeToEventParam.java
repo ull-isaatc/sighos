@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.retal.params;
 
 import es.ull.iis.simulation.hta.retal.RetalPatient;
-import es.ull.iis.simulation.hta.params.Param;
 import es.ull.iis.simulation.hta.retal.RandomForPatient;
 import es.ull.iis.simulation.model.TimeUnit;
 

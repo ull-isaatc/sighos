@@ -4,8 +4,6 @@
 package es.ull.iis.simulation.hta.retal;
 
 import es.ull.iis.function.TimeFunction;
-import es.ull.iis.simulation.hta.Intervention;
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.SimulationCycle;
 import es.ull.iis.simulation.model.TimeDrivenGenerator;
@@ -21,7 +19,7 @@ public class PatientCreator extends TimeDrivenGenerator<es.ull.iis.simulation.mo
 	private final RETALSimulation simul;
 	/** A distribution to characterize the initial age of each generated patient */
 	private final TimeFunction initialAges;
-	private final Patient[] copyOf;
+	private final RetalPatient[] copyOf;
 	private final Intervention intervention;
 
 	/**
@@ -44,7 +42,7 @@ public class PatientCreator extends TimeDrivenGenerator<es.ull.iis.simulation.mo
 	 * @param copyOf An original set of patients created for a previous simulation (and already simulated)
 	 * @param intervention Numerical identifier of the intervention
 	 */
-	public PatientCreator(RETALSimulation simul, Patient[] copyOf, Intervention intervention, SimulationCycle cycle) {
+	public PatientCreator(RETALSimulation simul, RetalPatient[] copyOf, Intervention intervention, SimulationCycle cycle) {
 		super(simul, copyOf.length, cycle);
 		this.simul = simul;
 		this.initialAges = null;

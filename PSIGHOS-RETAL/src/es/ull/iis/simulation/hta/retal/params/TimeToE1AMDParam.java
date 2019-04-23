@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.params.EmpiricTimeToEventParam;
 import es.ull.iis.simulation.hta.retal.EyeState;
 import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.RandomForPatient;

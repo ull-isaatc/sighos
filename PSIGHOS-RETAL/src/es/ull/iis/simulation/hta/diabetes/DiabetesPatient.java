@@ -8,15 +8,16 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
-import es.ull.iis.simulation.hta.diabetes.interventions.DiabetesIntervention;
+import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.simulation.model.VariableStoreSimulationObject;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
  * A patient with Diabetes Mellitus. The patient is initially characterized with an age, sex, HbA1c level, and an intervention.
@@ -27,7 +28,18 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author Iván Castilla Rodríguez
  *
  */
-public class DiabetesPatient extends Patient {
+public class DiabetesPatient extends VariableStoreSimulationObject implements EventSource {
+	private final static String OBJ_TYPE_ID = "PAT";
+	/** The original patient, this one was cloned from */ 
+	private final DiabetesPatient clonedFrom;
+	/** The intervention branch that this "clone" of the patient belongs to */
+	protected final int nIntervention;
+	/** The specific intervention assigned to the patient */
+	protected final DiabetesIntervention intervention;
+	/** The timestamp when this patient enters the simulation */
+	protected long startTs;
+	/** True if the patient is dead */
+	private boolean dead; 
 	/** The state of the patient */
 	private final EnumSet<DiabetesChronicComplications> state;
 	/** The detailed state of the patient */
@@ -61,7 +73,12 @@ public class DiabetesPatient extends Patient {
 	 * @param intervention Intervention assigned to this patient
 	 */
 	public DiabetesPatient(DiabetesSimulation simul, DiabetesIntervention intervention, DiabetesPatientProfile profile) {
-		super(simul, intervention);
+		super(simul, simul.getPatientCounter(), OBJ_TYPE_ID);
+		// Initialize patients with no complications
+		this.intervention = intervention;
+		this.nIntervention = intervention.getIdentifier();
+		this.clonedFrom = null;
+		this.dead = false;
 		this.profile = profile;
 		this.commonParams = simul.getCommonParams();
 		this.detailedState = new TreeSet<>();
@@ -84,7 +101,11 @@ public class DiabetesPatient extends Patient {
 	 * @param intervention Intervention assigned to this patient
 	 */
 	public DiabetesPatient(DiabetesSimulation simul, DiabetesPatient original, DiabetesIntervention intervention) {
-		super(simul, original, intervention);
+		super(simul, original.id, OBJ_TYPE_ID);
+		this.intervention = intervention;
+		this.nIntervention = intervention.getIdentifier();
+		this.clonedFrom = original;		
+		this.dead = false;
 		this.commonParams = original.commonParams;
 		this.detailedState = new TreeSet<>();
 		this.state = EnumSet.noneOf(DiabetesChronicComplications.class);
@@ -125,6 +146,60 @@ public class DiabetesPatient extends Patient {
 		return detailedState;
 	}
 	
+
+	@Override
+	public void notifyEnd() {
+        simul.addEvent(onDestroy(simul.getSimulationEngine().getTs()));
+	}
+
+	@Override
+	protected void assignSimulation(SimulationEngine simul) {
+		// Nothing to do
+	}
+	
+	/**
+	 * @return
+	 */
+	public int getnIntervention() {
+		return nIntervention;
+	}
+
+	/**
+	 * @return the intervention
+	 */
+	public DiabetesIntervention getIntervention() {
+		return intervention;
+	}
+
+	/**
+	 * @return the clonedFrom
+	 */
+	public DiabetesPatient getClonedFrom() {
+		return clonedFrom;
+	}
+
+	/**
+	 * @return the startTs
+	 */
+	public long getStartTs() {
+		return startTs;
+	}
+
+	/**
+	 * Returns true if the patient is dead; false otherwise
+	 * @return true if the patient is dead; false otherwise
+	 */
+	public boolean isDead() {
+		return dead;
+	}
+
+	/**
+	 * Sets the patient as dead
+	 */
+	public void setDead() {
+		this.dead = true;
+	}
+
 	@Override
 	public DiscreteEvent onCreate(long ts) {
 		return new StartEvent(this, ts);

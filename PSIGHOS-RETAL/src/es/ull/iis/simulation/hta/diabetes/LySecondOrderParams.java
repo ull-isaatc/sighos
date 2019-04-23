@@ -4,9 +4,8 @@
 package es.ull.iis.simulation.hta.diabetes;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatientGenerator.DiabetesPatientGenerationInfo;
-import es.ull.iis.simulation.hta.diabetes.interventions.CSIIIntervention;
-import es.ull.iis.simulation.hta.diabetes.interventions.DiabetesIntervention;
-import es.ull.iis.simulation.hta.diabetes.interventions.SAPIntervention;
+import es.ull.iis.simulation.hta.diabetes.interventions.LyCSIIIntervention;
+import es.ull.iis.simulation.hta.diabetes.interventions.LySAPIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.outcomes.SubmodelCostCalculator;
 import es.ull.iis.simulation.hta.diabetes.outcomes.SubmodelUtilityCalculator;
@@ -49,14 +48,7 @@ import es.ull.iis.simulation.hta.diabetes.submodels.SimpleNEUSubmodel;
  *
  */
 public class LySecondOrderParams extends SecondOrderParamsRepository {
-	/** Duration of effect of the intervention (supposed lifetime) */
-	private static final double YEARS_OF_EFFECT = BasicConfigParams.DEF_MAX_AGE;
 
-	/** Annual cost of the treatment with SAP. Based on microcosts from Medtronic. */
-	private static final double C_SAP = 3484.56;
-	/** Annual cost of the treatment with CSII. Based on microcosts from Medtronic */
-	private static final double C_CSII = 377.38;//3013.335;
-	
 	/**
 	 * Initializes the parameters for the population defined in this class. With respect to the cost of the treatments,
 	 * we apply full costs independently of the adherence, by assuming that the NHS would continue providing the treatment
@@ -65,41 +57,27 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 	 */
 	public LySecondOrderParams(int nPatients) {
 		super(nPatients);
-		addPopulation(new DiabetesPatientGenerationInfo(new LyPopulation(this)));
-		LyRETSubmodel.registerSecondOrder(this);;
-		LyNPHSubmodel.registerSecondOrder(this);
-		SimpleCHDSubmodel.registerSecondOrder(this);
-		SimpleNEUSubmodel.registerSecondOrder(this);
+		registerPopulation(new DiabetesPatientGenerationInfo(new LyPopulation(this)));
+		registerComplication(new LyNPHSubmodel());
+		registerComplication(new LyRETSubmodel());
+		registerComplication(new SimpleCHDSubmodel());
+		registerComplication(new SimpleNEUSubmodel());
 
 		// Acute complication submodels
-		LySevereHypoglycemiaEvent.registerSecondOrder(this);
+		registerComplication(new LySevereHypoglycemiaEvent());
 
+		registerIntervention(new LyCSIIIntervention());
+		registerIntervention(new LySAPIntervention());
+		
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of Diabetes with no complications", 
 				BasicConfigParams.DEF_C_DNC.SOURCE, BasicConfigParams.DEF_C_DNC.YEAR, 
 				BasicConfigParams.DEF_C_DNC.VALUE, getRandomVariateForCost(BasicConfigParams.DEF_C_DNC.VALUE)));
-		
-		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + CSIIIntervention.NAME, "Annual cost of CSII", 
-				"Own calculations from data provided by medtronic (see Parametros.xls)", 2018, C_CSII, SecondOrderParamsRepository.getRandomVariateForCost(C_CSII)));
-		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX +SAPIntervention.NAME, "Annual cost of SAP",  
-				"Own calculations from data provided by medtronic (see Parametros.xls", 2018, C_SAP, SecondOrderParamsRepository.getRandomVariateForCost(C_SAP)));
 		
 		final double[] paramsDuDNC = SecondOrderParamsRepository.betaParametersFromNormal(BasicConfigParams.DEF_DU_DNC[0], BasicConfigParams.DEF_DU_DNC[1]);
 		addUtilParam(new SecondOrderParam(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS, "Disutility of DNC", "", 
 				BasicConfigParams.DEF_DU_DNC[0], "BetaVariate", paramsDuDNC[0], paramsDuDNC[1]));
 		
 		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "Spanish guidelines", 0.03));
-	}
-	
-	@Override
-	public DiabetesIntervention[] getInterventions() {
-		return new DiabetesIntervention[] {
-				new CSIIIntervention(0, costParams.get(STR_COST_PREFIX + CSIIIntervention.NAME).getValue(baseCase), 0.035),
-				new SAPIntervention(1, costParams.get(STR_COST_PREFIX + SAPIntervention.NAME).getValue(baseCase), YEARS_OF_EFFECT, -0.038)};
-	}
-
-	@Override
-	public int getNInterventions() {
-		return 2;
 	}
 	
 	@Override
@@ -116,28 +94,6 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 		dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(DiabetesChronicComplications.CHD));
 		dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(DiabetesChronicComplications.CHD));
 		return dModel;
-	}
-	
-	@Override
-	public ChronicComplicationSubmodel[] getComplicationSubmodels() {
-		final ChronicComplicationSubmodel[] comps = new ChronicComplicationSubmodel[DiabetesChronicComplications.values().length];
-		
-		// Adds neuropathy submodel
-		comps[DiabetesChronicComplications.NEU.ordinal()] = new SimpleNEUSubmodel(this);
-		
-		// Adds nephropathy and retinopathy submodels
-		comps[DiabetesChronicComplications.NPH.ordinal()] = new LyNPHSubmodel(this);
-		comps[DiabetesChronicComplications.RET.ordinal()] = new LyRETSubmodel(this);
-		
-		// Adds major Cardiovascular disease submodel
-		comps[DiabetesChronicComplications.CHD.ordinal()] = new SimpleCHDSubmodel(this);
-		
-		return comps;
-	}
-	
-	@Override
-	public AcuteComplicationSubmodel[] getAcuteComplicationSubmodels() {
-		return new AcuteComplicationSubmodel[] {new LySevereHypoglycemiaEvent(this)};
 	}
 	
 	@Override

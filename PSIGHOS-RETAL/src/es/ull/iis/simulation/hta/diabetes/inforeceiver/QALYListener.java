@@ -5,7 +5,6 @@ package es.ull.iis.simulation.hta.diabetes.inforeceiver;
 
 import java.util.Arrays;
 
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
 import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
@@ -103,7 +102,7 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 	 * @param initAge Initial age when the value is applied
 	 * @param endAge End age when the value is applied
 	 */
-	private void update(Patient pat, double value, double initAge, double endAge) {
+	private void update(DiabetesPatient pat, double value, double initAge, double endAge) {
 		value = applyDiscount(value, initAge, endAge);
 		values[pat.getIdentifier()] += value;
 		aggregated += value;
@@ -114,7 +113,7 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 	 * @param value The value to update
 	 * @param age The age at which the value is applied
 	 */
-	private void update(Patient pat, double value, double age) {
+	private void update(DiabetesPatient pat, double value, double age) {
 		value = applyPunctualDiscount(value, age);
 		values[pat.getIdentifier()] += value;
 		aggregated += value;

@@ -1,6 +1,9 @@
 package es.ull.iis.simulation.hta.diabetes.interventions;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
+import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 
 /**
  * An intervention with SAP with predictive low-glucose management. For this population, it has no effect on the 
@@ -8,49 +11,64 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SAPIntervention extends DiabetesIntervention {
+public class SAPIntervention extends SecondOrderDiabetesIntervention {
 	public final static String NAME = "SAP";
-	/** Annual cost of the intervention */
-	private final double annualCost;
-	/** Annual disutility due to the treatment */
-	private final double disutility;
+	/** A factor to reduce the cost of SAP in sensitivity analysis */
+	private static final double C_SAP_REDUCTION = 1.0;
+	/** Annual cost of the treatment with SAP. Based on microcosts from Medtronic. */
+	private static final double C_SAP = 7662.205833 * C_SAP_REDUCTION;
+	/** The duration (in years) of the effect of the intervention */
+	final private double yearsOfEffect;
 
 	/**
 	 * Creates the intervention
-	 * @param id Unique identifier of the intervention
-	 * @param annualCost Annual cost assigned to the intervention
 	 * @param yearsOfEffect Years of effect of the intervention
 	 */
-	public SAPIntervention(int id, double annualCost, double yearsOfEffect, double disutility) {
-		super(id, NAME, NAME, yearsOfEffect);
-		this.annualCost = annualCost;
-		this.disutility = disutility;
+	public SAPIntervention(double yearsOfEffect) {
+		super(NAME, NAME);
+		this.yearsOfEffect = yearsOfEffect;
 	}
 
 	/**
-	 * Creates the intervention
-	 * @param id Unique identifier of the intervention
-	 * @param annualCost Annual cost assigned to the intervention
-	 * @param yearsOfEffect Years of effect of the intervention
+	 * Creates the intervention, and supposes lifetime effect.
 	 */
-	public SAPIntervention(int id, double annualCost, double yearsOfEffect) {
-		this(id, annualCost, yearsOfEffect, 0.0);
+	public SAPIntervention() {
+		this(BasicConfigParams.DEF_MAX_AGE);
 	}
 
 	@Override
-	public double getHBA1cLevel(DiabetesPatient pat) {
-		return pat.getBaselineHBA1c();
-//			return 2.206 + 1.491 + (0.618*pat.getBaselineHBA1c()) - (0.150 * Math.max(0, pat.getWeeklySensorUsage() - MIN_WEEKLY_USAGE)) - (0.005*pat.getAge());
+	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
+		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX +SAPIntervention.NAME, "Annual cost of SAP",  
+				"Own calculations from data provided by medtronic (see Parametros.xls", 2018, C_SAP, SecondOrderParamsRepository.getRandomVariateForCost(C_SAP)));
+		
+	}
+	
+	@Override
+	public DiabetesIntervention getInstance(int id, SecondOrderParamsRepository secParams) {
+		return new Instance(id, secParams);
 	}
 
-	@Override
-	public double getAnnualCost(DiabetesPatient pat) {
-		return annualCost;
-	}
+	public class Instance extends DiabetesIntervention {
+		/** Annual cost of the intervention */
+		private final double annualCost;
 
-	@Override
-	public double getDisutility(DiabetesPatient pat) {
-		return disutility;
+		public Instance(int id, SecondOrderParamsRepository secParams) {
+			super(id, yearsOfEffect);
+			final double auxCost = secParams.getCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + SAPIntervention.NAME);
+			annualCost = Double.isNaN(auxCost) ? 0.0 : auxCost;
+		}
+		
+		@Override
+		public double getHBA1cLevel(DiabetesPatient pat) {
+			return pat.getBaselineHBA1c();
+//				return 2.206 + 1.491 + (0.618*pat.getBaselineHBA1c()) - (0.150 * Math.max(0, pat.getWeeklySensorUsage() - MIN_WEEKLY_USAGE)) - (0.005*pat.getAge());
+		}
+
+		@Override
+		public double getAnnualCost(DiabetesPatient pat) {
+			return annualCost;
+		}
+
 	}
 
 }

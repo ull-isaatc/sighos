@@ -8,8 +8,6 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import es.ull.iis.simulation.hta.Intervention;
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.retal.outcome.QualityAdjustedLifeExpectancy;
 import es.ull.iis.simulation.hta.retal.info.PatientInfo;
 import es.ull.iis.simulation.hta.retal.outcome.Cost;
@@ -23,6 +21,8 @@ import es.ull.iis.simulation.hta.retal.params.VAProgressionPair;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.simulation.model.VariableStoreSimulationObject;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.util.cycle.DiscreteCycleIterator;
 
 /**
@@ -30,8 +30,17 @@ import es.ull.iis.util.cycle.DiscreteCycleIterator;
  * @author Iván Castilla
  *
  */
-public class RetalPatient extends Patient {
+public class RetalPatient extends VariableStoreSimulationObject implements EventSource {
 	private EnumSet<RETALSimulation.DISEASES> affectedBy = EnumSet.noneOf(RETALSimulation.DISEASES.class); 
+	private final static String OBJ_TYPE_ID = "PAT";
+	/** The original patient, this one was cloned from */ 
+	private final RetalPatient clonedFrom;
+	/** The intervention branch that this "clone" of the patient belongs to */
+	protected final int nIntervention;
+	/** The specific intervention assigned to the patient */
+	protected final Intervention intervention;
+	/** True if the patient is dead */
+	private boolean dead; 
 	/** Initial age of the patient (stored in days) */
 	private final double initAge;
 	/** Sex of the patient: 0 for men, 1 for women */
@@ -87,7 +96,12 @@ public class RetalPatient extends Patient {
 	 */
 	@SuppressWarnings("unchecked")
 	public RetalPatient(RETALSimulation simul, double initAge, Intervention intervention) {
-		super(simul, intervention);
+		super(simul, simul.getPatientCounter(), OBJ_TYPE_ID);
+		// Initialize patients with no complications
+		this.intervention = intervention;
+		this.nIntervention = intervention.getId();
+		this.clonedFrom = null;
+		this.dead = false;
 		this.cost = simul.getCost();
 		this.qaly = simul.getQALY();
 		this.rng = new RandomForPatient();
@@ -117,7 +131,11 @@ public class RetalPatient extends Patient {
 	 */
 	@SuppressWarnings("unchecked")
 	public RetalPatient(RETALSimulation simul, RetalPatient original, Intervention intervention) {
-		super(simul, original, intervention);
+		super(simul, original.id, OBJ_TYPE_ID);
+		this.intervention = intervention;
+		this.nIntervention = intervention.getId();
+		this.clonedFrom = original;		
+		this.dead = false;
 		this.cost = original.cost;
 		this.qaly = original.qaly;
 		this.rng = new RandomForPatient(original.rng); 
@@ -149,6 +167,60 @@ public class RetalPatient extends Patient {
 	public DiscreteEvent onDestroy(long ts) {
 		return new FinalizeEvent(ts);
 	}
+
+	@Override
+	public void notifyEnd() {
+        simul.addEvent(onDestroy(simul.getSimulationEngine().getTs()));
+	}
+
+	@Override
+	protected void assignSimulation(SimulationEngine simul) {
+		// Nothing to do
+	}
+	
+	/**
+	 * @return
+	 */
+	public int getnIntervention() {
+		return nIntervention;
+	}
+
+	/**
+	 * @return the intervention
+	 */
+	public Intervention getIntervention() {
+		return intervention;
+	}
+
+	/**
+	 * @return the clonedFrom
+	 */
+	public RetalPatient getClonedFrom() {
+		return clonedFrom;
+	}
+
+	/**
+	 * @return the startTs
+	 */
+	public long getStartTs() {
+		return startTs;
+	}
+
+	/**
+	 * Returns true if the patient is dead; false otherwise
+	 * @return true if the patient is dead; false otherwise
+	 */
+	public boolean isDead() {
+		return dead;
+	}
+
+	/**
+	 * Sets the patient as dead
+	 */
+	public void setDead() {
+		this.dead = true;
+	}
+
 	
 	private class PatientEvent extends DiscreteEvent {
 

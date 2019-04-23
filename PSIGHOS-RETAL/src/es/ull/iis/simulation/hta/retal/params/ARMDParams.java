@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.retal.params;
 
-import es.ull.iis.simulation.hta.params.ModelParams;
 import es.ull.iis.simulation.hta.retal.RetalPatient;
 
 /**

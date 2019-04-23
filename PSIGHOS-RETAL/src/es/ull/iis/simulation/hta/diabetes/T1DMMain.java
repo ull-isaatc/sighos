@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -16,7 +17,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.diabetes.DCCT.DCCTSecondOrderParams;
 import es.ull.iis.simulation.hta.diabetes.canada.CanadaSecondOrderParams;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AnnualCostView;
@@ -30,7 +30,8 @@ import es.ull.iis.simulation.hta.diabetes.inforeceiver.T1DMCummulatedIncidenceVi
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.T1DMPatientInfoView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.T1DMPatientPrevalenceView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.T1DMTimeFreeOfComplicationsView;
-import es.ull.iis.simulation.hta.diabetes.interventions.DiabetesIntervention;
+import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
+import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
@@ -44,7 +45,7 @@ public class T1DMMain {
 	/** How many replications have to be run to show a new progression percentage message */
 	private static final int N_PROGRESS = 20;
 	private final PrintWriter out;
-	private final DiabetesIntervention[] interventions;
+	private final ArrayList<SecondOrderDiabetesIntervention> interventions;
 	/** Number of simulations to run */
 	private final int nRuns;
 	/** Number of patients to be generated during each simulation */
@@ -73,7 +74,7 @@ public class T1DMMain {
 		super();
 		this.timeHorizon = timeHorizon;
 		this.out = out;
-		this.interventions = secParams.getInterventions();
+		this.interventions = secParams.getRegisteredInterventions();
 		this.nRuns = nRuns;
 		this.nPatients = secParams.getnPatients();
 		this.secParams = secParams;
@@ -104,14 +105,14 @@ public class T1DMMain {
 	
 	private String getStrHeader() {
 		final StringBuilder str = new StringBuilder();
-		final Intervention[] interventions = secParams.getInterventions();
 		str.append("SIM\t");
-		for (int i = 0; i < interventions.length; i++) {
-			str.append(HbA1cListener.getStrHeader(interventions[i].getShortName()));
-			str.append(CostListener.getStrHeader(interventions[i].getShortName()));
-			str.append(LYListener.getStrHeader(interventions[i].getShortName()));
-			str.append(QALYListener.getStrHeader(interventions[i].getShortName()));
-			str.append(T1DMAcuteComplicationCounterListener.getStrHeader(interventions[i].getShortName()));
+		for (int i = 0; i < interventions.size(); i++) {
+			final String shortName = interventions.get(i).getShortName();
+			str.append(HbA1cListener.getStrHeader(shortName));
+			str.append(CostListener.getStrHeader(shortName));
+			str.append(LYListener.getStrHeader(shortName));
+			str.append(QALYListener.getStrHeader(shortName));
+			str.append(T1DMAcuteComplicationCounterListener.getStrHeader(shortName));
 		}
 		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredComplicationStages()));
 		str.append(secParams.getStrHeader());
@@ -120,9 +121,8 @@ public class T1DMMain {
 	
 	private String print(DiabetesSimulation simul, HbA1cListener[] hba1cListeners, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, T1DMAcuteComplicationCounterListener[] acuteListeners, T1DMTimeFreeOfComplicationsView timeFreeListener) {
 		final StringBuilder str = new StringBuilder();
-		final Intervention[] interventions = secParams.getInterventions();
 		str.append("" +  simul.getIdentifier() + "\t");
-		for (int i = 0; i < interventions.length; i++) {
+		for (int i = 0; i < interventions.size(); i++) {
 			str.append(hba1cListeners[i]);
 			str.append(costListeners[i]);
 			str.append(lyListeners[i]);
@@ -140,17 +140,18 @@ public class T1DMMain {
 	 */
 	private void simulateInterventions(int id, boolean baseCase) {
 		final CommonParams common = new CommonParams(secParams);
-		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(nPatients, interventions.length, false, secParams.getRegisteredComplicationStages());
-		final HbA1cListener[] hba1cListeners = new HbA1cListener[interventions.length];
-		final CostListener[] costListeners = new CostListener[interventions.length];
-		final LYListener[] lyListeners = new LYListener[interventions.length];
-		final QALYListener[] qalyListeners = new QALYListener[interventions.length];
-		final T1DMAcuteComplicationCounterListener[] acuteListeners = new T1DMAcuteComplicationCounterListener[interventions.length];
+		final int nInterventions = interventions.size();
+		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(nPatients, nInterventions, false, secParams.getRegisteredComplicationStages());
+		final HbA1cListener[] hba1cListeners = new HbA1cListener[nInterventions];
+		final CostListener[] costListeners = new CostListener[nInterventions];
+		final LYListener[] lyListeners = new LYListener[nInterventions];
+		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
+		final T1DMAcuteComplicationCounterListener[] acuteListeners = new T1DMAcuteComplicationCounterListener[nInterventions];
 
 		AnnualCostView[] budgetImpactListener = null;
 		if (printBI)
-			budgetImpactListener = new AnnualCostView[interventions.length];
-		for (int i = 0; i < interventions.length; i++) {
+			budgetImpactListener = new AnnualCostView[nInterventions];
+		for (int i = 0; i < nInterventions; i++) {
 			hba1cListeners[i] = new HbA1cListener(nPatients);
 			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), common.getDiscountRate(), nPatients);
 			lyListeners[i] = new LYListener(common.getDiscountRate(), nPatients);
@@ -159,7 +160,8 @@ public class T1DMMain {
 			if (printBI)
 				budgetImpactListener[i] = new AnnualCostView(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), nPatients, secParams.getMinAge(), BasicConfigParams.DEF_MAX_AGE);
 		}
-		DiabetesSimulation simul = new DiabetesSimulation(id, interventions[0], nPatients, common, secParams.getPopulations(), timeHorizon);
+		final DiabetesIntervention[] intInstances = secParams.getInterventions();
+		DiabetesSimulation simul = new DiabetesSimulation(id, intInstances[0], nPatients, common, secParams.getPopulations(), timeHorizon);
 		simul.addInfoReceiver(hba1cListeners[0]);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
@@ -172,8 +174,8 @@ public class T1DMMain {
 			simul.addInfoReceiver(budgetImpactListener[0]);
 		addListeners(simul);
 		simul.run();
-		for (int i = 1; i < interventions.length; i++) {
-			simul = new DiabetesSimulation(simul, interventions[i]);
+		for (int i = 1; i < nInterventions; i++) {
+			simul = new DiabetesSimulation(simul, intInstances[i]);
 			simul.addInfoReceiver(hba1cListeners[i]);
 			simul.addInfoReceiver(costListeners[i]);
 			simul.addInfoReceiver(lyListeners[i]);
@@ -189,16 +191,16 @@ public class T1DMMain {
 		}
 		if (printBI) {
 			System.out.println("Annual costs (for budget impact)");
-			final double[][] costs = new double[interventions.length][];
+			final double[][] costs = new double[nInterventions][];
 			System.out.print("YEAR\t");
-			for (int i = 0; i < interventions.length; i++) {
-				System.out.print(interventions[i].getShortName() + "\t");
+			for (int i = 0; i < nInterventions; i++) {
+				System.out.print(interventions.get(i).getShortName() + "\t");
 				costs[i] = budgetImpactListener[i].getAnnualCosts(); 
 			}
 			System.out.println();
 			for (int i = 0; i < BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge(); i++) {
 				System.out.print("" + i + "\t");
-				for (int j = 0; j < interventions.length; j++) {
+				for (int j = 0; j < nInterventions; j++) {
 					System.out.print((costs[j][i] /nPatients) + "\t");
 				}
 				System.out.println();
@@ -206,13 +208,14 @@ public class T1DMMain {
 		}
 		if (printIndividualOutcomes) {
 			System.out.print("Patient");
-			for (int i = 0; i < interventions.length; i++) {
-				System.out.print("\tCost_" + interventions[i].getShortName() + "\tLE_" + interventions[i].getShortName() + "\tQALE_" + interventions[i].getShortName());
+			for (int i = 0; i < nInterventions; i++) {
+				final String shortName = interventions.get(i).getShortName();
+				System.out.print("\tCost_" + shortName + "\tLE_" + shortName + "\tQALE_" + shortName);
 			}
 			System.out.println();
 			for (int i = 0; i < nPatients; i++) {
 				System.out.print(i);
-				for (int j = 0; j < interventions.length; j++) {
+				for (int j = 0; j < nInterventions; j++) {
 					System.out.print("\t" + costListeners[j].getValues()[i] + "\t" + lyListeners[j].getValues()[i] + "\t" + qalyListeners[j].getValues()[i]);					
 				}
 				System.out.println();
@@ -310,8 +313,15 @@ public class T1DMMain {
 	    		secParams.setDiscountZero(true);
 	        
 	    	final int timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : args1.timeHorizon;
-	        final T1DMMain experiment = new T1DMMain(out, secParams, args1.nRuns, timeHorizon, args1.parallel, args1.quiet, args1.singlePatientOutput, args1.incidence, args1.prevalence, args1.cumm, args1.bi, args1.individualOutcomes);
-	        experiment.run();
+	    	final String validity = secParams.checkValidity();
+	    	if (validity == null) {
+		        final T1DMMain experiment = new T1DMMain(out, secParams, args1.nRuns, timeHorizon, args1.parallel, args1.quiet, args1.singlePatientOutput, args1.incidence, args1.prevalence, args1.cumm, args1.bi, args1.individualOutcomes);
+		        experiment.run();
+	    	}
+	    	else {
+	    		System.err.println("Could not validate model");
+	    		System.err.println(validity);
+	    	}
 		} catch (ParameterException ex) {
 			System.out.println(ex.getMessage());
 			ex.usage();

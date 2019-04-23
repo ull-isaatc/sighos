@@ -5,7 +5,6 @@ package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.EnumSet;
 
-import es.ull.iis.simulation.hta.params.ModelParams;
 import es.ull.iis.simulation.hta.retal.EyeState;
 import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.RandomForPatient;

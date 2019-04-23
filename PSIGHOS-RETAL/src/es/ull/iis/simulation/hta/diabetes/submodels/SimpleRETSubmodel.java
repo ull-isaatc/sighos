@@ -4,12 +4,14 @@
 package es.ull.iis.simulation.hta.diabetes.submodels;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.DiabetesProgression;
+import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.HbA1c10ReductionComplicationRR;
@@ -24,7 +26,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SimpleRETSubmodel extends ChronicComplicationSubmodel {
+public class SimpleRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 	public static DiabetesComplicationStage RET = new DiabetesComplicationStage("RET", "Retinopathy", DiabetesChronicComplications.RET);
 	public static DiabetesComplicationStage BLI = new DiabetesComplicationStage("BLI", "Blindness", DiabetesChronicComplications.RET);
 	public static DiabetesComplicationStage[] RETSubstates = new DiabetesComplicationStage[] {RET, BLI};
@@ -48,48 +50,13 @@ public class SimpleRETSubmodel extends ChronicComplicationSubmodel {
 		RET_BLI,
 		HEALTHY_BLI;
 	}
-	private final double[] invProb;
-	private final RRCalculator[] rr;
-	private final double [][] rnd;
-	private final double[] costRET;
-	private final double[] costBLI;
-	
-	private final double duRET;
-	private final double duBLI;
-	/**
-	 * 
-	 */
-	public SimpleRETSubmodel(SecondOrderParamsRepository secParams) {
-		super();
-		
-		invProb = new double[RETTransitions.values().length];
-		invProb[SimpleRETSubmodel.RETTransitions.HEALTHY_RET.ordinal()] = -1 / secParams.getProbability(RET);
-		invProb[SimpleRETSubmodel.RETTransitions.HEALTHY_BLI.ordinal()] = -1 / secParams.getProbability(BLI);
-		invProb[SimpleRETSubmodel.RETTransitions.RET_BLI.ordinal()] = -1 / secParams.getProbability(RET, BLI);
-		
-		this.rr = new RRCalculator[RETTransitions.values().length];;
-		rr[RETTransitions.HEALTHY_RET.ordinal()] = new HbA1c10ReductionComplicationRR(
-				secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + RET.name()), REF_HBA1C);
-		rr[RETTransitions.HEALTHY_BLI.ordinal()] = SecondOrderParamsRepository.NO_RR;
-		rr[RETTransitions.RET_BLI.ordinal()] = SecondOrderParamsRepository.NO_RR;
-		
-		final int nPatients = secParams.getnPatients();
-		final RandomNumber rng = secParams.getRngFirstOrder();
-		rnd = new double[nPatients][RETSubstates.length];
-		for (int i = 0; i < nPatients; i++) {
-			for (int j = 0; j < RETSubstates.length; j++) {
-				rnd[i][j] = rng.draw();
-			}
-		}
-		
-		costRET = secParams.getCostsForChronicComplication(RET);
-		costBLI = secParams.getCostsForChronicComplication(BLI);
 
-		duRET = secParams.getDisutilityForChronicComplication(RET);
-		duBLI = secParams.getDisutilityForChronicComplication(BLI);
+	public SimpleRETSubmodel() {
+		super(DiabetesChronicComplications.RET, EnumSet.of(DiabetesType.T1));
 	}
 
-	public static void registerSecondOrder(SecondOrderParamsRepository secParams) {
+	@Override
+	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
 		final double[] paramsDNC_RET = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_RET, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_RET));
 		final double[] paramsRET_BLI = SecondOrderParamsRepository.betaParametersFromNormal(P_RET_BLI, SecondOrderParamsRepository.sdFrom95CI(CI_RET_BLI));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, SimpleRETSubmodel.RET), "", 
@@ -113,64 +80,6 @@ public class SimpleRETSubmodel extends ChronicComplicationSubmodel {
 				"", DU_RET[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuRET[0], paramsDuRET[1])));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BLI, "Disutility of BLI", 
 				"", DU_BLI[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuBLI[0], paramsDuBLI[1])));
-		
-		secParams.registerComplication(DiabetesChronicComplications.RET);
-		secParams.registerComplicationStages(RETSubstates);		
-	}
-
-	@Override
-	public DiabetesProgression getProgression(DiabetesPatient pat) {
-		final DiabetesProgression prog = new DiabetesProgression();
-		if (enable) {
-			final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
-			// Checks whether there is somewhere to transit to
-			if (!state.contains(BLI)) {
-				long timeToBLI = Long.MAX_VALUE;
-				long timeToRET = Long.MAX_VALUE;
-				final long previousTimeToRET = pat.getTimeToChronicComorbidity(RET);
-				final long previousTimeToBLI = pat.getTimeToChronicComorbidity(BLI);
-				long limit = pat.getTimeToDeath();
-				if (limit > previousTimeToBLI)
-					limit = previousTimeToBLI;
-				if (state.contains(RET)) {
-					// RR from RET to BLI
-					timeToBLI = getAnnualBasedTimeToEvent(pat, RETTransitions.RET_BLI, limit);
-				}
-				else {
-					// RR from healthy to BLI
-					timeToBLI = getAnnualBasedTimeToEvent(pat, RETTransitions.HEALTHY_BLI, limit);
-					if (limit > timeToBLI)
-						limit = timeToBLI;
-					if (limit > previousTimeToRET)
-						limit = previousTimeToRET;
-					// RR from healthy to RET (must be previous to BLI and a (potential) formerly scheduled RET event)
-					timeToRET = getAnnualBasedTimeToEvent(pat, RETTransitions.HEALTHY_RET, limit);
-				}
-				// Check previously scheduled events
-				if (timeToRET != Long.MAX_VALUE) {
-					if (previousTimeToRET < Long.MAX_VALUE) {
-						prog.addCancelEvent(RET);
-					}
-					prog.addNewEvent(RET, timeToRET);
-				}
-				if (timeToBLI != Long.MAX_VALUE) {
-					if (previousTimeToBLI < Long.MAX_VALUE) {
-						prog.addCancelEvent(BLI);
-					}
-					prog.addNewEvent(BLI, timeToBLI);
-					// If the new BLI event happens before a previously scheduled RET event, the latter must be cancelled 
-					if (previousTimeToRET < Long.MAX_VALUE && timeToBLI < previousTimeToRET)
-						prog.addCancelEvent(RET);
-				}
-			}
-		}
-		return prog;
-	}
-
-	private long getAnnualBasedTimeToEvent(DiabetesPatient pat, RETTransitions transition, long limit) {
-		final int ord = RETTransitions.HEALTHY_RET.equals(transition) ? 0 : 1;
-		return getAnnualBasedTimeToEvent(pat, invProb[transition.ordinal()], rnd[pat.getIdentifier()][ord], rr[transition.ordinal()].getRR(pat), limit);
-		
 	}
 
 	@Override
@@ -182,32 +91,135 @@ public class SimpleRETSubmodel extends ChronicComplicationSubmodel {
 	public DiabetesComplicationStage[] getStages() {
 		return RETSubstates;
 	}
-	
-	@Override
-	public TreeSet<DiabetesComplicationStage> getInitialStage(DiabetesPatient pat) {
-		return new TreeSet<>();
-	}
 
 	@Override
-	public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
-		final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
-		if (state.contains(BLI))
-			return costBLI[0];
-		return costRET[0];
+	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
+		return new SimpleRETSubmodelInstance(secParams);
 	}
 
-	@Override
-	public double getCostOfComplication(DiabetesPatient pat, DiabetesComplicationStage newEvent) {
-		if (BLI.equals(newEvent))
-			return costBLI[1];
-		return costRET[1];
-	}
+	public class SimpleRETSubmodelInstance extends ChronicComplicationSubmodel {
+		private final double[] invProb;
+		private final RRCalculator[] rr;
+		private final double [][] rnd;
+		private final double[] costRET;
+		private final double[] costBLI;
+		
+		private final double duRET;
+		private final double duBLI;
+		/**
+		 * 
+		 */
+		public SimpleRETSubmodelInstance(SecondOrderParamsRepository secParams) {
+			super();
+			
+			invProb = new double[RETTransitions.values().length];
+			invProb[SimpleRETSubmodel.RETTransitions.HEALTHY_RET.ordinal()] = -1 / secParams.getProbability(RET);
+			invProb[SimpleRETSubmodel.RETTransitions.HEALTHY_BLI.ordinal()] = -1 / secParams.getProbability(BLI);
+			invProb[SimpleRETSubmodel.RETTransitions.RET_BLI.ordinal()] = -1 / secParams.getProbability(RET, BLI);
+			
+			this.rr = new RRCalculator[RETTransitions.values().length];;
+			rr[RETTransitions.HEALTHY_RET.ordinal()] = new HbA1c10ReductionComplicationRR(
+					secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + RET.name()), REF_HBA1C);
+			rr[RETTransitions.HEALTHY_BLI.ordinal()] = SecondOrderParamsRepository.NO_RR;
+			rr[RETTransitions.RET_BLI.ordinal()] = SecondOrderParamsRepository.NO_RR;
+			
+			final int nPatients = secParams.getnPatients();
+			final RandomNumber rng = secParams.getRngFirstOrder();
+			rnd = new double[nPatients][RETSubstates.length];
+			for (int i = 0; i < nPatients; i++) {
+				for (int j = 0; j < RETSubstates.length; j++) {
+					rnd[i][j] = rng.draw();
+				}
+			}
+			
+			costRET = secParams.getCostsForChronicComplication(RET);
+			costBLI = secParams.getCostsForChronicComplication(BLI);
 
-	@Override
-	public double getDisutility(DiabetesPatient pat, DisutilityCombinationMethod method) {
-		final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
-		if (state.contains(BLI))
-			return duBLI;
-		return duRET;
+			duRET = secParams.getDisutilityForChronicComplication(RET);
+			duBLI = secParams.getDisutilityForChronicComplication(BLI);
+		}
+		
+		@Override
+		public DiabetesProgression getProgression(DiabetesPatient pat) {
+			final DiabetesProgression prog = new DiabetesProgression();
+			if (isEnabled()) {
+				final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
+				// Checks whether there is somewhere to transit to
+				if (!state.contains(BLI)) {
+					long timeToBLI = Long.MAX_VALUE;
+					long timeToRET = Long.MAX_VALUE;
+					final long previousTimeToRET = pat.getTimeToChronicComorbidity(RET);
+					final long previousTimeToBLI = pat.getTimeToChronicComorbidity(BLI);
+					long limit = pat.getTimeToDeath();
+					if (limit > previousTimeToBLI)
+						limit = previousTimeToBLI;
+					if (state.contains(RET)) {
+						// RR from RET to BLI
+						timeToBLI = getAnnualBasedTimeToEvent(pat, RETTransitions.RET_BLI, limit);
+					}
+					else {
+						// RR from healthy to BLI
+						timeToBLI = getAnnualBasedTimeToEvent(pat, RETTransitions.HEALTHY_BLI, limit);
+						if (limit > timeToBLI)
+							limit = timeToBLI;
+						if (limit > previousTimeToRET)
+							limit = previousTimeToRET;
+						// RR from healthy to RET (must be previous to BLI and a (potential) formerly scheduled RET event)
+						timeToRET = getAnnualBasedTimeToEvent(pat, RETTransitions.HEALTHY_RET, limit);
+					}
+					// Check previously scheduled events
+					if (timeToRET != Long.MAX_VALUE) {
+						if (previousTimeToRET < Long.MAX_VALUE) {
+							prog.addCancelEvent(RET);
+						}
+						prog.addNewEvent(RET, timeToRET);
+					}
+					if (timeToBLI != Long.MAX_VALUE) {
+						if (previousTimeToBLI < Long.MAX_VALUE) {
+							prog.addCancelEvent(BLI);
+						}
+						prog.addNewEvent(BLI, timeToBLI);
+						// If the new BLI event happens before a previously scheduled RET event, the latter must be cancelled 
+						if (previousTimeToRET < Long.MAX_VALUE && timeToBLI < previousTimeToRET)
+							prog.addCancelEvent(RET);
+					}
+				}
+			}
+			return prog;
+		}
+
+		private long getAnnualBasedTimeToEvent(DiabetesPatient pat, RETTransitions transition, long limit) {
+			final int ord = RETTransitions.HEALTHY_RET.equals(transition) ? 0 : 1;
+			return getAnnualBasedTimeToEvent(pat, invProb[transition.ordinal()], rnd[pat.getIdentifier()][ord], rr[transition.ordinal()].getRR(pat), limit);
+			
+		}
+
+		@Override
+		public TreeSet<DiabetesComplicationStage> getInitialStage(DiabetesPatient pat) {
+			return new TreeSet<>();
+		}
+
+		@Override
+		public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
+			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
+			if (state.contains(BLI))
+				return costBLI[0];
+			return costRET[0];
+		}
+
+		@Override
+		public double getCostOfComplication(DiabetesPatient pat, DiabetesComplicationStage newEvent) {
+			if (BLI.equals(newEvent))
+				return costBLI[1];
+			return costRET[1];
+		}
+
+		@Override
+		public double getDisutility(DiabetesPatient pat, DisutilityCombinationMethod method) {
+			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
+			if (state.contains(BLI))
+				return duBLI;
+			return duRET;
+		}
 	}
 }

@@ -5,8 +5,8 @@ package es.ull.iis.simulation.hta.retal.outcome;
 
 import java.util.Arrays;
 
-import es.ull.iis.simulation.hta.HTASimulation;
-import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.retal.RETALSimulation;
+import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.util.Statistics;
 
 /**
@@ -15,7 +15,7 @@ import es.ull.iis.util.Statistics;
  */
 public class Outcome {
 	/** The simulation this outcome is used in */
-	protected final HTASimulation simul;
+	protected final RETALSimulation simul;
 	/** A textual description of the outcome */
 	private final String description;
 	/** The unit used to measure the outcome */
@@ -29,7 +29,7 @@ public class Outcome {
 	/**
 	 * 
 	 */
-	public Outcome(int nInterventions, HTASimulation simul, String description, String unit, double discountRate) {
+	public Outcome(int nInterventions, RETALSimulation simul, String description, String unit, double discountRate) {
 		this.simul = simul;
 		this.description = description;
 		this.unit = unit;
@@ -47,7 +47,7 @@ public class Outcome {
 	 * @param initAge Initial age when the value is applied
 	 * @param endAge End age when the value is applied
 	 */
-	public void update(Patient pat, double value, double initAge, double endAge) {
+	public void update(RetalPatient pat, double value, double initAge, double endAge) {
 		final int interventionId = pat.getnIntervention();
 		value = applyDiscount(value, initAge, endAge);
 		values[interventionId][pat.getIdentifier()] += value;
@@ -59,7 +59,7 @@ public class Outcome {
 	 * @param value The value to update
 	 * @param age The age at which the value is applied
 	 */
-	public void update(Patient pat, double value, double age) {
+	public void update(RetalPatient pat, double value, double age) {
 		final int interventionId = pat.getnIntervention();
 		value = applyPunctualDiscount(value, age);
 		values[interventionId][pat.getIdentifier()] += value;

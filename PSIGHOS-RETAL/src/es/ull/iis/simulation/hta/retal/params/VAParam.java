@@ -9,7 +9,6 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.params.Param;
 import es.ull.iis.simulation.hta.retal.EyeState;
 import es.ull.iis.simulation.hta.retal.RetalPatient;
 

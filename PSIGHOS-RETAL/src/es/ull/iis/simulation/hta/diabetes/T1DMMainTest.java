@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.hta.diabetes;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 
-import es.ull.iis.simulation.hta.Intervention;
 import es.ull.iis.simulation.hta.diabetes.canada.CanadaSecondOrderParams;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.CostListener;
@@ -13,7 +13,8 @@ import es.ull.iis.simulation.hta.diabetes.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.QALYListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.T1DMPatientInfoView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.T1DMTimeFreeOfComplicationsView;
-import es.ull.iis.simulation.hta.diabetes.interventions.DiabetesIntervention;
+import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
+import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
@@ -46,12 +47,12 @@ public class T1DMMainTest {
 	
 	private static String getStrHeader() {
 		final StringBuilder str = new StringBuilder();
-		final Intervention[] interventions = secParams.getInterventions();
+		final ArrayList<SecondOrderDiabetesIntervention> interventions = secParams.getRegisteredInterventions();
 		str.append("SIM\t");
-		for (int i = 0; i < interventions.length; i++) {
-			str.append(CostListener.getStrHeader(interventions[i].getShortName()));
-			str.append(LYListener.getStrHeader(interventions[i].getShortName()));
-			str.append(QALYListener.getStrHeader(interventions[i].getShortName()));
+		for (int i = 0; i < interventions.size(); i++) {
+			str.append(CostListener.getStrHeader(interventions.get(i).getShortName()));
+			str.append(LYListener.getStrHeader(interventions.get(i).getShortName()));
+			str.append(QALYListener.getStrHeader(interventions.get(i).getShortName()));
 		}
 		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredComplicationStages()));
 		str.append(secParams.getStrHeader());
@@ -60,9 +61,9 @@ public class T1DMMainTest {
 	
 	private static String print(DiabetesSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, T1DMTimeFreeOfComplicationsView timeFreeListener) {
 		final StringBuilder str = new StringBuilder();
-		final Intervention[] interventions = secParams.getInterventions();
+		final int nInterventions = secParams.getNInterventions();
 		str.append("" +  simul.getIdentifier() + "\t");
-		for (int i = 0; i < interventions.length; i++) {
+		for (int i = 0; i < nInterventions; i++) {
 			str.append(costListeners[i]);
 			str.append(lyListeners[i]);
 			str.append(qalyListeners[i]);
@@ -73,16 +74,19 @@ public class T1DMMainTest {
 
 	private static void simulateInterventions(int id, boolean baseCase, DiabetesIntervention[] interventions) {
 		final CommonParams common = new CommonParams(secParams);
-		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(N_PATIENTS, interventions.length, false, secParams.getRegisteredComplicationStages());
-		final CostListener[] costListeners = new CostListener[interventions.length];
-		final LYListener[] lyListeners = new LYListener[interventions.length];
-		final QALYListener[] qalyListeners = new QALYListener[interventions.length];
-		for (int i = 0; i < interventions.length; i++) {
+		final int nInterventions = secParams.getNInterventions();
+		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(N_PATIENTS, nInterventions, false, secParams.getRegisteredComplicationStages());
+		final CostListener[] costListeners = new CostListener[nInterventions];
+		final LYListener[] lyListeners = new LYListener[nInterventions];
+		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
+		for (int i = 0; i < nInterventions; i++) {
 			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), common.getDiscountRate(), N_PATIENTS);
 			lyListeners[i] = new LYListener(common.getDiscountRate(), N_PATIENTS);
 			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), common.getDiscountRate(), N_PATIENTS);
 		}
-		DiabetesSimulation simul = new DiabetesSimulation(id, interventions[0], N_PATIENTS, common, secParams.getPopulations(), BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1);
+		final DiabetesIntervention[] intInstances = secParams.getInterventions();
+	
+		DiabetesSimulation simul = new DiabetesSimulation(id, intInstances[0], N_PATIENTS, common, secParams.getPopulations(), BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
@@ -90,8 +94,8 @@ public class T1DMMainTest {
 		simul.addInfoReceiver(timeFreeListener);
 		addListeners(simul);
 		simul.run();
-		for (int i = 1; i < interventions.length; i++) {
-			simul = new DiabetesSimulation(simul, interventions[i]);
+		for (int i = 1; i < nInterventions; i++) {
+			simul = new DiabetesSimulation(simul, intInstances[i]);
 			simul.addInfoReceiver(costListeners[i]);
 			simul.addInfoReceiver(lyListeners[i]);
 			simul.addInfoReceiver(qalyListeners[i]);
@@ -106,11 +110,10 @@ public class T1DMMainTest {
 	public static void main(String[] args) {
 		 int nRuns = BASIC_TEST_ONE_PATIENT ? 0 : BasicConfigParams.N_RUNS;
 
-		final DiabetesIntervention[] interventions = secParams.getInterventions();
 		secParams.setDiscountZero(true);
 
 		out.println(getStrHeader());
-		simulateInterventions(0, true, interventions);
+		simulateInterventions(0, true, secParams.getInterventions());
 		secParams.setBaseCase(false);
 		// Now probabilistic
 //		secParams.setBaseCase(false);

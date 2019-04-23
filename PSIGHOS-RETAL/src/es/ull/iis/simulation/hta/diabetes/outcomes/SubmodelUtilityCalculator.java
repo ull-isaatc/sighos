@@ -6,7 +6,6 @@ package es.ull.iis.simulation.hta.diabetes.outcomes;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
-import es.ull.iis.simulation.hta.diabetes.interventions.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
 
@@ -59,6 +58,6 @@ public class SubmodelUtilityCalculator implements UtilityCalculator {
 				du = method.combine(du, chronicSubmodels[comp.ordinal()].getDisutility(pat, method));
 			}
 		}
-		return genPopUtility - du - ((DiabetesIntervention)pat.getIntervention()).getDisutility(pat);
+		return genPopUtility - du - pat.getIntervention().getDisutility(pat);
 	}
 }

@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.hta.diabetes.populations;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatientProfile;
+import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import simkit.random.RandomNumber;
@@ -24,13 +25,13 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 	private final RandomVariate baselineHBA1c;
 	/** Distribution to set the duration of diabetes of the patients when created */
 	private final RandomVariate baselineDurationOfDiabetes;
-	private final Type type;
+	private final DiabetesType type;
 
 	/**
 	 * 
 	 * @param secondOrder The second order repository that defines the second-order uncertainty on the parameters
 	 */
-	public DiabetesStdPopulation(final SecondOrderParamsRepository secParams, final Type type) {
+	public DiabetesStdPopulation(final SecondOrderParamsRepository secParams, final DiabetesType type) {
 		this.type = type;
 		this.rng = secParams.getRngFirstOrder();
 		pMan = getPMan();
@@ -46,7 +47,7 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 	}
 
 	@Override
-	public Type getType() {
+	public DiabetesType getType() {
 		return type;
 	}
 

@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.hta.retal.params;
 
-import es.ull.iis.simulation.hta.params.Param;
-
 /**
  * Based on Sheffield utilities
  * Source: Karnon page 52, table 58

@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.diabetes.populations;
 
+import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import simkit.random.RandomVariate;
@@ -36,7 +37,7 @@ public class LyPopulation extends DiabetesStdPopulation {
 	 * @param type
 	 */
 	public LyPopulation(SecondOrderParamsRepository secParams) {
-		super(secParams, Type.T1);
+		super(secParams, DiabetesType.T1);
 	}
 
 	@Override

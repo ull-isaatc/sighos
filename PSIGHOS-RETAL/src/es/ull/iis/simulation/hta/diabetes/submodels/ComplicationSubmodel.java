@@ -12,21 +12,11 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author Iván Castilla Rodríguez
  */
 public abstract class ComplicationSubmodel {
-	/** A flag to enable or disable this complication during the simulation run */
-	protected boolean enable;
 	
 	/**
 	 * Creates a new complication submodel 
 	 */
 	public ComplicationSubmodel() {
-		enable = true;
-	}
-
-	/**
-	 * Disables this complication
-	 */
-	public void disable() {
-		enable = false;
 	}
 	
 	/**

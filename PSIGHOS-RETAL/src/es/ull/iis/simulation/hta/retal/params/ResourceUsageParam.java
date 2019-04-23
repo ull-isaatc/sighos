@@ -5,7 +5,6 @@ package es.ull.iis.simulation.hta.retal.params;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.hta.params.Param;
 import es.ull.iis.simulation.hta.retal.EyeState;
 import es.ull.iis.simulation.hta.retal.RetalPatient;
 import es.ull.iis.simulation.hta.retal.RETALSimulation;

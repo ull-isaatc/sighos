@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.ModelParams;
+import es.ull.iis.simulation.hta.retal.params.ModelParams;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
 
