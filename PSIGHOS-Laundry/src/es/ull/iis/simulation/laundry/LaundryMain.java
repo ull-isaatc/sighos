@@ -4,6 +4,8 @@
 package es.ull.iis.simulation.laundry;
 
 import es.ull.iis.simulation.inforeceiver.StdInfoView;
+import es.ull.iis.simulation.laundry.listener.WashingUsageListener;
+import es.ull.iis.simulation.laundry.listener.WashingWaitingListener;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
 
@@ -19,8 +21,8 @@ public class LaundryMain extends Experiment {
 	 * @param nExperiments
 	 * @param parallel
 	 */
-	public LaundryMain(String description, int nExperiments, boolean parallel) {
-		super(description, nExperiments, parallel);
+	public LaundryMain(String description, int nExperiments) {
+		super(description, nExperiments);
 	}
 
 	/* (non-Javadoc)
@@ -31,6 +33,7 @@ public class LaundryMain extends Experiment {
 		final LaundrySimulation sim = new LaundrySimulation(ind);
 		sim.addInfoReceiver(new StdInfoView());
 		sim.addInfoReceiver(new WashingUsageListener(sim, TIME_GAP));
+		sim.addInfoReceiver(new WashingWaitingListener(sim));
 		return sim;
 	}
 
@@ -38,7 +41,7 @@ public class LaundryMain extends Experiment {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new LaundryMain("Hospital laundry experimentation", 1, false).start();
+		new LaundryMain("Hospital laundry experimentation", 1).start();
 	}
 
 }

@@ -784,6 +784,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 			}
 			else {
 				nextLocation.waitFor(Resource.this);
+				simul.notifyInfo(new EntityLocationInfo(simul, Resource.this, nextLocation, EntityLocationInfo.Type.WAIT, getTs()));
 			}
 		}
 	}
@@ -848,6 +849,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 			}
 			else {
 				nextLocation.waitFor(Resource.this);
+				simul.notifyInfo(new EntityLocationInfo(simul, Resource.this, nextLocation, EntityLocationInfo.Type.WAIT, getTs()));
 			}
 		}
 	}

@@ -33,7 +33,7 @@ public abstract class Experiment implements Describable {
 	 * @param parallel If true, simulations are launched in a parallel fashion 
 	 */
 	public Experiment(String description, int nExperiments, boolean parallel) {
-		this(description, nExperiments, true, Runtime.getRuntime().availableProcessors());
+		this(description, nExperiments, parallel, Runtime.getRuntime().availableProcessors());
 	}
 	
 	/**

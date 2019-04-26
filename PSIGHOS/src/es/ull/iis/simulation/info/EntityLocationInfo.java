@@ -16,7 +16,8 @@ public class EntityLocationInfo extends AsynchronousInfo {
 	public enum Type implements InfoType {
 			ARRIVE	("ARRIVE AT LOCATION"),
 			LEAVE	("LEAVE FROM LOCATION"),
-			START	("START AT LOCATION");
+			START	("START AT LOCATION"),
+			WAIT	("WAIT FOR LOCATION");
 			
 			private final String description;
 			

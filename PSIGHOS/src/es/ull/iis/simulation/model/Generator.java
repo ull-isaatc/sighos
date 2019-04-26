@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import es.ull.iis.function.TimeFunction;
 import es.ull.iis.function.TimeFunctionFactory;
 import es.ull.iis.function.TimeFunctionParams;
+import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
  * Defines the way a generator creates elements when it's time to create them.
@@ -128,6 +129,11 @@ public abstract class Generator<INF extends Generator.GenerationInfo> extends Si
 	 */
 	public ArrayList<INF> getGenerationInfos() {
 		return genInfo;
+	}
+
+	@Override
+	protected void assignSimulation(final SimulationEngine simul) {
+		// Nothing to do
 	}
 
 	/**

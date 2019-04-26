@@ -7,7 +7,6 @@ import es.ull.iis.function.TimeFunction;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.SimulationCycle;
 import es.ull.iis.simulation.model.TimeDrivenGenerator;
-import es.ull.iis.simulation.model.engine.SimulationEngine;
 
 /**
  * A class to create patients, either from scratch or mimicking a previous set of patients created in a different simulation.
@@ -64,8 +63,4 @@ public class PatientCreator extends TimeDrivenGenerator<es.ull.iis.simulation.mo
 		return p;
 	}
 
-	@Override
-	protected void assignSimulation(SimulationEngine simul) {
-		// Nothing to do		
-	}	
 }

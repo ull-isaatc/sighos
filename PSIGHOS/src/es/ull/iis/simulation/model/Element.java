@@ -486,6 +486,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 			}
 			else {
 				nextLocation.waitFor(Element.this);
+				simul.notifyInfo(new EntityLocationInfo(simul, Element.this, nextLocation, EntityLocationInfo.Type.WAIT, getTs()));
 			}
 		}
 	}

@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.model;
 
 import es.ull.iis.function.TimeFunction;
-import es.ull.iis.simulation.model.engine.SimulationEngine;
 import es.ull.iis.util.cycle.DiscreteCycleIterator;
 
 /**
@@ -65,11 +64,6 @@ public abstract class TimeDrivenGenerator<INF extends Generator.GenerationInfo> 
         else {
             return new GenerateEvent(newTs);
         }
-	}
-
-	@Override
-	protected void assignSimulation(final SimulationEngine simul) {
-		// Nothing to do
 	}
 	
     /**

@@ -3,6 +3,8 @@
  */
 package es.ull.iis.util;
 
+import java.util.ArrayList;
+
 /**
  * A simple package to get some basic statistics.
  * @author Iván Castilla Rodríguez
@@ -129,6 +131,46 @@ public class Statistics {
 	 * @return The standard deviation of a set of values
 	 */
 	public static double stdDev(Double []values) {
+		return stdDev(values, average(values));
+	}
+
+	/**
+	 * Returns the average of a set of values
+	 * @param values Set of values.
+	 * @return The average of a set of values
+	 */
+	public static double average(ArrayList<? extends Number> values) {
+		if (values.size() == 0)
+			return Double.NaN; 
+		double acc = 0.0;
+		for (Number val : values)
+			acc += val.doubleValue();
+		return acc / (double)values.size();
+	}
+	
+	/**
+	 * Returns the standard deviation of a set of values
+	 * @param values Set of values.
+	 * @param av The precalculated average 
+	 * @return The standard deviation of a set of values
+	 */
+	public static double stdDev(ArrayList<? extends Number> values, double av) {
+		if (values.size() == 0)
+			return Double.NaN;
+		else if (values.size() == 1)
+			return 0.0;
+		double acc = 0.0;
+		for (Number val : values)
+			acc += (val.doubleValue() - av) * (val.doubleValue() - av);
+		return Math.sqrt(acc / (double)(values.size() - 1));
+	}
+	
+	/**
+	 * Returns the standard deviation of a set of values
+	 * @param values Set of values.
+	 * @return The standard deviation of a set of values
+	 */
+	public static double stdDev(ArrayList<? extends Number> values) {
 		return stdDev(values, average(values));
 	}
 

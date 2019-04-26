@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.laundry;
+package es.ull.iis.simulation.laundry.listener;
 
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -12,6 +12,7 @@ import es.ull.iis.simulation.info.ResourceUsageInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
+import es.ull.iis.simulation.laundry.LaundrySimulation;
 import es.ull.iis.simulation.model.location.Location;
 import es.ull.iis.util.Statistics;
 
@@ -57,6 +58,8 @@ public class WashingUsageListener extends Listener {
 					break;
 				case LEAVE:
 					LaundrySimulation.error(lInfo.getEntity() + "\tcannot move from a location without having been placed there first");
+					break;
+				case WAIT:
 				default:
 					break;			
 				}
@@ -69,15 +72,15 @@ public class WashingUsageListener extends Listener {
 					for (int i = lastGap.get(loc) + 1; i <= gap; i++)
 						use[i] = use[i - 1];
 					use[gap]++;
-					// TODO: Check if needed
-//					usage.put(loc, use);
 					break;
 				case LEAVE:
 					for (int i = lastGap.get(loc) + 1; i <= gap; i++)
 						use[i] = use[i - 1];
 					use[gap]--;
-					// TODO: Check if needed
-//					usage.put(loc, use);
+					break;
+				case WAIT:
+					for (int i = lastGap.get(loc) + 1; i <= gap; i++)
+						use[i] = use[i - 1];
 					break;
 				default:
 					break;			
