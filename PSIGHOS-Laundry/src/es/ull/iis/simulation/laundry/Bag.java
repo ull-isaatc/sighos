@@ -15,7 +15,7 @@ import es.ull.iis.simulation.model.location.Node;
  */
 public class Bag extends Element {
 	private Node dryer = null;
-	private Node washingStage = null;
+	private int washingLine = -1;
 	private final ProductsType productType;
 	/**
 	 * @param simul
@@ -31,17 +31,17 @@ public class Bag extends Element {
 	}
 	
 	/**
-	 * @return the washingStage
+	 * @return the washingLine
 	 */
-	public Node getWashingStage() {
-		return washingStage;
+	public int getWashingLine() {
+		return washingLine;
 	}
 
 	/**
-	 * @param washingStage the washingStage to set
+	 * @param washingLine the washing line to set
 	 */
-	public void setWashingStage(Node washingStage) {
-		this.washingStage = washingStage;
+	public void setWashingLine(int washingLine) {
+		this.washingLine = washingLine;
 	}
 
 	/**

@@ -26,7 +26,7 @@ import es.ull.iis.simulation.model.location.Router;
  *
  */
 public class LaundrySimulation extends Simulation {
-	public final static boolean SIMPLE = true;
+	public final static boolean SIMPLE = false;
 	private final static TimeUnit TIME_UNIT = TimeUnit.MINUTE;
 	private final static String STR_DESC = "Hospital Laundry";
 	
@@ -37,7 +37,7 @@ public class LaundrySimulation extends Simulation {
 	private final static String STR_LAUNDRY_BASKET = "Laundry basket";
 	private final static long LAUNDRY_BASKET_DELAY = 1;
 	
-	private final static int N_WASHING_LINES = SIMPLE ? 1 : 2;
+	public final static int N_WASHING_LINES = SIMPLE ? 1 : 2;
 	// Washing stage
 	private final static String STR_WASHING_STAGE = "Washing stage";
 	private final static int WASHING_STAGE_CAPACITY = 1;
@@ -93,10 +93,11 @@ public class LaundrySimulation extends Simulation {
 			final ExclusiveChoiceFlow washingSelectionFlow = new ExclusiveChoiceFlow(this);
 			generator = new BagsGenerator(this, washingSelectionFlow, router.getInitBasket());
 			for (int line = 0; line < N_WASHING_LINES; line++) {
+				final int finalLine = line;
 				final Node washingLineStart = router.getWashingStage(line)[0];
 				final Condition condWashing = new Condition() {
 					public boolean check(ElementInstance ei) {
-						return(washingLineStart.equals(((Bag)ei.getElement()).getWashingStage()));
+						return(finalLine == ((Bag)ei.getElement()).getWashingLine());
 					}
 				};
 				final MoveFlow moveToWashFlow = new MoveFlow(this, "Move to washing line " + (line + 1), washingLineStart, router);
@@ -115,9 +116,9 @@ public class LaundrySimulation extends Simulation {
 		final MoveFlow[] moveToDryerFlow = new MoveFlow[N_DRYERS];
 		final MoveFlow moveToEndFlow = new MoveFlow(this, "Move to end", router.getEndBasket(), router) {
 			@Override
-			public boolean beforeRequest(ElementInstance ei) {
+			public void afterFinalize(ElementInstance ei) {
+				super.afterFinalize(ei);
 				dryerDistributor.notifyLeaving(waitFlow, ei);
-				return super.beforeRequest(ei);
 			}
 		};
 		for (int i = 0; i < N_DRYERS; i++) {
@@ -133,8 +134,9 @@ public class LaundrySimulation extends Simulation {
 		}
 
 		for (int line = 0; line < N_WASHING_LINES; line++) {
-			moveToWaitingUnitFlow[line].link(waitFlow).link(dryerSelectionFlow);
+			moveToWaitingUnitFlow[line].link(waitFlow);
 		}
+		waitFlow.link(dryerSelectionFlow);
 	}
 	
 	@Override
@@ -170,7 +172,7 @@ public class LaundrySimulation extends Simulation {
 					waitingUnits[i] = new Node(STR_WAIT_UNIT + "_" + (i+1), 0, WAIT_UNIT_CAPACITY[i]);
 					dehydrators[i] = new Node(STR_DEHYDRATOR + "_" + (i+1), DEHYDRATOR_DELAY[i], DEHYDRATOR_CAPACITY);
 					initBasket.linkTo(washingStage[i][0]);
-					washingStage[i][N_WASHING_STAGES[0] - 1].linkTo(dehydrators[i]).linkTo(waitingUnits[i]);
+					washingStage[i][N_WASHING_STAGES[i] - 1].linkTo(dehydrators[i]).linkTo(waitingUnits[i]);
 				}
 			}
 				
@@ -178,8 +180,9 @@ public class LaundrySimulation extends Simulation {
 			dryers = new Node[N_DRYERS];
 			for (int i = 0; i < N_DRYERS; i++) {
 				dryers[i] = new Node(STR_DRYER + "_" + i, new DryTime(), DRYER_CAPACITY);
+				dryers[i].linkTo(endBasket);
 				for (int line = 0; line < N_WASHING_LINES; line++) {
-					waitingUnits[line].linkTo(dryers[i]).linkTo(endBasket);					
+					waitingUnits[line].linkTo(dryers[i]);					
 				}
 			}
 		}
@@ -255,6 +258,9 @@ public class LaundrySimulation extends Simulation {
 			}
 			else if (inWaitingUnit(entity.getLocation())) {
 				return ((Bag)entity).getDryer();
+			}
+			else if (initBasket.equals(entity.getLocation())) {
+				return washingStage[((Bag)entity).getWashingLine()][0];
 			}
 			return null;
 		}

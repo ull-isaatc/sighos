@@ -4,6 +4,7 @@
 package es.ull.iis.simulation.model.location;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 import es.ull.iis.function.TimeFunction;
@@ -162,6 +163,14 @@ public abstract class Location implements Located, Identifiable, Comparable<Loca
 		return linkedFrom;
 	}
 
+	/**
+	 * Returns a collection with the entities currently in this location
+	 * @return a collection with the entities currently in this location
+	 */
+	public ArrayList<Movable> getEntitiesIn() {
+		return entitiesIn;
+	}
+	
 	/**
 	 * Puts the entity into a waiting queue until the location has enough available capacity
 	 * @param entity Entity currently trying to arrive at the location
