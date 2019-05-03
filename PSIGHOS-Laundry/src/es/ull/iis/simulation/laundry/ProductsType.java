@@ -18,6 +18,7 @@ public enum ProductsType {
 	
 	final private int priority;
 	private ElementType et;
+	private long dryTime;
 
 	private ProductsType(final int priority) {
 		this.priority = priority;
@@ -42,5 +43,19 @@ public enum ProductsType {
 	 */
 	public void setElementType(ElementType et) {
 		this.et = et;
+	}
+
+	/**
+	 * @return the dryTime
+	 */
+	public long getDryTime() {
+		return dryTime;
+	}
+
+	/**
+	 * @param dryTime the dryTime to set
+	 */
+	public void setDryTime(long dryTime) {
+		this.dryTime = dryTime;
 	}
 }

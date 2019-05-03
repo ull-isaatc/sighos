@@ -99,7 +99,7 @@ public class TestTransport extends Experiment {
 				if (links.size() > 0)
 					return links.get(0);
 			}
-			return null;
+			return Router.UNREACHABLE_LOCATION;
 		}
 		
 	}

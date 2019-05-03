@@ -32,8 +32,6 @@ public class BagsGenerator extends SimulationObject {
 
 	public void createBag(ProductsType type) {
 		final Bag elem = new Bag(simul, type, flow, LaundrySimulation.BAG_SIZE, initBasket);
-		// FIXME: Change by another strategy
-		elem.setWashingLine(elem.getIdentifier() % LaundrySimulation.N_WASHING_LINES);
 		simul.addEvent(elem.onCreate(simul.getTs()));
 	}
 	

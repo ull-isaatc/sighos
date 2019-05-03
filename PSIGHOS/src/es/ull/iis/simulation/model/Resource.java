@@ -133,7 +133,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 	public DiscreteEvent onCreate(final long ts) {
 		if (initLocation != null) {
 			if (initLocation.getAvailableCapacity() >= size) {
-				initLocation.move(this);
+				initLocation.enter(this);
 			}
 			else {
 				error("Unable to initialize resource. Not enough space in location " + initLocation + " (available: " + initLocation.getAvailableCapacity() + " - required: " + size + ")");				
@@ -360,7 +360,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 
 	@Override
 	public void notifyLocationAvailable(final Location location) {
-		location.move(this);
+		location.enter(this);
 
 		if (movingInstance.getCurrentFlow() instanceof MoveResourcesFlow) {
 	    	final MoveResourcesFlow flow = (MoveResourcesFlow)movingInstance.getCurrentFlow();
@@ -767,7 +767,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 		public void event() {
 			if (nextLocation.getAvailableCapacity() >= getCapacity()) {
 				final MoveResourcesFlow flow = ((MoveResourcesFlow)movingInstance.getCurrentFlow());
-				nextLocation.move(Resource.this);
+				nextLocation.enter(Resource.this);
 				if (nextLocation.equals(destination)) {
 					endMove(flow, true);
 				}
@@ -784,7 +784,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 			}
 			else {
 				nextLocation.waitFor(Resource.this);
-				simul.notifyInfo(new EntityLocationInfo(simul, Resource.this, nextLocation, EntityLocationInfo.Type.WAIT, getTs()));
+				simul.notifyInfo(new EntityLocationInfo(simul, Resource.this, nextLocation, EntityLocationInfo.Type.WAIT_FOR, getTs()));
 			}
 		}
 	}
@@ -830,7 +830,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 		public void event() {
 			if (nextLocation.getAvailableCapacity() >= getCapacity()) {
 				final TransportFlow flow = ((TransportFlow)movingInstance.getCurrentFlow());
-				nextLocation.move(Resource.this);
+				nextLocation.enter(Resource.this);
 				// Move the element without checking anything else
 				movingInstance.getElement().setLocation(nextLocation);
 				if (nextLocation.equals(destination)) {
@@ -849,7 +849,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 			}
 			else {
 				nextLocation.waitFor(Resource.this);
-				simul.notifyInfo(new EntityLocationInfo(simul, Resource.this, nextLocation, EntityLocationInfo.Type.WAIT, getTs()));
+				simul.notifyInfo(new EntityLocationInfo(simul, Resource.this, nextLocation, EntityLocationInfo.Type.WAIT_FOR, getTs()));
 			}
 		}
 	}

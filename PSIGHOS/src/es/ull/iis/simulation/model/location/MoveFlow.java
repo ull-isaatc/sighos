@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.model.location;
 
+import es.ull.iis.simulation.info.EntityLocationInfo;
 import es.ull.iis.simulation.model.Element;
 import es.ull.iis.simulation.model.ElementInstance;
 import es.ull.iis.simulation.model.Simulation;
@@ -59,7 +60,14 @@ public class MoveFlow extends SingleSuccessorFlow implements TaskFlow, ActionFlo
 		if (!ei.wasVisited(this)) {
 			if (ei.isExecutable()) {
 				if (beforeRequest(ei)) {
-					ei.getElement().startMove(ei);
+					// If already at destination, just finish the flow
+					if (destination.equals(ei.getElement().getLocation())) {
+						afterFinalize(ei);
+						next(ei);
+					}
+					else {
+						ei.getElement().keepMoving(this, ei);
+					}
 				}
 				else {
 					ei.cancel(this);
@@ -74,6 +82,33 @@ public class MoveFlow extends SingleSuccessorFlow implements TaskFlow, ActionFlo
 			ei.notifyEnd();
 	}
 
+	public void move(final ElementInstance ei) {
+		final Element elem = ei.getElement();
+		final Location nextLocation = router.getNextLocationTo(elem, destination);
+		if (Router.isUnreachableLocation(nextLocation)) {
+			ei.cancel(this);
+			next(ei);
+    		error("Destination unreachable. Current: " + elem.getLocation() + "; destination: " + destination);
+		}
+		else if (Router.isConditionalWaitLocation(nextLocation)) {
+			simul.notifyInfo(new EntityLocationInfo(simul, elem, elem.getLocation(), EntityLocationInfo.Type.COND_WAIT, getTs()));			
+		}
+		else if (nextLocation.getAvailableCapacity() < elem.getCapacity()) {
+			nextLocation.waitFor(elem);
+			simul.notifyInfo(new EntityLocationInfo(simul, elem, elem.getLocation(), EntityLocationInfo.Type.WAIT_FOR, getTs()));
+		}
+		else {
+			nextLocation.enter(elem);
+			if (nextLocation.equals(destination)) {
+				finish(ei);
+			}
+			else {
+				elem.keepMoving(this, ei);
+			}
+		}
+				
+	}
+	
 	@Override
 	public void finish(final ElementInstance ei) {
 		afterFinalize(ei);

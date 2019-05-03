@@ -13,6 +13,7 @@ import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.laundry.Bag;
 import es.ull.iis.simulation.laundry.LaundrySimulation;
+import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.location.Location;
 import es.ull.iis.util.Statistics;
 
@@ -23,15 +24,17 @@ import es.ull.iis.util.Statistics;
 public class WashingWaitingListener extends Listener {
 	final TreeMap<Location, ArrayList<Long>> waitingTime;
 	final TreeMap<Bag, Pair> waitingStart;
+	final double conversionFactor;
 	/**
 	 * @param description
 	 */
-	public WashingWaitingListener(final LaundrySimulation simul) {
+	public WashingWaitingListener(final LaundrySimulation simul, TimeUnit unit) {
 		super("Listener for the waiting time before entering into the different resources of the laundry");
 		addEntrance(EntityLocationInfo.class);
 		addEntrance(SimulationStartStopInfo.class);
 		waitingTime = new TreeMap<>();
 		waitingStart = new TreeMap<>();
+		this.conversionFactor = unit.getConversionFactor(simul.getTimeUnit());
 	}
 
 	/* (non-Javadoc)
@@ -60,7 +63,8 @@ public class WashingWaitingListener extends Listener {
 			case START:
 				wTime.add(0L);
 				break;
-			case WAIT:
+			case WAIT_FOR:
+			case COND_WAIT:
 				waitingStart.put(bag, new Pair(lInfo.getLocation(), lInfo.getTs()));
 				break;
 			case LEAVE:
@@ -88,7 +92,7 @@ public class WashingWaitingListener extends Listener {
 					if (wTimes.isEmpty())
 						System.out.print("\tNaN");
 					else
-						System.out.print("\t" + String.format(Locale.US, "%.2f", Statistics.average(wTimes)));
+						System.out.print("\t" + String.format(Locale.US, "%.2f", Statistics.average(wTimes) * conversionFactor));
 				}
 				System.out.println();
 				System.out.print("SD Wait");
@@ -97,7 +101,7 @@ public class WashingWaitingListener extends Listener {
 					if (wTimes.isEmpty())
 						System.out.print("\tNaN");
 					else
-						System.out.print("\t" + String.format(Locale.US, "%.2f", Statistics.stdDev(wTimes)));
+						System.out.print("\t" + String.format(Locale.US, "%.2f", Statistics.stdDev(wTimes) * conversionFactor));
 				}
 				System.out.println();
 			}

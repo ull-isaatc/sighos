@@ -17,7 +17,8 @@ public class EntityLocationInfo extends AsynchronousInfo {
 			ARRIVE	("ARRIVE AT LOCATION"),
 			LEAVE	("LEAVE FROM LOCATION"),
 			START	("START AT LOCATION"),
-			WAIT	("WAIT FOR LOCATION");
+			WAIT_FOR	("WAIT FOR LOCATION"),
+			COND_WAIT	("CONDITIONAL WAIT");
 			
 			private final String description;
 			

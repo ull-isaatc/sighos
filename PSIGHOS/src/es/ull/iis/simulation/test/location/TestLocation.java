@@ -85,7 +85,7 @@ public class TestLocation extends Experiment {
 			ArrayList<Location> links = entity.getLocation().getLinkedTo();
 			if (links.size() > 0)
 				return links.get(0);
-			return null;
+			return Router.UNREACHABLE_LOCATION;
 		}
 		
 	}

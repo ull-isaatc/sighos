@@ -13,6 +13,7 @@ import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.simulation.laundry.LaundrySimulation;
+import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.location.Location;
 import es.ull.iis.util.Statistics;
 
@@ -25,18 +26,20 @@ public class WashingUsageListener extends Listener {
 	final TreeMap<Location, Integer> lastGap;
 	final long timeGap;
 	final int nIntervals;
+	final double conversionFactor;
 	/**
 	 * @param description
 	 */
-	public WashingUsageListener(final LaundrySimulation simul, final long timeGap) {
+	public WashingUsageListener(final LaundrySimulation simul, TimeStamp timeGap) {
 		super("Listener for the usage of the different resources of the laundry");
 		addEntrance(EntityLocationInfo.class);
 		addEntrance(ResourceUsageInfo.class);
 		addEntrance(SimulationStartStopInfo.class);
 		usage = new TreeMap<>();
 		lastGap = new TreeMap<>();
-		this.timeGap = timeGap;
-		nIntervals = (int) (simul.getEndTs() / timeGap) + 1;
+		this.conversionFactor = timeGap.getUnit().getConversionFactor(simul.getTimeUnit());
+		this.timeGap = simul.getTimeUnit().convert(timeGap);
+		nIntervals = (int) (simul.getEndTs() / this.timeGap) + 1;
 	}
 
 	/* (non-Javadoc)
@@ -59,7 +62,8 @@ public class WashingUsageListener extends Listener {
 				case LEAVE:
 					LaundrySimulation.error(lInfo.getEntity() + "\tcannot move from a location without having been placed there first");
 					break;
-				case WAIT:
+				case WAIT_FOR:
+				case COND_WAIT:
 				default:
 					break;			
 				}
@@ -78,7 +82,8 @@ public class WashingUsageListener extends Listener {
 						use[i] = use[i - 1];
 					use[gap]--;
 					break;
-				case WAIT:
+				case WAIT_FOR:
+				case COND_WAIT:
 					for (int i = lastGap.get(loc) + 1; i <= gap; i++)
 						use[i] = use[i - 1];
 					break;
@@ -105,7 +110,7 @@ public class WashingUsageListener extends Listener {
 				}
 				System.out.println();
 				for (int i = 0; i < nIntervals; i++) {
-					System.out.print(i * timeGap);
+					System.out.print((int) (i * timeGap * conversionFactor));
 					for (final int[] use : usage.values()) 
 						System.out.print("\t" + use[i]);
 					System.out.println();

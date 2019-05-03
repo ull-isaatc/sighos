@@ -18,11 +18,13 @@ public class LaundryManager extends SimulationObject implements EventSource {
 	final static private String OBJ_ID = "MAN";
 	final private BagsGenerator generator;
 	final private long inspectionRate;
+	final private long injectionRate;
 
-	public LaundryManager(LaundrySimulation simul, BagsGenerator generator, long inspectionRate) {
+	public LaundryManager(LaundrySimulation simul, BagsGenerator generator, long inspectionRate, long injectionRate) {
 		super(simul, 0, OBJ_ID);
 		this.generator = generator;
 		this.inspectionRate = inspectionRate;
+		this.injectionRate = injectionRate;
 	}
 
 
@@ -56,7 +58,7 @@ public class LaundryManager extends SimulationObject implements EventSource {
 		@Override
 		public void event() {
 			if (ts == nextInjection) {
-				nextInjection = ts + 60;
+				nextInjection = ts + injectionRate;
 				simul.addEvent(new InjectionOrder(ts, TEST_ORDERS[test_counter]));
 				test_counter = (test_counter + 1) % TEST_ORDERS.length;
 			}

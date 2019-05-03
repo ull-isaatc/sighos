@@ -19,7 +19,6 @@ import es.ull.iis.simulation.model.flow.TaskFlow;
 import es.ull.iis.simulation.model.location.Location;
 import es.ull.iis.simulation.model.location.Movable;
 import es.ull.iis.simulation.model.location.MoveFlow;
-import es.ull.iis.simulation.model.location.Router;
 import es.ull.iis.simulation.variable.EnumVariable;
 import es.ull.iis.util.Prioritizable;
 
@@ -235,7 +234,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 		simul.notifyInfo(new ElementInfo(simul, this, elementType, ElementInfo.Type.START, getTs()));
 		if (initLocation != null) {
 			if (initLocation.getAvailableCapacity() >= size) {
-				initLocation.move(this);
+				initLocation.enter(this);
 			}
 			else {
 				error("Unable to initialize element. Not enough space in location " + initLocation + " (available: " + initLocation.getAvailableCapacity() + " - required: " + size + ")");				
@@ -322,75 +321,28 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 
 	@Override
 	public void notifyLocationAvailable(final Location location) {
-		location.move(this);
+		location.enter(this);
 
     	final MoveFlow flow = (MoveFlow)movingInstance.getCurrentFlow();
-    	final Location destination = flow.getDestination();
-    	final Router router = flow.getRouter();
 		
-		if (currentLocation.equals(destination)) {
-			endMove(flow, true);
+		if (currentLocation.equals(flow.getDestination())) {
+			flow.finish(movingInstance);
 		}
 		else {
-			final Location nextLoc = router.getNextLocationTo(this, destination);
-			if (nextLoc == null) {
-				endMove(flow, false);
-			}
-			else {
-				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
-		    	simul.addEvent(mEvent);						
-			}
+			keepMoving(flow, movingInstance);
 		}
 	}
 	
-    /**
-     * Creates a move event to move to destination using the specified router. The element uses the router to select the next step in the path 
-     * for the destination. If the destination is unreachable, the flow is cancelled. Otherwise, the element starts a delay as defined in the 
-     * current location's {@link Location#getDelayAtExit(Movable)} 
-     * @param ei Element instance that initiates the move
-     * @param destination Destination location
-     * @param router Instance that returns the path for the element
-     */
-    public void startMove(final ElementInstance ei) {
-    	final MoveFlow flow = (MoveFlow)ei.getCurrentFlow();
-    	final Location destination = flow.getDestination();
-    	final Router router = flow.getRouter();
-		debug("Start route\t" + this + "\t" + destination);
+	/**
+	 * Makes the element issue a {@link MoveEvent move event} to continue the movement to its destination
+	 * @param flow The flow indicating the destination
+	 * @param ei Element instance moving
+	 */
+	public void keepMoving(final MoveFlow flow, final ElementInstance ei) {
     	movingInstance = ei;
-    	// No need to move
-    	if (currentLocation.equals(destination)) {
-    		endMove(flow, true);
-    	}
-    	else {
-			final Location nextLoc = router.getNextLocationTo(this, destination);
-			if (nextLoc == null) {
-				endMove(flow, false);
-			}
-			else {
-				final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), nextLoc, destination, router);
-		    	simul.addEvent(mEvent);
-			}
-    	}
-    }
-
-    /**
-     * Notifies the flow that the move has finished
-     * @param flow Flow driving the movement
-     * @param success True if the element arrived at destination; false if the destination was unreachable
-     */
-    private void endMove(final MoveFlow flow, boolean success) {
-    	if (success) {
-    		flow.finish(movingInstance);
-    		movingInstance = null;
-    		debug("Finishes route\t" + this + "\t" + flow.getDestination());
-    	}
-    	else {
-			movingInstance.cancel(flow);
-			flow.next(movingInstance);
-	    	movingInstance = null;
-    		error("Destination unreachable. Current: " + currentLocation + "; destination: " + flow.getDestination());
-    	}
-    }
+		final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(this), flow, ei);
+    	simul.addEvent(mEvent);		
+	}
 	
 	/**
 	 * An event to request a flow.
@@ -444,12 +396,10 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
      *
      */
 	protected class MoveEvent extends DiscreteEvent {
-		/** Final destination of the move */
-		final private Location destination;
-		/** Next location in the way to the final destination */
-		final private Location nextLocation;
+		/** The element instance that executes the event */
+		private final ElementInstance ei;
 		/** The instance that computes the path to the final destination */
-		final private Router router;
+		private final MoveFlow flow;
 		
 		/**
 		 * Creates a move event that makes an intermediate step in the way to destination
@@ -458,36 +408,15 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 		 * @param destination Final destination
 		 * @param router Instance that returns the path for the resource
 		 */
-		public MoveEvent(final long ts, final Location nextLocation, final Location destination, final Router router) {
+		public MoveEvent(final long ts, final MoveFlow flow, final ElementInstance ei) {
 			super(ts);
-			this.destination = destination;
-			this.nextLocation = nextLocation;
-			this.router = router;
+			this.flow = flow;
+			this.ei = ei;
 		}
 
 		@Override
 		public void event() {
-			if (nextLocation.getAvailableCapacity() >= getCapacity()) {
-				final MoveFlow flow = ((MoveFlow)movingInstance.getCurrentFlow());
-				nextLocation.move(Element.this);
-				if (nextLocation.equals(destination)) {
-					endMove(flow, true);
-				}
-				else {
-					final Location nextLoc = router.getNextLocationTo(Element.this, destination);
-					if (nextLoc == null) {
-						endMove(flow, false);
-					}
-					else {
-						final MoveEvent mEvent = new MoveEvent(getTs() + currentLocation.getDelayAtExit(Element.this), nextLoc, destination, router);
-				    	simul.addEvent(mEvent);						
-					}
-				}
-			}
-			else {
-				nextLocation.waitFor(Element.this);
-				simul.notifyInfo(new EntityLocationInfo(simul, Element.this, nextLocation, EntityLocationInfo.Type.WAIT, getTs()));
-			}
+			flow.move(ei);
 		}
 	}
 

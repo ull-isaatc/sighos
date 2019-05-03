@@ -8,13 +8,16 @@ import es.ull.iis.simulation.laundry.listener.WashingUsageListener;
 import es.ull.iis.simulation.laundry.listener.WashingWaitingListener;
 import es.ull.iis.simulation.model.Experiment;
 import es.ull.iis.simulation.model.Simulation;
+import es.ull.iis.simulation.model.TimeStamp;
+import es.ull.iis.simulation.model.TimeUnit;
 
 /**
  * @author icasrod
  *
  */
 public class LaundryMain extends Experiment {
-	private final static long TIME_GAP = 3; 
+	private final static TimeUnit LIST_TIME_UNIT = TimeUnit.MINUTE;
+	private final static TimeStamp TIME_GAP = new TimeStamp(TimeUnit.MINUTE, 3);
 
 	/**
 	 * @param description
@@ -33,7 +36,7 @@ public class LaundryMain extends Experiment {
 		final LaundrySimulation sim = new LaundrySimulation(ind);
 		sim.addInfoReceiver(new StdInfoView());
 		sim.addInfoReceiver(new WashingUsageListener(sim, TIME_GAP));
-		sim.addInfoReceiver(new WashingWaitingListener(sim));
+		sim.addInfoReceiver(new WashingWaitingListener(sim, LIST_TIME_UNIT));
 		return sim;
 	}
 

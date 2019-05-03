@@ -66,4 +66,12 @@ public enum TimeUnit {
 		return Math.round(sourceValue.getValue() * conversion[sourceValue.getUnit().ordinal()][ordinal()]);
 	}
 
+	/**
+	 * Returns the conversion factor from a specified unit to this time unit
+	 * @param sourceUnit Another time unit
+	 * @return the conversion factor from a specified unit to this time unit
+	 */
+	public double getConversionFactor(TimeUnit sourceUnit) {
+		return conversion[sourceUnit.ordinal()][ordinal()];
+	}
 }

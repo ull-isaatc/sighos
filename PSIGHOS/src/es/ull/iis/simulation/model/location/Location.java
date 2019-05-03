@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.model.location;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 
 import es.ull.iis.function.TimeFunction;
@@ -183,7 +182,7 @@ public abstract class Location implements Located, Identifiable, Comparable<Loca
 	 * Moves an entity into the location and updates the available capacity
 	 * @param entity Entity moving into the location
 	 */
-	public void move(Movable entity) {
+	public void enter(Movable entity) {
 		occupied += entity.getCapacity();
 		entitiesIn.add(entity);
 		final Location currentLocation = entity.getLocation();
