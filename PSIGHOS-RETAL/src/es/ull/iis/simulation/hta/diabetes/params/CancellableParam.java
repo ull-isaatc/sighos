@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.diabetes.params;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 
 /**
+ * A parameter capable of cancelling the last generated value
  * @author Iván Castilla
  *
  */

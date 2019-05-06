@@ -34,10 +34,20 @@ public interface Router {
 	 */
 	Location getNextLocationTo(final Movable entity, final Location destination);
 
+	/**
+	 * Returns true if the location is an unreachable location
+	 * @param loc Location
+	 * @return true if the location is an unreachable location
+	 */
 	public static boolean isUnreachableLocation(Location loc) {
 		return UNREACHABLE_LOCATION.equals(loc);
 	}
 
+	/**
+	 * Returns true if the location represents a conditional waiting
+	 * @param loc Location
+	 * @return true if the location represents a conditional waiting
+	 */
 	public static boolean isConditionalWaitLocation(Location loc) {
 		return COND_WAIT_LOCATION.equals(loc);
 	}

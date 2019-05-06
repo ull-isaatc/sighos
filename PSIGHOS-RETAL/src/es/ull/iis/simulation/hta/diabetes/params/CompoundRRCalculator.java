@@ -6,10 +6,12 @@ package es.ull.iis.simulation.hta.diabetes.params;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 
 /**
+ * A relative risk calculator that combines different relative rieks
  * @author Iván Castilla
  *
  */
 public class CompoundRRCalculator implements RRCalculator {
+	/** The method used to combine the relative risks */
 	public enum DEF_COMBINATION implements CombinationMethod {
 		ADD {
 			@Override
@@ -34,25 +36,30 @@ public class CompoundRRCalculator implements RRCalculator {
 		}
 		
 	}
+	/** The set of calculators to be combined */
 	protected final RRCalculator[] calculators;
+	/** Combination method used to combine the relative risks */
 	private final CombinationMethod combMethod;
 
 	/**
-	 * 
+	 * Creates a relative risk calculator that combines several calculators
+	 * @param calculators The set of calculators to be combined 
+	 * @param combMethod Combination method used to combine the relative risks
 	 */
 	public CompoundRRCalculator(RRCalculator[] calculators, CombinationMethod combMethod) {
 		this.calculators = calculators;
 		this.combMethod = combMethod;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.hta.T1DM.params.RRCalculator#getRR(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
-	 */
 	@Override
 	public double getRR(DiabetesPatient pat) {
 		return combMethod.combine(calculators, pat);
 	}
 
+	/**
+	 * A generic interface to implement other combination methods
+	 * @author Iván Castilla Rodríguez
+	 */
 	public static interface CombinationMethod {
 		double combine(RRCalculator[] calculators, DiabetesPatient pat); 
 	}

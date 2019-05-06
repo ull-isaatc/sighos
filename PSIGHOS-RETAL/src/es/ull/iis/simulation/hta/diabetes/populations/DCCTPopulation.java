@@ -40,13 +40,13 @@ public class DCCTPopulation extends DiabetesStdPopulation {
 	 * @see es.ull.iis.simulation.hta.diabetes.populations.DiabetesStdPopulation#getPMan()
 	 */
 	@Override
-	public double getPMan() {
+	protected double getPMan() {
 		// From "https://doi.org/10.1056/NEJMoa052187"
 		return 0.525;
 	}
 
 	@Override
-	public RandomVariate getBaselineHBA1c() {
+	protected RandomVariate getBaselineHBA1c() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_HBA1C)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_HBA1C_AVG);
 			
@@ -57,7 +57,7 @@ public class DCCTPopulation extends DiabetesStdPopulation {
 	}
 	
 	@Override
-	public RandomVariate getBaselineAge() {
+	protected RandomVariate getBaselineAge() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_AGE)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_AGE_AVG);
 		// 28.4 has been established empirically to get a sd of 7.
@@ -67,7 +67,7 @@ public class DCCTPopulation extends DiabetesStdPopulation {
 	}
 
 	@Override
-	public RandomVariate getBaselineDurationOfDiabetes() {
+	protected RandomVariate getBaselineDurationOfDiabetes() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_DURATION_OF_DIABETES)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_DURATION_AVG);
 		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION_AVG, BASELINE_DURATION_SD);

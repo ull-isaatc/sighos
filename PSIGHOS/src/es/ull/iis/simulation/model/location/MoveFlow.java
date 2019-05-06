@@ -82,6 +82,10 @@ public class MoveFlow extends SingleSuccessorFlow implements TaskFlow, ActionFlo
 			ei.notifyEnd();
 	}
 
+	/**
+	 * Performs a partial step to the final destination
+	 * @param ei Element instance moving
+	 */
 	public void move(final ElementInstance ei) {
 		final Element elem = ei.getElement();
 		final Location nextLocation = router.getNextLocationTo(elem, destination);
@@ -93,7 +97,7 @@ public class MoveFlow extends SingleSuccessorFlow implements TaskFlow, ActionFlo
 		else if (Router.isConditionalWaitLocation(nextLocation)) {
 			simul.notifyInfo(new EntityLocationInfo(simul, elem, elem.getLocation(), EntityLocationInfo.Type.COND_WAIT, getTs()));			
 		}
-		else if (nextLocation.getAvailableCapacity() < elem.getCapacity()) {
+		else if (!nextLocation.fitsIn(elem)) {
 			nextLocation.waitFor(elem);
 			simul.notifyInfo(new EntityLocationInfo(simul, elem, elem.getLocation(), EntityLocationInfo.Type.WAIT_FOR, getTs()));
 		}

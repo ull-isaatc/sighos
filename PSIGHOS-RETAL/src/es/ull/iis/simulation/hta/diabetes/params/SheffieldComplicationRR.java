@@ -26,9 +26,6 @@ public class SheffieldComplicationRR implements RRCalculator {
 		this.beta = beta;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.hta.T1DM.params.ComplicationRR#getRR(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
-	 */
 	@Override
 	public double getRR(DiabetesPatient pat) {
 		return Math.pow(pat.getHba1c()/10, beta);

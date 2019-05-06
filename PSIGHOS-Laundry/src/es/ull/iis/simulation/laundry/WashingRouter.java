@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 
-import es.ull.iis.simulation.laundry.LaundrySimulation.LaundryLayout;
 import es.ull.iis.simulation.model.location.Location;
 import es.ull.iis.simulation.model.location.Movable;
 import es.ull.iis.simulation.model.location.Node;

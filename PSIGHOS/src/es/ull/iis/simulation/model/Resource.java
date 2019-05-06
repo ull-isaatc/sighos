@@ -132,7 +132,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 	@Override
 	public DiscreteEvent onCreate(final long ts) {
 		if (initLocation != null) {
-			if (initLocation.getAvailableCapacity() >= size) {
+			if (initLocation.fitsIn(this)) {
 				initLocation.enter(this);
 			}
 			else {
@@ -289,7 +289,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
     	}
     	else {
 			final Location nextLoc = router.getNextLocationTo(this, destination);
-			if (nextLoc == null) {
+			if (Router.isUnreachableLocation(nextLoc)) {
 	    		endMove(flow, false);
 			}
 			else {
@@ -316,7 +316,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
     	}
     	else {
 			final Location nextLoc = router.getNextLocationTo(this, destination);
-			if (nextLoc == null) {
+			if (Router.isUnreachableLocation(nextLoc)) {
 	    		endTransport(flow, false);
 			}
 			else {
@@ -372,7 +372,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 			}
 			else {
 				final Location nextLoc = router.getNextLocationTo(this, destination);
-				if (nextLoc == null) {
+				if (Router.isUnreachableLocation(nextLoc)) {
 					endMove(flow, false);
 				}
 				else {
@@ -392,7 +392,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 			}
 			else {
 				final Location nextLoc = router.getNextLocationTo(this, destination);
-				if (nextLoc == null) {
+				if (Router.isUnreachableLocation(nextLoc)) {
 					endTransport(flow, false);
 				}
 				else {
@@ -765,7 +765,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 
 		@Override
 		public void event() {
-			if (nextLocation.getAvailableCapacity() >= getCapacity()) {
+			if (nextLocation.fitsIn(Resource.this)) {
 				final MoveResourcesFlow flow = ((MoveResourcesFlow)movingInstance.getCurrentFlow());
 				nextLocation.enter(Resource.this);
 				if (nextLocation.equals(destination)) {
@@ -773,7 +773,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 				}
 				else {
 					final Location nextLoc = router.getNextLocationTo(Resource.this, destination);
-					if (nextLoc == null) {
+					if (Router.isUnreachableLocation(nextLoc)) {
 						endMove(flow, false);
 					}
 					else {
@@ -828,7 +828,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 
 		@Override
 		public void event() {
-			if (nextLocation.getAvailableCapacity() >= getCapacity()) {
+			if (nextLocation.fitsIn(Resource.this)) {
 				final TransportFlow flow = ((TransportFlow)movingInstance.getCurrentFlow());
 				nextLocation.enter(Resource.this);
 				// Move the element without checking anything else
@@ -838,7 +838,7 @@ public class Resource extends VariableStoreSimulationObject implements Describab
 				}
 				else {
 					final Location nextLoc = router.getNextLocationTo(Resource.this, destination);
-					if (nextLoc == null) {
+					if (Router.isUnreachableLocation(nextLoc)) {
 						endTransport(flow, false);
 					}
 					else {

@@ -467,6 +467,10 @@ public abstract class SecondOrderParamsRepository {
 		return interventions;
 	}
 
+	/**
+	 * Returns the list of first order instances of the chronic complication submodels
+	 * @return the list of first order instances of the chronic complication submodels
+	 */
 	public final ChronicComplicationSubmodel[] getComplicationSubmodels() {
 		final ChronicComplicationSubmodel[] comps = new ChronicComplicationSubmodel[DiabetesChronicComplications.values().length];
 		
@@ -476,6 +480,10 @@ public abstract class SecondOrderParamsRepository {
 		return comps;
 	}
 
+	/**
+	 * Returns the list of first order instances of the acute complication submodels
+	 * @return the list of first order instances of the acute complication submodels
+	 */
 	public final AcuteComplicationSubmodel[] getAcuteComplicationSubmodels() {
 		final AcuteComplicationSubmodel[] comps = new AcuteComplicationSubmodel[DiabetesAcuteComplications.values().length];
 		
@@ -485,8 +493,27 @@ public abstract class SecondOrderParamsRepository {
 		return comps;
 	}
 	
+	/**
+	 * Returns the submodel used to compute time to death
+	 * @return the submodel used to compute time to death
+	 */
 	public abstract DeathSubmodel getDeathSubmodel();
+	
+	/**
+	 * Returns the class that computes costs 
+	 * @param cDNC Cost of diabetes with no complications
+	 * @param submodels Submodels for chronic complications
+	 * @param acuteSubmodels Submodels for acute complications
+	 * @return the class that computes costs 
+	 */
 	public abstract CostCalculator getCostCalculator(double cDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
+	/**
+	 * Returns the class that computes utilities 
+	 * @param duDNC Disutility of diabetes with no complications
+	 * @param submodels Submodels for chronic complications
+	 * @param acuteSubmodels Submodels for acute complications
+	 * @return the class that computes utilities 
+	 */
 	public abstract UtilityCalculator getUtilityCalculator(double duDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
 	
 	

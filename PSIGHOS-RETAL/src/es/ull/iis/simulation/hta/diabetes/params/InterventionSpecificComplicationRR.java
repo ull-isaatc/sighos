@@ -23,9 +23,6 @@ public class InterventionSpecificComplicationRR implements RRCalculator {
 		this.rr = rr;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.hta.T1DM.params.ComplicationRR#getRR(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
-	 */
 	@Override
 	public double getRR(DiabetesPatient pat) {
 		return pat.isEffectActive() ? rr[pat.getnIntervention()] : rr[0];

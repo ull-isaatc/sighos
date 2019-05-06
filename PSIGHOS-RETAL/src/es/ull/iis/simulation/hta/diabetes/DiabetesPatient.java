@@ -158,28 +158,32 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 	}
 	
 	/**
-	 * @return
+	 * Returns the identifier of the intervention applied to this patient
+	 * @return the identifier of the intervention applied to this patient
 	 */
 	public int getnIntervention() {
 		return nIntervention;
 	}
 
 	/**
-	 * @return the intervention
+	 * Returns the intervention applied to this patient
+	 * @return the intervention applied to this patient
 	 */
 	public DiabetesIntervention getIntervention() {
 		return intervention;
 	}
 
 	/**
-	 * @return the clonedFrom
+	 * Returns the patient this patient was cloned from; null if this is an original patient
+	 * @return the patient this patient was cloned from; null if this is an original patient
 	 */
 	public DiabetesPatient getClonedFrom() {
 		return clonedFrom;
 	}
 
 	/**
-	 * @return the startTs
+	 * Returns the timestamp when the patient was added to the simulation
+	 * @return the timestamp when the patient was added to the simulation
 	 */
 	public long getStartTs() {
 		return startTs;

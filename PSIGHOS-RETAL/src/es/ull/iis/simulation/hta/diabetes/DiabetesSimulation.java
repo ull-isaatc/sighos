@@ -21,13 +21,14 @@ public class DiabetesSimulation extends Simulation {
 	private final CommonParams commonParams;
 	/** Counter to assign a unique id to each patient */
 	private int patientCounter = 0;
-
+	/** The intervention assessed in this simulation */
 	protected final DiabetesIntervention intervention;
+	/** Number of patients created in this simulation */
 	protected final int nPatients;
 	
 	/** True if this is a clone of an original simulation; false otherwise */
 	protected final boolean cloned;
-	
+	/** The list of generated patients */
 	protected final DiabetesPatient[] generatedPatients; 
 
 	/**
@@ -36,6 +37,8 @@ public class DiabetesSimulation extends Simulation {
 	 * @param intervention Simulated intervention
 	 * @param nPatients Amount of patients to create
 	 * @param commonParams Common parameters
+	 * @param population A collection of populations that will serve to generate patients
+	 * @param timeHorizon Duration of the simulation (in years)
 	 */
 	public DiabetesSimulation(int id, DiabetesIntervention intervention, int nPatients, CommonParams commonParams, DiabetesPatientGenerationInfo[] population, int timeHorizon) {
 		super(id, DESCRIPTION + " " + intervention.getDescription(), BasicConfigParams.SIMUNIT, 0L, BasicConfigParams.SIMUNIT.convert(timeHorizon, TimeUnit.YEAR));
@@ -80,14 +83,15 @@ public class DiabetesSimulation extends Simulation {
 	}
 
 	/**
-	 * @return False if this is a copy of another simulation; true otherwise
+	 * Returns true if this is a copy of another simulation; false otherwise
+	 * @return True if this is a copy of another simulation; false otherwise
 	 */
 	public boolean isCloned() {
 		return cloned;
 	}
 
 	/**
-	 * 
+	 * Returns the intervention being analyzed with this simulation
 	 * @return The intervention being analyzed with this simulation
 	 */
 	public DiabetesIntervention getIntervention() {

@@ -4,7 +4,8 @@
 package es.ull.iis.simulation.hta.diabetes;
 
 /**
- * @author icasrod
+ * Type of diabetes
+ * @author Iván Castilla Rodríguez
  *
  */
 public enum DiabetesType {

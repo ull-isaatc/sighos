@@ -9,10 +9,10 @@ import es.ull.iis.simulation.model.flow.InitializerFlow;
 import es.ull.iis.simulation.model.location.Location;
 
 /**
- * @author Iván Castilla
+ * @author Iván Castilla Rodríguez
  *
  */
-public class Bag extends Element {
+public class Piece extends Element {
 	private final ProductsType productType;
 	/**
 	 * @param simul
@@ -21,7 +21,7 @@ public class Bag extends Element {
 	 * @param size
 	 * @param initLocation
 	 */
-	public Bag(Simulation simul, ProductsType type, InitializerFlow initialFlow, int size,
+	public Piece(Simulation simul, ProductsType type, InitializerFlow initialFlow, int size,
 			Location initLocation) {
 		super(simul, type.getElementType(), initialFlow, size, initLocation);
 		this.productType = type;
@@ -33,5 +33,4 @@ public class Bag extends Element {
 	public ProductsType getProductType() {
 		return productType;
 	}
-
 }

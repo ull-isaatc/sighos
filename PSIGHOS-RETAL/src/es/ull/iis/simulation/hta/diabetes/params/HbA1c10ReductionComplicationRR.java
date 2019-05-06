@@ -30,9 +30,6 @@ public class HbA1c10ReductionComplicationRR implements RRCalculator {
 		this.lnReferenceHbA1c = Math.log(referenceHbA1c);
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.hta.T1DM.params.ComplicationRR#getRR(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
-	 */
 	@Override
 	public double getRR(DiabetesPatient pat) {		
 		// First compute the slope of the linear relationship

@@ -11,7 +11,8 @@ import simkit.random.RandomNumber;
 import simkit.random.RandomVariate;
 
 /**
- * @author icasrod
+ * A basic class to generate non-correlated information about patients.
+ * @author Iván Castilla Rodríguez
  *
  */
 public abstract class DiabetesStdPopulation implements DiabetesPopulation {
@@ -25,11 +26,13 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 	private final RandomVariate baselineHBA1c;
 	/** Distribution to set the duration of diabetes of the patients when created */
 	private final RandomVariate baselineDurationOfDiabetes;
+	/** Diabetes type */
 	private final DiabetesType type;
 
 	/**
-	 * 
+	 * Creates a standard population
 	 * @param secondOrder The second order repository that defines the second-order uncertainty on the parameters
+	 * @param type Diabetes type
 	 */
 	public DiabetesStdPopulation(final SecondOrderParamsRepository secParams, final DiabetesType type) {
 		this.type = type;
@@ -40,6 +43,7 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 		baselineDurationOfDiabetes = getBaselineDurationOfDiabetes();
 	}
 
+	@Override
 	public DiabetesPatientProfile getPatientProfile() {
 		final int sex = (rng.draw() < pMan) ? BasicConfigParams.MAN : BasicConfigParams.WOMAN;
 		final double initAge = Math.max(baselineAge.generate(), getMinAge());		
@@ -56,8 +60,24 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 		return BasicConfigParams.DEF_MIN_AGE;
 	}
 	
-	public abstract double getPMan();
-	public abstract RandomVariate getBaselineHBA1c();
-	public abstract RandomVariate getBaselineAge();
-	public abstract RandomVariate getBaselineDurationOfDiabetes();
+	/**
+	 * Creates and returns the probability of being a man according to the population characteristics.
+	 * @return the probability of being a man according to the population characteristics
+	 */
+	protected abstract double getPMan();
+	/**
+	 * Creates and returns a function to assign the baseline HbA1c level 
+	 * @return a function to assign the baseline HbA1c level
+	 */
+	protected abstract RandomVariate getBaselineHBA1c();
+	/**
+	 * Creates and returns a function to assign the baseline age
+	 * @return a function to assign the baseline age
+	 */
+	protected abstract RandomVariate getBaselineAge();
+	/**
+	 * Creates and returns a function to assign the duration of diabetes at baseline
+	 * @return a function to assign the duration of diabetes at baseline
+	 */
+	protected abstract RandomVariate getBaselineDurationOfDiabetes();
 }

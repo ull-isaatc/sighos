@@ -41,27 +41,27 @@ public class LyPopulation extends DiabetesStdPopulation {
 	}
 
 	@Override
-	public double getPMan() {
+	protected double getPMan() {
 		// From "https://doi.org/10.1016/j.endinu.2018.03.008"
 		return 0.49;
 	}
 
 	@Override
-	public RandomVariate getBaselineHBA1c() {
+	protected RandomVariate getBaselineHBA1c() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_HBA1C)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_HBA1C[0]);
 		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_HBA1C[0], BASELINE_HBA1C[1]);
 	}
 
 	@Override
-	public RandomVariate getBaselineAge() {
+	protected RandomVariate getBaselineAge() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_AGE)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_AGE[0]);
 		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_AGE[0], BASELINE_AGE[1]);
 	}
 
 	@Override
-	public RandomVariate getBaselineDurationOfDiabetes() {
+	protected RandomVariate getBaselineDurationOfDiabetes() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_DURATION_OF_DIABETES)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_DURATION[0]);
 		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION[0], BASELINE_DURATION[1]);

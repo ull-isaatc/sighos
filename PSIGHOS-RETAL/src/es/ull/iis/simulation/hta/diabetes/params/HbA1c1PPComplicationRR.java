@@ -33,9 +33,6 @@ public class HbA1c1PPComplicationRR implements RRCalculator {
 		this.referenceHbA1c = referenceHbA1c;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.hta.T1DM.params.ComplicationRR#getRR(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
-	 */
 	@Override
 	public double getRR(DiabetesPatient pat) {
 		final double diff = pat.getHba1c() - referenceHbA1c;

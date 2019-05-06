@@ -9,7 +9,11 @@ import es.ull.iis.simulation.model.Describable;
 import es.ull.iis.simulation.model.Identifiable;
 
 /**
- * @author icasrod
+ * The second order characterization of an intervention. The {@link #addSecondOrderParams(SecondOrderParamsRepository)} 
+ * must be invoked from the {@link SecondOrderParamsRepository} to register the second order parameters. 
+ * The {@link #getInstance(int, SecondOrderParamsRepository)} method creates an instance of the intervention by sampling
+ * from the second order parameters.
+ * @author Iván Castilla Rodríguez
  *
  */
 public abstract class SecondOrderDiabetesIntervention implements Describable {
@@ -19,8 +23,7 @@ public abstract class SecondOrderDiabetesIntervention implements Describable {
 	final private String description;
 
 	/**
-	 * 
-	 * @param id Unique identifier 
+	 * Creates a second order characterization of an intervention
 	 * @param shortName Short name
 	 * @param description Full description
 	 */
@@ -34,12 +37,26 @@ public abstract class SecondOrderDiabetesIntervention implements Describable {
 		return description;
 	}
 
+	/**
+	 * Returns a short name for the intervention 
+	 * @return A short name for the intervention 
+	 */
 	public String getShortName() {
 		return shortName;
 	}
 
+	/**
+	 * Registers the second order parameters associated to this intervention in a repository
+	 * @param secParams Repository for second order parameters
+	 */
 	public abstract void addSecondOrderParams(SecondOrderParamsRepository secParams);
 
+	/**
+	 * Creates an instance of this intervention
+	 * @param id unique identifier for the intervention
+	 * @param secParams Repository for sampling from the second order parameters
+	 * @return an instance of this intervention
+	 */
 	public abstract DiabetesIntervention getInstance(int id, SecondOrderParamsRepository secParams);
 
 	/**
@@ -47,7 +64,7 @@ public abstract class SecondOrderDiabetesIntervention implements Describable {
 	 * @author Iván Castilla Rodríguez
 	 *
 	 */
-	public abstract class DiabetesIntervention implements Identifiable {
+	public abstract class DiabetesIntervention implements Identifiable, Describable {
 		/** The duration (in years) of the effect of the intervention */
 		final private double yearsOfEffect;
 		/** A unique identifier of the intervention */
@@ -98,6 +115,7 @@ public abstract class SecondOrderDiabetesIntervention implements Describable {
 			return id;
 		}
 		
+		@Override
 		public String getDescription() {
 			return description;
 		}

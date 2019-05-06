@@ -13,7 +13,7 @@ import es.ull.iis.util.Prioritizable;
  * and is used for statistic issues.
  * @author Iván Castilla Rodríguez
  */
-public class ElementType extends VariableStoreSimulationObject implements Describable, Prioritizable {
+public class ElementType extends VariableStoreSimulationObject implements EntityType, Prioritizable {
 	/** Element's priority in an activity queue. Minimum value: 0. */
 	private int priority = 0;
     /** A brief description of the element type */

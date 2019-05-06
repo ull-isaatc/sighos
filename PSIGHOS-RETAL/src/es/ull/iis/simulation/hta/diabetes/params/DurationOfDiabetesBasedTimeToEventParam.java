@@ -10,6 +10,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
 
 /**
+ * A parameter that computes time to event based on the duration of diabetes of the patient
  * @author Iván Castilla
  *
  */
@@ -24,7 +25,11 @@ public class DurationOfDiabetesBasedTimeToEventParam implements TimeToEventParam
 	private final double[][] generated;
 
 	/**
-	 * 
+	 * Creates a parameter that computes time to event based on the duration of diabetes of the patient
+	 * @param rng random number generator
+	 * @param nPatients Number of patients
+	 * @param durationNRisks A duration-of-diabetes-ordered array of pairs {duration of diabetes, risk}
+	 * @param rr Relative risk to apply whenever the effective time to event is computed
 	 */
 	public DurationOfDiabetesBasedTimeToEventParam(RandomNumber rng, int nPatients, double[][] durationNRisks, RRCalculator rr) {
 		this.rng = rng;
@@ -40,9 +45,6 @@ public class DurationOfDiabetesBasedTimeToEventParam implements TimeToEventParam
 		this.rr = rr;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.hta.T1DM.params.Param#getValue(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
-	 */
 	@Override
 	public Long getValue(DiabetesPatient pat) {
 		final double lifetime = pat.getAgeAtDeath() - pat.getAge();

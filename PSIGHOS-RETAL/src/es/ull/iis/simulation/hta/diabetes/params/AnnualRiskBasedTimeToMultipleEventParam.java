@@ -8,6 +8,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
 
 /**
+ * A parameter based on annual risks that can be used to calculate multiple times to events
  * @author Iván Castilla
  *
  */
@@ -26,9 +27,6 @@ public class AnnualRiskBasedTimeToMultipleEventParam extends MultipleEventParam<
 		this.rr = rr;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.hta.T1DM.params.Param#getValue(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
-	 */
 	@Override
 	public Long getValue(DiabetesPatient pat) {
 		final double lifetime = pat.getAgeAtDeath() - pat.getAge();

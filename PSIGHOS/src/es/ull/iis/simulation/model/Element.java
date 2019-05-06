@@ -233,7 +233,7 @@ public class Element extends VariableStoreSimulationObject implements Prioritiza
 	public DiscreteEvent onCreate(final long ts) {
 		simul.notifyInfo(new ElementInfo(simul, this, elementType, ElementInfo.Type.START, getTs()));
 		if (initLocation != null) {
-			if (initLocation.getAvailableCapacity() >= size) {
+			if (initLocation.fitsIn(this)) {
 				initLocation.enter(this);
 			}
 			else {

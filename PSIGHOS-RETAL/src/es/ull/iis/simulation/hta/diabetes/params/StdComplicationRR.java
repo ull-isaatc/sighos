@@ -35,9 +35,6 @@ public class StdComplicationRR implements RRCalculator {
 		this.applyEffect = applyEffect;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.hta.T1DM.params.ComplicationRR#getRR(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
-	 */
 	@Override
 	public double getRR(DiabetesPatient pat) {
 		if (applyEffect)

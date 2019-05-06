@@ -49,27 +49,27 @@ public class UnconsciousT1DMPopulation extends DiabetesStdPopulation {
 	}
 	
 	@Override
-	public double getPMan() {
+	protected double getPMan() {
 		// From "https://doi.org/10.1016/j.endinu.2018.03.008"
 		return 0.5;
 	}
 	
 	@Override
-	public RandomVariate getBaselineHBA1c() {
+	protected RandomVariate getBaselineHBA1c() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_HBA1C)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_HBA1C_AVG);
 		return RandomVariateFactory.getInstance("UniformVariate", BASELINE_HBA1C_MIN, BASELINE_HBA1C_MAX);
 	}
 
 	@Override
-	public RandomVariate getBaselineAge() {
+	protected RandomVariate getBaselineAge() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_AGE)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_AGE_AVG);
 		return RandomVariateFactory.getInstance("ContinuousSelectorVariate", BASELINE_AGE_PROPORTIONS, BASELINE_AGE_RANGES);
 	}
 
 	@Override
-	public RandomVariate getBaselineDurationOfDiabetes() {
+	protected RandomVariate getBaselineDurationOfDiabetes() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_DURATION_OF_DIABETES)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_DURATION[0]);
 		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION[0], BASELINE_DURATION[1]);

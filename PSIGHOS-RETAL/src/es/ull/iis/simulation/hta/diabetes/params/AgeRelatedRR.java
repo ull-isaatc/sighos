@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.diabetes.params;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 
 /**
+ * A relative risk that changes with age
  * @author Iván Castilla
  *
  */
@@ -14,15 +15,13 @@ public class AgeRelatedRR implements RRCalculator {
 	final private double[][] agesNRR;
 	
 	/**
+	 * Creates a new instance of this relative risk calculator
 	 * @param agesNRR An age-ordered array of pairs {age, RR}
 	 */
 	public AgeRelatedRR(double[][] agesNRR) {
 		this.agesNRR = agesNRR;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.hta.T1DM.params.RRCalculator#getRR(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
-	 */
 	@Override
 	public double getRR(DiabetesPatient pat) {
 		final double age = pat.getAge();

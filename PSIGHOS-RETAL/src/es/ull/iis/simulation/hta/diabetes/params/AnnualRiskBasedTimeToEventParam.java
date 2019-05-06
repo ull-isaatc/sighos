@@ -31,9 +31,6 @@ public class AnnualRiskBasedTimeToEventParam extends UniqueEventParam<Long> impl
 		this.rr = rr;
 	}
 
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.hta.T1DM.params.Param#getValue(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
-	 */
 	@Override
 	public Long getValue(DiabetesPatient pat) {
 		final double lifetime = pat.getAgeAtDeath() - pat.getAge();

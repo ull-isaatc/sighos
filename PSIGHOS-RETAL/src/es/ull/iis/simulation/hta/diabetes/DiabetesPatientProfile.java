@@ -5,13 +5,21 @@ package es.ull.iis.simulation.hta.diabetes;
 
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
+
 /**
+ * The basic information required to generate a patient from a {@link DiabetesPopulation}. It contains also generic 
+ * fields to add properties to the patient without modifying the {@link DiabetesPatient} class itself, that may be 
+ * used in new complication submodels.
  * @author icasrod
  *
  */
 public class DiabetesPatientProfile {
+	/** A collection of integer properties */
 	private final TreeMap<String, Integer> intProperties;
+	/** A collection of double properties */
 	private final TreeMap<String, Double> doubleProperties;
+	/** A collection of boolean properties */
 	private final TreeMap<String, Boolean> boolProperties;
 	/** Initial age of the patient (stored as years) */
 	private final double initAge;
@@ -23,7 +31,11 @@ public class DiabetesPatientProfile {
 	private final double initHBA1c;
 
 	/**
-	 * 
+	 * Creates a patient profile
+	 * @param initAge Age at the creation of the patient
+	 * @param sex Sex of the patient
+	 * @param initDurationOfDiabetes Duration of diabetes at the creation of the patient
+	 * @param initHbA1c HbA1c level at the creation of the patient
 	 */
 	public DiabetesPatientProfile(final double initAge, final int sex, final double initDurationOfDiabetes, final double initHbA1c) {
 		intProperties = new TreeMap<>();
@@ -67,26 +79,56 @@ public class DiabetesPatientProfile {
 		return initHBA1c;
 	}
 
+	/**
+	 * Returns the value associated to the specified property
+	 * @param property The name of the property
+	 * @return the value associated to the specified property
+	 */
 	public Double getDoubleProperty(String property) {
 		return doubleProperties.get(property);
 	}
-	
+
+	/**
+	 * Sets the value of the specified property
+	 * @param property The name of the property
+	 * @param value The new value of the property
+	 */
 	public void setDoubleProperty(String property, double value) {
 		doubleProperties.put(property, value);
 	}
 	
+	/**
+	 * Returns the value associated to the specified property
+	 * @param property The name of the property
+	 * @return the value associated to the specified property
+	 */
 	public Integer getIntegerProperty(String property) {
 		return intProperties.get(property);
 	}
 	
+	/**
+	 * Sets the value of the specified property
+	 * @param property The name of the property
+	 * @param value The new value of the property
+	 */
 	public void setIntegerProperty(String property, int value) {
 		intProperties.put(property, value);
 	}
 	
+	/**
+	 * Returns the value associated to the specified property
+	 * @param property The name of the property
+	 * @return the value associated to the specified property
+	 */
 	public Boolean getBooleanProperty(String property) {
 		return boolProperties.get(property);
 	}
 	
+	/**
+	 * Sets the value of the specified property
+	 * @param property The name of the property
+	 * @param value The new value of the property
+	 */
 	public void setBooleanProperty(String property, boolean value) {
 		boolProperties.put(property, value);
 	}
