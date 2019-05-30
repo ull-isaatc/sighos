@@ -24,6 +24,8 @@ import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
 /**
+ * NPH submodel based on Ly, 
+ * FIXME: Requires review
  * @author Iván Castilla Rodríguez
  *
  */
@@ -118,6 +120,8 @@ public class LyNPHSubmodel90 extends SecondOrderChronicComplicationSubmodel {
 				"", DU_ALB2[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuNPH[0], paramsDuNPH[1])));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + ESRD, "Disutility of ESRD", 
 				"", DU_ESRD[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuESRD[0], paramsDuESRD[1])));
+
+		addSecondOrderInitProportion(secParams);
 	}
 
 	@Override
@@ -131,12 +135,16 @@ public class LyNPHSubmodel90 extends SecondOrderChronicComplicationSubmodel {
 	}
 
 	@Override
+	public int getNTransitions() {
+		return NPHTransitions.values().length;
+	}
+
+	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new LyNPHSubmodel90Instance(secParams);
+		return new Instance(secParams);
 	}
 	
-	public class LyNPHSubmodel90Instance extends ChronicComplicationSubmodel {
-		private final double pInitALB1;
+	public class Instance extends ChronicComplicationSubmodel {
 		private final double[] invProb;
 		private final RRCalculator[] rr;
 		private final double [][] rnd;
@@ -151,8 +159,8 @@ public class LyNPHSubmodel90 extends SecondOrderChronicComplicationSubmodel {
 		/**
 		 * 
 		 */
-		public LyNPHSubmodel90Instance(SecondOrderParamsRepository secParams) {
-			super();
+		public Instance(SecondOrderParamsRepository secParams) {
+			super(LyNPHSubmodel90.this);
 			
 			invProb = new double[NPHTransitions.values().length];
 			invProb[NPHTransitions.HEALTHY_ALB1_d0.ordinal()] = -1 / P_DNC_ALB1[0];
@@ -194,12 +202,6 @@ public class LyNPHSubmodel90 extends SecondOrderChronicComplicationSubmodel {
 			duALB2 = secParams.getDisutilityForChronicComplication(ALB2);
 			duESRD = secParams.getDisutilityForChronicComplication(ESRD);
 			
-			if (BasicConfigParams.INIT_PROP.containsKey(ALB1.name())) {
-				pInitALB1 = BasicConfigParams.INIT_PROP.get(ALB1.name());
-			}
-			else {
-				pInitALB1 = 0.0;
-			}		
 		}
 
 		@Override
@@ -281,14 +283,6 @@ public class LyNPHSubmodel90 extends SecondOrderChronicComplicationSubmodel {
 		private long getAnnualBasedTimeToEvent(DiabetesPatient pat, NPHTransitions transition, long limit) {
 			final int ord = (NPHTransitions.HEALTHY_ALB1_d0.equals(transition) || NPHTransitions.HEALTHY_ALB1_d6.equals(transition) || NPHTransitions.NEU_ALB1.equals(transition)) ? 0 : 1;
 			return getAnnualBasedTimeToEvent(pat, invProb[transition.ordinal()], rnd[pat.getIdentifier()][ord], rr[transition.ordinal()].getRR(pat), limit);
-		}
-
-		@Override
-		public TreeSet<DiabetesComplicationStage> getInitialStage(DiabetesPatient pat) {
-			TreeSet<DiabetesComplicationStage> init = new TreeSet<>();
-			if (rndALB1AtStart[pat.getIdentifier()] < pInitALB1)
-				init.add(ALB1);
-			return init;
 		}
 
 		@Override

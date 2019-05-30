@@ -7,11 +7,12 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
+import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesProgression;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
+import es.ull.iis.simulation.hta.diabetes.Named;
 import es.ull.iis.simulation.hta.diabetes.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.diabetes.params.AgeRelatedRR;
 import es.ull.iis.simulation.hta.diabetes.params.AnnualRiskBasedTimeToEventParam;
@@ -23,7 +24,6 @@ import es.ull.iis.simulation.hta.diabetes.params.RRCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.diabetes.params.TimeToEventParam;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -36,7 +36,7 @@ public class LyRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 	public static DiabetesComplicationStage PRET = new DiabetesComplicationStage("PRET", "Proliferative Retinopathy", DiabetesChronicComplications.RET);
 	public static DiabetesComplicationStage ME = new DiabetesComplicationStage("ME", "Macular edema", DiabetesChronicComplications.RET);
 	public static DiabetesComplicationStage BLI = new DiabetesComplicationStage("BLI", "Blindness", DiabetesChronicComplications.RET);
-	public static DiabetesComplicationStage[] RETSubstates = new DiabetesComplicationStage[] {BGRET, PRET, ME, BLI};
+	public static DiabetesComplicationStage[] STAGES = new DiabetesComplicationStage[] {BGRET, PRET, ME, BLI};
 	
 	private static final double REF_DCCT_HBA1C = 9.1;
 	/** Probability of onset of BGRET depending on duration of diabetes {0, 9} */
@@ -70,7 +70,7 @@ public class LyRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 	private static final double C_ME = 6785.16; // Detail: Parametros.xls
 	private static final double C_BLI = 2405.35;
 	
-	public enum RETTransitions {
+	public enum RETTransitions implements Named {
 		HEALTHY_BGRET(null, BGRET),
 		HEALTHY_ME(null, ME),
 		BGRET_PRET(BGRET, PRET),
@@ -80,7 +80,6 @@ public class LyRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 		
 		final private DiabetesComplicationStage from;
 		final private DiabetesComplicationStage to;
-		private TimeToEventParam time2Event;
 		
 		private RETTransitions(DiabetesComplicationStage from, DiabetesComplicationStage to) {
 			this.from = from;
@@ -99,14 +98,6 @@ public class LyRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 		 */
 		public DiabetesComplicationStage getTo() {
 			return to;
-		}
-
-		public TimeToEventParam getTime2Event() {
-			return time2Event;
-		}
-
-		public void setTime2Event(TimeToEventParam time2Event) {
-			this.time2Event = time2Event;
 		}
 	}
 	
@@ -141,39 +132,37 @@ public class LyRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 				"", DU_ME[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuME[0], paramsDuME[1])));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BLI, "Disutility of BLI", 
 				"", DU_BLI[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuBLI[0], paramsDuBLI[1])));
+
+		addSecondOrderInitProportion(secParams);
 	}
 	
 	@Override
 	public int getNStages() {
-		return RETSubstates.length;
+		return STAGES.length;
 	}
 
 	@Override
 	public DiabetesComplicationStage[] getStages() {
-		return RETSubstates;
+		return STAGES;
+	}
+
+	@Override
+	public int getNTransitions() {
+		return RETTransitions.values().length;
 	}
 
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new LyRETSubmodelInstance(secParams);
+		return new Instance(secParams);
 	}
 
-	public class LyRETSubmodelInstance extends ChronicComplicationSubmodel {
-		private final double pInitBGRET;
-		private final double[] rndBGRETAtStart;
-		private final double[] costBGRET;
-		private final double[] costPRET;
-		private final double[] costME;
-		private final double[] costBLI;
-		private final double duBGRET;
-		private final double duPRET;
-		private final double duME;
-		private final double duBLI;
+	public class Instance extends ChronicComplicationSubmodel {
+		
 		/**
 		 * 
 		 */
-		public LyRETSubmodelInstance(SecondOrderParamsRepository secParams) {
-			super();
+		public Instance(SecondOrderParamsRepository secParams) {
+			super(LyRETSubmodel.this);
 			final int nPatients = secParams.getnPatients();
 			final RandomNumber rng = secParams.getRngFirstOrder();
 
@@ -187,41 +176,23 @@ public class LyRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 					{new HbA1c10ReductionComplicationRR(RR_ME, REF_DCCT_HBA1C), new AgeRelatedRR(RR_ADOLESCENCE)},
 					CompoundRRCalculator.DEF_COMBINATION.ADD);
 
-			RETTransitions.HEALTHY_BGRET.setTime2Event(
+			addTime2Event(RETTransitions.HEALTHY_BGRET.ordinal(), 
 					new DurationOfDiabetesBasedTimeToEventParam(rng, nPatients, P_DNC_BGRET, rrBGRET));
-			RETTransitions.BGRET_PRET.setTime2Event(
+			addTime2Event(RETTransitions.BGRET_PRET.ordinal(),
 					new DurationOfDiabetesBasedTimeToEventParam(rng, nPatients, P_BGRET_PRET, rrPRET));
-			RETTransitions.HEALTHY_ME.setTime2Event(
+			addTime2Event(RETTransitions.HEALTHY_ME.ordinal(),
 					new DurationOfDiabetesBasedTimeToEventParam(rng, nPatients, P_DNC_ME, rrME));
-			RETTransitions.BGRET_BLI.setTime2Event(
+			addTime2Event(RETTransitions.BGRET_BLI.ordinal(),
 					new AnnualRiskBasedTimeToEventParam(rng, nPatients, secParams.getProbability(BGRET, BLI), SecondOrderParamsRepository.NO_RR));
-			RETTransitions.PRET_BLI.setTime2Event(
+			addTime2Event(RETTransitions.PRET_BLI.ordinal(),
 					new AnnualRiskBasedTimeToEventParam(rng, nPatients, secParams.getProbability(PRET, BLI), SecondOrderParamsRepository.NO_RR));
-			RETTransitions.ME_BLI.setTime2Event(
+			addTime2Event(RETTransitions.ME_BLI.ordinal(),
 					new AnnualRiskBasedTimeToEventParam(rng, nPatients, secParams.getProbability(ME, BLI), SecondOrderParamsRepository.NO_RR));
 
-			rndBGRETAtStart = new double[nPatients];
-			for (int i = 0; i < nPatients; i++) {
-				rndBGRETAtStart[i] = rng.draw();
-			}
-			
-			costBGRET = secParams.getCostsForChronicComplication(BGRET);
-			costPRET = secParams.getCostsForChronicComplication(PRET);
-			costME = secParams.getCostsForChronicComplication(ME);
-			costBLI = secParams.getCostsForChronicComplication(BLI);
-			
-			duBGRET = secParams.getDisutilityForChronicComplication(BGRET);
-			duPRET = secParams.getDisutilityForChronicComplication(PRET);
-			duME = secParams.getDisutilityForChronicComplication(ME);
-			duBLI = secParams.getDisutilityForChronicComplication(BLI);
-			
-			if (BasicConfigParams.INIT_PROP.containsKey(BGRET.name())) {
-				pInitBGRET = BasicConfigParams.INIT_PROP.get(BGRET.name());
-			}
-			else {
-				pInitBGRET = 0.0;
-			}
-
+			addData(secParams, BGRET);
+			addData(secParams, PRET);
+			addData(secParams, ME);
+			addData(secParams, BLI);
 		}
 
 		@Override
@@ -246,12 +217,12 @@ public class LyRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 						limit = previousTimeToBLI;
 					// Already at ME: can progress to PRET (if not yet) and BLI
 					if (state.contains(ME)) {
-						timeToBLI = getAnnualBasedTimeToEvent(pat, RETTransitions.ME_BLI, limit);
+						timeToBLI = getTimeToEvent(pat, RETTransitions.ME_BLI.ordinal(), limit);
 						if (limit > timeToBLI)
 							limit = timeToBLI;
 						// Already at PRET and ME: calculate alternative time to BLI
 						if (state.contains(PRET)) {
-							final long altTimeToBLI = getAnnualBasedTimeToEvent(pat, RETTransitions.PRET_BLI, limit);
+							final long altTimeToBLI = getTimeToEvent(pat, RETTransitions.PRET_BLI.ordinal(), limit);
 							// If the time from PRET to BLI is lower than from ME to BLI, use the former
 							if (timeToBLI > altTimeToBLI)
 								timeToBLI = altTimeToBLI;
@@ -259,26 +230,26 @@ public class LyRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 						else {
 							if (limit > previousTimeToPRET)
 								limit = previousTimeToPRET;
-							timeToPRET = getAnnualBasedTimeToEvent(pat, RETTransitions.BGRET_PRET, limit);						
+							timeToPRET = getTimeToEvent(pat, RETTransitions.BGRET_PRET.ordinal(), limit);						
 						}
 					}
 					// Already at PRET but not at ME: can progress to BLI
 					else if (state.contains(PRET)) {
-						timeToBLI = getAnnualBasedTimeToEvent(pat, RETTransitions.PRET_BLI, limit);
+						timeToBLI = getTimeToEvent(pat, RETTransitions.PRET_BLI.ordinal(), limit);
 					}
 					// Already at BGRET: can progress to BLI, ME and PRET
 					else if (state.contains(BGRET)) {
-						timeToBLI = getAnnualBasedTimeToEvent(pat, RETTransitions.BGRET_BLI, limit);
+						timeToBLI = getTimeToEvent(pat, RETTransitions.BGRET_BLI.ordinal(), limit);
 						if (limit > timeToBLI)
 							limit = timeToBLI;
-						timeToPRET = getAnnualBasedTimeToEvent(pat, RETTransitions.BGRET_PRET, (limit > previousTimeToPRET) ? previousTimeToPRET : limit);
+						timeToPRET = getTimeToEvent(pat, RETTransitions.BGRET_PRET.ordinal(), (limit > previousTimeToPRET) ? previousTimeToPRET : limit);
 					}
 					// Healthy: can progress to BGRET or ME
 					else {
-						timeToME = getAnnualBasedTimeToEvent(pat, RETTransitions.HEALTHY_ME, (limit > previousTimeToME) ? previousTimeToME : limit);						
+						timeToME = getTimeToEvent(pat, RETTransitions.HEALTHY_ME.ordinal(), (limit > previousTimeToME) ? previousTimeToME : limit);						
 						// Adjust limit for BGRET
 						limit = min(limit, timeToME, previousTimeToME, previousTimeToBGRET);
-						timeToBGRET = getAnnualBasedTimeToEvent(pat, RETTransitions.HEALTHY_BGRET, limit);
+						timeToBGRET = getTimeToEvent(pat, RETTransitions.HEALTHY_BGRET.ordinal(), limit);
 					}
 					// Check previously scheduled events
 					if (timeToBGRET != Long.MAX_VALUE) {
@@ -323,38 +294,20 @@ public class LyRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 			return prog;
 		}
 
-		private long getAnnualBasedTimeToEvent(DiabetesPatient pat, RETTransitions transition, long limit) {
-			final long time = transition.getTime2Event().getValue(pat);
-			return (time >= limit) ? Long.MAX_VALUE : time;
-		}
-
-		@Override
-		public TreeSet<DiabetesComplicationStage> getInitialStage(DiabetesPatient pat) {
-			TreeSet<DiabetesComplicationStage> init = new TreeSet<>();
-			if (rndBGRETAtStart[pat.getIdentifier()] < pInitBGRET)
-				init.add(BGRET);
-			return init;
-		}
-
 		@Override
 		public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
 			double cost = 0.0;
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 
 			if (state.contains(LyRETSubmodel.BLI))
-				cost += costBLI[0];
+				cost += getData(BLI).getCosts()[0];
 			else if (state.contains(LyRETSubmodel.ME))
-				cost += costME[0];
+				cost += getData(ME).getCosts()[0];
 			else if (state.contains(LyRETSubmodel.PRET))
-				cost += costPRET[0];
+				cost += getData(PRET).getCosts()[0];
 			else if (state.contains(LyRETSubmodel.BGRET))
-				cost += costBGRET[0];				
+				cost += getData(BGRET).getCosts()[0];				
 			return cost;
-		}
-
-		@Override
-		public double getCostOfComplication(DiabetesPatient pat, DiabetesComplicationStage newEvent) {
-			return 0.0;
 		}
 
 		@Override
@@ -362,20 +315,20 @@ public class LyRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			
 			if (state.contains(BLI))
-				return duBLI;
+				return getData(BLI).getDisutility();
 			if (state.contains(ME)) {
 				if (state.contains(PRET)) {
-					return method.combine(duME, duPRET);
+					return method.combine(getData(ME).getDisutility(), getData(PRET).getDisutility());
 				}
 				else if (state.contains(BGRET)) {
-					return method.combine(duME, duBGRET);				
+					return method.combine(getData(ME).getDisutility(), getData(BGRET).getDisutility());				
 				}
 			}
 			if (state.contains(PRET)) {
-				return duPRET;
+				return getData(PRET).getDisutility();
 			}
 			else if (state.contains(BGRET)) {
-				return duBGRET;				
+				return getData(BGRET).getDisutility();				
 			}
 			return 0.0;
 		}

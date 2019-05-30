@@ -7,14 +7,14 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
+import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesProgression;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.outcomes.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.diabetes.params.AnnualRiskBasedTimeToEventParam;
 import es.ull.iis.simulation.hta.diabetes.params.HbA1c10ReductionComplicationRR;
-import es.ull.iis.simulation.hta.diabetes.params.RRCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
@@ -76,11 +76,13 @@ public class CanadaNEUSubmodel extends SecondOrderChronicComplicationSubmodel {
 
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + NEU, "Disutility of NEU", "", DU_NEU));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + LEA, "Disutility of LEA", "", DU_LEA));
+
+		addSecondOrderInitProportion(secParams);
 	}
 	
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new CanadaNEUSubmodelInstance(secParams);
+		return new Instance(secParams);
 	}
 	
 	@Override
@@ -93,46 +95,32 @@ public class CanadaNEUSubmodel extends SecondOrderChronicComplicationSubmodel {
 		return NEUSubstates;
 	}
 
-	public class CanadaNEUSubmodelInstance extends ChronicComplicationSubmodel {
-		private final double[] invProb;
-		private final RRCalculator[] rr;
-		private final double [][] rnd;
-
-		private final double[] costNEU;
-		private final double[] costLEA;
-		
-		private final double duNEU;
-		private final double duLEA;
+	@Override
+	public int getNTransitions() {
+		return NEUTransitions.values().length;
+	}
+	
+	public class Instance extends ChronicComplicationSubmodel {
 		
 		/**
 		 * 
 		 */
-		public CanadaNEUSubmodelInstance(SecondOrderParamsRepository secParams) {
-			super();
+		public Instance(SecondOrderParamsRepository secParams) {
+			super(CanadaNEUSubmodel.this);
 			
-			invProb = new double[NEUTransitions.values().length];
-			invProb[NEUTransitions.HEALTHY_NEU.ordinal()] = -1 / secParams.getProbability(NEU);
-			invProb[NEUTransitions.NEU_LEA.ordinal()] = -1 / secParams.getProbability(NEU, LEA);
-
-			rr = new RRCalculator[NEUTransitions.values().length];
-			rr[NEUTransitions.HEALTHY_NEU.ordinal()] = new HbA1c10ReductionComplicationRR(
-					secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + NEU.name()), REF_HBA1C);
-			rr[NEUTransitions.NEU_LEA.ordinal()] = SecondOrderParamsRepository.NO_RR;
-
 			final int nPatients = secParams.getnPatients();
 			final RandomNumber rng = secParams.getRngFirstOrder();
-			rnd = new double[nPatients][NEUSubstates.length];
-			for (int i = 0; i < nPatients; i++) {
-				for (int j = 0; j < NEUSubstates.length; j++) {
-					rnd[i][j] = rng.draw();
-				}
-			}
-			
-			costNEU = secParams.getCostsForChronicComplication(NEU);
-			costLEA = secParams.getCostsForChronicComplication(LEA);
 
-			duNEU = secParams.getDisutilityForChronicComplication(NEU);
-			duLEA = secParams.getDisutilityForChronicComplication(LEA);		
+			addTime2Event(NEUTransitions.HEALTHY_NEU.ordinal(), 
+					new AnnualRiskBasedTimeToEventParam(rng, nPatients, 
+					secParams.getProbability(NEU), new HbA1c10ReductionComplicationRR(
+							secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + NEU.name()), REF_HBA1C)));
+			addTime2Event(NEUTransitions.NEU_LEA.ordinal(), 
+					new AnnualRiskBasedTimeToEventParam(rng, nPatients, 
+					secParams.getProbability(NEU, LEA), SecondOrderParamsRepository.NO_RR));
+			
+			addData(secParams, NEU);
+			addData(secParams, LEA);
 		}
 		
 		@Override
@@ -151,13 +139,13 @@ public class CanadaNEUSubmodel extends SecondOrderChronicComplicationSubmodel {
 						limit = previousTimeToLEA;
 					if (state.contains(NEU)) {
 						// RR from NEU to LEA
-						timeToLEA = getAnnualBasedTimeToEvent(pat, NEUTransitions.NEU_LEA, limit);
+						timeToLEA = getTimeToEvent(pat, NEUTransitions.NEU_LEA.ordinal(), limit);
 					}
 					else {
 						if (limit > previousTimeToNEU)
 							limit = previousTimeToNEU;
 						// RR from healthy to NEU (must be previous to LEA and a (potential) formerly scheduled NEU event)
-						timeToNEU = getAnnualBasedTimeToEvent(pat, NEUTransitions.HEALTHY_NEU, limit);
+						timeToNEU = getTimeToEvent(pat, NEUTransitions.HEALTHY_NEU.ordinal(), limit);
 					}
 					// Check previously scheduled events
 					if (timeToNEU != Long.MAX_VALUE) {
@@ -180,37 +168,24 @@ public class CanadaNEUSubmodel extends SecondOrderChronicComplicationSubmodel {
 			return prog;
 		}
 
-		private long getAnnualBasedTimeToEvent(DiabetesPatient pat, NEUTransitions transition, long limit) {
-			final int ord = NEUTransitions.HEALTHY_NEU.equals(transition) ? 0 : 1;
-			return getAnnualBasedTimeToEvent(pat, invProb[transition.ordinal()], rnd[pat.getIdentifier()][ord], rr[transition.ordinal()].getRR(pat), limit);
-		}
-
-		@Override
-		public TreeSet<DiabetesComplicationStage> getInitialStage(DiabetesPatient pat) {
-			return new TreeSet<>();
-		}
-
 		@Override
 		public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			if (state.contains(LEA))
-				return costLEA[0];
-			return costNEU[0];
-		}
-
-		@Override
-		public double getCostOfComplication(DiabetesPatient pat, DiabetesComplicationStage newEvent) {
-			if (LEA.equals(newEvent))
-				return costLEA[1];
-			return costNEU[1];
+				return getData(LEA).getCosts()[0];
+			else if (state.contains(NEU))
+				return getData(NEU).getCosts()[0];
+			return 0.0;
 		}
 
 		@Override
 		public double getDisutility(DiabetesPatient pat, DisutilityCombinationMethod method) {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			if (state.contains(LEA))
-				return duLEA;
-			return duNEU;
+				return getData(LEA).getDisutility();
+			else if (state.contains(NEU))
+				return getData(NEU).getDisutility();
+			return 0.0;
 		}
 		
 	}

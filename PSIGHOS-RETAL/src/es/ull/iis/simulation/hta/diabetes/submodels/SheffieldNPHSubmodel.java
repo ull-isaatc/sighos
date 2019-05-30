@@ -7,19 +7,19 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
+import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesProgression;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.outcomes.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.diabetes.params.AnnualRiskBasedTimeToEventParam;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.RRCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.SheffieldComplicationRR;
-import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -30,7 +30,7 @@ public class SheffieldNPHSubmodel extends SecondOrderChronicComplicationSubmodel
 	public static DiabetesComplicationStage ALB1 = new DiabetesComplicationStage("ALB1", "Microalbuminuria", DiabetesChronicComplications.NPH);
 	public static DiabetesComplicationStage ALB2 = new DiabetesComplicationStage("ALB2", "Macroalbuminuria", DiabetesChronicComplications.NPH);
 	public static DiabetesComplicationStage ESRD = new DiabetesComplicationStage("ESRD", "End-Stage Renal Disease", DiabetesChronicComplications.NPH);
-	public static DiabetesComplicationStage[] NPHSubstates = new DiabetesComplicationStage[] {ALB1, ALB2, ESRD};
+	public static DiabetesComplicationStage[] STAGES = new DiabetesComplicationStage[] {ALB1, ALB2, ESRD};
 
 	private static final String STR_COEF_ALB2 = "Coef_" + SecondOrderParamsRepository.STR_COST_PREFIX + ALB2;
 	private static final double BETA_ALB1 = 3.25;
@@ -70,17 +70,22 @@ public class SheffieldNPHSubmodel extends SecondOrderChronicComplicationSubmodel
 
 	@Override
 	public int getNStages() {
-		return NPHSubstates.length;
+		return STAGES.length;
 	}
 
 	@Override
 	public DiabetesComplicationStage[] getStages() {
-		return NPHSubstates;
+		return STAGES;
 	}
 
 	@Override
+	public int getNTransitions() {
+		return NPHTransitions.values().length;
+	}
+	
+	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new SheffieldNPHSubmodelInstance(secParams);
+		return new Instance(secParams);
 	}
 
 	@Override
@@ -150,73 +155,45 @@ public class SheffieldNPHSubmodel extends SecondOrderChronicComplicationSubmodel
 				"", DU_ALB2[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuNPH[0], paramsDuNPH[1])));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + ESRD, "Disutility of ESRD", 
 				"", DU_ESRD[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuESRD[0], paramsDuESRD[1])));
+
+		addSecondOrderInitProportion(secParams);
 	}
 	
-	public class SheffieldNPHSubmodelInstance extends ChronicComplicationSubmodel {
-		private final double pInitALB1;
-		private final double[] invProb;
-		private final RRCalculator[] rr;
-		private final double [][] rnd;
-		private final double[] rndALB1AtStart;
-
-		private final double[] costALB1;
-		private final double[] costALB2;
-		private final double[] costESRD;
-		private final double duALB2;
-		private final double duESRD;
+	public class Instance extends ChronicComplicationSubmodel {
 
 		/**
 		 * 
 		 */
-		public SheffieldNPHSubmodelInstance(SecondOrderParamsRepository secParams) {
-			super();
+		public Instance(SecondOrderParamsRepository secParams) {
+			super(SheffieldNPHSubmodel.this);
+			final int nPatients = secParams.getnPatients();
 			
-			invProb = new double[NPHTransitions.values().length];
-			invProb[NPHTransitions.HEALTHY_ALB1.ordinal()] = -1 / secParams.getProbability(ALB1);
-			invProb[NPHTransitions.HEALTHY_ALB2.ordinal()] = -1 / secParams.getProbability(ALB2);
-			invProb[NPHTransitions.HEALTHY_ESRD.ordinal()] = -1 / secParams.getProbability(ESRD);
-			invProb[NPHTransitions.ALB1_ESRD.ordinal()] = -1 / secParams.getProbability(ALB1, ESRD);
-			invProb[NPHTransitions.ALB2_ESRD.ordinal()] = -1 / secParams.getProbability(ALB2, ESRD);
-			invProb[NPHTransitions.ALB1_ALB2.ordinal()] = -1 / secParams.getProbability(ALB1, ALB2);
-			invProb[NPHTransitions.NEU_ALB1.ordinal()] = -1 / secParams.getProbability(DiabetesChronicComplications.NEU, ALB1);
-			
-			rr = new RRCalculator[NPHTransitions.values().length];
 			final RRCalculator rrToALB1 = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB1)); 
 			final RRCalculator rrToALB2 = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB2)); 
-			rr[NPHTransitions.HEALTHY_ALB1.ordinal()] = rrToALB1;
-			rr[NPHTransitions.HEALTHY_ALB2.ordinal()] = rrToALB2;
-			rr[NPHTransitions.HEALTHY_ESRD.ordinal()] = SecondOrderParamsRepository.NO_RR;
-			rr[NPHTransitions.ALB1_ESRD.ordinal()] = SecondOrderParamsRepository.NO_RR;
-			rr[NPHTransitions.ALB2_ESRD.ordinal()] = SecondOrderParamsRepository.NO_RR;
-			rr[NPHTransitions.ALB1_ALB2.ordinal()] = rrToALB2;
-			// Assume the same RR from healthy to ALB1 than from NEU to ALB1
-			rr[NPHTransitions.NEU_ALB1.ordinal()] = SecondOrderParamsRepository.NO_RR;
+	
+			addTime2Event(NPHTransitions.HEALTHY_ALB1.ordinal(), new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), 
+					nPatients, secParams.getProbability(ALB1), rrToALB1));
+			// Assume no additional RR from NEU to ALB1
+			addTime2Event(NPHTransitions.NEU_ALB1.ordinal(), new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), 
+					nPatients, secParams.getProbability(DiabetesChronicComplications.NEU, ALB1), SecondOrderParamsRepository.NO_RR));
+			addTime2Event(NPHTransitions.HEALTHY_ALB2.ordinal(), new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), 
+					nPatients, secParams.getProbability(ALB2), rrToALB2));
+			addTime2Event(NPHTransitions.HEALTHY_ESRD.ordinal(), new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), 
+					nPatients, secParams.getProbability(ESRD), SecondOrderParamsRepository.NO_RR));
+			addTime2Event(NPHTransitions.ALB1_ALB2.ordinal(), new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), 
+					nPatients, secParams.getProbability(ALB1, ALB2), rrToALB2));
+			addTime2Event(NPHTransitions.ALB1_ESRD.ordinal(), new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), 
+					nPatients, secParams.getProbability(ALB1, ESRD), SecondOrderParamsRepository.NO_RR));
+			addTime2Event(NPHTransitions.ALB2_ESRD.ordinal(), new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), 
+					nPatients, secParams.getProbability(ALB2, ESRD), SecondOrderParamsRepository.NO_RR));
 			
-			final int nPatients = secParams.getnPatients();
-			final RandomNumber rng = secParams.getRngFirstOrder();
-			rnd = new double[nPatients][NPHSubstates.length];
-			rndALB1AtStart = new double[nPatients];
-			for (int i = 0; i < nPatients; i++) {
-				rndALB1AtStart[i] = rng.draw();
-				for (int j = 0; j < NPHSubstates.length; j++) {
-					rnd[i][j] = rng.draw();
-				}
-			}
-			
-			costALB1 = secParams.getCostsForChronicComplication(ALB1);
+			addData(secParams, ALB1);
+			addData(secParams, ESRD);
 			final double coefALB2 = secParams.getOtherParam(STR_COEF_ALB2);
-			costALB2 = new double[] {costALB1[0] * coefALB2, costALB1[1] * coefALB2}; 
-			costESRD = secParams.getCostsForChronicComplication(ESRD);
-			
-			duALB2 = secParams.getDisutilityForChronicComplication(ALB2);
-			duESRD = secParams.getDisutilityForChronicComplication(ESRD);
-			
-			if (BasicConfigParams.INIT_PROP.containsKey(ALB1.name())) {
-				pInitALB1 = BasicConfigParams.INIT_PROP.get(ALB1.name());
-			}
-			else {
-				pInitALB1 = 0.0;
-			}		
+			final double[] costALB1 = getData(ALB1).getCosts();
+			final double[] costALB2 = new double[] {costALB1[0] * coefALB2, costALB1[1] * coefALB2};
+			final double pInitALB2 = secParams.getInitProbParam(ALB2);
+			addData(secParams.getDisutilityForChronicComplication(ALB2), costALB2, pInitALB2, secParams, ALB2);
 		}
 
 		@Override
@@ -237,34 +214,34 @@ public class SheffieldNPHSubmodel extends SecondOrderChronicComplicationSubmodel
 						limit = previousTimeToESRD;
 					if (state.contains(ALB2)) {
 						// RR from ALB2 to ESRD
-						timeToESRD = getAnnualBasedTimeToEvent(pat, NPHTransitions.ALB2_ESRD, limit);
+						timeToESRD = getTimeToEvent(pat, NPHTransitions.ALB2_ESRD.ordinal(), limit);
 					}
 					else if (state.contains(ALB1)) {
 						// RR from ALB1 to ESRD
-						timeToESRD = getAnnualBasedTimeToEvent(pat, NPHTransitions.ALB1_ESRD, limit);
+						timeToESRD = getTimeToEvent(pat, NPHTransitions.ALB1_ESRD.ordinal(), limit);
 						if (limit > timeToESRD)
 							limit = timeToESRD;
-						timeToALB2 = getAnnualBasedTimeToEvent(pat, NPHTransitions.ALB1_ALB2, limit);
+						timeToALB2 = getTimeToEvent(pat, NPHTransitions.ALB1_ALB2.ordinal(), limit);
 					}
 					else {
 						// RR from healthy to ESRD
-						timeToESRD = getAnnualBasedTimeToEvent(pat, NPHTransitions.HEALTHY_ESRD, limit);
+						timeToESRD = getTimeToEvent(pat, NPHTransitions.HEALTHY_ESRD.ordinal(), limit);
 						if (limit > timeToESRD)
 							limit = timeToESRD;
 						if (limit > previousTimeToALB2)
 							limit = previousTimeToALB2;
-						timeToALB2 = getAnnualBasedTimeToEvent(pat, NPHTransitions.HEALTHY_ALB2, limit);
+						timeToALB2 = getTimeToEvent(pat, NPHTransitions.HEALTHY_ALB2.ordinal(), limit);
 						if (limit > timeToALB2)
 							limit = timeToALB2;
 						if (limit > previousTimeToALB1)
 							limit = previousTimeToALB1;
 						// RR from healthy to ALB1 (must be previous to ESRD and a (potential) formerly scheduled ALB1 event)
-						timeToALB1 = getAnnualBasedTimeToEvent(pat, NPHTransitions.HEALTHY_ALB1, limit);
+						timeToALB1 = getTimeToEvent(pat, NPHTransitions.HEALTHY_ALB1.ordinal(), limit);
 						if (pat.hasComplication(DiabetesChronicComplications.NEU)) {
 							// RR from NEU to ALB1 (must be previous to the former transition)
 							if (limit > timeToALB1)
 								limit = timeToALB1;
-							final long altTimeToNPH = getAnnualBasedTimeToEvent(pat, NPHTransitions.NEU_ALB1, limit);
+							final long altTimeToNPH = getTimeToEvent(pat, NPHTransitions.NEU_ALB1.ordinal(), limit);
 							if (altTimeToNPH < timeToALB1)
 								timeToALB1 = altTimeToNPH;						
 						}
@@ -301,39 +278,15 @@ public class SheffieldNPHSubmodel extends SecondOrderChronicComplicationSubmodel
 			return prog;
 		}
 
-		private long getAnnualBasedTimeToEvent(DiabetesPatient pat, NPHTransitions transition, long limit) {
-			final int ord = (NPHTransitions.HEALTHY_ALB1.equals(transition) || NPHTransitions.NEU_ALB1.equals(transition)) ? 0 : 1;
-			return getAnnualBasedTimeToEvent(pat, invProb[transition.ordinal()], rnd[pat.getIdentifier()][ord], rr[transition.ordinal()].getRR(pat), limit);
-		}
-
-		@Override
-		public TreeSet<DiabetesComplicationStage> getInitialStage(DiabetesPatient pat) {
-			TreeSet<DiabetesComplicationStage> init = new TreeSet<>();
-			if (rndALB1AtStart[pat.getIdentifier()] < pInitALB1)
-				init.add(ALB1);
-			return init;
-		}
-
 		@Override
 		public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			if (state.contains(ESRD))
-				return costESRD[0];
+				return getData(ESRD).getCosts()[0];
 			if (state.contains(ALB2))
-				return costALB2[0];		
+				return getData(ALB2).getCosts()[0];		
 			if (state.contains(ALB1))
-				return costALB1[0];		
-			return 0.0;
-		}
-
-		@Override
-		public double getCostOfComplication(DiabetesPatient pat, DiabetesComplicationStage newEvent) {
-			if (ESRD.equals(newEvent))
-				return costESRD[1];
-			if (ALB2.equals(newEvent))
-				return costALB2[1];
-			if (ALB1.equals(newEvent))
-				return costALB1[1];
+				return getData(ALB1).getCosts()[0];		
 			return 0.0;
 		}
 
@@ -341,9 +294,9 @@ public class SheffieldNPHSubmodel extends SecondOrderChronicComplicationSubmodel
 		public double getDisutility(DiabetesPatient pat, DisutilityCombinationMethod method) {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			if (state.contains(ESRD))
-				return duESRD;
+				return getData(ESRD).getDisutility();
 			if (state.contains(ALB2))
-				return duALB2;
+				return getData(ALB2).getDisutility();
 			return 0.0;
 		}
 	}

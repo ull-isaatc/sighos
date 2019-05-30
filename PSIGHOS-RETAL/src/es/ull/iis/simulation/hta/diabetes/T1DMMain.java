@@ -305,6 +305,8 @@ public class T1DMMain {
 	        	case 5:
 	        		secParams =new LySecondOrderParams(args1.nPatients);
 	        		break;
+	        	case 6:
+	        		secParams = new SMILESecondOrderParams(args1.nPatients);
 	        	default:
 	        		secParams = new UnconsciousSecondOrderParams(args1.nPatients);
 	        		break;
@@ -343,7 +345,7 @@ public class T1DMMain {
 		private int nRuns = BasicConfigParams.N_RUNS;
 		@Parameter(names ={"--horizon", "-h"}, description = "Time horizon for the simulation (years)", order = 3)
 		private int timeHorizon = -1;
-		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (1 for unconscious, 2 for uncontrolled, 3 for Canada, 4 for DCCT, 5 for Ly)", order = 8)
+		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (1 for unconscious, 2 for uncontrolled, 3 for Canada, 4 for DCCT, 5 for Ly, 6 for SMILE)", order = 8)
 		private int population = 1;
 		@Parameter(names ={"--single_patient_output", "-es"}, description = "Enables printing the specified patient's output", order = 4)
 		private int singlePatientOutput = -1;

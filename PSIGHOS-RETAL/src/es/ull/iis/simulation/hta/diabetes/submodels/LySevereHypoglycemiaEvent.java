@@ -3,16 +3,7 @@
  */
 package es.ull.iis.simulation.hta.diabetes.submodels;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesType;
-
-import java.util.EnumSet;
-
-import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
-import es.ull.iis.simulation.hta.diabetes.params.AnnualRiskBasedTimeToMultipleEventParam;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.DeathWithEventParam;
-import es.ull.iis.simulation.hta.diabetes.params.InterventionSpecificComplicationRR;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
@@ -22,13 +13,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class LySevereHypoglycemiaEvent extends SecondOrderAcuteComplicationSubmodel {
-	public static final String STR_P_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name();
-	public static final String STR_P_DEATH_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + SecondOrderParamsRepository.STR_DEATH_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name();
-	public static final String STR_RR_HYPO = SecondOrderParamsRepository.STR_RR_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name(); 
-	public static final String STR_COST_HYPO_EPISODE = SecondOrderParamsRepository.STR_COST_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name();
-	public static final String STR_DU_HYPO_EVENT = SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name();
-
+public class LySevereHypoglycemiaEvent extends StandardSevereHypoglycemiaEvent {
 	private static final double P_HYPO = /*0.264;/*/0.234286582;
 	private static final double RR_HYPO = /*0.018587361;/*/0.020895447;
 	private static final double[] P_HYPO_BETA = /*{26.136, 72.864}; /*/ {23.19437163, 75.80562837};
@@ -39,68 +24,15 @@ public class LySevereHypoglycemiaEvent extends SecondOrderAcuteComplicationSubmo
 	private static final String DEF_SOURCE = "Ly et al. 2013";
 
 	public LySevereHypoglycemiaEvent() {
-		super(DiabetesAcuteComplications.SEVERE_HYPO, EnumSet.of(DiabetesType.T1));
+		super(
+				new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode (adjusted from rate/100 patient-month)", 
+					DEF_SOURCE, P_HYPO, RandomVariateFactory.getInstance("BetaVariate", P_HYPO_BETA[0], P_HYPO_BETA[1])),
+				new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic event in intervention branch (adjusted from rate/100 patient-month)", 
+					DEF_SOURCE, RR_HYPO, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", RR_HYPO_BETA[0], RR_HYPO_BETA[1]))),
+				new SecondOrderParam(STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "", 
+					DU_HYPO_EPISODE, "UniformVariate", LIMITS_DU_HYPO_EPISODE[0], LIMITS_DU_HYPO_EPISODE[1]),
+				new SecondOrderCostParam(STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", 
+					"https://doi.org/10.1007/s13300-017-0285-0", 2017, 716.82, SecondOrderParamsRepository.getRandomVariateForCost(716.82))
+				);
 	}
-
-	@Override
-	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
-		final double[] paramsDeathHypo = SecondOrderParamsRepository.betaParametersFromNormal(0.0063, SecondOrderParamsRepository.sdFrom95CI(new double[]{0.0058, 0.0068}));
-		secParams.addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode (adjusted from rate/100 patient-month)", 
-				DEF_SOURCE, P_HYPO, RandomVariateFactory.getInstance("BetaVariate", P_HYPO_BETA[0], P_HYPO_BETA[1])));
-		secParams.addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", 
-				"Canada", 0.0063, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
-		secParams.addOtherParam(new SecondOrderParam(STR_RR_HYPO, "Relative risk of severe hypoglycemic event in intervention branch (adjusted from rate/100 patient-month)", 
-				DEF_SOURCE, RR_HYPO, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", RR_HYPO_BETA[0], RR_HYPO_BETA[1]))));
-
-		secParams.addCostParam(new SecondOrderCostParam(STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", 
-				"https://doi.org/10.1007/s13300-017-0285-0", 2017, 716.82, SecondOrderParamsRepository.getRandomVariateForCost(716.82)));
-
-		secParams.addUtilParam(new SecondOrderParam(STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "", 
-				DU_HYPO_EPISODE, "UniformVariate", LIMITS_DU_HYPO_EPISODE[0], LIMITS_DU_HYPO_EPISODE[1]));
-	}
-
-	@Override
-	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new LySevereHypoglycemiaEventInstance(secParams);
-	}
-	
-	public class LySevereHypoglycemiaEventInstance extends AcuteComplicationSubmodel {
-		private final double cost;
-		private final double du;
-		
-		/**
-		 * 
-		 */
-		public LySevereHypoglycemiaEventInstance(SecondOrderParamsRepository secParams) {
-			super(new AnnualRiskBasedTimeToMultipleEventParam(
-					secParams.getRngFirstOrder(), 
-					secParams.getnPatients(), 
-					secParams.getProbParam(STR_P_HYPO), 
-					new InterventionSpecificComplicationRR(new double[]{1.0, secParams.getOtherParam(STR_RR_HYPO)})), 
-				new DeathWithEventParam(
-					secParams.getRngFirstOrder(), 
-					secParams.getnPatients(), 
-					secParams.getProbParam(STR_P_DEATH_HYPO)));
-			
-			cost = secParams.getCostForAcuteComplication(DiabetesAcuteComplications.SEVERE_HYPO);
-			du = secParams.getDisutilityForAcuteComplication(DiabetesAcuteComplications.SEVERE_HYPO);
-		}
-		
-		/* (non-Javadoc)
-		 * @see es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel#getCostOfComplication(es.ull.iis.simulation.hta.T1DM.T1DMPatient, es.ull.iis.simulation.hta.T1DM.T1DMComorbidity)
-		 */
-		@Override
-		public double getCostOfComplication(DiabetesPatient pat) {
-			return cost;
-		}
-
-		/* (non-Javadoc)
-		 * @see es.ull.iis.simulation.hta.T1DM.ComplicationSubmodel#getDisutility(es.ull.iis.simulation.hta.T1DM.T1DMPatient, es.ull.iis.simulation.hta.T1DM.params.UtilityCalculator.DisutilityCombinationMethod)
-		 */
-		@Override
-		public double getDisutility(DiabetesPatient pat) {
-			return du;
-		}
-	}
-
 }

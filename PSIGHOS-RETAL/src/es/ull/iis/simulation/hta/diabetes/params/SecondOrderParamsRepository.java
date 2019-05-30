@@ -63,7 +63,8 @@ public abstract class SecondOrderParamsRepository {
 	public static final String STR_DISUTILITY_PREFIX = "DU_";
 	/** String prefix for death parameters */
 	public static final String STR_DEATH_PREFIX = "DEATH_";
-	
+	/** String prefix for initial parameters */
+	public static final String STR_INIT_PREFIX = "INIT_";
 	/** String descriptor for diabetes with no complications */
 	public static final String STR_NO_COMPLICATIONS = "DNC";
 	/** String descriptor for the discount rate */
@@ -313,6 +314,16 @@ public abstract class SecondOrderParamsRepository {
 	}
 
 	/**
+	 * Returns a value for the probability of starting with a complication
+	 * @param stage Complication
+	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
+	 */	
+	public double getInitProbParam(Named stage) {
+		final SecondOrderParam param = probabilityParams.get(getInitProbString(stage));
+		return (param == null) ? 0.0 : param.getValue(baseCase); 
+	}
+
+	/**
 	 * Returns the increase mortality rate associated to a complication or complication stage; 1.0 if no additional risk is associated
 	 * @param stage Complication or complication stage
 	 * @return the increase mortality rate associated to a complication or complication stage; 1.0 if no additional risk is associated
@@ -527,6 +538,16 @@ public abstract class SecondOrderParamsRepository {
 		final String fromName = (from == null) ? STR_NO_COMPLICATIONS : from.name();
 		final String toName = "_" + to.name();
 		return STR_PROBABILITY_PREFIX + fromName + toName;
+	}
+	
+	/**
+	 * Builds a string that represents a probability of starting with a complication
+	 * @param to Final complication
+	 * @return a string that represents a probability of starting with a complication
+	 */
+	public static String getInitProbString(Named to) {
+		final String toName = "_" + to.name();
+		return STR_PROBABILITY_PREFIX + STR_INIT_PREFIX + toName;
 	}
 
 	/**

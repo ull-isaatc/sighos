@@ -5,16 +5,15 @@ package es.ull.iis.simulation.hta.diabetes.submodels;
 
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
+import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesProgression;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.outcomes.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.diabetes.params.AnnualRiskBasedTimeToEventParam;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
 import es.ull.iis.simulation.hta.diabetes.params.HbA1c1PPComplicationRR;
 import es.ull.iis.simulation.hta.diabetes.params.RRCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
@@ -169,6 +168,8 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.STROKE, 
 				"Disutility of stroke. Average of autonomous and dependant stroke disutilities", 
 				"", DU_STROKE[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuSTROKE[0], paramsDuSTROKE[1])));
+
+		addSecondOrderInitProportion(secParams);
 	}
 
 	public CHDComplicationSelector getRandomVariateForCHDComplications(SecondOrderParamsRepository secParams) {
@@ -191,49 +192,36 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 	}
 
 	@Override
-	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new SimpleCHDSubmodelInstance(secParams);
+	public int getNTransitions() {
+		return CHDTransitions.values().length;
 	}
 
-	public class SimpleCHDSubmodelInstance extends ChronicComplicationSubmodel {
-		private final double[] invProb;
-		private final RRCalculator[] rr;
+	@Override
+	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
+		return new Instance(secParams);
+	}
+
+	public class Instance extends ChronicComplicationSubmodel {
 		/** Random value for predicting time to event [0] and type of event [1]*/
 		private final double [][] rnd;
 		/** Random value for predicting CHD-related death */ 
 		private final double [] rndDeath;
 		private final CHDComplicationSelector pCHDComplication;
-		private final double[] costMI;
-		private final double[] costHF;
-		private final double[] costStroke;
-		private final double[] costAngina;
 
 		private final double[]pDeathMI;
 		private final double pDeathStroke;
-		private final double duMI;
-		private final double duHF;
-		private final double duStroke;
-		private final double duAngina;
 		
 		/**
 		 * 
 		 */
-		public SimpleCHDSubmodelInstance(SecondOrderParamsRepository secParams) {
-			super();
+		public Instance(SecondOrderParamsRepository secParams) {
+			super(SimpleCHDSubmodel.this);
 			
-			invProb = new double[CHDTransitions.values().length];
-			invProb[CHDTransitions.HEALTHY_CHD.ordinal()] = -1 / secParams.getProbability(DiabetesChronicComplications.CHD);
-			invProb[CHDTransitions.NEU_CHD.ordinal()] = -1 / secParams.getProbability(DiabetesChronicComplications.NEU, DiabetesChronicComplications.CHD);
-			invProb[CHDTransitions.NPH_CHD.ordinal()] = -1 / secParams.getProbability(DiabetesChronicComplications.NPH, DiabetesChronicComplications.CHD);
-			invProb[CHDTransitions.RET_CHD.ordinal()] = -1 / secParams.getProbability(DiabetesChronicComplications.RET, DiabetesChronicComplications.CHD);
-			this.rr = new RRCalculator[CHDTransitions.values().length];
 			final RRCalculator rrToCHD = new HbA1c1PPComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + DiabetesChronicComplications.CHD.name()), REF_HBA1C);
-			rr[CHDTransitions.HEALTHY_CHD.ordinal()] = rrToCHD;
-			rr[CHDTransitions.NEU_CHD.ordinal()] = rrToCHD;
-			rr[CHDTransitions.NPH_CHD.ordinal()] = rrToCHD;
-			rr[CHDTransitions.RET_CHD.ordinal()] = rrToCHD;
 			final int nPatients = secParams.getnPatients();
 			final RandomNumber rng = secParams.getRngFirstOrder();
+			
+			
 			rnd = new double[nPatients][2];
 			rndDeath = new double[nPatients];
 			
@@ -243,16 +231,24 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 				rndDeath[i] = rng.draw();
 			}
 			this.pCHDComplication = getRandomVariateForCHDComplications(secParams);
-			
-			costAngina = secParams.getCostsForChronicComplication(ANGINA);
-			costStroke = secParams.getCostsForChronicComplication(STROKE);
-			costMI = secParams.getCostsForChronicComplication(MI);
-			costHF = secParams.getCostsForChronicComplication(HF);		
 
-			duAngina = secParams.getDisutilityForChronicComplication(ANGINA);
-			duStroke = secParams.getDisutilityForChronicComplication(STROKE);
-			duMI = secParams.getDisutilityForChronicComplication(MI);
-			duHF = secParams.getDisutilityForChronicComplication(HF);		
+			addTime2Event(CHDTransitions.HEALTHY_CHD.ordinal(), 
+				new AnnualRiskBasedTimeToEventParam(rng, nPatients, 
+				secParams.getProbability(DiabetesChronicComplications.CHD), rrToCHD));
+			addTime2Event(CHDTransitions.NEU_CHD.ordinal(), 
+				new AnnualRiskBasedTimeToEventParam(rng, nPatients, 
+				secParams.getProbability(DiabetesChronicComplications.NEU, DiabetesChronicComplications.CHD), rrToCHD));
+			addTime2Event(CHDTransitions.NPH_CHD.ordinal(), 
+					new AnnualRiskBasedTimeToEventParam(rng, nPatients, 
+					secParams.getProbability(DiabetesChronicComplications.NPH, DiabetesChronicComplications.CHD), rrToCHD));
+			addTime2Event(CHDTransitions.RET_CHD.ordinal(), 
+					new AnnualRiskBasedTimeToEventParam(rng, nPatients, 
+					secParams.getProbability(DiabetesChronicComplications.RET, DiabetesChronicComplications.CHD), rrToCHD));
+
+			addData(secParams, ANGINA);
+			addData(secParams, STROKE);
+			addData(secParams, MI);
+			addData(secParams, HF);
 			
 			pDeathMI = new double[] {secParams.getOtherParam(STR_DEATH_MI_MAN), secParams.getOtherParam(STR_DEATH_MI_WOMAN)};
 			pDeathStroke = secParams.getOtherParam(STR_DEATH_STROKE);
@@ -267,21 +263,21 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 				if (!pat.hasComplication(DiabetesChronicComplications.CHD)) {
 					long timeToCHD = pat.getTimeToDeath();
 					if (pat.hasComplication(DiabetesChronicComplications.NEU)) {
-						final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.NEU_CHD);
+						final long newTimeToCHD = getTimeToEvent(pat, CHDTransitions.NEU_CHD.ordinal(), timeToCHD);
 						if (newTimeToCHD < timeToCHD)
 							timeToCHD = newTimeToCHD;
 					}
 					if (pat.hasComplication(DiabetesChronicComplications.NPH)) {
-						final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.NPH_CHD);
+						final long newTimeToCHD = getTimeToEvent(pat, CHDTransitions.NPH_CHD.ordinal(), timeToCHD);
 						if (newTimeToCHD < timeToCHD)
 							timeToCHD = newTimeToCHD;
 					}
 					if (pat.hasComplication(DiabetesChronicComplications.RET)) {
-						final long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.RET_CHD);
+						final long newTimeToCHD = getTimeToEvent(pat, CHDTransitions.RET_CHD.ordinal(), timeToCHD);
 						if (newTimeToCHD < timeToCHD)
 							timeToCHD = newTimeToCHD;
 					}
-					long newTimeToCHD = getAnnualBasedTimeToEvent(pat, CHDTransitions.HEALTHY_CHD);
+					long newTimeToCHD = getTimeToEvent(pat, CHDTransitions.HEALTHY_CHD.ordinal(), timeToCHD);
 					if (newTimeToCHD < timeToCHD)
 						timeToCHD = newTimeToCHD;
 					if (timeToCHD < pat.getTimeToDeath()) {
@@ -326,40 +322,18 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 			return prog;
 		}
 
-		private long getAnnualBasedTimeToEvent(DiabetesPatient pat, CHDTransitions transition) {
-			return CommonParams.getAnnualBasedTimeToEvent(pat, invProb[transition.ordinal()], rnd[pat.getIdentifier()][0], rr[transition.ordinal()].getRR(pat));
-		}
-
-		@Override
-		public TreeSet<DiabetesComplicationStage> getInitialStage(DiabetesPatient pat) {
-			return new TreeSet<>();
-		}
-
 		@Override
 		public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 
 			if (state.contains(ANGINA))
-				return costAngina[0];
+				return getData(ANGINA).getCosts()[0];
 			else if (state.contains(STROKE))
-				return costStroke[0];
+				return getData(STROKE).getCosts()[0];
 			else if (state.contains(HF))
-				return costHF[0];
+				return getData(HF).getCosts()[0];
 			else if (state.contains(MI))
-				return costMI[0];				
-			return 0.0;
-		}
-
-		@Override
-		public double getCostOfComplication(DiabetesPatient pat, DiabetesComplicationStage newEvent) {
-			if (HF.equals(newEvent))
-				return costHF[1];
-			if (MI.equals(newEvent))
-				return costMI[1];
-			if (STROKE.equals(newEvent))
-				return costStroke[1];
-			if (ANGINA.equals(newEvent))
-				return costAngina[1];
+				return getData(MI).getCosts()[0];				
 			return 0.0;
 		}
 
@@ -368,13 +342,13 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 
 			if (state.contains(ANGINA))
-				return duAngina;
+				return getData(ANGINA).getDisutility();
 			else if (state.contains(STROKE))
-				return duStroke;
+				return getData(STROKE).getDisutility();
 			else if (state.contains(HF))
-				return duHF;
+				return getData(HF).getDisutility();
 			else if (state.contains(MI))
-				return duMI;				
+				return getData(MI).getDisutility();				
 			return 0.0;
 		}
 	}
