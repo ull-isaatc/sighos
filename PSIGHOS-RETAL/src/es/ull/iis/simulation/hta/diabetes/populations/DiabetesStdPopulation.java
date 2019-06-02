@@ -16,8 +16,6 @@ import simkit.random.RandomVariate;
  *
  */
 public abstract class DiabetesStdPopulation implements DiabetesPopulation {
-	/** The random number generator for first order values */
-	private final RandomNumber rng;
 	/** Probability of a patient of being sex=male */
 	private final double pMan;
 	/** Distribution to set the age of the patients when created */
@@ -28,19 +26,21 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 	private final RandomVariate baselineDurationOfDiabetes;
 	/** Diabetes type */
 	private final DiabetesType type;
+	/** Random number generator */
+	private final RandomNumber rng;
 
 	/**
 	 * Creates a standard population
 	 * @param secondOrder The second order repository that defines the second-order uncertainty on the parameters
 	 * @param type Diabetes type
 	 */
-	public DiabetesStdPopulation(final SecondOrderParamsRepository secParams, final DiabetesType type) {
+	public DiabetesStdPopulation(final DiabetesType type) {
 		this.type = type;
-		this.rng = secParams.getRngFirstOrder();
 		pMan = getPMan();
 		baselineAge = getBaselineAge();
 		baselineHBA1c = getBaselineHBA1c();
 		baselineDurationOfDiabetes = getBaselineDurationOfDiabetes();
+		rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 	}
 
 	@Override

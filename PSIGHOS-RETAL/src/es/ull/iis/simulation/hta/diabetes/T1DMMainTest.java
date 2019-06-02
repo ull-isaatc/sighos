@@ -11,8 +11,8 @@ import es.ull.iis.simulation.hta.diabetes.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.CostListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.QALYListener;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.T1DMPatientInfoView;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.T1DMTimeFreeOfComplicationsView;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.DiabetesPatientInfoView;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.TimeFreeOfComplicationsView;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
@@ -39,10 +39,10 @@ public class T1DMMainTest {
 	private static void addListeners(DiabetesSimulation simul) {
 //		simul.addInfoReceiver(new StdInfoView());
 		if (BASIC_TEST_ONE_PATIENT) {
-			simul.addInfoReceiver(new T1DMPatientInfoView());
+			simul.addInfoReceiver(new DiabetesPatientInfoView());
 		}
 //		simul.addInfoReceiver(new PatientCounterHistogramView(CommonParams.MIN_AGE, CommonParams.MAX_AGE, 5));
-//		simul.addInfoReceiver(new T1DMPatientPrevalenceView(simul.getTimeUnit(), T1DMPatientPrevalenceView.buildAgesInterval(25, 90, 5, true)));
+//		simul.addInfoReceiver(new PrevalenceView(simul.getTimeUnit(), PrevalenceView.buildAgesInterval(25, 90, 5, true)));
 	}
 	
 	private static String getStrHeader() {
@@ -54,12 +54,12 @@ public class T1DMMainTest {
 			str.append(LYListener.getStrHeader(interventions.get(i).getShortName()));
 			str.append(QALYListener.getStrHeader(interventions.get(i).getShortName()));
 		}
-		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredComplicationStages()));
+		str.append(TimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredComplicationStages()));
 		str.append(secParams.getStrHeader());
 		return str.toString();
 	}
 	
-	private static String print(DiabetesSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, T1DMTimeFreeOfComplicationsView timeFreeListener) {
+	private static String print(DiabetesSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, TimeFreeOfComplicationsView timeFreeListener) {
 		final StringBuilder str = new StringBuilder();
 		final int nInterventions = secParams.getNInterventions();
 		str.append("" +  simul.getIdentifier() + "\t");
@@ -75,7 +75,7 @@ public class T1DMMainTest {
 	private static void simulateInterventions(int id, boolean baseCase, DiabetesIntervention[] interventions) {
 		final CommonParams common = new CommonParams(secParams);
 		final int nInterventions = secParams.getNInterventions();
-		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(N_PATIENTS, nInterventions, false, secParams.getRegisteredComplicationStages());
+		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(N_PATIENTS, nInterventions, false, secParams.getRegisteredComplicationStages());
 		final CostListener[] costListeners = new CostListener[nInterventions];
 		final LYListener[] lyListeners = new LYListener[nInterventions];
 		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
@@ -86,7 +86,7 @@ public class T1DMMainTest {
 		}
 		final DiabetesIntervention[] intInstances = secParams.getInterventions();
 	
-		DiabetesSimulation simul = new DiabetesSimulation(id, intInstances[0], N_PATIENTS, common, secParams.getPopulations(), BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1);
+		DiabetesSimulation simul = new DiabetesSimulation(id, intInstances[0], N_PATIENTS, common, secParams.getPopulation(), BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);

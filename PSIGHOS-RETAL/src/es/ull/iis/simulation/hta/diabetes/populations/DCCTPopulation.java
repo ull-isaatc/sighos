@@ -27,8 +27,8 @@ public class DCCTPopulation extends DiabetesStdPopulation {
 	 * @param secParams
 	 * @param type
 	 */
-	public DCCTPopulation(SecondOrderParamsRepository secParams) {
-		super(secParams, DiabetesType.T1);
+	public DCCTPopulation() {
+		super(DiabetesType.T1);
 	}
 
 	@Override

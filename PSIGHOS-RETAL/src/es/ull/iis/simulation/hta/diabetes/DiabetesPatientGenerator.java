@@ -24,6 +24,7 @@ public class DiabetesPatientGenerator extends TimeDrivenGenerator<DiabetesPatien
 	private final DiabetesPatient[] copyOf;
 	/** Intervention assigned to all the patients created */
 	private final DiabetesIntervention intervention;
+	private final DiabetesPopulation population;
 
 	/**
 	 * Creates a patient generator that generates patients from scratch
@@ -31,13 +32,13 @@ public class DiabetesPatientGenerator extends TimeDrivenGenerator<DiabetesPatien
 	 * @param nPatients Amount of patients to create
 	 * @param intervention Intervention assigned to the patients
 	 */
-	public DiabetesPatientGenerator(DiabetesSimulation simul, int nPatients, DiabetesIntervention intervention, DiabetesPatientGenerationInfo[] population) {
+	public DiabetesPatientGenerator(DiabetesSimulation simul, int nPatients, DiabetesIntervention intervention, DiabetesPopulation population) {
 		super(simul, nPatients, new SimulationPeriodicCycle(TimeUnit.YEAR, (long)0, new SimulationTimeFunction(TimeUnit.DAY, "ConstantVariate", 365), 1));
 		this.simul = simul;
 		this.copyOf = null;
 		this.intervention = intervention;
-		for (DiabetesPatientGenerationInfo info : population) 
-			add(info);
+		this.population = population;
+		add(new DiabetesPatientGenerationInfo());
 	}
 	
 	/**
@@ -52,14 +53,15 @@ public class DiabetesPatientGenerator extends TimeDrivenGenerator<DiabetesPatien
 		this.simul = simul;
 		this.copyOf = copyOf;
 		this.intervention = intervention;
-		add(new DiabetesPatientGenerationInfo(null));
+		this.population = null;
+		add(new DiabetesPatientGenerationInfo());
 	}
 
 	@Override
 	public EventSource createEventSource(int ind, DiabetesPatientGenerationInfo info) {
 		DiabetesPatient p = null;
 		if (copyOf == null) {
-			p = new DiabetesPatient(simul, intervention, info.getPopulation().getPatientProfile());
+			p = new DiabetesPatient(simul, intervention, population);
 		}
 		else {
 			p = new DiabetesPatient(simul, copyOf[ind], intervention);
@@ -68,20 +70,10 @@ public class DiabetesPatientGenerator extends TimeDrivenGenerator<DiabetesPatien
 		return p;
 	}
 
-	public static class DiabetesPatientGenerationInfo extends es.ull.iis.simulation.model.Generator.GenerationInfo {
-		final DiabetesPopulation pop;
+	protected static class DiabetesPatientGenerationInfo extends es.ull.iis.simulation.model.Generator.GenerationInfo {
 
-		public DiabetesPatientGenerationInfo(final DiabetesPopulation pop) {
-			this(1.0, pop);
-		}
-		
-		public DiabetesPatientGenerationInfo(final double prop, final DiabetesPopulation pop) {
-			super(prop);
-			this.pop = pop;
-		}
-		
-		public DiabetesPopulation getPopulation() {
-			return pop;
+		public DiabetesPatientGenerationInfo() {
+			super(1.0);
 		}
 	}
 }

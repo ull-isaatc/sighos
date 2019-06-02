@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.diabetes.canada;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
-import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.populations.DiabetesStdPopulation;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -19,8 +18,8 @@ public class CanadaPopulation extends DiabetesStdPopulation {
 	 * @param secParams
 	 * @param type
 	 */
-	public CanadaPopulation(SecondOrderParamsRepository secParams) {
-		super(secParams, DiabetesType.T1);
+	public CanadaPopulation() {
+		super(DiabetesType.T1);
 	}
 
 	/* (non-Javadoc)

@@ -12,6 +12,7 @@ import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
+import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
@@ -72,15 +73,15 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 	 * @param simul Simulation this patient belongs to
 	 * @param intervention Intervention assigned to this patient
 	 */
-	public DiabetesPatient(DiabetesSimulation simul, DiabetesIntervention intervention, DiabetesPatientProfile profile) {
+	public DiabetesPatient(final DiabetesSimulation simul, final DiabetesIntervention intervention, final DiabetesPopulation population) {
 		super(simul, simul.getPatientCounter(), OBJ_TYPE_ID);
 		// Initialize patients with no complications
 		this.intervention = intervention;
 		this.nIntervention = intervention.getIdentifier();
 		this.clonedFrom = null;
 		this.dead = false;
-		this.profile = profile;
 		this.commonParams = simul.getCommonParams();
+		this.profile = population.getPatientProfile();
 		this.detailedState = new TreeSet<>();
 		this.state = EnumSet.noneOf(DiabetesChronicComplications.class);
 
@@ -109,7 +110,6 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 		this.commonParams = original.commonParams;
 		this.detailedState = new TreeSet<>();
 		this.state = EnumSet.noneOf(DiabetesChronicComplications.class);
-
 		this.profile = original.profile;
 		this.initAge = original.initAge;
 		this.baseDurationOfDiabetes = original.baseDurationOfDiabetes;
@@ -172,7 +172,7 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 	public DiabetesIntervention getIntervention() {
 		return intervention;
 	}
-
+	
 	/**
 	 * Returns the patient this patient was cloned from; null if this is an original patient
 	 * @return the patient this patient was cloned from; null if this is an original patient

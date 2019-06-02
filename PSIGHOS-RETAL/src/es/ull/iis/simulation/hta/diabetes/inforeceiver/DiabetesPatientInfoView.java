@@ -14,7 +14,7 @@ import es.ull.iis.simulation.inforeceiver.Listener;
  * @author Iván Castilla
  *
  */
-public class T1DMPatientInfoView extends Listener {
+public class DiabetesPatientInfoView extends Listener {
 	private final PrintStream out = System.out;
 	long simulationInit = 0;
 	private final int specificPatient;
@@ -23,7 +23,7 @@ public class T1DMPatientInfoView extends Listener {
 	/**
 	 * @param simul
 	 */
-	public T1DMPatientInfoView(int specificPatient) {
+	public DiabetesPatientInfoView(int specificPatient) {
 		super("Standard patient viewer");
 		addGenerated(T1DMPatientInfo.class);
 		addEntrance(T1DMPatientInfo.class);
@@ -31,7 +31,7 @@ public class T1DMPatientInfoView extends Listener {
 		this.specificPatient = specificPatient;
 	}
 
-	public T1DMPatientInfoView() {
+	public DiabetesPatientInfoView() {
 		this(-1);
 	}
 

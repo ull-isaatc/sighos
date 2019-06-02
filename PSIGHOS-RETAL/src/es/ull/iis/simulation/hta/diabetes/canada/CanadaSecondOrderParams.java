@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.diabetes.canada;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatientGenerator.DiabetesPatientGenerationInfo;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.outcomes.SubmodelCostCalculator;
 import es.ull.iis.simulation.hta.diabetes.outcomes.UtilityCalculator;
@@ -32,8 +31,7 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 	 * @param nPatients Number of patients to create
 	 */
 	public CanadaSecondOrderParams(int nPatients) {
-		super(nPatients);
-		registerPopulation(new DiabetesPatientGenerationInfo(new CanadaPopulation(this)));
+		super(nPatients, new CanadaPopulation());
 		BasicConfigParams.DEF_U_GENERAL_POP = 1.0;
 		
 		registerComplication(new CanadaCHDSubmodel());

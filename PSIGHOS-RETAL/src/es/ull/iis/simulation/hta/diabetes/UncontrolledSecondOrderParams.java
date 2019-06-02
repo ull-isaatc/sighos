@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.diabetes;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatientGenerator.DiabetesPatientGenerationInfo;
 import es.ull.iis.simulation.hta.diabetes.interventions.CSIIIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.UncontrolledSAPIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
@@ -54,8 +53,7 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 	 * @param nPatients Number of patients to create
 	 */
 	public UncontrolledSecondOrderParams(int nPatients) {
-		super(nPatients);
-		registerPopulation(new DiabetesPatientGenerationInfo(new UncontrolledT1DMPopulation(this)));
+		super(nPatients, new UncontrolledT1DMPopulation());
 		if (BasicConfigParams.USE_SIMPLE_MODELS) {
 			registerComplication(new SimpleRETSubmodel());
 			registerComplication(new SimpleNPHSubmodel());
@@ -85,7 +83,7 @@ public class UncontrolledSecondOrderParams extends SecondOrderParamsRepository {
 
 	@Override
 	public DeathSubmodel getDeathSubmodel() {
-		final StandardSpainDeathSubmodel dModel = new StandardSpainDeathSubmodel(getRngFirstOrder(), nPatients);
+		final StandardSpainDeathSubmodel dModel = new StandardSpainDeathSubmodel(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients);
 
 		if (BasicConfigParams.USE_SIMPLE_MODELS) {
 			dModel.addIMR(SimpleNPHSubmodel.NPH, getIMR(SimpleNPHSubmodel.NPH));

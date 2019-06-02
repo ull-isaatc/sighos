@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.diabetes.DCCT;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatientGenerator.DiabetesPatientGenerationInfo;
 import es.ull.iis.simulation.hta.diabetes.interventions.DCCTConventionalIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.DCCTIntensiveIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
@@ -36,8 +35,7 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 	 * @param nPatients Number of patients to create
 	 */
 	public DCCTSecondOrderParams(int nPatients) {
-		super(nPatients);
-		registerPopulation(new DiabetesPatientGenerationInfo(new DCCTPopulation(this)));
+		super(nPatients, new DCCTPopulation());
 		if (BasicConfigParams.USE_SIMPLE_MODELS) {
 			registerComplication(new SimpleRETSubmodel());
 			registerComplication(new SimpleNPHSubmodel());
@@ -58,7 +56,7 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 
 	@Override
 	public DeathSubmodel getDeathSubmodel() {
-		final StandardSpainDeathSubmodel dModel = new StandardSpainDeathSubmodel(getRngFirstOrder(), nPatients);
+		final StandardSpainDeathSubmodel dModel = new StandardSpainDeathSubmodel(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients);
 
 		if (BasicConfigParams.USE_SIMPLE_MODELS) {
 			dModel.addIMR(SimpleNPHSubmodel.NPH, getIMR(SimpleNPHSubmodel.NPH));

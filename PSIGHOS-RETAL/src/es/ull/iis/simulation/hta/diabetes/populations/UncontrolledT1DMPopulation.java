@@ -47,9 +47,8 @@ public class UncontrolledT1DMPopulation extends DiabetesStdPopulation {
 	 * @param secParams
 	 * @param type
 	 */
-	public UncontrolledT1DMPopulation(SecondOrderParamsRepository secParams) {
-		super(secParams, DiabetesType.T1);
-		// TODO Auto-generated constructor stub
+	public UncontrolledT1DMPopulation() {
+		super(DiabetesType.T1);
 	}
 
 	@Override

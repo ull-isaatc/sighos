@@ -111,7 +111,7 @@ public class CanadaNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 			final RRCalculator rrToNPH = new HbA1c10ReductionComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + NPH.name()), REF_HBA1C); 
 
 			final int nPatients = secParams.getnPatients();
-			final RandomNumber rng = secParams.getRngFirstOrder();
+			final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 
 			addTime2Event(NPHTransitions.HEALTHY_NPH.ordinal(), 
 					new AnnualRiskBasedTimeToEventParam(rng, nPatients, 

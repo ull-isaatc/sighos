@@ -63,12 +63,12 @@ public class DCCTSevereHypoglycemiaEvent extends SecondOrderAcuteComplicationSub
 		 */
 		public DCCTSevereHypoglycemiaEventInstance(SecondOrderParamsRepository secParams) {
 			super(new AnnualRiskBasedTimeToMultipleEventParam(
-					secParams.getRngFirstOrder(), 
+					SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
 					secParams.getnPatients(), 
 					secParams.getProbParam(STR_P_HYPO), 
 					new InterventionSpecificComplicationRR(new double[]{1.0, secParams.getOtherParam(STR_RR_HYPO)})), 
 				new DeathWithEventParam(
-						secParams.getRngFirstOrder(), 
+						SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
 						secParams.getnPatients(), 
 						secParams.getProbParam(STR_P_DEATH_HYPO)));
 			

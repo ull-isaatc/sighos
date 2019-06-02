@@ -172,7 +172,7 @@ public class SheffieldRETSubmodel extends SecondOrderChronicComplicationSubmodel
 		public Instance(SecondOrderParamsRepository secParams) {
 			super(SheffieldRETSubmodel.this);
 			final int nPatients = secParams.getnPatients();
-			final RandomNumber rng = secParams.getRngFirstOrder();
+			final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 			
 			final RRCalculator rrBGRET = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + BGRET));
 			final RRCalculator rrPRET = new SheffieldComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + PRET));

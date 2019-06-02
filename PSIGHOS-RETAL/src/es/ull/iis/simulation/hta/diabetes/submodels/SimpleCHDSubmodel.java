@@ -219,7 +219,7 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 			
 			final RRCalculator rrToCHD = new HbA1c1PPComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + DiabetesChronicComplications.CHD.name()), REF_HBA1C);
 			final int nPatients = secParams.getnPatients();
-			final RandomNumber rng = secParams.getRngFirstOrder();
+			final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 			
 			
 			rnd = new double[nPatients][2];

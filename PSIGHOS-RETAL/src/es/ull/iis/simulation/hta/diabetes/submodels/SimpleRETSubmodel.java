@@ -112,7 +112,7 @@ public class SimpleRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 			super(SimpleRETSubmodel.this);
 			
 			final int nPatients = secParams.getnPatients();
-			final RandomNumber rng = secParams.getRngFirstOrder();
+			final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 
 			addTime2Event(RETTransitions.HEALTHY_RET.ordinal(), 
 				new AnnualRiskBasedTimeToEventParam(rng, nPatients, secParams.getProbability(RET), 

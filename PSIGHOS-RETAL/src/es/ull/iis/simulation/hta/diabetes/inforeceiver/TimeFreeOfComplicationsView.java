@@ -19,7 +19,7 @@ import es.ull.iis.util.Statistics;
  * @author Iván Castilla
  *
  */
-public class T1DMTimeFreeOfComplicationsView extends Listener implements StructuredOutputListener {
+public class TimeFreeOfComplicationsView extends Listener implements StructuredOutputListener {
 	private final double [][][] timeToComplications;
 	private final boolean printFirstOrderVariance;
 	private final int nInterventions;
@@ -28,7 +28,7 @@ public class T1DMTimeFreeOfComplicationsView extends Listener implements Structu
 	/**
 	 * @param simUnit The time unit used within the simulation
 	 */
-	public T1DMTimeFreeOfComplicationsView(int nPatients, int nInterventions, boolean printFirstOrderVariance, ArrayList<DiabetesComplicationStage> availableHealthStates) {
+	public TimeFreeOfComplicationsView(int nPatients, int nInterventions, boolean printFirstOrderVariance, ArrayList<DiabetesComplicationStage> availableHealthStates) {
 		super("Standard patient viewer");
 		this.availableHealthStates = availableHealthStates;
 		timeToComplications = new double[nInterventions][availableHealthStates.size()][nPatients];

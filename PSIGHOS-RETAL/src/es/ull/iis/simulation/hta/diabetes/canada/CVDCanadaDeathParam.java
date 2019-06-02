@@ -7,6 +7,7 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
 import es.ull.iis.simulation.hta.diabetes.params.RRCalculator;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.UniqueEventParam;
 
 /**
@@ -31,7 +32,7 @@ public class CVDCanadaDeathParam extends UniqueEventParam<Long> {
 	
 	private final RRCalculator rr;
 	public CVDCanadaDeathParam(CanadaSecondOrderParams secParams, RRCalculator rr) {
-		super(secParams.getRngFirstOrder(), secParams.getnPatients());
+		super(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients());
 		this.rr = rr;
 	}
 

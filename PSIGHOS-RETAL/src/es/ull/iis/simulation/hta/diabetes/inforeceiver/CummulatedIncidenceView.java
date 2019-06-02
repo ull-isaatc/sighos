@@ -17,7 +17,7 @@ import es.ull.iis.simulation.inforeceiver.Listener;
  * @author Iván Castilla
  *
  */
-public class T1DMCummulatedIncidenceView extends Listener {
+public class CummulatedIncidenceView extends Listener {
 	private final int nIntervals;
 	private final int [] nDeaths;
 	private final TreeMap<DiabetesComplicationStage, int[]> nComplications;
@@ -32,7 +32,7 @@ public class T1DMCummulatedIncidenceView extends Listener {
 	 * @param length
 	 * @param detailDeaths
 	 */
-	public T1DMCummulatedIncidenceView(int nIntervals, int nPatients, ArrayList<DiabetesComplicationStage> availableStates) {
+	public CummulatedIncidenceView(int nIntervals, int nPatients, ArrayList<DiabetesComplicationStage> availableStates) {
 		super("Counter of patients");
 		this.nIntervals = nIntervals;
 		this.nPatients = nPatients;

@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.diabetes;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatientGenerator.DiabetesPatientGenerationInfo;
 import es.ull.iis.simulation.hta.diabetes.interventions.LyCSIIIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.LySAPIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
@@ -56,8 +55,7 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 	 * @param nPatients Number of patients to create
 	 */
 	public LySecondOrderParams(int nPatients) {
-		super(nPatients);
-		registerPopulation(new DiabetesPatientGenerationInfo(new LyPopulation(this)));
+		super(nPatients, new LyPopulation());
 		registerComplication(new LyNPHSubmodel());
 		registerComplication(new LyRETSubmodel());
 		registerComplication(new SimpleCHDSubmodel());
@@ -82,7 +80,7 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 	
 	@Override
 	public DeathSubmodel getDeathSubmodel() {
-		final EmpiricalSpainDeathSubmodel dModel = new EmpiricalSpainDeathSubmodel(getRngFirstOrder(), nPatients);
+		final EmpiricalSpainDeathSubmodel dModel = new EmpiricalSpainDeathSubmodel(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients);
 //		final StandardSpainDeathSubmodel dModel = new StandardSpainDeathSubmodel(getRngFirstOrder(), nPatients);
 
 		dModel.addIMR(LyNPHSubmodel.ALB2, getIMR(LyNPHSubmodel.ALB2));

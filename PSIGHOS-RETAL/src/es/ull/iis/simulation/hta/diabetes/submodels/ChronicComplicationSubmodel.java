@@ -65,12 +65,12 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 		final double initP = secParams.getInitProbParam(stage);
 		data.put(stage, new StageData(secParams.getDisutilityForChronicComplication(stage),
 			secParams.getCostsForChronicComplication(stage), 
-			(initP > 0.0) ? new StartWithComplicationParam(secParams.getRngFirstOrder(), secParams.getnPatients(), initP) : null));
+			(initP > 0.0) ? new StartWithComplicationParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), initP) : null));
 	}
 
 	public void addData(double du, double[] cost, double initP, SecondOrderParamsRepository secParams, DiabetesComplicationStage stage) {
 		data.put(stage, new StageData(du, cost,
-			(initP > 0.0) ? new StartWithComplicationParam(secParams.getRngFirstOrder(), secParams.getnPatients(), initP) : null)); 
+			(initP > 0.0) ? new StartWithComplicationParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), initP) : null)); 
 	}
 	public StageData getData(DiabetesComplicationStage stage) {
 		return data.get(stage);

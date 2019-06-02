@@ -5,7 +5,6 @@ package es.ull.iis.simulation.hta.diabetes.populations;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -44,8 +43,8 @@ public class UnconsciousT1DMPopulation extends DiabetesStdPopulation {
 	/**
 	 * @param secParams
 	 */
-	public UnconsciousT1DMPopulation(SecondOrderParamsRepository secParams) {
-		super(secParams, DiabetesType.T1);
+	public UnconsciousT1DMPopulation() {
+		super(DiabetesType.T1);
 	}
 	
 	@Override

@@ -28,9 +28,9 @@ public class CanadaDeathSubmodel extends DeathSubmodel {
 	 */
 	public CanadaDeathSubmodel(CanadaSecondOrderParams secParams) {
 		int nPatients = secParams.getnPatients();
-		canadaTimeToDeathESRD = new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), nPatients, 0.164, SecondOrderParamsRepository.NO_RR);
-		canadaTimeToDeathNPH = new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), nPatients, 0.0036, SecondOrderParamsRepository.NO_RR);
-		canadaTimeToDeathLEA = new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), nPatients, 0.093, SecondOrderParamsRepository.NO_RR);
+		canadaTimeToDeathESRD = new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients, 0.164, SecondOrderParamsRepository.NO_RR);
+		canadaTimeToDeathNPH = new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients, 0.0036, SecondOrderParamsRepository.NO_RR);
+		canadaTimeToDeathLEA = new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients, 0.093, SecondOrderParamsRepository.NO_RR);
 		canadaTimeToDeathOther = new CanadaOtherCausesDeathParam(secParams);
 		canadaTimeToDeathCHD = new CVDCanadaDeathParam(secParams, SecondOrderParamsRepository.NO_RR);
 	}

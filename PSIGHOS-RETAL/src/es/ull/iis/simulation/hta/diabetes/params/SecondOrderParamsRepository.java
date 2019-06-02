@@ -10,12 +10,12 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatientGenerator;
 import es.ull.iis.simulation.hta.diabetes.Named;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.outcomes.UtilityCalculator;
+import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
@@ -84,7 +84,7 @@ public abstract class SecondOrderParamsRepository {
 	/** If true, forces the discount rate to be zero, even if previously defined by assigning a value through the {@link #STR_DISCOUNT_RATE} parameter */
 	private boolean discountZero = false;
 	/** A random number generator for first order parameter values */
-	final private RandomNumber rngFirstOrder;
+	private static RandomNumber RNG_FIRST_ORDER = RandomNumberFactory.getInstance();
 	/** The collection of defined chronic complication stages */
 	final protected ArrayList<DiabetesComplicationStage> registeredComplicationStages;
 	/** The collection of defined chronic complications */
@@ -97,22 +97,19 @@ public abstract class SecondOrderParamsRepository {
 	protected boolean baseCase = true;
 	/** Number of patients that should be generated */
 	final protected int nPatients;
-	/** Minimum age for patients within this repository */
-	private int minAge = BasicConfigParams.DEF_MIN_AGE;
-	/** The collection of populations */
-	final private ArrayList<DiabetesPatientGenerator.DiabetesPatientGenerationInfo> populations;
+	/** The population */
+	final private DiabetesPopulation population;
 	
 	/**
 	 * Creates a repository of second order parameters. By default, generates the base case values.
 	 * @param nPatients Number of patients to create
 	 */
-	protected SecondOrderParamsRepository(int nPatients) {
-		populations = new ArrayList<>();
-		probabilityParams = new TreeMap<>();
-		costParams = new TreeMap<>();
-		otherParams = new TreeMap<>();
-		utilParams = new TreeMap<>();
-		this.rngFirstOrder = RandomNumberFactory.getInstance();
+	protected SecondOrderParamsRepository(int nPatients, DiabetesPopulation population) {
+		this.population = population;
+		this.probabilityParams = new TreeMap<>();
+		this.costParams = new TreeMap<>();
+		this.otherParams = new TreeMap<>();
+		this.utilParams = new TreeMap<>();
 		this.nPatients = nPatients;
 		this.registeredComplicationStages = new ArrayList<>();
 		this.registeredChronicComplication = new SecondOrderChronicComplicationSubmodel[DiabetesChronicComplications.values().length];
@@ -124,7 +121,6 @@ public abstract class SecondOrderParamsRepository {
 
 	/**
 	 * Checks the model validity and returns a string with the missing components.
-	 * TODO: Check consistency between populations and submodels for the type of diabetes
 	 * @return null if everything is ok; a string with the missing components otherwise
 	 */
 	public String checkValidity() {
@@ -138,9 +134,6 @@ public abstract class SecondOrderParamsRepository {
 			if (registeredChronicComplication[i] == null) {
 				str.append("Submodel for chronic complication not found:\t").append(DiabetesChronicComplications.values()[i].getDescription()).append(System.lineSeparator());
 			}
-		}
-		if (populations.size() == 0) {
-			str.append("At least one population must be defined").append(System.lineSeparator());
 		}
 		if (registeredInterventions.size() == 0) {
 			str.append("At least one intervention must be defined").append(System.lineSeparator());
@@ -208,11 +201,11 @@ public abstract class SecondOrderParamsRepository {
 	}
 
 	/**
-	 * Returns the minimum age for patients within this repository
+	 * Returns the minimum age for patients within this repository, which is the minimum age of the population
 	 * @return the minimum age for patients within this repository
 	 */
 	public int getMinAge() {
-		return minAge;
+		return population.getMinAge();
 	}
 
 	/**
@@ -223,15 +216,10 @@ public abstract class SecondOrderParamsRepository {
 		return registeredInterventions.size();
 	}
 
-	public DiabetesPatientGenerator.DiabetesPatientGenerationInfo[] getPopulations() {
-		return populations.toArray(new DiabetesPatientGenerator.DiabetesPatientGenerationInfo[populations.size()]);
+	public DiabetesPopulation getPopulation() {
+		return population;
 	}
 	
-	protected void registerPopulation(DiabetesPatientGenerator.DiabetesPatientGenerationInfo pop) {
-		populations.add(pop);
-		if (pop.getPopulation().getMinAge() < minAge)
-			minAge = pop.getPopulation().getMinAge();
-	}
 	/**
 	 * Adds a probability parameter
 	 * @param param Probability parameter
@@ -388,11 +376,19 @@ public abstract class SecondOrderParamsRepository {
 	}
 	
 	/**
-	 * Returns the random number generator for first order parameter values
-	 * @return the random number generator for first order parameter values
+	 * Returns the random number generator for first order uncertainty
+	 * @return the random number generator for first order uncertainty
 	 */
-	public RandomNumber getRngFirstOrder() {
-		return rngFirstOrder;
+	public static RandomNumber getRNG_FIRST_ORDER() {
+		return RNG_FIRST_ORDER;
+	}
+
+	/**
+	 * Changes the default random number generator for first order uncertainty
+	 * @param rngFirstOrder New random number generator
+	 */
+	public static void setRNG_FIRST_ORDER(RandomNumber rngFirstOrder) {
+		RNG_FIRST_ORDER = rngFirstOrder;
 	}
 
 	/**

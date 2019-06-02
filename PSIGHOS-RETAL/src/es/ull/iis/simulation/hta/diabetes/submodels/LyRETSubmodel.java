@@ -164,7 +164,7 @@ public class LyRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 		public Instance(SecondOrderParamsRepository secParams) {
 			super(LyRETSubmodel.this);
 			final int nPatients = secParams.getnPatients();
-			final RandomNumber rng = secParams.getRngFirstOrder();
+			final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 
 			final RRCalculator rrBGRET = new CompoundRRCalculator(new RRCalculator[] 
 					{new HbA1c10ReductionComplicationRR(RR_BGRET, REF_DCCT_HBA1C), new AgeRelatedRR(RR_ADOLESCENCE)},

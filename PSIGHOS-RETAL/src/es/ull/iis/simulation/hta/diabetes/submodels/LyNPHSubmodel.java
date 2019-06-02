@@ -151,11 +151,11 @@ public class LyNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 			final RRCalculator rrToALB1 = new HbA1c10ReductionComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB1), REF_DCCT_HBA1C); 
 			final RRCalculator rrToALB2 = new HbA1c1PPComplicationRR(secParams.getOtherParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB2), REF_DCCT_HBA1C); 
 
-			addTime2Event(NPHTransitions.HEALTHY_ALB1.ordinal(), new DurationOfDiabetesBasedTimeToEventParam(secParams.getRngFirstOrder(), nPatients, P_DNC_ALB1, rrToALB1));
-			addTime2Event(NPHTransitions.ALB1_ALB2.ordinal(), new DurationOfDiabetesBasedTimeToEventParam(secParams.getRngFirstOrder(), nPatients, P_ALB1_ALB2, rrToALB2));
-			addTime2Event(NPHTransitions.ALB2_ESRD.ordinal(), new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), nPatients, secParams.getProbability(ALB2, ESRD), SecondOrderParamsRepository.NO_RR));
+			addTime2Event(NPHTransitions.HEALTHY_ALB1.ordinal(), new DurationOfDiabetesBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients, P_DNC_ALB1, rrToALB1));
+			addTime2Event(NPHTransitions.ALB1_ALB2.ordinal(), new DurationOfDiabetesBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients, P_ALB1_ALB2, rrToALB2));
+			addTime2Event(NPHTransitions.ALB2_ESRD.ordinal(), new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients, secParams.getProbability(ALB2, ESRD), SecondOrderParamsRepository.NO_RR));
 			// Assuming no extra RR from NEU to ALB1 with respect to healthy to ALB1  
-			addTime2Event(NPHTransitions.NEU_ALB1.ordinal(), new AnnualRiskBasedTimeToEventParam(secParams.getRngFirstOrder(), nPatients, secParams.getProbability(DiabetesChronicComplications.NEU, ALB1), SecondOrderParamsRepository.NO_RR));
+			addTime2Event(NPHTransitions.NEU_ALB1.ordinal(), new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients, secParams.getProbability(DiabetesChronicComplications.NEU, ALB1), SecondOrderParamsRepository.NO_RR));
 			
 			addData(secParams, ALB1);
 			addData(secParams, ESRD);

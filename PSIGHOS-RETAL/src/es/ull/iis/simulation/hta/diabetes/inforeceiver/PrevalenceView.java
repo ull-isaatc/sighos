@@ -19,7 +19,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author Iván Castilla
  *
  */
-public class T1DMPatientPrevalenceView extends Listener {
+public class PrevalenceView extends Listener {
 	private final int [] nPatients;
 	private final int [][] nComplications;
 	private final int [] nDeaths;
@@ -30,7 +30,7 @@ public class T1DMPatientPrevalenceView extends Listener {
 	/**
 	 * @param simUnit The time unit used within the simulation
 	 */
-	public T1DMPatientPrevalenceView(TimeUnit simUnit, double[][] ageIntervals, ArrayList<DiabetesComplicationStage> availableStates) {
+	public PrevalenceView(TimeUnit simUnit, double[][] ageIntervals, ArrayList<DiabetesComplicationStage> availableStates) {
 		super("Standard patient viewer");
 		this.availableStates = availableStates;
 		nPatients = new int[ageIntervals.length+1];

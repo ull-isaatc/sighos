@@ -25,11 +25,11 @@ import es.ull.iis.simulation.hta.diabetes.inforeceiver.HbA1cListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.PatientCounterHistogramView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.QALYListener;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.T1DMAcuteComplicationCounterListener;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.T1DMCummulatedIncidenceView;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.T1DMPatientInfoView;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.T1DMPatientPrevalenceView;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.T1DMTimeFreeOfComplicationsView;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.AcuteComplicationCounterListener;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.CummulatedIncidenceView;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.DiabetesPatientInfoView;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.PrevalenceView;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.TimeFreeOfComplicationsView;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
@@ -51,7 +51,7 @@ public class T1DMMain {
 	/** Number of patients to be generated during each simulation */
 	private final int nPatients;
 	private final SecondOrderParamsRepository secParams;
-	private final T1DMPatientInfoView patientListener;
+	private final DiabetesPatientInfoView patientListener;
 	private final PrintProgress progress;
 	/** Enables parallel execution of simulations */
 	private final boolean parallel;
@@ -81,7 +81,7 @@ public class T1DMMain {
 		this.parallel = parallel;
 		this.quiet = quiet;
 		if (singlePatientOutput != -1)
-			patientListener = new T1DMPatientInfoView(singlePatientOutput);
+			patientListener = new DiabetesPatientInfoView(singlePatientOutput);
 		else
 			patientListener = null;
 		this.printIncidence = printIncidence;
@@ -94,12 +94,12 @@ public class T1DMMain {
 
 	private void addListeners(DiabetesSimulation simul) {
 		if (printCummIncidence)
-			simul.addInfoReceiver(new T1DMCummulatedIncidenceView(timeHorizon, nPatients, secParams.getRegisteredComplicationStages()));
+			simul.addInfoReceiver(new CummulatedIncidenceView(timeHorizon, nPatients, secParams.getRegisteredComplicationStages()));
 		if (printIncidence)
 			simul.addInfoReceiver(new PatientCounterHistogramView(secParams.getMinAge(), BasicConfigParams.DEF_MAX_AGE, 1, secParams.getRegisteredComplicationStages()));
 		if (printPrevalence)
-			simul.addInfoReceiver(new T1DMPatientPrevalenceView(simul.getTimeUnit(), 
-					T1DMPatientPrevalenceView.buildAgesInterval(secParams.getMinAge(), BasicConfigParams.DEF_MAX_AGE, 1, true),
+			simul.addInfoReceiver(new PrevalenceView(simul.getTimeUnit(), 
+					PrevalenceView.buildAgesInterval(secParams.getMinAge(), BasicConfigParams.DEF_MAX_AGE, 1, true),
 					secParams.getRegisteredComplicationStages()));
 	}
 	
@@ -112,14 +112,14 @@ public class T1DMMain {
 			str.append(CostListener.getStrHeader(shortName));
 			str.append(LYListener.getStrHeader(shortName));
 			str.append(QALYListener.getStrHeader(shortName));
-			str.append(T1DMAcuteComplicationCounterListener.getStrHeader(shortName));
+			str.append(AcuteComplicationCounterListener.getStrHeader(shortName));
 		}
-		str.append(T1DMTimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredComplicationStages()));
+		str.append(TimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredComplicationStages()));
 		str.append(secParams.getStrHeader());
 		return str.toString();
 	}
 	
-	private String print(DiabetesSimulation simul, HbA1cListener[] hba1cListeners, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, T1DMAcuteComplicationCounterListener[] acuteListeners, T1DMTimeFreeOfComplicationsView timeFreeListener) {
+	private String print(DiabetesSimulation simul, HbA1cListener[] hba1cListeners, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, AcuteComplicationCounterListener[] acuteListeners, TimeFreeOfComplicationsView timeFreeListener) {
 		final StringBuilder str = new StringBuilder();
 		str.append("" +  simul.getIdentifier() + "\t");
 		for (int i = 0; i < interventions.size(); i++) {
@@ -141,12 +141,12 @@ public class T1DMMain {
 	private void simulateInterventions(int id, boolean baseCase) {
 		final CommonParams common = new CommonParams(secParams);
 		final int nInterventions = interventions.size();
-		final T1DMTimeFreeOfComplicationsView timeFreeListener = new T1DMTimeFreeOfComplicationsView(nPatients, nInterventions, false, secParams.getRegisteredComplicationStages());
+		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(nPatients, nInterventions, false, secParams.getRegisteredComplicationStages());
 		final HbA1cListener[] hba1cListeners = new HbA1cListener[nInterventions];
 		final CostListener[] costListeners = new CostListener[nInterventions];
 		final LYListener[] lyListeners = new LYListener[nInterventions];
 		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
-		final T1DMAcuteComplicationCounterListener[] acuteListeners = new T1DMAcuteComplicationCounterListener[nInterventions];
+		final AcuteComplicationCounterListener[] acuteListeners = new AcuteComplicationCounterListener[nInterventions];
 
 		AnnualCostView[] budgetImpactListener = null;
 		if (printBI)
@@ -156,12 +156,12 @@ public class T1DMMain {
 			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), common.getDiscountRate(), nPatients);
 			lyListeners[i] = new LYListener(common.getDiscountRate(), nPatients);
 			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), common.getDiscountRate(), nPatients);
-			acuteListeners[i] = new T1DMAcuteComplicationCounterListener(nPatients);
+			acuteListeners[i] = new AcuteComplicationCounterListener(nPatients);
 			if (printBI)
 				budgetImpactListener[i] = new AnnualCostView(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), nPatients, secParams.getMinAge(), BasicConfigParams.DEF_MAX_AGE);
 		}
 		final DiabetesIntervention[] intInstances = secParams.getInterventions();
-		DiabetesSimulation simul = new DiabetesSimulation(id, intInstances[0], nPatients, common, secParams.getPopulations(), timeHorizon);
+		DiabetesSimulation simul = new DiabetesSimulation(id, intInstances[0], nPatients, common, secParams.getPopulation(), timeHorizon);
 		simul.addInfoReceiver(hba1cListeners[0]);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);

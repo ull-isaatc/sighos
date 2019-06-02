@@ -95,7 +95,7 @@ public class UncontrolledSAPIntervention extends SecondOrderDiabetesIntervention
 			this.annualCost = Double.isNaN(auxCost) ? 0.0 : auxCost;
 			this.lowUsePercentage = secParams.getOtherParam(STR_LOW_USE_PERCENTAGE);
 			this.hba1cReduction = new double[secParams.getnPatients()];
-			final RandomNumber rnd = secParams.getRngFirstOrder();
+			final RandomNumber rnd = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 			if (BasicConfigParams.USE_FIXED_HBA1C_CHANGE) {
 				for (int i = 0; i < secParams.getnPatients(); i++) {
 					hba1cReduction[i] = (rnd.draw() < lowUsePercentage) ? HBA1C_REDUCTION_AVG[0] : HBA1C_REDUCTION_AVG[1]; 

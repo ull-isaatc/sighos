@@ -17,15 +17,23 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
  *
  */
 public abstract class SecondOrderChronicComplicationSubmodel extends SecondOrderComplicationSubmodel {
+	/** The type of the complication among those defined in {@link DiabetesChronicComplications} */
 	private final DiabetesChronicComplications type;
+	
 	/**
-	 * 
+	 * Creates the second order definition of a chronic complication submodel 
+	 * @param type The type of the complication among those defined in {@link DiabetesChronicComplications}
+	 * @param diabetesTypes Diabetes types that this submodel can be used for
 	 */
 	public SecondOrderChronicComplicationSubmodel(final DiabetesChronicComplications type, final EnumSet<DiabetesType> diabetesTypes) {
 		super(diabetesTypes);
 		this.type = type;
 	}
 
+	/**
+	 * Returns the type of the complication among those defined in {@link DiabetesChronicComplications}
+	 * @return the type of the complication 
+	 */
 	public DiabetesChronicComplications getComplicationType() {
 		return type;
 	}
@@ -47,7 +55,7 @@ public abstract class SecondOrderChronicComplicationSubmodel extends SecondOrder
 	public abstract int getNTransitions();
 	
 	/**
-	 * Adds the parameters corresponding to the second order unvertainty on the initial proportions for each stage of
+	 * Adds the parameters corresponding to the second order uncertainty on the initial proportions for each stage of
 	 * the complication
 	 * @param secParams Second order parameters repository
 	 */

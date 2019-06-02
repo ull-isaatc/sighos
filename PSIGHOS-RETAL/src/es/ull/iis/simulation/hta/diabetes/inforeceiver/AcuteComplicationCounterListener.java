@@ -14,7 +14,7 @@ import es.ull.iis.simulation.inforeceiver.Listener;
  * @author Iván Castilla
  *
  */
-public class T1DMAcuteComplicationCounterListener extends Listener implements StructuredOutputListener {
+public class AcuteComplicationCounterListener extends Listener implements StructuredOutputListener {
 	private final int[][] nComplications;
 	private final int nPatients;
 
@@ -26,7 +26,7 @@ public class T1DMAcuteComplicationCounterListener extends Listener implements St
 	 * @param length
 	 * @param detailDeaths
 	 */
-	public T1DMAcuteComplicationCounterListener(int nPatients) {
+	public AcuteComplicationCounterListener(int nPatients) {
 		super("Counter of acute complications");
 		nComplications = new int[DiabetesAcuteComplications.values().length][nPatients+1];
 		this.nPatients = nPatients;

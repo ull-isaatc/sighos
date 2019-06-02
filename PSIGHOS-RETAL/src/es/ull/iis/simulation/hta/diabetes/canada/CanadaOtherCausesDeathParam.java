@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.diabetes.canada;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.Param;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.UniqueEventParam;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -26,7 +27,7 @@ public class CanadaOtherCausesDeathParam extends UniqueEventParam<Long> implemen
 	
 
 	public CanadaOtherCausesDeathParam(CanadaSecondOrderParams secParams) {
-		super(secParams.getRngFirstOrder(), secParams.getnPatients());
+		super(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients());
 	}
 
 	/**

@@ -3,10 +3,10 @@
  */
 package es.ull.iis.simulation.hta.diabetes;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatientGenerator.DiabetesPatientGenerationInfo;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
+import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
 
@@ -40,7 +40,7 @@ public class DiabetesSimulation extends Simulation {
 	 * @param population A collection of populations that will serve to generate patients
 	 * @param timeHorizon Duration of the simulation (in years)
 	 */
-	public DiabetesSimulation(int id, DiabetesIntervention intervention, int nPatients, CommonParams commonParams, DiabetesPatientGenerationInfo[] population, int timeHorizon) {
+	public DiabetesSimulation(int id, DiabetesIntervention intervention, int nPatients, CommonParams commonParams, DiabetesPopulation population, int timeHorizon) {
 		super(id, DESCRIPTION + " " + intervention.getDescription(), BasicConfigParams.SIMUNIT, 0L, BasicConfigParams.SIMUNIT.convert(timeHorizon, TimeUnit.YEAR));
 		this.commonParams = commonParams;
 		this.cloned = false;

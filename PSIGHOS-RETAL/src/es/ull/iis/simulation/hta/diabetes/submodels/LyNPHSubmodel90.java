@@ -184,7 +184,7 @@ public class LyNPHSubmodel90 extends SecondOrderChronicComplicationSubmodel {
 			rr[NPHTransitions.NEU_ALB1.ordinal()] = SecondOrderParamsRepository.NO_RR;
 			
 			final int nPatients = secParams.getnPatients();
-			final RandomNumber rng = secParams.getRngFirstOrder();
+			final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 			rnd = new double[nPatients][NPHSubstates.length];
 			rndALB1AtStart = new double[nPatients];
 			for (int i = 0; i < nPatients; i++) {
