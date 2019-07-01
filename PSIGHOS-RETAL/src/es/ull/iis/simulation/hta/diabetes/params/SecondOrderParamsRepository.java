@@ -160,6 +160,7 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public void registerComplication(SecondOrderAcuteComplicationSubmodel comp) {
 		registeredAcuteComplication[comp.getComplicationType().ordinal()] = comp;
+		comp.addSecondOrderParams(this);
 	}
 	
 	/**

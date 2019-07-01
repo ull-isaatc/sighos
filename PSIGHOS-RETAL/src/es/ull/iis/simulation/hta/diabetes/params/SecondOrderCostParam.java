@@ -1,6 +1,6 @@
 package es.ull.iis.simulation.hta.diabetes.params;
 
-import es.ull.iis.simulation.hta.retal.params.SpanishIPCUpdate;
+import es.ull.iis.simulation.hta.SpanishIPCUpdate;
 import simkit.random.RandomVariate;
 
 /**

@@ -56,6 +56,7 @@ public class SMILESecondOrderParams extends SecondOrderParamsRepository {
 	 */
 	public SMILESecondOrderParams(int nPatients) {
 		super(nPatients, new SMILEPopulation());
+		BasicConfigParams.STUDY_YEAR = 2019;
 		registerComplication(new LyNPHSubmodel());
 		registerComplication(new LyRETSubmodel());
 		registerComplication(new SimpleCHDSubmodel());

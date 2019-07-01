@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.diabetes.submodels;
 
-import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
@@ -19,8 +18,8 @@ public class SMILESevereHypoglycemiaEvent extends StandardSevereHypoglycemiaEven
 	private static final double[] P_HYPO_BETA = {51.579, 47.421};
 	private static final double[] RR_HYPO_BETA = {-1.813098785, 0.341820006};
 	
-	private static final double DU_HYPO_EPISODE = BasicConfigParams.USE_REVIEW_UTILITIES ? (0.047 / 3.0) : 0.0206; // From Canada
-	private static final double[] LIMITS_DU_HYPO_EPISODE = {(BasicConfigParams.USE_REVIEW_UTILITIES ? 0.035 : 0.01) / 3.0, (BasicConfigParams.USE_REVIEW_UTILITIES ? 0.059 : 0.122) / 3.0}; // From Canada
+	private static final double DU_HYPO_EPISODE = 0.0631; // From Walters et al.
+	private static final double[] LIMITS_DU_HYPO_EPISODE = {DU_HYPO_EPISODE - 0.03, DU_HYPO_EPISODE + 0.03}; // Assumption
 	private static final String DEF_SOURCE = "SMILE";
 
 	public SMILESevereHypoglycemiaEvent() {

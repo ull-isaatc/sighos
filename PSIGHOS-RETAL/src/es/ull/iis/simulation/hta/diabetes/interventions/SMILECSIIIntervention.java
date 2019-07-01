@@ -14,7 +14,7 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 public class SMILECSIIIntervention extends SecondOrderDiabetesIntervention {
 	public final static String NAME = "CSII";
 	/** Annual cost of the treatment with CSII. Based on microcosts from Medtronic */
-	private static final double C_CSII = 377.38;
+	private static final double C_CSII = 3013.34;
 	/** The duration (in years) of the effect of the intervention */
 	final private double yearsOfEffect;
 
@@ -37,7 +37,7 @@ public class SMILECSIIIntervention extends SecondOrderDiabetesIntervention {
 	@Override
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + SMILECSIIIntervention.NAME, "Annual cost of CSII", 
-				"Own calculations from data provided by medtronic (see Parametros.xls)", 2018, C_CSII, SecondOrderParamsRepository.getRandomVariateForCost(C_CSII)));
+				"Own calculations from data provided by medtronic (see Parametros.xls)", 2019, C_CSII, SecondOrderParamsRepository.getRandomVariateForCost(C_CSII)));
 	}
 	
 	@Override

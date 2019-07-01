@@ -14,7 +14,7 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 public class SMILESAPIntervention extends SecondOrderDiabetesIntervention {
 	public final static String NAME = "SAP";
 	/** Annual cost of the treatment with SAP. Based on microcosts from Medtronic. */
-	private static final double C_SAP = 3484.56;
+	private static final double C_SAP = 6543.54;
 	/** The duration (in years) of the effect of the intervention */
 	final private double yearsOfEffect;
 
@@ -37,7 +37,7 @@ public class SMILESAPIntervention extends SecondOrderDiabetesIntervention {
 	@Override
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX +SMILESAPIntervention.NAME, "Annual cost of SAP",  
-				"Own calculations from data provided by medtronic (see Parametros.xls", 2018, C_SAP, SecondOrderParamsRepository.getRandomVariateForCost(C_SAP)));
+				"Own calculations from data provided by medtronic (see Parametros.xls", 2019, C_SAP, SecondOrderParamsRepository.getRandomVariateForCost(C_SAP)));
 		
 	}
 	
