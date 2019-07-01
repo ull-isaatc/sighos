@@ -195,6 +195,7 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public void registerIntervention(SecondOrderDiabetesIntervention intervention) {
 		registeredInterventions.add(intervention);
+		intervention.addSecondOrderParams(this);
 	}
 	
 	public ArrayList<SecondOrderDiabetesIntervention> getRegisteredInterventions() {
