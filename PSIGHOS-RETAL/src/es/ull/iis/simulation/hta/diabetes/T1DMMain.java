@@ -307,6 +307,7 @@ public class T1DMMain {
 	        		break;
 	        	case 6:
 	        		secParams = new SMILESecondOrderParams(args1.nPatients);
+	        		break;
 	        	default:
 	        		secParams = new UnconsciousSecondOrderParams(args1.nPatients);
 	        		break;

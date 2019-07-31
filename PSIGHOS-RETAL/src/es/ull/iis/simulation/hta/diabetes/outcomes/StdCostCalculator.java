@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
+import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 
@@ -76,6 +77,31 @@ public class StdCostCalculator implements CostCalculator {
 	 */
 	public void addCostForComplicationStage(DiabetesComplicationStage stage, double[] costs) {
 		this.costs.put(stage, costs);
+	}
+
+	@Override
+	public double getAnnualInterventionCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
+		return pat.getIntervention().getAnnualCost(pat);
+	}
+
+	@Override
+	public double[] getAnnualChronicComplicationCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
+		final double[] result = new double[DiabetesChronicComplications.values().length];
+		final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
+		// No complications
+		if (!state.isEmpty()) {
+			for (DiabetesComplicationStage st : state) {
+				if (costs.containsKey(st)) {
+					result[st.ordinal()] = costs.get(st)[0];
+				}
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public double getStdManagementCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
+		return costNoComplication;
 	}
 
 }

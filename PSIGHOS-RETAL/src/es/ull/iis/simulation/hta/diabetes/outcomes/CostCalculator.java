@@ -38,4 +38,32 @@ public interface CostCalculator {
 	 * @return the cost of an acute event
 	 */
 	public double getCostForAcuteEvent(DiabetesPatient pat, DiabetesAcuteComplications comp);
+
+	/**
+	 * Returns the costs incurred by the intervention alone
+	 * @param pat A patient
+	 * @param initAge The age of the patient at the beginning of the period
+	 * @param endAge The age of the patient at the end of the period
+	 * @return the costs incurred by the intervention alone
+	 */
+	public double getAnnualInterventionCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge);
+	
+	/**
+	 * Returns annual cost for the specified patient during a period of time for each complication 
+	 * @param pat A patient
+	 * @param initAge The age of the patient at the beginning of the period
+	 * @param endAge The age of the patient at the end of the period
+	 * @return An array, where each position represents the cost of certain chronic complication
+	 */
+	public double[] getAnnualChronicComplicationCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge);
+	
+	/**
+	 * Returns the annual management cost applied independently of the complications
+	 * @param pat A patient
+	 * @param initAge The age of the patient at the beginning of the period
+	 * @param endAge The age of the patient at the end of the period
+	 * @return The annual management cost for the patient 
+	 */
+	public double getStdManagementCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge);
+	
 }

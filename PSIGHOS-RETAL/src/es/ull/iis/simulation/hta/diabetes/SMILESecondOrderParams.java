@@ -47,7 +47,27 @@ import es.ull.iis.simulation.hta.diabetes.submodels.SimpleNEUSubmodel;
  *
  */
 public class SMILESecondOrderParams extends SecondOrderParamsRepository {
-
+	private static final String STR_SMILE_PRIVATE = "SMILE study. Private communication";
+	/** {Deterministic value, cases, no cases} for initial proportion of microalbuminuria */
+	private static final double [] P_INIT_ALB1 = {0.0433078, 6.626097133, 146,3739029};
+	/** {Deterministic value, cases, no cases} for initial proportion of macroalbuminuria */
+	private static final double [] P_INIT_ALB2 = {0.0351235, 5.373902867, 147.6260971};
+	/** {Deterministic value, cases, no cases} for initial proportion of background retinopathy */
+	private static final double [] P_INIT_BGRET = {0.3192333, 48.84269663, 104.1573034};
+	/** {Deterministic value, cases, no cases} for initial proportion of proliferative retinopathy */
+	private static final double [] P_INIT_PRET = {0.0925314, 14.15730337, 138.8426966};
+	/** {Deterministic value, cases, no cases} for initial proportion of macular edema */
+	private static final double [] P_INIT_ME = {0.0573770, 8.778688525, 144.2213115};
+	/** {Deterministic value, cases, no cases} for initial proportion of neuropathy */
+	private static final double [] P_INIT_NEU = {0.2091503, 32, 121};
+	/** {Deterministic value, cases, no cases} for initial proportion of myocardial infarction */
+	private static final double [] P_INIT_MI = {0.0321488072353124, 4.9187675070028, 148.081232492997};
+	/** {Deterministic value, cases, no cases} for initial proportion of angina */
+	private static final double [] P_INIT_Angina = {0.0306841690924736, 4.69467787114846, 148.305322128852};
+	/** {Deterministic value, cases, no cases} for initial proportion of stroke */
+	private static final double [] P_INIT_Stroke = {0.0215301806997309, 3.29411764705882, 149.705882352941};
+	/** {Deterministic value, cases, no cases} for initial proportion of heart failure */
+	private static final double [] P_INIT_HF = {0.0202120063711759, 3.09243697478992, 149.90756302521};
 	/**
 	 * Initializes the parameters for the population defined in this class. With respect to the cost of the treatments,
 	 * we apply full costs independently of the adherence, by assuming that the NHS would continue providing the treatment
@@ -57,6 +77,30 @@ public class SMILESecondOrderParams extends SecondOrderParamsRepository {
 	public SMILESecondOrderParams(int nPatients) {
 		super(nPatients, new SMILEPopulation());
 		BasicConfigParams.STUDY_YEAR = 2019;
+
+		// Initial complications
+		addProbParam(new SecondOrderParam(getInitProbString(LyNPHSubmodel.ALB1), "Initial probability of microalbuminuria", 
+				STR_SMILE_PRIVATE, P_INIT_ALB1[0], "BetaVariate", P_INIT_ALB1[1], P_INIT_ALB1[2]));
+		addProbParam(new SecondOrderParam(getInitProbString(LyNPHSubmodel.ALB2), "Initial probability of macroalbuminuria", 
+				STR_SMILE_PRIVATE, P_INIT_ALB2[0], "BetaVariate", P_INIT_ALB2[1], P_INIT_ALB2[2]));
+		addProbParam(new SecondOrderParam(getInitProbString(LyRETSubmodel.BGRET), "Initial probability of background retinopathy", 
+				STR_SMILE_PRIVATE, P_INIT_BGRET[0], "BetaVariate", P_INIT_BGRET[1], P_INIT_BGRET[2]));
+		addProbParam(new SecondOrderParam(getInitProbString(LyRETSubmodel.PRET), "Initial probability of proliferative retinopathy", 
+				STR_SMILE_PRIVATE, P_INIT_PRET[0], "BetaVariate", P_INIT_PRET[1], P_INIT_PRET[2]));
+		addProbParam(new SecondOrderParam(getInitProbString(LyRETSubmodel.ME), "Initial probability of macular edema", 
+				STR_SMILE_PRIVATE, P_INIT_ME[0], "BetaVariate", P_INIT_ME[1], P_INIT_ME[2]));
+		addProbParam(new SecondOrderParam(getInitProbString(SimpleNEUSubmodel.NEU), "Initial probability of neuropathy", 
+				STR_SMILE_PRIVATE, P_INIT_NEU[0], "BetaVariate", P_INIT_NEU[1], P_INIT_NEU[2]));
+		addProbParam(new SecondOrderParam(getInitProbString(SimpleCHDSubmodel.MI), "Initial probability of myocardial infarction", 
+				STR_SMILE_PRIVATE, P_INIT_MI[0], "BetaVariate", P_INIT_MI[1], P_INIT_MI[2]));
+		addProbParam(new SecondOrderParam(getInitProbString(SimpleCHDSubmodel.ANGINA), "Initial probability of angina", 
+				STR_SMILE_PRIVATE, P_INIT_Angina[0], "BetaVariate", P_INIT_Angina[1], P_INIT_Angina[2]));
+		addProbParam(new SecondOrderParam(getInitProbString(SimpleCHDSubmodel.STROKE), "Initial probability of stroke", 
+				STR_SMILE_PRIVATE, P_INIT_Stroke[0], "BetaVariate", P_INIT_Stroke[1], P_INIT_Stroke[2]));
+		addProbParam(new SecondOrderParam(getInitProbString(SimpleCHDSubmodel.HF), "Initial probability of heart failure", 
+				STR_SMILE_PRIVATE, P_INIT_HF[0], "BetaVariate", P_INIT_HF[1], P_INIT_HF[2]));
+		
+		// Chronic complication submodels
 		registerComplication(new LyNPHSubmodel());
 		registerComplication(new LyRETSubmodel());
 		registerComplication(new SimpleCHDSubmodel());

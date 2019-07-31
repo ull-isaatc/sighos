@@ -544,8 +544,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @return a string that represents a probability of starting with a complication
 	 */
 	public static String getInitProbString(Named to) {
-		final String toName = "_" + to.name();
-		return STR_PROBABILITY_PREFIX + STR_INIT_PREFIX + toName;
+		return STR_PROBABILITY_PREFIX + STR_INIT_PREFIX + to.name();
 	}
 
 	/**

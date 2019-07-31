@@ -57,6 +57,23 @@ public class SubmodelCostCalculator implements CostCalculator {
 		}
 		return cost;
 	}
+
+	@Override
+	public double getAnnualInterventionCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
+		return pat.getIntervention().getAnnualCost(pat);
+	}
+	
+	@Override
+	public double[] getAnnualChronicComplicationCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
+		final double[] costs = new double[DiabetesChronicComplications.values().length];
+		// Check each complication
+		for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
+			if (pat.hasComplication(comp)) {
+				costs[comp.ordinal()] = chronicSubmodels[comp.ordinal()].getAnnualCostWithinPeriod(pat, initAge, endAge);
+			}		
+		}
+		return costs;
+	}
 	
 	@Override
 	public double getCostForAcuteEvent(DiabetesPatient pat, DiabetesAcuteComplications comp) {
@@ -66,6 +83,11 @@ public class SubmodelCostCalculator implements CostCalculator {
 	@Override
 	public double getCostOfComplication(DiabetesPatient pat, DiabetesComplicationStage newEvent) {
 		return chronicSubmodels[newEvent.getComplication().ordinal()].getCostOfComplication(pat, newEvent);
+	}
+
+	@Override
+	public double getStdManagementCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
+		return costNoComplication;
 	}
 
 }
