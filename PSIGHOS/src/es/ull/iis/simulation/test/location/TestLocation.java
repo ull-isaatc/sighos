@@ -48,14 +48,14 @@ public class TestLocation extends Experiment {
 		
 		public MyRouter() {
 			home = NOSIZE ? new Node("Home", TimeFunctionFactory.getInstance("ConstantVariate", DELAY_HOME)) :
-				new Node("Home", TimeFunctionFactory.getInstance("ConstantVariate", DELAY_HOME), NELEM);
+				new Node("Home", TimeFunctionFactory.getInstance("ConstantVariate", DELAY_HOME), NELEM * ELEMSIZE);
 			paths = new Path[NPATHS];
 			for (int i = 0; i < NPATHS; i++) {
 				paths[i] = NOSIZE ? new Path("Path " + i, TimeFunctionFactory.getInstance("ConstantVariate", DELAY_PATH)) :
 					new Path("Path " + i, TimeFunctionFactory.getInstance("ConstantVariate", DELAY_PATH), 1, 1);
 			}
 			destination = NOSIZE ? new Node("Destination", TimeFunctionFactory.getInstance("ConstantVariate", 0)) :
-				new Node("Destination", NELEM);
+				new Node("Destination", NELEM * ELEMSIZE);
 
 			home.linkTo(paths[0]);
 			for (int i = 0; i < NPATHS - 1; i++) {

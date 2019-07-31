@@ -55,14 +55,14 @@ public class TestTransport extends Experiment {
 		
 		public MyRouter() {
 			home = NOSIZE ? new Node("Pizzeria", TimeFunctionFactory.getInstance("ConstantVariate", DELAY_HOME)) :
-				new Node("Pizzeria", TimeFunctionFactory.getInstance("ConstantVariate", DELAY_HOME), NELEM);
+				new Node("Pizzeria", TimeFunctionFactory.getInstance("ConstantVariate", DELAY_HOME), NELEM * MOTOSIZE);
 			paths = new Path[NPATHS];
 			for (int i = 0; i < NPATHS; i++) {
 				paths[i] = NOSIZE ? new Path("Path " + i, TimeFunctionFactory.getInstance("ConstantVariate", DELAY_PATH)) :
 					new Path("Path " + i, TimeFunctionFactory.getInstance("ConstantVariate", DELAY_PATH), 1, 1);
 			}
 			destination = NOSIZE ? new Node("Client", TimeFunctionFactory.getInstance("ConstantVariate", 0)) :
-				new Node("Client", NELEM);
+				new Node("Client", NELEM * MOTOSIZE);
 
 			home.linkTo(paths[0]);
 			for (int i = 0; i < NPATHS - 1; i++) {
