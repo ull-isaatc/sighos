@@ -18,6 +18,7 @@ import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesInter
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.diabetes.params.ZeroDiscount;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -80,9 +81,9 @@ public class T1DMMainTest {
 		final LYListener[] lyListeners = new LYListener[nInterventions];
 		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
 		for (int i = 0; i < nInterventions; i++) {
-			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), common.getDiscountRate(), N_PATIENTS);
-			lyListeners[i] = new LYListener(common.getDiscountRate(), N_PATIENTS);
-			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), common.getDiscountRate(), N_PATIENTS);
+			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), new ZeroDiscount(), N_PATIENTS);
+			lyListeners[i] = new LYListener(new ZeroDiscount(), N_PATIENTS);
+			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), new ZeroDiscount(), N_PATIENTS);
 		}
 		final DiabetesIntervention[] intInstances = secParams.getInterventions();
 	
@@ -109,8 +110,6 @@ public class T1DMMainTest {
 
 	public static void main(String[] args) {
 		 int nRuns = BASIC_TEST_ONE_PATIENT ? 0 : BasicConfigParams.N_RUNS;
-
-		secParams.setDiscountZero(true);
 
 		out.println(getStrHeader());
 		simulateInterventions(0, true, secParams.getInterventions());

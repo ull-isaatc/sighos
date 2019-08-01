@@ -20,7 +20,7 @@ import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
  *
  */
 public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
-	private static final double DISCOUNT_RATE = 0.015; 
+	public static final double DISCOUNT_RATE = 0.015; 
 	
 	private static final double C_DNC = 2262;
 
@@ -51,8 +51,6 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of DNC", "HTA Canada", 2018, C_DNC));
 
 		addUtilParam(new SecondOrderParam(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS, "Disutility of DNC", "", BasicConfigParams.DEF_U_GENERAL_POP - U_DNC));
-
-		addOtherParam(new SecondOrderParam(STR_DISCOUNT_RATE, "Discount rate", "HTA Ontario guidelines", DISCOUNT_RATE));
 		
 	}
 

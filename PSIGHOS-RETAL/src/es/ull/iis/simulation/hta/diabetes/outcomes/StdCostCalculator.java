@@ -44,15 +44,10 @@ public class StdCostCalculator implements CostCalculator {
 	public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
 		double cost = pat.getIntervention().getAnnualCost(pat);
 		final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
-		// No complications
-		if (state.isEmpty()) {
-			cost += costNoComplication;
-		}
-		else {
-			for (DiabetesComplicationStage st : state) {
-				if (costs.containsKey(st)) {
-					cost += costs.get(st)[0];
-				}
+		cost += costNoComplication;
+		for (DiabetesComplicationStage st : state) {
+			if (costs.containsKey(st)) {
+				cost += costs.get(st)[0];
 			}
 		}
 		return cost;
@@ -88,12 +83,9 @@ public class StdCostCalculator implements CostCalculator {
 	public double[] getAnnualChronicComplicationCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
 		final double[] result = new double[DiabetesChronicComplications.values().length];
 		final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
-		// No complications
-		if (!state.isEmpty()) {
-			for (DiabetesComplicationStage st : state) {
-				if (costs.containsKey(st)) {
-					result[st.ordinal()] = costs.get(st)[0];
-				}
+		for (DiabetesComplicationStage st : state) {
+			if (costs.containsKey(st)) {
+				result[st.ordinal()] = costs.get(st)[0];
 			}
 		}
 		return result;

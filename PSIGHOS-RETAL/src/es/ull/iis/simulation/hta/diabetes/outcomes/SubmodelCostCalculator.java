@@ -3,12 +3,10 @@
  */
 package es.ull.iis.simulation.hta.diabetes.outcomes;
 
-import java.util.Collection;
-
-import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
+import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
 
@@ -42,18 +40,13 @@ public class SubmodelCostCalculator implements CostCalculator {
 	@Override
 	public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
 		double cost = pat.getIntervention().getAnnualCost(pat);
-		final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
-		// No complications
-		if (state.isEmpty()) {
-			cost += costNoComplication;
-		}
-		else {
-			// Check each complication
-			for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
-				if (pat.hasComplication(comp)) {
-					cost += chronicSubmodels[comp.ordinal()].getAnnualCostWithinPeriod(pat, initAge, endAge);
-				}		
-			}
+		// The management cost is added anyway
+		cost += costNoComplication;
+		// Check each complication
+		for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
+			if (pat.hasComplication(comp)) {
+				cost += chronicSubmodels[comp.ordinal()].getAnnualCostWithinPeriod(pat, initAge, endAge);
+			}		
 		}
 		return cost;
 	}

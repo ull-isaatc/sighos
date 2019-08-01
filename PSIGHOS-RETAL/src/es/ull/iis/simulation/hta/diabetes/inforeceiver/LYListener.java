@@ -9,6 +9,7 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
 import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.params.Discount;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -20,7 +21,7 @@ import es.ull.iis.util.Statistics;
  *
  */
 public class LYListener extends Listener implements StructuredOutputListener {
-	protected final double discountRate;
+	protected final Discount discountRate;
 	protected final int nPatients;
 	protected double aggregated;
 	protected final double[]values;
@@ -28,7 +29,7 @@ public class LYListener extends Listener implements StructuredOutputListener {
 	/**
 	 * @param description
 	 */
-	public LYListener(double discountRate, int nPatients) {
+	public LYListener(Discount discountRate, int nPatients) {
 		super("Life expectancy listener");
 		this.discountRate = discountRate;
 		this.nPatients = nPatients;
@@ -88,22 +89,9 @@ public class LYListener extends Listener implements StructuredOutputListener {
 	 * @param endAge End age when the value is applied
 	 */
 	private void update(DiabetesPatient pat, double initAge, double endAge) {
-		double value = applyDiscount(1.0, initAge, endAge);
+		double value = discountRate.applyDiscount(1.0, initAge, endAge);
 		values[pat.getIdentifier()] += value;
 		aggregated += value;
-	}
-	
-	/**
-	 * Apply a discount rate to a constant value over a time period. 
-	 * @param value A constant value that applied each year
-	 * @param initAge The age that the patient had when starting the period
-	 * @param endAge The age that the patient had when ending the period
-	 * @return A discounted value
-	 */
-	private double applyDiscount(double value, double initAge, double endAge) {
-		if (discountRate == 0.0)
-			return value * (endAge - initAge);
-		return value * (-1 / Math.log(1 + discountRate)) * (Math.pow(1 + discountRate, -endAge) - Math.pow(1 + discountRate, -initAge));
 	}
 	
 	/**

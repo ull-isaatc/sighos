@@ -10,6 +10,7 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
 import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.params.Discount;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -22,7 +23,7 @@ import es.ull.iis.util.Statistics;
  */
 public class CostListener extends Listener implements StructuredOutputListener {
 	private final CostCalculator calc;
-	protected final double discountRate;
+	protected final Discount discountRate;
 	protected final int nPatients;
 	protected double aggregated;
 	protected final double[]values;
@@ -30,7 +31,7 @@ public class CostListener extends Listener implements StructuredOutputListener {
 	/**
 	 * @param description
 	 */
-	public CostListener(CostCalculator calc, double discountRate, int nPatients) {
+	public CostListener(CostCalculator calc, Discount discountRate, int nPatients) {
 		super("Cost listener");
 		this.calc = calc;
 		this.discountRate = discountRate;
@@ -110,7 +111,7 @@ public class CostListener extends Listener implements StructuredOutputListener {
 	 * @param endAge End age when the value is applied
 	 */
 	private void update(DiabetesPatient pat, double value, double initAge, double endAge) {
-		value = applyDiscount(value, initAge, endAge);
+		value = discountRate.applyDiscount(value, initAge, endAge);
 		values[pat.getIdentifier()] += value;
 		aggregated += value;
 	}
@@ -121,35 +122,11 @@ public class CostListener extends Listener implements StructuredOutputListener {
 	 * @param age The age at which the value is applied
 	 */
 	private void update(DiabetesPatient pat, double value, double age) {
-		value = applyPunctualDiscount(value, age);
+		value = discountRate.applyPunctualDiscount(value, age);
 		values[pat.getIdentifier()] += value;
 		aggregated += value;
 	}
 	
-	/**
-	 * Apply a discount rate to a constant value over a time period. 
-	 * @param value A constant value that applied each year
-	 * @param initAge The age that the patient had when starting the period
-	 * @param endAge The age that the patient had when ending the period
-	 * @return A discounted value
-	 */
-	private double applyDiscount(double value, double initAge, double endAge) {
-		if (discountRate == 0.0)
-			return value * (endAge - initAge);
-		return value * (-1 / Math.log(1 + discountRate)) * (Math.pow(1 + discountRate, -endAge) - Math.pow(1 + discountRate, -initAge));
-	}
-	
-	/**
-	 * Apply a discount rate to a value at a specific moment of the simulation.
-	 * @param value A value
-	 * @param time The specific age when the discount is applied 
-	 * @return A discounted value
-	 */
-	private double applyPunctualDiscount(double value, double time) {
-		if (discountRate == 0.0)
-			return value;
-		return value / Math.pow(1 + discountRate, time);
-	}
 	/**
 	 * Returns average, standard deviation, lower 95%CI, upper 95%CI, percentile 2.5%, percentile 97.5% for each intervention
 	 * @return An array with n t-uples {average, standard deviation, lower 95%CI, upper 95%CI, percentile 2.5%, percentile 97.5%}, 

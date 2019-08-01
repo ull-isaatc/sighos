@@ -26,9 +26,6 @@ import es.ull.iis.simulation.model.TimeUnit;
  *
  */
 public class CommonParams {
-	/** Discount rate applied to costs and effects */
-	private final double discountRate;
-	
 	/** Chronic complication submodels included */
 	private final ChronicComplicationSubmodel[] compSubmodels;
 	/** Acute complication submodels included */
@@ -54,7 +51,6 @@ public class CommonParams {
 		deathSubmodel = secParams.getDeathSubmodel();
 		// Add the complication stages defined in the submodels
 		chronicComplicationStages = secParams.getRegisteredComplicationStages();
-		discountRate = secParams.getDiscountRate();
 
 		cDNC = secParams.getNoComplicationAnnualCost();
 		duDNC = secParams.getNoComplicationDisutility();
@@ -100,14 +96,6 @@ public class CommonParams {
 		return duDNC;
 	}
 
-	/**
-	 * Returns the discount rate applied to cost and effects during the simulation
-	 * @return the discount rate applied to cost and effects during the simulation
-	 */
-	public double getDiscountRate() {
-		return discountRate;
-	}
-	
 	/**
 	 * Returns the time that a patient waits until he/she suffers the specified acute complication
 	 * @param pat A patient

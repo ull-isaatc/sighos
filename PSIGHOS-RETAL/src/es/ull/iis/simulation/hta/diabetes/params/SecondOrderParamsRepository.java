@@ -67,8 +67,6 @@ public abstract class SecondOrderParamsRepository {
 	public static final String STR_INIT_PREFIX = "INIT_";
 	/** String descriptor for diabetes with no complications */
 	public static final String STR_NO_COMPLICATIONS = "DNC";
-	/** String descriptor for the discount rate */
-	public static final String STR_DISCOUNT_RATE = "DISCOUNT_RATE";
 
 	/** A null relative risk, i.e., RR = 1.0 */
 	public static final RRCalculator NO_RR = new StdComplicationRR(1.0);
@@ -81,8 +79,6 @@ public abstract class SecondOrderParamsRepository {
 	final protected TreeMap<String, SecondOrderParam> utilParams;
 	/** The collection of miscellaneous parameters */
 	final protected TreeMap<String, SecondOrderParam> otherParams;
-	/** If true, forces the discount rate to be zero, even if previously defined by assigning a value through the {@link #STR_DISCOUNT_RATE} parameter */
-	private boolean discountZero = false;
 	/** A random number generator for first order parameter values */
 	private static RandomNumber RNG_FIRST_ORDER = RandomNumberFactory.getInstance();
 	/** The collection of defined chronic complication stages */
@@ -103,8 +99,9 @@ public abstract class SecondOrderParamsRepository {
 	/**
 	 * Creates a repository of second order parameters. By default, generates the base case values.
 	 * @param nPatients Number of patients to create
+	 * @param population The population used within this repository
 	 */
-	protected SecondOrderParamsRepository(int nPatients, DiabetesPopulation population) {
+	protected SecondOrderParamsRepository(final int nPatients, final DiabetesPopulation population) {
 		this.population = population;
 		this.probabilityParams = new TreeMap<>();
 		this.costParams = new TreeMap<>();
@@ -429,17 +426,6 @@ public abstract class SecondOrderParamsRepository {
 	}
 	
 	/**
-	 * Returns the discount rate 
-	 * @return the discount rate
-	 */
-	public double getDiscountRate() {
-		if (discountZero)
-			return 0.0;
-		final SecondOrderParam param = (SecondOrderParam) otherParams.get(STR_DISCOUNT_RATE);
-		return (param == null) ? 0.0 : param.getValue(baseCase); 						
-	}
-	
-	/**
 	 * Sets whether the second order parameters will use the base case value or not
 	 * @param baseCase True if the second order parameters must use the expected value; false otherwise
 	 */
@@ -447,23 +433,6 @@ public abstract class SecondOrderParamsRepository {
 		this.baseCase = baseCase;
 	}
 
-	/**
-	 * Returns True if the discount rate is forced to be zero; false if uses the discount rate as defined in {@link #STR_DISCOUNT_RATE}
-	 * @return True if the discount rate is forced to be zero; false if uses the discount rate as defined in {@link #STR_DISCOUNT_RATE}
-	 */
-	public boolean isDiscountZero() {
-		return discountZero;
-	}
-
-	/**
-	 * Sets whether the simulation will use a zero discount rate or the discount rate as defined in {@link #STR_DISCOUNT_RATE}
-	 * @param discountZero If true, the simulation will apply a discount rate = 0.0; otherwise, the simulation will use the discount 
-	 * rate as defined in {@link #STR_DISCOUNT_RATE}
-	 */
-	public void setDiscountZero(boolean discountZero) {
-		this.discountZero = discountZero;
-	}
-	
 	/**
 	 * Returns the interventions to be compared within the simulation
 	 * @return The interventions to be compared within the simulation

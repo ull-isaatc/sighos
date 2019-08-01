@@ -119,5 +119,13 @@ public abstract class SecondOrderDiabetesIntervention implements Describable {
 		public String getDescription() {
 			return description;
 		}
+		
+		/**
+		 * Returns the second order description of the intervention
+		 * @return the second order description of the intervention
+		 */
+		public SecondOrderDiabetesIntervention getSecondOrderDiabetesIntervention() {
+			return SecondOrderDiabetesIntervention.this;
+		}
 	}
 }

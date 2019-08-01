@@ -51,7 +51,6 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 
 		registerIntervention(new DCCTConventionalIntervention());
 		registerIntervention(new DCCTIntensiveIntervention());
-		setDiscountZero(true);
 	}
 
 	@Override

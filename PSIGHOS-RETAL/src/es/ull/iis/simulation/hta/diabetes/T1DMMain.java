@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,13 +30,18 @@ import es.ull.iis.simulation.hta.diabetes.inforeceiver.QALYListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AcuteComplicationCounterListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.CummulatedIncidenceView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.DiabetesPatientInfoView;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.DisaggregatedAnnualCostView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.PrevalenceView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.TimeFreeOfComplicationsView;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
+import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
+import es.ull.iis.simulation.hta.diabetes.params.Discount;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.diabetes.params.StdDiscount;
+import es.ull.iis.simulation.hta.diabetes.params.ZeroDiscount;
 
 /**
  * Main class to launch simulation experiments
@@ -42,6 +49,15 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
  *
  */
 public class T1DMMain {
+	private enum Outputs {
+		INCIDENCE, 				// printing incidence of complications by age group
+		PREVALENCE, 			// printing prevalence of complications by age group
+		CUMM_INCIDENCE, 		// printing cummulated incidence of complications by time from start
+		INDIVIDUAL_OUTCOMES, 	// printing the outcomes per patient
+		BREAKDOWN_COST,			// printing breakdown of costs
+		BI 						// printing the budget impact
+	};
+	private final EnumSet<Outputs> printOutputs;
 	/** How many replications have to be run to show a new progression percentage message */
 	private static final int N_PROGRESS = 20;
 	private final PrintWriter out;
@@ -51,29 +67,24 @@ public class T1DMMain {
 	/** Number of patients to be generated during each simulation */
 	private final int nPatients;
 	private final SecondOrderParamsRepository secParams;
+	private final Discount discountCost;
+	private final Discount discountEffect;
 	private final DiabetesPatientInfoView patientListener;
 	private final PrintProgress progress;
 	/** Enables parallel execution of simulations */
 	private final boolean parallel;
 	/** Disables most messages */
 	private final boolean quiet;
-	/** Enables printing incidence of complications by age group */
-	private final boolean printIncidence;
-	/** Enables printing prevalence of complications by age group */
-	private final boolean printPrevalence;
-	/** Enables printing cummulated incidence of complications by time from start */
-	private final boolean printCummIncidence;
-	/** Enables printing the budget impact */
-	private final boolean printBI;
-	/** Enables printing the outcomes per patient */
-	private final boolean printIndividualOutcomes;
 	/** Time horizon for the simulation */
 	private final int timeHorizon;
 	
-	public T1DMMain(PrintWriter out, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, boolean parallel, boolean quiet, int singlePatientOutput, boolean printIncidence, boolean printPrevalence, boolean printCummIncidence, boolean printBI, boolean printIndividualOutcomes) {
+	public T1DMMain(PrintWriter out, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs) {
 		super();
+		this.printOutputs = printOutputs;
 		this.timeHorizon = timeHorizon;
 		this.out = out;
+		this.discountCost = discountCost;
+		this.discountEffect = discountEffect;
 		this.interventions = secParams.getRegisteredInterventions();
 		this.nRuns = nRuns;
 		this.nPatients = secParams.getnPatients();
@@ -84,23 +95,23 @@ public class T1DMMain {
 			patientListener = new DiabetesPatientInfoView(singlePatientOutput);
 		else
 			patientListener = null;
-		this.printIncidence = printIncidence;
-		this.printPrevalence = printPrevalence;
-		this.printCummIncidence = printCummIncidence;
-		this.printBI = printBI;
-		this.printIndividualOutcomes = printIndividualOutcomes;
 		progress = new PrintProgress((nRuns > N_PROGRESS) ? nRuns/N_PROGRESS : 1, nRuns + 1);
 	}
 
 	private void addListeners(DiabetesSimulation simul) {
-		if (printCummIncidence)
+		if (printOutputs.contains(Outputs.CUMM_INCIDENCE))
 			simul.addInfoReceiver(new CummulatedIncidenceView(timeHorizon, nPatients, secParams.getRegisteredComplicationStages()));
-		if (printIncidence)
+		if (printOutputs.contains(Outputs.INCIDENCE))
 			simul.addInfoReceiver(new PatientCounterHistogramView(secParams.getMinAge(), BasicConfigParams.DEF_MAX_AGE, 1, secParams.getRegisteredComplicationStages()));
-		if (printPrevalence)
+		if (printOutputs.contains(Outputs.PREVALENCE))
 			simul.addInfoReceiver(new PrevalenceView(simul.getTimeUnit(), 
 					PrevalenceView.buildAgesInterval(secParams.getMinAge(), BasicConfigParams.DEF_MAX_AGE, 1, true),
 					secParams.getRegisteredComplicationStages()));
+		if (printOutputs.contains(Outputs.BREAKDOWN_COST)) {
+			final CommonParams common = simul.getCommonParams();
+			final CostCalculator calc = secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels());
+			simul.addInfoReceiver(new DisaggregatedAnnualCostView(simul.getIntervention().getSecondOrderDiabetesIntervention(), calc, discountCost, nPatients, secParams.getMinAge(), BasicConfigParams.DEF_MAX_AGE));
+		}
 	}
 	
 	private String getStrHeader() {
@@ -149,15 +160,15 @@ public class T1DMMain {
 		final AcuteComplicationCounterListener[] acuteListeners = new AcuteComplicationCounterListener[nInterventions];
 
 		AnnualCostView[] budgetImpactListener = null;
-		if (printBI)
+		if (printOutputs.contains(Outputs.BI))
 			budgetImpactListener = new AnnualCostView[nInterventions];
 		for (int i = 0; i < nInterventions; i++) {
 			hba1cListeners[i] = new HbA1cListener(nPatients);
-			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), common.getDiscountRate(), nPatients);
-			lyListeners[i] = new LYListener(common.getDiscountRate(), nPatients);
-			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), common.getDiscountRate(), nPatients);
+			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), discountCost, nPatients);
+			lyListeners[i] = new LYListener(discountEffect, nPatients);
+			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), discountEffect, nPatients);
 			acuteListeners[i] = new AcuteComplicationCounterListener(nPatients);
-			if (printBI)
+			if (printOutputs.contains(Outputs.BI))
 				budgetImpactListener[i] = new AnnualCostView(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), nPatients, secParams.getMinAge(), BasicConfigParams.DEF_MAX_AGE);
 		}
 		final DiabetesIntervention[] intInstances = secParams.getInterventions();
@@ -170,7 +181,7 @@ public class T1DMMain {
 		simul.addInfoReceiver(timeFreeListener);
 		if (patientListener != null)
 			simul.addInfoReceiver(patientListener);
-		if (printBI)
+		if (printOutputs.contains(Outputs.BI))
 			simul.addInfoReceiver(budgetImpactListener[0]);
 		addListeners(simul);
 		simul.run();
@@ -184,12 +195,12 @@ public class T1DMMain {
 			simul.addInfoReceiver(timeFreeListener);
 			if (patientListener != null)
 				simul.addInfoReceiver(patientListener);
-			if (printBI)
+			if (printOutputs.contains(Outputs.BI))
 				simul.addInfoReceiver(budgetImpactListener[i]);
 			addListeners(simul);
 			simul.run();				
 		}
-		if (printBI) {
+		if (printOutputs.contains(Outputs.BI)) {
 			System.out.println("Annual costs (for budget impact)");
 			final double[][] costs = new double[nInterventions][];
 			System.out.print("YEAR\t");
@@ -206,7 +217,7 @@ public class T1DMMain {
 				System.out.println();
 			}
 		}
-		if (printIndividualOutcomes) {
+		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
 			System.out.print("Patient");
 			for (int i = 0; i < nInterventions; i++) {
 				final String shortName = interventions.get(i).getShortName();
@@ -312,13 +323,54 @@ public class T1DMMain {
 	        		secParams = new UnconsciousSecondOrderParams(args1.nPatients);
 	        		break;
 	        }
-	    	if (args1.noDiscount)
-	    		secParams.setDiscountZero(true);
 	        
-	    	final int timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : args1.timeHorizon;
 	    	final String validity = secParams.checkValidity();
 	    	if (validity == null) {
-		        final T1DMMain experiment = new T1DMMain(out, secParams, args1.nRuns, timeHorizon, args1.parallel, args1.quiet, args1.singlePatientOutput, args1.incidence, args1.prevalence, args1.cumm, args1.bi, args1.individualOutcomes);
+		    	final int timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : args1.timeHorizon;
+	    		final EnumSet<Outputs> printOutputs = EnumSet.noneOf(Outputs.class);
+	    		if (args1.prevalence)
+	    			printOutputs.add(Outputs.PREVALENCE);
+	    		if (args1.incidence)
+	    			printOutputs.add(Outputs.INCIDENCE);
+	    		if (args1.cumm)
+	    			printOutputs.add(Outputs.CUMM_INCIDENCE);
+	    		if (args1.bi)
+	    			printOutputs.add(Outputs.BI);
+	    		if (args1.individualOutcomes)
+	    			printOutputs.add(Outputs.INDIVIDUAL_OUTCOMES);
+	    		if (args1.breakdownCost)
+	    			printOutputs.add(Outputs.BREAKDOWN_COST);
+	    		final Discount discountCost;
+	    		final Discount discountEffect;
+	    		if (args1.discount.size() == 0) {
+	    			// The Canada experiment requires its own discount rate
+	    			if (args1.population == 3) {
+		    			discountCost = new StdDiscount(CanadaSecondOrderParams.DISCOUNT_RATE);
+		    			discountEffect = new StdDiscount(CanadaSecondOrderParams.DISCOUNT_RATE);
+	    			}
+	    			// DCCT uses no discount
+	    			else if (args1.population == 4) {
+			    			discountCost = new ZeroDiscount();
+			    			discountEffect = new ZeroDiscount();
+		    			}
+		    		// Use default discount
+	    			else {
+		    			discountCost = new StdDiscount(BasicConfigParams.DEF_DISCOUNT_RATE);
+		    			discountEffect = new StdDiscount(BasicConfigParams.DEF_DISCOUNT_RATE);
+	    			}
+	    		}
+	    		else if (args1.discount.size() == 1) {
+	    			final double value = args1.discount.get(0);
+	    			discountCost = (value == 0.0) ? new ZeroDiscount() : new StdDiscount(value);
+	    			discountEffect = (value == 0.0) ? new ZeroDiscount() : new StdDiscount(value);
+	    		}
+	    		else {
+	    			final double valueCost = args1.discount.get(0);
+	    			final double valueEffect = args1.discount.get(1);
+	    			discountCost = (valueCost == 0.0) ? new ZeroDiscount() : new StdDiscount(valueCost);
+	    			discountEffect = (valueEffect == 0.0) ? new ZeroDiscount() : new StdDiscount(valueEffect);
+	    		}
+		        final T1DMMain experiment = new T1DMMain(out, secParams, args1.nRuns, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs);
 		        experiment.run();
 	    	}
 	    	else {
@@ -350,8 +402,9 @@ public class T1DMMain {
 		private int population = 1;
 		@Parameter(names ={"--single_patient_output", "-es"}, description = "Enables printing the specified patient's output", order = 4)
 		private int singlePatientOutput = -1;
-		@Parameter(names ={"--nodiscount", "-nd"}, description = "Uses discount rate = 0%", order = 7)
-		private boolean noDiscount = false;
+		@Parameter(names = {"--discount", "-dr"}, variableArity = true, 
+				description = "The discount rate to be applied. If more than one value is provided, the first one is used for costs, and the second for effects. Default value is " + BasicConfigParams.DEF_DISCOUNT_RATE, order = 7)
+		public List<Double> discount = new ArrayList<>();
 		@Parameter(names ={"--prevalence", "-ep"}, description = "Enables printing prevalence of complications by age group ", order = 9)
 		private boolean prevalence = false;
 		@Parameter(names ={"--incidence", "-ei"}, description = "Enables printing incidence of complications by age group ", order = 9)
@@ -360,6 +413,8 @@ public class T1DMMain {
 		private boolean cumm = false;
 		@Parameter(names ={"--outcomes", "-eo"}, description = "Enables printing individual outcomes", order = 9)
 		private boolean individualOutcomes = false;
+		@Parameter(names ={"--costs", "-ebc"}, description = "Enables printing breakdown of costs", order = 9)
+		private boolean breakdownCost = false;
 		@Parameter(names ={"--budget", "-ebi"}, description = "Enables printing budget impact", order = 9)
 		private boolean bi = false;
 		@Parameter(names ={"--parallel", "-p"}, description = "Enables parallel execution", order = 5)

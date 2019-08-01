@@ -36,6 +36,8 @@ public class BasicConfigParams {
 	public final static int DEF_MIN_AGE = 18;
 	/** Maximum age reachable by patients */
 	public final static int DEF_MAX_AGE = 100;
+	/** Default discount rate (3% according to Spanish guidelines) */
+	public final static double DEF_DISCOUNT_RATE = 0.03;
 	/** If true, uses the utilities from the revision of Beaudet et al. 2014 */
 	public static boolean USE_REVIEW_UTILITIES = true;
 	/** If true, uses the simplest models for diseases */
@@ -114,6 +116,7 @@ public class BasicConfigParams {
 		for (Map.Entry<String, Double> initP : INIT_PROP.entrySet()) {
 			str.append("P_INIT_").append(initP.getKey()).append("\t").append(initP.getValue()).append(System.lineSeparator());
 		}
+		str.append("DEF_DISCOUNT_RATE:\t").append(DEF_DISCOUNT_RATE).append(System.lineSeparator());
 		str.append("DEF_U_GENERAL_POP:\t").append(DEF_U_GENERAL_POP).append(System.lineSeparator());
 		str.append("DEF_C_DNC:\t").append(DEF_C_DNC.VALUE + " (" + DEF_C_DNC.YEAR + ")").append(System.lineSeparator());
 		str.append("DEF_DU_DNC:\t").append(DEF_DU_DNC[0] + " (SD:" + DEF_DU_DNC[1] + ")").append(System.lineSeparator());
