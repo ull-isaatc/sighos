@@ -7,11 +7,10 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.hta.diabetes.canada.CanadaSecondOrderParams;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.CostListener;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.DiabetesPatientInfoView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.QALYListener;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.DiabetesPatientInfoView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.TimeFreeOfComplicationsView;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
@@ -91,7 +90,6 @@ public class T1DMMainTest {
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
-		simul.addInfoReceiver(new AnnualCostView(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), N_PATIENTS, secParams.getMinAge(), BasicConfigParams.DEF_MAX_AGE));
 		simul.addInfoReceiver(timeFreeListener);
 		addListeners(simul);
 		simul.run();
@@ -100,7 +98,6 @@ public class T1DMMainTest {
 			simul.addInfoReceiver(costListeners[i]);
 			simul.addInfoReceiver(lyListeners[i]);
 			simul.addInfoReceiver(qalyListeners[i]);
-			simul.addInfoReceiver(new AnnualCostView(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), N_PATIENTS, BasicConfigParams.DEF_MIN_AGE, BasicConfigParams.DEF_MAX_AGE));
 			simul.addInfoReceiver(timeFreeListener);
 			addListeners(simul);
 			simul.run();				
