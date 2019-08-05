@@ -22,9 +22,12 @@ import es.ull.iis.simulation.hta.diabetes.submodels.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.LyNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.LyRETSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SMILESevereHypoglycemiaEvent;
+import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldRETSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleCHDSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleNEUSubmodel;
+import es.ull.iis.simulation.hta.diabetes.submodels.SimpleNPHSubmodel;
+import es.ull.iis.simulation.hta.diabetes.submodels.SimpleRETSubmodel;
 
 /**
  * A repository with data used to parameterize a model where:
@@ -101,8 +104,16 @@ public class SMILESecondOrderParams extends SecondOrderParamsRepository {
 				STR_SMILE_PRIVATE, P_INIT_HF[0], "BetaVariate", P_INIT_HF[1], P_INIT_HF[2]));
 		
 		// Chronic complication submodels
-		registerComplication(new LyNPHSubmodel());
-		registerComplication(new LyRETSubmodel());
+		if (BasicConfigParams.USE_SIMPLE_MODELS) {
+			registerComplication(new SimpleNPHSubmodel());
+			registerComplication(new SimpleRETSubmodel());
+		}
+		else {
+			registerComplication(new SheffieldNPHSubmodel());
+			registerComplication(new SheffieldRETSubmodel());
+		}
+//		registerComplication(new LyNPHSubmodel());
+//		registerComplication(new LyRETSubmodel());
 		registerComplication(new SimpleCHDSubmodel());
 		registerComplication(new SimpleNEUSubmodel());
 

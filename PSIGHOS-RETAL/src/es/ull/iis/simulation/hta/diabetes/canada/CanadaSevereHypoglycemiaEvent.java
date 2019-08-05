@@ -25,18 +25,18 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class CanadaSevereHypoglycemiaEvent extends SecondOrderAcuteComplicationSubmodel {
-	public static final String STR_P_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name();
-	public static final String STR_P_DEATH_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + SecondOrderParamsRepository.STR_DEATH_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name();
-	public static final String STR_RR_HYPO = SecondOrderParamsRepository.STR_RR_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name(); 
-	public static final String STR_COST_HYPO_EPISODE = SecondOrderParamsRepository.STR_COST_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name();
-	public static final String STR_DU_HYPO_EVENT = SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name();
+	public static final String STR_P_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + DiabetesAcuteComplications.SHE.name();
+	public static final String STR_P_DEATH_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + SecondOrderParamsRepository.STR_DEATH_PREFIX + DiabetesAcuteComplications.SHE.name();
+	public static final String STR_RR_HYPO = SecondOrderParamsRepository.STR_RR_PREFIX + DiabetesAcuteComplications.SHE.name(); 
+	public static final String STR_COST_HYPO_EPISODE = SecondOrderParamsRepository.STR_COST_PREFIX + DiabetesAcuteComplications.SHE.name();
+	public static final String STR_DU_HYPO_EVENT = SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + DiabetesAcuteComplications.SHE.name();
 	
 	private static final double C_HYPO_EPISODE = 3755;
 	private static final double DU_HYPO_EPISODE = 0.0206; // From Canada
 	private static final String DEF_SOURCE = "Canada";
 
 	public CanadaSevereHypoglycemiaEvent() {
-		super(DiabetesAcuteComplications.SEVERE_HYPO, EnumSet.of(DiabetesType.T1));
+		super(DiabetesAcuteComplications.SHE, EnumSet.of(DiabetesType.T1));
 	}
 	
 	@Override
@@ -74,8 +74,8 @@ public class CanadaSevereHypoglycemiaEvent extends SecondOrderAcuteComplicationS
 						secParams.getnPatients(), 
 						secParams.getProbParam(STR_P_DEATH_HYPO)));
 			
-			cost = secParams.getCostForAcuteComplication(DiabetesAcuteComplications.SEVERE_HYPO);
-			du = secParams.getDisutilityForAcuteComplication(DiabetesAcuteComplications.SEVERE_HYPO);
+			cost = secParams.getCostForAcuteComplication(DiabetesAcuteComplications.SHE);
+			du = secParams.getDisutilityForAcuteComplication(DiabetesAcuteComplications.SHE);
 		}
 		
 		/* (non-Javadoc)

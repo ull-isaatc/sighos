@@ -21,11 +21,11 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicationSubmodel {
-	public static final String STR_P_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name();
-	public static final String STR_P_DEATH_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + SecondOrderParamsRepository.STR_DEATH_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name();
-	public static final String STR_RR_HYPO = SecondOrderParamsRepository.STR_RR_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name(); 
-	public static final String STR_COST_HYPO_EPISODE = SecondOrderParamsRepository.STR_COST_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name();
-	public static final String STR_DU_HYPO_EVENT = SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + DiabetesAcuteComplications.SEVERE_HYPO.name();
+	public static final String STR_P_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + DiabetesAcuteComplications.SHE.name();
+	public static final String STR_P_DEATH_HYPO = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + SecondOrderParamsRepository.STR_DEATH_PREFIX + DiabetesAcuteComplications.SHE.name();
+	public static final String STR_RR_HYPO = SecondOrderParamsRepository.STR_RR_PREFIX + DiabetesAcuteComplications.SHE.name(); 
+	public static final String STR_COST_HYPO_EPISODE = SecondOrderParamsRepository.STR_COST_PREFIX + DiabetesAcuteComplications.SHE.name();
+	public static final String STR_DU_HYPO_EVENT = SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + DiabetesAcuteComplications.SHE.name();
 
 	private static final double P_DEATH = 0.0063;
 	private final SecondOrderParam p; 
@@ -34,7 +34,7 @@ public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicatio
 	private final SecondOrderCostParam cost;
 
 	public StandardSevereHypoglycemiaEvent(SecondOrderParam p, SecondOrderParam rr, SecondOrderParam du, SecondOrderCostParam cost) {
-		super(DiabetesAcuteComplications.SEVERE_HYPO, EnumSet.of(DiabetesType.T1));
+		super(DiabetesAcuteComplications.SHE, EnumSet.of(DiabetesType.T1));
 		this.p = p;
 		this.rr = rr;
 		this.du = du;
@@ -45,7 +45,7 @@ public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicatio
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
 		final double[] paramsDeathHypo = SecondOrderParamsRepository.betaParametersFromNormal(P_DEATH, SecondOrderParamsRepository.sdFrom95CI(new double[]{0.0058, 0.0068}));
 		secParams.addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", 
-				"Canada", 0.0063, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
+				"Canada", P_DEATH, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
 		secParams.addProbParam(p);
 		secParams.addOtherParam(rr);
 
@@ -77,8 +77,8 @@ public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicatio
 					secParams.getnPatients(), 
 					secParams.getProbParam(STR_P_DEATH_HYPO)));
 			
-			cost = secParams.getCostForAcuteComplication(DiabetesAcuteComplications.SEVERE_HYPO);
-			du = secParams.getDisutilityForAcuteComplication(DiabetesAcuteComplications.SEVERE_HYPO);
+			cost = secParams.getCostForAcuteComplication(DiabetesAcuteComplications.SHE);
+			du = secParams.getDisutilityForAcuteComplication(DiabetesAcuteComplications.SHE);
 		}
 		
 		@Override

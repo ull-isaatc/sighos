@@ -9,7 +9,7 @@ package es.ull.iis.simulation.hta.diabetes;
  *
  */
 public enum DiabetesAcuteComplications implements Named {
-	SEVERE_HYPO("Severe hypoglycemic event");
+	SHE("Severe hypoglycemic event");
 	
 	private final String description;
 	

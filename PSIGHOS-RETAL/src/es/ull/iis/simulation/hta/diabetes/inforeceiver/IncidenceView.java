@@ -137,7 +137,7 @@ public class IncidenceView implements ExperimentListener<IncidenceView.InnerList
 		}
 
 		@Override
-		public void updateExperiment(DiabetesSimulation simul) {
+		public synchronized void updateExperiment(DiabetesSimulation simul) {
 			final int interventionId = simul.getIntervention().getIdentifier();
 			if (cummulative) {
 				double accDeaths = 0.0;

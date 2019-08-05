@@ -66,7 +66,7 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 	
 	@Override
 	public UtilityCalculator getUtilityCalculator(double duDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels) {
-		return new CanadaUtilityCalculator(duDNC, BasicConfigParams.DEF_U_GENERAL_POP, acuteSubmodels[DiabetesAcuteComplications.SEVERE_HYPO.ordinal()].getDisutility(null));
+		return new CanadaUtilityCalculator(duDNC, BasicConfigParams.DEF_U_GENERAL_POP, acuteSubmodels[DiabetesAcuteComplications.SHE.ordinal()].getDisutility(null));
 	}
 	
 }

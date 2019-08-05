@@ -27,4 +27,9 @@ public interface DiabetesPopulation {
 	 * @return the minimum age for the patients
 	 */
 	public int getMinAge();
+	/**
+	 * Returns the maximum age for the patients
+	 * @return the maximum age for the patients
+	 */
+	public int getMaxAge();
 }

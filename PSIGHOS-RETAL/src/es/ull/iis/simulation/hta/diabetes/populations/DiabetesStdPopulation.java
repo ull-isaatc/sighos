@@ -46,7 +46,7 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 	@Override
 	public DiabetesPatientProfile getPatientProfile() {
 		final int sex = (rng.draw() < pMan) ? BasicConfigParams.MAN : BasicConfigParams.WOMAN;
-		final double initAge = Math.max(baselineAge.generate(), getMinAge());		
+		final double initAge = Math.min(Math.max(baselineAge.generate(), getMinAge()), getMaxAge());		
 		return new DiabetesPatientProfile(initAge, sex, baselineDurationOfDiabetes.generate(), baselineHBA1c.generate());
 	}
 
@@ -58,6 +58,11 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 	@Override
 	public int getMinAge() {
 		return BasicConfigParams.DEF_MIN_AGE;
+	}
+	
+	@Override
+	public int getMaxAge() {
+		return BasicConfigParams.DEF_MAX_AGE;
 	}
 	
 	/**

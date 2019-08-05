@@ -27,7 +27,9 @@ public class SMILEPopulation extends DiabetesStdPopulation {
 	/** Average and SD HbA1c in the population at baseline, according to SMILE */
 	private static final double[] BASELINE_HBA1C = {7.649673203, 0.898436081}; 
 	/** The average age at baseline, according to SMILE */
-	private static final double[] BASELINE_AGE = {48.19477124, 12.33734058}; 
+	private static final double[] BASELINE_AGE = {48.19477124, 12.33734058};
+	/** Minimum and maximum age according to SMILE */
+	private static final int[] BASELINE_MM_AGE = {24, 75}; 
 	/** Duration of diabetes at baseline, according to SMILE */
 	private static final double[] BASELINE_DURATION = {29.10392157, 12.23117986}; 
 
@@ -46,6 +48,16 @@ public class SMILEPopulation extends DiabetesStdPopulation {
 	}
 
 	@Override
+	public int getMinAge() {
+		return BASELINE_MM_AGE[0];
+	}
+	
+	@Override
+	public int getMaxAge() {
+		return BASELINE_MM_AGE[1];
+	}
+	
+	@Override
 	protected RandomVariate getBaselineHBA1c() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_HBA1C)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_HBA1C[0]);
@@ -56,6 +68,9 @@ public class SMILEPopulation extends DiabetesStdPopulation {
 	protected RandomVariate getBaselineAge() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_AGE)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_AGE[0]);
+//		final double[] params = SecondOrderParamsRepository.betaParametersFromEmpiricData(BASELINE_AGE[0], 46.5, BASELINE_MM_AGE[0], BASELINE_MM_AGE[1]);
+//		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", params[0], params[1]); 
+//		return RandomVariateFactory.getInstance("ScaledVariate", rnd, BASELINE_MM_AGE[1] - BASELINE_MM_AGE[0], BASELINE_MM_AGE[0]);
 		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_AGE[0], BASELINE_AGE[1]);
 	}
 

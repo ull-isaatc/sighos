@@ -181,16 +181,16 @@ public class AnnualCostView implements ExperimentListener<AnnualCostView.InnerLi
 			}
 		}
 
-		public void updateExperiment(DiabetesSimulation simul) {
+		public synchronized void updateExperiment(DiabetesSimulation simul) {
 			final int interventionId = simul.getIntervention().getIdentifier();
 			for (int i = 0; i < maxAge-minAge+1; i++) {
 				AnnualCostView.this.managementCost[interventionId][i] += managementCost[i] / nPatients;
 				AnnualCostView.this.interventionCost[interventionId][i] += interventionCost[i] / nPatients;
 				for (int j = 0; j < DiabetesChronicComplications.values().length; j++) {
-					AnnualCostView.this.chronicCost[interventionId][j][i] = chronicCost[j][i] / nPatients;
+					AnnualCostView.this.chronicCost[interventionId][j][i] += chronicCost[j][i] / nPatients;
 				}
 				for (int j = 0; j < DiabetesAcuteComplications.values().length; j++) {
-					AnnualCostView.this.acuteCost[interventionId][j][i] = acuteCost[j][i] / nPatients;
+					AnnualCostView.this.acuteCost[interventionId][j][i] += acuteCost[j][i] / nPatients;
 				}
 			}			
 		}
