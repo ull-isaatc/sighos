@@ -18,15 +18,28 @@ public abstract class UniqueEventParam<T> implements Param<T> {
 	private final RandomNumber rng;
 	/** The value generated for this parameter for each patient */
 	private final double[] generated;
-
+	/** If true, stores Math.log of the random numbers generated, instead of the random number in [0,1] */
+	private final boolean logRandom;
+	
 	/**
 	 * Creates a parameter that represents a one-time event for a patient
+	 * @param rng Random number generator
 	 * @param nPatients Number of patients simulated
+	 * @param logRandom If true, stores Math.log of the random numbers generated, instead of the random number in [0,1]
 	 */
-	public UniqueEventParam(RandomNumber rng, int nPatients) {
+	public UniqueEventParam(RandomNumber rng, int nPatients, boolean logRandom) {
 		this.generated = new double[nPatients];
 		this.rng = rng;
 		Arrays.fill(generated, Double.NaN);
+		this.logRandom = logRandom;
+	}
+	/**
+	 * Creates a parameter that represents a one-time event for a patient
+	 * @param rng Random number generator
+	 * @param nPatients Number of patients simulated
+	 */
+	public UniqueEventParam(RandomNumber rng, int nPatients) {
+		this(rng, nPatients, false);
 	}
 
 	/**
@@ -36,7 +49,7 @@ public abstract class UniqueEventParam<T> implements Param<T> {
 	 */
 	protected double draw(DiabetesPatient pat) {
 		if (Double.isNaN(generated[pat.getIdentifier()])) {
-			generated[pat.getIdentifier()] = rng.draw();
+			generated[pat.getIdentifier()] = logRandom ? Math.log(rng.draw()) : rng.draw();
 		}
 		return generated[pat.getIdentifier()];
 	}

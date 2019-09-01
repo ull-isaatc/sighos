@@ -16,7 +16,7 @@ import es.ull.iis.simulation.hta.diabetes.params.TimeToEventParam;
 
 /**
  * An abstract class representing the evolution of a chronic complication. Chronic complications can be represented 
- * as a progression of stages of any complexity, and incur in annual costs and disutilities. Additionaly, starting
+ * as a progression of stages of any complexity, and incur in annual costs and disutilities. Additionally, starting
  * each stage of the complication can incur in one-time costs.
  * @author Iván Castilla Rodríguez
  *

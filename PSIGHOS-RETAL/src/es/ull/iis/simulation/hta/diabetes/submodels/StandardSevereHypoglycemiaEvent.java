@@ -33,8 +33,8 @@ public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicatio
 	private final SecondOrderParam du; 
 	private final SecondOrderCostParam cost;
 
-	public StandardSevereHypoglycemiaEvent(SecondOrderParam p, SecondOrderParam rr, SecondOrderParam du, SecondOrderCostParam cost) {
-		super(DiabetesAcuteComplications.SHE, EnumSet.of(DiabetesType.T1));
+	public StandardSevereHypoglycemiaEvent(SecondOrderParam p, SecondOrderParam rr, SecondOrderParam du, SecondOrderCostParam cost, EnumSet<DiabetesType> diabetesTypes) {
+		super(DiabetesAcuteComplications.SHE, diabetesTypes);
 		this.p = p;
 		this.rr = rr;
 		this.du = du;

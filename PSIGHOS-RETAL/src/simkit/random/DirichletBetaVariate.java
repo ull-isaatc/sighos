@@ -7,13 +7,13 @@ package simkit.random;
  * @author Iván Castilla Rodríguez
  *
  */
-public class DirichletVariate extends RandomVariateBase {
+public class DirichletBetaVariate extends RandomVariateBase {
 	private double[] coefficients;
-	private GammaVariate[] gammas;
+	private BetaVariate[] betas;
 	/**
 	 * 
 	 */
-	public DirichletVariate() {
+	public DirichletBetaVariate() {
 	}
 
 	/* (non-Javadoc)
@@ -34,7 +34,7 @@ public class DirichletVariate extends RandomVariateBase {
 		double sum = 0.0;
 		final double[] newCoeff = new double[coefficients.length];
 		for (int i = 0; i < coefficients.length; i++) {
-			newCoeff[i] = gammas[i].generate();
+			newCoeff[i] = betas[i].generate();
 			sum += newCoeff[i];
 		}
 		if (scale) {
@@ -82,9 +82,13 @@ public class DirichletVariate extends RandomVariateBase {
 	 */
 	public void setCoefficients(double[] coefficients) {
 		this.coefficients = coefficients.clone();
-		gammas = new GammaVariate[coefficients.length];
+		betas = new BetaVariate[coefficients.length];
+		double sum = 0.0;
 		for (int i = 0; i < coefficients.length; i++) {
-			gammas[i] = (GammaVariate)RandomVariateFactory.getInstance("GammaVariate", 1.0, coefficients[i]);
+			sum += coefficients[i];
+		}
+		for (int i = 0; i < coefficients.length; i++) {
+			betas[i] = (BetaVariate)RandomVariateFactory.getInstance("BetaVariate", coefficients[i], sum - coefficients[i]);
 		}
 	}
 

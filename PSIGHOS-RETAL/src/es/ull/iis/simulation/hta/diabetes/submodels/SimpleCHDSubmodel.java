@@ -19,6 +19,7 @@ import es.ull.iis.simulation.hta.diabetes.params.RRCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import simkit.random.RandomIntegerSelector;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -172,13 +173,13 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 		addSecondOrderInitProportion(secParams);
 	}
 
-	public CHDComplicationSelector getRandomVariateForCHDComplications(SecondOrderParamsRepository secParams) {
+	public RandomIntegerSelector getRandomVariateForCHDComplications(SecondOrderParamsRepository secParams) {
 		final double [] coef = new double[CHDSubstates.length];
 		for (int i = 0; i < CHDSubstates.length; i++) {
 			final DiabetesComplicationStage comp = CHDSubstates[i];
 			coef[i] = secParams.getOtherParam(SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + comp.name());
 		}
-		return new CHDComplicationSelector(coef);
+		return new RandomIntegerSelector(coef);
 	}
 
 	@Override
@@ -206,7 +207,7 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 		private final double [][] rnd;
 		/** Random value for predicting CHD-related death */ 
 		private final double [] rndDeath;
-		private final CHDComplicationSelector pCHDComplication;
+		private final RandomIntegerSelector pCHDComplication;
 
 		private final double[]pDeathMI;
 		private final double pDeathStroke;
@@ -351,54 +352,6 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 				return getData(MI).getDisutility();				
 			return 0.0;
 		}
-	}
-
-	/**
-	 * A class to select among different options. Returns the index of the option selected according to a set of initial frequencies.
-	 * Adapted from "simkit.random.DiscreteIntegerVariate" (https://github.com/kastork/simkit-mirror/blob/master/src/simkit/random/DiscreteIntegerVariate.java)
-	 * @author Iván Castilla Rodríguez
-	 *
-	 */
-	private final class CHDComplicationSelector {
-		private final double[] frequencies;
-		private final double[] cdf;
-		/**
-		 * 
-		 */
-		public CHDComplicationSelector(double[] frequencies) {
-	        this.frequencies = frequencies;
-	        this.normalize();
-	        cdf = new double[frequencies.length];
-	        cdf[0] = frequencies[0];
-	        for (int i = 1; i < frequencies.length; i++) {
-	                cdf[i] += cdf[i - 1] + frequencies[i];
-	        }
-		}
-
-		public int generate(double uniform) {
-			int index;
-			for (index = 0; (uniform > cdf[index]) && (index < cdf.length - 1); index++) ;
-			return index;
-		}
-
-	    private void normalize() {
-	        double sum = 0.0;
-	        for (int i = 0; i < frequencies.length; ++i) {
-	            if (frequencies[i] < 0.0) {
-	                throw new IllegalArgumentException(
-	                        String.format("Bad frequency value at index %d (value = %.3f)", i, frequencies[i]));
-	            }
-	            sum += frequencies[i];
-	        }
-	        if (sum > 0.0) {
-	            for (int i = 0; i < frequencies.length; ++i) {
-	                frequencies[i] /= sum;
-	            }
-	        } else {
-	            throw new IllegalArgumentException(
-	                    String.format("Frequency sum not positive: %.3f", sum));
-	        }
-	    }
 	}
 
 }

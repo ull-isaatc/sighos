@@ -13,8 +13,8 @@ import simkit.random.RandomNumber;
  *
  */
 public class AnnualRiskBasedTimeToEventParam extends UniqueEventParam<Long> implements TimeToEventParam {
-	/** -1/(annual risk of the event) */
-	private final double minusAvgTimeToEvent; 
+	/** Annual risk of the event */
+	private final double annualRisk; 
 	/** Relative risk calculator */
 	private final RRCalculator rr;
 
@@ -26,19 +26,19 @@ public class AnnualRiskBasedTimeToEventParam extends UniqueEventParam<Long> impl
 	 * @param rr Relative risk for the patient
 	 */
 	public AnnualRiskBasedTimeToEventParam(RandomNumber rng, int nPatients, double annualRisk, RRCalculator rr) {
-		super(rng, nPatients);
-		minusAvgTimeToEvent = -1 / annualRisk;
+		super(rng, nPatients, true);
+		this.annualRisk = annualRisk;
 		this.rr = rr;
 	}
 
 	@Override
 	public Long getValue(DiabetesPatient pat) {
-		final double lifetime = pat.getAgeAtDeath() - pat.getAge();
-		if (Double.isInfinite(minusAvgTimeToEvent))
+		if (annualRisk == 0)
 			return Long.MAX_VALUE;
-		final double newMinus = -1 / (1-Math.exp(Math.log(1+1/minusAvgTimeToEvent)*rr.getRR(pat)));
-		final double time = newMinus * Math.log(draw(pat));		
+		final double lifetime = pat.getAgeAtDeath() - pat.getAge();
+//		final double newMinus = -1 / (1-Math.exp(Math.log(1-annualRisk)*rr.getRR(pat)));
+		final double newMinus = -1 / (1-Math.pow(1-annualRisk, rr.getRR(pat)));
+		final double time = newMinus * draw(pat);		
 		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 	}
-
 }

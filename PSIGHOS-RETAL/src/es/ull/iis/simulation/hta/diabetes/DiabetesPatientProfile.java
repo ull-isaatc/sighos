@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
 
 /**
- * The basic information required to generate a patient from a {@link DiabetesPopulation}. It contains also generic 
+ * The baseline information required to generate a patient from a {@link DiabetesPopulation}. It contains also generic 
  * fields to add properties to the patient without modifying the {@link DiabetesPatient} class itself, that may be 
  * used in new complication submodels.
  * @author icasrod
@@ -29,6 +29,14 @@ public class DiabetesPatientProfile {
 	private final double initDurationOfDiabetes; 
 	/** Initial level of HBA1c */
 	private final double initHBA1c;
+	/** True if the patient smokes */
+	private final boolean smoker;
+	/** True if the patient has atrial fibrillation */
+	private final boolean atrialFib;
+	/** Systolic blood presure, per 10 mm Hg */
+	private final double sbp;
+	/** Lipid ratio, T:H */
+	private final double lipidRatio;
 
 	/**
 	 * Creates a patient profile
@@ -37,7 +45,8 @@ public class DiabetesPatientProfile {
 	 * @param initDurationOfDiabetes Duration of diabetes at the creation of the patient
 	 * @param initHbA1c HbA1c level at the creation of the patient
 	 */
-	public DiabetesPatientProfile(final double initAge, final int sex, final double initDurationOfDiabetes, final double initHbA1c) {
+	public DiabetesPatientProfile(final double initAge, final int sex, final double initDurationOfDiabetes, final double initHbA1c, 
+			boolean smoker, boolean atrialFib, double sbp, double lipidRatio) {
 		intProperties = new TreeMap<>();
 		doubleProperties = new TreeMap<>();
 		boolProperties = new TreeMap<>();
@@ -45,6 +54,10 @@ public class DiabetesPatientProfile {
 		this.sex = sex;
 		this.initDurationOfDiabetes = initDurationOfDiabetes;
 		this.initHBA1c = initHbA1c;
+		this.smoker = smoker;
+		this.atrialFib = atrialFib;
+		this.sbp = sbp;
+		this.lipidRatio = lipidRatio;
 	}
 
 	/**
@@ -77,6 +90,36 @@ public class DiabetesPatientProfile {
 	 */
 	public double getInitHBA1c() {
 		return initHBA1c;
+	}
+
+	/**
+	 * Returns true if the patient is an active smoker
+	 * @return true if the patient is an active smoker; false otherwise
+	 */
+	public boolean isSmoker() {
+		return smoker;
+	}
+	
+	/**
+	 * Returns true if the patient suffers from atrial fibrillation
+	 * @return true if the patient suffers from atrial fibrillation; false otherwise
+	 */
+	public boolean hasAtrialFibrillation() {
+		return atrialFib;
+	}
+	
+	/**
+	 * @return the sbp
+	 */
+	public double getSbp() {
+		return sbp;
+	}
+
+	/**
+	 * @return the lipidRatio
+	 */
+	public double getLipidRatio() {
+		return lipidRatio;
 	}
 
 	/**

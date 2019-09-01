@@ -54,7 +54,15 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 	/** How long is the effect of the intervention active. When finished, time to events must be updated */
 	private final long durationOfEffect;
 	/** Duration of diabetes at the creation of the patient (stored as simulation time units) */
-	private final long baseDurationOfDiabetes; 
+	private final long baseDurationOfDiabetes;
+	/** True if the patient smokes */
+	private boolean smoker;
+	/** True if the patient has atrial fibrillation */
+	private boolean atrialFib;
+	/** Systolic blood presure, per 10 mm Hg */
+	private double sbp;
+	/** Lipid ratio, T:H */
+	private double lipidRatio;
 	/** Common parameters to characterize progression, time to events... */
 	private final CommonParams commonParams;
 	
@@ -87,6 +95,10 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 
 		this.initAge = BasicConfigParams.SIMUNIT.convert(profile.getInitAge(), TimeUnit.YEAR);
 		this.baseDurationOfDiabetes = Math.min(Math.max(BasicConfigParams.SIMUNIT.convert(profile.getInitDurationOfDiabetes(), TimeUnit.YEAR), 0), initAge);
+		this.smoker = profile.isSmoker();
+		this.atrialFib = profile.hasAtrialFibrillation();
+		this.sbp = profile.getSbp();
+		this.lipidRatio = profile.getLipidRatio();
 		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getRegisteredComplicationStages().size()];
 		Arrays.fill(comorbidityEvents, null);
 		acuteEvents = new ArrayList<>(DiabetesAcuteComplications.values().length);
@@ -268,6 +280,36 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 	 */
 	public double getHba1c() {
 		return hba1c;
+	}
+
+	/**
+	 * Returns true if the patient is an active smoker
+	 * @return true if the patient is an active smoker; false otherwise
+	 */
+	public boolean isSmoker() {
+		return smoker;
+	}
+	
+	/**
+	 * Returns true if the patient suffers from atrial fibrillation
+	 * @return true if the patient suffers from atrial fibrillation; false otherwise
+	 */
+	public boolean hasAtrialFibrillation() {
+		return atrialFib;
+	}
+	
+	/**
+	 * @return the sbp
+	 */
+	public double getSbp() {
+		return sbp;
+	}
+
+	/**
+	 * @return the lipidRatio
+	 */
+	public double getLipidRatio() {
+		return lipidRatio;
 	}
 
 	/**

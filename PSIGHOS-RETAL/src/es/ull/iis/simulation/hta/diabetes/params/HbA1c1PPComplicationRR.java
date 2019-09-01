@@ -8,7 +8,7 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 /**
  * Computes the RR according to Selvin et al 2004. There, they associated a relative risk to a 1 percentage point increment of HbA1c.
  * Lets HbA1c_0 be the reference HbA1c level.
- * Lets p_0 be the probability of the complication for HbA1c.
+ * Lets p_0 be the probability of the complication for HbA1c_0.
  * Lets consider a new level of HbA1c, HbA1c_k = HbA1c_0 + k. p_k would be the probability of complication for that level.
  * Lets RR_0 be the relative risk associated to a 1 PP increment of HbA1c, i.e., p_1 = p_0 X RR_0
  * 

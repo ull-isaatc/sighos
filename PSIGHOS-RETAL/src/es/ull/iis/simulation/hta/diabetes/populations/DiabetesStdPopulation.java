@@ -9,6 +9,7 @@ import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariate;
+import simkit.random.RandomVariateFactory;
 
 /**
  * A basic class to generate non-correlated information about patients.
@@ -24,6 +25,14 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 	private final RandomVariate baselineHBA1c;
 	/** Distribution to set the duration of diabetes of the patients when created */
 	private final RandomVariate baselineDurationOfDiabetes;
+	/** Probability of a patient of being smoker */
+	private final double pSmoker;
+	/** Probability of a patient of having atrial fibrillation */
+	private final double pAtrialFib;
+	/** Distribution to set the SBP of the patients when created */
+	private final RandomVariate baselineSBP;
+	/** Distribution to set the lipid ratio T:H of the patients when created */
+	private final RandomVariate baselineLipidRatio;
 	/** Diabetes type */
 	private final DiabetesType type;
 	/** Random number generator */
@@ -40,6 +49,10 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 		baselineAge = getBaselineAge();
 		baselineHBA1c = getBaselineHBA1c();
 		baselineDurationOfDiabetes = getBaselineDurationOfDiabetes();
+		baselineSBP = getBaselineSBP();
+		baselineLipidRatio = getBaselineLipidRatio();
+		pSmoker = getPSmoker();
+		pAtrialFib = getPAtrialFibrillation();
 		rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 	}
 
@@ -47,7 +60,8 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 	public DiabetesPatientProfile getPatientProfile() {
 		final int sex = (rng.draw() < pMan) ? BasicConfigParams.MAN : BasicConfigParams.WOMAN;
 		final double initAge = Math.min(Math.max(baselineAge.generate(), getMinAge()), getMaxAge());		
-		return new DiabetesPatientProfile(initAge, sex, baselineDurationOfDiabetes.generate(), baselineHBA1c.generate());
+		return new DiabetesPatientProfile(initAge, sex, baselineDurationOfDiabetes.generate(), baselineHBA1c.generate(), 
+				rng.draw() < pSmoker, rng.draw() < pAtrialFib, baselineSBP.generate(), baselineLipidRatio.generate());
 	}
 
 	@Override
@@ -85,4 +99,32 @@ public abstract class DiabetesStdPopulation implements DiabetesPopulation {
 	 * @return a function to assign the duration of diabetes at baseline
 	 */
 	protected abstract RandomVariate getBaselineDurationOfDiabetes();
+	/**
+	 * Creates and returns the probability of being smoker according to the population characteristics.
+	 * @return the probability of being smoker according to the population characteristics
+	 */
+	protected double getPSmoker() {
+		return BasicConfigParams.DEFAULT_P_SMOKER;
+	}
+	/**
+	 * Creates and returns the probability of having atrial fibrillation according to the population characteristics.
+	 * @return the probability of having atrial fibrillation according to the population characteristics
+	 */
+	protected double getPAtrialFibrillation() {
+		return BasicConfigParams.DEFAULT_P_ATRIAL_FIB;
+	}
+	/**
+	 * Creates and returns a function to assign the SBP at baseline
+	 * @return a function to assign the SBP at baseline
+	 */
+	protected RandomVariate getBaselineSBP() {
+		return RandomVariateFactory.getInstance("Constant", BasicConfigParams.DEFAULT_SBP);
+	}
+	/**
+	 * Creates and returns a function to assign the lipid ratio at baseline
+	 * @return a function to assign the lipid ratio at baseline
+	 */
+	protected RandomVariate getBaselineLipidRatio() {
+		return RandomVariateFactory.getInstance("Constant", BasicConfigParams.DEFAULT_LIPID_RATIO);		
+	}
 }

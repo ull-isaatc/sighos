@@ -36,6 +36,10 @@ public class BasicConfigParams {
 	public final static int DEF_MIN_AGE = 18;
 	/** Maximum age reachable by patients */
 	public final static int DEF_MAX_AGE = 100;
+	public final static double DEFAULT_SBP = 110;
+	public final static double DEFAULT_P_SMOKER = 0.2;
+	public final static double DEFAULT_P_ATRIAL_FIB = 0.04;
+	public final static double DEFAULT_LIPID_RATIO = 3;
 	/** Default discount rate (3% according to Spanish guidelines) */
 	public final static double DEF_DISCOUNT_RATE = 0.03;
 	/** If true, uses the utilities from the revision of Beaudet et al. 2014 */
@@ -43,7 +47,7 @@ public class BasicConfigParams {
 	/** If true, uses the simplest models for diseases */
 	public static boolean USE_SIMPLE_MODELS = false;
 	/** If true, uses the CHD submodel that includes death by the acute events */
-	public static boolean USE_CHD_DEATH_MODEL = false;
+	public static boolean USE_CHD_DEATH_MODEL = true;
 	/** If true, all the patients start with the same age; otherwise, uses a probability distribution to assign ages */ 
 	public static boolean USE_FIXED_BASELINE_AGE = false;
 	/** If true, all the patients start with the same duration of diabetes; otherwise, uses a probability distribution to assign the duration */ 

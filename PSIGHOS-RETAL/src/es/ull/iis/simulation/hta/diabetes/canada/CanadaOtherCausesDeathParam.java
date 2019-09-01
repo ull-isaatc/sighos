@@ -27,7 +27,7 @@ public class CanadaOtherCausesDeathParam extends UniqueEventParam<Long> implemen
 	
 
 	public CanadaOtherCausesDeathParam(CanadaSecondOrderParams secParams) {
-		super(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients());
+		super(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), true);
 	}
 
 	/**
@@ -37,7 +37,7 @@ public class CanadaOtherCausesDeathParam extends UniqueEventParam<Long> implemen
 	 */
 	public Long getValue(DiabetesPatient pat) {
 		final double age = pat.getAge();
-		double time = INV_RISK * Math.log(draw(pat));
+		double time = INV_RISK * draw(pat);
 		// If the expected time to death is higher than the max age to apply the initial risk, we assume that the patient will
 		// survive up to that age and compute the time to death according to the general population equations. 
 		if (age + time > MAX_AGE)
