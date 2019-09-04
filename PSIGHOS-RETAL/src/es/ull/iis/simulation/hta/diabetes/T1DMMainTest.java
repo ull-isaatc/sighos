@@ -15,7 +15,7 @@ import es.ull.iis.simulation.hta.diabetes.inforeceiver.TimeFreeOfComplicationsVi
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.ZeroDiscount;
 
@@ -73,7 +73,7 @@ public class T1DMMainTest {
 	}
 
 	private static void simulateInterventions(int id, boolean baseCase, DiabetesIntervention[] interventions) {
-		final CommonParams common = new CommonParams(secParams);
+		final RepositoryInstance common = secParams.getInstance();
 		final int nInterventions = secParams.getNInterventions();
 		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(N_PATIENTS, nInterventions, false, secParams.getRegisteredComplicationStages());
 		final CostListener[] costListeners = new CostListener[nInterventions];

@@ -11,7 +11,7 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.model.DiscreteEvent;
@@ -64,7 +64,7 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 	/** Lipid ratio, T:H */
 	private double lipidRatio;
 	/** Common parameters to characterize progression, time to events... */
-	private final CommonParams commonParams;
+	private final RepositoryInstance commonParams;
 	
 	// Events
 	/** Events related to each chronic complication */

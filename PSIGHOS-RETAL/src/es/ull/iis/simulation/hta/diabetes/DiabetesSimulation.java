@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.diabetes;
 
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
 import es.ull.iis.simulation.model.Simulation;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -18,7 +18,7 @@ import es.ull.iis.simulation.model.TimeUnit;
 public class DiabetesSimulation extends Simulation {
 	private final static String DESCRIPTION = "T1DM Simulation";
 	/** Common parameters of the simulation to be used by simulated patients */
-	private final CommonParams commonParams;
+	private final RepositoryInstance commonParams;
 	/** Counter to assign a unique id to each patient */
 	private int patientCounter = 0;
 	/** The intervention assessed in this simulation */
@@ -40,7 +40,7 @@ public class DiabetesSimulation extends Simulation {
 	 * @param population A collection of populations that will serve to generate patients
 	 * @param timeHorizon Duration of the simulation (in years)
 	 */
-	public DiabetesSimulation(int id, DiabetesIntervention intervention, int nPatients, CommonParams commonParams, DiabetesPopulation population, int timeHorizon) {
+	public DiabetesSimulation(int id, DiabetesIntervention intervention, int nPatients, RepositoryInstance commonParams, DiabetesPopulation population, int timeHorizon) {
 		super(id, DESCRIPTION + " " + intervention.getDescription(), BasicConfigParams.SIMUNIT, 0L, BasicConfigParams.SIMUNIT.convert(timeHorizon, TimeUnit.YEAR));
 		this.commonParams = commonParams;
 		this.cloned = false;
@@ -70,7 +70,7 @@ public class DiabetesSimulation extends Simulation {
 	 * Returns the common parameters used within this simulation
 	 * @return the common parameters used within this simulation
 	 */
-	public CommonParams getCommonParams() {
+	public RepositoryInstance getCommonParams() {
 		return commonParams;
 	}
 

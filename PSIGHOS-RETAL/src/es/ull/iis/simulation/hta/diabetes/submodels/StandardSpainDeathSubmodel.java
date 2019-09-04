@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.retal.params.ModelParams;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
@@ -33,17 +34,18 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 	 * @param rng A random number generator
 	 * @param nPatients Number of simulated patients
 	 */
-	public StandardSpainDeathSubmodel(RandomNumber rng, int nPatients) {
+	public StandardSpainDeathSubmodel(SecondOrderParamsRepository secParams) {
 		super();
+		final int nPatients = secParams.getnPatients();
+		final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 		rnd = new double[nPatients];
 		for (int i = 0; i < nPatients; i++) {
 			rnd[i] = rng.draw();
 		}
 		imrs = new TreeMap<>();
-	}
-
-	public void addIMR(DiabetesComplicationStage state, double imr) {
-		imrs.put(state, imr);
+		for (DiabetesComplicationStage stage : secParams.getRegisteredComplicationStages()) {
+			imrs.put(stage, secParams.getIMR(stage));
+		}
 	}
 	
 	/* (non-Javadoc)

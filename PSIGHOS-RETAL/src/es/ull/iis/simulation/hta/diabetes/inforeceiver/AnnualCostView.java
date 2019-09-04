@@ -16,7 +16,7 @@ import es.ull.iis.simulation.hta.diabetes.inforeceiver.ExperimentListener.InnerL
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.diabetes.params.Discount;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.info.SimulationInfo;
@@ -62,7 +62,7 @@ public class AnnualCostView implements ExperimentListener<AnnualCostView.InnerLi
 
 	@Override
 	public void addListener(DiabetesSimulation simul) {
-		final CommonParams common = simul.getCommonParams();
+		final RepositoryInstance common = simul.getCommonParams();
 		final CostCalculator calc = secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels());
 		simul.addInfoReceiver(new InnerListenerInstance(calc));
 	}

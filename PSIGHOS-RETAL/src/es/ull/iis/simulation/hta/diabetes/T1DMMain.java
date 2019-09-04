@@ -22,10 +22,10 @@ import com.beust.jcommander.ParameterException;
 import es.ull.iis.simulation.hta.diabetes.DCCT.DCCTSecondOrderParams;
 import es.ull.iis.simulation.hta.diabetes.canada.CanadaSecondOrderParams;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AcuteComplicationCounterListener;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.BudgetImpactView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.CostListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.DiabetesPatientInfoView;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.ExperimentListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.HbA1cListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.IncidenceByGroupAgeView;
@@ -37,12 +37,11 @@ import es.ull.iis.simulation.hta.diabetes.inforeceiver.TimeFreeOfComplicationsVi
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
 import es.ull.iis.simulation.hta.diabetes.params.Discount;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.diabetes.params.StdDiscount;
 import es.ull.iis.simulation.hta.diabetes.params.ZeroDiscount;
-import es.ull.iis.simulation.hta.diabetes.populations.WESDRPopulation;
 
 /**
  * Main class to launch simulation experiments
@@ -162,7 +161,7 @@ public class T1DMMain {
 	 * @param baseCase True if we are running the base case
 	 */
 	private void simulateInterventions(int id, boolean baseCase) {
-		final CommonParams common = new CommonParams(secParams);
+		final RepositoryInstance common = secParams.getInstance();
 		final int nInterventions = interventions.size();
 		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(nPatients, nInterventions, false, secParams.getRegisteredComplicationStages());
 		final HbA1cListener[] hba1cListeners = new HbA1cListener[nInterventions];

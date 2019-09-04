@@ -496,10 +496,10 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 			addTime2Event(RETTransitions.PRET_BLI.ordinal(), timeToBLI);
 			addTime2Event(RETTransitions.ME_BLI.ordinal(), timeToBLI);
 			
-			addData(secParams, BGRET);
-			addData(secParams, PRET);
-			addData(secParams, ME);
-			addData(secParams, BLI);
+			setStageInstance(BGRET, secParams);
+			setStageInstance(PRET, secParams);
+			setStageInstance(ME, secParams);
+			setStageInstance(BLI, secParams);
 		}
 
 		@Override
@@ -615,13 +615,13 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 
 			if (state.contains(LyRETSubmodel.BLI))
-				cost += getData(BLI).getCosts()[0];
+				cost += getCosts(BLI)[0];
 			else if (state.contains(LyRETSubmodel.ME))
-				cost += getData(ME).getCosts()[0];
+				cost += getCosts(ME)[0];
 			else if (state.contains(LyRETSubmodel.PRET))
-				cost += getData(PRET).getCosts()[0];
+				cost += getCosts(PRET)[0];
 			else if (state.contains(LyRETSubmodel.BGRET))
-				cost += getData(BGRET).getCosts()[0];				
+				cost += getCosts(BGRET)[0];				
 			return cost;
 		}
 
@@ -630,20 +630,20 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			
 			if (state.contains(BLI))
-				return getData(BLI).getDisutility();
+				return getDisutility(BLI);
 			if (state.contains(ME)) {
 				if (state.contains(PRET)) {
-					return method.combine(getData(ME).getDisutility(), getData(PRET).getDisutility());
+					return method.combine(getDisutility(ME), getDisutility(PRET));
 				}
 				else if (state.contains(BGRET)) {
-					return method.combine(getData(ME).getDisutility(), getData(BGRET).getDisutility());				
+					return method.combine(getDisutility(ME), getDisutility(BGRET));				
 				}
 			}
 			if (state.contains(PRET)) {
-				return getData(PRET).getDisutility();
+				return getDisutility(PRET);
 			}
 			else if (state.contains(BGRET)) {
-				return getData(BGRET).getDisutility();				
+				return getDisutility(BGRET);				
 			}
 			return 0.0;
 		}

@@ -114,8 +114,8 @@ public class CanadaRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 			addTime2Event(RETTransitions.RET_BLI.ordinal(), 
 					new AnnualRiskBasedTimeToEventParam(rng, nPatients, secParams.getProbability(RET, BLI), SecondOrderParamsRepository.NO_RR));
 			
-			addData(secParams, RET);
-			addData(secParams, BLI);
+			setStageInstance(RET, secParams);
+			setStageInstance(BLI, secParams);
 		}
 
 		@Override
@@ -167,9 +167,9 @@ public class CanadaRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 		public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			if (state.contains(BLI))
-				return getData(BLI).getCosts()[0];
+				return getCosts(BLI)[0];
 			else if (state.contains(RET))
-				return getData(RET).getCosts()[0];
+				return getCosts(RET)[0];
 			return 0.0;
 		}
 
@@ -177,11 +177,12 @@ public class CanadaRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 		public double getDisutility(DiabetesPatient pat, DisutilityCombinationMethod method) {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			if (state.contains(BLI))
-				return getData(BLI).getDisutility();
+				return getDisutility(BLI);
 			else if (state.contains(RET))
-				return getData(RET).getDisutility();
+				return getDisutility(RET);
 			return 0.0;
 		}
 	}
+
 
 }

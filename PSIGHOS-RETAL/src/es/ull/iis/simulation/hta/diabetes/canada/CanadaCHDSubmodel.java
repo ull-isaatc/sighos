@@ -119,7 +119,7 @@ public class CanadaCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 					new AnnualRiskBasedTimeToEventParam(rng, nPatients, secParams.getProbability(DiabetesChronicComplications.NPH, DiabetesChronicComplications.CHD), rrToCHD));
 			addTime2Event(CHDTransitions.RET_CHD.ordinal(), 
 					new AnnualRiskBasedTimeToEventParam(rng, nPatients, secParams.getProbability(DiabetesChronicComplications.RET, DiabetesChronicComplications.CHD), rrToCHD));
-			addData(secParams, CHD);
+			setStageInstance(CHD, secParams);
 		}
 
 		public DiscreteSelectorVariate getRandomVariateForCHDComplications(SecondOrderParamsRepository secParams) {
@@ -173,12 +173,12 @@ public class CanadaCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 
 		@Override
 		public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
-			return pat.getDetailedState().contains(CHD) ? getData(CHD).getCosts()[0] : 0.0;
+			return pat.getDetailedState().contains(CHD) ? getCosts(CHD)[0] : 0.0;
 		}
 
 		@Override
 		public double getDisutility(DiabetesPatient pat, DisutilityCombinationMethod method) {
-			return pat.getDetailedState().contains(CHD) ? getData(CHD).getDisutility() : 0.0;
+			return pat.getDetailedState().contains(CHD) ? getDisutility(CHD) : 0.0;
 		}
 	}
 }

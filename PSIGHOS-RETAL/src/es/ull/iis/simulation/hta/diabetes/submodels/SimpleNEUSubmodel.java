@@ -147,8 +147,8 @@ public class SimpleNEUSubmodel extends SecondOrderChronicComplicationSubmodel {
 					new AnnualRiskBasedTimeToEventParam(rng, nPatients, 
 					secParams.getProbability(NEU, LEA), SecondOrderParamsRepository.NO_RR));
 			
-			addData(secParams, NEU);
-			addData(secParams, LEA);
+			setStageInstance(NEU, secParams);
+			setStageInstance(LEA, secParams);
 		}
 		
 		@Override
@@ -204,9 +204,9 @@ public class SimpleNEUSubmodel extends SecondOrderChronicComplicationSubmodel {
 		public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			if (state.contains(LEA))
-				return getData(LEA).getCosts()[0];
+				return getCosts(LEA)[0];
 			else if (state.contains(NEU))
-				return getData(NEU).getCosts()[0];
+				return getCosts(NEU)[0];
 			return 0.0;
 		}
 
@@ -214,9 +214,9 @@ public class SimpleNEUSubmodel extends SecondOrderChronicComplicationSubmodel {
 		public double getDisutility(DiabetesPatient pat, DisutilityCombinationMethod method) {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			if (state.contains(LEA))
-				return getData(LEA).getDisutility();
+				return getDisutility(LEA);
 			else if (state.contains(NEU))
-				return getData(NEU).getDisutility();
+				return getDisutility(NEU);
 			return 0.0;
 		}
 	}

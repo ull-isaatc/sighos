@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.retal.params.ModelParams;
 import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
@@ -65,22 +66,20 @@ public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {
 	 * @param rng A random number generator
 	 * @param nPatients Number of simulated patients
 	 */
-	public EmpiricalSpainDeathSubmodel(RandomNumber rng, int nPatients) {
+	public EmpiricalSpainDeathSubmodel(SecondOrderParamsRepository secParams) {
 		super();
+		final int nPatients = secParams.getnPatients();
+		final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 		rnd = new double[nPatients];
 		for (int i = 0; i < nPatients; i++) {
 			rnd[i] = rng.draw();
 		}
 		imrs = new TreeMap<>();
+		for (DiabetesComplicationStage stage : secParams.getRegisteredComplicationStages()) {
+			imrs.put(stage, secParams.getIMR(stage));
+		}
 	}
 
-	public void addIMR(DiabetesComplicationStage state, double imr) {
-		imrs.put(state, imr);
-	}
-	
-	/* (non-Javadoc)
-	 * @see es.ull.iis.simulation.hta.T1DM.DeathSubmodel#getTimeToDeath(es.ull.iis.simulation.hta.T1DM.T1DMPatient)
-	 */
 	/**
 	 * Returns the simulation time until the death of the patient, according to the Spanish mortality tables and increased according to the 
 	 * state of the patient. 

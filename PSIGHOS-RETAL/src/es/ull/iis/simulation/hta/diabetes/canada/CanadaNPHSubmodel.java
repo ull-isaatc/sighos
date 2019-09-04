@@ -124,8 +124,8 @@ public class CanadaNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 					new AnnualRiskBasedTimeToEventParam(rng, nPatients, 
 					secParams.getProbability(DiabetesChronicComplications.NEU, NPH), rrToNPH));
 
-			addData(secParams, NPH);
-			addData(secParams, ESRD);
+			setStageInstance(NPH, secParams);
+			setStageInstance(ESRD, secParams);
 		}
 
 		@Override
@@ -185,9 +185,9 @@ public class CanadaNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 		public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			if (state.contains(ESRD))
-				return getData(ESRD).getCosts()[0];
+				return getCosts(ESRD)[0];
 			else if (state.contains(NPH))
-				return getData(NPH).getCosts()[0];
+				return getCosts(NPH)[0];
 			return 0.0;
 		}
 
@@ -195,11 +195,12 @@ public class CanadaNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 		public double getDisutility(DiabetesPatient pat, DisutilityCombinationMethod method) {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			if (state.contains(ESRD))
-				return getData(ESRD).getDisutility();
+				return getDisutility(ESRD);
 			else if (state.contains(NPH))
-				return getData(NPH).getDisutility();
+				return getDisutility(NPH);
 			return 0.0;
 		}
 	}
+
 
 }

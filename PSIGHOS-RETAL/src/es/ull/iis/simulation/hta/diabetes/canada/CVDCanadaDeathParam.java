@@ -5,7 +5,6 @@ package es.ull.iis.simulation.hta.diabetes.canada;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
 import es.ull.iis.simulation.hta.diabetes.params.RRCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.UniqueEventParam;
@@ -47,7 +46,7 @@ public class CVDCanadaDeathParam extends UniqueEventParam<Long> {
 		else if (age > 60)
 			interval = 1;
 		final int yearsFromCHD = Math.min(9, (int)((pat.getTs() - pat.getTimeToChronicComorbidity(CanadaCHDSubmodel.CHD)) / BasicConfigParams.YEAR_CONVERSION));
-		return CommonParams.getAnnualBasedTimeToEvent(pat, -1 / PROBS_PER_YEAR[yearsFromCHD][interval], draw(pat), rr.getRR(pat));
+		return SecondOrderParamsRepository.getAnnualBasedTimeToEvent(pat, PROBS_PER_YEAR[yearsFromCHD][interval], draw(pat), rr.getRR(pat));
 	}
 
 }

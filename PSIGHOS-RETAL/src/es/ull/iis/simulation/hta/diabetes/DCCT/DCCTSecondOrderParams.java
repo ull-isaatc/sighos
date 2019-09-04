@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.diabetes.DCCT;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.interventions.DCCTConventionalIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.DCCTIntensiveIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
@@ -55,23 +54,7 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 
 	@Override
 	public DeathSubmodel getDeathSubmodel() {
-		final StandardSpainDeathSubmodel dModel = new StandardSpainDeathSubmodel(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients);
-
-		if (BasicConfigParams.USE_SIMPLE_MODELS) {
-			dModel.addIMR(SimpleNPHSubmodel.NPH, getIMR(SimpleNPHSubmodel.NPH));
-			dModel.addIMR(SimpleNPHSubmodel.ESRD, getIMR(SimpleNPHSubmodel.ESRD));
-		}
-		else {
-			dModel.addIMR(SheffieldNPHSubmodel.ALB2, getIMR(SheffieldNPHSubmodel.ALB2));
-			dModel.addIMR(SheffieldNPHSubmodel.ESRD, getIMR(SheffieldNPHSubmodel.ESRD));			
-		}
-		dModel.addIMR(SimpleNEUSubmodel.NEU, getIMR(SimpleNEUSubmodel.NEU));
-		dModel.addIMR(SimpleNEUSubmodel.LEA, getIMR(SimpleNEUSubmodel.LEA));
-		dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(DiabetesChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(DiabetesChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(DiabetesChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(DiabetesChronicComplications.CHD));
-		return dModel;
+		return new StandardSpainDeathSubmodel(this);
 	}
 	
 	@Override

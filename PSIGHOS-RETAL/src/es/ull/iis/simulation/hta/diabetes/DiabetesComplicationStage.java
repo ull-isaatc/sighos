@@ -3,6 +3,9 @@
  */
 package es.ull.iis.simulation.hta.diabetes;
 
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.diabetes.params.StartWithComplicationParam;
+
 /**
  * A stage of a {@link DiabetesChronicComplications chronic complication} defined in the model. Different chronic complications submodels
  * can define different stages that are registered at the beginning of the simulation. 
@@ -82,5 +85,53 @@ public class DiabetesComplicationStage implements Named, Comparable<DiabetesComp
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	public Instance getInstance(final double du, final double[] cost, final StartWithComplicationParam pInit, final double imr) {
+		return new Instance(du, cost, pInit, imr);
+	}
+
+	public Instance getInstance(final double du, final double[] cost, double pInit, final double imr, final int nPatients) {
+		final StartWithComplicationParam param = (pInit > 0.0) ? new StartWithComplicationParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients, pInit) : null;
+		return new Instance(du, cost, param, imr);
+	}
+
+	public class Instance {
+		/** Disutility associated to a year in this stage */
+		private final double du;
+		/** [initial cost, yearly cost] of being in this stage */
+		private final double[] cost;
+		/** Probability that a patient starts in this stage */
+		private final StartWithComplicationParam pInit;
+		/** Increased mortality rate associated to this stage */
+		private final double imr;
+		
+		/**
+		 * @param du
+		 * @param cost
+		 * @param pInit
+		 */
+		private Instance(final double du, final double[] cost, final StartWithComplicationParam pInit, final double imr) {
+			this.du = du;
+			this.cost = cost;
+			this.pInit = pInit;
+			this.imr = imr;
+		}
+		
+		public double getDisutility() {
+			return du;
+		}
+		
+		public double[] getCosts() {
+			return cost;
+		}
+		
+		public boolean hasComplicationAtStart(DiabetesPatient pat) {
+			return (pInit == null) ? false : pInit.getValue(pat);
+		}
+		
+		public double getIMR() {
+			return imr;
+		}
 	}
 }

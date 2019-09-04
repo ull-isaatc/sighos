@@ -246,10 +246,10 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 					new AnnualRiskBasedTimeToEventParam(rng, nPatients, 
 					secParams.getProbability(DiabetesChronicComplications.RET, DiabetesChronicComplications.CHD), rrToCHD));
 
-			addData(secParams, ANGINA);
-			addData(secParams, STROKE);
-			addData(secParams, MI);
-			addData(secParams, HF);
+			setStageInstance(ANGINA, secParams);
+			setStageInstance(STROKE, secParams);
+			setStageInstance(MI, secParams);
+			setStageInstance(HF, secParams);
 			
 			pDeathMI = new double[] {secParams.getOtherParam(STR_DEATH_MI_MAN), secParams.getOtherParam(STR_DEATH_MI_WOMAN)};
 			pDeathStroke = secParams.getOtherParam(STR_DEATH_STROKE);
@@ -328,13 +328,13 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 
 			if (state.contains(ANGINA))
-				return getData(ANGINA).getCosts()[0];
+				return getCosts(ANGINA)[0];
 			else if (state.contains(STROKE))
-				return getData(STROKE).getCosts()[0];
+				return getCosts(STROKE)[0];
 			else if (state.contains(HF))
-				return getData(HF).getCosts()[0];
+				return getCosts(HF)[0];
 			else if (state.contains(MI))
-				return getData(MI).getCosts()[0];				
+				return getCosts(MI)[0];				
 			return 0.0;
 		}
 
@@ -343,13 +343,13 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 
 			if (state.contains(ANGINA))
-				return getData(ANGINA).getDisutility();
+				return getDisutility(ANGINA);
 			else if (state.contains(STROKE))
-				return getData(STROKE).getDisutility();
+				return getDisutility(STROKE);
 			else if (state.contains(HF))
-				return getData(HF).getDisutility();
+				return getDisutility(HF);
 			else if (state.contains(MI))
-				return getData(MI).getDisutility();				
+				return getDisutility(MI);				
 			return 0.0;
 		}
 	}

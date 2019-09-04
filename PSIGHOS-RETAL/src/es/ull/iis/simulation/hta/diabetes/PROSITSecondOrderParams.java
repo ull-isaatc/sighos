@@ -14,21 +14,16 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.populations.UKPDSPopulation;
-import es.ull.iis.simulation.hta.diabetes.populations.WESDRPopulation;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.BattelinoSevereHypoglycemiaEvent;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.EmpiricalSpainDeathSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.LyNPHSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.LyRETSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldRETSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.SimpleCHDSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.SimpleNEUSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleRETSubmodel;
+import es.ull.iis.simulation.hta.diabetes.submodels.T2DMPrositCHDSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMPrositNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMPrositRETSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMPrositSevereHypoglycemiaEvent;
@@ -44,8 +39,8 @@ import es.ull.iis.simulation.hta.diabetes.submodels.T2DMSimpleNEUSubmodel;
  * <ul>
  * <li>Retinopathy: {@link SimpleRETSubmodel}, if {@link BasicConfigParams#USE_SIMPLE_MODELS USE_SIMPLE_MODELS} = true; {@link SheffieldRETSubmodel} otherwise.</li>
  * <li>Nephropathy: {@link SimpleNPHSubmodel}, if {@link BasicConfigParams#USE_SIMPLE_MODELS USE_SIMPLE_MODELS} = true; {@link SheffieldNPHSubmodel} otherwise.</li>
- * <li>Neuropathy: {@link SimpleNEUSubmodel}</li>
- * <li>Coronary heart disease: {@link SimpleCHDSubmodel}</li>
+ * <li>Neuropathy: {@link T2DMSimpleNEUSubmodel}</li>
+ * <li>Coronary heart disease: {@link T2DMPrositCHDSubmodel}</li>
  * <li>Episode of severe hypoglycemia (acute event): {@link BattelinoSevereHypoglycemiaEvent}</li>
  * </ul></li>
  * <li>Costs calculated by using {@link SubmodelCostCalculator}</li>
@@ -79,10 +74,8 @@ public class PROSITSecondOrderParams extends SecondOrderParamsRepository {
 		
 		registerComplication(new T2DMPrositRETSubmodel());
 		registerComplication(new T2DMPrositNPHSubmodel());
-		SecondOrderChronicComplicationSubmodel subCHD = new SimpleCHDSubmodel();
-		registerComplication(subCHD);
+		registerComplication(new T2DMPrositCHDSubmodel());
 		registerComplication(new T2DMSimpleNEUSubmodel());
-		subCHD.disable();
 		registerComplication(new T2DMPrositSevereHypoglycemiaEvent());
 
 		registerIntervention(new DCCTConventionalIntervention());
@@ -98,17 +91,7 @@ public class PROSITSecondOrderParams extends SecondOrderParamsRepository {
 
 	@Override
 	public DeathSubmodel getDeathSubmodel() {
-		final EmpiricalSpainDeathSubmodel dModel = new EmpiricalSpainDeathSubmodel(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients);
-
-		dModel.addIMR(T2DMPrositNPHSubmodel.ALB2, getIMR(T2DMPrositNPHSubmodel.ALB2));
-		dModel.addIMR(T2DMPrositNPHSubmodel.ESRD, getIMR(T2DMPrositNPHSubmodel.ESRD));			
-		dModel.addIMR(SimpleNEUSubmodel.NEU, getIMR(SimpleNEUSubmodel.NEU));
-		dModel.addIMR(SimpleNEUSubmodel.LEA, getIMR(SimpleNEUSubmodel.LEA));
-		dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(DiabetesChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(DiabetesChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(DiabetesChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(DiabetesChronicComplications.CHD));
-		return dModel;
+		return new EmpiricalSpainDeathSubmodel(this);
 	}
 	
 	@Override

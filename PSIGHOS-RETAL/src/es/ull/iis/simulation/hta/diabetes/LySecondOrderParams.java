@@ -78,18 +78,7 @@ public class LySecondOrderParams extends SecondOrderParamsRepository {
 	
 	@Override
 	public DeathSubmodel getDeathSubmodel() {
-		final EmpiricalSpainDeathSubmodel dModel = new EmpiricalSpainDeathSubmodel(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients);
-//		final StandardSpainDeathSubmodel dModel = new StandardSpainDeathSubmodel(getRngFirstOrder(), nPatients);
-
-		dModel.addIMR(LyNPHSubmodel.ALB2, getIMR(LyNPHSubmodel.ALB2));
-		dModel.addIMR(LyNPHSubmodel.ESRD, getIMR(LyNPHSubmodel.ESRD));			
-		dModel.addIMR(SimpleNEUSubmodel.NEU, getIMR(SimpleNEUSubmodel.NEU));
-		dModel.addIMR(SimpleNEUSubmodel.LEA, getIMR(SimpleNEUSubmodel.LEA));
-		dModel.addIMR(SimpleCHDSubmodel.ANGINA, getIMR(DiabetesChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.STROKE, getIMR(DiabetesChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.HF, getIMR(DiabetesChronicComplications.CHD));
-		dModel.addIMR(SimpleCHDSubmodel.MI, getIMR(DiabetesChronicComplications.CHD));
-		return dModel;
+		return new EmpiricalSpainDeathSubmodel(this);
 	}
 	
 	@Override

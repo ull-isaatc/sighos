@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.CommonParams;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
@@ -44,7 +44,7 @@ public class BudgetImpactView implements ExperimentListener<BudgetImpactView.Inn
 
 	@Override
 	public void addListener(DiabetesSimulation simul) {
-		final CommonParams common = simul.getCommonParams();
+		final RepositoryInstance common = simul.getCommonParams();
 		final CostCalculator calc = secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels());
 		simul.addInfoReceiver(new InnerInstanceView(calc));
 	}

@@ -187,13 +187,14 @@ public class SheffieldNPHSubmodel extends SecondOrderChronicComplicationSubmodel
 			addTime2Event(NPHTransitions.ALB2_ESRD.ordinal(), new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
 					nPatients, secParams.getProbability(ALB2, ESRD), SecondOrderParamsRepository.NO_RR));
 			
-			addData(secParams, ALB1);
-			addData(secParams, ESRD);
+			setStageInstance(ALB1, secParams);
+			setStageInstance(ESRD, secParams);
 			final double coefALB2 = secParams.getOtherParam(STR_COEF_ALB2);
-			final double[] costALB1 = getData(ALB1).getCosts();
+			final double[] costALB1 = getCosts(ALB1);
 			final double[] costALB2 = new double[] {costALB1[0] * coefALB2, costALB1[1] * coefALB2};
 			final double pInitALB2 = secParams.getInitProbParam(ALB2);
-			addData(secParams.getDisutilityForChronicComplication(ALB2), costALB2, pInitALB2, secParams, ALB2);
+			setStageInstance(ALB2, secParams.getDisutilityForChronicComplication(ALB2), costALB2, pInitALB2, 
+					secParams.getIMR(ALB2), secParams.getnPatients());
 		}
 
 		@Override
@@ -282,11 +283,11 @@ public class SheffieldNPHSubmodel extends SecondOrderChronicComplicationSubmodel
 		public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			if (state.contains(ESRD))
-				return getData(ESRD).getCosts()[0];
+				return getCosts(ESRD)[0];
 			if (state.contains(ALB2))
-				return getData(ALB2).getCosts()[0];		
+				return getCosts(ALB2)[0];		
 			if (state.contains(ALB1))
-				return getData(ALB1).getCosts()[0];		
+				return getCosts(ALB1)[0];		
 			return 0.0;
 		}
 
@@ -294,9 +295,9 @@ public class SheffieldNPHSubmodel extends SecondOrderChronicComplicationSubmodel
 		public double getDisutility(DiabetesPatient pat, DisutilityCombinationMethod method) {
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 			if (state.contains(ESRD))
-				return getData(ESRD).getDisutility();
+				return getDisutility(ESRD);
 			if (state.contains(ALB2))
-				return getData(ALB2).getDisutility();
+				return getDisutility(ALB2);
 			return 0.0;
 		}
 	}

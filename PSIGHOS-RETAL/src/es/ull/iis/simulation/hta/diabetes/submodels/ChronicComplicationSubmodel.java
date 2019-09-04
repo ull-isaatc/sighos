@@ -11,7 +11,6 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesProgression;
 import es.ull.iis.simulation.hta.diabetes.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.diabetes.params.StartWithComplicationParam;
 import es.ull.iis.simulation.hta.diabetes.params.TimeToEventParam;
 
 /**
@@ -22,35 +21,10 @@ import es.ull.iis.simulation.hta.diabetes.params.TimeToEventParam;
  *
  */
 public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
-	private final TreeMap<DiabetesComplicationStage, StageData> data;
+	private final TreeMap<DiabetesComplicationStage, DiabetesComplicationStage.Instance> data;
 	private final TimeToEventParam[] time2Event;
 	protected final SecondOrderChronicComplicationSubmodel secOrder;
 	
-	public class StageData {
-		private final double du;
-		private final double[] cost;
-		private final StartWithComplicationParam initP;
-		/**
-		 * @param du
-		 * @param cost
-		 * @param initP
-		 */
-		public StageData(double du, double[] cost, StartWithComplicationParam initP) {
-			this.du = du;
-			this.cost = cost;
-			this.initP = initP;
-		}
-		
-		public double getDisutility() {
-			return du;
-		}
-		public double[] getCosts() {
-			return cost;
-		}
-		public boolean hasComplicationAtStart(DiabetesPatient pat) {
-			return (initP == null) ? false : initP.getValue(pat);
-		}
-	}
 	/**
 	 * Creates a submodel for a chronic complication.
 	 */
@@ -61,21 +35,33 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 		this.time2Event = new TimeToEventParam[secOrder.getNTransitions()];
 	}
 
-	public void addData(SecondOrderParamsRepository secParams, DiabetesComplicationStage stage) {
+	public void setStageInstance(DiabetesComplicationStage stage, SecondOrderParamsRepository secParams) {
 		final double initP = secParams.getInitProbParam(stage);
-		data.put(stage, new StageData(secParams.getDisutilityForChronicComplication(stage),
-			secParams.getCostsForChronicComplication(stage), 
-			(initP > 0.0) ? new StartWithComplicationParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), initP) : null));
+		data.put(stage, stage.getInstance(secParams.getDisutilityForChronicComplication(stage), 
+				secParams.getCostsForChronicComplication(stage),
+				initP, secParams.getIMR(stage), secParams.getnPatients()));
 	}
 
-	public void addData(double du, double[] cost, double initP, SecondOrderParamsRepository secParams, DiabetesComplicationStage stage) {
-		data.put(stage, new StageData(du, cost,
-			(initP > 0.0) ? new StartWithComplicationParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), initP) : null)); 
-	}
-	public StageData getData(DiabetesComplicationStage stage) {
-		return data.get(stage);
+	public void setStageInstance(DiabetesComplicationStage stage, double du, double[] cost, double initP, double imr, int nPatients) {
+		data.put(stage, stage.getInstance(du, cost, initP, imr, nPatients)); 
 	}
 	
+	public double getDisutility(DiabetesComplicationStage stage) {
+		return data.get(stage).getDisutility();
+	}
+	
+	public double[] getCosts(DiabetesComplicationStage stage) {
+		return data.get(stage).getCosts();
+	}
+	
+	public boolean hasComplicationAtStart(DiabetesComplicationStage stage, DiabetesPatient pat) {
+		return data.get(stage).hasComplicationAtStart(pat);
+	}
+	
+	public double getIMR(DiabetesComplicationStage stage) {
+		return data.get(stage).getIMR();
+	}
+
 	/**
 	 * Adds a time to event parameter related to a specific transition
 	 * @param id The identifier of the transition. Transitions are expected to be ordered elsewhere.
@@ -110,6 +96,24 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 	public abstract DiabetesProgression getProgression(DiabetesPatient pat);
 	
 	/**
+	 * Adds progression actions in case they are needed. First checks if the new time to event is valid. Then checks
+	 * if there was a previously scheduled event and adds a "cancel" action. Finally, adds a "new" action for the new time.
+	 * @param prog Current progression of the patient
+	 * @param stage Chronic complication stage
+	 * @param timeToEvent New time to event
+	 * @param previousTimeToEvent Previous time to event
+	 */
+	public void adjustProgression(DiabetesProgression prog, DiabetesComplicationStage stage, long timeToEvent, long previousTimeToEvent) {
+		// Check previously scheduled events
+		if (timeToEvent != Long.MAX_VALUE) {
+			if (previousTimeToEvent < Long.MAX_VALUE) {
+				prog.addCancelEvent(stage);
+			}
+			prog.addNewEvent(stage, timeToEvent);
+		}
+	}
+	
+	/**
 	 * Returns the initial set of stages (one or more) that the patient will start with when this complication appears. 
 	 * @param pat A patient
 	 * @return the initial set of stages that the patient will start with when this complication appears
@@ -117,7 +121,7 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 	public TreeSet<DiabetesComplicationStage> getInitialStage(DiabetesPatient pat) {
 		final TreeSet<DiabetesComplicationStage> init = new TreeSet<>();
 		for (final DiabetesComplicationStage stage : secOrder.getStages()) {
-			if (getData(stage).hasComplicationAtStart(pat))
+			if (hasComplicationAtStart(stage, pat))
 				init.add(stage);
 		}
 		return init;
@@ -140,7 +144,7 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 	 * @return the cost associated to the start of a new stage of this chronic complication
 	 */
 	public double getCostOfComplication(DiabetesPatient pat, DiabetesComplicationStage newComplication) {
-		return getData(newComplication).getCosts()[1];		
+		return getCosts(newComplication)[1];		
 	}
 	
 	/**
