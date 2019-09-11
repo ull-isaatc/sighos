@@ -16,6 +16,7 @@ import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
 
 /**
+ * To validate the model, must be launched with discount rate = 0.015 (1.5%)
  * @author Iván Castilla Rodríguez
  *
  */

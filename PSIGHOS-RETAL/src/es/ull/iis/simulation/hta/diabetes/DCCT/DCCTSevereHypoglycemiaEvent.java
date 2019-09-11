@@ -51,17 +51,17 @@ public class DCCTSevereHypoglycemiaEvent extends SecondOrderAcuteComplicationSub
 	
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new DCCTSevereHypoglycemiaEventInstance(secParams);
+		return isEnabled() ? new Instance(secParams) : new DisabledAcuteComplicationInstance();
 	}
 	
-	public class DCCTSevereHypoglycemiaEventInstance extends AcuteComplicationSubmodel {
+	public class Instance extends AcuteComplicationSubmodel {
 		private final double cost;
 		private final double du;
 
 		/**
 		 * 
 		 */
-		public DCCTSevereHypoglycemiaEventInstance(SecondOrderParamsRepository secParams) {
+		public Instance(SecondOrderParamsRepository secParams) {
 			super(new AnnualRiskBasedTimeToMultipleEventParam(
 					SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
 					secParams.getnPatients(), 

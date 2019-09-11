@@ -95,7 +95,7 @@ public class CanadaCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 	
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new Instance(secParams);
+		return isEnabled() ? new Instance(secParams) : new DisabledChronicComplicationInstance(this);	
 	}
 	
 	public class Instance extends ChronicComplicationSubmodel {
@@ -134,40 +134,38 @@ public class CanadaCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 		@Override
 		public DiabetesProgression getProgression(DiabetesPatient pat) {
 			final DiabetesProgression prog = new DiabetesProgression();
-			if (isEnabled()) {
-				// If already has CHD, then nothing else to progress to
-				if (!pat.hasComplication(DiabetesChronicComplications.CHD)) {
-					long timeToCHD = pat.getTimeToDeath();
-					if (pat.hasComplication(DiabetesChronicComplications.NEU)) {
-						final long newTimeToCHD = getTimeToEvent(pat, CHDTransitions.NEU_CHD.ordinal(), timeToCHD);
-						if (newTimeToCHD < timeToCHD)
-							timeToCHD = newTimeToCHD;
-					}
-					if (pat.hasComplication(DiabetesChronicComplications.NPH)) {
-						final long newTimeToCHD = getTimeToEvent(pat, CHDTransitions.NPH_CHD.ordinal(), timeToCHD);
-						if (newTimeToCHD < timeToCHD)
-							timeToCHD = newTimeToCHD;
-					}
-					if (pat.hasComplication(DiabetesChronicComplications.RET)) {
-						final long newTimeToCHD = getTimeToEvent(pat, CHDTransitions.RET_CHD.ordinal(), timeToCHD);
-						if (newTimeToCHD < timeToCHD)
-							timeToCHD = newTimeToCHD;
-					}
-					long newTimeToCHD = getTimeToEvent(pat, CHDTransitions.HEALTHY_CHD.ordinal(), timeToCHD);
+			// If already has CHD, then nothing else to progress to
+			if (!pat.hasComplication(DiabetesChronicComplications.CHD)) {
+				long timeToCHD = pat.getTimeToDeath();
+				if (pat.hasComplication(DiabetesChronicComplications.NEU)) {
+					final long newTimeToCHD = getTimeToEvent(pat, CHDTransitions.NEU_CHD.ordinal(), timeToCHD);
 					if (newTimeToCHD < timeToCHD)
 						timeToCHD = newTimeToCHD;
-					if (timeToCHD < pat.getTimeToDeath()) {
-						final long previousTime = pat.getTimeToChronicComorbidity(CHD);
-						if (previousTime > timeToCHD) {
-							if (previousTime < Long.MAX_VALUE) {
-								prog.addCancelEvent(CHD);
-							}
-							prog.addNewEvent(CHD, timeToCHD);
+				}
+				if (pat.hasComplication(DiabetesChronicComplications.NPH)) {
+					final long newTimeToCHD = getTimeToEvent(pat, CHDTransitions.NPH_CHD.ordinal(), timeToCHD);
+					if (newTimeToCHD < timeToCHD)
+						timeToCHD = newTimeToCHD;
+				}
+				if (pat.hasComplication(DiabetesChronicComplications.RET)) {
+					final long newTimeToCHD = getTimeToEvent(pat, CHDTransitions.RET_CHD.ordinal(), timeToCHD);
+					if (newTimeToCHD < timeToCHD)
+						timeToCHD = newTimeToCHD;
+				}
+				long newTimeToCHD = getTimeToEvent(pat, CHDTransitions.HEALTHY_CHD.ordinal(), timeToCHD);
+				if (newTimeToCHD < timeToCHD)
+					timeToCHD = newTimeToCHD;
+				if (timeToCHD < pat.getTimeToDeath()) {
+					final long previousTime = pat.getTimeToChronicComorbidity(CHD);
+					if (previousTime > timeToCHD) {
+						if (previousTime < Long.MAX_VALUE) {
+							prog.addCancelEvent(CHD);
 						}
+						prog.addNewEvent(CHD, timeToCHD);
 					}
 				}
-				
 			}
+				
 			return prog;
 		}
 

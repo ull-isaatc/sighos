@@ -123,7 +123,7 @@ public class SimpleNEUSubmodel extends SecondOrderChronicComplicationSubmodel {
 
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new Instance(secParams);
+		return isEnabled() ? new Instance(secParams) : new DisabledChronicComplicationInstance(this);
 	}
 
 	public class Instance extends ChronicComplicationSubmodel {
@@ -154,47 +154,45 @@ public class SimpleNEUSubmodel extends SecondOrderChronicComplicationSubmodel {
 		@Override
 		public DiabetesProgression getProgression(DiabetesPatient pat) {
 			final DiabetesProgression prog = new DiabetesProgression();
-			if (isEnabled()) {
-				final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
-				// Checks whether there is somewhere to transit to
-				if (!state.contains(LEA)) {
-					long timeToLEA = Long.MAX_VALUE;
-					long timeToNEU = Long.MAX_VALUE;
-					final long previousTimeToNEU = pat.getTimeToChronicComorbidity(NEU);
-					final long previousTimeToLEA = pat.getTimeToChronicComorbidity(LEA);
-					long limit = pat.getTimeToDeath();
-					if (limit > previousTimeToLEA)
-						limit = previousTimeToLEA;
-					if (state.contains(NEU)) {
-						// RR from NEU to LEA
-						timeToLEA = getTimeToEvent(pat, NEUTransitions.NEU_LEA.ordinal(), limit);
+			final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
+			// Checks whether there is somewhere to transit to
+			if (!state.contains(LEA)) {
+				long timeToLEA = Long.MAX_VALUE;
+				long timeToNEU = Long.MAX_VALUE;
+				final long previousTimeToNEU = pat.getTimeToChronicComorbidity(NEU);
+				final long previousTimeToLEA = pat.getTimeToChronicComorbidity(LEA);
+				long limit = pat.getTimeToDeath();
+				if (limit > previousTimeToLEA)
+					limit = previousTimeToLEA;
+				if (state.contains(NEU)) {
+					// RR from NEU to LEA
+					timeToLEA = getTimeToEvent(pat, NEUTransitions.NEU_LEA.ordinal(), limit);
+				}
+				else {
+					// RR from healthy to LEA
+					timeToLEA = getTimeToEvent(pat, NEUTransitions.HEALTHY_LEA.ordinal(), limit);
+					if (limit > timeToLEA)
+						limit = timeToLEA;
+					if (limit > previousTimeToNEU)
+						limit = previousTimeToNEU;
+					// RR from healthy to NEU (must be previous to LEA and a (potential) formerly scheduled NEU event)
+					timeToNEU = getTimeToEvent(pat, NEUTransitions.HEALTHY_NEU.ordinal(), limit);
+				}
+				// Check previously scheduled events
+				if (timeToNEU != Long.MAX_VALUE) {
+					if (previousTimeToNEU < Long.MAX_VALUE) {
+						prog.addCancelEvent(NEU);
 					}
-					else {
-						// RR from healthy to LEA
-						timeToLEA = getTimeToEvent(pat, NEUTransitions.HEALTHY_LEA.ordinal(), limit);
-						if (limit > timeToLEA)
-							limit = timeToLEA;
-						if (limit > previousTimeToNEU)
-							limit = previousTimeToNEU;
-						// RR from healthy to NEU (must be previous to LEA and a (potential) formerly scheduled NEU event)
-						timeToNEU = getTimeToEvent(pat, NEUTransitions.HEALTHY_NEU.ordinal(), limit);
+					prog.addNewEvent(NEU, timeToNEU);
+				}
+				if (timeToLEA != Long.MAX_VALUE) {
+					if (previousTimeToLEA < Long.MAX_VALUE) {
+						prog.addCancelEvent(LEA);
 					}
-					// Check previously scheduled events
-					if (timeToNEU != Long.MAX_VALUE) {
-						if (previousTimeToNEU < Long.MAX_VALUE) {
-							prog.addCancelEvent(NEU);
-						}
-						prog.addNewEvent(NEU, timeToNEU);
-					}
-					if (timeToLEA != Long.MAX_VALUE) {
-						if (previousTimeToLEA < Long.MAX_VALUE) {
-							prog.addCancelEvent(LEA);
-						}
-						prog.addNewEvent(LEA, timeToLEA);
-						// If the new LEA event happens before a previously scheduled NEU event, the latter must be cancelled 
-						if (previousTimeToNEU < Long.MAX_VALUE && timeToLEA < previousTimeToNEU)
-							prog.addCancelEvent(NEU);
-					}
+					prog.addNewEvent(LEA, timeToLEA);
+					// If the new LEA event happens before a previously scheduled NEU event, the latter must be cancelled 
+					if (previousTimeToNEU < Long.MAX_VALUE && timeToLEA < previousTimeToNEU)
+						prog.addCancelEvent(NEU);
 				}
 			}
 			return prog;

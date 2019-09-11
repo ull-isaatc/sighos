@@ -129,7 +129,7 @@ public class SimpleNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 	
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new Instance(secParams);
+		return isEnabled() ? new Instance(secParams) : new DisabledChronicComplicationInstance(this);
 	}
 	
 	public class Instance extends ChronicComplicationSubmodel {
@@ -166,55 +166,53 @@ public class SimpleNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 		@Override
 		public DiabetesProgression getProgression(DiabetesPatient pat) {
 			final DiabetesProgression prog = new DiabetesProgression();
-			if (isEnabled()) {
-				final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
-				// Checks whether there is somewhere to transit to
-				if (!state.contains(ESRD)) {
-					long timeToESRD = Long.MAX_VALUE;
-					long timeToNPH = Long.MAX_VALUE;
-					final long previousTimeToNPH = pat.getTimeToChronicComorbidity(NPH);
-					final long previousTimeToESRD = pat.getTimeToChronicComorbidity(ESRD);
-					long limit = pat.getTimeToDeath();
-					if (limit > previousTimeToESRD)
-						limit = previousTimeToESRD;
-					if (state.contains(NPH)) {
-						// RR from NPH to ESRD
-						timeToESRD = getTimeToEvent(pat, NPHTransitions.NPH_ESRD.ordinal(), limit);
+			final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
+			// Checks whether there is somewhere to transit to
+			if (!state.contains(ESRD)) {
+				long timeToESRD = Long.MAX_VALUE;
+				long timeToNPH = Long.MAX_VALUE;
+				final long previousTimeToNPH = pat.getTimeToChronicComorbidity(NPH);
+				final long previousTimeToESRD = pat.getTimeToChronicComorbidity(ESRD);
+				long limit = pat.getTimeToDeath();
+				if (limit > previousTimeToESRD)
+					limit = previousTimeToESRD;
+				if (state.contains(NPH)) {
+					// RR from NPH to ESRD
+					timeToESRD = getTimeToEvent(pat, NPHTransitions.NPH_ESRD.ordinal(), limit);
+				}
+				else {
+					// RR from healthy to ESRD
+					timeToESRD = getTimeToEvent(pat, NPHTransitions.HEALTHY_ESRD.ordinal(), limit);
+					if (limit > timeToESRD)
+						limit = timeToESRD;
+					if (limit > previousTimeToNPH)
+						limit = previousTimeToNPH;
+					// RR from healthy to NPH (must be previous to ESRD and a (potential) formerly scheduled NPH event)
+					timeToNPH = getTimeToEvent(pat, NPHTransitions.HEALTHY_NPH.ordinal(), limit);
+					if (pat.hasComplication(DiabetesChronicComplications.NEU)) {
+						// RR from NEU to NPH (must be previous to the former transition)
+						if (limit > timeToNPH)
+							limit = timeToNPH;
+						final long altTimeToNPH = getTimeToEvent(pat, NPHTransitions.NEU_NPH.ordinal(), limit);
+						if (altTimeToNPH < timeToNPH)
+							timeToNPH = altTimeToNPH;						
 					}
-					else {
-						// RR from healthy to ESRD
-						timeToESRD = getTimeToEvent(pat, NPHTransitions.HEALTHY_ESRD.ordinal(), limit);
-						if (limit > timeToESRD)
-							limit = timeToESRD;
-						if (limit > previousTimeToNPH)
-							limit = previousTimeToNPH;
-						// RR from healthy to NPH (must be previous to ESRD and a (potential) formerly scheduled NPH event)
-						timeToNPH = getTimeToEvent(pat, NPHTransitions.HEALTHY_NPH.ordinal(), limit);
-						if (pat.hasComplication(DiabetesChronicComplications.NEU)) {
-							// RR from NEU to NPH (must be previous to the former transition)
-							if (limit > timeToNPH)
-								limit = timeToNPH;
-							final long altTimeToNPH = getTimeToEvent(pat, NPHTransitions.NEU_NPH.ordinal(), limit);
-							if (altTimeToNPH < timeToNPH)
-								timeToNPH = altTimeToNPH;						
-						}
+				}
+				// Check previously scheduled events
+				if (timeToNPH != Long.MAX_VALUE) {
+					if (previousTimeToNPH < Long.MAX_VALUE) {
+						prog.addCancelEvent(NPH);
 					}
-					// Check previously scheduled events
-					if (timeToNPH != Long.MAX_VALUE) {
-						if (previousTimeToNPH < Long.MAX_VALUE) {
-							prog.addCancelEvent(NPH);
-						}
-						prog.addNewEvent(NPH, timeToNPH);
+					prog.addNewEvent(NPH, timeToNPH);
+				}
+				if (timeToESRD != Long.MAX_VALUE) {
+					if (previousTimeToESRD < Long.MAX_VALUE) {
+						prog.addCancelEvent(ESRD);
 					}
-					if (timeToESRD != Long.MAX_VALUE) {
-						if (previousTimeToESRD < Long.MAX_VALUE) {
-							prog.addCancelEvent(ESRD);
-						}
-						prog.addNewEvent(ESRD, timeToESRD);
-						// If the new ESRD event happens before a previously scheduled NPH event, the latter must be cancelled 
-						if (previousTimeToNPH < Long.MAX_VALUE && timeToESRD < previousTimeToNPH)
-							prog.addCancelEvent(NPH);
-					}
+					prog.addNewEvent(ESRD, timeToESRD);
+					// If the new ESRD event happens before a previously scheduled NPH event, the latter must be cancelled 
+					if (previousTimeToNPH < Long.MAX_VALUE && timeToESRD < previousTimeToNPH)
+						prog.addCancelEvent(NPH);
 				}
 			}
 			return prog;

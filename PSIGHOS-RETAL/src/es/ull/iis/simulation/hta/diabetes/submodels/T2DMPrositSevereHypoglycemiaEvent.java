@@ -93,6 +93,9 @@ public class T2DMPrositSevereHypoglycemiaEvent extends SecondOrderAcuteComplicat
 
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
+		if (!isEnabled())
+			return new DisabledAcuteComplicationInstance();
+		
 		final double[] proportion = sheAwarenessProportion.generateValues(true);
 		final double[] rates = new double[RATE_SHE_PER_AWARENESS.length]; 
 		double finalRate = 0.0; 

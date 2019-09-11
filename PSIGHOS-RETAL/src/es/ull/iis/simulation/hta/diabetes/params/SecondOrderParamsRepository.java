@@ -156,6 +156,22 @@ public abstract class SecondOrderParamsRepository {
 	}
 	
 	/**
+	 * Returns the registered chronic complication submodels
+	 * @return the registered chronic complication submodels
+	 */
+	public SecondOrderChronicComplicationSubmodel[] getRegisteredChronicComplications() {
+		return registeredChronicComplication;
+	}
+
+	/**
+	 * Returns the registered acute complication submodels
+	 * @return the registered acute complication submodels
+	 */
+	public SecondOrderAcuteComplicationSubmodel[] getRegisteredAcuteComplications() {
+		return registeredAcuteComplication;
+	}
+	
+	/**
 	 * Registers a new acute complication 
 	 * @param comp Acute complication
 	 */

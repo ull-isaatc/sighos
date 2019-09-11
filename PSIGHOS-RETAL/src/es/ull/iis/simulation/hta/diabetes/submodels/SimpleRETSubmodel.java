@@ -101,7 +101,7 @@ public class SimpleRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 	
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new Instance(secParams);
+		return isEnabled() ? new Instance(secParams) : new DisabledChronicComplicationInstance(this);
 	}
 
 	public class Instance extends ChronicComplicationSubmodel {
@@ -129,47 +129,45 @@ public class SimpleRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 		@Override
 		public DiabetesProgression getProgression(DiabetesPatient pat) {
 			final DiabetesProgression prog = new DiabetesProgression();
-			if (isEnabled()) {
-				final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
-				// Checks whether there is somewhere to transit to
-				if (!state.contains(BLI)) {
-					long timeToBLI = Long.MAX_VALUE;
-					long timeToRET = Long.MAX_VALUE;
-					final long previousTimeToRET = pat.getTimeToChronicComorbidity(RET);
-					final long previousTimeToBLI = pat.getTimeToChronicComorbidity(BLI);
-					long limit = pat.getTimeToDeath();
-					if (limit > previousTimeToBLI)
-						limit = previousTimeToBLI;
-					if (state.contains(RET)) {
-						// RR from RET to BLI
-						timeToBLI = getTimeToEvent(pat, RETTransitions.RET_BLI.ordinal(), limit);
+			final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
+			// Checks whether there is somewhere to transit to
+			if (!state.contains(BLI)) {
+				long timeToBLI = Long.MAX_VALUE;
+				long timeToRET = Long.MAX_VALUE;
+				final long previousTimeToRET = pat.getTimeToChronicComorbidity(RET);
+				final long previousTimeToBLI = pat.getTimeToChronicComorbidity(BLI);
+				long limit = pat.getTimeToDeath();
+				if (limit > previousTimeToBLI)
+					limit = previousTimeToBLI;
+				if (state.contains(RET)) {
+					// RR from RET to BLI
+					timeToBLI = getTimeToEvent(pat, RETTransitions.RET_BLI.ordinal(), limit);
+				}
+				else {
+					// RR from healthy to BLI
+					timeToBLI = getTimeToEvent(pat, RETTransitions.HEALTHY_BLI.ordinal(), limit);
+					if (limit > timeToBLI)
+						limit = timeToBLI;
+					if (limit > previousTimeToRET)
+						limit = previousTimeToRET;
+					// RR from healthy to RET (must be previous to BLI and a (potential) formerly scheduled RET event)
+					timeToRET = getTimeToEvent(pat, RETTransitions.HEALTHY_RET.ordinal(), limit);
+				}
+				// Check previously scheduled events
+				if (timeToRET != Long.MAX_VALUE) {
+					if (previousTimeToRET < Long.MAX_VALUE) {
+						prog.addCancelEvent(RET);
 					}
-					else {
-						// RR from healthy to BLI
-						timeToBLI = getTimeToEvent(pat, RETTransitions.HEALTHY_BLI.ordinal(), limit);
-						if (limit > timeToBLI)
-							limit = timeToBLI;
-						if (limit > previousTimeToRET)
-							limit = previousTimeToRET;
-						// RR from healthy to RET (must be previous to BLI and a (potential) formerly scheduled RET event)
-						timeToRET = getTimeToEvent(pat, RETTransitions.HEALTHY_RET.ordinal(), limit);
+					prog.addNewEvent(RET, timeToRET);
+				}
+				if (timeToBLI != Long.MAX_VALUE) {
+					if (previousTimeToBLI < Long.MAX_VALUE) {
+						prog.addCancelEvent(BLI);
 					}
-					// Check previously scheduled events
-					if (timeToRET != Long.MAX_VALUE) {
-						if (previousTimeToRET < Long.MAX_VALUE) {
-							prog.addCancelEvent(RET);
-						}
-						prog.addNewEvent(RET, timeToRET);
-					}
-					if (timeToBLI != Long.MAX_VALUE) {
-						if (previousTimeToBLI < Long.MAX_VALUE) {
-							prog.addCancelEvent(BLI);
-						}
-						prog.addNewEvent(BLI, timeToBLI);
-						// If the new BLI event happens before a previously scheduled RET event, the latter must be cancelled 
-						if (previousTimeToRET < Long.MAX_VALUE && timeToBLI < previousTimeToRET)
-							prog.addCancelEvent(RET);
-					}
+					prog.addNewEvent(BLI, timeToBLI);
+					// If the new BLI event happens before a previously scheduled RET event, the latter must be cancelled 
+					if (previousTimeToRET < Long.MAX_VALUE && timeToBLI < previousTimeToRET)
+						prog.addCancelEvent(RET);
 				}
 			}
 			return prog;

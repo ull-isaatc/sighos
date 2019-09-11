@@ -56,7 +56,7 @@ public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicatio
 
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new Instance(secParams);
+		return isEnabled() ? new Instance(secParams) : new DisabledAcuteComplicationInstance();
 	}
 	
 	public class Instance extends AcuteComplicationSubmodel {

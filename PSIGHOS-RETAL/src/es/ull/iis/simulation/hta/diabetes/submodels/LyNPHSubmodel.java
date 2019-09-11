@@ -136,7 +136,7 @@ public class LyNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new Instance(secParams);
+		return isEnabled() ? new Instance(secParams) : new DisabledChronicComplicationInstance(this);
 	}
 
 	public class Instance extends ChronicComplicationSubmodel {
@@ -170,67 +170,65 @@ public class LyNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 		@Override
 		public DiabetesProgression getProgression(DiabetesPatient pat) {
 			final DiabetesProgression prog = new DiabetesProgression();
-			if (isEnabled()) {
-				final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
-				// Checks whether there is somewhere to transit to
-				if (!state.contains(ESRD)) {
-					long timeToESRD = Long.MAX_VALUE;
-					long timeToALB1 = Long.MAX_VALUE;
-					long timeToALB2 = Long.MAX_VALUE;
-					final long previousTimeToALB1 = pat.getTimeToChronicComorbidity(ALB1);
-					final long previousTimeToALB2 = pat.getTimeToChronicComorbidity(ALB2);
-					final long previousTimeToESRD = pat.getTimeToChronicComorbidity(ESRD);
-					long limit = pat.getTimeToDeath();
-					if (limit > previousTimeToESRD)
-						limit = previousTimeToESRD;
-					if (state.contains(ALB2)) {
-						// RR from ALB2 to ESRD
-						timeToESRD = getTimeToEvent(pat, NPHTransitions.ALB2_ESRD.ordinal(), limit);
+			final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
+			// Checks whether there is somewhere to transit to
+			if (!state.contains(ESRD)) {
+				long timeToESRD = Long.MAX_VALUE;
+				long timeToALB1 = Long.MAX_VALUE;
+				long timeToALB2 = Long.MAX_VALUE;
+				final long previousTimeToALB1 = pat.getTimeToChronicComorbidity(ALB1);
+				final long previousTimeToALB2 = pat.getTimeToChronicComorbidity(ALB2);
+				final long previousTimeToESRD = pat.getTimeToChronicComorbidity(ESRD);
+				long limit = pat.getTimeToDeath();
+				if (limit > previousTimeToESRD)
+					limit = previousTimeToESRD;
+				if (state.contains(ALB2)) {
+					// RR from ALB2 to ESRD
+					timeToESRD = getTimeToEvent(pat, NPHTransitions.ALB2_ESRD.ordinal(), limit);
+				}
+				else if (state.contains(ALB1)) {
+					timeToALB2 = getTimeToEvent(pat, NPHTransitions.ALB1_ALB2.ordinal(), limit);
+				}
+				else {
+					if (limit > previousTimeToALB1)
+						limit = previousTimeToALB1;
+					// RR from healthy to ALB1 (must be previous to ESRD and a (potential) formerly scheduled ALB1 event)
+					timeToALB1 = getTimeToEvent(pat, NPHTransitions.HEALTHY_ALB1.ordinal(), limit);
+					if (pat.hasComplication(DiabetesChronicComplications.NEU)) {
+						// RR from NEU to ALB1 (must be previous to the former transition)
+						if (limit > timeToALB1)
+							limit = timeToALB1;
+						final long altTimeToNPH = getTimeToEvent(pat, NPHTransitions.NEU_ALB1.ordinal(), limit);
+						if (altTimeToNPH < timeToALB1)
+							timeToALB1 = altTimeToNPH;						
 					}
-					else if (state.contains(ALB1)) {
-						timeToALB2 = getTimeToEvent(pat, NPHTransitions.ALB1_ALB2.ordinal(), limit);
+				}
+				// Check previously scheduled events
+				if (timeToALB1 != Long.MAX_VALUE) {
+					if (previousTimeToALB1 < Long.MAX_VALUE) {
+						prog.addCancelEvent(ALB1);
 					}
-					else {
-						if (limit > previousTimeToALB1)
-							limit = previousTimeToALB1;
-						// RR from healthy to ALB1 (must be previous to ESRD and a (potential) formerly scheduled ALB1 event)
-						timeToALB1 = getTimeToEvent(pat, NPHTransitions.HEALTHY_ALB1.ordinal(), limit);
-						if (pat.hasComplication(DiabetesChronicComplications.NEU)) {
-							// RR from NEU to ALB1 (must be previous to the former transition)
-							if (limit > timeToALB1)
-								limit = timeToALB1;
-							final long altTimeToNPH = getTimeToEvent(pat, NPHTransitions.NEU_ALB1.ordinal(), limit);
-							if (altTimeToNPH < timeToALB1)
-								timeToALB1 = altTimeToNPH;						
-						}
+					prog.addNewEvent(ALB1, timeToALB1);
+				}
+				if (timeToALB2 != Long.MAX_VALUE) {
+					if (previousTimeToALB2 < Long.MAX_VALUE) {
+						prog.addCancelEvent(ALB2);
 					}
-					// Check previously scheduled events
-					if (timeToALB1 != Long.MAX_VALUE) {
-						if (previousTimeToALB1 < Long.MAX_VALUE) {
-							prog.addCancelEvent(ALB1);
-						}
-						prog.addNewEvent(ALB1, timeToALB1);
+					prog.addNewEvent(ALB2, timeToALB2);
+					// If the new ALB2 event happens before a previously scheduled ALB1 event, the latter must be cancelled 
+					if (previousTimeToALB1 < Long.MAX_VALUE && timeToALB2 < previousTimeToALB1)
+						prog.addCancelEvent(ALB1);
+				}
+				if (timeToESRD != Long.MAX_VALUE) {
+					if (previousTimeToESRD < Long.MAX_VALUE) {
+						prog.addCancelEvent(ESRD);
 					}
-					if (timeToALB2 != Long.MAX_VALUE) {
-						if (previousTimeToALB2 < Long.MAX_VALUE) {
-							prog.addCancelEvent(ALB2);
-						}
-						prog.addNewEvent(ALB2, timeToALB2);
-						// If the new ALB2 event happens before a previously scheduled ALB1 event, the latter must be cancelled 
-						if (previousTimeToALB1 < Long.MAX_VALUE && timeToALB2 < previousTimeToALB1)
-							prog.addCancelEvent(ALB1);
-					}
-					if (timeToESRD != Long.MAX_VALUE) {
-						if (previousTimeToESRD < Long.MAX_VALUE) {
-							prog.addCancelEvent(ESRD);
-						}
-						prog.addNewEvent(ESRD, timeToESRD);
-						// If the new ESRD event happens before a previously scheduled ALB1 or ALB2 event, the latter must be cancelled 
-						if (previousTimeToALB2 < Long.MAX_VALUE && timeToESRD < previousTimeToALB2)
-							prog.addCancelEvent(ALB2);
-						if (previousTimeToALB1 < Long.MAX_VALUE && timeToESRD < previousTimeToALB1)
-							prog.addCancelEvent(ALB1);
-					}
+					prog.addNewEvent(ESRD, timeToESRD);
+					// If the new ESRD event happens before a previously scheduled ALB1 or ALB2 event, the latter must be cancelled 
+					if (previousTimeToALB2 < Long.MAX_VALUE && timeToESRD < previousTimeToALB2)
+						prog.addCancelEvent(ALB2);
+					if (previousTimeToALB1 < Long.MAX_VALUE && timeToESRD < previousTimeToALB1)
+						prog.addCancelEvent(ALB1);
 				}
 			}
 			return prog;

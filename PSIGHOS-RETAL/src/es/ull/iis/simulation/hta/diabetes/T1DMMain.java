@@ -42,6 +42,8 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.diabetes.params.StdDiscount;
 import es.ull.iis.simulation.hta.diabetes.params.ZeroDiscount;
+import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderAcuteComplicationSubmodel;
+import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicationSubmodel;
 
 /**
  * Main class to launch simulation experiments
@@ -342,6 +344,28 @@ public class T1DMMain {
 	        }
 	        
 	    	final String validity = secParams.checkValidity();
+	    	final SecondOrderChronicComplicationSubmodel[] chronicSubmodels = secParams.getRegisteredChronicComplications();
+	    	final SecondOrderAcuteComplicationSubmodel[] acuteSubmodels = secParams.getRegisteredAcuteComplications();
+	    	for (final String compName : args1.disable) {
+	    		boolean found = false;
+	    		for (final DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
+	    			if (comp.name().equals(compName)) {
+	    				found = true;
+	    				chronicSubmodels[comp.ordinal()].disable();
+	    			}
+	    		}
+	    		if (!found) {
+		    		for (final DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
+		    			if (comp.name().equals(compName)) {
+		    				found = true;
+		    				acuteSubmodels[comp.ordinal()].disable();
+		    			}
+		    		}
+	    		}
+	    		if (!found) {
+	    			throw new ParameterException("Error using the disable submodel option: could not find complication \"" + compName + "\".");
+	    		}
+	    	}
 	    	if (validity == null) {
 		    	final int timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : args1.timeHorizon;
 	    		final EnumSet<Outputs> printOutputs = EnumSet.noneOf(Outputs.class);
@@ -448,6 +472,8 @@ public class T1DMMain {
 		private int year = BasicConfigParams.STUDY_YEAR;
 		@DynamicParameter(names = {"--iniprop", "-I"}, description = "Initial proportion for complication stages")
 		private Map<String, String> initProportions = new TreeMap<String, String>();
+		@Parameter(names = {"--disable", "-D"}, description = "Disable a complication: any of CHD, NEU, NPH, RET, SHE", variableArity = true)
+		private List<String> disable = new ArrayList<String>();
 	}
 
 	/**

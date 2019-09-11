@@ -270,7 +270,7 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 	
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new Instance(secParams);
+		return isEnabled() ? new Instance(secParams) : new DisabledChronicComplicationInstance(this);
 	}
 	private abstract class CompetingRisksTimeToEventParam extends UniqueEventParam<Long> implements TimeToEventParam {
 		public CompetingRisksTimeToEventParam(RandomNumber rng, int nPatients) {
@@ -507,103 +507,101 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 			// Only schedules new events if the the patient has not suffered the complication yet, and the time of the event is lower
 			// than the expected time to death and the previously computed (if any) time to the event
 			final DiabetesProgression prog = new DiabetesProgression();
-			if (isEnabled()) {
-				final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
-				// Checks whether there is somewhere to transit to
-				if (!state.contains(BLI)) {
-					long timeToBLI = Long.MAX_VALUE;
-					long timeToBGRET = Long.MAX_VALUE;
-					long timeToPRET = Long.MAX_VALUE;
-					long timeToME = Long.MAX_VALUE;
-					final long previousTimeToBGRET = pat.getTimeToChronicComorbidity(BGRET);
-					final long previousTimeToPRET = pat.getTimeToChronicComorbidity(PRET);
-					final long previousTimeToME = pat.getTimeToChronicComorbidity(ME);
-					final long previousTimeToBLI = pat.getTimeToChronicComorbidity(BLI);
-					long limit = pat.getTimeToDeath();
-					if (limit > previousTimeToBLI)
-						limit = previousTimeToBLI;
-					// Already at ME: can progress to PRET (if not yet) and BLI
-					if (state.contains(ME)) {
-						timeToBLI = getTimeToEvent(pat, RETTransitions.ME_BLI.ordinal(), limit);
-						if (limit > timeToBLI)
-							limit = timeToBLI;
-						// Already at PRET and ME: calculate alternative time to BLI
-						if (state.contains(PRET)) {
-							final long altTimeToBLI = getTimeToEvent(pat, RETTransitions.PRET_BLI.ordinal(), limit);
-							// If the time from PRET to BLI is lower than from ME to BLI, use the former
-							if (timeToBLI > altTimeToBLI)
-								timeToBLI = altTimeToBLI;
-						}
-						else {
-							if (limit > previousTimeToPRET)
-								limit = previousTimeToPRET;
-							timeToPRET = getTimeToEvent(pat, RETTransitions.BGRET_PRET.ordinal(), limit);						
-						}
+			final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
+			// Checks whether there is somewhere to transit to
+			if (!state.contains(BLI)) {
+				long timeToBLI = Long.MAX_VALUE;
+				long timeToBGRET = Long.MAX_VALUE;
+				long timeToPRET = Long.MAX_VALUE;
+				long timeToME = Long.MAX_VALUE;
+				final long previousTimeToBGRET = pat.getTimeToChronicComorbidity(BGRET);
+				final long previousTimeToPRET = pat.getTimeToChronicComorbidity(PRET);
+				final long previousTimeToME = pat.getTimeToChronicComorbidity(ME);
+				final long previousTimeToBLI = pat.getTimeToChronicComorbidity(BLI);
+				long limit = pat.getTimeToDeath();
+				if (limit > previousTimeToBLI)
+					limit = previousTimeToBLI;
+				// Already at ME: can progress to PRET (if not yet) and BLI
+				if (state.contains(ME)) {
+					timeToBLI = getTimeToEvent(pat, RETTransitions.ME_BLI.ordinal(), limit);
+					if (limit > timeToBLI)
+						limit = timeToBLI;
+					// Already at PRET and ME: calculate alternative time to BLI
+					if (state.contains(PRET)) {
+						final long altTimeToBLI = getTimeToEvent(pat, RETTransitions.PRET_BLI.ordinal(), limit);
+						// If the time from PRET to BLI is lower than from ME to BLI, use the former
+						if (timeToBLI > altTimeToBLI)
+							timeToBLI = altTimeToBLI;
 					}
-					// Already at PRET but not at ME: can progress to BLI and ME
-					else if (state.contains(PRET)) {
-						timeToBLI = getTimeToEvent(pat, RETTransitions.PRET_BLI.ordinal(), limit);
-						limit = min(limit, timeToBLI, previousTimeToME);
-						timeToME = getTimeToEvent(pat, RETTransitions.PRET_ME.ordinal(), limit);						
-					}
-					// Already at BGRET: can progress to BLI, ME and PRET
-					else if (state.contains(BGRET)) {
-						timeToBLI = getTimeToEvent(pat, RETTransitions.BGRET_BLI.ordinal(), limit);
-						if (limit > timeToBLI)
-							limit = timeToBLI;
-						timeToPRET = getTimeToEvent(pat, RETTransitions.BGRET_PRET.ordinal(), (limit > previousTimeToPRET) ? previousTimeToPRET : limit);
-						timeToME = getTimeToEvent(pat, RETTransitions.BGRET_ME.ordinal(), (limit > previousTimeToME) ? previousTimeToME : limit);						
-					}
-					// Healthy: can progress to any state
 					else {
-						// RR from healthy to BLI
-						timeToBLI = getTimeToEvent(pat, RETTransitions.HEALTHY_BLI.ordinal(), limit);
-						if (limit > timeToBLI)
-							limit = timeToBLI;
-						timeToPRET = getTimeToEvent(pat, RETTransitions.HEALTHY_PRET.ordinal(), (limit > previousTimeToPRET) ? previousTimeToPRET : limit);
-						timeToME = getTimeToEvent(pat, RETTransitions.HEALTHY_ME.ordinal(), (limit > previousTimeToME) ? previousTimeToME : limit);						
-						// Adjust limit for BGRET
-						limit = min(limit, timeToPRET, timeToME, previousTimeToPRET, previousTimeToME, previousTimeToBGRET);
-						timeToBGRET = getTimeToEvent(pat, RETTransitions.HEALTHY_BGRET.ordinal(), limit);
+						if (limit > previousTimeToPRET)
+							limit = previousTimeToPRET;
+						timeToPRET = getTimeToEvent(pat, RETTransitions.BGRET_PRET.ordinal(), limit);						
 					}
-					// Check previously scheduled events
-					if (timeToBGRET != Long.MAX_VALUE) {
-						if (previousTimeToBGRET < Long.MAX_VALUE) {
-							prog.addCancelEvent(BGRET);
-						}
-						prog.addNewEvent(BGRET, timeToBGRET);
+				}
+				// Already at PRET but not at ME: can progress to BLI and ME
+				else if (state.contains(PRET)) {
+					timeToBLI = getTimeToEvent(pat, RETTransitions.PRET_BLI.ordinal(), limit);
+					limit = min(limit, timeToBLI, previousTimeToME);
+					timeToME = getTimeToEvent(pat, RETTransitions.PRET_ME.ordinal(), limit);						
+				}
+				// Already at BGRET: can progress to BLI, ME and PRET
+				else if (state.contains(BGRET)) {
+					timeToBLI = getTimeToEvent(pat, RETTransitions.BGRET_BLI.ordinal(), limit);
+					if (limit > timeToBLI)
+						limit = timeToBLI;
+					timeToPRET = getTimeToEvent(pat, RETTransitions.BGRET_PRET.ordinal(), (limit > previousTimeToPRET) ? previousTimeToPRET : limit);
+					timeToME = getTimeToEvent(pat, RETTransitions.BGRET_ME.ordinal(), (limit > previousTimeToME) ? previousTimeToME : limit);						
+				}
+				// Healthy: can progress to any state
+				else {
+					// RR from healthy to BLI
+					timeToBLI = getTimeToEvent(pat, RETTransitions.HEALTHY_BLI.ordinal(), limit);
+					if (limit > timeToBLI)
+						limit = timeToBLI;
+					timeToPRET = getTimeToEvent(pat, RETTransitions.HEALTHY_PRET.ordinal(), (limit > previousTimeToPRET) ? previousTimeToPRET : limit);
+					timeToME = getTimeToEvent(pat, RETTransitions.HEALTHY_ME.ordinal(), (limit > previousTimeToME) ? previousTimeToME : limit);						
+					// Adjust limit for BGRET
+					limit = min(limit, timeToPRET, timeToME, previousTimeToPRET, previousTimeToME, previousTimeToBGRET);
+					timeToBGRET = getTimeToEvent(pat, RETTransitions.HEALTHY_BGRET.ordinal(), limit);
+				}
+				// Check previously scheduled events
+				if (timeToBGRET != Long.MAX_VALUE) {
+					if (previousTimeToBGRET < Long.MAX_VALUE) {
+						prog.addCancelEvent(BGRET);
 					}
-					if (timeToPRET != Long.MAX_VALUE) {
-						if (previousTimeToPRET < Long.MAX_VALUE) {
-							prog.addCancelEvent(PRET);
-						}
-						prog.addNewEvent(PRET, timeToPRET);
-						// If the new PRET event happens before a previously scheduled BGRET event, the latter must be cancelled 
-						if (previousTimeToBGRET < Long.MAX_VALUE && timeToPRET < previousTimeToBGRET)
-							prog.addCancelEvent(BGRET);
+					prog.addNewEvent(BGRET, timeToBGRET);
+				}
+				if (timeToPRET != Long.MAX_VALUE) {
+					if (previousTimeToPRET < Long.MAX_VALUE) {
+						prog.addCancelEvent(PRET);
 					}
-					if (timeToME != Long.MAX_VALUE) {
-						if (previousTimeToME < Long.MAX_VALUE) {
-							prog.addCancelEvent(ME);
-						}
-						prog.addNewEvent(ME, timeToME);
-						// If the new ME event happens before a previously scheduled BGRET event, the latter must be cancelled 
-						if (previousTimeToBGRET < Long.MAX_VALUE && timeToME < previousTimeToBGRET)
-							prog.addCancelEvent(BGRET);
+					prog.addNewEvent(PRET, timeToPRET);
+					// If the new PRET event happens before a previously scheduled BGRET event, the latter must be cancelled 
+					if (previousTimeToBGRET < Long.MAX_VALUE && timeToPRET < previousTimeToBGRET)
+						prog.addCancelEvent(BGRET);
+				}
+				if (timeToME != Long.MAX_VALUE) {
+					if (previousTimeToME < Long.MAX_VALUE) {
+						prog.addCancelEvent(ME);
 					}
-					if (timeToBLI != Long.MAX_VALUE) {
-						if (previousTimeToBLI < Long.MAX_VALUE) {
-							prog.addCancelEvent(BLI);
-						}
-						prog.addNewEvent(BLI, timeToBLI);
-						// If the new BLI event happens before any previously scheduled RET event, the latter must be cancelled 
-						if (previousTimeToBGRET < Long.MAX_VALUE && timeToBLI < previousTimeToBGRET)
-							prog.addCancelEvent(BGRET);
-						if (previousTimeToPRET < Long.MAX_VALUE && timeToBLI < previousTimeToPRET)
-							prog.addCancelEvent(PRET);
-						if (previousTimeToME < Long.MAX_VALUE && timeToBLI < previousTimeToME)
-							prog.addCancelEvent(ME);
+					prog.addNewEvent(ME, timeToME);
+					// If the new ME event happens before a previously scheduled BGRET event, the latter must be cancelled 
+					if (previousTimeToBGRET < Long.MAX_VALUE && timeToME < previousTimeToBGRET)
+						prog.addCancelEvent(BGRET);
+				}
+				if (timeToBLI != Long.MAX_VALUE) {
+					if (previousTimeToBLI < Long.MAX_VALUE) {
+						prog.addCancelEvent(BLI);
 					}
+					prog.addNewEvent(BLI, timeToBLI);
+					// If the new BLI event happens before any previously scheduled RET event, the latter must be cancelled 
+					if (previousTimeToBGRET < Long.MAX_VALUE && timeToBLI < previousTimeToBGRET)
+						prog.addCancelEvent(BGRET);
+					if (previousTimeToPRET < Long.MAX_VALUE && timeToBLI < previousTimeToPRET)
+						prog.addCancelEvent(PRET);
+					if (previousTimeToME < Long.MAX_VALUE && timeToBLI < previousTimeToME)
+						prog.addCancelEvent(ME);
 				}
 			}
 			return prog;

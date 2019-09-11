@@ -225,7 +225,7 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new Instance(secParams);
+		return isEnabled() ? new Instance(secParams) : new DisabledChronicComplicationInstance(this);
 	}
 
 	private class TimeToFirstStrokeParam extends UniqueEventParam<Long> implements TimeToEventParam { 
@@ -415,78 +415,76 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 		public DiabetesProgression getProgression(DiabetesPatient pat) {
 			final DiabetesProgression prog = new DiabetesProgression();
 			final int id = pat.getIdentifier();
-			if (isEnabled()) {
-				final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
-				long limit = pat.getTimeToDeath();
-				// First stroke
-				if (!state.contains(POST_STROKE)) {
-					final long previousTimeToStroke = pat.getTimeToChronicComorbidity(POST_STROKE);
-					final long timeToStroke = getTimeToEvent(pat, CHDTransitions.HEALTHY_STROKE.ordinal(), limit);
+			final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
+			long limit = pat.getTimeToDeath();
+			// First stroke
+			if (!state.contains(POST_STROKE)) {
+				final long previousTimeToStroke = pat.getTimeToChronicComorbidity(POST_STROKE);
+				final long timeToStroke = getTimeToEvent(pat, CHDTransitions.HEALTHY_STROKE.ordinal(), limit);
+				// Check previously scheduled events
+				if (timeToStroke != Long.MAX_VALUE) {
+					if (previousTimeToStroke < Long.MAX_VALUE) {
+						prog.addCancelEvent(POST_STROKE);
+					}
+					if (BasicConfigParams.USE_CHD_DEATH_MODEL)
+						prog.addNewEvent(POST_STROKE, timeToStroke, rndDeathStroke[id][0] <= pDeathStroke);
+					else
+						prog.addNewEvent(POST_STROKE, timeToStroke);
+				}						
+			}
+			// Recurrence
+			else {
+				// Only one recurrent event allowed
+				if (!state.contains(POST_STROKE2)) {
+					final long previousTimeToStroke = pat.getTimeToChronicComorbidity(POST_STROKE2);
+					final long timeToStroke = getTimeToEvent(pat, CHDTransitions.STROKE_STROKE2.ordinal(), limit);
 					// Check previously scheduled events
 					if (timeToStroke != Long.MAX_VALUE) {
 						if (previousTimeToStroke < Long.MAX_VALUE) {
-							prog.addCancelEvent(POST_STROKE);
+							prog.addCancelEvent(POST_STROKE2);
 						}
 						if (BasicConfigParams.USE_CHD_DEATH_MODEL)
-							prog.addNewEvent(POST_STROKE, timeToStroke, rndDeathStroke[id][0] <= pDeathStroke);
+							prog.addNewEvent(POST_STROKE2, timeToStroke, rndDeathStroke[id][1] <= pDeathStroke);
 						else
-							prog.addNewEvent(POST_STROKE, timeToStroke);
+							prog.addNewEvent(POST_STROKE2, timeToStroke);
 					}						
 				}
-				// Recurrence
-				else {
-					// Only one recurrent event allowed
-					if (!state.contains(POST_STROKE2)) {
-						final long previousTimeToStroke = pat.getTimeToChronicComorbidity(POST_STROKE2);
-						final long timeToStroke = getTimeToEvent(pat, CHDTransitions.STROKE_STROKE2.ordinal(), limit);
-						// Check previously scheduled events
-						if (timeToStroke != Long.MAX_VALUE) {
-							if (previousTimeToStroke < Long.MAX_VALUE) {
-								prog.addCancelEvent(POST_STROKE2);
-							}
-							if (BasicConfigParams.USE_CHD_DEATH_MODEL)
-								prog.addNewEvent(POST_STROKE2, timeToStroke, rndDeathStroke[id][1] <= pDeathStroke);
-							else
-								prog.addNewEvent(POST_STROKE2, timeToStroke);
-						}						
+			}
+			// Angina
+			if (!state.contains(POST_ANGINA)) {
+				final long previousTimeToAngina = pat.getTimeToChronicComorbidity(POST_ANGINA);
+				final long timeToAngina = getTimeToEvent(pat, CHDTransitions.HEALTHY_ANGINA.ordinal(), limit);
+				adjustProgression(prog, POST_ANGINA, timeToAngina, previousTimeToAngina);				
+			}
+			// First MI
+			if (!state.contains(POST_MI)) {
+				final long previousTimeToMI = pat.getTimeToChronicComorbidity(POST_MI);
+				final long timeToMI = getTimeToEvent(pat, CHDTransitions.HEALTHY_MI.ordinal(), limit);
+				// Check previously scheduled events
+				if (timeToMI != Long.MAX_VALUE) {
+					if (previousTimeToMI < Long.MAX_VALUE) {
+						prog.addCancelEvent(POST_MI);
 					}
-				}
-				// Angina
-				if (!state.contains(POST_ANGINA)) {
-					final long previousTimeToAngina = pat.getTimeToChronicComorbidity(POST_ANGINA);
-					final long timeToAngina = getTimeToEvent(pat, CHDTransitions.HEALTHY_ANGINA.ordinal(), limit);
-					adjustProgression(prog, POST_ANGINA, timeToAngina, previousTimeToAngina);				
-				}
-				// First MI
-				if (!state.contains(POST_MI)) {
-					final long previousTimeToMI = pat.getTimeToChronicComorbidity(POST_MI);
-					final long timeToMI = getTimeToEvent(pat, CHDTransitions.HEALTHY_MI.ordinal(), limit);
-					// Check previously scheduled events
-					if (timeToMI != Long.MAX_VALUE) {
-						if (previousTimeToMI < Long.MAX_VALUE) {
-							prog.addCancelEvent(POST_MI);
-						}
-						if (BasicConfigParams.USE_CHD_DEATH_MODEL)
-							prog.addNewEvent(POST_MI, timeToMI, rndDeathMI[id][0] <= pDeathMI[pat.getSex()]);
-						else
-							prog.addNewEvent(POST_MI, timeToMI);
-					}						
-				}
-				// Recurrent MI
-				else {
-					final long previousTimeToMI = pat.getTimeToChronicComorbidity(POST_MI2);
-					final long timeToMI = getTimeToEvent(pat, CHDTransitions.MI_MI2.ordinal(), limit);
-					// Check previously scheduled events
-					if (timeToMI != Long.MAX_VALUE) {
-						if (previousTimeToMI < Long.MAX_VALUE) {
-							prog.addCancelEvent(POST_MI2);
-						}
-						if (BasicConfigParams.USE_CHD_DEATH_MODEL)
-							prog.addNewEvent(POST_MI2, timeToMI, rndDeathMI[id][1] <= pDeathMI[pat.getSex()]);
-						else
-							prog.addNewEvent(POST_MI2, timeToMI);
-					}						
-				}
+					if (BasicConfigParams.USE_CHD_DEATH_MODEL)
+						prog.addNewEvent(POST_MI, timeToMI, rndDeathMI[id][0] <= pDeathMI[pat.getSex()]);
+					else
+						prog.addNewEvent(POST_MI, timeToMI);
+				}						
+			}
+			// Recurrent MI
+			else {
+				final long previousTimeToMI = pat.getTimeToChronicComorbidity(POST_MI2);
+				final long timeToMI = getTimeToEvent(pat, CHDTransitions.MI_MI2.ordinal(), limit);
+				// Check previously scheduled events
+				if (timeToMI != Long.MAX_VALUE) {
+					if (previousTimeToMI < Long.MAX_VALUE) {
+						prog.addCancelEvent(POST_MI2);
+					}
+					if (BasicConfigParams.USE_CHD_DEATH_MODEL)
+						prog.addNewEvent(POST_MI2, timeToMI, rndDeathMI[id][1] <= pDeathMI[pat.getSex()]);
+					else
+						prog.addNewEvent(POST_MI2, timeToMI);
+				}						
 			}
 			return prog;
 		}

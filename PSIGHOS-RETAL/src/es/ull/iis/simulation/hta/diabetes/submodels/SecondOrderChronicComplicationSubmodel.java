@@ -4,10 +4,14 @@
 package es.ull.iis.simulation.hta.diabetes.submodels;
 
 import java.util.EnumSet;
+import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
+import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
+import es.ull.iis.simulation.hta.diabetes.DiabetesProgression;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
+import es.ull.iis.simulation.hta.diabetes.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
@@ -65,6 +69,39 @@ public abstract class SecondOrderChronicComplicationSubmodel extends SecondOrder
 				secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getInitProbString(stage), "Initial proportion of " + stage.name(), "",
 						BasicConfigParams.INIT_PROP.get(stage.name())));
 			}			
+		}
+		
+	}
+
+	/**
+	 * The complication instance that should be returned when the complication is disabled.
+	 * This instance ensures that no actions are performed.
+	 * @author Iván Castilla Rodríguez
+	 *
+	 */
+	public class DisabledChronicComplicationInstance extends ChronicComplicationSubmodel {
+
+		public DisabledChronicComplicationInstance(SecondOrderChronicComplicationSubmodel secOrder) {
+			super(secOrder);
+		}
+
+		@Override
+		public TreeSet<DiabetesComplicationStage> getInitialStage(DiabetesPatient pat) {
+			return new TreeSet<>();
+		}
+		@Override
+		public DiabetesProgression getProgression(DiabetesPatient pat) {
+			return new DiabetesProgression();
+		}
+
+		@Override
+		public double getAnnualCostWithinPeriod(DiabetesPatient pat, double initAge, double endAge) {
+			return 0;
+		}
+
+		@Override
+		public double getDisutility(DiabetesPatient pat, DisutilityCombinationMethod method) {
+			return 0;
 		}
 		
 	}

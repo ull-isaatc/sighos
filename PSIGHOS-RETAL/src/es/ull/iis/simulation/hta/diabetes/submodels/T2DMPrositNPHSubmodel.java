@@ -103,7 +103,7 @@ public class T2DMPrositNPHSubmodel extends SecondOrderChronicComplicationSubmode
 	
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return new Instance(secParams);
+		return isEnabled() ? new Instance(secParams) : new DisabledChronicComplicationInstance(this);
 	}
 
 	@Override
@@ -252,67 +252,65 @@ public class T2DMPrositNPHSubmodel extends SecondOrderChronicComplicationSubmode
 		@Override
 		public DiabetesProgression getProgression(DiabetesPatient pat) {
 			final DiabetesProgression prog = new DiabetesProgression();
-			if (isEnabled()) {
-				final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
-				// Checks whether there is somewhere to transit to
-				if (!state.contains(ESRD)) {
-					long timeToESRD = Long.MAX_VALUE;
-					long timeToALB1 = Long.MAX_VALUE;
-					long timeToALB2 = Long.MAX_VALUE;
-					final long previousTimeToALB1 = pat.getTimeToChronicComorbidity(ALB1);
-					final long previousTimeToALB2 = pat.getTimeToChronicComorbidity(ALB2);
-					final long previousTimeToESRD = pat.getTimeToChronicComorbidity(ESRD);
-					long limit = pat.getTimeToDeath();
-					if (limit > previousTimeToESRD)
-						limit = previousTimeToESRD;
-					if (state.contains(ALB2)) {
-						// RR from ALB2 to ESRD
-						timeToESRD = getTimeToEvent(pat, NPHTransitions.ALB2_ESRD.ordinal(), limit);
+			final TreeSet<DiabetesComplicationStage> state = pat.getDetailedState();
+			// Checks whether there is somewhere to transit to
+			if (!state.contains(ESRD)) {
+				long timeToESRD = Long.MAX_VALUE;
+				long timeToALB1 = Long.MAX_VALUE;
+				long timeToALB2 = Long.MAX_VALUE;
+				final long previousTimeToALB1 = pat.getTimeToChronicComorbidity(ALB1);
+				final long previousTimeToALB2 = pat.getTimeToChronicComorbidity(ALB2);
+				final long previousTimeToESRD = pat.getTimeToChronicComorbidity(ESRD);
+				long limit = pat.getTimeToDeath();
+				if (limit > previousTimeToESRD)
+					limit = previousTimeToESRD;
+				if (state.contains(ALB2)) {
+					// RR from ALB2 to ESRD
+					timeToESRD = getTimeToEvent(pat, NPHTransitions.ALB2_ESRD.ordinal(), limit);
+				}
+				else if (state.contains(ALB1)) {
+					// RR from ALB1 to ESRD
+					timeToESRD = getTimeToEvent(pat, NPHTransitions.ALB1_ESRD.ordinal(), limit);
+					if (limit > timeToESRD)
+						limit = timeToESRD;
+					timeToALB2 = getTimeToEvent(pat, NPHTransitions.ALB1_ALB2.ordinal(), limit);
+				}
+				else {
+					// RR from healthy to ESRD
+					timeToESRD = getTimeToEvent(pat, NPHTransitions.HEALTHY_ESRD.ordinal(), limit);
+					if (limit > timeToESRD)
+						limit = timeToESRD;
+					if (limit > previousTimeToALB2)
+						limit = previousTimeToALB2;
+					timeToALB2 = getTimeToEvent(pat, NPHTransitions.HEALTHY_ALB2.ordinal(), limit);
+					if (limit > timeToALB2)
+						limit = timeToALB2;
+					if (limit > previousTimeToALB1)
+						limit = previousTimeToALB1;
+					// RR from healthy to ALB1 (must be previous to ESRD and a (potential) formerly scheduled ALB1 event)
+					timeToALB1 = getTimeToEvent(pat, NPHTransitions.HEALTHY_ALB1.ordinal(), limit);
+				}
+				// Check previously scheduled events
+				adjustProgression(prog, ALB1, timeToALB1, previousTimeToALB1);
+				if (timeToALB2 != Long.MAX_VALUE) {
+					if (previousTimeToALB2 < Long.MAX_VALUE) {
+						prog.addCancelEvent(ALB2);
 					}
-					else if (state.contains(ALB1)) {
-						// RR from ALB1 to ESRD
-						timeToESRD = getTimeToEvent(pat, NPHTransitions.ALB1_ESRD.ordinal(), limit);
-						if (limit > timeToESRD)
-							limit = timeToESRD;
-						timeToALB2 = getTimeToEvent(pat, NPHTransitions.ALB1_ALB2.ordinal(), limit);
+					prog.addNewEvent(ALB2, timeToALB2);
+					// If the new ALB2 event happens before a previously scheduled ALB1 event, the latter must be cancelled 
+					if (previousTimeToALB1 < Long.MAX_VALUE && timeToALB2 < previousTimeToALB1)
+						prog.addCancelEvent(ALB1);
+				}
+				if (timeToESRD != Long.MAX_VALUE) {
+					if (previousTimeToESRD < Long.MAX_VALUE) {
+						prog.addCancelEvent(ESRD);
 					}
-					else {
-						// RR from healthy to ESRD
-						timeToESRD = getTimeToEvent(pat, NPHTransitions.HEALTHY_ESRD.ordinal(), limit);
-						if (limit > timeToESRD)
-							limit = timeToESRD;
-						if (limit > previousTimeToALB2)
-							limit = previousTimeToALB2;
-						timeToALB2 = getTimeToEvent(pat, NPHTransitions.HEALTHY_ALB2.ordinal(), limit);
-						if (limit > timeToALB2)
-							limit = timeToALB2;
-						if (limit > previousTimeToALB1)
-							limit = previousTimeToALB1;
-						// RR from healthy to ALB1 (must be previous to ESRD and a (potential) formerly scheduled ALB1 event)
-						timeToALB1 = getTimeToEvent(pat, NPHTransitions.HEALTHY_ALB1.ordinal(), limit);
-					}
-					// Check previously scheduled events
-					adjustProgression(prog, ALB1, timeToALB1, previousTimeToALB1);
-					if (timeToALB2 != Long.MAX_VALUE) {
-						if (previousTimeToALB2 < Long.MAX_VALUE) {
-							prog.addCancelEvent(ALB2);
-						}
-						prog.addNewEvent(ALB2, timeToALB2);
-						// If the new ALB2 event happens before a previously scheduled ALB1 event, the latter must be cancelled 
-						if (previousTimeToALB1 < Long.MAX_VALUE && timeToALB2 < previousTimeToALB1)
-							prog.addCancelEvent(ALB1);
-					}
-					if (timeToESRD != Long.MAX_VALUE) {
-						if (previousTimeToESRD < Long.MAX_VALUE) {
-							prog.addCancelEvent(ESRD);
-						}
-						prog.addNewEvent(ESRD, timeToESRD);
-						// If the new ESRD event happens before a previously scheduled ALB1 or ALB2 event, the latter must be cancelled 
-						if (previousTimeToALB2 < Long.MAX_VALUE && timeToESRD < previousTimeToALB2)
-							prog.addCancelEvent(ALB2);
-						if (previousTimeToALB1 < Long.MAX_VALUE && timeToESRD < previousTimeToALB1)
-							prog.addCancelEvent(ALB1);
-					}
+					prog.addNewEvent(ESRD, timeToESRD);
+					// If the new ESRD event happens before a previously scheduled ALB1 or ALB2 event, the latter must be cancelled 
+					if (previousTimeToALB2 < Long.MAX_VALUE && timeToESRD < previousTimeToALB2)
+						prog.addCancelEvent(ALB2);
+					if (previousTimeToALB1 < Long.MAX_VALUE && timeToESRD < previousTimeToALB1)
+						prog.addCancelEvent(ALB1);
 				}
 			}
 			return prog;
