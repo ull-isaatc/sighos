@@ -473,18 +473,20 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 			}
 			// Recurrent MI
 			else {
-				final long previousTimeToMI = pat.getTimeToChronicComorbidity(POST_MI2);
-				final long timeToMI = getTimeToEvent(pat, CHDTransitions.MI_MI2.ordinal(), limit);
-				// Check previously scheduled events
-				if (timeToMI != Long.MAX_VALUE) {
-					if (previousTimeToMI < Long.MAX_VALUE) {
-						prog.addCancelEvent(POST_MI2);
+				if (!state.contains(POST_MI2)) {
+					final long previousTimeToMI = pat.getTimeToChronicComorbidity(POST_MI2);
+					final long timeToMI = getTimeToEvent(pat, CHDTransitions.MI_MI2.ordinal(), limit);
+					// Check previously scheduled events
+					if (timeToMI != Long.MAX_VALUE) {
+						if (previousTimeToMI < Long.MAX_VALUE) {
+							prog.addCancelEvent(POST_MI2);
+						}
+						if (BasicConfigParams.USE_CHD_DEATH_MODEL)
+							prog.addNewEvent(POST_MI2, timeToMI, rndDeathMI[id][1] <= pDeathMI[pat.getSex()]);
+						else
+							prog.addNewEvent(POST_MI2, timeToMI);
 					}
-					if (BasicConfigParams.USE_CHD_DEATH_MODEL)
-						prog.addNewEvent(POST_MI2, timeToMI, rndDeathMI[id][1] <= pDeathMI[pat.getSex()]);
-					else
-						prog.addNewEvent(POST_MI2, timeToMI);
-				}						
+				}
 			}
 			return prog;
 		}

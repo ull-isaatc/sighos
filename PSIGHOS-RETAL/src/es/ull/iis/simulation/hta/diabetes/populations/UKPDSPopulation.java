@@ -9,17 +9,19 @@ import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
 /**
- * From Klein et al. 10.1016/S0161-6420(98)91020-X
+ * From Adler et al. 10.1046/j.1523-1755.2003.00712.x
  * @author Iván Castilla Rodríguez
  *
  */
 public class UKPDSPopulation extends DiabetesStdPopulation {
 	/** Average and SD HbA1c in the population at baseline. */
 	private static final double[] BASELINE_HBA1C = {7.2, 1.8}; 
-	/** The average age at baseline */
+	/** The average and SD age at baseline */
 	private static final double[] BASELINE_AGE = {52.1, 8.8}; 
 	/** Duration of diabetes at baseline */
 	private static final double BASELINE_DURATION = 0.0; 
+	/** The average and SD SBP at baseline */
+	private static final double[] BASELINE_SBP = {135, 19.5}; 
 
 	/**
 	 */
@@ -51,4 +53,13 @@ public class UKPDSPopulation extends DiabetesStdPopulation {
 		return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_DURATION);
 	}
 
+	@Override
+	protected RandomVariate getBaselineSBP() {
+		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_SBP[0], BASELINE_SBP[1]);
+	}
+	
+	@Override
+	protected double getPSmoker() {
+		return 0.31; // Current smokers
+	}
 }

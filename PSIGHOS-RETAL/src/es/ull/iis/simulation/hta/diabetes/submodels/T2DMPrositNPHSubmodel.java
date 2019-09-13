@@ -24,7 +24,8 @@ import simkit.random.RandomVariateFactory;
 
 /**
  * Based on the equations used in the PROSIT model ({@link https://www.prosit.de})
- * FIXME: Still not using RR for smoking or treatment with ACE in microalbuminuria
+ * FIXME: Still not using RR for smoking (though this value comes from another source... Maybe shouldn't)
+ * FIXME: Still not using RR for treatment with ACE in microalbuminuria
  * FIXME: Still not using remission to normoalbuminuria from microalbuminuria
  * FIXME: Still not using RR for ACE in macroalbuminuria nor ESRD
  * FIXME: Still not using remission to microalbuminuria from macroalbuminuria
