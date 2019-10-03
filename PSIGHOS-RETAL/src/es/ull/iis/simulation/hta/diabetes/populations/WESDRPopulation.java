@@ -20,6 +20,10 @@ public class WESDRPopulation extends DiabetesStdPopulation {
 	private static final double[] BASELINE_AGE = {26.8, 11.2}; 
 	/** Duration of diabetes at baseline */
 	private static final double[] BASELINE_DURATION = {12.6, 9.0}; 
+	private static final double P_MAN = 0.492;  
+	private static final double P_SMOKER = 0.249;
+	/** SBP at baseline */
+	private static final double[] BASELINE_SBP = {120, 16.0}; 
 
 	/**
 	 */
@@ -29,7 +33,7 @@ public class WESDRPopulation extends DiabetesStdPopulation {
 
 	@Override
 	protected double getPMan() {
-		return 0.492;
+		return P_MAN;
 	}
 
 	@Override
@@ -53,4 +57,14 @@ public class WESDRPopulation extends DiabetesStdPopulation {
 		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_DURATION[0], BASELINE_DURATION[1]);
 	}
 
+	@Override
+	protected double getPSmoker() {
+		return P_SMOKER;
+	}
+	
+	@Override
+	protected RandomVariate getBaselineSBP() {
+		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_SBP[0], BASELINE_SBP[1]);
+	}
+	
 }

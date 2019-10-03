@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.diabetes.submodels;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Random;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
@@ -272,6 +273,28 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
 		return isEnabled() ? new Instance(secParams) : new DisabledChronicComplicationInstance(this);
 	}
+
+	public static double testGetValueDuration(final double durationOfDiabetes, double rnd, final double[][] incidenceDuration) {
+		int interval = 0;
+		while (incidenceDuration[interval][0] < durationOfDiabetes) {
+			interval++;
+		}
+		if (incidenceDuration[interval][1] != 0.0) {
+			final double time = (-1 / incidenceDuration[interval][1]) * Math.log(rnd);					
+			return (time >= 100.0) ? Double.NaN : time;
+		}
+		return Double.NaN;
+	}
+
+	public static void main(String[] args) {
+		final int N = 1000;
+		final Random rnd = new Random();
+		for (int n = 0; n < N; n++) {
+			final double duration = P_ME_DURATION[0][0] + (P_ME_DURATION[1][0] - P_ME_DURATION[0][0]) * rnd.nextDouble();
+			System.out.println(duration + "\t" + testGetValueDuration(duration, rnd.nextDouble(), P_ME_DURATION));
+		}
+	}
+	
 	private abstract class CompetingRisksTimeToEventParam extends UniqueEventParam<Long> implements TimeToEventParam {
 		public CompetingRisksTimeToEventParam(RandomNumber rng, int nPatients) {
 			super(rng, nPatients, true);
@@ -287,17 +310,13 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 		
 		public long getValueDuration(final DiabetesPatient pat, final double lifetime, final double[][] incidenceDuration) {
 			final double durationOfDiabetes = pat.getDurationOfDiabetes();
-			double ref = 0.0;
-			for (int i = 0; i < incidenceDuration.length; i++) {
-				if (incidenceDuration[i][0] > durationOfDiabetes) {
-					if (incidenceDuration[i][1] != 0.0) {
-						final double newMinus = -1 / (1-Math.exp(Math.log(1-incidenceDuration[i][1])));
-						final double time = newMinus * draw(pat) + ref;					
-						if (time + durationOfDiabetes < incidenceDuration[i][0])
-							return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
-					}
-					ref = incidenceDuration[i][0] - durationOfDiabetes;
-				}
+			int interval = 0;
+			while (incidenceDuration[interval][0] < durationOfDiabetes) {
+				interval++;
+			}
+			if (incidenceDuration[interval][1] != 0.0) {
+				final double time = (-1 / incidenceDuration[interval][1]) * draw(pat);					
+				return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));				
 			}
 			return Long.MAX_VALUE;
 		}
@@ -306,8 +325,7 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 			final double pHbA1c = Math.log(fpHbA1c[0] + fpHbA1c[1] * Math.log(pat.getHba1c())); 
 			if (pHbA1c == 0.0)
 				return Long.MAX_VALUE;
-			final double newMinus = -1 / (1-Math.exp(Math.log(1-pHbA1c)));
-			final double time = newMinus * draw(pat);		
+			final double time = -draw(pat) / pHbA1c;		
 			return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 		}
 		
