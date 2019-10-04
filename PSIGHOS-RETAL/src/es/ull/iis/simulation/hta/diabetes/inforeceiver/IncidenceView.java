@@ -19,7 +19,21 @@ import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
+// FIXME: Prevalence not computing correctly when using %. Only works for absolute number of patients
 public class IncidenceView implements ExperimentListener<IncidenceView.InnerListenerInstance> {
+	public enum Type {
+		INCIDENCE("Incidence"),
+		PREVALENCE("Prevalence"),
+		CUMUL_INCIDENCE("Cumulative incidence");
+		
+		private final String description;
+		private Type(String description) {
+			this.description = description;
+		}
+		public String getDescription() {
+			return description;
+		}
+	}
 	private final int nExperiments;
 	private final SecondOrderParamsRepository secParams;
 	private final ArrayList<SecondOrderDiabetesIntervention> interventions;
@@ -29,13 +43,17 @@ public class IncidenceView implements ExperimentListener<IncidenceView.InnerList
 	private final double[][][] nMainChronic;
 	private final double [][][] nAcute;
 	private final int nPatients;
-	private final boolean cummulative;
+	private final Type type;
+	private final boolean absolute;
+	private final String format;
 
 	/**
 	 * 
 	 */
-	public IncidenceView(int nExperiments, SecondOrderParamsRepository secParams, int nIntervals, boolean cummulative) {
-		this.cummulative = cummulative;
+	public IncidenceView(int nExperiments, SecondOrderParamsRepository secParams, int nIntervals, Type type, boolean absolute) {
+		this.absolute = absolute;
+		this.format = absolute ? "%.0f" : "%.2f";
+		this.type = type;
 		this.nExperiments = nExperiments;
 		this.secParams = secParams;
 		this.nIntervals = nIntervals;
@@ -50,12 +68,12 @@ public class IncidenceView implements ExperimentListener<IncidenceView.InnerList
 
 	@Override
 	public void addListener(DiabetesSimulation simul) {
-		simul.addInfoReceiver(new InnerListenerInstance());
+		simul.addInfoReceiver(Type.PREVALENCE.equals(type) ? new InnerPrevalenceListenerInstance() : new InnerListenerInstance());
 	}
 
 	@Override
 	public String toString() {
-		final StringBuilder str = cummulative ? new StringBuilder("Cummulated incidence") : new StringBuilder("Incidence");
+		final StringBuilder str = new StringBuilder(type.getDescription());
 		str.append(System.lineSeparator()).append("YEAR");
 		for (int i = 0; i < interventions.size(); i++) {
 			final String name = interventions.get(i).getShortName();
@@ -74,15 +92,15 @@ public class IncidenceView implements ExperimentListener<IncidenceView.InnerList
 		for (int year = 0; year < nIntervals; year++) {
 			str.append(year);
 			for (int i = 0; i < interventions.size(); i++) {
-				str.append("\t").append(String.format(Locale.US, "%.2f", nDeaths[i][year] / nExperiments));
+				str.append("\t").append(String.format(Locale.US, format, nDeaths[i][year] / nExperiments));
 				for (int j = 0; j < nMainChronic[i].length; j++) {
-					str.append("\t").append(String.format(Locale.US, "%.2f", nMainChronic[i][j][year] / nExperiments));
+					str.append("\t").append(String.format(Locale.US, format, nMainChronic[i][j][year] / nExperiments));
 				}
 				for (int j = 0; j < nChronic[i].length; j++) {
-					str.append("\t").append(String.format(Locale.US, "%.2f", nChronic[i][j][year] / nExperiments));
+					str.append("\t").append(String.format(Locale.US, format, nChronic[i][j][year] / nExperiments));
 				}
 				for (int j = 0; j < nAcute[i].length; j++) {
-					str.append("\t").append(String.format(Locale.US, "%.2f", nAcute[i][j][year] / nExperiments));
+					str.append("\t").append(String.format(Locale.US, format, nAcute[i][j][year] / nExperiments));
 				}	
 			}
 			str.append(System.lineSeparator());
@@ -100,6 +118,7 @@ public class IncidenceView implements ExperimentListener<IncidenceView.InnerList
 		private final int[][] nMainChronic;
 		private final boolean[][] patientMainChronic;
 		private final int [][] nAcute;
+		private final int n;
 
 		/**
 		 * 
@@ -110,7 +129,8 @@ public class IncidenceView implements ExperimentListener<IncidenceView.InnerList
 		 * @param detailDeaths
 		 */
 		public InnerListenerInstance() {
-			super("Counter of patients");
+			super("Viewer for incidence/prevalence");
+			n = (absolute) ? 1 : nPatients;
 			nDeaths = new int[nIntervals];
 			nChronic = new int[secParams.getRegisteredComplicationStages().size()][nIntervals];
 			nMainChronic = new int[DiabetesChronicComplications.values().length][nIntervals];
@@ -146,6 +166,15 @@ public class IncidenceView implements ExperimentListener<IncidenceView.InnerList
 						break;
 					case DEATH:
 						nDeaths[interval]++;
+						// In case we are measuring prevalence, once the patient dies, we have to remove the account for the complications 
+						if (Type.PREVALENCE.equals(type)) {
+							for (DiabetesComplicationStage stage : pInfo.getPatient().getDetailedState()) {
+								nChronic[stage.ordinal()][interval]--;
+							}
+							for (DiabetesChronicComplications comp : pInfo.getPatient().getState()) {
+								nMainChronic[comp.ordinal()][interval]--;
+							}
+						}
 						break;
 					default:
 						break;
@@ -156,42 +185,134 @@ public class IncidenceView implements ExperimentListener<IncidenceView.InnerList
 		@Override
 		public synchronized void updateExperiment(DiabetesSimulation simul) {
 			final int interventionId = simul.getIntervention().getIdentifier();
-			if (cummulative) {
+			switch(type) {
+			case INCIDENCE:
+				for (int i = 0; i < nIntervals; i++) {
+					IncidenceView.this.nDeaths[interventionId][i] += nDeaths[i] / n;
+					for (int j = 0; j < nAcute.length; j++) {
+						IncidenceView.this.nAcute[interventionId][j][i] += nAcute[j][i] / n;
+					}
+					for (int j = 0; j < nMainChronic.length; j++) {
+						IncidenceView.this.nMainChronic[interventionId][j][i] += nMainChronic[j][i] / n;
+					}
+					for (int j = 0; j < nChronic.length; j++) {
+						IncidenceView.this.nChronic[interventionId][j][i] += nChronic[j][i] / n;
+					}
+				}			
+				break;
+			case CUMUL_INCIDENCE:
+			case PREVALENCE:
+			default:
 				double accDeaths = 0.0;
 				final double []accAcute = new double[nAcute.length];
 				final double []accChronic = new double[nChronic.length];
 				final double []accMainChronic = new double[nMainChronic.length];
 				for (int i = 0; i < nIntervals; i++) {
 					accDeaths += nDeaths[i];
-					IncidenceView.this.nDeaths[interventionId][i] += accDeaths / nPatients;
+					IncidenceView.this.nDeaths[interventionId][i] += accDeaths / n;
 					for (int j = 0; j < nAcute.length; j++) {
 						accAcute[j] += nAcute[j][i];
-						IncidenceView.this.nAcute[interventionId][j][i] += accAcute[j] / nPatients;
+						IncidenceView.this.nAcute[interventionId][j][i] += accAcute[j] / n;
 					}
 					for (int j = 0; j < nMainChronic.length; j++) {
 						accMainChronic[j] += nMainChronic[j][i];
-						IncidenceView.this.nMainChronic[interventionId][j][i] += accMainChronic[j] / nPatients;
+						IncidenceView.this.nMainChronic[interventionId][j][i] += accMainChronic[j] / n;
 					}
 					for (int j = 0; j < nChronic.length; j++) {
 						accChronic[j] += nChronic[j][i];
-						IncidenceView.this.nChronic[interventionId][j][i] += accChronic[j] / nPatients;
+						IncidenceView.this.nChronic[interventionId][j][i] += accChronic[j] / n;
 					}
-				}			
+				}
+				break;
 			}
-			else {
-				for (int i = 0; i < nIntervals; i++) {
-					IncidenceView.this.nDeaths[interventionId][i] += nDeaths[i] / nPatients;
-					for (int j = 0; j < nAcute.length; j++) {
-						IncidenceView.this.nAcute[interventionId][j][i] += nAcute[j][i] / nPatients;
-					}
+		}
+
+	}
+
+	/**
+	 * @author Iván Castilla
+	 *
+	 */
+	public class InnerPrevalenceListenerInstance extends Listener implements InnerListener {
+		private final int [] nDeaths;
+		private final int[][] nChronic;
+		private final int[][] nMainChronic;
+		private final boolean[][] patientMainChronic;
+
+		/**
+		 * 
+		 * @param simul
+		 * @param minAge
+		 * @param maxAge
+		 * @param length
+		 * @param detailDeaths
+		 */
+		public InnerPrevalenceListenerInstance() {
+			super("Viewer for prevalence");
+			nDeaths = new int[nIntervals];
+			nChronic = new int[secParams.getRegisteredComplicationStages().size()][nIntervals];
+			nMainChronic = new int[DiabetesChronicComplications.values().length][nIntervals];
+			patientMainChronic = new boolean[DiabetesChronicComplications.values().length][nPatients];
+			addGenerated(T1DMPatientInfo.class);
+			addEntrance(T1DMPatientInfo.class);
+			addEntrance(SimulationStartStopInfo.class);
+		}
+
+		@Override
+		public void infoEmited(SimulationInfo info) {
+			if (info instanceof SimulationStartStopInfo) {
+				if (SimulationStartStopInfo.Type.END.equals(((SimulationStartStopInfo) info).getType())) {
+					updateExperiment((DiabetesSimulation) info.getSimul());
+				}
+			}
+			else if (info instanceof T1DMPatientInfo) {
+				final T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
+				final int interval = (int)(pInfo.getTs() / BasicConfigParams.YEAR_CONVERSION);
+				switch(pInfo.getType()) {
+					case START:
+						break;
+					case COMPLICATION:
+						nChronic[pInfo.getComplication().ordinal()][interval]++;
+						if (!patientMainChronic[pInfo.getComplication().getComplication().ordinal()][pInfo.getPatient().getIdentifier()]) {
+							patientMainChronic[pInfo.getComplication().getComplication().ordinal()][pInfo.getPatient().getIdentifier()] = true;
+							nMainChronic[pInfo.getComplication().getComplication().ordinal()][interval]++;
+						}
+						break;
+					case DEATH:
+						nDeaths[interval]++;
+						for (DiabetesComplicationStage stage : pInfo.getPatient().getDetailedState()) {
+							nChronic[stage.ordinal()][interval]--;
+						}
+						for (DiabetesChronicComplications comp : pInfo.getPatient().getState()) {
+							nMainChronic[comp.ordinal()][interval]--;
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		}
+
+		@Override
+		public synchronized void updateExperiment(DiabetesSimulation simul) {
+			final int interventionId = simul.getIntervention().getIdentifier();
+			double accDeaths = 0.0;
+			final double []accChronic = new double[nChronic.length];
+			final double []accMainChronic = new double[nMainChronic.length];
+			for (int i = 0; i < nIntervals; i++) {
+				accDeaths += nDeaths[i];
+				final double coef = absolute ? 1.0 : (nPatients - accDeaths);
+				IncidenceView.this.nDeaths[interventionId][i] += accDeaths / (absolute ? 1.0 : nPatients);
+				if (coef != 0) {
 					for (int j = 0; j < nMainChronic.length; j++) {
-						IncidenceView.this.nMainChronic[interventionId][j][i] += nMainChronic[j][i] / nPatients;
+						accMainChronic[j] += nMainChronic[j][i];
+						IncidenceView.this.nMainChronic[interventionId][j][i] += accMainChronic[j] / coef;
 					}
 					for (int j = 0; j < nChronic.length; j++) {
-						IncidenceView.this.nChronic[interventionId][j][i] += nChronic[j][i] / nPatients;
+						accChronic[j] += nChronic[j][i];
+						IncidenceView.this.nChronic[interventionId][j][i] += accChronic[j] / coef;
 					}
-				}			
-				
+				}
 			}
 		}
 

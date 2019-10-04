@@ -108,8 +108,8 @@ public class T1DMMain {
 			baseCaseExpListeners.add(new AnnualCostView(1, secParams, discountCost));
 		}
 		if (printOutputs.contains(Outputs.CUMM_INCIDENCE)) {
-			expListeners.add(new IncidenceView(nRuns, secParams, timeHorizon, true));
-			baseCaseExpListeners.add(new IncidenceView(1, secParams, timeHorizon, true));
+			expListeners.add(new IncidenceView(nRuns, secParams, timeHorizon, IncidenceView.Type.CUMUL_INCIDENCE, false));
+			baseCaseExpListeners.add(new IncidenceView(1, secParams, timeHorizon, IncidenceView.Type.CUMUL_INCIDENCE, false));
 		}
 		if (printOutputs.contains(Outputs.INCIDENCE)) {
 			expListeners.add(new IncidenceByGroupAgeView(nRuns, secParams, 1, false));

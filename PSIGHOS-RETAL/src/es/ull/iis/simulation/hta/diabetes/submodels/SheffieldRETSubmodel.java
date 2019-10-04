@@ -20,6 +20,8 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.SheffieldComplicationRR;
+import es.ull.iis.util.ExtendedMath;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -145,9 +147,9 @@ public class SheffieldRETSubmodel extends SecondOrderChronicComplicationSubmodel
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ME, "Cost of ME", "Original analysis", 2018, C_ME, SecondOrderParamsRepository.getRandomVariateForCost(C_ME)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + BLI, "Cost of BLI", "Conget et al.", 2016, C_BLI, SecondOrderParamsRepository.getRandomVariateForCost(C_BLI)));
 		
-		final double[] paramsDuPRET = SecondOrderParamsRepository.betaParametersFromNormal(DU_PRET[0], DU_PRET[1]);
-		final double[] paramsDuME = SecondOrderParamsRepository.betaParametersFromNormal(DU_ME[0], DU_ME[1]);
-		final double[] paramsDuBLI = SecondOrderParamsRepository.betaParametersFromNormal(DU_BLI[0], DU_BLI[1]);
+		final double[] paramsDuPRET = Statistics.betaParametersFromNormal(DU_PRET[0], DU_PRET[1]);
+		final double[] paramsDuME = Statistics.betaParametersFromNormal(DU_ME[0], DU_ME[1]);
+		final double[] paramsDuBLI = Statistics.betaParametersFromNormal(DU_BLI[0], DU_BLI[1]);
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BGRET, "Disutility of BGRET", "", DU_BGRET));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + PRET, "Disutility of PRET", 
 				"", DU_PRET[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuPRET[0], paramsDuPRET[1])));
@@ -243,7 +245,7 @@ public class SheffieldRETSubmodel extends SecondOrderChronicComplicationSubmodel
 				// Already at PRET but not at ME: can progress to BLI and ME
 				else if (state.contains(PRET)) {
 					timeToBLI = getTimeToEvent(pat, RETTransitions.PRET_BLI.ordinal(), limit);
-					limit = min(limit, timeToBLI, previousTimeToME);
+					limit = ExtendedMath.min(limit, timeToBLI, previousTimeToME);
 					timeToME = getTimeToEvent(pat, RETTransitions.BGRET_ME.ordinal(), limit);						
 				}
 				// Already at BGRET: can progress to BLI, ME and PRET
@@ -263,7 +265,7 @@ public class SheffieldRETSubmodel extends SecondOrderChronicComplicationSubmodel
 					timeToPRET = getTimeToEvent(pat, RETTransitions.HEALTHY_PRET.ordinal(), (limit > previousTimeToPRET) ? previousTimeToPRET : limit);
 					timeToME = getTimeToEvent(pat, RETTransitions.HEALTHY_ME.ordinal(), (limit > previousTimeToME) ? previousTimeToME : limit);						
 					// Adjust limit for BGRET
-					limit = min(limit, timeToPRET, timeToME, previousTimeToPRET, previousTimeToME, previousTimeToBGRET);
+					limit = ExtendedMath.min(limit, timeToPRET, timeToME, previousTimeToPRET, previousTimeToME, previousTimeToBGRET);
 					timeToBGRET = getTimeToEvent(pat, RETTransitions.HEALTHY_BGRET.ordinal(), limit);
 				}
 				// Check previously scheduled events

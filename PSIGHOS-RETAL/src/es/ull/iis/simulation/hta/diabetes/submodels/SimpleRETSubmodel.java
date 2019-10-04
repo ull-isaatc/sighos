@@ -19,6 +19,7 @@ import es.ull.iis.simulation.hta.diabetes.params.HbA1c10ReductionComplicationRR;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -57,8 +58,8 @@ public class SimpleRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 
 	@Override
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
-		final double[] paramsDNC_RET = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_RET, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_RET));
-		final double[] paramsRET_BLI = SecondOrderParamsRepository.betaParametersFromNormal(P_RET_BLI, SecondOrderParamsRepository.sdFrom95CI(CI_RET_BLI));
+		final double[] paramsDNC_RET = Statistics.betaParametersFromNormal(P_DNC_RET, Statistics.sdFrom95CI(CI_DNC_RET));
+		final double[] paramsRET_BLI = Statistics.betaParametersFromNormal(P_RET_BLI, Statistics.sdFrom95CI(CI_RET_BLI));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, SimpleRETSubmodel.RET), "", 
 				"", P_DNC_RET, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_RET[0], paramsDNC_RET[1])));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(SimpleRETSubmodel.RET, SimpleRETSubmodel.BLI), "", 
@@ -67,15 +68,15 @@ public class SimpleRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 				"Sheffield (WESDR XXII)", 1.9e-6));
 
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + DiabetesChronicComplications.RET.name(), "%risk reducion for combined groups for sustained onset of retinopathy", "DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 
-				0.35, RandomVariateFactory.getInstance("NormalVariate", 0.35, SecondOrderParamsRepository.sdFrom95CI(new double[] {0.29, 0.41}))));
+				0.35, RandomVariateFactory.getInstance("NormalVariate", 0.35, Statistics.sdFrom95CI(new double[] {0.29, 0.41}))));
 
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + RET, "Cost of RET", "", 2015, C_RET, SecondOrderParamsRepository.getRandomVariateForCost(C_RET)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + BLI, "Cost of BLI", "", 2015, C_BLI, SecondOrderParamsRepository.getRandomVariateForCost(C_BLI)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + RET, "Transition cost to RET", "", 2015, TC_RET, SecondOrderParamsRepository.getRandomVariateForCost(TC_RET)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + BLI, "Transition cost to BLI", "", 2015, TC_BLI, SecondOrderParamsRepository.getRandomVariateForCost(TC_BLI)));
 		
-		final double[] paramsDuRET = SecondOrderParamsRepository.betaParametersFromNormal(DU_RET[0], DU_RET[1]);
-		final double[] paramsDuBLI = SecondOrderParamsRepository.betaParametersFromNormal(DU_BLI[0], DU_BLI[1]);
+		final double[] paramsDuRET = Statistics.betaParametersFromNormal(DU_RET[0], DU_RET[1]);
+		final double[] paramsDuBLI = Statistics.betaParametersFromNormal(DU_BLI[0], DU_BLI[1]);
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + RET, "Disutility of RET", 
 				"", DU_RET[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuRET[0], paramsDuRET[1])));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BLI, "Disutility of BLI", 

@@ -20,6 +20,7 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.SheffieldComplicationRR;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -39,7 +40,8 @@ public class T2DMPrositNPHSubmodel extends SecondOrderChronicComplicationSubmode
 	public static DiabetesComplicationStage[] STAGES = new DiabetesComplicationStage[] {ALB1, ALB2, ESRD};
 
 	private static final String STR_COEF_ALB2 = "Coef_" + SecondOrderParamsRepository.STR_COST_PREFIX + ALB2;
-	private static final String SOURCE1 = "Vupputuri et al 2011. 10.1016/j.diabres.2010.11.022";
+	private static final String STR_SOURCE_ADLER = "Adler et al. 10.1046/j.1523-1755.2003.00712.x";
+	private static final String STR_SOURCE_VUPPUTURI = "Vupputuri et al 2011. 10.1016/j.diabres.2010.11.022";
 	private static final double P_DNC_ALB1 = 1 - Math.exp(-0.0758); // From Vupputuri et al 2011 (Figure 1): 75.8 / 1000 person-years 
 	private static final double[] CI_DNC_ALB1 = {1 - Math.exp(-0.0727), 1 - Math.exp(-0.0789)}; // From Vupputuri et al 2011 (Figure 1)
 	private static final double HR_DURATION_ALB1 = 1.06; // From Vupputuri et al 2011 (Table 3)
@@ -109,53 +111,53 @@ public class T2DMPrositNPHSubmodel extends SecondOrderChronicComplicationSubmode
 
 	@Override
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
-		final double[] paramsDNC_ALB1 = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_ALB1, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_ALB1));
-		final double[] paramsALB1_ALB2 = SecondOrderParamsRepository.betaParametersFromNormal(P_ALB1_ALB2, SecondOrderParamsRepository.sdFrom95CI(CI_ALB1_ALB2));
-		final double[] paramsDNC_ALB2 = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_ALB2, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_ALB2));
-		final double[] paramsALB1_ESRD = SecondOrderParamsRepository.betaParametersFromNormal(P_ALB1_ESRD, SecondOrderParamsRepository.sdFrom95CI(CI_ALB1_ESRD));
-		final double[] paramsALB2_ESRD = SecondOrderParamsRepository.betaParametersFromNormal(P_ALB2_ESRD, SecondOrderParamsRepository.sdFrom95CI(CI_ALB2_ESRD));
-		final double[] paramsDNC_ESRD = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_ESRD, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_ESRD));
+		final double[] paramsDNC_ALB1 = Statistics.betaParametersFromNormal(P_DNC_ALB1, Statistics.sdFrom95CI(CI_DNC_ALB1));
+		final double[] paramsALB1_ALB2 = Statistics.betaParametersFromNormal(P_ALB1_ALB2, Statistics.sdFrom95CI(CI_ALB1_ALB2));
+		final double[] paramsDNC_ALB2 = Statistics.betaParametersFromNormal(P_DNC_ALB2, Statistics.sdFrom95CI(CI_DNC_ALB2));
+		final double[] paramsALB1_ESRD = Statistics.betaParametersFromNormal(P_ALB1_ESRD, Statistics.sdFrom95CI(CI_ALB1_ESRD));
+		final double[] paramsALB2_ESRD = Statistics.betaParametersFromNormal(P_ALB2_ESRD, Statistics.sdFrom95CI(CI_ALB2_ESRD));
+		final double[] paramsDNC_ESRD = Statistics.betaParametersFromNormal(P_DNC_ESRD, Statistics.sdFrom95CI(CI_DNC_ESRD));
 		
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ALB1), 
 				"Probability of healthy to microalbuminutia, as processed in PROSIT model", 
-				SOURCE1, 
+				STR_SOURCE_VUPPUTURI, 
 				P_DNC_ALB1, "BetaVariate", paramsDNC_ALB1[0], paramsDNC_ALB1[1]));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ALB2), 
 				"Probability of healthy to macroalbuminutia", 
-				"Adler et al. 10.1046/j.1523-1755.2003.00712.x", 
+				STR_SOURCE_ADLER, 
 				P_DNC_ALB2, "BetaVariate", paramsDNC_ALB2[0], paramsDNC_ALB2[1]));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(ALB1, ALB2), 
 				"Probability of microalbuminuria to macroalbuminuria", 
-				"Adler et al. 10.1046/j.1523-1755.2003.00712.x", 
+				STR_SOURCE_ADLER, 
 				P_ALB1_ALB2, "BetaVariate", paramsALB1_ALB2[0], paramsALB1_ALB2[1]));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(ALB1, ESRD), 
 				"Probability of microalbuminuria to ESRD", 
-				"Adler et al. 10.1046/j.1523-1755.2003.00712.x", 
+				STR_SOURCE_ADLER, 
 				P_ALB1_ESRD, "BetaVariate", paramsALB1_ESRD[0], paramsALB1_ESRD[1]));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(ALB2, ESRD), 
 				"Probability of macroalbuminuria to ESRD", 
-				"Adler et al. 10.1046/j.1523-1755.2003.00712.x", 
+				STR_SOURCE_ADLER, 
 				P_ALB2_ESRD, "BetaVariate", paramsALB2_ESRD[0], paramsALB2_ESRD[1]));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ESRD), 
 				"Probability of healthy to ESRD", 
-				"Adler et al. 10.1046/j.1523-1755.2003.00712.x", 
+				STR_SOURCE_ADLER, 
 				P_DNC_ESRD, "BetaVariate", paramsDNC_ESRD[0], paramsDNC_ESRD[1]));
 
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB1 + "_" + STR_DURATION, 
 				"hazard ratio per year of duration of diabetes in the progression to microalbuminuria", 
-				SOURCE1, 
+				STR_SOURCE_VUPPUTURI, 
 				HR_DURATION_ALB1, "NormalVariate", CI_HR_DURATION_ALB1[0], CI_HR_DURATION_ALB1[1]));
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + ALB1 + "_" + STR_HBA1C, 
 				"hazard ratio per 1 pp increment of HbA1c in the progression to microalbuminuria", 
-				SOURCE1, 
+				STR_SOURCE_VUPPUTURI, 
 				HR_HBA1C_ALB1, "NormalVariate", CI_HR_HBA1C_ALB1[0], CI_HR_HBA1C_ALB1[1]));
 		secParams.addOtherParam(new SecondOrderParam("BASE_" + STR_DURATION, 
 				"Base diabetes duration", 
-				SOURCE1, 
+				STR_SOURCE_VUPPUTURI, 
 				BASE_DURATION[0], "NormalVariate", BASE_DURATION[0], BASE_DURATION[1]));
 		secParams.addOtherParam(new SecondOrderParam("BASE_" + STR_HBA1C, 
 				"Base HbA1c", 
-				SOURCE1, 
+				STR_SOURCE_VUPPUTURI, 
 				BASE_HBA1C[0], "NormalVariate", BASE_HBA1C[0], BASE_HBA1C[1]));
 
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_IMR_PREFIX + ALB1.name(), 
@@ -179,8 +181,8 @@ public class T2DMPrositNPHSubmodel extends SecondOrderChronicComplicationSubmode
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ESRD, "Cost of ESRD", "", 2015, C_ESRD, SecondOrderParamsRepository.getRandomVariateForCost(C_ESRD)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + ESRD, "Transition cost to ESRD", "", 2015, TC_ESRD, SecondOrderParamsRepository.getRandomVariateForCost(TC_ESRD)));
 		
-		final double[] paramsDuNPH = SecondOrderParamsRepository.betaParametersFromNormal(DU_ALB2[0], DU_ALB2[1]);
-		final double[] paramsDuESRD = SecondOrderParamsRepository.betaParametersFromNormal(DU_ESRD[0], DU_ESRD[1]);
+		final double[] paramsDuNPH = Statistics.betaParametersFromNormal(DU_ALB2[0], DU_ALB2[1]);
+		final double[] paramsDuESRD = Statistics.betaParametersFromNormal(DU_ESRD[0], DU_ESRD[1]);
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + ALB2, "Disutility of ALB2", 
 				"", DU_ALB2[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuNPH[0], paramsDuNPH[1])));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + ESRD, "Disutility of ESRD", 

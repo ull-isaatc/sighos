@@ -8,6 +8,7 @@ import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -103,8 +104,8 @@ public class UncontrolledSAPIntervention extends SecondOrderDiabetesIntervention
 			}
 			else {
 				final RandomVariate[]rndReduction = new RandomVariate[2];
-				final double [] lowParams = SecondOrderParamsRepository.gammaParametersFromNormal(HBA1C_REDUCTION_AVG[0], HBA1C_REDUCTION_SD[0]);
-				final double [] highParams = SecondOrderParamsRepository.gammaParametersFromNormal(HBA1C_REDUCTION_AVG[1], HBA1C_REDUCTION_SD[1]);
+				final double [] lowParams = Statistics.gammaParametersFromNormal(HBA1C_REDUCTION_AVG[0], HBA1C_REDUCTION_SD[0]);
+				final double [] highParams = Statistics.gammaParametersFromNormal(HBA1C_REDUCTION_AVG[1], HBA1C_REDUCTION_SD[1]);
 				rndReduction[0] = RandomVariateFactory.getInstance("GammaVariate", lowParams[0], lowParams[1]);
 				rndReduction[1] = RandomVariateFactory.getInstance("GammaVariate", highParams[0], highParams[1]);
 				for (int i = 0; i < secParams.getnPatients(); i++) {

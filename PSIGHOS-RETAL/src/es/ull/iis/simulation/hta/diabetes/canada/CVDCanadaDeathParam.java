@@ -31,7 +31,7 @@ public class CVDCanadaDeathParam extends UniqueEventParam<Long> {
 	
 	private final RRCalculator rr;
 	public CVDCanadaDeathParam(CanadaSecondOrderParams secParams, RRCalculator rr) {
-		super(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients());
+		super(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), true);
 		this.rr = rr;
 	}
 

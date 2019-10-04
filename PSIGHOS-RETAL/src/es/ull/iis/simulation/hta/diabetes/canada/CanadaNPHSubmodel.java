@@ -22,6 +22,7 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.ComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicationSubmodel;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -67,7 +68,7 @@ public class CanadaNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + DiabetesChronicComplications.NPH.name(), 
 				"%risk reducion for combined groups for microalbuminuria (>= 40 mg/24 h)", 
 				"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 
-				0.25, RandomVariateFactory.getInstance("NormalVariate", 0.25, SecondOrderParamsRepository.sdFrom95CI(new double[] {0.19, 0.32}))));
+				0.25, RandomVariateFactory.getInstance("NormalVariate", 0.25, Statistics.sdFrom95CI(new double[] {0.19, 0.32}))));
 
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + NPH, "Cost of NPH", "", 2018, C_NPH, SecondOrderParamsRepository.getRandomVariateForCost(C_NPH)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ESRD, "Cost of ESRD", "", 2018, C_ESRD, SecondOrderParamsRepository.getRandomVariateForCost(C_ESRD)));

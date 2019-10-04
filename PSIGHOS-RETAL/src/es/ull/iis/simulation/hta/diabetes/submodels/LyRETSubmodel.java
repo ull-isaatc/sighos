@@ -24,6 +24,8 @@ import es.ull.iis.simulation.hta.diabetes.params.RRCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.util.ExtendedMath;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -122,9 +124,9 @@ public class LyRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ME, "Cost of ME", "Original analysis", 2018, C_ME, SecondOrderParamsRepository.getRandomVariateForCost(C_ME)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + BLI, "Cost of BLI", "Conget et al.", 2016, C_BLI, SecondOrderParamsRepository.getRandomVariateForCost(C_BLI)));
 		
-		final double[] paramsDuPRET = SecondOrderParamsRepository.betaParametersFromNormal(DU_PRET[0], DU_PRET[1]);
-		final double[] paramsDuME = SecondOrderParamsRepository.betaParametersFromNormal(DU_ME[0], DU_ME[1]);
-		final double[] paramsDuBLI = SecondOrderParamsRepository.betaParametersFromNormal(DU_BLI[0], DU_BLI[1]);
+		final double[] paramsDuPRET = Statistics.betaParametersFromNormal(DU_PRET[0], DU_PRET[1]);
+		final double[] paramsDuME = Statistics.betaParametersFromNormal(DU_ME[0], DU_ME[1]);
+		final double[] paramsDuBLI = Statistics.betaParametersFromNormal(DU_BLI[0], DU_BLI[1]);
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BGRET, "Disutility of BGRET", "", DU_BGRET));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + PRET, "Disutility of PRET", 
 				"", DU_PRET[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuPRET[0], paramsDuPRET[1])));
@@ -247,7 +249,7 @@ public class LyRETSubmodel extends SecondOrderChronicComplicationSubmodel {
 				else {
 					timeToME = getTimeToEvent(pat, RETTransitions.HEALTHY_ME.ordinal(), (limit > previousTimeToME) ? previousTimeToME : limit);						
 					// Adjust limit for BGRET
-					limit = min(limit, timeToME, previousTimeToME, previousTimeToBGRET);
+					limit = ExtendedMath.min(limit, timeToME, previousTimeToME, previousTimeToBGRET);
 					timeToBGRET = getTimeToEvent(pat, RETTransitions.HEALTHY_BGRET.ordinal(), limit);
 				}
 				// Check previously scheduled events

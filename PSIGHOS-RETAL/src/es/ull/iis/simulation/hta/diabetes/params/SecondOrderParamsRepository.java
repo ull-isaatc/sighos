@@ -25,6 +25,7 @@ import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderAcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicationSubmodel;
 import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
 import simkit.random.RandomNumberFactory;
 import simkit.random.RandomVariate;
@@ -604,56 +605,6 @@ public abstract class SecondOrderParamsRepository {
 	}
 
 	/**
-	 * Computes the standard deviation from 95% confidence intervals. Assumes that
-	 * the confidence intervals are based in a normal distribution.
-	 * @param ci Original 95% confidence intervals
-	 * @return the standard deviation corresponding to the specified confidence intervals
-	 */
-	public static double sdFrom95CI(double[] ci) {
-		return (ci[1] - ci[0])/(1.96*2);
-	}
-	
-	/**
-	 * Computes the alfa and beta parameters for a beta distribution from an average and
-	 * a standard deviation.
-	 * @param avg Original average of data 
-	 * @param sd Original standard deviation of data
-	 * @return the alfa and beta parameters for a beta distribution
-	 */
-	public static double[] betaParametersFromNormal(double avg, double sd) {
-		final double alfa = (((1 - avg) / (sd*sd)) - (1 / avg)) *avg*avg;
-		return new double[] {alfa, alfa * (1 / avg - 1)};
-	}
-	
-	/**
-	 * Computes the alfa and beta parameters for a gamma distribution from an average and
-	 * a standard deviation.
-	 * @param avg Original average of data 
-	 * @param sd Original standard deviation of data
-	 * @return the alfa and beta parameters for a beta distribution
-	 */
-	public static double[] gammaParametersFromNormal(double avg, double sd) {
-		return new double[] {(avg / sd) * (avg / sd), sd * sd / avg};
-	}
-	
-	/**
-	 * Computes the alfa and beta parameters for a beta distribution from an average,
-	 * a mode, and a maximum and minimum values.
-	 * Important note: let's the output be [ALFA, BETA]. To use with RandomVariate: 
-	 * final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", ALFA, BETA); 
-	 * return RandomVariateFactory.getInstance("ScaledVariate", rnd, max - min, min);
-	 * @param avg Original average of data 
-	 * @param mode Most probable value within the interval (must be different from average)
-	 * @param min Minimum value of the generated values
-	 * @param max Maximum value of the generated values
-	 * @return the alfa and beta parameters for a beta distribution
-	 */
-	public static double[] betaParametersFromEmpiricData(double avg, double mode, double min, double max) {
-		final double alfa = ((avg-min)*(2*mode-min-max))/((mode-avg)*(max-min));
-		return new double[] {alfa, ((max-avg)*alfa)/(avg-min)};
-	}
-	
-	/**
 	 * Creates a Gamma distribution to add uncertainty to a deterministic cost. Uses the {@link BasicConfigParams#DEF_SECOND_ORDER_VARIATION} 
 	 * parameters to adjust the uncertainty
 	 * @param detCost Deterministic cost
@@ -685,18 +636,14 @@ public abstract class SecondOrderParamsRepository {
 	 * Generates a time to event based on annual risk. The time to event is absolute, i.e., can be used directly to schedule a new event. 
 	 * @param pat A patient
 	 * @param annualRisk Annual risk of the event)
-	 * @param rnd A random number
+	 * @param logRnd The natural log of a random number (0,1)
 	 * @param rr Relative risk for the patient
 	 * @return a time to event based on annual risk
 	 */
-	public static long getAnnualBasedTimeToEvent(DiabetesPatient pat, double annualRisk, double rnd, double rr) {
-		final double lifetime = pat.getAgeAtDeath() - pat.getAge();
-		if (annualRisk <= 0.0)
-			return Long.MAX_VALUE;
-		final double newMinus = -1 / (1-Math.pow(1-annualRisk, rr));
-		final double time = newMinus * Math.log(rnd);
-		
-		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
+	public static long getAnnualBasedTimeToEvent(DiabetesPatient pat, double annualRisk, double logRnd, double rr) {
+		final double time = Statistics.getAnnualBasedTimeToEvent(annualRisk, logRnd, rr);
+	
+		return (time >= (pat.getAgeAtDeath() - pat.getAge())) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
 	}
 	
 	/**

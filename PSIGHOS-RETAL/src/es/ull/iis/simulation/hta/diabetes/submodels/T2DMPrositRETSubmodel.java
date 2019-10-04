@@ -22,6 +22,8 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.TimeToEventParam;
 import es.ull.iis.simulation.hta.diabetes.params.UniqueEventParam;
 import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.util.ExtendedMath;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -195,7 +197,7 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 
 	@Override
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
-		final double[] paramsDNC_BGRET = SecondOrderParamsRepository.betaParametersFromNormal(INC_DNC_BGRET, SecondOrderParamsRepository.sdFrom95CI(CI_INC_DNC_BGRET));
+		final double[] paramsDNC_BGRET = Statistics.betaParametersFromNormal(INC_DNC_BGRET, Statistics.sdFrom95CI(CI_INC_DNC_BGRET));
 		
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, BGRET), 
 				"5-year cummulative Incidence of healthy to background retinopathy", 
@@ -255,9 +257,9 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ME, "Cost of ME", "Original analysis", 2018, C_ME, SecondOrderParamsRepository.getRandomVariateForCost(C_ME)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + BLI, "Cost of BLI", "Conget et al.", 2016, C_BLI, SecondOrderParamsRepository.getRandomVariateForCost(C_BLI)));
 		
-		final double[] paramsDuPRET = SecondOrderParamsRepository.betaParametersFromNormal(DU_PRET[0], DU_PRET[1]);
-		final double[] paramsDuME = SecondOrderParamsRepository.betaParametersFromNormal(DU_ME[0], DU_ME[1]);
-		final double[] paramsDuBLI = SecondOrderParamsRepository.betaParametersFromNormal(DU_BLI[0], DU_BLI[1]);
+		final double[] paramsDuPRET = Statistics.betaParametersFromNormal(DU_PRET[0], DU_PRET[1]);
+		final double[] paramsDuME = Statistics.betaParametersFromNormal(DU_ME[0], DU_ME[1]);
+		final double[] paramsDuBLI = Statistics.betaParametersFromNormal(DU_BLI[0], DU_BLI[1]);
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + BGRET, "Disutility of BGRET", "", DU_BGRET));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + PRET, "Disutility of PRET", 
 				"", DU_PRET[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuPRET[0], paramsDuPRET[1])));
@@ -286,13 +288,28 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 		return Double.NaN;
 	}
 
+	private static double testGetValueHbA1c(final double[]fpHbA1c, final double hba1c, final double rnd) {
+		final double pHbA1c = Math.log(fpHbA1c[0] + fpHbA1c[1] * Math.log(hba1c)); 
+		if (pHbA1c == 0.0)
+			return Long.MAX_VALUE;
+		return -Math.log(rnd) / pHbA1c;	
+	}
+	
 	public static void main(String[] args) {
-		final int N = 1000;
+		final int N = 100;
 		final Random rnd = new Random();
-		for (int n = 0; n < N; n++) {
-			final double duration = P_ME_DURATION[0][0] + (P_ME_DURATION[1][0] - P_ME_DURATION[0][0]) * rnd.nextDouble();
-			System.out.println(duration + "\t" + testGetValueDuration(duration, rnd.nextDouble(), P_ME_DURATION));
+		for (double hba1c = 3.0; hba1c < 10.0; hba1c++) {
+			for (int n = 0; n < N; n++) {
+				final double time = testGetValueHbA1c(F_P_BLI_HBA1C, hba1c, rnd.nextDouble());
+				System.out.println(hba1c + "\t" + time);
+			}			
 		}
+//		final int N = 1000;
+//		final Random rnd = new Random();
+//		for (int n = 0; n < N; n++) {
+//			final double duration = P_ME_DURATION[0][0] + (P_ME_DURATION[1][0] - P_ME_DURATION[0][0]) * rnd.nextDouble();
+//			System.out.println(duration + "\t" + testGetValueDuration(duration, rnd.nextDouble(), P_ME_DURATION));
+//		}
 	}
 	
 	private abstract class CompetingRisksTimeToEventParam extends UniqueEventParam<Long> implements TimeToEventParam {
@@ -300,14 +317,6 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 			super(rng, nPatients, true);
 		}
 
-		public long getProbRRValue(final DiabetesPatient pat, final double lifetime, final double p, final double rr) {
-			if (p == 0.0)
-				return Long.MAX_VALUE;
-			final double newMinus = -1 / (1-Math.exp(Math.log(1 - p) * rr));
-			final double time = newMinus * draw(pat);		
-			return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
-		}
-		
 		public long getValueDuration(final DiabetesPatient pat, final double lifetime, final double[][] incidenceDuration) {
 			final double durationOfDiabetes = pat.getDurationOfDiabetes();
 			int interval = 0;
@@ -322,7 +331,8 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 		}
 
 		public long getValueHbA1cFromLnFunction(DiabetesPatient pat, final double lifetime, double[] fpHbA1c) {
-			final double pHbA1c = Math.log(fpHbA1c[0] + fpHbA1c[1] * Math.log(pat.getHba1c())); 
+			// Adjusted to 0 in case the function returns a negative value
+			final double pHbA1c = Math.max(0.0, Math.log(fpHbA1c[0] + fpHbA1c[1] * Math.log(pat.getHba1c()))); 
 			if (pHbA1c == 0.0)
 				return Long.MAX_VALUE;
 			final double time = -draw(pat) / pHbA1c;		
@@ -354,14 +364,14 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 		
 		@Override
 		public Long getValue(DiabetesPatient pat) {
+			long timeToEvent = SecondOrderParamsRepository.getAnnualBasedTimeToEvent(pat, baseProbability, draw(pat), pat.getDetailedState().contains(BGRET) ? rrFromBGRET : 1.0);
 			final double lifetime = pat.getAgeAtDeath() - pat.getAge();
-			long timeToEvent = getProbRRValue(pat, lifetime, baseProbability, pat.getDetailedState().contains(BGRET) ? rrFromBGRET : 1.0);
 			// Risk due to duration of diabetes
 			long timeToEventDuration = getValueDuration(pat, lifetime, incidenceDuration);
 			// Risk due to HbA1c
 			long timeToEventHbA1c = getValueHbA1cFromLnFunction(pat, lifetime, fpHbA1c);
 
-			return ComplicationSubmodel.min(timeToEvent, timeToEventDuration, timeToEventHbA1c);
+			return ExtendedMath.min(timeToEvent, timeToEventDuration, timeToEventHbA1c);
 		}
 		
 	}
@@ -413,13 +423,13 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 		@Override
 		public Long getValue(DiabetesPatient pat) {
 			final double lifetime = pat.getAgeAtDeath() - pat.getAge();
-			long timeToEvent = getProbRRValue(pat, lifetime, baseProbability, pat.getDetailedState().contains(PRET) ? rrFromPRET : (pat.getDetailedState().contains(BGRET) ? rrFromBGRET : 1.0));
+			long timeToEvent = SecondOrderParamsRepository.getAnnualBasedTimeToEvent(pat, baseProbability, draw(pat), pat.getDetailedState().contains(PRET) ? rrFromPRET : (pat.getDetailedState().contains(BGRET) ? rrFromBGRET : 1.0));
 			// Risk due to duration of diabetes
 			long timeToEventDuration = getValueDuration(pat, lifetime, incidenceDuration);
 			// Risk due to HbA1c
 			long timeToEventHbA1c = getValueHbA1c(pat, lifetime);
 
-			return ComplicationSubmodel.min(timeToEvent, timeToEventDuration, timeToEventHbA1c);
+			return ExtendedMath.min(timeToEvent, timeToEventDuration, timeToEventHbA1c);
 		}
 		
 	}
@@ -452,13 +462,13 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 		@Override
 		public Long getValue(DiabetesPatient pat) {
 			final double lifetime = pat.getAgeAtDeath() - pat.getAge();
-			long timeToEvent = getProbRRValue(pat, lifetime, baseProbability, pat.getDetailedState().contains(PRET) ? rrFromPRET : (pat.getDetailedState().contains(BGRET) ? rrFromBGRET : 1.0));
+			long timeToEvent = SecondOrderParamsRepository.getAnnualBasedTimeToEvent(pat, baseProbability, draw(pat), pat.getDetailedState().contains(PRET) ? rrFromPRET : (pat.getDetailedState().contains(BGRET) ? rrFromBGRET : 1.0));
 			// Risk due to ME
-			long timeToEventME = getProbRRValue(pat, lifetime, noMEProbability, pat.getDetailedState().contains(ME) ? rrFromME : 1.0);
+			long timeToEventME = SecondOrderParamsRepository.getAnnualBasedTimeToEvent(pat, noMEProbability, draw(pat), pat.getDetailedState().contains(ME) ? rrFromME : 1.0);
 			// Risk due to HbA1c
 			long timeToEventHbA1c = getValueHbA1cFromLnFunction(pat, lifetime, fpHbA1c);
 
-			return ComplicationSubmodel.min(timeToEvent, timeToEventME, timeToEventHbA1c);
+			return ExtendedMath.min(timeToEvent, timeToEventME, timeToEventHbA1c);
 		}
 		
 	}
@@ -560,7 +570,7 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 				// Already at PRET but not at ME: can progress to BLI and ME
 				else if (state.contains(PRET)) {
 					timeToBLI = getTimeToEvent(pat, RETTransitions.PRET_BLI.ordinal(), limit);
-					limit = min(limit, timeToBLI, previousTimeToME);
+					limit = ExtendedMath.min(limit, timeToBLI, previousTimeToME);
 					timeToME = getTimeToEvent(pat, RETTransitions.PRET_ME.ordinal(), limit);						
 				}
 				// Already at BGRET: can progress to BLI, ME and PRET
@@ -580,7 +590,7 @@ public class T2DMPrositRETSubmodel extends SecondOrderChronicComplicationSubmode
 					timeToPRET = getTimeToEvent(pat, RETTransitions.HEALTHY_PRET.ordinal(), (limit > previousTimeToPRET) ? previousTimeToPRET : limit);
 					timeToME = getTimeToEvent(pat, RETTransitions.HEALTHY_ME.ordinal(), (limit > previousTimeToME) ? previousTimeToME : limit);						
 					// Adjust limit for BGRET
-					limit = min(limit, timeToPRET, timeToME, previousTimeToPRET, previousTimeToME, previousTimeToBGRET);
+					limit = ExtendedMath.min(limit, timeToPRET, timeToME, previousTimeToPRET, previousTimeToME, previousTimeToBGRET);
 					timeToBGRET = getTimeToEvent(pat, RETTransitions.HEALTHY_BGRET.ordinal(), limit);
 				}
 				// Check previously scheduled events

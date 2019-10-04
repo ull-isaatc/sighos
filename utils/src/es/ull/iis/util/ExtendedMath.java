@@ -110,4 +110,32 @@ public class ExtendedMath {
 		} // end while
 		return result;
 	} // end power
+
+	/**
+	 * Returns the minimum among a set of values
+	 * @param limit Reference value
+	 * @param args Rest of values to compare
+	 * @return the minimum among a set of values
+	 */
+	public static long min(long limit, long... args) {
+		for (long value : args) {
+			if (value < limit)
+				limit = value;
+		}
+		return limit;
+	}
+
+	/**
+	 * Returns the maximum among a set of values
+	 * @param limit Reference value
+	 * @param args Rest of values to compare
+	 * @return the maximum among a set of values
+	 */
+	public static long max(long limit, long... args) {
+		for (long value : args) {
+			if (value > limit)
+				limit = value;
+		}
+		return limit;
+	}
 }

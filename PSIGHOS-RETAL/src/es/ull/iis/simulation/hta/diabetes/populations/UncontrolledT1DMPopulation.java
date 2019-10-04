@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.diabetes.populations;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -73,12 +73,12 @@ public class UncontrolledT1DMPopulation extends DiabetesStdPopulation {
 	protected RandomVariate getBaselineAge() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_AGE)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_AGE_AVG);
-		final double[] initBetaParams = SecondOrderParamsRepository.betaParametersFromNormal(BASELINE_AGE_AVG, BASELINE_AGE_SD);
+		final double[] initBetaParams = Statistics.betaParametersFromNormal(BASELINE_AGE_AVG, BASELINE_AGE_SD);
 		// k is used to simplify the operations
 		final double k = ((initBetaParams[0] + initBetaParams[1])*(initBetaParams[0] + initBetaParams[1]))/initBetaParams[1];
 		final double variance = BASELINE_AGE_SD * BASELINE_AGE_SD;
 		final double mode = variance * k * (initBetaParams[0] - 1) / (initBetaParams[0] - 3 * variance * k);
-		final double[] betaParams = SecondOrderParamsRepository.betaParametersFromEmpiricData(BASELINE_AGE_AVG, mode, BASELINE_AGE_MIN, BASELINE_AGE_MAX);
+		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_AGE_AVG, mode, BASELINE_AGE_MIN, BASELINE_AGE_MAX);
 		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]); 
 		return RandomVariateFactory.getInstance("ScaledVariate", rnd, BASELINE_AGE_MAX - BASELINE_AGE_MIN, BASELINE_AGE_MIN);
 	}

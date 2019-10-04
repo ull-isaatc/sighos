@@ -22,6 +22,8 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.TimeToEventParam;
 import es.ull.iis.simulation.hta.diabetes.params.UniqueEventParam;
 import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.util.ExtendedMath;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -175,16 +177,16 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 		secParams.addTransitionCostParam(POST_MI2, "Cost of episode of recurrent Myocardial Infarction", 
 				"https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 23536-948, rndCostMI[1]);
 		
-		final double[] paramsDuSTROKE = SecondOrderParamsRepository.betaParametersFromNormal(DU_STROKE[0], DU_STROKE[1]);
+		final double[] paramsDuSTROKE = Statistics.betaParametersFromNormal(DU_STROKE[0], DU_STROKE[1]);
 		final RandomVariate rndDuStroke = RandomVariateFactory.getInstance("BetaVariate", paramsDuSTROKE[0], paramsDuSTROKE[1]);
 		secParams.addDisutilityParam(POST_STROKE, "Disutility of stroke. Average of autonomous and dependant stroke disutilities", 
 				"", DU_STROKE[0], rndDuStroke);
 		secParams.addDisutilityParam(POST_STROKE2, "Disutility of recurrent stroke. Average of autonomous and dependant stroke disutilities", 
 				"", DU_STROKE[0], rndDuStroke);
-		final double[] paramsDuANGINA = SecondOrderParamsRepository.betaParametersFromNormal(DU_ANGINA[0], DU_ANGINA[1]);
+		final double[] paramsDuANGINA = Statistics.betaParametersFromNormal(DU_ANGINA[0], DU_ANGINA[1]);
 		secParams.addDisutilityParam(POST_ANGINA, "Disutility of angina", 
 				"", DU_ANGINA[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuANGINA[0], paramsDuANGINA[1]));
-		final double[] paramsDuMI = SecondOrderParamsRepository.betaParametersFromNormal(DU_MI[0], DU_MI[1]);
+		final double[] paramsDuMI = Statistics.betaParametersFromNormal(DU_MI[0], DU_MI[1]);
 		final RandomVariate rndDuMI = RandomVariateFactory.getInstance("BetaVariate", paramsDuMI[0], paramsDuMI[1]);
 		secParams.addDisutilityParam(POST_MI, "Disutility of POST_MI", "", DU_MI[0], rndDuMI);
 		secParams.addDisutilityParam(POST_MI2, "Disutility of POST_MI", "", DU_MI[0], rndDuMI);
@@ -289,7 +291,7 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 			final double lifetime = pat.getAgeAtDeath() - pat.getAge();
 			final long timeToEvent = getValueFromUKPDSEquation(pat, lifetime);
 			final long timeToEventWithAngina = getValueAngina(pat, lifetime);
-			return ComplicationSubmodel.min(timeToEvent, timeToEventWithAngina);
+			return ExtendedMath.min(timeToEvent, timeToEventWithAngina);
 		}
 		
 	}

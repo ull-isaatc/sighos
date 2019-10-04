@@ -21,6 +21,7 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.ComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicationSubmodel;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -67,7 +68,7 @@ public class CanadaNEUSubmodel extends SecondOrderChronicComplicationSubmodel {
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + NEU.name(), 
 				"%risk reducion for combined groups for confirmed clinical neuropathy", 
 				"DCCT 1996 https://doi.org/10.2337/diab.45.10.1289", 
-				0.3, RandomVariateFactory.getInstance("NormalVariate", 0.3, SecondOrderParamsRepository.sdFrom95CI(new double[] {0.18, 0.40}))));
+				0.3, RandomVariateFactory.getInstance("NormalVariate", 0.3, Statistics.sdFrom95CI(new double[] {0.18, 0.40}))));
 
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + NEU, "Cost of NEU", "", 2018, C_NEU, SecondOrderParamsRepository.getRandomVariateForCost(C_NEU)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + LEA, "Cost of LEA", "", 2018, C_LEA, SecondOrderParamsRepository.getRandomVariateForCost(C_LEA)));

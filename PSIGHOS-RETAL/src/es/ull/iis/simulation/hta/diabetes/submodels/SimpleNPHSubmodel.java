@@ -20,6 +20,7 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.SheffieldComplicationRR;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -63,9 +64,9 @@ public class SimpleNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 
 	@Override
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
-		final double[] paramsDNC_NPH = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_NPH, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_NPH));
-		final double[] paramsNEU_NPH = SecondOrderParamsRepository.betaParametersFromNormal(P_NEU_NPH, SecondOrderParamsRepository.sdFrom95CI(CI_NEU_NPH));
-		final double[] paramsNPH_ESRD = SecondOrderParamsRepository.betaParametersFromNormal(P_NPH_ESRD, SecondOrderParamsRepository.sdFrom95CI(CI_NPH_ESRD));
+		final double[] paramsDNC_NPH = Statistics.betaParametersFromNormal(P_DNC_NPH, Statistics.sdFrom95CI(CI_DNC_NPH));
+		final double[] paramsNEU_NPH = Statistics.betaParametersFromNormal(P_NEU_NPH, Statistics.sdFrom95CI(CI_NEU_NPH));
+		final double[] paramsNPH_ESRD = Statistics.betaParametersFromNormal(P_NPH_ESRD, Statistics.sdFrom95CI(CI_NPH_ESRD));
 
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, NPH), 
 				"Probability of healthy to microalbuminutia, as processed in Sheffield Type 1 model", 
@@ -102,8 +103,8 @@ public class SimpleNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + ESRD, "Cost of ESRD", "", 2015, C_ESRD, SecondOrderParamsRepository.getRandomVariateForCost(C_ESRD)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + ESRD, "Transition cost to ESRD", "", 2015, TC_ESRD, SecondOrderParamsRepository.getRandomVariateForCost(TC_ESRD)));
 		
-		final double[] paramsDuNPH = SecondOrderParamsRepository.betaParametersFromNormal(DU_NPH[0], DU_NPH[1]);
-		final double[] paramsDuESRD = SecondOrderParamsRepository.betaParametersFromNormal(DU_ESRD[0], DU_ESRD[1]);
+		final double[] paramsDuNPH = Statistics.betaParametersFromNormal(DU_NPH[0], DU_NPH[1]);
+		final double[] paramsDuESRD = Statistics.betaParametersFromNormal(DU_ESRD[0], DU_ESRD[1]);
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + NPH, "Disutility of NPH", 
 				"", DU_NPH[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuNPH[0], paramsDuNPH[1])));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + ESRD, "Disutility of ESRD", 

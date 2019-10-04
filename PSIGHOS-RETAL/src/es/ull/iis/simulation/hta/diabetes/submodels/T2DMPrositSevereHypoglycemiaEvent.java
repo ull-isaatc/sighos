@@ -15,6 +15,7 @@ import es.ull.iis.simulation.hta.diabetes.params.HbA1c1PPComplicationRR;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.util.Statistics;
 import simkit.random.DirichletBetaVariate;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -62,16 +63,16 @@ public class T2DMPrositSevereHypoglycemiaEvent extends SecondOrderAcuteComplicat
 	
 	@Override
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
-		final double[] paramsDeathHypo = SecondOrderParamsRepository.betaParametersFromNormal(P_DEATH, SecondOrderParamsRepository.sdFrom95CI(new double[]{0.0058, 0.0068}));
-		final double[] initBetaParams = SecondOrderParamsRepository.betaParametersFromNormal(REF_HBA1C[0], REF_HBA1C[1]);
+		final double[] paramsDeathHypo = Statistics.betaParametersFromNormal(P_DEATH, Statistics.sdFrom95CI(new double[]{0.0058, 0.0068}));
+		final double[] initBetaParams = Statistics.betaParametersFromNormal(REF_HBA1C[0], REF_HBA1C[1]);
 		// k is used to simplify the operations
 		final double k = ((initBetaParams[0] + initBetaParams[1])*(initBetaParams[0] + initBetaParams[1]))/initBetaParams[1];
 		final double variance = REF_HBA1C[1] * REF_HBA1C[1];
 		final double mode = variance * k * (initBetaParams[0] - 1) / (initBetaParams[0] - 3 * variance * k);
-		final double[] paramsRefHbA1c = SecondOrderParamsRepository.betaParametersFromEmpiricData(REF_HBA1C[0], mode, MIN_MAX_REF_HBA1C[0], MIN_MAX_REF_HBA1C[1]);
+		final double[] paramsRefHbA1c = Statistics.betaParametersFromEmpiricData(REF_HBA1C[0], mode, MIN_MAX_REF_HBA1C[0], MIN_MAX_REF_HBA1C[1]);
 		
 		for (int i = 0; i < RATE_SHE_PER_AWARENESS.length; i++) {
-			final double[] paramRateSHE = SecondOrderParamsRepository.gammaParametersFromNormal(RATE_SHE_PER_AWARENESS[i][0], RATE_SHE_PER_AWARENESS[i][1]);
+			final double[] paramRateSHE = Statistics.gammaParametersFromNormal(RATE_SHE_PER_AWARENESS[i][0], RATE_SHE_PER_AWARENESS[i][1]);
 			secParams.addProbParam(new SecondOrderParam(STR_BASE_RATE_SHE + STR_AWARENESS[i], "Annual rate of severe hypoglycemic episode", 
 					STR_SOURCE_OROZCO, RATE_SHE_PER_AWARENESS[i][0], RandomVariateFactory.getInstance("GammaVariate", paramRateSHE[0], paramRateSHE[1])));
 		}

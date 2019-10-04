@@ -19,6 +19,7 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.SheffieldComplicationRR;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
@@ -61,7 +62,7 @@ public class SimpleNEUSubmodel extends SecondOrderChronicComplicationSubmodel {
 	@Override
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
 		// From Sheffield
-		final double[] paramsDNC_NEU = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_NEU, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_NEU));
+		final double[] paramsDNC_NEU = Statistics.betaParametersFromNormal(P_DNC_NEU, Statistics.sdFrom95CI(CI_DNC_NEU));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, NEU), 
 				"Probability of healthy to clinically confirmed neuropathy, as processed in Sheffield Type 1 model", 
 				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
@@ -70,7 +71,7 @@ public class SimpleNEUSubmodel extends SecondOrderChronicComplicationSubmodel {
 				"Probability of healthy to PAD with amputation, as processed in Sheffield Type 1 model", 
 				"DCCT 1995 https://doi.org/10.7326/0003-4819-122-8-199504150-00001", 
 				P_DNC_LEA, "UniformVariate", LIMITS_DNC_LEA[0], LIMITS_DNC_LEA[1]));
-		final double[] paramsNEU_LEA = SecondOrderParamsRepository.betaParametersFromNormal(P_NEU_LEA, SecondOrderParamsRepository.sdFrom95CI(CI_NEU_LEA));
+		final double[] paramsNEU_LEA = Statistics.betaParametersFromNormal(P_NEU_LEA, Statistics.sdFrom95CI(CI_NEU_LEA));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(NEU, LEA), 
 				"Probability of clinically confirmed neuropathy to PAD with amputation", 
 				"Klein et al. 2004 (also Sheffield)", 
@@ -91,13 +92,13 @@ public class SimpleNEUSubmodel extends SecondOrderChronicComplicationSubmodel {
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + NEU, "Cost of NEU", "", 2015, C_NEU, SecondOrderParamsRepository.getRandomVariateForCost(C_NEU)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_COST_PREFIX + LEA, "Cost of LEA", "del Pino et al", 2017, C_LEA, SecondOrderParamsRepository.getRandomVariateForCost(C_LEA)));
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + NEU, "Transition cost to NEU", "", 2015, TC_NEU, SecondOrderParamsRepository.getRandomVariateForCost(TC_NEU)));
-		final double[] tcLEAParams = SecondOrderParamsRepository.gammaParametersFromNormal(TC_LEA[0], TC_LEA[1]); 
+		final double[] tcLEAParams = Statistics.gammaParametersFromNormal(TC_LEA[0], TC_LEA[1]); 
 		secParams.addCostParam(new SecondOrderCostParam(SecondOrderParamsRepository.STR_TRANS_PREFIX + LEA, "Transition cost to LEA", 
 				"Spanish tariffs: Cantabria; Cataluña; Madrid; Murcia; Navarra; País Vasco", 2017, 
 				TC_LEA[0], RandomVariateFactory.getInstance("GammaVariate", tcLEAParams[0], tcLEAParams[1])));
 
-		final double[] paramsDuNEU = SecondOrderParamsRepository.betaParametersFromNormal(DU_NEU[0], DU_NEU[1]);
-		final double[] paramsDuLEA = SecondOrderParamsRepository.betaParametersFromNormal(DU_LEA[0], DU_LEA[1]);
+		final double[] paramsDuNEU = Statistics.betaParametersFromNormal(DU_NEU[0], DU_NEU[1]);
+		final double[] paramsDuLEA = Statistics.betaParametersFromNormal(DU_LEA[0], DU_LEA[1]);
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + NEU, "Disutility of NEU", 
 				"", DU_NEU[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuNEU[0], paramsDuNEU[1])));
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + LEA, "Disutility of LEA", 

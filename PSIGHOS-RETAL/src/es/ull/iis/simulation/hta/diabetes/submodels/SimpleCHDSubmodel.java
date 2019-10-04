@@ -19,6 +19,7 @@ import es.ull.iis.simulation.hta.diabetes.params.RRCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomIntegerSelector;
 import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
@@ -77,10 +78,10 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 
 	@Override
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
-		final double[] paramsDNC_CHD = SecondOrderParamsRepository.betaParametersFromNormal(P_DNC_CHD, SecondOrderParamsRepository.sdFrom95CI(CI_DNC_CHD));
-		final double[] paramsNEU_CHD = SecondOrderParamsRepository.betaParametersFromNormal(P_NEU_CHD, SecondOrderParamsRepository.sdFrom95CI(CI_NEU_CHD));
-		final double[] paramsNPH_CHD = SecondOrderParamsRepository.betaParametersFromNormal(P_NPH_CHD, SecondOrderParamsRepository.sdFrom95CI(CI_NPH_CHD));
-		final double[] paramsRET_CHD = SecondOrderParamsRepository.betaParametersFromNormal(P_RET_CHD, SecondOrderParamsRepository.sdFrom95CI(CI_RET_CHD));		
+		final double[] paramsDNC_CHD = Statistics.betaParametersFromNormal(P_DNC_CHD, Statistics.sdFrom95CI(CI_DNC_CHD));
+		final double[] paramsNEU_CHD = Statistics.betaParametersFromNormal(P_NEU_CHD, Statistics.sdFrom95CI(CI_NEU_CHD));
+		final double[] paramsNPH_CHD = Statistics.betaParametersFromNormal(P_NPH_CHD, Statistics.sdFrom95CI(CI_NPH_CHD));
+		final double[] paramsRET_CHD = Statistics.betaParametersFromNormal(P_RET_CHD, Statistics.sdFrom95CI(CI_RET_CHD));		
 
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, DiabetesChronicComplications.CHD), "Probability of healthy to CHD", 
 				"", P_DNC_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_CHD[0], paramsDNC_CHD[1])));
@@ -153,10 +154,10 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 				"Cost of episode of Heart Failure", "https://doi.org/10.1016/j.endinu.2018.03.008", 
 				2016, 5557.66-1054.42, SecondOrderParamsRepository.getRandomVariateForCost(5557.66-1054.42)));
 
-		final double[] paramsDuANGINA = SecondOrderParamsRepository.betaParametersFromNormal(DU_ANGINA[0], DU_ANGINA[1]);
-		final double[] paramsDuMI = SecondOrderParamsRepository.betaParametersFromNormal(DU_MI[0], DU_MI[1]);
-		final double[] paramsDuSTROKE = SecondOrderParamsRepository.betaParametersFromNormal(DU_STROKE[0], DU_STROKE[1]);
-		final double[] paramsDuHF = SecondOrderParamsRepository.betaParametersFromNormal(DU_HF[0], DU_HF[1]);		
+		final double[] paramsDuANGINA = Statistics.betaParametersFromNormal(DU_ANGINA[0], DU_ANGINA[1]);
+		final double[] paramsDuMI = Statistics.betaParametersFromNormal(DU_MI[0], DU_MI[1]);
+		final double[] paramsDuSTROKE = Statistics.betaParametersFromNormal(DU_STROKE[0], DU_STROKE[1]);
+		final double[] paramsDuHF = Statistics.betaParametersFromNormal(DU_HF[0], DU_HF[1]);		
 		secParams.addUtilParam(new SecondOrderParam(SecondOrderParamsRepository.STR_DISUTILITY_PREFIX + SimpleCHDSubmodel.ANGINA, 
 				"Disutility of angina", 
 				"", DU_ANGINA[0], RandomVariateFactory.getInstance("BetaVariate", paramsDuANGINA[0], paramsDuANGINA[1])));

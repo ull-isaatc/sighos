@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.diabetes.params;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
-import es.ull.iis.simulation.model.TimeUnit;
 import simkit.random.RandomNumber;
 
 /**
@@ -33,12 +32,6 @@ public class AnnualRiskBasedTimeToEventParam extends UniqueEventParam<Long> impl
 
 	@Override
 	public Long getValue(DiabetesPatient pat) {
-		if (annualRisk == 0)
-			return Long.MAX_VALUE;
-		final double lifetime = pat.getAgeAtDeath() - pat.getAge();
-//		final double newMinus = -1 / (1-Math.exp(Math.log(1-annualRisk)*rr.getRR(pat)));
-		final double newMinus = -1 / (1-Math.pow(1-annualRisk, rr.getRR(pat)));
-		final double time = newMinus * draw(pat);		
-		return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
+		return SecondOrderParamsRepository.getAnnualBasedTimeToEvent(pat, annualRisk, draw(pat), rr.getRR(pat));
 	}
 }

@@ -17,6 +17,7 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.ComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderAcuteComplicationSubmodel;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -38,7 +39,7 @@ public class DCCTSevereHypoglycemiaEvent extends SecondOrderAcuteComplicationSub
 	
 	@Override
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
-		final double[] paramsDeathHypo = SecondOrderParamsRepository.betaParametersFromNormal(0.0063, SecondOrderParamsRepository.sdFrom95CI(new double[]{0.0058, 0.0068}));
+		final double[] paramsDeathHypo = Statistics.betaParametersFromNormal(0.0063, Statistics.sdFrom95CI(new double[]{0.0058, 0.0068}));
 		secParams.addProbParam(new SecondOrderParam(STR_P_HYPO, "Annual probability of severe hypoglycemic episode (adjusted from rate/100 patient-month)", 
 				DEF_SOURCE, 
 				0.187, RandomVariateFactory.getInstance("BetaVariate", 18.513, 80.487)));
