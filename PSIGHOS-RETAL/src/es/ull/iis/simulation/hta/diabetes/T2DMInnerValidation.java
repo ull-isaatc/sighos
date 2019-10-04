@@ -29,6 +29,7 @@ import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldRETSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleRETSubmodel;
+import es.ull.iis.simulation.hta.diabetes.submodels.T2DMNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMPrositCHDSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMPrositNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMPrositRETSubmodel;
@@ -73,7 +74,7 @@ public class T2DMInnerValidation extends SecondOrderParamsRepository {
 //		pInitRet = RandomVariateFactory.getInstance("DirichletVariate", P_INIT_RET);
 
 		registerComplication(new T2DMPrositRETSubmodel());
-		registerComplication(new T2DMPrositNPHSubmodel());
+		registerComplication(new T2DMNPHSubmodel());
 		registerComplication(new T2DMPrositCHDSubmodel());
 		registerComplication(new T2DMSimpleNEUSubmodel());
 		registerComplication(new T2DMPrositSevereHypoglycemiaEvent());
