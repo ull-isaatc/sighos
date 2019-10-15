@@ -50,11 +50,14 @@ import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicati
  * @author Iván Castilla Rodríguez
  *
  */
-public class T1DMMain {
+public class DiabetesMain {
 	private enum Outputs {
 		INCIDENCE, 				// printing incidence of complications by age group
 		PREVALENCE, 			// printing prevalence of complications by age group
-		CUMM_INCIDENCE, 		// printing cummulated incidence of complications by time from start
+		CUM_INCIDENCE, 			// printing cumulative incidence of complications by time from start
+		ABS_INCIDENCE, 			// printing absolute incidence of complications by time from start
+		ABS_PREVALENCE, 		// printing absolute prevalence of complications by time from start
+		ABS_CUM_INCIDENCE, 		// printing absolute cumulative incidence of complications by time from start
 		INDIVIDUAL_OUTCOMES, 	// printing the outcomes per patient
 		BREAKDOWN_COST,			// printing breakdown of costs
 		BI 						// printing the budget impact
@@ -83,7 +86,7 @@ public class T1DMMain {
 	private final ArrayList<ExperimentListener<?>> baseCaseExpListeners;
 	
 	
-	public T1DMMain(PrintWriter out, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs) {
+	public DiabetesMain(PrintWriter out, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs) {
 		super();
 		this.printOutputs = printOutputs;
 		this.timeHorizon = timeHorizon;
@@ -107,9 +110,21 @@ public class T1DMMain {
 			expListeners.add(new AnnualCostView(nRuns, secParams, discountCost));
 			baseCaseExpListeners.add(new AnnualCostView(1, secParams, discountCost));
 		}
-		if (printOutputs.contains(Outputs.CUMM_INCIDENCE)) {
+		if (printOutputs.contains(Outputs.CUM_INCIDENCE)) {
 			expListeners.add(new IncidenceView(nRuns, secParams, timeHorizon, IncidenceView.Type.CUMUL_INCIDENCE, false));
 			baseCaseExpListeners.add(new IncidenceView(1, secParams, timeHorizon, IncidenceView.Type.CUMUL_INCIDENCE, false));
+		}
+		if (printOutputs.contains(Outputs.ABS_INCIDENCE)) {
+			expListeners.add(new IncidenceView(nRuns, secParams, timeHorizon, IncidenceView.Type.INCIDENCE, true));
+			baseCaseExpListeners.add(new IncidenceView(1, secParams, timeHorizon, IncidenceView.Type.INCIDENCE, true));
+		}
+		if (printOutputs.contains(Outputs.ABS_PREVALENCE)) {
+			expListeners.add(new IncidenceView(nRuns, secParams, timeHorizon, IncidenceView.Type.PREVALENCE, true));
+			baseCaseExpListeners.add(new IncidenceView(1, secParams, timeHorizon, IncidenceView.Type.PREVALENCE, true));
+		}
+		if (printOutputs.contains(Outputs.ABS_CUM_INCIDENCE)) {
+			expListeners.add(new IncidenceView(nRuns, secParams, timeHorizon, IncidenceView.Type.CUMUL_INCIDENCE, true));
+			baseCaseExpListeners.add(new IncidenceView(1, secParams, timeHorizon, IncidenceView.Type.CUMUL_INCIDENCE, true));
 		}
 		if (printOutputs.contains(Outputs.INCIDENCE)) {
 			expListeners.add(new IncidenceByGroupAgeView(nRuns, secParams, 1, false));
@@ -308,7 +323,6 @@ public class T1DMMain {
 
 	        }
 	        BasicConfigParams.USE_SIMPLE_MODELS = args1.basic;
-	        BasicConfigParams.USE_CHD_DEATH_MODEL = args1.dCHD;
 	        BasicConfigParams.USE_REVIEW_UTILITIES = args1.altUtils;
 	        BasicConfigParams.STUDY_YEAR = args1.year;
 
@@ -337,6 +351,9 @@ public class T1DMMain {
 	        		break;
 	        	case 7:
 	        		secParams = new PROSITSecondOrderParams(args1.nPatients);
+	        		break;
+	        	case 8:
+	        		secParams = new AdvanceSecondOrderParams(args1.nPatients);
 	        		break;
 	        	default:
 	        		secParams = new UnconsciousSecondOrderParams(args1.nPatients);
@@ -373,8 +390,14 @@ public class T1DMMain {
 	    			printOutputs.add(Outputs.PREVALENCE);
 	    		if (args1.incidence)
 	    			printOutputs.add(Outputs.INCIDENCE);
-	    		if (args1.cumm)
-	    			printOutputs.add(Outputs.CUMM_INCIDENCE);
+	    		if (args1.cum)
+	    			printOutputs.add(Outputs.CUM_INCIDENCE);
+	    		if (args1.absPrevalence)
+	    			printOutputs.add(Outputs.ABS_PREVALENCE);
+	    		if (args1.absIncidence)
+	    			printOutputs.add(Outputs.ABS_INCIDENCE);
+	    		if (args1.absCum)
+	    			printOutputs.add(Outputs.ABS_CUM_INCIDENCE);
 	    		if (args1.bi)
 	    			printOutputs.add(Outputs.BI);
 	    		if (args1.individualOutcomes)
@@ -411,7 +434,7 @@ public class T1DMMain {
 	    			discountCost = (valueCost == 0.0) ? new ZeroDiscount() : new StdDiscount(valueCost);
 	    			discountEffect = (valueEffect == 0.0) ? new ZeroDiscount() : new StdDiscount(valueEffect);
 	    		}
-		        final T1DMMain experiment = new T1DMMain(out, secParams, args1.nRuns, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs);
+		        final DiabetesMain experiment = new DiabetesMain(out, secParams, args1.nRuns, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs);
 		        experiment.run();
 	    	}
 	    	else {
@@ -439,24 +462,30 @@ public class T1DMMain {
 		private int nRuns = BasicConfigParams.N_RUNS;
 		@Parameter(names ={"--horizon", "-h"}, description = "Time horizon for the simulation (years)", order = 3)
 		private int timeHorizon = -1;
-		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (1 for unconscious, 2 for uncontrolled, 3 for Canada, 4 for DCCT, 5 for Ly, 6 for SMILE, 7 for UKPDS)", order = 8)
+		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (1: T1DM unconscious, 2: T1DM uncontrolled, 3: Canada, 4: DCCT, 5: Ly, 6: SMILE, 7: UKPDS, 8: Advance)", order = 8)
 		private int population = 1;
-		@Parameter(names ={"--single_patient_output", "-es"}, description = "Enables printing the specified patient's output", order = 4)
-		private int singlePatientOutput = -1;
 		@Parameter(names = {"--discount", "-dr"}, variableArity = true, 
 				description = "The discount rate to be applied. If more than one value is provided, the first one is used for costs, and the second for effects. Default value is " + BasicConfigParams.DEF_DISCOUNT_RATE, order = 7)
 		public List<Double> discount = new ArrayList<>();
-		@Parameter(names ={"--prevalence", "-ep"}, description = "Enables printing prevalence of complications by age group ", order = 9)
+		@Parameter(names ={"--single_patient_output", "-ps"}, description = "Enables printing the specified patient's output", order = 4)
+		private int singlePatientOutput = -1;
+		@Parameter(names ={"--prevalence", "-pp"}, description = "Enables printing prevalence of complications by age group ", order = 9)
 		private boolean prevalence = false;
-		@Parameter(names ={"--incidence", "-ei"}, description = "Enables printing incidence of complications by age group ", order = 9)
+		@Parameter(names ={"--incidence", "-pi"}, description = "Enables printing incidence of complications by age group ", order = 9)
 		private boolean incidence = false;
-		@Parameter(names ={"--cumincidence", "-ec"}, description = "Enables printing cummulated incidence of complications by time from start", order = 9)
-		private boolean cumm = false;
-		@Parameter(names ={"--outcomes", "-eo"}, description = "Enables printing individual outcomes", order = 9)
+		@Parameter(names ={"--cumincidence", "-pc"}, description = "Enables printing cummulated incidence of complications by time from start", order = 9)
+		private boolean cum = false;
+		@Parameter(names ={"--absprevalence", "-ppa"}, description = "Enables printing prevalence of complications by time from start (absolute numbers)", order = 9)
+		private boolean absPrevalence = false;
+		@Parameter(names ={"--absincidence", "-pia"}, description = "Enables printing incidence of complications by time from start (absolute numbers)", order = 9)
+		private boolean absIncidence = false;
+		@Parameter(names ={"--abscumincidence", "-pca"}, description = "Enables printing cummulated incidence of complications by time from start (absolute numbers)", order = 9)
+		private boolean absCum = false;
+		@Parameter(names ={"--outcomes", "-po"}, description = "Enables printing individual outcomes", order = 9)
 		private boolean individualOutcomes = false;
-		@Parameter(names ={"--costs", "-ebc"}, description = "Enables printing breakdown of costs", order = 9)
+		@Parameter(names ={"--costs", "-pbc"}, description = "Enables printing breakdown of costs", order = 9)
 		private boolean breakdownCost = false;
-		@Parameter(names ={"--budget", "-ebi"}, description = "Enables printing budget impact", order = 9)
+		@Parameter(names ={"--budget", "-pbi"}, description = "Enables printing budget impact", order = 9)
 		private boolean bi = false;
 		@Parameter(names ={"--parallel", "-p"}, description = "Enables parallel execution", order = 5)
 		private boolean parallel = false;
@@ -464,8 +493,6 @@ public class T1DMMain {
 		private boolean quiet = false;
 		@Parameter(names ={"--basic", "-b"}, description = "Use basic progression models, instead of complex (only some complications has complex models)", order = 10)
 		private boolean basic = BasicConfigParams.USE_SIMPLE_MODELS;
-		@Parameter(names ={"--deathCHD", "-dchd"}, description = "Use basic progression models, instead of complex (only some complications has complex models)", order = 10)
-		private boolean dCHD = BasicConfigParams.USE_CHD_DEATH_MODEL;
 		@Parameter(names ={"--alt_utilities", "-au"}, description = "Enables using alternative utilities from the revision of Beaudet et al. 2014", order = 10)
 		private boolean altUtils = BasicConfigParams.USE_REVIEW_UTILITIES;
 		@Parameter(names ={"--year", "-y"}, description = "Modifies the year of the study (for cost updating))", order = 8)

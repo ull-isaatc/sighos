@@ -8,7 +8,7 @@ import java.util.Locale;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
-import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
+import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
@@ -82,8 +82,8 @@ public class BudgetImpactView implements ExperimentListener<BudgetImpactView.Inn
 			this.lastAge = new double[nPatients];
 			cost = new double[nYears+1];
 			finish = false;
-			addGenerated(T1DMPatientInfo.class);
-			addEntrance(T1DMPatientInfo.class);
+			addGenerated(DiabetesPatientInfo.class);
+			addEntrance(DiabetesPatientInfo.class);
 			addEntrance(SimulationStartStopInfo.class);
 		}
 	
@@ -110,8 +110,8 @@ public class BudgetImpactView implements ExperimentListener<BudgetImpactView.Inn
 						updateExperiment(simul);
 					}
 				}
-				else if (info instanceof T1DMPatientInfo) {
-					final T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
+				else if (info instanceof DiabetesPatientInfo) {
+					final DiabetesPatientInfo pInfo = (DiabetesPatientInfo) info;
 					final DiabetesSimulation simul = (DiabetesSimulation)pInfo.getSimul();
 					final double endAge = TimeUnit.DAY.convert(pInfo.getTs(), simul.getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
 					if (endAge > nYears) {

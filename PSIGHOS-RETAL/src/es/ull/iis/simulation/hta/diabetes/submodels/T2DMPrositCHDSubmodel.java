@@ -33,6 +33,10 @@ import simkit.random.RandomVariateFactory;
  * TODO: Currently, recurrent events are not supported in chronic conditions. It could be solved by 
  * 1) complexizing the storage of transitions to stages of chronic complications; 
  * or 2) combining chronic stages and acute events
+ * 
+ * Recurrent MI removed since the equation derived from Prosit did not work. Moreover, the way mortality after MI and recurrent MI are treated in Prosit
+ * does not fit well with DES.
+ * TODO: Add a proper recurrent MI model 
  * @author Iván Castilla Rodríguez
  *
  */
@@ -41,9 +45,8 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 	public static DiabetesComplicationStage POST_STROKE2 = new DiabetesComplicationStage("POST_REC_STROKE", "Post recurrent stroke", DiabetesChronicComplications.CHD);
 	public static DiabetesComplicationStage POST_ANGINA = new DiabetesComplicationStage("POST_ANGINA", "Post angina", DiabetesChronicComplications.CHD);
 	public static DiabetesComplicationStage POST_MI = new DiabetesComplicationStage("POST_MI", "Post myocardial Infarction", DiabetesChronicComplications.CHD);
-	public static DiabetesComplicationStage POST_MI2 = new DiabetesComplicationStage("POST_REC_MI", "Post recurrent myocardial Infarction", DiabetesChronicComplications.CHD);
 
-	public static DiabetesComplicationStage[] CHDSubstates = new DiabetesComplicationStage[] {POST_STROKE, POST_STROKE2, POST_ANGINA, POST_MI, POST_MI2}; 
+	public static DiabetesComplicationStage[] CHDSubstates = new DiabetesComplicationStage[] {POST_STROKE, POST_STROKE2, POST_ANGINA, POST_MI}; 
 	// Constants for first stroke (UKPDS 60)
 	private final static double K = 1.145;
 	private final static double ONE_MINUS_K = 1 - K;
@@ -79,10 +82,6 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 	/** Parameters for beta distribution to represent probability of MI from angina */
 	private static final double [] BETA_ANGINA2MI = {31.2475, 536.7525};
 	
-	/** Parameters for a function that represents the ln probability of a recurrent MI with respect to time from last MI.
-	 * The function is ln(P) = 	F_P_MI2MI[0] + F_P_MI2MI[1] * years_since_last_MI */
-	private static final double[] F_P_MI2MI = {-2.642495648, -0.379428295};
-
 	/** Probability of 30-day death after stroke */ 
 	private static final double P_DEATH_STROKE = 0.124;
 	
@@ -103,7 +102,6 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 		HEALTHY_ANGINA,	// Angina
 		ANGINA_MI,		// Angina to myocardial infarction
 		HEALTHY_MI,		// First myocardial infarction
-		MI_MI2,			// Recurrent myocardial infarction
 	}
 	
 	private static final String STR_DEATH_STROKE = SecondOrderParamsRepository.STR_PROBABILITY_PREFIX + SecondOrderParamsRepository.STR_DEATH_PREFIX + POST_STROKE.name();
@@ -171,11 +169,6 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 				"https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 948, rndCostMI[0]);
 		secParams.addTransitionCostParam(POST_MI, "Cost of episode of first Myocardial Infarction", 
 				"https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 23536-948, rndCostMI[1]);
-		// Assumed equal to first MI
-		secParams.addCostParam(POST_MI2, "Cost of year 2+ recurrent Myocardial Infarction", 
-				"https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 948, rndCostMI[0]);
-		secParams.addTransitionCostParam(POST_MI2, "Cost of episode of recurrent Myocardial Infarction", 
-				"https://doi.org/10.1016/j.endinu.2018.03.008", 2016, 23536-948, rndCostMI[1]);
 		
 		final double[] paramsDuSTROKE = Statistics.betaParametersFromNormal(DU_STROKE[0], DU_STROKE[1]);
 		final RandomVariate rndDuStroke = RandomVariateFactory.getInstance("BetaVariate", paramsDuSTROKE[0], paramsDuSTROKE[1]);
@@ -189,7 +182,6 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 		final double[] paramsDuMI = Statistics.betaParametersFromNormal(DU_MI[0], DU_MI[1]);
 		final RandomVariate rndDuMI = RandomVariateFactory.getInstance("BetaVariate", paramsDuMI[0], paramsDuMI[1]);
 		secParams.addDisutilityParam(POST_MI, "Disutility of POST_MI", "", DU_MI[0], rndDuMI);
-		secParams.addDisutilityParam(POST_MI2, "Disutility of POST_MI", "", DU_MI[0], rndDuMI);
 		
 		secParams.addOtherParam(new SecondOrderParam(STR_DEATH_STROKE, 
 				"Probability of death after stroke", "Core Model", 
@@ -296,27 +288,6 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 		
 	}
 	
-	private class Time2RecurrentMIParam extends UniqueEventParam<Long> implements TimeToEventParam {
-		private final double[] fpMI2MI;
-		public Time2RecurrentMIParam(RandomNumber rng, int nPatients, double[] fpMI2MI) {
-			super(rng, nPatients, false);
-			this.fpMI2MI = fpMI2MI;
-		}
-
-		@Override
-		public Long getValue(DiabetesPatient pat) {
-			// TODO: Check!!!!
-			double timeFromLastMI = TimeUnit.DAY.convert(pat.getTs() - pat.getTimeToChronicComorbidity(POST_MI), pat.getSimulation().getTimeUnit()) / BasicConfigParams.YEAR_CONVERSION;
-			final double pMI2MI = Math.exp(fpMI2MI[0] + fpMI2MI[1] * Math.log(timeFromLastMI)); 
-			if (pMI2MI == 0.0)
-				return Long.MAX_VALUE;
-			final double lifetime = pat.getAgeAtDeath() - pat.getAge();
-			final double newMinus = -1 / (1-Math.exp(Math.log(1-pMI2MI)));
-			final double time = newMinus * draw(pat);		
-			return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
-		}
-	}
-	
 	private class RRRecurrentStroke implements RRCalculator {
 		private final double rrFemale16;
 		private final double rrMale70;
@@ -391,13 +362,11 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 			final TimeToFirstMIParam firstMIParam = new TimeToFirstMIParam(rng, nPatients, secParams.getProbability(POST_ANGINA, POST_MI));
 			addTime2Event(CHDTransitions.HEALTHY_MI.ordinal(), firstMIParam);
 			addTime2Event(CHDTransitions.ANGINA_MI.ordinal(), firstMIParam);
-			addTime2Event(CHDTransitions.MI_MI2.ordinal(), new Time2RecurrentMIParam(rng, nPatients, F_P_MI2MI));
 
 			setStageInstance(POST_STROKE, secParams);
 			setStageInstance(POST_STROKE2, secParams);
 			setStageInstance(POST_ANGINA, secParams);
 			setStageInstance(POST_MI, secParams);
-			setStageInstance(POST_MI2, secParams);
 			
 			rndDeathStroke = new double[nPatients][2];
 			rndDeathMI = new double[nPatients][2];
@@ -473,23 +442,6 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 						prog.addNewEvent(POST_MI, timeToMI);
 				}						
 			}
-			// Recurrent MI
-			else {
-				if (!state.contains(POST_MI2)) {
-					final long previousTimeToMI = pat.getTimeToChronicComorbidity(POST_MI2);
-					final long timeToMI = getTimeToEvent(pat, CHDTransitions.MI_MI2.ordinal(), limit);
-					// Check previously scheduled events
-					if (timeToMI != Long.MAX_VALUE) {
-						if (previousTimeToMI < Long.MAX_VALUE) {
-							prog.addCancelEvent(POST_MI2);
-						}
-						if (BasicConfigParams.USE_CHD_DEATH_MODEL)
-							prog.addNewEvent(POST_MI2, timeToMI, rndDeathMI[id][1] <= pDeathMI[pat.getSex()]);
-						else
-							prog.addNewEvent(POST_MI2, timeToMI);
-					}
-				}
-			}
 			return prog;
 		}
 
@@ -501,7 +453,7 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 				cost += getCosts(POST_ANGINA)[0];
 			if (state.contains(POST_STROKE) || state.contains(POST_STROKE2))
 				cost += getCosts(POST_STROKE)[0];
-			if (state.contains(POST_MI) || state.contains(POST_MI2))
+			if (state.contains(POST_MI))
 				cost += getCosts(POST_MI)[0];				
 			return cost;
 		}
@@ -514,7 +466,7 @@ public class T2DMPrositCHDSubmodel extends SecondOrderChronicComplicationSubmode
 				du = getDisutility(POST_ANGINA);
 			if (state.contains(POST_STROKE) || state.contains(POST_STROKE2))
 				du = method.combine(du, getDisutility(POST_STROKE));
-			if (state.contains(POST_MI) || state.contains(POST_MI2))
+			if (state.contains(POST_MI))
 				du = method.combine(du, getDisutility(POST_MI));				
 			return du;
 		}

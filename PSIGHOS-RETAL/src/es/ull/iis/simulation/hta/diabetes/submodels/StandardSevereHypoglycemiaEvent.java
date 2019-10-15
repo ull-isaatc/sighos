@@ -68,7 +68,7 @@ public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicatio
 		 * 
 		 */
 		public Instance(SecondOrderParamsRepository secParams) {
-			super(new AnnualRiskBasedTimeToMultipleEventParam(
+			super(DiabetesAcuteComplications.SHE, new AnnualRiskBasedTimeToMultipleEventParam(
 					SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
 					secParams.getnPatients(), 
 					secParams.getProbParam(STR_P_HYPO), 

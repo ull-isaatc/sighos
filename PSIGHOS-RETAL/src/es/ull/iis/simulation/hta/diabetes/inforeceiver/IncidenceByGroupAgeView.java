@@ -10,7 +10,7 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
-import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
+import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.ExperimentListener.InnerListener;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
@@ -111,8 +111,8 @@ public class IncidenceByGroupAgeView implements ExperimentListener<IncidenceByGr
 			nPatients = new int[nIntervals];
 			nChronic = new int[secParams.getRegisteredComplicationStages().size()][nIntervals];
 			nAcute = new int[DiabetesAcuteComplications.values().length][nIntervals];
-			addGenerated(T1DMPatientInfo.class);
-			addEntrance(T1DMPatientInfo.class);
+			addGenerated(DiabetesPatientInfo.class);
+			addEntrance(DiabetesPatientInfo.class);
 			addEntrance(SimulationStartStopInfo.class);
 		}
 
@@ -123,8 +123,8 @@ public class IncidenceByGroupAgeView implements ExperimentListener<IncidenceByGr
 					updateExperiment((DiabetesSimulation) info.getSimul());
 				}
 			}
-			else if (info instanceof T1DMPatientInfo) {
-				final T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
+			else if (info instanceof DiabetesPatientInfo) {
+				final DiabetesPatientInfo pInfo = (DiabetesPatientInfo) info;
 				final DiabetesPatient pat = (DiabetesPatient)pInfo.getPatient();
 				final int interval = (int)((pat.getAge() - minAge) / length);
 				switch(pInfo.getType()) {

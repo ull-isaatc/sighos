@@ -29,6 +29,7 @@ import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldRETSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleRETSubmodel;
+import es.ull.iis.simulation.hta.diabetes.submodels.T2DMMicadoNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMPrositCHDSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMPrositNPHSubmodel;
@@ -82,9 +83,10 @@ public class T2DMInnerValidation extends SecondOrderParamsRepository {
 //		getRegisteredChronicComplications()[DiabetesChronicComplications.CHD.ordinal()].disable();
 //		getRegisteredChronicComplications()[DiabetesChronicComplications.NEU.ordinal()].disable();
 //		getRegisteredChronicComplications()[DiabetesChronicComplications.NPH.ordinal()].disable();
-		for (SecondOrderAcuteComplicationSubmodel comp : getRegisteredAcuteComplications()) {
-			comp.disable();
-		}
+//		getRegisteredChronicComplications()[DiabetesChronicComplications.RET.ordinal()].disable();
+//		for (SecondOrderAcuteComplicationSubmodel comp : getRegisteredAcuteComplications()) {
+//			comp.disable();
+//		}
 		registerIntervention(new DCCTConventionalIntervention());
 		
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of Diabetes with no complications", 

@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.diabetes.inforeceiver;
 
 import java.io.PrintStream;
 
-import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
+import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -25,8 +25,8 @@ public class DiabetesPatientInfoView extends Listener {
 	 */
 	public DiabetesPatientInfoView(int specificPatient) {
 		super("Standard patient viewer");
-		addGenerated(T1DMPatientInfo.class);
-		addEntrance(T1DMPatientInfo.class);
+		addGenerated(DiabetesPatientInfo.class);
+		addEntrance(DiabetesPatientInfo.class);
 		addEntrance(SimulationStartStopInfo.class);
 		this.specificPatient = specificPatient;
 	}
@@ -48,8 +48,8 @@ public class DiabetesPatientInfoView extends Listener {
 				if (specificPatient == -1)
 					out.println(info.toString());
 			} 			
-		} else if (info instanceof T1DMPatientInfo) {
-			if (specificPatient == -1 || specificPatient == ((T1DMPatientInfo)info).getPatient().getIdentifier())
+		} else if (info instanceof DiabetesPatientInfo) {
+			if (specificPatient == -1 || specificPatient == ((DiabetesPatientInfo)info).getPatient().getIdentifier())
 				out.println(info.toString());
 		}
 		

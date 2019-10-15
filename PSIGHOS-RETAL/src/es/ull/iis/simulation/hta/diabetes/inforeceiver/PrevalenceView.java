@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
-import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
+import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
@@ -37,8 +37,8 @@ public class PrevalenceView extends Listener {
 		nComplications = new int[availableStates.size()][ageIntervals.length+1];
 		nDeaths = new int[ageIntervals.length+1];
 		this.ageIntervals = ageIntervals;
-		addGenerated(T1DMPatientInfo.class);
-		addEntrance(T1DMPatientInfo.class);
+		addGenerated(DiabetesPatientInfo.class);
+		addEntrance(DiabetesPatientInfo.class);
 		addEntrance(SimulationStartStopInfo.class);
 	}
 
@@ -80,9 +80,9 @@ public class PrevalenceView extends Listener {
 			}
 		}
 		else {
-			T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
+			DiabetesPatientInfo pInfo = (DiabetesPatientInfo) info;
 			DiabetesPatient pat = pInfo.getPatient();
-			if (pInfo.getType() == T1DMPatientInfo.Type.DEATH) {
+			if (pInfo.getType() == DiabetesPatientInfo.Type.DEATH) {
 				final double initAge = pat.getInitAge(); 
 				final double ageAtDeath = pat.getAge();
 				// First check if the patient died before the lowest interval

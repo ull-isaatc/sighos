@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.diabetes.inforeceiver;
 import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
-import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
+import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.util.Statistics;
@@ -26,8 +26,8 @@ public class HbA1cListener extends Listener implements StructuredOutputListener 
 		super("HbA1c listener");
 		this.nPatients = nPatients;
 		this.values = new double[nPatients];
-		addGenerated(T1DMPatientInfo.class);
-		addEntrance(T1DMPatientInfo.class);
+		addGenerated(DiabetesPatientInfo.class);
+		addEntrance(DiabetesPatientInfo.class);
 	}
 
 	/* (non-Javadoc)
@@ -35,10 +35,10 @@ public class HbA1cListener extends Listener implements StructuredOutputListener 
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		if (info instanceof T1DMPatientInfo) {
-			final T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
+		if (info instanceof DiabetesPatientInfo) {
+			final DiabetesPatientInfo pInfo = (DiabetesPatientInfo) info;
 			final DiabetesPatient pat = pInfo.getPatient();
-			if (T1DMPatientInfo.Type.START.equals(pInfo.getType())) {
+			if (DiabetesPatientInfo.Type.START.equals(pInfo.getType())) {
 				values[pat.getIdentifier()] = pat.getHba1c();
 				aggregated += pat.getHba1c();
 			}

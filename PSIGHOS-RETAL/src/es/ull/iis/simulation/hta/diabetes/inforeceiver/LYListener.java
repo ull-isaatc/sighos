@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
-import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
+import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.Discount;
 import es.ull.iis.simulation.info.SimulationInfo;
@@ -35,8 +35,8 @@ public class LYListener extends Listener implements StructuredOutputListener {
 		this.nPatients = nPatients;
 		this.values = new double[nPatients];
 		this.lastTs = new long[nPatients];
-		addGenerated(T1DMPatientInfo.class);
-		addEntrance(T1DMPatientInfo.class);
+		addGenerated(DiabetesPatientInfo.class);
+		addEntrance(DiabetesPatientInfo.class);
 		addEntrance(SimulationStartStopInfo.class);
 	}
 
@@ -63,17 +63,17 @@ public class LYListener extends Listener implements StructuredOutputListener {
 				}
 			}
 		}		
-		else if (info instanceof T1DMPatientInfo) {
-			final T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
+		else if (info instanceof DiabetesPatientInfo) {
+			final DiabetesPatientInfo pInfo = (DiabetesPatientInfo) info;
 			final DiabetesPatient pat = pInfo.getPatient();
 			final long ts = pInfo.getTs();
 			final TimeUnit simUnit = pat.getSimulation().getTimeUnit();
 			final double initAge = TimeUnit.DAY.convert(lastTs[pat.getIdentifier()], simUnit) / BasicConfigParams.YEAR_CONVERSION; 
 			final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
-			if (T1DMPatientInfo.Type.START.equals(pInfo.getType())) {
+			if (DiabetesPatientInfo.Type.START.equals(pInfo.getType())) {
 				lastTs[pat.getIdentifier()] = ts;
 			}
-			else if (T1DMPatientInfo.Type.DEATH.equals(pInfo.getType())) {
+			else if (DiabetesPatientInfo.Type.DEATH.equals(pInfo.getType())) {
 				// Update outcomes
 				if (endAge > initAge) {
 					update(pat, initAge, endAge);

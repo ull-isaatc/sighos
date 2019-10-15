@@ -11,7 +11,7 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
-import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
+import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.ExperimentListener.InnerListener;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
@@ -127,8 +127,8 @@ public class AnnualCostView implements ExperimentListener<AnnualCostView.InnerLi
 			acuteCost = new double[DiabetesAcuteComplications.values().length][maxAge-minAge+1];
 			interventionCost = new double[maxAge-minAge+1];
 			managementCost = new double[maxAge-minAge+1];
-			addGenerated(T1DMPatientInfo.class);
-			addEntrance(T1DMPatientInfo.class);
+			addGenerated(DiabetesPatientInfo.class);
+			addEntrance(DiabetesPatientInfo.class);
 			addEntrance(SimulationStartStopInfo.class);
 		}
 		
@@ -151,8 +151,8 @@ public class AnnualCostView implements ExperimentListener<AnnualCostView.InnerLi
 					updateExperiment(simul);
 				}
 			}
-			else if (info instanceof T1DMPatientInfo) {
-				final T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
+			else if (info instanceof DiabetesPatientInfo) {
+				final DiabetesPatientInfo pInfo = (DiabetesPatientInfo) info;
 				final DiabetesPatient pat = pInfo.getPatient();
 				final long ts = pInfo.getTs();
 				final TimeUnit simUnit = pat.getSimulation().getTimeUnit();

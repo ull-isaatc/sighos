@@ -4,16 +4,15 @@
 package es.ull.iis.simulation.hta.diabetes;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
+import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
-import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -68,7 +67,7 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 	
 	// Events
 	/** Events related to each chronic complication */
-	private final ChronicComorbidityEvent[] comorbidityEvents;
+	private final TreeMap<DiabetesComplicationStage, ChronicComorbidityEvent> comorbidityEvents;
 	/** Events related to each acute complication */
 	private final ArrayList<ArrayList<AcuteEvent>> acuteEvents;
 	/** Death event */ 
@@ -99,8 +98,7 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 		this.atrialFib = profile.hasAtrialFibrillation();
 		this.sbp = profile.getSbp();
 		this.lipidRatio = profile.getLipidRatio();
-		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getRegisteredComplicationStages().size()];
-		Arrays.fill(comorbidityEvents, null);
+		comorbidityEvents = new TreeMap<>();
 		acuteEvents = new ArrayList<>(DiabetesAcuteComplications.values().length);
 		for (int i = 0; i < DiabetesAcuteComplications.values().length; i++)
 			acuteEvents.add(new ArrayList<>());
@@ -125,8 +123,7 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 		this.profile = original.profile;
 		this.initAge = original.initAge;
 		this.baseDurationOfDiabetes = original.baseDurationOfDiabetes;
-		comorbidityEvents = new ChronicComorbidityEvent[commonParams.getRegisteredComplicationStages().size()];
-		Arrays.fill(comorbidityEvents, null);
+		comorbidityEvents = new TreeMap<>();
 		acuteEvents = new ArrayList<>(DiabetesAcuteComplications.values().length);
 		for (int i = 0; i < DiabetesAcuteComplications.values().length; i++)
 			acuteEvents.add(new ArrayList<>());
@@ -344,9 +341,28 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 	 * @return the timestamp when certain chronic complication started (or is planned to start)
 	 */
 	public long getTimeToChronicComorbidity(DiabetesComplicationStage comp) {
-		return (comorbidityEvents[comp.ordinal()] == null) ? Long.MAX_VALUE : comorbidityEvents[comp.ordinal()].getTs(); 
+		return (!comorbidityEvents.containsKey(comp)) ? Long.MAX_VALUE : comorbidityEvents.get(comp).getTs(); 
 	}
 
+	private void assignInitialComplication(final DiabetesComplicationStage complication) {
+		if (DiabetesPatient.this.detailedState.contains(complication)) {
+			error("Health state already assigned!! " + complication.name());
+		}
+		else {
+			simul.notifyInfo(new DiabetesPatientInfo(simul, DiabetesPatient.this, complication, this.getTs()));
+			DiabetesPatient.this.detailedState.add(complication);
+			DiabetesPatient.this.state.add(complication.getComplication());
+			
+			// Recompute time to death in case the risk increases
+			final long newTimeToDeath = commonParams.getTimeToDeath(DiabetesPatient.this);
+			if (newTimeToDeath < deathEvent.getTs()) {
+				deathEvent.cancel();
+				deathEvent = new DeathEvent(newTimeToDeath, complication);
+				simul.addEvent(deathEvent);
+			}
+		}
+	}
+	
 	/**
 	 * The first event of the patient that initializes everything and computes initial time to events.
 	 * @author Iván Castilla Rodríguez
@@ -364,7 +380,7 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 			startTs = this.getTs();
 			// Assign level of HBA1c expected after the intervention (we assume that the effect is immediate).
 			hba1c = ((DiabetesIntervention)intervention).getHBA1cLevel(DiabetesPatient.this);
-			simul.notifyInfo(new T1DMPatientInfo(simul, DiabetesPatient.this, T1DMPatientInfo.Type.START, this.getTs()));
+			simul.notifyInfo(new DiabetesPatientInfo(simul, DiabetesPatient.this, DiabetesPatientInfo.Type.START, this.getTs()));
 
 			// Assign death event
 			final long timeToDeath = commonParams.getTimeToDeath(DiabetesPatient.this);
@@ -372,8 +388,9 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 			simul.addEvent(deathEvent);
 			
 			for (DiabetesComplicationStage st : commonParams.getInitialState(DiabetesPatient.this)) {
-				comorbidityEvents[st.ordinal()] = new ChronicComorbidityEvent(new DiabetesProgressionPair(st, 0));
-				simul.addEvent(comorbidityEvents[st.ordinal()]);
+				// I was scheduling these events in the usual way, but they were not executed before the next loop and progression fails
+				comorbidityEvents.put(st, new ChronicComorbidityEvent(new DiabetesProgressionPair(st, 0)));
+				assignInitialComplication(st);
 			}
 			// Assign chronic complication events
 			for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
@@ -382,16 +399,16 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 					error("Cancel complications at start?");
 				for (DiabetesProgressionPair pr : progs.getNewEvents()) {
 					final ChronicComorbidityEvent ev = new ChronicComorbidityEvent(pr);
-					comorbidityEvents[pr.getState().ordinal()] = ev;
+					comorbidityEvents.put((DiabetesComplicationStage) pr.getComplication(), ev);
 					simul.addEvent(ev);						
 				}
 			}
 			
 			for (DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
 				// Assign severe hypoglycemic events
-				final AcuteComplicationSubmodel.Progression acuteEvent = commonParams.getTimeToAcuteEvent(DiabetesPatient.this, comp, false);
-				if (acuteEvent.timeToEvent < timeToDeath) {
-					final AcuteEvent ev = new AcuteEvent(comp, acuteEvent);
+				final DiabetesProgressionPair acuteEvent = commonParams.getTimeToAcuteEvent(DiabetesPatient.this, comp, false);
+				if (acuteEvent.getTimeToEvent() < timeToDeath) {
+					final AcuteEvent ev = new AcuteEvent(acuteEvent);
 					acuteEvents.get(comp.ordinal()).add(ev);
 					simul.addEvent(ev);
 				}				
@@ -422,12 +439,12 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 
 		@Override
 		public void event() {
-			final DiabetesComplicationStage complication = progress.getState();
+			final DiabetesComplicationStage complication = (DiabetesComplicationStage) progress.getComplication();
 			if (DiabetesPatient.this.detailedState.contains(complication)) {
 				error("Health state already assigned!! " + complication.name());
 			}
 			else {
-				simul.notifyInfo(new T1DMPatientInfo(simul, DiabetesPatient.this, complication, this.getTs()));
+				simul.notifyInfo(new DiabetesPatientInfo(simul, DiabetesPatient.this, complication, this.getTs()));
 				DiabetesPatient.this.detailedState.add(complication);
 				DiabetesPatient.this.state.add(complication.getComplication());
 				
@@ -448,11 +465,11 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 					for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
 						final DiabetesProgression progs = commonParams.getProgression(DiabetesPatient.this, comp);
 						for (DiabetesComplicationStage st: progs.getCancelEvents()) {
-							comorbidityEvents[st.ordinal()].cancel();
+							comorbidityEvents.get(st).cancel();
 						}
 						for (DiabetesProgressionPair pr : progs.getNewEvents()) {
 							final ChronicComorbidityEvent ev = new ChronicComorbidityEvent(pr);
-							comorbidityEvents[pr.getState().ordinal()] = ev;
+							comorbidityEvents.put((DiabetesComplicationStage) pr.getComplication(), ev);
 							simul.addEvent(ev);		
 						}
 					}
@@ -462,13 +479,13 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 		
 		@Override
 		public String toString() {
-			return DiabetesPatient.ChronicComorbidityEvent.class.getSimpleName() + "\t" + progress.getState().name() + "[" + progress.getTimeToEvent() + "]";
+			return DiabetesPatient.ChronicComorbidityEvent.class.getSimpleName() + "\t" + progress.getComplication().name() + "[" + progress.getTimeToEvent() + "]";
 		}
 
 		@Override
 		public boolean cancel() {
 			if (super.cancel()) {
-				comorbidityEvents[progress.getState().ordinal()] = null;
+				comorbidityEvents.remove(progress.getComplication());
 				return true;
 			}
 			return false;
@@ -483,29 +500,28 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 	 *
 	 */
 	private class AcuteEvent extends DiscreteEvent {
-		private final boolean causesDeath;
-		private final DiabetesAcuteComplications comp;
+		private final DiabetesProgressionPair progress;
 
-		public AcuteEvent(DiabetesAcuteComplications comp, AcuteComplicationSubmodel.Progression prog) {
-			super(prog.timeToEvent);
-			this.comp = comp;
-			this.causesDeath = prog.causesDeath;
+		public AcuteEvent(DiabetesProgressionPair progress) {
+			super(progress.getTimeToEvent());
+			this.progress = progress;
 		}
 		
 		@Override
 		public void event() {
-			simul.notifyInfo(new T1DMPatientInfo(simul, DiabetesPatient.this, comp, this.getTs()));
-			// If the hypoglycemic event causes the death of the patient
-			if (causesDeath) {
+			final DiabetesAcuteComplications comp = (DiabetesAcuteComplications) progress.getComplication();
+			simul.notifyInfo(new DiabetesPatientInfo(simul, DiabetesPatient.this, comp, this.getTs()));
+			// If the acute event causes the death of the patient
+			if (progress.causesDeath()) {
 				deathEvent.cancel();
-				deathEvent = new DeathEvent(ts, comp);
+				deathEvent = new DeathEvent(ts, progress.getComplication());
 				simul.addEvent(deathEvent);
 			}
 			else {
 				// Schedule new event (if required)
-				final AcuteComplicationSubmodel.Progression acuteEvent = commonParams.getTimeToAcuteEvent(DiabetesPatient.this, comp, false);
-				if (acuteEvent.timeToEvent < deathEvent.getTs()) {
-					final AcuteEvent ev = new AcuteEvent(comp, acuteEvent);
+				final DiabetesProgressionPair acuteEvent = commonParams.getTimeToAcuteEvent(DiabetesPatient.this, comp, false);
+				if (acuteEvent.getTimeToEvent() < deathEvent.getTs()) {
+					final AcuteEvent ev = new AcuteEvent(acuteEvent);
 					acuteEvents.get(comp.ordinal()).add(ev);
 					simul.addEvent(ev);
 				}
@@ -536,8 +552,8 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 					if (acuteEv.getTs() > ts) {
 						acuteEv.cancel();
 						acuteEventList.remove(acuteEv);
-						final AcuteComplicationSubmodel.Progression prog = commonParams.getTimeToAcuteEvent(DiabetesPatient.this, comp, true);
-						acuteEv = new AcuteEvent(comp, prog);
+						final DiabetesProgressionPair prog = commonParams.getTimeToAcuteEvent(DiabetesPatient.this, comp, true);
+						acuteEv = new AcuteEvent(prog);
 						acuteEventList.add(acuteEv);
 						simul.addEvent(acuteEv);
 					}
@@ -549,11 +565,11 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 			for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
 				final DiabetesProgression progs = commonParams.getProgression(DiabetesPatient.this, comp);
 				for (DiabetesComplicationStage st: progs.getCancelEvents()) {
-					comorbidityEvents[st.ordinal()].cancel();
+					comorbidityEvents.get(st).cancel();
 				}
 				for (DiabetesProgressionPair pr : progs.getNewEvents()) {
 					final ChronicComorbidityEvent ev = new ChronicComorbidityEvent(pr);
-					comorbidityEvents[pr.getState().ordinal()] = ev;
+					comorbidityEvents.put((DiabetesComplicationStage) pr.getComplication(), ev);
 					simul.addEvent(ev);		
 				}
 			}
@@ -590,13 +606,16 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 		@Override
 		public void event() {
 			// Cancel all events that cannot happen now
-			for (int i = 0; i < comorbidityEvents.length; i++) {
-				if (comorbidityEvents[i] != null) {
-					if (comorbidityEvents[i].getTs() >= getTs()) {
-						comorbidityEvents[i].cancel();
-					}
+			final ArrayList<ChronicComorbidityEvent> toRemove = new ArrayList<>();
+			for (final ChronicComorbidityEvent ev : comorbidityEvents.values()) {
+				if (ev.getTs() >= getTs()) {
+					toRemove.add(ev);
 				}
 			}
+			for (final ChronicComorbidityEvent ev : toRemove) {
+				ev.cancel();
+			}
+
 			for (ArrayList<AcuteEvent> acuteEventList : acuteEvents) {
 				int counter = acuteEventList.size();
 				while (counter != 0) {
@@ -616,7 +635,7 @@ public class DiabetesPatient extends VariableStoreSimulationObject implements Ev
 				}
 			}
 			setDead();
-			simul.notifyInfo(new T1DMPatientInfo(simul, DiabetesPatient.this, T1DMPatientInfo.Type.DEATH, this.getTs()));
+			simul.notifyInfo(new DiabetesPatientInfo(simul, DiabetesPatient.this, DiabetesPatientInfo.Type.DEATH, cause, this.getTs()));
 			notifyEnd();
 		}
 	

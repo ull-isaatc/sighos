@@ -13,14 +13,15 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesProgression;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.outcomes.UtilityCalculator.DisutilityCombinationMethod;
-import es.ull.iis.simulation.hta.diabetes.params.AnnualRiskBasedTimeToEventParam;
+import es.ull.iis.simulation.hta.diabetes.params.AgeBasedTimeToEventParam;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.HbA1c1PPComplicationRR;
-import es.ull.iis.simulation.hta.diabetes.params.RRCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderCostParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.diabetes.params.TimeToEventParam;
+import es.ull.iis.simulation.hta.diabetes.params.UniqueEventParam;
 import es.ull.iis.util.Statistics;
+import simkit.random.RandomNumber;
 import simkit.random.RandomVariateFactory;
 
 /**
@@ -28,36 +29,22 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class T2DMNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
+public class T2DMMicadoNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 	public static DiabetesComplicationStage ALB1 = new DiabetesComplicationStage("ALB1", "Microalbuminuria", DiabetesChronicComplications.NPH);
 	public static DiabetesComplicationStage ALB2 = new DiabetesComplicationStage("ALB2", "Macroalbuminuria", DiabetesChronicComplications.NPH);
 	public static DiabetesComplicationStage ESRD = new DiabetesComplicationStage("ESRD", "End-Stage Renal Disease", DiabetesChronicComplications.NPH);
 	public static DiabetesComplicationStage[] STAGES = new DiabetesComplicationStage[] {ALB1, ALB2, ESRD};
 
-//	private static final double[] ADJUST = {0.65, 0.55, 0.5};
-	private static final double[] ADJUST = {1.0, 1.0, 1.0};
-	private static final String STR_SOURCE_ADLER = "Adler et al. 10.1046/j.1523-1755.2003.00712.x";
-	private static final double P_DNC_ALB1 = 0.02; // From Adler et al. 
-	private static final double[] CI_DNC_ALB1 = {0.0185, 0.0215}; // From Adler et al.
+	private static final String STR_SOURCE_MICADO = "Van der Heijden et al. 10.1111/dme.12811";
 	
-	/** Increment of risk of micro or macroalbuminuria associated to 1% increment of HbA1c */
-	private static final double RR_HBA1C = 1 / (1 - 0.37); 
-	private static final double[] BASE_HBA1C = {7.2, 1.8}; // From Adler et al. 
-	private static final String STR_HBA1C = "HbA1c";
+	private static final double[] F_LN_P_DNC_ALB1 = {-7.216588439, 0.410527658};
+	private static final double[] F_LN_P_ALB1_ALB2 = {-11.24333787, 1.00449165};
 
-	private static final double P_DNC_ALB2 = 0.001; // From Adler et al. 10.1046/j.1523-1755.2003.00712.x 
-	private static final double[] CI_DNC_ALB2 = {0.0005, 0.0015}; // From Adler et al. 10.1046/j.1523-1755.2003.00712.x. Adjusted to be symmetric 
-	private static final double P_ALB1_ALB2 = 0.028; // From Adler et al. 10.1046/j.1523-1755.2003.00712.x
-	private static final double[] CI_ALB1_ALB2 = {0.0245, 0.0315}; // From Adler et al. 10.1046/j.1523-1755.2003.00712.x. Adjusted to be symmetric 
-	
-	private static final double P_ALB1_ESRD = 0.003; // From Adler et al. 10.1046/j.1523-1755.2003.00712.x
-	private static final double[] CI_ALB1_ESRD = {0.0015, 0.0045}; // From Adler et al. 10.1046/j.1523-1755.2003.00712.x. Adjusted to be symmetric 
-
-	private static final double P_ALB2_ESRD = 0.023; // From Adler et al. 10.1046/j.1523-1755.2003.00712.x
-	private static final double[] CI_ALB2_ESRD = {0.0155, 0.0305}; // From Adler et al. 10.1046/j.1523-1755.2003.00712.x. Adjusted to be symmetric 
-
-	private static final double P_DNC_ESRD = 0.001; // From Adler et al. 10.1046/j.1523-1755.2003.00712.x
-	private static final double[] CI_DNC_ESRD = {0.0005, 0.0015}; // From Adler et al. 10.1046/j.1523-1755.2003.00712.x. Adjusted to be symmetric 
+	private static final double[][] F_P_ALB2_ESRD = {
+			{30, 0.0136, 0.0034},
+			{55, 0.03075, 0.0077},
+			{Double.MAX_VALUE, 0.0136, 0.0034},
+	};
 	
 	private static final double C_ALB1 = 0.0;
 	private static final double C_ESRD = 34259.48;
@@ -72,13 +59,10 @@ public class T2DMNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 
 	public enum NPHTransitions {
 		HEALTHY_ALB1,
-		HEALTHY_ALB2,
-		ALB1_ESRD,
-		ALB2_ESRD,
 		ALB1_ALB2,
-		HEALTHY_ESRD,
+		ALB2_ESRD,
 	}
-	public T2DMNPHSubmodel() {
+	public T2DMMicadoNPHSubmodel() {
 		super(DiabetesChronicComplications.NPH, EnumSet.of(DiabetesType.T1));
 	}
 
@@ -104,42 +88,6 @@ public class T2DMNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 
 	@Override
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
-		final double[] paramsDNC_ALB1 = Statistics.betaParametersFromNormal(P_DNC_ALB1, Statistics.sdFrom95CI(CI_DNC_ALB1));
-		final double[] paramsALB1_ALB2 = Statistics.betaParametersFromNormal(P_ALB1_ALB2, Statistics.sdFrom95CI(CI_ALB1_ALB2));
-		final double[] paramsDNC_ALB2 = Statistics.betaParametersFromNormal(P_DNC_ALB2, Statistics.sdFrom95CI(CI_DNC_ALB2));
-		final double[] paramsALB1_ESRD = Statistics.betaParametersFromNormal(P_ALB1_ESRD, Statistics.sdFrom95CI(CI_ALB1_ESRD));
-		final double[] paramsALB2_ESRD = Statistics.betaParametersFromNormal(P_ALB2_ESRD, Statistics.sdFrom95CI(CI_ALB2_ESRD));
-		final double[] paramsDNC_ESRD = Statistics.betaParametersFromNormal(P_DNC_ESRD, Statistics.sdFrom95CI(CI_DNC_ESRD));
-		
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ALB1), 
-				"Probability of healthy to microalbuminutia", 
-				STR_SOURCE_ADLER, 
-				P_DNC_ALB1, "BetaVariate", paramsDNC_ALB1[0], paramsDNC_ALB1[1]));
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ALB2), 
-				"Probability of healthy to macroalbuminutia", 
-				STR_SOURCE_ADLER, 
-				P_DNC_ALB2, "BetaVariate", paramsDNC_ALB2[0], paramsDNC_ALB2[1]));
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(ALB1, ALB2), 
-				"Probability of microalbuminuria to macroalbuminuria", 
-				STR_SOURCE_ADLER, 
-				P_ALB1_ALB2, "BetaVariate", paramsALB1_ALB2[0], paramsALB1_ALB2[1]));
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(ALB1, ESRD), 
-				"Probability of microalbuminuria to ESRD", 
-				STR_SOURCE_ADLER, 
-				P_ALB1_ESRD, "BetaVariate", paramsALB1_ESRD[0], paramsALB1_ESRD[1]));
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(ALB2, ESRD), 
-				"Probability of macroalbuminuria to ESRD", 
-				STR_SOURCE_ADLER, 
-				P_ALB2_ESRD, "BetaVariate", paramsALB2_ESRD[0], paramsALB2_ESRD[1]));
-		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, ESRD), 
-				"Probability of healthy to ESRD", 
-				STR_SOURCE_ADLER, 
-				P_DNC_ESRD, "BetaVariate", paramsDNC_ESRD[0], paramsDNC_ESRD[1]));
-
-		secParams.addOtherParam(new SecondOrderParam("BASE_" + STR_HBA1C, 
-				"Base HbA1c", 
-				STR_SOURCE_ADLER, 
-				BASE_HBA1C[0], "NormalVariate", BASE_HBA1C[0], BASE_HBA1C[1]));
 
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_IMR_PREFIX + ALB1.name(), 
 				"Increased mortality risk due to microalbuminuria", 
@@ -171,6 +119,20 @@ public class T2DMNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 
 		addSecondOrderInitProportion(secParams);
 	}
+
+	private class LnFunctionBasedTimeToEventParam extends UniqueEventParam<Long> implements TimeToEventParam {
+		private final double[] fLnP;
+		public LnFunctionBasedTimeToEventParam(RandomNumber rng, int nPatients, double[] fLnP) {
+			super(rng, nPatients, true);
+			this.fLnP = fLnP;
+		}
+
+		@Override
+		public Long getValue(DiabetesPatient pat) {
+			final double p = Math.exp(fLnP[0] + fLnP[1] * pat.getHba1c());
+			return SecondOrderParamsRepository.getAnnualBasedTimeToEvent(pat, p, draw(pat), 1.0);
+		}
+	}
 	
 	public class Instance extends ChronicComplicationSubmodel {
 
@@ -178,24 +140,15 @@ public class T2DMNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 		 * 
 		 */
 		public Instance(SecondOrderParamsRepository secParams) {
-			super(T2DMNPHSubmodel.this);
+			super(T2DMMicadoNPHSubmodel.this);
 			final int nPatients = secParams.getnPatients();
 			
-			final RRCalculator rrToALB1 = new HbA1c1PPComplicationRR(RR_HBA1C, secParams.getOtherParam("BASE_" + STR_HBA1C)); 
-//			final RRCalculator rrToALB1 = SecondOrderParamsRepository.NO_RR; 
-
-			addTime2Event(NPHTransitions.HEALTHY_ALB1.ordinal(), new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
-					nPatients, secParams.getProbability(ALB1) * ADJUST[0], rrToALB1));
-			addTime2Event(NPHTransitions.ALB1_ALB2.ordinal(), new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
-					nPatients, secParams.getProbability(ALB1, ALB2) * ADJUST[1], rrToALB1));
-			addTime2Event(NPHTransitions.HEALTHY_ALB2.ordinal(), new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
-					nPatients, secParams.getProbability(ALB2) * ADJUST[1], rrToALB1));
-			addTime2Event(NPHTransitions.HEALTHY_ESRD.ordinal(), new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
-					nPatients, secParams.getProbability(ESRD) * ADJUST[2], SecondOrderParamsRepository.NO_RR));
-			addTime2Event(NPHTransitions.ALB1_ESRD.ordinal(), new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
-					nPatients, secParams.getProbability(ALB1, ESRD) * ADJUST[2], SecondOrderParamsRepository.NO_RR));
-			addTime2Event(NPHTransitions.ALB2_ESRD.ordinal(), new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
-					nPatients, secParams.getProbability(ALB2, ESRD) * ADJUST[2], SecondOrderParamsRepository.NO_RR));
+			addTime2Event(NPHTransitions.HEALTHY_ALB1.ordinal(), new LnFunctionBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
+					nPatients, F_LN_P_DNC_ALB1));
+			addTime2Event(NPHTransitions.ALB1_ALB2.ordinal(), new LnFunctionBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
+					nPatients, F_LN_P_ALB1_ALB2));
+			addTime2Event(NPHTransitions.ALB2_ESRD.ordinal(), new AgeBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
+					nPatients, F_P_ALB2_ESRD, SecondOrderParamsRepository.NO_RR));
 					
 			setStageInstance(ALB1, secParams);
 			setStageInstance(ESRD, secParams);
@@ -207,6 +160,7 @@ public class T2DMNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 					secParams.getIMR(ALB2), secParams.getnPatients());
 		}
 
+		
 		@Override
 		public DiabetesProgression getProgression(DiabetesPatient pat) {
 			final DiabetesProgression prog = new DiabetesProgression();
@@ -227,22 +181,11 @@ public class T2DMNPHSubmodel extends SecondOrderChronicComplicationSubmodel {
 					timeToESRD = getTimeToEvent(pat, NPHTransitions.ALB2_ESRD.ordinal(), limit);
 				}
 				else if (state.contains(ALB1)) {
-					// RR from ALB1 to ESRD
-					timeToESRD = getTimeToEvent(pat, NPHTransitions.ALB1_ESRD.ordinal(), limit);
-					if (limit > timeToESRD)
-						limit = timeToESRD;
 					timeToALB2 = getTimeToEvent(pat, NPHTransitions.ALB1_ALB2.ordinal(), limit);
 				}
 				else {
-					// RR from healthy to ESRD
-					timeToESRD = getTimeToEvent(pat, NPHTransitions.HEALTHY_ESRD.ordinal(), limit);
-					if (limit > timeToESRD)
-						limit = timeToESRD;
 					if (limit > previousTimeToALB2)
 						limit = previousTimeToALB2;
-					timeToALB2 = getTimeToEvent(pat, NPHTransitions.HEALTHY_ALB2.ordinal(), limit);
-					if (limit > timeToALB2)
-						limit = timeToALB2;
 					if (limit > previousTimeToALB1)
 						limit = previousTimeToALB1;
 					// RR from healthy to ALB1 (must be previous to ESRD and a (potential) formerly scheduled ALB1 event)

@@ -7,6 +7,7 @@ import java.util.EnumSet;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
+import es.ull.iis.simulation.hta.diabetes.DiabetesProgressionPair;
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 
 /**
@@ -36,12 +37,12 @@ public abstract class SecondOrderAcuteComplicationSubmodel extends SecondOrderCo
 	public class DisabledAcuteComplicationInstance extends AcuteComplicationSubmodel {
 
 		public DisabledAcuteComplicationInstance() {
-			super(null, null);
+			super(type, null, null);
 		}
-
+		
 		@Override
-		public Progression getValue(DiabetesPatient pat) {
-			return new Progression(Long.MAX_VALUE, false);
+		public DiabetesProgressionPair getProgression(DiabetesPatient pat) {
+			return new DiabetesProgressionPair(type, Long.MAX_VALUE);
 		}
 		
 		@Override

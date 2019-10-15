@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
-import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
+import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.diabetes.params.Discount;
@@ -38,8 +38,8 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 		this.nPatients = nPatients;
 		this.values = new double[nPatients];
 		this.lastTs = new long[nPatients];
-		addGenerated(T1DMPatientInfo.class);
-		addEntrance(T1DMPatientInfo.class);
+		addGenerated(DiabetesPatientInfo.class);
+		addEntrance(DiabetesPatientInfo.class);
 		addEntrance(SimulationStartStopInfo.class);
 	}
 
@@ -67,8 +67,8 @@ public class QALYListener extends Listener implements StructuredOutputListener {
 				}
 			}
 		}		
-		if (info instanceof T1DMPatientInfo) {
-			final T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
+		if (info instanceof DiabetesPatientInfo) {
+			final DiabetesPatientInfo pInfo = (DiabetesPatientInfo) info;
 			final DiabetesPatient pat = pInfo.getPatient();
 			final long ts = pInfo.getTs();
 			final TimeUnit simUnit = pat.getSimulation().getTimeUnit();

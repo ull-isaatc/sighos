@@ -147,7 +147,7 @@ public class T2DMPrositSevereHypoglycemiaEvent extends SecondOrderAcuteComplicat
 		 * 
 		 */
 		public Instance(SecondOrderParamsRepository secParams, double prob) {
-			super(new AnnualRiskBasedTimeToMultipleEventParam(
+			super(DiabetesAcuteComplications.SHE, new AnnualRiskBasedTimeToMultipleEventParam(
 					SecondOrderParamsRepository.getRNG_FIRST_ORDER(), 
 					secParams.getnPatients(), 
 					prob,

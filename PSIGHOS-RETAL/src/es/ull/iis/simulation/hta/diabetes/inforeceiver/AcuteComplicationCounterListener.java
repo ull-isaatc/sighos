@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.diabetes.inforeceiver;
 import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
-import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
+import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 
@@ -30,8 +30,8 @@ public class AcuteComplicationCounterListener extends Listener implements Struct
 		super("Counter of acute complications");
 		nComplications = new int[DiabetesAcuteComplications.values().length][nPatients+1];
 		this.nPatients = nPatients;
-		addGenerated(T1DMPatientInfo.class);
-		addEntrance(T1DMPatientInfo.class);
+		addGenerated(DiabetesPatientInfo.class);
+		addEntrance(DiabetesPatientInfo.class);
 	}
 
 	/* (non-Javadoc)
@@ -39,8 +39,8 @@ public class AcuteComplicationCounterListener extends Listener implements Struct
 	 */
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		final T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
-		if (T1DMPatientInfo.Type.ACUTE_EVENT.equals(pInfo.getType())) {
+		final DiabetesPatientInfo pInfo = (DiabetesPatientInfo) info;
+		if (DiabetesPatientInfo.Type.ACUTE_EVENT.equals(pInfo.getType())) {
 			nComplications[pInfo.getAcuteEvent().ordinal()][pInfo.getPatient().getIdentifier()]++;
 			nComplications[pInfo.getAcuteEvent().ordinal()][nPatients]++;
 		}

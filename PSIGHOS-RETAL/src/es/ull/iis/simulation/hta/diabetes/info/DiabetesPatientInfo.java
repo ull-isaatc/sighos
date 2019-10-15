@@ -13,12 +13,12 @@ import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.Simulation;
 
 /**
- * Simulation piece of information related to the evolution of a T1DM patient. Patient {@link DiscreteEvent events} that represent the
+ * Simulation piece of information related to the evolution of a diabetes patient. Patient {@link DiscreteEvent events} that represent the
  * progression of the disease should emit these pieces of information to be collected by the corresponding {@link InfoReceiver}
  * @author Iván Castilla Rodríguez
  *
  */
-public class T1DMPatientInfo extends AsynchronousInfo {
+public class DiabetesPatientInfo extends AsynchronousInfo {
 	/** Possible types of pieces of information */
 	public enum Type {
 			START ("PATIENT STARTS"),
@@ -54,7 +54,7 @@ public class T1DMPatientInfo extends AsynchronousInfo {
 	 * @param acuteEvent Acute event (in case the simulation is reporting an acute-event-related piece of information)
 	 * @param ts Simulation time when this piece of information occurs
 	 */
-	private T1DMPatientInfo(Simulation simul, DiabetesPatient patient, Type type, Named complication, long ts) {
+	public DiabetesPatientInfo(Simulation simul, DiabetesPatient patient, Type type, Named complication, long ts) {
 		super(simul, ts);
 		this.patient = patient;
 		this.type = type;
@@ -68,7 +68,7 @@ public class T1DMPatientInfo extends AsynchronousInfo {
 	 * @param type Type of piece of information
 	 * @param ts Simulation time when this piece of information occurs
 	 */
-	public T1DMPatientInfo(Simulation simul, DiabetesPatient patient, Type type, long ts) {
+	public DiabetesPatientInfo(Simulation simul, DiabetesPatient patient, Type type, long ts) {
 		this(simul, patient, type, null, ts);
 	}
 
@@ -79,7 +79,7 @@ public class T1DMPatientInfo extends AsynchronousInfo {
 	 * @param complication Chronic complication stage (in case the simulation is reporting a complication-related piece of information)
 	 * @param ts Simulation time when this piece of information occurs
 	 */
-	public T1DMPatientInfo(Simulation simul, DiabetesPatient patient, DiabetesComplicationStage complication, long ts) {
+	public DiabetesPatientInfo(Simulation simul, DiabetesPatient patient, DiabetesComplicationStage complication, long ts) {
 		this(simul, patient, Type.COMPLICATION, complication, ts);
 	}
 
@@ -90,7 +90,7 @@ public class T1DMPatientInfo extends AsynchronousInfo {
 	 * @param acuteEvent Acute event (in case the simulation is reporting an acute-event-related piece of information)
 	 * @param ts Simulation time when this piece of information occurs
 	 */
-	public T1DMPatientInfo(Simulation simul, DiabetesPatient patient, DiabetesAcuteComplications acuteEvent, long ts) {
+	public DiabetesPatientInfo(Simulation simul, DiabetesPatient patient, DiabetesAcuteComplications acuteEvent, long ts) {
 		this(simul, patient, Type.ACUTE_EVENT, acuteEvent, ts);		
 	}
 
@@ -132,6 +132,9 @@ public class T1DMPatientInfo extends AsynchronousInfo {
 		return null;
 	}
 
+	public Named getCauseOfDeath() {
+		return complication;
+	}
 	public String toString() {
 		String description = type.getDescription();
 		switch (type) {

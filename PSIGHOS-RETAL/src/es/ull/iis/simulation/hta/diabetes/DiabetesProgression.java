@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 
 /**
- * A change in the progression of T1DM. Includes new events related to complications and the cancellation of no longer valid events. 
+ * A change in the progression of diabetes. Includes new events related to complications and the cancellation of no longer valid events. 
  * @author Iván Castilla Rodríguez
  *
  */

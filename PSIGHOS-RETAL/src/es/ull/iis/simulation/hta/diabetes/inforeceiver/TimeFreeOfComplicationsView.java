@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
-import es.ull.iis.simulation.hta.diabetes.info.T1DMPatientInfo;
+import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
 import es.ull.iis.simulation.info.SimulationInfo;
@@ -34,8 +34,8 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		timeToComplications = new double[nInterventions][availableHealthStates.size()][nPatients];
 		this.printFirstOrderVariance = printFirstOrderVariance;
 		this.nInterventions = nInterventions;
-		addGenerated(T1DMPatientInfo.class);
-		addEntrance(T1DMPatientInfo.class);
+		addGenerated(DiabetesPatientInfo.class);
+		addEntrance(DiabetesPatientInfo.class);
 	}
 	
 	public static String getStrHeader(boolean printFirstOrderVariance, ArrayList<SecondOrderDiabetesIntervention> interventions, ArrayList<DiabetesComplicationStage> availableHealthStates) {
@@ -89,10 +89,10 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	
 	@Override
 	public void infoEmited(SimulationInfo info) {
-		final T1DMPatientInfo pInfo = (T1DMPatientInfo) info;
+		final DiabetesPatientInfo pInfo = (DiabetesPatientInfo) info;
 		final DiabetesPatient pat = pInfo.getPatient();
 		final int nIntervention = pat.getnIntervention(); 
-		if (pInfo.getType() == T1DMPatientInfo.Type.DEATH) {
+		if (pInfo.getType() == DiabetesPatientInfo.Type.DEATH) {
 			final long deathTs = pInfo.getTs();
 			// Check all the complications
 			for (DiabetesComplicationStage comp : availableHealthStates) {

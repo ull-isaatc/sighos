@@ -13,6 +13,7 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesProgression;
+import es.ull.iis.simulation.hta.diabetes.DiabetesProgressionPair;
 import es.ull.iis.simulation.hta.diabetes.Named;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention.DiabetesIntervention;
@@ -763,10 +764,10 @@ public abstract class SecondOrderParamsRepository {
 		 * @param cancelLast If true, the new event substitutes the former one
 		 * @return the time that a patient waits until he/she suffers the specified acute complication
 		 */
-		public AcuteComplicationSubmodel.Progression getTimeToAcuteEvent(DiabetesPatient pat, DiabetesAcuteComplications complication, boolean cancelLast) {
+		public DiabetesProgressionPair getTimeToAcuteEvent(DiabetesPatient pat, DiabetesAcuteComplications complication, boolean cancelLast) {
 			if (cancelLast)
 				acuteCompSubmodels[complication.ordinal()].cancelLast(pat);
-			return acuteCompSubmodels[complication.ordinal()].getValue(pat);
+			return acuteCompSubmodels[complication.ordinal()].getProgression(pat);
 		}
 
 		/**
