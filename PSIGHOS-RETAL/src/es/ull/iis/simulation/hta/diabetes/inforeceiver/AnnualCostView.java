@@ -12,13 +12,12 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
 import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
 import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.ExperimentListener.InnerListener;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.diabetes.params.Discount;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -29,7 +28,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author Iván Castilla Rodríguez
  *
  */
-public class AnnualCostView implements ExperimentListener<AnnualCostView.InnerListenerInstance> {
+public class AnnualCostView implements ExperimentListener {
 	private final int nExperiments;
 	private final SecondOrderParamsRepository secParams;
 	private final ArrayList<SecondOrderDiabetesIntervention> interventions;

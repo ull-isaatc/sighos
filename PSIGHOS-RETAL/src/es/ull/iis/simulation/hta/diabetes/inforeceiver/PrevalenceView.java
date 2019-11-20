@@ -20,7 +20,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  *
  */
 public class PrevalenceView extends Listener {
-	private final int [] nPatients;
+	private final int [] nAlivePatients;
 	private final int [][] nComplications;
 	private final int [] nDeaths;
 	private final double[][] ageIntervals;
@@ -33,7 +33,7 @@ public class PrevalenceView extends Listener {
 	public PrevalenceView(TimeUnit simUnit, double[][] ageIntervals, ArrayList<DiabetesComplicationStage> availableStates) {
 		super("Standard patient viewer");
 		this.availableStates = availableStates;
-		nPatients = new int[ageIntervals.length+1];
+		nAlivePatients = new int[ageIntervals.length+1];
 		nComplications = new int[availableStates.size()][ageIntervals.length+1];
 		nDeaths = new int[ageIntervals.length+1];
 		this.ageIntervals = ageIntervals;
@@ -65,13 +65,13 @@ public class PrevalenceView extends Listener {
 					out.print("\t" + comp.name());
 				}
 				out.println("\tDeaths");
-				out.print(ageIntervals[0][0] + "\t" + ageIntervals[ageIntervals.length - 1][1] + "\t" + nPatients[ageIntervals.length]);
+				out.print(ageIntervals[0][0] + "\t" + ageIntervals[ageIntervals.length - 1][1] + "\t" + nAlivePatients[ageIntervals.length]);
 				for (int[] values : nComplications) {
 					out.print("\t" + values[ageIntervals.length]);
 				}
 				out.println("\t" + nDeaths[ageIntervals.length]);
 				for (int i = 0; i < ageIntervals.length; i++) {
-					out.print(ageIntervals[i][0] + "\t" + ageIntervals[i][1] + "\t" + nPatients[i]);
+					out.print(ageIntervals[i][0] + "\t" + ageIntervals[i][1] + "\t" + nAlivePatients[i]);
 					for (int[] values : nComplications) {
 						out.print("\t" + values[i]);
 					}
@@ -90,10 +90,10 @@ public class PrevalenceView extends Listener {
 					// Add the patient to the corresponding groups when she/he's alive
 					for (int i = 0; i < ageIntervals.length; i++) {
 						if (ageAtDeath > ageIntervals[i][0]) {
-							nPatients[i]++;
+							nAlivePatients[i]++;
 						}
 					}
-					nPatients[ageIntervals.length]++;
+					nAlivePatients[ageIntervals.length]++;
 					// Add the patient to the corresponding group when she/he died
 					int j = 0;
 					while ((j < ageIntervals.length) && (ageAtDeath > ageIntervals[j][0])) {

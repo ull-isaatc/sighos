@@ -12,8 +12,8 @@ import es.ull.iis.simulation.hta.diabetes.info.DiabetesPatientInfo;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -23,7 +23,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  * @author Iván Castilla Rodríguez
  *
  */
-public class BudgetImpactView implements ExperimentListener<BudgetImpactView.InnerInstanceView> {
+public class BudgetImpactView implements ExperimentListener {
 	private final int nPatients;
 	private final int nYears;
 	private final SecondOrderParamsRepository secParams;

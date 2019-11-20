@@ -26,12 +26,10 @@ import es.ull.iis.simulation.hta.diabetes.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.BudgetImpactView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.CostListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.DiabetesPatientInfoView;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.EpidemiologicView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.ExperimentListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.HbA1cListener;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.IncidenceByGroupAgeView;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.IncidenceView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.LYListener;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.PrevalenceView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.QALYListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.TimeFreeOfComplicationsView;
 import es.ull.iis.simulation.hta.diabetes.interventions.SecondOrderDiabetesIntervention;
@@ -52,16 +50,88 @@ import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicati
  */
 public class DiabetesMain {
 	private enum Outputs {
-		INCIDENCE, 				// printing incidence of complications by age group
-		PREVALENCE, 			// printing prevalence of complications by age group
-		CUM_INCIDENCE, 			// printing cumulative incidence of complications by time from start
-		ABS_INCIDENCE, 			// printing absolute incidence of complications by time from start
-		ABS_PREVALENCE, 		// printing absolute prevalence of complications by time from start
-		ABS_CUM_INCIDENCE, 		// printing absolute cumulative incidence of complications by time from start
 		INDIVIDUAL_OUTCOMES, 	// printing the outcomes per patient
 		BREAKDOWN_COST,			// printing breakdown of costs
 		BI 						// printing the budget impact
 	};
+	private static class EpidemiologicOutputFormat {
+		private final EpidemiologicView.Type type;
+		private final boolean absolute;
+		private final boolean byAge;
+		private final int interval;
+		/**
+		 * @param type
+		 * @param absolute
+		 * @param byAge
+		 * @param interval
+		 */
+		private EpidemiologicOutputFormat(EpidemiologicView.Type type, boolean absolute, boolean byAge, int interval) {
+			this.type = type;
+			this.absolute = absolute;
+			this.byAge = byAge;
+			this.interval = interval;
+		}
+		
+		public static EpidemiologicOutputFormat build(String format) {
+			EpidemiologicView.Type type;
+			switch(format.charAt(0)) {
+			case 'i': type = EpidemiologicView.Type.INCIDENCE; break;
+			case 'p': type = EpidemiologicView.Type.PREVALENCE; break; 
+			case 'c': type = EpidemiologicView.Type.CUMUL_INCIDENCE; break;
+			default: return null;
+			}
+			boolean absolute = false;
+			if (format.length() > 1) {
+				switch(format.charAt(1)) {
+				case 'a': absolute = true; break; 
+				case 'r': absolute = false; break;
+				default: return null;
+				}
+			}
+			boolean byAge = false;
+			if (format.length() > 2) {
+				switch(format.charAt(2)) {
+				case 'a': byAge = true; break;
+				case 't': byAge = false; break;
+				default: return null;
+				}
+			}
+			int interval = 1;
+			if (format.length() > 3) {
+				try {
+					interval = Integer.parseInt(format.substring(3));
+				} catch(NumberFormatException e) {
+					return null;
+				}
+			}
+			return new EpidemiologicOutputFormat(type, absolute, byAge, interval);
+		}
+		/**
+		 * @return the type
+		 */
+		public EpidemiologicView.Type getType() {
+			return type;
+		}
+		/**
+		 * @return the absolute
+		 */
+		public boolean isAbsolute() {
+			return absolute;
+		}
+		/**
+		 * @return the byAge
+		 */
+		public boolean isByAge() {
+			return byAge;
+		}
+		/**
+		 * @return the interval
+		 */
+		public int getInterval() {
+			return interval;
+		}
+	}
+	
 	private final EnumSet<Outputs> printOutputs;
 	/** How many replications have to be run to show a new progression percentage message */
 	private static final int N_PROGRESS = 20;
@@ -82,11 +152,11 @@ public class DiabetesMain {
 	private final boolean quiet;
 	/** Time horizon for the simulation */
 	private final int timeHorizon;
-	private final ArrayList<ExperimentListener<?>> expListeners;
-	private final ArrayList<ExperimentListener<?>> baseCaseExpListeners;
+	private final ArrayList<ExperimentListener> expListeners;
+	private final ArrayList<ExperimentListener> baseCaseExpListeners;
 	
 	
-	public DiabetesMain(PrintWriter out, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs) {
+	public DiabetesMain(PrintWriter out, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs, final ArrayList<EpidemiologicOutputFormat> toPrint) {
 		super();
 		this.printOutputs = printOutputs;
 		this.timeHorizon = timeHorizon;
@@ -110,36 +180,13 @@ public class DiabetesMain {
 			expListeners.add(new AnnualCostView(nRuns, secParams, discountCost));
 			baseCaseExpListeners.add(new AnnualCostView(1, secParams, discountCost));
 		}
-		if (printOutputs.contains(Outputs.CUM_INCIDENCE)) {
-			expListeners.add(new IncidenceView(nRuns, secParams, timeHorizon, IncidenceView.Type.CUMUL_INCIDENCE, false));
-			baseCaseExpListeners.add(new IncidenceView(1, secParams, timeHorizon, IncidenceView.Type.CUMUL_INCIDENCE, false));
-		}
-		if (printOutputs.contains(Outputs.ABS_INCIDENCE)) {
-			expListeners.add(new IncidenceView(nRuns, secParams, timeHorizon, IncidenceView.Type.INCIDENCE, true));
-			baseCaseExpListeners.add(new IncidenceView(1, secParams, timeHorizon, IncidenceView.Type.INCIDENCE, true));
-		}
-		if (printOutputs.contains(Outputs.ABS_PREVALENCE)) {
-			expListeners.add(new IncidenceView(nRuns, secParams, timeHorizon, IncidenceView.Type.PREVALENCE, true));
-			baseCaseExpListeners.add(new IncidenceView(1, secParams, timeHorizon, IncidenceView.Type.PREVALENCE, true));
-		}
-		if (printOutputs.contains(Outputs.ABS_CUM_INCIDENCE)) {
-			expListeners.add(new IncidenceView(nRuns, secParams, timeHorizon, IncidenceView.Type.CUMUL_INCIDENCE, true));
-			baseCaseExpListeners.add(new IncidenceView(1, secParams, timeHorizon, IncidenceView.Type.CUMUL_INCIDENCE, true));
-		}
-		if (printOutputs.contains(Outputs.INCIDENCE)) {
-			expListeners.add(new IncidenceByGroupAgeView(nRuns, secParams, 1, false));
-			baseCaseExpListeners.add(new IncidenceByGroupAgeView(1, secParams, 1, false));
-		}
 		if (printOutputs.contains(Outputs.BI)) {
 			baseCaseExpListeners.add(new BudgetImpactView(secParams, 10));
 		}
-	}
-
-	private void addListeners(DiabetesSimulation simul) {
-		if (printOutputs.contains(Outputs.PREVALENCE))
-			simul.addInfoReceiver(new PrevalenceView(simul.getTimeUnit(), 
-					PrevalenceView.buildAgesInterval(secParams.getMinAge(), BasicConfigParams.DEF_MAX_AGE, 1, true),
-					secParams.getRegisteredComplicationStages()));
+		for (final EpidemiologicOutputFormat format : toPrint) {
+			expListeners.add(new EpidemiologicView(nRuns, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
+			baseCaseExpListeners.add(new EpidemiologicView(1, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
+		}
 	}
 	
 	private String getStrHeader() {
@@ -194,7 +241,7 @@ public class DiabetesMain {
 			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), discountEffect, nPatients);
 			acuteListeners[i] = new AcuteComplicationCounterListener(nPatients);
 		}
-		final DiabetesIntervention[] intInstances = secParams.getInterventions();
+		final DiabetesIntervention[] intInstances = common.getInterventions();
 		DiabetesSimulation simul = new DiabetesSimulation(id, intInstances[0], nPatients, common, secParams.getPopulation(), timeHorizon);
 		simul.addInfoReceiver(hba1cListeners[0]);
 		simul.addInfoReceiver(costListeners[0]);
@@ -204,14 +251,13 @@ public class DiabetesMain {
 		simul.addInfoReceiver(timeFreeListener);
 		if (patientListener != null)
 			simul.addInfoReceiver(patientListener);
-		addListeners(simul);
 		if (baseCase) {
-			for (ExperimentListener<?> listener : baseCaseExpListeners) {
+			for (ExperimentListener listener : baseCaseExpListeners) {
 				listener.addListener(simul);
 			}			
 		}
 		else {
-			for (ExperimentListener<?> listener : expListeners) {
+			for (ExperimentListener listener : expListeners) {
 				listener.addListener(simul);
 			}
 		}
@@ -226,14 +272,13 @@ public class DiabetesMain {
 			simul.addInfoReceiver(timeFreeListener);
 			if (patientListener != null)
 				simul.addInfoReceiver(patientListener);
-			addListeners(simul);
 			if (baseCase) {
-				for (ExperimentListener<?> listener : baseCaseExpListeners) {
+				for (ExperimentListener listener : baseCaseExpListeners) {
 					listener.addListener(simul);
 				}			
 			}
 			else {
-				for (ExperimentListener<?> listener : expListeners) {
+				for (ExperimentListener listener : expListeners) {
 					listener.addListener(simul);
 				}
 			}
@@ -266,7 +311,7 @@ public class DiabetesMain {
 			out.println(BasicConfigParams.printOptions());
 		out.println(getStrHeader());
 		simulateInterventions(0, true);
-		for (ExperimentListener<?> listener : baseCaseExpListeners) {
+		for (ExperimentListener listener : baseCaseExpListeners) {
 			out.println(listener);
 		}		
 		progress.print();
@@ -291,7 +336,7 @@ public class DiabetesMain {
 			else {
 				new ProblemExecutor(out, 1, 1).run();
 			}
-			for (ExperimentListener<?> listener : expListeners) {
+			for (ExperimentListener listener : expListeners) {
 				out.println(listener);
 			}		
 		}
@@ -355,6 +400,9 @@ public class DiabetesMain {
 	        	case 8:
 	        		secParams = new AdvanceSecondOrderParams(args1.nPatients);
 	        		break;
+	        	case 9:
+	        		secParams = new UncontrolledMonitoSecondOrderParams(args1.nPatients);
+	        		break;
 	        	default:
 	        		secParams = new UnconsciousSecondOrderParams(args1.nPatients);
 	        		break;
@@ -386,18 +434,6 @@ public class DiabetesMain {
 	    	if (validity == null) {
 		    	final int timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : args1.timeHorizon;
 	    		final EnumSet<Outputs> printOutputs = EnumSet.noneOf(Outputs.class);
-	    		if (args1.prevalence)
-	    			printOutputs.add(Outputs.PREVALENCE);
-	    		if (args1.incidence)
-	    			printOutputs.add(Outputs.INCIDENCE);
-	    		if (args1.cum)
-	    			printOutputs.add(Outputs.CUM_INCIDENCE);
-	    		if (args1.absPrevalence)
-	    			printOutputs.add(Outputs.ABS_PREVALENCE);
-	    		if (args1.absIncidence)
-	    			printOutputs.add(Outputs.ABS_INCIDENCE);
-	    		if (args1.absCum)
-	    			printOutputs.add(Outputs.ABS_CUM_INCIDENCE);
 	    		if (args1.bi)
 	    			printOutputs.add(Outputs.BI);
 	    		if (args1.individualOutcomes)
@@ -434,7 +470,13 @@ public class DiabetesMain {
 	    			discountCost = (valueCost == 0.0) ? new ZeroDiscount() : new StdDiscount(valueCost);
 	    			discountEffect = (valueEffect == 0.0) ? new ZeroDiscount() : new StdDiscount(valueEffect);
 	    		}
-		        final DiabetesMain experiment = new DiabetesMain(out, secParams, args1.nRuns, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs);
+	    		final ArrayList<EpidemiologicOutputFormat> formats = new ArrayList<>();
+	    		for (final String format : args1.epidem) {
+	    			final EpidemiologicOutputFormat f = EpidemiologicOutputFormat.build(format);
+	    			if (f != null)
+	    				formats.add(f);
+	    		}
+		        final DiabetesMain experiment = new DiabetesMain(out, secParams, args1.nRuns, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs, formats);
 		        experiment.run();
 	    	}
 	    	else {
@@ -462,25 +504,20 @@ public class DiabetesMain {
 		private int nRuns = BasicConfigParams.N_RUNS;
 		@Parameter(names ={"--horizon", "-h"}, description = "Time horizon for the simulation (years)", order = 3)
 		private int timeHorizon = -1;
-		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (1: T1DM unconscious, 2: T1DM uncontrolled, 3: Canada, 4: DCCT, 5: Ly, 6: SMILE, 7: UKPDS, 8: Advance)", order = 8)
+		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (1: T1DM unconscious, 2: T1DM uncontrolled, 3: Canada, 4: DCCT, 5: Ly, 6: SMILE, 7: UKPDS, 8: Advance, 9: GOLD+DIAMOND)", order = 8)
 		private int population = 1;
 		@Parameter(names = {"--discount", "-dr"}, variableArity = true, 
 				description = "The discount rate to be applied. If more than one value is provided, the first one is used for costs, and the second for effects. Default value is " + BasicConfigParams.DEF_DISCOUNT_RATE, order = 7)
 		public List<Double> discount = new ArrayList<>();
 		@Parameter(names ={"--single_patient_output", "-ps"}, description = "Enables printing the specified patient's output", order = 4)
 		private int singlePatientOutput = -1;
-		@Parameter(names ={"--prevalence", "-pp"}, description = "Enables printing prevalence of complications by age group ", order = 9)
-		private boolean prevalence = false;
-		@Parameter(names ={"--incidence", "-pi"}, description = "Enables printing incidence of complications by age group ", order = 9)
-		private boolean incidence = false;
-		@Parameter(names ={"--cumincidence", "-pc"}, description = "Enables printing cummulated incidence of complications by time from start", order = 9)
-		private boolean cum = false;
-		@Parameter(names ={"--absprevalence", "-ppa"}, description = "Enables printing prevalence of complications by time from start (absolute numbers)", order = 9)
-		private boolean absPrevalence = false;
-		@Parameter(names ={"--absincidence", "-pia"}, description = "Enables printing incidence of complications by time from start (absolute numbers)", order = 9)
-		private boolean absIncidence = false;
-		@Parameter(names ={"--abscumincidence", "-pca"}, description = "Enables printing cummulated incidence of complications by time from start (absolute numbers)", order = 9)
-		private boolean absCum = false;
+		@Parameter(names ={"--epidem", "-ep"}, variableArity = true, description = "Enables printing epidemiologic results. Can receive several \"orders\". Each order consists of\r\n" +
+		 "\t- The type of info to print {i: incidence, p:prevalence, c:cumulative incidence}\r" + 
+		 "\t- An optional argument of whether to print absolute ('a') or relative ('r') results (Default: relative)\r" +
+		 "\t- An optional argument of whether to print information by age ('a') or by time from start ('t') results (Default: time from start)\r" +
+		 "\t- An optional number that indicates interval size (in years) (Default: 1)", order = 9)
+		private List<String> epidem = new ArrayList<>();
+		
 		@Parameter(names ={"--outcomes", "-po"}, description = "Enables printing individual outcomes", order = 9)
 		private boolean individualOutcomes = false;
 		@Parameter(names ={"--costs", "-pbc"}, description = "Enables printing breakdown of costs", order = 9)

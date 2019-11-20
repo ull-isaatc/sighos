@@ -247,10 +247,12 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 					new AnnualRiskBasedTimeToEventParam(rng, nPatients, 
 					secParams.getProbability(DiabetesChronicComplications.RET, DiabetesChronicComplications.CHD), rrToCHD));
 
-			setStageInstance(ANGINA, secParams);
-			setStageInstance(STROKE, secParams);
-			setStageInstance(MI, secParams);
-			setStageInstance(HF, secParams);
+			final double imr = secParams.getIMR(DiabetesChronicComplications.CHD);
+			for (DiabetesComplicationStage comp : CHDSubstates) {
+				setStageInstance(comp, secParams.getDisutilityForChronicComplication(comp), 
+						secParams.getCostsForChronicComplication(comp),
+						secParams.getInitProbParam(comp), imr, nPatients);				
+			}
 			
 			pDeathMI = new double[] {secParams.getOtherParam(STR_DEATH_MI_MAN), secParams.getOtherParam(STR_DEATH_MI_WOMAN)};
 			pDeathStroke = secParams.getOtherParam(STR_DEATH_STROKE);

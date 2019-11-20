@@ -95,7 +95,8 @@ public abstract class SecondOrderParamsRepository {
 	final protected SecondOrderAcuteComplicationSubmodel[] registeredAcuteComplication;
 	/** The collection of interventions */
 	final protected ArrayList<SecondOrderDiabetesIntervention> registeredInterventions;
-	/** True if base case parameters (expected values) should be used. False for second order simulations */
+	/** True if base case parameters (expected values) should be used. False for second order simulations. WARNING: This parameter is not protected against concurrent modifications; if
+	 * base case and not base case simulations are launched in parallel, it may fail */
 	protected boolean baseCase = true;
 	/** Number of patients that should be generated */
 	final protected int nPatients;
@@ -526,7 +527,7 @@ public abstract class SecondOrderParamsRepository {
 	 * Returns the interventions to be compared within the simulation
 	 * @return The interventions to be compared within the simulation
 	 */
-	public final DiabetesIntervention[] getInterventions() {
+	private final DiabetesIntervention[] getInterventions() {
 		final DiabetesIntervention[] interventions = new DiabetesIntervention[registeredInterventions.size()];
 		for (int i = 0; i < registeredInterventions.size(); i++) {
 			interventions[i] = registeredInterventions.get(i).getInstance(i, this);
@@ -678,9 +679,14 @@ public abstract class SecondOrderParamsRepository {
 		return str.toString();
 	}
 
+	/**
+	 * Returns an instance of the repository that will be shared among the simulations for the different interventions.
+	 * @return an instance of the repository that will be shared among the simulations for the different interventions.
+	 */
 	public RepositoryInstance getInstance() {
 		return new RepositoryInstance();
 	}
+	
 	/**
 	 * A repository to handle the simulation values of second order parameters. At creation, draws a value for each second-order
 	 * parameter, and then stores the value to be used during the simulation.
@@ -697,7 +703,8 @@ public abstract class SecondOrderParamsRepository {
 		private final AcuteComplicationSubmodel[] acuteCompSubmodels;
 		/** Death submodel */
 		private final DeathSubmodel deathSubmodel; 
-		
+		/** Interventions being assessed */
+		private final DiabetesIntervention[] interventions;
 		// FIXME: Add first order variation to these parameters
 		/** Cost of a year with no complications */
 		private final double cDNC;
@@ -712,6 +719,7 @@ public abstract class SecondOrderParamsRepository {
 			compSubmodels = SecondOrderParamsRepository.this.getComplicationSubmodelInstances();
 			acuteCompSubmodels = SecondOrderParamsRepository.this.getAcuteComplicationSubmodelInstances();
 			deathSubmodel = SecondOrderParamsRepository.this.getDeathSubmodel();
+			interventions = SecondOrderParamsRepository.this.getInterventions();
 
 			cDNC = SecondOrderParamsRepository.this.getNoComplicationAnnualCost();
 			duDNC = SecondOrderParamsRepository.this.getNoComplicationDisutility();
@@ -741,6 +749,14 @@ public abstract class SecondOrderParamsRepository {
 			return acuteCompSubmodels;
 		}
 		
+		/**
+		 * Returns the interventions being assessed
+		 * @return the interventions
+		 */
+		public DiabetesIntervention[] getInterventions() {
+			return interventions;
+		}
+
 		/**
 		 * Returns the annual cost of a patient with no complications
 		 * @return the annual cost of a patient with no complications
@@ -776,7 +792,7 @@ public abstract class SecondOrderParamsRepository {
 		 * @return the chronic complications that a patient suffers at the start of the simulation, in case there is any
 		 */
 		public TreeSet<DiabetesComplicationStage> getInitialState(DiabetesPatient pat) {
-			TreeSet<DiabetesComplicationStage> initial = new TreeSet<>();
+			final TreeSet<DiabetesComplicationStage> initial = new TreeSet<>();
 			for (ChronicComplicationSubmodel submodel : compSubmodels) {
 				initial.addAll(submodel.getInitialStage(pat));
 			}

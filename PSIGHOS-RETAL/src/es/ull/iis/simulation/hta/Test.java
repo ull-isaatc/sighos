@@ -14,6 +14,7 @@ import es.ull.iis.simulation.model.TimeStamp;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.simulation.model.WorkGroup;
 import es.ull.iis.simulation.model.flow.ActivityFlow;
+import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -121,14 +122,27 @@ class CalibrationTest {
  *
  */
 public class Test {
+	private static final double []VALUE = {4.055396825, 2.0};
+	private static final double []MIN_MAX_VALUE = {2.0, 9.0};
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		final double[] initBetaParams = Statistics.betaParametersFromNormal(VALUE[0], VALUE[1]);
+		final double k = ((initBetaParams[0] + initBetaParams[1])*(initBetaParams[0] + initBetaParams[1]))/initBetaParams[1];
+		final double variance = VALUE[1] * VALUE[1];
+		final double mode = variance * k * (initBetaParams[0] - 1) / (initBetaParams[0] - 3 * variance * k);
+		
+		final double[] betaParams = Statistics.betaParametersFromEmpiricData(VALUE[0], mode, MIN_MAX_VALUE[0], MIN_MAX_VALUE[1]);
+		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]); 
+		final RandomVariate rnd1 = RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_VALUE[1] - MIN_MAX_VALUE[0], MIN_MAX_VALUE[0]);
+		for (int i = 0; i < 10000; i++)
+			System.out.println(rnd1.generate());
+		
 //		SimulTest sim = new SimulTest();
 //		sim.run();
-		new WeibullTest(5000, 1.999174026, 478.7268718).test();
+//		new WeibullTest(5000, 1.999174026, 478.7268718).test();
 		
 	}
 

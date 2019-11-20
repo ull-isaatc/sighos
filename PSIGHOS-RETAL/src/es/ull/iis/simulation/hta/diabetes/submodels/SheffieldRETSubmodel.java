@@ -315,13 +315,13 @@ public class SheffieldRETSubmodel extends SecondOrderChronicComplicationSubmodel
 			double cost = 0.0;
 			final Collection<DiabetesComplicationStage> state = pat.getDetailedState();
 
-			if (state.contains(LyRETSubmodel.BLI))
+			if (state.contains(SheffieldRETSubmodel.BLI))
 				cost += getCosts(BLI)[0];
-			else if (state.contains(LyRETSubmodel.ME))
+			else if (state.contains(SheffieldRETSubmodel.ME))
 				cost += getCosts(ME)[0];
-			else if (state.contains(LyRETSubmodel.PRET))
+			else if (state.contains(SheffieldRETSubmodel.PRET))
 				cost += getCosts(PRET)[0];
-			else if (state.contains(LyRETSubmodel.BGRET))
+			else if (state.contains(SheffieldRETSubmodel.BGRET))
 				cost += getCosts(BGRET)[0];				
 			return cost;
 		}

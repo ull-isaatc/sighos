@@ -3,9 +3,8 @@
  */
 package es.ull.iis.simulation.hta.diabetes;
 
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.DiabetesPatientInfoView;
+import es.ull.iis.simulation.hta.diabetes.inforeceiver.EpidemiologicView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.ExperimentListener;
-import es.ull.iis.simulation.hta.diabetes.inforeceiver.IncidenceView;
 import es.ull.iis.simulation.hta.diabetes.interventions.DCCTConventionalIntervention;
 import es.ull.iis.simulation.hta.diabetes.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.diabetes.outcomes.SubmodelCostCalculator;
@@ -24,12 +23,10 @@ import es.ull.iis.simulation.hta.diabetes.submodels.BattelinoSevereHypoglycemiaE
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.EmpiricalSpainDeathSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderAcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldRETSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleRETSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.T2DMMicadoNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMPrositCHDSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMPrositNPHSubmodel;
@@ -124,8 +121,8 @@ public class T2DMInnerValidation extends SecondOrderParamsRepository {
 //				STR_SOURCE_KLEIN, 0.155));
 		final RepositoryInstance common = secParams.getInstance();
 		final int timeHorizon = BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1;
-		final DiabetesSimulation simul = new DiabetesSimulation(0, secParams.getInterventions()[0], N_PATIENTS, common, secParams.getPopulation(), timeHorizon);
-		final ExperimentListener<?> listener = new IncidenceView(1, secParams, timeHorizon, IncidenceView.Type.CUMUL_INCIDENCE, true);
+		final DiabetesSimulation simul = new DiabetesSimulation(0, common.getInterventions()[0], N_PATIENTS, common, secParams.getPopulation(), timeHorizon);
+		final ExperimentListener listener = new EpidemiologicView(1, secParams, 1, EpidemiologicView.Type.CUMUL_INCIDENCE, true, false);
 		listener.addListener(simul);
 		simul.run();
 		System.out.println(listener);
@@ -141,8 +138,8 @@ public class T2DMInnerValidation extends SecondOrderParamsRepository {
 		
 		final RepositoryInstance common = secParams.getInstance();
 		final int timeHorizon = BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1;
-		final DiabetesSimulation simul = new DiabetesSimulation(0, secParams.getInterventions()[0], N_PATIENTS, common, secParams.getPopulation(), timeHorizon);
-		final ExperimentListener<?> listener = new IncidenceView(1, secParams, timeHorizon, IncidenceView.Type.PREVALENCE, true);
+		final DiabetesSimulation simul = new DiabetesSimulation(0, common.getInterventions()[0], N_PATIENTS, common, secParams.getPopulation(), timeHorizon);
+		final ExperimentListener listener = new EpidemiologicView(1, secParams, 1, EpidemiologicView.Type.PREVALENCE, true, false);
 		listener.addListener(simul);
 //		simul.addInfoReceiver(new DiabetesPatientInfoView(1));
 		simul.run();

@@ -115,6 +115,12 @@ public class DiabetesSimulation extends Simulation {
 	public DiabetesPatient getGeneratedPatient(int index) {
 		return (index < 0 || index >= nPatients) ? null : generatedPatients[index];
 	}
-	
 
+	/**
+	 * Returns the complete list of generated patients 
+	 * @return the complete list of generated patients
+	 */
+	public DiabetesPatient[] getGeneratedPatients() {
+		return generatedPatients;
+	}
 }
