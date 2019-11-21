@@ -21,6 +21,10 @@ import com.beust.jcommander.ParameterException;
 
 import es.ull.iis.simulation.hta.diabetes.DCCT.DCCTSecondOrderParams;
 import es.ull.iis.simulation.hta.diabetes.canada.CanadaSecondOrderParams;
+import es.ull.iis.simulation.hta.diabetes.htaReportCGM.UnawareMonitoSecondOrderParams;
+import es.ull.iis.simulation.hta.diabetes.htaReportCGM.UncontrolledMonitoSecondOrderParams;
+import es.ull.iis.simulation.hta.diabetes.htaReportSAP.UnconsciousSecondOrderParams;
+import es.ull.iis.simulation.hta.diabetes.htaReportSAP.UncontrolledSecondOrderParams;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AcuteComplicationCounterListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.BudgetImpactView;
@@ -42,6 +46,10 @@ import es.ull.iis.simulation.hta.diabetes.params.StdDiscount;
 import es.ull.iis.simulation.hta.diabetes.params.ZeroDiscount;
 import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderAcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicationSubmodel;
+import es.ull.iis.simulation.hta.diabetes.validationStudies.AdvanceSecondOrderParams;
+import es.ull.iis.simulation.hta.diabetes.validationStudies.LySecondOrderParams;
+import es.ull.iis.simulation.hta.diabetes.validationStudies.PROSITSecondOrderParams;
+import es.ull.iis.simulation.hta.diabetes.validationStudies.SMILESecondOrderParams;
 
 /**
  * Main class to launch simulation experiments
@@ -403,6 +411,9 @@ public class DiabetesMain {
 	        	case 9:
 	        		secParams = new UncontrolledMonitoSecondOrderParams(args1.nPatients);
 	        		break;
+	        	case 10:
+	        		secParams = new UnawareMonitoSecondOrderParams(args1.nPatients);
+	        		break;
 	        	default:
 	        		secParams = new UnconsciousSecondOrderParams(args1.nPatients);
 	        		break;
@@ -504,7 +515,7 @@ public class DiabetesMain {
 		private int nRuns = BasicConfigParams.N_RUNS;
 		@Parameter(names ={"--horizon", "-h"}, description = "Time horizon for the simulation (years)", order = 3)
 		private int timeHorizon = -1;
-		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (1: T1DM unconscious, 2: T1DM uncontrolled, 3: Canada, 4: DCCT, 5: Ly, 6: SMILE, 7: UKPDS, 8: Advance, 9: GOLD+DIAMOND)", order = 8)
+		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (1: T1DM unconscious, 2: T1DM uncontrolled, 3: Canada, 4: DCCT, 5: Ly, 6: SMILE, 7: UKPDS, 8: Advance, 9: GOLD+DIAMOND, 10:HypoDE)", order = 8)
 		private int population = 1;
 		@Parameter(names = {"--discount", "-dr"}, variableArity = true, 
 				description = "The discount rate to be applied. If more than one value is provided, the first one is used for costs, and the second for effects. Default value is " + BasicConfigParams.DEF_DISCOUNT_RATE, order = 7)

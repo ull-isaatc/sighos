@@ -1,8 +1,9 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.diabetes;
+package es.ull.iis.simulation.hta.diabetes.validationStudies;
 
+import es.ull.iis.simulation.hta.diabetes.DiabetesSimulation;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.EpidemiologicView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.ExperimentListener;
 import es.ull.iis.simulation.hta.diabetes.interventions.DCCTConventionalIntervention;

@@ -215,6 +215,21 @@ public class Statistics {
 	}
 
 	/**
+	 * Generates a time to event based on annual rate. The time to event is absolute, i.e., can be used directly to schedule a new event.  
+	 * @param rate Annual rate of the event
+	 * @param rnd The natural log of a random number (0, 1)
+	 * @param irr Incidence rate ratio for the patient
+	 * @return a time to event based on annual rate
+	 */
+	public static double getAnnualBasedTimeToEventFromRate(double rate, double logRnd, double irr) {
+		// In case the rate was 0
+		if (rate == 0.0)
+			return Double.MAX_VALUE;
+		final double newMinus = -1 / (rate * irr);
+		return newMinus * logRnd;
+	}
+
+	/**
 	 * Computes the standard deviation from 95% confidence intervals. Assumes that
 	 * the confidence intervals are based in a normal distribution.
 	 * @param ci Original 95% confidence intervals
@@ -264,4 +279,16 @@ public class Statistics {
 		return new double[] {alfa, ((max-avg)*alfa)/(avg-min)};
 	}
 	
+	/**
+	 * Approximates the mode of a beta distribution from mean and standard deviation
+	 * @param mean Observed mean
+	 * @param sd Observed standard deviation
+	 * @return the mode of a beta distribution from mean and standard deviation
+	 */
+	public static double betaModeFromMeanSD(double mean, double sd) {
+		final double[] initBetaParams = betaParametersFromNormal(mean, sd);
+		final double k = ((initBetaParams[0] + initBetaParams[1])*(initBetaParams[0] + initBetaParams[1]))/initBetaParams[1];
+		final double variance = sd * sd;
+		return variance * k * (initBetaParams[0] - 1) / (initBetaParams[0] - 3 * variance * k);		
+	}
 }

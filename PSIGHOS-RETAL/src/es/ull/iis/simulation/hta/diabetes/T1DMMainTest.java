@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.diabetes;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.diabetes.htaReportCGM.OriginalMonitoDM1Population;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AcuteComplicationCounterListener;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.diabetes.inforeceiver.CostListener;
@@ -28,7 +29,6 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.params.StdDiscount;
 import es.ull.iis.simulation.hta.diabetes.populations.DiabetesPopulation;
-import es.ull.iis.simulation.hta.diabetes.populations.OriginalMonitoDM1Population;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.BattelinoSevereHypoglycemiaEvent;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;

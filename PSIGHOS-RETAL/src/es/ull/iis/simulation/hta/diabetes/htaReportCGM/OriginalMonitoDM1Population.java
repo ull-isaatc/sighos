@@ -1,9 +1,10 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.diabetes.populations;
+package es.ull.iis.simulation.hta.diabetes.htaReportCGM;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
+import es.ull.iis.simulation.hta.diabetes.populations.DiabetesStdPopulation;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 

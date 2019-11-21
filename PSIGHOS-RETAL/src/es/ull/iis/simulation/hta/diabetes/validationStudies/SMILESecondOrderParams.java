@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.diabetes;
+package es.ull.iis.simulation.hta.diabetes.validationStudies;
 
 import es.ull.iis.simulation.hta.diabetes.interventions.SMILECSIIIntervention;
 import es.ull.iis.simulation.hta.diabetes.interventions.SMILESAPIntervention;

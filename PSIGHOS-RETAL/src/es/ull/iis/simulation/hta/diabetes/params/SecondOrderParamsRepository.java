@@ -649,6 +649,20 @@ public abstract class SecondOrderParamsRepository {
 	}
 	
 	/**
+	 * Generates a time to event based on annual rate. The time to event is absolute, i.e., can be used directly to schedule a new event. 
+	 * @param pat A patient
+	 * @param annualRate Annual rate of the event
+	 * @param logRnd The natural log of a random number (0,1)
+	 * @param irr Incidence rate ratio for the patient
+	 * @return a time to event based on annual rate
+	 */
+	public static long getAnnualBasedTimeToEventFromRate(DiabetesPatient pat, double annualRate, double logRnd, double irr) {
+		final double time = Statistics.getAnnualBasedTimeToEventFromRate(annualRate, logRnd, irr);
+	
+		return (time >= (pat.getAgeAtDeath() - pat.getAge())) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
+	}
+	
+	/**
 	 * Creates a string that contains a tab separated list of the parameter names defined in this repository
 	 * @return a string that contains a tab separated list of the parameter names defined in this repository
 	 */

@@ -1,10 +1,11 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.diabetes.populations;
+package es.ull.iis.simulation.hta.diabetes.htaReportCGM;
 
 import es.ull.iis.simulation.hta.diabetes.DiabetesType;
 import es.ull.iis.simulation.hta.diabetes.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.diabetes.populations.DiabetesStdPopulation;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -61,10 +62,8 @@ public class GoldDiamondPopulation extends DiabetesStdPopulation {
 	protected RandomVariate getBaselineAge() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_AGE)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_AGE[0]);
-		final double[] initBetaParams = Statistics.betaParametersFromNormal(BASELINE_AGE[0], BASELINE_AGE[1]);
-		final double k = ((initBetaParams[0] + initBetaParams[1])*(initBetaParams[0] + initBetaParams[1]))/initBetaParams[1];
-		final double variance = BASELINE_AGE[1] * BASELINE_AGE[1];
-		final double mode = variance * k * (initBetaParams[0] - 1) / (initBetaParams[0] - 3 * variance * k);
+
+		final double mode = Statistics.betaModeFromMeanSD(BASELINE_AGE[0], BASELINE_AGE[1]);
 		
 		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_AGE[0], mode, MIN_MAX_BASELINE_AGE[0], MIN_MAX_BASELINE_AGE[1]);
 		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]); 

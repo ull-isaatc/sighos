@@ -122,23 +122,26 @@ class CalibrationTest {
  *
  */
 public class Test {
-	private static final double []VALUE = {4.055396825, 2.0};
-	private static final double []MIN_MAX_VALUE = {2.0, 9.0};
+	private static final double IRR_HYPO = 0.36;
+	private static final double []LN_IRR_HYPO_BETA = {Math.log(0.15), Math.log(0.88)};
+	private static final double []VALUE = {IRR_HYPO, Statistics.sdFrom95CI(LN_IRR_HYPO_BETA)};
+	private static final double []MIN_MAX_VALUE = {0.0, 1.0};
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		final double[] initBetaParams = Statistics.betaParametersFromNormal(VALUE[0], VALUE[1]);
-		final double k = ((initBetaParams[0] + initBetaParams[1])*(initBetaParams[0] + initBetaParams[1]))/initBetaParams[1];
-		final double variance = VALUE[1] * VALUE[1];
-		final double mode = variance * k * (initBetaParams[0] - 1) / (initBetaParams[0] - 3 * variance * k);
+		final double mode = Statistics.betaModeFromMeanSD(VALUE[0], VALUE[1]);
 		
 		final double[] betaParams = Statistics.betaParametersFromEmpiricData(VALUE[0], mode, MIN_MAX_VALUE[0], MIN_MAX_VALUE[1]);
 		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]); 
 		final RandomVariate rnd1 = RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_VALUE[1] - MIN_MAX_VALUE[0], MIN_MAX_VALUE[0]);
+		
+//		final double[] gammaParams = Statistics.gammaParametersFromNormal(VALUE[0], VALUE[1]);
+//		final RandomVariate rnd2 = RandomVariateFactory.getInstance("GammaVariate", gammaParams[0], gammaParams[1]);
+		final RandomVariate rnd2 = RandomVariateFactory.getInstance("LimitedRandomVariate", RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", Math.log(IRR_HYPO), Statistics.sdFrom95CI(LN_IRR_HYPO_BETA))), 0.0, 1.0);
 		for (int i = 0; i < 10000; i++)
-			System.out.println(rnd1.generate());
+			System.out.println(rnd2.generate());
 		
 //		SimulTest sim = new SimulTest();
 //		sim.run();
