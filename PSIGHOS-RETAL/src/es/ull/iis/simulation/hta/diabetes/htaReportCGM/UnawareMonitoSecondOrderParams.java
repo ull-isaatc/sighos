@@ -77,7 +77,7 @@ public class UnawareMonitoSecondOrderParams extends SecondOrderParamsRepository 
 		final double[] betaParams = Statistics.betaParametersFromEmpiricData(RATE_HYPO[0], mode, MIN_MAX_RATE_HYPO[0], MIN_MAX_RATE_HYPO[1]);
 		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]); 
 		
-		final RandomVariate rndIRR = RandomVariateFactory.getInstance("LimitedRandomVariate", RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", Math.log(IRR_HYPO), Statistics.sdFrom95CI(LN_IRR_HYPO_BETA))), 0.0, 1.0);
+		final RandomVariate rndIRR = RandomVariateFactory.getInstance("LimitedRandomVariate", RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", Math.log(IRR_HYPO), Statistics.sdFrom95CI(LN_IRR_HYPO_BETA))), 0.0, 0.9999);
 		final StandardSevereHypoglycemiaEvent hypoEvent = new StandardSevereHypoglycemiaEvent(
 				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_P_HYPO, "Annual probability of severe hypoglycemic episode (adjusted from 6-months rate)", 
 						"HypoDE", RATE_HYPO[0], RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_RATE_HYPO[1] - MIN_MAX_RATE_HYPO[0], MIN_MAX_RATE_HYPO[0])),
