@@ -19,13 +19,12 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
+import es.ull.iis.simulation.hta.diabetes.submodels.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldRETSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleCHDSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleNEUSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.StandardSevereHypoglycemiaEvent;
-import es.ull.iis.simulation.hta.diabetes.submodels.StandardSpainDeathSubmodel;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -101,6 +100,8 @@ public class UncontrolledMonitoSecondOrderParams extends SecondOrderParamsReposi
 		addUtilParam(new SecondOrderParam(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS, "Disutility of DNC", "", 
 				BasicConfigParams.DEF_DU_DNC[0], "BetaVariate", paramsDuDNC[0], paramsDuDNC[1]));
 		
+		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+		
 		addProbParam(new SecondOrderParam(getInitProbString(SheffieldRETSubmodel.PRET), "Initial probability of proliferative retinopathy", "GOLD",
 				P_INI_PRET_BETA[0] / (P_INI_PRET_BETA[0] + P_INI_PRET_BETA[1]), "BetaVariate", P_INI_PRET_BETA[0], P_INI_PRET_BETA[1])); 
 		addProbParam(new SecondOrderParam(getInitProbString(SimpleCHDSubmodel.MI), "Initial probability of myocardial infarction", "GOLD",
@@ -114,11 +115,6 @@ public class UncontrolledMonitoSecondOrderParams extends SecondOrderParamsReposi
 
 	}
 
-	@Override
-	public DeathSubmodel getDeathSubmodel() {
-		return new StandardSpainDeathSubmodel(this);
-	}
-	
 	@Override
 	public CostCalculator getCostCalculator(double cDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels) {
 		return new SubmodelCostCalculator(cDNC, submodels, acuteSubmodels);

@@ -18,7 +18,6 @@ import es.ull.iis.simulation.hta.diabetes.populations.AdvancePopulation;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.AdvanceSevereHypoglycemiaEvent;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.T2DMPrositCHDSubmodel;
@@ -86,6 +85,8 @@ public class AdvanceSecondOrderParams extends SecondOrderParamsRepository {
 		registerIntervention(new AdvanceConventionalIntervention());
 		registerIntervention(new AdvanceIntensiveIntervention());
 		
+		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+		
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of Diabetes with no complications", 
 				BasicConfigParams.DEF_C_DNC.SOURCE, BasicConfigParams.DEF_C_DNC.YEAR, 
 				BasicConfigParams.DEF_C_DNC.VALUE, getRandomVariateForCost(BasicConfigParams.DEF_C_DNC.VALUE)));
@@ -95,11 +96,6 @@ public class AdvanceSecondOrderParams extends SecondOrderParamsRepository {
 				BasicConfigParams.DEF_DU_DNC[0], "BetaVariate", paramsDuDNC[0], paramsDuDNC[1]));
 	}
 
-	@Override
-	public DeathSubmodel getDeathSubmodel() {
-		return new EmpiricalSpainDeathSubmodel(this);
-	}
-	
 	@Override
 	public CostCalculator getCostCalculator(double cDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels) {
 		return new SubmodelCostCalculator(cDNC, submodels, acuteSubmodels);

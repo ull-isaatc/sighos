@@ -17,7 +17,6 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.populations.SMILEPopulation;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.LyNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.LyRETSubmodel;
@@ -124,6 +123,8 @@ public class SMILESecondOrderParams extends SecondOrderParamsRepository {
 		registerIntervention(new SMILECSIIIntervention());
 		registerIntervention(new SMILESAPIntervention());
 		
+		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+		
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of Diabetes with no complications", 
 				BasicConfigParams.DEF_C_DNC.SOURCE, BasicConfigParams.DEF_C_DNC.YEAR, 
 				BasicConfigParams.DEF_C_DNC.VALUE, getRandomVariateForCost(BasicConfigParams.DEF_C_DNC.VALUE)));
@@ -131,11 +132,6 @@ public class SMILESecondOrderParams extends SecondOrderParamsRepository {
 		final double[] paramsDuDNC = Statistics.betaParametersFromNormal(BasicConfigParams.DEF_DU_DNC[0], BasicConfigParams.DEF_DU_DNC[1]);
 		addUtilParam(new SecondOrderParam(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS, "Disutility of DNC", "", 
 				BasicConfigParams.DEF_DU_DNC[0], "BetaVariate", paramsDuDNC[0], paramsDuDNC[1]));
-	}
-	
-	@Override
-	public DeathSubmodel getDeathSubmodel() {
-		return new EmpiricalSpainDeathSubmodel(this);
 	}
 	
 	@Override

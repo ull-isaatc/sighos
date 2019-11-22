@@ -10,12 +10,14 @@ import es.ull.iis.simulation.hta.diabetes.DiabetesPatient;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class DeathSubmodel {
-
+public abstract class DeathSubmodel extends ComplicationSubmodel {
+	protected final SecondOrderDeathSubmodel secOrder;
 	/**
 	 * Creates a submodel for death
 	 */
-	public DeathSubmodel() {
+	public DeathSubmodel(SecondOrderDeathSubmodel secOrder) {
+		super();
+		this.secOrder = secOrder;
 	}
 
 	/**

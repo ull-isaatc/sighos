@@ -16,7 +16,6 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.StandardSevereHypoglycemiaEvent;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariateFactory;
@@ -65,15 +64,12 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 		registerIntervention(new CanadaIntervention1());
 		registerIntervention(new CanadaIntervention2());
 		
+		registerDeathSubmodel(new CanadaDeathSubmodel(this));
+		
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of DNC", "HTA Canada", 2018, C_DNC));
 
 		addUtilParam(new SecondOrderParam(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS, "Disutility of DNC", "", BasicConfigParams.DEF_U_GENERAL_POP - U_DNC));
 		
-	}
-
-	@Override
-	public DeathSubmodel getDeathSubmodel() {
-		return new CanadaDeathSubmodel(this);
 	}
 
 	@Override

@@ -19,7 +19,6 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldRETSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleCHDSubmodel;
@@ -64,13 +63,10 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 				EnumSet.of(DiabetesType.T1)
 				));
 
+		registerDeathSubmodel(new StandardSpainDeathSubmodel(this));
+		
 		registerIntervention(new DCCTConventionalIntervention());
 		registerIntervention(new DCCTIntensiveIntervention());
-	}
-
-	@Override
-	public DeathSubmodel getDeathSubmodel() {
-		return new StandardSpainDeathSubmodel(this);
 	}
 	
 	@Override

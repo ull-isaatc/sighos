@@ -19,13 +19,12 @@ import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.diabetes.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.diabetes.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
-import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
+import es.ull.iis.simulation.hta.diabetes.submodels.EmpiricalSpainDeathSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldNPHSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SheffieldRETSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleCHDSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SimpleNEUSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.StandardSevereHypoglycemiaEvent;
-import es.ull.iis.simulation.hta.diabetes.submodels.StandardSpainDeathSubmodel;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
@@ -91,6 +90,8 @@ public class UnawareMonitoSecondOrderParams extends SecondOrderParamsRepository 
 		registerIntervention(intSMBG);
 		registerIntervention(intCGM);
 		
+		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+		
 		addCostParam(new SecondOrderCostParam(STR_COST_PREFIX + STR_NO_COMPLICATIONS, "Cost of Diabetes with no complications", 
 				BasicConfigParams.DEF_C_DNC.SOURCE, BasicConfigParams.DEF_C_DNC.YEAR, 
 				BasicConfigParams.DEF_C_DNC.VALUE, getRandomVariateForCost(BasicConfigParams.DEF_C_DNC.VALUE)));
@@ -100,11 +101,6 @@ public class UnawareMonitoSecondOrderParams extends SecondOrderParamsRepository 
 				BasicConfigParams.DEF_DU_DNC[0], "BetaVariate", paramsDuDNC[0], paramsDuDNC[1]));
 	}
 
-	@Override
-	public DeathSubmodel getDeathSubmodel() {
-		return new StandardSpainDeathSubmodel(this);
-	}
-	
 	@Override
 	public CostCalculator getCostCalculator(double cDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels) {
 		return new SubmodelCostCalculator(cDNC, submodels, acuteSubmodels);

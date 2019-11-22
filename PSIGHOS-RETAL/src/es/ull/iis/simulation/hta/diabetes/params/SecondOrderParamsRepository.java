@@ -25,6 +25,7 @@ import es.ull.iis.simulation.hta.diabetes.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.DeathSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderAcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderChronicComplicationSubmodel;
+import es.ull.iis.simulation.hta.diabetes.submodels.SecondOrderDeathSubmodel;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
@@ -93,6 +94,8 @@ public abstract class SecondOrderParamsRepository {
 	final protected SecondOrderChronicComplicationSubmodel[] registeredChronicComplication;
 	/** The collection of defined acute complications */
 	final protected SecondOrderAcuteComplicationSubmodel[] registeredAcuteComplication;
+	/** The death submodel to be used */
+	protected SecondOrderDeathSubmodel registeredDeathSubmodel = null;
 	/** The collection of interventions */
 	final protected ArrayList<SecondOrderDiabetesIntervention> registeredInterventions;
 	/** True if base case parameters (expected values) should be used. False for second order simulations. WARNING: This parameter is not protected against concurrent modifications; if
@@ -141,6 +144,9 @@ public abstract class SecondOrderParamsRepository {
 		}
 		if (registeredInterventions.size() == 0) {
 			str.append("At least one intervention must be defined").append(System.lineSeparator());
+		}
+		if (registeredDeathSubmodel == null) {
+			str.append("No death submodel defined").append(System.lineSeparator());
 		}
 		return (str.length() > 0) ? str.toString() : null;
 	}
@@ -222,6 +228,25 @@ public abstract class SecondOrderParamsRepository {
 		return registeredInterventions;
 	}
 
+	/**
+	 * Registers the death submodel. Returns false if there was an already registered death submodel
+	 * @param deathSubmodel Death submodel to be used
+	 * @return false if there was an already registered death submodel; true otherwise
+	 */
+	public boolean registerDeathSubmodel(SecondOrderDeathSubmodel deathSubmodel) {
+		if (registeredDeathSubmodel != null)
+			return false;
+		registeredDeathSubmodel = deathSubmodel;
+		return true;
+	}
+	
+	/**
+	 * Returns the registered death submodel; null if no submodel was registered
+	 * @return the registered death submodel; null if no submodel was registered
+	 */
+	public SecondOrderDeathSubmodel getRegisteredDeathSubmodel() {
+		return registeredDeathSubmodel;
+	}
 	/**
 	 * Returns the minimum age for patients within this repository, which is the minimum age of the population
 	 * @return the minimum age for patients within this repository
@@ -523,6 +548,9 @@ public abstract class SecondOrderParamsRepository {
 		this.baseCase = baseCase;
 	}
 
+	private final DeathSubmodel getDeathSubmodel() {
+		return (DeathSubmodel)registeredDeathSubmodel.getInstance(this);
+	}
 	/**
 	 * Returns the interventions to be compared within the simulation
 	 * @return The interventions to be compared within the simulation
@@ -560,12 +588,6 @@ public abstract class SecondOrderParamsRepository {
 		}
 		return comps;
 	}
-	
-	/**
-	 * Returns the submodel used to compute time to death
-	 * @return the submodel used to compute time to death
-	 */
-	protected abstract DeathSubmodel getDeathSubmodel();
 	
 	/**
 	 * Returns the class that computes costs 
