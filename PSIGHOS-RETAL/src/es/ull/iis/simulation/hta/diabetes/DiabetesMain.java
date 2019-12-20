@@ -143,7 +143,9 @@ public class DiabetesMain {
 	private final EnumSet<Outputs> printOutputs;
 	/** How many replications have to be run to show a new progression percentage message */
 	private static final int N_PROGRESS = 20;
+	private static final String OUTPUTS_SUFIX = "_outputs"; 
 	private final PrintWriter out;
+	private final PrintWriter outListeners;
 	private final ArrayList<SecondOrderDiabetesIntervention> interventions;
 	/** Number of simulations to run */
 	private final int nRuns;
@@ -164,11 +166,12 @@ public class DiabetesMain {
 	private final ArrayList<ExperimentListener> baseCaseExpListeners;
 	
 	
-	public DiabetesMain(PrintWriter out, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs, final ArrayList<EpidemiologicOutputFormat> toPrint) {
+	public DiabetesMain(PrintWriter out, PrintWriter outListeners, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs, final ArrayList<EpidemiologicOutputFormat> toPrint) {
 		super();
 		this.printOutputs = printOutputs;
 		this.timeHorizon = timeHorizon;
 		this.out = out;
+		this.outListeners = outListeners;
 		this.discountCost = discountCost;
 		this.discountEffect = discountEffect;
 		this.interventions = secParams.getRegisteredInterventions();
@@ -319,9 +322,14 @@ public class DiabetesMain {
 			out.println(BasicConfigParams.printOptions());
 		out.println(getStrHeader());
 		simulateInterventions(0, true);
-		for (ExperimentListener listener : baseCaseExpListeners) {
-			out.println(listener);
-		}		
+		if (baseCaseExpListeners.size() > 0) {
+			outListeners.println(BasicConfigParams.STR_SEP);
+			outListeners.println("Base case");
+			outListeners.println(BasicConfigParams.STR_SEP);
+			for (ExperimentListener listener : baseCaseExpListeners) {
+				outListeners.println(listener);
+			}		
+		}
 		progress.print();
 		secParams.setBaseCase(false);
 		if (nRuns > 0) {
@@ -344,15 +352,21 @@ public class DiabetesMain {
 			else {
 				new ProblemExecutor(out, 1, 1).run();
 			}
-			for (ExperimentListener listener : expListeners) {
-				out.println(listener);
-			}		
+			if (expListeners.size() > 0) {
+				outListeners.println(BasicConfigParams.STR_SEP);
+				outListeners.println("PSA");
+				outListeners.println(BasicConfigParams.STR_SEP);
+				for (ExperimentListener listener : expListeners) {
+					outListeners.println(listener);
+				}		
+			}
 		}
 		
 		
         if (!quiet)
         	System.out.println("Execution time: " + ((System.currentTimeMillis() - t) / 1000) + " sec");       
         out.close();
+        outListeners.close();
 	}
 
 	public static void main(String[] args) {
@@ -362,19 +376,6 @@ public class DiabetesMain {
 			  .addObject(args1)
 			  .build();
 			jc.parse(args);
-			PrintWriter out;
-	        if (args1.outputFileName == null) {
-	        	out = new PrintWriter(System.out);
-	        }
-	        else  {
-	        	try {
-	        		out = new PrintWriter(new BufferedWriter(new FileWriter(args1.outputFileName)));
-				} catch (IOException e) {
-					e.printStackTrace();
-					out = new PrintWriter(System.out);
-				}
-
-	        }
 	        BasicConfigParams.USE_SIMPLE_MODELS = args1.basic;
 	        BasicConfigParams.USE_REVIEW_UTILITIES = args1.altUtils;
 	        BasicConfigParams.STUDY_YEAR = args1.year;
@@ -487,7 +488,36 @@ public class DiabetesMain {
 	    			if (f != null)
 	    				formats.add(f);
 	    		}
-		        final DiabetesMain experiment = new DiabetesMain(out, secParams, args1.nRuns, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs, formats);
+	    		
+	    		// Set outputs: different files for simulation outputs and for other outputs. If no file name is specified or an error arises, standard output is used
+				PrintWriter out;
+				PrintWriter outListeners;
+		        if (args1.outputFileName == null) {
+		        	out = new PrintWriter(System.out);
+		        	outListeners = new PrintWriter(System.out);
+		        }
+		        else  {
+		        	try {
+		        		out = new PrintWriter(new BufferedWriter(new FileWriter(args1.outputFileName)));
+					} catch (IOException e) {
+						e.printStackTrace();
+						out = new PrintWriter(System.out);
+					}
+		        	if (formats.size() > 0 || printOutputs.size() > 0) { 
+			        	try {
+			        		outListeners = new PrintWriter(new BufferedWriter(new FileWriter(args1.outputFileName + OUTPUTS_SUFIX)));
+						} catch (IOException e) {
+							e.printStackTrace();
+							outListeners = new PrintWriter(System.out);
+						}
+		        	}
+		        	else {
+						outListeners = new PrintWriter(System.out);		        		
+		        	}
+
+		        }
+
+	    		final DiabetesMain experiment = new DiabetesMain(out, outListeners, secParams, args1.nRuns, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs, formats);
 		        experiment.run();
 	    	}
 	    	else {

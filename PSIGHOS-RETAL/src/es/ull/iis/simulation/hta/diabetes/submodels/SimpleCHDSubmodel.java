@@ -84,13 +84,13 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 		final double[] paramsRET_CHD = Statistics.betaParametersFromNormal(P_RET_CHD, Statistics.sdFrom95CI(CI_RET_CHD));		
 
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(null, DiabetesChronicComplications.CHD), "Probability of healthy to CHD", 
-				"", P_DNC_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_CHD[0], paramsDNC_CHD[1])));
+				"Hoerger (2004)", P_DNC_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsDNC_CHD[0], paramsDNC_CHD[1])));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(DiabetesChronicComplications.NEU, DiabetesChronicComplications.CHD), "", 
-				"", P_NEU_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_CHD[0], paramsNEU_CHD[1])));
+				"Klein (2004)", P_NEU_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNEU_CHD[0], paramsNEU_CHD[1])));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(DiabetesChronicComplications.NPH, DiabetesChronicComplications.CHD), "", 
-				"", P_NPH_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNPH_CHD[0], paramsNPH_CHD[1])));
+				"Klein (2004)", P_NPH_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsNPH_CHD[0], paramsNPH_CHD[1])));
 		secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getProbString(DiabetesChronicComplications.RET, DiabetesChronicComplications.CHD), "", 
-				"", P_RET_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsRET_CHD[0], paramsRET_CHD[1])));
+				"Klein (2004)", P_RET_CHD, RandomVariateFactory.getInstance("BetaVariate", paramsRET_CHD[0], paramsRET_CHD[1])));
 		
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_RR_PREFIX + DiabetesChronicComplications.CHD.name(), 
 				SecondOrderParamsRepository.STR_RR_PREFIX + DiabetesChronicComplications.CHD.name(), 
@@ -116,13 +116,13 @@ public class SimpleCHDSubmodel extends SecondOrderChronicComplicationSubmodel {
 
 		secParams.addOtherParam(new SecondOrderParam(STR_DEATH_MI_MAN, 
 				"Probability of sudden death after MI for men",	"Core Model", 
-				P_DEATH_MI[BasicConfigParams.MAN]));
+				P_DEATH_MI[BasicConfigParams.MAN], SecondOrderParamsRepository.getRandomVariateForProbability(P_DEATH_MI[BasicConfigParams.MAN])));
 		secParams.addOtherParam(new SecondOrderParam(STR_DEATH_MI_WOMAN, 
 				"Probability of sudden death after MI for women", "Core Model", 
-				P_DEATH_MI[BasicConfigParams.WOMAN]));
+				P_DEATH_MI[BasicConfigParams.WOMAN], SecondOrderParamsRepository.getRandomVariateForProbability(P_DEATH_MI[BasicConfigParams.WOMAN])));
 		secParams.addOtherParam(new SecondOrderParam(STR_DEATH_STROKE, 
 				"Probability of death after stroke", "Core Model", 
-				P_DEATH_STROKE));
+				P_DEATH_STROKE, SecondOrderParamsRepository.getRandomVariateForProbability(P_DEATH_STROKE)));
 
 		secParams.addOtherParam(new SecondOrderParam(SecondOrderParamsRepository.STR_IMR_PREFIX + DiabetesChronicComplications.CHD.name(), 
 				"Increased mortality risk due to macrovascular disease", 

@@ -15,6 +15,7 @@ import es.ull.iis.simulation.model.TimeUnit;
  *
  */
 public class BasicConfigParams {
+	public final static String STR_SEP = "----------------------------------------------------------------------------------------------------------------";
 	/** Simulation time unit: defines the finest grain */
 	public final static TimeUnit SIMUNIT = TimeUnit.DAY;
 	/** The factor to expressed a simulation timestamp in years */ 
@@ -31,7 +32,7 @@ public class BasicConfigParams {
 	/** Default number of patients that will be created during a simulation */
 	public final static int DEF_N_PATIENTS = 5000;
 	/** Year of the assessment: useful for updating costs */
-	public static int STUDY_YEAR = 2018;
+	public static int STUDY_YEAR = 2019;
 	/** Default minimum age of patients */
 	public final static int DEF_MIN_AGE = 18;
 	/** Maximum age reachable by patients */

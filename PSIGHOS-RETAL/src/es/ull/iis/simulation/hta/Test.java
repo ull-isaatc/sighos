@@ -122,10 +122,8 @@ class CalibrationTest {
  *
  */
 public class Test {
-	private static final double IRR_HYPO = 0.36;
-	private static final double []LN_IRR_HYPO_BETA = {Math.log(0.15), Math.log(0.88)};
-	private static final double []VALUE = {IRR_HYPO, Statistics.sdFrom95CI(LN_IRR_HYPO_BETA)};
-	private static final double []MIN_MAX_VALUE = {0.0, 1.0};
+	private static final double []VALUE = {0.281378955, 0.098554232};
+	private static final double []MIN_MAX_VALUE = {0.1, 0.5};
 
 	/**
 	 * @param args
@@ -139,9 +137,9 @@ public class Test {
 		
 //		final double[] gammaParams = Statistics.gammaParametersFromNormal(VALUE[0], VALUE[1]);
 //		final RandomVariate rnd2 = RandomVariateFactory.getInstance("GammaVariate", gammaParams[0], gammaParams[1]);
-		final RandomVariate rnd2 = RandomVariateFactory.getInstance("LimitedRandomVariate", RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", Math.log(IRR_HYPO), Statistics.sdFrom95CI(LN_IRR_HYPO_BETA))), 0.0, 1.0);
+//		final RandomVariate rnd2 = RandomVariateFactory.getInstance("LimitedRandomVariate", RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", Math.log(IRR_HYPO), Statistics.sdFrom95CI(LN_IRR_HYPO_BETA))), 0.0, 1.0);
 		for (int i = 0; i < 10000; i++)
-			System.out.println(rnd2.generate());
+			System.out.println(rnd1.generate());
 		
 //		SimulTest sim = new SimulTest();
 //		sim.run();

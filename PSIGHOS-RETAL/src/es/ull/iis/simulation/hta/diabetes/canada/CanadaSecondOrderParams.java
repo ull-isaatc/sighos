@@ -55,6 +55,7 @@ public class CanadaSecondOrderParams extends SecondOrderParamsRepository {
 				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_RR_HYPO, "Relative risk of severe hypoglycemic event in intervention branch", DEF_SOURCE, 0.869, RandomVariateFactory.getInstance("RRFromLnCIVariate", 0.869, 0.476, 1.586, 1)),
 				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", DEF_SOURCE, DU_HYPO_EPISODE),
 				new SecondOrderCostParam(StandardSevereHypoglycemiaEvent.STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", DEF_SOURCE, 2018, C_HYPO_EPISODE),
+				StandardSevereHypoglycemiaEvent.getDefaultMortalityParameter(),
 				EnumSet.of(DiabetesType.T1)));
 //		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + MainChronicComplications.CHD.name(), STR_RR_PREFIX + MainChronicComplications.CHD.name(), "", RR_CHD, RandomVariateFactory.getInstance("ConstantVariate", RR_CHD)));
 //		addOtherParam(new SecondOrderParam(STR_RR_PREFIX + MainChronicComplications.NPH.name(), STR_RR_PREFIX + MainChronicComplications.NPH.name(), "", RR_NPH, RandomVariateFactory.getInstance("ConstantVariate", RR_NPH)));

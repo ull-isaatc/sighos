@@ -146,20 +146,20 @@ public class EpidemiologicView implements ExperimentListener {
 			str.append(byAge ? (length * year) + minAge : (length *year));
 			for (int i = 0; i < interventions.size(); i++) {
 				if (byAge) {
-					str.append("\t").append(String.format(Locale.US, format, nAlivePatients[i][year] / nExperiments));					
+					str.append("\t").append(String.format(Locale.US, format, nAlivePatients[i][year] / (double)nExperiments));					
 				}
-				str.append("\t").append(String.format(Locale.US, format, nDeaths[i][year] / nExperiments));
+				str.append("\t").append(String.format(Locale.US, format, nDeaths[i][year] / (double)nExperiments));
 				for (final Named cause : nDeathsByCause.keySet()) {
-					str.append("\t").append(String.format(Locale.US, format, nDeathsByCause.get(cause)[i][year] / nExperiments));
+					str.append("\t").append(String.format(Locale.US, format, nDeathsByCause.get(cause)[i][year] / (double)nExperiments));
 				}
 				for (int j = 0; j < nMainChronic[i].length; j++) {
-					str.append("\t").append(String.format(Locale.US, format, nMainChronic[i][j][year] / nExperiments));
+					str.append("\t").append(String.format(Locale.US, format, nMainChronic[i][j][year] / (double)nExperiments));
 				}
 				for (int j = 0; j < nChronic[i].length; j++) {
-					str.append("\t").append(String.format(Locale.US, format, nChronic[i][j][year] / nExperiments));
+					str.append("\t").append(String.format(Locale.US, format, nChronic[i][j][year] / (double)nExperiments));
 				}
 				for (int j = 0; j < nAcute[i].length; j++) {
-					str.append("\t").append(String.format(Locale.US, format, nAcute[i][j][year] / nExperiments));
+					str.append("\t").append(String.format(Locale.US, format, nAcute[i][j][year] / (double)nExperiments));
 				}	
 			}
 			str.append(System.lineSeparator());

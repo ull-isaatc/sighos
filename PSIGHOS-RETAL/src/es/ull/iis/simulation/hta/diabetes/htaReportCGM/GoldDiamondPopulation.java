@@ -23,6 +23,8 @@ import simkit.random.RandomVariateFactory;
 public class GoldDiamondPopulation extends DiabetesStdPopulation {
 	/** Mean and SD of baseline HbA1c. SD is the highest from all the cohorts */
 	private static final double []BASELINE_HBA1C = {8.5382, 0.9};
+	/** Minimum and maximum baseline HbA1c, as stated in the DIAMOND study */
+	private static final double []MIN_MAX_BASELINE_HBA1C = {7.5, 9.9};
 	/** Mean and SD of baseline age. SD is the highest from all the cohorts */
 	private static final double []BASELINE_AGE = {46.217, 14};
 	/** Minimum and maximum of baseline age. From DIAMOND */
@@ -52,7 +54,11 @@ public class GoldDiamondPopulation extends DiabetesStdPopulation {
 	protected RandomVariate getBaselineHBA1c() {
 		if (BasicConfigParams.USE_FIXED_BASELINE_HBA1C)
 			return RandomVariateFactory.getInstance("ConstantVariate", BASELINE_HBA1C[0]);
-		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_HBA1C[0], BASELINE_HBA1C[1]);
+//		return RandomVariateFactory.getInstance("NormalVariate", BASELINE_HBA1C[0], BASELINE_HBA1C[1]);
+		final double mode = Statistics.betaModeFromMeanSD(BASELINE_HBA1C[0], BASELINE_HBA1C[1]);
+		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_HBA1C[0], mode, MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[1]);
+		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]); 
+		return RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_BASELINE_HBA1C[1] - MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[0]);			
 	}
 
 	/* (non-Javadoc)
@@ -96,14 +102,14 @@ public class GoldDiamondPopulation extends DiabetesStdPopulation {
 		return (17.0+32.0) / 300.0;
 	}
 //	public static void main(String[] args) {
-//		final double[] initBetaParams = Statistics.betaParametersFromNormal(BASELINE_AGE[0], BASELINE_AGE[1]);
+//		final double[] initBetaParams = Statistics.betaParametersFromNormal(BASELINE_HBA1C[0], BASELINE_HBA1C[1]);
 //		final double k = ((initBetaParams[0] + initBetaParams[1])*(initBetaParams[0] + initBetaParams[1]))/initBetaParams[1];
-//		final double variance = BASELINE_AGE[1] * BASELINE_AGE[1];
+//		final double variance = BASELINE_HBA1C[1] * BASELINE_HBA1C[1];
 //		final double mode = variance * k * (initBetaParams[0] - 1) / (initBetaParams[0] - 3 * variance * k);
 //		
-//		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_AGE[0], mode, MIN_MAX_BASELINE_AGE[0], MIN_MAX_BASELINE_AGE[1]);
+//		final double[] betaParams = Statistics.betaParametersFromEmpiricData(BASELINE_HBA1C[0], mode, MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[1]);
 //		final RandomVariate rnd = RandomVariateFactory.getInstance("BetaVariate", betaParams[0], betaParams[1]); 
-//		final RandomVariate rnd1 = RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_BASELINE_AGE[1] - MIN_MAX_BASELINE_AGE[0], MIN_MAX_BASELINE_AGE[0]);
+//		final RandomVariate rnd1 = RandomVariateFactory.getInstance("ScaledVariate", rnd, MIN_MAX_BASELINE_HBA1C[1] - MIN_MAX_BASELINE_HBA1C[0], MIN_MAX_BASELINE_HBA1C[0]);
 //		for (int i = 0; i < 10000; i++)
 //			System.out.println(rnd1.generate());
 //		

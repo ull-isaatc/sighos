@@ -35,6 +35,7 @@ public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicatio
 	private static final double COST_HYPO_EPISODE = 716.82;
 	
 	private static final double P_DEATH = 0.0063;
+	private final SecondOrderParam mort;
 	private final SecondOrderParam p; 
 	private final SecondOrderParam rr; 
 	private final SecondOrderParam du; 
@@ -42,8 +43,8 @@ public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicatio
 	/** If true, interprets p as an annual rate (patient-year), and rr as an IRR */
 	private final boolean rate;
 
-	public StandardSevereHypoglycemiaEvent(SecondOrderParam p, SecondOrderParam rr, SecondOrderParam du, SecondOrderCostParam cost, EnumSet<DiabetesType> diabetesTypes) {
-		this(p, rr, du, cost, diabetesTypes, false);
+	public StandardSevereHypoglycemiaEvent(SecondOrderParam p, SecondOrderParam rr, SecondOrderParam du, SecondOrderCostParam cost, SecondOrderParam mortality, EnumSet<DiabetesType> diabetesTypes) {
+		this(p, rr, du, cost, mortality, diabetesTypes, false);
 	}
 
 	/**
@@ -55,12 +56,13 @@ public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicatio
 	 * @param diabetesTypes Types of diabetes that this event is valid for 
 	 * @param rate If true, interprets p as an annual rate (patient-year), and rr as an IRR
 	 */
-	public StandardSevereHypoglycemiaEvent(SecondOrderParam p, SecondOrderParam rr, SecondOrderParam du, SecondOrderCostParam cost, EnumSet<DiabetesType> diabetesTypes, boolean rate) {
+	public StandardSevereHypoglycemiaEvent(SecondOrderParam p, SecondOrderParam rr, SecondOrderParam du, SecondOrderCostParam cost, SecondOrderParam mortality, EnumSet<DiabetesType> diabetesTypes, boolean rate) {
 		super(DiabetesAcuteComplications.SHE, diabetesTypes);
 		this.p = p;
 		this.rr = rr;
 		this.du = du;
 		this.cost = cost;
+		this.mort = mortality;
 		this.rate = rate;
 	}
 
@@ -69,19 +71,12 @@ public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicatio
 	}
 	
 	public StandardSevereHypoglycemiaEvent(SecondOrderParam p, SecondOrderParam rr, EnumSet<DiabetesType> diabetesTypes, boolean rate) {
-		this(p, rr, 				
-			new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "Walters et al. 10.1016/s1098-3015(10)63316-5", 
-				DU_HYPO_EPISODE, "UniformVariate", LIMITS_DU_HYPO_EPISODE[0], LIMITS_DU_HYPO_EPISODE[1]),
-			new SecondOrderCostParam(StandardSevereHypoglycemiaEvent.STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", 
-				"https://doi.org/10.1007/s13300-017-0285-0", 2017, COST_HYPO_EPISODE, SecondOrderParamsRepository.getRandomVariateForCost(COST_HYPO_EPISODE)),
-			diabetesTypes, rate);
+		this(p, rr, getDefaultDisutilityParameter(), getDefaultCostParameter(),	getDefaultMortalityParameter(), diabetesTypes, rate);
 	}
 	
 	@Override
 	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
-		final double[] paramsDeathHypo = Statistics.betaParametersFromNormal(P_DEATH, Statistics.sdFrom95CI(new double[]{0.0058, 0.0068}));
-		secParams.addProbParam(new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", 
-				"Canada", P_DEATH, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1])));
+		secParams.addProbParam(mort);
 		secParams.addProbParam(p);
 		secParams.addOtherParam(rr);
 
@@ -93,6 +88,22 @@ public class StandardSevereHypoglycemiaEvent extends SecondOrderAcuteComplicatio
 	@Override
 	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
 		return isEnabled() ? new Instance(secParams) : new DisabledAcuteComplicationInstance();
+	}
+	
+	public static SecondOrderParam getDefaultDisutilityParameter() {
+		return new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "Walters et al. 10.1016/s1098-3015(10)63316-5", 
+			DU_HYPO_EPISODE, "UniformVariate", LIMITS_DU_HYPO_EPISODE[0], LIMITS_DU_HYPO_EPISODE[1]);
+	}
+	
+	public static SecondOrderCostParam getDefaultCostParameter() {
+		return new SecondOrderCostParam(StandardSevereHypoglycemiaEvent.STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", 
+			"https://doi.org/10.1007/s13300-017-0285-0", 2017, COST_HYPO_EPISODE, SecondOrderParamsRepository.getRandomVariateForCost(COST_HYPO_EPISODE));
+	}
+	
+	public static SecondOrderParam getDefaultMortalityParameter() {
+		final double[] paramsDeathHypo = Statistics.betaParametersFromNormal(P_DEATH, Statistics.sdFrom95CI(new double[]{0.0058, 0.0068}));
+		return new SecondOrderParam(STR_P_DEATH_HYPO, "Probability of death after severe hypoglycemic episode", 
+				"Canada", P_DEATH, RandomVariateFactory.getInstance("BetaVariate", paramsDeathHypo[0], paramsDeathHypo[1]));
 	}
 	
 	public class Instance extends AcuteComplicationSubmodel {

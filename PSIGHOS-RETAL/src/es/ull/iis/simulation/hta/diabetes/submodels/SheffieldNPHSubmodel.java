@@ -49,7 +49,7 @@ public class SheffieldNPHSubmodel extends SecondOrderChronicComplicationSubmodel
 	private static final double C_ALB1 = 0.0;
 	private static final double C_ESRD = 34259.48;
 	private static final double TC_ESRD = 3250.73;
-	private static final double[] LIMITS_C_ALB1 = {0.0, 500.0}; // Assumption
+	private static final double[] LIMITS_C_ALB1 = {0.0, 300.0}; // Assumption
 	private static final double[] COEF_C_ALB2 = {1.0, 2.0}; // Assumption
 	// Utility (avg, SD) from either Bagust and Beale; or Sullivan
 	private static final double[] DU_ALB2 = BasicConfigParams.USE_REVIEW_UTILITIES ? new double[] {0.048, (0.091 - 0.005) / 3.92}: new double[] {0.0527, 0.0001};

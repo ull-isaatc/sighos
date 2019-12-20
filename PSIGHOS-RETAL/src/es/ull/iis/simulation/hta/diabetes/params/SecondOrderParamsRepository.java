@@ -98,6 +98,7 @@ public abstract class SecondOrderParamsRepository {
 	protected SecondOrderDeathSubmodel registeredDeathSubmodel = null;
 	/** The collection of interventions */
 	final protected ArrayList<SecondOrderDiabetesIntervention> registeredInterventions;
+	// TODO: Change by scenarios: each parameter could be defined according to an scenario. This woulud require adding a factory to secondOrderParams and allowing a user to add several parameter settings
 	/** True if base case parameters (expected values) should be used. False for second order simulations. WARNING: This parameter is not protected against concurrent modifications; if
 	 * base case and not base case simulations are launched in parallel, it may fail */
 	protected boolean baseCase = true;
@@ -555,7 +556,7 @@ public abstract class SecondOrderParamsRepository {
 	 * Returns the interventions to be compared within the simulation
 	 * @return The interventions to be compared within the simulation
 	 */
-	private final DiabetesIntervention[] getInterventions() {
+	protected DiabetesIntervention[] getInterventions() {
 		final DiabetesIntervention[] interventions = new DiabetesIntervention[registeredInterventions.size()];
 		for (int i = 0; i < registeredInterventions.size(); i++) {
 			interventions[i] = registeredInterventions.get(i).getInstance(i, this);

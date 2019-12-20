@@ -60,6 +60,7 @@ public class DCCTSecondOrderParams extends SecondOrderParamsRepository {
 					DEF_SOURCE,	3.27272727, RandomVariateFactory.getInstance("ExpTransformVariate", RandomVariateFactory.getInstance("NormalVariate", 1.1856237, 0.22319455))),
 				new SecondOrderParam(StandardSevereHypoglycemiaEvent.STR_DU_HYPO_EVENT, "Disutility of severe hypoglycemic episode", "Assumption", DU_HYPO_EPISODE),
 				new SecondOrderCostParam(StandardSevereHypoglycemiaEvent.STR_COST_HYPO_EPISODE, "Cost of a severe hypoglycemic episode", "Assumption", 2018, C_HYPO_EPISODE),
+				StandardSevereHypoglycemiaEvent.getDefaultMortalityParameter(),
 				EnumSet.of(DiabetesType.T1)
 				));
 
