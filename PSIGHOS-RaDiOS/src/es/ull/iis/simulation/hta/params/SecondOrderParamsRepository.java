@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.DiseaseProgression;
 import es.ull.iis.simulation.hta.DiseaseProgressionPair;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
+import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
@@ -46,7 +46,7 @@ import simkit.random.RandomVariateFactory;
  * This repository also contains the acute and chronic complications defined for diabetes. Complications must be registered 
  * to be used within the simulation. To register a complication:
  * <ol>
- * <li>Use the {@link #registerComplication(DiabetesChronicComplications)} or the {@link #registerComplication(DiabetesAcuteComplications)} method</li>
+ * <li>Use the {@link #registerComplication(DiabetesChronicComplications)} or the {@link #registerComplication(AcuteComplication)} method</li>
  * <li>Currently, only chronic complications allow for stages. Use the {@link #registerComplicationStages(DiabetesComplicationStage[])} method to add them</li>
  * </ol>
  * </p>
@@ -93,7 +93,7 @@ public abstract class SecondOrderParamsRepository {
 	/** The collection of defined chronic complications */
 	final protected SecondOrderChronicComplicationSubmodel[] registeredChronicComplication;
 	/** The collection of defined acute complications */
-	final protected SecondOrderAcuteComplicationSubmodel[] registeredAcuteComplication;
+	final protected ArrayList<SecondOrderAcuteComplicationSubmodel> registeredAcuteComplication;
 	/** The death submodel to be used */
 	protected SecondOrderDeathSubmodel registeredDeathSubmodel = null;
 	/** The collection of interventions */
@@ -122,8 +122,7 @@ public abstract class SecondOrderParamsRepository {
 		this.registeredComplicationStages = new ArrayList<>();
 		this.registeredChronicComplication = new SecondOrderChronicComplicationSubmodel[DiabetesChronicComplications.values().length];
 		Arrays.fill(this.registeredChronicComplication, null);
-		this.registeredAcuteComplication = new SecondOrderAcuteComplicationSubmodel[DiabetesAcuteComplications.values().length];
-		Arrays.fill(this.registeredAcuteComplication, null);
+		this.registeredAcuteComplication = new ArrayList<SecondOrderAcuteComplicationSubmodel>();
 		this.registeredInterventions = new ArrayList<>();
 	}
 
@@ -133,11 +132,6 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public String checkValidity() {
 		final StringBuilder str = new StringBuilder();
-		for (int i = 0; i < registeredAcuteComplication.length; i++) {
-			if (registeredAcuteComplication[i] == null) {
-				str.append("Submodel for acute complication not found:\t").append(DiabetesAcuteComplications.values()[i].getDescription()).append(System.lineSeparator());
-			}
-		}
 		for (int i = 0; i < registeredChronicComplication.length; i++) {
 			if (registeredChronicComplication[i] == null) {
 				str.append("Submodel for chronic complication not found:\t").append(DiabetesChronicComplications.values()[i].getDescription()).append(System.lineSeparator());
@@ -178,7 +172,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @return the registered acute complication submodels
 	 */
 	public SecondOrderAcuteComplicationSubmodel[] getRegisteredAcuteComplications() {
-		return registeredAcuteComplication;
+		return (SecondOrderAcuteComplicationSubmodel[])registeredAcuteComplication.toArray();
 	}
 	
 	/**
@@ -186,7 +180,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @param comp Acute complication
 	 */
 	public void registerComplication(SecondOrderAcuteComplicationSubmodel comp) {
-		registeredAcuteComplication[comp.getComplicationType().ordinal()] = comp;
+		registeredAcuteComplication.add(comp);
 		comp.addSecondOrderParams(this);
 	}
 	
@@ -199,15 +193,6 @@ public abstract class SecondOrderParamsRepository {
 		return (registeredChronicComplication[comp.ordinal()] != null);
 	}
 
-	/**
-	 * Returns true if the specified acute complication is already registered
-	 * @param comp Acute complication
-	 * @return True if the specified acute complication is already registered
-	 */
-	public boolean isRegistered(DiabetesAcuteComplications comp) {
-		return (registeredAcuteComplication[comp.ordinal()] != null);
-	}
-	
 	/**
 	 * Returns the already registered complication stages
 	 * @return The already registered complication stages
@@ -457,7 +442,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @param comp Acute complication
 	 * @return the cost for an acute complication; 0.0 if not defined
 	 */
-	public double getCostForAcuteComplication(DiabetesAcuteComplications comp) {
+	public double getCostForAcuteComplication(AcuteComplication comp) {
 		final SecondOrderParam param = costParams.get(STR_COST_PREFIX + comp.name());
 		return (param == null) ? 0.0 : param.getValue(baseCase); 						
 	}
@@ -477,7 +462,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @param comp Acute complication
 	 * @return the disutility for an acute complication; 0.0 if not defined
 	 */
-	public double getDisutilityForAcuteComplication(DiabetesAcuteComplications comp) {
+	public double getDisutilityForAcuteComplication(AcuteComplication comp) {
 		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + comp.name());
 		return (param == null) ? 0.0 : param.getValue(baseCase); 		
 	}
@@ -582,10 +567,10 @@ public abstract class SecondOrderParamsRepository {
 	 * @return the list of first order instances of the acute complication submodels
 	 */
 	private final AcuteComplicationSubmodel[] getAcuteComplicationSubmodelInstances() {
-		final AcuteComplicationSubmodel[] comps = new AcuteComplicationSubmodel[DiabetesAcuteComplications.values().length];
+		final AcuteComplicationSubmodel[] comps = new AcuteComplicationSubmodel[registeredAcuteComplication.size()];
 		
 		for (int i = 0; i < comps.length; i++) {
-			comps[i] = (AcuteComplicationSubmodel) registeredAcuteComplication[i].getInstance(this);
+			comps[i] = (AcuteComplicationSubmodel) registeredAcuteComplication.get(i).getInstance(this);
 		}
 		return comps;
 	}
@@ -817,7 +802,7 @@ public abstract class SecondOrderParamsRepository {
 		 * @param cancelLast If true, the new event substitutes the former one
 		 * @return the time that a patient waits until he/she suffers the specified acute complication
 		 */
-		public DiseaseProgressionPair getTimeToAcuteEvent(Patient pat, DiabetesAcuteComplications complication, boolean cancelLast) {
+		public DiseaseProgressionPair getTimeToAcuteEvent(Patient pat, AcuteComplication complication, boolean cancelLast) {
 			if (cancelLast)
 				acuteCompSubmodels[complication.ordinal()].cancelLast(pat);
 			return acuteCompSubmodels[complication.ordinal()].getProgression(pat);

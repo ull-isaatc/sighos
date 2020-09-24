@@ -9,7 +9,7 @@ import java.util.Locale;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
+import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
@@ -54,7 +54,7 @@ public class AnnualCostView implements ExperimentListener {
 		this.minAge = secParams.getMinAge();
 		this.maxAge = BasicConfigParams.DEF_MAX_AGE;
 		chronicCost = new double[nInterventions][DiabetesChronicComplications.values().length][maxAge-minAge+1];
-		acuteCost = new double[nInterventions][DiabetesAcuteComplications.values().length][maxAge-minAge+1];
+		acuteCost = new double[nInterventions][AcuteComplication.values().length][maxAge-minAge+1];
 		interventionCost = new double[nInterventions][maxAge-minAge+1];
 		managementCost = new double[nInterventions][maxAge-minAge+1];
 	}
@@ -76,7 +76,7 @@ public class AnnualCostView implements ExperimentListener {
 			for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
 				str.append("\t" + name + "-").append(comp);
 			}
-			for (DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
+			for (AcuteComplication comp : AcuteComplication.values()) {
 				str.append("\t" + name + "-").append(comp);			
 			}
 		}
@@ -88,7 +88,7 @@ public class AnnualCostView implements ExperimentListener {
 				for (int k = 0; k < DiabetesChronicComplications.values().length; k++) {
 					str.append("\t").append(String.format(Locale.US, "%.2f", chronicCost[i][k][year] / nExperiments));
 				}
-				for (int k = 0; k < DiabetesAcuteComplications.values().length; k++) {
+				for (int k = 0; k < AcuteComplication.values().length; k++) {
 					str.append("\t").append(String.format(Locale.US, "%.2f", acuteCost[i][k][year] / nExperiments));
 				}
 			}
@@ -123,7 +123,7 @@ public class AnnualCostView implements ExperimentListener {
 			this.lastAge = new double[nPatients];
 			Arrays.fill(lastAge, 0.0);
 			chronicCost = new double[DiabetesChronicComplications.values().length][maxAge-minAge+1];
-			acuteCost = new double[DiabetesAcuteComplications.values().length][maxAge-minAge+1];
+			acuteCost = new double[AcuteComplication.values().length][maxAge-minAge+1];
 			interventionCost = new double[maxAge-minAge+1];
 			managementCost = new double[maxAge-minAge+1];
 			addGenerated(PatientInfo.class);
@@ -188,7 +188,7 @@ public class AnnualCostView implements ExperimentListener {
 				for (int j = 0; j < DiabetesChronicComplications.values().length; j++) {
 					AnnualCostView.this.chronicCost[interventionId][j][i] += chronicCost[j][i] / nPatients;
 				}
-				for (int j = 0; j < DiabetesAcuteComplications.values().length; j++) {
+				for (int j = 0; j < AcuteComplication.values().length; j++) {
 					AnnualCostView.this.acuteCost[interventionId][j][i] += acuteCost[j][i] / nPatients;
 				}
 			}			

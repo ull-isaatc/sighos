@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.hta.outcomes;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
+import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.submodels.AcuteComplicationSubmodel;
@@ -69,7 +69,7 @@ public class SubmodelCostCalculator implements CostCalculator {
 	}
 	
 	@Override
-	public double getCostForAcuteEvent(Patient pat, DiabetesAcuteComplications comp) {
+	public double getCostForAcuteEvent(Patient pat, AcuteComplication comp) {
 		return acuteSubmodels[comp.ordinal()].getCostOfComplication(pat);
 	}
 

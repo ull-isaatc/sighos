@@ -19,7 +19,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
+import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.inforeceiver.AcuteComplicationCounterListener;
 import es.ull.iis.simulation.hta.inforeceiver.AnnualCostView;
@@ -383,7 +383,7 @@ public class DiseaseMain {
 	    			}
 	    		}
 	    		if (!found) {
-		    		for (final DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
+		    		for (final AcuteComplication comp : AcuteComplication.values()) {
 		    			if (comp.name().equals(compName)) {
 		    				found = true;
 		    				acuteSubmodels[comp.ordinal()].disable();

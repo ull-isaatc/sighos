@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.submodels;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionPair;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
+import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.params.DeathWithEventParam;
 import es.ull.iis.simulation.hta.params.MultipleEventParam;
 
@@ -24,7 +24,7 @@ public abstract class AcuteComplicationSubmodel extends ComplicationSubmodel {
 	/** Death associated to the acute events */
 	private final DeathWithEventParam associatedDeath;
 
-	private final DiabetesAcuteComplications comp;
+	private final AcuteComplication comp;
 	/**
 	 * Creates a submodel for an acute complication. 
 	 * @param nPatients Number of patient that will be created
@@ -32,7 +32,7 @@ public abstract class AcuteComplicationSubmodel extends ComplicationSubmodel {
 	 * @param rr Relative risk of developing the acute complication, depending on characteristics of the patient or the intervention
 	 * @param pDeath Probability of dying when an acute event appears
 	 */
-	public AcuteComplicationSubmodel(DiabetesAcuteComplications comp, MultipleEventParam<Long> time2Event, DeathWithEventParam associatedDeath) {
+	public AcuteComplicationSubmodel(AcuteComplication comp, MultipleEventParam<Long> time2Event, DeathWithEventParam associatedDeath) {
 		this.time2Event = time2Event;
 		this.associatedDeath = associatedDeath;
 		this.comp = comp;

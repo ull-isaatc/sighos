@@ -8,7 +8,7 @@ import java.util.EnumSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
+import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.info.PatientInfo;
@@ -27,7 +27,7 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  * Depending on the effect of the intervention, HbA1c level may change. The effect of the intervention itself can be lifelong or restricted 
  * to a time period.
  * The patient may progress to several chronic complications (see {@link DiabetesChronicComplications}), or may develop acute complications 
- * (see {@link DiabetesAcuteComplications}).
+ * (see {@link AcuteComplication}).
  * @author Iván Castilla Rodríguez
  *
  */
@@ -85,8 +85,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 
 		this.initAge = BasicConfigParams.SIMUNIT.convert(profile.getInitAge(), TimeUnit.YEAR);
 		comorbidityEvents = new TreeMap<>();
-		acuteEvents = new ArrayList<>(DiabetesAcuteComplications.values().length);
-		for (int i = 0; i < DiabetesAcuteComplications.values().length; i++)
+		acuteEvents = new ArrayList<>(AcuteComplication.values().length);
+		for (int i = 0; i < AcuteComplication.values().length; i++)
 			acuteEvents.add(new ArrayList<>());
 		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
@@ -109,8 +109,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.profile = original.profile;
 		this.initAge = original.initAge;
 		comorbidityEvents = new TreeMap<>();
-		acuteEvents = new ArrayList<>(DiabetesAcuteComplications.values().length);
-		for (int i = 0; i < DiabetesAcuteComplications.values().length; i++)
+		acuteEvents = new ArrayList<>(AcuteComplication.values().length);
+		for (int i = 0; i < AcuteComplication.values().length; i++)
 			acuteEvents.add(new ArrayList<>());
 		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
@@ -326,7 +326,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 				}
 			}
 			
-			for (DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
+			for (AcuteComplication comp : AcuteComplication.values()) {
 				// Assign severe hypoglycemic events
 				final DiseaseProgressionPair acuteEvent = commonParams.getTimeToAcuteEvent(Patient.this, comp, false);
 				if (acuteEvent.getTimeToEvent() < timeToDeath) {
@@ -431,7 +431,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		
 		@Override
 		public void event() {
-			final DiabetesAcuteComplications comp = (DiabetesAcuteComplications) progress.getComplication();
+			final AcuteComplication comp = (AcuteComplication) progress.getComplication();
 			simul.notifyInfo(new PatientInfo(simul, Patient.this, comp, this.getTs()));
 			// If the acute event causes the death of the patient
 			if (progress.causesDeath()) {
@@ -464,7 +464,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		
 		@Override
 		public void event() {
-			for (DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
+			for (AcuteComplication comp : AcuteComplication.values()) {
 				// Check last acute event
 				final ArrayList<AcuteEvent> acuteEventList = acuteEvents.get(comp.ordinal());
 				if (!acuteEventList.isEmpty()) {

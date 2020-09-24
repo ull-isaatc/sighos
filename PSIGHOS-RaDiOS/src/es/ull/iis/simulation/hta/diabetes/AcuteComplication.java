@@ -6,17 +6,17 @@ package es.ull.iis.simulation.hta.diabetes;
 import es.ull.iis.simulation.hta.Named;
 
 /**
- * Main acute complications included in the model
+ * Acute complication included in the model
  * @author Iván Castilla Rodríguez
  *
  */
-public enum DiabetesAcuteComplications implements Named {
-	SHE("Severe hypoglycemic event");
-	
+public class AcuteComplication implements Named {
+	private final String name;	
 	private final String description;
 	
-	private DiabetesAcuteComplications(String description) {
+	private AcuteComplication(String name, String description) {
 		this.description = description;
+		this.name = name;
 	}
 
 	/**
@@ -25,6 +25,11 @@ public enum DiabetesAcuteComplications implements Named {
 	 */
 	public String getDescription() {
 		return description;
+	}
+
+	@Override
+	public String name() {
+		return name;
 	}
 
 	

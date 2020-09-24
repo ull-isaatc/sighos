@@ -8,7 +8,7 @@ import java.util.Locale;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
+import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
@@ -46,7 +46,7 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 		nAlivePatients = new double[nInterventions][nIntervals];
 		nDeaths = new double[nInterventions][nIntervals];
 		nChronic = new double[nInterventions][secParams.getRegisteredComplicationStages().size()][nIntervals];
-		nAcute = new double[nInterventions][DiabetesAcuteComplications.values().length][nIntervals];
+		nAcute = new double[nInterventions][AcuteComplication.values().length][nIntervals];
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 			for (DiabetesComplicationStage comp : secParams.getRegisteredComplicationStages()) {
 				str.append("\t" + name + "_").append(comp.name());
 			}
-			for (DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
+			for (AcuteComplication comp : AcuteComplication.values()) {
 				str.append("\t" + name + "_").append(comp.name());				
 			}
 		}
@@ -109,7 +109,7 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 			nDeaths = new int[nIntervals];
 			nAlivePatients = new int[nIntervals];
 			nChronic = new int[secParams.getRegisteredComplicationStages().size()][nIntervals];
-			nAcute = new int[DiabetesAcuteComplications.values().length][nIntervals];
+			nAcute = new int[AcuteComplication.values().length][nIntervals];
 			addGenerated(PatientInfo.class);
 			addEntrance(PatientInfo.class);
 			addEntrance(SimulationStartStopInfo.class);

@@ -5,23 +5,23 @@ package es.ull.iis.simulation.hta.submodels;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionPair;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
+import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 
 /**
  * @author icasrod
  *
  */
 public abstract class SecondOrderAcuteComplicationSubmodel extends SecondOrderComplicationSubmodel {
-	private final DiabetesAcuteComplications type;
+	private final AcuteComplication type;
 	/**
 	 * @param diabetesTypes
 	 */
-	public SecondOrderAcuteComplicationSubmodel(final DiabetesAcuteComplications type) {
+	public SecondOrderAcuteComplicationSubmodel(final AcuteComplication type) {
 		super();
 		this.type = type;
 	}
 
-	public final DiabetesAcuteComplications getComplicationType() {
+	public final AcuteComplication getComplicationType() {
 		return type;
 	}
 

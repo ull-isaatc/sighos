@@ -10,7 +10,7 @@ import java.util.Locale;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
+import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.info.PatientInfo;
@@ -110,7 +110,7 @@ public class EpidemiologicView implements ExperimentListener {
 		nAlivePatients = new double[nInterventions][nIntervals];
 		nChronic = new double[nInterventions][secParams.getRegisteredComplicationStages().size()][nIntervals];
 		nMainChronic = new double[nInterventions][DiabetesChronicComplications.values().length][nIntervals];
-		nAcute = new double[nInterventions][DiabetesAcuteComplications.values().length][nIntervals];
+		nAcute = new double[nInterventions][AcuteComplication.values().length][nIntervals];
 		nDeathsByCause = new HashMap<>();
 	}
 
@@ -137,7 +137,7 @@ public class EpidemiologicView implements ExperimentListener {
 			for (DiabetesComplicationStage comp : secParams.getRegisteredComplicationStages()) {
 				str.append("\t" + name + "_").append(comp.name());
 			}
-			for (DiabetesAcuteComplications comp : DiabetesAcuteComplications.values()) {
+			for (AcuteComplication comp : AcuteComplication.values()) {
 				str.append("\t" + name + "_").append(comp.name());				
 			}
 		}
@@ -193,7 +193,7 @@ public class EpidemiologicView implements ExperimentListener {
 			nChronic = new int[secParams.getRegisteredComplicationStages().size()][nIntervals];
 			nMainChronic = new int[DiabetesChronicComplications.values().length][nIntervals];
 			patientMainChronic = new boolean[DiabetesChronicComplications.values().length][nPatients];
-			nAcute = new int[DiabetesAcuteComplications.values().length][nIntervals];
+			nAcute = new int[AcuteComplication.values().length][nIntervals];
 			addGenerated(PatientInfo.class);
 			addEntrance(PatientInfo.class);
 			addEntrance(SimulationStartStopInfo.class);

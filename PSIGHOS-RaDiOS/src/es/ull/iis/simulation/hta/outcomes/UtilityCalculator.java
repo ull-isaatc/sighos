@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.hta.outcomes;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
+import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 
 /**
  * A class implementing this interface can calculate the disease-related utilities 
@@ -50,7 +50,7 @@ public interface UtilityCalculator {
 	 * @param comp The acute complication
 	 * @return the disutility value for the specified acute event
 	 */
-	public double getAcuteEventDisutilityValue(Patient pat, DiabetesAcuteComplications comp);
+	public double getAcuteEventDisutilityValue(Patient pat, AcuteComplication comp);
 	
 	/**
 	 * Returns the utility value for a patient, taking into account the chronic complications he/she is suffering

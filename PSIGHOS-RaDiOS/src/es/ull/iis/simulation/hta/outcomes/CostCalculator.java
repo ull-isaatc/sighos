@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.hta.outcomes;
 
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesAcuteComplications;
+import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 
 /**
@@ -37,7 +37,7 @@ public interface CostCalculator {
 	 * @param comp The acute event
 	 * @return the cost of an acute event
 	 */
-	public double getCostForAcuteEvent(Patient pat, DiabetesAcuteComplications comp);
+	public double getCostForAcuteEvent(Patient pat, AcuteComplication comp);
 
 	/**
 	 * Returns the costs incurred by the intervention alone
