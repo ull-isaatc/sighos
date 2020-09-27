@@ -1,37 +1,35 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.diabetes;
+package es.ull.iis.simulation.hta;
 
-import es.ull.iis.simulation.hta.Named;
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StartWithComplicationParam;
 
 /**
- * A stage of a {@link DiabetesChronicComplications chronic complication} defined in the model. Different chronic complications submodels
+ * A stage of a {@link ChronicComplication chronic complication} defined in the model. Different chronic complications submodels
  * can define different stages that are registered at the beginning of the simulation. 
  * @author Iván Castilla Rodríguez
  *
  */
-public class DiabetesComplicationStage implements Named, Comparable<DiabetesComplicationStage> {
+public class ComplicationStage implements Named, Comparable<ComplicationStage> {
 	/** Short name of the complication stage */
 	private final String name;
 	/** Full description of the complication stage */
 	private final String description;
 	/** Main chronic complication this stage is related to */
-	private final DiabetesChronicComplications mainComp;
+	private final ChronicComplication mainComp;
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
 	 * complications defined to be used within a simulation */ 
 	private int ord = -1;
 	
 	/**
-	 * Creates a new complication stage of a {@link DiabetesChronicComplications chronic complication} defined in the model
+	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
 	 * @param name Name of the stage
 	 * @param description Full description of the stage
 	 * @param mainComp Main chronic complication
 	 */
-	public DiabetesComplicationStage(String name, String description, DiabetesChronicComplications mainComp) {
+	public ComplicationStage(String name, String description, ChronicComplication mainComp) {
 		this.name = name;
 		this.description = description;
 		this.mainComp = mainComp;
@@ -46,10 +44,10 @@ public class DiabetesComplicationStage implements Named, Comparable<DiabetesComp
 	}
 	
 	/**
-	 * Returns the {@link DiabetesChronicComplications} this complication stage is related to.
-	 * @return the {@link DiabetesChronicComplications} this complication stage is related to
+	 * Returns the {@link ChronicComplication} this complication stage is related to.
+	 * @return the {@link ChronicComplication} this complication stage is related to
 	 */
-	public DiabetesChronicComplications getComplication() {
+	public ChronicComplication getComplication() {
 		return mainComp;
 	}
 	
@@ -76,7 +74,7 @@ public class DiabetesComplicationStage implements Named, Comparable<DiabetesComp
 	}
 
 	@Override
-	public int compareTo(DiabetesComplicationStage o) {
+	public int compareTo(ComplicationStage o) {
 		if (ord > o.ord)
 			return 1;
 		if (ord < o.ord)

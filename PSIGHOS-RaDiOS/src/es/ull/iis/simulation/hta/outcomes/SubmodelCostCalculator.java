@@ -4,9 +4,9 @@
 package es.ull.iis.simulation.hta.outcomes;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
+import es.ull.iis.simulation.hta.ChronicComplication;
+import es.ull.iis.simulation.hta.ComplicationStage;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
-import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.submodels.ChronicComplicationSubmodel;
 
@@ -43,9 +43,9 @@ public class SubmodelCostCalculator implements CostCalculator {
 		// The management cost is added anyway
 		cost += costNoComplication;
 		// Check each complication
-		for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
+		for (ChronicComplication comp : ChronicComplication.values()) {
 			if (pat.hasComplication(comp)) {
-				cost += chronicSubmodels[comp.ordinal()].getAnnualCostWithinPeriod(pat, initAge, endAge);
+				cost += chronicSubmodels[comp.getInternalId()].getAnnualCostWithinPeriod(pat, initAge, endAge);
 			}		
 		}
 		return cost;
@@ -58,11 +58,11 @@ public class SubmodelCostCalculator implements CostCalculator {
 	
 	@Override
 	public double[] getAnnualChronicComplicationCostWithinPeriod(Patient pat, double initAge, double endAge) {
-		final double[] costs = new double[DiabetesChronicComplications.values().length];
+		final double[] costs = new double[ChronicComplication.values().length];
 		// Check each complication
-		for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
+		for (ChronicComplication comp : ChronicComplication.values()) {
 			if (pat.hasComplication(comp)) {
-				costs[comp.ordinal()] = chronicSubmodels[comp.ordinal()].getAnnualCostWithinPeriod(pat, initAge, endAge);
+				costs[comp.getInternalId()] = chronicSubmodels[comp.getInternalId()].getAnnualCostWithinPeriod(pat, initAge, endAge);
 			}		
 		}
 		return costs;
@@ -74,8 +74,8 @@ public class SubmodelCostCalculator implements CostCalculator {
 	}
 
 	@Override
-	public double getCostOfComplication(Patient pat, DiabetesComplicationStage newEvent) {
-		return chronicSubmodels[newEvent.getComplication().ordinal()].getCostOfComplication(pat, newEvent);
+	public double getCostOfComplication(Patient pat, ComplicationStage newEvent) {
+		return chronicSubmodels[newEvent.getComplication().getInternalId()].getCostOfComplication(pat, newEvent);
 	}
 
 	@Override

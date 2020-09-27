@@ -5,10 +5,10 @@ package es.ull.iis.simulation.hta.submodels;
 
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.ChronicComplication;
+import es.ull.iis.simulation.hta.ComplicationStage;
 import es.ull.iis.simulation.hta.DiseaseProgression;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
-import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
@@ -19,25 +19,29 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  *
  */
 public abstract class SecondOrderChronicComplicationSubmodel extends SecondOrderComplicationSubmodel {
-	/** The type of the complication among those defined in {@link DiabetesChronicComplications} */
-	private final DiabetesChronicComplications type;
+	/** The comp of the complication among those defined in {@link ChronicComplication} */
+	private final ChronicComplication comp;
 	
 	/**
 	 * Creates the second order definition of a chronic complication submodel 
-	 * @param type The type of the complication among those defined in {@link DiabetesChronicComplications}
+	 * @param comp The comp of the complication among those defined in {@link ChronicComplication}
 	 * @param diabetesTypes Diabetes types that this submodel can be used for
 	 */
-	public SecondOrderChronicComplicationSubmodel(final DiabetesChronicComplications type) {
+	public SecondOrderChronicComplicationSubmodel(final ChronicComplication comp) {
 		super();
-		this.type = type;
+		this.comp = comp;
+	}
+
+	public final ChronicComplication getComplication() {
+		return comp;
 	}
 
 	/**
-	 * Returns the type of the complication among those defined in {@link DiabetesChronicComplications}
-	 * @return the type of the complication 
+	 * Returns the comp of the complication among those defined in {@link ChronicComplication}
+	 * @return the comp of the complication 
 	 */
-	public DiabetesChronicComplications getComplicationType() {
-		return type;
+	public ChronicComplication getComplicationType() {
+		return comp;
 	}
 	/** 
 	 * Returns the number of stages used to model this complication
@@ -48,7 +52,7 @@ public abstract class SecondOrderChronicComplicationSubmodel extends SecondOrder
 	 * Returns the stages used to model this chronic complication
 	 * @return An array containing the stages used to model this chronic complication 
 	 */
-	public abstract DiabetesComplicationStage[] getStages();
+	public abstract ComplicationStage[] getStages();
 
 	/**
 	 * Returns the number of different transitions defined from one stage to another
@@ -62,7 +66,7 @@ public abstract class SecondOrderChronicComplicationSubmodel extends SecondOrder
 	 * @param secParams Second order parameters repository
 	 */
 	public void addSecondOrderInitProportion(SecondOrderParamsRepository secParams) {
-		for (final DiabetesComplicationStage stage : getStages()) {
+		for (final ComplicationStage stage : getStages()) {
 			if (BasicConfigParams.INIT_PROP.containsKey(stage.name())) {
 				secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getInitProbString(stage), "Initial proportion of " + stage.name(), "",
 						BasicConfigParams.INIT_PROP.get(stage.name())));
@@ -84,7 +88,7 @@ public abstract class SecondOrderChronicComplicationSubmodel extends SecondOrder
 		}
 
 		@Override
-		public TreeSet<DiabetesComplicationStage> getInitialStage(Patient pat) {
+		public TreeSet<ComplicationStage> getInitialStage(Patient pat) {
 			return new TreeSet<>();
 		}
 		@Override

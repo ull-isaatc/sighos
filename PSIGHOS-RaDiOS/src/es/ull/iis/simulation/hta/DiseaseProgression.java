@@ -6,8 +6,6 @@ package es.ull.iis.simulation.hta;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
-
 /**
  * A change in the progression of a disease. Includes new events related to complications and the cancellation of no longer valid events. 
  * @author Iván Castilla Rodríguez
@@ -17,7 +15,7 @@ public class DiseaseProgression {
 	/** New complications to progress to */
 	private final ArrayList<DiseaseProgressionPair> newEvents;
 	/** Already assigned complications that must be cancelled */
-	private final TreeSet<DiabetesComplicationStage> cancelEvents;
+	private final TreeSet<ComplicationStage> cancelEvents;
 
 	/**
 	 * Creates a progression instance for T1DM
@@ -32,7 +30,7 @@ public class DiseaseProgression {
 	 * @param stage Stage of the complication to progress to
 	 * @param timeToEvent Timestamp when this complication is predicted to appear
 	 */
-	public void addNewEvent(DiabetesComplicationStage stage, long timeToEvent) {
+	public void addNewEvent(ComplicationStage stage, long timeToEvent) {
 		newEvents.add(new DiseaseProgressionPair(stage, timeToEvent));
 	}
 	
@@ -41,7 +39,7 @@ public class DiseaseProgression {
 	 * @param stage Stage of the complication to progress to
 	 * @param timeToEvent Timestamp when this complication is predicted to appear
 	 */
-	public void addNewEvent(DiabetesComplicationStage stage, long timeToEvent, boolean causesDeath) {
+	public void addNewEvent(ComplicationStage stage, long timeToEvent, boolean causesDeath) {
 		newEvents.add(new DiseaseProgressionPair(stage, timeToEvent, causesDeath));
 	}
 	
@@ -49,7 +47,7 @@ public class DiseaseProgression {
 	 * Adds the cancellation of an already scheduled complication
 	 * @param stage Specific complication to cancel
 	 */
-	public void addCancelEvent(DiabetesComplicationStage stage) {
+	public void addCancelEvent(ComplicationStage stage) {
 		cancelEvents.add(stage);
 	}
 
@@ -65,7 +63,7 @@ public class DiseaseProgression {
 	 * Returns the list of already scheduled complications to be cancelled 
 	 * @return the list of already scheduled complications to be cancelled
 	 */
-	public TreeSet<DiabetesComplicationStage> getCancelEvents() {
+	public TreeSet<ComplicationStage> getCancelEvents() {
 		return cancelEvents;
 	}
 	

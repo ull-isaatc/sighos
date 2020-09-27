@@ -5,8 +5,8 @@ package es.ull.iis.simulation.hta.submodels;
 
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.ComplicationStage;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -25,7 +25,7 @@ public class StandardSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 	/** Beta parameter for a Gompertz distribution on the mortality risk for men and women */
 	private final static double BETA_DEATH[] = new double[] {0.093286762, 0.099683525};
 	/** The increased mortality risk associated to each chronic complication stage */
-	private final TreeMap<DiabetesComplicationStage, Double> imrs;
+	private final TreeMap<ComplicationStage, Double> imrs;
 
 	/**
 	 * Creates a death submodel based on the Spanish 2016 Mortality risk
@@ -35,7 +35,7 @@ public class StandardSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 	public StandardSpainDeathSubmodel(SecondOrderParamsRepository secParams) {
 		super();
 		imrs = new TreeMap<>();
-		for (DiabetesComplicationStage stage : secParams.getRegisteredComplicationStages()) {
+		for (ComplicationStage stage : secParams.getRegisteredComplicationStages()) {
 			imrs.put(stage, secParams.getIMR(stage));
 		}
 	}
@@ -72,7 +72,7 @@ public class StandardSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 		@Override
 		public long getTimeToDeath(Patient pat) {
 			double imr = 1.0;
-			for (final DiabetesComplicationStage state : pat.getDetailedState()) {
+			for (final ComplicationStage state : pat.getDetailedState()) {
 				if (imrs.containsKey(state)) {
 					final double newIMR = imrs.get(state);
 					if (newIMR > imr) {

@@ -6,9 +6,9 @@ package es.ull.iis.simulation.hta.submodels;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.ComplicationStage;
 import es.ull.iis.simulation.hta.DiseaseProgression;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.TimeToEventParam;
@@ -21,7 +21,7 @@ import es.ull.iis.simulation.hta.params.TimeToEventParam;
  *
  */
 public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
-	private final TreeMap<DiabetesComplicationStage, DiabetesComplicationStage.Instance> data;
+	private final TreeMap<ComplicationStage, ComplicationStage.Instance> data;
 	private final TimeToEventParam[] time2Event;
 	protected final SecondOrderChronicComplicationSubmodel secOrder;
 	
@@ -35,30 +35,30 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 		this.time2Event = new TimeToEventParam[secOrder.getNTransitions()];
 	}
 
-	public void setStageInstance(DiabetesComplicationStage stage, SecondOrderParamsRepository secParams) {
+	public void setStageInstance(ComplicationStage stage, SecondOrderParamsRepository secParams) {
 		final double initP = secParams.getInitProbParam(stage);
 		data.put(stage, stage.getInstance(secParams.getDisutilityForChronicComplication(stage), 
 				secParams.getCostsForChronicComplication(stage),
 				initP, secParams.getIMR(stage), secParams.getnPatients()));
 	}
 
-	public void setStageInstance(DiabetesComplicationStage stage, double du, double[] cost, double initP, double imr, int nPatients) {
+	public void setStageInstance(ComplicationStage stage, double du, double[] cost, double initP, double imr, int nPatients) {
 		data.put(stage, stage.getInstance(du, cost, initP, imr, nPatients)); 
 	}
 	
-	public double getDisutility(DiabetesComplicationStage stage) {
+	public double getDisutility(ComplicationStage stage) {
 		return data.get(stage).getDisutility();
 	}
 	
-	public double[] getCosts(DiabetesComplicationStage stage) {
+	public double[] getCosts(ComplicationStage stage) {
 		return data.get(stage).getCosts();
 	}
 	
-	public boolean hasComplicationAtStart(DiabetesComplicationStage stage, Patient pat) {
+	public boolean hasComplicationAtStart(ComplicationStage stage, Patient pat) {
 		return data.get(stage).hasComplicationAtStart(pat);
 	}
 	
-	public double getIMR(DiabetesComplicationStage stage) {
+	public double getIMR(ComplicationStage stage) {
 		return data.get(stage).getIMR();
 	}
 
@@ -103,7 +103,7 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 	 * @param timeToEvent New time to event
 	 * @param previousTimeToEvent Previous time to event
 	 */
-	public void adjustProgression(DiseaseProgression prog, DiabetesComplicationStage stage, long timeToEvent, long previousTimeToEvent) {
+	public void adjustProgression(DiseaseProgression prog, ComplicationStage stage, long timeToEvent, long previousTimeToEvent) {
 		// Check previously scheduled events
 		if (timeToEvent != Long.MAX_VALUE) {
 			if (previousTimeToEvent < Long.MAX_VALUE) {
@@ -118,9 +118,9 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 	 * @param pat A patient
 	 * @return the initial set of stages that the patient will start with when this complication appears
 	 */
-	public TreeSet<DiabetesComplicationStage> getInitialStage(Patient pat) {
-		final TreeSet<DiabetesComplicationStage> init = new TreeSet<>();
-		for (final DiabetesComplicationStage stage : secOrder.getStages()) {
+	public TreeSet<ComplicationStage> getInitialStage(Patient pat) {
+		final TreeSet<ComplicationStage> init = new TreeSet<>();
+		for (final ComplicationStage stage : secOrder.getStages()) {
 			if (hasComplicationAtStart(stage, pat))
 				init.add(stage);
 		}
@@ -143,7 +143,7 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 	 * @param newComplication New stage of this chronic complication
 	 * @return the cost associated to the start of a new stage of this chronic complication
 	 */
-	public double getCostOfComplication(Patient pat, DiabetesComplicationStage newComplication) {
+	public double getCostOfComplication(Patient pat, ComplicationStage newComplication) {
 		return getCosts(newComplication)[1];		
 	}
 	

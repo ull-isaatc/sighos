@@ -4,12 +4,9 @@
 package es.ull.iis.simulation.hta;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
-import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
@@ -26,7 +23,7 @@ import es.ull.iis.simulation.model.engine.SimulationEngine;
  * A patient with Diabetes Mellitus. The patient is initially characterized with an age, sex, HbA1c level, and an intervention.
  * Depending on the effect of the intervention, HbA1c level may change. The effect of the intervention itself can be lifelong or restricted 
  * to a time period.
- * The patient may progress to several chronic complications (see {@link DiabetesChronicComplications}), or may develop acute complications 
+ * The patient may progress to several chronic complications (see {@link ChronicComplication}), or may develop acute complications 
  * (see {@link AcuteComplication}).
  * @author Iván Castilla Rodríguez
  *
@@ -44,9 +41,9 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	/** True if the patient is dead */
 	private boolean dead; 
 	/** The state of the patient */
-	private final EnumSet<DiabetesChronicComplications> state;
+	private final TreeSet<ChronicComplication> state;
 	/** The detailed state of the patient */
-	private final TreeSet<DiabetesComplicationStage> detailedState;
+	private final TreeSet<ComplicationStage> detailedState;
 	/** Patient profile */
 	private final PatientProfile profile;
 	/** Initial age of the patient (stored as simulation time units) */
@@ -58,7 +55,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	
 	// Events
 	/** Events related to each chronic complication */
-	private final TreeMap<DiabetesComplicationStage, ChronicComorbidityEvent> comorbidityEvents;
+	private final TreeMap<ComplicationStage, ChronicComorbidityEvent> comorbidityEvents;
 	/** Events related to each acute complication */
 	private final ArrayList<ArrayList<AcuteEvent>> acuteEvents;
 	/** Death event */ 
@@ -81,7 +78,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.commonParams = simul.getCommonParams();
 		this.profile = population.getPatientProfile();
 		this.detailedState = new TreeSet<>();
-		this.state = EnumSet.noneOf(DiabetesChronicComplications.class);
+		this.state = new TreeSet<>();
 
 		this.initAge = BasicConfigParams.SIMUNIT.convert(profile.getInitAge(), TimeUnit.YEAR);
 		comorbidityEvents = new TreeMap<>();
@@ -105,7 +102,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.dead = false;
 		this.commonParams = original.commonParams;
 		this.detailedState = new TreeSet<>();
-		this.state = EnumSet.noneOf(DiabetesChronicComplications.class);
+		this.state = new TreeSet<>();
 		this.profile = original.profile;
 		this.initAge = original.initAge;
 		comorbidityEvents = new TreeMap<>();
@@ -119,16 +116,16 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * Returns the state of the patient as regards to main chronic complications
 	 * @return the state of the patient as regards to main chronic complications
 	 */
-	public EnumSet<DiabetesChronicComplications> getState() {
+	public TreeSet<ChronicComplication> getState() {
 		return state;
 	}
 
 	/**
 	 * Returns true if the patient currently has a specified complication; false otherwise
-	 * @param comp One of the {@link DiabetesChronicComplications}
+	 * @param comp One of the {@link ChronicComplication}
 	 * @return True if the patient currently has a specified complication; false otherwise
 	 */
-	public boolean hasComplication(DiabetesChronicComplications comp) {
+	public boolean hasComplication(ChronicComplication comp) {
 		return state.contains(comp);
 	}
 
@@ -136,7 +133,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * Returns the state of the patient as regards to the detailed progression of main chronic complications
 	 * @return the state of the patient as regards to the detailed progression of main chronic complications
 	 */
-	public TreeSet<DiabetesComplicationStage> getDetailedState() {
+	public TreeSet<ComplicationStage> getDetailedState() {
 		return detailedState;
 	}
 	
@@ -264,11 +261,11 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @param comp A chronic complication
 	 * @return the timestamp when certain chronic complication started (or is planned to start)
 	 */
-	public long getTimeToChronicComorbidity(DiabetesComplicationStage comp) {
+	public long getTimeToChronicComorbidity(ComplicationStage comp) {
 		return (!comorbidityEvents.containsKey(comp)) ? Long.MAX_VALUE : comorbidityEvents.get(comp).getTs(); 
 	}
 
-	private void assignInitialComplication(final DiabetesComplicationStage complication) {
+	private void assignInitialComplication(final ComplicationStage complication) {
 		if (Patient.this.detailedState.contains(complication)) {
 			error("Health state already assigned!! " + complication.name());
 		}
@@ -309,19 +306,19 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 			deathEvent = new DeathEvent(timeToDeath);
 			simul.addEvent(deathEvent);
 			
-			for (DiabetesComplicationStage st : commonParams.getInitialState(Patient.this)) {
+			for (ComplicationStage st : commonParams.getInitialState(Patient.this)) {
 				// I was scheduling these events in the usual way, but they were not executed before the next loop and progression fails
 				comorbidityEvents.put(st, new ChronicComorbidityEvent(new DiseaseProgressionPair(st, 0)));
 				assignInitialComplication(st);
 			}
 			// Assign chronic complication events
-			for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
+			for (ChronicComplication comp : ChronicComplication.values()) {
 				final DiseaseProgression progs = commonParams.getProgression(Patient.this, comp);
 				if (progs.getCancelEvents().size() > 0)
 					error("Cancel complications at start?");
 				for (DiseaseProgressionPair pr : progs.getNewEvents()) {
 					final ChronicComorbidityEvent ev = new ChronicComorbidityEvent(pr);
-					comorbidityEvents.put((DiabetesComplicationStage) pr.getComplication(), ev);
+					comorbidityEvents.put((ComplicationStage) pr.getComplication(), ev);
 					simul.addEvent(ev);						
 				}
 			}
@@ -363,7 +360,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 
 		@Override
 		public void event() {
-			final DiabetesComplicationStage complication = (DiabetesComplicationStage) progress.getComplication();
+			final ComplicationStage complication = (ComplicationStage) progress.getComplication();
 			if (Patient.this.detailedState.contains(complication)) {
 				error("Health state already assigned!! " + complication.name());
 			}
@@ -386,14 +383,14 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 						simul.addEvent(deathEvent);
 					}
 					// Update complications
-					for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
+					for (ChronicComplication comp : ChronicComplication.values()) {
 						final DiseaseProgression progs = commonParams.getProgression(Patient.this, comp);
-						for (DiabetesComplicationStage st: progs.getCancelEvents()) {
+						for (ComplicationStage st: progs.getCancelEvents()) {
 							comorbidityEvents.get(st).cancel();
 						}
 						for (DiseaseProgressionPair pr : progs.getNewEvents()) {
 							final ChronicComorbidityEvent ev = new ChronicComorbidityEvent(pr);
-							comorbidityEvents.put((DiabetesComplicationStage) pr.getComplication(), ev);
+							comorbidityEvents.put((ComplicationStage) pr.getComplication(), ev);
 							simul.addEvent(ev);		
 						}
 					}
@@ -484,14 +481,14 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 			}
 
 			// Check all the complications in case the loss of treatment affects the time to events
-			for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
+			for (ChronicComplication comp : ChronicComplication.values()) {
 				final DiseaseProgression progs = commonParams.getProgression(Patient.this, comp);
-				for (DiabetesComplicationStage st: progs.getCancelEvents()) {
+				for (ComplicationStage st: progs.getCancelEvents()) {
 					comorbidityEvents.get(st).cancel();
 				}
 				for (DiseaseProgressionPair pr : progs.getNewEvents()) {
 					final ChronicComorbidityEvent ev = new ChronicComorbidityEvent(pr);
-					comorbidityEvents.put((DiabetesComplicationStage) pr.getComplication(), ev);
+					comorbidityEvents.put((ComplicationStage) pr.getComplication(), ev);
 					simul.addEvent(ev);		
 				}
 			}

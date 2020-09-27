@@ -6,8 +6,8 @@ package es.ull.iis.simulation.hta.inforeceiver;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.ComplicationStage;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.info.SimulationInfo;
@@ -24,13 +24,13 @@ public class PrevalenceView extends Listener {
 	private final int [][] nComplications;
 	private final int [] nDeaths;
 	private final double[][] ageIntervals;
-	private final ArrayList<DiabetesComplicationStage> availableStates;
+	private final ArrayList<ComplicationStage> availableStates;
 	private final PrintStream out = System.out;
 
 	/**
 	 * @param simUnit The time unit used within the simulation
 	 */
-	public PrevalenceView(TimeUnit simUnit, double[][] ageIntervals, ArrayList<DiabetesComplicationStage> availableStates) {
+	public PrevalenceView(TimeUnit simUnit, double[][] ageIntervals, ArrayList<ComplicationStage> availableStates) {
 		super("Standard patient viewer");
 		this.availableStates = availableStates;
 		nAlivePatients = new int[ageIntervals.length+1];
@@ -61,7 +61,7 @@ public class PrevalenceView extends Listener {
 		if (info instanceof SimulationStartStopInfo) {
 			if (SimulationStartStopInfo.Type.END.equals(((SimulationStartStopInfo) info).getType())) {
 				out.print("Age1\tAge2\tPatients");
-				for (DiabetesComplicationStage comp : availableStates) {
+				for (ComplicationStage comp : availableStates) {
 					out.print("\t" + comp.name());
 				}
 				out.println("\tDeaths");
@@ -103,7 +103,7 @@ public class PrevalenceView extends Listener {
 					nDeaths[ageIntervals.length]++;
 
 					// Check all the complications
-					for (DiabetesComplicationStage comp : availableStates) {
+					for (ComplicationStage comp : availableStates) {
 						final long time = pat.getTimeToChronicComorbidity(comp);
 						final double ageAtComp = (time == Long.MAX_VALUE) ? Double.MAX_VALUE : (initAge + time / BasicConfigParams.YEAR_CONVERSION);
 						if (ageAtComp != Double.MAX_VALUE) {

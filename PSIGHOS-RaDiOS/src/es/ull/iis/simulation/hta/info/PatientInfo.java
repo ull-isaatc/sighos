@@ -4,9 +4,9 @@
 package es.ull.iis.simulation.hta.info;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
+import es.ull.iis.simulation.hta.ComplicationStage;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.info.AsynchronousInfo;
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;
 import es.ull.iis.simulation.model.DiscreteEvent;
@@ -79,7 +79,7 @@ public class PatientInfo extends AsynchronousInfo {
 	 * @param complication Chronic complication stage (in case the simulation is reporting a complication-related piece of information)
 	 * @param ts Simulation time when this piece of information occurs
 	 */
-	public PatientInfo(Simulation simul, Patient patient, DiabetesComplicationStage complication, long ts) {
+	public PatientInfo(Simulation simul, Patient patient, ComplicationStage complication, long ts) {
 		this(simul, patient, Type.COMPLICATION, complication, ts);
 	}
 
@@ -115,9 +115,9 @@ public class PatientInfo extends AsynchronousInfo {
 	 * is not related to a chronic complication) 
 	 * @return the chronic complication
 	 */
-	public DiabetesComplicationStage getComplication() {
-		if (complication instanceof DiabetesComplicationStage)
-			return (DiabetesComplicationStage)complication;
+	public ComplicationStage getComplication() {
+		if (complication instanceof ComplicationStage)
+			return (ComplicationStage)complication;
 		return null;
 	}
 

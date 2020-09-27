@@ -19,7 +19,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.inforeceiver.AcuteComplicationCounterListener;
 import es.ull.iis.simulation.hta.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.inforeceiver.BudgetImpactView;
@@ -375,10 +374,10 @@ public class DiseaseMain {
 	    	final SecondOrderAcuteComplicationSubmodel[] acuteSubmodels = secParams.getRegisteredAcuteComplications();
 	    	for (final String compName : args1.disable) {
 	    		boolean found = false;
-	    		for (final DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
+	    		for (final ChronicComplication comp : ChronicComplication.values()) {
 	    			if (comp.name().equals(compName)) {
 	    				found = true;
-	    				chronicSubmodels[comp.ordinal()].disable();
+	    				chronicSubmodels[comp.getInternalId()].disable();
 	    			}
 	    		}
 	    		if (!found) {

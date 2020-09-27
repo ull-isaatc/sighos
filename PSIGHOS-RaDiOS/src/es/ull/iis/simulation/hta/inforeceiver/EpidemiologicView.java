@@ -8,11 +8,11 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
+import es.ull.iis.simulation.hta.ChronicComplication;
+import es.ull.iis.simulation.hta.ComplicationStage;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
-import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
@@ -109,7 +109,7 @@ public class EpidemiologicView implements ExperimentListener {
 		nDeaths = new double[nInterventions][nIntervals];
 		nAlivePatients = new double[nInterventions][nIntervals];
 		nChronic = new double[nInterventions][secParams.getRegisteredComplicationStages().size()][nIntervals];
-		nMainChronic = new double[nInterventions][DiabetesChronicComplications.values().length][nIntervals];
+		nMainChronic = new double[nInterventions][ChronicComplication.values().length][nIntervals];
 		nAcute = new double[nInterventions][AcuteComplication.values().length][nIntervals];
 		nDeathsByCause = new HashMap<>();
 	}
@@ -131,10 +131,10 @@ public class EpidemiologicView implements ExperimentListener {
 			for (final Named cause : nDeathsByCause.keySet()) {
 				str.append("\t" + name + "_DEATH_" + cause);				
 			}
-			for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
+			for (ChronicComplication comp : ChronicComplication.values()) {
 				str.append("\t" + name + "_").append(comp.name());
 			}
-			for (DiabetesComplicationStage comp : secParams.getRegisteredComplicationStages()) {
+			for (ComplicationStage comp : secParams.getRegisteredComplicationStages()) {
 				str.append("\t" + name + "_").append(comp.name());
 			}
 			for (AcuteComplication comp : AcuteComplication.values()) {
@@ -191,8 +191,8 @@ public class EpidemiologicView implements ExperimentListener {
 			nDeathsByCause = new HashMap<>();			
 			nAlivePatients = new int[nIntervals];
 			nChronic = new int[secParams.getRegisteredComplicationStages().size()][nIntervals];
-			nMainChronic = new int[DiabetesChronicComplications.values().length][nIntervals];
-			patientMainChronic = new boolean[DiabetesChronicComplications.values().length][nPatients];
+			nMainChronic = new int[ChronicComplication.values().length][nIntervals];
+			patientMainChronic = new boolean[ChronicComplication.values().length][nPatients];
 			nAcute = new int[AcuteComplication.values().length][nIntervals];
 			addGenerated(PatientInfo.class);
 			addEntrance(PatientInfo.class);
@@ -216,9 +216,9 @@ public class EpidemiologicView implements ExperimentListener {
 						break;
 					case COMPLICATION:
 						nChronic[pInfo.getComplication().ordinal()][interval]++;
-						if (!patientMainChronic[pInfo.getComplication().getComplication().ordinal()][pInfo.getPatient().getIdentifier()]) {
-							patientMainChronic[pInfo.getComplication().getComplication().ordinal()][pInfo.getPatient().getIdentifier()] = true;
-							nMainChronic[pInfo.getComplication().getComplication().ordinal()][interval]++;
+						if (!patientMainChronic[pInfo.getComplication().getComplication().getInternalId()][pInfo.getPatient().getIdentifier()]) {
+							patientMainChronic[pInfo.getComplication().getComplication().getInternalId()][pInfo.getPatient().getIdentifier()] = true;
+							nMainChronic[pInfo.getComplication().getComplication().getInternalId()][interval]++;
 						}
 						break;
 					case ACUTE_EVENT:
@@ -330,8 +330,8 @@ public class EpidemiologicView implements ExperimentListener {
 			nDeaths = new int[nIntervals];
 			nDeathsByCause = new HashMap<>();			
 			nChronic = new int[secParams.getRegisteredComplicationStages().size()][nIntervals];
-			nMainChronic = new int[DiabetesChronicComplications.values().length][nIntervals];
-			patientMainChronic = new boolean[DiabetesChronicComplications.values().length][nPatients];
+			nMainChronic = new int[ChronicComplication.values().length][nIntervals];
+			patientMainChronic = new boolean[ChronicComplication.values().length][nPatients];
 			addEntrance(SimulationStartStopInfo.class);
 		}
 
@@ -339,9 +339,9 @@ public class EpidemiologicView implements ExperimentListener {
 			final double initAge = pat.getInitAge(); 
 			final double ageAtDeath = pat.getAge();
 
-			for (final DiabetesChronicComplications mainComp : DiabetesChronicComplications.values()) {
-				final DiabetesComplicationStage[] stages = secParams.getRegisteredChronicComplications()[mainComp.ordinal()].getStages();
-				for (DiabetesComplicationStage comp : stages)
+			for (final ChronicComplication mainComp : ChronicComplication.values()) {
+				final ComplicationStage[] stages = secParams.getRegisteredChronicComplications()[mainComp.getInternalId()].getStages();
+				for (ComplicationStage comp : stages)
 					pat.getTimeToChronicComorbidity(comp);
 			}
 		}
@@ -415,8 +415,8 @@ public class EpidemiologicView implements ExperimentListener {
 //			nDeaths = new int[nIntervals];
 //			nDeathsByCause = new HashMap<>();			
 //			nChronic = new int[secParams.getRegisteredComplicationStages().size()][nIntervals];
-//			nMainChronic = new int[DiabetesChronicComplications.values().length][nIntervals];
-//			patientMainChronic = new boolean[DiabetesChronicComplications.values().length][nPatients];
+//			nMainChronic = new int[ChronicComplication.values().length][nIntervals];
+//			patientMainChronic = new boolean[ChronicComplication.values().length][nPatients];
 //			addGenerated(PatientInfo.class);
 //			addEntrance(PatientInfo.class);
 //			addEntrance(SimulationStartStopInfo.class);
@@ -453,10 +453,10 @@ public class EpidemiologicView implements ExperimentListener {
 //							nDeathsByCause.get(cause)[interval]++;
 //						}
 //
-//						for (DiabetesComplicationStage stage : pInfo.getPatient().getDetailedState()) {
+//						for (ComplicationStage stage : pInfo.getPatient().getDetailedState()) {
 //							nChronic[stage.ordinal()][interval]--;
 //						}
-//						for (DiabetesChronicComplications comp : pInfo.getPatient().getState()) {
+//						for (ChronicComplication comp : pInfo.getPatient().getState()) {
 //							nMainChronic[comp.ordinal()][interval]--;
 //						}
 //						break;

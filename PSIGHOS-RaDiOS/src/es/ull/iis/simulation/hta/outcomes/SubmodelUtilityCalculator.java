@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.hta.outcomes;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
+import es.ull.iis.simulation.hta.ChronicComplication;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.submodels.ChronicComplicationSubmodel;
 
@@ -53,9 +53,9 @@ public class SubmodelUtilityCalculator implements UtilityCalculator {
 	@Override
 	public double getUtilityValue(Patient pat) {
 		double du = duDNC;
-		for (DiabetesChronicComplications comp : DiabetesChronicComplications.values()) {
+		for (ChronicComplication comp : ChronicComplication.values()) {
 			if (pat.hasComplication(comp)) {
-				du = method.combine(du, chronicSubmodels[comp.ordinal()].getDisutility(pat, method));
+				du = method.combine(du, chronicSubmodels[comp.getInternalId()].getDisutility(pat, method));
 			}
 		}
 		return genPopUtility - du - pat.getIntervention().getDisutility(pat);
