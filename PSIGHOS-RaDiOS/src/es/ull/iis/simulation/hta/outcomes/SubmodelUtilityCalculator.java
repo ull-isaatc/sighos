@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.hta.outcomes;
 
+import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.submodels.ChronicComplicationSubmodel;
@@ -47,7 +47,7 @@ public class SubmodelUtilityCalculator implements UtilityCalculator {
 
 	@Override
 	public double getAcuteEventDisutilityValue(Patient pat, AcuteComplication comp) {
-		return acuteSubmodels[comp.ordinal()].getDisutility(pat);
+		return acuteSubmodels[comp.getInternalId()].getDisutility(pat);
 	}
 	
 	@Override

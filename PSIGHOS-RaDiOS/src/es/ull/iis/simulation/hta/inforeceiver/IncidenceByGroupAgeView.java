@@ -6,9 +6,9 @@ package es.ull.iis.simulation.hta.inforeceiver;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
@@ -134,7 +134,7 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 						nChronic[pInfo.getComplication().ordinal()][interval]++;
 						break;
 					case ACUTE_EVENT:
-						nAcute[pInfo.getAcuteEvent().ordinal()][interval]++;
+						nAcute[pInfo.getAcuteEvent().getInternalId()][interval]++;
 						break;
 					case DEATH:
 						nDeaths[interval]++;

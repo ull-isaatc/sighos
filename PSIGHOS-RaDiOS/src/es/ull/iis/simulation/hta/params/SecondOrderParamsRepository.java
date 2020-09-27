@@ -8,11 +8,11 @@ import java.util.Arrays;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.DiseaseProgression;
 import es.ull.iis.simulation.hta.DiseaseProgressionPair;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
@@ -93,7 +93,7 @@ public abstract class SecondOrderParamsRepository {
 	/** The collection of defined chronic complications */
 	final protected SecondOrderChronicComplicationSubmodel[] registeredChronicComplication;
 	/** The collection of defined acute complications */
-	final protected ArrayList<SecondOrderAcuteComplicationSubmodel> registeredAcuteComplication;
+	final protected TreeMap<AcuteComplication, SecondOrderAcuteComplicationSubmodel> registeredAcuteComplication;
 	/** The death submodel to be used */
 	protected SecondOrderDeathSubmodel registeredDeathSubmodel = null;
 	/** The collection of interventions */
@@ -122,7 +122,7 @@ public abstract class SecondOrderParamsRepository {
 		this.registeredComplicationStages = new ArrayList<>();
 		this.registeredChronicComplication = new SecondOrderChronicComplicationSubmodel[DiabetesChronicComplications.values().length];
 		Arrays.fill(this.registeredChronicComplication, null);
-		this.registeredAcuteComplication = new ArrayList<SecondOrderAcuteComplicationSubmodel>();
+		this.registeredAcuteComplication = new TreeMap<AcuteComplication, SecondOrderAcuteComplicationSubmodel>();
 		this.registeredInterventions = new ArrayList<>();
 	}
 
@@ -172,7 +172,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @return the registered acute complication submodels
 	 */
 	public SecondOrderAcuteComplicationSubmodel[] getRegisteredAcuteComplications() {
-		return (SecondOrderAcuteComplicationSubmodel[])registeredAcuteComplication.toArray();
+		return (SecondOrderAcuteComplicationSubmodel[])registeredAcuteComplication.values().toArray();
 	}
 	
 	/**
@@ -180,7 +180,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @param comp Acute complication
 	 */
 	public void registerComplication(SecondOrderAcuteComplicationSubmodel comp) {
-		registeredAcuteComplication.add(comp);
+		registeredAcuteComplication.put(comp.getComplication(), comp);
 		comp.addSecondOrderParams(this);
 	}
 	
@@ -566,11 +566,11 @@ public abstract class SecondOrderParamsRepository {
 	 * Returns the list of first order instances of the acute complication submodels
 	 * @return the list of first order instances of the acute complication submodels
 	 */
-	private final AcuteComplicationSubmodel[] getAcuteComplicationSubmodelInstances() {
-		final AcuteComplicationSubmodel[] comps = new AcuteComplicationSubmodel[registeredAcuteComplication.size()];
+	private final TreeMap<AcuteComplication, AcuteComplicationSubmodel> getAcuteComplicationSubmodelInstances() {
+		final TreeMap<AcuteComplication, AcuteComplicationSubmodel> comps = new TreeMap<AcuteComplication, AcuteComplicationSubmodel>();
 		
-		for (int i = 0; i < comps.length; i++) {
-			comps[i] = (AcuteComplicationSubmodel) registeredAcuteComplication.get(i).getInstance(this);
+		for (SecondOrderAcuteComplicationSubmodel secComp : registeredAcuteComplication.values()) {
+			comps.put(secComp.getComplication(), (AcuteComplicationSubmodel) secComp.getInstance(this));
 		}
 		return comps;
 	}
@@ -722,7 +722,7 @@ public abstract class SecondOrderParamsRepository {
 		/** Chronic complication submodels included */
 		private final ChronicComplicationSubmodel[] compSubmodels;
 		/** Acute complication submodels included */
-		private final AcuteComplicationSubmodel[] acuteCompSubmodels;
+		private final TreeMap<AcuteComplication, AcuteComplicationSubmodel> acuteCompSubmodels;
 		/** Death submodel */
 		private final DeathSubmodel deathSubmodel; 
 		/** Interventions being assessed */
@@ -768,7 +768,7 @@ public abstract class SecondOrderParamsRepository {
 		 * @return the acute complication submodels
 		 */
 		public AcuteComplicationSubmodel[] getAcuteCompSubmodels() {
-			return acuteCompSubmodels;
+			return (AcuteComplicationSubmodel[]) acuteCompSubmodels.values().toArray();
 		}
 		
 		/**
@@ -804,8 +804,8 @@ public abstract class SecondOrderParamsRepository {
 		 */
 		public DiseaseProgressionPair getTimeToAcuteEvent(Patient pat, AcuteComplication complication, boolean cancelLast) {
 			if (cancelLast)
-				acuteCompSubmodels[complication.ordinal()].cancelLast(pat);
-			return acuteCompSubmodels[complication.ordinal()].getProgression(pat);
+				acuteCompSubmodels.get(complication).cancelLast(pat);
+			return acuteCompSubmodels.get(complication).getProgression(pat);
 		}
 
 		/**
@@ -846,7 +846,7 @@ public abstract class SecondOrderParamsRepository {
 		 * preserve common random numbers
 		 */
 		public void reset() {
-			for (AcuteComplicationSubmodel acuteSubmodel : acuteCompSubmodels)
+			for (AcuteComplicationSubmodel acuteSubmodel : acuteCompSubmodels.values())
 				acuteSubmodel.reset();
 		}
 	}

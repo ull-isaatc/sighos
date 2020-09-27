@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.hta.outcomes;
 
+import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 
 /**

@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
+import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.info.PatientInfo;
@@ -222,7 +222,7 @@ public class EpidemiologicView implements ExperimentListener {
 						}
 						break;
 					case ACUTE_EVENT:
-						nAcute[pInfo.getAcuteEvent().ordinal()][interval]++;
+						nAcute[pInfo.getAcuteEvent().getInternalId()][interval]++;
 						break;
 					case DEATH:
 						nDeaths[interval]++;

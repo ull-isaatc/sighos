@@ -6,8 +6,8 @@ package es.ull.iis.simulation.hta.outcomes;
 import java.util.Collection;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 
 /**
@@ -58,7 +58,7 @@ public class StdUtilityCalculator implements UtilityCalculator {
 	
 	@Override
 	public double getAcuteEventDisutilityValue(Patient pat, AcuteComplication comp) {
-		return duAcuteEvent[comp.ordinal()];
+		return duAcuteEvent[comp.getInternalId()];
 	}
 	
 	@Override	

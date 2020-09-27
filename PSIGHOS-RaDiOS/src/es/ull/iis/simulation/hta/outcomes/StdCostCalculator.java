@@ -6,8 +6,8 @@ package es.ull.iis.simulation.hta.outcomes;
 import java.util.Collection;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 
@@ -55,7 +55,7 @@ public class StdCostCalculator implements CostCalculator {
 	
 	@Override
 	public double getCostForAcuteEvent(Patient pat, AcuteComplication comp) {
-		return costAcuteEvent[comp.ordinal()];
+		return costAcuteEvent[comp.getInternalId()];
 	}
 
 	@Override

@@ -3,9 +3,9 @@
  */
 package es.ull.iis.simulation.hta.info;
 
+import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.info.AsynchronousInfo;
 import es.ull.iis.simulation.inforeceiver.InfoReceiver;

@@ -8,7 +8,6 @@ import java.util.EnumSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.diabetes.DiabetesComplicationStage;
 import es.ull.iis.simulation.hta.info.PatientInfo;
@@ -16,6 +15,7 @@ import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention.Intervent
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.populations.Population;
+import es.ull.iis.simulation.hta.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -85,8 +85,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 
 		this.initAge = BasicConfigParams.SIMUNIT.convert(profile.getInitAge(), TimeUnit.YEAR);
 		comorbidityEvents = new TreeMap<>();
-		acuteEvents = new ArrayList<>(AcuteComplication.values().length);
-		for (int i = 0; i < AcuteComplication.values().length; i++)
+		acuteEvents = new ArrayList<>(simul.getCommonParams().getAcuteCompSubmodels().length);
+		for (int i = 0; i < simul.getCommonParams().getAcuteCompSubmodels().length; i++)
 			acuteEvents.add(new ArrayList<>());
 		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
@@ -109,8 +109,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.profile = original.profile;
 		this.initAge = original.initAge;
 		comorbidityEvents = new TreeMap<>();
-		acuteEvents = new ArrayList<>(AcuteComplication.values().length);
-		for (int i = 0; i < AcuteComplication.values().length; i++)
+		acuteEvents = new ArrayList<>(simul.getCommonParams().getAcuteCompSubmodels().length);
+		for (int i = 0; i < simul.getCommonParams().getAcuteCompSubmodels().length; i++)
 			acuteEvents.add(new ArrayList<>());
 		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
@@ -326,12 +326,14 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 				}
 			}
 			
-			for (AcuteComplication comp : AcuteComplication.values()) {
+			final AcuteComplicationSubmodel[] acuteSubmodels = ((DiseaseProgressionSimulation)simul).getCommonParams().getAcuteCompSubmodels();
+			for (int i = 0; i < acuteSubmodels.length; i++) {
+				final AcuteComplication comp = acuteSubmodels[i].getComplication();
 				// Assign severe hypoglycemic events
 				final DiseaseProgressionPair acuteEvent = commonParams.getTimeToAcuteEvent(Patient.this, comp, false);
 				if (acuteEvent.getTimeToEvent() < timeToDeath) {
 					final AcuteEvent ev = new AcuteEvent(acuteEvent);
-					acuteEvents.get(comp.ordinal()).add(ev);
+					acuteEvents.get(comp.getInternalId()).add(ev);
 					simul.addEvent(ev);
 				}				
 			}
@@ -444,7 +446,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 				final DiseaseProgressionPair acuteEvent = commonParams.getTimeToAcuteEvent(Patient.this, comp, false);
 				if (acuteEvent.getTimeToEvent() < deathEvent.getTs()) {
 					final AcuteEvent ev = new AcuteEvent(acuteEvent);
-					acuteEvents.get(comp.ordinal()).add(ev);
+					acuteEvents.get(comp.getInternalId()).add(ev);
 					simul.addEvent(ev);
 				}
 			}
@@ -466,7 +468,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		public void event() {
 			for (AcuteComplication comp : AcuteComplication.values()) {
 				// Check last acute event
-				final ArrayList<AcuteEvent> acuteEventList = acuteEvents.get(comp.ordinal());
+				final ArrayList<AcuteEvent> acuteEventList = acuteEvents.get(comp.getInternalId());
 				if (!acuteEventList.isEmpty()) {
 					AcuteEvent acuteEv = acuteEventList.get(acuteEventList.size() - 1);
 					if (acuteEv.getTs() > ts) {

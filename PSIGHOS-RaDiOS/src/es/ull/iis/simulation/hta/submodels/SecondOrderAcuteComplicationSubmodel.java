@@ -3,26 +3,26 @@
  */
 package es.ull.iis.simulation.hta.submodels;
 
+import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.DiseaseProgressionPair;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 
 /**
  * @author icasrod
  *
  */
 public abstract class SecondOrderAcuteComplicationSubmodel extends SecondOrderComplicationSubmodel {
-	private final AcuteComplication type;
+	private final AcuteComplication comp;
 	/**
 	 * @param diabetesTypes
 	 */
-	public SecondOrderAcuteComplicationSubmodel(final AcuteComplication type) {
+	public SecondOrderAcuteComplicationSubmodel(final AcuteComplication comp) {
 		super();
-		this.type = type;
+		this.comp = comp;
 	}
 
-	public final AcuteComplication getComplicationType() {
-		return type;
+	public final AcuteComplication getComplication() {
+		return comp;
 	}
 
 	/**
@@ -34,12 +34,12 @@ public abstract class SecondOrderAcuteComplicationSubmodel extends SecondOrderCo
 	public class DisabledAcuteComplicationInstance extends AcuteComplicationSubmodel {
 
 		public DisabledAcuteComplicationInstance() {
-			super(type, null, null);
+			super(comp, null, null);
 		}
 		
 		@Override
 		public DiseaseProgressionPair getProgression(Patient pat) {
-			return new DiseaseProgressionPair(type, Long.MAX_VALUE);
+			return new DiseaseProgressionPair(comp, Long.MAX_VALUE);
 		}
 		
 		@Override

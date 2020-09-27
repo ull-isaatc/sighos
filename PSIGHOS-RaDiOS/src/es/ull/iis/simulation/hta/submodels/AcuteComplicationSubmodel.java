@@ -3,9 +3,9 @@
  */
 package es.ull.iis.simulation.hta.submodels;
 
+import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.DiseaseProgressionPair;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.params.DeathWithEventParam;
 import es.ull.iis.simulation.hta.params.MultipleEventParam;
 
@@ -79,4 +79,8 @@ public abstract class AcuteComplicationSubmodel extends ComplicationSubmodel {
 	 * @return The disutility associated to this acute event
 	 */
 	public abstract double getDisutility(Patient pat);
+	
+	public AcuteComplication getComplication() {
+		return comp;
+	}
 }

@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 
+import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
 import es.ull.iis.simulation.hta.diabetes.DiabetesChronicComplications;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
@@ -165,7 +165,7 @@ public class AnnualCostView implements ExperimentListener {
 					updateAll(pat, initAge, endAge);
 					break;
 				case ACUTE_EVENT:
-					acuteCost[pInfo.getAcuteEvent().ordinal()][(int) endAge] += discount.applyPunctualDiscount(calc.getCostForAcuteEvent(pat, pInfo.getAcuteEvent()), endAge);
+					acuteCost[pInfo.getAcuteEvent().getInternalId()][(int) endAge] += discount.applyPunctualDiscount(calc.getCostForAcuteEvent(pat, pInfo.getAcuteEvent()), endAge);
 					// Update outcomes
 					updateAll(pat, initAge, endAge);
 					break;

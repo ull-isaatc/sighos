@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.inforeceiver;
 
 import java.util.Arrays;
 
-import es.ull.iis.simulation.hta.diabetes.AcuteComplication;
+import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -41,8 +41,8 @@ public class AcuteComplicationCounterListener extends Listener implements Struct
 	public void infoEmited(SimulationInfo info) {
 		final PatientInfo pInfo = (PatientInfo) info;
 		if (PatientInfo.Type.ACUTE_EVENT.equals(pInfo.getType())) {
-			nComplications[pInfo.getAcuteEvent().ordinal()][pInfo.getPatient().getIdentifier()]++;
-			nComplications[pInfo.getAcuteEvent().ordinal()][nPatients]++;
+			nComplications[pInfo.getAcuteEvent().getInternalId()][pInfo.getPatient().getIdentifier()]++;
+			nComplications[pInfo.getAcuteEvent().getInternalId()][nPatients]++;
 		}
 	}
 
@@ -61,13 +61,13 @@ public class AcuteComplicationCounterListener extends Listener implements Struct
 		final StringBuilder str = new StringBuilder();
 		for (AcuteComplication comp : AcuteComplication.values()) {
 			final int[] cip = getPercentile95CI(comp);
-			str.append(((double)nComplications[comp.ordinal()][nPatients] / nPatients) + "\t" + cip[0] + "\t" + cip[1] + "\t");
+			str.append(((double)nComplications[comp.getInternalId()][nPatients] / nPatients) + "\t" + cip[0] + "\t" + cip[1] + "\t");
 		}
 		return str.toString();
 	}
 	
 	private int[] getPercentile95CI(AcuteComplication comp) {
-		final int[] ordered = Arrays.copyOf(nComplications[comp.ordinal()], nPatients);
+		final int[] ordered = Arrays.copyOf(nComplications[comp.getInternalId()], nPatients);
 		Arrays.sort(ordered);
 		final int index = (int)Math.ceil(nPatients * 0.025);
 		return new int[] {ordered[index - 1], ordered[nPatients - index]}; 
