@@ -62,7 +62,7 @@ public class AnnualCostView implements ExperimentListener {
 	@Override
 	public void addListener(DiseaseProgressionSimulation simul) {
 		final RepositoryInstance common = simul.getCommonParams();
-		final CostCalculator calc = secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels());
+		final CostCalculator calc = secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getDiseases(), common.getAcuteCompSubmodels());
 		simul.addInfoReceiver(new InnerListenerInstance(calc));
 	}
 	
@@ -159,7 +159,7 @@ public class AnnualCostView implements ExperimentListener {
 				final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
 				switch(pInfo.getType()) {
 				case COMPLICATION:
-					chronicCost[pInfo.getComplication().getComplication().getInternalId()][(int) endAge] += discount.applyPunctualDiscount(calc.getCostOfComplication(pat, pInfo.getComplication()), endAge);
+					chronicCost[pInfo.getComplication().getDisease().getInternalId()][(int) endAge] += discount.applyPunctualDiscount(calc.getCostOfComplication(pat, pInfo.getComplication()), endAge);
 				case DEATH:
 					// Update outcomes
 					updateAll(pat, initAge, endAge);

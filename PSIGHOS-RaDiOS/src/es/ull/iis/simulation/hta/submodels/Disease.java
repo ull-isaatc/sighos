@@ -6,59 +6,56 @@ package es.ull.iis.simulation.hta.submodels;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.ComplicationStage;
 import es.ull.iis.simulation.hta.DiseaseProgression;
+import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.TimeToEventParam;
 
 /**
- * An abstract class representing the evolution of a chronic complication. Chronic complications can be represented 
- * as a progression of stages of any complexity, and incur in annual costs and disutilities. Additionally, starting
- * each stage of the complication can incur in one-time costs.
+ * A complication submodel
  * @author Iván Castilla Rodríguez
- *
  */
-public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
-	private final TreeMap<ComplicationStage, ComplicationStage.Instance> data;
+public abstract class Disease {
+	private final TreeMap<Manifestation, Manifestation.Instance> data;
 	private final TimeToEventParam[] time2Event;
-	protected final SecondOrderChronicComplicationSubmodel secOrder;
+	protected final SecondOrderDisease secOrder;
 	
 	/**
 	 * Creates a submodel for a chronic complication.
 	 */
-	public ChronicComplicationSubmodel(SecondOrderChronicComplicationSubmodel secOrder) {
+	public Disease(SecondOrderDisease secOrder) {
 		super();
 		this.secOrder = secOrder;
 		this.data = new TreeMap<>();
 		this.time2Event = new TimeToEventParam[secOrder.getNTransitions()];
 	}
 
-	public void setStageInstance(ComplicationStage stage, SecondOrderParamsRepository secParams) {
+	public void setStageInstance(Manifestation stage, SecondOrderParamsRepository secParams) {
 		final double initP = secParams.getInitProbParam(stage);
 		data.put(stage, stage.getInstance(secParams.getDisutilityForChronicComplication(stage), 
 				secParams.getCostsForChronicComplication(stage),
 				initP, secParams.getIMR(stage), secParams.getnPatients()));
 	}
 
-	public void setStageInstance(ComplicationStage stage, double du, double[] cost, double initP, double imr, int nPatients) {
+	public void setStageInstance(Manifestation stage, double du, double[] cost, double initP, double imr, int nPatients) {
 		data.put(stage, stage.getInstance(du, cost, initP, imr, nPatients)); 
 	}
 	
-	public double getDisutility(ComplicationStage stage) {
+	public double getDisutility(Manifestation stage) {
 		return data.get(stage).getDisutility();
 	}
 	
-	public double[] getCosts(ComplicationStage stage) {
+	public double[] getCosts(Manifestation stage) {
 		return data.get(stage).getCosts();
 	}
 	
-	public boolean hasComplicationAtStart(ComplicationStage stage, Patient pat) {
+	public boolean hasComplicationAtStart(Manifestation stage, Patient pat) {
 		return data.get(stage).hasComplicationAtStart(pat);
 	}
 	
-	public double getIMR(ComplicationStage stage) {
+	public double getIMR(Manifestation stage) {
 		return data.get(stage).getIMR();
 	}
 
@@ -103,7 +100,7 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 	 * @param timeToEvent New time to event
 	 * @param previousTimeToEvent Previous time to event
 	 */
-	public void adjustProgression(DiseaseProgression prog, ComplicationStage stage, long timeToEvent, long previousTimeToEvent) {
+	public void adjustProgression(DiseaseProgression prog, Manifestation stage, long timeToEvent, long previousTimeToEvent) {
 		// Check previously scheduled events
 		if (timeToEvent != Long.MAX_VALUE) {
 			if (previousTimeToEvent < Long.MAX_VALUE) {
@@ -118,9 +115,9 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 	 * @param pat A patient
 	 * @return the initial set of stages that the patient will start with when this complication appears
 	 */
-	public TreeSet<ComplicationStage> getInitialStage(Patient pat) {
-		final TreeSet<ComplicationStage> init = new TreeSet<>();
-		for (final ComplicationStage stage : secOrder.getStages()) {
+	public TreeSet<Manifestation> getInitialStage(Patient pat) {
+		final TreeSet<Manifestation> init = new TreeSet<>();
+		for (final Manifestation stage : secOrder.getManifestations()) {
 			if (hasComplicationAtStart(stage, pat))
 				init.add(stage);
 		}
@@ -143,7 +140,7 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 	 * @param newComplication New stage of this chronic complication
 	 * @return the cost associated to the start of a new stage of this chronic complication
 	 */
-	public double getCostOfComplication(Patient pat, ComplicationStage newComplication) {
+	public double getCostOfComplication(Patient pat, Manifestation newComplication) {
 		return getCosts(newComplication)[1];		
 	}
 	
@@ -156,4 +153,5 @@ public abstract class ChronicComplicationSubmodel extends ComplicationSubmodel {
 	 */
 	public abstract double getDisutility(Patient pat, DisutilityCombinationMethod method);
 	
+
 }

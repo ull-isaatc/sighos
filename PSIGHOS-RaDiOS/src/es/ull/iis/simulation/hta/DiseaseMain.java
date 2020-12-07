@@ -232,9 +232,9 @@ public class DiseaseMain {
 		final AcuteComplicationCounterListener[] acuteListeners = new AcuteComplicationCounterListener[nInterventions];
 
 		for (int i = 0; i < nInterventions; i++) {
-			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), discountCost, nPatients);
+			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getDiseases(), common.getAcuteCompSubmodels()), discountCost, nPatients);
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
-			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getCompSubmodels(), common.getAcuteCompSubmodels()), discountEffect, nPatients);
+			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(common.getNoComplicationDisutility(), common.getDiseases(), common.getAcuteCompSubmodels()), discountEffect, nPatients);
 			acuteListeners[i] = new AcuteComplicationCounterListener(nPatients);
 		}
 		final Intervention[] intInstances = common.getInterventions();

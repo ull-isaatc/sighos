@@ -45,7 +45,7 @@ public class BudgetImpactView implements ExperimentListener {
 	@Override
 	public void addListener(DiseaseProgressionSimulation simul) {
 		final RepositoryInstance common = simul.getCommonParams();
-		final CostCalculator calc = secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getCompSubmodels(), common.getAcuteCompSubmodels());
+		final CostCalculator calc = secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getDiseases(), common.getAcuteCompSubmodels());
 		simul.addInfoReceiver(new InnerInstanceView(calc));
 	}
 

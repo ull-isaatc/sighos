@@ -7,11 +7,9 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.AcuteComplication;
-import es.ull.iis.simulation.hta.ChronicComplication;
-import es.ull.iis.simulation.hta.ComplicationStage;
 import es.ull.iis.simulation.hta.DiseaseProgression;
 import es.ull.iis.simulation.hta.DiseaseProgressionPair;
+import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
@@ -20,11 +18,11 @@ import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.submodels.AcuteComplicationSubmodel;
-import es.ull.iis.simulation.hta.submodels.ChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.submodels.DeathSubmodel;
+import es.ull.iis.simulation.hta.submodels.Disease;
 import es.ull.iis.simulation.hta.submodels.SecondOrderAcuteComplicationSubmodel;
-import es.ull.iis.simulation.hta.submodels.SecondOrderChronicComplicationSubmodel;
 import es.ull.iis.simulation.hta.submodels.SecondOrderDeathSubmodel;
+import es.ull.iis.simulation.hta.submodels.SecondOrderDisease;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
@@ -46,7 +44,7 @@ import simkit.random.RandomVariateFactory;
  * to be used within the simulation. To register a complication:
  * <ol>
  * <li>Use the {@link #registerComplication(ChronicComplication)} or the {@link #registerComplication(AcuteComplication)} method</li>
- * <li>Currently, only chronic complications allow for stages. Use the {@link #registerComplicationStages(ComplicationStage[])} method to add them</li>
+ * <li>Currently, only chronic complications allow for stages. Use the {@link #registerComplicationStages(Manifestation[])} method to add them</li>
  * </ol>
  * </p>
  * @author Iván Castilla Rodríguez
@@ -87,12 +85,11 @@ public abstract class SecondOrderParamsRepository {
 	final protected TreeMap<String, SecondOrderParam> otherParams;
 	/** A random number generator for first order parameter values */
 	private static RandomNumber RNG_FIRST_ORDER = RandomNumberFactory.getInstance();
-	/** The collection of defined chronic complication stages */
-	final protected ArrayList<ComplicationStage> registeredComplicationStages;
-	/** The collection of defined chronic complications */
-	final protected TreeMap<ChronicComplication, SecondOrderChronicComplicationSubmodel> registeredChronicComplication;
-	/** The collection of defined acute complications */
-	final protected TreeMap<AcuteComplication, SecondOrderAcuteComplicationSubmodel> registeredAcuteComplication;
+	/** The collection of defined manifestations */
+	final protected ArrayList<Manifestation> registeredManifestations;
+	/** The collection of defined diseases */
+	final protected ArrayList<SecondOrderDisease> registeredDiseases;
+
 	/** The death submodel to be used */
 	protected SecondOrderDeathSubmodel registeredDeathSubmodel = null;
 	/** The collection of interventions */
@@ -118,9 +115,8 @@ public abstract class SecondOrderParamsRepository {
 		this.otherParams = new TreeMap<>();
 		this.utilParams = new TreeMap<>();
 		this.nPatients = nPatients;
-		this.registeredComplicationStages = new ArrayList<>();
-		this.registeredChronicComplication = new TreeMap<ChronicComplication, SecondOrderChronicComplicationSubmodel>();
-		this.registeredAcuteComplication = new TreeMap<AcuteComplication, SecondOrderAcuteComplicationSubmodel>();
+		this.registeredManifestations = new ArrayList<>();
+		this.registeredDiseases = new ArrayList<SecondOrderDisease>();
 		this.registeredInterventions = new ArrayList<>();
 	}
 
@@ -130,8 +126,8 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public String checkValidity() {
 		final StringBuilder str = new StringBuilder();
-		if ((registeredAcuteComplication.size() == 0) && (registeredChronicComplication.size() == 0))
-			str.append("At least one complication must be defined").append(System.lineSeparator());
+		if (registeredDiseases.size() == 0)
+			str.append("At least one disease must be defined").append(System.lineSeparator());
 		if (registeredInterventions.size() == 0) {
 			str.append("At least one intervention must be defined").append(System.lineSeparator());
 		}
@@ -142,25 +138,24 @@ public abstract class SecondOrderParamsRepository {
 	}
 	
 	/**
-	 * Registers a new chronic complication and its stages
-	 * @param comp Chronic complication
+	 * Registers a new disease and its manifestations
+	 * @param disease Disease
 	 */
-	public void registerComplication(SecondOrderChronicComplicationSubmodel comp) {
-		registeredChronicComplication.put(comp.getComplicationType(), comp);
-		// FIXME: Habrá estados internos???
-		for (ComplicationStage st : comp.getStages()) {
-			st.setOrder(registeredComplicationStages.size());
-			registeredComplicationStages.add(st);
+	public void registerDisease(SecondOrderDisease disease) {
+		registeredDiseases.add(disease);
+		for (Manifestation st : disease.getManifestations()) {
+			st.setOrder(registeredManifestations.size());
+			registeredManifestations.add(st);
 		}
-		comp.addSecondOrderParams(this);
+		disease.addSecondOrderParams(this);
 	}
 	
 	/**
-	 * Returns the registered chronic complication submodels
-	 * @return the registered chronic complication submodels
+	 * Returns the registered diseases
+	 * @return the registered diseases
 	 */
-	public SecondOrderChronicComplicationSubmodel[] getRegisteredChronicComplications() {
-		return (SecondOrderChronicComplicationSubmodel[])registeredChronicComplication.values().toArray();
+	public SecondOrderDisease[] getRegisteredDiseases() {
+		return (SecondOrderDisease[])registeredDiseases.toArray();
 	}
 
 	/**
@@ -184,8 +179,8 @@ public abstract class SecondOrderParamsRepository {
 	 * Returns the already registered complication stages
 	 * @return The already registered complication stages
 	 */
-	public ArrayList<ComplicationStage> getRegisteredComplicationStages() {
-		return registeredComplicationStages;
+	public ArrayList<Manifestation> getRegisteredComplicationStages() {
+		return registeredManifestations;
 	}
 
 	/**
@@ -540,13 +535,14 @@ public abstract class SecondOrderParamsRepository {
 	 * Returns the list of first order instances of the chronic complication submodels
 	 * @return the list of first order instances of the chronic complication submodels
 	 */
-	private final TreeMap<ChronicComplication, ChronicComplicationSubmodel> getComplicationSubmodelInstances() {
-		final TreeMap<ChronicComplication, ChronicComplicationSubmodel> comps = new TreeMap<ChronicComplication, ChronicComplicationSubmodel>();
+	private final Disease[] getDiseaseInstances() {
+		final Disease[] diseases = new Disease[registeredDiseases.size()];
 		
-		for (SecondOrderChronicComplicationSubmodel secComp : registeredChronicComplication.values()) {
-			comps.put(secComp.getComplication(), (ChronicComplicationSubmodel) secComp.getInstance(this));
+		int cont = 0;
+		for (SecondOrderDisease secDis : registeredDiseases) {
+			diseases[cont++] = secDis.getInstance(this);
 		}
-		return comps;
+		return diseases;
 	}
 
 	/**
@@ -569,7 +565,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @param acuteSubmodels Submodels for acute complications
 	 * @return the class that computes costs 
 	 */
-	public abstract CostCalculator getCostCalculator(double cDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
+	public abstract CostCalculator getCostCalculator(double cDNC, Disease[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
 	/**
 	 * Returns the class that computes utilities 
 	 * @param duDNC Disutility of diabetes with no complications
@@ -577,7 +573,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @param acuteSubmodels Submodels for acute complications
 	 * @return the class that computes utilities 
 	 */
-	public abstract UtilityCalculator getUtilityCalculator(double duDNC, ChronicComplicationSubmodel[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
+	public abstract UtilityCalculator getUtilityCalculator(double duDNC, Disease[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
 	
 	
 	/**
@@ -707,9 +703,7 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public class RepositoryInstance {
 		/** Chronic complication submodels included */
-		private final TreeMap<ChronicComplication, ChronicComplicationSubmodel> chronicCompSubmodels;
-		/** Acute complication submodels included */
-		private final TreeMap<AcuteComplication, AcuteComplicationSubmodel> acuteCompSubmodels;
+		private final Disease[] diseases;
 		/** Death submodel */
 		private final DeathSubmodel deathSubmodel; 
 		/** Interventions being assessed */
@@ -725,8 +719,7 @@ public abstract class SecondOrderParamsRepository {
 		 * @param secondOrder The second order repository that defines the second-order uncertainty on the parameters
 		 */
 		private RepositoryInstance() {
-			chronicCompSubmodels = SecondOrderParamsRepository.this.getComplicationSubmodelInstances();
-			acuteCompSubmodels = SecondOrderParamsRepository.this.getAcuteComplicationSubmodelInstances();
+			diseases = SecondOrderParamsRepository.this.getDiseaseInstances();
 			deathSubmodel = SecondOrderParamsRepository.this.getDeathSubmodel();
 			interventions = SecondOrderParamsRepository.this.getInterventions();
 
@@ -738,24 +731,16 @@ public abstract class SecondOrderParamsRepository {
 		 * Returns the complication stages related to the chronic complications
 		 * @return the complication stages related to the chronic complications
 		 */
-		public ArrayList<ComplicationStage> getRegisteredComplicationStages() {
+		public ArrayList<Manifestation> getRegisteredComplicationStages() {
 			return SecondOrderParamsRepository.this.getRegisteredComplicationStages();
 		}
 
 		/**
-		 * Returns the chronic complication submodels
-		 * @return the chronic complication submodels
+		 * Returns the diseases
+		 * @return the diseases
 		 */
-		public ChronicComplicationSubmodel[] getCompSubmodels() {
-			return (ChronicComplicationSubmodel[])chronicCompSubmodels.values().toArray();
-		}
-
-		/**
-		 * Returns the acute complication submodels
-		 * @return the acute complication submodels
-		 */
-		public AcuteComplicationSubmodel[] getAcuteCompSubmodels() {
-			return (AcuteComplicationSubmodel[]) acuteCompSubmodels.values().toArray();
+		public Disease[] getDiseases() {
+			return diseases;
 		}
 		
 		/**
@@ -800,23 +785,23 @@ public abstract class SecondOrderParamsRepository {
 		 * @param pat A patient
 		 * @return the chronic complications that a patient suffers at the start of the simulation, in case there is any
 		 */
-		public TreeSet<ComplicationStage> getInitialState(Patient pat) {
-			final TreeSet<ComplicationStage> initial = new TreeSet<>();
-			for (ChronicComplicationSubmodel submodel : chronicCompSubmodels.values()) {
+		public TreeSet<Manifestation> getInitialState(Patient pat) {
+			final TreeSet<Manifestation> initial = new TreeSet<>();
+			for (ChronicComplicationSubmodel submodel : diseases.values()) {
 				initial.addAll(submodel.getInitialStage(pat));
 			}
 			return initial;
 		}
 		
 		/**
-		 * Returns how this patient will progress from its current state with regards to a specified chronic complication. 
+		 * Returns how this patient will progress from its current state with regards to a specified disease. 
 		 * The progress can include removal of events already scheduled, modification of previously scheduled events and new events.
 		 * @param pat A patient
-		 * @param complication A chronic complication
+		 * @param disease A chronic complication
 		 * @return how this patient will progress from its current state with regards to a specified chronic complication
 		 */
-		public DiseaseProgression getProgression(Patient pat, ChronicComplication complication) {
-			return chronicCompSubmodels.get(complication).getProgression(pat);
+		public DiseaseProgression getProgression(Patient pat, Disease disease) {
+			return diseases.get(disease).getProgression(pat);
 		}
 		
 		/**

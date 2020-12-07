@@ -4,20 +4,39 @@
 package es.ull.iis.simulation.hta.submodels;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
  * @author Iván Castilla
  *
  */
-public abstract class SecondOrderDeathSubmodel extends SecondOrderComplicationSubmodel {
+public abstract class SecondOrderDeathSubmodel {
+	/** A flag to enable or disable this complication during the simulation run */
+	private boolean enable;
 
 	/**
-	 * @param diabetesTypes
+	 * 
 	 */
 	public SecondOrderDeathSubmodel() {
-		super();
+		enable = true;
 	}
 
+	/**
+	 * Disables this complication
+	 */
+	public void disable() {
+		enable = false;
+	}
+
+	public boolean isEnabled() {
+		return enable;
+	}
+
+	public abstract void addSecondOrderParams(SecondOrderParamsRepository secParams);
+
+
+	public abstract DeathSubmodel getInstance(SecondOrderParamsRepository secParams);
+	
 	/**
 	 * The death instance that should be returned when the complication is disabled.
 	 * This instance ensures that no actions are performed.

@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.outcomes;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.ChronicComplication;
-import es.ull.iis.simulation.hta.ComplicationStage;
+import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.submodels.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.submodels.ChronicComplicationSubmodel;
@@ -44,7 +44,7 @@ public class SubmodelCostCalculator implements CostCalculator {
 		cost += costNoComplication;
 		// Check each complication
 		for (ChronicComplication comp : ChronicComplication.values()) {
-			if (pat.hasComplication(comp)) {
+			if (pat.hasDisease(comp)) {
 				cost += chronicSubmodels[comp.getInternalId()].getAnnualCostWithinPeriod(pat, initAge, endAge);
 			}		
 		}
@@ -61,7 +61,7 @@ public class SubmodelCostCalculator implements CostCalculator {
 		final double[] costs = new double[ChronicComplication.values().length];
 		// Check each complication
 		for (ChronicComplication comp : ChronicComplication.values()) {
-			if (pat.hasComplication(comp)) {
+			if (pat.hasDisease(comp)) {
 				costs[comp.getInternalId()] = chronicSubmodels[comp.getInternalId()].getAnnualCostWithinPeriod(pat, initAge, endAge);
 			}		
 		}
@@ -74,8 +74,8 @@ public class SubmodelCostCalculator implements CostCalculator {
 	}
 
 	@Override
-	public double getCostOfComplication(Patient pat, ComplicationStage newEvent) {
-		return chronicSubmodels[newEvent.getComplication().getInternalId()].getCostOfComplication(pat, newEvent);
+	public double getCostOfComplication(Patient pat, Manifestation newEvent) {
+		return chronicSubmodels[newEvent.getDisease().getInternalId()].getCostOfComplication(pat, newEvent);
 	}
 
 	@Override

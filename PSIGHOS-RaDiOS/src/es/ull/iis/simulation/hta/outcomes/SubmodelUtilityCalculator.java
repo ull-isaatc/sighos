@@ -54,7 +54,7 @@ public class SubmodelUtilityCalculator implements UtilityCalculator {
 	public double getUtilityValue(Patient pat) {
 		double du = duDNC;
 		for (ChronicComplication comp : ChronicComplication.values()) {
-			if (pat.hasComplication(comp)) {
+			if (pat.hasDisease(comp)) {
 				du = method.combine(du, chronicSubmodels[comp.getInternalId()].getDisutility(pat, method));
 			}
 		}

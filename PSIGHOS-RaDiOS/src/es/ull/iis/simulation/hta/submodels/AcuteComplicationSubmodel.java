@@ -18,7 +18,7 @@ import es.ull.iis.simulation.hta.params.MultipleEventParam;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class AcuteComplicationSubmodel extends ComplicationSubmodel {
+public abstract class AcuteComplicationSubmodel extends Disease {
 	/** The function to calculate the time to next event of the acute complication */
 	private final MultipleEventParam<Long> time2Event;
 	/** Death associated to the acute events */

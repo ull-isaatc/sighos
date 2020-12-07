@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta;
 
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StartWithComplicationParam;
+import es.ull.iis.simulation.hta.submodels.SecondOrderDisease;
 
 /**
  * A stage of a {@link ChronicComplication chronic complication} defined in the model. Different chronic complications submodels
@@ -12,13 +13,13 @@ import es.ull.iis.simulation.hta.params.StartWithComplicationParam;
  * @author Iván Castilla Rodríguez
  *
  */
-public class ComplicationStage implements Named, Comparable<ComplicationStage> {
+public class Manifestation implements Named, Comparable<Manifestation> {
 	/** Short name of the complication stage */
 	private final String name;
 	/** Full description of the complication stage */
 	private final String description;
-	/** Main chronic complication this stage is related to */
-	private final ChronicComplication mainComp;
+	/** Disease this manifestation is related to */
+	private final SecondOrderDisease disease;
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
 	 * complications defined to be used within a simulation */ 
 	private int ord = -1;
@@ -27,12 +28,12 @@ public class ComplicationStage implements Named, Comparable<ComplicationStage> {
 	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
 	 * @param name Name of the stage
 	 * @param description Full description of the stage
-	 * @param mainComp Main chronic complication
+	 * @param disease Main chronic complication
 	 */
-	public ComplicationStage(String name, String description, ChronicComplication mainComp) {
+	public Manifestation(String name, String description, SecondOrderDisease disease) {
 		this.name = name;
 		this.description = description;
-		this.mainComp = mainComp;
+		this.disease = disease;
 	}
 	
 	/**
@@ -44,11 +45,11 @@ public class ComplicationStage implements Named, Comparable<ComplicationStage> {
 	}
 	
 	/**
-	 * Returns the {@link ChronicComplication} this complication stage is related to.
-	 * @return the {@link ChronicComplication} this complication stage is related to
+	 * Returns the {@link SecondOrderDisease} this manifestation is related to.
+	 * @return the {@link SecondOrderDisease} this manifestation is related to
 	 */
-	public ChronicComplication getComplication() {
-		return mainComp;
+	public SecondOrderDisease getDisease() {
+		return disease;
 	}
 	
 	@Override
@@ -74,7 +75,7 @@ public class ComplicationStage implements Named, Comparable<ComplicationStage> {
 	}
 
 	@Override
-	public int compareTo(ComplicationStage o) {
+	public int compareTo(Manifestation o) {
 		if (ord > o.ord)
 			return 1;
 		if (ord < o.ord)
@@ -96,7 +97,7 @@ public class ComplicationStage implements Named, Comparable<ComplicationStage> {
 		return new Instance(du, cost, param, imr);
 	}
 
-	public class Instance {
+	public class Instance implements Named {
 		/** Disutility associated to a year in this stage */
 		private final double du;
 		/** [initial cost, yearly cost] of being in this stage */
@@ -118,6 +119,9 @@ public class ComplicationStage implements Named, Comparable<ComplicationStage> {
 			this.imr = imr;
 		}
 		
+		public String name() {
+			return name;
+		}
 		public double getDisutility() {
 			return du;
 		}

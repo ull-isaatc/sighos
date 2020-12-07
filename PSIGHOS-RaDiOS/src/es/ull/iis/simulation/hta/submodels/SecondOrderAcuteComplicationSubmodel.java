@@ -11,7 +11,7 @@ import es.ull.iis.simulation.hta.Patient;
  * @author icasrod
  *
  */
-public abstract class SecondOrderAcuteComplicationSubmodel extends SecondOrderComplicationSubmodel {
+public abstract class SecondOrderAcuteComplicationSubmodel extends SecondOrderDisease {
 	private final AcuteComplication comp;
 	/**
 	 * @param diabetesTypes

@@ -9,7 +9,7 @@ import java.util.Locale;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.ChronicComplication;
-import es.ull.iis.simulation.hta.ComplicationStage;
+import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
@@ -134,7 +134,7 @@ public class EpidemiologicView implements ExperimentListener {
 			for (ChronicComplication comp : ChronicComplication.values()) {
 				str.append("\t" + name + "_").append(comp.name());
 			}
-			for (ComplicationStage comp : secParams.getRegisteredComplicationStages()) {
+			for (Manifestation comp : secParams.getRegisteredComplicationStages()) {
 				str.append("\t" + name + "_").append(comp.name());
 			}
 			for (AcuteComplication comp : AcuteComplication.values()) {
@@ -216,9 +216,9 @@ public class EpidemiologicView implements ExperimentListener {
 						break;
 					case COMPLICATION:
 						nChronic[pInfo.getComplication().ordinal()][interval]++;
-						if (!patientMainChronic[pInfo.getComplication().getComplication().getInternalId()][pInfo.getPatient().getIdentifier()]) {
-							patientMainChronic[pInfo.getComplication().getComplication().getInternalId()][pInfo.getPatient().getIdentifier()] = true;
-							nMainChronic[pInfo.getComplication().getComplication().getInternalId()][interval]++;
+						if (!patientMainChronic[pInfo.getComplication().getDisease().getInternalId()][pInfo.getPatient().getIdentifier()]) {
+							patientMainChronic[pInfo.getComplication().getDisease().getInternalId()][pInfo.getPatient().getIdentifier()] = true;
+							nMainChronic[pInfo.getComplication().getDisease().getInternalId()][interval]++;
 						}
 						break;
 					case ACUTE_EVENT:
@@ -340,8 +340,8 @@ public class EpidemiologicView implements ExperimentListener {
 			final double ageAtDeath = pat.getAge();
 
 			for (final ChronicComplication mainComp : ChronicComplication.values()) {
-				final ComplicationStage[] stages = secParams.getRegisteredChronicComplications()[mainComp.getInternalId()].getStages();
-				for (ComplicationStage comp : stages)
+				final Manifestation[] stages = secParams.getRegisteredChronicComplications()[mainComp.getInternalId()].getStages();
+				for (Manifestation comp : stages)
 					pat.getTimeToChronicComorbidity(comp);
 			}
 		}
@@ -453,7 +453,7 @@ public class EpidemiologicView implements ExperimentListener {
 //							nDeathsByCause.get(cause)[interval]++;
 //						}
 //
-//						for (ComplicationStage stage : pInfo.getPatient().getDetailedState()) {
+//						for (Manifestation stage : pInfo.getPatient().getDetailedState()) {
 //							nChronic[stage.ordinal()][interval]--;
 //						}
 //						for (ChronicComplication comp : pInfo.getPatient().getState()) {

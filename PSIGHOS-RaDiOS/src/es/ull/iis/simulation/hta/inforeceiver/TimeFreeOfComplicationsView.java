@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.inforeceiver;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.hta.ChronicComplication;
-import es.ull.iis.simulation.hta.ComplicationStage;
+import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
@@ -23,12 +23,12 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	private final double [][][] timeToComplications;
 	private final boolean printFirstOrderVariance;
 	private final int nInterventions;
-	private final ArrayList<ComplicationStage> availableHealthStates;
+	private final ArrayList<Manifestation> availableHealthStates;
 
 	/**
 	 * @param simUnit The time unit used within the simulation
 	 */
-	public TimeFreeOfComplicationsView(int nPatients, int nInterventions, boolean printFirstOrderVariance, ArrayList<ComplicationStage> availableHealthStates) {
+	public TimeFreeOfComplicationsView(int nPatients, int nInterventions, boolean printFirstOrderVariance, ArrayList<Manifestation> availableHealthStates) {
 		super("Standard patient viewer");
 		this.availableHealthStates = availableHealthStates;
 		timeToComplications = new double[nInterventions][availableHealthStates.size()][nPatients];
@@ -38,11 +38,11 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		addEntrance(PatientInfo.class);
 	}
 	
-	public static String getStrHeader(boolean printFirstOrderVariance, ArrayList<SecondOrderIntervention> interventions, ArrayList<ComplicationStage> availableHealthStates) {
+	public static String getStrHeader(boolean printFirstOrderVariance, ArrayList<SecondOrderIntervention> interventions, ArrayList<Manifestation> availableHealthStates) {
 		final StringBuilder str = new StringBuilder();
 		if (printFirstOrderVariance) {
 			for (SecondOrderIntervention inter : interventions) {
-				for (ComplicationStage comp : availableHealthStates) {
+				for (Manifestation comp : availableHealthStates) {
 					final String suf = comp.name() + "_" + inter.getShortName() + "\t";
 					str.append("AVG_TIME_TO_").append(suf).append("\tL95CI_TIME_TO_").append(suf).append("\tU95CI_TIME_TO_").append(suf);
 				}			
@@ -50,7 +50,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		}
 		else {
 			for (SecondOrderIntervention inter : interventions) {
-				for (ComplicationStage comp : availableHealthStates) {
+				for (Manifestation comp : availableHealthStates) {
 					str.append("AVG_TIME_TO_").append(comp.name()).append("_").append(inter.getShortName()).append("\t");
 				}
 			}
@@ -95,7 +95,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		if (pInfo.getType() == PatientInfo.Type.DEATH) {
 			final long deathTs = pInfo.getTs();
 			// Check all the complications
-			for (ComplicationStage comp : availableHealthStates) {
+			for (Manifestation comp : availableHealthStates) {
 				final long time = pat.getTimeToChronicComorbidity(comp);
 				timeToComplications[nIntervention][comp.ordinal()][pat.getIdentifier()] = (time == Long.MAX_VALUE) ? deathTs : time;
 			}

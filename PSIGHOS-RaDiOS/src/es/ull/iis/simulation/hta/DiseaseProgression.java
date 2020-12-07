@@ -15,7 +15,7 @@ public class DiseaseProgression {
 	/** New complications to progress to */
 	private final ArrayList<DiseaseProgressionPair> newEvents;
 	/** Already assigned complications that must be cancelled */
-	private final TreeSet<ComplicationStage> cancelEvents;
+	private final TreeSet<Manifestation> cancelEvents;
 
 	/**
 	 * Creates a progression instance for T1DM
@@ -30,7 +30,7 @@ public class DiseaseProgression {
 	 * @param stage Stage of the complication to progress to
 	 * @param timeToEvent Timestamp when this complication is predicted to appear
 	 */
-	public void addNewEvent(ComplicationStage stage, long timeToEvent) {
+	public void addNewEvent(Manifestation stage, long timeToEvent) {
 		newEvents.add(new DiseaseProgressionPair(stage, timeToEvent));
 	}
 	
@@ -39,7 +39,7 @@ public class DiseaseProgression {
 	 * @param stage Stage of the complication to progress to
 	 * @param timeToEvent Timestamp when this complication is predicted to appear
 	 */
-	public void addNewEvent(ComplicationStage stage, long timeToEvent, boolean causesDeath) {
+	public void addNewEvent(Manifestation stage, long timeToEvent, boolean causesDeath) {
 		newEvents.add(new DiseaseProgressionPair(stage, timeToEvent, causesDeath));
 	}
 	
@@ -47,7 +47,7 @@ public class DiseaseProgression {
 	 * Adds the cancellation of an already scheduled complication
 	 * @param stage Specific complication to cancel
 	 */
-	public void addCancelEvent(ComplicationStage stage) {
+	public void addCancelEvent(Manifestation stage) {
 		cancelEvents.add(stage);
 	}
 
@@ -63,7 +63,7 @@ public class DiseaseProgression {
 	 * Returns the list of already scheduled complications to be cancelled 
 	 * @return the list of already scheduled complications to be cancelled
 	 */
-	public TreeSet<ComplicationStage> getCancelEvents() {
+	public TreeSet<Manifestation> getCancelEvents() {
 		return cancelEvents;
 	}
 	

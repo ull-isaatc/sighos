@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
-import es.ull.iis.simulation.hta.ComplicationStage;
+import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
@@ -61,7 +61,7 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 		for (int i = 0; i < interventions.size(); i++) {
 			final String name = interventions.get(i).getShortName();
 			str.append("\t" + name + "_N").append("\t" + name + "_DEATH");
-			for (ComplicationStage comp : secParams.getRegisteredComplicationStages()) {
+			for (Manifestation comp : secParams.getRegisteredComplicationStages()) {
 				str.append("\t" + name + "_").append(comp.name());
 			}
 			for (AcuteComplication comp : AcuteComplication.values()) {

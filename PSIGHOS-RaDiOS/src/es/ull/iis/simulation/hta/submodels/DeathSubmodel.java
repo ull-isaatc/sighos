@@ -10,13 +10,12 @@ import es.ull.iis.simulation.hta.Patient;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class DeathSubmodel extends ComplicationSubmodel {
+public abstract class DeathSubmodel {
 	protected final SecondOrderDeathSubmodel secOrder;
 	/**
 	 * Creates a submodel for death
 	 */
 	public DeathSubmodel(SecondOrderDeathSubmodel secOrder) {
-		super();
 		this.secOrder = secOrder;
 	}
 

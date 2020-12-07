@@ -4,7 +4,7 @@
 package es.ull.iis.simulation.hta.outcomes;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
-import es.ull.iis.simulation.hta.ComplicationStage;
+import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
 
 /**
@@ -29,7 +29,7 @@ public interface CostCalculator {
 	 * @param newEvent A new complication for the patient
 	 * @return the cost of a complication upon incidence
 	 */
-	public double getCostOfComplication(Patient pat, ComplicationStage newEvent);
+	public double getCostOfComplication(Patient pat, Manifestation newEvent);
 	
 	/**
 	 * Returns the cost of an acute event

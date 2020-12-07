@@ -7,21 +7,21 @@ import java.util.Collection;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
-import es.ull.iis.simulation.hta.ComplicationStage;
+import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
 
 /**
  * A standard utility calculator that simply collects constant disutility values for each complication and then 
  * combines them according to the defined {@link DisutilityCombinationMethod} and the current health state of the patient.
  * Acute events and no complication utilities are defined in the constructor. The disutility for every stage of each chronic complication
- * is defined by using {@link #addDisutilityForComplicationStage(ComplicationStage, double)}
+ * is defined by using {@link #addDisutilityForComplicationStage(Manifestation, double)}
  * 
  * @author Iván Castilla Rodríguez
  *
  */
 public class StdUtilityCalculator implements UtilityCalculator {
 	/** Disutility associated to each chronic complication stage */
-	private final TreeMap<ComplicationStage, Double> disutilities;
+	private final TreeMap<Manifestation, Double> disutilities;
 	/** Disutility for diabetes with no complications */
 	private final double duDNC;
 	/** Utility assigned to the general population, without diabetes */
@@ -52,7 +52,7 @@ public class StdUtilityCalculator implements UtilityCalculator {
 	 * @param stage Stage of a chronic complicatin
 	 * @param disutility Disutility applied to the stage
 	 */
-	public void addDisutilityForComplicationStage(ComplicationStage stage, double disutility) {
+	public void addDisutilityForComplicationStage(Manifestation stage, double disutility) {
 		disutilities.put(stage, disutility);
 	}
 	
@@ -63,9 +63,9 @@ public class StdUtilityCalculator implements UtilityCalculator {
 	
 	@Override	
 	public double getUtilityValue(Patient pat) {
-		final Collection<ComplicationStage> state = pat.getDetailedState();
+		final Collection<Manifestation> state = pat.getDetailedState();
 		double du = duDNC;
-		for (ComplicationStage comp : state) {
+		for (Manifestation comp : state) {
 			if (disutilities.containsKey(comp))
 				du = method.combine(du, disutilities.get(comp));
 		}

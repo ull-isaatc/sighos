@@ -4,14 +4,12 @@
 package es.ull.iis.simulation.hta.submodels;
 
 import java.util.Arrays;
-import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.ComplicationStage;
+import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.TimeUnit;
-import simkit.random.GompertzVariate;
 import simkit.random.RandomNumber;
 
 /**
@@ -21,13 +19,6 @@ import simkit.random.RandomNumber;
  *
  */
 public class EmpiricalSpainDeathSubmodel extends SecondOrderDeathSubmodel {
-	/** Alpha parameter for a Gompertz distribution on the mortality risk for men and women */
-	private final static double ALPHA_DEATH[] = new double[] {Math.exp(-10.43996654), Math.exp(-11.43877681)};
-	/** Beta parameter for a Gompertz distribution on the mortality risk for men and women */
-	private final static double BETA_DEATH[] = new double[] {0.093286762, 0.099683525};
-	/** The increased mortality risk associated to each chronic complication stage */
-	private final TreeMap<ComplicationStage, Double> imrs;
-
 	/** Survival for men and women, in inverse order (the first value is the survival at 100 years old). Survival is computed by
 	 * iteratively applying the mortality risk from the INE table to a hypotethical population of 10000 individuals */
 	private static double[][] INV_SURVIVAL = {
@@ -66,10 +57,6 @@ public class EmpiricalSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 	 */
 	public EmpiricalSpainDeathSubmodel(SecondOrderParamsRepository secParams) {
 		super();
-		imrs = new TreeMap<>();
-		for (ComplicationStage stage : secParams.getRegisteredComplicationStages()) {
-			imrs.put(stage, secParams.getIMR(stage));
-		}
 	}
 
 	@Override
@@ -78,7 +65,7 @@ public class EmpiricalSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 
 
 	@Override
-	public ComplicationSubmodel getInstance(SecondOrderParamsRepository secParams) {
+	public DeathSubmodel getInstance(SecondOrderParamsRepository secParams) {
 		return isEnabled() ? new Instance(secParams) : new DisabledDeathInstance(this);
 	}
 
@@ -105,12 +92,10 @@ public class EmpiricalSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 		@Override
 		public long getTimeToDeath(Patient pat) {
 			double imr = 1.0;
-			for (final ComplicationStage state : pat.getDetailedState()) {
-				if (imrs.containsKey(state)) {
-					final double newIMR = imrs.get(state);
-					if (newIMR > imr) {
-						imr = newIMR;
-					}
+			for (final Manifestation.Instance state : pat.getDetailedState()) {
+				final double newIMR = state.getIMR();
+				if (newIMR > imr) {
+					imr = newIMR;
 				}
 			}
 			final double age = pat.getAge();
@@ -125,18 +110,5 @@ public class EmpiricalSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 			return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
 		}
 		
-		public long legacyGetTimeToDeath(Patient pat) {
-			double imr = 1.0;
-			for (final ComplicationStage state : pat.getDetailedState()) {
-				if (imrs.containsKey(state)) {
-					final double newIMR = imrs.get(state);
-					if (newIMR > imr) {
-						imr = newIMR;
-					}
-				}
-			}
-			final double time = Math.min(GompertzVariate.generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), rnd[pat.getIdentifier()] / imr), BasicConfigParams.DEF_MAX_AGE - pat.getAge());
-			return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
-		}
 	}
 }
