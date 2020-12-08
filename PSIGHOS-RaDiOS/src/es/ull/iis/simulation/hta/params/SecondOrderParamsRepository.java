@@ -785,23 +785,12 @@ public abstract class SecondOrderParamsRepository {
 		 * @param pat A patient
 		 * @return the chronic complications that a patient suffers at the start of the simulation, in case there is any
 		 */
-		public TreeSet<Manifestation> getInitialState(Patient pat) {
-			final TreeSet<Manifestation> initial = new TreeSet<>();
-			for (ChronicComplicationSubmodel submodel : diseases.values()) {
-				initial.addAll(submodel.getInitialStage(pat));
+		public TreeSet<Manifestation.Instance> getInitialState(Patient pat) {
+			final TreeSet<Manifestation.Instance> initial = new TreeSet<>();
+			for (Disease dis : diseases) {
+				initial.addAll(dis.getInitialStage(pat));
 			}
 			return initial;
-		}
-		
-		/**
-		 * Returns how this patient will progress from its current state with regards to a specified disease. 
-		 * The progress can include removal of events already scheduled, modification of previously scheduled events and new events.
-		 * @param pat A patient
-		 * @param disease A chronic complication
-		 * @return how this patient will progress from its current state with regards to a specified chronic complication
-		 */
-		public DiseaseProgression getProgression(Patient pat, Disease disease) {
-			return diseases.get(disease).getProgression(pat);
 		}
 		
 		/**

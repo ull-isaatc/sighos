@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta;
 
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StartWithComplicationParam;
+import es.ull.iis.simulation.hta.submodels.Disease;
 import es.ull.iis.simulation.hta.submodels.SecondOrderDisease;
 
 /**
@@ -14,6 +15,10 @@ import es.ull.iis.simulation.hta.submodels.SecondOrderDisease;
  *
  */
 public class Manifestation implements Named, Comparable<Manifestation> {
+	public enum Type {
+		ACUTE,
+		CHRONIC
+	}
 	/** Short name of the complication stage */
 	private final String name;
 	/** Full description of the complication stage */
@@ -23,6 +28,7 @@ public class Manifestation implements Named, Comparable<Manifestation> {
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
 	 * complications defined to be used within a simulation */ 
 	private int ord = -1;
+	private final Type type;
 	
 	/**
 	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
@@ -30,10 +36,11 @@ public class Manifestation implements Named, Comparable<Manifestation> {
 	 * @param description Full description of the stage
 	 * @param disease Main chronic complication
 	 */
-	public Manifestation(String name, String description, SecondOrderDisease disease) {
+	public Manifestation(String name, String description, SecondOrderDisease disease, Type type) {
 		this.name = name;
 		this.description = description;
 		this.disease = disease;
+		this.type = type;
 	}
 	
 	/**
@@ -52,6 +59,13 @@ public class Manifestation implements Named, Comparable<Manifestation> {
 		return disease;
 	}
 	
+	/**
+	 * @return the type
+	 */
+	public Type getType() {
+		return type;
+	}
+
 	@Override
 	public String name() {
 		return name;
@@ -88,13 +102,13 @@ public class Manifestation implements Named, Comparable<Manifestation> {
 		return name;
 	}
 
-	public Instance getInstance(final double du, final double[] cost, final StartWithComplicationParam pInit, final double imr) {
-		return new Instance(du, cost, pInit, imr);
+	public Instance getInstance(final Disease disease, final double du, final double[] cost, final StartWithComplicationParam pInit, final double imr) {
+		return new Instance(disease, du, cost, pInit, imr);
 	}
 
-	public Instance getInstance(final double du, final double[] cost, double pInit, final double imr, final int nPatients) {
+	public Instance getInstance(final Disease disease, final double du, final double[] cost, double pInit, final double imr, final int nPatients) {
 		final StartWithComplicationParam param = (pInit > 0.0) ? new StartWithComplicationParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients, pInit) : null;
-		return new Instance(du, cost, param, imr);
+		return new Instance(disease, du, cost, param, imr);
 	}
 
 	public class Instance implements Named {
@@ -106,22 +120,31 @@ public class Manifestation implements Named, Comparable<Manifestation> {
 		private final StartWithComplicationParam pInit;
 		/** Increased mortality rate associated to this stage */
 		private final double imr;
+		private final Disease disease;
 		
 		/**
 		 * @param du
 		 * @param cost
 		 * @param pInit
 		 */
-		private Instance(final double du, final double[] cost, final StartWithComplicationParam pInit, final double imr) {
+		private Instance(Disease disease, final double du, final double[] cost, final StartWithComplicationParam pInit, final double imr) {
 			this.du = du;
 			this.cost = cost;
 			this.pInit = pInit;
 			this.imr = imr;
+			this.disease = disease;
 		}
 		
 		public String name() {
 			return name;
 		}
+		/**
+		 * @return the disease
+		 */
+		public Disease getDisease() {
+			return disease;
+		}
+
 		public double getDisutility() {
 			return du;
 		}
@@ -137,5 +160,13 @@ public class Manifestation implements Named, Comparable<Manifestation> {
 		public double getIMR() {
 			return imr;
 		}
+		
+		/**
+		 * @return the type
+		 */
+		public Type getType() {
+			return type;
+		}
+
 	}
 }

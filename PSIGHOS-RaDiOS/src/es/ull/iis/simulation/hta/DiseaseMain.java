@@ -38,7 +38,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.RepositoryIn
 import es.ull.iis.simulation.hta.params.StdDiscount;
 import es.ull.iis.simulation.hta.params.ZeroDiscount;
 import es.ull.iis.simulation.hta.submodels.SecondOrderAcuteComplicationSubmodel;
-import es.ull.iis.simulation.hta.submodels.SecondOrderChronicComplicationSubmodel;
+import es.ull.iis.simulation.hta.submodels.SecondOrderDisease;
 
 /**
  * Main class to launch simulation experiments
@@ -370,28 +370,6 @@ public class DiseaseMain {
 	        SecondOrderParamsRepository secParams = null;
 	        
 	    	final String validity = secParams.checkValidity();
-	    	final SecondOrderChronicComplicationSubmodel[] chronicSubmodels = secParams.getRegisteredChronicComplications();
-	    	final SecondOrderAcuteComplicationSubmodel[] acuteSubmodels = secParams.getRegisteredAcuteComplications();
-	    	for (final String compName : args1.disable) {
-	    		boolean found = false;
-	    		for (final ChronicComplication comp : ChronicComplication.values()) {
-	    			if (comp.name().equals(compName)) {
-	    				found = true;
-	    				chronicSubmodels[comp.getInternalId()].disable();
-	    			}
-	    		}
-	    		if (!found) {
-		    		for (final AcuteComplication comp : AcuteComplication.values()) {
-		    			if (comp.name().equals(compName)) {
-		    				found = true;
-		    				acuteSubmodels[comp.getInternalId()].disable();
-		    			}
-		    		}
-	    		}
-	    		if (!found) {
-	    			throw new ParameterException("Error using the disable submodel option: could not find complication \"" + compName + "\".");
-	    		}
-	    	}
 	    	if (validity == null) {
 		    	final int timeHorizon = (args1.timeHorizon == -1) ? BasicConfigParams.DEF_MAX_AGE - secParams.getMinAge() + 1 : args1.timeHorizon;
 	    		final EnumSet<Outputs> printOutputs = EnumSet.noneOf(Outputs.class);
@@ -514,8 +492,6 @@ public class DiseaseMain {
 		private int year = BasicConfigParams.STUDY_YEAR;
 		@DynamicParameter(names = {"--iniprop", "-I"}, description = "Initial proportion for complication stages")
 		private Map<String, String> initProportions = new TreeMap<String, String>();
-		@Parameter(names = {"--disable", "-D"}, description = "Disable a complication: any of CHD, NEU, NPH, RET, SHE", variableArity = true)
-		private List<String> disable = new ArrayList<String>();
 	}
 
 	/**

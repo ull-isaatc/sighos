@@ -34,13 +34,13 @@ public abstract class Disease {
 
 	public void setStageInstance(Manifestation stage, SecondOrderParamsRepository secParams) {
 		final double initP = secParams.getInitProbParam(stage);
-		data.put(stage, stage.getInstance(secParams.getDisutilityForChronicComplication(stage), 
+		data.put(stage, stage.getInstance(this, secParams.getDisutilityForChronicComplication(stage), 
 				secParams.getCostsForChronicComplication(stage),
 				initP, secParams.getIMR(stage), secParams.getnPatients()));
 	}
 
 	public void setStageInstance(Manifestation stage, double du, double[] cost, double initP, double imr, int nPatients) {
-		data.put(stage, stage.getInstance(du, cost, initP, imr, nPatients)); 
+		data.put(stage, stage.getInstance(this, du, cost, initP, imr, nPatients)); 
 	}
 	
 	public double getDisutility(Manifestation stage) {
@@ -115,11 +115,11 @@ public abstract class Disease {
 	 * @param pat A patient
 	 * @return the initial set of stages that the patient will start with when this complication appears
 	 */
-	public TreeSet<Manifestation> getInitialStage(Patient pat) {
-		final TreeSet<Manifestation> init = new TreeSet<>();
+	public TreeSet<Manifestation.Instance> getInitialStage(Patient pat) {
+		final TreeSet<Manifestation.Instance> init = new TreeSet<>();
 		for (final Manifestation stage : secOrder.getManifestations()) {
 			if (hasComplicationAtStart(stage, pat))
-				init.add(stage);
+				init.add(data.get(stage));
 		}
 		return init;
 		
