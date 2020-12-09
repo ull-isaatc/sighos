@@ -31,14 +31,8 @@ public abstract class Manifestation implements Named, Comparable<Manifestation> 
 	private int ord = -1;
 	private final Type type;
 	
-	/** Disutility associated to a year in this stage */
-	private final ArrayList<Double> du;
-	/** [initial cost, yearly cost] of being in this stage */
-	private final ArrayList<double[]> cost;
 	/** Probability that a patient starts in this stage */
 	private final ArrayList<StartWithComplicationParam> pInit;
-	/** Increased mortality rate associated to this stage */
-	private final ArrayList<Double> imr;
 	
 	/**
 	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
@@ -51,10 +45,7 @@ public abstract class Manifestation implements Named, Comparable<Manifestation> 
 		this.description = description;
 		this.disease = disease;
 		this.type = type;
-		du = new ArrayList<>();
-		cost = new ArrayList<>();
 		pInit = new ArrayList<>();
-		imr = new ArrayList<>();
 	}
 	
 	/**
