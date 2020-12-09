@@ -72,8 +72,8 @@ public class StandardSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 		@Override
 		public long getTimeToDeath(Patient pat) {
 			double imr = 1.0;
-			for (final Manifestation.Instance state : pat.getDetailedState()) {
-				final double newIMR = state.getIMR();
+			for (final Manifestation state : pat.getDetailedState()) {
+				final double newIMR = state.getIMR(pat);
 				if (newIMR > imr) {
 					imr = newIMR;
 				}

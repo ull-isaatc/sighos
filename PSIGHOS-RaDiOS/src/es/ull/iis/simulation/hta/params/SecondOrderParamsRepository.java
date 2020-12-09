@@ -234,7 +234,21 @@ public abstract class SecondOrderParamsRepository {
 	public Population getPopulation() {
 		return population;
 	}
-	
+
+	/**
+	 * Generates n random numbers for each parameter in the repository
+	 * @param n Number of random numbers to generate
+	 */
+	public void generateValuesForParameters(int n) {
+		for (SecondOrderParam param : probabilityParams.values())
+			param.generate(n);
+		for (SecondOrderParam param : costParams.values())
+			param.generate(n);
+		for (SecondOrderParam param : utilParams.values())
+			param.generate(n);
+		for (SecondOrderParam param : otherParams.values())
+			param.generate(n);
+	}
 	/**
 	 * Adds a probability parameter
 	 * @param param Probability parameter

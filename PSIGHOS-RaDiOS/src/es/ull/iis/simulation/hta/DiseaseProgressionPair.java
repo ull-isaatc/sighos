@@ -10,8 +10,8 @@ package es.ull.iis.simulation.hta;
  *
  */
 public final class DiseaseProgressionPair {
-	/** A complication stage or acute event */
-	private final Named comp;
+	/** A manifestation */
+	private final Manifestation manif;
 	/** The time when the complication stage is predicted to start */
 	private final long timeToEvent;
 	/** If true, the event will produce the death of the patient */
@@ -19,21 +19,21 @@ public final class DiseaseProgressionPair {
 	
 	/**
 	 * Creates a new pair <complication, time> which will not cause the death of the patient
-	 * @param comp A complication stage or acute event
+	 * @param manif A complication stage or acute event
 	 * @param timeToEvent The time when the complication is predicted to start 
 	 */
-	public DiseaseProgressionPair(Named comp, long timeToEvent) {
-		this(comp, timeToEvent, false);
+	public DiseaseProgressionPair(Manifestation manif, long timeToEvent) {
+		this(manif, timeToEvent, false);
 	}
 
 	/**
 	 * Creates a new pair <complication, time> which may cause the death of the patient
-	 * @param comp A complication stage or acute event
+	 * @param manif A complication stage or acute event
 	 * @param timeToEvent The time when the complication is predicted to start 
 	 * @param causesDeath If true, the event will produce the death of the patient
 	 */
-	public DiseaseProgressionPair(Named comp, long timeToEvent, boolean causesDeath) {
-		this.comp = comp;
+	public DiseaseProgressionPair(Manifestation manif, long timeToEvent, boolean causesDeath) {
+		this.manif = manif;
 		this.timeToEvent = timeToEvent;
 		this.causesDeath = causesDeath;
 	}
@@ -42,8 +42,8 @@ public final class DiseaseProgressionPair {
 	 * Returns the complication or acute event
 	 * @return a complication or acute event
 	 */
-	public Named getComplication() {
-		return comp;
+	public Manifestation getManifestation() {
+		return manif;
 	}
 	
 	/**
@@ -64,6 +64,6 @@ public final class DiseaseProgressionPair {
 
 	@Override
 	public String toString() {
-		return comp.name() + "[" + timeToEvent + "]";
+		return manif.name() + "[" + timeToEvent + "]";
 	}
 }

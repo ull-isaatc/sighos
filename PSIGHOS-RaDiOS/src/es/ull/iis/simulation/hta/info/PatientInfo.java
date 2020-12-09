@@ -22,6 +22,7 @@ public class PatientInfo extends AsynchronousInfo {
 	/** Possible types of pieces of information */
 	public enum Type {
 			START ("PATIENT STARTS"),
+			// TODO: Añadir DISEASE y MANIFESTATION; quitar COMPLICATION y ACUTE_EVENT
 			COMPLICATION ("COMPLICATION"),
 			ACUTE_EVENT ("ACUTE EVENT"),
 			DEATH ("PATIENT DIES");

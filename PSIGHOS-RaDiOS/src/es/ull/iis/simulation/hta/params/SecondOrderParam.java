@@ -1,5 +1,7 @@
 package es.ull.iis.simulation.hta.params;
 
+import java.util.ArrayList;
+
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -15,12 +17,10 @@ public class SecondOrderParam {
 	private final String description;
 	/** The reference from which this parameter was estimated/taken */
 	private final String source;
-	/** Deterministic/expected value */
-	private final double detValue;
 	/** The probability distribution that characterizes the uncertainty on the parameter */
 	private final RandomVariate rnd;
-	/** The last generated value for this parameter. Useful for printing */
-	protected double lastGeneratedValue;
+	/** All the generated values for this parameter. Index 0 is the deterministic/expected value */
+	protected final ArrayList<Double> generatedValues;
 
 	/**
 	 * Creates a second-order parameter
@@ -34,9 +34,9 @@ public class SecondOrderParam {
 		this.name = name;
 		this.description = description;
 		this.source = source;
-		this.detValue = detValue;
 		this.rnd = rnd;
-		lastGeneratedValue = Double.NaN;
+		generatedValues = new ArrayList<>();
+		generatedValues.add(0, detValue);
 	}
 	
 	/**
@@ -64,15 +64,25 @@ public class SecondOrderParam {
 	}
 
 	/**
-	 * Returns a random-generated value for the parameter; the expected value if baseCase is true
-	 * @param baseCase If true, returns the expected value; otherwise returns a random-generated value
-	 * @return a random-generated value for the parameter; the expected value if baseCase is true
+	 * Returns a value for the parameter: if id = 0, returns the expected value (base case); otherwise returns a random-generated value. 
+	 * Always returns the same value for the same id.
+	 * @param id The identifier of the value to return (0: deterministic; other: random value)
+	 * @return if id = 0, returns the expected value (base case); otherwise returns a random-generated value
 	 */
-	public double getValue(boolean baseCase) {
-		lastGeneratedValue = baseCase ? detValue : rnd.generate();
-		return lastGeneratedValue;
+	public double getValue(int id) {
+		return generatedValues.get(id);
 	}
 
+	/**
+	 * Generates n random values for the parameter
+	 * @param n Number of random values to generate
+	 */
+	public void generate(int n) {
+		generatedValues.ensureCapacity(n);
+		for (int i = 1; i < n; i++)
+			generatedValues.set(i, rnd.generate());
+	}
+	
 	/**
 	 * Returns the short name and identifier of the parameter
 	 * @return the short name and identifier of the parameter
@@ -98,10 +108,10 @@ public class SecondOrderParam {
 	}
 
 	/**
-	 * Returns the last generated value for this parameter. Useful for printing
-	 * @return the last generated value for this parameter. Useful for printing
+	 * Returns the generated value identified by id for this parameter. Useful for printing
+	 * @return the generated value identified by id for this parameter. Useful for printing
 	 */
-	public double getLastGeneratedValue() {
-		return lastGeneratedValue;
+	public double getGeneratedValue(int id) {
+		return generatedValues.get(id);
 	}
 }
