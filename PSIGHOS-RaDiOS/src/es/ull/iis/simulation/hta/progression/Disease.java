@@ -7,21 +7,23 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.TimeToEventParam;
+import es.ull.iis.simulation.model.Describable;
 
 /**
- * A complication submodel
+ * A disease
  * @author Iván Castilla Rodríguez
  */
-public abstract class Disease {
+public abstract class Disease implements Named, Describable {
 	private static final DiseaseProgression NULL_PROGRESSION = new DiseaseProgression(); 
 	private static final Manifestation[] NON_MANIFESTATIONS = new Manifestation[0]; 
-	public static final Disease HEALTHY = new Disease() {
+	public static final Disease HEALTHY = new Disease("HEALTHY", "Healthy") {
 
 		@Override
 		public DiseaseProgression getProgression(Patient pat) {
@@ -50,16 +52,35 @@ public abstract class Disease {
 	
 	private final TreeSet<Manifestation> manifestations;
 	private final TreeMap<Transition, ArrayList<TimeToEventParam>> time2Event;
+	/** Short name of the disease */
+	private final String name;
+	/** Full description of the disease */
+	private final String description;
 	
 	/**
 	 * Creates a submodel for a chronic complication.
 	 */
-	public Disease() {
-		super();
+	public Disease(String name, String description) {
 		this.manifestations = new TreeSet<>();
 		this.time2Event = new TreeMap<>();
+		this.name = name;
+		this.description = description;
+	}
+	
+	/**
+	 * Returns the description of the disease
+	 * @return the description of the disease
+	 */
+	@Override
+	public String getDescription() {
+		return description;
 	}
 
+	@Override
+	public String name() {
+		return name;
+	}
+	
 	public void setStageInstance(Manifestation stage, SecondOrderParamsRepository secParams) {
 		final double initP = secParams.getInitProbParam(stage);
 		manifestations.put(stage, stage.getInstance(this, secParams.getDisutilityForChronicComplication(stage), 

@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.info;
 
-import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.progression.Manifestation;
@@ -22,9 +21,7 @@ public class PatientInfo extends AsynchronousInfo {
 	/** Possible types of pieces of information */
 	public enum Type {
 			START ("PATIENT STARTS"),
-			// TODO: Añadir DISEASE y MANIFESTATION; quitar COMPLICATION y ACUTE_EVENT
-			COMPLICATION ("COMPLICATION"),
-			ACUTE_EVENT ("ACUTE EVENT"),
+			MANIFESTATION ("MANIFESTATION"),
 			DEATH ("PATIENT DIES");
 			
 			private final String description;
@@ -43,23 +40,23 @@ public class PatientInfo extends AsynchronousInfo {
 	final private Patient patient;
 	/** Type of information */
 	final private Type type;
-	/** Description of the acute or chronic complication */
-	final private Named complication;
+	/** Description of the acute or chronic manifestation */
+	final private Manifestation manifestation;
 
 	/**
 	 * Standard constructor that uses all the parameters
 	 * @param simul Simulation that emits this piece of information 
 	 * @param patient A patients
 	 * @param type Type of piece of information
-	 * @param complication Chronic complication stage (in case the simulation is reporting a complication-related piece of information)
+	 * @param manifestation Chronic manifestation stage (in case the simulation is reporting a manifestation-related piece of information)
 	 * @param acuteEvent Acute event (in case the simulation is reporting an acute-event-related piece of information)
 	 * @param ts Simulation time when this piece of information occurs
 	 */
-	public PatientInfo(Simulation simul, Patient patient, Type type, Named complication, long ts) {
+	public PatientInfo(Simulation simul, Patient patient, Type type, Manifestation manifestation, long ts) {
 		super(simul, ts);
 		this.patient = patient;
 		this.type = type;
-		this.complication = complication;
+		this.manifestation = manifestation;
 	}
 
 	/**
@@ -74,25 +71,14 @@ public class PatientInfo extends AsynchronousInfo {
 	}
 
 	/**
-	 * Piece of information related to a chronic complication
+	 * Piece of information related to a chronic manifestation
 	 * @param simul Simulation that emits this piece of information 
 	 * @param patient A patients
-	 * @param complication Chronic complication stage (in case the simulation is reporting a complication-related piece of information)
+	 * @param manifestation Chronic manifestation stage (in case the simulation is reporting a manifestation-related piece of information)
 	 * @param ts Simulation time when this piece of information occurs
 	 */
 	public PatientInfo(Simulation simul, Patient patient, Manifestation complication, long ts) {
-		this(simul, patient, Type.COMPLICATION, complication, ts);
-	}
-
-	/**
-	 * Piece of information related to an acute event 
-	 * @param simul Simulation that emits this piece of information 
-	 * @param patient A patients
-	 * @param acuteEvent Acute event (in case the simulation is reporting an acute-event-related piece of information)
-	 * @param ts Simulation time when this piece of information occurs
-	 */
-	public PatientInfo(Simulation simul, Patient patient, AcuteComplication acuteEvent, long ts) {
-		this(simul, patient, Type.ACUTE_EVENT, acuteEvent, ts);		
+		this(simul, patient, Type.MANIFESTATION, complication, ts);
 	}
 
 	/**
@@ -112,43 +98,29 @@ public class PatientInfo extends AsynchronousInfo {
 	}
 
 	/**
-	 * Returns the chronic complication stage referenced by this piece of information (null if the piece of information
-	 * is not related to a chronic complication) 
-	 * @return the chronic complication
+	 * Returns the chronic manifestation stage referenced by this piece of information (null if the piece of information
+	 * is not related to a chronic manifestation) 
+	 * @return the chronic manifestation
 	 */
-	public Manifestation getComplication() {
-		if (complication instanceof Manifestation)
-			return (Manifestation)complication;
-		return null;
-	}
-
-	/**
-	 * Returns the acute complication referenced by this piece of information (null if the piece of information
-	 * is not related to an acute complication 
-	 * @return the acute event
-	 */
-	public AcuteComplication getAcuteEvent() {
-		if (complication instanceof AcuteComplication)
-			return (AcuteComplication)complication;
-		return null;
+	public Manifestation getManifestation() {
+		return manifestation;
 	}
 
 	public Named getCauseOfDeath() {
-		return complication;
+		return manifestation;
 	}
 	public String toString() {
 		String description = type.getDescription();
 		switch (type) {
-		case ACUTE_EVENT:
-		case COMPLICATION:
-			description = description + "\t" + complication.name();
+		case MANIFESTATION:
+			description = description + "\t" + manifestation.name();
 			break;
 		case DEATH:
-			if (complication != null)
-				description = description + "\t" + complication.name();
+			if (manifestation != null)
+				description = description + "\t" + manifestation.name();
 			break;
 		case START:
-			description += "\t" + patient.getAge();
+			description += "\t" + patient.getAge() + "\t" + patient.getDisease().name();
 			break;
 		default:
 			break;

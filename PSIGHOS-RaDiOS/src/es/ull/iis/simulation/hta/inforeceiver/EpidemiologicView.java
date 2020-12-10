@@ -215,10 +215,10 @@ public class EpidemiologicView implements ExperimentListener {
 						nAlivePatients[interval]++;
 						break;
 					case COMPLICATION:
-						nChronic[pInfo.getComplication().ordinal()][interval]++;
-						if (!patientMainChronic[pInfo.getComplication().getDisease().getInternalId()][pInfo.getPatient().getIdentifier()]) {
-							patientMainChronic[pInfo.getComplication().getDisease().getInternalId()][pInfo.getPatient().getIdentifier()] = true;
-							nMainChronic[pInfo.getComplication().getDisease().getInternalId()][interval]++;
+						nChronic[pInfo.getManifestation().ordinal()][interval]++;
+						if (!patientMainChronic[pInfo.getManifestation().getDisease().getInternalId()][pInfo.getPatient().getIdentifier()]) {
+							patientMainChronic[pInfo.getManifestation().getDisease().getInternalId()][pInfo.getPatient().getIdentifier()] = true;
+							nMainChronic[pInfo.getManifestation().getDisease().getInternalId()][interval]++;
 						}
 						break;
 					case ACUTE_EVENT:

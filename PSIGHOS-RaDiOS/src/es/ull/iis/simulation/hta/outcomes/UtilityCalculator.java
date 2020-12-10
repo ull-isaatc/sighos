@@ -3,8 +3,8 @@
  */
 package es.ull.iis.simulation.hta.outcomes;
 
-import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
  * A class implementing this interface can calculate the disease-related utilities 
@@ -47,15 +47,15 @@ public interface UtilityCalculator {
 	/**
 	 * Returns the disutility value for the specified acute event
 	 * @param pat A patient
-	 * @param comp The acute complication
+	 * @param manif The acute complication
 	 * @return the disutility value for the specified acute event
 	 */
-	public double getAcuteEventDisutilityValue(Patient pat, AcuteComplication comp);
+	public double getPunctualDisutilityValue(Patient pat, Manifestation manif);
 	
 	/**
-	 * Returns the utility value for a patient, taking into account the chronic complications he/she is suffering
+	 * Returns the utility value for a patient, taking into account the chronic manifestations he/she is suffering
 	 * @param pat A patient
-	 * @return the utility value for a patient, taking into account the chronic complications he/she is suffering
+	 * @return the utility value for a patient, taking into account the chronic manifestations he/she is suffering
 	 */
 	public double getUtilityValue(Patient pat);
 

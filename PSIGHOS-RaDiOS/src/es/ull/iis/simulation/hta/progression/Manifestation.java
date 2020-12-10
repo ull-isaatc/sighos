@@ -9,6 +9,7 @@ import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StartWithComplicationParam;
+import es.ull.iis.simulation.model.Describable;
 
 /**
  * A stage of a {@link ChronicComplication chronic complication} defined in the model. Different chronic complications submodels
@@ -16,7 +17,7 @@ import es.ull.iis.simulation.hta.params.StartWithComplicationParam;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Manifestation implements Named, Comparable<Manifestation> {
+public abstract class Manifestation implements Named, Describable, Comparable<Manifestation> {
 	public enum Type {
 		ACUTE,
 		CHRONIC

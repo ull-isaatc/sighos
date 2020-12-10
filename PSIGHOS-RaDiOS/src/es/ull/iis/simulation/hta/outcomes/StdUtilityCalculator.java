@@ -4,30 +4,21 @@
 package es.ull.iis.simulation.hta.outcomes;
 
 import java.util.Collection;
-import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
  * A standard utility calculator that simply collects constant disutility values for each complication and then 
  * combines them according to the defined {@link DisutilityCombinationMethod} and the current health state of the patient.
- * Acute events and no complication utilities are defined in the constructor. The disutility for every stage of each chronic complication
- * is defined by using {@link #addDisutilityForComplicationStage(Manifestation, double)}
+ * Acute events and no complication utilities are defined in the constructor. 
  * 
  * @author Iván Castilla Rodríguez
  *
  */
 public class StdUtilityCalculator implements UtilityCalculator {
-	/** Disutility associated to each chronic complication stage */
-	private final TreeMap<Manifestation, Double> disutilities;
-	/** Disutility for diabetes with no complications */
-	private final double duDNC;
-	/** Utility assigned to the general population, without diabetes */
+	/** Utility assigned to the general population */
 	private final double genPopUtility;
-	/** Disutilities associated to each acute event */
-	private final double[] duAcuteEvent;
 	/** Method used to combine the disutilities for different chronic complications */
 	private final DisutilityCombinationMethod method;
 
@@ -35,39 +26,25 @@ public class StdUtilityCalculator implements UtilityCalculator {
 	 * Creates an instance of a standard calculator that simply combines the disutilities for every complication that suffers the
 	 * patient
 	 * @param method Method to combine the disutilies
-	 * @param duDNC Disutility of diabetes with no complications
-	 * @param genPopUtility Utility for general population without diabetes
+	 * @param genPopUtility Utility for general population
 	 * @param duAcuteEvent Disutility of acute events
 	 */
-	public StdUtilityCalculator(DisutilityCombinationMethod method, double duDNC, double genPopUtility, double[] duAcuteEvent) {
-		this.duDNC = duDNC;
-		this.disutilities = new TreeMap<>();
+	public StdUtilityCalculator(DisutilityCombinationMethod method, double genPopUtility) {
 		this.method = method;
 		this.genPopUtility = genPopUtility;
-		this.duAcuteEvent = duAcuteEvent;
-	}
-
-	/**
-	 * Adds a disutility for a chronic complication stage
-	 * @param stage Stage of a chronic complicatin
-	 * @param disutility Disutility applied to the stage
-	 */
-	public void addDisutilityForComplicationStage(Manifestation stage, double disutility) {
-		disutilities.put(stage, disutility);
 	}
 	
 	@Override
-	public double getAcuteEventDisutilityValue(Patient pat, AcuteComplication comp) {
-		return duAcuteEvent[comp.getInternalId()];
+	public double getPunctualDisutilityValue(Patient pat, Manifestation comp) {
+		return comp.getDisutility(pat);
 	}
 	
 	@Override	
 	public double getUtilityValue(Patient pat) {
 		final Collection<Manifestation> state = pat.getDetailedState();
-		double du = duDNC;
+		double du = 0.0;
 		for (Manifestation comp : state) {
-			if (disutilities.containsKey(comp))
-				du = method.combine(du, disutilities.get(comp));
+			du = method.combine(du, comp.getDisutility(pat));
 		}
 		return genPopUtility - du - pat.getIntervention().getDisutility(pat);
 	}

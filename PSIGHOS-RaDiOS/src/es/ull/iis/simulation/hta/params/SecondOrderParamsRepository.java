@@ -485,12 +485,11 @@ public abstract class SecondOrderParamsRepository {
 	public abstract CostCalculator getCostCalculator(double cDNC, Disease[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
 	/**
 	 * Returns the class that computes utilities 
-	 * @param duDNC Disutility of diabetes with no complications
 	 * @param submodels Submodels for chronic complications
 	 * @param acuteSubmodels Submodels for acute complications
 	 * @return the class that computes utilities 
 	 */
-	public abstract UtilityCalculator getUtilityCalculator(double duDNC, Disease[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
+	public abstract UtilityCalculator getUtilityCalculator(Disease[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
 	
 	
 	/**

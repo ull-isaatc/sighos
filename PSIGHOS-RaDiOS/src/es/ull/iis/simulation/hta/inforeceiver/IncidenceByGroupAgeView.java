@@ -131,7 +131,7 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 						nAlivePatients[interval]++;
 						break;
 					case COMPLICATION:
-						nChronic[pInfo.getComplication().ordinal()][interval]++;
+						nChronic[pInfo.getManifestation().ordinal()][interval]++;
 						break;
 					case ACUTE_EVENT:
 						nAcute[pInfo.getAcuteEvent().getInternalId()][interval]++;
