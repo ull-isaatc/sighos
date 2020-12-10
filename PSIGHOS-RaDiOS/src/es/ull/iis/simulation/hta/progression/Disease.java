@@ -1,15 +1,16 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.submodels;
+package es.ull.iis.simulation.hta.progression;
 
+import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.DiseaseProgression;
-import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
+import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.TimeToEventParam;
 
@@ -18,45 +19,72 @@ import es.ull.iis.simulation.hta.params.TimeToEventParam;
  * @author Iván Castilla Rodríguez
  */
 public abstract class Disease {
-	private final TreeMap<Manifestation, Manifestation.Instance> data;
-	private final TimeToEventParam[] time2Event;
-	protected final SecondOrderDisease secOrder;
+	private static final DiseaseProgression NULL_PROGRESSION = new DiseaseProgression(); 
+	private static final Manifestation[] NON_MANIFESTATIONS = new Manifestation[0]; 
+	public static final Disease HEALTHY = new Disease() {
+
+		@Override
+		public DiseaseProgression getProgression(Patient pat) {
+			return NULL_PROGRESSION;
+		}
+
+		@Override
+		public double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge) {
+			return 0;
+		}
+
+		@Override
+		public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
+			return 0;
+		}
+
+		@Override
+		public Manifestation[] getManifestations() {
+			return NON_MANIFESTATIONS;
+		}
+
+		@Override
+		public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
+		}
+	};
+	
+	private final TreeSet<Manifestation> manifestations;
+	private final TreeMap<Transition, ArrayList<TimeToEventParam>> time2Event;
 	
 	/**
 	 * Creates a submodel for a chronic complication.
 	 */
-	public Disease(SecondOrderDisease secOrder) {
+	public Disease() {
 		super();
-		this.secOrder = secOrder;
-		this.data = new TreeMap<>();
-		this.time2Event = new TimeToEventParam[secOrder.getNTransitions()];
+		this.manifestations = new TreeSet<>();
+		this.time2Event = new TreeMap<>();
 	}
 
 	public void setStageInstance(Manifestation stage, SecondOrderParamsRepository secParams) {
 		final double initP = secParams.getInitProbParam(stage);
-		data.put(stage, stage.getInstance(this, secParams.getDisutilityForChronicComplication(stage), 
+		manifestations.put(stage, stage.getInstance(this, secParams.getDisutilityForChronicComplication(stage), 
 				secParams.getCostsForChronicComplication(stage),
 				initP, secParams.getIMR(stage), secParams.getnPatients()));
 	}
 
 	public void setStageInstance(Manifestation stage, double du, double[] cost, double initP, double imr, int nPatients) {
-		data.put(stage, stage.getInstance(this, du, cost, initP, imr, nPatients)); 
+		manifestations.put(stage, stage.getInstance(this, du, cost, initP, imr, nPatients)); 
 	}
 	
 	public double getDisutility(Manifestation stage) {
-		return data.get(stage).getDisutility();
+		return manifestations.get(stage).getDisutility();
 	}
 	
 	public double[] getCosts(Manifestation stage) {
-		return data.get(stage).getCosts();
+		return manifestations.get(stage).getCosts();
 	}
 	
 	public boolean hasComplicationAtStart(Manifestation stage, Patient pat) {
-		return data.get(stage).hasComplicationAtStart(pat);
+		return manifestations.get(stage).hasComplicationAtStart(pat);
 	}
 	
 	public double getIMR(Manifestation stage) {
-		return data.get(stage).getIMR();
+		return manifestations.get(stage).getIMR();
 	}
 
 	/**
@@ -76,8 +104,8 @@ public abstract class Disease {
 	 * than the limit, returns Long.MAX_VALUE
 	 * @return The time to event for the patient; Long.MAX_VALUE if the event will never happen.
 	 */
-	public long getTimeToEvent(Patient pat, int id, long limit) {
-		final long time = time2Event[id].getValue(pat);
+	public long getTimeToEvent(Patient pat, Transition trans, long limit) {
+		final long time = time2Event.get(trans).get(pat.getSimulation().getIdentifier()).getValue(pat);
 		return (time >= limit) ? Long.MAX_VALUE : time;
 	}
 
@@ -115,11 +143,11 @@ public abstract class Disease {
 	 * @param pat A patient
 	 * @return the initial set of stages that the patient will start with when this complication appears
 	 */
-	public TreeSet<Manifestation.Instance> getInitialStage(Patient pat) {
-		final TreeSet<Manifestation.Instance> init = new TreeSet<>();
-		for (final Manifestation stage : secOrder.getManifestations()) {
-			if (hasComplicationAtStart(stage, pat))
-				init.add(data.get(stage));
+	public TreeSet<Manifestation> getInitialStage(Patient pat) {
+		final TreeSet<Manifestation> init = new TreeSet<>();
+		for (final Manifestation manif : manifestations) {
+			if (hasComplicationAtStart(manif, pat))
+				init.add(manif);
 		}
 		return init;
 		
@@ -153,5 +181,43 @@ public abstract class Disease {
 	 */
 	public abstract double getDisutility(Patient pat, DisutilityCombinationMethod method);
 	
+	/** 
+	 * Returns the number of stages used to model this complication
+	 * @return the number of stages used to model this complication
+	 */
+	public int getNManifestations() {
+		return manifestations.size();
+	}
+	
+	/**
+	 * Returns the stages used to model this chronic complication
+	 * @return An array containing the stages used to model this chronic complication 
+	 */
+	public abstract Manifestation[] getManifestations();
 
+	/**
+	 * Returns the number of different transitions defined from one manifestation to another
+	 * @return the number of different transitions defined from one manifestation to another
+	 */
+	public int getNTransitions() {
+		return time2Event.size();
+	}
+	
+	/**
+	 * Adds the parameters corresponding to the second order uncertainty on the initial proportions for each stage of
+	 * the complication
+	 * @param secParams Second order parameters repository
+	 */
+	public void addSecondOrderInitProportion(SecondOrderParamsRepository secParams) {
+		for (final Manifestation manif : getManifestations()) {
+			if (BasicConfigParams.INIT_PROP.containsKey(manif.name())) {
+				secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getInitProbString(manif), "Initial proportion of " + manif.name(), "",
+						BasicConfigParams.INIT_PROP.get(manif.name())));
+			}			
+		}
+		
+	}
+	
+	public abstract void addSecondOrderParams(SecondOrderParamsRepository secParams);
+	
 }

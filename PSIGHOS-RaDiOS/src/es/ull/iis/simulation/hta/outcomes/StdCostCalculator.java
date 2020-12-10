@@ -8,8 +8,8 @@ import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.ChronicComplication;
-import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
  * A standard cost calculator that assigns a constant cost to each complication, and then computes the final cost by 

@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.DiseaseProgression;
-import es.ull.iis.simulation.hta.DiseaseProgressionPair;
-import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
@@ -17,12 +14,14 @@ import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention.Intervent
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.populations.Population;
-import es.ull.iis.simulation.hta.submodels.AcuteComplicationSubmodel;
-import es.ull.iis.simulation.hta.submodels.DeathSubmodel;
-import es.ull.iis.simulation.hta.submodels.Disease;
-import es.ull.iis.simulation.hta.submodels.SecondOrderAcuteComplicationSubmodel;
-import es.ull.iis.simulation.hta.submodels.SecondOrderDeathSubmodel;
-import es.ull.iis.simulation.hta.submodels.SecondOrderDisease;
+import es.ull.iis.simulation.hta.progression.AcuteComplicationSubmodel;
+import es.ull.iis.simulation.hta.progression.DeathSubmodel;
+import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPair;
+import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.SecondOrderAcuteComplicationSubmodel;
+import es.ull.iis.simulation.hta.progression.SecondOrderDeathSubmodel;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
@@ -69,8 +68,8 @@ public abstract class SecondOrderParamsRepository {
 	public static final String STR_DEATH_PREFIX = "DEATH_";
 	/** String prefix for initial parameters */
 	public static final String STR_INIT_PREFIX = "INIT_";
-	/** String descriptor for diabetes with no complications */
-	public static final String STR_NO_COMPLICATIONS = "DNC";
+	/** String for healthy individuals */
+	public static final String STR_HEALTHY = "HEALTHY";
 
 	/** A null relative risk, i.e., RR = 1.0 */
 	public static final RRCalculator NO_RR = new StdComplicationRR(1.0);
@@ -88,16 +87,13 @@ public abstract class SecondOrderParamsRepository {
 	/** The collection of defined manifestations */
 	final protected ArrayList<Manifestation> registeredManifestations;
 	/** The collection of defined diseases */
-	final protected ArrayList<SecondOrderDisease> registeredDiseases;
+	final protected ArrayList<Disease> registeredDiseases;
 
 	/** The death submodel to be used */
 	protected SecondOrderDeathSubmodel registeredDeathSubmodel = null;
 	/** The collection of interventions */
 	final protected ArrayList<SecondOrderIntervention> registeredInterventions;
 	// TODO: Change by scenarios: each parameter could be defined according to an scenario. This woulud require adding a factory to secondOrderParams and allowing a user to add several parameter settings
-	/** True if base case parameters (expected values) should be used. False for second order simulations. WARNING: This parameter is not protected against concurrent modifications; if
-	 * base case and not base case simulations are launched in parallel, it may fail */
-	protected boolean baseCase = true;
 	/** Number of patients that should be generated */
 	final protected int nPatients;
 	/** The population */
@@ -116,7 +112,7 @@ public abstract class SecondOrderParamsRepository {
 		this.utilParams = new TreeMap<>();
 		this.nPatients = nPatients;
 		this.registeredManifestations = new ArrayList<>();
-		this.registeredDiseases = new ArrayList<SecondOrderDisease>();
+		this.registeredDiseases = new ArrayList<Disease>();
 		this.registeredInterventions = new ArrayList<>();
 	}
 
@@ -141,7 +137,7 @@ public abstract class SecondOrderParamsRepository {
 	 * Registers a new disease and its manifestations
 	 * @param disease Disease
 	 */
-	public void registerDisease(SecondOrderDisease disease) {
+	public void registerDisease(Disease disease) {
 		registeredDiseases.add(disease);
 		for (Manifestation st : disease.getManifestations()) {
 			st.setOrder(registeredManifestations.size());
@@ -154,32 +150,15 @@ public abstract class SecondOrderParamsRepository {
 	 * Returns the registered diseases
 	 * @return the registered diseases
 	 */
-	public SecondOrderDisease[] getRegisteredDiseases() {
-		return (SecondOrderDisease[])registeredDiseases.toArray();
+	public Disease[] getRegisteredDiseases() {
+		return (Disease[])registeredDiseases.toArray();
 	}
 
-	/**
-	 * Returns the registered acute complication submodels
-	 * @return the registered acute complication submodels
-	 */
-	public SecondOrderAcuteComplicationSubmodel[] getRegisteredAcuteComplications() {
-		return (SecondOrderAcuteComplicationSubmodel[])registeredAcuteComplication.values().toArray();
-	}
-	
-	/**
-	 * Registers a new acute complication 
-	 * @param comp Acute complication
-	 */
-	public void registerComplication(SecondOrderAcuteComplicationSubmodel comp) {
-		registeredAcuteComplication.put(comp.getComplication(), comp);
-		comp.addSecondOrderParams(this);
-	}
-	
 	/**
 	 * Returns the already registered complication stages
 	 * @return The already registered complication stages
 	 */
-	public ArrayList<Manifestation> getRegisteredComplicationStages() {
+	public ArrayList<Manifestation> getRegisteredManifestations() {
 		return registeredManifestations;
 	}
 
@@ -353,9 +332,9 @@ public abstract class SecondOrderParamsRepository {
 	 * @param name String identifier of the miscellaneous parameter
 	 * @return A value for the specified miscellaneous parameter; {@link Double#NaN} in case the parameter is not defined
 	 */
-	public double getOtherParam(String name) {
+	public double getOtherParam(String name, int id) {
 		final SecondOrderParam param = otherParams.get(name);
-		return (param == null) ? Double.NaN : param.getValue(baseCase); 
+		return (param == null) ? Double.NaN : param.getValue(id); 
 	}
 	
 	/**
@@ -363,9 +342,9 @@ public abstract class SecondOrderParamsRepository {
 	 * @param name String identifier of the cost parameter
 	 * @return A value for the specified cost parameter; {@link Double#NaN} in case the parameter is not defined
 	 */
-	public double getCostParam(String name) {
+	public double getCostParam(String name, int id) {
 		final SecondOrderParam param = costParams.get(name);
-		return (param == null) ? Double.NaN : param.getValue(baseCase); 
+		return (param == null) ? Double.NaN : param.getValue(id); 
 	}
 	
 	/**
@@ -373,8 +352,8 @@ public abstract class SecondOrderParamsRepository {
 	 * @param stage The destination complication or complication stage
 	 * @return the probability from healthy to the specified complication or complication stage; 0.0 if not defined
 	 */
-	public double getProbability(Named stage) {
-		return getProbability(null, stage); 
+	public double getProbability(Named stage, int id) {
+		return getProbability(null, stage, id); 
 	}
 
 	/**
@@ -383,8 +362,8 @@ public abstract class SecondOrderParamsRepository {
 	 * @param toStage The destination complication or complication stage
 	 * @return the probability of developing a complication to another; 0.0 if not defined
 	 */
-	public double getProbability(Named fromStage, Named toStage) {
-		return getProbParam(getProbString(fromStage, toStage));
+	public double getProbability(Named fromStage, Named toStage, int id) {
+		return getProbParam(getProbString(fromStage, toStage), id);
 	}
 
 	/**
@@ -392,9 +371,9 @@ public abstract class SecondOrderParamsRepository {
 	 * @param name String identifier of the probability parameter
 	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
 	 */	
-	public double getProbParam(String name) {
+	public double getProbParam(String name, int id) {
 		final SecondOrderParam param = probabilityParams.get(name);
-		return (param == null) ? 0.0 : param.getValue(baseCase); 
+		return (param == null) ? 0.0 : param.getValue(id); 
 	}
 
 	/**
@@ -402,9 +381,9 @@ public abstract class SecondOrderParamsRepository {
 	 * @param stage Complication
 	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
 	 */	
-	public double getInitProbParam(Named stage) {
+	public double getInitProbParam(Named stage, int id) {
 		final SecondOrderParam param = probabilityParams.get(getInitProbString(stage));
-		return (param == null) ? 0.0 : param.getValue(baseCase); 
+		return (param == null) ? 0.0 : param.getValue(id); 
 	}
 
 	/**
@@ -412,9 +391,9 @@ public abstract class SecondOrderParamsRepository {
 	 * @param stage Complication or complication stage
 	 * @return the increase mortality rate associated to a complication or complication stage; 1.0 if no additional risk is associated
 	 */
-	public double getIMR(Named stage) {
+	public double getIMR(Named stage, int id) {
 		final SecondOrderParam param = otherParams.get(STR_IMR_PREFIX + stage.name());
-		return (param == null) ? 1.0 : Math.max(1.0, param.getValue(baseCase));		
+		return (param == null) ? 1.0 : Math.max(1.0, param.getValue(id));		
 	}
 	
 	/**
@@ -424,23 +403,13 @@ public abstract class SecondOrderParamsRepository {
 	 * @return the cost for a complication or complication stage &ltannual cost, cost at incidence&gt; &lt0, 0&gt
 	 * if not defined 
 	 */
-	public double[] getCostsForChronicComplication(Named stage) {
+	public double[] getCostsForChronicComplication(Named stage, int id) {
 		final double[] costs = new double[2];
 		final SecondOrderParam annualCost = costParams.get(STR_COST_PREFIX + stage.name());
 		final SecondOrderParam transCost = costParams.get(STR_TRANS_PREFIX + stage.name());
-		costs[0] = (annualCost == null) ? 0.0 : annualCost.getValue(baseCase);
-		costs[1] = (transCost == null) ? 0.0 : transCost.getValue(baseCase);
+		costs[0] = (annualCost == null) ? 0.0 : annualCost.getValue(id);
+		costs[1] = (transCost == null) ? 0.0 : transCost.getValue(id);
 		return costs;
-	}
-	
-	/**
-	 * Returns the cost for an acute complication; 0.0 if not defined
-	 * @param comp Acute complication
-	 * @return the cost for an acute complication; 0.0 if not defined
-	 */
-	public double getCostForAcuteComplication(AcuteComplication comp) {
-		final SecondOrderParam param = costParams.get(STR_COST_PREFIX + comp.name());
-		return (param == null) ? 0.0 : param.getValue(baseCase); 						
 	}
 	
 	/**
@@ -448,27 +417,9 @@ public abstract class SecondOrderParamsRepository {
 	 * @param stage Complication or complication stage
 	 * @return the disutility for a complication or complication stage; 0.0 if not defined 
 	 */
-	public double getDisutilityForChronicComplication(Named stage) {
+	public double getDisutilityForChronicComplication(Named stage, int id) {
 		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + stage.name());
-		return (param == null) ? 0.0 : param.getValue(baseCase);		
-	}
-	
-	/**
-	 * Returns the disutility for an acute complication; 0.0 if not defined
-	 * @param comp Acute complication
-	 * @return the disutility for an acute complication; 0.0 if not defined
-	 */
-	public double getDisutilityForAcuteComplication(AcuteComplication comp) {
-		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + comp.name());
-		return (param == null) ? 0.0 : param.getValue(baseCase); 		
-	}
-	
-	/**
-	 * Returns true if the base case is active; false if the probabilistic analysis is active
-	 * @return true if the base case is active; false if the probabilistic analysis is active
-	 */
-	public boolean isBaseCase() {
-		return baseCase;
+		return (param == null) ? 0.0 : param.getValue(id);		
 	}
 	
 	/**
@@ -495,41 +446,6 @@ public abstract class SecondOrderParamsRepository {
 		return nPatients;
 	}
 
-	/**
-	 * Returns the increased mortality rate applied for patients with no complications; 1.0 if not defined
-	 * @return the increased mortality rate applied for patients with no complications; 1.0 if not defined
-	 */
-	public double getNoComplicationIMR() {
-		final SecondOrderParam param = otherParams.get(STR_IMR_PREFIX + STR_NO_COMPLICATIONS);
-		return (param == null) ? 1.0 : param.getValue(baseCase); 		
-	}
-	
-	/**
-	 * Returns the annual cost applied to patients with no complications; 0.0 if not defined 
-	 * @return the annual cost applied to patients with no complications; 0.0 if not defined
-	 */
-	public double getNoComplicationAnnualCost() {
-		final SecondOrderParam param = costParams.get(STR_COST_PREFIX + STR_NO_COMPLICATIONS);
-		return (param == null) ? 0.0 : param.getValue(baseCase); 		
-	}
-	
-	/**
-	 * Returns the disutility applied to patients with no complications; 0.0 if not defined
-	 * @return the disutility applied to patients with no complications; 0.0 if not defined
-	 */
-	public double getNoComplicationDisutility() {
-		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + STR_NO_COMPLICATIONS);
-		return (param == null) ? 0.0 : param.getValue(baseCase); 		
-	}
-	
-	/**
-	 * Sets whether the second order parameters will use the base case value or not
-	 * @param baseCase True if the second order parameters must use the expected value; false otherwise
-	 */
-	public void setBaseCase(boolean baseCase) {
-		this.baseCase = baseCase;
-	}
-
 	private final DeathSubmodel getDeathSubmodel() {
 		return (DeathSubmodel)registeredDeathSubmodel.getInstance(this);
 	}
@@ -553,25 +469,12 @@ public abstract class SecondOrderParamsRepository {
 		final Disease[] diseases = new Disease[registeredDiseases.size()];
 		
 		int cont = 0;
-		for (SecondOrderDisease secDis : registeredDiseases) {
+		for (Disease secDis : registeredDiseases) {
 			diseases[cont++] = secDis.getInstance(this);
 		}
 		return diseases;
 	}
 
-	/**
-	 * Returns the list of first order instances of the acute complication submodels
-	 * @return the list of first order instances of the acute complication submodels
-	 */
-	private final TreeMap<AcuteComplication, AcuteComplicationSubmodel> getAcuteComplicationSubmodelInstances() {
-		final TreeMap<AcuteComplication, AcuteComplicationSubmodel> comps = new TreeMap<AcuteComplication, AcuteComplicationSubmodel>();
-		
-		for (SecondOrderAcuteComplicationSubmodel secComp : registeredAcuteComplication.values()) {
-			comps.put(secComp.getComplication(), (AcuteComplicationSubmodel) secComp.getInstance(this));
-		}
-		return comps;
-	}
-	
 	/**
 	 * Returns the class that computes costs 
 	 * @param cDNC Cost of diabetes with no complications
@@ -597,7 +500,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @return a string that represents a probability of developing a complication from another
 	 */
 	public static String getProbString(Named from, Named to) {
-		final String fromName = (from == null) ? STR_NO_COMPLICATIONS : from.name();
+		final String fromName = (from == null) ? STR_HEALTHY : from.name();
 		final String toName = "_" + to.name();
 		return STR_PROBABILITY_PREFIX + fromName + toName;
 	}
@@ -722,11 +625,6 @@ public abstract class SecondOrderParamsRepository {
 		private final DeathSubmodel deathSubmodel; 
 		/** Interventions being assessed */
 		private final Intervention[] interventions;
-		// FIXME: Add first order variation to these parameters
-		/** Cost of a year with no complications */
-		private final double cDNC;
-		/** Disutility of a patient with no complications */
-		private final double duDNC;
 		
 		/**
 		 * Creates a repository for first order simulations 
@@ -736,9 +634,6 @@ public abstract class SecondOrderParamsRepository {
 			diseases = SecondOrderParamsRepository.this.getDiseaseInstances();
 			deathSubmodel = SecondOrderParamsRepository.this.getDeathSubmodel();
 			interventions = SecondOrderParamsRepository.this.getInterventions();
-
-			cDNC = SecondOrderParamsRepository.this.getNoComplicationAnnualCost();
-			duDNC = SecondOrderParamsRepository.this.getNoComplicationDisutility();
 		}
 
 		/**
@@ -746,7 +641,7 @@ public abstract class SecondOrderParamsRepository {
 		 * @return the complication stages related to the chronic complications
 		 */
 		public ArrayList<Manifestation> getRegisteredComplicationStages() {
-			return SecondOrderParamsRepository.this.getRegisteredComplicationStages();
+			return SecondOrderParamsRepository.this.getRegisteredManifestations();
 		}
 
 		/**
@@ -766,41 +661,12 @@ public abstract class SecondOrderParamsRepository {
 		}
 
 		/**
-		 * Returns the annual cost of a patient with no complications
-		 * @return the annual cost of a patient with no complications
-		 */
-		public double getAnnualNoComplicationCost() {
-			return cDNC;
-		}
-		
-		/**
-		 * Returns the disutility applied to a patient with no complications
-		 * @return the disutility applied to a patient with no complications
-		 */
-		public double getNoComplicationDisutility() {
-			return duDNC;
-		}
-
-		/**
-		 * Returns the time that a patient waits until he/she suffers the specified acute complication
-		 * @param pat A patient
-		 * @param complication An acute complication
-		 * @param cancelLast If true, the new event substitutes the former one
-		 * @return the time that a patient waits until he/she suffers the specified acute complication
-		 */
-		public DiseaseProgressionPair getTimeToAcuteEvent(Patient pat, AcuteComplication complication, boolean cancelLast) {
-			if (cancelLast)
-				acuteCompSubmodels.get(complication).cancelLast(pat);
-			return acuteCompSubmodels.get(complication).getProgression(pat);
-		}
-
-		/**
 		 * Returns the chronic complications that a patient suffers at the start of the simulation, in case there is any
 		 * @param pat A patient
 		 * @return the chronic complications that a patient suffers at the start of the simulation, in case there is any
 		 */
-		public TreeSet<Manifestation.Instance> getInitialState(Patient pat) {
-			final TreeSet<Manifestation.Instance> initial = new TreeSet<>();
+		public TreeSet<Manifestation> getInitialState(Patient pat) {
+			final TreeSet<Manifestation> initial = new TreeSet<>();
 			for (Disease dis : diseases) {
 				initial.addAll(dis.getInitialStage(pat));
 			}

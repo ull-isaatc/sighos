@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
-import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -45,7 +45,7 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 		final int nInterventions = interventions.size();
 		nAlivePatients = new double[nInterventions][nIntervals];
 		nDeaths = new double[nInterventions][nIntervals];
-		nChronic = new double[nInterventions][secParams.getRegisteredComplicationStages().size()][nIntervals];
+		nChronic = new double[nInterventions][secParams.getRegisteredManifestations().size()][nIntervals];
 		nAcute = new double[nInterventions][AcuteComplication.values().length][nIntervals];
 	}
 
@@ -61,7 +61,7 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 		for (int i = 0; i < interventions.size(); i++) {
 			final String name = interventions.get(i).getShortName();
 			str.append("\t" + name + "_N").append("\t" + name + "_DEATH");
-			for (Manifestation comp : secParams.getRegisteredComplicationStages()) {
+			for (Manifestation comp : secParams.getRegisteredManifestations()) {
 				str.append("\t" + name + "_").append(comp.name());
 			}
 			for (AcuteComplication comp : AcuteComplication.values()) {
@@ -108,7 +108,7 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 			super("Counter of patients");
 			nDeaths = new int[nIntervals];
 			nAlivePatients = new int[nIntervals];
-			nChronic = new int[secParams.getRegisteredComplicationStages().size()][nIntervals];
+			nChronic = new int[secParams.getRegisteredManifestations().size()][nIntervals];
 			nAcute = new int[AcuteComplication.values().length][nIntervals];
 			addGenerated(PatientInfo.class);
 			addEntrance(PatientInfo.class);

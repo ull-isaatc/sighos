@@ -1,11 +1,10 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.submodels;
+package es.ull.iis.simulation.hta.progression;
 
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -35,7 +34,7 @@ public class StandardSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 	public StandardSpainDeathSubmodel(SecondOrderParamsRepository secParams) {
 		super();
 		imrs = new TreeMap<>();
-		for (Manifestation stage : secParams.getRegisteredComplicationStages()) {
+		for (Manifestation stage : secParams.getRegisteredManifestations()) {
 			imrs.put(stage, secParams.getIMR(stage));
 		}
 	}

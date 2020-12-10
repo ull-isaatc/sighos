@@ -6,8 +6,8 @@ package es.ull.iis.simulation.hta.outcomes;
 import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.ChronicComplication;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.submodels.AcuteComplicationSubmodel;
-import es.ull.iis.simulation.hta.submodels.ChronicComplicationSubmodel;
+import es.ull.iis.simulation.hta.progression.AcuteComplicationSubmodel;
+import es.ull.iis.simulation.hta.progression.ChronicComplicationSubmodel;
 
 /**
  * A calculator of utilities that relies on the submodels to compute each complication disutility, and then combines the

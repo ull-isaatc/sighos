@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.populations.Population;
+import es.ull.iis.simulation.hta.progression.Disease;
 
 /**
  * The baseline information required to generate a patient from a {@link Population}. It contains also generic 
@@ -25,6 +26,8 @@ public class PatientProfile {
 	private final double initAge;
 	/** Sex of the patient: 0 for men, 1 for women */
 	private final int sex;
+	/** {@link Disease} of the patient or {@link Disease.HEALTHY} in case the patient is healthy */ 
+	private final Disease disease;
 
 	/**
 	 * Creates a patient profile
@@ -33,12 +36,13 @@ public class PatientProfile {
 	 * @param initDurationOfDiabetes Duration of diabetes at the creation of the patient
 	 * @param initHbA1c HbA1c level at the creation of the patient
 	 */
-	public PatientProfile(final double initAge, final int sex) {
+	public PatientProfile(final double initAge, final int sex, final Disease disease) {
 		intProperties = new TreeMap<>();
 		doubleProperties = new TreeMap<>();
 		boolProperties = new TreeMap<>();
 		this.initAge = initAge;
 		this.sex = sex;
+		this.disease = disease;
 	}
 
 	/**
@@ -55,6 +59,14 @@ public class PatientProfile {
 	 */
 	public double getInitAge() {
 		return initAge;
+	}
+
+	/**
+	 * Returns the disease of the patient or {@link Disease.HEALTHY} in case the patient is healthy
+	 * @return the disease of the patient or {@link Disease.HEALTHY} in case the patient is healthy
+	 */
+	public Disease getDisease() {
+		return disease;
 	}
 
 	/**

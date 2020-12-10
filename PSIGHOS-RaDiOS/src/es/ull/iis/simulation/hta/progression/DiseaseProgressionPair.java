@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta;
+package es.ull.iis.simulation.hta.progression;
 
 /**
  * A pair of <complication, time> denoting a new complication to be scheduled and the time when 

@@ -6,10 +6,10 @@ package es.ull.iis.simulation.hta.inforeceiver;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -104,7 +104,7 @@ public class PrevalenceView extends Listener {
 
 					// Check all the complications
 					for (Manifestation comp : availableStates) {
-						final long time = pat.getTimeToChronicComorbidity(comp);
+						final long time = pat.getTimeToManifestation(comp);
 						final double ageAtComp = (time == Long.MAX_VALUE) ? Double.MAX_VALUE : (initAge + time / BasicConfigParams.YEAR_CONVERSION);
 						if (ageAtComp != Double.MAX_VALUE) {
 							for (int i = 0; (i < ageIntervals.length) && (ageAtDeath > ageIntervals[i][0]); i++) {

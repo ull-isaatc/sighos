@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta;
+package es.ull.iis.simulation.hta.progression;
 
 import java.util.ArrayList;
 import java.util.TreeSet;

@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -12,8 +13,11 @@ import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention.Intervent
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.populations.Population;
-import es.ull.iis.simulation.hta.submodels.AcuteComplicationSubmodel;
-import es.ull.iis.simulation.hta.submodels.Disease;
+import es.ull.iis.simulation.hta.progression.AcuteComplicationSubmodel;
+import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
+import es.ull.iis.simulation.hta.progression.DiseaseProgressionPair;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -41,8 +45,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	protected long startTs;
 	/** True if the patient is dead */
 	private boolean dead; 
-	/** The state of the patient */
-	private final TreeSet<Disease> diseases;
 	/** The detailed state of the patient */
 	private final TreeSet<Manifestation> detailedState;
 	/** Patient profile */
@@ -56,7 +58,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	
 	// Events
 	/** Events related to each chronic complication */
-	private final TreeMap<Manifestation, ArrayList<ManifestationEvent>> manifestationEvents;
+	private final TreeMap<Manifestation, ArrayDeque<ManifestationEvent>> manifestationEvents;
 	/** Death event */ 
 	protected DeathEvent deathEvent = null;
 	/** Event related to loss of treatment effect */
@@ -77,7 +79,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.commonParams = simul.getCommonParams();
 		this.profile = population.getPatientProfile();
 		this.detailedState = new TreeSet<>();
-		this.diseases = new TreeSet<>();
 
 		this.initAge = BasicConfigParams.SIMUNIT.convert(profile.getInitAge(), TimeUnit.YEAR);
 		manifestationEvents = new TreeMap<>();
@@ -99,7 +100,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.dead = false;
 		this.commonParams = original.commonParams;
 		this.detailedState = new TreeSet<>();
-		this.diseases = new TreeSet<>();
 		this.profile = original.profile;
 		this.initAge = original.initAge;
 		manifestationEvents = new TreeMap<>();
@@ -108,11 +108,11 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	}
 
 	/**
-	 * Returns the state of the patient as regards to diseases
-	 * @return the state of the patient as regards to diseases
+	 * Returns the disease of the patient
+	 * @return the disease of the patient
 	 */
-	public TreeSet<Disease> getDiseases() {
-		return diseases;
+	public Disease getDisease() {
+		return profile.getDisease();
 	}
 
 	/**
@@ -121,12 +121,20 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return True if the patient currently has a specified disease; false otherwise
 	 */
 	public boolean hasDisease(Disease disease) {
-		return diseases.contains(disease);
+		return getDisease().equals(disease);
 	}
 
 	/**
-	 * Returns the state of the patient as regards to the detailed progression of main chronic complications
-	 * @return the state of the patient as regards to the detailed progression of main chronic complications
+	 * Returns true if the patient is currently healthy; false otherwise
+	 * @return True if the patient is currently healthy; false otherwise
+	 */
+	public boolean isHealthy() {
+		return Disease.HEALTHY.equals(getDisease());
+	}
+	
+	/**
+	 * Returns the state of the patient as regards to the detailed progression of main chronic manifestations
+	 * @return the state of the patient as regards to the detailed progression of main chronic manifestations
 	 */
 	public TreeSet<Manifestation> getDetailedState() {
 		return detailedState;
@@ -253,29 +261,36 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 
 	/**
 	 * Return the timestamp when certain chronic complication started (or is planned to start)  
-	 * @param comp A chronic complication
+	 * @param manif A chronic complication
 	 * @return the timestamp when certain chronic complication started (or is planned to start)
 	 */
-	public long getTimeToChronicComorbidity(Manifestation comp) {
-		return (!comorbidityEvents.containsKey(comp)) ? Long.MAX_VALUE : comorbidityEvents.get(comp).getTs(); 
+	public long getTimeToManifestation(Manifestation manif) {
+		return (!manifestationEvents.containsKey(manif)) ? Long.MAX_VALUE : manifestationEvents.get(manif).peekLast().getTs(); 
 	}
-
-	private void assignInitialComplication(final Manifestation complication) {
-		if (Patient.this.detailedState.contains(complication)) {
-			error("Health state already assigned!! " + complication.name());
-		}
-		else {
-			simul.notifyInfo(new PatientInfo(simul, Patient.this, complication, this.getTs()));
-			Patient.this.detailedState.add(complication);
-			Patient.this.diseases.add(complication.getDisease());
-			
-			// Recompute time to death in case the risk increases
-			final long newTimeToDeath = commonParams.getTimeToDeath(Patient.this);
-			if (newTimeToDeath < deathEvent.getTs()) {
-				deathEvent.cancel();
-				deathEvent = new DeathEvent(newTimeToDeath, complication);
-				simul.addEvent(deathEvent);
+	
+	private void readjustDeath(Manifestation manif) {
+		// Recompute time to death in case the risk increases
+		final long newTimeToDeath = commonParams.getTimeToDeath(this);
+		if (newTimeToDeath < deathEvent.getTs()) {
+			deathEvent.cancel();
+			deathEvent = new DeathEvent(newTimeToDeath, manif);
+			simul.addEvent(deathEvent);
+		}		
+	}
+	
+	private void applyProgression(DiseaseProgression progs) {
+		for (DiseaseProgressionPair pr : progs.getNewEvents()) {
+			final ManifestationEvent ev = new ManifestationEvent(pr);
+			ArrayDeque<ManifestationEvent> events = null;
+			if (manifestationEvents.get(pr.getManifestation()) == null) {
+				events = new ArrayDeque<>();
 			}
+			else {
+				events = manifestationEvents.get(pr.getManifestation());
+			}
+			events.add(ev);
+			manifestationEvents.put(pr.getManifestation(), events);
+			simul.addEvent(ev);						
 		}
 	}
 	
@@ -302,40 +317,27 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 			deathEvent = new DeathEvent(timeToDeath);
 			simul.addEvent(deathEvent);
 			
-			for (Manifestation st : commonParams.getInitialState(Patient.this)) {
+			for (Manifestation manif : getDisease().getInitialStage(Patient.this)) {
+				ArrayDeque<ManifestationEvent> events = new ArrayDeque<>();
+				events.add(new ManifestationEvent(new DiseaseProgressionPair(manif, 0)));				
 				// I was scheduling these events in the usual way, but they were not executed before the next loop and progression fails
-				comorbidityEvents.put(st, new ManifestationEvent(new DiseaseProgressionPair(st, 0)));
-				assignInitialComplication(st);
-			}
-			// Assign chronic complication events
-			for (ChronicComplication comp : ChronicComplication.values()) {
-				final DiseaseProgression progs = commonParams.getProgression(Patient.this, comp);
-				if (progs.getCancelEvents().size() > 0)
-					error("Cancel complications at start?");
-				for (DiseaseProgressionPair pr : progs.getNewEvents()) {
-					final ChronicComorbidityEvent ev = new ChronicComorbidityEvent(pr);
-					comorbidityEvents.put((Manifestation) pr.getManifestation(), ev);
-					simul.addEvent(ev);						
+				manifestationEvents.put(manif, events);
+				if (Patient.this.detailedState.contains(manif)) {
+					error("Health state already assigned!! " + manif.name());
+				}
+				else {
+					simul.notifyInfo(new PatientInfo(simul, Patient.this, manif, this.getTs()));
+					Patient.this.detailedState.add(manif);
+					
+					// Recompute time to death in case the risk increases
+					readjustDeath(manif);
 				}
 			}
-			
-			final AcuteComplicationSubmodel[] acuteSubmodels = ((DiseaseProgressionSimulation)simul).getCommonParams().getAcuteCompSubmodels();
-			for (int i = 0; i < acuteSubmodels.length; i++) {
-				final AcuteComplication comp = acuteSubmodels[i].getComplication();
-				// Assign severe hypoglycemic events
-				final DiseaseProgressionPair acuteEvent = commonParams.getTimeToAcuteEvent(Patient.this, comp, false);
-				if (acuteEvent.getTimeToEvent() < timeToDeath) {
-					final AcuteEvent ev = new AcuteEvent(acuteEvent);
-					acuteEvents.get(comp.getInternalId()).add(ev);
-					simul.addEvent(ev);
-				}				
-			}
-			
-			// Assign lost of treatment effect depending on the intervention
-			if (durationOfEffect < timeToDeath) {
-				lostEffectEvent = new LostTreatmentEffectEvent(durationOfEffect);
-				simul.addEvent(lostEffectEvent);
-			}
+			// Assign manifestation events
+			final DiseaseProgression progs = getDisease().getProgression(Patient.this);
+			if (progs.getCancelEvents().size() > 0)
+				error("Cancel complications at start?");
+			applyProgression(progs);
 		}
 		
 	}
@@ -357,50 +359,28 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		@Override
 		public void event() {
 			final Manifestation manifestation = progress.getManifestation();
-			if (Manifestation.Type.CHRONIC.equals(manifestation.getType())) {
-				if (Patient.this.detailedState.contains(manifestation)) {
-					error("Health state already assigned!! " + manifestation.name());
+			if (Patient.this.detailedState.contains(manifestation)) {
+				error("Health state already assigned!! " + manifestation.name());
+			}
+			else {
+				simul.notifyInfo(new PatientInfo(simul, Patient.this, manifestation, this.getTs()));
+				if (Manifestation.Type.CHRONIC.equals(manifestation.getType())) 
+					Patient.this.detailedState.add(manifestation);
+				
+				if (progress.causesDeath()) {
+					deathEvent.cancel();
+					deathEvent = new DeathEvent(ts, manifestation);
+					simul.addEvent(deathEvent);
 				}
 				else {
-					simul.notifyInfo(new PatientInfo(simul, Patient.this, manifestation, this.getTs()));
-					Patient.this.detailedState.add(manifestation);
-					Patient.this.diseases.add(manifestation.getDisease());
-					
-					if (progress.causesDeath()) {
-						deathEvent.cancel();
-						deathEvent = new DeathEvent(ts, manifestation);
-						simul.addEvent(deathEvent);
+					// Recompute time to death in case the risk increases
+					readjustDeath(manifestation);
+					// Update complications
+					final DiseaseProgression progs = getDisease().getProgression(Patient.this);
+					for (Manifestation st: progs.getCancelEvents()) {
+						manifestationEvents.get(st).peekLast().cancel();
 					}
-					else {
-						// Recompute time to death in case the risk increases
-						final long newTimeToDeath = commonParams.getTimeToDeath(Patient.this);
-						if (newTimeToDeath < deathEvent.getTs()) {
-							deathEvent.cancel();
-							deathEvent = new DeathEvent(newTimeToDeath, manifestation);
-							simul.addEvent(deathEvent);
-						}
-						// Update complications
-						for (Disease dis : diseases) {
-							final DiseaseProgression progs = dis.getProgression(Patient.this);
-							for (Manifestation st: progs.getCancelEvents()) {
-								final ArrayList<ManifestationEvent> events = manifestationEvents.get(st);
-								events.get(events.size() - 1).cancel();
-							}
-							for (DiseaseProgressionPair pr : progs.getNewEvents()) {
-								final ManifestationEvent ev = new ManifestationEvent(pr);
-								ArrayList<ManifestationEvent> events = null;
-								if (manifestationEvents.get(pr.getManifestation()) == null) {
-									events = new ArrayList<>();
-								}
-								else {
-									events = manifestationEvents.get(pr.getManifestation());
-								}
-								events.add(ev);
-								manifestationEvents.put(pr.getManifestation(), events);
-								simul.addEvent(ev);		
-							}
-						}
-					}
+					applyProgression(progs);
 				}
 			}
 		}
@@ -413,8 +393,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		@Override
 		public boolean cancel() {
 			if (super.cancel()) {
-				final ArrayList<ManifestationEvent> events = manifestationEvents.get(progress.getManifestation());
-				events.remove(events.size() - 1);
+				manifestationEvents.get(progress.getManifestation()).pollLast();
 				return true;
 			}
 			return false;
@@ -423,42 +402,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	}
 	
 	
-	/**
-	 * An event related to the onset of an acute complication. Updates the state of the patient and computes a new time to acute event (in case
-	 * it is possible).
-	 * @author Iván Castilla Rodríguez
-	 *
-	 */
-	private class AcuteEvent extends DiscreteEvent {
-		private final DiseaseProgressionPair progress;
-
-		public AcuteEvent(DiseaseProgressionPair progress) {
-			super(progress.getTimeToEvent());
-			this.progress = progress;
-		}
-		
-		@Override
-		public void event() {
-			final AcuteComplication comp = (AcuteComplication) progress.getManifestation();
-			simul.notifyInfo(new PatientInfo(simul, Patient.this, comp, this.getTs()));
-			// If the acute event causes the death of the patient
-			if (progress.causesDeath()) {
-				deathEvent.cancel();
-				deathEvent = new DeathEvent(ts, progress.getManifestation());
-				simul.addEvent(deathEvent);
-			}
-			else {
-				// Schedule new event (if required)
-				final DiseaseProgressionPair acuteEvent = commonParams.getTimeToAcuteEvent(Patient.this, comp, false);
-				if (acuteEvent.getTimeToEvent() < deathEvent.getTs()) {
-					final AcuteEvent ev = new AcuteEvent(acuteEvent);
-					acuteEvents.get(comp.getInternalId()).add(ev);
-					simul.addEvent(ev);
-				}
-			}
-		}
-	}
-
 	/**
 	 * An event to recompute time to complications as the treatment effect is lost
 	 * @author Iván Castilla Rodríguez
@@ -534,7 +477,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		@Override
 		public void event() {
 			// Cancel all events that cannot happen now
-			final ArrayList<ChronicComorbidityEvent> toRemove = new ArrayList<>();
+		
 			for (final ChronicComorbidityEvent ev : comorbidityEvents.values()) {
 				if (ev.getTs() >= getTs()) {
 					toRemove.add(ev);

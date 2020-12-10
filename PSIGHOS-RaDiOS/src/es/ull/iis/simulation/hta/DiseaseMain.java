@@ -35,10 +35,10 @@ import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.RepositoryInstance;
+import es.ull.iis.simulation.hta.progression.SecondOrderAcuteComplicationSubmodel;
+import es.ull.iis.simulation.hta.progression.SecondOrderDisease;
 import es.ull.iis.simulation.hta.params.StdDiscount;
 import es.ull.iis.simulation.hta.params.ZeroDiscount;
-import es.ull.iis.simulation.hta.submodels.SecondOrderAcuteComplicationSubmodel;
-import es.ull.iis.simulation.hta.submodels.SecondOrderDisease;
 
 /**
  * Main class to launch simulation experiments
@@ -199,7 +199,7 @@ public class DiseaseMain {
 			str.append(QALYListener.getStrHeader(shortName));
 			str.append(AcuteComplicationCounterListener.getStrHeader(shortName));
 		}
-		str.append(TimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredComplicationStages()));
+		str.append(TimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredManifestations()));
 		str.append(secParams.getStrHeader());
 		return str.toString();
 	}
@@ -225,7 +225,7 @@ public class DiseaseMain {
 	private void simulateInterventions(int id, boolean baseCase) {
 		final RepositoryInstance common = secParams.getInstance();
 		final int nInterventions = interventions.size();
-		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(nPatients, nInterventions, false, secParams.getRegisteredComplicationStages());
+		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(nPatients, nInterventions, false, secParams.getRegisteredManifestations());
 		final CostListener[] costListeners = new CostListener[nInterventions];
 		final LYListener[] lyListeners = new LYListener[nInterventions];
 		final QALYListener[] qalyListeners = new QALYListener[nInterventions];

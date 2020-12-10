@@ -6,11 +6,11 @@ package es.ull.iis.simulation.hta.inforeceiver;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.hta.ChronicComplication;
-import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
 import es.ull.iis.util.Statistics;
@@ -96,7 +96,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 			final long deathTs = pInfo.getTs();
 			// Check all the complications
 			for (Manifestation comp : availableHealthStates) {
-				final long time = pat.getTimeToChronicComorbidity(comp);
+				final long time = pat.getTimeToManifestation(comp);
 				timeToComplications[nIntervention][comp.ordinal()][pat.getIdentifier()] = (time == Long.MAX_VALUE) ? deathTs : time;
 			}
 		}

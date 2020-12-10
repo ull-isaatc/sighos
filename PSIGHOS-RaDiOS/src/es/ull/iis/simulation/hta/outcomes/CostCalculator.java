@@ -4,8 +4,8 @@
 package es.ull.iis.simulation.hta.outcomes;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
-import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
  * A class implementing this interface can calculate the disease-related costs 

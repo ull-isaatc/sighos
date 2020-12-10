@@ -15,4 +15,4 @@
  * @author Iván Castilla Rodríguez
  *
  */
-package es.ull.iis.simulation.hta.submodels;
+package es.ull.iis.simulation.hta.progression;

@@ -5,10 +5,10 @@ package es.ull.iis.simulation.hta.outcomes;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.ChronicComplication;
-import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.submodels.AcuteComplicationSubmodel;
-import es.ull.iis.simulation.hta.submodels.ChronicComplicationSubmodel;
+import es.ull.iis.simulation.hta.progression.AcuteComplicationSubmodel;
+import es.ull.iis.simulation.hta.progression.ChronicComplicationSubmodel;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
  * A calculator of costs that relies on the submodels to compute each complication cost, and then aggregates all the

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta.submodels;
+package es.ull.iis.simulation.hta.progression;
 
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;

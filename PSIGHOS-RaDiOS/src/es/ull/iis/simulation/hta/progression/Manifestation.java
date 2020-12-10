@@ -1,13 +1,14 @@
 /**
  * 
  */
-package es.ull.iis.simulation.hta;
+package es.ull.iis.simulation.hta.progression;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.Named;
+import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StartWithComplicationParam;
-import es.ull.iis.simulation.hta.submodels.Disease;
 
 /**
  * A stage of a {@link ChronicComplication chronic complication} defined in the model. Different chronic complications submodels

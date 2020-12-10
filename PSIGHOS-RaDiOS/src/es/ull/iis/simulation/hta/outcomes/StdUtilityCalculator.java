@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.AcuteComplication;
-import es.ull.iis.simulation.hta.Manifestation;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 
 /**
  * A standard utility calculator that simply collects constant disutility values for each complication and then 
