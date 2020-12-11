@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.ReseteableParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.TimeToEventParam;
 
@@ -59,8 +60,13 @@ public abstract class Transition implements Comparable<Transition>, GenerateSeco
 		time2Event.ensureCapacity(n);
 		for (int i = 0; i < n; i++) {
 			time2Event.add(getTimeToEventParam(i));
-		}
-		
+		}		
+	}
+	
+	public void reset(int id) {
+		final TimeToEventParam t2Event = time2Event.get(id);
+		if (t2Event instanceof ReseteableParam<?>)
+			((ReseteableParam<?>)t2Event).reset();
 	}
 	
 	/**

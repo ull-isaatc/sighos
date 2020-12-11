@@ -197,7 +197,7 @@ public class AnnualCostView implements ExperimentListener {
 			if (endAge > initAge) {
 				update(interventionCost, calc.getAnnualInterventionCostWithinPeriod(pat, initAge, endAge), initAge, endAge);
 				update(managementCost, calc.getStdManagementCostWithinPeriod(pat, initAge, endAge), initAge, endAge);
-				final double[] complicationPeriodCost = calc.getAnnualChronicComplicationCostWithinPeriod(pat, initAge, endAge);
+				final double[] complicationPeriodCost = calc.getAnnualManifestationCostWithinPeriod(pat, initAge, endAge);
 				for (int i = 0; i < ChronicComplication.values().length; i++) {
 					update(chronicCost[i], complicationPeriodCost[i], initAge, endAge);
 				}

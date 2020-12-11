@@ -15,13 +15,11 @@ import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention.Intervent
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.populations.Population;
-import es.ull.iis.simulation.hta.progression.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.progression.DeathSubmodel;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPair;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.SecondOrderAcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.progression.SecondOrderDeathSubmodel;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
@@ -47,9 +45,12 @@ import simkit.random.RandomVariateFactory;
  * <li>Currently, only chronic complications allow for stages. Use the {@link #registerComplicationStages(Manifestation[])} method to add them</li>
  * </ol>
  * </p>
+ * TODO El cálculo de tiempo hasta complicación usa siempre el mismo número aleatorio para la misma complicación. Si aumenta el riesgo de esa
+ * complicación en un momento de la simulación, se recalcula el tiempo, pero empezando en el instante actual. Esto produce que no necesariamente se acorte
+ * el tiempo hasta evento en caso de un nuevo factor de riesgo. ¿debería reescalar de alguna manera el tiempo hasta evento en estos casos (¿proporcional al RR?)?
  * @author Iván Castilla Rodríguez
  */
-public abstract class SecondOrderParamsRepository implements GenerateSecondOrderInstances {
+public abstract class SecondOrderParamsRepository {
 	// Strings to define standard parameters
 	/** String prefix for probability parameters */
 	public static final String STR_PROBABILITY_PREFIX = "P_";
@@ -226,18 +227,19 @@ public abstract class SecondOrderParamsRepository implements GenerateSecondOrder
 	}
 
 	/**
-	 * Generates n random numbers for each parameter in the repository
+	 * Generates the instances of the second order parameters for each simulation
 	 */
-	@Override
-	public void generate(SecondOrderParamsRepository secOrder) {
+	public void generate() {
 		for (SecondOrderParam param : probabilityParams.values())
-			param.generate(null);
+			param.generate(this);
 		for (SecondOrderParam param : costParams.values())
-			param.generate(null);
+			param.generate(this);
 		for (SecondOrderParam param : utilParams.values())
-			param.generate(null);
+			param.generate(this);
 		for (SecondOrderParam param : otherParams.values())
-			param.generate(null);
+			param.generate(this);
+		for (Disease dis : registeredDiseases)
+			dis.generate(this);
 	}
 	/**
 	 * Adds a probability parameter
@@ -434,12 +436,22 @@ public abstract class SecondOrderParamsRepository implements GenerateSecondOrder
 	}
 	
 	/**
-	 * Returns the disutility for a complication or complication stage; 0.0 if not defined
-	 * @param stage Complication or complication stage
-	 * @return the disutility for a complication or complication stage; 0.0 if not defined 
+	 * Returns the cost for an acute complication; 0.0 if not defined
+	 * @param manif Acute complication
+	 * @return the cost for an acute complication; 0.0 if not defined
 	 */
-	public double getDisutilityForChronicComplication(Named stage, int id) {
-		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + stage.name());
+	public double getCostForManifestation(Manifestation manif, int id) {
+		final SecondOrderParam param = costParams.get(STR_COST_PREFIX + manif.name());
+		return (param == null) ? 0.0 : param.getValue(id); 						
+	}
+	
+	/**
+	 * Returns the disutility for a manifestation; 0.0 if not defined
+	 * @param manif Manifestation
+	 * @return the disutility for a manifestation; 0.0 if not defined 
+	 */
+	public double getDisutilityForManifestation(Manifestation manif, int id) {
+		final SecondOrderParam param = utilParams.get(STR_DISUTILITY_PREFIX + manif.name());
 		return (param == null) ? 0.0 : param.getValue(id);		
 	}
 	
@@ -483,34 +495,18 @@ public abstract class SecondOrderParamsRepository implements GenerateSecondOrder
 	}
 
 	/**
-	 * Returns the list of first order instances of the chronic complication submodels
-	 * @return the list of first order instances of the chronic complication submodels
-	 */
-	private final Disease[] getDiseaseInstances() {
-		final Disease[] diseases = new Disease[registeredDiseases.size()];
-		
-		int cont = 0;
-		for (Disease secDis : registeredDiseases) {
-			diseases[cont++] = secDis.getInstance(this);
-		}
-		return diseases;
-	}
-
-	/**
 	 * Returns the class that computes costs 
-	 * @param cDNC Cost of diabetes with no complications
-	 * @param submodels Submodels for chronic complications
-	 * @param acuteSubmodels Submodels for acute complications
+	 * @param id Identifier of the simulation, in case different cost calculators are used for different simulations
 	 * @return the class that computes costs 
 	 */
-	public abstract CostCalculator getCostCalculator(double cDNC, Disease[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
+	public abstract CostCalculator getCostCalculator(int id);
+	
 	/**
 	 * Returns the class that computes utilities 
-	 * @param submodels Submodels for chronic complications
-	 * @param acuteSubmodels Submodels for acute complications
+	 * @param id Identifier of the simulation, in case different utility calculators are used for different simulations
 	 * @return the class that computes utilities 
 	 */
-	public abstract UtilityCalculator getUtilityCalculator(Disease[] submodels, AcuteComplicationSubmodel[] acuteSubmodels);
+	public abstract UtilityCalculator getUtilityCalculator(int id);
 	
 	
 	/**
@@ -631,80 +627,12 @@ public abstract class SecondOrderParamsRepository implements GenerateSecondOrder
 	}
 
 	/**
-	 * Returns an instance of the repository that will be shared among the simulations for the different interventions.
-	 * @return an instance of the repository that will be shared among the simulations for the different interventions.
+	 * Restarts the parameters among interventions. Useful to reuse already computed values for a previous intervention and
+	 * preserve common random numbers
+	 * @param id Identifier of the simulation to reset
 	 */
-	public RepositoryInstance getInstance() {
-		return new RepositoryInstance();
-	}
-	
-	/**
-	 * A repository to handle the simulation values of second order parameters. At creation, draws a value for each second-order
-	 * parameter, and then stores the value to be used during the simulation.
-	 * TODO El cálculo de tiempo hasta complicación usa siempre el mismo número aleatorio para la misma complicación. Si aumenta el riesgo de esa
-	 * complicación en un momento de la simulación, se recalcula el tiempo, pero empezando en el instante actual. Esto produce que no necesariamente se acorte
-	 * el tiempo hasta evento en caso de un nuevo factor de riesgo. ¿debería reescalar de alguna manera el tiempo hasta evento en estos casos (¿proporcional al RR?)?
-	 * @author Iván Castilla Rodríguez
-	 *
-	 */
-	public class RepositoryInstance {
-		/** Chronic complication submodels included */
-		private final Disease[] diseases;
-		/** Death submodel */
-		private final DeathSubmodel deathSubmodel; 
-		/** Interventions being assessed */
-		private final Intervention[] interventions;
-		
-		/**
-		 * Creates a repository for first order simulations 
-		 * @param secondOrder The second order repository that defines the second-order uncertainty on the parameters
-		 */
-		private RepositoryInstance() {
-			diseases = SecondOrderParamsRepository.this.getDiseaseInstances();
-			deathSubmodel = SecondOrderParamsRepository.this.getDeathSubmodel();
-			interventions = SecondOrderParamsRepository.this.getInterventions();
-		}
-
-		/**
-		 * Returns the complication stages related to the chronic complications
-		 * @return the complication stages related to the chronic complications
-		 */
-		public ArrayList<Manifestation> getRegisteredComplicationStages() {
-			return SecondOrderParamsRepository.this.getRegisteredManifestations();
-		}
-
-		/**
-		 * Returns the diseases
-		 * @return the diseases
-		 */
-		public Disease[] getDiseases() {
-			return diseases;
-		}
-		
-		/**
-		 * Returns the interventions being assessed
-		 * @return the interventions
-		 */
-		public Intervention[] getInterventions() {
-			return interventions;
-		}
-
-		/**
-		 * Returns the life expectancy of the patient
-		 * @param pat A patient
-		 * @return the life expectancy of the patient
-		 */
-		public long getTimeToDeath(Patient pat) {
-			return deathSubmodel.getTimeToDeath(pat);
-		}
-
-		/**
-		 * Restarts the parameters among interventions. Useful to reuse already computed values for a previous intervention and
-		 * preserve common random numbers
-		 */
-		public void reset() {
-			for (AcuteComplicationSubmodel acuteSubmodel : acuteCompSubmodels.values())
-				acuteSubmodel.reset();
-		}
+	public void reset(int id) {
+		for (Disease dis : registeredDiseases)
+			dis.reset(id);
 	}
 }

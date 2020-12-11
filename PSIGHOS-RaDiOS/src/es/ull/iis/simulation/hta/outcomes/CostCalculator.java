@@ -3,7 +3,8 @@
  */
 package es.ull.iis.simulation.hta.outcomes;
 
-import es.ull.iis.simulation.hta.AcuteComplication;
+import java.util.TreeMap;
+
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 
@@ -37,7 +38,7 @@ public interface CostCalculator {
 	 * @param comp The acute event
 	 * @return the cost of an acute event
 	 */
-	public double getCostForAcuteEvent(Patient pat, AcuteComplication comp);
+	public double getCostForAcuteEvent(Patient pat, Manifestation comp);
 
 	/**
 	 * Returns the costs incurred by the intervention alone
@@ -49,13 +50,13 @@ public interface CostCalculator {
 	public double getAnnualInterventionCostWithinPeriod(Patient pat, double initAge, double endAge);
 	
 	/**
-	 * Returns annual cost for the specified patient during a period of time for each complication 
+	 * Returns annual cost for the specified patient during a period of time for each manifestation 
 	 * @param pat A patient
 	 * @param initAge The age of the patient at the beginning of the period
 	 * @param endAge The age of the patient at the end of the period
-	 * @return An array, where each position represents the cost of certain chronic complication
+	 * @return A map of pairs Manifestation - cost of the manifestation during the period
 	 */
-	public double[] getAnnualChronicComplicationCostWithinPeriod(Patient pat, double initAge, double endAge);
+	public TreeMap<Manifestation, Double> getAnnualManifestationCostWithinPeriod(Patient pat, double initAge, double endAge);
 	
 	/**
 	 * Returns the annual management cost applied independently of the complications

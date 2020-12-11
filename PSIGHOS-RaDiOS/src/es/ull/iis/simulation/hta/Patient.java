@@ -4,16 +4,13 @@
 package es.ull.iis.simulation.hta;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.populations.Population;
-import es.ull.iis.simulation.hta.progression.AcuteComplicationSubmodel;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPair;
@@ -53,16 +50,12 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	private final long initAge;
 	/** How long is the effect of the intervention active. When finished, time to events must be updated */
 	private final long durationOfEffect;
-	/** Common parameters to characterize progression, time to events... */
-	private final RepositoryInstance commonParams;
 	
 	// Events
 	/** Events related to each chronic complication */
 	private final TreeMap<Manifestation, ArrayDeque<ManifestationEvent>> manifestationEvents;
 	/** Death event */ 
 	protected DeathEvent deathEvent = null;
-	/** Event related to loss of treatment effect */
-	private LostTreatmentEffectEvent lostEffectEvent = null;
 
 	/**
 	 * Creates a new patient with Type 1 diabetes mellitus.
@@ -76,7 +69,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.nIntervention = intervention.getIdentifier();
 		this.clonedFrom = null;
 		this.dead = false;
-		this.commonParams = simul.getCommonParams();
 		this.profile = population.getPatientProfile();
 		this.detailedState = new TreeSet<>();
 
@@ -98,7 +90,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.nIntervention = intervention.getIdentifier();
 		this.clonedFrom = original;		
 		this.dead = false;
-		this.commonParams = original.commonParams;
 		this.detailedState = new TreeSet<>();
 		this.profile = original.profile;
 		this.initAge = original.initAge;
@@ -400,61 +391,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		}
 		
 	}
-	
-	
-	/**
-	 * An event to recompute time to complications as the treatment effect is lost
-	 * @author Iván Castilla Rodríguez
-	 *
-	 */
-	private class LostTreatmentEffectEvent extends DiscreteEvent {
-
-		public LostTreatmentEffectEvent(long ts) {
-			super(ts);
-		}
-		
-		@Override
-		public void event() {
-			for (AcuteComplication comp : AcuteComplication.values()) {
-				// Check last acute event
-				final ArrayList<AcuteEvent> acuteEventList = acuteEvents.get(comp.getInternalId());
-				if (!acuteEventList.isEmpty()) {
-					AcuteEvent acuteEv = acuteEventList.get(acuteEventList.size() - 1);
-					if (acuteEv.getTs() > ts) {
-						acuteEv.cancel();
-						acuteEventList.remove(acuteEv);
-						final DiseaseProgressionPair prog = commonParams.getTimeToAcuteEvent(Patient.this, comp, true);
-						acuteEv = new AcuteEvent(prog);
-						acuteEventList.add(acuteEv);
-						simul.addEvent(acuteEv);
-					}
-					
-				}
-			}
-
-			// Check all the complications in case the loss of treatment affects the time to events
-			for (ChronicComplication comp : ChronicComplication.values()) {
-				final DiseaseProgression progs = commonParams.getProgression(Patient.this, comp);
-				for (Manifestation st: progs.getCancelEvents()) {
-					comorbidityEvents.get(st).cancel();
-				}
-				for (DiseaseProgressionPair pr : progs.getNewEvents()) {
-					final ChronicComorbidityEvent ev = new ChronicComorbidityEvent(pr);
-					comorbidityEvents.put((Manifestation) pr.getManifestation(), ev);
-					simul.addEvent(ev);		
-				}
-			}
-		}
-		
-		@Override
-		public boolean cancel() {
-			if (super.cancel()) {
-				lostEffectEvent = null;
-				return true;
-			}
-			return false;
-		}
-	}
 
 	/**
 	 * The event of the death of the patient.  
@@ -486,11 +422,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 					else {
 						break;
 					}
-				}
-			}
-			if (lostEffectEvent != null) {
-				if (lostEffectEvent.getTs() >= getTs()) {
-					lostEffectEvent.cancel();
 				}
 			}
 			setDead();

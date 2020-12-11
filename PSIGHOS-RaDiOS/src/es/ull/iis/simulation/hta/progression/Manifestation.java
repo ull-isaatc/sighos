@@ -9,7 +9,6 @@ import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.DeathWithEventParam;
-import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StartWithComplicationParam;
 import es.ull.iis.simulation.model.Describable;
@@ -127,12 +126,8 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		}			
 	}
 	
-	public double getDisutility(Patient pat) {
-		return du.get(pat.getSimulation().getIdentifier());
-	}
-	
-	public double[] getCosts(Patient pat) {
-		return cost.get(pat.getSimulation().getIdentifier());
+	public void reset(int id) {
+		associatedDeath.get(id).reset();
 	}
 	
 	public boolean hasManifestationAtStart(Patient pat) {

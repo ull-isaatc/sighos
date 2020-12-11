@@ -31,12 +31,9 @@ import es.ull.iis.simulation.hta.inforeceiver.QALYListener;
 import es.ull.iis.simulation.hta.inforeceiver.TimeFreeOfComplicationsView;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention.Intervention;
-import es.ull.iis.simulation.hta.outcomes.StdUtilityCalculator;
-import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.hta.params.StdDiscount;
 import es.ull.iis.simulation.hta.params.ZeroDiscount;
 
@@ -187,6 +184,8 @@ public class DiseaseMain {
 			expListeners.add(new EpidemiologicView(nRuns, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 			baseCaseExpListeners.add(new EpidemiologicView(1, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 		}
+		// Generates all the second order instances
+		secParams.generate();
 	}
 	
 	private String getStrHeader() {
@@ -223,7 +222,6 @@ public class DiseaseMain {
 	 * @param baseCase True if we are running the base case
 	 */
 	private void simulateInterventions(int id, boolean baseCase) {
-		final RepositoryInstance common = secParams.getInstance();
 		final int nInterventions = interventions.size();
 		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(nPatients, nInterventions, false, secParams.getRegisteredManifestations());
 		final CostListener[] costListeners = new CostListener[nInterventions];
@@ -232,13 +230,13 @@ public class DiseaseMain {
 		final AcuteComplicationCounterListener[] acuteListeners = new AcuteComplicationCounterListener[nInterventions];
 
 		for (int i = 0; i < nInterventions; i++) {
-			costListeners[i] = new CostListener(secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getDiseases(), common.getAcuteCompSubmodels()), discountCost, nPatients);
+			costListeners[i] = new CostListener(secParams.getCostCalculator(id), discountCost, nPatients);
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
-			qalyListeners[i] = new QALYListener(new StdUtilityCalculator(DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP), discountEffect, nPatients);
+			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(id), discountEffect, nPatients);
 			acuteListeners[i] = new AcuteComplicationCounterListener(nPatients);
 		}
 		final Intervention[] intInstances = common.getInterventions();
-		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, intInstances[0], nPatients, common, secParams.getPopulation(), timeHorizon);
+		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, intInstances[0], nPatients, secParams, timeHorizon);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);

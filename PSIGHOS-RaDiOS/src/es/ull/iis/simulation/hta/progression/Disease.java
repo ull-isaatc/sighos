@@ -92,6 +92,13 @@ public abstract class Disease implements Named, Describable, GenerateSecondOrder
 			trans.generate(secParams);
 	}
 	
+	public void reset(int id) {
+		for (final Manifestation manif : manifestations)
+			manif.reset(id);
+		for (final Transition trans : transitions)
+			trans.reset(id);
+	}
+	
 	/**
 	 * Adds a manifestation to this disease
 	 * @param manif New manifestation associated to this disease
@@ -217,8 +224,7 @@ public abstract class Disease implements Named, Describable, GenerateSecondOrder
 				secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getInitProbString(manif), "Initial proportion of " + manif.name(), "",
 						BasicConfigParams.INIT_PROP.get(manif.name())));
 			}			
-		}
-		
+		}		
 	}
 	
 	public abstract void addSecondOrderParams(SecondOrderParamsRepository secParams);
