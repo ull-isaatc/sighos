@@ -463,13 +463,13 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 */
 	public final class DeathEvent extends DiscreteEvent {
 		/** Cause of the death; null if non-specific */
-		final Named cause;
+		final Manifestation cause;
 		
 		public DeathEvent(long ts) {
 			this(ts, null);
 		}
 
-		public DeathEvent(long ts, Named cause) {
+		public DeathEvent(long ts, Manifestation cause) {
 			super(ts);
 			this.cause = cause;
 		}
@@ -477,26 +477,14 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		@Override
 		public void event() {
 			// Cancel all events that cannot happen now
-		
-			for (final ChronicComorbidityEvent ev : comorbidityEvents.values()) {
-				if (ev.getTs() >= getTs()) {
-					toRemove.add(ev);
-				}
-			}
-			for (final ChronicComorbidityEvent ev : toRemove) {
-				ev.cancel();
-			}
-
-			for (ArrayList<AcuteEvent> acuteEventList : acuteEvents) {
-				int counter = acuteEventList.size();
-				while (counter != 0) {
-					counter--;
-					if (acuteEventList.get(counter).getTs() >= getTs()) {
-						acuteEventList.get(counter).cancel();
-						acuteEventList.remove(counter);
+			for (ArrayDeque<ManifestationEvent> events : manifestationEvents.values()) {
+				while (events.size() > 0) {
+					if (events.peekLast().getTs() >= getTs()) {
+						events.peekLast().cancel();
+						events.pollLast();
 					}
 					else {
-						counter = 0;
+						break;
 					}
 				}
 			}

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
@@ -48,7 +49,7 @@ import simkit.random.RandomVariateFactory;
  * </p>
  * @author Iván Castilla Rodríguez
  */
-public abstract class SecondOrderParamsRepository {
+public abstract class SecondOrderParamsRepository implements GenerateSecondOrderInstances {
 	// Strings to define standard parameters
 	/** String prefix for probability parameters */
 	public static final String STR_PROBABILITY_PREFIX = "P_";
@@ -98,19 +99,22 @@ public abstract class SecondOrderParamsRepository {
 	final protected int nPatients;
 	/** The population */
 	final private Population population;
+	/** The number of simulations to run by using this repository */
+	final private int nRuns;
 	
 	/**
 	 * Creates a repository of second order parameters. By default, generates the base case values.
 	 * @param nPatients Number of patients to create
 	 * @param population The population used within this repository
 	 */
-	protected SecondOrderParamsRepository(final int nPatients, final Population population) {
+	protected SecondOrderParamsRepository(final int nRuns, final int nPatients, final Population population) {
 		this.population = population;
 		this.probabilityParams = new TreeMap<>();
 		this.costParams = new TreeMap<>();
 		this.otherParams = new TreeMap<>();
 		this.utilParams = new TreeMap<>();
 		this.nPatients = nPatients;
+		this.nRuns = nRuns;
 		this.registeredManifestations = new ArrayList<>();
 		this.registeredDiseases = new ArrayList<Disease>();
 		this.registeredInterventions = new ArrayList<>();
@@ -215,18 +219,25 @@ public abstract class SecondOrderParamsRepository {
 	}
 
 	/**
-	 * Generates n random numbers for each parameter in the repository
-	 * @param n Number of random numbers to generate
+	 * @return the nRuns
 	 */
-	public void generateValuesForParameters(int n) {
+	public int getnRuns() {
+		return nRuns;
+	}
+
+	/**
+	 * Generates n random numbers for each parameter in the repository
+	 */
+	@Override
+	public void generate(SecondOrderParamsRepository secOrder) {
 		for (SecondOrderParam param : probabilityParams.values())
-			param.generate(n);
+			param.generate(null);
 		for (SecondOrderParam param : costParams.values())
-			param.generate(n);
+			param.generate(null);
 		for (SecondOrderParam param : utilParams.values())
-			param.generate(n);
+			param.generate(null);
 		for (SecondOrderParam param : otherParams.values())
-			param.generate(n);
+			param.generate(null);
 	}
 	/**
 	 * Adds a probability parameter
@@ -387,6 +398,16 @@ public abstract class SecondOrderParamsRepository {
 	}
 
 	/**
+	 * Returns a value for the probability of dying from a manifestation
+	 * @param stage Manifestation
+	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
+	 */	
+	public double getDeathProbParam(Named stage, int id) {
+		final SecondOrderParam param = probabilityParams.get(getDeathProbString(stage));
+		return (param == null) ? 0.0 : param.getValue(id); 
+	}
+
+	/**
 	 * Returns the increase mortality rate associated to a complication or complication stage; 1.0 if no additional risk is associated
 	 * @param stage Complication or complication stage
 	 * @return the increase mortality rate associated to a complication or complication stage; 1.0 if no additional risk is associated
@@ -513,6 +534,15 @@ public abstract class SecondOrderParamsRepository {
 		return STR_PROBABILITY_PREFIX + STR_INIT_PREFIX + to.name();
 	}
 
+	/**
+	 * Builds a string that represents a probability of dying from a manifestation
+	 * @param to Manifestation
+	 * @return a string that represents a probability of dying from a manifestation
+	 */
+	public static String getDeathProbString(Named to) {
+		return STR_PROBABILITY_PREFIX + STR_DEATH_PREFIX + to.name();
+	}
+	
 	/**
 	 * Creates a Gamma distribution to add uncertainty to a deterministic cost. Uses the {@link BasicConfigParams#DEF_SECOND_ORDER_VARIATION} 
 	 * parameters to adjust the uncertainty
@@ -659,19 +689,6 @@ public abstract class SecondOrderParamsRepository {
 			return interventions;
 		}
 
-		/**
-		 * Returns the chronic complications that a patient suffers at the start of the simulation, in case there is any
-		 * @param pat A patient
-		 * @return the chronic complications that a patient suffers at the start of the simulation, in case there is any
-		 */
-		public TreeSet<Manifestation> getInitialState(Patient pat) {
-			final TreeSet<Manifestation> initial = new TreeSet<>();
-			for (Disease dis : diseases) {
-				initial.addAll(dis.getInitialStage(pat));
-			}
-			return initial;
-		}
-		
 		/**
 		 * Returns the life expectancy of the patient
 		 * @param pat A patient

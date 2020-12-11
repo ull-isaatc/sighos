@@ -2,6 +2,7 @@ package es.ull.iis.simulation.hta.params;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -10,7 +11,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SecondOrderParam {
+public class SecondOrderParam implements GenerateSecondOrderInstances {
 	/** Short name and identifier of the parameter */
 	private final String name;
 	/** Full description of the parameter */
@@ -75,9 +76,10 @@ public class SecondOrderParam {
 
 	/**
 	 * Generates n random values for the parameter
-	 * @param n Number of random values to generate
 	 */
-	public void generate(int n) {
+	@Override
+	public void generate(SecondOrderParamsRepository secParams) {
+		final int n = secParams.getnRuns();
 		generatedValues.ensureCapacity(n);
 		for (int i = 1; i < n; i++)
 			generatedValues.set(i, rnd.generate());

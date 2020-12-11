@@ -41,8 +41,8 @@ public class SecondOrderCostParam extends SecondOrderParam {
 	}
 
 	@Override
-	public void generate(int n) {
-		super.generate(n);
+	public void generate(SecondOrderParamsRepository secOrder) {
+		super.generate(secOrder);
 		generatedValues.replaceAll(e -> SpanishIPCUpdate.updateCost(e, year, BasicConfigParams.STUDY_YEAR));
 /*		for (int i = 1; i < n; i++)
 			generatedValues.set(i, SpanishIPCUpdate.updateCost(getValue(i), year, BasicConfigParams.STUDY_YEAR));*/		

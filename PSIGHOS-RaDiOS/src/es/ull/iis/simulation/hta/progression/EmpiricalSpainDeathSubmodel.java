@@ -71,9 +71,11 @@ public class EmpiricalSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 	public class Instance extends DeathSubmodel {
 		/** A random value [0, 1] for each patient (useful for common numbers techniques) */
 		private final double[] rnd;
+		private final SecondOrderParamsRepository secParams;
 		
 		public Instance(SecondOrderParamsRepository secParams) {
 			super(EmpiricalSpainDeathSubmodel.this);
+			this.secParams = secParams;
 			final int nPatients = secParams.getnPatients();
 			final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 			rnd = new double[nPatients];
@@ -92,7 +94,7 @@ public class EmpiricalSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 		public long getTimeToDeath(Patient pat) {
 			double imr = 1.0;
 			for (final Manifestation state : pat.getDetailedState()) {
-				final double newIMR = state.getIMR(pat);
+				final double newIMR = secParams.getIMR(state, pat.getSimulation().getIdentifier());
 				if (newIMR > imr) {
 					imr = newIMR;
 				}

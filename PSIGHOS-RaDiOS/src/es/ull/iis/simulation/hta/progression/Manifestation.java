@@ -5,8 +5,11 @@ package es.ull.iis.simulation.hta.progression;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.DeathWithEventParam;
+import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StartWithComplicationParam;
 import es.ull.iis.simulation.model.Describable;
@@ -17,7 +20,7 @@ import es.ull.iis.simulation.model.Describable;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Manifestation implements Named, Describable, Comparable<Manifestation> {
+public abstract class Manifestation implements Named, Describable, Comparable<Manifestation>, GenerateSecondOrderInstances {
 	public enum Type {
 		ACUTE,
 		CHRONIC
@@ -35,12 +38,15 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	
 	/** Probability that a patient starts in this stage */
 	private final ArrayList<StartWithComplicationParam> pInit;
+	/** Death associated to the acute events */
+	private final ArrayList<DeathWithEventParam> associatedDeath;
 	
 	/**
 	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
 	 * @param name Name of the stage
 	 * @param description Full description of the stage
 	 * @param disease Main chronic complication
+	 * @param type The {@link Type} of the manifestation
 	 */
 	public Manifestation(String name, String description, Disease disease, Type type) {
 		this.name = name;
@@ -48,6 +54,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		this.disease = disease;
 		this.type = type;
 		pInit = new ArrayList<>();
+		associatedDeath = new ArrayList<>();
 	}
 	
 	/**
@@ -109,18 +116,17 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		return name;
 	}
 
-	public void newInstance(final double du, final double[] cost, final StartWithComplicationParam pInit, final double imr) {
-		this.du.add(du);
-		this.cost.add(cost);
-		this.pInit.add(pInit);
-		this.imr.add(imr);
+	@Override
+	public void generate(SecondOrderParamsRepository secParams) {
+		final int n = secParams.getnRuns();
+		associatedDeath.ensureCapacity(n);
+		pInit.ensureCapacity(n);
+		for (int i = 0; i < n; i++) {
+			pInit.add(0, new StartWithComplicationParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getInitProbParam(this, i)));
+			associatedDeath.add(i, new DeathWithEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getDeathProbParam(this, i)));
+		}			
 	}
-
-	public void newInstance(final double du, final double[] cost, double pInit, final double imr, final int nPatients) {
-		final StartWithComplicationParam param = (pInit > 0.0) ? new StartWithComplicationParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), nPatients, pInit) : null;
-		newInstance(du, cost, param, imr);
-	}
-
+	
 	public double getDisutility(Patient pat) {
 		return du.get(pat.getSimulation().getIdentifier());
 	}
@@ -129,13 +135,9 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		return cost.get(pat.getSimulation().getIdentifier());
 	}
 	
-	public boolean hasComplicationAtStart(Patient pat) {
+	public boolean hasManifestationAtStart(Patient pat) {
 		final StartWithComplicationParam param = pInit.get(pat.getSimulation().getIdentifier()); 
 		return (param == null) ? false : param.getValue(pat);
-	}
-	
-	public double getIMR(Patient pat) {
-		return imr.get(pat.getSimulation().getIdentifier());
 	}
 	
 	public abstract void addSecondOrderParams(SecondOrderParamsRepository secParams);

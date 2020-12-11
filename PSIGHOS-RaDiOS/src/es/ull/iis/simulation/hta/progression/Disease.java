@@ -3,26 +3,27 @@
  */
 package es.ull.iis.simulation.hta.progression;
 
-import java.util.ArrayList;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.TimeToEventParam;
 import es.ull.iis.simulation.model.Describable;
 
 /**
- * A disease
+ * A disease defines the progression of a patient. Includes several manifestations and defines how such manifestations are related to each other. 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Disease implements Named, Describable {
+public abstract class Disease implements Named, Describable, GenerateSecondOrderInstances {
+	/** Absence of progression */
 	private static final DiseaseProgression NULL_PROGRESSION = new DiseaseProgression(); 
+	/** Absence of manifestations */
 	private static final Manifestation[] NON_MANIFESTATIONS = new Manifestation[0]; 
+	/** A Disease that represents a non-disease state, i.e., being healthy. Useful to avoid null comparisons. */
 	public static final Disease HEALTHY = new Disease("HEALTHY", "Healthy") {
 
 		@Override
@@ -50,19 +51,21 @@ public abstract class Disease implements Named, Describable {
 		}
 	};
 	
+	/** Manifestations related to this disease */
 	private final TreeSet<Manifestation> manifestations;
-	private final TreeMap<Transition, ArrayList<TimeToEventParam>> time2Event;
+	/** Transitions among manifestations of this disease */
+	private final TreeSet<Transition> transitions;
 	/** Short name of the disease */
 	private final String name;
 	/** Full description of the disease */
 	private final String description;
 	
 	/**
-	 * Creates a submodel for a chronic complication.
+	 * Creates a submodel for a disease.
 	 */
 	public Disease(String name, String description) {
 		this.manifestations = new TreeSet<>();
-		this.time2Event = new TreeMap<>();
+		this.transitions = new TreeSet<>();
 		this.name = name;
 		this.description = description;
 	}
@@ -81,40 +84,28 @@ public abstract class Disease implements Named, Describable {
 		return name;
 	}
 	
-	public void setStageInstance(Manifestation stage, SecondOrderParamsRepository secParams) {
-		final double initP = secParams.getInitProbParam(stage);
-		manifestations.put(stage, stage.getInstance(this, secParams.getDisutilityForChronicComplication(stage), 
-				secParams.getCostsForChronicComplication(stage),
-				initP, secParams.getIMR(stage), secParams.getnPatients()));
-	}
-
-	public void setStageInstance(Manifestation stage, double du, double[] cost, double initP, double imr, int nPatients) {
-		manifestations.put(stage, stage.getInstance(this, du, cost, initP, imr, nPatients)); 
+	@Override
+	public void generate(SecondOrderParamsRepository secParams) {
+		for (final Manifestation manif : manifestations)
+			manif.generate(secParams);
+		for (final Transition trans : transitions)
+			trans.generate(secParams);
 	}
 	
-	public double getDisutility(Manifestation stage) {
-		return manifestations.get(stage).getDisutility();
-	}
-	
-	public double[] getCosts(Manifestation stage) {
-		return manifestations.get(stage).getCosts();
-	}
-	
-	public boolean hasComplicationAtStart(Manifestation stage, Patient pat) {
-		return manifestations.get(stage).hasComplicationAtStart(pat);
-	}
-	
-	public double getIMR(Manifestation stage) {
-		return manifestations.get(stage).getIMR();
-	}
-
 	/**
-	 * Adds a time to event parameter related to a specific transition
-	 * @param id The identifier of the transition. Transitions are expected to be ordered elsewhere.
-	 * @param param Time to event parameter
+	 * Adds a manifestation to this disease
+	 * @param manif New manifestation associated to this disease
 	 */
-	public void addTime2Event(int id, TimeToEventParam param) {
-		time2Event[id] = param;
+	public void addManifestation(Manifestation manif) {
+		manifestations.add(manif);
+	}
+	
+	/**
+	 * Adds a new transition between two manifestations of this disease (or from "no manifestations" to any other manifestation)
+	 * @param trans New transition between manifestations of this disease 
+	 */
+	public void addTransition(Transition trans) {
+		transitions.add(trans);
 	}
 	
 	/**
@@ -125,9 +116,8 @@ public abstract class Disease implements Named, Describable {
 	 * than the limit, returns Long.MAX_VALUE
 	 * @return The time to event for the patient; Long.MAX_VALUE if the event will never happen.
 	 */
-	public long getTimeToEvent(Patient pat, Transition trans, long limit) {
-		final long time = time2Event.get(trans).get(pat.getSimulation().getIdentifier()).getValue(pat);
-		return (time >= limit) ? Long.MAX_VALUE : time;
+	public long getTimeToEvent(Patient pat, Transition trans, long limit) {		
+		return trans.getTimeToEvent(pat, limit);
 	}
 
 	
@@ -167,7 +157,7 @@ public abstract class Disease implements Named, Describable {
 	public TreeSet<Manifestation> getInitialStage(Patient pat) {
 		final TreeSet<Manifestation> init = new TreeSet<>();
 		for (final Manifestation manif : manifestations) {
-			if (hasComplicationAtStart(manif, pat))
+			if (manif.hasManifestationAtStart(pat))
 				init.add(manif);
 		}
 		return init;
@@ -182,16 +172,6 @@ public abstract class Disease implements Named, Describable {
 	 * @return the annual cost associated to the current state of the patient and during the defined period
 	 */
 	public abstract double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge);
-	
-	/**
-	 * Returns the cost associated to the start of a new stage of this chronic complication
-	 * @param pat A patient
-	 * @param newComplication New stage of this chronic complication
-	 * @return the cost associated to the start of a new stage of this chronic complication
-	 */
-	public double getCostOfComplication(Patient pat, Manifestation newComplication) {
-		return getCosts(newComplication)[1];		
-	}
 	
 	/**
 	 * Returns the disutility value associated to the current stage of this chronic complication
@@ -214,14 +194,16 @@ public abstract class Disease implements Named, Describable {
 	 * Returns the stages used to model this chronic complication
 	 * @return An array containing the stages used to model this chronic complication 
 	 */
-	public abstract Manifestation[] getManifestations();
+	public Manifestation[] getManifestations() {
+		return (Manifestation[]) manifestations.toArray();
+	}
 
 	/**
 	 * Returns the number of different transitions defined from one manifestation to another
 	 * @return the number of different transitions defined from one manifestation to another
 	 */
 	public int getNTransitions() {
-		return time2Event.size();
+		return transitions.size();
 	}
 	
 	/**

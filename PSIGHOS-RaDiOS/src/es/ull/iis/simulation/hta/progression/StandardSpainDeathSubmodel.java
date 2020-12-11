@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.hta.progression;
 
-import java.util.TreeMap;
-
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -23,8 +21,6 @@ public class StandardSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 	private final static double ALPHA_DEATH[] = new double[] {Math.exp(-10.43996654), Math.exp(-11.43877681)};
 	/** Beta parameter for a Gompertz distribution on the mortality risk for men and women */
 	private final static double BETA_DEATH[] = new double[] {0.093286762, 0.099683525};
-	/** The increased mortality risk associated to each chronic complication stage */
-	private final TreeMap<Manifestation, Double> imrs;
 
 	/**
 	 * Creates a death submodel based on the Spanish 2016 Mortality risk
@@ -33,10 +29,6 @@ public class StandardSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 	 */
 	public StandardSpainDeathSubmodel(SecondOrderParamsRepository secParams) {
 		super();
-		imrs = new TreeMap<>();
-		for (Manifestation stage : secParams.getRegisteredManifestations()) {
-			imrs.put(stage, secParams.getIMR(stage));
-		}
 	}
 	
 	@Override
@@ -52,9 +44,11 @@ public class StandardSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 	public class Instance extends DeathSubmodel {
 		/** A random value [0, 1] for each patient (useful for common numbers techniques) */
 		private final double[] rnd;
+		private final SecondOrderParamsRepository secParams;
 		
 		public Instance(SecondOrderParamsRepository secParams) {
 			super(StandardSpainDeathSubmodel.this);
+			this.secParams = secParams;
 			final int nPatients = secParams.getnPatients();
 			final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 			rnd = new double[nPatients];
@@ -72,7 +66,7 @@ public class StandardSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 		public long getTimeToDeath(Patient pat) {
 			double imr = 1.0;
 			for (final Manifestation state : pat.getDetailedState()) {
-				final double newIMR = state.getIMR(pat);
+				final double newIMR = secParams.getIMR(state, pat.getSimulation().getIdentifier());
 				if (newIMR > imr) {
 					imr = newIMR;
 				}
