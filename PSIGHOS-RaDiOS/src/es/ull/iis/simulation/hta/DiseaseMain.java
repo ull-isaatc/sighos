@@ -19,7 +19,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-import es.ull.iis.simulation.hta.inforeceiver.AcuteComplicationCounterListener;
 import es.ull.iis.simulation.hta.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.inforeceiver.BudgetImpactView;
 import es.ull.iis.simulation.hta.inforeceiver.CostListener;
@@ -29,8 +28,7 @@ import es.ull.iis.simulation.hta.inforeceiver.ExperimentListener;
 import es.ull.iis.simulation.hta.inforeceiver.LYListener;
 import es.ull.iis.simulation.hta.inforeceiver.QALYListener;
 import es.ull.iis.simulation.hta.inforeceiver.TimeFreeOfComplicationsView;
-import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
-import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention.Intervention;
+import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -132,7 +130,7 @@ public class DiseaseMain {
 	private static final String OUTPUTS_SUFIX = "_outputs"; 
 	private final PrintWriter out;
 	private final PrintWriter outListeners;
-	private final ArrayList<SecondOrderIntervention> interventions;
+	private final Intervention[] interventions;
 	/** Number of simulations to run */
 	private final int nRuns;
 	/** Number of patients to be generated during each simulation */
@@ -191,26 +189,24 @@ public class DiseaseMain {
 	private String getStrHeader() {
 		final StringBuilder str = new StringBuilder();
 		str.append("SIM\t");
-		for (int i = 0; i < interventions.size(); i++) {
-			final String shortName = interventions.get(i).getShortName();
+		for (int i = 0; i < interventions.length; i++) {
+			final String shortName = interventions[i].getShortName();
 			str.append(CostListener.getStrHeader(shortName));
 			str.append(LYListener.getStrHeader(shortName));
 			str.append(QALYListener.getStrHeader(shortName));
-			str.append(AcuteComplicationCounterListener.getStrHeader(shortName));
 		}
 		str.append(TimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredManifestations()));
 		str.append(secParams.getStrHeader());
 		return str.toString();
 	}
 	
-	private String print(DiseaseProgressionSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, AcuteComplicationCounterListener[] acuteListeners, TimeFreeOfComplicationsView timeFreeListener) {
+	private String print(DiseaseProgressionSimulation simul, CostListener[] costListeners, LYListener[] lyListeners, QALYListener[] qalyListeners, TimeFreeOfComplicationsView timeFreeListener) {
 		final StringBuilder str = new StringBuilder();
 		str.append("" +  simul.getIdentifier() + "\t");
-		for (int i = 0; i < interventions.size(); i++) {
+		for (int i = 0; i < interventions.length; i++) {
 			str.append(costListeners[i]);
 			str.append(lyListeners[i]);
 			str.append(qalyListeners[i]);
-			str.append(acuteListeners[i]);
 		}
 		str.append(timeFreeListener).append(secParams);
 		return str.toString();
@@ -222,25 +218,21 @@ public class DiseaseMain {
 	 * @param baseCase True if we are running the base case
 	 */
 	private void simulateInterventions(int id, boolean baseCase) {
-		final int nInterventions = interventions.size();
-		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(nPatients, nInterventions, false, secParams.getRegisteredManifestations());
+		final int nInterventions = interventions.length;
+		final TimeFreeOfComplicationsView timeFreeListener = new TimeFreeOfComplicationsView(secParams, false);
 		final CostListener[] costListeners = new CostListener[nInterventions];
 		final LYListener[] lyListeners = new LYListener[nInterventions];
 		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
-		final AcuteComplicationCounterListener[] acuteListeners = new AcuteComplicationCounterListener[nInterventions];
 
 		for (int i = 0; i < nInterventions; i++) {
 			costListeners[i] = new CostListener(secParams.getCostCalculator(id), discountCost, nPatients);
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
 			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(id), discountEffect, nPatients);
-			acuteListeners[i] = new AcuteComplicationCounterListener(nPatients);
 		}
-		final Intervention[] intInstances = common.getInterventions();
-		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, intInstances[0], nPatients, secParams, timeHorizon);
+		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, interventions[0], nPatients, secParams, timeHorizon);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);
-		simul.addInfoReceiver(acuteListeners[0]);
 		simul.addInfoReceiver(timeFreeListener);
 		if (patientListener != null)
 			simul.addInfoReceiver(patientListener);
@@ -256,11 +248,10 @@ public class DiseaseMain {
 		}
 		simul.run();
 		for (int i = 1; i < nInterventions; i++) {
-			simul = new DiseaseProgressionSimulation(simul, intInstances[i]);
+			simul = new DiseaseProgressionSimulation(simul, interventions[i]);
 			simul.addInfoReceiver(costListeners[i]);
 			simul.addInfoReceiver(lyListeners[i]);
 			simul.addInfoReceiver(qalyListeners[i]);
-			simul.addInfoReceiver(acuteListeners[i]);
 			simul.addInfoReceiver(timeFreeListener);
 			if (patientListener != null)
 				simul.addInfoReceiver(patientListener);
@@ -279,7 +270,7 @@ public class DiseaseMain {
 		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
 			System.out.print("Patient");
 			for (int i = 0; i < nInterventions; i++) {
-				final String shortName = interventions.get(i).getShortName();
+				final String shortName = interventions[i].getShortName();
 				System.out.print("\tCost_" + shortName + "\tLE_" + shortName + "\tQALE_" + shortName);
 			}
 			System.out.println();
@@ -291,7 +282,7 @@ public class DiseaseMain {
 				System.out.println();
 			}
 		}
-		out.println(print(simul, costListeners, lyListeners, qalyListeners, acuteListeners, timeFreeListener));	
+		out.println(print(simul, costListeners, lyListeners, qalyListeners, timeFreeListener));	
 	}
 	
 	/**

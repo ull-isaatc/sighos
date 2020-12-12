@@ -3,14 +3,12 @@
  */
 package es.ull.iis.simulation.hta.inforeceiver;
 
-import java.util.ArrayList;
 import java.util.Locale;
 
-import es.ull.iis.simulation.hta.AcuteComplication;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
-import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
+import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
@@ -21,14 +19,13 @@ import es.ull.iis.simulation.inforeceiver.Listener;
 public class IncidenceByGroupAgeView implements ExperimentListener {
 	private final int nExperiments;
 	private final SecondOrderParamsRepository secParams;
-	private final ArrayList<SecondOrderIntervention> interventions;
+	private final Intervention[] interventions;
 	private final int length;
 	private final int nIntervals;
 	private final int minAge;
 	private final double [][] nDeaths;
 	private final double [][] nAlivePatients;
-	private final double[][][] nChronic;
-	private final double [][][] nAcute;
+	private final double[][][] nManifestation;
 	private final boolean cummulative;
 
 	/**
@@ -42,11 +39,10 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 		this.minAge = secParams.getMinAge();
 		this.nIntervals = ((BasicConfigParams.DEF_MAX_AGE - minAge) / length) + 1;
 		this.interventions = secParams.getRegisteredInterventions();
-		final int nInterventions = interventions.size();
+		final int nInterventions = interventions.length;
 		nAlivePatients = new double[nInterventions][nIntervals];
 		nDeaths = new double[nInterventions][nIntervals];
-		nChronic = new double[nInterventions][secParams.getRegisteredManifestations().size()][nIntervals];
-		nAcute = new double[nInterventions][AcuteComplication.values().length][nIntervals];
+		nManifestation = new double[nInterventions][secParams.getRegisteredManifestations().length][nIntervals];
 	}
 
 	@Override
@@ -58,28 +54,22 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 	public String toString() {
 		final StringBuilder str = cummulative ? new StringBuilder("Cummulated incidence") : new StringBuilder("Incidence");
 		str.append(System.lineSeparator()).append("AGE");
-		for (int i = 0; i < interventions.size(); i++) {
-			final String name = interventions.get(i).getShortName();
+		for (int i = 0; i < interventions.length; i++) {
+			final String name = interventions[i].getShortName();
 			str.append("\t" + name + "_N").append("\t" + name + "_DEATH");
 			for (Manifestation comp : secParams.getRegisteredManifestations()) {
 				str.append("\t" + name + "_").append(comp.name());
-			}
-			for (AcuteComplication comp : AcuteComplication.values()) {
-				str.append("\t" + name + "_").append(comp.name());				
 			}
 		}
 		str.append(System.lineSeparator());
 		for (int year = 0; year < nIntervals; year++) {
 			str.append(year + minAge);
-			for (int i = 0; i < interventions.size(); i++) {
+			for (int i = 0; i < interventions.length; i++) {
 				str.append("\t").append(String.format(Locale.US, "%.2f", nAlivePatients[i][year] / nExperiments));
 				str.append("\t").append(String.format(Locale.US, "%.2f", nDeaths[i][year] / nExperiments));
-				for (int j = 0; j < nChronic[i].length; j++) {
-					str.append("\t").append(String.format(Locale.US, "%.2f", nChronic[i][j][year] / nExperiments));
+				for (int j = 0; j < nManifestation[i].length; j++) {
+					str.append("\t").append(String.format(Locale.US, "%.2f", nManifestation[i][j][year] / nExperiments));
 				}
-				for (int j = 0; j < nAcute[i].length; j++) {
-					str.append("\t").append(String.format(Locale.US, "%.2f", nAcute[i][j][year] / nExperiments));
-				}	
 			}
 			str.append(System.lineSeparator());
 		}
@@ -93,8 +83,7 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 	public class InnerListenerInstance extends Listener implements InnerListener {
 		private final int [] nAlivePatients;
 		private final int [] nDeaths;
-		private final int[][] nChronic;
-		private final int [][] nAcute;
+		private final int[][] nManifestation;
 
 		/**
 		 * 
@@ -108,8 +97,7 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 			super("Counter of patients");
 			nDeaths = new int[nIntervals];
 			nAlivePatients = new int[nIntervals];
-			nChronic = new int[secParams.getRegisteredManifestations().size()][nIntervals];
-			nAcute = new int[AcuteComplication.values().length][nIntervals];
+			nManifestation = new int[secParams.getRegisteredManifestations().length][nIntervals];
 			addGenerated(PatientInfo.class);
 			addEntrance(PatientInfo.class);
 			addEntrance(SimulationStartStopInfo.class);
@@ -130,11 +118,8 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 					case START:
 						nAlivePatients[interval]++;
 						break;
-					case COMPLICATION:
-						nChronic[pInfo.getManifestation().ordinal()][interval]++;
-						break;
-					case ACUTE_EVENT:
-						nAcute[pInfo.getAcuteEvent().getInternalId()][interval]++;
+					case MANIFESTATION:
+						nManifestation[pInfo.getManifestation().ordinal()][interval]++;
 						break;
 					case DEATH:
 						nDeaths[interval]++;
@@ -147,24 +132,19 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 
 		@Override
 		public synchronized void updateExperiment(DiseaseProgressionSimulation simul) {
-			final int interventionId = simul.getIntervention().getIdentifier();
+			final int interventionId = simul.getIntervention().ordinal();
 			if (cummulative) {
 				double accDeaths = 0.0;
 				double accPatients = 0.0;
-				final double []accAcute = new double[nAcute.length];
-				final double []accChronic = new double[nChronic.length];
+				final double []accManifestation = new double[nManifestation.length];
 				for (int i = 0; i < nIntervals; i++) {
 					accPatients += nAlivePatients[i];
 					accDeaths += nDeaths[i];
 					IncidenceByGroupAgeView.this.nAlivePatients[interventionId][i] += accPatients;
 					IncidenceByGroupAgeView.this.nDeaths[interventionId][i] += accDeaths;
-					for (int j = 0; j < nAcute.length; j++) {
-						accAcute[j] += nAcute[j][i];
-						IncidenceByGroupAgeView.this.nAcute[interventionId][j][i] += accAcute[j];
-					}
-					for (int j = 0; j < nChronic.length; j++) {
-						accChronic[j] += nChronic[j][i];
-						IncidenceByGroupAgeView.this.nChronic[interventionId][j][i] += accChronic[j];
+					for (int j = 0; j < nManifestation.length; j++) {
+						accManifestation[j] += nManifestation[j][i];
+						IncidenceByGroupAgeView.this.nManifestation[interventionId][j][i] += accManifestation[j];
 					}
 				}			
 			}
@@ -172,11 +152,8 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 				for (int i = 0; i < nIntervals; i++) {
 					IncidenceByGroupAgeView.this.nAlivePatients[interventionId][i] += nAlivePatients[i];
 					IncidenceByGroupAgeView.this.nDeaths[interventionId][i] += nDeaths[i];
-					for (int j = 0; j < nAcute.length; j++) {
-						IncidenceByGroupAgeView.this.nAcute[interventionId][j][i] += nAcute[j][i];
-					}
-					for (int j = 0; j < nChronic.length; j++) {
-						IncidenceByGroupAgeView.this.nChronic[interventionId][j][i] += nChronic[j][i];
+					for (int j = 0; j < nManifestation.length; j++) {
+						IncidenceByGroupAgeView.this.nManifestation[interventionId][j][i] += nManifestation[j][i];
 					}
 				}			
 				

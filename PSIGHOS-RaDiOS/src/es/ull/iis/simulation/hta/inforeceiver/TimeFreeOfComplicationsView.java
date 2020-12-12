@@ -3,13 +3,11 @@
  */
 package es.ull.iis.simulation.hta.inforeceiver;
 
-import java.util.ArrayList;
-
-import es.ull.iis.simulation.hta.ChronicComplication;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
-import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
+import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -23,25 +21,25 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	private final double [][][] timeToComplications;
 	private final boolean printFirstOrderVariance;
 	private final int nInterventions;
-	private final ArrayList<Manifestation> availableHealthStates;
+	private final Manifestation[] availableHealthStates;
 
 	/**
 	 * @param simUnit The time unit used within the simulation
 	 */
-	public TimeFreeOfComplicationsView(int nPatients, int nInterventions, boolean printFirstOrderVariance, ArrayList<Manifestation> availableHealthStates) {
+	public TimeFreeOfComplicationsView(SecondOrderParamsRepository secParams, boolean printFirstOrderVariance) {
 		super("Standard patient viewer");
-		this.availableHealthStates = availableHealthStates;
-		timeToComplications = new double[nInterventions][availableHealthStates.size()][nPatients];
+		this.availableHealthStates = secParams.getRegisteredManifestations();
+		this.nInterventions = secParams.getNInterventions();
+		timeToComplications = new double[nInterventions][availableHealthStates.length][secParams.getnPatients()];
 		this.printFirstOrderVariance = printFirstOrderVariance;
-		this.nInterventions = nInterventions;
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
 	}
 	
-	public static String getStrHeader(boolean printFirstOrderVariance, ArrayList<SecondOrderIntervention> interventions, ArrayList<Manifestation> availableHealthStates) {
+	public static String getStrHeader(boolean printFirstOrderVariance, Intervention[] interventions, Manifestation[] availableHealthStates) {
 		final StringBuilder str = new StringBuilder();
 		if (printFirstOrderVariance) {
-			for (SecondOrderIntervention inter : interventions) {
+			for (Intervention inter : interventions) {
 				for (Manifestation comp : availableHealthStates) {
 					final String suf = comp.name() + "_" + inter.getShortName() + "\t";
 					str.append("AVG_TIME_TO_").append(suf).append("\tL95CI_TIME_TO_").append(suf).append("\tU95CI_TIME_TO_").append(suf);
@@ -49,7 +47,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 			}
 		}
 		else {
-			for (SecondOrderIntervention inter : interventions) {
+			for (Intervention inter : interventions) {
 				for (Manifestation comp : availableHealthStates) {
 					str.append("AVG_TIME_TO_").append(comp.name()).append("_").append(inter.getShortName()).append("\t");
 				}
@@ -60,11 +58,11 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 
 	public boolean checkPaired() {
 		boolean checked = false;
-		for (int i = 0; i < availableHealthStates.size(); i++) {
+		for (int i = 0; i < availableHealthStates.length; i++) {
 			for (int j = 0; j < timeToComplications[0][i].length; j++) {
 				if (timeToComplications[0][i][j] > timeToComplications[1][i][j]) {
 					checked = true;
-					System.out.println("Paciente " + j + " Comp " + ChronicComplication.values()[i] + "\t" + timeToComplications[0][i][j] + ":" + timeToComplications[1][i][j]);
+					System.out.println("Paciente " + j + " Comp " + availableHealthStates[i] + "\t" + timeToComplications[0][i][j] + ":" + timeToComplications[1][i][j]);
 				}
 			}
 		}

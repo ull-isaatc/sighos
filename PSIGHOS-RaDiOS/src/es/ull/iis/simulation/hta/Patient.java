@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.info.PatientInfo;
-import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention.Intervention;
+import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -48,8 +48,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	private final PatientProfile profile;
 	/** Initial age of the patient (stored as simulation time units) */
 	private final long initAge;
-	/** How long is the effect of the intervention active. When finished, time to events must be updated */
-	private final long durationOfEffect;
 	
 	// Events
 	/** Events related to each chronic complication */
@@ -66,7 +64,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		super(simul, simul.getPatientCounter(), OBJ_TYPE_ID);
 		// Initialize patients with no complications
 		this.intervention = intervention;
-		this.nIntervention = intervention.getIdentifier();
+		this.nIntervention = intervention.ordinal();
 		this.clonedFrom = null;
 		this.dead = false;
 		this.profile = population.getPatientProfile();
@@ -75,7 +73,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.initAge = BasicConfigParams.SIMUNIT.convert(profile.getInitAge(), TimeUnit.YEAR);
 		manifestationEvents = new TreeMap<>();
 		// TODO: Inicializar los arrays de las manifestaciones
-		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
 
 	/**
@@ -87,7 +84,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	public Patient(DiseaseProgressionSimulation simul, Patient original, Intervention intervention) {
 		super(simul, original.id, OBJ_TYPE_ID);
 		this.intervention = intervention;
-		this.nIntervention = intervention.getIdentifier();
+		this.nIntervention = intervention.ordinal();
 		this.clonedFrom = original;		
 		this.dead = false;
 		this.detailedState = new TreeSet<>();
@@ -95,7 +92,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.initAge = original.initAge;
 		manifestationEvents = new TreeMap<>();
 		// TODO: Inicializar los arrays de las manifestaciones
-		this.durationOfEffect = BasicConfigParams.SIMUNIT.convert(intervention.getYearsOfEffect(), TimeUnit.YEAR);
 	}
 
 	/**
@@ -222,14 +218,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 */
 	public int getSex() {
 		return profile.getSex();
-	}
-
-	/**
-	 * Returns true if the effect of the intervention is still active; false otherwise
-	 * @return true if the effect of the intervention is still active; false otherwise
-	 */
-	public boolean isEffectActive() {
-		return durationOfEffect > getTs();
 	}
 
 	/**

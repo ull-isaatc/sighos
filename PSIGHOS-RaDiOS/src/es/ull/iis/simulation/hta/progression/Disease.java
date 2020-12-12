@@ -18,7 +18,10 @@ import es.ull.iis.simulation.model.Describable;
  * A disease defines the progression of a patient. Includes several manifestations and defines how such manifestations are related to each other. 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Disease implements Named, Describable, GenerateSecondOrderInstances {
+public abstract class Disease implements Named, Describable, GenerateSecondOrderInstances, Comparable<Disease> {
+	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
+	 * diseases defined to be used within a simulation */ 
+	private int ord = -1;
 	/** Absence of progression */
 	private static final DiseaseProgression NULL_PROGRESSION = new DiseaseProgression(); 
 	/** Absence of manifestations */
@@ -82,6 +85,32 @@ public abstract class Disease implements Named, Describable, GenerateSecondOrder
 	@Override
 	public String name() {
 		return name;
+	}
+	
+	/**
+	 * Returns the order assigned to this stage in a simulation.
+	 * @return the order assigned to this stage in a simulation
+	 */
+	public int ordinal() {
+		return ord;
+	}
+	
+	/**
+	 * Assigns the order that this stage have in a simulation
+	 * @param ord order that this stage have in a simulation
+	 */
+	public void setOrder(int ord) {
+		if (this.ord == -1)
+			this.ord = ord;
+	}
+
+	@Override
+	public int compareTo(Disease o) {
+		if (ord > o.ord)
+			return 1;
+		if (ord < o.ord)
+			return -1;
+		return 0;
 	}
 	
 	@Override

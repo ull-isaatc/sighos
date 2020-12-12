@@ -10,8 +10,7 @@ import java.util.TreeSet;
 import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
-import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention.Intervention;
+import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.populations.Population;
@@ -94,7 +93,7 @@ public abstract class SecondOrderParamsRepository {
 	/** The death submodel to be used */
 	protected SecondOrderDeathSubmodel registeredDeathSubmodel = null;
 	/** The collection of interventions */
-	final protected ArrayList<SecondOrderIntervention> registeredInterventions;
+	final protected ArrayList<Intervention> registeredInterventions;
 	// TODO: Change by scenarios: each parameter could be defined according to an scenario. This woulud require adding a factory to secondOrderParams and allowing a user to add several parameter settings
 	/** Number of patients that should be generated */
 	final protected int nPatients;
@@ -143,6 +142,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @param disease Disease
 	 */
 	public void registerDisease(Disease disease) {
+		disease.setOrder(registeredDiseases.size());
 		registeredDiseases.add(disease);
 		for (Manifestation st : disease.getManifestations()) {
 			st.setOrder(registeredManifestations.size());
@@ -163,21 +163,22 @@ public abstract class SecondOrderParamsRepository {
 	 * Returns the already registered complication stages
 	 * @return The already registered complication stages
 	 */
-	public ArrayList<Manifestation> getRegisteredManifestations() {
-		return registeredManifestations;
+	public Manifestation[] getRegisteredManifestations() {
+		return (Manifestation[]) registeredManifestations.toArray();
 	}
 
 	/**
 	 * Registers a new intervention 
 	 * @param intervention The description of an intervention
 	 */
-	public void registerIntervention(SecondOrderIntervention intervention) {
+	public void registerIntervention(Intervention intervention) {
+		intervention.setOrder(registeredInterventions.size());
 		registeredInterventions.add(intervention);
 		intervention.addSecondOrderParams(this);
 	}
 	
-	public ArrayList<SecondOrderIntervention> getRegisteredInterventions() {
-		return registeredInterventions;
+	public Intervention[] getRegisteredInterventions() {
+		return (Intervention[]) registeredInterventions.toArray();
 	}
 
 	/**
@@ -240,6 +241,8 @@ public abstract class SecondOrderParamsRepository {
 			param.generate(this);
 		for (Disease dis : registeredDiseases)
 			dis.generate(this);
+		for (Intervention interv : registeredInterventions)
+			interv.generate(this);
 	}
 	/**
 	 * Adds a probability parameter
@@ -426,7 +429,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @return the cost for a complication or complication stage &ltannual cost, cost at incidence&gt; &lt0, 0&gt
 	 * if not defined 
 	 */
-	public double[] getCostsForChronicComplication(Named stage, int id) {
+	public double[] getCostsForManifestation(Manifestation stage, int id) {
 		final double[] costs = new double[2];
 		final SecondOrderParam annualCost = costParams.get(STR_COST_PREFIX + stage.name());
 		final SecondOrderParam transCost = costParams.get(STR_TRANS_PREFIX + stage.name());
@@ -481,17 +484,6 @@ public abstract class SecondOrderParamsRepository {
 
 	private final DeathSubmodel getDeathSubmodel() {
 		return (DeathSubmodel)registeredDeathSubmodel.getInstance(this);
-	}
-	/**
-	 * Returns the interventions to be compared within the simulation
-	 * @return The interventions to be compared within the simulation
-	 */
-	protected Intervention[] getInterventions() {
-		final Intervention[] interventions = new Intervention[registeredInterventions.size()];
-		for (int i = 0; i < registeredInterventions.size(); i++) {
-			interventions[i] = registeredInterventions.get(i).getInstance(i, this);
-		}
-		return interventions;
 	}
 
 	/**

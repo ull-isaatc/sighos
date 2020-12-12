@@ -3,21 +3,18 @@
  */
 package es.ull.iis.simulation.hta.inforeceiver;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 
-import es.ull.iis.simulation.hta.AcuteComplication;
-import es.ull.iis.simulation.hta.ChronicComplication;
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
-import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
+import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.RepositoryInstance;
+import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -31,13 +28,12 @@ import es.ull.iis.simulation.model.TimeUnit;
 public class AnnualCostView implements ExperimentListener {
 	private final int nExperiments;
 	private final SecondOrderParamsRepository secParams;
-	private final ArrayList<SecondOrderIntervention> interventions;
+	private final Intervention[] interventions;
 	private final int nPatients;
 	private final Discount discount;
 	private final int minAge;
 	private final int maxAge;
-	private final double[][][] chronicCost;
-	private final double[][][] acuteCost;
+	private final double[][][] diseaseCost;
 	private final double[][] interventionCost;
 	private final double[][] managementCost;
 	
@@ -48,21 +44,19 @@ public class AnnualCostView implements ExperimentListener {
 		this.nExperiments = nExperiments;
 		this.secParams = secParams;
 		this.interventions = secParams.getRegisteredInterventions();
-		final int nInterventions = interventions.size();
+		final int nInterventions = interventions.length;
 		this.discount = discount;
 		this.nPatients = secParams.getnPatients();
 		this.minAge = secParams.getMinAge();
 		this.maxAge = BasicConfigParams.DEF_MAX_AGE;
-		chronicCost = new double[nInterventions][ChronicComplication.values().length][maxAge-minAge+1];
-		acuteCost = new double[nInterventions][AcuteComplication.values().length][maxAge-minAge+1];
+		diseaseCost = new double[nInterventions][secParams.getRegisteredDiseases().length][maxAge-minAge+1];
 		interventionCost = new double[nInterventions][maxAge-minAge+1];
 		managementCost = new double[nInterventions][maxAge-minAge+1];
 	}
 
 	@Override
 	public void addListener(DiseaseProgressionSimulation simul) {
-		final RepositoryInstance common = simul.getCommonParams();
-		final CostCalculator calc = secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getDiseases(), common.getAcuteCompSubmodels());
+		final CostCalculator calc = secParams.getCostCalculator(simul.getIdentifier());
 		simul.addInfoReceiver(new InnerListenerInstance(calc));
 	}
 	
@@ -70,26 +64,20 @@ public class AnnualCostView implements ExperimentListener {
 	public String toString() {
 		final StringBuilder str = new StringBuilder("Breakdown of costs");
 		str.append(System.lineSeparator()).append("Year");
-		for (int i = 0; i < interventions.size(); i++) {
-			final String name = interventions.get(i).getShortName();
+		for (int i = 0; i < interventions.length; i++) {
+			final String name = interventions[i].getShortName();
 			str.append("\t").append(name).append("-I\t" + name + "-M");
-			for (ChronicComplication comp : ChronicComplication.values()) {
-				str.append("\t" + name + "-").append(comp);
-			}
-			for (AcuteComplication comp : AcuteComplication.values()) {
-				str.append("\t" + name + "-").append(comp);			
+			for (Disease disease : secParams.getRegisteredDiseases()) {
+				str.append("\t" + name + "-").append(disease);
 			}
 		}
 		for (int year = 0; year < maxAge-minAge+1; year++) {
 			str.append(System.lineSeparator()).append(year);
-			for (int i = 0; i < interventions.size(); i++) {
+			for (int i = 0; i < interventions.length; i++) {
 				str.append("\t").append(String.format(Locale.US, "%.2f", interventionCost[i][year] /nExperiments));
 				str.append("\t").append(String.format(Locale.US, "%.2f", managementCost[i][year] /nExperiments));
-				for (int k = 0; k < ChronicComplication.values().length; k++) {
-					str.append("\t").append(String.format(Locale.US, "%.2f", chronicCost[i][k][year] / nExperiments));
-				}
-				for (int k = 0; k < AcuteComplication.values().length; k++) {
-					str.append("\t").append(String.format(Locale.US, "%.2f", acuteCost[i][k][year] / nExperiments));
+				for (int k = 0; k < secParams.getRegisteredDiseases().length; k++) {
+					str.append("\t").append(String.format(Locale.US, "%.2f", diseaseCost[i][k][year] / nExperiments));
 				}
 			}
 		}
@@ -103,8 +91,7 @@ public class AnnualCostView implements ExperimentListener {
 	 *
 	 */
 	public class InnerListenerInstance extends Listener implements InnerListener {
-		private final double[][] chronicCost;
-		private final double[][] acuteCost;
+		private final double[][] diseaseCost;
 		private final double[] interventionCost;
 		private final double[] managementCost;
 		private final double[]lastAge;
@@ -122,8 +109,7 @@ public class AnnualCostView implements ExperimentListener {
 			this.calc = calc;
 			this.lastAge = new double[nPatients];
 			Arrays.fill(lastAge, 0.0);
-			chronicCost = new double[ChronicComplication.values().length][maxAge-minAge+1];
-			acuteCost = new double[AcuteComplication.values().length][maxAge-minAge+1];
+			diseaseCost = new double[secParams.getRegisteredDiseases().length][maxAge-minAge+1];
 			interventionCost = new double[maxAge-minAge+1];
 			managementCost = new double[maxAge-minAge+1];
 			addGenerated(PatientInfo.class);
@@ -158,14 +144,9 @@ public class AnnualCostView implements ExperimentListener {
 				final double initAge = lastAge[pat.getIdentifier()]; 
 				final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
 				switch(pInfo.getType()) {
-				case COMPLICATION:
-					chronicCost[pInfo.getManifestation().getDisease().getInternalId()][(int) endAge] += discount.applyPunctualDiscount(calc.getCostOfComplication(pat, pInfo.getManifestation()), endAge);
+				case MANIFESTATION:
+					diseaseCost[pInfo.getManifestation().getDisease().ordinal()][(int) endAge] += discount.applyPunctualDiscount(calc.getCostOfComplication(pat, pInfo.getManifestation()), endAge);
 				case DEATH:
-					// Update outcomes
-					updateAll(pat, initAge, endAge);
-					break;
-				case ACUTE_EVENT:
-					acuteCost[pInfo.getAcuteEvent().getInternalId()][(int) endAge] += discount.applyPunctualDiscount(calc.getCostForAcuteEvent(pat, pInfo.getAcuteEvent()), endAge);
 					// Update outcomes
 					updateAll(pat, initAge, endAge);
 					break;
@@ -181,15 +162,12 @@ public class AnnualCostView implements ExperimentListener {
 		}
 
 		public synchronized void updateExperiment(DiseaseProgressionSimulation simul) {
-			final int interventionId = simul.getIntervention().getIdentifier();
+			final int interventionId = simul.getIntervention().ordinal();
 			for (int i = 0; i < maxAge-minAge+1; i++) {
 				AnnualCostView.this.managementCost[interventionId][i] += managementCost[i] / nPatients;
 				AnnualCostView.this.interventionCost[interventionId][i] += interventionCost[i] / nPatients;
-				for (int j = 0; j < ChronicComplication.values().length; j++) {
-					AnnualCostView.this.chronicCost[interventionId][j][i] += chronicCost[j][i] / nPatients;
-				}
-				for (int j = 0; j < AcuteComplication.values().length; j++) {
-					AnnualCostView.this.acuteCost[interventionId][j][i] += acuteCost[j][i] / nPatients;
+				for (int j = 0; j < secParams.getRegisteredDiseases().length; j++) {
+					AnnualCostView.this.diseaseCost[interventionId][j][i] += diseaseCost[j][i] / nPatients;
 				}
 			}			
 		}
@@ -197,10 +175,9 @@ public class AnnualCostView implements ExperimentListener {
 			if (endAge > initAge) {
 				update(interventionCost, calc.getAnnualInterventionCostWithinPeriod(pat, initAge, endAge), initAge, endAge);
 				update(managementCost, calc.getStdManagementCostWithinPeriod(pat, initAge, endAge), initAge, endAge);
-				final double[] complicationPeriodCost = calc.getAnnualManifestationCostWithinPeriod(pat, initAge, endAge);
-				for (int i = 0; i < ChronicComplication.values().length; i++) {
-					update(chronicCost[i], complicationPeriodCost[i], initAge, endAge);
-				}
+				// Assuming each patient may have at most one disease
+				if (!pat.isHealthy())
+					update(diseaseCost[pat.getDisease().ordinal()], calc.getAnnualDiseaseCostWithinPeriod(pat, initAge, endAge), initAge, endAge);
 			}
 		}
 		

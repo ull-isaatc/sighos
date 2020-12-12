@@ -25,7 +25,7 @@ public class InterventionSpecificComplicationRR implements RRCalculator {
 
 	@Override
 	public double getRR(Patient pat) {
-		return pat.isEffectActive() ? rr[pat.getnIntervention()] : rr[0];
+		return rr[pat.getnIntervention()];
 	}
 
 }

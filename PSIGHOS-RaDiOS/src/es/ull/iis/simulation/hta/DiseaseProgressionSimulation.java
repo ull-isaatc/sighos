@@ -3,7 +3,7 @@
  */
 package es.ull.iis.simulation.hta;
 
-import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention.Intervention;
+import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.Simulation;

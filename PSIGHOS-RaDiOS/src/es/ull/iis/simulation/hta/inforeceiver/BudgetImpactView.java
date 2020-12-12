@@ -3,17 +3,15 @@
  */
 package es.ull.iis.simulation.hta.inforeceiver;
 
-import java.util.ArrayList;
 import java.util.Locale;
 
 import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
-import es.ull.iis.simulation.hta.interventions.SecondOrderIntervention;
+import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository.RepositoryInstance;
 import es.ull.iis.simulation.info.SimulationInfo;
 import es.ull.iis.simulation.info.SimulationStartStopInfo;
 import es.ull.iis.simulation.inforeceiver.Listener;
@@ -28,24 +26,22 @@ public class BudgetImpactView implements ExperimentListener {
 	private final int nYears;
 	private final SecondOrderParamsRepository secParams;
 	private final double[][] cost;
-	private final ArrayList<SecondOrderIntervention> interventions;
+	private final Intervention[] interventions;
 
 	/**
 	 * 
 	 */
 	public BudgetImpactView(SecondOrderParamsRepository secParams, int nYears) {
 		this.interventions = secParams.getRegisteredInterventions();
-		final int nInterventions = interventions.size();
 		this.nPatients = secParams.getnPatients();
 		this.secParams = secParams;
 		this.nYears = nYears;
-		this.cost = new double[nInterventions][nYears+1];
+		this.cost = new double[interventions.length][nYears+1];
 	}
 
 	@Override
 	public void addListener(DiseaseProgressionSimulation simul) {
-		final RepositoryInstance common = simul.getCommonParams();
-		final CostCalculator calc = secParams.getCostCalculator(common.getAnnualNoComplicationCost(), common.getDiseases(), common.getAcuteCompSubmodels());
+		final CostCalculator calc = secParams.getCostCalculator(simul.getIdentifier());
 		simul.addInfoReceiver(new InnerInstanceView(calc));
 	}
 
@@ -53,13 +49,13 @@ public class BudgetImpactView implements ExperimentListener {
 	public String toString() {
 		final StringBuilder str = new StringBuilder("Annual costs (for computing budget impact)");
 		str.append(System.lineSeparator()).append("Year");
-		for (int i = 0; i < interventions.size(); i++) {
-			str.append("\t").append(interventions.get(i).getShortName());
+		for (int i = 0; i < interventions.length; i++) {
+			str.append("\t").append(interventions[i].getShortName());
 		}
 		str.append(System.lineSeparator());
 		for (int year = 0; year < nYears; year++) {
 			str.append(year);
-			for (int i = 0; i < interventions.size(); i++) {
+			for (int i = 0; i < interventions.length; i++) {
 				str.append("\t").append(String.format(Locale.US, "%.2f", cost[i][year]));			
 			}
 			str.append(System.lineSeparator());
@@ -132,17 +128,9 @@ public class BudgetImpactView implements ExperimentListener {
 						final Patient pat = pInfo.getPatient();
 						final double initAge = lastAge[pat.getIdentifier()]; 
 						switch(pInfo.getType()) {
-						case COMPLICATION:
+						case MANIFESTATION:
 							update(calc.getCostOfComplication(pat, pInfo.getManifestation()), endAge);
 						case DEATH:
-							// Update outcomes
-							if (endAge > initAge) {
-								final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
-								update(pat, periodCost, initAge, endAge);
-							}
-							break;
-						case ACUTE_EVENT:
-							update(calc.getCostForAcuteEvent(pat, pInfo.getAcuteEvent()), endAge);
 							// Update outcomes
 							if (endAge > initAge) {
 								final double periodCost = calc.getAnnualCostWithinPeriod(pat, initAge, endAge);
@@ -189,7 +177,7 @@ public class BudgetImpactView implements ExperimentListener {
 
 		@Override
 		public void updateExperiment(DiseaseProgressionSimulation simul) {			
-			final int interventionId = simul.getIntervention().getIdentifier();
+			final int interventionId = simul.getIntervention().ordinal();
 			for (int year = 0; year < cost.length; year++) {
 				BudgetImpactView.this.cost[interventionId][year] = cost[year] / nPatients;
 			}
