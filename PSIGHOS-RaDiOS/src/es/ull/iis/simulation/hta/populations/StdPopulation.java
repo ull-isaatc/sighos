@@ -53,6 +53,10 @@ public abstract class StdPopulation implements Population {
 		return BasicConfigParams.DEF_MAX_AGE;
 	}
 	
+	@Override
+	public Disease getDisease() {
+		return disease;
+	}
 	/**
 	 * Creates and returns the probability of being a man according to the population characteristics.
 	 * @return the probability of being a man according to the population characteristics
@@ -64,9 +68,4 @@ public abstract class StdPopulation implements Population {
 	 */
 	protected abstract RandomVariate getBaselineAge();
 	
-	/**
-	 * Creates and returns the probability of having a disease according to the population characteristics.
-	 * @return the probability of having a disease according to the population characteristics
-	 */
-	protected abstract double getPDisease();
 }

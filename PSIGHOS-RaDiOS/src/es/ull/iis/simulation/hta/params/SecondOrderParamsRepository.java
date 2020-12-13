@@ -93,18 +93,16 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	// TODO: Change by scenarios: each parameter could be defined according to an scenario. This woulud require adding a factory to secondOrderParams and allowing a user to add several parameter settings
 	/** Number of patients that should be generated */
 	final protected int nPatients;
-	/** The population */
-	final private Population population;
+	/** The registeredPopulation */
+	private Population registeredPopulation = null;
 	/** The number of simulations to run by using this repository */
 	final private int nRuns;
 	
 	/**
 	 * Creates a repository of second order parameters. By default, generates the base case values.
 	 * @param nPatients Number of patients to create
-	 * @param population The population used within this repository
 	 */
-	protected SecondOrderParamsRepository(final int nRuns, final int nPatients, final Population population) {
-		this.population = population;
+	protected SecondOrderParamsRepository(final int nRuns, final int nPatients) {
 		this.probabilityParams = new TreeMap<>();
 		this.costParams = new TreeMap<>();
 		this.otherParams = new TreeMap<>();
@@ -133,6 +131,13 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 		return (str.length() > 0) ? str.toString() : null;
 	}
 	
+	public boolean registerPopulation(Population population) {
+		if (registeredPopulation != null)
+			return false;
+		this.registeredPopulation = population;
+		registeredPopulation.registerSecondOrderParameters();
+		return true;
+	}
 	/**
 	 * Registers a new disease and its manifestations
 	 * @param disease Disease
@@ -208,11 +213,11 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	}
 
 	/**
-	 * Returns the minimum age for patients within this repository, which is the minimum age of the population
+	 * Returns the minimum age for patients within this repository, which is the minimum age of the registeredPopulation
 	 * @return the minimum age for patients within this repository
 	 */
 	public int getMinAge() {
-		return population.getMinAge();
+		return registeredPopulation.getMinAge();
 	}
 
 	/**
@@ -224,7 +229,7 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	}
 
 	public Population getPopulation() {
-		return population;
+		return registeredPopulation;
 	}
 
 	/**

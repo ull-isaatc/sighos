@@ -13,7 +13,7 @@ import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinatio
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.populations.Population;
+import es.ull.iis.simulation.hta.progression.Disease;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -28,11 +28,13 @@ public class SimpleRareDiseaseRepository extends SecondOrderParamsRepository {
 	 * @param nPatients
 	 * @param population
 	 */
-	public SimpleRareDiseaseRepository(int nRuns, int nPatients, Population population) {
-		super(nRuns, nPatients, population);
+	public SimpleRareDiseaseRepository(int nRuns, int nPatients) {
+		super(nRuns, nPatients);
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
-		registerDisease(new TestRareDisease1(this));
+		final Disease testDisease = new TestRareDisease1(this);
+		registerPopulation(new TestPopulation(testDisease));
+		registerDisease(testDisease);
 		registerIntervention(new NullIntervention(this));
 		registerIntervention(new EffectiveIntervention(this));
 	}
