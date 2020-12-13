@@ -5,7 +5,7 @@ package es.ull.iis.simulation.hta.progression;
 
 import java.util.ArrayList;
 
-import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
+import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.ReseteableParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -16,7 +16,7 @@ import es.ull.iis.simulation.hta.params.TimeToEventParam;
  * @author Iván Castilla
  *
  */
-public abstract class Transition implements Comparable<Transition>, GenerateSecondOrderInstances {
+public abstract class Transition implements Comparable<Transition>, GeneratesSecondOrderInstances {
 	private static Manifestation NULL_MANIFESTATION = new Manifestation(null, "NONE", "No manifestations", null, null) {
 
 		@Override
@@ -62,6 +62,11 @@ public abstract class Transition implements Comparable<Transition>, GenerateSeco
 		return destManifestation;
 	}
 
+	/**
+	 * Creates a parameter to compute the time to event for each second order instance of the transition
+	 * @param id Identifier of the simulation
+	 * @return a parameter to compute the time to event for each second order instance of the transition
+	 */
 	protected abstract TimeToEventParam getTimeToEventParam(int id);
 	
 	@Override

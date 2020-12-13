@@ -41,7 +41,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		if (printFirstOrderVariance) {
 			for (Intervention inter : interventions) {
 				for (Manifestation comp : availableHealthStates) {
-					final String suf = comp.name() + "_" + inter.getShortName() + "\t";
+					final String suf = comp.name() + "_" + inter.name() + "\t";
 					str.append("AVG_TIME_TO_").append(suf).append("\tL95CI_TIME_TO_").append(suf).append("\tU95CI_TIME_TO_").append(suf);
 				}			
 			}
@@ -49,7 +49,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		else {
 			for (Intervention inter : interventions) {
 				for (Manifestation comp : availableHealthStates) {
-					str.append("AVG_TIME_TO_").append(comp.name()).append("_").append(inter.getShortName()).append("\t");
+					str.append("AVG_TIME_TO_").append(comp.name()).append("_").append(inter.name()).append("\t");
 				}
 			}
 		}

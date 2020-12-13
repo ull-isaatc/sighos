@@ -41,7 +41,7 @@ public class BudgetImpactView implements ExperimentListener {
 
 	@Override
 	public void addListener(DiseaseProgressionSimulation simul) {
-		final CostCalculator calc = secParams.getCostCalculator(simul.getIdentifier());
+		final CostCalculator calc = secParams.getCostCalculator();
 		simul.addInfoReceiver(new InnerInstanceView(calc));
 	}
 
@@ -50,7 +50,7 @@ public class BudgetImpactView implements ExperimentListener {
 		final StringBuilder str = new StringBuilder("Annual costs (for computing budget impact)");
 		str.append(System.lineSeparator()).append("Year");
 		for (int i = 0; i < interventions.length; i++) {
-			str.append("\t").append(interventions[i].getShortName());
+			str.append("\t").append(interventions[i].name());
 		}
 		str.append(System.lineSeparator());
 		for (int year = 0; year < nYears; year++) {

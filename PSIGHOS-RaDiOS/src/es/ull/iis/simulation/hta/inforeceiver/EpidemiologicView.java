@@ -119,7 +119,7 @@ public class EpidemiologicView implements ExperimentListener {
 		final StringBuilder str = new StringBuilder(type.getDescription()).append(absolute ? " ABS" : " REL").append(byAge ? " AGE" : "");
 		str.append(System.lineSeparator()).append(byAge ? "AGE" : "YEAR");
 		for (int i = 0; i < interventions.length; i++) {
-			final String name = interventions[i].getShortName();
+			final String name = interventions[i].name();
 			if (byAge)
 				str.append("\t" + name + "_N");
 			str.append("\t" + name + "_DEATH");

@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.params;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
+import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -45,7 +45,7 @@ import simkit.random.RandomVariateFactory;
  * el tiempo hasta evento en caso de un nuevo factor de riesgo. ¿debería reescalar de alguna manera el tiempo hasta evento en estos casos (¿proporcional al RR?)?
  * @author Iván Castilla Rodríguez
  */
-public abstract class SecondOrderParamsRepository implements GenerateSecondOrderInstances {
+public abstract class SecondOrderParamsRepository implements GeneratesSecondOrderInstances {
 	// Strings to define standard parameters
 	/** String prefix for probability parameters */
 	public static final String STR_PROBABILITY_PREFIX = "P_";
@@ -262,6 +262,19 @@ public abstract class SecondOrderParamsRepository implements GenerateSecondOrder
 		probabilityParams.put(param.getName(), param);
 	}
 	
+	public void addProbParam(Named manifestation, String source, double detValue, RandomVariate rnd) {
+		addProbParam(new SecondOrderParam(this, getProbString(manifestation), "Probability of developing " + manifestation, source, detValue, rnd));
+	}
+	
+	public void addProbParam(Named fromManifestation, Named toManifestation, String source, double detValue, RandomVariate rnd) {
+		addProbParam(new SecondOrderParam(this, getProbString(fromManifestation, toManifestation), "Probability of going from " + fromManifestation + " to " + toManifestation, source, detValue, rnd));
+	}
+	
+	public void addInitProbParam(Named manifestation, String source, double detValue, RandomVariate rnd) {
+		final String name = getInitProbString(manifestation);
+		probabilityParams.put(name, new SecondOrderParam(this, name, "Probability of starting with " + manifestation, source, detValue, rnd));
+	}
+	
 	/**
 	 * Adds a cost parameter
 	 * @param param Cost parameter
@@ -302,7 +315,7 @@ public abstract class SecondOrderParamsRepository implements GenerateSecondOrder
 	 * Adds a utility or disutility parameter
 	 * @param param Utility parameter
 	 */
-	public void addUtilParam(SecondOrderParam param) {
+	public void addUtilityParam(SecondOrderParam param) {
 		utilParams.put(param.getName(), param);
 	}
 
@@ -316,7 +329,7 @@ public abstract class SecondOrderParamsRepository implements GenerateSecondOrder
 	 */
 	public void addUtilityParam(Named stage, String description, String source, double detValue, RandomVariate rnd) {
 		final String paramName = STR_UTILITY_PREFIX + stage.name();
-		addUtilParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
+		addUtilityParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
 	}
 
 	/**
@@ -329,7 +342,7 @@ public abstract class SecondOrderParamsRepository implements GenerateSecondOrder
 	 */
 	public void addDisutilityParam(Named stage, String description, String source, double detValue, RandomVariate rnd) {
 		final String paramName = STR_DISUTILITY_PREFIX + stage.name();
-		addUtilParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
+		addUtilityParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
 	}
 
 	/**
@@ -495,18 +508,25 @@ public abstract class SecondOrderParamsRepository implements GenerateSecondOrder
 
 	/**
 	 * Returns the class that computes costs 
-	 * @param id Identifier of the simulation, in case different cost calculators are used for different simulations
 	 * @return the class that computes costs 
 	 */
-	public abstract CostCalculator getCostCalculator(int id);
+	public abstract CostCalculator getCostCalculator();
 	
 	/**
 	 * Returns the class that computes utilities 
-	 * @param id Identifier of the simulation, in case different utility calculators are used for different simulations
 	 * @return the class that computes utilities 
 	 */
-	public abstract UtilityCalculator getUtilityCalculator(int id);
+	public abstract UtilityCalculator getUtilityCalculator();
 	
+	
+	/**
+	 * Builds a string that represents a probability of developing a complication from none manifestations
+	 * @param to Final complication
+	 * @return a string that represents a probability of developing a complication from none manifestations
+	 */
+	public static String getProbString(Named to) {
+		return getProbString(null, to);
+	}
 	
 	/**
 	 * Builds a string that represents a probability of developing a complication from another

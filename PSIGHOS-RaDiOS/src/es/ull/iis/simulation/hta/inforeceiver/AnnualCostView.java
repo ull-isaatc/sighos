@@ -56,7 +56,7 @@ public class AnnualCostView implements ExperimentListener {
 
 	@Override
 	public void addListener(DiseaseProgressionSimulation simul) {
-		final CostCalculator calc = secParams.getCostCalculator(simul.getIdentifier());
+		final CostCalculator calc = secParams.getCostCalculator();
 		simul.addInfoReceiver(new InnerListenerInstance(calc));
 	}
 	
@@ -65,7 +65,7 @@ public class AnnualCostView implements ExperimentListener {
 		final StringBuilder str = new StringBuilder("Breakdown of costs");
 		str.append(System.lineSeparator()).append("Year");
 		for (int i = 0; i < interventions.length; i++) {
-			final String name = interventions[i].getShortName();
+			final String name = interventions[i].name();
 			str.append("\t").append(name).append("-I\t" + name + "-M");
 			for (Disease disease : secParams.getRegisteredDiseases()) {
 				str.append("\t" + name + "-").append(disease);

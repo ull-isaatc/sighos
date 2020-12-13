@@ -190,7 +190,7 @@ public class DiseaseMain {
 		final StringBuilder str = new StringBuilder();
 		str.append("SIM\t");
 		for (int i = 0; i < interventions.length; i++) {
-			final String shortName = interventions[i].getShortName();
+			final String shortName = interventions[i].name();
 			str.append(CostListener.getStrHeader(shortName));
 			str.append(LYListener.getStrHeader(shortName));
 			str.append(QALYListener.getStrHeader(shortName));
@@ -225,9 +225,9 @@ public class DiseaseMain {
 		final QALYListener[] qalyListeners = new QALYListener[nInterventions];
 
 		for (int i = 0; i < nInterventions; i++) {
-			costListeners[i] = new CostListener(secParams.getCostCalculator(id), discountCost, nPatients);
+			costListeners[i] = new CostListener(secParams.getCostCalculator(), discountCost, nPatients);
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
-			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(id), discountEffect, nPatients);
+			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(), discountEffect, nPatients);
 		}
 		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, interventions[0], nPatients, secParams, timeHorizon);
 		simul.addInfoReceiver(costListeners[0]);
@@ -270,7 +270,7 @@ public class DiseaseMain {
 		if (printOutputs.contains(Outputs.INDIVIDUAL_OUTCOMES)) {
 			System.out.print("Patient");
 			for (int i = 0; i < nInterventions; i++) {
-				final String shortName = interventions[i].getShortName();
+				final String shortName = interventions[i].name();
 				System.out.print("\tCost_" + shortName + "\tLE_" + shortName + "\tQALE_" + shortName);
 			}
 			System.out.println();

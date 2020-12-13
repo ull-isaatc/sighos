@@ -55,7 +55,7 @@ public class IncidenceByGroupAgeView implements ExperimentListener {
 		final StringBuilder str = cummulative ? new StringBuilder("Cummulated incidence") : new StringBuilder("Incidence");
 		str.append(System.lineSeparator()).append("AGE");
 		for (int i = 0; i < interventions.length; i++) {
-			final String name = interventions[i].getShortName();
+			final String name = interventions[i].name();
 			str.append("\t" + name + "_N").append("\t" + name + "_DEATH");
 			for (Manifestation comp : secParams.getRegisteredManifestations()) {
 				str.append("\t" + name + "_").append(comp.name());

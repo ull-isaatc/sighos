@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.progression;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
-import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
+import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
@@ -19,7 +19,7 @@ import es.ull.iis.simulation.model.Describable;
  * A disease defines the progression of a patient. Includes several manifestations and defines how such manifestations are related to each other. 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Disease implements Named, Describable, GenerateSecondOrderInstances, CreatesSecondOrderParameters, Comparable<Disease> {
+public abstract class Disease implements Named, Describable, GeneratesSecondOrderInstances, CreatesSecondOrderParameters, Comparable<Disease> {
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the

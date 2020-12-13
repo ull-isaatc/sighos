@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.progression;
 import java.util.ArrayList;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
-import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
+import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.DeathWithEventParam;
@@ -20,7 +20,7 @@ import es.ull.iis.simulation.model.Describable;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Manifestation implements Named, Describable, Comparable<Manifestation>, GenerateSecondOrderInstances, CreatesSecondOrderParameters {
+public abstract class Manifestation implements Named, Describable, Comparable<Manifestation>, GeneratesSecondOrderInstances, CreatesSecondOrderParameters {
 	public enum Type {
 		ACUTE,
 		CHRONIC

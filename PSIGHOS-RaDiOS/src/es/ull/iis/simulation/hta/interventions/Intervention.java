@@ -4,7 +4,8 @@
 package es.ull.iis.simulation.hta.interventions;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
-import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
+import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
+import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.Describable;
@@ -15,9 +16,9 @@ import es.ull.iis.simulation.model.Describable;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Intervention implements Describable, GenerateSecondOrderInstances, CreatesSecondOrderParameters, Comparable<Intervention> {
+public abstract class Intervention implements Named, Describable, GeneratesSecondOrderInstances, CreatesSecondOrderParameters, Comparable<Intervention> {
 	/** A short name for the intervention */
-	final private String shortName;
+	final private String name;
 	/** A full description of the intervention */
 	final private String description;
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
@@ -28,12 +29,12 @@ public abstract class Intervention implements Describable, GenerateSecondOrderIn
 
 	/**
 	 * Creates a second order characterization of an intervention
-	 * @param shortName Short name
+	 * @param name Short name
 	 * @param description Full description
 	 */
-	public Intervention(final SecondOrderParamsRepository secParams, final String shortName, final String description) {
+	public Intervention(final SecondOrderParamsRepository secParams, final String name, final String description) {
 		this.secParams = secParams;
-		this.shortName = shortName;
+		this.name = name;
 		this.description = description;
 	}
 
@@ -46,17 +47,11 @@ public abstract class Intervention implements Describable, GenerateSecondOrderIn
 	 * Returns a short name for the intervention 
 	 * @return A short name for the intervention 
 	 */
-	public String getShortName() {
-		return shortName;
+	@Override
+	public String name() {
+		return name;
 	}
 
-	/**
-	 * Returns the HbA1c level of a patient at a specific timestamp
-	 * @param pat A patient
-	 * @return the HbA1c level of a patient at a specific timestamp
-	 */
-	public abstract double getHBA1cLevel(Patient pat);
-	
 	/**
 	 * Returns the annual cost of this intervention
 	 * @param pat A patient
@@ -99,4 +94,8 @@ public abstract class Intervention implements Describable, GenerateSecondOrderIn
 		return 0;
 	}
 	
+	@Override
+	public String toString() {
+		return name;
+	}
 }
