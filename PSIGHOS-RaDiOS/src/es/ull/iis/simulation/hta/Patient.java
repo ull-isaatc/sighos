@@ -249,7 +249,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	
 	private void readjustDeath(Manifestation manif) {
 		// Recompute time to death in case the risk increases
-		final long newTimeToDeath = commonParams.getTimeToDeath(this);
+		final long newTimeToDeath = ((DiseaseProgressionSimulation) simul).getCommonParams().getTimeToDeath(this);
 		if (newTimeToDeath < deathEvent.getTs()) {
 			deathEvent.cancel();
 			deathEvent = new DeathEvent(newTimeToDeath, manif);
@@ -292,7 +292,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 
 			// Assign death event
 			// TODO: Pensar si incorporar aquí la reducción de la esperanza de vida (se haría dentro de SecnodOrderParamRepository) 
-			final long timeToDeath = commonParams.getTimeToDeath(Patient.this);
+			final long timeToDeath = ((DiseaseProgressionSimulation) simul).getCommonParams().getTimeToDeath(Patient.this);
 			deathEvent = new DeathEvent(timeToDeath);
 			simul.addEvent(deathEvent);
 			

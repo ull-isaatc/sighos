@@ -208,7 +208,7 @@ public class DiseaseMain {
 			str.append(lyListeners[i]);
 			str.append(qalyListeners[i]);
 		}
-		str.append(timeFreeListener).append(secParams);
+		str.append(timeFreeListener).append(secParams.print(simul.getIdentifier()));
 		return str.toString();
 	}
 

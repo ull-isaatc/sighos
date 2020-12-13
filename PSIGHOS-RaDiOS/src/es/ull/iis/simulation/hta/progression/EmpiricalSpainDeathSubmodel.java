@@ -17,7 +17,7 @@ import simkit.random.RandomNumber;
  * @author Iván Castilla Rodríguez
  *
  */
-public class EmpiricalSpainDeathSubmodel extends SecondOrderDeathSubmodel {
+public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {
 	/** Survival for men and women, in inverse order (the first value is the survival at 100 years old). Survival is computed by
 	 * iteratively applying the mortality risk from the INE table to a hypotethical population of 10000 individuals */
 	private static double[][] INV_SURVIVAL = {
@@ -48,6 +48,9 @@ public class EmpiricalSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 			9967.412568, 9968.080336, 9968.782728, 9969.269052, 9970.169551, 9970.679322, 9971.541386, 9972.15983, 
 			9972.854337, 9973.472054, 9974.237409, 9976.293046, 10000}
 	}; 
+	private final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
+	/** A random value [0, 1] for each patient (useful for common numbers techniques) and simulation */
+	private final double[][] rnd;
 
 	/**
 	 * Creates a death submodel based on the Spanish 2016 Mortality risk
@@ -55,61 +58,46 @@ public class EmpiricalSpainDeathSubmodel extends SecondOrderDeathSubmodel {
 	 * @param nPatients Number of simulated patients
 	 */
 	public EmpiricalSpainDeathSubmodel(SecondOrderParamsRepository secParams) {
-		super();
+		super(secParams);
+		rnd = new double[secParams.getnRuns()][secParams.getnPatients()];
 	}
 
 	@Override
-	public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
+	public void addSecondOrderParams() {
 	}
-
 
 	@Override
-	public DeathSubmodel getInstance(SecondOrderParamsRepository secParams) {
-		return isEnabled() ? new Instance(secParams) : new DisabledDeathInstance(this);
+	public void generate(SecondOrderParamsRepository secParams) {
+		for (int i = 0; i < secParams.getnRuns(); i++)
+			for (int j = 0; j < secParams.getnPatients(); j++) {
+				rnd[i][j] = rng.draw();
+			}
 	}
-
-	public class Instance extends DeathSubmodel {
-		/** A random value [0, 1] for each patient (useful for common numbers techniques) */
-		private final double[] rnd;
-		private final SecondOrderParamsRepository secParams;
-		
-		public Instance(SecondOrderParamsRepository secParams) {
-			super(EmpiricalSpainDeathSubmodel.this);
-			this.secParams = secParams;
-			final int nPatients = secParams.getnPatients();
-			final RandomNumber rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
-			rnd = new double[nPatients];
-			for (int i = 0; i < nPatients; i++) {
-				rnd[i] = rng.draw();
+	
+	/**
+	 * Returns the simulation time until the death of the patient, according to the Spanish mortality tables and increased according to the 
+	 * state of the patient. 
+	 * @param pat A patient
+	 * @return Simulation time to death of the patient or to MAX_AGE 
+	 */
+	@Override
+	public long getTimeToDeath(Patient pat) {
+		double imr = 1.0;
+		for (final Manifestation state : pat.getDetailedState()) {
+			final double newIMR = secParams.getIMR(state, pat.getSimulation().getIdentifier());
+			if (newIMR > imr) {
+				imr = newIMR;
 			}
 		}
+		final double age = pat.getAge();
+		final int sex = pat.getSex();
+		final double rnd = this.rnd[pat.getSimulation().getIdentifier()][pat.getIdentifier()];
 		
-		/**
-		 * Returns the simulation time until the death of the patient, according to the Spanish mortality tables and increased according to the 
-		 * state of the patient. 
-		 * @param pat A patient
-		 * @return Simulation time to death of the patient or to MAX_AGE 
-		 */
-		@Override
-		public long getTimeToDeath(Patient pat) {
-			double imr = 1.0;
-			for (final Manifestation state : pat.getDetailedState()) {
-				final double newIMR = secParams.getIMR(state, pat.getSimulation().getIdentifier());
-				if (newIMR > imr) {
-					imr = newIMR;
-				}
-			}
-			final double age = pat.getAge();
-			final int sex = pat.getSex();
-			final double rnd = this.rnd[pat.getIdentifier()];
-			
-			final double reference = INV_SURVIVAL[sex][100 - (int)age];
-			final double index = rnd * reference / imr;
-			final int ageToDeath = 101 - Math.abs(Arrays.binarySearch(INV_SURVIVAL[sex], index));
-			final double time = Math.min((ageToDeath > age) ? ageToDeath - age + rnd : rnd, BasicConfigParams.DEF_MAX_AGE - age);
+		final double reference = INV_SURVIVAL[sex][100 - (int)age];
+		final double index = rnd * reference / imr;
+		final int ageToDeath = 101 - Math.abs(Arrays.binarySearch(INV_SURVIVAL[sex], index));
+		final double time = Math.min((ageToDeath > age) ? ageToDeath - age + rnd : rnd, BasicConfigParams.DEF_MAX_AGE - age);
 
-			return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
-		}
-		
+		return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
 	}
 }

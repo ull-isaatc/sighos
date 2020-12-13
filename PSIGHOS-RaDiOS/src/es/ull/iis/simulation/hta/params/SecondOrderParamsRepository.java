@@ -5,9 +5,7 @@ package es.ull.iis.simulation.hta.params;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
-import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -16,10 +14,7 @@ import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.DeathSubmodel;
 import es.ull.iis.simulation.hta.progression.Disease;
-import es.ull.iis.simulation.hta.progression.DiseaseProgression;
-import es.ull.iis.simulation.hta.progression.DiseaseProgressionPair;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.progression.SecondOrderDeathSubmodel;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
@@ -91,7 +86,7 @@ public abstract class SecondOrderParamsRepository {
 	final protected ArrayList<Disease> registeredDiseases;
 
 	/** The death submodel to be used */
-	protected SecondOrderDeathSubmodel registeredDeathSubmodel = null;
+	protected DeathSubmodel registeredDeathSubmodel = null;
 	/** The collection of interventions */
 	final protected ArrayList<Intervention> registeredInterventions;
 	// TODO: Change by scenarios: each parameter could be defined according to an scenario. This woulud require adding a factory to secondOrderParams and allowing a user to add several parameter settings
@@ -186,7 +181,7 @@ public abstract class SecondOrderParamsRepository {
 	 * @param deathSubmodel Death submodel to be used
 	 * @return false if there was an already registered death submodel; true otherwise
 	 */
-	public boolean registerDeathSubmodel(SecondOrderDeathSubmodel deathSubmodel) {
+	public boolean registerDeathSubmodel(DeathSubmodel deathSubmodel) {
 		if (registeredDeathSubmodel != null)
 			return false;
 		registeredDeathSubmodel = deathSubmodel;
@@ -197,9 +192,18 @@ public abstract class SecondOrderParamsRepository {
 	 * Returns the registered death submodel; null if no submodel was registered
 	 * @return the registered death submodel; null if no submodel was registered
 	 */
-	public SecondOrderDeathSubmodel getRegisteredDeathSubmodel() {
+	public DeathSubmodel getRegisteredDeathSubmodel() {
 		return registeredDeathSubmodel;
 	}
+
+	/**
+	 * Returns the number of patients that will be generated during the simulation
+	 * @return the number of patients that will be generated during the simulation
+	 */
+	public int getnPatients() {
+		return nPatients;
+	}
+
 	/**
 	 * Returns the minimum age for patients within this repository, which is the minimum age of the population
 	 * @return the minimum age for patients within this repository
@@ -243,7 +247,9 @@ public abstract class SecondOrderParamsRepository {
 			dis.generate(this);
 		for (Intervention interv : registeredInterventions)
 			interv.generate(this);
+		registeredDeathSubmodel.generate(this);
 	}
+	
 	/**
 	 * Adds a probability parameter
 	 * @param param Probability parameter
@@ -459,6 +465,15 @@ public abstract class SecondOrderParamsRepository {
 	}
 	
 	/**
+	 * Returns the time to death of the specified patient
+	 * @param pat A patient
+	 * @return the time to death of the specified patient
+	 */
+	public long getTimeToDeath(Patient pat) {
+		return registeredDeathSubmodel.getTimeToDeath(pat);
+	}
+	
+	/**
 	 * Returns the random number generator for first order uncertainty
 	 * @return the random number generator for first order uncertainty
 	 */
@@ -472,18 +487,6 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public static void setRNG_FIRST_ORDER(RandomNumber rngFirstOrder) {
 		RNG_FIRST_ORDER = rngFirstOrder;
-	}
-
-	/**
-	 * Returns the number of patients that will be generated during the simulation
-	 * @return the number of patients that will be generated during the simulation
-	 */
-	public int getnPatients() {
-		return nPatients;
-	}
-
-	private final DeathSubmodel getDeathSubmodel() {
-		return (DeathSubmodel)registeredDeathSubmodel.getInstance(this);
 	}
 
 	/**
@@ -604,17 +607,16 @@ public abstract class SecondOrderParamsRepository {
 		return str.toString();
 	}
 	
-	@Override
-	public String toString() {
+	public String print(int id) {
 		StringBuilder str = new StringBuilder();
 		for (SecondOrderParam param : probabilityParams.values())
-			str.append(param.getLastGeneratedValue()).append("\t");
+			str.append(param.getValue(id)).append("\t");
 		for (SecondOrderParam param : costParams.values())
-			str.append(param.getLastGeneratedValue()).append("\t");
+			str.append(param.getValue(id)).append("\t");
 		for (SecondOrderParam param : utilParams.values())
-			str.append(param.getLastGeneratedValue()).append("\t");
+			str.append(param.getValue(id)).append("\t");
 		for (SecondOrderParam param : otherParams.values())
-			str.append(param.getLastGeneratedValue()).append("\t");
+			str.append(param.getValue(id)).append("\t");
 		return str.toString();
 	}
 

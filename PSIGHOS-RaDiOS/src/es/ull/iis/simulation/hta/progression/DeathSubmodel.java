@@ -3,20 +3,22 @@
  */
 package es.ull.iis.simulation.hta.progression;
 
+import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
 /**
  * A submodel for progression to death.
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class DeathSubmodel {
-	protected final SecondOrderDeathSubmodel secOrder;
+public abstract class DeathSubmodel implements GenerateSecondOrderInstances {
+	protected final SecondOrderParamsRepository secParams;
 	/**
 	 * Creates a submodel for death
 	 */
-	public DeathSubmodel(SecondOrderDeathSubmodel secOrder) {
-		this.secOrder = secOrder;
+	public DeathSubmodel(SecondOrderParamsRepository secParams) {
+		this.secParams = secParams;
 	}
 
 	/**
@@ -25,4 +27,6 @@ public abstract class DeathSubmodel {
 	 * @return the time to death of the specified patient
 	 */
 	public abstract long getTimeToDeath(Patient pat);
+
+	public abstract void addSecondOrderParams();
 }
