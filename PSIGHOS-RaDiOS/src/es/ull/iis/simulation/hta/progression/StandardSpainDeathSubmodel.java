@@ -36,11 +36,11 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 	}
 	
 	@Override
-	public void addSecondOrderParams() {
+	public void registerSecondOrderParameters() {
 	}
 
 	@Override
-	public void generate(SecondOrderParamsRepository secParams) {
+	public void generate() {
 		for (int i = 0; i < secParams.getnRuns(); i++)
 			for (int j = 0; j < secParams.getnPatients(); j++) {
 				rnd[i][j] = rng.draw();

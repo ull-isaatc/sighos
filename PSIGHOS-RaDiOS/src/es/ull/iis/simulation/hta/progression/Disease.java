@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.progression;
 
 import java.util.TreeSet;
 
+import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
@@ -18,7 +19,9 @@ import es.ull.iis.simulation.model.Describable;
  * A disease defines the progression of a patient. Includes several manifestations and defines how such manifestations are related to each other. 
  * @author Iván Castilla Rodríguez
  */
-public abstract class Disease implements Named, Describable, GenerateSecondOrderInstances, Comparable<Disease> {
+public abstract class Disease implements Named, Describable, GenerateSecondOrderInstances, CreatesSecondOrderParameters, Comparable<Disease> {
+	/** Common parameters repository */
+	protected final SecondOrderParamsRepository secParams;
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
 	 * diseases defined to be used within a simulation */ 
 	private int ord = -1;
@@ -27,7 +30,7 @@ public abstract class Disease implements Named, Describable, GenerateSecondOrder
 	/** Absence of manifestations */
 	private static final Manifestation[] NON_MANIFESTATIONS = new Manifestation[0]; 
 	/** A Disease that represents a non-disease state, i.e., being healthy. Useful to avoid null comparisons. */
-	public static final Disease HEALTHY = new Disease("HEALTHY", "Healthy") {
+	public static final Disease HEALTHY = new Disease(null, "HEALTHY", "Healthy") {
 
 		@Override
 		public DiseaseProgression getProgression(Patient pat) {
@@ -50,7 +53,7 @@ public abstract class Disease implements Named, Describable, GenerateSecondOrder
 		}
 
 		@Override
-		public void addSecondOrderParams(SecondOrderParamsRepository secParams) {
+		public void registerSecondOrderParameters() {
 		}
 	};
 	
@@ -66,7 +69,8 @@ public abstract class Disease implements Named, Describable, GenerateSecondOrder
 	/**
 	 * Creates a submodel for a disease.
 	 */
-	public Disease(String name, String description) {
+	public Disease(final SecondOrderParamsRepository secParams, String name, String description) {
+		this.secParams = secParams;
 		this.manifestations = new TreeSet<>();
 		this.transitions = new TreeSet<>();
 		this.name = name;
@@ -114,11 +118,11 @@ public abstract class Disease implements Named, Describable, GenerateSecondOrder
 	}
 	
 	@Override
-	public void generate(SecondOrderParamsRepository secParams) {
+	public void generate() {
 		for (final Manifestation manif : manifestations)
-			manif.generate(secParams);
+			manif.generate();
 		for (final Transition trans : transitions)
-			trans.generate(secParams);
+			trans.generate();
 	}
 	
 	public void reset(int id) {
@@ -247,15 +251,13 @@ public abstract class Disease implements Named, Describable, GenerateSecondOrder
 	 * the complication
 	 * @param secParams Second order parameters repository
 	 */
-	public void addSecondOrderInitProportion(SecondOrderParamsRepository secParams) {
+	public void addSecondOrderInitProportion() {
 		for (final Manifestation manif : getManifestations()) {
 			if (BasicConfigParams.INIT_PROP.containsKey(manif.name())) {
-				secParams.addProbParam(new SecondOrderParam(SecondOrderParamsRepository.getInitProbString(manif), "Initial proportion of " + manif.name(), "",
+				secParams.addProbParam(new SecondOrderParam(secParams, SecondOrderParamsRepository.getInitProbString(manif), "Initial proportion of " + manif.name(), "",
 						BasicConfigParams.INIT_PROP.get(manif.name())));
 			}			
 		}		
 	}
-	
-	public abstract void addSecondOrderParams(SecondOrderParamsRepository secParams);
 	
 }

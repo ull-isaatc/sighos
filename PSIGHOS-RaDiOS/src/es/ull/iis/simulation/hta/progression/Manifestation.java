@@ -5,6 +5,7 @@ package es.ull.iis.simulation.hta.progression;
 
 import java.util.ArrayList;
 
+import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
@@ -19,11 +20,13 @@ import es.ull.iis.simulation.model.Describable;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Manifestation implements Named, Describable, Comparable<Manifestation>, GenerateSecondOrderInstances {
+public abstract class Manifestation implements Named, Describable, Comparable<Manifestation>, GenerateSecondOrderInstances, CreatesSecondOrderParameters {
 	public enum Type {
 		ACUTE,
 		CHRONIC
 	}
+	/** Common parameters repository */
+	protected final SecondOrderParamsRepository secParams;
 	/** Short name of the complication stage */
 	private final String name;
 	/** Full description of the complication stage */
@@ -42,12 +45,14 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	
 	/**
 	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
+	 * @param secParams Common parameters repository
 	 * @param name Name of the stage
 	 * @param description Full description of the stage
 	 * @param disease Main chronic complication
 	 * @param type The {@link Type} of the manifestation
 	 */
-	public Manifestation(String name, String description, Disease disease, Type type) {
+	public Manifestation(SecondOrderParamsRepository secParams, String name, String description, Disease disease, Type type) {
+		this.secParams = secParams;
 		this.name = name;
 		this.description = description;
 		this.disease = disease;
@@ -116,7 +121,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	}
 
 	@Override
-	public void generate(SecondOrderParamsRepository secParams) {
+	public void generate() {
 		final int n = secParams.getnRuns();
 		associatedDeath.ensureCapacity(n);
 		pInit.ensureCapacity(n);
@@ -134,6 +139,4 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		final StartWithComplicationParam param = pInit.get(pat.getSimulation().getIdentifier()); 
 		return (param == null) ? false : param.getValue(pat);
 	}
-	
-	public abstract void addSecondOrderParams(SecondOrderParamsRepository secParams);
 }

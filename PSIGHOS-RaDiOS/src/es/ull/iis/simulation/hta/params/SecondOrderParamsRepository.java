@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.params;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -44,7 +45,7 @@ import simkit.random.RandomVariateFactory;
  * el tiempo hasta evento en caso de un nuevo factor de riesgo. ¿debería reescalar de alguna manera el tiempo hasta evento en estos casos (¿proporcional al RR?)?
  * @author Iván Castilla Rodríguez
  */
-public abstract class SecondOrderParamsRepository {
+public abstract class SecondOrderParamsRepository implements GenerateSecondOrderInstances {
 	// Strings to define standard parameters
 	/** String prefix for probability parameters */
 	public static final String STR_PROBABILITY_PREFIX = "P_";
@@ -139,11 +140,12 @@ public abstract class SecondOrderParamsRepository {
 	public void registerDisease(Disease disease) {
 		disease.setOrder(registeredDiseases.size());
 		registeredDiseases.add(disease);
-		for (Manifestation st : disease.getManifestations()) {
-			st.setOrder(registeredManifestations.size());
-			registeredManifestations.add(st);
+		for (Manifestation manif : disease.getManifestations()) {
+			manif.setOrder(registeredManifestations.size());
+			registeredManifestations.add(manif);
+			manif.registerSecondOrderParameters();
 		}
-		disease.addSecondOrderParams(this);
+		disease.registerSecondOrderParameters();
 	}
 	
 	/**
@@ -169,7 +171,7 @@ public abstract class SecondOrderParamsRepository {
 	public void registerIntervention(Intervention intervention) {
 		intervention.setOrder(registeredInterventions.size());
 		registeredInterventions.add(intervention);
-		intervention.addSecondOrderParams(this);
+		intervention.registerSecondOrderParameters();
 	}
 	
 	public Intervention[] getRegisteredInterventions() {
@@ -185,6 +187,7 @@ public abstract class SecondOrderParamsRepository {
 		if (registeredDeathSubmodel != null)
 			return false;
 		registeredDeathSubmodel = deathSubmodel;
+		registeredDeathSubmodel.registerSecondOrderParameters();
 		return true;
 	}
 	
@@ -234,20 +237,21 @@ public abstract class SecondOrderParamsRepository {
 	/**
 	 * Generates the instances of the second order parameters for each simulation
 	 */
+	@Override
 	public void generate() {
 		for (SecondOrderParam param : probabilityParams.values())
-			param.generate(this);
+			param.generate();
 		for (SecondOrderParam param : costParams.values())
-			param.generate(this);
+			param.generate();
 		for (SecondOrderParam param : utilParams.values())
-			param.generate(this);
+			param.generate();
 		for (SecondOrderParam param : otherParams.values())
-			param.generate(this);
+			param.generate();
 		for (Disease dis : registeredDiseases)
-			dis.generate(this);
+			dis.generate();
 		for (Intervention interv : registeredInterventions)
-			interv.generate(this);
-		registeredDeathSubmodel.generate(this);
+			interv.generate();
+		registeredDeathSubmodel.generate();
 	}
 	
 	/**
@@ -277,7 +281,7 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public void addCostParam(Named stage, String description, String source, int year, double detValue, RandomVariate rnd) {
 		final String paramName = STR_COST_PREFIX + stage.name();
-		addCostParam(new SecondOrderCostParam(paramName, description, source, year, detValue, rnd));
+		addCostParam(new SecondOrderCostParam(this, paramName, description, source, year, detValue, rnd));
 	}
 	
 	/**
@@ -291,7 +295,7 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public void addTransitionCostParam(Named stage, String description, String source, int year, double detValue, RandomVariate rnd) {
 		final String paramName = STR_TRANS_PREFIX + stage.name();
-		addCostParam(new SecondOrderCostParam(paramName, description, source, year, detValue, rnd));
+		addCostParam(new SecondOrderCostParam(this, paramName, description, source, year, detValue, rnd));
 	}
 	
 	/**
@@ -312,7 +316,7 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public void addUtilityParam(Named stage, String description, String source, double detValue, RandomVariate rnd) {
 		final String paramName = STR_UTILITY_PREFIX + stage.name();
-		addUtilParam(new SecondOrderParam(paramName, description, source, detValue, rnd));
+		addUtilParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
 	}
 
 	/**
@@ -325,7 +329,7 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public void addDisutilityParam(Named stage, String description, String source, double detValue, RandomVariate rnd) {
 		final String paramName = STR_DISUTILITY_PREFIX + stage.name();
-		addUtilParam(new SecondOrderParam(paramName, description, source, detValue, rnd));
+		addUtilParam(new SecondOrderParam(this, paramName, description, source, detValue, rnd));
 	}
 
 	/**
@@ -339,7 +343,7 @@ public abstract class SecondOrderParamsRepository {
 	 */
 	public void addIMRParam(Named stage, String description, String source, double detValue, RandomVariate rnd) {
 		final String paramName = STR_IMR_PREFIX + stage.name();
-		otherParams.put(paramName, new SecondOrderParam(paramName, description, source, detValue, rnd));
+		otherParams.put(paramName, new SecondOrderParam(this, paramName, description, source, detValue, rnd));
 	}
 	/**
 	 * Adds a miscellaneous parameter

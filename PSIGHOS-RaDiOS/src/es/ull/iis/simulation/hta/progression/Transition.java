@@ -17,15 +17,25 @@ import es.ull.iis.simulation.hta.params.TimeToEventParam;
  *
  */
 public abstract class Transition implements Comparable<Transition>, GenerateSecondOrderInstances {
+	private static Manifestation NULL_MANIFESTATION = new Manifestation(null, "NONE", "No manifestations", null, null) {
+
+		@Override
+		public void registerSecondOrderParameters() {			
+		}
+		
+	};
 	private final Manifestation srcManifestation;
 	private final Manifestation destManifestation;
 	/** The time to event for each available transition and each simulation */
 	private final ArrayList<TimeToEventParam> time2Event;
+	/** Common parameters repository */
+	protected final SecondOrderParamsRepository secParams;
 	
 	/**
 	 * 
 	 */
-	public Transition(Manifestation srcManifestation, Manifestation destManifestation) {
+	public Transition(final SecondOrderParamsRepository secParams, Manifestation srcManifestation, Manifestation destManifestation) {
+		this.secParams = secParams;
 		this.srcManifestation = srcManifestation;
 		this.destManifestation = destManifestation;
 		this.time2Event = new ArrayList<>();
@@ -34,8 +44,8 @@ public abstract class Transition implements Comparable<Transition>, GenerateSeco
 	/**
 	 * 
 	 */
-	public Transition(Manifestation destManifestation) {
-		this(null, destManifestation);
+	public Transition(final SecondOrderParamsRepository secParams, Manifestation destManifestation) {
+		this(secParams, NULL_MANIFESTATION, destManifestation);
 	}
 
 	/**
@@ -55,7 +65,7 @@ public abstract class Transition implements Comparable<Transition>, GenerateSeco
 	protected abstract TimeToEventParam getTimeToEventParam(int id);
 	
 	@Override
-	public void generate(SecondOrderParamsRepository secParams) {
+	public void generate() {
 		final int n = secParams.getnRuns();
 		time2Event.ensureCapacity(n);
 		for (int i = 0; i < n; i++) {
@@ -84,7 +94,6 @@ public abstract class Transition implements Comparable<Transition>, GenerateSeco
 	
 	@Override
 	public int compareTo(Transition o) {
-		
 		final int comp = srcManifestation.compareTo(o.srcManifestation);
 		return (comp != 0) ? comp : destManifestation.compareTo(o.destManifestation);
 	}

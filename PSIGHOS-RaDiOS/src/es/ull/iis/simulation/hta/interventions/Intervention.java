@@ -3,20 +3,19 @@
  */
 package es.ull.iis.simulation.hta.interventions;
 
+import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.GenerateSecondOrderInstances;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.model.Describable;
 
 /**
- * The second order characterization of an intervention. The {@link #addSecondOrderParams(SecondOrderParamsRepository)} 
+ * The second order characterization of an intervention. The {@link #registerSecondOrderParameters()} method 
  * must be invoked from the {@link SecondOrderParamsRepository} to register the second order parameters. 
- * The {@link #getInstance(int, SecondOrderParamsRepository)} method creates an instance of the intervention by sampling
- * from the second order parameters.
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Intervention implements Describable, GenerateSecondOrderInstances, Comparable<Intervention> {
+public abstract class Intervention implements Describable, GenerateSecondOrderInstances, CreatesSecondOrderParameters, Comparable<Intervention> {
 	/** A short name for the intervention */
 	final private String shortName;
 	/** A full description of the intervention */
@@ -24,13 +23,16 @@ public abstract class Intervention implements Describable, GenerateSecondOrderIn
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
 	 * interventions defined to be used within a simulation */ 
 	private int ord = -1;
+	/** Common parameters repository */
+	protected final SecondOrderParamsRepository secParams;
 
 	/**
 	 * Creates a second order characterization of an intervention
 	 * @param shortName Short name
 	 * @param description Full description
 	 */
-	public Intervention(final String shortName, final String description) {
+	public Intervention(final SecondOrderParamsRepository secParams, final String shortName, final String description) {
+		this.secParams = secParams;
 		this.shortName = shortName;
 		this.description = description;
 	}
@@ -47,12 +49,6 @@ public abstract class Intervention implements Describable, GenerateSecondOrderIn
 	public String getShortName() {
 		return shortName;
 	}
-
-	/**
-	 * Registers the second order parameters associated to this intervention in a repository
-	 * @param secParams Repository for second order parameters
-	 */
-	public abstract void addSecondOrderParams(SecondOrderParamsRepository secParams);
 
 	/**
 	 * Returns the HbA1c level of a patient at a specific timestamp

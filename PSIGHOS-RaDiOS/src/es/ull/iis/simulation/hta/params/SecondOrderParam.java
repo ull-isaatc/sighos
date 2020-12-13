@@ -12,6 +12,8 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class SecondOrderParam implements GenerateSecondOrderInstances {
+	/** Common parameters repository */
+	protected final SecondOrderParamsRepository secParams;
 	/** Short name and identifier of the parameter */
 	private final String name;
 	/** Full description of the parameter */
@@ -25,13 +27,15 @@ public class SecondOrderParam implements GenerateSecondOrderInstances {
 
 	/**
 	 * Creates a second-order parameter
+	 * @param secParams Common parameters repository
 	 * @param name Short name and identifier of the parameter
 	 * @param description Full description of the parameter
 	 * @param source The reference from which this parameter was estimated/taken
 	 * @param detValue Deterministic/expected value
 	 * @param rnd The probability distribution that characterizes the uncertainty on the parameter
 	 */
-	public SecondOrderParam(String name, String description, String source, double detValue, RandomVariate rnd) {
+	public SecondOrderParam(final SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, RandomVariate rnd) {
+		this.secParams = secParams;
 		this.name = name;
 		this.description = description;
 		this.source = source;
@@ -42,6 +46,7 @@ public class SecondOrderParam implements GenerateSecondOrderInstances {
 	
 	/**
 	 * Creates a second-order parameter by specifying the random distribution in a string 
+	 * @param secParams Common parameters repository
 	 * @param name Short name and identifier of the parameter
 	 * @param description Full description of the parameter
 	 * @param source The reference from which this parameter was estimated/taken
@@ -49,19 +54,20 @@ public class SecondOrderParam implements GenerateSecondOrderInstances {
 	 * @param rndFunction Random function name, one of the ...Variate that accepts {@link RandomVariateFactory}
 	 * @param params Parameters of the random distribution
 	 */
-	public SecondOrderParam(String name, String description, String source, double detValue, String rndFunction, Object... params) {
-		this(name, description, source, detValue, RandomVariateFactory.getInstance(rndFunction, params));
+	public SecondOrderParam(final SecondOrderParamsRepository secParams, String name, String description, String source, double detValue, String rndFunction, Object... params) {
+		this(secParams, name, description, source, detValue, RandomVariateFactory.getInstance(rndFunction, params));
 	}
 	
 	/**
 	 * Creates a second-order parameter with no uncertainty
+	 * @param secParams Common parameters repository
 	 * @param name Short name and identifier of the parameter
 	 * @param description Full description of the parameter
 	 * @param source The reference from which this parameter was estimated/taken
 	 * @param detValue Deterministic/expected value
 	 */
-	public SecondOrderParam(String name, String description, String source, double detValue) {
-		this(name, description, source, detValue, RandomVariateFactory.getInstance("ConstantVariate", detValue));
+	public SecondOrderParam(final SecondOrderParamsRepository secParams, String name, String description, String source, double detValue) {
+		this(secParams, name, description, source, detValue, RandomVariateFactory.getInstance("ConstantVariate", detValue));
 	}
 
 	/**
@@ -78,7 +84,7 @@ public class SecondOrderParam implements GenerateSecondOrderInstances {
 	 * Generates n random values for the parameter
 	 */
 	@Override
-	public void generate(SecondOrderParamsRepository secParams) {
+	public void generate() {
 		final int n = secParams.getnRuns();
 		generatedValues.ensureCapacity(n);
 		for (int i = 1; i < n; i++)
