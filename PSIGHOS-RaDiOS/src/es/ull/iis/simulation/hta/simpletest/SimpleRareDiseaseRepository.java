@@ -11,6 +11,8 @@ import es.ull.iis.simulation.hta.outcomes.DiseaseUtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
+import es.ull.iis.simulation.hta.params.InterventionSpecificComplicationRR;
+import es.ull.iis.simulation.hta.params.RRCalculator;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -23,6 +25,7 @@ import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 public class SimpleRareDiseaseRepository extends SecondOrderParamsRepository {
 	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
+	private final InterventionSpecificComplicationRR[] interventionRR;
 	
 	/**
 	 * @param nRuns
@@ -39,6 +42,7 @@ public class SimpleRareDiseaseRepository extends SecondOrderParamsRepository {
 		registerIntervention(new NullIntervention(this));
 		registerIntervention(new EffectiveIntervention(this));
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
+		interventionRR = new InterventionSpecificComplicationRR[nRuns + 1];
 	}
 
 	@Override
@@ -49,6 +53,17 @@ public class SimpleRareDiseaseRepository extends SecondOrderParamsRepository {
 	@Override
 	public UtilityCalculator getUtilityCalculator() {
 		return utilCalc;
+	}
+	
+	@Override
+	public void generate() {
+		super.generate();
+		for (int i = 0; i < getnRuns(); i++)
+			interventionRR[i] = new InterventionSpecificComplicationRR(new double[] {0.0, getOtherParam(STR_RR_PREFIX + getRegisteredInterventions()[1], i)});
+	}
+	
+	public RRCalculator getInterventionRR(int id) {
+		return interventionRR[id];
 	}
 
 	private static class NullIntervention extends Intervention {
@@ -87,7 +102,7 @@ public class SimpleRareDiseaseRepository extends SecondOrderParamsRepository {
 
 		@Override
 		public void registerSecondOrderParameters() {
-			secParams.addOtherParam(new SecondOrderParam(secParams, SecondOrderParamsRepository.STR_RR_PREFIX + this, 
+			secParams.addOtherParam(new SecondOrderParam(secParams, STR_RR_PREFIX + this, 
 					"Relative risk of developing manifestations", "Test", 0.5));
 		}
 

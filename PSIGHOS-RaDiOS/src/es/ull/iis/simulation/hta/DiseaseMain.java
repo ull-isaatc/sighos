@@ -34,6 +34,7 @@ import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StdDiscount;
 import es.ull.iis.simulation.hta.params.ZeroDiscount;
+import es.ull.iis.simulation.hta.radios.RaDiOSRepository;
 import es.ull.iis.simulation.hta.simpletest.SimpleRareDiseaseRepository;
 
 /**
@@ -357,8 +358,16 @@ public class DiseaseMain {
 	        }
 	        
 	        SecondOrderParamsRepository secParams = null;
-	        if (args1.population == 1)
-	        	secParams = new SimpleRareDiseaseRepository(args1.nRuns, args1.nPatients);
+	        switch (args1.population) {
+	        case 1: 
+	        	secParams = new RaDiOSRepository(args1.nRuns, args1.nPatients); 
+	        	break;
+	        case 0: 
+	        default:
+	        	secParams = new SimpleRareDiseaseRepository(args1.nRuns, args1.nPatients); 
+	        	break;
+	        }
+	        	
 	        
 	    	final String validity = secParams.checkValidity();
 	    	if (validity == null) {
@@ -451,8 +460,8 @@ public class DiseaseMain {
 		private int nRuns = BasicConfigParams.N_RUNS;
 		@Parameter(names ={"--horizon", "-h"}, description = "Time horizon for the simulation (years)", order = 3)
 		private int timeHorizon = -1;
-		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (1: Test)", order = 8)
-		private int population = 1;
+		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (0: Test; 1: RaDiOS)", order = 8)
+		private int population = 0;
 		@Parameter(names = {"--discount", "-dr"}, variableArity = true, 
 				description = "The discount rate to be applied. If more than one value is provided, the first one is used for costs, and the second for effects. Default value is " + BasicConfigParams.DEF_DISCOUNT_RATE, order = 7)
 		public List<Double> discount = new ArrayList<>();
