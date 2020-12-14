@@ -86,9 +86,9 @@ public class SecondOrderParam implements GeneratesSecondOrderInstances {
 	@Override
 	public void generate() {
 		final int n = secParams.getnRuns();
-		generatedValues.ensureCapacity(n);
-		for (int i = 1; i < n; i++)
-			generatedValues.set(i, rnd.generate());
+		generatedValues.ensureCapacity(n + 1);
+		for (int i = 0; i < n; i++)
+			generatedValues.add(rnd.generate());
 	}
 	
 	/**

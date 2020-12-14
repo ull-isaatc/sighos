@@ -106,6 +106,15 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 			this.ord = ord;
 	}
 
+	/**
+	 * Returns true if the acute onset of the manifestation produces the death of the patient 
+	 * @param pat Patient
+	 * @return True if the acute onset of the manifestation produces the death of the patient
+	 */
+	public boolean producesDeath(Patient pat) {
+		return associatedDeath.get(pat.getSimulation().getIdentifier()).getValue(pat);
+	}
+	
 	@Override
 	public int compareTo(Manifestation o) {
 		if (ord > o.ord)
@@ -123,11 +132,11 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	@Override
 	public void generate() {
 		final int n = secParams.getnRuns();
-		associatedDeath.ensureCapacity(n);
-		pInit.ensureCapacity(n);
-		for (int i = 0; i < n; i++) {
-			pInit.add(0, new StartWithComplicationParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getInitProbParam(this, i)));
-			associatedDeath.add(i, new DeathWithEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getDeathProbParam(this, i)));
+		associatedDeath.ensureCapacity(n + 1);
+		pInit.ensureCapacity(n + 1);
+		for (int i = 0; i < n + 1; i++) {
+			pInit.add(new StartWithComplicationParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getInitProbParam(this, i)));
+			associatedDeath.add(new DeathWithEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getDeathProbParam(this, i)));
 		}			
 	}
 	

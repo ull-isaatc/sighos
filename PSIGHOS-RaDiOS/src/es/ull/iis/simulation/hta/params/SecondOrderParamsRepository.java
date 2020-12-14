@@ -139,18 +139,23 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 		return true;
 	}
 	/**
-	 * Registers a new disease and its manifestations
+	 * Registers a new disease
 	 * @param disease Disease
 	 */
 	public void registerDisease(Disease disease) {
 		disease.setOrder(registeredDiseases.size());
 		registeredDiseases.add(disease);
-		for (Manifestation manif : disease.getManifestations()) {
-			manif.setOrder(registeredManifestations.size());
-			registeredManifestations.add(manif);
-			manif.registerSecondOrderParameters();
-		}
 		disease.registerSecondOrderParameters();
+	}
+
+	/**
+	 * Register a new manifestation
+	 * @param manif New manifestation
+	 */
+	public void registerManifestation(Manifestation manif) {
+		manif.setOrder(registeredManifestations.size());
+		registeredManifestations.add(manif);
+		manif.registerSecondOrderParameters();
 	}
 	
 	/**
@@ -158,7 +163,8 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	 * @return the registered diseases
 	 */
 	public Disease[] getRegisteredDiseases() {
-		return (Disease[])registeredDiseases.toArray();
+		final Disease[] array = new Disease[registeredDiseases.size()];
+		return (Disease[])registeredDiseases.toArray(array);
 	}
 
 	/**
@@ -166,7 +172,8 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	 * @return The already registered complication stages
 	 */
 	public Manifestation[] getRegisteredManifestations() {
-		return (Manifestation[]) registeredManifestations.toArray();
+		final Manifestation[] array = new Manifestation[registeredManifestations.size()];
+		return (Manifestation[]) registeredManifestations.toArray(array);
 	}
 
 	/**
@@ -180,7 +187,8 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	}
 	
 	public Intervention[] getRegisteredInterventions() {
-		return (Intervention[]) registeredInterventions.toArray();
+		final Intervention[] array = new Intervention[registeredInterventions.size()];
+		return (Intervention[]) registeredInterventions.toArray(array);
 	}
 
 	/**

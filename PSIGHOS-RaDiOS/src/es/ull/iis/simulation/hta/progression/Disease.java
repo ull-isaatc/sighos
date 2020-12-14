@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.hta.progression;
 
+import java.util.ArrayList;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
@@ -13,6 +15,7 @@ import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinatio
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.Manifestation.Type;
 import es.ull.iis.simulation.model.Describable;
 
 /**
@@ -20,15 +23,10 @@ import es.ull.iis.simulation.model.Describable;
  * @author Iván Castilla Rodríguez
  */
 public abstract class Disease implements Named, Describable, GeneratesSecondOrderInstances, CreatesSecondOrderParameters, Comparable<Disease> {
-	/** Common parameters repository */
-	protected final SecondOrderParamsRepository secParams;
-	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
-	 * diseases defined to be used within a simulation */ 
-	private int ord = -1;
 	/** Absence of progression */
 	private static final DiseaseProgression NULL_PROGRESSION = new DiseaseProgression(); 
 	/** Absence of manifestations */
-	private static final Manifestation[] NON_MANIFESTATIONS = new Manifestation[0]; 
+	private static final Manifestation[] NON_MANIFESTATIONS = new Manifestation[0];
 	/** A Disease that represents a non-disease state, i.e., being healthy. Useful to avoid null comparisons. */
 	public static final Disease HEALTHY = new Disease(null, "HEALTHY", "Healthy") {
 
@@ -56,23 +54,35 @@ public abstract class Disease implements Named, Describable, GeneratesSecondOrde
 		public void registerSecondOrderParameters() {
 		}
 	};
+	/** Common parameters repository */
+	protected final SecondOrderParamsRepository secParams;
+	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the
+	 * diseases defined to be used within a simulation */ 
+	private int ord = -1;
 	
 	/** Manifestations related to this disease */
-	private final TreeSet<Manifestation> manifestations;
-	/** Transitions among manifestations of this disease */
-	private final TreeSet<Transition> transitions;
+	private final ArrayList<Manifestation> manifestations;
+	/** Manifestations and their associated transitions for this disease */
+	private final TreeMap<Manifestation, ArrayList<Transition>> transitions;
 	/** Short name of the disease */
 	private final String name;
 	/** Full description of the disease */
 	private final String description;
+	private final Manifestation nullManifestation;
 	
 	/**
 	 * Creates a submodel for a disease.
 	 */
 	public Disease(final SecondOrderParamsRepository secParams, String name, String description) {
 		this.secParams = secParams;
-		this.manifestations = new TreeSet<>();
-		this.transitions = new TreeSet<>();
+		this.nullManifestation = new Manifestation(secParams, "NONE", "No manifestations", this, Type.CHRONIC) {
+			@Override
+			public void registerSecondOrderParameters() {			
+			}
+		};
+		this.manifestations = new ArrayList<>();
+		this.transitions = new TreeMap<>();
+		this.transitions.put(nullManifestation, new ArrayList<>());
 		this.name = name;
 		this.description = description;
 	}
@@ -119,25 +129,40 @@ public abstract class Disease implements Named, Describable, GeneratesSecondOrde
 	
 	@Override
 	public void generate() {
-		for (final Manifestation manif : manifestations)
-			manif.generate();
-		for (final Transition trans : transitions)
+		for (final Transition trans : transitions.get(nullManifestation))
 			trans.generate();
+		for (final Manifestation manif : manifestations) {
+			manif.generate();
+			for (final Transition trans : transitions.get(manif))
+				trans.generate();
+		}
 	}
 	
 	public void reset(int id) {
-		for (final Manifestation manif : manifestations)
-			manif.reset(id);
-		for (final Transition trans : transitions)
+		for (final Transition trans : transitions.get(nullManifestation))
 			trans.reset(id);
+		for (final Manifestation manif : manifestations) {
+			manif.reset(id);
+			for (final Transition trans : transitions.get(manif))
+				trans.reset(id);
+		}
 	}
 	
+	/**
+	 * @return the nullManifestation
+	 */
+	public Manifestation getNullManifestation() {
+		return nullManifestation;
+	}
+
 	/**
 	 * Adds a manifestation to this disease
 	 * @param manif New manifestation associated to this disease
 	 */
 	public void addManifestation(Manifestation manif) {
 		manifestations.add(manif);
+		secParams.registerManifestation(manif);
+		transitions.put(manif, new ArrayList<>());
 	}
 	
 	/**
@@ -145,21 +170,8 @@ public abstract class Disease implements Named, Describable, GeneratesSecondOrde
 	 * @param trans New transition between manifestations of this disease 
 	 */
 	public void addTransition(Transition trans) {
-		transitions.add(trans);
+		transitions.get(trans.getSrcManifestation()).add(trans);
 	}
-	
-	/**
-	 * Returns the time to event for a patient
-	 * @param pat A patient
-	 * @param id The identifier of the transition. Transitions are expected to be ordered elsewhere.
-	 * @param limit The upper limit for the occurrence of the event. If the computed time to event is higher or equal 
-	 * than the limit, returns Long.MAX_VALUE
-	 * @return The time to event for the patient; Long.MAX_VALUE if the event will never happen.
-	 */
-	public long getTimeToEvent(Patient pat, Transition trans, long limit) {		
-		return trans.getTimeToEvent(pat, limit);
-	}
-
 	
 	/**
 	 * Returns how this patient will progress from its current state with regards to this
@@ -235,9 +247,19 @@ public abstract class Disease implements Named, Describable, GeneratesSecondOrde
 	 * @return An array containing the stages used to model this chronic complication 
 	 */
 	public Manifestation[] getManifestations() {
-		return (Manifestation[]) manifestations.toArray();
+		final Manifestation[] array = new Manifestation[manifestations.size()];
+		return (Manifestation[]) manifestations.toArray(array);
 	}
 
+	/**
+	 * Returns the potential transitions for a manifestation
+	 * @param manif Source manifestation
+	 * @return the potential transitions for a manifestation
+	 */
+	public ArrayList<Transition> getTransitions(Manifestation manif) {
+		return transitions.get(manif);
+	}
+	
 	/**
 	 * Returns the number of different transitions defined from one manifestation to another
 	 * @return the number of different transitions defined from one manifestation to another

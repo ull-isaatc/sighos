@@ -59,7 +59,7 @@ public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {
 	 */
 	public EmpiricalSpainDeathSubmodel(SecondOrderParamsRepository secParams) {
 		super(secParams);
-		rnd = new double[secParams.getnRuns()][secParams.getnPatients()];
+		rnd = new double[secParams.getnRuns() + 1][secParams.getnPatients()];
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {
 
 	@Override
 	public void generate() {
-		for (int i = 0; i < secParams.getnRuns(); i++)
+		for (int i = 0; i < secParams.getnRuns() + 1; i++)
 			for (int j = 0; j < secParams.getnPatients(); j++) {
 				rnd[i][j] = rng.draw();
 			}

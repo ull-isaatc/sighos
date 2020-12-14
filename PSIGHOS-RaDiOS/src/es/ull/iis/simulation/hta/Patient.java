@@ -288,6 +288,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		public void event() {
 			super.event();
 			startTs = this.getTs();
+			// Assigns the "absence of manifestations" as a starting state
+			detailedState.add(getDisease().getNullManifestation());
 			simul.notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.START, this.getTs()));
 
 			// Assign death event

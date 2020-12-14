@@ -22,7 +22,7 @@ import com.beust.jcommander.ParameterException;
 import es.ull.iis.simulation.hta.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.inforeceiver.BudgetImpactView;
 import es.ull.iis.simulation.hta.inforeceiver.CostListener;
-import es.ull.iis.simulation.hta.inforeceiver.DiabetesPatientInfoView;
+import es.ull.iis.simulation.hta.inforeceiver.PatientInfoView;
 import es.ull.iis.simulation.hta.inforeceiver.EpidemiologicView;
 import es.ull.iis.simulation.hta.inforeceiver.ExperimentListener;
 import es.ull.iis.simulation.hta.inforeceiver.LYListener;
@@ -34,6 +34,7 @@ import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StdDiscount;
 import es.ull.iis.simulation.hta.params.ZeroDiscount;
+import es.ull.iis.simulation.hta.simpletest.SimpleRareDiseaseRepository;
 
 /**
  * Main class to launch simulation experiments
@@ -138,7 +139,7 @@ public class DiseaseMain {
 	private final SecondOrderParamsRepository secParams;
 	private final Discount discountCost;
 	private final Discount discountEffect;
-	private final DiabetesPatientInfoView patientListener;
+	private final PatientInfoView patientListener;
 	private final PrintProgress progress;
 	/** Enables parallel execution of simulations */
 	private final boolean parallel;
@@ -150,7 +151,7 @@ public class DiseaseMain {
 	private final ArrayList<ExperimentListener> baseCaseExpListeners;
 	
 	
-	public DiseaseMain(PrintWriter out, PrintWriter outListeners, SecondOrderParamsRepository secParams, int nRuns, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs, final ArrayList<EpidemiologicOutputFormat> toPrint) {
+	public DiseaseMain(PrintWriter out, PrintWriter outListeners, SecondOrderParamsRepository secParams, int timeHorizon, Discount discountCost, Discount discountEffect, boolean parallel, boolean quiet, int singlePatientOutput, final EnumSet<Outputs> printOutputs, final ArrayList<EpidemiologicOutputFormat> toPrint) {
 		super();
 		this.printOutputs = printOutputs;
 		this.timeHorizon = timeHorizon;
@@ -159,13 +160,13 @@ public class DiseaseMain {
 		this.discountCost = discountCost;
 		this.discountEffect = discountEffect;
 		this.interventions = secParams.getRegisteredInterventions();
-		this.nRuns = nRuns;
+		this.nRuns = secParams.getnRuns();
 		this.nPatients = secParams.getnPatients();
 		this.secParams = secParams;
 		this.parallel = parallel;
 		this.quiet = quiet;
 		if (singlePatientOutput != -1)
-			patientListener = new DiabetesPatientInfoView(singlePatientOutput);
+			patientListener = new PatientInfoView(singlePatientOutput);
 		else
 			patientListener = null;
 		progress = new PrintProgress((nRuns > N_PROGRESS) ? nRuns/N_PROGRESS : 1, nRuns + 1);
@@ -354,8 +355,10 @@ public class DiseaseMain {
 	        for (final Map.Entry<String, String> pInit : args1.initProportions.entrySet()) {
 	        	BasicConfigParams.INIT_PROP.put(pInit.getKey(), Double.parseDouble(pInit.getValue()));
 	        }
-	        // FIXME: Falta crear una clase e instanciarla 
+	        
 	        SecondOrderParamsRepository secParams = null;
+	        if (args1.population == 1)
+	        	secParams = new SimpleRareDiseaseRepository(args1.nRuns, args1.nPatients);
 	        
 	    	final String validity = secParams.checkValidity();
 	    	if (validity == null) {
@@ -420,7 +423,7 @@ public class DiseaseMain {
 
 		        }
 
-	    		final DiseaseMain experiment = new DiseaseMain(out, outListeners, secParams, args1.nRuns, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs, formats);
+	    		final DiseaseMain experiment = new DiseaseMain(out, outListeners, secParams, timeHorizon, discountCost, discountEffect, args1.parallel, args1.quiet, args1.singlePatientOutput, printOutputs, formats);
 		        experiment.run();
 	    	}
 	    	else {
@@ -448,7 +451,7 @@ public class DiseaseMain {
 		private int nRuns = BasicConfigParams.N_RUNS;
 		@Parameter(names ={"--horizon", "-h"}, description = "Time horizon for the simulation (years)", order = 3)
 		private int timeHorizon = -1;
-		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (1: T1DM unconscious, 2: T1DM uncontrolled, 3: Canada, 4: DCCT, 5: Ly, 6: SMILE, 7: UKPDS, 8: Advance, 9: GOLD+DIAMOND, 10:HypoDE)", order = 8)
+		@Parameter(names ={"--population", "-pop"}, description = "Selects an alternative scenario (1: Test)", order = 8)
 		private int population = 1;
 		@Parameter(names = {"--discount", "-dr"}, variableArity = true, 
 				description = "The discount rate to be applied. If more than one value is provided, the first one is used for costs, and the second for effects. Default value is " + BasicConfigParams.DEF_DISCOUNT_RATE, order = 7)

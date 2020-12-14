@@ -16,36 +16,25 @@ import es.ull.iis.simulation.hta.params.TimeToEventParam;
  * @author Iván Castilla
  *
  */
-public abstract class Transition implements Comparable<Transition>, GeneratesSecondOrderInstances {
-	private static Manifestation NULL_MANIFESTATION = new Manifestation(null, "NONE", "No manifestations", null, null) {
-
-		@Override
-		public void registerSecondOrderParameters() {			
-		}
-		
-	};
+public abstract class Transition implements GeneratesSecondOrderInstances {
 	private final Manifestation srcManifestation;
 	private final Manifestation destManifestation;
 	/** The time to event for each available transition and each simulation */
 	private final ArrayList<TimeToEventParam> time2Event;
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
+	/** Indicates whether the destination manifestation of this transition replaces the source destination in the state of the patient */
+	private final boolean replacesPrevious;
 	
 	/**
 	 * 
 	 */
-	public Transition(final SecondOrderParamsRepository secParams, Manifestation srcManifestation, Manifestation destManifestation) {
+	public Transition(final SecondOrderParamsRepository secParams, Manifestation srcManifestation, Manifestation destManifestation, boolean replacesPrevious) {
 		this.secParams = secParams;
 		this.srcManifestation = srcManifestation;
 		this.destManifestation = destManifestation;
+		this.replacesPrevious = replacesPrevious;
 		this.time2Event = new ArrayList<>();
-	}
-
-	/**
-	 * 
-	 */
-	public Transition(final SecondOrderParamsRepository secParams, Manifestation destManifestation) {
-		this(secParams, NULL_MANIFESTATION, destManifestation);
 	}
 
 	/**
@@ -63,6 +52,13 @@ public abstract class Transition implements Comparable<Transition>, GeneratesSec
 	}
 
 	/**
+	 * @return the replacesPrevious
+	 */
+	public boolean isReplacesPrevious() {
+		return replacesPrevious;
+	}
+
+	/**
 	 * Creates a parameter to compute the time to event for each second order instance of the transition
 	 * @param id Identifier of the simulation
 	 * @return a parameter to compute the time to event for each second order instance of the transition
@@ -72,8 +68,8 @@ public abstract class Transition implements Comparable<Transition>, GeneratesSec
 	@Override
 	public void generate() {
 		final int n = secParams.getnRuns();
-		time2Event.ensureCapacity(n);
-		for (int i = 0; i < n; i++) {
+		time2Event.ensureCapacity(n + 1);
+		for (int i = 0; i < n + 1; i++) {
 			time2Event.add(getTimeToEventParam(i));
 		}		
 	}
@@ -95,11 +91,5 @@ public abstract class Transition implements Comparable<Transition>, GeneratesSec
 		final TimeToEventParam param = time2Event.get(pat.getSimulation().getIdentifier());
 		final long time = param.getValue(pat);
 		return (time >= limit) ? Long.MAX_VALUE : time;		
-	}
-	
-	@Override
-	public int compareTo(Transition o) {
-		final int comp = srcManifestation.compareTo(o.srcManifestation);
-		return (comp != 0) ? comp : destManifestation.compareTo(o.destManifestation);
 	}
 }

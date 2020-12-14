@@ -21,7 +21,7 @@ public class TestManifestationStage2 extends Manifestation {
 	 * @param disease
 	 */
 	public TestManifestationStage2(SecondOrderParamsRepository secParams, Disease disease) {
-		super(secParams, "MANIF1", "Severe manifestation of test disease", disease, Type.CHRONIC);
+		super(secParams, "MANIF2", "Severe manifestation of test disease", disease, Type.CHRONIC);
 	}
 
 	@Override

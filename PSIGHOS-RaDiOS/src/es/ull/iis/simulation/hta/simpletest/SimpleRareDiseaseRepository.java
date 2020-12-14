@@ -14,6 +14,7 @@ import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -37,6 +38,7 @@ public class SimpleRareDiseaseRepository extends SecondOrderParamsRepository {
 		registerDisease(testDisease);
 		registerIntervention(new NullIntervention(this));
 		registerIntervention(new EffectiveIntervention(this));
+		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
 	}
 
 	@Override
