@@ -15,6 +15,7 @@ import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.DiseaseProgressionPair;
 import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.Transition;
 import es.ull.iis.simulation.model.DiscreteEvent;
 import es.ull.iis.simulation.model.EventSource;
 import es.ull.iis.simulation.model.TimeUnit;
@@ -345,8 +346,14 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 			}
 			else {
 				simul.notifyInfo(new PatientInfo(simul, Patient.this, manifestation, this.getTs()));
-				if (Manifestation.Type.CHRONIC.equals(manifestation.getType())) 
+				if (Manifestation.Type.CHRONIC.equals(manifestation.getType())) {
 					Patient.this.detailedState.add(manifestation);
+					// Removes chronic manifestations excluded by the new one
+					for (Transition trans : getDisease().getReverseTransitions(manifestation)) {
+						if (trans.replacesPrevious())
+							Patient.this.detailedState.remove(trans.getSrcManifestation());
+					}
+				}
 				
 				if (progress.causesDeath()) {
 					deathEvent.cancel();

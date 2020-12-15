@@ -17,6 +17,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
+import simkit.random.RandomVariateFactory;
 
 /**
  * @author Iván Castilla Rodríguez
@@ -97,7 +98,7 @@ public class SimpleRareDiseaseRepository extends SecondOrderParamsRepository {
 		@Override
 		public void registerSecondOrderParameters() {
 			secParams.addOtherParam(new SecondOrderParam(secParams, STR_RR_PREFIX + this, 
-					"Relative risk of developing manifestations", "Test", 0.5));
+					"Relative risk of developing manifestations", "Test", 0.5, RandomVariateFactory.getInstance("UniformVariate", 0.4, 0.6)));
 		}
 
 		@Override

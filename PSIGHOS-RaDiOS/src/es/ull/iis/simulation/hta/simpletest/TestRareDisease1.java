@@ -66,8 +66,6 @@ public class TestRareDisease1 extends StagedDisease {
 		@Override
 		protected TimeToEventParam getTimeToEventParam(int id) {
 			return new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), 
-//					secParams.getProbability(getManifestations()[0], getManifestations()[1], id), SecondOrderParamsRepository.NO_RR);
-			// FIXME: Esto no funciona. Averiguar por qué
 					secParams.getProbability(getManifestations()[0], getManifestations()[1], id), ((SimpleRareDiseaseRepository)secParams).getInterventionRR());
 		}
 		

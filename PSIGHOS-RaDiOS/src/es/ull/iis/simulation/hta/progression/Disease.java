@@ -64,6 +64,8 @@ public abstract class Disease implements Named, Describable, GeneratesSecondOrde
 	private final ArrayList<Manifestation> manifestations;
 	/** Manifestations and their associated transitions for this disease */
 	private final TreeMap<Manifestation, ArrayList<Transition>> transitions;
+	/** Manifestations and their associated REVERSE transitions for this disease */
+	private final TreeMap<Manifestation, ArrayList<Transition>> reverseTransitions;
 	/** Short name of the disease */
 	private final String name;
 	/** Full description of the disease */
@@ -83,6 +85,7 @@ public abstract class Disease implements Named, Describable, GeneratesSecondOrde
 		this.manifestations = new ArrayList<>();
 		this.transitions = new TreeMap<>();
 		this.transitions.put(nullManifestation, new ArrayList<>());
+		this.reverseTransitions = new TreeMap<>();
 		this.name = name;
 		this.description = description;
 	}
@@ -163,6 +166,7 @@ public abstract class Disease implements Named, Describable, GeneratesSecondOrde
 		manifestations.add(manif);
 		secParams.registerManifestation(manif);
 		transitions.put(manif, new ArrayList<>());
+		reverseTransitions.put(manif, new ArrayList<>());
 	}
 	
 	/**
@@ -171,6 +175,7 @@ public abstract class Disease implements Named, Describable, GeneratesSecondOrde
 	 */
 	public void addTransition(Transition trans) {
 		transitions.get(trans.getSrcManifestation()).add(trans);
+		reverseTransitions.get(trans.getDestManifestation()).add(trans);
 	}
 	
 	/**
@@ -252,12 +257,21 @@ public abstract class Disease implements Named, Describable, GeneratesSecondOrde
 	}
 
 	/**
-	 * Returns the potential transitions for a manifestation
+	 * Returns the potential transitions from a manifestation
 	 * @param manif Source manifestation
-	 * @return the potential transitions for a manifestation
+	 * @return the potential transitions from a manifestation
 	 */
 	public ArrayList<Transition> getTransitions(Manifestation manif) {
 		return transitions.get(manif);
+	}
+	
+	/**
+	 * Returns the potential transitions to a manifestation
+	 * @param manif Destination manifestation
+	 * @return the potential transitions to a manifestation
+	 */
+	public ArrayList<Transition> getReverseTransitions(Manifestation manif) {
+		return reverseTransitions.get(manif);
 	}
 	
 	/**

@@ -3,6 +3,7 @@
  */
 package es.ull.iis.simulation.hta.progression;
 
+import java.util.Collection;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.Patient;
@@ -37,7 +38,6 @@ public abstract class StagedDisease extends Disease {
 		final TreeMap<Manifestation, Long> times2events = new TreeMap<>();
 		final TreeMap<Manifestation, Long> previousTimes2events = new TreeMap<>();
 		long limit = pat.getTimeToDeath();
-		// TODO: ¿Debemos plantear chequear las transiciones desde healthy, en caso de que haya otros parámetros que puedan influir?? 
 		// Goes through the current manifestations and their potential transitions
 		for (final Manifestation manif : pat.getDetailedState()) {
 			for (final Transition trans : getTransitions(manif)) {
@@ -80,8 +80,11 @@ public abstract class StagedDisease extends Disease {
 	 */
 	@Override
 	public double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge) {
-		// TODO Auto-generated method stub
-		return 0;
+		double cost = 0.0;
+		for (final Manifestation manif : pat.getDetailedState()) {
+			cost += secParams.getCostsForManifestation(manif, pat.getSimulation().getIdentifier())[0];
+		}
+		return cost;
 	}
 
 	/* (non-Javadoc)
@@ -89,8 +92,12 @@ public abstract class StagedDisease extends Disease {
 	 */
 	@Override
 	public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
-		// TODO Auto-generated method stub
-		return 0;
+		final Collection<Manifestation> state = pat.getDetailedState();
+		double du = 0.0;
+		for (final Manifestation manif : state) {
+			du = method.combine(du, secParams.getDisutilityForManifestation(manif, pat.getSimulation().getIdentifier()));
+		}
+		return du;
 	}
 
 }

@@ -54,7 +54,7 @@ public abstract class Transition implements GeneratesSecondOrderInstances {
 	/**
 	 * @return the replacesPrevious
 	 */
-	public boolean isReplacesPrevious() {
+	public boolean replacesPrevious() {
 		return replacesPrevious;
 	}
 

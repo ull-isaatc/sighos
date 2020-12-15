@@ -349,8 +349,6 @@ public class DiseaseMain {
 			  .addObject(args1)
 			  .build();
 			jc.parse(args);
-	        BasicConfigParams.USE_SIMPLE_MODELS = args1.basic;
-	        BasicConfigParams.USE_REVIEW_UTILITIES = args1.altUtils;
 	        BasicConfigParams.STUDY_YEAR = args1.year;
 
 	        for (final Map.Entry<String, String> pInit : args1.initProportions.entrySet()) {
@@ -484,10 +482,6 @@ public class DiseaseMain {
 		private boolean parallel = false;
 		@Parameter(names ={"--quiet", "-q"}, description = "Quiet execution (does not print progress info)", order = 6)
 		private boolean quiet = false;
-		@Parameter(names ={"--basic", "-b"}, description = "Use basic progression models, instead of complex (only some complications has complex models)", order = 10)
-		private boolean basic = BasicConfigParams.USE_SIMPLE_MODELS;
-		@Parameter(names ={"--alt_utilities", "-au"}, description = "Enables using alternative utilities from the revision of Beaudet et al. 2014", order = 10)
-		private boolean altUtils = BasicConfigParams.USE_REVIEW_UTILITIES;
 		@Parameter(names ={"--year", "-y"}, description = "Modifies the year of the study (for cost updating))", order = 8)
 		private int year = BasicConfigParams.STUDY_YEAR;
 		@DynamicParameter(names = {"--iniprop", "-I"}, description = "Initial proportion for complication stages")
