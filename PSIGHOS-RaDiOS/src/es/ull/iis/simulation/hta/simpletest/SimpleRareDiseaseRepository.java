@@ -11,8 +11,8 @@ import es.ull.iis.simulation.hta.outcomes.DiseaseUtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.InterventionSpecificComplicationRR;
 import es.ull.iis.simulation.hta.params.RRCalculator;
+import es.ull.iis.simulation.hta.params.SecondOrderInterventionSpecificComplicationRR;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -25,7 +25,7 @@ import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 public class SimpleRareDiseaseRepository extends SecondOrderParamsRepository {
 	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
-	private final InterventionSpecificComplicationRR[] interventionRR;
+	private final SecondOrderInterventionSpecificComplicationRR interventionRR;
 	
 	/**
 	 * @param nRuns
@@ -40,9 +40,10 @@ public class SimpleRareDiseaseRepository extends SecondOrderParamsRepository {
 		registerPopulation(new TestPopulation(testDisease));
 		registerDisease(testDisease);
 		registerIntervention(new NullIntervention(this));
-		registerIntervention(new EffectiveIntervention(this));
+		final Intervention int2 = new EffectiveIntervention(this);
+		registerIntervention(int2);
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
-		interventionRR = new InterventionSpecificComplicationRR[nRuns + 1];
+		interventionRR = new SecondOrderInterventionSpecificComplicationRR(this, new SecondOrderParam[] {otherParams.get(STR_RR_PREFIX + int2)});
 	}
 
 	@Override
@@ -55,15 +56,8 @@ public class SimpleRareDiseaseRepository extends SecondOrderParamsRepository {
 		return utilCalc;
 	}
 	
-	@Override
-	public void generate() {
-		super.generate();
-		for (int i = 0; i < getnRuns(); i++)
-			interventionRR[i] = new InterventionSpecificComplicationRR(new double[] {0.0, getOtherParam(STR_RR_PREFIX + getRegisteredInterventions()[1], i)});
-	}
-	
-	public RRCalculator getInterventionRR(int id) {
-		return interventionRR[id];
+	public RRCalculator getInterventionRR() {
+		return interventionRR;
 	}
 
 	private static class NullIntervention extends Intervention {
