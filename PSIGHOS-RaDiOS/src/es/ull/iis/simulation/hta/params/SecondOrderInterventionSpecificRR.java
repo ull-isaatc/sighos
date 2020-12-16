@@ -11,7 +11,7 @@ import es.ull.iis.simulation.hta.Patient;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SecondOrderInterventionSpecificComplicationRR implements RRCalculator {
+public class SecondOrderInterventionSpecificRR implements RRCalculator {
 	/** The relative risk values associated to each intervention */
 	final private SecondOrderParam[] rr;
 	/** An offset to adjust the index of the RR */
@@ -22,7 +22,7 @@ public class SecondOrderInterventionSpecificComplicationRR implements RRCalculat
 	 * to have RR = 1.0 
 	 * @param rr The second order parameter that characterizes the relative risk values associated to each intervention
 	 */
-	public SecondOrderInterventionSpecificComplicationRR(SecondOrderParamsRepository secParams, SecondOrderParam[] rr) {
+	public SecondOrderInterventionSpecificRR(SecondOrderParamsRepository secParams, SecondOrderParam[] rr) {
 		this.interventionOffset = secParams.getNInterventions() - rr.length;
 		this.rr = rr;
 	}

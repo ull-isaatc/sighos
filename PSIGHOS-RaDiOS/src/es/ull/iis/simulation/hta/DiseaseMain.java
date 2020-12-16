@@ -34,8 +34,9 @@ import es.ull.iis.simulation.hta.params.Discount;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StdDiscount;
 import es.ull.iis.simulation.hta.params.ZeroDiscount;
+import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.radios.RaDiOSRepository;
-import es.ull.iis.simulation.hta.simpletest.SimpleRareDiseaseRepository;
+import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseRepository;
 
 /**
  * Main class to launch simulation experiments
@@ -197,7 +198,7 @@ public class DiseaseMain {
 			str.append(LYListener.getStrHeader(shortName));
 			str.append(QALYListener.getStrHeader(shortName));
 		}
-		str.append(TimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredManifestations()));
+		str.append(TimeFreeOfComplicationsView.getStrHeader(false, interventions, secParams.getRegisteredManifestations(Manifestation.Type.CHRONIC)));
 		str.append(secParams.getStrHeader());
 		return str.toString();
 	}
@@ -362,7 +363,7 @@ public class DiseaseMain {
 	        	break;
 	        case 0: 
 	        default:
-	        	secParams = new SimpleRareDiseaseRepository(args1.nRuns, args1.nPatients); 
+	        	secParams = new TestSimpleRareDiseaseRepository(args1.nRuns, args1.nPatients); 
 	        	break;
 	        }
 	        	

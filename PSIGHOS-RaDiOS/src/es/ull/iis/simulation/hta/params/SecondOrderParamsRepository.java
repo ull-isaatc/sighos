@@ -168,12 +168,26 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	}
 
 	/**
-	 * Returns the already registered complication stages
-	 * @return The already registered complication stages
+	 * Returns the already registered manifestations
+	 * @return The already registered manifestations
 	 */
 	public Manifestation[] getRegisteredManifestations() {
 		final Manifestation[] array = new Manifestation[registeredManifestations.size()];
 		return (Manifestation[]) registeredManifestations.toArray(array);
+	}
+
+	/**
+	 * Returns the already registered manifestations of the specified type
+	 * @return The already registered manifestations of the specified type
+	 */
+	public Manifestation[] getRegisteredManifestations(Manifestation.Type type) {
+		final ArrayList<Manifestation> arrayTyped = new ArrayList<>();
+		for (final Manifestation manif : registeredManifestations) {
+			if (Manifestation.Type.CHRONIC.equals(manif))
+				arrayTyped.add(manif);
+		}
+		final Manifestation[] array = new Manifestation[arrayTyped.size()];
+		return (Manifestation[]) arrayTyped.toArray(array);
 	}
 
 	/**
@@ -286,6 +300,11 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	public void addInitProbParam(Named manifestation, String source, double detValue, RandomVariate rnd) {
 		final String name = getInitProbString(manifestation);
 		probabilityParams.put(name, new SecondOrderParam(this, name, "Probability of starting with " + manifestation, source, detValue, rnd));
+	}
+
+	public void addDeathProbParam(Named manifestation, String source, double detValue, RandomVariate rnd) {
+		final String name = getDeathProbString(manifestation);
+		probabilityParams.put(name, new SecondOrderParam(this, name, "Probability of dying from " + manifestation, source, detValue, rnd));
 	}
 	
 	/**

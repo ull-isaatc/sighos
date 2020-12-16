@@ -135,6 +135,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		associatedDeath.ensureCapacity(n + 1);
 		pInit.ensureCapacity(n + 1);
 		for (int i = 0; i < n + 1; i++) {
+			// This works only because Manifestation.generate() (this method) is called after SecondOrderParam.generate() in SecondOrderParamsRepository.generate()... Dangerous!
 			pInit.add(new StartWithComplicationParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getInitProbParam(this, i)));
 			associatedDeath.add(new DeathWithEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getDeathProbParam(this, i)));
 		}			

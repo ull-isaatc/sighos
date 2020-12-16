@@ -12,7 +12,7 @@ import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.RRCalculator;
-import es.ull.iis.simulation.hta.params.SecondOrderInterventionSpecificComplicationRR;
+import es.ull.iis.simulation.hta.params.SecondOrderInterventionSpecificRR;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -23,28 +23,40 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SimpleRareDiseaseRepository extends SecondOrderParamsRepository {
+public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository {
+	private final static int TEST = 2;
 	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
-	private final SecondOrderInterventionSpecificComplicationRR interventionRR;
+	private final SecondOrderInterventionSpecificRR interventionRR;
 	
 	/**
 	 * @param nRuns
 	 * @param nPatients
 	 * @param population
 	 */
-	public SimpleRareDiseaseRepository(int nRuns, int nPatients) {
+	public TestSimpleRareDiseaseRepository(int nRuns, int nPatients) {
 		super(nRuns, nPatients);
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
-		final Disease testDisease = new TestRareDisease1(this);
+		Disease testDisease = null;
+		switch (TEST) {
+		case 1: 
+			testDisease = new TestRareDisease1(this);
+			break;
+		case 2:
+			testDisease = new TestRareDisease2(this);
+			break;
+		default:
+			testDisease = new TestRareDisease1(this);
+			break;
+		}
 		registerPopulation(new TestPopulation(testDisease));
 		registerDisease(testDisease);
 		registerIntervention(new NullIntervention(this));
 		final Intervention int2 = new EffectiveIntervention(this);
 		registerIntervention(int2);
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
-		interventionRR = new SecondOrderInterventionSpecificComplicationRR(this, new SecondOrderParam[] {otherParams.get(STR_RR_PREFIX + int2)});
+		interventionRR = new SecondOrderInterventionSpecificRR(this, new SecondOrderParam[] {otherParams.get(STR_RR_PREFIX + int2)});
 	}
 
 	@Override
