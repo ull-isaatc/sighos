@@ -296,4 +296,8 @@ public abstract class Disease implements Named, Describable, GeneratesSecondOrde
 		}		
 	}
 	
+	@Override
+	public String toString() {
+		return name;
+	}
 }

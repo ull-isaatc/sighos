@@ -113,14 +113,14 @@ public class PatientInfo extends AsynchronousInfo {
 		String description = type.getDescription();
 		switch (type) {
 		case MANIFESTATION:
-			description = description + "\t" + manifestation.name();
+			description = description + "\t" + manifestation.name() + "\t" + manifestation.getType();
 			break;
 		case DEATH:
 			if (manifestation != null)
-				description = description + "\t" + manifestation.name();
+				description = description + "\t" + manifestation.name() + "\t" + manifestation.getType();
 			break;
 		case START:
-			description += "\t" + patient.getAge() + "\t" + patient.getDisease().name();
+			description += "\t" + patient.getAge() + "\t" + patient.getDisease() + "\t" + patient.getIntervention();
 			break;
 		default:
 			break;

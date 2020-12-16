@@ -24,7 +24,7 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository {
-	private final static int TEST = 2;
+	private final static int TEST = 3;
 	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
 	private final SecondOrderInterventionSpecificRR interventionRR;
@@ -45,6 +45,9 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 			break;
 		case 2:
 			testDisease = new TestRareDisease2(this);
+			break;
+		case 3:
+			testDisease = new TestRareDisease3(this);
 			break;
 		default:
 			testDisease = new TestRareDisease1(this);
