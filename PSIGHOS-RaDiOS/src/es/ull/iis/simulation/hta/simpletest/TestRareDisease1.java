@@ -56,7 +56,7 @@ public class TestRareDisease1 extends StagedDisease {
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addProbParam(manif1, "", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
-		secParams.addProbParam(manif1, manif2, "", P_MANIF1_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1_MANIF2));
+		secParams.addProbParam(manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
+		secParams.addProbParam(manif1, manif2, "Test", P_MANIF1_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1_MANIF2));
 	}
 }

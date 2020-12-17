@@ -17,7 +17,6 @@ public class RRFromLnCIVariate extends NormalVariate {
 	 * 
 	 */
 	public RRFromLnCIVariate() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/* (non-Javadoc)

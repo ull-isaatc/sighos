@@ -19,7 +19,6 @@ public class TestPopulation extends StdPopulation {
 	 */
 	public TestPopulation(Disease disease) {
 		super(disease);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -39,14 +38,10 @@ public class TestPopulation extends StdPopulation {
 
 	@Override
 	public void generate() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

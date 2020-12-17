@@ -35,8 +35,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	private final static String OBJ_TYPE_ID = "PAT";
 	/** The original patient, this one was cloned from */ 
 	private final Patient clonedFrom;
-	/** The intervention branch that this "clone" of the patient belongs to */
-	protected final int nIntervention;
 	/** The specific intervention assigned to the patient */
 	protected final Intervention intervention;
 	/** The timestamp when this patient enters the simulation */
@@ -63,17 +61,13 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 */
 	public Patient(final DiseaseProgressionSimulation simul, final Intervention intervention, final Population population) {
 		super(simul, simul.getPatientCounter(), OBJ_TYPE_ID);
-		// Initialize patients with no complications
 		this.intervention = intervention;
-		this.nIntervention = intervention.ordinal();
 		this.clonedFrom = null;
 		this.dead = false;
 		this.profile = population.getPatientProfile();
 		this.detailedState = new TreeSet<>();
-
 		this.initAge = BasicConfigParams.SIMUNIT.convert(profile.getInitAge(), TimeUnit.YEAR);
 		manifestationEvents = new TreeMap<>();
-		// TODO: Inicializar los arrays de las manifestaciones
 	}
 
 	/**
@@ -85,14 +79,12 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	public Patient(DiseaseProgressionSimulation simul, Patient original, Intervention intervention) {
 		super(simul, original.id, OBJ_TYPE_ID);
 		this.intervention = intervention;
-		this.nIntervention = intervention.ordinal();
 		this.clonedFrom = original;		
 		this.dead = false;
 		this.detailedState = new TreeSet<>();
 		this.profile = original.profile;
 		this.initAge = original.initAge;
 		manifestationEvents = new TreeMap<>();
-		// TODO: Inicializar los arrays de las manifestaciones
 	}
 
 	/**
@@ -144,7 +136,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return the identifier of the intervention applied to this patient
 	 */
 	public int getnIntervention() {
-		return nIntervention;
+		return intervention.ordinal();
 	}
 
 	/**
@@ -240,7 +232,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	}
 
 	/**
-	 * Return the timestamp when certain chronic complication started (or is planned to start)  
+	 * Returns the timestamp when certain chronic complication started (or is planned to start)  
 	 * @param manif A chronic complication
 	 * @return the timestamp when certain chronic complication started (or is planned to start)
 	 */
@@ -248,8 +240,11 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		return (!manifestationEvents.containsKey(manif)) ? Long.MAX_VALUE : manifestationEvents.get(manif).peekLast().getTs(); 
 	}
 	
+	/**
+	 * Recomputes time to death in case the risk increases
+	 * @param manif Manifestation that (potentially) induces a change in the risk of death 
+	 */
 	private void readjustDeath(Manifestation manif) {
-		// Recompute time to death in case the risk increases
 		final long newTimeToDeath = ((DiseaseProgressionSimulation) simul).getCommonParams().getTimeToDeath(this);
 		if (newTimeToDeath < deathEvent.getTs()) {
 			deathEvent.cancel();
@@ -258,6 +253,10 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		}		
 	}
 	
+	/**
+	 * Applies the indicated progression to the patient, adding the new events
+	 * @param progs Progression of the disease for this patient
+	 */
 	private void applyProgression(DiseaseProgression progs) {
 		for (DiseaseProgressionPair pr : progs.getNewEvents()) {
 			final ManifestationEvent ev = new ManifestationEvent(pr);

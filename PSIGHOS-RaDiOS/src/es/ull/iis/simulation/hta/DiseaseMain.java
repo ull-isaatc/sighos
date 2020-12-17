@@ -232,7 +232,7 @@ public class DiseaseMain {
 			lyListeners[i] = new LYListener(discountEffect, nPatients);
 			qalyListeners[i] = new QALYListener(secParams.getUtilityCalculator(), discountEffect, nPatients);
 		}
-		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, interventions[0], nPatients, secParams, timeHorizon);
+		DiseaseProgressionSimulation simul = new DiseaseProgressionSimulation(id, interventions[0], secParams, timeHorizon);
 		simul.addInfoReceiver(costListeners[0]);
 		simul.addInfoReceiver(lyListeners[0]);
 		simul.addInfoReceiver(qalyListeners[0]);

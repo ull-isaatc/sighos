@@ -17,7 +17,9 @@ import es.ull.iis.simulation.hta.params.TimeToEventParam;
  *
  */
 public abstract class Transition implements GeneratesSecondOrderInstances {
+	/** Manifestation that produces the transition */
 	private final Manifestation srcManifestation;
+	/** Manifestation that the transition leads to */
 	private final Manifestation destManifestation;
 	/** The time to event for each available transition and each simulation */
 	private final ArrayList<TimeToEventParam> time2Event;
@@ -38,14 +40,16 @@ public abstract class Transition implements GeneratesSecondOrderInstances {
 	}
 
 	/**
-	 * @return the srcManifestation
+	 * Returns the manifestation that produces the transition
+	 * @return the manifestation that produces the transition
 	 */
 	public Manifestation getSrcManifestation() {
 		return srcManifestation;
 	}
 
 	/**
-	 * @return the destManifestation
+	 * Returns the manifestation that the transition leads to
+	 * @return the manifestation that the transition leads to
 	 */
 	public Manifestation getDestManifestation() {
 		return destManifestation;

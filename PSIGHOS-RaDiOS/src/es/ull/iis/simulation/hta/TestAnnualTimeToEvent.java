@@ -19,7 +19,6 @@ public class TestAnnualTimeToEvent {
 	 * 
 	 */
 	public TestAnnualTimeToEvent() {
-		// TODO Auto-generated constructor stub
 	}
 
 	private static double getAnnualBasedTimeToEvent(double[][] probs, RandomNumber rng, double rr) {

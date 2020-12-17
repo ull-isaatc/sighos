@@ -39,12 +39,12 @@ public class DiseaseProgressionSimulation extends Simulation {
 	 * @param population A collection of populations that will serve to generate patients
 	 * @param timeHorizon Duration of the simulation (in years)
 	 */
-	public DiseaseProgressionSimulation(int id, Intervention intervention, int nPatients, SecondOrderParamsRepository commonParams, int timeHorizon) {
+	public DiseaseProgressionSimulation(int id, Intervention intervention, SecondOrderParamsRepository commonParams, int timeHorizon) {
 		super(id, DESCRIPTION + " " + intervention.getDescription(), BasicConfigParams.SIMUNIT, 0L, BasicConfigParams.SIMUNIT.convert(timeHorizon, TimeUnit.YEAR));
 		this.commonParams = commonParams;
 		this.cloned = false;
 		this.intervention = intervention;
-		this.nPatients = nPatients;
+		this.nPatients = commonParams.getnPatients();
 		this.generatedPatients = new Patient[nPatients];	
 		new PatientGenerator(this, nPatients, intervention, commonParams.getPopulation());
 	}

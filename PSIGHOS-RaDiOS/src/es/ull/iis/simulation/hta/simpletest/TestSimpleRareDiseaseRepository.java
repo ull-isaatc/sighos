@@ -24,7 +24,7 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository {
-	private final static int TEST = 3;
+	private final static int TEST = 4;
 	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
 	private final SecondOrderInterventionSpecificRR interventionRR;
@@ -48,6 +48,9 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 			break;
 		case 3:
 			testDisease = new TestRareDisease3(this);
+			break;
+		case 4:
+			testDisease = new TestRareDisease4(this);
 			break;
 		default:
 			testDisease = new TestRareDisease1(this);
@@ -80,7 +83,6 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 
 		public NullIntervention(SecondOrderParamsRepository secParams) {
 			super(secParams, "NONE", "Null intervention");
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
@@ -103,7 +105,6 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 
 		public EffectiveIntervention(SecondOrderParamsRepository secParams) {
 			super(secParams, "INTERV", "Effective intervention");
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
