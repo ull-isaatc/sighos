@@ -43,6 +43,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	/** Death associated to the acute events */
 	private final ArrayList<DeathWithEventParam> associatedDeath;
 	
+	// TODO: Incluir probabilidad de llevar a diagnóstico
 	/**
 	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
 	 * @param secParams Common parameters repository

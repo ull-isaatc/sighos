@@ -41,6 +41,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	protected long startTs;
 	/** True if the patient is dead */
 	private boolean dead; 
+	// TODO: Pasar a PatientProfile
 	/** True if the patient has been diagnosed of his/her disease */
 	private boolean diagnosed;
 	/** The detailed state of the patient */

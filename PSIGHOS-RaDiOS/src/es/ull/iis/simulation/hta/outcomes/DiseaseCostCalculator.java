@@ -32,12 +32,12 @@ public class DiseaseCostCalculator implements CostCalculator {
 	}
 
 	@Override
-	public double getCostOfComplication(Patient pat, Manifestation manif) {
+	public double getCostOfManifestation(Patient pat, Manifestation manif) {
 		return secParams.getCostsForManifestation(manif, pat.getSimulation().getIdentifier())[1];
 	}
 
 	@Override
-	public double getCostForAcuteEvent(Patient pat, Manifestation manif) {
+	public double getCostForAcuteManifestation(Patient pat, Manifestation manif) {
 		return secParams.getCostForManifestation(manif, pat.getSimulation().getIdentifier());
 	}
 

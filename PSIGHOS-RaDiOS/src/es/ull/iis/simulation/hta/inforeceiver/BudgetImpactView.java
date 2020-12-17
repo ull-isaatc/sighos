@@ -129,7 +129,7 @@ public class BudgetImpactView implements ExperimentListener {
 						final double initAge = lastAge[pat.getIdentifier()]; 
 						switch(pInfo.getType()) {
 						case MANIFESTATION:
-							update(calc.getCostOfComplication(pat, pInfo.getManifestation()), endAge);
+							update(calc.getCostOfManifestation(pat, pInfo.getManifestation()), endAge);
 						case DEATH:
 							// Update outcomes
 							if (endAge > initAge) {

@@ -78,7 +78,7 @@ public class CostListener extends Listener implements StructuredOutputListener {
 			lastTs[pat.getIdentifier()] = ts;
 			switch(pInfo.getType()) {
 			case MANIFESTATION:
-				update(pat, calc.getCostOfComplication(pat, pInfo.getManifestation()), endAge);
+				update(pat, calc.getCostOfManifestation(pat, pInfo.getManifestation()), endAge);
 			case DEATH:
 				// Update outcomes
 				if (endAge > initAge) {

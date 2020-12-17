@@ -145,7 +145,7 @@ public class AnnualCostView implements ExperimentListener {
 				final double endAge = TimeUnit.DAY.convert(ts, simUnit) / BasicConfigParams.YEAR_CONVERSION;
 				switch(pInfo.getType()) {
 				case MANIFESTATION:
-					diseaseCost[pInfo.getManifestation().getDisease().ordinal()][(int) endAge] += discount.applyPunctualDiscount(calc.getCostOfComplication(pat, pInfo.getManifestation()), endAge);
+					diseaseCost[pInfo.getManifestation().getDisease().ordinal()][(int) endAge] += discount.applyPunctualDiscount(calc.getCostOfManifestation(pat, pInfo.getManifestation()), endAge);
 				case DEATH:
 					// Update outcomes
 					updateAll(pat, initAge, endAge);

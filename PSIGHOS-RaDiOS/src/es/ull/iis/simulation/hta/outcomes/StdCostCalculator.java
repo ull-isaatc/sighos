@@ -42,12 +42,12 @@ public class StdCostCalculator implements CostCalculator {
 	}
 	
 	@Override
-	public double getCostForAcuteEvent(Patient pat, Manifestation manif) {
+	public double getCostForAcuteManifestation(Patient pat, Manifestation manif) {
 		return secParams.getCostForManifestation(manif, pat.getSimulation().getIdentifier());
 	}
 
 	@Override
-	public double getCostOfComplication(Patient pat, Manifestation newEvent) {
+	public double getCostOfManifestation(Patient pat, Manifestation newEvent) {
 		return secParams.getCostsForManifestation(newEvent, pat.getSimulation().getIdentifier())[1];
 	}
 

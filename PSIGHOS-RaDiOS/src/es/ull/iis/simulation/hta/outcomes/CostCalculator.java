@@ -30,7 +30,7 @@ public interface CostCalculator {
 	 * @param newEvent A new complication for the patient
 	 * @return the cost of a complication upon incidence
 	 */
-	public double getCostOfComplication(Patient pat, Manifestation newEvent);
+	public double getCostOfManifestation(Patient pat, Manifestation newEvent);
 	
 	/**
 	 * Returns the cost of an acute event
@@ -38,7 +38,7 @@ public interface CostCalculator {
 	 * @param comp The acute event
 	 * @return the cost of an acute event
 	 */
-	public double getCostForAcuteEvent(Patient pat, Manifestation comp);
+	public double getCostForAcuteManifestation(Patient pat, Manifestation comp);
 
 	/**
 	 * Returns the costs incurred by the intervention alone
@@ -76,4 +76,5 @@ public interface CostCalculator {
 	 */
 	public double getStdManagementCostWithinPeriod(Patient pat, double initAge, double endAge);
 	
+	// TODO: Añadir getter para coste de diagnóstico y de cribado
 }
