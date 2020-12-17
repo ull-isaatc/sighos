@@ -22,6 +22,8 @@ public class SecondOrderParam implements GeneratesSecondOrderInstances {
 	private final String source;
 	/** The probability distribution that characterizes the uncertainty on the parameter */
 	private final RandomVariate rnd;
+	// TODO: Pasar a array normal. El tamaño se sabe desde el principio (secParams.getnRuns() + 1). 
+	// TODO: Repensar si es mejor 1) generar con "generate"; 2) generar desde el constructor (cuidado con parámetros dependientes de otros) o 3) inicializar y generar dinámicamente cuando se pida cada instancia (más lento pero más flexible)
 	/** All the generated values for this parameter. Index 0 is the deterministic/expected value */
 	protected final ArrayList<Double> generatedValues;
 

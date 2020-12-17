@@ -3,11 +3,14 @@
  */
 package es.ull.iis.simulation.hta.interventions;
 
+import java.util.TreeMap;
+
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.progression.Modification;
 import es.ull.iis.simulation.model.Describable;
 
 /**
@@ -27,6 +30,11 @@ public abstract class Intervention implements Named, Describable, GeneratesSecon
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
 
+	private Modification lifeExpectancyModification = null;
+	private Modification allParameterModification = null;
+	/** A map where the key is the name of a parameter, and the value is a modification */
+	private final TreeMap <String, Modification> manifestationModifications;
+	
 	/**
 	 * Creates a second order characterization of an intervention
 	 * @param name Short name
@@ -36,6 +44,7 @@ public abstract class Intervention implements Named, Describable, GeneratesSecon
 		this.secParams = secParams;
 		this.name = name;
 		this.description = description;
+		this.manifestationModifications = new TreeMap<>();
 	}
 
 	@Override
@@ -97,5 +106,44 @@ public abstract class Intervention implements Named, Describable, GeneratesSecon
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	/**
+	 * @return the lifeExpectancyModification
+	 */
+	public Modification getLifeExpectancyModification() {
+		return lifeExpectancyModification;
+	}
+
+	/**
+	 * @param lifeExpectancyModification the lifeExpectancyModification to set
+	 */
+	public void setLifeExpectancyModification(Modification lifeExpectancyModification) {
+		this.lifeExpectancyModification = lifeExpectancyModification;
+	}
+
+	/**
+	 * @return the allParameterModification
+	 */
+	public Modification getAllParameterModification() {
+		return allParameterModification;
+	}
+
+	/**
+	 * @param allParameterModification the allParameterModification to set
+	 */
+	public void setAllParameterModification(Modification allParameterModification) {
+		this.allParameterModification = allParameterModification;
+	}
+	
+	public void addManifestationModification(String paramName, Modification modif) {
+		manifestationModifications.put(paramName, modif);
+	}
+	
+	public Modification getManifestationModification(String paramName) {
+		if (!manifestationModifications.containsKey(paramName)) {
+			return Modification.NO_MODIFICATION;
+		}
+		return manifestationModifications.get(paramName);
 	}
 }

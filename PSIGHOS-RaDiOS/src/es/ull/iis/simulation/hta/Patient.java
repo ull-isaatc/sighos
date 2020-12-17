@@ -41,6 +41,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	protected long startTs;
 	/** True if the patient is dead */
 	private boolean dead; 
+	/** True if the patient has been diagnosed of his/her disease */
+	private boolean diagnosed;
 	/** The detailed state of the patient */
 	private final TreeSet<Manifestation> detailedState;
 	/** Patient profile */
@@ -64,6 +66,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.intervention = intervention;
 		this.clonedFrom = null;
 		this.dead = false;
+		this.diagnosed = false;
 		this.profile = population.getPatientProfile();
 		this.detailedState = new TreeSet<>();
 		this.initAge = BasicConfigParams.SIMUNIT.convert(profile.getInitAge(), TimeUnit.YEAR);
@@ -81,6 +84,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.intervention = intervention;
 		this.clonedFrom = original;		
 		this.dead = false;
+		this.diagnosed = false;
 		this.detailedState = new TreeSet<>();
 		this.profile = original.profile;
 		this.initAge = original.initAge;
@@ -176,6 +180,20 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 */
 	public void setDead() {
 		this.dead = true;
+	}
+
+	/**
+	 * @return the diagnosed
+	 */
+	public boolean isDiagnosed() {
+		return diagnosed;
+	}
+
+	/**
+	 * @param diagnosed the diagnosed to set
+	 */
+	public void setDiagnosed(boolean diagnosed) {
+		this.diagnosed = diagnosed;
 	}
 
 	@Override
@@ -388,6 +406,21 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		
 	}
 
+	/**
+	 * The event that represents when the patient is diagnosed
+	 * @author Iván Castilla
+	 *
+	 */
+	public final class DiagnosedEvent extends DiscreteEvent {
+		public DiagnosedEvent(long ts) {
+			super(ts);
+		}
+		
+		@Override
+		public void event() {
+			setDiagnosed(true);
+		}
+	}
 	/**
 	 * The event of the death of the patient.  
 	 * @author Ivan Castilla Rodriguez
