@@ -17,6 +17,7 @@ public class TestAcuteManifestation1 extends Manifestation {
 	private final static double PUNCTUAL_COST = 1000.0;
 	private final static double DISUTILITY = 0.2;
 	private final static double P_DEAD = 0.1;
+	private final static double P_DIAG = 0.25;
 
 	/**
 	 * @param secParams
@@ -34,6 +35,7 @@ public class TestAcuteManifestation1 extends Manifestation {
 		secParams.addDisutilityParam(this, "Disutility for " + this, "Test", DISUTILITY, RandomVariateFactory.getInstance("UniformVariate", DISUTILITY - 0.05, DISUTILITY + 0.05));
 		secParams.addTransitionCostParam(this, "Punctual cost for " + this, "Test", 2020, PUNCTUAL_COST, SecondOrderParamsRepository.getRandomVariateForCost(PUNCTUAL_COST));
 		secParams.addDeathProbParam(this, "Test", P_DEAD, SecondOrderParamsRepository.getRandomVariateForProbability(P_DEAD));
+		secParams.addDiagnosisProbParam(this, "Test", P_DIAG, SecondOrderParamsRepository.getRandomVariateForProbability(P_DIAG));
 	}
 
 }

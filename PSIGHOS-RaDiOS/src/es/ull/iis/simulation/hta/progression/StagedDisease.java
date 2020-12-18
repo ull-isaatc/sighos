@@ -69,7 +69,7 @@ public abstract class StagedDisease extends Disease {
 				// efecto era contraproducente y solo sustituía si era menor, pero ahora debo ser menos restrictivo. ¿TIENE ESTO EFECTOS COLATERALES? 
 				if (previousTimes2events.get(destManif) != Long.MAX_VALUE)
 					prog.addCancelEvent(destManif);
-				prog.addNewEvent(destManif, times2events.get(destManif), destManif.producesDeath(pat));
+				prog.addNewEvent(destManif, times2events.get(destManif));
 			}
 		}
 		return prog;

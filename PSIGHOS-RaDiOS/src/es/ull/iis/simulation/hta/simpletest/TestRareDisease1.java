@@ -40,7 +40,7 @@ public class TestRareDisease1 extends StagedDisease {
 			@Override
 			protected TimeToEventParam getTimeToEventParam(int id) {
 				return new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), 
-						secParams.getProbability(getManifestations()[0], id), SecondOrderParamsRepository.NO_RR);
+						secParams.getProbability(manif1, id), SecondOrderParamsRepository.NO_RR);
 			}
 		}; 
 		addTransition(healthy_manif1);
@@ -48,7 +48,7 @@ public class TestRareDisease1 extends StagedDisease {
 			@Override
 			protected TimeToEventParam getTimeToEventParam(int id) {			
 				return new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), 
-						secParams.getProbability(getManifestations()[0], getManifestations()[1], id), ((TestSimpleRareDiseaseRepository)secParams).getInterventionRR());
+						secParams.getProbability(manif1, manif2, id), ((TestSimpleRareDiseaseRepository)secParams).getInterventionRR());
 			}
 		}; 
 		addTransition(manif1_manif2);

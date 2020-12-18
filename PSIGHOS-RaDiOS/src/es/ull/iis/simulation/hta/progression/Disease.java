@@ -23,37 +23,6 @@ import es.ull.iis.simulation.model.Describable;
  * @author Iván Castilla Rodríguez
  */
 public abstract class Disease implements Named, Describable, GeneratesSecondOrderInstances, CreatesSecondOrderParameters, Comparable<Disease> {
-	/** Absence of progression */
-	private static final DiseaseProgression NULL_PROGRESSION = new DiseaseProgression(); 
-	/** Absence of manifestations */
-	private static final Manifestation[] NON_MANIFESTATIONS = new Manifestation[0];
-	/** A Disease that represents a non-disease state, i.e., being healthy. Useful to avoid null comparisons. */
-	public static final Disease HEALTHY = new Disease(null, "HEALTHY", "Healthy") {
-
-		@Override
-		public DiseaseProgression getProgression(Patient pat) {
-			return NULL_PROGRESSION;
-		}
-
-		@Override
-		public double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge) {
-			return 0;
-		}
-
-		@Override
-		public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
-			return 0;
-		}
-
-		@Override
-		public Manifestation[] getManifestations() {
-			return NON_MANIFESTATIONS;
-		}
-
-		@Override
-		public void registerSecondOrderParameters() {
-		}
-	};
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
 	/** An index to be used when this class is used in TreeMaps or other ordered structures. The order is unique among the

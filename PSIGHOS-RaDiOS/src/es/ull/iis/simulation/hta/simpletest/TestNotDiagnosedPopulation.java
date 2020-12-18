@@ -13,12 +13,12 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class TestPopulation extends StdPopulation {
+public class TestNotDiagnosedPopulation extends StdPopulation {
 
 	/**
 	 * @param disease
 	 */
-	public TestPopulation(SecondOrderParamsRepository secParams, Disease disease) {
+	public TestNotDiagnosedPopulation(SecondOrderParamsRepository secParams, Disease disease) {
 		super(secParams, disease);
 	}
 
@@ -47,7 +47,7 @@ public class TestPopulation extends StdPopulation {
 
 	@Override
 	protected double getPDiagnosed() {
-		return 1.0;
+		return 0.0;
 	}
 
 }

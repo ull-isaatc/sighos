@@ -210,7 +210,7 @@ public class EpidemiologicView implements ExperimentListener {
 						break;
 					case DEATH:
 						nDeaths[interval]++;
-						final Named cause = pInfo.getCauseOfDeath();
+						final Named cause = pInfo.getCause();
 						if (cause != null) {
 							if (!nDeathsByCause.containsKey(cause)) {
 								nDeathsByCause.put(cause, new int[nIntervals]);

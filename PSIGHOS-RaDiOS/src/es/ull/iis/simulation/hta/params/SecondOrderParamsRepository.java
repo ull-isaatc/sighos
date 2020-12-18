@@ -12,9 +12,11 @@ import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
+import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.DeathSubmodel;
 import es.ull.iis.simulation.hta.progression.Disease;
+import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
@@ -65,6 +67,8 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	public static final String STR_DEATH_PREFIX = "DEATH_";
 	/** String prefix for initial parameters */
 	public static final String STR_INIT_PREFIX = "INIT_";
+	/** String prefix for diagnosis parameters */
+	public static final String STR_DIAGNOSIS_PREFIX = "DIAG_";
 	/** String for healthy individuals */
 	public static final String STR_HEALTHY = "HEALTHY";
 
@@ -97,6 +101,30 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	private Population registeredPopulation = null;
 	/** The number of simulations to run by using this repository */
 	final private int nRuns;
+	/** Absence of progression */
+	private static final DiseaseProgression NULL_PROGRESSION = new DiseaseProgression(); 
+	/** A Disease that represents a non-disease state, i.e., being healthy. Useful to avoid null comparisons. */
+	public final Disease HEALTHY = new Disease(this, "HEALTHY", "Healthy") {
+
+		@Override
+		public DiseaseProgression getProgression(Patient pat) {
+			return NULL_PROGRESSION;
+		}
+
+		@Override
+		public double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge) {
+			return 0;
+		}
+
+		@Override
+		public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
+			return 0;
+		}
+
+		@Override
+		public void registerSecondOrderParameters() {
+		}
+	};
 	
 	/**
 	 * Creates a repository of second order parameters. By default, generates the base case values.
@@ -307,6 +335,11 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 		probabilityParams.put(name, new SecondOrderParam(this, name, "Probability of dying from " + manifestation, source, detValue, rnd));
 	}
 	
+	public void addDiagnosisProbParam(Named manifestation, String source, double detValue, RandomVariate rnd) {
+		final String name = getDiagnosisProbString(manifestation);
+		probabilityParams.put(name, new SecondOrderParam(this, name, "Probability of being diagnosed from " + manifestation, source, detValue, rnd));
+	}
+	
 	/**
 	 * Adds a cost parameter
 	 * @param param Cost parameter
@@ -468,6 +501,16 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	}
 
 	/**
+	 * Returns a value for the probability of being diagnosed from a manifestation
+	 * @param stage Manifestation
+	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
+	 */	
+	public double getDiagnosisProbParam(Named stage, int id) {
+		final SecondOrderParam param = probabilityParams.get(getDiagnosisProbString(stage));
+		return (param == null) ? 0.0 : param.getValue(id); 
+	}
+
+	/**
 	 * Returns the increase mortality rate associated to a complication or complication stage; 1.0 if no additional risk is associated
 	 * @param stage Complication or complication stage
 	 * @return the increase mortality rate associated to a complication or complication stage; 1.0 if no additional risk is associated
@@ -588,6 +631,15 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	 */
 	public static String getDeathProbString(Named to) {
 		return STR_PROBABILITY_PREFIX + STR_DEATH_PREFIX + to.name();
+	}
+	
+	/**
+	 * Builds a string that represents a probability of being diagnosed from a manifestation
+	 * @param to Manifestation
+	 * @return a string that represents a probability of being diagnosed from a manifestation
+	 */
+	public static String getDiagnosisProbString(Named to) {
+		return STR_PROBABILITY_PREFIX + STR_DIAGNOSIS_PREFIX + to.name();
 	}
 	
 	/**

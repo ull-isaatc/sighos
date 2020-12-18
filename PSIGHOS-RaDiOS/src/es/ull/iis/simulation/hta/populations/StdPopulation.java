@@ -23,15 +23,19 @@ public abstract class StdPopulation implements Population {
 	/** Random number generator */
 	private final RandomNumber rng;
 
+	/** Probability of a patient with the disease of starting with a diagnosis */
+	private final double pDiagnosed;
 	private final Disease disease;
-	
+	private final SecondOrderParamsRepository secParams;
 	/**
 	 * Creates a standard population
 	 */
-	public StdPopulation(Disease disease) {
+	public StdPopulation(SecondOrderParamsRepository secParams, Disease disease) {
 		pMan = getPMan();
+		pDiagnosed = getPDiagnosed();
 		baselineAge = getBaselineAge();
 		this.disease = disease;
+		this.secParams = secParams;
 		rng = SecondOrderParamsRepository.getRNG_FIRST_ORDER();
 	}
 
@@ -39,8 +43,12 @@ public abstract class StdPopulation implements Population {
 	public PatientProfile getPatientProfile() {
 		final int sex = (rng.draw() < pMan) ? BasicConfigParams.MAN : BasicConfigParams.WOMAN;
 		final double initAge = Math.min(Math.max(baselineAge.generate(), getMinAge()), getMaxAge());
-		final Disease dis = (rng.draw() < getPDisease()) ? disease : Disease.HEALTHY;
-		return new PatientProfile(initAge, sex, dis);
+		// If the patient has the disease
+		if (rng.draw() < getPDisease()) {
+			return new PatientProfile(initAge, sex, disease, rng.draw() < pDiagnosed);
+		}
+		// Healthy patients are assumed to be "diagnosed"
+		return new PatientProfile(initAge, sex, secParams.HEALTHY, true);
 	}
 
 	@Override
@@ -62,6 +70,11 @@ public abstract class StdPopulation implements Population {
 	 * @return the probability of being a man according to the population characteristics
 	 */
 	protected abstract double getPMan();
+	/**
+	 * Creates and returns the probability of starting with a diagnosis according to the population characteristics.
+	 * @return the probability of starting with a diagnosis according to the population characteristics
+	 */
+	protected abstract double getPDiagnosed();	
 	/**
 	 * Creates and returns a function to assign the baseline age
 	 * @return a function to assign the baseline age

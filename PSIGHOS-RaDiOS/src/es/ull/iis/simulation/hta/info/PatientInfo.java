@@ -22,7 +22,8 @@ public class PatientInfo extends AsynchronousInfo {
 	public enum Type {
 			START ("PATIENT STARTS"),
 			MANIFESTATION ("MANIFESTATION"),
-			DEATH ("PATIENT DIES");
+			DIAGNOSIS ("PATIENT_DIAGNOSED"),
+			DEATH ("PATIENT_DIES");
 			
 			private final String description;
 			
@@ -106,13 +107,19 @@ public class PatientInfo extends AsynchronousInfo {
 		return manifestation;
 	}
 
-	public Named getCauseOfDeath() {
+	/**
+	 * For DIAGNOSIS and DEATH pieces of information, returns the manifestation that led to that event.
+	 * @return the manifestation that led to DEATH or DIAGNOSIS
+	 */
+	public Named getCause() {
 		return manifestation;
 	}
+	
 	public String toString() {
 		String description = type.getDescription();
 		switch (type) {
 		case MANIFESTATION:
+		case DIAGNOSIS:
 			description = description + "\t" + manifestation.name() + "\t" + manifestation.getType();
 			break;
 		case DEATH:

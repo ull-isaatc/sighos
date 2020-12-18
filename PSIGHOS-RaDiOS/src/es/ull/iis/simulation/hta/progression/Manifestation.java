@@ -3,15 +3,13 @@
  */
 package es.ull.iis.simulation.hta.progression;
 
-import java.util.ArrayList;
-
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
-import es.ull.iis.simulation.hta.params.DeathWithEventParam;
+import es.ull.iis.simulation.hta.params.MultipleBernoulliParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.StartWithComplicationParam;
+import es.ull.iis.simulation.hta.params.BernoulliParam;
 import es.ull.iis.simulation.model.Describable;
 
 /**
@@ -39,11 +37,12 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	private final Type type;
 	
 	/** Probability that a patient starts in this stage */
-	private final ArrayList<StartWithComplicationParam> pInit;
+	private final BernoulliParam[] pInit;
 	/** Death associated to the acute events */
-	private final ArrayList<DeathWithEventParam> associatedDeath;
+	private final MultipleBernoulliParam[] associatedDeath;
+	/** Probability that this manifestation leads to diagnose the patient in case he/she is not already diagnosed */
+	private final MultipleBernoulliParam[] pDiagnose;
 	
-	// TODO: Incluir probabilidad de llevar a diagnóstico
 	/**
 	 * Creates a new complication stage of a {@link ChronicComplication chronic complication} defined in the model
 	 * @param secParams Common parameters repository
@@ -58,8 +57,9 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 		this.description = description;
 		this.disease = disease;
 		this.type = type;
-		pInit = new ArrayList<>();
-		associatedDeath = new ArrayList<>();
+		pInit = new BernoulliParam[secParams.getnRuns() + 1];
+		associatedDeath = new MultipleBernoulliParam[secParams.getnRuns() + 1];
+		pDiagnose = new MultipleBernoulliParam[secParams.getnRuns() + 1];
 	}
 	
 	/**
@@ -112,8 +112,17 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	 * @param pat Patient
 	 * @return True if the acute onset of the manifestation produces the death of the patient
 	 */
-	public boolean producesDeath(Patient pat) {
-		return associatedDeath.get(pat.getSimulation().getIdentifier()).getValue(pat);
+	public boolean leadsToDeath(Patient pat) {
+		return associatedDeath[pat.getSimulation().getIdentifier()].getValue(pat);
+	}
+	
+	/**
+	 * Returns true if the acute onset of the manifestation leads to the diagnosis of the patient 
+	 * @param pat Patient
+	 * @return True if the acute onset of the manifestation leads to the diagnosis of the patient
+	 */
+	public boolean leadsToDiagnose(Patient pat) {
+		return pDiagnose[pat.getSimulation().getIdentifier()].getValue(pat);
 	}
 	
 	@Override
@@ -133,21 +142,20 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	@Override
 	public void generate() {
 		final int n = secParams.getnRuns();
-		associatedDeath.ensureCapacity(n + 1);
-		pInit.ensureCapacity(n + 1);
 		for (int i = 0; i < n + 1; i++) {
 			// This works only because Manifestation.generate() (this method) is called after SecondOrderParam.generate() in SecondOrderParamsRepository.generate()... Dangerous!
-			pInit.add(new StartWithComplicationParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getInitProbParam(this, i)));
-			associatedDeath.add(new DeathWithEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getDeathProbParam(this, i)));
+			pInit[i] = new BernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getInitProbParam(this, i));
+			associatedDeath[i] = new MultipleBernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getDeathProbParam(this, i));
+			pDiagnose[i] = new MultipleBernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getDiagnosisProbParam(this, i));
 		}			
 	}
 	
 	public void reset(int id) {
-		associatedDeath.get(id).reset();
+		associatedDeath[id].reset();
 	}
 	
 	public boolean hasManifestationAtStart(Patient pat) {
-		final StartWithComplicationParam param = pInit.get(pat.getSimulation().getIdentifier()); 
+		final BernoulliParam param = pInit[pat.getSimulation().getIdentifier()]; 
 		return (param == null) ? false : param.getValue(pat);
 	}
 }

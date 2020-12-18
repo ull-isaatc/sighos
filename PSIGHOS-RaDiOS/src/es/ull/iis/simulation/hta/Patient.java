@@ -41,7 +41,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	protected long startTs;
 	/** True if the patient is dead */
 	private boolean dead; 
-	// TODO: Pasar a PatientProfile
 	/** True if the patient has been diagnosed of his/her disease */
 	private boolean diagnosed;
 	/** The detailed state of the patient */
@@ -67,8 +66,8 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.intervention = intervention;
 		this.clonedFrom = null;
 		this.dead = false;
-		this.diagnosed = false;
 		this.profile = population.getPatientProfile();
+		this.diagnosed = profile.isDiagnosedFromStart();
 		this.detailedState = new TreeSet<>();
 		this.initAge = BasicConfigParams.SIMUNIT.convert(profile.getInitAge(), TimeUnit.YEAR);
 		manifestationEvents = new TreeMap<>();
@@ -85,7 +84,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		this.intervention = intervention;
 		this.clonedFrom = original;		
 		this.dead = false;
-		this.diagnosed = false;
+		this.diagnosed = original.diagnosed;
 		this.detailedState = new TreeSet<>();
 		this.profile = original.profile;
 		this.initAge = original.initAge;
@@ -114,7 +113,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return True if the patient is currently healthy; false otherwise
 	 */
 	public boolean isHealthy() {
-		return Disease.HEALTHY.equals(getDisease());
+		return ((DiseaseProgressionSimulation) simul).getCommonParams().HEALTHY.equals(getDisease());
 	}
 	
 	/**
@@ -372,8 +371,15 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 							Patient.this.detailedState.remove(trans.getSrcManifestation());
 					}
 				}
-				
-				if (progress.causesDeath()) {
+
+				// If not already diagnosed, checks whether this manifestation leads to a diagnosis
+				if (!isDiagnosed()) {
+					if (manifestation.leadsToDiagnose(Patient.this)) {
+						setDiagnosed(true);
+						simul.notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DIAGNOSIS, manifestation, this.getTs()));
+					}					
+				}
+				if (manifestation.leadsToDeath(Patient.this)) {
 					deathEvent.cancel();
 					deathEvent = new DeathEvent(ts, manifestation);
 					simul.addEvent(deathEvent);
@@ -407,21 +413,6 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		
 	}
 
-	/**
-	 * The event that represents when the patient is diagnosed
-	 * @author Iván Castilla
-	 *
-	 */
-	public final class DiagnosedEvent extends DiscreteEvent {
-		public DiagnosedEvent(long ts) {
-			super(ts);
-		}
-		
-		@Override
-		public void event() {
-			setDiagnosed(true);
-		}
-	}
 	/**
 	 * The event of the death of the patient.  
 	 * @author Ivan Castilla Rodriguez

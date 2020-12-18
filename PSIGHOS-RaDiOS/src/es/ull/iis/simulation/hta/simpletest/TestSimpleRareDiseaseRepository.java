@@ -15,6 +15,7 @@ import es.ull.iis.simulation.hta.params.RRCalculator;
 import es.ull.iis.simulation.hta.params.SecondOrderInterventionSpecificRR;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
+import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 import simkit.random.RandomVariateFactory;
@@ -24,7 +25,7 @@ import simkit.random.RandomVariateFactory;
  *
  */
 public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository {
-	private final static int TEST = 4;
+	private final static int TEST = 5;
 	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
 	private final SecondOrderInterventionSpecificRR interventionRR;
@@ -39,24 +40,33 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
 		Disease testDisease = null;
+		Population testPopulation = null;
 		switch (TEST) {
 		case 1: 
 			testDisease = new TestRareDisease1(this);
+			testPopulation = new TestPopulation(this, testDisease);
 			break;
 		case 2:
 			testDisease = new TestRareDisease2(this);
+			testPopulation = new TestPopulation(this, testDisease);
 			break;
 		case 3:
 			testDisease = new TestRareDisease3(this);
+			testPopulation = new TestPopulation(this, testDisease);
 			break;
 		case 4:
 			testDisease = new TestRareDisease4(this);
+			testPopulation = new TestPopulation(this, testDisease);
+			break;
+		case 5:
+			testDisease = new TestRareDisease4(this);
+			testPopulation = new TestNotDiagnosedPopulation(this, testDisease);
 			break;
 		default:
 			testDisease = new TestRareDisease1(this);
 			break;
 		}
-		registerPopulation(new TestPopulation(testDisease));
+		registerPopulation(testPopulation);
 		registerDisease(testDisease);
 		registerIntervention(new NullIntervention(this));
 		final Intervention int2 = new EffectiveIntervention(this);

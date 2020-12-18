@@ -26,21 +26,12 @@ public class DiseaseProgression {
 	}
 
 	/**
-	 * Adds the progression to a new complication
-	 * @param stage Stage of the complication to progress to
-	 * @param timeToEvent Timestamp when this complication is predicted to appear
+	 * Adds the progression to a new manifestation
+	 * @param stage Manifestation to progress to
+	 * @param timeToEvent Timestamp when this manifestation is predicted to appear
 	 */
 	public void addNewEvent(Manifestation stage, long timeToEvent) {
 		newEvents.add(new DiseaseProgressionPair(stage, timeToEvent));
-	}
-	
-	/**
-	 * Adds the progression to a new complication
-	 * @param stage Stage of the complication to progress to
-	 * @param timeToEvent Timestamp when this complication is predicted to appear
-	 */
-	public void addNewEvent(Manifestation stage, long timeToEvent, boolean causesDeath) {
-		newEvents.add(new DiseaseProgressionPair(stage, timeToEvent, causesDeath));
 	}
 	
 	/**

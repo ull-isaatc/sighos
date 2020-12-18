@@ -28,6 +28,8 @@ public class PatientProfile {
 	private final int sex;
 	/** {@link Disease} of the patient or {@link Disease.HEALTHY} in case the patient is healthy */ 
 	private final Disease disease;
+	/** True if the patient is diagnosed from the start */
+	private final boolean diagnosed;
 
 	/**
 	 * Creates a patient profile
@@ -36,13 +38,14 @@ public class PatientProfile {
 	 * @param initDurationOfDiabetes Duration of diabetes at the creation of the patient
 	 * @param initHbA1c HbA1c level at the creation of the patient
 	 */
-	public PatientProfile(final double initAge, final int sex, final Disease disease) {
+	public PatientProfile(final double initAge, final int sex, final Disease disease, final boolean diagnosed) {
 		intProperties = new TreeMap<>();
 		doubleProperties = new TreeMap<>();
 		boolProperties = new TreeMap<>();
 		this.initAge = initAge;
 		this.sex = sex;
 		this.disease = disease;
+		this.diagnosed = diagnosed;
 	}
 
 	/**
@@ -67,6 +70,14 @@ public class PatientProfile {
 	 */
 	public Disease getDisease() {
 		return disease;
+	}
+
+	/**
+	 * Returns true if the patient is diagnosed from the start 
+	 * @return true if the patient is diagnosed from the start
+	 */
+	public boolean isDiagnosedFromStart() {
+		return diagnosed;
 	}
 
 	/**
