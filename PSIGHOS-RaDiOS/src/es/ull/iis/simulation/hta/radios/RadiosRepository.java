@@ -14,17 +14,20 @@ import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
 
 /**
  * @author Iván Castilla
- *
+ * @author David Prieto González
  */
-public class RaDiOSRepository extends SecondOrderParamsRepository {
+public class RadiosRepository extends SecondOrderParamsRepository {
 	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
 
 	/**
+	 * For a repository, it is necessary to register the population {registerPopulation(...)}, the disease {registerDisease(...)}, the 
+	 * interventions {registerIntervention(...)} and the submodel of death {registerDeathSubmodel(...)}, as the most relevant things.
+	 * 
 	 * @param nRuns
 	 * @param nPatients
 	 */
-	public RaDiOSRepository(int nRuns, int nPatients) {
+	public RadiosRepository(int nRuns, int nPatients) {
 		super(nRuns, nPatients);
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);

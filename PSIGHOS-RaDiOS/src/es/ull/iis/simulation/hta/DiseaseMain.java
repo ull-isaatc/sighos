@@ -22,10 +22,10 @@ import com.beust.jcommander.ParameterException;
 import es.ull.iis.simulation.hta.inforeceiver.AnnualCostView;
 import es.ull.iis.simulation.hta.inforeceiver.BudgetImpactView;
 import es.ull.iis.simulation.hta.inforeceiver.CostListener;
-import es.ull.iis.simulation.hta.inforeceiver.PatientInfoView;
 import es.ull.iis.simulation.hta.inforeceiver.EpidemiologicView;
 import es.ull.iis.simulation.hta.inforeceiver.ExperimentListener;
 import es.ull.iis.simulation.hta.inforeceiver.LYListener;
+import es.ull.iis.simulation.hta.inforeceiver.PatientInfoView;
 import es.ull.iis.simulation.hta.inforeceiver.QALYListener;
 import es.ull.iis.simulation.hta.inforeceiver.TimeFreeOfComplicationsView;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -35,7 +35,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.params.StdDiscount;
 import es.ull.iis.simulation.hta.params.ZeroDiscount;
 import es.ull.iis.simulation.hta.progression.Manifestation;
-import es.ull.iis.simulation.hta.radios.RaDiOSRepository;
+import es.ull.iis.simulation.hta.radios.RadiosRepository;
 import es.ull.iis.simulation.hta.simpletest.TestSimpleRareDiseaseRepository;
 
 /**
@@ -359,7 +359,7 @@ public class DiseaseMain {
 	        SecondOrderParamsRepository secParams = null;
 	        switch (args1.population) {
 	        case 1: 
-	        	secParams = new RaDiOSRepository(args1.nRuns, args1.nPatients); 
+	        	secParams = new RadiosRepository(args1.nRuns, args1.nPatients); 
 	        	break;
 	        case 0: 
 	        default:

@@ -7,9 +7,9 @@ import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.BernoulliParam;
 import es.ull.iis.simulation.hta.params.MultipleBernoulliParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.BernoulliParam;
 import es.ull.iis.simulation.model.Describable;
 
 /**
