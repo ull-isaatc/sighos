@@ -255,7 +255,11 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 	 * @return the timestamp when certain chronic complication started (or is planned to start)
 	 */
 	public long getTimeToManifestation(Manifestation manif) {
-		return (!manifestationEvents.containsKey(manif)) ? Long.MAX_VALUE : manifestationEvents.get(manif).peekLast().getTs(); 
+		if (!manifestationEvents.containsKey(manif)) 
+			return Long.MAX_VALUE;
+		if (manifestationEvents.get(manif).size() == 0)
+			return Long.MAX_VALUE;
+		return manifestationEvents.get(manif).peekLast().getTs(); 
 	}
 	
 	/**
@@ -433,15 +437,17 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 
 		@Override
 		public void event() {
-			// Cancel all events that cannot happen now
-			for (ArrayDeque<ManifestationEvent> events : manifestationEvents.values()) {
-				while (events.size() > 0) {
-					if (events.peekLast().getTs() >= getTs()) {
-						events.peekLast().cancel();
-						events.pollLast();
-					}
-					else {
-						break;
+			// Cancel all events that cannot happen now but the one that causes the death
+			for (final Manifestation manif : manifestationEvents.keySet()) {
+				if (!manif.equals(cause)) {
+					final ArrayDeque<ManifestationEvent> events = manifestationEvents.get(manif);
+					while (events.size() > 0) {
+						if (events.peekLast().getTs() >= getTs()) {
+							events.peekLast().cancel();
+						}
+						else {
+							break;
+						}
 					}
 				}
 			}

@@ -18,8 +18,6 @@ public class Modification extends SecondOrderParam {
 		RR,		// Relative risk
 		SET		// Establish a new value
 	}
-
-	public final static Modification NO_MODIFICATION = new Modification(null, Type.DIFF, "NOMOD", "Null modification", "None", 0.0);
 	final private Type type;
 	/**
 	 * @param secParams

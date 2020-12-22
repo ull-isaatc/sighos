@@ -3,6 +3,8 @@
  */
 package es.ull.iis.simulation.hta.inforeceiver;
 
+import java.util.TreeMap;
+
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -18,7 +20,7 @@ import es.ull.iis.util.Statistics;
  *
  */
 public class TimeFreeOfComplicationsView extends Listener implements StructuredOutputListener {
-	private final double [][][] timeToComplications;
+	private final TreeMap<Manifestation, double [][]> timeToComplications;
 	private final boolean printFirstOrderVariance;
 	private final int nInterventions;
 	private final Manifestation[] availableHealthStates;
@@ -30,7 +32,10 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 		super("Standard patient viewer");
 		this.availableHealthStates = secParams.getRegisteredManifestations(Manifestation.Type.CHRONIC);
 		this.nInterventions = secParams.getNInterventions();
-		timeToComplications = new double[nInterventions][availableHealthStates.length][secParams.getnPatients()];
+		timeToComplications = new TreeMap<>();
+		for (Manifestation manif : availableHealthStates) {
+			timeToComplications.put(manif, new double[nInterventions][secParams.getnPatients()]);
+		}
 		this.printFirstOrderVariance = printFirstOrderVariance;
 		addGenerated(PatientInfo.class);
 		addEntrance(PatientInfo.class);
@@ -58,11 +63,11 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 
 	public boolean checkPaired() {
 		boolean checked = false;
-		for (int i = 0; i < availableHealthStates.length; i++) {
-			for (int j = 0; j < timeToComplications[0][i].length; j++) {
-				if (timeToComplications[0][i][j] > timeToComplications[1][i][j]) {
+		for (Manifestation manif : availableHealthStates) {
+			for (int j = 0; j < timeToComplications.get(manif)[0].length; j++) {
+				if (timeToComplications.get(manif)[0][j] > timeToComplications.get(manif)[1][j]) {
 					checked = true;
-					System.out.println("Paciente " + j + " Comp " + availableHealthStates[i] + "\t" + timeToComplications[0][i][j] + ":" + timeToComplications[1][i][j]);
+					System.out.println("Paciente " + j + " Comp " + manif + "\t" + timeToComplications.get(manif)[0][j] + ":" + timeToComplications.get(manif)[1][j]);
 				}
 			}
 		}
@@ -73,7 +78,8 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 	public String toString() {
 		final StringBuilder str = new StringBuilder();
 		for (int i = 0; i < nInterventions; i++) {
-			for (double[] values : timeToComplications[i]) {
+			for (final Manifestation manif : timeToComplications.keySet()) {
+				double[] values = timeToComplications.get(manif)[i];
 				final double avg = Statistics.average(values);
 				str.append(avg /BasicConfigParams.YEAR_CONVERSION).append("\t");
 				if (printFirstOrderVariance) {
@@ -95,7 +101,7 @@ public class TimeFreeOfComplicationsView extends Listener implements StructuredO
 			// Check all the complications
 			for (Manifestation comp : availableHealthStates) {
 				final long time = pat.getTimeToManifestation(comp);
-				timeToComplications[nIntervention][comp.ordinal()][pat.getIdentifier()] = (time == Long.MAX_VALUE) ? deathTs : time;
+				timeToComplications.get(comp)[nIntervention][pat.getIdentifier()] = (time == Long.MAX_VALUE) ? deathTs : time;
 			}
 		}
 	}

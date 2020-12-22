@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.populations;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
-import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
 import es.ull.iis.simulation.hta.PatientProfile;
 import es.ull.iis.simulation.hta.progression.Disease;
 
@@ -13,7 +12,7 @@ import es.ull.iis.simulation.hta.progression.Disease;
  * @author icasrod
  *
  */
-public interface Population extends GeneratesSecondOrderInstances, CreatesSecondOrderParameters {
+public interface Population extends CreatesSecondOrderParameters {
 	/**
 	 * Returns a patient profile with characteristics generated according to the population
 	 * @return a patient profile with characteristics generated according to the population

@@ -33,18 +33,14 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 	public StandardSpainDeathSubmodel(SecondOrderParamsRepository secParams) {
 		super(secParams);
 		rnd = new double[secParams.getnRuns() + 1][secParams.getnPatients()];
-	}
-	
-	@Override
-	public void registerSecondOrderParameters() {
-	}
-
-	@Override
-	public void generate() {
 		for (int i = 0; i < secParams.getnRuns() + 1; i++)
 			for (int j = 0; j < secParams.getnPatients(); j++) {
 				rnd[i][j] = rng.draw();
 			}
+	}
+	
+	@Override
+	public void registerSecondOrderParameters() {
 	}
 
 	/**
@@ -55,14 +51,29 @@ public class StandardSpainDeathSubmodel extends DeathSubmodel {
 	 */
 	@Override
 	public long getTimeToDeath(Patient pat) {
+		final int simulId = pat.getSimulation().getIdentifier();
+		final double age = pat.getAge();
+		// Taking into account modification of death due to the intervention
+		final Modification modif = pat.getIntervention().getLifeExpectancyModification();
+		if (Modification.Type.SET.equals(modif.getType()))
+			return pat.getTs() + pat.getSimulation().getTimeUnit().convert(modif.getValue(simulId) - age, TimeUnit.YEAR);
+		
 		double imr = 1.0;
 		for (final Manifestation state : pat.getDetailedState()) {
-			final double newIMR = secParams.getIMR(state, pat.getSimulation().getIdentifier());
+			final double newIMR = secParams.getIMR(state, simulId);
 			if (newIMR > imr) {
 				imr = newIMR;
 			}
 		}
-		final double time = Math.min(GompertzVariate.generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), rnd[pat.getSimulation().getIdentifier()][pat.getIdentifier()] / imr), BasicConfigParams.DEF_MAX_AGE - pat.getAge());
+		// TODO: Check that this works properly
+		if (Modification.Type.RR.equals(modif.getType())) {
+			imr *= modif.getValue(simulId);
+		}
+		final double time = Math.min(GompertzVariate.generateGompertz(ALPHA_DEATH[pat.getSex()], BETA_DEATH[pat.getSex()], pat.getAge(), rnd[simulId][pat.getIdentifier()] / imr), BasicConfigParams.DEF_MAX_AGE - age);
+		// TODO: Check that this works properly
+		if (Modification.Type.DIFF.equals(modif.getType())) {
+			return pat.getTs() + pat.getSimulation().getTimeUnit().convert(Math.max(0.0,  Math.min(time - modif.getValue(simulId), BasicConfigParams.DEF_MAX_AGE - age)), TimeUnit.YEAR);			
+		}
 		return pat.getTs() + pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR);
 	}
 }

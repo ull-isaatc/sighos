@@ -185,8 +185,6 @@ public class DiseaseMain {
 			expListeners.add(new EpidemiologicView(nRuns, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 			baseCaseExpListeners.add(new EpidemiologicView(1, secParams, format.getInterval(), format.getType(), format.isAbsolute(), format.isByAge()));
 		}
-		// Generates all the second order instances
-		secParams.generate();
 	}
 	
 	private String getStrHeader() {

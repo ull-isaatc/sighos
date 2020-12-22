@@ -4,7 +4,6 @@
 package es.ull.iis.simulation.hta.progression;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
-import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 
@@ -13,7 +12,7 @@ import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class DeathSubmodel implements GeneratesSecondOrderInstances, CreatesSecondOrderParameters {
+public abstract class DeathSubmodel implements CreatesSecondOrderParameters {
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
 	/**

@@ -38,10 +38,6 @@ public class TestNotDiagnosedPopulation extends StdPopulation {
 	}
 
 	@Override
-	public void generate() {
-	}
-
-	@Override
 	public void registerSecondOrderParameters() {
 	}
 

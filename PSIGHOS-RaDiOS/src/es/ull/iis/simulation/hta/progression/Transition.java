@@ -3,9 +3,8 @@
  */
 package es.ull.iis.simulation.hta.progression;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 
-import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.ReseteableParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -16,13 +15,13 @@ import es.ull.iis.simulation.hta.params.TimeToEventParam;
  * @author Iván Castilla
  *
  */
-public abstract class Transition implements GeneratesSecondOrderInstances {
+public abstract class Transition {
 	/** Manifestation that produces the transition */
 	private final Manifestation srcManifestation;
 	/** Manifestation that the transition leads to */
 	private final Manifestation destManifestation;
 	/** The time to event for each available transition and each simulation */
-	private final ArrayList<TimeToEventParam> time2Event;
+	private final TimeToEventParam[] time2Event;
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
 	/** Indicates whether the destination manifestation of this transition replaces the source destination in the state of the patient */
@@ -36,7 +35,8 @@ public abstract class Transition implements GeneratesSecondOrderInstances {
 		this.srcManifestation = srcManifestation;
 		this.destManifestation = destManifestation;
 		this.replacesPrevious = replacesPrevious;
-		this.time2Event = new ArrayList<>();
+		this.time2Event = new TimeToEventParam[secParams.getnRuns() + 1];
+		Arrays.fill(time2Event, null);
 	}
 
 	/**
@@ -69,17 +69,8 @@ public abstract class Transition implements GeneratesSecondOrderInstances {
 	 */
 	protected abstract TimeToEventParam getTimeToEventParam(int id);
 	
-	@Override
-	public void generate() {
-		final int n = secParams.getnRuns();
-		time2Event.ensureCapacity(n + 1);
-		for (int i = 0; i < n + 1; i++) {
-			time2Event.add(getTimeToEventParam(i));
-		}		
-	}
-	
 	public void reset(int id) {
-		final TimeToEventParam t2Event = time2Event.get(id);
+		final TimeToEventParam t2Event = time2Event[id];
 		if (t2Event instanceof ReseteableParam<?>)
 			((ReseteableParam<?>)t2Event).reset();
 	}
@@ -92,8 +83,10 @@ public abstract class Transition implements GeneratesSecondOrderInstances {
 	 * @return The time to event for the patient; Long.MAX_VALUE if the event will never happen.
 	 */
 	public long getTimeToEvent(Patient pat, long limit) {
-		final TimeToEventParam param = time2Event.get(pat.getSimulation().getIdentifier());
-		final long time = param.getValue(pat);
+		final int id = pat.getSimulation().getIdentifier();
+		if (time2Event[id] == null)
+			time2Event[id] = getTimeToEventParam(id);
+		final long time = time2Event[id].getValue(pat);
 		return (time >= limit) ? Long.MAX_VALUE : time;		
 	}
 }

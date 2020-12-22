@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.simpletest;
 
-import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseCostCalculator;
@@ -15,17 +14,18 @@ import es.ull.iis.simulation.hta.params.RRCalculator;
 import es.ull.iis.simulation.hta.params.SecondOrderInterventionSpecificRR;
 import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
-import simkit.random.RandomVariateFactory;
+import es.ull.iis.simulation.hta.progression.Modification;
 
 /**
  * @author Iván Castilla Rodríguez
  *
  */
 public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository {
-	private final static int TEST = 5;
+	private final static int TEST_DISEASE = 1;
+	private final static int TEST_POPULATION = 1;
+	private final static int TEST_INTERVENTIONS = 2;
 	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
 	private final SecondOrderInterventionSpecificRR interventionRR;
@@ -40,39 +40,60 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 		costCalc = new DiseaseCostCalculator(this);
 		utilCalc = new DiseaseUtilityCalculator(this, DisutilityCombinationMethod.ADD, BasicConfigParams.DEF_U_GENERAL_POP);
 		Disease testDisease = null;
-		Population testPopulation = null;
-		switch (TEST) {
+		switch (TEST_DISEASE) {
 		case 1: 
 			testDisease = new TestRareDisease1(this);
-			testPopulation = new TestPopulation(this, testDisease);
 			break;
 		case 2:
 			testDisease = new TestRareDisease2(this);
-			testPopulation = new TestPopulation(this, testDisease);
 			break;
 		case 3:
 			testDisease = new TestRareDisease3(this);
-			testPopulation = new TestPopulation(this, testDisease);
 			break;
 		case 4:
 			testDisease = new TestRareDisease4(this);
-			testPopulation = new TestPopulation(this, testDisease);
-			break;
-		case 5:
-			testDisease = new TestRareDisease4(this);
-			testPopulation = new TestNotDiagnosedPopulation(this, testDisease);
 			break;
 		default:
 			testDisease = new TestRareDisease1(this);
 			break;
 		}
-		registerPopulation(testPopulation);
 		registerDisease(testDisease);
-		registerIntervention(new NullIntervention(this));
-		final Intervention int2 = new EffectiveIntervention(this);
-		registerIntervention(int2);
+		switch(TEST_POPULATION) {
+		case 1:
+			registerPopulation(new TestPopulation(this, testDisease));
+			break;
+		case 2:
+			registerPopulation(new TestNotDiagnosedPopulation(this, testDisease));
+			break;
+		default:
+			registerPopulation(new TestPopulation(this, testDisease));
+			break;		
+		}
+		switch(TEST_INTERVENTIONS) {
+		case 2:
+			registerIntervention(new NullIntervention(this));
+			registerIntervention(new MortalityReductionIntervention(this, Modification.Type.DIFF));
+			interventionRR = null;
+			break;
+		case 3:
+			registerIntervention(new NullIntervention(this));
+			registerIntervention(new MortalityReductionIntervention(this, Modification.Type.RR));
+			interventionRR = null;
+			break;
+		case 4:
+			registerIntervention(new NullIntervention(this));
+			registerIntervention(new MortalityReductionIntervention(this, Modification.Type.SET));
+			interventionRR = null;
+			break;
+		case 1:
+		default:
+			registerIntervention(new NullIntervention(this));
+			final Intervention int2 = new EffectiveIntervention(this);
+			registerIntervention(int2);
+			interventionRR = new SecondOrderInterventionSpecificRR(this, new SecondOrderParam[] {otherParams.get(STR_RR_PREFIX + int2)});
+			break;
+		}
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
-		interventionRR = new SecondOrderInterventionSpecificRR(this, new SecondOrderParam[] {otherParams.get(STR_RR_PREFIX + int2)});
 	}
 
 	@Override
@@ -87,50 +108,5 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 	
 	public RRCalculator getInterventionRR() {
 		return interventionRR;
-	}
-
-	private static class NullIntervention extends Intervention {
-
-		public NullIntervention(SecondOrderParamsRepository secParams) {
-			super(secParams, "NONE", "Null intervention");
-		}
-
-		@Override
-		public void generate() {
-		}
-
-		@Override
-		public void registerSecondOrderParameters() {
-		}
-
-		@Override
-		public double getAnnualCost(Patient pat) {
-			return 0;
-		}
-		
-	}
-
-	private static class EffectiveIntervention extends Intervention {
-		private final static double ANNUAL_COST = 200.0; 
-
-		public EffectiveIntervention(SecondOrderParamsRepository secParams) {
-			super(secParams, "INTERV", "Effective intervention");
-		}
-
-		@Override
-		public void generate() {
-		}
-
-		@Override
-		public void registerSecondOrderParameters() {
-			secParams.addOtherParam(new SecondOrderParam(secParams, STR_RR_PREFIX + this, 
-					"Relative risk of developing manifestations", "Test", 0.5, RandomVariateFactory.getInstance("UniformVariate", 0.4, 0.6)));
-		}
-
-		@Override
-		public double getAnnualCost(Patient pat) {
-			return ANNUAL_COST;
-		}
-		
 	}
 }

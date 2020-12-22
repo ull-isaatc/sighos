@@ -1,8 +1,7 @@
 package es.ull.iis.simulation.hta.params;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 
-import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -11,7 +10,7 @@ import simkit.random.RandomVariateFactory;
  * @author Iván Castilla Rodríguez
  *
  */
-public class SecondOrderParam implements GeneratesSecondOrderInstances {
+public class SecondOrderParam {
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
 	/** Short name and identifier of the parameter */
@@ -21,11 +20,11 @@ public class SecondOrderParam implements GeneratesSecondOrderInstances {
 	/** The reference from which this parameter was estimated/taken */
 	private final String source;
 	/** The probability distribution that characterizes the uncertainty on the parameter */
-	private final RandomVariate rnd;
+	protected final RandomVariate rnd;
 	// TODO: Pasar a array normal. El tamaño se sabe desde el principio (secParams.getnRuns() + 1). 
 	// TODO: Repensar si es mejor 1) generar con "generate"; 2) generar desde el constructor (cuidado con parámetros dependientes de otros) o 3) inicializar y generar dinámicamente cuando se pida cada instancia (más lento pero más flexible)
 	/** All the generated values for this parameter. Index 0 is the deterministic/expected value */
-	protected final ArrayList<Double> generatedValues;
+	protected final double[] generatedValues;
 
 	/**
 	 * Creates a second-order parameter
@@ -42,8 +41,9 @@ public class SecondOrderParam implements GeneratesSecondOrderInstances {
 		this.description = description;
 		this.source = source;
 		this.rnd = rnd;
-		generatedValues = new ArrayList<>();
-		generatedValues.add(0, detValue);
+		generatedValues = new double[secParams.getnRuns() + 1];
+		Arrays.fill(generatedValues, Double.NaN);
+		generatedValues[0] = detValue;
 	}
 	
 	/**
@@ -79,20 +79,11 @@ public class SecondOrderParam implements GeneratesSecondOrderInstances {
 	 * @return if id = 0, returns the expected value (base case); otherwise returns a random-generated value
 	 */
 	public double getValue(int id) {
-		return generatedValues.get(id);
+		if (Double.isNaN(generatedValues[id]))
+			generatedValues[id] = rnd.generate();
+		return generatedValues[id];
 	}
 
-	/**
-	 * Generates n random values for the parameter
-	 */
-	@Override
-	public void generate() {
-		final int n = secParams.getnRuns();
-		generatedValues.ensureCapacity(n + 1);
-		for (int i = 0; i < n; i++)
-			generatedValues.add(rnd.generate());
-	}
-	
 	/**
 	 * Returns the short name and identifier of the parameter
 	 * @return the short name and identifier of the parameter
@@ -117,11 +108,4 @@ public class SecondOrderParam implements GeneratesSecondOrderInstances {
 		return source;
 	}
 
-	/**
-	 * Returns the generated value identified by id for this parameter. Useful for printing
-	 * @return the generated value identified by id for this parameter. Useful for printing
-	 */
-	public double getGeneratedValue(int id) {
-		return generatedValues.get(id);
-	}
 }

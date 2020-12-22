@@ -6,7 +6,6 @@ package es.ull.iis.simulation.hta.params;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -18,6 +17,7 @@ import es.ull.iis.simulation.hta.progression.DeathSubmodel;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.DiseaseProgression;
 import es.ull.iis.simulation.hta.progression.Manifestation;
+import es.ull.iis.simulation.hta.progression.Modification;
 import es.ull.iis.simulation.model.TimeUnit;
 import es.ull.iis.util.Statistics;
 import simkit.random.RandomNumber;
@@ -47,7 +47,7 @@ import simkit.random.RandomVariateFactory;
  * el tiempo hasta evento en caso de un nuevo factor de riesgo. ¿debería reescalar de alguna manera el tiempo hasta evento en estos casos (¿proporcional al RR?)?
  * @author Iván Castilla Rodríguez
  */
-public abstract class SecondOrderParamsRepository implements GeneratesSecondOrderInstances {
+public abstract class SecondOrderParamsRepository {
 	// Strings to define standard parameters
 	/** String prefix for probability parameters */
 	public static final String STR_PROBABILITY_PREFIX = "P_";
@@ -104,27 +104,8 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	/** Absence of progression */
 	private static final DiseaseProgression NULL_PROGRESSION = new DiseaseProgression(); 
 	/** A Disease that represents a non-disease state, i.e., being healthy. Useful to avoid null comparisons. */
-	public final Disease HEALTHY = new Disease(this, "HEALTHY", "Healthy") {
-
-		@Override
-		public DiseaseProgression getProgression(Patient pat) {
-			return NULL_PROGRESSION;
-		}
-
-		@Override
-		public double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge) {
-			return 0;
-		}
-
-		@Override
-		public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
-			return 0;
-		}
-
-		@Override
-		public void registerSecondOrderParameters() {
-		}
-	};
+	public final Disease HEALTHY;
+	public final Modification NO_MODIF;
 	
 	/**
 	 * Creates a repository of second order parameters. By default, generates the base case values.
@@ -140,6 +121,28 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 		this.registeredManifestations = new ArrayList<>();
 		this.registeredDiseases = new ArrayList<Disease>();
 		this.registeredInterventions = new ArrayList<>();
+		this.HEALTHY = new Disease(this, "HEALTHY", "Healthy") {
+
+			@Override
+			public DiseaseProgression getProgression(Patient pat) {
+				return NULL_PROGRESSION;
+			}
+
+			@Override
+			public double getAnnualCostWithinPeriod(Patient pat, double initAge, double endAge) {
+				return 0;
+			}
+
+			@Override
+			public double getDisutility(Patient pat, DisutilityCombinationMethod method) {
+				return 0;
+			}
+
+			@Override
+			public void registerSecondOrderParameters() {
+			}
+		};
+		this.NO_MODIF = new Modification(this, Modification.Type.DIFF, "NOMOD", "Null modification", "", 0.0);
 	}
 
 	/**
@@ -211,7 +214,7 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 	public Manifestation[] getRegisteredManifestations(Manifestation.Type type) {
 		final ArrayList<Manifestation> arrayTyped = new ArrayList<>();
 		for (final Manifestation manif : registeredManifestations) {
-			if (Manifestation.Type.CHRONIC.equals(manif))
+			if (Manifestation.Type.CHRONIC.equals(manif.getType()))
 				arrayTyped.add(manif);
 		}
 		final Manifestation[] array = new Manifestation[arrayTyped.size()];
@@ -289,26 +292,6 @@ public abstract class SecondOrderParamsRepository implements GeneratesSecondOrde
 		return nRuns;
 	}
 
-	/**
-	 * Generates the instances of the second order parameters for each simulation
-	 */
-	@Override
-	public void generate() {
-		for (SecondOrderParam param : probabilityParams.values())
-			param.generate();
-		for (SecondOrderParam param : costParams.values())
-			param.generate();
-		for (SecondOrderParam param : utilParams.values())
-			param.generate();
-		for (SecondOrderParam param : otherParams.values())
-			param.generate();
-		for (Disease dis : registeredDiseases)
-			dis.generate();
-		for (Intervention interv : registeredInterventions)
-			interv.generate();
-		registeredDeathSubmodel.generate();
-	}
-	
 	/**
 	 * Adds a probability parameter
 	 * @param param Probability parameter

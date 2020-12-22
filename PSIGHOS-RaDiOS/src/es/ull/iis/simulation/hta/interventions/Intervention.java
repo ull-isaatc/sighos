@@ -6,7 +6,6 @@ package es.ull.iis.simulation.hta.interventions;
 import java.util.TreeMap;
 
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
-import es.ull.iis.simulation.hta.GeneratesSecondOrderInstances;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -19,7 +18,7 @@ import es.ull.iis.simulation.model.Describable;
  * @author Iván Castilla Rodríguez
  *
  */
-public abstract class Intervention implements Named, Describable, GeneratesSecondOrderInstances, CreatesSecondOrderParameters, Comparable<Intervention> {
+public abstract class Intervention implements Named, Describable, CreatesSecondOrderParameters, Comparable<Intervention> {
 	/** A short name for the intervention */
 	final private String name;
 	/** A full description of the intervention */
@@ -30,8 +29,8 @@ public abstract class Intervention implements Named, Describable, GeneratesSecon
 	/** Common parameters repository */
 	protected final SecondOrderParamsRepository secParams;
 
-	private Modification lifeExpectancyModification = null;
-	private Modification allParameterModification = null;
+	private Modification lifeExpectancyModification;
+	private Modification allParameterModification;
 	/** A map where the key is the name of a parameter, and the value is a modification */
 	private final TreeMap <String, Modification> manifestationModifications;
 	
@@ -45,6 +44,8 @@ public abstract class Intervention implements Named, Describable, GeneratesSecon
 		this.name = name;
 		this.description = description;
 		this.manifestationModifications = new TreeMap<>();
+		lifeExpectancyModification = secParams.NO_MODIF;
+		allParameterModification = secParams.NO_MODIF;
 	}
 
 	@Override
@@ -60,7 +61,7 @@ public abstract class Intervention implements Named, Describable, GeneratesSecon
 	public String name() {
 		return name;
 	}
-
+	
 	/**
 	 * Returns the annual cost of this intervention
 	 * @param pat A patient
@@ -142,7 +143,7 @@ public abstract class Intervention implements Named, Describable, GeneratesSecon
 	
 	public Modification getManifestationModification(String paramName) {
 		if (!manifestationModifications.containsKey(paramName)) {
-			return Modification.NO_MODIFICATION;
+			return secParams.NO_MODIF;
 		}
 		return manifestationModifications.get(paramName);
 	}
