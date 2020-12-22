@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import es.tenerife.ull.ontology.radios.Constants;
-import es.tenerife.ull.ontology.radios.json.schema4simulation.Development;
-import es.tenerife.ull.ontology.radios.json.schema4simulation.Disease;
-import es.tenerife.ull.ontology.radios.json.schema4simulation.Manifestation;
-import es.tenerife.ull.ontology.radios.utils.CollectionUtils;
+import javax.xml.bind.JAXBException;
+
+import es.ull.iis.ontology.radios.Constants;
+import es.ull.iis.ontology.radios.json.schema4simulation.Development;
+import es.ull.iis.ontology.radios.json.schema4simulation.Disease;
+import es.ull.iis.ontology.radios.json.schema4simulation.Manifestation;
+import es.ull.iis.ontology.radios.utils.CollectionUtils;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
@@ -22,7 +24,7 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 		super(repository, name, description);
 	}
 
-	public RadiosDisease(SecondOrderParamsRepository repository, Disease disease) throws TransformException {
+	public RadiosDisease(SecondOrderParamsRepository repository, Disease disease) throws TransformException, JAXBException {
 		super(repository, disease.getName(), Constants.CONSTANT_EMPTY_STRING);
 		setDisease(disease);
 		if (getDisease() == null) {
@@ -35,29 +37,46 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 					.findFirst()
 					.orElse(null);
 			if (naturalDevelopment != null && CollectionUtils.notIsEmpty(naturalDevelopment.getManifestations())) {
-				Map<String, RadiosManifestation> radiosManifestations = new HashMap<>();
 				List<Manifestation> manifestations = naturalDevelopment.getManifestations();
-				
-				// First pass: generate RaDiOS manifesations
-				for (Manifestation manifestation : manifestations) {
-					RadiosManifestation radiosManifestation = new RadiosManifestation(repository, this, manifestation);
-					addManifestation(radiosManifestation);
-					radiosManifestations.put(manifestation.getName(), radiosManifestation);
-				}
-				
-				// Second pass: generate RaDiOS transitions
-				for (Manifestation manifestation : manifestations) {
-					addTransition(new RadiosTransition(repository, getNullManifestation(), radiosManifestations.get(manifestation.getName()), Boolean.FALSE));
-					if (CollectionUtils.notIsEmpty(manifestation.getPrecedingManifestations())) {
-						for (String precedingManifestation : manifestation.getPrecedingManifestations()) {
-							addTransition(new RadiosTransition(repository, radiosManifestations.get(precedingManifestation), radiosManifestations.get(manifestation.getName()), Boolean.FALSE));
-						}
-					}
-				}
+				secondPassManifestationsAnalysis(repository, firstPassManifestationsAnalysis(repository, manifestations), manifestations);
 			} else {
 				throw new TransformException("ERROR => The selected disease has no associated natural development. The specification of this development is mandatory.");
 			}
 		}
+	}
+
+	/**
+	 * Create transitions between disease manifestations
+	 * @param repository
+	 * @param radiosManifestations
+	 * @param manifestations
+	 */
+	private void secondPassManifestationsAnalysis(SecondOrderParamsRepository repository, Map<String, RadiosManifestation> radiosManifestations, List<Manifestation> manifestations) {
+		for (Manifestation manifestation : manifestations) {
+			addTransition(new RadiosTransition(repository, getNullManifestation(), radiosManifestations.get(manifestation.getName()), Boolean.FALSE));
+			if (CollectionUtils.notIsEmpty(manifestation.getPrecedingManifestations())) {
+				for (String precedingManifestation : manifestation.getPrecedingManifestations()) {
+					addTransition(new RadiosTransition(repository, radiosManifestations.get(precedingManifestation), radiosManifestations.get(manifestation.getName()), Boolean.FALSE));
+				}
+			}
+		}
+	}
+
+	/**
+	 * Add manifestations to the disease
+	 * @param repository
+	 * @param manifestations
+	 * @return
+	 * @throws JAXBException 
+	 */
+	private Map<String, RadiosManifestation> firstPassManifestationsAnalysis(SecondOrderParamsRepository repository, List<Manifestation> manifestations) throws JAXBException {
+		Map<String, RadiosManifestation> radiosManifestations = new HashMap<>();
+		for (Manifestation manifestation : manifestations) {
+			RadiosManifestation radiosManifestation = new RadiosManifestation(repository, this, manifestation);
+			addManifestation(radiosManifestation);
+			radiosManifestations.put(manifestation.getName(), radiosManifestation);
+		}
+		return radiosManifestations;		
 	}
 
 	public RadiosDisease setDisease(Disease disease) {

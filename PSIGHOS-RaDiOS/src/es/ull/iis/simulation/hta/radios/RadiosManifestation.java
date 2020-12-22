@@ -2,17 +2,23 @@ package es.ull.iis.simulation.hta.radios;
 
 import java.util.GregorianCalendar;
 
+import javax.xml.bind.JAXBException;
+
 import org.apache.commons.lang3.StringUtils;
 
-import es.tenerife.ull.ontology.radios.Constants;
-import es.tenerife.ull.ontology.radios.json.schema4simulation.Cost;
-import es.tenerife.ull.ontology.radios.json.schema4simulation.Manifestation;
-import es.tenerife.ull.ontology.radios.json.schema4simulation.Utility;
-import es.tenerife.ull.ontology.radios.utils.CollectionUtils;
+import es.ull.iis.ontology.radios.Constants;
+import es.ull.iis.ontology.radios.json.schema4simulation.Cost;
+import es.ull.iis.ontology.radios.json.schema4simulation.Manifestation;
+import es.ull.iis.ontology.radios.json.schema4simulation.Utility;
+import es.ull.iis.ontology.radios.utils.CollectionUtils;
+import es.ull.iis.ontology.radios.xml.datatables.Datatable;
+import es.ull.iis.simulation.hta.params.AgeBasedTimeToEventParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.radios.transforms.ValueTransform;
+import es.ull.iis.simulation.hta.radios.transforms.XmlTransform;
 import es.ull.iis.simulation.hta.radios.wrappers.ProbabilityDistribution;
+import simkit.random.RandomNumberFactory;
 
 /**
  * @author David Prieto González
@@ -26,8 +32,9 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 	 * @param description
 	 * @param disease
 	 * @param type
+	 * @throws JAXBException 
 	 */
-	public RadiosManifestation(SecondOrderParamsRepository repository, Disease disease, Manifestation manifestation) {
+	public RadiosManifestation(SecondOrderParamsRepository repository, Disease disease, Manifestation manifestation) throws JAXBException {
 		super(repository, manifestation.getName(), Constants.CONSTANT_EMPTY_STRING, disease, manifestation.getKind() != null ? Type.valueOf(manifestation.getKind()) : Type.ACUTE);
 
 		setManifestation(manifestation);		
@@ -39,11 +46,11 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		}
 	}
 
-	public void setManifestation(es.tenerife.ull.ontology.radios.json.schema4simulation.Manifestation manifestation) {
+	public void setManifestation(es.ull.iis.ontology.radios.json.schema4simulation.Manifestation manifestation) {
 		this.manifestation = manifestation;
 	}
 	
-	public es.tenerife.ull.ontology.radios.json.schema4simulation.Manifestation getManifestation() {
+	public es.ull.iis.ontology.radios.json.schema4simulation.Manifestation getManifestation() {
 		return manifestation;
 	}
 	
@@ -51,9 +58,18 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 		return secParams;
 	}
 	
-	private void addParamProbability() {
-		ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(getManifestation().getProbability());
-		getRepository().addProbParam(this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+	private void addParamProbability() throws JAXBException {
+		String manifestationProbability = getManifestation().getProbability();
+		ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(manifestationProbability);
+		if (probabilityDistribution != null) {
+			getRepository().addProbParam(this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+		} else {
+			Datatable datatable = XmlTransform.getDataTable(manifestationProbability);
+			AgeBasedTimeToEventParam ageBasedTimeToEventParam = 
+					new AgeBasedTimeToEventParam(RandomNumberFactory.getInstance(), datatable.getPopulation().intValue(), ValueTransform.rangeDatatableToMatrix(datatable), 
+							new RadiosRangeAgeMatrixRRCalculator(ValueTransform.rangeDatatableToMatrix(datatable)));
+			//getRepository().addProbParam(ageBasedTimeToEventParam);			
+		}
 	}
 
 	private void addParamAnnualIncreaseMortalityRate() {
@@ -64,7 +80,9 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 			} else if (Type.ACUTE == getType()) {
 				// Se debe interpretar el valor de mortalityFactor como la probabilidad de muerte
 			}
-			getRepository().addIMRParam(this, "Mortality factor for " + this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+			if (probabilityDistribution != null) {
+				getRepository().addIMRParam(this, "Mortality factor for " + this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+			}
 		}			 
 	}
 
@@ -82,7 +100,9 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 				}
 			}
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(disutility);
-			getRepository().addDisutilityParam(this, "Utility for " + this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+			if (probabilityDistribution != null) {
+				getRepository().addDisutilityParam(this, "Utility for " + this, Constants.CONSTANT_EMPTY_STRING, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+			}
 		}			 
 	}
 
@@ -101,7 +121,9 @@ public class RadiosManifestation extends es.ull.iis.simulation.hta.progression.M
 				}
 			}
 			ProbabilityDistribution probabilityDistribution = ValueTransform.splitProbabilityDistribution(annualCost);
-			getRepository().addCostParam(this, "Cost for " + this, Constants.CONSTANT_EMPTY_STRING, year, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+			if (probabilityDistribution != null) {
+				getRepository().addCostParam(this, "Cost for " + this, Constants.CONSTANT_EMPTY_STRING, year, probabilityDistribution.getDeterministicValue(), probabilityDistribution.getProbabilisticValue());
+			}
 		}
 	}
 

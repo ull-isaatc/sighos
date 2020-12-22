@@ -7,8 +7,8 @@ import es.ull.iis.simulation.hta.progression.Transition;
 
 public class RadiosTransition extends Transition {
 
-	public RadiosTransition(SecondOrderParamsRepository secParams, Manifestation srcManifestation, Manifestation destManifestation, boolean replacesPrevious) {
-		super(secParams, srcManifestation, destManifestation, replacesPrevious);
+	public RadiosTransition(SecondOrderParamsRepository repository, Manifestation srcManifestation, Manifestation destManifestation, boolean replacesPrevious) {
+		super(repository, srcManifestation, destManifestation, replacesPrevious);
 	}
 
 	@Override
