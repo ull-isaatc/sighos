@@ -126,7 +126,8 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	}
 
 	public void reset(int id) {
-		associatedDeath[id].reset();
+		if (associatedDeath[id] != null)
+			associatedDeath[id].reset();
 	}
 	
 	public boolean hasManifestationAtStart(Patient pat) {
