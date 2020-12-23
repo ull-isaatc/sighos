@@ -3,10 +3,7 @@
  */
 package es.ull.iis.simulation.hta.simpletest;
 
-import es.ull.iis.simulation.hta.params.AnnualRiskBasedTimeToEventParam;
-import es.ull.iis.simulation.hta.params.AnnualRiskBasedTimeToMultipleEventParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.TimeToEventParam;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.StagedDisease;
 import es.ull.iis.simulation.hta.progression.Transition;
@@ -48,45 +45,21 @@ public class TestRareDisease4 extends StagedDisease {
 		addManifestation(acuteManif1);
 		addManifestation(manif1);
 		addManifestation(manif2);
-		healthy_manif1 = new Transition(secParams, getNullManifestation(), manif1, true) {
-			@Override
-			protected TimeToEventParam getTimeToEventParam(int id) {
-				return new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), 
-						secParams.getProbability(manif1, id), SecondOrderParamsRepository.NO_RR);
-			}
-		}; 
+		healthy_manif1 = new Transition(secParams, getNullManifestation(), manif1, true); 
 		addTransition(healthy_manif1);
-		healthy_manif2 = new Transition(secParams, getNullManifestation(), manif2, true) {
-			@Override
-			protected TimeToEventParam getTimeToEventParam(int id) {
-				return new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), 
-						secParams.getProbability(manif2, id), ((TestSimpleRareDiseaseRepository)secParams).getInterventionRR());
-			}
-		}; 
+		healthy_manif2 = new Transition(secParams, getNullManifestation(), manif2, true); 
 		addTransition(healthy_manif2);
-		manif1_manif2 = new Transition(secParams, manif1, manif2, false) {
-			@Override
-			protected TimeToEventParam getTimeToEventParam(int id) {			
-				return new AnnualRiskBasedTimeToEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), 
-						secParams.getProbability(manif1, manif2, id), ((TestSimpleRareDiseaseRepository)secParams).getInterventionRR());
-			}
-		}; 
+		manif1_manif2 = new Transition(secParams, manif1, manif2, false); 
 		addTransition(manif1_manif2);
-		toAcuteManif1 = new Transition(secParams, getNullManifestation(), acuteManif1, false) {
-			@Override
-			protected TimeToEventParam getTimeToEventParam(int id) {
-				return new AnnualRiskBasedTimeToMultipleEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), 
-						secParams.getProbability(acuteManif1, id), ((TestSimpleRareDiseaseRepository)secParams).getInterventionRR());
-			}
-		}; 
+		toAcuteManif1 = new Transition(secParams, getNullManifestation(), acuteManif1, false); 
 		addTransition(toAcuteManif1);
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addProbParam(acuteManif1, "Test", P_ACUTE_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_ACUTE_MANIF1));
-		secParams.addProbParam(manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
-		secParams.addProbParam(manif2, "Test", P_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF2));
+		secParams.addProbParam(getNullManifestation(), acuteManif1, "Test", P_ACUTE_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_ACUTE_MANIF1));
+		secParams.addProbParam(getNullManifestation(), manif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
+		secParams.addProbParam(getNullManifestation(), manif2, "Test", P_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF2));
 		secParams.addProbParam(manif1, manif2, "Test", P_MANIF1_MANIF2, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1_MANIF2));
 	}
 }

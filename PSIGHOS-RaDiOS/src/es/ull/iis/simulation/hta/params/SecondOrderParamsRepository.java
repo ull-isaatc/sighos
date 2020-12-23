@@ -6,6 +6,7 @@ package es.ull.iis.simulation.hta.params;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import es.ull.iis.simulation.hta.DiseaseProgressionSimulation;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
 import es.ull.iis.simulation.hta.interventions.Intervention;
@@ -71,6 +72,8 @@ public abstract class SecondOrderParamsRepository {
 	public static final String STR_DIAGNOSIS_PREFIX = "DIAG_";
 	/** String for healthy individuals */
 	public static final String STR_HEALTHY = "HEALTHY";
+	/** String prefix for modification parameters */
+	public static final String STR_MOD_PREFIX = "MOD_";
 
 	/** A null relative risk, i.e., RR = 1.0 */
 	public static final RRCalculator NO_RR = new StdComplicationRR(1.0);
@@ -83,6 +86,8 @@ public abstract class SecondOrderParamsRepository {
 	final protected TreeMap<String, SecondOrderParam> utilParams;
 	/** The collection of miscellaneous parameters */
 	final protected TreeMap<String, SecondOrderParam> otherParams;
+	/** A map where the key is the name of a parameter, and the value is a modification */
+	private final TreeMap <String, Modification> modificationParams;
 	/** A random number generator for first order parameter values */
 	private static RandomNumber RNG_FIRST_ORDER = RandomNumberFactory.getInstance();
 	/** The collection of defined manifestations */
@@ -116,6 +121,7 @@ public abstract class SecondOrderParamsRepository {
 		this.costParams = new TreeMap<>();
 		this.otherParams = new TreeMap<>();
 		this.utilParams = new TreeMap<>();
+		this.modificationParams = new TreeMap<>();
 		this.nPatients = nPatients;
 		this.nRuns = nRuns;
 		this.registeredManifestations = new ArrayList<>();
@@ -308,6 +314,10 @@ public abstract class SecondOrderParamsRepository {
 		addProbParam(new SecondOrderParam(this, getProbString(fromManifestation, toManifestation), "Probability of going from " + fromManifestation + " to " + toManifestation, source, detValue, rnd));
 	}
 	
+	public void addModificationParam(Modification param) {
+		modificationParams.put(param.getName(), param);		
+	}
+	
 	public void addInitProbParam(Named manifestation, String source, double detValue, RandomVariate rnd) {
 		final String name = getInitProbString(manifestation);
 		probabilityParams.put(name, new SecondOrderParam(this, name, "Probability of starting with " + manifestation, source, detValue, rnd));
@@ -439,8 +449,8 @@ public abstract class SecondOrderParamsRepository {
 	 * @param stage The destination complication or complication stage
 	 * @return the probability from healthy to the specified complication or complication stage; 0.0 if not defined
 	 */
-	public double getProbability(Named stage, int id) {
-		return getProbability(null, stage, id); 
+	public double getProbability(Named stage, DiseaseProgressionSimulation simul) {
+		return getProbability(null, stage, simul); 
 	}
 
 	/**
@@ -449,8 +459,8 @@ public abstract class SecondOrderParamsRepository {
 	 * @param toStage The destination complication or complication stage
 	 * @return the probability of developing a complication to another; 0.0 if not defined
 	 */
-	public double getProbability(Named fromStage, Named toStage, int id) {
-		return getProbParam(getProbString(fromStage, toStage), id);
+	public double getProbability(Named fromStage, Named toStage, DiseaseProgressionSimulation simul) {
+		return getProbParam(getProbString(fromStage, toStage), simul);
 	}
 
 	/**
@@ -458,9 +468,14 @@ public abstract class SecondOrderParamsRepository {
 	 * @param name String identifier of the probability parameter
 	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
 	 */	
-	public double getProbParam(String name, int id) {
+	public double getProbParam(String name, DiseaseProgressionSimulation simul) {
+		final int id = simul.getIdentifier();
+		final Intervention interv = simul.getIntervention();
 		final SecondOrderParam param = probabilityParams.get(name);
-		return (param == null) ? 0.0 : param.getValue(id); 
+		if (param == null)
+			return 0.0;
+		final Modification modif = modificationParams.get(getModificationString(interv, name));
+		return (modif == null) ? param.getValue(id) : param.getValue(id, modif); 
 	}
 
 	/**
@@ -468,7 +483,9 @@ public abstract class SecondOrderParamsRepository {
 	 * @param stage Complication
 	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
 	 */	
-	public double getInitProbParam(Named stage, int id) {
+	public double getInitProbParam(Named stage, DiseaseProgressionSimulation simul) {
+		final int id = simul.getIdentifier();
+		// TODO: Añadir Modification
 		final SecondOrderParam param = probabilityParams.get(getInitProbString(stage));
 		return (param == null) ? 0.0 : param.getValue(id); 
 	}
@@ -478,7 +495,9 @@ public abstract class SecondOrderParamsRepository {
 	 * @param stage Manifestation
 	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
 	 */	
-	public double getDeathProbParam(Named stage, int id) {
+	public double getDeathProbParam(Named stage, DiseaseProgressionSimulation simul) {
+		final int id = simul.getIdentifier();
+		// TODO: Añadir Modification
 		final SecondOrderParam param = probabilityParams.get(getDeathProbString(stage));
 		return (param == null) ? 0.0 : param.getValue(id); 
 	}
@@ -488,7 +507,9 @@ public abstract class SecondOrderParamsRepository {
 	 * @param stage Manifestation
 	 * @return A value for the specified probability parameter; 0.0 in case the parameter is not defined
 	 */	
-	public double getDiagnosisProbParam(Named stage, int id) {
+	public double getDiagnosisProbParam(Named stage, DiseaseProgressionSimulation simul) {
+		final int id = simul.getIdentifier();
+		// TODO: Añadir Modification
 		final SecondOrderParam param = probabilityParams.get(getDiagnosisProbString(stage));
 		return (param == null) ? 0.0 : param.getValue(id); 
 	}
@@ -498,7 +519,9 @@ public abstract class SecondOrderParamsRepository {
 	 * @param stage Complication or complication stage
 	 * @return the increase mortality rate associated to a complication or complication stage; 1.0 if no additional risk is associated
 	 */
-	public double getIMR(Named stage, int id) {
+	public double getIMR(Named stage, DiseaseProgressionSimulation simul) {
+		final int id = simul.getIdentifier();
+		// TODO: Añadir Modification
 		final SecondOrderParam param = otherParams.get(STR_IMR_PREFIX + stage.name());
 		return (param == null) ? 1.0 : Math.max(1.0, param.getValue(id));		
 	}
@@ -596,6 +619,14 @@ public abstract class SecondOrderParamsRepository {
 		final String fromName = (from == null) ? STR_HEALTHY : from.name();
 		final String toName = "_" + to.name();
 		return STR_PROBABILITY_PREFIX + fromName + toName;
+	}
+	
+	public static String getModificationString(Intervention interv, Named from, Named to) {
+		return getModificationString(interv, getProbString(from, to));
+	}
+	
+	public static String getModificationString(Intervention interv, String name) {
+		return STR_MOD_PREFIX + interv.name() + "_" + name;
 	}
 	
 	/**

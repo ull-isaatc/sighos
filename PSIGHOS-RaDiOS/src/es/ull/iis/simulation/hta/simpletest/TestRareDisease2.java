@@ -3,9 +3,7 @@
  */
 package es.ull.iis.simulation.hta.simpletest;
 
-import es.ull.iis.simulation.hta.params.AnnualRiskBasedTimeToMultipleEventParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.TimeToEventParam;
 import es.ull.iis.simulation.hta.progression.Manifestation;
 import es.ull.iis.simulation.hta.progression.StagedDisease;
 import es.ull.iis.simulation.hta.progression.Transition;
@@ -29,18 +27,12 @@ public class TestRareDisease2 extends StagedDisease {
 		super(secParams, "RD2", "Test rare disease 2");
 		acuteManif1 = new TestAcuteManifestation1(secParams, this);
 		addManifestation(acuteManif1);
-		healthy_manif1 = new Transition(secParams, getNullManifestation(), acuteManif1, false) {
-			@Override
-			protected TimeToEventParam getTimeToEventParam(int id) {
-				return new AnnualRiskBasedTimeToMultipleEventParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), 
-						secParams.getProbability(acuteManif1, id), ((TestSimpleRareDiseaseRepository)secParams).getInterventionRR());
-			}
-		}; 
+		healthy_manif1 = new Transition(secParams, getNullManifestation(), acuteManif1, false); 
 		addTransition(healthy_manif1);
 	}
 
 	@Override
 	public void registerSecondOrderParameters() {
-		secParams.addProbParam(acuteManif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
+		secParams.addProbParam(getNullManifestation(), acuteManif1, "Test", P_MANIF1, SecondOrderParamsRepository.getRandomVariateForProbability(P_MANIF1));
 	}
 }

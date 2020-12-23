@@ -3,8 +3,6 @@
  */
 package es.ull.iis.simulation.hta.interventions;
 
-import java.util.TreeMap;
-
 import es.ull.iis.simulation.hta.CreatesSecondOrderParameters;
 import es.ull.iis.simulation.hta.Named;
 import es.ull.iis.simulation.hta.Patient;
@@ -31,8 +29,6 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 
 	private Modification lifeExpectancyModification;
 	private Modification allParameterModification;
-	/** A map where the key is the name of a parameter, and the value is a modification */
-	private final TreeMap <String, Modification> manifestationModifications;
 	
 	/**
 	 * Creates a second order characterization of an intervention
@@ -43,7 +39,6 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 		this.secParams = secParams;
 		this.name = name;
 		this.description = description;
-		this.manifestationModifications = new TreeMap<>();
 		lifeExpectancyModification = secParams.NO_MODIF;
 		allParameterModification = secParams.NO_MODIF;
 	}
@@ -137,14 +132,4 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 		this.allParameterModification = allParameterModification;
 	}
 	
-	public void addManifestationModification(String paramName, Modification modif) {
-		manifestationModifications.put(paramName, modif);
-	}
-	
-	public Modification getManifestationModification(String paramName) {
-		if (!manifestationModifications.containsKey(paramName)) {
-			return secParams.NO_MODIF;
-		}
-		return manifestationModifications.get(paramName);
-	}
 }

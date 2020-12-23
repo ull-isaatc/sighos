@@ -133,7 +133,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	public boolean hasManifestationAtStart(Patient pat) {
 		final int id = pat.getSimulation().getIdentifier();
 		if (pInit[id] == null)
-			pInit[id] = new BernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getInitProbParam(this, id));
+			pInit[id] = new BernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getInitProbParam(this, pat.getSimulation()));
 		return pInit[id].getValue(pat);
 	}
 
@@ -145,7 +145,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	public boolean leadsToDeath(Patient pat) {
 		final int id = pat.getSimulation().getIdentifier();
 		if (associatedDeath[id] == null)
-			associatedDeath[id] = new MultipleBernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getDeathProbParam(this, id));
+			associatedDeath[id] = new MultipleBernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getDeathProbParam(this, pat.getSimulation()));
 		return associatedDeath[id].getValue(pat);
 	}
 	
@@ -157,7 +157,7 @@ public abstract class Manifestation implements Named, Describable, Comparable<Ma
 	public boolean leadsToDiagnose(Patient pat) {
 		final int id = pat.getSimulation().getIdentifier();
 		if (pDiagnose[id] == null)
-			pDiagnose[id] = new MultipleBernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getDiagnosisProbParam(this, id));
+			pDiagnose[id] = new MultipleBernoulliParam(SecondOrderParamsRepository.getRNG_FIRST_ORDER(), secParams.getnPatients(), secParams.getDiagnosisProbParam(this, pat.getSimulation()));
 		return pDiagnose[id].getValue(pat);
 	}
 }

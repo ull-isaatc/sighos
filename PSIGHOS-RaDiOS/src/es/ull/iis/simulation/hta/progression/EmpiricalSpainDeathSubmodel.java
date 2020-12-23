@@ -86,7 +86,7 @@ public class EmpiricalSpainDeathSubmodel extends DeathSubmodel {
 			return pat.getTs() + pat.getSimulation().getTimeUnit().convert(modif.getValue(simulId) - age, TimeUnit.YEAR);
 		double imr = 1.0;
 		for (final Manifestation state : pat.getDetailedState()) {
-			final double newIMR = secParams.getIMR(state, simulId);
+			final double newIMR = secParams.getIMR(state, pat.getSimulation());
 			if (newIMR > imr) {
 				imr = newIMR;
 			}

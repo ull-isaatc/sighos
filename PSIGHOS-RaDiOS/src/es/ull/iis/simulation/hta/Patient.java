@@ -91,6 +91,10 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		manifestationEvents = new TreeMap<>();
 	}
 
+	@Override
+	public DiseaseProgressionSimulation getSimulation() {
+		return (DiseaseProgressionSimulation)super.getSimulation();
+	}
 	/**
 	 * Returns the disease of the patient
 	 * @return the disease of the patient

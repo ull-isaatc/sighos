@@ -6,7 +6,7 @@ package es.ull.iis.simulation.hta.params;
 import es.ull.iis.simulation.hta.Patient;
 
 /**
- * A relative risk calculator that combines different relative rieks
+ * A relative risk calculator that combines different relative risks
  * @author Iván Castilla
  *
  */

@@ -2,6 +2,7 @@ package es.ull.iis.simulation.hta.params;
 
 import java.util.Arrays;
 
+import es.ull.iis.simulation.hta.progression.Modification;
 import simkit.random.RandomVariate;
 import simkit.random.RandomVariateFactory;
 
@@ -21,8 +22,6 @@ public class SecondOrderParam {
 	private final String source;
 	/** The probability distribution that characterizes the uncertainty on the parameter */
 	protected final RandomVariate rnd;
-	// TODO: Pasar a array normal. El tamaño se sabe desde el principio (secParams.getnRuns() + 1). 
-	// TODO: Repensar si es mejor 1) generar con "generate"; 2) generar desde el constructor (cuidado con parámetros dependientes de otros) o 3) inicializar y generar dinámicamente cuando se pida cada instancia (más lento pero más flexible)
 	/** All the generated values for this parameter. Index 0 is the deterministic/expected value */
 	protected final double[] generatedValues;
 
@@ -84,6 +83,31 @@ public class SecondOrderParam {
 		return generatedValues[id];
 	}
 
+	/**
+	 * Returns a value for the parameter, modified according to a {@link Modification}
+	 * Always returns the same value for the same id.
+	 * @param id The identifier of the value to return (0: deterministic; other: random value)
+	 * @param modif A modification that affects the value
+	 * @return if id = 0, returns the expected value (base case); otherwise returns a random-generated value
+	 */
+	public double getValue(int id, Modification modif) {
+		double value = getValue(id);
+		switch(modif.getType()) {
+		case DIFF:
+			value -= modif.getValue(id);
+			break;
+		case RR:
+			value *= modif.getValue(id);
+			break;
+		case SET:
+			value = modif.getValue(id);
+			break;
+		default:
+			break;		
+		}
+		return value;
+	}
+	
 	/**
 	 * Returns the short name and identifier of the parameter
 	 * @return the short name and identifier of the parameter
