@@ -221,7 +221,20 @@ public abstract class Disease implements Named, Describable, CreatesSecondOrderP
 	public ArrayList<Transition> getTransitions(Manifestation manif) {
 		return transitions.get(manif);
 	}
-	
+
+
+	/**
+	 * Returns all the transitions defined within the disease
+	 * @return the transitions for this disease
+	 */
+	public Transition[] getTransitions() {
+		final ArrayList<Transition> trans = new ArrayList<>();
+		for (final ArrayList<Transition> tt : transitions.values())
+			trans.addAll(tt);
+		final Transition[] array = new Transition[trans.size()];
+		return (Transition[]) trans.toArray(array);
+	}
+
 	/**
 	 * Returns the potential transitions to a manifestation
 	 * @param manif Destination manifestation

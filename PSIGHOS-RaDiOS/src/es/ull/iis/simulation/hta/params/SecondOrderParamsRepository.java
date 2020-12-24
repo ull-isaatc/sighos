@@ -306,16 +306,16 @@ public abstract class SecondOrderParamsRepository {
 		probabilityParams.put(param.getName(), param);
 	}
 	
-	public void addProbParam(Named manifestation, String source, double detValue, RandomVariate rnd) {
-		addProbParam(new SecondOrderParam(this, getProbString(manifestation), "Probability of developing " + manifestation, source, detValue, rnd));
-	}
-	
 	public void addProbParam(Named fromManifestation, Named toManifestation, String source, double detValue, RandomVariate rnd) {
 		addProbParam(new SecondOrderParam(this, getProbString(fromManifestation, toManifestation), "Probability of going from " + fromManifestation + " to " + toManifestation, source, detValue, rnd));
 	}
 	
 	public void addModificationParam(Modification param) {
 		modificationParams.put(param.getName(), param);		
+	}
+	
+	public void addModificationParam(Intervention interv, Modification.Type type, Named fromManifestation, Named toManifestation, String source, double detValue, RandomVariate rnd) {
+		addModificationParam(new Modification(this, type, getModificationString(interv, fromManifestation, toManifestation), "Modification of probability of going from " + fromManifestation + " to " + toManifestation + " due to " + interv, source, detValue, rnd));
 	}
 	
 	public void addInitProbParam(Named manifestation, String source, double detValue, RandomVariate rnd) {
@@ -598,16 +598,6 @@ public abstract class SecondOrderParamsRepository {
 	 * @return the class that computes utilities 
 	 */
 	public abstract UtilityCalculator getUtilityCalculator();
-	
-	
-	/**
-	 * Builds a string that represents a probability of developing a complication from none manifestations
-	 * @param to Final complication
-	 * @return a string that represents a probability of developing a complication from none manifestations
-	 */
-	public static String getProbString(Named to) {
-		return getProbString(null, to);
-	}
 	
 	/**
 	 * Builds a string that represents a probability of developing a complication from another

@@ -6,10 +6,13 @@ package es.ull.iis.simulation.hta.progression;
 import java.util.Arrays;
 
 import es.ull.iis.simulation.hta.Patient;
+import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.params.MultipleRandomSeedPerPatient;
+import es.ull.iis.simulation.hta.params.RRCalculator;
 import es.ull.iis.simulation.hta.params.RandomSeedForPatients;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
-import es.ull.iis.simulation.hta.params.UniqueRandomSeedPerPatient;
+import es.ull.iis.simulation.model.TimeUnit;
+import es.ull.iis.util.Statistics;
 
 /**
  * Defines a transition from a manifestation to another manifestation
@@ -38,7 +41,7 @@ public class Transition {
 		this.replacesPrevious = replacesPrevious;
 		this.randomSeeds = new RandomSeedForPatients[secParams.getnRuns() + 1];
 		Arrays.fill(randomSeeds, null);
-		this.calc = new AnnualRiskBasedTimeToEventCalculator();
+		this.calc = new AnnualRiskBasedTimeToEventCalculator(SecondOrderParamsRepository.NO_RR);
 	}
 
 	/**
@@ -84,12 +87,7 @@ public class Transition {
 	
 	public RandomSeedForPatients getRandomSeedForPatients(int id) {
 		if (randomSeeds[id] == null) {
-			if (Manifestation.Type.ACUTE.equals(destManifestation.getType())) {
-				randomSeeds[id] = new MultipleRandomSeedPerPatient(secParams.getnPatients(), true);
-			}
-			else {
-				randomSeeds[id] = new UniqueRandomSeedPerPatient(secParams.getnPatients(), true);				
-			}
+			randomSeeds[id] = new MultipleRandomSeedPerPatient(secParams.getnPatients(), true);
 		}
 		return randomSeeds[id];
 	}
@@ -105,17 +103,84 @@ public class Transition {
 		return (time >= limit) ? Long.MAX_VALUE : time;		
 	}
 	
+	/**
+	 * Calculates a time to event based on annual risk. The time to event is absolute, i.e., can be used directly to schedule a new event. 
+	 * @author Iván Castilla
+	 */
 	public class AnnualRiskBasedTimeToEventCalculator implements TimeToEventCalculator {
+		/** Relative risk calculator */
+		private final RRCalculator rr;
 
-		public AnnualRiskBasedTimeToEventCalculator() {
+		/**
+		 * 
+		 * @param rr Relative risk calculator
+		 */
+		public AnnualRiskBasedTimeToEventCalculator(RRCalculator rr) {
+			this.rr = rr;
 		}
 
 		@Override
 		public long getTimeToEvent(Patient pat) {
 			final int id = pat.getSimulation().getIdentifier();
 			return SecondOrderParamsRepository.getAnnualBasedTimeToEvent(pat, 
-					secParams.getProbability(srcManifestation, destManifestation, pat.getSimulation()), getRandomSeedForPatients(id).draw(pat), 1.0);
+					secParams.getProbability(srcManifestation, destManifestation, pat.getSimulation()), getRandomSeedForPatients(id).draw(pat), rr.getRR(pat));
+		}		
+	}
+
+	/**
+	 * Calculates a time to event based on patients-year rate. The time to event is absolute, i.e., can be used directly to schedule a new event. 
+	 * @author Iván Castilla
+	 */
+	public class AnnualRateBasedTimeToEventCalculator implements TimeToEventCalculator {
+		/** Incidence rate ratio calculator */
+		private final RRCalculator irr;
+
+		/**
+		 * 
+		 * @param irr Incidence rate ratio calculator
+		 */
+		public AnnualRateBasedTimeToEventCalculator(RRCalculator irr) {
+			this.irr = irr;
+		}
+
+		@Override
+		public long getTimeToEvent(Patient pat) {
+			final int id = pat.getSimulation().getIdentifier();
+			return SecondOrderParamsRepository.getAnnualBasedTimeToEventFromRate(pat, secParams.getProbability(srcManifestation, destManifestation, pat.getSimulation()), 
+					getRandomSeedForPatients(id).draw(pat), irr.getRR(pat));
+		}		
+	}
+	
+	public class AgeBasedTimeToEventCalculator implements TimeToEventCalculator {
+		/** Annual risks of the events */
+		private final double[][] ageRisks;
+		/** Relative risk calculator */
+		private final RRCalculator rr;
+		
+		public AgeBasedTimeToEventCalculator(final double[][] ageRisks, RRCalculator rr) {
+			this.ageRisks = ageRisks;
+			this.rr = rr;			
 		}
 		
+		@Override
+		public long getTimeToEvent(Patient pat) {
+			final int id = pat.getSimulation().getIdentifier();
+			final double age = pat.getAge();
+			final double lifetime = pat.getAgeAtDeath() - age;
+			// Searches the corresponding age interval
+			int interval = 0;
+			while (age > ageRisks[interval][0])
+				interval++;
+			// Computes time to event within such interval
+			double time = Statistics.getAnnualBasedTimeToEvent(ageRisks[interval][1], getRandomSeedForPatients(id).draw(pat), rr.getRR(pat));
+			
+			// Checks if further intervals compute lower time to event
+			for (; interval < ageRisks.length; interval++) {
+				final double newTime = Statistics.getAnnualBasedTimeToEvent(ageRisks[interval][1], getRandomSeedForPatients(id).draw(pat), rr.getRR(pat));
+				if ((newTime != Double.MAX_VALUE) && (ageRisks[interval][0] - age + newTime < time))
+					time = ageRisks[interval][0] - age + newTime;
+			}
+			return (time >= lifetime) ? Long.MAX_VALUE : pat.getTs() + Math.max(BasicConfigParams.MIN_TIME_TO_EVENT, pat.getSimulation().getTimeUnit().convert(time, TimeUnit.YEAR));
+		}
 	}
 }

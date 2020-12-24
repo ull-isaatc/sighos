@@ -10,9 +10,6 @@ import es.ull.iis.simulation.hta.outcomes.DiseaseUtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator;
 import es.ull.iis.simulation.hta.outcomes.UtilityCalculator.DisutilityCombinationMethod;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
-import es.ull.iis.simulation.hta.params.RRCalculator;
-import es.ull.iis.simulation.hta.params.SecondOrderInterventionSpecificRR;
-import es.ull.iis.simulation.hta.params.SecondOrderParam;
 import es.ull.iis.simulation.hta.params.SecondOrderParamsRepository;
 import es.ull.iis.simulation.hta.progression.Disease;
 import es.ull.iis.simulation.hta.progression.EmpiricalSpainDeathSubmodel;
@@ -28,7 +25,6 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 	private final static int TEST_INTERVENTIONS = 1;
 	private final CostCalculator costCalc;
 	private final UtilityCalculator utilCalc;
-	private final SecondOrderInterventionSpecificRR interventionRR;
 	
 	/**
 	 * @param nRuns
@@ -73,24 +69,19 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 		case 2:
 			registerIntervention(new NullIntervention(this));
 			registerIntervention(new MortalityReductionIntervention(this, Modification.Type.DIFF));
-			interventionRR = null;
 			break;
 		case 3:
 			registerIntervention(new NullIntervention(this));
 			registerIntervention(new MortalityReductionIntervention(this, Modification.Type.RR));
-			interventionRR = null;
 			break;
 		case 4:
 			registerIntervention(new NullIntervention(this));
 			registerIntervention(new MortalityReductionIntervention(this, Modification.Type.SET));
-			interventionRR = null;
 			break;
 		case 1:
 		default:
 			registerIntervention(new NullIntervention(this));
-			final Intervention int2 = new EffectiveIntervention(this);
-			registerIntervention(int2);
-			interventionRR = new SecondOrderInterventionSpecificRR(this, new SecondOrderParam[] {otherParams.get(STR_RR_PREFIX + int2)});
+			registerIntervention(new EffectiveIntervention(this));
 			break;
 		}
 		registerDeathSubmodel(new EmpiricalSpainDeathSubmodel(this));
@@ -104,9 +95,5 @@ public class TestSimpleRareDiseaseRepository extends SecondOrderParamsRepository
 	@Override
 	public UtilityCalculator getUtilityCalculator() {
 		return utilCalc;
-	}
-	
-	public RRCalculator getInterventionRR() {
-		return interventionRR;
 	}
 }
