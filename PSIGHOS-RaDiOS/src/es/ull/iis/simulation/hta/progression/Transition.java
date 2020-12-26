@@ -54,8 +54,9 @@ public class Transition {
 	/**
 	 * @param calc the calc to set
 	 */
-	public void setCalculator(TimeToEventCalculator calc) {
+	public Transition setCalculator(TimeToEventCalculator calc) {
 		this.calc = calc;
+		return this;
 	}
 
 	/**
@@ -91,6 +92,7 @@ public class Transition {
 		}
 		return randomSeeds[id];
 	}
+	
 	/**
 	 * Returns the time to event for a patient
 	 * @param pat A patient

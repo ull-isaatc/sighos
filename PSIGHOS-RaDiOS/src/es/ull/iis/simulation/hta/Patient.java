@@ -9,6 +9,8 @@ import java.util.TreeSet;
 
 import es.ull.iis.simulation.hta.info.PatientInfo;
 import es.ull.iis.simulation.hta.interventions.Intervention;
+import es.ull.iis.simulation.hta.interventions.ScreeningStrategy;
+import es.ull.iis.simulation.hta.interventions.ScreeningStrategy.ScreeningResult;
 import es.ull.iis.simulation.hta.params.BasicConfigParams;
 import es.ull.iis.simulation.hta.populations.Population;
 import es.ull.iis.simulation.hta.progression.Disease;
@@ -299,6 +301,43 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		}
 	}
 	
+	protected void startAction() {
+		startTs = this.getTs();
+		// Assigns the "absence of manifestations" as a starting state
+		detailedState.add(getDisease().getNullManifestation());
+		simul.notifyInfo(new PatientInfo(simul, this, PatientInfo.Type.START, getTs()));
+
+		// Assign death event
+		// TODO: Pensar si incorporar aquí la reducción de la esperanza de vida (se haría dentro de SecnodOrderParamRepository) 
+		final long timeToDeath = ((DiseaseProgressionSimulation) simul).getCommonParams().getTimeToDeath(this);
+		deathEvent = new DeathEvent(timeToDeath);
+		simul.addEvent(deathEvent);
+		
+		for (Manifestation manif : getDisease().getInitialStage(this)) {
+			ArrayDeque<ManifestationEvent> events = new ArrayDeque<>();
+			events.add(new ManifestationEvent(new DiseaseProgressionPair(manif, 0)));				
+			// I was scheduling these events in the usual way, but they were not executed before the next loop and progression fails
+			manifestationEvents.put(manif, events);
+			if (Patient.this.detailedState.contains(manif)) {
+				error("Health state already assigned!! " + manif.name());
+			}
+			else {
+				simul.notifyInfo(new PatientInfo(simul, this, manif, getTs()));
+				Patient.this.detailedState.add(manif);
+				
+				// Recompute time to death in case the risk increases
+				readjustDeath(manif);
+			}
+		}
+		// Assign manifestation events
+		final DiseaseProgression progs = getDisease().getProgression(this);
+		if (progs.getCancelEvents().size() > 0)
+			error("Cancel complications at start?");
+		applyProgression(progs);
+		if (getSimulation().getScreenStrategy() != null)
+			simul.addEvent(new ScreeningEvent(getTs(), getSimulation().getScreenStrategy()));
+	}
+	
 	/**
 	 * The first event of the patient that initializes everything and computes initial time to events.
 	 * @author Iván Castilla Rodríguez
@@ -313,38 +352,7 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 		@Override
 		public void event() {
 			super.event();
-			startTs = this.getTs();
-			// Assigns the "absence of manifestations" as a starting state
-			detailedState.add(getDisease().getNullManifestation());
-			simul.notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.START, this.getTs()));
-
-			// Assign death event
-			// TODO: Pensar si incorporar aquí la reducción de la esperanza de vida (se haría dentro de SecnodOrderParamRepository) 
-			final long timeToDeath = ((DiseaseProgressionSimulation) simul).getCommonParams().getTimeToDeath(Patient.this);
-			deathEvent = new DeathEvent(timeToDeath);
-			simul.addEvent(deathEvent);
-			
-			for (Manifestation manif : getDisease().getInitialStage(Patient.this)) {
-				ArrayDeque<ManifestationEvent> events = new ArrayDeque<>();
-				events.add(new ManifestationEvent(new DiseaseProgressionPair(manif, 0)));				
-				// I was scheduling these events in the usual way, but they were not executed before the next loop and progression fails
-				manifestationEvents.put(manif, events);
-				if (Patient.this.detailedState.contains(manif)) {
-					error("Health state already assigned!! " + manif.name());
-				}
-				else {
-					simul.notifyInfo(new PatientInfo(simul, Patient.this, manif, this.getTs()));
-					Patient.this.detailedState.add(manif);
-					
-					// Recompute time to death in case the risk increases
-					readjustDeath(manif);
-				}
-			}
-			// Assign manifestation events
-			final DiseaseProgression progs = getDisease().getProgression(Patient.this);
-			if (progs.getCancelEvents().size() > 0)
-				error("Cancel complications at start?");
-			applyProgression(progs);
+			startAction();
 		}
 		
 	}
@@ -468,5 +476,44 @@ public class Patient extends VariableStoreSimulationObject implements EventSourc
 			}
 			return false;
 		}
+	}
+	
+	public class ScreeningEvent extends DiscreteEvent {
+		private final ScreeningStrategy screenStrategy;
+		
+		public ScreeningEvent(long ts, ScreeningStrategy screenStrategy) {
+			super(ts);
+			this.screenStrategy = screenStrategy;
+		}
+
+		@Override
+		public void event() {
+			// If the patient is already diagnosed, no sense in performing screening
+			if (!isDiagnosed()) {
+				final int id = simul.getIdentifier();
+				ScreeningResult result;
+				// Healthy patients can be wrongly identified as false positives 
+				if (isHealthy()) {
+					result = (screenStrategy.getRandomSeedForPatients(id).draw(Patient.this) >= screenStrategy.getSpecificity()) ? ScreeningResult.FP : ScreeningResult.TN;
+				}
+				else {
+					result = (screenStrategy.getRandomSeedForPatients(id).draw(Patient.this) >= screenStrategy.getSensitivity()) ? ScreeningResult.FN : ScreeningResult.TP;					
+				}
+				simul.notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.SCREEN, result, this.getTs()));
+				switch(result) {
+				case TP:
+					setDiagnosed(true);
+				case FP:
+					simul.notifyInfo(new PatientInfo(simul, Patient.this, PatientInfo.Type.DIAGNOSIS, screenStrategy, this.getTs()));
+					break;
+				case FN:
+				case TN:
+				default:
+					break;
+				
+				}
+			}
+		}
+		
 	}
 }

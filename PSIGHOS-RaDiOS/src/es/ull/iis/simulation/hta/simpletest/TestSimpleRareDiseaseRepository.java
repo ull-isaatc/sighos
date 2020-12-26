@@ -3,7 +3,6 @@
  */
 package es.ull.iis.simulation.hta.simpletest;
 
-import es.ull.iis.simulation.hta.interventions.Intervention;
 import es.ull.iis.simulation.hta.outcomes.CostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseCostCalculator;
 import es.ull.iis.simulation.hta.outcomes.DiseaseUtilityCalculator;

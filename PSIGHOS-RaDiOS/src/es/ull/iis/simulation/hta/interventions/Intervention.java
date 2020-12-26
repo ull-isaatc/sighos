@@ -85,9 +85,10 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 	 * Assigns the order that this stage have in a simulation
 	 * @param ord order that this stage have in a simulation
 	 */
-	public void setOrder(int ord) {
+	public Intervention setOrder(int ord) {
 		if (this.ord == -1)
 			this.ord = ord;
+		return this;
 	}
 
 	@Override
@@ -114,8 +115,9 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 	/**
 	 * @param lifeExpectancyModification the lifeExpectancyModification to set
 	 */
-	public void setLifeExpectancyModification(Modification lifeExpectancyModification) {
+	public Intervention setLifeExpectancyModification(Modification lifeExpectancyModification) {
 		this.lifeExpectancyModification = lifeExpectancyModification;
+		return this;
 	}
 
 	/**
@@ -128,8 +130,9 @@ public abstract class Intervention implements Named, Describable, CreatesSecondO
 	/**
 	 * @param allParameterModification the allParameterModification to set
 	 */
-	public void setAllParameterModification(Modification allParameterModification) {
+	public Intervention setAllParameterModification(Modification allParameterModification) {
 		this.allParameterModification = allParameterModification;
+		return this;
 	}
 	
 }

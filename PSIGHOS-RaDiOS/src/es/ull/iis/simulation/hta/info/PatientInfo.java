@@ -23,6 +23,7 @@ public class PatientInfo extends AsynchronousInfo {
 			START ("PATIENT STARTS"),
 			MANIFESTATION ("MANIFESTATION"),
 			DIAGNOSIS ("PATIENT_DIAGNOSED"),
+			SCREEN ("PATIENT_SCREENED"),
 			DEATH ("PATIENT_DIES");
 			
 			private final String description;
@@ -42,22 +43,21 @@ public class PatientInfo extends AsynchronousInfo {
 	/** Type of information */
 	final private Type type;
 	/** Description of the acute or chronic manifestation */
-	final private Manifestation manifestation;
+	final private Named cause;
 
 	/**
 	 * Standard constructor that uses all the parameters
 	 * @param simul Simulation that emits this piece of information 
 	 * @param patient A patients
 	 * @param type Type of piece of information
-	 * @param manifestation Chronic manifestation stage (in case the simulation is reporting a manifestation-related piece of information)
-	 * @param acuteEvent Acute event (in case the simulation is reporting an acute-event-related piece of information)
+	 * @param cause A manifestation or intervention that causes the event
 	 * @param ts Simulation time when this piece of information occurs
 	 */
-	public PatientInfo(Simulation simul, Patient patient, Type type, Manifestation manifestation, long ts) {
+	public PatientInfo(Simulation simul, Patient patient, Type type, Named cause, long ts) {
 		super(simul, ts);
 		this.patient = patient;
 		this.type = type;
-		this.manifestation = manifestation;
+		this.cause = cause;
 	}
 
 	/**
@@ -104,7 +104,7 @@ public class PatientInfo extends AsynchronousInfo {
 	 * @return the chronic manifestation
 	 */
 	public Manifestation getManifestation() {
-		return manifestation;
+		return (Manifestation) cause;
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class PatientInfo extends AsynchronousInfo {
 	 * @return the manifestation that led to DEATH or DIAGNOSIS
 	 */
 	public Named getCause() {
-		return manifestation;
+		return cause;
 	}
 	
 	public String toString() {
@@ -120,11 +120,11 @@ public class PatientInfo extends AsynchronousInfo {
 		switch (type) {
 		case MANIFESTATION:
 		case DIAGNOSIS:
-			description = description + "\t" + manifestation.name() + "\t" + manifestation.getType();
+			description = description + "\t" + cause.name();
 			break;
 		case DEATH:
-			if (manifestation != null)
-				description = description + "\t" + manifestation.name() + "\t" + manifestation.getType();
+			if (cause != null)
+				description = description + "\t" + cause.name();
 			break;
 		case START:
 			description += "\t" + patient.getAge() + "\t" + patient.getDisease() + "\t" + patient.getIntervention();
