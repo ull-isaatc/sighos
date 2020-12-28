@@ -53,8 +53,9 @@ public class RadiosDisease extends es.ull.iis.simulation.hta.progression.StagedD
 	 */
 	private void secondPassManifestationsAnalysis(SecondOrderParamsRepository repository, Map<String, RadiosManifestation> radiosManifestations, List<Manifestation> manifestations) {
 		for (Manifestation manifestation : manifestations) {
-			addTransition(new RadiosTransition(repository, getNullManifestation(), radiosManifestations.get(manifestation.getName()), Boolean.FALSE));
-			if (CollectionUtils.notIsEmpty(manifestation.getPrecedingManifestations())) {
+			if (CollectionUtils.isEmpty(manifestation.getPrecedingManifestations())) {
+				addTransition(new RadiosTransition(repository, getNullManifestation(), radiosManifestations.get(manifestation.getName()), Boolean.FALSE));
+			} else {
 				for (String precedingManifestation : manifestation.getPrecedingManifestations()) {
 					addTransition(new RadiosTransition(repository, radiosManifestations.get(precedingManifestation), radiosManifestations.get(manifestation.getName()), Boolean.FALSE));
 				}
